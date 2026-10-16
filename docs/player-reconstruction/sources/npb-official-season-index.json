@@ -1,0 +1,1562 @@
+{
+  "title": "NPB Official League-Season URL DISCOVERY Index (not a data dump)",
+  "generatedAt": "2026-10-16",
+  "purpose": "Use to discover official Japanese league-year pages. NOT evidence every URL exists, was fetched, or may be scraped/imported.",
+  "source": "https://npb.jp/bis/yearly/",
+  "rights": "REFERENCE_LINKS_ONLY; NPBO site prohibits unauthorized republication of displayed information/images/videos. Acquisition at scale requires rights review.",
+  "verification": "SAMPLED_IN_WEB_SEARCH flags correspond to individual search results. Other URLs inferred from sampled naming scheme; confirm manually.",
+  "dataIncluded": false,
+  "perPlayerStatistics": false,
+  "asOf2026": "Current season coverage must use verified as-of-date snapshot; do not assume season final as of this manifest.",
+  "seasonKeys": [
+    {
+      "id": "JBL-1936-INITIAL_TOURNAMENT",
+      "year": 1936,
+      "league": "JBL",
+      "phase": "INITIAL_TOURNAMENT",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/yakyuremmei_1936s.html",
+      "urlEvidence": "SAMPLED_IN_WEB_SEARCH_2026_10_16"
+    },
+    {
+      "id": "JBL-1936-FALL",
+      "year": 1936,
+      "league": "JBL",
+      "phase": "FALL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/yakyuremmei_1936f.html",
+      "urlEvidence": "SAMPLED_IN_WEB_SEARCH_2026_10_16"
+    },
+    {
+      "id": "JBL-1937-SPRING",
+      "year": 1937,
+      "league": "JBL",
+      "phase": "SPRING",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/yakyuremmei_1937s.html",
+      "urlEvidence": "SAMPLED_IN_WEB_SEARCH_2026_10_16"
+    },
+    {
+      "id": "JBL-1937-FALL",
+      "year": 1937,
+      "league": "JBL",
+      "phase": "FALL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/yakyuremmei_1937f.html",
+      "urlEvidence": "SAMPLED_IN_WEB_SEARCH_2026_10_16"
+    },
+    {
+      "id": "JBL-1938-SPRING",
+      "year": 1938,
+      "league": "JBL",
+      "phase": "SPRING",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/yakyuremmei_1938s.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "JBL-1938-FALL",
+      "year": 1938,
+      "league": "JBL",
+      "phase": "FALL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/yakyuremmei_1938f.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "JBL-1939-FULL",
+      "year": 1939,
+      "league": "JBL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/yakyuremmei_1939.html",
+      "urlEvidence": "SAMPLED_IN_WEB_SEARCH_2026_10_16"
+    },
+    {
+      "id": "JBL-1940-FULL",
+      "year": 1940,
+      "league": "JBL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/yakyuremmei_1940.html",
+      "urlEvidence": "SAMPLED_IN_WEB_SEARCH_2026_10_16"
+    },
+    {
+      "id": "JBL-1941-FULL",
+      "year": 1941,
+      "league": "JBL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/yakyuremmei_1941.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "JBL-1942-FULL",
+      "year": 1942,
+      "league": "JBL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/yakyuremmei_1942.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "JBL-1943-FULL",
+      "year": 1943,
+      "league": "JBL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/yakyuremmei_1943.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "JBL-1944-FULL",
+      "year": 1944,
+      "league": "JBL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/yakyuremmei_1944.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "JBL-1945-SUSPENDED",
+      "year": 1945,
+      "league": "JBL",
+      "phase": "SUSPENDED",
+      "status": "NO_REGULAR_LEAGUE_SEASON",
+      "url": null,
+      "urlEvidence": "NPB_OFFICIAL_HISTORICAL_INDEX_NO_1945"
+    },
+    {
+      "id": "JBL-1946-FULL",
+      "year": 1946,
+      "league": "JBL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/yakyuremmei_1946.html",
+      "urlEvidence": "SAMPLED_IN_WEB_SEARCH_2026_10_16"
+    },
+    {
+      "id": "JBL-1947-FULL",
+      "year": 1947,
+      "league": "JBL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/yakyuremmei_1947.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "JBL-1948-FULL",
+      "year": 1948,
+      "league": "JBL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/yakyuremmei_1948.html",
+      "urlEvidence": "SAMPLED_IN_WEB_SEARCH_2026_10_16"
+    },
+    {
+      "id": "JBL-1949-FULL",
+      "year": 1949,
+      "league": "JBL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/yakyuremmei_1949.html",
+      "urlEvidence": "SAMPLED_IN_WEB_SEARCH_2026_10_16"
+    },
+    {
+      "id": "CL-1950-FULL",
+      "year": 1950,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1950.html",
+      "urlEvidence": "SAMPLED_IN_WEB_SEARCH_2026_10_16"
+    },
+    {
+      "id": "PL-1950-FULL",
+      "year": 1950,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1950.html",
+      "urlEvidence": "SAMPLED_IN_WEB_SEARCH_2026_10_16"
+    },
+    {
+      "id": "CL-1951-FULL",
+      "year": 1951,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1951.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1951-FULL",
+      "year": 1951,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1951.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1952-FULL",
+      "year": 1952,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1952.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1952-FULL",
+      "year": 1952,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1952.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1953-FULL",
+      "year": 1953,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1953.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1953-FULL",
+      "year": 1953,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1953.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1954-FULL",
+      "year": 1954,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1954.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1954-FULL",
+      "year": 1954,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1954.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1955-FULL",
+      "year": 1955,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1955.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1955-FULL",
+      "year": 1955,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1955.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1956-FULL",
+      "year": 1956,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1956.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1956-FULL",
+      "year": 1956,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1956.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1957-FULL",
+      "year": 1957,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1957.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1957-FULL",
+      "year": 1957,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1957.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1958-FULL",
+      "year": 1958,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1958.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1958-FULL",
+      "year": 1958,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1958.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1959-FULL",
+      "year": 1959,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1959.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1959-FULL",
+      "year": 1959,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1959.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1960-FULL",
+      "year": 1960,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1960.html",
+      "urlEvidence": "SAMPLED_IN_WEB_SEARCH_2026_10_16"
+    },
+    {
+      "id": "PL-1960-FULL",
+      "year": 1960,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1960.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1961-FULL",
+      "year": 1961,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1961.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1961-FULL",
+      "year": 1961,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1961.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1962-FULL",
+      "year": 1962,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1962.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1962-FULL",
+      "year": 1962,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1962.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1963-FULL",
+      "year": 1963,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1963.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1963-FULL",
+      "year": 1963,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1963.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1964-FULL",
+      "year": 1964,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1964.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1964-FULL",
+      "year": 1964,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1964.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1965-FULL",
+      "year": 1965,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1965.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1965-FULL",
+      "year": 1965,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1965.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1966-FULL",
+      "year": 1966,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1966.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1966-FULL",
+      "year": 1966,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1966.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1967-FULL",
+      "year": 1967,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1967.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1967-FULL",
+      "year": 1967,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1967.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1968-FULL",
+      "year": 1968,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1968.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1968-FULL",
+      "year": 1968,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1968.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1969-FULL",
+      "year": 1969,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1969.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1969-FULL",
+      "year": 1969,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1969.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1970-FULL",
+      "year": 1970,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1970.html",
+      "urlEvidence": "SAMPLED_IN_WEB_SEARCH_2026_10_16"
+    },
+    {
+      "id": "PL-1970-FULL",
+      "year": 1970,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1970.html",
+      "urlEvidence": "SAMPLED_IN_WEB_SEARCH_2026_10_16"
+    },
+    {
+      "id": "CL-1971-FULL",
+      "year": 1971,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1971.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1971-FULL",
+      "year": 1971,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1971.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1972-FULL",
+      "year": 1972,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1972.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1972-FULL",
+      "year": 1972,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1972.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1973-FULL",
+      "year": 1973,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1973.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1973-FULL",
+      "year": 1973,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1973.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1974-FULL",
+      "year": 1974,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1974.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1974-FULL",
+      "year": 1974,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1974.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1975-FULL",
+      "year": 1975,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1975.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1975-FULL",
+      "year": 1975,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1975.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1976-FULL",
+      "year": 1976,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1976.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1976-FULL",
+      "year": 1976,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1976.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1977-FULL",
+      "year": 1977,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1977.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1977-FULL",
+      "year": 1977,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1977.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1978-FULL",
+      "year": 1978,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1978.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1978-FULL",
+      "year": 1978,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1978.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1979-FULL",
+      "year": 1979,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1979.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1979-FULL",
+      "year": 1979,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1979.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1980-FULL",
+      "year": 1980,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1980.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1980-FULL",
+      "year": 1980,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1980.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1981-FULL",
+      "year": 1981,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1981.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1981-FULL",
+      "year": 1981,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1981.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1982-FULL",
+      "year": 1982,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1982.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1982-FULL",
+      "year": 1982,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1982.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1983-FULL",
+      "year": 1983,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1983.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1983-FULL",
+      "year": 1983,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1983.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1984-FULL",
+      "year": 1984,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1984.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1984-FULL",
+      "year": 1984,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1984.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1985-FULL",
+      "year": 1985,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1985.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1985-FULL",
+      "year": 1985,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1985.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1986-FULL",
+      "year": 1986,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1986.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1986-FULL",
+      "year": 1986,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1986.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1987-FULL",
+      "year": 1987,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1987.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1987-FULL",
+      "year": 1987,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1987.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1988-FULL",
+      "year": 1988,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1988.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1988-FULL",
+      "year": 1988,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1988.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1989-FULL",
+      "year": 1989,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1989.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1989-FULL",
+      "year": 1989,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1989.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1990-FULL",
+      "year": 1990,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1990.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1990-FULL",
+      "year": 1990,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1990.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1991-FULL",
+      "year": 1991,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1991.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1991-FULL",
+      "year": 1991,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1991.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1992-FULL",
+      "year": 1992,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1992.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1992-FULL",
+      "year": 1992,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1992.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1993-FULL",
+      "year": 1993,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1993.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1993-FULL",
+      "year": 1993,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1993.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1994-FULL",
+      "year": 1994,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1994.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1994-FULL",
+      "year": 1994,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1994.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1995-FULL",
+      "year": 1995,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1995.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1995-FULL",
+      "year": 1995,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1995.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1996-FULL",
+      "year": 1996,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1996.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1996-FULL",
+      "year": 1996,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1996.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1997-FULL",
+      "year": 1997,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1997.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1997-FULL",
+      "year": 1997,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1997.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1998-FULL",
+      "year": 1998,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1998.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1998-FULL",
+      "year": 1998,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1998.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-1999-FULL",
+      "year": 1999,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_1999.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-1999-FULL",
+      "year": 1999,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_1999.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2000-FULL",
+      "year": 2000,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2000.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2000-FULL",
+      "year": 2000,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2000.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2001-FULL",
+      "year": 2001,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2001.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2001-FULL",
+      "year": 2001,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2001.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2002-FULL",
+      "year": 2002,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2002.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2002-FULL",
+      "year": 2002,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2002.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2003-FULL",
+      "year": 2003,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2003.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2003-FULL",
+      "year": 2003,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2003.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2004-FULL",
+      "year": 2004,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2004.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2004-FULL",
+      "year": 2004,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2004.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2005-FULL",
+      "year": 2005,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2005.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2005-FULL",
+      "year": 2005,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2005.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2006-FULL",
+      "year": 2006,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2006.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2006-FULL",
+      "year": 2006,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2006.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2007-FULL",
+      "year": 2007,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2007.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2007-FULL",
+      "year": 2007,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2007.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2008-FULL",
+      "year": 2008,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2008.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2008-FULL",
+      "year": 2008,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2008.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2009-FULL",
+      "year": 2009,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2009.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2009-FULL",
+      "year": 2009,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2009.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2010-FULL",
+      "year": 2010,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2010.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2010-FULL",
+      "year": 2010,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2010.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2011-FULL",
+      "year": 2011,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2011.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2011-FULL",
+      "year": 2011,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2011.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2012-FULL",
+      "year": 2012,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2012.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2012-FULL",
+      "year": 2012,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2012.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2013-FULL",
+      "year": 2013,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2013.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2013-FULL",
+      "year": 2013,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2013.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2014-FULL",
+      "year": 2014,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2014.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2014-FULL",
+      "year": 2014,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2014.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2015-FULL",
+      "year": 2015,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2015.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2015-FULL",
+      "year": 2015,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2015.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2016-FULL",
+      "year": 2016,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2016.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2016-FULL",
+      "year": 2016,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2016.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2017-FULL",
+      "year": 2017,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2017.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2017-FULL",
+      "year": 2017,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2017.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2018-FULL",
+      "year": 2018,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2018.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2018-FULL",
+      "year": 2018,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2018.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2019-FULL",
+      "year": 2019,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2019.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2019-FULL",
+      "year": 2019,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2019.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2020-FULL",
+      "year": 2020,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2020.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2020-FULL",
+      "year": 2020,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2020.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2021-FULL",
+      "year": 2021,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2021.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2021-FULL",
+      "year": 2021,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2021.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2022-FULL",
+      "year": 2022,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2022.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2022-FULL",
+      "year": 2022,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2022.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2023-FULL",
+      "year": 2023,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2023.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2023-FULL",
+      "year": 2023,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2023.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2024-FULL",
+      "year": 2024,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2024.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2024-FULL",
+      "year": 2024,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2024.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2025-FULL",
+      "year": 2025,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/centralleague_2025.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2025-FULL",
+      "year": 2025,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "COMPLETE_HISTORICAL_INDEX",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2025.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "CL-2026-FULL",
+      "year": 2026,
+      "league": "CL",
+      "phase": "FULL",
+      "status": "AS_OF_CHECK_REQUIRED",
+      "url": "https://npb.jp/bis/yearly/centralleague_2026.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    },
+    {
+      "id": "PL-2026-FULL",
+      "year": 2026,
+      "league": "PL",
+      "phase": "FULL",
+      "status": "AS_OF_CHECK_REQUIRED",
+      "url": "https://npb.jp/bis/yearly/pacificleague_2026.html",
+      "urlEvidence": "PATTERN_INFERRED_NOT_INDIVIDUALLY_FETCHED"
+    }
+  ],
+  "structuralCheck": {
+    "records": 171,
+    "historic": 168,
+    "current": 2,
+    "suspended": 1,
+    "sampled": 14,
+    "uniqueIds": 171,
+    "uniqueUrls": 170,
+    "invalidYears": 0
+  }
+}
