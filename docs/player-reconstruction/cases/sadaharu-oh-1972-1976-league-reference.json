@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "mini-baseball-historical-league-reference-v1",
+  "purpose": "1972-1976 Central League approximate aggregate comparison for independent Mini Baseball skill calibration; NOT OOTP player ratings or results",
+  "status": "RESEARCH_REFERENCE_NOT_CALIBRATED",
+  "league": {
+    "id": "NPB_CL",
+    "rawModLeagueCode": "AL",
+    "years": [
+      1972,
+      1973,
+      1974,
+      1975,
+      1976
+    ],
+    "teamSeasons": 30,
+    "teamGames": 3900,
+    "totals": {
+      "AB": 128578,
+      "H": 32114,
+      "HR": 3992,
+      "BB": 11067,
+      "SO": 19724,
+      "HBP": 1180,
+      "SF": 789
+    },
+    "plateAppearancesApproximation": "AB + BB + HBP + SF; sacrifice bunts not included; league per-PA rates only approximate"
+  },
+  "source": {
+    "url": "https://github.com/lebronisbest/OOTP_NPB_Historical/blob/main/stats/Teams.csv",
+    "description": "Research-only aggregates of 1972-1976 league totals, not reproduced source database",
+    "checkedAt": "2026-10-16",
+    "rights": "Public sports fact aggregation used as an analytical reference; raw mod reuse remains restricted for OOTP with personal/noncommercial limitation",
+    "verification": "Derived from source; each of the five years had 6 entries for AL league containing Tokyo Giants"
+  },
+  "playerSource": "sadaharu-oh-1974-ootp-editor-input.json",
+  "interpretation": "Use derived league-relative BA, HR/PA, BB/PA, SO/PA as measured outcomes/targets; do not treat ratios as latent physical skills or automatic HR/contact bonuses.",
+  "gameEngine": "MINI_ONLY",
+  "ootpRuntimeNeeded": false
+}
