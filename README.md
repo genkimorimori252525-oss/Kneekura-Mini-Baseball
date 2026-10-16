@@ -38,6 +38,8 @@
 
 将来のAIが王貞治などの実在OBを作るときは、[選手再現部の入口](docs/player-reconstruction/README.md)と[OB再現原則](docs/player-reconstruction/PRINCIPLES.md)を必ず参照する。
 
+**1936年のリーグ創設期から現代までの資料環境**は [公式/二次/GitHub資料アトラス](docs/player-reconstruction/NPB-SOURCE-ATLAS-1936-2026.md)、[時代・球団・球場・規則モデル](docs/player-reconstruction/NPB-HISTORICAL-ENVIRONMENT-MODEL.md)、[全能力・隠し技能・得能（青・金・赤・緑・青赤）参照台帳](docs/player-reconstruction/PLAYER-CAPABILITY-TRAIT-ATLAS.md)、[AI主役の調査・検証手順](docs/player-reconstruction/AI-RECONSTRUCTION-RUNBOOK.md)に整理した。**現段階は資料・索引・実装計画の整備で、全選手の校正や完全なNPB試合実装は未完了。** 公式・外部データの再配布/大量取得には利用許諾確認が必要。
+
 - **全盛期OBの基礎能力値はペナントの年次によって変動させない。** ただし日々の調子、技術の発揮、対戦相手、打席数、実際のプレーによってシーズン成績は変わる。
 - **「55本塁打に到達できる王貞治」≠「毎年55本の王貞治」。** 同じ時代・リーグ条件に近ければ史実の最高年級を再現する機会を持ちつつ、最高結果を強制しない。
 - **全盛期複数年の資料から代表能力を推定する。** ただし良い年だけを摘み食いすると過大評価するので、対象期間の根拠、前後の悪い年、打席/年/リーグ環境を含める。
