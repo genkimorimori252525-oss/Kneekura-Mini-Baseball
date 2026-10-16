@@ -1,0 +1,121 @@
+{
+  "schemaVersion": "sadaharu-oh-ootp-input-v1",
+  "recordStatus": "HISTORICAL_OBSERVED_BENCHMARK_VERIFIED_OOTP_RATINGS_NOT_EXTRACTED",
+  "actor": {
+    "displayName": "王貞治",
+    "romanized": "Sadaharu Oh",
+    "npbPlayerId": "81383808",
+    "bats": "L",
+    "throws": "L",
+    "position": "1B"
+  },
+  "historical": {
+    "centerYear": 1974,
+    "recalcYears": [
+      1972,
+      1973,
+      1974,
+      1975,
+      1976
+    ],
+    "weighting": "UNWEIGHTED_SUM_COUNT_PER_OPPORTUNITY; CURRENT_YEAR_DOUBLE_WEIGHT_OFF",
+    "source": "https://npb.jp/bis/players/81383808.html",
+    "ratesExternalSource": "https://www.baseball-reference.com/register/player.fcgi?id=oh----000sad",
+    "sourceType": "NPB_OFFICIAL_FIVE_YEAR_AGGREGATE_PLUS_BASEBALL_REFERENCE_INTENTIONAL_BB",
+    "yearlyOotpEra": "1974 JPCL"
+  },
+  "aggregateOfFiveSeasons": {
+    "games": 640,
+    "plateAppearances": 2744,
+    "atBats": 2062,
+    "hits": 657,
+    "doubles": 80,
+    "triples": 1,
+    "homeRuns": 230,
+    "totalBases": 1429,
+    "walks": 638,
+    "hitByPitch": 21,
+    "sacrificeFlies": 23,
+    "strikeouts": 235,
+    "intentionalWalksSecondary": 155
+  },
+  "observedRates": {
+    "battingAverage": 0.31862269641125124,
+    "onBasePercentage": 0.47959183673469385,
+    "slugging": 0.6930164888457808,
+    "ops": 1.1726083255804747,
+    "homeRunsPerPlateAppearance": 0.08381924198250729,
+    "walksPerPlateAppearance": 0.2325072886297376,
+    "nonIntentionalWalksPerPlateAppearance": 0.1760204081632653,
+    "strikeoutsPerPlateAppearance": 0.08564139941690962,
+    "homeRunsPer130Games": 46.71875
+  },
+  "ootpEditorProposedInput": {
+    "gameVersion": "OOTP 26 (version not locally verified)",
+    "sourceMod": "lebronisbest/OOTP_NPB_Historical (personal/non-commercial with OOTP only)",
+    "ratingsWindow": "5-year centered 1974, 1972-1976, no double weight",
+    "targetYear": 1974,
+    "note": "A rounded 130-game representative stat line. OOTP editor 'Create Current Ratings based on stats' accepts AB/H/2B/3B/HR/BB/HBP/SO. This is an input, NOT an observed OOTP rating.",
+    "AB": 419,
+    "H": 133,
+    "2B": 16,
+    "3B": 0,
+    "HR": 47,
+    "BB": 130,
+    "HBP": 4,
+    "SO": 48,
+    "supplementaryNotEditorInputs": {
+      "G": 130,
+      "PA": 557,
+      "SF": 5,
+      "IBB": 31
+    }
+  },
+  "ootpActualRatings": {
+    "status": "NOT_OBSERVED",
+    "displayScale": null,
+    "commissionerEditorUsed": false,
+    "scoutingDisabled": null,
+    "actual": {
+      "contact": null,
+      "babip": null,
+      "avoidK": null,
+      "eye": null,
+      "gapPower": null,
+      "homeRunPower": null,
+      "vsLeft": null,
+      "vsRight": null,
+      "speed": null,
+      "stealing": null,
+      "baserunning": null,
+      "range1B": null,
+      "error1B": null,
+      "arm1B": null,
+      "position1B": null
+    },
+    "provenance": "Must come from real OOTP 26 historical league player editor / exported actual rating, never derive these numeric ratings from the preceding stat line without OOTP."
+  },
+  "mini": {
+    "status": "NOT_VERIFIED",
+    "fixedTrueSkillSeed": null,
+    "fixedPublicRatingCard": null,
+    "traitCandidates": {
+      "pullHitter": "引っ張り屋 (Gold candidate; separate from pull intent)",
+      "wideAngle": "保留",
+      "batterApproach": "引っ張り志向、割合未確定"
+    },
+    "existingPreviousIllustrativeRatings": {
+      "contact": 96,
+      "power": 100,
+      "eye": 99,
+      "qualification": "PREVIOUS_ASSISTANT_UNCALIBRATED_NOT_OOTP_VALUES"
+    }
+  },
+  "validation": {
+    "officialCountArithmetic": "MATCHED_BY_ALGEBRA",
+    "ootpActualRatingExtraction": "NOT_RUN",
+    "ootpToMiniMapper": "NOT_IMPLEMENTED",
+    "fullMatchSimulation": "NOT_CONNECTED_ON_DOCUMENT_BRANCH",
+    "multiSeasonCalibration": "NOT_RUN"
+  }
+}
