@@ -7,6 +7,14 @@
 
 この文書は、新しいChatGPT / Jolly sessionが設計思想を最短で復元するためのhandoff。
 
+## 2026-10-16 USER-DIRECTED OOTP-FIRST PLAYER RECREATION — 王貞治だけ先に試す
+
+**最新の選手再現部の優先方針:** [OOTP-first 王貞治Pilot](../player-reconstruction/OOTP-FIRST-OH-PILOT-PLAN.md)。**OOTPの歴史的選手Current Ratingsを初期値としてまず王1人の固定OBを生成する**。1974年中心・5年参照・Current-year double weight OFFは初期候補（OOTP画面で実際の設定と取得値を確認）。[OOTP NPB Historical](https://github.com/lebronisbest/OOTP_NPB_Historical)の統計ファイルがそのまま王のゲーム内Ratingを出力することは未確認。**数値未取得ならOOTP値を捏造しない。**
+
+**変換は共通Mapper一つ**で既存Miniの真技能Sourceへ接続する。OOTP Contact/Eye/HR Power等はOOTPゲームの成績生成用指標であり、Miniのバット速度/認識/物理と1対1ではない。王の「引っ張り屋」候補と強いPULL選好を混同せず、広角打法は保留。
+
+**王の実打席/少数シーズンが十分妥当なら、全選手の独自査定・全員一括校正を飛ばす。以後はユーザーが指定した選手だけを同じ変換方式で再現・簡易検証する。** 1936〜現代の史実資料は必要な範囲で参照するための索引であり、全リーグ復元/全球場チェックをPilot条件にしない。OBの恒常能力固定、「王の最高年級は到達可能だが毎年強制でない」という根本設計は維持する。計画は未実装。
+
 ## 2026-10-16 USER CORRECTION — 史実の全件監査は不要、既知誤りだけ注記して進む
 
 **選手再現部の優先順位を明確化:** NPB史実データを活用して選手と環境を作ることが最優先。1936年の後楽園球場のように**実際に確認された個別の誤り**は、該当レコードに一行注記して代替/補正すればよい。これを契機に、全球場/全球団/全年度を再検証する作業や、誤り探し自体を目的とした16項目の強制Gateを設けない。
