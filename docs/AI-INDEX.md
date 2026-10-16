@@ -73,9 +73,11 @@ For individual competitions/country rosters, first use the relevant numbered [`d
 
 **Three actual new implementation plans, plus one unresolved concept.** Do not invent a fourth implementation commit. Existing unrelated planned pitch development and Oct 14 match integration remain separately linked in the [plan register](PLAN-REGISTER.md).
 
-### Historical reconstruction source-provenance gate — mandatory
+### Historical player reconstruction — use the reference library, do not over-audit
 
-The department includes [machine-readable official season discovery indexes](player-reconstruction/sources/npb-official-season-index.json) (**171** league/phase/season entries, **most URL patterns not individually checked**, historical stats not ingested), [19-source rights and evidence registry](player-reconstruction/sources/npb-evidence-source-registry.json), and an [offline manifest-validator script](../tools/player-reconstruction/validate-npb-source-manifests.mjs). These are research support metadata, **not a licensed historical player dataset or proof of simulating all historical NPB rosters**. Official NPB/2689 records and the OOTP historical data project have distinct licensing restrictions. OOTP historical's `1936 Korakuen` listing conflicts with the verified official stadium opening year of 1937—see [evidence audit](player-reconstruction/NPB-SOURCE-ATLAS-1936-2026.md). Prioritize source reconciliation, missing-value semantics and rights over volume.
+[史実資料](player-reconstruction/NPB-SOURCE-ATLAS-1936-2026.md)・[能力/得能一覧](player-reconstruction/PLAYER-CAPABILITY-TRAIT-ATLAS.md)・[年度URL索引](player-reconstruction/sources/npb-official-season-index.json) は、**必要な項目を探すための資料**。全球団・全年度・全球場・全選手の誤り探しを**必須にしない**。既知の1936年後楽園誤表記は一行注記/代替し、調べたい選手や時代の再現を優先する。未観測の内容は `APPROXIMATE` / `UNKNOWN` で明示して進める。
+
+従来の全16 ENV Gateは撤回、選手再現は[4つの軽量確認](player-reconstruction/METHOD-V1-PROPOSAL.md)。[ソース台帳](player-reconstruction/sources/npb-evidence-source-registry.json)と[オフライン索引チェック](../tools/player-reconstruction/validate-npb-source-manifests.mjs)は**任意の補助ツール**。実際に大量データや素材をコピーする場合だけ用途に応じた権利確認を行う。歴史調査が主目的ではなく、史実環境と選手を作ることが主目的。
 
 ## Editing and future-agent onboarding
 
