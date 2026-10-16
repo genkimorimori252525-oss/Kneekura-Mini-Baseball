@@ -54,30 +54,20 @@
 - Season Context案を採用したか（未採用なら理由）:
 - 出典/変換Version、seed/version:
 
-## 4.1 史実NPB環境・すべての能力とTraitの点検表（AI必須）
+## 4.1 利用可能な能力・Traitへの最短アクセス（チェック欄を埋める義務なし）
 
-- 使用する [NPB 1936–2026 source atlas](../NPB-SOURCE-ATLAS-1936-2026.md)、[年度/リーグ/球場Ruleモデル](../NPB-HISTORICAL-ENVIRONMENT-MODEL.md)、[AI runbook](../AI-RECONSTRUCTION-RUNBOOK.md) と [全能力・全色Trait台帳](../PLAYER-CAPABILITY-TRAIT-ATLAS.md) の版:
-- 出典の利用/再配布/内部処理権限: `LINK_REFERENCE_ONLY / LICENSED_LIMITED / APPROVED_LOCAL_USE / RIGHTS_PENDING / LICENSE_BLOCKED`。情報を見つけたことと合法的に大量インポートできることを混同しない。
-- 該当年度の CompetitionSeasonKey、リーグ年次成績、球団/球場名変遷、相手質、全選手の実出場Rosterの証拠:
-- Historical Era/Park/Rules/ball/打席数・相手Rosterに未確認の条件:
-- 公開能力（☆、ミート、パワー、選球眼、バント、走力、盗塁、走塁、守備力、肩力、守備適性。投手なら球速・制球・変化・球種・スタミナ）を全て Source に関連づける。全数値を憶測で埋めない。
-- 打者の隠し技能/行動（認識、判断、接触、アドリブ、方向/打球角、PULL/CENTER/OPPOSITE/REACTIVE、カウント別、打撃局面）を `OBSERVED / ESTIMATED / UNKNOWN` に分類:
-- 投手の隠し技能（球種Arsenal、release、command、pitch quality/variance、投球tempo、牽制/クイック、疲労）:
-- 守備の11 source（positionSuitability、firstStep、acceleration、battedBallRead、routeEfficiency、catching、transfer、armStrength、throwingAccuracy、situationalAwareness、tagSkill）:
-- 捕手の7知能Source（該当選手のみ）、走者のリード/判断/加速/スライディング、個人のFamiliarity:
-- 青/金の強み: **Trait名 / 正本09 Family / Tier / Source技能 / Evidence / GRANTED or NOT_GRANTED or UNKNOWN**:
-- 赤・Negative Familyの弱点: **能力の低さと「未記録」を区別**。同Family赤TierとGold/Blueの重複を排除:
-- 緑のSlow Preference（強振/ミート、積極/慎重、方向の選好、走塁/盗塁/チームプレイ等）:
-- 青赤の不可分Tradeoff（採用対象がある場合）・Neutral Descriptor・REJECT/MOVEは明記:
-- 標準的なCondition/Fatigue/ActiveEmotionと、固定OB True Sourceの境界:
-- **歴史的に「Traitがない」ことが分かったのか、証拠がなく未判定なのか**を各Familyごとに区別:
-- 機械可読な実例を別ファイルに保存する場合: [提案JSON Schema](../schemas/reconstruction-case.schema.json)。このSchemaは**研究形式の案**であり、Match Coreの人物Save Schemaや実装済み入力仕様ではない。
+[公開/非公開/青/金/赤/緑/青赤すべてのTrait台帳](../PLAYER-CAPABILITY-TRAIT-ATLAS.md)は**参照できる辞典**。実際に資料で裏付けられる技能だけ記録し、根拠のない欄は`UNKNOWN`にして先へ進む。全Trait Familyを一つずつ調査し直す必要はない。
+
+- この人物で根拠のある能力（公開値/隠し技術/性格傾向/得能）と出典:
+- 史実リーグ環境: [年代別モデル](../NPB-HISTORICAL-ENVIRONMENT-MODEL.md)から必要な部分だけ使う。詳細不明の球場・球などは`APPROXIMATE`として採用可能。
+- 実際に見つけたデータの誤り: 「資料名・項目・修正内容」を一行記録。別の年度/全球団まで調査しない。
+- 研究用の機械可読形式が必要な場合は[提案JSON Schema](../schemas/reconstruction-case.schema.json)。採用は任意。形式への記入だけで時間を浪費しない。
 
 ## 5. QA Evidence
 
 | Gate | Status (PASS/FAIL/NOT RUN/NOT CONNECTED) | Proof / Seed / Environment |
 | --- | --- | --- |
-| REC-01..14 general | | |
+| REC-01..04 lightweight | | |
 | Player-specific prime average | | |
 | Player-specific upper-tail attainable | | |
 | Underperformance year attainable | | |
