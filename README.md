@@ -1,5 +1,9 @@
 # Kneekura-Mini-Baseball
 
+> **重要 — GitHub既定 `main` の案内（2026-10-16）**: この `main` は初期の設計・ブートストラップの記録で、最新の開発用文書や2026-10-16の捕手・打者・方向打撃計画は、このブランチにはまだ統合されていない。今後のAIはまず **[作業ブランチのAI入口](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/blob/jolly/core-foundation-plan-2026-09-17/AGENTS.md)**、**[設計と原則の一覧](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/blob/jolly/core-foundation-plan-2026-09-17/docs/AI-INDEX.md)**、**[実装計画一覧](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/blob/jolly/core-foundation-plan-2026-09-17/docs/PLAN-REGISTER.md)**、**[試合Coreは動き中継だけ低FPSという思想](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/blob/jolly/core-foundation-plan-2026-09-17/docs/architecture/WORLD-FIRST-BROADCAST.md)** を参照すること。**ローカルPCの未コミット作業はGitHubからは確認できない**ため、実装や統合の前に `git status` / worktrees / 並行作業を調べる。これは参照案内だけで、ブランチのコード移植・マージではない。
+
+---
+
 軽量な自動試合エンジンを土台に、采配と野球らしい結果の因果関係を中心に据える野球ゲームです。
 
 現時点では実装着手前の設計リポジトリです。描画の見栄えより先に、規則・一球計算・能力査定・9人守備・走塁を検証可能な仕様として固めます。
