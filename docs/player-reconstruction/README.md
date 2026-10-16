@@ -6,11 +6,12 @@
 >
 > **対象:** Kneekura Mini Baseball（将来のNatural Baseballも同じ正史Core）。実在OB・歴史的選手、将来は現役選手の時点別再現。これは新しい試合エンジンでも、キャリア開発コードの別実装でもない。
 
-## 最優先の実装計画 — OOTP → 王貞治1人 → 以降は指名選手だけ
+## 最優先の実装方針（後続修正）— OOTPは起動せず、Miniだけで王貞治
 
-**2026-10-16 USER-DIRECTED PRIORITY:** [OOTP-first 王貞治Pilot計画](OOTP-FIRST-OH-PILOT-PLAN.md)。**全NPB選手の能力値を先に校正しない。** まずOOTP 26 + NPB Historicalで王の実Ratingsを読み取り、OOTP→Miniの共通変換器を一度作り、王だけ軽く試す。うまく行ったら、その共通器でユーザーが注文したOBだけ順次作成・軽量検証する。
+**ユーザーがOOTP起動を不要と明示。** [Mini独立王Pilot](OOTP-FIRST-OH-PILOT-PLAN.md)では、公開されたOOTP歴史DBを**研究資料**として使うが、OOTP本体・Editor・再計算を一切起動しない。`.odb`は主に史実記録を含み、OOTPゲーム内で後から生成される選手Ratingが本人別に既に入っているとは確認されていない。そこで史実の王と[1972–76同時期のリーグ相対基準](cases/sadaharu-oh-1972-1976-league-reference.json)を計算し、Mini独自の真の技能Sourceで再現する。[独立した計算器](../../tools/player-reconstruction/compute-oh-mini-benchmark.mjs)を用意済み。
 
-この方針は従来の資料アトラス、ENV/REC研究構想より**実際に作業を進める優先順位が高い**。資料庫は必要箇所だけ見る。OOTPの成績DBが王のRatings.csvを直接提供するとは未確認なので、**OOTP実機で生成・表示されたCurrent Ratingsのスナップショット**を取得できた項目だけ参考にする。OOTPをMini物理へ1:1転写せず、共通Adapterにより既存の内部技能Sourceへ置く。
+**新しい全員分の査定やOOTP能力値の抽出を先に要求しない。** 王のNative実打席へつなぐことを優先し、成立したらユーザーが指定した人物のみ同じSeed方式を使う。既存のより進んだNativeブランチに接続して、別の公式試合エンジンを作らない。Miniゲーム本体の実装・試験は未完了。
+
 
 ## この部署の目的
 
