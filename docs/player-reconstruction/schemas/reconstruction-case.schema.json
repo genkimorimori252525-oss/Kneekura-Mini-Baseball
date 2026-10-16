@@ -1,0 +1,592 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/blob/jolly/core-foundation-plan-2026-09-17/docs/player-reconstruction/schemas/reconstruction-case.schema.json",
+  "title": "Historical Player Reconstruction Research Case (PROPOSED, not Match Core input)",
+  "description": "Research-side data contract only. Source estimates / UI projection / historical outcomes are separate. Do not load into game as a new causal engine; no automated rights grants.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "recordStatus",
+    "person",
+    "historicalContext",
+    "variant",
+    "evidenceSources",
+    "sourceEstimates",
+    "publicProjections",
+    "traitDecisions",
+    "qaGates"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "player-reconstruction-case-v1"
+    },
+    "recordStatus": {
+      "enum": [
+        "RESEARCH_DRAFT",
+        "EVIDENCE_LINKED",
+        "PARAMETERS_PROVISIONAL",
+        "SIMULATED",
+        "CALIBRATED",
+        "VERIFIED"
+      ]
+    },
+    "person": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "personId",
+        "displayName",
+        "handedness"
+      ],
+      "properties": {
+        "personId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "handedness": {
+          "enum": [
+            "R",
+            "L",
+            "S",
+            "UNKNOWN"
+          ]
+        },
+        "throws": {
+          "enum": [
+            "R",
+            "L",
+            "UNKNOWN"
+          ]
+        },
+        "positionIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "sourceIdentityRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "variant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "variantId",
+        "kind",
+        "primeSeasonKeys",
+        "fixedObTrueSources"
+      ],
+      "properties": {
+        "variantId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "PRIME_COMPOSITE",
+            "SEASON_SNAPSHOT",
+            "UNCERTAIN_PROFILE"
+          ]
+        },
+        "primeSeasonKeys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "fixedObTrueSources": {
+          "type": "boolean",
+          "const": true
+        },
+        "frozenRatingContextRef": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rulesForYearlyAbilityChange": {
+          "const": "NO_CHANGE"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "PRIME_COMPOSITE"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "primeSeasonKeys": {
+                "minItems": 2
+              }
+            }
+          }
+        }
+      ]
+    },
+    "historicalContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceLeagueIds",
+        "environmentReferences",
+        "asOfDate"
+      ],
+      "properties": {
+        "sourceLeagueIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "environmentReferences": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "ballparkReferences": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "competitionRuleRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "asOfDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "comparisonEnvironmentRef": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "evidenceSources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/EvidenceSource"
+      }
+    },
+    "sourceEstimates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/EstimatedField"
+      }
+    },
+    "publicProjections": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/PublicProjection"
+      }
+    },
+    "traitDecisions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/TraitDecision"
+      }
+    },
+    "qaGates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/TestReceipt"
+      }
+    },
+    "unresolvedQuestions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "documentationOnly": {
+      "const": true
+    },
+    "noDirectOutcomeModifier": {
+      "const": true
+    }
+  },
+  "$defs": {
+    "EvidenceSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceId",
+        "uri",
+        "accessCheckedAt",
+        "reuseRights",
+        "evidenceStatus"
+      ],
+      "properties": {
+        "sourceId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "accessCheckedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "seasonKeys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "reuseRights": {
+          "enum": [
+            "LINK_REFERENCE_ONLY",
+            "LICENSED_LIMITED",
+            "APPROVED_LOCAL_USE",
+            "RIGHTS_PENDING",
+            "LICENSE_BLOCKED"
+          ]
+        },
+        "evidenceStatus": {
+          "enum": [
+            "OFFICIAL_OBSERVED",
+            "SECONDARY_CORROBORATED",
+            "HISTORICAL_ESTIMATE",
+            "MODEL_CALIBRATED",
+            "UNKNOWN",
+            "CONFLICTED",
+            "LICENSE_BLOCKED"
+          ]
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "EstimatedField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fieldId",
+        "sourceOfTruthArea",
+        "state",
+        "value",
+        "unit",
+        "evidenceRefs",
+        "affects",
+        "confidence"
+      ],
+      "properties": {
+        "fieldId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceOfTruthArea": {
+          "enum": [
+            "BATTING",
+            "PITCHING",
+            "FIELDING",
+            "RUNNING",
+            "CATCHING",
+            "PERCEPTION",
+            "PHYSICAL",
+            "STYLE",
+            "CONDITION",
+            "OTHER"
+          ]
+        },
+        "state": {
+          "enum": [
+            "OFFICIAL_OBSERVED",
+            "SECONDARY_CORROBORATED",
+            "HISTORICAL_ESTIMATE",
+            "MODEL_CALIBRATED",
+            "UNKNOWN",
+            "CONFLICTED",
+            "LICENSE_BLOCKED"
+          ]
+        },
+        "value": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "null",
+            "object",
+            "array"
+          ]
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "affects": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "modelVersion": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "uncertaintyNotes": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "UNKNOWN"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "null"
+              },
+              "confidence": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "LICENSE_BLOCKED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "PublicProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "displayId",
+        "value",
+        "projectionContextRef",
+        "derivedFromSourceIds",
+        "status"
+      ],
+      "properties": {
+        "displayId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": [
+            "number",
+            "string",
+            "null"
+          ]
+        },
+        "projectionContextRef": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "derivedFromSourceIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "status": {
+          "enum": [
+            "PROVISIONAL",
+            "CALIBRATED",
+            "UNKNOWN",
+            "CONFLICTED"
+          ]
+        },
+        "units": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "TraitDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "familyId",
+        "label",
+        "classification",
+        "canonicalDisposition",
+        "traitState",
+        "derivedFromSourceIds",
+        "evidenceRefs"
+      ],
+      "properties": {
+        "familyId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "classification": {
+          "enum": [
+            "BLUE",
+            "GOLD",
+            "RED",
+            "GREEN",
+            "BLUE_RED",
+            "NEUTRAL",
+            "OTHER"
+          ]
+        },
+        "canonicalDisposition": {
+          "enum": [
+            "ADOPT",
+            "MERGE",
+            "REINTERPRET",
+            "MOVE",
+            "REJECT",
+            "CONFLICTED",
+            "OTHER_CANONICAL"
+          ]
+        },
+        "traitState": {
+          "enum": [
+            "GRANTED",
+            "NOT_GRANTED",
+            "UNKNOWN",
+            "NEEDS_REVIEW"
+          ]
+        },
+        "tier": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "derivedFromSourceIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "canonicalCatalogRef": {
+          "type": "string"
+        },
+        "unverifiedNotes": {
+          "type": "string"
+        }
+      }
+    },
+    "TestReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gateId",
+        "status"
+      ],
+      "properties": {
+        "gateId": {
+          "type": "string",
+          "pattern": "^(REC|ENV|CATCH|BAT|DIR)-[0-9]{2}$"
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "NOT_RUN",
+            "NOT_CONNECTED",
+            "RIGHTS_PENDING"
+          ]
+        },
+        "versionRef": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "proofRef": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sampleSeedRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
