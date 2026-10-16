@@ -381,6 +381,8 @@ docs/superpowers/plans/
 
 ### Task E — 打者側の独立予測と対戦学習
 
+> **2026-10-16 implementation supplement:** [Batter Anticipation, Intent & Adaptive Swing](2026-10-16-batter-anticipation-intent-adaptive-swing.md) が本Taskの詳細実装仕様。`BatterPitchBelief.ts` とその関連型は**両計画で一つだけ**実装し、打者の主観的予測・狙い方・実際の身体制御を分離する。既存公開能力ミート/パワー/選球眼とTraitの元Sourceを再利用し、Gradeや能力表示から直接結果を補正しない。
+
 - [ ] 捕手と別の `BatterPrePitchBelief` を作り、公開状況と過去球から確率的に予測。
 - [ ] 待球・スイング方針が予測と状況へ反応する。ただし実際のBall Recognition / Swing / Contact は既存実装に委譲。
 - [ ] リリース前にPitchCallや未来のBallFlightを読めない契約テスト。
