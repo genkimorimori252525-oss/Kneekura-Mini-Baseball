@@ -197,6 +197,6 @@
 | Green / Direction / Count / Style | 本人の観測可能な選択・長期傾向、適切な推定 | `UNKNOWN`と通常Prior。単年成績から全確定しない |
 | Condition/Season/Role/Fatigue | 正史の試合条件と必要時の補完 | OB Frozen Sourceとは別状態 |
 | Player projection (☆/0..100/G..S) | source→league rating→UI, versioned | 暫定表示`PROVISIONAL` |
-| QA | 一般[REC-01..14](METHOD-V1-PROPOSAL.md)と後続ENV/ATTR校正の結果 | `NOT RUN` / `NOT CONNECTED` |
+| QA | [必要時に行う4つの軽量チェック](METHOD-V1-PROPOSAL.md) と試合再現の代表例 | `NOT RUN` / `NOT CONNECTED` |
 
 **結論:** 「使用できる能力・得能がすべて見つかる」ようカタログへの入口を作る。ただし**名称を全部付けて最強選手を作る部署ではない**。一次資料と観測された技術のSourceから、必要なものだけ再現する。登録年・ファミリーのMaster/Red/Greenは**一つの技能の複数表現を二重にMatchへ返さない**。
