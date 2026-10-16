@@ -7,6 +7,14 @@
 
 この文書は、新しいChatGPT / Jolly sessionが設計思想を最短で復元するためのhandoff。
 
+## 2026-10-16 LATER USER CORRECTION — OOTPは絶対に起動しない、MiniのNativeで再現する
+
+**OOTPがゲーム本体になることは避ける。** 王貞治を試作する際、OOTP26や選手Editorを使うという以前の指示は**撤回**。OOTP Historical`.odb`は史実データであって、本人の完成済みRating`Contact/HR Power/Eye`が格納されているとは確認されていない。むしろOOTPゲームの歴史選手Ratingsは実成績からゲーム内で生成される。従ってOOTPの起動を要求せず、史実を参考にMini自身の技術/バット/投球Sourceへ変換する。
+
+[最新Mini独立Pilot](../player-reconstruction/OOTP-FIRST-OH-PILOT-PLAN.md) と [1972–76年の王・同時代セ・リーグ相対集計](../player-reconstruction/cases/sadaharu-oh-1972-1976-league-reference.json)、[Mini独立統計計算器](../../tools/player-reconstruction/compute-oh-mini-benchmark.mjs)を優先。研究計算の統計比はミート/パワーの真Source値でも、OOTPエディターのレーティングでもない。**実際のゲーム/打者物理の推定モデルは未実装**。
+
+現行GitHubには以前の文書/P0ブランチより進んだ[Node Native物理ブランチ](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/tree/jolly/tbd-lad-native-browser-core-2026-10-14)があり、実投球/空力/剛体BatContact等が実装。まずそれとローカル最新版を見て**1つのMiniの真Source adapter**へ接続する。10/14 Nativeには本物のK/BBだけの9回receiptがあり、接触後のフルライブボール公式結果は未接続。**王の55HR級シーズンは未検証**。Mini独自の物理で成立してから、ユーザーが注文する他のOBだけ同じ手順で再現。全OB校正を行わない。
+
 ## 2026-10-16 USER-DIRECTED OOTP-FIRST PLAYER RECREATION — 王貞治だけ先に試す
 
 **最新の選手再現部の優先方針:** [OOTP-first 王貞治Pilot](../player-reconstruction/OOTP-FIRST-OH-PILOT-PLAN.md)。**OOTPの歴史的選手Current Ratingsを初期値としてまず王1人の固定OBを生成する**。1974年中心・5年参照・Current-year double weight OFFは初期候補（OOTP画面で実際の設定と取得値を確認）。[OOTP NPB Historical](https://github.com/lebronisbest/OOTP_NPB_Historical)の統計ファイルがそのまま王のゲーム内Ratingを出力することは未確認。**数値未取得ならOOTP値を捏造しない。**
