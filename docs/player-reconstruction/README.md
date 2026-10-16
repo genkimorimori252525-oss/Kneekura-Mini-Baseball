@@ -12,11 +12,23 @@
 
 ### 読む順番（AI必須）
 
-1. [OB再現の確定原則と未確定事項](PRINCIPLES.md) — 固定能力、全盛期、複数年平均、成績分布。
-2. [史実データからの再現手順・QAゲート](METHOD-V1-PROPOSAL.md) — 時代・リーグ・球場・打席数・相手とデータの正規化。
-3. [固定能力と成績変動のモデル候補](SEASON-EXPRESSION-PROPOSAL.md) — 「調子だけ」にならない、調整可能な設計案。
-4. [王貞治／全盛期の試作ケース](cases/sadaharu-oh-prime.md) — **引っ張り屋候補**と検証対象。仮査定は確定値でない。
-5. 元の正本: [能力/Rating 02](../game-design/02-rules-ratings-defense.md)、[Trait正本09](../game-design/09-player-trait-catalog.md)、[Trait原則08](../game-design/08-player-traits-design-seed.md)、[育成/変化53](../game-design/53-player-development-trajectory-breakthrough-v1.md)、[既存打者・方向Intent計画](../superpowers/plans/2026-10-16-batter-directional-intent-and-spray.md)、[正史物理](../superpowers/specs/2026-09-17-causal-contact-and-individual-defense-design.md)。
+1. **[NPB 1936〜2026 資料アトラス](NPB-SOURCE-ATLAS-1936-2026.md)** — 公式・二次・GitHub/学術資料と、どこまで参照/転用可能かの区分。
+2. **[NPBリーグ・球場・年度別環境モデル](NPB-HISTORICAL-ENVIRONMENT-MODEL.md)** — 1936創設期の分割大会、1950二リーグ化、DH/日程/球場/球質等、同時代の検証条件と16のENV試験。
+3. **[全公開能力・隠し能力・青/金/赤/緑/青赤Trait台帳](PLAYER-CAPABILITY-TRAIT-ATLAS.md)** — 02/04/08/09/05/53の現行設計に忠実な完全参照入口。未採用・保留・別系統も区別。
+4. **[AI主導の自動調査・再現手順](AI-RECONSTRUCTION-RUNBOOK.md)** — R0権利→R1時代→R2選手→R3複数年→R4技能/得能→R5試合→R6敵対監査。
+5. [OB再現の確定原則と未確定事項](PRINCIPLES.md) — OB能力固定、全盛期到達可能性、好成績だけの摘み食い禁止。
+6. [史実データからの再現手順・QAゲート](METHOD-V1-PROPOSAL.md) — 年度別PA/AB集計、校正、14件のRECゲート。
+7. [固定OB×シーズン変動の未確定モデル](SEASON-EXPRESSION-PROPOSAL.md) — Conditionだけで説明できない場合の候補。未承認の追加Buff禁止。
+8. [王貞治・全盛期の試作ケース](cases/sadaharu-oh-prime.md) と [新規選手再現テンプレート](cases/TEMPLATE.md)。
+
+### AI向け機械可読リファレンス（史実データそのものではない）
+
+- [NPB公式年度URL探索索引](sources/npb-official-season-index.json) — **171キー**：完了歴史年度168件、2026 as-of 2件、1945公式リーグなし1件。URLの大半はパターン推定で**アクセス未検証**。選手成績は含まない。
+- [史実ソース台帳・権利/品質区分](sources/npb-evidence-source-registry.json) — **19件**。大量インポートや素材コピーが許されたという意味ではない。
+- [参照マニフェスト構造検証ツール](../../tools/player-reconstruction/validate-npb-source-manifests.mjs) — ローカルで `node tools/player-reconstruction/validate-npb-source-manifests.mjs`。オフライン整合性チェックのみで史実の正確性や利用許諾は検証しない。
+
+**重要:** 戦前〜現代の「公式一軍選手の存在・年次成績」は広く調査できるが、1936〜現代までの球種/球速/回転/打球速度/選球思考などの真値がすべて実測されているわけではない。各選手の非公開技能やTraitは証拠・推論・unknownを分離する。**二軍の全面再現は当面必須としない。**
+
 
 ## この部署が責任を持つもの
 
