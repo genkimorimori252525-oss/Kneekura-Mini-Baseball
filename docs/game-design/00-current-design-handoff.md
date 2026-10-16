@@ -7,6 +7,13 @@
 
 この文書は、新しいChatGPT / Jolly sessionが設計思想を最短で復元するためのhandoff。
 
+## 2026-10-16 USER-DIRECTED PRESENTATION CLARIFICATION — 場面別FPS、ボール単独画質変更なし
+
+- **投球中・打球中など動きが重要なシーンでは、適切に描画頻度（≒実効FPS）を上げる。その他の場面も状況に適した頻度で中継する。** 55msは標準基準であり、全場面共通の固定更新値ではない。ユーザーは投球・打球の頻度増加を既に行っていると説明しているが、GitHubの本ブランチから家のローカル実装は確認できない。
+- **ボールだけ高画質化／特別な解像度・別FPS・個別補間品質の上乗せはしない。** ボールを含む映像は同一シーンの正史時刻・承認済みPNGと離散的な表示スタイルで整合させる。正史高度・回転に対応した既存の表示は維持可能。
+- シーンのPresentationサンプリング間隔を変更しても、Match Coreの物理刻み・衝突・試合判定・公式記録は一切変更しない。「試合が行われ、カメラが場面に応じた頻度で中継する」という原則が優先。
+- 10/14の初試合統合計画にあった「ボール単体の2倍補間」と解釈される文言は、後続ユーザー指示で修正済み。[World-First / Broadcast](../architecture/WORLD-FIRST-BROADCAST.md)、[PNG継続](../presentation/2026-10-01-png-player-continuation.md)、[10/14初試合統合計画](../implementation/2026-10-14-tbd-vs-lad-match-slice.md)を参照。
+
 ## PLANNED — Pitch Arsenal Development System — 2026-10-07
 
 ユーザー承認済みの予定設計。実装は未着手だが、設計原則は **PLANNED / DESIGN PRINCIPLES FROZEN v1** として固定する。
@@ -30,7 +37,7 @@
 - 原画識別・継続基準: [PNG baseline manifest](../presentation/2026-10-01-png-baseline-manifest.json)
 - 保存資料: [Pixel Player archive](../archive/pixel-player-system/README.md)
 
-採用B1のPNG見た目と既存Drone-Artの4px/55ms、observer原則を維持する。実験のコードが残っていても、自動再開・量産・本番接続を行わない。この現行Statusは保留前のPixel文書内の承認記述より優先する。
+採用B1のPNG見た目と既存Drone-Artの4px/55ms**基準**、observer原則を維持する。55msは場面別の描画頻度を制限しない。実験のコードが残っていても、自動再開・量産・本番接続を行わない。この現行Statusは保留前のPixel文書内の承認記述より優先する。
 
 ## Document Lifecycle / Source Precedence Guard — 2026-09-22
 
