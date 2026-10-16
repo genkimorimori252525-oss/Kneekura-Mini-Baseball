@@ -1,26 +1,52 @@
-# Kneekura-Mini-Baseball
+# Kneekura Mini Baseball
 
-軽量な自動試合エンジンを土台に、采配と野球らしい結果の因果関係を中心に据える野球ゲームです。
+> **新しいAI・Codex・人間の共同開発者へ:** まず [AGENTS.md](AGENTS.md) → [AI設計ナビゲーション](docs/AI-INDEX.md) → [設計正本・優先順位](docs/game-design/00-current-design-handoff.md) → [実装計画一覧](docs/PLAN-REGISTER.md) を読むこと。**GitHub既定の `main` は古いブートストラップ状態**であり、`jolly/core-foundation-plan-2026-09-17` にこのドキュメント群がある。家のPCの未コミット・未push作業はGitHubだけでは見えない。
 
-現時点では実装着手前の設計リポジトリです。描画の見栄えより先に、規則・一球計算・能力査定・9人守備・走塁を検証可能な仕様として固めます。
+## ゲームの根本思想 — 試合が存在し、中継がそれを映す
 
-Mini Baseball は Natural Baseball の簡易ルール版ではなく、将来の Natural Baseball でも再利用できる試合計算Coreを先に磨く製品です。Miniではゲームボーイ風・ドローンアート風の軽量表示で正史ワールド状態を観測し、将来は同じ状態を3D描画へ接続できる設計を目指します。
+**野球の試合は画面の外にも、独立した精密な世界として存在する。** 投手、打者、バット、ボール、走者、守備側9人、球場の地形と衝突、個人の知覚・判断・動作、野球規則と公式記録が同じ正史で進む。**カメラと低FPSの中継は、その世界を観測するだけ。**
 
-## 設計文書
+- **計算は精密、映像は粗い。** 打球・接触・アウト・得点の真実は描画FPS、画面格子、コマ送りから決まらない。
+- **World First / Render Second.** `Match Core → CanonicalWorldSnapshot / Events → Presentation Adapter → Camera / Broadcast` の一方向。
+- **MiniとNaturalは同じ野球の正史Coreを使う。** 将来Naturalで3D描画しても、同じ選手・ボール・球場・判定・公式記録であること。
+- **野球は因果で解く。** 打撃・捕球・走塁の成功率を先に抽選し、あとから絵や軌道を捏造しない。
+- **人物AIは全知ではない。** 捕手・打者・投手・野手・審判・監督は各自が観測できた情報から判断し、誤ることもある。
+- **能力値・特殊能力は結果を直接Buffしない。** 実際の知覚・技能・身体動作・戦術に作用させ、公開RatingやTraitは原因状態を要約する。
+- **描画は既存承認PNG原画を継続。** 4px細密格子・55ms標準表示テンポは映像側の基準。Pixel Player JSON/実験は `ARCHIVED / ON HOLD`。
 
-- [設計の決定記録](docs/game-design/00-decisions.md)
-- [試合体験・監督モード・表示設計](docs/game-design/01-manager-experience.md)
-- [NPB規則・能力査定・守備シミュレーション設計](docs/game-design/02-rules-ratings-defense.md)
-- [実装ロードマップと検証計画](docs/game-design/03-roadmap.md)
+詳しくは [World-First / Broadcast 契約](docs/architecture/WORLD-FIRST-BROADCAST.md)。そこには、過去の表示補間記述と最新の「2×ボールサンプリング」案の扱いも、未解決の点として正直に記録している。
 
-## 現在の方針
+## 実装についての正確な見方
 
-- 競技規則の初期プロファイルは **NPB 2026** とする。
-- プレイヤーの入力は一打席単位でも、内部では投球を一球ずつ正史として計算する。
-- 試合計算は表示やカメラと独立した一つの正史状態（canonical state）と固定シミュレーション時間軸で進める。
-- 守備側9人をワールド座標上で動かし、処理野手以外も塁カバー、中継、バックアップ、後方カバーへ移動する。
-- 守備位置名と現在座標を分離し、中堅手を二遊間付近へ置くような極端な守備シフトも同じAIで扱う。
-- 監督は打者傾向の真値を読まず、スカウティングから得た推定と不確実性に基づいて守備配置を決める。
-- 守備シフトの効果は安打率への直接補正ではなく、野手の初期位置と到達時間の違いから自然に成績へ反映する。
-- 選手能力は、分かりやすい公開査定と、現実のプレー差を担保する隠し査定に分離する。
-- 守備判断は、チーム性格ではなく勝敗条件を最優先する共通方針とする。サヨナラ負けになる失点を「許容する」判断は作らない。
+- この作業ブランチのGitHubには、決定論的な共有Core基盤や `src/core/sim/contact/`、`src/core/sim/plateAppearance/` 等の一部コードがある。
+- **このREADMEや計画書は9回完走の試合がすでに検証済みという証明ではない。** [2026-10-14初の試合統合計画](docs/implementation/2026-10-14-tbd-vs-lad-match-slice.md) の記載も `NOT YET VERIFIED`。
+- 複数の `codex/*` 等のGitHubブランチや、所有者のローカル未反映ファイルに、より進んだ実装が存在する可能性がある。**既存の作業ツリーを確認せず上書き・初期化・統合しない。**
+- 現場の状態調査は [GitHub vs Local 状態・保護ガイド](docs/implementation/GITHUB-LOCAL-STATUS.md) を優先。テスト結果は `PASS` / `FAIL` / `NOT RUN` / `NOT CONNECTED` で報告。
+
+## すぐ見つけるべき2026年10月16日の計画・議論
+
+| テーマ | 正本リンク | 状態 |
+| --- | --- | --- |
+| 捕手の頭脳・配球・監督指示・裏読み | [Catcher Game Intelligence v1](docs/superpowers/plans/2026-10-16-catcher-game-intelligence-system.md) | **実装計画 / 未実装** |
+| 打者の球種・コース予測、狙い、アドリブ打撃 | [Batter Anticipation & Adaptive Swing v1](docs/superpowers/plans/2026-10-16-batter-anticipation-intent-adaptive-swing.md) | **実装計画 / 未実装** |
+| 引っ張り・センター・流しの意図と実打球方向の分離 | [Directional Intent & Causal Spray v1](docs/superpowers/plans/2026-10-16-batter-directional-intent-and-spray.md) | **実装計画 / 未実装** |
+| 隠し「流れ」・試合中の微小な調子変化 | [試合中調子の議論ノート](docs/notes/2026-10-16-in-game-form-discussion.md) | **未確定の議論、実装計画ではない** |
+
+会話では「4つの計画」という言及があったが、GitHub上で確認できる今回の新規**実装計画は3本**。4つ目に相当する「流れ」は議論の保存であり、勝手に正式仕様・実装対象へ昇格させない。関連した別時期のPitch Cadence / Pitch Arsenal等は [Plan Register](docs/PLAN-REGISTER.md) に掲載。
+
+## 設計分野別の入口
+
+- [ゲーム全体の正本ハンドオフと文書ステータスの優先順位](docs/game-design/00-current-design-handoff.md)
+- [設計決定記録（初期の原則）](docs/game-design/00-decisions.md)
+- [能力・特殊能力カタログ（現在の正本09）](docs/game-design/09-player-trait-catalog.md)
+- [監督AIアーキテクチャ（現在の正本49）](docs/game-design/49-manager-architecture-v1.md)
+- [精密イベント時刻・走者・捕球・知覚・審判](docs/superpowers/specs/2026-09-17-time-running-catching-perception-umpire-design.md)
+- [因果的なバット・ボール接触と個人守備](docs/superpowers/specs/2026-09-17-causal-contact-and-individual-defense-design.md)
+- [現行PNG継続とアーカイブ区分](docs/presentation/2026-10-01-png-player-continuation.md)
+- [すべての分野を横断するAIナビゲーション](docs/AI-INDEX.md)
+
+## 技術と実行
+
+作業ブランチはTypeScript / Vitest / ESM構成。定義済みコマンド: `npm run typecheck`、`npm test`、`npm run verify`。**GitHubの文書だけを読んでもテスト実行したことにはならない。** 実装を始める際は作業中PCの内容と他担当・別ブランチを照合してから、必要な範囲で一括実装・一括検証する。
+
+このREADMEは案内であり、CANONICAL設計を上書きしない。新たなユーザー承認があれば [Design Handoff](docs/game-design/00-current-design-handoff.md)・[AI Index](docs/AI-INDEX.md)・[Plan Register](docs/PLAN-REGISTER.md) の対応する状態を根拠と共に更新する。

@@ -1,7 +1,7 @@
 # 実装ロードマップと検証計画
 
 更新日: 2026-09-17
-状態: 設計済み・実装未着手
+状態: P0 実装・検証済み。P1 以降は未着手。
 
 ## 前提
 
@@ -27,6 +27,21 @@ Mini Baseball は将来の Natural Baseball と別の簡易試合ロジックを
 - 描画に依存しない試合Coreをビルド・テストできる。
 - CoreからMini固有レンダラを外しても試合が進行する。
 - 乱数シードを固定して同じプレーを再現できる。
+
+#### P0 implementation evidence
+
+2026-09-17 の実装で以下を確認した。
+
+- Headless TypeScript/Vitest Core harness を作成した。
+- Core乱数は match / play / phase の階層シードから導出する。
+- 正史時間は浮動小数の加算ではなく整数 simulation tick を保持する。
+- `CanonicalWorldSnapshot` は守備位置名とワールド座標を分離し、守備側9人を独立状態として保持できる。
+- CFを通常の外野中央以外の任意座標に置けることを回帰テストで固定した。
+- 決定論ガードは `Math.random`、壁時計、DOM、Three.js、render/ui/presentation 依存のCore侵入を検査する。
+- GitHub Actions の `P0 Core` で `npm run verify` が成功した。
+- 検証結果は **6 test files / 14 tests passed**、TypeScript typecheck 成功である。
+
+P0時点では野球結果の物理・規則・守備能力式はまだ実装しない。P0の責務は、それらを後から載せても描画都合や乱数列の変化で結果が崩れない土台を固定することである。
 
 ### P1: NPB規則の核をテストで固定する
 
@@ -62,13 +77,17 @@ Mini Baseball は将来の Natural Baseball と別の簡易試合ロジックを
 成果物:
 
 - 公開査定と隠し査定のスキーマ
-- 位置別適性、送球精度、初動、打球判断、走塁判断、捕手能力の最初の実装
+- 守備位置別適性、初動、加速、打球判断、追い方、捕球、送球移行、肩力、送球精度、状況判断、タッグの最初の実装
+- 走塁判断、捕手能力の最初の実装
 - 監督の傾向推定・情報更新・サンプル評価を表す査定候補
 - 能力の導入根拠・影響箇所・比較テストの査定台帳
+
+守備能力の詳細契約は `04-defense-ratings.md` を正とする。方向転換、フットワーク、壁際守備、中継技術などは初期から独立査定にせず、既存能力の組み合わせで不足が確認された場合にのみ追加する。
 
 完了条件:
 
 - 能力を一つ変更したときの影響が、重複せずテストで説明できる。
+- `firstStep`、`acceleration`、`battedBallRead`、`routeEfficiency`、`catching`、`transfer`、`armStrength`、`throwingAccuracy`、`situationalAwareness`、`tagSkill` の分離テストが成立する。
 - UI に隠し能力・心理ゲージ・監督の内部推定確率を漏らさない。
 
 ### P4: スカウティングと打席前守備配置を作る

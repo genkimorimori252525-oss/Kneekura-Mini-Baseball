@@ -1,0 +1,113 @@
+{
+  "images": [
+    {
+      "id": "b1-base",
+      "title": "B1 基本の見た目",
+      "description": "小顔・厚い体格・顔なし。",
+      "source": "exec-25c3178e-7ea5-4a70-8644-786ca07f897a.png",
+      "file": "originals/b1-base.png",
+      "sha256": "fa29331ad5cf393a259382a9422ad4f64abbab43af8fa32d66b391988db6ea8b",
+      "dimensions": [
+        1448,
+        1086
+      ]
+    },
+    {
+      "id": "bat-right",
+      "title": "右打者・4コマ",
+      "description": "3コマ目だけを右打者のインパクトへ修正した採用版。",
+      "source": "exec-b4874e52-a1d6-4633-a286-d15ea2bcd50a.png",
+      "file": "originals/bat-right.png",
+      "sha256": "ce27d6ba27b9ca0689d4b7c39fa53a3fb35b2f1697e5ac89dceb5954265c0f20",
+      "dimensions": [
+        1774,
+        887
+      ]
+    },
+    {
+      "id": "bat-left",
+      "title": "左打者・4コマ",
+      "description": "右打者の採用後に作成した左打者版。",
+      "source": "exec-c06e215e-dc91-4267-8ade-c1a3602cdc21.png",
+      "file": "originals/bat-left.png",
+      "sha256": "8909f8f3316e5db2f562143a0288da932ab3765728f2c60e3fc9afae9f40c76c",
+      "dimensions": [
+        1774,
+        887
+      ]
+    },
+    {
+      "id": "pitch-over-right",
+      "title": "右投げ・オーバースロー",
+      "description": "矛盾の指摘を受けて作り直した最終版。6コマ。",
+      "source": "exec-70c92a7e-c1ac-4955-bc21-481102051443.png",
+      "file": "originals/pitch-over-right.png",
+      "sha256": "36990e358e24ff409a0948cbf26efda93e1988ef2d7f2d32b7d42067d9825a0b",
+      "dimensions": [
+        1448,
+        1086
+      ]
+    },
+    {
+      "id": "pitch-under-left",
+      "title": "左投げ・アンダースロー",
+      "description": "最初に採用されたアンダースロー。6コマ。",
+      "source": "exec-c9df51af-1ff2-45e9-bf7c-96ca500e0043.png",
+      "file": "originals/pitch-under-left.png",
+      "sha256": "3e0353db9d3178cdc9d833563551a233f8fcd9dd9443b4893ffb3ff7adf96313",
+      "dimensions": [
+        1448,
+        1086
+      ]
+    },
+    {
+      "id": "pitch-under-right",
+      "title": "右投げ・アンダースロー",
+      "description": "不具合の指摘を受けて作り直した最終版。6コマ。",
+      "source": "exec-bd210e9e-56e8-43da-baf0-4023ba38d259.png",
+      "file": "originals/pitch-under-right.png",
+      "sha256": "73c0c008c04d2859fa2673431e72936377e06577cf528c94df98c9ae81b335c0",
+      "dimensions": [
+        1448,
+        1086
+      ]
+    },
+    {
+      "id": "pitch-side-right",
+      "title": "右投げ・サイドスロー",
+      "description": "サイドスロー追加時の右投げ版。6コマ。",
+      "source": "exec-ac3923c5-b66d-4c46-b725-57f194e83a85.png",
+      "file": "originals/pitch-side-right.png",
+      "sha256": "dbbc1b45fa7a1af4e33eb7dc6d6632ca46cfaf895237c3d25b52cef694c4f679",
+      "dimensions": [
+        1448,
+        1086
+      ]
+    },
+    {
+      "id": "pitch-side-left",
+      "title": "左投げ・サイドスロー",
+      "description": "サイドスロー追加時の左投げ最終版。6コマ。",
+      "source": "exec-23d4d361-b178-4ba5-a0d7-54787a040e34.png",
+      "file": "originals/pitch-side-left.png",
+      "sha256": "2b30255830c0c61bfe4dc900f15a3caa604ec50702eaf27acc0bd268a71e228a",
+      "dimensions": [
+        1448,
+        1086
+      ]
+    }
+  ],
+  "unresolved": [
+    {
+      "id": "pitch-over-left",
+      "note": "左投げオーバースローの独立した最終採用原画は、今回の画像と承認履歴の照合では確定できていません。原画として補作せず、未確認のまま残しています。中継での左オーバーは右原画の反転を用いる暫定表示です。"
+    }
+  ],
+  "status": "CURRENT PNG REFERENCE / 2026-10-01 USER DIRECTED",
+  "note": "Existing approved PNG originals; unchanged by the archived 2026-10-01 Pixel Player experiment.",
+  "delivery": {
+    "gallery": "kneekura-approved-player-art-v1.html",
+    "matchPreview": "kneekura-mini-baseball-match-v16.html",
+    "referenceDocumentationBranch": "jolly/core-realism-2026-09-18"
+  }
+}
