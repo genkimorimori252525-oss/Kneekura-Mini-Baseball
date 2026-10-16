@@ -18,6 +18,7 @@
 
 | Topic | Entry | Status | Meaning |
 | --- | --- | --- | --- |
+| **OOTP-first 王貞治Pilot — FIRST PRIORITY** | [OOTP → 王貞治1人 → on-demand OB plan](player-reconstruction/OOTP-FIRST-OH-PILOT-PLAN.md) | **USER-DIRECTED PLAN / RATINGS NOT EXTRACTED / NOT IMPLEMENTED** | OOTP historical 1974/5yr Current Ratings snapshot → **one shared OOTP-to-Mini converter** → minimal Oh-era physical batting test → only user-requested players. **DO NOT mandate all-player independent calibration or mass historical source audit.** Six lightweight OH checks. |
 | **選手再現部 / Historical OB reconstruction** | [Department README](player-reconstruction/README.md), [OB Prime Principles](player-reconstruction/PRINCIPLES.md) | **USER-DIRECTED PRINCIPLES / DOCUMENTATION & QA WORKFLOW / NOT IMPLEMENTED** | Frozen OB ability, full-career historical evidence, representative multi-year prime means, peak attainment without yearly scripted max. |
 | Reproduction method / lightweight checks | [METHOD-V1-PROPOSAL](player-reconstruction/METHOD-V1-PROPOSAL.md) | **METHOD PROPOSED / NOT CALIBRATED** | Four focused REC checks when needed; use historical facts directly, no full-audit prerequisite. |
 | Fixed OB + season fluctuation | [SEASON-EXPRESSION-PROPOSAL](player-reconstruction/SEASON-EXPRESSION-PROPOSAL.md) | **DESIGN OPTION / NOT APPROVED AS RUNTIME / NOT IMPLEMENTED** | First test daily Condition + matchup/physics variation; add slower coherent execution state only if evidence requires. |
