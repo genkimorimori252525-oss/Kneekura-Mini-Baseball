@@ -26,6 +26,7 @@
 - [NPB公式年度URL探索索引](sources/npb-official-season-index.json) — **171キー**：完了歴史年度168件、2026 as-of 2件、1945公式リーグなし1件。URLの大半はパターン推定で**アクセス未検証**。選手成績は含まない。
 - [史実ソース台帳・権利/品質区分](sources/npb-evidence-source-registry.json) — **19件**。大量インポートや素材コピーが許されたという意味ではない。
 - [参照マニフェスト構造検証ツール](../../tools/player-reconstruction/validate-npb-source-manifests.mjs) — ローカルで `node tools/player-reconstruction/validate-npb-source-manifests.mjs`。オフライン整合性チェックのみで史実の正確性や利用許諾は検証しない。
+- [再現ケース用の型付JSON Schema](schemas/reconstruction-case.schema.json) — 正本技能Source・公式記録・公開Rating・Trait（青/金/赤/緑/青赤/Neutral）・QA証拠・利用権限を分離した**研究用**型提案。人物Save/Match Core正式契約ではない。
 
 **重要:** 戦前〜現代の「公式一軍選手の存在・年次成績」は広く調査できるが、1936〜現代までの球種/球速/回転/打球速度/選球思考などの真値がすべて実測されているわけではない。各選手の非公開技能やTraitは証拠・推論・unknownを分離する。**二軍の全面再現は当面必須としない。**
 
