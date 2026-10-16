@@ -17,7 +17,9 @@
 - 模擬試合の物理は単一Match Core。年次HR/AVG/防御率を後から注入しない。
 - 史実の多人数データを無断転載・スクレイピング・OOTP限定素材を複製しない。資料収集権限がないときは**出典URLと抽出計画・利用申請**までで止める。
 
-## 1. Research pipeline — evidence-gated stages
+## 1. 最短のAI作業フロー — 検証のために開発を止めない
+
+> **2026-10-16ユーザー修正:** 以前記載した「全球団・全年度の細かな歴史差の照合」「全16 ENV Gate必須」「毎回の敵対監査」は**過剰**。ここでは資料を参考に試合環境と選手を作ることが主役。既知の局所的な誤りは一行注記/補正し、他全件を監査せず作業を続ける。§R0–R6§は参考の作業分野であり、各段階のGate通過を全選手に強制しない。
 
 ### R0. Legal & evidence source discovery
 
@@ -30,9 +32,9 @@ AI does:
 1. For every source verify owner / upstream provenance / year coverage / permitted operation / revision; record observed timestamp. **A URL existing is not permission to mass-copy its data.**
 2. Compile `allowedArtifacts`: reference link, minimal factual metadata, manually verified statistic, licensed/importable dataset, art asset (separate license).
 3. If dataset licensing unclear, label `LICENSE_BLOCKED_FOR_BULK_IMPORT`. AI may still document source structure and analytical methodology; it must not silently run a bulk crawler or mirror the database.
-4. Record contradictory facts explicitly; NPB official Korakuen opened 1937, while one OOTP repo labels 1936 records with Korakuen. A conflicting park/geometry input is **not valid** historical world truth.
+4. 既知の後楽園1936問題は該当箇所に短く注記し、必要なら球場を代替する。それだけで作業続行。新たな矛盾を探すための全件調査は行わない。
 
-**Gate:** Source metadata + provenance/rights exists; unanswered legal/terms issues visible.
+**実務:** 出典URLを残す。権利確認は大量インポート/配布時など実際に必要な場合に行い、個別の参照調査まで止めない。
 
 ### R1. Competition / era / league reconstruction
 
@@ -40,9 +42,9 @@ AI does:
 2. Resolve team-season/franchise-year IDs without assuming 12 teams or single home stadium.
 3. Create versioned historical rules, actual PA/games/opponents, recognized schedule/formats, home/away and game venue. DH, split standings, interleague and exceptional-season rules must be year-accurate.
 4. Source-tag incomplete profiles: `OFFICIAL / SECONDARY / INFERRED / UNKNOWN`. Do not manufacture a fake historical roster name. In a research-only simulation, `GENERIC_ENVIRONMENT_PLACEHOLDER` may be used as an explicit league-calibrated stand-in, **never claimed as a real historical player**.
-5. Small anchor audit first: 1936, 1939, 1945, 1950, 1964, 1973, 1975, 1988, 2011, 2020, 2025. Then full year index.
+5. まず必要な年代・選手・球団を復元する。年度索引を再利用し、全時代の代表年を逐一照合してからでなければ次に進めない、という工程は設けない。
 
-**Gate:** [ENV-01..16](NPB-HISTORICAL-ENVIRONMENT-MODEL.md) plus legal per-year source trace.
+**実務:** [歴史環境の最小限の注意](NPB-HISTORICAL-ENVIRONMENT-MODEL.md)を参考にし、判明済みのミスだけ補正する。旧ENV-01..16の全件合格は要求しない。
 
 ### R2. Player identity, documented facts and missing-data handling
 
@@ -66,7 +68,7 @@ For fields without good historical measurements, emit estimated range with confi
 5. Check window sensitivity by nearby-year expansions; if selection of only excellent years raises estimated ratings materially, adjust uncertainty and show selection bias, not secretly delete poorer years.
 6. For actual one-year standout players, use the standout year with before/after years to identify exceptional expression; **do not label a real active player a definitive 'one-hit wonder' merely because 2025 differed from adjacent years**.
 
-**Gate:** source years/selection rules/holdout/uncertainty and future Year Window frozen for experiment reproducibility.
+**実務:** 全盛期の選定年・主な出典は記録する。代表的な成績が再現できるなら、余分な比較資料が揃うまで停止しない。
 
 ### R4. Skill-source inference — use every existing lever, not every label
 
@@ -77,7 +79,7 @@ For fields without good historical measurements, emit estimated range with confi
 5. Cross-check direction bias: pull intent and actual spray must be separate; red/green behavior not raw stats. Do not give every great batter 広角打法 automatically.
 6. Build every `player_recreation_case` from [case template](cases/TEMPLATE.md); missing negative traits or source data are `UNKNOWN` not “none” unless evidence.
 
-**Gate:** no hidden-stat oracle, no double-count, ability labels never backfeed into physics.
+**守ること:** 実能力と得能の二重補正をしない。これはゲーム設計の基本条件で、史実の全件再検証とは別。
 
 ### R5. Season & match simulation for actual calibration
 
@@ -94,21 +96,15 @@ For fields without good historical measurements, emit estimated range with confi
 - If annual spreads too narrow/broad, first test ordinary day-by-day Condition and actual opponent/park/physics variance. Only then consider the [proposed coherent Season Execution Context](SEASON-EXPRESSION-PROPOSAL.md), where the varying inputs have genuine movement/technique causes. No magic yearly “good season” multiplier.
 - Keep original source and calibration change logs; source-data holdout prevents one-test overfitting. Multi-player aggregate fit (league and teams) is part of acceptance, not just Oh's 55HR.
 
-**Gate:** [REC-01..14](METHOD-V1-PROPOSAL.md) + ENV gates; actual run receipts with match-Core HEAD and seed/version.
+**実務:** 代表選手と対象リーグの大まかな成績が妥当か試験する。旧REC/ENV全項目合格を毎回の必須条件にしない。実行していないテストをPASSとは書かない。
 
-### R6. Automatic adversarial audit and release
+### R6. 最小限の結果確認と記録（過剰な敵対監査を廃止）
 
-Check:
-- period mismatch, missing years/unknown fields, 1936 stadium anachronism;
-- legal source provenance + allowed operation;
-- bad numerator/denominator or sample selection; IBBS mixed with walks;
-- ability overfitting/HR scripted, 1-year peak forced yearly;
-- Green/Gold/Red trait conflicts, family double count, magical plate appearances;
-- Trait G..A/GOLD label/weight changed but true Source unchanged => physical results identical;
-- UI image/camera/FPS changed => official results identical;
-- old PNG only; no pixel experiment adoption; local dirty tree safe.
-
-Save reproducible `source_manifest_revision`, `era_profile_revision`, `player_skill_revision`, `core_version`, `seed_ranges`, `calibration_code_version`, test receipts and exceptions. Report **PASS / FAIL / NOT RUN / NOT CONNECTED / RIGHTS_PENDING** without conflation.
+- 結果が明らかにおかしい場合にだけ原因を調べ、具体的な誤りや近似条件を短く注記する。
+- 代表的な選手数名と数シーズンを使い、通常年と最高年への到達可能性を確かめる。毎回すべての年代・全球場・全選手の監査はしない。
+- 必ず守るのは「OBの基礎能力が固定」「打撃/投球結果の直接Buffなし」「使っていない資料を使ったと言わない」「権利のない素材を複製しない」の基本原則。
+- 史実の欠測を数値で補うなら `APPROXIMATE` と示す。作業記録は必要最小限（対象選手・時代・出典・補正点・結果）。
+- **修正可能な小誤りを発見しても全工程を止めず、修正して続きを進める。**
 
 ## 2. Minimum source-backed data contracts (proposed)
 
@@ -159,7 +155,7 @@ Proposed ownership—not existing implementation:
 First practical delivery stage to implement in code (once data use is cleared):
 1. Runtime-independent, typechecked `HistoricalSeasonKey` and `SourceEvidenceRegistry` with valid 1936 split + 1945 exclusion.
 2. Official year/player/club IDs and sample normalized league environments for 1936/1950/1964/1973/1975/2025 (only legal/licensed source import).
-3. Source quality tests including Korakuen anachronism, franchise team name collision and WW2 gap.
+3. 既知の後楽園1936誤記は短い注記またはデータ側補正だけで対処。全球場・全リーグの一律監査工程を新設しない。
 4. Ability-Source mapper to 02/04/09 (no redundant ranks), with `UNKNOWN`.
 5. Case study Oh and one independently chosen multi-year/one-year-comparison hitter, multi-seed/observed-period holdouts.
 6. **Only then** expand E0 to every official first-team year and each player; expand E1/E2/E3 according to evidence, not a blanket 100% complete claim.
@@ -168,7 +164,7 @@ First practical delivery stage to implement in code (once data use is cleared):
 
 Record each research iteration as:
 - **Question:** source/fact/skill/season under investigation.
-- **Evidence:** primary link (NPB), independent cross-check, as-of dates, extraction rights.
+- **Evidence:** 参照した主な出典と必要な補正だけを短く残す。独立した複数サイト照合は必要と判断したときのみ。
 - **Alternative interpretations:** e.g. dramatic season from role/PA/park vs mechanical improvement, not just chosen theory.
 - **Proposed state:** player skill/era input with causal affected variables; full confidence/uncertainty.
 - **Contradiction tests:** who else should behave differently under the same model.
@@ -176,4 +172,4 @@ Record each research iteration as:
 - **User impact:** no manual micromanagement to create every old player; AI performs the analytical work, user reviews rare substantive policy choices.
 - **Status:** DRAFT/RESEARCHED/CALIBRATED/VERIFIED, with root pointers. No status inflation.
 
-**Limitations remain real:** Verified at the repository research stage are public **source discovery and the explicit existing ability catalog**. An actual all-player historical environment, permission-cleared full database, numeric skills for every player, measured old-era spin/motion, fully working baseball Match Core and seeded historical yearly runs **are not yet verified in this branch**.
+**現況:** 公開資料と能力カタログの入口は整備済み。全時代・全選手の実データインポート/能力校正/長期試合実行は未完了。過剰な史実監査を増やすより、利用できる資料を使った選手・環境の実装を優先する。
