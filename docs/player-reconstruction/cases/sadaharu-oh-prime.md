@@ -6,17 +6,17 @@
 >
 > **歴史情報主Source:** [NPB公式・王貞治 個人年度別成績](https://npb.jp/bis/players/81383808.html)。**Trait候補の追加文献:** [Sponichi: 王シフト／打球7割右方向](https://www.sponichi.co.jp/baseball/news/2020/03/07/kiji/20200306s00001173437000c.html)。状況に関する記述は資料由来、下記のゲームProfileは**未校正の推定/仮説**として区別する。
 
-## 次の工程: OOTP-first Pilot（2026-10-16指示）
+## 現在の優先: OOTPを起動せずMiniのNative Coreだけで試す（2026-10-16訂正）
 
-このケースの再現は [OOTP-first 王貞治Pilot計画](../OOTP-FIRST-OH-PILOT-PLAN.md) を優先。**OOTPで1974年を基準に5年参照のCurrent Ratingsを取得するまで、OOTP由来の具体的数値を宣言しない。** 取得できた値をMiniの既存真技能へ一度だけ共通変換し、引っ張り屋候補・広角保留とともに短い試合確認を行う。成功したら個々のOBを同じMapperへ通す。全選手の個別査定を着手条件にしない。
+[最新のMini独立実験方針](../OOTP-FIRST-OH-PILOT-PLAN.md) を優先。OOTP Historicalの`.odb`を参考にできるが、OOTPゲーム本体・選手Editor・年次Recalcは起動/使用しない。王の実成績と当時セ・リーグの比較に基づく[リーグ相対Benchmark](sadaharu-oh-1972-1976-league-reference.json)および[独立した計算器](../../../tools/player-reconstruction/compute-oh-mini-benchmark.mjs)を使い、Mini専用の真Skillを推定して**最新Native物理**へ接続する。現時点の相対値は観測結果であって、ミート/パワーの最終能力でもOOTP生成Ratingでもない。
 
-以前の`ミート96・パワー100・選球眼99`はOOTPデータではなく過去の仮定値。OOTPの実数値を得たら先行参考値として比較し、勝手に「OOTP提供の能力」と言い換えない。
+**以前の`OOTP Editor`数値取得方針は本人指示により撤回。** 旧提案データは履歴に残るが使用しない。`ミート96/パワー100/選球眼99`は先行仮査定で最終値ではない。
 
-## 2026-10-16 実データ取得・OOTP開始地点
+## 2026-10-16 五年史実集計（数値のみ利用、旧OOTPエディター入力は不使用）
 
 **5年の公式成績集計は完了。** [1974年中心の1972〜76年ベンチマーク（JSON）](sadaharu-oh-1974-ootp-editor-input.json) に、**640試合・2744打席・2062打数・657安打・230本塁打・638四球・235三振、打率.319、出塁率.480、長打率.693、130試合換算46.7HR**を記録。
 
-OOTP Editorへ投入する130試合相当の整数入力値は **AB419/H133/2B16/3B0/HR47/BB130/HBP4/SO48**。これは**本物のOOTP Ratings**ではなく、OOTP側に`Create Current Ratings based on stats`を実行させるための史実入力値。OOTP実機へアクセスできないため`contact / gap / HR Power / eye / Avoid K`の実数値はまだ`NOT_OBSERVED`、Mini内の真技能・公開値も未確定。勝手に以前の`ミート96/パワー100/選球眼99`をOOTP由来と読み替えない。
+OOTP Editorへ投入する130試合相当の整数入力値は **AB419/H133/2B16/3B0/HR47/BB130/HBP4/SO48**。これは過去に作った**旧OOTP Editor入力案**であり現在は使用しない。**本物のOOTP Ratingsではない**。OOTP実機へアクセスできないため`contact / gap / HR Power / eye / Avoid K`の実数値はまだ`NOT_OBSERVED`、Mini内の真技能・公開値も未確定。勝手に以前の`ミート96/パワー100/選球眼99`をOOTP由来と読み替えない。
 
 試合Core側は文書ブランチでは`resolveBatBallContact`などの単一時点Contactを確認できたが、打者の年間PAやフルシーズンを動かす統合世界は未検証。OOTP元Ratings未取得・ゲーム全シーズン未実行の状態では**能力値確定とは呼ばない**。
 
