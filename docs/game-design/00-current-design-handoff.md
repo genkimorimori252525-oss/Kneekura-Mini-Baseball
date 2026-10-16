@@ -18,7 +18,7 @@
 - **第一段階はNPBの1936年創設期〜現代の一軍史実環境と選手を幅広く対象にする。** 二軍以下の完全再現は必須としない。これを使って王貞治・長嶋茂雄ほかのOBを、個別のご都合主義パッチではなく、同じ時代環境/競争相手/公開・隠し技能モデルから再現する。
 - [選手再現部のNPB公式/二次/GitHub資料アトラス](../player-reconstruction/NPB-SOURCE-ATLAS-1936-2026.md) と [史実環境モデル](../player-reconstruction/NPB-HISTORICAL-ENVIRONMENT-MODEL.md) に、1936春秋・1937–38春秋、1945通常公式リーグなし、1950二リーグ、年度別球場/規則/試合数をまとめた。[機械可読年度URL探索索引](../player-reconstruction/sources/npb-official-season-index.json)と[出典/権利台帳](../player-reconstruction/sources/npb-evidence-source-registry.json)は**URLとメタデータのみ**。全選手データや使用権を取得済みという意味ではない。
 - **選手に使える公開数値・非公開Source・正/負/緑/金/青赤Traitを見逃さず追う**: [全能力とTraitのAI向け統合索引](../player-reconstruction/PLAYER-CAPABILITY-TRAIT-ATLAS.md)が02/04/08/09/05/53の採用・移動・却下を参照する。史実から確認できない認知/球種/物理値は`UNKNOWN`か明確な`MODEL_CALIBRATED`にし、能力名があるからと確証なしに付与しない。
-- **検証/実装はAIが中心**: [AI-first runbook](../player-reconstruction/AI-RECONSTRUCTION-RUNBOOK.md) は一次資料の権利調査→史実リーグ再構成→本人照合→複数年の全盛期/通常年→Source技能/Trait推定→正史試合Coreで同時代の多seed検証→敵対監査の順序。既知の少数の出典誤りは簡単に注記して、必要箇所のみ補正する。史実全体の再検証はしない。
+- **検証/実装はAIが中心**: [AI-first runbook](../player-reconstruction/AI-RECONSTRUCTION-RUNBOOK.md) は使える史実資料からリーグ/本人/能力を復元し、必要な代表例で試合を検証。資料全件監査や敵対監査を前提としない。既知の少数の出典誤りは簡単に注記して、必要箇所のみ補正する。史実全体の再検証はしない。
 - 大きな注意: NPB公式/2689等の記録や[OOTP historical repository](https://github.com/lebronisbest/OOTP_NPB_Historical) は公開されているだけで転載・大量インポート許可を得たものではない。OOTPのREADMEには**OOTP向け個人非商用限定**の条件があり、1936年後楽園という球場の時代錯誤も確認。データ出所・著作権/利用規約・史実の真正性を分離して扱い、無断流用せず正規の利用方法を検討する。
 - ここまでの実作業は**資料・索引・検証ルール・AI手順の整備**であり、1936〜2025の全選手一軍Rosterや全選手の真技能、試合Coreの長期反復シミュレーションは**未実装／未検証**。動的Ratingや固定OBの元Source、現行ルール/物理について従来正本は上書きしていない。
 
