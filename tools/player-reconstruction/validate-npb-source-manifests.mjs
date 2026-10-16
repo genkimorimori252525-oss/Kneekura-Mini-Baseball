@@ -57,7 +57,7 @@ const required = [
   'CL-2026-FULL','PL-2026-FULL',
 ];
 const seen = new Set(ids);
-for (const id of required) assert(seen.has(id), \`missing historical season: \${id}\`);
+for (const id of required) assert(seen.has(id), 'missing historical season: ' + id);
 
 for(const x of seasons) {
  assert(x.year >= 1936 && x.year <= 2026, 'invalid year ' + x.id);
