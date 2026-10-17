@@ -1,15 +1,19 @@
 ---
-current_task: "MB-20261017-GITHUB-SNAPSHOT-TESTS"
+current_task: "MB-20261017-GITHUB-PUBLICATION-CLOSURE"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "df61388b32c773c14c2ce146e76d69e98818eb41"
+commit_head: "b7076eb2652bd3f2f2a22cc5aa4b406c78f52c61"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261017-GITHUB-SNAPSHOT-TESTS_f75ebeeabd544e4ea9bc042c0146affe.json"
-updated_at: "2026-10-17T04:07:19.923193+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261017-GITHUB-PUBLICATION-CLOSURE_1b8946e9bb19437ca8a7a464e9b65557.json"
+updated_at: "2026-10-17T04:13:32.198028+00:00"
 
 ---
 
-## Latest human priority — public ability editor (SCOPED VERIFIED; ORIGINAL PLAN IN PROGRESS)
+## Latest human priority — GitHub snapshot published (VERIFIED; ORIGINAL PLAN IN PROGRESS)
+
+Human requested latestdesign+HTML committed anduploaded. CumulativeSource/docs/tools+game/maker+OBPlicenses+tested103inputZIP saved2350files in b7076eb2652bd3f2f2a22cc5aa4b406c78f52c61, pushed existing jolly/tbd-lad-native-browser-core-2026-10-14. Remote ls-remote andPR380head matched b7076eb; existingPRupdatedtitle/body, Draftmaintained, no mainmerge. GitHubraw game/maker/ZIP downloaded viaurllib andSHA256exactmatchedall3 (ghapiZIPbinaryread initiallyfailed shortsourcebuffer; publicrawread succeeded). Remote tree/archive103input+artifactSHA+originaltest/TSCreceipts/logSHA closure PASS1b8946e9bb19437ca8a7a464e9b65557/1.483s. docs/verification/releases/v41/publication.json andremote-downloads.json preserveconfirmation. Final metadata-record commit mayfollow thisSourcecommit, withoutproductchanges. No repushofCore or fullgoalcompletion implied. Publicentry docs/handoffs/2026-10-17-LATEST.md; HTML docs/demos/releases/v41/game.html andmaker.html. Generatedtested-core-inputs.zip774329bytes SHA89be4a599e7607d129a6f5d35c93e79ae3fbb585a9223d1516fc26c61e141afc contains110snapshotfiles+3licenses/CRC/allbytesPASS. Existing65unchangedCoreGitblobsLF vsworkingCRLF explicitlydistinguished, raw103SourcepreservedinZIP. Selected2350new/changedGitblobsbyteexacttoworktree, secretpatterncandidates0. Fourexisting/newfileshave extraEOFblankline; preservedtoavoidalteringtestedSource, no blanketwhitespaceclaim. AGENTS/.agents/localbackup/tempwork/obsoleteMMDdata/oldgeneratedoutputs excludedandpreserved. Fresh119tests/globalTSC/builds below. No Sourceeditaftertests. Save task achieved; originalNative/rules/scoring/traits/new100games/calibration/realphone gapsstillopen. ExistingCharterHOLD/oldFAIL/UNKNOWN preserved.
+
+## Previous human priority — public ability editor (SCOPED VERIFIED; ORIGINAL PLAN IN PROGRESS)
 
 2026-10-17 human explicitly requested commit+GitHub upload including latest design andHTML. Publishing cumulative project Source/docs/tools to EXISTING branch/DraftPR380, no mainmerge. Remotehead equals initialdf61388b beforepush. Latest downloadables copied byteexact into docs/demos/releases/v41/game.html+maker.html, latesthandoff docs/handoffs/2026-10-17-LATEST.md, original00/05startdocs pointthere. OriginalOBPlicenses/attribution included. v41builder now uses sameSHA approved-v27-baseline.html bundled inrepo instead of personalDownloads; regeneratedgame/maker EXACTsame finalSHA. Source103/data/UI unchanged, native authenticationnotclaimed. Freshprepublish11files119testsPASSf75ebeeabd544e4ea9bc042c0146affe/7.187s; globalTSCee216fe1f27349f1bda2c4526b82a473/24.468s; gamebuild1ec3acc802234bfebe60157868cd3135 andmakerbuild1aabef23905a4b059703130c13ec27f8 PASS. Selectedproject filessecretpatternscan0findings, allunder100MB. LocalAGENTS/.agents/backups/tempwork/obsoleteMMDdata/oldgeneratedoutputs excludedandpreserved. Commitis INPROGRESS work snapshot, notwholegoalcompletion. Needstagedblob/HTML+103pins exactchecks→commit→normalpush→remoteSHAverify→existingPRbodyupdate; no permissionquestionneeded. No newagentdelegation.
 

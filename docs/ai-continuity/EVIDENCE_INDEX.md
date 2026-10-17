@@ -817,3 +817,4 @@ Only record verification that was actually performed.
 | MB-20261017-GITHUB-REBUILD-GAME | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261017-GITHUB-REBUILD-GAME_1ec3acc802234bfebe60157868cd3135.json |
 | MB-20261017-GITHUB-REBUILD-MAKER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261017-GITHUB-REBUILD-MAKER_1aabef23905a4b059703130c13ec27f8.json |
 | MB-20261017-GITHUB-SNAPSHOT-TSC | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261017-GITHUB-SNAPSHOT-TSC_ee216fe1f27349f1bda2c4526b82a473.json |
+| MB-20261017-GITHUB-PUBLICATION-CLOSURE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261017-GITHUB-PUBLICATION-CLOSURE_1b8946e9bb19437ca8a7a464e9b65557.json |
