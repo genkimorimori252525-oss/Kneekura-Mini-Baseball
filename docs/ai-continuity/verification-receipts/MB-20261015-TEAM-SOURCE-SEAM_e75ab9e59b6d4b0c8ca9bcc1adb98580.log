@@ -1,0 +1,13 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/SamePlateAppearanceDefensiveCandidateSourceV1.test.ts (3 tests) 6ms
+ ✓ src/host/world/DefensiveCandidateCalculationV1.test.ts (7 tests) 317ms
+ ✓ src/host/world/SamePlateAppearancePhysicalFieldActions.test.ts (13 tests) 1391ms
+   ✓ FS02 all nine original defenders execute including cover after a genuinely moved and locally perceived handler 540ms
+
+ Test Files  3 passed (3)
+      Tests  23 passed (23)
+   Start at  06:44:08
+   Duration  9.62s (transform 7.38s, setup 0ms, collect 22.51s, tests 1.71s, environment 1ms, prepare 712ms)
+

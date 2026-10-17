@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser",
+    "src/core/sim/ball/BaseballGroundDynamics.test.ts",
+    "src/core/sim/ball/FreeBaseballTrajectory.test.ts",
+    "src/core/sim/fielding/GeneralDefensivePlaySearch.test.ts",
+    "src/core/sim/fielding/GeneralTeamTacticalCoordinator.test.ts",
+    "src/presentation/mini/OpticalBaseballGlyph.test.ts",
+    "src/presentation/mini/NativeSpinOrientationObserver.test.ts",
+    "src/integration/native-game/TeamCoverageExecutionGate.test.ts",
+    "src/core/rules/ForceDoublePlayVerticalSlice.test.ts",
+    "src/core/rules/P1RuleAcceptanceMatrix.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-14T18:08:06.926+00:00",
+  "elapsed_ms": 2187,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015_80f751f3c44045108778fe0d1d037771.log",
+  "output_sha256": "914e247b08ccb68509e5b1260349680e0326ceec7bf1a4d184358bdf92055071",
+  "receipt_id": "MB-20261015_80f751f3c44045108778fe0d1d037771"
+}

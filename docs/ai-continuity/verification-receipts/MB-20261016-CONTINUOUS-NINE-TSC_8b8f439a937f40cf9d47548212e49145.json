@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-CONTINUOUS-NINE-TSC",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-15T20:28:14.224+00:00",
+  "elapsed_ms": 43360,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-CONTINUOUS-NINE-TSC_8b8f439a937f40cf9d47548212e49145.log",
+  "output_sha256": "e5064897734918ddad745157b78e9fbc6d425f3417acbb7223489f856dcd141e",
+  "receipt_id": "MB-20261016-CONTINUOUS-NINE-TSC_8b8f439a937f40cf9d47548212e49145"
+}

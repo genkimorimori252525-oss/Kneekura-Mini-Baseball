@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V40-NORMAL-HTML-NINE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v40-game.mjs",
+    "../../outputs/ばせぼーるlv40_TBD_vs_LAD_個人能力と守備カバー接続版.html",
+    "../../outputs/verification-v40-game-v1"
+  ],
+  "observed_at": "2026-10-17T03:28:13.858+00:00",
+  "elapsed_ms": 141405,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V40-NORMAL-HTML-NINE_5d7b0c3b176e42b793f451225df668de.log",
+  "output_sha256": "3cc243f4a392862a56974530f0d39bd79049081ff381cfecd189fbc2d541f1f0",
+  "receipt_id": "MB-20261017-V40-NORMAL-HTML-NINE_5d7b0c3b176e42b793f451225df668de"
+}

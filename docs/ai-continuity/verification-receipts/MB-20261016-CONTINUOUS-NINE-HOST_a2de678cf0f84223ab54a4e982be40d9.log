@@ -1,0 +1,32 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/SamePlateAppearanceTeamMotorSelectionV1.test.ts (5 tests) 335ms
+ ✓ src/host/world/SamePlateAppearanceSourceFieldV3.test.ts (6 tests) 1216ms
+   ✓ inserts all five metadata kinds at the exact post-impulse cut without adding a physical horizon 489ms
+ ✓ src/host/world/SamePlateAppearanceSourceIntegerCheckpointV1.test.ts (8 tests) 17656ms
+   ✓ branches from the full original v3 metadata prefix and executes same-tick positive physical time on its original Source 1393ms
+   ✓ routes the dedicated action through the owner calculation without relaxing the ordinary stale-step guard 1286ms
+   ✓ retains the new branch for later metadata/free steps and rejects returning to the old version 3858ms
+   ✓ rejects exact-zero waits, different ticks, marker/result injection, unsupported motor/custody and legacy roots 1477ms
+   ✓ rejects forged prefix refs, metadata, Source side/state, actors and saved checkpoint diagnostics 3234ms
+   ✓ retains an earlier real impulse as a physical boundary, then rederives its private escape before another wait 1858ms
+   ✓ accepts a bounded 50-primitive nine-defender metadata collection while each original record keeps the inert size limit 3527ms
+   ✓ rejects active envelopes/records, exotic prototypes, sparse or excessive histories and oversized individual records 1021ms
+ ✓ src/host/world/SamePlateAppearanceSourceMotorFieldV1.test.ts (5 tests) 31866ms
+   ✓ connects complete owned team selections through real rated motor and Source replay, retaining all six roles and ball spin 4486ms
+   ✓ preserves the real Source glove candidate as a terminal field without granting custody or allowing later free work 4464ms
+   ✓ keeps per-record inert limits and rejects active, exotic, oversized or sparse replay envelopes 4347ms
+   ✓ replays later free/metadata history and rejects mutated original motors/evidence or returning to integer/old versions 12152ms
+   ✓ rejects legacy/subset/stale team selections and future first-step or invalid body calibration before any Source movement 6415ms
+ ✓ src/host/world/SamePlateAppearanceSourceAcquisitionFieldV1.test.ts (4 tests) 69044ms
+   ✓ reads the real terminal motor prefix without a fake future Source and keeps caller replacement state closed 7111ms
+   ✓ dispatches actual candidate through absorption and recorded fence while retaining timeline and Source evidence 18062ms
+   ✓ rederives atomic capture identically and rejects changed candidate refs, clocks, progress and legacy transitions 22034ms
+   ✓ retains a real competing wall as interrupted and never promotes it to possession 21836ms
+
+ Test Files  5 passed (5)
+      Tests  28 passed (28)
+   Start at  05:30:22
+   Duration  76.42s (transform 9.10s, setup 0ms, collect 34.25s, tests 120.12s, environment 1ms, prepare 881ms)
+

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "LIVE_MATCH_RECORDING_PURE_V4_COPY_BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "--input-type=module",
+    "-e",
+    "import {build} from \"esbuild\"; import {mkdirSync,readdirSync,copyFileSync,writeFileSync} from \"node:fs\"; import {resolve} from \"node:path\"; const src=resolve(\"../../outputs/verification-authored-with-bat-v33-population-probe-v1\"),out=resolve(\"../../outputs/verification-live-match-recordings-pure-v1\");mkdirSync(out,{recursive:false});const inputs=[];for(const shard of readdirSync(src)){if(!/^shard-\\d+$/.test(shard))continue;const dst=resolve(out,shard);mkdirSync(dst);for(const file of readdirSync(resolve(src,shard))){if(/^game-\\d+\\.json$/.test(file)){copyFileSync(resolve(src,shard,file),resolve(dst,file));inputs.push({shard,file});}}}await build({entryPoints:[\"tools/verification/verify-live-match-recordings.ts\"],outfile:resolve(out,\"verify.mjs\"),bundle:true,platform:\"node\",format:\"esm\",target:\"node22\",logLevel:\"error\"});writeFileSync(resolve(out,\"copied-inputs.json\"),JSON.stringify({source:src,scope:\"Read-only original v4 saved games; rule replay only, no matching-source physical claim\",inputs},null,2));console.log(JSON.stringify({out,inputs:inputs.length}));"
+  ],
+  "observed_at": "2026-10-17T01:02:00.965+00:00",
+  "elapsed_ms": 264,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/LIVE_MATCH_RECORDING_PURE_V4_COPY_BUILD_ed6b74014a9245d5b712cb7724af026c.log",
+  "output_sha256": "eaeca0ff861d4e995aa9c7dc6057c048efab101117a09b6a24a7ff5cc35bddad",
+  "receipt_id": "LIVE_MATCH_RECORDING_PURE_V4_COPY_BUILD_ed6b74014a9245d5b712cb7724af026c"
+}

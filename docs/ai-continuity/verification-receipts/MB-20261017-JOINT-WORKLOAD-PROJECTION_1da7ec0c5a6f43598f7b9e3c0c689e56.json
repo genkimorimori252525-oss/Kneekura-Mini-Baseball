@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-JOINT-WORKLOAD-PROJECTION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "--maxWorkers",
+    "1",
+    "--minWorkers",
+    "1",
+    "src/host/world/InitialJointWorkloadProjection.test.ts",
+    "src/host/world/InitialJointPhysicalSourceInput.test.ts"
+  ],
+  "observed_at": "2026-10-16T15:11:51.896+00:00",
+  "elapsed_ms": 12484,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-JOINT-WORKLOAD-PROJECTION_1da7ec0c5a6f43598f7b9e3c0c689e56.log",
+  "output_sha256": "97335f9392b171618b72ba3f975dba24d4c82bff00e2469479526ef8ce4e188b",
+  "receipt_id": "MB-20261017-JOINT-WORKLOAD-PROJECTION_1da7ec0c5a6f43598f7b9e3c0c689e56"
+}

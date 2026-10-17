@@ -1,0 +1,18 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: [{"path":"src/integration/browser/LiveBaseballMatchV1.test-support.ts","frozenSha256":"39c31fd72c166877717174bdbf6324db2e861fead847f85f13cd81c44b9d6fc4","browserSha256":null}]
+
+1 !== 0
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v33-inputs.mjs:28:8 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 1,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-CALIBRATED-SOLE-SUPPORT-TEST",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/FiniteFieldActorClearanceV1.test.ts",
+    "src/host/world/JointFieldSuccessorCommand.test.ts"
+  ],
+  "observed_at": "2026-10-16T21:51:51.765+00:00",
+  "elapsed_ms": 7781,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-CALIBRATED-SOLE-SUPPORT-TEST_3d7b35378006403985fe21dfeaf21f14.log",
+  "output_sha256": "080f203893fb83da14caaa52f605836dbd607784364a6167c0c3e0c08b5b8432",
+  "receipt_id": "MB-20261017-CALIBRATED-SOLE-SUPPORT-TEST_3d7b35378006403985fe21dfeaf21f14"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-DECISION-FINAL-READER-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/native-game/build-measured-model-readback.mjs",
+    "../native-observed-initial-decision-reader-v4",
+    "observed_cut_readback"
+  ],
+  "observed_at": "2026-10-16T11:42:13.167+00:00",
+  "elapsed_ms": 906,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-DECISION-FINAL-READER-BUILD_c264e885dd3343529b734c75c1f83ba5.log",
+  "output_sha256": "80a70ff95617a1483567c4fe4922bd55fc6be8737f51726cf56010505ec1aada",
+  "receipt_id": "MB-20261016-INITIAL-DECISION-FINAL-READER-BUILD_c264e885dd3343529b734c75c1f83ba5"
+}

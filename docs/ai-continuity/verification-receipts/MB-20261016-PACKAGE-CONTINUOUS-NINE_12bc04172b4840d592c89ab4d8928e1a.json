@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-PACKAGE-CONTINUOUS-NINE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../package-delivery.py"
+  ],
+  "observed_at": "2026-10-15T20:35:13.317+00:00",
+  "elapsed_ms": 20655,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-PACKAGE-CONTINUOUS-NINE_12bc04172b4840d592c89ab4d8928e1a.log",
+  "output_sha256": "4170b3b867b39d96c17d487822ee168b872dc7de3951bbe710cc8f8cc90f3db7",
+  "receipt_id": "MB-20261016-PACKAGE-CONTINUOUS-NINE_12bc04172b4840d592c89ab4d8928e1a"
+}

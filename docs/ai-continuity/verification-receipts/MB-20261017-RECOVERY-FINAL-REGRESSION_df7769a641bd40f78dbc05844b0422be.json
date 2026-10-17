@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-RECOVERY-FINAL-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "--maxWorkers",
+    "1",
+    "--minWorkers",
+    "1",
+    "src/core/sim/contact/PostImpactBatBodyControlV1.test.ts",
+    "src/core/sim/pitch/PostImpactBatBodyWorldV1.test.ts",
+    "src/core/sim/pitch/ControlledBatBodyPitchWorldV1.test.ts",
+    "src/core/sim/pitch/ControlledPitchWorldV1.test.ts",
+    "src/core/sim/contact/HeldToMeasuredBatControlV1.test.ts",
+    "src/core/sim/contact/WoodBatSpeedResponseProfile.test.ts",
+    "src/core/sim/pitching/AerodynamicRigidPitchAgainstBatter.test.ts",
+    "src/host/world/InitialJointRecoveryCommand.test.ts",
+    "src/host/world/InitialJointWorkloadProjection.test.ts",
+    "src/host/world/InitialJointPhysicalSourceInput.test.ts"
+  ],
+  "observed_at": "2026-10-16T16:09:41.358+00:00",
+  "elapsed_ms": 19296,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-RECOVERY-FINAL-REGRESSION_df7769a641bd40f78dbc05844b0422be.log",
+  "output_sha256": "fdfe60e91e82a75d480642aac1c8cde934890a175d09cd356cded2c890bd0c34",
+  "receipt_id": "MB-20261017-RECOVERY-FINAL-REGRESSION_df7769a641bd40f78dbc05844b0422be"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-PIPELINE-READER-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/native-game/build-measured-model-readback.mjs",
+    "../native-observed-initial-cut-readback-v2",
+    "observed_cut_readback"
+  ],
+  "observed_at": "2026-10-15T23:47:43.953+00:00",
+  "elapsed_ms": 906,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-PIPELINE-READER-BUILD_b7675db71b84466e9b236dc68d96e4df.log",
+  "output_sha256": "dd1d6ba0fdd375b6360ab8b593ed8b1b50764dd96fa0de671ad308714e84aed2",
+  "receipt_id": "MB-20261016-INITIAL-PIPELINE-READER-BUILD_b7675db71b84466e9b236dc68d96e4df"
+}

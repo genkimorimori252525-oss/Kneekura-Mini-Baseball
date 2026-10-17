@@ -1,17 +1,15 @@
+import { planBattingMotorV1 } from './BattingMotorPlanV1';
 import type { EmotionResult } from '../EmotionTypes';
 import { attempt, integer, obj, fail } from '../EmotionValidation';
 import { cloneExecutionData } from '../execution/ExecutionValidation';
-import { planAerodynamicCourseAwareSwingV1 } from '../../../sim/pitching/AerodynamicCourseAwareSwingV1';
-import { shiftSwingKinematicsTrajectoryV1 } from '../../../sim/contact/SwingKinematicsV1';
-import type { BattingCommitment, BattingExecutionProposal, BattingExecutionRequest, BattingSource } from './BattingTypes';
-import { coreCall, readBattingRequest, readBattingDecisionValues, readBattingRepertoireValues, numberValue } from './BattingValidation';
-import { resolveMotorStart, selectPredictionAt } from './BattingTiming';
-import { assertSwingSpeedEnvelope } from './BattingSpeedEnvelope';
+import type { BattingCommitment, BattingExecutionProposal, BattingExecutionRequest, BattingSource, BattingRepertoireValues } from './BattingTypes';
+import { readBattingRequest, readBattingDecisionValues, readBattingRepertoireValues, numberValue } from './BattingValidation';
+import { selectPredictionAt } from './BattingTiming';
 
 export type BattingExecutionValues = Readonly<{
  decision: BattingSource['decisionModel'];
  motor: Pick<BattingSource,'motorLatencyTicks'|'technicalTimingOffsetTicks'|'maximumSweetSpotSpeedMps'>;
- repertoire: Pick<BattingSource,'repertoireId'|'repertoireVersion'|'profiles'>;
+ repertoire: BattingRepertoireValues;
 }>;
 export type BattingExecutionCalculationInput = Readonly<{ nominalRequest: BattingExecutionRequest; effectiveValues: BattingExecutionValues }>;
 export type BattingExecutionCalculation = BattingExecutionCalculationInput & Readonly<{
@@ -20,7 +18,8 @@ export type BattingExecutionCalculation = BattingExecutionCalculationInput & Rea
 }>;
 function nominalValues(s:BattingSource):BattingExecutionValues {
  return {decision:s.decisionModel,motor:{motorLatencyTicks:s.motorLatencyTicks,technicalTimingOffsetTicks:s.technicalTimingOffsetTicks,
-  maximumSweetSpotSpeedMps:s.maximumSweetSpotSpeedMps},repertoire:{repertoireId:s.repertoireId,repertoireVersion:s.repertoireVersion,profiles:s.profiles}};
+  maximumSweetSpotSpeedMps:s.maximumSweetSpotSpeedMps},repertoire:{repertoireId:s.repertoireId,repertoireVersion:s.repertoireVersion,profiles:s.profiles,
+   ...(Object.hasOwn(s,'sampledProfiles')?{sampledProfiles:s.sampledProfiles}:{})}};
 }
 function readValues(raw:unknown):BattingExecutionValues {
  const p='batting.effectiveValues',v=obj(raw,['decision','motor','repertoire'],p);
@@ -54,19 +53,10 @@ function calculate(request:BattingExecutionRequest,values:BattingExecutionValues
    adjustedSwingScore:score,profileId:null,profileVersion:null,preferredStartTick:null,motorStartTick:null,motorDelayTicks:0,
    technicalTimingOffsetTicks:values.motor.technicalTimingOffsetTicks,trajectory:null};
   if(!shouldSwing)return {...shell,status:'READY',commitment:base};
-  const profile=values.repertoire.profiles.filter(x=>x.minimumAggression<=accepted.inputs.swingAggression).at(-1)!.profile;
-  const planned=coreCall('batting.plan',()=>planAerodynamicCourseAwareSwingV1({predictedTrajectory:prediction!.trajectory,
-   plateZ:s.plateZ,strikeZone:s.strikeZone,handedness:s.handedness,batterCenterOfMass:s.centerOfMass,physical:s.batPhysical,profile}));
-  if(planned===null)return {...shell,status:'UNRESOLVED_PREDICTION',commitment:null};
-  const preferred=coreCall('batting.technicalTiming',()=>shiftSwingKinematicsTrajectoryV1(planned.swingPlan.trajectory,values.motor.technicalTimingOffsetTicks));
-  const motorStartTick=resolveMotorStart(preferred.startTick,now,s.bodyReadyTick,values.motor.motorLatencyTicks);
-  if(motorStartTick>s.latestMotorStartTick)return {...shell,status:'MOTOR_WINDOW_MISSED',commitment:null};
-  const motorDelayTicks=motorStartTick-preferred.startTick;
-  const trajectory=coreCall('batting.motorTiming',()=>shiftSwingKinematicsTrajectoryV1(preferred,motorDelayTicks));
-  assertSwingSpeedEnvelope(trajectory,values.motor.maximumSweetSpotSpeedMps);
-  cloneExecutionData(trajectory,'batting.trajectory');
-  return {...shell,status:'READY',commitment:{...base,profileId:profile.profileId,profileVersion:profile.version,
-   preferredStartTick:preferred.startTick,motorStartTick,motorDelayTicks,trajectory}};
+  const plan=planBattingMotorV1({decisionTick:now,aggression:accepted.inputs.swingAggression,geometry:s,
+   motor:values.motor,repertoire:values.repertoire,forecast:prediction!});
+  if(plan.status!=='READY')return {...shell,status:plan.status,commitment:null};
+  return {...shell,status:'READY',commitment:{...base,...plan.motion}};
  }
 
 /** Legacy shape, validation and results remain unchanged. */

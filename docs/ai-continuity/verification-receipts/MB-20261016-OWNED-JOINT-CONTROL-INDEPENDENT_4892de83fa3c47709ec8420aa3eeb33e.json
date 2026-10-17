@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OWNED-JOINT-CONTROL-INDEPENDENT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-owned-joint-control-reader-v1/readback.mjs",
+    "../../outputs/verification-authored-with-bat-owned-hand-v1/match.sqlite",
+    "../../outputs/verification-authored-with-bat-owned-hand-v1/request.json",
+    "../../outputs/verification-authored-with-bat-owned-hand-v1/preparation.json",
+    "../../outputs/verification-authored-with-bat-owned-hand-v1/independent-readback.json"
+  ],
+  "observed_at": "2026-10-16T13:56:22.144+00:00",
+  "elapsed_ms": 14234,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OWNED-JOINT-CONTROL-INDEPENDENT_4892de83fa3c47709ec8420aa3eeb33e.log",
+  "output_sha256": "fc30cd5a65de4479944e34b1c66cae02fec1f293db735f2ce42376bad986c316",
+  "receipt_id": "MB-20261016-OWNED-JOINT-CONTROL-INDEPENDENT_4892de83fa3c47709ec8420aa3eeb33e"
+}

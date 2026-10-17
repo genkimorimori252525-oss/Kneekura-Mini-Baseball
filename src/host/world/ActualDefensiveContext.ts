@@ -1,6 +1,7 @@
 import { assertDefensiveMetadataUnambiguous as unambiguous, defensiveMetadataId as metadataId, defensiveMetadataScope as metadataScope } from './ActualDefensiveMetadata';
 import { actualFieldObservationEvidenceFromSqlite } from './SqliteActualFieldObservationStore';
 import { battedWorldFieldEvidenceFromSqlite } from './SqliteBattedWorldFieldStore';
+import { battedWorldFieldGeometry } from './BattedWorldFieldRoot';
 import { playerObservationModelEvidenceFromSqlite } from './SqlitePlayerObservationModelStore';
 import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import type { ActualObservationMoment } from './ActualFieldObservation';
@@ -54,7 +55,7 @@ export const actualDefensiveContextFromSqlite = (db: DefensiveDb) => {
       || model.source.personLinkSourceId !== actor.binding.personLinkSourceId || json(model.fieldingModel.person) !== json(actor.person)
       || model.source.acceptedAtDay > actor.binding.gameDay) throw new Error('actual defensive Player/Person/fielding/day differs');
     if (current) observations.current(observation);
-    return { observation, fieldingModel: model.fieldingModel, binding: actor.binding,
+    return { observation, geometry: battedWorldFieldGeometry(field), fieldingModel: model.fieldingModel, binding: actor.binding,
       self: { playerId, registeredPosition: defender.registeredPosition, positionConvention: 'identity_only_no_position_consumed' as const },
       ticksPerSecond: world.flight.source.execution.ballFlightParameters.ticksPerSecond };
   };

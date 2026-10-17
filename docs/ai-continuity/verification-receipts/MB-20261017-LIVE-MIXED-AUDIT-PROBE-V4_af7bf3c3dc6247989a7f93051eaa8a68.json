@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-MIXED-AUDIT-PROBE-V4",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "../../work/live-game-audit-v3/live-match-audit.mjs",
+    "1",
+    "../../outputs/verification-authored-with-bat-v33-game-probe-v4",
+    "0",
+    "unit"
+  ],
+  "observed_at": "2026-10-17T00:35:57.253+00:00",
+  "elapsed_ms": 74625,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-MIXED-AUDIT-PROBE-V4_af7bf3c3dc6247989a7f93051eaa8a68.log",
+  "output_sha256": "4f2cc70cc953dbd074bbb0edd166c8820958cac32b12b8f70a4ea94a5d14387a",
+  "receipt_id": "MB-20261017-LIVE-MIXED-AUDIT-PROBE-V4_af7bf3c3dc6247989a7f93051eaa8a68"
+}

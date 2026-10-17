@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "LIVE_INDIVIDUAL_ABILITIES_FINAL_TESTS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePhysicalRosterV1.test.ts",
+    "src/integration/browser/LivePitchAbilitiesV1.test.ts",
+    "src/integration/browser/LivePitchV1.test.ts",
+    "src/core/sim/contact/ReferenceBatKinematicsV1.test.ts",
+    "tools/verification/LiveMatchRecordingV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T03:18:36.265+00:00",
+  "elapsed_ms": 2406,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/LIVE_INDIVIDUAL_ABILITIES_FINAL_TESTS_979148571ac4485ba8fe645f57e2a09b.log",
+  "output_sha256": "7c16d27f7525c00efe16078a0b2bc1ae9dc8268b26adaec9b41dc4b15adc1468",
+  "receipt_id": "LIVE_INDIVIDUAL_ABILITIES_FINAL_TESTS_979148571ac4485ba8fe645f57e2a09b"
+}

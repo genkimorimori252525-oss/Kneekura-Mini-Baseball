@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V36-PACKAGE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../package-v36.py"
+  ],
+  "observed_at": "2026-10-17T02:39:29.204+00:00",
+  "elapsed_ms": 2389,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V36-PACKAGE_3818beeada0840729712127d02a65061.log",
+  "output_sha256": "b0bcdc55cb912f13dc07b4db74a3e70851ec20a6eec8654d2c2d3e813868ce51",
+  "receipt_id": "MB-20261017-V36-PACKAGE_3818beeada0840729712127d02a65061"
+}

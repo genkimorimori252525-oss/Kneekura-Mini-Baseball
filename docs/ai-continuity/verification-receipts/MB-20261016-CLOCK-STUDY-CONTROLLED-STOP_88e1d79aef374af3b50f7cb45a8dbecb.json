@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-CLOCK-STUDY-CONTROLLED-STOP",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../preserve-clock-domain-study.py"
+  ],
+  "observed_at": "2026-10-15T19:33:43.950+00:00",
+  "elapsed_ms": 250,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-CLOCK-STUDY-CONTROLLED-STOP_88e1d79aef374af3b50f7cb45a8dbecb.log",
+  "output_sha256": "f7ff409fbb0a36837bf8f79c0daca1005713bf58467442dc363f6141a5e44bdc",
+  "receipt_id": "MB-20261016-CLOCK-STUDY-CONTROLLED-STOP_88e1d79aef374af3b50f7cb45a8dbecb"
+}

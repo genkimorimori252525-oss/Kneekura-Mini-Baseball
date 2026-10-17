@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-FIELD-FORECAST-ARENA-TEST-2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T00:30:50.273+00:00",
+  "elapsed_ms": 20437,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-FIELD-FORECAST-ARENA-TEST-2_b55d8b30efb54e68a8fe5b16d0d02022.log",
+  "output_sha256": "dfd8047ed23a4470e14f0fd7a32226faa9bb169edfa307c87fdb4a43eda3c930",
+  "receipt_id": "MB-20261017-FIELD-FORECAST-ARENA-TEST-2_b55d8b30efb54e68a8fe5b16d0d02022"
+}

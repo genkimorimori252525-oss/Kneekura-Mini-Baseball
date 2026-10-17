@@ -1,4 +1,5 @@
 import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
+import { createBattingCommitmentSwingWindow } from '../../core/world/psychology/batting/BattingSwingWindow';
 import { samePaOccupiedRunnerHoldRetirement } from './SqliteSamePlateAppearanceOccupiedRunnerHoldStore';
 import { readSamePaLifecycleClaimRows } from './SamePlateAppearanceLifecycleClaimGuard';
 import { deriveSamePaCatchLifecycleOutcome } from './SamePlateAppearanceCatchLifecycleOutcomeFromSqlite';
@@ -51,7 +52,11 @@ export const samePaOutcomeFieldEvidence=(db:DatabaseSync,b:SamePaLifecycleViewBa
     if(op.physicalPitchReference.sourceId!==b.view.cut.physicalPitchReference.sourceId)continue;
     if(op.record.kind==='same_pa_physical_field_root_v1'||op.record.kind==='same_pa_physical_field_step_v1')fields.push(op.record);
     if(op.record.kind==='same_pa_physical_launch_v1')commands.push({kind:'pitch_delivery',sourceReference:ref,playerId:op.record.pitcherMember.playerId,role:'pitch_delivery',validThroughTick:op.record.delivery.timeline.followThroughEndUs,originalCommand:op.record.delivery.timeline,originalCommandHash:hash(op.record.delivery.timeline)});
-    if(op.record.kind==='same_pa_physical_commitment_v1'&&op.record.commitment.trajectory)commands.push({kind:'batting_motor',sourceReference:ref,playerId:b.actor.binding.playerId,role:'batting_motor',validThroughTick:op.record.commitment.trajectory.endTick,originalCommand:op.record.commitment.trajectory,originalCommandHash:hash(op.record.commitment.trajectory)});
+    if(op.record.kind==='same_pa_physical_commitment_v1'&&op.record.commitment.action==='SWING'){
+      const motor=createBattingCommitmentSwingWindow(op.record.commitment,op.record.calculation.nominalRequest.source.batPhysical);
+      const originalCommand=op.record.commitment.sampledTrajectoryV1??op.record.commitment.trajectory!;
+      commands.push({kind:'batting_motor',sourceReference:ref,playerId:b.actor.binding.playerId,role:'batting_motor',validThroughTick:motor.endTick,originalCommand,originalCommandHash:hash(originalCommand)});
+    }
   }
   const root=fields[0],last=fields.at(-1);if(!root||root.kind!=='same_pa_physical_field_root_v1'||!last)throw new Error('lifecycle complete field root missing');
   const contacts:BallWorldBattedRuleContactFrame[]=[],baseContacts:BallWorldFieldTerritoryInput['baseContacts'][number][]=[],groundSegments:NonNullable<BallWorldFieldTerritoryInput['groundSegments']>[number][]=[];
@@ -117,8 +122,10 @@ const outcome=(db:DatabaseSync,source:AcceptedSamePaLifecycleOutcome,current:boo
       const launch=readSamePaPhysicalOperationFromSqlite(db,op.physicalPitchReference).record;if(launch.kind!=='same_pa_physical_launch_v1')throw new Error('terminal physical launch missing');
       commands=[{kind:'pitch_delivery',sourceReference:op.physicalPitchReference,playerId:launch.pitcherMember.playerId,role:'pitch_delivery',validThroughTick:launch.delivery.timeline.followThroughEndUs,originalCommand:launch.delivery.timeline,originalCommandHash:hash(launch.delivery.timeline)}];
       const prefix=readSamePaLifecycleRecordFromSqlite(db,'prefix',b.view.source.prefixReference.sourceId) as SamePaLifecyclePrefix;
-      for(const ref of prefix.source.eventReferences.filter(r=>r.owner==='pa_physical_v1_commitments')){const p=readSamePaPhysicalOperationFromSqlite(db,ref as SamePaPhysicalOperationReference);if(p.physicalPitchReference.sourceId===c.physicalPitchReference.sourceId&&p.record.kind==='same_pa_physical_commitment_v1'&&p.record.commitment.trajectory)
-        commands.push({kind:'batting_motor',sourceReference:ref,playerId:b.actor.binding.playerId,role:'batting_motor',validThroughTick:p.record.commitment.trajectory.endTick,originalCommand:p.record.commitment.trajectory,originalCommandHash:hash(p.record.commitment.trajectory)});}
+      for(const ref of prefix.source.eventReferences.filter(r=>r.owner==='pa_physical_v1_commitments')){const p=readSamePaPhysicalOperationFromSqlite(db,ref as SamePaPhysicalOperationReference);if(p.physicalPitchReference.sourceId===c.physicalPitchReference.sourceId&&p.record.kind==='same_pa_physical_commitment_v1'&&p.record.commitment.action==='SWING'){
+        const motor=createBattingCommitmentSwingWindow(p.record.commitment,p.record.calculation.nominalRequest.source.batPhysical);
+        const originalCommand=p.record.commitment.sampledTrajectoryV1??p.record.commitment.trajectory!;
+        commands.push({kind:'batting_motor',sourceReference:ref,playerId:b.actor.binding.playerId,role:'batting_motor',validThroughTick:motor.endTick,originalCommand,originalCommandHash:hash(originalCommand)});}}
       completed=Math.max(completed,launch.delivery.timeline.followThroughEndUs,...commands.map(c=>c.validThroughTick));proof=op.record;
     }
   }

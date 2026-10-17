@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V33-OFFLINE-CORE-BUNDLE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-native.mjs"
+  ],
+  "observed_at": "2026-10-17T01:09:14.328+00:00",
+  "elapsed_ms": 297,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V33-OFFLINE-CORE-BUNDLE_8befb5033ce94905925b1eb3cc4e5e9a.log",
+  "output_sha256": "55d463fe68800b4cb17eb60931a5a81645d265a1bc77c802c149250e9484218f",
+  "receipt_id": "MB-20261017-V33-OFFLINE-CORE-BUNDLE_8befb5033ce94905925b1eb3cc4e5e9a"
+}

@@ -1,0 +1,9 @@
+# Measured bat axis to existing research kinematics
+
+Latest human instruction replaces MMD with OpenBiomechanics as the reference. This implements the already-authorized bat-only reference/maker path, without a body-form subsystem or Native admission. Existing files/results remain historical.
+
+Use the measured sweet-spot position and hand-reference→sweet-spot direction. Declare bat length, tip-to-sweet distance, knob-to-hand-reference distance and maximum hand residual; do not silently normalize the two measured points into a claim of exact knob recovery. Preserve measured sweet spots at every source key. A rigid rod uses the declared length, with hand residuals reported and bounded. Published model offsets are0.1524m/0.17145m, but nominal metadata/model lengths differ by up to0.015643m; these bindings remain explicit calibration inputs. Missing/zero axes and nonmonotonic clocks reject, no imputation.
+
+The adapter receives explicitly mapped world points in metres and integer source ticks. Original CSV source coordinates/time strings remain retained in the data folder; axis mapping belongs in a documented import step. No automatic handedness mirroring or lab-frame assumption. Initial axial phase is declared; subsequent orientations use minimum-rotation transport of the measured axis. Two points cannot measure axial roll. Antipodal successive axes reject as ambiguous.
+
+Output uses existing ReferenceBatKinematicsInputV1/analytic motor. At keys, sweet spot and rigid length must agree; between keys the already-declared sampled interpolation applies. Rates affect execution, not viewer FPS. No contact result, native authority, physical ability or score comes from this adapter. Tests cover measured key preservation, rotation/rigid length, residual rejection, invalid data/clock, minimal twist and source immutability. Actual dataset import/POI comparisons and maker UI follow after these contracts pass. Full Core/Host/render/mixed9 remains unfinished.

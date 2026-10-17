@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-FIELD-C1-FREEZE-FOCUSED",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts",
+    "src/core/sim/fielding/LiveHandPreparationV1.test.ts",
+    "src/core/sim/fielding/LiveThrowPlanV1.test.ts",
+    "src/core/sim/fielding/GroundedActorContactResponseV1.test.ts",
+    "src/core/sim/fielding/LiveFieldForecastV1.test.ts",
+    "src/core/sim/fielding/GroundWallRollingCurveV1.test.ts",
+    "src/integration/browser/PlayableMatchRulesV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T01:01:09.452+00:00",
+  "elapsed_ms": 5594,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-FIELD-C1-FREEZE-FOCUSED_8c1ae6dfafa741369a553a8a99fd9a05.log",
+  "output_sha256": "ff3bd577e3080e333590f1e460f873c0fb5527288d5bb98f43fff85e84633786",
+  "receipt_id": "MB-20261017-FIELD-C1-FREEZE-FOCUSED_8c1ae6dfafa741369a553a8a99fd9a05"
+}

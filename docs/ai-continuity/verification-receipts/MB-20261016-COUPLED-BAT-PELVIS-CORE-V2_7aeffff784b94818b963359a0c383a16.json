@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-COUPLED-BAT-PELVIS-CORE-V2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/contact/MeasuredPelvisControlV1.test.ts",
+    "src/core/sim/contact/HeldToMeasuredBatControlV1.test.ts",
+    "src/core/sim/contact/InitialHeldBatV1.test.ts",
+    "src/core/world/psychology/batting/MeasuredBattingCommitment.test.ts"
+  ],
+  "observed_at": "2026-10-16T13:13:51.987+00:00",
+  "elapsed_ms": 3219,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-COUPLED-BAT-PELVIS-CORE-V2_7aeffff784b94818b963359a0c383a16.log",
+  "output_sha256": "47f0b19e94d9df315598802c079db87970f9b1d66c23327b2d2f07dbd8e89670",
+  "receipt_id": "MB-20261016-COUPLED-BAT-PELVIS-CORE-V2_7aeffff784b94818b963359a0c383a16"
+}

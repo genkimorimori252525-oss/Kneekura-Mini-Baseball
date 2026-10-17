@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-GROUND-ACTOR-ACTIVESET-FIRST",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/GroundedActorContactResponseV1.test.ts",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T00:39:49.254+00:00",
+  "elapsed_ms": 3609,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-GROUND-ACTOR-ACTIVESET-FIRST_12b76f5d8c52404ca7ad5a52c8eb49a7.log",
+  "output_sha256": "35284c9612774bfb7287fd8cb7e80d8d51c4b277c8b8a5a0bf80b5f9b6bdcc39",
+  "receipt_id": "MB-20261017-GROUND-ACTOR-ACTIVESET-FIRST_12b76f5d8c52404ca7ad5a52c8eb49a7"
+}

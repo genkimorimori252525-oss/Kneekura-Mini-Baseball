@@ -9,8 +9,11 @@ import type { AcceptedBattedVenueLegalCoveragePolicy } from './BattedVenueLegalC
 import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import type { DurableBattingInvocationPosture } from './NativeBattingPerception';
 import type { SamePaPreparedPhysicalLifecycle, SamePaPhysicalLifecycleSuffix } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
+import type { AeroGroundBallPhysicsV1 } from '../../core/sim/ball/VersionedBattedBallPhysics';
+import { SAME_PA_AERO_GROUND_FIELD_ROOT_SOURCE_VERSION, SAME_PA_AERO_GROUND_FIELD_STEP_SOURCE_VERSION } from './SamePlateAppearanceBallPhysics';
 type Fixture=SamePaPreparedPhysicalLifecycle;
 type PhysicalFieldFixtureOptions=Readonly<{liveProducerProfile?:SamePaPhysicalFieldRootSource['liveProducerProfile'];
+  ballPhysics?:AeroGroundBallPhysicsV1;
   actorProducerPolicies?:SamePaPhysicalFieldRootSource['actorProducerPolicies'];
   bags?:Readonly<{halfSize:{x:number;z:number};surfaceHeightMeters:number}>;
   legalVenue?:Readonly<{rulePolicy:BallWorldVenueLegalPolicy;pitcherPlate:NonNullable<AcceptedBattedVenueLegalCoveragePolicy['pitcherPlate']>}>}>;
@@ -58,9 +61,10 @@ export const continuePhysicalFieldFixtureFromCalibration=(
   const calibrationReference=reference('pa_physical_v1_field_calibrations',calibration);
   const appendField=(resolution:SamePaPhysicalResolution,resolutionReference:SamePaReference<'pa_physical_v1_resolutions'>)=>{
     if(!resolution.contact)throw new Error('real fresh field requires actual contact');
-    const rootSource=h.save({sourceId:label+':field-root',sourceVersion:'fixture-only-v1',capability:'same_pa_physical_field_root_v1',viewReference:h.current().viewReference,
+    const rootSource=h.save({sourceId:label+':field-root',sourceVersion:options.ballPhysics?SAME_PA_AERO_GROUND_FIELD_ROOT_SOURCE_VERSION:'fixture-only-v1',capability:'same_pa_physical_field_root_v1',viewReference:h.current().viewReference,
       launchReference:resolution.source.launchReference,previousOperationReference:resolutionReference,resolutionReference,postureReference,
       fieldInputs:{kind:'fresh_physical_field_calibration_v1',calibrationReference},parameters,throughTick:resolution.contact.tick,
+      ...(options.ballPhysics?{ballPhysics:options.ballPhysics}:{}),
       ...(options.liveProducerProfile?{liveProducerProfile:options.liveProducerProfile}:{}),
       ...(options.actorProducerPolicies?{actorProducerPolicies:options.actorProducerPolicies}:{}),
       ...(options.legalVenue?{venueLegalCoveragePolicy:{sourceId:label+':legal-venue',sourceVersion:'fixture-only-v1',version:'batted_venue_legal_coverage_policy_v1' as const,
@@ -85,7 +89,7 @@ export const appendPhysicalFieldFixtureStep=(
   rootReference:SamePaReference<'pa_physical_v1_field_roots'>,label:string)=>{
   if(!resolution.contact)throw new Error('real fresh field requires actual contact');
     if(!root.field.motion.cursor)throw new Error('explicit stationary field fixture has an unresolved initial contact');
-    const stepSource=h.save({sourceId:label+':field-step',sourceVersion:'fixture-only-v1',capability:'same_pa_physical_field_step_v1',viewReference:h.current().viewReference,
+    const stepSource=h.save({sourceId:label+':field-step',sourceVersion:root.source.ballPhysics?SAME_PA_AERO_GROUND_FIELD_STEP_SOURCE_VERSION:'fixture-only-v1',capability:'same_pa_physical_field_step_v1',viewReference:h.current().viewReference,
       launchReference:resolution.source.launchReference,previousOperationReference:rootReference,fieldRootReference:rootReference,previousFieldReference:rootReference,
       throughTick:resolution.contact.tick+2_000_000});
     const step=h.physical.acceptOperation(stepSource.sourceId);if(step.kind!=='same_pa_physical_field_step_v1')throw new Error('real retained field step pending');

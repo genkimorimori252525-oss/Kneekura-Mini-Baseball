@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-PITCH-CROSS-MODEL-COMPARISON",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "tools/verification/compare-live-pitch-audits.py",
+    "../../outputs/verification-live-pitch-1000-v1",
+    "../../outputs/verification-live-pitch-1000-v2",
+    "../../outputs/verification-live-pitch-1000-v3"
+  ],
+  "observed_at": "2026-10-17T00:11:47.808+00:00",
+  "elapsed_ms": 156,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-PITCH-CROSS-MODEL-COMPARISON_f785849910c4440195b13bcdf7a09083.log",
+  "output_sha256": "a33225d4c51654b5c26ee6a3e935af5db84b485a2a14c2be86d9af5facc98a58",
+  "receipt_id": "MB-20261017-LIVE-PITCH-CROSS-MODEL-COMPARISON_f785849910c4440195b13bcdf7a09083"
+}

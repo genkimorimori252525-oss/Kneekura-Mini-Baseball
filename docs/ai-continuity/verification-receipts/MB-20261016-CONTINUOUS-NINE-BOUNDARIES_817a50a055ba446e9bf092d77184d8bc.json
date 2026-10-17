@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-CONTINUOUS-NINE-BOUNDARIES",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/SourceDefensiveControlV1.test.ts",
+    "src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts",
+    "src/core/sim/ball/SourceBattedFieldAcquisitionV1.test.ts",
+    "src/core/sim/ball/SourceBattedFieldMotionV3.test.ts"
+  ],
+  "observed_at": "2026-10-15T20:28:27.986+00:00",
+  "elapsed_ms": 9281,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-CONTINUOUS-NINE-BOUNDARIES_817a50a055ba446e9bf092d77184d8bc.log",
+  "output_sha256": "0a9330fa331dfc1d3580cf83fa54b0995553d547d224c6960026a1a9f34cead3",
+  "receipt_id": "MB-20261016-CONTINUOUS-NINE-BOUNDARIES_817a50a055ba446e9bf092d77184d8bc"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-AUTHORED-INITIAL-NATIVE",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "../native-authored-initial-pitch-v2/readback.mjs",
+    "../../outputs/verification-authored-native-reservation-v2",
+    "../../outputs/verification-authored-initial-pitch-v1"
+  ],
+  "observed_at": "2026-10-16T00:06:46.062+00:00",
+  "elapsed_ms": 1842,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-AUTHORED-INITIAL-NATIVE_6e9b78b0bbc64aa48e1ef6410764d893.log",
+  "output_sha256": "6fccaab79ad1649abacdd363536abf73b1d9620d9db2291d40a39b788367b0cd",
+  "receipt_id": "MB-20261016-AUTHORED-INITIAL-NATIVE_6e9b78b0bbc64aa48e1ef6410764d893"
+}

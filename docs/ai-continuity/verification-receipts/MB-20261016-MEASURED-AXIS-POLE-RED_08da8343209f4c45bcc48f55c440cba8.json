@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-MEASURED-AXIS-POLE-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/MeasuredBatAxisReferenceV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T17:33:00.359+00:00",
+  "elapsed_ms": 1061,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-MEASURED-AXIS-POLE-RED_08da8343209f4c45bcc48f55c440cba8.log",
+  "output_sha256": "604bae94581ad915725adaec7f480f32d88d1990143c5ecad313a16592deb0d6",
+  "receipt_id": "MB-20261016-MEASURED-AXIS-POLE-RED_08da8343209f4c45bcc48f55c440cba8"
+}

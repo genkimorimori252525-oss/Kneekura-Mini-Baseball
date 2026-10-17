@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-AUTHORED-GENESIS-BUILD-READER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/native-game/build-authored-genesis-readback.mjs",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-genesis-reopen-v1"
+  ],
+  "observed_at": "2026-10-15T21:24:24.117+00:00",
+  "elapsed_ms": 827,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-AUTHORED-GENESIS-BUILD-READER_6b2c8c9194c442afaa2d221b9fbcc060.log",
+  "output_sha256": "c0abd934f96e93ab13cc5912f4265f8196f6402b60e9c6dc6e97e54491ae5a01",
+  "receipt_id": "MB-20261016-AUTHORED-GENESIS-BUILD-READER_6b2c8c9194c442afaa2d221b9fbcc060"
+}

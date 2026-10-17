@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-HOST-ACQUISITION-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "npx.cmd",
+    "vitest",
+    "run",
+    "src/host/world/SamePlateAppearanceSourceAcquisitionFieldV1.test.ts",
+    "src/host/world/SamePlateAppearanceSourceMotorFieldV1.test.ts",
+    "src/host/world/SamePlateAppearanceSourceIntegerCheckpointV1.test.ts",
+    "src/host/world/SamePlateAppearanceSourceFieldV3.test.ts",
+    "src/host/world/SamePlateAppearanceBallPhysics.test.ts",
+    "src/host/world/SamePlateAppearancePhysicalFieldActions.test.ts",
+    "src/host/world/SamePlateAppearanceTeamMotorSelectionV1.test.ts",
+    "src/host/world/SamePlateAppearanceObservationClockProjectionV1.test.ts",
+    "src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts",
+    "src/core/sim/ball/SourceBattedFieldAcquisitionV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T18:54:24.092+00:00",
+  "elapsed_ms": 48391,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-HOST-ACQUISITION-REGRESSION_0feaf38ac5364bab8187ff07db86ec0e.log",
+  "output_sha256": "a20bc3dc0c30d0486815ae3893369374e54992a5a2413e7dca3365b205618375",
+  "receipt_id": "MB-20261016-SOURCE-HOST-ACQUISITION-REGRESSION_0feaf38ac5364bab8187ff07db86ec0e"
+}

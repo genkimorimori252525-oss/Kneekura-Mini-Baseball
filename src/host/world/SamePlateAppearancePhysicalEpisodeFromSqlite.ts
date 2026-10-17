@@ -10,7 +10,7 @@ import { resolveCanonicalPitchDelivery } from '../../core/sim/pitch/CanonicalPit
 import { applyPitchFatigueToExecution } from '../../core/sim/pitch/PitchFatigueExecution';
 import { sampleAerodynamicPitchTrajectory } from '../../core/sim/pitching/AerodynamicPitchTrajectory';
 import { resolveAndRecordAerodynamicRigidPitchAgainstBatter } from '../../core/sim/pitching/AerodynamicRigidPitchAgainstBatter';
-import { createRigidBatSwingWindowFromKinematicsV1 } from '../../core/sim/pitching/AerodynamicRigidBatSwingingPitchPhysicalResult';
+import { createBattingCommitmentSwingWindow } from '../../core/world/psychology/batting/BattingSwingWindow';
 import { NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1 } from '../../core/sim/contact/WoodBatProductionProfileV1';
 import { resolveWoodBatSpeedResponse } from '../../core/sim/contact/WoodBatSpeedResponseProfile';
 import { calculateBattingExecution } from '../../core/world/psychology/batting/BattingCommitment';
@@ -42,6 +42,7 @@ import { deriveSamePaPhysicalFieldCalibration } from './SamePlateAppearancePhysi
 import { deriveSamePaPhysicalFieldAction } from './SamePlateAppearancePhysicalFieldActionFromSqlite';
 import { assertSamePaPhysicalThrowOwnership, samePaPhysicalHasThrowRelease } from './SamePlateAppearancePhysicalFieldThrow';
 import { samePaBuntProfileAvailable } from './SamePlateAppearanceBuntProfile';
+import { assertSamePaFieldBallPhysicsStep } from './SamePlateAppearanceBallPhysics';
 
 type Kind = Exclude<SamePaPhysicalTableKind, 'head' | 'consumer' | 'consumption' | 'admission'>;
 type Pending = Readonly<{ kind: 'pending'; reason: string; missingSourceIds: readonly string[] }>;
@@ -255,7 +256,8 @@ withSamePaLifecycleReadPhase(db, () => {
       const calculation=computed.value,commitment=calculation.commitment;if(calculation.status!=='READY'||!commitment)return pending('effective_batting_commitment_not_ready');
       if(!samePaBuntProfileAvailable(source.buntProfileBinding,{intentReference:source.intentReference,originalIntent:intent.originalIntent,input:request,
         modelReference:action.source.batterModelReference,calculation}))return pending('owned_bunt_physical_profile_required');
-      if(commitment.decisionTick!==b.view.cut.evaluationTick||commitment.action==='SWING'&&(!commitment.trajectory||commitment.trajectory.startTick<b.view.cut.evaluationTick||commitment.trajectory.endTick>launch.trajectory.endTick))throw new Error('physical commitment timing differs');
+      const swing=commitment.action==='SWING'?createBattingCommitmentSwingWindow(commitment,calculation.nominalRequest.source.batPhysical):null;
+      if(commitment.decisionTick!==b.view.cut.evaluationTick||swing&&(swing.startTick<b.view.cut.evaluationTick||swing.endTick>launch.trajectory.endTick))throw new Error('physical commitment timing differs');
       const world=current?readEmotionWorldRevisionFromSqlite(db,b.view.lineage.careerId):readHistoricalEmotionWorldRevisionFromSqlite(db,b.view.lineage.careerId,request.nominalRequest.currentFrame.worldRevision);
       if(!world)return pending('actual_world_head_missing');same(world.head.worldRevision,request.nominalRequest.currentFrame.worldRevision);
       const value:SamePaPhysicalCommitment=freeze({...common,source,kind:'same_pa_physical_commitment_v1',stage:'committed',commitment,calculation,inputSource:request.source,originalIntent:intent.originalIntent,
@@ -285,6 +287,7 @@ withSamePaLifecycleReadPhase(db, () => {
     }
     const root=linked('fieldRoot',source.fieldRootReference);if(root.kind!=='same_pa_physical_field_root_v1')throw new Error('physical field root kind differs');
     same(source.previousFieldReference,source.previousOperationReference);if(previous.kind!=='same_pa_physical_field_root_v1'&&previous.kind!=='same_pa_physical_field_step_v1')throw new Error('physical field predecessor differs');
+    assertSamePaFieldBallPhysicsStep(source,root.source,previous.source,previous.kind==='same_pa_physical_field_root_v1');
     const prefix:(typeof root|typeof previous)[]=[];let value=previous;
       for(;;){prefix.unshift(value);if(value.kind==='same_pa_physical_field_root_v1')break;
         same(value.source.fieldRootReference,source.fieldRootReference);const ref=value.source.previousFieldReference;
@@ -297,10 +300,10 @@ withSamePaLifecycleReadPhase(db, () => {
       const result=deriveSamePaPhysicalFieldAction(db,source,root,previous,action,b,prefix,current);
       return freeze({...common,source,kind:'same_pa_physical_field_step_v1',stage:'field',...result});
     }
-    return freeze({...common,source,kind:'same_pa_physical_field_step_v1',stage:'field',...deriveSamePaPhysicalFieldStep(source,root,previous,b.view.cut.evaluationTick,!samePaPhysicalHasThrowRelease(prefix))});
+    return freeze({...common,source,kind:'same_pa_physical_field_step_v1',stage:'field',...deriveSamePaPhysicalFieldStep(source,root,previous,b.view.cut.evaluationTick,!samePaPhysicalHasThrowRelease(prefix),prefix)});
   };
   const resolve=(action:SamePaPhysicalAction,launch:SamePaPhysicalLaunch,commitment:SamePaPhysicalCommitment|null)=>normalizeCore(commitment?.commitment.action==='SWING'
-    ?resolveAndRecordAerodynamicRigidPitchAgainstBatter(launch.timeline,{action:{kind:'swing',swing:createRigidBatSwingWindowFromKinematicsV1(commitment.commitment.trajectory!,commitment.calculation.nominalRequest.source.batPhysical)},
+    ?resolveAndRecordAerodynamicRigidPitchAgainstBatter(launch.timeline,{action:{kind:'swing',swing:createBattingCommitmentSwingWindow(commitment.commitment,commitment.calculation.nominalRequest.source.batPhysical)},
       trajectory:launch.trajectory,ball:commitment.calculation.nominalRequest.source.ball,parameterResolver:k=>resolveWoodBatSpeedResponse(NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1,k.normalApproachSpeedMps)})
     :resolveAndRecordAerodynamicRigidPitchAgainstBatter(launch.timeline,{action:{kind:'take'},trajectory:launch.trajectory,plateZ:action.source.nominalPitch.batter.plateZ,
       strikeZone:action.source.nominalPitch.batter.strikeZone,ballRadiusMeters:action.source.nominalPitch.batter.ballRadiusMeters}));

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-FIELD-BOUNDARIES-TEST-2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts",
+    "src/integration/browser/PlayableMatchRulesV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T00:08:55.248+00:00",
+  "elapsed_ms": 1641,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-FIELD-BOUNDARIES-TEST-2_6818b03b905f4fbf986561f424b8e6d1.log",
+  "output_sha256": "2d422c3b75cbea29d6787c7c9afcf98237c5db0b93a001696684ec1cc1c35e81",
+  "receipt_id": "MB-20261017-LIVE-FIELD-BOUNDARIES-TEST-2_6818b03b905f4fbf986561f424b8e6d1"
+}

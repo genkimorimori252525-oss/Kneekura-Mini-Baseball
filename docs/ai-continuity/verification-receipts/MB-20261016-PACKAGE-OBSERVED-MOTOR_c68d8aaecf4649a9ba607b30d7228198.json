@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-PACKAGE-OBSERVED-MOTOR",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../package-delivery.py"
+  ],
+  "observed_at": "2026-10-16T11:15:56.334+00:00",
+  "elapsed_ms": 20827,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-PACKAGE-OBSERVED-MOTOR_c68d8aaecf4649a9ba607b30d7228198.log",
+  "output_sha256": "e4d20eb8726418e391550aeb75a010e9e9080b4d6fac41ae03825e3a94ae7759",
+  "receipt_id": "MB-20261016-PACKAGE-OBSERVED-MOTOR_c68d8aaecf4649a9ba607b30d7228198"
+}

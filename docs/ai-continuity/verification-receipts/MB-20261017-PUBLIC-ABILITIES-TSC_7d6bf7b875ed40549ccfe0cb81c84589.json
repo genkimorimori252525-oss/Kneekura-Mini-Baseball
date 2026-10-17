@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-PUBLIC-ABILITIES-TSC",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-17T03:48:57.113+00:00",
+  "elapsed_ms": 22125,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-PUBLIC-ABILITIES-TSC_7d6bf7b875ed40549ccfe0cb81c84589.log",
+  "output_sha256": "9e8e3ab646db578d6273e9151cad9bda6c93d3b115b8e61fd3cfc6691ca15160",
+  "receipt_id": "MB-20261017-PUBLIC-ABILITIES-TSC_7d6bf7b875ed40549ccfe0cb81c84589"
+}

@@ -1,0 +1,28 @@
+{
+  "status": "PASS_NO_CLIP_SIDE_SWAP_REPRODUCED",
+  "comparisons": [
+    {
+      "side": "L",
+      "axis": {
+        "x": 0.5887806413670009,
+        "y": -0.5867014066585401,
+        "z": -0.12132112666948565
+      },
+      "bodySource": "bat-left",
+      "bodyHand": "L",
+      "mirror": true
+    },
+    {
+      "side": "R",
+      "axis": {
+        "x": -0.7293553049708279,
+        "y": -0.4079879866380063,
+        "z": 0.08477406366322694
+      },
+      "bodySource": "bat-right",
+      "bodyHand": "R",
+      "mirror": true
+    }
+  ],
+  "evidence": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\verification-v35-handedness-diagnosis-v1"
+}

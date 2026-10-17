@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-ZONE-JUDGMENT-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePitchAbilitiesV1.test.ts",
+    "src/integration/browser/LivePhysicalRosterV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T03:39:57.139+00:00",
+  "elapsed_ms": 2359,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-ZONE-JUDGMENT-RED_c4cdd780fb0e4bd7a23fb6287dda5ddb.log",
+  "output_sha256": "85032bba49228ee091177d10df2abbd96f7e99bc6de88b64f65bb7a085b8bcc1",
+  "receipt_id": "MB-20261017-ZONE-JUDGMENT-RED_c4cdd780fb0e4bd7a23fb6287dda5ddb"
+}

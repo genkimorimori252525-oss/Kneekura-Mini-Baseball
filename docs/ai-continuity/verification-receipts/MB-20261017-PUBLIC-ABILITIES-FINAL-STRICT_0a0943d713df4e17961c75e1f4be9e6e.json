@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-PUBLIC-ABILITIES-FINAL-STRICT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--strict",
+    "--noUnusedLocals",
+    "--noUnusedParameters",
+    "--skipLibCheck",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "bundler",
+    "--types",
+    "node,vitest/globals",
+    "src/integration/browser/LivePublicAbilitiesV1.ts",
+    "src/integration/browser/LivePublicAbilitiesV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T03:52:02.073+00:00",
+  "elapsed_ms": 2000,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-PUBLIC-ABILITIES-FINAL-STRICT_0a0943d713df4e17961c75e1f4be9e6e.log",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "receipt_id": "MB-20261017-PUBLIC-ABILITIES-FINAL-STRICT_0a0943d713df4e17961c75e1f4be9e6e"
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-V3-CLOCK-NATIVE-COLD-REOPEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-v3-metadata-clock-v2.mjs",
+    "../native-v3-metadata-clock-v1/manifest.json",
+    "../native-v3-metadata-clock-v1/run",
+    "reopen"
+  ],
+  "observed_at": "2026-10-15T17:50:42.137+00:00",
+  "elapsed_ms": 54546,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-V3-CLOCK-NATIVE-COLD-REOPEN_111a7773583d4a6caf966b721633ca0e.log",
+  "output_sha256": "4145f952f88d1042832154e3292c8400d3a331586f4977fd73e0df1e08bae709",
+  "receipt_id": "MB-20261016-V3-CLOCK-NATIVE-COLD-REOPEN_111a7773583d4a6caf966b721633ca0e"
+}

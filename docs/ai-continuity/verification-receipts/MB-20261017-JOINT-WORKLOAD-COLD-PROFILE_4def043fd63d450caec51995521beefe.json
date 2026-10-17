@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-JOINT-WORKLOAD-COLD-PROFILE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "--cpu-prof",
+    "--cpu-prof-name=readback.cpuprofile",
+    "--cpu-prof-dir=../../outputs/verification-authored-with-bat-workload-v1",
+    "../native-owned-joint-workload-v3/readback.mjs",
+    "readback",
+    "../../outputs/verification-authored-with-bat-physical-execution-v1",
+    "../../outputs/verification-authored-with-bat-workload-v1"
+  ],
+  "observed_at": "2026-10-16T15:21:09.264+00:00",
+  "elapsed_ms": 51734,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-JOINT-WORKLOAD-COLD-PROFILE_4def043fd63d450caec51995521beefe.log",
+  "output_sha256": "3286eb0833b6b23c0986b72215a40ea3e29b33ae5849699fb6f99867ac083c8a",
+  "receipt_id": "MB-20261017-JOINT-WORKLOAD-COLD-PROFILE_4def043fd63d450caec51995521beefe"
+}

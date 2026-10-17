@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/FiniteFieldActorClearanceV1.test.ts (12 tests) 11ms
+ ✓ src/host/world/JointFieldSuccessorCommand.test.ts (15 tests) 29ms
+
+ Test Files  2 passed (2)
+      Tests  27 passed (27)
+   Start at  06:51:44
+   Duration  7.28s (transform 4.32s, setup 0ms, collect 6.92s, tests 40ms, environment 0ms, prepare 382ms)
+

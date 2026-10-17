@@ -1,0 +1,2 @@
+src/host/world/SamePlateAppearanceFieldRuleEvidence.ts(27,72): error TS2339: Property 'response' does not exist on type 'Field'.
+  Property 'response' does not exist on type 'SamePaPhysicalFieldStep'.

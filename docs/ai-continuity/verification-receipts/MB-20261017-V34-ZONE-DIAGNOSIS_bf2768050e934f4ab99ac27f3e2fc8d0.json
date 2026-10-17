@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V34-ZONE-DIAGNOSIS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "--input-type=module",
+    "-e",
+    "import {createRequire} from 'node:module';import {resolve} from 'node:path';import {pathToFileURL} from 'node:url';import {mkdir,writeFile} from 'node:fs/promises';\nconst require=createRequire(import.meta.url),{chromium}=require('C:/Users/genki/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright-core');\nconst evidence=resolve('../../outputs/verification-v34-zone-diagnosis-v1');await mkdir(evidence);const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});\ntry{\n const page=await browser.newPage({viewport:{width:1200,height:860}});await page.goto(pathToFileURL(resolve('../../outputs/ばせぼーるlv33_TBD_vs_LAD_Core試合版.html')).href);await page.evaluate(()=>document.fonts.ready);\n const result=await page.evaluate(()=>{\n  const auto=document.getElementById('auto-overhead');auto.checked=false;auto.dispatchEvent(new Event('change'));\n  document.getElementById('managed-team').value='0';document.getElementById('batting-choice').value='take';\n  for(let i=0;i<3;i++){document.getElementById('next-pitch').click();window.liveMatchPlayback.stop();}\n  const api=window.liveMatchPlayback,records=api.inspect().host.history,result=[];\n  for(let pitch=0;pitch<records.length;pitch++){\n   const record=records[pitch],indices=record.frames.map((frame,index)=>({frame,index})).filter(value=>value.frame.phase==='pitch');const frameIndex=indices[Math.floor(indices.length/2)].index;\n   api.seekPitch(pitch,frameIndex);\n   for(const camera of ['catcher','mound','batter']){\n    document.querySelector('[data-camera=\"'+camera+'\"]').click();const s=api.inspect(),f=s.currentFrame,r=s.rendered;\n    result.push({pitch:pitch+1,camera,renderedCamera:r.camera,frameIndex,tick:f.tick,phase:f.phase,ballKind:f.ballKind,fairKnown:f.fairKnown,\n     zoneChecked:document.getElementById('zone').checked,autoOverhead:document.getElementById('auto-overhead').checked,\n     ballPosition:f.ball?.position,batterId:f.batterPlayerId,actors:f.actors.filter(actor=>['P','C','batter'].includes(actor.role)),\n     cameraEye:r.cameraEye,cameraYaw:r.cameraYaw,cameraPitch:r.cameraPitch,zoneCorners:r.zoneCorners,\n     visibleCorners:r.zoneCorners.filter(p=>p&&p.x>=0&&p.x<=600&&p.y>=0&&p.y<=432).length,blockedZoneCells:r.blockedZoneCells.length});\n   }\n  }return result;\n });\n await page.locator('[data-camera=\"batter\"]').click();await page.locator('.broadcast').screenshot({path:resolve(evidence,'third-pitch-batter.png')});await page.locator('[data-camera=\"catcher\"]').click();await page.locator('.broadcast').screenshot({path:resolve(evidence,'third-pitch-catcher.png')});\n await writeFile(resolve(evidence,'zone-diagnosis.json'),JSON.stringify({artifact:'v33',mode:'three taken pitches, actual mid-pitch frame, auto-overhead false',observations:result},null,2)+'\\n');\n console.log(JSON.stringify(result.map(value=>({pitch:value.pitch,camera:value.camera,rendered:value.renderedCamera,kind:value.ballKind,fair:value.fairKnown,zone:value.zoneCorners.length,visibleCorners:value.visibleCorners,eye:value.cameraEye,bounds:value.zoneCorners.map(p=>p&&[p.x,p.y])})),null,2));await page.close();\n}finally{await browser.close();}"
+  ],
+  "observed_at": "2026-10-17T01:52:23.801+00:00",
+  "elapsed_ms": 1656,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V34-ZONE-DIAGNOSIS_bf2768050e934f4ab99ac27f3e2fc8d0.log",
+  "output_sha256": "1c6177817759a320f4e12e2e0b318d0a80a4a5506574718db6409af8e5fbe0b3",
+  "receipt_id": "MB-20261017-V34-ZONE-DIAGNOSIS_bf2768050e934f4ab99ac27f3e2fc8d0"
+}

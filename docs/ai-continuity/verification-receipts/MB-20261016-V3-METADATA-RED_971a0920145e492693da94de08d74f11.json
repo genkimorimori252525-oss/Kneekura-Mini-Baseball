@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-V3-METADATA-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "npx.cmd",
+    "vitest",
+    "run",
+    "src/host/world/SamePlateAppearanceBallPhysics.test.ts",
+    "src/host/world/SamePlateAppearanceSourceFieldV3.test.ts"
+  ],
+  "observed_at": "2026-10-15T16:55:12.703+00:00",
+  "elapsed_ms": 7858,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-V3-METADATA-RED_971a0920145e492693da94de08d74f11.log",
+  "output_sha256": "a6f6d41df4d2e8e4197461f4234b9b63d209751e03970655bc3d2a341ec7612d",
+  "receipt_id": "MB-20261016-V3-METADATA-RED_971a0920145e492693da94de08d74f11"
+}

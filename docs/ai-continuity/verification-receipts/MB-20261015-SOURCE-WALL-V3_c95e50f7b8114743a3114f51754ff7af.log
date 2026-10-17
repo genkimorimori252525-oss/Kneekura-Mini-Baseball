@@ -1,0 +1,21 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+stdout | src/host/world/VersionedBattedBallFlightSource.test.ts > owns a real nonlinear Native wall impulse, preserves the stopped v2 archive and independently branches with v3 certificates
+SOURCE_WALL_NUMERICAL_DIAGNOSTIC {"physicsVersion":"batted_ball_flight_aero_ground_continuous_v2","sourceCurveHash":"5cace7450c37f56a736d91bbc95e193addfdffa6958b332019bef16aadf9a0ed","worldSourceHash":"f70c69db6d46ad256aef50f8b025e2cb352b7b2a04368ff3999608db5430a630","initialSignedGapMeters":-6.3629657098829284e-15,"queryWitness":{"colliderKey":"[\"surface\",\"real-wall\"]","firstPossibleElapsedSeconds":0.007651910980248431,"witnessElapsedSeconds":0.007651910980252069,"signedGapMeters":-6.3629657098829284e-15,"positionRoundingBoundMeters":2.195080409663745e-14},"outgoingNormalSpeedMps":7.794426293453937,"responseBasis":{"originTick":11180360,"elapsedSeconds":0.007651910980252069,"ball":{"tick":11188012,"position":{"x":0.08002775004535341,"y":1.5197128721170892,"z":0.2593271544107463},"velocity":{"x":0.005438282798868233,"y":-0.056278822797270395,"z":-7.794426293453937},"spin":{"x":0,"y":79.98932358117953,"z":0}}},"result":"UNRESOLVED_PERSISTENT_CONTACT_NO_ESCAPE_CERTIFICATE"}
+
+ ✓ src/host/world/VersionedBattedBallFlightSource.test.ts (6 tests) 46278ms
+   ✓ accepts explicit physics from original Native contact, replays after reopen, and refuses the legacy World consumer 658ms
+   ✓ admits continuous v2 only as its own frozen kernel version and replays original contact/floor states after reopen 624ms
+   ✓ admits original Native v2 first-World contact and geometry, preserves the lattice across extension, and replays offline 17860ms
+   ✓ owns a real nonlinear Native wall impulse, preserves the stopped v2 archive and independently branches with v3 certificates 26662ms
+ ✓ src/core/sim/ball/SourceFreeBallWorldQuery.test.ts (11 tests) 163ms
+ ✓ src/core/sim/ball/SourceBattedWorldContacts.test.ts (7 tests) 921ms
+ ✓ src/core/sim/ball/SourceImpactEscapeV3.test.ts (5 tests) 195ms
+ ✓ src/host/world/SqliteBattedWorldContinuationV3Store.test.ts (4 tests) 41ms
+
+ Test Files  5 passed (5)
+      Tests  33 passed (33)
+   Start at  07:06:32
+   Duration  57.06s (transform 4.35s, setup 0ms, collect 8.27s, tests 47.60s, environment 1ms, prepare 392ms)
+

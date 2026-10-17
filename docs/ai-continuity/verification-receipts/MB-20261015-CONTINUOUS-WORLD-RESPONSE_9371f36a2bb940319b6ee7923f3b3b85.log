@@ -1,0 +1,19 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/VersionedBattedBallFlightSource.test.ts (6 tests) 28769ms
+   ✓ accepts explicit physics from original Native contact, replays after reopen, and refuses the legacy World consumer 699ms
+   ✓ preserves original legacy Source and snapshot byte conventions without adding a physics field 341ms
+   ✓ admits continuous v2 only as its own frozen kernel version and replays original contact/floor states after reopen 676ms
+   ✓ admits original Native v2 first-World contact and geometry, preserves the lattice across extension, and replays offline 17567ms
+   ✓ owns a real nonlinear Native wall impulse at fractional time and fails closed on its measured microscopic overlap 9260ms
+ ✓ src/core/sim/ball/SourceFreeBallWorldQuery.test.ts (10 tests) 215ms
+ ✓ src/core/sim/ball/SourceBattedWorldContacts.test.ts (7 tests) 1176ms
+ ✓ src/core/sim/ball/BattedWorldContinuation.test.ts (14 tests) 29ms
+ ✓ src/core/sim/ball/BallWorldContinuation.test.ts (17 tests) 14ms
+
+ Test Files  5 passed (5)
+      Tests  54 passed (54)
+   Start at  06:43:34
+   Duration  39.01s (transform 4.53s, setup 0ms, collect 7.43s, tests 30.20s, environment 1ms, prepare 483ms)
+

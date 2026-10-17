@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-MEASURED-MAKER-SOURCE-PACKAGE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../package-delivery.py"
+  ],
+  "observed_at": "2026-10-15T18:21:46.761+00:00",
+  "elapsed_ms": 10968,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-MEASURED-MAKER-SOURCE-PACKAGE_d75b12f1cfaa4acda4906d8a52f9f779.log",
+  "output_sha256": "04ac52b5c58d20d11cf46fe21c5ea5a19f1d2ea574c27b660767c66fba1a66f6",
+  "receipt_id": "MB-20261016-MEASURED-MAKER-SOURCE-PACKAGE_d75b12f1cfaa4acda4906d8a52f9f779"
+}

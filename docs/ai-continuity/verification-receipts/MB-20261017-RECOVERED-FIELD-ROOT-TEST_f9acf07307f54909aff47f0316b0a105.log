@@ -1,0 +1,10 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/pitch/RecoveredBallFieldRootV1.test.ts (2 tests) 210ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  06:11:00
+   Duration  1.15s (transform 340ms, setup 0ms, collect 504ms, tests 210ms, environment 0ms, prepare 134ms)
+

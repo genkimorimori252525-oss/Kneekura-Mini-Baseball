@@ -1,0 +1,20 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/pitch/PitchHandHoldRenewalV1.test.ts (7 tests) 7ms
+ ✓ src/core/sim/contact/HeldToMeasuredBatControlV1.test.ts (12 tests) 28ms
+ ✓ src/core/sim/contact/MeasuredPelvisControlV1.test.ts (14 tests) 101ms
+ ✓ src/core/sim/pitch/ControlledPitchWorldV1.test.ts (7 tests) 64ms
+ ✓ src/core/sim/pitch/ControlledBatBodyPitchWorldV1.test.ts (9 tests) 144ms
+ ✓ src/host/world/InitialPitchHandHoldInput.test.ts (8 tests) 7ms
+ ✓ src/host/world/MeasuredBattingBodyReferenceInput.test.ts (9 tests) 8ms
+ ✓ src/host/world/SamePlateAppearanceLifecycleSource.test.ts (7 tests) 18ms
+ ✓ src/host/world/InitialJointPhysicalSourceInput.test.ts (10 tests) 6ms
+ ✓ src/host/world/SamePlateAppearanceObservedInitialCalculation.test.ts (1 test) 38558ms
+   ✓ prepares an observer-owned first pitch from genuine reserved Native models/calibrations with no count or physical admission 38557ms
+
+ Test Files  10 passed (10)
+      Tests  84 passed (84)
+   Start at  23:54:03
+   Duration  49.10s (transform 8.10s, setup 0ms, collect 49.77s, tests 38.94s, environment 1ms, prepare 2.21s)
+

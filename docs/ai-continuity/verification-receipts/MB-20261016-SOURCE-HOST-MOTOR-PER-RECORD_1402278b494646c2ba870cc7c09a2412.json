@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-HOST-MOTOR-PER-RECORD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "npx.cmd",
+    "vitest",
+    "run",
+    "src/host/world/SamePlateAppearanceSourceMotorFieldV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T18:35:18.551+00:00",
+  "elapsed_ms": 21735,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-HOST-MOTOR-PER-RECORD_1402278b494646c2ba870cc7c09a2412.log",
+  "output_sha256": "3bcdef8eeca54812ff0a90cd6977b1164fae00e54662ae8216bec9ec5d621693",
+  "receipt_id": "MB-20261016-SOURCE-HOST-MOTOR-PER-RECORD_1402278b494646c2ba870cc7c09a2412"
+}

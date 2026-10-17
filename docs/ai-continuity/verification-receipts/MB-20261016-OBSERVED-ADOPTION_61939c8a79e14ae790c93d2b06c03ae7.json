@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OBSERVED-ADOPTION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/native-game/preserve-observed-launch.mjs",
+    "--verify"
+  ],
+  "observed_at": "2026-10-15T23:30:11.810+00:00",
+  "elapsed_ms": 108,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OBSERVED-ADOPTION_61939c8a79e14ae790c93d2b06c03ae7.log",
+  "output_sha256": "62485bb90776e74e09a93cd026145ac0f8a76ac2040c0e8bcaf2275daedab220",
+  "receipt_id": "MB-20261016-OBSERVED-ADOPTION_61939c8a79e14ae790c93d2b06c03ae7"
+}

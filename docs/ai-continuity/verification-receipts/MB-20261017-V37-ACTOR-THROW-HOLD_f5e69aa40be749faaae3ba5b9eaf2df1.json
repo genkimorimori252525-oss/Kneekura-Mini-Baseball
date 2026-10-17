@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V37-ACTOR-THROW-HOLD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "--input-type=module",
+    "-e",
+    "import assert from 'node:assert/strict';import{readFileSync}from'node:fs';import vm from'node:vm';const context={};vm.runInNewContext(readFileSync('tools/browser-bridge/live-actor-animation.js','utf8'),context);const a={playerId:'ss',role:'SS',velocity:{x:0,y:0,z:0}},r={batterPlayerId:'b',beforeMatch:{half:'top'},command:{managedTeam:0,batting:'take'},frames:[{tick:1000000,actors:[a]},{tick:1800000,actors:[a]}],events:[{kind:'throw_release',playerId:'ss',tick:1600000}],play:{contactMoment:{ball:{tick:1520000}},diagnostics:{sourceClockTicksPerSecond:1000000,swingOffered:false}}};const at=(sceneMs,tick=1800000)=>context.KneekuraLiveActorAnimation.observe({record:r,frame:{tick,actors:[a],phase:'held',ballKind:'batted'},sceneMs}).actors.ss;assert.equal(at(2340).frame,4);assert.equal(at(2691).frame,5);assert.equal(at(3000).action,'field');assert.equal(at(2691,1500000).action,'field');console.log(JSON.stringify({status:'PASS',shortThrowAdvancesDuringFrozenSourceHold:true,actualReleaseGateRetained:true,boundary:'one millisecond beyond .55s; exact decimal floating boundary retained in earlier FAIL'}));"
+  ],
+  "observed_at": "2026-10-17T02:49:37.294+00:00",
+  "elapsed_ms": 46,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V37-ACTOR-THROW-HOLD_f5e69aa40be749faaae3ba5b9eaf2df1.log",
+  "output_sha256": "b20f4fc9e313e475678ac6ed9fa52373d736279971f70caee9cfaaa9f3d958f7",
+  "receipt_id": "MB-20261017-V37-ACTOR-THROW-HOLD_f5e69aa40be749faaae3ba5b9eaf2df1"
+}

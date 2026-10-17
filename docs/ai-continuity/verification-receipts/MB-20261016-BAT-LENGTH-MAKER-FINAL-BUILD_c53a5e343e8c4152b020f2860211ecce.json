@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-BAT-LENGTH-MAKER-FINAL-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-maker.mjs",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/にーくら野球メーカー_バット長調整版.html"
+  ],
+  "observed_at": "2026-10-15T17:38:24.112+00:00",
+  "elapsed_ms": 608,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-BAT-LENGTH-MAKER-FINAL-BUILD_c53a5e343e8c4152b020f2860211ecce.log",
+  "output_sha256": "6e31a2832ff4666294d77df353a9cb2dee0be98ce5faaba5a154b6f0684fabd9",
+  "receipt_id": "MB-20261016-BAT-LENGTH-MAKER-FINAL-BUILD_c53a5e343e8c4152b020f2860211ecce"
+}

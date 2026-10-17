@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-SOURCE-WALL-V3-ARCHIVE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/VersionedBattedBallFlightSource.test.ts",
+    "-t",
+    "real nonlinear Native wall",
+    "--maxWorkers=1",
+    "--minWorkers=1"
+  ],
+  "observed_at": "2026-10-14T22:12:49.952+00:00",
+  "elapsed_ms": 33858,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-SOURCE-WALL-V3-ARCHIVE_22683ae69d384847bfee71a116ddc537.log",
+  "output_sha256": "cba6125198b9084c0fbff1cdbaede5a57fbb8e3ef92ebb3a7fda7e9b1e7b073f",
+  "receipt_id": "MB-20261015-SOURCE-WALL-V3-ARCHIVE_22683ae69d384847bfee71a116ddc537"
+}

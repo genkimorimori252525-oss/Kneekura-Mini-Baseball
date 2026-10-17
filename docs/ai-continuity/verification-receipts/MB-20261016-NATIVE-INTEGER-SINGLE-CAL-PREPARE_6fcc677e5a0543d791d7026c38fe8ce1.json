@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-NATIVE-INTEGER-SINGLE-CAL-PREPARE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-source-integer-single-cal-v1/entry.mjs",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-source-integer-single-cal-v1/manifest.json",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-source-integer-single-cal-v1/run",
+    "prepare"
+  ],
+  "observed_at": "2026-10-15T18:54:37.321+00:00",
+  "elapsed_ms": 44046,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-NATIVE-INTEGER-SINGLE-CAL-PREPARE_6fcc677e5a0543d791d7026c38fe8ce1.log",
+  "output_sha256": "7e5e6930156e471ffe7c2eb7a8e46a0043b80cc52818ea10eb6390c1edd508f7",
+  "receipt_id": "MB-20261016-NATIVE-INTEGER-SINGLE-CAL-PREPARE_6fcc677e5a0543d791d7026c38fe8ce1"
+}

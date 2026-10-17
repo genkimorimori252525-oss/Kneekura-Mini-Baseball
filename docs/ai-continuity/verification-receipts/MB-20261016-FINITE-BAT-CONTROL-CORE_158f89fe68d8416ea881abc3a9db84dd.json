@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-FINITE-BAT-CONTROL-CORE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/contact/HeldToMeasuredBatControlV1.test.ts"
+  ],
+  "observed_at": "2026-10-16T12:56:01.262+00:00",
+  "elapsed_ms": 1000,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-FINITE-BAT-CONTROL-CORE_158f89fe68d8416ea881abc3a9db84dd.log",
+  "output_sha256": "2926c726fd66ec388b146b2e6839c8cf2be42b09c61d48fdfb11e816a9f640f0",
+  "receipt_id": "MB-20261016-FINITE-BAT-CONTROL-CORE_158f89fe68d8416ea881abc3a9db84dd"
+}

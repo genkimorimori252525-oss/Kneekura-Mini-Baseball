@@ -1,0 +1,18 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.click: Error: strict mode violation: locator('#live-public-editor details > summary') resolved to 2 elements:
+    1) <summary>野手の投球能力</summary> aka getByText('野手の投球能力')
+    2) <summary>リーグ内の参考表示</summary> aka getByText('リーグ内の参考表示')
+
+Call log:
+[2m  - waiting for locator('#live-public-editor details > summary')[22m
+
+    at C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\check-maker-public-abilities.mjs:101:63 {
+  log: [
+    "  - waiting for locator('#live-public-editor details > summary')"
+  ]
+}
+
+Node.js v26.1.0

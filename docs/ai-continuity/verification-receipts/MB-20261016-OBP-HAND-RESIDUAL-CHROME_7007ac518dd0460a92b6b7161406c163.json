@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OBP-HAND-RESIDUAL-CHROME",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-measured-maker.mjs",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/にーくら野球メーカー_実測スイング版.html",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/参考データ/openbiomechanics",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/measured-maker-evidence"
+  ],
+  "observed_at": "2026-10-15T18:17:07.137+00:00",
+  "elapsed_ms": 20281,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OBP-HAND-RESIDUAL-CHROME_7007ac518dd0460a92b6b7161406c163.log",
+  "output_sha256": "9af560fa0592b2c40f142bcd11165988f9f7e09f54d3c8dde8d21ffe2f1c3023",
+  "receipt_id": "MB-20261016-OBP-HAND-RESIDUAL-CHROME_7007ac518dd0460a92b6b7161406c163"
+}

@@ -1,0 +1,19 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/perception/ObservationClockProjectionV1.test.ts (4 tests) 7ms
+ ✓ src/host/world/SamePlateAppearanceLifecycleSource.test.ts (7 tests) 19ms
+ ✓ src/host/world/SamePlateAppearanceBallPhysics.test.ts (4 tests) 26ms
+ ✓ src/host/world/SamePlateAppearanceObservationClockProjectionV1.test.ts (4 tests) 63ms
+ ✓ src/host/world/SamePlateAppearanceSourceFieldV3.test.ts (6 tests) 1252ms
+   ✓ inserts all five metadata kinds at the exact post-impulse cut without adding a physical horizon 513ms
+ ✓ src/host/world/SamePlateAppearancePhysicalFieldActions.test.ts (14 tests) 5344ms
+   ✓ FS01 source-backed relay, backup and deep coverage execute the rated motor into the same physical checkpoint 332ms
+   ✓ FS02 all nine original defenders execute including cover after a genuinely moved and locally perceived handler 903ms
+   ✓ FT01 team actor selections drive nine real motor calculations using the team choice, preserving the original body curves 3375ms
+
+ Test Files  6 passed (6)
+      Tests  39 passed (39)
+   Start at  02:43:20
+   Duration  13.23s (transform 9.26s, setup 0ms, collect 37.00s, tests 6.71s, environment 1ms, prepare 1.35s)
+

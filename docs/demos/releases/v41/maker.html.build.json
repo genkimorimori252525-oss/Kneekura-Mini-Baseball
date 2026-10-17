@@ -1,0 +1,39 @@
+{
+  "output": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_公開能力編集版.html",
+  "bytes": 4337893,
+  "sha256": "60c942a779198aa164d61c702aec97b7c8ff5c7159c3301542503b1a6e2d12fe",
+  "coreSha256": "1dcdfe3f92cada60f4373a7ffe539d7b1b0d5052194a9720acabcbbaa5cdd739",
+  "uiSha256": "7d624f8294324a78dd9f1827082c81c71be8187b450f70b315d04daf529a4114",
+  "templateSha256": "f1fc9b5ca539488da44622d35e481ce5c44777171a0661e5dc2c27365aa32e5c",
+  "referenceSha256": "72b615a28cd99b4a91c6e52cb02ee35f4ff97850c3bfe71ca73d0e609ba480ef",
+  "referenceClips": 12,
+  "liveRosterSha256": "a2fdb7835bada8dddcd2599e72f0034e540bebb360febb8cd25279f2ba1e6ccd",
+  "liveRosterCatalogSha256": "df910ce1aa0c6e358160ca028afd00649a9744e3763cb8eb587abd5fb9741dc7",
+  "gamePlayers": 20,
+  "publicAbilities": true,
+  "liveRosterPath": "docs/demos/live-game-roster-v2.json",
+  "liveRosterCatalogPath": "docs/demos/live-game-roster-catalog-v2.json",
+  "publicReferenceSha256": "b448f82f81620085b1f4923609cec23f69db4c639da76b6b1f877abb22622e4e",
+  "batSpriteModuleSha256": "aa675212434b677b1fe8fb245d438f49f4afcef9022cecc2d512fd7cd32c35d9",
+  "batSpriteManifestSha256": "29f76d56ef02f56f4eda9b6b626df8e1b5ce98acbaa957b6534bbdcf2cff4dcc",
+  "batSprites": [
+    {
+      "file": "bat-78cm.png",
+      "nominalLengthM": 0.78,
+      "sha256": "41a9920ce99d43fcf4f18ff1121c30063ff6f02ed076d3a0032934d92910e430"
+    },
+    {
+      "file": "bat-84cm.png",
+      "nominalLengthM": 0.84,
+      "sha256": "c2902280e948c71afd5d346a18fffb587eccae868b1e9f7adf2009112ded2d4e"
+    },
+    {
+      "file": "bat-90cm.png",
+      "nominalLengthM": 0.9,
+      "sha256": "1e69c292727402112a6506c88e796d725db93bb28a1eb5d763bcaeff77ae5bd9"
+    }
+  ],
+  "batSpriteAuthority": "GENERATED_RENDER_SPRITES_NOT_MEASURED_BAT_GEOMETRY",
+  "selfContained": true,
+  "authority": "Shared Core samples; separate OpenBiomechanics measured-axis research replay"
+}

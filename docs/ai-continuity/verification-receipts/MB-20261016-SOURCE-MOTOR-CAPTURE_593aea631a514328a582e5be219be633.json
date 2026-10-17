@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-MOTOR-CAPTURE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts",
+    "src/core/sim/ball/SourceFieldIntegerBoundaryV1.test.ts",
+    "src/core/sim/ball/BattedWorldScheduledFieldAcquisition.test.ts",
+    "src/core/sim/ball/SourceBattedFieldMotionV3.test.ts"
+  ],
+  "observed_at": "2026-10-15T18:31:26.352+00:00",
+  "elapsed_ms": 1889,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-MOTOR-CAPTURE_593aea631a514328a582e5be219be633.log",
+  "output_sha256": "706c1b21508c6429ebd905d1f4d30681ef82599482a787a4d209075af76f8ebf",
+  "receipt_id": "MB-20261016-SOURCE-MOTOR-CAPTURE_593aea631a514328a582e5be219be633"
+}

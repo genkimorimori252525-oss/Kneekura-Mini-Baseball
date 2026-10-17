@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-AUTHORED-FIRST-PREPARATION-TSC",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-16T00:02:48.708+00:00",
+  "elapsed_ms": 44266,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-AUTHORED-FIRST-PREPARATION-TSC_fac1672960df45a6b6efdf4d12256ff0.log",
+  "output_sha256": "e2c7b1fdec9bc351385655435cf523efaf87285e196800a45e860a41f0f0fbb0",
+  "receipt_id": "MB-20261016-AUTHORED-FIRST-PREPARATION-TSC_fac1672960df45a6b6efdf4d12256ff0"
+}

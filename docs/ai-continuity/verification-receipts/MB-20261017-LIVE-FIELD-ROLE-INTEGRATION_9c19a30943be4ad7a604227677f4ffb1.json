@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-FIELD-ROLE-INTEGRATION",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T03:09:40.864+00:00",
+  "elapsed_ms": 5657,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-FIELD-ROLE-INTEGRATION_9c19a30943be4ad7a604227677f4ffb1.log",
+  "output_sha256": "07aa71e8c420225f7e334dd974076aef2c857071093162ecd3b28310e9dc9d8e",
+  "receipt_id": "MB-20261017-LIVE-FIELD-ROLE-INTEGRATION_9c19a30943be4ad7a604227677f4ffb1"
+}

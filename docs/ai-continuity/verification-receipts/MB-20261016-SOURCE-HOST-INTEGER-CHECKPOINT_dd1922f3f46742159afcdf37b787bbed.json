@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-HOST-INTEGER-CHECKPOINT",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/SamePlateAppearanceSourceIntegerCheckpointV1.test.ts",
+    "src/host/world/SamePlateAppearanceSourceFieldV3.test.ts",
+    "src/host/world/SamePlateAppearanceBallPhysics.test.ts"
+  ],
+  "observed_at": "2026-10-15T18:17:38.706+00:00",
+  "elapsed_ms": 18421,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-HOST-INTEGER-CHECKPOINT_dd1922f3f46742159afcdf37b787bbed.log",
+  "output_sha256": "1d8ebf3b389419a3d70fa92cb7c0ff58e7999907ecd1005b2c1be1045d4f33bd",
+  "receipt_id": "MB-20261016-SOURCE-HOST-INTEGER-CHECKPOINT_dd1922f3f46742159afcdf37b787bbed"
+}

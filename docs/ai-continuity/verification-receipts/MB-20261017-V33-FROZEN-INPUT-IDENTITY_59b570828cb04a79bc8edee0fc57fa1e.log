@@ -1,0 +1,8 @@
+{
+  "status": "PASS_SHARED_CORE_AND_MEASURED_INPUTS",
+  "htmlSha256": "a17fe290818ce106ba74093d28e4b876655efa02f0556468ece62f0a05f36536",
+  "sharedSourceInputCount": 52,
+  "browserSourceInputCount": 96,
+  "measuredEqual": true,
+  "report": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\verification-v33-live-browser-full-v3\\frozen-input-identity-v2.json"
+}

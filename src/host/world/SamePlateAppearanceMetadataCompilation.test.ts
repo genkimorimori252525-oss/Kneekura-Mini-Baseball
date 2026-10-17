@@ -8,7 +8,7 @@ import { sqliteMetadataAll } from './SqliteMetadataStatementScope';
 import { sqliteJsonMetadataNodes } from './SqliteOwnershipMetadata';
 const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
 
-it('compiles lifecycle metadata once per Native proof while executing each original document and preserving hidden claims', () => {
+it('prepares each lifecycle metadata query afresh while preserving original documents and hidden claims', () => {
   const db = new DatabaseSync(':memory:');
   // Structural metadata fixture only. No complete player, TAKE or lifecycle
   // authority is substituted for a production owner in this mechanics test.
@@ -45,17 +45,29 @@ it('compiles lifecycle metadata once per Native proof while executing each origi
       expect(readSamePaLifecycleClaimRows(db)).toEqual(first);
     });
     expect(compiles.size).toBeGreaterThan(0);
-    expect([...compiles.values()].every(n => n === 1)).toBe(true);
+    expect(compiles).toEqual(executions);
     expect([...executions.values()].every(n => n > 1)).toBe(true);
     db.exec('COMMIT; PRAGMA query_only=0');
     db.prepare('UPDATE pa_continuation_v1_execution_views SET snapshot_json=?').run('{"source":{"enrollmentReference":{"sourceId":"root"},"enrollmentReferenc\\u0065":{"sourceId":"foreign"}}}');
     db.exec('PRAGMA query_only=1; BEGIN');
     expect(phase(db, () => readSamePaLifecycleClaimRows(db)[0].enrollmentSourceIds)).toEqual(['foreign', 'root']);
-    expect([...compiles.values()].every(n => n === 2)).toBe(true);
+    expect(compiles).toEqual(executions);
   } finally { db.prepare = prepare; if (db.isTransaction) db.exec('ROLLBACK'); db.close(); }
 });
 
-it('disposes metadata compilation with failed or replaced continuation transactions', () => {
+it('still executes the original typed JSON query for every distinct caller document',()=>{
+  const db=new DatabaseSync(':memory:');
+  const sql=`SELECT atom FROM (${sqliteJsonMetadataNodes('$document',['sourceId'])}) WHERE type='text'`;
+  try{
+    db.exec('PRAGMA query_only=1; BEGIN');
+    phase(db,()=>{
+      expect(sqliteMetadataAll(db,sql,'{"sourceId":"first","source\\u0049d":"hidden-first"}').map(r=>r.atom)).toEqual(['first','hidden-first']);
+      expect(sqliteMetadataAll(db,sql,'{"sourceId":"second","source\\u0049d":"hidden-second"}').map(r=>r.atom)).toEqual(['second','hidden-second']);
+    });
+  }finally{if(db.isTransaction)db.exec('ROLLBACK');db.close();}
+});
+
+it('keeps fresh metadata reads fenced across failed or replaced continuation transactions', () => {
   const db = new DatabaseSync(':memory:'), prepare = db.prepare;
   const sql = `SELECT atom FROM (${sqliteJsonMetadataNodes('$document', ['sourceId'])}) WHERE type='text'`;
   let compiles = 0;
@@ -66,6 +78,6 @@ it('disposes metadata compilation with failed or replaced continuation transacti
     expect(() => phase(db, () => { expect(read()).toEqual(['first', 'second']); throw new Error('abort'); })).toThrow('abort');
     expect(phase(db, read)).toEqual(['first', 'second']); expect(compiles).toBe(2);
     expect(() => phase(db, () => { read(); db.exec('COMMIT; BEGIN'); read(); })).toThrow();
-    expect(phase(db, read)).toEqual(['first', 'second']); expect(compiles).toBe(4);
+    expect(phase(db, read)).toEqual(['first', 'second']); expect(compiles).toBe(5);
   } finally { db.prepare = prepare; if (db.isTransaction) db.exec('ROLLBACK'); db.close(); }
 });

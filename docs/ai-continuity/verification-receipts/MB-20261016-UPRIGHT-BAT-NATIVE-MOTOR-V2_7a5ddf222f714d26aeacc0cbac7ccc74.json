@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-UPRIGHT-BAT-NATIVE-MOTOR-V2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-with-bat-upright-motor-v2/readback.mjs",
+    "../../outputs/verification-authored-with-bat-upright-cut-v1",
+    "../../outputs/verification-authored-with-bat-upright-motor-v2"
+  ],
+  "observed_at": "2026-10-16T12:47:42.606+00:00",
+  "elapsed_ms": 14875,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-UPRIGHT-BAT-NATIVE-MOTOR-V2_7a5ddf222f714d26aeacc0cbac7ccc74.log",
+  "output_sha256": "c982a9194fa1b5198e5716ed512454b36f93c4fd8fa99eb4f1f5a1cc11958a5d",
+  "receipt_id": "MB-20261016-UPRIGHT-BAT-NATIVE-MOTOR-V2_7a5ddf222f714d26aeacc0cbac7ccc74"
+}

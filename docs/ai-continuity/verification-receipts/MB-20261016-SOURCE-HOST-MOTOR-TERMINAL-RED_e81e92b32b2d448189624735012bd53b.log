@@ -1,0 +1,47 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/host/world/SamePlateAppearanceSourceMotorFieldV1.test.ts (5 tests | 2 failed) 20257ms
+   ✓ connects complete owned team selections through real rated motor and Source replay, retaining all six roles and ball spin 2568ms
+   × preserves the real Source glove candidate as a terminal field without granting custody or allowing later free work 2560ms
+     → expected [Function] to throw error including 'free cursor' but got 'field physical contact requires its c…'
+   × keeps per-record inert limits and rejects active, exotic, oversized or sparse replay envelopes 3967ms
+     → expected [Function] to throw an error
+   ✓ replays later free/metadata history and rejects mutated original motors/evidence or returning to integer/old versions 7457ms
+   ✓ rejects legacy/subset/stale team selections and future first-step or invalid body calibration before any Source movement 3703ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/host/world/SamePlateAppearanceSourceMotorFieldV1.test.ts > preserves the real Source glove candidate as a terminal field without granting custody or allowing later free work
+AssertionError: expected [Function] to throw error including 'free cursor' but got 'field physical contact requires its c…'
+
+Expected: "free cursor"
+Received: "field physical contact requires its concrete acquisition/response owner"
+
+ ❯ src/host/world/SamePlateAppearanceSourceMotorFieldV1.test.ts:127:98
+    125|   expect(result.field.motion.cursor).toBeNull();expect(result.field.mo…
+    126|   const field=h.append(h.motorSource,result),s=h.source(MOTOR,undefine…
+    127|   expect(()=>deriveSamePaPhysicalFieldStep(s,h.root,field,field.evalua…
+       |                                                                                                  ^
+    128|   expect(()=>deriveSamePaSourceFieldMetadataV3({...s,throughTick:field…
+    129| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/host/world/SamePlateAppearanceSourceMotorFieldV1.test.ts > keeps per-record inert limits and rejects active, exotic, oversized or sparse replay envelopes
+AssertionError: expected [Function] to throw an error
+ ❯ src/host/world/SamePlateAppearanceSourceMotorFieldV1.test.ts:136:85
+    134|   let reads=0;
+    135|   expect(()=>deriveSamePaSourceMotorFieldMotionV1({...input,get histor…
+    136|   expect(()=>deriveSamePaSourceMotorFieldMotionV1(Object.assign(new Da…
+       |                                                                                     ^
+    137|   expect(()=>deriveSamePaSourceMotorFieldMotionV1({...input,history:Ar…
+    138|   expect(()=>deriveSamePaSourceMotorFieldMotionV1({...input,history:Ar…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 3 passed (5)
+   Start at  03:36:55
+   Duration  26.36s (transform 3.53s, setup 0ms, collect 5.62s, tests 20.26s, environment 0ms, prepare 144ms)
+

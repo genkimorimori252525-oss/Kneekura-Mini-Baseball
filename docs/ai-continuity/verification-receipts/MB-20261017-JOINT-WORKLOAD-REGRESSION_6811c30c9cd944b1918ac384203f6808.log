@@ -1,0 +1,13 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/InitialJointWorkloadProjection.test.ts (5 tests) 28ms
+ ✓ src/core/world/development/PlayerWorkloadRecovery.test.ts (3 tests) 3ms
+ ✓ src/core/sim/pitch/ControlledBatBodyPitchWorldV1.test.ts (9 tests) 108ms
+ ✓ src/host/world/InitialJointPhysicalSourceInput.test.ts (10 tests) 3ms
+
+ Test Files  4 passed (4)
+      Tests  27 passed (27)
+   Start at  00:19:45
+   Duration  12.68s (transform 7.21s, setup 0ms, collect 11.72s, tests 143ms, environment 0ms, prepare 236ms)
+

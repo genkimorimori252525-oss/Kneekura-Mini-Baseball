@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-AERO-SAMEPA-V2-CLOSED-PROOF",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../aero-ground-samepa-recovery-20261016/read-field-prefix-v2.mjs",
+    "../aero-ground-samepa-recovery-20261016/v2-field-step"
+  ],
+  "observed_at": "2026-10-15T17:08:57.456+00:00",
+  "elapsed_ms": 25280,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-AERO-SAMEPA-V2-CLOSED-PROOF_f2083540809a492b85736f66e7139ba6.log",
+  "output_sha256": "f6f12758e664d15929bac154d778b673a31d0f068f17ddccd25df3844e0e6875",
+  "receipt_id": "MB-20261016-AERO-SAMEPA-V2-CLOSED-PROOF_f2083540809a492b85736f66e7139ba6"
+}

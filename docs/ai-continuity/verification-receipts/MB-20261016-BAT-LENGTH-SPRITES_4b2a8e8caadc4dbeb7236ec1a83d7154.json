@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-BAT-LENGTH-SPRITES",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-bat-length-sprites.mjs",
+    "../bat-length-sprite-evidence"
+  ],
+  "observed_at": "2026-10-15T17:31:12.789+00:00",
+  "elapsed_ms": 1093,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-BAT-LENGTH-SPRITES_4b2a8e8caadc4dbeb7236ec1a83d7154.log",
+  "output_sha256": "833b802a8f1d0f24cc4bfff2915433ad67fe6028c37f30739e5500fc1ce1a395",
+  "receipt_id": "MB-20261016-BAT-LENGTH-SPRITES_4b2a8e8caadc4dbeb7236ec1a83d7154"
+}

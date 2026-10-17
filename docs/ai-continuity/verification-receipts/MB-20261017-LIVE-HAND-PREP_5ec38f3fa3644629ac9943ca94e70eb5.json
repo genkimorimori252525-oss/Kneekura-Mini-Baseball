@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-HAND-PREP",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveHandPreparationV1.test.ts",
+    "--maxWorkers",
+    "1",
+    "--minWorkers",
+    "1"
+  ],
+  "observed_at": "2026-10-17T00:58:19.678+00:00",
+  "elapsed_ms": 671,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-HAND-PREP_5ec38f3fa3644629ac9943ca94e70eb5.log",
+  "output_sha256": "e4700d922109e94e316a3f149866164c6ac66ab25a993603dec34f1a33e4a8b4",
+  "receipt_id": "MB-20261017-LIVE-HAND-PREP_5ec38f3fa3644629ac9943ca94e70eb5"
+}

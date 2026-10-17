@@ -1,0 +1,25 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts (8 tests) 11ms
+ ✓ src/core/sim/fielding/LiveThrowDirectionV1.test.ts (5 tests) 4ms
+stdout | src/core/sim/fielding/LiveThrowPlanV1.test.ts > remains deterministic and reports performance outside the issued command
+{"benchmark":"70M_AERO_THROW_COMMAND","wallMilliseconds":85.32539999999995,"candidateCount":4,"solverEvaluationCount":19,"shootingIntegrationStepUpperBound":10047,"verificationKernelBuilds":1,"timingBasis":"MONOTONIC_WALL_CLOCK_NOT_PROCESS_CPU","processCpuUserMilliseconds":94,"processCpuSystemMilliseconds":0}
+
+ ✓ src/core/sim/fielding/LiveThrowPlanV1.test.ts (6 tests) 515ms
+ ✓ src/core/sim/fielding/LiveFieldRoleMotionV1.test.ts (5 tests) 2362ms
+   ✓ executes unique receiver coverage through a real throw while spare outfielders retain deep coverage 318ms
+   ✓ keeps zero-error actual physics exact and launches a reproducible physical miss for nonzero angular error 1747ms
+ ✓ src/core/sim/fielding/LiveFieldPlayV1.test.ts (18 tests) 4856ms
+   ✓ runs the complete actual base path after a fair over-fence flight instead of teleporting runners 596ms
+   ✓ derives two force retirements from actual pickup, two throws, receptions and base contacts 487ms
+   ✓ continues a true wall rebound through its signed-gap certificate and retrieves the ball 449ms
+   ✓ catches an ordinary high center-field fly using a causal aero-ground forecast 834ms
+   ✓ keeps bodies, independent gloves and a possessed ball inside the physical fence through pickup and release 841ms
+   ✓ finishes the pinned fast grounder after causal interception without an invented result 493ms
+
+ Test Files  5 passed (5)
+      Tests  42 passed (42)
+   Start at  12:14:06
+   Duration  5.68s (transform 480ms, setup 0ms, collect 1.35s, tests 7.75s, environment 1ms, prepare 784ms)
+

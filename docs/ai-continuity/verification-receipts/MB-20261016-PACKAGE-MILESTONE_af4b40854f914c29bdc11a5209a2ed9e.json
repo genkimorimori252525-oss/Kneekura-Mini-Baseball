@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-PACKAGE-MILESTONE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "python",
+    "../package-delivery.py"
+  ],
+  "observed_at": "2026-10-15T16:07:12.197+00:00",
+  "elapsed_ms": 9718,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-PACKAGE-MILESTONE_af4b40854f914c29bdc11a5209a2ed9e.log",
+  "output_sha256": "315d6ec23cba0ab88cd9fb3d69bb6f73ce55d51f750ec99d3198ab4b91b52b0f",
+  "receipt_id": "MB-20261016-PACKAGE-MILESTONE_af4b40854f914c29bdc11a5209a2ed9e"
+}

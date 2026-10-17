@@ -1,0 +1,3 @@
+warning: in the working copy of 'src/host/world/SamePlateAppearanceLifecycleClaimGuard.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/host/world/SamePlateAppearanceMetadataCompilation.test.ts', LF will be replaced by CRLF the next time Git touches it
+{"archive": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくらMINIbaseball_変更ソースと検証.zip", "sha256": "fc35bb0c31add56f1aec347428d38584c1b858f85905998e20308fcce1fea3fd", "bytes": 146285290, "sourceFiles": 312, "entries": 2402, "allEntryHashesVerified": true}

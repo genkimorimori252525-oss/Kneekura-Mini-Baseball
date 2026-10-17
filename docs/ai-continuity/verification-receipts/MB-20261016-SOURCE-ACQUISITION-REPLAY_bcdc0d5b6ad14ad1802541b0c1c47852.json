@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-ACQUISITION-REPLAY",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/SourceBattedFieldAcquisitionV1.test.ts",
+    "src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts",
+    "src/core/sim/ball/BattedWorldScheduledFieldAcquisition.test.ts",
+    "src/core/sim/ball/SourceFieldIntegerBoundaryV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T18:38:35.766+00:00",
+  "elapsed_ms": 1812,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-ACQUISITION-REPLAY_bcdc0d5b6ad14ad1802541b0c1c47852.log",
+  "output_sha256": "c43f1b1349e195649e6d3b01ccfcbc953c130884f9c78abea39ebfab050e1e6b",
+  "receipt_id": "MB-20261016-SOURCE-ACQUISITION-REPLAY_bcdc0d5b6ad14ad1802541b0c1c47852"
+}

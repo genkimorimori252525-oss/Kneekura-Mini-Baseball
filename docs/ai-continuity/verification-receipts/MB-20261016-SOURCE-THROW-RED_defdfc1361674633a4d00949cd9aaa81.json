@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-THROW-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/SourceBattedFieldThrowV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T18:51:59.553+00:00",
+  "elapsed_ms": 1360,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-THROW-RED_defdfc1361674633a4d00949cd9aaa81.log",
+  "output_sha256": "f4500927e353d042f419febc2a70bf461d6898675dc91d385e90ba34786b38c0",
+  "receipt_id": "MB-20261016-SOURCE-THROW-RED_defdfc1361674633a4d00949cd9aaa81"
+}

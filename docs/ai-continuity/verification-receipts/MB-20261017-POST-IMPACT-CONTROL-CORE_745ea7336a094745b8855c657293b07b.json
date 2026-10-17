@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-POST-IMPACT-CONTROL-CORE",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "--maxWorkers",
+    "1",
+    "--minWorkers",
+    "1",
+    "src/core/sim/contact/PostImpactBatBodyControlV1.test.ts"
+  ],
+  "observed_at": "2026-10-16T15:34:30.140+00:00",
+  "elapsed_ms": 1125,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-POST-IMPACT-CONTROL-CORE_745ea7336a094745b8855c657293b07b.log",
+  "output_sha256": "889c06c486dad891a45e1f49405bc29a263ef21d6660e79399c1a66c1780dd97",
+  "receipt_id": "MB-20261017-POST-IMPACT-CONTROL-CORE_745ea7336a094745b8855c657293b07b"
+}

@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
+import { assertNoUnsettledInitialJointExecution } from './InitialJointPhysicalExecutionMetadata';
 import { advancePlayerWorkloadRecovery, type PlayerWorkloadActivity } from '../../core/world/development/PlayerWorkloadRecovery';
 import { advancePlateAppearancePitchSequenceToMatchState } from '../../core/sim/plateAppearance/PlateAppearanceSequenceCoordinator';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze, assertPhysicalActorOpenFrame } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -291,6 +292,7 @@ export const readSamePaLifecycleNextPitchBasisFromSqlite = (db: DatabaseSync, re
  * ancestry. Arguments are freshly rederived data, never accepted proof tokens. */
 export const assertSamePaLifecycleReservedStateFromSqlite=(db:DatabaseSync,b:Pick<SamePaLifecycleViewBasis,'actor'> & {view:{participants:readonly Pick<SamePaLifecycleView['participants'][number],'playerId'|'reservedState'>[]}})=>{
   assertPhysicalActorOpenFrame(db,b.actor);
+  assertNoUnsettledInitialJointExecution(db,{careerId:b.actor.binding.careerId,gameId:b.actor.source.gameId,playId:b.actor.match.playId});
   const bindings=readSamePaOriginalParticipants(db,b.actor).map(p=>p.binding);
   for(const p of b.view.participants){const binding=bindings.find(x=>x.playerId===p.playerId);if(!binding)throw new Error('lifecycle reserved binding missing');
     same(readActualRoleWorkloadState(db,binding.careerId,binding.playerId,undefined,binding.personLinkSourceId),p.reservedState);}

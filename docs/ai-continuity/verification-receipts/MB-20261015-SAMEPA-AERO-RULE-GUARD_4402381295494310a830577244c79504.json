@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-SAMEPA-AERO-RULE-GUARD",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/SamePlateAppearanceFieldRuleEvidence.test.ts",
+    "src/host/world/FrozenLiveOwnerDomainsV3.test.ts",
+    "src/core/sim/ball/SourceBattedFieldMotion.test.ts",
+    "--maxWorkers=1",
+    "--minWorkers=1"
+  ],
+  "observed_at": "2026-10-14T22:39:06.824+00:00",
+  "elapsed_ms": 11952,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-SAMEPA-AERO-RULE-GUARD_4402381295494310a830577244c79504.log",
+  "output_sha256": "5e3101eb958e119f16ce6c1d1c94b3afacd5d55bf4b31e5dd531c6ef4da1a382",
+  "receipt_id": "MB-20261015-SAMEPA-AERO-RULE-GUARD_4402381295494310a830577244c79504"
+}

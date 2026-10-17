@@ -1,0 +1,6 @@
+{
+  "version": "authored_zero_observation_error_v1",
+  "authority": "SYNTHETIC_CONTROL_ISOLATION_TEST_NOT_EMPIRICAL_PLAYER",
+  "maximumPositionErrorMeters": 0,
+  "maximumVelocityErrorMps": 0
+}

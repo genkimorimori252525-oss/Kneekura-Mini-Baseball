@@ -1,4 +1,4 @@
-import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
+import { battedWorldConsumerSourceCurve, CONTINUOUS_AERO_GROUND_RESPONSE_SOURCE_VERSION, CONTINUOUS_AERO_GROUND_CONTINUATION_SOURCE_VERSION } from './BattedWorldSourceCurve';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -37,9 +37,10 @@ const predecessorKey = (s: AcceptedBattedWorldContinuation) => json(s.previousCo
   ? ['response', s.responseSourceId] : ['continuation', s.previousContinuationSourceId]);
 export const battedWorldResponseInput = (response: DurableBattedContactResponse): BattedBallContactResponseInput => {
   const w = response.touch.worldContact;
-  assertSupportedBattedWorldConsumer(w, 'response_continuation_input');
+  const sourceCurve = battedWorldConsumerSourceCurve(w, 'response_continuation_input', response.source.sourceVersion, CONTINUOUS_AERO_GROUND_RESPONSE_SOURCE_VERSION);
   return { world: { flight: w.flight.flight, parameters: w.flight.source.execution.ballFlightParameters,
-    throughTick: w.flight.flight.contact.tick + w.flight.source.searchDurationTicks, actors: w.actors, surfaces: w.model.surfaces },
+    throughTick: w.flight.flight.contact.tick + w.flight.source.searchDurationTicks, actors: w.actors, surfaces: w.model.surfaces,
+    ...(sourceCurve ? { sourceCurve } : {}) },
     actors: response.model.actors.filter((a) => w.actors.some((b) => a.playerId === b.playerId))
       .flatMap((a) => a.primitives.map((profile) => ({ playerId: a.playerId, profile }))), surfaces: response.model.surfaces };
 };
@@ -59,7 +60,7 @@ export const battedWorldContinuationEvidenceFromSqlite = (db: Pick<import('node:
   const head = (pitchId: string): Head | null => db.prepare('SELECT response_source_id,source_id,revision FROM batted_world_continuation_heads WHERE physical_pitch_source_id=?')
     .get(pitchId) as Head | undefined ?? null;
   const scope = (response: DurableBattedContactResponse): readonly DurableBattedWorldContinuation[] => {
-    assertSupportedBattedWorldConsumer(response.touch.worldContact, 'continuation');
+    battedWorldConsumerSourceCurve(response.touch.worldContact, 'continuation', response.source.sourceVersion, CONTINUOUS_AERO_GROUND_RESPONSE_SOURCE_VERSION);
     const pitchId = physicalId(response), rows = db.prepare('SELECT * FROM batted_world_continuations WHERE physical_pitch_source_id=? ORDER BY revision')
       .all(pitchId) as Row[], currentHead = head(pitchId);
     if (!rows.length) { if (currentHead) throw new Error('unowned batted continuation head'); return []; }
@@ -67,6 +68,7 @@ export const battedWorldContinuationEvidenceFromSqlite = (db: Pick<import('node:
       || currentHead.response_source_id !== response.source.sourceId) throw new Error('batted continuation original prefix head differs');
     const history = rows.map((row, index) => {
       const s = input(JSON.parse(row.source_json) as AcceptedBattedWorldContinuation, row.source_id);
+      battedWorldConsumerSourceCurve(response.touch.worldContact, 'continuation', s.sourceVersion, CONTINUOUS_AERO_GROUND_CONTINUATION_SOURCE_VERSION);
       if (s.responseSourceId !== response.source.sourceId || s.previousContinuationSourceId !== (index === 0 ? null : rows[index - 1].source_id)
         || row.response_source_id !== s.responseSourceId || row.previous_source_id !== s.previousContinuationSourceId || row.predecessor_key !== predecessorKey(s)
         || row.physical_pitch_source_id !== pitchId || row.game_id !== response.model.gameId || row.revision !== index + 1
@@ -93,6 +95,7 @@ export const battedWorldContinuationEvidenceFromSqlite = (db: Pick<import('node:
   const derive = (s: AcceptedBattedWorldContinuation): DurableBattedWorldContinuation => {
     const response = ownResponses.read(s.responseSourceId);
     if (!response) throw new Error('original batted response Source is missing');
+    battedWorldConsumerSourceCurve(response.touch.worldContact, 'continuation', s.sourceVersion, CONTINUOUS_AERO_GROUND_CONTINUATION_SOURCE_VERSION);
     const values = scope(response), latest = values.at(-1);
     if (s.previousContinuationSourceId !== (latest?.source.sourceId ?? null)) throw new Error('batted continuation predecessor is not the current original head');
     const history = [...(latest?.history ?? []), s], trace = deriveTrace(response, history);
