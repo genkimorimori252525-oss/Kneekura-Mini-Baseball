@@ -106,8 +106,9 @@ export function assignLiveFieldRolesV1(raw: LiveFieldRoleInputV1): readonly Live
     if (task === n) continue;
     for (let i = 0; i < n; i++) if (!(mask & (1 << i))) {
       const actor = available[i], slot = tasks[task], eta = liveFieldArrivalSecondsV1(actor, slot.point), previous = input.previous.find(r => r.playerId === actor.playerId),
+        weight = slot.intent === 'base_cover' ? 4 : slot.intent === 'relay' ? 1 : slot.intent === 'backup' ? .25 : .1,
         switchCost = previous && previous.taskId !== slot.taskId ? LIVE_FIELD_ROLE_POLICY_V1.switchCostSeconds : 0,
-        cost = costs[mask] + eta + (slot.deadline === undefined ? 0 : LIVE_FIELD_ROLE_POLICY_V1.lateArrivalCost * Math.max(0, eta - slot.deadline)) + switchCost,
+        cost = costs[mask] + weight * eta + (slot.deadline === undefined ? 0 : LIVE_FIELD_ROLE_POLICY_V1.lateArrivalCost * Math.max(0, eta - slot.deadline)) + switchCost,
         next = mask | (1 << i);
       if (cost < costs[next]) { costs[next] = cost; parents[next] = i; }
     }

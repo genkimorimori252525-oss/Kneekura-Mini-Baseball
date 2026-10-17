@@ -210,6 +210,20 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
     actual: ReturnType<typeof applyLiveThrowDirectionV1> }[] = [];
   const handPreparationProofs: { playerId: string; base: BaseballBase; from: number; through: number;
     controls: ReturnType<HandPreparationState['curve']['cubicBezierControls']>; diagnostics: HandPreparationState['curve']['diagnostics'] }[] = [];
+  const roleTransitions: { elapsedSeconds: number; previousHandlerId: string | null; handlerId: string;
+    source: 'possession' | 'pending_catch' | 'throw_receiver' | 'forecast_retained' | 'forecast_best' | 'fallback_first';
+    intercepted: boolean | null; eta: number | null; targetPoint: Vec3 | null; observedPosition: Vec3 | null;
+    reactionGatedCount: number }[] = [];
+  const throwTargetCancellations: { elapsedSeconds: number; base: BaseballBase; receiverPlayerId: string;
+    releasedAt: number | null; seenAt: number; distanceToTargetMeters: number }[] = [];
+  const contactDiagnostics: { elapsedSeconds: number; playerId: string; role: 'glove' | 'body';
+    ballSpeedMps: number; bodySpeedMps: number; gloveOffsetMeters: number; intent: Fielder['intent'];
+    targetBase: BaseballBase | null; distanceToTargetBaseMeters: number | null;
+    retention?: { outcome: 'secured' | 'live-ball'; retentionLoadJ: number; effectiveCapacityJ: number;
+      pocketOffsetMeters: number; bodyStability: number } }[] = [];
+  const holderDecisions: { elapsedSeconds: number; playerId: string; state: string; base: BaseballBase | null;
+    margin?: number; carrySeconds?: number; receivingSeconds?: number; receiverPlayerId?: string;
+    receiverDistanceToBaseMeters?: number }[] = [];
   const rejectedThrows = new Set<string>();
   let unresolvedDetail: unknown = null;
   const build = (moment: BallWorldMoment) => {
@@ -232,7 +246,7 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
   let side: 'incoming' | 'outgoing' = 'incoming', possession: Fielder | null = null,
     pendingCatch: { fielder: Fielder; first: number; secure: number; firstTouchWasAirborne: boolean; offset: Vec3; spin: Vec3;
       initialPosition: Vec3; initialGlove: Vec3 } | null = null,
-    throwTarget: { receiver: Fielder; base: BaseballBase; releasedAt?: number } | null = null, releaseAt: number | null = null, custodySince = Infinity;
+    throwTarget: { receiver: Fielder; base: BaseballBase; releasedAt?: number; releasedFrom?: Vec3 } | null = null, releaseAt: number | null = null, custodySince = Infinity;
   let releaseOpen: Fielder | null = null;
   let hasThrown = false, lastThrowBases: Record<string, number> = {};
   let handPreparation: HandPreparationState | null = null;
@@ -287,14 +301,15 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
   const observe = (t: number) => { const b = ballAt(t); history.push({ t, position: b.position, velocity: b.velocity, spin: b.spin, phase: b.phase }); };
   const responseSeconds = (f: Fielder) => f.spec.reactionSeconds + (f.spec.fieldingCognition?.decisionSeconds ?? 0);
   const seenBy = (f: Fielder, t: number) => {
-    for (let i = history.length - 1; i >= 0; i--) if (history[i].t <= t - responseSeconds(f)) return history[i];
+    const delay = hasThrown && f === throwTarget?.receiver ? f.spec.reactionSeconds : responseSeconds(f);
+    for (let i = history.length - 1; i >= 0; i--) if (history[i].t <= t - delay) return history[i];
     return null;
   };
   const predictions: { observation: typeof history[number]; curve: ReturnType<typeof createLiveFieldForecastV1> }[] = [];
   let forecastBuilds = 0;
   const predict = (f: Fielder, t: number) => {
-    const seen = seenBy(f, t);
-    if (!seen || possession || pendingCatch || dead || t - seen.t >= LIVE_FIELD_TEST_MODEL_V1.sensorPrediction.horizonSeconds) return null;
+    const seen = seenBy(f, t) ?? (!hasThrown && history.length ? history[0] : null);
+    if (!seen || seen.phase === 'possessed' || possession || pendingCatch || dead || t - seen.t >= LIVE_FIELD_TEST_MODEL_V1.sensorPrediction.horizonSeconds) return null;
     const policy = LIVE_FIELD_TEST_MODEL_V1.sensorPrediction,
       requiredLookahead = Math.min(5, Math.max(.1, (policy.horizonSeconds - responseSeconds(f)) / 2));
     let hypothesis: typeof predictions[number] | undefined;
@@ -321,24 +336,61 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
     remainingReactionSeconds: Math.max(0, start + responseSeconds(f) - t) });
   const forecast = (f: Fielder, t: number) => {
     const prediction = predict(f, t); if (!prediction) return null;
-    const observed = prediction.observedPosition, runToObserved = Math.max(0, distance(flat(at(f.body, t)), flat(observed)) - f.spec.gloveReachMeters),
-      fallbackTravel = runToObserved <= f.spec.topSpeedMps ** 2 / (2 * f.spec.accelerationMps2)
-        ? Math.sqrt(2 * runToObserved / f.spec.accelerationMps2) : runToObserved / f.spec.topSpeedMps + f.spec.topSpeedMps / (2 * f.spec.accelerationMps2);
+    const bodyPos = flat(at(f.body, t)), bodyVel = velocityAt(f.body, t),
+      activeAt = start + Math.ceil(Math.max(0, responseSeconds(f) - 1e-12) / LIVE_FIELD_TEST_MODEL_V1.controlSeconds) * LIVE_FIELD_TEST_MODEL_V1.controlSeconds,
+      wait = Math.max(0, activeAt - t),
+      a = f.spec.accelerationMps2, vmax = f.spec.topSpeedMps,
+      gloveFloor = Math.max(f.spec.gloveRadiusMeters, input.physics.ground.radiusM);
+    const horizontalReachAt = (y: number) => {
+      const dy = f.spec.position.y - Math.max(gloveFloor, y);
+      return Math.sqrt(Math.max(0, f.spec.gloveReachMeters * f.spec.gloveReachMeters - dy * dy)) + f.spec.gloveRadiusMeters * .5;
+    };
+    const travelTo = (p: Vec3) => {
+      const toP = sub(flat(p), bodyPos), dist = norm(toP);
+      let run = Math.max(0, dist - horizontalReachAt(p.y));
+      if (run === 0) return wait;
+      const rawAlong = dist > 1e-9 ? (bodyVel.x * toP.x + bodyVel.z * toP.z) / dist : 0;
+      let along = Math.min(vmax, rawAlong), reversal = 0;
+      if (along < 0) { reversal = -along / a; run += along * along / (2 * a); along = 0; }
+      const accelDist = Math.max(0, (vmax * vmax - along * along) / (2 * a)),
+        move = run <= accelDist ? (Math.sqrt(along * along + 2 * a * run) - along) / a
+          : (vmax - along) / a + (run - accelDist) / vmax;
+      return wait + reversal + move;
+    };
+    const observed = prediction.observedPosition, fallbackTravel = travelTo(observed);
     let best = { point: observed, eta: fallbackTravel + Math.max(0, observed.y - f.spec.position.y - f.spec.gloveReachMeters), prediction, intercepted: false };
+    let lastInFence = null as { point: Vec3; eta: number } | null;
     const near = LIVE_FIELD_TEST_MODEL_V1.sensorPrediction, horizons = [
       ...Array.from({ length: Math.floor(near.nearInterceptThroughSeconds / near.nearInterceptStepSeconds) }, (_, i) => (i + 1) * near.nearInterceptStepSeconds),
       ...Array.from({ length: Math.floor(prediction.maximumSeconds / near.farInterceptStepSeconds) }, (_, i) => (i + 1) * near.farInterceptStepSeconds)
         .filter(h => h > near.nearInterceptThroughSeconds) ];
+    const tryHorizon = (h: number) => {
+      const p = prediction.sample(h).position, insideFence = distance(flat(p), flat(fenceCenter)) <= fenceRadius - input.physics.ground.radiusM;
+      if (!insideFence) return null;
+      const travel = travelTo(p);
+      lastInFence = { point: p, eta: Math.max(h, travel) };
+      if (p.y <= f.spec.position.y + f.spec.gloveReachMeters && travel <= h) {
+        best = { point: p, eta: h, prediction, intercepted: true }; return true;
+      }
+      return travel - h;
+    };
+    let prevH = 0;
     for (const h of horizons) {
       if (h > prediction.maximumSeconds) break;
-      const p = prediction.sample(h).position, run = Math.max(0, distance(flat(at(f.body, t)), flat(p)) - f.spec.gloveReachMeters),
-        travel = run <= f.spec.topSpeedMps ** 2 / (2 * f.spec.accelerationMps2)
-        ? Math.sqrt(2 * run / f.spec.accelerationMps2) : run / f.spec.topSpeedMps + f.spec.topSpeedMps / (2 * f.spec.accelerationMps2);
-      if (p.y <= f.spec.position.y + f.spec.gloveReachMeters && travel <= h
-        && distance(flat(p), flat(fenceCenter)) <= fenceRadius - input.physics.ground.radiusM) {
-        best = { point: p, eta: h, prediction, intercepted: true }; break;
+      const step = h - prevH;
+      const res = tryHorizon(h);
+      if (res === true) break;
+      if (typeof res === 'number' && res < 0.35 && step > 0.01) {
+        const subSteps = Math.min(10, Math.ceil(step / 0.01));
+        for (let s = 1; s < subSteps; s++) {
+          const subH = prevH + (step * s) / subSteps;
+          if (subH <= prediction.maximumSeconds && tryHorizon(subH) === true) break;
+        }
+        if (best.intercepted) break;
       }
+      prevH = h;
     }
+    if (!best.intercepted && lastInFence) best = { point: lastInFence.point, eta: lastInFence.eta, prediction, intercepted: false };
     return best;
   };
   // Commands, rather than positions, are constrained. Every admitted motor
@@ -378,8 +430,13 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
     observe(t);
     if (!possession && throwTarget) {
       const seen = seenBy(throwTarget.receiver, t), target = add(base(throwTarget.base), v(0, throwTarget.receiver.spec.position.y, 0));
-      if (seen && (target.x - seen.position.x) * seen.velocity.x + (target.z - seen.position.z) * seen.velocity.z < 0
-        && distance(flat(seen.position), flat(target)) > throwTarget.receiver.spec.gloveReachMeters) throwTarget = null;
+      if (seen && seen.phase !== 'possessed' && (throwTarget.releasedAt === undefined || seen.t >= throwTarget.releasedAt)
+        && (target.x - seen.position.x) * seen.velocity.x + (target.z - seen.position.z) * seen.velocity.z < 0
+        && distance(flat(seen.position), flat(target)) > throwTarget.receiver.spec.gloveReachMeters) {
+        throwTargetCancellations.push({ elapsedSeconds: t, base: throwTarget.base, receiverPlayerId: throwTarget.receiver.spec.playerId,
+          releasedAt: throwTarget.releasedAt ?? null, seenAt: seen.t, distanceToTargetMeters: distance(flat(seen.position), flat(target)) });
+        throwTarget = null;
+      }
     }
     const forecasts = defenders.map(f => ({ f, predicted: forecast(f, t) }));
     const best = forecasts.filter(x => x.predicted).sort((a, b) => Number(b.predicted!.intercepted) - Number(a.predicted!.intercepted)
@@ -388,9 +445,34 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
       && incumbent.predicted.intercepted === best.predicted.intercepted
       && incumbent.predicted.eta <= best.predicted.eta + LIVE_FIELD_ROLE_POLICY_V1.switchCostSeconds ? incumbent.f : best?.f;
     const handler = possession ?? pendingCatch?.fielder ?? throwTarget?.receiver ?? retained ?? defenders[0];
-    previousHandlerId = handler.spec.playerId;
     const handlerPrediction = forecasts.find(x => x.f === handler)?.predicted;
+    if (handler.spec.playerId !== previousHandlerId) {
+      const source = possession ? 'possession' : pendingCatch ? 'pending_catch' : throwTarget ? 'throw_receiver'
+        : retained && retained === incumbent?.f ? 'forecast_retained' : best?.f === handler ? 'forecast_best' : 'fallback_first';
+      roleTransitions.push({ elapsedSeconds: t, previousHandlerId, handlerId: handler.spec.playerId, source,
+        intercepted: handlerPrediction?.intercepted ?? null, eta: handlerPrediction?.eta ?? null,
+        targetPoint: handlerPrediction?.point ?? null, observedPosition: handlerPrediction?.prediction.observedPosition ?? null,
+        reactionGatedCount: forecasts.filter(x => !x.predicted).length });
+    }
+    previousHandlerId = handler.spec.playerId;
     let holderTask: { point: Vec3; intent: Fielder['intent']; base: BaseballBase | null } = { point: at(handler.body, t), intent: 'hold', base: null };
+    if ((possession || pendingCatch) && !throwTarget && releaseAt === null) {
+      const activeObligations = deriveCurrentForceObligations(force);
+      const nearForcedBase = activeObligations
+        .map(o => {
+          const r = runners.find(x => x.spec.runnerId === o.runnerId)!, b = base(o.targetBase),
+            runnerSec = r.leg ? Math.max(0, r.leg.from + r.leg.duration - t) : distance(flat(runnerAt(r, t)), flat(b)) / r.spec.topSpeedMps,
+            holderSec = liveFieldArrivalSecondsV1({ ...roleActor(handler, t), remainingReactionSeconds: 0 }, b, field.baseTouchRadiusMeters ?? .28),
+            otherSec = Math.min(...defenders.filter(f => f !== handler).map(f => liveFieldArrivalSecondsV1(roleActor(f, t), b, field.baseTouchRadiusMeters ?? .28))),
+            dist = distance(flat(at(handler.body, t)), flat(b));
+          return { base: o.targetBase, point: b, dist, holderSec, otherSec, runnerSec };
+        })
+        .filter(c => c.holderSec < c.runnerSec && (c.dist <= 3.5 || (c.dist <= 7.5 && c.runnerSec - c.holderSec > .45) || c.holderSec <= c.otherSec + .35 || handler.targetBase === c.base))
+        .sort((a, b) => a.holderSec - b.holderSec)[0];
+      if (nearForcedBase) {
+        holderTask = { point: nearForcedBase.point, intent: 'base_cover', base: nearForcedBase.base };
+      }
+    }
     const threats: { base: BaseballBase; arrivalSeconds: number }[] = [];
     for (const runner of runners.filter(r => !r.retired && !r.scored)) {
       const n = runner.leg?.to ?? (runner.base < 4 ? runner.base + 1 : null);
@@ -422,12 +504,15 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
         return [f, { point: role.point, intent: role.intent, base: role.targetBase }] as const; })) };
     };
     let planned = assignment(), assigned = planned.targets;
+    if (possession && !pendingCatch && t < custodySince + possession.spec.transferSeconds && releaseAt === null) {
+      const oblig = deriveCurrentForceObligations(force)[0];
+      holderDecisions.push({ elapsedSeconds: t, playerId: possession.spec.playerId, state: 'waiting_transfer',
+        base: oblig?.targetBase ?? null,
+        receiverDistanceToBaseMeters: oblig ? distance(flat(at(possession.body, t)), flat(base(oblig.targetBase))) : undefined });
+    }
     if (possession && !pendingCatch && t >= custodySince + possession.spec.transferSeconds && releaseAt === null) {
-      const arrive = (f: Fielder, target: Vec3) => {
-        const meters = Math.max(0, distance(flat(at(f.body, t)), flat(target)) - (field.baseTouchRadiusMeters ?? .28));
-        return meters <= f.spec.topSpeedMps ** 2 / (2 * f.spec.accelerationMps2) ? Math.sqrt(2 * meters / f.spec.accelerationMps2)
-          : meters / f.spec.topSpeedMps + f.spec.topSpeedMps / (2 * f.spec.accelerationMps2);
-      };
+      const arrive = (f: Fielder, target: Vec3) =>
+        liveFieldArrivalSecondsV1({ ...roleActor(f, t), remainingReactionSeconds: 0 }, target, field.baseTouchRadiusMeters ?? .28);
       const candidates = deriveCurrentForceObligations(force).map(o => {
         const r = runners.find(r => r.spec.runnerId === o.runnerId)!, target = base(o.targetBase),
           receiver = defenders.find(f => f !== possession && assigned.get(f)?.intent === 'base_cover' && assigned.get(f)?.base === o.targetBase)
@@ -441,22 +526,42 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
             initialRelativeVelocity: sub(velocityAt(possession!.glove, t), velocityAt(possession!.body, t)),
             targetOffset: throwOffset(possession!, at(possession!.body, t), target), maximumRelativeSpeedMps: possession!.spec.gloveSpeedMps,
             maximumReachMeters: possession!.spec.gloveReachMeters }),
-          carrySeconds = arrive(possession!, target), receivingSeconds = Math.max(arrive(receiver, target),
+          carrySeconds = arrive(possession!, target), receiverArriveSeconds = arrive(receiver, target),
+          holderDist = distance(flat(at(possession!.body, t)), flat(target)),
+          receivingSeconds = Math.max(receiverArriveSeconds,
             (preparation.kind === 'planned' ? preparation.durationSeconds : Infinity) + throwSeconds);
         return { runnerId: r.spec.runnerId, base: o.targetBase, receiver, margin: runnerSeconds - Math.min(carrySeconds, receivingSeconds), target,
-          carryPreferred: carrySeconds <= receivingSeconds };
+          carrySeconds, receivingSeconds,
+          carryPreferred: carrySeconds <= receivingSeconds || ((carrySeconds <= receiverArriveSeconds + .5 || holderDist <= 7.5) && runnerSeconds - carrySeconds > .45) };
       }).filter(c => !rejectedThrows.has(c.runnerId + ':' + c.base)).sort((a, b) => b.margin - a.margin || b.base - a.base);
       // A losing force throw relinquishes control without a defensible out
       // opportunity. Keep the ball, or pursue an actual reachable tag instead.
       const pick = candidates.find(candidate => candidate.margin > 0);
       if (pick) {
         const here = distance(flat(at(possession.body, t)), flat(pick.target));
-        if (here <= (field.baseTouchRadiusMeters ?? .28)) holderTask = { point: pick.target, intent: 'base_cover', base: pick.base };
-        else if (pick.carryPreferred) holderTask = { point: pick.target, intent: 'base_cover', base: pick.base };
-        else { throwTarget = { receiver: pick.receiver, base: pick.base }; releaseAt = through; }
+        if (here <= (field.baseTouchRadiusMeters ?? .28)) {
+          holderTask = { point: pick.target, intent: 'base_cover', base: pick.base };
+          holderDecisions.push({ elapsedSeconds: t, playerId: possession.spec.playerId, state: 'on_base_cover', base: pick.base,
+            margin: pick.margin, carrySeconds: pick.carrySeconds, receivingSeconds: pick.receivingSeconds, receiverDistanceToBaseMeters: here });
+        } else if (pick.carryPreferred) {
+          holderTask = { point: pick.target, intent: 'base_cover', base: pick.base };
+          holderDecisions.push({ elapsedSeconds: t, playerId: possession.spec.playerId, state: 'carry_to_base', base: pick.base,
+            margin: pick.margin, carrySeconds: pick.carrySeconds, receivingSeconds: pick.receivingSeconds, receiverDistanceToBaseMeters: here });
+        } else {
+          holderTask = { point: at(possession.body, t), intent: 'hold', base: null };
+          throwTarget = { receiver: pick.receiver, base: pick.base }; releaseAt = through;
+          holderDecisions.push({ elapsedSeconds: t, playerId: possession.spec.playerId, state: 'prepare_throw', base: pick.base,
+            margin: pick.margin, carrySeconds: pick.carrySeconds, receivingSeconds: pick.receivingSeconds,
+            receiverPlayerId: pick.receiver.spec.playerId,
+            receiverDistanceToBaseMeters: distance(flat(at(pick.receiver.body, t)), flat(pick.target)) });
+        }
       } else {
+        const bestCand = candidates[0];
         const offBase = runners.filter(r => !r.retired && !r.scored && r.leg).sort((a, b) => distance(at(possession!.body, t), runnerAt(a, t)) - distance(at(possession!.body, t), runnerAt(b, t)))[0];
         if (offBase) holderTask = { point: runnerAt(offBase, t), intent: 'tag', base: null };
+        else holderTask = { point: at(possession.body, t), intent: 'hold', base: null };
+        holderDecisions.push({ elapsedSeconds: t, playerId: possession.spec.playerId, state: offBase ? 'pursue_tag' : 'hold_no_positive_margin',
+          base: bestCand?.base ?? null, margin: bestCand?.margin, carrySeconds: bestCand?.carrySeconds, receivingSeconds: bestCand?.receivingSeconds });
       }
       planned = assignment(); assigned = planned.targets;
     }
@@ -466,7 +571,17 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
       const active = !dead && t >= start + responseSeconds(f);
       const bodyRadius = LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters, gloveRadius = Math.max(f.spec.gloveRadiusMeters, input.physics.ground.radiusM),
         grip = at(f.glove, t), currentOffset = sub(grip, before);
-      const seg = buildDefenderMotionTrajectory({ tick: 0, position: flat(before), velocity: flat(vel) }, active ? flat(targetInside(target.point, fenceRadius - bodyRadius - .02)) : null,
+      let motorPoint = target.point;
+      if (active && target.intent === 'intercept' && target.point.y <= gloveRadius + .2) {
+        const pred = forecasts.find(x => x.f === f)?.predicted,
+          toT = flat(sub(target.point, before)), distT = norm(toT),
+          stopTime = liveFieldArrivalSecondsV1({ ...roleActor(f, t), remainingReactionSeconds: 0 }, target.point, .02) + norm(vel) / f.spec.accelerationMps2;
+        if (distT > .35 && (!pred || !pred.intercepted || pred.eta < stopTime)) {
+          const runThrough = (f.spec.topSpeedMps * f.spec.topSpeedMps) / (2 * f.spec.accelerationMps2) + .5;
+          motorPoint = add(target.point, mul(toT, runThrough / distT));
+        }
+      }
+      const seg = buildDefenderMotionTrajectory({ tick: 0, position: flat(before), velocity: flat(vel) }, active ? flat(targetInside(motorPoint, fenceRadius - bodyRadius - .02)) : null,
         Math.max(1, Math.round(delta * tps)), { ticksPerSecond: tps, maxIntegrationStepTicks: Math.max(1, Math.round(delta * tps)),
           accelerationMps2: f.spec.accelerationMps2, brakingMps2: f.spec.accelerationMps2, topSpeedMps: f.spec.topSpeedMps, arrivalRadiusMeters: .02 })[0];
       const proposed: Curve = { from: t, p: before, velocity: vel, acceleration: v(seg.acceleration.x, 0, seg.acceleration.z) },
@@ -491,13 +606,39 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
       f.body = body;
       f.intent = active ? target.intent : 'hold'; f.targetBase = target.base;
       const heldOffset = throwTarget && f === possession ? throwOffset(f, at(f.body, through), base(throwTarget.base)) : v(0, 0, -.5);
-      const expected = forecasts.find(x => x.f === f)?.predicted, perceivedTarget = expected
-        ? expected.intercepted ? expected.prediction.sample(delta).position : expected.prediction.observedPosition : at(f.body, through);
+      const expected = forecasts.find(x => x.f === f)?.predicted,
+        sampledNext = expected ? expected.prediction.sample(Math.min(delta, expected.prediction.maximumSeconds)).position : null,
+        perceivedTarget = expected
+          ? expected.intercepted || (sampledNext && distance(flat(sampledNext), flat(fenceCenter)) <= fenceRadius - input.physics.ground.radiusM)
+            ? sampledNext! : expected.point
+          : at(f.body, through);
       let anticipated = f === handler || f === throwTarget?.receiver ? expected?.point ?? perceivedTarget : perceivedTarget;
       if (distance(perceivedTarget, at(f.body, through)) <= f.spec.gloveReachMeters + f.spec.gloveRadiusMeters + input.physics.ground.radiusM)
         anticipated = perceivedTarget;
-      if (f === throwTarget?.receiver && (throwTarget.releasedAt === undefined || (seenBy(f, t)?.t ?? -Infinity) < throwTarget.releasedAt))
-        anticipated = add(base(throwTarget.base), v(0, f.spec.position.y, 0));
+      if (f === throwTarget?.receiver) {
+        const bodyAtThrough = at(f.body, through),
+          q = add(base(throwTarget.base), v(0, f.spec.position.y, 0)),
+          frontDist = Math.min(f.spec.gloveReachMeters * .55, LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters + f.spec.gloveRadiusMeters + .12),
+          seen = seenBy(f, t),
+          sourcePos = possession ? at(possession.glove, t) : (throwTarget.releasedFrom ?? seen?.position ?? bodyAtThrough),
+          toSourceFromQ = flat(sub(sourcePos, q)), lenQ = norm(toSourceFromQ),
+          u = lenQ > 1e-6 ? mul(toSourceFromQ, 1 / lenQ) : v(0, 0, -1),
+          bodyProj = Math.max(0, (bodyAtThrough.x - q.x) * u.x + (bodyAtThrough.z - q.z) * u.z),
+          distFromQ = bodyProj + frontDist,
+          frac = clamp(distFromQ / Math.max(lenQ, 1), 0, 1),
+          sourceY = Math.max(sourcePos.y, q.y + LIVE_FIELD_TEST_MODEL_V1.throwHand.heightAboveHipMeters * .85),
+          frontPoint = add(q, add(mul(u, distFromQ), v(0, (sourceY - q.y) * frac, 0)));
+        if (expected && throwTarget.releasedAt !== undefined && seen && seen.t >= throwTarget.releasedAt) {
+          let lo = -(t - seen.t), hi = Math.min(2, expected.prediction.maximumSeconds);
+          for (let i = 0; i < 10; i++) {
+            const mid = (lo + hi) * .5, p = expected.prediction.sample(mid).position;
+            if ((p.x - frontPoint.x) * u.x + (p.z - frontPoint.z) * u.z > 0) lo = mid; else hi = mid;
+          }
+          anticipated = expected.prediction.sample((lo + hi) * .5).position;
+        } else {
+          anticipated = frontPoint;
+        }
+      }
       const reachableTarget = v(anticipated.x, Math.max(gloveRadius, anticipated.y), anticipated.z);
       const relative = sub(bodyBoundaryLimited ? at(f.body, through) : (f === possession || f === pendingCatch?.fielder) ? add(at(f.body, through), heldOffset)
         : f === handler || f === throwTarget?.receiver ? reachableTarget : at(f.body, through), at(f.body, through));
@@ -602,7 +743,8 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
     if (releaseAt !== null && releaseAt <= horizon) choose({ kind: 'release', t: Math.max(time, releaseAt) });
     for (const r of runners) if (r.leg && r.leg.from + r.leg.duration <= horizon) choose({ kind: 'arrival', runner: r, t: r.leg.from + r.leg.duration });
     if (!possession && !pendingCatch && !dead) {
-      const ground = kernel.boundaries.find(b => b.kind !== 'rolling_started' && b.elapsedSeconds > time && b.elapsedSeconds <= horizon);
+      const ground = kernel.boundaries.find(b => b.kind !== 'rolling_stop' && b.kind !== 'rolling_started' && b.elapsedSeconds > time && b.elapsedSeconds <= horizon)
+        ?? kernel.boundaries.find(b => b.kind !== 'rolling_started' && b.elapsedSeconds > time && b.elapsedSeconds <= horizon);
       if (ground) choose({ kind: ground.kind, t: ground.elapsedSeconds });
       const cache = new Map<number, ReturnType<typeof kernel.evaluateAt>>();
       const evaluated = (t: number) => { let e = cache.get(t); if (!e) { e = kernel.evaluateAt(t, 'incoming'); cache.set(t, e); } return e; };
@@ -720,9 +862,22 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
           // A future oriented aperture may supply a different entry-center pose.
           const ballSurfacePoint = sub(incoming.moment.ball.position, mul(normal, input.physics.ground.radiusM));
           const pocketEntryCenter = add(center, mul(normal, f.spec.gloveRadiusMeters));
+          const pocketOffsetMeters = distance(ballSurfacePoint, pocketEntryCenter);
+          const bodySpd = norm(velocityAt(f.body, time)), gloveExt = distance(center, at(f.body, time)),
+            gloveRelSpd = norm(sub(velocityAt(c, time), velocityAt(f.body, time))),
+            speedRatio = clamp(bodySpd / Math.max(f.spec.topSpeedMps, .1), 0, 1),
+            extRatio = clamp(gloveExt / Math.max(f.spec.gloveReachMeters, .1), 0, 1),
+            gloveMoveRatio = clamp(gloveRelSpd / Math.max(f.spec.gloveSpeedMps, .1), 0, 1),
+            bodyStability = clamp(1 - .22 * speedRatio * speedRatio - .20 * Math.max(0, extRatio - .55) / .45 - .15 * gloveMoveRatio, .42, 1);
           const retention = resolveCatchRetention({ contactTick: tick(time), ball: { ...incoming.moment.ball, tick: tick(time) },
             glove: { tick: tick(time), position: center, velocity: velocityAt(c, time) }, contactNormal: normal,
-            pocketOffsetMeters: distance(ballSurfacePoint, pocketEntryCenter), bodyStability: 1 }, f.spec.catchRetention);
+            pocketOffsetMeters, bodyStability }, f.spec.catchRetention);
+          contactDiagnostics.push({ elapsedSeconds: time, playerId: f.spec.playerId, role: 'glove',
+            ballSpeedMps: norm(incoming.moment.ball.velocity), bodySpeedMps: bodySpd,
+            gloveOffsetMeters: gloveExt, intent: f.intent, targetBase: f.targetBase,
+            distanceToTargetBaseMeters: f.targetBase ? distance(flat(at(f.body, time)), flat(base(f.targetBase))) : null,
+            retention: { outcome: retention.outcome.kind, retentionLoadJ: retention.diagnostics.retentionLoadJ,
+              effectiveCapacityJ: retention.diagnostics.effectiveCapacityJ, pocketOffsetMeters, bodyStability } });
           if (retention.outcome.kind === 'secured') {
             orientationBasis = phase;
             pendingCatch = { fielder: f, first: time, secure: time + Math.max(retention.diagnostics.retentionLoadJ / f.spec.catchRetention.captureDissipationPowerW,
@@ -736,6 +891,10 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
           }
           outgoing = retention.outcome.ball;
         } else { emit('body_contact', time, { playerId: f.spec.playerId, position: incoming.moment.ball.position });
+          contactDiagnostics.push({ elapsedSeconds: time, playerId: f.spec.playerId, role: 'body',
+            ballSpeedMps: norm(incoming.moment.ball.velocity), bodySpeedMps: norm(velocityAt(f.body, time)),
+            gloveOffsetMeters: distance(at(f.glove, time), at(f.body, time)), intent: f.intent, targetBase: f.targetBase,
+            distanceToTargetBaseMeters: f.targetBase ? distance(flat(at(f.body, time)), flat(base(f.targetBase))) : null });
           outgoing = respondToBallContact({ ball: incoming.moment.ball, normal, surfaceVelocity: velocityAt(c, time), material: LIVE_FIELD_TEST_MODEL_V1.bodyMaterial }); }
         if (incoming.moment.ball.position.y === input.physics.ground.radiusM) {
           try {
@@ -779,8 +938,15 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
           otherShapeClear = defenders.filter(other => other !== f).every(other =>
           distance(position, at(other.body, time)) > LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters + input.physics.ground.radiusM
           && distance(position, at(other.glove, time)) > other.spec.gloveRadiusMeters + input.physics.ground.radiusM);
-        const receiverPrepared = distance(flat(at(target.receiver.body, time)), flat(base(target.base)))
-          <= target.receiver.spec.gloveReachMeters + (field.baseTouchRadiusMeters ?? .28);
+        const distToBag = distance(flat(at(target.receiver.body, time)), flat(base(target.base))),
+          touchR = field.baseTouchRadiusMeters ?? .28,
+          brakeEtaToBag = distToBag <= touchR ? 0
+            : Math.sqrt(2 * distToBag / target.receiver.spec.accelerationMps2) - Math.sqrt(2 * touchR / target.receiver.spec.accelerationMps2),
+          receiverEtaToBag = Math.max(
+            liveFieldArrivalSecondsV1({ ...roleActor(target.receiver, time), remainingReactionSeconds: 0 }, base(target.base), touchR),
+            brakeEtaToBag);
+        const receiverPrepared = distToBag <= target.receiver.spec.gloveReachMeters + touchR
+          && receiverEtaToBag <= distance(position, q) / speed;
         if (norm(radial) <= LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters + input.physics.ground.radiusM
           || !preparationReady || distance(radial, desiredOffset) > input.physics.ground.radiusM
           || !otherShapeClear || !receiverPrepared) { releaseAt = controlThrough; if (releaseAt === time) releaseAt += LIVE_FIELD_TEST_MODEL_V1.controlSeconds; continue; }
@@ -804,9 +970,9 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
         emit('throw_release', time, { playerId: f.spec.playerId, base: target.base, position,
           receiverPlayerId: target.receiver.spec.playerId, target: q });
         hasThrown = true; lastThrowBases = Object.fromEntries(runners.filter(r => !r.retired && !r.scored).map(r => [r.spec.runnerId, r.base]));
-        target.releasedAt = time;
+        target.releasedAt = time; target.releasedFrom = position;
         handPreparation = null;
-        releaseOpen = f; f.catchEnabledAfter = time + .15; possession = null; side = 'outgoing'; releaseAt = null; reboundEscape = null;
+        releaseOpen = f; f.catchEnabledAfter = time + .15; possession = null; side = 'outgoing'; releaseAt = null; reboundEscape = null; observe(time); controlThrough = time;
       } else if (e.kind === 'arrival') {
         const r = e.runner!, leg = r.leg!; r.p = leg.q; r.base = leg.to; r.leg = null; r.scored = r.base === 4;
         runnerTouches.push({ kind: 'runner_base_touch', runnerId: r.spec.runnerId, base: leg.to, tick: tick(time) });
@@ -876,5 +1042,7 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
     fieldGeometry,
     frames, facts, ruleFacts, end: { elapsedSeconds: time, tick: tick(time), reason: endReason, complete },
     finalRunners: runners.map(r => ({ runnerId: r.spec.runnerId, base: r.base, position: runnerAt(r, time), retired: r.retired, scored: r.scored })),
-    diagnostics: { kernelBuilds, kernelExtensions, wallKernelBuilds, wallSupports, simultaneousContacts, throwDecisions, throwDirectionCommands, handPreparationProofs, forecastBuilds, collisionQueries, unresolvedDetail, departureProofs, renderFramesOwnPhysics: false, namedLeagueCalibration: false, nativeActuation: false } });
+    diagnostics: { kernelBuilds, kernelExtensions, wallKernelBuilds, wallSupports, simultaneousContacts, throwDecisions, throwDirectionCommands, handPreparationProofs, forecastBuilds, collisionQueries, unresolvedDetail, departureProofs,
+      aiTelemetry: { roleTransitions, throwTargetCancellations, contactDiagnostics, holderDecisions },
+      renderFramesOwnPhysics: false, namedLeagueCalibration: false, nativeActuation: false } });
 }

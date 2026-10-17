@@ -123,7 +123,7 @@ export function createLiveBaseballMatchV1(raw:LiveMatchInputV1){
     // Other club uses its own balanced batting instruction. No league multiplier.
     const batting=command.managedTeam===c.team?command.batting:'balanced';
     const pitch=simulateLivePitchV1({originTick:nextTick,seed:(input.seed+Math.imul(pitchCount+1,0x9e3779b9))>>>0,
-      batter:{...bp,heightMeters:batter.heightMeters,bats:batter.bats},pitcher:{...pp,throws:pitcher.throws},measuredClips:input.measuredClips,
+      batter:{...bp,heightMeters:batter.heightMeters,bats:batter.bats},pitcher:{...pp,...(pitcher.throws===undefined?{}:{throws:pitcher.throws})},measuredClips:input.measuredClips,
       catcher:{gloveSpeedMps:cp.gloveSpeedMps,gloveReachMeters:cp.gloveReachMeters,gloveRadiusMeters:cp.gloveRadiusMeters,
         retentionCapacityJ:cp.retentionCapacityJ,captureDissipationPowerW:cp.captureDissipationPowerW,pocketRadiusMeters:.14},
       batting,pitchType:command.managedTeam===1-c.team?command.pitchType:'auto',location:command.managedTeam===1-c.team?command.location:'auto',physics:LIVE_MATCH_PHYSICS_V1});

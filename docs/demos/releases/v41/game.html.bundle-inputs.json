@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "entrySha256": "15a13c1f650c893008dc57b2f9c4a259847e75c5127df5265a4fcb3f5dae98af",
+  "entrySha256": "f29aeeb7ed1e54c5f668a8ededa569d44880b0f2826197be1fd64d8c57fb6aaa",
   "inputs": {
     "src/core/adjudication/OfficialWindowPolicy.ts": "e1a9d54ce2ca6e27116588b083156f524f22d978dcef83c59351642044c71cad",
     "src/core/adjudication/PlayAdjudicationLedger.ts": "c4be34efb190da338f159eeff798afaa47a1f2e15c3d31eea39d223a0f082011",
@@ -61,8 +61,8 @@
     "src/core/sim/fielding/GroundWallRollingCurveV1.ts": "5c4b10ec9996c786cbe4941864bb1d50a3259e7a61e4fcb31fe32b71f9fdef8b",
     "src/core/sim/fielding/GroundedActorContactResponseV1.ts": "5a8bd4dc5c403e8e4a5e07dbe011bca35decf29e6cf905cadf97e39dcdd6433a",
     "src/core/sim/fielding/LiveFieldForecastV1.ts": "34669a5658989b1f2d42be2f7cac9b136c9f402660efc7ed8244ea02079b4ad1",
-    "src/core/sim/fielding/LiveFieldPlayV1.ts": "9a1582a34ffda7080974914dde1d66108e763ab78977e94306013da3eae7117a",
-    "src/core/sim/fielding/LiveFieldRoleAssignmentV1.ts": "e0285286f9adb5c711f40046cf3517286ca6bd6f75da329fdc23f218d8a14fdb",
+    "src/core/sim/fielding/LiveFieldPlayV1.ts": "4e5d19281d896ed3e911270022cb70e3c88f7070bb1b5a4260f476acd9dad085",
+    "src/core/sim/fielding/LiveFieldRoleAssignmentV1.ts": "011d62edfed4f8082995ccdebb27304fd0a923ee272efae9b476482ab0932cf5",
     "src/core/sim/fielding/LiveHandPreparationV1.ts": "26a2d416ee8f75ff5ad534e16c9608345d82f91f5f637d7fc68357e7260f29fd",
     "src/core/sim/fielding/LiveThrowDirectionV1.ts": "9d74bb11f044861f61f86948d49e1e3946a8a32395c0b4fddecb306df53fbf31",
     "src/core/sim/fielding/LiveThrowPlanV1.ts": "6b98d82f5fd2103713d65906631d977fed01d689dfe7c4d51f77086badc7c6d6",
@@ -88,7 +88,7 @@
     "src/core/sim/plateAppearance/PlateAppearanceMatchState.ts": "1d428bac67f28d731c38772e6cf254398c203e063fc7f109d7f7417af750b751",
     "src/core/sim/running/RunnerRoute.ts": "86889ad522bf5ad817bdc41500bd4acb30aaa949f1563221b339d612cc1eb7f7",
     "src/integration/browser/ExecutedFieldWorldObservationV1.ts": "810642e2775b9e3337769d1c2c6853f83dd03b71ad4eb137e93698aea33ff60d",
-    "src/integration/browser/LiveBaseballMatchV1.ts": "85b0a16a168a9e0f2d921c9172bbe5241fec0a25219ca1c7352c5b8894a21340",
+    "src/integration/browser/LiveBaseballMatchV1.ts": "cd0159f87b308210072d1b6313ecca34aa59393d7c30499bd13b344ba2841531",
     "src/integration/browser/LivePhysicalRosterV1.ts": "c25270cf65aa71f5ba20ddcfce7d472e58f0a95e5b6a84594a25a4ba2f1e271a",
     "src/integration/browser/LivePitchV1.ts": "f204b52c30148d20eecb01e6dda62c03a7059850aa168cb6981e4621d3b71888",
     "src/integration/browser/LivePublicAbilitiesV1.ts": "a58bd389a96857c3157fb275f7d815d933a54ed914752fce957d1a09672791fd",
