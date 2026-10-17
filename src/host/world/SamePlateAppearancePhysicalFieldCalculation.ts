@@ -2,6 +2,12 @@ import type { DatabaseSync } from 'node:sqlite';
 import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
 import { readSamePaOccupiedRunnerHolds } from './SqliteSamePlateAppearanceOccupiedRunnerHoldStore';
 import { createBattedBallFlightEvidence } from '../../core/sim/ball/BattedBallFlightEvidence';
+import { createContinuousBattedBallFlightEvidence, createSourceFreeBallKernel, type SourceFreeBallDescriptorV2 } from '../../core/sim/ball/SourceFreeBallKernel';
+import { classifyFirstGroundContactTerritory } from '../../core/sim/ball/FirstGroundContactTerritory';
+import { recordBattedBallFirstGroundContact } from '../../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
+import { samePaFieldBallPhysics, assertSamePaFieldBallPhysicsStep, SAME_PA_AERO_GROUND_ESCAPE_FIELD_ROOT_SOURCE_VERSION } from './SamePlateAppearanceBallPhysics';
+import { deriveSourceBattedFieldMotionV3 } from '../../core/sim/ball/SourceBattedFieldMotionV3';
+import { deriveSamePaSourceFieldStepV3, samePaSourceFieldSolverEvidenceV3 } from './SamePlateAppearanceSourceFieldV3';
 import { createBattedWorldBaseGeometry } from '../../core/sim/ball/BattedWorldBaseGeometry';
 import { createBattedWorldFieldGeometry, deriveBattedWorldFieldMotionAdoption, deriveBattedWorldFieldMotionCheckpoint, advanceBattedWorldFieldMotionCheckpoint } from '../../core/sim/ball/BattedWorldFieldMotion';
 import { composeDefenderPhysicalPrimitiveSegment } from '../../core/sim/fielding/DefenderPhysicalPrimitive';
@@ -26,6 +32,14 @@ export const samePaPhysicalTimelineAtField=(timeline:CanonicalPlateAppearanceTim
   const world=field.motion.world;
   if(timeline.status.kind!=='batted_ball_pending'||world.kind!=='boundary'||world.contacts.length!==1||world.contacts[0].kind!=='ground')return timeline;
   if(timeline.events.some(event=>event.kind==='BattedBallFirstGroundContact'&&event.tick>=response.world.flight.contact.tick))return timeline;
+  if(response.world.sourceCurve){
+    const sourceCurve=field.motion.cursor?.sourceCurve;if(!sourceCurve)throw new Error('actual nonlinear ground boundary lacks its Source descriptor');
+    const kernel=createSourceFreeBallKernel(sourceCurve),incoming=kernel.evaluateAt(world.moment.elapsedSeconds,'incoming').moment;
+    same(incoming,world.moment);
+    if(!kernel.boundaries.some(b=>b.kind==='ground'&&b.elapsedSeconds===world.moment.elapsedSeconds))throw new Error('actual nonlinear field ground boundary differs from Source');
+    const territory=classifyFirstGroundContactTerritory({...response.world.flight,firstGroundContact:{tick:incoming.ball.tick,state:incoming.ball}},geometry.baseGeometry.field);
+    if(!territory)throw new Error('actual nonlinear ground territory missing');return recordBattedBallFirstGroundContact(timeline,territory);
+  }
   const contact=response.world.flight.contact,ground=deriveAndRecordFirstGroundContactEvidence({timeline,field:geometry.baseGeometry.field,
     searchDurationTicks:world.moment.ball.tick-contact.tick,ballFlightParameters:response.world.parameters});
   if(ground.kind!=='recorded'||ground.territory.tick!==world.moment.ball.tick)throw new Error('actual field ground boundary differs from its original contact');return ground.timeline;
@@ -94,18 +108,29 @@ export const deriveSamePaPhysicalFieldRoot=(db:DatabaseSync,source:SamePaPhysica
       startPosition:position,startVelocity:{x:0,y:0,z:0},acceleration:command.bodyAcceleration},{role:shape.role,radius:shape.radius,startTick:start,endTick:end,ticksPerSecond:p.ticksPerSecond,
       startOffset:shape.offset,offsetVelocity:command.primitiveMotions.find(r=>r.role===shape.role)!.offsetVelocity,offsetAcceleration:command.primitiveMotions.find(r=>r.role===shape.role)!.offsetAcceleration})}));
   });
-  const flight=createBattedBallFlightEvidence({contact:resolution.contact,searchDurationTicks:0,parameters:p});
-  const response={world:{flight,parameters:p,throughTick:start,actors,surfaces:model.surfaces},actors:responseModel.actors.flatMap(a=>a.primitives.map(profile=>({playerId:a.playerId,profile}))),surfaces:responseModel.surfaces};
+  const ballPhysics=samePaFieldBallPhysics(source);
+  if(ballPhysics&&ballPhysics.air.aerodynamics.ballMassKg!==posture.model.equipment.values.ball.massKg)throw new Error('field Source Aero original ball mass differs');
+  const flight=ballPhysics?createContinuousBattedBallFlightEvidence(resolution.contact,0,ballPhysics):createBattedBallFlightEvidence({contact:resolution.contact,searchDurationTicks:0,parameters:p});
+  const sourceCurve:SourceFreeBallDescriptorV2|undefined=ballPhysics?{kind:'aero_ground_continuous_source_kernel_v2',initial:{originTick:start,elapsedSeconds:0,ball:flight.initialBall},throughElapsedSeconds:0,profile:ballPhysics}:undefined;
+  const response={world:{flight,parameters:p,throughTick:start,actors,surfaces:model.surfaces,...(sourceCurve?{sourceCurve}:{})},actors:responseModel.actors.flatMap(a=>a.primitives.map(profile=>({playerId:a.playerId,profile}))),surfaces:responseModel.surfaces};
   const commands=source.commands.flatMap(c=>c.primitiveMotions.map(r=>({playerId:c.playerId,role:r.role,acceleration:{x:c.bodyAcceleration.x+r.offsetAcceleration.x,y:c.bodyAcceleration.y+r.offsetAcceleration.y,z:c.bodyAcceleration.z+r.offsetAcceleration.z}})));
-  const physical={response,geometry,actors,carrierPlayerId:null,cursor:{moment:{originTick:start,elapsedSeconds:0,ball:flight.initialBall},previousContacts:[]},availableAtTick:start,coverageThroughTick:end,commands};
-  const field=source.throughTick===start?deriveBattedWorldFieldMotionAdoption(physical):deriveBattedWorldFieldMotionCheckpoint({...physical,checkpointThroughTick:source.throughTick});
+  const physical={response,geometry,actors,carrierPlayerId:null,cursor:{moment:{originTick:start,elapsedSeconds:0,ball:flight.initialBall},previousContacts:[],...(sourceCurve?{sourceCurve,sourceSide:'incoming' as const}:{})},availableAtTick:start,coverageThroughTick:end,commands};
+  const trace=source.sourceVersion===SAME_PA_AERO_GROUND_ESCAPE_FIELD_ROOT_SOURCE_VERSION
+    ?deriveSourceBattedFieldMotionV3({initial:physical,throughTicks:source.throughTick>start?[source.throughTick]:[]}):null;
+  const field=trace?trace.field:source.throughTick===start?deriveBattedWorldFieldMotionAdoption(physical):deriveBattedWorldFieldMotionCheckpoint({...physical,checkpointThroughTick:source.throughTick});
   return freeze({response,geometry,field,geometryBindingHash,evaluationTick:field.motion.world.moment.ball.tick,timeline:samePaPhysicalTimelineAtField(resolution.timeline,field,response,geometry),
+    ...(trace?{ballSolverEvidence:samePaSourceFieldSolverEvidenceV3(trace)}:{}),
     ...(venuePolicyBinding===undefined?{}:{venuePolicyBinding}),
     ...(venueLegalCoveragePolicyBinding===undefined?{}:{venueLegalCoveragePolicyBinding})});
 };
-export const deriveSamePaPhysicalFieldStep=(source:SamePaPhysicalFieldStepSource,root:SamePaPhysicalFieldRoot,previous:SamePaPhysicalFieldRoot|SamePaPhysicalFieldStep,currentTick:number,recordInitialGroundContact=true)=>{
+export const deriveSamePaPhysicalFieldStep=(source:SamePaPhysicalFieldStepSource,root:SamePaPhysicalFieldRoot,previous:SamePaPhysicalFieldRoot|SamePaPhysicalFieldStep,currentTick:number,recordInitialGroundContact=true,
+  history?:readonly(SamePaPhysicalFieldRoot|SamePaPhysicalFieldStep)[])=>{
+  assertSamePaFieldBallPhysicsStep(source,root.source,previous.source,previous.kind==='same_pa_physical_field_root_v1');
   if(root.physicalPitchSourceId!==previous.physicalPitchSourceId||source.throughTick<=currentTick||source.throughTick<=previous.evaluationTick)throw new Error('physical field step is stale or foreign');
   const p=previous.field.motion;if(!p.cursor)throw new Error('field physical contact requires its concrete acquisition/response owner');
-  const field=advanceBattedWorldFieldMotionCheckpoint({response:root.response,geometry:root.geometry,cursor:p.cursor,actors:p.actors,carrierPlayerId:p.carrierPlayerId,checkpointThroughTick:source.throughTick});
-  return freeze({field,evaluationTick:field.motion.world.moment.ball.tick,timeline:recordInitialGroundContact?samePaPhysicalTimelineAtField(previous.timeline,field,root.response,root.geometry):previous.timeline});
+  const v3=root.source.sourceVersion===SAME_PA_AERO_GROUND_ESCAPE_FIELD_ROOT_SOURCE_VERSION
+    ?deriveSamePaSourceFieldStepV3(source,root,previous,history??[]):null;
+  const field=v3?v3.field:advanceBattedWorldFieldMotionCheckpoint({response:root.response,geometry:root.geometry,cursor:p.cursor,actors:p.actors,carrierPlayerId:p.carrierPlayerId,checkpointThroughTick:source.throughTick});
+  return freeze({field,evaluationTick:field.motion.world.moment.ball.tick,timeline:recordInitialGroundContact?samePaPhysicalTimelineAtField(previous.timeline,field,root.response,root.geometry):previous.timeline,
+    ...(v3?{ballSolverEvidence:v3.ballSolverEvidence}:{})});
 };

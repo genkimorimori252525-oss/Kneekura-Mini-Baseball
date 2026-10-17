@@ -7,6 +7,9 @@ import { sampleDefenderPhysicalPrimitiveSegment, type DefenderPhysicalPrimitiveS
   type DefenderPhysicalPrimitiveSample } from '../fielding/DefenderPhysicalPrimitive';
 import { createBattedBallFlightEvidence, type BattedBallFlightEvidence } from './BattedBallFlightEvidence';
 import type { BallFlightParameters } from './BallFlight';
+import { createSourceFreeBallKernel, createContinuousBattedBallFlightEvidence, type SourceFreeBallDescriptorV2 } from './SourceFreeBallKernel';
+import { querySourceFreeBallWorldV2 } from './SourceFreeBallWorldQuery';
+import type { BallWorldMoment } from './BallWorldContinuation';
 
 export type BattedWorldSurface = Readonly<{
   surfaceId: string; start: Vec2; end: Vec2; minimumHeight: number; maximumHeight: number;
@@ -17,10 +20,12 @@ export type BattedWorldContact = Readonly<{ kind: 'ground' }>
   | Readonly<{ kind: 'surface'; surfaceId: string; point: Vec3 }>;
 export type BattedWorldContactResult = Readonly<{
   kind: 'contact'; tick: number; ball: BattedBallInitialState; contacts: readonly BattedWorldContact[];
-}> | Readonly<{ kind: 'airborne'; throughTick: number; ball: BattedBallInitialState }>;
+  sourceMoment?: BallWorldMoment;
+}> | Readonly<{ kind: 'airborne'; throughTick: number; ball: BattedBallInitialState; sourceMoment?: BallWorldMoment }>;
 export type BattedWorldContactInput = Readonly<{
   flight: BattedBallFlightEvidence; parameters: BallFlightParameters; throughTick: number;
   actors: readonly BattedWorldActorPrimitive[]; surfaces: readonly BattedWorldSurface[];
+  sourceCurve?: SourceFreeBallDescriptorV2;
 }>;
 const id = (v: unknown): v is string => typeof v === 'string' && v.length > 0 && v === v.trim();
 const tick = (v: unknown): v is number => typeof v === 'number' && Number.isSafeInteger(v) && v >= 0;
@@ -78,9 +83,53 @@ const surfacePoint = (s: BattedWorldSurface, point: Vec3): Vec3 => {
   return { x: s.start.x + ux * u, y: Math.max(s.minimumHeight, Math.min(s.maximumHeight, point.y)), z: s.start.z + uz * u };
 };
 
+const deriveSourceContact = (input: BattedWorldContactInput): Readonly<{
+  world: BattedWorldContactResult; geometry: BattedWorldContactGeometry | null;
+}> => {
+  const descriptor = input.sourceCurve!, { flight, parameters: p } = input;
+  const kernel = createSourceFreeBallKernel(descriptor);
+  if (!tick(input.throughTick) || input.throughTick < flight.initialBall.tick
+    || descriptor.initial.originTick !== flight.initialBall.tick || descriptor.initial.elapsedSeconds !== 0
+    || json(descriptor.initial.ball) !== json(flight.initialBall)
+    || descriptor.throughElapsedSeconds !== (input.throughTick - flight.initialBall.tick) / p.ticksPerSecond
+    || descriptor.profile.air.ticksPerSecond !== p.ticksPerSecond
+    || descriptor.profile.air.integrationStepTicks !== p.integrationStepTicks
+    || descriptor.profile.air.gravityY !== p.gravityY || descriptor.profile.ground.radiusM !== p.ballRadius) {
+    throw new Error('original nonlinear batted World Source scope differs');
+  }
+  const actual = createContinuousBattedBallFlightEvidence(flight.contact, input.throughTick - flight.initialBall.tick, descriptor.profile);
+  if (json(actual.initialBall) !== json(flight.initialBall) || actual.ballRadiusMeters !== flight.ballRadiusMeters
+    || flight.firstGroundContact && flight.firstGroundContact.tick <= input.throughTick
+      && json(actual.firstGroundContact) !== json(flight.firstGroundContact)) throw new Error('nonlinear batted World original flight evidence differs');
+  const query = querySourceFreeBallWorldV2({ descriptor, moment: kernel.evaluateAt(0, 'incoming').moment,
+    side: 'incoming', throughElapsedSeconds: descriptor.throughElapsedSeconds, actors: input.actors, surfaces: input.surfaces });
+  if (query.kind === 'unresolved') throw new Error('nonlinear first World contact requires numerical refinement');
+  const ball = query.moment.ball;
+  if (query.kind !== 'boundary') return freeze({ world: { kind: 'airborne', throughTick: input.throughTick, ball, sourceMoment: query.moment }, geometry: null });
+  const contacts: BattedWorldContact[] = query.contacts.map(c => {
+    if (c.kind === 'ground') return { kind: 'ground' };
+    if (c.kind === 'surface') return { kind: 'surface', surfaceId: c.surfaceId, point: c.point };
+    if (c.kind !== 'actor') throw new Error('unsupported original nonlinear World boundary');
+    const primitive = input.actors.find(a => a.playerId === c.playerId && a.primitive.role === c.role)!.primitive;
+    return { kind: 'actor', playerId: c.playerId, role: c.role, actor: { tick: ball.tick, center: c.center,
+      velocity: c.velocity, acceleration: primitive.acceleration, radius: primitive.radius, role: c.role } };
+  });
+  contacts.sort((a, b) => {
+    const key = (c: BattedWorldContact) => JSON.stringify(c.kind === 'actor' ? [c.kind, c.playerId, c.role] : c.kind === 'surface' ? [c.kind, c.surfaceId] : [c.kind]);
+    return key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0;
+  });
+  const world: BattedWorldContactResult = { kind: 'contact', tick: ball.tick, ball, contacts, sourceMoment: query.moment };
+  if (contacts.length !== 1 || contacts[0].kind === 'ground') return freeze({ world, geometry: null });
+  const contact = contacts[0], c = query.contacts[0];
+  if (c.kind !== 'actor' && c.kind !== 'surface') throw new Error('nonlinear contact geometry differs');
+  return freeze({ world, geometry: { contact, elapsedSeconds: query.moment.elapsedSeconds, ball,
+    point: c.kind === 'actor' ? c.center : c.point, surfaceVelocity: c.kind === 'actor' ? c.velocity : { x: 0, y: 0, z: 0 }, normal: c.normal } });
+};
+
 /** Supported physical contacts only. Their simultaneity is preserved; no baseball interpretation is chosen here. */
 export const deriveFirstBattedWorldContact = (raw: BattedWorldContactInput): BattedWorldContactResult => {
   const input = cloneInert(raw), { flight, parameters: p } = input;
+  if (input.sourceCurve !== undefined) return deriveSourceContact(input).world;
   if (!flight || !p || !tick(input.throughTick) || !tick(flight.contact?.tick) || input.throughTick < flight.contact.tick
     || !Array.isArray(input.actors) || !Array.isArray(input.surfaces)) throw new Error('invalid batted World contact interval');
   const actual = createBattedBallFlightEvidence({ contact: flight.contact, parameters: p, searchDurationTicks: input.throughTick - flight.contact.tick });
@@ -137,7 +186,9 @@ export type BattedWorldContactGeometry = Readonly<{
 export const deriveFirstBattedWorldContactGeometry = (raw: BattedWorldContactInput): Readonly<{
   world: BattedWorldContactResult; geometry: BattedWorldContactGeometry | null;
 }> => {
-  const input = cloneInert(raw), world = deriveFirstBattedWorldContact(input);
+  const input = cloneInert(raw);
+  if (input.sourceCurve !== undefined) return deriveSourceContact(input);
+  const world = deriveFirstBattedWorldContact(input);
   if (world.kind !== 'contact' || world.contacts.length !== 1 || world.contacts[0].kind === 'ground') return freeze({ world, geometry: null });
   const contact = world.contacts[0], p = input.parameters, initial = input.flight.initialBall;
   // Quantization may round a root infinitesimally after an integer tick back to that tick.

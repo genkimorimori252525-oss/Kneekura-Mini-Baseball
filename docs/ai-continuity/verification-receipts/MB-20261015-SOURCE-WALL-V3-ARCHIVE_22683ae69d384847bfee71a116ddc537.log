@@ -1,0 +1,15 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+stdout | src/host/world/VersionedBattedBallFlightSource.test.ts > owns a real nonlinear Native wall impulse, preserves the stopped v2 archive and independently branches with v3 certificates
+SOURCE_WALL_NUMERICAL_DIAGNOSTIC {"physicsVersion":"batted_ball_flight_aero_ground_continuous_v2","sourceCurveHash":"5cace7450c37f56a736d91bbc95e193addfdffa6958b332019bef16aadf9a0ed","worldSourceHash":"f70c69db6d46ad256aef50f8b025e2cb352b7b2a04368ff3999608db5430a630","initialSignedGapMeters":-6.3629657098829284e-15,"queryWitness":{"colliderKey":"[\"surface\",\"real-wall\"]","firstPossibleElapsedSeconds":0.007651910980248431,"witnessElapsedSeconds":0.007651910980252069,"signedGapMeters":-6.3629657098829284e-15,"positionRoundingBoundMeters":2.195080409663745e-14},"outgoingNormalSpeedMps":7.794426293453937,"responseBasis":{"originTick":11180360,"elapsedSeconds":0.007651910980252069,"ball":{"tick":11188012,"position":{"x":0.08002775004535341,"y":1.5197128721170892,"z":0.2593271544107463},"velocity":{"x":0.005438282798868233,"y":-0.056278822797270395,"z":-7.794426293453937},"spin":{"x":0,"y":79.98932358117953,"z":0}}},"v2Result":"UNRESOLVED_PERSISTENT_CONTACT_NO_ESCAPE_CERTIFICATE"}
+SOURCE_V3_NATIVE_ARCHIVE {"databasePath":"C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\aero-ground-v3-native-evidence\\original-native-v3.sqlite","databaseSha256":"7716af27ed38dd205cce6c6eff0e9377e134d88b326f329f9164626f4f9f5f27"}
+
+ ✓ src/host/world/VersionedBattedBallFlightSource.test.ts (6 tests | 5 skipped) 26154ms
+   ✓ owns a real nonlinear Native wall impulse, preserves the stopped v2 archive and independently branches with v3 certificates 26153ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 5 skipped (6)
+   Start at  07:12:16
+   Duration  33.39s (transform 4.50s, setup 0ms, collect 6.94s, tests 26.15s, environment 0ms, prepare 87ms)
+

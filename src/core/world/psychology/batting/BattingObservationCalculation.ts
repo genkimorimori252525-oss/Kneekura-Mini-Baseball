@@ -6,7 +6,7 @@ import type { Vec3 } from '../../../model/geometry';
 import { DeterministicRng } from '../../../rng/DeterministicRng';
 import { isObservationRefreshDue, type AttentionState, type ObservationSample } from '../../../sim/perception/Observation';
 import { evaluateObservationGeometry, type ObserverViewState } from '../../../sim/perception/ObservationGeometry';
-import { estimateOcclusionVisibility, type SphericalOccluder } from '../../../sim/perception/Occlusion';
+import { estimateOcclusionVisibility, type ObservationOccluder } from '../../../sim/perception/Occlusion';
 import { composeObservationQuality } from '../../../sim/perception/ObservationQuality';
 import { captureSpatialObservation } from '../../../sim/perception/ObservationCapture';
 import { predictSpatialObservationMemory, type RememberedPrediction, type SpatialMotionEstimate } from '../../../sim/perception/ObservationMemory';
@@ -17,7 +17,7 @@ export type BattingObservationCalculationInput = Readonly<{
   nominalValues: BattingObservationValues; effectiveValues: BattingObservationValues;
   input: Readonly<{
     observedTick: number; deliveryCutTick: number; ticksPerSecond: number; seed: number;
-    observer: ObserverViewState; target: SpatialMotionEstimate; occluders: readonly SphericalOccluder[];
+    observer: ObserverViewState; target: SpatialMotionEstimate; occluders: readonly ObservationOccluder[];
     attention: AttentionState; lastObservedTick: number | null;
   }>;
 }>;
@@ -72,6 +72,11 @@ export function calculateBattingObservation(raw: unknown): EmotionResult<Batting
     const target = obj(i.target, ['position', 'velocity'], path + '.target');
     vector(target.position, path + '.target.position'); vector(target.velocity, path + '.target.velocity');
     list(i.occluders, (raw, p) => {
+      if(raw&&typeof raw==='object'&&'shape' in raw){
+        const capsule=obj(raw,['shape','start','end','radiusMeters'],p);
+        if(capsule.shape!=='capsule')fail('INVALID_INPUT',p+'.shape');
+        vector(capsule.start,p+'.start');vector(capsule.end,p+'.end');numberValue(capsule.radiusMeters,p+'.radiusMeters',true);return capsule;
+      }
       const occluder = obj(raw, ['center', 'radiusMeters'], p); vector(occluder.center, p + '.center');
       numberValue(occluder.radiusMeters, p + '.radiusMeters', true); return occluder;
     }, path + '.occluders');

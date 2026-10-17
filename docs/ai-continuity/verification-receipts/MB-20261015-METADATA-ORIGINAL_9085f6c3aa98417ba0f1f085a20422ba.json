@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-METADATA-ORIGINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/SamePlateAppearanceMetadataCompilation.test.ts",
+    "src/host/world/SamePlateAppearanceLifecycleClaimGuard.test.ts",
+    "src/host/world/SamePlateAppearanceLifecycleSource.test.ts"
+  ],
+  "observed_at": "2026-10-14T22:31:12.810+00:00",
+  "elapsed_ms": 8092,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-METADATA-ORIGINAL_9085f6c3aa98417ba0f1f085a20422ba.log",
+  "output_sha256": "bf2b766a823e7282fbfdd1e328c1e28f884749d338d66a15c6b9d9144278cc5e",
+  "receipt_id": "MB-20261015-METADATA-ORIGINAL_9085f6c3aa98417ba0f1f085a20422ba"
+}

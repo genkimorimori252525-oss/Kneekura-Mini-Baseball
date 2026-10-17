@@ -9,6 +9,7 @@ import {
 } from '../ball/BaseballSpinDecay';
 import {
   findFirstTrueTick,
+  quantizeEventTick,
 } from '../ExactEventTime';
 import {
   decomposePitchSpin,
@@ -333,6 +334,32 @@ export const advanceAerodynamicPitchState = (
   }
 
   return current;
+};
+
+/** Additive continuous evaluation of the original RK4 kernel. The returned
+ * clock is quantized; position, velocity and spin retain the requested physical
+ * elapsed time. The integer-tick API and its arithmetic remain unchanged. */
+export const sampleAerodynamicPitchStateAtElapsedSeconds = (
+  state: PitchWorldState,
+  elapsedSeconds: number,
+  parameters: AerodynamicPitchTrajectoryParameters,
+): PitchWorldState => {
+  validateParameters(parameters);
+  if (!state || !Number.isSafeInteger(state.tick) || state.tick < 0
+    || ![state.position, state.velocity, state.spin].every(v => v && [v.x, v.y, v.z].every(Number.isFinite))) {
+    throw new Error('continuous aerodynamic evaluation requires an original finite source ball');
+  }
+  const throughTick = quantizeEventTick(state.tick, elapsedSeconds, parameters.ticksPerSecond);
+  const rawTicks = elapsedSeconds * parameters.ticksPerSecond, nearest = Math.round(rawTicks);
+  // An explicit clock quotient must share the old integer RK4 partition exactly.
+  let remaining = elapsedSeconds === nearest / parameters.ticksPerSecond ? nearest : rawTicks;
+  let current = state;
+  while (remaining > 0) {
+    const stepTicks = Math.min(parameters.integrationStepTicks, remaining);
+    current = advanceAerodynamicPitchStep(current, stepTicks, parameters);
+    remaining -= stepTicks;
+  }
+  return { ...current, tick: throughTick };
 };
 
 export const sampleAerodynamicPitchTrajectory = (

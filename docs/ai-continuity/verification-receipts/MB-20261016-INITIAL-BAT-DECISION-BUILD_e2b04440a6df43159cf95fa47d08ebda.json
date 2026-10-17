@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-BAT-DECISION-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/native-game/build-measured-model-readback.mjs",
+    "../native-with-bat-decision-v1",
+    "observed_initial_decision"
+  ],
+  "observed_at": "2026-10-16T12:26:45.607+00:00",
+  "elapsed_ms": 905,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-BAT-DECISION-BUILD_e2b04440a6df43159cf95fa47d08ebda.log",
+  "output_sha256": "2a11f6b3fe52cd06b13502c831fe908d00d895ef9bf26300035c0c926f990ec9",
+  "receipt_id": "MB-20261016-INITIAL-BAT-DECISION-BUILD_e2b04440a6df43159cf95fa47d08ebda"
+}

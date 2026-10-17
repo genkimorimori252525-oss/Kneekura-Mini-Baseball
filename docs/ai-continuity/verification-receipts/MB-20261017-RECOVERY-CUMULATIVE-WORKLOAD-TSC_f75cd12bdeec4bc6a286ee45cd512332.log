@@ -1,0 +1,22 @@
+src/host/world/JointFieldSuccessorCommand.ts(40,14): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'number'.
+src/host/world/JointFieldSuccessorCommand.ts(44,34): error TS18046: 'p.fatigueSamples' is of type 'unknown'.
+src/host/world/JointFieldSuccessorCommand.ts(44,69): error TS18046: 'k.maximumBodySpeedMps' is of type 'unknown'.
+src/host/world/JointFieldSuccessorCommand.ts(44,94): error TS18046: 'p.fatigueSamples' is of type 'unknown'.
+src/host/world/JointFieldSuccessorCommand.ts(45,12): error TS18046: 'k.maximumGloveSpeedMps' is of type 'unknown'.
+src/host/world/JointFieldSuccessorCommand.ts(45,38): error TS18046: 'p.fatigueSamples' is of type 'unknown'.
+src/host/world/JointFieldSuccessorCommand.ts(45,86): error TS18046: 'k.maximumAccelerationMps2' is of type 'unknown'.
+src/host/world/JointFieldSuccessorCommand.ts(45,115): error TS18046: 'p.fatigueSamples' is of type 'unknown'.
+src/host/world/JointFieldSuccessorCommand.ts(51,76): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+src/integration/browser/ExecutedFieldWorldObservationV1.ts(54,80): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/integration/browser/ExecutedFieldWorldObservationV1.ts(55,29): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/integration/browser/ExecutedFieldWorldObservationV1.ts(57,30): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'number'.
+src/integration/browser/ExecutedFieldWorldObservationV1.ts(60,32): error TS7006: Parameter 'bat' implicitly has an 'any' type.
+src/integration/browser/ExecutedFieldWorldObservationV1.ts(60,37): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/integration/browser/ExecutedFieldWorldObservationV1.ts(66,38): error TS7006: Parameter 'actor' implicitly has an 'any' type.
+src/integration/browser/ExecutedFieldWorldObservationV1.ts(76,45): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/integration/browser/ExecutedFieldWorldObservationV1.ts(77,41): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/integration/browser/ExecutedFieldWorldObservationV1.ts(77,95): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/integration/browser/ExecutedFieldWorldObservationV1.ts(78,38): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/integration/browser/ExecutedFieldWorldObservationV1.ts(83,55): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/integration/browser/ExecutedFieldWorldObservationV1.ts(83,60): error TS7006: Parameter 'foot' implicitly has an 'any' type.
+src/integration/browser/ExecutedFieldWorldObservationV1.ts(87,34): error TS7006: Parameter 'bat' implicitly has an 'any' type.

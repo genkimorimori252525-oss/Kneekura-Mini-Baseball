@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-BAT-CENTER-INPUT-PINS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../pin-native-stage.py",
+    "../../outputs/verification-authored-with-bat-center-cut-v1",
+    "FRESH_18_PERSON_MEASURED_MODEL_PHYSICAL_FIRST_PITCH_OBSERVATION_FORECAST"
+  ],
+  "observed_at": "2026-10-16T12:25:04.635+00:00",
+  "elapsed_ms": 125,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-BAT-CENTER-INPUT-PINS_06c45185e7204a7b8c22e7277d316ced.log",
+  "output_sha256": "e199ab976e6bc5d3306764f5c63a1309dd45c8c4a71cb68663204db588746ee3",
+  "receipt_id": "MB-20261016-INITIAL-BAT-CENTER-INPUT-PINS_06c45185e7204a7b8c22e7277d316ced"
+}

@@ -1,0 +1,17 @@
+file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-initial-decision-v2/readback.mjs:1937
+    if (typeof value !== "object") throw new Error("official window input must contain inert data only");
+                                         ^
+
+Error: official window input must contain inert data only
+    at visit (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-initial-decision-v2/readback.mjs:1937:42)
+    at visit (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-initial-decision-v2/readback.mjs:1957:16)
+    at visit (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-initial-decision-v2/readback.mjs:1957:16)
+    at visit (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-initial-decision-v2/readback.mjs:1957:16)
+    at cloneInert (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-initial-decision-v2/readback.mjs:1966:10)
+    at actorJson (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-initial-decision-v2/readback.mjs:80361:40)
+    at same92 (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-initial-decision-v2/readback.mjs:80543:7)
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-initial-decision-v2/readback.mjs:81046:9
+    at Object.run (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-initial-decision-v2/readback.mjs:28063:23)
+    at Object.accept (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-initial-decision-v2/readback.mjs:81038:17)
+
+Node.js v26.1.0

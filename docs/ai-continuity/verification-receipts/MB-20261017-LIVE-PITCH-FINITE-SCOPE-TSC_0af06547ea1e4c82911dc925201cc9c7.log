@@ -1,0 +1,1 @@
+src/core/sim/fielding/LiveFieldPlayV1.ts(479,113): error TS18047: 'overFence' is possibly 'null'.

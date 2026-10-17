@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V34-UI-REGRESSION-V3",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v34-ui.mjs",
+    "../../outputs/ばせぼーるlv34_TBD_vs_LAD_UI復元版.html",
+    "../../outputs/verification-v34-ui-v3"
+  ],
+  "observed_at": "2026-10-17T01:55:57.724+00:00",
+  "elapsed_ms": 3500,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V34-UI-REGRESSION-V3_e18742f1d60e4cb5aa83b03d5408e5c3.log",
+  "output_sha256": "b6ae76779b6161c2d681a12fbb62a1e59467e2c39ed2f22911db621eeea6ac30",
+  "receipt_id": "MB-20261017-V34-UI-REGRESSION-V3_e18742f1d60e4cb5aa83b03d5408e5c3"
+}

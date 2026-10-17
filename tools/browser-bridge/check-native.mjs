@@ -5,11 +5,16 @@ import { strict as assert } from 'node:assert';
 // Run without Node global require/process/etc, as if loaded by a phone browser.
 const script = await readFile('dist/native-match-core-browser.js', 'utf8');
 const context = Object.create(null);
+// structuredClone is a standard browser API, not a Node runtime dependency.
+context.structuredClone = structuredClone;
 runInNewContext(script, context, { timeout: 5000, filename: 'native-match-core-browser.js' });
 const library = context.KneekuraNativeMatchCore;
 assert.equal(typeof library?.createNativeSinglePaSession, 'function');
 assert.equal(typeof library?.createNativeAerodynamicSession, 'function');
 assert.equal(typeof library?.createReferenceAerodynamicPhysicalSource, 'function');
+assert.equal(typeof library?.observeNativeFreeBallContinuation, 'function');
+assert.equal(typeof library?.createSourceBallMaterialHistoryV1, 'function');
+assert.equal(typeof library?.createSourceBallMaterialHistoryFromContinuationV3, 'function');
 const makeInput = (zone = 'outside') => ({
   pitcher: { attackZone: zone, verticalPlan: 'low', aggression: 'balanced' },
   batter: { approach: 'take', swingBias: 'neutral' },

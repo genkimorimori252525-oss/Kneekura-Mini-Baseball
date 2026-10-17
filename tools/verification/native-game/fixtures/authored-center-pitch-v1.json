@@ -1,0 +1,10 @@
+{
+  "version": "authored_pitch_physics_v1",
+  "authority": "AUTHORED_SYNTHETIC_INTEGRATION_TEST_NOT_EMPIRICAL_PLAYER",
+  "velocityUnit": "m/s",
+  "spinUnit": "rad/s",
+  "physics": {
+    "velocity": { "x": 0, "y": 0.8, "z": -40.5 },
+    "spin": { "x": 0, "y": 0, "z": 100 }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "output": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv38_TBD_vs_LAD_配球と結果表示改善版.html",
+  "sha256": "286efa50fa1757cee6838af3bfbc928f0618436f30acf4b9412a6bc7415ef6be",
+  "presentationVersion": 38,
+  "baselineSha256": "c613574b377afd19060d89100c1bd7c1fa693efd42361c77ed7ab21943670f1f",
+  "nativeBundleSha256": "58fd175690dc2fc75791bc0d782c4f04069a7970dcc24c76f5ad6766b84fe2e7",
+  "runtimeSha256": "a1b60f1229d0d5ec58b658da757cb90c50b00852033bd2e04b63f82ed443d4cd",
+  "chartHelperSha256": "ba18541a442e783ba46d556c76c5495e2cbeabbbb84287c22cc652093d4f1e1a",
+  "fieldCameraHelperSha256": "42d261dbc3611c5fffd59889b864fde3febfe634a7a92e01d2f0ee8dbb696976",
+  "actorAnimationHelperSha256": "dd26234d2d6f8a4b26b69c897a54fb73f12b99e3bb86d778b8d76a681691304a",
+  "playDescriptionHelperSha256": "ea07eb44e510f304e911db69388cc54f62ae601a9e204f062e36c2e8c711578e",
+  "bundleInputManifestSha256": "24d0864f66ac7642d24346fbe06c4656ef6bb5cbb5e7aeb519f69218ca25ffa1",
+  "bundleInputCount": 97,
+  "approvedPngMasksSha256": "51005451401727fb84c31be9ae63712c8a815bdd0a7edbde7606af36a69a0944",
+  "approvedFontSha256": "6bd1592ef0d1a47ecd13bf7ef81ac361a12c29239f31d43bec1c3f54f6023aeb",
+  "primaryCanvas": "shared Core observations; faint pitch marks, delayed catcher cut, factual play labels before third-out change",
+  "nativeSqliteAdmission": false,
+  "legacyResultFallback": false,
+  "ordinaryCadenceMs": 55,
+  "displayGridPixels": 4,
+  "measuredReferenceSha256": "72b615a28cd99b4a91c6e52cb02ee35f4ff97850c3bfe71ca73d0e609ba480ef",
+  "measuredReferenceAuthority": "OPENBIOMECHANICS_MEASURED_BAT_AXIS_RESEARCH"
+}

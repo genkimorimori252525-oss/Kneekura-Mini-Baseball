@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-UPRIGHT-VELOCITY-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/world/psychology/batting/MeasuredBattingCommitment.test.ts",
+    "src/core/world/psychology/batting/BattingMotorPlanV1.test.ts",
+    "src/core/sim/contact/HeldToMeasuredBatControlV1.test.ts",
+    "src/core/sim/contact/InitialHeldBatV1.test.ts",
+    "src/core/sim/contact/ReferenceBatKinematicsV1.test.ts",
+    "src/core/sim/perception/Occlusion.test.ts",
+    "src/core/world/psychology/batting/BattingExecutionCalculation.test.ts"
+  ],
+  "observed_at": "2026-10-16T12:50:19.732+00:00",
+  "elapsed_ms": 3328,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-UPRIGHT-VELOCITY-REGRESSION_6e5310a30747406997d53ab233828a7f.log",
+  "output_sha256": "1259f86465a27700dd5d2aaf854042b99f192fb53a9ebd478248275bddc50916",
+  "receipt_id": "MB-20261016-UPRIGHT-VELOCITY-REGRESSION_6e5310a30747406997d53ab233828a7f"
+}

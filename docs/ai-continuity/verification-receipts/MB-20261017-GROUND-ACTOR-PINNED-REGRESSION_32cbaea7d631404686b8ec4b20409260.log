@@ -1,0 +1,14 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/GroundedActorContactResponseV1.test.ts (4 tests) 3ms
+ ✓ src/core/sim/fielding/LiveFieldPlayV1.test.ts (15 tests) 2401ms
+   ✓ derives two force retirements from actual pickup, two throws, receptions and base contacts 300ms
+   ✓ catches an ordinary high center-field fly using a causal aero-ground forecast 535ms
+   ✓ keeps bodies, independent gloves and a possessed ball inside the physical fence through pickup and release 334ms
+
+ Test Files  2 passed (2)
+      Tests  19 passed (19)
+   Start at  09:41:02
+   Duration  3.12s (transform 271ms, setup 0ms, collect 472ms, tests 2.40s, environment 0ms, prepare 251ms)
+

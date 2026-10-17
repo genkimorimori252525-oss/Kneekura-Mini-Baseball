@@ -1,0 +1,112 @@
+▲ [WARNING] "youkaishomecoming:yukari" is not a valid value for the "type" field [package.json]
+
+    ../../../../../../package.json:1:8:
+      1 │ {"type":"youkaishomecoming:yukari","texture":"touhou_little_maid:te...
+        ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The "type" field must be set to either "commonjs" or "module".
+
+{
+  "status": "PASS_ORIGINAL_FIELD_MAPPING_IS_LATERALLY_REVERSED",
+  "testedKeys": 1644,
+  "testedIntervals": 1632,
+  "clips": [
+    {
+      "id": "obp-123_6",
+      "side": "R",
+      "originalGripRelativeSweetX": 0.6195494120606718,
+      "candidateGripRelativeSweetX": -0.6195494120606718,
+      "originalAngularY": 39.06921119305222,
+      "candidateAngularY": -39.06921119305222
+    },
+    {
+      "id": "obp-190_7",
+      "side": "R",
+      "originalGripRelativeSweetX": 0.6507693099913436,
+      "candidateGripRelativeSweetX": -0.6507693099913436,
+      "originalAngularY": 36.635337358339825,
+      "candidateAngularY": -36.635337358339825
+    },
+    {
+      "id": "obp-103_5",
+      "side": "R",
+      "originalGripRelativeSweetX": 0.6135809626277412,
+      "candidateGripRelativeSweetX": -0.6135809626277412,
+      "originalAngularY": 24.20992913183288,
+      "candidateAngularY": -24.20992913183288
+    },
+    {
+      "id": "obp-185_5",
+      "side": "R",
+      "originalGripRelativeSweetX": 0.6228840113849927,
+      "candidateGripRelativeSweetX": -0.6228840113849927,
+      "originalAngularY": 32.86174775364097,
+      "candidateAngularY": -32.86174775364097
+    },
+    {
+      "id": "obp-254_3",
+      "side": "R",
+      "originalGripRelativeSweetX": 0.5911305108673008,
+      "candidateGripRelativeSweetX": -0.5911305108673008,
+      "originalAngularY": 25.449136825171387,
+      "candidateAngularY": -25.449136825171387
+    },
+    {
+      "id": "obp-42_5",
+      "side": "R",
+      "originalGripRelativeSweetX": 0.537932482323163,
+      "candidateGripRelativeSweetX": -0.537932482323163,
+      "originalAngularY": 30.48881270731429,
+      "candidateAngularY": -30.48881270731429
+    },
+    {
+      "id": "obp-51_3",
+      "side": "L",
+      "originalGripRelativeSweetX": -0.5240547510619272,
+      "candidateGripRelativeSweetX": 0.5240547510619272,
+      "originalAngularY": -21.45258336453597,
+      "candidateAngularY": 21.45258336453597
+    },
+    {
+      "id": "obp-313_7",
+      "side": "L",
+      "originalGripRelativeSweetX": -0.5748798904999389,
+      "candidateGripRelativeSweetX": 0.5748798904999389,
+      "originalAngularY": -36.65432097697028,
+      "candidateAngularY": 36.65432097697028
+    },
+    {
+      "id": "obp-353_2",
+      "side": "L",
+      "originalGripRelativeSweetX": -0.4964971201166753,
+      "candidateGripRelativeSweetX": 0.4964971201166753,
+      "originalAngularY": -34.595898923837254,
+      "candidateAngularY": 34.595898923837254
+    },
+    {
+      "id": "obp-273_4",
+      "side": "L",
+      "originalGripRelativeSweetX": -0.5567948541852854,
+      "candidateGripRelativeSweetX": 0.5567948541852854,
+      "originalAngularY": -27.5961293099686,
+      "candidateAngularY": 27.5961293099686
+    },
+    {
+      "id": "obp-56_1",
+      "side": "L",
+      "originalGripRelativeSweetX": -0.5299091473179285,
+      "candidateGripRelativeSweetX": 0.5299091473179285,
+      "originalAngularY": -28.151462875786013,
+      "candidateAngularY": 28.151462875786013
+    },
+    {
+      "id": "obp-358_7",
+      "side": "L",
+      "originalGripRelativeSweetX": -0.5910796123891342,
+      "candidateGripRelativeSweetX": 0.5910796123891342,
+      "originalAngularY": -34.02503261507337,
+      "candidateAngularY": 34.02503261507337
+    }
+  ],
+  "evidence": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\verification-v36-obp-field-handedness-v1"
+}

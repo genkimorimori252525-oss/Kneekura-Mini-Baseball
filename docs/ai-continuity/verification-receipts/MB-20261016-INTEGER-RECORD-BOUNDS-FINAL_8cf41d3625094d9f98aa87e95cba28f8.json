@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INTEGER-RECORD-BOUNDS-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/SamePlateAppearanceSourceIntegerCheckpointV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T18:49:26.816+00:00",
+  "elapsed_ms": 19000,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INTEGER-RECORD-BOUNDS-FINAL_8cf41d3625094d9f98aa87e95cba28f8.log",
+  "output_sha256": "adbb70f1a09566081a02c4361c6882d2b9827b61264cbe32b6d5f159f5754794",
+  "receipt_id": "MB-20261016-INTEGER-RECORD-BOUNDS-FINAL_8cf41d3625094d9f98aa87e95cba28f8"
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-FRONTIER-INDEPENDENT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-observed-initial-cut-readback-v3/readback.mjs",
+    "../../outputs/verification-observed-initial-cut-v4/match.sqlite",
+    "../../outputs/verification-observed-initial-cut-v4/expected.json",
+    "../../outputs/verification-observed-initial-cut-v4/independent-readback.json"
+  ],
+  "observed_at": "2026-10-15T23:51:08.419+00:00",
+  "elapsed_ms": 3577,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-FRONTIER-INDEPENDENT_f47b524b68bd47da84ad8211027a9122.log",
+  "output_sha256": "022e72dd016875ea76086db275047015eefb5065d086fe7a6fe33c218a1ddbc5",
+  "receipt_id": "MB-20261016-INITIAL-FRONTIER-INDEPENDENT_f47b524b68bd47da84ad8211027a9122"
+}

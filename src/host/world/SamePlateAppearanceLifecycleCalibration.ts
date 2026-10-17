@@ -13,6 +13,7 @@ import { playerFieldingModelEvidenceFromSqlite } from './SqlitePlayerFieldingMod
 import { readPlayerPitchTimingPrefixFromSqlite, assertCurrentPlayerPitchTimingPrefixFromSqlite } from './SqlitePlayerPitchTimingStore';
 import { readPitchFatiguePolicyFromSqlite } from './SqlitePitchFatiguePolicyStore';
 import { playerPersonLinkEvidenceFromSqlite } from './SqlitePlayerPersonLinkStore';
+import { deriveSamePaObservationClockProjectionV1 } from './SamePlateAppearanceObservationClockProjectionV1';
 const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw new Error('lifecycle calibration original nominal/member differs'); };
 /** Private composition data only. The continuation owner supplies the actual
  * reauthenticated actor/view/member during its immutable proof. */
@@ -60,5 +61,7 @@ export const deriveSamePaLifecycleCalibration = (db: DatabaseSync, source: Accep
       || model.source.acceptedAtDay > binding.gameDay) throw new Error('lifecycle defender original scope differs');
     if (current) same(owner.selectAtDay(binding.careerId, binding.playerId, binding.gameDay), model); nominal = model;
   }
-  return freeze({ kind: 'same_pa_lifecycle_calibration', source, lineage: view.lineage, nominalInputHash: hash(nominal), effectiveResponseHash: hash(source.response) });
+  const projection=source.observationClockProjection?deriveSamePaObservationClockProjectionV1(db,source,basis):null;
+  return freeze({ kind: 'same_pa_lifecycle_calibration', source, lineage: view.lineage, nominalInputHash: hash(projection?.nominalInput??nominal), effectiveResponseHash: hash(source.response),
+    ...(projection?{observationClockProjection:projection.evidence}:{}) });
 };

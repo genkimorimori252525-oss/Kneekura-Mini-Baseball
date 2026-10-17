@@ -2,6 +2,8 @@ import type { Vec3 } from '../../../model/geometry';
 import type { AerodynamicPitchTrajectory } from '../../../sim/pitching/AerodynamicPitchTrajectory';
 import type { SwingKinematicsCourseProfileV1 } from '../../../sim/pitching/CourseAwareSwingKinematicsV1';
 import type { SwingKinematicsTrajectoryV1 } from '../../../sim/contact/SwingKinematicsV1';
+import type { ReferenceBatKinematicsInputV1 } from '../../../sim/contact/ReferenceBatKinematicsV1';
+import type { MeasuredBattingProfileV1 } from './MeasuredBattingTrajectoryV1';
 import type { RigidBatPhysicalProperties, RigidBaseballProperties } from '../../../sim/contact/RigidBatBallContact';
 import type { StrikeZoneRegion } from '../../../sim/pitching/TakenPitchPhysicalResult';
 import type { CanonicalPlateAppearanceTimeline } from '../../../sim/plateAppearance/CanonicalPlateAppearanceTimeline';
@@ -23,6 +25,7 @@ export type BattingSource = Readonly<{
  plateZ: number; strikeZone: StrikeZoneRegion; maximumSweetSpotSpeedMps: number;
  repertoireId: string; repertoireVersion: string;
  profiles: readonly Readonly<{ minimumAggression: number; profile: SwingKinematicsCourseProfileV1 }>[];
+ sampledProfiles?: readonly MeasuredBattingProfileV1[];
  directive: 'AUTO' | 'TAKE' | 'SWING';
  decisionModel: Readonly<{ modelId: string; version: string; threshold: number; aggressionWeight: number }>;
  predictions: readonly BattingPrediction[];
@@ -35,7 +38,10 @@ export type BattingCommitment = Readonly<{
  profileId: string | null; profileVersion: string | null; preferredStartTick: number | null;
  motorStartTick: number | null; motorDelayTicks: number; technicalTimingOffsetTicks: number;
  trajectory: SwingKinematicsTrajectoryV1 | null;
+ /** New measured repertoires execute this path and leave legacy trajectory null. */
+ sampledTrajectoryV1?: ReferenceBatKinematicsInputV1;
 }>;
+export type BattingRepertoireValues = Pick<BattingSource,'repertoireId'|'repertoireVersion'|'profiles'|'sampledProfiles'>;
 export type BattingStatus = 'READY' | 'WAITING' | 'MISSED_WINDOW' | 'MISSED_COMMITMENT' | 'NO_OBSERVATION'
  | 'STALE_PREDICTION' | 'UNRESOLVED_PREDICTION' | 'MOTOR_WINDOW_MISSED';
 export type BattingExecutionProposal = Readonly<{

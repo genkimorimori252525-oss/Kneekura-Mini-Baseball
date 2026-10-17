@@ -1,0 +1,12 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts (13 tests) 575ms
+ ✓ src/core/sim/ball/SourceDefensiveControlV1.test.ts (9 tests) 2938ms
+   ✓ yields bounded work without renewing decisions and resumes the same control/ball state 2131ms
+
+ Test Files  2 passed (2)
+      Tests  22 passed (22)
+   Start at  05:27:20
+   Duration  3.80s (transform 389ms, setup 0ms, collect 794ms, tests 3.51s, environment 0ms, prepare 274ms)
+

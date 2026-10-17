@@ -1,0 +1,6 @@
+src/core/sim/fielding/LiveFieldPlayV1.ts(527,45): error TS2339: Property 'prepared' does not exist on type 'never'.
+src/core/sim/fielding/LiveFieldPlayV1.ts(527,73): error TS2339: Property 'curve' does not exist on type 'never'.
+src/core/sim/fielding/LiveFieldPlayV1.ts(528,58): error TS2339: Property 'curve' does not exist on type 'never'.
+src/core/sim/fielding/LiveFieldPlayV1.ts(694,51): error TS2339: Property 'fielder' does not exist on type 'never'.
+src/core/sim/fielding/LiveFieldPlayV1.ts(694,84): error TS2339: Property 'base' does not exist on type 'never'.
+src/core/sim/fielding/LiveFieldPlayV1.ts(694,124): error TS2339: Property 'prepared' does not exist on type 'never'.

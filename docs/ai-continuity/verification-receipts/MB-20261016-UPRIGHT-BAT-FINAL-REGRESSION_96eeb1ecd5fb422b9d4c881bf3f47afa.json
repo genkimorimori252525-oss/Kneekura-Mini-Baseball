@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-UPRIGHT-BAT-FINAL-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/world/psychology/batting/MeasuredBattingCommitment.test.ts",
+    "src/core/world/psychology/batting/BattingMotorPlanV1.test.ts",
+    "src/core/sim/contact/HeldToMeasuredBatControlV1.test.ts",
+    "src/core/sim/contact/InitialHeldBatV1.test.ts",
+    "src/core/sim/contact/ReferenceBatKinematicsV1.test.ts",
+    "src/core/sim/perception/Occlusion.test.ts",
+    "src/core/world/psychology/batting/BattingExecutionCalculation.test.ts"
+  ],
+  "observed_at": "2026-10-16T12:46:16.838+00:00",
+  "elapsed_ms": 3702,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-UPRIGHT-BAT-FINAL-REGRESSION_96eeb1ecd5fb422b9d4c881bf3f47afa.log",
+  "output_sha256": "b9fb77e9d9e19ea7a0e244d1b32182c4f5a161b0b03f6260106a74e632e94472",
+  "receipt_id": "MB-20261016-UPRIGHT-BAT-FINAL-REGRESSION_96eeb1ecd5fb422b9d4c881bf3f47afa"
+}

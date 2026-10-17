@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-INERT-SCOPE-GUARDS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/ActualLiveScoringAdmission.test.ts",
+    "src/host/world/OwnedScheduledMotionDependencyEncoding.test.ts",
+    "src/host/world/ActualFirstBasePhysicalReadTraversal.test.ts"
+  ],
+  "observed_at": "2026-10-14T20:35:38.648+00:00",
+  "elapsed_ms": 175250,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-INERT-SCOPE-GUARDS_9e97f6b1ef434aa9a1a9db07a8a5e562.log",
+  "output_sha256": "dd586d7d7a04cfcc56410d144c8284eedce83a11257fe688f976eb0b64dfc027",
+  "receipt_id": "MB-20261015-INERT-SCOPE-GUARDS_9e97f6b1ef434aa9a1a9db07a8a5e562"
+}

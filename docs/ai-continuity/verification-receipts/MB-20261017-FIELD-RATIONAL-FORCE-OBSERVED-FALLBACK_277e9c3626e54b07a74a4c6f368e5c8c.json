@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-FIELD-RATIONAL-FORCE-OBSERVED-FALLBACK",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T00:47:33.090+00:00",
+  "elapsed_ms": 4000,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-FIELD-RATIONAL-FORCE-OBSERVED-FALLBACK_277e9c3626e54b07a74a4c6f368e5c8c.log",
+  "output_sha256": "acfa1863bc866714a879596083437fafda3d2f8daaf1167837f4fc59febceb0d",
+  "receipt_id": "MB-20261017-FIELD-RATIONAL-FORCE-OBSERVED-FALLBACK_277e9c3626e54b07a74a4c6f368e5c8c"
+}

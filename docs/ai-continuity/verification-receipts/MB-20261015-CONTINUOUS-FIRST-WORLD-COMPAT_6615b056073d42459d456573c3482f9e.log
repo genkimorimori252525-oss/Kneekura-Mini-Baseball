@@ -1,0 +1,12 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/OriginalContactRunnerKinematics.test.ts (15 tests) 313ms
+ ✓ src/host/world/OriginalContactKinematicsReader.test.ts (15 tests) 423ms
+ ✓ src/host/world/OriginalContactLegacyBytes.test.ts (3 tests) 21ms
+
+ Test Files  3 passed (3)
+      Tests  33 passed (33)
+   Start at  06:30:20
+   Duration  10.09s (transform 3.93s, setup 0ms, collect 8.63s, tests 757ms, environment 0ms, prepare 235ms)
+

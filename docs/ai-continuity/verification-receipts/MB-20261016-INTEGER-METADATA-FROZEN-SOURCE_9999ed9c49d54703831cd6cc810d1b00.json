@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INTEGER-METADATA-FROZEN-SOURCE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "tools/verification/aero-ground-samepa/prepare-integer-snapshot.py",
+    "--zip",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/にーくらMINIbaseball_変更ソースと検証.zip",
+    "--zip-sha256",
+    "b16cb68c644e6525fe19f287455031b2228ea478a3a2297ec3c6e485894ffbeb",
+    "--directory",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-source-integer-metadata-v1/frozen-source",
+    "--helper",
+    "tools/verification/aero-ground-samepa/source-integer-metadata-entry.ts"
+  ],
+  "observed_at": "2026-10-15T18:34:55.432+00:00",
+  "elapsed_ms": 4217,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INTEGER-METADATA-FROZEN-SOURCE_9999ed9c49d54703831cd6cc810d1b00.log",
+  "output_sha256": "19c96f250612334868d27f192585dd9a276d3296d6a1033d270c42fd9c499c71",
+  "receipt_id": "MB-20261016-INTEGER-METADATA-FROZEN-SOURCE_9999ed9c49d54703831cd6cc810d1b00"
+}

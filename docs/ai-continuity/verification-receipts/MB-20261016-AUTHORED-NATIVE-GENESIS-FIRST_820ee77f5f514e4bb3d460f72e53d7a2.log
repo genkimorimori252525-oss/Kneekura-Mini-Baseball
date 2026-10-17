@@ -1,0 +1,40 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/native-game/AuthoredMatchClockV1.test.ts (18 tests) 1007ms
+   ✓ AC09 registers all nine declared nominal models through their real Native owners and rereads without author callbacks 942ms
+ ❯ src/integration/native-game/AuthoredNativeMatchV1.test.ts (3 tests | 1 failed) 3742ms
+   × creates two real Native SI model cohorts, official initial World and nineteen bodies without legacy fixtures or owner mocks 3645ms
+     → corrupt accepted initial official World Source
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/native-game/AuthoredNativeMatchV1.test.ts > creates two real Native SI model cohorts, official initial World and nineteen bodies without legacy fixtures or owner mocks
+Error: corrupt accepted initial official World Source
+ ❯ decode src/host/world/SqliteOfficialInitialWorldStore.ts:151:29
+    149|       assertInitialOfficialWorldEvidence(db, expected, true);
+    150|       return expected;
+    151|     } catch (cause) { throw new Error('corrupt accepted initial offici…
+       |                             ^
+    152|   };
+    153|   const freshGuard = (snapshot: DurableInitialOfficialWorld): void => {
+ ❯ Object.readAcceptedSource src/host/world/SqliteOfficialInitialWorldStore.ts:192:20
+ ❯ Module.readAuthoredNativeMatchV1 src/integration/native-game/AuthoredNativeMatchV1.ts:60:125
+ ❯ src/integration/native-game/AuthoredNativeMatchV1.test.ts:34:20
+
+Caused by: Error: pregame participation requires an accepted source authority
+ ❯ SqliteOfficialParticipationStore.readPregameBinding src/host/world/SqliteOfficialParticipationStore.ts:184:32
+ ❯ src/host/world/SqliteOfficialInitialWorldStore.ts:129:56
+ ❯ project src/host/world/SqliteOfficialInitialWorldStore.ts:128:38
+ ❯ decode src/host/world/SqliteOfficialInitialWorldStore.ts:144:24
+ ❯ Object.readAcceptedSource src/host/world/SqliteOfficialInitialWorldStore.ts:192:20
+ ❯ Module.readAuthoredNativeMatchV1 src/integration/native-game/AuthoredNativeMatchV1.ts:60:125
+ ❯ src/integration/native-game/AuthoredNativeMatchV1.test.ts:34:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 20 passed (21)
+   Start at  06:11:25
+   Duration  17.52s (transform 9.89s, setup 0ms, collect 26.66s, tests 4.75s, environment 0ms, prepare 249ms)
+

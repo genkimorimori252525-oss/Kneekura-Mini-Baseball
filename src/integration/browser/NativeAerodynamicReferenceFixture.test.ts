@@ -3,6 +3,7 @@ import type { CanonicalWorldSnapshot } from '../../core/model/CanonicalWorldSnap
 import { asRuleProfileId } from '../../core/model/RuleProfileRef';
 import { createReferenceAerodynamicPhysicalSource } from './NativeAerodynamicReferenceFixture';
 import { createNativeAerodynamicSession } from './NativeAerodynamicSession';
+import { REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS } from '../../core/sim/ball/BaseballAerodynamics';
 
 const actorsAtTick = (_tick: number): Pick<CanonicalWorldSnapshot, 'defenders' | 'runners'> => ({
   defenders: [], runners: [],
@@ -22,6 +23,49 @@ const session = () => createNativeAerodynamicSession({
   },
   startedAtTick: 0, matchSeed: 11003,
   batterRunnerId: 'reference-batter', batterHandedness: 'L', pitcherHandedness: 'R',
+});
+
+it('targets a declared sweet-spot band with small reproducible grip variation instead of a fixed midpoint', () => {
+  const source = createReferenceAerodynamicPhysicalSource({ actorsAtTick, pitchSpeedMps: 40, batterAction: 'swing',
+    sweetSpotBand: { minimumT: 0.65, maximumT: 0.78 } });
+  const pa = session(), accepted = pa.acceptNextCommand(command('inside', 'aggressive'));
+  const run = (ordinal: number) => source({ commandSession: accepted, ordinal, count: { balls: 0, strikes: 0 },
+    lastEventTick: 0, previousFlightEndTick: null, match: {
+      ruleProfileId: asRuleProfileId('npb-2026'), inning: 1, half: 'top', outs: 0, balls: 0, strikes: 0,
+      bases: { first: null, second: null, third: null }, score: { away: 0, home: 0 }, playId: 7 } }).pitch;
+  const aims = Array.from({ length: 20 }, (_, i) => {
+    const pitch = run(i + 1);
+    if (pitch.action.kind !== 'swing' || !pitch.action.swing.kinematicsV1) throw new Error('rigid kinematic swing required');
+    const k = pitch.action.swing.kinematicsV1;
+    expect(k.sweetSpotT).toBeGreaterThanOrEqual(0.65);
+    expect(k.sweetSpotT).toBeLessThanOrEqual(0.78);
+    return k.sweetSpotT;
+  });
+  expect(new Set(aims).size).toBeGreaterThan(1);
+  const first = run(1), replay = run(1);
+  if (first.action.kind !== 'swing' || replay.action.kind !== 'swing') throw new Error('swing required');
+  expect(first.action.swing.kinematicsV1).toEqual(replay.action.swing.kinematicsV1);
+  expect(first.trajectory).toEqual(replay.trajectory);
+  expect(() => createReferenceAerodynamicPhysicalSource({ actorsAtTick, pitchSpeedMps: 40, batterAction: 'swing',
+    sweetSpotBand: { minimumT: 0.8, maximumT: 0.7 } })).toThrow();
+});
+
+it('can aim the reference rigid bat at the actual plate trajectory and continue its real collision', () => {
+  const pa = session();
+  pa.acceptNextCommand(command('inside', 'aggressive'));
+  const actual = pa.issue(createReferenceAerodynamicPhysicalSource({ actorsAtTick, pitchSpeedMps: 40, batterAction: 'swing',
+    sweetSpotBand: { minimumT: 0.65, maximumT: 0.78 }, aimAtPlate: true }));
+  expect(actual.phase).toBe('batted_ball_pending');
+  expect(actual.result.rigidContact?.normalImpulseNs).toBeGreaterThan(0);
+  expect(actual.result.requiresOfficialLiveBallResolution).toBe(true);
+});
+
+it('uses explicit measured aerodynamic coefficient and spin-decay inputs on the actual pitch', () => {
+  const pa = session();
+  pa.acceptNextCommand(command('inside', 'take'));
+  const result = pa.issue(createReferenceAerodynamicPhysicalSource({ actorsAtTick, pitchSpeedMps: 40, batterAction: 'take',
+    spinVectorRadPerSec: { x: 200, y: 0, z: 0 }, aerodynamics: REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS }));
+  expect(result.result.samples.at(-1)!.world.ball!.spin.x).toBeLessThan(200);
 });
 
 describe('reference-only physical source, not a player ability', () => {

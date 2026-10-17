@@ -1,0 +1,12 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/InitialJointRecoveryCommand.test.ts (4 tests) 9ms
+ ✓ src/host/world/InitialJointWorkloadProjection.test.ts (5 tests) 31ms
+ ✓ src/host/world/InitialJointRecoveryWorkloadProjection.test.ts (6 tests) 45ms
+
+ Test Files  3 passed (3)
+      Tests  15 passed (15)
+   Start at  06:37:25
+   Duration  12.82s (transform 8.57s, setup 0ms, collect 36.82s, tests 86ms, environment 0ms, prepare 444ms)
+

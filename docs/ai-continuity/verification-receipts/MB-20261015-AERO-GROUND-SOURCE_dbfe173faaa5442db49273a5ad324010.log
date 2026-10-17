@@ -1,0 +1,30 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/VersionedBattedBallFlightSource.test.ts (3 tests) 1269ms
+   ✓ accepts explicit physics from original Native contact, replays after reopen, and refuses the legacy World consumer 730ms
+   ✓ preserves original legacy Source and snapshot byte conventions without adding a physics field 312ms
+ ✓ src/host/world/SqliteBattedWorldContactStore.test.ts (13 tests) 7748ms
+   ✓ executes the actual ten Player/Person actors from original World and swing, then reopens without caller contact or rule results 813ms
+   ✓ does not append a forecast ground event when an actual surface is contacted earlier 678ms
+   ✓ rejects missing_actor rather than silently replacing actual geometry or scope 567ms
+   ✓ rejects wrong_person rather than silently replacing actual geometry or scope 536ms
+   ✓ rejects pitcher_body rather than silently replacing actual geometry or scope 594ms
+   ✓ rejects missing_primitive rather than silently replacing actual geometry or scope 523ms
+   ✓ rejects wrong_venue rather than silently replacing actual geometry or scope 473ms
+   ✓ rejects future_day rather than silently replacing actual geometry or scope 480ms
+   ✓ rejects caller_result rather than silently replacing actual geometry or scope 465ms
+   ✓ extends only an airborne original prefix with unchanged model and commands 1107ms
+   ✓ freezes the actual full registered game roster without executing reserve actors or losing their Person evidence 655ms
+   ✓ rejects invalid reserve roster_revision before freezing original model evidence 425ms
+   ✓ rejects invalid reserve future_person before freezing original model evidence 430ms
+ ✓ src/core/sim/ball/VersionedBattedBallPhysics.test.ts (6 tests) 165ms
+ ✓ src/host/world/SqliteBattedBallFlightStore.test.ts (6 tests) 1741ms
+   ✓ continues actual Native bat contact flight after offline reopen without turning a predicted ground into a ruling 565ms
+   ✓ requires the actual previous flight, unchanged physical execution and a longer search horizon 343ms
+
+ Test Files  4 passed (4)
+      Tests  28 passed (28)
+   Start at  05:07:15
+   Duration  22.90s (transform 4.90s, setup 0ms, collect 10.91s, tests 10.92s, environment 1ms, prepare 374ms)
+

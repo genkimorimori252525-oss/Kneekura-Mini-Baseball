@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs';
+import { appendFileSync, constants, copyFileSync, readFileSync, writeFileSync, mkdtempSync, mkdirSync, rmSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -59,12 +59,21 @@ it('preserves the original physically sealed fair play and refuses an absent end
 // never convert an unfinished Native closure into a pretend ground-out result.
 const fullNative = process.env.BASEBALL_NATIVE_LIVE_FULL_ACCEPTANCE === '1' ? it : it.skip;
 fullNative('accepts the original sealed physically fielded fair-ground first-base OUT through Native official Match and scorer owners', () => {
+  const began = performance.now();
+  const evidenceDirectory = process.env.BASEBALL_NATIVE_LIVE_EVIDENCE_DIR;
+  if (evidenceDirectory) mkdirSync(evidenceDirectory);
+  const progress = (phase: string) => {
+    const elapsedMs = Math.round(performance.now() - began);
+    console.info(`Native physical live acceptance: ${phase} (${elapsedMs} ms)`);
+    if (evidenceDirectory) appendFileSync(join(evidenceDirectory, 'phases.jsonl'), JSON.stringify({ phase, elapsedMs }) + '\n');
+  };
   const dir = mkdtempSync(join(tmpdir(), 'kneekura-native-physical-live-smoke-'));
   const path = join(dir, 'original-fair-ground.sqlite');
   try {
     // Published fictional-player fixture: a genuinely owned end/fence, no official
     // application or scoring yet. Never reopen or mutate the repository's artifact.
     writeFileSync(path, exactOriginalEndBytes(), { flag: 'wx' });
+    progress('original physical archive SHA authenticated');
 
     const db = new DatabaseSync(path, { readOnly: true });
     let nextWorldSetup: BetweenPlayWorldSetup;
@@ -113,25 +122,35 @@ fullNative('accepts the original sealed physically fielded fair-ground first-bas
           ruleProfileId: 'npb-2026',
           officialWindows: { appeal: { available: true }, review: { available: false },
             challenge: { available: false } } } },
-      createClosureSource: ({ physicalEnd, adjudication }) => ({
-        sourceId: 'native-live-smoke-closure', sourceVersion: 'fixture-v1',
-        adjudicationSourceId: adjudication.source.sourceId, applicationId: 'native-live-smoke-application',
-        closureTick: physicalEnd.playEnd.tick + 1, nextStartedAtTick: physicalEnd.playEnd.tick + 2,
-        controllerReset: 'rule_system_retire_original_play',
-        worldSetup: nextWorldSetup,
-      }),
-      createScoringSource: ({ physicalEnd, closure }) => ({
-        sourceId: 'native-live-smoke-ground-out', sourceVersion: 'fixture-v1',
-        gameId: physicalEnd.gameId, scoringApplicationId: 'native-live-smoke-scoring',
-        closureReference: { sourceId: closure.source.sourceId, proposalHash: actorHash(closure.proposal) },
-        evidence: { schemaVersion: 1, sourceKind: 'owned_ground_out',
-          sourceEventId: 'native-live-smoke-ground-out', playId: physicalEnd.playId,
-          closureId: closure.source.sourceId, batterRunnerId },
-      }),
+      createClosureSource: ({ physicalEnd, adjudication }) => {
+        progress('physical end and official_ready authenticated');
+        return {
+          sourceId: 'native-live-smoke-closure', sourceVersion: 'fixture-v1',
+          adjudicationSourceId: adjudication.source.sourceId, applicationId: 'native-live-smoke-application',
+          closureTick: physicalEnd.playEnd.tick + 1, nextStartedAtTick: physicalEnd.playEnd.tick + 2,
+          controllerReset: 'rule_system_retire_original_play',
+          worldSetup: nextWorldSetup,
+        };
+      },
+      createScoringSource: ({ physicalEnd, closure }) => {
+        progress('official closure durably applied');
+        return {
+          sourceId: 'native-live-smoke-ground-out', sourceVersion: 'fixture-v1',
+          gameId: physicalEnd.gameId, scoringApplicationId: 'native-live-smoke-scoring',
+          closureReference: { sourceId: closure.source.sourceId, proposalHash: actorHash(closure.proposal) },
+          evidence: { schemaVersion: 1, sourceKind: 'owned_ground_out',
+            sourceEventId: 'native-live-smoke-ground-out', playId: physicalEnd.playId,
+            closureId: closure.source.sourceId, batterRunnerId },
+        };
+      },
     });
+    progress('owned ground-out scorer durably applied');
+    if (evidenceDirectory) writeFileSync(join(evidenceDirectory, 'receipt.json'), JSON.stringify(receipt, null, 2), { flag: 'wx' });
     expect(receipt).toMatchObject({ authority: 'NODE_NATIVE_PHYSICAL_FAIR_GROUND_OUT', gameId: 'game-1',
       playId: 7, physicalPitchSourceId: 'pitch-0', physicalEndSourceId: 'physical-end',
-      officialReceipt: { previousPlayId: 7, durableRevision: 1 },
+      officialReceipt: { previousPlayId: 7, durableRevision: 1,
+        appliedMatchState: { outs: 1, playId: 8, balls: 0, strikes: 0,
+          bases: { first: null, second: null, third: null } } },
       scoring: { record: { classification: 'ground_out', runsScored: 0, hitsCredited: 0, errorsCharged: 0 } } });
 
     // Owners were closed by the harness. Independently reopen the real disk
@@ -153,6 +172,7 @@ fullNative('accepts the original sealed physically fielded fair-ground first-bas
         .toEqual({ n: 1 });
     } finally { reopened.close(); }
   } finally {
+    if (evidenceDirectory) copyFileSync(path, join(evidenceDirectory, 'native-physical-live.sqlite'), constants.COPYFILE_EXCL);
     rmSync(dir, { recursive: true, force: true });
   }
 }, 350_000);

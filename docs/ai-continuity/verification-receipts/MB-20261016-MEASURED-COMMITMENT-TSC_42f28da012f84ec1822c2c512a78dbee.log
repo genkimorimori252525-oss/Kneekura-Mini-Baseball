@@ -1,0 +1,7 @@
+src/core/world/psychology/batting/MeasuredBattingCommitment.test.ts(26,70): error TS2551: Property 'swingKinematicsV1' does not exist on type 'Readonly<{ startTick: number; endTick: number; ticksPerSecond: number; stateAtStart: Readonly<{ pose: Readonly<{ grip: Readonly<{ x: number; y: number; z: number; }>; tip: Readonly<{ x: number; y: number; z: number; }>; }>; linearVelocity: Readonly<...>; angularVelocity: Readonly<...>; }>; physical: Readonly<...>; k...'. Did you mean 'kinematicsV1'?
+src/core/world/psychology/batting/MeasuredBattingCommitment.test.ts(71,55): error TS2540: Cannot assign to 'handedness' because it is a read-only property.
+src/core/world/psychology/batting/MeasuredBattingCommitment.test.ts(72,75): error TS2540: Cannot assign to 'batLengthM' because it is a read-only property.
+src/core/world/psychology/batting/MeasuredBattingCommitment.test.ts(73,75): error TS2540: Cannot assign to 'playbackRate' because it is a read-only property.
+src/core/world/psychology/batting/MeasuredBattingCommitment.test.ts(74,55): error TS2540: Cannot assign to 'repertoireVersion' because it is a read-only property.
+src/core/world/psychology/batting/MeasuredBattingCommitment.test.ts(75,53): error TS2704: The operand of a 'delete' operator cannot be a read-only property.
+src/core/world/psychology/batting/MeasuredBattingCommitment.test.ts(76,94): error TS2540: Cannot assign to 'tick' because it is a read-only property.

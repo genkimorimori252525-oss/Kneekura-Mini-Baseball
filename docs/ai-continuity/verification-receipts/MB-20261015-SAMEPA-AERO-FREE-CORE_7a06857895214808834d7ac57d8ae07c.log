@@ -1,0 +1,17 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/SamePlateAppearancePhysicalFieldActions.test.ts (13 tests) 1645ms
+   ✓ FS02 all nine original defenders execute including cover after a genuinely moved and locally perceived handler 698ms
+ ✓ src/core/sim/ball/BattedWorldFieldMotionCheckpoint.test.ts (10 tests) 34ms
+ ✓ src/core/sim/ball/SourceBattedWorldContacts.test.ts (7 tests) 861ms
+ ✓ src/core/sim/ball/SourceImpactEscapeV3.test.ts (5 tests) 174ms
+ ✓ src/host/world/SamePlateAppearancePhysicalEpisode.test.ts (6 tests) 14ms
+ ✓ src/core/sim/ball/SourceBattedFieldMotion.test.ts (3 tests) 107ms
+ ✓ src/host/world/SamePlateAppearanceBallPhysics.test.ts (2 tests) 7ms
+
+ Test Files  7 passed (7)
+      Tests  46 passed (46)
+   Start at  07:32:40
+   Duration  15.32s (transform 5.22s, setup 0ms, collect 10.91s, tests 2.84s, environment 1ms, prepare 503ms)
+

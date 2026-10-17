@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-PITCH-1000-POPULATION",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "../live-pitch-audit-v1/audit.mjs",
+    "docs/demos/measured-bat-motions.json",
+    "../../outputs/verification-live-pitch-1000-v1",
+    "1000"
+  ],
+  "observed_at": "2026-10-17T00:04:30.071+00:00",
+  "elapsed_ms": 65922,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-PITCH-1000-POPULATION_a2bba8b911d242c59ced0dbedd4b7499.log",
+  "output_sha256": "c77aa26e14e330f66e3f243002e169e716e4aebcecaab4903c2179d7115abab6",
+  "receipt_id": "MB-20261017-LIVE-PITCH-1000-POPULATION_a2bba8b911d242c59ced0dbedd4b7499"
+}

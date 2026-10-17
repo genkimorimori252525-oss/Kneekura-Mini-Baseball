@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-PACKAGE-NATIVE-RESERVATION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../package-delivery.py"
+  ],
+  "observed_at": "2026-10-15T22:22:00.375+00:00",
+  "elapsed_ms": 24360,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-PACKAGE-NATIVE-RESERVATION_d56148a9019b4df0954b40671d51980b.log",
+  "output_sha256": "3dfc0b0d99b293ce7100a129b9215d5074e56a832986dc058065dde3362ba526",
+  "receipt_id": "MB-20261016-PACKAGE-NATIVE-RESERVATION_d56148a9019b4df0954b40671d51980b"
+}

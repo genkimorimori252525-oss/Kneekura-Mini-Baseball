@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-PACKAGE-JOINT-WORKLOAD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../package-delivery.py"
+  ],
+  "observed_at": "2026-10-16T15:26:38.883+00:00",
+  "elapsed_ms": 58422,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-PACKAGE-JOINT-WORKLOAD_c978e41be28449deac6afc7cf97f5f8d.log",
+  "output_sha256": "f225ec0c6de7cd010e95ff2278dfc43b91c1b506aa2175128d2d46ca0116dfbf",
+  "receipt_id": "MB-20261017-PACKAGE-JOINT-WORKLOAD_c978e41be28449deac6afc7cf97f5f8d"
+}

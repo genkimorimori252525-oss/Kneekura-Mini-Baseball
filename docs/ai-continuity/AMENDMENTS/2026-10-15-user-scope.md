@@ -1,0 +1,5 @@
+# MB-20261015 human scope
+
+The user asked to continue the Mini Baseball implementation and supplied v27 HTML and a new bat image. On 2026-10-15 JST they explicitly answered "うむ。やってくれ。すでに修正されてるものもあるかもしれないね。まあGithubに書いてるだろう。やってくれ" to the proposed integrated Core/Host/presentation change and generated verification/HTML scope. Existing implementations are reused. Settings, lockfiles, secrets and unauthorized main merge are outside the approved scope. This record is chat evidence, not a strict external charter approval receipt.
+
+Subsequent human scope: bat-trajectory tuner and SI player maker, separate actual ability from population-derived NPB/MLB/NLB/KBO display; JSON player/settings/cohort round trip; forensic physics/traits/ability audit; smaller depth-aware dot ball, overlapping overhead names with runner priority, live-play pitcher-zone hide. Human answer: "1つのメーカーに2つの切替を置く構成で進める". Later principle: "エンジンでは現実の野球がおこなわれてて、それをこのような画質のカメラで中継している". This is an explicit design direction; it does not turn legacy prototype matches or pending Native official events into verified reality.

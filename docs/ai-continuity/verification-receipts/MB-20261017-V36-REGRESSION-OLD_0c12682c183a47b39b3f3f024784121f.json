@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V36-REGRESSION-OLD",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v36-results.mjs",
+    "../../outputs/ばせぼーるlv35_TBD_vs_LAD_俯瞰と左右スイング修正版.html",
+    "../../outputs/verification-v36-results-old"
+  ],
+  "observed_at": "2026-10-17T02:22:59.270+00:00",
+  "elapsed_ms": 6827,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V36-REGRESSION-OLD_0c12682c183a47b39b3f3f024784121f.log",
+  "output_sha256": "8c9ff7a9eaad92fe5cf7d45439aa1008243c63debc6b45ca786a2b912114e3ba",
+  "receipt_id": "MB-20261017-V36-REGRESSION-OLD_0c12682c183a47b39b3f3f024784121f"
+}

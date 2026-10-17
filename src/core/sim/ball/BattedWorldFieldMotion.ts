@@ -78,10 +78,19 @@ export const deriveBattedWorldFieldMotion = (raw: BattedWorldFieldMotionInput): 
 const executeFieldMotion = (input: Pick<BattedWorldFieldMotionInput, 'response' | 'geometry' | 'cursor' | 'carrierPlayerId' | 'throughTick'>,
   actors: readonly BallWorldMotionActor[], retained = false, exactThroughElapsedSeconds?: number): BattedWorldFieldMotion => {
   const moment = input.cursor.moment, p = input.response.world.parameters, geometry = input.geometry;
+  if (!!input.cursor.sourceCurve !== !!input.response.world.sourceCurve) throw new Error('nonlinear field Source descriptor was dropped');
+  if (input.cursor.sourceCurve && (JSON.stringify(input.cursor.sourceCurve.profile) !== JSON.stringify(input.response.world.sourceCurve!.profile)
+    || input.cursor.sourceCurve.initial.originTick !== input.response.world.sourceCurve!.initial.originTick
+    || moment.originTick !== input.response.world.sourceCurve!.initial.originTick)) throw new Error('nonlinear field Source profile or root clock differs');
+  if (input.cursor.sourceCurve && input.carrierPlayerId !== null) throw new Error('unsupported nonlinear Source carried field motion');
+  const endpoint = exactThroughElapsedSeconds ?? Math.max(moment.elapsedSeconds, (input.throughTick - moment.originTick) / p.ticksPerSecond);
+  const cursor = input.cursor.sourceCurve ? { ...input.cursor, sourceCurve: { ...input.cursor.sourceCurve,
+    throughElapsedSeconds: Math.max(input.cursor.sourceCurve.throughElapsedSeconds, endpoint) } } : input.cursor;
   const previousBaseContacts = input.cursor.previousContacts.flatMap((c) => { const id = baseIdFromCollider(c); return id ? [id] : []; });
   const previousContacts = input.cursor.previousContacts.filter((c) => !baseIdFromCollider(c));
   const query = { moment, actors, parameters: p, surfaces: input.response.world.surfaces, previousContacts,
-    bases: geometry.bases, previousBaseContacts };
+    bases: geometry.bases, previousBaseContacts,
+    ...(cursor.sourceCurve ? { sourceCurve: cursor.sourceCurve, sourceSide: cursor.sourceSide ?? 'outgoing' as const } : {}) };
   if (input.carrierPlayerId !== null) {
     const glove = actors.find((a) => a.playerId === input.carrierPlayerId && a.primitive.role === 'glove');
     if (!glove) throw new Error('actual field carried glove is missing');
@@ -113,7 +122,7 @@ const executeFieldMotion = (input: Pick<BattedWorldFieldMotionInput, 'response' 
   const responseInput: BattedBallContactResponseInput = { ...input.response, surfaces: [...input.response.surfaces,
     ...ids.map((id) => ({ surfaceId: battedWorldBaseSurfaceId(id), material: geometry.baseModels[id].material }))] };
   if (world.kind === 'boundary' && !('phase' in world)) throw new Error('free actual field phase is missing');
-  const response = respondToBattedWorldBoundary(responseInput, input.cursor, world as BallWorldContinuation);
+  const response = respondToBattedWorldBoundary(responseInput, cursor, world as BallWorldContinuation);
   return freeze({ motion: { actors, carrierPlayerId: null, world, response, cursor: response.cursor },
     baseContacts: field.kind === 'boundary' ? field.contacts.filter((c): c is BallWorldBaseBoundaryContact => c.kind === 'base') : [] });
 };
@@ -126,7 +135,8 @@ export const deriveInitialBattedWorldFieldMotion = (raw: InitialBattedWorldField
   }
   const initial = input.response.world.flight.initialBall;
   return deriveBattedWorldFieldMotion({ ...input, actors: input.response.world.actors, carrierPlayerId: null,
-    cursor: { moment: { originTick: initial.tick, elapsedSeconds: 0, ball: initial }, previousContacts: [] } });
+    cursor: { moment: { originTick: initial.tick, elapsedSeconds: 0, ball: initial }, previousContacts: [],
+      ...(input.response.world.sourceCurve ? { sourceCurve: input.response.world.sourceCurve, sourceSide: 'incoming' as const } : {}) } });
 };
 
 export type BattedWorldFieldMotionCheckpointInput = Omit<BattedWorldFieldMotionInput, 'throughTick'> & Readonly<{
@@ -202,6 +212,11 @@ const checkpointEndpoint = (field: BattedWorldFieldMotion, input: BattedWorldFie
   const { motion } = field;
   // Only a contact-free result proves the requested endpoint; never normalize a collision occurrence.
   if (motion.world.kind === 'boundary') return field;
+  if (input.cursor.sourceCurve) {
+    if (motion.world.moment.elapsedSeconds !== (input.checkpointThroughTick - input.cursor.moment.originTick) / input.response.world.parameters.ticksPerSecond
+      || motion.world.moment.ball.tick !== input.checkpointThroughTick || !motion.cursor) throw new Error('nonlinear field Source endpoint differs');
+    return field;
+  }
   const moment = { ...motion.world.moment, elapsedSeconds: (input.checkpointThroughTick - input.cursor.moment.originTick) / input.response.world.parameters.ticksPerSecond,
     ball: { ...motion.world.moment.ball, tick: input.checkpointThroughTick } };
   if (!motion.cursor) throw new Error('contact-free actual field checkpoint lacks its cursor');

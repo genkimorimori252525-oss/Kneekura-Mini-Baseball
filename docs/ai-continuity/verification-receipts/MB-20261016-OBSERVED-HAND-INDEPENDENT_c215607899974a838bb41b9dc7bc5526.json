@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OBSERVED-HAND-INDEPENDENT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-observed-launch-readback-v2/readback.mjs",
+    "../../outputs/verification-observed-initial-adoption-v3/launch.sqlite",
+    "../../outputs/verification-observed-initial-adoption-v3/expected.json",
+    "../../outputs/verification-observed-initial-adoption-v3/reference.json",
+    "../../outputs/verification-observed-initial-adoption-v3/independent-readback.json"
+  ],
+  "observed_at": "2026-10-15T23:27:35.478+00:00",
+  "elapsed_ms": 1202,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OBSERVED-HAND-INDEPENDENT_c215607899974a838bb41b9dc7bc5526.log",
+  "output_sha256": "d2bccc0d91c84823cb0490792f6d0dd8c435029c9dc67e36fa3401233d579453",
+  "receipt_id": "MB-20261016-OBSERVED-HAND-INDEPENDENT_c215607899974a838bb41b9dc7bc5526"
+}

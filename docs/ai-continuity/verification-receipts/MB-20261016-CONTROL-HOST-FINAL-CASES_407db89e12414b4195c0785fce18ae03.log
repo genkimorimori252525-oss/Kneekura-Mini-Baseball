@@ -1,0 +1,16 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/SamePlateAppearanceSourceControlV1.test.ts (6 tests) 34513ms
+   ✓ derives nine plans from original models/decisions and executes beyond a single control step 3982ms
+   ✓ replays stored control checkpoints and matches an uninterrupted span without issuing the team again 12404ms
+   ✓ enforces the original observation deadline and rejects old version, subset, changed model and lineage 6929ms
+   ✓ rejects stored plan or reference mutation rather than restoring a caller cursor or plan 6040ms
+   ✓ stops at actual moving-glove contact and keeps finite control coverage without granting custody 4169ms
+   ✓ derives attended/peripheral deadlines from actual sample times and rejects clock mismatches 988ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  05:53:57
+   Duration  47.18s (transform 8.75s, setup 0ms, collect 12.22s, tests 34.51s, environment 0ms, prepare 128ms)
+

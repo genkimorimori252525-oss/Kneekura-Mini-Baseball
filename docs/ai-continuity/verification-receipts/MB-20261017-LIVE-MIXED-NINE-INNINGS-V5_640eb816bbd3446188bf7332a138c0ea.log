@@ -1,0 +1,43 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/GroundWallRollingCurveV1.test.ts (4 tests) 25ms
+ ✓ src/integration/browser/PlayableMatchRulesV1.test.ts (21 tests) 12ms
+ ✓ src/integration/browser/LivePitchV1.test.ts (11 tests) 873ms
+stdout | src/core/sim/fielding/LiveFieldForecastV1.test.ts > measures process CPU outside the browser-neutral helper while reusing one kernel for nine defenders
+{"benchmark":"EXPLICIT_20_OBSERVATIONS_9_DEFENDERS_8_SECOND_HYPOTHESES","hypotheses":20,"sharedQueries":1440,"wallMilliseconds":834.8767,"processCpuUserMilliseconds":985,"processCpuSystemMilliseconds":63,"meanBuildWallMilliseconds":41.527285000000006,"mean72SamplesWallMilliseconds":0.039109999999840286}
+
+ ✓ src/core/sim/fielding/LiveFieldForecastV1.test.ts (5 tests) 1078ms
+   ✓ measures process CPU outside the browser-neutral helper while reusing one kernel for nine defenders 836ms
+ ✓ src/core/sim/fielding/LiveFieldPlayV1.test.ts (14 tests) 3057ms
+   ✓ runs the complete actual base path after a fair over-fence flight instead of teleporting runners 333ms
+   ✓ derives two force retirements from actual pickup, two throws, receptions and base contacts 388ms
+   ✓ catches an ordinary high center-field fly using a causal aero-ground forecast 600ms
+   ✓ keeps bodies, independent gloves and a possessed ball inside the physical fence through pickup and release 641ms
+ ❯ src/integration/browser/LiveBaseballMatchV1.test.ts (4 tests | 1 failed) 76364ms
+   ✓ does not pre-generate an initial pitch, and freezes observations independently of later issues 327ms
+   × plays a mixed physical game through regulation without a replay frontier or old engine result 73132ms
+     → live baseball match: physical field continuation unresolved: numerical_contact_refinement_required (pitch 133, seed 2468)
+   ✓ does not derive SI or alter results from presentation names or league labels 2552ms
+   ✓ rejects malformed physical rosters and mutating a frozen result 351ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LiveBaseballMatchV1.test.ts > plays a mixed physical game through regulation without a replay frontier or old engine result
+Error: live baseball match: physical field continuation unresolved: numerical_contact_refinement_required (pitch 133, seed 2468)
+ ❯ Object.issuePitch src/integration/browser/LiveBaseballMatchV1.ts:144:36
+    142|       field=simulateLiveFieldPlayV1({ball:outgoingMoment,orientation:p…
+    143|         field:{bases:LIVE_MATCH_BASES_V1,...park},fielders,runners:run…
+    144|       if(!field.end.complete)throw new Error('live baseball match: phy…
+       |                                    ^
+    145|         {cause:{outgoingMoment,fielders,runners:runnerSpecs,outs:befor…
+    146|       result=reducePlayableMatchV1({match:beforeMatch,batterRunnerId:c…
+ ❯ src/integration/browser/LiveBaseballMatchV1.test.ts:14:89
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 5 passed (6)
+      Tests  1 failed | 58 passed (59)
+   Start at  09:33:11
+   Duration  77.31s (transform 737ms, setup 0ms, collect 1.95s, tests 81.41s, environment 1ms, prepare 1.06s)
+

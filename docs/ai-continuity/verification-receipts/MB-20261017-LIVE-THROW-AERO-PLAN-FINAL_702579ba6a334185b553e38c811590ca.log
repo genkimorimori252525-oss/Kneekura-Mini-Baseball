@@ -1,0 +1,13 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+stdout | src/core/sim/fielding/LiveThrowPlanV1.test.ts > remains deterministic and reports performance outside the issued command
+{"benchmark":"70M_AERO_THROW_COMMAND","wallMilliseconds":74.75409999999988,"candidateCount":4,"solverEvaluationCount":19,"shootingIntegrationStepUpperBound":10047,"verificationKernelBuilds":1,"timingBasis":"MONOTONIC_WALL_CLOCK_NOT_PROCESS_CPU","processCpuUserMilliseconds":78,"processCpuSystemMilliseconds":15}
+
+ ✓ src/core/sim/fielding/LiveThrowPlanV1.test.ts (6 tests) 477ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  09:49:46
+   Duration  1.20s (transform 173ms, setup 0ms, collect 243ms, tests 477ms, environment 0ms, prepare 133ms)
+

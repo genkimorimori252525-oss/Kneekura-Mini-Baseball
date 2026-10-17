@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-DELIVERY-DRIVER-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/native-game/build-measured-model-readback.mjs",
+    "../native-observed-initial-cut-v2",
+    "observed_cut_native"
+  ],
+  "observed_at": "2026-10-15T23:44:57.421+00:00",
+  "elapsed_ms": 843,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-DELIVERY-DRIVER-BUILD_e8c6bfaf4ccd4d4dbb8d3e200a148d3f.log",
+  "output_sha256": "6360ddae7f3f6376d776002b0df15e138b62aabc18493fe3ab1df931841eb1c4",
+  "receipt_id": "MB-20261016-INITIAL-DELIVERY-DRIVER-BUILD_e8c6bfaf4ccd4d4dbb8d3e200a148d3f"
+}

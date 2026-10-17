@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V37-ANIMATIONS-V1",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v37-animations.mjs",
+    "../../outputs/ばせぼーるlv37_TBD_vs_LAD_アニメーション復元版.html",
+    "../../outputs/verification-v37-animations-v1"
+  ],
+  "observed_at": "2026-10-17T02:50:57.751+00:00",
+  "elapsed_ms": 8531,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V37-ANIMATIONS-V1_5ca95fc5bf8e4ec29e3a48855a9d1da3.log",
+  "output_sha256": "c3dba829603686241d98e49f768139177b473311177f42b40e87ed7c00fd32e6",
+  "receipt_id": "MB-20261017-V37-ANIMATIONS-V1_5ca95fc5bf8e4ec29e3a48855a9d1da3"
+}

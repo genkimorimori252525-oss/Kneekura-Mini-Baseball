@@ -1,5 +1,7 @@
 # 次担当AIへ渡す実装開始指示（そのままコピー可能）
 
+> **2026-10-17追補：[最新の再開入口](../2026-10-17-LATEST.md)を先に読んでください。** 公開能力メーカー・通常試合v41・実測OBPへの移行・保存直前の検証と未完は追補が最新です。以下の原要求・禁止事項は、最新人間指示と衝突しない範囲で保持します。
+
 Kneekura Mini Baseball の既存計画を引き継ぎ、TBD（ホーム）対LAD（ビジター）を正式な世界先行型 Match Core でプレイできる完成試合へ向けて、既存コードを保全しながら一括実装・一括検証してください。
 
 **最初に**同ディレクトリの 00-START-HERE.md、01-USER-REQUIREMENTS-AND-DECISION-HISTORY.md、02-TECHNICAL-STATE-AND-EVIDENCE.md、03-INTEGRATED-IMPLEMENTATION-PLAN.md、04-ACCEPTANCE-AND-OPERATIONS.md をすべて読んでください。これらはユーザーの最新指示と約束・過去の取り下げ、現在の実装済みと未実装、今後の受入基準を網羅します。古い設計文書との衝突では最新ユーザー指示を優先します。

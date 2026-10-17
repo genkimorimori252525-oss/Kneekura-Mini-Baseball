@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-HOST-MOTOR-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "npx.cmd",
+    "vitest",
+    "run",
+    "src/host/world/SamePlateAppearanceSourceMotorFieldV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T18:30:41.868+00:00",
+  "elapsed_ms": 7438,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-HOST-MOTOR-RED_8560f0b09dd1467ea7d39ae31349029d.log",
+  "output_sha256": "bb767d03bddeb2e0983d2b42e45f860f0fd8df81dc5fb23d59382b011931f7f0",
+  "receipt_id": "MB-20261016-SOURCE-HOST-MOTOR-RED_8560f0b09dd1467ea7d39ae31349029d"
+}

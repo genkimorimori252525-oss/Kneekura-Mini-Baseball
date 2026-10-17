@@ -1,0 +1,1 @@
+src/integration/native-game/AuthoredNativeMatchV1.test-support.ts(69,9): error TS6133: 'batter' is declared but its value is never read.

@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "task_id": "LIVE_PHYSICAL_ROSTER_ADAPTER_STRICT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--strict",
+    "--noUnusedLocals",
+    "--noUnusedParameters",
+    "--skipLibCheck",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "bundler",
+    "--types",
+    "node,vitest/globals",
+    "src/integration/browser/LivePhysicalRosterV1.ts",
+    "src/integration/browser/LivePhysicalRosterV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T03:08:58.284+00:00",
+  "elapsed_ms": 1953,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/LIVE_PHYSICAL_ROSTER_ADAPTER_STRICT_72942cd8b0a04013aad9232ad327b351.log",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "receipt_id": "LIVE_PHYSICAL_ROSTER_ADAPTER_STRICT_72942cd8b0a04013aad9232ad327b351"
+}

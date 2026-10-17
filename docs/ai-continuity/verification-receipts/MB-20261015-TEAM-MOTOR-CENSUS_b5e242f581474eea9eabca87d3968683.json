@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-TEAM-MOTOR-CENSUS",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/SamePlateAppearancePhysicalFieldActions.test.ts",
+    "src/host/world/SamePlateAppearanceTeamMotorSelectionV1.test.ts"
+  ],
+  "observed_at": "2026-10-14T22:41:43.182+00:00",
+  "elapsed_ms": 11250,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-TEAM-MOTOR-CENSUS_b5e242f581474eea9eabca87d3968683.log",
+  "output_sha256": "2edd61676372071a389973756c2215daf1075e3448dc8d3df006a651615dc7bb",
+  "receipt_id": "MB-20261015-TEAM-MOTOR-CENSUS_b5e242f581474eea9eabca87d3968683"
+}

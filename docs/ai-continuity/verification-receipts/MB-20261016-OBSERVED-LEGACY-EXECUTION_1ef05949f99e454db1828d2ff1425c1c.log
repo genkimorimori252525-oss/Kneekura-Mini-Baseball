@@ -1,0 +1,19 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/SamePlateAppearanceDispatchExecution.test.ts (9 tests) 247672ms
+   ✓ AX01 declared TAKE appends exactly five owned rows and replays unchanged after reopening 11593ms
+   ✓ AX02 accepted action and calibration readers authenticate exact saved originals without fresh admission 470ms
+   ✓ AX03 consumer Source rejects foreign original-owner refs and future result fields 10020ms
+   ✓ AX04 missing any committed companion rejects replay and never repairs the retained rows 15918ms
+   ✓ AX05 each owned INSERT failure rolls back its whole prefix and a fresh retry succeeds 33755ms
+   ✓ AX06 forced commit after an INSERT retains that durable prefix and retires without false rollback or repair 4501ms
+   ✓ AX07 nonempty physical cut and ten explicit TOTALs project once from the original reservation and bind new32 responses 32946ms
+   ✓ AX08 lost COMMIT acknowledgement preserves all five durable rows and reopen authenticates the full result 9221ms
+   ✓ AX09 real retained-body setup admits one second TAKE from the current cumulative view and preserves the PA/count lineage 88923ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  08:23:57
+   Duration  262.25s (transform 10.53s, setup 0ms, collect 14.34s, tests 247.67s, environment 0ms, prepare 74ms)
+

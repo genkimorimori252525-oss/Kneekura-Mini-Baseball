@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/SamePlateAppearanceBattingInvocationIntegration.test.ts (1 test) 460376ms
+   ✓ BI01 original capture, delayed delivery, explicit assessment and actual World CAS feed the effective batting calculation and retained TAKE successor 460375ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  20:34:00
+   Duration  467.45s (transform 4.39s, setup 0ms, collect 6.83s, tests 460.38s, environment 0ms, prepare 77ms)
+

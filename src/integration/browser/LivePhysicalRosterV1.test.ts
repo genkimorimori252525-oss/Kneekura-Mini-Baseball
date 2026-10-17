@@ -1,0 +1,113 @@
+import { expect, it } from 'vitest';
+import { defaultWorkbenchPlayer } from './WorkbenchPlayer';
+import { createLiveBaseballMatchV1, LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1 } from './LiveBaseballMatchV1';
+import { liveMatchFixture } from './LiveBaseballMatchV1.test-support';
+import { applyLivePhysicalRosterV1 } from './LivePhysicalRosterV1';
+
+const players = [{ playerId: 'batter-a', name: 'Authored player', heightMeters: 1.8, bats: 'R' as const }];
+const packet = (entry: Record<string, unknown>) => ({ players, roster: { version: 'live_physical_roster_v1', sourceId: 'test-roster',
+  entries: [{ playerId: 'batter-a', sourceId: 'test-authoring', ...entry }] } });
+
+it('projects explicit course judgment precision independently of chase margin and swing preference', () => {
+  const raw = packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', zoneJudgmentStdMeters: .12 } }), before = JSON.stringify(raw),
+    projected = applyLivePhysicalRosterV1(raw);
+  expect(projected.players[0].physical.zoneJudgmentStdMeters).toBe(.12);
+  expect(projected.players[0].physical.chaseMarginMeters).toBe(LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1.chaseMarginMeters);
+  expect(projected.audit.players[0].projected).toContainEqual(expect.objectContaining({ inputPath: 'physical.zoneJudgmentStdMeters', targetPath: 'zoneJudgmentStdMeters', value: .12 }));
+  expect(JSON.stringify(raw)).toBe(before);
+  for (const zoneJudgmentStdMeters of [-.001, .60001, NaN, Infinity]) expect(() => applyLivePhysicalRosterV1(packet({
+    physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', zoneJudgmentStdMeters } }))).toThrow();
+  const match = liveMatchFixture();
+  expect(() => createLiveBaseballMatchV1({ ...match, players: match.players.map((p, i) => i ? p : { ...p,
+    physical: { ...LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1, zoneJudgmentStdMeters: -.1 } }) })).toThrow();
+});
+
+it('projects explicit maker SI, keeps the binding and original data, and exposes remaining unsupported controls', () => {
+  const maker = defaultWorkbenchPlayer(), input = packet({ workbenchPlayer: maker }), before = JSON.stringify(input);
+  const result = applyLivePhysicalRosterV1(input), physical = result.players[0].physical!;
+  expect(physical.batLengthM).toBe(maker.bat.lengthM);
+  expect(physical.batMassKg).toBe(maker.bat.massKg);
+  expect(physical.maximumSweetSpotSpeedMps).toBe(maker.capability.maximumSweetSpotSpeedMps);
+  expect(physical.targetSweetSpotSpeedMps).toBe(maker.swing.speedMps);
+  expect(physical.motorLatencySeconds).toBe(maker.capability.motorLatencyTicks / 1e6);
+  expect(physical.technicalTimingOffsetSeconds).toBe(maker.capability.technicalTimingOffsetTicks / 1e6);
+  expect(physical.timingStdSeconds).toBe(maker.capability.timingErrorTicks / 1e6);
+  expect(physical.aimStdMeters).toBe(maker.capability.positionErrorMeters);
+  expect(physical.topSpeedMps).toBe(maker.capability.runSpeedMps);
+  expect(physical.throwSpeedMps).toBe(maker.capability.throwSpeedMps);
+  expect(physical.releaseSpeedMps).toBe(maker.capability.pitchSpeedMps);
+  expect(physical.swingDecision).toEqual(maker.decision);
+  expect(physical.badBallControl).toBe(maker.traits.badBallControl);
+  expect(result.players[0].playerId).toBe('batter-a');
+  expect(result.audit.players[0].sourcePlayerId).toBe(maker.identity.playerId);
+  expect(result.audit.players[0].unsupported.map(x => x.path)).toContain('workbenchPlayer.body.massKg');
+  expect(result.audit.nativeAuthentication).toBe(false); expect(result.audit.projectionOnly).toBe(true);
+  expect(JSON.stringify(input)).toBe(before); expect(Object.isFrozen(result.players[0].physical)).toBe(true);
+});
+it('converts an explicit 151 km/h maximum as a limit, without declaring a measured mean or spin', () => {
+  const result = applyLivePhysicalRosterV1(packet({ maximumPitchSpeedKmh: 151 }));
+  expect(result.players[0].physical!.maximumPitchSpeedMps).toBe(151 / 3.6);
+  expect(result.players[0].physical!.releaseSpeedMps).toBe(LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1.releaseSpeedMps);
+  expect(result.players[0].physical!.spinRadPerSecond).toEqual(LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1.spinRadPerSecond);
+  expect(result.audit.players[0].projected).toContainEqual(expect.objectContaining({ inputPath: 'maximumPitchSpeedKmh', targetPath: 'maximumPitchSpeedMps', conversion: 'km/h / 3.6' }));
+});
+it('passes explicit SI and defensive decision latency without relative rating conversion', () => {
+  const result = applyLivePhysicalRosterV1(packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', topSpeedMps: 9.1,
+    defensiveDecisionSeconds: .27, spinRadPerSecond: { x: -200, y: 30, z: 4 } } }));
+  expect(result.players[0].physical).toMatchObject({ topSpeedMps: 9.1, defensiveDecisionSeconds: .27, spinRadPerSecond: { x: -200, y: 30, z: 4 } });
+});
+it('applies an explicit editable common height and refuses conflicting authoring sources', () => {
+  const result = applyLivePhysicalRosterV1(packet({ heightMeters: 1.94, physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', throwDirectionStdRadians: .09 } }));
+  expect(result.players[0].heightMeters).toBe(1.94); expect(result.players[0].physical.throwDirectionStdRadians).toBe(.09);
+  expect(result.audit.players[0].projected).toContainEqual(expect.objectContaining({ inputPath: 'heightMeters', targetPath: 'heightMeters', value: 1.94 }));
+  expect(() => applyLivePhysicalRosterV1(packet({ heightMeters: 1.94, workbenchPlayer: defaultWorkbenchPlayer() }))).toThrow('conflicting body heights');
+});
+it('retains all uncalibrated relative ratings and trait labels as visible unsupported entries', () => {
+  const result = applyLivePhysicalRosterV1(packet({ legacyRelativeRatings: { power: 94, vision: 96, badBallControl: 98 }, traitLabels: ['悪球打ち', 'チャンス'] }));
+  expect(result.players[0].physical).toEqual(LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1);
+  expect(result.audit.players[0].unsupported).toEqual(expect.arrayContaining([
+    expect.objectContaining({ path: 'legacyRelativeRatings.power', value: 94 }),
+    expect.objectContaining({ path: 'legacyRelativeRatings.vision', value: 96 }),
+    expect.objectContaining({ path: 'legacyRelativeRatings.badBallControl', value: 98 }),
+    expect.objectContaining({ path: 'traitLabels[0]', value: '悪球打ち' }),
+    expect.objectContaining({ path: 'traitLabels[1]', value: 'チャンス' }),
+  ]));
+});
+it('does not infer physical ability from the player name, league or maker display name', () => {
+  const maker = defaultWorkbenchPlayer(), one = applyLivePhysicalRosterV1(packet({ workbenchPlayer: maker }));
+  const renamed = { ...maker, identity: { ...maker.identity, name: 'Different name', leagueId: 'NLB' as const } };
+  const two = applyLivePhysicalRosterV1({ ...packet({ workbenchPlayer: renamed }), players: players.map(p => ({ ...p, name: 'Famous player' })) });
+  expect(two.players[0].physical).toEqual(one.players[0].physical);
+});
+it('feeds the imported limits, motor controls and retained throwing identity into an actual local Host pitch', () => {
+  const fixture=liveMatchFixture(2468),batter=fixture.teams[0].battingOrder[0],pitcher=fixture.teams[1].pitcherId,
+    projection=applyLivePhysicalRosterV1({players:fixture.players.map(p=>p.playerId===pitcher?{...p,throws:'L'}:p),
+      roster:{version:'live_physical_roster_v1',sourceId:'integration-author',entries:[
+        {playerId:batter,sourceId:'individual-bat',physical:{basis:'EXPLICIT_AUTHORED_SI_V1',targetSweetSpotSpeedMps:24,maximumSweetSpotSpeedMps:40,zoneJudgmentStdMeters:.12}},
+        {playerId:pitcher,sourceId:'individual-pitch',maximumPitchSpeedKmh:151}]}}),
+    host=createLiveBaseballMatchV1({...fixture,players:projection.players}),r=host.issuePitch({batting:'take',managedTeam:0,pitchType:'auto',location:'auto'}),
+    diagnostics=r.play.diagnostics as {individualControls:{maximumPitchSpeedMps:number;throwingSide:string;targetSweetSpotSpeedMps:number};zoneJudgment:{standardDeviationMeters:number;errorMeters:{x:number;y:number}};sourceDescriptor:{initial:{ball:{position:{x:number}}}}};
+  expect(diagnostics.individualControls.maximumPitchSpeedMps).toBe(151/3.6);
+  expect(diagnostics.individualControls.targetSweetSpotSpeedMps).toBe(24);
+  expect(diagnostics.zoneJudgment.standardDeviationMeters).toBe(.12);
+  expect(Math.hypot(diagnostics.zoneJudgment.errorMeters.x,diagnostics.zoneJudgment.errorMeters.y)).toBeGreaterThan(0);
+  expect(diagnostics.individualControls.throwingSide).toBe('L');expect(diagnostics.sourceDescriptor.initial.ball.position.x).toBe(-.18);
+  expect(r.speedKmh).toBeLessThanOrEqual(151);expect(r.play.call).not.toBeNull();expect(host.inspect().pitchCount).toBe(1);
+});
+it.each([
+  { physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', power: 94 } },
+  { physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', defensiveDecisionSeconds: -.1 } },
+  { physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', targetSweetSpotSpeedMps: 0 } },
+  { physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', badBallControl: 98 } },
+  { physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', swingDecision: { approach: 'AUTO', threshold: 2, aggressionWeight: .5 } } },
+  { physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', spinRadPerSecond: { x: 0, y: NaN, z: 2 } } },
+  { maximumPitchSpeedKmh: -1 },
+])('refuses malformed or mislabeled physical authoring %#', entry => {
+  expect(() => applyLivePhysicalRosterV1(packet(entry))).toThrow();
+});
+it('refuses ambiguous authoring, unknown players and duplicate bindings', () => {
+  expect(() => applyLivePhysicalRosterV1(packet({ workbenchPlayer: defaultWorkbenchPlayer(), physical: { basis: 'EXPLICIT_AUTHORED_SI_V1' } }))).toThrow();
+  const input = packet({ maximumPitchSpeedKmh: 151 });
+  expect(() => applyLivePhysicalRosterV1({ ...input, roster: { ...input.roster, entries: [{ ...input.roster.entries[0], playerId: 'missing' }] } })).toThrow();
+  expect(() => applyLivePhysicalRosterV1({ ...input, roster: { ...input.roster, entries: [input.roster.entries[0], input.roster.entries[0]] } })).toThrow();
+});

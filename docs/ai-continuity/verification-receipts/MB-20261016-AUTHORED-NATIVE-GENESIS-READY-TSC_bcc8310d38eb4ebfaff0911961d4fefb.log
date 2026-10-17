@@ -1,0 +1,2 @@
+src/integration/native-game/AuthoredNativeMatchV1.ts(107,55): error TS2339: Property 'initialWorldSourceId' does not exist on type 'AcceptedPhysicalPlateAppearanceActor'.
+  Property 'initialWorldSourceId' does not exist on type 'Readonly<{ sourceId: string; sourceVersion: string; gameId: string; playerId: string; }> & Readonly<{ activationApplicationId: string; }>'.

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OPENBIOMECHANICS-SELECTION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "python",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/select-openbiomechanics.py"
+  ],
+  "observed_at": "2026-10-15T17:02:35.126+00:00",
+  "elapsed_ms": 10938,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OPENBIOMECHANICS-SELECTION_d2a6a4c960d14a4cb90de962c1cf1411.log",
+  "output_sha256": "af02a11f621b16b10cab87bdb04a868e2ea8e9f344a30af5f4cc202b90879ca6",
+  "receipt_id": "MB-20261016-OPENBIOMECHANICS-SELECTION_d2a6a4c960d14a4cb90de962c1cf1411"
+}

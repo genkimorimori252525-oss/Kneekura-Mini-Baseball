@@ -1,0 +1,27 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/native-game/AuthoredMatchClockV1.test.ts (18 tests | 1 failed) 50ms
+   × AC09 registers all nine declared nominal models through their real Native owners and rereads without author callbacks 21ms
+     → world season club scope mismatch
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/native-game/AuthoredMatchClockV1.test.ts > AC09 registers all nine declared nominal models through their real Native owners and rereads without author callbacks
+Error: world season club scope mismatch
+ ❯ Object.initialize src/host/world/SqliteWorldSettlementStore.ts:281:15
+    279|           || !club.season.plan.competitionEditionIds.includes(
+    280|             input.schedule.seasonId))) {
+    281|         throw new Error('world season club scope mismatch');
+       |               ^
+    282|       }
+    283|       transaction(() => {
+ ❯ src/integration/native-game/AuthoredMatchClockV1.test.ts:165:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 17 passed (18)
+   Start at  04:26:05
+   Duration  6.78s (transform 4.01s, setup 0ms, collect 6.28s, tests 50ms, environment 0ms, prepare 143ms)
+

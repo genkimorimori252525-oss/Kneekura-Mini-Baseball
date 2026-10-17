@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-GITHUB-REBUILD-MAKER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-maker.mjs",
+    "../../work/github-publication-check/maker.html",
+    "--public-abilities"
+  ],
+  "observed_at": "2026-10-17T04:03:47.425+00:00",
+  "elapsed_ms": 233,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-GITHUB-REBUILD-MAKER_1aabef23905a4b059703130c13ec27f8.log",
+  "output_sha256": "178db04371a2f44d927419d51b00760bef6df0eaa7df53d479871e91c3ea3d63",
+  "receipt_id": "MB-20261017-GITHUB-REBUILD-MAKER_1aabef23905a4b059703130c13ec27f8"
+}

@@ -1,11 +1,12 @@
 import type { CanonicalWorldSnapshot } from '../../core/model/CanonicalWorldSnapshot';
-import { REFERENCE_BASEBALL_AERODYNAMICS } from '../../core/sim/ball/BaseballAerodynamics';
+import { REFERENCE_BASEBALL_AERODYNAMICS, calculateBaseballAerodynamics, type BaseballAerodynamicsParameters } from '../../core/sim/ball/BaseballAerodynamics';
 import { REALISTIC_BASEBALL_RIGID_BODY, type RigidBatPhysicalProperties } from '../../core/sim/contact/RigidBatBallContact';
 import { createSwingKinematicsTrajectoryV1 } from '../../core/sim/contact/SwingKinematicsV1';
 import { createRigidBatSwingWindowFromKinematicsV1 } from '../../core/sim/pitching/AerodynamicRigidBatSwingingPitchPhysicalResult';
-import type { AerodynamicPitchTrajectory } from '../../core/sim/pitching/AerodynamicPitchTrajectory';
+import { findAerodynamicPitchPlateCrossing, type AerodynamicPitchTrajectory } from '../../core/sim/pitching/AerodynamicPitchTrajectory';
 import type { AerodynamicRigidPitchAgainstBatterInput } from '../../core/sim/pitching/AerodynamicRigidPitchAgainstBatter';
 import type { NativeAerodynamicPhysicalPitchSource } from './NativeAerodynamicSession';
+import { DeterministicRng, fnv1a32 } from '../../core/rng/DeterministicRng';
 
 /**
  * EXHIBITION PHYSICS FIXTURE ONLY. It is deliberately NOT the uncalibrated
@@ -25,6 +26,15 @@ export type NativeAerodynamicReferenceFixtureInput = Readonly<{
   spinVectorRadPerSec?: Readonly<{ x: number; y: number; z: number }>;
   /** Fixture-authored material starting pose (NOT inferred from RPM). */
   releaseOrientation?: Readonly<{ w: number; x: number; y: number; z: number }>;
+  /** Explicit intended contact band along the same rigid bat, measured from
+   * grip to tip. Omitted preserves the old comparison fixture byte-for-byte. */
+  sweetSpotBand?: Readonly<{ minimumT: number; maximumT: number }>;
+  /** Controlled contact experiment only: target the physically calculated
+   * plate course instead of the legacy arbitrary fixed reference swing.
+   * This is not a production batter perception or batting-ability model. */
+  aimAtPlate?: boolean;
+  /** Same explicit force/torque profile for this pitch and its continuation. */
+  aerodynamics?: BaseballAerodynamicsParameters;
 }>;
 
 /** Input fixture for the real rigid-body contact resolver, not a player ability. */
@@ -60,6 +70,22 @@ export function createReferenceAerodynamicPhysicalSource(
         spec.releaseOrientation.y,spec.releaseOrientation.z) < 1e-10)) {
     throw new Error('Reference aerodynamic seam release orientation must be a valid quaternion.');
   }
+  if (spec.sweetSpotBand !== undefined
+    && (!Number.isFinite(spec.sweetSpotBand.minimumT) || !Number.isFinite(spec.sweetSpotBand.maximumT)
+      || spec.sweetSpotBand.minimumT <= 0 || spec.sweetSpotBand.maximumT >= 1
+      || spec.sweetSpotBand.minimumT > spec.sweetSpotBand.maximumT)) {
+    throw new Error('Reference sweet-spot band must be ordered and inside the rigid bat');
+  }
+  if (spec.aimAtPlate !== undefined && typeof spec.aimAtPlate !== 'boolean') {
+    throw new Error('Reference plate-aim option must be boolean');
+  }
+  const aerodynamicProfile = spec.aerodynamics ?? REFERENCE_BASEBALL_AERODYNAMICS;
+  if (aerodynamicProfile.ballMassKg !== REALISTIC_BASEBALL_RIGID_BODY.massKg
+    || aerodynamicProfile.ballRadiusM !== REALISTIC_BASEBALL_RIGID_BODY.radiusM) {
+    throw new Error('Reference flight and rigid contact must use the same physical baseball');
+  }
+  calculateBaseballAerodynamics({ x: 0, y: 0, z: -spec.pitchSpeedMps },
+    spec.spinVectorRadPerSec ?? { x: 15, y: 65, z: 0 }, aerodynamicProfile);
   return context => {
     const { pitcher, batter } = context.commandSession.command;
     const startTick = Math.max(
@@ -87,7 +113,7 @@ export function createReferenceAerodynamicPhysicalSource(
         ticksPerSecond: 1_000_000,
         integrationStepTicks: 500,
         gravityY: -9.81,
-        aerodynamics: REFERENCE_BASEBALL_AERODYNAMICS,
+        aerodynamics: aerodynamicProfile,
       },
     };
 
@@ -101,26 +127,33 @@ export function createReferenceAerodynamicPhysicalSource(
         ballRadiusMeters: REALISTIC_BASEBALL_RIGID_BODY.radiusM,
       };
     } else {
-      const midpoint = startTick + 470_000;
+      const crossing = spec.aimAtPlate ? findAerodynamicPitchPlateCrossing(trajectory, 0) : null;
+      if (spec.aimAtPlate && !crossing) throw new Error('Reference plate aim requires an actual course crossing');
+      const midpoint = crossing?.tick ?? startTick + 470_000;
+      const intended = crossing?.position ?? { x: 0.08, y: 0.95, z: 0 };
       const smoothSwing = createSwingKinematicsTrajectoryV1({
         startTick: midpoint - 75_000,
         contactTick: midpoint,
         endTick: midpoint + 65_000,
         ticksPerSecond: 1_000_000,
         batLengthM: 0.84,
-        sweetSpotT: 0.5,
+        sweetSpotT: spec.sweetSpotBand === undefined ? 0.5
+          : spec.sweetSpotBand.minimumT + (spec.sweetSpotBand.maximumT - spec.sweetSpotBand.minimumT)
+            * new DeterministicRng(fnv1a32(`${context.commandSession.matchSeed}:${context.commandSession.playId}:${context.ordinal}:sweet-spot`)).nextFloat(),
         start: {
-          sweetSpotPosition: { x: -0.1, y: 0.95, z: 0.45 },
+          sweetSpotPosition: crossing ? { x: intended.x - 0.18, y: intended.y, z: intended.z + 0.45 }
+            : { x: -0.1, y: 0.95, z: 0.45 },
           sweetSpotVelocity: { x: 0, y: 0, z: -1 },
           batAxis: { x: 1, y: 0, z: 0 },
         },
         contact: {
-          sweetSpotPosition: { x: 0.08, y: 0.95, z: 0 },
+          sweetSpotPosition: intended,
           sweetSpotVelocity: { x: 8, y: 0, z: -2 },
           batAxis: { x: 1, y: 0, z: 0 },
         },
         finish: {
-          sweetSpotPosition: { x: 0.45, y: 1.0, z: -0.3 },
+          sweetSpotPosition: crossing ? { x: intended.x + 0.37, y: intended.y + 0.05, z: intended.z - 0.3 }
+            : { x: 0.45, y: 1.0, z: -0.3 },
           sweetSpotVelocity: { x: 3, y: 0, z: 0 },
           batAxis: { x: 0, y: 0, z: 1 },
         },

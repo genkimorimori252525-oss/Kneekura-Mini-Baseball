@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-METADATA-FRESH-PREPARE",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/SqliteMetadataStatementScope.test.ts",
+    "src/host/world/SamePlateAppearanceMetadataCompilation.test.ts",
+    "src/host/world/SamePlateAppearanceContinuationReadPhase.test.ts",
+    "src/host/world/SamePlateAppearanceContinuationClaimReuse.test.ts",
+    "src/host/world/SqliteOwnershipMetadata.test.ts"
+  ],
+  "observed_at": "2026-10-15T16:47:44.982+00:00",
+  "elapsed_ms": 8968,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-METADATA-FRESH-PREPARE_c325318eb462467ab99810bf1d770b1a.log",
+  "output_sha256": "961ed52f38146b3d0f479e408e501d8f85863ab801a84fddb3e95f29dec3dc2a",
+  "receipt_id": "MB-20261016-METADATA-FRESH-PREPARE_c325318eb462467ab99810bf1d770b1a"
+}

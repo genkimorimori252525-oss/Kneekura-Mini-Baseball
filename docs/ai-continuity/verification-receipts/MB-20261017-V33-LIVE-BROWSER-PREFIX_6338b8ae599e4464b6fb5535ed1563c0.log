@@ -1,0 +1,21 @@
+{
+  "result": "PASS",
+  "artifactSha256": "446b33f089ebb135f1ad90cbc8c72315afd21d07d8fd74a67fe79a2c17610688",
+  "viewports": [
+    {
+      "width": 1200,
+      "cameras": 5,
+      "nineInningsFinished": false,
+      "pitchCount": 2,
+      "actualFieldPlays": null
+    },
+    {
+      "width": 390,
+      "cameras": 5,
+      "nineInningsFinished": false,
+      "pitchCount": 2,
+      "actualFieldPlays": null
+    }
+  ],
+  "evidence": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\verification-v33-live-browser-prefix-v3"
+}

@@ -676,6 +676,15 @@ export const createRigidBatStateFromBatterSwingState = (
   };
 };
 
+/** Geometry is also needed AFTER an impulse, when the contact is separating.
+ * It never invents a closing impulse or modifies either pose. */
+export const measureRigidBatBallGeometry = (pitch:PitchWorldState,bat:RigidBatState,ball:RigidBaseballProperties) => {
+  validateBat(bat);validateBall(ball);
+  const nearest=closestPointOnTaperedBat(pitch.position,bat),delta=subtract(pitch.position,nearest.point),distance=magnitude(delta);
+  return {axisPoint:nearest.point,segmentT:nearest.t,localBatRadiusM:nearest.localRadiusM,
+    normal:distance>0?scale(delta,1/distance):null,signedGapMeters:nearest.surfaceSeparationM-ball.radiusM};
+};
+
 export const measureRigidBatBallSurfaceSeparation = (
   pitch: PitchWorldState,
   bat: RigidBatState,

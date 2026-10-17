@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-PACKAGE-NATIVE-SINGLE-ACQUISITION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../package-delivery.py"
+  ],
+  "observed_at": "2026-10-15T19:12:17.115+00:00",
+  "elapsed_ms": 12468,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-PACKAGE-NATIVE-SINGLE-ACQUISITION_e2677e90b2ba4c498adaba35c20e284c.log",
+  "output_sha256": "f636c50b59586cda8146f060254ae7cf34c79ff6a6c4ac6fbc616cac8212bb57",
+  "receipt_id": "MB-20261016-PACKAGE-NATIVE-SINGLE-ACQUISITION_e2677e90b2ba4c498adaba35c20e284c"
+}

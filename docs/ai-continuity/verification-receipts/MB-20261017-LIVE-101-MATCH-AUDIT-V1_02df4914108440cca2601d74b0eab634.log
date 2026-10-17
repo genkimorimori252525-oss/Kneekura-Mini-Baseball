@@ -1,0 +1,17 @@
+{"shard":"shard-16","passed":false,"games":6,"seconds":5.933}
+{"shard":"shard-10","passed":false,"games":6,"seconds":7.652}
+{"shard":"shard-03","passed":false,"games":7,"seconds":78.426}
+{"shard":"shard-15","passed":false,"games":6,"seconds":85.214}
+{"shard":"shard-01","passed":false,"games":7,"seconds":89.543}
+{"shard":"shard-11","passed":false,"games":6,"seconds":126.714}
+{"shard":"shard-07","passed":false,"games":6,"seconds":131.168}
+{"shard":"shard-14","passed":false,"games":6,"seconds":137.441}
+{"shard":"shard-08","passed":false,"games":6,"seconds":152.834}
+{"shard":"shard-09","passed":false,"games":6,"seconds":163.434}
+{"shard":"shard-02","passed":false,"games":7,"seconds":178.999}
+{"shard":"shard-04","passed":false,"games":7,"seconds":201.057}
+{"shard":"shard-12","passed":false,"games":6,"seconds":218.886}
+{"shard":"shard-05","passed":false,"games":7,"seconds":273.192}
+{"shard":"shard-06","passed":false,"games":6,"seconds":278.427}
+{"shard":"shard-13","passed":false,"games":6,"seconds":278.437}
+{"kind":"local-core-match-population-v1","success":false,"targetGames":101,"workers":16,"bundleSha256":"874ee95f8b9d11cc54aa496583d6290254ff55d2b25dcb70a8c79a59a4643468","elapsedSeconds":278.438,"total":{"games":0,"pitches":0,"contacts":0,"throws":0,"catches":0,"groundContacts":0,"homeRuns":0,"walks":0,"strikeouts":0,"multiOutPlays":0,"runs":0,"maximumInning":0,"maximumPitchMs":0},"uniqueSeeds":0,"shards":[{"name":"shard-01","passed":false,"games":7},{"name":"shard-02","passed":false,"games":7},{"name":"shard-03","passed":false,"games":7},{"name":"shard-04","passed":false,"games":7},{"name":"shard-05","passed":false,"games":7},{"name":"shard-06","passed":false,"games":6},{"name":"shard-07","passed":false,"games":6},{"name":"shard-08","passed":false,"games":6},{"name":"shard-09","passed":false,"games":6},{"name":"shard-10","passed":false,"games":6},{"name":"shard-11","passed":false,"games":6},{"name":"shard-12","passed":false,"games":6},{"name":"shard-13","passed":false,"games":6},{"name":"shard-14","passed":false,"games":6},{"name":"shard-15","passed":false,"games":6},{"name":"shard-16","passed":false,"games":6}],"nativeAuthentication":false}

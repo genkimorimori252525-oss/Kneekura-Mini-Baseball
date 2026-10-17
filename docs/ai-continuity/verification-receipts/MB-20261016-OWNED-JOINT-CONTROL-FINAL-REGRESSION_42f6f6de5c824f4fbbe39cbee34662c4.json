@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OWNED-JOINT-CONTROL-FINAL-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "--maxWorkers",
+    "1",
+    "--minWorkers",
+    "1",
+    "src/host/world/MeasuredBattingBodyReferenceInput.test.ts",
+    "src/host/world/InitialPitchHandHoldInput.test.ts",
+    "src/core/sim/contact/MeasuredPelvisControlV1.test.ts",
+    "src/core/sim/contact/HeldToMeasuredBatControlV1.test.ts",
+    "src/core/sim/contact/InitialHeldBatV1.test.ts",
+    "src/core/sim/contact/ReferenceBatKinematicsV1.test.ts",
+    "src/core/world/psychology/batting/MeasuredBattingCommitment.test.ts",
+    "src/core/sim/pitch/PitchHandHoldRenewalV1.test.ts",
+    "src/core/sim/pitch/ControlledHeldPitchV1.test.ts",
+    "src/core/sim/pitch/ControlledPitchWorldV1.test.ts"
+  ],
+  "observed_at": "2026-10-16T13:59:54.882+00:00",
+  "elapsed_ms": 17437,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OWNED-JOINT-CONTROL-FINAL-REGRESSION_42f6f6de5c824f4fbbe39cbee34662c4.log",
+  "output_sha256": "f7812cbf7621ba3c84a87dfc6af6c40724044df6842c5b91e737b2f7e3dc5231",
+  "receipt_id": "MB-20261016-OWNED-JOINT-CONTROL-FINAL-REGRESSION_42f6f6de5c824f4fbbe39cbee34662c4"
+}

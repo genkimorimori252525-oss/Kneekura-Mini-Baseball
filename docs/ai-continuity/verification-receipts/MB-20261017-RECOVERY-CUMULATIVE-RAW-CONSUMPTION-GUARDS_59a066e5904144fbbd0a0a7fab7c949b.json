@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-RECOVERY-CUMULATIVE-RAW-CONSUMPTION-GUARDS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/SqliteInitialJointRecoveryWorkloadStore.test.ts",
+    "src/host/world/InitialJointRecoveryWorkloadProjection.test.ts",
+    "src/host/world/InitialJointWorkloadProjection.test.ts"
+  ],
+  "observed_at": "2026-10-16T21:45:44.524+00:00",
+  "elapsed_ms": 7375,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-RECOVERY-CUMULATIVE-RAW-CONSUMPTION-GUARDS_59a066e5904144fbbd0a0a7fab7c949b.log",
+  "output_sha256": "eb5c5a2622c164f08a74f8e66ed0a88751c1662c1c8ba6baade374ee81d98cd3",
+  "receipt_id": "MB-20261017-RECOVERY-CUMULATIVE-RAW-CONSUMPTION-GUARDS_59a066e5904144fbbd0a0a7fab7c949b"
+}

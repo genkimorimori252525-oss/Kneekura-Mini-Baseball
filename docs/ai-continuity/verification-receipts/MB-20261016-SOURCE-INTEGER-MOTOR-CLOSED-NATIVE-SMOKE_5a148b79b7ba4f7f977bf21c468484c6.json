@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-INTEGER-MOTOR-CLOSED-NATIVE-SMOKE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/verification-source-integer-motor-v1/source-integer-motor-entry.mjs",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-v3-metadata-clock-v1/run/closed-cold-reopen-55608/manifest.json",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-v3-metadata-clock-v1/manifest.json",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/verification-source-integer-motor-v1/closed-native-smoke.json"
+  ],
+  "observed_at": "2026-10-15T18:12:49.534+00:00",
+  "elapsed_ms": 46719,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-INTEGER-MOTOR-CLOSED-NATIVE-SMOKE_5a148b79b7ba4f7f977bf21c468484c6.log",
+  "output_sha256": "f15b99cfaf1609b4aacd6f9b288d55b1ae3e11085c366a44f3f8f943cd0a95e1",
+  "receipt_id": "MB-20261016-SOURCE-INTEGER-MOTOR-CLOSED-NATIVE-SMOKE_5a148b79b7ba4f7f977bf21c468484c6"
+}

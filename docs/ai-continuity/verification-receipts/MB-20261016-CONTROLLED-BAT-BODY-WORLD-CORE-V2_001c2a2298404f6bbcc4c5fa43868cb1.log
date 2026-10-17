@@ -1,0 +1,10 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/pitch/ControlledBatBodyPitchWorldV1.test.ts (9 tests) 113ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  23:32:19
+   Duration  891ms (transform 255ms, setup 0ms, collect 383ms, tests 113ms, environment 0ms, prepare 132ms)
+

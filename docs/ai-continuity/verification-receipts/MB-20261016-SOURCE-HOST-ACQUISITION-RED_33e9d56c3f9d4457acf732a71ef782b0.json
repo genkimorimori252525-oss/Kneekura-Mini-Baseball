@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-HOST-ACQUISITION-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "npx.cmd",
+    "vitest",
+    "run",
+    "src/host/world/SamePlateAppearanceSourceAcquisitionFieldV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T18:49:25.351+00:00",
+  "elapsed_ms": 10000,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-HOST-ACQUISITION-RED_33e9d56c3f9d4457acf732a71ef782b0.log",
+  "output_sha256": "52c9a365dffc363b25a59ee360132fdb7e4c022573e8981be70eb01f140f2836",
+  "receipt_id": "MB-20261016-SOURCE-HOST-ACQUISITION-RED_33e9d56c3f9d4457acf732a71ef782b0"
+}

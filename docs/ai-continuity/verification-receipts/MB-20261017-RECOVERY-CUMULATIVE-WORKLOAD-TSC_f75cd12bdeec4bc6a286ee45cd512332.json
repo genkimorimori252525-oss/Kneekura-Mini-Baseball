@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-RECOVERY-CUMULATIVE-WORKLOAD-TSC",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-16T21:38:36.144+00:00",
+  "elapsed_ms": 48625,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-RECOVERY-CUMULATIVE-WORKLOAD-TSC_f75cd12bdeec4bc6a286ee45cd512332.log",
+  "output_sha256": "192702a5be7af0edf8ac8d9f780ab880813bb8fe438c6295302bd1f374c782bb",
+  "receipt_id": "MB-20261017-RECOVERY-CUMULATIVE-WORKLOAD-TSC_f75cd12bdeec4bc6a286ee45cd512332"
+}

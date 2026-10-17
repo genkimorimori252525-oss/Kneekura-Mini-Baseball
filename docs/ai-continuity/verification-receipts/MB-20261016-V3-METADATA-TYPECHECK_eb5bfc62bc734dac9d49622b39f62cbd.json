@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-V3-METADATA-TYPECHECK",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "npx.cmd",
+    "tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-15T16:59:43.436+00:00",
+  "elapsed_ms": 23311,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-V3-METADATA-TYPECHECK_eb5bfc62bc734dac9d49622b39f62cbd.log",
+  "output_sha256": "a3a185be590fefbf7018b9e7c94b95f0c26cb3f9c59894b9a07c55696be25001",
+  "receipt_id": "MB-20261016-V3-METADATA-TYPECHECK_eb5bfc62bc734dac9d49622b39f62cbd"
+}

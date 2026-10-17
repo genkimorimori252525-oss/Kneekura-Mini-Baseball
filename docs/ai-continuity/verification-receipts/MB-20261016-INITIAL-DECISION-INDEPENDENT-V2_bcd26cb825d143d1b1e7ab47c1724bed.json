@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-DECISION-INDEPENDENT-V2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-observed-initial-decision-reader-v2/readback.mjs",
+    "../../outputs/verification-observed-initial-decision-v2/match.sqlite",
+    "../../outputs/verification-observed-initial-decision-v2/expected.json",
+    "../../outputs/verification-observed-initial-decision-v2/independent-readback-v2.json",
+    "../../outputs/verification-authored-initial-pitch-physical-v2/manifest.json"
+  ],
+  "observed_at": "2026-10-16T11:35:22.665+00:00",
+  "elapsed_ms": 49656,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-DECISION-INDEPENDENT-V2_bcd26cb825d143d1b1e7ab47c1724bed.log",
+  "output_sha256": "53111f840af12893dc2d9d54403aad5e2ffcc7f517fa190fdf6e9a22fceecd7d",
+  "receipt_id": "MB-20261016-INITIAL-DECISION-INDEPENDENT-V2_bcd26cb825d143d1b1e7ab47c1724bed"
+}

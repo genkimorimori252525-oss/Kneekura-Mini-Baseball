@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-PLAYER-CONSUMPTION-AUDIT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/audit-player-consumption.mjs"
+  ],
+  "observed_at": "2026-10-15T16:55:16.153+00:00",
+  "elapsed_ms": 703,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-PLAYER-CONSUMPTION-AUDIT_cdc01453484649efbc6a1efdfed4576a.log",
+  "output_sha256": "c778b01caaa9c81bd74089e31177d92749ba5e92b13b110a7b39d781d0bc6cea",
+  "receipt_id": "MB-20261016-PLAYER-CONSUMPTION-AUDIT_cdc01453484649efbc6a1efdfed4576a"
+}

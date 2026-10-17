@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-MEASURED-BAT-AXIS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/MeasuredBatAxisReferenceV1.test.ts",
+    "src/core/sim/contact/ReferenceBatKinematicsV1.test.ts",
+    "src/integration/browser/ReferenceBattingWorkbench.test.ts",
+    "src/integration/browser/WorkbenchPlayer.test.ts"
+  ],
+  "observed_at": "2026-10-15T17:14:29.217+00:00",
+  "elapsed_ms": 3156,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-MEASURED-BAT-AXIS_17e78048838c4ba29367082d94eab11c.log",
+  "output_sha256": "60aaffe43e11531eaa583b9695411e9b381376b2824cb975e28cc43db3059074",
+  "receipt_id": "MB-20261016-MEASURED-BAT-AXIS_17e78048838c4ba29367082d94eab11c"
+}

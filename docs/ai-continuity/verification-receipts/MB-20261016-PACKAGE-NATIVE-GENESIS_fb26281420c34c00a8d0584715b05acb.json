@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-PACKAGE-NATIVE-GENESIS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../package-delivery.py"
+  ],
+  "observed_at": "2026-10-15T21:30:41.949+00:00",
+  "elapsed_ms": 18452,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-PACKAGE-NATIVE-GENESIS_fb26281420c34c00a8d0584715b05acb.log",
+  "output_sha256": "3c505a23daa53b811e3b100fe0ee6b91d4778a2d9b1c8ed9bc8fcdee1a6fe13f",
+  "receipt_id": "MB-20261016-PACKAGE-NATIVE-GENESIS_fb26281420c34c00a8d0584715b05acb"
+}

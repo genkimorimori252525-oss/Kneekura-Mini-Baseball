@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-PITCH-FINITE-SCOPE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePitchV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T00:04:13.195+00:00",
+  "elapsed_ms": 1703,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-PITCH-FINITE-SCOPE_7ff280ae1ed1439abfcce0e14252f132.log",
+  "output_sha256": "8644e8810390f9c70ddaf08f1f90e61756822a0a00f1ee9713e6c2dcb0c5ec59",
+  "receipt_id": "MB-20261017-LIVE-PITCH-FINITE-SCOPE_7ff280ae1ed1439abfcce0e14252f132"
+}
