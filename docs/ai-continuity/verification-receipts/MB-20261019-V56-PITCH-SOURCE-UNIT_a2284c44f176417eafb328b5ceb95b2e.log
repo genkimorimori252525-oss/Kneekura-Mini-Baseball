@@ -1,0 +1,20 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ '4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279'
+- '4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279113'
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-pitch-ball-cadence-v56.mjs:8:8 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: '4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279',
+  expected: '4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279113',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

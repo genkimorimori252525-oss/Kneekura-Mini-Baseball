@@ -52,3 +52,5 @@ ID / 観測日 / 対象経路・Source・HTML SHA
 [v55のカメラ調整室と早期追尾](../reports/2026-10-19-v55-camera-workbench.md)をH27として追加。単一試合・同tickのA/B、旧制御との厳密比較、設定と配球再現session、途中停止の同期を記録する。カメラ変更とCore／物理変更を区別する。
 
 [v55.1の比較画像の合成漏れ](../reports/2026-10-19-v55-1-workbench-layers.md)をH28へ追加。observer値の検査だけでは、最終canvasへのバット・球の転記漏れを検出できなかった。3層の実pixel比較を回帰条件にする。
+
+[v56の投球FPSと追従率](../reports/2026-10-19-v56-pitch-presentation.md)をH29として追記。サイズとFPSを区別し、構え基準の追従率・許容角、Sourceに同期する投球専用22ms表示、55msの既存世界、A/Bの固有投影と巻戻しを検証する。

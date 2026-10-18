@@ -1,12 +1,22 @@
 # 最新の再開入口 — 2026-10-19
 
-現在は **調整室v55.1／通常試合v55**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
+現在は **調整室v56／通常試合v56**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
 
-- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v55.1/README.md)
-- [原因・変更・最終検証・限界](../reports/2026-10-19-v55-1-workbench-layers.md)
-- [開発史](../history/README.md) / [原因別事例H28](../history/INCIDENTS.md)
+- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v56/README.md)
+- [原因・変更・最終検証・限界](../reports/2026-10-19-v56-pitch-presentation.md)
+- [開発史](../history/README.md) / [原因別事例H29](../history/INCIDENTS.md)
 - [元の全要求・計画・受入条件](2026-10-15-mini-baseball/00-START-HERE.md)
 - [v50の打者カメラ](../reports/2026-10-18-v50-v27-batter-camera.md) / [v49の守備責任・裁定](../reports/2026-10-18-v49-positional-defense.md) / [v47の中継・旋回](../reports/2026-10-18-v47-relay-rounding.md)
+
+## v56の現在地
+
+最新人間訂正: 2.5倍は投球の球のFPS。通常/調整室とも投球22ms・その他55ms、余剰時間持越し。4px格子と球サイズ初期値1を維持する。構え基準の追従率/許容角（A従来1/0、B初期.15/.02rad）、通常/俯瞰別の球表示倍率、ゾーン表示面z=.15、俯瞰で配球図も隠す。旧JSONは従来追従/倍率1へ補完。Core113入力と物理・能力・AI・裁定・実測バット・メーカーは不変。
+
+- [最新HTML・再生成・使い方](../demos/releases/v56/README.md)
+- [根因・変更・最終検証・限界](../reports/2026-10-19-v56-pitch-presentation.md)
+- [元の計画を保持した実装方針](../plans/2026-10-19-v56-pitch-presentation.md)
+
+60Hz手動時計で両HTML scene18/sample45、保持の高速更新0、短区間loopのA/B始点pixel一致。1200/390pxでUI/旧新JSON/ゾーン/3層pixelと正規12球の物理・bat全hash不変をPASS。実際のFPSと主観的カメラ感は端末/利用者確認が必要。新9回や100試合の実施、元全計画の完了は宣言しない。原FAIL/UNKNOWN/Charter HOLDを保持する。
 
 ## v55.1の調整室修正
 

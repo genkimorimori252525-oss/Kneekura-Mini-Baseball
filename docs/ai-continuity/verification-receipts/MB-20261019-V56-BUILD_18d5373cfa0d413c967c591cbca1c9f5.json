@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V56-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-v56.mjs"
+  ],
+  "observed_at": "2026-10-18T17:45:02.593+00:00",
+  "elapsed_ms": 202,
+  "git_head": "a829d9278b0999afd4e0a368cd07fc91669b8366",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V56-BUILD_18d5373cfa0d413c967c591cbca1c9f5.log",
+  "output_sha256": "6a8c1ebb7b869e4a3cbe94a481ec077ed3ee1bfd7d5f9c1e17a0b2194c968408",
+  "receipt_id": "MB-20261019-V56-BUILD_18d5373cfa0d413c967c591cbca1c9f5"
+}

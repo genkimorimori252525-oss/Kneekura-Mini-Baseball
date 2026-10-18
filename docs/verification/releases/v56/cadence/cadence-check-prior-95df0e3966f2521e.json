@@ -1,0 +1,18 @@
+{
+  "pass": false,
+  "normalSha256": "331f5f9a3bafb78ba2ae5009ba25fb795eeb08d5f42c85db3844c2d186ec32c5",
+  "workbenchSha256": "90e955f8fb1fa6432de563c7a44afab2b1e4ec644ec973c76cd395a0edcbebea",
+  "sourceCoreSha256": "4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279",
+  "sourceInputs": 113,
+  "actual": null,
+  "mockmetrics": {},
+  "loop": [],
+  "faults": [
+    {
+      "label": "normal-mock-60Hz",
+      "errors": [],
+      "requests": []
+    }
+  ],
+  "error": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert(measured.eligible)\n\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v56-cadence.mjs:44:36"
+}

@@ -1,13 +1,17 @@
 ---
-current_task: "MB-20261019-V55-LAYERS-PUBLICATION"
+current_task: "MB-20261019-V56-PACKAGE"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "67a61cf484016b3aae4302130964b14df85f9f2b"
+commit_head: "a829d9278b0999afd4e0a368cd07fc91669b8366"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V55-LAYERS-PUBLICATION_d86d96440d9d41408c30a6498b8b2652.json"
-updated_at: "2026-10-18T17:18:58.985314+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V56-PACKAGE_46b81545ed124d1bb3a57df8c39fc444.json"
+updated_at: "2026-10-18T17:51:13.411554+00:00"
 
 ---
+
+## Active human priority — v56 pitch FPS/tracking/display (SCOPED VERIFIED; PUBLICATION PENDING)
+
+Latest human correction: 2.5x is incoming pitched-ball FPS, NOT size. ball display defaults1. Normal331f5f9a / lab90e955f8 frozen; scene55ms/pitch22ms deadline carry, same grid4px. Static stance-anchored gain/deadband A1/0 B.15/.02rad, oldJSON identity/defaultsize1, zone displayplane.15 and overhead chart hidden. Three-layer paused composition/explicit A/B fastpitch projections/loop invalidation preserved. Units balla21e79d7, tracking2c6beb98, Source06375cc4 PASS; finalBUILD18d5373c PASS.202s, CADENCEe94f57d3 PASS8.968s60Hz18/45 and loopRGBA, DISPLAYf5e7af45 PASS94.500s1200/390px/UI/JSON/zone/60pixelimages/normalv55-v56-lab12physical+bat hash exact/errorsnetwork0; PACKAGE46b81545 PASS1.530s113Source/helper/meta/2HTML/oldreleases exact. Old FAIL/testbug receipts preserved. No Core/AI/rules/physics/maker edits or new9inningtest. CCGaudit original CHARTER_UNAPPROVED HOLD exit1 preserved. Next: allowlisted byte-exact staging, commit/push existingbranch/Draft380, verify rawfiles/remote head, record publication. AGENTS/userchanges excluded. Originalplan unresolved/FAIL/UNKNOWN/HOLD remain. See latest handoff/report/plan.
 
 ## Active human priority — v55.1 workbench visible layers (SCOPED VERIFIED; PUBLISHED)
 
