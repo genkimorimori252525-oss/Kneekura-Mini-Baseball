@@ -26,7 +26,8 @@ async function mockClock(page){await page.addInitScript(()=>{
   const callbacks=[...queued.values()];queued.clear();for(const callback of callbacks)callback(now);return queued.size;},now:()=>now};
  });}
 const delta=(after,before)=>Object.fromEntries(['sceneDraws','pitchBallSamples','pitchBallPaints','nonPitchFastPaints'].map(k=>[k,after[k]-before[k]]));
-async function setupNormal(page){await page.goto(pathToFileURL(normal).href);await page.waitForFunction(()=>window.liveMatchPlayback?.inspect().version===56);
+async function setupNormal(page){await page.goto(pathToFileURL(normal).href);await page.waitForFunction(()=>{
+ const c=window.liveMatchPlayback?.inspect().presentation?.cadence;return c?.sceneMs===55&&c.pitchBallMs===22;});
  return page.evaluate(()=>{document.getElementById('match-seed').value='v56-cadence';document.getElementById('fixed-seed').checked=true;
   document.getElementById('batting-choice').value='take';window.liveMatchPlayback.newGame();document.getElementById('next-pitch').click();window.liveMatchPlayback.stop();
   const s=window.liveMatchPlayback.inspect();if(s.error)throw Error(s.error);return {prep:s.presentation.timing.preparationMs,cut:s.lastResult.play.diagnostics.catcherContactElapsedSeconds};});}

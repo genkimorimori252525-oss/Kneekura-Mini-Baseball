@@ -1,12 +1,18 @@
 # 最新の再開入口 — 2026-10-19
 
-現在は **調整室v56／通常試合v56**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
+現在は **調整室v57／通常試合v57**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
 
-- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v56/README.md)
-- [原因・変更・最終検証・限界](../reports/2026-10-19-v56-pitch-presentation.md)
-- [開発史](../history/README.md) / [原因別事例H29](../history/INCIDENTS.md)
+- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v57/README.md)
+- [原因・変更・最終検証・限界](../reports/2026-10-19-v57-swing-head-hold.md)
+- [開発史](../history/README.md) / [原因別事例H30](../history/INCIDENTS.md)
 - [元の全要求・計画・受入条件](2026-10-15-mini-baseball/00-START-HERE.md)
 - [v50の打者カメラ](../reports/2026-10-18-v50-v27-batter-camera.md) / [v49の守備責任・裁定](../reports/2026-10-18-v49-positional-defense.md) / [v47の中継・旋回](../reports/2026-10-18-v47-relay-rounding.md)
+
+## v57の現在地
+
+振るまでは投球を追い、実測バットのreferenceStartTickで頭のyaw/pitchを固定する。through終端まで動かさず、既知の打球認識後300msと終端を満たしてから70msの目標移行で既存の打球追尾へ戻る。身体のeye位置は継承する。画像Bの.30/.20/300/70/.26/.02を採用し、最初2値は新方式では非適用と明示。見逃し/バントは従来、遅いスイングは遅くまで追った向きで固定。A従来モード・旧JSON・v57保存分離・開始markerを用意。
+
+[実装と最終検証](../reports/2026-10-19-v57-swing-head-hold.md)。Unit/1200・390px browser/113入力・12球物理とbat不変/48pixel/22・55ms周期/配布照合PASS。Core・AI・能力・裁定・実測バット・メーカーは変更なし。新9回や原全計画の完了を宣言せず、元の未達・FAIL/UNKNOWN/Charter HOLDを保持する。
 
 ## v56の現在地
 

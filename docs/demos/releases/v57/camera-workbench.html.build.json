@@ -1,0 +1,38 @@
+{
+  "presentationVersion": 57,
+  "sourceGamePath": "docs/demos/releases/v54/game.html",
+  "sourceGameSha256": "80c68e3ddb5c961ab6f18b325c6f267f883cd02d27381dfa10a9334bf8afae9f",
+  "basePresentationPath": "docs/demos/releases/v56/game.html",
+  "basePresentationSha256": "331f5f9a3bafb78ba2ae5009ba25fb795eeb08d5f42c85db3844c2d186ec32c5",
+  "sourceCoreSha256": "4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279",
+  "sourceInputCount": 113,
+  "helpers": {
+    "live-ball-display-controls-v56.js": "e5cf59b078c9959bbe76969e8296eeab8cd65c6a7a224475b06c86496a483996",
+    "live-pitch-ball-cadence-v56.js": "bf72b94742b7de19abd863edd610fea493d648ba43b5823c906222e02aac4536",
+    "live-camera-tuning-batter-view-v57.js": "80bda3e659b6e0d38a820c04b92e2531012d41e038e7ad1324cad787b7064d3f"
+  },
+  "workbenchDriverSha256": "52c416a1c70a6535bda7bb79044f596a8fd027651bca0510f634194a32f6bb78",
+  "workbenchTemplateSha256": "e4c91ef0d3fc5e808b4029e72681bce3799c0b95ce593df7478b0f736637de37",
+  "builderSha256": "cf4ba409860a380eb7ad59a92688b6c5cba109fcf51258081dfc9d674a2aedb7",
+  "worldAuthority": "UNCHANGED_V54_OFFLINE_HOST_SHARED_CORE",
+  "displayGridPixels": 4,
+  "ordinaryCadenceMs": 55,
+  "pitchBallCadenceMs": 22,
+  "ballDisplayDefaults": {
+    "perspective": 1,
+    "overhead": 1
+  },
+  "readOnlyCamera": true,
+  "headHold": "REGISTERED_MEASURED_BAT_ONSET_TO_THROUGH_WITH_OBSERVED_HIT_WAIT",
+  "preset": {
+    "enabled": true,
+    "aimLiftMeters": 0.3,
+    "swingMaxDownRadians": 0.2,
+    "hitFollowDelayMs": 300,
+    "aimReleaseMs": 70,
+    "pitchTrackingGain": 0.26,
+    "pitchTrackingDeadbandRadians": 0.02
+  },
+  "kind": "CAMERA_WORKBENCH",
+  "sha256": "82532cb37e4420785913686633d0d5e37e8ea4d80a0119566f99066dc222fd90"
+}

@@ -240,3 +240,11 @@
 - 境界: 微小aimWeightで圧縮が二値解除されるとfractional seekが飛ぶため連続減衰へ修正。旧1/0設定の完全一致は保持。捕手first-contact後は自由Sourceを使わず、既存の捕球制約へ戻す。
 - 表示の整合: ゾーン寸法は既に一致。表示面z=0だけを実判定面.15mへ合わせる。俯瞰の配球図も隠す。旧JSONの追従1/0と倍率1補完、倍率読込後の画面／保存同期を追加。
 - 検証と限界: [v56報告](../reports/2026-10-19-v56-pitch-presentation.md)。60Hz手動時計で両HTMLともscene18/sample45、短区間loopのA/B始点pixel一致、非投球の高速更新0。実時間の頻度は別に測り端末依存とする。Core113入力・物理・実測バット・AI・能力・裁定は不変。元全計画と原FAIL/UNKNOWN/HOLDを維持する。
+
+## H30 実スイング開始で頭を固定する状態がなかった（v57）
+
+- 症状: 振る瞬間も予定打点への目標混合と角運動が続き、頭が滑って腕と別に動く。
+- 根因: 固定状態がなく、旧aim取得時刻も実測motor onsetと異なる。referenceStartTickに感覚遅延やframe検出を足すと遅れる。
+- 対応: 登録済み実motor start/throughで積分を分割しyaw/pitchを保持、eye位置は継承。見逃し/バントを除外し、遅いスイングはそれまで追った姿勢で固定。認識待機と終端を満たしてから一度だけ解除する。
+- 設定: 人間の画像B .30/.20/300/70/.26/.02。高さ/俯角へ向け直す補正は固定と矛盾するので互換値として残し非適用表示。A旧方式、v57保存分離、開始marker。
+- 検証と限界: [v57報告](../reports/2026-10-19-v57-swing-head-hold.md)。R/L/fractional/take/bunt/whiff/prefix/12実Source不変、1200/390px、48pixel、22/55周期・loopをPASS。カメラは人間指定の表現で生体校正ではない。版固定の検査起動待ちと配布assertionの原FAILを保持。原全計画・FAIL/UNKNOWN/HOLDは継続。

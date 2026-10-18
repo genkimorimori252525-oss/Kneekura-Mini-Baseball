@@ -1,13 +1,17 @@
 ---
-current_task: "MB-20261019-V56-PUBLICATION"
+current_task: "MB-20261019-V57-PACKAGE"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "e0e643b22dca1c4cd1796e269258129d07291738"
+commit_head: "ff242d680d0e1af05a767d08d62a1fb0b4af3331"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V56-PUBLICATION_a584921b8cc84705857d21680b540cf8.json"
-updated_at: "2026-10-18T17:53:24.821161+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V57-PACKAGE_0b36f1c97ccb494087a32e61ca0acf24.json"
+updated_at: "2026-10-18T18:15:54.699043+00:00"
 
 ---
+
+## Active human priority — v57 swing head hold (SCOPED VERIFIED; PUBLICATION PENDING)
+
+User: track until actual swing onset, freeze head during swing; late swing freezes later pursuit pose. Imagepreset .30/.20/300/70/.26/.02 adopted. Normal238fce33 / lab82532cb3 frozen. New helper exact motor start/through/release splits; yaw/pitch hold, same embodied eye; take/bunt excluded, latehit never rearms. Through+observedhit wait completed before70ms objective release; existing posthit follow. Firsttwo aimcontrols compatibility-only disabled with explanation, new STOREv57 and onsetmarker. UNIT8f1cb8d0 PASS5.328s exactR/L/fractional/late/whiff/take/bunt/prefix/12Core+bat immutable; BUILD9d6e23f2 PASS.140s; CADENCE17dbd2a3 PASS8.889s18/45+loop; BROWSERaf435d80 PASS65.422s1200/390px/7defaults/oldnewJSON/5camera/48RGBA/full12v56normal-labSource+bat exact/errorsnetwork0; PACKAGE0b36f1c9 PASS.858s113pins/helpers/embeddedgame/olderreleases. Original checker versionwait timeout abd2da3a and package assertionFAILf7397dd9 preserved; productbytes unchanged by fixes. No Core/AI/ability/rules/physics/maker edits or new9inningtest. Next allowlisted byteexactstaging/commit/push samebranch/Draft380/rawverification/publicationrecord. AGENTS userchanges excluded. Originalplan/FAIL/UNKNOWN/CharterHOLD retained.
 
 ## Active human priority — v56 pitch FPS/tracking/display (SCOPED VERIFIED; PUBLISHED)
 
