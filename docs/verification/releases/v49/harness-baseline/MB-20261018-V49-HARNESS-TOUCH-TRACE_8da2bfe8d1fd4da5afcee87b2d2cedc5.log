@@ -1,0 +1,97 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+stdout | src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > recognizes an actual nonforce throw and catcher tag without requiring a bag contact
+NONFORCE_TAG_TRACE {"facts":[{"kind":"catch_secured","tick":674653,"elapsedSeconds":0.6746522659202694,"playerId":"fielder-2","position":{"x":18.123078738147225,"y":0.2430709876691163,"z":19.44798772113921}},{"kind":"throw_release","tick":2173719,"elapsedSeconds":2.173718877471383,"playerId":"fielder-2","base":4,"position":{"x":19.305098209313122,"y":1.7,"z":18.91226590792334},"runnerId":"third-runner","reason":"tag_play","receiverPlayerId":"fielder-1","target":{"x":0,"y":1,"z":0}},{"kind":"catch_secured","tick":3117679,"elapsedSeconds":3.1176784657186265,"playerId":"fielder-1","position":{"x":0.2666385558042963,"y":1.058821684541627,"z":0.15267998047151127}},{"kind":"throw_release","tick":9049137,"elapsedSeconds":9.049136811327541,"playerId":"fielder-1","base":4,"position":{"x":-2.258889843415529,"y":1.7,"z":2.2574337292230577},"runnerId":"third-runner","reason":"tag_play","receiverPlayerId":"fielder-0","target":{"x":0,"y":1,"z":0}},{"kind":"catch_secured","tick":9174528,"elapsedSeconds":9.174527130978866,"playerId":"fielder-0","position":{"x":-0.2715599424011625,"y":1.0864298479291863,"z":0.20320699840333672}},{"kind":"controlled_runner_tag","tick":9505056,"elapsedSeconds":9.505055437762712,"playerId":"fielder-0","runnerId":"third-runner"},{"kind":"play_end","tick":9800749,"elapsedSeconds":9.800748141293873,"reason":"live_action_complete"}],"contacts":[{"elapsedSeconds":0.6622340841020925,"playerId":"fielder-2","role":"glove","ballSpeedMps":0.40237258252784935,"bodySpeedMps":3.493367943934381,"gloveOffsetMeters":1.299337312366628,"intent":"intercept","targetBase":null,"distanceToTargetBaseMeters":null,"retention":{"outcome":"secured","retentionLoadJ":0.5757569104809913,"effectiveCapacityJ":107.54380088057277,"pocketOffsetMeters":5.478311008772017e-14,"bodyStability":0.7169586725371518}},{"elapsedSeconds":3.0995517526395666,"playerId":"fielder-1","role":"glove","ballSpeedMps":26.83523727253008,"bodySpeedMps":8.326672684688674e-17,"gloveOffsetMeters":0.47743064712953887,"intent":"base_cover","targetBase":4,"distanceToTargetBaseMeters":0.012772739299395978,"retention":{"outcome":"secured","retentionLoadJ":54.38013923717951,"effectiveCapacityJ":149.14275381129914,"pocketOffsetMeters":7.271088026158993e-13,"bodyStability":0.9942850254086609}},{"elapsedSeconds":9.160748141293887,"playerId":"fielder-0","role":"glove","ballSpeedMps":23.78226785714049,"bodySpeedMps":1.5303320202020314,"gloveOffsetMeters":0.6704584170511879,"intent":"base_cover","targetBase":4,"distanceToTargetBaseMeters":0.2074208369689327,"retention":{"outcome":"secured","retentionLoadJ":41.33696905493971,"effectiveCapacityJ":145.15006393058195,"pocketOffsetMeters":6.483381769670192e-13,"bodyStability":0.9676670928705464}}],"cancellations":[]}
+
+stdout | src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > accepts an explicitly evaluated losing hold while still reporting a contradictory positive throw opportunity
+POSITIVE_HOLD_TRACE {"facts":[{"kind":"catch_secured","tick":5149540,"elapsedSeconds":4.149539420034179,"playerId":"def-CF","position":{"x":-8.933124079313682,"y":0.23724029136290403,"z":70.07589411176436}},{"kind":"runner_base_touch","tick":6183122,"elapsedSeconds":5.183121157274774,"runnerId":"runner-0","base":1,"position":{"x":19.204886246717802,"y":0,"z":19.193990334987564}}],"decisions":[{"elapsedSeconds":4.176212147306942,"playerId":"def-CF","state":"waiting_transfer","base":1,"receiverDistanceToBaseMeters":58.48738302012068},{"elapsedSeconds":4.216212147306942,"playerId":"def-CF","state":"waiting_transfer","base":1,"receiverDistanceToBaseMeters":58.27924473311852},{"elapsedSeconds":4.256212147306942,"playerId":"def-CF","state":"waiting_transfer","base":1,"receiverDistanceToBaseMeters":58.07758456695022},{"elapsedSeconds":4.296212147306942,"playerId":"def-CF","state":"waiting_transfer","base":1,"receiverDistanceToBaseMeters":57.88234120942149},{"elapsedSeconds":4.336212147306942,"playerId":"def-CF","state":"waiting_transfer","base":1,"receiverDistanceToBaseMeters":57.693453963088764},{"elapsedSeconds":4.376212147306942,"playerId":"def-CF","state":"waiting_transfer","base":1,"receiverDistanceToBaseMeters":57.51086282310066},{"elapsedSeconds":4.4162121473069424,"playerId":"def-CF","state":"waiting_transfer","base":1,"receiverDistanceToBaseMeters":57.33450855481775},{"elapsedSeconds":4.4562121473069425,"playerId":"def-CF","state":"waiting_transfer","base":1,"receiverDistanceToBaseMeters":57.164332771051804},{"elapsedSeconds":4.4962121473069425,"playerId":"def-CF","state":"waiting_transfer","base":1,"receiverDistanceToBaseMeters":57.00027800876706},{"elapsedSeconds":4.5362121473069426,"playerId":"def-CF","state":"waiting_transfer","base":1,"receiverDistanceToBaseMeters":56.84228780508777},{"elapsedSeconds":4.576212147306943,"playerId":"def-CF","state":"waiting_transfer","base":1,"receiverDistanceToBaseMeters":56.690306772458335},{"elapsedSeconds":4.616212147306943,"playerId":"def-CF","state":"pursue_tag","base":1,"margin":2,"carrySeconds":8.072718236128546,"receivingSeconds":null},{"elapsedSeconds":4.656212147306943,"playerId":"def-CF","state":"pursue_tag","base":1,"margin":2,"carrySeconds":8.015016421437295,"receivingSeconds":null},{"elapsedSeconds":4.696212147306943,"playerId":"def-CF","state":"pursue_tag","base":1,"margin":2,"carrySeconds":7.956993629508449,"receivingSeconds":null},{"elapsedSeconds":4.736212147306943,"playerId":"def-CF","state":"pursue_tag","base":1,"margin":2,"carrySeconds":7.898647752997523,"receivingSeconds":null},{"elapsedSeconds":4.776212147306943,"playerId":"def-CF","state":"pursue_tag","base":1,"margin":2,"carrySeconds":7.8399764009498805,"receivingSeconds":null},{"elapsedSeconds":4.816212147306943,"playerId":"def-CF","state":"pursue_tag","base":1,"margin":2,"carrySeconds":7.780976902241786,"receivingSeconds":null},{"elapsedSeconds":4.856212147306943,"playerId":"def-CF","state":"pursue_tag","base":1,"margin":2,"carrySeconds":7.7216463096504455,"receivingSeconds":null},{"elapsedSeconds":4.896212147306943,"playerId":"def-CF","state":"pursue_tag","base":1,"margin":2,"carrySeconds":7.661981404797129,"receivingSeconds":null},{"elapsedSeconds":4.936212147306943,"playerId":"def-CF","state":"pursue_tag","base":1,"margin":2,"carrySeconds":7.6019787042731375,"receivingSeconds":null},{"elapsedSeconds":4.976212147306943,"playerId":"def-CF","state":"pursue_tag","base":1,"margin":2,"carrySeconds":7.541634467344838,"receivingSeconds":null},{"elapsedSeconds":5.016212147306943,"playerId":"def-CF","state":"pursue_tag","base":1,"margin":2,"carrySeconds":7.480944705749543,"receivingSeconds":null},{"elapsedSeconds":5.056212147306943,"playerId":"def-CF","state":"pursue_tag","base":1,"margin":2,"carrySeconds":7.41990519625008,"receivingSeconds":null},{"elapsedSeconds":5.096212147306943,"playerId":"def-CF","state":"pursue_tag","base":1,"margin":2,"carrySeconds":7.358511496829188,"receivingSeconds":null},{"elapsedSeconds":5.136212147306943,"playerId":"def-CF","state":"pursue_tag","base":1,"margin":2,"carrySeconds":7.296758967700832,"receivingSeconds":null},{"elapsedSeconds":5.176212147306943,"playerId":"def-CF","state":"pursue_tag","base":1,"margin":2,"carrySeconds":7.234642798732205,"receivingSeconds":null},{"elapsedSeconds":5.183121157274774,"playerId":"def-CF","state":"pursue_tag","base":null,"margin":2},{"elapsedSeconds":5.223121157274774,"playerId":"def-CF","state":"pursue_tag","base":null,"margin":2},{"elapsedSeconds":5.2631211572747745,"playerId":"def-CF","state":"pursue_tag","base":null,"margin":2},{"elapsedSeconds":5.3031211572747745,"playerId":"def-CF","state":"pursue_tag","base":null,"margin":2},{"elapsedSeconds":5.3431211572747745,"playerId":"def-CF","state":"pursue_tag","base":null,"margin":2},{"elapsedSeconds":5.383121157274775,"playerId":"def-CF","state":"pursue_tag","base":null,"margin":2},{"elapsedSeconds":5.423121157274775,"playerId":"def-CF","state":"pursue_tag","base":null,"margin":2},{"elapsedSeconds":5.463121157274775,"playerId":"def-CF","state":"pursue_tag","base":null,"margin":2},{"elapsedSeconds":5.503121157274775,"playerId":"def-CF","state":"pursue_tag","base":null,"margin":2},{"elapsedSeconds":5.511286218931616,"playerId":"def-CF","state":"hold_no_positive_margin","base":null,"margin":2}],"throws":[]}
+
+stdout | src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > demonstrates monotonic physical fielding progression across low, default, and high ability tiers
+=== [56_hole_grounder low benchmark] territory=fair outs=0 firstBounceZ=4.3m firstCatch=SS ===
+  Oracle: infieldReachable=true earliestInfielder=SS@+1.46s earliestAny=SS@+1.46s
+  Approaches: C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s), SS(minDist=1.75m, gloveGap=0.62m@+1.43s, spd=4.7->4.7m/s)
+  HolderDecision @+2.02s: state=prepare_throw base=1 margin=0.99s recvSec=1.77s carrySec=6.17s
+  Throw -> Base 1: def-SS -> def-1B play=force rel=+2.33s outcome=glove_secured sec=+12.37s runner=+4.78s distToBag=0.01m minGloveGap=0.074m@+3.63s minBodyGap=0.665m cancelAt=+3.93s baseTouched=false
+  [ANOMALY:THROW_CANCELLED_MIDFLIGHT] @+2.33s: Throw from SS to base 1 (1B) had throwTarget cancelled mid-flight due to pre-release observation.
+
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts (16 tests | 3 failed | 13 skipped) 2694ms
+   × LiveFieldPlayDiagnosticsV1 > recognizes an actual nonforce throw and catcher tag without requiring a bag contact 1221ms
+     → expected 'fielder-0' to be 'fielder-1' // Object.is equality
+   × LiveFieldPlayDiagnosticsV1 > accepts an explicitly evaluated losing hold while still reporting a contradictory positive throw opportunity 300ms
+     → expected [] to deep equally contain ObjectContaining{…}
+   × LiveFieldPlayDiagnosticsV1 > demonstrates monotonic physical fielding progression across low, default, and high ability tiers 1172ms
+     → expected [ { …(5) } ] to deeply equal []
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > recognizes an actual nonforce throw and catcher tag without requiring a bag contact
+AssertionError: expected 'fielder-0' to be 'fielder-1' // Object.is equality
+
+Expected: "fielder-1"
+Received: "fielder-0"
+
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:151:28
+    149|     expect(release).toMatchObject({ reason: 'tag_play', runnerId: 'thi…
+    150|     expect(exchange).toMatchObject({ forcePlay: false, receptionOutcom…
+    151|     expect(tag.defenderId).toBe(release.receiverPlayerId);
+       |                            ^
+    152|     expect(tag.tick).toBeGreaterThan(result.facts.find(f => f.kind ===…
+    153|     expect(result.ruleFacts.controlledBaseContacts.filter(f => f.base …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > accepts an explicitly evaluated losing hold while still reporting a contradictory positive throw opportunity
+AssertionError: expected [] to deep equally contain ObjectContaining{…}
+
+- Expected: 
+ObjectContaining {
+  "base": 1,
+  "kind": "HELD_BALL_NO_THROW_ON_FORCE",
+}
+
++ Received: 
+Array []
+
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:190:37
+    188|       console.log('POSITIVE_HOLD_TRACE', JSON.stringify({ facts: resul…
+    189|         decisions: contradictoryEstimate.diagnostics.aiTelemetry.holde…
+    190|     expect(contradictory.anomalies).toContainEqual(expect.objectContai…
+       |                                     ^
+    191|   });
+    192| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > demonstrates monotonic physical fielding progression across low, default, and high ability tiers
+AssertionError: expected [ { …(5) } ] to deeply equal []
+
+- Expected
++ Received
+
+- Array []
++ Array [
++   Object {
++     "base": 1,
++     "detail": "Throw from SS to base 1 (1B) had throwTarget cancelled mid-flight due to pre-release observation.",
++     "elapsedSeconds": 2.729099808306242,
++     "kind": "THROW_CANCELLED_MIDFLIGHT",
++     "playerId": "def-1B",
++   },
++ ]
+
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:274:32
+    272|         if (process.env.FIELDING_DIAG_REPORT === '1' && diag.anomalies…
+    273|           console.log(formatLiveFieldPlayDiagnosticReportV1(diag, `${i…
+    274|         expect(diag.anomalies).toEqual([]);
+       |                                ^
+    275|         outsByTier[tier] += diag.outsRecorded;
+    276|       }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 13 skipped (16)
+   Start at  17:11:43
+   Duration  3.54s (transform 267ms, setup 0ms, collect 390ms, tests 2.69s, environment 0ms, prepare 133ms)
+

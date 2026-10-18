@@ -6,6 +6,7 @@ import {
   deriveLiveFieldFenceGeometryV1,
   simulateLiveFieldPlayV1,
   type LiveFielderV1,
+  type LiveFieldFrameV1,
   type LiveFieldPlayInputV1,
 } from './LiveFieldPlayV1';
 import { REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS } from '../ball/BaseballAerodynamics';
@@ -19,7 +20,12 @@ export type LiveFieldAnomalyKindV1 =
   | 'HELD_BALL_NO_THROW_ON_FORCE'
   | 'THROW_CANCELLED_MIDFLIGHT'
   | 'THROW_HIT_RECEIVER_BODY'
-  | 'CAUGHT_THROW_NO_BASE_TOUCH';
+  | 'CAUGHT_THROW_NO_BASE_TOUCH'
+  | 'LIVE_PLAY_CLOSED_WITH_ACTIVE_RUNNER'
+  | 'LIVE_PLAY_CLOSED_WITH_FREE_BALL'
+  | 'UNSUPPORTED_RUNNER_RETIREMENT'
+  | 'DUPLICATE_BASE_COVER'
+  | 'RUNNER_BASE_TOUCH_LATE';
 
 export type LiveFieldAnomalyV1 = Readonly<{
   kind: LiveFieldAnomalyKindV1;
@@ -61,6 +67,7 @@ export type ThrowExchangeDiagnosticV1 = Readonly<{
   forcePlay: boolean;
   relayHop?: boolean;
   cancelledMidFlight: boolean;
+  postPassRecovery?: boolean;
   cancelledAtElapsedSeconds: number | null;
   receptionOutcome: 'glove_secured' | 'glove_deflected' | 'body_contact' | 'unfielded';
   receptionElapsedSeconds: number | null;
@@ -167,6 +174,27 @@ export function diagnoseLiveFieldPlayV1(
   const pursuitEnd = firstCatchFact?.elapsedSeconds ?? result.end.elapsedSeconds;
   const telemetry = result.diagnostics.aiTelemetry;
 
+  // Descriptive samples, deliberately not an intelligence/quality score. A
+  // long run can be a justified recovery/backup; knowing the actual task and
+  // observed threat is necessary before calling it unnecessary movement.
+  const fieldingMovement = input.fielders.map(spec => {
+    let previous: Vec3 | null = null, sampledTravelMeters = 0, maximumDistanceFromHomeMeters = 0;
+    const sampledTravelByIntentMeters: Partial<Record<LiveFieldFrameV1['fielders'][number]['intent'], number>> = {};
+    for (const frame of result.frames) {
+      const f = frame.fielders.find(actor => actor.playerId === spec.playerId);
+      if (!f) continue;
+      maximumDistanceFromHomeMeters = Math.max(maximumDistanceFromHomeMeters, distance(flat(f.position), flat(spec.position)));
+      if (previous) {
+        const traveled = distance(flat(previous), flat(f.position));
+        sampledTravelMeters += traveled;
+        sampledTravelByIntentMeters[f.intent] = (sampledTravelByIntentMeters[f.intent] ?? 0) + traveled;
+      }
+      previous = f.position;
+    }
+    return { playerId: spec.playerId, role: roleOf(spec.playerId), sampledTravelMeters,
+      maximumDistanceFromHomeMeters, sampledTravelByIntentMeters };
+  });
+
   const handlerIdsBeforeCatch = new Set(
     telemetry.roleTransitions
       .filter((tr) => tr.elapsedSeconds <= pursuitEnd && tr.source !== 'possession' && tr.source !== 'pending_catch')
@@ -257,7 +285,31 @@ export function diagnoseLiveFieldPlayV1(
     const cancelEvent = telemetry.throwTargetCancellations.find(
       (c) => c.elapsedSeconds >= rel.elapsedSeconds && c.elapsedSeconds < flightEndTime - 1e-6 && c.base === base,
     );
-    const cancelledMidFlight = !!cancelEvent;
+    const observedFrame = cancelEvent ? result.frames.filter(fr => fr.elapsedSeconds <= cancelEvent.seenAt).at(-1) : null,
+      target = rel.target ?? basePoint(base);
+    let observedBall: { position: Vec3; velocity: Vec3 } | undefined = observedFrame?.ball;
+    const actualLaunch = result.diagnostics.throwDirectionCommands.find(c => c.elapsedSeconds === rel.elapsedSeconds)?.actual;
+    // A 55ms frame can straddle closest approach. If no intervening contact
+    // changed the free ball, reconstruct this historical observation from the
+    // actual issued launch rather than accepting a future frame or assuming
+    // that every later target release was premature.
+    if (cancelEvent && cancelEvent.seenAt > rel.elapsedSeconds && actualLaunch && rel.position
+      && !result.facts.some(f => f.elapsedSeconds > rel.elapsedSeconds && f.elapsedSeconds <= cancelEvent.seenAt
+        && ['ground_contact', 'glove_contact', 'body_contact', 'wall_support', 'over_fence'].includes(f.kind))) {
+      const historical = createSourceFreeBallKernel({ kind: 'aero_ground_continuous_source_kernel_v2',
+        initial: { originTick: input.ball.originTick, elapsedSeconds: rel.elapsedSeconds,
+          ball: { tick: rel.tick, position: rel.position, velocity: actualLaunch.velocity, spin: actualLaunch.spin } },
+        throughElapsedSeconds: cancelEvent.seenAt, profile: input.physics });
+      if (!historical.boundaries.length) {
+        const actual = historical.evaluateAt(cancelEvent.seenAt, 'outgoing').moment.ball;
+        observedBall = { position: actual.position, velocity: actual.velocity };
+      }
+    }
+    const postPassRecovery = !!cancelEvent && cancelEvent.seenAt >= rel.elapsedSeconds && !!observedFrame
+        && observedFrame.elapsedSeconds >= rel.elapsedSeconds && !!observedBall
+        && (target.x - observedBall.position.x) * observedBall.velocity.x + (target.z - observedBall.position.z) * observedBall.velocity.z < 0
+        && distance(flat(observedBall.position), flat(target)) > recvSpec.gloveReachMeters,
+      cancelledMidFlight = !!cancelEvent && !postPassRecovery;
     const secureInWindow = result.facts.find(
       (f) => f.kind === 'catch_secured' && f.elapsedSeconds > rel.elapsedSeconds && f.elapsedSeconds < nextRelTime && f.playerId === receiverId,
     );
@@ -293,6 +345,7 @@ export function diagnoseLiveFieldPlayV1(
       forcePlay: rel.reason === 'force_play' || rel.reason === undefined,
       relayHop: rel.reason === 'relay_play',
       cancelledMidFlight,
+      postPassRecovery,
       cancelledAtElapsedSeconds: cancelEvent?.elapsedSeconds ?? null,
       receptionOutcome,
       receptionElapsedSeconds: firstContact?.elapsedSeconds ?? null,
@@ -310,6 +363,74 @@ export function diagnoseLiveFieldPlayV1(
 
   // 4. Anomaly Detection
   const anomalies: LiveFieldAnomalyV1[] = [];
+
+  // These are observation/fact consistency checks, not an independent full
+  // baseball umpire. In particular, a controlled tag/catch is accepted as an
+  // input fact; its collision/retention proof remains the world's concern.
+  const finalFrame = result.frames.at(-1);
+  if (result.end.reason === 'live_action_complete' && result.end.complete && finalFrame) {
+    for (const r of finalFrame.runners) if (!r.retired && !r.scored && (r.targetBase !== null || norm(r.velocity) > .1))
+      anomalies.push({ kind: 'LIVE_PLAY_CLOSED_WITH_ACTIVE_RUNNER', elapsedSeconds: result.end.elapsedSeconds,
+        playerId: r.runnerId, detail: `Live play closed while runner ${r.runnerId} still had target ${r.targetBase ?? 'none'} and speed ${norm(r.velocity).toFixed(2)}m/s.` });
+    if (finalFrame.ball.possessedBy === null)
+      anomalies.push({ kind: 'LIVE_PLAY_CLOSED_WITH_FREE_BALL', elapsedSeconds: result.end.elapsedSeconds,
+        detail: `Live play closed without observed custody (ball phase=${finalFrame.ball.phase}).` });
+  }
+
+  const duplicateCovers = new Set<number>();
+  for (const frame of result.frames) for (const base of [1, 2, 3, 4] as const) {
+    const cover = frame.fielders.filter(f => f.intent === 'base_cover' && f.targetBase === base);
+    if (cover.length > 1 && !duplicateCovers.has(base)) {
+      duplicateCovers.add(base);
+      anomalies.push({ kind: 'DUPLICATE_BASE_COVER', elapsedSeconds: frame.elapsedSeconds, base,
+        detail: `${cover.map(f => roleOf(f.playerId)).join(', ')} simultaneously own base-cover task ${base}. Nearby distinct intercept/relay/backup tasks alone are not an anomaly.` });
+    }
+  }
+
+  // Rebuild only the currently supported retirement causes directly from the
+  // facts, without calling the production ForceObligation helper. A runner's
+  // first legal target touch removes that force. For indistinguishable same-
+  // tick occurrences, touch precedes bag control so uncertainty cannot invent
+  // a late force out. This does not audit appeals, retreat or interference.
+  const supportedRetirements = new Set<string>(), forceSatisfied = new Set<string>();
+  const forcedTarget = (runnerId: string) => {
+    const spec = input.runners.find(r => r.runnerId === runnerId);
+    if (!spec || supportedRetirements.has(runnerId) || forceSatisfied.has(runnerId)) return null;
+    for (let b = 0; b < spec.initialBase; b++) {
+      const trailing = input.runners.find(r => r.initialBase === b);
+      if (!trailing || supportedRetirements.has(trailing.runnerId)) return null;
+    }
+    return spec.initialBase + 1;
+  };
+  const priority = (kind: string) => kind === 'runner_base_touch' ? 0 : kind === 'catch_secured' ? 1 : kind === 'controlled_runner_tag' ? 2 : 3;
+  const orderedFacts = result.facts.slice().sort((a, b) => a.tick - b.tick || priority(a.kind) - priority(b.kind) || a.elapsedSeconds - b.elapsedSeconds);
+  for (const fact of orderedFacts) {
+    if (fact.kind === 'runner_base_touch' && fact.runnerId && forcedTarget(fact.runnerId) === fact.base) forceSatisfied.add(fact.runnerId);
+    else if (fact.kind === 'catch_secured' && result.ruleFacts.flyCatch?.secureCatchTick === fact.tick
+      && result.ruleFacts.flyCatch.fielderId === fact.playerId) {
+      const batter = input.runners.find(r => r.initialBase === 0);
+      if (batter) supportedRetirements.add(batter.runnerId);
+    } else if (fact.kind === 'controlled_runner_tag' && fact.runnerId) supportedRetirements.add(fact.runnerId);
+    else if (fact.kind === 'controlled_base_contact') {
+      for (const r of input.runners) if (forcedTarget(r.runnerId) === fact.base) supportedRetirements.add(r.runnerId);
+    }
+  }
+  for (const r of result.finalRunners) if (r.retired && !supportedRetirements.has(r.runnerId))
+    anomalies.push({ kind: 'UNSUPPORTED_RUNNER_RETIREMENT', elapsedSeconds: result.end.elapsedSeconds, playerId: r.runnerId,
+      detail: `Retirement of ${r.runnerId} has no supported fly catch, still-active force bag control, or controlled tag in the emitted fact sequence. This is a fact-consistency finding, not a full-rules oracle.` });
+
+  // A sampled point already inside the declared bag volume is a real bounded
+  // witness even though frames cannot locate the exact entry between samples.
+  // Restrict to the immediate next base to avoid mistaking the starting home
+  // position for a later scoring arrival. No extrapolated/future motor sample.
+  for (const touch of result.facts.filter(f => f.kind === 'runner_base_touch' && f.runnerId && f.base)) {
+    const witness = result.frames.find(frame => frame.tick < touch.tick && frame.elapsedSeconds < touch.elapsedSeconds
+      && frame.runners.some(r => r.runnerId === touch.runnerId && !r.retired && !r.scored && r.currentBase === touch.base! - 1
+        && distance(flat(r.position), flat(basePoint(touch.base!))) <= (input.field.baseTouchRadiusMeters ?? .28)));
+    if (witness) anomalies.push({ kind: 'RUNNER_BASE_TOUCH_LATE', elapsedSeconds: witness.elapsedSeconds,
+      playerId: touch.runnerId, base: touch.base,
+      detail: `${touch.runnerId} was observed inside base ${touch.base}'s declared touch volume ${(touch.elapsedSeconds - witness.elapsedSeconds).toFixed(4)}s before its official touch fact. Frame evidence bounds the discrepancy; it does not resolve exact foot contact.` });
+  }
 
   // Anomaly 1: Unintercepted fallback to past position
   const fallbackTransition = telemetry.roleTransitions.find(
@@ -390,7 +511,7 @@ export function diagnoseLiveFieldPlayV1(
         elapsedSeconds: th.releaseElapsedSeconds,
         playerId: th.receiverId,
         base: th.base,
-        detail: `Throw from ${roleOf(th.throwerId)} to base ${th.base} (${roleOf(th.receiverId)}) had throwTarget cancelled mid-flight due to pre-release observation.`,
+        detail: `Throw from ${roleOf(th.throwerId)} to base ${th.base} (${roleOf(th.receiverId)}) had throwTarget cancelled before a sampled post-release ball-passed-target observation.`,
       });
     }
     if (th.receptionOutcome === 'body_contact') {
@@ -456,9 +577,10 @@ export function diagnoseLiveFieldPlayV1(
     releaseFacts.length === 0 &&
     result.ruleFacts.controlledBaseContacts.length === 0 &&
     firstRunnerTouch1 &&
-    firstCatchFact.elapsedSeconds < firstRunnerTouch1.elapsedSeconds - 1.1
+    firstCatchFact.elapsedSeconds < firstRunnerTouch1.elapsedSeconds
   ) {
-    const holdDec = telemetry.holderDecisions.find((d) => d.state === 'hold_no_positive_margin' || d.state === 'pursue_tag');
+    const holdDec = telemetry.holderDecisions.find((d) => (d.state === 'hold_no_positive_margin' || d.state === 'pursue_tag')
+      && d.base === 1 && d.elapsedSeconds >= firstCatchFact.elapsedSeconds && d.elapsedSeconds < firstRunnerTouch1.elapsedSeconds);
     const rejectedByFlight = result.diagnostics.throwDecisions.some((d) => d.reason === 'aero_throw_arrives_after_runner');
     // Infinity now also means the bounded Aero route planner explicitly found
     // no positive throw/carry margin. Retaining custody in that state is not a
@@ -500,6 +622,7 @@ export function diagnoseLiveFieldPlayV1(
     approaches,
     throws,
     anomalies,
+    fieldingMovement,
     telemetry,
   });
 }
@@ -617,6 +740,7 @@ export function buildCanonicalFieldingPlayInputV1(
     const stagger = (idx % 3) * 0.012;
     return {
       playerId,
+      defensivePosition: role,
       position: placements[role],
       reactionSeconds: tierSpec.reactionSeconds + stagger,
       fieldingCognition: { decisionSeconds: tierSpec.decisionSeconds },

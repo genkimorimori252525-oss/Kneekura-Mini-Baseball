@@ -1,15 +1,25 @@
 ---
-current_task: "MB-20261018-V48-PUBLICATION-FINAL"
+current_task: "MB-20261018-V49-RELEASE"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "505bf94b439202210cff9d7e45750799f8bf0118"
+commit_head: "d54aa62aec6ce643f216dbaedfbaba2f36b31e3b"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V48-PUBLICATION-FINAL_2f266720260f43d290e7bd3dd03c383d.json"
-updated_at: "2026-10-18T07:59:24.060108+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V49-RELEASE_11d7b3843a624102bb7620a47ce315ca.json"
+updated_at: "2026-10-18T08:39:13.961306+00:00"
 
 ---
 
-## Latest human priority — v48 batter-only braking (SCOPED VERIFIED; PUBLISHED)
+## Latest human priority — v49 positional defense / physical touch / closure (SCOPED VERIFIED; PUBLICATION NEXT)
+
+User attachment's existing harness was usable but old9 categories missed real issues. Host now supplies formal9position; finite responsibility costs for cover/relay/backup, spare ownhome hold, noheldpickupbackup, fixedactualhop line, separatedsupporttargets. Primary handler still physicalearliestcatch. Runner touch now same.28m disk asdefense, force satisfied atentry/motor finishes continuously; raceETA sameentry. Retire invalidates stale occupancy decision before closure. Nonforce carry/tag comparesactualrunnerposition, removesC homeoscillation/unneededPthrow; actual3/4mpsCtags5.533/5.110s aftersecure3.105. No identity/league buffs or scene patches; public11/detail44 preserved.
+
+Final29files250tests c3f1f499 PASS73.670s, formal9position60scenarios14anomalies0/outs13-18-20. GlobalTSC5cf4a32d PASS35.202s. Firstwholetest449d996b FAIL242/2 due oldfixed2throws/1Bstop expectations; replacedwith actualcustody/tag/safe2B+unsafe3B proofs. Firstnormalgame094f59d8 stopped26thpitch: realthrough3Bexit/tag exactsameelapsed. Added narrowlybound optionalprotectionEndedByDeparture onlyafter actualdiskexitevent/outward/outside/heldglovecontact; reducerbindsrunner/base/tick/preprotectedbase/oneexit. No proof/touchtie/malformed evidence stayUNKNOWN. Portableinput regression, proof removal UNKNOWN, rawFAIL kept. BeginLeg departure remainsmotorstartproxy and neverprovidesthiswitness; footIK/appeals remain.
+
+BuildFINAL4f44a193 PASS,107inputs/Coree0677928d7641513228fb78782a8afcceb5e4890fddbd99ac93c05f271da2e6c. HTMLb4903f219e81c0efa77c560b7961afb8eafaa85843be90fc9460a2db9a23428a; v48camera f987a851 unchanged, V47maker78482281 unchanged. NormalHTMLFINAL532a3d18 PASS101.406s/320p/9top3outs/home46-away10/noerror/fallbackfalse; statisticsUNCALIBRATED. ActualexportfieldfinalFrame/finalRunners/diagnostics matchesSource. FinalCAMERA0a95756e PASS27.218s currentSource12/6takes/16boundaries1200+390/noerrornetwork; MAKER4703d4aa PASS11.843s20/public11/detail44/oldJSON/latestgameimport. Packaging233261fa PASS109ZIPentries/allrawbyte+CRC/pins. Release11d7b384 PASS127links/74settledliveplays noactive runner/freeball/pendingdecision. Sources frozen before finaltests/build, no later Source normalization.
+
+docs/demos/releases/v49 storescurrentHTML109entrysnapshot/licenses/SHA; docs/verification/releases/v49 finalQA+initialFAIL/harnessaudit. H21/Timeline/README/LATEST/newreport/amendment updated. Nextstage explicitallowlist→verifyGitblobbytes→commit/push existingbranch/Draft380→remotehead/PR/rawbytesverify; no mainmerge. UserAGENTS/unrelated files preserved. No settings/lock/dependency/secret/DB changes. Originalfullplan IN_PROGRESS: Nativeauthcontinuousworld/returnreform/bodybatrecoil/drop/officialH-E+rules/fulltraits/leadsslides/jointrunneroptimization/globalrelay/fieldfielderavoidance/empiricalSI+statistics/new100games/realphones. OriginalCHARTER_UNAPPROVED/HOLD and allpriorFAIL/UNKNOWN retained.
+
+## Previous human priority — v48 batter-only braking (SCOPED VERIFIED; PUBLISHED)
 
 User wants less floating/smoother-than-forceful batter gaze, shallow stopped takes instead of bowing, firmer planned-aim acquisition and hold; explicitly likes existing batted/runner view. Added separate live-batter-braking-view.js + guarded v48 builder, preserved original v47 helper and artifact. Take decision+visual-delay guard,32ms onset; observed predicted pitch crossing3.5m stores stop point, target pitch[-.22,.30]/relativeyaw±.38; stopping-distance angular speed, same2.5rad/s and20rad/s² limits. Swing aim230→90ms before plannedcontact, firmer stop, blends back to OLD field controller40ms afterthrough. Same singleeye/bodyTarget/optics/4px55ms/no randomshake/posecut, no newabilities. Posthit initialstate naturally carries changed prehitstate; no false allposthitposeidentityclaim.
 

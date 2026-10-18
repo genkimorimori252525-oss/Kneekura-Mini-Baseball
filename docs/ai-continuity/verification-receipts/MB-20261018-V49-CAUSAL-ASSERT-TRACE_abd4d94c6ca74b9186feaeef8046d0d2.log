@@ -1,0 +1,62 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+stdout | src/core/sim/fielding/LiveFieldPlayV1.test.ts > derives two retirements from an actual force at first followed by a received throw and runner tag
+TWO_RETIREMENTS_TRACE {"facts":[{"kind":"catch_secured","tick":1547746,"elapsedSeconds":1.4477454433861747,"playerId":"fielder-0","position":{"x":0.9304078975083644,"y":0.2585489786538636,"z":4.607713667225056}},{"kind":"throw_release","tick":2414306,"elapsedSeconds":2.314305413416955,"playerId":"fielder-0","base":1,"position":{"x":1.786084808521793,"y":1.7,"z":2.1268483843100388},"runnerId":"batter","reason":"force_play","receiverPlayerId":"fielder-2","target":{"x":19.39,"y":1,"z":19.39}},{"kind":"catch_secured","tick":3396175,"elapsedSeconds":3.296174101288317,"playerId":"fielder-2","position":{"x":19.16691851726393,"y":1.0719880836510522,"z":18.996381988462986}},{"kind":"controlled_base_contact","tick":3396175,"elapsedSeconds":3.296174101288317,"playerId":"fielder-2","base":1},{"kind":"controlled_runner_tag","tick":6608670,"elapsedSeconds":6.50866949822773,"playerId":"fielder-2","runnerId":"first-runner"},{"kind":"play_end","tick":6648670,"elapsedSeconds":6.5486694982277305,"reason":"live_action_complete"}],"handPreparations":[{"playerId":"fielder-0","base":1,"from":1.70497877671952,"through":2.314305413416955}],"holderStates":[{"elapsedSeconds":1.4649787767195197,"playerId":"fielder-0","state":"waiting_transfer","base":1,"receiverDistanceToBaseMeters":23.289776423318298},{"elapsedSeconds":1.70497877671952,"playerId":"fielder-0","state":"prepare_throw","base":1,"margin":6.52964435923087,"carrySeconds":5.2757120264061195,"receivingSeconds":1.6147033005742046,"receiverPlayerId":"fielder-2","receiverDistanceToBaseMeters":0.01092972695241488},{"elapsedSeconds":3.296174101288317,"playerId":"fielder-2","state":"waiting_transfer","base":null},{"elapsedSeconds":6.50866949822773,"playerId":"fielder-2","state":"hold_no_positive_margin","base":null}]}
+
+stdout | src/core/sim/fielding/LiveFieldPlayV1.test.ts > rejects an unready force receiver before preparing a throw and retains control while the batter stops at first
+UNREADY_RECEIVER_TRACE {"facts":[{"kind":"catch_secured","tick":1547746,"elapsedSeconds":1.4477454433861747,"playerId":"fielder-0","position":{"x":0.9304078975083644,"y":0.2585489786538636,"z":4.607713667225056}},{"kind":"runner_base_touch","tick":5036493,"elapsedSeconds":4.936492900188278,"runnerId":"batter","base":1,"position":{"x":19.192010101267908,"y":0,"z":19.192010101267908}},{"kind":"runner_base_touch","tick":10064194,"elapsedSeconds":9.964193021990067,"runnerId":"batter","base":2,"position":{"x":0.19798989873209294,"y":0,"z":38.58201010126791}},{"kind":"play_end","tick":10438858,"elapsedSeconds":10.338857032603578,"reason":"live_action_complete"}],"decisions":[{"elapsedSeconds":0.123456789,"runnerId":"batter","targetBase":1,"defenderControlSeconds":5.226790828120064,"advance":false,"reason":"recognizing_departure_cue","readyAtElapsedSeconds":0.223456789,"runnerTravelSeconds":4.693036111188159,"runnerArrivalSeconds":4.793036111188159,"raceMarginSeconds":0.43375471693190537},{"elapsedSeconds":0.243456789,"runnerId":"batter","targetBase":1,"defenderControlSeconds":5.024993630461213,"advance":true,"reason":"batter_advance","readyAtElapsedSeconds":0.223456789,"runnerTravelSeconds":4.693036111188159,"runnerArrivalSeconds":4.693036111188159,"raceMarginSeconds":0.33195751927305395},{"elapsedSeconds":5.271156910801789,"runnerId":"batter","targetBase":2,"defenderControlSeconds":5.312349304341087,"advance":true,"reason":"safe_race_advance","readyAtElapsedSeconds":0.3307434100266947,"runnerTravelSeconds":4.693036111188159,"runnerArrivalSeconds":4.693036111188159,"raceMarginSeconds":0.6193131931529274},{"elapsedSeconds":10.298857032603578,"runnerId":"batter","targetBase":3,"defenderControlSeconds":0.7374841484498108,"advance":false,"reason":"insufficient_safety_margin","readyAtElapsedSeconds":0.3307434100266947,"runnerTravelSeconds":4.693036111188159,"runnerArrivalSeconds":4.693036111188159,"raceMarginSeconds":-3.9555519627383484}],"motions":[{"elapsedSeconds":0.243456789,"throughBases":[1],"durationSeconds":5.027700121801789},{"elapsedSeconds":5.271156910801789,"throughBases":[2],"durationSeconds":5.027700121801789}],"holderStates":[{"elapsedSeconds":1.4649787767195197,"playerId":"fielder-0","state":"waiting_transfer","base":1,"receiverDistanceToBaseMeters":23.289776423318298},{"elapsedSeconds":1.70497877671952,"playerId":"fielder-0","state":"pursue_tag","base":1,"margin":-2.0441979029373614,"carrySeconds":5.2757120264061195,"receivingSeconds":null},{"elapsedSeconds":4.936492900188278,"playerId":"fielder-0","state":"pursue_tag","base":null},{"elapsedSeconds":5.271156910801789,"playerId":"fielder-0","state":"hold_no_positive_margin","base":null},{"elapsedSeconds":9.231156910801765,"playerId":"fielder-0","state":"pursue_tag","base":2,"margin":-0.024400260370156857,"carrySeconds":0.7574363715584583,"receivingSeconds":null},{"elapsedSeconds":9.964193021990067,"playerId":"fielder-0","state":"pursue_tag","base":null},{"elapsedSeconds":10.298857032603578,"playerId":"fielder-0","state":"hold_no_positive_margin","base":null}],"relayPlans":[{"elapsedSeconds":1.70497877671952,"playerId":"fielder-0","runnerId":"batter","base":1,"kind":"hold","receivers":[],"readySeconds":5.2757120264061195,"marginSeconds":-2.0441979029373614,"aerodynamicSolveCount":1},{"elapsedSeconds":5.311156910801789,"playerId":"fielder-0","runnerId":"batter","base":2,"kind":"hold","receivers":[],"readySeconds":5.44365472116671,"marginSeconds":-0.7906186099784325,"aerodynamicSolveCount":0}],"finalRunners":[{"runnerId":"batter","base":2,"position":{"x":0,"y":0,"z":38.78},"retired":false,"scored":false}]}
+
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts (20 tests | 2 failed | 18 skipped) 941ms
+   × derives two retirements from an actual force at first followed by a received throw and runner tag 575ms
+     → expected [ { kind: 'throw_release', …(9) } ] to have a length of 2 but got 1
+   × rejects an unready force receiver before preparing a throw and retains control while the batter stops at first 365ms
+     → expected [ 1, 2 ] to deeply equal [ 1 ]
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayV1.test.ts > derives two retirements from an actual force at first followed by a received throw and runner tag
+AssertionError: expected [ { kind: 'throw_release', …(9) } ] to have a length of 2 but got 1
+
+- Expected
++ Received
+
+- 2
++ 1
+
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts:82:64
+     80|   expect(result.ruleFacts.controlledBaseContacts.map(f => f.base)).toE…
+     81|   expect(result.ruleFacts.controlledRunnerTags).toMatchObject([{ runne…
+     82|   expect(result.facts.filter(f => f.kind === 'throw_release')).toHaveL…
+       |                                                                ^
+     83|   for (const release of result.facts.filter(f => f.kind === 'throw_rel…
+     84|     const receiver = input.fielders.find(f => f.playerId === release.r…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayV1.test.ts > rejects an unready force receiver before preparing a throw and retains control while the batter stops at first
+AssertionError: expected [ 1, 2 ] to deeply equal [ 1 ]
+
+- Expected
++ Received
+
+  Array [
+    1,
++   2,
+  ]
+
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts:303:59
+    301|     finalRunners: result.finalRunners }));
+    302|   expect(result.end).toMatchObject({ complete: true, reason: 'live_act…
+    303|   expect(result.ruleFacts.runnerTouches.map(f => f.base)).toEqual([1]);
+       |                                                           ^
+    304|   const lastArrival = result.facts.filter(f => f.kind === 'runner_base…
+    305|   expect(result.end.elapsedSeconds).toBeGreaterThanOrEqual(lastArrival…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 18 skipped (20)
+   Start at  17:25:37
+   Duration  1.88s (transform 298ms, setup 0ms, collect 429ms, tests 941ms, environment 0ms, prepare 144ms)
+

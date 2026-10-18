@@ -34,6 +34,95 @@ function actualNonforceTagInput(): LiveFieldPlayInputV1 {
 }
 
 describe('LiveFieldPlayDiagnosticsV1', () => {
+  const diagnosticFixture = () => {
+    const scenario = CANONICAL_FIELDING_SCENARIOS_V1.find(s => s.id === 'SS_up_middle')!;
+    const built = buildCanonicalFieldingPlayInputV1(scenario);
+    return { ...built, result: simulateLiveFieldPlayV1(built.input) };
+  };
+
+  it('audits declared defensive positions rather than relying on fixture names or current coordinates', () => {
+    const { input } = buildCanonicalFieldingPlayInputV1(CANONICAL_FIELDING_SCENARIOS_V1[0]);
+    expect(input.fielders.map(f => f.defensivePosition)).toEqual(['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF']);
+  });
+
+  it('detects a completed live play whose final observed runner is still advancing', () => {
+    const { input, result, roleMap } = diagnosticFixture(), last = result.frames.at(-1)!;
+    const broken = { ...result, frames: [...result.frames.slice(0, -1), { ...last,
+      runners: last.runners.map(r => ({ ...r, targetBase: 2, velocity: { x: 1, y: 0, z: 0 } })) }] };
+    expect(result.end.reason).toBe('live_action_complete');
+    expect(diagnoseLiveFieldPlayV1(input, broken, roleMap).anomalies).toContainEqual(
+      expect.objectContaining({ kind: 'LIVE_PLAY_CLOSED_WITH_ACTIVE_RUNNER', playerId: input.runners[0].runnerId }));
+  });
+
+  it('detects a completed live play with a free ball at the final observation', () => {
+    const { input, result, roleMap } = diagnosticFixture(), last = result.frames.at(-1)!;
+    const broken = { ...result, frames: [...result.frames.slice(0, -1), { ...last,
+      ball: { ...last.ball, possessedBy: null, visible: true, phase: 'air' } }] };
+    expect(diagnoseLiveFieldPlayV1(input, broken, roleMap).anomalies).toContainEqual(
+      expect.objectContaining({ kind: 'LIVE_PLAY_CLOSED_WITH_FREE_BALL' }));
+  });
+
+  it('detects duplicate base cover assignments without treating nearby different tasks as duplicate coverage', () => {
+    const { input, result, roleMap } = diagnosticFixture(), last = result.frames.at(-1)!;
+    const broken = { ...result, frames: [{ ...last, fielders: last.fielders.map((f, i) => i < 2
+      ? { ...f, intent: 'base_cover' as const, targetBase: 1 as const } : { ...f, intent: 'hold' as const, targetBase: null }) }] };
+    expect(diagnoseLiveFieldPlayV1(input, broken, roleMap).anomalies).toContainEqual(
+      expect.objectContaining({ kind: 'DUPLICATE_BASE_COVER', base: 1 }));
+    const distinctTasks = { ...broken, frames: [{ ...broken.frames[0], fielders: broken.frames[0].fielders.map((f, i) => i === 1
+      ? { ...f, intent: 'backup' as const, targetBase: null } : f) }] };
+    expect(diagnoseLiveFieldPlayV1(input, distinctTasks, roleMap).anomalies.filter(a => a.kind === 'DUPLICATE_BASE_COVER')).toEqual([]);
+  });
+
+  it.each([-.01, 0])('detects retirement supported only by bag control after a legal first-base touch (offset=%s)', offset => {
+    const scenario = CANONICAL_FIELDING_SCENARIOS_V1.find(s => s.id === 'SS_routine')!,
+      { input, roleMap } = buildCanonicalFieldingPlayInputV1(scenario), result = simulateLiveFieldPlayV1(input),
+      contact = result.facts.find(f => f.kind === 'controlled_base_contact' && f.base === 1)!,
+      elapsedSeconds = contact.elapsedSeconds + offset, tick = contact.tick + Math.round(offset * input.physics.air.ticksPerSecond),
+      touch = { kind: 'runner_base_touch' as const, runnerId: input.runners[0].runnerId, base: 1 as const,
+        elapsedSeconds, tick, position: input.field.bases.first },
+      broken = { ...result, facts: [...result.facts, touch], ruleFacts: { ...result.ruleFacts,
+        runnerTouches: [...result.ruleFacts.runnerTouches, { kind: touch.kind, runnerId: touch.runnerId, base: touch.base, tick }] } };
+    expect(result.finalRunners[0].retired).toBe(true);
+    expect(diagnoseLiveFieldPlayV1(input, broken, roleMap).anomalies).toContainEqual(
+      expect.objectContaining({ kind: 'UNSUPPORTED_RUNNER_RETIREMENT', playerId: touch.runnerId }));
+  });
+
+  it('detects an observed bag-volume arrival that precedes the official touch fact', () => {
+    const { input, result, roleMap } = diagnosticFixture(), last = result.frames.at(-1)!,
+      touch = result.facts.find(f => f.kind === 'runner_base_touch' && f.base === 1)!,
+      elapsedSeconds = touch.elapsedSeconds - .02, base = input.field.bases.first,
+      witness = { ...last, elapsedSeconds, tick: touch.tick - 20000,
+        runners: last.runners.map(r => ({ ...r, currentBase: 0, retired: false, scored: false,
+          position: { ...base, x: base.x - .1 }, velocity: { x: 1, y: 0, z: 0 }, targetBase: 1 })) },
+      broken = { ...result, frames: [...result.frames.filter(f => f.elapsedSeconds !== elapsedSeconds), witness]
+        .sort((a, b) => a.elapsedSeconds - b.elapsedSeconds) };
+    expect(diagnoseLiveFieldPlayV1(input, broken, roleMap).anomalies).toContainEqual(
+      expect.objectContaining({ kind: 'RUNNER_BASE_TOUCH_LATE', playerId: touch.runnerId, base: 1 }));
+  });
+
+  it('accepts an explicit controlled tag after first-base arrival as retirement evidence', () => {
+    const scenario = CANONICAL_FIELDING_SCENARIOS_V1.find(s => s.id === 'SS_routine')!,
+      { input, roleMap } = buildCanonicalFieldingPlayInputV1(scenario), result = simulateLiveFieldPlayV1(input),
+      contact = result.facts.find(f => f.kind === 'controlled_base_contact' && f.base === 1)!, runnerId = input.runners[0].runnerId,
+      touch = { kind: 'runner_base_touch' as const, runnerId, base: 1 as const, tick: contact.tick - 10000,
+        elapsedSeconds: contact.elapsedSeconds - .01, position: input.field.bases.first },
+      tag = { kind: 'controlled_runner_tag' as const, runnerId, playerId: contact.playerId,
+        tick: contact.tick + 10000, elapsedSeconds: contact.elapsedSeconds + .01 },
+      withTag = { ...result, facts: [...result.facts, touch, tag] };
+    expect(diagnoseLiveFieldPlayV1(input, withTag, roleMap).anomalies.filter(a => a.kind === 'UNSUPPORTED_RUNNER_RETIREMENT')).toEqual([]);
+  });
+
+  it('reports sampled travel by actor and task without declaring long movement irrational', () => {
+    const { input, result, roleMap } = diagnosticFixture(), last = result.frames.at(-1)!, actor = input.fielders[1],
+      first = { ...last, fielders: last.fielders.map(f => f.playerId === actor.playerId ? { ...f, position: actor.position } : f) },
+      second = { ...last, fielders: last.fielders.map(f => f.playerId === actor.playerId
+        ? { ...f, position: { ...actor.position, x: actor.position.x + 3, z: actor.position.z + 4 }, intent: 'backup' as const } : f) },
+      sampled = { ...result, frames: [first, second] }, diag = diagnoseLiveFieldPlayV1(input, sampled, roleMap);
+    expect(diag.fieldingMovement.find(f => f.playerId === actor.playerId)).toMatchObject({ sampledTravelMeters: 5,
+      maximumDistanceFromHomeMeters: 5, sampledTravelByIntentMeters: { backup: 5 } });
+    expect(diag.anomalies.some(a => a.detail.includes('irrational'))).toBe(false);
+  });
+
   it('recognizes an actual relay receipt away from the final bag without reporting a missing force-base touch', () => {
     const raw = actualNonforceTagInput(), v = (x = 0, y = 0, z = 0) => ({ x, y, z }), input = { ...raw,
       ball: { ...raw.ball, ball: { ...raw.ball.ball, position: v(0, .2, 90), velocity: v(0, -1, .1) } },
@@ -56,8 +145,12 @@ describe('LiveFieldPlayDiagnosticsV1', () => {
 
   it('recognizes an actual nonforce throw and catcher tag without requiring a bag contact', () => {
     const input = actualNonforceTagInput(), result = simulateLiveFieldPlayV1(input), before = JSON.stringify(result),
-      diag = diagnoseLiveFieldPlayV1(input, result), release = result.facts.find(f => f.kind === 'throw_release' && f.base === 4)!,
-      exchange = diag.throws.find(t => t.base === 4)!, tag = result.ruleFacts.controlledRunnerTags.find(t => t.runnerId === 'third-runner')!;
+      diag = diagnoseLiveFieldPlayV1(input, result), tag = result.ruleFacts.controlledRunnerTags.find(t => t.runnerId === 'third-runner')!,
+      release = result.facts.filter(f => f.kind === 'throw_release' && f.base === 4 && f.runnerId === tag.runnerId && f.tick < tag.tick).at(-1)!,
+      exchange = diag.throws.find(t => t.releaseElapsedSeconds === release.elapsedSeconds)!;
+    if (process.env.FIELDING_DIAG_REPORT === '1' && tag.defenderId !== release.receiverPlayerId)
+      console.log('NONFORCE_TAG_TRACE', JSON.stringify({ facts: result.facts.filter(f => ['throw_release', 'catch_secured', 'controlled_runner_tag', 'play_end'].includes(f.kind)),
+        contacts: result.diagnostics.aiTelemetry.contactDiagnostics, cancellations: result.diagnostics.aiTelemetry.throwTargetCancellations }));
     expect(result.end.complete).toBe(true);
     expect(release).toMatchObject({ reason: 'tag_play', runnerId: 'third-runner' });
     expect(exchange).toMatchObject({ forcePlay: false, receptionOutcome: 'glove_secured', baseTouched: false });
@@ -69,6 +162,32 @@ describe('LiveFieldPlayDiagnosticsV1', () => {
     expect(diag.anomalies.filter(a => a.kind === 'CAUGHT_THROW_NO_BASE_TOUCH')).toEqual([]);
     expect(formatLiveFieldPlayDiagnosticReportV1(diag)).toContain('play=tag');
     expect(JSON.stringify(result)).toBe(before);
+  });
+
+  it('distinguishes post-pass ball recovery from cancellation based on a stale pre-release observation', () => {
+    const scenario = CANONICAL_FIELDING_SCENARIOS_V1.find(s => s.id === '56_hole_grounder')!,
+      { input: positionedInput, roleMap } = buildCanonicalFieldingPlayInputV1(scenario, 'low'),
+      // Preserve a known actual missed-throw recovery for the supported legacy
+      // caller without declared positions. The 60-scenario matrix below uses
+      // all nine explicit positions and tests the production role policy.
+      input = { ...positionedInput, fielders: positionedInput.fielders.map(f => { const legacy = { ...f }; delete legacy.defensivePosition; return legacy; }) },
+      result = simulateLiveFieldPlayV1(input),
+      cancellation = result.diagnostics.aiTelemetry.throwTargetCancellations[0], release = result.facts.find(f => f.kind === 'throw_release')!;
+    expect(cancellation).toBeDefined();
+    expect(cancellation.seenAt).toBeGreaterThan(release.elapsedSeconds);
+    const diag = diagnoseLiveFieldPlayV1(input, result, roleMap);
+    if (process.env.FIELDING_DIAG_REPORT === '1' && !diag.throws[0].postPassRecovery)
+      console.log('POST_PASS_TRACE', JSON.stringify({ release, cancellation, observed: result.frames.filter(f => f.elapsedSeconds <= cancellation.seenAt).at(-1)?.ball,
+        nearby: result.frames.filter(f => f.elapsedSeconds >= cancellation.seenAt - .06 && f.elapsedSeconds < cancellation.seenAt + .06).map(f => ({ elapsedSeconds: f.elapsedSeconds, ball: f.ball })) }));
+    expect(diag.throws[0]).toMatchObject({ cancelledMidFlight: false, postPassRecovery: true });
+    expect(diag.anomalies.filter(a => a.kind === 'THROW_CANCELLED_MIDFLIGHT')).toEqual([]);
+    // The actual passed-ball recovery must not excuse a command discarded on
+    // a pre-release observation. Keep every physical fact/frame unchanged.
+    const stale = { ...result, diagnostics: { ...result.diagnostics, aiTelemetry: { ...result.diagnostics.aiTelemetry,
+      throwTargetCancellations: result.diagnostics.aiTelemetry.throwTargetCancellations.map((c, i) => i === 0
+        ? { ...c, seenAt: release.elapsedSeconds - .01 } : c) } } };
+    expect(diagnoseLiveFieldPlayV1(input, stale, roleMap).anomalies).toContainEqual(
+      expect.objectContaining({ kind: 'THROW_CANCELLED_MIDFLIGHT', base: release.base }));
   });
 
   it.each(['force_play', undefined] as const)('retains missing-bag detection for a force throw (release reason=%s)', reason => {
@@ -97,6 +216,9 @@ describe('LiveFieldPlayDiagnosticsV1', () => {
     const contradictoryEstimate = { ...result, diagnostics: { ...result.diagnostics, aiTelemetry: { ...result.diagnostics.aiTelemetry,
       holderDecisions: result.diagnostics.aiTelemetry.holderDecisions.map(d => d.state === 'pursue_tag' || d.state === 'hold_no_positive_margin'
         ? { ...d, margin: 2 } : d) } } }, contradictory = diagnoseLiveFieldPlayV1(input, contradictoryEstimate, roleMap);
+    if (process.env.FIELDING_DIAG_REPORT === '1' && !contradictory.anomalies.some(a => a.kind === 'HELD_BALL_NO_THROW_ON_FORCE'))
+      console.log('POSITIVE_HOLD_TRACE', JSON.stringify({ facts: result.facts.filter(f => ['catch_secured', 'runner_base_touch'].includes(f.kind)),
+        decisions: contradictoryEstimate.diagnostics.aiTelemetry.holderDecisions, throws: result.diagnostics.throwDecisions }));
     expect(contradictory.anomalies).toContainEqual(expect.objectContaining({ kind: 'HELD_BALL_NO_THROW_ON_FORCE', base: 1 }));
   });
 
@@ -179,6 +301,8 @@ describe('LiveFieldPlayDiagnosticsV1', () => {
         const scenario = CANONICAL_FIELDING_SCENARIOS_V1.find((s) => s.id === id)!;
         const { input, roleMap } = buildCanonicalFieldingPlayInputV1(scenario, tier);
         const diag = diagnoseLiveFieldPlayV1(input, undefined, roleMap);
+        if (process.env.FIELDING_DIAG_REPORT === '1' && diag.anomalies.length)
+          console.log(formatLiveFieldPlayDiagnosticReportV1(diag, `${id} ${tier} benchmark`));
         expect(diag.anomalies).toEqual([]);
         outsByTier[tier] += diag.outsRecorded;
       }

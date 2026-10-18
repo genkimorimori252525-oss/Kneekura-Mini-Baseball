@@ -1,0 +1,47 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts (2 tests | 2 failed) 10ms
+   × compares the runner race at the actual bag-disk entry rather than at the later motor stop 6ms
+     → expected 5.029 to be close to 4.694335989386374, received difference is 0.3346640106136256, but expected 5e-10
+   × rejects an invalid touch geometry without changing the legacy center-stop estimate 3ms
+     → expected [Function] to throw an error
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts > compares the runner race at the actual bag-disk entry rather than at the later motor stop
+AssertionError: expected 5.029 to be close to 4.694335989386374, received difference is 0.3346640106136256, but expected 5e-10
+ ❯ src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts:9:68
+      7|     const motion = createLiveRunnerMotionV1({ position: { x: 0, z: 0 }…
+      8|       topSpeedMps: 8, accelerationMps2: 5, baseTouchRadiusMeters: radi…
+      9|     expect(estimateLiveRunnerLegSecondsV1(distance, 8, 5, radius)).toB…
+       |                                                                    ^
+     10|     const decision = decideLiveRunnerAdvanceV1({ nowSeconds: 3, playSt…
+     11|       distanceToNextBaseMeters: distance, baseTouchRadiusMeters: radiu…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts > rejects an invalid touch geometry without changing the legacy center-stop estimate
+AssertionError: expected [Function] to throw an error
+
+- Expected: 
+null
+
++ Received: 
+undefined
+
+ ❯ src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts:20:62
+     18| it('rejects an invalid touch geometry without changing the legacy cent…
+     19|   expect(estimateLiveRunnerLegSecondsV1(27.432, 8, 5)).toBeCloseTo(5.0…
+     20|   expect(() => estimateLiveRunnerLegSecondsV1(20, 8, 5, -1)).toThrow(/…
+       |                                                              ^
+     21| });
+     22| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  17:14:40
+   Duration  683ms (transform 89ms, setup 0ms, collect 97ms, tests 10ms, environment 0ms, prepare 156ms)
+

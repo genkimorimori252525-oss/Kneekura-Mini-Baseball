@@ -140,7 +140,7 @@ export function createLiveBaseballMatchV1(raw:LiveMatchInputV1){
     if(pitch.contact&&pitch.contactMoment){
       const def=input.teams[1-c.team];
       const fielders:LiveFielderV1[]=positions.map(role=>{const playerId=def.defense[role],p=physical(players.get(playerId)!);return{
-        playerId,position:placements[role],reactionSeconds:p.reactionSeconds,topSpeedMps:p.topSpeedMps,accelerationMps2:p.accelerationMps2,
+        playerId,defensivePosition:role,position:placements[role],reactionSeconds:p.reactionSeconds,topSpeedMps:p.topSpeedMps,accelerationMps2:p.accelerationMps2,
         fieldingCognition:{decisionSeconds:p.defensiveDecisionSeconds??0,pursuitCostWeight:p.fieldingPursuitCostWeight??1},
         gloveSpeedMps:p.gloveSpeedMps,gloveReachMeters:p.gloveReachMeters,gloveRadiusMeters:p.gloveRadiusMeters,
         catchRetention:{ticksPerSecond:tps,ballMassKg:.145,ballRadiusMeters:.0366,pocketRadiusMeters:.14,centerRetentionCapacityJ:p.retentionCapacityJ,

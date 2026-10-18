@@ -3,6 +3,7 @@ import { deriveLiveFieldFenceGeometryV1, simulateLiveFieldPlayV1, type LiveField
 import { REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS } from '../ball/BaseballAerodynamics';
 import { quantizeEventTick } from '../ExactEventTime';
 import { createSourceFreeBallKernel } from '../ball/SourceFreeBallKernel';
+import { LIVE_RUNNER_ADVANCE_POLICY_V1 } from './LiveRunnerAdvancePolicyV1';
 const v = (x = 0, y = 0, z = 0) => ({ x, y, z });
 export const liveFieldFixture = (): LiveFieldPlayInputV1 => {
   const tps = 1e6, originTick = 100000, elapsedSeconds = .123456789;
@@ -67,35 +68,45 @@ it('measures pocket miss on the contact entry plane instead of counting the norm
   expect(result.end).toMatchObject({ complete: true, reason: 'third_out' });
 });
 
-it('derives two retirements from an actual force at first followed by a received throw and runner tag', () => {
+it('derives two retirements from a received first-base force followed by the same defender carrying the ball to a runner tag', () => {
   const input = liveFieldFixture(), result = simulateLiveFieldPlayV1({ ...input, outs: 0,
     ball: { ...input.ball, ball: { ...input.ball.ball, position: v(0, .2, 0), velocity: v(1, -1, 5) } },
     runners: [{ ...input.runners[0], topSpeedMps: 3 },
       { runnerId: 'first-runner', initialBase: 1, topSpeedMps: 3, accelerationMps2: 3, reactionSeconds: .2 }] });
+  if (process.env.FIELDING_DIAG_REPORT === '1') console.log('TWO_RETIREMENTS_TRACE', JSON.stringify({
+    facts: result.facts.filter(f => ['catch_secured', 'throw_release', 'controlled_base_contact', 'controlled_runner_tag', 'runner_base_touch', 'play_end'].includes(f.kind)),
+    handPreparations: result.diagnostics.handPreparationProofs.map(p => ({ playerId: p.playerId, base: p.base, from: p.from, through: p.through })),
+    holderStates: result.diagnostics.aiTelemetry.holderDecisions.filter((d, i, a) => i === 0 || d.state !== a[i - 1].state || d.base !== a[i - 1].base) }));
   expect(result.end.complete).toBe(true);
   expect(result.ruleFacts.controlledBaseContacts.map(f => f.base)).toEqual([1]);
   expect(result.ruleFacts.controlledRunnerTags).toMatchObject([{ runnerId: 'first-runner' }]);
-  expect(result.facts.filter(f => f.kind === 'throw_release')).toHaveLength(2);
+  const controls = result.ruleFacts.controlledBaseContacts, tag = result.ruleFacts.controlledRunnerTags[0],
+    releases = result.facts.filter(f => f.kind === 'throw_release');
+  expect(releases.length).toBeGreaterThan(0);
   for (const release of result.facts.filter(f => f.kind === 'throw_release')) {
     const receiver = input.fielders.find(f => f.playerId === release.receiverPlayerId);
     expect(receiver).toBeDefined();expect(release.receiverPlayerId).not.toBe(release.playerId);
     const name = ({ 1: 'first', 2: 'second', 3: 'third', 4: 'home' } as const)[release.base!];
     expect(release.target).toEqual({ ...input.field.bases[name], y: input.field.bases[name].y + receiver!.position.y });
     // The receiver exists at release, before any later secure catch can be
-    // consulted. This assertion verifies this two-throw fixture's outcome only.
+    // consulted. This assertion verifies this fixture's actual throw outcome.
     const nextRelease = result.facts.find(f => f.kind === 'throw_release' && f.elapsedSeconds > release.elapsedSeconds);
     const catchFact = result.facts.find(f => f.kind === 'catch_secured' && f.elapsedSeconds > release.elapsedSeconds);
     expect(catchFact?.playerId).toBe(release.receiverPlayerId);
     if (nextRelease) expect(catchFact!.elapsedSeconds).toBeLessThan(nextRelease.elapsedSeconds);
   }
   expect(result.finalRunners.every(r => r.retired)).toBe(true);
-  const controls = result.ruleFacts.controlledBaseContacts, tag = result.ruleFacts.controlledRunnerTags[0],
-    releases = result.facts.filter(f => f.kind === 'throw_release');
-  expect(releases.map(f => f.reason)).toEqual(['force_play', 'tag_play']);
-  expect(tag.defenderId).toBe(releases[1].receiverPlayerId);
+  const forceContact = result.facts.find(f => f.kind === 'controlled_base_contact' && f.base === 1)!,
+    forceDelivery = releases.filter(f => f.elapsedSeconds < forceContact.elapsedSeconds
+    && f.receiverPlayerId === controls[0].defenderId).at(-1)!;
+  expect(forceDelivery).toMatchObject({ reason: 'force_play', base: 1, receiverPlayerId: controls[0].defenderId });
+  expect(tag.defenderId).toBe(controls[0].defenderId);
+  // The receiver can make the non-force tag itself. A second throw during
+  // this chase would relinquish a ball it already controls unnecessarily.
+  expect(releases.filter(f => f.elapsedSeconds >= forceContact.elapsedSeconds)).toEqual([]);
   expect(tag.tick).toBeGreaterThan(controls[0].tick);
   expect(tag.tick).toBeGreaterThan(result.facts.find(f => f.kind === 'catch_secured' && f.playerId === tag.defenderId)!.tick);
-  expect(result.diagnostics.handPreparationProofs).toHaveLength(2);
+  expect(result.diagnostics.handPreparationProofs).toHaveLength(releases.length);
   for (const preparation of result.diagnostics.handPreparationProofs) {
     expect(preparation.through).toBeGreaterThan(preparation.from);
     const spec = input.fielders.find(f => f.playerId === preparation.playerId)!;
@@ -283,24 +294,41 @@ it('keeps a deep retrieved ball when every force throw would arrive after the ru
   expect(result.finalRunners[0]).toMatchObject({ base: 1, retired: false });
 });
 
-it('rejects an unready force receiver before preparing a throw and retains control while the batter stops at first', () => {
+it('rejects unready force receivers without fictional throws while the batter takes a safe extra base and declines an unsafe third', () => {
   const input = liveFieldFixture(), result = simulateLiveFieldPlayV1({ ...input, outs: 0,
     ball: { ...input.ball, ball: { ...input.ball.ball, position: v(0, .2, 0), velocity: v(1, -1, 5) } },
     fielders: input.fielders.map((f, i) => ({ ...f, ...(i === 0 ? {} : { reactionSeconds: 60 }),
       ...(i === 2 ? { position: v(25, 1, 25) } : {}) })) });
+  if (process.env.FIELDING_DIAG_REPORT === '1') console.log('UNREADY_RECEIVER_TRACE', JSON.stringify({
+    facts: result.facts.filter(f => ['catch_secured', 'throw_release', 'controlled_base_contact', 'controlled_runner_tag', 'runner_base_touch', 'play_end'].includes(f.kind)),
+    decisions: result.diagnostics.aiTelemetry.runnerDecisions,
+    motions: result.diagnostics.aiTelemetry.runnerMotions.map(m => ({ elapsedSeconds: m.elapsedSeconds, throughBases: m.throughBases, durationSeconds: m.durationSeconds })),
+    holderStates: result.diagnostics.aiTelemetry.holderDecisions.filter((d, i, a) => i === 0 || d.state !== a[i - 1].state || d.base !== a[i - 1].base),
+    relayPlans: result.diagnostics.aiTelemetry.relayPlans.filter((d, i, a) => i === 0 || d.kind !== a[i - 1].kind || d.base !== a[i - 1].base),
+    finalRunners: result.finalRunners }));
   expect(result.end).toMatchObject({ complete: true, reason: 'live_action_complete' });
-  expect(result.ruleFacts.runnerTouches.map(f => f.base)).toEqual([1]);
+  expect(result.ruleFacts.runnerTouches.map(f => f.base)).toEqual([1, 2]);
   const lastArrival = result.facts.filter(f => f.kind === 'runner_base_touch').at(-1)!;
   expect(result.end.elapsedSeconds).toBeGreaterThanOrEqual(lastArrival.elapsedSeconds);
-  expect(result.end.elapsedSeconds - lastArrival.elapsedSeconds).toBeLessThanOrEqual(result.model.controlSeconds + 1e-9);
+  const lastMotion = result.diagnostics.aiTelemetry.runnerMotions.filter(m => m.runnerId === 'batter').at(-1)!;
+  const motorEnd = lastMotion.elapsedSeconds + lastMotion.durationSeconds;
+  expect(motorEnd).toBeGreaterThan(lastArrival.elapsedSeconds);
+  expect(result.end.elapsedSeconds).toBeGreaterThanOrEqual(motorEnd);
+  expect(result.end.elapsedSeconds - motorEnd).toBeLessThanOrEqual(result.model.controlSeconds + 1e-9);
   expect(result.facts.some(f => f.kind === 'catch_secured')).toBe(true);
   expect(result.diagnostics.handPreparationProofs).toEqual([]);
   expect(result.facts.filter(f => f.kind === 'throw_release')).toEqual([]);
+  expect(result.ruleFacts.controlledBaseContacts).toEqual([]);
+  expect(result.ruleFacts.controlledRunnerTags).toEqual([]);
   expect(result.diagnostics.throwDecisions).toEqual([]);
   expect(result.diagnostics.aiTelemetry.relayPlans.some(d => d.base === 1 && d.kind === 'hold' && d.marginSeconds < 0)).toBe(true);
   expect(result.diagnostics.aiTelemetry.holderDecisions.some(d => d.state === 'pursue_tag')).toBe(true);
-  expect(result.diagnostics.aiTelemetry.runnerDecisions.some(d => d.targetBase === 2 && d.reason === 'insufficient_safety_margin')).toBe(true);
-  expect(result.finalRunners[0]).toMatchObject({ base: 1, retired: false });
+  const safeAdvance = result.diagnostics.aiTelemetry.runnerDecisions.find(d => d.targetBase === 2 && d.advance)!;
+  expect(safeAdvance).toMatchObject({ reason: 'safe_race_advance' });
+  expect(safeAdvance.raceMarginSeconds).toBeGreaterThan(LIVE_RUNNER_ADVANCE_POLICY_V1.safetyMarginSeconds);
+  expect(result.diagnostics.aiTelemetry.runnerDecisions.some(d => d.targetBase === 3 && !d.advance
+    && d.reason === 'insufficient_safety_margin')).toBe(true);
+  expect(result.finalRunners[0]).toMatchObject({ base: 2, retired: false, scored: false });
 });
 
 it('cancels a prepared force command when an actual nearby body keeps the release blocked until the runner touches first', () => {

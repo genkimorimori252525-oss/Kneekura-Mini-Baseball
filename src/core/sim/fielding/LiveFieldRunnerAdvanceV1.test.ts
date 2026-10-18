@@ -39,7 +39,7 @@ it('physically advances second to third on a deep caught fly against a weak arm'
   const left = departure(result)!, touched = thirdTouch(result)!;
   expect(left.tick).toBeGreaterThanOrEqual(caught.firstTouchTick + 100_000);
   expect(touched.tick).toBeGreaterThan(left.tick);
-  const routeSeconds = estimateLiveRunnerLegSecondsV1(Math.hypot(19.39, 19.39), 8, 5);
+  const routeSeconds = estimateLiveRunnerLegSecondsV1(Math.hypot(19.39, 19.39), 8, 5, input.field.baseTouchRadiusMeters ?? .28);
   expect(touched.elapsedSeconds - left.elapsedSeconds).toBeCloseTo(routeSeconds, 9);
   expect(result.finalRunners.find(r => r.runnerId === runnerId)!.base).toBeGreaterThanOrEqual(3);
 });
@@ -106,34 +106,47 @@ it('runs on contact with two outs and stops on the actual secured third-out fly'
   expect(result.finalRunners.find(r => r.runnerId === runnerId)!.scored).toBe(false);
 });
 
-it('throws home after the force dissolves and retires the runner only by an actual catcher tag', () => {
-  const raw = fixture(), result = simulateLiveFieldPlayV1({ ...raw,
+it.each([3, 4])('throws home after the force dissolves and retires the runner by a physically held tag (%s m/s)', thirdRunnerSpeed => {
+  const raw = fixture(), input: LiveFieldPlayInputV1 = { ...raw,
     ball: { ...raw.ball, ball: { ...raw.ball.ball, position: v(18, .2, 19), velocity: v(0, -1, 1), spin: v() } },
-    fielders: raw.fielders.map(f => ({ ...f, throwSpeedMps: 32, gloveSpeedMps: 11, throwBackspinRadPerSecond: 120 })),
+    fielders: raw.fielders.map((f, i) => ({ ...f, defensivePosition: (['P', 'C', '1B', '3B', '2B', 'SS', 'LF', 'CF', 'RF'] as const)[i],
+      throwSpeedMps: 32, gloveSpeedMps: 11, throwBackspinRadPerSecond: 120 })),
     runners: [{ ...raw.runners[0], topSpeedMps: 2 },
       { runnerId: 'first-runner', initialBase: 1, topSpeedMps: 8, accelerationMps2: 5, reactionSeconds: .1 },
       raw.runners[1],
-      { runnerId: 'third-runner', initialBase: 3, topSpeedMps: 3, accelerationMps2: 5, reactionSeconds: .1 }],
-  });
-  const firstOut = result.ruleFacts.controlledBaseContacts.find(f => f.base === 1)!,
-    release = result.facts.find(f => f.kind === 'throw_release' && f.base === 4)!,
-    received = result.facts.find(f => f.kind === 'catch_secured' && f.playerId === release.receiverPlayerId && f.tick > release.tick)!,
-    tag = result.ruleFacts.controlledRunnerTags.find(f => f.runnerId === 'third-runner')!;
+      { runnerId: 'third-runner', initialBase: 3, topSpeedMps: thirdRunnerSpeed, accelerationMps2: 5, reactionSeconds: .1 }],
+  }, result = simulateLiveFieldPlayV1(input),
+    firstOut = result.ruleFacts.controlledBaseContacts.find(f => f.base === 1)!,
+    tag = result.facts.find(f => f.kind === 'controlled_runner_tag' && f.runnerId === 'third-runner');
   expect(result.end.complete).toBe(true);
   expect(result.finalRunners.find(r => r.runnerId === 'batter')!.retired).toBe(true);
+  expect(tag).toBeDefined();
+  // Follow actual custody into the tag instead of assuming that the first
+  // intended receiver must also be the final player who tags the runner.
+  const received = result.facts.filter(f => f.kind === 'catch_secured' && f.playerId === tag!.playerId && f.tick < tag!.tick).at(-1)!,
+    release = result.facts.filter(f => f.kind === 'throw_release' && f.base === 4
+      && f.receiverPlayerId === received.playerId && f.tick < received.tick).at(-1)!;
+  expect(received).toBeDefined();
+  expect(release).toBeDefined();
+  expect(release.reason).toBe('tag_play');
   expect(release.tick).toBeGreaterThan(firstOut.tick);
-  expect(release.receiverPlayerId).toBe('fielder-1');
   expect(received.tick).toBeGreaterThan(release.tick);
-  expect(tag.defenderId).toBe(release.receiverPlayerId);
-  expect(tag.tick).toBeGreaterThan(received.tick);
+  expect(tag!.tick).toBeGreaterThan(received.tick);
+  expect(result.facts.some(f => f.kind === 'throw_release' && f.playerId === tag!.playerId
+    && f.tick > received.tick && f.tick < tag!.tick)).toBe(false);
   expect(result.ruleFacts.controlledBaseContacts.filter(f => f.base === 4)).toEqual([]);
   expect(result.ruleFacts.runnerTouches.filter(f => f.runnerId === 'third-runner' && f.base === 4)).toEqual([]);
   expect(result.finalRunners.find(r => r.runnerId === 'third-runner')!.retired).toBe(true);
-  const frame = result.frames.at(-1)!, catcher = frame.fielders.find(f => f.playerId === tag.defenderId)!,
-    runner = frame.runners.find(r => r.runnerId === 'third-runner')!;
-  expect(frame.tick).toBe(tag.tick);
-  expect(Math.hypot(catcher.glove.x - runner.position.x, catcher.glove.y - runner.position.y - .9,
-    catcher.glove.z - runner.position.z)).toBeLessThanOrEqual(.28 + 1e-8);
+  // Request a readonly observation exactly at the actual tag. The later play
+  // closure need not coincide with this out when other decisions remain live.
+  const observed = simulateLiveFieldPlayV1({ ...input, frameSeconds: tag!.elapsedSeconds });
+  expect(observed.facts).toEqual(result.facts);
+  expect(observed.ruleFacts).toEqual(result.ruleFacts);
+  const frame = observed.frames.find(f => f.elapsedSeconds === tag!.elapsedSeconds)!,
+    tagger = frame.fielders.find(f => f.playerId === tag!.playerId)!, runner = frame.runners.find(r => r.runnerId === 'third-runner')!;
+  expect(frame.tick).toBe(tag!.tick);
+  expect(Math.hypot(tagger.glove.x - runner.position.x, tagger.glove.y - runner.position.y - .9,
+    tagger.glove.z - runner.position.z)).toBeLessThanOrEqual(.28 + 1e-8);
 });
 
 it('commits a safe next advance through third instead of closing the held-ball play', () => {

@@ -133,3 +133,81 @@ it('reports backup abandonment and lets pursuit preference change cost without c
     expect(() => assignLiveFieldRolesV1({ ...fixture(), actors: fixture().actors.map(a => ({ ...a, pursuitCostWeight })) })).toThrow();
   }
 });
+
+it('does not create a pickup backup for a secured ball that no longer needs pickup', () => {
+  const raw = fixture(), roles = assignLiveFieldRolesV1({ ...raw, ballPhase: 'held' });
+  expect(roles.some(r => r.taskId === 'pickup-backup')).toBe(false);
+  expect(roles.filter(r => r.intent === 'hold').length).toBeGreaterThanOrEqual(4);
+});
+
+it('backs up the actual issued throw line without chasing the moving ball or creating a fresh cutoff', () => {
+  const raw = fixture(), activeThrow = { from: v(-40, 1, 80), target: v(20, 1, 20) },
+    atRelease = assignLiveFieldRolesV1({ ...raw, ballPhase: 'throw', activeThrow, ballPosition: activeThrow.from }),
+    afterTarget = assignLiveFieldRolesV1({ ...raw, ballPhase: 'throw', activeThrow,
+      ballPosition: v(22, .8, 18), ballVelocity: v(30, -1, -30), previous: atRelease }),
+    backup = atRelease.find(r => r.taskId === 'throw-backup:1')!;
+  expect(atRelease.some(r => r.intent === 'relay' || r.taskId === 'pickup-backup')).toBe(false);
+  expect(afterTarget.find(r => r.taskId === 'throw-backup:1')?.point).toEqual(backup.point);
+  expect((backup.point.x - activeThrow.target.x) * 60 + (backup.point.z - activeThrow.target.z) * -60).toBeGreaterThan(0);
+});
+
+it('backs up an off-base relay receipt at the issued hop rather than a different final base', () => {
+  const raw = fixture(), activeThrow = { from: v(-45, 1, 80), target: v(-15, 1, 48) },
+    roles = assignLiveFieldRolesV1({ ...raw, ballPhase: 'throw', activeThrow,
+      reservations: [raw.reservations[0], { playerId: 'p2', taskId: 'relay:1',
+        intent: 'relay', targetBase: null, point: activeThrow.target }] }),
+    backup = roles.find(r => r.taskId === 'throw-backup:1')!;
+  const direction = v(30, 0, -32), offset = v(backup.point.x + 15, 0, backup.point.z - 48);
+  expect(offset.x * direction.z - offset.z * direction.x).toBeCloseTo(0, 10);
+  expect(Math.hypot(offset.x, offset.z)).toBeCloseTo(10);
+});
+
+it('keeps the catcher at home when an available middle infielder can perform a useful cutoff', () => {
+  const raw = fixture(), positions = ['P', '1B', '2B', 'SS', '3B', 'C', 'LF', 'CF', 'RF'] as const,
+    actors = raw.actors.map((actor, i) => ({ ...actor, defensivePosition: positions[i],
+      position: i === 5 ? v(-10, 1, 50) : i === 3 ? v(-7, 1, 48) : actor.position })),
+    roles = assignLiveFieldRolesV1({ ...raw, actors, ballPosition: v(-40, 1, 80), ballPhase: 'held',
+      reservations: [{ playerId: 'p6', taskId: 'holder', point: v(-40, 1, 80), intent: 'hold', targetBase: null }],
+      threats: [{ base: 1, arrivalSeconds: 9 }] });
+  expect(roles.find(r => r.intent === 'relay')?.playerId).toBe('p3');
+  expect(roles.find(r => r.playerId === 'p5')).toMatchObject({ intent: 'hold', point: actors[5].homePosition });
+});
+
+it('uses first-base responsibility while retaining finite emergency coverage by any capable defender', () => {
+  const raw = fixture(), positions = ['P', '1B', '2B', 'SS', '3B', 'C', 'LF', 'CF', 'RF'] as const,
+    actors = raw.actors.map((actor, i) => ({ ...actor, defensivePosition: positions[i],
+      position: i === 1 ? v(18, 1, 18) : i === 5 ? v(20, 1, 20) : actor.position })),
+    input = { ...raw, actors, ballPhase: 'held' as const, threats: [{ base: 1 as const, arrivalSeconds: 4 }],
+      reservations: [raw.reservations[0]] }, roles = assignLiveFieldRolesV1(input);
+  expect(roles.find(r => r.targetBase === 1)?.playerId).toBe('p1');
+  const emergency = assignLiveFieldRolesV1({ ...input, actors: actors.map(a => a.playerId === 'p5' ? a
+    : { ...a, position: v(1000, 1, 1000), homePosition: v(1000, 1, 1000) }) });
+  expect(emergency.find(r => r.targetBase === 1)?.playerId).toBe('p5');
+});
+
+it('rejects invalid phase, position and missing physical issued-throw geometry', () => {
+  const raw = fixture();
+  expect(() => assignLiveFieldRolesV1({ ...raw, ballPhase: 'teleported' as never })).toThrow();
+  expect(() => assignLiveFieldRolesV1({ ...raw, ballPhase: 'throw' })).toThrow();
+  expect(() => assignLiveFieldRolesV1({ ...raw, ballPhase: 'throw', activeThrow: { from: v(), target: v(NaN) } })).toThrow();
+  expect(() => assignLiveFieldRolesV1({ ...raw, actors: raw.actors.map(a => ({ ...a, defensivePosition: 'X' as never })) })).toThrow();
+});
+
+it('does not send two support jobs to the same patch of ground while preserving actual receiver reservations', () => {
+  const raw = fixture(), roles = assignLiveFieldRolesV1({ ...raw, ballPosition: v(), ballVelocity: v(8, 0, 8), pickupPoint: v(23, 0, 23),
+    reservations: [{ ...raw.reservations[0], point: v(23, 0, 23) }, raw.reservations[1]] }),
+    backup = roles.find(r => r.taskId === 'throw-backup:1')!;
+  expect(roles.some(r => r.taskId === 'pickup-backup')).toBe(false);
+  expect(roles.filter(r => r.intent !== 'hold' && r.intent !== 'intercept'
+    && Math.hypot(r.point.x - backup.point.x, r.point.z - backup.point.z) < 4)).toHaveLength(1);
+  expect(roles.find(r => r.playerId === 'p1')).toEqual(raw.reservations[1]);
+});
+
+it('retains the actual positional response to individual movement ability instead of enforcing a hard position assignment', () => {
+  const raw = fixture(), roles = assignLiveFieldRolesV1({ ...raw, ballPhase: 'held', threats: [{ base: 1, arrivalSeconds: 4 }],
+    reservations: [raw.reservations[0]], actors: raw.actors.map((a, i) => ({ ...a,
+      defensivePosition: i === 1 ? '1B' : i === 5 ? 'C' : 'CF',
+      position: i === 1 ? v(18, 1, 18) : i === 5 ? v(20, 1, 20) : v(200, 1, 200),
+      topSpeedMps: i === 1 ? .2 : a.topSpeedMps, accelerationMps2: i === 1 ? .1 : a.accelerationMps2 })) });
+  expect(roles.find(r => r.targetBase === 1)?.playerId).toBe('p5');
+});

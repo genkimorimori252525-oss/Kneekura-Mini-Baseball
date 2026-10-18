@@ -9305,13 +9305,18 @@ var KneekuraNativeMatchCore = (() => {
   }
 
   // src/core/sim/fielding/LiveFieldRoleAssignmentV1.ts
+  var defensivePositions = ["P", "C", "1B", "2B", "3B", "SS", "LF", "CF", "RF"];
   var LIVE_FIELD_ROLE_POLICY_V1 = Object.freeze({
     switchCostSeconds: 0.25,
     lateArrivalCost: 2,
     backupDepthMeters: 10,
     pickupBackupDepthMeters: 6,
     directThrowSeconds: 0.9,
-    backupHomeAbandonmentCost: 0.1
+    backupHomeAbandonmentCost: 0.1,
+    secondaryResponsibilityCostSeconds: 1.5,
+    otherResponsibilityCostSeconds: 5,
+    catcherHomePriorityCostSeconds: 8,
+    supportSeparationMeters: 4
   });
   var flatDistance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
   var finite6 = (p) => p && [p.x, p.y, p.z].every(Number.isFinite);
@@ -9339,22 +9344,24 @@ var KneekuraNativeMatchCore = (() => {
   }
   function liveFieldRoleCostV1(actor, role, previous) {
     const pursuit = actor.pursuitCostWeight ?? 1;
-    if (!Number.isFinite(pursuit) || pursuit < 0.25 || pursuit > 4) throw new Error("invalid live field pursuit cost weight");
-    const point = role.intent === "hold" ? actor.homePosition : role.point, taskId = role.intent === "hold" ? "hold:" + actor.playerId : role.taskId, arrivalSeconds = liveFieldArrivalSecondsV1(actor, point), weight = role.intent === "base_cover" ? 4 : role.intent === "relay" ? 1 : role.intent === "backup" ? 0.25 : 0.1, homeAbandonmentSeconds = role.intent === "backup" ? flatDistance(actor.homePosition, point) / actor.topSpeedMps : 0, movementCost = weight * arrivalSeconds * (role.intent === "backup" ? pursuit : 1), homeAbandonmentCost = LIVE_FIELD_ROLE_POLICY_V1.backupHomeAbandonmentCost * homeAbandonmentSeconds * pursuit, lateCost = role.deadline === void 0 ? 0 : LIVE_FIELD_ROLE_POLICY_V1.lateArrivalCost * Math.max(0, arrivalSeconds - role.deadline), switchCost = previous && previous.taskId !== taskId ? LIVE_FIELD_ROLE_POLICY_V1.switchCostSeconds : 0;
+    if (!Number.isFinite(pursuit) || pursuit < 0.25 || pursuit > 4 || actor.defensivePosition !== void 0 && !defensivePositions.includes(actor.defensivePosition))
+      throw new Error("invalid live field pursuit cost weight or defensive position");
+    const point = role.intent === "hold" ? actor.homePosition : role.point, taskId = role.intent === "hold" ? "hold:" + actor.playerId : role.taskId, arrivalSeconds = liveFieldArrivalSecondsV1(actor, point), weight = role.intent === "base_cover" ? 4 : role.intent === "relay" ? 1 : role.intent === "backup" ? 0.25 : 0.1, homeAbandonmentSeconds = role.intent === "backup" ? flatDistance(actor.homePosition, point) / actor.topSpeedMps : 0, movementCost = weight * arrivalSeconds * (role.intent === "backup" ? pursuit : 1), homeAbandonmentCost = LIVE_FIELD_ROLE_POLICY_V1.backupHomeAbandonmentCost * homeAbandonmentSeconds * pursuit, responsibilityCost = !actor.defensivePosition || !role.responsiblePositions || role.responsiblePositions.includes(actor.defensivePosition) ? 0 : actor.defensivePosition === "C" ? LIVE_FIELD_ROLE_POLICY_V1.catcherHomePriorityCostSeconds : role.supportingPositions?.includes(actor.defensivePosition) ? LIVE_FIELD_ROLE_POLICY_V1.secondaryResponsibilityCostSeconds : LIVE_FIELD_ROLE_POLICY_V1.otherResponsibilityCostSeconds, lateCost = role.deadline === void 0 ? 0 : LIVE_FIELD_ROLE_POLICY_V1.lateArrivalCost * Math.max(0, arrivalSeconds - role.deadline), switchCost = previous && previous.taskId !== taskId ? LIVE_FIELD_ROLE_POLICY_V1.switchCostSeconds : 0;
     return Object.freeze({
       arrivalSeconds,
       homeAbandonmentSeconds,
       pursuitCostWeight: pursuit,
       movementCost,
       homeAbandonmentCost,
+      responsibilityCost,
       lateCost,
       switchCost,
-      total: movementCost + homeAbandonmentCost + lateCost + switchCost
+      total: movementCost + homeAbandonmentCost + responsibilityCost + lateCost + switchCost
     });
   }
   function assignLiveFieldRolesV1(raw) {
-    const input = cloneInert(raw), actors = input.actors;
-    if (actors.length !== 9 || new Set(actors.map((a) => a.playerId)).size !== actors.length || actors.some((a) => !a.playerId || !finite6(a.position) || !finite6(a.velocity) || !finite6(a.homePosition) || ![a.topSpeedMps, a.accelerationMps2, a.throwSpeedMps].every((n2) => Number.isFinite(n2) && n2 > 0) || !Number.isFinite(a.remainingReactionSeconds) || a.remainingReactionSeconds < 0 || !Number.isFinite(a.pursuitCostWeight ?? 1) || (a.pursuitCostWeight ?? 1) < 0.25 || (a.pursuitCostWeight ?? 1) > 4) || !finite6(input.ballPosition) || !finite6(input.ballVelocity) || !finite6(input.pickupPoint) || ![1, 2, 3, 4].every((n2) => finite6(input.bases[n2]))) throw new Error("invalid live field role geometry/actors");
+    const input = cloneInert(raw), actors = input.actors, ballPhase = input.ballPhase ?? "free";
+    if (actors.length !== 9 || new Set(actors.map((a) => a.playerId)).size !== actors.length || actors.some((a) => !a.playerId || !finite6(a.position) || !finite6(a.velocity) || !finite6(a.homePosition) || ![a.topSpeedMps, a.accelerationMps2, a.throwSpeedMps].every((n2) => Number.isFinite(n2) && n2 > 0) || !Number.isFinite(a.remainingReactionSeconds) || a.remainingReactionSeconds < 0 || a.defensivePosition !== void 0 && !defensivePositions.includes(a.defensivePosition) || !Number.isFinite(a.pursuitCostWeight ?? 1) || (a.pursuitCostWeight ?? 1) < 0.25 || (a.pursuitCostWeight ?? 1) > 4) || !finite6(input.ballPosition) || !finite6(input.ballVelocity) || !finite6(input.pickupPoint) || !["free", "held", "throw"].includes(ballPhase) || ballPhase === "throw" && !input.activeThrow || input.activeThrow !== void 0 && (!finite6(input.activeThrow.from) || !finite6(input.activeThrow.target)) || ![1, 2, 3, 4].every((n2) => finite6(input.bases[n2]))) throw new Error("invalid live field role geometry/actors");
     const reservedIds = /* @__PURE__ */ new Set(), covered = /* @__PURE__ */ new Set(), taskIds = /* @__PURE__ */ new Set();
     for (const role of input.reservations) {
       if (!actors.some((a) => a.playerId === role.playerId) || reservedIds.has(role.playerId) || !role.taskId || taskIds.has(role.taskId) || !finite6(role.point) || !["intercept", "base_cover", "relay", "hold", "tag"].includes(role.intent) || role.intent === "relay" && role.targetBase !== null || role.targetBase !== null && ![1, 2, 3, 4].includes(role.targetBase) || role.targetBase !== null && covered.has(role.targetBase)) throw new Error("duplicate or invalid live field reservation");
@@ -9369,9 +9376,33 @@ var KneekuraNativeMatchCore = (() => {
       threats.set(threat.base, Math.min(threats.get(threat.base) ?? Infinity, threat.arrivalSeconds));
     }
     const available = actors.filter((a) => !reservedIds.has(a.playerId)), tasks = [];
+    const coverPositions = {
+      1: ["1B"],
+      2: ["2B", "SS"],
+      3: ["3B"],
+      4: ["C"]
+    }, coverSupport = {
+      1: ["P", "2B"],
+      2: ["P", "3B"],
+      3: ["SS", "P"],
+      4: ["P"]
+    }, backupPositions = {
+      1: ["RF", "P"],
+      2: ["CF", "LF", "RF"],
+      3: ["LF", "P"],
+      4: ["P"]
+    };
     const primary = input.reservations.find((r) => r.intent === "base_cover")?.targetBase ?? [...threats].sort((a, b) => a[1] - b[1] || a[0] - b[0])[0]?.[0] ?? null;
     for (const [base, deadline] of [...threats].sort((a, b) => a[1] - b[1] || a[0] - b[0])) if (!covered.has(base))
-      tasks.push({ taskId: "cover:" + base, point: input.bases[base], intent: "base_cover", targetBase: base, deadline });
+      tasks.push({
+        taskId: "cover:" + base,
+        point: input.bases[base],
+        intent: "base_cover",
+        targetBase: base,
+        deadline,
+        responsiblePositions: coverPositions[base],
+        supportingPositions: coverSupport[base]
+      });
     const beyond = (from, target, depth, fallback) => {
       let dx = target.x - from.x, dz = target.z - from.z, length = Math.hypot(dx, dz);
       if (length === 0) {
@@ -9382,27 +9413,38 @@ var KneekuraNativeMatchCore = (() => {
       if (length === 0) return { ...target };
       return { x: target.x + dx / length * depth, y: target.y, z: target.z + dz / length * depth };
     };
-    if (primary !== null && tasks.length < available.length) {
-      const target = input.bases[primary], length = flatDistance(input.ballPosition, target), strongest = Math.max(...actors.map((a) => a.throwSpeedMps));
-      if (!input.reservations.some((r) => r.intent === "relay") && length > strongest * LIVE_FIELD_ROLE_POLICY_V1.directThrowSeconds && tasks.length + 1 < available.length)
-        tasks.push({ taskId: "relay:" + primary, point: {
-          x: (input.ballPosition.x + target.x) / 2,
-          y: target.y,
-          z: (input.ballPosition.z + target.z) / 2
-        }, intent: "relay", targetBase: null });
-      tasks.push({
-        taskId: "throw-backup:" + primary,
-        point: beyond(input.ballPosition, target, LIVE_FIELD_ROLE_POLICY_V1.backupDepthMeters, input.ballVelocity),
+    const separatedSupport = (point) => [...input.reservations, ...tasks].every((r) => r.intent === "hold" || flatDistance(point, r.point) >= LIVE_FIELD_ROLE_POLICY_V1.supportSeparationMeters);
+    if ((primary !== null || input.activeThrow) && tasks.length < available.length) {
+      const target = input.activeThrow?.target ?? input.bases[primary], from = input.activeThrow?.from ?? input.ballPosition, length = flatDistance(from, target), strongest = Math.max(...actors.map((a) => a.throwSpeedMps));
+      const relayPoint = { x: (from.x + target.x) / 2, y: target.y, z: (from.z + target.z) / 2 };
+      if (ballPhase !== "throw" && !input.reservations.some((r) => r.intent === "relay") && length > strongest * LIVE_FIELD_ROLE_POLICY_V1.directThrowSeconds && tasks.length + 1 < available.length && separatedSupport(relayPoint))
+        tasks.push({
+          taskId: "relay:" + primary,
+          point: relayPoint,
+          intent: "relay",
+          targetBase: null,
+          responsiblePositions: ["2B", "SS"],
+          supportingPositions: ["1B", "3B"]
+        });
+      const backupPoint = beyond(from, target, LIVE_FIELD_ROLE_POLICY_V1.backupDepthMeters, input.activeThrow ? { x: 0, y: 0, z: 0 } : input.ballVelocity), receivingBase = [1, 2, 3, 4].find((base) => flatDistance(target, input.bases[base]) < LIVE_FIELD_ROLE_POLICY_V1.supportSeparationMeters), offBaseResponsibility = flatDistance(target, input.bases[4]) > flatDistance(input.bases[2], input.bases[4]) ? ["LF", "CF", "RF"] : ["P", "1B", "2B", "3B", "SS"];
+      if (separatedSupport(backupPoint)) tasks.push({
+        taskId: "throw-backup:" + (primary ?? "active"),
+        point: backupPoint,
         intent: "backup",
-        targetBase: null
+        targetBase: null,
+        responsiblePositions: input.activeThrow && receivingBase === void 0 ? offBaseResponsibility : backupPositions[receivingBase ?? primary],
+        supportingPositions: ["P", "LF", "CF", "RF"]
       });
     }
-    if (tasks.length < available.length && flatDistance(input.ballPosition, input.pickupPoint) + Math.hypot(input.ballVelocity.x, input.ballVelocity.z) > 0)
+    const pickupBackup = beyond(input.ballPosition, input.pickupPoint, LIVE_FIELD_ROLE_POLICY_V1.pickupBackupDepthMeters, input.ballVelocity), deepPickup = flatDistance(input.pickupPoint, input.bases[4]) > flatDistance(input.bases[2], input.bases[4]), nearHomePickup = flatDistance(input.pickupPoint, input.bases[4]) < flatDistance(input.bases[1], input.bases[4]) / 2;
+    if (ballPhase === "free" && tasks.length < available.length && separatedSupport(pickupBackup) && flatDistance(input.ballPosition, input.pickupPoint) + Math.hypot(input.ballVelocity.x, input.ballVelocity.z) > 0)
       tasks.push({
         taskId: "pickup-backup",
-        point: beyond(input.ballPosition, input.pickupPoint, LIVE_FIELD_ROLE_POLICY_V1.pickupBackupDepthMeters, input.ballVelocity),
+        point: pickupBackup,
         intent: "backup",
-        targetBase: null
+        targetBase: null,
+        responsiblePositions: deepPickup ? ["LF", "CF", "RF"] : nearHomePickup ? ["C", "P", "1B", "2B", "3B", "SS"] : ["P", "1B", "2B", "3B", "SS"],
+        supportingPositions: ["LF", "CF", "RF"]
       });
     while (tasks.length < available.length)
       tasks.push({ taskId: "hold-slot:" + tasks.length, point: available[0].homePosition, intent: "hold", targetBase: null });
@@ -9427,7 +9469,7 @@ var KneekuraNativeMatchCore = (() => {
     for (let task = n - 1; task >= 0; task--) {
       const actor = parents[mask];
       if (actor < 0) throw new Error("live field role assignment is unresolved");
-      const { deadline: _deadline, ...role } = tasks[task], player = available[actor];
+      const { deadline: _deadline, responsiblePositions: _responsible, supportingPositions: _supporting, ...role } = tasks[task], player = available[actor];
       result.push({ playerId: player.playerId, ...role, ...role.intent === "hold" ? { taskId: "hold:" + player.playerId, point: player.homePosition } : {} });
       mask ^= 1 << actor;
     }
@@ -9473,12 +9515,14 @@ var KneekuraNativeMatchCore = (() => {
     if (!value) throw new Error("live runner advance: " + message);
   }
   var nonnegative = (value) => Number.isFinite(value) && value >= 0;
-  function estimateLiveRunnerLegSecondsV1(distanceMeters, topSpeedMps, accelerationMps2) {
-    assert8(nonnegative(distanceMeters) && Number.isFinite(topSpeedMps) && topSpeedMps > 0 && Number.isFinite(accelerationMps2) && accelerationMps2 > 0, "finite runner route SI required");
-    if (distanceMeters === 0) return 0;
+  function estimateLiveRunnerLegSecondsV1(distanceMeters, topSpeedMps, accelerationMps2, touchRadiusMeters = 0) {
+    assert8(nonnegative(distanceMeters) && Number.isFinite(topSpeedMps) && topSpeedMps > 0 && Number.isFinite(accelerationMps2) && accelerationMps2 > 0 && nonnegative(touchRadiusMeters), "finite runner route SI required");
+    if (distanceMeters <= touchRadiusMeters) return 0;
     const peak = Math.min(topSpeedMps, Math.sqrt(accelerationMps2 * distanceMeters)), accelerateFor = peak / accelerationMps2, coastFor = Math.max(0, (distanceMeters - peak * peak / accelerationMps2) / peak), duration = 2 * accelerateFor + coastFor;
     assert8(Number.isFinite(duration), "runner duration exceeds finite SI");
-    return duration;
+    if (touchRadiusMeters === 0) return duration;
+    const travel = distanceMeters - touchRadiusMeters, acceleratingDistance = peak * peak / (2 * accelerationMps2), coastingDistance = peak * coastFor;
+    return travel <= acceleratingDistance ? Math.sqrt(2 * travel / accelerationMps2) : travel <= acceleratingDistance + coastingDistance ? accelerateFor + (travel - acceleratingDistance) / peak : duration - Math.sqrt(2 * touchRadiusMeters / accelerationMps2);
   }
   function decideLiveRunnerAdvanceV1(input) {
     const safetyMargin = input.policy?.safetyMarginSeconds ?? LIVE_RUNNER_ADVANCE_POLICY_V1.safetyMarginSeconds, recognition = input.policy?.recognitionSeconds ?? LIVE_RUNNER_ADVANCE_POLICY_V1.recognitionSeconds, reaction = input.runner.reactionSeconds;
@@ -9499,7 +9543,8 @@ var KneekuraNativeMatchCore = (() => {
     const runnerTravelSeconds = estimateLiveRunnerLegSecondsV1(
       input.distanceToNextBaseMeters,
       input.runner.topSpeedMps,
-      input.runner.accelerationMps2
+      input.runner.accelerationMps2,
+      input.baseTouchRadiusMeters ?? 0
     ), award = input.awardThroughBase !== void 0 && input.awardThroughBase !== null && input.awardThroughBase > input.currentBase, batter = input.currentBase === 0, twoOuts = input.outs === 2 && input.firstGroundContactElapsedSeconds === null && input.firstFielderTouchElapsedSeconds === null, groundedForce = input.forced && input.firstGroundContactElapsedSeconds !== null, available = cues.filter((cue) => cue !== null), legalCue = batter || award || twoOuts ? input.playStartedAtSeconds : groundedForce ? input.firstGroundContactElapsedSeconds : available.length ? Math.min(...available) : null, readyAtElapsedSeconds = legalCue === null ? null : legalCue + (reaction + recognition);
     assert8(readyAtElapsedSeconds === null || Number.isFinite(readyAtElapsedSeconds), "recognition exceeds finite play clock");
     const runnerArrivalSeconds = readyAtElapsedSeconds === null ? null : Math.max(0, readyAtElapsedSeconds - input.nowSeconds) + runnerTravelSeconds, raceMarginSeconds = input.defenderControlSeconds === null || runnerArrivalSeconds === null ? null : input.defenderControlSeconds - runnerArrivalSeconds;
@@ -10345,7 +10390,7 @@ var KneekuraNativeMatchCore = (() => {
     const field = input.field, base = (n) => field.bases[["home", "first", "second", "third", "home"][n]];
     assert9(Object.values(field.bases).every(finite9) && Number.isFinite(field.fenceRadiusMeters) && Number.isFinite(field.fenceHeightMeters) && field.fenceRadiusMeters > 0 && field.fenceHeightMeters >= 0, "finite field geometry required");
     const fieldGeometry = deriveLiveFieldFenceGeometryV1(field), fenceCenter = fieldGeometry.fenceCenter, fenceRadius = fieldGeometry.fenceRadiusMeters;
-    for (const f of input.fielders) assert9(f.playerId && finite9(f.position) && (!f.velocity || finite9(f.velocity)) && f.position.y > 0 && [f.topSpeedMps, f.accelerationMps2, f.gloveSpeedMps, f.gloveReachMeters, f.gloveRadiusMeters, f.throwSpeedMps].every((x) => Number.isFinite(x) && x > 0) && [f.reactionSeconds, f.transferSeconds].every((x) => Number.isFinite(x) && x >= 0) && f.catchRetention.ticksPerSecond === tps && f.catchRetention.ballRadiusMeters === input.physics.ground.radiusM && f.catchRetention.ballMassKg === input.physics.air.aerodynamics.ballMassKg && [f.catchRetention.pocketRadiusMeters, f.catchRetention.centerRetentionCapacityJ, f.catchRetention.captureDissipationPowerW].every((x) => Number.isFinite(x) && x > 0) && [f.catchRetention.failedContactRestitution, f.catchRetention.failedTangentialDamping, f.catchRetention.failedSpinDamping].every((x) => Number.isFinite(x) && x >= 0 && x <= 1) && (f.throwBackspinRadPerSecond === void 0 || Number.isFinite(f.throwBackspinRadPerSecond) && f.throwBackspinRadPerSecond >= 0) && (!f.throwSpinRadPerSecond || finite9(f.throwSpinRadPerSecond)) && (f.throwDirectionStdRadians === void 0 || Number.isFinite(f.throwDirectionStdRadians) && f.throwDirectionStdRadians >= 0 && f.throwDirectionStdRadians <= 0.12) && (f.fieldingCognition === void 0 || Object.keys(f.fieldingCognition).every((k) => ["decisionSeconds", "pursuitCostWeight"].includes(k)) && Number.isFinite(f.fieldingCognition.decisionSeconds) && f.fieldingCognition.decisionSeconds >= 0 && (f.fieldingCognition.pursuitCostWeight === void 0 || Number.isFinite(f.fieldingCognition.pursuitCostWeight) && f.fieldingCognition.pursuitCostWeight >= 0.25 && f.fieldingCognition.pursuitCostWeight <= 4) && Number.isFinite(f.reactionSeconds + f.fieldingCognition.decisionSeconds)), "explicit fielder SI required");
+    for (const f of input.fielders) assert9(f.playerId && finite9(f.position) && (!f.velocity || finite9(f.velocity)) && f.position.y > 0 && (f.defensivePosition === void 0 || ["P", "C", "1B", "2B", "3B", "SS", "LF", "CF", "RF"].includes(f.defensivePosition)) && [f.topSpeedMps, f.accelerationMps2, f.gloveSpeedMps, f.gloveReachMeters, f.gloveRadiusMeters, f.throwSpeedMps].every((x) => Number.isFinite(x) && x > 0) && [f.reactionSeconds, f.transferSeconds].every((x) => Number.isFinite(x) && x >= 0) && f.catchRetention.ticksPerSecond === tps && f.catchRetention.ballRadiusMeters === input.physics.ground.radiusM && f.catchRetention.ballMassKg === input.physics.air.aerodynamics.ballMassKg && [f.catchRetention.pocketRadiusMeters, f.catchRetention.centerRetentionCapacityJ, f.catchRetention.captureDissipationPowerW].every((x) => Number.isFinite(x) && x > 0) && [f.catchRetention.failedContactRestitution, f.catchRetention.failedTangentialDamping, f.catchRetention.failedSpinDamping].every((x) => Number.isFinite(x) && x >= 0 && x <= 1) && (f.throwBackspinRadPerSecond === void 0 || Number.isFinite(f.throwBackspinRadPerSecond) && f.throwBackspinRadPerSecond >= 0) && (!f.throwSpinRadPerSecond || finite9(f.throwSpinRadPerSecond)) && (f.throwDirectionStdRadians === void 0 || Number.isFinite(f.throwDirectionStdRadians) && f.throwDirectionStdRadians >= 0 && f.throwDirectionStdRadians <= 0.12) && (f.fieldingCognition === void 0 || Object.keys(f.fieldingCognition).every((k) => ["decisionSeconds", "pursuitCostWeight"].includes(k)) && Number.isFinite(f.fieldingCognition.decisionSeconds) && f.fieldingCognition.decisionSeconds >= 0 && (f.fieldingCognition.pursuitCostWeight === void 0 || Number.isFinite(f.fieldingCognition.pursuitCostWeight) && f.fieldingCognition.pursuitCostWeight >= 0.25 && f.fieldingCognition.pursuitCostWeight <= 4) && Number.isFinite(f.reactionSeconds + f.fieldingCognition.decisionSeconds)), "explicit fielder SI required");
     for (const r of input.runners) assert9(r.runnerId && [0, 1, 2, 3].includes(r.initialBase) && [r.topSpeedMps, r.accelerationMps2].every((x) => Number.isFinite(x) && x > 0) && Number.isFinite(r.reactionSeconds) && r.reactionSeconds >= 0 && (!r.position || finite9(r.position)) && (r.advanceSafetyMarginSeconds === void 0 || Number.isFinite(r.advanceSafetyMarginSeconds) && r.advanceSafetyMarginSeconds >= 0 && r.advanceSafetyMarginSeconds <= 3) && (r.roundingRadiusMeters === void 0 || Number.isFinite(r.roundingRadiusMeters) && r.roundingRadiusMeters >= 0.5 && r.roundingRadiusMeters <= 10) && (r.lateralAccelerationMps2 === void 0 || Number.isFinite(r.lateralAccelerationMps2) && r.lateralAccelerationMps2 >= 0.5 && r.lateralAccelerationMps2 <= 20), "explicit runner SI required");
     const facts = [], frames = [], runnerTouches = [], controlledBaseContacts = [], controlledRunnerTags = [], runnerDepartures = [];
     const tick8 = (t) => quantizeEventTick(originTick, t, tps);
@@ -10360,6 +10405,7 @@ var KneekuraNativeMatchCore = (() => {
       catchEnabledAfter: start
     }));
     const runners = input.runners.map((spec) => ({ spec, base: spec.initialBase, p: spec.position ?? base(spec.initialBase), leg: null, retired: false, scored: false }));
+    const physicalBaseDepartures = /* @__PURE__ */ new Map();
     const batter = runners.find((r) => r.base === 0);
     let force = createInitialForceObligationState({
       first: runners.find((r) => r.base === 1)?.spec.runnerId ?? null,
@@ -10389,6 +10435,7 @@ var KneekuraNativeMatchCore = (() => {
     const roundingRecheckAfter = /* @__PURE__ */ new Map();
     const runnerDecisions = [];
     let runnerDecisionPending = false;
+    let lastRunnerEvaluationSeconds = null;
     let unresolvedDetail = null;
     const build = (moment) => {
       kernelBuilds++;
@@ -10492,6 +10539,8 @@ var KneekuraNativeMatchCore = (() => {
       r.retired = true;
       retiredCount++;
       force = retireForceParticipant(force, r.spec.runnerId);
+      runnerDecisionPending = true;
+      controlThrough = t;
     };
     const beginLeg = (r, n, t) => {
       const p = runnerAt(r, t), motion = createLiveRunnerMotionV1({
@@ -10499,9 +10548,11 @@ var KneekuraNativeMatchCore = (() => {
         velocity: runnerVelocityAt(r, t),
         bases: [{ base: n, position: base(n) }],
         topSpeedMps: r.spec.topSpeedMps,
-        accelerationMps2: r.spec.accelerationMps2
+        accelerationMps2: r.spec.accelerationMps2,
+        baseTouchRadiusMeters: field.baseTouchRadiusMeters ?? 0.28
       });
       if (!motion) return;
+      physicalBaseDepartures.delete(r.spec.runnerId);
       r.leg = { from: t, to: n, motion, nextTouchIndex: 0, height: p.y, departure: null };
       runnerMotions.push({
         elapsedSeconds: t,
@@ -10520,7 +10571,7 @@ var KneekuraNativeMatchCore = (() => {
     };
     const runnerArrivalSeconds = (r, n, t) => {
       const touch = r.leg?.motion.touches.slice(r.leg.nextTouchIndex).find((b) => b.base === n);
-      return touch && r.leg ? Math.max(0, r.leg.from + touch.centerElapsedSeconds - t) : estimateLiveRunnerLegSecondsV1(distance5(flat(runnerAt(r, t)), flat(base(n))), r.spec.topSpeedMps, r.spec.accelerationMps2);
+      return touch && r.leg ? Math.max(0, r.leg.from + touch.elapsedSeconds - t) : estimateLiveRunnerLegSecondsV1(distance5(flat(runnerAt(r, t)), flat(base(n))), r.spec.topSpeedMps, r.spec.accelerationMps2, field.baseTouchRadiusMeters ?? 0.28);
     };
     const outTargets = () => {
       const forced = deriveCurrentForceObligations(force).map((o) => ({ ...o, forced: true }));
@@ -10578,6 +10629,7 @@ var KneekuraNativeMatchCore = (() => {
       accelerationMps2: f.spec.accelerationMps2,
       throwSpeedMps: f.spec.throwSpeedMps,
       remainingReactionSeconds: Math.max(0, start + responseSeconds(f) - t),
+      ...f.spec.defensivePosition === void 0 ? {} : { defensivePosition: f.spec.defensivePosition },
       ...f.spec.fieldingCognition?.pursuitCostWeight === void 0 ? {} : { pursuitCostWeight: f.spec.fieldingCognition.pursuitCostWeight }
     });
     const forecast = (f, t) => {
@@ -10781,6 +10833,8 @@ var KneekuraNativeMatchCore = (() => {
           bases: { 1: base(1), 2: base(2), 3: base(3), 4: base(4) },
           ballPosition: ball?.position ?? at(handler.body, t),
           ballVelocity: ball?.velocity ?? v(),
+          ballPhase: possession || pendingCatch ? "held" : throwTarget ? "throw" : "free",
+          ...throwTarget ? { activeThrow: { from: throwTarget.releasedFrom ?? throwTarget.issuedFrom, target: throwTarget.point } } : {},
           pickupPoint: handlerPrediction?.point ?? at(handler.body, t),
           threats,
           reservations,
@@ -10812,7 +10866,7 @@ var KneekuraNativeMatchCore = (() => {
             targetOffset: throwOffset(possession, at(possession.body, t), target),
             maximumRelativeSpeedMps: possession.spec.gloveSpeedMps,
             maximumReachMeters: possession.spec.gloveReachMeters
-          }), carrySeconds = arrive(possession, target), receiverArriveSeconds = arrive(receiver, target), holderDist = distance5(flat(at(possession.body, t)), flat(target)), directReceivingSeconds = Math.max(
+          }), carrySeconds = o.forced ? arrive(possession, target) : liveFieldArrivalSecondsV1({ ...roleActor(possession, t), remainingReactionSeconds: 0 }, runnerAt(r, t), possession.spec.gloveReachMeters), receiverArriveSeconds = arrive(receiver, target), holderDist = distance5(flat(at(possession.body, t)), flat(target)), directReceivingSeconds = Math.max(
             receiverArriveSeconds,
             (preparation.kind === "planned" ? preparation.durationSeconds : Infinity) + throwSeconds
           );
@@ -10878,7 +10932,7 @@ var KneekuraNativeMatchCore = (() => {
         const pick = candidates.find((candidate) => candidate.margin > 0);
         if (pick) {
           const here = distance5(flat(at(possession.body, t)), flat(pick.target));
-          if (!pick.forced && here <= possession.spec.gloveReachMeters + 0.5) {
+          if (!pick.forced && (here <= possession.spec.gloveReachMeters + 0.5 || pick.carryPreferred)) {
             holderTask = { point: runnerAt(runners.find((r) => r.spec.runnerId === pick.runnerId), t), intent: "tag", base: null };
           } else if (here <= (field.baseTouchRadiusMeters ?? 0.28)) {
             holderTask = { point: pick.target, intent: "base_cover", base: pick.base };
@@ -10914,6 +10968,7 @@ var KneekuraNativeMatchCore = (() => {
               forced: pick.forced,
               point: hop?.target ?? add15(pick.target, v(0, pick.receiver.spec.position.y, 0)),
               receiverPoint: hop?.receiverPoint ?? pick.target,
+              issuedFrom: at(possession.glove, t),
               intent: hop?.intent ?? "base_cover"
             };
             releaseAt = through;
@@ -11130,6 +11185,7 @@ var KneekuraNativeMatchCore = (() => {
         f.glove = glove;
       }
       runnerDecisionPending = false;
+      lastRunnerEvaluationSeconds = t;
       const defenseControlCache = /* @__PURE__ */ new Map();
       const estimateDefenseControl = (n) => {
         if (defenseControlCache.has(n)) return defenseControlCache.get(n);
@@ -11163,6 +11219,7 @@ var KneekuraNativeMatchCore = (() => {
           currentBase: r.base,
           outs: input.outs,
           distanceToNextBaseMeters: distance5(flat(runnerAt(r, t)), flat(base(next))),
+          baseTouchRadiusMeters: field.baseTouchRadiusMeters ?? 0.28,
           targetOccupied,
           runner: r.spec,
           forced,
@@ -11198,7 +11255,7 @@ var KneekuraNativeMatchCore = (() => {
           lateralAccelerationMps2: r.spec.lateralAccelerationMps2 ?? 1.5 * r.spec.accelerationMps2,
           baseTouchRadiusMeters: field.baseTouchRadiusMeters ?? 0.28
         });
-        if (!motion || awardThrough === null && defense - motion.touches[motion.touches.length - 1].centerElapsedSeconds <= (r.spec.advanceSafetyMarginSeconds ?? 0.35)) continue;
+        if (!motion || awardThrough === null && defense - motion.touches[motion.touches.length - 1].elapsedSeconds <= (r.spec.advanceSafetyMarginSeconds ?? 0.35)) continue;
         r.leg = { from: t, to: leg.to, motion, nextTouchIndex: 0, height: position.y, departure: null };
         runnerMotions.push({
           elapsedSeconds: t,
@@ -11248,7 +11305,7 @@ var KneekuraNativeMatchCore = (() => {
         choose({ kind: "hand_prepared", t: currentHandPreparation.curve.throughElapsedSeconds });
       if (releaseAt !== null && releaseAt <= horizon) choose({ kind: "release", t: Math.max(time, releaseAt) });
       for (const r of runners) if (r.leg) {
-        const touch = r.leg.motion.touches[r.leg.nextTouchIndex], atTime = r.leg.from + (touch?.centerElapsedSeconds ?? r.leg.motion.durationSeconds);
+        const touch = r.leg.motion.touches[r.leg.nextTouchIndex], atTime = r.leg.from + (touch?.elapsedSeconds ?? r.leg.motion.durationSeconds);
         if (atTime <= horizon) choose({ kind: touch ? "arrival" : "runner_stop", runner: r, t: atTime });
         if (r.leg.departure && r.leg.departure.elapsedSeconds <= horizon)
           choose({ kind: "runner_departure", runner: r, t: r.leg.departure.elapsedSeconds });
@@ -11646,13 +11703,13 @@ var KneekuraNativeMatchCore = (() => {
           controlThrough = time;
         } else if (e.kind === "arrival") {
           const r = e.runner, leg = r.leg, touch = leg.motion.touches[leg.nextTouchIndex];
+          physicalBaseDepartures.delete(r.spec.runnerId);
           r.p = runnerAt(r, time);
           r.base = touch.base;
           r.scored = r.base === 4;
           leg.nextTouchIndex++;
           leg.to = leg.motion.touches[leg.nextTouchIndex]?.base ?? r.base;
-          if (leg.nextTouchIndex === leg.motion.touches.length) r.leg = null;
-          else {
+          if (leg.nextTouchIndex < leg.motion.touches.length) {
             let lo = touch.centerElapsedSeconds, hi = leg.motion.touches[leg.nextTouchIndex].centerElapsedSeconds;
             for (let i = 0; i < 53 && (lo + hi) / 2 !== lo && (lo + hi) / 2 !== hi; i++) {
               const mid = (lo + hi) / 2, p = leg.motion.sampleAtElapsedSeconds(mid).position;
@@ -11676,12 +11733,20 @@ var KneekuraNativeMatchCore = (() => {
         } else if (e.kind === "runner_departure") {
           const r = e.runner, departure = r.leg.departure;
           r.leg.departure = null;
+          physicalBaseDepartures.set(r.spec.runnerId, { ...departure, tick: tick8(time) });
           runnerDepartures.push({ kind: "runner_base_departure", runnerId: r.spec.runnerId, base: departure.base, tick: tick8(time) });
           emit("runner_base_departure", time, { runnerId: r.spec.runnerId, base: departure.base });
         } else if (e.kind === "base") applyBaseControl(e.f, e.base, time);
         else if (e.kind === "tag") {
           const r = e.runner;
-          controlledRunnerTags.push({ kind: "controlled_runner_tag", defenderId: e.f.spec.playerId, runnerId: r.spec.runnerId, tick: tick8(time) });
+          const departure = physicalBaseDepartures.get(r.spec.runnerId), position = runnerAt(r, time), velocity = runnerVelocityAt(r, time), radial = departure ? flat(sub8(position, base(departure.base))) : v(), protectionEndedByDeparture = departure && departure.base === r.base && departure.tick === tick8(time) && departure.elapsedSeconds <= time && !deriveCurrentForceObligations(force).some((o) => o.runnerId === r.spec.runnerId) && norm6(radial) > (field.baseTouchRadiusMeters ?? 0.28) && radial.x * velocity.x + radial.z * velocity.z > 0 && distance5(at(e.f.glove, time), add15(position, v(0, 0.9, 0))) <= 0.28 ? { base: departure.base, tick: departure.tick } : void 0;
+          controlledRunnerTags.push({
+            kind: "controlled_runner_tag",
+            defenderId: e.f.spec.playerId,
+            runnerId: r.spec.runnerId,
+            tick: tick8(time),
+            ...protectionEndedByDeparture ? { protectionEndedByDeparture } : {}
+          });
           emit("controlled_runner_tag", time, { playerId: e.f.spec.playerId, runnerId: r.spec.runnerId });
           retire(r, time);
         } else if (e.kind === "fence") {
@@ -11746,13 +11811,13 @@ var KneekuraNativeMatchCore = (() => {
         endReason = "third_out";
         terminal = true;
       }
-      const runnersComplete = runners.every((r) => r.retired || r.scored || !r.leg && (r.base > 0 || !!flyCatch));
-      if (overFence?.fair && overFence.untouchedGround && runners.every((r) => r.retired || r.scored)) {
+      const runnersComplete = runners.every((r) => r.retired || !r.leg && (r.scored || r.base > 0 || !!flyCatch));
+      if (overFence?.fair && overFence.untouchedGround && runners.every((r) => r.retired || r.scored && !r.leg)) {
         endReason = "home_run_completed";
         terminal = true;
       }
       const awardedFence = overFence;
-      if (awardedFence?.fair && !awardedFence.untouchedGround && runners.every((r) => r.retired || r.base >= Math.min(4, (awardedFence.awardFrom?.[r.spec.runnerId] ?? r.spec.initialBase) + 2))) {
+      if (awardedFence?.fair && !awardedFence.untouchedGround && runners.every((r) => r.retired || !r.leg && r.base >= Math.min(4, (awardedFence.awardFrom?.[r.spec.runnerId] ?? r.spec.initialBase) + 2))) {
         endReason = "ground_rule_award_completed";
         terminal = true;
       }
@@ -11801,6 +11866,14 @@ var KneekuraNativeMatchCore = (() => {
         collisionQueries,
         unresolvedDetail,
         departureProofs,
+        playClosure: {
+          lastRunnerEvaluationSeconds,
+          runnerDecisionPending,
+          activeRunnerIds: runners.filter((r) => !r.retired && r.leg).map((r) => r.spec.runnerId),
+          possessedBy: possession?.spec.playerId ?? null,
+          pendingCatchBy: pendingCatch?.fielder.spec.playerId ?? null,
+          scheduledReleaseSeconds: releaseAt
+        },
         aiTelemetry: { roleTransitions, throwTargetCancellations, contactDiagnostics, holderDecisions, runnerDecisions, relayPlans, runnerMotions },
         renderFramesOwnPhysics: false,
         namedLeagueCalibration: false,
@@ -12062,6 +12135,10 @@ var KneekuraNativeMatchCore = (() => {
       if ("runnerId" in e) assert10(runners.includes(e.runnerId), "unknown physical runner");
       if ("base" in e) assert10([1, 2, 3, 4].includes(e.base), "invalid physical base");
       if ("defenderId" in e) assert10(id5(e.defenderId), "invalid physical defender");
+      if (e.kind === "controlled_runner_tag" && e.protectionEndedByDeparture) {
+        const proof = e.protectionEndedByDeparture;
+        assert10([1, 2, 3, 4].includes(proof.base) && validTime(proof.tick) && proof.tick === e.tick, "invalid tag departure evidence");
+      }
     }
     const retire = (runnerId, time, classification2, cause, defenderId) => {
       if (retired.has(runnerId) || m.outs + outcomes.length >= 3) return;
@@ -12082,7 +12159,10 @@ var KneekuraNativeMatchCore = (() => {
         if (obligation && group.some((e) => e.kind === "runner_base_touch" && e.runnerId === obligation.runnerId && e.base === control.base)) return unresolved("simultaneous_force_arrival", time);
       }
       for (const tag of group.filter((e) => e.kind === "controlled_runner_tag")) {
-        if (group.some((e) => (e.kind === "runner_base_touch" || e.kind === "runner_base_departure") && e.runnerId === tag.runnerId)) return unresolved("simultaneous_tag_arrival_or_departure", time);
+        if (group.some((e) => e.kind === "runner_base_touch" && e.runnerId === tag.runnerId)) return unresolved("simultaneous_tag_arrival_or_departure", time);
+        const departures = group.filter((e) => e.kind === "runner_base_departure" && e.runnerId === tag.runnerId), proof = tag.protectionEndedByDeparture, bound = !!proof && departures.length === 1 && departures[0].base === proof.base && departures[0].tick === proof.tick && atBase.get(tag.runnerId) === proof.base && !deriveCurrentForceObligations(force).some((o) => o.runnerId === tag.runnerId);
+        if (proof && !bound) return unresolved("unbound_tag_departure_evidence", time);
+        if (departures.length && !bound) return unresolved("simultaneous_tag_arrival_or_departure", time);
       }
       for (const e of group.filter((e2) => e2.kind === "fly_catch")) retire(batter, time, "batter_runner_before_first", "fly_catch", e.defenderId);
       for (const e of group.filter((a) => a.kind === "runner_base_departure")) {
@@ -12983,6 +13063,7 @@ var KneekuraNativeMatchCore = (() => {
           const playerId = def.defense[role], p = physical(players.get(playerId));
           return {
             playerId,
+            defensivePosition: role,
             position: placements[role],
             reactionSeconds: p.reactionSeconds,
             topSpeedMps: p.topSpeedMps,

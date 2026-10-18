@@ -74,10 +74,15 @@ function verifyActualRoute(input: LiveFieldPlayInputV1, result: Result, id: stri
       .toBeLessThanOrEqual((input.runners.find(r => r.runnerId === id)!.lateralAccelerationMps2 ?? 7.5) + 1e-8);
   }
   for (const touch of result.facts.filter(f => f.kind === 'runner_base_touch' && f.runnerId === id)) {
-    expect(distance(touch.position!, base(input, touch.base!))).toBeLessThan(1e-8);
+    expect(distance(touch.position!, base(input, touch.base!))).toBeCloseTo(input.field.baseTouchRadiusMeters ?? .28, 8);
     const active = rebuilt.filter(p => p.record.elapsedSeconds <= touch.elapsedSeconds && p.record.throughBases.includes(touch.base!)).at(-1)!;
     const sampled = active.motion.sampleAtElapsedSeconds(touch.elapsedSeconds - active.record.elapsedSeconds);
     expect(distance(sampled.position, touch.position!)).toBeLessThan(1e-8);
+    const contact = active.motion.touches.find(t => t.base === touch.base)!;
+    expect(touch.elapsedSeconds - active.record.elapsedSeconds).toBeCloseTo(contact.elapsedSeconds, 10);
+    expect(contact.centerElapsedSeconds).toBeGreaterThan(contact.elapsedSeconds);
+    const before = active.motion.sampleAtElapsedSeconds(contact.elapsedSeconds - 1e-7);
+    expect(distance(before.position, base(input, touch.base!))).toBeGreaterThan(input.field.baseTouchRadiusMeters ?? .28);
     if (touch.base !== active.record.throughBases.at(-1)) expect(sampled.speedMps).toBeGreaterThan(.1);
   }
   return rebuilt;
@@ -158,7 +163,9 @@ describe('actual live runner rounding', () => {
     expect(result.ruleFacts.runnerTouches.filter(t => t.runnerId === runnerId).map(t => t.base)).toEqual([3]);
     const plans = verifyActualRoute(input, result, runnerId);
     expect(plans.every(p => p.record.throughBases.length === 1)).toBe(true);
-    expect(result.finalRunners.find(r => r.runnerId === runnerId)).toMatchObject({ base: 3, position: input.field.bases.third, retired: false, scored: false });
+    const finalRunner = result.finalRunners.find(r => r.runnerId === runnerId)!;
+    expect(finalRunner).toMatchObject({ base: 3, retired: false, scored: false });
+    expect(distance(finalRunner.position, input.field.bases.third)).toBeLessThan(1e-10);
     expect(result.frames.at(-1)!.runners.find(r => r.runnerId === runnerId)!.velocity).toEqual(v());
     expect(result.ruleFacts.runnerDepartures.filter(f => f.runnerId === runnerId && f.base === 3)).toEqual([]);
   });

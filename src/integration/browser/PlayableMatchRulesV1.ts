@@ -114,7 +114,9 @@ export function reducePlayableMatchV1(raw:PlayableMatchRuleInputV1):PlayableMatc
   for(const e of events){assert(validTime(e.tick),'fact outside physical play interval');
     if('runnerId' in e)assert(runners.includes(e.runnerId),'unknown physical runner');
     if('base' in e)assert([1,2,3,4].includes(e.base),'invalid physical base');
-    if('defenderId' in e)assert(id(e.defenderId),'invalid physical defender');}
+    if('defenderId' in e)assert(id(e.defenderId),'invalid physical defender');
+    if(e.kind==='controlled_runner_tag'&&e.protectionEndedByDeparture){const proof=e.protectionEndedByDeparture;
+      assert([1,2,3,4].includes(proof.base)&&validTime(proof.tick)&&proof.tick===e.tick,'invalid tag departure evidence');}}
   const retire=(runnerId:string,time:number,classification:CorrectOutClassification,cause:PlayableRunnerOutV1['cause'],defenderId:string)=>{
     if(retired.has(runnerId)||m.outs+outcomes.length>=3)return;
     retired.add(runnerId);atBase.set(runnerId,null);force=retireForceParticipant(force,runnerId);outcomes.push({runnerId,tick:time,classification,cause,defenderId});
@@ -131,7 +133,14 @@ export function reducePlayableMatchV1(raw:PlayableMatchRuleInputV1):PlayableMatc
       if(obligation&&group.some(e=>e.kind==='runner_base_touch'&&e.runnerId===obligation.runnerId&&e.base===control.base))return unresolved('simultaneous_force_arrival',time);
     }
     for(const tag of group.filter((e):e is ControlledRunnerTagFact=>e.kind==='controlled_runner_tag')){
-      if(group.some(e=>(e.kind==='runner_base_touch'||e.kind==='runner_base_departure')&&e.runnerId===tag.runnerId))return unresolved('simultaneous_tag_arrival_or_departure',time);
+      // An incoming touch remains a race. A proven outgoing protection exit
+      // can instead enable an already-overlapping glove in the same tick.
+      if(group.some(e=>e.kind==='runner_base_touch'&&e.runnerId===tag.runnerId))return unresolved('simultaneous_tag_arrival_or_departure',time);
+      const departures=group.filter((e):e is RunnerBaseDepartureFact=>e.kind==='runner_base_departure'&&e.runnerId===tag.runnerId),proof=tag.protectionEndedByDeparture,
+        bound=!!proof&&departures.length===1&&departures[0].base===proof.base&&departures[0].tick===proof.tick
+          &&atBase.get(tag.runnerId)===proof.base&&!deriveCurrentForceObligations(force).some(o=>o.runnerId===tag.runnerId);
+      if(proof&&!bound)return unresolved('unbound_tag_departure_evidence',time);
+      if(departures.length&&!bound)return unresolved('simultaneous_tag_arrival_or_departure',time);
     }
     for(const e of group.filter(e=>e.kind==='fly_catch'))retire(batter,time,'batter_runner_before_first','fly_catch',e.defenderId);
     for(const e of group.filter((a):a is RunnerBaseDepartureFact=>a.kind==='runner_base_departure')){

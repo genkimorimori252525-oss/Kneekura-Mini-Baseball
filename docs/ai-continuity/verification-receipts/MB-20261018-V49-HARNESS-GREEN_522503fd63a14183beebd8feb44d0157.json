@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V49-HARNESS-GREEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts",
+    "--reporter=dot",
+    "-t",
+    "detects"
+  ],
+  "observed_at": "2026-10-18T08:05:29.394+00:00",
+  "elapsed_ms": 3047,
+  "git_head": "d54aa62aec6ce643f216dbaedfbaba2f36b31e3b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V49-HARNESS-GREEN_522503fd63a14183beebd8feb44d0157.log",
+  "output_sha256": "d06bde4c9b3cf68d394014835430b188f48d2692b631ed5e58cfd73bb3778eec",
+  "receipt_id": "MB-20261018-V49-HARNESS-GREEN_522503fd63a14183beebd8feb44d0157"
+}

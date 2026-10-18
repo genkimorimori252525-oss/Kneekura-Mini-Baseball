@@ -1,0 +1,250 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+stdout | src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > audits the full 20-scenario canonical fielding matrix
+
+================ CANONICAL 20-SCENARIO DIAGNOSTIC REPORT (DEFAULT TIER) ================
+=== [P_comebacker (infield_grounder)] territory=fair outs=1 firstBounceZ=3.5m firstCatch=P ===
+  Oracle: infieldReachable=true earliestInfielder=P@+0.84s earliestAny=P@+0.84s
+  Approaches: P(minDist=1.18m, gloveGap=0.13m@+0.83s, spd=3.0->3.0m/s), C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s)
+  HolderDecision @+1.31s: state=prepare_throw base=1 margin=2.53s recvSec=0.94s carrySec=3.22s
+  Throw -> Base 1: def-P -> def-1B play=force rel=+1.77s outcome=glove_secured sec=+2.40s runner=n/a distToBag=0.14m minGloveGap=0.495m@+2.37s minBodyGap=0.936m cancelAt=n/a baseTouched=true
+  [OK] No anomalies detected.
+
+=== [3B_routine (infield_grounder)] territory=fair outs=1 firstBounceZ=3.3m firstCatch=3B ===
+  Oracle: infieldReachable=true earliestInfielder=3B@+1.60s earliestAny=3B@+1.60s
+  Approaches: C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s), 3B(minDist=1.15m, gloveGap=-0.00m@+1.60s, spd=7.0->7.0m/s)
+  HolderDecision @+2.07s: state=prepare_throw base=1 margin=1.06s recvSec=1.64s carrySec=6.23s
+  Throw -> Base 1: def-3B -> def-1B play=force rel=+2.34s outcome=glove_secured sec=+3.73s runner=n/a distToBag=0.02m minGloveGap=0.837m@+3.69s minBodyGap=1.359m cancelAt=n/a baseTouched=true
+  [OK] No anomalies detected.
+
+=== [56_hole_grounder (infield_grounder)] territory=fair outs=1 firstBounceZ=4.3m firstCatch=SS ===
+  Oracle: infieldReachable=true earliestInfielder=SS@+1.42s earliestAny=SS@+1.42s
+  Approaches: C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s), SS(minDist=0.90m, gloveGap=-0.05m@+1.43s, spd=5.7->5.7m/s)
+  HolderDecision @+1.91s: state=prepare_throw base=1 margin=1.33s recvSec=1.54s carrySec=5.69s
+  Throw -> Base 1: def-SS -> def-1B play=force rel=+2.17s outcome=glove_secured sec=+3.47s runner=n/a distToBag=0.02m minGloveGap=1.222m@+3.41s minBodyGap=1.680m cancelAt=n/a baseTouched=true
+  [OK] No anomalies detected.
+
+=== [SS_routine (infield_grounder)] territory=fair outs=1 firstBounceZ=4.0m firstCatch=SS ===
+  Oracle: infieldReachable=true earliestInfielder=SS@+1.46s earliestAny=SS@+1.46s
+  Approaches: C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s), SS(minDist=1.55m, gloveGap=0.49m@+1.43s, spd=5.9->5.9m/s)
+  HolderDecision @+1.94s: state=prepare_throw base=1 margin=1.62s recvSec=1.23s carrySec=4.59s
+  Throw -> Base 1: def-SS -> def-1B play=force rel=+2.20s outcome=glove_secured sec=+3.17s runner=n/a distToBag=0.07m minGloveGap=0.355m@+3.14s minBodyGap=0.814m cancelAt=n/a baseTouched=true
+  [OK] No anomalies detected.
+
+=== [SS_up_middle (infield_grounder)] territory=fair outs=0 firstBounceZ=4.3m firstCatch=CF ===
+  Oracle: infieldReachable=false earliestInfielder=none earliestAny=CF@+3.74s
+  Approaches: P(minDist=2.37m, gloveGap=2.37m@+0.83s, spd=0.0->0.0m/s), C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s), SS(minDist=2.19m, gloveGap=2.21m@+1.87s, spd=8.0->8.0m/s), CF(minDist=0.98m, gloveGap=-0.04m@+3.74s, spd=8.0->8.0m/s)
+  HolderDecision @+4.22s: state=pursue_tag base=1 margin=-7.51s recvSec=Infinitys carrySec=8.07s
+  [OK] No anomalies detected.
+
+=== [2B_routine (infield_grounder)] territory=fair outs=1 firstBounceZ=4.0m firstCatch=2B ===
+  Oracle: infieldReachable=true earliestInfielder=2B@+1.44s earliestAny=2B@+1.44s
+  Approaches: C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s), 2B(minDist=1.29m, gloveGap=0.11m@+1.43s, spd=6.1->6.1m/s)
+  HolderDecision @+1.91s: state=prepare_throw base=1 margin=2.18s recvSec=0.69s carrySec=3.10s
+  Throw -> Base 1: def-2B -> def-1B play=force rel=+2.14s outcome=glove_secured sec=+2.60s runner=n/a distToBag=0.27m minGloveGap=1.627m@+2.53s minBodyGap=2.068m cancelAt=n/a baseTouched=true
+  [OK] No anomalies detected.
+
+=== [34_hole_grounder (infield_grounder)] territory=fair outs=1 firstBounceZ=4.0m firstCatch=2B ===
+  Oracle: infieldReachable=true earliestInfielder=2B@+1.48s earliestAny=2B@+1.48s
+  Approaches: C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s), 2B(minDist=1.01m, gloveGap=-0.10m@+1.49s, spd=5.9->5.9m/s)
+  HolderDecision @+1.95s: state=prepare_throw base=1 margin=2.26s recvSec=0.57s carrySec=1.71s
+  Throw -> Base 1: def-2B -> def-1B play=force rel=+2.16s outcome=glove_secured sec=+2.51s runner=n/a distToBag=0.30m minGloveGap=0.256m@+2.48s minBodyGap=0.840m cancelAt=n/a baseTouched=true
+  [OK] No anomalies detected.
+
+=== [1B_routine (infield_grounder)] territory=fair outs=1 firstBounceZ=3.2m firstCatch=1B ===
+  Oracle: infieldReachable=true earliestInfielder=1B@+1.46s earliestAny=1B@+1.46s
+  Approaches: C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s), 1B(minDist=0.87m, gloveGap=-0.12m@+1.49s, spd=5.9->5.9m/s)
+  HolderDecision @+1.95s: state=prepare_throw base=1 margin=1.57s recvSec=1.26s carrySec=2.67s
+  Throw -> Base 1: def-1B -> def-2B play=force rel=+3.44s outcome=glove_secured sec=+3.71s runner=n/a distToBag=0.16m minGloveGap=0.076m@+3.69s minBodyGap=0.439m cancelAt=n/a baseTouched=true
+  [OK] No anomalies detected.
+
+=== [slow_roller_3B (slow_roller)] territory=fair outs=1 firstBounceZ=2.1m firstCatch=P ===
+  Oracle: infieldReachable=true earliestInfielder=P@+2.12s earliestAny=P@+2.12s
+  Approaches: P(minDist=1.31m, gloveGap=0.26m@+2.09s, spd=8.0->8.0m/s), C(minDist=1.80m, gloveGap=1.74m@+0.00s, spd=0.0->0.0m/s)
+  HolderDecision @+2.60s: state=prepare_throw base=1 margin=0.67s recvSec=1.52s carrySec=6.18s
+  Throw -> Base 1: def-P -> def-1B play=force rel=+2.88s outcome=glove_secured sec=+4.19s runner=n/a distToBag=0.02m minGloveGap=1.169m@+4.13s minBodyGap=1.677m cancelAt=n/a baseTouched=true
+  [OK] No anomalies detected.
+
+=== [slow_roller_2B (slow_roller)] territory=fair outs=1 firstBounceZ=2.4m firstCatch=P ===
+  Oracle: infieldReachable=true earliestInfielder=P@+1.84s earliestAny=P@+1.84s
+  Approaches: P(minDist=1.26m, gloveGap=0.23m@+1.81s, spd=8.0->8.0m/s), C(minDist=1.80m, gloveGap=1.74m@+0.00s, spd=0.0->0.0m/s)
+  HolderDecision @+2.32s: state=prepare_throw base=1 margin=1.89s recvSec=0.58s carrySec=1.93s
+  Throw -> Base 1: def-P -> def-1B play=force rel=+2.59s outcome=glove_secured sec=+2.86s runner=n/a distToBag=0.19m minGloveGap=0.963m@+2.81s minBodyGap=1.334m cancelAt=n/a baseTouched=true
+  [OK] No anomalies detected.
+
+=== [DP_643_grounder (double_play)] territory=fair outs=2 firstBounceZ=4.0m firstCatch=SS ===
+  Oracle: infieldReachable=true earliestInfielder=SS@+1.44s earliestAny=SS@+1.44s
+  Approaches: C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s), SS(minDist=1.17m, gloveGap=0.09m@+1.43s, spd=5.7->5.7m/s)
+  HolderDecision @+1.91s: state=prepare_throw base=2 margin=2.31s recvSec=0.74s carrySec=2.57s
+  Throw -> Base 2: def-SS -> def-2B play=force rel=+2.80s outcome=glove_secured sec=+3.15s runner=n/a distToBag=0.18m minGloveGap=1.344m@+3.08s minBodyGap=1.886m cancelAt=n/a baseTouched=true
+  Throw -> Base 1: def-2B -> def-1B play=force rel=+3.84s outcome=glove_secured sec=+4.76s runner=n/a distToBag=0.00m minGloveGap=0.297m@+4.73s minBodyGap=0.774m cancelAt=n/a baseTouched=true
+  [OK] No anomalies detected.
+
+=== [DP_463_grounder (double_play)] territory=fair outs=2 firstBounceZ=4.0m firstCatch=2B ===
+  Oracle: infieldReachable=true earliestInfielder=2B@+1.42s earliestAny=2B@+1.42s
+  Approaches: C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s), 2B(minDist=0.90m, gloveGap=-0.06m@+1.43s, spd=5.9->5.9m/s)
+  HolderDecision @+1.90s: state=prepare_throw base=2 margin=2.27s recvSec=0.78s carrySec=2.70s
+  Throw -> Base 2: def-2B -> def-SS play=force rel=+2.88s outcome=glove_secured sec=+3.23s runner=n/a distToBag=0.17m minGloveGap=0.601m@+3.19s minBodyGap=1.056m cancelAt=n/a baseTouched=true
+  Throw -> Base 1: def-SS -> def-1B play=force rel=+3.92s outcome=glove_secured sec=+4.84s runner=n/a distToBag=0.01m minGloveGap=0.957m@+4.79s minBodyGap=1.422m cancelAt=n/a baseTouched=true
+  [OK] No anomalies detected.
+
+=== [force_3B_grounder (double_play)] territory=fair outs=0 firstBounceZ=3.3m firstCatch=LF ===
+  Oracle: infieldReachable=false earliestInfielder=none earliestAny=LF@+3.48s
+  Approaches: C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s), LF(minDist=1.04m, gloveGap=0.12m@+3.46s, spd=8.0->8.0m/s)
+  HolderDecision @+3.95s: state=pursue_tag base=3 margin=-4.06s recvSec=Infinitys carrySec=5.07s
+  [OK] No anomalies detected.
+
+=== [routine_CF_fly (outfield_fly)] territory=fair outs=1 firstBounceZ=105.9m firstCatch=CF ===
+  Oracle: infieldReachable=false earliestInfielder=none earliestAny=CF@+5.16s
+  Approaches: P(minDist=0.53m, gloveGap=10.68m@+0.66s, spd=0.0->0.0m/s), C(minDist=1.80m, gloveGap=1.65m@+0.00s, spd=0.0->0.0m/s), CF(minDist=0.41m, gloveGap=0.56m@+5.12s, spd=8.0->0.3m/s)
+  HolderDecision @+5.62s: state=hold_no_positive_margin base=none margin=n/as recvSec=n/as carrySec=n/as
+  [OK] No anomalies detected.
+
+=== [routine_LF_fly (outfield_fly)] territory=fair outs=1 firstBounceZ=73.9m firstCatch=LF ===
+  Oracle: infieldReachable=false earliestInfielder=none earliestAny=LF@+4.40s
+  Approaches: C(minDist=1.80m, gloveGap=1.65m@+0.00s, spd=0.0->0.0m/s), LF(minDist=0.38m, gloveGap=-0.07m@+4.40s, spd=4.0->2.8m/s)
+  HolderDecision @+4.87s: state=hold_no_positive_margin base=none margin=n/as recvSec=n/as carrySec=n/as
+  [OK] No anomalies detected.
+
+=== [routine_RF_fly (outfield_fly)] territory=fair outs=1 firstBounceZ=73.9m firstCatch=RF ===
+  Oracle: infieldReachable=false earliestInfielder=none earliestAny=RF@+4.40s
+  Approaches: C(minDist=1.80m, gloveGap=1.65m@+0.00s, spd=0.0->0.0m/s), 2B(minDist=2.73m, gloveGap=19.62m@+1.60s, spd=6.3->6.3m/s), RF(minDist=0.49m, gloveGap=-0.07m@+4.40s, spd=4.1->2.9m/s)
+  HolderDecision @+4.87s: state=hold_no_positive_margin base=none margin=n/as recvSec=n/as carrySec=n/as
+  [OK] No anomalies detected.
+
+=== [shallow_CF_liner (outfield_fly)] territory=fair outs=0 firstBounceZ=69.8m firstCatch=CF ===
+  Oracle: infieldReachable=false earliestInfielder=none earliestAny=CF@+3.16s
+  Approaches: P(minDist=1.30m, gloveGap=6.09m@+0.66s, spd=0.0->0.0m/s), C(minDist=1.80m, gloveGap=1.65m@+0.00s, spd=0.0->0.0m/s), CF(minDist=1.73m, gloveGap=0.33m@+3.19s, spd=8.0->4.9m/s)
+  HolderDecision @+3.70s: state=pursue_tag base=1 margin=-6.26s recvSec=Infinitys carrySec=7.35s
+  [OK] No anomalies detected.
+
+=== [fast_grounder_CF_wall (wall_or_gap)] territory=fair outs=0 firstBounceZ=9.2m firstCatch=LF ===
+  Oracle: infieldReachable=false earliestInfielder=none earliestAny=LF@+2.06s
+  Approaches: C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s), LF(minDist=0.28m, gloveGap=-0.04m@+2.48s, spd=8.0->6.9m/s)
+  HolderDecision @+2.95s: state=pursue_tag base=1 margin=-7.97s recvSec=Infinitys carrySec=9.57s
+  [OK] No anomalies detected.
+
+=== [gap_liner_LCF (wall_or_gap)] territory=fair outs=1 firstBounceZ=93.8m firstCatch=LF ===
+  Oracle: infieldReachable=false earliestInfielder=none earliestAny=LF@+3.28s
+  Approaches: C(minDist=1.80m, gloveGap=1.65m@+0.00s, spd=0.0->0.0m/s), SS(minDist=0.96m, gloveGap=9.44m@+1.04s, spd=0.0->0.0m/s), LF(minDist=0.74m, gloveGap=0.10m@+3.30s, spd=8.0->4.5m/s)
+  HolderDecision @+3.79s: state=hold_no_positive_margin base=none margin=n/as recvSec=n/as carrySec=n/as
+  [OK] No anomalies detected.
+
+=== [one_hop_RF_wall (wall_or_gap)] territory=fair outs=1 firstBounceZ=68.9m firstCatch=RF ===
+  Oracle: infieldReachable=false earliestInfielder=none earliestAny=RF@+2.88s
+  Approaches: C(minDist=1.80m, gloveGap=1.65m@+0.00s, spd=0.0->0.0m/s), RF(minDist=0.53m, gloveGap=0.34m@+2.86s, spd=7.4->2.4m/s)
+  HolderDecision @+3.35s: state=hold_no_positive_margin base=none margin=n/as recvSec=n/as carrySec=n/as
+  [OK] No anomalies detected.
+
+================ TIER SUMMARY ================
+{
+  "low": {
+    "totalOuts": 13,
+    "infieldGrounderOuts": 9,
+    "infieldGrounderCount": 13,
+    "anomalyCounts": {
+      "THROW_CANCELLED_MIDFLIGHT": 1
+    },
+    "totalAnomalies": 1
+  },
+  "default": {
+    "totalOuts": 18,
+    "infieldGrounderOuts": 13,
+    "infieldGrounderCount": 13,
+    "anomalyCounts": {},
+    "totalAnomalies": 0
+  },
+  "high": {
+    "totalOuts": 20,
+    "infieldGrounderOuts": 15,
+    "infieldGrounderCount": 13,
+    "anomalyCounts": {},
+    "totalAnomalies": 0
+  }
+}
+
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts (16 tests | 3 failed) 31116ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects a completed live play whose final observed runner is still advancing 404ms
+   ✓ LiveFieldPlayDiagnosticsV1 > recognizes an actual relay receipt away from the final bag without reporting a missing force-base touch 1602ms
+   × LiveFieldPlayDiagnosticsV1 > recognizes an actual nonforce throw and catcher tag without requiring a bag contact 1053ms
+     → expected 'fielder-0' to be 'fielder-1' // Object.is equality
+   × LiveFieldPlayDiagnosticsV1 > accepts an explicitly evaluated losing hold while still reporting a contradictory positive throw opportunity 259ms
+     → expected [] to deep equally contain ObjectContaining{…}
+   ✓ LiveFieldPlayDiagnosticsV1 > captures structured AI telemetry, kinematic oracle, and anomaly classifications without altering simulation facts 438ms
+   ✓ LiveFieldPlayDiagnosticsV1 > audits the full 20-scenario canonical fielding matrix 23897ms
+   × LiveFieldPlayDiagnosticsV1 > demonstrates monotonic physical fielding progression across low, default, and high ability tiers 1234ms
+     → expected [ { …(5) } ] to deeply equal []
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > recognizes an actual nonforce throw and catcher tag without requiring a bag contact
+AssertionError: expected 'fielder-0' to be 'fielder-1' // Object.is equality
+
+Expected: "fielder-1"
+Received: "fielder-0"
+
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:148:28
+    146|     expect(release).toMatchObject({ reason: 'tag_play', runnerId: 'thi…
+    147|     expect(exchange).toMatchObject({ forcePlay: false, receptionOutcom…
+    148|     expect(tag.defenderId).toBe(release.receiverPlayerId);
+       |                            ^
+    149|     expect(tag.tick).toBeGreaterThan(result.facts.find(f => f.kind ===…
+    150|     expect(result.ruleFacts.controlledBaseContacts.filter(f => f.base …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > accepts an explicitly evaluated losing hold while still reporting a contradictory positive throw opportunity
+AssertionError: expected [] to deep equally contain ObjectContaining{…}
+
+- Expected: 
+ObjectContaining {
+  "base": 1,
+  "kind": "HELD_BALL_NO_THROW_ON_FORCE",
+}
+
++ Received: 
+Array []
+
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:184:37
+    182|       holderDecisions: result.diagnostics.aiTelemetry.holderDecisions.…
+    183|         ? { ...d, margin: 2 } : d) } } }, contradictory = diagnoseLive…
+    184|     expect(contradictory.anomalies).toContainEqual(expect.objectContai…
+       |                                     ^
+    185|   });
+    186| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > demonstrates monotonic physical fielding progression across low, default, and high ability tiers
+AssertionError: expected [ { …(5) } ] to deeply equal []
+
+- Expected
++ Received
+
+- Array []
++ Array [
++   Object {
++     "base": 1,
++     "detail": "Throw from SS to base 1 (1B) had throwTarget cancelled mid-flight due to pre-release observation.",
++     "elapsedSeconds": 2.729099808306242,
++     "kind": "THROW_CANCELLED_MIDFLIGHT",
++     "playerId": "def-1B",
++   },
++ ]
+
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:266:32
+    264|         const { input, roleMap } = buildCanonicalFieldingPlayInputV1(s…
+    265|         const diag = diagnoseLiveFieldPlayV1(input, undefined, roleMap…
+    266|         expect(diag.anomalies).toEqual([]);
+       |                                ^
+    267|         outsByTier[tier] += diag.outsRecorded;
+    268|       }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 13 passed (16)
+   Start at  17:10:23
+   Duration  31.96s (transform 267ms, setup 0ms, collect 381ms, tests 31.12s, environment 0ms, prepare 127ms)
+

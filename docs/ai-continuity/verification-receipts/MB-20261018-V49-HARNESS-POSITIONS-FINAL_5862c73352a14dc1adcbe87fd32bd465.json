@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V49-HARNESS-POSITIONS-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T08:19:24.498+00:00",
+  "elapsed_ms": 40344,
+  "git_head": "d54aa62aec6ce643f216dbaedfbaba2f36b31e3b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V49-HARNESS-POSITIONS-FINAL_5862c73352a14dc1adcbe87fd32bd465.log",
+  "output_sha256": "dd0046955719810fdf6f1b908fa6674daad80b229219b9da823a86aa1d33c215",
+  "receipt_id": "MB-20261018-V49-HARNESS-POSITIONS-FINAL_5862c73352a14dc1adcbe87fd32bd465"
+}

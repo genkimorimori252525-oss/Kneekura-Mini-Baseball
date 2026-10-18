@@ -10,6 +10,8 @@ export type LiveRunnerAdvanceInputV1 = Readonly<{
   playStartedAtSeconds: number;
   currentBase: 0 | 1 | 2 | 3;
   distanceToNextBaseMeters: number;
+  /** Actual contact geometry. Omitted keeps the legacy center-stop estimate. */
+  baseTouchRadiusMeters?: number;
   targetOccupied: boolean;
   runner: Readonly<{ topSpeedMps: number; accelerationMps2: number; reactionSeconds: number }>;
   forced: boolean;
@@ -45,16 +47,21 @@ const nonnegative = (value: number) => Number.isFinite(value) && value >= 0;
 
 /** Matches the actual rest-to-rest line leg: accelerate, coast, then brake.
  * This estimate is tactical evidence and cannot establish a physical touch. */
-export function estimateLiveRunnerLegSecondsV1(distanceMeters: number, topSpeedMps: number, accelerationMps2: number): number {
+export function estimateLiveRunnerLegSecondsV1(distanceMeters: number, topSpeedMps: number, accelerationMps2: number, touchRadiusMeters = 0): number {
   assert(nonnegative(distanceMeters) && Number.isFinite(topSpeedMps) && topSpeedMps > 0
-    && Number.isFinite(accelerationMps2) && accelerationMps2 > 0, 'finite runner route SI required');
-  if (distanceMeters === 0) return 0;
+    && Number.isFinite(accelerationMps2) && accelerationMps2 > 0 && nonnegative(touchRadiusMeters), 'finite runner route SI required');
+  if (distanceMeters <= touchRadiusMeters) return 0;
   const peak = Math.min(topSpeedMps, Math.sqrt(accelerationMps2 * distanceMeters)),
     accelerateFor = peak / accelerationMps2,
     coastFor = Math.max(0, (distanceMeters - peak * peak / accelerationMps2) / peak),
     duration = 2 * accelerateFor + coastFor;
   assert(Number.isFinite(duration), 'runner duration exceeds finite SI');
-  return duration;
+  if (touchRadiusMeters === 0) return duration;
+  const travel = distanceMeters - touchRadiusMeters, acceleratingDistance = peak * peak / (2 * accelerationMps2),
+    coastingDistance = peak * coastFor;
+  return travel <= acceleratingDistance ? Math.sqrt(2 * travel / accelerationMps2)
+    : travel <= acceleratingDistance + coastingDistance ? accelerateFor + (travel - acceleratingDistance) / peak
+      : duration - Math.sqrt(2 * touchRadiusMeters / accelerationMps2);
 }
 
 /** Pure single-runner policy. The host supplies observed physical facts and a
@@ -81,7 +88,7 @@ export function decideLiveRunnerAdvanceV1(input: LiveRunnerAdvanceInputV1): Live
   assert(input.defenderControlSeconds === null || nonnegative(input.defenderControlSeconds) || input.defenderControlSeconds === Infinity,
     'invalid defense control forecast');
   const runnerTravelSeconds = estimateLiveRunnerLegSecondsV1(input.distanceToNextBaseMeters,
-    input.runner.topSpeedMps, input.runner.accelerationMps2),
+    input.runner.topSpeedMps, input.runner.accelerationMps2, input.baseTouchRadiusMeters ?? 0),
     award = input.awardThroughBase !== undefined && input.awardThroughBase !== null && input.awardThroughBase > input.currentBase,
     batter = input.currentBase === 0,
     twoOuts = input.outs === 2 && input.firstGroundContactElapsedSeconds === null && input.firstFielderTouchElapsedSeconds === null,

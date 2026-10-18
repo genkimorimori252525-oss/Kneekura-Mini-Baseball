@@ -1,0 +1,535 @@
+{
+  "ball": {
+    "originTick": 112356406,
+    "elapsedSeconds": 0.45391437168034593,
+    "ball": {
+      "tick": 112810321,
+      "position": {
+        "x": 0.17075441453688875,
+        "y": 0.7248239318351885,
+        "z": -0.014209173408427395
+      },
+      "velocity": {
+        "x": -20.685888712832465,
+        "y": 4.639051075578364,
+        "z": 40.194068115416115
+      },
+      "spin": {
+        "x": 5.878557697788537,
+        "y": -363.0346718916014,
+        "z": 137.78834782638467
+      }
+    }
+  },
+  "orientation": {
+    "w": 0.9666429444786262,
+    "x": -0.06387245233486251,
+    "y": 0.20439184747156197,
+    "z": -0.1405193951366993
+  },
+  "physics": {
+    "kind": "aero_ground_v1",
+    "air": {
+      "ticksPerSecond": 1000000,
+      "integrationStepTicks": 5000,
+      "gravityY": -9.80665,
+      "aerodynamics": {
+        "ballMassKg": 0.145,
+        "ballRadiusM": 0.0366,
+        "airDensityKgM3": 1.225,
+        "windVelocityMps": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dragCoefficient": 0.35,
+        "coefficientProfile": {
+          "profileId": "lyu-2022-seam-averaged",
+          "version": "lyu-2022-figure-digitization-v1",
+          "referenceReynoldsNumber": 144000,
+          "spinKnots": [
+            {
+              "spinFactor": 0,
+              "dragCoefficientAtReferenceRe": 0.35,
+              "liftCoefficient": 0
+            },
+            {
+              "spinFactor": 0.05,
+              "dragCoefficientAtReferenceRe": 0.34,
+              "liftCoefficient": 0.1
+            },
+            {
+              "spinFactor": 0.1,
+              "dragCoefficientAtReferenceRe": 0.32,
+              "liftCoefficient": 0.115
+            },
+            {
+              "spinFactor": 0.15,
+              "dragCoefficientAtReferenceRe": 0.32,
+              "liftCoefficient": 0.17
+            },
+            {
+              "spinFactor": 0.2,
+              "dragCoefficientAtReferenceRe": 0.33,
+              "liftCoefficient": 0.195
+            },
+            {
+              "spinFactor": 0.25,
+              "dragCoefficientAtReferenceRe": 0.34,
+              "liftCoefficient": 0.23
+            },
+            {
+              "spinFactor": 0.3,
+              "dragCoefficientAtReferenceRe": 0.36,
+              "liftCoefficient": 0.27
+            },
+            {
+              "spinFactor": 0.35,
+              "dragCoefficientAtReferenceRe": 0.38,
+              "liftCoefficient": 0.305
+            },
+            {
+              "spinFactor": 0.4,
+              "dragCoefficientAtReferenceRe": 0.39,
+              "liftCoefficient": 0.34
+            },
+            {
+              "spinFactor": 0.45,
+              "dragCoefficientAtReferenceRe": 0.41,
+              "liftCoefficient": 0.385
+            },
+            {
+              "spinFactor": 0.5,
+              "dragCoefficientAtReferenceRe": 0.42,
+              "liftCoefficient": 0.4
+            }
+          ],
+          "reynoldsKnots": [
+            {
+              "reynoldsNumber": 75000,
+              "dragCorrectionFactorAtLowSpin": 1.352941176470588
+            },
+            {
+              "reynoldsNumber": 100000,
+              "dragCorrectionFactorAtLowSpin": 1.2941176470588234
+            },
+            {
+              "reynoldsNumber": 125000,
+              "dragCorrectionFactorAtLowSpin": 1.2352941176470587
+            },
+            {
+              "reynoldsNumber": 150000,
+              "dragCorrectionFactorAtLowSpin": 1.0588235294117645
+            },
+            {
+              "reynoldsNumber": 175000,
+              "dragCorrectionFactorAtLowSpin": 0.9411764705882353
+            },
+            {
+              "reynoldsNumber": 200000,
+              "dragCorrectionFactorAtLowSpin": 1
+            },
+            {
+              "reynoldsNumber": 250000,
+              "dragCorrectionFactorAtLowSpin": 1.0294117647058822
+            }
+          ],
+          "reynoldsCorrectionFullThroughSpinFactor": 0.05,
+          "reynoldsCorrectionZeroAtSpinFactor": 0.15
+        },
+        "airKinematicViscosityM2PerSecond": 1.5e-05,
+        "spinDecay": {
+          "referenceSpeedMps": 44.704,
+          "timeConstantSecondsAtReferenceSpeed": 20
+        }
+      }
+    },
+    "ground": {
+      "ticksPerSecond": 1000000,
+      "gravityMps2": 9.80665,
+      "radiusM": 0.0366,
+      "inertiaRatio": 0.378,
+      "restingVerticalSpeedMps": 0.28,
+      "material": {
+        "restitution": 0.48,
+        "slidingFriction": 0.24,
+        "rollingDecelerationMps2": 0.36,
+        "normalSpinDecayPerSecond": 0.18
+      }
+    }
+  },
+  "seed": 1470818381,
+  "field": {
+    "bases": {
+      "home": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "first": {
+        "x": 19.39735322150937,
+        "y": 0,
+        "z": 19.39735322150937
+      },
+      "second": {
+        "x": 0,
+        "y": 0,
+        "z": 38.79470644301874
+      },
+      "third": {
+        "x": -19.39735322150937,
+        "y": 0,
+        "z": 19.39735322150937
+      }
+    },
+    "fenceRadiusMeters": 110,
+    "fenceHeightMeters": 3
+  },
+  "fielders": [
+    {
+      "playerId": "0-p0",
+      "defensivePosition": "P",
+      "position": {
+        "x": 0,
+        "y": 0.9,
+        "z": 18.44
+      },
+      "reactionSeconds": 0.2,
+      "topSpeedMps": 7.7,
+      "accelerationMps2": 4.8,
+      "fieldingCognition": {
+        "decisionSeconds": 0.08,
+        "pursuitCostWeight": 1
+      },
+      "gloveSpeedMps": 10.7,
+      "gloveReachMeters": 1.35,
+      "gloveRadiusMeters": 0.11,
+      "catchRetention": {
+        "ticksPerSecond": 1000000,
+        "ballMassKg": 0.145,
+        "ballRadiusMeters": 0.0366,
+        "pocketRadiusMeters": 0.14,
+        "centerRetentionCapacityJ": 160,
+        "captureDissipationPowerW": 3000,
+        "failedContactRestitution": 0.2,
+        "failedTangentialDamping": 0.35,
+        "failedSpinDamping": 0.2
+      },
+      "transferSeconds": 0.44,
+      "throwSpeedMps": 43.5,
+      "throwBackspinRadPerSecond": 120,
+      "throwDirectionStdRadians": 0.004
+    },
+    {
+      "playerId": "0-b3",
+      "defensivePosition": "C",
+      "position": {
+        "x": 0,
+        "y": 0.85,
+        "z": -1.5
+      },
+      "reactionSeconds": 0.17,
+      "topSpeedMps": 7.6,
+      "accelerationMps2": 4.9,
+      "fieldingCognition": {
+        "decisionSeconds": 0.05,
+        "pursuitCostWeight": 1
+      },
+      "gloveSpeedMps": 12,
+      "gloveReachMeters": 1.35,
+      "gloveRadiusMeters": 0.11,
+      "catchRetention": {
+        "ticksPerSecond": 1000000,
+        "ballMassKg": 0.145,
+        "ballRadiusMeters": 0.0366,
+        "pocketRadiusMeters": 0.14,
+        "centerRetentionCapacityJ": 160,
+        "captureDissipationPowerW": 3000,
+        "failedContactRestitution": 0.2,
+        "failedTangentialDamping": 0.35,
+        "failedSpinDamping": 0.2
+      },
+      "transferSeconds": 0.32,
+      "throwSpeedMps": 39.5,
+      "throwBackspinRadPerSecond": 120,
+      "throwDirectionStdRadians": 0.003
+    },
+    {
+      "playerId": "0-b2",
+      "defensivePosition": "1B",
+      "position": {
+        "x": 23,
+        "y": 0.9,
+        "z": 25
+      },
+      "reactionSeconds": 0.18,
+      "topSpeedMps": 7.5,
+      "accelerationMps2": 4.8,
+      "fieldingCognition": {
+        "decisionSeconds": 0.05,
+        "pursuitCostWeight": 1
+      },
+      "gloveSpeedMps": 11.8,
+      "gloveReachMeters": 1.35,
+      "gloveRadiusMeters": 0.11,
+      "catchRetention": {
+        "ticksPerSecond": 1000000,
+        "ballMassKg": 0.145,
+        "ballRadiusMeters": 0.0366,
+        "pocketRadiusMeters": 0.14,
+        "centerRetentionCapacityJ": 160,
+        "captureDissipationPowerW": 3000,
+        "failedContactRestitution": 0.2,
+        "failedTangentialDamping": 0.35,
+        "failedSpinDamping": 0.2
+      },
+      "transferSeconds": 0.38,
+      "throwSpeedMps": 35,
+      "throwBackspinRadPerSecond": 120,
+      "throwDirectionStdRadians": 0.0035
+    },
+    {
+      "playerId": "0-b7",
+      "defensivePosition": "2B",
+      "position": {
+        "x": 13,
+        "y": 0.9,
+        "z": 36
+      },
+      "reactionSeconds": 0.15,
+      "topSpeedMps": 9,
+      "accelerationMps2": 6.1,
+      "fieldingCognition": {
+        "decisionSeconds": 0.04,
+        "pursuitCostWeight": 1
+      },
+      "gloveSpeedMps": 12,
+      "gloveReachMeters": 1.35,
+      "gloveRadiusMeters": 0.11,
+      "catchRetention": {
+        "ticksPerSecond": 1000000,
+        "ballMassKg": 0.145,
+        "ballRadiusMeters": 0.0366,
+        "pocketRadiusMeters": 0.14,
+        "centerRetentionCapacityJ": 160,
+        "captureDissipationPowerW": 3000,
+        "failedContactRestitution": 0.2,
+        "failedTangentialDamping": 0.35,
+        "failedSpinDamping": 0.2
+      },
+      "transferSeconds": 0.33,
+      "throwSpeedMps": 37,
+      "throwBackspinRadPerSecond": 120,
+      "throwDirectionStdRadians": 0.003
+    },
+    {
+      "playerId": "0-b5",
+      "defensivePosition": "3B",
+      "position": {
+        "x": -23,
+        "y": 0.9,
+        "z": 25
+      },
+      "reactionSeconds": 0.21,
+      "topSpeedMps": 7.2,
+      "accelerationMps2": 4.4,
+      "fieldingCognition": {
+        "decisionSeconds": 0.09,
+        "pursuitCostWeight": 1
+      },
+      "gloveSpeedMps": 10.5,
+      "gloveReachMeters": 1.35,
+      "gloveRadiusMeters": 0.11,
+      "catchRetention": {
+        "ticksPerSecond": 1000000,
+        "ballMassKg": 0.145,
+        "ballRadiusMeters": 0.0366,
+        "pocketRadiusMeters": 0.14,
+        "centerRetentionCapacityJ": 160,
+        "captureDissipationPowerW": 3000,
+        "failedContactRestitution": 0.2,
+        "failedTangentialDamping": 0.35,
+        "failedSpinDamping": 0.2
+      },
+      "transferSeconds": 0.48,
+      "throwSpeedMps": 35,
+      "throwBackspinRadPerSecond": 120,
+      "throwDirectionStdRadians": 0.005
+    },
+    {
+      "playerId": "0-b1",
+      "defensivePosition": "SS",
+      "position": {
+        "x": -13,
+        "y": 0.9,
+        "z": 36
+      },
+      "reactionSeconds": 0.15,
+      "topSpeedMps": 8.7,
+      "accelerationMps2": 5.9,
+      "fieldingCognition": {
+        "decisionSeconds": 0.04,
+        "pursuitCostWeight": 1
+      },
+      "gloveSpeedMps": 12,
+      "gloveReachMeters": 1.35,
+      "gloveRadiusMeters": 0.11,
+      "catchRetention": {
+        "ticksPerSecond": 1000000,
+        "ballMassKg": 0.145,
+        "ballRadiusMeters": 0.0366,
+        "pocketRadiusMeters": 0.14,
+        "centerRetentionCapacityJ": 160,
+        "captureDissipationPowerW": 3000,
+        "failedContactRestitution": 0.2,
+        "failedTangentialDamping": 0.35,
+        "failedSpinDamping": 0.2
+      },
+      "transferSeconds": 0.34,
+      "throwSpeedMps": 39,
+      "throwBackspinRadPerSecond": 120,
+      "throwDirectionStdRadians": 0.0025
+    },
+    {
+      "playerId": "0-b6",
+      "defensivePosition": "LF",
+      "position": {
+        "x": -46,
+        "y": 0.9,
+        "z": 76
+      },
+      "reactionSeconds": 0.18,
+      "topSpeedMps": 8.1,
+      "accelerationMps2": 5.4,
+      "fieldingCognition": {
+        "decisionSeconds": 0.055,
+        "pursuitCostWeight": 1
+      },
+      "gloveSpeedMps": 11.4,
+      "gloveReachMeters": 1.35,
+      "gloveRadiusMeters": 0.11,
+      "catchRetention": {
+        "ticksPerSecond": 1000000,
+        "ballMassKg": 0.145,
+        "ballRadiusMeters": 0.0366,
+        "pocketRadiusMeters": 0.14,
+        "centerRetentionCapacityJ": 160,
+        "captureDissipationPowerW": 3000,
+        "failedContactRestitution": 0.2,
+        "failedTangentialDamping": 0.35,
+        "failedSpinDamping": 0.2
+      },
+      "transferSeconds": 0.38,
+      "throwSpeedMps": 37.5,
+      "throwBackspinRadPerSecond": 120,
+      "throwDirectionStdRadians": 0.0035
+    },
+    {
+      "playerId": "0-b8",
+      "defensivePosition": "CF",
+      "position": {
+        "x": 0,
+        "y": 0.9,
+        "z": 91
+      },
+      "reactionSeconds": 0.18,
+      "topSpeedMps": 8.5,
+      "accelerationMps2": 5.7,
+      "fieldingCognition": {
+        "decisionSeconds": 0.065,
+        "pursuitCostWeight": 1
+      },
+      "gloveSpeedMps": 11.3,
+      "gloveReachMeters": 1.35,
+      "gloveRadiusMeters": 0.11,
+      "catchRetention": {
+        "ticksPerSecond": 1000000,
+        "ballMassKg": 0.145,
+        "ballRadiusMeters": 0.0366,
+        "pocketRadiusMeters": 0.14,
+        "centerRetentionCapacityJ": 160,
+        "captureDissipationPowerW": 3000,
+        "failedContactRestitution": 0.2,
+        "failedTangentialDamping": 0.35,
+        "failedSpinDamping": 0.2
+      },
+      "transferSeconds": 0.41,
+      "throwSpeedMps": 40,
+      "throwBackspinRadPerSecond": 120,
+      "throwDirectionStdRadians": 0.004
+    },
+    {
+      "playerId": "0-b4",
+      "defensivePosition": "RF",
+      "position": {
+        "x": 46,
+        "y": 0.9,
+        "z": 76
+      },
+      "reactionSeconds": 0.2,
+      "topSpeedMps": 8.1,
+      "accelerationMps2": 5.3,
+      "fieldingCognition": {
+        "decisionSeconds": 0.08,
+        "pursuitCostWeight": 1
+      },
+      "gloveSpeedMps": 10.8,
+      "gloveReachMeters": 1.35,
+      "gloveRadiusMeters": 0.11,
+      "catchRetention": {
+        "ticksPerSecond": 1000000,
+        "ballMassKg": 0.145,
+        "ballRadiusMeters": 0.0366,
+        "pocketRadiusMeters": 0.14,
+        "centerRetentionCapacityJ": 160,
+        "captureDissipationPowerW": 3000,
+        "failedContactRestitution": 0.2,
+        "failedTangentialDamping": 0.35,
+        "failedSpinDamping": 0.2
+      },
+      "transferSeconds": 0.46,
+      "throwSpeedMps": 40,
+      "throwBackspinRadPerSecond": 120,
+      "throwDirectionStdRadians": 0.005
+    }
+  ],
+  "runners": [
+    {
+      "runnerId": "1-b2",
+      "initialBase": 0,
+      "position": {
+        "x": 0.85,
+        "y": 0,
+        "z": -0.2
+      },
+      "topSpeedMps": 8,
+      "accelerationMps2": 5.2,
+      "reactionSeconds": 0.43,
+      "advanceSafetyMarginSeconds": 0.35,
+      "roundingRadiusMeters": 4.5,
+      "lateralAccelerationMps2": 7.800000000000001
+    },
+    {
+      "runnerId": "1-b1",
+      "initialBase": 1,
+      "topSpeedMps": 9.8,
+      "accelerationMps2": 6.6,
+      "reactionSeconds": 0.13,
+      "advanceSafetyMarginSeconds": 0.35,
+      "roundingRadiusMeters": 4.5,
+      "lateralAccelerationMps2": 9.899999999999999
+    },
+    {
+      "runnerId": "1-b0",
+      "initialBase": 2,
+      "topSpeedMps": 10,
+      "accelerationMps2": 6.8,
+      "reactionSeconds": 0.13,
+      "advanceSafetyMarginSeconds": 0.35,
+      "roundingRadiusMeters": 4.5,
+      "lateralAccelerationMps2": 10.2
+    }
+  ],
+  "outs": 0,
+  "maxPlaySeconds": 45
+}
