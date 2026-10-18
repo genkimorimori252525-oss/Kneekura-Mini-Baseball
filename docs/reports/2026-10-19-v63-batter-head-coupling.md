@@ -40,3 +40,7 @@
 頭部係数と許容角は未実測校正で、最終的な好みは調整室で変更可能。元全計画・統計校正・100試合・Native連続世界／裁定・得能等の残件、原FAIL/UNKNOWNとCharter未承認HOLD、ユーザーのAGENTS変更を保持する。main未マージ。
 
 最終記録：BUILD-FINAL `4c23dc65` PASS.202秒、BROWSER `4c3d974d` PASS47.063秒、CADENCE-FINAL `69e7d115` PASS8.436秒、PACKAGE `b18f885c` PASS1.406秒。Aの初期v59設定とresetの全値一致も検査した。通常SHA `0cb5d9ae43aab96e4edf389136b15fc5cb28fb7d855ebf1d4f43bcdcde93542a`、調整室SHA `7cafbf6efa634a96884fc6deb0e1db115a147033c5f9bac41185092fb0139356`。最初のcheckpoint evidence引数が未展開wildcardだった記録は保持し、正しい実receiptパスで再checkpointした。最終auditは原Charter承認不足のみHOLDであり、承認を捏造していない。
+
+## GitHub保存
+
+製品コミット `6641efb80c3b3203d6d0b4d44ad00d139823772a` を既存ブランチ／Draft PR380へ保存。STAGING `b5b90a20` と追加記録の最終照合で61ファイルのGit blobと試験済みraw byteが一致、credential pattern0、非log whitespace PASS、AGENTS除外。PUBLICATION `0dcf5631` PASS2.828秒でremote／PR head一致、Draft OPEN、公開raw12ファイルのbyte一致を確認。[公開証拠](../verification/releases/v63/publication.json)。後続コミットは記録だけを閉じ、製品byteとmainは変更しない。

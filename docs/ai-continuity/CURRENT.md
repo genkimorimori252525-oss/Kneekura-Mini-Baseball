@@ -1,17 +1,17 @@
 ---
-current_task: "MB-20261019-V63-PACKAGE"
+current_task: "MB-20261019-V63-PUBLICATION"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "ff8b757a14029ff36934c1103bf8fe8837829a77"
+commit_head: "6641efb80c3b3203d6d0b4d44ad00d139823772a"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V63-PACKAGE_b18f885c4d7c461fb08aba686b768690.json"
-updated_at: "2026-10-18T20:05:33.139929+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V63-PUBLICATION_0dcf5631185b4bc99b3b4357162928bd.json"
+updated_at: "2026-10-18T20:08:45.645992+00:00"
 
 ---
 
-## Active human priority — v63 v59 swing + bat/head response (SCOPED VERIFIED; publication pending)
+## Active human priority — v63 v59 swing + bat/head response (SCOPED VERIFIED; PUBLISHED)
 
-Human explicitly requests defaultimplementation ofv59SWING+syncedTAKE, loosenoverstillimpact, smallbat-drivenheadmotion, editablelab. Newhelper63 default swingUsesAbsoluteVision=false,coupling.025,cone.04,speed.35; predecisionv59forall, SWINGlegacySI, ownTAKE32msblendtoabsolutevision. Trueoptionkeeps61; no abilityvaluechange. Observedbatcross/dotrotation,40msrise,smallboundedworldyaw/rightpitch,noextraLflip/noRandom/noFuture; latchnozerovel,relativeoffsetandactualheadrelease. Anewv59baseline, Bnewdefaults alsoinnormal. OldJSONmissingkeys→true/0preservesoldsetting, same865Core session. UNITfinal3fde99e1PASS9.483s real18p/8SWING/RL/earlylatecurve/extremeSIv59exact/explicit61exact/impact1.084deg/take6captures250+700ms0/staticbat0/futurepoison/seek/Sourcepure. BROWSERfinal4c3d974dPASS47.063s1200+390/Adefaultandreset/exact6Source+bat/JSON-session/noerrors. BUILDfinal4c23dc65/CADENCEfinal69e7d115/PACKAGEb18f885cPASS1.406s Native114865078dc unchangedfromv62 nineinning320p. No newCore/TSC/9game rerunclaimed. Normal0cb5d9ae/lab7cafbf6e/helper2f6f7ad3. Maker62reused. NewUI/profilesonly; no src/dist/lock/settings/secrets/DB. AGENTS/unrelated/originalplan/FAIL/UNKNOWN retained. Firstcheckpointliteralwildcardevidencekeptbutcorrectedbyexactreceipt; auditnowonlyoriginalCHARTER_UNAPPROVED/HOLD. Next: saveexactallowlistedscopetoexistingbranch/Draft380, metadataonlyclosure; no mainmerge. Headresponseauthorednotmeasured, no newability.
+Human explicitly requests defaultimplementation ofv59SWING+syncedTAKE, loosenoverstillimpact, smallbat-drivenheadmotion, editablelab. Newhelper63 default swingUsesAbsoluteVision=false,coupling.025,cone.04,speed.35; predecisionv59forall, SWINGlegacySI, ownTAKE32msblendtoabsolutevision. Trueoptionkeeps61; no abilityvaluechange. Observedbatcross/dotrotation,40msrise,smallboundedworldyaw/rightpitch,noextraLflip/noRandom/noFuture; latchnozerovel,relativeoffsetandactualheadrelease. Anewv59baseline, Bnewdefaults alsoinnormal. OldJSONmissingkeys→true/0preservesoldsetting, same865Core session. UNITfinal3fde99e1PASS9.483s real18p/8SWING/RL/earlylatecurve/extremeSIv59exact/explicit61exact/impact1.084deg/take6captures250+700ms0/staticbat0/futurepoison/seek/Sourcepure. BROWSERfinal4c3d974dPASS47.063s1200+390/Adefaultandreset/exact6Source+bat/JSON-session/noerrors. BUILDfinal4c23dc65/CADENCEfinal69e7d115/PACKAGEb18f885cPASS1.406s Native114865078dc unchangedfromv62 nineinning320p. No newCore/TSC/9game rerunclaimed. Normal0cb5d9ae/lab7cafbf6e/helper2f6f7ad3. Maker62reused. NewUI/profilesonly; no src/dist/lock/settings/secrets/DB. AGENTS/unrelated/originalplan/FAIL/UNKNOWN retained. Firstcheckpointliteralwildcardevidencekeptbutcorrectedbyexactreceipt; auditnowonlyoriginalCHARTER_UNAPPROVED/HOLD. Publishedproduct6641efb80c3b3203d6d0b4d44ad00d139823772a onexistingbranch/OpenDraft380. STAGINGb5b90a20+final61blobsrawexact/credentials0/nonlogwhitespacePASS. PUBLICATION0dcf5631PASS2.828s remote/PRhead/12rawfilesbyteexact. Metadataonlyclosure follows; no mainmerge. Next: usercomparison ofnormal63/lab63; no furtherunrequestedphysicsorabilitychanges. Headresponseauthorednotmeasured, no newability.
 
 ## Active human priority — v59 swing-gaze cause audit; v62 pitcher scope verified
 
