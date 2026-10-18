@@ -3,15 +3,15 @@ import { resolve, dirname } from 'node:path';
 import { createHash } from 'node:crypto';
 import { build } from 'esbuild';
 
-const args = process.argv.slice(2), publicAbilities = args.includes('--public-abilities');
-const output = resolve(args.find(arg => arg !== '--public-abilities') ?? (publicAbilities ? 'outputs/にーくら野球メーカー_公開能力編集版.html' : 'outputs/にーくら野球メーカー_実測スイング版.html'));
-const rosterPath = 'docs/demos/live-game-roster-' + (publicAbilities ? 'v2' : 'v1') + '.json';
-const rosterCatalogPath = 'docs/demos/live-game-roster-catalog-' + (publicAbilities ? 'v2' : 'v1') + '.json';
+const args = process.argv.slice(2), traitProfiles = args.includes('--traits'), publicAbilities = traitProfiles || args.includes('--public-abilities');
+const output = resolve(args.find(arg => !['--public-abilities','--traits'].includes(arg)) ?? (publicAbilities ? 'outputs/にーくら野球メーカー_公開能力編集版.html' : 'outputs/にーくら野球メーカー_実測スイング版.html'));
+const rosterPath = 'docs/demos/live-game-roster-' + (traitProfiles ? 'v3' : publicAbilities ? 'v2' : 'v1') + '.json';
+const rosterCatalogPath = 'docs/demos/live-game-roster-catalog-' + (traitProfiles ? 'v3' : publicAbilities ? 'v2' : 'v1') + '.json';
 const bundlePath = resolve('dist/batting-workbench-core.js');
 await mkdir(dirname(bundlePath), { recursive: true });
-await build({ entryPoints: ['src/integration/browser/workbench-index.ts'], outfile: bundlePath, bundle: true,
+const bundledBuild = await build({ entryPoints: ['src/integration/browser/workbench-index.ts'], outfile: bundlePath, bundle: true,
   platform: 'browser', format: 'iife', globalName: 'KneekuraBaseballWorkbench', target: ['es2022'],
-  legalComments: 'none', minify: false, sourcemap: false });
+  legalComments: 'none', minify: false, sourcemap: false, metafile: true });
 const [template, core, ui, referenceJson, batSprites, batManifestJson, rosterJson, rosterCatalogJson] = await Promise.all([
   readFile('docs/demos/baseball-maker.html', 'utf8'), readFile(bundlePath, 'utf8'), readFile('docs/demos/baseball-maker-ui.mjs', 'utf8'),
   readFile('docs/demos/measured-bat-motions.json', 'utf8'),
@@ -19,6 +19,9 @@ const [template, core, ui, referenceJson, batSprites, batManifestJson, rosterJso
   readFile(rosterPath, 'utf8'), readFile(rosterCatalogPath, 'utf8'),
 ]);
 const sha = source => createHash('sha256').update(source).digest('hex');
+const bundleInputs = Object.fromEntries(await Promise.all(Object.keys(bundledBuild.metafile.inputs).sort().map(async path => [path, sha(await readFile(path))])));
+const bundleInputManifest = JSON.stringify({ schemaVersion: 1, entrySha256: sha(core), inputs: bundleInputs,
+  captureMode: 'post_build_file_sha_under_frozen_source_contract' }, null, 2) + '\n';
 const publicReferenceJson = publicAbilities ? await readFile('docs/demos/live-public-ability-reference-v1.json', 'utf8') : null;
 const publicReference = publicReferenceJson ? JSON.parse(publicReferenceJson) : null;
 if (publicAbilities && ['projectLivePublicAbilitiesV1', 'editLivePublicAbilityV1', 'previewLivePublicLeagueV1'].some(key => !core.includes(key)))
@@ -67,11 +70,13 @@ const html = template.replace('<!-- WORKBENCH_CORE -->', () => '<script>\n' + co
   .replace('<!-- WORKBENCH_UI -->', () => '<script>\n' + ui + '\n</script>');
 await mkdir(dirname(output), { recursive: true }); await writeFile(output, html);
 const report = { output, bytes: Buffer.byteLength(html), sha256: sha(html), coreSha256: sha(core), uiSha256: sha(ui),
+  bundleInputCount: Object.keys(bundleInputs).length, bundleInputManifestSha256: sha(bundleInputManifest),
   templateSha256: sha(template), referenceSha256: sha(referenceJson), referenceClips: referenceData.clips.length,
   liveRosterSha256: sha(rosterJson), liveRosterCatalogSha256: sha(rosterCatalogJson), gamePlayers: liveRoster.entries.length,
-  publicAbilities, liveRosterPath: rosterPath, liveRosterCatalogPath: rosterCatalogPath, publicReferenceSha256: publicReferenceJson ? sha(publicReferenceJson) : null,
+  publicAbilities, traitProfiles, liveRosterPath: rosterPath, liveRosterCatalogPath: rosterCatalogPath, publicReferenceSha256: publicReferenceJson ? sha(publicReferenceJson) : null,
   batSpriteModuleSha256: sha(batSprites), batSpriteManifestSha256: sha(batManifestJson),
   batSprites: batVariants.map(({ pngDataUri, ...variant }) => variant), batSpriteAuthority: batManifest.authority,
   selfContained: true, authority: 'Shared Core samples; separate OpenBiomechanics measured-axis research replay' };
 await writeFile(output + '.build.json', JSON.stringify(report, null, 2) + '\n');
+await writeFile(output + '.bundle-inputs.json', bundleInputManifest);
 console.log(JSON.stringify(report, null, 2));

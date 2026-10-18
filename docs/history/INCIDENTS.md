@@ -199,3 +199,11 @@
 - 対応: v49を基準とする新helperを登録し、投球中だけ既存3SIから有限gain／柔らかい不感帯を導出。打球／身体／スイングbraceの既存lawと実測バットを継承。投手の待機・180ms混合とhandoff gateを追加する。
 - 検証と訂正: [v52報告](../reports/2026-10-18-v52-camera-pursuit.md)。旧微小追従の先行RED、左右・能力・連続性・prefix、実12球の同一Core／bat、1200/390px・他3視点・UI・待機と実handoffを確認。初回browserは帯内にも正応答を要求したQA条件を訂正し、原FAILを保持した。
 - 限界: 表示の暫定制御で生体校正ではない。全打球後姿勢の完全同一性を主張しない。v51 Core108入力を変更せず、既存280テスト／9回を新規実行と呼ばない。P本人処理の専用新実試合は未検証。元計画・原FAIL/UNKNOWN/HOLDを保持する。
+
+## H25 着地待ちの走塁と帰塁の欠落、得能と数値の混同（v53）
+
+- 症状: 安打性の飛球でもgroundまで待つ。早離塁後の帰塁やappealを扱えない。悪球打ちが公開数値で出る。
+- 根因: policyに観測からのairborne評価がなく、初期離塁をmotor開始で代用した。home touchを単調な進塁として永久保持した。旧trait文書のBLUE_RED案と最新の独立した打撃技術定義も区別が必要だった。
+- 対応: 遅延観測と有限read誤差、監督の判断余裕、実disk退出、連続制動と逆順帰塁、explicit appealと同tick証拠を接続。実帰塁で旧home traversalを訂正。悪球打ちは保有と単一内部Sourceで編集し、旧JSONは未査定のまま維持。
+- 検証: [v53報告](../reports/2026-10-18-v53-airborne-running.md)。39files346tests、型検査、新HTMLの通常320球9回、着地前進塁26判断、未帰塁終端0、PC1200/390px・メーカー・v52カメラ維持。元through-base保存fixtureを緩和せずPASS。same-tick／reverse-homeの原RED、旧11項目assertのQA FAILも保存。
+- 限界: read誤差は実測校正ではない。通常1試合のappeal0件を発生頻度の証明にしない。青緑赤金の全接続は未完で、元システム不足の範囲を確認中。原全計画・FAIL/UNKNOWN/HOLDを保持。

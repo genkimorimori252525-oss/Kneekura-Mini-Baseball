@@ -10,3 +10,5 @@ export { createMeasuredBatAxisReferenceV1 } from './MeasuredBatAxisReferenceV1';
 export type { MeasuredBatAxisReferenceInputV1 } from './MeasuredBatAxisReferenceV1';
 export { applyLivePhysicalRosterV1 } from './LivePhysicalRosterV1';
 export { projectLivePublicAbilitiesV1, editLivePublicAbilityV1, previewLivePublicLeagueV1 } from './LivePublicAbilitiesV1';
+export { getLiveTraitCatalogV1, projectLiveTraitProfilesV1, setLiveTraitProfileV1, validateLiveTraitProfileV1 } from './LiveTraitProfilesV1';
+export type { LiveTraitProfileV1, LiveTraitRosterInputV1, LiveTraitDefinitionV1 } from './LiveTraitProfilesV1';

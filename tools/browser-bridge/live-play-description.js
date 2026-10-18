@@ -26,7 +26,8 @@
    let base=null,label,shortLabel;
    if(out.cause==='fly_catch'){
     label=facts?.territory==='foul'?'ファウルフライアウト':'フライアウト';shortLabel='飛球捕球';
-   }else if(out.cause==='pitch_count'){label='三振';shortLabel=label;}
+   }else if(out.cause==='tag_up_appeal'){label='飛球の早離塁アピールアウト';shortLabel='早離塁アピール';}
+   else if(out.cause==='pitch_count'){label='三振';shortLabel=label;}
    else if(out.cause==='runner_tag'){
     label=batter?'打者走者タッチアウト':'走者タッチアウト';shortLabel=batter?'打者走者タッチ':'走者タッチ';
    }else if(out.cause==='base_control'){

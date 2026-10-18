@@ -19,7 +19,6 @@ const specs: readonly Spec[] = [
   { id: 'contact', label: 'ミート', section: 'batter', mode: 'group', components: [down('aimStdMeters', .001), down('timingStdSeconds', .001)], note: '狙う位置とタイミングの精度' },
   { id: 'power', label: 'パワー', section: 'batter', mode: 'group', components: [up('targetSweetSpotSpeedMps'), up('maximumSweetSpotSpeedMps')], note: '芯の目標速度と最大速度' },
   { id: 'vision', label: '選球眼', section: 'batter', mode: 'group', components: [down('zoneJudgmentStdMeters', .001)], note: 'コース判断の精度。積極性は詳細で別に設定' },
-  { id: 'badBallControl', label: '悪球への技術', section: 'batter', mode: 'percent', components: [up('badBallControl')], note: '窮屈な体勢での制御。振る判断とは別' },
   { id: 'run', label: '走力', section: 'common', mode: 'group', components: [up('topSpeedMps'), up('accelerationMps2')], note: '最高速度と加速' },
   { id: 'arm', label: '肩力', section: 'common', mode: 'group', components: [up('throwSpeedMps')], note: '実際の送球初速' },
   { id: 'field', label: '守備力', section: 'common', mode: 'group', components: [down('reactionSeconds', .01), down('defensiveDecisionSeconds', .01), down('transferSeconds', .01)], note: '初動・状況判断・持ち替え。走力と捕球は別' },

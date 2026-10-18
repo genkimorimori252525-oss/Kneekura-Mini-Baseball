@@ -1,0 +1,14 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/rules/TagUpCompliance.test.ts (6 tests) 3ms
+ ✓ src/core/rules/AppealOutScoring.test.ts (6 tests) 3ms
+ ✓ src/core/rules/TagUpAppealRule.test.ts (5 tests) 3ms
+ ✓ src/integration/browser/PlayableMatchRulesV1.test.ts (21 tests) 10ms
+ ✓ src/integration/browser/PlayableMatchTagUpAppealV1.test.ts (27 tests) 11ms
+
+ Test Files  5 passed (5)
+      Tests  65 passed (65)
+   Start at  19:28:39
+   Duration  699ms (transform 351ms, setup 0ms, collect 681ms, tests 29ms, environment 1ms, prepare 791ms)
+

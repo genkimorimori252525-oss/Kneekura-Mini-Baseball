@@ -25,3 +25,5 @@ export { createLiveBaseballMatchV1, LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1, LIVE_MAT
 export type { LiveMatchInputV1, LiveMatchFrameV1, LivePlayerPhysicalV1, LiveIssuedPitchV1 } from './LiveBaseballMatchV1';
 export { applyLivePhysicalRosterV1 } from './LivePhysicalRosterV1';
 export { projectLivePublicAbilitiesV1, editLivePublicAbilityV1, previewLivePublicLeagueV1 } from './LivePublicAbilitiesV1';
+export { getLiveTraitCatalogV1, projectLiveTraitProfilesV1, setLiveTraitProfileV1, validateLiveTraitProfileV1 } from './LiveTraitProfilesV1';
+export type { LiveTraitProfileV1, LiveTraitRosterInputV1, LiveTraitDefinitionV1 } from './LiveTraitProfilesV1';

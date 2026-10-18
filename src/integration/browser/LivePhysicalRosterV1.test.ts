@@ -3,10 +3,66 @@ import { defaultWorkbenchPlayer } from './WorkbenchPlayer';
 import { createLiveBaseballMatchV1, LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1 } from './LiveBaseballMatchV1';
 import { liveMatchFixture } from './LiveBaseballMatchV1.test-support';
 import { applyLivePhysicalRosterV1 } from './LivePhysicalRosterV1';
+import { setLiveTraitProfileV1, type LiveTraitRosterInputV1 } from './LiveTraitProfilesV1';
 
 const players = [{ playerId: 'batter-a', name: 'Authored player', heightMeters: 1.8, bats: 'R' as const }];
 const packet = (entry: Record<string, unknown>) => ({ players, roster: { version: 'live_physical_roster_v1', sourceId: 'test-roster',
   entries: [{ playerId: 'batter-a', sourceId: 'test-authoring', ...entry }] } });
+
+it('accepts source-consistent trait metadata, preserves it on players and executes its numerical source once', () => {
+  const raw = packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', badBallControl: .73, aimStdMeters: .04 } }),
+    roster = raw.roster as LiveTraitRosterInputV1, before = JSON.stringify(raw),
+    on = setLiveTraitProfileV1({ roster, playerId: 'batter-a', familyId: 'bad_ball_hitting', stateId: 'LEARNED' }),
+    active = applyLivePhysicalRosterV1({ players, roster: JSON.parse(JSON.stringify(on.roster)) }),
+    off = setLiveTraitProfileV1({ roster: on.roster, playerId: 'batter-a', familyId: 'bad_ball_hitting', stateId: null }),
+    inactive = applyLivePhysicalRosterV1({ players: active.players, roster: off.roster });
+  expect(active.players[0].traitProfile).toEqual(on.roster.entries[0].traitProfile);
+  expect(active.players[0].physical.badBallControl).toBe(.73);
+  expect(inactive.players[0].physical.badBallControl).toBe(0);
+  expect(inactive.players[0].physical.aimStdMeters).toBe(.04);
+  expect(inactive.players[0].traitProfile).toEqual(off.roster.entries[0].traitProfile);
+  expect(active.audit.players[0].projected.filter(item => item.targetPath === 'badBallControl')).toHaveLength(1);
+  expect(Object.isFrozen(active.players[0].traitProfile)).toBe(true);
+  const legacy = applyLivePhysicalRosterV1({ players: active.players, roster });
+  expect(legacy.players[0]).not.toHaveProperty('traitProfile');
+  expect(legacy.players[0].physical.badBallControl).toBe(.73);
+  expect(JSON.stringify(raw)).toBe(before);
+});
+
+it('checks trait metadata against the final workbench source and rejects false labels without partial updates', () => {
+  const maker = defaultWorkbenchPlayer(), raw = packet({ workbenchPlayer: maker }), roster = raw.roster as LiveTraitRosterInputV1,
+    owned = setLiveTraitProfileV1({ roster, playerId: 'batter-a', familyId: 'bad_ball_hitting', stateId: 'LEARNED', source: { badBallControl: .73 } }),
+    projected = applyLivePhysicalRosterV1({ players, roster: owned.roster }), before = JSON.stringify(owned.roster);
+  expect(projected.players[0].physical.badBallControl).toBe(.73);
+  expect(projected.players[0].traitProfile).toEqual(owned.roster.entries[0].traitProfile);
+  const invalid = structuredClone(owned.roster);
+  Object.defineProperty(invalid.entries[0].workbenchPlayer!.traits, 'badBallControl', { value: .11 });
+  expect(() => applyLivePhysicalRosterV1({ players, roster: invalid })).toThrow();
+  const unknown = { ...owned.roster, entries: [{ ...owned.roster.entries[0], traitProfile: { version: 'live_trait_profile_v1',
+    selections: [{ familyId: 'bad_ball_hitting', stateId: 'GOLD', source: { badBallControl: .73 } }] } }] };
+  expect(() => applyLivePhysicalRosterV1({ players, roster: unknown })).toThrow();
+  expect(JSON.stringify(owned.roster)).toBe(before);
+});
+
+it('passes ON/OFF controls from imported trait profiles to actual Host pitches without altering a taken ball', () => {
+  const fixture = liveMatchFixture(2468), batter = fixture.teams[0].battingOrder[0],
+    roster: LiveTraitRosterInputV1 = { version: 'live_physical_roster_v1', sourceId: 'actual-trait-test', entries: [
+      { playerId: batter, sourceId: 'actual-technique', physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', badBallControl: .83 } }] },
+    on = setLiveTraitProfileV1({ roster, playerId: batter, familyId: 'bad_ball_hitting', stateId: 'LEARNED' }),
+    off = setLiveTraitProfileV1({ roster: on.roster, playerId: batter, familyId: 'bad_ball_hitting', stateId: null }),
+    issue = (packet: LiveTraitRosterInputV1) => {
+      const projected = applyLivePhysicalRosterV1({ players: fixture.players, roster: packet });
+      return createLiveBaseballMatchV1({ ...fixture, players: projected.players })
+        .issuePitch({ batting: 'take', managedTeam: 0, pitchType: 'auto', location: 'auto' });
+    }, a = issue(on.roster), b = issue(off.roster);
+  type Diagnostics = { individualControls: { badBallControl: number }; swingOffered: boolean; zoneJudgment: unknown };
+  const ad = a.play.diagnostics as Diagnostics, bd = b.play.diagnostics as Diagnostics;
+  expect(ad.individualControls.badBallControl).toBe(.83);
+  expect(bd.individualControls.badBallControl).toBe(0);
+  expect(a.frames).toEqual(b.frames);
+  expect(ad.swingOffered).toBe(false);
+  expect(bd.zoneJudgment).toEqual(ad.zoneJudgment);
+});
 
 it('projects optional tactical preferences without changing the physical abilities or input packet', () => {
   const raw = packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', baserunningSafetyMarginSeconds: .7, fieldingPursuitCostWeight: .5 } }),

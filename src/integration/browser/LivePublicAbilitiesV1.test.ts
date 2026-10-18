@@ -17,13 +17,23 @@ describe('public authoring with individual SI profiles', () => {
     const before = JSON.stringify(roster);
     for (const anchor of reference.anchors) {
       const projection = projectLivePublicAbilitiesV1({ roster, reference, playerId: anchor.playerId });
-      expect(projection.abilities).toHaveLength(11);
+      expect(projection.abilities).toHaveLength(10);
       for (const ability of projection.abilities) {
-        if (!['badBallControl', 'maxSpeedKmh'].includes(ability.id)) expect(ability.value).toBe(anchor.ratings[ability.id]);
+        if (ability.id !== 'maxSpeedKmh') expect(ability.value).toBe(anchor.ratings[ability.id]);
         expect(editLivePublicAbilityV1({ roster, reference, playerId: anchor.playerId, abilityId: ability.id, value: ability.value }).roster).toEqual(roster);
       }
     }
     expect(JSON.stringify(roster)).toBe(before);
+  });
+  it('moves bad-ball technique out of public numeric abilities while preserving legacy SI and reference anchors', () => {
+    const before = JSON.stringify(roster), legacyReference = structuredClone(reference) as unknown as { anchors: { ratings: Record<string, number> }[] };
+    legacyReference.anchors.forEach(anchor => { anchor.ratings.badBallControl = 99; });
+    const projection = projectLivePublicAbilitiesV1({ ...input, reference: legacyReference as unknown as LivePublicAbilityReferenceV1 });
+    expect(projection.abilities.some(ability => ability.id === 'badBallControl')).toBe(false);
+    expect(projection.abilities.some(ability => ability.linkedPaths.includes('badBallControl'))).toBe(false);
+    expect(() => editLivePublicAbilityV1({ ...input, abilityId: 'badBallControl', value: 99 })).toThrow();
+    expect(JSON.stringify(roster)).toBe(before);
+    expect(read(roster, 'badBallControl')).toBe(.95);
   });
   it('improves aim and timing together while preserving their individual offset-quality ratio', () => {
     const result = editLivePublicAbilityV1({ ...input, abilityId: 'contact', value: value(roster, 'contact') + 2 });

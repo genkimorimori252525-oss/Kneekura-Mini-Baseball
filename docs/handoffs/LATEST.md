@@ -1,14 +1,20 @@
 # 最新の再開入口 — 2026-10-18
 
-現在は **v52（視点追従調整版）**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
+現在は **v53（飛球走塁と得能版）**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
 
-- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v52/README.md)
-- [原因・変更・最終検証・限界](../reports/2026-10-18-v52-camera-pursuit.md)
-- [開発史](../history/README.md) / [原因別事例H24](../history/INCIDENTS.md)
+- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v53/README.md)
+- [原因・変更・最終検証・限界](../reports/2026-10-18-v53-airborne-running.md)
+- [開発史](../history/README.md) / [原因別事例H25](../history/INCIDENTS.md)
 - [元の全要求・計画・受入条件](2026-10-15-mini-baseball/00-START-HERE.md)
 - [v50の打者カメラ](../reports/2026-10-18-v50-v27-batter-camera.md) / [v49の守備責任・裁定](../reports/2026-10-18-v49-positional-defense.md) / [v47の中継・旋回](../reports/2026-10-18-v47-relay-rounding.md)
 
-## v52の変更と新規検証
+## v53の現在地
+
+落下前に安打性を読み、能力と監督指示で進塁判断する。捕球時は実離塁とfirst-touchを照合し、現在速度から連続制動して逆順帰塁。explicit appealと実支配／タッチを同tick証拠へ拘束する。実reverse homeにより旧得点／占有を訂正し、境界UNKNOWNを保持。bad-ball技術を公開値から得能へ移し、内部値を一度だけ使う。NLB10初期保有、旧JSON未査定を維持。全得能の接続は完了せず、元システムがないものまで今回含めるかは人間へ確認中。[接続監査](../reports/2026-10-18-v53-trait-source-audit.md)。
+
+最終39files346tests・globalTSC PASS。112 Core入力・通常HTML320球9回・着地前26判断・live終端未帰塁0。野手130play/17169frame重なり0。メーカー20/public10/internal44・oldJSON・download/reload/gameimport・PC1200/390px・v52カメラのbytesと現在12球を確認。全体成績やread誤差は未校正。新100試合や実機は未実施。元全計画・原FAIL/UNKNOWN/HOLDは残す。
+
+## v52の変更と既存検証
 
 最新指示でv50のlv27構図・見逃し固定・700ms保持を撤回し、打者視点はv49へ戻した。その上でlive投球だけに追従の余裕を設け、既存のミート（位置／時間精度）・選球眼（コース判断精度）で有限gainと不感帯を変える。高能力も完全密着せず、低能力も広い動きを追う。投手は打撃後0.5〜1.2秒待ち、180msで同じP眼の向き・画角を接続。その完了まで守備視点の早期切替を防ぐ。
 

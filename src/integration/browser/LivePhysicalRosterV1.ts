@@ -1,6 +1,7 @@
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1, type LivePlayerPhysicalV1, type LivePlayerV1 } from './LiveBaseballMatchV1';
 import { createWorkbenchPlayer, WORKBENCH_TICKS_PER_SECOND, type WorkbenchPlayer } from './WorkbenchPlayer';
+import { validateLiveTraitProfileV1, type LiveTraitProfileV1 } from './LiveTraitProfilesV1';
 
 /** Explicit numerical controls, not conversions from a trait grade or league.
  * SI/tick authoring remains local input; this adapter grants no Native authority. */
@@ -19,11 +20,12 @@ export type LivePhysicalAbilityControlsV1 = Readonly<{
   swingDecision?: Readonly<{ approach: 'AUTO' | 'TAKE' | 'SWING'; threshold: number; aggressionWeight: number }>;
 }>;
 export type LiveRosterPhysicalV1 = LivePlayerPhysicalV1 & LivePhysicalAbilityControlsV1;
-export type LiveRosterPhysicalPlayerV1 = Omit<LivePlayerV1, 'physical'> & Readonly<{ physical: LiveRosterPhysicalV1 }>;
+export type LiveRosterPhysicalPlayerV1 = Omit<LivePlayerV1, 'physical' | 'traitProfile'> & Readonly<{ physical: LiveRosterPhysicalV1; traitProfile?: LiveTraitProfileV1 }>;
 export type LivePhysicalRosterEntryV1 = Readonly<{
   playerId: string; sourceId: string; workbenchPlayer?: WorkbenchPlayer;
   physical?: Pick<LivePlayerPhysicalV1, 'basis'> & Partial<LiveRosterPhysicalV1>;
   maximumPitchSpeedKmh?: number; heightMeters?: number; legacyRelativeRatings?: Readonly<Record<string, number>>; traitLabels?: readonly string[];
+  traitProfile?: LiveTraitProfileV1;
 }>;
 export type LivePhysicalRosterInputV1 = Readonly<{ version: 'live_physical_roster_v1'; sourceId: string; entries: readonly LivePhysicalRosterEntryV1[] }>;
 type Projection = Readonly<{ inputPath: string; targetPath: string; conversion: string; value: unknown }>;
@@ -95,7 +97,7 @@ export function applyLivePhysicalRosterV1(raw: unknown) {
   assert(new Set(entries.map(e => e.playerId)).size === entries.length, 'duplicate player source binding');
   const byId = new Map(players.map(p => [p.playerId, p]));
   for (const entry of entries) {
-    fields(entry, ['playerId', 'sourceId', 'workbenchPlayer', 'physical', 'maximumPitchSpeedKmh', 'heightMeters', 'legacyRelativeRatings', 'traitLabels'], ['playerId', 'sourceId'], 'entry');
+    fields(entry, ['playerId', 'sourceId', 'workbenchPlayer', 'physical', 'maximumPitchSpeedKmh', 'heightMeters', 'legacyRelativeRatings', 'traitLabels', 'traitProfile'], ['playerId', 'sourceId'], 'entry');
     assert(validText(entry.playerId) && validText(entry.sourceId) && byId.has(entry.playerId), 'unknown player or source binding');
     assert(!(Object.hasOwn(entry, 'workbenchPlayer') && Object.hasOwn(entry, 'physical')), 'ambiguous physical authoring sources');
     if (Object.hasOwn(entry, 'workbenchPlayer')) assert(entry.workbenchPlayer && typeof entry.workbenchPlayer === 'object', 'invalid maker authoring source');
@@ -169,11 +171,16 @@ export function applyLivePhysicalRosterV1(raw: unknown) {
         reason: 'Trait name alone is descriptive; an explicit current numerical source is required to execute its skill.' }));
     }
     validatePhysical(physical);
+    const traitProfile = entry?.traitProfile === undefined ? undefined : validateLiveTraitProfileV1(entry.traitProfile, physical);
+    if (traitProfile !== undefined) project('traitProfile', 'traitProfile', traitProfile, 'LOCAL_SOURCE_METADATA_NO_ADDITIONAL_EFFECT');
     assert(heightMeters >= 1.1 && heightMeters <= 2.5, 'unsupported physical height');
     const targetPaths = new Set(projected.map(p => p.targetPath));
     auditPlayers.push({ playerId: player.playerId, sourceId: entry?.sourceId ?? null, sourcePlayerId, projected, unsupported,
       referenceDefaultPaths: player.physical ? [] : Object.keys(LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1).filter(k => k !== 'basis' && !targetPaths.has(k)) });
-    return { ...player, heightMeters, physical } as LiveRosterPhysicalPlayerV1;
+    // An omitted legacy profile stays unassessed, even after an earlier packet
+    // supplied one. Never infer possession from a retained continuous source.
+    const { traitProfile: _previousProfile, ...basePlayer } = player as LivePlayerV1 & Readonly<{ traitProfile?: LiveTraitProfileV1 }>;
+    return { ...basePlayer, heightMeters, physical, ...(traitProfile === undefined ? {} : { traitProfile }) } as LiveRosterPhysicalPlayerV1;
   });
   return freeze({ players: output, audit: { version: 'live_physical_roster_projection_v1' as const, sourceId: input.roster.sourceId,
     nativeAuthentication: false as const, projectionOnly: true as const, players: auditPlayers } });

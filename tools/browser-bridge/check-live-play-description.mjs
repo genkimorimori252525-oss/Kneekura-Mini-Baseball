@@ -22,6 +22,8 @@ for(const [classification,label]of [['single','ヒット（単打）'],['double'
  const d=describe(record({classification}));assert.equal(d.label,label);assert.equal(d.category,'hit');assert.equal(d.scoring.officialHit,classification);assertions.push(label);
 }
 const ground=describe(record({base:0,ground:10,outcomes:[out('b')],contacts:[control(1)]}));assert.equal(ground.label,'ゴロアウト（一塁）');
+const appeal=describe(record({outcomes:[{...out('r',80,'tag_up_appeal'),classification:'time_play'}]}));
+assert.equal(appeal.label,'一塁出塁・飛球の早離塁アピールアウト');assert.equal(appeal.outReasons[0].shortLabel,'早離塁アピール');
 const force=describe(record({outcomes:[out('r')],contacts:[control(2)]}));assert.equal(force.label,'一塁出塁・二塁フォースアウト');
 const two=describe(record({base:0,outsBefore:1,outcomes:[out('r',70),out('b',80)],contacts:[control(2,70),control(1,80)]}));
 assert.equal(two.label,'併殺（二塁→一塁）');assert.equal(two.playOuts,2);assert.equal(two.thirdOut,true);assert.equal(two.thirdOutAtTick,80);

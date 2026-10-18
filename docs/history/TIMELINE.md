@@ -43,3 +43,5 @@
 - **同じ名前の成果物の更新**: `7bc3982`後もHTML名はv41。Source SHAと配布SHAを常に併記する。
 
 成績分布、全得能、公式H/E、未接続ルール、Native連続世界、実機の残件は[現在地](../handoffs/LATEST.md)へ置く。過去の限定PASSを増やすためだけの重い再実行はしない。
+
+- **2026-10-18 v53**: 着地前の走塁判断、誤読後の連続帰塁、実離塁／explicit appeal・reverse-home裁定を接続。悪球打ちは公開数値から得能へ。新Source112入力で39files346tests・通常320球9回・PC390pxを検証。全得能は未完、範囲確認待ち。[H25と検証](../reports/2026-10-18-v53-airborne-running.md)。

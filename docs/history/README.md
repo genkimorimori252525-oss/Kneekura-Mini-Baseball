@@ -44,3 +44,5 @@ ID / 観測日 / 対象経路・Source・HTML SHA
 ```
 
 元記録がローカル `outputs/`・`work/`・所有者のDBにしか存在しない場合は、その所在を区別します。本書から報告へのリンクがあっても、元DBや全巨大ログがGitHubへ公開されているという意味ではありません。今回のv43/v44の限定ブラウザ証拠は `docs/verification/releases/` へ同梱しました。
+
+[v53の飛球走塁・実帰塁・得能接続の監査](../reports/2026-10-18-v53-airborne-running.md)をH25として追加。得能の定義・作成metadata・実Source実行・未実装ownerを区別する。

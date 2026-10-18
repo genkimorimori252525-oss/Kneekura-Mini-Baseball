@@ -1,0 +1,31 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/rules/TagUpCompliance.test.ts (6 tests) 3ms
+ ✓ src/core/rules/AppealOutScoring.test.ts (6 tests) 4ms
+ ✓ src/core/rules/TagUpAppealRule.test.ts (5 tests) 3ms
+ ✓ src/integration/browser/PlayableMatchRulesV1.test.ts (21 tests) 11ms
+ ✓ src/integration/browser/PlayableMatchTagUpAppealV1.test.ts (26 tests) 16ms
+ ✓ src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts (5 tests) 9709ms
+   ✓ satisfies first-base force on the same physical bag-contact geometry as the defense 418ms
+   ✓ still retires a runner when actual controlled first-base contact wins the physical race 402ms
+   ✓ keeps physical runner retirements equal to rule-interpreted outs in both race orders 636ms
+   ✓ reconsiders a newly vacated advance reservation after a live retirement before closing the play 7517ms
+   ✓ adjudicates the actual normal-game tag enabled by a witnessed through-base departure 736ms
+stdout | src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts > probe same-tick departure
+{"acceleration":3.3438,"first":5502282,"firstAt":5.502281815794229,"left":5502273,"leftAt":5.502272144826578,"start":5.093036111188279,"appeals":[],"end":{"elapsedSeconds":14.782036031674473,"tick":14782037,"reason":"live_action_complete","complete":true}}
+{"acceleration":3.343642129248945,"first":5502282,"firstAt":5.502281815794239,"left":5502282,"leftAt":5.502281805794234,"start":5.093036111188279,"appeals":[],"end":{"elapsedSeconds":10.953336783754445,"tick":10953337,"reason":"live_action_complete","complete":true}}
+{"acceleration":3.343642129248771,"first":5502282,"firstAt":5.502281815794248,"left":5502282,"leftAt":5.502281805794243,"start":5.093036111188279,"appeals":[],"end":{"elapsedSeconds":10.953336783754569,"tick":10953337,"reason":"live_action_complete","complete":true}}
+
+ ✓ src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts (5 tests) 12960ms
+   ✓ advances from an observed airborne hit read before the actual first landing, independently of render cadence 1834ms
+   ✓ keeps a mistaken read live through reaction and a physical return, retouching passed bags in reverse order 3643ms
+   ✓ allows a real throw and original-base appeal to beat a mistaken runner back, without making a force out 1990ms
+   ✓ does not punish a motor started before first touch if the runner has not actually left the original bag disk 1455ms
+   ✓ probe same-tick departure 4037ms
+
+ Test Files  7 passed (7)
+      Tests  74 passed (74)
+   Start at  19:27:58
+   Duration  14.01s (transform 840ms, setup 0ms, collect 2.08s, tests 22.71s, environment 1ms, prepare 1.21s)
+

@@ -8,7 +8,12 @@ import { resolveHalfInningTransition } from '../../core/rules/HalfInningTransiti
 import { createInitialForceObligationState,deriveCurrentForceObligations,retireForceParticipant,satisfyForceParticipantObligation } from '../../core/rules/ForceObligation';
 import { resolveThirdOutScoring,type CorrectOutClassification } from '../../core/rules/ThirdOutScoring';
 import { finalizePendingRunsAtPlayEnd } from '../../core/rules/PlayRunFinalization';
-import type { BaseballBase,RunnerBaseTouchFact,ControlledBaseContactFact,ControlledRunnerTagFact,RunnerBaseDepartureFact,PlayEndFact } from '../../core/rules/PhysicalRuleFacts';
+import { createAppealWindow } from '../../core/rules/AppealWindow';
+import { evaluateTagUpCompliance } from '../../core/rules/TagUpCompliance';
+import { resolveTagUpAppeal } from '../../core/rules/TagUpAppealRule';
+import { evaluateSustainedTagUpAppealScoring,type SustainedTagUpAppealOut } from '../../core/rules/AppealOutScoring';
+import { createRunnerPrecedence } from '../../core/rules/RunnerPrecedence';
+import type { BaseballBase,RunnerBaseTouchFact,ControlledBaseContactFact,ControlledRunnerTagFact,RunnerBaseDepartureFact,PlayEndFact,DefensiveAppealAttemptFact } from '../../core/rules/PhysicalRuleFacts';
 
 /** Browser-neutral adapter for actual offline physical facts. These records do
  * not claim SQLite ownership, a scorer's H/E judgment or empirical SI calibration. */
@@ -17,9 +22,10 @@ export type PlayableFieldFactsV1=Readonly<{
   flyCatch:Readonly<{fielderId:string;firstTouchTick:number;secureCatchTick:number}>|null;
   runnerTouches:readonly RunnerBaseTouchFact[];controlledBaseContacts:readonly ControlledBaseContactFact[];
   controlledRunnerTags:readonly ControlledRunnerTagFact[];runnerDepartures:readonly RunnerBaseDepartureFact[];
+  defensiveAppeals?:readonly DefensiveAppealAttemptFact[];
   overFence:Readonly<{tick:number;fair:boolean;untouchedGround:boolean;cause?:'batted'|'throw';awardFrom?:Readonly<Record<string,number>>}>|null;playEnd:PlayEndFact;buntAttempt?:boolean;
 }>;
-export type PlayableRunnerOutV1=Readonly<{runnerId:string;tick:number;classification:CorrectOutClassification;cause:'base_control'|'runner_tag'|'fly_catch'|'pitch_count';defenderId:string|null}>;
+export type PlayableRunnerOutV1=Readonly<{runnerId:string;tick:number;classification:CorrectOutClassification;cause:'base_control'|'runner_tag'|'fly_catch'|'pitch_count'|'tag_up_appeal';defenderId:string|null}>;
 export type PlayableMatchRuleInputV1=Readonly<{
   match:CanonicalMatchState;batterRunnerId:string;regulationInnings?:number;
   event:Readonly<{kind:'pitch_call';tick:number;call:'ball'|'called_strike'|'swinging_strike'}>|Readonly<{kind:'field_play';facts:PlayableFieldFactsV1}>;
@@ -108,13 +114,16 @@ export function reducePlayableMatchV1(raw:PlayableMatchRuleInputV1):PlayableMatc
   const runners=force.participants.map(p=>p.runnerId),atBase=new Map<string,BaseballBase|null>(),progress=new Map<string,number>();
   for(const p of force.participants){atBase.set(p.runnerId,p.startBase===0?null:p.startBase);progress.set(p.runnerId,p.startBase);}
   const retired=new Set<string>(),homes:RunnerBaseTouchFact[]=[],outcomes:PlayableRunnerOutV1[]=[];
-  type Event=RunnerBaseTouchFact|RunnerBaseDepartureFact|ControlledBaseContactFact|ControlledRunnerTagFact|Readonly<{kind:'fly_catch';tick:number;defenderId:string}>;
-  const events:Event[]=[...f.runnerTouches,...f.runnerDepartures,...f.controlledBaseContacts,...f.controlledRunnerTags,
+  const originDepartures=new Map<string,RunnerBaseDepartureFact>(),originRetouches=new Map<string,RunnerBaseTouchFact>(),sustainedAppeals:SustainedTagUpAppealOut[]=[];
+  const origins=new Map(force.participants.map(p=>[p.runnerId,p.startBase] as const));
+  type Event=RunnerBaseTouchFact|RunnerBaseDepartureFact|ControlledBaseContactFact|ControlledRunnerTagFact|DefensiveAppealAttemptFact|Readonly<{kind:'fly_catch';tick:number;defenderId:string}>;
+  const events:Event[]=[...f.runnerTouches,...f.runnerDepartures,...f.controlledBaseContacts,...f.controlledRunnerTags,...(f.defensiveAppeals??[]),
     ...(caught?.kind==='caught'?[{kind:'fly_catch' as const,tick:caught.outTick,defenderId:f.flyCatch!.fielderId}]:[])];
   for(const e of events){assert(validTime(e.tick),'fact outside physical play interval');
     if('runnerId' in e)assert(runners.includes(e.runnerId),'unknown physical runner');
     if('base' in e)assert([1,2,3,4].includes(e.base),'invalid physical base');
     if('defenderId' in e)assert(id(e.defenderId),'invalid physical defender');
+    if(e.kind==='defensive_appeal_attempt')assert(e.reason==='tag_up_early_departure','invalid physical appeal reason');
     if(e.kind==='controlled_runner_tag'&&e.protectionEndedByDeparture){const proof=e.protectionEndedByDeparture;
       assert([1,2,3,4].includes(proof.base)&&validTime(proof.tick)&&proof.tick===e.tick,'invalid tag departure evidence');}}
   const retire=(runnerId:string,time:number,classification:CorrectOutClassification,cause:PlayableRunnerOutV1['cause'],defenderId:string)=>{
@@ -125,11 +134,24 @@ export function reducePlayableMatchV1(raw:PlayableMatchRuleInputV1):PlayableMatc
   for(let offset=0;offset<events.length;){
     const time=events[offset].tick,group:Event[]=[];while(offset<events.length&&events[offset].tick===time)group.push(events[offset++]);
     if(time>f.playEnd.tick||m.outs+outcomes.length>=3)break;
+    const appeals=group.filter((e):e is DefensiveAppealAttemptFact=>e.kind==='defensive_appeal_attempt');
+    for(const appeal of appeals){
+      if(caught?.kind!=='caught'||time<caught.outTick)return unresolved('tag_up_appeal_requires_catch',time);
+      if(origins.get(appeal.runnerId)!==appeal.base)return unresolved('unbound_tag_up_origin',time);
+      const control=group.some(e=>(e.kind==='controlled_base_contact'&&e.base===appeal.base
+        ||e.kind==='controlled_runner_tag'&&e.runnerId===appeal.runnerId)&&e.defenderId===appeal.defenderId);
+      if(!control)return unresolved('unbound_tag_up_appeal_control',time);
+      const departure=originDepartures.get(appeal.runnerId),retouch=originRetouches.get(appeal.runnerId);
+      const corrected=departure&&retouch&&retouch.tick>=departure.tick&&(retouch.tick>=caught.firstFielderTouchTick||atBase.get(appeal.runnerId)===appeal.base);
+      if(departure&&departure.tick<caught.firstFielderTouchTick&&!corrected
+        &&group.some(e=>e.kind==='runner_base_touch'&&e.runnerId===appeal.runnerId&&e.base===appeal.base))return unresolved('simultaneous_tag_up_retouch',time);
+    }
     // Equal authoritative ticks retain uncertainty instead of array-order outs.
-    const forceTargets=deriveCurrentForceObligations(force).filter(o=>group.some(e=>e.kind==='controlled_base_contact'&&e.base===o.targetBase));
+    const obligationsAtTick=group.some(e=>e.kind==='fly_catch')?[]:deriveCurrentForceObligations(force);
+    const forceTargets=obligationsAtTick.filter(o=>group.some(e=>e.kind==='controlled_base_contact'&&e.base===o.targetBase));
     if(forceTargets.length>1)return unresolved('simultaneous_multiple_force_plays',time);
     for(const control of group.filter((e):e is ControlledBaseContactFact=>e.kind==='controlled_base_contact')){
-      const obligation=deriveCurrentForceObligations(force).find(o=>o.targetBase===control.base);
+      const obligation=obligationsAtTick.find(o=>o.targetBase===control.base);
       if(obligation&&group.some(e=>e.kind==='runner_base_touch'&&e.runnerId===obligation.runnerId&&e.base===control.base))return unresolved('simultaneous_force_arrival',time);
     }
     for(const tag of group.filter((e):e is ControlledRunnerTagFact=>e.kind==='controlled_runner_tag')){
@@ -138,19 +160,30 @@ export function reducePlayableMatchV1(raw:PlayableMatchRuleInputV1):PlayableMatc
       if(group.some(e=>e.kind==='runner_base_touch'&&e.runnerId===tag.runnerId))return unresolved('simultaneous_tag_arrival_or_departure',time);
       const departures=group.filter((e):e is RunnerBaseDepartureFact=>e.kind==='runner_base_departure'&&e.runnerId===tag.runnerId),proof=tag.protectionEndedByDeparture,
         bound=!!proof&&departures.length===1&&departures[0].base===proof.base&&departures[0].tick===proof.tick
-          &&atBase.get(tag.runnerId)===proof.base&&!deriveCurrentForceObligations(force).some(o=>o.runnerId===tag.runnerId);
+          &&atBase.get(tag.runnerId)===proof.base&&!obligationsAtTick.some(o=>o.runnerId===tag.runnerId);
       if(proof&&!bound)return unresolved('unbound_tag_departure_evidence',time);
       if(departures.length&&!bound)return unresolved('simultaneous_tag_arrival_or_departure',time);
     }
     for(const e of group.filter(e=>e.kind==='fly_catch'))retire(batter,time,'batter_runner_before_first','fly_catch',e.defenderId);
     for(const e of group.filter((a):a is RunnerBaseDepartureFact=>a.kind==='runner_base_departure')){
-      if(!retired.has(e.runnerId)&&atBase.get(e.runnerId)===e.base)atBase.set(e.runnerId,null);
+      if(!retired.has(e.runnerId)&&atBase.get(e.runnerId)===e.base){
+        atBase.set(e.runnerId,null);if(origins.get(e.runnerId)===e.base)originDepartures.set(e.runnerId,e);
+      }
     }
     for(const e of group.filter((a):a is RunnerBaseTouchFact=>a.kind==='runner_base_touch')){
       if(retired.has(e.runnerId))continue;
       const prior=progress.get(e.runnerId)!;
       if(Math.abs(e.base-prior)>1)return unresolved('missing_sequential_base_touch',time);
+      const departure=originDepartures.get(e.runnerId);
+      // An early departure alone is appealable, not an automatic lost run.
+      // Actual reverse passage after home abandons that scoring traversal;
+      // a later legal home passage must contribute its own occurrence tick.
+      if(prior===4&&e.base===3&&caught?.kind==='caught'&&time>=caught.firstFielderTouchTick
+        &&departure&&departure.tick<caught.firstFielderTouchTick){
+        const home=homes.findIndex(h=>h.runnerId===e.runnerId);if(home>=0)homes.splice(home,1);
+      }
       progress.set(e.runnerId,e.base);atBase.set(e.runnerId,e.base);
+      if(origins.get(e.runnerId)===e.base)originRetouches.set(e.runnerId,e);
       const obligation=deriveCurrentForceObligations(force).find(o=>o.runnerId===e.runnerId&&o.targetBase===e.base);
       if(obligation)force=satisfyForceParticipantObligation(force,e.runnerId);
       if(e.base===4&&!homes.some(h=>h.runnerId===e.runnerId))homes.push(e);
@@ -158,6 +191,25 @@ export function reducePlayableMatchV1(raw:PlayableMatchRuleInputV1):PlayableMatc
     for(const e of group.filter((a):a is ControlledBaseContactFact=>a.kind==='controlled_base_contact')){
       const obligation=deriveCurrentForceObligations(force).find(o=>o.targetBase===e.base);
       if(obligation)retire(obligation.runnerId,time,obligation.classification,'base_control',e.defenderId);
+    }
+    const appealOuts:SustainedTagUpAppealOut[]=[];
+    for(const appeal of appeals){
+      if(retired.has(appeal.runnerId))continue;
+      const departure=originDepartures.get(appeal.runnerId),retouch=originRetouches.get(appeal.runnerId);
+      if(!departure)return unresolved('unbound_tag_up_departure_evidence',time);
+      // Returning before first touch and remaining on the origin is continuous
+      // legal contact; do not manufacture a post-first-touch retouch fact.
+      if(retouch&&retouch.tick>=departure.tick&&retouch.tick<caught!.firstFielderTouchTick&&atBase.get(appeal.runnerId)===appeal.base)continue;
+      const compliance=evaluateTagUpCompliance({runnerId:appeal.runnerId,originBase:appeal.base,
+        firstTouch:{kind:'fly_ball_first_fielder_touch',fielderId:f.flyCatch!.fielderId,tick:caught!.firstFielderTouchTick},departure,
+        retouch:retouch&&retouch.tick>=departure.tick?retouch:null});
+      const ruling=resolveTagUpAppeal({compliance,appeal,window:createAppealWindow(f.flyCatch!.secureCatchTick)});
+      if(ruling.kind==='simultaneous_unresolved')return unresolved('simultaneous_tag_up_appeal_window',time);
+      if(ruling.kind==='out')appealOuts.push(ruling);
+    }
+    if(new Set(appealOuts.map(o=>o.runnerId)).size>1)return unresolved('simultaneous_multiple_tag_up_appeals',time);
+    for(const ruling of appealOuts){
+      sustainedAppeals.push(ruling);retire(ruling.runnerId,time,'time_play','tag_up_appeal',appeals.find(a=>a.runnerId===ruling.runnerId)!.defenderId);
     }
     for(const e of group.filter((a):a is ControlledRunnerTagFact=>a.kind==='controlled_runner_tag')){
       if(retired.has(e.runnerId))continue;
@@ -168,10 +220,14 @@ export function reducePlayableMatchV1(raw:PlayableMatchRuleInputV1):PlayableMatc
   }
   const third=m.outs+outcomes.length===3?outcomes.at(-1)!:null;
   let scored:readonly RunnerBaseTouchFact[]=homes,suppressed:readonly RunnerBaseTouchFact[]=[];
-  if(third){const r=resolveThirdOutScoring({outsAtStart:2,thirdOutCandidate:{runnerId:third.runnerId,outTick:third.tick,classification:third.classification},homeTouches:homes});
+  if(third){const thirdAppeal=sustainedAppeals.find(a=>third.cause==='tag_up_appeal'&&a.runnerId===third.runnerId&&a.outTick===third.tick);
+    const r=thirdAppeal?evaluateSustainedTagUpAppealScoring({precedence:createRunnerPrecedence(m.bases,batter),appealOut:thirdAppeal,homeTouches:homes})
+      :resolveThirdOutScoring({outsAtStart:2,thirdOutCandidate:{runnerId:third.runnerId,outTick:third.tick,classification:third.classification},homeTouches:homes});
     if(r.kind==='simultaneous_unresolved')return unresolved('simultaneous_third_out_run',third.tick);
     assert(r.kind==='resolved','third out was not resolved');scored=r.scored;suppressed=r.suppressed;
   }else finalizePendingRunsAtPlayEnd(homes,f.playEnd);
+  const appealedHome=scored.filter(h=>sustainedAppeals.some(a=>a.runnerId===h.runnerId));
+  scored=scored.filter(h=>!appealedHome.includes(h));suppressed=[...suppressed,...appealedHome];
   const bases:{first:string|null;second:string|null;third:string|null}={first:null,second:null,third:null};
   if(!third)for(const runner of runners){
     if(retired.has(runner)||homes.some(h=>h.runnerId===runner))continue;

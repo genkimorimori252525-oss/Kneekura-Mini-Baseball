@@ -40,7 +40,9 @@ it('physically advances second to third on a deep caught fly against a weak arm'
   expect(left.tick).toBeGreaterThanOrEqual(caught.firstTouchTick + 100_000);
   expect(touched.tick).toBeGreaterThan(left.tick);
   const routeSeconds = estimateLiveRunnerLegSecondsV1(Math.hypot(19.39, 19.39), 8, 5, input.field.baseTouchRadiusMeters ?? .28);
-  expect(touched.elapsedSeconds - left.elapsedSeconds).toBeCloseTo(routeSeconds, 9);
+  const began = result.diagnostics.aiTelemetry.runnerMotions.find(m => m.runnerId === runnerId)!;
+  expect(left.elapsedSeconds - began.elapsedSeconds).toBeCloseTo(Math.sqrt(2 * (input.field.baseTouchRadiusMeters ?? .28) / 5), 9);
+  expect(touched.elapsedSeconds - began.elapsedSeconds).toBeCloseTo(routeSeconds, 9);
   expect(result.finalRunners.find(r => r.runnerId === runnerId)!.base).toBeGreaterThanOrEqual(3);
 });
 
@@ -92,7 +94,9 @@ it('waits for the runner reaction after the actual first touch and keeps that de
     result = simulateLiveFieldPlayV1({ ...raw, runners: raw.runners.map(r => r.runnerId === runnerId ? { ...r, reactionSeconds } : r) }),
     caught = result.ruleFacts.flyCatch!, left = departure(result)!;
   expect(left.tick).toBeGreaterThanOrEqual(caught.firstTouchTick + reactionSeconds * 1e6);
-  expect(left.tick).toBeLessThan(caught.firstTouchTick + (reactionSeconds + .05) * 1e6);
+  const began = result.diagnostics.aiTelemetry.runnerMotions.find(m => m.runnerId === runnerId)!;
+  expect(began.elapsedSeconds).toBeLessThan(caught.firstTouchTick / 1e6 + reactionSeconds + .05);
+  expect(left.elapsedSeconds - began.elapsedSeconds).toBeCloseTo(Math.sqrt(2 * .28 / 5), 9);
   expect(thirdTouch(result)).toBeDefined();
   expect(result.end.tick).toBeGreaterThan(left.tick);
 });

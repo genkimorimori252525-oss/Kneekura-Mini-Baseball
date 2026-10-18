@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V53-TRAIT-IMPORT-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveTraitProfilesV1.test.ts",
+    "src/integration/browser/LivePhysicalRosterV1.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T10:17:29.954+00:00",
+  "elapsed_ms": 1750,
+  "git_head": "ea9ca61b0971da3cc3b3ce1cfb344d4496e2ecc9",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V53-TRAIT-IMPORT-RED_8beb37178c6a48d8aeaf2cec8b1ac8e8.log",
+  "output_sha256": "c65e8d9ffd36ad8dd063f3b987b0b54ebf59702c41ca8a9465719082f83e93b1",
+  "receipt_id": "MB-20261018-V53-TRAIT-IMPORT-RED_8beb37178c6a48d8aeaf2cec8b1ac8e8"
+}

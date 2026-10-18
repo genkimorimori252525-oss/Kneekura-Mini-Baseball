@@ -67,7 +67,8 @@ it('exposes hidden maker defaults without adding public abilities or changing pu
   expect(catalog.fields.find(f => f.path === 'baserunningTurnRadiusMeters')).toMatchObject({ min: .5, max: 10, default: 4.5 });
   expect(catalog.fields.find(f => f.path === 'baserunningLateralAccelerationMps2')).toMatchObject({ min: .5, max: 20, defaultFrom: 'accelerationMps2', defaultScale: 1.5 });
   expect(catalog.fields).toHaveLength(44);
-  expect(original.abilities).toHaveLength(11);
+  expect(original.abilities).toHaveLength(10);
+  expect(original.abilities.map(a => a.id)).not.toContain('badBallControl');
   expect(projectLivePublicAbilitiesV1({ roster: edited, reference, playerId }).abilities).toEqual(original.abilities);
   for (const abilityId of ['run', 'field', 'arm']) {
     const value = original.abilities.find(a => a.id === abilityId)!.value,

@@ -66,6 +66,7 @@
       control.rangeNote.hidden = control.rangeNote.textContent === '';
     }
     refreshPublicLeague();
+    renderLiveTraits();
   }
   function refreshInternalValues() {
     const entry = livePhysicalRoster.entries.find(e => e.playerId === liveRosterPlayerId);
@@ -81,6 +82,36 @@
     const physical = core.applyLivePhysicalRosterV1({ players: liveCatalog.players, roster: livePhysicalRoster })
       .players.find(p => p.playerId === entry.playerId).physical;
     return get(physical, spec.defaultFrom) * (spec.defaultScale ?? 1);
+  }
+  function traitProjection() {
+    return core.projectLiveTraitProfilesV1({ roster: livePhysicalRoster, playerId: liveRosterPlayerId });
+  }
+  function renderLiveTraits() {
+    const panel = $('live-trait-editor'); if (!panel || !livePhysicalRoster) return;
+    panel.replaceChildren();
+    const heading = document.createElement('h3'); heading.textContent = '得能'; panel.append(heading);
+    for (const trait of traitProjection().traits) {
+      const row = document.createElement('div'); row.className = 'control';
+      const label = document.createElement('label'); label.htmlFor = 'live-trait-' + trait.familyId; label.textContent = trait.label;
+      const select = document.createElement('select'); select.id = label.htmlFor; select.dataset.traitFamily = trait.familyId;
+      const choices = [...(trait.owned === null ? [['UNASSESSED', '未査定（現在の技術を維持）']] : []),
+        ['', '保有なし'], ['LEARNED', '悪球打ち（青特）']];
+      for (const [value, text] of choices) { const option = document.createElement('option'); option.value = value; option.textContent = text; select.append(option); }
+      select.value = trait.owned === null ? 'UNASSESSED' : trait.stateId ?? '';
+      select.style.color = trait.color === 'blue' ? '#7ecaff' : '';
+      select.onchange = () => {
+        try {
+          assertLiveRosterEdits();
+          const request = { roster: livePhysicalRoster, playerId: liveRosterPlayerId, familyId: trait.familyId, stateId: select.value || null };
+          if (select.value && !trait.sourceValue) request.source = { badBallControl: trait.sourceValue ?? 0 };
+          livePhysicalRoster = validateLiveRoster(core.setLiveTraitProfileV1(request).roster).packet;
+          renderLiveRoster(); clearProblem();
+        } catch (error) { problem(error); renderLiveTraits(); }
+      };
+      const note = document.createElement('p'); note.className = 'note';
+      note.textContent = '窮屈なコースでも狙ったスイングを保つ技術です。悪球を振りやすくする積極性とは別です。';
+      row.append(label, select, note); panel.append(row);
+    }
   }
   function renderPublicAbilities(identity) {
     if (!livePublicReference) return;
@@ -148,6 +179,10 @@
         }
         const pending = liveRosterPending.get(key); input.value = pending ? pending.raw : value ?? '';
         if (pending) input.setCustomValidity(pending.error);
+        if (spec.path === 'badBallControl' && typeof core.projectLiveTraitProfilesV1 === 'function') {
+          input.disabled = traitProjection().traits.find(t => t.familyId === 'bad_ball_hitting')?.owned === false;
+          if (input.disabled) input.title = '得能欄で悪球打ちを保有すると、保存した技術強度を編集できます。';
+        }
         input.oninput = () => {
           try {
             if (input.value === '') throw Error('値を入力してください。');
@@ -155,6 +190,10 @@
             const nextValue = input.type === 'number' ? Number(input.value) : input.value;
             if (input.type === 'number' && !numeric(nextValue)) throw Error('有限の数値を入力してください。');
             set(spec.entryPath ? selected : selected.physical, spec.path, nextValue);
+            if (!spec.entryPath && spec.path === 'badBallControl') {
+              const selection = selected.traitProfile?.selections.find(t => t.familyId === 'bad_ball_hitting');
+              if (selection?.stateId) selection.source.badBallControl = nextValue;
+            }
             const priorEntrySuffix = selected.sourceId.match(/(?::maker-edited|:public-edited)+$/)?.[0] ?? '';
             selected.sourceId = selected.sourceId.replace(/(?::maker-edited|:public-edited)+$/, '') + ':maker-edited'
               + (priorEntrySuffix.includes(':public-edited') ? ':public-edited' : '');
@@ -175,7 +214,7 @@
         container.append(wrapper);
       }
     }
-    renderPublicAbilities(identity); rosterStatus();
+    renderPublicAbilities(identity); renderLiveTraits(); rosterStatus();
   }
   function importLiveRoster(raw) {
     const accepted = validateLiveRoster(raw); livePhysicalRoster = accepted.packet; liveRosterPending.clear();
@@ -186,6 +225,10 @@
   function initializeLiveRoster() {
     if (livePublicReference && ['projectLivePublicAbilitiesV1', 'editLivePublicAbilityV1', 'previewLivePublicLeagueV1'].some(key => typeof core[key] !== 'function'))
       throw Error('公開能力の編集Coreを読み込めませんでした。');
+    if (typeof core.projectLiveTraitProfilesV1 === 'function') {
+      const panel = document.createElement('section'); panel.id = 'live-trait-editor';
+      $('live-public-editor').after(panel);
+    }
     $('live-public-editor').hidden = !livePublicReference;
     $('live-roster-internals').open = !livePublicReference;
     $('live-roster-internals').querySelector('summary').hidden = !livePublicReference;
@@ -796,7 +839,8 @@
     getProjection: () => clone(projectedBat), getRevision: () => revision, seek: seconds => { time = Math.max(replayStart(), Math.min(duration, seconds)); playing = false; draw(); },
     setCamera: value => { if (!['side', 'batter', 'catcher', 'pitcher', 'overhead'].includes(value)) throw Error('unknown camera'); camera = value; $('camera').value = value; draw(); },
     exportSources: () => core.exportWorkbenchPlayerSources(player), importLiveRoster, getLiveRoster: () => clone(livePhysicalRoster),
-    getPublicProjection: () => livePublicReference ? clone(publicProjection()) : null });
+    getPublicProjection: () => livePublicReference ? clone(publicProjection()) : null,
+    getTraitProjection: () => typeof core.projectLiveTraitProfilesV1 === 'function' ? clone(traitProjection()) : null });
   if (!core?.defaultWorkbenchPlayer || !core?.simulateBattingWorkbench) { problem(Error('計算用Coreを読み込めませんでした。ビルド済みのメーカーHTMLを開いてください。')); return; }
   try { document.querySelectorAll('input[type=range]').forEach(input => { if (input.id !== 'scrub') input.step = 'any'; });
     const rank = clip => clip.id === referenceData.defaultClipId ? 0 : clip.id === referenceData.comparisonClipId ? 1 : 2;

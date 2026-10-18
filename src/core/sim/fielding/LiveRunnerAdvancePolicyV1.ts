@@ -23,12 +23,16 @@ export type LiveRunnerAdvanceInputV1 = Readonly<{
    * The caller includes pickup, transfer, throw, receiver and tag preparation.
    * Null means unknown; Infinity means a known unreachable defense. */
   defenderControlSeconds: number | null;
+  /** Perceived pre-ground interception margin from an already observed ball.
+   * Positive favours a catch; negative favours a hit. This is not a result. */
+  airborneAssessment?: Readonly<{ observedAtSeconds: number; catchMarginSeconds: number }>;
   policy?: Readonly<{ safetyMarginSeconds?: number; recognitionSeconds?: number }>;
 }>;
 
 export type LiveRunnerAdvanceReasonV1 = 'target_occupied' | 'awaiting_legal_departure'
   | 'recognizing_departure_cue' | 'batter_advance' | 'award_advance' | 'forced_advance' | 'two_out_advance'
-  | 'no_defense_forecast' | 'insufficient_safety_margin' | 'safe_race_advance';
+  | 'no_defense_forecast' | 'insufficient_safety_margin' | 'safe_race_advance'
+  | 'airborne_catch_risk_hold' | 'airborne_hit_read_advance';
 
 export type LiveRunnerAdvanceDecisionV1 = Readonly<{
   advance: boolean;
@@ -87,6 +91,9 @@ export function decideLiveRunnerAdvanceV1(input: LiveRunnerAdvanceInputV1): Live
     'departure cue must be an occurred physical event');
   assert(input.defenderControlSeconds === null || nonnegative(input.defenderControlSeconds) || input.defenderControlSeconds === Infinity,
     'invalid defense control forecast');
+  assert(input.airborneAssessment === undefined || nonnegative(input.airborneAssessment.observedAtSeconds)
+    && input.airborneAssessment.observedAtSeconds >= input.playStartedAtSeconds && input.airborneAssessment.observedAtSeconds <= input.nowSeconds
+    && Number.isFinite(input.airborneAssessment.catchMarginSeconds), 'airborne assessment must come from occurred observation');
   const runnerTravelSeconds = estimateLiveRunnerLegSecondsV1(input.distanceToNextBaseMeters,
     input.runner.topSpeedMps, input.runner.accelerationMps2, input.baseTouchRadiusMeters ?? 0),
     award = input.awardThroughBase !== undefined && input.awardThroughBase !== null && input.awardThroughBase > input.currentBase,
@@ -94,8 +101,9 @@ export function decideLiveRunnerAdvanceV1(input: LiveRunnerAdvanceInputV1): Live
     twoOuts = input.outs === 2 && input.firstGroundContactElapsedSeconds === null && input.firstFielderTouchElapsedSeconds === null,
     groundedForce = input.forced && input.firstGroundContactElapsedSeconds !== null,
     available = cues.filter((cue): cue is number => cue !== null),
+    airborne = available.length === 0 && input.airborneAssessment !== undefined,
     legalCue = batter || award || twoOuts ? input.playStartedAtSeconds : groundedForce ? input.firstGroundContactElapsedSeconds
-      : available.length ? Math.min(...available) : null,
+      : available.length ? Math.min(...available) : airborne ? input.playStartedAtSeconds : null,
     readyAtElapsedSeconds = legalCue === null ? null : legalCue + (reaction + recognition);
   assert(readyAtElapsedSeconds === null || Number.isFinite(readyAtElapsedSeconds), 'recognition exceeds finite play clock');
   const runnerArrivalSeconds = readyAtElapsedSeconds === null ? null
@@ -112,6 +120,7 @@ export function decideLiveRunnerAdvanceV1(input: LiveRunnerAdvanceInputV1): Live
   if (batter) return result(true, 'batter_advance');
   if (twoOuts) return result(true, 'two_out_advance');
   if (groundedForce) return result(true, 'forced_advance');
+  if (airborne && input.airborneAssessment!.catchMarginSeconds >= -safetyMargin) return result(false, 'airborne_catch_risk_hold');
   if (raceMarginSeconds === null) return result(false, 'no_defense_forecast');
-  return raceMarginSeconds > safetyMargin ? result(true, 'safe_race_advance') : result(false, 'insufficient_safety_margin');
+  return raceMarginSeconds > safetyMargin ? result(true, airborne ? 'airborne_hit_read_advance' : 'safe_race_advance') : result(false, 'insufficient_safety_margin');
 }
