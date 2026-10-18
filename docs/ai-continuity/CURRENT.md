@@ -1,17 +1,17 @@
 ---
-current_task: "MB-20261019-V55-LAYERS-PACKAGE"
+current_task: "MB-20261019-V55-LAYERS-PUBLICATION"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "e269b85174a18ed1d28f18efd1e1e47377d32a6c"
+commit_head: "67a61cf484016b3aae4302130964b14df85f9f2b"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V55-LAYERS-PACKAGE_c8adb946ca284e3eb11b71b2b450c36b.json"
-updated_at: "2026-10-18T17:17:16.724777+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V55-LAYERS-PUBLICATION_d86d96440d9d41408c30a6498b8b2652.json"
+updated_at: "2026-10-18T17:18:58.985314+00:00"
 
 ---
 
-## Active human priority — v55.1 workbench visible layers (SCOPED VERIFIED; PUBLICATION PENDING)
+## Active human priority — v55.1 workbench visible layers (SCOPED VERIFIED; PUBLISHED)
 
-Human reports bat/ball missing in debug A/B. Root cause confirmed: copyCanvas copied only #field, omitting actual #bat-overlay/#ball-overlay. Restore field→bat→ball source-over1200x864 composition; no camera/Core/bat physics change. Fix optional batter gaze guide logical600x432→backing scale. New v55_1 lab plus existing v55 output alias; preserve published v55 artifacts/history. Focused pixel RED/GREEN, bothwidths/actual R+L bat/visiblepitch+hit/heldballhidden/5camera/sourcehash unchanged. NormalgameHTML must remain02644793. BUILD9622b51b PASS.186s; RED549100a9 FAIL41.250s reproducesoldmissinglayers96/120sides(fieldonly76); GREENe08325e2 PASS50.422s120RGBAimages(2widths5camerasLRswing/pitch/batted/held/guide)exact3layer+guidecomposite, actualbat/ballalpha+heldball0,12Core/batprefixexact,noerrors/network. InitialGREENfa85a4cd RGB±1backendrounding retained; single-software2D backend controlled, no tolerance relaxation/productchange. PACKAGEc8adb946 PASS.360s validatescurrent113Source/rawdriver/template/unchangednormal02644793+oldv55release. Lab838dc1f05b9ec4c8c013d76c7e06bb769e177884d08c8563d7564ae735493d10, bothoutputnamesidentical. ReportH28+newv55.1release prepared; stage/push existingDraft380 and verifyrawbytes next. Originalplan/FAIL/UNKNOWN/CharterHOLD preserved.
+Human reports bat/ball missing in debug A/B. Root cause confirmed: copyCanvas copied only #field, omitting actual #bat-overlay/#ball-overlay. Restore field→bat→ball source-over1200x864 composition; no camera/Core/bat physics change. Fix optional batter gaze guide logical600x432→backing scale. New v55_1 lab plus existing v55 output alias; preserve published v55 artifacts/history. Focused pixel RED/GREEN, bothwidths/actual R+L bat/visiblepitch+hit/heldballhidden/5camera/sourcehash unchanged. NormalgameHTML must remain02644793. BUILD9622b51b PASS.186s; RED549100a9 FAIL41.250s reproducesoldmissinglayers96/120sides(fieldonly76); GREENe08325e2 PASS50.422s120RGBAimages(2widths5camerasLRswing/pitch/batted/held/guide)exact3layer+guidecomposite, actualbat/ballalpha+heldball0,12Core/batprefixexact,noerrors/network. InitialGREENfa85a4cd RGB±1backendrounding retained; single-software2D backend controlled, no tolerance relaxation/productchange. PACKAGEc8adb946 PASS.360s validatescurrent113Source/rawdriver/template/unchangednormal02644793+oldv55release. Lab838dc1f05b9ec4c8c013d76c7e06bb769e177884d08c8563d7564ae735493d10, bothoutputnamesidentical. ReportH28/newv55.1release published51allowlistedfiles product67a61cf484016b3aae4302130964b14df85f9f2b; normalpush existingbranch/Draft380updated. PUBLICATIONd86d9644 PASS4.202s remote/PR head+7actualrawfilesexact; allproductstagedblobsrawexact/credentials0/nonlogwhitespacePASS/AGENTSexcluded/mainunmerged. publication.json saved; metadata closure follows, productbytes unchanged. Originalplan/FAIL/UNKNOWN/CharterHOLD preserved.
 
 ## Previous human priority — v55 camera workbench (SCOPED VERIFIED; PUBLISHED)
 

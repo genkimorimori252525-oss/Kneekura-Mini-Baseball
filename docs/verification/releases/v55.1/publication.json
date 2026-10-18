@@ -1,0 +1,51 @@
+{
+  "pass": true,
+  "sourceCommit": "67a61cf484016b3aae4302130964b14df85f9f2b",
+  "verifiedRemoteHead": "67a61cf484016b3aae4302130964b14df85f9f2b",
+  "branch": "jolly/tbd-lad-native-browser-core-2026-10-14",
+  "pullRequest": {
+    "headRefOid": "67a61cf484016b3aae4302130964b14df85f9f2b",
+    "isDraft": true,
+    "state": "OPEN",
+    "title": "通常試合v55・調整室v55.1: バットとボールの描画復元",
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380"
+  },
+  "rawFiles": {
+    "docs/handoffs/LATEST.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/67a61cf484016b3aae4302130964b14df85f9f2b/docs/handoffs/LATEST.md",
+      "bytes": 10631,
+      "sha256": "30f2a4441acf6b11af8569a2078cc59476065b46a97ad3f9b797114a50b00239"
+    },
+    "tools/browser-bridge/camera-workbench-v55.js": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/67a61cf484016b3aae4302130964b14df85f9f2b/tools/browser-bridge/camera-workbench-v55.js",
+      "bytes": 27835,
+      "sha256": "cfc8414ffbc8862dfb389d3e5c06f460ac8f849f2a966407141ecddaf9968e69"
+    },
+    "tools/browser-bridge/camera-workbench-v55.html": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/67a61cf484016b3aae4302130964b14df85f9f2b/tools/browser-bridge/camera-workbench-v55.html",
+      "bytes": 9889,
+      "sha256": "aaf49e76b00b396cad13624c6aa485ec830840c86793f14867cd826b5c9fe53d"
+    },
+    "tools/browser-bridge/build-v55.mjs": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/67a61cf484016b3aae4302130964b14df85f9f2b/tools/browser-bridge/build-v55.mjs",
+      "bytes": 3532,
+      "sha256": "9328af1236852677e1205bcc4fd0e2520434cdb749806a9877da22abb003be5d"
+    },
+    "docs/reports/2026-10-19-v55-1-workbench-layers.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/67a61cf484016b3aae4302130964b14df85f9f2b/docs/reports/2026-10-19-v55-1-workbench-layers.md",
+      "bytes": 3700,
+      "sha256": "c7ab9d7fed95f493d86c4a5478e71a67bb1e5562f175e2fd5fe735db1a8ec9a7"
+    },
+    "docs/demos/releases/v55.1/camera-workbench.html": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/67a61cf484016b3aae4302130964b14df85f9f2b/docs/demos/releases/v55.1/camera-workbench.html",
+      "bytes": 3850321,
+      "sha256": "838dc1f05b9ec4c8c013d76c7e06bb769e177884d08c8563d7564ae735493d10"
+    },
+    "docs/demos/releases/v55.1/SHA256.json": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/67a61cf484016b3aae4302130964b14df85f9f2b/docs/demos/releases/v55.1/SHA256.json",
+      "bytes": 208,
+      "sha256": "961503e4416ada031abfd5f66ebe13076b204e2a100f166795663d6e55b07016"
+    }
+  },
+  "scope": "actual current raw bytes and remote branch/Draft PR; no main merge"
+}

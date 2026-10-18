@@ -23,3 +23,5 @@
 [全receipt](../ai-continuity/verification-receipts/)の `MB-20261019-V55-LAYERS-*`、[GREEN画像検査](../verification/releases/v55.1/green/layers-check.json)、[復元後の画面](../verification/releases/v55.1/visible-bat-ball.png)、[配布説明](../demos/releases/v55.1/README.md)を参照。
 
 修正版SHA `838dc1f05b9ec4c8c013d76c7e06bb769e177884d08c8563d7564ae735493d10`。旧RED／初回GREEN原FAILとmachine receiptを保持する。Coreとカメラを変更しない今回の修正で、過去368テストや9回試合を新規実施したとは扱わない。以前の全FAIL/UNKNOWN/Charter HOLDと元全計画を保持する。
+
+GitHub保存: 製品コミット `67a61cf484016b3aae4302130964b14df85f9f2b`、既存branch/Draft PR380へ通常push。PUBLICATIONd86d9644 PASS4.202秒、remote/PR head一致と実raw7ファイルのbyte一致を確認。51ファイルを限定保存し、AGENTS.mdと無関係な未追跡ファイルを除外。全staged製品blobのraw bytes／credential pattern0／非ログwhitespaceを確認。main未マージ。[公開証拠](../verification/releases/v55.1/publication.json)。後続の記録専用commitで公開結果を保存し、製品HTMLは変更しない。
