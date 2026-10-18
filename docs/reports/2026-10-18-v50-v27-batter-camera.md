@@ -37,3 +37,8 @@ HTML SHA `acc38cf4566438a2a4faadc1a7ef105c7bfd83e512af5b1a46ac75b76c32ee26`、�
 ## 残る範囲
 
 見逃しの固定、700ms、補間時間はユーザー指示・lv27に基づく表示仕様であり、眼球や頭部の実測校正ではない。快適さはユーザーの実際の確認を要する。390pxは実機スマートフォンの証明ではない。元の全計画、v49で明記したNative連続世界・足接触・全規則／得能・野手衝突回避・統計校正等の残件、原FAIL/UNKNOWN/Charter HOLDは維持する。
+
+
+## GitHub保存
+
+コミット `3de1c3abf4190c05e67067ac612170b68086089d` を既存ブランチへpushし、Draft PR #380を更新。main未マージ。[リモート確認](../verification/releases/v50/publication.json)ではbranch／PR head一致と7ファイルの公開raw byte一致を確認した。[実行receipt](../ai-continuity/verification-receipts/MB-20261018-V50-PUBLICATION_b56af5fc5413466599fac573d0cd4983.json)。後続の記録保存コミットは製品byteを変更しない。

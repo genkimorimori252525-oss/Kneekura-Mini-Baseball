@@ -910,3 +910,4 @@ Only record verification that was actually performed.
 | MB-20261018-V50-BUILD-FINAL | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V50-BUILD-FINAL_4d22178bec574a4dbc40b9a73be93294.json |
 | MB-20261018-V50-BROWSER-FINAL | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V50-BROWSER-FINAL_ac0c48f136ae4974b834d0028479a008.json |
 | MB-20261018-V50-RELEASE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V50-RELEASE_49d3e6d8dd224593b357d3cb0017a541.json |
+| MB-20261018-V50-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V50-PUBLICATION_b56af5fc5413466599fac573d0cd4983.json |

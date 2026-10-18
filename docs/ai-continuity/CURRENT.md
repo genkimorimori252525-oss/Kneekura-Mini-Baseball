@@ -1,21 +1,21 @@
 ---
-current_task: "MB-20261018-V50-RELEASE"
+current_task: "MB-20261018-V50-PUBLICATION"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "60ad5092b27a3eb9401cc4281de708150862c15e"
+commit_head: "3de1c3abf4190c05e67067ac612170b68086089d"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V50-RELEASE_49d3e6d8dd224593b357d3cb0017a541.json"
-updated_at: "2026-10-18T08:55:56.469888+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V50-PUBLICATION_b56af5fc5413466599fac573d0cd4983.json"
+updated_at: "2026-10-18T08:57:43.582095+00:00"
 
 ---
 
-## Latest human priority — v50 lv27 batter camera + finite swing end700ms hold (SCOPED VERIFIED; PUBLISH NEXT)
+## Latest human priority — v50 lv27 batter camera + finite swing end700ms hold (SCOPED VERIFIED; PUBLISHED)
 
 User explicitly replaces v48prehit angular policy with lv27reference (Downloads+approvedbaselineSHAc613574b exact), currentbat/swing/physics/positions retained, glance after measuredswingends700ms. New live-v27-batter-view.js wrapsunchangedv48fieldhelper: lv27base/165msboundedtake atactualz<=1, lastvisibleprefixtarget, no heldreturn/no angularinertiacall for takes. Planned forecast+aimError directgaze fromactualdeclaredmotorstart throughreferenceThroughTick+700ms; existingbodyeye followsrunningactor; 495mslv27blend intoexistingfieldpose, exactoldposeafter. Sourceframeclockmaystopbutpresentationclockreleaseshold. Benchpriority/other4cams/UI/grid55ms retained. No src/Core/data/config/dependency/lock/secret/DB edits.
 
 Finalunit0ecac62f PASS61ms R/Lbase/takefixed/noinertia/700ms/deadclock/prefix/rewind/miss; build4d22178b PASS296ms; browserac0c48f1 PASS25.061s1200/390/12Core+batSHAequalv49/6takes4postheldidenticalsamples/R+L699hold,700progress0,495blend+finaloldpose/other4cams24samples/noerror+network/heldhidden; imagesviewed. InitialtestprototypeFAILs missingnewfile+literalfloat are QAauthoring mistakes, separatefromoldv48 take-driftREDaaee791d. Browserv1FAIL1ulp completionpitch fixeddirectoldpose return, no toleranceweakening. Sourcefrozen afterfinalbuild; rawFAILs kept. CurrentCoree0677928/107inputsunchanged, v49proof250tests/320p notrerunasnewevidence. HTMLacc38cf4566438a2a4faadc1a7ef105c7bfd83e512af5b1a46ac75b76c32ee26/helperb5282910135f4a3abdeb5512a80e65c9311f52e55369bb410600f5b4d900048d; fieldhelperf987a851 preserved. Release49d3e6d8 PASS all107pins/v49preserved/refs; docs/demos/releases/v50+docs/verification/releases/v50/H22/report/LATEST/amendment updated.
 
-Next: byteexactstaging→commit/push existingbranch/Draft380→remote/PR/rawverify, no mainmerge. Preserve userAGENTS/unrelated. OriginalfullplanIN_PROGRESS and allpriorFAIL/UNKNOWN/CHARTER_UNAPPROVED/HOLD retained. Subjectivecomfort and realphone/bioeye calibration notclaimed. v50bodymound/fieldAI/bat remainv49; originalNativecontinuousworld/rules/traits/physicsdetail/statistics/100games gaps persist.
+Published59files in3de1c3abf4190c05e67067ac612170b68086089d via normalpush existingbranch/Draft380(title/bodyupdated), no mainmerge. Allstagedblobsbyteexact/secretpattern0/nonlogwhitespacePASS; no srcstaged. Remotehead/PRheadmatch+7rawfilesexact PUBLICATIONb56af5fc PASS4.500s. publication.json saved; metadata-onlyclosurecommit follows, no productbytechanges. Preserve userAGENTS/unrelated. OriginalfullplanIN_PROGRESS and allpriorFAIL/UNKNOWN/CHARTER_UNAPPROVED/HOLD retained. Subjectivecomfort and realphone/bioeye calibration notclaimed. v50bodymound/fieldAI/bat remainv49; originalNativecontinuousworld/rules/traits/physicsdetail/statistics/100games gaps persist.
 
 ## Previous human priority — v49 positional defense / physical touch / closure (SCOPED VERIFIED; PUBLISHED)
 
