@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V50-BROWSER-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v50-batter-view.mjs",
+    "../../outputs/ばせぼーるlv50_TBD_vs_LAD_lv27打者カメラ復元版.html",
+    "../../outputs/verification-v50-camera-final"
+  ],
+  "observed_at": "2026-10-18T08:51:36.043+00:00",
+  "elapsed_ms": 25061,
+  "git_head": "60ad5092b27a3eb9401cc4281de708150862c15e",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V50-BROWSER-FINAL_ac0c48f136ae4974b834d0028479a008.log",
+  "output_sha256": "cc7c5c8cec98432048b29c75bd7d6b07adf1b7f02e3a578b6143095ca567c910",
+  "receipt_id": "MB-20261018-V50-BROWSER-FINAL_ac0c48f136ae4974b834d0028479a008"
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V50-CAMERA-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v27-batter-view.mjs"
+  ],
+  "observed_at": "2026-10-18T08:48:10.981+00:00",
+  "elapsed_ms": 63,
+  "git_head": "60ad5092b27a3eb9401cc4281de708150862c15e",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V50-CAMERA-RED_73a6c2133c9240bda4cdc8e62665fb14.log",
+  "output_sha256": "847b988bd2741f9ddf08f1d47482fdf1c5168a07a487810808e967ed887c6130",
+  "receipt_id": "MB-20261018-V50-CAMERA-RED_73a6c2133c9240bda4cdc8e62665fb14"
+}

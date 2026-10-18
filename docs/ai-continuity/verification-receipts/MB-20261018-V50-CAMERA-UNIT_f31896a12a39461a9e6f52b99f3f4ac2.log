@@ -1,0 +1,1 @@
+{"pass":true,"checks":["v27-R-L-base","165ms-limited-take","held-take-no-drift","no-take-inertia","measured-end-plus700","field-follow-endpoint","body-eye-retained","rewind","stopped-source-clock","decision-and-frame-prefix","miss-reset"]}

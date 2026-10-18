@@ -1,0 +1,13 @@
+{
+  "pass": true,
+  "gameSha256": "acc38cf4566438a2a4faadc1a7ef105c7bfd83e512af5b1a46ac75b76c32ee26",
+  "newHelperSha256": "b5282910135f4a3abdeb5512a80e65c9311f52e55369bb410600f5b4d900048d",
+  "fieldFollowerSha256": "f987a851185dcd70e7f31429c748abb2b46d0f70999e15aaa92d4c26dee9cc9b",
+  "coreUnchangedFromV49": true,
+  "coreInputs": 107,
+  "widths": [
+    1200,
+    390
+  ],
+  "linksChecked": 130
+}
