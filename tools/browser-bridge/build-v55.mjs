@@ -16,14 +16,14 @@ game=once(game,'<title>Kneekura Mini Baseball — TBD対LAD 剛体バット描�
 game=once(game,'presentationVersion:54','presentationVersion:55');
 game=once(game,'得能と個人采配接続版 54','打球追尾調整版 55');
 game=once(game,'version:54,authority:', 'version:55,authority:');
-const metadata={presentationVersion:55,sourceGamePath:sourcePath,sourceGameSha256,sourceCoreSha256:sha(coreBytes),sourceInputCount:Object.keys(pins.inputs).length,
+const metadata={presentationVersion:55,workbenchRevision:1,sourceGamePath:sourcePath,sourceGameSha256,sourceCoreSha256:sha(coreBytes),sourceInputCount:Object.keys(pins.inputs).length,
  cameraHelperSha256:sha(helper),workbenchDriverSha256:sha(driver),workbenchTemplateSha256:sha(template),worldAuthority:'UNCHANGED_V54_OFFLINE_HOST_SHARED_CORE',
  displayGridPixels:4,ordinaryCadenceMs:55,readOnlyCamera:true};
 let lab=once(template,'__V55_METADATA__',JSON.stringify(metadata).replaceAll('<','\\u003c'));
 lab=once(lab,'__V55_EMBEDDED_GAME__',JSON.stringify(game).replaceAll('<','\\u003c'));
 lab=once(lab,'__V55_WORKBENCH_DRIVER__',driver);
 await mkdir(outputDir,{recursive:true});
-const artifacts=[['ばせぼーるlv55_TBD_vs_LAD_打球追尾調整版.html',game,'NORMAL_MATCH'],['カメラワーク調整室_v55.html',lab,'CAMERA_WORKBENCH']];
+const artifacts=[['ばせぼーるlv55_TBD_vs_LAD_打球追尾調整版.html',game,'NORMAL_MATCH'],['カメラワーク調整室_v55.html',lab,'CAMERA_WORKBENCH'],['カメラワーク調整室_v55_1.html',lab,'CAMERA_WORKBENCH']];
 for(const [name,html,kind]of artifacts){const path=resolve(outputDir,name);await writeFile(path,html);await writeFile(path+'.build.json',JSON.stringify({...metadata,kind,sha256:sha(html)},null,2)+'\n');}
 await writeFile(resolve(outputDir,'ばせぼーるlv55_TBD_vs_LAD_打球追尾調整版.html.bundle-inputs.json'),pinsBytes);
 console.log(JSON.stringify({pass:true,...metadata,artifacts:artifacts.map(([name,html,kind])=>({name,kind,sha256:sha(html)}))}));

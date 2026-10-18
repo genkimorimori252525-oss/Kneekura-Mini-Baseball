@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V55-LAYERS-PACKAGE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "tools/browser-bridge/package-v55-1.py"
+  ],
+  "observed_at": "2026-10-18T17:16:19.142+00:00",
+  "elapsed_ms": 360,
+  "git_head": "e269b85174a18ed1d28f18efd1e1e47377d32a6c",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V55-LAYERS-PACKAGE_c8adb946ca284e3eb11b71b2b450c36b.log",
+  "output_sha256": "81b4a37430ebe8e0dac6693fd750dbe5c19c6ee5d795a843a7a0a994527f57e3",
+  "receipt_id": "MB-20261019-V55-LAYERS-PACKAGE_c8adb946ca284e3eb11b71b2b450c36b"
+}

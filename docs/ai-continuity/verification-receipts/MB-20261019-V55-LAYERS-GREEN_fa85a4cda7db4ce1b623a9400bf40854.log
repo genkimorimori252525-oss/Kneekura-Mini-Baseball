@@ -1,0 +1,18 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: all A/B pixels must equal actual field+bat+ball source-over composition and scaled batter guide
+
+40 !== 0
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-camera-workbench-layers-v55.mjs:70:9 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 40,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

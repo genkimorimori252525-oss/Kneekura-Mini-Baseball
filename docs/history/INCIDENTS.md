@@ -224,3 +224,10 @@
 - 対応: 新しい読取専用factoryに高さ／目標俯角／実打球観測後の待機／保持解除時間を切り出す。従来Aと改善Bを単一Core・同tickで描画する専用HTML、再生・区間loop・設定／再現session・角度グラフを追加。通常版は改善default。
 - 実装時の訂正: sensor timerを端数の積分step終端で開始するとqueryにより最大8msずれるため、既に観測できたframeの時刻＋感覚遅延に固定。finish途中エラー時も成功球の指示履歴を補完し、Coreエラーのsession保存を拒否。再現中断後も部分試合の画像と履歴を同期する。
 - 検証と限界: [v55報告](../reports/2026-10-19-v55-camera-workbench.md)。当該Sourceのreceipt・原RED/FAILを参照。カメラ係数は暫定値。実測バット・物理・AI・裁定と旧配布を維持し、原全計画・FAIL/UNKNOWN/HOLDを保持する。
+
+## H28 調整室がfieldだけをコピーしバット・球を落とした（v55.1）
+
+- 症状: 通常試合では見えるバットと球がA/B比較画面に出ない。
+- 根因: 通常rendererの3canvasのうち#fieldのみをコピーした。Source／observerの値の一致を確認しても、最終画像の合成漏れは検出できなかった。
+- 修正: field→bat-overlay→ball-overlayを同サイズで合成し、ガイドの論理座標倍率も修正。Core・カメラ・球のサイズを変えない。
+- 検証: [v55.1報告](../reports/2026-10-19-v55-1-workbench-layers.md)。旧HTMLでpixel回帰RED、新HTMLで実際の最終pixelを照合する。所持球は通常同様に非表示。原FAILと元全計画を維持する。

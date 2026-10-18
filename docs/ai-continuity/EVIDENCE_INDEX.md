@@ -1007,3 +1007,7 @@ Only record verification that was actually performed.
 | MB-20261019-V55-PACKAGE-RECHECK | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V55-PACKAGE-RECHECK_33854d8110064ff3bab15347875b1b6c.json |
 | MB-20261019-V55-RELEASE-FINAL | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V55-RELEASE-FINAL_e00a301fa6304b67bbbe8a28e43fbc46.json |
 | MB-20261019-V55-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V55-PUBLICATION_5dca2d892b484200899172c087888b6a.json |
+| MB-20261019-V55-LAYERS-BUILD | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V55-LAYERS-BUILD_9622b51b99d241a68eab3b611043459a.json |
+| MB-20261019-V55-LAYERS-RED | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261019-V55-LAYERS-RED_549100a9160f43df966b7090e9df909d.json |
+| MB-20261019-V55-LAYERS-GREEN | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V55-LAYERS-GREEN_e08325e2d1144888bcfdf6d4a58f8dac.json |
+| MB-20261019-V55-LAYERS-PACKAGE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V55-LAYERS-PACKAGE_c8adb946ca284e3eb11b71b2b450c36b.json |

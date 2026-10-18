@@ -50,3 +50,5 @@ ID / 観測日 / 対象経路・Source・HTML SHA
 [v54の実働得能と個人采配](../reports/2026-10-19-v54-executable-traits.md)をH26として追加。人間が通常試合で実行可能な範囲を選択。作成metadataと単一実Source、監督の明示指示、未実装ownerを区別し、7系統を実働、112項目を理由付き参照表示にした。
 
 [v55のカメラ調整室と早期追尾](../reports/2026-10-19-v55-camera-workbench.md)をH27として追加。単一試合・同tickのA/B、旧制御との厳密比較、設定と配球再現session、途中停止の同期を記録する。カメラ変更とCore／物理変更を区別する。
+
+[v55.1の比較画像の合成漏れ](../reports/2026-10-19-v55-1-workbench-layers.md)をH28へ追加。observer値の検査だけでは、最終canvasへのバット・球の転記漏れを検出できなかった。3層の実pixel比較を回帰条件にする。

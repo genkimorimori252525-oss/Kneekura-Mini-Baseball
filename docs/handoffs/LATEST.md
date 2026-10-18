@@ -1,12 +1,16 @@
 # 最新の再開入口 — 2026-10-19
 
-現在は **v55（カメラワーク調整室・打球追尾調整版）**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
+現在は **調整室v55.1／通常試合v55**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
 
-- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v55/README.md)
-- [原因・変更・最終検証・限界](../reports/2026-10-19-v55-camera-workbench.md)
-- [開発史](../history/README.md) / [原因別事例H27](../history/INCIDENTS.md)
+- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v55.1/README.md)
+- [原因・変更・最終検証・限界](../reports/2026-10-19-v55-1-workbench-layers.md)
+- [開発史](../history/README.md) / [原因別事例H28](../history/INCIDENTS.md)
 - [元の全要求・計画・受入条件](2026-10-15-mini-baseball/00-START-HERE.md)
 - [v50の打者カメラ](../reports/2026-10-18-v50-v27-batter-camera.md) / [v49の守備責任・裁定](../reports/2026-10-18-v49-positional-defense.md) / [v47の中継・旋回](../reports/2026-10-18-v47-relay-rounding.md)
+
+## v55.1の調整室修正
+
+バットと球のSourceがあっても、親canvasがfield層だけをコピーして表示できていなかった。通常rendererと同じfield→bat-overlay→ball-overlayの3層を合成する。任意の打者視線ガイドの倍率も修正。通常HTMLの内容・カメラ・Core・JSON仕様は変更しない。使うHTMLは `カメラワーク調整室_v55_1.html`。旧v55公開物は原証拠として保持し、再生成時のoutputs/v55は修正版のalias。
 
 ## v55の現在地
 

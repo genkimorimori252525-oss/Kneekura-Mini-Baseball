@@ -2,13 +2,13 @@
 <html lang="ja">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>にーくら カメラワーク調整室 v55</title>
+<title>にーくら カメラワーク調整室 v55.1</title>
 <style>
 :root{color-scheme:dark;font:14px/1.5 system-ui,sans-serif;background:#13171b;color:#e9edf0}*{box-sizing:border-box}body{margin:0}header,main{max-width:1440px;margin:auto;padding:14px 18px}header{border-bottom:1px solid #39434b}h1{font-size:21px;margin:0 0 6px}h2{font-size:16px;margin:0 0 9px}p{margin:5px 0}button,input,select{font:inherit;min-height:34px;max-width:100%;color:inherit;background:#20282f;border:1px solid #667783;border-radius:4px;padding:4px 8px}button{cursor:pointer}button:hover{background:#354450}button:disabled{opacity:.45;cursor:default}input[type=range]{padding:0;min-height:24px;width:100%}input[type=checkbox]{min-height:0;width:16px;height:16px;vertical-align:middle}label{display:grid;gap:4px}fieldset{border:1px solid #46545f;border-radius:5px;padding:12px;margin:0;min-width:0}legend{padding:0 6px}output,.mono{font-family:ui-monospace,monospace}output{font-variant-numeric:tabular-nums}small,.muted{color:#afbdc8}.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.commands{display:grid;grid-template-columns:repeat(5,minmax(100px,1fr));gap:9px}.panel{border:1px solid #46545f;background:#1a2026;border-radius:6px;padding:12px;margin-bottom:12px}.view{min-width:0}figure{margin:0}figcaption{display:flex;justify-content:space-between;gap:8px;margin-bottom:7px}.view canvas{width:100%;height:auto;display:block;background:#070a07;image-rendering:pixelated;border:1px solid #46545f}.metrics{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace;min-height:66px;margin:7px 0 0}.settings{margin-top:12px}.controls{display:grid;grid-template-columns:minmax(0,1fr) 135px;gap:4px 10px;margin:10px 0}.controls label{grid-column:1}.controls output{grid-column:2;text-align:right;align-self:center}.controls input[type=range]{grid-column:1/-1}.status{white-space:pre-wrap;overflow-wrap:anywhere}.error{color:#ffb3a9}#timeline{width:100%}#markers{margin:7px 0}#markers button{font-size:12px;min-height:28px}#pitch-list{width:100%}#angle-plot{width:100%;height:180px;background:#11171d}details summary{cursor:pointer}details[open] summary{margin-bottom:10px}iframe{position:fixed;left:-20000px;top:0;width:900px;height:1000px;border:0;pointer-events:none}.file{display:inline-block}.file input{width:210px}.instructions{max-width:1000px}a{color:#8dcaff}kbd{border:1px solid #667783;border-radius:3px;padding:0 4px}.busy{color:#f2ce80}#settings-json{width:100%;height:140px;font:12px/1.4 ui-monospace,monospace;background:#11171d;color:#e9edf0}
 @media(max-width:680px){header,main{padding:10px}.grid{grid-template-columns:1fr}.commands{grid-template-columns:repeat(2,minmax(0,1fr))}.panel{padding:10px}.file input{width:180px}h1{font-size:18px}}
 </style>
 <header>
- <h1>カメラワーク調整室 <small>v55</small></h1>
+ <h1>カメラワーク調整室 <small>v55.1</small></h1>
  <p>同じ試合・同じ時刻を、設定AとBのカメラで比較します。</p>
  <p id="status" class="status" role="status">試合Coreを読み込んでいます…</p>
 </header>
@@ -32,7 +32,7 @@
   <div class="view panel" data-side="B"><figure><figcaption><strong>B <span id="label-B">調整設定</span></strong><span id="phase-B"></span></figcaption><canvas id="view-B" width="600" height="432" aria-label="設定Bの試合映像"></canvas></figure><pre id="metrics-B" class="metrics"></pre><fieldset class="settings" id="settings-B"><legend>設定B</legend></fieldset></div>
  </section>
  <section class="panel">
-  <div class="row"><button id="copy-a-b">A → B</button><button id="copy-b-a">B → A</button><button id="reset-baseline">Aを従来設定へ</button><button id="reset-default">Bを改善初期値へ</button><label><span><input id="guides" type="checkbox">画面中心のガイド</span></label><button id="measure">この球の角度推移を計測</button></div>
+  <div class="row"><button id="copy-a-b">A → B</button><button id="copy-b-a">B → A</button><button id="reset-baseline">Aを従来設定へ</button><button id="reset-default">Bを改善初期値へ</button><label><span><input id="guides" type="checkbox">打者の視線ガイド</span></label><button id="measure">この球の角度推移を計測</button></div>
   <canvas id="angle-plot" width="1000" height="180" aria-label="AとBの下向き角度の比較"></canvas>
   <p id="measure-status" class="muted">青=A、黄=B。下向きを正、上向きを負の角度で表示します。設定変更後は再計測してください。</p>
  </section>
@@ -49,7 +49,7 @@
  <details class="panel instructions"><summary>調整方法・開発用の入口</summary>
   <p>1.「12球生成」から左右打者・低い球・打球のあるプレーを選びます。2. 打点付近へ移動しループ区間を指定します。3. A/Bを比べ、注視点の高さと打球への移行を調整します。</p>
   <p>「移行時間」は狙い目の保持を解除する時間で、実際の向きの変化には既存の速度・加速度制限も作用します。「下向きの上限」はスイング中の目標角度です。カメラの現在姿勢を瞬間移動させる制限ではありません。「打球を観測してからの待機」は観測の遅延を含む実打球を確認してから数えます。予定スイング終端の方が早ければ、そちらから移行します。見逃しや能力による投球追従は従来の制御を使用します。</p>
-  <p>映像は従来どおり4px格子・55ms刻み。両画面は1つのCoreとバット観測を共有し、カメラだけを交換します。ガイド・角度グラフは調整室専用です。</p>
+  <p>映像は従来どおり4px格子・55ms刻み。両画面は1つのCoreとバット観測を共有し、カメラだけを交換します。フィールド・バット・ボールの3レイヤーを通常試合と同じ順で描きます。ガイド・角度グラフは調整室専用です。</p>
   <p class="mono" id="source-info"></p>
   <p>編集元: <code>camera-workbench-v55.html</code> / <code>camera-workbench-v55.js</code> / <code>live-camera-tuning-batter-view.js</code>。検査用API: <code>window.KneekuraCameraLab</code>。</p>
  </details>

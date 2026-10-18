@@ -62,9 +62,16 @@
   aimWeight:view?.aimWeight,regulation:view?.regulation??null,tuning:view?.tuning??null,ball:s.rendered.ballDotDisplay??null};}
  function copyCanvas(side,s){const source=win.document.getElementById('field'),canvas=$('view-'+side);
   if(canvas.width!==source.width)canvas.width=source.width;if(canvas.height!==source.height)canvas.height=source.height;
-  const ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(source,0,0);
-  if($('guides').checked){const v=s.presentation.continuousBatterView,cx=v?.cx??canvas.width/2,cy=v?.cy??canvas.height/2;
-   ctx.strokeStyle=side==='A'?'#70c8ff':'#ffdc69';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(cx-8,cy);ctx.lineTo(cx+8,cy);ctx.moveTo(cx,cy-8);ctx.lineTo(cx,cy+8);ctx.stroke();}
+  const ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.clearRect(0,0,canvas.width,canvas.height);
+  // The match paints these transparent canvases above the field, in DOM order.
+  // Copy all three; copying only #field loses the actual physical bat and ball.
+  for(const id of ['field','bat-overlay','ball-overlay']){
+   const layer=win.document.getElementById(id);if(!layer)throw Error('試合の描画レイヤーがありません: '+id);
+   ctx.drawImage(layer,0,0,canvas.width,canvas.height);
+  }
+  if($('guides').checked&&s.rendered.camera==='batter'){const v=s.presentation.continuousBatterView,cx=v?.cx??300,cy=v?.cy??216;
+   ctx.save();ctx.scale(canvas.width/600,canvas.height/432);
+   ctx.strokeStyle=side==='A'?'#70c8ff':'#ffdc69';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(cx-8,cy);ctx.lineTo(cx+8,cy);ctx.moveTo(cx,cy-8);ctx.lineTo(cx,cy+8);ctx.stroke();ctx.restore();}
   const snapshot=snapshots[side];$('phase-'+side).textContent=snapshot.phase??'準備';
   const degrees=r=>Number.isFinite(r)?(r*180/Math.PI).toFixed(1)+'°':'—';
   $('metrics-'+side).textContent='同時刻 '+snapshot.sceneMs.toFixed(0)+'ms / Source tick '+snapshot.tick+'\n'+

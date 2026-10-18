@@ -1,15 +1,19 @@
 ---
-current_task: "MB-20261019-V55-PUBLICATION"
+current_task: "MB-20261019-V55-LAYERS-PACKAGE"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "be76d0fae87f3692bf16702da3768b29275b772e"
+commit_head: "e269b85174a18ed1d28f18efd1e1e47377d32a6c"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V55-PUBLICATION_5dca2d892b484200899172c087888b6a.json"
-updated_at: "2026-10-18T16:55:10.711402+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V55-LAYERS-PACKAGE_c8adb946ca284e3eb11b71b2b450c36b.json"
+updated_at: "2026-10-18T17:17:16.724777+00:00"
 
 ---
 
-## Active human priority — v55 camera workbench (SCOPED VERIFIED; PUBLISHED)
+## Active human priority — v55.1 workbench visible layers (SCOPED VERIFIED; PUBLICATION PENDING)
+
+Human reports bat/ball missing in debug A/B. Root cause confirmed: copyCanvas copied only #field, omitting actual #bat-overlay/#ball-overlay. Restore field→bat→ball source-over1200x864 composition; no camera/Core/bat physics change. Fix optional batter gaze guide logical600x432→backing scale. New v55_1 lab plus existing v55 output alias; preserve published v55 artifacts/history. Focused pixel RED/GREEN, bothwidths/actual R+L bat/visiblepitch+hit/heldballhidden/5camera/sourcehash unchanged. NormalgameHTML must remain02644793. BUILD9622b51b PASS.186s; RED549100a9 FAIL41.250s reproducesoldmissinglayers96/120sides(fieldonly76); GREENe08325e2 PASS50.422s120RGBAimages(2widths5camerasLRswing/pitch/batted/held/guide)exact3layer+guidecomposite, actualbat/ballalpha+heldball0,12Core/batprefixexact,noerrors/network. InitialGREENfa85a4cd RGB±1backendrounding retained; single-software2D backend controlled, no tolerance relaxation/productchange. PACKAGEc8adb946 PASS.360s validatescurrent113Source/rawdriver/template/unchangednormal02644793+oldv55release. Lab838dc1f05b9ec4c8c013d76c7e06bb769e177884d08c8563d7564ae735493d10, bothoutputnamesidentical. ReportH28+newv55.1release prepared; stage/push existingDraft380 and verifyrawbytes next. Originalplan/FAIL/UNKNOWN/CharterHOLD preserved.
+
+## Previous human priority — v55 camera workbench (SCOPED VERIFIED; PUBLISHED)
 
 2026-10-19 human asks earlier post-swing tracking, gaze above planned contact rather than ground, dedicated long-term debug HTML using full usual match. New read-only factory enabled/aimLift.30m/maxDownTarget.30rad/hitObservedHold100ms/aimRelease100ms. Available sensory prefix only, scheduledthrough ifearlier, no future contact. Disabledexactv52, existing SI pursuit/takes/body/field law/2.5radsec+20radsec2 retained. One embedded exact v54-derived match, two independent same-tick A/B observers, new debug HTML/JS with camera/seek/step/loop/speed/next+full9/manager commands/settingsJSON/session seed+per-pitch UI commands/replay/angleplot. Stop/failure settles partial history and views; erroredSource export rejects. Plan/report/H27 saved.
 
