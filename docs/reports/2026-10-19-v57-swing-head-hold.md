@@ -30,3 +30,5 @@ Coreの `referenceStartTick` はmotor latency適用後の実測バット実行�
 物理・スピン・実測バット・能力・AI・裁定・メーカーは変更していない。Coreは引き続き `4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279`、113入力。今回のカメラ係数・頭の停止は人間の指示に基づく表現であり、生体力学の実測校正ではない。新9回や100試合を実施したとは扱わない。既存の原全計画・FAIL/UNKNOWN/Charter HOLDを継承し、main未マージを維持する。
 
 編集元: `live-camera-tuning-batter-view-v57.js`、`camera-workbench-v57.js/html`、`build-v57.mjs`。再生成は `node tools/browser-bridge/build-v57.mjs`。旧配布・旧helperは保全する。
+
+GitHub保存: 製品コミット `fa2a0ab6d356a3535fd37914be68e81730ccb49b`。既存branch/Draft PR380へ通常push、main未マージ。STAGINGb2361c32 PASS0.719秒でstaged bytes/credential pattern0/非ログwhitespaceを確認しAGENTS.mdを除外。PUBLICATION588f734e PASS4.218秒でremote/PR headと実raw9ファイルを照合。[公開証拠](../verification/releases/v57/publication.json)。後続記録commitは製品bytesを変えない。CCG auditは原来のCHARTER_UNAPPROVED/HOLDを維持する。

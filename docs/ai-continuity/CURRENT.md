@@ -1,17 +1,17 @@
 ---
-current_task: "MB-20261019-V57-PACKAGE"
+current_task: "MB-20261019-V57-PUBLICATION"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "ff242d680d0e1af05a767d08d62a1fb0b4af3331"
+commit_head: "fa2a0ab6d356a3535fd37914be68e81730ccb49b"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V57-PACKAGE_0b36f1c97ccb494087a32e61ca0acf24.json"
-updated_at: "2026-10-18T18:15:54.699043+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V57-PUBLICATION_588f734e3e254a08804c98a480002cfb.json"
+updated_at: "2026-10-18T18:17:58.558531+00:00"
 
 ---
 
-## Active human priority — v57 swing head hold (SCOPED VERIFIED; PUBLICATION PENDING)
+## Active human priority — v57 swing head hold (SCOPED VERIFIED; PUBLISHED)
 
-User: track until actual swing onset, freeze head during swing; late swing freezes later pursuit pose. Imagepreset .30/.20/300/70/.26/.02 adopted. Normal238fce33 / lab82532cb3 frozen. New helper exact motor start/through/release splits; yaw/pitch hold, same embodied eye; take/bunt excluded, latehit never rearms. Through+observedhit wait completed before70ms objective release; existing posthit follow. Firsttwo aimcontrols compatibility-only disabled with explanation, new STOREv57 and onsetmarker. UNIT8f1cb8d0 PASS5.328s exactR/L/fractional/late/whiff/take/bunt/prefix/12Core+bat immutable; BUILD9d6e23f2 PASS.140s; CADENCE17dbd2a3 PASS8.889s18/45+loop; BROWSERaf435d80 PASS65.422s1200/390px/7defaults/oldnewJSON/5camera/48RGBA/full12v56normal-labSource+bat exact/errorsnetwork0; PACKAGE0b36f1c9 PASS.858s113pins/helpers/embeddedgame/olderreleases. Original checker versionwait timeout abd2da3a and package assertionFAILf7397dd9 preserved; productbytes unchanged by fixes. No Core/AI/ability/rules/physics/maker edits or new9inningtest. Next allowlisted byteexactstaging/commit/push samebranch/Draft380/rawverification/publicationrecord. AGENTS userchanges excluded. Originalplan/FAIL/UNKNOWN/CharterHOLD retained.
+User: track until actual swing onset, freeze head during swing; late swing freezes later pursuit pose. Imagepreset .30/.20/300/70/.26/.02 adopted. Normal238fce33 / lab82532cb3 frozen. New helper exact motor start/through/release splits; yaw/pitch hold, same embodied eye; take/bunt excluded, latehit never rearms. Through+observedhit wait completed before70ms objective release; existing posthit follow. Firsttwo aimcontrols compatibility-only disabled with explanation, new STOREv57 and onsetmarker. UNIT8f1cb8d0 PASS5.328s exactR/L/fractional/late/whiff/take/bunt/prefix/12Core+bat immutable; BUILD9d6e23f2 PASS.140s; CADENCE17dbd2a3 PASS8.889s18/45+loop; BROWSERaf435d80 PASS65.422s1200/390px/7defaults/oldnewJSON/5camera/48RGBA/full12v56normal-labSource+bat exact/errorsnetwork0; PACKAGE0b36f1c9 PASS.858s113pins/helpers/embeddedgame/olderreleases. Original checker versionwait timeout abd2da3a and package assertionFAILf7397dd9 preserved; productbytes unchanged by fixes. No Core/AI/ability/rules/physics/maker edits or new9inningtest. Published product fa2a0ab6d356a3535fd37914be68e81730ccb49b, samebranch/Draft380, mainunmerged. STAGINGb2361c32 PASS.719s rawstagedbytes exact/credentials0/nonlogwhitespace/AGENTS excluded,52allowlistedfiles. PUBLICATION588f734e PASS4.218s remote/PRhead andactualraw9files exact. Metadata closure follows; productbytes unchanged. AGENTS userchanges excluded. Originalplan/FAIL/UNKNOWN/CharterHOLD retained.
 
 ## Active human priority — v56 pitch FPS/tracking/display (SCOPED VERIFIED; PUBLISHED)
 
