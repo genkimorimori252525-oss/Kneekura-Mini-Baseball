@@ -8,6 +8,37 @@ const players = [{ playerId: 'batter-a', name: 'Authored player', heightMeters: 
 const packet = (entry: Record<string, unknown>) => ({ players, roster: { version: 'live_physical_roster_v1', sourceId: 'test-roster',
   entries: [{ playerId: 'batter-a', sourceId: 'test-authoring', ...entry }] } });
 
+it('projects optional tactical preferences without changing the physical abilities or input packet', () => {
+  const raw = packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', baserunningSafetyMarginSeconds: .7, fieldingPursuitCostWeight: .5 } }),
+    before = JSON.stringify(raw), projected = applyLivePhysicalRosterV1(raw);
+  expect(projected.players[0].physical).toEqual({ ...LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1, baserunningSafetyMarginSeconds: .7, fieldingPursuitCostWeight: .5 });
+  for (const [path, value] of [['baserunningSafetyMarginSeconds', .7], ['fieldingPursuitCostWeight', .5]] as const)
+    expect(projected.audit.players[0].projected).toContainEqual(expect.objectContaining({ inputPath: 'physical.' + path, targetPath: path, value }));
+  expect(JSON.stringify(raw)).toBe(before);
+  expect(Object.isFrozen(projected.players[0].physical)).toBe(true);
+  const old = applyLivePhysicalRosterV1(packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1' } }));
+  expect(old.players[0].physical).toEqual(LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1);
+  expect(old.players[0].physical).not.toHaveProperty('baserunningSafetyMarginSeconds');
+  expect(old.players[0].physical).not.toHaveProperty('fieldingPursuitCostWeight');
+});
+
+it.each([
+  ['baserunningSafetyMarginSeconds', 0, 3, -.001, 3.001],
+  ['fieldingPursuitCostWeight', .25, 4, .249, 4.001],
+] as const)('validates %s at both roster and direct Host boundaries', (key, min, max, below, above) => {
+  const fixture = liveMatchFixture();
+  const hostInput = (value: number) => ({ ...fixture, players: fixture.players.map((p, i) => i ? p : { ...p,
+    physical: { ...LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1, [key]: value } }) });
+  for (const value of [min, max]) {
+    expect(applyLivePhysicalRosterV1(packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', [key]: value } })).players[0].physical[key]).toBe(value);
+    expect(() => createLiveBaseballMatchV1(hostInput(value))).not.toThrow();
+  }
+  for (const value of [below, above, NaN, Infinity]) {
+    expect(() => applyLivePhysicalRosterV1(packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', [key]: value } }))).toThrow();
+    expect(() => createLiveBaseballMatchV1(hostInput(value))).toThrow();
+  }
+});
+
 it('projects explicit course judgment precision independently of chase margin and swing preference', () => {
   const raw = packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', zoneJudgmentStdMeters: .12 } }), before = JSON.stringify(raw),
     projected = applyLivePhysicalRosterV1(raw);

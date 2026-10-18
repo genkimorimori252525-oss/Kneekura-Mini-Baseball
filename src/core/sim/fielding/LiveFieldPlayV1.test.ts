@@ -267,9 +267,15 @@ it('ends controlled live action when a prepared force target disappears while it
     fielders: input.fielders.map((f, i) => ({ ...f, ...(i === 0 ? {} : { reactionSeconds: 60 }),
       ...(i === 2 ? { position: v(25, 1, 25) } : {}) })) });
   expect(result.end).toMatchObject({ complete: true, reason: 'live_action_complete' });
-  expect(result.end.elapsedSeconds).toBeLessThan(input.ball.elapsedSeconds + 8);
+  expect(result.ruleFacts.runnerTouches.map(f => f.base)).toEqual([1, 2]);
+  const lastArrival = result.facts.filter(f => f.kind === 'runner_base_touch').at(-1)!;
+  expect(result.end.elapsedSeconds).toBeGreaterThanOrEqual(lastArrival.elapsedSeconds);
+  expect(result.end.elapsedSeconds - lastArrival.elapsedSeconds).toBeLessThanOrEqual(result.model.controlSeconds + 1e-9);
   expect(result.facts.some(f => f.kind === 'catch_secured')).toBe(true);
   expect(result.diagnostics.handPreparationProofs.length).toBeGreaterThan(0);
   expect(result.facts.filter(f => f.kind === 'throw_release')).toEqual([]);
-  expect(result.finalRunners[0]).toMatchObject({ base: 1, retired: false });
+  expect(result.diagnostics.throwDecisions.some(d => d.base === 1 && d.reason === 'force_already_satisfied')).toBe(true);
+  expect(result.diagnostics.aiTelemetry.runnerDecisions.some(d => d.targetBase === 2 && d.reason === 'safe_race_advance')).toBe(true);
+  expect(result.diagnostics.aiTelemetry.runnerDecisions.some(d => d.targetBase === 3 && d.reason === 'insufficient_safety_margin')).toBe(true);
+  expect(result.finalRunners[0]).toMatchObject({ base: 2, retired: false });
 });

@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { assignLiveFieldRolesV1, liveFieldArrivalSecondsV1, type LiveFieldRoleInputV1 } from './LiveFieldRoleAssignmentV1';
+import { assignLiveFieldRolesV1, liveFieldArrivalSecondsV1, liveFieldRoleCostV1, type LiveFieldRoleInputV1 } from './LiveFieldRoleAssignmentV1';
 const v = (x = 0, y = 0, z = 0) => ({ x, y, z });
 const fixture = (): LiveFieldRoleInputV1 => ({
   actors: [v(0, 1, 10), v(20, 1, 20), v(-1, 1, 39), v(20, 1, 38), v(-20, 1, 20), v(0, 1, -1), v(-40, 1, 70), v(0, 1, 80), v(40, 1, 70)]
@@ -79,4 +79,46 @@ it('rejects duplicate reservations rather than silently assigning two actors to 
   const raw = fixture();
   expect(() => assignLiveFieldRolesV1({ ...raw, reservations: [...raw.reservations,
     { ...raw.reservations[1], playerId: 'p2', taskId: 'duplicate' }] })).toThrow(/reservation/);
+});
+
+it('uses nearby outfield pickup backup without exchanging spare players home positions', () => {
+  const raw = fixture(), positions = [v(0, .9, 18.44), v(0, .85, -1.5), v(23, .9, 25), v(13, .9, 36),
+    v(-23, .9, 25), v(-13, .9, 36), v(-46, .9, 76), v(0, .9, 91), v(46, .9, 76)],
+    actors = raw.actors.map((a, i) => ({ ...a, position: positions[i], homePosition: positions[i], topSpeedMps: 8, accelerationMps2: 5.2 }));
+  const roles = assignLiveFieldRolesV1({ ...raw, actors, ballPosition: v(0, .9, .3), ballVelocity: v(-8, 28, 16),
+    pickupPoint: v(-35.818, .228, 55.235),
+    reservations: [{ playerId: 'p4', taskId: 'handler', point: v(-35.818, .228, 55.235), intent: 'intercept', targetBase: null }] });
+  expect(roles.find(r => r.taskId === 'pickup-backup')?.playerId).toBe('p6');
+  for (const role of roles.filter(r => r.intent === 'hold')) {
+    expect(role.point).toEqual(actors.find(a => a.playerId === role.playerId)!.homePosition);
+    expect(role.taskId).toBe('hold:' + role.playerId);
+  }
+  expect(roles.filter(r => r.targetBase === 1)).toHaveLength(1);
+  expect(roles.filter(r => r.targetBase === 2)).toHaveLength(1);
+});
+
+it('keeps an infielder available for a useful relay while spare actors hold their own homes', () => {
+  const raw = fixture(), actors = raw.actors.map(a => a.playerId === 'p2' ? { ...a, position: v(-10, 1, 50), homePosition: v(-10, 1, 50) }
+    : a.playerId === 'p3' ? { ...a, position: v(0, 1, 40), homePosition: v(0, 1, 40) } : a),
+    roles = assignLiveFieldRolesV1({ ...raw, actors, ballPosition: v(-40, 1, 80), pickupPoint: v(-42, 0, 83),
+    reservations: [{ playerId: 'p6', taskId: 'handler', point: v(-42, 0, 83), intent: 'intercept', targetBase: null }] });
+  const relay = roles.find(r => r.intent === 'relay')!;
+  expect(relay.playerId).toBe('p2');
+  expect(roles.filter(r => r.intent === 'base_cover')).toHaveLength(2);
+  for (const role of roles.filter(r => r.intent === 'hold'))
+    expect(role.point).toEqual(actors.find(a => a.playerId === role.playerId)!.homePosition);
+});
+
+it('reports backup abandonment and lets pursuit preference change cost without changing physical arrival', () => {
+  const actor = fixture().actors[0], role = { taskId: 'pickup-backup', point: v(-35, 0, 65), intent: 'backup' as const, targetBase: null },
+    ordinary = liveFieldRoleCostV1(actor, role), cautious = liveFieldRoleCostV1({ ...actor, pursuitCostWeight: 2 }, role);
+  expect(ordinary.homeAbandonmentSeconds).toBeGreaterThan(0);
+  expect(cautious.arrivalSeconds).toBe(ordinary.arrivalSeconds);
+  expect(cautious.total).toBe(ordinary.total * 2);
+  const relay = { ...role, taskId: 'relay:1', intent: 'relay' as const };
+  expect(liveFieldRoleCostV1({ ...actor, pursuitCostWeight: 2 }, relay)).toEqual({ ...liveFieldRoleCostV1(actor, relay), pursuitCostWeight: 2 });
+  for (const pursuitCostWeight of [.24, 4.1, Infinity, NaN]) {
+    expect(() => liveFieldRoleCostV1({ ...actor, pursuitCostWeight }, role)).toThrow();
+    expect(() => assignLiveFieldRolesV1({ ...fixture(), actors: fixture().actors.map(a => ({ ...a, pursuitCostWeight })) })).toThrow();
+  }
 });

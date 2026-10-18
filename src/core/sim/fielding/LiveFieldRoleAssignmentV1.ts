@@ -5,7 +5,8 @@ import type { BaseballBase } from '../../rules/PhysicalRuleFacts';
 export type LiveFieldRoleV1 = Readonly<{ playerId: string; taskId: string; point: Vec3;
   intent: 'intercept' | 'base_cover' | 'relay' | 'backup' | 'hold' | 'tag'; targetBase: BaseballBase | null }>;
 export type LiveFieldRoleActorV1 = Readonly<{ playerId: string; position: Vec3; velocity: Vec3; homePosition: Vec3;
-  topSpeedMps: number; accelerationMps2: number; throwSpeedMps: number; remainingReactionSeconds: number }>;
+  topSpeedMps: number; accelerationMps2: number; throwSpeedMps: number; remainingReactionSeconds: number;
+  pursuitCostWeight?: number }>;
 export type LiveFieldRoleInputV1 = Readonly<{ actors: readonly LiveFieldRoleActorV1[];
   bases: Readonly<Record<BaseballBase, Vec3>>; ballPosition: Vec3; ballVelocity: Vec3; pickupPoint: Vec3;
   threats: readonly Readonly<{ base: BaseballBase; arrivalSeconds: number }>[];
@@ -16,7 +17,8 @@ export type LiveFieldRoleInputV1 = Readonly<{ actors: readonly LiveFieldRoleActo
  * See Sam Piraro, ABCA Inside Pitch July/August 2020, Cutoff and Relay System.
  * No role is a possession, arrival, catch, force out or teleportation. */
 export const LIVE_FIELD_ROLE_POLICY_V1 = Object.freeze({ switchCostSeconds: .25,
-  lateArrivalCost: 2, backupDepthMeters: 10, pickupBackupDepthMeters: 6, directThrowSeconds: .9 });
+  lateArrivalCost: 2, backupDepthMeters: 10, pickupBackupDepthMeters: 6, directThrowSeconds: .9,
+  backupHomeAbandonmentCost: .1 });
 const flatDistance = (a: Vec3, b: Vec3) => Math.hypot(a.x - b.x, a.z - b.z);
 const finite = (p: Vec3) => p && [p.x, p.y, p.z].every(Number.isFinite);
 const freeze = <T>(x: T): T => { if (x && typeof x === 'object') { Object.values(x).forEach(freeze); Object.freeze(x); } return x; };
@@ -42,6 +44,26 @@ export function liveFieldArrivalSecondsV1(actor: LiveFieldRoleActorV1, target: V
     : (maximum - initial) / a + (d - acceleratingDistance) / maximum);
 }
 
+/** Inspectable tactical cost. Holding always means this actor's own home;
+ * backup additionally accounts for abandoning that home after an earlier
+ * chase. Pursuit preference changes only this cost, never physical arrival. */
+export function liveFieldRoleCostV1(actor: LiveFieldRoleActorV1,
+  role: Omit<LiveFieldRoleV1, 'playerId'> & { deadline?: number }, previous?: LiveFieldRoleV1) {
+  const pursuit = actor.pursuitCostWeight ?? 1;
+  if (!Number.isFinite(pursuit) || pursuit < .25 || pursuit > 4) throw new Error('invalid live field pursuit cost weight');
+  const point = role.intent === 'hold' ? actor.homePosition : role.point,
+    taskId = role.intent === 'hold' ? 'hold:' + actor.playerId : role.taskId,
+    arrivalSeconds = liveFieldArrivalSecondsV1(actor, point),
+    weight = role.intent === 'base_cover' ? 4 : role.intent === 'relay' ? 1 : role.intent === 'backup' ? .25 : .1,
+    homeAbandonmentSeconds = role.intent === 'backup' ? flatDistance(actor.homePosition, point) / actor.topSpeedMps : 0,
+    movementCost = weight * arrivalSeconds * (role.intent === 'backup' ? pursuit : 1),
+    homeAbandonmentCost = LIVE_FIELD_ROLE_POLICY_V1.backupHomeAbandonmentCost * homeAbandonmentSeconds * pursuit,
+    lateCost = role.deadline === undefined ? 0 : LIVE_FIELD_ROLE_POLICY_V1.lateArrivalCost * Math.max(0, arrivalSeconds - role.deadline),
+    switchCost = previous && previous.taskId !== taskId ? LIVE_FIELD_ROLE_POLICY_V1.switchCostSeconds : 0;
+  return Object.freeze({ arrivalSeconds, homeAbandonmentSeconds, pursuitCostWeight: pursuit,
+    movementCost, homeAbandonmentCost, lateCost, switchCost, total: movementCost + homeAbandonmentCost + lateCost + switchCost });
+}
+
 /** One actor per task, one task per actor. Bitmask dynamic programming is
  * O(n² 2^n), bounded to nine; it never searches permutations. Only threatened
  * bases are reserved, leaving actual throw/pickup backups and deep positions. */
@@ -50,7 +72,8 @@ export function assignLiveFieldRolesV1(raw: LiveFieldRoleInputV1): readonly Live
   if (actors.length !== 9 || new Set(actors.map(a => a.playerId)).size !== actors.length
     || actors.some(a => !a.playerId || !finite(a.position) || !finite(a.velocity) || !finite(a.homePosition)
       || ![a.topSpeedMps, a.accelerationMps2, a.throwSpeedMps].every(n => Number.isFinite(n) && n > 0)
-      || !Number.isFinite(a.remainingReactionSeconds) || a.remainingReactionSeconds < 0)
+      || !Number.isFinite(a.remainingReactionSeconds) || a.remainingReactionSeconds < 0
+      || !Number.isFinite(a.pursuitCostWeight ?? 1) || (a.pursuitCostWeight ?? 1) < .25 || (a.pursuitCostWeight ?? 1) > 4)
     || !finite(input.ballPosition) || !finite(input.ballVelocity) || !finite(input.pickupPoint)
     || ![1, 2, 3, 4].every(n => finite(input.bases[n as BaseballBase]))) throw new Error('invalid live field role geometry/actors');
   const reservedIds = new Set<string>(), covered = new Set<BaseballBase>(), taskIds = new Set<string>();
@@ -91,12 +114,11 @@ export function assignLiveFieldRolesV1(raw: LiveFieldRoleInputV1): readonly Live
   if (tasks.length < available.length && flatDistance(input.ballPosition, input.pickupPoint) + Math.hypot(input.ballVelocity.x, input.ballVelocity.z) > 0)
     tasks.push({ taskId: 'pickup-backup', point: beyond(input.ballPosition, input.pickupPoint, LIVE_FIELD_ROLE_POLICY_V1.pickupBackupDepthMeters, input.ballVelocity),
       intent: 'backup', targetBase: null });
-  // Hold is a genuine motor target at a declared home position, never an
-  // arbitrary offset around the ball. Select spare homes farthest from play.
-  for (const a of [...available].sort((a, b) => flatDistance(b.homePosition, input.ballPosition) - flatDistance(a.homePosition, input.ballPosition))) {
-    if (tasks.length === available.length) break;
-    tasks.push({ taskId: 'hold:' + a.playerId, point: a.homePosition, intent: 'hold', targetBase: null });
-  }
+  // Spare slots are evaluated at each candidate's own home. Preselecting homes
+  // and assigning them as interchangeable destinations can send an outfielder
+  // to the catcher's home while forcing an infielder to back up the outfield.
+  while (tasks.length < available.length)
+    tasks.push({ taskId: 'hold-slot:' + tasks.length, point: available[0].homePosition, intent: 'hold', targetBase: null });
   if (tasks.length !== available.length) throw new Error('live field tasks exceed available actors');
   const n = available.length, size = 1 << n, costs = new Float64Array(size).fill(Infinity), parents = new Int32Array(size).fill(-1);
   costs[0] = 0;
@@ -105,10 +127,8 @@ export function assignLiveFieldRolesV1(raw: LiveFieldRoleInputV1): readonly Live
     let task = 0; for (let bits = mask; bits; bits &= bits - 1) task++;
     if (task === n) continue;
     for (let i = 0; i < n; i++) if (!(mask & (1 << i))) {
-      const actor = available[i], slot = tasks[task], eta = liveFieldArrivalSecondsV1(actor, slot.point), previous = input.previous.find(r => r.playerId === actor.playerId),
-        weight = slot.intent === 'base_cover' ? 4 : slot.intent === 'relay' ? 1 : slot.intent === 'backup' ? .25 : .1,
-        switchCost = previous && previous.taskId !== slot.taskId ? LIVE_FIELD_ROLE_POLICY_V1.switchCostSeconds : 0,
-        cost = costs[mask] + weight * eta + (slot.deadline === undefined ? 0 : LIVE_FIELD_ROLE_POLICY_V1.lateArrivalCost * Math.max(0, eta - slot.deadline)) + switchCost,
+      const actor = available[i], slot = tasks[task], previous = input.previous.find(r => r.playerId === actor.playerId),
+        cost = costs[mask] + liveFieldRoleCostV1(actor, slot, previous).total,
         next = mask | (1 << i);
       if (cost < costs[next]) { costs[next] = cost; parents[next] = i; }
     }
@@ -116,7 +136,9 @@ export function assignLiveFieldRolesV1(raw: LiveFieldRoleInputV1): readonly Live
   const result: LiveFieldRoleV1[] = [...input.reservations]; let mask = size - 1;
   for (let task = n - 1; task >= 0; task--) { const actor = parents[mask];
     if (actor < 0) throw new Error('live field role assignment is unresolved');
-    const { deadline: _deadline, ...role } = tasks[task]; result.push({ playerId: available[actor].playerId, ...role }); mask ^= 1 << actor;
+    const { deadline: _deadline, ...role } = tasks[task], player = available[actor];
+    result.push({ playerId: player.playerId, ...role, ...(role.intent === 'hold' ? { taskId: 'hold:' + player.playerId, point: player.homePosition } : {}) });
+    mask ^= 1 << actor;
   }
   return freeze(actors.map(a => result.find(r => r.playerId === a.playerId)!));
 }

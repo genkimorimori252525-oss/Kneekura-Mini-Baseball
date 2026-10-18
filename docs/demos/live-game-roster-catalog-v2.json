@@ -215,6 +215,29 @@
       "step": 0.01
     },
     {
+      "path": "baserunningSafetyMarginSeconds",
+      "label": "走塁判断の安全余裕",
+      "section": "common",
+      "unit": "s",
+      "type": "number",
+      "min": 0,
+      "max": 3,
+      "step": 0.05,
+      "default": 0.35,
+      "note": "走塁の戦術的な判断傾向。大きいほど進塁に余裕を求めて慎重になります。走行速度・加速度は変わりません。未指定時は0.35秒。"
+    },
+    {
+      "path": "fieldingPursuitCostWeight",
+      "label": "守備の追球コスト重み",
+      "section": "common",
+      "type": "number",
+      "min": 0.25,
+      "max": 4,
+      "step": 0.05,
+      "default": 1,
+      "note": "守備の戦術的な判断傾向。小さいほど移動コストを軽く見て積極的に追球します。身体能力や捕球能力は変わりません。未指定時は1。"
+    },
+    {
       "path": "topSpeedMps",
       "label": "走行最高速度",
       "section": "common",

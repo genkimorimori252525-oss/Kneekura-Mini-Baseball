@@ -9310,7 +9310,8 @@ var KneekuraNativeMatchCore = (() => {
     lateArrivalCost: 2,
     backupDepthMeters: 10,
     pickupBackupDepthMeters: 6,
-    directThrowSeconds: 0.9
+    directThrowSeconds: 0.9,
+    backupHomeAbandonmentCost: 0.1
   });
   var flatDistance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
   var finite6 = (p) => p && [p.x, p.y, p.z].every(Number.isFinite);
@@ -9336,9 +9337,24 @@ var KneekuraNativeMatchCore = (() => {
     const acceleratingDistance = (maximum * maximum - initial * initial) / (2 * a);
     return delay + (d <= acceleratingDistance ? (Math.sqrt(initial * initial + 2 * a * d) - initial) / a : (maximum - initial) / a + (d - acceleratingDistance) / maximum);
   }
+  function liveFieldRoleCostV1(actor, role, previous) {
+    const pursuit = actor.pursuitCostWeight ?? 1;
+    if (!Number.isFinite(pursuit) || pursuit < 0.25 || pursuit > 4) throw new Error("invalid live field pursuit cost weight");
+    const point = role.intent === "hold" ? actor.homePosition : role.point, taskId = role.intent === "hold" ? "hold:" + actor.playerId : role.taskId, arrivalSeconds = liveFieldArrivalSecondsV1(actor, point), weight = role.intent === "base_cover" ? 4 : role.intent === "relay" ? 1 : role.intent === "backup" ? 0.25 : 0.1, homeAbandonmentSeconds = role.intent === "backup" ? flatDistance(actor.homePosition, point) / actor.topSpeedMps : 0, movementCost = weight * arrivalSeconds * (role.intent === "backup" ? pursuit : 1), homeAbandonmentCost = LIVE_FIELD_ROLE_POLICY_V1.backupHomeAbandonmentCost * homeAbandonmentSeconds * pursuit, lateCost = role.deadline === void 0 ? 0 : LIVE_FIELD_ROLE_POLICY_V1.lateArrivalCost * Math.max(0, arrivalSeconds - role.deadline), switchCost = previous && previous.taskId !== taskId ? LIVE_FIELD_ROLE_POLICY_V1.switchCostSeconds : 0;
+    return Object.freeze({
+      arrivalSeconds,
+      homeAbandonmentSeconds,
+      pursuitCostWeight: pursuit,
+      movementCost,
+      homeAbandonmentCost,
+      lateCost,
+      switchCost,
+      total: movementCost + homeAbandonmentCost + lateCost + switchCost
+    });
+  }
   function assignLiveFieldRolesV1(raw) {
     const input = cloneInert(raw), actors = input.actors;
-    if (actors.length !== 9 || new Set(actors.map((a) => a.playerId)).size !== actors.length || actors.some((a) => !a.playerId || !finite6(a.position) || !finite6(a.velocity) || !finite6(a.homePosition) || ![a.topSpeedMps, a.accelerationMps2, a.throwSpeedMps].every((n2) => Number.isFinite(n2) && n2 > 0) || !Number.isFinite(a.remainingReactionSeconds) || a.remainingReactionSeconds < 0) || !finite6(input.ballPosition) || !finite6(input.ballVelocity) || !finite6(input.pickupPoint) || ![1, 2, 3, 4].every((n2) => finite6(input.bases[n2]))) throw new Error("invalid live field role geometry/actors");
+    if (actors.length !== 9 || new Set(actors.map((a) => a.playerId)).size !== actors.length || actors.some((a) => !a.playerId || !finite6(a.position) || !finite6(a.velocity) || !finite6(a.homePosition) || ![a.topSpeedMps, a.accelerationMps2, a.throwSpeedMps].every((n2) => Number.isFinite(n2) && n2 > 0) || !Number.isFinite(a.remainingReactionSeconds) || a.remainingReactionSeconds < 0 || !Number.isFinite(a.pursuitCostWeight ?? 1) || (a.pursuitCostWeight ?? 1) < 0.25 || (a.pursuitCostWeight ?? 1) > 4) || !finite6(input.ballPosition) || !finite6(input.ballVelocity) || !finite6(input.pickupPoint) || ![1, 2, 3, 4].every((n2) => finite6(input.bases[n2]))) throw new Error("invalid live field role geometry/actors");
     const reservedIds = /* @__PURE__ */ new Set(), covered = /* @__PURE__ */ new Set(), taskIds = /* @__PURE__ */ new Set();
     for (const role of input.reservations) {
       if (!actors.some((a) => a.playerId === role.playerId) || reservedIds.has(role.playerId) || !role.taskId || taskIds.has(role.taskId) || !finite6(role.point) || !["intercept", "base_cover", "hold", "tag"].includes(role.intent) || role.targetBase !== null && ![1, 2, 3, 4].includes(role.targetBase) || role.targetBase !== null && covered.has(role.targetBase)) throw new Error("duplicate or invalid live field reservation");
@@ -9388,10 +9404,8 @@ var KneekuraNativeMatchCore = (() => {
         intent: "backup",
         targetBase: null
       });
-    for (const a of [...available].sort((a2, b) => flatDistance(b.homePosition, input.ballPosition) - flatDistance(a2.homePosition, input.ballPosition))) {
-      if (tasks.length === available.length) break;
-      tasks.push({ taskId: "hold:" + a.playerId, point: a.homePosition, intent: "hold", targetBase: null });
-    }
+    while (tasks.length < available.length)
+      tasks.push({ taskId: "hold-slot:" + tasks.length, point: available[0].homePosition, intent: "hold", targetBase: null });
     if (tasks.length !== available.length) throw new Error("live field tasks exceed available actors");
     const n = available.length, size = 1 << n, costs = new Float64Array(size).fill(Infinity), parents = new Int32Array(size).fill(-1);
     costs[0] = 0;
@@ -9401,7 +9415,7 @@ var KneekuraNativeMatchCore = (() => {
       for (let bits = mask2; bits; bits &= bits - 1) task++;
       if (task === n) continue;
       for (let i = 0; i < n; i++) if (!(mask2 & 1 << i)) {
-        const actor = available[i], slot = tasks[task], eta = liveFieldArrivalSecondsV1(actor, slot.point), previous = input.previous.find((r) => r.playerId === actor.playerId), weight = slot.intent === "base_cover" ? 4 : slot.intent === "relay" ? 1 : slot.intent === "backup" ? 0.25 : 0.1, switchCost = previous && previous.taskId !== slot.taskId ? LIVE_FIELD_ROLE_POLICY_V1.switchCostSeconds : 0, cost = costs[mask2] + weight * eta + (slot.deadline === void 0 ? 0 : LIVE_FIELD_ROLE_POLICY_V1.lateArrivalCost * Math.max(0, eta - slot.deadline)) + switchCost, next = mask2 | 1 << i;
+        const actor = available[i], slot = tasks[task], previous = input.previous.find((r) => r.playerId === actor.playerId), cost = costs[mask2] + liveFieldRoleCostV1(actor, slot, previous).total, next = mask2 | 1 << i;
         if (cost < costs[next]) {
           costs[next] = cost;
           parents[next] = i;
@@ -9413,8 +9427,8 @@ var KneekuraNativeMatchCore = (() => {
     for (let task = n - 1; task >= 0; task--) {
       const actor = parents[mask];
       if (actor < 0) throw new Error("live field role assignment is unresolved");
-      const { deadline: _deadline, ...role } = tasks[task];
-      result.push({ playerId: available[actor].playerId, ...role });
+      const { deadline: _deadline, ...role } = tasks[task], player = available[actor];
+      result.push({ playerId: player.playerId, ...role, ...role.intent === "hold" ? { taskId: "hold:" + player.playerId, point: player.homePosition } : {} });
       mask ^= 1 << actor;
     }
     return freeze17(actors.map((a) => result.find((r) => r.playerId === a.playerId)));
@@ -9447,6 +9461,95 @@ var KneekuraNativeMatchCore = (() => {
       releaseOrdinal: input.releaseOrdinal,
       distribution: "INDEPENDENT_ZERO_MEAN_BOUNDED_UNIFORM_YAW_PITCH_V1",
       speedBasis: "THROWER_BODY_RELATIVE"
+    });
+  }
+
+  // src/core/sim/fielding/LiveRunnerAdvancePolicyV1.ts
+  var LIVE_RUNNER_ADVANCE_POLICY_V1 = Object.freeze({
+    safetyMarginSeconds: 0.35,
+    recognitionSeconds: 0
+  });
+  function assert8(value, message) {
+    if (!value) throw new Error("live runner advance: " + message);
+  }
+  var nonnegative = (value) => Number.isFinite(value) && value >= 0;
+  function estimateLiveRunnerLegSecondsV1(distanceMeters, topSpeedMps, accelerationMps2) {
+    assert8(nonnegative(distanceMeters) && Number.isFinite(topSpeedMps) && topSpeedMps > 0 && Number.isFinite(accelerationMps2) && accelerationMps2 > 0, "finite runner route SI required");
+    if (distanceMeters === 0) return 0;
+    const peak = Math.min(topSpeedMps, Math.sqrt(accelerationMps2 * distanceMeters)), accelerateFor = peak / accelerationMps2, coastFor = Math.max(0, (distanceMeters - peak * peak / accelerationMps2) / peak), duration = 2 * accelerateFor + coastFor;
+    assert8(Number.isFinite(duration), "runner duration exceeds finite SI");
+    return duration;
+  }
+  function decideLiveRunnerAdvanceV1(input) {
+    const safetyMargin = input.policy?.safetyMarginSeconds ?? LIVE_RUNNER_ADVANCE_POLICY_V1.safetyMarginSeconds, recognition = input.policy?.recognitionSeconds ?? LIVE_RUNNER_ADVANCE_POLICY_V1.recognitionSeconds, reaction = input.runner.reactionSeconds;
+    assert8(nonnegative(input.nowSeconds) && nonnegative(input.playStartedAtSeconds) && input.playStartedAtSeconds <= input.nowSeconds, "finite ordered play clock required");
+    assert8([0, 1, 2, 3].includes(input.currentBase) && typeof input.targetOccupied === "boolean" && typeof input.forced === "boolean", "explicit runner base and obligation required");
+    assert8(input.outs === void 0 || [0, 1, 2].includes(input.outs), "invalid active out count");
+    assert8(nonnegative(reaction) && nonnegative(safetyMargin) && nonnegative(recognition), "finite reaction and policy SI required");
+    assert8(input.awardThroughBase === void 0 || input.awardThroughBase === null || [1, 2, 3, 4].includes(input.awardThroughBase), "invalid physical award target");
+    const cues = [input.firstGroundContactElapsedSeconds, input.firstFielderTouchElapsedSeconds];
+    assert8(
+      cues.every((cue) => cue === null || nonnegative(cue) && cue >= input.playStartedAtSeconds && cue <= input.nowSeconds),
+      "departure cue must be an occurred physical event"
+    );
+    assert8(
+      input.defenderControlSeconds === null || nonnegative(input.defenderControlSeconds) || input.defenderControlSeconds === Infinity,
+      "invalid defense control forecast"
+    );
+    const runnerTravelSeconds = estimateLiveRunnerLegSecondsV1(
+      input.distanceToNextBaseMeters,
+      input.runner.topSpeedMps,
+      input.runner.accelerationMps2
+    ), award = input.awardThroughBase !== void 0 && input.awardThroughBase !== null && input.awardThroughBase > input.currentBase, batter = input.currentBase === 0, twoOuts = input.outs === 2 && input.firstGroundContactElapsedSeconds === null && input.firstFielderTouchElapsedSeconds === null, groundedForce = input.forced && input.firstGroundContactElapsedSeconds !== null, available = cues.filter((cue) => cue !== null), legalCue = batter || award || twoOuts ? input.playStartedAtSeconds : groundedForce ? input.firstGroundContactElapsedSeconds : available.length ? Math.min(...available) : null, readyAtElapsedSeconds = legalCue === null ? null : legalCue + (reaction + recognition);
+    assert8(readyAtElapsedSeconds === null || Number.isFinite(readyAtElapsedSeconds), "recognition exceeds finite play clock");
+    const runnerArrivalSeconds = readyAtElapsedSeconds === null ? null : Math.max(0, readyAtElapsedSeconds - input.nowSeconds) + runnerTravelSeconds, raceMarginSeconds = input.defenderControlSeconds === null || runnerArrivalSeconds === null ? null : input.defenderControlSeconds - runnerArrivalSeconds;
+    const result = (advance, reason) => Object.freeze({
+      advance,
+      reason,
+      readyAtElapsedSeconds,
+      runnerTravelSeconds,
+      runnerArrivalSeconds,
+      raceMarginSeconds
+    });
+    if (input.targetOccupied) return result(false, "target_occupied");
+    if (readyAtElapsedSeconds === null) return result(false, "awaiting_legal_departure");
+    if (input.nowSeconds < readyAtElapsedSeconds) return result(false, "recognizing_departure_cue");
+    if (award) return result(true, "award_advance");
+    if (batter) return result(true, "batter_advance");
+    if (twoOuts) return result(true, "two_out_advance");
+    if (groundedForce) return result(true, "forced_advance");
+    if (raceMarginSeconds === null) return result(false, "no_defense_forecast");
+    return raceMarginSeconds > safetyMargin ? result(true, "safe_race_advance") : result(false, "insufficient_safety_margin");
+  }
+
+  // src/core/sim/fielding/LiveFieldHandlerSelectionV1.ts
+  var LIVE_FIELD_HANDLER_POLICY_V1 = Object.freeze({
+    interceptionWindowSeconds: 0,
+    switchBurdenSeconds: 0.25,
+    minimumPursuitCostWeight: 0.25,
+    maximumPursuitCostWeight: 4
+  });
+  function selectLiveFieldHandlerV1(input) {
+    const window = input.interceptionWindowSeconds ?? LIVE_FIELD_HANDLER_POLICY_V1.interceptionWindowSeconds;
+    if (!Number.isFinite(window) || window < 0 || window > 0.1 || new Set(input.candidates.map((c) => c.playerId)).size !== input.candidates.length || input.candidates.some((c) => !c.playerId || typeof c.intercepted !== "boolean" || ![c.interceptSeconds, c.arrivalSeconds, c.travelDistanceMeters].every((n) => Number.isFinite(n) && n >= 0) || !Number.isFinite(c.approachPenaltySeconds ?? 0) || (c.approachPenaltySeconds ?? 0) < 0 || !Number.isFinite(c.pursuitCostWeight ?? 1) || (c.pursuitCostWeight ?? 1) < 0.25 || (c.pursuitCostWeight ?? 1) > 4))
+      throw new Error("invalid live field handler candidates/policy");
+    const feasible = input.candidates.filter((c) => c.intercepted), pool = feasible.length ? feasible : input.candidates;
+    if (!pool.length) return Object.freeze({
+      playerId: null,
+      intercepted: false,
+      retained: false,
+      earliestInterceptSeconds: null,
+      arrivalBurdenSeconds: null,
+      eligiblePlayerIds: Object.freeze([])
+    });
+    const earliest = Math.min(...pool.map((c) => c.interceptSeconds)), eligible = pool.filter((c) => c.interceptSeconds <= earliest + window), burden = (c) => (c.arrivalSeconds + (c.approachPenaltySeconds ?? 0)) * (c.pursuitCostWeight ?? 1), ranked = [...eligible].sort((a, b) => burden(a) - burden(b) || a.travelDistanceMeters * (a.pursuitCostWeight ?? 1) - b.travelDistanceMeters * (b.pursuitCostWeight ?? 1)), best = ranked[0], incumbent = eligible.find((c) => c.playerId === input.previousPlayerId), chosen = incumbent && burden(incumbent) <= burden(best) + LIVE_FIELD_HANDLER_POLICY_V1.switchBurdenSeconds ? incumbent : best;
+    return Object.freeze({
+      playerId: chosen.playerId,
+      intercepted: chosen.intercepted,
+      retained: chosen === incumbent,
+      earliestInterceptSeconds: earliest,
+      arrivalBurdenSeconds: burden(chosen),
+      eligiblePlayerIds: Object.freeze(eligible.map((c) => c.playerId))
     });
   }
 
@@ -9701,6 +9804,7 @@ var KneekuraNativeMatchCore = (() => {
     frameSeconds: 0.055,
     bodyRadiusMeters: 0.24,
     roleAssignment: LIVE_FIELD_ROLE_POLICY_V1,
+    catchApproachCostFraction: 0.3,
     bodyMaterial: Object.freeze({ restitution: 0.25, tangentialDamping: 0.3, spinDamping: 0.1 }),
     wallMaterial: Object.freeze({
       restitution: 0.25,
@@ -9740,7 +9844,7 @@ var KneekuraNativeMatchCore = (() => {
     }
     return a;
   };
-  function assert8(a, m) {
+  function assert9(a, m) {
     if (!a) throw new Error("live field play: " + m);
   }
   var at = (c, t) => {
@@ -9778,7 +9882,7 @@ var KneekuraNativeMatchCore = (() => {
   };
   function deriveLiveFieldFenceGeometryV1(field) {
     const back = field.foulFenceRadiusMeters ?? 35;
-    assert8(finite7(field.bases.home) && Number.isFinite(back) && back > 0 && Number.isFinite(field.fenceRadiusMeters) && field.fenceRadiusMeters > 0 && Number.isFinite(field.fenceHeightMeters) && field.fenceHeightMeters >= 0, "finite fence geometry required");
+    assert9(finite7(field.bases.home) && Number.isFinite(back) && back > 0 && Number.isFinite(field.fenceRadiusMeters) && field.fenceRadiusMeters > 0 && Number.isFinite(field.fenceHeightMeters) && field.fenceHeightMeters >= 0, "finite fence geometry required");
     return freeze18({
       fenceCenter: add13(field.bases.home, v(0, 0, (field.fenceRadiusMeters - back) / 2)),
       fenceRadiusMeters: (field.fenceRadiusMeters + back) / 2,
@@ -9801,15 +9905,15 @@ var KneekuraNativeMatchCore = (() => {
   }
   function simulateLiveFieldPlayV1(raw) {
     const input = cloneInert(raw), start = input.ball.elapsedSeconds, originTick = input.ball.originTick, tps = input.physics.air.ticksPerSecond, max = start + (input.maxPlaySeconds ?? 35), frameSeconds = input.frameSeconds ?? 0.055;
-    assert8(input.fielders.length === 9 && new Set(input.fielders.map((f) => f.playerId)).size === 9, "nine unique defenders required");
-    assert8(input.runners.length >= 1 && input.runners.length <= 4 && new Set(input.runners.map((r) => r.runnerId)).size === input.runners.length && new Set(input.runners.map((r) => r.initialBase)).size === input.runners.length && input.runners.some((r) => r.initialBase === 0), "complete unique runner population required");
-    assert8(Number.isInteger(input.outs) && input.outs >= 0 && input.outs <= 2 && Number.isFinite(max) && max > start && max - start <= 120 && frameSeconds > 0 && Number.isFinite(frameSeconds) && (input.seed === void 0 || Number.isSafeInteger(input.seed) && input.seed >= 0 && input.seed <= 4294967295), "invalid finite play scope");
-    assert8(input.ball.ball.tick === quantizeEventTick(originTick, start, tps) && input.physics.ground.ticksPerSecond === tps, "actual contact clock differs");
+    assert9(input.fielders.length === 9 && new Set(input.fielders.map((f) => f.playerId)).size === 9, "nine unique defenders required");
+    assert9(input.runners.length >= 1 && input.runners.length <= 4 && new Set(input.runners.map((r) => r.runnerId)).size === input.runners.length && new Set(input.runners.map((r) => r.initialBase)).size === input.runners.length && input.runners.some((r) => r.initialBase === 0), "complete unique runner population required");
+    assert9(Number.isInteger(input.outs) && input.outs >= 0 && input.outs <= 2 && Number.isFinite(max) && max > start && max - start <= 120 && frameSeconds > 0 && Number.isFinite(frameSeconds) && (input.seed === void 0 || Number.isSafeInteger(input.seed) && input.seed >= 0 && input.seed <= 4294967295), "invalid finite play scope");
+    assert9(input.ball.ball.tick === quantizeEventTick(originTick, start, tps) && input.physics.ground.ticksPerSecond === tps, "actual contact clock differs");
     const field = input.field, base = (n) => field.bases[["home", "first", "second", "third", "home"][n]];
-    assert8(Object.values(field.bases).every(finite7) && Number.isFinite(field.fenceRadiusMeters) && Number.isFinite(field.fenceHeightMeters) && field.fenceRadiusMeters > 0 && field.fenceHeightMeters >= 0, "finite field geometry required");
+    assert9(Object.values(field.bases).every(finite7) && Number.isFinite(field.fenceRadiusMeters) && Number.isFinite(field.fenceHeightMeters) && field.fenceRadiusMeters > 0 && field.fenceHeightMeters >= 0, "finite field geometry required");
     const fieldGeometry = deriveLiveFieldFenceGeometryV1(field), fenceCenter = fieldGeometry.fenceCenter, fenceRadius = fieldGeometry.fenceRadiusMeters;
-    for (const f of input.fielders) assert8(f.playerId && finite7(f.position) && (!f.velocity || finite7(f.velocity)) && f.position.y > 0 && [f.topSpeedMps, f.accelerationMps2, f.gloveSpeedMps, f.gloveReachMeters, f.gloveRadiusMeters, f.throwSpeedMps].every((x) => Number.isFinite(x) && x > 0) && [f.reactionSeconds, f.transferSeconds].every((x) => Number.isFinite(x) && x >= 0) && f.catchRetention.ticksPerSecond === tps && f.catchRetention.ballRadiusMeters === input.physics.ground.radiusM && f.catchRetention.ballMassKg === input.physics.air.aerodynamics.ballMassKg && [f.catchRetention.pocketRadiusMeters, f.catchRetention.centerRetentionCapacityJ, f.catchRetention.captureDissipationPowerW].every((x) => Number.isFinite(x) && x > 0) && [f.catchRetention.failedContactRestitution, f.catchRetention.failedTangentialDamping, f.catchRetention.failedSpinDamping].every((x) => Number.isFinite(x) && x >= 0 && x <= 1) && (f.throwBackspinRadPerSecond === void 0 || Number.isFinite(f.throwBackspinRadPerSecond) && f.throwBackspinRadPerSecond >= 0) && (!f.throwSpinRadPerSecond || finite7(f.throwSpinRadPerSecond)) && (f.throwDirectionStdRadians === void 0 || Number.isFinite(f.throwDirectionStdRadians) && f.throwDirectionStdRadians >= 0 && f.throwDirectionStdRadians <= 0.12) && (f.fieldingCognition === void 0 || Object.keys(f.fieldingCognition).length === 1 && Number.isFinite(f.fieldingCognition.decisionSeconds) && f.fieldingCognition.decisionSeconds >= 0 && Number.isFinite(f.reactionSeconds + f.fieldingCognition.decisionSeconds)), "explicit fielder SI required");
-    for (const r of input.runners) assert8(r.runnerId && [0, 1, 2, 3].includes(r.initialBase) && [r.topSpeedMps, r.accelerationMps2].every((x) => Number.isFinite(x) && x > 0) && Number.isFinite(r.reactionSeconds) && r.reactionSeconds >= 0 && (!r.position || finite7(r.position)), "explicit runner SI required");
+    for (const f of input.fielders) assert9(f.playerId && finite7(f.position) && (!f.velocity || finite7(f.velocity)) && f.position.y > 0 && [f.topSpeedMps, f.accelerationMps2, f.gloveSpeedMps, f.gloveReachMeters, f.gloveRadiusMeters, f.throwSpeedMps].every((x) => Number.isFinite(x) && x > 0) && [f.reactionSeconds, f.transferSeconds].every((x) => Number.isFinite(x) && x >= 0) && f.catchRetention.ticksPerSecond === tps && f.catchRetention.ballRadiusMeters === input.physics.ground.radiusM && f.catchRetention.ballMassKg === input.physics.air.aerodynamics.ballMassKg && [f.catchRetention.pocketRadiusMeters, f.catchRetention.centerRetentionCapacityJ, f.catchRetention.captureDissipationPowerW].every((x) => Number.isFinite(x) && x > 0) && [f.catchRetention.failedContactRestitution, f.catchRetention.failedTangentialDamping, f.catchRetention.failedSpinDamping].every((x) => Number.isFinite(x) && x >= 0 && x <= 1) && (f.throwBackspinRadPerSecond === void 0 || Number.isFinite(f.throwBackspinRadPerSecond) && f.throwBackspinRadPerSecond >= 0) && (!f.throwSpinRadPerSecond || finite7(f.throwSpinRadPerSecond)) && (f.throwDirectionStdRadians === void 0 || Number.isFinite(f.throwDirectionStdRadians) && f.throwDirectionStdRadians >= 0 && f.throwDirectionStdRadians <= 0.12) && (f.fieldingCognition === void 0 || Object.keys(f.fieldingCognition).every((k) => ["decisionSeconds", "pursuitCostWeight"].includes(k)) && Number.isFinite(f.fieldingCognition.decisionSeconds) && f.fieldingCognition.decisionSeconds >= 0 && (f.fieldingCognition.pursuitCostWeight === void 0 || Number.isFinite(f.fieldingCognition.pursuitCostWeight) && f.fieldingCognition.pursuitCostWeight >= 0.25 && f.fieldingCognition.pursuitCostWeight <= 4) && Number.isFinite(f.reactionSeconds + f.fieldingCognition.decisionSeconds)), "explicit fielder SI required");
+    for (const r of input.runners) assert9(r.runnerId && [0, 1, 2, 3].includes(r.initialBase) && [r.topSpeedMps, r.accelerationMps2].every((x) => Number.isFinite(x) && x > 0) && Number.isFinite(r.reactionSeconds) && r.reactionSeconds >= 0 && (!r.position || finite7(r.position)) && (r.advanceSafetyMarginSeconds === void 0 || Number.isFinite(r.advanceSafetyMarginSeconds) && r.advanceSafetyMarginSeconds >= 0 && r.advanceSafetyMarginSeconds <= 3), "explicit runner SI required");
     const facts = [], frames = [], runnerTouches = [], controlledBaseContacts = [], controlledRunnerTags = [], runnerDepartures = [];
     const tick8 = (t) => quantizeEventTick(originTick, t, tps);
     const findContact = (gap, speed2, rounding, lo, hi) => firstContact(gap, speed2, rounding, lo, hi, 0, 1 / tps);
@@ -9830,6 +9934,7 @@ var KneekuraNativeMatchCore = (() => {
       third: runners.find((r) => r.base === 3)?.spec.runnerId ?? null
     }, batter.spec.runnerId);
     let retiredCount = 0, firstGroundContactTick = null, firstTouchTick = null, flyCatch = null, overFence = null;
+    let firstGroundContactSeconds = null, firstFielderTouchSeconds = null;
     let territory = "fair", territoryFixed = false, time = start, endReason = "scope_exhausted", dead = false;
     let kernelBuilds = 0, kernelExtensions = 0, wallKernelBuilds = 0, collisionQueries = 0, kernel, orientationBasis = input.orientation ?? IDENTITY_QUATERNION;
     let freeScope = null;
@@ -9844,6 +9949,8 @@ var KneekuraNativeMatchCore = (() => {
     const contactDiagnostics = [];
     const holderDecisions = [];
     const rejectedThrows = /* @__PURE__ */ new Set();
+    const runnerDecisions = [];
+    let runnerDecisionPending = false;
     let unresolvedDetail = null;
     const build = (moment) => {
       kernelBuilds++;
@@ -9946,6 +10053,11 @@ var KneekuraNativeMatchCore = (() => {
         emit("runner_base_departure", t, { runnerId: r.spec.runnerId, base: r.base });
       }
     };
+    const runnerArrivalSeconds = (r, n, t) => r.leg && r.leg.to === n ? Math.max(0, r.leg.from + r.leg.duration - t) : estimateLiveRunnerLegSecondsV1(distance5(flat(runnerAt(r, t)), flat(base(n))), r.spec.topSpeedMps, r.spec.accelerationMps2);
+    const outTargets = () => {
+      const forced = deriveCurrentForceObligations(force).map((o) => ({ ...o, forced: true }));
+      return [...forced, ...runners.filter((r) => !r.retired && !r.scored && r.leg && !forced.some((o) => o.runnerId === r.spec.runnerId)).map((r) => ({ runnerId: r.spec.runnerId, targetBase: r.leg.to, forced: false }))];
+    };
     const history = [];
     const observe = (t) => {
       const b = ballAt2(t);
@@ -9997,7 +10109,8 @@ var KneekuraNativeMatchCore = (() => {
       topSpeedMps: f.spec.topSpeedMps,
       accelerationMps2: f.spec.accelerationMps2,
       throwSpeedMps: f.spec.throwSpeedMps,
-      remainingReactionSeconds: Math.max(0, start + responseSeconds(f) - t)
+      remainingReactionSeconds: Math.max(0, start + responseSeconds(f) - t),
+      ...f.spec.fieldingCognition?.pursuitCostWeight === void 0 ? {} : { pursuitCostWeight: f.spec.fieldingCognition.pursuitCostWeight }
     });
     const forecast = (f, t) => {
       const prediction = predict(f, t);
@@ -10107,8 +10220,23 @@ var KneekuraNativeMatchCore = (() => {
         }
       }
       const forecasts = defenders.map((f) => ({ f, predicted: forecast(f, t) }));
-      const best = forecasts.filter((x) => x.predicted).sort((a, b) => Number(b.predicted.intercepted) - Number(a.predicted.intercepted) || a.predicted.eta - b.predicted.eta)[0];
-      const incumbent = forecasts.find((x) => x.f.spec.playerId === previousHandlerId), retained = incumbent?.predicted && best?.predicted && incumbent.predicted.intercepted === best.predicted.intercepted && incumbent.predicted.eta <= best.predicted.eta + LIVE_FIELD_ROLE_POLICY_V1.switchCostSeconds ? incumbent.f : best?.f;
+      const selection = selectLiveFieldHandlerV1({
+        candidates: forecasts.flatMap(({ f, predicted }) => {
+          if (!predicted) return [];
+          const route = flat(sub6(predicted.point, at(f.body, t))), incoming = flat(predicted.prediction.sample(Math.min(predicted.eta, predicted.prediction.maximumSeconds)).velocity), arrivalSeconds = liveFieldArrivalSecondsV1(roleActor(f, t), predicted.point, f.spec.gloveReachMeters), chasing = Math.max(0, (route.x * incoming.x + route.z * incoming.z) / Math.max(norm4(route) * norm4(incoming), 1e-30));
+          return [{
+            playerId: f.spec.playerId,
+            intercepted: predicted.intercepted,
+            interceptSeconds: predicted.eta,
+            arrivalSeconds,
+            approachPenaltySeconds: predicted.point.y > input.physics.ground.radiusM + 0.2 ? chasing * arrivalSeconds * LIVE_FIELD_TEST_MODEL_V1.catchApproachCostFraction : 0,
+            travelDistanceMeters: distance5(flat(at(f.body, t)), flat(predicted.point)),
+            ...f.spec.fieldingCognition?.pursuitCostWeight === void 0 ? {} : { pursuitCostWeight: f.spec.fieldingCognition.pursuitCostWeight }
+          }];
+        }),
+        previousPlayerId: previousHandlerId
+      });
+      const incumbent = forecasts.find((x) => x.f.spec.playerId === previousHandlerId), best = forecasts.find((x) => x.f.spec.playerId === selection.playerId), retained = best?.f;
       const handler = possession ?? pendingCatch?.fielder ?? throwTarget?.receiver ?? retained ?? defenders[0];
       const handlerPrediction = forecasts.find((x) => x.f === handler)?.predicted;
       if (handler.spec.playerId !== previousHandlerId) {
@@ -10130,7 +10258,7 @@ var KneekuraNativeMatchCore = (() => {
       if ((possession || pendingCatch) && !throwTarget && releaseAt === null) {
         const activeObligations = deriveCurrentForceObligations(force);
         const nearForcedBase = activeObligations.map((o) => {
-          const r = runners.find((x) => x.spec.runnerId === o.runnerId), b = base(o.targetBase), runnerSec = r.leg ? Math.max(0, r.leg.from + r.leg.duration - t) : distance5(flat(runnerAt(r, t)), flat(b)) / r.spec.topSpeedMps, holderSec = liveFieldArrivalSecondsV1({ ...roleActor(handler, t), remainingReactionSeconds: 0 }, b, field.baseTouchRadiusMeters ?? 0.28), otherSec = Math.min(...defenders.filter((f) => f !== handler).map((f) => liveFieldArrivalSecondsV1(roleActor(f, t), b, field.baseTouchRadiusMeters ?? 0.28))), dist = distance5(flat(at(handler.body, t)), flat(b));
+          const r = runners.find((x) => x.spec.runnerId === o.runnerId), b = base(o.targetBase), runnerSec = runnerArrivalSeconds(r, o.targetBase, t), holderSec = liveFieldArrivalSecondsV1({ ...roleActor(handler, t), remainingReactionSeconds: 0 }, b, field.baseTouchRadiusMeters ?? 0.28), otherSec = Math.min(...defenders.filter((f) => f !== handler).map((f) => liveFieldArrivalSecondsV1(roleActor(f, t), b, field.baseTouchRadiusMeters ?? 0.28))), dist = distance5(flat(at(handler.body, t)), flat(b));
           return { base: o.targetBase, point: b, dist, holderSec, otherSec, runnerSec };
         }).filter((c) => c.holderSec < c.runnerSec && (c.dist <= 3.5 || c.dist <= 7.5 && c.runnerSec - c.holderSec > 0.45 || c.holderSec <= c.otherSec + 0.35 || handler.targetBase === c.base)).sort((a, b) => a.holderSec - b.holderSec)[0];
         if (nearForcedBase) {
@@ -10141,11 +10269,11 @@ var KneekuraNativeMatchCore = (() => {
       for (const runner of runners.filter((r) => !r.retired && !r.scored)) {
         const n = runner.leg?.to ?? (runner.base < 4 ? runner.base + 1 : null);
         if (n === null) continue;
-        const eta = runner.leg ? Math.max(0, runner.leg.from + runner.leg.duration - t) : distance5(flat(runnerAt(runner, t)), flat(base(n))) / runner.spec.topSpeedMps;
+        const eta = runnerArrivalSeconds(runner, n, t);
         threats.push({ base: n, arrivalSeconds: eta });
         if (n < 4) threats.push({
           base: n + 1,
-          arrivalSeconds: eta + distance5(flat(base(n)), flat(base(n + 1))) / runner.spec.topSpeedMps
+          arrivalSeconds: eta + estimateLiveRunnerLegSecondsV1(distance5(flat(base(n)), flat(base(n + 1))), runner.spec.topSpeedMps, runner.spec.accelerationMps2)
         });
       }
       const assignment = () => {
@@ -10208,8 +10336,8 @@ var KneekuraNativeMatchCore = (() => {
       }
       if (possession && !pendingCatch && t >= custodySince + possession.spec.transferSeconds && releaseAt === null) {
         const arrive = (f, target) => liveFieldArrivalSecondsV1({ ...roleActor(f, t), remainingReactionSeconds: 0 }, target, field.baseTouchRadiusMeters ?? 0.28);
-        const candidates = deriveCurrentForceObligations(force).map((o) => {
-          const r = runners.find((r2) => r2.spec.runnerId === o.runnerId), target = base(o.targetBase), receiver = defenders.find((f) => f !== possession && assigned.get(f)?.intent === "base_cover" && assigned.get(f)?.base === o.targetBase) ?? defenders.filter((f) => f !== possession).sort((a, b) => liveFieldArrivalSecondsV1(roleActor(a, t), target) - liveFieldArrivalSecondsV1(roleActor(b, t), target))[0], throwSeconds = Math.max(0.05, distance5(at(possession.glove, t), add13(target, v(0, receiver.spec.position.y, 0))) / possession.spec.throwSpeedMps) + (receiver.spec.gloveRadiusMeters + input.physics.ground.radiusM) / receiver.spec.gloveSpeedMps, runnerSeconds = r.leg ? Math.max(0, r.leg.from + r.leg.duration - t) : distance5(flat(runnerAt(r, t)), flat(target)) / r.spec.topSpeedMps, preparation = createLiveHandPreparationV1({
+        const candidates = outTargets().map((o) => {
+          const r = runners.find((r2) => r2.spec.runnerId === o.runnerId), target = base(o.targetBase), receiver = defenders.find((f) => f !== possession && assigned.get(f)?.intent === "base_cover" && assigned.get(f)?.base === o.targetBase) ?? defenders.filter((f) => f !== possession).sort((a, b) => liveFieldArrivalSecondsV1(roleActor(a, t), target) - liveFieldArrivalSecondsV1(roleActor(b, t), target))[0], throwSeconds = Math.max(0.05, distance5(at(possession.glove, t), add13(target, v(0, receiver.spec.position.y, 0))) / possession.spec.throwSpeedMps) + (receiver.spec.gloveRadiusMeters + input.physics.ground.radiusM) / receiver.spec.gloveSpeedMps, runnerSeconds = runnerArrivalSeconds(r, o.targetBase, t), preparation = createLiveHandPreparationV1({
             fromElapsedSeconds: t,
             initialOffset: sub6(at(possession.glove, t), at(possession.body, t)),
             initialRelativeVelocity: sub6(velocityAt(possession.glove, t), velocityAt(possession.body, t)),
@@ -10222,6 +10350,7 @@ var KneekuraNativeMatchCore = (() => {
           );
           return {
             runnerId: r.spec.runnerId,
+            forced: o.forced,
             base: o.targetBase,
             receiver,
             margin: runnerSeconds - Math.min(carrySeconds, receivingSeconds),
@@ -10234,7 +10363,9 @@ var KneekuraNativeMatchCore = (() => {
         const pick = candidates.find((candidate) => candidate.margin > 0);
         if (pick) {
           const here = distance5(flat(at(possession.body, t)), flat(pick.target));
-          if (here <= (field.baseTouchRadiusMeters ?? 0.28)) {
+          if (!pick.forced && here <= possession.spec.gloveReachMeters + 0.5) {
+            holderTask = { point: runnerAt(runners.find((r) => r.spec.runnerId === pick.runnerId), t), intent: "tag", base: null };
+          } else if (here <= (field.baseTouchRadiusMeters ?? 0.28)) {
             holderTask = { point: pick.target, intent: "base_cover", base: pick.base };
             holderDecisions.push({
               elapsedSeconds: t,
@@ -10260,7 +10391,7 @@ var KneekuraNativeMatchCore = (() => {
             });
           } else {
             holderTask = { point: at(possession.body, t), intent: "hold", base: null };
-            throwTarget = { receiver: pick.receiver, base: pick.base };
+            throwTarget = { receiver: pick.receiver, base: pick.base, runnerId: pick.runnerId, forced: pick.forced };
             releaseAt = through;
             holderDecisions.push({
               elapsedSeconds: t,
@@ -10298,7 +10429,7 @@ var KneekuraNativeMatchCore = (() => {
         const active = !dead && t >= start + responseSeconds(f);
         const bodyRadius = LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters, gloveRadius = Math.max(f.spec.gloveRadiusMeters, input.physics.ground.radiusM), grip = at(f.glove, t), currentOffset = sub6(grip, before);
         let motorPoint = target.point;
-        if (active && target.intent === "intercept" && target.point.y <= gloveRadius + 0.2) {
+        if (active && target.intent === "intercept" && target.point.y <= gloveRadius + 0.2 && (forecasts.find((x) => x.f === f)?.predicted?.prediction.observedPosition.y ?? Infinity) <= gloveRadius + 0.2) {
           const pred = forecasts.find((x) => x.f === f)?.predicted, toT = flat(sub6(target.point, before)), distT = norm4(toT), stopTime = liveFieldArrivalSecondsV1({ ...roleActor(f, t), remainingReactionSeconds: 0 }, target.point, 0.02) + norm4(vel) / f.spec.accelerationMps2;
           if (distT > 0.35 && (!pred || !pred.intercepted || pred.eta < stopTime)) {
             const runThrough = f.spec.topSpeedMps * f.spec.topSpeedMps / (2 * f.spec.accelerationMps2) + 0.5;
@@ -10377,7 +10508,8 @@ var KneekuraNativeMatchCore = (() => {
           }
         }
         const reachableTarget = v(anticipated.x, Math.max(gloveRadius, anticipated.y), anticipated.z);
-        const relative = sub6(bodyBoundaryLimited ? at(f.body, through) : f === possession || f === pendingCatch?.fielder ? add13(at(f.body, through), heldOffset) : f === handler || f === throwTarget?.receiver ? reachableTarget : at(f.body, through), at(f.body, through));
+        const tagRunner = f === possession && target.intent === "tag" ? runners.filter((r) => !r.retired && !r.scored && r.leg).sort((a, b) => distance5(at(f.body, through), runnerAt(a, through)) - distance5(at(f.body, through), runnerAt(b, through)))[0] : null;
+        const relative = sub6(bodyBoundaryLimited ? at(f.body, through) : tagRunner ? add13(runnerAt(tagRunner, through), v(0, 0.9, 0)) : f === possession || f === pendingCatch?.fielder ? add13(at(f.body, through), heldOffset) : f === handler || f === throwTarget?.receiver ? reachableTarget : at(f.body, through), at(f.body, through));
         const desired = add13(at(f.body, through), mul3(relative, Math.min(1, f.spec.gloveReachMeters / Math.max(norm4(relative), 1e-30)))), limited = targetInside(v(desired.x, Math.max(gloveRadius, desired.y), desired.z), fenceRadius - gloveRadius - 0.02), wantedOffset = sub6(limited, at(f.body, through)), targetOffset = mul3(wantedOffset, Math.min(1, f.spec.gloveReachMeters / Math.max(norm4(wantedOffset), 1e-30))), relativeMove = sub6(targetOffset, currentOffset), relativeVelocity = active ? mul3(relativeMove, Math.min(1, f.spec.gloveSpeedMps * delta / Math.max(norm4(relativeMove), 1e-30)) / delta) : v();
         const gloveCurve = (u) => ({
           ...body,
@@ -10472,14 +10604,46 @@ var KneekuraNativeMatchCore = (() => {
         }
         f.glove = glove;
       }
+      runnerDecisionPending = false;
       for (const r of runners.slice().sort((a, b) => b.base - a.base)) {
-        if (r.retired || r.scored || r.leg || t < start + r.spec.reactionSeconds) continue;
+        if (r.retired || r.scored || r.leg) continue;
         const forced = deriveCurrentForceObligations(force).some((o) => o.runnerId === r.spec.runnerId);
         const next = r.base + 1;
-        if (next > 4 || runners.some((x) => x !== r && !x.retired && !x.scored && (x.base === next && !x.leg || x.leg?.to === next))) continue;
-        const extra = !possession && firstGroundContactTick !== null && distance5(flat(ballAt2(t).position), flat(base(next))) / 25 > distance5(flat(r.p), flat(base(next))) / r.spec.topSpeedMps + 0.5;
+        if (next > 4) continue;
+        const targetOccupied = runners.some((x) => x !== r && !x.retired && !x.scored && (x.base === next && !x.leg || x.leg?.to === next));
+        const control = defenders.flatMap((f) => {
+          const controlled = possession ?? pendingCatch?.fielder;
+          if (controlled && controlled !== f) return [];
+          const predicted = forecasts.find((x) => x.f === f)?.predicted;
+          if (!controlled && !predicted) return [];
+          const pickupSeconds = possession ? 0 : pendingCatch ? Math.max(0, pendingCatch.secure - t) : predicted.eta, point = controlled ? at(f.glove, t) : predicted.point, transfer = possession ? Math.max(0, custodySince + f.spec.transferSeconds - t) : f.spec.transferSeconds, throwSeconds = distance5(point, add13(base(next), v(0, 0.9, 0))) / (f.spec.throwSpeedMps + norm4(velocityAt(f.body, t))), receiverSeconds = Math.min(...defenders.filter((other) => other !== f).map((other) => liveFieldArrivalSecondsV1(roleActor(other, t), base(next), other.spec.gloveReachMeters)));
+          return [Math.min(
+            pickupSeconds + liveFieldArrivalSecondsV1({ ...roleActor(f, t), position: point }, base(next), f.spec.gloveReachMeters),
+            Math.max(pickupSeconds + transfer + throwSeconds, receiverSeconds)
+          )];
+        });
+        const defenderControlSeconds = control.length ? Math.min(...control) : null;
         const awardTarget = overFence?.fair ? Math.min(4, (overFence.awardFrom?.[r.spec.runnerId] ?? r.spec.initialBase) + (overFence.untouchedGround ? 4 : 2)) : null;
-        if (awardTarget !== null ? next <= awardTarget : r.base === 0 && !flyCatch || firstGroundContactTick !== null && (forced || extra)) beginLeg(r, next, t);
+        const decision = decideLiveRunnerAdvanceV1({
+          nowSeconds: t,
+          playStartedAtSeconds: start,
+          currentBase: r.base,
+          outs: input.outs,
+          distanceToNextBaseMeters: distance5(flat(runnerAt(r, t)), flat(base(next))),
+          targetOccupied,
+          runner: r.spec,
+          forced,
+          awardThroughBase: awardTarget,
+          firstGroundContactElapsedSeconds: firstGroundContactSeconds,
+          firstFielderTouchElapsedSeconds: firstFielderTouchSeconds,
+          defenderControlSeconds,
+          policy: { safetyMarginSeconds: r.spec.advanceSafetyMarginSeconds }
+        });
+        if (decision.reason === "recognizing_departure_cue" && !targetOccupied) runnerDecisionPending = true;
+        const previous = runnerDecisions.slice().reverse().find((d) => d.runnerId === r.spec.runnerId);
+        if (!previous || previous.targetBase !== next || previous.reason !== decision.reason || decision.advance)
+          runnerDecisions.push({ elapsedSeconds: t, runnerId: r.spec.runnerId, targetBase: next, defenderControlSeconds, ...decision });
+        if (decision.advance && !(r.base === 0 && flyCatch) && !(dead && awardTarget === null)) beginLeg(r, next, t);
       }
     };
     const applyBaseControl = (f, n, t) => {
@@ -10641,9 +10805,14 @@ var KneekuraNativeMatchCore = (() => {
           const hit = findContact((t) => distance5(flat(at(f.body, t)), flat(base(n))) - (field.baseTouchRadiusMeters ?? 0.28), speed2, 128 * Number.EPSILON, time, horizon);
           if (hit && !hit.ambiguous) choose({ kind: "base", t: hit.t, f, base: n });
         }
-        for (const r of runners) if (!r.retired && !r.scored && r.leg) {
+        for (const r of runners) if (!r.retired && !r.scored) {
+          const forced = deriveCurrentForceObligations(force).some((o) => o.runnerId === r.spec.runnerId);
+          if (!r.leg && !forced) continue;
           const hit = findContact(
-            (t) => distance5(at(f.glove, t), add13(runnerAt(r, t), v(0, 0.9, 0))) - 0.28,
+            (t) => Math.max(
+              distance5(at(f.glove, t), add13(runnerAt(r, t), v(0, 0.9, 0))) - 0.28,
+              r.base > 0 && !forced ? (field.baseTouchRadiusMeters ?? 0.28) - distance5(flat(runnerAt(r, t)), flat(base(r.base))) : -Infinity
+            ),
             maximumCurveSpeed(f.glove, time, horizon) + r.spec.topSpeedMps,
             128 * Number.EPSILON,
             time,
@@ -10664,7 +10833,10 @@ var KneekuraNativeMatchCore = (() => {
           terminal = true;
         } else if (e.kind === "ground" || e.kind === "rolling_stop") {
           if (e.kind === "ground") {
-            if (!hasThrown) firstGroundContactTick ??= tick8(time);
+            if (!hasThrown) {
+              firstGroundContactTick ??= tick8(time);
+              firstGroundContactSeconds ??= time;
+            }
             emit("ground_contact", time, { position: kernel.evaluateAt(time, "incoming").moment.ball.position });
           }
           side = "outgoing";
@@ -10688,6 +10860,7 @@ var KneekuraNativeMatchCore = (() => {
           const phase = multiplyQuaternions(incoming.orientation, orientationBasis);
           if (!territoryFixed) determineTerritory(time, isFair(incoming.moment.ball.position) ? "fair" : "foul");
           firstTouchTick ??= tick8(time);
+          firstFielderTouchSeconds ??= time;
           if (territory === "foul" && firstGroundContactTick !== null) {
             dead = true;
             terminal = true;
@@ -10816,7 +10989,7 @@ var KneekuraNativeMatchCore = (() => {
             endReason = "actor_boundary_motor_required";
             continue;
           }
-          const obligations = deriveCurrentForceObligations(force).filter((o) => o.targetBase === target.base);
+          const obligations = outTargets().filter((o) => o.targetBase === target.base && o.runnerId === target.runnerId);
           const reject = (reason, flightSeconds) => {
             for (const o of obligations) rejectedThrows.add(o.runnerId + ":" + o.targetBase);
             throwDecisions.push({ elapsedSeconds: time, base: target.base, reason, ...flightSeconds === void 0 ? {} : { flightSeconds } });
@@ -10841,7 +11014,7 @@ var KneekuraNativeMatchCore = (() => {
             continue;
           }
           const horizontalSpeed = norm4(flat(d)), backspin = f.spec.throwBackspinRadPerSecond ?? 0;
-          assert8(Number.isFinite(backspin) && backspin >= 0 && (!f.spec.throwSpinRadPerSecond || finite7(f.spec.throwSpinRadPerSecond)), "explicit throw spin differs");
+          assert9(Number.isFinite(backspin) && backspin >= 0 && (!f.spec.throwSpinRadPerSecond || finite7(f.spec.throwSpinRadPerSecond)), "explicit throw spin differs");
           const spin = f.spec.throwSpinRadPerSecond ?? (horizontalSpeed > 0 ? v(-d.z / horizontalSpeed * backspin, 0, d.x / horizontalSpeed * backspin) : v()), planned = planLiveThrowV1({
             releasePosition: position,
             bodyVelocity: velocityAt(f.body, time),
@@ -10856,7 +11029,7 @@ var KneekuraNativeMatchCore = (() => {
           }
           const runnerTime = Math.max(...obligations.map((o) => {
             const r = runners.find((r2) => r2.spec.runnerId === o.runnerId);
-            return r.leg ? r.leg.from + r.leg.duration - time : distance5(flat(runnerAt(r, time)), flat(base(target.base))) / r.spec.topSpeedMps;
+            return runnerArrivalSeconds(r, target.base, time);
           }));
           if (runnerTime <= planned.flightSeconds) {
             reject("aero_throw_arrives_after_runner", planned.flightSeconds);
@@ -10878,6 +11051,8 @@ var KneekuraNativeMatchCore = (() => {
             playerId: f.spec.playerId,
             base: target.base,
             position,
+            runnerId: target.runnerId,
+            reason: obligations.some((o) => o.forced) ? "force_play" : "tag_play",
             receiverPlayerId: target.receiver.spec.playerId,
             target: q
           });
@@ -10904,6 +11079,8 @@ var KneekuraNativeMatchCore = (() => {
           emit("runner_base_touch", time, { runnerId: r.spec.runnerId, base: leg.to, position: r.p });
           if (deriveCurrentForceObligations(force).some((o) => o.runnerId === r.spec.runnerId && o.targetBase === leg.to))
             force = satisfyForceParticipantObligation(force, r.spec.runnerId);
+          runnerDecisionPending = true;
+          controlThrough = time;
         } else if (e.kind === "base") applyBaseControl(e.f, e.base, time);
         else if (e.kind === "tag") {
           const r = e.runner;
@@ -10982,7 +11159,7 @@ var KneekuraNativeMatchCore = (() => {
         endReason = "ground_rule_award_completed";
         terminal = true;
       }
-      if (!dead && possession && runnersComplete && time - custodySince >= Math.max(0.6, possession.spec.transferSeconds) && (releaseAt === null || deriveCurrentForceObligations(force).length === 0)) {
+      if (!dead && possession && runnersComplete && !runnerDecisionPending && time - custodySince >= Math.max(0.6, possession.spec.transferSeconds) && (releaseAt === null || outTargets().length === 0)) {
         endReason = "live_action_complete";
         terminal = true;
       }
@@ -11027,7 +11204,7 @@ var KneekuraNativeMatchCore = (() => {
         collisionQueries,
         unresolvedDetail,
         departureProofs,
-        aiTelemetry: { roleTransitions, throwTargetCancellations, contactDiagnostics, holderDecisions },
+        aiTelemetry: { roleTransitions, throwTargetCancellations, contactDiagnostics, holderDecisions, runnerDecisions },
         renderFramesOwnPhysics: false,
         namedLeagueCalibration: false,
         nativeActuation: false
@@ -11172,16 +11349,16 @@ var KneekuraNativeMatchCore = (() => {
   var names = ["first", "second", "third"];
   var tick7 = (n) => Number.isSafeInteger(n) && n >= 0;
   var id5 = (s) => typeof s === "string" && s.length > 0 && s === s.trim();
-  function assert9(v2, message) {
+  function assert10(v2, message) {
     if (!v2) throw new Error("playable match rules: " + message);
   }
   var unresolved = (reason, time) => ({ kind: "unresolved", reason, tick: time });
   function validateMatch(m, batter) {
-    assert9(id5(m.ruleProfileId) && Number.isSafeInteger(m.inning) && m.inning >= 1 && ["top", "bottom"].includes(m.half) && Number.isInteger(m.outs) && m.outs >= 0 && m.outs <= 2 && Number.isSafeInteger(m.playId) && m.playId >= 0, "invalid active canonical match");
+    assert10(id5(m.ruleProfileId) && Number.isSafeInteger(m.inning) && m.inning >= 1 && ["top", "bottom"].includes(m.half) && Number.isInteger(m.outs) && m.outs >= 0 && m.outs <= 2 && Number.isSafeInteger(m.playId) && m.playId >= 0, "invalid active canonical match");
     resolvePitchCountRule(m, { kind: "ball_in_play" });
-    assert9([m.score.away, m.score.home].every((n) => Number.isSafeInteger(n) && n >= 0), "invalid score");
+    assert10([m.score.away, m.score.home].every((n) => Number.isSafeInteger(n) && n >= 0), "invalid score");
     const runners = names.map((n) => m.bases[n]).filter((r) => r !== null);
-    assert9(id5(batter) && runners.every(id5) && !runners.includes(batter) && new Set(runners).size === runners.length, "invalid original runner identities");
+    assert10(id5(batter) && runners.every(id5) && !runners.includes(batter) && new Set(runners).size === runners.length, "invalid original runner identities");
   }
   function finish(input, after, batterAdvanced, classification, scored, suppressed, outcomes, endedAtTick) {
     const regulation = input.regulationInnings ?? 9, batting = input.match.half === "top" ? "away" : "home";
@@ -11240,32 +11417,32 @@ var KneekuraNativeMatchCore = (() => {
       const a = resolveWalkForcedAdvancement({ batterRunnerId: input.batterRunnerId, bases: m.bases });
       return finish(input, { ...m, bases: a.bases }, true, "walk", a.scoredRunnerIds.map((runnerId) => ({ kind: "runner_base_touch", runnerId, base: 4, tick: time })), [], [], time);
     }
-    assert9(r.kind === "strikeout", "count adjudication did not resolve");
+    assert10(r.kind === "strikeout", "count adjudication did not resolve");
     return finish(input, m, true, "strikeout", [], [], [{ runnerId: input.batterRunnerId, tick: time, classification: "batter_runner_before_first", cause: "pitch_count", defenderId: null }], time);
   }
   function reducePlayableMatchV1(raw) {
     const input = cloneInert(raw), m = input.match, batter = input.batterRunnerId, regulation = input.regulationInnings ?? 9;
     validateMatch(m, batter);
-    assert9(Number.isSafeInteger(regulation) && regulation >= 1, "invalid regulation innings");
+    assert10(Number.isSafeInteger(regulation) && regulation >= 1, "invalid regulation innings");
     if (input.event.kind === "pitch_call") {
-      assert9(tick7(input.event.tick), "invalid pitch call tick");
+      assert10(tick7(input.event.tick), "invalid pitch call tick");
       return applyCount(input, input.event.call, input.event.tick);
     }
     const f = input.event.facts;
-    assert9(tick7(f.contactTick) && tick7(f.throughTick) && f.throughTick >= f.contactTick && f.playEnd.kind === "play_end" && tick7(f.playEnd.tick) && f.playEnd.tick >= f.contactTick && f.playEnd.tick <= f.throughTick && ["fair", "foul"].includes(f.territory), "invalid physical play interval or territory");
+    assert10(tick7(f.contactTick) && tick7(f.throughTick) && f.throughTick >= f.contactTick && f.playEnd.kind === "play_end" && tick7(f.playEnd.tick) && f.playEnd.tick >= f.contactTick && f.playEnd.tick <= f.throughTick && ["fair", "foul"].includes(f.territory), "invalid physical play interval or territory");
     const validTime = (t) => tick7(t) && t >= f.contactTick && t <= f.throughTick;
-    if (f.firstGroundContactTick !== void 0 && f.firstGroundContactTick !== null) assert9(validTime(f.firstGroundContactTick), "invalid ground contact tick");
+    if (f.firstGroundContactTick !== void 0 && f.firstGroundContactTick !== null) assert10(validTime(f.firstGroundContactTick), "invalid ground contact tick");
     const caught = f.flyCatch ? resolveFlyCatch({
       batterRunnerId: batter,
       firstTouch: { kind: "fly_ball_first_fielder_touch", fielderId: f.flyCatch.fielderId, tick: f.flyCatch.firstTouchTick },
       secureCatchTick: f.flyCatch.secureCatchTick,
       firstGroundContactTick: f.firstGroundContactTick ?? null
     }) : null;
-    if (f.flyCatch) assert9(id5(f.flyCatch.fielderId) && validTime(f.flyCatch.firstTouchTick) && validTime(f.flyCatch.secureCatchTick), "invalid catch facts");
+    if (f.flyCatch) assert10(id5(f.flyCatch.fielderId) && validTime(f.flyCatch.firstTouchTick) && validTime(f.flyCatch.secureCatchTick), "invalid catch facts");
     const foul = resolveFoulBallRule({ territory: f.territory, buntAttempt: f.buntAttempt ?? false, count: m, flyCatch: caught });
     if (foul.kind === "uncaught_foul") return applyCount(input, f.buntAttempt ? "foul_bunt" : "foul", f.playEnd.tick);
     if (foul.kind === "unresolved_foul_fly") return unresolved("unresolved_foul_catch", foul.firstFielderTouchTick);
-    if (f.overFence) assert9(validTime(f.overFence.tick) && typeof f.overFence.fair === "boolean" && typeof f.overFence.untouchedGround === "boolean", "invalid fence fact");
+    if (f.overFence) assert10(validTime(f.overFence.tick) && typeof f.overFence.fair === "boolean" && typeof f.overFence.untouchedGround === "boolean", "invalid fence fact");
     const homeRun = !!f.overFence && f.overFence.fair && f.overFence.untouchedGround && f.territory === "fair" && (f.firstGroundContactTick === void 0 || f.firstGroundContactTick === null || f.firstGroundContactTick > f.overFence.tick);
     const groundRuleAward = !!f.overFence && f.overFence.fair && !f.overFence.untouchedGround && f.territory === "fair" && (f.overFence.cause === "throw" || f.firstGroundContactTick !== void 0 && f.firstGroundContactTick !== null && f.firstGroundContactTick <= f.overFence.tick);
     if (f.overFence && !homeRun && !groundRuleAward) return unresolved("ground_rule_award_requires_out_of_play_geometry", f.overFence.tick);
@@ -11284,10 +11461,10 @@ var KneekuraNativeMatchCore = (() => {
       ...caught?.kind === "caught" ? [{ kind: "fly_catch", tick: caught.outTick, defenderId: f.flyCatch.fielderId }] : []
     ];
     for (const e of events) {
-      assert9(validTime(e.tick), "fact outside physical play interval");
-      if ("runnerId" in e) assert9(runners.includes(e.runnerId), "unknown physical runner");
-      if ("base" in e) assert9([1, 2, 3, 4].includes(e.base), "invalid physical base");
-      if ("defenderId" in e) assert9(id5(e.defenderId), "invalid physical defender");
+      assert10(validTime(e.tick), "fact outside physical play interval");
+      if ("runnerId" in e) assert10(runners.includes(e.runnerId), "unknown physical runner");
+      if ("base" in e) assert10([1, 2, 3, 4].includes(e.base), "invalid physical base");
+      if ("defenderId" in e) assert10(id5(e.defenderId), "invalid physical defender");
     }
     const retire = (runnerId, time, classification2, cause, defenderId) => {
       if (retired.has(runnerId) || m.outs + outcomes.length >= 3) return;
@@ -11340,7 +11517,7 @@ var KneekuraNativeMatchCore = (() => {
     if (third) {
       const r = resolveThirdOutScoring({ outsAtStart: 2, thirdOutCandidate: { runnerId: third.runnerId, outTick: third.tick, classification: third.classification }, homeTouches: homes });
       if (r.kind === "simultaneous_unresolved") return unresolved("simultaneous_third_out_run", third.tick);
-      assert9(r.kind === "resolved", "third out was not resolved");
+      assert10(r.kind === "resolved", "third out was not resolved");
       scored = r.scored;
       suppressed = r.suppressed;
     } else finalizePendingRunsAtPlayEnd(homes, f.playEnd);
@@ -11581,7 +11758,7 @@ var KneekuraNativeMatchCore = (() => {
   var norm5 = (v2) => Math.hypot(v2.x, v2.y, v2.z);
   var clamp2 = (n, a, b) => Math.max(a, Math.min(b, n));
   var bounded = (n, a, b) => Number.isFinite(n) && n >= a && n <= b;
-  function assert10(v2, message) {
+  function assert11(v2, message) {
     if (!v2) throw new Error("live pitch: " + message);
   }
   var zero4 = () => ({ x: 0, y: 0, z: 0 });
@@ -11608,9 +11785,9 @@ var KneekuraNativeMatchCore = (() => {
   function firstContact2(kernel, gap, colliderSpeed, through) {
     let budget = 2e5;
     const search = (lo, hi, speed2, rounding, depth = 0) => {
-      assert10(--budget >= 0, "continuous collision proof budget exhausted");
+      assert11(--budget >= 0, "continuous collision proof budget exhausted");
       const a = gap(lo), b = gap(hi);
-      assert10(Number.isFinite(a) && Number.isFinite(b), "nonfinite collision gap");
+      assert11(Number.isFinite(a) && Number.isFinite(b), "nonfinite collision gap");
       if (a <= 0) return { kind: "hit", from: lo, at: lo };
       if (Math.min(a, b) > speed2 * (hi - lo) + rounding) return null;
       const mid = (lo + hi) / 2;
@@ -11647,10 +11824,10 @@ var KneekuraNativeMatchCore = (() => {
   }
   function simulateLivePitchV1(raw) {
     const input = cloneInert(raw), b = input.batter, p = input.pitcher, profile = createAeroGroundBallPhysicsProfile(input.physics), tps = profile.air.ticksPerSecond, catcher = input.catcher ?? { gloveSpeedMps: 7, gloveReachMeters: 0.95, gloveRadiusMeters: 0.14, retentionCapacityJ: 350, captureDissipationPowerW: 1e4, pocketRadiusMeters: 0.18 };
-    assert10(Number.isSafeInteger(input.originTick) && input.originTick >= 0 && Number.isSafeInteger(input.seed) && tps === profile.ground.ticksPerSecond, "invalid original clock or seed");
-    assert10(bounded(b.heightMeters, 1.1, 2.5) && ["R", "L"].includes(b.bats) && bounded(b.batLengthM, 0.55, 1.2) && bounded(b.batMassKg, 0.4, 1.8) && bounded(b.swingRate, 0.3, 3) && bounded(b.timingStdSeconds, 0, 0.08) && bounded(b.aimStdMeters, 0, 0.35) && bounded(b.chaseMarginMeters, 0, 0.6), "invalid batter SI controls");
-    assert10(bounded(p.releaseSpeedMps, 15, 85) && bounded(p.commandStdMeters, 0, 0.6) && p.spinRadPerSecond && Object.values(p.spinRadPerSecond).every(Number.isFinite) && norm5(p.spinRadPerSecond) <= 1200, "invalid pitcher SI controls");
-    assert10((p.maximumPitchSpeedMps === void 0 || bounded(p.maximumPitchSpeedMps, 15, 85)) && (p.throws === void 0 || ["R", "L"].includes(p.throws)), "invalid pitcher limit or throwing side");
+    assert11(Number.isSafeInteger(input.originTick) && input.originTick >= 0 && Number.isSafeInteger(input.seed) && tps === profile.ground.ticksPerSecond, "invalid original clock or seed");
+    assert11(bounded(b.heightMeters, 1.1, 2.5) && ["R", "L"].includes(b.bats) && bounded(b.batLengthM, 0.55, 1.2) && bounded(b.batMassKg, 0.4, 1.8) && bounded(b.swingRate, 0.3, 3) && bounded(b.timingStdSeconds, 0, 0.08) && bounded(b.aimStdMeters, 0, 0.35) && bounded(b.chaseMarginMeters, 0, 0.6), "invalid batter SI controls");
+    assert11(bounded(p.releaseSpeedMps, 15, 85) && bounded(p.commandStdMeters, 0, 0.6) && p.spinRadPerSecond && Object.values(p.spinRadPerSecond).every(Number.isFinite) && norm5(p.spinRadPerSecond) <= 1200, "invalid pitcher SI controls");
+    assert11((p.maximumPitchSpeedMps === void 0 || bounded(p.maximumPitchSpeedMps, 15, 85)) && (p.throws === void 0 || ["R", "L"].includes(p.throws)), "invalid pitcher limit or throwing side");
     for (const [key3, lo, hi] of [
       ["maximumSweetSpotSpeedMps", 0.1, 90],
       ["targetSweetSpotSpeedMps", 0.1, 90],
@@ -11665,16 +11842,16 @@ var KneekuraNativeMatchCore = (() => {
       ["contactDepthMeters", 1e-3, 2],
       ["zoneJudgmentStdMeters", 0, 0.6]
     ])
-      assert10(b[key3] === void 0 || bounded(b[key3], lo, hi), "invalid authored batter control: " + key3);
-    if (b.swingDecision) assert10(["AUTO", "TAKE", "SWING"].includes(b.swingDecision.approach) && bounded(b.swingDecision.threshold, 0, 1) && bounded(b.swingDecision.aggressionWeight, 0, 1), "invalid authored swing decision");
-    assert10(bounded(catcher.gloveSpeedMps, 0.1, 40) && bounded(catcher.gloveReachMeters, 0.4, 3) && bounded(catcher.gloveRadiusMeters, 0.03, 0.3) && bounded(catcher.retentionCapacityJ, 1, 2e3) && bounded(catcher.captureDissipationPowerW, 10, 1e6) && bounded(catcher.pocketRadiusMeters, 0.02, 1), "invalid catcher SI controls");
-    assert10(["balanced", "contact", "power", "take", "bunt"].includes(input.batting), "invalid batting command");
+      assert11(b[key3] === void 0 || bounded(b[key3], lo, hi), "invalid authored batter control: " + key3);
+    if (b.swingDecision) assert11(["AUTO", "TAKE", "SWING"].includes(b.swingDecision.approach) && bounded(b.swingDecision.threshold, 0, 1) && bounded(b.swingDecision.aggressionWeight, 0, 1), "invalid authored swing decision");
+    assert11(bounded(catcher.gloveSpeedMps, 0.1, 40) && bounded(catcher.gloveReachMeters, 0.4, 3) && bounded(catcher.gloveRadiusMeters, 0.03, 0.3) && bounded(catcher.retentionCapacityJ, 1, 2e3) && bounded(catcher.captureDissipationPowerW, 10, 1e6) && bounded(catcher.pocketRadiusMeters, 0.02, 1), "invalid catcher SI controls");
+    assert11(["balanced", "contact", "power", "take", "bunt"].includes(input.batting), "invalid batting command");
     const r = random(input.seed), clips = input.measuredClips.filter((c) => c.side === b.bats && (!b.clipId || c.id === b.clipId));
-    assert10(clips.length > 0, "a measured OpenBiomechanics clip for the actual batting side is required");
+    assert11(clips.length > 0, "a measured OpenBiomechanics clip for the actual batting side is required");
     const clip = clips[Math.floor(r.uniform() * clips.length)];
-    assert10(clip.id.startsWith("obp-") && clip.source.repository === openBiomechanics && /^[a-f0-9]{64}$/.test(clip.source.sha256) && Number.isFinite(clip.contactTimeSeconds) && clip.frames.length >= 2, "unsupported measured clip provenance");
+    assert11(clip.id.startsWith("obp-") && clip.source.repository === openBiomechanics && /^[a-f0-9]{64}$/.test(clip.source.sha256) && Number.isFinite(clip.contactTimeSeconds) && clip.frames.length >= 2, "unsupported measured clip provenance");
     const pitchType = input.pitchType === "auto" ? ["fastball", "slider", "curve", "changeup"][Math.floor(r.uniform() * 4)] : input.pitchType;
-    assert10(["fastball", "slider", "curve", "changeup", "cutter", "sinker", "splitter"].includes(pitchType), "unsupported physical pitch type");
+    assert11(["fastball", "slider", "curve", "changeup", "cutter", "sinker", "splitter"].includes(pitchType), "unsupported physical pitch type");
     const factor = { fastball: 1, slider: 0.91, curve: 0.8, changeup: 0.82, cutter: 0.95, sinker: 0.96, splitter: 0.89 }[pitchType], speed2 = Math.min(p.releaseSpeedMps, p.maximumPitchSpeedMps ?? Infinity) * factor * (0.98 + 0.02 * r.uniform()), spinMagnitude = norm5(p.spinRadPerSecond);
     const axes5 = {
       slider: { x: 0.25, y: -0.8, z: 0.55 },
@@ -11687,7 +11864,7 @@ var KneekuraNativeMatchCore = (() => {
     const spin = pitchType === "fastball" ? p.spinRadPerSecond : mul4(axes5[pitchType], spinMagnitude * (pitchType === "changeup" ? 0.7 : 1) / norm5(axes5[pitchType]));
     const zone = resolveHeightRatioStrikeZoneRegion({ plateCenterX: 0, playerPhysicalProfile: { heightMeters: b.heightMeters } }), middle = (zone.lowerY + zone.upperY) / 2;
     const location = input.location === "auto" ? ["zone", "zone", "low", "outside", "inside"][Math.floor(r.uniform() * 5)] : input.location;
-    assert10(["zone", "low", "outside", "inside", "high"].includes(location), "unsupported target location");
+    assert11(["zone", "low", "outside", "inside", "high"].includes(location), "unsupported target location");
     const batterSide = b.bats === "R" ? -1 : 1, target = { x: (r.uniform() - 0.5) * 0.32, y: middle + (r.uniform() - 0.5) * (zone.upperY - zone.lowerY) * 0.7, z: 0.15 };
     if (location === "outside") target.x = -batterSide * (0.25 + r.uniform() * 0.25);
     if (location === "inside") target.x = batterSide * (0.19 + r.uniform() * 0.2);
@@ -11716,7 +11893,7 @@ var KneekuraNativeMatchCore = (() => {
       throughElapsedSeconds: horizon,
       profile
     }, kernel = createSourceFreeBallKernel(descriptor), plateTime = crossing(kernel, 0.15), catchPlaneTime = crossing(kernel, -0.85);
-    assert10(plateTime !== null && catchPlaneTime !== null, "pitched ball did not cross the finite plate/catcher planes");
+    assert11(plateTime !== null && catchPlaneTime !== null, "pitched ball did not cross the finite plate/catcher planes");
     const decisionTime = Math.min(0.14, plateTime * 0.35), observed = kernel.evaluateAt(decisionTime).moment.ball;
     const predictAtPlane = (plane) => {
       let dt = Math.max(1e-3, (plane - observed.position.z) / observed.velocity.z), pred = observed;
@@ -11753,11 +11930,11 @@ var KneekuraNativeMatchCore = (() => {
     }, probe = createReferenceBatKinematicsV1(probeInput), probeVelocity = probe.sampleAtSourceTick(sourceContactTick, "outgoing").sweetSpotVelocity;
     let rate = b.swingRate * controlFactor;
     if (b.targetSweetSpotSpeedMps !== void 0) {
-      assert10(norm5(probeVelocity) > 1e-9, "measured reference has no finite contact speed");
+      assert11(norm5(probeVelocity) > 1e-9, "measured reference has no finite contact speed");
       rate *= b.targetSweetSpotSpeedMps / norm5(probeVelocity);
     }
     if (b.maximumSweetSpotSpeedMps !== void 0) rate = Math.min(rate, b.maximumSweetSpotSpeedMps / probe.maximumSweetSpotSpeedMps);
-    assert10(bounded(rate, 0.01, 20), "authored motor rate is outside this finite reference model");
+    assert11(bounded(rate, 0.01, 20), "authored motor rate is outside this finite reference model");
     let authoredRotation = IDENTITY_QUATERNION;
     if (b.attackAngleDegrees !== void 0 || b.pullAngleDegrees !== void 0) {
       const side = b.bats === "R" ? 1 : -1, attack = b.attackAngleDegrees === void 0 ? Math.atan2(probeVelocity.y, Math.hypot(probeVelocity.x, probeVelocity.z)) : b.attackAngleDegrees * Math.PI / 180, pull = b.pullAngleDegrees === void 0 ? -Math.atan2(probeVelocity.x, probeVelocity.z) : b.pullAngleDegrees * side * Math.PI / 180;
@@ -11773,7 +11950,7 @@ var KneekuraNativeMatchCore = (() => {
       const maximumSourceTick = sourceContactTick + b.followThroughSeconds * rate * 1e6, last = selectedFrames.findIndex((f) => f.tick >= maximumSourceTick);
       if (last >= 0) selectedFrames = selectedFrames.slice(0, last + 1);
     }
-    assert10(selectedFrames.length >= 2 && selectedFrames[0].tick < sourceContactTick && selectedFrames.at(-1).tick > sourceContactTick, "measured swing does not bracket contact reference");
+    assert11(selectedFrames.length >= 2 && selectedFrames[0].tick < sourceContactTick && selectedFrames.at(-1).tick > sourceContactTick, "measured swing does not bracket contact reference");
     const startOffset = desiredContactTime - (sourceContactTick - selectedFrames[0].tick) / 1e6 / rate, plannedStartTick = input.originTick + Math.max(0, Math.round(startOffset * tps)), actualStartTick = b.motorLatencySeconds === void 0 ? plannedStartTick : Math.max(plannedStartTick, input.originTick + Math.ceil((decisionTime + b.motorLatencySeconds) * tps)), motorDelaySeconds = (actualStartTick - plannedStartTick) / tps, referenceInput = {
       provenance: { clipId: clip.id, sourceSha256: clip.source.sha256 },
       frames: selectedFrames,
@@ -11804,7 +11981,7 @@ var KneekuraNativeMatchCore = (() => {
     const held = reference.sampleContinuous(input.batting === "bunt" ? referenceContactTick : input.originTick), batSample = (seconds) => swingOffered && input.batting !== "bunt" ? reference.sampleContinuous(input.originTick + seconds * tps) : { ...held, state: { ...held.state, linearVelocity: zero4(), angularVelocity: zero4() } };
     const rigidAt = (seconds) => createRigidBatStateFromBatterSwingState(batSample(seconds).state, batPhysical), batBound = swingOffered && input.batting !== "bunt" ? reference.maximumGripSpeedMps + reference.maximumAngularSpeedRadPerSecond * b.batLengthM : 0;
     const catcherForecast = createSourceFreeBallKernel({ ...descriptor, initial: kernel.evaluateAt(decisionTime).moment }), catcherForecastTime = crossing(catcherForecast, -0.85);
-    assert10(catcherForecastTime !== null, "catcher forecast did not reach its finite plane");
+    assert11(catcherForecastTime !== null, "catcher forecast did not reach its finite plane");
     const catcherPrediction = { elapsedSeconds: catcherForecastTime, ball: catcherForecast.evaluateAt(catcherForecastTime).moment.ball }, catcherStart = { x: 0, y: middle, z: -0.85 }, body = { x: 0, y: 0.8, z: -1.2 }, reach = catcher.gloveReachMeters, catcherTarget = { x: catcherPrediction.ball.position.x, y: catcherPrediction.ball.position.y, z: -0.85 };
     catcherTarget.y = Math.max(catcher.gloveRadiusMeters, catcherTarget.y);
     const planarReach = Math.sqrt(reach * reach - (catcherTarget.z - body.z) ** 2), fromBody = { x: catcherTarget.x - body.x, y: catcherTarget.y - body.y, z: 0 };
@@ -11894,7 +12071,7 @@ var KneekuraNativeMatchCore = (() => {
       };
     });
     const sampleBatAtTick = (atTick) => {
-      assert10(Number.isFinite(atTick) && atTick >= input.originTick, "bat observation precedes release");
+      assert11(Number.isFinite(atTick) && atTick >= input.originTick, "bat observation precedes release");
       if (atTick > referenceThroughTick) return null;
       return { ...batSample((atTick - input.originTick) / tps).state.pose, radiusProfile };
     };
@@ -12054,13 +12231,13 @@ var KneekuraNativeMatchCore = (() => {
     }
     return v2;
   };
-  function assert11(v2, m) {
+  function assert12(v2, m) {
     if (!v2) throw new Error("live baseball match: " + m);
   }
   function physical(player) {
     const p = player.physical ?? LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1;
-    assert11(p.basis === "EXPLICIT_AUTHORED_SI_V1", "unknown player SI basis");
-    const nonnegative2 = ["timingStdSeconds", "aimStdMeters", "chaseMarginMeters", "commandStdMeters", "reactionSeconds", "transferSeconds"];
+    assert12(p.basis === "EXPLICIT_AUTHORED_SI_V1", "unknown player SI basis");
+    const nonnegative3 = ["timingStdSeconds", "aimStdMeters", "chaseMarginMeters", "commandStdMeters", "reactionSeconds", "transferSeconds"];
     const positive2 = [
       "batLengthM",
       "batMassKg",
@@ -12075,27 +12252,35 @@ var KneekuraNativeMatchCore = (() => {
       "captureDissipationPowerW",
       "throwSpeedMps"
     ];
-    assert11(nonnegative2.every((k) => Number.isFinite(p[k]) && p[k] >= 0) && positive2.every((k) => Number.isFinite(p[k]) && p[k] > 0) && Object.values(p.spinRadPerSecond).every(Number.isFinite), "invalid explicit player SI");
-    assert11(
+    assert12(nonnegative3.every((k) => Number.isFinite(p[k]) && p[k] >= 0) && positive2.every((k) => Number.isFinite(p[k]) && p[k] > 0) && Object.values(p.spinRadPerSecond).every(Number.isFinite), "invalid explicit player SI");
+    assert12(
       p.zoneJudgmentStdMeters === void 0 || Number.isFinite(p.zoneJudgmentStdMeters) && p.zoneJudgmentStdMeters >= 0 && p.zoneJudgmentStdMeters <= 0.6,
       "invalid zone judgment SI"
+    );
+    assert12(
+      p.baserunningSafetyMarginSeconds === void 0 || Number.isFinite(p.baserunningSafetyMarginSeconds) && p.baserunningSafetyMarginSeconds >= 0 && p.baserunningSafetyMarginSeconds <= 3,
+      "invalid baserunning safety margin"
+    );
+    assert12(
+      p.fieldingPursuitCostWeight === void 0 || Number.isFinite(p.fieldingPursuitCostWeight) && p.fieldingPursuitCostWeight >= 0.25 && p.fieldingPursuitCostWeight <= 4,
+      "invalid fielding pursuit cost weight"
     );
     return p;
   }
   function createLiveBaseballMatchV1(raw) {
     const input = cloneInert(raw), innings = input.innings ?? 9, tps = LIVE_MATCH_PHYSICS_V1.air.ticksPerSecond;
-    assert11(Number.isSafeInteger(input.seed) && Number.isSafeInteger(innings) && innings > 0, "invalid seed/innings");
-    assert11(input.teams.length === 2 && new Set(input.teams.map((t) => t.id)).size === 2, "two unique teams required");
+    assert12(Number.isSafeInteger(input.seed) && Number.isSafeInteger(innings) && innings > 0, "invalid seed/innings");
+    assert12(input.teams.length === 2 && new Set(input.teams.map((t) => t.id)).size === 2, "two unique teams required");
     const players = new Map(input.players.map((p) => [p.playerId, p]));
-    assert11(players.size === input.players.length && input.players.every((p) => p.playerId && p.name && Number.isFinite(p.heightMeters) && p.heightMeters > 0 && ["R", "L"].includes(p.bats) && (p.throws === void 0 || ["R", "L"].includes(p.throws))), "unique physical players required");
+    assert12(players.size === input.players.length && input.players.every((p) => p.playerId && p.name && Number.isFinite(p.heightMeters) && p.heightMeters > 0 && ["R", "L"].includes(p.bats) && (p.throws === void 0 || ["R", "L"].includes(p.throws))), "unique physical players required");
     input.players.forEach(physical);
     input.teams.forEach((t) => {
-      assert11(t.battingOrder.length === 9 && new Set(t.battingOrder).size === 9 && t.battingOrder.every((id6) => players.has(id6)), "nine-player batting order required");
-      assert11(positions.every((pos) => players.has(t.defense[pos])) && new Set(positions.map((pos) => t.defense[pos])).size === 9 && t.defense.P === t.pitcherId, "complete defense required");
+      assert12(t.battingOrder.length === 9 && new Set(t.battingOrder).size === 9 && t.battingOrder.every((id6) => players.has(id6)), "nine-player batting order required");
+      assert12(positions.every((pos) => players.has(t.defense[pos])) && new Set(positions.map((pos) => t.defense[pos])).size === 9 && t.defense.P === t.pitcherId, "complete defense required");
     });
-    assert11(input.measuredClips.length > 0, "OpenBiomechanics measured bat clips required");
+    assert12(input.measuredClips.length > 0, "OpenBiomechanics measured bat clips required");
     const park = input.park ?? { fenceRadiusMeters: 110, fenceHeightMeters: 3 };
-    assert11(Number.isFinite(park.fenceRadiusMeters) && park.fenceRadiusMeters > baseSide * 2 && Number.isFinite(park.fenceHeightMeters) && park.fenceHeightMeters >= 0, "invalid park geometry");
+    assert12(Number.isFinite(park.fenceRadiusMeters) && park.fenceRadiusMeters > baseSide * 2 && Number.isFinite(park.fenceHeightMeters) && park.fenceHeightMeters >= 0, "invalid park geometry");
     const fence = deriveLiveFieldFenceGeometryV1({ bases: LIVE_MATCH_BASES_V1, ...park }), fenceGeometry = frozen({
       center: { x: fence.fenceCenter.x, z: fence.fenceCenter.z },
       radiusMeters: fence.fenceRadiusMeters,
@@ -12162,8 +12347,8 @@ var KneekuraNativeMatchCore = (() => {
       history: [...history]
     });
     function issuePitch(command) {
-      assert11(!finished, "game already finished");
-      assert11(command && ["balanced", "contact", "power", "take", "bunt"].includes(command.batting) && [0, 1].includes(command.managedTeam), "invalid manager command");
+      assert12(!finished, "game already finished");
+      assert12(command && ["balanced", "contact", "power", "take", "bunt"].includes(command.batting) && [0, 1].includes(command.managedTeam), "invalid manager command");
       const beforeMatch = cloneInert(match), c = current(), batter = players.get(c.batterPlayerId), pitcher = players.get(c.pitcherPlayerId), bp = physical(batter), pp = physical(pitcher), cp = physical(players.get(input.teams[1 - c.team].defense.C)), ready = readyFrame();
       const batting = command.managedTeam === c.team ? command.batting : "balanced";
       const pitch = simulateLivePitchV1({
@@ -12197,7 +12382,7 @@ var KneekuraNativeMatchCore = (() => {
             reactionSeconds: p.reactionSeconds,
             topSpeedMps: p.topSpeedMps,
             accelerationMps2: p.accelerationMps2,
-            ...p.defensiveDecisionSeconds === void 0 ? {} : { fieldingCognition: { decisionSeconds: p.defensiveDecisionSeconds } },
+            fieldingCognition: { decisionSeconds: p.defensiveDecisionSeconds ?? 0, pursuitCostWeight: p.fieldingPursuitCostWeight ?? 1 },
             gloveSpeedMps: p.gloveSpeedMps,
             gloveReachMeters: p.gloveReachMeters,
             gloveRadiusMeters: p.gloveRadiusMeters,
@@ -12225,13 +12410,14 @@ var KneekuraNativeMatchCore = (() => {
             position: ready.actors.find((a) => a.playerId === c.batterPlayerId).position,
             topSpeedMps: bp.topSpeedMps,
             accelerationMps2: bp.accelerationMps2,
-            reactionSeconds: bp.reactionSeconds
+            reactionSeconds: bp.reactionSeconds,
+            advanceSafetyMarginSeconds: bp.baserunningSafetyMarginSeconds ?? 0.35
           },
           ...["first", "second", "third"].flatMap((key3, i) => {
             const runnerId = beforeMatch.bases[key3];
             if (!runnerId) return [];
             const p = physical(players.get(runnerId));
-            return [{ runnerId, initialBase: i + 1, topSpeedMps: p.topSpeedMps, accelerationMps2: p.accelerationMps2, reactionSeconds: p.reactionSeconds }];
+            return [{ runnerId, initialBase: i + 1, topSpeedMps: p.topSpeedMps, accelerationMps2: p.accelerationMps2, reactionSeconds: p.reactionSeconds, advanceSafetyMarginSeconds: p.baserunningSafetyMarginSeconds ?? 0.35 }];
           })
         ];
         const outgoingMoment = { ...pitch.contactMoment, ball: { ...pitch.contactMoment.ball, velocity: pitch.contact.exitVelocity, spin: pitch.contact.exitSpin } };
@@ -12286,10 +12472,10 @@ var KneekuraNativeMatchCore = (() => {
           });
         }
       } else {
-        assert11(pitch.call !== null, "pitch ended without physical contact or secured count call");
+        assert12(pitch.call !== null, "pitch ended without physical contact or secured count call");
         result = reducePlayableMatchV1({ match: beforeMatch, batterRunnerId: c.batterPlayerId, regulationInnings: innings, event: { kind: "pitch_call", tick: pitch.endedAtTick, call: pitch.call } });
       }
-      assert11(result.kind === "applied", "rule continuation unresolved: " + (result.kind === "unresolved" ? result.reason : ""));
+      assert12(result.kind === "applied", "rule continuation unresolved: " + (result.kind === "unresolved" ? result.reason : ""));
       const acceptedFrames = frames.filter((f) => f.tick <= result.endedAtTick);
       if (!acceptedFrames.length) acceptedFrames.push(ready);
       if (result.halfChanged || result.gameOver) {
@@ -12508,7 +12694,9 @@ var KneekuraNativeMatchCore = (() => {
     "followThroughSeconds",
     "contactDepthMeters",
     "throwDirectionStdRadians",
-    "zoneJudgmentStdMeters"
+    "zoneJudgmentStdMeters",
+    "baserunningSafetyMarginSeconds",
+    "fieldingPursuitCostWeight"
   ];
   var physicalKeys = ["basis", ...scalarKeys, "spinRadPerSecond", "clipId", "swingDecision"];
   var bounds = {
@@ -12538,9 +12726,11 @@ var KneekuraNativeMatchCore = (() => {
     followThroughSeconds: [5e-3, 2],
     contactDepthMeters: [1e-3, 2],
     throwDirectionStdRadians: [0, 0.12],
-    zoneJudgmentStdMeters: [0, 0.6]
+    zoneJudgmentStdMeters: [0, 0.6],
+    baserunningSafetyMarginSeconds: [0, 3],
+    fieldingPursuitCostWeight: [0.25, 4]
   };
-  var nonnegative = /* @__PURE__ */ new Set(["reactionSeconds", "transferSeconds", "defensiveDecisionSeconds"]);
+  var nonnegative2 = /* @__PURE__ */ new Set(["reactionSeconds", "transferSeconds", "defensiveDecisionSeconds"]);
   var freeze20 = (value) => {
     if (value && typeof value === "object") {
       Object.values(value).forEach(freeze20);
@@ -12548,51 +12738,51 @@ var KneekuraNativeMatchCore = (() => {
     }
     return value;
   };
-  function assert12(value, message) {
+  function assert13(value, message) {
     if (!value) throw new Error("live physical roster: " + message);
   }
   var validText = (value) => typeof value === "string" && value.trim() === value && value.length > 0 && value.length <= 200;
   function fields11(value, allowed, required, path) {
-    assert12(value && typeof value === "object" && !Array.isArray(value), "object required at " + path);
-    assert12(Object.keys(value).every((k) => allowed.includes(k)) && required.every((k) => Object.hasOwn(value, k)), "unknown or missing fields at " + path);
+    assert13(value && typeof value === "object" && !Array.isArray(value), "object required at " + path);
+    assert13(Object.keys(value).every((k) => allowed.includes(k)) && required.every((k) => Object.hasOwn(value, k)), "unknown or missing fields at " + path);
   }
   function validatePhysical(raw) {
     fields11(raw, physicalKeys, ["basis"], "physical");
-    assert12(raw.basis === "EXPLICIT_AUTHORED_SI_V1", "explicit SI basis required");
+    assert13(raw.basis === "EXPLICIT_AUTHORED_SI_V1", "explicit SI basis required");
     for (const key3 of scalarKeys) if (Object.hasOwn(raw, key3)) {
       const value = raw[key3], limits = bounds[key3];
-      assert12(typeof value === "number" && Number.isFinite(value) && (limits ? value >= limits[0] && value <= limits[1] : nonnegative.has(key3) ? value >= 0 : value > 0), "unsupported physical range: " + key3);
+      assert13(typeof value === "number" && Number.isFinite(value) && (limits ? value >= limits[0] && value <= limits[1] : nonnegative2.has(key3) ? value >= 0 : value > 0), "unsupported physical range: " + key3);
     }
     if (Object.hasOwn(raw, "spinRadPerSecond")) {
       fields11(raw.spinRadPerSecond, ["x", "y", "z"], ["x", "y", "z"], "spinRadPerSecond");
       const spin = raw.spinRadPerSecond;
-      assert12(Object.values(spin).every((n) => typeof n === "number" && Number.isFinite(n)) && Math.hypot(spin.x, spin.y, spin.z) <= 1200, "invalid SI spin");
+      assert13(Object.values(spin).every((n) => typeof n === "number" && Number.isFinite(n)) && Math.hypot(spin.x, spin.y, spin.z) <= 1200, "invalid SI spin");
     }
-    if (Object.hasOwn(raw, "clipId")) assert12(validText(raw.clipId), "invalid measured clip identity");
+    if (Object.hasOwn(raw, "clipId")) assert13(validText(raw.clipId), "invalid measured clip identity");
     if (Object.hasOwn(raw, "swingDecision")) {
       fields11(raw.swingDecision, ["approach", "threshold", "aggressionWeight"], ["approach", "threshold", "aggressionWeight"], "swingDecision");
-      assert12(["AUTO", "TAKE", "SWING"].includes(raw.swingDecision.approach) && [raw.swingDecision.threshold, raw.swingDecision.aggressionWeight].every((v2) => typeof v2 === "number" && Number.isFinite(v2) && v2 >= 0 && v2 <= 1), "invalid explicit swing decision");
+      assert13(["AUTO", "TAKE", "SWING"].includes(raw.swingDecision.approach) && [raw.swingDecision.threshold, raw.swingDecision.aggressionWeight].every((v2) => typeof v2 === "number" && Number.isFinite(v2) && v2 >= 0 && v2 <= 1), "invalid explicit swing decision");
     }
     if (raw.maximumSweetSpotSpeedMps !== void 0 && raw.targetSweetSpotSpeedMps !== void 0)
-      assert12(raw.targetSweetSpotSpeedMps <= raw.maximumSweetSpotSpeedMps, "target swing speed exceeds declared motor ceiling");
+      assert13(raw.targetSweetSpotSpeedMps <= raw.maximumSweetSpotSpeedMps, "target swing speed exceeds declared motor ceiling");
   }
   function applyLivePhysicalRosterV1(raw) {
     const input = cloneInert(raw);
     fields11(input, ["players", "roster"], ["players", "roster"], "input");
-    assert12(Array.isArray(input.players), "players required");
+    assert13(Array.isArray(input.players), "players required");
     const players = input.players;
-    assert12(players.every((p) => validText(p.playerId) && validText(p.name) && Number.isFinite(p.heightMeters) && p.heightMeters >= 1.1 && p.heightMeters <= 2.5 && ["R", "L"].includes(p.bats)) && new Set(players.map((p) => p.playerId)).size === players.length, "invalid roster identity");
+    assert13(players.every((p) => validText(p.playerId) && validText(p.name) && Number.isFinite(p.heightMeters) && p.heightMeters >= 1.1 && p.heightMeters <= 2.5 && ["R", "L"].includes(p.bats)) && new Set(players.map((p) => p.playerId)).size === players.length, "invalid roster identity");
     fields11(input.roster, ["version", "sourceId", "entries"], ["version", "sourceId", "entries"], "roster");
-    assert12(input.roster.version === "live_physical_roster_v1" && validText(input.roster.sourceId) && Array.isArray(input.roster.entries), "invalid roster packet");
+    assert13(input.roster.version === "live_physical_roster_v1" && validText(input.roster.sourceId) && Array.isArray(input.roster.entries), "invalid roster packet");
     const entries = input.roster.entries;
-    assert12(new Set(entries.map((e) => e.playerId)).size === entries.length, "duplicate player source binding");
+    assert13(new Set(entries.map((e) => e.playerId)).size === entries.length, "duplicate player source binding");
     const byId = new Map(players.map((p) => [p.playerId, p]));
     for (const entry of entries) {
       fields11(entry, ["playerId", "sourceId", "workbenchPlayer", "physical", "maximumPitchSpeedKmh", "heightMeters", "legacyRelativeRatings", "traitLabels"], ["playerId", "sourceId"], "entry");
-      assert12(validText(entry.playerId) && validText(entry.sourceId) && byId.has(entry.playerId), "unknown player or source binding");
-      assert12(!(Object.hasOwn(entry, "workbenchPlayer") && Object.hasOwn(entry, "physical")), "ambiguous physical authoring sources");
-      if (Object.hasOwn(entry, "workbenchPlayer")) assert12(entry.workbenchPlayer && typeof entry.workbenchPlayer === "object", "invalid maker authoring source");
-      if (Object.hasOwn(entry, "physical")) assert12(entry.physical && typeof entry.physical === "object", "invalid physical authoring source");
+      assert13(validText(entry.playerId) && validText(entry.sourceId) && byId.has(entry.playerId), "unknown player or source binding");
+      assert13(!(Object.hasOwn(entry, "workbenchPlayer") && Object.hasOwn(entry, "physical")), "ambiguous physical authoring sources");
+      if (Object.hasOwn(entry, "workbenchPlayer")) assert13(entry.workbenchPlayer && typeof entry.workbenchPlayer === "object", "invalid maker authoring source");
+      if (Object.hasOwn(entry, "physical")) assert13(entry.physical && typeof entry.physical === "object", "invalid physical authoring source");
     }
     const auditPlayers = [];
     const output = players.map((player) => {
@@ -12677,27 +12867,27 @@ var KneekuraNativeMatchCore = (() => {
         }));
       }
       if (entry?.maximumPitchSpeedKmh !== void 0) {
-        assert12(Number.isFinite(entry.maximumPitchSpeedKmh) && entry.maximumPitchSpeedKmh >= 54 && entry.maximumPitchSpeedKmh <= 306, "unsupported maximum pitch speed");
+        assert13(Number.isFinite(entry.maximumPitchSpeedKmh) && entry.maximumPitchSpeedKmh >= 54 && entry.maximumPitchSpeedKmh <= 306, "unsupported maximum pitch speed");
         const maximumPitchSpeedMps = entry.maximumPitchSpeedKmh / 3.6;
-        assert12(physical3.maximumPitchSpeedMps === void 0 || physical3.maximumPitchSpeedMps === maximumPitchSpeedMps, "conflicting pitch speed limits");
+        assert13(physical3.maximumPitchSpeedMps === void 0 || physical3.maximumPitchSpeedMps === maximumPitchSpeedMps, "conflicting pitch speed limits");
         physical3 = { ...physical3, maximumPitchSpeedMps };
         project("maximumPitchSpeedKmh", "maximumPitchSpeedMps", maximumPitchSpeedMps, "km/h / 3.6");
       }
       if (entry?.heightMeters !== void 0) {
-        assert12(Number.isFinite(entry.heightMeters) && entry.heightMeters >= 1.1 && entry.heightMeters <= 2.5, "unsupported physical height");
-        assert12(!entry.workbenchPlayer || entry.workbenchPlayer.body.heightMeters === entry.heightMeters, "conflicting body heights");
+        assert13(Number.isFinite(entry.heightMeters) && entry.heightMeters >= 1.1 && entry.heightMeters <= 2.5, "unsupported physical height");
+        assert13(!entry.workbenchPlayer || entry.workbenchPlayer.body.heightMeters === entry.heightMeters, "conflicting body heights");
         heightMeters = entry.heightMeters;
         project("heightMeters", "heightMeters", heightMeters);
       }
       if (entry?.legacyRelativeRatings !== void 0) {
-        assert12(entry.legacyRelativeRatings && typeof entry.legacyRelativeRatings === "object" && !Array.isArray(entry.legacyRelativeRatings), "invalid relative ratings");
+        assert13(entry.legacyRelativeRatings && typeof entry.legacyRelativeRatings === "object" && !Array.isArray(entry.legacyRelativeRatings), "invalid relative ratings");
         for (const [key3, value] of Object.entries(entry.legacyRelativeRatings)) {
-          assert12(validText(key3) && Number.isFinite(value), "invalid relative rating entry");
+          assert13(validText(key3) && Number.isFinite(value), "invalid relative rating entry");
           unsupported.push({ path: "legacyRelativeRatings." + key3, value, reason: "Relative display rating has no calibrated SI inverse; preserved without physical conversion." });
         }
       }
       if (entry?.traitLabels !== void 0) {
-        assert12(Array.isArray(entry.traitLabels) && entry.traitLabels.every(validText) && new Set(entry.traitLabels).size === entry.traitLabels.length, "invalid trait labels");
+        assert13(Array.isArray(entry.traitLabels) && entry.traitLabels.every(validText) && new Set(entry.traitLabels).size === entry.traitLabels.length, "invalid trait labels");
         entry.traitLabels.forEach((value, index) => unsupported.push({
           path: `traitLabels[${index}]`,
           value,
@@ -12705,7 +12895,7 @@ var KneekuraNativeMatchCore = (() => {
         }));
       }
       validatePhysical(physical3);
-      assert12(heightMeters >= 1.1 && heightMeters <= 2.5, "unsupported physical height");
+      assert13(heightMeters >= 1.1 && heightMeters <= 2.5, "unsupported physical height");
       const targetPaths = new Set(projected.map((p) => p.targetPath));
       auditPlayers.push({
         playerId: player.playerId,
@@ -12744,7 +12934,7 @@ var KneekuraNativeMatchCore = (() => {
   ];
   var policyId = "individual-profile-public-authoring-v1";
   var pointsPerLogUnit = 100;
-  var assert13 = (value, message) => {
+  var assert14 = (value, message) => {
     if (!value) throw new Error("public abilities: " + message);
   };
   var freeze21 = (value) => {
@@ -12755,32 +12945,32 @@ var KneekuraNativeMatchCore = (() => {
     return value;
   };
   var physical2 = (entry) => {
-    assert13(entry.physical && !entry.workbenchPlayer && entry.maximumPitchSpeedKmh === void 0, "explicit SI entry without competing speed source required");
+    assert14(entry.physical && !entry.workbenchPlayer && entry.maximumPitchSpeedKmh === void 0, "explicit SI entry without competing speed source required");
     return entry.physical;
   };
   function numeric(entry, path) {
     const value = physical2(entry)[path] ?? (path === "zoneJudgmentStdMeters" ? 0 : void 0);
-    assert13(typeof value === "number" && Number.isFinite(value), "missing SI control: " + path);
+    assert14(typeof value === "number" && Number.isFinite(value), "missing SI control: " + path);
     return value;
   }
   function context(input) {
     const reference = input.reference;
-    assert13(reference?.version === "live_public_ability_reference_v1" && reference.policyId === policyId, "unsupported authoring reference");
-    assert13(Array.isArray(reference.players) && Array.isArray(reference.anchors) && reference.players.length === reference.anchors.length && new Set(reference.anchors.map((a) => a.playerId)).size === reference.anchors.length, "invalid reference bindings");
+    assert14(reference?.version === "live_public_ability_reference_v1" && reference.policyId === policyId, "unsupported authoring reference");
+    assert14(Array.isArray(reference.players) && Array.isArray(reference.anchors) && reference.players.length === reference.anchors.length && new Set(reference.anchors.map((a) => a.playerId)).size === reference.anchors.length, "invalid reference bindings");
     const ids2 = new Set(reference.players.map((p) => p.playerId));
-    assert13(reference.anchors.every((a) => ids2.has(a.playerId) && a.entry.playerId === a.playerId && typeof a.leagueId === "string" && typeof a.role === "string" && specs.filter((s) => s.mode === "group").every((s) => Number.isFinite(a.ratings[s.id]) && a.ratings[s.id] >= 0 && a.ratings[s.id] <= 100)), "invalid reference anchor");
+    assert14(reference.anchors.every((a) => ids2.has(a.playerId) && a.entry.playerId === a.playerId && typeof a.leagueId === "string" && typeof a.role === "string" && specs.filter((s) => s.mode === "group").every((s) => Number.isFinite(a.ratings[s.id]) && a.ratings[s.id] >= 0 && a.ratings[s.id] <= 100)), "invalid reference anchor");
     applyLivePhysicalRosterV1({ players: reference.players, roster: input.roster });
-    assert13(input.roster.entries.length === ids2.size && input.roster.entries.every((e) => ids2.has(e.playerId)), "complete reference roster required");
+    assert14(input.roster.entries.length === ids2.size && input.roster.entries.every((e) => ids2.has(e.playerId)), "complete reference roster required");
     applyLivePhysicalRosterV1({ players: reference.players, roster: { version: "live_physical_roster_v1", sourceId: policyId, entries: reference.anchors.map((a) => a.entry) } });
     const entry = input.roster.entries.find((e) => e.playerId === input.playerId), anchor = reference.anchors.find((a) => a.playerId === input.playerId);
-    assert13(entry && anchor, "unknown player");
+    assert14(entry && anchor, "unknown player");
     return { entry, anchor };
   }
   function quality(entry, spec) {
     const components = spec.mode === "pitchSpeed" ? spec.components.slice(0, 1) : spec.components;
     return components.reduce((sum, c) => {
       const value = numeric(entry, c.path) + c.floor;
-      assert13(value > 0, "nonpositive ability component: " + c.path);
+      assert14(value > 0, "nonpositive ability component: " + c.path);
       return sum + c.direction * Math.log(value);
     }, 0) / components.length;
   }
@@ -12805,8 +12995,8 @@ var KneekuraNativeMatchCore = (() => {
   }
   function editLivePublicAbilityV1(input) {
     const projection = projectLivePublicAbilitiesV1(input), spec = specs.find((s) => s.id === input.abilityId), old = projection.abilities.find((a) => a.id === input.abilityId);
-    assert13(spec && old && Number.isFinite(input.value), "invalid public ability value");
-    assert13(input.value === old.value || input.value >= old.min && input.value <= old.max, "invalid public ability value");
+    assert14(spec && old && Number.isFinite(input.value), "invalid public ability value");
+    assert14(input.value === old.value || input.value >= old.min && input.value <= old.max, "invalid public ability value");
     const copy2 = cloneInert(input.roster);
     const selected = copy2.entries.find((e) => e.playerId === input.playerId);
     const before = input.roster.entries.find((e) => e.playerId === input.playerId);
@@ -12815,7 +13005,7 @@ var KneekuraNativeMatchCore = (() => {
       for (const component of spec.components) {
         const previous = numeric(before, component.path);
         const next = spec.mode === "percent" ? input.value / 100 : spec.mode === "pitchSpeed" ? previous * input.value / old.value : (previous + component.floor) * Math.exp(component.direction * (input.value - old.value) / pointsPerLogUnit) - component.floor;
-        assert13(Number.isFinite(next) && next >= 0, "requested value exceeds this individual profile; inspect detailed controls");
+        assert14(Number.isFinite(next) && next >= 0, "requested value exceeds this individual profile; inspect detailed controls");
         selected.physical[component.path] = next;
         changes.push({ path: component.path, before: previous, after: next });
       }
@@ -12828,7 +13018,7 @@ var KneekuraNativeMatchCore = (() => {
   }
   function previewLivePublicLeagueV1(input) {
     const { entry, anchor } = context(input);
-    assert13(["MLB", "NLB", "NPB", "KBO", "CUSTOM"].includes(input.leagueId), "unsupported preview league");
+    assert14(["MLB", "NLB", "NPB", "KBO", "CUSTOM"].includes(input.leagueId), "unsupported preview league");
     const candidates = input.reference.anchors.filter((a) => a.leagueId === input.leagueId);
     const byId = new Map(input.roster.entries.map((e) => [e.playerId, e]));
     return freeze21({ leagueId: input.leagueId, sampleCount: candidates.length, metrics: specs.map((spec) => {

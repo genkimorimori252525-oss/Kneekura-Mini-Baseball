@@ -71,7 +71,7 @@
     const entry = livePhysicalRoster.entries.find(e => e.playerId === liveRosterPlayerId);
     for (const input of $('live-roster-fields').querySelectorAll('[data-roster-path]')) {
       const spec = liveCatalog.fields.find(f => f.path === input.dataset.rosterPath), pending = liveRosterPending.get(liveRosterPlayerId + ':' + spec.path);
-      input.value = pending ? pending.raw : get(spec.entryPath ? entry : entry.physical, spec.path) ?? '';
+      input.value = pending ? pending.raw : get(spec.entryPath ? entry : entry.physical, spec.path) ?? spec.default ?? '';
       input.setCustomValidity(pending?.error ?? '');
     }
   }
@@ -126,7 +126,7 @@
     for (const [section, title] of [['common', '共通・走塁・守備'], ['batter', '打者'], ['pitcher', '投手']]) {
       const heading = document.createElement('h3'); heading.textContent = title; container.append(heading);
       for (const spec of liveCatalog.fields.filter(f => f.section === section)) {
-        const key = liveRosterPlayerId + ':' + spec.path, root = spec.entryPath ? entry : entry.physical, value = get(root, spec.path);
+        const key = liveRosterPlayerId + ':' + spec.path, root = spec.entryPath ? entry : entry.physical, value = get(root, spec.path) ?? spec.default;
         const wrapper = document.createElement('div'); wrapper.className = 'control';
         const id = 'live-ability-' + (spec.entryPath ? 'entry-' : '') + spec.path.replaceAll('.', '-');
         const label = document.createElement('label'); label.htmlFor = id; label.textContent = spec.label + (spec.unit ? ` (${spec.unit})` : '');

@@ -1,15 +1,23 @@
 ---
-current_task: "MB-20261018-V45-PUBLICATION"
+current_task: "MB-20261018-V46-RELEASE"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "cf85dddbe968911099a9deda3a8e3bafb0d1e32a"
+commit_head: "6a8caf40153d76daba6a5acca34f5db12ca7f615"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V45-PUBLICATION_9f3cd580f0d24448ad774e0103d25001.json"
-updated_at: "2026-10-18T05:08:13.831217+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V46-RELEASE_40a66292802948cdbd3be50651d5a757.json"
+updated_at: "2026-10-18T05:35:01.176696+00:00"
 
 ---
 
-## Latest human priority — v45 single continuous batter view (SCOPED VERIFIED; PUBLISHED)
+## Latest human priority — v46 realistic runner/defense AI (SCOPED VERIFIED; SAVE PENDING)
+
+Human requests safe tag-ups/extra advances and rational SS/outfield division, tunable through existing public/hidden controls. Fixed generic runner legal cues+reaction/race estimates, physical nonforce throw/tag, arrival/pending-decision closure, forced vs protected origin bag, two-out contact run limited to initial flight. Fixed catch-window tie/approach burden, own-home hold/backup abandonment and observed-low-only ground run-through. No position ban/result/league lottery/new public ability. Added optional safety margin0..3/default.35 and pursuit burden.25..4/default1 to maker details; public11/detail42; old packets remain accepted.
+
+Final18files/155tests PASSc42a5eae (50.047s), 20scenariosx3tiers outs13/18/21/allanomalies0; Host9innings/PlayableRules/TagUp/Force included. PriorFAIL427b2eae (old nonforce diagnosis), 14b0751d (old8s/base1 expectation after legal2Badvance) retained; updated test proves actual1,2touch/1controlstep closure/stalecommand cancellation. TSC e7514de4 PASS22.188s. Build f714fcee PASS. HTML251pitches regulation9 freshbe195546 PASS64.358s/no old result fallback; Chrome1200/390/camera16boundariesbb268485PASS21.047s, maker20/public11/detail42/edit+oldJSON+gameimport0b70ab93PASS9.483s. Source105/hash match5a658fa7PASS; source3e2a6f06c24152d2648bb0ae7876910ae3cc0f695f1e0427a9e57cb511539fab, HTMLd6bbcd5c7cb2990028693d968f27e73997c7cd603d2fbaf244b04842ae32ccb0, makerae95ac67686e8fbf1a4c98e10e64a907dc3266742f969a62144775afa56839a2. Release40a66292PASS107ZIPentries/105Source/links/v45helpers+oldHTMLbytepreserved. Images inspected. Paths docs/demos/releases/v46, docs/verification/releases/v46, docs/reports/2026-10-18-v46-running-and-fielding-ai.md.
+
+Next: explicit allowlist commit+normal push existing branch/Draft380, remote/raw artifact verification, deliver ordinarygame+maker. User AGENTS/unrelated untracked preserved. No lock/settings/deps/secret/DB/main merge. Original fullplan IN_PROGRESS, CharterHOLD/allFAIL/UNKNOWN unchanged. Continuous base rounding/leads/slides/multihop relay/full traits including read/route/suitability, officialH/E/remainingrules, empiricalSI+statistics/new100games/realphones, authenticatedNativecontinuousworld remain. Tactical costs are provisional authored policy, not empirical ability calibration.
+
+## Previous human priority — v45 single continuous batter view (SCOPED VERIFIED; PUBLISHED)
 
 Publication verified: implementation/HTML/history/evidence49files in cf85dddbe968911099a9deda3a8e3bafb0d1e32a, normal-pushed EXISTING branch. InitialHTTP408 didnotupdate remote (verified); one-commandHTTP1.1retry succeeded/no persistentconfigchange. Remotehead/PR380head matched, Draftmaintained; raw6files byteexact verified9f3cd580f0d24448ad774e0103d25001/5.796s. Report+docs/verification/releases/v45/publication.json holdproof. PRtitle/bodyrewrittenforfinalv45scope. Metadata-only followup recordsclosure, productunchanged. Deliverlocalv45+GitHubreportlinks; originalwholeplan IN_PROGRESS.
 

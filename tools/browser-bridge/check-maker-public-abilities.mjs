@@ -18,7 +18,7 @@ const close=(a,b,label)=>assert(Math.abs(a-b)<1e-8,label+': '+a+' / '+b);
 const revealAbility=async(page,id)=>{const input=page.locator('[data-public-ability="'+id+'"]');
  if(!await input.isVisible())await page.locator('#live-public-secondary > summary').click();return input;};
 try{
- assert.equal(packet.entries.length,20);assert.equal(catalog.fields.length,40);
+ assert.equal(packet.entries.length,20);assert.equal(catalog.fields.length,42);
  for(const width of [1200,390]){
   const page=await browser.newPage({viewport:{width,height:860},acceptDownloads:true}),errors=[],network=[];
   page.on('pageerror',e=>errors.push(String(e)));page.on('request',r=>{if(!/^(file:|data:|blob:)/.test(r.url()))network.push(r.url());});
@@ -36,7 +36,7 @@ try{
   assert.equal(await page.evaluate(()=>JSON.stringify(window.baseballMaker.getState())),beforeTabs,'tab changes only presentation');
   assert.equal(await page.locator('#live-roster-player option').count(),20);
   assert.equal(await page.locator('#live-roster-internals').getAttribute('open'),null);
-  assert.equal(await page.locator('#live-roster-fields').isVisible(),false);assert.equal(await page.locator('[data-roster-path]').count(),40);
+  assert.equal(await page.locator('#live-roster-fields').isVisible(),false);assert.equal(await page.locator('[data-roster-path]').count(),catalog.fields.length);
   const original=await page.evaluate(()=>({state:window.baseballMaker.getState(),result:window.baseballMaker.getResult(),revision:window.baseballMaker.getRevision()}));
   assert.deepEqual(original.state.livePhysicalRoster,packet);assert(!Object.hasOwn(original.state,'publicAbilities'),'public values have no second stored authority');
   const approved=[];
@@ -76,6 +76,17 @@ try{
   assert.deepEqual(physicalAfterEdits,{result:original.result,revision:original.revision,player:original.state.player},'public editing does not run or rewrite standalone simulation');
   await page.evaluate(p=>window.baseballMaker.importLiveRoster(p),packet);
   await page.locator('#live-roster-internals > summary').click();
+  const tacticsBefore=await page.evaluate(()=>({packet:window.baseballMaker.getLiveRoster(),abilities:window.baseballMaker.getPublicProjection().abilities}));
+  for(const [path,defaultValue,editedValue] of [['baserunningSafetyMarginSeconds',.35,1.2],['fieldingPursuitCostWeight',1,.5]]){
+   const input=page.locator('[data-roster-path="'+path+'"]');
+   close(Number(await input.inputValue()),defaultValue,'omitted tactical control displays its runtime default '+path);
+   assert(tacticsBefore.packet.entries.every(e=>!Object.hasOwn(e.physical,path)),'default display does not author a new physical value '+path);
+   await input.fill(String(editedValue));assert.equal(await input.evaluate(i=>i.validationMessage),'');
+   const after=await page.evaluate(()=>({packet:window.baseballMaker.getLiveRoster(),abilities:window.baseballMaker.getPublicProjection().abilities}));
+   close(after.packet.entries.find(e=>e.playerId===selected).physical[path],editedValue,'hidden tactical edit '+path);
+   assert.deepEqual(after.abilities,tacticsBefore.abilities,'tactical preference preserves all public abilities '+path);
+  }
+  await page.evaluate(p=>window.baseballMaker.importLiveRoster(p),packet);
   await page.locator('[data-roster-path="topSpeedMps"]').fill('0.1');
   const range=await page.evaluate(()=>({packet:window.baseballMaker.getLiveRoster(),projection:window.baseballMaker.getPublicProjection()}));
   const running=range.projection.abilities.find(a=>a.id==='run');assert(running.value<0,'an extreme internal value remains outside the public authoring range');
@@ -142,6 +153,6 @@ try{
  }
  for(const input of report.inputs)assert.equal(sha(await readFile(input.path)),input.sha256);
  report.status='PASS';await writeFile(resolve(evidence,'public-maker-check.json'),JSON.stringify(report,null,2)+'\n');
- console.log(JSON.stringify({status:'PASS',widths:report.views.map(v=>v.width),players:20,publicAbilities:11,internalFields:40,gameImportChecked:!!gameArg}));
+ console.log(JSON.stringify({status:'PASS',widths:report.views.map(v=>v.width),players:20,publicAbilities:11,internalFields:catalog.fields.length,gameImportChecked:!!gameArg}));
 }catch(error){report.status='FAIL';report.error=error.stack;await writeFile(resolve(evidence,'public-maker-check.json'),JSON.stringify(report,null,2)+'\n');throw error;}
 finally{await browser.close();}

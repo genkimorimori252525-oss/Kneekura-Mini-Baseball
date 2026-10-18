@@ -73,6 +73,10 @@ function physical(player:LivePlayerV1):LivePlayerPhysicalV1{
     &&Object.values(p.spinRadPerSecond).every(Number.isFinite),'invalid explicit player SI');
   assert(p.zoneJudgmentStdMeters===undefined||Number.isFinite(p.zoneJudgmentStdMeters)&&p.zoneJudgmentStdMeters>=0&&p.zoneJudgmentStdMeters<=.6,
     'invalid zone judgment SI');
+  assert(p.baserunningSafetyMarginSeconds===undefined||Number.isFinite(p.baserunningSafetyMarginSeconds)&&p.baserunningSafetyMarginSeconds>=0&&p.baserunningSafetyMarginSeconds<=3,
+    'invalid baserunning safety margin');
+  assert(p.fieldingPursuitCostWeight===undefined||Number.isFinite(p.fieldingPursuitCostWeight)&&p.fieldingPursuitCostWeight>=.25&&p.fieldingPursuitCostWeight<=4,
+    'invalid fielding pursuit cost weight');
   return p;
 }
 
@@ -133,16 +137,16 @@ export function createLiveBaseballMatchV1(raw:LiveMatchInputV1){
       const def=input.teams[1-c.team];
       const fielders:LiveFielderV1[]=positions.map(role=>{const playerId=def.defense[role],p=physical(players.get(playerId)!);return{
         playerId,position:placements[role],reactionSeconds:p.reactionSeconds,topSpeedMps:p.topSpeedMps,accelerationMps2:p.accelerationMps2,
-        ...(p.defensiveDecisionSeconds===undefined?{}:{fieldingCognition:{decisionSeconds:p.defensiveDecisionSeconds}}),
+        fieldingCognition:{decisionSeconds:p.defensiveDecisionSeconds??0,pursuitCostWeight:p.fieldingPursuitCostWeight??1},
         gloveSpeedMps:p.gloveSpeedMps,gloveReachMeters:p.gloveReachMeters,gloveRadiusMeters:p.gloveRadiusMeters,
         catchRetention:{ticksPerSecond:tps,ballMassKg:.145,ballRadiusMeters:.0366,pocketRadiusMeters:.14,centerRetentionCapacityJ:p.retentionCapacityJ,
           captureDissipationPowerW:p.captureDissipationPowerW,failedContactRestitution:.2,failedTangentialDamping:.35,failedSpinDamping:.2},
         transferSeconds:p.transferSeconds,throwSpeedMps:p.throwSpeedMps,throwBackspinRadPerSecond:120,
         ...(p.throwDirectionStdRadians===undefined?{}:{throwDirectionStdRadians:p.throwDirectionStdRadians})};});
       const runnerSpecs=[{runnerId:c.batterPlayerId,initialBase:0 as const,position:ready.actors.find(a=>a.playerId===c.batterPlayerId)!.position,
-        topSpeedMps:bp.topSpeedMps,accelerationMps2:bp.accelerationMps2,reactionSeconds:bp.reactionSeconds},
+        topSpeedMps:bp.topSpeedMps,accelerationMps2:bp.accelerationMps2,reactionSeconds:bp.reactionSeconds,advanceSafetyMarginSeconds:bp.baserunningSafetyMarginSeconds??.35},
         ...(['first','second','third'] as const).flatMap((key,i)=>{const runnerId=beforeMatch.bases[key];if(!runnerId)return[];const p=physical(players.get(runnerId)!);
-          return[{runnerId,initialBase:(i+1) as 1|2|3,topSpeedMps:p.topSpeedMps,accelerationMps2:p.accelerationMps2,reactionSeconds:p.reactionSeconds}];})];
+          return[{runnerId,initialBase:(i+1) as 1|2|3,topSpeedMps:p.topSpeedMps,accelerationMps2:p.accelerationMps2,reactionSeconds:p.reactionSeconds,advanceSafetyMarginSeconds:p.baserunningSafetyMarginSeconds??.35}];})];
       const outgoingMoment={...pitch.contactMoment,ball:{...pitch.contactMoment.ball,velocity:pitch.contact.exitVelocity,spin:pitch.contact.exitSpin}};
       outgoingBallMoment=outgoingMoment;
       field=simulateLiveFieldPlayV1({ball:outgoingMoment,orientation:pitch.contactOrientation??IDENTITY_QUATERNION,physics:LIVE_MATCH_PHYSICS_V1,

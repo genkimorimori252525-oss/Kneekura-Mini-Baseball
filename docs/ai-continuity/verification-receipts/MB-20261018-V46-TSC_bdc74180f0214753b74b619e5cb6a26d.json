@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V46-TSC",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-18T05:23:22.317+00:00",
+  "elapsed_ms": 24843,
+  "git_head": "6a8caf40153d76daba6a5acca34f5db12ca7f615",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V46-TSC_bdc74180f0214753b74b619e5cb6a26d.log",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "receipt_id": "MB-20261018-V46-TSC_bdc74180f0214753b74b619e5cb6a26d"
+}

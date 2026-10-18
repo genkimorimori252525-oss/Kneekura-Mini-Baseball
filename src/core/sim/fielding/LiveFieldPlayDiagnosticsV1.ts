@@ -58,6 +58,7 @@ export type ThrowExchangeDiagnosticV1 = Readonly<{
   throwerId: string;
   receiverId: string;
   base: BaseballBase;
+  forcePlay: boolean;
   cancelledMidFlight: boolean;
   cancelledAtElapsedSeconds: number | null;
   receptionOutcome: 'glove_secured' | 'glove_deflected' | 'body_contact' | 'unfielded';
@@ -288,6 +289,7 @@ export function diagnoseLiveFieldPlayV1(
       throwerId: rel.playerId!,
       receiverId,
       base,
+      forcePlay: rel.reason !== 'tag_play',
       cancelledMidFlight,
       cancelledAtElapsedSeconds: cancelEvent?.elapsedSeconds ?? null,
       receptionOutcome,
@@ -399,6 +401,7 @@ export function diagnoseLiveFieldPlayV1(
       });
     }
     if (
+      th.forcePlay &&
       th.receptionOutcome === 'glove_secured' &&
       !th.baseTouched &&
       th.secureElapsedSeconds !== null &&
@@ -520,7 +523,7 @@ export function formatLiveFieldPlayDiagnosticReportV1(diag: ReturnType<typeof di
   }
   for (const th of diag.throws) {
     lines.push(
-      `  Throw -> Base ${th.base}: ${th.throwerId} -> ${th.receiverId} rel=${rel(th.releaseElapsedSeconds)} outcome=${th.receptionOutcome} sec=${rel(th.secureElapsedSeconds)} runner=${rel(th.runnerArrivalElapsedSeconds)} distToBag=${th.receiverDistanceToBaseAtReceptionMeters?.toFixed(2) ?? 'n/a'}m minGloveGap=${th.minGloveGapMeters.toFixed(3)}m@${rel(th.closestApproachElapsedSeconds)} minBodyGap=${th.minBodyGapMeters.toFixed(3)}m cancelAt=${rel(th.cancelledAtElapsedSeconds)} baseTouched=${th.baseTouched}${th.frozenByTransferBeforeBaseTouch ? ' [FROZEN_BY_TRANSFER]' : ''}`,
+      `  Throw -> Base ${th.base}: ${th.throwerId} -> ${th.receiverId} play=${th.forcePlay ? 'force' : 'tag'} rel=${rel(th.releaseElapsedSeconds)} outcome=${th.receptionOutcome} sec=${rel(th.secureElapsedSeconds)} runner=${rel(th.runnerArrivalElapsedSeconds)} distToBag=${th.receiverDistanceToBaseAtReceptionMeters?.toFixed(2) ?? 'n/a'}m minGloveGap=${th.minGloveGapMeters.toFixed(3)}m@${rel(th.closestApproachElapsedSeconds)} minBodyGap=${th.minBodyGapMeters.toFixed(3)}m cancelAt=${rel(th.cancelledAtElapsedSeconds)} baseTouched=${th.baseTouched}${th.frozenByTransferBeforeBaseTouch ? ' [FROZEN_BY_TRANSFER]' : ''}`,
     );
   }
   if (diag.anomalies.length > 0) {

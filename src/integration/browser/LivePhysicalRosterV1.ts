@@ -10,6 +10,8 @@ export type LivePhysicalAbilityControlsV1 = Readonly<{
   attackAngleDegrees?: number; pullAngleDegrees?: number; badBallControl?: number; defensiveDecisionSeconds?: number;
   /** Course-estimate uncertainty, independent of willingness to chase/swing. */
   zoneJudgmentStdMeters?: number;
+  /** Tactical preferences; omitted values retain the controller defaults. */
+  baserunningSafetyMarginSeconds?: number; fieldingPursuitCostWeight?: number;
   preContactSeconds?: number; followThroughSeconds?: number; contactDepthMeters?: number;
   throwDirectionStdRadians?: number;
   swingDecision?: Readonly<{ approach: 'AUTO' | 'TAKE' | 'SWING'; threshold: number; aggressionWeight: number }>;
@@ -28,7 +30,8 @@ const scalarKeys = ['batLengthM', 'batMassKg', 'swingRate', 'timingStdSeconds', 
   'commandStdMeters', 'reactionSeconds', 'topSpeedMps', 'accelerationMps2', 'gloveSpeedMps', 'gloveReachMeters', 'gloveRadiusMeters',
   'retentionCapacityJ', 'captureDissipationPowerW', 'transferSeconds', 'throwSpeedMps', 'maximumPitchSpeedMps',
   'maximumSweetSpotSpeedMps', 'targetSweetSpotSpeedMps', 'motorLatencySeconds', 'technicalTimingOffsetSeconds', 'sweetSpotT',
-  'attackAngleDegrees', 'pullAngleDegrees', 'badBallControl', 'defensiveDecisionSeconds', 'preContactSeconds', 'followThroughSeconds', 'contactDepthMeters', 'throwDirectionStdRadians', 'zoneJudgmentStdMeters'] as const;
+  'attackAngleDegrees', 'pullAngleDegrees', 'badBallControl', 'defensiveDecisionSeconds', 'preContactSeconds', 'followThroughSeconds', 'contactDepthMeters', 'throwDirectionStdRadians', 'zoneJudgmentStdMeters',
+  'baserunningSafetyMarginSeconds', 'fieldingPursuitCostWeight'] as const;
 const physicalKeys: readonly string[] = ['basis', ...scalarKeys, 'spinRadPerSecond', 'clipId', 'swingDecision'];
 const bounds: Partial<Record<typeof scalarKeys[number], readonly [number, number]>> = {
   batLengthM: [.55, 1.2], batMassKg: [.4, 1.8], swingRate: [.3, 3], timingStdSeconds: [0, .08], aimStdMeters: [0, .35],
@@ -40,6 +43,7 @@ const bounds: Partial<Record<typeof scalarKeys[number], readonly [number, number
   preContactSeconds: [.005, 2], followThroughSeconds: [.005, 2], contactDepthMeters: [.001, 2],
   throwDirectionStdRadians: [0, .12],
   zoneJudgmentStdMeters: [0, .6],
+  baserunningSafetyMarginSeconds: [0, 3], fieldingPursuitCostWeight: [.25, 4],
 };
 const nonnegative = new Set<string>(['reactionSeconds', 'transferSeconds', 'defensiveDecisionSeconds']);
 const freeze = <T>(value: T): T => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
