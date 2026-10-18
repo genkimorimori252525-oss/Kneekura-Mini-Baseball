@@ -943,3 +943,4 @@ Only record verification that was actually performed.
 | MB-20261018-V52-CAMERA | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V52-CAMERA_20c18bedb105438792fa744e92d694ee.json |
 | MB-20261018-V52-PACKAGE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V52-PACKAGE_a926d09c93a24ab0a8071540f0105306.json |
 | MB-20261018-V52-RELEASE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V52-RELEASE_a7ee82b352984fc7be47212b8d5c6694.json |
+| MB-20261018-V52-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V52-PUBLICATION_2148848be23744c8935f7e0c17b3b518.json |

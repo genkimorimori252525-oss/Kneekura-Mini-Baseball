@@ -1,15 +1,15 @@
 ---
-current_task: "MB-20261018-V52-RELEASE"
+current_task: "MB-20261018-V52-PUBLICATION"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "f5be0639f0a8ffbecfa08ec403b8025733e34e35"
+commit_head: "969e3d51076a7b141d4ea0c2e7c73db61cf9b43d"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V52-RELEASE_a7ee82b352984fc7be47212b8d5c6694.json"
-updated_at: "2026-10-18T10:01:10.693539+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V52-PUBLICATION_2148848be23744c8935f7e0c17b3b518.json"
+updated_at: "2026-10-18T10:03:12.697177+00:00"
 
 ---
 
-## Latest human priority — v52 v49 batter restore / bounded pursuit / pitcher reaction (SCOPED VERIFIED; PUBLICATION NEXT)
+## Latest human priority — v52 v49 batter restore / bounded pursuit / pitcher reaction (SCOPED VERIFIED; PUBLISHED)
 
 User revokes v50 lv27 composition/takefreeze/700ms swingend hold; restored v49 observer baseline. Incoming pitch-only gaze gets radial softband .006-.026rad and gain .55-.92 from EXISTING meet(aimStdMeters+timingStdSeconds)+vision(zoneJudgmentStdMeters). No new rating/physics. Highskill notperfectlock, lowskill stillpursues macro motion. live-soft-pitch-batter-view.js derives v49 controller; no v50wrapper. V49bodyeye/aimbrace/fieldlaws inherited; physical bat data/positions already identical in v49/v51. Changed incoming pose can seed changed later orientation, not allposthitpose equality claimed.
 
@@ -19,7 +19,7 @@ Soft oldRED361815f0 -> GREEN3e286501 PASS125ms. Synthetic smalljitter old.002605
 
 Browser20c18bed PASS24.452s1200/390/12actualCore+batSHA equalv49-currentCore reference ANDv51; R/Lv49eye-optics-brace/no700-orlv27/other3cams12samples/5heldcams/UI4stage-pitchmarks-zone-4px55ms/playrewind/noerrors+externalnetwork. Actual profilegain .906607/.603598, bands .006724/.023103rad, bothnonzero macroangle .180190/.052472rad. Actualpitch0 hold .757719sec+180ms blend -> legacyfielderhandoff; nextpitchmoundrestore. Pselfprocessing dedicatednewgamecase NOT covered; retained existing branch/pure proof scope. Firstbrowser2028d047 FAIL was checker requiringpositive response insideband; corrected bandzero/outsidepositive+bothactualresponse without productchanges; rawFAIL retained. Imagesviewed.
 
-PACKAGEa926d09c PASS952ms; RELEASEa7ee82b3 PASS108ms verifiesbytes/pins/oldhelper-artifacts/maker/links. Core108inputs compiled01f25940860caff6f9a92a9d8d11d876d87056ed173d8589374226f7c4eccd8f EXACTv51; no src/dist/deps/lock/config/secrets/DB changes. V51280tests+320pitch9regulation remain sameCore existingevidence, not newlyrerun. Release docs/demos/releases/v52,QA docs/verification/releases/v52/report/H24/LATEST ready. NEXTexplicitallowliststage/blobbyte/secret/CRLFawarewhitespace checks, samebranch/Draft380 commitpush+rawpublication. No mainmerge, preserve userAGENTS/unrelated. Originalfullplan IN_PROGRESS, residuals and CHARTER_UNAPPROVED/HOLD/allFAIL UNKNOWN preserved. Coefficients authoreddisplay policy not neural/realplayer calibration.
+PACKAGEa926d09c PASS952ms; RELEASEa7ee82b3 PASS108ms verifiesbytes/pins/oldhelper-artifacts/maker/links. Core108inputs compiled01f25940860caff6f9a92a9d8d11d876d87056ed173d8589374226f7c4eccd8f EXACTv51; no src/dist/deps/lock/config/secrets/DB changes. V51280tests+320pitch9regulation remain sameCore existingevidence, not newlyrerun. Release docs/demos/releases/v52,QA docs/verification/releases/v52/report/H24/LATEST published57files in 969e3d51076a7b141d4ea0c2e7c73db61cf9b43d via normalpush samebranch/Draft380; PRtitle/body updated.56staged-productfiles blobbyteexact,47nonlog CRLFaware whitespacePASS,credentialpattern0,oversize0; no src/dist edits. PUBLICATION2148848b PASS6.890s: remotehead/PRhead match,OpenDraft,9rawfiles byteexact. publication.json preserves proof. Metadata-only closurecommit follows; product unchanged. Scoped request delivered; originalplan retains prior residuals. No mainmerge, preserve userAGENTS/unrelated. Originalfullplan IN_PROGRESS, residuals and CHARTER_UNAPPROVED/HOLD/allFAIL UNKNOWN preserved. Coefficients authoreddisplay policy not neural/realplayer calibration.
 
 ## Previous human priority — v51 teammate avoidance / spacing (SCOPED VERIFIED; PUBLISHED)
 
