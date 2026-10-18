@@ -1,12 +1,18 @@
 # 最新の再開入口 — 2026-10-19
 
-現在は **調整室v62／通常試合v62／メーカーv62**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
+現在は **調整室v63／通常試合v63／共通メーカーv62**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
 
-- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v62/README.md)
-- [原因・変更・最終検証・限界](../reports/2026-10-19-v62-pitcher-view-release.md)
-- [開発史](../history/README.md) / [原因別事例H35](../history/INCIDENTS.md)
+- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v63/README.md)
+- [原因・変更・最終検証・限界](../reports/2026-10-19-v63-batter-head-coupling.md)
+- [開発史](../history/README.md) / [原因別事例H37](../history/INCIDENTS.md)
 - [元の全要求・計画・受入条件](2026-10-15-mini-baseball/00-START-HERE.md)
 - [v50の打者カメラ](../reports/2026-10-18-v50-v27-batter-camera.md) / [v49の守備責任・裁定](../reports/2026-10-18-v49-positional-defense.md) / [v47の中継・旋回](../reports/2026-10-18-v47-relay-rounding.md)
+
+## v63の現在地
+
+人間が「v59のスイング＋改善見逃し」をデフォルト修正するよう明示。新規起動では判断前とSWINGはv59基準、TAKE判断後だけ同期投球＋絶対選球眼へ32ms移行する。バットの観測済み軸回転に頭をわずかに結合し、停止感を緩和。初期係数.025、許容角.04rad、最大角速度.35rad/s。調整室Aはv59基準、Bは新初期値で、能力反映チェック／身体連動／既存安定設定を調整できる。通常HTMLも新初期値。旧JSONは旧能力ON／身体連動0で移行し、旧設定を勝手に変更しない。
+
+[実装と原証拠](../reports/2026-10-19-v63-batter-head-coupling.md)。実18球中左右8スイング、非defaultSIを含むv59復元／v61明示互換、早遅curve、6見逃し捕球固定、静止bat、未来poison／seek、PC390px、同一6球のSource/bat exact、JSON/session、22/55ms、旧配布不変を検証。Coreはv62の865078dc/114入力とbyte同一。頭部応答は実測ではなく仮の表示モデル。元全計画・未達・原FAIL/UNKNOWN/CharterHOLDは継続する。
 
 ## v62の現在地
 
