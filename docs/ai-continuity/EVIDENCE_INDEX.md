@@ -1022,3 +1022,4 @@ Only record verification that was actually performed.
 | MB-20261019-V56-DISPLAY | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V56-DISPLAY_f5e7af4515064f53ae11931dd9563396.json |
 | MB-20261019-V56-PACKAGE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V56-PACKAGE_46b81545ed124d1bb3a57df8c39fc444.json |
 | MB-20261019-V56-STAGING | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V56-STAGING_d0bf9b40ba674758abc272616f2fac83.json |
+| MB-20261019-V56-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V56-PUBLICATION_a584921b8cc84705857d21680b540cf8.json |

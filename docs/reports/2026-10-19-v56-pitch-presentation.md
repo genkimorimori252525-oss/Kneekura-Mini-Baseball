@@ -35,3 +35,5 @@ Native CoreのSHAは `4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423
 再生成: `node tools/browser-bridge/build-v56.mjs`。編集元は `v56-live-presentation.mjs`、`live-pitch-ball-cadence-v56.js`、`live-camera-tuning-batter-view-v56.js`、`live-ball-display-controls-v56.js`、`camera-workbench-v56.js/html`。旧版の公開HTMLやbuilderは上書きしない。
 
 通常HTML SHA256: `331f5f9a3bafb78ba2ae5009ba25fb795eeb08d5f42c85db3844c2d186ec32c5`。調整室: `90e955f8fb1fa6432de563c7a44afab2b1e4ec644ec973c76cd395a0edcbebea`。CCG auditは原来のCHARTER_UNAPPROVEDでHOLD（exit1）を維持し、製品試験PASSへ読み替えない。
+
+GitHub保存: 製品コミット `e0e643b22dca1c4cd1796e269258129d07291738`。既存branch/Draft PR380へ通常push、main未マージ。STAGINGd0bf9b40 PASS0.545秒、staged raw bytes・credential pattern0・非ログwhitespaceを確認し、AGENTS.mdと無関係ファイルを除外。PUBLICATIONa584921b PASS3.045秒、remote/PR headと実raw11ファイルが一致。[公開証拠](../verification/releases/v56/publication.json)。後続記録commitは製品HTMLを変えない。
