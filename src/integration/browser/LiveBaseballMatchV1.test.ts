@@ -10,6 +10,22 @@ it('does not pre-generate an initial pitch, and freezes observations independent
   expect(initial.pitchCount).toBe(0);expect(pitch.frames.length).toBeGreaterThan(3);expect(Object.isFrozen(pitch.frames)).toBe(true);
   expect(JSON.stringify(input)).toBe(before);expect(initial.nativeAuthentication).toBe(false);
 });
+it('copies each current analytic runner velocity into its Host actor frame',()=>{
+  const host=createLiveBaseballMatchV1(liveMatchFixture(2468));
+  let observed=false,moving=0;
+  for(let i=0;i<30&&!observed;i++){
+    const record=host.issuePitch(command),field=record.play.field;
+    if(!field)continue;
+    for(const source of field.frames)for(const runner of source.runners){
+      if(runner.retired)continue;
+      const shown=record.frames.find(f=>f.tick===source.tick&&f.actors.some(a=>a.playerId===runner.runnerId&&a.role==='runner'));
+      expect(shown?.actors.find(a=>a.playerId===runner.runnerId)?.velocity).toEqual(runner.velocity);
+      if(Math.hypot(runner.velocity.x,runner.velocity.y,runner.velocity.z)>0)moving++;
+    }
+    observed=true;
+  }
+  expect(observed).toBe(true);expect(moving).toBeGreaterThan(0);
+});
 it('plays a mixed physical game through regulation without a replay frontier or old engine result',()=>{
   const host=createLiveBaseballMatchV1(liveMatchFixture(2468));let pitches=0,contacts=0,fieldPlays=0,halfChanges=0;
   while(!host.inspect().finished&&pitches<700){const before=host.inspect().match;

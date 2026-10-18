@@ -79,7 +79,7 @@ it('holds second on a shallow caught fly defended by strong arms', () => {
 });
 
 it('uses the hidden safety margin in the actual runner decision', () => {
-  const raw = fixture(), input = { ...raw, fielders: raw.fielders.map(f => ({ ...f, throwSpeedMps: 16 })) },
+  const raw = fixture(), input = { ...raw, fielders: raw.fielders.map(f => ({ ...f, throwSpeedMps: 8 })) },
     ordinary = simulateLiveFieldPlayV1({ ...input, runners: input.runners.map(r => ({ ...r, advanceSafetyMarginSeconds: 0 })) }),
     careful = simulateLiveFieldPlayV1({ ...input, runners: input.runners.map(r => ({ ...r, advanceSafetyMarginSeconds: 3 })) });
   expect(departure(ordinary)).toBeDefined();
@@ -136,13 +136,15 @@ it('throws home after the force dissolves and retires the runner only by an actu
     catcher.glove.z - runner.position.z)).toBeLessThanOrEqual(.28 + 1e-8);
 });
 
-it('reevaluates a safe next advance after touching third instead of closing the held-ball play', () => {
+it('commits a safe next advance through third instead of closing the held-ball play', () => {
   const raw = fixture(), result = simulateLiveFieldPlayV1({ ...raw,
     fielders: raw.fielders.map(f => ({ ...f, throwSpeedMps: 4 })),
   }), touches = result.ruleFacts.runnerTouches.filter(f => f.runnerId === runnerId);
   expect(result.end.complete).toBe(true);
   expect(touches.map(f => f.base)).toEqual([3, 4]);
-  expect(result.diagnostics.aiTelemetry.runnerDecisions.some(d => d.runnerId === runnerId && d.targetBase === 4 && d.advance)).toBe(true);
+  const through = result.diagnostics.aiTelemetry.runnerMotions.find(m => m.runnerId === runnerId && m.throughBases.join(',') === '3,4')!;
+  expect(through).toBeDefined();
+  expect(through.elapsedSeconds).toBeLessThan(thirdTouch(result)!.elapsedSeconds);
   expect(result.finalRunners.find(r => r.runnerId === runnerId)).toMatchObject({ scored: true, retired: false });
 });
 

@@ -71,9 +71,16 @@
     const entry = livePhysicalRoster.entries.find(e => e.playerId === liveRosterPlayerId);
     for (const input of $('live-roster-fields').querySelectorAll('[data-roster-path]')) {
       const spec = liveCatalog.fields.find(f => f.path === input.dataset.rosterPath), pending = liveRosterPending.get(liveRosterPlayerId + ':' + spec.path);
-      input.value = pending ? pending.raw : get(spec.entryPath ? entry : entry.physical, spec.path) ?? spec.default ?? '';
+      input.value = pending ? pending.raw : rosterFieldValue(entry, spec) ?? '';
       input.setCustomValidity(pending?.error ?? '');
     }
+  }
+  function rosterFieldValue(entry, spec) {
+    const authored = get(spec.entryPath ? entry : entry.physical, spec.path);
+    if (authored !== undefined || !spec.defaultFrom) return authored ?? spec.default;
+    const physical = core.applyLivePhysicalRosterV1({ players: liveCatalog.players, roster: livePhysicalRoster })
+      .players.find(p => p.playerId === entry.playerId).physical;
+    return get(physical, spec.defaultFrom) * (spec.defaultScale ?? 1);
   }
   function renderPublicAbilities(identity) {
     if (!livePublicReference) return;
@@ -126,7 +133,7 @@
     for (const [section, title] of [['common', '共通・走塁・守備'], ['batter', '打者'], ['pitcher', '投手']]) {
       const heading = document.createElement('h3'); heading.textContent = title; container.append(heading);
       for (const spec of liveCatalog.fields.filter(f => f.section === section)) {
-        const key = liveRosterPlayerId + ':' + spec.path, root = spec.entryPath ? entry : entry.physical, value = get(root, spec.path) ?? spec.default;
+        const key = liveRosterPlayerId + ':' + spec.path, value = rosterFieldValue(entry, spec);
         const wrapper = document.createElement('div'); wrapper.className = 'control';
         const id = 'live-ability-' + (spec.entryPath ? 'entry-' : '') + spec.path.replaceAll('.', '-');
         const label = document.createElement('label'); label.htmlFor = id; label.textContent = spec.label + (spec.unit ? ` (${spec.unit})` : '');
@@ -156,7 +163,7 @@
               + (priorAuthoringSuffix.includes(':public-edited') ? ':public-edited' : '') + ':maker-edited-r' + (liveRosterRevision + 1);
             const accepted = validateLiveRoster(next); livePhysicalRoster = accepted.packet; liveRosterRevision++;
             liveRosterPending.delete(key); input.setCustomValidity(''); if (!liveRosterPending.size) clearProblem();
-            refreshPublicValues();
+            refreshInternalValues(); refreshPublicValues();
           } catch (error) {
             liveRosterPending.set(key, { raw: input.value, label: spec.label, playerName: identity.name, error: error.message });
             input.setCustomValidity(error.message);

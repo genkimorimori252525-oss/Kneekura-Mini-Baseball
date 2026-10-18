@@ -4,7 +4,8 @@ import { createHash } from 'node:crypto';
 import { resolve,dirname } from 'node:path';
 import vm from 'node:vm';
 import { build } from 'esbuild';
-const [beforeArgument,evidenceArgument]=process.argv.slice(2);assert.ok(beforeArgument&&evidenceArgument,'preserved original Source and NEW evidence JSON required');
+const [beforeArgument,evidenceArgument]=process.argv.slice(2),cameraOnly=beforeArgument==='--camera-only';
+assert.ok(beforeArgument&&evidenceArgument,'preserved original Source (or --camera-only) and NEW evidence JSON required');
 const evidence=resolve(evidenceArgument);assert.ok(!existsSync(evidence));mkdirSync(dirname(evidence),{recursive:true});
 const helperPath=resolve('tools/browser-bridge/live-field-camera.js'),helper=readFileSync(helperPath,'utf8');
 const context=vm.createContext({});vm.runInContext(helper,context);const observe=context.KneekuraLiveFieldCamera.observe;
@@ -45,6 +46,51 @@ const noCatchClock=structuredClone(record);delete noCatchClock.play.field.facts[
 assert.equal(observe({record:noCatchClock,frame:frame(16,0,'A'),bases}).target,undefined,'missing catch clock fails closed');
 const cancelled=structuredClone(record);cancelled.play.field.diagnostics.throwDecisions=[{elapsedSeconds:15.5,reason:'force_target_no_longer_available'}];
 assert.equal(observe({record:cancelled,frame:frame(16,0,'A'),bases}).target,undefined,'cancelled command is not a current throw goal');
+// A relay hand command aims at its actual hop recipient, independently of the
+// eventual out base. Each release resets its own midpoint progress fence.
+const relayAimB={x:8,y:1,z:6},relayAimC={x:14,y:1,z:14},relayOrigin={x:0,y:1,z:0};
+const relayFrame=(tick,position,possessedBy=null)=>({...frame(tick,position.x,possessedBy),ball:{position},
+ actors:[a('A',0),{playerId:'B',position:relayAimB},{playerId:'C',position:relayAimC}]});
+const along=(from,to,fraction)=>({x:from.x+(to.x-from.x)*fraction,y:1,z:from.z+(to.z-from.z)*fraction});
+const relayFrames=[relayFrame(10,relayOrigin,'A'),relayFrame(16,relayOrigin,'A'),relayFrame(20,relayOrigin),
+ relayFrame(23,along(relayOrigin,relayAimB,.48)),relayFrame(24,along(relayOrigin,relayAimB,.5)),
+ relayFrame(25,along(relayOrigin,relayAimB,.6)),relayFrame(26,along(relayOrigin,relayAimB,.4)),relayFrame(30,relayAimB,'B'),
+ relayFrame(36,relayAimB,'B'),relayFrame(40,relayAimB),relayFrame(41,along(relayAimB,relayAimC,.48)),
+ relayFrame(42,along(relayAimB,relayAimC,.5)),relayFrame(47,along(relayAimB,relayAimC,.7)),relayFrame(50,relayAimC,'C')];
+const relayFacts=[{...facts[0]}, {...facts[1],base:2,target:relayAimB}, {...facts[2]},
+ {...facts[3],base:2,position:relayAimB,target:relayAimC}, {...facts[4]}];
+const relayCommands=[{playerId:'A',base:2,from:15,target:relayAimB}, {playerId:'B',base:2,from:32,target:relayAimC}];
+const relayRecord={frames:relayFrames,play:{field:{facts:relayFacts,
+ frames:relayFrames.map(f=>({...f,elapsedSeconds:f.tick,fielders:f.actors})),diagnostics:{handPreparationProofs:relayCommands}}}};
+const relayBefore=JSON.stringify(relayRecord),relayAt=tick=>plain(observe({record:relayRecord,
+ frame:relayFrames.find(f=>f.tick===tick),bases,defaultObserverPlayerId:'A'}));
+assert.deepEqual(relayAt(16).target,relayAimB,'issued first-hop aim overrides the final out base');
+assert.deepEqual(relayAt(36).target,relayAimC,'new holder uses its own issued hop aim');
+for(const [tick,id,releaseTick,switched] of [[20,'A',20,false],[23,'A',20,false],[24,'B',20,true],
+ [26,'B',20,true],[40,'B',40,false],[41,'B',40,false],[42,'C',40,true],[47,'C',40,true]]){
+ const out=relayAt(tick),source=relayFrames.find(f=>f.tick===tick);
+ assert.equal(out.observerPlayerId,id);assert.equal(out.handoff.releaseTick,releaseTick);assert.equal(out.handoff.switched,switched);
+ assert.deepEqual(out.target,source.ball.position,'a free relay ball is followed at its current Source position');
+ assert.equal(out.targetBasis,'CURRENT_SOURCE_BALL');
+}
+assert.deepEqual(relayAt(24).handoff.goal,relayAimB);assert.deepEqual(relayAt(42).handoff.goal,relayAimC);
+assert.equal(relayAt(30).observerPlayerId,'B');assert.equal(relayAt(50).observerPlayerId,'C');
+assert.equal(JSON.stringify(relayRecord),relayBefore,'relay observation does not mutate Source');
+const issuedWithoutFuturePayload={...relayCommands[0],get through(){throw new Error('FUTURE HAND THROUGH READ');},
+ get controlPoints(){throw new Error('FUTURE HAND PATH READ');}};
+const relayFenced={...relayRecord,frames:[...relayFrames,futureFrame],play:{field:{...relayRecord.play.field,
+ facts:[...relayFacts,futureFact],diagnostics:{handPreparationProofs:[issuedWithoutFuturePayload,relayCommands[1],
+ {from:1e9,get playerId(){throw new Error('FUTURE RELAY HOLDER READ');},get target(){throw new Error('FUTURE RELAY AIM READ');}}]}}}};
+assert.deepEqual(plain(observe({record:relayFenced,frame:relayFrames[1],bases}).target),relayAimB);
+const malformedAim=structuredClone(relayRecord);malformedAim.play.field.diagnostics.handPreparationProofs[0].target={x:NaN,y:1,z:6};
+assert.deepEqual(plain(observe({record:malformedAim,frame:relayFrames[1],bases}).target),bases.second,'invalid optional aim retains legacy base fallback');
+const cameraChecks={prefixPoisonGuards:true,pendingCatchNotPromoted:true,legacyMissingReceiverNotGuessed:true,
+ newCustodyCycleInvalidatesOldGoal:true,readyFrameWithoutRecordSafe:true,sourceMutation:false,
+ relayIssuedHopAim:true,relayCurrentBallFollow:true,relayPerHopMidpointHandoff:true,relayProgressDoesNotReverseHandoff:true};
+if(cameraOnly){
+ const report={status:'PASS',helperPath,helperSha256:sha(helper),...cameraChecks};
+ writeFileSync(evidence,JSON.stringify(report,null,2),{flag:'wx'});console.log(JSON.stringify({...report,evidence}));process.exit(0);
+}
 // Verify exact physical output equality against the preserved pre-metadata
 // implementation. Only the newly exposed release metadata is stripped.
 const sourcePath=resolve('src/core/sim/fielding/LiveFieldPlayV1.ts'),testSource=readFileSync('src/core/sim/fielding/LiveFieldPlayV1.test.ts','utf8');
@@ -74,5 +120,5 @@ for(const release of releases){assert.equal(typeof release.receiverPlayerId,'str
 }
 const report={status:'PASS',helperPath,helperSha256:sha(helper),sourceBeforeSha256:sha(readFileSync(beforeArgument)),sourceAfterSha256:sha(readFileSync(sourcePath)),
  physicalResultsEqualExceptAdditiveReleaseMetadata:true,unchangedPhysicalResultsSha256:sha(JSON.stringify(oldResults)),cases:2,actualHandoffs:handoffs,
- prefixPoisonGuards:true,pendingCatchNotPromoted:true,legacyMissingReceiverNotGuessed:true,newCustodyCycleInvalidatesOldGoal:true,readyFrameWithoutRecordSafe:true,sourceMutation:false};
+ ...cameraChecks};
 writeFileSync(evidence,JSON.stringify(report,null,2),{flag:'wx'});console.log(JSON.stringify({status:report.status,physicalResultsEqual:true,actualThrows:releases.length,helperSha256:report.helperSha256,evidence}));

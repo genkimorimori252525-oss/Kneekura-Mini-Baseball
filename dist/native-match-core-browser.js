@@ -866,21 +866,21 @@ var KneekuraNativeMatchCore = (() => {
     if (distance6 > contactDistance) {
       return null;
     }
-    const normal3 = distance6 > EPSILON ? scale(batToBall, 1 / distance6) : normalize(scale(pitch.velocity, -1));
+    const normal4 = distance6 > EPSILON ? scale(batToBall, 1 / distance6) : normalize(scale(pitch.velocity, -1));
     const leverArm = subtract(nearest.point, swing.pose.grip);
     const localBatVelocity = add(
       swing.linearVelocity,
       cross(swing.angularVelocity, leverArm)
     );
     const relativeVelocity = subtract(pitch.velocity, localBatVelocity);
-    const normalSpeed = dot(relativeVelocity, normal3);
+    const normalSpeed = dot(relativeVelocity, normal4);
     if (normalSpeed >= 0) {
       return null;
     }
-    const relativeNormal = scale(normal3, normalSpeed);
+    const relativeNormal = scale(normal4, normalSpeed);
     const relativeTangent = subtract(relativeVelocity, relativeNormal);
     const postRelativeNormal = scale(
-      normal3,
+      normal4,
       -parameters.restitution * normalSpeed
     );
     const postRelativeTangent = scale(
@@ -893,17 +893,17 @@ var KneekuraNativeMatchCore = (() => {
     );
     const tangentSlip = subtract(relativeTangent, postRelativeTangent);
     const spinDelta = scale(
-      cross(normal3, tangentSlip),
+      cross(normal4, tangentSlip),
       parameters.spinTransfer / parameters.ballRadius
     );
     const exitSpin = add(pitch.spin, spinDelta);
-    const contactPoint = add(nearest.point, scale(normal3, parameters.batRadius));
+    const contactPoint = add(nearest.point, scale(normal4, parameters.batRadius));
     return {
       tick: pitch.tick,
       ballCenter: pitch.position,
       point: contactPoint,
       batPoint: nearest.point,
-      normal: normal3,
+      normal: normal4,
       segmentT: nearest.t,
       exitVelocity,
       exitSpin
@@ -3949,17 +3949,17 @@ var KneekuraNativeMatchCore = (() => {
       if (Object.keys(one.orientation).reduce((v2, k) => v2 + one.orientation[k] * next[k], 0) < 0)
         next = { x: -next.x, y: -next.y, z: -next.z, w: -next.w };
       const q = normalizeQuaternion(multiplyQuaternions(next, { x: -one.orientation.x, y: -one.orientation.y, z: -one.orientation.z, w: one.orientation.w }));
-      const sine = Math.hypot(q.x, q.y, q.z), angle = 2 * Math.atan2(sine, Math.max(0, q.w));
-      const omega = sine < 1e-12 ? zero() : scale8({ x: q.x, y: q.y, z: q.z }, angle / (sine * dt));
+      const sine = Math.hypot(q.x, q.y, q.z), angle2 = 2 * Math.atan2(sine, Math.max(0, q.w));
+      const omega = sine < 1e-12 ? zero() : scale8({ x: q.x, y: q.y, z: q.z }, angle2 / (sine * dt));
       const velocity = scale8(sub(two.grip, one.grip), 1 / dt);
       const axis = rotateVectorByQuaternion({ x: 0, y: 1, z: 0 }, one.orientation);
       const speedBound = magnitude8(velocity) * speedScale + magnitude8(cross6(omega, axis)) * radius * input.playbackRate;
       const linear = scale8(velocity, speedScale), rotational = scale8(cross6(omega, axis), radius * input.playbackRate);
       const omegaNorm = magnitude8(omega), turnAxis = omegaNorm ? scale8(omega, 1 / omegaNorm) : zero();
       const a = dot5(linear, rotational), b = dot5(linear, cross6(turnAxis, rotational));
-      const candidates = [0, angle], maximumPhase = Math.atan2(b, a);
+      const candidates = [0, angle2], maximumPhase = Math.atan2(b, a);
       for (const phase of [maximumPhase, maximumPhase + 2 * Math.PI, maximumPhase - 2 * Math.PI])
-        if (phase >= 0 && phase <= angle) candidates.push(phase);
+        if (phase >= 0 && phase <= angle2) candidates.push(phase);
       const peak = Math.max(...candidates.map((phase) => a * Math.cos(phase) + b * Math.sin(phase)));
       const maximumSweetSpeed = Math.sqrt(Math.max(0, dot5(linear, linear) + dot5(rotational, rotational) + 2 * peak));
       return { one, two, dt, omega, velocity, speedBound, maximumSweetSpeed };
@@ -4450,7 +4450,7 @@ var KneekuraNativeMatchCore = (() => {
       pitch.velocity,
       bat.centerOfMassVelocity
     );
-    const normal3 = centerDistance > EPSILON9 ? scale9(
+    const normal4 = centerDistance > EPSILON9 ? scale9(
       axisToBall,
       1 / centerDistance
     ) : normalize4(
@@ -4462,14 +4462,14 @@ var KneekuraNativeMatchCore = (() => {
     const batSurfacePoint = add7(
       nearest.point,
       scale9(
-        normal3,
+        normal4,
         localBatRadiusM
       )
     );
     const ballSurfacePoint = add7(
       pitch.position,
       scale9(
-        normal3,
+        normal4,
         -ball.radiusM
       )
     );
@@ -4494,7 +4494,7 @@ var KneekuraNativeMatchCore = (() => {
     );
     const normalRelativeSpeed = dot6(
       relativeBefore,
-      normal3
+      normal4
     );
     if (normalRelativeSpeed >= 0) {
       return null;
@@ -4502,7 +4502,7 @@ var KneekuraNativeMatchCore = (() => {
     const tangentBefore = subtract7(
       relativeBefore,
       scale9(
-        normal3,
+        normal4,
         normalRelativeSpeed
       )
     );
@@ -4512,7 +4512,7 @@ var KneekuraNativeMatchCore = (() => {
         tick: pitch.tick,
         segmentT: nearest.t,
         localBatRadiusM,
-        normal: normal3,
+        normal: normal4,
         batSurfacePoint,
         ballSurfacePoint,
         relativeSurfaceVelocityBefore: relativeBefore,
@@ -5710,11 +5710,11 @@ var KneekuraNativeMatchCore = (() => {
     }
     freeze3(samples);
     freeze3(boundaries);
-    const norm6 = (v2) => Math.hypot(v2.x, v2.y, v2.z);
+    const norm8 = (v2) => Math.hypot(v2.x, v2.y, v2.z);
     const cells = freeze3(samples.slice(0, -1).map((anchor, index) => {
       const next = samples[index + 1], duration = next.moment.elapsedSeconds - anchor.moment.elapsedSeconds;
-      const maximumPositionSpeedMps = anchor.phase === "airborne" ? boundSourceRk4PositionSpeed(anchor.moment.ball, duration, profile.air) : Math.max(norm6(anchor.moment.ball.velocity), norm6(next.moment.ball.velocity));
-      const positionRoundingBoundMeters = (groundPositionCorrections.get(next.moment.elapsedSeconds) ?? 0) + (anchor.phase === "airborne" ? 0 : Math.abs(anchor.moment.ball.position.y - profile.ground.radiusM)) + 64 * Number.EPSILON * Math.max(1, norm6(anchor.moment.ball.position), norm6(next.moment.ball.position));
+      const maximumPositionSpeedMps = anchor.phase === "airborne" ? boundSourceRk4PositionSpeed(anchor.moment.ball, duration, profile.air) : Math.max(norm8(anchor.moment.ball.velocity), norm8(next.moment.ball.velocity));
+      const positionRoundingBoundMeters = (groundPositionCorrections.get(next.moment.elapsedSeconds) ?? 0) + (anchor.phase === "airborne" ? 0 : Math.abs(anchor.moment.ball.position.y - profile.ground.radiusM)) + 64 * Number.EPSILON * Math.max(1, norm8(anchor.moment.ball.position), norm8(next.moment.ball.position));
       if (![maximumPositionSpeedMps, positionRoundingBoundMeters].every(Number.isFinite)) throw new Error("nonlinear Source cell bound overflows");
       return {
         fromElapsedSeconds: anchor.moment.elapsedSeconds,
@@ -5849,11 +5849,11 @@ var KneekuraNativeMatchCore = (() => {
   var add9 = (a, b) => ({ x: a.x + b.x, y: a.y + b.y, z: a.z + b.z });
   var scale10 = (v2, s) => ({ x: v2.x * s, y: v2.y * s, z: v2.z * s });
   var respondToBallContact = (input) => {
-    const { ball, surfaceVelocity, normal: normal3, material: material2 } = input;
-    if (!ball || !Number.isSafeInteger(ball.tick) || ball.tick < 0 || !finiteVector2(ball.position) || !finiteVector2(ball.velocity) || !finiteVector2(ball.spin) || !finiteVector2(surfaceVelocity) || !finiteVector2(normal3) || !material2 || ![material2.restitution, material2.tangentialDamping, material2.spinDamping].every((v2) => Number.isFinite(v2) && v2 >= 0 && v2 <= 1)) throw new Error("invalid ball contact response");
-    const lengthSquared = normal3.x * normal3.x + normal3.y * normal3.y + normal3.z * normal3.z;
+    const { ball, surfaceVelocity, normal: normal4, material: material2 } = input;
+    if (!ball || !Number.isSafeInteger(ball.tick) || ball.tick < 0 || !finiteVector2(ball.position) || !finiteVector2(ball.velocity) || !finiteVector2(ball.spin) || !finiteVector2(surfaceVelocity) || !finiteVector2(normal4) || !material2 || ![material2.restitution, material2.tangentialDamping, material2.spinDamping].every((v2) => Number.isFinite(v2) && v2 >= 0 && v2 <= 1)) throw new Error("invalid ball contact response");
+    const lengthSquared = normal4.x * normal4.x + normal4.y * normal4.y + normal4.z * normal4.z;
     if (!Number.isFinite(lengthSquared) || lengthSquared <= 0) throw new Error("contactNormal must have a finite non-zero length");
-    const n = scale10(normal3, 1 / Math.sqrt(lengthSquared)), relative = subtract9(ball.velocity, surfaceVelocity);
+    const n = scale10(normal4, 1 / Math.sqrt(lengthSquared)), relative = subtract9(ball.velocity, surfaceVelocity);
     const normalSpeed = relative.x * n.x + relative.y * n.y + relative.z * n.z;
     const normalVelocity = scale10(n, normalSpeed), tangent = subtract9(relative, normalVelocity);
     const postNormal = normalSpeed < 0 ? scale10(n, -material2.restitution * normalSpeed) : normalVelocity;
@@ -7081,8 +7081,8 @@ var KneekuraNativeMatchCore = (() => {
     };
     const length = Math.hypot(difference.x, difference.y, difference.z);
     if (!vector(point) || !vector(surfaceVelocity) || !finite(length)) throw new Error("batted contact geometry arithmetic overflow");
-    const normal3 = length === 0 ? null : { x: difference.x / length, y: difference.y / length, z: difference.z / length };
-    return freeze5({ world, geometry: { contact, elapsedSeconds: time.elapsedSeconds, ball, point, surfaceVelocity, normal: normal3 } });
+    const normal4 = length === 0 ? null : { x: difference.x / length, y: difference.y / length, z: difference.z / length };
+    return freeze5({ world, geometry: { contact, elapsedSeconds: time.elapsedSeconds, ball, point, surfaceVelocity, normal: normal4 } });
   };
 
   // src/core/sim/ball/BattedBallContactResponse.ts
@@ -7726,12 +7726,12 @@ var KneekuraNativeMatchCore = (() => {
       } };
       const f = localFrame(prism), point = f.toWorld(f.closest(f.toLocal(state.point))), length = distance2(state.point, point);
       if (!vector4(point) || !finite3(length)) throw new Error("ball/base contact arithmetic overflow");
-      const normal3 = length === 0 ? null : {
+      const normal4 = length === 0 ? null : {
         x: (state.point.x - point.x) / length,
         y: (state.point.y - point.y) / length,
         z: (state.point.z - point.z) / length
       };
-      contacts.push({ kind: "base", baseId, moment, point, normal: normal3, ...event.continuing ? { continuing: true } : {} });
+      contacts.push({ kind: "base", baseId, moment, point, normal: normal4, ...event.continuing ? { continuing: true } : {} });
     }
     if (!contacts.length) return null;
     const earliest = contacts.reduce((a, b) => a.elapsedSeconds <= b.moment.elapsedSeconds ? a : b.moment, contacts[0].moment);
@@ -8532,8 +8532,8 @@ var KneekuraNativeMatchCore = (() => {
         for (const cell of kernel.cells) {
           const lo = Math.max(cursor.moment.elapsedSeconds, cell.fromElapsedSeconds), hi = Math.min(observed.moment.elapsedSeconds, cell.throughElapsedSeconds);
           if (hi < lo) continue;
-          const norm6 = (x) => Math.hypot(x.x, x.y, x.z);
-          const arithmetic = 256 * Number.EPSILON * (1 + norm6(item.bat.pose.grip) + norm6(item.bat.pose.tip) + Math.max(norm6(kernel.evaluateAt(lo).moment.ball.position), norm6(kernel.evaluateAt(hi).moment.ball.position)) + item.ball.radiusM);
+          const norm8 = (x) => Math.hypot(x.x, x.y, x.z);
+          const arithmetic = 256 * Number.EPSILON * (1 + norm8(item.bat.pose.grip) + norm8(item.bat.pose.tip) + Math.max(norm8(kernel.evaluateAt(lo).moment.ball.position), norm8(kernel.evaluateAt(hi).moment.ball.position)) + item.ball.radiusM);
           const found = search(lo, hi, cell.maximumPositionSpeedMps, cell.positionRoundingBoundMeters + arithmetic);
           if (found) {
             hits.push({ equipmentId: item.equipmentId, ...found });
@@ -8916,17 +8916,17 @@ var KneekuraNativeMatchCore = (() => {
       kind: t.kind === "rolling_started" ? "rolling_started" : "rolling_stop",
       elapsedSeconds: initial.elapsedSeconds + t.elapsedSeconds
     }));
-    const rotate = (v2, angle) => ({
-      x: v2.x * Math.cos(angle) + v2.z * Math.sin(angle),
+    const rotate = (v2, angle2) => ({
+      x: v2.x * Math.cos(angle2) + v2.z * Math.sin(angle2),
       y: v2.y,
-      z: -v2.x * Math.sin(angle) + v2.z * Math.cos(angle)
+      z: -v2.x * Math.sin(angle2) + v2.z * Math.cos(angle2)
     });
     const stateAt = (time) => {
       const ground = sampleBaseballGroundMotionAtElapsedSeconds(b, time - initial.elapsedSeconds, p.profile.ground);
       const dx = ground.ball.position.x - b.position.x, dz = ground.ball.position.z - b.position.z;
-      const angle = (dx * tangent.x + dz * tangent.z) / radius, radial = rotate({ x: rx, y: 0, z: rz }, angle);
+      const angle2 = (dx * tangent.x + dz * tangent.z) / radius, radial = rotate({ x: rx, y: 0, z: rz }, angle2);
       const speed2 = ground.ball.velocity.x * tangent.x + ground.ball.velocity.z * tangent.z;
-      const velocity = rotate({ x: tangent.x * speed2, y: 0, z: tangent.z * speed2 }, angle);
+      const velocity = rotate({ x: tangent.x * speed2, y: 0, z: tangent.z * speed2 }, angle2);
       return { phase: ground.phase, moment: {
         originTick: initial.originTick,
         elapsedSeconds: time,
@@ -8935,7 +8935,7 @@ var KneekuraNativeMatchCore = (() => {
           tick: quantizeEventTick(initial.originTick, time, tps),
           position: { x: p.fenceCenter.x + radial.x, y: b.position.y, z: p.fenceCenter.z + radial.z },
           velocity,
-          spin: rotate(ground.ball.spin, angle)
+          spin: rotate(ground.ball.spin, angle2)
         }
       } };
     };
@@ -8955,12 +8955,12 @@ var KneekuraNativeMatchCore = (() => {
         times[i] - times[i - 1]
       ) });
     }
-    const norm6 = (x) => Math.hypot(x.x, x.y, x.z);
+    const norm8 = (x) => Math.hypot(x.x, x.y, x.z);
     const cells = samples.slice(0, -1).map((s, i) => ({
       fromElapsedSeconds: s.moment.elapsedSeconds,
       throughElapsedSeconds: times[i + 1],
-      maximumPositionSpeedMps: Math.max(norm6(s.moment.ball.velocity), norm6(samples[i + 1].moment.ball.velocity)) + p.profile.ground.material.slidingFriction * p.profile.ground.gravityMps2 * (times[i + 1] - times[i]),
-      positionRoundingBoundMeters: 256 * Number.EPSILON * Math.max(1, norm6(s.moment.ball.position), norm6(samples[i + 1].moment.ball.position))
+      maximumPositionSpeedMps: Math.max(norm8(s.moment.ball.velocity), norm8(samples[i + 1].moment.ball.velocity)) + p.profile.ground.material.slidingFriction * p.profile.ground.gravityMps2 * (times[i + 1] - times[i]),
+      positionRoundingBoundMeters: 256 * Number.EPSILON * Math.max(1, norm8(s.moment.ball.position), norm8(samples[i + 1].moment.ball.position))
     }));
     freeze15(samples);
     freeze15(cells);
@@ -9075,45 +9075,45 @@ var KneekuraNativeMatchCore = (() => {
       input.normal,
       surfaceVelocity
     ].every(finite5) && Number.isFinite(length) && length > 0 && Number.isSafeInteger(incoming.tick) && incoming.tick >= 0 && actorResponse.tick === incoming.tick && ["x", "y", "z"].every((axis) => incoming.position[axis] === actorResponse.position[axis]) && incoming.position.y === ground.radiusM && Number.isFinite(input.actorRestitution) && input.actorRestitution >= 0 && input.actorRestitution <= 1, "actual same-position floor/actor contact required");
-    const normal3 = { x: input.normal.x / length, y: input.normal.y / length, z: input.normal.z / length };
+    const normal4 = { x: input.normal.x / length, y: input.normal.y / length, z: input.normal.z / length };
     const nominal = actorResponse.velocity.y < 0 ? resolveBaseballGroundImpact(actorResponse, ground) : actorResponse;
-    const actorTarget = Math.max(0, -input.actorRestitution * Math.min(0, dot10(sub3(incoming.velocity, surfaceVelocity), normal3))), groundTarget = Math.max(0, -ground.material.restitution * Math.min(0, incoming.velocity.y)), actorNominal = dot10(sub3(nominal.velocity, surfaceVelocity), normal3), actorDeficit = actorTarget - actorNominal, groundDeficit = groundTarget - nominal.velocity.y;
+    const actorTarget = Math.max(0, -input.actorRestitution * Math.min(0, dot10(sub3(incoming.velocity, surfaceVelocity), normal4))), groundTarget = Math.max(0, -ground.material.restitution * Math.min(0, incoming.velocity.y)), actorNominal = dot10(sub3(nominal.velocity, surfaceVelocity), normal4), actorDeficit = actorTarget - actorNominal, groundDeficit = groundTarget - nominal.velocity.y;
     let actorImpulsePerMass = 0, groundImpulsePerMass = 0, activeSet = "none";
     let velocity = nominal.velocity;
     if (actorDeficit > 0 || groundDeficit > 0) {
       const actorOnly = Math.max(0, actorDeficit), groundOnly = Math.max(0, groundDeficit);
-      if (nominal.velocity.y + actorOnly * normal3.y >= groundTarget) {
+      if (nominal.velocity.y + actorOnly * normal4.y >= groundTarget) {
         activeSet = "actor";
         actorImpulsePerMass = actorOnly;
         velocity = {
-          x: nominal.velocity.x + actorOnly * normal3.x,
-          y: nominal.velocity.y + actorOnly * normal3.y,
-          z: nominal.velocity.z + actorOnly * normal3.z
+          x: nominal.velocity.x + actorOnly * normal4.x,
+          y: nominal.velocity.y + actorOnly * normal4.y,
+          z: nominal.velocity.z + actorOnly * normal4.z
         };
-      } else if (actorNominal + groundOnly * normal3.y >= actorTarget) {
+      } else if (actorNominal + groundOnly * normal4.y >= actorTarget) {
         activeSet = "ground";
         groundImpulsePerMass = groundOnly;
         velocity = { ...nominal.velocity, y: groundTarget };
       } else {
-        const horizontalSquared = normal3.x * normal3.x + normal3.z * normal3.z;
+        const horizontalSquared = normal4.x * normal4.x + normal4.z * normal4.z;
         assert6(horizontalSquared > 0, "opposed parallel contact normals have no admissible impulse");
-        actorImpulsePerMass = (actorTarget - normal3.x * (nominal.velocity.x - surfaceVelocity.x) - normal3.z * (nominal.velocity.z - surfaceVelocity.z) - normal3.y * (groundTarget - surfaceVelocity.y)) / horizontalSquared;
-        groundImpulsePerMass = groundTarget - nominal.velocity.y - actorImpulsePerMass * normal3.y;
+        actorImpulsePerMass = (actorTarget - normal4.x * (nominal.velocity.x - surfaceVelocity.x) - normal4.z * (nominal.velocity.z - surfaceVelocity.z) - normal4.y * (groundTarget - surfaceVelocity.y)) / horizontalSquared;
+        groundImpulsePerMass = groundTarget - nominal.velocity.y - actorImpulsePerMass * normal4.y;
         assert6(actorImpulsePerMass >= 0 && groundImpulsePerMass >= 0, "contact active-set impulses are tensile");
         activeSet = "both";
         velocity = {
-          x: nominal.velocity.x + actorImpulsePerMass * normal3.x,
+          x: nominal.velocity.x + actorImpulsePerMass * normal4.x,
           y: groundTarget,
-          z: nominal.velocity.z + actorImpulsePerMass * normal3.z
+          z: nominal.velocity.z + actorImpulsePerMass * normal4.z
         };
       }
     }
-    const actorNormalSpeed = dot10(sub3(velocity, surfaceVelocity), normal3), groundNormalSpeed = velocity.y;
+    const actorNormalSpeed = dot10(sub3(velocity, surfaceVelocity), normal4), groundNormalSpeed = velocity.y;
     assert6(finite5(velocity) && [actorImpulsePerMass, groundImpulsePerMass].every(Number.isFinite) && actorNormalSpeed >= 0 && groundNormalSpeed >= 0, "no finite nonclosing two-contact response");
     return freeze16({ ball: { ...nominal, velocity }, proof: {
       basis: "EXPLICIT_TWO_CONTACT_NORMAL_ACTIVE_SET_V1",
       activeSet,
-      normal: normal3,
+      normal: normal4,
       actorImpulsePerMass,
       groundImpulsePerMass,
       actorTarget,
@@ -9357,7 +9357,7 @@ var KneekuraNativeMatchCore = (() => {
     if (actors.length !== 9 || new Set(actors.map((a) => a.playerId)).size !== actors.length || actors.some((a) => !a.playerId || !finite6(a.position) || !finite6(a.velocity) || !finite6(a.homePosition) || ![a.topSpeedMps, a.accelerationMps2, a.throwSpeedMps].every((n2) => Number.isFinite(n2) && n2 > 0) || !Number.isFinite(a.remainingReactionSeconds) || a.remainingReactionSeconds < 0 || !Number.isFinite(a.pursuitCostWeight ?? 1) || (a.pursuitCostWeight ?? 1) < 0.25 || (a.pursuitCostWeight ?? 1) > 4) || !finite6(input.ballPosition) || !finite6(input.ballVelocity) || !finite6(input.pickupPoint) || ![1, 2, 3, 4].every((n2) => finite6(input.bases[n2]))) throw new Error("invalid live field role geometry/actors");
     const reservedIds = /* @__PURE__ */ new Set(), covered = /* @__PURE__ */ new Set(), taskIds = /* @__PURE__ */ new Set();
     for (const role of input.reservations) {
-      if (!actors.some((a) => a.playerId === role.playerId) || reservedIds.has(role.playerId) || !role.taskId || taskIds.has(role.taskId) || !finite6(role.point) || !["intercept", "base_cover", "hold", "tag"].includes(role.intent) || role.targetBase !== null && ![1, 2, 3, 4].includes(role.targetBase) || role.targetBase !== null && covered.has(role.targetBase)) throw new Error("duplicate or invalid live field reservation");
+      if (!actors.some((a) => a.playerId === role.playerId) || reservedIds.has(role.playerId) || !role.taskId || taskIds.has(role.taskId) || !finite6(role.point) || !["intercept", "base_cover", "relay", "hold", "tag"].includes(role.intent) || role.intent === "relay" && role.targetBase !== null || role.targetBase !== null && ![1, 2, 3, 4].includes(role.targetBase) || role.targetBase !== null && covered.has(role.targetBase)) throw new Error("duplicate or invalid live field reservation");
       reservedIds.add(role.playerId);
       taskIds.add(role.taskId);
       if (role.targetBase !== null) covered.add(role.targetBase);
@@ -9384,7 +9384,7 @@ var KneekuraNativeMatchCore = (() => {
     };
     if (primary !== null && tasks.length < available.length) {
       const target = input.bases[primary], length = flatDistance(input.ballPosition, target), strongest = Math.max(...actors.map((a) => a.throwSpeedMps));
-      if (length > strongest * LIVE_FIELD_ROLE_POLICY_V1.directThrowSeconds && tasks.length + 1 < available.length)
+      if (!input.reservations.some((r) => r.intent === "relay") && length > strongest * LIVE_FIELD_ROLE_POLICY_V1.directThrowSeconds && tasks.length + 1 < available.length)
         tasks.push({ taskId: "relay:" + primary, point: {
           x: (input.ballPosition.x + target.x) / 2,
           y: target.y,
@@ -9436,19 +9436,19 @@ var KneekuraNativeMatchCore = (() => {
 
   // src/core/sim/fielding/LiveThrowDirectionV1.ts
   function applyLiveThrowDirectionV1(raw) {
-    const input = cloneInert(raw), finite8 = (p) => p && [p.x, p.y, p.z].every(Number.isFinite), sigma = input.standardDeviationRadians;
-    if (![input.velocity, input.bodyVelocity, input.spin].every(finite8) || !Number.isFinite(sigma) || sigma < 0 || sigma > 0.12 || !Number.isSafeInteger(input.seed) || input.seed < 0 || input.seed > 4294967295 || !Number.isSafeInteger(input.releaseOrdinal) || input.releaseOrdinal < 0 || input.releaseOrdinal > 4294967295)
+    const input = cloneInert(raw), finite10 = (p) => p && [p.x, p.y, p.z].every(Number.isFinite), sigma = input.standardDeviationRadians;
+    if (![input.velocity, input.bodyVelocity, input.spin].every(finite10) || !Number.isFinite(sigma) || sigma < 0 || sigma > 0.12 || !Number.isSafeInteger(input.seed) || input.seed < 0 || input.seed > 4294967295 || !Number.isSafeInteger(input.releaseOrdinal) || input.releaseOrdinal < 0 || input.releaseOrdinal > 4294967295)
       throw new Error("invalid live throw direction SI/seed/ordinal");
     let yawRadians = 0, pitchRadians = 0, velocity = input.velocity;
     if (sigma !== 0) {
       const rng = new SeedRoot(input.seed).streamRng(0, "fielding", "throw-direction-v1:" + input.releaseOrdinal), bound = Math.sqrt(3) * sigma;
       yawRadians = (2 * rng.nextFloat() - 1) * bound;
       pitchRadians = (2 * rng.nextFloat() - 1) * bound;
-      const x = input.velocity.x - input.bodyVelocity.x, y = input.velocity.y - input.bodyVelocity.y, z = input.velocity.z - input.bodyVelocity.z, cy = Math.cos(yawRadians), sy = Math.sin(yawRadians), horizontal = { x: cy * x + sy * z, y, z: -sy * x + cy * z }, length = Math.hypot(horizontal.x, horizontal.z), axis = length === 0 ? { x: 1, z: 0 } : { x: -horizontal.z / length, z: horizontal.x / length }, cp = Math.cos(pitchRadians), sp = Math.sin(pitchRadians), dot14 = axis.x * horizontal.x + axis.z * horizontal.z;
+      const x = input.velocity.x - input.bodyVelocity.x, y = input.velocity.y - input.bodyVelocity.y, z = input.velocity.z - input.bodyVelocity.z, cy = Math.cos(yawRadians), sy = Math.sin(yawRadians), horizontal = { x: cy * x + sy * z, y, z: -sy * x + cy * z }, length = Math.hypot(horizontal.x, horizontal.z), axis = length === 0 ? { x: 1, z: 0 } : { x: -horizontal.z / length, z: horizontal.x / length }, cp = Math.cos(pitchRadians), sp = Math.sin(pitchRadians), dot15 = axis.x * horizontal.x + axis.z * horizontal.z;
       velocity = {
-        x: input.bodyVelocity.x + horizontal.x * cp - axis.z * horizontal.y * sp + axis.x * dot14 * (1 - cp),
+        x: input.bodyVelocity.x + horizontal.x * cp - axis.z * horizontal.y * sp + axis.x * dot15 * (1 - cp),
         y: input.bodyVelocity.y + horizontal.y * cp + (axis.z * horizontal.x - axis.x * horizontal.z) * sp,
-        z: input.bodyVelocity.z + horizontal.z * cp + axis.x * horizontal.y * sp + axis.z * dot14 * (1 - cp)
+        z: input.bodyVelocity.z + horizontal.z * cp + axis.x * horizontal.y * sp + axis.z * dot15 * (1 - cp)
       };
     }
     return Object.freeze({
@@ -9553,6 +9553,199 @@ var KneekuraNativeMatchCore = (() => {
     });
   }
 
+  // src/core/sim/fielding/LiveRelayPlanV1.ts
+  var LIVE_RELAY_PLAN_POLICY_V1 = Object.freeze({
+    maximumIntermediateReceivers: 2,
+    maximumEvaluatedRoutes: 8,
+    minimumProgressMeters: 0.28,
+    baseTouchRadiusMeters: 0.28
+  });
+  var add13 = (a, b) => ({ x: a.x + b.x, y: a.y + b.y, z: a.z + b.z });
+  var sub6 = (a, b) => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
+  var mul3 = (p, scale12) => ({ x: p.x * scale12, y: p.y * scale12, z: p.z * scale12 });
+  var norm4 = (p) => Math.hypot(p.x, p.y, p.z);
+  var flatDistance2 = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
+  var finite7 = (p) => !!p && [p.x, p.y, p.z].every(Number.isFinite);
+  var freeze18 = (value) => {
+    if (value && typeof value === "object") {
+      Object.values(value).forEach(freeze18);
+      Object.freeze(value);
+    }
+    return value;
+  };
+  var allowedInputKeys = [
+    "actors",
+    "holderPlayerId",
+    "receiverPlayerId",
+    "finalBase",
+    "runnerId",
+    "target",
+    "runnerArrivalSeconds",
+    "holderTransferRemainingSeconds",
+    "physics",
+    "throwHandOffset",
+    "maximumIntermediateReceivers",
+    "minimumMarginSeconds",
+    "excludedRelayPlayerIds"
+  ];
+  function planLiveRelayV1(raw) {
+    const input = cloneInert(raw), policy = LIVE_RELAY_PLAN_POLICY_V1, maximumIntermediateReceivers = input.maximumIntermediateReceivers ?? policy.maximumIntermediateReceivers, minimumMargin = input.minimumMarginSeconds ?? 0;
+    if (!input || Object.keys(input).some((key3) => !allowedInputKeys.includes(key3)) || !Array.isArray(input.actors) || input.actors.length < 2 || input.actors.length > 9 || new Set(input.actors.map((a) => a.playerId)).size !== input.actors.length || ![1, 2, 3, 4].includes(input.finalBase) || !input.runnerId || !finite7(input.target) || ![input.runnerArrivalSeconds, input.holderTransferRemainingSeconds, minimumMargin].every((n) => Number.isFinite(n) && n >= 0) || ![0, 1, 2].includes(maximumIntermediateReceivers) || input.excludedRelayPlayerIds !== void 0 && (!Array.isArray(input.excludedRelayPlayerIds) || input.excludedRelayPlayerIds.some((id6) => typeof id6 !== "string" || !id6)) || !input.throwHandOffset || ![input.throwHandOffset.forwardMeters, input.throwHandOffset.heightAboveHipMeters].every((n) => Number.isFinite(n) && n >= 0) || input.actors.some((a) => !a.playerId || ![a.position, a.velocity, a.homePosition, a.glovePosition, a.gloveVelocity].every(finite7) || ![a.topSpeedMps, a.accelerationMps2, a.throwSpeedMps, a.gloveSpeedMps, a.gloveReachMeters, a.gloveRadiusMeters].every((n) => Number.isFinite(n) && n > 0) || a.throwSpeedMps > 120 || ![a.remainingReactionSeconds, a.transferSeconds].every((n) => Number.isFinite(n) && n >= 0) || !Number.isFinite(a.throwDirectionStdRadians ?? 0) || (a.throwDirectionStdRadians ?? 0) < 0 || (a.throwDirectionStdRadians ?? 0) > 0.12 || !Number.isFinite(a.throwBackspinRadPerSecond ?? 0) || (a.throwBackspinRadPerSecond ?? 0) < 0 || a.throwSpinRadPerSecond !== void 0 && !finite7(a.throwSpinRadPerSecond))) throw new Error("invalid live relay plan actors, target or policy");
+    const holder = input.actors.find((a) => a.playerId === input.holderPlayerId), receiver = input.actors.find((a) => a.playerId === input.receiverPlayerId);
+    if (!holder || !receiver || holder === receiver || !Number.isFinite(input.physics?.ground?.radiusM) || input.target.y < input.physics.ground.radiusM || input.actors.some((a) => a.glovePosition.y < input.physics.ground.radiusM))
+      throw new Error("invalid live relay holder, receiver or airborne target");
+    const relayBodyPoint = (a) => {
+      const speed2 = Math.hypot(a.velocity.x, a.velocity.z), factor = speed2 / (2 * a.accelerationMps2);
+      return { x: a.position.x + a.velocity.x * factor, y: a.position.y, z: a.position.z + a.velocity.z * factor };
+    }, bodyPoint = (a) => a === holder ? a.position : relayBodyPoint(a), point = (a) => a === receiver ? input.target : add13(relayBodyPoint(a), sub6(a.glovePosition, a.position)), receiverPoint = (a) => a === receiver ? { x: input.target.x, y: a.position.y, z: input.target.z } : relayBodyPoint(a), remainingDistance = (a) => flatDistance2(bodyPoint(a), input.target), progresses = (from, to) => to === receiver || remainingDistance(to) + policy.minimumProgressMeters < remainingDistance(from);
+    const handOffset = (from, target) => {
+      const origin = bodyPoint(from), direction = { x: target.x - origin.x, y: 0, z: target.z - origin.z }, length = norm4(direction), desired = add13(
+        mul3(direction, input.throwHandOffset.forwardMeters / Math.max(length, 1e-30)),
+        { x: 0, y: input.throwHandOffset.heightAboveHipMeters, z: 0 }
+      );
+      return mul3(desired, Math.min(1, from.gloveReachMeters / Math.max(norm4(desired), 1e-30)));
+    };
+    const edgeGeometry = (from, to) => {
+      const target = point(to), offset = handOffset(from, target), preparation = createLiveHandPreparationV1({
+        fromElapsedSeconds: 0,
+        initialOffset: sub6(from.glovePosition, from.position),
+        initialRelativeVelocity: from === holder ? sub6(from.gloveVelocity, from.velocity) : { x: 0, y: 0, z: 0 },
+        targetOffset: offset,
+        maximumRelativeSpeedMps: from.gloveSpeedMps,
+        maximumReachMeters: from.gloveReachMeters
+      }), releasePosition = add13(bodyPoint(from), offset), bodyVelocity = from === holder ? from.velocity : { x: 0, y: 0, z: 0 }, d = sub6(target, releasePosition), horizontal = Math.hypot(d.x, d.z), backspin = from.throwBackspinRadPerSecond ?? 0, spin = from.throwSpinRadPerSecond ?? (horizontal > 0 ? { x: -d.z / horizontal * backspin, y: 0, z: d.x / horizontal * backspin } : { x: 0, y: 0, z: 0 });
+      return {
+        target,
+        receiverPoint: receiverPoint(to),
+        releasePosition,
+        bodyVelocity,
+        spin,
+        preparationSeconds: preparation.kind === "planned" ? preparation.durationSeconds : Infinity,
+        transferSeconds: from === holder ? input.holderTransferRemainingSeconds : from.transferSeconds,
+        receiverArrivalSeconds: Math.max(
+          liveFieldArrivalSecondsV1(to, receiverPoint(to), policy.baseTouchRadiusMeters),
+          to === receiver ? 0 : Math.hypot(to.velocity.x, to.velocity.z) / to.accelerationMps2
+        ),
+        acquisitionSeconds: (to.gloveRadiusMeters + input.physics.ground.radiusM) / to.gloveSpeedMps,
+        // An inspectable correction-time cost, not a calibrated success chance.
+        directionRecoveryCostSeconds: flatDistance2(releasePosition, target) * Math.tan(from.throwDirectionStdRadians ?? 0) / to.gloveSpeedMps
+      };
+    };
+    const geometryCache = /* @__PURE__ */ new Map(), geometry = (from, to) => {
+      const key3 = input.actors.indexOf(from) + ":" + input.actors.indexOf(to);
+      let result = geometryCache.get(key3);
+      if (!result) {
+        result = edgeGeometry(from, to);
+        geometryCache.set(key3, result);
+      }
+      return result;
+    };
+    const intermediates = input.actors.filter((a) => a !== holder && a !== receiver && !input.excludedRelayPlayerIds?.includes(a.playerId) && progresses(holder, a));
+    const routes = [[holder, receiver]];
+    if (maximumIntermediateReceivers > 0) for (const a of intermediates) {
+      routes.push([holder, a, receiver]);
+      if (maximumIntermediateReceivers > 1) {
+        for (const b of intermediates) if (b !== a && progresses(a, b)) routes.push([holder, a, b, receiver]);
+      }
+    }
+    const cheapCost = (route) => {
+      let seconds = 0, risk = 0;
+      for (let i = 1; i < route.length; i++) {
+        const from = route[i - 1], to = route[i], g = geometry(from, to), flight = Math.max(0.05, norm4(sub6(g.target, g.releasePosition)) / (from.throwSpeedMps + norm4(g.bodyVelocity)));
+        seconds = Math.max(seconds + g.transferSeconds + g.preparationSeconds + flight, g.receiverArrivalSeconds) + g.acquisitionSeconds;
+        risk += g.directionRecoveryCostSeconds;
+      }
+      return seconds + risk;
+    };
+    const selected = [{ route: routes[0], cost: cheapCost(routes[0]) }, ...routes.slice(1).map((route, index) => ({ route, index, cost: cheapCost(route) })).sort((a, b) => a.cost - b.cost || a.route.length - b.route.length || a.index - b.index).slice(0, policy.maximumEvaluatedRoutes - 1)];
+    const aeroCache = /* @__PURE__ */ new Map();
+    let aerodynamicSolveCount = 0, aerodynamicCacheHits = 0, evaluatedRouteCount = 0, directSeconds = Infinity;
+    let best = null;
+    for (const candidate of selected) {
+      if (best && candidate.cost >= best.costSeconds) continue;
+      const route = candidate.route;
+      evaluatedRouteCount++;
+      let seconds = 0, risk = 0, feasible = true;
+      const legs2 = [];
+      for (let i = 1; i < route.length; i++) {
+        const from = route[i - 1], to = route[i], g = geometry(from, to);
+        if (!Number.isFinite(g.preparationSeconds)) {
+          feasible = false;
+          break;
+        }
+        const key3 = input.actors.indexOf(from) + ":" + input.actors.indexOf(to);
+        let aero = aeroCache.get(key3);
+        if (!aero) {
+          aerodynamicSolveCount++;
+          aero = planLiveThrowV1({
+            releasePosition: g.releasePosition,
+            bodyVelocity: g.bodyVelocity,
+            maximumThrowSpeedMps: from.throwSpeedMps,
+            spin: g.spin,
+            physics: input.physics,
+            target: g.target
+          });
+          aeroCache.set(key3, aero);
+        } else aerodynamicCacheHits++;
+        if (aero.kind !== "planned") {
+          feasible = false;
+          break;
+        }
+        const earliestArrival = seconds + g.transferSeconds + g.preparationSeconds + aero.flightSeconds, waitingSeconds = Math.max(0, g.receiverArrivalSeconds - earliestArrival);
+        seconds = earliestArrival + waitingSeconds + g.acquisitionSeconds;
+        risk += g.directionRecoveryCostSeconds;
+        legs2.push({
+          throwerPlayerId: from.playerId,
+          receiverPlayerId: to.playerId,
+          target: g.target,
+          receiverPoint: g.receiverPoint,
+          intent: to === receiver ? "base_cover" : "relay",
+          releasePosition: g.releasePosition,
+          bodyVelocity: g.bodyVelocity,
+          spin: g.spin,
+          transferSeconds: g.transferSeconds,
+          preparationSeconds: g.preparationSeconds,
+          receiverArrivalSeconds: g.receiverArrivalSeconds,
+          waitingSeconds,
+          flightSeconds: aero.flightSeconds,
+          readySeconds: seconds,
+          directionRecoveryCostSeconds: g.directionRecoveryCostSeconds,
+          initialVelocity: aero.initialVelocity
+        });
+      }
+      if (!feasible) continue;
+      if (route.length === 2) directSeconds = seconds;
+      const costSeconds2 = seconds + risk;
+      if (!best || costSeconds2 < best.costSeconds) best = { legs: legs2, readySeconds: seconds, costSeconds: costSeconds2 };
+    }
+    const carrySeconds = liveFieldArrivalSecondsV1({ ...holder, remainingReactionSeconds: 0 }, input.target, policy.baseTouchRadiusMeters), carryPreferred = !best || carrySeconds <= best.costSeconds, readySeconds = carryPreferred ? carrySeconds : best.readySeconds, costSeconds = carryPreferred ? carrySeconds : best.costSeconds, marginSeconds = input.runnerArrivalSeconds - costSeconds - minimumMargin, legs = !carryPreferred && marginSeconds > 0 ? best.legs : [], first = legs[0], kind = marginSeconds <= 0 ? "hold" : carryPreferred ? "carry" : legs.length === 1 ? "direct" : "relay";
+    return freeze18({
+      kind,
+      finalBase: input.finalBase,
+      runnerId: input.runnerId,
+      readySeconds,
+      marginSeconds,
+      costSeconds,
+      carrySeconds,
+      directSeconds,
+      firstHop: first ? { receiverPlayerId: first.receiverPlayerId, target: first.target, receiverPoint: first.receiverPoint, intent: first.intent } : null,
+      legs,
+      diagnostics: {
+        basis: "BOUNDED_AERO_RELAY_COMMAND_PREDICTION_V1",
+        actualSourceRead: false,
+        actualCatchGuaranteed: false,
+        replanAfterReceiptRequired: true,
+        candidateRouteCount: routes.length,
+        evaluatedRouteCount,
+        aerodynamicSolveCount,
+        aerodynamicCacheHits,
+        maximumIntermediateReceivers,
+        maximumEvaluatedRoutes: policy.maximumEvaluatedRoutes,
+        directReachable: Number.isFinite(directSeconds)
+      }
+    });
+  }
+
   // src/core/sim/running/RunnerRoute.ts
   var EPSILON15 = 1e-12;
   var CONTINUITY_TOLERANCE_METERS = 1e-9;
@@ -9634,6 +9827,7 @@ var KneekuraNativeMatchCore = (() => {
     }
     return lengths;
   };
+  var getRunnerRouteLength = (route) => validateRoute(route).reduce((sum, value) => sum + value, 0);
   var sampleLine = (segment, localDistanceMeters, lengthMeters) => {
     const dx = segment.end.x - segment.start.x;
     const dz = segment.end.z - segment.start.z;
@@ -9652,12 +9846,12 @@ var KneekuraNativeMatchCore = (() => {
   };
   var sampleArc = (segment, localDistanceMeters) => {
     const sweepDirection = Math.sign(segment.sweepRadians);
-    const angle = segment.startAngleRadians + sweepDirection * localDistanceMeters / segment.radiusMeters;
+    const angle2 = segment.startAngleRadians + sweepDirection * localDistanceMeters / segment.radiusMeters;
     return {
-      position: arcPoint(segment.center, segment.radiusMeters, angle),
+      position: arcPoint(segment.center, segment.radiusMeters, angle2),
       tangent: {
-        x: -Math.sin(angle) * sweepDirection,
-        z: Math.cos(angle) * sweepDirection
+        x: -Math.sin(angle2) * sweepDirection,
+        z: Math.cos(angle2) * sweepDirection
       }
     };
   };
@@ -9693,6 +9887,245 @@ var KneekuraNativeMatchCore = (() => {
     }
     throw new Error("runner route sampling failed");
   };
+
+  // src/core/sim/running/LiveRunnerMotionV1.ts
+  var EPSILON16 = 1e-10;
+  var TWO_PI = 2 * Math.PI;
+  var add14 = (a, b) => ({ x: a.x + b.x, z: a.z + b.z });
+  var sub7 = (a, b) => ({ x: a.x - b.x, z: a.z - b.z });
+  var mul4 = (a, n) => ({ x: a.x * n, z: a.z * n });
+  var norm5 = (a) => Math.hypot(a.x, a.z);
+  var dot13 = (a, b) => a.x * b.x + a.z * b.z;
+  var normal3 = (a) => ({ x: -a.z, z: a.x });
+  var unit3 = (a) => mul4(a, 1 / norm5(a));
+  var angle = (a) => Math.atan2(a.z, a.x);
+  var polar = (a) => ({ x: Math.cos(a), z: Math.sin(a) });
+  var positiveAngle = (a) => (a % TWO_PI + TWO_PI) % TWO_PI;
+  var finite8 = (a) => !!a && Number.isFinite(a.x) && Number.isFinite(a.z);
+  var segmentLength2 = (s) => s.kind === "line" ? norm5(sub7(s.end, s.start)) : s.radiusMeters * Math.abs(s.sweepRadians);
+  var arc = (center, radiusMeters, from, to, direction) => ({
+    kind: "arc",
+    center,
+    radiusMeters,
+    startAngleRadians: angle(sub7(from, center)),
+    sweepRadians: direction * positiveAngle(direction * (angle(sub7(to, center)) - angle(sub7(from, center))))
+  });
+  function connect(from, heading, to, endHeading, radius) {
+    if (norm5(sub7(from, to)) <= EPSILON16 && dot13(heading, endHeading) > 1 - EPSILON16) return [];
+    const candidates = [];
+    for (const left of [-1, 1]) for (const right of [-1, 1]) {
+      const first = add14(from, mul4(normal3(heading), left * radius));
+      const last = add14(to, mul4(normal3(endHeading), right * radius));
+      const delta = sub7(last, first), length = norm5(delta), shift = (left - right) * radius;
+      if (length > EPSILON16 && length + EPSILON16 >= Math.abs(shift)) {
+        const tangent = polar(angle(delta) + Math.asin(Math.max(-1, Math.min(1, shift / length))));
+        const a = sub7(first, mul4(normal3(tangent), left * radius));
+        const b = sub7(last, mul4(normal3(tangent), right * radius));
+        candidates.push([arc(first, radius, from, a, left), { kind: "line", start: a, end: b }, arc(last, radius, b, to, right)]);
+      }
+      if (left !== right || length > 4 * radius + EPSILON16) continue;
+      if (length <= EPSILON16) {
+        candidates.push([arc(first, radius, from, to, left)]);
+        continue;
+      }
+      const midpoint = mul4(add14(first, last), 0.5);
+      const offset = Math.sqrt(Math.max(0, 4 * radius * radius - 0.25 * length * length));
+      for (const side of [-1, 1]) {
+        const middle = add14(midpoint, mul4(normal3(unit3(delta)), side * offset));
+        const a = mul4(add14(first, middle), 0.5), b = mul4(add14(middle, last), 0.5);
+        candidates.push([arc(first, radius, from, a, left), arc(middle, radius, a, b, -left), arc(last, radius, b, to, left)]);
+      }
+    }
+    const cleaned = candidates.map((parts) => parts.filter((part) => segmentLength2(part) > EPSILON16)).filter((parts) => {
+      const winding = parts.reduce((sum, s) => sum + (s.kind === "arc" ? Math.abs(s.sweepRadians) : 0), 0);
+      const pathLength = parts.reduce((sum, s) => sum + segmentLength2(s), 0);
+      return winding <= Math.PI + EPSILON16 && pathLength <= norm5(sub7(to, from)) + 2 * radius + EPSILON16;
+    });
+    cleaned.sort((a, b) => a.reduce((sum, s) => sum + segmentLength2(s), 0) - b.reduce((sum, s) => sum + segmentLength2(s), 0));
+    return cleaned[0] ?? null;
+  }
+  function buildRoute(input, radius, lateral, initialSpeed) {
+    const segments = [], centerDistances = [];
+    const append = (parts) => {
+      segments.push(...parts);
+    };
+    const length = () => segments.reduce((sum, s) => sum + segmentLength2(s), 0);
+    let position = input.position;
+    let heading = initialSpeed > EPSILON16 ? unit3(input.velocity) : unit3(sub7(input.bases[0].position, position));
+    for (let index = 0; index < input.bases.length; index++) {
+      const bag = input.bases[index].position;
+      const previous = index ? input.bases[index - 1].position : input.position;
+      const incoming = unit3(sub7(bag, previous));
+      const connectorRadius = segments.length === 0 ? Math.max(radius, initialSpeed * initialSpeed / lateral) : radius;
+      if (index === input.bases.length - 1) {
+        const connector2 = connect(position, heading, bag, incoming, connectorRadius);
+        if (!connector2) return null;
+        append(connector2);
+        centerDistances.push(length());
+        break;
+      }
+      const outgoing = unit3(sub7(input.bases[index + 1].position, bag));
+      const turn = Math.atan2(incoming.x * outgoing.z - incoming.z * outgoing.x, dot13(incoming, outgoing));
+      if (Math.abs(turn) < EPSILON16) {
+        const connector2 = connect(position, heading, bag, incoming, connectorRadius);
+        if (!connector2) return null;
+        append(connector2);
+        centerDistances.push(length());
+        position = bag;
+        heading = incoming;
+        continue;
+      }
+      const sign = Math.sign(turn), middleHeading = polar(angle(incoming) + turn / 2);
+      const center = add14(bag, mul4(normal3(middleHeading), sign * radius));
+      const entry = sub7(center, mul4(normal3(incoming), sign * radius));
+      const exit = sub7(center, mul4(normal3(outgoing), sign * radius));
+      const connector = connect(position, heading, entry, incoming, connectorRadius);
+      if (!connector) return null;
+      append(connector);
+      const beforeArc = length();
+      append([{ kind: "arc", center, radiusMeters: radius, startAngleRadians: angle(sub7(entry, center)), sweepRadians: turn }]);
+      centerDistances.push(beforeArc + radius * Math.abs(turn) / 2);
+      position = exit;
+      heading = outgoing;
+    }
+    const route = { segments };
+    return { route, centerDistances, lengthMeters: getRunnerRouteLength(route) };
+  }
+  function buildSpeedSegments(route, initialSpeed, topSpeed, acceleration, braking, lateral) {
+    const lengths = route.segments.map(segmentLength2);
+    const caps = route.segments.map((s) => s.kind === "line" ? topSpeed : Math.min(topSpeed, Math.sqrt(lateral * s.radiusMeters)));
+    if (initialSpeed > caps[0] + EPSILON16) return null;
+    const speeds = [initialSpeed];
+    for (let i = 0; i < lengths.length; i++) speeds.push(Math.min(
+      i === lengths.length - 1 ? 0 : Math.min(caps[i], caps[i + 1]),
+      Math.sqrt(speeds[i] * speeds[i] + 2 * acceleration * lengths[i])
+    ));
+    for (let i = lengths.length - 1; i >= 0; i--) speeds[i] = Math.min(speeds[i], Math.sqrt(speeds[i + 1] ** 2 + 2 * braking * lengths[i]));
+    if (speeds[0] < initialSpeed - EPSILON16) return null;
+    speeds[0] = initialSpeed;
+    const segments = [];
+    let time = 0, distance6 = 0;
+    const append = (duration, startSpeed, a, endDistance) => {
+      if (duration <= 0) return;
+      segments.push({
+        startElapsedSeconds: time,
+        endElapsedSeconds: time + duration,
+        startDistanceMeters: distance6,
+        endDistanceMeters: endDistance,
+        startSpeedMps: startSpeed,
+        accelerationMps2: a
+      });
+      time += duration;
+      distance6 = endDistance;
+    };
+    for (let i = 0; i < lengths.length; i++) {
+      const from = speeds[i], to = speeds[i + 1], startDistance = distance6;
+      const peak = Math.min(caps[i], Math.sqrt((2 * acceleration * braking * lengths[i] + braking * from ** 2 + acceleration * to ** 2) / (acceleration + braking)));
+      const acceleratingDistance = Math.max(0, (peak ** 2 - from ** 2) / (2 * acceleration));
+      const brakingDistance = Math.max(0, (peak ** 2 - to ** 2) / (2 * braking));
+      const coastingDistance = Math.max(0, lengths[i] - acceleratingDistance - brakingDistance);
+      append(Math.max(0, (peak - from) / acceleration), from, acceleration, startDistance + acceleratingDistance);
+      append(coastingDistance / peak, peak, 0, startDistance + acceleratingDistance + coastingDistance);
+      append(Math.max(0, (peak - to) / braking), peak, -braking, startDistance + lengths[i]);
+    }
+    return { segments, durationSeconds: time };
+  }
+  function firstTouchDistance(route, bag, radius, centerDistance) {
+    let traversed = 0;
+    for (const part of route.segments) {
+      const length = segmentLength2(part), maximum = Math.min(length, centerDistance - traversed);
+      if (maximum < -EPSILON16) break;
+      const candidates = [0];
+      if (part.kind === "line") {
+        const heading = unit3(sub7(part.end, part.start)), offset = sub7(part.start, bag), b = dot13(offset, heading);
+        const discriminant = b * b - dot13(offset, offset) + radius * radius;
+        if (discriminant >= 0) candidates.push(-b - Math.sqrt(discriminant), -b + Math.sqrt(discriminant));
+      } else {
+        const offset = sub7(bag, part.center), d = norm5(offset);
+        if (d > 0) {
+          const cosine = (part.radiusMeters ** 2 + d * d - radius * radius) / (2 * part.radiusMeters * d);
+          if (cosine >= -1 && cosine <= 1) for (const sign of [-1, 1]) {
+            const theta = angle(offset) + sign * Math.acos(cosine);
+            candidates.push(part.radiusMeters * positiveAngle(Math.sign(part.sweepRadians) * (theta - part.startAngleRadians)));
+          }
+        }
+      }
+      candidates.sort((a, b) => a - b);
+      for (const local of candidates) {
+        if (local < -EPSILON16 || local > maximum + EPSILON16) continue;
+        let candidate = Math.max(traversed, Math.min(centerDistance, traversed + local));
+        for (let attempt = 0; attempt < 12; attempt++) {
+          if (norm5(sub7(sampleRunnerRoute(route, candidate).position, bag)) <= radius) return candidate;
+          candidate = Math.min(centerDistance, candidate + Number.EPSILON * Math.max(1, centerDistance) * 2 ** attempt);
+        }
+      }
+      traversed += length;
+    }
+    if (norm5(sub7(sampleRunnerRoute(route, centerDistance).position, bag)) <= radius) return centerDistance;
+    throw new Error("live runner motion: planned base lacks a physical touch");
+  }
+  function createLiveRunnerMotionV1(input) {
+    const braking = input.brakingMps2 ?? input.accelerationMps2;
+    const radius = input.roundingRadiusMeters ?? 4.5;
+    const lateral = input.lateralAccelerationMps2 ?? 1.5 * input.accelerationMps2;
+    const touchRadius = input.baseTouchRadiusMeters ?? 0.28;
+    if (!finite8(input.position) || input.velocity && !finite8(input.velocity) || !input.bases.length || !input.bases.every((b) => Number.isInteger(b.base) && b.base >= 1 && b.base <= 4 && finite8(b.position)) || ![input.topSpeedMps, input.accelerationMps2, braking, radius, lateral, touchRadius].every((n) => Number.isFinite(n) && n > 0)) {
+      throw new Error("live runner motion: finite positive motor and base geometry required");
+    }
+    let previous = input.position;
+    for (const bag of input.bases) {
+      if (norm5(sub7(bag.position, previous)) <= EPSILON16) throw new Error("live runner motion: consecutive positions must differ");
+      previous = bag.position;
+    }
+    const initialSpeed = input.velocity ? norm5(input.velocity) : 0;
+    if (initialSpeed > input.topSpeedMps + EPSILON16) return null;
+    const geometry = buildRoute(input, radius, lateral, initialSpeed);
+    if (!geometry) return null;
+    const timing = buildSpeedSegments(geometry.route, initialSpeed, input.topSpeedMps, input.accelerationMps2, braking, lateral);
+    if (!timing) return null;
+    const elapsedSecondsAtDistanceMeters = (rawDistance) => {
+      if (!Number.isFinite(rawDistance) || rawDistance < 0 || rawDistance > geometry.lengthMeters + EPSILON16)
+        throw new Error("live runner motion: distance must lie on finite route");
+      const distance6 = Math.min(rawDistance, geometry.lengthMeters);
+      if (distance6 === geometry.lengthMeters) return timing.durationSeconds;
+      const s = timing.segments.find((s2) => distance6 <= s2.endDistanceMeters + EPSILON16) ?? timing.segments[timing.segments.length - 1];
+      const local = Math.max(0, Math.min(s.endDistanceMeters - s.startDistanceMeters, distance6 - s.startDistanceMeters));
+      const endSpeed = Math.sqrt(Math.max(0, s.startSpeedMps ** 2 + 2 * s.accelerationMps2 * local));
+      return s.startElapsedSeconds + (local === 0 ? 0 : 2 * local / (s.startSpeedMps + endSpeed));
+    };
+    const sampleAtElapsedSeconds = (elapsed) => {
+      if (!Number.isFinite(elapsed)) throw new Error("live runner motion: elapsed time must be finite");
+      if (elapsed <= 0) return { position: { ...input.position }, velocity: { ...input.velocity ?? { x: 0, z: 0 } }, speedMps: initialSpeed, distanceMeters: 0 };
+      if (elapsed >= timing.durationSeconds) return { position: { ...input.bases[input.bases.length - 1].position }, velocity: { x: 0, z: 0 }, speedMps: 0, distanceMeters: geometry.lengthMeters };
+      const s = timing.segments.find((s2) => elapsed <= s2.endElapsedSeconds) ?? timing.segments[timing.segments.length - 1];
+      const dt = Math.max(0, elapsed - s.startElapsedSeconds);
+      const distance6 = Math.min(geometry.lengthMeters, Math.max(0, s.startDistanceMeters + s.startSpeedMps * dt + 0.5 * s.accelerationMps2 * dt * dt));
+      const speed2 = Math.max(0, s.startSpeedMps + s.accelerationMps2 * dt);
+      const point = sampleRunnerRoute(geometry.route, distance6);
+      return { position: point.position, velocity: mul4(point.tangent, speed2), speedMps: speed2, distanceMeters: distance6 };
+    };
+    const touches = input.bases.map((bag, index) => {
+      const centerDistanceMeters = geometry.centerDistances[index];
+      const distanceMeters = firstTouchDistance(geometry.route, bag.position, touchRadius, centerDistanceMeters);
+      return {
+        base: bag.base,
+        distanceMeters,
+        elapsedSeconds: elapsedSecondsAtDistanceMeters(distanceMeters),
+        position: sampleRunnerRoute(geometry.route, distanceMeters).position,
+        centerDistanceMeters,
+        centerElapsedSeconds: elapsedSecondsAtDistanceMeters(centerDistanceMeters)
+      };
+    });
+    return Object.freeze({
+      route: geometry.route,
+      lengthMeters: geometry.lengthMeters,
+      durationSeconds: timing.durationSeconds,
+      speedSegments: timing.segments,
+      touches,
+      sampleAtElapsedSeconds,
+      elapsedSecondsAtDistanceMeters
+    });
+  }
 
   // src/core/rules/ForceObligation.ts
   var participantFor = (runnerId, startBase) => ({
@@ -9829,17 +10262,17 @@ var KneekuraNativeMatchCore = (() => {
     tagUpAppealsImplemented: false
   });
   var v = (x = 0, y = 0, z = 0) => ({ x, y, z });
-  var add13 = (a, b) => v(a.x + b.x, a.y + b.y, a.z + b.z);
-  var sub6 = (a, b) => v(a.x - b.x, a.y - b.y, a.z - b.z);
-  var mul3 = (a, s) => v(a.x * s, a.y * s, a.z * s);
-  var norm4 = (a) => Math.hypot(a.x, a.y, a.z);
+  var add15 = (a, b) => v(a.x + b.x, a.y + b.y, a.z + b.z);
+  var sub8 = (a, b) => v(a.x - b.x, a.y - b.y, a.z - b.z);
+  var mul5 = (a, s) => v(a.x * s, a.y * s, a.z * s);
+  var norm6 = (a) => Math.hypot(a.x, a.y, a.z);
   var flat = (a) => v(a.x, 0, a.z);
-  var distance5 = (a, b) => norm4(sub6(a, b));
-  var finite7 = (a) => !!a && [a.x, a.y, a.z].every(Number.isFinite);
+  var distance5 = (a, b) => norm6(sub8(a, b));
+  var finite9 = (a) => !!a && [a.x, a.y, a.z].every(Number.isFinite);
   var clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
-  var freeze18 = (a) => {
+  var freeze19 = (a) => {
     if (a && typeof a === "object") {
-      Object.values(a).forEach(freeze18);
+      Object.values(a).forEach(freeze19);
       Object.freeze(a);
     }
     return a;
@@ -9851,9 +10284,9 @@ var KneekuraNativeMatchCore = (() => {
     if (c.exactEnd?.time === t) return c.exactEnd.position;
     const dt = t - c.from, accelerating = Math.min(dt, c.stopAfter ?? dt);
     const after = dt - accelerating;
-    return add13(c.p, add13(
-      add13(add13(mul3(c.velocity, accelerating), mul3(c.acceleration, 0.5 * accelerating ** 2)), mul3(c.jerk ?? v(), accelerating ** 3 / 6)),
-      add13(add13(mul3(c.continuingVelocity ?? v(), after), mul3(c.continuingAcceleration ?? v(), 0.5 * after ** 2)), mul3(c.continuingJerk ?? v(), after ** 3 / 6))
+    return add15(c.p, add15(
+      add15(add15(mul5(c.velocity, accelerating), mul5(c.acceleration, 0.5 * accelerating ** 2)), mul5(c.jerk ?? v(), accelerating ** 3 / 6)),
+      add15(add15(mul5(c.continuingVelocity ?? v(), after), mul5(c.continuingAcceleration ?? v(), 0.5 * after ** 2)), mul5(c.continuingJerk ?? v(), after ** 3 / 6))
     ));
   };
   var velocityAt = (c, t) => {
@@ -9861,30 +10294,30 @@ var KneekuraNativeMatchCore = (() => {
     const dt = t - c.from;
     if (c.stopAfter !== void 0 && dt >= c.stopAfter) {
       const after = dt - c.stopAfter;
-      return add13(c.continuingVelocity ?? v(), add13(mul3(c.continuingAcceleration ?? v(), after), mul3(c.continuingJerk ?? v(), 0.5 * after ** 2)));
+      return add15(c.continuingVelocity ?? v(), add15(mul5(c.continuingAcceleration ?? v(), after), mul5(c.continuingJerk ?? v(), 0.5 * after ** 2)));
     }
-    return add13(c.velocity, add13(mul3(c.acceleration, dt), mul3(c.jerk ?? v(), 0.5 * dt ** 2)));
+    return add15(c.velocity, add15(mul5(c.acceleration, dt), mul5(c.jerk ?? v(), 0.5 * dt ** 2)));
   };
   var maximumCurveSpeed = (c, from, through) => {
     if (c.stopAfter !== void 0 && c.from + c.stopAfter > from && c.from + c.stopAfter < through)
       return Math.max(maximumCurveSpeed(c, from, c.from + c.stopAfter), maximumCurveSpeed(c, c.from + c.stopAfter, through));
-    const dt = through - from, after = c.stopAfter !== void 0 && from - c.from >= c.stopAfter, local = from - c.from - (after ? c.stopAfter : 0), acceleration = add13(after ? c.continuingAcceleration ?? v() : c.acceleration, mul3(after ? c.continuingJerk ?? v() : c.jerk ?? v(), local)), middleDerivativeControl = add13(velocityAt(c, from), mul3(acceleration, dt / 2));
-    return Math.max(norm4(velocityAt(c, from)), norm4(velocityAt(c, through)), norm4(middleDerivativeControl));
+    const dt = through - from, after = c.stopAfter !== void 0 && from - c.from >= c.stopAfter, local = from - c.from - (after ? c.stopAfter : 0), acceleration = add15(after ? c.continuingAcceleration ?? v() : c.acceleration, mul5(after ? c.continuingJerk ?? v() : c.jerk ?? v(), local)), middleDerivativeControl = add15(velocityAt(c, from), mul5(acceleration, dt / 2));
+    return Math.max(norm6(velocityAt(c, from)), norm6(velocityAt(c, through)), norm6(middleDerivativeControl));
   };
   var maximumCurveAcceleration = (c, through) => {
     const dt = Math.min(through - c.from, c.stopAfter ?? Infinity), after = Math.max(0, through - c.from - (c.stopAfter ?? Infinity));
     return Math.max(
-      norm4(c.acceleration),
-      norm4(add13(c.acceleration, mul3(c.jerk ?? v(), dt))),
-      norm4(c.continuingAcceleration ?? v()),
-      norm4(add13(c.continuingAcceleration ?? v(), mul3(c.continuingJerk ?? v(), after)))
+      norm6(c.acceleration),
+      norm6(add15(c.acceleration, mul5(c.jerk ?? v(), dt))),
+      norm6(c.continuingAcceleration ?? v()),
+      norm6(add15(c.continuingAcceleration ?? v(), mul5(c.continuingJerk ?? v(), after)))
     );
   };
   function deriveLiveFieldFenceGeometryV1(field) {
     const back = field.foulFenceRadiusMeters ?? 35;
-    assert9(finite7(field.bases.home) && Number.isFinite(back) && back > 0 && Number.isFinite(field.fenceRadiusMeters) && field.fenceRadiusMeters > 0 && Number.isFinite(field.fenceHeightMeters) && field.fenceHeightMeters >= 0, "finite fence geometry required");
-    return freeze18({
-      fenceCenter: add13(field.bases.home, v(0, 0, (field.fenceRadiusMeters - back) / 2)),
+    assert9(finite9(field.bases.home) && Number.isFinite(back) && back > 0 && Number.isFinite(field.fenceRadiusMeters) && field.fenceRadiusMeters > 0 && Number.isFinite(field.fenceHeightMeters) && field.fenceHeightMeters >= 0, "finite fence geometry required");
+    return freeze19({
+      fenceCenter: add15(field.bases.home, v(0, 0, (field.fenceRadiusMeters - back) / 2)),
       fenceRadiusMeters: (field.fenceRadiusMeters + back) / 2,
       fenceHeightMeters: field.fenceHeightMeters
     });
@@ -9910,10 +10343,10 @@ var KneekuraNativeMatchCore = (() => {
     assert9(Number.isInteger(input.outs) && input.outs >= 0 && input.outs <= 2 && Number.isFinite(max) && max > start && max - start <= 120 && frameSeconds > 0 && Number.isFinite(frameSeconds) && (input.seed === void 0 || Number.isSafeInteger(input.seed) && input.seed >= 0 && input.seed <= 4294967295), "invalid finite play scope");
     assert9(input.ball.ball.tick === quantizeEventTick(originTick, start, tps) && input.physics.ground.ticksPerSecond === tps, "actual contact clock differs");
     const field = input.field, base = (n) => field.bases[["home", "first", "second", "third", "home"][n]];
-    assert9(Object.values(field.bases).every(finite7) && Number.isFinite(field.fenceRadiusMeters) && Number.isFinite(field.fenceHeightMeters) && field.fenceRadiusMeters > 0 && field.fenceHeightMeters >= 0, "finite field geometry required");
+    assert9(Object.values(field.bases).every(finite9) && Number.isFinite(field.fenceRadiusMeters) && Number.isFinite(field.fenceHeightMeters) && field.fenceRadiusMeters > 0 && field.fenceHeightMeters >= 0, "finite field geometry required");
     const fieldGeometry = deriveLiveFieldFenceGeometryV1(field), fenceCenter = fieldGeometry.fenceCenter, fenceRadius = fieldGeometry.fenceRadiusMeters;
-    for (const f of input.fielders) assert9(f.playerId && finite7(f.position) && (!f.velocity || finite7(f.velocity)) && f.position.y > 0 && [f.topSpeedMps, f.accelerationMps2, f.gloveSpeedMps, f.gloveReachMeters, f.gloveRadiusMeters, f.throwSpeedMps].every((x) => Number.isFinite(x) && x > 0) && [f.reactionSeconds, f.transferSeconds].every((x) => Number.isFinite(x) && x >= 0) && f.catchRetention.ticksPerSecond === tps && f.catchRetention.ballRadiusMeters === input.physics.ground.radiusM && f.catchRetention.ballMassKg === input.physics.air.aerodynamics.ballMassKg && [f.catchRetention.pocketRadiusMeters, f.catchRetention.centerRetentionCapacityJ, f.catchRetention.captureDissipationPowerW].every((x) => Number.isFinite(x) && x > 0) && [f.catchRetention.failedContactRestitution, f.catchRetention.failedTangentialDamping, f.catchRetention.failedSpinDamping].every((x) => Number.isFinite(x) && x >= 0 && x <= 1) && (f.throwBackspinRadPerSecond === void 0 || Number.isFinite(f.throwBackspinRadPerSecond) && f.throwBackspinRadPerSecond >= 0) && (!f.throwSpinRadPerSecond || finite7(f.throwSpinRadPerSecond)) && (f.throwDirectionStdRadians === void 0 || Number.isFinite(f.throwDirectionStdRadians) && f.throwDirectionStdRadians >= 0 && f.throwDirectionStdRadians <= 0.12) && (f.fieldingCognition === void 0 || Object.keys(f.fieldingCognition).every((k) => ["decisionSeconds", "pursuitCostWeight"].includes(k)) && Number.isFinite(f.fieldingCognition.decisionSeconds) && f.fieldingCognition.decisionSeconds >= 0 && (f.fieldingCognition.pursuitCostWeight === void 0 || Number.isFinite(f.fieldingCognition.pursuitCostWeight) && f.fieldingCognition.pursuitCostWeight >= 0.25 && f.fieldingCognition.pursuitCostWeight <= 4) && Number.isFinite(f.reactionSeconds + f.fieldingCognition.decisionSeconds)), "explicit fielder SI required");
-    for (const r of input.runners) assert9(r.runnerId && [0, 1, 2, 3].includes(r.initialBase) && [r.topSpeedMps, r.accelerationMps2].every((x) => Number.isFinite(x) && x > 0) && Number.isFinite(r.reactionSeconds) && r.reactionSeconds >= 0 && (!r.position || finite7(r.position)) && (r.advanceSafetyMarginSeconds === void 0 || Number.isFinite(r.advanceSafetyMarginSeconds) && r.advanceSafetyMarginSeconds >= 0 && r.advanceSafetyMarginSeconds <= 3), "explicit runner SI required");
+    for (const f of input.fielders) assert9(f.playerId && finite9(f.position) && (!f.velocity || finite9(f.velocity)) && f.position.y > 0 && [f.topSpeedMps, f.accelerationMps2, f.gloveSpeedMps, f.gloveReachMeters, f.gloveRadiusMeters, f.throwSpeedMps].every((x) => Number.isFinite(x) && x > 0) && [f.reactionSeconds, f.transferSeconds].every((x) => Number.isFinite(x) && x >= 0) && f.catchRetention.ticksPerSecond === tps && f.catchRetention.ballRadiusMeters === input.physics.ground.radiusM && f.catchRetention.ballMassKg === input.physics.air.aerodynamics.ballMassKg && [f.catchRetention.pocketRadiusMeters, f.catchRetention.centerRetentionCapacityJ, f.catchRetention.captureDissipationPowerW].every((x) => Number.isFinite(x) && x > 0) && [f.catchRetention.failedContactRestitution, f.catchRetention.failedTangentialDamping, f.catchRetention.failedSpinDamping].every((x) => Number.isFinite(x) && x >= 0 && x <= 1) && (f.throwBackspinRadPerSecond === void 0 || Number.isFinite(f.throwBackspinRadPerSecond) && f.throwBackspinRadPerSecond >= 0) && (!f.throwSpinRadPerSecond || finite9(f.throwSpinRadPerSecond)) && (f.throwDirectionStdRadians === void 0 || Number.isFinite(f.throwDirectionStdRadians) && f.throwDirectionStdRadians >= 0 && f.throwDirectionStdRadians <= 0.12) && (f.fieldingCognition === void 0 || Object.keys(f.fieldingCognition).every((k) => ["decisionSeconds", "pursuitCostWeight"].includes(k)) && Number.isFinite(f.fieldingCognition.decisionSeconds) && f.fieldingCognition.decisionSeconds >= 0 && (f.fieldingCognition.pursuitCostWeight === void 0 || Number.isFinite(f.fieldingCognition.pursuitCostWeight) && f.fieldingCognition.pursuitCostWeight >= 0.25 && f.fieldingCognition.pursuitCostWeight <= 4) && Number.isFinite(f.reactionSeconds + f.fieldingCognition.decisionSeconds)), "explicit fielder SI required");
+    for (const r of input.runners) assert9(r.runnerId && [0, 1, 2, 3].includes(r.initialBase) && [r.topSpeedMps, r.accelerationMps2].every((x) => Number.isFinite(x) && x > 0) && Number.isFinite(r.reactionSeconds) && r.reactionSeconds >= 0 && (!r.position || finite9(r.position)) && (r.advanceSafetyMarginSeconds === void 0 || Number.isFinite(r.advanceSafetyMarginSeconds) && r.advanceSafetyMarginSeconds >= 0 && r.advanceSafetyMarginSeconds <= 3) && (r.roundingRadiusMeters === void 0 || Number.isFinite(r.roundingRadiusMeters) && r.roundingRadiusMeters >= 0.5 && r.roundingRadiusMeters <= 10) && (r.lateralAccelerationMps2 === void 0 || Number.isFinite(r.lateralAccelerationMps2) && r.lateralAccelerationMps2 >= 0.5 && r.lateralAccelerationMps2 <= 20), "explicit runner SI required");
     const facts = [], frames = [], runnerTouches = [], controlledBaseContacts = [], controlledRunnerTags = [], runnerDepartures = [];
     const tick8 = (t) => quantizeEventTick(originTick, t, tps);
     const findContact = (gap, speed2, rounding, lo, hi) => firstContact(gap, speed2, rounding, lo, hi, 0, 1 / tps);
@@ -9949,6 +10382,11 @@ var KneekuraNativeMatchCore = (() => {
     const contactDiagnostics = [];
     const holderDecisions = [];
     const rejectedThrows = /* @__PURE__ */ new Set();
+    const relayPlans = [];
+    const relayCache = /* @__PURE__ */ new Map();
+    const relayVisited = /* @__PURE__ */ new Map();
+    const runnerMotions = [];
+    const roundingRecheckAfter = /* @__PURE__ */ new Map();
     const runnerDecisions = [];
     let runnerDecisionPending = false;
     let unresolvedDetail = null;
@@ -9986,7 +10424,7 @@ var KneekuraNativeMatchCore = (() => {
     const departureProofs = [];
     let reboundEscape = null;
     const isFair = (point) => {
-      const d = sub6(point, base(0));
+      const d = sub8(point, base(0));
       return d.z >= Math.abs(d.x);
     };
     const determineTerritory = (t, value) => {
@@ -9997,21 +10435,24 @@ var KneekuraNativeMatchCore = (() => {
     const runnerAt = (r, t) => {
       const leg = r.leg;
       if (!leg) return r.p;
-      const dt = clamp(t - leg.from, 0, leg.duration), a = leg.acceleration, ta = leg.accelerateFor, tc = leg.coastFor;
-      const s = dt <= ta ? 0.5 * a * dt * dt : dt <= ta + tc ? 0.5 * a * ta * ta + leg.peak * (dt - ta) : 0.5 * a * ta * ta + leg.peak * tc + leg.peak * (dt - ta - tc) - 0.5 * a * (dt - ta - tc) ** 2;
-      const p = sampleRunnerRoute({ segments: [{ kind: "line", start: leg.p, end: leg.q }] }, clamp(s, 0, leg.length)).position;
-      return v(p.x, leg.p.y, p.z);
+      const p = leg.motion.sampleAtElapsedSeconds(t - leg.from).position;
+      return v(p.x, leg.height, p.z);
+    };
+    const runnerVelocityAt = (r, t) => {
+      if (!r.leg) return v();
+      const vel = r.leg.motion.sampleAtElapsedSeconds(t - r.leg.from).velocity;
+      return v(vel.x, 0, vel.z);
     };
     const ballAt2 = (t) => {
       const holder = possession ?? pendingCatch?.fielder;
       if (holder) {
         const u = pendingCatch ? clamp((t - pendingCatch.first) / Math.max(pendingCatch.secure - pendingCatch.first, Number.MIN_VALUE), 0, 1) : 1;
-        const grip = at(holder.glove, t), translatedEntry = pendingCatch ? add13(pendingCatch.initialPosition, sub6(grip, pendingCatch.initialGlove)) : grip;
+        const grip = at(holder.glove, t), translatedEntry = pendingCatch ? add15(pendingCatch.initialPosition, sub8(grip, pendingCatch.initialGlove)) : grip;
         return {
-          position: pendingCatch ? u === 0 ? pendingCatch.initialPosition : u === 1 ? grip : add13(mul3(translatedEntry, 1 - u), mul3(grip, u)) : grip,
-          velocity: pendingCatch ? sub6(velocityAt(holder.glove, t), mul3(pendingCatch.offset, 1 / (pendingCatch.secure - pendingCatch.first))) : velocityAt(holder.glove, t),
-          spin: pendingCatch ? mul3(pendingCatch.spin, 1 - u) : v(),
-          orientation: pendingCatch ? advanceBaseballOrientation(orientationBasis, mul3(pendingCatch.spin, 1 - u / 2), t - pendingCatch.first) : orientationBasis,
+          position: pendingCatch ? u === 0 ? pendingCatch.initialPosition : u === 1 ? grip : add15(mul5(translatedEntry, 1 - u), mul5(grip, u)) : grip,
+          velocity: pendingCatch ? sub8(velocityAt(holder.glove, t), mul5(pendingCatch.offset, 1 / (pendingCatch.secure - pendingCatch.first))) : velocityAt(holder.glove, t),
+          spin: pendingCatch ? mul5(pendingCatch.spin, 1 - u) : v(),
+          orientation: pendingCatch ? advanceBaseballOrientation(orientationBasis, mul5(pendingCatch.spin, 1 - u / 2), t - pendingCatch.first) : orientationBasis,
           phase: "possessed"
         };
       }
@@ -10033,7 +10474,15 @@ var KneekuraNativeMatchCore = (() => {
           possessedBy: (possession ?? pendingCatch?.fielder)?.spec.playerId ?? null
         },
         fielders: defenders.map((f) => ({ playerId: f.spec.playerId, position: at(f.body, t), velocity: velocityAt(f.body, t), glove: at(f.glove, t), intent: f.intent, targetBase: f.targetBase })),
-        runners: runners.map((r) => ({ runnerId: r.spec.runnerId, position: runnerAt(r, t), currentBase: r.base, targetBase: r.leg?.to ?? null, retired: r.retired, scored: r.scored }))
+        runners: runners.map((r) => ({
+          runnerId: r.spec.runnerId,
+          position: runnerAt(r, t),
+          velocity: runnerVelocityAt(r, t),
+          currentBase: r.base,
+          targetBase: r.leg && r.leg.to > r.base ? r.leg.to : null,
+          retired: r.retired,
+          scored: r.scored
+        }))
       });
     };
     const retire = (r, t) => {
@@ -10045,18 +10494,37 @@ var KneekuraNativeMatchCore = (() => {
       force = retireForceParticipant(force, r.spec.runnerId);
     };
     const beginLeg = (r, n, t) => {
-      const p = runnerAt(r, t), q = base(n), length = distance5(flat(p), flat(q)), a = r.spec.accelerationMps2, peak = Math.min(r.spec.topSpeedMps, Math.sqrt(a * length)), ta = peak / a, tc = Math.max(0, (length - peak * peak / a) / peak);
-      if (!(length > 0)) return;
-      r.leg = { from: t, to: n, p, q, length, acceleration: a, peak, accelerateFor: ta, coastFor: tc, duration: 2 * ta + tc };
+      const p = runnerAt(r, t), motion = createLiveRunnerMotionV1({
+        position: p,
+        velocity: runnerVelocityAt(r, t),
+        bases: [{ base: n, position: base(n) }],
+        topSpeedMps: r.spec.topSpeedMps,
+        accelerationMps2: r.spec.accelerationMps2
+      });
+      if (!motion) return;
+      r.leg = { from: t, to: n, motion, nextTouchIndex: 0, height: p.y, departure: null };
+      runnerMotions.push({
+        elapsedSeconds: t,
+        runnerId: r.spec.runnerId,
+        throughBases: [n],
+        position: p,
+        velocity: v(),
+        durationSeconds: motion.durationSeconds,
+        lengthMeters: motion.lengthMeters,
+        route: motion.route
+      });
       if (r.base > 0) {
         runnerDepartures.push({ kind: "runner_base_departure", runnerId: r.spec.runnerId, base: r.base, tick: tick8(t) });
         emit("runner_base_departure", t, { runnerId: r.spec.runnerId, base: r.base });
       }
     };
-    const runnerArrivalSeconds = (r, n, t) => r.leg && r.leg.to === n ? Math.max(0, r.leg.from + r.leg.duration - t) : estimateLiveRunnerLegSecondsV1(distance5(flat(runnerAt(r, t)), flat(base(n))), r.spec.topSpeedMps, r.spec.accelerationMps2);
+    const runnerArrivalSeconds = (r, n, t) => {
+      const touch = r.leg?.motion.touches.slice(r.leg.nextTouchIndex).find((b) => b.base === n);
+      return touch && r.leg ? Math.max(0, r.leg.from + touch.centerElapsedSeconds - t) : estimateLiveRunnerLegSecondsV1(distance5(flat(runnerAt(r, t)), flat(base(n))), r.spec.topSpeedMps, r.spec.accelerationMps2);
+    };
     const outTargets = () => {
       const forced = deriveCurrentForceObligations(force).map((o) => ({ ...o, forced: true }));
-      return [...forced, ...runners.filter((r) => !r.retired && !r.scored && r.leg && !forced.some((o) => o.runnerId === r.spec.runnerId)).map((r) => ({ runnerId: r.spec.runnerId, targetBase: r.leg.to, forced: false }))];
+      return [...forced, ...runners.filter((r) => !r.retired && !r.scored && r.leg && r.leg.to > r.base && !forced.some((o) => o.runnerId === r.spec.runnerId)).map((r) => ({ runnerId: r.spec.runnerId, targetBase: r.leg.to, forced: false }))];
     };
     const history = [];
     const observe = (t) => {
@@ -10121,7 +10589,7 @@ var KneekuraNativeMatchCore = (() => {
         return Math.sqrt(Math.max(0, f.spec.gloveReachMeters * f.spec.gloveReachMeters - dy * dy)) + f.spec.gloveRadiusMeters * 0.5;
       };
       const travelTo = (p) => {
-        const toP = sub6(flat(p), bodyPos), dist = norm4(toP);
+        const toP = sub8(flat(p), bodyPos), dist = norm6(toP);
         let run = Math.max(0, dist - horizontalReachAt(p.y));
         if (run === 0) return wait;
         const rawAlong = dist > 1e-9 ? (bodyVel.x * toP.x + bodyVel.z * toP.z) / dist : 0;
@@ -10171,12 +10639,12 @@ var KneekuraNativeMatchCore = (() => {
       if (!best.intercepted && lastInFence) best = { point: lastInFence.point, eta: lastInFence.eta, prediction, intercepted: false };
       return best;
     };
-    const roundBound = (p) => 256 * Number.EPSILON * Math.max(1, norm4(p), norm4(fenceCenter), fenceRadius);
+    const roundBound = (p) => 256 * Number.EPSILON * Math.max(1, norm6(p), norm6(fenceCenter), fenceRadius);
     const pointInside = (p, radius) => distance5(flat(p), flat(fenceCenter)) + roundBound(p) <= radius;
     const curveInside = (c, from, through, radius, floor, depth = 0) => {
       if (c.stopAfter !== void 0 && c.from + c.stopAfter > from && c.from + c.stopAfter < through)
         return curveInside(c, from, c.from + c.stopAfter, radius, floor, depth) && curveInside(c, c.from + c.stopAfter, through, radius, floor, depth);
-      const a = at(c, from), b = at(c, through), control = add13(a, mul3(velocityAt(c, from), (through - from) / 3)), control2 = sub6(b, mul3(velocityAt(c, through), (through - from) / 3));
+      const a = at(c, from), b = at(c, through), control = add15(a, mul5(velocityAt(c, from), (through - from) / 3)), control2 = sub8(b, mul5(velocityAt(c, through), (through - from) / 3));
       if (!pointInside(a, radius) || !pointInside(b, radius) || a.y < floor || b.y < floor) return false;
       if (pointInside(control, radius) && pointInside(control2, radius) && control.y >= floor && control2.y >= floor) return true;
       if (depth >= 12 || from === through) return false;
@@ -10185,28 +10653,28 @@ var KneekuraNativeMatchCore = (() => {
     };
     const shifted = (c, offset, velocity = v()) => ({
       ...c,
-      p: add13(c.p, offset),
-      velocity: add13(c.velocity, velocity),
-      ...c.stopAfter !== void 0 ? { continuingVelocity: add13(c.continuingVelocity ?? v(), velocity) } : {}
+      p: add15(c.p, offset),
+      velocity: add15(c.velocity, velocity),
+      ...c.stopAfter !== void 0 ? { continuingVelocity: add15(c.continuingVelocity ?? v(), velocity) } : {}
     });
     const stopPoint = (c, t, acceleration) => {
-      const speed2 = norm4(velocityAt(c, t));
-      return add13(at(c, t), mul3(velocityAt(c, t), speed2 / (2 * acceleration)));
+      const speed2 = norm6(velocityAt(c, t));
+      return add15(at(c, t), mul5(velocityAt(c, t), speed2 / (2 * acceleration)));
     };
     const targetInside = (p, radius) => {
-      const d = flat(sub6(p, fenceCenter)), length = norm4(d);
-      return length <= radius ? p : add13(fenceCenter, add13(mul3(d, radius / length), v(0, p.y - fenceCenter.y, 0)));
+      const d = flat(sub8(p, fenceCenter)), length = norm6(d);
+      return length <= radius ? p : add15(fenceCenter, add15(mul5(d, radius / length), v(0, p.y - fenceCenter.y, 0)));
     };
     const throwOffset = (f, position, target) => {
-      const direction = flat(sub6(target, position)), length = norm4(direction), model = LIVE_FIELD_TEST_MODEL_V1.throwHand, desired = add13(mul3(direction, model.forwardMeters / Math.max(length, 1e-30)), v(0, model.heightAboveHipMeters, 0));
-      return mul3(desired, Math.min(1, f.spec.gloveReachMeters / norm4(desired)));
+      const direction = flat(sub8(target, position)), length = norm6(direction), model = LIVE_FIELD_TEST_MODEL_V1.throwHand, desired = add15(mul5(direction, model.forwardMeters / Math.max(length, 1e-30)), v(0, model.heightAboveHipMeters, 0));
+      return mul5(desired, Math.min(1, f.spec.gloveReachMeters / norm6(desired)));
     };
     let motorBoundaryFailure = null;
     let previousRoles = [], previousHandlerId = null;
     const plan = (t, through) => {
       observe(t);
       if (!possession && throwTarget) {
-        const seen = seenBy(throwTarget.receiver, t), target = add13(base(throwTarget.base), v(0, throwTarget.receiver.spec.position.y, 0));
+        const seen = seenBy(throwTarget.receiver, t), target = throwTarget.point;
         if (seen && seen.phase !== "possessed" && (throwTarget.releasedAt === void 0 || seen.t >= throwTarget.releasedAt) && (target.x - seen.position.x) * seen.velocity.x + (target.z - seen.position.z) * seen.velocity.z < 0 && distance5(flat(seen.position), flat(target)) > throwTarget.receiver.spec.gloveReachMeters) {
           throwTargetCancellations.push({
             elapsedSeconds: t,
@@ -10223,7 +10691,7 @@ var KneekuraNativeMatchCore = (() => {
       const selection = selectLiveFieldHandlerV1({
         candidates: forecasts.flatMap(({ f, predicted }) => {
           if (!predicted) return [];
-          const route = flat(sub6(predicted.point, at(f.body, t))), incoming = flat(predicted.prediction.sample(Math.min(predicted.eta, predicted.prediction.maximumSeconds)).velocity), arrivalSeconds = liveFieldArrivalSecondsV1(roleActor(f, t), predicted.point, f.spec.gloveReachMeters), chasing = Math.max(0, (route.x * incoming.x + route.z * incoming.z) / Math.max(norm4(route) * norm4(incoming), 1e-30));
+          const route = flat(sub8(predicted.point, at(f.body, t))), incoming = flat(predicted.prediction.sample(Math.min(predicted.eta, predicted.prediction.maximumSeconds)).velocity), arrivalSeconds = liveFieldArrivalSecondsV1(roleActor(f, t), predicted.point, f.spec.gloveReachMeters), chasing = Math.max(0, (route.x * incoming.x + route.z * incoming.z) / Math.max(norm6(route) * norm6(incoming), 1e-30));
           return [{
             playerId: f.spec.playerId,
             intercepted: predicted.intercepted,
@@ -10288,9 +10756,9 @@ var KneekuraNativeMatchCore = (() => {
         else if (throwTarget) reservations.push({
           playerId: throwTarget.receiver.spec.playerId,
           taskId: "receiver:" + throwTarget.base,
-          point: base(throwTarget.base),
-          intent: "base_cover",
-          targetBase: throwTarget.base
+          point: throwTarget.receiverPoint,
+          intent: throwTarget.intent,
+          targetBase: throwTarget.intent === "relay" ? null : throwTarget.base
         });
         else reservations.push({
           playerId: handler.spec.playerId,
@@ -10303,9 +10771,9 @@ var KneekuraNativeMatchCore = (() => {
           reservations.push({
             playerId: throwTarget.receiver.spec.playerId,
             taskId: "receiver:" + throwTarget.base,
-            point: base(throwTarget.base),
-            intent: "base_cover",
-            targetBase: throwTarget.base
+            point: throwTarget.receiverPoint,
+            intent: throwTarget.intent,
+            targetBase: throwTarget.intent === "relay" ? null : throwTarget.base
           });
         const seen = seenBy(handler, t), ball = possession || pendingCatch ? ballAt2(t) : seen;
         const roles = assignLiveFieldRolesV1({
@@ -10337,22 +10805,69 @@ var KneekuraNativeMatchCore = (() => {
       if (possession && !pendingCatch && t >= custodySince + possession.spec.transferSeconds && releaseAt === null) {
         const arrive = (f, target) => liveFieldArrivalSecondsV1({ ...roleActor(f, t), remainingReactionSeconds: 0 }, target, field.baseTouchRadiusMeters ?? 0.28);
         const candidates = outTargets().map((o) => {
-          const r = runners.find((r2) => r2.spec.runnerId === o.runnerId), target = base(o.targetBase), receiver = defenders.find((f) => f !== possession && assigned.get(f)?.intent === "base_cover" && assigned.get(f)?.base === o.targetBase) ?? defenders.filter((f) => f !== possession).sort((a, b) => liveFieldArrivalSecondsV1(roleActor(a, t), target) - liveFieldArrivalSecondsV1(roleActor(b, t), target))[0], throwSeconds = Math.max(0.05, distance5(at(possession.glove, t), add13(target, v(0, receiver.spec.position.y, 0))) / possession.spec.throwSpeedMps) + (receiver.spec.gloveRadiusMeters + input.physics.ground.radiusM) / receiver.spec.gloveSpeedMps, runnerSeconds = runnerArrivalSeconds(r, o.targetBase, t), preparation = createLiveHandPreparationV1({
+          const r = runners.find((r2) => r2.spec.runnerId === o.runnerId), target = base(o.targetBase), receiver = defenders.find((f) => f !== possession && assigned.get(f)?.intent === "base_cover" && assigned.get(f)?.base === o.targetBase) ?? defenders.filter((f) => f !== possession).sort((a, b) => liveFieldArrivalSecondsV1(roleActor(a, t), target) - liveFieldArrivalSecondsV1(roleActor(b, t), target))[0], throwSeconds = Math.max(0.05, distance5(at(possession.glove, t), add15(target, v(0, receiver.spec.position.y, 0))) / possession.spec.throwSpeedMps) + (receiver.spec.gloveRadiusMeters + input.physics.ground.radiusM) / receiver.spec.gloveSpeedMps, runnerSeconds = runnerArrivalSeconds(r, o.targetBase, t), preparation = createLiveHandPreparationV1({
             fromElapsedSeconds: t,
-            initialOffset: sub6(at(possession.glove, t), at(possession.body, t)),
-            initialRelativeVelocity: sub6(velocityAt(possession.glove, t), velocityAt(possession.body, t)),
+            initialOffset: sub8(at(possession.glove, t), at(possession.body, t)),
+            initialRelativeVelocity: sub8(velocityAt(possession.glove, t), velocityAt(possession.body, t)),
             targetOffset: throwOffset(possession, at(possession.body, t), target),
             maximumRelativeSpeedMps: possession.spec.gloveSpeedMps,
             maximumReachMeters: possession.spec.gloveReachMeters
-          }), carrySeconds = arrive(possession, target), receiverArriveSeconds = arrive(receiver, target), holderDist = distance5(flat(at(possession.body, t)), flat(target)), receivingSeconds = Math.max(
+          }), carrySeconds = arrive(possession, target), receiverArriveSeconds = arrive(receiver, target), holderDist = distance5(flat(at(possession.body, t)), flat(target)), directReceivingSeconds = Math.max(
             receiverArriveSeconds,
             (preparation.kind === "planned" ? preparation.durationSeconds : Infinity) + throwSeconds
           );
+          const cacheKey = custodySince + ":" + possession.spec.playerId + ":" + r.spec.runnerId + ":" + o.targetBase, cached = relayCache.get(cacheKey);
+          let relayPlan = null;
+          if (holderDist > 3.5) {
+            relayPlan = cached && t - cached.at < 0.12 ? cached.plan : planLiveRelayV1({
+              actors: defenders.map((f) => ({
+                ...roleActor(f, t),
+                glovePosition: at(f.glove, t),
+                gloveVelocity: velocityAt(f.glove, t),
+                gloveSpeedMps: f.spec.gloveSpeedMps,
+                gloveReachMeters: f.spec.gloveReachMeters,
+                gloveRadiusMeters: f.spec.gloveRadiusMeters,
+                transferSeconds: f.spec.transferSeconds,
+                ...f.spec.throwDirectionStdRadians === void 0 ? {} : { throwDirectionStdRadians: f.spec.throwDirectionStdRadians },
+                ...f.spec.throwBackspinRadPerSecond === void 0 ? {} : { throwBackspinRadPerSecond: f.spec.throwBackspinRadPerSecond },
+                ...f.spec.throwSpinRadPerSecond === void 0 ? {} : { throwSpinRadPerSecond: f.spec.throwSpinRadPerSecond }
+              })),
+              holderPlayerId: possession.spec.playerId,
+              receiverPlayerId: receiver.spec.playerId,
+              finalBase: o.targetBase,
+              runnerId: r.spec.runnerId,
+              target: add15(target, v(0, receiver.spec.position.y, 0)),
+              runnerArrivalSeconds: runnerSeconds,
+              holderTransferRemainingSeconds: 0,
+              physics: input.physics,
+              excludedRelayPlayerIds: [...relayVisited.get(r.spec.runnerId + ":" + o.targetBase) ?? []],
+              throwHandOffset: {
+                forwardMeters: LIVE_FIELD_TEST_MODEL_V1.throwHand.forwardMeters,
+                heightAboveHipMeters: LIVE_FIELD_TEST_MODEL_V1.throwHand.heightAboveHipMeters
+              }
+            });
+            if (!cached || relayPlan !== cached.plan) {
+              relayCache.set(cacheKey, { at: t, plan: relayPlan });
+              relayPlans.push({
+                elapsedSeconds: t,
+                playerId: possession.spec.playerId,
+                runnerId: r.spec.runnerId,
+                base: o.targetBase,
+                kind: relayPlan.kind,
+                receivers: relayPlan.legs.map((l) => l.receiverPlayerId),
+                readySeconds: relayPlan.readySeconds,
+                marginSeconds: relayPlan.marginSeconds,
+                aerodynamicSolveCount: relayPlan.diagnostics.aerodynamicSolveCount
+              });
+            }
+          }
+          const receivingSeconds = relayPlan ? relayPlan.firstHop ? relayPlan.readySeconds : Infinity : directReceivingSeconds;
           return {
             runnerId: r.spec.runnerId,
             forced: o.forced,
             base: o.targetBase,
             receiver,
+            relayPlan,
             margin: runnerSeconds - Math.min(carrySeconds, receivingSeconds),
             target,
             carrySeconds,
@@ -10390,8 +10905,17 @@ var KneekuraNativeMatchCore = (() => {
               receiverDistanceToBaseMeters: here
             });
           } else {
+            const hop = pick.relayPlan?.firstHop;
             holderTask = { point: at(possession.body, t), intent: "hold", base: null };
-            throwTarget = { receiver: pick.receiver, base: pick.base, runnerId: pick.runnerId, forced: pick.forced };
+            throwTarget = {
+              receiver: hop ? defenders.find((f) => f.spec.playerId === hop.receiverPlayerId) : pick.receiver,
+              base: pick.base,
+              runnerId: pick.runnerId,
+              forced: pick.forced,
+              point: hop?.target ?? add15(pick.target, v(0, pick.receiver.spec.position.y, 0)),
+              receiverPoint: hop?.receiverPoint ?? pick.target,
+              intent: hop?.intent ?? "base_cover"
+            };
             releaseAt = through;
             holderDecisions.push({
               elapsedSeconds: t,
@@ -10427,13 +10951,13 @@ var KneekuraNativeMatchCore = (() => {
       for (const f of defenders) {
         const before = at(f.body, t), vel = velocityAt(f.body, t), target = assigned.get(f), delta = through - t;
         const active = !dead && t >= start + responseSeconds(f);
-        const bodyRadius = LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters, gloveRadius = Math.max(f.spec.gloveRadiusMeters, input.physics.ground.radiusM), grip = at(f.glove, t), currentOffset = sub6(grip, before);
+        const bodyRadius = LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters, gloveRadius = Math.max(f.spec.gloveRadiusMeters, input.physics.ground.radiusM), grip = at(f.glove, t), currentOffset = sub8(grip, before);
         let motorPoint = target.point;
         if (active && target.intent === "intercept" && target.point.y <= gloveRadius + 0.2 && (forecasts.find((x) => x.f === f)?.predicted?.prediction.observedPosition.y ?? Infinity) <= gloveRadius + 0.2) {
-          const pred = forecasts.find((x) => x.f === f)?.predicted, toT = flat(sub6(target.point, before)), distT = norm4(toT), stopTime = liveFieldArrivalSecondsV1({ ...roleActor(f, t), remainingReactionSeconds: 0 }, target.point, 0.02) + norm4(vel) / f.spec.accelerationMps2;
+          const pred = forecasts.find((x) => x.f === f)?.predicted, toT = flat(sub8(target.point, before)), distT = norm6(toT), stopTime = liveFieldArrivalSecondsV1({ ...roleActor(f, t), remainingReactionSeconds: 0 }, target.point, 0.02) + norm6(vel) / f.spec.accelerationMps2;
           if (distT > 0.35 && (!pred || !pred.intercepted || pred.eta < stopTime)) {
             const runThrough = f.spec.topSpeedMps * f.spec.topSpeedMps / (2 * f.spec.accelerationMps2) + 0.5;
-            motorPoint = add13(target.point, mul3(toT, runThrough / distT));
+            motorPoint = add15(target.point, mul5(toT, runThrough / distT));
           }
         }
         const seg = buildDefenderMotionTrajectory(
@@ -10449,16 +10973,16 @@ var KneekuraNativeMatchCore = (() => {
             arrivalRadiusMeters: 0.02
           }
         )[0];
-        const proposed = { from: t, p: before, velocity: vel, acceleration: v(seg.acceleration.x, 0, seg.acceleration.z) }, speed2 = norm4(vel), emergency = {
+        const proposed = { from: t, p: before, velocity: vel, acceleration: v(seg.acceleration.x, 0, seg.acceleration.z) }, speed2 = norm6(vel), emergency = {
           from: t,
           p: before,
           velocity: vel,
-          acceleration: speed2 > 0 ? mul3(vel, -f.spec.accelerationMps2 / speed2) : v(),
+          acceleration: speed2 > 0 ? mul5(vel, -f.spec.accelerationMps2 / speed2) : v(),
           stopAfter: speed2 / f.spec.accelerationMps2
         };
         const bodySafe = (c, stoppingReserve = LIVE_FIELD_TEST_MODEL_V1.fenceMotorStoppingReserveMeters) => [{ offset: v(), radius: bodyRadius }, { offset: currentOffset, radius: gloveRadius }].every((o) => {
           const translated = shifted(c, o.offset);
-          return curveInside(translated, t, through, fenceRadius - o.radius, 0) && pointInside(add13(stopPoint(c, through, f.spec.accelerationMps2), o.offset), fenceRadius - o.radius - stoppingReserve);
+          return curveInside(translated, t, through, fenceRadius - o.radius, 0) && pointInside(add15(stopPoint(c, through, f.spec.accelerationMps2), o.offset), fenceRadius - o.radius - stoppingReserve);
         });
         let body = proposed, bodyBoundaryLimited = false;
         if (!bodySafe(body)) {
@@ -10478,7 +11002,7 @@ var KneekuraNativeMatchCore = (() => {
           body = emergency;
           let low = 0, high = 1;
           for (let i = 0; i < 32; i++) {
-            const u = (low + high) / 2, candidate = { ...proposed, acceleration: add13(mul3(emergency.acceleration, 1 - u), mul3(proposed.acceleration, u)) };
+            const u = (low + high) / 2, candidate = { ...proposed, acceleration: add15(mul5(emergency.acceleration, 1 - u), mul5(proposed.acceleration, u)) };
             if (bodySafe(candidate)) {
               low = u;
               body = candidate;
@@ -10488,13 +11012,13 @@ var KneekuraNativeMatchCore = (() => {
         f.body = body;
         f.intent = active ? target.intent : "hold";
         f.targetBase = target.base;
-        const heldOffset = throwTarget && f === possession ? throwOffset(f, at(f.body, through), base(throwTarget.base)) : v(0, 0, -0.5);
+        const heldOffset = throwTarget && f === possession ? throwOffset(f, at(f.body, through), throwTarget.point) : v(0, 0, -0.5);
         const expected = forecasts.find((x) => x.f === f)?.predicted, sampledNext = expected ? expected.prediction.sample(Math.min(delta, expected.prediction.maximumSeconds)).position : null, perceivedTarget = expected ? expected.intercepted || sampledNext && distance5(flat(sampledNext), flat(fenceCenter)) <= fenceRadius - input.physics.ground.radiusM ? sampledNext : expected.point : at(f.body, through);
         let anticipated = f === handler || f === throwTarget?.receiver ? expected?.point ?? perceivedTarget : perceivedTarget;
         if (distance5(perceivedTarget, at(f.body, through)) <= f.spec.gloveReachMeters + f.spec.gloveRadiusMeters + input.physics.ground.radiusM)
           anticipated = perceivedTarget;
         if (f === throwTarget?.receiver) {
-          const bodyAtThrough = at(f.body, through), q = add13(base(throwTarget.base), v(0, f.spec.position.y, 0)), frontDist = Math.min(f.spec.gloveReachMeters * 0.55, LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters + f.spec.gloveRadiusMeters + 0.12), seen = seenBy(f, t), sourcePos = possession ? at(possession.glove, t) : throwTarget.releasedFrom ?? seen?.position ?? bodyAtThrough, toSourceFromQ = flat(sub6(sourcePos, q)), lenQ = norm4(toSourceFromQ), u = lenQ > 1e-6 ? mul3(toSourceFromQ, 1 / lenQ) : v(0, 0, -1), bodyProj = Math.max(0, (bodyAtThrough.x - q.x) * u.x + (bodyAtThrough.z - q.z) * u.z), distFromQ = bodyProj + frontDist, frac = clamp(distFromQ / Math.max(lenQ, 1), 0, 1), sourceY = Math.max(sourcePos.y, q.y + LIVE_FIELD_TEST_MODEL_V1.throwHand.heightAboveHipMeters * 0.85), frontPoint = add13(q, add13(mul3(u, distFromQ), v(0, (sourceY - q.y) * frac, 0)));
+          const bodyAtThrough = at(f.body, through), q = throwTarget.point, frontDist = Math.min(f.spec.gloveReachMeters * 0.55, LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters + f.spec.gloveRadiusMeters + 0.12), seen = seenBy(f, t), sourcePos = possession ? at(possession.glove, t) : throwTarget.releasedFrom ?? seen?.position ?? bodyAtThrough, toSourceFromQ = flat(sub8(sourcePos, q)), lenQ = norm6(toSourceFromQ), u = lenQ > 1e-6 ? mul5(toSourceFromQ, 1 / lenQ) : v(0, 0, -1), bodyProj = Math.max(0, (bodyAtThrough.x - q.x) * u.x + (bodyAtThrough.z - q.z) * u.z), distFromQ = bodyProj + frontDist, frac = clamp(distFromQ / Math.max(lenQ, 1), 0, 1), sourceY = Math.max(sourcePos.y, q.y + LIVE_FIELD_TEST_MODEL_V1.throwHand.heightAboveHipMeters * 0.85), frontPoint = add15(q, add15(mul5(u, distFromQ), v(0, (sourceY - q.y) * frac, 0)));
           if (expected && throwTarget.releasedAt !== void 0 && seen && seen.t >= throwTarget.releasedAt) {
             let lo = -(t - seen.t), hi = Math.min(2, expected.prediction.maximumSeconds);
             for (let i = 0; i < 10; i++) {
@@ -10509,18 +11033,18 @@ var KneekuraNativeMatchCore = (() => {
         }
         const reachableTarget = v(anticipated.x, Math.max(gloveRadius, anticipated.y), anticipated.z);
         const tagRunner = f === possession && target.intent === "tag" ? runners.filter((r) => !r.retired && !r.scored && r.leg).sort((a, b) => distance5(at(f.body, through), runnerAt(a, through)) - distance5(at(f.body, through), runnerAt(b, through)))[0] : null;
-        const relative = sub6(bodyBoundaryLimited ? at(f.body, through) : tagRunner ? add13(runnerAt(tagRunner, through), v(0, 0.9, 0)) : f === possession || f === pendingCatch?.fielder ? add13(at(f.body, through), heldOffset) : f === handler || f === throwTarget?.receiver ? reachableTarget : at(f.body, through), at(f.body, through));
-        const desired = add13(at(f.body, through), mul3(relative, Math.min(1, f.spec.gloveReachMeters / Math.max(norm4(relative), 1e-30)))), limited = targetInside(v(desired.x, Math.max(gloveRadius, desired.y), desired.z), fenceRadius - gloveRadius - 0.02), wantedOffset = sub6(limited, at(f.body, through)), targetOffset = mul3(wantedOffset, Math.min(1, f.spec.gloveReachMeters / Math.max(norm4(wantedOffset), 1e-30))), relativeMove = sub6(targetOffset, currentOffset), relativeVelocity = active ? mul3(relativeMove, Math.min(1, f.spec.gloveSpeedMps * delta / Math.max(norm4(relativeMove), 1e-30)) / delta) : v();
+        const relative = sub8(bodyBoundaryLimited ? at(f.body, through) : tagRunner ? add15(runnerAt(tagRunner, through), v(0, 0.9, 0)) : f === possession || f === pendingCatch?.fielder ? add15(at(f.body, through), heldOffset) : f === handler || f === throwTarget?.receiver ? reachableTarget : at(f.body, through), at(f.body, through));
+        const desired = add15(at(f.body, through), mul5(relative, Math.min(1, f.spec.gloveReachMeters / Math.max(norm6(relative), 1e-30)))), limited = targetInside(v(desired.x, Math.max(gloveRadius, desired.y), desired.z), fenceRadius - gloveRadius - 0.02), wantedOffset = sub8(limited, at(f.body, through)), targetOffset = mul5(wantedOffset, Math.min(1, f.spec.gloveReachMeters / Math.max(norm6(wantedOffset), 1e-30))), relativeMove = sub8(targetOffset, currentOffset), relativeVelocity = active ? mul5(relativeMove, Math.min(1, f.spec.gloveSpeedMps * delta / Math.max(norm6(relativeMove), 1e-30)) / delta) : v();
         const gloveCurve = (u) => ({
           ...body,
           p: grip,
-          velocity: add13(vel, mul3(relativeVelocity, u)),
-          ...body.stopAfter !== void 0 ? { continuingVelocity: mul3(relativeVelocity, u) } : {}
+          velocity: add15(vel, mul5(relativeVelocity, u)),
+          ...body.stopAfter !== void 0 ? { continuingVelocity: mul5(relativeVelocity, u) } : {}
         });
         const gloveSafe = (c, stoppingReserve = LIVE_FIELD_TEST_MODEL_V1.fenceMotorStoppingReserveMeters, motorThrough = through) => {
-          if (!curveInside(c, t, motorThrough, fenceRadius - gloveRadius, gloveRadius) || !pointInside(add13(stopPoint(body, motorThrough, f.spec.accelerationMps2), sub6(at(c, motorThrough), at(body, motorThrough))), fenceRadius - gloveRadius - stoppingReserve)) return false;
+          if (!curveInside(c, t, motorThrough, fenceRadius - gloveRadius, gloveRadius) || !pointInside(add15(stopPoint(body, motorThrough, f.spec.accelerationMps2), sub8(at(c, motorThrough), at(body, motorThrough))), fenceRadius - gloveRadius - stoppingReserve)) return false;
           if (pendingCatch?.fielder === f) {
-            const capture = pendingCatch, duration = capture.secure - capture.first, until = Math.min(through, capture.secure), offset = mul3(capture.offset, Math.max(0, 1 - (t - capture.first) / duration)), captureCurve = shifted(c, offset, mul3(capture.offset, -1 / duration));
+            const capture = pendingCatch, duration = capture.secure - capture.first, until = Math.min(through, capture.secure), offset = mul5(capture.offset, Math.max(0, 1 - (t - capture.first) / duration)), captureCurve = shifted(c, offset, mul5(capture.offset, -1 / duration));
             if (until > t && !curveInside(
               captureCurve,
               t,
@@ -10536,7 +11060,7 @@ var KneekuraNativeMatchCore = (() => {
             const preparation = createLiveHandPreparationV1({
               fromElapsedSeconds: t,
               initialOffset: currentOffset,
-              initialRelativeVelocity: sub6(velocityAt(f.glove, t), vel),
+              initialRelativeVelocity: sub8(velocityAt(f.glove, t), vel),
               targetOffset: heldOffset,
               maximumRelativeSpeedMps: f.spec.gloveSpeedMps,
               maximumReachMeters: f.spec.gloveReachMeters
@@ -10548,6 +11072,7 @@ var KneekuraNativeMatchCore = (() => {
                 base: throwTarget.base,
                 from: preparation.fromElapsedSeconds,
                 through: preparation.throughElapsedSeconds,
+                target: throwTarget.point,
                 controls: preparation.cubicBezierControls(preparation.fromElapsedSeconds, preparation.throughElapsedSeconds),
                 diagnostics: preparation.diagnostics
               });
@@ -10559,23 +11084,23 @@ var KneekuraNativeMatchCore = (() => {
             }
           }
           if (handPreparation && handPreparation.fielder === f && throwTarget) {
-            const preparation = handPreparation, curve = preparation.curve, motorEnd = preparation.prepared ? through : Math.min(through, curve.throughElapsedSeconds), initial = curve.sampleAtElapsedSeconds(Math.min(t, curve.throughElapsedSeconds)), duration = curve.durationSeconds, controls2 = curve.cubicBezierControls(curve.fromElapsedSeconds, curve.throughElapsedSeconds), relativeJerk = preparation.prepared || duration === 0 ? v() : mul3(add13(sub6(controls2[3], mul3(controls2[2], 3)), sub6(mul3(controls2[1], 3), controls2[0])), 6 / duration ** 3), relativeAcceleration = preparation.prepared ? v() : initial.relativeAcceleration, relativeVelocityAtStart = preparation.prepared ? v() : initial.relativeVelocity;
+            const preparation = handPreparation, curve = preparation.curve, motorEnd = preparation.prepared ? through : Math.min(through, curve.throughElapsedSeconds), initial = curve.sampleAtElapsedSeconds(Math.min(t, curve.throughElapsedSeconds)), duration = curve.durationSeconds, controls2 = curve.cubicBezierControls(curve.fromElapsedSeconds, curve.throughElapsedSeconds), relativeJerk = preparation.prepared || duration === 0 ? v() : mul5(add15(sub8(controls2[3], mul5(controls2[2], 3)), sub8(mul5(controls2[1], 3), controls2[0])), 6 / duration ** 3), relativeAcceleration = preparation.prepared ? v() : initial.relativeAcceleration, relativeVelocityAtStart = preparation.prepared ? v() : initial.relativeVelocity;
             const smooth = {
               ...body,
               p: grip,
-              velocity: add13(vel, relativeVelocityAtStart),
-              acceleration: add13(body.acceleration, relativeAcceleration),
+              velocity: add15(vel, relativeVelocityAtStart),
+              acceleration: add15(body.acceleration, relativeAcceleration),
               jerk: relativeJerk
             };
             if (body.stopAfter !== void 0) {
               const stop = body.stopAfter;
-              smooth.continuingVelocity = add13(relativeVelocityAtStart, add13(mul3(relativeAcceleration, stop), mul3(relativeJerk, 0.5 * stop ** 2)));
-              smooth.continuingAcceleration = add13(relativeAcceleration, mul3(relativeJerk, stop));
+              smooth.continuingVelocity = add15(relativeVelocityAtStart, add15(mul5(relativeAcceleration, stop), mul5(relativeJerk, 0.5 * stop ** 2)));
+              smooth.continuingAcceleration = add15(relativeAcceleration, mul5(relativeJerk, stop));
               smooth.continuingJerk = relativeJerk;
             }
             if (!preparation.prepared && curve.throughElapsedSeconds <= through) smooth.exactEnd = {
               time: curve.throughElapsedSeconds,
-              position: add13(at(body, curve.throughElapsedSeconds), curve.sampleAtElapsedSeconds(curve.throughElapsedSeconds).offset),
+              position: add15(at(body, curve.throughElapsedSeconds), curve.sampleAtElapsedSeconds(curve.throughElapsedSeconds).offset),
               velocity: velocityAt(body, curve.throughElapsedSeconds)
             };
             if (!gloveSafe(smooth, LIVE_FIELD_TEST_MODEL_V1.fenceMotorStoppingReserveMeters, motorEnd)) {
@@ -10605,24 +11130,32 @@ var KneekuraNativeMatchCore = (() => {
         f.glove = glove;
       }
       runnerDecisionPending = false;
+      const defenseControlCache = /* @__PURE__ */ new Map();
+      const estimateDefenseControl = (n) => {
+        if (defenseControlCache.has(n)) return defenseControlCache.get(n);
+        const fastestArm = Math.max(...defenders.map((f) => f.spec.throwSpeedMps + norm6(velocityAt(f.body, t)))), estimates = defenders.flatMap((f) => {
+          const controlled = possession ?? pendingCatch?.fielder;
+          if (controlled && controlled !== f) return [];
+          const predicted = forecasts.find((x) => x.f === f)?.predicted;
+          if (!controlled && !predicted) return [];
+          const pickupSeconds = possession ? 0 : pendingCatch ? Math.max(0, pendingCatch.secure - t) : predicted.eta, point = controlled ? at(f.glove, t) : predicted.point, transfer = possession ? Math.max(0, custodySince + f.spec.transferSeconds - t) : f.spec.transferSeconds, throwSeconds = distance5(point, add15(base(n), v(0, 0.9, 0))) / fastestArm, receiverSeconds = Math.min(...defenders.filter((other) => other !== f).map((other) => liveFieldArrivalSecondsV1(roleActor(other, t), base(n), other.spec.gloveReachMeters)));
+          return [Math.min(
+            pickupSeconds + liveFieldArrivalSecondsV1({ ...roleActor(f, t), position: point }, base(n), f.spec.gloveReachMeters),
+            Math.max(pickupSeconds + transfer + throwSeconds, receiverSeconds)
+          )];
+        });
+        const result = estimates.length ? Math.min(...estimates) : null;
+        defenseControlCache.set(n, result);
+        return result;
+      };
+      const targetOccupiedByOther = (r, n) => runners.some((x) => x !== r && !x.retired && !x.scored && (x.base === n && (!x.leg || x.leg.to <= x.base) || x.leg?.motion.touches.slice(x.leg.nextTouchIndex).some((b) => b.base === n)));
       for (const r of runners.slice().sort((a, b) => b.base - a.base)) {
         if (r.retired || r.scored || r.leg) continue;
         const forced = deriveCurrentForceObligations(force).some((o) => o.runnerId === r.spec.runnerId);
         const next = r.base + 1;
         if (next > 4) continue;
-        const targetOccupied = runners.some((x) => x !== r && !x.retired && !x.scored && (x.base === next && !x.leg || x.leg?.to === next));
-        const control = defenders.flatMap((f) => {
-          const controlled = possession ?? pendingCatch?.fielder;
-          if (controlled && controlled !== f) return [];
-          const predicted = forecasts.find((x) => x.f === f)?.predicted;
-          if (!controlled && !predicted) return [];
-          const pickupSeconds = possession ? 0 : pendingCatch ? Math.max(0, pendingCatch.secure - t) : predicted.eta, point = controlled ? at(f.glove, t) : predicted.point, transfer = possession ? Math.max(0, custodySince + f.spec.transferSeconds - t) : f.spec.transferSeconds, throwSeconds = distance5(point, add13(base(next), v(0, 0.9, 0))) / (f.spec.throwSpeedMps + norm4(velocityAt(f.body, t))), receiverSeconds = Math.min(...defenders.filter((other) => other !== f).map((other) => liveFieldArrivalSecondsV1(roleActor(other, t), base(next), other.spec.gloveReachMeters)));
-          return [Math.min(
-            pickupSeconds + liveFieldArrivalSecondsV1({ ...roleActor(f, t), position: point }, base(next), f.spec.gloveReachMeters),
-            Math.max(pickupSeconds + transfer + throwSeconds, receiverSeconds)
-          )];
-        });
-        const defenderControlSeconds = control.length ? Math.min(...control) : null;
+        const targetOccupied = targetOccupiedByOther(r, next);
+        const defenderControlSeconds = estimateDefenseControl(next);
         const awardTarget = overFence?.fair ? Math.min(4, (overFence.awardFrom?.[r.spec.runnerId] ?? r.spec.initialBase) + (overFence.untouchedGround ? 4 : 2)) : null;
         const decision = decideLiveRunnerAdvanceV1({
           nowSeconds: t,
@@ -10644,6 +11177,39 @@ var KneekuraNativeMatchCore = (() => {
         if (!previous || previous.targetBase !== next || previous.reason !== decision.reason || decision.advance)
           runnerDecisions.push({ elapsedSeconds: t, runnerId: r.spec.runnerId, targetBase: next, defenderControlSeconds, ...decision });
         if (decision.advance && !(r.base === 0 && flyCatch) && !(dead && awardTarget === null)) beginLeg(r, next, t);
+      }
+      for (const r of runners.slice().sort((a, b) => b.base - a.base)) {
+        const leg = r.leg;
+        if (!leg || r.retired || r.scored || leg.departure !== null || leg.nextTouchIndex >= leg.motion.touches.length || leg.motion.touches.length - leg.nextTouchIndex > 1 || leg.to >= 4 || t < (roundingRecheckAfter.get(r.spec.runnerId) ?? -Infinity)) continue;
+        const awardThrough = overFence?.fair ? Math.min(4, (overFence.awardFrom?.[r.spec.runnerId] ?? r.spec.initialBase) + (overFence.untouchedGround ? 4 : 2)) : null, cue = firstGroundContactSeconds ?? firstFielderTouchSeconds;
+        if (awardThrough === null && (dead || cue === null || t < cue + r.spec.reactionSeconds)) continue;
+        const finalBase = awardThrough !== null ? awardThrough : leg.to + 1;
+        if (finalBase <= leg.to || Array.from({ length: finalBase - leg.to + 1 }, (_, i) => leg.to + i).some((n) => targetOccupiedByOther(r, n))) continue;
+        roundingRecheckAfter.set(r.spec.runnerId, t + 0.12);
+        const defense = estimateDefenseControl(finalBase);
+        if (awardThrough === null && (defense === null || distance5(flat(runnerAt(r, t)), flat(base(finalBase))) / r.spec.topSpeedMps + (r.spec.advanceSafetyMarginSeconds ?? 0.35) >= defense)) continue;
+        const position = runnerAt(r, t), velocity = runnerVelocityAt(r, t), motion = createLiveRunnerMotionV1({
+          position,
+          velocity,
+          bases: Array.from({ length: finalBase - leg.to + 1 }, (_, i) => ({ base: leg.to + i, position: base(leg.to + i) })),
+          topSpeedMps: r.spec.topSpeedMps,
+          accelerationMps2: r.spec.accelerationMps2,
+          roundingRadiusMeters: r.spec.roundingRadiusMeters ?? 4.5,
+          lateralAccelerationMps2: r.spec.lateralAccelerationMps2 ?? 1.5 * r.spec.accelerationMps2,
+          baseTouchRadiusMeters: field.baseTouchRadiusMeters ?? 0.28
+        });
+        if (!motion || awardThrough === null && defense - motion.touches[motion.touches.length - 1].centerElapsedSeconds <= (r.spec.advanceSafetyMarginSeconds ?? 0.35)) continue;
+        r.leg = { from: t, to: leg.to, motion, nextTouchIndex: 0, height: position.y, departure: null };
+        runnerMotions.push({
+          elapsedSeconds: t,
+          runnerId: r.spec.runnerId,
+          throughBases: motion.touches.map((b) => b.base),
+          position,
+          velocity,
+          durationSeconds: motion.durationSeconds,
+          lengthMeters: motion.lengthMeters,
+          route: motion.route
+        });
       }
     };
     const applyBaseControl = (f, n, t) => {
@@ -10681,7 +11247,12 @@ var KneekuraNativeMatchCore = (() => {
       if (currentHandPreparation && !currentHandPreparation.prepared && currentHandPreparation.curve.throughElapsedSeconds <= horizon)
         choose({ kind: "hand_prepared", t: currentHandPreparation.curve.throughElapsedSeconds });
       if (releaseAt !== null && releaseAt <= horizon) choose({ kind: "release", t: Math.max(time, releaseAt) });
-      for (const r of runners) if (r.leg && r.leg.from + r.leg.duration <= horizon) choose({ kind: "arrival", runner: r, t: r.leg.from + r.leg.duration });
+      for (const r of runners) if (r.leg) {
+        const touch = r.leg.motion.touches[r.leg.nextTouchIndex], atTime = r.leg.from + (touch?.centerElapsedSeconds ?? r.leg.motion.durationSeconds);
+        if (atTime <= horizon) choose({ kind: touch ? "arrival" : "runner_stop", runner: r, t: atTime });
+        if (r.leg.departure && r.leg.departure.elapsedSeconds <= horizon)
+          choose({ kind: "runner_departure", runner: r, t: r.leg.departure.elapsedSeconds });
+      }
       if (!possession && !pendingCatch && !dead) {
         const ground = kernel.boundaries.find((b) => b.kind !== "rolling_stop" && b.kind !== "rolling_started" && b.elapsedSeconds > time && b.elapsedSeconds <= horizon) ?? kernel.boundaries.find((b) => b.kind !== "rolling_started" && b.elapsedSeconds > time && b.elapsedSeconds <= horizon);
         if (ground) choose({ kind: ground.kind, t: ground.elapsedSeconds });
@@ -10706,7 +11277,7 @@ var KneekuraNativeMatchCore = (() => {
             const gap = (t) => distance5(evaluated(t).moment.ball.position, at(c, t)) - radius - input.physics.ground.radiusM;
             let from = lo;
             if (reboundEscape?.fielder === f && reboundEscape.role === role && lo === reboundEscape.outgoing.elapsedSeconds && gap(lo) <= 0) {
-              const proof = reboundEscape, rel = sub6(proof.outgoing.ball.velocity, velocityAt(c, lo)), outward = rel.x * proof.normal.x + rel.y * proof.normal.y + rel.z * proof.normal.z;
+              const proof = reboundEscape, rel = sub8(proof.outgoing.ball.velocity, velocityAt(c, lo)), outward = rel.x * proof.normal.x + rel.y * proof.normal.y + rel.z * proof.normal.z;
               const ballDeviation = kernel.evaluateAt(lo, "outgoing").phase === "airborne" ? sourceRk4PositionBounds(proof.outgoing.ball, hi - lo, input.physics.air).linearDeviationMps2 : Math.max(input.physics.ground.material.slidingFriction * input.physics.ground.gravityMps2, input.physics.ground.material.rollingDecelerationMps2) / 2;
               const deviation = ballDeviation + maximumCurveAcceleration(c, hi) / 2;
               const span = Math.min(hi - lo, deviation > 0 ? outward / (2 * deviation) : hi - lo), escape = 2 * (-gap(lo) + cell.positionRoundingBoundMeters) / outward;
@@ -10743,7 +11314,7 @@ var KneekuraNativeMatchCore = (() => {
             const gap = (t) => radius - distance5(flat(evaluated(t).moment.ball.position), flat(fenceCenter));
             let fenceFrom = lo;
             if (fenceEscape?.from === lo && fenceEscape.radius === radius && gap(lo) <= 0) {
-              const d = flat(sub6(evaluated(lo).moment.ball.position, fenceCenter)), radial = norm4(d), vel = evaluated(lo).moment.ball.velocity;
+              const d = flat(sub8(evaluated(lo).moment.ball.position, fenceCenter)), radial = norm6(d), vel = evaluated(lo).moment.ball.velocity;
               const outward = -(d.x * vel.x + d.z * vel.z) / radial, speed2 = cell.maximumPositionSpeedMps;
               const ballDeviation = kernel.evaluateAt(lo, "outgoing").phase === "airborne" ? sourceRk4PositionBounds(fenceEscape.outgoing.ball, hi - lo, input.physics.air).linearDeviationMps2 : Math.max(input.physics.ground.material.slidingFriction * input.physics.ground.gravityMps2, input.physics.ground.material.rollingDecelerationMps2) / 2;
               const denominator = radial - speed2 * (hi - lo), deviation = ballDeviation + speed2 * speed2 / (2 * Math.max(denominator, Number.MIN_VALUE));
@@ -10798,7 +11369,7 @@ var KneekuraNativeMatchCore = (() => {
         }
       }
       if (possession && !dead) {
-        const f = possession, speed2 = Math.max(norm4(velocityAt(f.body, time)), norm4(velocityAt(f.body, horizon)));
+        const f = possession, speed2 = Math.max(norm6(velocityAt(f.body, time)), norm6(velocityAt(f.body, horizon)));
         for (const n of [1, 2, 3, 4]) {
           const relevant = deriveCurrentForceObligations(force).some((o) => o.targetBase === n);
           if (!relevant) continue;
@@ -10810,7 +11381,7 @@ var KneekuraNativeMatchCore = (() => {
           if (!r.leg && !forced) continue;
           const hit = findContact(
             (t) => Math.max(
-              distance5(at(f.glove, t), add13(runnerAt(r, t), v(0, 0.9, 0))) - 0.28,
+              distance5(at(f.glove, t), add15(runnerAt(r, t), v(0, 0.9, 0))) - 0.28,
               r.base > 0 && !forced ? (field.baseTouchRadiusMeters ?? 0.28) - distance5(flat(runnerAt(r, t)), flat(base(r.base))) : -Infinity
             ),
             maximumCurveSpeed(f.glove, time, horizon) + r.spec.topSpeedMps,
@@ -10856,7 +11427,7 @@ var KneekuraNativeMatchCore = (() => {
             endReason = "foul_dead_ball";
           }
         } else if (e.kind === "glove" || e.kind === "body") {
-          const f = e.f, c = e.role === "glove" ? f.glove : f.body, incoming = kernel.evaluateAt(time, "incoming"), center = at(c, time), delta = sub6(incoming.moment.ball.position, center), normal3 = mul3(delta, 1 / norm4(delta));
+          const f = e.f, c = e.role === "glove" ? f.glove : f.body, incoming = kernel.evaluateAt(time, "incoming"), center = at(c, time), delta = sub8(incoming.moment.ball.position, center), normal4 = mul5(delta, 1 / norm6(delta));
           const phase = multiplyQuaternions(incoming.orientation, orientationBasis);
           if (!territoryFixed) determineTerritory(time, isFair(incoming.moment.ball.position) ? "fair" : "foul");
           firstTouchTick ??= tick8(time);
@@ -10870,15 +11441,15 @@ var KneekuraNativeMatchCore = (() => {
           let outgoing;
           if (e.kind === "glove") {
             emit("glove_contact", time, { playerId: f.spec.playerId, position: incoming.moment.ball.position });
-            const ballSurfacePoint = sub6(incoming.moment.ball.position, mul3(normal3, input.physics.ground.radiusM));
-            const pocketEntryCenter = add13(center, mul3(normal3, f.spec.gloveRadiusMeters));
+            const ballSurfacePoint = sub8(incoming.moment.ball.position, mul5(normal4, input.physics.ground.radiusM));
+            const pocketEntryCenter = add15(center, mul5(normal4, f.spec.gloveRadiusMeters));
             const pocketOffsetMeters = distance5(ballSurfacePoint, pocketEntryCenter);
-            const bodySpd = norm4(velocityAt(f.body, time)), gloveExt = distance5(center, at(f.body, time)), gloveRelSpd = norm4(sub6(velocityAt(c, time), velocityAt(f.body, time))), speedRatio = clamp(bodySpd / Math.max(f.spec.topSpeedMps, 0.1), 0, 1), extRatio = clamp(gloveExt / Math.max(f.spec.gloveReachMeters, 0.1), 0, 1), gloveMoveRatio = clamp(gloveRelSpd / Math.max(f.spec.gloveSpeedMps, 0.1), 0, 1), bodyStability = clamp(1 - 0.22 * speedRatio * speedRatio - 0.2 * Math.max(0, extRatio - 0.55) / 0.45 - 0.15 * gloveMoveRatio, 0.42, 1);
+            const bodySpd = norm6(velocityAt(f.body, time)), gloveExt = distance5(center, at(f.body, time)), gloveRelSpd = norm6(sub8(velocityAt(c, time), velocityAt(f.body, time))), speedRatio = clamp(bodySpd / Math.max(f.spec.topSpeedMps, 0.1), 0, 1), extRatio = clamp(gloveExt / Math.max(f.spec.gloveReachMeters, 0.1), 0, 1), gloveMoveRatio = clamp(gloveRelSpd / Math.max(f.spec.gloveSpeedMps, 0.1), 0, 1), bodyStability = clamp(1 - 0.22 * speedRatio * speedRatio - 0.2 * Math.max(0, extRatio - 0.55) / 0.45 - 0.15 * gloveMoveRatio, 0.42, 1);
             const retention = resolveCatchRetention({
               contactTick: tick8(time),
               ball: { ...incoming.moment.ball, tick: tick8(time) },
               glove: { tick: tick8(time), position: center, velocity: velocityAt(c, time) },
-              contactNormal: normal3,
+              contactNormal: normal4,
               pocketOffsetMeters,
               bodyStability
             }, f.spec.catchRetention);
@@ -10886,7 +11457,7 @@ var KneekuraNativeMatchCore = (() => {
               elapsedSeconds: time,
               playerId: f.spec.playerId,
               role: "glove",
-              ballSpeedMps: norm4(incoming.moment.ball.velocity),
+              ballSpeedMps: norm6(incoming.moment.ball.velocity),
               bodySpeedMps: bodySpd,
               gloveOffsetMeters: gloveExt,
               intent: f.intent,
@@ -10907,7 +11478,7 @@ var KneekuraNativeMatchCore = (() => {
                 first: time,
                 secure: time + Math.max(
                   retention.diagnostics.retentionLoadJ / f.spec.catchRetention.captureDissipationPowerW,
-                  norm4(delta) / f.spec.gloveSpeedMps
+                  norm6(delta) / f.spec.gloveSpeedMps
                 ),
                 firstTouchWasAirborne: firstGroundContactTick === null,
                 offset: delta,
@@ -10928,21 +11499,21 @@ var KneekuraNativeMatchCore = (() => {
               elapsedSeconds: time,
               playerId: f.spec.playerId,
               role: "body",
-              ballSpeedMps: norm4(incoming.moment.ball.velocity),
-              bodySpeedMps: norm4(velocityAt(f.body, time)),
+              ballSpeedMps: norm6(incoming.moment.ball.velocity),
+              bodySpeedMps: norm6(velocityAt(f.body, time)),
               gloveOffsetMeters: distance5(at(f.glove, time), at(f.body, time)),
               intent: f.intent,
               targetBase: f.targetBase,
               distanceToTargetBaseMeters: f.targetBase ? distance5(flat(at(f.body, time)), flat(base(f.targetBase))) : null
             });
-            outgoing = respondToBallContact({ ball: incoming.moment.ball, normal: normal3, surfaceVelocity: velocityAt(c, time), material: LIVE_FIELD_TEST_MODEL_V1.bodyMaterial });
+            outgoing = respondToBallContact({ ball: incoming.moment.ball, normal: normal4, surfaceVelocity: velocityAt(c, time), material: LIVE_FIELD_TEST_MODEL_V1.bodyMaterial });
           }
           if (incoming.moment.ball.position.y === input.physics.ground.radiusM) {
             try {
               const coupled = resolveGroundedActorContactResponseV1({
                 incoming: incoming.moment.ball,
                 actorResponse: outgoing,
-                normal: normal3,
+                normal: normal4,
                 surfaceVelocity: velocityAt(c, time),
                 ground: input.physics.ground,
                 actorRestitution: e.kind === "glove" ? f.spec.catchRetention.failedContactRestitution : LIVE_FIELD_TEST_MODEL_V1.bodyMaterial.restitution
@@ -10963,7 +11534,7 @@ var KneekuraNativeMatchCore = (() => {
           wallContact = null;
           orientationBasis = phase;
           side = "outgoing";
-          reboundEscape = { fielder: f, role: e.role, hit: e.hit, normal: normal3, outgoing: kernel.evaluateAt(time, "outgoing").moment };
+          reboundEscape = { fielder: f, role: e.role, hit: e.hit, normal: normal4, outgoing: kernel.evaluateAt(time, "outgoing").moment };
         } else if (e.kind === "hand_prepared") {
           handPreparation.prepared = true;
           controlThrough = time;
@@ -10975,6 +11546,7 @@ var KneekuraNativeMatchCore = (() => {
           pendingCatch = null;
           custodySince = time;
           rejectedThrows.clear();
+          relayCache.clear();
           handPreparation = null;
           emit("catch_secured", time, { playerId: possession.spec.playerId, position: at(possession.glove, time) });
           if (c.firstTouchWasAirborne && !flyCatch) {
@@ -10982,7 +11554,7 @@ var KneekuraNativeMatchCore = (() => {
             retire(batter, time);
           }
         } else if (e.kind === "release") {
-          const f = possession, target = throwTarget, position = at(f.glove, time), q = add13(base(target.base), v(0, target.receiver.spec.position.y, 0)), d = sub6(q, position), speed2 = f.spec.throwSpeedMps;
+          const f = possession, target = throwTarget, position = at(f.glove, time), q = target.point, d = sub8(q, position), speed2 = f.spec.throwSpeedMps;
           if (!pointInside(position, fenceRadius - input.physics.ground.radiusM)) {
             unresolvedDetail = { kind: "held_ball_fence_constraint", playerId: f.spec.playerId, position };
             terminal = true;
@@ -11001,20 +11573,20 @@ var KneekuraNativeMatchCore = (() => {
             reject("force_already_satisfied");
             continue;
           }
-          const radial = sub6(position, at(f.body, time));
+          const radial = sub8(position, at(f.body, time));
           const preparation = handPreparation, preparationReady = preparation?.fielder === f && preparation.base === target.base && preparation.prepared, desiredOffset = preparationReady ? preparation.curve.sampleAtElapsedSeconds(preparation.curve.throughElapsedSeconds).offset : throwOffset(f, at(f.body, time), q), otherShapeClear = defenders.filter((other) => other !== f).every((other) => distance5(position, at(other.body, time)) > LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters + input.physics.ground.radiusM && distance5(position, at(other.glove, time)) > other.spec.gloveRadiusMeters + input.physics.ground.radiusM);
-          const distToBag = distance5(flat(at(target.receiver.body, time)), flat(base(target.base))), touchR = field.baseTouchRadiusMeters ?? 0.28, brakeEtaToBag = distToBag <= touchR ? 0 : Math.sqrt(2 * distToBag / target.receiver.spec.accelerationMps2) - Math.sqrt(2 * touchR / target.receiver.spec.accelerationMps2), receiverEtaToBag = Math.max(
-            liveFieldArrivalSecondsV1({ ...roleActor(target.receiver, time), remainingReactionSeconds: 0 }, base(target.base), touchR),
+          const distToBag = distance5(flat(at(target.receiver.body, time)), flat(target.receiverPoint)), touchR = field.baseTouchRadiusMeters ?? 0.28, brakeEtaToBag = distToBag <= touchR ? 0 : Math.sqrt(2 * distToBag / target.receiver.spec.accelerationMps2) - Math.sqrt(2 * touchR / target.receiver.spec.accelerationMps2), receiverEtaToBag = Math.max(
+            liveFieldArrivalSecondsV1({ ...roleActor(target.receiver, time), remainingReactionSeconds: 0 }, target.receiverPoint, touchR),
             brakeEtaToBag
           );
           const receiverPrepared = distToBag <= target.receiver.spec.gloveReachMeters + touchR && receiverEtaToBag <= distance5(position, q) / speed2;
-          if (norm4(radial) <= LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters + input.physics.ground.radiusM || !preparationReady || distance5(radial, desiredOffset) > input.physics.ground.radiusM || !otherShapeClear || !receiverPrepared) {
+          if (norm6(radial) <= LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters + input.physics.ground.radiusM || !preparationReady || distance5(radial, desiredOffset) > input.physics.ground.radiusM || !otherShapeClear || !receiverPrepared) {
             releaseAt = controlThrough;
             if (releaseAt === time) releaseAt += LIVE_FIELD_TEST_MODEL_V1.controlSeconds;
             continue;
           }
-          const horizontalSpeed = norm4(flat(d)), backspin = f.spec.throwBackspinRadPerSecond ?? 0;
-          assert9(Number.isFinite(backspin) && backspin >= 0 && (!f.spec.throwSpinRadPerSecond || finite7(f.spec.throwSpinRadPerSecond)), "explicit throw spin differs");
+          const horizontalSpeed = norm6(flat(d)), backspin = f.spec.throwBackspinRadPerSecond ?? 0;
+          assert9(Number.isFinite(backspin) && backspin >= 0 && (!f.spec.throwSpinRadPerSecond || finite9(f.spec.throwSpinRadPerSecond)), "explicit throw spin differs");
           const spin = f.spec.throwSpinRadPerSecond ?? (horizontalSpeed > 0 ? v(-d.z / horizontalSpeed * backspin, 0, d.x / horizontalSpeed * backspin) : v()), planned = planLiveThrowV1({
             releasePosition: position,
             bodyVelocity: velocityAt(f.body, time),
@@ -11052,10 +11624,13 @@ var KneekuraNativeMatchCore = (() => {
             base: target.base,
             position,
             runnerId: target.runnerId,
-            reason: obligations.some((o) => o.forced) ? "force_play" : "tag_play",
+            reason: target.intent === "relay" ? "relay_play" : obligations.some((o) => o.forced) ? "force_play" : "tag_play",
             receiverPlayerId: target.receiver.spec.playerId,
             target: q
           });
+          const visitKey = target.runnerId + ":" + target.base, visited = relayVisited.get(visitKey) ?? /* @__PURE__ */ new Set();
+          visited.add(f.spec.playerId);
+          relayVisited.set(visitKey, visited);
           hasThrown = true;
           lastThrowBases = Object.fromEntries(runners.filter((r) => !r.retired && !r.scored).map((r) => [r.spec.runnerId, r.base]));
           target.releasedAt = time;
@@ -11070,17 +11645,39 @@ var KneekuraNativeMatchCore = (() => {
           observe(time);
           controlThrough = time;
         } else if (e.kind === "arrival") {
-          const r = e.runner, leg = r.leg;
-          r.p = leg.q;
-          r.base = leg.to;
-          r.leg = null;
+          const r = e.runner, leg = r.leg, touch = leg.motion.touches[leg.nextTouchIndex];
+          r.p = runnerAt(r, time);
+          r.base = touch.base;
           r.scored = r.base === 4;
-          runnerTouches.push({ kind: "runner_base_touch", runnerId: r.spec.runnerId, base: leg.to, tick: tick8(time) });
-          emit("runner_base_touch", time, { runnerId: r.spec.runnerId, base: leg.to, position: r.p });
-          if (deriveCurrentForceObligations(force).some((o) => o.runnerId === r.spec.runnerId && o.targetBase === leg.to))
+          leg.nextTouchIndex++;
+          leg.to = leg.motion.touches[leg.nextTouchIndex]?.base ?? r.base;
+          if (leg.nextTouchIndex === leg.motion.touches.length) r.leg = null;
+          else {
+            let lo = touch.centerElapsedSeconds, hi = leg.motion.touches[leg.nextTouchIndex].centerElapsedSeconds;
+            for (let i = 0; i < 53 && (lo + hi) / 2 !== lo && (lo + hi) / 2 !== hi; i++) {
+              const mid = (lo + hi) / 2, p = leg.motion.sampleAtElapsedSeconds(mid).position;
+              if (distance5(flat(v(p.x, 0, p.z)), flat(base(r.base))) <= (field.baseTouchRadiusMeters ?? 0.28)) lo = mid;
+              else hi = mid;
+            }
+            leg.departure = { base: r.base, elapsedSeconds: leg.from + hi };
+          }
+          runnerTouches.push({ kind: "runner_base_touch", runnerId: r.spec.runnerId, base: touch.base, tick: tick8(time) });
+          emit("runner_base_touch", time, { runnerId: r.spec.runnerId, base: touch.base, position: r.p });
+          if (deriveCurrentForceObligations(force).some((o) => o.runnerId === r.spec.runnerId && o.targetBase === touch.base))
             force = satisfyForceParticipantObligation(force, r.spec.runnerId);
           runnerDecisionPending = true;
           controlThrough = time;
+        } else if (e.kind === "runner_stop") {
+          const r = e.runner;
+          r.p = runnerAt(r, time);
+          r.leg = null;
+          runnerDecisionPending = true;
+          controlThrough = time;
+        } else if (e.kind === "runner_departure") {
+          const r = e.runner, departure = r.leg.departure;
+          r.leg.departure = null;
+          runnerDepartures.push({ kind: "runner_base_departure", runnerId: r.spec.runnerId, base: departure.base, tick: tick8(time) });
+          emit("runner_base_departure", time, { runnerId: r.spec.runnerId, base: departure.base });
         } else if (e.kind === "base") applyBaseControl(e.f, e.base, time);
         else if (e.kind === "tag") {
           const r = e.runner;
@@ -11105,16 +11702,16 @@ var KneekuraNativeMatchCore = (() => {
               endReason = "foul_dead_ball";
             }
           } else {
-            const normal3 = mul3(flat(sub6(fenceCenter, b.position)), 1 / distance5(flat(b.position), flat(fenceCenter)));
-            let outgoing = respondToBallContact({ ball: b, normal: normal3, surfaceVelocity: v(), material: LIVE_FIELD_TEST_MODEL_V1.wallMaterial });
+            const normal4 = mul5(flat(sub8(fenceCenter, b.position)), 1 / distance5(flat(b.position), flat(fenceCenter)));
+            let outgoing = respondToBallContact({ ball: b, normal: normal4, surfaceVelocity: v(), material: LIVE_FIELD_TEST_MODEL_V1.wallMaterial });
             orientationBasis = multiplyQuaternions(kernel.evaluateAt(time, "incoming").orientation, orientationBasis);
-            const normalVelocity = outgoing.velocity.x * normal3.x + outgoing.velocity.z * normal3.z;
+            const normalVelocity = outgoing.velocity.x * normal4.x + outgoing.velocity.z * normal4.z;
             const isGrounded = b.position.y === input.physics.ground.radiusM && b.velocity.y === 0;
             const elasticNormalEnergy = 0.5 * input.physics.air.aerodynamics.ballMassKg * normalVelocity ** 2;
             const remainingNormalEnergy = Math.max(0, elasticNormalEnergy - LIVE_FIELD_TEST_MODEL_V1.wallMaterial.groundNormalHysteresisLossJ);
             if (isGrounded && remainingNormalEnergy === 0) {
-              const radial = flat(sub6(b.position, fenceCenter)), r = norm4(radial), tangent = v(radial.z / r, 0, -radial.x / r), speed2 = outgoing.velocity.x * tangent.x + outgoing.velocity.z * tangent.z;
-              outgoing = { ...outgoing, velocity: mul3(tangent, speed2) };
+              const radial = flat(sub8(b.position, fenceCenter)), r = norm6(radial), tangent = v(radial.z / r, 0, -radial.x / r), speed2 = outgoing.velocity.x * tangent.x + outgoing.velocity.z * tangent.z;
+              outgoing = { ...outgoing, velocity: mul5(tangent, speed2) };
               const constrained = createGroundWallRollingCurveV1({
                 initial: { originTick, elapsedSeconds: time, ball: outgoing },
                 throughElapsedSeconds: max,
@@ -11131,9 +11728,9 @@ var KneekuraNativeMatchCore = (() => {
               emit("wall_support", time, { position: b.position, reason: "normal_rebound_energy_dissipated_by_explicit_ground_wall_material" });
               fenceEscape = null;
             } else {
-              if (isGrounded) outgoing = { ...outgoing, velocity: add13(
+              if (isGrounded) outgoing = { ...outgoing, velocity: add15(
                 outgoing.velocity,
-                mul3(normal3, Math.sqrt(2 * remainingNormalEnergy / input.physics.air.aerodynamics.ballMassKg) - normalVelocity)
+                mul5(normal4, Math.sqrt(2 * remainingNormalEnergy / input.physics.air.aerodynamics.ballMassKg) - normalVelocity)
               ) };
               const moment = { originTick, elapsedSeconds: time, ball: outgoing };
               kernel = build(moment);
@@ -11181,7 +11778,7 @@ var KneekuraNativeMatchCore = (() => {
       overFence,
       playEnd
     };
-    return freeze18({
+    return freeze19({
       version: "live_field_play_v1",
       modelBasis: LIVE_FIELD_TEST_MODEL_V1.basis,
       model: LIVE_FIELD_TEST_MODEL_V1,
@@ -11204,7 +11801,7 @@ var KneekuraNativeMatchCore = (() => {
         collisionQueries,
         unresolvedDetail,
         departureProofs,
-        aiTelemetry: { roleTransitions, throwTargetCancellations, contactDiagnostics, holderDecisions, runnerDecisions },
+        aiTelemetry: { roleTransitions, throwTargetCancellations, contactDiagnostics, holderDecisions, runnerDecisions, relayPlans, runnerMotions },
         renderFramesOwnPhysics: false,
         namedLeagueCalibration: false,
         nativeActuation: false
@@ -11752,20 +12349,20 @@ var KneekuraNativeMatchCore = (() => {
   }
 
   // src/integration/browser/LivePitchV1.ts
-  var add14 = (a, b) => ({ x: a.x + b.x, y: a.y + b.y, z: a.z + b.z });
-  var sub7 = (a, b) => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
-  var mul4 = (a, s) => ({ x: a.x * s, y: a.y * s, z: a.z * s });
-  var norm5 = (v2) => Math.hypot(v2.x, v2.y, v2.z);
+  var add16 = (a, b) => ({ x: a.x + b.x, y: a.y + b.y, z: a.z + b.z });
+  var sub9 = (a, b) => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
+  var mul6 = (a, s) => ({ x: a.x * s, y: a.y * s, z: a.z * s });
+  var norm7 = (v2) => Math.hypot(v2.x, v2.y, v2.z);
   var clamp2 = (n, a, b) => Math.max(a, Math.min(b, n));
   var bounded = (n, a, b) => Number.isFinite(n) && n >= a && n <= b;
   function assert11(v2, message) {
     if (!v2) throw new Error("live pitch: " + message);
   }
   var zero4 = () => ({ x: 0, y: 0, z: 0 });
-  var dot13 = (a, b) => a.x * b.x + a.y * b.y + a.z * b.z;
+  var dot14 = (a, b) => a.x * b.x + a.y * b.y + a.z * b.z;
   var cross9 = (a, b) => ({ x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x });
   function betweenDirections(from, to) {
-    const a = mul4(from, 1 / norm5(from)), b = mul4(to, 1 / norm5(to)), d = clamp2(dot13(a, b), -1, 1);
+    const a = mul6(from, 1 / norm7(from)), b = mul6(to, 1 / norm7(to)), d = clamp2(dot14(a, b), -1, 1);
     if (d < -1 + 1e-12) return quaternionFromAxisAngle(cross9(a, Math.abs(a.x) < 0.8 ? { x: 1, y: 0, z: 0 } : { x: 0, y: 1, z: 0 }), Math.PI);
     const axis = cross9(a, b);
     return normalizeQuaternion({ w: 1 + d, x: axis.x, y: axis.y, z: axis.z });
@@ -11826,7 +12423,7 @@ var KneekuraNativeMatchCore = (() => {
     const input = cloneInert(raw), b = input.batter, p = input.pitcher, profile = createAeroGroundBallPhysicsProfile(input.physics), tps = profile.air.ticksPerSecond, catcher = input.catcher ?? { gloveSpeedMps: 7, gloveReachMeters: 0.95, gloveRadiusMeters: 0.14, retentionCapacityJ: 350, captureDissipationPowerW: 1e4, pocketRadiusMeters: 0.18 };
     assert11(Number.isSafeInteger(input.originTick) && input.originTick >= 0 && Number.isSafeInteger(input.seed) && tps === profile.ground.ticksPerSecond, "invalid original clock or seed");
     assert11(bounded(b.heightMeters, 1.1, 2.5) && ["R", "L"].includes(b.bats) && bounded(b.batLengthM, 0.55, 1.2) && bounded(b.batMassKg, 0.4, 1.8) && bounded(b.swingRate, 0.3, 3) && bounded(b.timingStdSeconds, 0, 0.08) && bounded(b.aimStdMeters, 0, 0.35) && bounded(b.chaseMarginMeters, 0, 0.6), "invalid batter SI controls");
-    assert11(bounded(p.releaseSpeedMps, 15, 85) && bounded(p.commandStdMeters, 0, 0.6) && p.spinRadPerSecond && Object.values(p.spinRadPerSecond).every(Number.isFinite) && norm5(p.spinRadPerSecond) <= 1200, "invalid pitcher SI controls");
+    assert11(bounded(p.releaseSpeedMps, 15, 85) && bounded(p.commandStdMeters, 0, 0.6) && p.spinRadPerSecond && Object.values(p.spinRadPerSecond).every(Number.isFinite) && norm7(p.spinRadPerSecond) <= 1200, "invalid pitcher SI controls");
     assert11((p.maximumPitchSpeedMps === void 0 || bounded(p.maximumPitchSpeedMps, 15, 85)) && (p.throws === void 0 || ["R", "L"].includes(p.throws)), "invalid pitcher limit or throwing side");
     for (const [key3, lo, hi] of [
       ["maximumSweetSpotSpeedMps", 0.1, 90],
@@ -11852,7 +12449,7 @@ var KneekuraNativeMatchCore = (() => {
     assert11(clip.id.startsWith("obp-") && clip.source.repository === openBiomechanics && /^[a-f0-9]{64}$/.test(clip.source.sha256) && Number.isFinite(clip.contactTimeSeconds) && clip.frames.length >= 2, "unsupported measured clip provenance");
     const pitchType = input.pitchType === "auto" ? ["fastball", "slider", "curve", "changeup"][Math.floor(r.uniform() * 4)] : input.pitchType;
     assert11(["fastball", "slider", "curve", "changeup", "cutter", "sinker", "splitter"].includes(pitchType), "unsupported physical pitch type");
-    const factor = { fastball: 1, slider: 0.91, curve: 0.8, changeup: 0.82, cutter: 0.95, sinker: 0.96, splitter: 0.89 }[pitchType], speed2 = Math.min(p.releaseSpeedMps, p.maximumPitchSpeedMps ?? Infinity) * factor * (0.98 + 0.02 * r.uniform()), spinMagnitude = norm5(p.spinRadPerSecond);
+    const factor = { fastball: 1, slider: 0.91, curve: 0.8, changeup: 0.82, cutter: 0.95, sinker: 0.96, splitter: 0.89 }[pitchType], speed2 = Math.min(p.releaseSpeedMps, p.maximumPitchSpeedMps ?? Infinity) * factor * (0.98 + 0.02 * r.uniform()), spinMagnitude = norm7(p.spinRadPerSecond);
     const axes5 = {
       slider: { x: 0.25, y: -0.8, z: 0.55 },
       curve: { x: -1, y: 0, z: 0.1 },
@@ -11861,7 +12458,7 @@ var KneekuraNativeMatchCore = (() => {
       sinker: { x: 0.55, y: 0.5, z: 0.2 },
       splitter: { x: -0.15, y: 0.15, z: 0.3 }
     };
-    const spin = pitchType === "fastball" ? p.spinRadPerSecond : mul4(axes5[pitchType], spinMagnitude * (pitchType === "changeup" ? 0.7 : 1) / norm5(axes5[pitchType]));
+    const spin = pitchType === "fastball" ? p.spinRadPerSecond : mul6(axes5[pitchType], spinMagnitude * (pitchType === "changeup" ? 0.7 : 1) / norm7(axes5[pitchType]));
     const zone = resolveHeightRatioStrikeZoneRegion({ plateCenterX: 0, playerPhysicalProfile: { heightMeters: b.heightMeters } }), middle = (zone.lowerY + zone.upperY) / 2;
     const location = input.location === "auto" ? ["zone", "zone", "low", "outside", "inside"][Math.floor(r.uniform() * 5)] : input.location;
     assert11(["zone", "low", "outside", "inside", "high"].includes(location), "unsupported target location");
@@ -11906,9 +12503,9 @@ var KneekuraNativeMatchCore = (() => {
     const prediction = predictAtPlane(b.contactDepthMeters ?? 0.15), controlFactor = input.batting === "power" ? 1.08 : input.batting === "contact" ? 0.92 : 1, timingError = r.normal() * b.timingStdSeconds * (input.batting === "contact" ? 0.72 : input.batting === "power" ? 1.15 : 1), awkwardness = Math.max(0, Math.abs(prediction.ball.position.x) / 0.2159 - 1, (0.55 - prediction.ball.position.y) / 0.5, (prediction.ball.position.y - 1.5) / 0.5), awkwardErrorFactor = b.badBallControl === void 0 ? 1 : 1 + awkwardness * (1 - b.badBallControl), aimScale = b.aimStdMeters * (input.batting === "contact" ? 0.7 : input.batting === "power" ? 1.1 : 1) * awkwardErrorFactor, aimError = { x: r.normal() * aimScale, y: r.normal() * aimScale, z: r.normal() * aimScale * 0.3 }, sweetSpotT = clamp2((b.sweetSpotT ?? (b.batLengthM - 0.1524) / b.batLengthM) + (r.uniform() - 0.5) * 0.025, 0.65, 0.9), heightScale = b.heightMeters / 1.8;
     const judgmentStd = b.zoneJudgmentStdMeters ?? 0, judgmentError = { x: 0, y: 0 };
     if (judgmentStd !== 0) {
-      const judgmentRng = new SeedRoot(input.seed).streamRng(0, "batting", "zone-judgment-v1"), normal3 = () => Math.sqrt(-2 * Math.log(1 - judgmentRng.nextFloat())) * Math.cos(2 * Math.PI * judgmentRng.nextFloat());
-      judgmentError.x = normal3() * judgmentStd;
-      judgmentError.y = normal3() * judgmentStd;
+      const judgmentRng = new SeedRoot(input.seed).streamRng(0, "batting", "zone-judgment-v1"), normal4 = () => Math.sqrt(-2 * Math.log(1 - judgmentRng.nextFloat())) * Math.cos(2 * Math.PI * judgmentRng.nextFloat());
+      judgmentError.x = normal4() * judgmentStd;
+      judgmentError.y = normal4() * judgmentStd;
     }
     const judgmentPosition = judgmentStd === 0 ? prediction.ball.position : {
       ...prediction.ball.position,
@@ -11917,7 +12514,7 @@ var KneekuraNativeMatchCore = (() => {
     };
     const inChaseEnvelope = Math.abs(judgmentPosition.x) <= zone.halfWidth + b.chaseMarginMeters && judgmentPosition.y >= zone.lowerY - b.chaseMarginMeters && judgmentPosition.y <= zone.upperY + b.chaseMarginMeters, zoneMargin = Math.min(zone.halfWidth - Math.abs(judgmentPosition.x), judgmentPosition.y - zone.lowerY, zone.upperY - judgmentPosition.y), swingScore = clamp2(0.5 + zoneMargin / Math.max(0.1, zone.halfWidth) + (b.swingDecision ? (b.swingDecision.aggressionWeight - 0.5) * 0.2 : 0), 0, 1), swingOffered = input.batting !== "take" && (b.swingDecision ? b.swingDecision.approach === "SWING" || b.swingDecision.approach === "AUTO" && inChaseEnvelope && swingScore >= b.swingDecision.threshold : inChaseEnvelope);
     const desiredContactTime = Math.max(0.055, prediction.elapsedSeconds + timingError + (b.technicalTimingOffsetSeconds ?? 0)), sourceContactTick = clip.contactTimeSeconds * 1e6;
-    const fullFrames = registerMeasuredBatToFieldV1(clip.frames).map((f) => ({ tick: f.tick, grip: mul4(f.grip, heightScale), orientation: f.orientation })), probeInput = {
+    const fullFrames = registerMeasuredBatToFieldV1(clip.frames).map((f) => ({ tick: f.tick, grip: mul6(f.grip, heightScale), orientation: f.orientation })), probeInput = {
       provenance: { clipId: clip.id, sourceSha256: clip.source.sha256 },
       frames: fullFrames,
       batLengthM: b.batLengthM,
@@ -11930,8 +12527,8 @@ var KneekuraNativeMatchCore = (() => {
     }, probe = createReferenceBatKinematicsV1(probeInput), probeVelocity = probe.sampleAtSourceTick(sourceContactTick, "outgoing").sweetSpotVelocity;
     let rate = b.swingRate * controlFactor;
     if (b.targetSweetSpotSpeedMps !== void 0) {
-      assert11(norm5(probeVelocity) > 1e-9, "measured reference has no finite contact speed");
-      rate *= b.targetSweetSpotSpeedMps / norm5(probeVelocity);
+      assert11(norm7(probeVelocity) > 1e-9, "measured reference has no finite contact speed");
+      rate *= b.targetSweetSpotSpeedMps / norm7(probeVelocity);
     }
     if (b.maximumSweetSpotSpeedMps !== void 0) rate = Math.min(rate, b.maximumSweetSpotSpeedMps / probe.maximumSweetSpotSpeedMps);
     assert11(bounded(rate, 0.01, 20), "authored motor rate is outside this finite reference model");
@@ -11963,7 +12560,7 @@ var KneekuraNativeMatchCore = (() => {
       transform: { rotation: authoredRotation, translation: zero4(), scale: 1 }
     };
     const referenceZero = createReferenceBatKinematicsV1(referenceInput), referenceContactTick = referenceInput.startTick + (sourceContactTick - selectedFrames[0].tick) / 1e6 / rate * tps, point = referenceZero.sampleContinuous(referenceContactTick).sweetSpot;
-    const registeredReference = { ...referenceInput, transform: { ...referenceInput.transform, translation: sub7(add14(prediction.ball.position, aimError), point) } };
+    const registeredReference = { ...referenceInput, transform: { ...referenceInput.transform, translation: sub9(add16(prediction.ball.position, aimError), point) } };
     const reference = createReferenceBatKinematicsV1(registeredReference), radiusProfile = { knots: [
       { t: 0, radiusM: 0.019 },
       { t: 0.06, radiusM: 0.014 },
@@ -11985,24 +12582,24 @@ var KneekuraNativeMatchCore = (() => {
     const catcherPrediction = { elapsedSeconds: catcherForecastTime, ball: catcherForecast.evaluateAt(catcherForecastTime).moment.ball }, catcherStart = { x: 0, y: middle, z: -0.85 }, body = { x: 0, y: 0.8, z: -1.2 }, reach = catcher.gloveReachMeters, catcherTarget = { x: catcherPrediction.ball.position.x, y: catcherPrediction.ball.position.y, z: -0.85 };
     catcherTarget.y = Math.max(catcher.gloveRadiusMeters, catcherTarget.y);
     const planarReach = Math.sqrt(reach * reach - (catcherTarget.z - body.z) ** 2), fromBody = { x: catcherTarget.x - body.x, y: catcherTarget.y - body.y, z: 0 };
-    if (norm5(fromBody) > planarReach) {
-      const constrained = add14(body, mul4(fromBody, planarReach / norm5(fromBody)));
+    if (norm7(fromBody) > planarReach) {
+      const constrained = add16(body, mul6(fromBody, planarReach / norm7(fromBody)));
       catcherTarget.x = constrained.x;
       catcherTarget.y = constrained.y;
     }
-    const moveStart = decisionTime, moveEnd = Math.max(moveStart + 0.025, catcherPrediction.elapsedSeconds - 0.025), moveDuration = moveEnd - moveStart, delta = sub7(catcherTarget, catcherStart), distance6 = norm5(delta), maximumGloveSpeedMps = catcher.gloveSpeedMps;
+    const moveStart = decisionTime, moveEnd = Math.max(moveStart + 0.025, catcherPrediction.elapsedSeconds - 0.025), moveDuration = moveEnd - moveStart, delta = sub9(catcherTarget, catcherStart), distance6 = norm7(delta), maximumGloveSpeedMps = catcher.gloveSpeedMps;
     if (distance6 > maximumGloveSpeedMps * moveDuration / 1.5) {
-      const limited = add14(catcherStart, mul4(delta, maximumGloveSpeedMps * moveDuration / 1.5 / distance6));
+      const limited = add16(catcherStart, mul6(delta, maximumGloveSpeedMps * moveDuration / 1.5 / distance6));
       catcherTarget.x = limited.x;
       catcherTarget.y = limited.y;
     }
-    const finalDelta = sub7(catcherTarget, catcherStart), gloveAt = (seconds) => {
+    const finalDelta = sub9(catcherTarget, catcherStart), gloveAt = (seconds) => {
       const u = clamp2((seconds - moveStart) / moveDuration, 0, 1), smooth = u * u * (3 - 2 * u), ds = seconds > moveStart && seconds < moveEnd ? 6 * u * (1 - u) / moveDuration : 0;
-      return { position: add14(catcherStart, mul4(finalDelta, smooth)), velocity: mul4(finalDelta, ds) };
+      return { position: add16(catcherStart, mul6(finalDelta, smooth)), velocity: mul6(finalDelta, ds) };
     };
     const ground = kernel.boundaries.find((x) => x.kind === "ground")?.elapsedSeconds ?? horizon, catcherHit = firstContact2(
       kernel,
-      (t) => norm5(sub7(kernel.evaluateAt(t, "incoming").moment.ball.position, gloveAt(t).position)) - catcher.gloveRadiusMeters - ballPhysical.radiusM,
+      (t) => norm7(sub9(kernel.evaluateAt(t, "incoming").moment.ball.position, gloveAt(t).position)) - catcher.gloveRadiusMeters - ballPhysical.radiusM,
       maximumGloveSpeedMps,
       horizon
     ), catcherAt = catcherHit?.kind === "hit" ? catcherHit.at : Math.min(horizon, catchPlaneTime + 0.05), batHit = firstContact2(kernel, (t) => measureRigidBatBallSurfaceSeparation(kernel.evaluateAt(t, "incoming").moment.ball, rigidAt(t), ballPhysical), batBound, catcherAt);
@@ -12025,11 +12622,11 @@ var KneekuraNativeMatchCore = (() => {
       unsupportedReason = "catcher_contact_refinement_required";
       endElapsedSeconds = catcherHit.from;
     } else if (catcherHit?.kind === "hit") {
-      const at2 = kernel.evaluateAt(catcherHit.at, "incoming"), glove = gloveAt(catcherHit.at), relative = sub7(at2.moment.ball.position, glove.position), normal3 = mul4(relative, 1 / norm5(relative)), retention = resolveCatchRetention({
+      const at2 = kernel.evaluateAt(catcherHit.at, "incoming"), glove = gloveAt(catcherHit.at), relative = sub9(at2.moment.ball.position, glove.position), normal4 = mul6(relative, 1 / norm7(relative)), retention = resolveCatchRetention({
         contactTick: at2.moment.ball.tick,
         ball: at2.moment.ball,
         glove: { tick: at2.moment.ball.tick, ...glove },
-        contactNormal: normal3,
+        contactNormal: normal4,
         pocketOffsetMeters: Math.hypot(relative.x, relative.y),
         bodyStability: 1
       }, {
@@ -12055,7 +12652,7 @@ var KneekuraNativeMatchCore = (() => {
     if (catcherHit?.kind === "hit" && catcherHit.at < endElapsedSeconds) times.add(catcherHit.at);
     const frames = [...times].sort((a, c) => a - c).map((seconds) => {
       const capturing = secureTick !== null && catcherHit?.kind === "hit" && seconds >= catcherHit.at, sample3 = kernel.evaluateAt(Math.min(seconds, capturing && catcherHit?.kind === "hit" ? catcherHit.at : horizon), "incoming"), bat = batSample(seconds).state.pose, owned = secureTick !== null && quantizeEventTick(input.originTick, seconds, tps) >= secureTick;
-      const heldPosition = capturing && catcherHit?.kind === "hit" ? add14(sample3.moment.ball.position, sub7(gloveAt(seconds).position, gloveAt(catcherHit.at).position)) : sample3.moment.ball.position;
+      const heldPosition = capturing && catcherHit?.kind === "hit" ? add16(sample3.moment.ball.position, sub9(gloveAt(seconds).position, gloveAt(catcherHit.at).position)) : sample3.moment.ball.position;
       return {
         tick: quantizeEventTick(input.originTick, seconds, tps),
         elapsedSeconds: seconds,
@@ -12140,7 +12737,7 @@ var KneekuraNativeMatchCore = (() => {
         selectedSourceFirstTick: selectedFrames[0].tick,
         selectedSourceLastTick: selectedFrames.at(-1).tick,
         referenceSpeedCalibration: "EXACT_ORIGINAL_SOURCE_COORDINATE_OUTGOING_HALF_OPEN_SEGMENT",
-        referenceContactSweetSpotSpeedMps: norm5(reference.sampleAtSourceTick(sourceContactTick, "outgoing").sweetSpotVelocity),
+        referenceContactSweetSpotSpeedMps: norm7(reference.sampleAtSourceTick(sourceContactTick, "outgoing").sweetSpotVelocity),
         referenceContactSweetSpotVelocity: reference.sampleAtSourceTick(sourceContactTick, "outgoing").sweetSpotVelocity,
         referenceIncomingContactSweetSpotVelocity: reference.sampleAtSourceTick(sourceContactTick, "incoming").sweetSpotVelocity,
         referenceWorldSampleContactSweetSpotVelocity: reference.sampleContinuous(referenceContactTick).sweetSpotVelocity,
@@ -12264,6 +12861,14 @@ var KneekuraNativeMatchCore = (() => {
     assert12(
       p.fieldingPursuitCostWeight === void 0 || Number.isFinite(p.fieldingPursuitCostWeight) && p.fieldingPursuitCostWeight >= 0.25 && p.fieldingPursuitCostWeight <= 4,
       "invalid fielding pursuit cost weight"
+    );
+    assert12(
+      p.baserunningTurnRadiusMeters === void 0 || Number.isFinite(p.baserunningTurnRadiusMeters) && p.baserunningTurnRadiusMeters >= 0.5 && p.baserunningTurnRadiusMeters <= 10,
+      "invalid baserunning turn radius SI"
+    );
+    assert12(
+      p.baserunningLateralAccelerationMps2 === void 0 || Number.isFinite(p.baserunningLateralAccelerationMps2) && p.baserunningLateralAccelerationMps2 >= 0.5 && p.baserunningLateralAccelerationMps2 <= 20,
+      "invalid baserunning lateral acceleration SI"
     );
     return p;
   }
@@ -12411,13 +13016,24 @@ var KneekuraNativeMatchCore = (() => {
             topSpeedMps: bp.topSpeedMps,
             accelerationMps2: bp.accelerationMps2,
             reactionSeconds: bp.reactionSeconds,
-            advanceSafetyMarginSeconds: bp.baserunningSafetyMarginSeconds ?? 0.35
+            advanceSafetyMarginSeconds: bp.baserunningSafetyMarginSeconds ?? 0.35,
+            roundingRadiusMeters: bp.baserunningTurnRadiusMeters ?? 4.5,
+            lateralAccelerationMps2: bp.baserunningLateralAccelerationMps2 ?? 1.5 * bp.accelerationMps2
           },
           ...["first", "second", "third"].flatMap((key3, i) => {
             const runnerId = beforeMatch.bases[key3];
             if (!runnerId) return [];
             const p = physical(players.get(runnerId));
-            return [{ runnerId, initialBase: i + 1, topSpeedMps: p.topSpeedMps, accelerationMps2: p.accelerationMps2, reactionSeconds: p.reactionSeconds, advanceSafetyMarginSeconds: p.baserunningSafetyMarginSeconds ?? 0.35 }];
+            return [{
+              runnerId,
+              initialBase: i + 1,
+              topSpeedMps: p.topSpeedMps,
+              accelerationMps2: p.accelerationMps2,
+              reactionSeconds: p.reactionSeconds,
+              advanceSafetyMarginSeconds: p.baserunningSafetyMarginSeconds ?? 0.35,
+              roundingRadiusMeters: p.baserunningTurnRadiusMeters ?? 4.5,
+              lateralAccelerationMps2: p.baserunningLateralAccelerationMps2 ?? 1.5 * p.accelerationMps2
+            }];
           })
         ];
         const outgoingMoment = { ...pitch.contactMoment, ball: { ...pitch.contactMoment.ball, velocity: pitch.contact.exitVelocity, spin: pitch.contact.exitSpin } };
@@ -12458,7 +13074,7 @@ var KneekuraNativeMatchCore = (() => {
                   role: "runner",
                   team: c.team,
                   position: { x: r.position.x + dx / (length || 1) * travel, y: 0, z: r.position.z + dz / (length || 1) * travel },
-                  velocity: dt > 0 ? { x: dx / (length || 1) * 3.2, y: 0, z: dz / (length || 1) * 3.2 } : runnerVelocity(f, r.runnerId, field),
+                  velocity: dt > 0 ? { x: dx / (length || 1) * 3.2, y: 0, z: dz / (length || 1) * 3.2 } : r.velocity,
                   retired: r.retired
                 };
               })
@@ -12541,10 +13157,6 @@ var KneekuraNativeMatchCore = (() => {
     }
     return Object.freeze({ issuePitch, inspect });
   }
-  function runnerVelocity(frame2, id6, field) {
-    const i = field.frames.indexOf(frame2), one = field.frames[Math.max(0, i - 1)], two = field.frames[Math.min(field.frames.length - 1, i + 1)], a = one.runners.find((r) => r.runnerId === id6), b = two.runners.find((r) => r.runnerId === id6), dt = (two.tick - one.tick) / 1e6;
-    return dt > 0 ? { x: (b.position.x - a.position.x) / dt, y: 0, z: (b.position.z - a.position.z) / dt } : zero5();
-  }
 
   // src/core/sim/pitching/CourseAwareSwingKinematicsV1.ts
   var INCH_TO_M = 0.0254;
@@ -12573,9 +13185,9 @@ var KneekuraNativeMatchCore = (() => {
   // src/integration/browser/WorkbenchPlayer.ts
   var WORKBENCH_TICKS_PER_SECOND = 1e6;
   var leagues = ["NPB", "MLB", "NLB", "KBO", "CUSTOM"];
-  var freeze19 = (value) => {
+  var freeze20 = (value) => {
     if (value !== null && typeof value === "object") {
-      Object.values(value).forEach(freeze19);
+      Object.values(value).forEach(freeze20);
       Object.freeze(value);
     }
     return value;
@@ -12657,7 +13269,7 @@ var KneekuraNativeMatchCore = (() => {
     if (!Array.isArray(player.traits.labels) || player.traits.labels.length > 32) throw new Error("invalid workbench trait labels");
     player.traits.labels.forEach((label) => text(label, "trait label"));
     if (new Set(player.traits.labels).size !== player.traits.labels.length) throw new Error("duplicate workbench trait label");
-    return freeze19(player);
+    return freeze20(player);
   }
 
   // src/integration/browser/LivePhysicalRosterV1.ts
@@ -12696,7 +13308,9 @@ var KneekuraNativeMatchCore = (() => {
     "throwDirectionStdRadians",
     "zoneJudgmentStdMeters",
     "baserunningSafetyMarginSeconds",
-    "fieldingPursuitCostWeight"
+    "fieldingPursuitCostWeight",
+    "baserunningTurnRadiusMeters",
+    "baserunningLateralAccelerationMps2"
   ];
   var physicalKeys = ["basis", ...scalarKeys, "spinRadPerSecond", "clipId", "swingDecision"];
   var bounds = {
@@ -12728,12 +13342,14 @@ var KneekuraNativeMatchCore = (() => {
     throwDirectionStdRadians: [0, 0.12],
     zoneJudgmentStdMeters: [0, 0.6],
     baserunningSafetyMarginSeconds: [0, 3],
-    fieldingPursuitCostWeight: [0.25, 4]
+    fieldingPursuitCostWeight: [0.25, 4],
+    baserunningTurnRadiusMeters: [0.5, 10],
+    baserunningLateralAccelerationMps2: [0.5, 20]
   };
   var nonnegative2 = /* @__PURE__ */ new Set(["reactionSeconds", "transferSeconds", "defensiveDecisionSeconds"]);
-  var freeze20 = (value) => {
+  var freeze21 = (value) => {
     if (value && typeof value === "object") {
-      Object.values(value).forEach(freeze20);
+      Object.values(value).forEach(freeze21);
       Object.freeze(value);
     }
     return value;
@@ -12907,7 +13523,7 @@ var KneekuraNativeMatchCore = (() => {
       });
       return { ...player, heightMeters, physical: physical3 };
     });
-    return freeze20({ players: output, audit: {
+    return freeze21({ players: output, audit: {
       version: "live_physical_roster_projection_v1",
       sourceId: input.roster.sourceId,
       nativeAuthentication: false,
@@ -12937,9 +13553,9 @@ var KneekuraNativeMatchCore = (() => {
   var assert14 = (value, message) => {
     if (!value) throw new Error("public abilities: " + message);
   };
-  var freeze21 = (value) => {
+  var freeze22 = (value) => {
     if (value && typeof value === "object") {
-      Object.values(value).forEach(freeze21);
+      Object.values(value).forEach(freeze22);
       Object.freeze(value);
     }
     return value;
@@ -12981,7 +13597,7 @@ var KneekuraNativeMatchCore = (() => {
   }
   function projectLivePublicAbilitiesV1(input) {
     const { entry, anchor } = context(input);
-    return freeze21({ policyId, abilities: specs.map((spec) => ({
+    return freeze22({ policyId, abilities: specs.map((spec) => ({
       id: spec.id,
       label: spec.label,
       section: spec.section,
@@ -13014,14 +13630,14 @@ var KneekuraNativeMatchCore = (() => {
     }
     const roster = copy2;
     applyLivePhysicalRosterV1({ players: input.reference.players, roster });
-    return freeze21({ policyId, roster, projection: projectLivePublicAbilitiesV1({ ...input, roster }), changes });
+    return freeze22({ policyId, roster, projection: projectLivePublicAbilitiesV1({ ...input, roster }), changes });
   }
   function previewLivePublicLeagueV1(input) {
     const { entry, anchor } = context(input);
     assert14(["MLB", "NLB", "NPB", "KBO", "CUSTOM"].includes(input.leagueId), "unsupported preview league");
     const candidates = input.reference.anchors.filter((a) => a.leagueId === input.leagueId);
     const byId = new Map(input.roster.entries.map((e) => [e.playerId, e]));
-    return freeze21({ leagueId: input.leagueId, sampleCount: candidates.length, metrics: specs.map((spec) => {
+    return freeze22({ leagueId: input.leagueId, sampleCount: candidates.length, metrics: specs.map((spec) => {
       const peers = candidates.filter((a) => spec.section !== "pitcher" || a.role === "P").filter((a) => spec.section !== "batter" || a.role !== "P");
       const values2 = peers.map((a) => spec.mode === "percent" ? numeric(byId.get(a.playerId), spec.components[0].path) : quality(byId.get(a.playerId), spec));
       const mean = values2.reduce((sum, n) => sum + n, 0) / (values2.length || 1);

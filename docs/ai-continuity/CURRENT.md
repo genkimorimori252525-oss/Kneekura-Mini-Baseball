@@ -1,15 +1,26 @@
 ---
-current_task: "MB-20261018-V46-PUBLICATION"
+current_task: "MB-20261018-V47-RELEASE-FINAL"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "9c140868ebc648896d1933d40c16066ec83cf134"
+commit_head: "61a3afc1d7262e5d787358869d096df55ff8f2ac"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V46-PUBLICATION_5519558ac2c04cc18827cd81d7ef6a7b.json"
-updated_at: "2026-10-18T05:37:22.907027+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V47-RELEASE-FINAL_3de5f1081c104ec5aaf98cfd9c97fdb2.json"
+updated_at: "2026-10-18T07:40:23.436735+00:00"
 
 ---
 
-## Latest human priority — v46 realistic runner/defense AI (SCOPED VERIFIED; PUBLISHED)
+## Latest human priority — v47 relay and continuous base turns (SCOPED VERIFIED; PUBLICATION IN PROGRESS)
+
+User requests multi-hop relay and base rounding in normal HTML with ability individuality; original full plan retained. Implemented bounded direct/carry/hold/relay physical prediction (max2 intermediates, actual secure→new transfer→replan→new actual release per hop), actual recipient/target camera, C1 line/arc runner path through bag centers, acceleration/braking/curvature limits, safe early extra-base commitment and physical through-bag departure facts. Host observes analytic current runner velocity. Public11 unchanged/detail44 includes optional .5..10m turn radius and .5..20m/s² lateral acceleration; old omitted lateral defaults to individual acceleration×1.5 without editing packet. Old JSON accepted. No identity/league outcome buffs, scene-specific DP, fake capture, future-frame camera/velocity inference.
+
+Final24files/213tests PASS b1d5d9d (61.421s),20scenarios×3tiers outs13/19/21, diagnostic anomalies0 each. GlobalTSC383a33c7 PASS24.016s. Build67b9c7b5 PASS1.016s, final107 product pins match. Actual intermediate2/3throws and bag-center through-speeds/departure/no unsafe continuation tested. NormalHTML292pitches/9top3outs/home26-away10 regulation completed/no fallback/error PASS e60b015f (80.858s); statistics UNCALIBRATED. Camera1200/390 PASS3010dd9e (24.813s), maker20/public11/detail44/oldJSON/turn fallback edits+normalgameimport PASS61923ed2 (9.641s). Synthetic relay camera e637fdaf PASS, helperhash9285506f18fc8eac050f8e33ee5dd9f4c36b5e7e588b7dc56c603a949b381edd. Screens inspected.
+
+Finalbundle a470058b7fe0c95c5119fd1376bfa5a91ffc82f9767d95e4cae3daf369ea6a1d /107inputs; HTML81cdc7c402f2a8461ef07cac8d6d541cf304208fe97f23ba9bc02915ba880747; maker7848228105d598f75c8e1eeb347c2ecbb6f3b749c9b1ea5433f2dcdfc97abd8c. docs/demos/releases/v47 includes byteexact109entrysourceZIP, docs/verification/releases/v47 stores final QA. Initialv1 build/game/camera receipts are development prior-source proof; final-departure source uses FINAL receipts. v46 products preserved. Next: finalrelease/snapshotcheck, explicit stagedallowlist/bytes/security check, commit+normalpush existingbranch, DraftPR380/rawbyte verification, metadata closure and deliver game+maker. Never stage userAGENTS/.agents/unrelated outputs. No settings/lock/dependency/secret/DB/mainmerge.
+
+Original full goal IN_PROGRESS. Nativeauthenticatedcontinuousworld/return/reform/bodyrecoil/batdrop, officialH/E+remainingrules, fulltraits, leads/slides, joint multi-runner optimization, broad/global relay optimization, empiricalSI/statistics/new100+games and realphones remain. Runnercenter is foot-placement proxy, conservative futurebag reservation can stop a followingrunner. Coefficients provisional authored; not measuredplayer or biomechanical calibration. OriginalCHARTER_UNAPPROVED/HOLD and alloldFAIL/UNKNOWN retained, chat workauthorization not machineCharterapproval.
+
+
+## Previous human priority — v46 realistic runner/defense AI (SCOPED VERIFIED; PUBLISHED)
 
 Human requests safe tag-ups/extra advances and rational SS/outfield division, tunable through existing public/hidden controls. Fixed generic runner legal cues+reaction/race estimates, physical nonforce throw/tag, arrival/pending-decision closure, forced vs protected origin bag, two-out contact run limited to initial flight. Fixed catch-window tie/approach burden, own-home hold/backup abandonment and observed-low-only ground run-through. No position ban/result/league lottery/new public ability. Added optional safety margin0..3/default.35 and pursuit burden.25..4/default1 to maker details; public11/detail42; old packets remain accepted.
 

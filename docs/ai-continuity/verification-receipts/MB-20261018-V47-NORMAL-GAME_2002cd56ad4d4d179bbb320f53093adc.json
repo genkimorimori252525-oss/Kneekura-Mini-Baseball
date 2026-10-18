@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V47-NORMAL-GAME",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v47-game.mjs",
+    "../../outputs/ばせぼーるlv47_TBD_vs_LAD_中継とベース旋回版.html",
+    "../../outputs/verification-v47-game-v1"
+  ],
+  "observed_at": "2026-10-18T07:26:57.175+00:00",
+  "elapsed_ms": 98202,
+  "git_head": "61a3afc1d7262e5d787358869d096df55ff8f2ac",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V47-NORMAL-GAME_2002cd56ad4d4d179bbb320f53093adc.log",
+  "output_sha256": "9e7b43c19c4ac2183928932a6d53305e6afa4b3d10867d044c7c840146aa2916",
+  "receipt_id": "MB-20261018-V47-NORMAL-GAME_2002cd56ad4d4d179bbb320f53093adc"
+}

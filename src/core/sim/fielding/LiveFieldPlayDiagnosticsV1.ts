@@ -59,6 +59,7 @@ export type ThrowExchangeDiagnosticV1 = Readonly<{
   receiverId: string;
   base: BaseballBase;
   forcePlay: boolean;
+  relayHop?: boolean;
   cancelledMidFlight: boolean;
   cancelledAtElapsedSeconds: number | null;
   receptionOutcome: 'glove_secured' | 'glove_deflected' | 'body_contact' | 'unfielded';
@@ -270,7 +271,7 @@ export function diagnoseLiveFieldPlayV1(
 
     const runnerTouch = result.facts.find((f) => f.kind === 'runner_base_touch' && f.base === base);
     const baseContact = result.facts.find(
-      (f) => f.kind === 'controlled_base_contact' && f.base === base && f.elapsedSeconds >= rel.elapsedSeconds,
+      (f) => f.kind === 'controlled_base_contact' && f.playerId === receiverId && f.base === base && f.elapsedSeconds >= rel.elapsedSeconds,
     );
     const waitedTransfer = telemetry.holderDecisions.some(
       (d) =>
@@ -289,7 +290,8 @@ export function diagnoseLiveFieldPlayV1(
       throwerId: rel.playerId!,
       receiverId,
       base,
-      forcePlay: rel.reason !== 'tag_play',
+      forcePlay: rel.reason === 'force_play' || rel.reason === undefined,
+      relayHop: rel.reason === 'relay_play',
       cancelledMidFlight,
       cancelledAtElapsedSeconds: cancelEvent?.elapsedSeconds ?? null,
       receptionOutcome,
@@ -302,7 +304,7 @@ export function diagnoseLiveFieldPlayV1(
       runnerArrivalElapsedSeconds,
       baseTouched: !!baseContact,
       baseTouchElapsedSeconds: baseContact?.elapsedSeconds ?? null,
-      frozenByTransferBeforeBaseTouch: caughtBeforeRunner && !baseContact && waitedTransfer,
+      frozenByTransferBeforeBaseTouch: rel.reason !== 'relay_play' && caughtBeforeRunner && !baseContact && waitedTransfer,
     };
   });
 
@@ -458,9 +460,16 @@ export function diagnoseLiveFieldPlayV1(
   ) {
     const holdDec = telemetry.holderDecisions.find((d) => d.state === 'hold_no_positive_margin' || d.state === 'pursue_tag');
     const rejectedByFlight = result.diagnostics.throwDecisions.some((d) => d.reason === 'aero_throw_arrives_after_runner');
+    // Infinity now also means the bounded Aero route planner explicitly found
+    // no positive throw/carry margin. Retaining custody in that state is not a
+    // missed throw opportunity. A contradictory positive holder margin still
+    // triggers the diagnostic independently of this route explanation.
+    const routeDeclinedForMargin = telemetry.relayPlans.some(p => p.playerId === firstCatchFact.playerId
+      && p.base === holdDec?.base && p.kind === 'hold' && p.marginSeconds <= 0
+      && p.elapsedSeconds >= firstCatchFact.elapsedSeconds && p.elapsedSeconds <= (holdDec?.elapsedSeconds ?? -Infinity));
     if (
       !rejectedByFlight &&
-      ((holdDec?.margin !== undefined && holdDec.margin > 0.15) || holdDec?.receivingSeconds === Infinity)
+      ((holdDec?.margin !== undefined && holdDec.margin > 0.15) || holdDec?.receivingSeconds === Infinity && !routeDeclinedForMargin)
     ) {
       anomalies.push({
         kind: 'HELD_BALL_NO_THROW_ON_FORCE',
@@ -523,7 +532,7 @@ export function formatLiveFieldPlayDiagnosticReportV1(diag: ReturnType<typeof di
   }
   for (const th of diag.throws) {
     lines.push(
-      `  Throw -> Base ${th.base}: ${th.throwerId} -> ${th.receiverId} play=${th.forcePlay ? 'force' : 'tag'} rel=${rel(th.releaseElapsedSeconds)} outcome=${th.receptionOutcome} sec=${rel(th.secureElapsedSeconds)} runner=${rel(th.runnerArrivalElapsedSeconds)} distToBag=${th.receiverDistanceToBaseAtReceptionMeters?.toFixed(2) ?? 'n/a'}m minGloveGap=${th.minGloveGapMeters.toFixed(3)}m@${rel(th.closestApproachElapsedSeconds)} minBodyGap=${th.minBodyGapMeters.toFixed(3)}m cancelAt=${rel(th.cancelledAtElapsedSeconds)} baseTouched=${th.baseTouched}${th.frozenByTransferBeforeBaseTouch ? ' [FROZEN_BY_TRANSFER]' : ''}`,
+      `  Throw -> Base ${th.base}: ${th.throwerId} -> ${th.receiverId} play=${th.relayHop ? 'relay' : th.forcePlay ? 'force' : 'tag'} rel=${rel(th.releaseElapsedSeconds)} outcome=${th.receptionOutcome} sec=${rel(th.secureElapsedSeconds)} runner=${rel(th.runnerArrivalElapsedSeconds)} distToBag=${th.receiverDistanceToBaseAtReceptionMeters?.toFixed(2) ?? 'n/a'}m minGloveGap=${th.minGloveGapMeters.toFixed(3)}m@${rel(th.closestApproachElapsedSeconds)} minBodyGap=${th.minBodyGapMeters.toFixed(3)}m cancelAt=${rel(th.cancelledAtElapsedSeconds)} baseTouched=${th.baseTouched}${th.frozenByTransferBeforeBaseTouch ? ' [FROZEN_BY_TRANSFER]' : ''}`,
     );
   }
   if (diag.anomalies.length > 0) {

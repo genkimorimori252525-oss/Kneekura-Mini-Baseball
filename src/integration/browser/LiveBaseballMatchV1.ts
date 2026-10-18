@@ -6,7 +6,7 @@ import { REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS } from '../../core/sim/ball/Ba
 import type { AeroGroundBallPhysicsV1 } from '../../core/sim/ball/VersionedBattedBallPhysics';
 import type { BallWorldMoment } from '../../core/sim/ball/BallWorldContinuation';
 import { IDENTITY_QUATERNION, type Quaternion } from '../../core/sim/pitching/BaseballOrientation';
-import { simulateLiveFieldPlayV1, deriveLiveFieldFenceGeometryV1, type LiveFielderV1, type LiveFieldFrameV1 } from '../../core/sim/fielding/LiveFieldPlayV1';
+import { simulateLiveFieldPlayV1, deriveLiveFieldFenceGeometryV1, type LiveFielderV1 } from '../../core/sim/fielding/LiveFieldPlayV1';
 import { reducePlayableMatchV1, type PlayableMatchRuleResultV1 } from './PlayableMatchRulesV1';
 import { simulateLivePitchV1, type LiveMeasuredClipV1 } from './LivePitchV1';
 import type { LivePhysicalAbilityControlsV1 } from './LivePhysicalRosterV1';
@@ -77,6 +77,10 @@ function physical(player:LivePlayerV1):LivePlayerPhysicalV1{
     'invalid baserunning safety margin');
   assert(p.fieldingPursuitCostWeight===undefined||Number.isFinite(p.fieldingPursuitCostWeight)&&p.fieldingPursuitCostWeight>=.25&&p.fieldingPursuitCostWeight<=4,
     'invalid fielding pursuit cost weight');
+  assert(p.baserunningTurnRadiusMeters===undefined||Number.isFinite(p.baserunningTurnRadiusMeters)&&p.baserunningTurnRadiusMeters>=.5&&p.baserunningTurnRadiusMeters<=10,
+    'invalid baserunning turn radius SI');
+  assert(p.baserunningLateralAccelerationMps2===undefined||Number.isFinite(p.baserunningLateralAccelerationMps2)&&p.baserunningLateralAccelerationMps2>=.5&&p.baserunningLateralAccelerationMps2<=20,
+    'invalid baserunning lateral acceleration SI');
   return p;
 }
 
@@ -144,9 +148,11 @@ export function createLiveBaseballMatchV1(raw:LiveMatchInputV1){
         transferSeconds:p.transferSeconds,throwSpeedMps:p.throwSpeedMps,throwBackspinRadPerSecond:120,
         ...(p.throwDirectionStdRadians===undefined?{}:{throwDirectionStdRadians:p.throwDirectionStdRadians})};});
       const runnerSpecs=[{runnerId:c.batterPlayerId,initialBase:0 as const,position:ready.actors.find(a=>a.playerId===c.batterPlayerId)!.position,
-        topSpeedMps:bp.topSpeedMps,accelerationMps2:bp.accelerationMps2,reactionSeconds:bp.reactionSeconds,advanceSafetyMarginSeconds:bp.baserunningSafetyMarginSeconds??.35},
+        topSpeedMps:bp.topSpeedMps,accelerationMps2:bp.accelerationMps2,reactionSeconds:bp.reactionSeconds,advanceSafetyMarginSeconds:bp.baserunningSafetyMarginSeconds??.35,
+        roundingRadiusMeters:bp.baserunningTurnRadiusMeters??4.5,lateralAccelerationMps2:bp.baserunningLateralAccelerationMps2??1.5*bp.accelerationMps2},
         ...(['first','second','third'] as const).flatMap((key,i)=>{const runnerId=beforeMatch.bases[key];if(!runnerId)return[];const p=physical(players.get(runnerId)!);
-          return[{runnerId,initialBase:(i+1) as 1|2|3,topSpeedMps:p.topSpeedMps,accelerationMps2:p.accelerationMps2,reactionSeconds:p.reactionSeconds,advanceSafetyMarginSeconds:p.baserunningSafetyMarginSeconds??.35}];})];
+          return[{runnerId,initialBase:(i+1) as 1|2|3,topSpeedMps:p.topSpeedMps,accelerationMps2:p.accelerationMps2,reactionSeconds:p.reactionSeconds,advanceSafetyMarginSeconds:p.baserunningSafetyMarginSeconds??.35,
+            roundingRadiusMeters:p.baserunningTurnRadiusMeters??4.5,lateralAccelerationMps2:p.baserunningLateralAccelerationMps2??1.5*p.accelerationMps2}];})];
       const outgoingMoment={...pitch.contactMoment,ball:{...pitch.contactMoment.ball,velocity:pitch.contact.exitVelocity,spin:pitch.contact.exitSpin}};
       outgoingBallMoment=outgoingMoment;
       field=simulateLiveFieldPlayV1({ball:outgoingMoment,orientation:pitch.contactOrientation??IDENTITY_QUATERNION,physics:LIVE_MATCH_PHYSICS_V1,
@@ -166,7 +172,7 @@ export function createLiveBaseballMatchV1(raw:LiveMatchInputV1){
           ...f.runners.map(r=>{const out=result.kind==='applied'?result.outcomes.find(o=>o.runnerId===r.runnerId):null,
             dt=out?Math.max(0,(f.tick-out.tick)/tps):0,dx=(c.team===0?-30:30)-r.position.x,dz=3-r.position.z,length=Math.hypot(dx,dz),travel=Math.min(length,dt*3.2);
             return{playerId:r.runnerId,role:'runner' as const,team:c.team,position:{x:r.position.x+dx/(length||1)*travel,y:0,z:r.position.z+dz/(length||1)*travel},
-              velocity:dt>0?{x:dx/(length||1)*3.2,y:0,z:dz/(length||1)*3.2}:runnerVelocity(f,r.runnerId,field!),retired:r.retired};})],
+              velocity:dt>0?{x:dx/(length||1)*3.2,y:0,z:dz/(length||1)*3.2}:r.velocity,retired:r.retired};})],
           phase:f.ball.possessedBy?'held':lastThrow>=(latestCatch?.tick??Infinity)?'throw':'batted',
           ballKind:lastThrow>=(latestCatch?.tick??Infinity)?'throw':'batted',fairKnown:events.some(e=>e.kind==='territory_determined'&&e.reason==='fair'),possessedBy:f.ball.possessedBy,
           fieldObserverPlayerId:observer,homeRunConfirmed:!!field.ruleFacts.overFence?.fair&&field.ruleFacts.overFence.untouchedGround&&f.tick>=field.ruleFacts.overFence.tick});
@@ -203,8 +209,3 @@ export function createLiveBaseballMatchV1(raw:LiveMatchInputV1){
   return Object.freeze({issuePitch,inspect});
 }
 
-function runnerVelocity(frame:LiveFieldFrameV1,id:string,field:ReturnType<typeof simulateLiveFieldPlayV1>):Vec3{
-  const i=field.frames.indexOf(frame),one=field.frames[Math.max(0,i-1)],two=field.frames[Math.min(field.frames.length-1,i+1)],
-    a=one.runners.find(r=>r.runnerId===id)!,b=two.runners.find(r=>r.runnerId===id)!,dt=(two.tick-one.tick)/1_000_000;
-  return dt>0?{x:(b.position.x-a.position.x)/dt,y:0,z:(b.position.z-a.position.z)/dt}:zero();
-}

@@ -34,6 +34,26 @@ function actualNonforceTagInput(): LiveFieldPlayInputV1 {
 }
 
 describe('LiveFieldPlayDiagnosticsV1', () => {
+  it('recognizes an actual relay receipt away from the final bag without reporting a missing force-base touch', () => {
+    const raw = actualNonforceTagInput(), v = (x = 0, y = 0, z = 0) => ({ x, y, z }), input = { ...raw,
+      ball: { ...raw.ball, ball: { ...raw.ball.ball, position: v(0, .2, 90), velocity: v(0, -1, .1) } },
+      fielders: raw.fielders.map((f, i) => ({ ...f, reactionSeconds: .01,
+        position: i === 7 ? v(0, 1, 90) : i === 6 ? v(0, 1, 70) : f.position, throwSpeedMps: i === 7 ? 16 : 38 })),
+      runners: raw.runners.map(r => ({ ...r, topSpeedMps: r.initialBase === 3 ? 3 : 12 })) },
+      result = simulateLiveFieldPlayV1(input), before = JSON.stringify(result), diag = diagnoseLiveFieldPlayV1(input, result),
+      relay = diag.throws.find(t => t.relayHop)!, final = diag.throws.find(t => t.forcePlay)!;
+    expect(result.end.complete).toBe(true);
+    expect(result.facts.some(f => f.kind === 'throw_release' && f.reason === 'relay_play')).toBe(true);
+    expect(relay).toMatchObject({ forcePlay: false, relayHop: true, receptionOutcome: 'glove_secured', baseTouched: false,
+      baseTouchElapsedSeconds: null, frozenByTransferBeforeBaseTouch: false });
+    expect(relay.receiverDistanceToBaseAtReceptionMeters).toBeGreaterThan(60);
+    expect(final).toMatchObject({ forcePlay: true, relayHop: false, receptionOutcome: 'glove_secured', baseTouched: true });
+    expect(relay.receiverId).not.toBe(final.receiverId);
+    expect(diag.anomalies.filter(a => a.kind === 'CAUGHT_THROW_NO_BASE_TOUCH')).toEqual([]);
+    expect(formatLiveFieldPlayDiagnosticReportV1(diag)).toContain('play=relay');
+    expect(JSON.stringify(result)).toBe(before);
+  });
+
   it('recognizes an actual nonforce throw and catcher tag without requiring a bag contact', () => {
     const input = actualNonforceTagInput(), result = simulateLiveFieldPlayV1(input), before = JSON.stringify(result),
       diag = diagnoseLiveFieldPlayV1(input, result), release = result.facts.find(f => f.kind === 'throw_release' && f.base === 4)!,
@@ -62,6 +82,22 @@ describe('LiveFieldPlayDiagnosticsV1', () => {
       f.kind === 'throw_release' ? { ...f, reason } : f) }, diag = diagnoseLiveFieldPlayV1(input, missingBagObservation, roleMap);
     expect(diag.throws[0]).toMatchObject({ forcePlay: true, receptionOutcome: 'glove_secured', baseTouched: false });
     expect(diag.anomalies).toContainEqual(expect.objectContaining({ kind: 'CAUGHT_THROW_NO_BASE_TOUCH', base: release.base }));
+  });
+
+  it('accepts an explicitly evaluated losing hold while still reporting a contradictory positive throw opportunity', () => {
+    const scenario = CANONICAL_FIELDING_SCENARIOS_V1.find(s => s.id === 'SS_up_middle')!,
+      { input, roleMap } = buildCanonicalFieldingPlayInputV1(scenario), result = simulateLiveFieldPlayV1(input),
+      diag = diagnoseLiveFieldPlayV1(input, result, roleMap);
+    expect(result.facts.some(f => f.kind === 'catch_secured')).toBe(true);
+    expect(result.facts.filter(f => f.kind === 'throw_release')).toEqual([]);
+    expect(result.diagnostics.aiTelemetry.relayPlans.some(p => p.kind === 'hold' && p.marginSeconds < 0)).toBe(true);
+    expect(diag.anomalies.filter(a => a.kind === 'HELD_BALL_NO_THROW_ON_FORCE')).toEqual([]);
+    // Keep the same actual no-throw facts, but deliberately report a positive
+    // controller opportunity. That inconsistency must remain detectable.
+    const contradictoryEstimate = { ...result, diagnostics: { ...result.diagnostics, aiTelemetry: { ...result.diagnostics.aiTelemetry,
+      holderDecisions: result.diagnostics.aiTelemetry.holderDecisions.map(d => d.state === 'pursue_tag' || d.state === 'hold_no_positive_margin'
+        ? { ...d, margin: 2 } : d) } } }, contradictory = diagnoseLiveFieldPlayV1(input, contradictoryEstimate, roleMap);
+    expect(contradictory.anomalies).toContainEqual(expect.objectContaining({ kind: 'HELD_BALL_NO_THROW_ON_FORCE', base: 1 }));
   });
 
   it('captures structured AI telemetry, kinematic oracle, and anomaly classifications without altering simulation facts', () => {

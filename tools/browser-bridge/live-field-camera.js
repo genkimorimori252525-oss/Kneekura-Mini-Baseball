@@ -44,7 +44,9 @@
    if(!Number.isFinite(decision.elapsedSeconds)||decision.elapsedSeconds>elapsed||decision.elapsedSeconds<command.from)continue;
    if(decision.reason!=='positive_margin_physical_throw')return undefined;
   }
-  return command?targetBase(bases,command.base):undefined;
+  // An issued relay command may aim at a receiver away from the eventual out
+  // base. Its frozen issue-time target is causal; legacy commands keep bases.
+  return command?(point(command.target)??targetBase(bases,command.base)):undefined;
  }
  /** observe({record,frame,bases,defaultObserverPlayerId?}) -> immutable display
   * observation. Pass actual Core LIVE_MATCH_BASES_V1 for bases. The caller may

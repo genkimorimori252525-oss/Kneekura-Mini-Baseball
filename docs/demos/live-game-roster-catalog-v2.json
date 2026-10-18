@@ -258,6 +258,31 @@
       "step": 0.1
     },
     {
+      "path": "baserunningTurnRadiusMeters",
+      "label": "走塁の回塁半径",
+      "section": "common",
+      "unit": "m",
+      "type": "number",
+      "min": 0.5,
+      "max": 10,
+      "step": 0.1,
+      "default": 4.5,
+      "note": "連続進塁で塁を回る経路の半径。未指定時は4.5m。旋回中の速度は横加速度の上限にも従います。"
+    },
+    {
+      "path": "baserunningLateralAccelerationMps2",
+      "label": "走塁の横加速度上限",
+      "section": "common",
+      "unit": "m/s²",
+      "type": "number",
+      "min": 0.5,
+      "max": 20,
+      "step": 0.1,
+      "defaultFrom": "accelerationMps2",
+      "defaultScale": 1.5,
+      "note": "回塁中の方向転換に使う横加速度の上限。未指定時は選手の走行加速度の1.5倍。値を編集するまで個別設定として保存されません。"
+    },
+    {
       "path": "gloveSpeedMps",
       "label": "グラブ移動速度",
       "section": "common",

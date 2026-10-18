@@ -22,9 +22,25 @@ it('projects optional tactical preferences without changing the physical abiliti
   expect(old.players[0].physical).not.toHaveProperty('fieldingPursuitCostWeight');
 });
 
+it('preserves authored rounding controls without materializing omitted runner defaults', () => {
+  const raw = packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', baserunningTurnRadiusMeters: 3.2,
+    baserunningLateralAccelerationMps2: 8.4 } }), before = JSON.stringify(raw), projected = applyLivePhysicalRosterV1(raw);
+  expect(projected.players[0].physical).toEqual({ ...LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1,
+    baserunningTurnRadiusMeters: 3.2, baserunningLateralAccelerationMps2: 8.4 });
+  for (const [path, value] of [['baserunningTurnRadiusMeters', 3.2], ['baserunningLateralAccelerationMps2', 8.4]] as const)
+    expect(projected.audit.players[0].projected).toContainEqual(expect.objectContaining({ inputPath: 'physical.' + path, targetPath: path, value }));
+  expect(JSON.stringify(raw)).toBe(before);
+  expect(Object.isFrozen(projected.players[0].physical)).toBe(true);
+  const old = applyLivePhysicalRosterV1(packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', accelerationMps2: 6 } }));
+  expect(old.players[0].physical).not.toHaveProperty('baserunningTurnRadiusMeters');
+  expect(old.players[0].physical).not.toHaveProperty('baserunningLateralAccelerationMps2');
+});
+
 it.each([
   ['baserunningSafetyMarginSeconds', 0, 3, -.001, 3.001],
   ['fieldingPursuitCostWeight', .25, 4, .249, 4.001],
+  ['baserunningTurnRadiusMeters', .5, 10, .499, 10.001],
+  ['baserunningLateralAccelerationMps2', .5, 20, .499, 20.001],
 ] as const)('validates %s at both roster and direct Host boundaries', (key, min, max, below, above) => {
   const fixture = liveMatchFixture();
   const hostInput = (value: number) => ({ ...fixture, players: fixture.players.map((p, i) => i ? p : { ...p,

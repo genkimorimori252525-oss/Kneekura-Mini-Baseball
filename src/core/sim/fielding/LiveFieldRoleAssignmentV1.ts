@@ -79,7 +79,8 @@ export function assignLiveFieldRolesV1(raw: LiveFieldRoleInputV1): readonly Live
   const reservedIds = new Set<string>(), covered = new Set<BaseballBase>(), taskIds = new Set<string>();
   for (const role of input.reservations) {
     if (!actors.some(a => a.playerId === role.playerId) || reservedIds.has(role.playerId) || !role.taskId || taskIds.has(role.taskId)
-      || !finite(role.point) || !['intercept', 'base_cover', 'hold', 'tag'].includes(role.intent)
+      || !finite(role.point) || !['intercept', 'base_cover', 'relay', 'hold', 'tag'].includes(role.intent)
+      || role.intent === 'relay' && role.targetBase !== null
       || role.targetBase !== null && ![1, 2, 3, 4].includes(role.targetBase)
       || role.targetBase !== null && covered.has(role.targetBase)) throw new Error('duplicate or invalid live field reservation');
     reservedIds.add(role.playerId); taskIds.add(role.taskId); if (role.targetBase !== null) covered.add(role.targetBase);
@@ -105,7 +106,8 @@ export function assignLiveFieldRolesV1(raw: LiveFieldRoleInputV1): readonly Live
   if (primary !== null && tasks.length < available.length) {
     const target = input.bases[primary], length = flatDistance(input.ballPosition, target),
       strongest = Math.max(...actors.map(a => a.throwSpeedMps));
-    if (length > strongest * LIVE_FIELD_ROLE_POLICY_V1.directThrowSeconds && tasks.length + 1 < available.length)
+    if (!input.reservations.some(r => r.intent === 'relay')
+      && length > strongest * LIVE_FIELD_ROLE_POLICY_V1.directThrowSeconds && tasks.length + 1 < available.length)
       tasks.push({ taskId: 'relay:' + primary, point: { x: (input.ballPosition.x + target.x) / 2, y: target.y,
         z: (input.ballPosition.z + target.z) / 2 }, intent: 'relay', targetBase: null });
     tasks.push({ taskId: 'throw-backup:' + primary, point: beyond(input.ballPosition, target, LIVE_FIELD_ROLE_POLICY_V1.backupDepthMeters, input.ballVelocity),

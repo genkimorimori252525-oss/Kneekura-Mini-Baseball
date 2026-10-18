@@ -30,6 +30,17 @@ it('refills the base vacated by a newly reserved receiver instead of overwriting
   expect(next.filter(r => r.targetBase === 2)).toHaveLength(1);
   expect(next.find(r => r.targetBase === 2)!.playerId).not.toBe(formerSecond.playerId);
 });
+it('reserves an actual relay at its receive point while keeping the final base covered by another actor', () => {
+  const raw = fixture(), receivePoint = v(-5, 1, 35), relay = { playerId: 'p1', taskId: 'relay:1',
+    point: receivePoint, intent: 'relay' as const, targetBase: null },
+    roles = assignLiveFieldRolesV1({ ...raw, ballPosition: v(-40, 0, 80), reservations: [raw.reservations[0], relay] });
+  expect(roles.find(r => r.playerId === 'p1')).toEqual(relay);
+  expect(roles.filter(r => r.intent === 'relay')).toHaveLength(1);
+  expect(roles.filter(r => r.targetBase === 1)).toHaveLength(1);
+  expect(roles.find(r => r.targetBase === 1)!.playerId).not.toBe('p1');
+  expect(new Set(roles.map(r => r.taskId)).size).toBe(9);
+  expect(() => assignLiveFieldRolesV1({ ...raw, reservations: [raw.reservations[0], { ...relay, targetBase: 1 }] })).toThrow(/reservation/);
+});
 it('aligns relay and backup with the chosen throw destination, with backup beyond the receiver', () => {
   const raw = fixture(), roles = assignLiveFieldRolesV1({ ...raw, ballPosition: v(-40, 0, 80) }),
     relay = roles.find(r => r.intent === 'relay')!, backup = roles.find(r => r.taskId === 'throw-backup:1')!;

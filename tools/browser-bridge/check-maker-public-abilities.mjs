@@ -18,7 +18,7 @@ const close=(a,b,label)=>assert(Math.abs(a-b)<1e-8,label+': '+a+' / '+b);
 const revealAbility=async(page,id)=>{const input=page.locator('[data-public-ability="'+id+'"]');
  if(!await input.isVisible())await page.locator('#live-public-secondary > summary').click();return input;};
 try{
- assert.equal(packet.entries.length,20);assert.equal(catalog.fields.length,42);
+ assert.equal(packet.entries.length,20);assert.equal(catalog.fields.length,44);
  for(const width of [1200,390]){
   const page=await browser.newPage({viewport:{width,height:860},acceptDownloads:true}),errors=[],network=[];
   page.on('pageerror',e=>errors.push(String(e)));page.on('request',r=>{if(!/^(file:|data:|blob:)/.test(r.url()))network.push(r.url());});
@@ -77,7 +77,19 @@ try{
   await page.evaluate(p=>window.baseballMaker.importLiveRoster(p),packet);
   await page.locator('#live-roster-internals > summary').click();
   const tacticsBefore=await page.evaluate(()=>({packet:window.baseballMaker.getLiveRoster(),abilities:window.baseballMaker.getPublicProjection().abilities}));
-  for(const [path,defaultValue,editedValue] of [['baserunningSafetyMarginSeconds',.35,1.2],['fieldingPursuitCostWeight',1,.5]]){
+  const lateralPath='baserunningLateralAccelerationMps2',lateralInput=page.locator('[data-roster-path="'+lateralPath+'"]');
+  const initialRun=tacticsBefore.abilities.find(a=>a.id==='run');
+  await(await revealAbility(page,'run')).fill(String(initialRun.value+(initialRun.value>98?-1:1)));
+  const afterRun=await page.evaluate(()=>window.baseballMaker.getLiveRoster()),runPhysical=afterRun.entries.find(e=>e.playerId===selected).physical;
+  close(Number(await lateralInput.inputValue()),1.5*runPhysical.accelerationMps2,'public run edit refreshes the implicit lateral limit');
+  assert(!Object.hasOwn(runPhysical,lateralPath),'public run edit does not author the derived lateral limit');
+  await page.locator('[data-roster-path="accelerationMps2"]').fill('5.7');
+  close(Number(await lateralInput.inputValue()),8.55,'internal acceleration edit refreshes the implicit lateral limit');
+  assert(!Object.hasOwn((await page.evaluate(()=>window.baseballMaker.getLiveRoster())).entries.find(e=>e.playerId===selected).physical,lateralPath));
+  await page.evaluate(p=>window.baseballMaker.importLiveRoster(p),packet);
+  const lateralDefault=1.5*packet.entries.find(e=>e.playerId===selected).physical.accelerationMps2;
+  for(const [path,defaultValue,editedValue] of [['baserunningSafetyMarginSeconds',.35,1.2],['fieldingPursuitCostWeight',1,.5],
+   ['baserunningTurnRadiusMeters',4.5,3.2],[lateralPath,lateralDefault,8.4]]){
    const input=page.locator('[data-roster-path="'+path+'"]');
    close(Number(await input.inputValue()),defaultValue,'omitted tactical control displays its runtime default '+path);
    assert(tacticsBefore.packet.entries.every(e=>!Object.hasOwn(e.physical,path)),'default display does not author a new physical value '+path);
@@ -86,6 +98,11 @@ try{
    close(after.packet.entries.find(e=>e.playerId===selected).physical[path],editedValue,'hidden tactical edit '+path);
    assert.deepEqual(after.abilities,tacticsBefore.abilities,'tactical preference preserves all public abilities '+path);
   }
+  const customRun=await page.evaluate(()=>window.baseballMaker.getPublicProjection().abilities.find(a=>a.id==='run'));
+  await(await revealAbility(page,'run')).fill(String(customRun.value+(customRun.value>98?-1:1)));
+  const customPhysical=(await page.evaluate(()=>window.baseballMaker.getLiveRoster())).entries.find(e=>e.playerId===selected).physical;
+  close(customPhysical[lateralPath],8.4,'public run edit preserves an authored lateral limit');
+  close(Number(await lateralInput.inputValue()),8.4,'an authored lateral limit remains displayed');
   await page.evaluate(p=>window.baseballMaker.importLiveRoster(p),packet);
   await page.locator('[data-roster-path="topSpeedMps"]').fill('0.1');
   const range=await page.evaluate(()=>({packet:window.baseballMaker.getLiveRoster(),projection:window.baseballMaker.getPublicProjection()}));
@@ -149,7 +166,8 @@ try{
    assert.deepEqual(game.players.find(p=>p.playerId===selected).physical,saved.livePhysicalRoster.entries.find(p=>p.playerId===selected).physical);await gamePage.close();
   }
   assert.deepEqual(errors,[]);assert.deepEqual(network,[]);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
-  report.views.push({width,initialLayout,tabPreviewRestored:true,roleSpecificPrimary:true,approved,editChecks,rangeProjection:running,leagues,oldPacketPreserved:true,atomic,completeStateRoundTrip:true,game,errors,network});await page.close();
+  report.views.push({width,initialLayout,tabPreviewRestored:true,roleSpecificPrimary:true,approved,editChecks,rangeProjection:running,leagues,oldPacketPreserved:true,
+   implicitRunnerDefaultsNotAuthored:true,derivedLateralTracksRunAndAcceleration:true,explicitLateralPreserved:true,atomic,completeStateRoundTrip:true,game,errors,network});await page.close();
  }
  for(const input of report.inputs)assert.equal(sha(await readFile(input.path)),input.sha256);
  report.status='PASS';await writeFile(resolve(evidence,'public-maker-check.json'),JSON.stringify(report,null,2)+'\n');

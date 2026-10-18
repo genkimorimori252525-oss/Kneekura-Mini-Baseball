@@ -12,6 +12,8 @@ export type LivePhysicalAbilityControlsV1 = Readonly<{
   zoneJudgmentStdMeters?: number;
   /** Tactical preferences; omitted values retain the controller defaults. */
   baserunningSafetyMarginSeconds?: number; fieldingPursuitCostWeight?: number;
+  /** SI limits for continuous base rounding; omitted limits resolve in Host. */
+  baserunningTurnRadiusMeters?: number; baserunningLateralAccelerationMps2?: number;
   preContactSeconds?: number; followThroughSeconds?: number; contactDepthMeters?: number;
   throwDirectionStdRadians?: number;
   swingDecision?: Readonly<{ approach: 'AUTO' | 'TAKE' | 'SWING'; threshold: number; aggressionWeight: number }>;
@@ -31,7 +33,7 @@ const scalarKeys = ['batLengthM', 'batMassKg', 'swingRate', 'timingStdSeconds', 
   'retentionCapacityJ', 'captureDissipationPowerW', 'transferSeconds', 'throwSpeedMps', 'maximumPitchSpeedMps',
   'maximumSweetSpotSpeedMps', 'targetSweetSpotSpeedMps', 'motorLatencySeconds', 'technicalTimingOffsetSeconds', 'sweetSpotT',
   'attackAngleDegrees', 'pullAngleDegrees', 'badBallControl', 'defensiveDecisionSeconds', 'preContactSeconds', 'followThroughSeconds', 'contactDepthMeters', 'throwDirectionStdRadians', 'zoneJudgmentStdMeters',
-  'baserunningSafetyMarginSeconds', 'fieldingPursuitCostWeight'] as const;
+  'baserunningSafetyMarginSeconds', 'fieldingPursuitCostWeight', 'baserunningTurnRadiusMeters', 'baserunningLateralAccelerationMps2'] as const;
 const physicalKeys: readonly string[] = ['basis', ...scalarKeys, 'spinRadPerSecond', 'clipId', 'swingDecision'];
 const bounds: Partial<Record<typeof scalarKeys[number], readonly [number, number]>> = {
   batLengthM: [.55, 1.2], batMassKg: [.4, 1.8], swingRate: [.3, 3], timingStdSeconds: [0, .08], aimStdMeters: [0, .35],
@@ -44,6 +46,7 @@ const bounds: Partial<Record<typeof scalarKeys[number], readonly [number, number
   throwDirectionStdRadians: [0, .12],
   zoneJudgmentStdMeters: [0, .6],
   baserunningSafetyMarginSeconds: [0, 3], fieldingPursuitCostWeight: [.25, 4],
+  baserunningTurnRadiusMeters: [.5, 10], baserunningLateralAccelerationMps2: [.5, 20],
 };
 const nonnegative = new Set<string>(['reactionSeconds', 'transferSeconds', 'defensiveDecisionSeconds']);
 const freeze = <T>(value: T): T => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
