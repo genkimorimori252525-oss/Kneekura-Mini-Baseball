@@ -1,16 +1,24 @@
-# 最新の再開入口 — 2026-10-18
+# 最新の再開入口 — 2026-10-19
 
-現在は **v53（飛球走塁と得能版）**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
+現在は **v54（得能と個人采配接続版）**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
 
-- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v53/README.md)
-- [原因・変更・最終検証・限界](../reports/2026-10-18-v53-airborne-running.md)
-- [開発史](../history/README.md) / [原因別事例H25](../history/INCIDENTS.md)
+- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v54/README.md)
+- [原因・変更・最終検証・限界](../reports/2026-10-19-v54-executable-traits.md)
+- [開発史](../history/README.md) / [原因別事例H26](../history/INCIDENTS.md)
 - [元の全要求・計画・受入条件](2026-10-15-mini-baseball/00-START-HERE.md)
 - [v50の打者カメラ](../reports/2026-10-18-v50-v27-batter-camera.md) / [v49の守備責任・裁定](../reports/2026-10-18-v49-positional-defense.md) / [v47の中継・旋回](../reports/2026-10-18-v47-relay-rounding.md)
 
-## v53の現在地
+## v54の現在地
 
-落下前に安打性を読み、能力と監督指示で進塁判断する。捕球時は実離塁とfirst-touchを照合し、現在速度から連続制動して逆順帰塁。explicit appealと実支配／タッチを同tick証拠へ拘束する。実reverse homeにより旧得点／占有を訂正し、境界UNKNOWNを保持。bad-ball技術を公開値から得能へ移し、内部値を一度だけ使う。NLB10初期保有、旧JSON未査定を維持。全得能の接続は完了せず、元システムがないものまで今回含めるかは人間へ確認中。[接続監査](../reports/2026-10-18-v53-trait-source-audit.md)。
+人間が「通常試合で実働できる得能を接続し、残りをメーカーに未対応と明示」を選択。悪球打ち・送球精度・打撃積極性・走塁積極性・守備積極性・投球配分・スイング方針の7系統を実働Sourceへ接続。監督の明示指示を優先し、個人方針はAUTO時に使う。青・赤・緑・金と中立を表示し、同じSIへの二重適用や反復累積を防ぐ。公開10・詳細44を維持。119項目のうち残112は未対応86／対象外25／仕様確認待ち1として検索・理由を表示する。Native習熟度の認証や不足する独立システムを作ったという意味ではない。
+
+最終41files368tests、globalTSC、通常HTML320球の規定9回、PC1200/390pxの7系統22状態・保存再読込・試合取込、v52カメラと実12球比較をPASS。Core113／maker79入力。HTML SHA `80c68e3ddb5c961ab6f18b325c6f267f883cd02d27381dfa10a9334bf8afae9f`。Maker SHA `f1443bb1c7699ce88249fd4f6f293ec6cd2fd705767b9e1ff04db24e0c62bbd9`。ローカル作成閾値・傾向係数・全体成績は未校正。
+
+再生成は `node tools/browser-bridge/build-v54-artifacts.mjs`。対象試験・通常試合・カメラ・メーカー・配布照合は[報告](../reports/2026-10-19-v54-executable-traits.md)と[配布説明](../demos/releases/v54/README.md)を参照。旧版の試験は当時のSourceの証拠であり、現Sourceの追加検証と区別する。原全計画・FAIL/UNKNOWN/Charter HOLDを保持する。
+
+## v53時点の経緯（範囲の未回答はv54で解消）
+
+落下前に安打性を読み、能力と監督指示で進塁判断する。捕球時は実離塁とfirst-touchを照合し、現在速度から連続制動して逆順帰塁。explicit appealと実支配／タッチを同tick証拠へ拘束する。実reverse homeにより旧得点／占有を訂正し、境界UNKNOWNを保持。bad-ball技術を公開値から得能へ移し、内部値を一度だけ使う。NLB10初期保有、旧JSON未査定を維持。v53時点では全得能の接続は未完で、元システムがないものまで含めるか人間へ確認中だった。v54で実働可能な範囲に確定した。[接続監査](../reports/2026-10-18-v53-trait-source-audit.md)。
 
 最終39files346tests・globalTSC PASS。112 Core入力・通常HTML320球9回・着地前26判断・live終端未帰塁0。野手130play/17169frame重なり0。メーカー20/public10/internal44・oldJSON・download/reload/gameimport・PC1200/390px・v52カメラのbytesと現在12球を確認。全体成績やread誤差は未校正。新100試合や実機は未実施。元全計画・原FAIL/UNKNOWN/HOLDは残す。
 
@@ -42,7 +50,7 @@ v51 HTML SHA `9a2b4761d87b6c908dd51c969d5425a036870caf1f57b474e1113126b409a54e`�
 
 身体は半径0.24mの平面代理で、余裕0.02m／soft0.35m等は暫定制御値。任意の途中時刻からの一律停止保証、有限候補の大域最適性、身体接触後の反発・転倒は未実装。新計画を証明できなければ未確定の停止を残す。初期の重なりを押し出し修復しない。
 
-Native認証された全体連続世界、返球・再整列・全身／バット反動・落下、公式H/E・残規則、全得能、リード／スライディング、共同走塁・中継最適化、実選手SI・成績分布、最新100試合以上、実機スマートフォン。今回の10–46は成績校正の証明ではない。通常leg開始の離塁factはmotor開始の代理を残し、同tick順序証拠へ流用しない。足の完全接地も未実装。
+Native認証された全体連続世界、返球・再整列・全身／バット反動・落下、公式H/E・残規則、全得能、リード／スライディング、共同走塁・中継最適化、実選手SI・成績分布、最新100試合以上、実機スマートフォン。今回の10–46は成績校正の証明ではない。v53から塁disk退出は実経路から記録する。足の完全接地は未実装。
 
 Charter外部承認不足／HOLDと以前のFAIL/UNKNOWNは保持。会話の作業承認と機械的Charter承認は別。元の全目標はIN_PROGRESS。
 

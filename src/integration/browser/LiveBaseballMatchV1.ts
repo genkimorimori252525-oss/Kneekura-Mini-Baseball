@@ -10,7 +10,7 @@ import { simulateLiveFieldPlayV1, deriveLiveFieldFenceGeometryV1, type LiveField
 import { reducePlayableMatchV1, type PlayableMatchRuleResultV1 } from './PlayableMatchRulesV1';
 import { simulateLivePitchV1, type LiveMeasuredClipV1 } from './LivePitchV1';
 import type { LivePhysicalAbilityControlsV1 } from './LivePhysicalRosterV1';
-import { validateLiveTraitProfileV1, type LiveTraitProfileV1 } from './LiveTraitProfilesV1';
+import { resolveLiveTraitPreferencesV54, validateLiveTraitProfileV1, type LiveTraitProfileV1 } from './LiveTraitProfilesV1';
 
 export type LivePositionV1 = 'P'|'C'|'1B'|'2B'|'3B'|'SS'|'LF'|'CF'|'RF';
 export type LivePlayerPhysicalV1 = LivePhysicalAbilityControlsV1 & Readonly<{
@@ -35,7 +35,7 @@ export type LiveTeamV1 = Readonly<{id:string;name:string;battingOrder:readonly s
 export type LivePlayerV1 = Readonly<{playerId:string;name:string;heightMeters:number;bats:'R'|'L';throws?:'R'|'L';physical?:LivePlayerPhysicalV1;traitProfile?:LiveTraitProfileV1}>;
 export type LiveMatchInputV1 = Readonly<{seed:number;innings?:number;teams:readonly [LiveTeamV1,LiveTeamV1];players:readonly LivePlayerV1[];
   measuredClips:readonly LiveMeasuredClipV1[];park?:Readonly<{fenceRadiusMeters:number;fenceHeightMeters:number}>}>;
-export type LivePitchCommandV1 = Readonly<{batting:'balanced'|'contact'|'power'|'take'|'bunt';pitchType:string;location:string;managedTeam:0|1;
+export type LivePitchCommandV1 = Readonly<{batting:'auto'|'balanced'|'contact'|'power'|'take'|'bunt';pitchType:string;location:string;managedTeam:0|1;
   baserunning?:'conservative'|'balanced'|'aggressive'}>;
 export type LiveMatchFrameV1 = Readonly<{tick:number;ball:Readonly<{position:Vec3;velocity:Vec3;spin:Vec3;orientation:Quaternion;visible:boolean}>|null;
   bat:Readonly<{grip:Vec3;tip:Vec3;radiusProfile?:unknown}>|null;
@@ -127,20 +127,29 @@ export function createLiveBaseballMatchV1(raw:LiveMatchInputV1){
     battingOrderIndices:[...battingOrderIndices],line:cloneInert(line),fenceGeometry,hits:null,errors:null,history:[...history]});
   function issuePitch(command:LivePitchCommandV1):LiveIssuedPitchV1{
     assert(!finished,'game already finished');
-    assert(command&&['balanced','contact','power','take','bunt'].includes(command.batting)&&[0,1].includes(command.managedTeam),'invalid manager command');
+    assert(command&&['auto','balanced','contact','power','take','bunt'].includes(command.batting)&&[0,1].includes(command.managedTeam),'invalid manager command');
     assert(command.baserunning===undefined||['conservative','balanced','aggressive'].includes(command.baserunning),'invalid manager baserunning command');
     const beforeMatch=cloneInert(match),c=current(),batter=players.get(c.batterPlayerId)!,pitcher=players.get(c.pitcherPlayerId)!,
       bp=physical(batter),pp=physical(pitcher),cp=physical(players.get(input.teams[1-c.team].defense.C)!),ready=readyFrame();
-    // Other club uses its own balanced batting instruction. No league multiplier.
-    const batting=command.managedTeam===c.team?command.batting:'balanced';
+    const batterPreference=resolveLiveTraitPreferencesV54(batter.traitProfile),pitcherPreference=resolveLiveTraitPreferencesV54(pitcher.traitProfile),
+      managedOffense=command.managedTeam===c.team,personalBatting=({POWER:'power',BALANCED:'balanced',CONTACT:'contact'} as const)[batterPreference.swingMode],
+      batting=managedOffense&&command.batting!=='auto'?command.batting:personalBatting,
+      pitchTypeCommand=command.managedTeam===1-c.team?command.pitchType:'auto',
+      traitPreferences=command.batting==='auto'||batterPreference.swingMode!=='BALANCED'||pitcherPreference.pitchApproach!=='BALANCED'?{
+        batting:{preference:batterPreference.swingMode,resolvedCommand:batting,source:managedOffense&&command.batting!=='auto'?'manager_command':'player_preference',
+          overrideReason:managedOffense?(command.batting==='auto'?'manager_auto':'explicit_manager_batting'):'unmanaged_offense'},
+        pitching:{preference:pitcherPreference.pitchApproach,pitchTypeCommand,source:pitchTypeCommand==='auto'?'player_preference':'manager_command',
+          overrideReason:pitchTypeCommand!=='auto'?'explicit_manager_pitch':command.managedTeam===1-c.team?'manager_auto':'unmanaged_pitcher'},
+      }:null;
     const runningInstruction=command.managedTeam===c.team?(command.baserunning??'balanced'):'balanced',
       runningMarginAdjustment=runningInstruction==='aggressive'?-.25:runningInstruction==='conservative'?.25:0,
       runningMargin=(p:LivePlayerPhysicalV1)=>Math.max(0,Math.min(3,(p.baserunningSafetyMarginSeconds??.35)+runningMarginAdjustment));
     const pitch=simulateLivePitchV1({originTick:nextTick,seed:(input.seed+Math.imul(pitchCount+1,0x9e3779b9))>>>0,
-      batter:{...bp,heightMeters:batter.heightMeters,bats:batter.bats},pitcher:{...pp,...(pitcher.throws===undefined?{}:{throws:pitcher.throws})},measuredClips:input.measuredClips,
+      batter:{...bp,heightMeters:batter.heightMeters,bats:batter.bats},pitcher:{...pp,...(pitcher.throws===undefined?{}:{throws:pitcher.throws}),
+        pitchApproach:pitcherPreference.pitchApproach},measuredClips:input.measuredClips,
       catcher:{gloveSpeedMps:cp.gloveSpeedMps,gloveReachMeters:cp.gloveReachMeters,gloveRadiusMeters:cp.gloveRadiusMeters,
         retentionCapacityJ:cp.retentionCapacityJ,captureDissipationPowerW:cp.captureDissipationPowerW,pocketRadiusMeters:.14},
-      batting,pitchType:command.managedTeam===1-c.team?command.pitchType:'auto',location:command.managedTeam===1-c.team?command.location:'auto',physics:LIVE_MATCH_PHYSICS_V1});
+      batting,pitchType:pitchTypeCommand,location:command.managedTeam===1-c.team?command.location:'auto',physics:LIVE_MATCH_PHYSICS_V1});
     const frames:LiveMatchFrameV1[]=pitch.frames.map(f=>({...ready,tick:f.tick,ball:f.ball,bat:f.bat,phase:'pitch',possessedBy:f.ball.possessedBy==='catcher'?input.teams[1-c.team].defense.C:null}));
     let field:ReturnType<typeof simulateLiveFieldPlayV1>|null=null,result:PlayableMatchRuleResultV1,outgoingBallMoment:BallWorldMoment|null=null;
     if(pitch.contact&&pitch.contactMoment){
@@ -209,7 +218,7 @@ export function createLiveBaseballMatchV1(raw:LiveMatchInputV1){
       events:[...(field?.facts??[]),...result.outcomes.map(o=>({kind:'runner_out',...o})),{kind:'pitch_adjudicated',tick:result.endedAtTick,classification:result.classification}],
       command:cloneInert(command),play:{classification:result.classification,call:pitch.call,contact:pitch.contact,
         contactMoment:pitch.contactMoment,contactOrientation:pitch.contactOrientation,outgoingBallMoment,field,rules:result,
-        diagnostics:{...pitch.diagnostics,managerBaserunning:{instruction:runningInstruction,safetyMarginAdjustmentSeconds:runningMarginAdjustment,appliedToOffense:command.managedTeam===c.team}}},
+        diagnostics:{...pitch.diagnostics,...(traitPreferences?{traitPreferences}:{}),managerBaserunning:{instruction:runningInstruction,safetyMarginAdjustmentSeconds:runningMarginAdjustment,appliedToOffense:command.managedTeam===c.team}}},
       requiresNextPitch:!finished,finished,batterPlayerId:c.batterPlayerId,pitcherPlayerId:c.pitcherPlayerId,pitchType:pitch.pitchType,speedKmh:pitch.speedKmh,line:cloneInert(line),hits:null,errors:null});
     history.push(record);return record;
   }

@@ -2,11 +2,12 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
 import { createHash } from 'node:crypto';
 import { build } from 'esbuild';
+import vm from 'node:vm';
 
-const args = process.argv.slice(2), traitProfiles = args.includes('--traits'), publicAbilities = traitProfiles || args.includes('--public-abilities');
-const output = resolve(args.find(arg => !['--public-abilities','--traits'].includes(arg)) ?? (publicAbilities ? 'outputs/にーくら野球メーカー_公開能力編集版.html' : 'outputs/にーくら野球メーカー_実測スイング版.html'));
+const args = process.argv.slice(2), executableTraits = args.includes('--executable-traits'), traitProfiles = executableTraits || args.includes('--traits'), publicAbilities = traitProfiles || args.includes('--public-abilities');
+const output = resolve(args.find(arg => !['--public-abilities','--traits','--executable-traits'].includes(arg)) ?? (publicAbilities ? 'outputs/にーくら野球メーカー_公開能力編集版.html' : 'outputs/にーくら野球メーカー_実測スイング版.html'));
 const rosterPath = 'docs/demos/live-game-roster-' + (traitProfiles ? 'v3' : publicAbilities ? 'v2' : 'v1') + '.json';
-const rosterCatalogPath = 'docs/demos/live-game-roster-catalog-' + (traitProfiles ? 'v3' : publicAbilities ? 'v2' : 'v1') + '.json';
+const rosterCatalogPath = 'docs/demos/live-game-roster-catalog-' + (executableTraits ? 'v4' : traitProfiles ? 'v3' : publicAbilities ? 'v2' : 'v1') + '.json';
 const bundlePath = resolve('dist/batting-workbench-core.js');
 await mkdir(dirname(bundlePath), { recursive: true });
 const bundledBuild = await build({ entryPoints: ['src/integration/browser/workbench-index.ts'], outfile: bundlePath, bundle: true,
@@ -33,6 +34,23 @@ if (liveRoster.version !== 'live_physical_roster_v1' || !Array.isArray(liveRoste
   || liveRosterCatalog.players.some(p => !liveRoster.entries.some(e => e.playerId === p.playerId && e.physical && !e.workbenchPlayer)))
   throw Error('Complete physical game roster/catalog required');
 if (!core.includes('applyLivePhysicalRosterV1')) throw Error('Game ability validation API unavailable');
+const traitAvailabilityJson = executableTraits ? await readFile('docs/demos/live-trait-availability-v54.json', 'utf8') : null;
+const traitAvailability = traitAvailabilityJson ? JSON.parse(traitAvailabilityJson) : null;
+if (traitAvailability) {
+  if (traitAvailability.version !== 'live_trait_availability_v54' || traitAvailability.authority !== 'CANONICAL_INVENTORY_READ_ONLY_NOT_EXECUTION_INPUT'
+    || !Array.isArray(traitAvailability.entries) || !Array.isArray(traitAvailability.supportedFamilyIds)
+    || traitAvailability.entries.length !== 119 || new Set(traitAvailability.entries.map(e => e.familyId)).size !== traitAvailability.entries.length)
+    throw Error('Canonical trait availability catalog required');
+  const realm = {}; vm.runInNewContext(core, realm);
+  const actual = realm.KneekuraBaseballWorkbench.getLiveTraitCatalogV1().map(d => d.familyId).sort();
+  if (JSON.stringify(actual) !== JSON.stringify([...traitAvailability.supportedFamilyIds].sort())) throw Error('Trait execution/availability catalog disagree');
+  for (const entry of traitAvailability.entries) {
+    if (!/^[a-z][a-z0-9_]*$/.test(entry.familyId) || !entry.label || !Array.isArray(entry.aliases)
+      || !['EXECUTABLE', 'UNSUPPORTED', 'OUT_OF_SCOPE', 'REVIEW_REQUIRED'].includes(entry.status)
+      || (entry.status === 'EXECUTABLE') !== actual.includes(entry.familyId)
+      || entry.status !== 'EXECUTABLE' && !entry.userReason) throw Error('Invalid trait availability: ' + entry.familyId);
+  }
+}
 const batManifest = JSON.parse(batManifestJson);
 if (batManifest.authority !== 'GENERATED_RENDER_SPRITES_NOT_MEASURED_BAT_GEOMETRY' || batManifest.variants?.length !== 3) throw Error('Bat sprite manifest is invalid');
 const batVariants = await Promise.all(batManifest.variants.map(async (variant, index) => {
@@ -66,14 +84,16 @@ const html = template.replace('<!-- WORKBENCH_CORE -->', () => '<script>\n' + co
   .replace('<!-- WORKBENCH_BAT_SPRITES -->', () => '<script>globalThis.KneekuraBatLengthSpriteData=' + JSON.stringify(batSpriteData).replace(/</g, '\\u003c') + ';\n' + batSprites + '\n</script>')
   .replace('<!-- WORKBENCH_LIVE_ROSTER -->', () => '<script>globalThis.KneekuraLiveGameRosterData=' + JSON.stringify(liveRoster).replace(/</g, '\\u003c')
     + ';globalThis.KneekuraLiveGameRosterCatalog=' + JSON.stringify(liveRosterCatalog).replace(/</g, '\\u003c')
-    + (publicReference ? ';globalThis.KneekuraLivePublicAbilityReference=' + JSON.stringify(publicReference).replace(/</g, '\\u003c') : '') + ';</script>')
+    + (publicReference ? ';globalThis.KneekuraLivePublicAbilityReference=' + JSON.stringify(publicReference).replace(/</g, '\\u003c') : '')
+    + (traitAvailability ? ';globalThis.KneekuraLiveTraitAvailabilityCatalog=' + JSON.stringify(traitAvailability).replace(/</g, '\\u003c') : '') + ';</script>')
   .replace('<!-- WORKBENCH_UI -->', () => '<script>\n' + ui + '\n</script>');
 await mkdir(dirname(output), { recursive: true }); await writeFile(output, html);
 const report = { output, bytes: Buffer.byteLength(html), sha256: sha(html), coreSha256: sha(core), uiSha256: sha(ui),
   bundleInputCount: Object.keys(bundleInputs).length, bundleInputManifestSha256: sha(bundleInputManifest),
   templateSha256: sha(template), referenceSha256: sha(referenceJson), referenceClips: referenceData.clips.length,
   liveRosterSha256: sha(rosterJson), liveRosterCatalogSha256: sha(rosterCatalogJson), gamePlayers: liveRoster.entries.length,
-  publicAbilities, traitProfiles, liveRosterPath: rosterPath, liveRosterCatalogPath: rosterCatalogPath, publicReferenceSha256: publicReferenceJson ? sha(publicReferenceJson) : null,
+  publicAbilities, traitProfiles, executableTraits, traitCatalogFamilies: traitAvailability?.entries.length ?? 0,
+  traitAvailabilitySha256: traitAvailabilityJson ? sha(traitAvailabilityJson) : null, liveRosterPath: rosterPath, liveRosterCatalogPath: rosterCatalogPath, publicReferenceSha256: publicReferenceJson ? sha(publicReferenceJson) : null,
   batSpriteModuleSha256: sha(batSprites), batSpriteManifestSha256: sha(batManifestJson),
   batSprites: batVariants.map(({ pngDataUri, ...variant }) => variant), batSpriteAuthority: batManifest.authority,
   selfContained: true, authority: 'Shared Core samples; separate OpenBiomechanics measured-axis research replay' };

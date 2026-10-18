@@ -26,7 +26,8 @@ export type LivePitchInputV1=Readonly<{
   originTick:number;seed:number;
   batter:LivePhysicalAbilityControlsV1 & Readonly<{heightMeters:number;bats:'R'|'L';batLengthM:number;batMassKg:number;swingRate:number;
     timingStdSeconds:number;aimStdMeters:number;chaseMarginMeters:number;clipId?:string}>;
-  pitcher:Readonly<{releaseSpeedMps:number;spinRadPerSecond:Vec3;commandStdMeters:number;maximumPitchSpeedMps?:number;throws?:'R'|'L'}>;
+  pitcher:Readonly<{releaseSpeedMps:number;spinRadPerSecond:Vec3;commandStdMeters:number;maximumPitchSpeedMps?:number;throws?:'R'|'L';
+    pitchApproach?:'FASTBALL'|'BALANCED'|'BREAKING'}>;
   catcher?:Readonly<{gloveSpeedMps:number;gloveReachMeters:number;gloveRadiusMeters:number;retentionCapacityJ:number;captureDissipationPowerW:number;pocketRadiusMeters:number}>;
   measuredClips:readonly LiveMeasuredClipV1[];batting:'balanced'|'contact'|'power'|'take'|'bunt';pitchType:string;location:string;
   physics:AeroGroundBallPhysicsV1;
@@ -95,6 +96,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   assert(bounded(p.releaseSpeedMps,15,85)&&bounded(p.commandStdMeters,0,.6)&&p.spinRadPerSecond&&Object.values(p.spinRadPerSecond).every(Number.isFinite)
     &&norm(p.spinRadPerSecond)<=1200,'invalid pitcher SI controls');
   assert((p.maximumPitchSpeedMps===undefined||bounded(p.maximumPitchSpeedMps,15,85))&&(p.throws===undefined||['R','L'].includes(p.throws)),'invalid pitcher limit or throwing side');
+  assert(p.pitchApproach===undefined||['FASTBALL','BALANCED','BREAKING'].includes(p.pitchApproach),'invalid pitch approach preference');
   for(const [key,lo,hi] of [['maximumSweetSpotSpeedMps',.1,90],['targetSweetSpotSpeedMps',.1,90],['motorLatencySeconds',0,2],
     ['technicalTimingOffsetSeconds',-.5,.5],['sweetSpotT',.65,.9],['attackAngleDegrees',-80,80],['pullAngleDegrees',-80,80],
     ['badBallControl',0,1],['preContactSeconds',.005,2],['followThroughSeconds',.005,2],['contactDepthMeters',.001,2],['zoneJudgmentStdMeters',0,.6]] as const)
@@ -109,7 +111,18 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   const clip=clips[Math.floor(r.uniform()*clips.length)];
   assert(clip.id.startsWith('obp-')&&clip.source.repository===openBiomechanics&&/^[a-f0-9]{64}$/.test(clip.source.sha256)
     &&Number.isFinite(clip.contactTimeSeconds)&&clip.frames.length>=2,'unsupported measured clip provenance');
-  const pitchType=input.pitchType==='auto'?['fastball','slider','curve','changeup'][Math.floor(r.uniform()*4)]:input.pitchType;
+  const pitchApproach=p.pitchApproach??'BALANCED',autoPitchWeights=pitchApproach==='FASTBALL'?[7,1,1,1]:pitchApproach==='BREAKING'?[1,3,3,3]:[1,1,1,1];
+  let pitchType=input.pitchType,selectionDraw:number|null=null;
+  if(pitchType==='auto'){
+    // One draw in the original stream. Neutral uses the exact prior formula;
+    // preference changes only which existing pitch is selected, never its SI.
+    selectionDraw=r.uniform();let choice=Math.floor(selectionDraw*4);
+    if(pitchApproach!=='BALANCED'){
+      const weightedDraw=selectionDraw*10;let cumulative=0;choice=3;
+      for(let i=0;i<autoPitchWeights.length;i++){cumulative+=autoPitchWeights[i];if(weightedDraw<cumulative){choice=i;break;}}
+    }
+    pitchType=['fastball','slider','curve','changeup'][choice];
+  }
   assert(['fastball','slider','curve','changeup','cutter','sinker','splitter'].includes(pitchType),'unsupported physical pitch type');
   const factor=({fastball:1,slider:.91,curve:.8,changeup:.82,cutter:.95,sinker:.96,splitter:.89} as Record<string,number>)[pitchType],
     speed=Math.min(p.releaseSpeedMps,p.maximumPitchSpeedMps??Infinity)*factor*(.98+.02*r.uniform()),spinMagnitude=norm(p.spinRadPerSecond);
@@ -277,6 +290,8 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
     return {...batSample((atTick-input.originTick)/tps).state.pose,radiusProfile};};
   return {frames,contact,contactMoment,contactOrientation,call,endedAtTick,clipId:clip.id,pitchType,speedKmh:speed*3.6,sampleBatAtTick,
     diagnostics:{authority:'LOCAL_CORE_PHYSICAL_EXPERIMENT_V1' as const,nativeAdmission:false as const,sourceDescriptor:descriptor,
+      ...(input.pitchType==='auto'&&pitchApproach!=='BALANCED'?{pitchPreference:{preference:pitchApproach,weights:autoPitchWeights,
+        selectionDraw,basis:'LOCAL_PREFERENCE_OVER_EXISTING_AUTO_PITCH_MENU' as const}}:{}),
       sourceBallReanchored:false as const,sourceClockTicksPerSecond:tps,obpSourceSha256:clip.source.sha256,battingSide:b.bats,
       measuredClipId:clip.id,measuredBatCoordinateRegistration:MEASURED_BAT_FIELD_REGISTRATION_V1,
       swingOffered,sweetSpotT,playbackRate:rate,referenceStartTick:referenceInput.startTick,referenceThroughTick,predictionMadeAtElapsedSeconds:decisionTime,

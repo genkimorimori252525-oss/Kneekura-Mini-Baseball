@@ -90,27 +90,72 @@
     const panel = $('live-trait-editor'); if (!panel || !livePhysicalRoster) return;
     panel.replaceChildren();
     const heading = document.createElement('h3'); heading.textContent = '得能'; panel.append(heading);
-    for (const trait of traitProjection().traits) {
-      const row = document.createElement('div'); row.className = 'control';
-      const label = document.createElement('label'); label.htmlFor = 'live-trait-' + trait.familyId; label.textContent = trait.label;
-      const select = document.createElement('select'); select.id = label.htmlFor; select.dataset.traitFamily = trait.familyId;
-      const choices = [...(trait.owned === null ? [['UNASSESSED', '未査定（現在の技術を維持）']] : []),
-        ['', '保有なし'], ['LEARNED', '悪球打ち（青特）']];
-      for (const [value, text] of choices) { const option = document.createElement('option'); option.value = value; option.textContent = text; select.append(option); }
-      select.value = trait.owned === null ? 'UNASSESSED' : trait.stateId ?? '';
-      select.style.color = trait.color === 'blue' ? '#7ecaff' : '';
-      select.onchange = () => {
-        try {
-          assertLiveRosterEdits();
-          const request = { roster: livePhysicalRoster, playerId: liveRosterPlayerId, familyId: trait.familyId, stateId: select.value || null };
-          if (select.value && !trait.sourceValue) request.source = { badBallControl: trait.sourceValue ?? 0 };
-          livePhysicalRoster = validateLiveRoster(core.setLiveTraitProfileV1(request).roster).packet;
-          renderLiveRoster(); clearProblem();
-        } catch (error) { problem(error); renderLiveTraits(); }
+    const colors = { blue: '#7ecaff', red: '#ff8a8a', green: '#a9e5ad', gold: '#f1cf65' };
+    const definitions = core.getLiveTraitCatalogV1(), projection = traitProjection(), identity = liveCatalog.players.find(p => p.playerId === liveRosterPlayerId);
+    const sectionOf = id => id === 'pitch_approach' ? 'pitcher' : ['bad_ball_hitting', 'plate_aggression', 'swing_mode_preference'].includes(id) ? 'batter' : 'common';
+    const notes = {
+      bad_ball_hitting: '窮屈なコースでも狙ったスイングを保つ技術です。悪球を振る積極性とは別です。',
+      throw_accuracy: '公開能力の送球精度と同じ値から表示します。段階は作成用の暫定尺度です。',
+      plate_aggression: '振るか見送るかの積極性です。コースを見分ける選球眼は変わりません。',
+      running_aggression: '進塁を試みる積極性です。走力は変わりません。',
+      fielding_aggression: '捕球へ向かう積極性です。身体の速さや捕球能力は変わりません。',
+      swing_mode_preference: '試合の打撃指示が「選手に任せる」のときに使うスイングの好みです。',
+      pitch_approach: '投球を「投手に任せる」ときに使う球種の好みです。明示した球種が優先されます。',
+    };
+    const sections = identity.role === 'P' ? [['common', '共通'], ['pitcher', '投手'], ['batter', '投手の打撃の得能']]
+      : [['common', '共通'], ['batter', '打者'], ['pitcher', '野手の投球の得能']];
+    for (const [section, title] of sections) {
+      let container = panel;
+      if (identity.role === 'P' ? section === 'batter' : section === 'pitcher') {
+        const details = document.createElement('details'); details.dataset.traitSecondary = section;
+        const summary = document.createElement('summary'); summary.textContent = title; details.append(summary); panel.append(details); container = details;
+      } else { const titleNode = document.createElement('h4'); titleNode.textContent = title; panel.append(titleNode); }
+      for (const trait of projection.traits.filter(t => sectionOf(t.familyId) === section)) {
+        const definition = definitions.find(d => d.familyId === trait.familyId), editor = definition.editor ?? 'OWNERSHIP';
+        const row = document.createElement('div'); row.className = 'control';
+        const label = document.createElement('label'); label.htmlFor = 'live-trait-' + trait.familyId; label.textContent = trait.label;
+        const select = document.createElement('select'); select.id = label.htmlFor; select.dataset.traitFamily = trait.familyId; select.dataset.traitEditor = editor;
+        const options = [...(trait.status === 'UNASSESSED' ? [{ stateId: 'UNASSESSED', label: '未査定（現在値を維持）', color: 'neutral' }] : []),
+          ...(editor === 'GRADE' ? [] : [{ stateId: '', label: editor === 'PREFERENCE' ? '設定なし（元の設定）' : '保有なし', color: 'neutral' }]), ...definition.states];
+        for (const state of options) {
+          const option = document.createElement('option'); option.value = state.stateId; option.textContent = state.label;
+          option.style.color = colors[state.color] ?? '#e7e9dd'; select.append(option);
+        }
+        select.value = trait.status === 'UNASSESSED' ? 'UNASSESSED' : trait.stateId ?? '';
+        select.style.color = colors[trait.color] ?? '';
+        select.onchange = () => {
+          if (select.value === 'UNASSESSED') return;
+          try {
+            assertLiveRosterEdits();
+            const request = { roster: livePhysicalRoster, playerId: liveRosterPlayerId, familyId: trait.familyId, stateId: select.value || null };
+            if (trait.familyId === 'bad_ball_hitting' && select.value && !trait.sourceValue) request.source = { badBallControl: trait.sourceValue ?? 0 };
+            livePhysicalRoster = validateLiveRoster(core.setLiveTraitProfileV1(request).roster).packet;
+            renderLiveRoster(); clearProblem();
+          } catch (error) { problem(error); renderLiveTraits(); }
+        };
+        const note = document.createElement('p'); note.className = 'note'; note.textContent = notes[trait.familyId] ?? '';
+        row.append(label, select, note); container.append(row);
+      }
+    }
+    const availability = globalThis.KneekuraLiveTraitAvailabilityCatalog;
+    if (availability?.entries) {
+      const details = document.createElement('details'); details.id = 'live-trait-unsupported';
+      const entries = availability.entries.filter(e => !definitions.some(d => d.familyId === e.familyId));
+      const summary = document.createElement('summary'); summary.textContent = `未対応・対象外の得能（${entries.length}項目）`; details.append(summary);
+      const note = document.createElement('p'); note.className = 'note'; note.textContent = 'これらは現在選択できず、試合へ効果を加えません。'; details.append(note);
+      const search = document.createElement('input'); search.type = 'search'; search.id = 'live-trait-search'; search.placeholder = '得能名を検索'; search.setAttribute('aria-label', '未対応の得能を検索'); details.append(search);
+      const list = document.createElement('div'); list.id = 'live-trait-unsupported-list'; details.append(list);
+      for (const entry of entries) {
+        const row = document.createElement('div'); row.className = 'control'; row.dataset.unsupportedTrait = entry.familyId;
+        row.dataset.traitAvailability = entry.status;
+        const title = document.createElement('strong'); title.textContent = entry.label + ' — ' + ({ OUT_OF_SCOPE: '試合能力の対象外', REVIEW_REQUIRED: '仕様確認待ち' }[entry.status] ?? '未対応');
+        const reason = document.createElement('p'); reason.className = 'note'; reason.textContent = entry.userReason ?? entry.reason;
+        row.append(title, reason); list.append(row);
+      }
+      search.oninput = () => { const value = search.value.trim().toLocaleLowerCase('ja-JP');
+        for (const [index, row] of [...list.children].entries()) row.hidden = ![entries[index].label, ...(entries[index].aliases ?? [])].join(' ').toLocaleLowerCase('ja-JP').includes(value);
       };
-      const note = document.createElement('p'); note.className = 'note';
-      note.textContent = '窮屈なコースでも狙ったスイングを保つ技術です。悪球を振りやすくする積極性とは別です。';
-      row.append(label, select, note); panel.append(row);
+      panel.append(details);
     }
   }
   function renderPublicAbilities(identity) {
@@ -186,20 +231,17 @@
         input.oninput = () => {
           try {
             if (input.value === '') throw Error('値を入力してください。');
-            const next = clone(livePhysicalRoster), selected = next.entries.find(e => e.playerId === liveRosterPlayerId);
+            let next = clone(livePhysicalRoster); const selected = next.entries.find(e => e.playerId === liveRosterPlayerId);
             const nextValue = input.type === 'number' ? Number(input.value) : input.value;
             if (input.type === 'number' && !numeric(nextValue)) throw Error('有限の数値を入力してください。');
             set(spec.entryPath ? selected : selected.physical, spec.path, nextValue);
-            if (!spec.entryPath && spec.path === 'badBallControl') {
-              const selection = selected.traitProfile?.selections.find(t => t.familyId === 'bad_ball_hitting');
-              if (selection?.stateId) selection.source.badBallControl = nextValue;
-            }
             const priorEntrySuffix = selected.sourceId.match(/(?::maker-edited|:public-edited)+$/)?.[0] ?? '';
             selected.sourceId = selected.sourceId.replace(/(?::maker-edited|:public-edited)+$/, '') + ':maker-edited'
               + (priorEntrySuffix.includes(':public-edited') ? ':public-edited' : '');
             const priorAuthoringSuffix = next.sourceId.match(/(?::maker-edited-r\d+|:public-edited)+$/)?.[0] ?? '';
             next.sourceId = next.sourceId.replace(/(?::maker-edited-r\d+|:public-edited)+$/, '')
               + (priorAuthoringSuffix.includes(':public-edited') ? ':public-edited' : '') + ':maker-edited-r' + (liveRosterRevision + 1);
+            if (!spec.entryPath && typeof core.reconcileLiveTraitSourcesV54 === 'function') next = core.reconcileLiveTraitSourcesV54({ roster: next, playerId: liveRosterPlayerId, changedPaths: [spec.path] });
             const accepted = validateLiveRoster(next); livePhysicalRoster = accepted.packet; liveRosterRevision++;
             liveRosterPending.delete(key); input.setCustomValidity(''); if (!liveRosterPending.size) clearProblem();
             refreshInternalValues(); refreshPublicValues();
