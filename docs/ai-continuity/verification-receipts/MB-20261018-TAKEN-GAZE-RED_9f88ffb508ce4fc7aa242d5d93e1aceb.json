@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-TAKEN-GAZE-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v44-taken-gaze.mjs",
+    "../../outputs/ばせぼーるlv43_TBD_vs_LAD_打者の打点注視版.html",
+    "../../outputs/verification-v44-taken-gaze-red2"
+  ],
+  "observed_at": "2026-10-18T04:29:14.813+00:00",
+  "elapsed_ms": 5250,
+  "git_head": "7bc3982789bf563bb9a25a8b82f632c982c3ab84",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-TAKEN-GAZE-RED_9f88ffb508ce4fc7aa242d5d93e1aceb.log",
+  "output_sha256": "5814ff5feccffd2ce78e9f8f3d704d72cf4da96a2f45a6b534d6ab0882415a33",
+  "receipt_id": "MB-20261018-TAKEN-GAZE-RED_9f88ffb508ce4fc7aa242d5d93e1aceb"
+}

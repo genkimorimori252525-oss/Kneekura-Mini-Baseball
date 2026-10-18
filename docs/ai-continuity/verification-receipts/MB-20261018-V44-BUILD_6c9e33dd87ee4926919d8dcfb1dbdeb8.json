@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V44-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-v44.mjs",
+    "../../outputs/ばせぼーるlv44_TBD_vs_LAD_見送り視線修正版.html"
+  ],
+  "observed_at": "2026-10-18T04:29:45.087+00:00",
+  "elapsed_ms": 297,
+  "git_head": "7bc3982789bf563bb9a25a8b82f632c982c3ab84",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V44-BUILD_6c9e33dd87ee4926919d8dcfb1dbdeb8.log",
+  "output_sha256": "354980d77e0b0d7c9d705f6a7c21354eff498ad2bccdc6528fad271349acbc07",
+  "receipt_id": "MB-20261018-V44-BUILD_6c9e33dd87ee4926919d8dcfb1dbdeb8"
+}
