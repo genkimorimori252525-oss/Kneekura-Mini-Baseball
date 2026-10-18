@@ -3,7 +3,7 @@ import {readFile} from 'node:fs/promises';
 import {runInNewContext} from 'node:vm';
 
 const context={};
-runInNewContext(await readFile('tools/browser-bridge/live-continuous-batter-view.js','utf8'),context);
+runInNewContext(await readFile(process.argv[2]??'tools/browser-bridge/live-continuous-batter-view.js','utf8'),context);
 const observe=context.KneekuraContinuousBatterView.observe;
 const plain=value=>JSON.parse(JSON.stringify(value));
 const preparationMs=1540,releaseTick=1_000_000,tps=1_000_000;

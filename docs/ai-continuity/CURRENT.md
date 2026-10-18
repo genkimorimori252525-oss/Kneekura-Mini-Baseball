@@ -1,15 +1,26 @@
 ---
-current_task: "MB-20261018-V47-PUBLICATION"
+current_task: "MB-20261018-V48-RELEASE"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "4c10521884cbc029cb7c0498353141a493ea4d35"
+commit_head: "16f0ef5a6b1b1f077424c6a54ce0d76ee9a49d88"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V47-PUBLICATION_0b79d4b6bb984b9ead6971deb9f479c9.json"
-updated_at: "2026-10-18T07:42:07.820269+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V48-RELEASE_cbb0dd7419c54018a171c1069bb3815c.json"
+updated_at: "2026-10-18T07:56:42.356655+00:00"
 
 ---
 
-## Latest human priority — v47 relay and continuous base turns (SCOPED VERIFIED; PUBLISHED)
+## Latest human priority — v48 batter-only braking (SCOPED VERIFIED; PUBLICATION IN PROGRESS)
+
+User wants less floating/smoother-than-forceful batter gaze, shallow stopped takes instead of bowing, firmer planned-aim acquisition and hold; explicitly likes existing batted/runner view. Added separate live-batter-braking-view.js + guarded v48 builder, preserved original v47 helper and artifact. Take decision+visual-delay guard,32ms onset; observed predicted pitch crossing3.5m stores stop point, target pitch[-.22,.30]/relativeyaw±.38; stopping-distance angular speed, same2.5rad/s and20rad/s² limits. Swing aim230→90ms before plannedcontact, firmer stop, blends back to OLD field controller40ms afterthrough. Same singleeye/bodyTarget/optics/4px55ms/no randomshake/posecut, no newabilities. Posthit initialstate naturally carries changed prehitstate; no false allposthitposeidentityclaim.
+
+FocusedBRAKING567fb968 PASS140ms, existingcontinuity8ba5523c PASS157ms with NEWhelper: R/L/8msaccel/irregular55ms/prefixhigh-low-high/seek/held/causal/surprise/ability. Pure batted+throw movingrunner fixtures exactlyv47pose; bunt unchanged, whiff finite. Earlyprototype had residualangularspeed, abruptthroughcontrol switch (fractionalboundaryFAIL), and reviewfound predecisiontake reading swingOffered (100ms before215ms). Fixed stopPoint/controlblend/decisionguard; balancedfuturedecision sameprefix + getternegative regression added. No fabricatedoldFAILreceipts.
+
+Build498f331f PASS280ms; newHTMLa529f2f0e3a99ce256ad1e136a6b7d5642048d27f32ccc83c1453cd78b8821b5/helperf987a851185dcd70e7f31429c748abb2b46d0f70999e15aaa92d4c26dee9cc9b. Browser9adbce44 PASS46.062s actual12Coreframes/play/events/matchSHAequalv47,6takes,R/L16boundaries,1200/390/other4cams exactpose/eye unchanged/held hidden/play+rewind/noerrors+network. Takesmaxpitchold.404-.839rad→new.080-.103rad; actualswingaimerrorL.505/R.700 ofold. Imagesviewed. Releasecbb0dd74 PASS125ms Core107pins andbundlea470058b unchanged, oldv47helper/artifact/otherhelpers/PNG/font/roster/4px55ms identical; linkschecked. No new9innings/213tests/globalTSC claim for display-only change. Evidence docs/verification/releases/v48; reportdocs/reports/2026-10-18-v48-batter-braking.md; H20/README/LATESTupdated. Maker remainsv47.
+
+Next: explicitallowlist/bytecheck→commit/normalpush existingbranch/Draft380→rawverify→metadatarecord→deliver v48HTML. UserAGENTS/unrelated preserved; no settings/lock/dependency/secret/DB/mainmerge. Originalfullplan IN_PROGRESS; Nativeauthcontinuousworld/officialH/E+rules/fulltraits/jointrunneroptimization/empiricalSI+statistics/new100games/realphones remain. Presentation thresholds are authored feel parameters, not calibrated humaneyes. OriginalCHARTER_UNAPPROVED/HOLD and allpriorFAIL/UNKNOWN retained.
+
+
+## Previous human priority — v47 relay and continuous base turns (SCOPED VERIFIED; PUBLISHED)
 
 User requests multi-hop relay and base rounding in normal HTML with ability individuality; original full plan retained. Implemented bounded direct/carry/hold/relay physical prediction (max2 intermediates, actual secure→new transfer→replan→new actual release per hop), actual recipient/target camera, C1 line/arc runner path through bag centers, acceleration/braking/curvature limits, safe early extra-base commitment and physical through-bag departure facts. Host observes analytic current runner velocity. Public11 unchanged/detail44 includes optional .5..10m turn radius and .5..20m/s² lateral acceleration; old omitted lateral defaults to individual acceleration×1.5 without editing packet. Old JSON accepted. No identity/league outcome buffs, scene-specific DP, fake capture, future-frame camera/velocity inference.
 

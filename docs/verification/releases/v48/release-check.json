@@ -1,0 +1,14 @@
+{
+  "pass": true,
+  "gameSha256": "a529f2f0e3a99ce256ad1e136a6b7d5642048d27f32ccc83c1453cd78b8821b5",
+  "helperSha256": "f987a851185dcd70e7f31429c748abb2b46d0f70999e15aaa92d4c26dee9cc9b",
+  "coreInputs": 107,
+  "coreUnchangedFromV47": true,
+  "oldObserverAndV47ArtifactPreserved": true,
+  "widths": [
+    1200,
+    390
+  ],
+  "matchedPhysicalPitchRecords": 12,
+  "linksChecked": 120
+}
