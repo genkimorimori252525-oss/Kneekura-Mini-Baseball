@@ -58,3 +58,11 @@ Native SQLite認証された全体連続世界の完成を意味しない。元�
 検証後の105入力・bundle・HTML・roster/catalog照合PASS `MB-20261018-V46-SOURCE-MATCH_5a658fa7f6664d44ba34135c5a67f75e`。配布bundle SHA `3e2a6f06c24152d2648bb0ae7876910ae3cc0f695f1e0427a9e57cb511539fab`、HTML SHA `d6bbcd5c7cb2990028693d968f27e73997c7cd603d2fbaf244b04842ae32ccb0`。
 
 配布整合PASS MB-20261018-V46-RELEASE_40a66292802948cdbd3be50651d5a757。ZIP107項目のCRC・105入力byte・compiled bundle、配布HTML／メーカー、7文書の相対リンク、v45カメラhelper／旧HTMLの保存を確認。
+
+## 変更ファイルとGitHub保存
+
+- Core: [プレー実行](../../src/core/sim/fielding/LiveFieldPlayV1.ts)、[進塁方針](../../src/core/sim/fielding/LiveRunnerAdvancePolicyV1.ts)、[捕球担当](../../src/core/sim/fielding/LiveFieldHandlerSelectionV1.ts)、[役割割当](../../src/core/sim/fielding/LiveFieldRoleAssignmentV1.ts)、[診断](../../src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.ts)と対応する回帰テスト。
+- Hostと能力: [通常試合Host](../../src/integration/browser/LiveBaseballMatchV1.ts)、[能力検証adapter](../../src/integration/browser/LivePhysicalRosterV1.ts)、[メーカーUI](../demos/baseball-maker-ui.mjs)、[詳細設定カタログ](../demos/live-game-roster-catalog-v2.json)と接続テスト。
+- 配布・再生成・QA: tools/browser-bridge のv46 build/check、docs/demos/releases/v46、docs/verification/releases/v46。入口・歴史・continuityを更新。
+
+実装・HTML・メーカー・検証101ファイルをcommit 9c140868ebc648896d1933d40c16066ec83cf134で既存ブランチへ通常push。Draft PR #380のhead一致とGitHub raw8ファイルの元byte一致を確認した。公開照合PASS MB-20261018-V46-PUBLICATION_5519558ac2c04cc18827cd81d7ef6a7b（5.483秒）、[公開記録](../verification/releases/v46/publication.json)。main未マージ。後続の記録用commitは製品コードを変更しない。

@@ -845,3 +845,4 @@ Only record verification that was actually performed.
 | MB-20261018-V46-AI-TESTS-FINAL2 | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V46-AI-TESTS-FINAL2_c42a5eae9cc249b5be8439a834c8ba38.json |
 | MB-20261018-V46-SOURCE-MATCH | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V46-SOURCE-MATCH_5a658fa7f6664d44ba34135c5a67f75e.json |
 | MB-20261018-V46-RELEASE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V46-RELEASE_40a66292802948cdbd3be50651d5a757.json |
+| MB-20261018-V46-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V46-PUBLICATION_5519558ac2c04cc18827cd81d7ef6a7b.json |
