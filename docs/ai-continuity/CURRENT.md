@@ -1,21 +1,21 @@
 ---
-current_task: "MB-20261019-V54-RELEASE"
+current_task: "MB-20261019-V54-PUBLICATION"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "3cdfee5c0c1211d6a892c87b073a4bdf6fb1e3dd"
+commit_head: "8bb9504d0a4400e7c364fc2919c4cfd9922eaea3"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V54-RELEASE_7433fec9e832462ab2914a1a82360457.json"
-updated_at: "2026-10-18T16:22:00.745704+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V54-PUBLICATION_4c6ecae63636426d986565ed1cd02e51.json"
+updated_at: "2026-10-18T16:24:38.245123+00:00"
 
 ---
 
-## Active human priority — v54 executable traits (SCOPED VERIFIED; PUBLICATION PENDING)
+## Active human priority — v54 executable traits (SCOPED VERIFIED; PUBLISHED)
 
 2026-10-19 human answered pending scope: execute usual-match traits; show remainder unsupported in maker. Prior scope question is resolved. Seven families connected: badball singleSource, derived throwgrade, green plate/running/fielding plus pitch/swing AUTO preferences; explicit manager overrides. Authoring baseline retained, no repeated SI buff; oldJSON unassessed/no-op preserved. Catalog114rows→119families;7executable/86unsupported/25out-of-scope/1review. Public10/internal44; readonly remainder with Japanese reasons/search. Local grade thresholds and preference coefficients UNCALIBRATED. No new health/psychology/development/steal systems. Plan docs/superpowers/plans/2026-10-19-live-traits-v54.md; report docs/reports/2026-10-19-v54-executable-traits.md; H26.
 
 Frozen Source: native113inputs/Core4a581b26; maker79/Core59ad6ea1. HTML80c68e3d; makerf1443bb1. v52 camera helper bytes and v53 field/running/rules preserved. AI41files368PASS ac1a0aaa/77.500s; TSC50489eb6/37.422s; BUILD2bdf1593/1.407s; GAME1772eb70/102.141s320p9top3outs/home46-away10/noerrors/fallbackfalse,26airborne decisions/livependingretouch0;130play/17169frames mincenter.500113m/overlaps0/triples0. CAMERAS97d877cf/30.469s actual12+bat/currentSource references at1200/390. MAKER346c53c0/22.032s7families22states/colors/20cycles/SIreconcile/oldJSON/save-reload/import-bothwidths. PACKAGE50016995/1.764s and RELEASE7433fec9/.156s rawsource/ZIPCRC/14linksPASS.
 
-All original RED/FAIL retained: adapterbf5d99ba, preference7e643ceb, maker92dafbc0 closed-details innerText QA assertion; checker fixed to textContent+actual details/search; product unchanged then finalPASS. Current scope verified; normalpush/Draft380 and rawGitHub verification next. No deps/settings/lock/secrets/DB. UserAGENTS and unrelated untracked preserved. Originalfullplan IN_PROGRESS, empiricalSI/statistics/latest100games/realphones/Nativecontinuousworld/rules/fulltraits/return/body/leads/slides/jointoptimization remain; original CHARTER_UNAPPROVED/HOLD and every priorFAIL/UNKNOWN retained. Historical paragraphs below describe their own then-state, including since-resolved pending scope.
+All original RED/FAIL retained: adapterbf5d99ba, preference7e643ceb, maker92dafbc0 closed-details innerText QA assertion; checker fixed to textContent+actual details/search; product unchanged then finalPASS. Current scope verified and published110allowlistedfiles in product8bb9504d0a4400e7c364fc2919c4cfd9922eaea3. Normalpush existingbranch/Draft380 updated; PUBLICATION4c6ecae6 PASS3.906s remotehead/PRheadmatch+12actualrawfilesbyteexact; mainunmerged. Allstagedblobsrawexact/credentialpatterns0/nonlogwhitespacePASS. Publication JSON saved; metadata-only closurecommit follows without productbytechanges. No deps/settings/lock/secrets/DB. UserAGENTS and unrelated untracked preserved. Originalfullplan IN_PROGRESS, empiricalSI/statistics/latest100games/realphones/Nativecontinuousworld/rules/fulltraits/return/body/leads/slides/jointoptimization remain; original CHARTER_UNAPPROVED/HOLD and every priorFAIL/UNKNOWN retained. Historical paragraphs below describe their own then-state, including since-resolved pending scope.
 
 ## Previous human priority — v53 airborne running / retouch / trait Source (SCOPED VERIFIED; PUBLISHED)
 

@@ -50,3 +50,9 @@ Hostの打撃命令へautoを追加した。管理側のautoまたは相手AIは
 - [リリース照合](../verification/releases/v54/release-check.json)。公開後のremote/PR headとGitHub raw bytesの証拠は同ディレクトリの `publication.json` へ記録する。
 
 Continuity監査の原出力は `docs/verification/releases/v54/continuity-audit.txt`。原Charter外部承認不足によるHOLDと過去の未決記録を維持し、今回の会話承認から自動承認を生成しない。初回CLIの未対応引数によるusage errorも `continuity-audit-initial-cli.txt` に保存し、正しい呼出しの監査結果と区別する。配布説明の独立確認でLATESTの古い離塁代理の残件記述を訂正した（v53実disk退出factを参照）。
+
+## GitHub保存
+
+製品コミット `8bb9504d0a4400e7c364fc2919c4cfd9922eaea3` を既存branchへ通常pushし、Draft PR #380を更新。PUBLICATION `MB-20261019-V54-PUBLICATION_4c6ecae63636426d986565ed1cd02e51.json` は3.906秒でPASS。remote branch/PR head一致、OPEN Draft、HTML・メーカー・主要Source等12個のGitHub rawファイルとローカルのバイト列一致を確認した。[公開証拠](../verification/releases/v54/publication.json)。main未マージ。
+
+110ファイルを許可リストで保存し、全staged blobが検証したraw bytesと一致、credential pattern一致0、原ログ以外のwhitespaceチェックPASS。`AGENTS.md` と無関係な未追跡ファイルは除外。続く記録専用コミットでこの公開結果を保存する。製品Source/HTMLを再生成・改変しない。

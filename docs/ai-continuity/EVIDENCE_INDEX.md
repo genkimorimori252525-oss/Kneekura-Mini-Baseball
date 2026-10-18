@@ -992,3 +992,4 @@ Only record verification that was actually performed.
 | MB-20261019-V54-MAKER-CHECKER-FIX | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V54-MAKER-CHECKER-FIX_346c53c075e546f0a4191806e66b010f.json |
 | MB-20261019-V54-PACKAGE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V54-PACKAGE_50016995f1b94215863fd47283e1de65.json |
 | MB-20261019-V54-RELEASE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V54-RELEASE_7433fec9e832462ab2914a1a82360457.json |
+| MB-20261019-V54-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V54-PUBLICATION_4c6ecae63636426d986565ed1cd02e51.json |
