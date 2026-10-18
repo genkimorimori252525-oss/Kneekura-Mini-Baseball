@@ -34,3 +34,5 @@
 v52の打者追従と投手反応カメラのhelper bytesを維持する。元の全計画はIN_PROGRESS。Native認証連続world、足・身体の全接触、runner同士の衝突、全得能、全公式H/E、lead／slide、経験分布の校正、新100試合監査、実機スマートフォン等は完了していない。原FAIL/UNKNOWN・外部Charter承認HOLDを保持する。
 
 最終証拠: AI `faa62d37` 39files346PASS／71.811s、TSC `09422493` PASS／27.827s、BUILD `3a663a22` PASS／0.891s、GAME `e72654c8` PASS／111.765s、CAMERAS `132391e4` PASS／28.343s、MAKER `a489032b` PASS／15.906s、PACKAGE `7c89f884` 122 ZIP entries byte/CRC一致、RELEASE `6350ea63` PASS。112 Native入力・78 maker入力のunion Sourceをraw保存。
+
+公開: product commit `1d051cda4b4b2903df49d580751dfa00896331f9` を既存ブランチ／Draft PR380へpush。PUBLICATION `587a7c7e` PASS（8.140s）、remote/PR headと13 raw filesの実bytesを照合。main未マージ。以降は公開記録のみのclosure commitで製品bytesを変えない。Git staging初回のREADME末尾2空白とraw診断log自身の再検査FAILも原出力を保持し、文書のみ整形・raw logを明示区別して最終154filesのbyte一致と非log空白検査をPASSにした。

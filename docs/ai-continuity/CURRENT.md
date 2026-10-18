@@ -1,15 +1,15 @@
 ---
-current_task: "MB-20261018-V53-RELEASE-GREEN"
+current_task: "MB-20261018-V53-PUBLICATION"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "ea9ca61b0971da3cc3b3ce1cfb344d4496e2ecc9"
+commit_head: "1d051cda4b4b2903df49d580751dfa00896331f9"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V53-RELEASE-GREEN_6350ea63e97d4e208aaeb9a39abdae69.json"
-updated_at: "2026-10-18T10:40:15.481532+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V53-PUBLICATION_587a7c7e133e4a2e89af8e175b1f95b4.json"
+updated_at: "2026-10-18T10:44:13.303955+00:00"
 
 ---
 
-## Active human priority — v53 airborne running / retouch / trait Source (SCOPED VERIFIED; PUBLICATION IN_PROGRESS)
+## Active human priority — v53 airborne running / retouch / trait Source (SCOPED VERIFIED; PUBLISHED)
 
 Latest scope: observed prelanding hit reads with existing reaction+safety margin and managed offense conservative/balanced/aggressive ±.25sec (bounded0..3), no SI speed boost. Actual bag disk departures replace initial motor-start proxy. Catch firsttouch/current contact+official tick decides retouch; secure+reaction then continuous max-a brake and reverse touched bags. Common defense target picks actual control/tag+explicit appeal; no automatic nonforce bagout. Return pending blocks live closure; same-tick retouch/thirdout stays UNKNOWN. Reverse actual4→3 corrects oldhome traversal and base occupancy; no auto cancellation solely from earlyleave. Old v49 throughbase fixture/assert preserved.
 
@@ -17,7 +17,7 @@ bad_ball_hitting moved from public numeric to local trait profile ON/OFF; one ex
 
 Source frozen: Native112 inputs/Core40b4ad4d, maker78/Core576318ec. HTML1113fc83; Maker48e60a46. v52 batter0027d0af/pitcherf8610ca6 helper bytes retained. AI39files346PASS faa62d37/71.811s; globalTSC09422493/27.827s; BUILD3a663a22/.891s. GAMEe72654c8/111.765s actual320p 9top3outs/home46-away10/fallbackfalse/noerrors; observed airborne26decisions, actualsingle-gameappeal0 (scenario physical appeal tested), live pendingretouches0. 130field/17169frames mincenter.500113m/overlaps0. CAMERAS132391e4/28.343s actual12Core+bat equal currentSource v49/v52 reference, both1200/390; MAKERa489032b/15.906s20/public10/detail44/oldJSON/ONOFF/download/reload/gameimport. PACKAGE7c89f884 union122ZIPentries byte/CRC+sourcepin exact; RELEASE6350ea63 PASS.
 
-RawFAIL preserved: sameofficialtick35fcaba2, reversehomeb7aef784, interim TSC typed-test/unused imports, wholeAI f51ce21a oldpublic11assert (345PASS1FAIL)→intentional10 check; package7ea46f58 leftover oldconstant NameError before productwrite, downstream release23bdbedc missingindex→bothGREEN without Sourcechange. Nonreceipt old3testfailures are reported as such, not rebranded product evidence. v53 release/QA/H25/report/LATEST/amendment prepared. Product commit/push/remotePR/raw verification still pending. UserAGENTS/unrelated preserved, nosettings/lock/deps/secrets/DB changes. Originalfullplan IN_PROGRESS; empiricalSI/read/100games/realphones/fulltraits/Nativecontinuousworld/rules/body/leads/slides remain. OriginalCHARTER_UNAPPROVED/HOLD and every priorFAIL/UNKNOWN remain.
+RawFAIL preserved: sameofficialtick35fcaba2, reversehomeb7aef784, interim TSC typed-test/unused imports, wholeAI f51ce21a oldpublic11assert (345PASS1FAIL)→intentional10 check; package7ea46f58 leftover oldconstant NameError before productwrite, downstream release23bdbedc missingindex→bothGREEN without Sourcechange. Nonreceipt old3testfailures are reported as such, not rebranded product evidence. v53 release/QA/H25/report/LATEST/amendment prepared. Published154files product commit1d051cda4b4b2903df49d580751dfa00896331f9 through normalpush existingbranch/Draft380; no mainmerge. Allstagedblobsbyteexact/credentialpatterns0/nonlogwhitespacePASS. PUBLICATION587a7c7e PASS8.140s remotehead/PRheadmatch+13actualrawfilesbyteexact. publication.json saved; metadata-only closurecommit follows; no productbytechanges. Scopequestion remainsUNANSWERED, not goalcomplete. UserAGENTS/unrelated preserved, nosettings/lock/deps/secrets/DB changes. Originalfullplan IN_PROGRESS; empiricalSI/read/100games/realphones/fulltraits/Nativecontinuousworld/rules/body/leads/slides remain. OriginalCHARTER_UNAPPROVED/HOLD and every priorFAIL/UNKNOWN remain.
 
 ## Previous human priority — v52 v49 batter restore / bounded pursuit / pitcher reaction (SCOPED VERIFIED; PUBLISHED)
 

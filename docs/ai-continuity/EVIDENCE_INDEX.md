@@ -975,3 +975,4 @@ Only record verification that was actually performed.
 | MB-20261018-V53-RELEASE | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261018-V53-RELEASE_23bdbedcb4694bb8a888a92cdfa6c6e4.json |
 | MB-20261018-V53-PACKAGE-GREEN | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V53-PACKAGE-GREEN_7c89f884510c4016b473eb77c0f4e907.json |
 | MB-20261018-V53-RELEASE-GREEN | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V53-RELEASE-GREEN_6350ea63e97d4e208aaeb9a39abdae69.json |
+| MB-20261018-V53-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V53-PUBLICATION_587a7c7e133e4a2e89af8e175b1f95b4.json |
