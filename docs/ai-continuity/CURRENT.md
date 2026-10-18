@@ -1,21 +1,21 @@
 ---
-current_task: "MB-20261019-V59-PACKAGE"
+current_task: "MB-20261019-V59-PUBLICATION"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "4fa32b2c6342e5b5a81aae27ec60885067a6b217"
+commit_head: "23455422bfe72e722b2928223a41bb0f45fa8a57"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V59-PACKAGE_eee548637f8e4bfcb064ac44fac80138.json"
-updated_at: "2026-10-18T18:39:57.044770+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V59-PUBLICATION_7e3d7f6b3ca04a5fa6db08c86abcb930.json"
+updated_at: "2026-10-18T18:42:08.888535+00:00"
 
 ---
 
-## Active human priority — v59 predicted contact gaze / small impact motion (SCOPED VERIFIED; PUBLICATION PENDING)
+## Active human priority — v59 predicted contact gaze / small impact motion (SCOPED VERIFIED; PUBLISHED)
 
-Latest user replaces v57 early hardhold: acquire own forecast+aimError+lift after swing decision (≤85ms), stabilize at registered expected impact with .025rad cone/.18rad/sec actual pose bound; small body/intention correction, no random shake. Exact registered scene marker conversion prevents one-ULP late onset without tolerance relaxation. Through/observedhit300ms and70ms release retained; B first2 controls active, same7preset, STOREv59. Pitcher v58 100–250ms retained. Frozen normal41d7f56a/lab67160af7; Core113/physics/AI/abilities/rules/bat/22–55/grid unchanged. Final UNIT5545522b PASS5.282s, BUILD360c53d2 PASS.141s, CADENCE2819e181 PASS7.343s, BROWSER67f83a0d PASS48.281s Rslider/Lchangeup/Lcurve/6Source+bat exact/1200+390/5cams/12RGBA/errorsnetwork0, PACKAGEeee54863 PASS1.343s. Browser FAIL890e537b exactmarker rounding and1d93ed88 interim artifact mismatch retained; final exactassert restored. STAGING6bceeda3 PASS.890s rawstagedbytes exact/credentials0/nonlogwhitespace/AGENTS excluded; need commit/push v58+v59 and raw verification; no main merge. Original plan/FAIL/UNKNOWN/CharterHOLD and userAGENTS remain.
+Latest user replaces v57 early hardhold: acquire own forecast+aimError+lift after swing decision (≤85ms), stabilize at registered expected impact with .025rad cone/.18rad/sec actual pose bound; small body/intention correction, no random shake. Exact registered scene marker conversion prevents one-ULP late onset without tolerance relaxation. Through/observedhit300ms and70ms release retained; B first2 controls active, same7preset, STOREv59. Pitcher v58 100–250ms retained. Frozen normal41d7f56a/lab67160af7; Core113/physics/AI/abilities/rules/bat/22–55/grid unchanged. Final UNIT5545522b PASS5.282s, BUILD360c53d2 PASS.141s, CADENCE2819e181 PASS7.343s, BROWSER67f83a0d PASS48.281s Rslider/Lchangeup/Lcurve/6Source+bat exact/1200+390/5cams/12RGBA/errorsnetwork0, PACKAGEeee54863 PASS1.343s. Browser FAIL890e537b exactmarker rounding and1d93ed88 interim artifact mismatch retained; final exactassert restored. STAGING6bceeda3 PASS.890s rawstagedbytes exact/credentials0/nonlogwhitespace/AGENTS excluded; published23455422bfe72e722b2928223a41bb0f45fa8a57 on existingbranch/Draft380; PUBLICATION7e3d7f6b PASS3.250s remote+PRhead/OpenDraft/10rawfiles exact; metadata closure follows; no main merge. Original plan/FAIL/UNKNOWN/CharterHOLD and userAGENTS remain.
 
-## Active human priority — v58 shorter pitcher reaction (SCOPED VERIFIED; PUBLICATION PENDING)
+## Active human priority — v58 shorter pitcher reaction (SCOPED VERIFIED; PUBLISHED WITH v59)
 
-User changed0.5–1.2s to0.1–0.25s. Frozenv57, only3pitcherhelperconstants(.1/.25/7),180msblend/currentPeye/handoff maintained. Normal89a0ba3c/lab92274c68 frozen; v57headhold/preset/Core113/physics/AI/abilities/rules/bat/22–55/grid unchanged. REACTIONee78d3f3 PASS.079s, BUILD4a31b5e4 PASS.188s, BROWSER680c8bed PASS12.593s2actualcontacts151.54/250ms/1200+390/Source+batv57exact/nextreset/batterpreserved/errorsnetwork0, PACKAGE9f6d07b5 PASS.780srawv57restore/inputs/embeddedgame/oldreleases. RawtestFAIL67db7d46 wrong754vs755ms and71aab415 PythonCRLFnormalization retained; productunchanged. Needallowlistedstaging/samebranchcommitpush/rawverify; userAGENTS excluded. Originalplan/FAIL/UNKNOWN/CharterHOLD remain.
+User changed0.5–1.2s to0.1–0.25s. Frozenv57, only3pitcherhelperconstants(.1/.25/7),180msblend/currentPeye/handoff maintained. Normal89a0ba3c/lab92274c68 frozen; v57headhold/preset/Core113/physics/AI/abilities/rules/bat/22–55/grid unchanged. REACTIONee78d3f3 PASS.079s, BUILD4a31b5e4 PASS.188s, BROWSER680c8bed PASS12.593s2actualcontacts151.54/250ms/1200+390/Source+batv57exact/nextreset/batterpreserved/errorsnetwork0, PACKAGE9f6d07b5 PASS.780srawv57restore/inputs/embeddedgame/oldreleases. RawtestFAIL67db7d46 wrong754vs755ms and71aab415 PythonCRLFnormalization retained; productunchanged. Local productcommit4fa32b2 was pushed with v59 product2345542. v59 PUBLICATION7e3d7f6b verifies same branch/Draft and exact v58 pitcherhelper in v59. No separate v58 publication receipt claimed; userAGENTS excluded. Originalplan/FAIL/UNKNOWN/CharterHOLD remain.
 
 ## Active human priority — v57 swing head hold (SCOPED VERIFIED; PUBLISHED)
 

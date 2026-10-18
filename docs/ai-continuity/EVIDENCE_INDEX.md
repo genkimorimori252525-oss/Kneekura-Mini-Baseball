@@ -1041,3 +1041,4 @@ Only record verification that was actually performed.
 | MB-20261019-V59-BROWSER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V59-BROWSER_67f83a0daaac426dac8386ca06124bb1.json |
 | MB-20261019-V59-PACKAGE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V59-PACKAGE_eee548637f8e4bfcb064ac44fac80138.json |
 | MB-20261019-V59-STAGING | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V59-STAGING_6bceeda3539e40e98d96cbce1b01489d.json |
+| MB-20261019-V59-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V59-PUBLICATION_7e3d7f6b3ca04a5fa6db08c86abcb930.json |

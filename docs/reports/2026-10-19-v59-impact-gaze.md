@@ -30,3 +30,7 @@
 機械receiptは `docs/ai-continuity/verification-receipts/MB-20261019-V59-*`、配布照合は [release-check](../verification/releases/v59/release-check.json)、実ブラウザは [impact-check](../verification/releases/v59/impact/impact-check.json)。コマンドは各receiptに保存する。
 
 姿勢係数は人間の要望に合わせた表現であり、生体力学の実測校正ではない。元全計画、未達・FAIL/UNKNOWN/Charter HOLDを保持する。新9回や100試合の実施を主張しない。
+
+## 保存先
+
+製品コミット `23455422bfe72e722b2928223a41bb0f45fa8a57` を既存ブランチとDraft PR380へ保存。v58の投手短縮commit4fa32b2も含む。STAGING6bceeda3 PASS0.890秒、PUBLICATION7e3d7f6b PASS3.250秒でremote/PR head・Draft OPEN・10件の公開raw byte一致を確認した。[公開検証](../verification/releases/v59/publication.json)。main未マージ。後続の記録のみのコミットは製品byteを変更しない。
