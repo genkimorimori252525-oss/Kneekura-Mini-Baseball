@@ -1,13 +1,17 @@
 ---
-current_task: "MB-20261019-V57-PUBLICATION"
+current_task: "MB-20261019-V58-PACKAGE"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "fa2a0ab6d356a3535fd37914be68e81730ccb49b"
+commit_head: "b8f2911a5c48622986d527eead1e0d6879099801"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V57-PUBLICATION_588f734e3e254a08804c98a480002cfb.json"
-updated_at: "2026-10-18T18:17:58.558531+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V58-PACKAGE_9f6d07b5c40a4c42a1ed5644f26b1cd1.json"
+updated_at: "2026-10-18T18:24:38.517915+00:00"
 
 ---
+
+## Active human priority — v58 shorter pitcher reaction (SCOPED VERIFIED; PUBLICATION PENDING)
+
+User changed0.5–1.2s to0.1–0.25s. Frozenv57, only3pitcherhelperconstants(.1/.25/7),180msblend/currentPeye/handoff maintained. Normal89a0ba3c/lab92274c68 frozen; v57headhold/preset/Core113/physics/AI/abilities/rules/bat/22–55/grid unchanged. REACTIONee78d3f3 PASS.079s, BUILD4a31b5e4 PASS.188s, BROWSER680c8bed PASS12.593s2actualcontacts151.54/250ms/1200+390/Source+batv57exact/nextreset/batterpreserved/errorsnetwork0, PACKAGE9f6d07b5 PASS.780srawv57restore/inputs/embeddedgame/oldreleases. RawtestFAIL67db7d46 wrong754vs755ms and71aab415 PythonCRLFnormalization retained; productunchanged. Needallowlistedstaging/samebranchcommitpush/rawverify; userAGENTS excluded. Originalplan/FAIL/UNKNOWN/CharterHOLD remain.
 
 ## Active human priority — v57 swing head hold (SCOPED VERIFIED; PUBLISHED)
 
