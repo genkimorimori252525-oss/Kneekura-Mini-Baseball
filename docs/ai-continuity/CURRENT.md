@@ -1,15 +1,15 @@
 ---
-current_task: "MB-20261018-V51-RELEASE"
+current_task: "MB-20261018-V51-PUBLICATION"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "01834d9e8361b7747083b9fbb7539c93ee662b50"
+commit_head: "f7b91b99e08044df92094912cc437d2e1036e838"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V51-RELEASE_6e3e87588c1841468f8535940fce5cc0.json"
-updated_at: "2026-10-18T09:44:24.056274+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V51-PUBLICATION_ff72b3e6963347efb5b4fad7b16485e5.json"
+updated_at: "2026-10-18T09:47:19.030681+00:00"
 
 ---
 
-## Latest human priority — v51 teammate avoidance / spacing (SCOPED VERIFIED; PUBLICATION NEXT)
+## Latest human priority — v51 teammate avoidance / spacing (SCOPED VERIFIED; PUBLISHED)
 
 Latest user scope is integrated into normalHTML. Allbody same-time p/v proposals -> bounded acceleration coordination -> gloves. Roles keep position responsibilities, holder/receiver/handler priority, SI speed/acceleration/response and existing tactical controls. No new public abilities (public11/detail44), no position push/instant speed reset. No-hazard preferred exactly retained. Continuous issued interval + endpoint max-brake reserve; sampled15th anomaly FIELDER_BODY_OVERLAP and issued-action telemetry added. Legal close handoffs not classified as tactical errors.
 
@@ -19,7 +19,7 @@ FINAL1116ab2d PASS31files280tests78.733s; canonical60/15categories0, outs13-18-2
 
 CAMERA49858206 PASS29.172s/PC1200+390/R-L700ms+495blend/6takesheldstill/other4cams24/noerrors+network. Same NEW Core in v50 reference12records comparison, NOT oldCore equality. v50helpersb528/f987 byteexact. MAKER956af8c0 PASS10.5s20/public11/detail44/oldJSON/latestimport. PACKAGEa98354ec PASS110ZIPentries/allrawbyteCRC/SHA; RELEASE6e3e8758 PASS108pins/oldv50+maker preserved/links+closureproof. Images viewed. Product Source frozen before finaltests/build and no later normalization.
 
-Release docs/demos/releases/v51 and QA docs/verification/releases/v51 prepared, report/H23/history/LATEST/amendment updated. NEXT: explicit allowlist stage excluding user AGENTS/unrelated files, stagedblob/sourcebyteexact+secret/whitespace checks, commit/push SAME branch/Draft380; updatePRbody, verify remotehead/PR/rawbytes; recordpublication and metadata-only closurecommit. No main merge.
+Release docs/demos/releases/v51 and QA docs/verification/releases/v51 saved with report/H23/history/LATEST/amendment. Published132files in f7b91b99e08044df92094912cc437d2e1036e838 via normalpush SAME branch/Draft380, title/body updated, main unmerged. All131staged-product blob bytes exact/credentialpatterns0/oversize0;104nonlogfiles whitespacePASS using cr-at-eol WITHOUT changing tested bytes, rawlogs preserved. PUBLICATIONff72b3e6 PASS15.813s: remotehead/PRhead same, OpenDraft,9rawfiles byteexact including current source,HTML,ZIP. publication.json records proof. Metadata-only closurecommit follows; no product changes. Preserve user AGENTS/unrelated work. Scope delivered; subsequent originalplan work remains explicit below.
 
 Original full plan IN_PROGRESS: Nativeauthenticated continuousworld/returnreform/bodybatrecoil/drop/officialH-E+rules/fulltraits/leads/slides/joint runners/relayoptimality/empiricalSI+statistics/new100games/realphones. Current model is planarproxy; arbitrary-prefix immediatebrake guarantee, finite-search global optimality, impactresponse/knockdown remainunproved/unimplemented. Newplanfailure staysUNKNOWN/incomplete. CHARTER_UNAPPROVED/HOLD and all prior FAIL/UNKNOWN preserved. Preserve user AGENTS and unrelated work/config/lock/deps/secrets/DB.
 
