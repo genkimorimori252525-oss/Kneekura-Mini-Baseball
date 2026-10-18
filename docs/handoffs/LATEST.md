@@ -1,12 +1,16 @@
 # 最新の再開入口 — 2026-10-19
 
-現在は **調整室v58／通常試合v58**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
+現在は **調整室v59／通常試合v59**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
 
-- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v58/README.md)
-- [原因・変更・最終検証・限界](../reports/2026-10-19-v58-pitcher-reaction.md)
-- [開発史](../history/README.md) / [原因別事例H31](../history/INCIDENTS.md)
+- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v59/README.md)
+- [原因・変更・最終検証・限界](../reports/2026-10-19-v59-impact-gaze.md)
+- [開発史](../history/README.md) / [原因別事例H32](../history/INCIDENTS.md)
 - [元の全要求・計画・受入条件](2026-10-15-mini-baseball/00-START-HERE.md)
 - [v50の打者カメラ](../reports/2026-10-18-v50-v27-batter-camera.md) / [v49の守備責任・裁定](../reports/2026-10-18-v49-positional-defense.md) / [v47の中継・旋回](../reports/2026-10-18-v47-relay-rounding.md)
+
+## v59の現在地
+
+v57の早い完全固定を置換。振ると決めた後は予測打点へ視線を寄せ、予定インパクト付近で小さな補正を残して安定させる。現在の球の高さを打点へ流用しない。Bの高さ/俯角を再び編集可能にし、画像の7設定と既存打球追尾を継承。投手0.1〜0.25秒も含む。左右・実カーブ・6球の物理/バット不変・1200/390px・22/55ms周期・113入力・配布照合をPASS。[実装と検証](../reports/2026-10-19-v59-impact-gaze.md)。係数は生体校正済みではなく、元全計画・未達・原FAIL/UNKNOWN/Charter HOLDは継続する。
 
 ## v58の現在地
 

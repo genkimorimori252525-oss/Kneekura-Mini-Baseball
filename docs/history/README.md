@@ -56,3 +56,5 @@ ID / 観測日 / 対象経路・Source・HTML SHA
 [v56の投球FPSと追従率](../reports/2026-10-19-v56-pitch-presentation.md)をH29として追記。サイズとFPSを区別し、構え基準の追従率・許容角、Sourceに同期する投球専用22ms表示、55msの既存世界、A/Bの固有投影と巻戻しを検証する。
 
 [v57のスイング時の頭固定](../reports/2026-10-19-v57-swing-head-hold.md)をH30として追記。実バットのmotor onsetとthroughに固定を同期し、late swing・見逃し/バント除外・解除を検証する。
+
+[v58の投手待機](../reports/2026-10-19-v58-pitcher-reaction.md)をH31、[v59の予測打点と微動安定](../reports/2026-10-19-v59-impact-gaze.md)をH32として追記。早い固定で現在球を見続ける問題と、scene変換の境界を区別して記録する。

@@ -1,13 +1,17 @@
 ---
-current_task: "MB-20261019-V58-PACKAGE"
+current_task: "MB-20261019-V59-PACKAGE"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "b8f2911a5c48622986d527eead1e0d6879099801"
+commit_head: "4fa32b2c6342e5b5a81aae27ec60885067a6b217"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V58-PACKAGE_9f6d07b5c40a4c42a1ed5644f26b1cd1.json"
-updated_at: "2026-10-18T18:24:38.517915+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V59-PACKAGE_eee548637f8e4bfcb064ac44fac80138.json"
+updated_at: "2026-10-18T18:39:57.044770+00:00"
 
 ---
+
+## Active human priority — v59 predicted contact gaze / small impact motion (SCOPED VERIFIED; PUBLICATION PENDING)
+
+Latest user replaces v57 early hardhold: acquire own forecast+aimError+lift after swing decision (≤85ms), stabilize at registered expected impact with .025rad cone/.18rad/sec actual pose bound; small body/intention correction, no random shake. Exact registered scene marker conversion prevents one-ULP late onset without tolerance relaxation. Through/observedhit300ms and70ms release retained; B first2 controls active, same7preset, STOREv59. Pitcher v58 100–250ms retained. Frozen normal41d7f56a/lab67160af7; Core113/physics/AI/abilities/rules/bat/22–55/grid unchanged. Final UNIT5545522b PASS5.282s, BUILD360c53d2 PASS.141s, CADENCE2819e181 PASS7.343s, BROWSER67f83a0d PASS48.281s Rslider/Lchangeup/Lcurve/6Source+bat exact/1200+390/5cams/12RGBA/errorsnetwork0, PACKAGEeee54863 PASS1.343s. Browser FAIL890e537b exactmarker rounding and1d93ed88 interim artifact mismatch retained; final exactassert restored. STAGING6bceeda3 PASS.890s rawstagedbytes exact/credentials0/nonlogwhitespace/AGENTS excluded; need commit/push v58+v59 and raw verification; no main merge. Original plan/FAIL/UNKNOWN/CharterHOLD and userAGENTS remain.
 
 ## Active human priority — v58 shorter pitcher reaction (SCOPED VERIFIED; PUBLICATION PENDING)
 
