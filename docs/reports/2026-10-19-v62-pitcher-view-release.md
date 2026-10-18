@@ -46,3 +46,7 @@
 今回の仮の身体移動、初期リリースSI、予測の閾値は未実測校正。元全計画、Native認証された連続世界／公式裁定、得能未接続、守備走塁の残件、100試合・成績分布校正、実機は継続。原FAIL/UNKNOWNとCharter承認不足/HOLDを保持する。main未マージ。
 
 PACKAGE-FINAL `68cecfb1` PASS1.266秒。3HTMLと全raw入力／旧配布を照合。[同一記録によるv59スイング原因監査](2026-10-19-v59-swing-gaze-drift-audit.md)は `5fb54fd1` PASS。実個人gradeで最大約.80°の向き差を確認し、未変更とする説明を訂正した。製品の打者姿勢はこの監査では変更していない。
+
+## GitHub保存
+
+製品コミット `17de1933ba09e1954eee7cd637ac0ab3ac39ce3c` を既存ブランチ／Draft PR380へpush。STAGING `2a43fbc0` と最終追加分で96ファイルのGit blobと試験済みraw byteを照合。credential pattern0、非log whitespace PASS、ユーザーAGENTSは除外した。PUBLICATION `a8fbaeec` PASS3.342秒でremote／PR head一致、Draft OPEN、公開raw15ファイルのbyte一致を確認。[公開証拠](../verification/releases/v62/publication.json)。後続は記録だけを閉じるコミットで製品byteを変更しない。

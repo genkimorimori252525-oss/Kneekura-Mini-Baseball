@@ -1,17 +1,17 @@
 ---
-current_task: "MB-20261019-V62-PACKAGE"
+current_task: "MB-20261019-V62-PUBLICATION"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "6cab540b173526893d7d8f78f701a8087f62d0e8"
+commit_head: "17de1933ba09e1954eee7cd637ac0ab3ac39ce3c"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V62-PACKAGE_7be20640e08d456980e9f41ed88e50f8.json"
-updated_at: "2026-10-18T19:47:23.941167+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V62-PUBLICATION_a8fbaeece9ea457fa8eed36e527e5620.json"
+updated_at: "2026-10-18T19:51:32.024190+00:00"
 
 ---
 
 ## Active human priority — v59 swing-gaze cause audit; v62 pitcher scope verified
 
-Latesthuman nowprefersv59swingview; dislikesitsTAKE. Read-onlysame-recordaudit5fb54fd1PASS11.686s; actual6swings59→60exact,grade45+zone.025exact,actual88-93grade61max.803deg;releaseSourceeffectseparate.768deg. Productbatterunchanged. Codeconfirmsv61absolutegradegain/deadbandappliesallincomingpitch; oldvisionpursuitSIalsofixed.025whenenabled. Priorgrade45+zone.025unchangedproofmustnotbegeneralizedtoallplayers. DoNOTsilentlyrevokeabsoluteabilitypolicyorresetwholebatter. v62pitcherbody/release/HRscopeverified, publicationpending. HEAD07893f33/Core96testsa2b4b4e99.297s/TSCcf8ad484/Native114865078dc+Maker80/BUILD a43432e2/BROWSERfinal7b34bede37.438s(actualR/L+deepHRmound/ordinaryhandoff,JSON)/GAMEcecf06cd99.858s(normal320p,127field,9top3outs,18:34,8prefixPC390same)/CADENCEc70decaa/PACKAGE7be206401.593s. Normal e035ca5f/labc29e0cc0/makera99bb8b9. Authoredheadjointnotmeasured; all3releaseSI暫定。OldsessionCoreincompatibilityexplicit,oldsettingsaccepted. No deps/lock/config/secrets/DB edits. UserAGENTS/unrelated/oldartifacts/wholeplan/FAIL/UNKNOWN retained. Audit originalCHARTER_UNAPPROVED and v61PUBLICATION evidencevalidityHOLD retained in docs/verification/releases/v62/continuity-audit.txt; neverAIapprove. Next: saveexactallowlistedv62scope+auditevidenceonexistingbranch/Draft380; no mainmerge.
+Latesthuman nowprefersv59swingview; dislikesitsTAKE. Read-onlysame-recordaudit5fb54fd1PASS11.686s; actual6swings59→60exact,grade45+zone.025exact,actual88-93grade61max.803deg;releaseSourceeffectseparate.768deg. Productbatterunchanged. Codeconfirmsv61absolutegradegain/deadbandappliesallincomingpitch; oldvisionpursuitSIalsofixed.025whenenabled. Priorgrade45+zone.025unchangedproofmustnotbegeneralizedtoallplayers. DoNOTsilentlyrevokeabsoluteabilitypolicyorresetwholebatter. v62pitcherbody/release/HRscopeverified and published product17de1933ba09e1954eee7cd637ac0ab3ac39ce3c. PUBLICATIONa8fbaeecPASS3.342s remote/PRhead/OpenDraft380/15rawfilesbyteexact;STAGING2a43fbc0+final96blobsrawexact,credentials0/nonlogwhitespacePASS. HEAD07893f33/Core96testsa2b4b4e99.297s/TSCcf8ad484/Native114865078dc+Maker80/BUILD a43432e2/BROWSERfinal7b34bede37.438s(actualR/L+deepHRmound/ordinaryhandoff,JSON)/GAMEcecf06cd99.858s(normal320p,127field,9top3outs,18:34,8prefixPC390same)/CADENCEc70decaa/PACKAGE7be206401.593s. Normal e035ca5f/labc29e0cc0/makera99bb8b9. Authoredheadjointnotmeasured; all3releaseSI暫定。OldsessionCoreincompatibilityexplicit,oldsettingsaccepted. No deps/lock/config/secrets/DB edits. UserAGENTS/unrelated/oldartifacts/wholeplan/FAIL/UNKNOWN retained. Audit originalCHARTER_UNAPPROVED and v61PUBLICATION evidencevalidityHOLD retained in docs/verification/releases/v62/continuity-audit.txt; neverAIapprove. Next: explain v59cause tohuman; chosenlegacy-swingvsabsolutevisioninteraction remains futuredesign, do not silently alter either. Allproducts/rawproofsaved existingbranch/Draft380; metadata-onlyclosure follows; no mainmerge.
 
 ## Active human priority — v61 take sync / absolute vision (SCOPED VERIFIED; PUBLISHED)
 

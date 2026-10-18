@@ -1075,3 +1075,4 @@ Only record verification that was actually performed.
 | MB-20261019-V62-GAZE-AUDIT | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V62-GAZE-AUDIT_5fb54fd1499d420e9014e1b819dd7994.json |
 | MB-20261019-V62-PACKAGE-FINAL | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V62-PACKAGE-FINAL_68cecfb11fa7405e8c9ac71e4cc069ac.json |
 | MB-20261019-V62-STAGING | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V62-STAGING_2a43fbc067844324975eda2bc30ced09.json |
+| MB-20261019-V62-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V62-PUBLICATION_a8fbaeece9ea457fa8eed36e527e5620.json |
