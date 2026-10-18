@@ -43,4 +43,8 @@
 - `live-camera-tuning-batter-view-v61.js` / `check-camera-take-vision-v61.mjs`: 同期見逃しと45基準能力。
 - `camera-workbench-v61.js` / `.html`、`build-v61.mjs`、`prepare-v61-vision-roster.mjs`、`package-v61.py`、`check-v61-presentation.mjs`: 比較・HTMLとデータ生成・統合検証。
 
-元全計画、Native認証連続世界/公式裁定・得能の未接続/物理詳細/AI残件/統計校正/100試合/実機の未達、原FAIL/UNKNOWN/CharterHOLDを保持する。今回の完了は見逃し/選球眼接続の範囲。保存先は公開後に追記する。
+元全計画、Native認証連続世界/公式裁定・得能の未接続/物理詳細/AI残件/統計校正/100試合/実機の未達、原FAIL/UNKNOWN/CharterHOLDを保持する。今回の完了は見逃し/選球眼接続の範囲。保存先は以下へ記録する。
+
+## GitHub保存
+
+製品コミット `9e77fd0d8954c5e931d6d79ae1eb007fe8b3c538` を既存ブランチ/Draft PR380へ保存。STAGINGb754b58a PASS1.016秒と最終追加分の照合で80ファイルのstage raw byte一致、credential pattern0、非log whitespaceを確認。PUBLICATION83314cc4 PASS4.125秒でremote/PR head・Draft OPEN・15件の公開raw byte一致を確認した。[公開記録](../verification/releases/v61/publication.json)。後続の記録のみのコミットは製品byteを変更せず、mainは未マージ。

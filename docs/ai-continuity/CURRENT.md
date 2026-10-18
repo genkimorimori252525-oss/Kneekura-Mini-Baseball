@@ -1,17 +1,17 @@
 ---
-current_task: "MB-20261019-V61-PACKAGE"
+current_task: "MB-20261019-V61-PUBLICATION"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "a384dfdfac341d3180abc7f750c9825bf137289e"
+commit_head: "9e77fd0d8954c5e931d6d79ae1eb007fe8b3c538"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V61-PACKAGE_c852a8b79e5d40df9c08d36501b6d064.json"
-updated_at: "2026-10-18T19:24:58.253473+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V61-PUBLICATION_83314cc4397b4cb1912a47cdad088016.json"
+updated_at: "2026-10-18T19:27:30.739241+00:00"
 
 ---
 
-## Active human priority — v61 take sync / absolute vision (SCOPED VERIFIED; PUBLICATION PENDING)
+## Active human priority — v61 take sync / absolute vision (SCOPED VERIFIED; PUBLISHED)
 
-Latesthuman: takecamera lateaftermitt; syncobservedpitch/catch, grade45baselinegain.26/dead.02, max100=.70/0; absolute1..100 independentleague. Newhelpercurrenttakeprefix +actualcatchposehold, Alegacy/B45swing-bunt-field exactv60; low1=.13/.04. PublicplateVision optionalbounded, one-timelegacyindividual42..96 migration preserves20SI/sourceIDs; publiceditlinkszone, previewabsolute, normalimport/maker/oldsessionmigration. Native390eb00f/113inputs +maker79rebuilt, no newworldphysicsAI/rules. UnitRED9b0efa5f retainsold.055906raddrift; GREEN55fc1e85 PASS5.360s actual27catch/future/rewind. Core66tests6files fdbfad85 PASS58.063s inclregulationCoretest (notnormalHTML9). Corebuild5bbc7e04/.360s Maker35346fc0/.266s migrationf1b58d8a/.094s (originalVMrealmFAILb8236fe1 kept). BUILD97a8f688/.204s CADENCEe62ae2e0/8.219s BROWSER62563dcf/32.389s1200+390/4takecases/postcatch0/6Source-batphysicalexact/5league+makerJSONimport+oldsession/errors0. PACKAGEc852a8b7 PASS1.937s normal a97893a7/lab e858c4f7/maker754029e7. STAGINGb754b58a PASS1.016s testedrawstagedbytes/credentials0/nonlogwhitespace/AGENTS excluded; needcommit/push Draft380/rawverify; mainunmerged. Originalplan/FAIL/UNKNOWN/CharterHOLD/userAGENTS retained.
+Latesthuman: takecamera lateaftermitt; syncobservedpitch/catch, grade45baselinegain.26/dead.02, max100=.70/0; absolute1..100 independentleague. Newhelpercurrenttakeprefix +actualcatchposehold, Alegacy/B45swing-bunt-field exactv60; low1=.13/.04. PublicplateVision optionalbounded, one-timelegacyindividual42..96 migration preserves20SI/sourceIDs; publiceditlinkszone, previewabsolute, normalimport/maker/oldsessionmigration. Native390eb00f/113inputs +maker79rebuilt, no newworldphysicsAI/rules. UnitRED9b0efa5f retainsold.055906raddrift; GREEN55fc1e85 PASS5.360s actual27catch/future/rewind. Core66tests6files fdbfad85 PASS58.063s inclregulationCoretest (notnormalHTML9). Corebuild5bbc7e04/.360s Maker35346fc0/.266s migrationf1b58d8a/.094s (originalVMrealmFAILb8236fe1 kept). BUILD97a8f688/.204s CADENCEe62ae2e0/8.219s BROWSER62563dcf/32.389s1200+390/4takecases/postcatch0/6Source-batphysicalexact/5league+makerJSONimport+oldsession/errors0. PACKAGEc852a8b7 PASS1.937s normal a97893a7/lab e858c4f7/maker754029e7. STAGINGb754b58a PASS1.016s testedrawstagedbytes/credentials0/nonlogwhitespace/AGENTS excluded; published product9e77fd0d8954c5e931d6d79ae1eb007fe8b3c538 on existingbranch/OpenDraft380; PUBLICATION83314cc4 PASS4.125s remote/PRhead/15actualrawbytes exact; metadata-only closure follows; mainunmerged. Originalplan/FAIL/UNKNOWN/CharterHOLD/userAGENTS retained.
 
 ## Active human priority — v60 impact tuning + overlapping names (SCOPED VERIFIED; PUBLISHED)
 
