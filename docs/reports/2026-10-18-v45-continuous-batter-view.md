@@ -40,3 +40,9 @@ v45は打者選択中、同じeye位置・速度とyaw/pitch・角速度の状�
 ## 限界
 
 見え方の遅れを打撃判定やCoreの能力へ逆流させていない。「視線が追いつかないため打撃の意思決定も変わる」までの全身・知覚統合を実装した主張ではない。既存の選球眼から視線への対応、眼・頭・身体の追従係数、直前1球を使う期待は暫定。実選手の眼球校正、実機スマホ、最新Sourceでの新9回／100試合は未実施。元計画の未完・HOLDは継続する。
+
+## GitHub保存
+
+実装・HTML・履歴・証拠49ファイルをcommit `cf85dddbe968911099a9deda3a8e3bafb0d1e32a`で既存ブランチへ通常push。最初のpushはHTTP408で失敗し、remote/PR headが旧版のままと確認後、一回限りのHTTP/1.1指定で再送して成功した。設定ファイルは変更していない。
+
+公開照合 PASS `MB-20261018-V45-PUBLICATION_9f3cd580f0d24448ad774e0103d25001`、5.796秒。remote HEADとDraft PR #380のheadを照合し、observer Source・HTML・SHA・報告・履歴・最新入口の6ファイルをGitHub rawから読み直して元byteと一致。[公開照合記録](../verification/releases/v45/publication.json)。後続の記録用commitは製品コードを変更しない。main未マージ。
