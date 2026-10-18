@@ -39,3 +39,10 @@ v47は近距離の投球を最後まで角度の目標とし、全場面で同�
 HTML SHA `a529f2f0e3a99ce256ad1e136a6b7d5642048d27f32ccc83c1453cd78b8821b5`、視点helper SHA `f987a851185dcd70e7f31429c748abb2b46d0f70999e15aaa92d4c26dee9cc9b`。Core bundleはv47の`a470058b7fe0c95c5119fd1376bfa5a91ffc82f9767d95e4cae3daf369ea6a1d`と107入力が全て同一。新しい9回試合・213 Coreテスト・全体型検査を実行したとは主張しない。表示のみの変更に必要な回帰と実12球を実行した。
 
 元計画のNative認証連続世界、残る公式採点・ルール・全得能、走者間共同最適化、実選手SI・成績分布の校正、新100試合以上、実機スマートフォンは未完。今回の調整の最終的な感触はユーザーのプレイで確認する。
+
+
+## GitHub保存
+
+実装とHTML・履歴・証拠49ファイルをcommit `505bf94b439202210cff9d7e45750799f8bf0118`として既存ブランチへ通常pushした。Draft PR #380を更新し、main未マージ。remote/PR headとGitHub rawの6ファイルのbyte一致を[公開確認](../verification/releases/v48/publication.json)と[最終receipt](../ai-continuity/verification-receipts/MB-20261018-V48-PUBLICATION-FINAL_2f266720260f43d290e7bd3dd03c383d.json)に保存した。この確認後の文書・証拠のみのcommitで保存記録を追記する。
+
+初回の公開確認は、エージェントが引数のcommit SHAを誤記し、remote一致ガードで停止した。[原FAIL](../ai-continuity/verification-receipts/MB-20261018-V48-PUBLICATION_1c61a2c37c884faa9742cde042ea85db.json)を保持。`git rev-parse HEAD`から実際のSHAを取得した最終確認はPASSで、製品ソースやHTMLの修正は伴わない。

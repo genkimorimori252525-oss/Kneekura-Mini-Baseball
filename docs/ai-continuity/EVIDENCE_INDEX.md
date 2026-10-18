@@ -867,3 +867,5 @@ Only record verification that was actually performed.
 | MB-20261018-V48-CONTINUITY | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V48-CONTINUITY_8ba5523c9453488e9f38c1e623e78b5a.json |
 | MB-20261018-V48-BROWSER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V48-BROWSER_9adbce44e44b4a3681b57b8f79a2c980.json |
 | MB-20261018-V48-RELEASE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V48-RELEASE_cbb0dd7419c54018a171c1069bb3815c.json |
+| MB-20261018-V48-PUBLICATION | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261018-V48-PUBLICATION_1c61a2c37c884faa9742cde042ea85db.json |
+| MB-20261018-V48-PUBLICATION-FINAL | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V48-PUBLICATION-FINAL_2f266720260f43d290e7bd3dd03c383d.json |

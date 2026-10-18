@@ -1,15 +1,15 @@
 ---
-current_task: "MB-20261018-V48-RELEASE"
+current_task: "MB-20261018-V48-PUBLICATION-FINAL"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "16f0ef5a6b1b1f077424c6a54ce0d76ee9a49d88"
+commit_head: "505bf94b439202210cff9d7e45750799f8bf0118"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V48-RELEASE_cbb0dd7419c54018a171c1069bb3815c.json"
-updated_at: "2026-10-18T07:56:42.356655+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V48-PUBLICATION-FINAL_2f266720260f43d290e7bd3dd03c383d.json"
+updated_at: "2026-10-18T07:59:24.060108+00:00"
 
 ---
 
-## Latest human priority — v48 batter-only braking (SCOPED VERIFIED; PUBLICATION IN PROGRESS)
+## Latest human priority — v48 batter-only braking (SCOPED VERIFIED; PUBLISHED)
 
 User wants less floating/smoother-than-forceful batter gaze, shallow stopped takes instead of bowing, firmer planned-aim acquisition and hold; explicitly likes existing batted/runner view. Added separate live-batter-braking-view.js + guarded v48 builder, preserved original v47 helper and artifact. Take decision+visual-delay guard,32ms onset; observed predicted pitch crossing3.5m stores stop point, target pitch[-.22,.30]/relativeyaw±.38; stopping-distance angular speed, same2.5rad/s and20rad/s² limits. Swing aim230→90ms before plannedcontact, firmer stop, blends back to OLD field controller40ms afterthrough. Same singleeye/bodyTarget/optics/4px55ms/no randomshake/posecut, no newabilities. Posthit initialstate naturally carries changed prehitstate; no false allposthitposeidentityclaim.
 
@@ -17,7 +17,7 @@ FocusedBRAKING567fb968 PASS140ms, existingcontinuity8ba5523c PASS157ms with NEWh
 
 Build498f331f PASS280ms; newHTMLa529f2f0e3a99ce256ad1e136a6b7d5642048d27f32ccc83c1453cd78b8821b5/helperf987a851185dcd70e7f31429c748abb2b46d0f70999e15aaa92d4c26dee9cc9b. Browser9adbce44 PASS46.062s actual12Coreframes/play/events/matchSHAequalv47,6takes,R/L16boundaries,1200/390/other4cams exactpose/eye unchanged/held hidden/play+rewind/noerrors+network. Takesmaxpitchold.404-.839rad→new.080-.103rad; actualswingaimerrorL.505/R.700 ofold. Imagesviewed. Releasecbb0dd74 PASS125ms Core107pins andbundlea470058b unchanged, oldv47helper/artifact/otherhelpers/PNG/font/roster/4px55ms identical; linkschecked. No new9innings/213tests/globalTSC claim for display-only change. Evidence docs/verification/releases/v48; reportdocs/reports/2026-10-18-v48-batter-braking.md; H20/README/LATESTupdated. Maker remainsv47.
 
-Next: explicitallowlist/bytecheck→commit/normalpush existingbranch/Draft380→rawverify→metadatarecord→deliver v48HTML. UserAGENTS/unrelated preserved; no settings/lock/dependency/secret/DB/mainmerge. Originalfullplan IN_PROGRESS; Nativeauthcontinuousworld/officialH/E+rules/fulltraits/jointrunneroptimization/empiricalSI+statistics/new100games/realphones remain. Presentation thresholds are authored feel parameters, not calibrated humaneyes. OriginalCHARTER_UNAPPROVED/HOLD and allpriorFAIL/UNKNOWN retained.
+Published49files in505bf94b439202210cff9d7e45750799f8bf0118 via normalpush existingbranch/Draft380/titlebodyupdated/unmerged. Finalremotehead/PRheadmatch+6rawbyteexact PASS2f266720/13.875s. InitialFAIL1c61a2c3 was agentmistypedcommitarg, stoppedremoteequalityguard beforedownloads; originalFAIL retained, finalargfromgitrevparse. Productunchanged. Metadata-onlyrecordingcommit follows; deliver v48HTML/report. OriginalfullgoalIN_PROGRESS. UserAGENTS/unrelated preserved; no settings/lock/dependency/secret/DB/mainmerge. Originalfullplan IN_PROGRESS; Nativeauthcontinuousworld/officialH/E+rules/fulltraits/jointrunneroptimization/empiricalSI+statistics/new100games/realphones remain. Presentation thresholds are authored feel parameters, not calibrated humaneyes. OriginalCHARTER_UNAPPROVED/HOLD and allpriorFAIL/UNKNOWN retained.
 
 
 ## Previous human priority — v47 relay and continuous base turns (SCOPED VERIFIED; PUBLISHED)
