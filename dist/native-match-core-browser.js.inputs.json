@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "entrySha256": "e0677928d7641513228fb78782a8afcceb5e4890fddbd99ac93c05f271da2e6c",
+  "entrySha256": "01f25940860caff6f9a92a9d8d11d876d87056ed173d8589374226f7c4eccd8f",
   "inputs": {
     "src/core/adjudication/OfficialWindowPolicy.ts": "e1a9d54ce2ca6e27116588b083156f524f22d978dcef83c59351642044c71cad",
     "src/core/adjudication/PlayAdjudicationLedger.ts": "c4be34efb190da338f159eeff798afaa47a1f2e15c3d31eea39d223a0f082011",
@@ -62,8 +62,9 @@
     "src/core/sim/fielding/GroundedActorContactResponseV1.ts": "5a8bd4dc5c403e8e4a5e07dbe011bca35decf29e6cf905cadf97e39dcdd6433a",
     "src/core/sim/fielding/LiveFieldForecastV1.ts": "34669a5658989b1f2d42be2f7cac9b136c9f402660efc7ed8244ea02079b4ad1",
     "src/core/sim/fielding/LiveFieldHandlerSelectionV1.ts": "45fdf2b1e022923b6001d1e9f5780079495f111198a35ed37277907143507a91",
-    "src/core/sim/fielding/LiveFieldPlayV1.ts": "00a2883b93bb98d5de627eaf53b06765244dcf0a894a59b32627de5cbb1c0991",
+    "src/core/sim/fielding/LiveFieldPlayV1.ts": "8ffe9835f13bf455d6571754d447506124525c8df5de7e7002d79177a544d7f8",
     "src/core/sim/fielding/LiveFieldRoleAssignmentV1.ts": "47bd7c8c70db035e9879279144a1d005967b8c670a105b19cc3af8904cca6c55",
+    "src/core/sim/fielding/LiveFielderAvoidanceV1.ts": "ac5f68647e783fd5f3f22f7e5ecfbe1d62fe64e87fe8633c2e77793c6ac75413",
     "src/core/sim/fielding/LiveHandPreparationV1.ts": "26a2d416ee8f75ff5ad534e16c9608345d82f91f5f637d7fc68357e7260f29fd",
     "src/core/sim/fielding/LiveRelayPlanV1.ts": "c53689a081480d2e769f7f8a169821911bac58f950c308a4079f1290d06852e7",
     "src/core/sim/fielding/LiveRunnerAdvancePolicyV1.ts": "41c267a1e2538e7575b1f6884b114e706ff04b5fcd16a9d24ce6d17e879df09c",

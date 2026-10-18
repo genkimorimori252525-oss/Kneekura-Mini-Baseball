@@ -40,6 +40,38 @@ describe('LiveFieldPlayDiagnosticsV1', () => {
     return { ...built, result: simulateLiveFieldPlayV1(built.input) };
   };
 
+  it('detects an observed pair of overlapping fielder bodies with both tasks and distance', () => {
+    const { input, result, roleMap } = diagnosticFixture(), last = result.frames.at(-1)!,
+      fielders = last.fielders.map((f, i) => i < 2 ? { ...f, position: { x: i * .479, y: .9, z: 0 },
+        intent: i === 0 ? 'backup' as const : 'base_cover' as const } : f),
+      broken = { ...result, frames: [{ ...last, fielders }] }, diag = diagnoseLiveFieldPlayV1(input, broken, roleMap);
+    expect(diag.anomalies).toContainEqual(expect.objectContaining({ kind: 'FIELDER_BODY_OVERLAP',
+      elapsedSeconds: last.elapsedSeconds, playerId: fielders[0].playerId, otherPlayerId: fielders[1].playerId,
+      distanceMeters: .479, playerIntent: 'backup', otherPlayerIntent: 'base_cover' }));
+    expect(formatLiveFieldPlayDiagnosticReportV1(diag)).toContain('0.479m < 0.480m');
+  });
+
+  it.each([.48, .481])('accepts legal close coordination at a body-center distance of %sm', separation => {
+    const { input, result, roleMap } = diagnosticFixture(), last = result.frames.at(-1)!,
+      fielders = last.fielders.map((f, i) => i < 2 ? { ...f, position: { x: i * separation, y: .9, z: 0 } } : f),
+      diag = diagnoseLiveFieldPlayV1(input, { ...result, frames: [{ ...last, fielders }] }, roleMap);
+    expect(diag.anomalies.filter(a => a.kind === 'FIELDER_BODY_OVERLAP')).toEqual([]);
+    expect(diag.fieldingSpacing.minimumObservedDistanceMeters).toBe(separation);
+  });
+
+  it('uses the declared body radius and observes three nearby fielders without inventing a cluster violation', () => {
+    const { input, result, roleMap } = diagnosticFixture(), last = result.frames.at(-1)!,
+      points = [{ x: 0, y: .9, z: 0 }, { x: .8, y: .9, z: 0 }, { x: .4, y: .9, z: .7 }],
+      fielders = last.fielders.map((f, i) => i < 3 ? { ...f, position: points[i] } : f),
+      clustered = { ...result, frames: [{ ...last, fielders }] }, diag = diagnoseLiveFieldPlayV1(input, clustered, roleMap);
+    expect(diag.fieldingSpacing).toMatchObject({ observedTripleClusterFrameCount: 1, maximumActorsWithinTwoMeters: 3 });
+    expect(diag.anomalies.filter(a => a.kind === 'FIELDER_BODY_OVERLAP')).toEqual([]);
+    const largerBodyResult = { ...clustered, model: { ...result.model } };
+    Object.defineProperty(largerBodyResult.model, 'bodyRadiusMeters', { value: .41 });
+    const largerBodies = diagnoseLiveFieldPlayV1(input, largerBodyResult, roleMap);
+    expect(largerBodies.anomalies).toContainEqual(expect.objectContaining({ kind: 'FIELDER_BODY_OVERLAP', distanceMeters: .8 }));
+  });
+
   it('audits declared defensive positions rather than relying on fixture names or current coordinates', () => {
     const { input } = buildCanonicalFieldingPlayInputV1(CANONICAL_FIELDING_SCENARIOS_V1[0]);
     expect(input.fielders.map(f => f.defensivePosition)).toEqual(['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF']);

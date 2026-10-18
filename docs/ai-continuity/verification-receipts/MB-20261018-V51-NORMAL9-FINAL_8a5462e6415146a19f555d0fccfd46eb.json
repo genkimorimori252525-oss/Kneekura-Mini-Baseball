@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V51-NORMAL9-FINAL",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v51-game.mjs",
+    "../../outputs/ばせぼーるlv51_TBD_vs_LAD_野手の回避と間隔改善版.html",
+    "../../outputs/verification-v51-game-final"
+  ],
+  "observed_at": "2026-10-18T09:32:30.023+00:00",
+  "elapsed_ms": 3625,
+  "git_head": "01834d9e8361b7747083b9fbb7539c93ee662b50",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V51-NORMAL9-FINAL_8a5462e6415146a19f555d0fccfd46eb.log",
+  "output_sha256": "a9ee85e17a5321cd1af0d0c8d28c43f7f7dfaf865763915a97a1885d1dab3b33",
+  "receipt_id": "MB-20261018-V51-NORMAL9-FINAL_8a5462e6415146a19f555d0fccfd46eb"
+}

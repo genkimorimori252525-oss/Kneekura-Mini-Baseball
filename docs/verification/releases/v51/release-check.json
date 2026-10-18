@@ -1,0 +1,16 @@
+{
+  "pass": true,
+  "gameSha256": "9a2b4761d87b6c908dd51c969d5425a036870caf1f57b474e1113126b409a54e",
+  "nativeBundleSha256": "01f25940860caff6f9a92a9d8d11d876d87056ed173d8589374226f7c4eccd8f",
+  "sourceInputs": 108,
+  "regulationPitches": 320,
+  "fieldPlays": 130,
+  "settledLivePlays": 74,
+  "minimumFinalBodyCenterDistanceMeters": 0.5008952290062607,
+  "widths": [
+    1200,
+    390
+  ],
+  "unchangedV50CameraAndV47Maker": true,
+  "linksChecked": 135
+}

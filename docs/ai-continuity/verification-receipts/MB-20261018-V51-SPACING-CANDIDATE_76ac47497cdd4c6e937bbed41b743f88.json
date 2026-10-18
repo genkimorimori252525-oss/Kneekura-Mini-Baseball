@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V51-SPACING-CANDIDATE",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldAvoidanceV51.test.ts",
+    "src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts",
+    "--reporter=dot",
+    "-t",
+    "overlapping fielder bodies|legal close coordination|declared body radius|continuous acceleration-limited"
+  ],
+  "observed_at": "2026-10-18T09:26:41.427+00:00",
+  "elapsed_ms": 1500,
+  "git_head": "01834d9e8361b7747083b9fbb7539c93ee662b50",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V51-SPACING-CANDIDATE_76ac47497cdd4c6e937bbed41b743f88.log",
+  "output_sha256": "d67383a93737271959a6bc759913c687a6b9dc4bb649ce7085d36e0785329e66",
+  "receipt_id": "MB-20261018-V51-SPACING-CANDIDATE_76ac47497cdd4c6e937bbed41b743f88"
+}

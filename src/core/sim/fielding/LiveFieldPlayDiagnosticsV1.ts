@@ -25,12 +25,17 @@ export type LiveFieldAnomalyKindV1 =
   | 'LIVE_PLAY_CLOSED_WITH_FREE_BALL'
   | 'UNSUPPORTED_RUNNER_RETIREMENT'
   | 'DUPLICATE_BASE_COVER'
-  | 'RUNNER_BASE_TOUCH_LATE';
+  | 'RUNNER_BASE_TOUCH_LATE'
+  | 'FIELDER_BODY_OVERLAP';
 
 export type LiveFieldAnomalyV1 = Readonly<{
   kind: LiveFieldAnomalyKindV1;
   elapsedSeconds: number;
   playerId?: string;
+  otherPlayerId?: string;
+  distanceMeters?: number;
+  playerIntent?: LiveFieldFrameV1['fielders'][number]['intent'];
+  otherPlayerIntent?: LiveFieldFrameV1['fielders'][number]['intent'];
   base?: BaseballBase;
   detail: string;
 }>;
@@ -194,6 +199,36 @@ export function diagnoseLiveFieldPlayV1(
     return { playerId: spec.playerId, role: roleOf(spec.playerId), sampledTravelMeters,
       maximumDistanceFromHomeMeters, sampledTravelByIntentMeters };
   });
+
+  // Descriptive Source-frame spacing, separate from continuous motor proofs.
+  // Receiving, tagging and backing up may legitimately bring actors close.
+  // Only actual body-volume penetration is an anomaly; a three-player group
+  // is a metric and never, by itself, evidence of a tactical mistake.
+  type PairSpacing = { playerId: string; otherPlayerId: string; elapsedSeconds: number; distanceMeters: number;
+    playerIntent: LiveFieldFrameV1['fielders'][number]['intent']; otherPlayerIntent: LiveFieldFrameV1['fielders'][number]['intent'] };
+  const pairMinima = new Map<string, PairSpacing>();
+  let observedTripleClusterFrameCount = 0, maximumActorsWithinTwoMeters = 0;
+  for (const frame of result.frames) {
+    let frameMaximum = 0;
+    for (let i = 0; i < frame.fielders.length; i++) {
+      const actor = frame.fielders[i];
+      frameMaximum = Math.max(frameMaximum, frame.fielders.filter(other => distance(flat(actor.position), flat(other.position)) < 2).length);
+      for (let j = i + 1; j < frame.fielders.length; j++) {
+        const other = frame.fielders[j], key = JSON.stringify([actor.playerId, other.playerId]),
+          distanceMeters = distance(flat(actor.position), flat(other.position)), previous = pairMinima.get(key);
+        if (!previous || distanceMeters < previous.distanceMeters) pairMinima.set(key, {
+          playerId: actor.playerId, otherPlayerId: other.playerId, elapsedSeconds: frame.elapsedSeconds, distanceMeters,
+          playerIntent: actor.intent, otherPlayerIntent: other.intent });
+      }
+    }
+    maximumActorsWithinTwoMeters = Math.max(maximumActorsWithinTwoMeters, frameMaximum);
+    if (frameMaximum >= 3) observedTripleClusterFrameCount++;
+  }
+  const spacingPairs = [...pairMinima.values()].sort((a, b) => a.distanceMeters - b.distanceMeters),
+    fieldingSpacing = { basis: 'OBSERVED_SOURCE_FRAMES_NOT_CONTINUOUS_COLLISION_PROOF' as const,
+      requiredCenterDistanceMeters: result.model.bodyRadiusMeters * 2,
+      minimumObservedDistanceMeters: spacingPairs[0]?.distanceMeters ?? null,
+      observedTripleClusterFrameCount, maximumActorsWithinTwoMeters, pairs: spacingPairs };
 
   const handlerIdsBeforeCatch = new Set(
     telemetry.roleTransitions
@@ -363,6 +398,9 @@ export function diagnoseLiveFieldPlayV1(
 
   // 4. Anomaly Detection
   const anomalies: LiveFieldAnomalyV1[] = [];
+  for (const pair of spacingPairs) if (pair.distanceMeters < fieldingSpacing.requiredCenterDistanceMeters)
+    anomalies.push({ kind: 'FIELDER_BODY_OVERLAP', ...pair,
+      detail: `${roleOf(pair.playerId)} (${pair.playerIntent}) and ${roleOf(pair.otherPlayerId)} (${pair.otherPlayerIntent}) body centers overlap: ${pair.distanceMeters.toFixed(3)}m < ${fieldingSpacing.requiredCenterDistanceMeters.toFixed(3)}m.` });
 
   // These are observation/fact consistency checks, not an independent full
   // baseball umpire. In particular, a controlled tag/catch is accepted as an
@@ -623,6 +661,7 @@ export function diagnoseLiveFieldPlayV1(
     throws,
     anomalies,
     fieldingMovement,
+    fieldingSpacing,
     telemetry,
   });
 }
@@ -633,6 +672,7 @@ export function formatLiveFieldPlayDiagnosticReportV1(diag: ReturnType<typeof di
   const lines: string[] = [
     `=== [${label}] territory=${diag.territory} outs=${diag.outsRecorded} firstBounceZ=${diag.firstBounceZ?.toFixed(1) ?? 'air'}m firstCatch=${diag.firstCatchRole ?? 'NONE'} ===`,
     `  Oracle: infieldReachable=${diag.oracle.infieldReachable} earliestInfielder=${diag.oracle.earliestInfielder ? `${diag.oracle.earliestInfielder.role}@${rel(diag.oracle.earliestInfielder.earliestElapsedSeconds)}` : 'none'} earliestAny=${diag.oracle.earliestFielder ? `${diag.oracle.earliestFielder.role}@${rel(diag.oracle.earliestFielder.earliestElapsedSeconds)}` : 'none'}`,
+    `  ObservedSpacing: min=${diag.fieldingSpacing.minimumObservedDistanceMeters?.toFixed(3) ?? 'n/a'}m bodyDiameter=${diag.fieldingSpacing.requiredCenterDistanceMeters.toFixed(3)}m tripleClusterFrames=${diag.fieldingSpacing.observedTripleClusterFrameCount} (samples, not continuous proof)`,
   ];
   const handlers = diag.approaches.filter((a) => a.wasHandler || a.minCenterDistanceMeters < 3.5);
   if (handlers.length > 0) {

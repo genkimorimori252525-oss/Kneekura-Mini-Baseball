@@ -1,15 +1,29 @@
 ---
-current_task: "MB-20261018-V50-PUBLICATION"
+current_task: "MB-20261018-V51-RELEASE"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "3de1c3abf4190c05e67067ac612170b68086089d"
+commit_head: "01834d9e8361b7747083b9fbb7539c93ee662b50"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V50-PUBLICATION_b56af5fc5413466599fac573d0cd4983.json"
-updated_at: "2026-10-18T08:57:43.582095+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V51-RELEASE_6e3e87588c1841468f8535940fce5cc0.json"
+updated_at: "2026-10-18T09:44:24.056274+00:00"
 
 ---
 
-## Latest human priority — v50 lv27 batter camera + finite swing end700ms hold (SCOPED VERIFIED; PUBLISHED)
+## Latest human priority — v51 teammate avoidance / spacing (SCOPED VERIFIED; PUBLICATION NEXT)
+
+Latest user scope is integrated into normalHTML. Allbody same-time p/v proposals -> bounded acceleration coordination -> gloves. Roles keep position responsibilities, holder/receiver/handler priority, SI speed/acceleration/response and existing tactical controls. No new public abilities (public11/detail44), no position push/instant speed reset. No-hazard preferred exactly retained. Continuous issued interval + endpoint max-brake reserve; sampled15th anomaly FIELDER_BODY_OVERLAP and issued-action telemetry added. Legal close handoffs not classified as tactical errors.
+
+Baseline oldSource60 has3penetrations(.329/.398/.474m<.48); oldHRindex82finalLF/RF.062m. Baseline/raw3results saved docs/verification/releases/v51/baseline. Initial FINALa5e7e7ba FAIL7/273 and normal5thpitch8a5462e6 kept: tiny ~1e-17sec brake phase rounded out of cuts but sample extended its acceleration over long next interval. Fixed identical absolute stop boundary; SUBULP RED272184c0 -> GREEN706fa2ba/23unit. Review: normalfence2cm reserve retained, pure emergency old0 allowance only; failed/unissued candidates excluded from issued telemetry. No hard-distance/ability relaxations.
+
+FINAL1116ab2d PASS31files280tests78.733s; canonical60/15categories0, outs13-18-20 with oldminimum/monotonic criteria unchanged. GlobalTSC50e1326e PASS39.608s. Frozen Source builddfdb3465 PASS108inputs/Core01f25940860caff6f9a92a9d8d11d876d87056ed173d8589374226f7c4eccd8f; HTML9a2b4761d87b6c908dd51c969d5425a036870caf1f57b474e1113126b409a54e. Normal9a489b355 PASS114.032s/320p/9top3outs/home46-away10/noerror/fallbackfalse;130fieldplays17820frames mincenter.500113m/nooverlap/triple2m0; minissuedstep/stopgap.0200226m. Actualexportdiagnostics/finalframes Source-exact. StatsUNCALIBRATED.
+
+CAMERA49858206 PASS29.172s/PC1200+390/R-L700ms+495blend/6takesheldstill/other4cams24/noerrors+network. Same NEW Core in v50 reference12records comparison, NOT oldCore equality. v50helpersb528/f987 byteexact. MAKER956af8c0 PASS10.5s20/public11/detail44/oldJSON/latestimport. PACKAGEa98354ec PASS110ZIPentries/allrawbyteCRC/SHA; RELEASE6e3e8758 PASS108pins/oldv50+maker preserved/links+closureproof. Images viewed. Product Source frozen before finaltests/build and no later normalization.
+
+Release docs/demos/releases/v51 and QA docs/verification/releases/v51 prepared, report/H23/history/LATEST/amendment updated. NEXT: explicit allowlist stage excluding user AGENTS/unrelated files, stagedblob/sourcebyteexact+secret/whitespace checks, commit/push SAME branch/Draft380; updatePRbody, verify remotehead/PR/rawbytes; recordpublication and metadata-only closurecommit. No main merge.
+
+Original full plan IN_PROGRESS: Nativeauthenticated continuousworld/returnreform/bodybatrecoil/drop/officialH-E+rules/fulltraits/leads/slides/joint runners/relayoptimality/empiricalSI+statistics/new100games/realphones. Current model is planarproxy; arbitrary-prefix immediatebrake guarantee, finite-search global optimality, impactresponse/knockdown remainunproved/unimplemented. Newplanfailure staysUNKNOWN/incomplete. CHARTER_UNAPPROVED/HOLD and all prior FAIL/UNKNOWN preserved. Preserve user AGENTS and unrelated work/config/lock/deps/secrets/DB.
+
+## Previous human priority — v50 lv27 batter camera + finite swing end700ms hold (SCOPED VERIFIED; PUBLISHED)
 
 User explicitly replaces v48prehit angular policy with lv27reference (Downloads+approvedbaselineSHAc613574b exact), currentbat/swing/physics/positions retained, glance after measuredswingends700ms. New live-v27-batter-view.js wrapsunchangedv48fieldhelper: lv27base/165msboundedtake atactualz<=1, lastvisibleprefixtarget, no heldreturn/no angularinertiacall for takes. Planned forecast+aimError directgaze fromactualdeclaredmotorstart throughreferenceThroughTick+700ms; existingbodyeye followsrunningactor; 495mslv27blend intoexistingfieldpose, exactoldposeafter. Sourceframeclockmaystopbutpresentationclockreleaseshold. Benchpriority/other4cams/UI/grid55ms retained. No src/Core/data/config/dependency/lock/secret/DB edits.
 

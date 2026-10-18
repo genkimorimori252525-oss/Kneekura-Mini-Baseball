@@ -8,6 +8,7 @@ import { sourceRk4PositionBounds } from '../ball/SourceFreeBallSpeedBound';
 import { quantizeEventTick } from '../ExactEventTime';
 import { IDENTITY_QUATERNION, advanceBaseballOrientation, multiplyQuaternions, type Quaternion } from '../pitching/BaseballOrientation';
 import { buildDefenderMotionTrajectory } from './DefenderMotion';
+import { coordinateLiveFielderMotionV1, LIVE_FIELDER_AVOIDANCE_POLICY_V1 } from './LiveFielderAvoidanceV1';
 import { resolveCatchRetention, type CatchRetentionParameters } from './CatchRetention';
 import { createGroundWallRollingCurveV1 } from './GroundWallRollingCurveV1';
 import { createLiveFieldForecastV1 } from './LiveFieldForecastV1';
@@ -69,6 +70,7 @@ export type LiveFieldFrameV1 = Readonly<{ elapsedSeconds: number; tick: number;
 export const LIVE_FIELD_TEST_MODEL_V1 = Object.freeze({ basis: 'EXPLICIT_SYNTHETIC_LIVE_FIELD_CONTROL_V1' as const,
   controlSeconds: .04, frameSeconds: .055, bodyRadiusMeters: .24,
   roleAssignment: LIVE_FIELD_ROLE_POLICY_V1,
+  fielderAvoidance: LIVE_FIELDER_AVOIDANCE_POLICY_V1,
   catchApproachCostFraction: .3,
   bodyMaterial: Object.freeze({ restitution: .25, tangentialDamping: .3, spinDamping: .1 }),
   wallMaterial: Object.freeze({ restitution: .25, tangentialDamping: .3, spinDamping: .1,
@@ -251,6 +253,11 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
   const roundingRecheckAfter = new Map<string, number>();
   const runnerDecisions: ({ elapsedSeconds: number; runnerId: string; targetBase: number; defenderControlSeconds: number | null }
     & ReturnType<typeof decideLiveRunnerAdvanceV1>)[] = [];
+  const fielderAvoidanceTransitions: { elapsedSeconds: number; throughSeconds: number;
+    actions: { playerId: string; reason: 'brake' | 'yield' }[]; minimumPlannedStepGapMeters: number | null }[] = [];
+  const fielderAvoidanceCounts = new Map<string, { preferred: number; brake: number; yield: number }>();
+  let avoidancePlanCount = 0, avoidanceCandidateEvaluations = 0, avoidanceState = '',
+    minimumPlannedStepGapMeters = Infinity, minimumStoppingGapMeters = Infinity;
   let runnerDecisionPending = false;
   let lastRunnerEvaluationSeconds: number | null = null;
   let unresolvedDetail: unknown = null;
@@ -664,6 +671,11 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
       planned = assignment(); assigned = planned.targets;
     }
     previousRoles = planned.roles;
+    // Plan all bodies from the same world before moving any glove. Teammate
+    // avoidance changes bounded acceleration, never a position or velocity.
+    const bodyPlans = new Map<Fielder, { before: Vec3; vel: Vec3; target: { point: Vec3; intent: LiveFieldFrameV1['fielders'][number]['intent']; base: BaseballBase | null };
+      delta: number; active: boolean; body: Curve; bodyBoundaryLimited: boolean; currentOffset: Vec3; gloveRadius: number;
+      accepts: (motion: Readonly<{ acceleration: Vec3; stopAfter?: number }>) => boolean }>();
     for (const f of defenders) {
       const before = at(f.body, t), vel = velocityAt(f.body, t), target = assigned.get(f)!, delta = through - t;
       const active = !dead && t >= start + responseSeconds(f);
@@ -702,8 +714,45 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
           if (bodySafe(candidate)) { low = u; body = candidate; } else high = u;
         }
       }
-      f.body = body;
-      f.intent = active ? target.intent : 'hold'; f.targetBase = target.base;
+      const asCurve = (motion: Readonly<{ acceleration: Vec3; stopAfter?: number }>): Curve => ({ from: t, p: before, velocity: vel,
+        acceleration: motion.acceleration, ...(motion.stopAfter === undefined ? {} : { stopAfter: motion.stopAfter }) });
+      bodyPlans.set(f, { before, vel, target, delta, active, body, bodyBoundaryLimited, currentOffset, gloveRadius,
+        accepts: motion => bodySafe(asCurve(motion)) || (motion.stopAfter === emergency.stopAfter
+          && distance(motion.acceleration, emergency.acceleration) <= 1e-12 && bodySafe(asCurve(motion), 0)) });
+    }
+    const coordination = coordinateLiveFielderMotionV1({ fromSeconds: t, throughSeconds: through,
+      actors: defenders.map(f => { const p = bodyPlans.get(f)!;
+        return { playerId: f.spec.playerId, position: p.before, velocity: p.vel,
+          accelerationMps2: f.spec.accelerationMps2, topSpeedMps: f.spec.topSpeedMps, bodyRadiusMeters: LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters,
+          priority: f === possession || f === pendingCatch?.fielder ? 700 : f === throwTarget?.receiver ? 600 : f === handler ? 500
+            : p.target.intent === 'tag' ? 450 : p.target.intent === 'base_cover' ? 300 : p.target.intent === 'relay' ? 200 : p.target.intent === 'backup' ? 100 : 0,
+          canSteer: t >= start + responseSeconds(f),
+          preferred: { acceleration: p.body.acceleration, ...(p.body.stopAfter === undefined ? {} : { stopAfter: p.body.stopAfter }) }, accepts: p.accepts };
+      }) });
+    if (!coordination.safe) { motorBoundaryFailure = { kind: 'fielder_separation_plan_required', elapsedSeconds: t, diagnostics: coordination.diagnostics }; return; }
+    avoidancePlanCount++; avoidanceCandidateEvaluations += coordination.diagnostics.candidateEvaluations;
+    if (coordination.diagnostics.minimumStepGapMeters !== null)
+      minimumPlannedStepGapMeters = Math.min(minimumPlannedStepGapMeters, coordination.diagnostics.minimumStepGapMeters);
+    if (coordination.diagnostics.minimumStoppingGapMeters !== null)
+      minimumStoppingGapMeters = Math.min(minimumStoppingGapMeters, coordination.diagnostics.minimumStoppingGapMeters);
+    const actions = coordination.commands.flatMap(c => c.reason === 'preferred' ? [] : [{ playerId: c.playerId, reason: c.reason }]),
+      avoidanceKey = actions.map(c => c.playerId + ':' + c.reason).sort().join('|');
+    if (avoidanceKey !== avoidanceState) {
+      fielderAvoidanceTransitions.push({ elapsedSeconds: t, throughSeconds: through, actions,
+        minimumPlannedStepGapMeters: coordination.diagnostics.minimumStepGapMeters }); avoidanceState = avoidanceKey;
+    }
+    for (const c of coordination.commands) {
+      const counts = fielderAvoidanceCounts.get(c.playerId) ?? { preferred: 0, brake: 0, yield: 0 };
+      counts[c.reason]++; fielderAvoidanceCounts.set(c.playerId, counts);
+    }
+    for (const command of coordination.commands) {
+      const f = defenders.find(f => f.spec.playerId === command.playerId)!, p = bodyPlans.get(f)!;
+      f.body = { from: t, p: p.before, velocity: p.vel, acceleration: command.motion.acceleration,
+        ...(command.motion.stopAfter === undefined ? {} : { stopAfter: command.motion.stopAfter }) };
+      f.intent = p.active ? p.target.intent : 'hold'; f.targetBase = p.target.base;
+    }
+    for (const f of defenders) {
+      const { vel, target, delta, active, bodyBoundaryLimited, currentOffset, gloveRadius } = bodyPlans.get(f)!, body = f.body, grip = at(f.glove, t);
       const heldOffset = throwTarget && f === possession ? throwOffset(f, at(f.body, through), throwTarget.point) : v(0, 0, -.5);
       const expected = forecasts.find(x => x.f === f)?.predicted,
         sampledNext = expected ? expected.prediction.sample(Math.min(delta, expected.prediction.maximumSeconds)).position : null,
@@ -1256,10 +1305,16 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
     frames, facts, ruleFacts, end: { elapsedSeconds: time, tick: tick(time), reason: endReason, complete },
     finalRunners: runners.map(r => ({ runnerId: r.spec.runnerId, base: r.base, position: runnerAt(r, time), retired: r.retired, scored: r.scored })),
     diagnostics: { kernelBuilds, kernelExtensions, wallKernelBuilds, wallSupports, simultaneousContacts, throwDecisions, throwDirectionCommands, handPreparationProofs, forecastBuilds, collisionQueries, unresolvedDetail, departureProofs,
+      fielderSeparation: { basis: 'CONTINUOUS_ISSUED_BODY_COMMANDS_AND_PROJECTED_MAXIMUM_BRAKING' as const,
+        planCount: avoidancePlanCount, candidateEvaluations: avoidanceCandidateEvaluations,
+        minimumPlannedStepGapMeters: Number.isFinite(minimumPlannedStepGapMeters) ? minimumPlannedStepGapMeters : null,
+        minimumStoppingGapMeters: Number.isFinite(minimumStoppingGapMeters) ? minimumStoppingGapMeters : null,
+        actorCounts: [...fielderAvoidanceCounts].map(([playerId, counts]) => ({ playerId, ...counts })),
+        physicalImpactResolved: false },
       playClosure: { lastRunnerEvaluationSeconds, runnerDecisionPending,
         activeRunnerIds: runners.filter(r => !r.retired && r.leg).map(r => r.spec.runnerId),
         possessedBy: possession?.spec.playerId ?? null, pendingCatchBy: pendingCatch?.fielder.spec.playerId ?? null,
         scheduledReleaseSeconds: releaseAt },
-      aiTelemetry: { roleTransitions, throwTargetCancellations, contactDiagnostics, holderDecisions, runnerDecisions, relayPlans, runnerMotions },
+      aiTelemetry: { roleTransitions, throwTargetCancellations, contactDiagnostics, holderDecisions, runnerDecisions, relayPlans, runnerMotions, fielderAvoidanceTransitions },
       renderFramesOwnPhysics: false, namedLeagueCalibration: false, nativeActuation: false } });
 }

@@ -1,48 +1,46 @@
 # 最新の再開入口 — 2026-10-18
 
-現在は **v50（lv27打者カメラ復元版）**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
+現在は **v51（野手の回避と間隔改善版）**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
 
-- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v50/README.md)
-- [原因・変更・検証・限界](../reports/2026-10-18-v50-v27-batter-camera.md)
-- [開発史](../history/README.md) / [原因別事例H22](../history/INCIDENTS.md)
+- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v51/README.md)
+- [原因・変更・最終検証・限界](../reports/2026-10-18-v51-fielder-avoidance.md)
+- [開発史](../history/README.md) / [原因別事例H23](../history/INCIDENTS.md)
 - [元の全要求・計画・受入条件](2026-10-15-mini-baseball/00-START-HERE.md)
-- [v48打者視点](../reports/2026-10-18-v48-batter-braking.md) / [v47多段中継・旋回](../reports/2026-10-18-v47-relay-rounding.md)
+- [v50の打者カメラ](../reports/2026-10-18-v50-v27-batter-camera.md) / [v49の守備責任・裁定](../reports/2026-10-18-v49-positional-defense.md) / [v47の中継・旋回](../reports/2026-10-18-v47-relay-rounding.md)
 
-## v50の追加変更
+## v51の変更と範囲
 
-打者構図・見逃しをlv27へ戻し、見逃し後の姿勢を固定する。最新の実測スイング・位置を保ち、referenceThroughTick終端+700msから既存の打球追尾へ移る。身体に追従するeyeは維持し、Coreの走り出しを遅らせない。旧版との実12球Core/バットSHA一致、左右700ms境界、6見送りの静止、他4カメラ24時点、1200/390pxを新規検証。これは表示のみの変更であり、新しい250テスト／9回実行の主張ではない。下のv49検証は同一Coreに対する既存証拠として残す。
+目的地を分けるだけでは交差経路を保護できなかったため、全野手の同時刻の位置・速度から身体指令を調整し、その後にグラブを計画する。既存の個人最高速度・加速度・反応と戦術値を守り、保持／捕球・送球の受け手・処理担当を優先して減速／回避する。脅威のない希望指令を保存する。公開11能力／詳細44は維持し、専用能力を増やさない。
 
-最新HTML SHA `acc38cf4566438a2a4faadc1a7ef105c7bfd83e512af5b1a46ac75b76c32ee26`。新helper `b5282910135f4a3abdeb5512a80e65c9311f52e55369bb410600f5b4d900048d`。同じCore107入力・compiled bundleの保存ZIPはv49と共通。
+連続区間の最小距離と終端からの最大制動を確認し、実frameの身体重なりを新しい15番目の診断にした。ほぼ静止した身体の微小制動相が浮動小数点で消える誤検査も修正。初回7FAIL・通常5球目停止と先行REDを保存し、最終PASSと区別した。
 
-## 現在の範囲（v49から継承）
+ローカルHost＋共有Coreの通常試合。v49の位置責任、送球・実捕球・再計画、実触塁・離塁・tag証拠、走者の占有再判断を継承する。Native SQLite認証された全体連続世界の完成とは区別する。
 
-ローカルHost＋共有Coreの通常試合。正式守備位置をカバー・中継・バックアップへ渡し、自由球／保持／送球で仕事を分ける。送球線の支援点を固定し、必要のない選手は自分の定位置を維持する。主処理者は捕球可能時刻優先。反応・移動・腕・積極性などの個人値は継承し、チーム名による結果補正はない。
+v50のlv27打者構図と見逃し固定、実測スイング終端+700ms、既存の打球追尾・身体eye、実測バット、v31以来のUI・間・配球・アニメ・4px/55ms・所持球非表示を保持。MMDへ戻らない。メーカーの旧JSONと20選手の編集・取込も維持する。
 
-走者と守備者の触塁範囲を統一し、force消滅と走塁motor停止を分離した。退場で占有が変われば再判断してから終了する。捕手の非forceタッチ追走が塁へ戻る往復も修正。実通過塁の脱出→重なったグラブのtagは、同tickの因果証拠を限定的に受理する。証拠なしの競争は未確定を維持する。
+## 最新Sourceの検証
 
-v48打者視点・v31以来のUIと間・配球・アニメ・4px/55ms・所持球非表示・OpenBiomechanics実測スイングを保持。MMDへ戻らない。公開11／詳細44の共通メーカーと旧JSONを継承。試合JSON保存には最終走者・守備フレーム・診断と終了条件も含む。
+31ファイル280テスト・全体型検査PASS。正式9位置20局面×3能力段階は15分類の異常0、アウト13/18/20（旧最小アウト数・単調性の条件は変更なし）。通常HTML320球で規定9回終了、130守備プレー・17,820frameで重なり0、最小中心間距離0.500113m。全発行区間・終端制動の最小表面隙間0.0200226m。実試合JSONのSource一致、1200/390px・カメラ・メーカーを新規検証。
 
-## 同一Coreに対するv49の最終検証
-
-29ファイル250テストと全体型検査PASS。正式9位置20局面×3能力段階は14分類の異常0（outs13/18/20）。通常HTML320球、9回表三アウト・ホームリードで規定終了。例外なし／旧結果fallback=false。カメラ1200/390px、12球の同一Source再現、メーカー20選手／公開11／詳細44・旧JSON・最新試合取込を確認。[最終receipt・原FAIL・実行範囲](../reports/2026-10-18-v49-positional-defense.md)を参照。
-
-Core SHA `e0677928d7641513228fb78782a8afcceb5e4890fddbd99ac93c05f271da2e6c`、107入力。v49 HTML SHA `b4903f219e81c0efa77c560b7961afb8eafaa85843be90fc9460a2db9a23428a`。[入力・compiled bundle保存ZIP](../demos/releases/v49/tested-core-inputs.zip)は109エントリの全byte/CRC/SHAを検証した。過去Sourceの9回を新Sourceの証拠にしない。
+HTML SHA `9a2b4761d87b6c908dd51c969d5425a036870caf1f57b474e1113126b409a54e`。Core SHA `01f25940860caff6f9a92a9d8d11d876d87056ed173d8589374226f7c4eccd8f`、108入力。[保存ZIP](../demos/releases/v51/tested-core-inputs.zip)の110エントリは全byte/CRC/SHAを検証。カメラ比較は同一新Coreを入れたv50参照で行い、旧Coreの試合結果を新Sourceの証拠にしない。[receiptと原FAIL](../reports/2026-10-18-v51-fielder-avoidance.md)を参照。
 
 ## 元計画の残件
 
-Native SQLite認証された全体連続世界、返球・再整列・全身／バット反動・落下、公式H/E・残規則、全得能、リード／スライディング、共同走塁・中継最適化、野手間の衝突回避、実選手SI・成績分布、最新100試合以上、実機スマートフォン。今回の10–46という試合は成績校正の証明ではない。足の接触は位置と領域による代理モデル。通常leg開始の離塁factはmotor開始の代理を残し、今回の同tick順序証拠へ使用しない。
+身体は半径0.24mの平面代理で、余裕0.02m／soft0.35m等は暫定制御値。任意の途中時刻からの一律停止保証、有限候補の大域最適性、身体接触後の反発・転倒は未実装。新計画を証明できなければ未確定の停止を残す。初期の重なりを押し出し修復しない。
+
+Native認証された全体連続世界、返球・再整列・全身／バット反動・落下、公式H/E・残規則、全得能、リード／スライディング、共同走塁・中継最適化、実選手SI・成績分布、最新100試合以上、実機スマートフォン。今回の10–46は成績校正の証明ではない。通常leg開始の離塁factはmotor開始の代理を残し、同tick順序証拠へ流用しない。足の完全接地も未実装。
 
 Charter外部承認不足／HOLDと以前のFAIL/UNKNOWNは保持。会話の作業承認と機械的Charter承認は別。元の全目標はIN_PROGRESS。
 
 ## 再生成・検証
 
 ```sh
-node tools/browser-bridge/build-v50.mjs ../../outputs/ばせぼーるlv50_TBD_vs_LAD_lv27打者カメラ復元版.html
-node tools/browser-bridge/check-v27-batter-view.mjs
-node tools/browser-bridge/check-v49-ai.mjs
+node tools/browser-bridge/build-v51-release.mjs
+node tools/browser-bridge/check-v51-ai.mjs
 node node_modules/typescript/bin/tsc --noEmit --pretty false
-node tools/browser-bridge/check-v49-game.mjs ../../outputs/ばせぼーるlv49_TBD_vs_LAD_守備責任と走塁裁定修正版.html outputs/new-v49-game-proof
-node tools/browser-bridge/check-v50-batter-view.mjs ../../outputs/ばせぼーるlv50_TBD_vs_LAD_lv27打者カメラ復元版.html outputs/new-v50-camera-proof
+node tools/browser-bridge/check-v51-game.mjs ../../outputs/ばせぼーるlv51_TBD_vs_LAD_野手の回避と間隔改善版.html outputs/new-v51-game-proof
+node tools/browser-bridge/check-v51-camera.mjs ../../outputs/ばせぼーるlv51_TBD_vs_LAD_野手の回避と間隔改善版.html outputs/new-v51-camera-proof
+node tools/browser-bridge/check-maker-public-abilities.mjs docs/demos/releases/v47/maker.html outputs/new-v51-maker-proof docs/demos/releases/v51/game.html
 ```
 
-検証先は新ディレクトリを使う。v50カメラcheckerはv49の同じCore・バット記録と照合する。Core入力の全SHAも照合する。Playwright/Chromeパスは現Windows環境用。Native非公開DBは通常HTMLへ不要であり公開しない。
+検証先は新ディレクトリを使う。Playwright/Chromeパスは現Windows環境用。配布ZIPはテスト時のraw Sourceを保持する。再buildで改行を変換した場合は新しいSource検証として扱う。Native非公開DBは通常HTMLへ不要であり公開しない。

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V51-SPACING-DIAG-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts",
+    "--reporter=dot",
+    "-t",
+    "overlapping fielder bodies|legal close coordination|declared body radius"
+  ],
+  "observed_at": "2026-10-18T09:22:31.281+00:00",
+  "elapsed_ms": 2389,
+  "git_head": "01834d9e8361b7747083b9fbb7539c93ee662b50",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V51-SPACING-DIAG-RED_66b25b5483b84e4ba777bf4370e78dea.log",
+  "output_sha256": "37bc23f9bc1ad871ec33fe7e3a171dc270bcbfd34abaea6d55117230379e7544",
+  "receipt_id": "MB-20261018-V51-SPACING-DIAG-RED_66b25b5483b84e4ba777bf4370e78dea"
+}
