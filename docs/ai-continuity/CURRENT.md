@@ -1,15 +1,21 @@
 ---
-current_task: "MB-20261018-V44-PUBLICATION"
+current_task: "MB-20261018-V45-RELEASE"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "b3bf598ba33d0e81d2846054b0e96e2b9972d460"
+commit_head: "058110f3eb8fe19170f0601177c439048b7b2f2c"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V44-PUBLICATION_ac91d35080324f61a2cdfb561c38e5bb.json"
-updated_at: "2026-10-18T04:40:29.050451+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V45-RELEASE_b08f36bcb3974bf08cd88fd25f1c8a82.json"
+updated_at: "2026-10-18T05:03:48.998882+00:00"
 
 ---
 
-## Latest human priority — v44 taken gaze + development history PUBLISHED (SCOPED VERIFIED)
+## Latest human priority — v45 single continuous batter view (SCOPED VERIFIED; publication pending)
+
+2026-10-18 human delegates natural batter POV: track ball, anticipate intended contact, no two eyes/camera cuts, finite response to unexpected speed/break/course, abilities when appropriate. Implemented one continuous embodied eye+angular state; fixedf400/cx300/cy110; incoming→plannedaim→battedtracking→runner movement without cameraFor runner switch. 8ms deterministic internal observer/4px55ms existingdisplay; bounded2.5rad/s and20rad/s²; causal60–120ms visual delay fromzoneJudgmentStdMetersONLY provisionaldisplaypolicy. No ocularabilityexists, no reinterpretationofhandmotor/fieldreaction/no identityleaguebuff. Previous samepitcher observedpitch supplies provisional expectation, actualprefix velocityinnovation+courseerror gives finite surprise and recovery. No bat/physics/result change. Heldballhidden; returnready smoothly before nextpitch; HRforward usesactualconfirmation+runnerdirection.
+
+Final observer14c6af13 PASS125ms inclR/Lboundaries,incoming/posthit,purelatepitchbreak,unexpectedfastvsprior,8ms+irregular55ms,high-low-highcap/fresh,seek/rewind,causal/future/heldpayload/no mutation/extremeability. Finalbuildbfcf0c55 PASS282ms. Chrome624903e458c44bb290012e69b34d2642 PASS16.875s1200/390,16actualboundariesR/L,6takes,12actualframes/play/events/matchSHAequalv44,103Coreinputs+f29aeeb7bundle unchanged,othercams/held/realplay/rewind,imagesviewed. NewartifactSHAf075101ca0ff6c5a154183deab68355fc9bfb1767684417f11fad78a6b769996 outputs/ばせぼーるlv45_TBD_vs_LAD_連続打者視点版.html. Reportdocs/reports/2026-10-18-v45-continuous-batter-view.md; H17+timeline+LATESTupdated. Releaseb08f36bc PASSbyte/manifest/links/v44preserved. Prototypeeye12ms/55msjump andcapcacheleak caughtbyread-onlyhelperreview, fixed+regressions; earlygenericinnovationtestFAIL recordeddevelopment-notes (notfakehistoricreceipt). CurrentHEAD058110f, remote matches. Need scopedcommit+normalpush existingbranch/Draft380, remote/rawverify; no mainmerge. OriginalNative/rules/scoring/traits/calibration/new100games/realphone gaps remain, allpriorHOLD/unknown retained. No Core/data/schema/settings/lock/secret/DB/unrelatedv42/localAGENTS edit. Researchsources andprovisionalpolicy inreport; no calibratedhumaneyeorbattingeffectclaim.
+
+## Previous human priority — v44 taken gaze + development history PUBLISHED (SCOPED VERIFIED)
 
 2026-10-18 human scope achieved: taken-pitch batter gaze fixed, history16cases with sources/causes/corrections/unknowns organized, v43+v44 Source/HTML/evidence committed92files and normal-pushed EXISTING branch/Draft380 in b3bf598ba33d0e81d2846054b0e96e2b9972d460. Remotehead/PRheadmatched; raw7files (history3/latest/game43+44/SHA44) byteexact download verified PASSac91d35080324f61a2cdfb561c38e5bb/18.078s. PRtitle/bodyupdated, staysDraft/unmerged. Metadata-only recordingcommit follows; no productchange. Stableentry docs/handoffs/LATEST.md; history docs/history/README.md; report docs/reports/2026-10-18-v44-taken-gaze-and-history.md; publicproof docs/verification/releases/v44/publication.json.
 

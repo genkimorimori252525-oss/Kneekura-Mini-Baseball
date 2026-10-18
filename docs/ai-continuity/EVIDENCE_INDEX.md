@@ -828,3 +828,7 @@ Only record verification that was actually performed.
 | MB-20261018-V44-RELEASE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V44-RELEASE_46128d5c53644c23a1e72046d77b5e9c.json |
 | MB-20261018-V44-STAGING | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V44-STAGING_7e84941cc40241af81431f47bae0601d.json |
 | MB-20261018-V44-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V44-PUBLICATION_ac91d35080324f61a2cdfb561c38e5bb.json |
+| MB-20261018-V45-BUILD | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V45-BUILD_bfcf0c55108740599f900d404c21f7eb.json |
+| MB-20261018-V45-BROWSER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V45-BROWSER_624903e458c44bb290012e69b34d2642.json |
+| MB-20261018-V45-OBSERVER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V45-OBSERVER_14c6af13f6ad4c8ab4f3b5ed37089de4.json |
+| MB-20261018-V45-RELEASE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V45-RELEASE_b08f36bcb3974bf08cd88fd25f1c8a82.json |
