@@ -63,3 +63,8 @@
 役割目標の重複は抑えるが、野手同士の連続した衝突回避・全経路の大域最適性は未実装。非forceの接近時間は現在位置からの推定で、動く走者の最適迎撃解ではない。触塁は走者位置と半径領域による足接触の代理モデルで、足のIKではない。通常の新しい走塁legの離塁factはmotor開始の代理を残す。今回の順序証拠には使用せず、連続通過の実脱出だけを用いる。タッチアップの全appealも未完。
 
 元計画のNative SQLite認証された全体連続世界、返球・再整列・全身／バット反動・落下、公式H/E・残る規則、全得能、リード／スライディング、共同走塁最適化、実選手SI・成績分布、最新100試合以上、実機スマートフォンは未完。今回の高得点試合を現実の成績分布の証明にはしない。原CHARTER_UNAPPROVED／HOLDと過去FAIL／UNKNOWNを保持する。
+
+
+## GitHub保存
+
+実装・HTML・最新設計・履歴はコミット `e4af0301c08bc6b41584f794b1adae566ea33a8b` を既存ブランチへpushし、Draft PR #380の題名・本文を更新した。main未マージ。[リモート確認](../verification/releases/v49/publication.json)ではbranch／PR head一致と7ファイルの公開raw byte一致を確認。実行receiptは[PUBLICATION PASS](../ai-continuity/verification-receipts/MB-20261018-V49-PUBLICATION_8e468d8f14bc4bc6bb4493bd812251f0.json)。続くメタデータ保存コミットはこの確認記録のみで、検証した製品byteは変更しない。

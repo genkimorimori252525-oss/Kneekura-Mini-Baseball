@@ -1,15 +1,15 @@
 ---
-current_task: "MB-20261018-V49-RELEASE"
+current_task: "MB-20261018-V49-PUBLICATION"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "d54aa62aec6ce643f216dbaedfbaba2f36b31e3b"
+commit_head: "e4af0301c08bc6b41584f794b1adae566ea33a8b"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V49-RELEASE_11d7b3843a624102bb7620a47ce315ca.json"
-updated_at: "2026-10-18T08:39:13.961306+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V49-PUBLICATION_8e468d8f14bc4bc6bb4493bd812251f0.json"
+updated_at: "2026-10-18T08:42:40.735253+00:00"
 
 ---
 
-## Latest human priority — v49 positional defense / physical touch / closure (SCOPED VERIFIED; PUBLICATION NEXT)
+## Latest human priority — v49 positional defense / physical touch / closure (SCOPED VERIFIED; PUBLISHED)
 
 User attachment's existing harness was usable but old9 categories missed real issues. Host now supplies formal9position; finite responsibility costs for cover/relay/backup, spare ownhome hold, noheldpickupbackup, fixedactualhop line, separatedsupporttargets. Primary handler still physicalearliestcatch. Runner touch now same.28m disk asdefense, force satisfied atentry/motor finishes continuously; raceETA sameentry. Retire invalidates stale occupancy decision before closure. Nonforce carry/tag comparesactualrunnerposition, removesC homeoscillation/unneededPthrow; actual3/4mpsCtags5.533/5.110s aftersecure3.105. No identity/league buffs or scene patches; public11/detail44 preserved.
 
@@ -17,7 +17,7 @@ Final29files250tests c3f1f499 PASS73.670s, formal9position60scenarios14anomalies
 
 BuildFINAL4f44a193 PASS,107inputs/Coree0677928d7641513228fb78782a8afcceb5e4890fddbd99ac93c05f271da2e6c. HTMLb4903f219e81c0efa77c560b7961afb8eafaa85843be90fc9460a2db9a23428a; v48camera f987a851 unchanged, V47maker78482281 unchanged. NormalHTMLFINAL532a3d18 PASS101.406s/320p/9top3outs/home46-away10/noerror/fallbackfalse; statisticsUNCALIBRATED. ActualexportfieldfinalFrame/finalRunners/diagnostics matchesSource. FinalCAMERA0a95756e PASS27.218s currentSource12/6takes/16boundaries1200+390/noerrornetwork; MAKER4703d4aa PASS11.843s20/public11/detail44/oldJSON/latestgameimport. Packaging233261fa PASS109ZIPentries/allrawbyte+CRC/pins. Release11d7b384 PASS127links/74settledliveplays noactive runner/freeball/pendingdecision. Sources frozen before finaltests/build, no later Source normalization.
 
-docs/demos/releases/v49 storescurrentHTML109entrysnapshot/licenses/SHA; docs/verification/releases/v49 finalQA+initialFAIL/harnessaudit. H21/Timeline/README/LATEST/newreport/amendment updated. Nextstage explicitallowlist→verifyGitblobbytes→commit/push existingbranch/Draft380→remotehead/PR/rawbytesverify; no mainmerge. UserAGENTS/unrelated files preserved. No settings/lock/dependency/secret/DB changes. Originalfullplan IN_PROGRESS: Nativeauthcontinuousworld/returnreform/bodybatrecoil/drop/officialH-E+rules/fulltraits/leadsslides/jointrunneroptimization/globalrelay/fieldfielderavoidance/empiricalSI+statistics/new100games/realphones. OriginalCHARTER_UNAPPROVED/HOLD and allpriorFAIL/UNKNOWN retained.
+docs/demos/releases/v49 storescurrentHTML109entrysnapshot/licenses/SHA; docs/verification/releases/v49 finalQA+initialFAIL/harnessaudit. H21/Timeline/README/LATEST/newreport/amendment updated. Published161files ine4af0301c08bc6b41584f794b1adae566ea33a8b throughnormalpush existingbranch/Draft380, title/bodyupdated/unmerged. Allstagedblobsbyteexact/secretpattern0;119nonlogfileswhitespacePASS, rawlogswhitespacepreserved. Remotehead/PRheadmatch+7rawfilesbyteexact PASS8e468d8f/3.672s. publication.json recordsproof. Metadata-onlyclosurecommit follows; productunchanged. No mainmerge. UserAGENTS/unrelated files preserved. No settings/lock/dependency/secret/DB changes. Originalfullplan IN_PROGRESS: Nativeauthcontinuousworld/returnreform/bodybatrecoil/drop/officialH-E+rules/fulltraits/leadsslides/jointrunneroptimization/globalrelay/fieldfielderavoidance/empiricalSI+statistics/new100games/realphones. OriginalCHARTER_UNAPPROVED/HOLD and allpriorFAIL/UNKNOWN retained.
 
 ## Previous human priority — v48 batter-only braking (SCOPED VERIFIED; PUBLISHED)
 
