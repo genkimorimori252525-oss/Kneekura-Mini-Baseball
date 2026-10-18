@@ -1,14 +1,22 @@
 # 最新の再開入口 — 2026-10-19
 
-現在は **v54（得能と個人采配接続版）**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
+現在は **v55（カメラワーク調整室・打球追尾調整版）**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
 
-- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v54/README.md)
-- [原因・変更・最終検証・限界](../reports/2026-10-19-v54-executable-traits.md)
-- [開発史](../history/README.md) / [原因別事例H26](../history/INCIDENTS.md)
+- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v55/README.md)
+- [原因・変更・最終検証・限界](../reports/2026-10-19-v55-camera-workbench.md)
+- [開発史](../history/README.md) / [原因別事例H27](../history/INCIDENTS.md)
 - [元の全要求・計画・受入条件](2026-10-15-mini-baseball/00-START-HERE.md)
 - [v50の打者カメラ](../reports/2026-10-18-v50-v27-batter-camera.md) / [v49の守備責任・裁定](../reports/2026-10-18-v49-positional-defense.md) / [v47の中継・旋回](../reports/2026-10-18-v47-relay-rounding.md)
 
-## v54の現在地
+## v55の現在地
+
+スイング中は予定打点より0.30m上へ注視目標を置き、下向き目標を0.30radに制限。実打球を観測してから100ms（予定throughが早ければそちら）で保持を解除し100msで追尾へ移る。現在姿勢をresetせず、単眼と従来の角運動制限を維持する。通常HTMLもこのdefaultを使う。
+
+専用調整室は同じCoreの1つの試合をA/Bで描画する。従来設定と改善値、scrub/step/loop/speed、全カメラ、自由な次球、9回の試合、設定JSON／配球再現session、角度グラフ。編集元はcamera-workbench-v55.html/jsとlive-camera-tuning-batter-view.js。v54通常試合とCore113入力を固定したbuilderで生成する。最新検証は[報告](../reports/2026-10-19-v55-camera-workbench.md)、配布と再生成は[v55 README](../demos/releases/v55/README.md)。
+
+以下は各版の経緯・当時のSourceの証拠。原全計画・FAIL/UNKNOWN/Charter HOLDは継続する。
+
+## v54の経緯（実働得能・個人采配は継承）
 
 人間が「通常試合で実働できる得能を接続し、残りをメーカーに未対応と明示」を選択。悪球打ち・送球精度・打撃積極性・走塁積極性・守備積極性・投球配分・スイング方針の7系統を実働Sourceへ接続。監督の明示指示を優先し、個人方針はAUTO時に使う。青・赤・緑・金と中立を表示し、同じSIへの二重適用や反復累積を防ぐ。公開10・詳細44を維持。119項目のうち残112は未対応86／対象外25／仕様確認待ち1として検索・理由を表示する。Native習熟度の認証や不足する独立システムを作ったという意味ではない。
 
@@ -54,7 +62,7 @@ Native認証された全体連続世界、返球・再整列・全身／バッ�
 
 Charter外部承認不足／HOLDと以前のFAIL/UNKNOWNは保持。会話の作業承認と機械的Charter承認は別。元の全目標はIN_PROGRESS。
 
-## 再生成・検証
+## 過去v52の再生成・検証
 
 ```sh
 node tools/browser-bridge/build-v52.mjs ../../outputs/ばせぼーるlv52_TBD_vs_LAD_視点追従調整版.html

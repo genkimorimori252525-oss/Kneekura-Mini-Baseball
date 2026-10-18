@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V55-NORMAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v55-normal.mjs",
+    "../../outputs/ばせぼーるlv55_TBD_vs_LAD_打球追尾調整版.html",
+    "../../outputs/verification-v55-normal"
+  ],
+  "observed_at": "2026-10-18T16:38:40.461+00:00",
+  "elapsed_ms": 21342,
+  "git_head": "d75f45df3b5f015893f9ad9a95edb2abbcfb282e",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V55-NORMAL_54d7c133d87849478863adac7bab7117.log",
+  "output_sha256": "e063565efd98a2f0fd5a1b3d1cb4f5c74507e740544800b34a2237636bb31fd6",
+  "receipt_id": "MB-20261019-V55-NORMAL_54d7c133d87849478863adac7bab7117"
+}

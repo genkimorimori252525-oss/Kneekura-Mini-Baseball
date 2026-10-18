@@ -1,0 +1,16 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+page.evaluate: Error: 未対応の回数です
+    at gameConfig (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/%E3%82%AB%E3%83%A1%E3%83%A9%E3%83%AF%E3%83%BC%E3%82%AF%E8%AA%BF%E6%95%B4%E5%AE%A4_v55.html:197:115)
+    at Object.newGame (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/%E3%82%AB%E3%83%A1%E3%83%A9%E3%83%AF%E3%83%BC%E3%82%AF%E8%AA%BF%E6%95%B4%E5%AE%A4_v55.html:202:47)
+    at eval (eval at evaluate (:311:30), <anonymous>:1:46)
+    at UtilityScript.evaluate (<anonymous>:313:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+    at call (C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\check-camera-workbench-v55.mjs:13:32)
+    at C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\check-camera-workbench-v55.mjs:40:147 {
+  log: []
+}
+
+Node.js v26.1.0

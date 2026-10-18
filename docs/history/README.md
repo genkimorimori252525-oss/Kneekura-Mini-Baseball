@@ -48,3 +48,5 @@ ID / 観測日 / 対象経路・Source・HTML SHA
 [v53の飛球走塁・実帰塁・得能接続の監査](../reports/2026-10-18-v53-airborne-running.md)をH25として追加。得能の定義・作成metadata・実Source実行・未実装ownerを区別する。
 
 [v54の実働得能と個人采配](../reports/2026-10-19-v54-executable-traits.md)をH26として追加。人間が通常試合で実行可能な範囲を選択。作成metadataと単一実Source、監督の明示指示、未実装ownerを区別し、7系統を実働、112項目を理由付き参照表示にした。
+
+[v55のカメラ調整室と早期追尾](../reports/2026-10-19-v55-camera-workbench.md)をH27として追加。単一試合・同tickのA/B、旧制御との厳密比較、設定と配球再現session、途中停止の同期を記録する。カメラ変更とCore／物理変更を区別する。

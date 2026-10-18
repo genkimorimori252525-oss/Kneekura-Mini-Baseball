@@ -1,15 +1,23 @@
 ---
-current_task: "MB-20261019-V54-PUBLICATION"
+current_task: "MB-20261019-V55-RELEASE-FINAL"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "8bb9504d0a4400e7c364fc2919c4cfd9922eaea3"
+commit_head: "d75f45df3b5f015893f9ad9a95edb2abbcfb282e"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V54-PUBLICATION_4c6ecae63636426d986565ed1cd02e51.json"
-updated_at: "2026-10-18T16:24:38.245123+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V55-RELEASE-FINAL_e00a301fa6304b67bbbe8a28e43fbc46.json"
+updated_at: "2026-10-18T16:52:32.278434+00:00"
 
 ---
 
-## Active human priority — v54 executable traits (SCOPED VERIFIED; PUBLISHED)
+## Active human priority — v55 camera workbench (SCOPED VERIFIED; PUBLICATION PENDING)
+
+2026-10-19 human asks earlier post-swing tracking, gaze above planned contact rather than ground, dedicated long-term debug HTML using full usual match. New read-only factory enabled/aimLift.30m/maxDownTarget.30rad/hitObservedHold100ms/aimRelease100ms. Available sensory prefix only, scheduledthrough ifearlier, no future contact. Disabledexactv52, existing SI pursuit/takes/body/field law/2.5radsec+20radsec2 retained. One embedded exact v54-derived match, two independent same-tick A/B observers, new debug HTML/JS with camera/seek/step/loop/speed/next+full9/manager commands/settingsJSON/session seed+per-pitch UI commands/replay/angleplot. Stop/failure settles partial history and views; erroredSource export rejects. Plan/report/H27 saved.
+
+Frozen v54Core4a581b26/113inputs, measured bat, rules/AI/maker/oldhelper unchanged. HTML02644793d8c6e41b66d5330fe37cc0ce8d2fa7756ad6bc139b045fbef38d3b17; labad40f7832a1621b09cd5efa3804d6cbfa6ef2534c73242ec6e6a9e0a41e05016; helperec887972. UNIT7a61ddcc PASS.766s; BUILD-FINAL32cff110/.172s; NORMAL-FINALcadde296/21.827s1200+390/actual12Core+bat equality/LR2earlier samples each/other4cams/held/grid. WORKBENCH4e7ef111 PASS135.657s: bothwidths/Alegacyexact/JSONsessionstrict/13invalid/cancelreplay9partial/expectedCorefailure1success1command+clear+exportreject/noerrors/network. Onlyone9finish81.454s320p9top3outs/away10home46/initial12Core+bat exact. PACKAGE8243322f/1.391s; RECHECK33854d81/.343s; RELEASE-FINALe00a301f/.125s126ZIPentries raw+CRC/23links/native113/sourceexact/embeddednormalexact/v54restoreafternewcamera+editionmetadata removal.
+
+Original RED/FAIL retained: unit ee0a4c9a/fractionaltimer0da3f3cc; browser c7aa013c wrong1inning UI/d58693a0 null normalization/924b4cec wrongearlystartdefault assertion; productcamera unchanged for checkerfixes. release003168df LF-only extraction onCRLF corrected; initialZIP/index preserved, currentZIP Source raw reverified, HTML unchanged. Source before/aftertested no normalization. Default achieves earlier trackingcompletion via180→100ms; wait0 real2recordsearlyrelease; shortthrough may bypassholdknob, diagnostics saved. No empirical calibration or newglobal368/TSC rerun claimed (sameCore oldevidence). Push existingbranch/Draft380+remote/raw verification next. UserAGENTS/unrelated preserved; no settings/lock/deps/secrets/DB. Originalfullplan IN_PROGRESS, all priorFAIL/UNKNOWN/CharterHOLD and Nativecontinuousworld/rules/return/body/fulltraits/leads/slides/jointAI/empiricalSI/statistics/latest100games/realphones remain.
+
+## Previous human priority — v54 executable traits (SCOPED VERIFIED; PUBLISHED)
 
 2026-10-19 human answered pending scope: execute usual-match traits; show remainder unsupported in maker. Prior scope question is resolved. Seven families connected: badball singleSource, derived throwgrade, green plate/running/fielding plus pitch/swing AUTO preferences; explicit manager overrides. Authoring baseline retained, no repeated SI buff; oldJSON unassessed/no-op preserved. Catalog114rows→119families;7executable/86unsupported/25out-of-scope/1review. Public10/internal44; readonly remainder with Japanese reasons/search. Local grade thresholds and preference coefficients UNCALIBRATED. No new health/psychology/development/steal systems. Plan docs/superpowers/plans/2026-10-19-live-traits-v54.md; report docs/reports/2026-10-19-v54-executable-traits.md; H26.
 
