@@ -1,15 +1,27 @@
 ---
-current_task: "MB-20261018-V51-PUBLICATION"
+current_task: "MB-20261018-V52-RELEASE"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "f7b91b99e08044df92094912cc437d2e1036e838"
+commit_head: "f5be0639f0a8ffbecfa08ec403b8025733e34e35"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V51-PUBLICATION_ff72b3e6963347efb5b4fad7b16485e5.json"
-updated_at: "2026-10-18T09:47:19.030681+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V52-RELEASE_a7ee82b352984fc7be47212b8d5c6694.json"
+updated_at: "2026-10-18T10:01:10.693539+00:00"
 
 ---
 
-## Latest human priority — v51 teammate avoidance / spacing (SCOPED VERIFIED; PUBLISHED)
+## Latest human priority — v52 v49 batter restore / bounded pursuit / pitcher reaction (SCOPED VERIFIED; PUBLICATION NEXT)
+
+User revokes v50 lv27 composition/takefreeze/700ms swingend hold; restored v49 observer baseline. Incoming pitch-only gaze gets radial softband .006-.026rad and gain .55-.92 from EXISTING meet(aimStdMeters+timingStdSeconds)+vision(zoneJudgmentStdMeters). No new rating/physics. Highskill notperfectlock, lowskill stillpursues macro motion. live-soft-pitch-batter-view.js derives v49 controller; no v50wrapper. V49bodyeye/aimbrace/fieldlaws inherited; physical bat data/positions already identical in v49/v51. Changed incoming pose can seed changed later orientation, not allposthitpose equality claimed.
+
+Pitcher helper observed contactprefix speed -> .5-1.2sec hold;180ms samePeye yaw/opticsmix; handoff gated until blendcomplete then legacydelay/fieldCommitted/Pself test resumes. Runtime inspect exposes readonly model. Source clocks/actors/custody/physics untouched. Stateless prefix/sceneclock/rewind/miss/HR/bench/nextpitch guarded. New tools are live-soft-pitch-batter-view.js,live-pitcher-reaction-view.js,v52-live-presentation.mjs,build-v52.mjs and focused/browser/package/releasecheckers. Existing helpers unchanged.
+
+Soft oldRED361815f0 -> GREEN3e286501 PASS125ms. Synthetic smalljitter old.002605rad total -> new0; macro high/low bothfollow, eachSI/cache/rewind/prefix/purefieldposeexact tested. Existing continuoussuite with NEWhelper3ea929dc PASS139ms8ms+irregular55ms/prefix/limits/causal/ability. Pitcher15pureclasses8f50e7d9 PASS61ms. BUILD323526a6 PASS280ms HTMLaff78f191ba6f24958403dc51c503e73393b57d495335bc58d32dc2646f9b85b/newhelper0027d0af/pitcherf8610ca6.
+
+Browser20c18bed PASS24.452s1200/390/12actualCore+batSHA equalv49-currentCore reference ANDv51; R/Lv49eye-optics-brace/no700-orlv27/other3cams12samples/5heldcams/UI4stage-pitchmarks-zone-4px55ms/playrewind/noerrors+externalnetwork. Actual profilegain .906607/.603598, bands .006724/.023103rad, bothnonzero macroangle .180190/.052472rad. Actualpitch0 hold .757719sec+180ms blend -> legacyfielderhandoff; nextpitchmoundrestore. Pselfprocessing dedicatednewgamecase NOT covered; retained existing branch/pure proof scope. Firstbrowser2028d047 FAIL was checker requiringpositive response insideband; corrected bandzero/outsidepositive+bothactualresponse without productchanges; rawFAIL retained. Imagesviewed.
+
+PACKAGEa926d09c PASS952ms; RELEASEa7ee82b3 PASS108ms verifiesbytes/pins/oldhelper-artifacts/maker/links. Core108inputs compiled01f25940860caff6f9a92a9d8d11d876d87056ed173d8589374226f7c4eccd8f EXACTv51; no src/dist/deps/lock/config/secrets/DB changes. V51280tests+320pitch9regulation remain sameCore existingevidence, not newlyrerun. Release docs/demos/releases/v52,QA docs/verification/releases/v52/report/H24/LATEST ready. NEXTexplicitallowliststage/blobbyte/secret/CRLFawarewhitespace checks, samebranch/Draft380 commitpush+rawpublication. No mainmerge, preserve userAGENTS/unrelated. Originalfullplan IN_PROGRESS, residuals and CHARTER_UNAPPROVED/HOLD/allFAIL UNKNOWN preserved. Coefficients authoreddisplay policy not neural/realplayer calibration.
+
+## Previous human priority — v51 teammate avoidance / spacing (SCOPED VERIFIED; PUBLISHED)
 
 Latest user scope is integrated into normalHTML. Allbody same-time p/v proposals -> bounded acceleration coordination -> gloves. Roles keep position responsibilities, holder/receiver/handler priority, SI speed/acceleration/response and existing tactical controls. No new public abilities (public11/detail44), no position push/instant speed reset. No-hazard preferred exactly retained. Continuous issued interval + endpoint max-brake reserve; sampled15th anomaly FIELDER_BODY_OVERLAP and issued-action telemetry added. Legal close handoffs not classified as tactical errors.
 

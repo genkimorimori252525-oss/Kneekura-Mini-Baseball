@@ -1,14 +1,22 @@
 # 最新の再開入口 — 2026-10-18
 
-現在は **v51（野手の回避と間隔改善版）**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
+現在は **v52（視点追従調整版）**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
 
-- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v51/README.md)
-- [原因・変更・最終検証・限界](../reports/2026-10-18-v51-fielder-avoidance.md)
-- [開発史](../history/README.md) / [原因別事例H23](../history/INCIDENTS.md)
+- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v52/README.md)
+- [原因・変更・最終検証・限界](../reports/2026-10-18-v52-camera-pursuit.md)
+- [開発史](../history/README.md) / [原因別事例H24](../history/INCIDENTS.md)
 - [元の全要求・計画・受入条件](2026-10-15-mini-baseball/00-START-HERE.md)
 - [v50の打者カメラ](../reports/2026-10-18-v50-v27-batter-camera.md) / [v49の守備責任・裁定](../reports/2026-10-18-v49-positional-defense.md) / [v47の中継・旋回](../reports/2026-10-18-v47-relay-rounding.md)
 
-## v51の変更と範囲
+## v52の変更と新規検証
+
+最新指示でv50のlv27構図・見逃し固定・700ms保持を撤回し、打者視点はv49へ戻した。その上でlive投球だけに追従の余裕を設け、既存のミート（位置／時間精度）・選球眼（コース判断精度）で有限gainと不感帯を変える。高能力も完全密着せず、低能力も広い動きを追う。投手は打撃後0.5〜1.2秒待ち、180msで同じP眼の向き・画角を接続。その完了まで守備視点の早期切替を防ぐ。
+
+新helperの左右・小変位／大変位・高低能力・prefix・角運動・次球・待機とblendを検証。新HTMLは1200/390pxの実12球で、v49表示＋同じ新Coreの参照／v51とのCore全記録・バットSHA一致、3他視点・配球・zone・保持球・再生巻戻し・例外／外部通信0を確認。初回browserの帯内応答assert誤りは原FAILとして保持した。主観的な快適さや生体校正の保証とは区別する。
+
+v52 HTML SHA `aff78f191ba6f24958403dc51c503e73393b57d495335bc58d32dc2646f9b85b`。[新規検証と変更ファイル](../reports/2026-10-18-v52-camera-pursuit.md)。Core108入力はv51と同一で、下の280テスト・9回証拠は既存の同一Coreの証拠であり、新規rerunではない。
+
+## v51から継承するCoreの範囲
 
 目的地を分けるだけでは交差経路を保護できなかったため、全野手の同時刻の位置・速度から身体指令を調整し、その後にグラブを計画する。既存の個人最高速度・加速度・反応と戦術値を守り、保持／捕球・送球の受け手・処理担当を優先して減速／回避する。脅威のない希望指令を保存する。公開11能力／詳細44は維持し、専用能力を増やさない。
 
@@ -16,13 +24,13 @@
 
 ローカルHost＋共有Coreの通常試合。v49の位置責任、送球・実捕球・再計画、実触塁・離塁・tag証拠、走者の占有再判断を継承する。Native SQLite認証された全体連続世界の完成とは区別する。
 
-v50のlv27打者構図と見逃し固定、実測スイング終端+700ms、既存の打球追尾・身体eye、実測バット、v31以来のUI・間・配球・アニメ・4px/55ms・所持球非表示を保持。MMDへ戻らない。メーカーの旧JSONと20選手の編集・取込も維持する。
+打者のv49身体eye・予定打点と既存の打球追尾、実測バット、v31以来のUI・間・配球・アニメ・4px/55ms・所持球非表示を保持。MMDへ戻らない。メーカーの旧JSONと20選手の編集・取込も維持する。
 
-## 最新Sourceの検証
+## 継承したv51 Coreの検証
 
 31ファイル280テスト・全体型検査PASS。正式9位置20局面×3能力段階は15分類の異常0、アウト13/18/20（旧最小アウト数・単調性の条件は変更なし）。通常HTML320球で規定9回終了、130守備プレー・17,820frameで重なり0、最小中心間距離0.500113m。全発行区間・終端制動の最小表面隙間0.0200226m。実試合JSONのSource一致、1200/390px・カメラ・メーカーを新規検証。
 
-HTML SHA `9a2b4761d87b6c908dd51c969d5425a036870caf1f57b474e1113126b409a54e`。Core SHA `01f25940860caff6f9a92a9d8d11d876d87056ed173d8589374226f7c4eccd8f`、108入力。[保存ZIP](../demos/releases/v51/tested-core-inputs.zip)の110エントリは全byte/CRC/SHAを検証。カメラ比較は同一新Coreを入れたv50参照で行い、旧Coreの試合結果を新Sourceの証拠にしない。[receiptと原FAIL](../reports/2026-10-18-v51-fielder-avoidance.md)を参照。
+v51 HTML SHA `9a2b4761d87b6c908dd51c969d5425a036870caf1f57b474e1113126b409a54e`。Core SHA `01f25940860caff6f9a92a9d8d11d876d87056ed173d8589374226f7c4eccd8f`、108入力。[保存ZIP](../demos/releases/v51/tested-core-inputs.zip)の110エントリは全byte/CRC/SHAを検証。カメラ比較は同一新Coreを入れたv50参照で行い、旧Coreの試合結果を新Sourceの証拠にしない。[receiptと原FAIL](../reports/2026-10-18-v51-fielder-avoidance.md)を参照。
 
 ## 元計画の残件
 
@@ -35,12 +43,11 @@ Charter外部承認不足／HOLDと以前のFAIL/UNKNOWNは保持。会話の作
 ## 再生成・検証
 
 ```sh
-node tools/browser-bridge/build-v51-release.mjs
-node tools/browser-bridge/check-v51-ai.mjs
-node node_modules/typescript/bin/tsc --noEmit --pretty false
-node tools/browser-bridge/check-v51-game.mjs ../../outputs/ばせぼーるlv51_TBD_vs_LAD_野手の回避と間隔改善版.html outputs/new-v51-game-proof
-node tools/browser-bridge/check-v51-camera.mjs ../../outputs/ばせぼーるlv51_TBD_vs_LAD_野手の回避と間隔改善版.html outputs/new-v51-camera-proof
-node tools/browser-bridge/check-maker-public-abilities.mjs docs/demos/releases/v47/maker.html outputs/new-v51-maker-proof docs/demos/releases/v51/game.html
+node tools/browser-bridge/build-v52.mjs ../../outputs/ばせぼーるlv52_TBD_vs_LAD_視点追従調整版.html
+node tools/browser-bridge/check-soft-pitch-batter-view.mjs
+node tools/browser-bridge/check-continuous-batter-view.mjs tools/browser-bridge/live-soft-pitch-batter-view.js
+node tools/browser-bridge/check-pitcher-reaction-view.mjs
+node tools/browser-bridge/check-v52-camera.mjs ../../outputs/ばせぼーるlv52_TBD_vs_LAD_視点追従調整版.html outputs/new-v52-camera-proof
 ```
 
-検証先は新ディレクトリを使う。Playwright/Chromeパスは現Windows環境用。配布ZIPはテスト時のraw Sourceを保持する。再buildで改行を変換した場合は新しいSource検証として扱う。Native非公開DBは通常HTMLへ不要であり公開しない。
+検証先は新ディレクトリを使う。Coreを変更した場合はv51と同じという前提を破棄し、Core関連試験と新規9回を実行する。Playwright/Chromeパスは現Windows環境用。Native非公開DBは通常HTMLへ不要であり公開しない。

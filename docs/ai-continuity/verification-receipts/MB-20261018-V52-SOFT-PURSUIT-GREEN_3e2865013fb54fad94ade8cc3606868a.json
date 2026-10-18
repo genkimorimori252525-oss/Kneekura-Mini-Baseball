@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V52-SOFT-PURSUIT-GREEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-soft-pitch-batter-view.mjs"
+  ],
+  "observed_at": "2026-10-18T09:53:29.538+00:00",
+  "elapsed_ms": 125,
+  "git_head": "f5be0639f0a8ffbecfa08ec403b8025733e34e35",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V52-SOFT-PURSUIT-GREEN_3e2865013fb54fad94ade8cc3606868a.log",
+  "output_sha256": "b34cce83e8495b145c1ac53dc698a9acbf8290fa06e7f59db26b806046ca6f13",
+  "receipt_id": "MB-20261018-V52-SOFT-PURSUIT-GREEN_3e2865013fb54fad94ade8cc3606868a"
+}
