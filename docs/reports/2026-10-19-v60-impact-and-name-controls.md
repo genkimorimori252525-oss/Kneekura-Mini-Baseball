@@ -41,4 +41,8 @@ Core113入力・球物理・スピン・実測バット・能力・AI・裁定�
 - `build-v60.mjs` / `package-v60.py`: 固定入力からのHTML生成と配布照合。
 - 4検査ファイル: `check-camera-impact-gaze-v60.mjs`、`check-name-presentation-v60.mjs`、`check-v60-presentation.mjs`、`check-v60-runner-labels.mjs`。
 
-公開結果は保存後に追記する。実機の快適さと生体校正は別であり、原全計画・未達・原FAIL/UNKNOWN/CharterHOLDは保持する。
+公開結果は以下へ記録する。実機の快適さと生体校正は別であり、原全計画・未達・原FAIL/UNKNOWN/CharterHOLDは保持する。
+
+## GitHub保存
+
+製品コミット `7d7602bf417d8e51edbfd90ddc37c31d32b6b8b4` を既存ブランチとDraft PR380へ保存。STAGING0bfeb1b1 PASS.906秒で76ファイルの実stage byte・credential pattern0・非log whitespaceを確認。PUBLICATIONcf41198f PASS4.016秒でremote/PR head・Draft OPEN・12件の公開raw byte一致を確認した。[公開記録](../verification/releases/v60/publication.json)。後続の記録のみのコミットは製品byteを変更しない。main未マージ。

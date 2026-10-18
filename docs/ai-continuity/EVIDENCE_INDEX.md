@@ -1050,3 +1050,4 @@ Only record verification that was actually performed.
 | MB-20261019-V60-RUNNER-LABELS | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V60-RUNNER-LABELS_549007ec3ec64d8897aec089d0276f9a.json |
 | MB-20261019-V60-PACKAGE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V60-PACKAGE_67a31248e2db465688af566eba594aed.json |
 | MB-20261019-V60-STAGING | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V60-STAGING_0bfeb1b1d4ff40709bb912440c72ca21.json |
+| MB-20261019-V60-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V60-PUBLICATION_cf41198f7fff4da08733d45b1410cfa0.json |
