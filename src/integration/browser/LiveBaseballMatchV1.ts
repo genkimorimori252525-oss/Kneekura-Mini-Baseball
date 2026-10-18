@@ -7,6 +7,7 @@ import type { AeroGroundBallPhysicsV1 } from '../../core/sim/ball/VersionedBatte
 import type { BallWorldMoment } from '../../core/sim/ball/BallWorldContinuation';
 import { IDENTITY_QUATERNION, type Quaternion } from '../../core/sim/pitching/BaseballOrientation';
 import { simulateLiveFieldPlayV1, deriveLiveFieldFenceGeometryV1, type LiveFielderV1 } from '../../core/sim/fielding/LiveFieldPlayV1';
+import type { LiveDefensiveOpportunityV1 } from '../../core/sim/fielding/LiveDefensiveOpportunityV1';
 import { reducePlayableMatchV1, type PlayableMatchRuleResultV1 } from './PlayableMatchRulesV1';
 import { simulateLivePitchV1, type LiveMeasuredClipV1 } from './LivePitchV1';
 import type { LivePhysicalAbilityControlsV1 } from './LivePhysicalRosterV1';
@@ -41,7 +42,8 @@ export type LiveMatchFrameV1 = Readonly<{tick:number;ball:Readonly<{position:Vec
   bat:Readonly<{grip:Vec3;tip:Vec3;radiusProfile?:unknown}>|null;
   actors:readonly Readonly<{playerId:string;role:LivePositionV1|'batter'|'runner';team:number;position:Vec3;velocity:Vec3;retired?:boolean}>[];
   batterPlayerId:string;pitcherPlayerId:string;phase:'ready'|'pitch'|'batted'|'throw'|'held'|'bench';
-  ballKind:'pitch'|'batted'|'throw';fairKnown:boolean;possessedBy:string|null;fieldObserverPlayerId?:string;homeRunConfirmed?:boolean}>;
+  ballKind:'pitch'|'batted'|'throw';fairKnown:boolean;possessedBy:string|null;fieldObserverPlayerId?:string;homeRunConfirmed?:boolean;
+  defensiveOpportunity?:LiveDefensiveOpportunityV1|null}>;
 export type LiveLineScoreV1 = Readonly<{inning:number;away:number|null;home:number|null}>;
 export type LiveIssuedPitchV1 = Readonly<{
   beforeMatch:CanonicalMatchState;match:CanonicalMatchState;frames:readonly LiveMatchFrameV1[];events:readonly unknown[];
@@ -59,6 +61,8 @@ export const LIVE_MATCH_BASES_V1=Object.freeze({home:Object.freeze(zero()),first
   second:Object.freeze({x:0,y:0,z:baseSide*2}),third:Object.freeze({x:-baseSide,y:0,z:baseSide})});
 const placements:Readonly<Record<LivePositionV1,Vec3>>={P:{x:0,y:.9,z:18.44},C:{x:0,y:.85,z:-1.5},'1B':{x:23,y:.9,z:25},
   '2B':{x:13,y:.9,z:36},'3B':{x:-23,y:.9,z:25},SS:{x:-13,y:.9,z:36},LF:{x:-46,y:.9,z:76},CF:{x:0,y:.9,z:91},RF:{x:46,y:.9,z:76}};
+/** Rubber top; actor/collider anchors remain independent of mound elevation. */
+export const LIVE_MATCH_MOUND_SURFACE_V1=Object.freeze({x:placements.P.x,y:.254,z:placements.P.z});
 export const LIVE_MATCH_PHYSICS_V1:AeroGroundBallPhysicsV1=Object.freeze({kind:'aero_ground_v1',
   air:Object.freeze({ticksPerSecond:1_000_000,integrationStepTicks:5000,gravityY:-9.80665,aerodynamics:REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS}),
   ground:Object.freeze({ticksPerSecond:1_000_000,gravityMps2:9.80665,radiusM:.0366,inertiaRatio:.378,restingVerticalSpeedMps:.28,
@@ -77,6 +81,8 @@ function physical(player:LivePlayerV1):LivePlayerPhysicalV1{
     'invalid zone judgment SI');
   assert(p.plateVision===undefined||Number.isFinite(p.plateVision)&&p.plateVision>=1&&p.plateVision<=100,
     'invalid absolute plate vision');
+  for(const [key,lo,hi] of [['pitchReleaseHeightMeters',.2,3.2],['pitchReleaseSideMeters',0,1.5],['pitchReleaseExtensionMeters',0,3.5]] as const)
+    assert(p[key]===undefined||Number.isFinite(p[key])&&p[key]!>=lo&&p[key]!<=hi,'invalid pitch release SI: '+key);
   assert(p.baserunningSafetyMarginSeconds===undefined||Number.isFinite(p.baserunningSafetyMarginSeconds)&&p.baserunningSafetyMarginSeconds>=0&&p.baserunningSafetyMarginSeconds<=3,
     'invalid baserunning safety margin');
   assert(p.fieldingPursuitCostWeight===undefined||Number.isFinite(p.fieldingPursuitCostWeight)&&p.fieldingPursuitCostWeight>=.25&&p.fieldingPursuitCostWeight<=4,
@@ -126,7 +132,7 @@ export function createLiveBaseballMatchV1(raw:LiveMatchInputV1){
   };
   const inspect=()=>frozen({version:33,authority:'LOCAL_BROWSER_CORE_HOST_V1' as const,nativeAuthentication:false,
     playerCalibration:'EXPLICIT_AUTHORED_SI_NOT_NAMED_LEAGUE_MEASUREMENTS' as const,match:cloneInert(match),frame:readyFrame(),...current(),pitchCount,finished,
-    battingOrderIndices:[...battingOrderIndices],line:cloneInert(line),fenceGeometry,hits:null,errors:null,history:[...history]});
+    battingOrderIndices:[...battingOrderIndices],line:cloneInert(line),fenceGeometry,moundSurfacePosition:LIVE_MATCH_MOUND_SURFACE_V1,hits:null,errors:null,history:[...history]});
   function issuePitch(command:LivePitchCommandV1):LiveIssuedPitchV1{
     assert(!finished,'game already finished');
     assert(command&&['auto','balanced','contact','power','take','bunt'].includes(command.batting)&&[0,1].includes(command.managedTeam),'invalid manager command');
@@ -147,7 +153,7 @@ export function createLiveBaseballMatchV1(raw:LiveMatchInputV1){
       runningMarginAdjustment=runningInstruction==='aggressive'?-.25:runningInstruction==='conservative'?.25:0,
       runningMargin=(p:LivePlayerPhysicalV1)=>Math.max(0,Math.min(3,(p.baserunningSafetyMarginSeconds??.35)+runningMarginAdjustment));
     const pitch=simulateLivePitchV1({originTick:nextTick,seed:(input.seed+Math.imul(pitchCount+1,0x9e3779b9))>>>0,
-      batter:{...bp,heightMeters:batter.heightMeters,bats:batter.bats},pitcher:{...pp,...(pitcher.throws===undefined?{}:{throws:pitcher.throws}),
+      batter:{...bp,heightMeters:batter.heightMeters,bats:batter.bats},pitcher:{...pp,heightMeters:pitcher.heightMeters,moundPosition:LIVE_MATCH_MOUND_SURFACE_V1,...(pitcher.throws===undefined?{}:{throws:pitcher.throws}),
         pitchApproach:pitcherPreference.pitchApproach},measuredClips:input.measuredClips,
       catcher:{gloveSpeedMps:cp.gloveSpeedMps,gloveReachMeters:cp.gloveReachMeters,gloveRadiusMeters:cp.gloveRadiusMeters,
         retentionCapacityJ:cp.retentionCapacityJ,captureDissipationPowerW:cp.captureDissipationPowerW,pocketRadiusMeters:.14},
@@ -192,7 +198,8 @@ export function createLiveBaseballMatchV1(raw:LiveMatchInputV1){
               velocity:dt>0?{x:dx/(length||1)*3.2,y:0,z:dz/(length||1)*3.2}:r.velocity,retired:r.retired};})],
           phase:f.ball.possessedBy?'held':lastThrow>=(latestCatch?.tick??Infinity)?'throw':'batted',
           ballKind:lastThrow>=(latestCatch?.tick??Infinity)?'throw':'batted',fairKnown:events.some(e=>e.kind==='territory_determined'&&e.reason==='fair'),possessedBy:f.ball.possessedBy,
-          fieldObserverPlayerId:observer,homeRunConfirmed:!!field.ruleFacts.overFence?.fair&&field.ruleFacts.overFence.untouchedGround&&f.tick>=field.ruleFacts.overFence.tick});
+          fieldObserverPlayerId:observer,defensiveOpportunity:f.defensiveOpportunity,
+          homeRunConfirmed:!!field.ruleFacts.overFence?.fair&&field.ruleFacts.overFence.untouchedGround&&f.tick>=field.ruleFacts.overFence.tick});
       }
     }else{
       assert(pitch.call!==null,'pitch ended without physical contact or secured count call');

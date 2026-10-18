@@ -1,12 +1,18 @@
 # 最新の再開入口 — 2026-10-19
 
-現在は **調整室v61／通常試合v61／メーカーv61**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
+現在は **調整室v62／通常試合v62／メーカーv62**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
 
-- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v61/README.md)
-- [原因・変更・最終検証・限界](../reports/2026-10-19-v61-take-sync-absolute-vision.md)
-- [開発史](../history/README.md) / [原因別事例H34](../history/INCIDENTS.md)
+- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v62/README.md)
+- [原因・変更・最終検証・限界](../reports/2026-10-19-v62-pitcher-view-release.md)
+- [開発史](../history/README.md) / [原因別事例H35](../history/INCIDENTS.md)
 - [元の全要求・計画・受入条件](2026-10-15-mini-baseball/00-START-HERE.md)
 - [v50の打者カメラ](../reports/2026-10-18-v50-v27-batter-camera.md) / [v49の守備責任・裁定](../reports/2026-10-18-v49-positional-defense.md) / [v47の中継・旋回](../reports/2026-10-18-v47-relay-rounding.md)
+
+## v62の現在地
+
+投手の足位置・マウンド標高・身長から目を置き、既存投球時計へ同期する頭部仮モデル（OFF／倍率調整可能）を追加。本人から見た右−x／左+xへ実リリースを修正し、個別の高さ／左右幅／伸びを通常試合とメーカー47詳細項目へ接続。全9人の到達不能を観測から予測できる深い打球だけ追走を制動し投手視点を維持。Native114／Maker80入力、関連96件／TSC／PC390px／左右実投球／通常HTML320球9回／配布照合を検証した。[実装・証拠・限界](../reports/2026-10-19-v62-pitcher-view-release.md)。旧調整JSONは読めるが、旧Core sessionは世界差があるため同一試合として読まない。
+
+**最新人間質問**：v59の見逃し以外の打者視点を好み、見逃し同期後にスイングも違う理由を監査。v61の絶対選球眼強化が共通のincoming gazeへ作用し、その姿勢をスイングへ継承する。grade45かつSI=.025の不変を全選手へ一般化してはいけない。v62投手機能とは独立した[同一記録監査](../reports/2026-10-19-v59-swing-gaze-drift-audit.md)で実個人最大約.80°の差を確認した。未依頼の全面復元・絶対能力仕様の撤回はしていない。
 
 ## v61の現在地
 

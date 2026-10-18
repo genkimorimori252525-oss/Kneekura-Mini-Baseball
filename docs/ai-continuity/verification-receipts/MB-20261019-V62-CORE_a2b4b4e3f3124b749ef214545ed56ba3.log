@@ -1,0 +1,45 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/LiveFieldPlayV1.test.ts (20 tests) 12112ms
+   ✓ runs the complete actual base path after a fair over-fence flight instead of teleporting runners 961ms
+   ✓ derives two retirements from a received first-base force followed by the same defender carrying the ball to a runner tag 788ms
+   ✓ preserves two force retirements when the second-base runner deadline favors the second-to-first throw chain 835ms
+   ✓ continues a true wall rebound through its signed-gap certificate and retrieves the ball 1310ms
+   ✓ publishes fair territory only at its actual determination boundary 492ms
+   ✓ catches an ordinary high center-field fly using a causal aero-ground forecast 1510ms
+   ✓ fields a straight infield grounder and makes a real throw to first before the batter arrives 303ms
+   ✓ keeps bodies, independent gloves and a possessed ball inside the physical fence through pickup and release 2402ms
+   ✓ finishes the pinned fast grounder after causal interception without an invented result 651ms
+   ✓ extends a finite free-ball cache from its original root without changing any sampled physics 996ms
+   ✓ keeps a deep retrieved ball when every force throw would arrive after the runner 596ms
+   ✓ rejects unready force receivers without fictional throws while the batter takes a safe extra base and declines an unsafe third 345ms
+ ✓ src/integration/browser/LivePhysicalRosterV1.test.ts (27 tests) 931ms
+ ✓ src/integration/browser/LivePitchAbilitiesV1.test.ts (11 tests) 1330ms
+ ✓ src/core/sim/fielding/LiveDefensiveOpportunityV1.test.ts (7 tests) 1530ms
+   ✓ confirms from distinct observations, brakes all nine bodies continuously, and rules only at the actual fence crossing 1032ms
+   ✓ keeps sensor prediction and defense independent of frame cadence, future scope, and generic IQ preference 494ms
+ ✓ src/integration/browser/LivePitchV1.test.ts (11 tests) 818ms
+ ✓ src/core/sim/fielding/LiveFieldRoleMotionV1.test.ts (5 tests) 3115ms
+   ✓ executes unique receiver coverage through a real throw while spare outfielders retain deep coverage 393ms
+   ✓ keeps zero-error actual physics exact and launches a reproducible physical miss for nonzero angular error 2344ms
+ ✓ src/integration/browser/LivePitchReleaseV62.test.ts (5 tests) 279ms
+ ✓ src/integration/browser/LiveBaseballMatchV1.test.ts (5 tests) 70647ms
+   ✓ does not pre-generate an initial pitch, and freezes observations independently of later issues 566ms
+   ✓ copies each current analytic runner velocity into its Host actor frame 583ms
+   ✓ plays a mixed physical game through regulation without a replay frontier or old engine result 66450ms
+   ✓ does not derive SI or alter results from presentation names or league labels 2635ms
+   ✓ rejects malformed physical rosters and mutating a frozen result 413ms
+ ✓ src/core/sim/fielding/LiveFieldAvoidanceV51.test.ts (3 tests) 1589ms
+   ✓ keeps fielders separated with continuous acceleration-limited movement: low-slow_roller_3B 729ms
+   ✓ keeps fielders separated with continuous acceleration-limited movement: default-1B_routine 308ms
+   ✓ keeps fielders separated with continuous acceleration-limited movement: default-fast_grounder_CF_wall 551ms
+ ✓ src/core/sim/fielding/LiveFieldHandlerMotionV1.test.ts (2 tests) 2118ms
+   ✓ assigns the easier incoming outfield route when a high fly also permits a long infield chase 1503ms
+   ✓ allows an infielder to go back on a blooper that it can intercept before an outfielder 614ms
+
+ Test Files  10 passed (10)
+      Tests  96 passed (96)
+   Start at  04:41:05
+   Duration  98.78s (transform 671ms, setup 0ms, collect 1.89s, tests 94.47s, environment 2ms, prepare 743ms)
+

@@ -27,6 +27,7 @@ export type LivePitchInputV1=Readonly<{
   batter:LivePhysicalAbilityControlsV1 & Readonly<{heightMeters:number;bats:'R'|'L';batLengthM:number;batMassKg:number;swingRate:number;
     timingStdSeconds:number;aimStdMeters:number;chaseMarginMeters:number;clipId?:string}>;
   pitcher:Readonly<{releaseSpeedMps:number;spinRadPerSecond:Vec3;commandStdMeters:number;maximumPitchSpeedMps?:number;throws?:'R'|'L';
+    heightMeters?:number;moundPosition?:Vec3;pitchReleaseHeightMeters?:number;pitchReleaseSideMeters?:number;pitchReleaseExtensionMeters?:number;
     pitchApproach?:'FASTBALL'|'BALANCED'|'BREAKING'}>;
   catcher?:Readonly<{gloveSpeedMps:number;gloveReachMeters:number;gloveRadiusMeters:number;retentionCapacityJ:number;captureDissipationPowerW:number;pocketRadiusMeters:number}>;
   measuredClips:readonly LiveMeasuredClipV1[];batting:'balanced'|'contact'|'power'|'take'|'bunt';pitchType:string;location:string;
@@ -42,6 +43,28 @@ const norm=(v:Vec3)=>Math.hypot(v.x,v.y,v.z);
 const clamp=(n:number,a:number,b:number)=>Math.max(a,Math.min(b,n));
 const bounded=(n:number,a:number,b:number)=>Number.isFinite(n)&&n>=a&&n<=b;
 function assert(v:unknown,message:string):asserts v {if(!v)throw new Error('live pitch: '+message);}
+/** World axes: home to centre field is +z, first-base side is +x. A pitcher
+ * facing home therefore releases right-handed pitches on world -x. Heights
+ * below are local authoring defaults, not measurements of a named pitcher. */
+export function resolveLivePitchReleaseV1(p:LivePitchInputV1['pitcher']){
+  const bodyHeight=p.heightMeters??1.83,
+    rubber=p.moundPosition??{x:0,y:.254,z:18.44},
+    explicit=p.heightMeters!==undefined||p.moundPosition!==undefined||p.pitchReleaseHeightMeters!==undefined
+      ||p.pitchReleaseSideMeters!==undefined||p.pitchReleaseExtensionMeters!==undefined;
+  assert(p.heightMeters===undefined||bounded(p.heightMeters,1.1,2.5),'invalid pitcher body height');
+  assert(Object.values(rubber).every(Number.isFinite)&&rubber.z>=10&&rubber.z<=25&&rubber.y>=0&&rubber.y<=1,'invalid mound surface anchor');
+  for(const [key,lo,hi] of [['pitchReleaseHeightMeters',.2,3.2],['pitchReleaseSideMeters',0,1.5],['pitchReleaseExtensionMeters',0,3.5]] as const)
+    assert(p[key]===undefined||bounded(p[key]!,lo,hi),'invalid release geometry: '+key);
+  const heightMeters=p.pitchReleaseHeightMeters??bodyHeight*.86,
+    sideMeters=p.pitchReleaseSideMeters??bodyHeight*.25,
+    extensionMeters=p.pitchReleaseExtensionMeters??1.54,
+    position=explicit?{x:rubber.x+(p.throws==='L'?1:-1)*sideMeters,y:rubber.y+heightMeters,z:rubber.z-extensionMeters}
+      :{x:p.throws==='L'?-.18:.18,y:1.83,z:16.9};
+  return {position,rubberSurfacePosition:rubber,heightAboveRubberMeters:explicit?heightMeters:null,
+    sideMagnitudeMeters:explicit?sideMeters:null,extensionTowardHomeMeters:explicit?extensionMeters:null,
+    basis:explicit?'LOCAL_BODY_RATIO_WITH_OPTIONAL_AUTHORED_RELEASE_SI' as const:'LEGACY_DIRECT_PITCH_COMPATIBILITY' as const,
+    measuredNamedPlayer:false as const};
+}
 const zero=():Vec3=>({x:0,y:0,z:0});
 const dot=(a:Vec3,b:Vec3)=>a.x*b.x+a.y*b.y+a.z*b.z;
 const cross=(a:Vec3,b:Vec3):Vec3=>({x:a.y*b.z-a.z*b.y,y:a.z*b.x-a.x*b.z,z:a.x*b.y-a.y*b.x});
@@ -138,7 +161,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   if(location==='low')target.y=zone.lowerY-.06-r.uniform()*.16;
   if(location==='high')target.y=zone.upperY+.06+r.uniform()*.16;
   const commanded={...target,x:target.x+r.normal()*p.commandStdMeters,y:target.y+r.normal()*p.commandStdMeters};
-  const release={x:p.throws==='L'?-.18:.18,y:1.83,z:16.9},flightGuess=(release.z-commanded.z)/speed;
+  const releaseGeometry=resolveLivePitchReleaseV1(p),release=releaseGeometry.position,flightGuess=(release.z-commanded.z)/speed;
   let vx=(commanded.x-release.x)/flightGuess,vy=(commanded.y-release.y-profile.air.gravityY*flightGuess*flightGuess/2)/flightGuess,
     vz=-Math.sqrt(Math.max(speed*speed-vx*vx-vy*vy,speed*speed*.5)),flightTime=flightGuess;
   let initial={tick:input.originTick,position:release,velocity:{x:vx,y:vy,z:vz},spin};
@@ -295,6 +318,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
       sourceBallReanchored:false as const,sourceClockTicksPerSecond:tps,obpSourceSha256:clip.source.sha256,battingSide:b.bats,
       measuredClipId:clip.id,measuredBatCoordinateRegistration:MEASURED_BAT_FIELD_REGISTRATION_V1,
       swingOffered,sweetSpotT,playbackRate:rate,referenceStartTick:referenceInput.startTick,referenceThroughTick,predictionMadeAtElapsedSeconds:decisionTime,
+      releaseGeometry,
       individualControls:{maximumPitchSpeedMps:p.maximumPitchSpeedMps??null,throwingSide:p.throws??'R',maximumSweetSpotSpeedMps:b.maximumSweetSpotSpeedMps??null,
         targetSweetSpotSpeedMps:b.targetSweetSpotSpeedMps??null,motorLatencySeconds:b.motorLatencySeconds??null,technicalTimingOffsetSeconds:b.technicalTimingOffsetSeconds??null,
         sweetSpotT:b.sweetSpotT??null,attackAngleDegrees:b.attackAngleDegrees??null,pullAngleDegrees:b.pullAngleDegrees??null,badBallControl:b.badBallControl??null,

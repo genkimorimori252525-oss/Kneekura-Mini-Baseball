@@ -13,6 +13,9 @@ export type LivePhysicalAbilityControlsV1 = Readonly<{
   zoneJudgmentStdMeters?: number;
   /** Absolute 1–100 course-reading ability; never a league percentile. */
   plateVision?: number;
+  /** Release geometry in metres, above the rubber surface / handed side /
+   * toward home from the rubber. Omitted values use local body-height ratios. */
+  pitchReleaseHeightMeters?: number; pitchReleaseSideMeters?: number; pitchReleaseExtensionMeters?: number;
   /** Tactical preferences; omitted values retain the controller defaults. */
   baserunningSafetyMarginSeconds?: number; fieldingPursuitCostWeight?: number;
   /** SI limits for continuous base rounding; omitted limits resolve in Host. */
@@ -37,7 +40,8 @@ const scalarKeys = ['batLengthM', 'batMassKg', 'swingRate', 'timingStdSeconds', 
   'retentionCapacityJ', 'captureDissipationPowerW', 'transferSeconds', 'throwSpeedMps', 'maximumPitchSpeedMps',
   'maximumSweetSpotSpeedMps', 'targetSweetSpotSpeedMps', 'motorLatencySeconds', 'technicalTimingOffsetSeconds', 'sweetSpotT',
   'attackAngleDegrees', 'pullAngleDegrees', 'badBallControl', 'defensiveDecisionSeconds', 'preContactSeconds', 'followThroughSeconds', 'contactDepthMeters', 'throwDirectionStdRadians', 'zoneJudgmentStdMeters',
-  'baserunningSafetyMarginSeconds', 'fieldingPursuitCostWeight', 'baserunningTurnRadiusMeters', 'baserunningLateralAccelerationMps2', 'plateVision'] as const;
+  'baserunningSafetyMarginSeconds', 'fieldingPursuitCostWeight', 'baserunningTurnRadiusMeters', 'baserunningLateralAccelerationMps2', 'plateVision',
+  'pitchReleaseHeightMeters', 'pitchReleaseSideMeters', 'pitchReleaseExtensionMeters'] as const;
 const physicalKeys: readonly string[] = ['basis', ...scalarKeys, 'spinRadPerSecond', 'clipId', 'swingDecision'];
 const bounds: Partial<Record<typeof scalarKeys[number], readonly [number, number]>> = {
   batLengthM: [.55, 1.2], batMassKg: [.4, 1.8], swingRate: [.3, 3], timingStdSeconds: [0, .08], aimStdMeters: [0, .35],
@@ -50,6 +54,7 @@ const bounds: Partial<Record<typeof scalarKeys[number], readonly [number, number
   throwDirectionStdRadians: [0, .12],
   zoneJudgmentStdMeters: [0, .6],
   plateVision: [1, 100],
+  pitchReleaseHeightMeters: [.2, 3.2], pitchReleaseSideMeters: [0, 1.5], pitchReleaseExtensionMeters: [0, 3.5],
   baserunningSafetyMarginSeconds: [0, 3], fieldingPursuitCostWeight: [.25, 4],
   baserunningTurnRadiusMeters: [.5, 10], baserunningLateralAccelerationMps2: [.5, 20],
 };

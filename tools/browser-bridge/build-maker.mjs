@@ -5,9 +5,15 @@ import { build } from 'esbuild';
 import vm from 'node:vm';
 
 const args = process.argv.slice(2), executableTraits = args.includes('--executable-traits'), traitProfiles = executableTraits || args.includes('--traits'), publicAbilities = traitProfiles || args.includes('--public-abilities');
-const output = resolve(args.find(arg => !['--public-abilities','--traits','--executable-traits'].includes(arg)) ?? (publicAbilities ? 'outputs/にーくら野球メーカー_公開能力編集版.html' : 'outputs/にーくら野球メーカー_実測スイング版.html'));
-const rosterPath = 'docs/demos/live-game-roster-' + (traitProfiles ? 'v3' : publicAbilities ? 'v2' : 'v1') + '.json';
-const rosterCatalogPath = 'docs/demos/live-game-roster-catalog-' + (executableTraits ? 'v4' : traitProfiles ? 'v3' : publicAbilities ? 'v2' : 'v1') + '.json';
+const inputOverride = name => {
+  const options=args.filter(arg=>arg.startsWith('--'+name+'='));
+  if(options.length>1||options.some(arg=>!arg.slice(name.length+3)))throw Error('Exactly one nonempty --'+name+'=PATH is required when overriding input');
+  return options[0]?.slice(name.length+3);
+};
+const output = resolve(args.find(arg => !['--public-abilities','--traits','--executable-traits'].includes(arg)
+  && !arg.startsWith('--roster=') && !arg.startsWith('--catalog=')) ?? (publicAbilities ? 'outputs/にーくら野球メーカー_公開能力編集版.html' : 'outputs/にーくら野球メーカー_実測スイング版.html'));
+const rosterPath = inputOverride('roster') ?? 'docs/demos/live-game-roster-' + (traitProfiles ? 'v3' : publicAbilities ? 'v2' : 'v1') + '.json';
+const rosterCatalogPath = inputOverride('catalog') ?? 'docs/demos/live-game-roster-catalog-' + (executableTraits ? 'v4' : traitProfiles ? 'v3' : publicAbilities ? 'v2' : 'v1') + '.json';
 const bundlePath = resolve('dist/batting-workbench-core.js');
 await mkdir(dirname(bundlePath), { recursive: true });
 const bundledBuild = await build({ entryPoints: ['src/integration/browser/workbench-index.ts'], outfile: bundlePath, bundle: true,

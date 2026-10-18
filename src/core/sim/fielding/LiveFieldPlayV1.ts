@@ -12,6 +12,8 @@ import { coordinateLiveFielderMotionV1, LIVE_FIELDER_AVOIDANCE_POLICY_V1 } from 
 import { resolveCatchRetention, type CatchRetentionParameters } from './CatchRetention';
 import { createGroundWallRollingCurveV1 } from './GroundWallRollingCurveV1';
 import { createLiveFieldForecastV1 } from './LiveFieldForecastV1';
+import { predictLiveDefensiveOpportunityV1, LIVE_DEFENSIVE_OPPORTUNITY_POLICY_V1,
+  type LiveDefensiveOpportunityV1 } from './LiveDefensiveOpportunityV1';
 import { resolveGroundedActorContactResponseV1 } from './GroundedActorContactResponseV1';
 import { planLiveThrowV1 } from './LiveThrowPlanV1';
 import { createLiveHandPreparationV1 } from './LiveHandPreparationV1';
@@ -60,6 +62,7 @@ export type LiveFieldFactV1 = Readonly<{ kind: 'ground_contact' | 'glove_contact
   /** At-release controller metadata, never inferred from a subsequent catch. */
   receiverPlayerId?: string; target?: Vec3 }>;
 export type LiveFieldFrameV1 = Readonly<{ elapsedSeconds: number; tick: number;
+  defensiveOpportunity: LiveDefensiveOpportunityV1 | null;
   ball: Readonly<{ position: Vec3; velocity: Vec3; spin: Vec3; orientation: Quaternion;
     visible: boolean; possessedBy: string | null; phase: string }>;
   fielders: readonly Readonly<{ playerId: string; position: Vec3; velocity: Vec3; glove: Vec3;
@@ -73,6 +76,7 @@ export type LiveFieldFrameV1 = Readonly<{ elapsedSeconds: number; tick: number;
 export const LIVE_FIELD_TEST_MODEL_V1 = Object.freeze({ basis: 'EXPLICIT_SYNTHETIC_LIVE_FIELD_CONTROL_V1' as const,
   controlSeconds: .04, frameSeconds: .055, bodyRadiusMeters: .24,
   roleAssignment: LIVE_FIELD_ROLE_POLICY_V1,
+  defensiveOpportunity: LIVE_DEFENSIVE_OPPORTUNITY_POLICY_V1,
   fielderAvoidance: LIVE_FIELDER_AVOIDANCE_POLICY_V1,
   catchApproachCostFraction: .3,
   bodyMaterial: Object.freeze({ restitution: .25, tangentialDamping: .3, spinDamping: .1 }),
@@ -269,6 +273,9 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
   let avoidancePlanCount = 0, avoidanceCandidateEvaluations = 0, avoidanceState = '',
     minimumPlannedStepGapMeters = Infinity, minimumStoppingGapMeters = Infinity;
   let runnerDecisionPending = false;
+  let defensiveOpportunity: LiveDefensiveOpportunityV1 | null = null,
+    decisiveCandidate: { tick: number; observationTick: number } | null = null;
+  const defensiveOpportunityTransitions: { tick: number; elapsedSeconds: number; opportunity: LiveDefensiveOpportunityV1 | null }[] = [];
   let lastRunnerEvaluationSeconds: number | null = null;
   let unresolvedDetail: unknown = null;
   const build = (moment: BallWorldMoment) => {
@@ -330,7 +337,7 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
   };
   const sampleFrame = (t: number) => {
     const b = ballAt(t);
-    frames.push({ elapsedSeconds: t, tick: tick(t), ball: { position: b.position, velocity: b.velocity, spin: b.spin,
+    frames.push({ elapsedSeconds: t, tick: tick(t), defensiveOpportunity, ball: { position: b.position, velocity: b.velocity, spin: b.spin,
       orientation: b.orientation, phase: b.phase, visible: !dead && !possession && !pendingCatch, possessedBy: (possession ?? pendingCatch?.fielder)?.spec.playerId ?? null },
       fielders: defenders.map(f => ({ playerId: f.spec.playerId, position: at(f.body, t), velocity: velocityAt(f.body, t), glove: at(f.glove, t), intent: f.intent, targetBase: f.targetBase })),
       runners: runners.map(r => ({ runnerId: r.spec.runnerId, position: runnerAt(r, t), velocity: runnerVelocityAt(r, t),
@@ -415,7 +422,9 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
       predictions.push(hypothesis); forecastBuilds++;
     }
     const age = t - hypothesis.observation.t;
-    return { observedPosition: seen.position, maximumSeconds: policy.horizonSeconds - age,
+    return { observedPosition: seen.position, observationTick: tick(seen.t),
+      maximumPositionSpeedMps: hypothesis.curve.diagnostics.maximumPositionSpeedUpperBoundMps,
+      maximumSeconds: policy.horizonSeconds - age,
       firstPredictedGroundSeconds: (hypothesis.curve.diagnostics.groundContactElapsedSeconds[0] ?? Infinity) - age,
       sample: (h: number) => hypothesis!.curve.sampleAtElapsedSeconds(age + h) };
   };
@@ -531,6 +540,27 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
       }
     }
     const forecasts = defenders.map(f => ({ f, predicted: forecast(f, t) }));
+    if (!dead) {
+      const seen = defenders.map(f => seenBy(f, t)).filter((h): h is typeof history[number] => h !== null)
+        .sort((a, b) => b.t - a.t)[0],
+        prediction = seen && !hasThrown && !possession && !pendingCatch && firstGroundContactSeconds === null && firstFielderTouchSeconds === null
+          ? predictObservation(seen, t, 0) : null,
+        candidate = prediction ? predictLiveDefensiveOpportunityV1({ availableAtTick: tick(t), observationTick: prediction.observationTick,
+          ballRadiusMeters: input.physics.ground.radiusM, home: base(0), fenceCenter, fenceRadiusMeters: fenceRadius,
+          fenceHeightMeters: field.fenceHeightMeters, prediction,
+          fielders: defenders.map(f => ({ position: at(f.body, t), velocity: velocityAt(f.body, t),
+            topSpeedMps: f.spec.topSpeedMps, accelerationMps2: f.spec.accelerationMps2,
+            gloveReachMeters: f.spec.gloveReachMeters, gloveRadiusMeters: f.spec.gloveRadiusMeters,
+            bodyRadiusMeters: LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters })) }) : null;
+      const prior = defensiveOpportunity;
+      if (!candidate) { decisiveCandidate = null; defensiveOpportunity = null; }
+      else {
+        decisiveCandidate ??= { tick: tick(t), observationTick: candidate.observationTick };
+        defensiveOpportunity = tick(t) - decisiveCandidate.tick >= Math.ceil(LIVE_DEFENSIVE_OPPORTUNITY_POLICY_V1.confirmationSeconds * tps)
+          && candidate.observationTick > decisiveCandidate.observationTick ? candidate : null;
+      }
+      if (Boolean(prior) !== Boolean(defensiveOpportunity)) defensiveOpportunityTransitions.push({ tick: tick(t), elapsedSeconds: t, opportunity: defensiveOpportunity });
+    }
     const selection = selectLiveFieldHandlerV1({ candidates: forecasts.flatMap(({ f, predicted }) => {
       if (!predicted) return [];
       const route = flat(sub(predicted.point, at(f.body, t))), incoming = flat(predicted.prediction.sample(Math.min(predicted.eta, predicted.prediction.maximumSeconds)).velocity),
@@ -702,6 +732,12 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
       }
       planned = assignment(); assigned = planned.targets;
     }
+    if (defensiveOpportunity && !possession && !pendingCatch && !hasThrown) {
+      const roles: LiveFieldRoleV1[] = defenders.map(f => ({ playerId: f.spec.playerId, taskId: 'no-defensive-opportunity',
+        point: at(f.body, t), intent: 'hold', targetBase: null }));
+      planned = { roles, targets: new Map(defenders.map(f => [f, { point: at(f.body, t), intent: 'hold' as const, base: null }])) };
+      assigned = planned.targets;
+    }
     previousRoles = planned.roles;
     // Plan all bodies from the same world before moving any glove. Teammate
     // avoidance changes bounded acceleration, never a position or velocity.
@@ -724,7 +760,7 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
           motorPoint = add(target.point, mul(toT, runThrough / distT));
         }
       }
-      const seg = buildDefenderMotionTrajectory({ tick: 0, position: flat(before), velocity: flat(vel) }, active ? flat(targetInside(motorPoint, fenceRadius - bodyRadius - .02)) : null,
+      const seg = buildDefenderMotionTrajectory({ tick: 0, position: flat(before), velocity: flat(vel) }, active && !defensiveOpportunity ? flat(targetInside(motorPoint, fenceRadius - bodyRadius - .02)) : null,
         Math.max(1, Math.round(delta * tps)), { ticksPerSecond: tps, maxIntegrationStepTicks: Math.max(1, Math.round(delta * tps)),
           accelerationMps2: f.spec.accelerationMps2, brakingMps2: f.spec.accelerationMps2, topSpeedMps: f.spec.topSpeedMps, arrivalRadiusMeters: .02 })[0];
       const proposed: Curve = { from: t, p: before, velocity: vel, acceleration: v(seg.acceleration.x, 0, seg.acceleration.z) },
@@ -823,6 +859,7 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
       const tagRunner = f === possession && target.intent === 'tag' ? runners.filter(r => !r.retired && !r.scored && r.leg)
         .sort((a, b) => distance(at(f.body, through), runnerAt(a, through)) - distance(at(f.body, through), runnerAt(b, through)))[0] : null;
       const relative = sub(bodyBoundaryLimited ? at(f.body, through) : tagRunner ? add(runnerAt(tagRunner, through), v(0, .9, 0))
+        : defensiveOpportunity ? at(f.body, through)
         : (f === possession || f === pendingCatch?.fielder) ? add(at(f.body, through), heldOffset)
         : f === handler || f === throwTarget?.receiver ? reachableTarget : at(f.body, through), at(f.body, through));
       const desired = add(at(f.body, through), mul(relative, Math.min(1, f.spec.gloveReachMeters / Math.max(norm(relative), 1e-30)))),
@@ -1423,6 +1460,6 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
         activeRunnerIds: runners.filter(r => !r.retired && r.leg).map(r => r.spec.runnerId),
         possessedBy: possession?.spec.playerId ?? null, pendingCatchBy: pendingCatch?.fielder.spec.playerId ?? null,
         scheduledReleaseSeconds: releaseAt },
-      aiTelemetry: { roleTransitions, throwTargetCancellations, contactDiagnostics, holderDecisions, runnerDecisions, relayPlans, runnerMotions, fielderAvoidanceTransitions },
+      aiTelemetry: { roleTransitions, defensiveOpportunityTransitions, throwTargetCancellations, contactDiagnostics, holderDecisions, runnerDecisions, relayPlans, runnerMotions, fielderAvoidanceTransitions },
       renderFramesOwnPhysics: false, namedLeagueCalibration: false, nativeActuation: false } });
 }

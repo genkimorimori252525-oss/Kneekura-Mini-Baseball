@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V62-GAME",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v62-game.mjs",
+    "../../outputs/ばせぼーるlv62_TBD_vs_LAD_投手視点とリリース版.html",
+    "../../outputs/verification-v62-game"
+  ],
+  "observed_at": "2026-10-18T19:42:44.538+00:00",
+  "elapsed_ms": 99858,
+  "git_head": "6cab540b173526893d7d8f78f701a8087f62d0e8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V62-GAME_cecf06cd28e44f51874f52d6dbc780ee.log",
+  "output_sha256": "69f5637241ec4bdea7f9a8730d3a84ede0227e0258f3c3f86729e450e32bda17",
+  "receipt_id": "MB-20261019-V62-GAME_cecf06cd28e44f51874f52d6dbc780ee"
+}

@@ -210,7 +210,10 @@ it('feeds the imported limits, motor controls and retained throwing identity int
   expect(diagnostics.individualControls.targetSweetSpotSpeedMps).toBe(24);
   expect(diagnostics.zoneJudgment.standardDeviationMeters).toBe(.12);
   expect(Math.hypot(diagnostics.zoneJudgment.errorMeters.x,diagnostics.zoneJudgment.errorMeters.y)).toBeGreaterThan(0);
-  expect(diagnostics.individualControls.throwingSide).toBe('L');expect(diagnostics.sourceDescriptor.initial.ball.position.x).toBe(-.18);
+  expect(diagnostics.individualControls.throwingSide).toBe('L');
+  // Host geometry uses the pitcher's left (+world x), scaled to actual body
+  // height; the legacy ±.18 direct-pitch convention is no longer its Source.
+  expect(diagnostics.sourceDescriptor.initial.ball.position.x).toBe(fixture.players.find(p=>p.playerId===pitcher)!.heightMeters*.25);
   expect(r.speedKmh).toBeLessThanOrEqual(151);expect(r.play.call).not.toBeNull();expect(host.inspect().pitchCount).toBe(1);
 });
 it.each([
