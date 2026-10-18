@@ -1,11 +1,13 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { projectLivePublicAbilitiesV1, editLivePublicAbilityV1, previewLivePublicLeagueV1, type LivePublicAbilityReferenceV1 } from './LivePublicAbilitiesV1';
+import { projectLivePublicAbilitiesV1, editLivePublicAbilityV1, previewLivePublicLeagueV1, materializeLivePlateVisionV1, type LivePublicAbilityReferenceV1 } from './LivePublicAbilitiesV1';
+import { resolveLivePlateVisionV1 } from './LivePhysicalRosterV1';
 import type { LivePhysicalRosterInputV1 } from './LivePhysicalRosterV1';
 
 const load = <T>(name: string): T => JSON.parse(readFileSync(new URL('../../../docs/demos/' + name, import.meta.url), 'utf8')) as T;
-const roster = load<LivePhysicalRosterInputV1>('live-game-roster-v2.json');
 const reference = load<LivePublicAbilityReferenceV1>('live-public-ability-reference-v1.json');
+const legacyRoster = load<LivePhysicalRosterInputV1>('live-game-roster-v2.json');
+const roster = materializeLivePlateVisionV1({ roster: legacyRoster, reference }).roster;
 const playerId = '1-b2';
 const input = { roster, reference, playerId };
 const entry = (data: LivePhysicalRosterInputV1, id = playerId) => data.entries.find(e => e.playerId === id)!;
@@ -13,6 +15,55 @@ const read = (data: LivePhysicalRosterInputV1, path: string, id = playerId) => (
 const value = (data: LivePhysicalRosterInputV1, id: string, who = playerId) => projectLivePublicAbilitiesV1({ roster: data, reference, playerId: who }).abilities.find(a => a.id === id)!.value;
 
 describe('public authoring with individual SI profiles', () => {
+  it('migrates the old individual public values once without changing SI, source IDs or existing absolute grades', () => {
+    const before = JSON.stringify(legacyRoster), migrated = materializeLivePlateVisionV1({ roster: legacyRoster, reference });
+    expect(migrated.migrations).toHaveLength(20);
+    for (const anchor of reference.anchors) {
+      const old = entry(legacyRoster, anchor.playerId), next = entry(migrated.roster, anchor.playerId);
+      expect(next).toEqual({ ...old, physical: { ...old.physical, plateVision: anchor.ratings.vision } });
+    }
+    expect(migrated.roster.sourceId).toBe(legacyRoster.sourceId);
+    expect(materializeLivePlateVisionV1({ roster: migrated.roster, reference })).toMatchObject({ roster: migrated.roster, migrations: [] });
+    expect(JSON.stringify(legacyRoster)).toBe(before);
+    const oldEdited = structuredClone(legacyRoster), selected = entry(oldEdited).physical as Record<string, unknown>;
+    selected.zoneJudgmentStdMeters = .05;
+    const derived = materializeLivePlateVisionV1({ roster: oldEdited, reference }).roster;
+    expect(read(derived, 'plateVision')).toBeCloseTo(96 + 100 * Math.log(.026 / .051));
+    expect(read(derived, 'zoneJudgmentStdMeters')).toBe(.05);
+  });
+  it('keeps absolute vision independent of reference ratings, supplied league and changes to other players', () => {
+    const changedReference = structuredClone(reference) as unknown as { anchors: { leagueId: string; ratings: Record<string, number> }[] };
+    changedReference.anchors.forEach(a => { a.ratings.vision = 1; a.leagueId = 'CUSTOM'; });
+    const other = editLivePublicAbilityV1({ ...input, playerId: '0-b0', abilityId: 'vision', value: 1 }).roster;
+    expect(value(other, 'vision')).toBe(96);
+    expect(projectLivePublicAbilitiesV1({ ...input, reference: changedReference as unknown as LivePublicAbilityReferenceV1 })
+      .abilities.find(a => a.id === 'vision')).toMatchObject({ value: 96, min: 1, max: 100, linkedPaths: ['plateVision', 'zoneJudgmentStdMeters'] });
+    for (const leagueId of ['MLB', 'NLB', 'NPB', 'KBO', 'CUSTOM']) expect(previewLivePublicLeagueV1({ ...input, roster: other, leagueId })
+      .metrics.find(m => m.id === 'vision')).toMatchObject({ value: 96, basis: 'ABSOLUTE_1_TO_100' });
+  });
+  it('uses bounded fixed legacy fallback at 45 and exact explicit values without a league population', () => {
+    expect(resolveLivePlateVisionV1()).toBe(45);
+    expect(resolveLivePlateVisionV1({ zoneJudgmentStdMeters: .025 })).toBe(45);
+    expect(resolveLivePlateVisionV1({ zoneJudgmentStdMeters: 0 })).toBe(100);
+    expect(resolveLivePlateVisionV1({ zoneJudgmentStdMeters: .6 })).toBe(1);
+    expect(resolveLivePlateVisionV1({ plateVision: 73, zoneJudgmentStdMeters: .6 })).toBe(73);
+    for (const plateVision of [0, 100.001, NaN, Infinity]) expect(() => resolveLivePlateVisionV1({ plateVision })).toThrow();
+  });
+  it('edits vision at both absolute endpoints and leaves zero-error legacy SI only on an exact no-op', () => {
+    for (const target of [1, 100]) {
+      const changed = editLivePublicAbilityV1({ ...input, abilityId: 'vision', value: target });
+      expect(value(changed.roster, 'vision')).toBe(target);
+      expect(read(changed.roster, 'zoneJudgmentStdMeters')).toBeGreaterThan(0);
+      expect(editLivePublicAbilityV1({ ...input, roster: changed.roster, abilityId: 'vision', value: target }).roster).toEqual(changed.roster);
+    }
+    const zero = structuredClone(legacyRoster);
+    (entry(zero).physical as Record<string, unknown>).zoneJudgmentStdMeters = 0;
+    expect(editLivePublicAbilityV1({ ...input, roster: zero, abilityId: 'vision', value: 100 }).roster).toEqual(zero);
+    const changed = editLivePublicAbilityV1({ ...input, roster: zero, abilityId: 'vision', value: 45 }).roster;
+    expect(read(changed, 'plateVision')).toBe(45);
+    expect(read(changed, 'zoneJudgmentStdMeters')).toBe(.025);
+    for (const target of [0, 100.001, NaN, Infinity]) expect(() => editLivePublicAbilityV1({ ...input, abilityId: 'vision', value: target })).toThrow();
+  });
   it('projects all 20 profiles without changing the packet and exact no-op edits preserve all bytes', () => {
     const before = JSON.stringify(roster);
     for (const anchor of reference.anchors) {
@@ -68,7 +119,8 @@ describe('public authoring with individual SI profiles', () => {
   });
   it('changes sensory course error for vision without changing aggression, timing, aim or actual pitch', () => {
     const result = editLivePublicAbilityV1({ ...input, abilityId: 'vision', value: value(roster, 'vision') + 1 });
-    expect(result.changes.map(c => c.path)).toEqual(['zoneJudgmentStdMeters']);
+    expect(result.changes.map(c => c.path)).toEqual(['plateVision', 'zoneJudgmentStdMeters']);
+    expect(read(result.roster, 'plateVision')).toBe(value(roster, 'vision') + 1);
     expect(read(result.roster, 'zoneJudgmentStdMeters')).toBeLessThan(.025);
     for (const path of ['timingStdSeconds', 'aimStdMeters', 'chaseMarginMeters', 'releaseSpeedMps']) expect(read(result.roster, path)).toBe(read(roster, path));
     expect(entry(result.roster).physical!.swingDecision).toEqual(entry(roster).physical!.swingDecision);
@@ -95,7 +147,7 @@ describe('public authoring with individual SI profiles', () => {
     const old = load<LivePhysicalRosterInputV1>('live-game-roster-v1.json'), before = JSON.stringify(old);
     const projection = projectLivePublicAbilitiesV1({ ...input, roster: old });
     expect(projection.abilities.every(a => Number.isFinite(a.value))).toBe(true);
-    expect(projection.abilities.find(a => a.id === 'vision')!.value).toBeGreaterThan(100);
+    expect(projection.abilities.find(a => a.id === 'vision')!.value).toBe(45);
     for (const ability of projection.abilities) expect(editLivePublicAbilityV1({ ...input, roster: old, abilityId: ability.id, value: ability.value }).roster).toEqual(old);
     expect(JSON.stringify(old)).toBe(before);
   });
@@ -116,7 +168,8 @@ describe('public authoring with individual SI profiles', () => {
     expect(mlb.basis).toBe('SUPPLIED_LOCAL_SAMPLE_NOT_OFFICIAL_LEAGUE_POPULATION');
     for (const leagueId of ['NLB', 'NPB', 'KBO', 'CUSTOM']) {
       const result = previewLivePublicLeagueV1({ ...input, leagueId });
-      if (!['NLB'].includes(leagueId)) expect(result.metrics.every(m => m.value === null)).toBe(true);
+      if (!['NLB'].includes(leagueId)) expect(result.metrics.filter(m => m.id !== 'vision').every(m => m.value === null)).toBe(true);
+      expect(result.metrics.find(m => m.id === 'vision')).toMatchObject({ value: value(roster, 'vision'), basis: 'ABSOLUTE_1_TO_100' });
     }
     expect(JSON.stringify(roster)).toBe(before);
   });

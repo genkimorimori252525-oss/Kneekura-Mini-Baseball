@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V61-TAKE-VISION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-camera-take-vision-v61.mjs"
+  ],
+  "observed_at": "2026-10-18T19:16:18.768+00:00",
+  "elapsed_ms": 5360,
+  "git_head": "a384dfdfac341d3180abc7f750c9825bf137289e",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V61-TAKE-VISION_55fc1e85f8b144ebb02ffe1519141c03.log",
+  "output_sha256": "0cba5f6c0c4a9ea21a37dbbb5bb536e0ef4fe651d81f122f27bfbd7af69c50d7",
+  "receipt_id": "MB-20261019-V61-TAKE-VISION_55fc1e85f8b144ebb02ffe1519141c03"
+}

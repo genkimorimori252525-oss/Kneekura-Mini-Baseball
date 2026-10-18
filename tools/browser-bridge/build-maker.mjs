@@ -25,7 +25,7 @@ const bundleInputManifest = JSON.stringify({ schemaVersion: 1, entrySha256: sha(
   captureMode: 'post_build_file_sha_under_frozen_source_contract' }, null, 2) + '\n';
 const publicReferenceJson = publicAbilities ? await readFile('docs/demos/live-public-ability-reference-v1.json', 'utf8') : null;
 const publicReference = publicReferenceJson ? JSON.parse(publicReferenceJson) : null;
-if (publicAbilities && ['projectLivePublicAbilitiesV1', 'editLivePublicAbilityV1', 'previewLivePublicLeagueV1'].some(key => !core.includes(key)))
+if (publicAbilities && ['projectLivePublicAbilitiesV1', 'editLivePublicAbilityV1', 'previewLivePublicLeagueV1', 'materializeLivePlateVisionV1', 'resolveLivePlateVisionV1'].some(key => !core.includes(key)))
   throw Error('Public ability authoring API unavailable');
 const liveRoster = JSON.parse(rosterJson), liveRosterCatalog = JSON.parse(rosterCatalogJson);
 if (liveRoster.version !== 'live_physical_roster_v1' || !Array.isArray(liveRoster.entries) || !Array.isArray(liveRosterCatalog.players)

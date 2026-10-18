@@ -11,6 +11,8 @@ export type LivePhysicalAbilityControlsV1 = Readonly<{
   attackAngleDegrees?: number; pullAngleDegrees?: number; badBallControl?: number; defensiveDecisionSeconds?: number;
   /** Course-estimate uncertainty, independent of willingness to chase/swing. */
   zoneJudgmentStdMeters?: number;
+  /** Absolute 1–100 course-reading ability; never a league percentile. */
+  plateVision?: number;
   /** Tactical preferences; omitted values retain the controller defaults. */
   baserunningSafetyMarginSeconds?: number; fieldingPursuitCostWeight?: number;
   /** SI limits for continuous base rounding; omitted limits resolve in Host. */
@@ -35,7 +37,7 @@ const scalarKeys = ['batLengthM', 'batMassKg', 'swingRate', 'timingStdSeconds', 
   'retentionCapacityJ', 'captureDissipationPowerW', 'transferSeconds', 'throwSpeedMps', 'maximumPitchSpeedMps',
   'maximumSweetSpotSpeedMps', 'targetSweetSpotSpeedMps', 'motorLatencySeconds', 'technicalTimingOffsetSeconds', 'sweetSpotT',
   'attackAngleDegrees', 'pullAngleDegrees', 'badBallControl', 'defensiveDecisionSeconds', 'preContactSeconds', 'followThroughSeconds', 'contactDepthMeters', 'throwDirectionStdRadians', 'zoneJudgmentStdMeters',
-  'baserunningSafetyMarginSeconds', 'fieldingPursuitCostWeight', 'baserunningTurnRadiusMeters', 'baserunningLateralAccelerationMps2'] as const;
+  'baserunningSafetyMarginSeconds', 'fieldingPursuitCostWeight', 'baserunningTurnRadiusMeters', 'baserunningLateralAccelerationMps2', 'plateVision'] as const;
 const physicalKeys: readonly string[] = ['basis', ...scalarKeys, 'spinRadPerSecond', 'clipId', 'swingDecision'];
 const bounds: Partial<Record<typeof scalarKeys[number], readonly [number, number]>> = {
   batLengthM: [.55, 1.2], batMassKg: [.4, 1.8], swingRate: [.3, 3], timingStdSeconds: [0, .08], aimStdMeters: [0, .35],
@@ -47,6 +49,7 @@ const bounds: Partial<Record<typeof scalarKeys[number], readonly [number, number
   preContactSeconds: [.005, 2], followThroughSeconds: [.005, 2], contactDepthMeters: [.001, 2],
   throwDirectionStdRadians: [0, .12],
   zoneJudgmentStdMeters: [0, .6],
+  plateVision: [1, 100],
   baserunningSafetyMarginSeconds: [0, 3], fieldingPursuitCostWeight: [.25, 4],
   baserunningTurnRadiusMeters: [.5, 10], baserunningLateralAccelerationMps2: [.5, 20],
 };
@@ -54,6 +57,17 @@ const nonnegative = new Set<string>(['reactionSeconds', 'transferSeconds', 'defe
 const freeze = <T>(value: T): T => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
 function assert(value: unknown, message: string): asserts value { if (!value) throw new Error('live physical roster: ' + message); }
 const validText = (value: unknown): value is string => typeof value === 'string' && value.trim() === value && value.length > 0 && value.length <= 200;
+/** Legacy authoring fallback, independent of names, leagues and populations.
+ * It reads an old packet without rewriting its SI, source IDs or JSON shape. */
+export function resolveLivePlateVisionV1(physical: Readonly<{ plateVision?: number; zoneJudgmentStdMeters?: number }> = {}): number {
+  if (physical.plateVision !== undefined) {
+    assert(Number.isFinite(physical.plateVision) && physical.plateVision >= 1 && physical.plateVision <= 100, 'invalid absolute plate vision');
+    return physical.plateVision;
+  }
+  const std = physical.zoneJudgmentStdMeters ?? .025;
+  assert(Number.isFinite(std) && std >= 0 && std <= .6, 'invalid zone judgment SI');
+  return std === 0 ? 100 : Math.max(1, Math.min(100, 45 - 100 * Math.log(std / .025)));
+}
 function fields(value: unknown, allowed: readonly string[], required: readonly string[], path: string): asserts value is Record<string, unknown> {
   assert(value && typeof value === 'object' && !Array.isArray(value), 'object required at ' + path);
   assert(Object.keys(value).every(k => allowed.includes(k)) && required.every(k => Object.hasOwn(value, k)), 'unknown or missing fields at ' + path);

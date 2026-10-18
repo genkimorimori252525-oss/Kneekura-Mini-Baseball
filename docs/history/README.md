@@ -60,3 +60,5 @@ ID / 観測日 / 対象経路・Source・HTML SHA
 [v58の投手待機](../reports/2026-10-19-v58-pitcher-reaction.md)をH31、[v59の予測打点と微動安定](../reports/2026-10-19-v59-impact-gaze.md)をH32として追記。早い固定で現在球を見続ける問題と、scene変換の境界を区別して記録する。
 
 [v60の安定調整と名前レイヤー](../reports/2026-10-19-v60-impact-and-name-controls.md)をH33へ追加。カメラ別の名前回避、DOM/canvasの描画順、調整室へのDOM転記を区別する。v59の初期姿勢が不変であることと自由調整の検証を残す。
+
+[v61の見逃し同期と絶対選球眼](../reports/2026-10-19-v61-take-sync-absolute-vision.md)をH34へ追加。捕球後の目標角分岐と、公開値/判断SI/カメラ実効値の断絶を区別し、旧値の移行と原REDを記録する。

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "entrySha256": "4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279",
+  "entrySha256": "390eb00f118ef6fae5fbdde9ea8bdd66d497ed39c9a2a3f6cbf36f917b39af7a",
   "inputs": {
     "src/core/adjudication/OfficialWindowPolicy.ts": "e1a9d54ce2ca6e27116588b083156f524f22d978dcef83c59351642044c71cad",
     "src/core/adjudication/PlayAdjudicationLedger.ts": "c4be34efb190da338f159eeff798afaa47a1f2e15c3d31eea39d223a0f082011",
@@ -96,10 +96,10 @@
     "src/core/sim/running/LiveRunnerRetreatMotionV1.ts": "a3f548c570dd546e1f9a72caa6ebcb648aef43d511fe638122951a2438de13ac",
     "src/core/sim/running/RunnerRoute.ts": "86889ad522bf5ad817bdc41500bd4acb30aaa949f1563221b339d612cc1eb7f7",
     "src/integration/browser/ExecutedFieldWorldObservationV1.ts": "810642e2775b9e3337769d1c2c6853f83dd03b71ad4eb137e93698aea33ff60d",
-    "src/integration/browser/LiveBaseballMatchV1.ts": "e1a5b0d6b34b145e34f95b53c5a5a6692d2121a74c6e3df40ca69c906052ebff",
-    "src/integration/browser/LivePhysicalRosterV1.ts": "fe8eae591808b4a225a37e61ee7fcf420a8448e7468c48efd4bcfe23a758d286",
+    "src/integration/browser/LiveBaseballMatchV1.ts": "94737415b5e6af128fb00e443cdec7a27215aaa195bd4c2823a2524ef7d018a1",
+    "src/integration/browser/LivePhysicalRosterV1.ts": "d8eb941f976c64e9d25925fb8c8cbd5454cddbe99e923ef5a49c2e1b64ec56bc",
     "src/integration/browser/LivePitchV1.ts": "9c4ca96aff5958414318fa74c5e187c57050e7a049e0e31ee5f5e882190fedbd",
-    "src/integration/browser/LivePublicAbilitiesV1.ts": "321df3f20524467339ddf23e19c989d1d1a76e61d3b6c64005fc59997aa73d11",
+    "src/integration/browser/LivePublicAbilitiesV1.ts": "be0c65484045bafc80ea6b6636234e49f850dc8210dcfeb4fc8864e7f03a5829",
     "src/integration/browser/LiveTraitAuthoringCalibrationV54.ts": "1d826fbfc5aebfd9f29871308ce94b3b9d1e4e6fc1e597c41613601c46463249",
     "src/integration/browser/LiveTraitProfilesV1.ts": "ab56589c966876a34895fc4de0105f0e5936f4e1535a7c8bc3cb79cb1ab86882",
     "src/integration/browser/MeasuredBatFieldRegistrationV1.ts": "2cba5f556b08a82ac56fbdfb304f9a46f16cadb033d6c9e94687edbed1808300",
@@ -111,7 +111,7 @@
     "src/integration/browser/NativeSinglePaSession.ts": "4f7284ccd6976a85916b2ff86a29e28cce344820a87b973806691a1b3237b177",
     "src/integration/browser/PlayableMatchRulesV1.ts": "dba2f55e65e0792dd842f10890cac0a5e60d101976cd1d682655db23e447a873",
     "src/integration/browser/WorkbenchPlayer.ts": "cfd2c7cb356a71f4c52e337f67f77a905ac2ab31bc20be582ac2bd09276ef868",
-    "src/integration/browser/index.ts": "1abbff03246ce71048e9ae32040ac68a3ccbe0f0ac10259bb9ab1c3679bd91ea",
+    "src/integration/browser/index.ts": "dce1c2681a0674a6717dd54bc470f44999818b8fe08c3767caa7fb73014a6adc",
     "src/presentation/mini/MiniPresentationTimeline.ts": "bbda21b1f8dcfa06940596805140768dce420840328ce9cca8efaffa457bc7a2",
     "src/presentation/mini/NativeSpinOrientationObserver.ts": "d7605b7a9753208898e977e88495e9e2a24b98d134b0e0d1a9540b882e9db199",
     "src/presentation/mini/model.ts": "c138d4799f5f4dddb9ea3d7378ac79774bdc607471e62862f2e4c17b8de6062e"

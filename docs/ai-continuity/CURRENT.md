@@ -1,13 +1,17 @@
 ---
-current_task: "MB-20261019-V60-PUBLICATION"
+current_task: "MB-20261019-V61-PACKAGE"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "7d7602bf417d8e51edbfd90ddc37c31d32b6b8b4"
+commit_head: "a384dfdfac341d3180abc7f750c9825bf137289e"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V60-PUBLICATION_cf41198f7fff4da08733d45b1410cfa0.json"
-updated_at: "2026-10-18T19:06:29.637139+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V61-PACKAGE_c852a8b79e5d40df9c08d36501b6d064.json"
+updated_at: "2026-10-18T19:24:58.253473+00:00"
 
 ---
+
+## Active human priority — v61 take sync / absolute vision (SCOPED VERIFIED; PUBLICATION PENDING)
+
+Latesthuman: takecamera lateaftermitt; syncobservedpitch/catch, grade45baselinegain.26/dead.02, max100=.70/0; absolute1..100 independentleague. Newhelpercurrenttakeprefix +actualcatchposehold, Alegacy/B45swing-bunt-field exactv60; low1=.13/.04. PublicplateVision optionalbounded, one-timelegacyindividual42..96 migration preserves20SI/sourceIDs; publiceditlinkszone, previewabsolute, normalimport/maker/oldsessionmigration. Native390eb00f/113inputs +maker79rebuilt, no newworldphysicsAI/rules. UnitRED9b0efa5f retainsold.055906raddrift; GREEN55fc1e85 PASS5.360s actual27catch/future/rewind. Core66tests6files fdbfad85 PASS58.063s inclregulationCoretest (notnormalHTML9). Corebuild5bbc7e04/.360s Maker35346fc0/.266s migrationf1b58d8a/.094s (originalVMrealmFAILb8236fe1 kept). BUILD97a8f688/.204s CADENCEe62ae2e0/8.219s BROWSER62563dcf/32.389s1200+390/4takecases/postcatch0/6Source-batphysicalexact/5league+makerJSONimport+oldsession/errors0. PACKAGEc852a8b7 PASS1.937s normal a97893a7/lab e858c4f7/maker754029e7. STAGINGb754b58a PASS1.016s testedrawstagedbytes/credentials0/nonlogwhitespace/AGENTS excluded; needcommit/push Draft380/rawverify; mainunmerged. Originalplan/FAIL/UNKNOWN/CharterHOLD/userAGENTS retained.
 
 ## Active human priority — v60 impact tuning + overlapping names (SCOPED VERIFIED; PUBLISHED)
 

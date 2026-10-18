@@ -36,6 +36,7 @@ var KneekuraNativeMatchCore = (() => {
     editLivePublicAbilityV1: () => editLivePublicAbilityV1,
     getLiveTraitCatalogV1: () => getLiveTraitCatalogV1,
     issueNativeCommandPitch: () => issueNativeCommandPitch,
+    materializeLivePlateVisionV1: () => materializeLivePlateVisionV1,
     observeNativeAerodynamicPitch: () => observeNativeAerodynamicPitch,
     observeNativeFreeBallContinuation: () => observeNativeFreeBallContinuation,
     observeNativePitch: () => observeNativePitch,
@@ -43,6 +44,7 @@ var KneekuraNativeMatchCore = (() => {
     projectLivePublicAbilitiesV1: () => projectLivePublicAbilitiesV1,
     projectLiveTraitProfilesV1: () => projectLiveTraitProfilesV1,
     reconcileLiveTraitSourcesV54: () => reconcileLiveTraitSourcesV54,
+    resolveLivePlateVisionV1: () => resolveLivePlateVisionV1,
     resolveLiveTraitPreferencesV54: () => resolveLiveTraitPreferencesV54,
     setLiveTraitProfileV1: () => setLiveTraitProfileV1,
     validateLiveTraitProfileV1: () => validateLiveTraitProfileV1
@@ -14249,6 +14251,10 @@ var KneekuraNativeMatchCore = (() => {
       "invalid zone judgment SI"
     );
     assert14(
+      p.plateVision === void 0 || Number.isFinite(p.plateVision) && p.plateVision >= 1 && p.plateVision <= 100,
+      "invalid absolute plate vision"
+    );
+    assert14(
       p.baserunningSafetyMarginSeconds === void 0 || Number.isFinite(p.baserunningSafetyMarginSeconds) && p.baserunningSafetyMarginSeconds >= 0 && p.baserunningSafetyMarginSeconds <= 3,
       "invalid baserunning safety margin"
     );
@@ -14727,7 +14733,8 @@ var KneekuraNativeMatchCore = (() => {
     "baserunningSafetyMarginSeconds",
     "fieldingPursuitCostWeight",
     "baserunningTurnRadiusMeters",
-    "baserunningLateralAccelerationMps2"
+    "baserunningLateralAccelerationMps2",
+    "plateVision"
   ];
   var physicalKeys = ["basis", ...scalarKeys, "spinRadPerSecond", "clipId", "swingDecision"];
   var bounds = {
@@ -14758,6 +14765,7 @@ var KneekuraNativeMatchCore = (() => {
     contactDepthMeters: [1e-3, 2],
     throwDirectionStdRadians: [0, 0.12],
     zoneJudgmentStdMeters: [0, 0.6],
+    plateVision: [1, 100],
     baserunningSafetyMarginSeconds: [0, 3],
     fieldingPursuitCostWeight: [0.25, 4],
     baserunningTurnRadiusMeters: [0.5, 10],
@@ -14775,6 +14783,15 @@ var KneekuraNativeMatchCore = (() => {
     if (!value) throw new Error("live physical roster: " + message);
   }
   var validText = (value) => typeof value === "string" && value.trim() === value && value.length > 0 && value.length <= 200;
+  function resolveLivePlateVisionV1(physical3 = {}) {
+    if (physical3.plateVision !== void 0) {
+      assert15(Number.isFinite(physical3.plateVision) && physical3.plateVision >= 1 && physical3.plateVision <= 100, "invalid absolute plate vision");
+      return physical3.plateVision;
+    }
+    const std = physical3.zoneJudgmentStdMeters ?? 0.025;
+    assert15(Number.isFinite(std) && std >= 0 && std <= 0.6, "invalid zone judgment SI");
+    return std === 0 ? 100 : Math.max(1, Math.min(100, 45 - 100 * Math.log(std / 0.025)));
+  }
   function fields11(value, allowed, required, path2) {
     assert15(value && typeof value === "object" && !Array.isArray(value), "object required at " + path2);
     assert15(Object.keys(value).every((k) => allowed.includes(k)) && required.every((k) => Object.hasOwn(value, k)), "unknown or missing fields at " + path2);
@@ -14958,7 +14975,7 @@ var KneekuraNativeMatchCore = (() => {
   var specs = [
     { id: "contact", label: "\u30DF\u30FC\u30C8", section: "batter", mode: "group", components: [down("aimStdMeters", 1e-3), down("timingStdSeconds", 1e-3)], note: "\u72D9\u3046\u4F4D\u7F6E\u3068\u30BF\u30A4\u30DF\u30F3\u30B0\u306E\u7CBE\u5EA6" },
     { id: "power", label: "\u30D1\u30EF\u30FC", section: "batter", mode: "group", components: [up("targetSweetSpotSpeedMps"), up("maximumSweetSpotSpeedMps")], note: "\u82AF\u306E\u76EE\u6A19\u901F\u5EA6\u3068\u6700\u5927\u901F\u5EA6" },
-    { id: "vision", label: "\u9078\u7403\u773C", section: "batter", mode: "group", components: [down("zoneJudgmentStdMeters", 1e-3)], note: "\u30B3\u30FC\u30B9\u5224\u65AD\u306E\u7CBE\u5EA6\u3002\u7A4D\u6975\u6027\u306F\u8A73\u7D30\u3067\u5225\u306B\u8A2D\u5B9A" },
+    { id: "vision", label: "\u9078\u7403\u773C", section: "batter", mode: "absolute", components: [down("zoneJudgmentStdMeters", 0)], note: "\u7D76\u5BFE\u80FD\u529B1\u301C100\u300245\u304C\u8996\u70B9\u306E\u57FA\u6E96\u3002\u30EA\u30FC\u30B0\u6BD4\u8F03\u3067\u5909\u308F\u3089\u305A\u3001\u5909\u66F4\u6642\u306F\u30B3\u30FC\u30B9\u5224\u65AD\u306E\u8AA4\u5DEE\u3082\u8ABF\u6574\u3002\u7A4D\u6975\u6027\u306F\u5225\u8A2D\u5B9A" },
     { id: "run", label: "\u8D70\u529B", section: "common", mode: "group", components: [up("topSpeedMps"), up("accelerationMps2")], note: "\u6700\u9AD8\u901F\u5EA6\u3068\u52A0\u901F" },
     { id: "arm", label: "\u80A9\u529B", section: "common", mode: "group", components: [up("throwSpeedMps")], note: "\u5B9F\u969B\u306E\u9001\u7403\u521D\u901F" },
     { id: "field", label: "\u5B88\u5099\u529B", section: "common", mode: "group", components: [down("reactionSeconds", 0.01), down("defensiveDecisionSeconds", 0.01), down("transferSeconds", 0.01)], note: "\u521D\u52D5\u30FB\u72B6\u6CC1\u5224\u65AD\u30FB\u6301\u3061\u66FF\u3048\u3002\u8D70\u529B\u3068\u6355\u7403\u306F\u5225" },
@@ -15010,9 +15027,27 @@ var KneekuraNativeMatchCore = (() => {
     }, 0) / components.length;
   }
   function abilityValue(entry, anchor, spec) {
+    if (spec.mode === "absolute") return resolveLivePlateVisionV1(physical2(entry));
     if (spec.mode === "percent") return numeric(entry, spec.components[0].path) * 100;
     if (spec.mode === "pitchSpeed") return numeric(entry, spec.components[0].path) * 3.6;
     return anchor.ratings[spec.id] + pointsPerLogUnit * (quality(entry, spec) - quality(anchor.entry, spec));
+  }
+  function materializeLivePlateVisionV1(input) {
+    context2({ ...input, playerId: input.roster.entries[0]?.playerId ?? "" });
+    const copy2 = cloneInert(input.roster);
+    const migrations = [];
+    for (const selected of copy2.entries) {
+      if (selected.physical.plateVision !== void 0) continue;
+      const before = input.roster.entries.find((e) => e.playerId === selected.playerId), anchor = input.reference.anchors.find((a) => a.playerId === selected.playerId), anchorValue = anchor.ratings.vision;
+      assert16(Number.isFinite(anchorValue), "missing legacy individual vision anchor");
+      const legacy = anchorValue + pointsPerLogUnit * Math.log((numeric(anchor.entry, "zoneJudgmentStdMeters") + 1e-3) / (numeric(before, "zoneJudgmentStdMeters") + 1e-3));
+      const value = Math.max(1, Math.min(100, legacy));
+      selected.physical.plateVision = value;
+      migrations.push({ playerId: selected.playerId, value, basis: "LEGACY_INDIVIDUAL_AUTHORING_ANCHOR" });
+    }
+    const roster = copy2;
+    applyLivePhysicalRosterV1({ players: input.reference.players, roster });
+    return freeze24({ policyId: "absolute-plate-vision-v61", roster, migrations });
   }
   function projectLivePublicAbilitiesV1(input) {
     const { entry, anchor } = context2(input);
@@ -15021,10 +15056,10 @@ var KneekuraNativeMatchCore = (() => {
       label: spec.label,
       section: spec.section,
       value: abilityValue(entry, anchor, spec),
-      min: spec.mode === "pitchSpeed" ? 54 : 0,
+      min: spec.mode === "pitchSpeed" ? 54 : spec.mode === "absolute" ? 1 : 0,
       max: spec.mode === "pitchSpeed" ? 306 : 100,
       unit: spec.mode === "pitchSpeed" ? "km/h" : "",
-      linkedPaths: spec.components.map((c) => c.path),
+      linkedPaths: [...spec.mode === "absolute" ? ["plateVision"] : [], ...spec.components.map((c) => c.path)],
       note: spec.note
     })) });
   }
@@ -15037,9 +15072,13 @@ var KneekuraNativeMatchCore = (() => {
     const before = input.roster.entries.find((e) => e.playerId === input.playerId);
     const changes = [];
     if (input.value !== old.value) {
+      if (spec.mode === "absolute") {
+        selected.physical.plateVision = input.value;
+        changes.push({ path: "plateVision", before: old.value, after: input.value });
+      }
       for (const component of spec.components) {
         const previous = numeric(before, component.path);
-        const next = spec.mode === "percent" ? input.value / 100 : spec.mode === "pitchSpeed" ? previous * input.value / old.value : (previous + component.floor) * Math.exp(component.direction * (input.value - old.value) / pointsPerLogUnit) - component.floor;
+        const next = spec.mode === "absolute" ? previous > 0 ? previous * Math.exp((old.value - input.value) / pointsPerLogUnit) : 0.025 * Math.exp((45 - input.value) / pointsPerLogUnit) : spec.mode === "percent" ? input.value / 100 : spec.mode === "pitchSpeed" ? previous * input.value / old.value : (previous + component.floor) * Math.exp(component.direction * (input.value - old.value) / pointsPerLogUnit) - component.floor;
         assert16(Number.isFinite(next) && next >= 0, "requested value exceeds this individual profile; inspect detailed controls");
         selected.physical[component.path] = next;
         changes.push({ path: component.path, before: previous, after: next });
@@ -15057,6 +15096,13 @@ var KneekuraNativeMatchCore = (() => {
     const candidates = input.reference.anchors.filter((a) => a.leagueId === input.leagueId);
     const byId = new Map(input.roster.entries.map((e) => [e.playerId, e]));
     return freeze24({ leagueId: input.leagueId, sampleCount: candidates.length, metrics: specs.map((spec) => {
+      if (spec.mode === "absolute") return {
+        id: spec.id,
+        label: spec.label,
+        sampleCount: 1,
+        value: abilityValue(entry, anchor, spec),
+        basis: "ABSOLUTE_1_TO_100"
+      };
       const peers = candidates.filter((a) => spec.section !== "pitcher" || a.role === "P").filter((a) => spec.section !== "batter" || a.role !== "P");
       const values2 = peers.map((a) => spec.mode === "percent" ? numeric(byId.get(a.playerId), spec.components[0].path) : quality(byId.get(a.playerId), spec));
       const mean = values2.reduce((sum, n) => sum + n, 0) / (values2.length || 1);
@@ -15066,6 +15112,7 @@ var KneekuraNativeMatchCore = (() => {
         id: spec.id,
         label: spec.label,
         sampleCount: values2.length,
+        basis: "SUPPLIED_LEAGUE_COHORT",
         value: values2.length >= 2 && sd > 0 ? Math.max(0, Math.min(100, 50 + 20 * (actual - mean) / sd)) : null
       };
     }), sourceLeagueId: anchor.leagueId, basis: "SUPPLIED_LOCAL_SAMPLE_NOT_OFFICIAL_LEAGUE_POPULATION" });

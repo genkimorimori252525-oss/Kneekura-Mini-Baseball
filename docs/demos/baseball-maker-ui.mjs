@@ -20,7 +20,9 @@
   function validateLiveRoster(raw) {
     if (!liveCatalog?.players?.length || !Array.isArray(liveCatalog.fields) || typeof core.applyLivePhysicalRosterV1 !== 'function')
       throw Error('試合用能力の定義・検証Coreを読み込めませんでした。');
-    const proof = core.applyLivePhysicalRosterV1({ players: liveCatalog.players, roster: raw }), packet = clone(raw);
+    let packet = clone(raw);
+    if (livePublicReference) packet = clone(core.materializeLivePlateVisionV1({ roster: packet, reference: livePublicReference }).roster);
+    const proof = core.applyLivePhysicalRosterV1({ players: liveCatalog.players, roster: packet });
     const ids = liveCatalog.players.map(p => p.playerId);
     if (packet.entries.length !== ids.length || packet.entries.some(e => !ids.includes(e.playerId) || !e.physical || e.workbenchPlayer))
       throw Error('全選手のphysicalを含む試合用能力JSONを選択してください。単体実験用の選手JSONはこの欄へ適用できません。');
@@ -49,7 +51,7 @@
     for (const metric of preview.metrics) {
       const item = document.createElement('div'); item.className = 'rating';
       const value = document.createElement('strong'); value.textContent = numeric(metric.value) ? metric.value.toLocaleString('ja-JP', { maximumFractionDigits: 1 }) : '未算出';
-      item.append(document.createTextNode(`${metric.label}（${metric.sampleCount}人）`), value);
+      item.append(document.createTextNode(metric.basis === 'ABSOLUTE_1_TO_100' ? `${metric.label}（絶対能力）` : `${metric.label}（${metric.sampleCount}人）`), value);
       $('live-public-league-preview').append(item);
     }
   }
@@ -234,7 +236,11 @@
             let next = clone(livePhysicalRoster); const selected = next.entries.find(e => e.playerId === liveRosterPlayerId);
             const nextValue = input.type === 'number' ? Number(input.value) : input.value;
             if (input.type === 'number' && !numeric(nextValue)) throw Error('有限の数値を入力してください。');
+            const previousValue = get(spec.entryPath ? selected : selected.physical, spec.path);
             set(spec.entryPath ? selected : selected.physical, spec.path, nextValue);
+            // An explicit sensory-SI edit replaces the linked public authoring
+            // source. Recompute absolute vision instead of keeping a stale grade.
+            if (!spec.entryPath && spec.path === 'zoneJudgmentStdMeters' && nextValue !== previousValue) delete selected.physical.plateVision;
             const priorEntrySuffix = selected.sourceId.match(/(?::maker-edited|:public-edited)+$/)?.[0] ?? '';
             selected.sourceId = selected.sourceId.replace(/(?::maker-edited|:public-edited)+$/, '') + ':maker-edited'
               + (priorEntrySuffix.includes(':public-edited') ? ':public-edited' : '');

@@ -75,6 +75,8 @@ function physical(player:LivePlayerV1):LivePlayerPhysicalV1{
     &&Object.values(p.spinRadPerSecond).every(Number.isFinite),'invalid explicit player SI');
   assert(p.zoneJudgmentStdMeters===undefined||Number.isFinite(p.zoneJudgmentStdMeters)&&p.zoneJudgmentStdMeters>=0&&p.zoneJudgmentStdMeters<=.6,
     'invalid zone judgment SI');
+  assert(p.plateVision===undefined||Number.isFinite(p.plateVision)&&p.plateVision>=1&&p.plateVision<=100,
+    'invalid absolute plate vision');
   assert(p.baserunningSafetyMarginSeconds===undefined||Number.isFinite(p.baserunningSafetyMarginSeconds)&&p.baserunningSafetyMarginSeconds>=0&&p.baserunningSafetyMarginSeconds<=3,
     'invalid baserunning safety margin');
   assert(p.fieldingPursuitCostWeight===undefined||Number.isFinite(p.fieldingPursuitCostWeight)&&p.fieldingPursuitCostWeight>=.25&&p.fieldingPursuitCostWeight<=4,

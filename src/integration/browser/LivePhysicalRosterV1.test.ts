@@ -93,6 +93,7 @@ it('preserves authored rounding controls without materializing omitted runner de
 });
 
 it.each([
+  ['plateVision', 1, 100, 0, 100.001],
   ['baserunningSafetyMarginSeconds', 0, 3, -.001, 3.001],
   ['fieldingPursuitCostWeight', .25, 4, .249, 4.001],
   ['baserunningTurnRadiusMeters', .5, 10, .499, 10.001],
@@ -123,6 +124,21 @@ it('projects explicit course judgment precision independently of chase margin an
   const match = liveMatchFixture();
   expect(() => createLiveBaseballMatchV1({ ...match, players: match.players.map((p, i) => i ? p : { ...p,
     physical: { ...LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1, zoneJudgmentStdMeters: -.1 } }) })).toThrow();
+});
+
+it('passes absolute vision through JSON/roster/Host without adding a physical pitch or batting bonus', () => {
+  const fixture = liveMatchFixture(2468), batter = fixture.teams[0].battingOrder[0],
+    issue = (plateVision: number) => {
+      const roster = JSON.parse(JSON.stringify({ version: 'live_physical_roster_v1', sourceId: 'absolute-eye-test',
+        entries: [{ playerId: batter, sourceId: 'explicit-eye', physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', plateVision } }] }));
+      const projected = applyLivePhysicalRosterV1({ players: fixture.players, roster });
+      expect(projected.players.find(p => p.playerId === batter)!.physical.plateVision).toBe(plateVision);
+      return createLiveBaseballMatchV1({ ...fixture, players: projected.players })
+        .issuePitch({ batting: 'take', managedTeam: 0, pitchType: 'auto', location: 'auto' });
+    }, low = issue(1), high = issue(100);
+  expect(high.frames).toEqual(low.frames);
+  expect(high.play).toEqual(low.play);
+  expect(high.match).toEqual(low.match);
 });
 
 it('projects explicit maker SI, keeps the binding and original data, and exposes remaining unsupported controls', () => {
