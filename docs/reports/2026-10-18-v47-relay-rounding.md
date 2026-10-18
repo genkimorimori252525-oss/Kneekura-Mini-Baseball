@@ -73,6 +73,10 @@ v46で残していた中継送球の探索と連続したベース旋回を、�
 
 最終通常HTML SHA256は`81cdc7c402f2a8461ef07cac8d6d541cf304208fe97f23ba9bc02915ba880747`、メーカーSHA256は`7848228105d598f75c8e1eeb347c2ecbb6f3b749c9b1ea5433f2dcdfc97abd8c`。狭幅ブラウザの検証を実機スマートフォンの検証とは扱わない。配布整合は[最終release receipt](../ai-continuity/verification-receipts/MB-20261018-V47-RELEASE-FINAL_3de5f1081c104ec5aaf98cfd9c97fdb2.json)でPASS。107入力・compiled bundle・manifestを収めた109エントリのZIP、配布SHA、各QAの最終HTML SHA、既存UI helperとv46 HTMLの保全を照合した。[配布入口](../demos/releases/v47/README.md)から試合とメーカーを保存できる。
 
+## GitHub保存
+
+実装・HTML・メーカー・履歴・証拠109ファイルをcommit `4c10521884cbc029cb7c0498353141a493ea4d35`として既存ブランチへ通常pushした。[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)を維持し、mainは未マージ。remoteブランチとPR headの一致、GitHub rawの10ファイル（主なCore、新中継・走者モジュール、配布HTML・メーカー・ZIP、入口と履歴等）のbyte一致を確認した。[保存確認](../verification/releases/v47/publication.json)と[receipt](../ai-continuity/verification-receipts/MB-20261018-V47-PUBLICATION_0b79d4b6bb984b9ead6971deb9f479c9.json)に記録。保存確認後の文書・証拠だけの追記commitで、この記録を保存する。
+
 ## 参考資料と定数の扱い
 
 - [ABCA / Sam Piraro: Execution of the Cutoff and Relay System（2020）](https://www.abca.org/magazine/magazine/2020-4-July_August/The_Hot_Corner_Execution_of_the_Cutoff_and_Relay_System.aspx)：送球先・レーン・カバーの責任、不要な送球を避ける判断を参照した。本実装の経路探索数や実際のグラブ狙い点の計算を記事から実測したとは扱わない。

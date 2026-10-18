@@ -861,3 +861,4 @@ Only record verification that was actually performed.
 | MB-20261018-V47-NORMAL-GAME-FINAL | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V47-NORMAL-GAME-FINAL_e60b015f5d294434b338028172c98f0d.json |
 | MB-20261018-V47-RELEASE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V47-RELEASE_44625c6c18354e92821a970fa560b5e0.json |
 | MB-20261018-V47-RELEASE-FINAL | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V47-RELEASE-FINAL_3de5f1081c104ec5aaf98cfd9c97fdb2.json |
+| MB-20261018-V47-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V47-PUBLICATION_0b79d4b6bb984b9ead6971deb9f479c9.json |
