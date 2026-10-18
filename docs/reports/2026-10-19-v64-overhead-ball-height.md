@@ -38,3 +38,7 @@
 この拡大は高さを見分ける表示上の目印で、実物理・現実の遠近投影の変更ではない。元全計画・未達・原FAIL/UNKNOWN・Charter未承認HOLDと、ユーザーのAGENTS変更を保持する。main未マージ。
 
 最終BROWSER `f23aefdd` PASS58.734秒。初回 `d7eb96ff` のPASS履歴も保持し、最終版ではUIを必ず1→1.5に変更して検証した。実高球y16.2708mでは係数1.406598、描画直径1.758248px。PACKAGE `e5c2db69` PASS1.390秒。通常SHA `0c1b76a49dd0b06b2472a5206d6ef14b69374017f6bf3ac61da9d4bddb2c420b`、調整室SHA `9485093d726aad5a9300af56452924146fba6d7276daa9b00f2c2d80feae4302`。
+
+## GitHub保存
+
+製品コミット `86f7151dbbe03e9716c570b93bac30a032bddaf1` を既存ブランチ／Draft PR380へ保存。STAGING `48781f7c` と追加記録の最終照合で46ファイルのGit blobと試験済みraw byteが一致、credential pattern0、非log whitespace PASS、AGENTS除外。PUBLICATION `69b3db62` PASS3.422秒でremote／PR head一致、Draft OPEN、公開raw12ファイルのbyte一致を確認。[公開証拠](../verification/releases/v64/publication.json)。後続コミットは記録のみで製品byteを変更せず、mainは未マージ。

@@ -1,17 +1,17 @@
 ---
-current_task: "MB-20261019-V64-PACKAGE"
+current_task: "MB-20261019-V64-PUBLICATION"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "c74aad0a415db1fc4048db36392e8827c525684b"
+commit_head: "86f7151dbbe03e9716c570b93bac30a032bddaf1"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V64-PACKAGE_e5c2db69a7a64f6d9f51c66a9e65fc9a.json"
-updated_at: "2026-10-18T20:19:00.641517+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V64-PUBLICATION_69b3db6247a543ff9daed7dc6ff01660.json"
+updated_at: "2026-10-18T20:23:37.543840+00:00"
 
 ---
 
-## Active human priority — v64 overhead ball-height display (SCOPED VERIFIED; publication pending)
+## Active human priority — v64 overhead ball-height display (SCOPED VERIFIED; PUBLISHED)
 
-Human requests heightonly sizeemphasis overhead, groundoldsize, adjustable1.5, defaultold. NewballDisplay.overheadHeightEmphasis=1(1..8); currentobservedheight from.0366→20m linearly blends1→chosenmax. Othercameras1; defaultidentity exactoldrender, independentglobaloverheadscale. Optionalmeaningquestion unanswered; explicitassumptionmaximumhighflyfactor, neverclaimsilenceapproval. NormalUI/lab64/legacyJSONmissing→1/session compatible865Core. BUILD eb2f7094PASS.171s/CADENCE6093109fPASS7.984s/BROWSERfinalf23aefddPASS58.734s(1200/390,5camera×3scenepixelidentity,ground1/1.5/8same,high16.2708m factor1.406598/1.758248px,otherPOVunchanged,held5hidden,19height/globalprobes,futuregettersforbidden,real1→1.5UI/oldnewJSONsession/atomicvalidation,6Source+bat exactSHA2f939a68)/PACKAGEe5c2db69PASS1.390s. Normal0c1b76a4/lab9485093d. Native114865078dc andallsrc/dist unchanged, batter63/pitcher62/maker62 retained. No newCore/TSC/9game rerunclaim. AuditonlyoriginalCharterHOLD. AGENTS/unrelated/fullplan/FAILUNKNOWN retained. Next: saveexactallowlist+rawproofonexistingbranch/Draft380, metadataonlyclosure; no mainmerge. Heightcueauthorednotphysics, no newability/deps/settings/lock/secrets/DB.
+Human requests heightonly sizeemphasis overhead, groundoldsize, adjustable1.5, defaultold. NewballDisplay.overheadHeightEmphasis=1(1..8); currentobservedheight from.0366→20m linearly blends1→chosenmax. Othercameras1; defaultidentity exactoldrender, independentglobaloverheadscale. Optionalmeaningquestion unanswered; explicitassumptionmaximumhighflyfactor, neverclaimsilenceapproval. NormalUI/lab64/legacyJSONmissing→1/session compatible865Core. BUILD eb2f7094PASS.171s/CADENCE6093109fPASS7.984s/BROWSERfinalf23aefddPASS58.734s(1200/390,5camera×3scenepixelidentity,ground1/1.5/8same,high16.2708m factor1.406598/1.758248px,otherPOVunchanged,held5hidden,19height/globalprobes,futuregettersforbidden,real1→1.5UI/oldnewJSONsession/atomicvalidation,6Source+bat exactSHA2f939a68)/PACKAGEe5c2db69PASS1.390s. Normal0c1b76a4/lab9485093d. Native114865078dc andallsrc/dist unchanged, batter63/pitcher62/maker62 retained. No newCore/TSC/9game rerunclaim. AuditonlyoriginalCharterHOLD. AGENTS/unrelated/fullplan/FAILUNKNOWN retained. Publishedproduct86f7151dbbe03e9716c570b93bac30a032bddaf1 onexistingbranch/OpenDraft380. STAGING48781f7c+final46blobsrawexact/credentials0/nonlogwhitespacePASS. PUBLICATION69b3db62PASS3.422s remote/PRhead/12rawfilesbyteexact. Metadataonlyclosurefollows; no mainmerge. Next: usercantryheight1.5innewnormal/lab64; handlefutureansweraboutfactorinterpretationassteering. Heightcueauthorednotphysics, no newability/deps/settings/lock/secrets/DB.
 
 ## Active human priority — v63 v59 swing + bat/head response (SCOPED VERIFIED; PUBLISHED)
 
