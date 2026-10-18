@@ -58,3 +58,5 @@ ID / 観測日 / 対象経路・Source・HTML SHA
 [v57のスイング時の頭固定](../reports/2026-10-19-v57-swing-head-hold.md)をH30として追記。実バットのmotor onsetとthroughに固定を同期し、late swing・見逃し/バント除外・解除を検証する。
 
 [v58の投手待機](../reports/2026-10-19-v58-pitcher-reaction.md)をH31、[v59の予測打点と微動安定](../reports/2026-10-19-v59-impact-gaze.md)をH32として追記。早い固定で現在球を見続ける問題と、scene変換の境界を区別して記録する。
+
+[v60の安定調整と名前レイヤー](../reports/2026-10-19-v60-impact-and-name-controls.md)をH33へ追加。カメラ別の名前回避、DOM/canvasの描画順、調整室へのDOM転記を区別する。v59の初期姿勢が不変であることと自由調整の検証を残す。

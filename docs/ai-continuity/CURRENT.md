@@ -1,13 +1,17 @@
 ---
-current_task: "MB-20261019-V59-PUBLICATION"
+current_task: "MB-20261019-V60-PACKAGE"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "23455422bfe72e722b2928223a41bb0f45fa8a57"
+commit_head: "2cf8d9a7ad3f8ba8f981f4067d64be90f6eeb170"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V59-PUBLICATION_7e3d7f6b3ca04a5fa6db08c86abcb930.json"
-updated_at: "2026-10-18T18:42:08.888535+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V60-PACKAGE_67a31248e2db465688af566eba594aed.json"
+updated_at: "2026-10-18T19:05:25.043012+00:00"
 
 ---
+
+## Active human priority — v60 impact tuning + overlapping names (SCOPED VERIFIED; PUBLICATION PENDING)
+
+Human accepts v59 batter baseline; add impact offset/cone/speed editing, early/late curve comparison, allcamera anchored overlapping names/scale, ball above names. Offset0/cone.025/speed.18 defaults poseexactv59; decision→through clamp; recordedcurve sign selection no Source mutation. Name scale1(.5–2.5), runner priority/red/batterhide retained; ballz2/namehostz1, lab names copied beforeball. OldJSON/session name defaults and importedmarker update verified. UNIT2b478469 PASS4.875s12records/defaultpose+Source+bat exact; NAMES4e413f1e PASS.094s; finalBUILD5b9727ec PASS.187s/CADENCEff9509bc PASS7.938s; BROWSERba307749 PASS52.577s1200/390/5cams/15defaultposes/6baseline+6extra/actualearly-21.4ms+late2.987ms/opaque-labelpixel/JSON+session/RGBA/errorsnetwork0. RUNNER549007ec PASS2.108s actualnonvacuousrunnerred/z3 bothwidths/Sourceexact. PACKAGE67a31248 PASS.796s frozen normalc4f50e43/lab661f38fe,113pins/helpers/oldreleases exact. OriginalbrowserFAIL74852987 CSSfontserialization,036dc9bd collapsedpanel teststep,3ad73338 CSSsourceedgepixel testcoordinate retained. Independentreview importedmarker bugfixed. STAGING0bfeb1b1 PASS.906s rawstagedbytes exact/credentials0/nonlogwhitespace/AGENTS excluded; need commit/push existingbranch Draft380/rawverify; mainunmerged. Originalplan/FAIL/UNKNOWN/CharterHOLD and userAGENTS retained.
 
 ## Active human priority — v59 predicted contact gaze / small impact motion (SCOPED VERIFIED; PUBLISHED)
 

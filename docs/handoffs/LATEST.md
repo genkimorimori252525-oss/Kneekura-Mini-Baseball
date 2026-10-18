@@ -1,12 +1,16 @@
 # 最新の再開入口 — 2026-10-19
 
-現在は **調整室v59／通常試合v59**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
+現在は **調整室v60／通常試合v60**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
 
-- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v59/README.md)
-- [原因・変更・最終検証・限界](../reports/2026-10-19-v59-impact-gaze.md)
-- [開発史](../history/README.md) / [原因別事例H32](../history/INCIDENTS.md)
+- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v60/README.md)
+- [原因・変更・最終検証・限界](../reports/2026-10-19-v60-impact-and-name-controls.md)
+- [開発史](../history/README.md) / [原因別事例H33](../history/INCIDENTS.md)
 - [元の全要求・計画・受入条件](2026-10-15-mini-baseball/00-START-HERE.md)
 - [v50の打者カメラ](../reports/2026-10-18-v50-v27-batter-camera.md) / [v49の守備責任・裁定](../reports/2026-10-18-v49-positional-defense.md) / [v47の中継・旋回](../reports/2026-10-18-v47-relay-rounding.md)
+
+## v60の現在地
+
+v59の打者視点の初期姿勢を維持し、安定開始offset・許容角・角速度をA/B調整できるようにした。早め/遅めのカーブ記録を選び、名前倍率もJSONと再現sessionへ保存する。全視点で名前を投影位置へ重ね、走者を優先し、球は文字/背景枠の上へ。調整室にもDOM名を転記する。[変更と検証](../reports/2026-10-19-v60-impact-and-name-controls.md)。Core113入力・物理/AI/能力/裁定/実測バット・投手100〜250msを継承し、元全計画・未達・原FAIL/UNKNOWN/CharterHOLDは継続する。
 
 ## v59の現在地
 
