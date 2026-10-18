@@ -1,17 +1,21 @@
 ---
-current_task: "MB-20261018-V44-RELEASE"
+current_task: "MB-20261018-V44-PUBLICATION"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "7bc3982789bf563bb9a25a8b82f632c982c3ab84"
+commit_head: "b3bf598ba33d0e81d2846054b0e96e2b9972d460"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V44-RELEASE_46128d5c53644c23a1e72046d77b5e9c.json"
-updated_at: "2026-10-18T04:36:39.179053+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261018-V44-PUBLICATION_ac91d35080324f61a2cdfb561c38e5bb.json"
+updated_at: "2026-10-18T04:40:29.050451+00:00"
 
 ---
 
-## Latest human priority — v44 taken gaze + development history publication
+## Latest human priority — v44 taken gaze + development history PUBLISHED (SCOPED VERIFIED)
 
-2026-10-18 human requests fix existing batter take glance and organize why attempts failed/succeeded, publish history to GitHub. v44 helper+guarded transform uses actual observed pitch crossing z<=1m,165ms modest glance, holds last visible target after catch without ball raster; preserves v43 swing gaze and other cameras. Old fixed localTick38=550ms start can be later than real catch; observed.ball condition snapped gaze back at possession. Helper PASS b215eadf; build6c9e33dd; browser34c97bd1868942a4b2e1dd3fab193e07/17.952s PC1200/390,6actualtakes R/L,12playhashsamev43,103Sourcepins+bundlef29aeeb7 unchanged, real playback+hiddenheld+limits+rewind/nextprep+othercams+v43swing. Final HTML SHA def5e0c9e4a27ad99422a615c10e58f9f4cf9e3e778b6f58c7336457c383cee5. Initial weak oldv43 test8d394ce5 PASSinsufficient; strengthened retention test9f88ffb5 FAIL retained. Images viewed. New docs/history/{README,TIMELINE,INCIDENTS}.md index16cases inclv35misdiagnosis,v33impulse/catcherbounce,UI/animation,abilitycalibration,sourceversions,unknownNativefailures. Stable docs/handoffs/LATEST.md; old entrybanners preservehistoricalbody. v43/v44 HTML+metadata/licenses+limitedQA copiedinto docs/demos/releases anddocs/verification/releases. CurrentHEAD7bc3982 matchesremote; existingDraft380 confirmed. Need release/link/SHAcheck → stage only scopedfiles/receiptlogs inclpreviousv43 → commitnormalpush→remotehead/rawverify→PRupdate. Originalplan incomplete, no new9/100games/realphone/wholeTSC, allpriorHOLD/unknown preserved. No Core/settings/lock/secret/DB/unrelatedv42 edit. Publication explicitly authorized, no extraapprovalrequired.
+2026-10-18 human scope achieved: taken-pitch batter gaze fixed, history16cases with sources/causes/corrections/unknowns organized, v43+v44 Source/HTML/evidence committed92files and normal-pushed EXISTING branch/Draft380 in b3bf598ba33d0e81d2846054b0e96e2b9972d460. Remotehead/PRheadmatched; raw7files (history3/latest/game43+44/SHA44) byteexact download verified PASSac91d35080324f61a2cdfb561c38e5bb/18.078s. PRtitle/bodyupdated, staysDraft/unmerged. Metadata-only recordingcommit follows; no productchange. Stableentry docs/handoffs/LATEST.md; history docs/history/README.md; report docs/reports/2026-10-18-v44-taken-gaze-and-history.md; publicproof docs/verification/releases/v44/publication.json.
+
+V44 actualobservedpitch z<=1m starts165ms modestglance; heldlastvisibletarget withoutballraster. FixedoldlocalTick38=550mslate-start+observed.ball/custodyangle-reset. Preservesv43motor-gaze+othercams. Helperb215eadf/build6c9e33dd/browser34c97bd1 PASS17.952s:1200/390,6actualtakesR/L,12playhashsamev43,103Corepins+bundlef29aeeb7 unchanged,realplayback/hiddenheld/limits/rewind/nextprep/othercams/v43swing. HTML SHAdef5e0c9e4a27ad99422a615c10e58f9f4cf9e3e778b6f58c7336457c383cee5. Release46128d5c PASS13docs/134links/v43+v44byteexact/v41preserved. Initialweakoldv43test8d394ce5 PASSinsufficient; strongerretention9f88ffb5 FAIL retained. Finalimagesviewed. Codelessmetadata/docscope changesaftertests; noCore/dataedit.
+
+Originalplan IN_PROGRESS: Nativecontinuousworld,officialH/E/rules/traits/calibration/new100games/realphone remain. No new9/100games/wholeTSC claimed. Historicalunknowns/FAIL andCharterHOLD preserved. No mainmerge/settings/lock/dependency/secret/DB or unrelatedv42/localAGENTS change. FinalremaininglocalAGENTS belongsuser, preserved. Next delivercurrentv44+GitHubhistorylinks; dontmarkoriginaloverallgoalcomplete.
 
 ## Previous human priority — v43 planned contact gaze (SCOPED VERIFIED; ORIGINAL PLAN IN PROGRESS)
 

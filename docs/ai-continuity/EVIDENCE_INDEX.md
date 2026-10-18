@@ -827,3 +827,4 @@ Only record verification that was actually performed.
 | MB-20261018-V44-BROWSER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V44-BROWSER_34c97bd1868942a4b2e1dd3fab193e07.json |
 | MB-20261018-V44-RELEASE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V44-RELEASE_46128d5c53644c23a1e72046d77b5e9c.json |
 | MB-20261018-V44-STAGING | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V44-STAGING_7e84941cc40241af81431f47bae0601d.json |
+| MB-20261018-V44-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261018-V44-PUBLICATION_ac91d35080324f61a2cdfb561c38e5bb.json |

@@ -30,6 +30,10 @@
 
 HTML SHA256 `def5e0c9e4a27ad99422a615c10e58f9f4cf9e3e778b6f58c7336457c383cee5`。ワークスペース版とGitHub配布版をbyte単位で照合して保存する。
 
+## GitHub保存
+
+実装・開発史・HTML・限定証拠はcommit `b3bf598ba33d0e81d2846054b0e96e2b9972d460` に保存し、既存ブランチへ通常push済み。公開照合 PASS `MB-20261018-V44-PUBLICATION_ac91d35080324f61a2cdfb561c38e5bb`、18.078秒。remote HEADとDraft PR #380のheadを照合し、履歴3文書・最新入口・v43/v44 HTML・配布SHAの7ファイルをGitHub rawから読み直して元byteと一致した。[公開照合記録](../verification/releases/v44/publication.json)。後続の記録用commitは製品コードを変更しない。
+
 ## 残る範囲
 
 1m/165ms/角度制限は既存の控えめな視線移動を再接続する表示規約であり、人間の視線計測により校正したものではない。Core・能力・ルールは変更していないため、今回新たな9回・100試合・全体TypeScript検査は実行していない。実機スマホは未確認。元計画のNative連続世界、公式記録、未完ルール、全得能、実能力と分布校正は別に継続する。
