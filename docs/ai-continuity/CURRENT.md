@@ -1,13 +1,17 @@
 ---
-current_task: "MB-20261019-V63-PUBLICATION"
+current_task: "MB-20261019-V64-PACKAGE"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "6641efb80c3b3203d6d0b4d44ad00d139823772a"
+commit_head: "c74aad0a415db1fc4048db36392e8827c525684b"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V63-PUBLICATION_0dcf5631185b4bc99b3b4357162928bd.json"
-updated_at: "2026-10-18T20:08:45.645992+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V64-PACKAGE_e5c2db69a7a64f6d9f51c66a9e65fc9a.json"
+updated_at: "2026-10-18T20:19:00.641517+00:00"
 
 ---
+
+## Active human priority — v64 overhead ball-height display (SCOPED VERIFIED; publication pending)
+
+Human requests heightonly sizeemphasis overhead, groundoldsize, adjustable1.5, defaultold. NewballDisplay.overheadHeightEmphasis=1(1..8); currentobservedheight from.0366→20m linearly blends1→chosenmax. Othercameras1; defaultidentity exactoldrender, independentglobaloverheadscale. Optionalmeaningquestion unanswered; explicitassumptionmaximumhighflyfactor, neverclaimsilenceapproval. NormalUI/lab64/legacyJSONmissing→1/session compatible865Core. BUILD eb2f7094PASS.171s/CADENCE6093109fPASS7.984s/BROWSERfinalf23aefddPASS58.734s(1200/390,5camera×3scenepixelidentity,ground1/1.5/8same,high16.2708m factor1.406598/1.758248px,otherPOVunchanged,held5hidden,19height/globalprobes,futuregettersforbidden,real1→1.5UI/oldnewJSONsession/atomicvalidation,6Source+bat exactSHA2f939a68)/PACKAGEe5c2db69PASS1.390s. Normal0c1b76a4/lab9485093d. Native114865078dc andallsrc/dist unchanged, batter63/pitcher62/maker62 retained. No newCore/TSC/9game rerunclaim. AuditonlyoriginalCharterHOLD. AGENTS/unrelated/fullplan/FAILUNKNOWN retained. Next: saveexactallowlist+rawproofonexistingbranch/Draft380, metadataonlyclosure; no mainmerge. Heightcueauthorednotphysics, no newability/deps/settings/lock/secrets/DB.
 
 ## Active human priority — v63 v59 swing + bat/head response (SCOPED VERIFIED; PUBLISHED)
 
