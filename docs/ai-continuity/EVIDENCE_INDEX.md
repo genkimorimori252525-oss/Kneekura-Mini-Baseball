@@ -1006,3 +1006,4 @@ Only record verification that was actually performed.
 | MB-20261019-V55-RELEASE | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261019-V55-RELEASE_003168df75de4c9aa996ec26aa912d66.json |
 | MB-20261019-V55-PACKAGE-RECHECK | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V55-PACKAGE-RECHECK_33854d8110064ff3bab15347875b1b6c.json |
 | MB-20261019-V55-RELEASE-FINAL | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V55-RELEASE-FINAL_e00a301fa6304b67bbbe8a28e43fbc46.json |
+| MB-20261019-V55-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V55-PUBLICATION_5dca2d892b484200899172c087888b6a.json |

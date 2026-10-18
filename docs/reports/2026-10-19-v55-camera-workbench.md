@@ -35,4 +35,10 @@ BUILD-FINAL `MB-20261019-V55-BUILD-FINAL_32cff110955d4923966b1a4243a79fb8.json` 
 - 実12球のdefaultでは予定throughを優先し、100ms移行による早期追尾完了を9標本で確認。待機0では実2recordで観測後の早期解除が成立。短いスイングでは待機sliderを変更してもthroughが優先される。診断の観測時刻／releaseAt／throughで区別できる。
 - 配布checker初期003168dfはHTMLのCRLFをLFのみで区切った誤検査。両改行へ対応し、製品HTMLを変えずPASS。修正前のZIP／indexをinitial-release-checkへ保全し、同じ製品と全現Sourceを含むZIPを再照合した。
 
-全てのPASS/FAILは `docs/ai-continuity/verification-receipts/MB-20261019-V55-*` の実command/log SHAを参照。GitHubの公開証拠は配布確認後に追記する。
+全てのPASS/FAILは `docs/ai-continuity/verification-receipts/MB-20261019-V55-*` の実command/log SHAを参照。GitHubの公開証拠は以下に記録する。
+
+## GitHub保存
+
+製品コミット `be76d0fae87f3692bf16702da3768b29275b772e` を既存branchへ通常pushし、Draft PR #380を更新。PUBLICATION `MB-20261019-V55-PUBLICATION_5dca2d892b484200899172c087888b6a.json` PASS、3.733秒。remote branch/PR head一致、OPEN Draft、調整室・通常HTML・Source・最新資料など10個のGitHub raw bytesをローカルと照合した。[公開証拠](../verification/releases/v55/publication.json)。main未マージ。
+
+94ファイルを限定保存し、全staged blobのraw bytes一致・credential pattern0・原ログ以外のwhitespace PASS。ユーザーのAGENTS.mdと無関係な未追跡ファイルを除外。製品Source・HTMLを変えずに、後続の記録専用コミットでこの公開証拠を保存する。
