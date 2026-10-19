@@ -41,3 +41,8 @@
 通常試合とカメラ調整室はv68を維持する。Native Core・守備AI・走塁・公式裁定・初期20選手・投球物理・衝突モデルを変更しない。新APIは既存の物理経路を4回実行する研究用の窓口である。
 
 比較は守備者・壁を置かない観測。着地点の左右は幾何情報で、公式の安打・ファウル・本塁打を確定しない。本人の全身・関節・反動の連成や、弾道1〜4の実リーグ分布校正も追加しない。元の累積計画・全FAIL／UNKNOWN・Charter未承認HOLD、既存の微小角速度超過は継続する。
+
+
+## GitHub保存
+
+製品コミット `916d184dbe171b6661e7b81857216beb5662fabf` を既存ブランチ／OPEN Draft PR380へ保存。91ファイルの許可リスト、試験済みraw byteとGit blobの一致、credential pattern0、非ログのwhitespace、AGENTS除外を確認した。PUBLICATION `889345b9…` PASS108.530秒でremote／PR headと公開raw12ファイルの一致を確認。[公開証拠](../verification/releases/v69/publication.json)。後続は記録だけを保存し、製品HTML・Sourceは変更しない。main未マージ。

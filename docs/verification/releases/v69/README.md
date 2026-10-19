@@ -39,3 +39,6 @@
 | [MAKER-BROWSER 7d8a7389](../../../ai-continuity/verification-receipts/MB-20261019-V69-MAKER-BROWSER_7d8a73895b0542d3a362998169e19c53.json) | PASS | 10.89 |
 | [PACKAGE 6a1c3348](../../../ai-continuity/verification-receipts/MB-20261019-V69-PACKAGE_6a1c33485ab34218973a4d79a74aadad.json) | PASS | 1.421 |
 | [STAGING 6cb2f6ff](../../../ai-continuity/verification-receipts/MB-20261019-V69-STAGING_6cb2f6ff13234e6f862416a9cb3b3d2c.json) | PASS | 1.688 |
+| [PUBLICATION 889345b9](../../../ai-continuity/verification-receipts/MB-20261019-V69-PUBLICATION_889345b90a6b4bbb92f41a8e5a417916.json) | PASS | 108.530 |
+
+[公開照合](publication.json)は製品コミットのremote／PR headと公開raw12ファイルの実byteを確認。記録のみの後続コミットで製品byteは変更しない。
