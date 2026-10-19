@@ -1174,3 +1174,4 @@ Only record verification that was actually performed.
 | MB-20261019-V68-MAKER-METADATA | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V68-MAKER-METADATA_c78c017654524697ab76e7aefe30abe6.json |
 | MB-20261019-V68-PACKAGE-FINAL | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V68-PACKAGE-FINAL_c35356768d3e44d7ba7dd6497148bdd9.json |
 | MB-20261019-V68-STAGING | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V68-STAGING_168e30a88a5846038426a956c7735a4d.json |
+| MB-20261019-V68-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V68-PUBLICATION_a9cceddfe84449148d10aad73af6632a.json |

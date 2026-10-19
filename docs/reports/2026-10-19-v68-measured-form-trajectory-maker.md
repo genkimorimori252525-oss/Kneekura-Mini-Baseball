@@ -45,3 +45,8 @@ G〜Sは既存の正式設計を採用する。G0〜19、F20〜39、E40〜49、D
 角度差や前後区間は試験初期値で、実測で定義された「弾道1〜4」ではない。本人の筋力・関節可動域までの生体力学的な実現性や、実リーグの打球分布を保証しない。頭部微動は既存の表示モデルを継承し、分数時刻の既存微小角速度超過も今回解消したとは主張しない。
 
 元の汎用守備・走塁・裁定・能力／得能・Native連続世界・全記録100試合監査・実機検証などの累積計画は継続する。今回の機能検証を全計画の完了へ広げない。原FAIL／UNKNOWN、Charter未承認HOLDを保持する。
+
+
+## GitHub保存
+
+製品コミット `2fdc2a6f61cc8a6e499998d9a34530cc38f33cdf` を既存ブランチ／OPEN Draft PR380へ保存。186ファイルの許可リスト、試験済みraw byteとGit blobの一致、credential pattern0、非ログのwhitespace、AGENTS除外を確認した。PUBLICATION `a9cceddf…` PASS66.672秒でremote／PR headと公開rawの一致を確認。[公開証拠](../verification/releases/v68/publication.json)。後続コミットは記録のみで、製品byteは変更しない。main未マージ。

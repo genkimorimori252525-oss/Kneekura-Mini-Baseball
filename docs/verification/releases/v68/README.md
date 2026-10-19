@@ -76,3 +76,6 @@ Core最終追加後の対象試験は10PASS／1SKIP。SKIPは専用の実試合�
 | [MAKER-METADATA c78c0176](../../../ai-continuity/verification-receipts/MB-20261019-V68-MAKER-METADATA_c78c017654524697ab76e7aefe30abe6.json) | PASS | 2.141 |
 | [PACKAGE-FINAL c3535676](../../../ai-continuity/verification-receipts/MB-20261019-V68-PACKAGE-FINAL_c35356768d3e44d7ba7dd6497148bdd9.json) | PASS | 8.469 |
 | [STAGING 168e30a8](../../../ai-continuity/verification-receipts/MB-20261019-V68-STAGING_168e30a88a5846038426a956c7735a4d.json) | PASS | 4.139 |
+| [PUBLICATION a9cceddf](../../../ai-continuity/verification-receipts/MB-20261019-V68-PUBLICATION_a9cceddfe84449148d10aad73af6632a.json) | PASS | 66.672 |
+
+[公開raw照合](publication.json)は製品コミットのremote／PR headと全16ファイルの実byteを確認した。記録のみの後続コミットでは製品HTMLを変更しない。
