@@ -61,3 +61,8 @@
 初回checkerは390幅の旧7球にもV78 fieldが存在すると仮定してFAILした。製品を変えず共通resolverを使う検査へ修正し、原reportとcheckerを`pitcher-maker/initial-legacy-width-checker-failure.*`へ保持した。修正前候補のPASSと4画像も`before-final-review-fixes/`へ保全し、最終HTMLの証拠と分ける。
 
 **最終通常HTMLの9回完走は4c113518 PASS（258.359秒）。262球／105打球・105守備処理で全処理完了、fallbackなし、例外なし、基礎roster不変。** 全262球が所持IDかつ縫い目力有効。v77初期6球は全履歴exact。調整室1200／390幅、設定保存・同一loaded rosterを前提とするsession再生も一致した。session単体に選手設定を含むという意味ではない。配布26cbcaa1 PASS（3.297秒）は3HTML・Source union129・旧242凍結物不変を照合。初回PACKAGEの9daa9776は新reportのhashesAtStartを旧normalSha256として読んだ検証器のKeyErrorで、製品を変えず対応した。 100試合の成績分布、実機、実測校正、Native認証連続world、残る技術・牽制／盗塁・心理・疲労等は元の全計画から継続する。新しい外部依存・設定・lockfile・secretは追加変更しない。原Charter HOLD、旧FAIL／UNKNOWN、ユーザー編集`AGENTS.md`を保持し、今回の限定PASSを全計画完了へ拡張しない。
+
+
+## GitHub保存
+
+製品コミット`8b4bc90905dc5708f3181959dd8657552e344b75`を既存Draft PR #380へ保存済み。PUBLICATION 2e0f0832 PASS8.968秒：remote／PR head、3HTMLのGit blobとsize、raw9ファイルのbytesが一致。後続コミットは公開記録と引き継ぎの追記のみ。 [公開照合の実記録](../verification/releases/v78/publication.json)。

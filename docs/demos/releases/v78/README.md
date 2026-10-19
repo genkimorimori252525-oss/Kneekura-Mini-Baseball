@@ -20,4 +20,4 @@ HTMLはダウンロードして通常ブラウザで開けます。各HTML内に
 
 [現仕様・他AIへの相談入口](../../../design-consultation/README.md) · [変更と限界](../../../reports/2026-10-20-v78-pitch-library-and-seam-physics.md) · [実検証と原FAIL](../../../verification/releases/v78/README.md) · [元の全計画](../../../handoffs/2026-10-15-mini-baseball/00-START-HERE.md)
 
-GitHub保存は最終検証後に追記します。既存Draft PR #380へ保存し、mainへマージしません。
+製品コミット`8b4bc90905dc5708f3181959dd8657552e344b75`を既存Draft PR #380へ保存済み。PUBLICATION 2e0f0832 PASS8.968秒：remote／PR head、3HTMLのGit blobとsize、raw9ファイルのbytesが一致。後続コミットは公開記録と引き継ぎの追記のみ。

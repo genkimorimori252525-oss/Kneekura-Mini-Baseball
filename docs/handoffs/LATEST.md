@@ -1,6 +1,6 @@
 # 最新の再開入口 — 2026-10-20
 
-最新のローカル成果物は **通常試合v78／調整室v78／メーカーv78**。球種・保管庫・縫い目空力・俯瞰投影を実装し、Core／物理／型検査と最終HTMLのメーカー・表示・得能回帰はPASS。**新球種を含む最終HTMLは262球／105打球・守備処理で9回完走。GitHub保存の最終照合は準備中。** 公開済み基準はv77製品`c9371bd`／PUBLICATION `c2733f14`。既存branch `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続し、mainへマージしない。
+最新のローカル成果物は **通常試合v78／調整室v78／メーカーv78**。球種・保管庫・縫い目空力・俯瞰投影を実装し、Core／物理／型検査と最終HTMLのメーカー・表示・得能回帰はPASS。**新球種を含む最終HTMLは262球／105打球・守備処理で9回完走。GitHub公開照合2e0f0832 PASS、製品`8b4bc90905dc5708f3181959dd8657552e344b75`を保存済み。** 公開済み基準はv77製品`c9371bd`／PUBLICATION `c2733f14`。既存branch `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続し、mainへマージしない。
 
 - [他AIへの設計相談入口](../design-consultation/README.md)
 - [v78 HTMLと操作](../demos/releases/v78/README.md)
@@ -20,6 +20,6 @@
 
 主要receipt：Core `b23f36bf`（13files115tests）、逆算順序 `bc1df778`（5files20tests）、物理 `930d9425`（13files83tests）、TSC `23b5977c`、最終メーカー `55b95a26`（28.328秒）、俯瞰 `987a813f`（18.186秒）、17得能 `72b98e4c`（7.858秒）。Maker89／Native122入力の開始・終了hashと終端pinを確認。具体SHA、原FAIL、修正前候補の証拠は上記報告と索引から読む。v77の9回結果をv78の実行済み証拠として流用しない。
 
-通常／調整室の最終4c113518 PASS258.359秒。全守備complete、fallbackなし、所持球限定、基礎不変。Sourceと成果物hash開始終了一致。同一loaded rosterでのsession再生を確認。配布26cbcaa1 PASS：Source union129、旧242凍結物不変。次はGitHub公開照合。100試合分布・実機・実測校正・Native認証連続world、残る技術・牽制／盗塁・心理／疲労等は元の全計画から継続する。新外部依存・設定・lockfile・secretを追加変更せず、ユーザー編集`AGENTS.md`、原Charter HOLD、旧FAIL／UNKNOWNを保持する。
+通常／調整室の最終4c113518 PASS258.359秒。全守備complete、fallbackなし、所持球限定、基礎不変。Sourceと成果物hash開始終了一致。同一loaded rosterでのsession再生を確認。配布26cbcaa1 PASS：Source union129、旧242凍結物不変。3HTMLのGit blob／sizeとraw9ファイルが公開commitと一致。以後のcommitは公開記録のみ。100試合分布・実機・実測校正・Native認証連続world、残る技術・牽制／盗塁・心理／疲労等は元の全計画から継続する。新外部依存・設定・lockfile・secretを追加変更せず、ユーザー編集`AGENTS.md`、原Charter HOLD、旧FAIL／UNKNOWNを保持する。
 
 [持球野手の自力踏塁の確認](../verification/2026-10-20-held-base-control/README.md)はv73／v76の既存機能を実証した記録。通常設定での選択頻度の妥当性まで確認したものではない。

@@ -1,21 +1,21 @@
 ---
-current_task: "MB-20261020-V78-IMPLEMENTATION"
+current_task: "MB-20261020-V78-PUBLICATION"
 active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "3c073821532b2d2fc0aa0a0091adba27d4a80ed0"
-status: "SCOPED_VERIFIED_PUBLICATION_PENDING"
-evidence_ref: "docs/verification/releases/v78/README.md"
-updated_at: "2026-10-19T20:08:15.132851+00:00"
+commit_head: "8b4bc90905dc5708f3181959dd8657552e344b75"
+status: "SCOPED_VERIFIED_PUBLISHED"
+evidence_ref: "docs/verification/releases/v78/publication.json"
+updated_at: "2026-10-19T20:10:35.522170+00:00"
 
 ---
 
-## Active human priority — v78 pitch catalog, spin repeatability, virtual-height projection (SCOPED VERIFIED; PUBLICATION PENDING)
+## Active human priority — v78 pitch catalog, spin repeatability, virtual-height projection (SCOPED VERIFIED; PUBLISHED)
 
 人間は15基本分類+日本別名/派生、名前付き原球保管庫/版履歴/他選手snapshotcopy、最低spin維持率、仮想高度投影に加え「ナックルの不規則変化・縫い目の特殊空力も今回に含める」を承認。実装と限定検証完了。名目spin/平均空力の計画後に独立streamで実spinを下振れし、材質姿勢の共通自由球力を適用。旧省略/100%/7球AUTO exact、初期20人と独立17得能不変。設定例24×左右=48ケース。作者係数は実測fitではない。
 
 Core b23f36bf 13files115tests、計画順序最終bc1df778 5files20tests、物理最終930d9425 13files83tests、全体TSC23b5977c PASS。最終Source 122/89pins、union129。Maker55b95a26 PASS28.328s、俯瞰987a813f PASS18.186s、得能72b98e4c PASS7.858s。GAME4c113518 PASS258.359s：v77初期6球exact、新球262球/105打球・105守備全完了/9回/fallbackなし/全所持ID/全seam有効/基礎不変、lab PC390と同一loaded rosterのsession replay exact。通常15804efd/labf5a0a171/maker0ceb277f固定、開始終了hash一致。PACKAGE26cbcaa1 PASS3.297s：旧242凍結物不変、埋込Core/helper/metadata/pins照合。初回9daa9776はreport schema読取の検証器KeyErrorで製品変更なし。その他原FAILは検証索引から参照。
 
-次：最新仕様/相談JSON/3HTML/検証記録を明示allowlistで既存Draft PR380へcommit/pushし公開bytes照合。ユーザーAGENTS除外、設定locksecret不変、main mergeなし。原Charter HOLD/旧FAILBLOCKEDUNKNOWN/Native認証連続world・100試合校正・実機・元未完は保持。根拠はv78検証索引・報告・AMENDMENT。
+製品8b4bc90905dc5708f3181959dd8657552e344b75をDraft PR380へpush済み。PUBLICATION2e0f0832 PASS8.968s：remote/PR head/3HTML Gitblob-size/raw9files一致。後続は公開記録のみ。CCG audit e2ba9776は原Charter独立承認不足1件でFAIL、旧handoff警告を保持。製品試験とは別。ユーザーAGENTS除外、設定locksecret不変、main mergeなし。原Charter HOLD/旧FAILBLOCKEDUNKNOWN/Native認証連続world・100試合校正・実機・元未完は保持。根拠はv78検証索引・報告・AMENDMENT。
 
 ## Active human priority — v77 independent traits and pitcher lab (SCOPED VERIFIED; PUBLISHED)
 

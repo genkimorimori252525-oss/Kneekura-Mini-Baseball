@@ -92,3 +92,5 @@ PACKAGE初回9daa9776 FAILは、検証器が新reportのhashesAtStartを旧キ�
 CCG audit e2ba9776はFAIL（0.359秒）。原Charterの独立承認receipt不足CHARTER_UNAPPROVED 1件と旧commitのhandoff警告を原ログに保持。製品検証のPASSと区別し、CharterをAIで自動承認しない。
 
 STAGING81a7721f PASS3.264秒：明示allowlist、全Gitblobのraw bytes一致、credential pattern0、whitespace0、ユーザーAGENTS除外。最終文書とこのreceiptの追加後も同じ検査器で照合する。
+
+PUBLICATION [2e0f0832](../../../ai-continuity/verification-receipts/MB-20261020-V78-PUBLICATION_2e0f083232054f5a8148f39dabe972c2.json) PASS8.968秒。製品コミット`8b4bc90905dc5708f3181959dd8657552e344b75`を既存Draft PR #380へ保存済み。PUBLICATION 2e0f0832 PASS8.968秒：remote／PR head、3HTMLのGit blobとsize、raw9ファイルのbytesが一致。後続コミットは公開記録と引き継ぎの追記のみ。 [公開バイト照合](publication.json)。
