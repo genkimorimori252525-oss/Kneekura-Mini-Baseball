@@ -1,13 +1,17 @@
 ---
-current_task: "MB-20261020-V75-PUBLICATION"
+current_task: "MB-20261020-V76-PACKAGE"
 active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "944bd1f0358307456efc2382fbaf49fff03b5b65"
+commit_head: "b8acaba00ccab4e40bb176bac3c51cf2f15dd876"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261020-V75-PUBLICATION_aa8a9f6a769e46a084968ea086f7b80d.json"
-updated_at: "2026-10-19T18:16:42.919880+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261020-V76-PACKAGE_aec26b55c38b401bba4a98cc1658d167.json"
+updated_at: "2026-10-19T18:30:43.886771+00:00"
 
 ---
+
+## Active human priority — v76 air/ground display separation (SCOPED VERIFIED; PUBLICATION PENDING)
+
+人間は空中倍率がゴロにも作用すると報告。v67の7.32cm遷移が浅い跳ねへ波及。新helperは球底0.5mまでlegacyexact、0.5〜1.5m補間、高空A>=2は旧exact、1→2基準も連続化。初期1/1/2・旧JSON省略1・全体倍率・持球非表示・全Source/技術/能力/UI/カメラ/元計画は維持。旧helper RED824833c8 FAIL、修正版4fc2887e PASS42低/48高条件。独立レビューの旧metadata/説明不足を修正し最終3HTML固定。browser c01b5bff PASS74.265s：PC390×3surface低球1/2/8画素exact・高空2/8旧exact・他4camera/持球/全体倍率/保存旧JSON/session/invalidatomic・実6球Sourceとcamera/field/bat v75exact・例外netoverflow0。原QA FAIL4c976c8d/58e1e779保持。PACKAGE aec26b55 PASS4.547s：Native117/Maker84/union124とbundlebytesv75exact、旧224凍結物不変。次は明示allowlistで既存Draft380へpushし公開照合。原CharterHOLD/旧FAILUNKNOWN/元の未完は保持。新9回/TS/100試合/実機再走は主張しない。
 
 ## Active human priority — v75 technical traits (SCOPED VERIFIED; PUBLISHED)
 

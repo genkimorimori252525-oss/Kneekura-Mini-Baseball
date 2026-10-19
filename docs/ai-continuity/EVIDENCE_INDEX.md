@@ -1337,3 +1337,10 @@ STAGING [MB-20261020-V75-STAGING](verification-receipts/MB-20261020-V75-STAGING_
 | MB-20261020-V75-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V75-PUBLICATION_aa8a9f6a769e46a084968ea086f7b80d.json |
 
 PUBLICATION [MB-20261020-V75-PUBLICATION](verification-receipts/MB-20261020-V75-PUBLICATION_aa8a9f6a769e46a084968ea086f7b80d.json) PASS 10.000秒。製品commit944bd1fのremote/PRhead、公開3HTML Git blobs/size、raw9小ファイルのbytes一致を確認。後続commitはこの検証記録のみを保存し製品Source/HTMLを変更しない。
+| MB-20261020-V76-BALL-SIZING-RED | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261020-V76-BALL-SIZING-RED_824833c8ee9442788a1a3b208ed273fb.json |
+| MB-20261020-V76-BALL-SIZING | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V76-BALL-SIZING_4fc2887e1a464cb18c95900f79ce74be.json |
+| MB-20261020-V76-BALL-BROWSER | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261020-V76-BALL-BROWSER_4c976c8d985a4af3aae4e6c4cd74320f.json |
+| MB-20261020-V76-BALL-BROWSER | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261020-V76-BALL-BROWSER_58e1e77935ee4259af80efcdfc436ad2.json |
+| MB-20261020-V76-BALL-BROWSER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V76-BALL-BROWSER_c01b5bff188f4d30a1939d17eab30bf8.json |
+| MB-20261020-V76-PACKAGE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V76-PACKAGE_aec26b55c38b401bba4a98cc1658d167.json |
+| MB-20261020-V76-STAGING | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V76-STAGING_57d7a723009b4ff38ca776771354c10d.json |

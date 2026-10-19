@@ -1,0 +1,16 @@
+{
+  "pass": false,
+  "phase": "load",
+  "artifacts": {
+    "normal": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv76_TBD_vs_LAD_空中球とゴロの表示分離版.html",
+    "lab": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\カメラワーク調整室_v76.html",
+    "maker": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v76_ボール表示分離版.html"
+  },
+  "views": [],
+  "faults": [],
+  "scope": "Display-only low-ball guard and smooth high-ball response; actual UI, three embedded normal renderers, six-record v75 Source/bat/camera regression, paused lab, settings/session compatibility. No regulation-game rerun.",
+  "sha256": {
+    "normal": "fa8cd683906d84064bf9d2ea6f8ccf20fd9f6725bf753262fc795a47390b4100"
+  },
+  "error": "ReferenceError: Cannot access 'p' before initialization\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v76-ball-browser.mjs:57:378"
+}
