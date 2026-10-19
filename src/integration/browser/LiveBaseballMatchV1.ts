@@ -1,3 +1,4 @@
+import { resolveLiveTechnicalTraitsV75 } from './LiveTraitProfilesV1';
 import type { Vec3 } from '../../core/model/geometry';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
 import { asRuleProfileId } from '../../core/model/RuleProfileRef';
@@ -175,6 +176,7 @@ export function createLiveBaseballMatchV1(raw:LiveMatchInputV1){
     assert(command.baserunning===undefined||['conservative','balanced','aggressive'].includes(command.baserunning),'invalid manager baserunning command');
     const beforeMatch=cloneInert(match),c=current(),batter=players.get(c.batterPlayerId)!,pitcher=players.get(c.pitcherPlayerId)!,
       bp=physical(batter),pp=physical(pitcher),cp=physical(players.get(input.teams[1-c.team].defense.C)!),ready=readyFrame();
+    const batterTechnique=resolveLiveTechnicalTraitsV75(batter.traitProfile),pitcherTechnique=resolveLiveTechnicalTraitsV75(pitcher.traitProfile);
     const batterPreference=resolveLiveTraitPreferencesV54(batter.traitProfile),pitcherPreference=resolveLiveTraitPreferencesV54(pitcher.traitProfile),
       managedOffense=command.managedTeam===c.team,personalBatting=({POWER:'power',BALANCED:'balanced',CONTACT:'contact'} as const)[batterPreference.swingMode],
       batting=managedOffense&&command.batting!=='auto'?command.batting:personalBatting,
@@ -189,7 +191,7 @@ export function createLiveBaseballMatchV1(raw:LiveMatchInputV1){
       runningMarginAdjustment=runningInstruction==='aggressive'?-.25:runningInstruction==='conservative'?.25:0,
       runningMargin=(p:LivePlayerPhysicalV1)=>Math.max(0,Math.min(3,(p.baserunningSafetyMarginSeconds??.35)+runningMarginAdjustment));
     const pitch=simulateLivePitchV1({originTick:nextTick,seed:(input.seed+Math.imul(pitchCount+1,0x9e3779b9))>>>0,
-      batter:{...bp,heightMeters:batter.heightMeters,bats:batter.bats},pitcher:{...pp,heightMeters:pitcher.heightMeters,moundPosition:LIVE_MATCH_MOUND_SURFACE_V1,...(pitcher.throws===undefined?{}:{throws:pitcher.throws}),
+      batter:{...bp,heightMeters:batter.heightMeters,bats:batter.bats,...(batterTechnique?{technicalSkills:batterTechnique}:{})},pitcher:{...pp,...(pitcherTechnique?{technicalSkills:pitcherTechnique}:{}),heightMeters:pitcher.heightMeters,moundPosition:LIVE_MATCH_MOUND_SURFACE_V1,...(pitcher.throws===undefined?{}:{throws:pitcher.throws}),
         pitchApproach:pitcherPreference.pitchApproach},measuredClips:input.measuredClips.filter(clip=>clip.side===batter.bats
           &&(bp.clipId===undefined?clip.defaultSelection!==false:clip.id===bp.clipId)),
       catcher:{gloveSpeedMps:cp.gloveSpeedMps,gloveReachMeters:cp.gloveReachMeters,gloveRadiusMeters:cp.gloveRadiusMeters,
@@ -200,18 +202,19 @@ export function createLiveBaseballMatchV1(raw:LiveMatchInputV1){
     if(pitch.contact&&pitch.contactMoment){
       const def=input.teams[1-c.team];
       const fielders:LiveFielderV1[]=positions.map(role=>{const playerId=def.defense[role],p=physical(players.get(playerId)!);return{
-        playerId,defensivePosition:role,position:placements[role],reactionSeconds:p.reactionSeconds,topSpeedMps:p.topSpeedMps,accelerationMps2:p.accelerationMps2,
+        playerId,...(resolveLiveTechnicalTraitsV75(players.get(playerId)!.traitProfile)?{technicalSkills:resolveLiveTechnicalTraitsV75(players.get(playerId)!.traitProfile)}:{}),defensivePosition:role,position:placements[role],reactionSeconds:p.reactionSeconds,topSpeedMps:p.topSpeedMps,accelerationMps2:p.accelerationMps2,
         fieldingCognition:{decisionSeconds:p.defensiveDecisionSeconds??0,pursuitCostWeight:p.fieldingPursuitCostWeight??1},
         gloveSpeedMps:p.gloveSpeedMps,gloveReachMeters:p.gloveReachMeters,gloveRadiusMeters:p.gloveRadiusMeters,
         catchRetention:{ticksPerSecond:tps,ballMassKg:.145,ballRadiusMeters:.0366,pocketRadiusMeters:.14,centerRetentionCapacityJ:p.retentionCapacityJ,
           captureDissipationPowerW:p.captureDissipationPowerW,failedContactRestitution:.2,failedTangentialDamping:.35,failedSpinDamping:.2},
         transferSeconds:p.transferSeconds,throwSpeedMps:p.throwSpeedMps,throwBackspinRadPerSecond:120,
         ...(p.throwDirectionStdRadians===undefined?{}:{throwDirectionStdRadians:p.throwDirectionStdRadians})};});
-      const runnerSpecs=[{runnerId:c.batterPlayerId,initialBase:0 as const,position:ready.actors.find(a=>a.playerId===c.batterPlayerId)!.position,
+      const runnerSpecs=[{runnerId:c.batterPlayerId,...(batterTechnique?{technicalSkills:batterTechnique}:{}),initialBase:0 as const,position:ready.actors.find(a=>a.playerId===c.batterPlayerId)!.position,
         topSpeedMps:bp.topSpeedMps,accelerationMps2:bp.accelerationMps2,reactionSeconds:bp.reactionSeconds,advanceSafetyMarginSeconds:runningMargin(bp),
         roundingRadiusMeters:bp.baserunningTurnRadiusMeters??4.5,lateralAccelerationMps2:bp.baserunningLateralAccelerationMps2??1.5*bp.accelerationMps2},
         ...(['first','second','third'] as const).flatMap((key,i)=>{const runnerId=beforeMatch.bases[key];if(!runnerId)return[];const p=physical(players.get(runnerId)!);
-          return[{runnerId,initialBase:(i+1) as 1|2|3,topSpeedMps:p.topSpeedMps,accelerationMps2:p.accelerationMps2,reactionSeconds:p.reactionSeconds,advanceSafetyMarginSeconds:runningMargin(p),
+          const technique=resolveLiveTechnicalTraitsV75(players.get(runnerId)!.traitProfile);
+          return[{runnerId,...(technique?{technicalSkills:technique}:{}),initialBase:(i+1) as 1|2|3,topSpeedMps:p.topSpeedMps,accelerationMps2:p.accelerationMps2,reactionSeconds:p.reactionSeconds,advanceSafetyMarginSeconds:runningMargin(p),
             roundingRadiusMeters:p.baserunningTurnRadiusMeters??4.5,lateralAccelerationMps2:p.baserunningLateralAccelerationMps2??1.5*p.accelerationMps2}];})];
       const outgoingMoment={...pitch.contactMoment,ball:{...pitch.contactMoment.ball,velocity:pitch.contact.exitVelocity,spin:pitch.contact.exitSpin}};
       outgoingBallMoment=outgoingMoment;

@@ -4,19 +4,20 @@ import { createHash } from 'node:crypto';
 import { build } from 'esbuild';
 import vm from 'node:vm';
 
-const args = process.argv.slice(2), equipmentPreview = args.includes('--equipment-preview'), wholeArc = args.includes('--whole-arc'), playerSwingPreview = args.includes('--player-swing-preview'), batOrbit = args.includes('--bat-orbit'), batterComparison = args.includes('--batter-comparison'), ballComparison = args.includes('--ball-comparison'), measuredLibrary = args.includes('--measured-library'), executableTraits = args.includes('--executable-traits'), traitProfiles = executableTraits || args.includes('--traits'), publicAbilities = traitProfiles || args.includes('--public-abilities');
+const args = process.argv.slice(2), technicalTraits = args.includes('--technical-traits'), equipmentPreview = args.includes('--equipment-preview'), wholeArc = args.includes('--whole-arc'), playerSwingPreview = args.includes('--player-swing-preview'), batOrbit = args.includes('--bat-orbit'), batterComparison = args.includes('--batter-comparison'), ballComparison = args.includes('--ball-comparison'), measuredLibrary = args.includes('--measured-library'), executableTraits = args.includes('--executable-traits'), traitProfiles = executableTraits || args.includes('--traits'), publicAbilities = traitProfiles || args.includes('--public-abilities');
 if (ballComparison && !measuredLibrary) throw Error('--ball-comparison requires --measured-library');
 if (batterComparison && !ballComparison) throw Error('--batter-comparison requires --ball-comparison');
 if (batOrbit && !measuredLibrary) throw Error('--bat-orbit requires --measured-library');
 if (playerSwingPreview && !measuredLibrary) throw Error('--player-swing-preview requires --measured-library');
 if (wholeArc && (!playerSwingPreview || !batterComparison)) throw Error('--whole-arc requires --player-swing-preview and --batter-comparison');
 if (equipmentPreview && (!wholeArc || !publicAbilities)) throw Error('--equipment-preview requires --whole-arc and public abilities');
+if (technicalTraits && !equipmentPreview) throw Error('--technical-traits requires --equipment-preview');
 const inputOverride = name => {
   const options=args.filter(arg=>arg.startsWith('--'+name+'='));
   if(options.length>1||options.some(arg=>!arg.slice(name.length+3)))throw Error('Exactly one nonempty --'+name+'=PATH is required when overriding input');
   return options[0]?.slice(name.length+3);
 };
-const output = resolve(args.find(arg => !['--public-abilities','--traits','--executable-traits','--measured-library','--ball-comparison','--batter-comparison','--bat-orbit','--player-swing-preview','--whole-arc','--equipment-preview'].includes(arg)
+const output = resolve(args.find(arg => !['--public-abilities','--traits','--executable-traits','--measured-library','--ball-comparison','--batter-comparison','--bat-orbit','--player-swing-preview','--whole-arc','--equipment-preview','--technical-traits'].includes(arg)
   && !arg.startsWith('--roster=') && !arg.startsWith('--catalog=') && !arg.startsWith('--match-renderer=')) ?? (publicAbilities ? 'outputs/にーくら野球メーカー_公開能力編集版.html' : 'outputs/にーくら野球メーカー_実測スイング版.html'));
 const rosterPath = inputOverride('roster') ?? 'docs/demos/live-game-roster-' + (traitProfiles ? 'v3' : publicAbilities ? 'v2' : 'v1') + '.json';
 const rosterCatalogPath = inputOverride('catalog') ?? 'docs/demos/live-game-roster-catalog-' + (executableTraits ? 'v4' : traitProfiles ? 'v3' : publicAbilities ? 'v2' : 'v1') + '.json';
@@ -47,15 +48,15 @@ if (liveRoster.version !== 'live_physical_roster_v1' || !Array.isArray(liveRoste
   || liveRosterCatalog.players.some(p => !liveRoster.entries.some(e => e.playerId === p.playerId && e.physical && !e.workbenchPlayer)))
   throw Error('Complete physical game roster/catalog required');
 if (!core.includes('applyLivePhysicalRosterV1')) throw Error('Game ability validation API unavailable');
-const traitAvailabilityJson = executableTraits ? await readFile('docs/demos/live-trait-availability-v54.json', 'utf8') : null;
+const traitAvailabilityJson = executableTraits ? await readFile('docs/demos/live-trait-availability-' + (technicalTraits ? 'v75' : 'v54') + '.json', 'utf8') : null;
 const traitAvailability = traitAvailabilityJson ? JSON.parse(traitAvailabilityJson) : null;
 if (traitAvailability) {
-  if (traitAvailability.version !== 'live_trait_availability_v54' || traitAvailability.authority !== 'CANONICAL_INVENTORY_READ_ONLY_NOT_EXECUTION_INPUT'
+  if (traitAvailability.version !== (technicalTraits ? 'live_trait_availability_v75' : 'live_trait_availability_v54') || traitAvailability.authority !== 'CANONICAL_INVENTORY_READ_ONLY_NOT_EXECUTION_INPUT'
     || !Array.isArray(traitAvailability.entries) || !Array.isArray(traitAvailability.supportedFamilyIds)
     || traitAvailability.entries.length !== 119 || new Set(traitAvailability.entries.map(e => e.familyId)).size !== traitAvailability.entries.length)
     throw Error('Canonical trait availability catalog required');
   const realm = {}; vm.runInNewContext(core, realm);
-  const actual = realm.KneekuraBaseballWorkbench.getLiveTraitCatalogV1().map(d => d.familyId).sort();
+  const actual = realm.KneekuraBaseballWorkbench.getLiveTraitCatalogV1({includeTechnical:technicalTraits}).map(d => d.familyId).sort();
   if (JSON.stringify(actual) !== JSON.stringify([...traitAvailability.supportedFamilyIds].sort())) throw Error('Trait execution/availability catalog disagree');
   for (const entry of traitAvailability.entries) {
     if (!/^[a-z][a-z0-9_]*$/.test(entry.familyId) || !entry.label || !Array.isArray(entry.aliases)
@@ -91,8 +92,8 @@ if (batterComparison) {
   matchRendererSourceSha256 = sha(frozenGame);
   if (wholeArc) {
     const gameMeta = JSON.parse(await readFile(matchRendererPath + '.build.json', 'utf8'));
-    if (gameMeta.sha256 !== matchRendererSourceSha256 || gameMeta.presentationVersion !== (equipmentPreview ? 74 : 73) || !gameMeta.optionalWholeArcTrajectoryConnected
-        || (equipmentPreview && !gameMeta.extendedEquipmentConnected))
+    if (gameMeta.sha256 !== matchRendererSourceSha256 || gameMeta.presentationVersion !== (technicalTraits ? 75 : equipmentPreview ? 74 : 73) || !gameMeta.optionalWholeArcTrajectoryConnected
+        || (equipmentPreview && !gameMeta.extendedEquipmentConnected) || (technicalTraits && !gameMeta.technicalTraitsConnected))
       throw Error('Comparison needs the matching verified ordinary-match renderer');
   } else if (matchRendererSourceSha256 !== '8b709ab3c69fc8bdc5f9980a8b66912e0b9b86f73c67970cc1bf9b37cfa6ccbc')
     throw Error('Frozen ordinary-match renderer differs');
@@ -130,7 +131,7 @@ for (const marker of ['<!-- WORKBENCH_CORE -->', '<!-- WORKBENCH_REFERENCE -->',
 }
 if (measuredLibrary) {
   template = template.replace('</head>', () => '<style>\n' + lightCss + '\n' + comparisonCss + '\n' + batterCss + '\n</style></head>');
-  template = template.replace('にーくら野球メーカー</title>', 'にーくら野球メーカー v' + (equipmentPreview ? 74 : wholeArc ? 73 : playerSwingPreview ? 72 : batOrbit ? 71 : batterComparison ? 70 : ballComparison ? 69 : 68) + '</title>');
+  template = template.replace('にーくら野球メーカー</title>', 'にーくら野球メーカー v' + (technicalTraits ? 75 : equipmentPreview ? 74 : wholeArc ? 73 : playerSwingPreview ? 72 : batOrbit ? 71 : batterComparison ? 70 : ballComparison ? 69 : 68) + '</title>');
 }
 const referenceInline = measuredLibrary ? libraryDecoder + '\n;globalThis.KneekuraReferenceBatMotions=KneekuraMeasuredBatLibrary.decode('
   + JSON.stringify(referenceJson).replace(/</g, '\\u003c') + ');' : 'globalThis.KneekuraReferenceBatMotions=' + JSON.stringify(referenceData).replace(/</g, '\\u003c') + ';';
@@ -142,6 +143,7 @@ const html = template.replace('<!-- WORKBENCH_CORE -->', () => '<script>\n' + co
     + (publicReference ? ';globalThis.KneekuraLivePublicAbilityReference=' + JSON.stringify(publicReference).replace(/</g, '\\u003c') : '')
     + (traitAvailability ? ';globalThis.KneekuraLiveTraitAvailabilityCatalog=' + JSON.stringify(traitAvailability).replace(/</g, '\\u003c') : '') + ';</script>')
   .replace('<!-- WORKBENCH_UI -->', () => '<script>\n' + (wholeArc ? 'globalThis.KneekuraWholeArcTrajectoryEnabled=true;\n' : '')
+    + (technicalTraits ? 'globalThis.KneekuraTechnicalTraitsV75=true;\n' : '')
     + (equipmentPreview ? 'globalThis.KneekuraPlayerEquipmentPreviewEnabled=true;\nglobalThis.KneekuraBallComparisonLayoutV74=true;\n' : '')
     + (playerSwingPreview ? 'globalThis.KneekuraPlayerSwingPreviewEnabled=true;\n' : '')
     + ui + '\n' + swingUi + '\n' + comparisonUi + '\n'
@@ -157,7 +159,7 @@ const report = { output, bytes: Buffer.byteLength(html), sha256: sha(html), core
   publicAbilities, traitProfiles, executableTraits, measuredLibrary, libraryDecoderSha256: measuredLibrary ? sha(libraryDecoder) : null,
   ballComparison, comparisonUiSha256: ballComparison ? sha(comparisonUi) : null, comparisonCssSha256: ballComparison ? sha(comparisonCss) : null,
   batterComparison, batterUiSha256: batterComparison ? sha(batterUi) : null, batterCssSha256: batterComparison ? sha(batterCss) : null,
-  batOrbit, playerSwingPreview, wholeArc, equipmentPreview, comparisonLayoutVersion: equipmentPreview ? 74 : null,
+  batOrbit, playerSwingPreview, wholeArc, equipmentPreview, technicalTraits, comparisonLayoutVersion: equipmentPreview ? 74 : null,
   matchRendererAdapterSha256: batterComparison ? sha(matchAdapter) : null, matchRendererSourceSha256, matchRendererSourcePath: batterComparison ? matchRendererPath : null,
   embeddedMatchRendererSha256: batterComparison ? sha(makerMatchHtml) : null,
   swingUiSha256: measuredLibrary ? sha(swingUi) : null, helpUiSha256: measuredLibrary ? sha(helpUi) : null,

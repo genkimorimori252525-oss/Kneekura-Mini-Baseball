@@ -1,4 +1,5 @@
 import type { Vec2 } from '../../model/geometry';
+import { validateTechnicalSkillControlsV75, type TechnicalSkillControlsV75 } from '../TechnicalSkillControlsV75';
 import { getRunnerRouteLength, sampleRunnerRoute, type RunnerRoute, type RunnerRouteSegment } from './RunnerRoute';
 
 export type LiveRunnerMotionBaseV1 = Readonly<{ base: number; position: Vec2 }>;
@@ -11,6 +12,7 @@ export type LiveRunnerMotionInputV1 = Readonly<{
   accelerationMps2: number;
   brakingMps2?: number;
   roundingRadiusMeters?: number;
+  technicalSkills?: TechnicalSkillControlsV75;
   lateralAccelerationMps2?: number;
   baseTouchRadiusMeters?: number;
 }>;
@@ -218,8 +220,11 @@ function firstTouchDistance(route: RunnerRoute, bag: Vec2, radius: number, cente
  * exceeding braking/lateral acceleration or requiring a looping detour; the
  * caller must retain its plan. */
 export function createLiveRunnerMotionV1(input: LiveRunnerMotionInputV1): LiveRunnerMotionV1 | null {
+  if (input.technicalSkills !== undefined) validateTechnicalSkillControlsV75(input.technicalSkills);
   const braking = input.brakingMps2 ?? input.accelerationMps2;
-  const radius = input.roundingRadiusMeters ?? 4.5;
+  const authoredRadius = input.roundingRadiusMeters ?? 4.5, skill = input.technicalSkills?.baserunning ?? 0;
+  // Technique selects a slightly wider/narrower through-base route, never extra motor capacity.
+  const radius = skill !== 0 && input.bases.length > 1 ? authoredRadius * (1 + .04 * skill) : authoredRadius;
   const lateral = input.lateralAccelerationMps2 ?? 1.5 * input.accelerationMps2;
   const touchRadius = input.baseTouchRadiusMeters ?? .28;
   if (!finite(input.position) || input.velocity && !finite(input.velocity)

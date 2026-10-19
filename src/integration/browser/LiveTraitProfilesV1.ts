@@ -1,3 +1,4 @@
+import { getTechnicalTraitDefinitionsV75, isTechnicalTraitV75, resolveValidatedTechnicalProfileV75 } from './LiveTechnicalTraitsV75';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { LivePhysicalRosterInputV1 } from './LivePhysicalRosterV1';
 import { deriveLiveThrowAccuracyGradeV54, getLiveThrowAccuracySourceV54, getLiveTraitAuthoringCalibrationV54 } from './LiveTraitAuthoringCalibrationV54';
@@ -18,7 +19,7 @@ export type LiveTraitDefinitionV1 = Readonly<{
   familyId: string; label: string; lifecycleClass: string; sourceRoute: 'SOURCE_EXECUTION' | 'PREFERENCE';
   states: readonly Readonly<{ stateId: string; label: string; color: TraitColor }>[];
   sourcePaths: readonly string[]; effectOwner: string; sourceDefinition: string;
-  editor?: 'OWNERSHIP' | 'PREFERENCE' | 'GRADE'; availability?: 'EXECUTABLE' | 'SOURCE_DERIVED'; calibrationId?: string;
+  editor?: 'OWNERSHIP' | 'PREFERENCE' | 'GRADE' | 'TECHNIQUE'; availability?: 'EXECUTABLE' | 'SOURCE_DERIVED'; calibrationId?: string;
 }>;
 export type LiveTraitPhysicalSourceV54 = Readonly<{
   badBallControl?: number; throwDirectionStdRadians?: number; baserunningSafetyMarginSeconds?: number;
@@ -30,7 +31,7 @@ const freeze = <T>(value: T): T => {
 };
 const calibration = getLiveTraitAuthoringCalibrationV54();
 const state = (stateId: string, label: string, color: TraitColor = 'green') => ({ stateId, label, color });
-const catalog: readonly LiveTraitDefinitionV1[] = freeze([
+const legacyCatalog: readonly LiveTraitDefinitionV1[] = freeze([
   { familyId: 'bad_ball_hitting', label: '悪球打ち', lifecycleClass: 'LEARNED_MASTERY_PERSISTENT', sourceRoute: 'SOURCE_EXECUTION',
     states: [state('LEARNED', '悪球打ち', 'blue')], editor: 'OWNERSHIP', availability: 'EXECUTABLE',
     sourcePaths: ['physical.badBallControl', 'workbenchPlayer.traits.badBallControl'],
@@ -66,7 +67,8 @@ const catalog: readonly LiveTraitDefinitionV1[] = freeze([
     editor: 'PREFERENCE', availability: 'EXECUTABLE', sourcePaths: [], effectOwner: 'Host AUTO batting motor selection',
     sourceDefinition: 'canonical09 §5.11 / §6; accepted explicit batting commands take priority' },
 ]);
-export const getLiveTraitCatalogV1 = (): readonly LiveTraitDefinitionV1[] => catalog;
+const catalog: readonly LiveTraitDefinitionV1[] = freeze([...legacyCatalog, ...getTechnicalTraitDefinitionsV75()]);
+export const getLiveTraitCatalogV1 = (options?: Readonly<{includeTechnical?:boolean}>): readonly LiveTraitDefinitionV1[] => options?.includeTechnical ? catalog : legacyCatalog;
 function assert(value: unknown, message: string): asserts value { if (!value) throw new Error('live trait profiles: ' + message); }
 const text = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value.trim() === value && value.length <= 160;
 const object = (value: unknown, fields: readonly string[], path: string): Record<string, unknown> => {
@@ -79,14 +81,15 @@ const range = (value: unknown, min: number, max: number): number => {
   assert(typeof value === 'number' && Number.isFinite(value) && value >= min && value <= max, 'invalid technical source');
   return value;
 };
-const virtual = (id: string) => id === 'pitch_approach' || id === 'swing_mode_preference';
+const virtual = (id: string) => id === 'pitch_approach' || id === 'swing_mode_preference' || isTechnicalTraitV75(id);
 const scalarKey = (id: string): string | null => ({ bad_ball_hitting: 'badBallControl', throw_accuracy: 'throwDirectionStdRadians',
   running_aggression: 'baserunningSafetyMarginSeconds', fielding_aggression: 'fieldingPursuitCostWeight' } as Record<string, string>)[id] ?? null;
-const sourceKeys = (id: string): readonly string[] => virtual(id) ? [] : id === 'plate_aggression'
+const sourceKeys = (id: string): readonly string[] => isTechnicalTraitV75(id) ? ['effectScale'] : virtual(id) ? [] : id === 'plate_aggression'
   ? ['swingDecision.threshold', 'swingDecision.aggressionWeight', 'swingDecision.approach'] : [scalarKey(id)!];
 function readSource(raw: unknown, id: string): LiveTraitSourceV1 {
   const source = object(raw, sourceKeys(id), 'source');
-  if (id === 'bad_ball_hitting') range(source.badBallControl, 0, 1);
+  if (isTechnicalTraitV75(id)) range(source.effectScale, 0, 2);
+  else if (id === 'bad_ball_hitting') range(source.badBallControl, 0, 1);
   else if (id === 'throw_accuracy') range(source.throwDirectionStdRadians, 0, .12);
   else if (id === 'running_aggression') range(source.baserunningSafetyMarginSeconds, 0, 3);
   else if (id === 'fielding_aggression') range(source.fieldingPursuitCostWeight, .25, 4);
@@ -143,6 +146,7 @@ function physicalSource(entry: Entry): LiveTraitPhysicalSourceV54 {
 }
 function currentSource(entry: Entry, id: string): LiveTraitSourceV1 | null {
   const source = physicalSource(entry), key = scalarKey(id);
+  if (isTechnicalTraitV75(id)) return entry.traitProfile?.selections.find((s:Selection)=>s.familyId===id)?.source??{effectScale:1};
   if (virtual(id)) return {};
   if (id === 'plate_aggression') {
     const decision = source.swingDecision ?? { approach: 'AUTO', threshold: calibration.plateAggression.defaultThreshold,
@@ -174,11 +178,11 @@ function context(raw: LiveTraitRosterInputV1, playerId: string, verifySources = 
 }
 const displaySource = (id: string, source: LiveTraitSourceV1 | null): number | LiveTraitSourceV1 | null =>
   source === null ? null : scalarKey(id) ? Number(source[scalarKey(id)!]) : source;
-export function projectLiveTraitProfilesV1(input: Readonly<{ roster: LiveTraitRosterInputV1; playerId: string }>) {
+export function projectLiveTraitProfilesV1(input: Readonly<{ roster: LiveTraitRosterInputV1; playerId: string; includeTechnical?:boolean }>) {
   const { entry } = context(input.roster, input.playerId);
   return freeze({ boundary: 'LOCAL_TRAIT_AUTHORING_ONLY' as const, nativeMasteryAuthenticated: false as const,
-    catalogVersion: 54 as const, calibrationVersion: calibration.version, calibrationAuthority: calibration.authority,
-    traits: catalog.map(definition => {
+    catalogVersion: input.includeTechnical ? 75 : 54, calibrationVersion: calibration.version, calibrationAuthority: calibration.authority,
+    traits: getLiveTraitCatalogV1({includeTechnical:input.includeTechnical}).map(definition => {
       const current = currentSource(entry, definition.familyId), selection = entry.traitProfile?.selections.find((item: Selection) => item.familyId === definition.familyId),
         derived = definition.editor === 'GRADE' && current !== null ? deriveLiveThrowAccuracyGradeV54(Number(current.throwDirectionStdRadians)) : null,
         owned = derived !== null ? true : selection ? selection.stateId !== null : null,
@@ -217,6 +221,15 @@ export function setLiveTraitProfileV1(input: Readonly<{ roster: LiveTraitRosterI
   assert(definition && (request.stateId === null || definition.states.some(value => value.stateId === request.stateId)), 'unknown family or state');
   const id = definition.familyId, current = currentSource(entry, id), explicit = request.source === undefined ? null : readSource(request.source, id),
     changes: { path: string; before: unknown; after: unknown }[] = [];
+  if (isTechnicalTraitV75(id)) {
+    const previous=entry.traitProfile?.selections.find((s:Selection)=>s.familyId===id), source=explicit??previous?.source??{effectScale:1};
+    if(previous?.stateId!==request.stateId||!sameSource(previous.source,source)){
+      const selection={familyId:id,stateId:request.stateId,source:readSource(source,id)};
+      (entry as unknown as MutableEntry).traitProfile={version:'live_trait_profile_v1',selections:[...(entry.traitProfile?.selections??[]).filter((s:Selection)=>s.familyId!==id),selection]};
+      changes.push({path:'traitProfile.selections.'+id,before:previous??null,after:selection});markEdited(roster,entry);
+    }
+    return freeze({roster,projection:projectLiveTraitProfilesV1({roster,playerId:request.playerId,includeTechnical:true}),changes});
+  }
   if (definition.editor === 'GRADE') {
     assert(request.stateId !== null && entry.physical, 'a source-derived grade requires an explicit physical owner and tier');
     if (explicit === null && current !== null && deriveLiveThrowAccuracyGradeV54(Number(current.throwDirectionStdRadians)) === request.stateId)
@@ -288,4 +301,9 @@ export function reconcileLiveTraitSourcesV54(input: Readonly<{ roster: LiveTrait
   }
   context(roster, request.playerId);
   return freeze(roster);
+}
+
+/** Public boundary uses the same strict profile parser as every other trait resolver. */
+export function resolveLiveTechnicalTraitsV75(profile?: LiveTraitProfileV1) {
+  return resolveValidatedTechnicalProfileV75(profile===undefined?undefined:readProfile(profile));
 }

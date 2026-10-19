@@ -1,3 +1,5 @@
+import { validateTechnicalSkillControlsV75, type TechnicalSkillControlsV75 } from '../TechnicalSkillControlsV75';
+
 /** Shared controller settings, not player abilities or empirical calibration.
  * Existing runner reaction is added to each new legal departure cue. */
 export const LIVE_RUNNER_ADVANCE_POLICY_V1 = Object.freeze({
@@ -13,7 +15,7 @@ export type LiveRunnerAdvanceInputV1 = Readonly<{
   /** Actual contact geometry. Omitted keeps the legacy center-stop estimate. */
   baseTouchRadiusMeters?: number;
   targetOccupied: boolean;
-  runner: Readonly<{ topSpeedMps: number; accelerationMps2: number; reactionSeconds: number }>;
+  runner: Readonly<{ topSpeedMps: number; accelerationMps2: number; reactionSeconds: number; technicalSkills?: TechnicalSkillControlsV75 }>;
   forced: boolean;
   outs?: 0 | 1 | 2;
   awardThroughBase?: 1 | 2 | 3 | 4 | null;
@@ -75,6 +77,7 @@ export function estimateLiveRunnerLegSecondsV1(distanceMeters: number, topSpeedM
  * pending fly catch must not inherit the still-live batter's force obligation.
  * Awards, legality, reaction and occupancy remain separate from adjudication. */
 export function decideLiveRunnerAdvanceV1(input: LiveRunnerAdvanceInputV1): LiveRunnerAdvanceDecisionV1 {
+  if (input.runner.technicalSkills !== undefined) validateTechnicalSkillControlsV75(input.runner.technicalSkills);
   const safetyMargin = input.policy?.safetyMarginSeconds ?? LIVE_RUNNER_ADVANCE_POLICY_V1.safetyMarginSeconds,
     recognition = input.policy?.recognitionSeconds ?? LIVE_RUNNER_ADVANCE_POLICY_V1.recognitionSeconds,
     reaction = input.runner.reactionSeconds;
@@ -104,7 +107,9 @@ export function decideLiveRunnerAdvanceV1(input: LiveRunnerAdvanceInputV1): Live
     airborne = available.length === 0 && input.airborneAssessment !== undefined,
     legalCue = batter || award || twoOuts ? input.playStartedAtSeconds : groundedForce ? input.firstGroundContactElapsedSeconds
       : available.length ? Math.min(...available) : airborne ? input.playStartedAtSeconds : null,
-    readyAtElapsedSeconds = legalCue === null ? null : legalCue + (reaction + recognition);
+    startSkill = batter ? input.runner.technicalSkills?.bat_to_run_transition ?? 0 : 0,
+    departureReaction = startSkill > 0 ? reaction * (1 - .15 * startSkill) : reaction,
+    readyAtElapsedSeconds = legalCue === null ? null : legalCue + (departureReaction + recognition);
   assert(readyAtElapsedSeconds === null || Number.isFinite(readyAtElapsedSeconds), 'recognition exceeds finite play clock');
   const runnerArrivalSeconds = readyAtElapsedSeconds === null ? null
     : Math.max(0, readyAtElapsedSeconds - input.nowSeconds) + runnerTravelSeconds,

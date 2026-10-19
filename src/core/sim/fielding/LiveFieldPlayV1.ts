@@ -26,12 +26,14 @@ import { planLiveRelayV1, type LiveRelayPlanV1 } from './LiveRelayPlanV1';
 import { createLiveRunnerMotionV1, type LiveRunnerMotionV1 } from '../running/LiveRunnerMotionV1';
 import { createLiveRunnerRetreatMotionV1 } from '../running/LiveRunnerRetreatMotionV1';
 import { SeedRoot } from '../../rng/SeedRoot';
+import { validateTechnicalSkillControlsV75, type TechnicalSkillControlsV75 } from '../TechnicalSkillControlsV75';
 import { createInitialForceObligationState, deriveCurrentForceObligations, retireForceParticipant,
   satisfyForceParticipantObligation } from '../../rules/ForceObligation';
 import type { BaseballBase, RunnerBaseTouchFact, ControlledBaseContactFact, ControlledRunnerTagFact,
   RunnerBaseDepartureFact, DefensiveAppealAttemptFact, PlayEndFact } from '../../rules/PhysicalRuleFacts';
 
 export type LiveFielderV1 = Readonly<{ playerId: string; position: Vec3; velocity?: Vec3;
+  technicalSkills?: TechnicalSkillControlsV75;
   defensivePosition?: LiveFieldRoleActorV1['defensivePosition'];
   reactionSeconds: number; topSpeedMps: number; accelerationMps2: number;
   /** Explicit additional decision latency, independent of team assignment correctness. */
@@ -41,6 +43,7 @@ export type LiveFielderV1 = Readonly<{ playerId: string; position: Vec3; velocit
   throwDirectionStdRadians?: number;
   throwSpinRadPerSecond?: Vec3; throwBackspinRadPerSecond?: number }>;
 export type LiveRunnerV1 = Readonly<{ runnerId: string; initialBase: 0 | 1 | 2 | 3;
+  technicalSkills?: TechnicalSkillControlsV75;
   position?: Vec3; topSpeedMps: number; accelerationMps2: number; reactionSeconds: number;
   advanceSafetyMarginSeconds?: number; roundingRadiusMeters?: number; lateralAccelerationMps2?: number }>;
 export type LiveFieldGeometryV1 = Readonly<{ bases: Readonly<Record<'home' | 'first' | 'second' | 'third', Vec3>>;
@@ -208,6 +211,7 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
       && r.advanceSafetyMarginSeconds >= 0 && r.advanceSafetyMarginSeconds <= 3)
     && (r.roundingRadiusMeters === undefined || Number.isFinite(r.roundingRadiusMeters) && r.roundingRadiusMeters >= .5 && r.roundingRadiusMeters <= 10)
     && (r.lateralAccelerationMps2 === undefined || Number.isFinite(r.lateralAccelerationMps2) && r.lateralAccelerationMps2 >= .5 && r.lateralAccelerationMps2 <= 20), 'explicit runner SI required');
+  for (const actor of [...input.fielders, ...input.runners]) if (actor.technicalSkills !== undefined) validateTechnicalSkillControlsV75(actor.technicalSkills);
   const facts: LiveFieldFactV1[] = [], frames: LiveFieldFrameV1[] = [], runnerTouches: RunnerBaseTouchFact[] = [],
     controlledBaseContacts: ControlledBaseContactFact[] = [], controlledRunnerTags: ControlledRunnerTagFact[] = [], runnerDepartures: RunnerBaseDepartureFact[] = [],
     defensiveAppeals: DefensiveAppealAttemptFact[] = [];
@@ -395,6 +399,9 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
   };
   const history: { t: number; position: Vec3; velocity: Vec3; spin: Vec3; phase: string }[] = [];
   const observe = (t: number) => { const b = ballAt(t); history.push({ t, position: b.position, velocity: b.velocity, spin: b.spin, phase: b.phase }); };
+  // One local technique owner: authored SI remains intact in movement, relay and forecasts.
+  const effectiveTransferSeconds = (f: Fielder) => { const skill = f.spec.technicalSkills?.advanced_fielding ?? 0;
+    return skill > 0 ? f.spec.transferSeconds * (1 - .08 * skill) : f.spec.transferSeconds; };
   const responseSeconds = (f: Fielder) => f.spec.reactionSeconds + (f.spec.fieldingCognition?.decisionSeconds ?? 0);
   const seenBy = (f: Fielder, t: number) => {
     const delay = hasThrown && f === throwTarget?.receiver ? f.spec.reactionSeconds : responseSeconds(f);
@@ -636,13 +643,13 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
         return [f, { point: role.point, intent: role.intent, base: role.targetBase }] as const; })) };
     };
     let planned = assignment(), assigned = planned.targets;
-    if (possession && !pendingCatch && t < custodySince + possession.spec.transferSeconds && releaseAt === null) {
+    if (possession && !pendingCatch && t < custodySince + effectiveTransferSeconds(possession) && releaseAt === null) {
       const oblig = deriveCurrentForceObligations(force)[0];
       holderDecisions.push({ elapsedSeconds: t, playerId: possession.spec.playerId, state: 'waiting_transfer',
         base: oblig?.targetBase ?? null,
         receiverDistanceToBaseMeters: oblig ? distance(flat(at(possession.body, t)), flat(base(oblig.targetBase))) : undefined });
     }
-    if (possession && !pendingCatch && t >= custodySince + possession.spec.transferSeconds && releaseAt === null) {
+    if (possession && !pendingCatch && t >= custodySince + effectiveTransferSeconds(possession) && releaseAt === null) {
       const arrive = (f: Fielder, target: Vec3) =>
         liveFieldArrivalSecondsV1({ ...roleActor(f, t), remainingReactionSeconds: 0 }, target, field.baseTouchRadiusMeters ?? .28);
       const candidates = outTargets().map(o => {
@@ -674,7 +681,7 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
           relayPlan = cached && t - cached.at < .12 ? cached.plan : planLiveRelayV1({
             actors: defenders.map(f => ({ ...roleActor(f, t), glovePosition: at(f.glove, t), gloveVelocity: velocityAt(f.glove, t),
               gloveSpeedMps: f.spec.gloveSpeedMps, gloveReachMeters: f.spec.gloveReachMeters, gloveRadiusMeters: f.spec.gloveRadiusMeters,
-              transferSeconds: f.spec.transferSeconds,
+              transferSeconds: effectiveTransferSeconds(f),
               ...(f.spec.throwDirectionStdRadians === undefined ? {} : { throwDirectionStdRadians: f.spec.throwDirectionStdRadians }),
               ...(f.spec.throwBackspinRadPerSecond === undefined ? {} : { throwBackspinRadPerSecond: f.spec.throwBackspinRadPerSecond }),
               ...(f.spec.throwSpinRadPerSecond === undefined ? {} : { throwSpinRadPerSecond: f.spec.throwSpinRadPerSecond }) })),
@@ -755,9 +762,15 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
         const pred = forecasts.find(x => x.f === f)?.predicted,
           toT = flat(sub(target.point, before)), distT = norm(toT),
           stopTime = liveFieldArrivalSecondsV1({ ...roleActor(f, t), remainingReactionSeconds: 0 }, target.point, .02) + norm(vel) / f.spec.accelerationMps2;
-        if (distT > .35 && (!pred || !pred.intercepted || pred.eta < stopTime)) {
+        const chargeSkill = f.spec.technicalSkills?.slow_ball_charge ?? 0, seen = chargeSkill > 0 ? seenBy(f, t) : null,
+          charging = chargeSkill > 0 && !possession && !pendingCatch && !hasThrown && !throwTarget
+            && firstGroundContactSeconds !== null && seen !== null && seen.t >= firstGroundContactSeconds
+            && seen.position.y <= input.physics.ground.radiusM + .05 && norm(seen.velocity) <= 10;
+        if (distT > (charging ? .15 : .35) && (charging || !pred || !pred.intercepted || pred.eta < stopTime)) {
           const runThrough = (f.spec.topSpeedMps * f.spec.topSpeedMps) / (2 * f.spec.accelerationMps2) + .5;
           motorPoint = add(target.point, mul(toT, runThrough / distT));
+          // A bounded observed-ball lead changes the approach route; all motor/avoidance limits still apply.
+          if (charging) motorPoint = add(motorPoint, mul(flat(seen!.velocity), .03 * chargeSkill));
         }
       }
       const seg = buildDefenderMotionTrajectory({ tick: 0, position: flat(before), velocity: flat(vel) }, active && !defensiveOpportunity ? flat(targetInside(motorPoint, fenceRadius - bodyRadius - .02)) : null,
@@ -942,7 +955,7 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
           if (!controlled && !predicted) return [];
           const pickupSeconds = possession ? 0 : pendingCatch ? Math.max(0, pendingCatch.secure - t) : predicted!.eta,
             point = controlled ? at(f.glove, t) : predicted!.point,
-            transfer = possession ? Math.max(0, custodySince + f.spec.transferSeconds - t) : f.spec.transferSeconds,
+            transfer = possession ? Math.max(0, custodySince + effectiveTransferSeconds(f) - t) : effectiveTransferSeconds(f),
             // The fastest available arm is a lower bound for any direct/relay
             // route. Do not let a weak holder hide a possible strong cutoff.
             throwSeconds = distance(point, add(base(n), v(0, .9, 0))) / fastestArm,
@@ -1034,6 +1047,7 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
         bases: Array.from({ length: finalBase - leg.to + 1 }, (_, i) => ({ base: leg.to + i, position: base(leg.to + i) })),
         topSpeedMps: r.spec.topSpeedMps, accelerationMps2: r.spec.accelerationMps2,
         roundingRadiusMeters: r.spec.roundingRadiusMeters ?? 4.5,
+        ...(r.spec.technicalSkills === undefined ? {} : { technicalSkills: r.spec.technicalSkills }),
         lateralAccelerationMps2: r.spec.lateralAccelerationMps2 ?? 1.5 * r.spec.accelerationMps2,
         baseTouchRadiusMeters: field.baseTouchRadiusMeters ?? .28 });
       if (!motion || awardThrough === null && defense! - motion.touches[motion.touches.length - 1].elapsedSeconds <= (r.spec.advanceSafetyMarginSeconds ?? .35)) continue;
@@ -1219,7 +1233,9 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
             speedRatio = clamp(bodySpd / Math.max(f.spec.topSpeedMps, .1), 0, 1),
             extRatio = clamp(gloveExt / Math.max(f.spec.gloveReachMeters, .1), 0, 1),
             gloveMoveRatio = clamp(gloveRelSpd / Math.max(f.spec.gloveSpeedMps, .1), 0, 1),
-            bodyStability = clamp(1 - .22 * speedRatio * speedRatio - .20 * Math.max(0, extRatio - .55) / .45 - .15 * gloveMoveRatio, .42, 1);
+            legacyStability = clamp(1 - .22 * speedRatio * speedRatio - .20 * Math.max(0, extRatio - .55) / .45 - .15 * gloveMoveRatio, .42, 1),
+            skill = f.spec.technicalSkills?.advanced_fielding ?? 0,
+            bodyStability = skill > 0 ? clamp(legacyStability + (1 - legacyStability) * .08 * skill, .42, 1) : legacyStability;
           const retention = resolveCatchRetention({ contactTick: tick(time), ball: { ...incoming.moment.ball, tick: tick(time) },
             glove: { tick: tick(time), position: center, velocity: velocityAt(c, time) }, contactNormal: normal,
             pocketOffsetMeters, bodyStability }, f.spec.catchRetention);
@@ -1434,7 +1450,7 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
     if (overFence?.fair && overFence.untouchedGround && runners.every(r => r.retired || r.scored && !r.leg)) { endReason = 'home_run_completed'; terminal = true; }
     const awardedFence = overFence;
     if (awardedFence?.fair && !awardedFence.untouchedGround && runners.every(r => r.retired || !r.leg && r.base >= Math.min(4, (awardedFence.awardFrom?.[r.spec.runnerId] ?? r.spec.initialBase) + 2))) { endReason = 'ground_rule_award_completed'; terminal = true; }
-    if (!dead && possession && runnersComplete && !runnerDecisionPending && time - custodySince >= Math.max(.6, possession.spec.transferSeconds)
+    if (!dead && possession && runnersComplete && !runnerDecisionPending && time - custodySince >= Math.max(.6, effectiveTransferSeconds(possession))
       && (releaseAt === null || outTargets().length === 0)) { endReason = 'live_action_complete'; terminal = true; }
     if (time === horizon && !e && horizon === max) break;
   }

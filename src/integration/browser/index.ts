@@ -29,3 +29,6 @@ export type { ImpactTrajectorySettingsV1, ReferenceImpactTrajectoryV1 } from '..
 export { projectLivePublicAbilitiesV1, editLivePublicAbilityV1, previewLivePublicLeagueV1, materializeLivePlateVisionV1 } from './LivePublicAbilitiesV1';
 export { getLiveTraitCatalogV1, projectLiveTraitProfilesV1, setLiveTraitProfileV1, validateLiveTraitProfileV1, resolveLiveTraitPreferencesV54, reconcileLiveTraitSourcesV54 } from './LiveTraitProfilesV1';
 export type { LiveTraitProfileV1, LiveTraitRosterInputV1, LiveTraitDefinitionV1 } from './LiveTraitProfilesV1';
+
+export { resolveLiveTechnicalTraitsV75 } from './LiveTraitProfilesV1';
+export { TECHNICAL_TRAIT_CALIBRATION_V75 } from './LiveTechnicalTraitsV75';

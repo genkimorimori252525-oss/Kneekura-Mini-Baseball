@@ -17,3 +17,6 @@ export type { LiveTraitProfileV1, LiveTraitRosterInputV1, LiveTraitDefinitionV1 
 export { compareMeasuredTrajectoriesV69 } from './MeasuredTrajectoryComparisonWorkbenchV69';
 export type { MeasuredTrajectoryComparisonInputV69, MeasuredTrajectoryFlightFrameV69 } from './MeasuredTrajectoryComparisonWorkbenchV69';
 export { LIVE_MATCH_PHYSICS_V1, LIVE_MATCH_MOUND_SURFACE_V1 } from './LiveBaseballMatchV1';
+
+export { resolveLiveTechnicalTraitsV75 } from './LiveTraitProfilesV1';
+export { TECHNICAL_TRAIT_CALIBRATION_V75 } from './LiveTechnicalTraitsV75';

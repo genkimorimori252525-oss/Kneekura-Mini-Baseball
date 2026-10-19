@@ -1,0 +1,75 @@
+▲ [WARNING] "youkaishomecoming:yukari" is not a valid value for the "type" field [package.json]
+
+    ../../../../../../package.json:1:8:
+      1 │ {"type":"youkaishomecoming:yukari","texture":"touhou_little_maid:te...
+        ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The "type" field must be set to either "commonjs" or "module".
+
+{
+  "output": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v75_技術得能調整版.html",
+  "bytes": 35742617,
+  "sha256": "453490f4038ca76b16d7b2630650ee810f35c8bc5b6585490581853dd7cb959a",
+  "coreSha256": "008d2b361e3b592d10e3eee52b6c787464ff6dfad86472c0c847c1601dfe9b09",
+  "uiSha256": "719280d6517e31f98cd4526a302365165f0e6b4e6b074895c73a17c0f9a7a079",
+  "bundleInputCount": 84,
+  "bundleInputManifestSha256": "a4cbdb5dec7b964d3caaf85e90918e14f8c586a6c8633c478c6f63100bb26330",
+  "templateSha256": "85509344bbb1ae02a619c02c6a05dbf543c6d3bdb74c5ea2fde37d72b4c26cfb",
+  "renderedTemplateSha256": "fee1738be276829b8071ab669009a926463e5d02339ce450b34e1aac25159afc",
+  "referenceSha256": "b53a8d687f663a5578315120445de1407fb82efec594cde27cc313c1ea5b106a",
+  "referenceClips": 673,
+  "liveRosterSha256": "546b69369c975a85469492029f8a5306fb5fdabc48e9d36ec82bfcb75e4829c7",
+  "liveRosterCatalogSha256": "ca15bc28faaab868ed8606ad4521b23794f4ab76a9c5860314267e23b1941f02",
+  "gamePlayers": 20,
+  "publicAbilities": true,
+  "traitProfiles": true,
+  "executableTraits": true,
+  "measuredLibrary": true,
+  "libraryDecoderSha256": "220b935db75c7f4ee4406c71dd61e4dcdfb5685da6b3749b7974f4ee83606209",
+  "ballComparison": true,
+  "comparisonUiSha256": "8a878254ee1dba06c2cb4c255b858820d8e0e3c093b22a16b31b3f2dd7defb4a",
+  "comparisonCssSha256": "97fadeff53f9611e53a5552a2a9c21dd890bf0a2bad6b62df021adcaed091949",
+  "batterComparison": true,
+  "batterUiSha256": "84b476d381c75e1e067889e679a97f15c04df233b2b4d7542b0b65d18a957320",
+  "batterCssSha256": "5adaa23c3825e061b5a27a61611379b3f4b4dd8a85487e2f14743ce4ecb99c19",
+  "batOrbit": true,
+  "playerSwingPreview": true,
+  "wholeArc": true,
+  "equipmentPreview": true,
+  "technicalTraits": true,
+  "comparisonLayoutVersion": 74,
+  "matchRendererAdapterSha256": "4fba7aca62a1e57e5ee763bf9cdcc350a9cd1f12e62cc233e8ead674347a5d47",
+  "matchRendererSourceSha256": "2482dbaa0ae61d91ec50d8dedac1a391c031498c89b26b970fc370d23ae2b365",
+  "matchRendererSourcePath": "../../outputs/ばせぼーるlv75_TBD_vs_LAD_技術得能接続版.html",
+  "embeddedMatchRendererSha256": "a8c9154ef42f3d21fb70fe5a4857aef570865dbe781d8af16ab6af07226004b8",
+  "swingUiSha256": "e1fce25b82870e228c32591ec8e857b4e95e2463a4f5724f6841397afed2bace",
+  "helpUiSha256": "7183c0f54bccafd466e23bb9257415c615a31c0e3f67b9cb2a191d59b7f02d7b",
+  "lightCssSha256": "e270816d019e676658cf914cf5ef2a7f45856494ab72e9acbb6d7ad016066af8",
+  "traitCatalogFamilies": 119,
+  "traitAvailabilitySha256": "11c8798a845e8de9de74cef0c97ad35dea5610637e586de2e7f5301f475bd6c9",
+  "liveRosterPath": "docs/demos/live-game-roster-v62.json",
+  "liveRosterCatalogPath": "docs/demos/live-game-roster-catalog-v62.json",
+  "publicReferenceSha256": "b448f82f81620085b1f4923609cec23f69db4c639da76b6b1f877abb22622e4e",
+  "batSpriteModuleSha256": "aa675212434b677b1fe8fb245d438f49f4afcef9022cecc2d512fd7cd32c35d9",
+  "batSpriteManifestSha256": "29f76d56ef02f56f4eda9b6b626df8e1b5ce98acbaa957b6534bbdcf2cff4dcc",
+  "batSprites": [
+    {
+      "file": "bat-78cm.png",
+      "nominalLengthM": 0.78,
+      "sha256": "41a9920ce99d43fcf4f18ff1121c30063ff6f02ed076d3a0032934d92910e430"
+    },
+    {
+      "file": "bat-84cm.png",
+      "nominalLengthM": 0.84,
+      "sha256": "c2902280e948c71afd5d346a18fffb587eccae868b1e9f7adf2009112ded2d4e"
+    },
+    {
+      "file": "bat-90cm.png",
+      "nominalLengthM": 0.9,
+      "sha256": "1e69c292727402112a6506c88e796d725db93bb28a1eb5d763bcaeff77ae5bd9"
+    }
+  ],
+  "batSpriteAuthority": "GENERATED_RENDER_SPRITES_NOT_MEASURED_BAT_GEOMETRY",
+  "selfContained": true,
+  "authority": "Shared Core samples; separate OpenBiomechanics measured-axis research replay"
+}

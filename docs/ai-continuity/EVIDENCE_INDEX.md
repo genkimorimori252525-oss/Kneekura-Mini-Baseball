@@ -1288,3 +1288,49 @@ Only record verification that was actually performed.
 | MB-20261020-V74-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V74-PUBLICATION_db06847e7a3046958e779eb23dc2e78c.json |
 
 PUBLICATION：製品commit `3fd9f60d432f36f0b2de9aec8fdc67bb6ec1425c` のremote/PRhead、3HTMLの公開Git blob/size、9小ファイルの実raw bytesを照合。[MB-20261020-V74-PUBLICATION](verification-receipts/MB-20261020-V74-PUBLICATION_db06847e7a3046958e779eb23dc2e78c.json) PASS 9.562秒。後続commitはこの検証記録のみを保存し製品を変更しない。
+| MB-20261020-V75-PITCH-TECHNIQUES-INITIAL | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261020-V75-PITCH-TECHNIQUES-INITIAL_0d3cbb91dc1a45cabb0b1e348f6db16e.json |
+| MB-20261020-V75-PROFILE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V75-PROFILE_a6d6f1a4ac744989a8cfd973943dc7c4.json |
+| MB-20261020-V75-PITCH-TECHNIQUES-FINAL | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V75-PITCH-TECHNIQUES-FINAL_19f9389d7eda4312a70b95fe9c849a3f.json |
+| MB-20261020-V75-TSC | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V75-TSC_54f87fb114d843babf9186236b2784e6.json |
+| MB-20261020-V75-BUILD-NATIVE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V75-BUILD-NATIVE_d9d446d24b2a4cd69bd07dea159c3594.json |
+| MB-20261020-V75-BUILD-GAME | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V75-BUILD-GAME_74fb0626bb534beea556a6c6154fb740.json |
+| MB-20261020-V75-BUILD-MAKER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V75-BUILD-MAKER_000d25a4ce32410e82d66c6dd48dde8e.json |
+| MB-20261020-V75-MAKER-BROWSER | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261020-V75-MAKER-BROWSER_21a506d5678b4b9f878d6b5fdc9944aa.json |
+| MB-20261020-V75-CORE-REGRESSION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V75-CORE-REGRESSION_226d9e2fc664434f9278c9f130d184ec.json |
+| MB-20261020-V75-MAKER-BROWSER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V75-MAKER-BROWSER_77b9454c4af044cab90b5878cdcd548d.json |
+| MB-20261020-V75-GAME-BROWSER | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261020-V75-GAME-BROWSER_d28bd08c013a4adfac84a4c19081bf97.json |
+| MB-20261020-V75-PROFILE-FINAL | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V75-PROFILE-FINAL_95a8fbef8e734b73a5abe5791142fe3b.json |
+| MB-20261020-V75-BUILD-NATIVE-FINAL | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V75-BUILD-NATIVE-FINAL_45bc6ca71d5541468d7b42a292da0b3a.json |
+| MB-20261020-V75-BUILD-GAME-FINAL | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V75-BUILD-GAME-FINAL_9b7af5508f3a4705b4032817361e38ea.json |
+| MB-20261020-V75-BUILD-MAKER-FINAL | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V75-BUILD-MAKER-FINAL_5efcfe458b1343418230856efe003e36.json |
+| MB-20261020-V75-TSC-FINAL | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V75-TSC-FINAL_0d997b47587541c2b27bc136beda3669.json |
+| MB-20261020-V75-MAKER-BROWSER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V75-MAKER-BROWSER_21936d382c3a4f928c071255cba745a9.json |
+| MB-20261020-V75-GAME-BROWSER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V75-GAME-BROWSER_f049c2a763ac4173a72a8a8abc015a1f.json |
+| MB-20261020-V75-FINAL-SOURCE-REGRESSION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V75-FINAL-SOURCE-REGRESSION_d1a7dfe87f15466cb08f46ee0a0b9b4d.json |
+| MB-20261020-V75-PACKAGE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V75-PACKAGE_12db6c548cf641b1b4eed0fedf24f4f0.json |
+
+## v75 技術専用動作
+
+| [MB-20261020-V75-BUILD-GAME-FINAL](verification-receipts/MB-20261020-V75-BUILD-GAME-FINAL_9b7af5508f3a4705b4032817361e38ea.json) | PASS | 0.702 |
+| [MB-20261020-V75-BUILD-GAME](verification-receipts/MB-20261020-V75-BUILD-GAME_74fb0626bb534beea556a6c6154fb740.json) | PASS | 0.796 |
+| [MB-20261020-V75-BUILD-MAKER-FINAL](verification-receipts/MB-20261020-V75-BUILD-MAKER-FINAL_5efcfe458b1343418230856efe003e36.json) | PASS | 2.405 |
+| [MB-20261020-V75-BUILD-MAKER](verification-receipts/MB-20261020-V75-BUILD-MAKER_000d25a4ce32410e82d66c6dd48dde8e.json) | PASS | 2.437 |
+| [MB-20261020-V75-BUILD-NATIVE-FINAL](verification-receipts/MB-20261020-V75-BUILD-NATIVE-FINAL_45bc6ca71d5541468d7b42a292da0b3a.json) | PASS | 0.375 |
+| [MB-20261020-V75-BUILD-NATIVE](verification-receipts/MB-20261020-V75-BUILD-NATIVE_d9d446d24b2a4cd69bd07dea159c3594.json) | PASS | 0.453 |
+| [MB-20261020-V75-CORE-REGRESSION](verification-receipts/MB-20261020-V75-CORE-REGRESSION_226d9e2fc664434f9278c9f130d184ec.json) | PASS | 71.375 |
+| [MB-20261020-V75-FINAL-SOURCE-REGRESSION](verification-receipts/MB-20261020-V75-FINAL-SOURCE-REGRESSION_d1a7dfe87f15466cb08f46ee0a0b9b4d.json) | PASS | 8.092 |
+| [MB-20261020-V75-GAME-BROWSER](verification-receipts/MB-20261020-V75-GAME-BROWSER_d28bd08c013a4adfac84a4c19081bf97.json) | FAIL | 48.938 |
+| [MB-20261020-V75-GAME-BROWSER](verification-receipts/MB-20261020-V75-GAME-BROWSER_f049c2a763ac4173a72a8a8abc015a1f.json) | PASS | 88.047 |
+| [MB-20261020-V75-MAKER-BROWSER](verification-receipts/MB-20261020-V75-MAKER-BROWSER_21936d382c3a4f928c071255cba745a9.json) | PASS | 35.359 |
+| [MB-20261020-V75-MAKER-BROWSER](verification-receipts/MB-20261020-V75-MAKER-BROWSER_21a506d5678b4b9f878d6b5fdc9944aa.json) | FAIL | 11.140 |
+| [MB-20261020-V75-MAKER-BROWSER](verification-receipts/MB-20261020-V75-MAKER-BROWSER_77b9454c4af044cab90b5878cdcd548d.json) | PASS | 33.655 |
+| [MB-20261020-V75-PACKAGE](verification-receipts/MB-20261020-V75-PACKAGE_12db6c548cf641b1b4eed0fedf24f4f0.json) | PASS | 28.389 |
+| [MB-20261020-V75-PITCH-TECHNIQUES-FINAL](verification-receipts/MB-20261020-V75-PITCH-TECHNIQUES-FINAL_19f9389d7eda4312a70b95fe9c849a3f.json) | PASS | 19.686 |
+| [MB-20261020-V75-PITCH-TECHNIQUES-INITIAL](verification-receipts/MB-20261020-V75-PITCH-TECHNIQUES-INITIAL_0d3cbb91dc1a45cabb0b1e348f6db16e.json) | FAIL | 6.047 |
+| [MB-20261020-V75-PROFILE-FINAL](verification-receipts/MB-20261020-V75-PROFILE-FINAL_95a8fbef8e734b73a5abe5791142fe3b.json) | PASS | 1.670 |
+| [MB-20261020-V75-PROFILE](verification-receipts/MB-20261020-V75-PROFILE_a6d6f1a4ac744989a8cfd973943dc7c4.json) | PASS | 1.468 |
+| [MB-20261020-V75-TSC-FINAL](verification-receipts/MB-20261020-V75-TSC-FINAL_0d997b47587541c2b27bc136beda3669.json) | PASS | 21.467 |
+| [MB-20261020-V75-TSC](verification-receipts/MB-20261020-V75-TSC_54f87fb114d843babf9186236b2784e6.json) | PASS | 47.015 |
+| MB-20261020-V75-STAGING | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V75-STAGING_f7b9273948b14aef91c5d994ea612106.json |
+
+STAGING [MB-20261020-V75-STAGING](verification-receipts/MB-20261020-V75-STAGING_f7b9273948b14aef91c5d994ea612106.json) PASS 3.360秒。全staged blobのraw bytes・credential0・whitespace0、ユーザーAGENTS除外を照合。

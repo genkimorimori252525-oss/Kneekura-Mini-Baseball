@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V75-PROFILE-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveTechnicalTraitsV75.test.ts",
+    "src/integration/browser/LiveTraitProfilesV1.test.ts",
+    "--maxWorkers=1",
+    "--minWorkers=1"
+  ],
+  "observed_at": "2026-10-19T18:07:54.134+00:00",
+  "elapsed_ms": 1670,
+  "git_head": "4acba0c3f3d502f778107ca134c0352d0f5e3572",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V75-PROFILE-FINAL_95a8fbef8e734b73a5abe5791142fe3b.log",
+  "output_sha256": "526e914982e7db9c52b94bf97877b76c7b3d6d228f6a20e5c116083bea3b7d1a",
+  "receipt_id": "MB-20261020-V75-PROFILE-FINAL_95a8fbef8e734b73a5abe5791142fe3b"
+}

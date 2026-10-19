@@ -53,8 +53,10 @@
   const pref=core.resolveLiveTraitPreferencesV54(batter.traitProfile),pitchPref=core.resolveLiveTraitPreferencesV54(pitcher.traitProfile),
    batting=$('comparison-batting').value==='auto'?{POWER:'power',CONTACT:'contact',BALANCED:'balanced'}[pref.swingMode]:$('comparison-batting').value,
    b={...bp,clipId:clip.id,heightMeters:batter.heightMeters,bats:batter.bats,impactTrajectory:clone(bp.impactTrajectory??(root.KneekuraWholeArcTrajectoryEnabled===true?core.DEFAULT_WHOLE_ARC_TRAJECTORY_V1:defaults))};
-  if($('comparison-force-swing').checked)b.swingDecision={...(b.swingDecision??{threshold:.5,aggressionWeight:.5}),approach:'SWING'};
-  const pitch={originTick:1000000,seed,batter:b,pitcher:{...pp,heightMeters:pitcher.heightMeters,moundPosition:clone(core.LIVE_MATCH_MOUND_SURFACE_V1),
+  const batterTechnique=root.KneekuraTechnicalTraitsV75?core.resolveLiveTechnicalTraitsV75(batter.traitProfile):undefined,pitcherTechnique=root.KneekuraTechnicalTraitsV75?core.resolveLiveTechnicalTraitsV75(pitcher.traitProfile):undefined;
+   if(batterTechnique)b.technicalSkills=clone(batterTechnique);
+   if($('comparison-force-swing').checked)b.swingDecision={...(b.swingDecision??{threshold:.5,aggressionWeight:.5}),approach:'SWING'};
+  const pitch={originTick:1000000,seed,batter:b,pitcher:{...pp,...(pitcherTechnique?{technicalSkills:clone(pitcherTechnique)}:{}),heightMeters:pitcher.heightMeters,moundPosition:clone(core.LIVE_MATCH_MOUND_SURFACE_V1),
    ...(pitcher.throws===undefined?{}:{throws:pitcher.throws}),pitchApproach:pitchPref.pitchApproach},
    catcher:{gloveSpeedMps:cp.gloveSpeedMps,gloveReachMeters:cp.gloveReachMeters,gloveRadiusMeters:cp.gloveRadiusMeters,
     retentionCapacityJ:cp.retentionCapacityJ,captureDissipationPowerW:cp.captureDissipationPowerW,pocketRadiusMeters:.14},

@@ -1,13 +1,19 @@
 ---
-current_task: "MB-20261020-V74-PUBLICATION"
+current_task: "MB-20261020-V75-PACKAGE"
 active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "3fd9f60d432f36f0b2de9aec8fdc67bb6ec1425c"
+commit_head: "4acba0c3f3d502f778107ca134c0352d0f5e3572"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261020-V74-PUBLICATION_db06847e7a3046958e779eb23dc2e78c.json"
-updated_at: "2026-10-19T15:15:55.802405+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261020-V75-PACKAGE_12db6c548cf641b1b4eed0fedf24f4f0.json"
+updated_at: "2026-10-19T18:13:43.508222+00:00"
 
 ---
+
+## Active human priority — v75 technical traits (SCOPED VERIFIED; PUBLICATION PENDING)
+
+人間は技術系先行、必要専用動作、メーカー効果強さ、通常HTML接続を承認。先行6family走塁/バント/守備職人/打者初動/高速チャージ/低め。profile.source.effectScale0〜2（初期1）を専用実行ownerへ一回、身体/公開SIを書換えず0/off/未指定はruntime省略。旧7/119表保持しopt-in13catalog、金は同family排他、段階/倍率/JSONをメーカーへ。元20人/カメラ/描画/UI/元全計画/FAILUNKNOWN/HOLD保持。技術の具体係数は局所暫定で実測校正ではない。
+
+PITCH-FINAL19f9389d PASS5files48、field6files62、ROOT193tests19files226d9e2f PASS71.375s、TSC54f87fb1 PASS47.015s。独立レビューP2：公開resolver単独のunknown/version黙認（既存Host/roster入口strictで物理影響なし）を既存readProfile wrapperへ修正。PROFILE-FINAL95a8fbef PASS（新不正version/unknown/sourceextra拒否）、Native45bc6ca7/.375s、GAME9b7af550/.702s、MAKER5efcfe45/2.405sで最終再build。Maker初回21a506d5はsnapshotgetterをsaveguardと期待したQA誤り、game初回d28bd08cは閉detailsをクリック待ちしたQA手順で9回前FAIL、原保存。最終Source5files39tests d1a7dfe8 PASS8.092s、TSC0d997b47 PASS21.467s、MAKER21936d38 PASS35.359s、GAMEf049c2a7 PASS88.047s（技術9回254球95接触95fieldcomplete、9回62.874s、初期/zero/off各6球v74exact）。PACKAGE12db6c54 PASS28.389s117/84inputs/union124/旧215凍結物exact。次は公開照合。以後Source固定。元の100試合/実機/経験的SI/Native連続world等は未達のまま。
 
 ## Active human priority — v74 equipment, maker-only public overflow and comparison layout (SCOPED VERIFIED; PUBLISHED)
 

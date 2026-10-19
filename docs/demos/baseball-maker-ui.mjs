@@ -124,15 +124,18 @@
     return get(physical, spec.defaultFrom) * (spec.defaultScale ?? 1);
   }
   function traitProjection() {
-    return core.projectLiveTraitProfilesV1({ roster: livePhysicalRoster, playerId: liveRosterPlayerId });
+    return core.projectLiveTraitProfilesV1({ roster: livePhysicalRoster, playerId: liveRosterPlayerId,
+      ...(globalThis.KneekuraTechnicalTraitsV75 === true ? { includeTechnical: true } : {}) });
   }
   function renderLiveTraits() {
     const panel = $('live-trait-editor'); if (!panel || !livePhysicalRoster) return;
     panel.replaceChildren();
     const heading = document.createElement('h3'); heading.textContent = '得能'; panel.append(heading);
     const colors = { blue: '#2166a5', red: '#a12d36', green: '#27633e', gold: '#805700' };
-    const definitions = core.getLiveTraitCatalogV1(), projection = traitProjection(), identity = liveCatalog.players.find(p => p.playerId === liveRosterPlayerId);
-    const sectionOf = id => id === 'pitch_approach' ? 'pitcher' : ['bad_ball_hitting', 'plate_aggression', 'swing_mode_preference'].includes(id) ? 'batter' : 'common';
+    const technical = globalThis.KneekuraTechnicalTraitsV75 === true;
+    const definitions = core.getLiveTraitCatalogV1(technical ? { includeTechnical: true } : undefined), projection = traitProjection(), identity = liveCatalog.players.find(p => p.playerId === liveRosterPlayerId);
+    const sectionOf = id => ['pitch_approach', 'low_zone_command'].includes(id) ? 'pitcher'
+      : ['bad_ball_hitting', 'plate_aggression', 'swing_mode_preference', 'bunting', 'bat_to_run_transition'].includes(id) ? 'batter' : 'common';
     const notes = {
       bad_ball_hitting: '窮屈なコースでも狙ったスイングを保つ技術です。悪球を振る積極性とは別です。',
       throw_accuracy: '公開能力の送球精度と同じ値から表示します。段階は作成用の暫定尺度です。',
@@ -141,7 +144,18 @@
       fielding_aggression: '捕球へ向かう積極性です。身体の速さや捕球能力は変わりません。',
       swing_mode_preference: '試合の打撃指示が「選手に任せる」のときに使うスイングの好みです。',
       pitch_approach: '投球を「投手に任せる」ときに使う球種の好みです。明示した球種が優先されます。',
+      baserunning: 'ベースを回る経路の選び方に使います。走速や身体の加速度上限は変わりません。低い段階の不利も、倍率に応じて強まります。',
+      bunting: 'バントのときだけ、予測した打点への構え、迎球して引く動作、面・位置・時刻の再現性に使います。',
+      advanced_fielding: '捕球体勢と、捕球後の持ち替えに使います。一般の走力・肩力・手の速度上限は変わりません。',
+      bat_to_run_transition: '打者走者が、打撃から走り出しへ切り替える動作に使います。塁上の走者や最高走速は変わりません。',
+      slow_ball_charge: '低速で地面を転がる打球へ前進し、拾う動作に使います。飛球や送球には使いません。',
+      low_zone_command: '低めを狙う投球だけ、狙いの誤差に使います。球速・回転・審判の判定や、リリース後の球は変わりません。',
     };
+    if (technical) {
+      const note = document.createElement('p'); note.id = 'live-trait-technical-note'; note.className = 'note';
+      note.textContent = '技術の得能は専用の動作へ反映し、一般能力を書き換えません。OFFまたは0倍では従来の動作になります。段階・倍率は試験用の暫定係数です。ここでの設定はNative側の習得記録を認証するものではありません。';
+      panel.append(note);
+    }
     const sections = identity.role === 'P' ? [['common', '共通'], ['pitcher', '投手'], ['batter', '投手の打撃の得能']]
       : [['common', '共通'], ['batter', '打者'], ['pitcher', '野手の投球の得能']];
     for (const [section, title] of sections) {
@@ -155,13 +169,13 @@
         const row = document.createElement('div'); row.className = 'control';
         const label = document.createElement('label'); label.htmlFor = 'live-trait-' + trait.familyId; label.textContent = trait.label;
         const select = document.createElement('select'); select.id = label.htmlFor; select.dataset.traitFamily = trait.familyId; select.dataset.traitEditor = editor;
-        const options = [...(trait.status === 'UNASSESSED' ? [{ stateId: 'UNASSESSED', label: '未査定（現在値を維持）', color: 'neutral' }] : []),
-          ...(editor === 'GRADE' ? [] : [{ stateId: '', label: editor === 'PREFERENCE' ? '設定なし（元の設定）' : '保有なし', color: 'neutral' }]), ...definition.states];
+        const options = [...(trait.status === 'UNASSESSED' && editor !== 'TECHNIQUE' ? [{ stateId: 'UNASSESSED', label: '未査定（現在値を維持）', color: 'neutral' }] : []),
+          ...(editor === 'GRADE' ? [] : [{ stateId: '', label: editor === 'TECHNIQUE' ? 'OFF（従来の動作）' : editor === 'PREFERENCE' ? '設定なし（元の設定）' : '保有なし', color: 'neutral' }]), ...definition.states];
         for (const state of options) {
           const option = document.createElement('option'); option.value = state.stateId; option.textContent = state.label;
           option.style.color = colors[state.color] ?? '#e7e9dd'; select.append(option);
         }
-        select.value = trait.status === 'UNASSESSED' ? 'UNASSESSED' : trait.stateId ?? '';
+        select.value = trait.status === 'UNASSESSED' && editor !== 'TECHNIQUE' ? 'UNASSESSED' : trait.stateId ?? '';
         select.style.color = colors[trait.color] ?? '';
         select.onchange = () => {
           if (select.value === 'UNASSESSED') return;
@@ -169,12 +183,44 @@
             assertLiveRosterEdits();
             const request = { roster: livePhysicalRoster, playerId: liveRosterPlayerId, familyId: trait.familyId, stateId: select.value || null };
             if (trait.familyId === 'bad_ball_hitting' && select.value && !trait.sourceValue) request.source = { badBallControl: trait.sourceValue ?? 0 };
+            if (editor === 'TECHNIQUE') request.source = { effectScale: traitProjection().traits.find(value => value.familyId === trait.familyId)?.sourceValue?.effectScale ?? 1 };
             livePhysicalRoster = validateLiveRoster(core.setLiveTraitProfileV1(request).roster).packet;
             renderLiveRoster(); clearProblem();
           } catch (error) { problem(error); renderLiveTraits(); }
         };
         const note = document.createElement('p'); note.className = 'note'; note.textContent = notes[trait.familyId] ?? '';
-        row.append(label, select, note); container.append(row);
+        row.append(label, select);
+        if (editor === 'TECHNIQUE') {
+          const key = liveRosterPlayerId + ':trait-effect:' + trait.familyId;
+          const scaleLabel = document.createElement('label'); scaleLabel.htmlFor = 'live-trait-effect-' + trait.familyId; scaleLabel.textContent = '技術の効果（倍）';
+          const input = document.createElement('input'); input.id = scaleLabel.htmlFor; input.type = 'number'; input.min = '0'; input.max = '2'; input.step = '0.05';
+          input.dataset.traitEffectScale = trait.familyId;
+          input.dataset.help = notes[trait.familyId] + ' 一般能力への追加加算はありません。0倍は技術の効果なし、1倍は選んだ段階の標準、2倍は強めです。OFFまたは0倍では従来動作です。試験用の暫定係数で、Native側の習得認証ではありません。';
+          select.dataset.help = notes[trait.familyId] + ' 段階を変更しても「技術の効果（倍）」は維持します。OFFは従来の動作です。';
+          const pending = liveRosterPending.get(key);
+          input.value = pending ? pending.raw : trait.sourceValue?.effectScale ?? trait.effectiveSourceValue?.effectScale ?? 1;
+          input.setCustomValidity(pending?.error ?? '');
+          input.oninput = () => {
+            try {
+              if (input.value === '') throw Error('技術の効果を0〜2倍で入力してください。');
+              const value = Number(input.value);
+              if (!numeric(value) || value < 0 || value > 2) throw Error('技術の効果は有限の数値で0〜2倍にしてください。');
+              const current = traitProjection().traits.find(item => item.familyId === trait.familyId);
+              if (value !== (current.sourceValue?.effectScale ?? 1)) {
+                const request = { roster: livePhysicalRoster, playerId: liveRosterPlayerId, familyId: trait.familyId,
+                  stateId: current.stateId, source: { effectScale: value } };
+                livePhysicalRoster = validateLiveRoster(core.setLiveTraitProfileV1(request).roster).packet;
+              }
+              liveRosterPending.delete(key); input.setCustomValidity(''); if (!liveRosterPending.size) clearProblem();
+            } catch (error) {
+              liveRosterPending.set(key, { raw: input.value, label: trait.label + '・技術の効果（倍）', playerName: identity.name, error: error.message });
+              input.setCustomValidity(error.message);
+            }
+            rosterStatus();
+          };
+          row.append(scaleLabel, input);
+        }
+        row.append(note); container.append(row);
       }
     }
     const availability = globalThis.KneekuraLiveTraitAvailabilityCatalog;

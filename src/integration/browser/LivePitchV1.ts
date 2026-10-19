@@ -17,6 +17,7 @@ import { quantizeEventTick } from '../../core/sim/ExactEventTime';
 import { resolveHeightRatioStrikeZoneRegion } from '../../core/sim/pitching/RulebookStrikeZone';
 import { registerMeasuredBatToFieldV1,MEASURED_BAT_FIELD_REGISTRATION_V1 } from './MeasuredBatFieldRegistrationV1';
 import type { LivePhysicalAbilityControlsV1 } from './LivePhysicalRosterV1';
+import { validateTechnicalSkillControlsV75, type TechnicalSkillControlsV75 } from '../../core/sim/TechnicalSkillControlsV75';
 
 export type LiveMeasuredClipV1=Readonly<{
   id:string;side:'R'|'L';source:Readonly<{sha256:string;repository?:string}>;contactTimeSeconds:number;
@@ -28,10 +29,10 @@ export type LiveMeasuredClipV1=Readonly<{
 export type LivePitchInputV1=Readonly<{
   originTick:number;seed:number;
   batter:LivePhysicalAbilityControlsV1 & Readonly<{heightMeters:number;bats:'R'|'L';batLengthM:number;batMassKg:number;swingRate:number;
-    timingStdSeconds:number;aimStdMeters:number;chaseMarginMeters:number;clipId?:string}>;
+    timingStdSeconds:number;aimStdMeters:number;chaseMarginMeters:number;clipId?:string;technicalSkills?:TechnicalSkillControlsV75}>;
   pitcher:Readonly<{releaseSpeedMps:number;spinRadPerSecond:Vec3;commandStdMeters:number;maximumPitchSpeedMps?:number;throws?:'R'|'L';
     heightMeters?:number;moundPosition?:Vec3;pitchReleaseHeightMeters?:number;pitchReleaseSideMeters?:number;pitchReleaseExtensionMeters?:number;
-    pitchApproach?:'FASTBALL'|'BALANCED'|'BREAKING'}>;
+    pitchApproach?:'FASTBALL'|'BALANCED'|'BREAKING';technicalSkills?:TechnicalSkillControlsV75}>;
   catcher?:Readonly<{gloveSpeedMps:number;gloveReachMeters:number;gloveRadiusMeters:number;retentionCapacityJ:number;captureDissipationPowerW:number;pocketRadiusMeters:number}>;
   measuredClips:readonly LiveMeasuredClipV1[];batting:'balanced'|'contact'|'power'|'take'|'bunt';pitchType:string;location:string;
   physics:AeroGroundBallPhysicsV1;
@@ -116,6 +117,8 @@ function crossing(kernel:SourceFreeBallKernel,planeZ:number):number|null{
 export function simulateLivePitchV1(raw:LivePitchInputV1){
   const input=cloneInert(raw),b=input.batter,p=input.pitcher,profile=createAeroGroundBallPhysicsProfile(input.physics),tps=profile.air.ticksPerSecond,
     catcher=input.catcher??{gloveSpeedMps:7,gloveReachMeters:.95,gloveRadiusMeters:.14,retentionCapacityJ:350,captureDissipationPowerW:10000,pocketRadiusMeters:.18};
+  if(b.technicalSkills!==undefined)validateTechnicalSkillControlsV75(b.technicalSkills);
+  if(p.technicalSkills!==undefined)validateTechnicalSkillControlsV75(p.technicalSkills);
   assert(Number.isSafeInteger(input.originTick)&&input.originTick>=0&&Number.isSafeInteger(input.seed)&&tps===profile.ground.ticksPerSecond,'invalid original clock or seed');
   assert(bounded(b.heightMeters,1.1,2.5)&&['R','L'].includes(b.bats)&&bounded(b.batLengthM,.2,3)&&bounded(b.batMassKg,.1,5)
     &&bounded(b.swingRate,.3,3)&&bounded(b.timingStdSeconds,0,.08)&&bounded(b.aimStdMeters,0,.35)&&bounded(b.chaseMarginMeters,0,.6),'invalid batter SI controls');
@@ -167,7 +170,10 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   if(location==='inside')target.x=batterSide*(.19+r.uniform()*.2);
   if(location==='low')target.y=zone.lowerY-.06-r.uniform()*.16;
   if(location==='high')target.y=zone.upperY+.06+r.uniform()*.16;
-  const commanded={...target,x:target.x+r.normal()*p.commandStdMeters,y:target.y+r.normal()*p.commandStdMeters};
+  const lowZoneTechnique=p.technicalSkills?.low_zone_command??0,
+    lowZoneTechniqueActive=lowZoneTechnique>0&&target.y<=zone.lowerY+(zone.upperY-zone.lowerY)/3,
+    effectiveCommandStd=lowZoneTechniqueActive?p.commandStdMeters/(1+.6*lowZoneTechnique):p.commandStdMeters;
+  const commanded={...target,x:target.x+r.normal()*effectiveCommandStd,y:target.y+r.normal()*effectiveCommandStd};
   const releaseGeometry=resolveLivePitchReleaseV1(p),release=releaseGeometry.position,flightGuess=(release.z-commanded.z)/speed;
   let vx=(commanded.x-release.x)/flightGuess,vy=(commanded.y-release.y-profile.air.gravityY*flightGuess*flightGuess/2)/flightGuess,
     vz=-Math.sqrt(Math.max(speed*speed-vx*vx-vy*vy,speed*speed*.5)),flightTime=flightGuess;
@@ -258,10 +264,49 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
       axialMomentOfInertiaKgM2:b.batMassKg*.025*.025/2,radiusProfile},
     ballPhysical={massKg:profile.air.aerodynamics.ballMassKg,radiusM:profile.air.aerodynamics.ballRadiusM,rotationalInertiaFactor:profile.ground.inertiaRatio};
   const held=reference.sampleContinuous(input.batting==='bunt'?referenceContactTick:input.originTick),
-    batSample=(seconds:number)=>swingOffered&&input.batting!=='bunt'?reference.sampleContinuous(input.originTick+seconds*tps)
+    buntTechnique=swingOffered&&input.batting==='bunt'?(b.technicalSkills?.bunting??0):0;
+  // A dedicated, bounded bunt motor, planned once from the same observed
+  // state as the batter's other decisions. No future contact/ball sample or
+  // extra random draw steers the bat. The fixed axis is the authored bunt
+  // face; its placement/timing error reuses the original motor-error draws.
+  const buntMotor=(()=>{
+    if(buntTechnique===0)return null;
+    const precision=1/(1+.75*buntTechnique),
+      yaw=aimScale>0?clamp(aimError.x/aimScale,-3,3)*.10*precision:0,
+      elevation=aimScale>0?clamp(aimError.y/aimScale,-3,3)*.06*precision:0,
+      axis={x:-batterSide*Math.cos(yaw)*Math.cos(elevation),y:Math.sin(elevation),z:Math.sin(yaw)*Math.cos(elevation)},
+      startSweetSpot={x:0,y:middle,z:-.20},targetSweetSpot=add(prediction.ball.position,mul(aimError,precision)),
+      moveStartSeconds=decisionTime+(b.motorLatencySeconds??0),
+      arrivalSeconds=Math.max(moveStartSeconds+.045,prediction.elapsedSeconds+timingError*precision+(b.technicalTimingOffsetSeconds??0)-.025),
+      moveSeconds=arrivalSeconds-moveStartSeconds,
+      maximumSpeedMps=Math.min(4,b.maximumSweetSpotSpeedMps??4),
+      wantedDelta=sub(targetSweetSpot,startSweetSpot),wantedDistance=norm(wantedDelta),
+      maximumTravelMeters=maximumSpeedMps*.65*moveSeconds/1.5,
+      delta=wantedDistance>maximumTravelMeters?mul(wantedDelta,maximumTravelMeters/wantedDistance):wantedDelta,
+      absorbStartSeconds=arrivalSeconds-.035,absorbSeconds=.16,
+      absorbMeters=Math.min(.12,maximumSpeedMps*.35*absorbSeconds/1.5),
+      maximumSurfaceSpeedMps=1.5*norm(delta)/moveSeconds+1.5*absorbMeters/absorbSeconds,
+      sample=(seconds:number)=>{
+        const u=clamp((seconds-moveStartSeconds)/moveSeconds,0,1),w=u*u*(3-2*u),
+          dw=seconds>moveStartSeconds&&seconds<arrivalSeconds?6*u*(1-u)/moveSeconds:0,
+          a=clamp((seconds-absorbStartSeconds)/absorbSeconds,0,1),aw=a*a*(3-2*a),
+          ad=seconds>absorbStartSeconds&&seconds<absorbStartSeconds+absorbSeconds?6*a*(1-a)/absorbSeconds:0,
+          sweetSpot=add(add(startSweetSpot,mul(delta,w)),{x:0,y:0,z:-absorbMeters*aw}),
+          linearVelocity=add(mul(delta,dw),{x:0,y:0,z:-absorbMeters*ad}),
+          grip=sub(sweetSpot,mul(axis,b.batLengthM*sweetSpotT));
+        return {...held,sweetSpot,sweetSpotVelocity:linearVelocity,
+          state:{pose:{grip,tip:add(grip,mul(axis,b.batLengthM))},linearVelocity,angularVelocity:zero()}};
+      };
+    return {sample,diagnostics:{calibrationId:'bounded-observed-bunt-motor-v75',strength:buntTechnique,
+      observedAtElapsedSeconds:decisionTime,moveStartSeconds,arrivalSeconds,maximumSpeedMps,maximumSurfaceSpeedMps,
+      desiredTargetSweetSpot:targetSweetSpot,reachableTargetSweetSpot:add(startSweetSpot,delta),axis,
+      positionErrorScale:precision,timingErrorScale:precision,absorbStartSeconds,absorbSeconds,absorbMeters,
+      predictionBasis:'ONE_OBSERVED_STATE_FORECAST_NO_FUTURE_CONTACT',postContactResultOverride:false}};
+  })();
+  const batSample=(seconds:number)=>buntMotor?buntMotor.sample(seconds):swingOffered&&input.batting!=='bunt'?reference.sampleContinuous(input.originTick+seconds*tps)
       :{...held,state:{...held.state,linearVelocity:zero(),angularVelocity:zero()}};
   const rigidAt=(seconds:number)=>createRigidBatStateFromBatterSwingState(batSample(seconds).state,batPhysical),
-    batBound=swingOffered&&input.batting!=='bunt'?reference.maximumGripSpeedMps+reference.maximumAngularSpeedRadPerSecond*b.batLengthM:0;
+    batBound=buntMotor?.diagnostics.maximumSurfaceSpeedMps??(swingOffered&&input.batting!=='bunt'?reference.maximumGripSpeedMps+reference.maximumAngularSpeedRadPerSecond*b.batLengthM:0);
   // A catcher's forecast must include a possible pitch bounce. This is a
   // separate prediction from the observed state; it never replaces the
   // released Source used by collision, spin, clock or rendering.
@@ -326,6 +371,10 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
     return {...batSample((atTick-input.originTick)/tps).state.pose,radiusProfile};};
   return {frames,contact,contactMoment,contactOrientation,call,endedAtTick,clipId:clip.id,pitchType,speedKmh:speed*3.6,sampleBatAtTick,
     diagnostics:{authority:'LOCAL_CORE_PHYSICAL_EXPERIMENT_V1' as const,nativeAdmission:false as const,sourceDescriptor:descriptor,
+      ...(buntMotor?{buntTechnique:buntMotor.diagnostics}:{}),
+      ...(lowZoneTechniqueActive?{lowZoneCommandTechnique:{calibrationId:'low-target-command-v75',strength:lowZoneTechnique,
+        target,commanded,baselineStandardDeviationMeters:p.commandStdMeters,effectiveStandardDeviationMeters:effectiveCommandStd,
+        targetRegion:'LOWER_THIRD_OR_BELOW',releaseVelocityOnly:true}}:{}),
       ...(input.pitchType==='auto'&&pitchApproach!=='BALANCED'?{pitchPreference:{preference:pitchApproach,weights:autoPitchWeights,
         selectionDraw,basis:'LOCAL_PREFERENCE_OVER_EXISTING_AUTO_PITCH_MENU' as const}}:{}),
       sourceBallReanchored:false as const,sourceClockTicksPerSecond:tps,obpSourceSha256:clip.source.sha256,battingSide:b.bats,
