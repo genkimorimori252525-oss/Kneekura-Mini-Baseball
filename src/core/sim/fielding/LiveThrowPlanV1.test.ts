@@ -41,3 +41,16 @@ it('rejects hidden future-world input, invalid speed and below-ground endpoints'
   const i=input();expect(()=>planLiveThrowV1({...i,futureActualSource:{}} as unknown as LiveThrowPlanInputV1)).toThrow(/finite throw command/);
   expect(()=>planLiveThrowV1({...i,maximumThrowSpeedMps:0})).toThrow();expect(()=>planLiveThrowV1({...i,target:{...i.target,y:-1}})).toThrow(/floor/);
 });
+it('retains held seam orientation when planning and verifying a new physical throw',()=>{
+  const base=input(),phase={w:Math.cos(.4),x:Math.sin(.4),y:0,z:0},raw={...base,spin:{x:8,y:0,z:3},materialOrientationAtRelease:phase,
+    physics:{...base.physics,air:{...base.physics.air,aerodynamics:{...base.physics.air.aerodynamics,
+      seamForce:{version:'baseball_seam_force_v1' as const,coefficientScale:1}}}}},before=JSON.stringify(raw),result=planLiveThrowV1(raw);
+  expect(result.kind).toBe('planned');if(result.kind!=='planned')throw new Error(result.reason);
+  const source=createSourceFreeBallKernel({kind:'aero_ground_continuous_source_kernel_v2',initial:{originTick:0,elapsedSeconds:0,
+    ball:{tick:0,position:raw.releasePosition,velocity:result.initialVelocity,spin:raw.spin}},throughElapsedSeconds:result.flightSeconds,
+    profile:raw.physics,materialOrientationAtStart:phase}),arrival=source.evaluateAt(result.flightSeconds,'incoming');
+  expect(result.predictedArrivalPosition).toEqual(arrival.moment.ball.position);expect(result.predictedMaterialOrientation).toEqual(arrival.materialOrientation);
+  expect(result.predictedMaterialOrientation).not.toEqual(phase);expect(result.arrivalErrorMeters).toBeLessThanOrEqual(.02);
+  expect(JSON.stringify(raw)).toBe(before);const {materialOrientationAtRelease:_omitted,...withoutPhase}=raw;
+  expect(()=>planLiveThrowV1(withoutPhase)).toThrow(/orientation|material|phase/i);
+});

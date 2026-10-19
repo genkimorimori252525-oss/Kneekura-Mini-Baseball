@@ -4,6 +4,7 @@ import { createWorkbenchPlayer, WORKBENCH_TICKS_PER_SECOND, type WorkbenchPlayer
 import { validateLiveTraitProfileV1, type LiveTraitProfileV1 } from './LiveTraitProfilesV1';
 import { validateImpactTrajectorySettingsV1, type ImpactTrajectorySettingsV1 } from '../../core/sim/contact/ReferenceBatImpactTrajectoryV1';
 import { validatePitchRepertoireV77, validatePitchingMotionV77, type PitchRepertoireV77, type PitchingMotionV77 } from './LivePitchAuthoringV77';
+import { validatePitchRepertoireV78, type PitchRepertoireV78 } from './LivePitchAuthoringV78';
 
 /** Explicit numerical controls, not conversions from a trait grade or league.
  * SI/tick authoring remains local input; this adapter grants no Native authority. */
@@ -21,6 +22,7 @@ export type LivePhysicalAbilityControlsV1 = Readonly<{
    * toward home from the rubber. Omitted values use local body-height ratios. */
   pitchReleaseHeightMeters?: number; pitchReleaseSideMeters?: number; pitchReleaseExtensionMeters?: number;
   pitchRepertoire?: PitchRepertoireV77; pitchingMotion?: PitchingMotionV77;
+  pitchRepertoireV78?: PitchRepertoireV78; minimumSpinRatio?: number;
   /** Tactical preferences; omitted values retain the controller defaults. */
   baserunningSafetyMarginSeconds?: number; fieldingPursuitCostWeight?: number;
   /** SI limits for continuous base rounding; omitted limits resolve in Host. */
@@ -47,8 +49,8 @@ const scalarKeys = ['batLengthM', 'batMassKg', 'swingRate', 'timingStdSeconds', 
   'maximumSweetSpotSpeedMps', 'targetSweetSpotSpeedMps', 'motorLatencySeconds', 'technicalTimingOffsetSeconds', 'sweetSpotT',
   'attackAngleDegrees', 'pullAngleDegrees', 'badBallControl', 'defensiveDecisionSeconds', 'preContactSeconds', 'followThroughSeconds', 'contactDepthMeters', 'throwDirectionStdRadians', 'zoneJudgmentStdMeters',
   'baserunningSafetyMarginSeconds', 'fieldingPursuitCostWeight', 'baserunningTurnRadiusMeters', 'baserunningLateralAccelerationMps2', 'plateVision',
-  'pitchReleaseHeightMeters', 'pitchReleaseSideMeters', 'pitchReleaseExtensionMeters'] as const;
-const physicalKeys: readonly string[] = ['basis', ...scalarKeys, 'spinRadPerSecond', 'clipId', 'swingDecision', 'impactTrajectory', 'pitchRepertoire', 'pitchingMotion'];
+  'pitchReleaseHeightMeters', 'pitchReleaseSideMeters', 'pitchReleaseExtensionMeters', 'minimumSpinRatio'] as const;
+const physicalKeys: readonly string[] = ['basis', ...scalarKeys, 'spinRadPerSecond', 'clipId', 'swingDecision', 'impactTrajectory', 'pitchRepertoire', 'pitchingMotion', 'pitchRepertoireV78'];
 const bounds: Partial<Record<typeof scalarKeys[number], readonly [number, number]>> = {
   batLengthM: [.2, 3], batMassKg: [.1, 5], swingRate: [.3, 3], timingStdSeconds: [0, .08], aimStdMeters: [0, .35],
   chaseMarginMeters: [0, .6], releaseSpeedMps: [15, 85], maximumPitchSpeedMps: [15, 85], commandStdMeters: [0, .6],
@@ -61,6 +63,7 @@ const bounds: Partial<Record<typeof scalarKeys[number], readonly [number, number
   zoneJudgmentStdMeters: [0, .6],
   plateVision: [1, 100],
   pitchReleaseHeightMeters: [.2, 3.2], pitchReleaseSideMeters: [0, 1.5], pitchReleaseExtensionMeters: [0, 3.5],
+  minimumSpinRatio: [0, 1],
   baserunningSafetyMarginSeconds: [0, 3], fieldingPursuitCostWeight: [.25, 4],
   baserunningTurnRadiusMeters: [.5, 10], baserunningLateralAccelerationMps2: [.5, 20],
 };
@@ -100,6 +103,8 @@ function validatePhysical(raw: unknown): asserts raw is LiveRosterPhysicalV1 {
   if (Object.hasOwn(raw, 'clipId')) assert(validText(raw.clipId), 'invalid measured clip identity');
   if (Object.hasOwn(raw, 'impactTrajectory')) validateImpactTrajectorySettingsV1(raw.impactTrajectory);
   if (Object.hasOwn(raw, 'pitchRepertoire')) validatePitchRepertoireV77(raw.pitchRepertoire, raw.maximumPitchSpeedMps as number | undefined);
+  assert(!(Object.hasOwn(raw, 'pitchRepertoire') && Object.hasOwn(raw, 'pitchRepertoireV78')), 'ambiguous V77 and V78 pitch ownership');
+  if (Object.hasOwn(raw, 'pitchRepertoireV78')) validatePitchRepertoireV78(raw.pitchRepertoireV78, raw.maximumPitchSpeedMps as number | undefined);
   if (Object.hasOwn(raw, 'pitchingMotion')) validatePitchingMotionV77(raw.pitchingMotion);
   if (Object.hasOwn(raw, 'swingDecision')) {
     fields(raw.swingDecision, ['approach', 'threshold', 'aggressionWeight'], ['approach', 'threshold', 'aggressionWeight'], 'swingDecision');

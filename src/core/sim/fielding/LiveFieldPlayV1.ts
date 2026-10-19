@@ -238,7 +238,9 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
   let territory = 'fair' as 'fair' | 'foul', territoryFixed = false, time = start, endReason = 'scope_exhausted', dead = false;
   let kernelBuilds = 0, kernelExtensions = 0, wallKernelBuilds = 0, collisionQueries = 0, kernel: Pick<SourceFreeBallKernel, 'cells' | 'boundaries' | 'evaluateAt'>,
     orientationBasis = input.orientation ?? IDENTITY_QUATERNION;
-  let freeScope: { initial: BallWorldMoment; spanSeconds: number; through: number } | null = null;
+  const materialSeamsActive = (input.physics.air.aerodynamics.seamForce?.coefficientScale ?? 0) > 0;
+  if (materialSeamsActive && input.orientation === undefined) throw new Error('live field: explicit material orientation required for seam force');
+  let freeScope: { initial: BallWorldMoment; spanSeconds: number; through: number; materialOrientationAtStart?: Quaternion } | null = null;
   let wallContact: ReturnType<typeof createGroundWallRollingCurveV1>['support'] | null = null;
   const wallSupports: ReturnType<typeof createGroundWallRollingCurveV1>['support'][] = [];
   const simultaneousContacts: ReturnType<typeof resolveGroundedActorContactResponseV1>['proof'][] = [];
@@ -282,10 +284,10 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
   const defensiveOpportunityTransitions: { tick: number; elapsedSeconds: number; opportunity: LiveDefensiveOpportunityV1 | null }[] = [];
   let lastRunnerEvaluationSeconds: number | null = null;
   let unresolvedDetail: unknown = null;
-  const build = (moment: BallWorldMoment) => {
+  const build = (moment: BallWorldMoment, materialOrientationAtStart = orientationBasis) => {
     kernelBuilds++; const through = Math.min(max, moment.elapsedSeconds + 8), result = createSourceFreeBallKernel({ kind: 'aero_ground_continuous_source_kernel_v2',
-      initial: moment, throughElapsedSeconds: through, profile: input.physics });
-    freeScope = { initial: result.descriptor.initial, spanSeconds: 8, through }; return result;
+      initial: moment, throughElapsedSeconds: through, profile: input.physics, ...(materialSeamsActive ? { materialOrientationAtStart } : {}) });
+    freeScope = { initial: result.descriptor.initial, spanSeconds: 8, through, ...(materialSeamsActive ? { materialOrientationAtStart } : {}) }; return result;
   };
   const ensureThrough = (through: number) => {
     if (!freeScope || through <= freeScope.through) return;
@@ -295,7 +297,8 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
     // The original impulse root and its RK lattice remain identical. This is
     // only a larger finite cache; no observed/render sample becomes a basis.
     kernel = createSourceFreeBallKernel({ kind: 'aero_ground_continuous_source_kernel_v2',
-      initial: freeScope.initial, throughElapsedSeconds: end, profile: input.physics });
+      initial: freeScope.initial, throughElapsedSeconds: end, profile: input.physics,
+      ...(freeScope.materialOrientationAtStart ? { materialOrientationAtStart: freeScope.materialOrientationAtStart } : {}) });
     freeScope = { ...freeScope, spanSeconds: span, through: end }; kernelExtensions++;
   };
   kernel = build(input.ball);
@@ -337,7 +340,7 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
         orientation: pendingCatch ? advanceBaseballOrientation(orientationBasis, mul(pendingCatch.spin, 1 - u / 2), t - pendingCatch.first) : orientationBasis, phase: 'possessed' };
     }
     const b = kernel.evaluateAt(t, t === time ? side : 'outgoing');
-    return { ...b.moment.ball, orientation: multiplyQuaternions(b.orientation, orientationBasis), phase: dead ? 'dead' : wallContact ? 'wall_' + b.phase : b.phase };
+    return { ...b.moment.ball, orientation: b.materialOrientation ?? multiplyQuaternions(b.orientation, orientationBasis), phase: dead ? 'dead' : wallContact ? 'wall_' + b.phase : b.phase };
   };
   const sampleFrame = (t: number) => {
     const b = ballAt(t);
@@ -691,6 +694,7 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
             holderPlayerId: possession!.spec.playerId, receiverPlayerId: receiver.spec.playerId, finalBase: o.targetBase,
             runnerId: r.spec.runnerId, target: add(target, v(0, receiver.spec.position.y, 0)), runnerArrivalSeconds: runnerSeconds,
             holderTransferRemainingSeconds: 0, physics: input.physics,
+            ...(materialSeamsActive ? { materialOrientationAtRelease: ballAt(t).orientation } : {}),
             excludedRelayPlayerIds: [...(relayVisited.get(r.spec.runnerId + ':' + o.targetBase) ?? [])],
             throwHandOffset: { forwardMeters: LIVE_FIELD_TEST_MODEL_V1.throwHand.forwardMeters,
               heightAboveHipMeters: LIVE_FIELD_TEST_MODEL_V1.throwHand.heightAboveHipMeters } });
@@ -1216,7 +1220,7 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
         if (territory === 'foul') { dead = true; terminal = true; endReason = 'foul_dead_ball'; }
       } else if (e.kind === 'glove' || e.kind === 'body') {
         const f = e.f!, c = e.role === 'glove' ? f.glove : f.body, incoming = kernel.evaluateAt(time, 'incoming'), center = at(c, time), delta = sub(incoming.moment.ball.position, center), normal = mul(delta, 1 / norm(delta));
-        const phase = multiplyQuaternions(incoming.orientation, orientationBasis);
+        const phase = incoming.materialOrientation ?? multiplyQuaternions(incoming.orientation, orientationBasis);
         if (!territoryFixed) determineTerritory(time, isFair(incoming.moment.ball.position) ? 'fair' : 'foul');
         if (firstTouchTick === null) for (const r of runners) if (r.spec.initialBase > 0)
           tagUpAtFirstTouch.set(r.spec.runnerId, distance(flat(runnerAt(r, time)), flat(base(r.spec.initialBase))) <= (field.baseTouchRadiusMeters ?? .28));
@@ -1277,7 +1281,7 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
           } catch (error) { unresolvedDetail = { kind: 'simultaneous_actor_ground_contact', message: error instanceof Error ? error.message : String(error) };
             terminal = true; endReason = 'simultaneous_contact_response_required'; continue; }
         }
-        const moment = { ...incoming.moment, ball: outgoing }; kernel = build(moment); wallContact = null; orientationBasis = phase; side = 'outgoing';
+        const moment = { ...incoming.moment, ball: outgoing }; kernel = build(moment, phase); wallContact = null; orientationBasis = phase; side = 'outgoing';
         reboundEscape = { fielder: f, role: e.role!, hit: e.hit!, normal, outgoing: kernel.evaluateAt(time, 'outgoing').moment };
       } else if (e.kind === 'hand_prepared') {
         handPreparation!.prepared = true; controlThrough = time; if (releaseAt !== null) releaseAt = time;
@@ -1336,7 +1340,8 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
         assert(Number.isFinite(backspin) && backspin >= 0 && (!f.spec.throwSpinRadPerSecond || finite(f.spec.throwSpinRadPerSecond)), 'explicit throw spin differs');
         const spin = f.spec.throwSpinRadPerSecond ?? (horizontalSpeed > 0 ? v(-d.z / horizontalSpeed * backspin, 0, d.x / horizontalSpeed * backspin) : v()),
           planned = planLiveThrowV1({ releasePosition: position, bodyVelocity: velocityAt(f.body, time), maximumThrowSpeedMps: speed,
-            spin, physics: input.physics, target: q });
+            spin, physics: input.physics, target: q,
+            ...(materialSeamsActive ? { materialOrientationAtRelease: ballAt(time).orientation } : {}) });
         if (planned.kind !== 'planned') { reject('aero_throw_unreachable'); continue; }
         const runnerTime = Math.max(...obligations.map(o => {
           const r = runners.find(r => r.spec.runnerId === o.runnerId)!;
@@ -1420,7 +1425,8 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
         } else {
           const normal = mul(flat(sub(fenceCenter, b.position)), 1 / distance(flat(b.position), flat(fenceCenter)));
           let outgoing = respondToBallContact({ ball: b, normal, surfaceVelocity: v(), material: LIVE_FIELD_TEST_MODEL_V1.wallMaterial });
-          orientationBasis = multiplyQuaternions(kernel.evaluateAt(time, 'incoming').orientation, orientationBasis);
+          const seamContact = kernel.evaluateAt(time, 'incoming');
+          orientationBasis = seamContact.materialOrientation ?? multiplyQuaternions(seamContact.orientation, orientationBasis);
           const normalVelocity = outgoing.velocity.x * normal.x + outgoing.velocity.z * normal.z;
           const isGrounded = b.position.y === input.physics.ground.radiusM && b.velocity.y === 0;
           const elasticNormalEnergy = .5 * input.physics.air.aerodynamics.ballMassKg * normalVelocity ** 2;

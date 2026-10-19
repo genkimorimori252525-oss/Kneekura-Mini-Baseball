@@ -67,6 +67,7 @@
   }
   function assertLiveRosterEdits() {
     globalThis.KneekuraPitcherMakerV77?.assertNoPending?.();
+    globalThis.KneekuraPitchLibraryV78?.assertNoPending?.();
     if (liveRosterPending.size) throw Error('試合用能力に未確定の入力があります。選手と項目のエラーを修正してから保存してください。');
     if (livePhysicalRoster) validateLiveRoster(livePhysicalRoster);
   }
@@ -1055,9 +1056,14 @@
       if (time >= duration) { time = duration; playing = false; } draw(); } lastPaint = now; requestAnimationFrame(loop); }
   function state() { return { player: clone(draft), population: clone(population), scenario: clone(scenario), ...(referenceTouched ? { reference: clone(reference) } : {}),
     ...(patternsTouched ? { trajectoryPatterns: clone(trajectoryPatterns) } : {}), ...(livePhysicalRoster ? { livePhysicalRoster: clone(livePhysicalRoster) } : {}),
-    ...(defaultPreviewDisplay() ? {} : { previewDisplay: clone(previewDisplay) }) }; }
+    ...(defaultPreviewDisplay() ? {} : { previewDisplay: clone(previewDisplay) }),
+    ...(globalThis.KneekuraPitchLibraryV78?.exportState()?.records?.length ? { pitchLibrary: clone(globalThis.KneekuraPitchLibraryV78.exportState()) } : {}) }; }
   function importState(raw) {
     if (!raw || !raw.player || !Array.isArray(raw.population) || !raw.scenario?.pitch) throw Error('選手・比較データ・投球設定を含むJSONを選択してください。');
+    const pitchLibrary = globalThis.KneekuraPitchLibraryV78,
+      nextPitchLibrary = pitchLibrary?.validateState(raw.pitchLibrary ?? { version: 'pitch_library_v78', records: [] }),
+      previousPitchLibrary = pitchLibrary?.exportState();
+    pitchLibrary?.assertNoPending?.();
     const next = core.createWorkbenchPlayer(raw.player), nextScenario = clone(raw.scenario), nextPopulation = raw.population.map(value => core.createWorkbenchPlayer(value));
     const displayDescriptor = Object.getOwnPropertyDescriptor(raw, 'previewDisplay');
     if (displayDescriptor && !('value' in displayDescriptor)) throw Error('拡大表示の設定は数値で指定してください。');
@@ -1078,7 +1084,8 @@
       trajectoryPatterns = nextPatterns; patternsTouched = raw.trajectoryPatterns !== undefined; selectedPatternId = '';
       refreshScenario(); refreshControls(); $('population-json').value = JSON.stringify(population, null, 2); refreshReference(true); preview(); draw();
       if (nextRoster) importLiveRoster(nextRoster);
-    } catch (error) { ({ player, draft, population, scenario, result, time, duration, revision, reference, referenceTouched, trajectoryPatterns, patternsTouched, selectedPatternId, experimentResult, experimentInput, previewDisplay } = previous); refreshPreviewDisplayControls(); throw error; }
+      if (pitchLibrary) pitchLibrary.replaceValidated(nextPitchLibrary);
+    } catch (error) { ({ player, draft, population, scenario, result, time, duration, revision, reference, referenceTouched, trajectoryPatterns, patternsTouched, selectedPatternId, experimentResult, experimentInput, previewDisplay } = previous); if (pitchLibrary) pitchLibrary.replaceValidated(previousPitchLibrary); refreshPreviewDisplayControls(); throw error; }
   }
   async function readFile(file, apply) { if (!file) return; try { apply(JSON.parse(await file.text())); clearProblem(); } catch (error) { problem(error); } }
   function tab(which) { const bat = which === 'bat'; $('tab-bat').setAttribute('aria-selected', String(bat)); $('tab-player').setAttribute('aria-selected', String(!bat)); $('bat-panel').hidden = !bat; $('player-panel').hidden = bat;

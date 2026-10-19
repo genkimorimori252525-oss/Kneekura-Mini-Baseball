@@ -1,4 +1,5 @@
 import { cloneInert } from '../../adjudication/OfficialWindowPolicy';
+import { sameBaseballMaterialOrientationV1 } from './BaseballSeamForceV1';
 import type { Vec3 } from '../../model/geometry';
 import { quantizeEventTick } from '../ExactEventTime';
 import type { BallWorldMoment, BallWorldMotionActor, BallWorldFieldBoundaryContact, BallWorldCollider } from './BallWorldContinuation';
@@ -67,7 +68,14 @@ export type SourceImpactEscapeAdvanceV3 = Readonly<{ colliderKey: string; fromEl
 type PrivateImpulseEscape = Readonly<{ basisKey: string; scopeKey: string; colliderKey: string; diagnostic: SourceImpactEscapeDiagnosticV3;
   recordAdvance: (advance: SourceImpactEscapeAdvanceV3) => void }>;
 const scopeKey = (q: SourceFreeBallWorldQueryInputV2) => json([q.actors, q.surfaces, q.bases ?? null]);
-const basisKey = (d: SourceFreeBallDescriptorV2) => json([d.initial, d.profile]);
+const basisKey = (d: SourceFreeBallDescriptorV2) => json([d.initial, d.profile,
+  ...(d.materialOrientationAtStart === undefined ? [] : [d.materialOrientationAtStart])]);
+const assertImpulseMaterialOrientation = (prior: SourceFreeBallDescriptorV2, next: SourceFreeBallDescriptorV2, seconds: number) => {
+  if (prior.materialOrientationAtStart === undefined && next.materialOrientationAtStart === undefined) return;
+  const incoming = createSourceFreeBallKernel(prior).evaluateAt(seconds, 'incoming').materialOrientation;
+  if (incoming === undefined || next.materialOrientationAtStart === undefined || !sameBaseballMaterialOrientationV1(incoming, next.materialOrientationAtStart))
+    throw new Error('v3 new basis material orientation differs from the original impulse');
+};
 
 /** First contact of an unimpeded free Source curve. It has no custody/response
  * capability: a caller must stop here, execute the original physical response,
@@ -328,6 +336,7 @@ export const createSourceImpactEscapeSessionV3 = () => {
       material: response.surfaces.find(s => s.surfaceId === c.surfaceId)!.material });
     const outgoingMoment = { ...c.moment, ball: outgoingBall };
     if (json(descriptor.initial) !== json(outgoingMoment)) throw new Error('v3 new basis differs from original impulse/clock tuple');
+    assertImpulseMaterialOrientation(prior.descriptor, descriptor, c.moment.elapsedSeconds);
     createSourceFreeBallKernel(descriptor);
     const outgoingNormalSpeedMps = normalSpeed(outgoingBall.velocity);
     if (!finite(outgoingNormalSpeedMps) || outgoingNormalSpeedMps <= 0) throw new Error('v3 original impulse has no outward departure');
@@ -381,6 +390,7 @@ export const createSourceImpactEscapeSessionV3 = () => {
     const ball = respondToBallContact({ ball: c.moment.ball, normal: c.normal!, surfaceVelocity: { x: 0, y: 0, z: 0 }, material: materials[c.baseId] });
     const outgoingMoment = { ...c.moment, ball };
     if (json(descriptor.initial) !== json(outgoingMoment)) throw new Error('v3 new base basis differs from original impulse/clock tuple');
+    assertImpulseMaterialOrientation(prior.descriptor, descriptor, c.moment.elapsedSeconds);
     createSourceFreeBallKernel(descriptor);
     const outgoingNormalSpeedMps = normalSpeed(ball.velocity);
     if (!finite(outgoingNormalSpeedMps) || outgoingNormalSpeedMps <= 0) throw new Error('v3 original base impulse has no outward departure');

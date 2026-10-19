@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-BUILD-GAME-REVIEW",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-v78.mjs"
+  ],
+  "observed_at": "2026-10-19T19:58:31.839+00:00",
+  "elapsed_ms": 921,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-BUILD-GAME-REVIEW_d760577b227f4c35bec17019c07bc851.log",
+  "output_sha256": "c6ea8bc7b61d894a4f14b84cdebffef74811d81cbcad7a26c5859f9fbd02d151",
+  "receipt_id": "MB-20261020-V78-BUILD-GAME-REVIEW_d760577b227f4c35bec17019c07bc851"
+}

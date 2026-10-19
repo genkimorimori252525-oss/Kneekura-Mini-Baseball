@@ -13,12 +13,12 @@ function assert(value: unknown, message: string): asserts value { if (!value) th
 const freeze = <T>(value: T): T => { if (value && typeof value === 'object' && !Object.isFrozen(value)) { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
 export type PitcherWorkbenchBuildInputV77 = Readonly<{ players: readonly LivePlayerV1[]; roster?: LivePhysicalRosterInputV1;
   pitcherId: string; batterId: string; catcherId: string; measuredClips: readonly LiveMeasuredClipV1[];
-  seed: number; originTick?: number; pitchType: string; location: string }>;
+  seed: number; originTick?: number; pitchType: string; pitchId?: string; location: string }>;
 /** The same authoring projection, one runtime trait owner and catcher controls as Host. */
 export function buildPitcherWorkbenchInputV77(raw: PitcherWorkbenchBuildInputV77): LivePitchInputV1 {
   // The measured library is bounded by the caller's selected clips, not a second model.
   const input = cloneInert(raw);
-  assert(Object.keys(input).every(k => ['players','roster','pitcherId','batterId','catcherId','measuredClips','seed','originTick','pitchType','location'].includes(k)), 'unknown construction fields');
+  assert(Object.keys(input).every(k => ['players','roster','pitcherId','batterId','catcherId','measuredClips','seed','originTick','pitchType','pitchId','location'].includes(k)), 'unknown construction fields');
   assert(['pitcherId','batterId','catcherId'].every(k => typeof input[k as 'pitcherId'] === 'string' && input[k as 'pitcherId'].length > 0)
     && Number.isSafeInteger(input.seed) && input.seed >= 0 && input.seed <= 0xffffffff
     && (input.originTick === undefined || Number.isSafeInteger(input.originTick) && input.originTick >= 0), 'invalid construction identity or clock');
@@ -36,7 +36,7 @@ export function buildPitcherWorkbenchInputV77(raw: PitcherWorkbenchBuildInputV77
       pitchApproach: resolveLiveTraitPreferencesV54(pitcher.traitProfile).pitchApproach },
     catcher: { gloveSpeedMps: cp.gloveSpeedMps, gloveReachMeters: cp.gloveReachMeters, gloveRadiusMeters: cp.gloveRadiusMeters,
       retentionCapacityJ: cp.retentionCapacityJ, captureDissipationPowerW: cp.captureDissipationPowerW, pocketRadiusMeters: .14 },
-    measuredClips: clips, batting: 'take', pitchType: input.pitchType, location: input.location, physics: LIVE_MATCH_PHYSICS_V1 });
+    measuredClips: clips, batting: 'take', pitchType: input.pitchType, ...(input.pitchId === undefined ? {} : { pitchId: input.pitchId }), location: input.location, physics: LIVE_MATCH_PHYSICS_V1 });
 }
 function planeTime(kernel: SourceFreeBallKernel, plane: number): number | null {
   for (const cell of kernel.cells) {
@@ -67,11 +67,11 @@ export function simulatePitcherWorkbenchV77(raw: Readonly<{ pitch: LivePitchInpu
   // In that case report the air-only counterfactual explicitly, never move the real ball.
   if (baselinePosition === null) {
     let lo = 0, hi = descriptor.throughElapsedSeconds;
-    assert(sampleAerodynamicPitchStateAtElapsedSeconds(baselineInitial, hi, input.physics.air).position.z <= .15, 'counterfactual did not reach plate plane');
+    assert(sampleAerodynamicPitchStateAtElapsedSeconds(baselineInitial, hi, descriptor.profile.air, descriptor.materialOrientationAtStart).position.z <= .15, 'counterfactual did not reach plate plane');
     for (let n = 0; n < 60 && hi - lo > 1e-12; n++) {
-      const mid = (lo + hi) / 2; if (sampleAerodynamicPitchStateAtElapsedSeconds(baselineInitial, mid, input.physics.air).position.z <= .15) hi = mid; else lo = mid;
+      const mid = (lo + hi) / 2; if (sampleAerodynamicPitchStateAtElapsedSeconds(baselineInitial, mid, descriptor.profile.air, descriptor.materialOrientationAtStart).position.z <= .15) hi = mid; else lo = mid;
     }
-    baselinePosition = sampleAerodynamicPitchStateAtElapsedSeconds(baselineInitial, hi, input.physics.air).position;
+    baselinePosition = sampleAerodynamicPitchStateAtElapsedSeconds(baselineInitial, hi, descriptor.profile.air, descriptor.materialOrientationAtStart).position;
   }
   const metrics = { strikeZone: resolveHeightRatioStrikeZoneRegion({ plateCenterX: 0, playerPhysicalProfile: { heightMeters: input.batter.heightMeters } }), platePosition: actual.position, baselinePlatePosition: baselinePosition, flightSeconds: seconds,
     speedKmh: Math.hypot(actual.velocity.x, actual.velocity.y, actual.velocity.z) * 3.6, releaseSpeedKmh: pitch.speedKmh,
@@ -83,15 +83,15 @@ export function simulatePitcherWorkbenchV77(raw: Readonly<{ pitch: LivePitchInpu
     assert(Number.isFinite(at) && at >= 0, 'nonnegative observation seconds required');
     if (at > descriptor.throughElapsedSeconds) return null;
     const observation = kernel.evaluateAt(at), ball = observation.moment.ball;
-    return freeze({ ...ball, elapsedSeconds: at, orientation: observation.orientation, phase: observation.phase });
+    return freeze({ ...ball, elapsedSeconds: at, orientation: observation.materialOrientation ?? observation.orientation, phase: observation.phase });
   };
   const sampleBaselineAtPitchElapsedSeconds = (at: number) => {
     assert(Number.isFinite(at) && at >= 0, 'nonnegative baseline observation seconds required');
     if (at > descriptor.throughElapsedSeconds) return null;
-    if (baselineSeconds === null) return freeze({ ...sampleAerodynamicPitchStateAtElapsedSeconds(baselineInitial, at, input.physics.air),
-      elapsedSeconds: at, orientation: IDENTITY_QUATERNION, phase: 'airborne' as const, counterfactualGroundIgnored: true });
+    if (baselineSeconds === null) return freeze({ ...sampleAerodynamicPitchStateAtElapsedSeconds(baselineInitial, at, descriptor.profile.air, descriptor.materialOrientationAtStart),
+      elapsedSeconds: at, orientation: descriptor.materialOrientationAtStart ?? IDENTITY_QUATERNION, phase: 'airborne' as const, counterfactualGroundIgnored: true });
     const observation = baseline.evaluateAt(at);
-    return freeze({ ...observation.moment.ball, elapsedSeconds: at, orientation: observation.orientation, phase: observation.phase, counterfactualGroundIgnored: false });
+    return freeze({ ...observation.moment.ball, elapsedSeconds: at, orientation: observation.materialOrientation ?? observation.orientation, phase: observation.phase, counterfactualGroundIgnored: false });
   };
   return freeze({ version: 77 as const, authority: 'SHARED_LIVE_PITCHER_WORKBENCH' as const, nativeAdmission: false as const,
     officialResult: null, input, pitch, context: packet.context ?? null, fixedInitial, baselineInitial, baselineDescriptor, metrics, sampleAtPitchElapsedSeconds, sampleBaselineAtPitchElapsedSeconds });

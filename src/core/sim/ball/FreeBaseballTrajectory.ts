@@ -1,8 +1,9 @@
 import type { BattedBallInitialState } from '../contact/BatBallContact';
-import { advanceAerodynamicPitchState, type AerodynamicPitchTrajectoryParameters } from '../pitching/AerodynamicPitchTrajectory';
+import { advanceAerodynamicPitchState, resolveAerodynamicIntegrationStepTicksV1, type AerodynamicPitchTrajectoryParameters, type MaterialAerodynamicPitchStateV1 } from '../pitching/AerodynamicPitchTrajectory';
 import { advanceBaseballOrientation, IDENTITY_QUATERNION, normalizeQuaternion, type Quaternion } from '../pitching/BaseballOrientation';
 import { findFirstTrueTick, quantizeEventTick } from '../ExactEventTime';
 import { calculateBaseballAerodynamics } from './BaseballAerodynamics';
+import { validateBaseballMaterialOrientationV1 } from './BaseballSeamForceV1';
 import { advanceBaseballGroundMotion, resolveBaseballGroundImpact, type BaseballGroundParameters } from './BaseballGroundDynamics';
 
 export type FreeBaseballTrajectoryInput = Readonly<{
@@ -52,8 +53,10 @@ export function createFreeBaseballTrajectory(raw: FreeBaseballTrajectoryInput): 
     throw new Error('free baseball trajectory requires consistent original physical parameters and a bounded horizon');
   }
   // Both validation paths must run even when no integration step is requested.
-  advanceAerodynamicPitchState(initialBall, 0, aero);
-  calculateBaseballAerodynamics(initialBall.velocity, initialBall.spin, aero.aerodynamics);
+  const materialForce = (aero.aerodynamics.seamForce?.coefficientScale ?? 0) > 0;
+  if (materialForce) validateBaseballMaterialOrientationV1(input.orientationAtStart);
+  advanceAerodynamicPitchState(initialBall, 0, aero, input.orientationAtStart);
+  calculateBaseballAerodynamics(initialBall.velocity, initialBall.spin, aero.aerodynamics, input.orientationAtStart);
   // Validate even a zero-duration/airborne horizon through the ground kernel.
   advanceBaseballGroundMotion({ ...initialBall, position: { ...initialBall.position, y: ground.radiusM },
     velocity: { ...initialBall.velocity, y: 0 } }, 0, ground);
@@ -61,15 +64,16 @@ export function createFreeBaseballTrajectory(raw: FreeBaseballTrajectoryInput): 
   const grounded = (b: BattedBallInitialState) => Math.abs(b.position.y - ground.radiusM) <= 1e-10 && b.velocity.y === 0;
   const phaseAt = (b: BattedBallInitialState): FreeBaseballSample['phase'] => grounded(b)
     ? advanceBaseballGroundMotion(b, 0, ground).phase : 'airborne';
-  const oriented = (anchor: FreeBaseballSample, ball: BattedBallInitialState): FreeBaseballSample => {
+  const oriented = (anchor: FreeBaseballSample, sampled: MaterialAerodynamicPitchStateV1): FreeBaseballSample => {
+    const { materialOrientation, ...ball } = sampled;
     const meanSpin = { x: (anchor.ball.spin.x + ball.spin.x) / 2, y: (anchor.ball.spin.y + ball.spin.y) / 2,
       z: (anchor.ball.spin.z + ball.spin.z) / 2 };
-    return { tick: ball.tick, ball, phase: phaseAt(ball), orientation: advanceBaseballOrientation(anchor.orientation,
+    return { tick: ball.tick, ball, phase: phaseAt(ball), orientation: materialOrientation ?? advanceBaseballOrientation(anchor.orientation,
       meanSpin, (ball.tick - anchor.tick) / aero.ticksPerSecond) };
   };
   const advance = (anchor: FreeBaseballSample, tick: number): FreeBaseballSample => oriented(anchor,
     grounded(anchor.ball) ? advanceBaseballGroundMotion(anchor.ball, tick - anchor.tick, ground).ball
-      : advanceAerodynamicPitchState(anchor.ball, tick - anchor.tick, aero));
+      : advanceAerodynamicPitchState(anchor.ball, tick - anchor.tick, aero, materialForce ? anchor.orientation : undefined));
   let current: FreeBaseballSample = { tick: initialBall.tick, ball: initialBall,
     orientation: normalizeQuaternion(input.orientationAtStart ?? IDENTITY_QUATERNION), phase: phaseAt(initialBall) };
   if (initialBall.position.y <= ground.radiusM && initialBall.velocity.y < 0) {
@@ -79,9 +83,10 @@ export function createFreeBaseballTrajectory(raw: FreeBaseballTrajectoryInput): 
     current = { ...current, ball: outgoing, phase: phaseAt(outgoing) };
   }
   samples.push(current);
+  let latticeOrigin = initialBall.tick, integrationStepTicks = resolveAerodynamicIntegrationStepTicksV1(current.ball.spin, aero);
   while (current.tick < throughTick) {
     // The physical lattice is anchored at contact, independent of render ticks.
-    const lattice = initialBall.tick + (Math.floor((current.tick - initialBall.tick) / aero.integrationStepTicks) + 1) * aero.integrationStepTicks;
+    const lattice = latticeOrigin + (Math.floor((current.tick - latticeOrigin) / integrationStepTicks) + 1) * integrationStepTicks;
     let endTick = Math.min(lattice, throughTick);
     if (grounded(current.ball)) {
       const nextTransition = advanceBaseballGroundMotion(current.ball, endTick - current.tick, ground).transitions[0];
@@ -113,6 +118,7 @@ export function createFreeBaseballTrajectory(raw: FreeBaseballTrajectoryInput): 
       const outgoing = resolveBaseballGroundImpact(incoming, ground);
       groundContacts.push({ incoming, outgoing });
       current = { ...atContact, ball: outgoing, phase: phaseAt(outgoing) };
+      if (materialForce) { latticeOrigin = current.tick; integrationStepTicks = resolveAerodynamicIntegrationStepTicksV1(current.ball.spin, aero); }
     } else current = proposed;
     samples.push(current);
   }

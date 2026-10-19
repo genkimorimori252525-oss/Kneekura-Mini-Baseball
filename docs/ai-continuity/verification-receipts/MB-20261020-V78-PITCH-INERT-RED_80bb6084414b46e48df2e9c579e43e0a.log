@@ -1,0 +1,54 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/LivePitchAuthoringV78.test.ts (4 tests | 2 failed) 20ms
+   × v78 distinct pitch identity, immutable library and physical execution > samples downward spin only, keeps the axis, and uses a deterministic isolated stream 15ms
+     → expected true to be false // Object.is equality
+   × v78 distinct pitch identity, immutable library and physical execution > rejects unsafe IDs, malformed nested fields, non-finite physics and getters atomically 1ms
+     → expected true to be false // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LivePitchAuthoringV78.test.ts > v78 distinct pitch identity, immutable library and physical execution > samples downward spin only, keeps the axis, and uses a deterministic isolated stream
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/integration/browser/LivePitchAuthoringV78.test.ts:46:42
+     44|     }
+     45|     expect(samplePitchSpinExecutionV78({ seed: 4, nominalSpin }).spin)…
+     46|     expect(Object.isFrozen(nominalSpin)).toBe(false);
+       |                                          ^
+     47|     expect(samplePitchSpinExecutionV78({ seed: 4, nominalSpin, minimum…
+     48|     expect(JSON.stringify(nominalSpin)).toBe(before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/integration/browser/LivePitchAuthoringV78.test.ts > v78 distinct pitch identity, immutable library and physical execution > rejects unsafe IDs, malformed nested fields, non-finite physics and getters atomically
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/integration/browser/LivePitchAuthoringV78.test.ts:58:21
+     56|     expect(invoked).toBe(false); expect(empty.records).toEqual([]);
+     57|     expect(() => migratePitchRepertoireV77ToV78({ ...LIVE_MATCH_AUTHOR…
+     58|     expect(invoked).toBe(false);
+       |                     ^
+     59|   });
+     60| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+   Start at  04:37:44
+   Duration  1.10s (transform 452ms, setup 0ms, collect 639ms, tests 20ms, environment 0ms, prepare 138ms)
+

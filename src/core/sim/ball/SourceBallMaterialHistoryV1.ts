@@ -1,6 +1,7 @@
 import { cloneInert } from '../../adjudication/OfficialWindowPolicy';
 import { multiplyQuaternions, normalizeQuaternion, type Quaternion } from '../pitching/BaseballOrientation';
 import { createSourceFreeBallKernel, type SourceFreeBallDescriptorV2, type SourceFreeBallEvaluation } from './SourceFreeBallKernel';
+import { sameBaseballMaterialOrientationV1 } from './BaseballSeamForceV1';
 
 export type SourceBallMaterialSpanV1 = Readonly<{
   /** The original free descriptor is never rebased at an observation time. */
@@ -85,7 +86,9 @@ export const createSourceBallMaterialHistoryV1 = (raw: SourceBallMaterialHistory
         'impulse position is discontinuous');
     }
     const basis = carried, endpoint = kernel.evaluateAt(span.throughElapsedSeconds, span.side);
-    carried = freeze(material(endpoint.orientation, basis));
+    if (kernel.descriptor.materialOrientationAtStart !== undefined)
+      assert(sameBaseballMaterialOrientationV1(kernel.descriptor.materialOrientationAtStart, basis), 'material orientation changes at a free basis');
+    carried = freeze(endpoint.materialOrientation ?? material(endpoint.orientation, basis));
     // Endpoints are captured from their original kernels, never reintegrated
     // from a displayed frame or a rounded tick.
     endpoints.push(endpoint);
@@ -109,7 +112,8 @@ export const createSourceBallMaterialHistoryV1 = (raw: SourceBallMaterialHistory
     const ending = side === 'incoming' && spanIndex < source.spans.length - 1 && span.throughElapsedSeconds === elapsedSeconds;
     const sample = kernel.evaluateAt(elapsedSeconds, ending ? span.side : side);
     return freeze({ ...declaration, moment: sample.moment, phase: sample.phase, relativeOrientation: sample.orientation,
-      orientation: material(sample.orientation, basis), spanIndex });
+      orientation: sample.materialOrientation ?? material(sample.orientation, basis), spanIndex,
+      ...(sample.materialOrientation === undefined ? {} : { materialOrientation: sample.materialOrientation }) });
   };
   return freeze({ ...declaration, initialMaterialOrientation, spans: source.spans, fromElapsedSeconds, throughElapsedSeconds, evaluateAt });
 };

@@ -5,6 +5,7 @@ import type { AeroGroundBallPhysicsV1 } from '../ball/VersionedBattedBallPhysics
 import { liveFieldArrivalSecondsV1, type LiveFieldRoleActorV1 } from './LiveFieldRoleAssignmentV1';
 import { createLiveHandPreparationV1 } from './LiveHandPreparationV1';
 import { planLiveThrowV1 } from './LiveThrowPlanV1';
+import type { Quaternion } from '../pitching/BaseballOrientation';
 
 export type LiveRelayActorV1 = LiveFieldRoleActorV1 & Readonly<{
   glovePosition: Vec3; gloveVelocity: Vec3; gloveSpeedMps: number; gloveReachMeters: number; gloveRadiusMeters: number;
@@ -16,6 +17,7 @@ export type LiveRelayPlanInputV1 = Readonly<{
   holderTransferRemainingSeconds: number; physics: AeroGroundBallPhysicsV1;
   throwHandOffset: Readonly<{ forwardMeters: number; heightAboveHipMeters: number }>;
   maximumIntermediateReceivers?: 0 | 1 | 2; minimumMarginSeconds?: number; excludedRelayPlayerIds?: readonly string[];
+  materialOrientationAtRelease?: Quaternion;
 }>;
 export type LiveRelayLegV1 = Readonly<{
   throwerPlayerId: string; receiverPlayerId: string; target: Vec3; receiverPoint: Vec3;
@@ -48,7 +50,7 @@ const flatDistance = (a: Vec3, b: Vec3) => Math.hypot(a.x - b.x, a.z - b.z);
 const finite = (p: Vec3) => !!p && [p.x, p.y, p.z].every(Number.isFinite);
 const freeze = <T>(value: T): T => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
 const allowedInputKeys = ['actors', 'holderPlayerId', 'receiverPlayerId', 'finalBase', 'runnerId', 'target', 'runnerArrivalSeconds',
-  'holderTransferRemainingSeconds', 'physics', 'throwHandOffset', 'maximumIntermediateReceivers', 'minimumMarginSeconds', 'excludedRelayPlayerIds'];
+  'holderTransferRemainingSeconds', 'physics', 'throwHandOffset', 'maximumIntermediateReceivers', 'minimumMarginSeconds', 'excludedRelayPlayerIds', 'materialOrientationAtRelease'];
 
 /** Routes an intended throw using only present actor state and an explicit
  * runner estimate. Intermediate receivers are actual actors at their current
@@ -153,17 +155,20 @@ export function planLiveRelayV1(raw: LiveRelayPlanInputV1): LiveRelayPlanV1 {
     // this remains a bounded heuristic, never a global optimality certificate.
     if (best && candidate.cost >= best.costSeconds) continue;
     const route = candidate.route;
-    evaluatedRouteCount++; let seconds = 0, risk = 0, feasible = true; const legs: LiveRelayLegV1[] = [];
+    evaluatedRouteCount++; let seconds = 0, risk = 0, feasible = true, material = input.materialOrientationAtRelease; const legs: LiveRelayLegV1[] = [];
     for (let i = 1; i < route.length; i++) {
       const from = route[i - 1], to = route[i], g = geometry(from, to);
       if (!Number.isFinite(g.preparationSeconds)) { feasible = false; break; }
-      const key = input.actors.indexOf(from) + ':' + input.actors.indexOf(to);
+      const key = input.actors.indexOf(from) + ':' + input.actors.indexOf(to) + (material ? ':' + JSON.stringify(material) : '');
       let aero = aeroCache.get(key);
       if (!aero) {
         aerodynamicSolveCount++; aero = planLiveThrowV1({ releasePosition: g.releasePosition, bodyVelocity: g.bodyVelocity,
-          maximumThrowSpeedMps: from.throwSpeedMps, spin: g.spin, physics: input.physics, target: g.target }); aeroCache.set(key, aero);
+          maximumThrowSpeedMps: from.throwSpeedMps, spin: g.spin, physics: input.physics, target: g.target,
+          ...(material ? { materialOrientationAtRelease: material } : {}) }); aeroCache.set(key, aero);
       } else aerodynamicCacheHits++;
       if (aero.kind !== 'planned') { feasible = false; break; }
+      // Future receipt is still a tactical hypothesis; actual secure custody replans.
+      material = aero.predictedMaterialOrientation ?? material;
       const earliestArrival = seconds + g.transferSeconds + g.preparationSeconds + aero.flightSeconds,
         waitingSeconds = Math.max(0, g.receiverArrivalSeconds - earliestArrival);
       seconds = earliestArrival + waitingSeconds + g.acquisitionSeconds; risk += g.directionRecoveryCostSeconds;

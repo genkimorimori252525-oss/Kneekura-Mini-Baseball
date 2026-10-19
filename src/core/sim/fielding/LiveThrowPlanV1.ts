@@ -3,10 +3,11 @@ import { cloneInert } from '../../adjudication/OfficialWindowPolicy';
 import { sampleAerodynamicPitchStateAtElapsedSeconds } from '../pitching/AerodynamicPitchTrajectory';
 import { createAeroGroundBallPhysicsProfile,type AeroGroundBallPhysicsV1 } from '../ball/VersionedBattedBallPhysics';
 import { createSourceFreeBallKernel } from '../ball/SourceFreeBallKernel';
+import type { Quaternion } from '../pitching/BaseballOrientation';
 
 export type LiveThrowPlanInputV1=Readonly<{
   releasePosition:Vec3;bodyVelocity:Vec3;maximumThrowSpeedMps:number;spin:Vec3;physics:AeroGroundBallPhysicsV1;
-  target:Vec3;maximumFlightSeconds?:number;
+  target:Vec3;maximumFlightSeconds?:number;materialOrientationAtRelease?:Quaternion;
 }>;
 const add=(a:Vec3,b:Vec3):Vec3=>({x:a.x+b.x,y:a.y+b.y,z:a.z+b.z});
 const sub=(a:Vec3,b:Vec3):Vec3=>({x:a.x-b.x,y:a.y-b.y,z:a.z-b.z});
@@ -26,7 +27,7 @@ function assert(v:unknown,message:string):asserts v {if(!v)throw new Error('live
  * catch events and game results are never corrected or guaranteed. */
 export function planLiveThrowV1(raw:LiveThrowPlanInputV1){
   const started=performance.now(),input=cloneInert(raw),maximumFlightSeconds=input.maximumFlightSeconds??4;
-  assert(fields(input,['releasePosition','bodyVelocity','maximumThrowSpeedMps','spin','physics','target'],['maximumFlightSeconds'])
+  assert(fields(input,['releasePosition','bodyVelocity','maximumThrowSpeedMps','spin','physics','target'],['maximumFlightSeconds','materialOrientationAtRelease'])
     &&[input.releasePosition,input.bodyVelocity,input.spin,input.target].every(finiteVec)
     &&Number.isFinite(input.maximumThrowSpeedMps)&&input.maximumThrowSpeedMps>0&&input.maximumThrowSpeedMps<=120
     &&Number.isFinite(maximumFlightSeconds)&&maximumFlightSeconds>=.05&&maximumFlightSeconds<=8,'finite throw command, target and SI speed required');
@@ -54,7 +55,7 @@ export function planLiveThrowV1(raw:LiveThrowPlanInputV1){
     for(let iteration=0;iteration<9;iteration++){
       if(solverEvaluationCount>=100)break;
       solverEvaluationCount++;shootingIntegrationStepUpperBound+=1+Math.ceil(seconds*physics.air.ticksPerSecond/physics.air.integrationStepTicks);
-      const arrival=sampleAerodynamicPitchStateAtElapsedSeconds(initial(velocity),seconds,physics.air),error=sub(input.target,arrival.position),errorMeters=norm(error),
+      const arrival=sampleAerodynamicPitchStateAtElapsedSeconds(initial(velocity),seconds,physics.air,input.materialOrientationAtRelease),error=sub(input.target,arrival.position),errorMeters=norm(error),
         relativeSpeed=norm(sub(velocity,input.bodyVelocity));
       if(errorMeters<bestRejectedError){bestRejectedError=errorMeters;bestRejectedRelativeSpeed=relativeSpeed;}
       if(errorMeters<=tolerance){
@@ -63,11 +64,12 @@ export function planLiveThrowV1(raw:LiveThrowPlanInputV1){
         // It is a prediction kernel only; no launched world object is edited.
         verificationKernelBuilds++;
         const kernel=createSourceFreeBallKernel({kind:'aero_ground_continuous_source_kernel_v2',initial:{originTick:0,elapsedSeconds:0,ball:initial(velocity)},
-          throughElapsedSeconds:seconds,profile:physics}),verified=kernel.evaluateAt(seconds,'incoming'),verifiedError=norm(sub(input.target,verified.moment.ball.position));
+          throughElapsedSeconds:seconds,profile:physics,...(input.materialOrientationAtRelease?{materialOrientationAtStart:input.materialOrientationAtRelease}:{})}),verified=kernel.evaluateAt(seconds,'incoming'),verifiedError=norm(sub(input.target,verified.moment.ball.position));
         if(kernel.boundaries.some(b=>b.kind==='ground'&&b.elapsedSeconds<seconds)||verifiedError>tolerance)break;
         completedWallMilliseconds=performance.now()-started;
         const result=Object.freeze({kind:'planned' as const,initialVelocity:Object.freeze(velocity),flightSeconds:seconds,
           predictedArrivalPosition:verified.moment.ball.position,predictedArrivalVelocity:verified.moment.ball.velocity,
+          ...(verified.materialOrientation?{predictedMaterialOrientation:verified.materialOrientation}:{}),
           arrivalErrorMeters:verifiedError,relativeReleaseSpeedMps:relativeSpeed,diagnostics:diagnostics(),readPerformance:performanceCounters});
         return result;
       }

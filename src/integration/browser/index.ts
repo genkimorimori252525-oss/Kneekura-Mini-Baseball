@@ -37,3 +37,7 @@ export { getLiveTraitCatalogV77, projectLiveTraitProfilesV77, setLiveTraitProfil
 export { LIVE_PITCH_TYPES_V77, validatePitchRepertoireV77, validatePitchingMotionV77, resolvePitcherRepertoireV77, pitchSpinFromControlsV77, pitchSpinToControlsV77 } from './LivePitchAuthoringV77';
 export type { PitchRepertoireV77, PitchRepertoireEntryV77, PitchingMotionV77 } from './LivePitchAuthoringV77';
 export { buildPitcherWorkbenchInputV77, simulatePitcherWorkbenchV77 } from './PitcherWorkbenchV77';
+export { LIVE_PITCH_TYPES_V78, getLivePitchCatalogV78, validatePitchSnapshotV78, validatePitchRepertoireV78, validatePitchLibraryV78,
+  appendPitchLibraryRevisionV78, createPitchSnapshotFromLibraryV78, createPitchSnapshotFromPresetV78,
+  migratePitchRepertoireV77ToV78, resolvePitcherRepertoireV78, samplePitchSpinExecutionV78 } from './LivePitchAuthoringV78';
+export type { LivePitchTypeV78, PitchSnapshotV78, PitchRepertoireV78, PitchLibraryV78, PitchLibraryRecordV78 } from './LivePitchAuthoringV78';

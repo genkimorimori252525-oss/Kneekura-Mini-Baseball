@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-PRESET-HANDEDNESS-GREEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePitchAuthoringV78.test.ts"
+  ],
+  "observed_at": "2026-10-19T19:48:16.265+00:00",
+  "elapsed_ms": 1609,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-PRESET-HANDEDNESS-GREEN_a6be1c4a253841d79d9b3b01b3da8b8d.log",
+  "output_sha256": "0fd941c5046e0b3a77326d88e7efdec734fb3d55254469cf0dc537db2e7c15f7",
+  "receipt_id": "MB-20261020-V78-PRESET-HANDEDNESS-GREEN_a6be1c4a253841d79d9b3b01b3da8b8d"
+}

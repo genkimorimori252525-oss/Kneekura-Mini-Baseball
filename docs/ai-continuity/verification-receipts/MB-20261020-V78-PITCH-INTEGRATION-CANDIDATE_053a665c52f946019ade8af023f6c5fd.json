@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-PITCH-INTEGRATION-CANDIDATE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePitchAuthoringV78.test.ts",
+    "src/integration/browser/LivePitchExecutionV78.test.ts",
+    "src/core/sim/fielding/LiveFieldForecastV1.test.ts"
+  ],
+  "observed_at": "2026-10-19T19:41:45.259+00:00",
+  "elapsed_ms": 17609,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-PITCH-INTEGRATION-CANDIDATE_053a665c52f946019ade8af023f6c5fd.log",
+  "output_sha256": "aea638a6ef7acf935de41bb019e125ff8c3c83a1f863bf6ba23aec2289a67f5a",
+  "receipt_id": "MB-20261020-V78-PITCH-INTEGRATION-CANDIDATE_053a665c52f946019ade8af023f6c5fd"
+}

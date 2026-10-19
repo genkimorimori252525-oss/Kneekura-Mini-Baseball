@@ -1,4 +1,6 @@
 import type { Vec3 } from '../../model/geometry';
+import type { Quaternion } from '../pitching/BaseballOrientation';
+import { calculateBaseballSeamCoefficientV1, validateBaseballMaterialOrientationV1, validateBaseballSeamForceV1, type BaseballSeamForceV1 } from './BaseballSeamForceV1';
 import {
   NATHAN_2026_BASEBALL_SPIN_DECAY_ESTIMATE,
   validateBaseballSpinDecayParameters,
@@ -31,6 +33,7 @@ export type BaseballAerodynamicsParameters = Readonly<{
    * reality profiles opt into explicit versioned spin decay.
    */
   spinDecay?: BaseballSpinDecayParameters;
+  seamForce?: BaseballSeamForceV1;
 }>;
 
 /**
@@ -101,6 +104,7 @@ const magnitude = (value: Vec3): number =>
 const validateParameters = (
   parameters: BaseballAerodynamicsParameters,
 ): void => {
+  if (parameters.seamForce !== undefined) validateBaseballSeamForceV1(parameters.seamForce);
   if (!Number.isFinite(parameters.ballMassKg) || parameters.ballMassKg <= 0) {
     throw new Error('ballMassKg must be finite and positive');
   }
@@ -190,6 +194,8 @@ export type BaseballAerodynamicState = Readonly<{
   dragAcceleration: Vec3;
   liftAcceleration: Vec3;
   totalAcceleration: Vec3;
+  seamAcceleration?: Vec3;
+  seamCoefficientUsed?: number;
 }>;
 
 export const calculateBaseballAerodynamics = (
@@ -197,8 +203,11 @@ export const calculateBaseballAerodynamics = (
   ballSpinRadPerSecond: Vec3,
   parameters: BaseballAerodynamicsParameters =
     REFERENCE_BASEBALL_AERODYNAMICS,
+  materialOrientation?: Quaternion,
 ): BaseballAerodynamicState => {
   validateParameters(parameters);
+  const seam = parameters.seamForce && parameters.seamForce.coefficientScale > 0 ? parameters.seamForce : undefined;
+  if (seam) validateBaseballMaterialOrientationV1(materialOrientation);
 
   const relativeAirVelocity = subtract(
     ballVelocityMps,
@@ -279,6 +288,9 @@ export const calculateBaseballAerodynamics = (
         .dragCoefficient,
   );
 
+  const seamCoefficient = seam ? calculateBaseballSeamCoefficientV1(velocityHat, materialOrientation!, seam) : undefined,
+    seamAcceleration = seamCoefficient ? scale(seamCoefficient, dynamicAccelerationScale) : undefined;
+
   let liftAcceleration: Vec3 = { x: 0, y: 0, z: 0 };
   if (activeSpinMagnitude > EPSILON) {
     // Nathan convention: Magnus direction is omega-hat x v-hat.
@@ -308,6 +320,7 @@ export const calculateBaseballAerodynamics = (
         .liftCoefficient,
     dragAcceleration,
     liftAcceleration,
-    totalAcceleration: add(dragAcceleration, liftAcceleration),
+    totalAcceleration: seamAcceleration ? add(add(dragAcceleration, liftAcceleration), seamAcceleration) : add(dragAcceleration, liftAcceleration),
+    ...(seamAcceleration ? { seamAcceleration, seamCoefficientUsed: magnitude(seamCoefficient!) } : {}),
   };
 };

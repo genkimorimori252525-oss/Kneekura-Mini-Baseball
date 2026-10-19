@@ -1,0 +1,681 @@
+{
+  "pass": true,
+  "phase": "complete",
+  "startedAt": "2026-10-19T20:02:02.404Z",
+  "faults": [
+    {
+      "label": "page-0",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "page-1",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "page-2",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "page-3",
+      "errors": [],
+      "external": []
+    }
+  ],
+  "checks": [
+    {
+      "width": 1200,
+      "overflow": false,
+      "authoredId": "qa-original",
+      "settingsRoundTrip": true,
+      "sessionReplayExact": true,
+      "sessionScope": "SAME_ALREADY_LOADED_ROSTER"
+    },
+    {
+      "width": 390,
+      "overflow": false,
+      "authoredId": "qa-original",
+      "settingsRoundTrip": true,
+      "sessionReplayExact": true,
+      "sessionScope": "SAME_ALREADY_LOADED_ROSTER"
+    }
+  ],
+  "scope": "Real offline normal/lab HTML, V77 six-pitch exactness, authored pitch JSON and history, one nine-inning game, lab 1200/390 settings and same-roster session replay.",
+  "hashesAtStart": {
+    "normal": "15804efd7eec66e8eea265c55cc3f3a73337c93d243ab71e386e8510dbe86b48",
+    "lab": "f5a0a171875ccd5a48146a74bc4eb1d1a219938778d1ef89108d7c33e8b512c6",
+    "normalMetadata": "a441c4de859bbb1cbd130e29aa1976f9c5bade08980f91373fd9d6945af0ee9f",
+    "labMetadata": "9031e705105e01632eb97a064711e854a9eee100399945ee9f36fd2682bd2245",
+    "pins": "1e1683d43158fa0088efdcf0e75c9594c9734132e46161b74cbf008347aa96b1"
+  },
+  "coreSha256": "5c0ac424da2e5a690c972b323234dd9bf2a0c3f5dadebdbc8e2e882e13e77ef1",
+  "sourceInputCount": 122,
+  "baseline": {
+    "records": 6,
+    "historySha256": "db7103e17aedbd95de83236d610a410f91fce638b3e4817a59edda2e3021010d",
+    "exact": true
+  },
+  "authored": [
+    {
+      "pitchId": "qa-fast",
+      "pitchName": "ツーシーム",
+      "command": {
+        "batting": "auto",
+        "pitchType": "sinker",
+        "pitchId": "qa-fast",
+        "location": "auto",
+        "managedTeam": 1,
+        "baserunning": "balanced"
+      },
+      "row": {
+        "pitchId": "qa-fast",
+        "name": "ツーシーム",
+        "pitchType": "sinker",
+        "releaseSpeedMps": 39.552,
+        "spinRadPerSecond": {
+          "x": 175.36210878725265,
+          "y": 159.4200988975024,
+          "z": 63.76803955900096
+        },
+        "releaseOrientation": {
+          "w": 0.9238795325112867,
+          "x": 0,
+          "y": 0,
+          "z": 0.3826834323650898
+        },
+        "seamForce": {
+          "version": "baseball_seam_force_v1",
+          "coefficientScale": 1
+        },
+        "source": {
+          "kind": "preset",
+          "id": "two_seam",
+          "revision": 1
+        }
+      },
+      "contact": false,
+      "diagnostic": {
+        "active": true,
+        "ratio": 0.9001045790966601,
+        "minimumSpinRatio": 0.8,
+        "spin": {
+          "x": 157.84423711945277,
+          "y": 143.49476101768434,
+          "z": 57.39790440707373
+        },
+        "nominalSpin": {
+          "x": 175.36210878725265,
+          "y": 159.4200988975024,
+          "z": 63.76803955900096
+        },
+        "nominalPlanRetained": true
+      },
+      "sourceProfile": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      },
+      "materialAtRelease": {
+        "w": 0.9238795325112867,
+        "x": 0,
+        "y": 0,
+        "z": 0.3826834323650898
+      },
+      "chart": [
+        {
+          "plateAppearanceId": "live-pa-0",
+          "pitchId": "live-pitch-0",
+          "number": 1,
+          "revision": 0,
+          "availableAtMicros": 1501977,
+          "location": {
+            "kind": "plate-crossing",
+            "position": {
+              "x": 0.45269057261152273,
+              "y": 0.7371833060183,
+              "z": 0.14999999998757285
+            }
+          },
+          "pitchKind": "sinker",
+          "breakVector": {
+            "x": -0.40034214073576735,
+            "y": 0.4235040696458964,
+            "z": 0
+          },
+          "pitchType": "ツーシーム",
+          "speedKmh": 142.2,
+          "resultLabel": "ボール",
+          "category": "ball",
+          "count": {
+            "balls": 1,
+            "strikes": 0
+          },
+          "terminal": false
+        }
+      ],
+      "caption": "1球目 · ツーシーム",
+      "ballMatchesSource": true
+    },
+    {
+      "pitchId": "qa-sweep-a",
+      "pitchName": "スイーパー",
+      "command": {
+        "batting": "auto",
+        "pitchType": "sweeper",
+        "pitchId": "qa-sweep-a",
+        "location": "auto",
+        "managedTeam": 1,
+        "baserunning": "balanced"
+      },
+      "row": {
+        "pitchId": "qa-sweep-a",
+        "name": "スイーパー",
+        "pitchType": "sweeper",
+        "releaseSpeedMps": 35.432,
+        "spinRadPerSecond": {
+          "x": 24.153063160775826,
+          "y": -241.53063160775824,
+          "z": 36.22959474116373
+        },
+        "releaseOrientation": {
+          "w": 1,
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "seamForce": {
+          "version": "baseball_seam_force_v1",
+          "coefficientScale": 1
+        },
+        "source": {
+          "kind": "preset",
+          "id": "sweeper",
+          "revision": 1
+        }
+      },
+      "contact": false,
+      "diagnostic": {
+        "active": true,
+        "ratio": 0.806765476660803,
+        "minimumSpinRatio": 0.8,
+        "spin": {
+          "x": 19.48585751372179,
+          "y": -194.85857513721788,
+          "z": 29.228786270582678
+        },
+        "nominalSpin": {
+          "x": 24.153063160775826,
+          "y": -241.53063160775824,
+          "z": 36.22959474116373
+        },
+        "nominalPlanRetained": true
+      },
+      "sourceProfile": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      },
+      "materialAtRelease": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "chart": [
+        {
+          "plateAppearanceId": "live-pa-0",
+          "pitchId": "live-pitch-0",
+          "number": 1,
+          "revision": 0,
+          "availableAtMicros": 1501977,
+          "location": {
+            "kind": "plate-crossing",
+            "position": {
+              "x": 0.45269057261152273,
+              "y": 0.7371833060183,
+              "z": 0.14999999998757285
+            }
+          },
+          "pitchKind": "sinker",
+          "breakVector": {
+            "x": -0.40034214073576735,
+            "y": 0.4235040696458964,
+            "z": 0
+          },
+          "pitchType": "ツーシーム",
+          "speedKmh": 142.2,
+          "resultLabel": "ボール",
+          "category": "ball",
+          "count": {
+            "balls": 1,
+            "strikes": 0
+          },
+          "terminal": false
+        },
+        {
+          "plateAppearanceId": "live-pa-0",
+          "pitchId": "live-pitch-1",
+          "number": 2,
+          "revision": 0,
+          "availableAtMicros": 4057298,
+          "location": {
+            "kind": "plate-crossing",
+            "position": {
+              "x": -0.12790034780591394,
+              "y": 0.7254917973846495,
+              "z": 0.14999999997113936
+            }
+          },
+          "pitchKind": "sweeper",
+          "breakVector": {
+            "x": 0.5150062378981465,
+            "y": 0.08633705765574984,
+            "z": 0
+          },
+          "pitchType": "スイーパー",
+          "speedKmh": 126.1,
+          "resultLabel": "見逃し",
+          "category": "strike",
+          "count": {
+            "balls": 1,
+            "strikes": 1
+          },
+          "terminal": false
+        }
+      ],
+      "caption": "2球目 · スイーパー",
+      "ballMatchesSource": true
+    },
+    {
+      "pitchId": "qa-sweep-b",
+      "pitchName": "二つ目のスイーパー",
+      "command": {
+        "batting": "auto",
+        "pitchType": "sweeper",
+        "pitchId": "qa-sweep-b",
+        "location": "auto",
+        "managedTeam": 1,
+        "baserunning": "balanced"
+      },
+      "row": {
+        "pitchId": "qa-sweep-b",
+        "name": "二つ目のスイーパー",
+        "pitchType": "sweeper",
+        "releaseSpeedMps": 34.014720000000004,
+        "spinRadPerSecond": {
+          "x": 24.153063160775826,
+          "y": -241.53063160775824,
+          "z": 36.22959474116373
+        },
+        "releaseOrientation": {
+          "w": 1,
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "seamForce": {
+          "version": "baseball_seam_force_v1",
+          "coefficientScale": 1
+        },
+        "source": {
+          "kind": "preset",
+          "id": "sweeper",
+          "revision": 1
+        }
+      },
+      "contact": false,
+      "diagnostic": {
+        "active": true,
+        "ratio": 0.9523463023360819,
+        "minimumSpinRatio": 0.8,
+        "spin": {
+          "x": 23.002080391254697,
+          "y": -230.02080391254694,
+          "z": 34.503120586882034
+        },
+        "nominalSpin": {
+          "x": 24.153063160775826,
+          "y": -241.53063160775824,
+          "z": 36.22959474116373
+        },
+        "nominalPlanRetained": true
+      },
+      "sourceProfile": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      },
+      "materialAtRelease": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "chart": [
+        {
+          "plateAppearanceId": "live-pa-0",
+          "pitchId": "live-pitch-0",
+          "number": 1,
+          "revision": 0,
+          "availableAtMicros": 1501977,
+          "location": {
+            "kind": "plate-crossing",
+            "position": {
+              "x": 0.45269057261152273,
+              "y": 0.7371833060183,
+              "z": 0.14999999998757285
+            }
+          },
+          "pitchKind": "sinker",
+          "breakVector": {
+            "x": -0.40034214073576735,
+            "y": 0.4235040696458964,
+            "z": 0
+          },
+          "pitchType": "ツーシーム",
+          "speedKmh": 142.2,
+          "resultLabel": "ボール",
+          "category": "ball",
+          "count": {
+            "balls": 1,
+            "strikes": 0
+          },
+          "terminal": false
+        },
+        {
+          "plateAppearanceId": "live-pa-0",
+          "pitchId": "live-pitch-1",
+          "number": 2,
+          "revision": 0,
+          "availableAtMicros": 4057298,
+          "location": {
+            "kind": "plate-crossing",
+            "position": {
+              "x": -0.12790034780591394,
+              "y": 0.7254917973846495,
+              "z": 0.14999999997113936
+            }
+          },
+          "pitchKind": "sweeper",
+          "breakVector": {
+            "x": 0.5150062378981465,
+            "y": 0.08633705765574984,
+            "z": 0
+          },
+          "pitchType": "スイーパー",
+          "speedKmh": 126.1,
+          "resultLabel": "見逃し",
+          "category": "strike",
+          "count": {
+            "balls": 1,
+            "strikes": 1
+          },
+          "terminal": false
+        },
+        {
+          "plateAppearanceId": "live-pa-0",
+          "pitchId": "live-pitch-2",
+          "number": 3,
+          "revision": 0,
+          "availableAtMicros": 6633192,
+          "location": {
+            "kind": "plate-crossing",
+            "position": {
+              "x": 0.2191312195848761,
+              "y": 0.5843534765215266,
+              "z": 0.14999999998837862
+            }
+          },
+          "pitchKind": "sweeper",
+          "breakVector": {
+            "x": 0.5885086591866401,
+            "y": 0.10437823122847067,
+            "z": 0
+          },
+          "pitchType": "二つ目のスイーパー",
+          "speedKmh": 121.3,
+          "resultLabel": "見逃し",
+          "category": "strike",
+          "count": {
+            "balls": 1,
+            "strikes": 2
+          },
+          "terminal": false
+        }
+      ],
+      "caption": "3球目 · 二つ目のスイーパー",
+      "ballMatchesSource": true
+    },
+    {
+      "pitchId": "qa-original",
+      "pitchName": "独自の曲がる球",
+      "command": {
+        "batting": "auto",
+        "pitchType": "sweeper",
+        "pitchId": "qa-original",
+        "location": "auto",
+        "managedTeam": 1,
+        "baserunning": "balanced"
+      },
+      "row": {
+        "name": "独自の曲がる球",
+        "pitchType": "sweeper",
+        "releaseSpeedMps": 34.72336,
+        "spinRadPerSecond": {
+          "x": 12,
+          "y": -120,
+          "z": 30
+        },
+        "releaseOrientation": {
+          "w": 0.955336489125606,
+          "x": 0.29552020666133955,
+          "y": 0,
+          "z": 0
+        },
+        "seamForce": {
+          "version": "baseball_seam_force_v1",
+          "coefficientScale": 1
+        },
+        "pitchId": "qa-original",
+        "source": {
+          "kind": "original",
+          "id": "qa-original",
+          "revision": 1
+        }
+      },
+      "contact": false,
+      "diagnostic": {
+        "active": true,
+        "ratio": 0.9362854830455035,
+        "minimumSpinRatio": 0.8,
+        "spin": {
+          "x": 11.235425796546043,
+          "y": -112.35425796546042,
+          "z": 28.088564491365105
+        },
+        "nominalSpin": {
+          "x": 12,
+          "y": -120,
+          "z": 30
+        },
+        "nominalPlanRetained": true
+      },
+      "sourceProfile": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      },
+      "materialAtRelease": {
+        "w": 0.955336489125606,
+        "x": 0.29552020666133955,
+        "y": 0,
+        "z": 0
+      },
+      "chart": [
+        {
+          "plateAppearanceId": "live-pa-0",
+          "pitchId": "live-pitch-0",
+          "number": 1,
+          "revision": 0,
+          "availableAtMicros": 1501977,
+          "location": {
+            "kind": "plate-crossing",
+            "position": {
+              "x": 0.45269057261152273,
+              "y": 0.7371833060183,
+              "z": 0.14999999998757285
+            }
+          },
+          "pitchKind": "sinker",
+          "breakVector": {
+            "x": -0.40034214073576735,
+            "y": 0.4235040696458964,
+            "z": 0
+          },
+          "pitchType": "ツーシーム",
+          "speedKmh": 142.2,
+          "resultLabel": "ボール",
+          "category": "ball",
+          "count": {
+            "balls": 1,
+            "strikes": 0
+          },
+          "terminal": false
+        },
+        {
+          "plateAppearanceId": "live-pa-0",
+          "pitchId": "live-pitch-1",
+          "number": 2,
+          "revision": 0,
+          "availableAtMicros": 4057298,
+          "location": {
+            "kind": "plate-crossing",
+            "position": {
+              "x": -0.12790034780591394,
+              "y": 0.7254917973846495,
+              "z": 0.14999999997113936
+            }
+          },
+          "pitchKind": "sweeper",
+          "breakVector": {
+            "x": 0.5150062378981465,
+            "y": 0.08633705765574984,
+            "z": 0
+          },
+          "pitchType": "スイーパー",
+          "speedKmh": 126.1,
+          "resultLabel": "見逃し",
+          "category": "strike",
+          "count": {
+            "balls": 1,
+            "strikes": 1
+          },
+          "terminal": false
+        },
+        {
+          "plateAppearanceId": "live-pa-0",
+          "pitchId": "live-pitch-2",
+          "number": 3,
+          "revision": 0,
+          "availableAtMicros": 6633192,
+          "location": {
+            "kind": "plate-crossing",
+            "position": {
+              "x": 0.2191312195848761,
+              "y": 0.5843534765215266,
+              "z": 0.14999999998837862
+            }
+          },
+          "pitchKind": "sweeper",
+          "breakVector": {
+            "x": 0.5885086591866401,
+            "y": 0.10437823122847067,
+            "z": 0
+          },
+          "pitchType": "二つ目のスイーパー",
+          "speedKmh": 121.3,
+          "resultLabel": "見逃し",
+          "category": "strike",
+          "count": {
+            "balls": 1,
+            "strikes": 2
+          },
+          "terminal": false
+        },
+        {
+          "plateAppearanceId": "live-pa-0",
+          "pitchId": "live-pitch-3",
+          "number": 4,
+          "revision": 0,
+          "availableAtMicros": 9200491,
+          "location": {
+            "kind": "plate-crossing",
+            "position": {
+              "x": -0.11593541462326902,
+              "y": 0.7008493489577778,
+              "z": 0.14999999997316615
+            }
+          },
+          "pitchKind": "sweeper",
+          "breakVector": {
+            "x": 0.35565863814652127,
+            "y": 0.06138321812553649,
+            "z": 0
+          },
+          "pitchType": "独自の曲がる球",
+          "speedKmh": 122.8,
+          "resultLabel": "三振",
+          "category": "out",
+          "count": {
+            "balls": 0,
+            "strikes": 0
+          },
+          "terminal": true
+        }
+      ],
+      "caption": "4球目 · 独自の曲がる球",
+      "ballMatchesSource": true
+    }
+  ],
+  "savedRosterExact": true,
+  "nineInningsProgress": {
+    "pitches": 262,
+    "finished": true,
+    "elapsedMs": 232295
+  },
+  "game": {
+    "finished": true,
+    "match": {
+      "ruleProfileId": "npb-2026",
+      "inning": 9,
+      "half": "bottom",
+      "outs": 3,
+      "balls": 0,
+      "strikes": 0,
+      "bases": {
+        "first": null,
+        "second": null,
+        "third": null
+      },
+      "score": {
+        "away": 18,
+        "home": 12
+      },
+      "playId": 105
+    },
+    "pitches": 262,
+    "contacts": 105,
+    "fields": 105,
+    "allFieldComplete": true,
+    "fallback": false,
+    "error": null,
+    "ownedOnly": true,
+    "seamPitches": 262,
+    "elapsedMs": 232328
+  },
+  "hashesAtEnd": {
+    "normal": "15804efd7eec66e8eea265c55cc3f3a73337c93d243ab71e386e8510dbe86b48",
+    "lab": "f5a0a171875ccd5a48146a74bc4eb1d1a219938778d1ef89108d7c33e8b512c6",
+    "normalMetadata": "a441c4de859bbb1cbd130e29aa1976f9c5bade08980f91373fd9d6945af0ee9f",
+    "labMetadata": "9031e705105e01632eb97a064711e854a9eee100399945ee9f36fd2682bd2245",
+    "pins": "1e1683d43158fa0088efdcf0e75c9594c9734132e46161b74cbf008347aa96b1"
+  }
+}

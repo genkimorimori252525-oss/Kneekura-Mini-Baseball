@@ -39,6 +39,32 @@ it('keeps prediction isolated from future mutations and rejects requests beyond 
   expect(()=>f.sampleAtElapsedSeconds(-1)).toThrow();expect(()=>createLiveFieldForecastV1({...input(),horizonSeconds:9})).toThrow();
   expect(()=>createLiveFieldForecastV1({...input(),futureActualSource:{}} as unknown as LiveFieldForecastInputV1)).toThrow(/observation/);
 });
+it('does not let an unobserved seam phase grant fielders perfect knowledge of a knuckling ball',()=>{
+  const base=input(),observation={...base.observation,velocity:{x:0,y:2,z:24},spin:{x:0,y:0,z:3}},
+    physics={...base.physics,air:{...base.physics.air,aerodynamics:{...base.physics.air.aerodynamics,
+      seamForce:{version:'baseball_seam_force_v1' as const,coefficientScale:1}}}},
+    raw={observation,physics,horizonSeconds:.5},before=JSON.stringify(raw),prediction=createLiveFieldForecastV1(raw),
+    mean=createLiveFieldForecastV1({...raw,physics:base.physics}),actual=createSourceFreeBallKernel({
+      kind:'aero_ground_continuous_source_kernel_v2',initial:{originTick:observation.tick,elapsedSeconds:0,ball:observation},
+      throughElapsedSeconds:.5,profile:physics,materialOrientationAtStart:{w:1,x:0,y:0,z:0}});
+  expect(prediction.diagnostics.seamPrediction).toBe('UNOBSERVED_MATERIAL_PHASE_SEAM_AVERAGED');
+  expect(prediction.sampleAtElapsedSeconds(.5)).toEqual(mean.sampleAtElapsedSeconds(.5));
+  expect(prediction.sampleAtElapsedSeconds(.5).position).not.toEqual(actual.evaluateAt(.5).moment.ball.position);
+  expect(JSON.stringify(raw)).toBe(before);expect(raw.physics.air.aerodynamics.seamForce.coefficientScale).toBe(1);
+});
+it('uses explicitly observed material phase without resetting it or reading the future actual Source',()=>{
+  const base=input(),observation={...base.observation,spin:{x:8,y:2,z:3}},phase={w:Math.cos(.3),x:0,y:Math.sin(.3),z:0},
+    physics={...base.physics,air:{...base.physics.air,aerodynamics:{...base.physics.air.aerodynamics,
+      seamForce:{version:'baseball_seam_force_v1' as const,coefficientScale:1}}}},
+    prediction=createLiveFieldForecastV1({observation,physics,horizonSeconds:.5,materialOrientationAtObservation:phase}),
+    expected=createSourceFreeBallKernel({kind:'aero_ground_continuous_source_kernel_v2',
+      initial:{originTick:observation.tick,elapsedSeconds:0,ball:observation},throughElapsedSeconds:.5,profile:physics,materialOrientationAtStart:phase});
+  expect(prediction.diagnostics).not.toHaveProperty('seamPrediction');expect(prediction.diagnostics.actualSourceRead).toBe(false);
+  for(const seconds of [0,.123,.5]){
+    const sample=expected.evaluateAt(seconds,'outgoing');
+    expect(prediction.sampleAtElapsedSeconds(seconds)).toEqual({...sample.moment.ball,orientation:sample.materialOrientation,phase:sample.phase});
+  }
+});
 it('measures process CPU outside the browser-neutral helper while reusing one kernel for nine defenders',()=>{
   const cpu=process.cpuUsage(),started=performance.now(),builds:number[]=[],sampleTimes:number[]=[];
   for(let observation=0;observation<20;observation++){

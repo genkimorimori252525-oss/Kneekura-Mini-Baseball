@@ -22,8 +22,11 @@ const addCollider = (previous: readonly BallWorldCollider[], contact: BallWorldC
   previous.some((c) => key(c) === key(contact)) ? previous : [...previous, contact];
 const json = (v: unknown): string => JSON.stringify(v, (_key, value) => value && typeof value === 'object' && !Array.isArray(value)
   ? Object.fromEntries(Object.entries(value).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)) : value);
+const impulseCurve = (prior: SourceFreeBallDescriptorV2, moment: BallWorldMoment): SourceFreeBallDescriptorV2 => ({ ...prior, initial: moment,
+  ...(prior.materialOrientationAtStart === undefined ? {} : { materialOrientationAtStart:
+    createSourceFreeBallKernel(prior).evaluateAt(moment.elapsedSeconds, 'incoming').materialOrientation! }) });
 const withImpulseBasis = (prior: BattedWorldBallCursor, moment: BallWorldMoment, previousContacts: readonly BallWorldCollider[]): BattedWorldBallCursor => ({
-  moment, previousContacts, ...(prior.sourceCurve ? { sourceCurve: { ...prior.sourceCurve, initial: moment } } : {}),
+  moment, previousContacts, ...(prior.sourceCurve ? { sourceCurve: impulseCurve(prior.sourceCurve, moment) } : {}),
   ...(prior.sourceSide ? { sourceSide: 'outgoing' as const } : {}) });
 
 export const respondToBallWorldBoundary = (input: BallWorldResponseInput, prior: BattedWorldBallCursor, world: BallWorldContinuation): BattedWorldContinuationStepResponse => {
@@ -78,7 +81,7 @@ export const deriveBattedWorldContinuation = (raw: Readonly<{ response: BattedBa
     const c = original.geometry.contact;
     const moment = { originTick, elapsedSeconds: original.geometry.elapsedSeconds, ball: original.ball };
     cursor = { moment, previousContacts: [c.kind === 'actor' ? { kind: 'actor', playerId: c.playerId, role: c.role } : { kind: 'surface', surfaceId: c.surfaceId }],
-      ...(input.response.world.sourceCurve ? { sourceCurve: { ...input.response.world.sourceCurve, initial: moment } } : {}) };
+      ...(input.response.world.sourceCurve ? { sourceCurve: impulseCurve(input.response.world.sourceCurve, moment) } : {}) };
   } else if (input.response.world.sourceCurve) {
     const sourceCurve = input.response.world.sourceCurve, incoming = original.world.sourceMoment;
     if (!incoming || json(incoming.ball) !== json(original.ball)) throw new Error('nonlinear original response Source moment differs');

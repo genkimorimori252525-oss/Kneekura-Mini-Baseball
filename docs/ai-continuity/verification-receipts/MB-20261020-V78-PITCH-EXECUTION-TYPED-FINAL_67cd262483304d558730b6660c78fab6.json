@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-PITCH-EXECUTION-TYPED-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePitchExecutionV78.test.ts"
+  ],
+  "observed_at": "2026-10-19T19:51:04.788+00:00",
+  "elapsed_ms": 18360,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-PITCH-EXECUTION-TYPED-FINAL_67cd262483304d558730b6660c78fab6.log",
+  "output_sha256": "cf1bf6e06bd142155fed9ce80c00c19156b114e9c4ef8801706bfff8c8ce3ad1",
+  "receipt_id": "MB-20261020-V78-PITCH-EXECUTION-TYPED-FINAL_67cd262483304d558730b6660c78fab6"
+}

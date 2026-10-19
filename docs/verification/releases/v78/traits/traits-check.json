@@ -1,0 +1,29 @@
+{
+  "pass": true,
+  "path": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v78_球種と縫い目物理版.html",
+  "cases": [
+    {
+      "width": 1200,
+      "traits": 17,
+      "publicAndPhysicalUnchanged": true,
+      "independentThrowOffAndScaleRoundtrip": true
+    },
+    {
+      "width": 390,
+      "traits": 17,
+      "publicAndPhysicalUnchanged": true,
+      "independentThrowOffAndScaleRoundtrip": true
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": []
+    },
+    {
+      "width": 390,
+      "errors": []
+    }
+  ],
+  "sha256": "0ceb277f8b5ad53f32d97e8e64be8f0debfbce1799f91c12a2702a05518eac51"
+}

@@ -20,7 +20,8 @@ function assert(condition: unknown, reason: string): asserts condition {
   if (!condition) throw new Error('Source material continuation mapper: ' + reason);
 }
 const same = (a: unknown, b: unknown) => assert(json(a) === json(b), 'original replay or kernel geometry differs');
-const basis = (descriptor: SourceFreeBallDescriptorV2) => json([descriptor.kind, descriptor.initial, descriptor.profile]);
+const basis = (descriptor: SourceFreeBallDescriptorV2) => json([descriptor.kind, descriptor.initial, descriptor.profile,
+  ...(descriptor.materialOrientationAtStart === undefined ? [] : [descriptor.materialOrientationAtStart])]);
 
 /** Replays a supplied pure v3 trace, then observes its original free bases.
  * Replay consistency is not Native Source/impulse authority. Declared phase,

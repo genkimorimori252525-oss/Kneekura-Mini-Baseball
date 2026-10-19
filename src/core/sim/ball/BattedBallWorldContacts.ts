@@ -97,7 +97,7 @@ const deriveSourceContact = (input: BattedWorldContactInput): Readonly<{
     || descriptor.profile.air.gravityY !== p.gravityY || descriptor.profile.ground.radiusM !== p.ballRadius) {
     throw new Error('original nonlinear batted World Source scope differs');
   }
-  const actual = createContinuousBattedBallFlightEvidence(flight.contact, input.throughTick - flight.initialBall.tick, descriptor.profile);
+  const actual = createContinuousBattedBallFlightEvidence(flight.contact, input.throughTick - flight.initialBall.tick, descriptor.profile, descriptor.materialOrientationAtStart);
   if (json(actual.initialBall) !== json(flight.initialBall) || actual.ballRadiusMeters !== flight.ballRadiusMeters
     || flight.firstGroundContact && flight.firstGroundContact.tick <= input.throughTick
       && json(actual.firstGroundContact) !== json(flight.firstGroundContact)) throw new Error('nonlinear batted World original flight evidence differs');

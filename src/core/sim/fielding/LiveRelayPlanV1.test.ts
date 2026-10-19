@@ -51,6 +51,24 @@ it('supports two actual intermediate receivers without duplicate actors or throw
   expect(planLiveRelayV1({ ...raw, excludedRelayPlayerIds: ['one'] }).kind).toBe('carry');
 });
 
+it('carries predicted seam phase through relay hypotheses while requiring a new plan after actual receipt', () => {
+  const base=input(90),phase={w:Math.cos(.3),x:0,y:0,z:Math.sin(.3)},raw={...base,
+    actors:[actor('holder',0,16),actor('cutoff',20,38),actor('receiver',90)].map(a=>({...a,throwSpinRadPerSecond:v(8,2,3)})),
+    materialOrientationAtRelease:phase,physics:{...base.physics,air:{...base.physics.air,aerodynamics:{...base.physics.air.aerodynamics,
+      seamForce:{version:'baseball_seam_force_v1' as const,coefficientScale:1}}}}},before=JSON.stringify(raw),result=planLiveRelayV1(raw);
+  expect(result.kind).toBe('relay');expect(result.legs).toHaveLength(2);expect(result.diagnostics.replanAfterReceiptRequired).toBe(true);
+  let material=phase;
+  for(const leg of result.legs){
+    const predicted=createSourceFreeBallKernel({kind:'aero_ground_continuous_source_kernel_v2',initial:{originTick:0,elapsedSeconds:0,
+      ball:{tick:0,position:leg.releasePosition,velocity:leg.initialVelocity,spin:leg.spin}},throughElapsedSeconds:leg.flightSeconds,
+      profile:raw.physics,materialOrientationAtStart:material}),arrival=predicted.evaluateAt(leg.flightSeconds,'incoming');
+    expect(Math.hypot(arrival.moment.ball.position.x-leg.target.x,arrival.moment.ball.position.y-leg.target.y,
+      arrival.moment.ball.position.z-leg.target.z)).toBeLessThanOrEqual(.02);
+    expect(arrival.materialOrientation).toBeDefined();material=arrival.materialOrientation!;
+  }
+  expect(material).not.toEqual(phase);expect(JSON.stringify(raw)).toBe(before);
+});
+
 it('aims a moving relay at its braking point while retaining measured glove offset and arrival delay', () => {
   const raw = { ...input(90), actors: [actor('holder', 0, 16), { ...actor('cutoff', 20, 38),
     velocity: v(2, 0, 0), gloveVelocity: v(2, 0, 0) }, actor('receiver', 90)] }, result = planLiveRelayV1(raw);

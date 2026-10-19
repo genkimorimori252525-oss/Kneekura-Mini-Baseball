@@ -4,6 +4,7 @@ import type { AerodynamicPitchTrajectoryParameters } from '../pitching/Aerodynam
 import type { BaseballGroundParameters } from './BaseballGroundDynamics';
 import type { BattedBallFlightEvidence } from './BattedBallFlightEvidence';
 import { createFreeBaseballTrajectory, type FreeBaseballTrajectory } from './FreeBaseballTrajectory';
+import { IDENTITY_QUATERNION, type Quaternion } from '../pitching/BaseballOrientation';
 
 export const AERO_GROUND_BATTED_FLIGHT_SOURCE_VERSION = 'batted_ball_flight_aero_ground_v1';
 export const CONTINUOUS_AERO_GROUND_BATTED_FLIGHT_SOURCE_VERSION = 'batted_ball_flight_aero_ground_continuous_v2';
@@ -35,7 +36,7 @@ export const createAeroGroundBallPhysicsProfile = (raw: unknown): AeroGroundBall
   if (!fields(p, ['kind', 'air', 'ground']) || p.kind !== 'aero_ground_v1'
     || !fields(air, ['ticksPerSecond', 'integrationStepTicks', 'gravityY', 'aerodynamics'])
     || !fields(aero, ['ballMassKg', 'ballRadiusM', 'airDensityKgM3', 'windVelocityMps', 'dragCoefficient'],
-      ['coefficientProfile', 'airKinematicViscosityM2PerSecond', 'spinDecay'])
+      ['coefficientProfile', 'airKinematicViscosityM2PerSecond', 'spinDecay', 'seamForce'])
     || !fields(aero.windVelocityMps, ['x', 'y', 'z'])
     || 'airKinematicViscosityM2PerSecond' in aero && (typeof aero.airKinematicViscosityM2PerSecond !== 'number'
       || !Number.isFinite(aero.airKinematicViscosityM2PerSecond) || aero.airKinematicViscosityM2PerSecond <= 0)
@@ -55,7 +56,8 @@ export const createAeroGroundBallPhysicsProfile = (raw: unknown): AeroGroundBall
   // No calibration, material or spin-decay default is supplied at this boundary.
   const ball = { tick: 0, position: { x: 0, y: ground.radiusM, z: 0 },
     velocity: { x: 0, y: 0, z: 0 }, spin: { x: 0, y: 0, z: 0 } };
-  createFreeBaseballTrajectory({ initialBall: ball, throughTick: 0, aerodynamics: air, ground });
+  createFreeBaseballTrajectory({ initialBall: ball, throughTick: 0, aerodynamics: air, ground,
+    ...(aero.seamForce === undefined ? {} : { orientationAtStart: IDENTITY_QUATERNION }) });
   return freeze(p);
 };
 
@@ -63,10 +65,10 @@ export const createAeroGroundBallPhysicsProfile = (raw: unknown): AeroGroundBall
  * Callers must retain this basis when observing a checkpoint: restarting at a
  * sampled observation changes RK4 partitioning and is not source replay. */
 export const createVersionedFreeBallTrajectory = (initialBall: BattedBallInitialState, throughTick: number,
-  raw: AeroGroundBallPhysicsV1): FreeBaseballTrajectory => {
+  raw: AeroGroundBallPhysicsV1, orientationAtStart?: Quaternion): FreeBaseballTrajectory => {
   const profile = createAeroGroundBallPhysicsProfile(raw);
   return createFreeBaseballTrajectory({ initialBall: cloneInert(initialBall), throughTick,
-    aerodynamics: profile.air, ground: profile.ground });
+    aerodynamics: profile.air, ground: profile.ground, ...(orientationAtStart === undefined ? {} : { orientationAtStart }) });
 };
 
 export const createAeroGroundBattedBallFlightEvidence = (contact: BatBallContactResult, searchDurationTicks: number,
