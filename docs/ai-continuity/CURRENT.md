@@ -1,13 +1,17 @@
 ---
-current_task: "MB-20261019-V68-PUBLICATION"
+current_task: "MB-20261019-V69-PACKAGE"
 active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "2fdc2a6f61cc8a6e499998d9a34530cc38f33cdf"
+commit_head: "936cd23907b8e078e179aa03e041420a3339932b"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V68-PUBLICATION_a9cceddfe84449148d10aad73af6632a.json"
-updated_at: "2026-10-19T11:07:27.280761+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V69-PACKAGE_6a1c33485ab34218973a4d79a74aadad.json"
+updated_at: "2026-10-19T12:03:14.438050+00:00"
 
 ---
+
+## Active human priority — v69 actual batted-ball comparison and zoom (SCOPED VERIFIED; publication pending)
+
+Human asks sameplayer/sameform/samepitch, onlytrajectory1..4 compareactualball+morezoom. New compareMeasuredTrajectoriesV69 wraps normalLivePitch+Sourcekernel, fixedexplicitclip/physical+pitcher+catcher+seed/pitch/aim+timing+sweet+judgment, onlylevelvaries; actualcontactclock/flight/firstgroundmetrics/miss/take/fouldirection retained, nohitsearch/noresultoverride/noofficialhitHR/fielderswalls. Core19tests3filesc72663b2PASS3.594s/TSC829c763ePASS27.532s. Mainzoom.25..12x/dragwheelpinch/optionalpreviewDisplayJSON, localfixture0b8f7673PASS18.266s v68defaultpixels5views×1200/390exact/physicsrevisionssame. Rootnewcomparison2views .25..16x+drag/commonbounds/pitchclock/results+recordJSON, profile+traitapplynormal; explicitforceSWINGjudgmentonly/temp/rosterunchanged; pendingabilitycustomError blocksrun. FinalBUILDaf4bdffe; HTMLcea63f71/Coreee745194/82inputs. BROWSER7d8a7389PASS10.890s1200/390/4caseindependentCorecollision+metrics+tableexact/.15,.55ballbatcoords/commonprojection/zoomdraglevelresultunchanged/actualrecordJSON2/curveR/mainzoomnewoldJSON/20same/pendingreject/help/errorsnet0; PC390imagesreadreview. HELPerfd6b2bf8PASS6.296s. Tooltip70a252productionbugbbox confirmed checkboxvsbutton anchor; minmaxfixonly, finalautomation scrollrace830057 rawretained/productunchanged afteranchorfix. OtherFAILfoulfixture532b14d1wasmiss/mainzoomfixtureextractf83ac88c preserved. PACKAGE6a1c3348PASS1.421s Maker82pins/allUI/currentnative115unchanged/old185frozenfiles/<100MB. Frozenmaker69only, normal/lab68unchanged. Next allowlistedcommit/pushDraft380/rawGitHubverify; no extraSourcechangesneeded. Originalfullplan/FAILUNKNOWN/CharterHOLD/66base2.500533 remain; no whole-goalcompleteclaim. AGENTSuseredituntouched; no settings/lock/deps/secrets/DB/Native/mainchanges.
 
 ## Active human priority — v68 full measured-form/impact trajectory maker (SCOPED VERIFIED; PUBLISHED)
 

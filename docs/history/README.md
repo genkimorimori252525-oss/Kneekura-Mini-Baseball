@@ -64,3 +64,5 @@ ID / 観測日 / 対象経路・Source・HTML SHA
 [v61の見逃し同期と絶対選球眼](../reports/2026-10-19-v61-take-sync-absolute-vision.md)をH34へ追加。捕球後の目標角分岐と、公開値/判断SI/カメラ実効値の断絶を区別し、旧値の移行と原REDを記録する。
 
 [v67の倍率訂正とv68の実測フォーム・弾道メーカー](../reports/2026-10-19-v68-measured-form-trajectory-maker.md)をH41／H42へ追加。原データ検証、有限カタログの入力境界、共有軌道の物理／描画、説明UIと保存原子性を区別する。
+
+[v69の同条件実打球比較と表示拡大](../reports/2026-10-19-v69-ball-comparison-and-zoom.md)をH43へ追加。単一の投球Sourceと個人能力を維持し、4段階の実衝突・飛翔・着地点と表示だけの拡大を区別する。

@@ -14,6 +14,25 @@
     timingOffsetMs: 0, positionOffsetM: 0, throughSeconds: 8 };
   let player, draft, population = [], scenario = clone(scenarioDefaults), result = null, time = 0, duration = 1;
   let playing = false, lastPaint = null, revision = 0, timer, camera = 'side', league = 'NPB';
+  const previewDisplayDefault = Object.freeze({ zoom: 1, panX: 0, panY: 0 });
+  let previewDisplay = { ...previewDisplayDefault };
+  const defaultPreviewDisplay = () => previewDisplay.zoom === 1 && previewDisplay.panX === 0 && previewDisplay.panY === 0;
+  function previewDisplayPatch(raw, complete = false) {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)
+      || ![Object.prototype, null].includes(Object.getPrototypeOf(raw))) throw Error('拡大表示の設定は数値の組で指定してください。');
+    const descriptors = Object.getOwnPropertyDescriptors(raw), keys = Reflect.ownKeys(descriptors);
+    if (keys.some(key => typeof key !== 'string' || !['zoom', 'panX', 'panY'].includes(key)
+      || !('value' in descriptors[key]) || !descriptors[key].enumerable)
+      || complete && keys.length !== 3) throw Error('拡大表示の設定項目が不正です。');
+    const patch = {};
+    for (const key of keys) {
+      const value = descriptors[key].value;
+      if (!numeric(value) || (key === 'zoom' ? value < .25 || value > 12 : value < -10 || value > 10))
+        throw Error(key === 'zoom' ? '拡大率は0.25〜12倍で指定してください。' : '画面の移動量が範囲外です。');
+      patch[key] = value;
+    }
+    return patch;
+  }
   const scenarioDirty = new Set();
   let trajectoryPatterns = [], patternsTouched = false, selectedPatternId = '', experimentResult = null, experimentInput = null;
   const liveCatalog = globalThis.KneekuraLiveGameRosterCatalog;
@@ -683,7 +702,7 @@
   const dot = (a, b) => a.x * b.x + a.y * b.y + a.z * b.z;
   const unit = a => { const n = Math.hypot(a.x, a.y, a.z); return { x: a.x / n, y: a.y / n, z: a.z / n }; };
   const cross = (a, b) => ({ x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x });
-  function projector(selectedCamera = camera, width = canvas.width, height = canvas.height, selectedFit = referenceFit) {
+  function projector(selectedCamera = camera, width = canvas.width, height = canvas.height, selectedFit = referenceFit, usePreviewDisplay = false) {
     const views = { side: [{ x: -4.2, y: 1.6, z: .65 }, { x: 0, y: 1, z: .3 }],
       catcher: [{ x: 0, y: 1.8, z: -3.7 }, { x: 0, y: .95, z: .55 }],
       pitcher: [{ x: .15, y: 1.7, z: 5 }, { x: 0, y: 1, z: 0 }],
@@ -693,11 +712,85 @@
     if (isReferenceBased() && selectedFit) { const direction = unit(sub(eye, target)), distance = selectedFit.radius * (1 + focal / (Math.min(width, height) * .32));
       target = selectedFit.center; eye = { x: target.x + direction.x * distance, y: target.y + direction.y * distance, z: target.z + direction.z * distance }; }
     const forward = unit(sub(target, eye)), right = unit(cross(forward, { x: 0, y: 1, z: 0 })), up = cross(right, forward);
-    const project = p => { if (!vec(p)) return null; const rel = sub(p, eye), depth = dot(rel, forward); return depth > .04 ? {
-      x: width / 2 + dot(rel, right) * focal / depth, y: height * (isReferenceBased() ? .52 : .56) - dot(rel, up) * focal / depth, scale: focal / depth } : null; };
+    const project = p => { if (!vec(p)) return null; const rel = sub(p, eye), depth = dot(rel, forward); if (depth <= .04) return null;
+      const projected = { x: width / 2 + dot(rel, right) * focal / depth,
+        y: height * (isReferenceBased() ? .52 : .56) - dot(rel, up) * focal / depth, scale: focal / depth };
+      if (!usePreviewDisplay || defaultPreviewDisplay()) return projected;
+      return { x: width / 2 + (projected.x - width / 2) * previewDisplay.zoom + previewDisplay.panX * width,
+        y: height / 2 + (projected.y - height / 2) * previewDisplay.zoom + previewDisplay.panY * height,
+        scale: projected.scale * previewDisplay.zoom }; };
     project.eye = eye; return project;
   }
   let projectedBat = null, threeViews = null;
+  function refreshPreviewDisplayControls() {
+    if ($('preview-zoom')) $('preview-zoom').value = String(previewDisplay.zoom);
+    if ($('preview-zoom-value')) $('preview-zoom-value').textContent = previewDisplay.zoom.toFixed(2).replace(/0$/, '').replace(/\.0$/, '') + '倍';
+  }
+  function setPreviewDisplay(patch) {
+    previewDisplay = { ...previewDisplay, ...previewDisplayPatch(patch) };
+    refreshPreviewDisplayControls(); draw(); return clone(previewDisplay);
+  }
+  function centerPreviewOnBat() {
+    const frame = sceneFrame(), middle = frame?.grip && frame?.tip ? mix(frame.grip, frame.tip, .5) : null,
+      projected = middle ? projector()(middle) : null;
+    return setPreviewDisplay(projected ? { panX: -(projected.x / canvas.width - .5) * previewDisplay.zoom,
+      panY: -(projected.y / canvas.height - .5) * previewDisplay.zoom } : { panX: 0, panY: 0 });
+  }
+  function installPreviewDisplayControls() {
+    const controls = document.createElement('div'); controls.id = 'maker-preview-display'; controls.className = 'playbar';
+    controls.setAttribute('role', 'group'); controls.setAttribute('aria-label', '黒い画面の拡大と移動');
+    controls.innerHTML = '<label for="preview-zoom">拡大 <output id="preview-zoom-value">1倍</output></label>'
+      + '<button id="preview-zoom-out" type="button" aria-label="黒い画面を縮小">−</button>'
+      + '<input id="preview-zoom" type="range" min="0.25" max="12" step="0.05" value="1" aria-label="黒い画面の拡大率" data-help-label="黒い画面の拡大率" data-help="黒い画面だけを0.25〜12倍に拡大・縮小します。球やバットの物理上の大きさ、計算結果は変わりません。ドラッグで見たい場所へ動かせます。">'
+      + '<button id="preview-zoom-in" type="button" aria-label="黒い画面を拡大">＋</button>'
+      + '<button id="preview-zoom-center" type="button" data-help="今のバットを黒い画面の中央へ移します。拡大率と元の位置・時刻は変わりません。">バットを中央へ</button>'
+      + '<button id="preview-zoom-reset" type="button" data-help="黒い画面の拡大率と移動量を初期値へ戻し、元の全体表示に戻します。">全体表示へ戻す</button>';
+    canvas.closest('.stage').after(controls);
+    const note = document.createElement('p'); note.className = 'note'; note.id = 'maker-preview-display-note';
+    note.textContent = '黒い画面はドラッグで移動、ホイールで拡大できます。タッチでは2本指で拡大・縮小できます。'; controls.after(note);
+    const clampZoom = value => Math.max(.25, Math.min(12, value)), clampPan = value => Math.max(-10, Math.min(10, value));
+    const anchoredZoom = (zoom, pointer) => { const rect = canvas.getBoundingClientRect(), x = (pointer.x - rect.left) / rect.width - .5,
+      y = (pointer.y - rect.top) / rect.height - .5, ratio = zoom / previewDisplay.zoom;
+      setPreviewDisplay({ zoom, panX: clampPan(x - (x - previewDisplay.panX) * ratio),
+        panY: clampPan(y - (y - previewDisplay.panY) * ratio) }); };
+    $('preview-zoom').addEventListener('input', () => setPreviewDisplay({ zoom: Number($('preview-zoom').value) }));
+    $('preview-zoom-in').onclick = () => setPreviewDisplay({ zoom: clampZoom(previewDisplay.zoom * 1.25) });
+    $('preview-zoom-out').onclick = () => setPreviewDisplay({ zoom: clampZoom(previewDisplay.zoom / 1.25) });
+    $('preview-zoom-center').onclick = centerPreviewOnBat;
+    $('preview-zoom-reset').onclick = () => setPreviewDisplay(previewDisplayDefault);
+    canvas.style.touchAction = 'none'; canvas.style.cursor = 'grab';
+    canvas.addEventListener('wheel', event => { event.preventDefault(); const units = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? 300 : 1;
+      anchoredZoom(clampZoom(previewDisplay.zoom * Math.exp(-event.deltaY * units * .0015)), { x: event.clientX, y: event.clientY }); }, { passive: false });
+    const pointers = new Map(); let gesture = null;
+    const begin = () => { const points = [...pointers.values()].slice(0, 2); gesture = points.length ? { points, display: { ...previewDisplay } } : null; };
+    canvas.addEventListener('pointerdown', event => {
+      if (event.button !== 0) return; event.preventDefault(); pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      try { canvas.setPointerCapture(event.pointerId); } catch { /* Synthetic test events have no native capture. */ }
+      canvas.style.cursor = 'grabbing'; begin();
+    });
+    canvas.addEventListener('pointermove', event => {
+      if (!pointers.has(event.pointerId) || !gesture) return; event.preventDefault();
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      const points = [...pointers.values()].slice(0, 2), rect = canvas.getBoundingClientRect();
+      if (points.length === 1 && gesture.points.length === 1) setPreviewDisplay({
+        panX: clampPan(gesture.display.panX + (points[0].x - gesture.points[0].x) / rect.width),
+        panY: clampPan(gesture.display.panY + (points[0].y - gesture.points[0].y) / rect.height) });
+      else if (points.length === 2 && gesture.points.length === 2) {
+        const center = values => ({ x: (values[0].x + values[1].x) / 2, y: (values[0].y + values[1].y) / 2 }),
+          old = center(gesture.points), next = center(points), distance = values => Math.hypot(values[1].x - values[0].x, values[1].y - values[0].y),
+          initialDistance = distance(gesture.points);
+        if (initialDistance < 1) return;
+        const zoom = clampZoom(gesture.display.zoom * distance(points) / initialDistance), ratio = zoom / gesture.display.zoom;
+        setPreviewDisplay({ zoom,
+          panX: clampPan((next.x - rect.left) / rect.width - .5 - ((old.x - rect.left) / rect.width - .5 - gesture.display.panX) * ratio),
+          panY: clampPan((next.y - rect.top) / rect.height - .5 - ((old.y - rect.top) / rect.height - .5 - gesture.display.panY) * ratio) });
+      }
+    });
+    const end = event => { pointers.delete(event.pointerId); begin(); if (!pointers.size) canvas.style.cursor = 'grab'; };
+    for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) canvas.addEventListener(type, end);
+    refreshPreviewDisplayControls(); rootHelp();
+  }
+  function rootHelp() { globalThis.KneekuraMakerHelp?.decorate($('maker-preview-display')); }
   function referenceOverlay(ctx, project, frame, fontSize = 13, compact = false) {
     const line = (a, b, color, width = 2) => { const p = project(a), q = project(b); if (!p || !q) return;
       ctx.strokeStyle = color; ctx.lineWidth = width; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke(); };
@@ -735,7 +828,7 @@
   function draw() {
     const result = physicsResult();
     context.clearRect(0, 0, canvas.width, canvas.height); context.fillStyle = '#09150d'; context.fillRect(0, 0, canvas.width, canvas.height);
-    const frame = sceneFrame(), project = projector();
+    const frame = sceneFrame(), project = projector(camera, canvas.width, canvas.height, referenceFit, true);
     const line = (a, b, color, width = 2) => { const p = project(a), q = project(b); if (!p || !q) return; context.strokeStyle = color; context.lineWidth = width;
       context.beginPath(); context.moveTo(p.x, p.y); context.lineTo(q.x, q.y); context.stroke(); };
     for (let i = -3; i <= 3; i++) { line({ x: i, y: 0, z: -3 }, { x: i, y: 0, z: 7 }, '#233727'); line({ x: -3, y: 0, z: i }, { x: 3, y: 0, z: i }, '#233727'); }
@@ -800,26 +893,31 @@
   function loop(now) { if (playing && result) { if (lastPaint !== null) time += Math.min(.1, (now - lastPaint) / 1000) * Number($('play-speed').value);
       if (time >= duration) { time = duration; playing = false; } draw(); } lastPaint = now; requestAnimationFrame(loop); }
   function state() { return { player: clone(draft), population: clone(population), scenario: clone(scenario), ...(referenceTouched ? { reference: clone(reference) } : {}),
-    ...(patternsTouched ? { trajectoryPatterns: clone(trajectoryPatterns) } : {}), ...(livePhysicalRoster ? { livePhysicalRoster: clone(livePhysicalRoster) } : {}) }; }
+    ...(patternsTouched ? { trajectoryPatterns: clone(trajectoryPatterns) } : {}), ...(livePhysicalRoster ? { livePhysicalRoster: clone(livePhysicalRoster) } : {}),
+    ...(defaultPreviewDisplay() ? {} : { previewDisplay: clone(previewDisplay) }) }; }
   function importState(raw) {
     if (!raw || !raw.player || !Array.isArray(raw.population) || !raw.scenario?.pitch) throw Error('選手・比較データ・投球設定を含むJSONを選択してください。');
     const next = core.createWorkbenchPlayer(raw.player), nextScenario = clone(raw.scenario), nextPopulation = raw.population.map(value => core.createWorkbenchPlayer(value));
+    const displayDescriptor = Object.getOwnPropertyDescriptor(raw, 'previewDisplay');
+    if (displayDescriptor && !('value' in displayDescriptor)) throw Error('拡大表示の設定は数値で指定してください。');
+    const nextPreviewDisplay = displayDescriptor ? previewDisplayPatch(displayDescriptor.value, true) : { ...previewDisplayDefault };
     core.previewLeagueRatings(next, nextPopulation, league);
     const nextReference = raw.reference === undefined ? null : validateReference(raw.reference);
     const nextPatterns = raw.trajectoryPatterns === undefined ? [] : validatePatterns(raw.trajectoryPatterns);
     const nextRoster = raw.livePhysicalRoster === undefined ? livePhysicalRoster : validateLiveRoster(raw.livePhysicalRoster).packet;
     const experimentProof = nextReference?.mode === 'reference-experiment' ? calculateReferenceExperiment(next, nextScenario.pitch, nextReference, nextScenario.throughSeconds) : null;
-    const previous = { player, draft, population, scenario, result, time, duration, revision, reference, referenceTouched, trajectoryPatterns, patternsTouched, selectedPatternId, experimentResult, experimentInput };
+    const previous = { player, draft, population, scenario, result, time, duration, revision, reference, referenceTouched, trajectoryPatterns, patternsTouched, selectedPatternId, experimentResult, experimentInput, previewDisplay };
     try { const proof = experimentProof ? result : core.simulateBattingWorkbench({ ...nextScenario, player: next });
       draft = clone(next); player = next; population = nextPopulation; scenario = nextScenario; result = proof;
       duration = Math.max(...[...result.batFrames, ...result.pitchFrames, ...(result.flightFrames ?? [])].map(tickOf).filter(numeric)) / 1e6;
       time = result.contact ? Math.max(0, result.contact.tick / 1e6 - .04) : 0; if (!experimentProof) revision++; playing = false;
       reference = nextReference ?? defaultReference(); referenceTouched = raw.reference !== undefined; coreReplayTime = time;
+      previewDisplay = nextPreviewDisplay; refreshPreviewDisplayControls();
       experimentResult = experimentProof?.result ?? null; experimentInput = experimentProof?.input ?? null;
       trajectoryPatterns = nextPatterns; patternsTouched = raw.trajectoryPatterns !== undefined; selectedPatternId = '';
       refreshScenario(); refreshControls(); $('population-json').value = JSON.stringify(population, null, 2); refreshReference(true); preview(); draw();
       if (nextRoster) importLiveRoster(nextRoster);
-    } catch (error) { ({ player, draft, population, scenario, result, time, duration, revision, reference, referenceTouched, trajectoryPatterns, patternsTouched, selectedPatternId, experimentResult, experimentInput } = previous); throw error; }
+    } catch (error) { ({ player, draft, population, scenario, result, time, duration, revision, reference, referenceTouched, trajectoryPatterns, patternsTouched, selectedPatternId, experimentResult, experimentInput, previewDisplay } = previous); refreshPreviewDisplayControls(); throw error; }
   }
   async function readFile(file, apply) { if (!file) return; try { apply(JSON.parse(await file.text())); clearProblem(); } catch (error) { problem(error); } }
   function tab(which) { const bat = which === 'bat'; $('tab-bat').setAttribute('aria-selected', String(bat)); $('tab-player').setAttribute('aria-selected', String(!bat)); $('bat-panel').hidden = !bat; $('player-panel').hidden = bat;
@@ -921,6 +1019,7 @@
     return clone(entry.physical);
   }
   globalThis.baseballMaker = Object.freeze({ getState: state, importState, setPlayerSwing, publicRank, getResult: () => clone(result), getFrame: () => clone(sceneFrame()),
+    getPreviewDisplay: () => clone(previewDisplay), setPreviewDisplay, resetPreviewDisplay: () => setPreviewDisplay(previewDisplayDefault), centerPreviewOnBat,
     getPhysicsResult: () => clone(physicsResult()), getReferenceExperimentInput: () => clone(isExperiment() ? experimentInput : null),
     getThreeViews: () => clone(threeViews),
     getProjection: () => clone(projectedBat), getRevision: () => revision, seek: seconds => { time = Math.max(replayStart(), Math.min(duration, seconds)); playing = false; draw(); },
@@ -947,6 +1046,6 @@
     equipmentControls.append(lengths);
     for (const spec of swingSpec) createControl($('swing-controls'), spec, true);
     for (const spec of identitySpec) createControl($('player-controls'), spec); for (const spec of advancedSpec) createControl($('advanced-controls'), spec);
-    refreshScenario(); simulate(); initializeLiveRoster(); globalThis.KneekuraBatLengthSprites?.ready.then(draw,problem); requestAnimationFrame(loop);
+    refreshScenario(); simulate(); initializeLiveRoster(); installPreviewDisplayControls(); globalThis.KneekuraBatLengthSprites?.ready.then(draw,problem); requestAnimationFrame(loop);
   } catch (error) { problem(error); }
 })();

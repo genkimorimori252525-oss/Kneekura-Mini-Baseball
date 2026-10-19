@@ -14,3 +14,6 @@ export { applyLivePhysicalRosterV1, resolveLivePlateVisionV1 } from './LivePhysi
 export { projectLivePublicAbilitiesV1, editLivePublicAbilityV1, previewLivePublicLeagueV1, materializeLivePlateVisionV1 } from './LivePublicAbilitiesV1';
 export { getLiveTraitCatalogV1, projectLiveTraitProfilesV1, setLiveTraitProfileV1, validateLiveTraitProfileV1, resolveLiveTraitPreferencesV54, reconcileLiveTraitSourcesV54 } from './LiveTraitProfilesV1';
 export type { LiveTraitProfileV1, LiveTraitRosterInputV1, LiveTraitDefinitionV1 } from './LiveTraitProfilesV1';
+export { compareMeasuredTrajectoriesV69 } from './MeasuredTrajectoryComparisonWorkbenchV69';
+export type { MeasuredTrajectoryComparisonInputV69, MeasuredTrajectoryFlightFrameV69 } from './MeasuredTrajectoryComparisonWorkbenchV69';
+export { LIVE_MATCH_PHYSICS_V1, LIVE_MATCH_MOUND_SURFACE_V1 } from './LiveBaseballMatchV1';

@@ -155,7 +155,7 @@
     const left = Math.max(edge, Math.min(rect.left, width - box.width - edge));
     // Place beyond the whole input row. Covering a hovered input would trigger
     // pointerleave as soon as the tooltip appeared, especially on narrow screens.
-    const below = anchor.bottom + 8, above = anchor.top - box.height - 8;
+    const below = Math.max(anchor.bottom, rect.bottom) + 8, above = Math.min(anchor.top, rect.top) - box.height - 8;
     const top = below + box.height <= height - edge ? below : Math.max(edge, above);
     tip.style.left = left + 'px'; tip.style.top = top + 'px';
   }
