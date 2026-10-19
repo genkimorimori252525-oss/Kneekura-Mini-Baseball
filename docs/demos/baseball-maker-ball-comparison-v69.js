@@ -96,6 +96,7 @@
     const bat=item.pitch.sampleBatAtTick(input.originTick+clock*1e6);if(bat){const a=point(bat.grip),b=point(bat.tip);c.lineWidth=item.level===level?6:2;c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke();}
    }c.restore();c.globalAlpha=1;c.fillStyle='#52685a';c.fillText('1目盛り '+grid+' m ／ 全弾道で共通の縮尺',16,460);
   }
+  document.dispatchEvent(new CustomEvent('kneekura:ball-comparison-change',{detail:{ready:!!result,level,clockSeconds:clock,playing}}));
  }
  function fillResults(){const body=$('comparison-results').tBodies[0];body.replaceChildren();$('comparison-details').replaceChildren();
   for(const item of result.cases){const row=body.insertRow();row.dataset.level=item.level;row.style.color=colors[item.level-1];const m=item.metrics;

@@ -4,14 +4,15 @@ import { createHash } from 'node:crypto';
 import { build } from 'esbuild';
 import vm from 'node:vm';
 
-const args = process.argv.slice(2), ballComparison = args.includes('--ball-comparison'), measuredLibrary = args.includes('--measured-library'), executableTraits = args.includes('--executable-traits'), traitProfiles = executableTraits || args.includes('--traits'), publicAbilities = traitProfiles || args.includes('--public-abilities');
+const args = process.argv.slice(2), batterComparison = args.includes('--batter-comparison'), ballComparison = args.includes('--ball-comparison'), measuredLibrary = args.includes('--measured-library'), executableTraits = args.includes('--executable-traits'), traitProfiles = executableTraits || args.includes('--traits'), publicAbilities = traitProfiles || args.includes('--public-abilities');
 if (ballComparison && !measuredLibrary) throw Error('--ball-comparison requires --measured-library');
+if (batterComparison && !ballComparison) throw Error('--batter-comparison requires --ball-comparison');
 const inputOverride = name => {
   const options=args.filter(arg=>arg.startsWith('--'+name+'='));
   if(options.length>1||options.some(arg=>!arg.slice(name.length+3)))throw Error('Exactly one nonempty --'+name+'=PATH is required when overriding input');
   return options[0]?.slice(name.length+3);
 };
-const output = resolve(args.find(arg => !['--public-abilities','--traits','--executable-traits','--measured-library','--ball-comparison'].includes(arg)
+const output = resolve(args.find(arg => !['--public-abilities','--traits','--executable-traits','--measured-library','--ball-comparison','--batter-comparison'].includes(arg)
   && !arg.startsWith('--roster=') && !arg.startsWith('--catalog=')) ?? (publicAbilities ? 'outputs/にーくら野球メーカー_公開能力編集版.html' : 'outputs/にーくら野球メーカー_実測スイング版.html'));
 const rosterPath = inputOverride('roster') ?? 'docs/demos/live-game-roster-' + (traitProfiles ? 'v3' : publicAbilities ? 'v2' : 'v1') + '.json';
 const rosterCatalogPath = inputOverride('catalog') ?? 'docs/demos/live-game-roster-catalog-' + (executableTraits ? 'v4' : traitProfiles ? 'v3' : publicAbilities ? 'v2' : 'v1') + '.json';
@@ -76,6 +77,28 @@ const helpUi = measuredLibrary ? await readFile('docs/demos/baseball-maker-help-
 const lightCss = measuredLibrary ? await readFile('docs/demos/baseball-maker-light-v68.css', 'utf8') : '';
 const comparisonUi = ballComparison ? await readFile('docs/demos/baseball-maker-ball-comparison-v69.js', 'utf8') : '';
 const comparisonCss = ballComparison ? await readFile('docs/demos/baseball-maker-ball-comparison-v69.css', 'utf8') : '';
+const batterUi = batterComparison ? await readFile('docs/demos/baseball-maker-batter-comparison-v70.js', 'utf8') : '';
+const batterCss = batterComparison ? await readFile('docs/demos/baseball-maker-batter-comparison-v70.css', 'utf8') : '';
+const matchAdapter = batterComparison ? await readFile('tools/browser-bridge/maker-match-renderer-v70.js', 'utf8') : '';
+let makerMatchHtml = '', matchRendererSourceSha256 = null;
+if (batterComparison) {
+  const frozenGame = await readFile('docs/demos/releases/v68/game.html');
+  matchRendererSourceSha256 = sha(frozenGame);
+  if (matchRendererSourceSha256 !== '8b709ab3c69fc8bdc5f9980a8b66912e0b9b86f73c67970cc1bf9b37cfa6ccbc')
+    throw Error('Frozen ordinary-match renderer differs');
+  const once = (text, before, after) => {
+    if (text.split(before).length !== 2) throw Error('Batter comparison renderer marker differs: ' + before.slice(0, 90));
+    return text.replace(before, () => after);
+  };
+  // Reuse the maker's identical 673-trial library, cloning it into the iframe's
+  // realm. The drawing and camera code remain the exact ordinary-match source.
+  const gameText = frozenGame.toString('utf8'), dataScript = gameText.match(/<script id="v68-measured-bat-library" type="application\/json">[\s\S]*?<\/script>/)?.[0];
+  if (!dataScript) throw Error('Ordinary measured library is missing');
+  makerMatchHtml = once(gameText, dataScript, '<script id="v68-measured-bat-library" type="application/json">{"sharedWithMaker":true}</script>');
+  makerMatchHtml = once(makerMatchHtml, "measured=window.KneekuraMeasuredBatLibrary.decode($('v68-measured-bat-library').textContent)",
+    'measured=structuredClone(parent.KneekuraReferenceBatMotions)');
+  makerMatchHtml = once(makerMatchHtml, '</body>', '<script id="v70-maker-match-renderer">\n' + matchAdapter + '\n</script></body>');
+}
 const decoderRealm = {};
 if (measuredLibrary) vm.runInNewContext(libraryDecoder, decoderRealm);
 const referenceData = measuredLibrary ? decoderRealm.KneekuraMeasuredBatLibrary.decode(referenceJson) : JSON.parse(referenceJson);
@@ -90,14 +113,14 @@ for (const clip of referenceData.clips) {
       || !frame.orientation || !['w', 'x', 'y', 'z'].every(key => Number.isFinite(frame.orientation[key]))
       || !['grip', 'tip', 'sweetSpot', 'sweetSpotVelocity'].every(key => finiteVector(frame[key])))) throw Error('Reference bat clip is invalid: ' + clip.id);
 }
-if ([core, ui, batSprites, libraryDecoder, swingUi, helpUi, comparisonUi].some(source => /<\/script/i.test(source))) throw Error('Unexpected closing-script token in bundled source');
+if ([core, ui, batSprites, libraryDecoder, swingUi, helpUi, comparisonUi, batterUi, matchAdapter].some(source => /<\/script/i.test(source))) throw Error('Unexpected closing-script token in bundled source');
 if (/require\(["']node:|require\(["']fs["']/.test(core)) throw Error('Workbench bundle imports a Node-only module');
 for (const marker of ['<!-- WORKBENCH_CORE -->', '<!-- WORKBENCH_REFERENCE -->', '<!-- WORKBENCH_BAT_SPRITES -->', '<!-- WORKBENCH_LIVE_ROSTER -->', '<!-- WORKBENCH_UI -->']) {
   if (!template.includes(marker) || template.indexOf(marker) !== template.lastIndexOf(marker)) throw Error('Workbench template marker differs');
 }
 if (measuredLibrary) {
-  template = template.replace('</head>', () => '<style>\n' + lightCss + '\n' + comparisonCss + '\n</style></head>');
-  template = template.replace('にーくら野球メーカー</title>', 'にーくら野球メーカー v' + (ballComparison ? 69 : 68) + '</title>');
+  template = template.replace('</head>', () => '<style>\n' + lightCss + '\n' + comparisonCss + '\n' + batterCss + '\n</style></head>');
+  template = template.replace('にーくら野球メーカー</title>', 'にーくら野球メーカー v' + (batterComparison ? 70 : ballComparison ? 69 : 68) + '</title>');
 }
 const referenceInline = measuredLibrary ? libraryDecoder + '\n;globalThis.KneekuraReferenceBatMotions=KneekuraMeasuredBatLibrary.decode('
   + JSON.stringify(referenceJson).replace(/</g, '\\u003c') + ');' : 'globalThis.KneekuraReferenceBatMotions=' + JSON.stringify(referenceData).replace(/</g, '\\u003c') + ';';
@@ -108,8 +131,11 @@ const html = template.replace('<!-- WORKBENCH_CORE -->', () => '<script>\n' + co
     + ';globalThis.KneekuraLiveGameRosterCatalog=' + JSON.stringify(liveRosterCatalog).replace(/</g, '\\u003c')
     + (publicReference ? ';globalThis.KneekuraLivePublicAbilityReference=' + JSON.stringify(publicReference).replace(/</g, '\\u003c') : '')
     + (traitAvailability ? ';globalThis.KneekuraLiveTraitAvailabilityCatalog=' + JSON.stringify(traitAvailability).replace(/</g, '\\u003c') : '') + ';</script>')
-  .replace('<!-- WORKBENCH_UI -->', () => '<script>\n' + ui + '\n' + swingUi + '\n' + comparisonUi + '\n' + helpUi
+  .replace('<!-- WORKBENCH_UI -->', () => '<script>\n' + ui + '\n' + swingUi + '\n' + comparisonUi + '\n'
+    + (batterComparison ? 'globalThis.KneekuraMakerMatchHtmlV70=' + JSON.stringify(makerMatchHtml).replace(/</g, '\\u003c') + ';\n' : '')
+    + batterUi + '\n' + helpUi
     + (measuredLibrary ? '\nKneekuraMakerHelp.install();' : '') + '\n</script>');
+if (Buffer.byteLength(html) >= 100_000_000) throw Error('Maker HTML exceeds GitHub single-file limit');
 await mkdir(dirname(output), { recursive: true }); await writeFile(output, html);
 const report = { output, bytes: Buffer.byteLength(html), sha256: sha(html), coreSha256: sha(core), uiSha256: sha(ui),
   bundleInputCount: Object.keys(bundleInputs).length, bundleInputManifestSha256: sha(bundleInputManifest),
@@ -117,6 +143,9 @@ const report = { output, bytes: Buffer.byteLength(html), sha256: sha(html), core
   liveRosterSha256: sha(rosterJson), liveRosterCatalogSha256: sha(rosterCatalogJson), gamePlayers: liveRoster.entries.length,
   publicAbilities, traitProfiles, executableTraits, measuredLibrary, libraryDecoderSha256: measuredLibrary ? sha(libraryDecoder) : null,
   ballComparison, comparisonUiSha256: ballComparison ? sha(comparisonUi) : null, comparisonCssSha256: ballComparison ? sha(comparisonCss) : null,
+  batterComparison, batterUiSha256: batterComparison ? sha(batterUi) : null, batterCssSha256: batterComparison ? sha(batterCss) : null,
+  matchRendererAdapterSha256: batterComparison ? sha(matchAdapter) : null, matchRendererSourceSha256,
+  embeddedMatchRendererSha256: batterComparison ? sha(makerMatchHtml) : null,
   swingUiSha256: measuredLibrary ? sha(swingUi) : null, helpUiSha256: measuredLibrary ? sha(helpUi) : null,
   lightCssSha256: measuredLibrary ? sha(lightCss) : null, traitCatalogFamilies: traitAvailability?.entries.length ?? 0,
   traitAvailabilitySha256: traitAvailabilityJson ? sha(traitAvailabilityJson) : null, liveRosterPath: rosterPath, liveRosterCatalogPath: rosterCatalogPath, publicReferenceSha256: publicReferenceJson ? sha(publicReferenceJson) : null,

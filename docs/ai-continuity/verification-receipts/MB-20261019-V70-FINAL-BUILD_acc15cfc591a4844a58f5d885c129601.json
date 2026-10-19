@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V70-FINAL-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-maker.mjs",
+    "../../outputs/にーくら野球メーカー_v70_打者視点比較版.html",
+    "--executable-traits",
+    "--measured-library",
+    "--ball-comparison",
+    "--batter-comparison",
+    "--roster=docs/demos/live-game-roster-v62.json",
+    "--catalog=docs/demos/live-game-roster-catalog-v62.json"
+  ],
+  "observed_at": "2026-10-19T12:54:35.024+00:00",
+  "elapsed_ms": 2311,
+  "git_head": "7db60c6302bb5217104929b6172df54ad4a493dd",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V70-FINAL-BUILD_acc15cfc591a4844a58f5d885c129601.log",
+  "output_sha256": "c3d6b17aa67d79f9c4dadb61dcfa48838993786b4155ceed5b3a3d343b092e8a",
+  "receipt_id": "MB-20261019-V70-FINAL-BUILD_acc15cfc591a4844a58f5d885c129601"
+}
