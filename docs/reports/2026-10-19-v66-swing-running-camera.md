@@ -47,3 +47,7 @@ v61／v63／v65の通常HTMLを同じ6投球コマンドで比較した。v61→
 `カメラワーク調整室_v66.html` SHA `fbe3038d617f557e1b679dd5a67d67edb737f64fc88634455f30bbdb261aab79`。
 
 [同一打球のhelper比較](../verification/releases/v66/cause-audit/audit-v66-helper.json)と[v61／v63／v65の通常実走比較](../verification/releases/v66/cause-audit/audit-v66-runner-source.json)も補助観測として保持する。実コマンドによるPASS／FAILは上のreceiptと区別する。
+
+## GitHub保存
+
+製品コミット `b687c2a85341231e2546bb5370d55fbc7c794f46` を既存ブランチ／OPEN Draft PR380へ保存。STAGING `01d1e2d6` と最終照合で54ファイルの試験済みraw byteがGit blobと一致し、credential pattern0、whitespace PASS、ユーザーのAGENTS除外。PUBLICATION `0fe429b9` PASS4.452秒でremote／PR headと公開raw12ファイルのbyte一致を確認。[公開証拠](../verification/releases/v66/publication.json)。後続コミットは記録のみで製品byteを変更せず、main未マージ。継続監査は従来のCHARTER_UNAPPROVED/HOLDであり、自動承認しない。
