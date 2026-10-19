@@ -1,13 +1,17 @@
 ---
-current_task: "MB-20261019-V71-PUBLICATION"
+current_task: "MB-20261019-V72-FINAL-PACKAGE"
 active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "ed97accec441593aad325e4de045478791c7e948"
+commit_head: "83054b92313883722565305630c067aea23f3e99"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V71-PUBLICATION_5ecc14b090d14419848e397fbb1a30f9.json"
-updated_at: "2026-10-19T13:25:36.397766+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V72-FINAL-PACKAGE_e90b83e341ec499580d0ce85d7617ef8.json"
+updated_at: "2026-10-19T13:47:54.131164+00:00"
 
 ---
+
+## Active human priority — v72 player trajectory edit + main bat view (SCOPED VERIFIED; PUBLICATION NEXT)
+
+Human requires trajectory edits on battrajectoryscreen. Fixed separate legacy mainreference vs selected roster clip/impactTrajectory. Actual editor moved to batpane; same canonical selectedplayer/setPlayerSwing/JSON, live valid numeric input, invalidempty no-save/revert. Main shared sampler exact, commonSourceclock/edgeclamp/all5fit/no postresize, source snapshotcache; oldresearch collapsible + oldbuilder flagoff preserved. 71orbit and70batterrightdrag retained. BYTEBUILD5cdc8f3d; BROWSER615ffebc PASS11.844s1200/390/grades1..4+17deg exactshared/independentsampler+clock/realJSON/other19+rawclip unchanged/legacy/orbit/errorsnetoverflow0. Rawc8b119b6FAIL existingmotorceilingfixture, a9899311FAIL real390grid intrinsicwidth fixed newflagonly, 1a627818FAIL QA expectedinvalidinputerror classification fixed; allretained. FINALPACKAGEe90b83e3 PASS1.639s HTML3c24444f/35688209bytes/Maker82ee745194/Native115308d8e63 unchanged/old194frozenexact/70batteradapter+UI-CSS unchanged. RootPC390imageschecked. Next scopedstaging/publishOpenDraft380/rawverify, then humancomparebat-tab. Normal/lab68, initial20, originalfullplan/FAILUNKNOWN/CharterHOLD/userAGENTS preserved; no wholegoalcomplete or newTS/9game/realphoneclaim.
 
 ## Active human priority — v71 bat-preview orbit (SCOPED VERIFIED; PUBLISHED)
 

@@ -28,7 +28,7 @@
  $('player-swing-editor').after(panel);
  const shortcuts=document.createElement('nav');shortcuts.className='comparison-shortcuts';shortcuts.setAttribute('aria-label','比較画面への移動');
  const jump=document.createElement('button');jump.id='comparison-jump';jump.type='button';jump.textContent='弾道ごとの打球比較へ';
- jump.onclick=()=>{$('tab-player').click();panel.scrollIntoView({block:'start'});};
+ jump.onclick=()=>{$(root.KneekuraPlayerSwingPreviewEnabled===true?'tab-bat':'tab-player').click();panel.scrollIntoView({block:'start'});};
  const batJump=document.createElement('button');batJump.type='button';batJump.textContent='バット画面へ（拡大できます）';
  batJump.onclick=()=>{$('tab-bat').click();$('maker-scene').scrollIntoView({block:'center'});};shortcuts.append(jump,batJump);document.querySelector('header').after(shortcuts);
  let result=null,input=null,context=null,clock=0,playing=false,lastTime=null,maxTime=9,generation=0,signature='',error=null,

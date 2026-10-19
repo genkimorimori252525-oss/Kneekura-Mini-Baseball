@@ -4,16 +4,17 @@ import { createHash } from 'node:crypto';
 import { build } from 'esbuild';
 import vm from 'node:vm';
 
-const args = process.argv.slice(2), batOrbit = args.includes('--bat-orbit'), batterComparison = args.includes('--batter-comparison'), ballComparison = args.includes('--ball-comparison'), measuredLibrary = args.includes('--measured-library'), executableTraits = args.includes('--executable-traits'), traitProfiles = executableTraits || args.includes('--traits'), publicAbilities = traitProfiles || args.includes('--public-abilities');
+const args = process.argv.slice(2), playerSwingPreview = args.includes('--player-swing-preview'), batOrbit = args.includes('--bat-orbit'), batterComparison = args.includes('--batter-comparison'), ballComparison = args.includes('--ball-comparison'), measuredLibrary = args.includes('--measured-library'), executableTraits = args.includes('--executable-traits'), traitProfiles = executableTraits || args.includes('--traits'), publicAbilities = traitProfiles || args.includes('--public-abilities');
 if (ballComparison && !measuredLibrary) throw Error('--ball-comparison requires --measured-library');
 if (batterComparison && !ballComparison) throw Error('--batter-comparison requires --ball-comparison');
 if (batOrbit && !measuredLibrary) throw Error('--bat-orbit requires --measured-library');
+if (playerSwingPreview && !measuredLibrary) throw Error('--player-swing-preview requires --measured-library');
 const inputOverride = name => {
   const options=args.filter(arg=>arg.startsWith('--'+name+'='));
   if(options.length>1||options.some(arg=>!arg.slice(name.length+3)))throw Error('Exactly one nonempty --'+name+'=PATH is required when overriding input');
   return options[0]?.slice(name.length+3);
 };
-const output = resolve(args.find(arg => !['--public-abilities','--traits','--executable-traits','--measured-library','--ball-comparison','--batter-comparison','--bat-orbit'].includes(arg)
+const output = resolve(args.find(arg => !['--public-abilities','--traits','--executable-traits','--measured-library','--ball-comparison','--batter-comparison','--bat-orbit','--player-swing-preview'].includes(arg)
   && !arg.startsWith('--roster=') && !arg.startsWith('--catalog=')) ?? (publicAbilities ? 'outputs/にーくら野球メーカー_公開能力編集版.html' : 'outputs/にーくら野球メーカー_実測スイング版.html'));
 const rosterPath = inputOverride('roster') ?? 'docs/demos/live-game-roster-' + (traitProfiles ? 'v3' : publicAbilities ? 'v2' : 'v1') + '.json';
 const rosterCatalogPath = inputOverride('catalog') ?? 'docs/demos/live-game-roster-catalog-' + (executableTraits ? 'v4' : traitProfiles ? 'v3' : publicAbilities ? 'v2' : 'v1') + '.json';
@@ -121,7 +122,7 @@ for (const marker of ['<!-- WORKBENCH_CORE -->', '<!-- WORKBENCH_REFERENCE -->',
 }
 if (measuredLibrary) {
   template = template.replace('</head>', () => '<style>\n' + lightCss + '\n' + comparisonCss + '\n' + batterCss + '\n</style></head>');
-  template = template.replace('にーくら野球メーカー</title>', 'にーくら野球メーカー v' + (batOrbit ? 71 : batterComparison ? 70 : ballComparison ? 69 : 68) + '</title>');
+  template = template.replace('にーくら野球メーカー</title>', 'にーくら野球メーカー v' + (playerSwingPreview ? 72 : batOrbit ? 71 : batterComparison ? 70 : ballComparison ? 69 : 68) + '</title>');
 }
 const referenceInline = measuredLibrary ? libraryDecoder + '\n;globalThis.KneekuraReferenceBatMotions=KneekuraMeasuredBatLibrary.decode('
   + JSON.stringify(referenceJson).replace(/</g, '\\u003c') + ');' : 'globalThis.KneekuraReferenceBatMotions=' + JSON.stringify(referenceData).replace(/</g, '\\u003c') + ';';
@@ -132,7 +133,8 @@ const html = template.replace('<!-- WORKBENCH_CORE -->', () => '<script>\n' + co
     + ';globalThis.KneekuraLiveGameRosterCatalog=' + JSON.stringify(liveRosterCatalog).replace(/</g, '\\u003c')
     + (publicReference ? ';globalThis.KneekuraLivePublicAbilityReference=' + JSON.stringify(publicReference).replace(/</g, '\\u003c') : '')
     + (traitAvailability ? ';globalThis.KneekuraLiveTraitAvailabilityCatalog=' + JSON.stringify(traitAvailability).replace(/</g, '\\u003c') : '') + ';</script>')
-  .replace('<!-- WORKBENCH_UI -->', () => '<script>\n' + ui + '\n' + swingUi + '\n' + comparisonUi + '\n'
+  .replace('<!-- WORKBENCH_UI -->', () => '<script>\n' + (playerSwingPreview ? 'globalThis.KneekuraPlayerSwingPreviewEnabled=true;\n' : '')
+    + ui + '\n' + swingUi + '\n' + comparisonUi + '\n'
     + (batterComparison ? 'globalThis.KneekuraMakerMatchHtmlV70=' + JSON.stringify(makerMatchHtml).replace(/</g, '\\u003c') + ';\n' : '')
     + batterUi + '\n' + helpUi
     + (measuredLibrary ? '\nKneekuraMakerHelp.install();' : '') + '\n</script>');
@@ -145,7 +147,7 @@ const report = { output, bytes: Buffer.byteLength(html), sha256: sha(html), core
   publicAbilities, traitProfiles, executableTraits, measuredLibrary, libraryDecoderSha256: measuredLibrary ? sha(libraryDecoder) : null,
   ballComparison, comparisonUiSha256: ballComparison ? sha(comparisonUi) : null, comparisonCssSha256: ballComparison ? sha(comparisonCss) : null,
   batterComparison, batterUiSha256: batterComparison ? sha(batterUi) : null, batterCssSha256: batterComparison ? sha(batterCss) : null,
-  batOrbit,
+  batOrbit, playerSwingPreview,
   matchRendererAdapterSha256: batterComparison ? sha(matchAdapter) : null, matchRendererSourceSha256,
   embeddedMatchRendererSha256: batterComparison ? sha(makerMatchHtml) : null,
   swingUiSha256: measuredLibrary ? sha(swingUi) : null, helpUiSha256: measuredLibrary ? sha(helpUi) : null,

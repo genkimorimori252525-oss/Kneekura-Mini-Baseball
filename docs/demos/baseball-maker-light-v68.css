@@ -87,3 +87,5 @@ textarea{background:#fbfdfb}
 @media(max-width:1000px){.swing-preview-grid{grid-template-columns:1fr}.swing-preview-grid figure{max-width:100%}}
 @media(max-width:600px){.swing-editor{padding:12px;margin-inline:0}.swing-settings-grid,.swing-legend{grid-template-columns:minmax(0,1fr) 30px}.swing-toolbar{gap:7px}.swing-toolbar>button:not(.maker-help-button){padding:8px;font-size:12px}.swing-preview-grid{gap:10px}.swing-preview-grid figcaption{font-size:12px}#live-public-abilities .control{grid-template-columns:70px minmax(0,1fr)}}
 @media(prefers-reduced-motion:reduce){.maker-help-tooltip{scroll-behavior:auto}}
+.layout.player-swing-connected>#maker-preview-column,.layout.player-swing-connected>#bat-panel{min-width:0}
+@media(max-width:800px){.layout.player-swing-connected{grid-template-columns:minmax(0,1fr)}}

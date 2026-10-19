@@ -390,13 +390,21 @@
     swing: clone(draft.swing), scenario: clone(scenario), ...(referenceTouched ? { reference: clone(reference) } : {}) }])[0]; }
   const referenceData = globalThis.KneekuraReferenceBatMotions ?? { clips: [] };
   let reference = null, referenceTouched = false, coreReplayTime = 0, coreReplaySpeed = .5, referenceFit = null;
-  const isReference = () => reference?.mode === 'reference';
-  const isExperiment = () => reference?.mode === 'reference-experiment';
+  // A view choice only. The selected player's saved motion remains owned by
+  // setPlayerSwing; legacy research settings and JSON keep their own meaning.
+  let playerSwingPreviewActive = false, playerSwingPreviewSpeed = .5, playerSwingPreviewInitialized = false, legacyPreviewClock = null;
+  let playerSwingSourceSnapshot = null, playerSwingFramesSnapshot = null;
+  const playerSwingSource = () => playerSwingSourceSnapshot ?? (playerSwingSourceSnapshot = globalThis.KneekuraSwingMaker?.getPreviewSource?.() ?? null);
+  const playerSwingTick = () => { const source = playerSwingSource(); return Math.max(source.startTick, Math.min(source.endTick, time * 1e6)); };
+  const isPlayerSwingPreview = () => playerSwingPreviewActive && playerSwingSource()?.ready === true;
+  const isReference = () => isPlayerSwingPreview() || reference?.mode === 'reference';
+  const isExperiment = () => !isPlayerSwingPreview() && reference?.mode === 'reference-experiment';
   const isReferenceBased = () => isReference() || isExperiment();
   const physicsResult = () => isExperiment() ? experimentResult : result;
   const defaultExperiment = { startMs: 300, motorRate: .85, translation: { x: 0, y: 0, z: 0 } };
-  const referenceClip = () => referenceData.clips.find(clip => clip.id === reference?.clipId);
+  const referenceClip = () => isPlayerSwingPreview() ? playerSwingSource().clip : referenceData.clips.find(clip => clip.id === reference?.clipId);
   const referenceFrames = () => { const clip = referenceClip(), start = Math.round(reference.startTimeSeconds * 1e6), end = Math.round(reference.endTimeSeconds * 1e6);
+    if (isPlayerSwingPreview()) return clip.frames;
     return clip.frames.filter(frame => frame.tick >= start && frame.tick <= end); };
   const identityCalibration = { worldYawDeg: 0, flipX: false, flipY: false, flipZ: false,
     localEulerDeg: { x: 0, y: 0, z: 0 }, localOriginOffsetM: { x: 0, y: 0, z: 0 } };
@@ -408,7 +416,7 @@
   const normalizeQuaternion = q => { const n = Math.hypot(q.w, q.x, q.y, q.z); return { w: q.w / n, x: q.x / n, y: q.y / n, z: q.z / n }; };
   const rotateQuaternion = (q, v) => { const t = cross({ x: q.x, y: q.y, z: q.z }, v), c = cross({ x: q.x, y: q.y, z: q.z }, t);
     return { x: v.x + 2 * (q.w * t.x + c.x), y: v.y + 2 * (q.w * t.y + c.y), z: v.z + 2 * (q.w * t.z + c.z) }; };
-  function calibrationInfo(raw = reference?.calibration ?? identityCalibration) {
+  function calibrationInfo(raw = isPlayerSwingPreview() ? identityCalibration : reference?.calibration ?? identityCalibration) {
     const c = clone(raw), angle = c.worldYawDeg * Math.PI / 180, cs = Math.cos(angle), sn = Math.sin(angle);
     const signs = { x: c.flipX ? -1 : 1, y: c.flipY ? -1 : 1, z: c.flipZ ? -1 : 1 }, determinant = signs.x * signs.y * signs.z;
     const axisQuaternion = (axis, degrees) => { const half = degrees * Math.PI / 360; return { w: Math.cos(half), x: axis === 'x' ? Math.sin(half) : 0, y: axis === 'y' ? Math.sin(half) : 0, z: axis === 'z' ? Math.sin(half) : 0 }; };
@@ -445,8 +453,9 @@
     calibratedClips.set(key, frames); return frames;
   }
   const referenceMotionFrames = () => { const clip = referenceClip(), start = Math.round(reference.startTimeSeconds * 1e6), end = Math.round(reference.endTimeSeconds * 1e6);
+    if (isPlayerSwingPreview()) return playerSwingFramesSnapshot ?? (playerSwingFramesSnapshot = globalThis.KneekuraSwingMaker.getPreviewFrames());
     return transformedClipFrames(clip).filter(frame => frame.tick >= start && frame.tick <= end); };
-  const replayStart = () => isReference() ? reference.startTimeSeconds : 0;
+  const replayStart = () => isPlayerSwingPreview() ? playerSwingSource().startTick / 1e6 : isReference() ? reference.startTimeSeconds : 0;
   const coreDuration = () => { const actual = physicsResult(); return Math.max(...[...actual.batFrames, ...actual.pitchFrames, ...(actual.flightFrames ?? [])].map(tickOf).filter(numeric)) / 1e6; };
   function defaultReference(mode = 'core') { const clip = referenceData.clips.find(clip => clip.id === referenceData.defaultClipId) ?? referenceData.clips[0];
     return clip ? { mode, clipId: clip.id, startTimeSeconds: clip.timeRange.start, endTimeSeconds: clip.timeRange.end, speed: .5,
@@ -481,7 +490,9 @@
     const input = { player: clone(profile), pitch: clone(pitch), referenceTrajectory: trajectory, throughSeconds: throughSeconds ?? 8 };
     return { input, result: core.simulateReferenceBattingWorkbench(input) };
   }
-  function referenceMotionFramesFor(settings) { const previous = reference; try { reference = settings; return referenceMotionFrames(); } finally { reference = previous; } }
+  function referenceMotionFramesFor(settings) { const previous = reference, previousPlayerView = playerSwingPreviewActive;
+    try { reference = settings; playerSwingPreviewActive = false; return referenceMotionFrames(); }
+    finally { reference = previous; playerSwingPreviewActive = previousPlayerView; } }
   function runReferenceExperiment() { try { readScenario(); const candidate = core.createWorkbenchPlayer(clone(draft));
     const settings = validateReference({ ...reference, mode: 'reference-experiment', experiment: { startMs: Number($('reference-experiment-start').value), motorRate: Number($('reference-experiment-rate').value),
       translation: Object.fromEntries(['x', 'y', 'z'].map(axis => [axis, Number($('reference-experiment-' + axis).value)])) } });
@@ -490,6 +501,21 @@
     refreshReference(false); time = proof.result.contact ? Math.max(0, proof.result.contact.tick / 1e6 - .04) : settings.experiment.startMs / 1000; draw(); clearProblem();
   } catch (error) { problem(error); } }
   function refreshReference(resetTime = false) {
+    if (isPlayerSwingPreview()) {
+      const source = playerSwingSource(), frames = referenceMotionFrames(), bounds = globalThis.KneekuraSwingMaker.getPreviewBounds?.(),
+        points = bounds?.points ?? frames.flatMap(frame => [frame.grip, frame.tip]),
+        low = { x: -.2, y: 0, z: -1.4 }, high = { x: 1.4, y: 1.4, z: 1.4 };
+      for (const point of points) for (const axis of ['x', 'y', 'z']) { low[axis] = Math.min(low[axis], point[axis]); high[axis] = Math.max(high[axis], point[axis]); }
+      referenceFit = { center: { x: (low.x + high.x) / 2, y: (low.y + high.y) / 2, z: (low.z + high.z) / 2 },
+        radius: Math.max(.5, Math.hypot(high.x - low.x, high.y - low.y, high.z - low.z) / 2) };
+      duration = source.endTick / 1e6;
+      time = resetTime ? source.contactTick / 1e6 : Math.max(source.startTick / 1e6, Math.min(duration, time));
+      $('play-speed').value = String(playerSwingPreviewSpeed);
+      $('reference-controls').hidden = true; $('core-bat-controls').hidden = true; $('core-trajectory-note').hidden = true;
+      $('reference-threeviews').hidden = true; $('reference-coordinate-legend').hidden = false; $('reference-provenance').hidden = false;
+      $('export-reference').disabled = true;
+      playing = false; lastPaint = null; refreshMetrics(); draw(); return;
+    }
     $('trajectory-mode').value = reference?.mode ?? 'core';
     $('reference-controls').hidden = !isReferenceBased(); $('core-bat-controls').hidden = isReferenceBased();
     $('core-trajectory-note').hidden = isReferenceBased();
@@ -530,7 +556,7 @@
   }
   function changeReference(raw) { const next = validateReference(raw); if (next.mode === 'reference-experiment') { const proof = calculateReferenceExperiment(core.createWorkbenchPlayer(clone(draft)), scenario.pitch, next, scenario.throughSeconds); experimentResult = proof.result; experimentInput = proof.input; }
     if (next.mode !== 'core') clearTimeout(timer);
-    reference = next; referenceTouched = true; refreshReference(true); clearProblem(); }
+    playerSwingPreviewActive = false; reference = next; referenceTouched = true; refreshReference(true); clearProblem(); }
   function changeCalibration() { try { const candidate = { worldYawDeg: Number($('calibration-world-yaw').value),
     flipX: $('calibration-flip-x').checked, flipY: $('calibration-flip-y').checked, flipZ: $('calibration-flip-z').checked,
     localEulerDeg: Object.fromEntries(['x', 'y', 'z'].map(axis => [axis, Number($('calibration-local-' + axis).value)])),
@@ -641,9 +667,11 @@
   function refreshMetrics() {
     if (isReference()) { const frames = referenceMotionFrames();
       const maximum = Math.max(...frames.map(frame => Math.hypot(frame.sweetSpotVelocity.x, frame.sweetSpotVelocity.y, frame.sweetSpotVelocity.z)));
-      $('metric-bat-label').textContent = '参考区間の最大速度'; $('metric-bat').textContent = numeric(maximum) ? maximum.toFixed(1) : '—';
+      $('metric-bat-label').textContent = isPlayerSwingPreview() ? '選んだ軌道の最大速度（元測定基準）' : '参考区間の最大速度'; $('metric-bat').textContent = numeric(maximum) ? maximum.toFixed(1) : '—';
       $('metric-exit').textContent = '—'; $('metric-carry').textContent = '—'; $('result-status').textContent = '参考モーション研究 · OPENBIOMECHANICS_MEASURED_BAT_AXIS_RESEARCH';
-      $('detail-metrics').textContent = '再生倍率は時間表示だけに適用します。実Coreの打撃入力・速度・衝突・正史には使用していません。'; return; }
+      $('detail-metrics').textContent = isPlayerSwingPreview()
+        ? '選んだ選手の打ち方・弾道です。図は元の測定の長さ・速さで表示します。試合用能力JSONで通常試合へ反映できます。打球は下の同条件比較で計算します。'
+        : '再生倍率は時間表示だけに適用します。実Coreの打撃入力・速度・衝突・正史には使用していません。'; return; }
     const result = physicsResult(); if (!result) return;
     $('metric-bat-label').textContent = isExperiment() ? '参考軌道の実最大速度' : 'バット速度';
     const m = result.metrics, shown = (value, digits = 1) => numeric(value) ? value.toFixed(digits) : '—';
@@ -672,6 +700,18 @@
   function pair(frames, tick) { if (!frames?.length) return null; let i = 0; while (i + 1 < frames.length && tickOf(frames[i + 1]) <= tick) i++;
     const a = frames[i], b = frames[Math.min(i + 1, frames.length - 1)]; return { a, b, alpha: tickOf(b) > tickOf(a) ? Math.max(0, Math.min(1, (tick - tickOf(a)) / (tickOf(b) - tickOf(a)))) : 0 }; }
   function sceneFrame() {
+    if (isPlayerSwingPreview()) {
+      const tick = playerSwingTick(), preview = playerSwingSource(), sample = globalThis.KneekuraSwingMaker.sampleAtSourceTick(tick),
+        source = pair(preview.clip.frames, tick)?.a, info = calibrationInfo(),
+        localAxes = Object.fromEntries(['x', 'y', 'z'].map(axis => [axis, rotateQuaternion(sample.orientation, { x: axis === 'x' ? 1 : 0, y: axis === 'y' ? 1 : 0, z: axis === 'z' ? 1 : 0 })]));
+      return { mode: 'player-swing-reference', authority: 'SHARED_REFERENCE_IMPACT_TRAJECTORY_PREVIEW', nativeAdmission: false,
+        tick, batSourceTick: sample.sourceTick, grip: clone(sample.state.pose.grip), tip: clone(sample.state.pose.tip),
+        sweetSpot: clone(sample.sweetSpot), sweetSpotVelocity: clone(sample.sweetSpotVelocity), batOrientation: clone(sample.orientation),
+        localAxes, calibration: info, sourcePose: source ? { grip: clone(source.grip), tip: clone(source.tip), sweetSpot: clone(source.sweetSpot), orientation: clone(source.orientation) } : null,
+        selectedSourceSeconds: tick / 1e6, sourceTimeSeconds: (source?.tick ?? 0) / 1e6, sourceMotionSha256: preview.clip.source.sha256,
+        playerSwingPreview: { playerId: preview.playerId, clipId: preview.clip.id, level: preview.level, enabled: preview.enabled },
+        body: null, ball: null, ballSourceTick: null, ballOrientation: null, contact: null, officialResult: null };
+    }
     if (isReference()) { const tick = time * 1e6, bat = pair(referenceMotionFrames(), tick)?.a, source = pair(referenceFrames(), tick)?.a, info = calibrationInfo();
       const localAxes = bat ? Object.fromEntries(['x', 'y', 'z'].map(axis => [axis, rotateQuaternion(bat.orientation, { x: axis === 'x' ? info.signs.x : 0, y: axis === 'y' ? info.signs.y : 0, z: axis === 'z' ? info.signs.z : 0 })])) : null;
       // Use the declared source length; rounded source coordinates can differ
@@ -705,10 +745,15 @@
   const unit = a => { const n = Math.hypot(a.x, a.y, a.z); return { x: a.x / n, y: a.y / n, z: a.z / n }; };
   const cross = (a, b) => ({ x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x });
   function projector(selectedCamera = camera, width = canvas.width, height = canvas.height, selectedFit = referenceFit, usePreviewDisplay = false, usePreviewOrbit = usePreviewDisplay) {
+    const selectedPlayerId = isPlayerSwingPreview() ? playerSwingSource().playerId : null,
+      selectedIdentity = selectedPlayerId ? liveCatalog.players.find(p => p.playerId === selectedPlayerId) : null,
+      selectedPhysical = selectedPlayerId ? livePhysicalRoster.entries.find(p => p.playerId === selectedPlayerId)?.physical : null,
+      batterHand = selectedIdentity?.bats ?? player?.identity.bats,
+      batterHeight = selectedPhysical?.heightMeters ?? selectedIdentity?.heightMeters ?? get(player, 'body.heightMeters') ?? 1.8;
     const views = { side: [{ x: -4.2, y: 1.6, z: .65 }, { x: 0, y: 1, z: .3 }],
       catcher: [{ x: 0, y: 1.8, z: -3.7 }, { x: 0, y: .95, z: .55 }],
       pitcher: [{ x: .15, y: 1.7, z: 5 }, { x: 0, y: 1, z: 0 }],
-      batter: [{ x: player?.identity.bats === 'L' ? .95 : -.95, y: (get(player, 'body.heightMeters') ?? 1.8) * .91, z: -1.05 }, { x: 0, y: 1, z: 2.4 }],
+      batter: [{ x: batterHand === 'L' ? .95 : -.95, y: batterHeight * .91, z: -1.05 }, { x: 0, y: 1, z: 2.4 }],
       overhead: [{ x: 0, y: 6, z: .001 }, { x: 0, y: 0, z: .3 }] };
     let [eye, target] = views[selectedCamera]; const focal = width * .83;
     if (isReferenceBased() && selectedFit) { const direction = unit(sub(eye, target)), distance = selectedFit.radius * (1 + focal / (Math.min(width, height) * .32));
@@ -877,7 +922,7 @@
         const ballTrace = (isReference() ? [] : frame.tick < (result.contact?.tick ?? Infinity) ? result.pitchFrames : result.flightFrames ?? []).filter(f => tickOf(f) <= frame.tick).slice(-90);
         for (let i = 1; i < ballTrace.length; i++) line(ballTrace[i - 1].position ?? ballTrace[i - 1].ball?.position, ballTrace[i].position ?? ballTrace[i].ball?.position, '#ced8c177', 1.5);
       }
-      if (isReference() && reference.compareClipId) { const comparison = transformedClipFrames(referenceData.clips.find(clip => clip.id === reference.compareClipId));
+      if (isReference() && !isPlayerSwingPreview() && reference.compareClipId) { const comparison = transformedClipFrames(referenceData.clips.find(clip => clip.id === reference.compareClipId));
         for (let i = 1; i < comparison.length; i++) line(comparison[i - 1].tip, comparison[i].tip, '#82bbce55', 1); }
       if (frame.body) {
         const shoulders = points(frame.body.shoulders), elbows = points(frame.body.elbows), hands = points(frame.body.hands);
@@ -916,14 +961,15 @@
         }
       }
     }
-    if (isReference() && frame) { referenceOverlay(context, project, frame); drawThreeViews(frame);
+    if (isReference() && frame) { referenceOverlay(context, project, frame); if (!isPlayerSwingPreview()) drawThreeViews(frame); else threeViews = null;
       $('reference-provenance').textContent = `選択時刻 ${frame.selectedSourceSeconds.toFixed(6)}秒 ／ 原標本 ${frame.sourceTimeSeconds.toFixed(6)}秒（${frame.batSourceTick}µs）\nSource SHA256 ${frame.sourceMotionSha256}\nカメラfitは観測位置だけを変更します。世界座標・選択tickは変更しません。`; }
     else threeViews = null;
     const cameras = { side: '横', batter: '打者', catcher: '捕手', pitcher: '投手', overhead: '俯瞰' };
-    $('scene-label').textContent = `${cameras[camera]} · ${isReference() ? '参考モーション（バットのみ）' : isExperiment() ? '参考バット接触研究（身体なし）' : result?.contact && time * 1e6 >= result.contact.tick ? '打球' : '投球とスイング'}`;
+    $('scene-label').textContent = `${cameras[camera]} · ${isPlayerSwingPreview() ? '選んだ選手のバット軌道' : isReference() ? '参考モーション（バットのみ）' : isExperiment() ? '参考バット接触研究（身体なし）' : result?.contact && time * 1e6 >= result.contact.tick ? '打球' : '投球とスイング'}`;
     $('scrub').value = Math.round((time - replayStart()) / Math.max(duration - replayStart(), .001) * 1000);
     $('time-label').textContent = isReference() ? `原時刻 ${(time).toFixed(6)}秒 · ${(time - replayStart()).toFixed(3)}秒` : `${time.toFixed(3)}秒`;
     $('play-pause').textContent = playing ? 'Ⅱ 停止' : '▶ 再生';
+    if (isPlayerSwingPreview()) globalThis.KneekuraSwingMaker.syncClock(playerSwingTick(), playing, playerSwingPreviewSpeed);
   }
   function loop(now) { if (playing && result) { if (lastPaint !== null) time += Math.min(.1, (now - lastPaint) / 1000) * Number($('play-speed').value);
       if (time >= duration) { time = duration; playing = false; } draw(); } lastPaint = now; requestAnimationFrame(loop); }
@@ -982,7 +1028,8 @@
   } catch (error) { problem(error); } };
   $('play-pause').onclick = () => { if (time >= duration) time = replayStart(); playing = !playing; lastPaint = null; draw(); };
   $('scrub').oninput = () => { playing = false; time = replayStart() + Number($('scrub').value) / 1000 * (duration - replayStart()); draw(); };
-  $('play-speed').onchange = () => { if (isReference()) reference.speed = Number($('play-speed').value); else coreReplaySpeed = Number($('play-speed').value); };
+  $('play-speed').onchange = () => { if (isPlayerSwingPreview()) { playerSwingPreviewSpeed = Number($('play-speed').value); draw(); }
+    else if (isReference()) reference.speed = Number($('play-speed').value); else coreReplaySpeed = Number($('play-speed').value); };
   $('trajectory-mode').onchange = () => { try { if (!reference) throw Error('参考モーションデータがありません。');
     if (!isReference()) { coreReplayTime = time; coreReplaySpeed = Number($('play-speed').value); }
     changeReference({ ...reference, mode: $('trajectory-mode').value }); } catch (error) { problem(error); } };
@@ -1015,7 +1062,8 @@
   $('apply-population').onclick = () => { try { applyPopulation(JSON.parse($('population-json').value)); clearProblem(); } catch (error) { problem(error); } };
   $('import-population').onclick = () => $('population-file').click(); $('population-file').onchange = () => readFile($('population-file').files[0], applyPopulation);
   $('load-json').onclick = () => $('import-file').click(); $('import-file').onchange = () => readFile($('import-file').files[0], importState);
-  $('export-reference').onclick = () => { try { if (!isReference()) throw Error('参考モーションを選択してください。');
+  $('export-reference').onclick = () => { try { if (isPlayerSwingPreview()) throw Error('選手の打ち方と弾道は、試合用能力JSONへ保存してください。');
+    if (!isReference()) throw Error('参考モーションを選択してください。');
     const clip = referenceClip(), frames = clone(referenceMotionFrames()), maximum = Math.max(...frames.map(frame => Math.hypot(frame.sweetSpotVelocity.x, frame.sweetSpotVelocity.y, frame.sweetSpotVelocity.z)));
     const selected = { ...clone(clip), schemaVersion: 2, authority: referenceData.authority,
       timeRange: { start: reference.startTimeSeconds, end: reference.endTimeSeconds }, frames, sourceFrames: clone(referenceFrames()), calibration: calibrationInfo(),
@@ -1053,7 +1101,52 @@
     renderLiveRoster(); clearProblem();
     return clone(entry.physical);
   }
+  function getPlayerSwingPreview() {
+    const source = playerSwingSource();
+    return { active: isPlayerSwingPreview(), ready: source?.ready === true, playerId: source?.playerId ?? null,
+      clipId: source?.clip?.id ?? null, level: source?.level ?? null, enabled: source?.enabled ?? false,
+      sourceTick: isPlayerSwingPreview() ? playerSwingTick() : time * 1e6, contactTick: source?.contactTick ?? null, startTick: source?.startTick ?? null,
+      endTick: source?.endTick ?? null, playing: isPlayerSwingPreview() && playing, speed: playerSwingPreviewSpeed,
+      authority: 'SHARED_REFERENCE_IMPACT_TRAJECTORY_PREVIEW', nativeAdmission: false };
+  }
+  function showPlayerSwingPreview(enabled = true) {
+    if (typeof enabled !== 'boolean') throw Error('選手のバット軌道の表示を選んでください。');
+    if (enabled && playerSwingSource()?.ready !== true) throw Error('選手のバット軌道を読み込めませんでした。');
+    const changed = enabled !== playerSwingPreviewActive;
+    if (changed && enabled) legacyPreviewClock = { time, speed: Number($('play-speed').value) };
+    playerSwingPreviewInitialized = true; playerSwingPreviewActive = enabled;
+    refreshReference(changed && enabled);
+    if (!enabled && changed && legacyPreviewClock) {
+      time = Math.max(replayStart(), Math.min(duration, legacyPreviewClock.time));
+      $('play-speed').value = String(legacyPreviewClock.speed); draw();
+    }
+    return getPlayerSwingPreview();
+  }
+  function seekMeasuredPreview(sourceTick) {
+    if (!numeric(sourceTick) || sourceTick < 0) throw Error('バットを見る時刻が不正です。');
+    if (!isPlayerSwingPreview()) showPlayerSwingPreview(true);
+    const source = playerSwingSource(); time = Math.max(source.startTick, Math.min(source.endTick, sourceTick)) / 1e6;
+    playing = false; lastPaint = null; draw(); return getPlayerSwingPreview();
+  }
+  function setMeasuredPreviewPlayback(patch) {
+    if (!patch || typeof patch !== 'object' || Array.isArray(patch)) throw Error('バットの再生設定が不正です。');
+    const descriptors = Object.getOwnPropertyDescriptors(patch);
+    for (const key of Reflect.ownKeys(descriptors)) if (!['playing', 'speed'].includes(key) || !Object.hasOwn(descriptors[key], 'value')
+      || !descriptors[key].enumerable || (key === 'playing' ? typeof descriptors[key].value !== 'boolean' : ![.1, .25, .5, 1, 2].includes(descriptors[key].value)))
+      throw Error('バットの再生設定が範囲外です。');
+    if (!isPlayerSwingPreview()) showPlayerSwingPreview(true);
+    if (Object.hasOwn(patch, 'speed')) { playerSwingPreviewSpeed = patch.speed; $('play-speed').value = String(patch.speed); }
+    if (Object.hasOwn(patch, 'playing')) { if (patch.playing && time >= duration) time = replayStart(); playing = patch.playing; }
+    lastPaint = null; draw(); return getPlayerSwingPreview();
+  }
+  document.addEventListener('kneekura:swing-preview-source-change', () => {
+    playerSwingSourceSnapshot = null; playerSwingFramesSnapshot = null;
+    if (globalThis.KneekuraPlayerSwingPreviewEnabled !== true || playerSwingSource()?.ready !== true) return;
+    if (!playerSwingPreviewInitialized && !$('swing-legacy-research')?.open) showPlayerSwingPreview(true);
+    else if (playerSwingPreviewActive) refreshReference(false);
+  });
   globalThis.baseballMaker = Object.freeze({ getState: state, importState, setPlayerSwing, publicRank, getResult: () => clone(result), getFrame: () => clone(sceneFrame()),
+    showPlayerSwingPreview, getPlayerSwingPreview, seekMeasuredPreview, setMeasuredPreviewPlayback,
     getPreviewDisplay: () => clone(previewDisplay), setPreviewDisplay, resetPreviewDisplay, centerPreviewOnBat,
     getPreviewOrbit: () => clone(previewOrbit), setPreviewOrbit,
     getPhysicsResult: () => clone(physicsResult()), getReferenceExperimentInput: () => clone(isExperiment() ? experimentInput : null),

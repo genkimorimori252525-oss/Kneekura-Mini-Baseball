@@ -1,12 +1,18 @@
 # 最新の再開入口 — 2026-10-19
 
-現在は **選手メーカーv71／通常試合v68／調整室v68**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
+現在は **選手メーカーv72／通常試合v68／調整室v68**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
 
-- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v71/README.md)
-- [原因・変更・最終検証・限界](../reports/2026-10-19-v71-bat-preview-orbit.md)
-- [開発史](../history/README.md) / [原因別事例H45](../history/INCIDENTS.md)
+- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v72/README.md)
+- [原因・変更・最終検証・限界](../reports/2026-10-19-v72-player-swing-preview.md)
+- [開発史](../history/README.md) / [原因別事例H46](../history/INCIDENTS.md)
 - [元の全要求・計画・受入条件](2026-10-15-mini-baseball/00-START-HERE.md)
 - [v50の打者カメラ](../reports/2026-10-18-v50-v27-batter-camera.md) / [v49の守備責任・裁定](../reports/2026-10-18-v49-positional-defense.md) / [v47の中継・旋回](../reports/2026-10-18-v47-relay-rounding.md)
+
+## メーカーv72の現在地
+
+バット軌道タブで選手・打ち方・弾道1〜4・各振り上げ角度を編集できる。大画面と白い3方向の図は同じ共有サンプラー・同じ原時刻を使い、有効な角度入力を即時に反映する。既存の選手JSONへ保存し、通常試合で読み込む。旧研究は折り畳み内、右ドラッグ・拡大・打者視点比較は維持する。
+
+[原因・実装・検証・限界](../reports/2026-10-19-v72-player-swing-preview.md)。軌道図は元測定の用具・速さを基準にし、通常試合では本人の用具・体格・速さ等を適用する。通常試合／調整室v68、初期20選手、元全計画と未達・原FAIL／UNKNOWNを保持する。
 
 ## メーカーv71の現在地
 
