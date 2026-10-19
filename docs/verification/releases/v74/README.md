@@ -35,3 +35,5 @@
 | [MB-20261020-V74-STAGING](../../../ai-continuity/verification-receipts/MB-20261020-V74-STAGING_ea8b6c22a8a646ccb2b57c95317a3a17.json) | FAIL | 3.093 |
 
 初回STAGING ea8b6c22は新checker空行の末尾空白1文字でFAIL。checkerの空白だけを除き、製品HTML/Source物理は変更せず34364f71 PASS。ユーザーAGENTSを除外し、全staged blobの実bytes/credential pattern/whitespaceを照合。
+
+PUBLICATION：製品commit `3fd9f60d432f36f0b2de9aec8fdc67bb6ec1425c` のremote/PRhead、3HTMLの公開Git blob/size、9小ファイルの実raw bytesを照合。[MB-20261020-V74-PUBLICATION](../../../ai-continuity/verification-receipts/MB-20261020-V74-PUBLICATION_db06847e7a3046958e779eb23dc2e78c.json) PASS 9.562秒。後続commitはこの検証記録のみを保存し製品を変更しない。

@@ -13,3 +13,5 @@ v74は用具3m/5kgを同じ選手の描画/衝突へ接続、メーカーのみ�
 通常HTML/Coreに用具範囲を反映済み。JSONを読み込み新しい試合を開始する。旧CoreのreplayはCore hash不一致で拒否、設定JSONは互換。Native2073bc28/115inputs、Maker837d0b2b/82inputs、union122。関連104tests/TSC/実ブラウザー/前版6球exact/旧206凍結物一致。原FAIL/中間PC277pxの目視結果も保存。
 
 元の累積計画は継続。全身筋力再計算、Native連続世界、実選手SI経験的校正、全得能、100試合分布、実機検証などの未達はCURRENTと原資料を引き継ぐ。v73の9回証拠は保持し、新たな全目標完了とは扱わない。ユーザーAGENTS変更を編集/stageしない。原CharterHOLD/旧FAILUNKNOWNを自動承認へ変換しない。
+
+製品保存commit `3fd9f60`。公開照合db06847e PASS（3HTML Git blobs＋raw9）。後続は検証記録のみ保存し、製品bytesは不変。
