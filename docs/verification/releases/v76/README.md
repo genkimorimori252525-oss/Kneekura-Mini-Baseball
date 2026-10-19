@@ -18,3 +18,5 @@
 Native117/Maker84/union124の入力とbundle bytesはv75exact。旧224凍結物不変。今回はCore/AI/物理変更なしのため、新9回・TypeScript・100試合分布・実機スマホは再走していない。旧FAIL/UNKNOWNと原CharterHOLD、元計画の未達は維持。
 
 STAGING [MB-20261020-V76-STAGING_57d7a723009b4ff38ca776771354c10d.json](../../../ai-continuity/verification-receipts/MB-20261020-V76-STAGING_57d7a723009b4ff38ca776771354c10d.json) PASS2.890秒。明示allowlistだけをstageし、全Git blob raw bytes・credential pattern0・whitespace0・ユーザーAGENTS除外を確認。
+
+PUBLICATION [MB-20261020-V76-PUBLICATION_95b7f5df0551405f972a0d1096965982.json](../../../ai-continuity/verification-receipts/MB-20261020-V76-PUBLICATION_95b7f5df0551405f972a0d1096965982.json) PASS9.360秒。製品commit03c487516550dbb6353dce5f8155f0d94fdbb82aのremote/PRhead、3HTML Git blob/size、raw9小ファイル一致を確認。初回[MB-20261020-V76-PUBLICATION_e5ff8415a6a241148f042970fd41b079.json](../../../ai-continuity/verification-receipts/MB-20261020-V76-PUBLICATION_e5ff8415a6a241148f042970fd41b079.json)は主担当が検証commandへ誤った完全SHAを渡したためassertで拒否された。git rev-parse HEADの実値で再実行し、製品は変更していない。原失敗を保持する。後続commitは検証記録のみ。

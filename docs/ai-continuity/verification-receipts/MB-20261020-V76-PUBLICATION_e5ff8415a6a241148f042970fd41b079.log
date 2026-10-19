@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\check-v76-publication.py", line 16, in <module>
+    assert remote == commit == pr['headRefOid'] and pr['headRefName'] == branch and pr['state'] == 'OPEN' and pr['isDraft']
+AssertionError

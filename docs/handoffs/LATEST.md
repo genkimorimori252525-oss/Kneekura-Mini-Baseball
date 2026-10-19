@@ -13,3 +13,5 @@
 v75の技術13系統と効果0〜2、能力100超のメーカー編集、673実測フォーム、カメラ、試合進行は継承。Native117/Maker84/union124入力とbundlebytesは不変。1200/390の3renderer・低球1/2/8サイズ/RGBA・高空旧表示・設定/session・実6球Source/camera/field/bat一致を検証。今回新9回・TS・実機は再走せず、v75の実検証を保持する。
 
 残る技術・心理・故障・盗塁・身体ブロック/こぼれ球・100試合分布・実機・Native連続world等はCURRENT/原全計画から継続。ユーザーAGENTS編集を除外、原CharterHOLD/旧FAILUNKNOWNを維持。全計画の完了とは扱わない。
+
+製品commit `03c4875` を既存Open Draft PR380へ保存。公開照合95b7f5df PASS（3HTML Git blobs/size＋raw9）。後続commitは検証記録のみで製品を変更しない。

@@ -1344,3 +1344,5 @@ PUBLICATION [MB-20261020-V75-PUBLICATION](verification-receipts/MB-20261020-V75-
 | MB-20261020-V76-BALL-BROWSER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V76-BALL-BROWSER_c01b5bff188f4d30a1939d17eab30bf8.json |
 | MB-20261020-V76-PACKAGE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V76-PACKAGE_aec26b55c38b401bba4a98cc1658d167.json |
 | MB-20261020-V76-STAGING | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V76-STAGING_57d7a723009b4ff38ca776771354c10d.json |
+| MB-20261020-V76-PUBLICATION | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261020-V76-PUBLICATION_e5ff8415a6a241148f042970fd41b079.json |
+| MB-20261020-V76-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V76-PUBLICATION_95b7f5df0551405f972a0d1096965982.json |
