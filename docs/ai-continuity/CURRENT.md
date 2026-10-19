@@ -1,17 +1,17 @@
 ---
-current_task: "MB-20261019-V70-FINAL-PACKAGE"
+current_task: "MB-20261019-V70-PUBLICATION"
 active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "7db60c6302bb5217104929b6172df54ad4a493dd"
+commit_head: "28b1eb87b63cff296d48eb0eb224249a480c43ed"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V70-FINAL-PACKAGE_e1e50f53410b4f2f94dc685e5546a91a.json"
-updated_at: "2026-10-19T13:04:47.575891+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V70-PUBLICATION_7aed3f1d3e4b4b19903ebf8f16a227f6.json"
+updated_at: "2026-10-19T13:08:39.186328+00:00"
 
 ---
 
-## Active human priority — v70 same-pitch batter view (SCOPED VERIFIED; PUBLICATION NEXT)
+## Active human priority — v70 same-pitch batter view (SCOPED VERIFIED; PUBLISHED)
 
-Human requests ordinary-match batter appearance for same-pitch levels1..4 and rightdragcamera. New read-only iframe adapter reuses frozen68renderer/66controller/Sourcecadence; 4independentrecords/controllers/globalpitchclock, noHostcommands/fielding/running/walls/rulings. Rightdragangles/leftpan/wheelzoom/sliders/reset, event1line69addon. Shared673library childclone only, ordinary68source8b709ab3 exact. Fontparent/child3446labelpixels FAIL fixed child4layercompose; redrawQA mixedbackendFAIL fixed testsoftware2D, zero tolerance. TAKEhiddenfixturetimeout preserved. playingballpresence/kind/custody boundary immediateupdate, Sourceendhidden, currentadapter4fba7aca. FinalCSS390helpwidthfix only resetbutton fullwidth. FINALBUILD0d1a388f; BROWSERaea1d810PASS19.030s1200/390/independentcomposite+normalredrawexact/controller+cameraexact/LRcurve/contactmisstake/held0/rightdragreset/backseek/resultJSON20same/noerrorsnet; frozenwallclock boundary0ms catch/CCD. RootPC390imageschecked. FINALPACKAGEe1e50f53PASS1.531s: HTMLfcc9d190/35664998bytes/Maker82ee745194/Native115308d8e63unchanged/old188frozenexact. NoSourceTS/Core/config/lock/deps/secrets/DB/main changes. Next publish scoped maker70+proof existingDraft380, preserveAGENTSuseredit. Original fullplan/unresolvedFAILUNKNOWN/CharterHOLD retained; notwholegoalcomplete.
+Human requests ordinary-match batter appearance for same-pitch levels1..4 and rightdragcamera. New read-only iframe adapter reuses frozen68renderer/66controller/Sourcecadence; 4independentrecords/controllers/globalpitchclock, noHostcommands/fielding/running/walls/rulings. Rightdragangles/leftpan/wheelzoom/sliders/reset, event1line69addon. Shared673library childclone only, ordinary68source8b709ab3 exact. Fontparent/child3446labelpixels FAIL fixed child4layercompose; redrawQA mixedbackendFAIL fixed testsoftware2D, zero tolerance. TAKEhiddenfixturetimeout preserved. playingballpresence/kind/custody boundary immediateupdate, Sourceendhidden, currentadapter4fba7aca. FinalCSS390helpwidthfix only resetbutton fullwidth. FINALBUILD0d1a388f; BROWSERaea1d810PASS19.030s1200/390/independentcomposite+normalredrawexact/controller+cameraexact/LRcurve/contactmisstake/held0/rightdragreset/backseek/resultJSON20same/noerrorsnet; frozenwallclock boundary0ms catch/CCD. RootPC390imageschecked. FINALPACKAGEe1e50f53PASS1.531s: HTMLfcc9d190/35664998bytes/Maker82ee745194/Native115308d8e63unchanged/old188frozenexact. NoSourceTS/Core/config/lock/deps/secrets/DB/main changes. Published product28b1eb87b63cff296d48eb0eb224249a480c43ed existingOpenDraft380; STAGING8d537a10PASS+final67rawblobs exact/credential0/whitespacePASS/AGENTSexcluded; PUBLICATION7aed3f1dPASS51.265s remote/PRhead+9publicrawfiles byteexact. Metadata-onlyclosure follows; product unchanged. Next humancomparesmaker70; normal/lab68 unchanged. PreserveAGENTSuseredit. Original fullplan/unresolvedFAILUNKNOWN/CharterHOLD retained; notwholegoalcomplete.
 
 ## Active human priority — v69 actual batted-ball comparison and zoom (SCOPED VERIFIED; PUBLISHED)
 

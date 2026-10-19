@@ -1209,3 +1209,4 @@ Only record verification that was actually performed.
 | MB-20261019-V70-RESPONSIVE-BROWSER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V70-RESPONSIVE-BROWSER_aea1d810e74e42de8029c27931e022bf.json |
 | MB-20261019-V70-FINAL-PACKAGE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V70-FINAL-PACKAGE_e1e50f53410b4f2f94dc685e5546a91a.json |
 | MB-20261019-V70-STAGING | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V70-STAGING_8d537a10e5dd40e0af7807ce88bb316d.json |
+| MB-20261019-V70-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V70-PUBLICATION_7aed3f1d3e4b4b19903ebf8f16a227f6.json |

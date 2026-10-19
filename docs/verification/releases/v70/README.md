@@ -31,3 +31,8 @@
 | [RESPONSIVE-BUILD 0d1a388f](../../../ai-continuity/verification-receipts/MB-20261019-V70-RESPONSIVE-BUILD_0d1a388f5ce74281a3d06fdef91be9f5.json) | PASS | 2.343 |
 | [RESPONSIVE-BROWSER aea1d810](../../../ai-continuity/verification-receipts/MB-20261019-V70-RESPONSIVE-BROWSER_aea1d810e74e42de8029c27931e022bf.json) | PASS | 19.03 |
 | [FINAL-PACKAGE e1e50f53](../../../ai-continuity/verification-receipts/MB-20261019-V70-FINAL-PACKAGE_e1e50f53410b4f2f94dc685e5546a91a.json) | PASS | 1.531 |
+
+公開製品コミット `28b1eb87b63cff296d48eb0eb224249a480c43ed` を既存Draft PR #380へ保存。[公開照合](publication.json)でremote／PR headと公開raw9ファイルの実byte一致を確認した。記録だけの後続コミットで製品を変更しない。
+
+- [MB-20261019-V70-STAGING 8d537a10](../../../ai-continuity/verification-receipts/MB-20261019-V70-STAGING_8d537a10e5dd40e0af7807ce88bb316d.json): PASS 1.406秒。
+- [MB-20261019-V70-PUBLICATION 7aed3f1d](../../../ai-continuity/verification-receipts/MB-20261019-V70-PUBLICATION_7aed3f1d3e4b4b19903ebf8f16a227f6.json): PASS 51.265秒。
