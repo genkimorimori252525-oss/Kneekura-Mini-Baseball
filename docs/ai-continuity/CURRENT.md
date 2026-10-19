@@ -1,21 +1,21 @@
 ---
-current_task: "MB-20261019-V73-PACKAGE"
+current_task: "MB-20261019-V73-PUBLICATION"
 active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "2b0146abc0792e9f12b376983e7cf267a30d8a82"
+commit_head: "3df8aeb69a69f02b86eb8326abc84ffc5483bfd8"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V73-PACKAGE_21c9e12d38574e87affbb80ed6ca61d2.json"
-updated_at: "2026-10-19T14:12:59.440835+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V73-PUBLICATION_8515861bb06b459bbf0ce9fb3884275c.json"
+updated_at: "2026-10-19T14:16:15.713117+00:00"
 
 ---
 
-## Active human priority — v73 whole-arc absolute attack angle + swing classification (SCOPED VERIFIED; PUBLICATION NEXT)
+## Active human priority — v73 whole-arc absolute attack angle + swing classification (SCOPED VERIFIED; PUBLISHED)
 
 人間は全体の弧を固定回転し、接触実角1=-10／2=0／3=10／4=20度へそろえる方式を明示選択。optional method=whole-arc-target、省略旧JSON/旧DEFAULT/初期20人は保持。Coreの同一固定回転で全pose/velocity、長さ/速度上限/時計/元データを維持、共有samplerを衝突と描画へ。元673記録はdown7/level49/upper412/strong205の便宜分類、匿名ID/試行/計算角/原速度を表示。方法selectorで旧方式にも戻せる。
 
 CORE-TEST-FINAL0f7b764d PASS46tests/6files67.343s、全2692新変種・旧matrix・R/L0度/短clip/速度保存/旧互換。TSC-FINAL1cc3bbf9 PASS27.593s。初回48638f74のundefined拒否文regex FAILは試験期待のみ修正し原結果保全。NativeBUILD9c6c1c11、GAMEBUILD707d3916、MAKERBUILD2b23b796。Native115input82aa947e／Maker82inputc321f1ae。LEGACY-GAME269485f0 PASS145.453s、既存6球Source/bat exact、320球127接触9回（9回88.688s）、whole-arc-game890aa4af PASS13.358s実角-10/20/旧method/unknown原子拒否/PC390。MAKER-BROWSER6ffe4d6d PASS15.421s673分類/左右4角/全弧fixedR/主白同時刻/実JSON新旧/他19/元clip不変/orbit/panzoom/PC390/例外通信overflow0。RootPC390画像目視。PACKAGE21c9e12d PASS4.500s3HTML/同一embeddedgame/renderer/Sourceunion/旧197凍結物一致。
 
-次はscope限定staging、既存OpenDraft380へpush、公開Git blobとraw文書照合。原全計画/FAILUNKNOWN/CharterHOLD/ユーザーAGENTS保持。身体・筋力の再計算、100試合分布監査、実機検証は未達のまま。旧replay sessionはCore hash違いを拒否、設定JSONは互換。全目標完了としない。
+製品commit 3df8aeb69a69f02b86eb8326abc84ffc5483bfd8 を既存OpenDraft380へpush済み。STAGINGd403828eと最終86raw staged blobs一致／credential0／whitespacePASS／ユーザーAGENTS除外。PUBLICATION8515861b PASS6.859s、remote/PRhead、公開HTML3つのGit blobとサイズ、raw9文書一致。後続commitは検証記録だけを閉じ、製品は変更しない。次は人間が新メーカーで弧全体方式を試し、保存JSONを通常v73へ読み込む。原全計画/FAILUNKNOWN/CharterHOLD/ユーザーAGENTS保持。身体・筋力の再計算、100試合分布監査、実機検証は未達のまま。旧replay sessionはCore hash違いを拒否、設定JSONは互換。全目標完了としない。
 
 ## Active human priority — v72 player trajectory edit + main bat view (SCOPED VERIFIED; PUBLISHED)
 

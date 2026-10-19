@@ -33,3 +33,8 @@ Coreは6 files・46 tests PASS（67.343秒）、型検査PASS（27.593秒）。�
 元全計画の未達、全FAIL／UNKNOWN、Charter HOLDを保持する。100試合の分布監査・全身モーション・実機スマートフォンでの校正を今回の受入へ含めたとは主張しない。
 
 [継続監査の原出力](continuity-audit.txt)は終了値1。既存の独立Charter承認不足HOLDと旧handoff警告を保持し、今回の実装PASSへ変換しない。
+
+[公開照合](publication.json)は製品コミット `3df8aeb69a69f02b86eb8326abc84ffc5483bfd8` のremote／既存Open Draft PR #380 headを確認した。3つの大容量HTMLはGitHub公開treeのblob SHA1・sizeとローカル実bytesが一致し、SHA256も記録した。公開rawは索引・metadata・source・文書9ファイルのbyte一致を確認。大容量HTMLのraw再ダウンロードを行ったとは記録しない。
+
+- [STAGING d403828e](../../../ai-continuity/verification-receipts/MB-20261019-V73-STAGING_d403828e464443dd9872870833cdde99.json): PASS3.390秒。最終86 raw staged blobs一致、credential pattern0、whitespace PASS、ユーザーAGENTS除外。
+- [PUBLICATION 8515861b](../../../ai-continuity/verification-receipts/MB-20261019-V73-PUBLICATION_8515861bb06b459bbf0ce9fb3884275c.json): PASS6.859秒。

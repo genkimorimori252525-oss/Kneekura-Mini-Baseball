@@ -1,0 +1,81 @@
+{
+  "pass": true,
+  "sourceCommit": "3df8aeb69a69f02b86eb8326abc84ffc5483bfd8",
+  "remoteHead": "3df8aeb69a69f02b86eb8326abc84ffc5483bfd8",
+  "pullRequest": {
+    "headRefName": "jolly/tbd-lad-native-browser-core-2026-10-14",
+    "headRefOid": "3df8aeb69a69f02b86eb8326abc84ffc5483bfd8",
+    "isDraft": true,
+    "state": "OPEN",
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380"
+  },
+  "publishedHtmlBlobs": [
+    {
+      "path": "docs/demos/releases/v73/game.html",
+      "gitBlobSha1": "53105c73f177195f9d7b179f44169534df0815d3",
+      "sha256": "38d1d09cca6471642a22d0d27d87bbfd5c71b7235c338ac572966d1aa8faa04d",
+      "bytes": 32182946
+    },
+    {
+      "path": "docs/demos/releases/v73/camera-workbench.html",
+      "gitBlobSha1": "6b248cc1dbebed584815f827d8e92fdf2b6fb160",
+      "sha256": "73d27b53d3561908ad57be2c2fa9e1ea5d3c0d1add6ca2db183306bff66a8df7",
+      "bytes": 32401143
+    },
+    {
+      "path": "docs/demos/releases/v73/maker.html",
+      "gitBlobSha1": "90317c86247d1acad101acd1b0d4bd2db4d7fa16",
+      "sha256": "821536e0994345e5b9fe50b8b7bae00b3e3b77fcb915507b597c6fbffd3c57d4",
+      "bytes": 35701125
+    }
+  ],
+  "largeHtmlVerification": "GITHUB_GIT_TREE_BLOB_AND_SIZE_MATCH_LOCAL_BYTES",
+  "rawFiles": [
+    {
+      "path": "docs/demos/releases/v73/SHA256.json",
+      "sha256": "16b9fcf943bb5992882fec8f675de51bb1112d3b0a6bd863f45220fb55a9fd1f",
+      "bytes": 874
+    },
+    {
+      "path": "docs/demos/releases/v73/README.md",
+      "sha256": "dd257b06ac097d881620da9fcc4108f427a3abe36689523abde66cccf11f6b81",
+      "bytes": 2060
+    },
+    {
+      "path": "docs/demos/releases/v73/game.html.build.json",
+      "sha256": "f3255e245ce06edbd4c03394ff4dd51158d6549845ef904775690b3dd83e1ea7",
+      "bytes": 5755
+    },
+    {
+      "path": "docs/demos/releases/v73/maker.html.build.json",
+      "sha256": "6e48aeef684ed172b14b1b81dd826f20a46414c681823f05a4d7254b03b1dab2",
+      "bytes": 3655
+    },
+    {
+      "path": "docs/reports/2026-10-19-v73-whole-arc-trajectory.md",
+      "sha256": "9eb1c7b6e34f03d7b5fc01f262dc344d095ea56add644b8e957acfb4d25ff9c2",
+      "bytes": 4068
+    },
+    {
+      "path": "docs/handoffs/LATEST.md",
+      "sha256": "44761bb49185f9b8fc49b0d847f6f5056d33813b831f27628b12ea4b456e797d",
+      "bytes": 26243
+    },
+    {
+      "path": "src/core/sim/contact/ReferenceBatImpactTrajectoryV1.ts",
+      "sha256": "bfb18e3db567b80904cc5a813463fc11ed48f5de84ea09cf9d106480465e01ef",
+      "bytes": 12301
+    },
+    {
+      "path": "docs/demos/baseball-maker-swing-v68.js",
+      "sha256": "32ed01b58fd39cf24c6958796605e41f2a7b071a301cf986bc05d8974ba8e1cc",
+      "bytes": 35861
+    },
+    {
+      "path": "docs/verification/releases/v73/release-check.json",
+      "sha256": "abd8476bfff740f787665e1679a6a5dc52f02b431356562722adaff6f051c899",
+      "bytes": 532
+    }
+  ],
+  "mainMerged": false
+}
