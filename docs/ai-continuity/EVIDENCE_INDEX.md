@@ -1334,3 +1334,6 @@ PUBLICATION：製品commit `3fd9f60d432f36f0b2de9aec8fdc67bb6ec1425c` のremote/
 | MB-20261020-V75-STAGING | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V75-STAGING_f7b9273948b14aef91c5d994ea612106.json |
 
 STAGING [MB-20261020-V75-STAGING](verification-receipts/MB-20261020-V75-STAGING_f7b9273948b14aef91c5d994ea612106.json) PASS 3.360秒。全staged blobのraw bytes・credential0・whitespace0、ユーザーAGENTS除外を照合。
+| MB-20261020-V75-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V75-PUBLICATION_aa8a9f6a769e46a084968ea086f7b80d.json |
+
+PUBLICATION [MB-20261020-V75-PUBLICATION](verification-receipts/MB-20261020-V75-PUBLICATION_aa8a9f6a769e46a084968ea086f7b80d.json) PASS 10.000秒。製品commit944bd1fのremote/PRhead、公開3HTML Git blobs/size、raw9小ファイルのbytes一致を確認。後続commitはこの検証記録のみを保存し製品Source/HTMLを変更しない。

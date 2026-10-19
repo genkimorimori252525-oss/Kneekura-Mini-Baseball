@@ -28,3 +28,5 @@
 原FAILは修正後PASSと区別。field-tests/は担当者の原実行・EOL証拠。maker/before-strict-resolver/は公開API境界修正前の成功証拠。中間game停止は9回開始前、PASS扱いしない。原Charter未承認HOLDと累積計画の未達を保持する。
 
 STAGING [MB-20261020-V75-STAGING](../../../ai-continuity/verification-receipts/MB-20261020-V75-STAGING_f7b9273948b14aef91c5d994ea612106.json) PASS 3.360秒。全staged blobのraw bytes・credential0・whitespace0、ユーザーAGENTS除外を照合。
+
+PUBLICATION [MB-20261020-V75-PUBLICATION](../../../ai-continuity/verification-receipts/MB-20261020-V75-PUBLICATION_aa8a9f6a769e46a084968ea086f7b80d.json) PASS 10.000秒。製品commit944bd1fのremote/PRhead、公開3HTML Git blobs/size、raw9小ファイルのbytes一致を確認。後続commitはこの検証記録のみを保存し製品Source/HTMLを変更しない。
