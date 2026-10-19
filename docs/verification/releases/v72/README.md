@@ -30,3 +30,8 @@
 [継続監査の原出力](continuity-audit.txt)は終了値1。独立したCharter承認がない既存HOLDを保持し、今回の表示接続のPASSへ変換しない。旧handoffの参照commit警告も原記録のまま保持する。
 
 最終stagingで比較UIとCSSの不要なCRLF変換を検出し、元のLFへ戻して再ビルド・再検証した。動作コードの変更はない。再実行dffaebaaはnative detailsの非同期toggle完了前を判定したQAの競合。open／close後の期待状態を待つようにし、同じ厳密条件とtimeoutを維持した。最終FINAL-BROWSER615ffebcは11.844秒PASS。原FAILを保持する。
+
+[公開照合](publication.json)は製品コミット `81d8a388fae22bd59714d1424cc69ebae2d9f3f4` のremote／既存Open Draft PR #380 headと公開raw9ファイルのbyte一致を確認した。
+
+- [PUBLICATION f9612140](../../../ai-continuity/verification-receipts/MB-20261019-V72-PUBLICATION_f961214008844b4e9a1355d015df2b5f.json): PASS 51.313秒。
+- 最終stagingは69 raw blobs一致、credential pattern0、whitespace PASS。ユーザーのAGENTS.mdを除外。後続は検証記録だけを保存し、HTMLを変更しない。

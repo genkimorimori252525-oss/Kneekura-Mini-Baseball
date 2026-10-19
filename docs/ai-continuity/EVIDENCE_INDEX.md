@@ -1230,3 +1230,4 @@ Only record verification that was actually performed.
 | MB-20261019-V72-FINAL-BROWSER | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261019-V72-FINAL-BROWSER_dffaebaa101b4b1a8153792bcfcf5384.json |
 | MB-20261019-V72-FINAL-BROWSER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V72-FINAL-BROWSER_615ffebca1e541949b1e75e8fca6b43d.json |
 | MB-20261019-V72-FINAL-PACKAGE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V72-FINAL-PACKAGE_e90b83e341ec499580d0ce85d7617ef8.json |
+| MB-20261019-V72-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V72-PUBLICATION_f961214008844b4e9a1355d015df2b5f.json |
