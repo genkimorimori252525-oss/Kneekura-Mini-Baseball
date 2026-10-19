@@ -1,13 +1,17 @@
 ---
-current_task: "MB-20261020-V76-PUBLICATION"
+current_task: "MB-20261020-HELD-BASE-FIXTURE-BROWSER"
 active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "03c487516550dbb6353dce5f8155f0d94fdbb82a"
+commit_head: "f06e74e3df35fd2c3b30cd5f6c8ba8a9eadbb36b"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261020-V76-PUBLICATION_95b7f5df0551405f972a0d1096965982.json"
-updated_at: "2026-10-19T18:32:50.527350+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261020-HELD-BASE-FIXTURE-BROWSER_9bd3df2115ee4cf68083bab7e1fa27a1.json"
+updated_at: "2026-10-19T18:40:43.720999+00:00"
 
 ---
+
+## Active human priority — held-ball base-control audit (EXISTING FEATURE VERIFIED)
+
+人間は持球野手が自ら踏塁できるか確認を依頼。carry_to_base→持球の実座標接触→controlled_base_contact→base_control裁定は既存。Core関連2files13tests4f16e959 PASS10.780s。通常v73/v76各48球024f77ce PASS45.750sでは送球後の踏塁各3件、持球移動は未観測。検証JSON（先攻走速1m/s・守備送球.5m/s）を通常HTMLへ読み、両版初球メルセデス捕球1.564s→持球で一塁4.369s→大谷アウト、throw_release全0。9bd3df21 PASS10.702s。最初probe83ee3d21は誤ったrecord.field参照で証拠不足、原出力保持しrecord.play.fieldへ訂正再実行。製品/初期20人/HTMLは変更なし、v76が最新。選択頻度や全判断の妥当性は未監査。次は人間の指摘した具体プレーがあれば捕球/force/runner先着/持球vs送球判断をその記録から照合する。元計画/旧FAILUNKNOWN/CharterHOLD保持。証拠docs/verification/2026-10-20-held-base-control/README.md。
 
 ## Active human priority — v76 air/ground display separation (SCOPED VERIFIED; PUBLISHED)
 

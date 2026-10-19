@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-BASE-TOUCH-UNIT-AUDIT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts",
+    "src/core/sim/fielding/LiveRelayPlanV1.test.ts",
+    "--reporter=verbose"
+  ],
+  "observed_at": "2026-10-19T18:35:29.620+00:00",
+  "elapsed_ms": 10780,
+  "git_head": "f06e74e3df35fd2c3b30cd5f6c8ba8a9eadbb36b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-BASE-TOUCH-UNIT-AUDIT_4f16e959f2404c73bb9c8eec5e928c88.log",
+  "output_sha256": "3b014ed1e2042dc47be36f472cd72195bff84a754a295e6e5547e20255c205d0",
+  "receipt_id": "MB-20261020-BASE-TOUCH-UNIT-AUDIT_4f16e959f2404c73bb9c8eec5e928c88"
+}

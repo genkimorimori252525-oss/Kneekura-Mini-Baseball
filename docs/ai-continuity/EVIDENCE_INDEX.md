@@ -1346,3 +1346,9 @@ PUBLICATION [MB-20261020-V75-PUBLICATION](verification-receipts/MB-20261020-V75-
 | MB-20261020-V76-STAGING | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V76-STAGING_57d7a723009b4ff38ca776771354c10d.json |
 | MB-20261020-V76-PUBLICATION | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261020-V76-PUBLICATION_e5ff8415a6a241148f042970fd41b079.json |
 | MB-20261020-V76-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V76-PUBLICATION_95b7f5df0551405f972a0d1096965982.json |
+| MB-20261020-BASE-TOUCH-UNIT-AUDIT | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-BASE-TOUCH-UNIT-AUDIT_4f16e959f2404c73bb9c8eec5e928c88.json |
+| MB-20261020-HELD-BASE-BROWSER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-HELD-BASE-BROWSER_83ee3d21b6d744e1a6ce99ee81a96ade.json |
+| MB-20261020-HELD-BASE-BROWSER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-HELD-BASE-BROWSER_024f77ceb6b84c7eba9d5c0b14da51bb.json |
+| MB-20261020-HELD-BASE-FIXTURE-BROWSER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-HELD-BASE-FIXTURE-BROWSER_9bd3df2115ee4cf68083bab7e1fa27a1.json |
+
+持球踏塁audit：83ee3d21はcommand PASSだが誤ったrecord.field参照で機能確認の証拠不足（採用しない）。正しいrecord.play.fieldへ修正した024f77ceと検証条件9bd3df21が実HTML証拠。製品は変更なし。詳細docs/verification/2026-10-20-held-base-control/README.md。

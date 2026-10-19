@@ -15,3 +15,5 @@ v75の技術13系統と効果0〜2、能力100超のメーカー編集、673実�
 残る技術・心理・故障・盗塁・身体ブロック/こぼれ球・100試合分布・実機・Native連続world等はCURRENT/原全計画から継続。ユーザーAGENTS編集を除外、原CharterHOLD/旧FAILUNKNOWNを維持。全計画の完了とは扱わない。
 
 製品commit `03c4875` を既存Open Draft PR380へ保存。公開照合95b7f5df PASS（3HTML Git blobs/size＋raw9）。後続commitは検証記録のみで製品を変更しない。
+
+[持球野手が自分でベースを踏む機能の確認](../verification/2026-10-20-held-base-control/README.md)：v73/v76とも既存機能。検証用能力では捕球→自ら一塁→送球0でアウト。通常48球では持球移動未観測のため、選択頻度の妥当性までは主張しない。製品版はv76のまま。
