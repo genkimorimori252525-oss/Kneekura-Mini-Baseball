@@ -1,0 +1,18 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LivePitchHostAuthoringV77.test.ts (2 tests) 254ms
+ ✓ src/core/sim/fielding/LivePitcherReactionV77.test.ts (2 tests) 1219ms
+   ✓ shortens only pitcher batted-ball recognition and changes real movement without increasing motor bounds 542ms
+   ✓ leaves nonpitchers and zero controls exactly on the previous execution 676ms
+ ✓ src/core/sim/fielding/LiveFieldTechniquesV75.test.ts (7 tests) 3356ms
+   ✓ keeps ground events, frames and diagnostics exactly unchanged for all zero controls 908ms
+   ✓ shortens only the batter initial departure, preserving baserunner recognition and run speed 729ms
+   ✓ uses actual capture posture and one shortened transfer without exceeding physical hand speed 712ms
+   ✓ changes real approach movement only after observing a slow grounded ball and leaves a fly exact 768ms
+
+ Test Files  3 passed (3)
+      Tests  11 passed (11)
+   Start at  03:57:14
+   Duration  4.38s (transform 674ms, setup 0ms, collect 1.84s, tests 4.83s, environment 1ms, prepare 453ms)
+

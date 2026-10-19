@@ -1,4 +1,4 @@
-import { getTechnicalTraitDefinitionsV75, isTechnicalTraitV75, resolveValidatedTechnicalProfileV75 } from './LiveTechnicalTraitsV75';
+import { getTechnicalTraitDefinitionsV75, getTechnicalTraitDefinitionsV77, isTechnicalTraitV75, resolveValidatedTechnicalProfileV75 } from './LiveTechnicalTraitsV75';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { LivePhysicalRosterInputV1 } from './LivePhysicalRosterV1';
 import { deriveLiveThrowAccuracyGradeV54, getLiveThrowAccuracySourceV54, getLiveTraitAuthoringCalibrationV54 } from './LiveTraitAuthoringCalibrationV54';
@@ -8,7 +8,7 @@ import { deriveLiveThrowAccuracyGradeV54, getLiveThrowAccuracySourceV54, getLive
  * their exact family, state and source shape. */
 export type LiveTraitSourceV1 = Readonly<Record<string, number | string>>;
 export type LiveTraitProfileV1 = Readonly<{
-  version: 'live_trait_profile_v1';
+  version: 'live_trait_profile_v1' | 'live_trait_profile_v2';
   selections: readonly Readonly<{ familyId: string; stateId: string | null; source: LiveTraitSourceV1 }>[];
 }>;
 export type LiveTraitRosterInputV1 = Omit<LivePhysicalRosterInputV1, 'entries'> & Readonly<{
@@ -69,6 +69,14 @@ const legacyCatalog: readonly LiveTraitDefinitionV1[] = freeze([
 ]);
 const catalog: readonly LiveTraitDefinitionV1[] = freeze([...legacyCatalog, ...getTechnicalTraitDefinitionsV75()]);
 export const getLiveTraitCatalogV1 = (options?: Readonly<{includeTechnical?:boolean}>): readonly LiveTraitDefinitionV1[] => options?.includeTechnical ? catalog : legacyCatalog;
+/** Independent authoring is explicitly versioned; the original catalog stays unchanged. */
+export const getLiveTraitCatalogV77 = (): readonly LiveTraitDefinitionV1[] => freeze([
+  ...legacyCatalog.map(definition => ['throw_accuracy', 'bad_ball_hitting', 'plate_aggression', 'running_aggression', 'fielding_aggression'].includes(definition.familyId)
+    ? { ...definition, editor: ['throw_accuracy', 'bad_ball_hitting'].includes(definition.familyId) ? 'TECHNIQUE' as const : 'PREFERENCE' as const,
+      availability: 'EXECUTABLE' as const, sourcePaths: ['traitProfile.selections.source.effectScale'],
+      sourceDefinition: 'V77 independent execution technique; base SI and public abilities are unchanged. LOCAL_AUTHORING_ONLY, not empirically calibrated.' }
+    : definition), ...getTechnicalTraitDefinitionsV77(),
+]);
 function assert(value: unknown, message: string): asserts value { if (!value) throw new Error('live trait profiles: ' + message); }
 const text = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value.trim() === value && value.length <= 160;
 const object = (value: unknown, fields: readonly string[], path: string): Record<string, unknown> => {
@@ -86,7 +94,13 @@ const scalarKey = (id: string): string | null => ({ bad_ball_hitting: 'badBallCo
   running_aggression: 'baserunningSafetyMarginSeconds', fielding_aggression: 'fieldingPursuitCostWeight' } as Record<string, string>)[id] ?? null;
 const sourceKeys = (id: string): readonly string[] => isTechnicalTraitV75(id) ? ['effectScale'] : virtual(id) ? [] : id === 'plate_aggression'
   ? ['swingDecision.threshold', 'swingDecision.aggressionWeight', 'swingDecision.approach'] : [scalarKey(id)!];
-function readSource(raw: unknown, id: string): LiveTraitSourceV1 {
+function readSource(raw: unknown, id: string, independent = false): LiveTraitSourceV1 {
+  if (independent && ['throw_accuracy', 'plate_aggression', 'running_aggression', 'fielding_aggression', 'bad_ball_hitting'].includes(id)) {
+    const source = object(raw, id === 'bad_ball_hitting' ? ['badBallControl', 'effectScale'] : ['effectScale'], 'independent source');
+    range(source.effectScale, 0, 2);
+    if (id === 'bad_ball_hitting') range(source.badBallControl, 0, 1);
+    return source as LiveTraitSourceV1;
+  }
   const source = object(raw, sourceKeys(id), 'source');
   if (isTechnicalTraitV75(id)) range(source.effectScale, 0, 2);
   else if (id === 'bad_ball_hitting') range(source.badBallControl, 0, 1);
@@ -101,18 +115,19 @@ function readSource(raw: unknown, id: string): LiveTraitSourceV1 {
 }
 const readProfile = (raw: unknown): LiveTraitProfileV1 => {
   const profile = object(cloneInert(raw), ['version', 'selections'], 'profile');
-  assert(profile.version === 'live_trait_profile_v1' && Array.isArray(profile.selections), 'unsupported profile');
+  assert(['live_trait_profile_v1', 'live_trait_profile_v2'].includes(profile.version as string) && Array.isArray(profile.selections), 'unsupported profile');
+  const independent = profile.version === 'live_trait_profile_v2', definitions = independent ? getLiveTraitCatalogV77() : catalog;
   const seen = new Set<string>();
   const selections = (profile.selections as unknown[]).map(rawSelection => {
     const selection = object(rawSelection, ['familyId', 'stateId', 'source'], 'selection'),
-      definition = catalog.find(item => item.familyId === selection.familyId);
+      definition = definitions.find(item => item.familyId === selection.familyId);
     assert(definition && !seen.has(definition.familyId), 'unknown or duplicate trait family');
     seen.add(definition.familyId);
     assert(definition.editor !== 'GRADE', 'a source-derived grade must not be saved as a second trait effect');
     assert(selection.stateId === null || definition.states.some(value => value.stateId === selection.stateId), 'unsupported family state');
-    return { familyId: definition.familyId, stateId: selection.stateId as string | null, source: readSource(selection.source, definition.familyId) };
+    return { familyId: definition.familyId, stateId: selection.stateId as string | null, source: readSource(selection.source, definition.familyId, independent) };
   });
-  return { version: 'live_trait_profile_v1', selections };
+  return { version: profile.version as LiveTraitProfileV1['version'], selections };
 };
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 type Selection = LiveTraitProfileV1['selections'][number];
@@ -134,7 +149,7 @@ const sameSource = (a: LiveTraitSourceV1 | null, b: LiveTraitSourceV1 | null) =>
 /** The final merged execution source is checked, never multiplied again. */
 export function validateLiveTraitProfileV1(raw: unknown, physical: LiveTraitPhysicalSourceV54): LiveTraitProfileV1 {
   const profile = readProfile(raw), source = cloneInert(physical);
-  for (const selection of profile.selections) for (const [key, expected] of Object.entries(effectiveSource(selection)))
+  for (const selection of profile.version === 'live_trait_profile_v2' ? [] : profile.selections) for (const [key, expected] of Object.entries(effectiveSource(selection)))
     assert(getPath(source, key) === expected, 'trait profile contradicts the executed technical source');
   return freeze(profile);
 }
@@ -218,6 +233,7 @@ export function setLiveTraitProfileV1(input: Readonly<{ roster: LiveTraitRosterI
   familyId: string; stateId: string | null; source?: LiveTraitSourceV1 }>) {
   const request = cloneInert(input), { roster, entry } = context(request.roster, request.playerId),
     definition = catalog.find(item => item.familyId === request.familyId);
+  assert(entry.traitProfile?.version !== 'live_trait_profile_v2', 'independent profiles require the V77 authoring API');
   assert(definition && (request.stateId === null || definition.states.some(value => value.stateId === request.stateId)), 'unknown family or state');
   const id = definition.familyId, current = currentSource(entry, id), explicit = request.source === undefined ? null : readSource(request.source, id),
     changes: { path: string; before: unknown; after: unknown }[] = [];
@@ -277,6 +293,7 @@ export function resolveLiveTraitPreferencesV54(profile?: LiveTraitProfileV1) {
 export function reconcileLiveTraitSourcesV54(input: Readonly<{ roster: LiveTraitRosterInputV1; playerId: string; changedPaths: readonly string[] }>): LiveTraitRosterInputV1 {
   const request = cloneInert(input), { roster, entry } = context(request.roster, request.playerId, false);
   assert(Array.isArray(request.changedPaths) && request.changedPaths.every(text), 'invalid changed source paths');
+  if (entry.traitProfile?.version === 'live_trait_profile_v2') { context(roster, request.playerId); return freeze(roster); }
   const paths = request.changedPaths.map(path => path.replace(/^physical\./, '')),
     touches = (id: string) => sourceKeys(id).some(key => paths.some(path => path === key || key.startsWith(path + '.') || path.startsWith(key + '.')));
   if (entry.traitProfile !== undefined) {

@@ -3,6 +3,7 @@ import { LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1, type LivePlayerPhysicalV1, type Liv
 import { createWorkbenchPlayer, WORKBENCH_TICKS_PER_SECOND, type WorkbenchPlayer } from './WorkbenchPlayer';
 import { validateLiveTraitProfileV1, type LiveTraitProfileV1 } from './LiveTraitProfilesV1';
 import { validateImpactTrajectorySettingsV1, type ImpactTrajectorySettingsV1 } from '../../core/sim/contact/ReferenceBatImpactTrajectoryV1';
+import { validatePitchRepertoireV77, validatePitchingMotionV77, type PitchRepertoireV77, type PitchingMotionV77 } from './LivePitchAuthoringV77';
 
 /** Explicit numerical controls, not conversions from a trait grade or league.
  * SI/tick authoring remains local input; this adapter grants no Native authority. */
@@ -19,6 +20,7 @@ export type LivePhysicalAbilityControlsV1 = Readonly<{
   /** Release geometry in metres, above the rubber surface / handed side /
    * toward home from the rubber. Omitted values use local body-height ratios. */
   pitchReleaseHeightMeters?: number; pitchReleaseSideMeters?: number; pitchReleaseExtensionMeters?: number;
+  pitchRepertoire?: PitchRepertoireV77; pitchingMotion?: PitchingMotionV77;
   /** Tactical preferences; omitted values retain the controller defaults. */
   baserunningSafetyMarginSeconds?: number; fieldingPursuitCostWeight?: number;
   /** SI limits for continuous base rounding; omitted limits resolve in Host. */
@@ -31,6 +33,7 @@ export type LiveRosterPhysicalV1 = LivePlayerPhysicalV1 & LivePhysicalAbilityCon
 export type LiveRosterPhysicalPlayerV1 = Omit<LivePlayerV1, 'physical' | 'traitProfile'> & Readonly<{ physical: LiveRosterPhysicalV1; traitProfile?: LiveTraitProfileV1 }>;
 export type LivePhysicalRosterEntryV1 = Readonly<{
   playerId: string; sourceId: string; workbenchPlayer?: WorkbenchPlayer;
+  throws?: 'R' | 'L';
   physical?: Pick<LivePlayerPhysicalV1, 'basis'> & Partial<LiveRosterPhysicalV1>;
   maximumPitchSpeedKmh?: number; heightMeters?: number; legacyRelativeRatings?: Readonly<Record<string, number>>; traitLabels?: readonly string[];
   traitProfile?: LiveTraitProfileV1;
@@ -45,7 +48,7 @@ const scalarKeys = ['batLengthM', 'batMassKg', 'swingRate', 'timingStdSeconds', 
   'attackAngleDegrees', 'pullAngleDegrees', 'badBallControl', 'defensiveDecisionSeconds', 'preContactSeconds', 'followThroughSeconds', 'contactDepthMeters', 'throwDirectionStdRadians', 'zoneJudgmentStdMeters',
   'baserunningSafetyMarginSeconds', 'fieldingPursuitCostWeight', 'baserunningTurnRadiusMeters', 'baserunningLateralAccelerationMps2', 'plateVision',
   'pitchReleaseHeightMeters', 'pitchReleaseSideMeters', 'pitchReleaseExtensionMeters'] as const;
-const physicalKeys: readonly string[] = ['basis', ...scalarKeys, 'spinRadPerSecond', 'clipId', 'swingDecision', 'impactTrajectory'];
+const physicalKeys: readonly string[] = ['basis', ...scalarKeys, 'spinRadPerSecond', 'clipId', 'swingDecision', 'impactTrajectory', 'pitchRepertoire', 'pitchingMotion'];
 const bounds: Partial<Record<typeof scalarKeys[number], readonly [number, number]>> = {
   batLengthM: [.2, 3], batMassKg: [.1, 5], swingRate: [.3, 3], timingStdSeconds: [0, .08], aimStdMeters: [0, .35],
   chaseMarginMeters: [0, .6], releaseSpeedMps: [15, 85], maximumPitchSpeedMps: [15, 85], commandStdMeters: [0, .6],
@@ -96,6 +99,8 @@ function validatePhysical(raw: unknown): asserts raw is LiveRosterPhysicalV1 {
   }
   if (Object.hasOwn(raw, 'clipId')) assert(validText(raw.clipId), 'invalid measured clip identity');
   if (Object.hasOwn(raw, 'impactTrajectory')) validateImpactTrajectorySettingsV1(raw.impactTrajectory);
+  if (Object.hasOwn(raw, 'pitchRepertoire')) validatePitchRepertoireV77(raw.pitchRepertoire, raw.maximumPitchSpeedMps as number | undefined);
+  if (Object.hasOwn(raw, 'pitchingMotion')) validatePitchingMotionV77(raw.pitchingMotion);
   if (Object.hasOwn(raw, 'swingDecision')) {
     fields(raw.swingDecision, ['approach', 'threshold', 'aggressionWeight'], ['approach', 'threshold', 'aggressionWeight'], 'swingDecision');
     assert(['AUTO', 'TAKE', 'SWING'].includes(raw.swingDecision.approach as string)
@@ -120,9 +125,10 @@ export function applyLivePhysicalRosterV1(raw: unknown) {
   assert(new Set(entries.map(e => e.playerId)).size === entries.length, 'duplicate player source binding');
   const byId = new Map(players.map(p => [p.playerId, p]));
   for (const entry of entries) {
-    fields(entry, ['playerId', 'sourceId', 'workbenchPlayer', 'physical', 'maximumPitchSpeedKmh', 'heightMeters', 'legacyRelativeRatings', 'traitLabels', 'traitProfile'], ['playerId', 'sourceId'], 'entry');
+    fields(entry, ['playerId', 'sourceId', 'throws', 'workbenchPlayer', 'physical', 'maximumPitchSpeedKmh', 'heightMeters', 'legacyRelativeRatings', 'traitLabels', 'traitProfile'], ['playerId', 'sourceId'], 'entry');
     assert(validText(entry.playerId) && validText(entry.sourceId) && byId.has(entry.playerId), 'unknown player or source binding');
     assert(!(Object.hasOwn(entry, 'workbenchPlayer') && Object.hasOwn(entry, 'physical')), 'ambiguous physical authoring sources');
+    if (Object.hasOwn(entry, 'throws')) assert(entry.throws === 'R' || entry.throws === 'L', 'invalid throwing hand');
     if (Object.hasOwn(entry, 'workbenchPlayer')) assert(entry.workbenchPlayer && typeof entry.workbenchPlayer === 'object', 'invalid maker authoring source');
     if (Object.hasOwn(entry, 'physical')) assert(entry.physical && typeof entry.physical === 'object', 'invalid physical authoring source');
   }
@@ -181,6 +187,7 @@ export function applyLivePhysicalRosterV1(raw: unknown) {
       assert(!entry.workbenchPlayer || entry.workbenchPlayer.body.heightMeters === entry.heightMeters, 'conflicting body heights');
       heightMeters = entry.heightMeters; project('heightMeters', 'heightMeters', heightMeters);
     }
+    if (entry?.throws !== undefined) project('throws', 'throws', entry.throws);
     if (entry?.legacyRelativeRatings !== undefined) {
       assert(entry.legacyRelativeRatings && typeof entry.legacyRelativeRatings === 'object' && !Array.isArray(entry.legacyRelativeRatings), 'invalid relative ratings');
       for (const [key, value] of Object.entries(entry.legacyRelativeRatings)) {
@@ -195,7 +202,8 @@ export function applyLivePhysicalRosterV1(raw: unknown) {
     }
     validatePhysical(physical);
     const traitProfile = entry?.traitProfile === undefined ? undefined : validateLiveTraitProfileV1(entry.traitProfile, physical);
-    if (traitProfile !== undefined) project('traitProfile', 'traitProfile', traitProfile, 'LOCAL_SOURCE_METADATA_NO_ADDITIONAL_EFFECT');
+    if (traitProfile !== undefined) project('traitProfile', 'traitProfile', traitProfile,
+      traitProfile.version === 'live_trait_profile_v2' ? 'INDEPENDENT_RUNTIME_TECHNIQUE_BASE_SI_UNCHANGED' : 'LOCAL_SOURCE_METADATA_NO_ADDITIONAL_EFFECT');
     assert(heightMeters >= 1.1 && heightMeters <= 2.5, 'unsupported physical height');
     const targetPaths = new Set(projected.map(p => p.targetPath));
     auditPlayers.push({ playerId: player.playerId, sourceId: entry?.sourceId ?? null, sourcePlayerId, projected, unsupported,
@@ -203,7 +211,8 @@ export function applyLivePhysicalRosterV1(raw: unknown) {
     // An omitted legacy profile stays unassessed, even after an earlier packet
     // supplied one. Never infer possession from a retained continuous source.
     const { traitProfile: _previousProfile, ...basePlayer } = player as LivePlayerV1 & Readonly<{ traitProfile?: LiveTraitProfileV1 }>;
-    return { ...basePlayer, heightMeters, physical, ...(traitProfile === undefined ? {} : { traitProfile }) } as LiveRosterPhysicalPlayerV1;
+    return { ...basePlayer, heightMeters, physical, ...(entry?.throws === undefined ? {} : { throws: entry.throws }),
+      ...(traitProfile === undefined ? {} : { traitProfile }) } as LiveRosterPhysicalPlayerV1;
   });
   return freeze({ players: output, audit: { version: 'live_physical_roster_projection_v1' as const, sourceId: input.roster.sourceId,
     nativeAuthentication: false as const, projectionOnly: true as const, players: auditPlayers } });

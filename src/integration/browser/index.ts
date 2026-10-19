@@ -32,3 +32,8 @@ export type { LiveTraitProfileV1, LiveTraitRosterInputV1, LiveTraitDefinitionV1 
 
 export { resolveLiveTechnicalTraitsV75 } from './LiveTraitProfilesV1';
 export { TECHNICAL_TRAIT_CALIBRATION_V75 } from './LiveTechnicalTraitsV75';
+
+export { getLiveTraitCatalogV77, projectLiveTraitProfilesV77, setLiveTraitProfileV77, migrateLiveTraitRosterV77, resolveLiveExecutionPhysicalV77 } from './LiveTraitRuntimeV77';
+export { LIVE_PITCH_TYPES_V77, validatePitchRepertoireV77, validatePitchingMotionV77, resolvePitcherRepertoireV77, pitchSpinFromControlsV77, pitchSpinToControlsV77 } from './LivePitchAuthoringV77';
+export type { PitchRepertoireV77, PitchRepertoireEntryV77, PitchingMotionV77 } from './LivePitchAuthoringV77';
+export { buildPitcherWorkbenchInputV77, simulatePitcherWorkbenchV77 } from './PitcherWorkbenchV77';

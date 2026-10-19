@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const $ = id => document.getElementById(id), core = globalThis.KneekuraBaseballWorkbench;
+  const independentTraits = globalThis.KneekuraIndependentTraitsV77 === true;
   const canvas = $('maker-scene'), context = canvas.getContext('2d');
   const clone = value => JSON.parse(JSON.stringify(value));
   const numeric = value => typeof value === 'number' && Number.isFinite(value);
@@ -65,6 +66,7 @@
     return { packet, proof };
   }
   function assertLiveRosterEdits() {
+    globalThis.KneekuraPitcherMakerV77?.assertNoPending?.();
     if (liveRosterPending.size) throw Error('試合用能力に未確定の入力があります。選手と項目のエラーを修正してから保存してください。');
     if (livePhysicalRoster) validateLiveRoster(livePhysicalRoster);
   }
@@ -117,6 +119,7 @@
     }
   }
   function rosterFieldValue(entry, spec) {
+    if (independentTraits && spec.path === 'badBallControl' && entry.traitProfile?.version === 'live_trait_profile_v2') return entry.traitProfile.selections.find(s => s.familyId === 'bad_ball_hitting')?.source.badBallControl ?? entry.physical?.badBallControl ?? 0;
     const authored = get(spec.entryPath ? entry : entry.physical, spec.path);
     if (authored !== undefined || !spec.defaultFrom) return authored ?? spec.default;
     const physical = core.applyLivePhysicalRosterV1({ players: liveCatalog.players, roster: livePhysicalRoster })
@@ -124,6 +127,7 @@
     return get(physical, spec.defaultFrom) * (spec.defaultScale ?? 1);
   }
   function traitProjection() {
+    if (independentTraits) return core.projectLiveTraitProfilesV77({ roster: livePhysicalRoster, playerId: liveRosterPlayerId });
     return core.projectLiveTraitProfilesV1({ roster: livePhysicalRoster, playerId: liveRosterPlayerId,
       ...(globalThis.KneekuraTechnicalTraitsV75 === true ? { includeTechnical: true } : {}) });
   }
@@ -131,14 +135,25 @@
     const panel = $('live-trait-editor'); if (!panel || !livePhysicalRoster) return;
     panel.replaceChildren();
     const heading = document.createElement('h3'); heading.textContent = '得能'; panel.append(heading);
+    if (independentTraits) {
+      const note = document.createElement('p'); note.className = 'note'; note.textContent = '得能は基礎能力と別の技術・好みです。変更しても公開能力や詳細の基礎値は変わりません。現在の試合で動く得能だけを表示しています。'; panel.append(note);
+      if (livePhysicalRoster.entries.some(e => e.traitProfile?.version === 'live_trait_profile_v1')) {
+        const button = document.createElement('button'); button.id = 'live-trait-migrate'; button.textContent = '旧得能を独立方式へ変換'; button.dataset.help = '元のJSONは変更しません。送球の変更前の基礎値は残っていないため現在値を維持し、独立送球は未設定にします。緑特は保存された元値へ戻し、技術だけを実行時に適用します。';
+        button.onclick = () => { try { assertLiveRosterEdits(); importLiveRoster(core.migrateLiveTraitRosterV77({ roster: livePhysicalRoster }).roster); } catch (error) { problem(error); } }; panel.append(button);
+      }
+    }
     const colors = { blue: '#2166a5', red: '#a12d36', green: '#27633e', gold: '#805700' };
     const technical = globalThis.KneekuraTechnicalTraitsV75 === true;
-    const definitions = core.getLiveTraitCatalogV1(technical ? { includeTechnical: true } : undefined), projection = traitProjection(), identity = liveCatalog.players.find(p => p.playerId === liveRosterPlayerId);
-    const sectionOf = id => ['pitch_approach', 'low_zone_command'].includes(id) ? 'pitcher'
-      : ['bad_ball_hitting', 'plate_aggression', 'swing_mode_preference', 'bunting', 'bat_to_run_transition'].includes(id) ? 'batter' : 'common';
+    const definitions = independentTraits ? core.getLiveTraitCatalogV77() : core.getLiveTraitCatalogV1(technical ? { includeTechnical: true } : undefined), projection = traitProjection(), identity = liveCatalog.players.find(p => p.playerId === liveRosterPlayerId);
+    const sectionOf = id => ['pitch_approach', 'low_zone_command', 'inside_command', 'pitcher_field_reaction'].includes(id) ? 'pitcher'
+      : ['bad_ball_hitting', 'plate_aggression', 'swing_mode_preference', 'bunting', 'bat_to_run_transition', 'high_zone_hitting', 'low_zone_hitting'].includes(id) ? 'batter' : 'common';
     const notes = {
       bad_ball_hitting: '窮屈なコースでも狙ったスイングを保つ技術です。悪球を振る積極性とは別です。',
-      throw_accuracy: '公開能力の送球精度と同じ値から表示します。段階は作成用の暫定尺度です。',
+      throw_accuracy: independentTraits ? '送球の際だけ働く技術です。基礎の送球精度や肩力は変わりません。Dは中立、Aや金は方向の誤差を抑え、FやGは誤差が増えます。' : '公開能力の送球精度と同じ値から表示します。段階は作成用の暫定尺度です。',
+      inside_command: '内角を狙う投球だけで狙いの誤差を抑えます。基礎の制球・球速・回転は変えません。',
+      high_zone_hitting: '高い球を打つときの打撃技術です。一般のミートや選球眼は変わりません。',
+      low_zone_hitting: '低い球を打つときの打撃技術です。一般のミートや選球眼は変わりません。',
+      pitcher_field_reaction: '投手本人が打球を処理する際の反応技術です。他の野手や送球を受ける動作には作用しません。',
       plate_aggression: '振るか見送るかの積極性です。コースを見分ける選球眼は変わりません。',
       running_aggression: '進塁を試みる積極性です。走力は変わりません。',
       fielding_aggression: '捕球へ向かう積極性です。身体の速さや捕球能力は変わりません。',
@@ -169,28 +184,31 @@
         const row = document.createElement('div'); row.className = 'control';
         const label = document.createElement('label'); label.htmlFor = 'live-trait-' + trait.familyId; label.textContent = trait.label;
         const select = document.createElement('select'); select.id = label.htmlFor; select.dataset.traitFamily = trait.familyId; select.dataset.traitEditor = editor;
-        const options = [...(trait.status === 'UNASSESSED' && editor !== 'TECHNIQUE' ? [{ stateId: 'UNASSESSED', label: '未査定（現在値を維持）', color: 'neutral' }] : []),
-          ...(editor === 'GRADE' ? [] : [{ stateId: '', label: editor === 'TECHNIQUE' ? 'OFF（従来の動作）' : editor === 'PREFERENCE' ? '設定なし（元の設定）' : '保有なし', color: 'neutral' }]), ...definition.states];
+        const options = [...(!independentTraits && trait.status === 'UNASSESSED' && editor !== 'TECHNIQUE' ? [{ stateId: 'UNASSESSED', label: '未査定（現在値を維持）', color: 'neutral' }] : []),
+          ...(editor === 'GRADE' && !independentTraits ? [] : [{ stateId: '', label: editor === 'TECHNIQUE' ? 'OFF（従来の動作）' : editor === 'PREFERENCE' ? '設定なし（元の設定）' : '保有なし', color: 'neutral' }]), ...definition.states];
         for (const state of options) {
           const option = document.createElement('option'); option.value = state.stateId; option.textContent = state.label;
           option.style.color = colors[state.color] ?? '#e7e9dd'; select.append(option);
         }
-        select.value = trait.status === 'UNASSESSED' && editor !== 'TECHNIQUE' ? 'UNASSESSED' : trait.stateId ?? '';
+        select.value = !independentTraits && trait.status === 'UNASSESSED' && editor !== 'TECHNIQUE' ? 'UNASSESSED' : trait.stateId ?? '';
         select.style.color = colors[trait.color] ?? '';
         select.onchange = () => {
           if (select.value === 'UNASSESSED') return;
           try {
             assertLiveRosterEdits();
             const request = { roster: livePhysicalRoster, playerId: liveRosterPlayerId, familyId: trait.familyId, stateId: select.value || null };
-            if (trait.familyId === 'bad_ball_hitting' && select.value && !trait.sourceValue) request.source = { badBallControl: trait.sourceValue ?? 0 };
-            if (editor === 'TECHNIQUE') request.source = { effectScale: traitProjection().traits.find(value => value.familyId === trait.familyId)?.sourceValue?.effectScale ?? 1 };
-            livePhysicalRoster = validateLiveRoster(core.setLiveTraitProfileV1(request).roster).packet;
+            if (trait.familyId === 'bad_ball_hitting' && select.value) {
+              if (independentTraits) request.source = { badBallControl: trait.sourceValue?.badBallControl ?? livePhysicalRoster.entries.find(e => e.playerId === liveRosterPlayerId)?.physical?.badBallControl ?? .5, effectScale: trait.sourceValue?.effectScale ?? 1 };
+              else if (!trait.sourceValue) request.source = { badBallControl: trait.sourceValue ?? 0 };
+            }
+            if (editor === 'TECHNIQUE' && trait.familyId !== 'bad_ball_hitting') request.source = { effectScale: traitProjection().traits.find(value => value.familyId === trait.familyId)?.sourceValue?.effectScale ?? 1 };
+            livePhysicalRoster = validateLiveRoster((independentTraits ? core.setLiveTraitProfileV77(request) : core.setLiveTraitProfileV1(request)).roster).packet;
             renderLiveRoster(); clearProblem();
           } catch (error) { problem(error); renderLiveTraits(); }
         };
         const note = document.createElement('p'); note.className = 'note'; note.textContent = notes[trait.familyId] ?? '';
         row.append(label, select);
-        if (editor === 'TECHNIQUE') {
+        if (editor === 'TECHNIQUE' || independentTraits && ['throw_accuracy', 'bad_ball_hitting', 'plate_aggression', 'running_aggression', 'fielding_aggression'].includes(trait.familyId)) {
           const key = liveRosterPlayerId + ':trait-effect:' + trait.familyId;
           const scaleLabel = document.createElement('label'); scaleLabel.htmlFor = 'live-trait-effect-' + trait.familyId; scaleLabel.textContent = '技術の効果（倍）';
           const input = document.createElement('input'); input.id = scaleLabel.htmlFor; input.type = 'number'; input.min = '0'; input.max = '2'; input.step = '0.05';
@@ -209,7 +227,7 @@
               if (value !== (current.sourceValue?.effectScale ?? 1)) {
                 const request = { roster: livePhysicalRoster, playerId: liveRosterPlayerId, familyId: trait.familyId,
                   stateId: current.stateId, source: { effectScale: value } };
-                livePhysicalRoster = validateLiveRoster(core.setLiveTraitProfileV1(request).roster).packet;
+                livePhysicalRoster = validateLiveRoster((independentTraits ? core.setLiveTraitProfileV77(request) : core.setLiveTraitProfileV1(request)).roster).packet;
               }
               liveRosterPending.delete(key); input.setCustomValidity(''); if (!liveRosterPending.size) clearProblem();
             } catch (error) {
@@ -224,7 +242,7 @@
       }
     }
     const availability = globalThis.KneekuraLiveTraitAvailabilityCatalog;
-    if (availability?.entries) {
+    if (availability?.entries && !independentTraits) {
       const details = document.createElement('details'); details.id = 'live-trait-unsupported';
       const entries = availability.entries.filter(e => !definitions.some(d => d.familyId === e.familyId));
       const summary = document.createElement('summary'); summary.textContent = `未対応・対象外の得能（${entries.length}項目）`; details.append(summary);
@@ -329,6 +347,14 @@
               && ['batLengthM', 'batMassKg'].includes(spec.path) && nextValue === previousValue) {
               liveRosterPending.delete(key); input.setCustomValidity('');
               refreshInternalValues(); refreshPublicValues(); if (!liveRosterPending.size) clearProblem(); rosterStatus(); return;
+            }
+            if (independentTraits && !spec.entryPath && spec.path === 'badBallControl') {
+              const current = traitProjection().traits.find(t => t.familyId === 'bad_ball_hitting');
+              next = core.setLiveTraitProfileV77({ roster: next, playerId: liveRosterPlayerId, familyId: 'bad_ball_hitting', stateId: current.stateId,
+                source: { badBallControl: nextValue, effectScale: current.sourceValue?.effectScale ?? 1 } }).roster;
+              livePhysicalRoster = validateLiveRoster(next).packet; liveRosterRevision++;
+              liveRosterPending.delete(key); input.setCustomValidity(''); if (!liveRosterPending.size) clearProblem();
+              refreshInternalValues(); refreshPublicValues(); rosterStatus(); return;
             }
             set(spec.entryPath ? selected : selected.physical, spec.path, nextValue);
             // An explicit sensory-SI edit replaces the linked public authoring
@@ -1209,6 +1235,9 @@
     getProjection: () => clone(projectedBat), getRevision: () => revision, seek: seconds => { time = Math.max(replayStart(), Math.min(duration, seconds)); playing = false; draw(); },
     setCamera: value => { if (!['side', 'batter', 'catcher', 'pitcher', 'overhead'].includes(value)) throw Error('unknown camera'); camera = value; $('camera').value = value; draw(); },
     exportSources: () => core.exportWorkbenchPlayerSources(player), importLiveRoster, getLiveRoster: () => clone(livePhysicalRoster),
+    validateLiveRoster: raw => clone(validateLiveRoster(raw).packet),
+    assertCanSave: assertLiveRosterEdits,
+    setLivePublicAbility: ({ playerId = liveRosterPlayerId, abilityId, value }) => { assertLiveRosterEdits(); const edited = core.editLivePublicAbilityV1({ roster: livePhysicalRoster, reference: livePublicReference, playerId, abilityId, value }); importLiveRoster(edited.roster); return clone(livePhysicalRoster); },
     getPublicProjection: () => livePublicReference ? clone(publicProjection()) : null,
     getTraitProjection: () => typeof core.projectLiveTraitProfilesV1 === 'function' ? clone(traitProjection()) : null });
   if (!core?.defaultWorkbenchPlayer || !core?.simulateBattingWorkbench) { problem(Error('計算用Coreを読み込めませんでした。ビルド済みのメーカーHTMLを開いてください。')); return; }

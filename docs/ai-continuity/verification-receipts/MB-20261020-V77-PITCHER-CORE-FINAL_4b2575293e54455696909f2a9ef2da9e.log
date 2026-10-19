@@ -1,0 +1,34 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LivePitchAuthoringV77.test.ts (3 tests) 4ms
+ ✓ src/integration/browser/LivePitchHostAuthoringV77.test.ts (2 tests) 357ms
+   ✓ uses the same repertoire, handed release, technique and physical Source in Host and pitcher workbench 315ms
+ ✓ src/integration/browser/LivePitchReleaseV62.test.ts (5 tests) 417ms
+ ✓ src/integration/browser/LivePitchV1.test.ts (13 tests) 1628ms
+   ✓ rejects invalid experimental equipment without changing the supplied pitch 352ms
+ ✓ src/core/sim/fielding/LivePitcherReactionV77.test.ts (2 tests) 1604ms
+   ✓ shortens only pitcher batted-ball recognition and changes real movement without increasing motor bounds 733ms
+   ✓ leaves nonpitchers and zero controls exactly on the previous execution 870ms
+ ✓ src/integration/browser/LivePitchAbilitiesV1.test.ts (11 tests) 1676ms
+ ✓ src/integration/browser/LivePitchTechnicalSkillsV75.test.ts (5 tests) 1878ms
+   ✓ keeps omitted and zero techniques exactly on the legacy prefix, including static bunt geometry and random draws 604ms
+   ✓ improves only bunt errors, obeys the declared motor ceiling and leaves takes and other swings unchanged 647ms
+ ✓ src/integration/browser/PitcherWorkbenchV77.test.ts (4 tests) 1982ms
+   ✓ observes the same live pitch and compares a zero-spin ball with the identical initial velocity 309ms
+   ✓ executes seven authored pitches on both throwing sides with observed spin and break directions 1331ms
+ ✓ src/integration/browser/LivePitchTechnicalSkillsV77.test.ts (6 tests) 2066ms
+   ✓ keeps off and zero controls byte-exact, including takes and bunt execution 640ms
+   ✓ changes high swing errors and actual bat execution, retaining the physical incoming ball 462ms
+   ✓ changes low swing errors and actual bat execution, retaining the physical incoming ball 415ms
+ ✓ src/core/sim/fielding/LiveFieldTechniquesV75.test.ts (7 tests) 3839ms
+   ✓ keeps ground events, frames and diagnostics exactly unchanged for all zero controls 1213ms
+   ✓ shortens only the batter initial departure, preserving baserunner recognition and run speed 895ms
+   ✓ uses actual capture posture and one shortened transfer without exceeding physical hand speed 651ms
+   ✓ changes real approach movement only after observing a slow grounded ball and leaves a fly exact 763ms
+
+ Test Files  10 passed (10)
+      Tests  58 passed (58)
+   Start at  03:58:45
+   Duration  5.03s (transform 1.42s, setup 0ms, collect 5.88s, tests 15.45s, environment 1ms, prepare 2.37s)
+

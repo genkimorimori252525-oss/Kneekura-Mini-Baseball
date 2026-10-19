@@ -1,13 +1,23 @@
 ---
-current_task: "MB-20261020-HELD-BASE-FIXTURE-BROWSER"
+current_task: "MB-20261020-V77-PACKAGE"
 active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "f06e74e3df35fd2c3b30cd5f6c8ba8a9eadbb36b"
-status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261020-HELD-BASE-FIXTURE-BROWSER_9bd3df2115ee4cf68083bab7e1fa27a1.json"
-updated_at: "2026-10-19T18:40:43.720999+00:00"
+commit_head: "76c564765f6a6d15fd1a2740a201080e3c534bfe"
+status: "SCOPED_VERIFIED"
+evidence_ref: "docs/verification/releases/v77/README.md"
+updated_at: "2026-10-19T19:16:28.622769+00:00"
 
 ---
+
+## Active human priority — v77 independent traits and pitcher lab (SCOPED VERIFIED; PUBLICATION PENDING)
+
+人間が確認案の全範囲を承認。基礎physical/publicと独立profilev2、分かる得能名、新4系統を含む17family、球種別spin/release/motionと投手調整室、maker共通human/AIを通常HTMLへ接続。旧v1APIはexact。旧送球JSONは現在SI維持+独立得能未設定、旧greenは保存baselineを復元して実行時だけ合成。初期20人・673実測打撃clip・従来UI/カメラは維持。仕様とAMENDMENTSを参照。
+
+Core9files110tests cb9ac360、pitcher10files58tests4b257529、最終TSC6c3bfa29 PASS。最終maker2c75b2bf/Native6f7f9343/Workbench1ec59160。投手QA27e61fcb PASS18.750s：左右7球種、PC390、JSON/AI、頭倍率.5/2は通常cameraEye一致、守備背景両teamID/重複なし。旧adapter二重倍率RED28e7d564を保全し共通helper一箇所へ修正。悪球打ち詳細ownerREDbec736f5を修正、最終traits8b382add PASS8.014sで公開/base不変。GAME74da0330 PASS96.577s：初期6球v76exact、新17得能+7球種+980ms動作で296球/103接触/103守備完了、9回、保存packet不変。QA初回余分authoredキー拒否506ee5e4は原保持。PACKAGE2b2596b5 PASS22.327s：120/87/union127 Sourcepins一致、旧233凍結物不変、通常58319352/lab97fea36b/maker2c75b2bf固定。
+
+CCG audit b12725b7は原CHARTER_UNAPPROVED1件でFAIL、旧handoff警告を保持。製品検証とは別。
+
+次は文書と明示allowlistのstage確認後、既存OpenDraft380へcommit/push、実Gitblobとraw公開照合。ユーザーAGENTSは除外。設定/lockfile/secret変更なし。原CharterHOLD/旧FAILBLOCKEDUNKNOWN/元の未完/100試合監査・実機・Native連続world未達を保持。全計画完了とは扱わない。
 
 ## Active human priority — held-ball base-control audit (EXISTING FEATURE VERIFIED)
 

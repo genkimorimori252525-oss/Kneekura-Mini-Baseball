@@ -1,4 +1,6 @@
 import { resolveLiveTechnicalTraitsV75 } from './LiveTraitProfilesV1';
+import { resolveLiveExecutionPhysicalV77 } from './LiveTraitRuntimeV77';
+import { validatePitchRepertoireV77, validatePitchingMotionV77 } from './LivePitchAuthoringV77';
 import type { Vec3 } from '../../core/model/geometry';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
 import { asRuleProfileId } from '../../core/model/RuleProfileRef';
@@ -120,7 +122,9 @@ function physical(player:LivePlayerV1):LivePlayerPhysicalV1{
   assert(p.baserunningLateralAccelerationMps2===undefined||Number.isFinite(p.baserunningLateralAccelerationMps2)&&p.baserunningLateralAccelerationMps2>=.5&&p.baserunningLateralAccelerationMps2<=20,
     'invalid baserunning lateral acceleration SI');
   if(p.impactTrajectory!==undefined)validateImpactTrajectorySettingsV1(p.impactTrajectory);
-  return p;
+  if(p.pitchRepertoire!==undefined)validatePitchRepertoireV77(p.pitchRepertoire,p.maximumPitchSpeedMps);
+  if(p.pitchingMotion!==undefined)validatePitchingMotionV77(p.pitchingMotion);
+  return resolveLiveExecutionPhysicalV77(p,player.traitProfile);
 }
 
 /** A browser-neutral local Host. It executes the shared Core rather than

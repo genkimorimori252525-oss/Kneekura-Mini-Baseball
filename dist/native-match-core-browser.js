@@ -26,9 +26,11 @@ var KneekuraNativeMatchCore = (() => {
     DEFAULT_WHOLE_ARC_TRAJECTORY_V1: () => DEFAULT_WHOLE_ARC_TRAJECTORY_V1,
     LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1: () => LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1,
     LIVE_MATCH_BASES_V1: () => LIVE_MATCH_BASES_V1,
+    LIVE_PITCH_TYPES_V77: () => LIVE_PITCH_TYPES_V77,
     REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS: () => REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS,
     TECHNICAL_TRAIT_CALIBRATION_V75: () => TECHNICAL_TRAIT_CALIBRATION_V75,
     applyLivePhysicalRosterV1: () => applyLivePhysicalRosterV1,
+    buildPitcherWorkbenchInputV77: () => buildPitcherWorkbenchInputV77,
     createExecutedFieldWorldObserverV1: () => createExecutedFieldWorldObserverV1,
     createLiveBaseballMatchV1: () => createLiveBaseballMatchV1,
     createNativeAerodynamicSession: () => createNativeAerodynamicSession,
@@ -38,21 +40,32 @@ var KneekuraNativeMatchCore = (() => {
     createSourceBallMaterialHistoryV1: () => createSourceBallMaterialHistoryV1,
     editLivePublicAbilityV1: () => editLivePublicAbilityV1,
     getLiveTraitCatalogV1: () => getLiveTraitCatalogV1,
+    getLiveTraitCatalogV77: () => getLiveTraitCatalogV77,
     issueNativeCommandPitch: () => issueNativeCommandPitch,
     materializeLivePlateVisionV1: () => materializeLivePlateVisionV1,
+    migrateLiveTraitRosterV77: () => migrateLiveTraitRosterV77,
     observeNativeAerodynamicPitch: () => observeNativeAerodynamicPitch,
     observeNativeFreeBallContinuation: () => observeNativeFreeBallContinuation,
     observeNativePitch: () => observeNativePitch,
+    pitchSpinFromControlsV77: () => pitchSpinFromControlsV77,
+    pitchSpinToControlsV77: () => pitchSpinToControlsV77,
     previewLivePublicLeagueV1: () => previewLivePublicLeagueV1,
     projectLivePublicAbilitiesV1: () => projectLivePublicAbilitiesV1,
     projectLiveTraitProfilesV1: () => projectLiveTraitProfilesV1,
+    projectLiveTraitProfilesV77: () => projectLiveTraitProfilesV77,
     reconcileLiveTraitSourcesV54: () => reconcileLiveTraitSourcesV54,
+    resolveLiveExecutionPhysicalV77: () => resolveLiveExecutionPhysicalV77,
     resolveLivePlateVisionV1: () => resolveLivePlateVisionV1,
     resolveLiveTechnicalTraitsV75: () => resolveLiveTechnicalTraitsV75,
     resolveLiveTraitPreferencesV54: () => resolveLiveTraitPreferencesV54,
+    resolvePitcherRepertoireV77: () => resolvePitcherRepertoireV77,
     setLiveTraitProfileV1: () => setLiveTraitProfileV1,
+    setLiveTraitProfileV77: () => setLiveTraitProfileV77,
+    simulatePitcherWorkbenchV77: () => simulatePitcherWorkbenchV77,
     validateImpactTrajectorySettingsV1: () => validateImpactTrajectorySettingsV1,
     validateLiveTraitProfileV1: () => validateLiveTraitProfileV1,
+    validatePitchRepertoireV77: () => validatePitchRepertoireV77,
+    validatePitchingMotionV77: () => validatePitchingMotionV77,
     withReferenceImpactTrajectoryV1: () => withReferenceImpactTrajectoryV1
   });
 
@@ -417,24 +430,24 @@ var KneekuraNativeMatchCore = (() => {
       );
     }
   };
-  var horizontalFraction = (session, calibration3) => {
+  var horizontalFraction = (session, calibration4) => {
     switch (session.command.pitcher.aggression) {
       case "challenge":
-        return calibration3.challengeHorizontalZoneFraction;
+        return calibration4.challengeHorizontalZoneFraction;
       case "balanced":
-        return calibration3.balancedHorizontalZoneFraction;
+        return calibration4.balancedHorizontalZoneFraction;
       case "waste":
-        return calibration3.wasteHorizontalZoneFraction;
+        return calibration4.wasteHorizontalZoneFraction;
     }
   };
-  var verticalFraction = (session, calibration3) => {
+  var verticalFraction = (session, calibration4) => {
     switch (session.command.pitcher.verticalPlan) {
       case "low":
-        return calibration3.lowVerticalZoneFraction;
+        return calibration4.lowVerticalZoneFraction;
       case "middle":
-        return calibration3.middleVerticalZoneFraction;
+        return calibration4.middleVerticalZoneFraction;
       case "high":
-        return calibration3.highVerticalZoneFraction;
+        return calibration4.highVerticalZoneFraction;
     }
   };
   var targetXDirection = (session, insideXDirection) => {
@@ -447,24 +460,24 @@ var KneekuraNativeMatchCore = (() => {
         return insideXDirection === 1 ? -1 : 1;
     }
   };
-  var swingProbability = (session, calibration3) => {
+  var swingProbability = (session, calibration4) => {
     switch (session.command.batter.approach) {
       case "take":
         return 0;
       case "balanced":
-        return calibration3.balancedSwingProbability;
+        return calibration4.balancedSwingProbability;
       case "aggressive":
-        return calibration3.aggressiveSwingProbability;
+        return calibration4.aggressiveSwingProbability;
     }
   };
-  var swingBiasTicks = (session, calibration3) => {
+  var swingBiasTicks = (session, calibration4) => {
     switch (session.command.batter.swingBias) {
       case "early":
-        return calibration3.earlyTimingOffsetTicks;
+        return calibration4.earlyTimingOffsetTicks;
       case "neutral":
         return 0;
       case "late":
-        return calibration3.lateTimingOffsetTicks;
+        return calibration4.lateTimingOffsetTicks;
     }
   };
   var validateEnvironment = (environment) => {
@@ -5986,11 +5999,11 @@ var KneekuraNativeMatchCore = (() => {
     }
     freeze3(samples);
     freeze3(boundaries);
-    const norm10 = (v3) => Math.hypot(v3.x, v3.y, v3.z);
+    const norm11 = (v3) => Math.hypot(v3.x, v3.y, v3.z);
     const cells = freeze3(samples.slice(0, -1).map((anchor, index) => {
       const next = samples[index + 1], duration = next.moment.elapsedSeconds - anchor.moment.elapsedSeconds;
-      const maximumPositionSpeedMps = anchor.phase === "airborne" ? boundSourceRk4PositionSpeed(anchor.moment.ball, duration, profile.air) : Math.max(norm10(anchor.moment.ball.velocity), norm10(next.moment.ball.velocity));
-      const positionRoundingBoundMeters = (groundPositionCorrections.get(next.moment.elapsedSeconds) ?? 0) + (anchor.phase === "airborne" ? 0 : Math.abs(anchor.moment.ball.position.y - profile.ground.radiusM)) + 64 * Number.EPSILON * Math.max(1, norm10(anchor.moment.ball.position), norm10(next.moment.ball.position));
+      const maximumPositionSpeedMps = anchor.phase === "airborne" ? boundSourceRk4PositionSpeed(anchor.moment.ball, duration, profile.air) : Math.max(norm11(anchor.moment.ball.velocity), norm11(next.moment.ball.velocity));
+      const positionRoundingBoundMeters = (groundPositionCorrections.get(next.moment.elapsedSeconds) ?? 0) + (anchor.phase === "airborne" ? 0 : Math.abs(anchor.moment.ball.position.y - profile.ground.radiusM)) + 64 * Number.EPSILON * Math.max(1, norm11(anchor.moment.ball.position), norm11(next.moment.ball.position));
       if (![maximumPositionSpeedMps, positionRoundingBoundMeters].every(Number.isFinite)) throw new Error("nonlinear Source cell bound overflows");
       return {
         fromElapsedSeconds: anchor.moment.elapsedSeconds,
@@ -8070,8 +8083,8 @@ var KneekuraNativeMatchCore = (() => {
     return [q / a, c / q].sort((x, y) => x - y);
   };
   var axialSphereTime = (first, second, duration, previous) => {
-    const axes5 = ["x", "y", "z"];
-    const nonzero = axes5.filter((axis2) => first.center[axis2] !== second.center[axis2] || first.velocity[axis2] !== second.velocity[axis2] || first.acceleration[axis2] !== second.acceleration[axis2]);
+    const axes6 = ["x", "y", "z"];
+    const nonzero = axes6.filter((axis2) => first.center[axis2] !== second.center[axis2] || first.velocity[axis2] !== second.velocity[axis2] || first.acceleration[axis2] !== second.acceleration[axis2]);
     if (nonzero.length !== 1) return void 0;
     const axis = nonzero[0], d = first.center[axis] - second.center[axis], v3 = first.velocity[axis] - second.velocity[axis], a = first.acceleration[axis] - second.acceleration[axis], radius = first.radius + second.radius;
     if (![d, v3, a, radius].every(finite4)) throw new Error("ball field axial contact arithmetic overflow");
@@ -8808,8 +8821,8 @@ var KneekuraNativeMatchCore = (() => {
         for (const cell of kernel.cells) {
           const lo = Math.max(cursor.moment.elapsedSeconds, cell.fromElapsedSeconds), hi = Math.min(observed.moment.elapsedSeconds, cell.throughElapsedSeconds);
           if (hi < lo) continue;
-          const norm10 = (x) => Math.hypot(x.x, x.y, x.z);
-          const arithmetic = 256 * Number.EPSILON * (1 + norm10(item.bat.pose.grip) + norm10(item.bat.pose.tip) + Math.max(norm10(kernel.evaluateAt(lo).moment.ball.position), norm10(kernel.evaluateAt(hi).moment.ball.position)) + item.ball.radiusM);
+          const norm11 = (x) => Math.hypot(x.x, x.y, x.z);
+          const arithmetic = 256 * Number.EPSILON * (1 + norm11(item.bat.pose.grip) + norm11(item.bat.pose.tip) + Math.max(norm11(kernel.evaluateAt(lo).moment.ball.position), norm11(kernel.evaluateAt(hi).moment.ball.position)) + item.ball.radiusM);
           const found = search(lo, hi, cell.maximumPositionSpeedMps, cell.positionRoundingBoundMeters + arithmetic);
           if (found) {
             hits.push({ equipmentId: item.equipmentId, ...found });
@@ -8986,15 +8999,16 @@ var KneekuraNativeMatchCore = (() => {
 
   // src/core/sim/TechnicalSkillControlsV75.ts
   var TECHNICAL_SKILL_IDS_V75 = ["baserunning", "bunting", "advanced_fielding", "bat_to_run_transition", "slow_ball_charge", "low_zone_command"];
+  var TECHNICAL_SKILL_IDS_V77 = [...TECHNICAL_SKILL_IDS_V75, "inside_command", "high_zone_hitting", "low_zone_hitting", "pitcher_field_reaction"];
   function validateTechnicalSkillControlsV75(raw) {
     if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw Error("technical skills: object required");
-    for (const [key3, value] of Object.entries(raw)) if (!TECHNICAL_SKILL_IDS_V75.includes(key3) || typeof value !== "number" || !Number.isFinite(value) || value < -2 || value > 2 || key3 !== "baserunning" && value < 0) throw Error("technical skills: invalid execution control");
+    for (const [key3, value] of Object.entries(raw)) if (!TECHNICAL_SKILL_IDS_V77.includes(key3) || typeof value !== "number" || !Number.isFinite(value) || value < -2 || value > 2 || key3 !== "baserunning" && value < 0) throw Error("technical skills: invalid execution control");
     return raw;
   }
 
   // src/integration/browser/LiveTechnicalTraitsV75.ts
   var TECHNICAL_TRAIT_CALIBRATION_V75 = "local-technique-authoring-v75-not-empirically-calibrated";
-  var isTechnicalTraitV75 = (id6) => TECHNICAL_SKILL_IDS_V75.includes(id6);
+  var isTechnicalTraitV75 = (id6) => TECHNICAL_SKILL_IDS_V77.includes(id6);
   var definitions = [
     ["baserunning", "\u8D70\u5841", "GRADED_DYNAMIC", "\u30D9\u30FC\u30B9\u65CB\u56DE\u306E\u7D4C\u8DEF\u9078\u629E\u3002\u6700\u9AD8\u8D70\u901F\u3068\u8EAB\u4F53\u306E\u52A0\u901F\u5EA6\u4E0A\u9650\u306F\u5909\u66F4\u3057\u307E\u305B\u3093\u3002"],
     ["bunting", "\u30D0\u30F3\u30C8\u25CB / \u30D0\u30F3\u30C8\u8077\u4EBA", "LEARNED_MASTERY_PERSISTENT", "\u30D0\u30F3\u30C8\u6642\u3060\u3051\u3001\u4E88\u6E2C\u3057\u305F\u6253\u70B9\u3078\u30D0\u30C3\u30C8\u3092\u69CB\u3048\u3001\u8FCE\u7403\u3057\u3066\u5F15\u304F\u52D5\u4F5C\u3068\u9762\u30FB\u4F4D\u7F6E\u30FB\u6642\u523B\u306E\u518D\u73FE\u6027\u3002"],
@@ -9003,7 +9017,13 @@ var KneekuraNativeMatchCore = (() => {
     ["slow_ball_charge", "\u9AD8\u901F\u30C1\u30E3\u30FC\u30B8", "LEARNED_MASTERY_PERSISTENT", "\u89B3\u6E2C\u3057\u305F\u4F4E\u901F\u306E\u63A5\u5730\u6253\u7403\u3078\u524D\u9032\u3057\u3066\u62FE\u3046\u52D5\u4F5C\u3002\u98DB\u7403\u30FB\u9001\u7403\u306B\u306F\u9069\u7528\u3057\u307E\u305B\u3093\u3002"],
     ["low_zone_command", "\u4F4E\u3081\u25CB / \u7CBE\u5BC6\u6A5F\u68B0", "LEARNED_MASTERY_PERSISTENT", "\u4F4E\u3081\u3092\u72D9\u3063\u305F\u6295\u7403\u3060\u3051\u306E\u72D9\u3044\u8AA4\u5DEE\u3002\u7403\u901F\u30FB\u56DE\u8EE2\u30FB\u5BE9\u5224\u3084\u30EA\u30EA\u30FC\u30B9\u5F8C\u306E\u7403\u306F\u4E0A\u66F8\u304D\u3057\u307E\u305B\u3093\u3002"]
   ];
-  var getTechnicalTraitDefinitionsV75 = () => definitions.map(([familyId, label, lifecycleClass, note]) => ({
+  var newDefinitions = [
+    ["inside_command", "\u5185\u89D2\u653B\u3081 / \u5185\u89D2\u7121\u53CC", "LEARNED_MASTERY_PERSISTENT", "\u6253\u8005\u306E\u5DE6\u53F3\u3092\u8003\u616E\u3057\u305F\u5185\u89D2\u76EE\u6A19\u3060\u3051\u3067\u6295\u7403\u5B9F\u884C\u8AA4\u5DEE\u3092\u4F4E\u6E1B\u3002\u57FA\u790E\u5236\u7403\u3068\u516C\u958B\u5024\u3001\u653E\u7403\u5F8C\u306E\u7269\u7406\u3092\u5909\u66F4\u3057\u307E\u305B\u3093\u3002"],
+    ["high_zone_hitting", "\u30CF\u30A4\u30DC\u30FC\u30EB\u30D2\u30C3\u30BF\u30FC / \u9AD8\u7403\u5FC5\u6253", "LEARNED_MASTERY_PERSISTENT", "\u9AD8\u3044\u4E88\u6E2C\u6253\u70B9\u306B\u5411\u304B\u3046\u30B9\u30A4\u30F3\u30B0\u3060\u3051\u3067\u4F4D\u7F6E\u3068\u6642\u523B\u306E\u5B9F\u884C\u8AA4\u5DEE\u3092\u4F4E\u6E1B\u3002\u57FA\u790E\u30DF\u30FC\u30C8\u3068\u516C\u958B\u5024\u306F\u5909\u66F4\u3057\u307E\u305B\u3093\u3002"],
+    ["low_zone_hitting", "\u30ED\u30FC\u30DC\u30FC\u30EB\u30D2\u30C3\u30BF\u30FC / \u4F4E\u7403\u5FC5\u6253", "LEARNED_MASTERY_PERSISTENT", "\u4F4E\u3044\u4E88\u6E2C\u6253\u70B9\u306B\u5411\u304B\u3046\u30B9\u30A4\u30F3\u30B0\u3060\u3051\u3067\u4F4D\u7F6E\u3068\u6642\u523B\u306E\u5B9F\u884C\u8AA4\u5DEE\u3092\u4F4E\u6E1B\u3002\u57FA\u790E\u30DF\u30FC\u30C8\u3068\u516C\u958B\u5024\u306F\u5909\u66F4\u3057\u307E\u305B\u3093\u3002"],
+    ["pitcher_field_reaction", "\u6253\u7403\u53CD\u5FDC\u25CB", "LEARNED_MASTERY_PERSISTENT", "\u6295\u624B\u672C\u4EBA\u306E\u6253\u7403\u3078\u306E\u6700\u521D\u306E\u53CD\u5FDC\u3060\u3051\u3092\u901F\u3081\u307E\u3059\u3002\u4E00\u822C\u91CE\u624B\u3068\u9001\u7403\u306E\u53D7\u7403\u306B\u306F\u4F5C\u7528\u3057\u307E\u305B\u3093\u3002"]
+  ];
+  var makeDefinitions = (rows) => rows.map(([familyId, label, lifecycleClass, note]) => ({
     familyId,
     label,
     lifecycleClass,
@@ -9012,10 +9032,12 @@ var KneekuraNativeMatchCore = (() => {
     availability: "EXECUTABLE",
     calibrationId: TECHNICAL_TRAIT_CALIBRATION_V75,
     sourcePaths: ["traitProfile.selections.source.effectScale"],
-    effectOwner: familyId === "bunting" || familyId === "low_zone_command" ? "LivePitchV1 dedicated technique" : "LiveFieldPlayV1 dedicated technique",
+    effectOwner: ["bunting", "low_zone_command", "inside_command", "high_zone_hitting", "low_zone_hitting"].includes(familyId) ? "LivePitchV1 dedicated technique" : "LiveFieldPlayV1 dedicated technique",
     sourceDefinition: note + " " + TECHNICAL_TRAIT_CALIBRATION_V75,
-    states: familyId === "baserunning" ? ["G", "F", "E", "D", "C", "B", "A", "GOLD"].map((id6) => ({ stateId: id6, label: id6 === "GOLD" ? "\u9AD8\u901F\u30D9\u30FC\u30B9\u30E9\u30F3" : "\u8D70\u5841" + id6, color: id6 === "GOLD" ? "gold" : ["A", "B"].includes(id6) ? "blue" : ["F", "G"].includes(id6) ? "red" : "neutral" })) : [{ stateId: "LEARNED", label: label.split(" / ")[0], color: "blue" }, ...familyId === "slow_ball_charge" ? [] : [{ stateId: "MASTERED", label: label.split(" / ")[1], color: "gold" }]]
+    states: familyId === "baserunning" ? ["G", "F", "E", "D", "C", "B", "A", "GOLD"].map((id6) => ({ stateId: id6, label: id6 === "GOLD" ? "\u9AD8\u901F\u30D9\u30FC\u30B9\u30E9\u30F3" : "\u8D70\u5841" + id6, color: id6 === "GOLD" ? "gold" : ["A", "B"].includes(id6) ? "blue" : ["F", "G"].includes(id6) ? "red" : "neutral" })) : [{ stateId: "LEARNED", label: label.split(" / ")[0], color: "blue" }, ...["slow_ball_charge", "pitcher_field_reaction"].includes(familyId) ? [] : [{ stateId: "MASTERED", label: label.split(" / ")[1], color: "gold" }]]
   }));
+  var getTechnicalTraitDefinitionsV75 = () => makeDefinitions(definitions);
+  var getTechnicalTraitDefinitionsV77 = () => makeDefinitions([...definitions, ...newDefinitions]);
   function resolveValidatedTechnicalProfileV75(profile) {
     const result = {}, seen = /* @__PURE__ */ new Set();
     const safe = profile === void 0 ? void 0 : cloneInert(profile);
@@ -9025,7 +9047,7 @@ var KneekuraNativeMatchCore = (() => {
       seen.add(selection.familyId);
       const scale13 = selection.source.effectScale;
       if (typeof scale13 !== "number" || !Number.isFinite(scale13) || scale13 < 0 || scale13 > 2) throw Error("technical traits: invalid effect scale");
-      const definition = getTechnicalTraitDefinitionsV75().find((d) => d.familyId === selection.familyId);
+      const definition = getTechnicalTraitDefinitionsV77().find((d) => d.familyId === selection.familyId);
       if (selection.stateId !== null && !definition.states.some((s) => s.stateId === selection.stateId)) throw Error("technical traits: invalid state");
       if (selection.stateId === null || scale13 === 0) continue;
       const factor = selection.familyId === "baserunning" ? { G: -1, F: -0.65, E: -0.3, D: 0, C: 0.3, B: 0.6, A: 0.8, GOLD: 1 }[selection.stateId] : selection.stateId === "MASTERED" ? 1 : 0.5;
@@ -9191,14 +9213,24 @@ var KneekuraNativeMatchCore = (() => {
   ]);
   var catalog = freeze16([...legacyCatalog, ...getTechnicalTraitDefinitionsV75()]);
   var getLiveTraitCatalogV1 = (options) => options?.includeTechnical ? catalog : legacyCatalog;
+  var getLiveTraitCatalogV77 = () => freeze16([
+    ...legacyCatalog.map((definition) => ["throw_accuracy", "bad_ball_hitting", "plate_aggression", "running_aggression", "fielding_aggression"].includes(definition.familyId) ? {
+      ...definition,
+      editor: ["throw_accuracy", "bad_ball_hitting"].includes(definition.familyId) ? "TECHNIQUE" : "PREFERENCE",
+      availability: "EXECUTABLE",
+      sourcePaths: ["traitProfile.selections.source.effectScale"],
+      sourceDefinition: "V77 independent execution technique; base SI and public abilities are unchanged. LOCAL_AUTHORING_ONLY, not empirically calibrated."
+    } : definition),
+    ...getTechnicalTraitDefinitionsV77()
+  ]);
   function assert5(value, message) {
     if (!value) throw new Error("live trait profiles: " + message);
   }
   var text = (value) => typeof value === "string" && value.length > 0 && value.trim() === value && value.length <= 160;
-  var object = (value, fields12, path2) => {
+  var object = (value, fields13, path2) => {
     assert5(value && typeof value === "object" && !Array.isArray(value), "invalid " + path2);
     const record = value;
-    assert5(Object.keys(record).length === fields12.length && fields12.every((key3) => Object.hasOwn(record, key3)), "invalid fields " + path2);
+    assert5(Object.keys(record).length === fields13.length && fields13.every((key3) => Object.hasOwn(record, key3)), "invalid fields " + path2);
     return record;
   };
   var range = (value, min, max) => {
@@ -9213,7 +9245,13 @@ var KneekuraNativeMatchCore = (() => {
     fielding_aggression: "fieldingPursuitCostWeight"
   })[id6] ?? null;
   var sourceKeys = (id6) => isTechnicalTraitV75(id6) ? ["effectScale"] : virtual(id6) ? [] : id6 === "plate_aggression" ? ["swingDecision.threshold", "swingDecision.aggressionWeight", "swingDecision.approach"] : [scalarKey(id6)];
-  function readSource(raw, id6) {
+  function readSource(raw, id6, independent = false) {
+    if (independent && ["throw_accuracy", "plate_aggression", "running_aggression", "fielding_aggression", "bad_ball_hitting"].includes(id6)) {
+      const source2 = object(raw, id6 === "bad_ball_hitting" ? ["badBallControl", "effectScale"] : ["effectScale"], "independent source");
+      range(source2.effectScale, 0, 2);
+      if (id6 === "bad_ball_hitting") range(source2.badBallControl, 0, 1);
+      return source2;
+    }
     const source = object(raw, sourceKeys(id6), "source");
     if (isTechnicalTraitV75(id6)) range(source.effectScale, 0, 2);
     else if (id6 === "bad_ball_hitting") range(source.badBallControl, 0, 1);
@@ -9229,17 +9267,18 @@ var KneekuraNativeMatchCore = (() => {
   }
   var readProfile = (raw) => {
     const profile = object(cloneInert(raw), ["version", "selections"], "profile");
-    assert5(profile.version === "live_trait_profile_v1" && Array.isArray(profile.selections), "unsupported profile");
+    assert5(["live_trait_profile_v1", "live_trait_profile_v2"].includes(profile.version) && Array.isArray(profile.selections), "unsupported profile");
+    const independent = profile.version === "live_trait_profile_v2", definitions2 = independent ? getLiveTraitCatalogV77() : catalog;
     const seen = /* @__PURE__ */ new Set();
     const selections = profile.selections.map((rawSelection) => {
-      const selection = object(rawSelection, ["familyId", "stateId", "source"], "selection"), definition = catalog.find((item) => item.familyId === selection.familyId);
+      const selection = object(rawSelection, ["familyId", "stateId", "source"], "selection"), definition = definitions2.find((item) => item.familyId === selection.familyId);
       assert5(definition && !seen.has(definition.familyId), "unknown or duplicate trait family");
       seen.add(definition.familyId);
       assert5(definition.editor !== "GRADE", "a source-derived grade must not be saved as a second trait effect");
       assert5(selection.stateId === null || definition.states.some((value) => value.stateId === selection.stateId), "unsupported family state");
-      return { familyId: definition.familyId, stateId: selection.stateId, source: readSource(selection.source, definition.familyId) };
+      return { familyId: definition.familyId, stateId: selection.stateId, source: readSource(selection.source, definition.familyId, independent) };
     });
-    return { version: "live_trait_profile_v1", selections };
+    return { version: profile.version, selections };
   };
   var clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   function effectiveSource(selection) {
@@ -9254,7 +9293,7 @@ var KneekuraNativeMatchCore = (() => {
   var sameSource = (a, b) => a === null || b === null ? a === b : Object.keys(a).length === Object.keys(b).length && Object.keys(a).every((key3) => a[key3] === b[key3]);
   function validateLiveTraitProfileV1(raw, physical3) {
     const profile = readProfile(raw), source = cloneInert(physical3);
-    for (const selection of profile.selections) for (const [key3, expected] of Object.entries(effectiveSource(selection)))
+    for (const selection of profile.version === "live_trait_profile_v2" ? [] : profile.selections) for (const [key3, expected] of Object.entries(effectiveSource(selection)))
       assert5(getPath(source, key3) === expected, "trait profile contradicts the executed technical source");
     return freeze16(profile);
   }
@@ -9352,6 +9391,7 @@ var KneekuraNativeMatchCore = (() => {
   }
   function setLiveTraitProfileV1(input) {
     const request = cloneInert(input), { roster, entry } = context(request.roster, request.playerId), definition = catalog.find((item) => item.familyId === request.familyId);
+    assert5(entry.traitProfile?.version !== "live_trait_profile_v2", "independent profiles require the V77 authoring API");
     assert5(definition && (request.stateId === null || definition.states.some((value) => value.stateId === request.stateId)), "unknown family or state");
     const id6 = definition.familyId, current = currentSource(entry, id6), explicit = request.source === void 0 ? null : readSource(request.source, id6), changes = [];
     if (isTechnicalTraitV75(id6)) {
@@ -9413,6 +9453,10 @@ var KneekuraNativeMatchCore = (() => {
   function reconcileLiveTraitSourcesV54(input) {
     const request = cloneInert(input), { roster, entry } = context(request.roster, request.playerId, false);
     assert5(Array.isArray(request.changedPaths) && request.changedPaths.every(text), "invalid changed source paths");
+    if (entry.traitProfile?.version === "live_trait_profile_v2") {
+      context(roster, request.playerId);
+      return freeze16(roster);
+    }
     const paths = request.changedPaths.map((path2) => path2.replace(/^physical\./, "")), touches = (id6) => sourceKeys(id6).some((key3) => paths.some((path2) => path2 === key3 || key3.startsWith(path2 + ".") || path2.startsWith(key3 + ".")));
     if (entry.traitProfile !== void 0) {
       const previous = readProfile(entry.traitProfile), selections = previous.selections.flatMap((selection) => {
@@ -9439,6 +9483,667 @@ var KneekuraNativeMatchCore = (() => {
   }
   function resolveLiveTechnicalTraitsV75(profile) {
     return resolveValidatedTechnicalProfileV75(profile === void 0 ? void 0 : readProfile(profile));
+  }
+
+  // src/core/sim/pitching/CourseAwareSwingKinematicsV1.ts
+  var INCH_TO_M = 0.0254;
+  var EVIDENCE_BOUNDED_SWING_COURSE_PROFILE_V1 = Object.freeze({
+    profileId: "evidence-bounded-population-swing",
+    version: "swing-course-profile-v1",
+    batLengthM: 0.84,
+    sweetSpotT: 0.72,
+    centerContactDepthM: 20.1 * INCH_TO_M,
+    contactDepthPopulationStdDevM: 7.2 * INCH_TO_M,
+    insideOutsideDepthGainM: 0.075,
+    heightDepthGainM: 0.035,
+    baseContactSweetSpotSpeedMps: 31,
+    contactDepthSpeedGainMpsPerM: 4,
+    basePreContactSeconds: 0.165,
+    insideOutsideTimingGainSeconds: 0.01,
+    heightTimingGainSeconds: 4e-3,
+    followThroughSeconds: 0.135,
+    highAttackAngleDeg: 7,
+    middleAttackAngleDeg: 9,
+    lowAttackAngleDeg: 16,
+    courseAttackDirectionGainDeg: 6,
+    nominalContactSurfaceDistanceM: 0.0366 + 0.033
+  });
+
+  // src/integration/browser/WorkbenchPlayer.ts
+  var WORKBENCH_TICKS_PER_SECOND = 1e6;
+  var leagues = ["NPB", "MLB", "NLB", "KBO", "CUSTOM"];
+  var freeze17 = (value) => {
+    if (value !== null && typeof value === "object") {
+      Object.values(value).forEach(freeze17);
+      Object.freeze(value);
+    }
+    return value;
+  };
+  var fields8 = (value, keys2, path2) => {
+    if (value === null || typeof value !== "object" || Array.isArray(value) || Object.keys(value).sort().join("|") !== [...keys2].sort().join("|")) throw new Error(`invalid workbench fields: ${path2}`);
+  };
+  var text2 = (value, path2) => {
+    if (typeof value !== "string" || !value.length || value.trim() !== value || value.length > 160) throw new Error(`invalid workbench text: ${path2}`);
+  };
+  var range2 = (value, low, high, path2) => {
+    if (!Number.isFinite(value) || value < low || value > high) throw new Error(`invalid workbench range: ${path2}`);
+  };
+  var ticks = (value, low, high, path2) => {
+    range2(value, low, high, path2);
+    if (!Number.isSafeInteger(value)) throw new Error(`workbench ticks must be integers: ${path2}`);
+  };
+  function createWorkbenchPlayer(raw) {
+    const player = cloneInert(raw);
+    fields8(player, ["schemaVersion", "identity", "body", "capability", "bat", "swing", "decision", "traits"], "player");
+    if (player.schemaVersion !== 1) throw new Error("unsupported workbench player schema");
+    fields8(player.identity, ["playerId", "name", "leagueId", "bats", "throws"], "identity");
+    text2(player.identity.playerId, "playerId");
+    text2(player.identity.name, "name");
+    if (!leagues.includes(player.identity.leagueId) || !["R", "L"].includes(player.identity.bats) || !["R", "L"].includes(player.identity.throws)) throw new Error("invalid workbench identity");
+    fields8(player.body, ["heightMeters", "massKg"], "body");
+    range2(player.body.heightMeters, 0.8, 3, "heightMeters");
+    range2(player.body.massKg, 15, 300, "body.massKg");
+    fields8(player.capability, [
+      "maximumSweetSpotSpeedMps",
+      "motorLatencyTicks",
+      "technicalTimingOffsetTicks",
+      "runSpeedMps",
+      "throwSpeedMps",
+      "pitchSpeedMps",
+      "positionErrorMeters",
+      "timingErrorTicks"
+    ], "capability");
+    const c = player.capability;
+    range2(c.maximumSweetSpotSpeedMps, 0.1, 90, "maximumSweetSpotSpeedMps");
+    ticks(c.motorLatencyTicks, 1, 2e6, "motorLatencyTicks");
+    ticks(c.technicalTimingOffsetTicks, -5e5, 5e5, "technicalTimingOffsetTicks");
+    range2(c.runSpeedMps, 0.1, 20, "runSpeedMps");
+    range2(c.throwSpeedMps, 0.1, 80, "throwSpeedMps");
+    range2(c.pitchSpeedMps, 0.1, 80, "pitchSpeedMps");
+    range2(c.positionErrorMeters, 0, 1, "positionErrorMeters");
+    ticks(c.timingErrorTicks, 0, 5e5, "timingErrorTicks");
+    fields8(player.bat, ["lengthM", "massKg", "sweetSpotT"], "bat");
+    range2(player.bat.lengthM, 0.2, 3, "bat.lengthM");
+    range2(player.bat.massKg, 0.05, 5, "bat.massKg");
+    range2(player.bat.sweetSpotT, 0.65, 0.9, "sweetSpotT (declared barrel reference)");
+    fields8(player.swing, [
+      "speedMps",
+      "attackAngleDeg",
+      "pullAngleDeg",
+      "preContactSeconds",
+      "followThroughSeconds",
+      "contactDepthM",
+      "loadAngleDeg",
+      "finishAngleDeg",
+      "handTravelM"
+    ], "swing");
+    const s = player.swing;
+    range2(s.speedMps, 0.1, c.maximumSweetSpotSpeedMps, "swing speed envelope");
+    range2(s.attackAngleDeg, -80, 80, "attackAngleDeg");
+    range2(s.pullAngleDeg, -80, 80, "pullAngleDeg");
+    range2(s.preContactSeconds, 5e-3, 2, "preContactSeconds");
+    range2(s.followThroughSeconds, 5e-3, 2, "followThroughSeconds");
+    range2(s.contactDepthM, 1e-3, 2, "contactDepthM");
+    range2(s.loadAngleDeg, -179, 179, "loadAngleDeg");
+    range2(s.finishAngleDeg, -179, 179, "finishAngleDeg");
+    range2(s.handTravelM, 0, 1, "handTravelM");
+    fields8(player.decision, ["threshold", "aggressionWeight", "approach"], "decision");
+    range2(player.decision.threshold, 0, 1, "threshold");
+    range2(player.decision.aggressionWeight, 0, 1, "aggressionWeight");
+    if (!["AUTO", "TAKE", "SWING"].includes(player.decision.approach)) throw new Error("invalid workbench approach");
+    fields8(player.traits, ["badBallControl", "labels"], "traits");
+    range2(player.traits.badBallControl, 0, 1, "badBallControl");
+    if (!Array.isArray(player.traits.labels) || player.traits.labels.length > 32) throw new Error("invalid workbench trait labels");
+    player.traits.labels.forEach((label) => text2(label, "trait label"));
+    if (new Set(player.traits.labels).size !== player.traits.labels.length) throw new Error("duplicate workbench trait label");
+    return freeze17(player);
+  }
+
+  // src/integration/browser/LivePitchAuthoringV77.ts
+  var LIVE_PITCH_TYPES_V77 = ["fastball", "slider", "curve", "changeup", "cutter", "sinker", "splitter"];
+  var norm3 = (v3) => Math.hypot(v3.x, v3.y, v3.z);
+  var bounded = (n, low, high) => typeof n === "number" && Number.isFinite(n) && n >= low && n <= high;
+  function assert6(value, message) {
+    if (!value) throw Error("pitch authoring: " + message);
+  }
+  function fields9(raw, keys2) {
+    assert6(raw && typeof raw === "object" && !Array.isArray(raw) && Object.keys(raw).length === keys2.length && Object.keys(raw).every((k) => keys2.includes(k)), "unknown or missing fields");
+  }
+  var freeze18 = (value) => {
+    if (value && typeof value === "object") {
+      Object.values(value).forEach(freeze18);
+      Object.freeze(value);
+    }
+    return value;
+  };
+  function spinVector(raw) {
+    fields9(raw, ["x", "y", "z"]);
+    assert6(Object.values(raw).every((n) => typeof n === "number" && Number.isFinite(n)) && norm3(raw) <= 1200, "invalid spin vector");
+  }
+  function validatePitchRepertoireV77(raw, maximumPitchSpeedMps) {
+    const rows = cloneInert(raw);
+    assert6(maximumPitchSpeedMps === void 0 || bounded(maximumPitchSpeedMps, 15, 85), "invalid maximum pitch speed");
+    assert6(Array.isArray(rows) && rows.length >= 1 && rows.length <= 7, "one to seven pitch entries required");
+    const seen = /* @__PURE__ */ new Set();
+    for (const row of rows) {
+      fields9(row, ["pitchType", "releaseSpeedMps", "spinRadPerSecond"]);
+      assert6(typeof row.pitchType === "string" && LIVE_PITCH_TYPES_V77.includes(row.pitchType) && !seen.has(row.pitchType), "unsupported or duplicate pitch");
+      seen.add(row.pitchType);
+      assert6(bounded(row.releaseSpeedMps, 15, 85) && row.releaseSpeedMps <= (maximumPitchSpeedMps ?? 85), "pitch speed exceeds individual limit");
+      spinVector(row.spinRadPerSecond);
+    }
+    return freeze18(rows);
+  }
+  function validatePitchingMotionV77(raw) {
+    const value = cloneInert(raw);
+    fields9(value, ["preparationMs", "headMotionScale"]);
+    assert6(bounded(value.preparationMs, 500, 4e3) && bounded(value.headMotionScale, 0, 2), "invalid authored delivery motion");
+    return freeze18(value);
+  }
+  var factors = { fastball: 1, slider: 0.91, curve: 0.8, changeup: 0.82, cutter: 0.95, sinker: 0.96, splitter: 0.89 };
+  var axes5 = {
+    slider: { x: 0.25, y: -0.8, z: 0.55 },
+    curve: { x: -1, y: 0, z: 0.1 },
+    changeup: { x: 0.65, y: 0.2, z: 0.25 },
+    cutter: { x: 0.7, y: -0.45, z: 0.25 },
+    sinker: { x: 0.55, y: 0.5, z: 0.2 },
+    splitter: { x: -0.15, y: 0.15, z: 0.3 }
+  };
+  function resolvePitcherRepertoireV77(raw) {
+    const physical3 = cloneInert(raw);
+    assert6(bounded(physical3.releaseSpeedMps, 15, 85) && (physical3.maximumPitchSpeedMps === void 0 || bounded(physical3.maximumPitchSpeedMps, 15, 85)), "invalid baseline pitch speed");
+    spinVector(physical3.spinRadPerSecond);
+    const authored = physical3.pitchRepertoire === void 0 ? [] : validatePitchRepertoireV77(physical3.pitchRepertoire, physical3.maximumPitchSpeedMps);
+    return freeze18(LIVE_PITCH_TYPES_V77.map((pitchType) => {
+      const entry = authored.find((row) => row.pitchType === pitchType);
+      if (entry) return { ...entry, authored: true };
+      const factor = factors[pitchType], spinMagnitude = norm3(physical3.spinRadPerSecond), scale13 = pitchType === "fastball" ? 1 : spinMagnitude * (pitchType === "changeup" ? 0.7 : 1) / norm3(axes5[pitchType]), axis = pitchType === "fastball" ? physical3.spinRadPerSecond : axes5[pitchType];
+      return {
+        pitchType,
+        releaseSpeedMps: Math.min(physical3.releaseSpeedMps, physical3.maximumPitchSpeedMps ?? Infinity) * factor,
+        spinRadPerSecond: pitchType === "fastball" ? axis : { x: axis.x * scale13, y: axis.y * scale13, z: axis.z * scale13 },
+        authored: false
+      };
+    }));
+  }
+  function pitchSpinFromControlsV77(raw) {
+    const controls2 = cloneInert(raw);
+    fields9(controls2, ["spinRpm", "breakDirectionDegrees", "gyroFraction"]);
+    assert6(bounded(controls2.spinRpm, 0, 1200 * 60 / (2 * Math.PI)) && bounded(controls2.breakDirectionDegrees, -360, 360) && bounded(controls2.gyroFraction, -1, 1), "invalid spin controls");
+    const speed2 = controls2.spinRpm * 2 * Math.PI / 60, theta = controls2.breakDirectionDegrees * Math.PI / 180, transverse = speed2 * Math.sqrt(Math.max(0, 1 - controls2.gyroFraction ** 2));
+    return freeze18({ x: transverse * Math.cos(theta), y: -transverse * Math.sin(theta), z: speed2 * controls2.gyroFraction });
+  }
+  function pitchSpinToControlsV77(raw) {
+    const spin = cloneInert(raw);
+    spinVector(spin);
+    const speed2 = norm3(spin);
+    return freeze18({
+      spinRpm: speed2 * 60 / (2 * Math.PI),
+      breakDirectionDegrees: speed2 === 0 ? 0 : (Math.atan2(-spin.y, spin.x) * 180 / Math.PI + 360) % 360,
+      gyroFraction: speed2 === 0 ? 0 : spin.z / speed2
+    });
+  }
+
+  // src/integration/browser/LivePhysicalRosterV1.ts
+  var scalarKeys = [
+    "batLengthM",
+    "batMassKg",
+    "swingRate",
+    "timingStdSeconds",
+    "aimStdMeters",
+    "chaseMarginMeters",
+    "releaseSpeedMps",
+    "commandStdMeters",
+    "reactionSeconds",
+    "topSpeedMps",
+    "accelerationMps2",
+    "gloveSpeedMps",
+    "gloveReachMeters",
+    "gloveRadiusMeters",
+    "retentionCapacityJ",
+    "captureDissipationPowerW",
+    "transferSeconds",
+    "throwSpeedMps",
+    "maximumPitchSpeedMps",
+    "maximumSweetSpotSpeedMps",
+    "targetSweetSpotSpeedMps",
+    "motorLatencySeconds",
+    "technicalTimingOffsetSeconds",
+    "sweetSpotT",
+    "attackAngleDegrees",
+    "pullAngleDegrees",
+    "badBallControl",
+    "defensiveDecisionSeconds",
+    "preContactSeconds",
+    "followThroughSeconds",
+    "contactDepthMeters",
+    "throwDirectionStdRadians",
+    "zoneJudgmentStdMeters",
+    "baserunningSafetyMarginSeconds",
+    "fieldingPursuitCostWeight",
+    "baserunningTurnRadiusMeters",
+    "baserunningLateralAccelerationMps2",
+    "plateVision",
+    "pitchReleaseHeightMeters",
+    "pitchReleaseSideMeters",
+    "pitchReleaseExtensionMeters"
+  ];
+  var physicalKeys = ["basis", ...scalarKeys, "spinRadPerSecond", "clipId", "swingDecision", "impactTrajectory", "pitchRepertoire", "pitchingMotion"];
+  var bounds = {
+    batLengthM: [0.2, 3],
+    batMassKg: [0.1, 5],
+    swingRate: [0.3, 3],
+    timingStdSeconds: [0, 0.08],
+    aimStdMeters: [0, 0.35],
+    chaseMarginMeters: [0, 0.6],
+    releaseSpeedMps: [15, 85],
+    maximumPitchSpeedMps: [15, 85],
+    commandStdMeters: [0, 0.6],
+    gloveSpeedMps: [0.1, 40],
+    gloveReachMeters: [0.4, 3],
+    gloveRadiusMeters: [0.03, 0.3],
+    retentionCapacityJ: [1, 2e3],
+    captureDissipationPowerW: [10, 1e6],
+    maximumSweetSpotSpeedMps: [0.1, 90],
+    targetSweetSpotSpeedMps: [0.1, 90],
+    motorLatencySeconds: [0, 2],
+    technicalTimingOffsetSeconds: [-0.5, 0.5],
+    sweetSpotT: [0.65, 0.9],
+    attackAngleDegrees: [-80, 80],
+    pullAngleDegrees: [-80, 80],
+    badBallControl: [0, 1],
+    preContactSeconds: [5e-3, 2],
+    followThroughSeconds: [5e-3, 2],
+    contactDepthMeters: [1e-3, 2],
+    throwDirectionStdRadians: [0, 0.12],
+    zoneJudgmentStdMeters: [0, 0.6],
+    plateVision: [1, 100],
+    pitchReleaseHeightMeters: [0.2, 3.2],
+    pitchReleaseSideMeters: [0, 1.5],
+    pitchReleaseExtensionMeters: [0, 3.5],
+    baserunningSafetyMarginSeconds: [0, 3],
+    fieldingPursuitCostWeight: [0.25, 4],
+    baserunningTurnRadiusMeters: [0.5, 10],
+    baserunningLateralAccelerationMps2: [0.5, 20]
+  };
+  var nonnegative = /* @__PURE__ */ new Set(["reactionSeconds", "transferSeconds", "defensiveDecisionSeconds"]);
+  var freeze19 = (value) => {
+    if (value && typeof value === "object") {
+      Object.values(value).forEach(freeze19);
+      Object.freeze(value);
+    }
+    return value;
+  };
+  function assert7(value, message) {
+    if (!value) throw new Error("live physical roster: " + message);
+  }
+  var validText = (value) => typeof value === "string" && value.trim() === value && value.length > 0 && value.length <= 200;
+  function resolveLivePlateVisionV1(physical3 = {}) {
+    if (physical3.plateVision !== void 0) {
+      assert7(Number.isFinite(physical3.plateVision) && physical3.plateVision >= 1 && physical3.plateVision <= 100, "invalid absolute plate vision");
+      return physical3.plateVision;
+    }
+    const std = physical3.zoneJudgmentStdMeters ?? 0.025;
+    assert7(Number.isFinite(std) && std >= 0 && std <= 0.6, "invalid zone judgment SI");
+    return std === 0 ? 100 : Math.max(1, Math.min(100, 45 - 100 * Math.log(std / 0.025)));
+  }
+  function fields10(value, allowed, required, path2) {
+    assert7(value && typeof value === "object" && !Array.isArray(value), "object required at " + path2);
+    assert7(Object.keys(value).every((k) => allowed.includes(k)) && required.every((k) => Object.hasOwn(value, k)), "unknown or missing fields at " + path2);
+  }
+  function validatePhysical(raw) {
+    fields10(raw, physicalKeys, ["basis"], "physical");
+    assert7(raw.basis === "EXPLICIT_AUTHORED_SI_V1", "explicit SI basis required");
+    for (const key3 of scalarKeys) if (Object.hasOwn(raw, key3)) {
+      const value = raw[key3], limits = bounds[key3];
+      assert7(typeof value === "number" && Number.isFinite(value) && (limits ? value >= limits[0] && value <= limits[1] : nonnegative.has(key3) ? value >= 0 : value > 0), "unsupported physical range: " + key3);
+    }
+    if (Object.hasOwn(raw, "spinRadPerSecond")) {
+      fields10(raw.spinRadPerSecond, ["x", "y", "z"], ["x", "y", "z"], "spinRadPerSecond");
+      const spin = raw.spinRadPerSecond;
+      assert7(Object.values(spin).every((n) => typeof n === "number" && Number.isFinite(n)) && Math.hypot(spin.x, spin.y, spin.z) <= 1200, "invalid SI spin");
+    }
+    if (Object.hasOwn(raw, "clipId")) assert7(validText(raw.clipId), "invalid measured clip identity");
+    if (Object.hasOwn(raw, "impactTrajectory")) validateImpactTrajectorySettingsV1(raw.impactTrajectory);
+    if (Object.hasOwn(raw, "pitchRepertoire")) validatePitchRepertoireV77(raw.pitchRepertoire, raw.maximumPitchSpeedMps);
+    if (Object.hasOwn(raw, "pitchingMotion")) validatePitchingMotionV77(raw.pitchingMotion);
+    if (Object.hasOwn(raw, "swingDecision")) {
+      fields10(raw.swingDecision, ["approach", "threshold", "aggressionWeight"], ["approach", "threshold", "aggressionWeight"], "swingDecision");
+      assert7(["AUTO", "TAKE", "SWING"].includes(raw.swingDecision.approach) && [raw.swingDecision.threshold, raw.swingDecision.aggressionWeight].every((v3) => typeof v3 === "number" && Number.isFinite(v3) && v3 >= 0 && v3 <= 1), "invalid explicit swing decision");
+    }
+    if (raw.maximumSweetSpotSpeedMps !== void 0 && raw.targetSweetSpotSpeedMps !== void 0)
+      assert7(raw.targetSweetSpotSpeedMps <= raw.maximumSweetSpotSpeedMps, "target swing speed exceeds declared motor ceiling");
+  }
+  function applyLivePhysicalRosterV1(raw) {
+    const input = cloneInert(raw);
+    fields10(input, ["players", "roster"], ["players", "roster"], "input");
+    assert7(Array.isArray(input.players), "players required");
+    const players = input.players;
+    assert7(players.every((p) => validText(p.playerId) && validText(p.name) && Number.isFinite(p.heightMeters) && p.heightMeters >= 1.1 && p.heightMeters <= 2.5 && ["R", "L"].includes(p.bats)) && new Set(players.map((p) => p.playerId)).size === players.length, "invalid roster identity");
+    fields10(input.roster, ["version", "sourceId", "entries"], ["version", "sourceId", "entries"], "roster");
+    assert7(input.roster.version === "live_physical_roster_v1" && validText(input.roster.sourceId) && Array.isArray(input.roster.entries), "invalid roster packet");
+    const entries = input.roster.entries;
+    assert7(new Set(entries.map((e) => e.playerId)).size === entries.length, "duplicate player source binding");
+    const byId = new Map(players.map((p) => [p.playerId, p]));
+    for (const entry of entries) {
+      fields10(entry, ["playerId", "sourceId", "throws", "workbenchPlayer", "physical", "maximumPitchSpeedKmh", "heightMeters", "legacyRelativeRatings", "traitLabels", "traitProfile"], ["playerId", "sourceId"], "entry");
+      assert7(validText(entry.playerId) && validText(entry.sourceId) && byId.has(entry.playerId), "unknown player or source binding");
+      assert7(!(Object.hasOwn(entry, "workbenchPlayer") && Object.hasOwn(entry, "physical")), "ambiguous physical authoring sources");
+      if (Object.hasOwn(entry, "throws")) assert7(entry.throws === "R" || entry.throws === "L", "invalid throwing hand");
+      if (Object.hasOwn(entry, "workbenchPlayer")) assert7(entry.workbenchPlayer && typeof entry.workbenchPlayer === "object", "invalid maker authoring source");
+      if (Object.hasOwn(entry, "physical")) assert7(entry.physical && typeof entry.physical === "object", "invalid physical authoring source");
+    }
+    const auditPlayers = [];
+    const output = players.map((player) => {
+      const entry = entries.find((e) => e.playerId === player.playerId), projected = [], unsupported = [];
+      let physical3 = { ...player.physical ?? LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1 }, heightMeters = player.heightMeters;
+      validatePhysical(physical3);
+      let sourcePlayerId = null;
+      const project = (inputPath, targetPath, value, conversion = "identity") => {
+        projected.push({ inputPath, targetPath, value: cloneInert(value), conversion });
+      };
+      if (entry?.physical) {
+        validatePhysical(entry.physical);
+        physical3 = { ...physical3, ...entry.physical };
+        for (const key3 of Object.keys(entry.physical).filter((k) => k !== "basis")) project("physical." + key3, key3, entry.physical[key3]);
+      }
+      if (entry?.workbenchPlayer) {
+        const maker = createWorkbenchPlayer(entry.workbenchPlayer), c = maker.capability, s = maker.swing;
+        sourcePlayerId = maker.identity.playerId;
+        heightMeters = maker.body.heightMeters;
+        physical3 = {
+          ...physical3,
+          batLengthM: maker.bat.lengthM,
+          batMassKg: maker.bat.massKg,
+          sweetSpotT: maker.bat.sweetSpotT,
+          maximumSweetSpotSpeedMps: c.maximumSweetSpotSpeedMps,
+          targetSweetSpotSpeedMps: s.speedMps,
+          motorLatencySeconds: c.motorLatencyTicks / WORKBENCH_TICKS_PER_SECOND,
+          technicalTimingOffsetSeconds: c.technicalTimingOffsetTicks / WORKBENCH_TICKS_PER_SECOND,
+          timingStdSeconds: c.timingErrorTicks / WORKBENCH_TICKS_PER_SECOND,
+          aimStdMeters: c.positionErrorMeters,
+          topSpeedMps: c.runSpeedMps,
+          throwSpeedMps: c.throwSpeedMps,
+          releaseSpeedMps: c.pitchSpeedMps,
+          attackAngleDegrees: s.attackAngleDeg,
+          pullAngleDegrees: s.pullAngleDeg,
+          swingDecision: maker.decision,
+          badBallControl: maker.traits.badBallControl,
+          preContactSeconds: s.preContactSeconds,
+          followThroughSeconds: s.followThroughSeconds,
+          contactDepthMeters: s.contactDepthM
+        };
+        const mappings = [
+          ["body.heightMeters", "heightMeters"],
+          ["bat.lengthM", "batLengthM"],
+          ["bat.massKg", "batMassKg"],
+          ["bat.sweetSpotT", "sweetSpotT"],
+          ["capability.maximumSweetSpotSpeedMps", "maximumSweetSpotSpeedMps"],
+          ["swing.speedMps", "targetSweetSpotSpeedMps"],
+          ["capability.motorLatencyTicks", "motorLatencySeconds"],
+          ["capability.technicalTimingOffsetTicks", "technicalTimingOffsetSeconds"],
+          ["capability.timingErrorTicks", "timingStdSeconds"],
+          ["capability.positionErrorMeters", "aimStdMeters"],
+          ["capability.runSpeedMps", "topSpeedMps"],
+          ["capability.throwSpeedMps", "throwSpeedMps"],
+          ["capability.pitchSpeedMps", "releaseSpeedMps"],
+          ["swing.attackAngleDeg", "attackAngleDegrees"],
+          ["swing.pullAngleDeg", "pullAngleDegrees"],
+          ["decision", "swingDecision"],
+          ["traits.badBallControl", "badBallControl"],
+          ["swing.preContactSeconds", "preContactSeconds"],
+          ["swing.followThroughSeconds", "followThroughSeconds"],
+          ["swing.contactDepthM", "contactDepthMeters"]
+        ];
+        for (const [from, to] of mappings) project("workbenchPlayer." + from, to, to === "heightMeters" ? heightMeters : physical3[to], from.endsWith("Ticks") ? "tick / 1000000" : "identity");
+        for (const path2 of ["body.massKg", "swing.loadAngleDeg", "swing.finishAngleDeg", "swing.handTravelM"]) {
+          const [group, key3] = path2.split(".");
+          unsupported.push({
+            path: "workbenchPlayer." + path2,
+            value: maker[group][key3],
+            reason: "No corresponding individual body/reference-trajectory motor consumer in this local Host; no inferred effect."
+          });
+        }
+        for (const key3 of ["playerId", "name", "leagueId", "bats", "throws"]) unsupported.push({
+          path: "workbenchPlayer.identity." + key3,
+          value: maker.identity[key3],
+          reason: "Ability-only binding keeps the selected match identity and handedness; this identity field is retained as source provenance, not applied."
+        });
+        maker.traits.labels.forEach((value, index) => unsupported.push({
+          path: `workbenchPlayer.traits.labels[${index}]`,
+          value,
+          reason: "A display label does not supply a calibrated technical source or an extra physical bonus."
+        }));
+      }
+      if (entry?.maximumPitchSpeedKmh !== void 0) {
+        assert7(Number.isFinite(entry.maximumPitchSpeedKmh) && entry.maximumPitchSpeedKmh >= 54 && entry.maximumPitchSpeedKmh <= 306, "unsupported maximum pitch speed");
+        const maximumPitchSpeedMps = entry.maximumPitchSpeedKmh / 3.6;
+        assert7(physical3.maximumPitchSpeedMps === void 0 || physical3.maximumPitchSpeedMps === maximumPitchSpeedMps, "conflicting pitch speed limits");
+        physical3 = { ...physical3, maximumPitchSpeedMps };
+        project("maximumPitchSpeedKmh", "maximumPitchSpeedMps", maximumPitchSpeedMps, "km/h / 3.6");
+      }
+      if (entry?.heightMeters !== void 0) {
+        assert7(Number.isFinite(entry.heightMeters) && entry.heightMeters >= 1.1 && entry.heightMeters <= 2.5, "unsupported physical height");
+        assert7(!entry.workbenchPlayer || entry.workbenchPlayer.body.heightMeters === entry.heightMeters, "conflicting body heights");
+        heightMeters = entry.heightMeters;
+        project("heightMeters", "heightMeters", heightMeters);
+      }
+      if (entry?.throws !== void 0) project("throws", "throws", entry.throws);
+      if (entry?.legacyRelativeRatings !== void 0) {
+        assert7(entry.legacyRelativeRatings && typeof entry.legacyRelativeRatings === "object" && !Array.isArray(entry.legacyRelativeRatings), "invalid relative ratings");
+        for (const [key3, value] of Object.entries(entry.legacyRelativeRatings)) {
+          assert7(validText(key3) && Number.isFinite(value), "invalid relative rating entry");
+          unsupported.push({ path: "legacyRelativeRatings." + key3, value, reason: "Relative display rating has no calibrated SI inverse; preserved without physical conversion." });
+        }
+      }
+      if (entry?.traitLabels !== void 0) {
+        assert7(Array.isArray(entry.traitLabels) && entry.traitLabels.every(validText) && new Set(entry.traitLabels).size === entry.traitLabels.length, "invalid trait labels");
+        entry.traitLabels.forEach((value, index) => unsupported.push({
+          path: `traitLabels[${index}]`,
+          value,
+          reason: "Trait name alone is descriptive; an explicit current numerical source is required to execute its skill."
+        }));
+      }
+      validatePhysical(physical3);
+      const traitProfile = entry?.traitProfile === void 0 ? void 0 : validateLiveTraitProfileV1(entry.traitProfile, physical3);
+      if (traitProfile !== void 0) project(
+        "traitProfile",
+        "traitProfile",
+        traitProfile,
+        traitProfile.version === "live_trait_profile_v2" ? "INDEPENDENT_RUNTIME_TECHNIQUE_BASE_SI_UNCHANGED" : "LOCAL_SOURCE_METADATA_NO_ADDITIONAL_EFFECT"
+      );
+      assert7(heightMeters >= 1.1 && heightMeters <= 2.5, "unsupported physical height");
+      const targetPaths = new Set(projected.map((p) => p.targetPath));
+      auditPlayers.push({
+        playerId: player.playerId,
+        sourceId: entry?.sourceId ?? null,
+        sourcePlayerId,
+        projected,
+        unsupported,
+        referenceDefaultPaths: player.physical ? [] : Object.keys(LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1).filter((k) => k !== "basis" && !targetPaths.has(k))
+      });
+      const { traitProfile: _previousProfile, ...basePlayer } = player;
+      return {
+        ...basePlayer,
+        heightMeters,
+        physical: physical3,
+        ...entry?.throws === void 0 ? {} : { throws: entry.throws },
+        ...traitProfile === void 0 ? {} : { traitProfile }
+      };
+    });
+    return freeze19({ players: output, audit: {
+      version: "live_physical_roster_projection_v1",
+      sourceId: input.roster.sourceId,
+      nativeAuthentication: false,
+      projectionOnly: true,
+      players: auditPlayers
+    } });
+  }
+
+  // src/integration/browser/LiveTraitRuntimeV77.ts
+  var calibration3 = getLiveTraitAuthoringCalibrationV54();
+  var freeze20 = (value) => {
+    if (value && typeof value === "object") {
+      Object.values(value).forEach(freeze20);
+      Object.freeze(value);
+    }
+    return value;
+  };
+  function assert8(value, message) {
+    if (!value) throw new Error("independent live traits: " + message);
+  }
+  var clamp2 = (value, min, max) => Math.max(min, Math.min(max, value));
+  var validText2 = (value) => typeof value === "string" && value.length > 0 && value.length <= 160 && value.trim() === value;
+  var owner = (entry) => entry.physical ?? (entry.workbenchPlayer ? {
+    badBallControl: entry.workbenchPlayer.traits.badBallControl,
+    ...entry.workbenchPlayer.decision === void 0 ? {} : { swingDecision: entry.workbenchPlayer.decision }
+  } : {});
+  function validateRoster(raw) {
+    const roster = cloneInert(raw);
+    assert8(roster.version === "live_physical_roster_v1" && validText2(roster.sourceId) && Array.isArray(roster.entries) && roster.entries.length > 0, "invalid roster");
+    assert8(roster.entries.every((e) => validText2(e.playerId) && validText2(e.sourceId)), "invalid player binding");
+    applyLivePhysicalRosterV1({ roster, players: roster.entries.map((entry) => ({
+      playerId: entry.playerId,
+      name: entry.playerId,
+      heightMeters: entry.heightMeters ?? 1.8,
+      bats: "R"
+    })) });
+    return roster;
+  }
+  function mark(roster, entry) {
+    const mutable = entry, packet = roster;
+    if (!mutable.sourceId.split(":").includes("independent-traits")) mutable.sourceId += ":independent-traits";
+    if (!packet.sourceId.split(":").includes("independent-traits")) packet.sourceId += ":independent-traits";
+    assert8(validText2(mutable.sourceId) && validText2(packet.sourceId), "source identifier exceeds authoring limit");
+  }
+  function migrateEntry(roster, entry) {
+    if (entry.traitProfile?.version === "live_trait_profile_v2") return null;
+    const mutable = entry, restoredPaths = [];
+    const selections = (entry.traitProfile?.selections ?? []).map((selection) => {
+      const { familyId: id6, source } = selection;
+      if (id6 === "running_aggression" || id6 === "fielding_aggression" || id6 === "plate_aggression") {
+        assert8(mutable.physical, "legacy green baseline requires an explicit physical owner");
+        if (id6 === "plate_aggression") {
+          mutable.physical.swingDecision = { approach: source["swingDecision.approach"], threshold: source["swingDecision.threshold"], aggressionWeight: source["swingDecision.aggressionWeight"] };
+          restoredPaths.push("physical.swingDecision");
+        } else {
+          const key3 = id6 === "running_aggression" ? "baserunningSafetyMarginSeconds" : "fieldingPursuitCostWeight";
+          mutable.physical[key3] = source[key3];
+          restoredPaths.push("physical." + key3);
+        }
+        return { ...selection, source: { effectScale: 1 } };
+      }
+      return id6 === "bad_ball_hitting" ? { ...selection, source: { ...source, effectScale: 1 } } : selection;
+    });
+    const migration = {
+      playerId: entry.playerId,
+      fromVersion: entry.traitProfile?.version ?? null,
+      toVersion: "live_trait_profile_v2",
+      restoredPaths,
+      note: "Existing throwing SI is retained as base ability; no independent throwing ownership is inferred. Legacy green baselines are restored from saved source, never inverted."
+    };
+    mutable.traitProfile = { version: "live_trait_profile_v2", selections };
+    mark(roster, entry);
+    return migration;
+  }
+  function migrateLiveTraitRosterV77(input) {
+    const request = cloneInert(input), roster = validateRoster(request.roster), migrations = [];
+    for (const entry of roster.entries) {
+      const result = migrateEntry(roster, entry);
+      if (result) migrations.push(result);
+    }
+    validateRoster(roster);
+    return freeze20({ roster, migrations, authority: "EXPLICIT_LOCAL_TRAIT_MIGRATION_V77" });
+  }
+  function projectedSource(entry, id6) {
+    const selection = entry.traitProfile?.selections.find((s) => s.familyId === id6);
+    if (id6 === "throw_accuracy") return selection?.source ?? { effectScale: 1 };
+    if (id6 === "bad_ball_hitting") return {
+      badBallControl: selection?.source.badBallControl ?? owner(entry).badBallControl ?? 0,
+      effectScale: selection?.source.effectScale ?? 1
+    };
+    if (["plate_aggression", "running_aggression", "fielding_aggression"].includes(id6)) return { effectScale: selection?.source.effectScale ?? 1 };
+    return selection?.source ?? (["pitch_approach", "swing_mode_preference"].includes(id6) ? {} : { effectScale: 1 });
+  }
+  function projectLiveTraitProfilesV77(input) {
+    const request = cloneInert(input), roster = validateRoster(request.roster), entry = roster.entries.find((e) => e.playerId === request.playerId);
+    assert8(entry, "unknown player");
+    return freeze20({
+      boundary: "LOCAL_TRAIT_AUTHORING_ONLY",
+      nativeMasteryAuthenticated: false,
+      catalogVersion: 77,
+      calibrationVersion: 77,
+      calibrationAuthority: "LOCAL_AUTHORING_ONLY",
+      profileVersion: entry.traitProfile?.version ?? null,
+      traits: getLiveTraitCatalogV77().map((definition) => {
+        const selection = entry.traitProfile?.selections.find((s) => s.familyId === definition.familyId), source = projectedSource(entry, definition.familyId), owned = selection ? selection.stateId !== null : null, stateId = selection?.stateId ?? null, state2 = definition.states.find((s) => s.stateId === stateId);
+        return {
+          familyId: definition.familyId,
+          label: definition.label,
+          status: owned === null ? "UNASSESSED" : owned ? "OWNED" : "ABSENT",
+          owned,
+          stateId,
+          color: state2?.color ?? "neutral",
+          sourceValue: source,
+          effectiveSourceValue: source,
+          sourcePath: "traitProfile.selections",
+          sourceRoute: definition.sourceRoute,
+          editor: definition.editor,
+          availability: definition.availability,
+          states: definition.states,
+          calibrationId: definition.calibrationId ?? "independent-local-technique-v77"
+        };
+      })
+    });
+  }
+  function setLiveTraitProfileV77(input) {
+    const request = cloneInert(input), roster = validateRoster(request.roster), entry = roster.entries.find((e) => e.playerId === request.playerId), definition = getLiveTraitCatalogV77().find((d) => d.familyId === request.familyId);
+    assert8(entry && definition && (request.stateId === null || definition.states.some((s) => s.stateId === request.stateId)), "unknown player, family or state");
+    const migration = migrateEntry(roster, entry), previous = entry.traitProfile.selections.find((s) => s.familyId === request.familyId), retained = projectedSource(entry, request.familyId), source = request.source === void 0 ? retained : request.familyId === "bad_ball_hitting" ? { ...retained, ...request.source } : request.source;
+    const selection = { familyId: request.familyId, stateId: request.stateId, source };
+    const candidate = { version: "live_trait_profile_v2", selections: [...entry.traitProfile.selections.filter((s) => s.familyId !== request.familyId), selection] };
+    const profile = validateLiveTraitProfileV1(candidate, owner(entry));
+    const changed = JSON.stringify(previous ?? null) !== JSON.stringify(selection), changes = [];
+    if (changed) {
+      entry.traitProfile = profile;
+      mark(roster, entry);
+      changes.push({ path: "traitProfile.selections." + request.familyId, before: previous ?? null, after: selection });
+    }
+    validateRoster(roster);
+    return freeze20({ roster, migrations: migration ? [migration] : [], changes, projection: projectLiveTraitProfilesV77({ roster, playerId: request.playerId }) });
+  }
+  function resolveLiveExecutionPhysicalV77(physical3, profile) {
+    if (profile === void 0) return physical3;
+    const safe = validateLiveTraitProfileV1(profile, physical3);
+    if (safe.version !== "live_trait_profile_v2") return physical3;
+    const patch = {};
+    const put = (key3, value) => {
+      if (JSON.stringify(physical3[key3]) !== JSON.stringify(value)) patch[key3] = value;
+    };
+    for (const selection of safe.selections) {
+      const { familyId: id6, stateId, source } = selection, scale13 = Number(source.effectScale ?? 1);
+      if (scale13 === 0) continue;
+      if (id6 === "bad_ball_hitting") {
+        put("badBallControl", stateId === null ? 0 : Math.min(1, Number(source.badBallControl) * scale13));
+        continue;
+      }
+      if (stateId === null) continue;
+      if (id6 === "throw_accuracy") {
+        const strength = { G: -1, F: -0.65, E: -0.3, D: 0, C: 0.3, B: 0.6, A: 0.8, GOLD: 1 }[stateId];
+        if (strength !== 0 && physical3.throwDirectionStdRadians !== void 0)
+          put("throwDirectionStdRadians", clamp2(physical3.throwDirectionStdRadians * 2 ** (-strength * scale13), 0, 0.12));
+      } else if (id6 === "running_aggression" && stateId === "AGGRESSIVE") {
+        put("baserunningSafetyMarginSeconds", clamp2((physical3.baserunningSafetyMarginSeconds ?? calibration3.runningAggression.defaultSource) + calibration3.runningAggression.offsetSeconds * scale13, 0, 3));
+      } else if (id6 === "fielding_aggression" && stateId === "AGGRESSIVE") {
+        put("fieldingPursuitCostWeight", clamp2((physical3.fieldingPursuitCostWeight ?? calibration3.fieldingAggression.defaultSource) * calibration3.fieldingAggression.costMultiplier ** scale13, 0.25, 4));
+      } else if (id6 === "plate_aggression") {
+        const current = physical3.swingDecision ?? { approach: "AUTO", threshold: calibration3.plateAggression.defaultThreshold, aggressionWeight: calibration3.plateAggression.defaultAggressionWeight };
+        if (current.approach !== "AUTO") continue;
+        const offset = (stateId === "AGGRESSIVE" ? -1 : stateId === "CAUTIOUS" ? 1 : 0) * calibration3.plateAggression.thresholdOffset * scale13;
+        if (offset !== 0) put("swingDecision", { ...current, threshold: clamp2(current.threshold + offset, 0, 1) });
+      }
+    }
+    return Object.keys(patch).length ? { ...physical3, ...patch } : physical3;
   }
 
   // src/core/sim/fielding/DefenderMotion.ts
@@ -9642,10 +10347,10 @@ var KneekuraNativeMatchCore = (() => {
   var sub4 = (a, b) => v(a.x - b.x, 0, a.z - b.z);
   var mul = (a, k) => v(a.x * k, 0, a.z * k);
   var dot10 = (a, b) => a.x * b.x + a.z * b.z;
-  var norm3 = (a) => Math.hypot(a.x, a.z);
+  var norm4 = (a) => Math.hypot(a.x, a.z);
   var finite5 = (a) => !!a && [a.x, a.y, a.z].every(Number.isFinite);
   var policy = LIVE_FIELDER_AVOIDANCE_POLICY_V1;
-  function assert6(condition, message) {
+  function assert9(condition, message) {
     if (!condition) throw new Error("live fielder avoidance: " + message);
   }
   var motionKey = (m) => [m.acceleration.x, m.acceleration.z, m.stopAfter ?? null].join(":");
@@ -9655,7 +10360,7 @@ var KneekuraNativeMatchCore = (() => {
     ...m.stopAfter === void 0 ? {} : { stopAfter: m.stopAfter }
   });
   function path(a, m, dt) {
-    const movingThrough = Math.min(dt, m.stopAfter ?? dt), endPosition = add12(a.position, add12(mul(a.velocity, movingThrough), mul(m.acceleration, movingThrough ** 2 / 2))), endVelocity = m.stopAfter !== void 0 && m.stopAfter <= dt ? v() : add12(a.velocity, mul(m.acceleration, dt)), endSpeed = norm3(endVelocity), stopSeconds = endSpeed / a.accelerationMps2, stopAtSeconds = dt + stopSeconds, stopAcceleration = endSpeed > 0 ? mul(endVelocity, -a.accelerationMps2 / endSpeed) : v(), stoppedPosition = add12(endPosition, add12(mul(endVelocity, stopSeconds), mul(stopAcceleration, stopSeconds ** 2 / 2)));
+    const movingThrough = Math.min(dt, m.stopAfter ?? dt), endPosition = add12(a.position, add12(mul(a.velocity, movingThrough), mul(m.acceleration, movingThrough ** 2 / 2))), endVelocity = m.stopAfter !== void 0 && m.stopAfter <= dt ? v() : add12(a.velocity, mul(m.acceleration, dt)), endSpeed = norm4(endVelocity), stopSeconds = endSpeed / a.accelerationMps2, stopAtSeconds = dt + stopSeconds, stopAcceleration = endSpeed > 0 ? mul(endVelocity, -a.accelerationMps2 / endSpeed) : v(), stoppedPosition = add12(endPosition, add12(mul(endVelocity, stopSeconds), mul(stopAcceleration, stopSeconds ** 2 / 2)));
     return {
       breaks: [0, movingThrough, dt, stopAtSeconds],
       duration: stopAtSeconds,
@@ -9715,7 +10420,7 @@ var KneekuraNativeMatchCore = (() => {
     }
     let distance6 = Infinity, atSeconds = 0;
     for (const seconds of candidates) {
-      const sampled = norm3(add12(p, add12(mul(velocity, seconds), mul(acceleration, seconds * seconds / 2))));
+      const sampled = norm4(add12(p, add12(mul(velocity, seconds), mul(acceleration, seconds * seconds / 2))));
       if (sampled < distance6) {
         distance6 = sampled;
         atSeconds = seconds;
@@ -9724,7 +10429,7 @@ var KneekuraNativeMatchCore = (() => {
     return { distance: distance6, atSeconds };
   }
   function measurePair(a, b, pa, pb, dt, from) {
-    const radius = a.bodyRadiusMeters + b.bodyRadiusMeters, currentDistance = norm3(sub4(a.position, b.position)), softTarget = Math.min(currentDistance, radius + policy.softClearanceMeters), cuts = [.../* @__PURE__ */ new Set([...pa.breaks, ...pb.breaks])].sort((a2, b2) => a2 - b2);
+    const radius = a.bodyRadiusMeters + b.bodyRadiusMeters, currentDistance = norm4(sub4(a.position, b.position)), softTarget = Math.min(currentDistance, radius + policy.softClearanceMeters), cuts = [.../* @__PURE__ */ new Set([...pa.breaks, ...pb.breaks])].sort((a2, b2) => a2 - b2);
     let stepDistance = currentDistance, stoppingDistance = currentDistance, closestSeconds = 0;
     for (let i = 1; i < cuts.length; i++) {
       const lo = cuts[i - 1], hi = cuts[i];
@@ -9752,14 +10457,14 @@ var KneekuraNativeMatchCore = (() => {
     };
   }
   function emergency(a) {
-    const speed2 = norm3(a.velocity);
+    const speed2 = norm4(a.velocity);
     return speed2 === 0 ? { acceleration: v() } : { acceleration: mul(a.velocity, -a.accelerationMps2 / speed2), stopAfter: speed2 / a.accelerationMps2 };
   }
   function validMotor(a, m, dt) {
-    if (!finite5(m.acceleration) || m.acceleration.y !== 0 || norm3(m.acceleration) > a.accelerationMps2 + 1e-9) return false;
-    if (m.stopAfter !== void 0 && (!Number.isFinite(m.stopAfter) || m.stopAfter < 0 || norm3(add12(a.velocity, mul(m.acceleration, m.stopAfter))) > 1e-8)) return false;
+    if (!finite5(m.acceleration) || m.acceleration.y !== 0 || norm4(m.acceleration) > a.accelerationMps2 + 1e-9) return false;
+    if (m.stopAfter !== void 0 && (!Number.isFinite(m.stopAfter) || m.stopAfter < 0 || norm4(add12(a.velocity, mul(m.acceleration, m.stopAfter))) > 1e-8)) return false;
     const movingFor = Math.min(dt, m.stopAfter ?? dt);
-    return norm3(add12(a.velocity, mul(m.acceleration, movingFor))) <= a.topSpeedMps + 1e-9;
+    return norm4(add12(a.velocity, mul(m.acceleration, movingFor))) <= a.topSpeedMps + 1e-9;
   }
   function candidatesFor(a, actors, dt, preferredAccepted) {
     const candidates = [], keys2 = /* @__PURE__ */ new Set();
@@ -9775,16 +10480,16 @@ var KneekuraNativeMatchCore = (() => {
     const brake = emergency(a), preferredEnd = path(a, a.preferred, dt).sample(dt).velocity, brakeEnd = path(a, brake, dt).sample(dt).velocity;
     push(brake);
     const velocityCandidate = (wanted) => {
-      const difference = sub4(wanted, a.velocity), length2 = norm3(difference), maximum = a.accelerationMps2 * dt, limited = length2 > maximum ? add12(a.velocity, mul(difference, maximum / length2)) : wanted, speed2 = norm3(limited), capped = speed2 > a.topSpeedMps ? mul(limited, a.topSpeedMps / speed2) : limited;
+      const difference = sub4(wanted, a.velocity), length2 = norm4(difference), maximum = a.accelerationMps2 * dt, limited = length2 > maximum ? add12(a.velocity, mul(difference, maximum / length2)) : wanted, speed2 = norm4(limited), capped = speed2 > a.topSpeedMps ? mul(limited, a.topSpeedMps / speed2) : limited;
       push({ acceleration: mul(sub4(capped, a.velocity), 1 / dt) });
     };
     for (const mix of [0.75, 0.5, 0.25]) velocityCandidate(add12(mul(preferredEnd, mix), mul(brakeEnd, 1 - mix)));
-    let heading = norm3(preferredEnd) > 1e-9 ? preferredEnd : norm3(a.velocity) > 1e-9 ? a.velocity : a.preferred.acceleration;
-    if (norm3(heading) <= 1e-9) {
-      const other = [...actors].filter((b) => b !== a).sort((b, c) => norm3(sub4(a.position, b.position)) - norm3(sub4(a.position, c.position)) || b.position.x - c.position.x || b.position.z - c.position.z)[0];
+    let heading = norm4(preferredEnd) > 1e-9 ? preferredEnd : norm4(a.velocity) > 1e-9 ? a.velocity : a.preferred.acceleration;
+    if (norm4(heading) <= 1e-9) {
+      const other = [...actors].filter((b) => b !== a).sort((b, c) => norm4(sub4(a.position, b.position)) - norm4(sub4(a.position, c.position)) || b.position.x - c.position.x || b.position.z - c.position.z)[0];
       heading = other ? sub4(a.position, other.position) : v(1);
     }
-    const length = norm3(heading), desiredSpeed = Math.min(a.topSpeedMps, Math.max(norm3(preferredEnd), norm3(a.velocity), a.accelerationMps2 * dt));
+    const length = norm4(heading), desiredSpeed = Math.min(a.topSpeedMps, Math.max(norm4(preferredEnd), norm4(a.velocity), a.accelerationMps2 * dt));
     if (length > 0) for (const angle2 of [Math.PI / 6, -Math.PI / 6, Math.PI / 3, -Math.PI / 3, Math.PI / 2, -Math.PI / 2, 2 * Math.PI / 3, -2 * Math.PI / 3]) {
       const x = heading.x / length, z = heading.z / length;
       velocityCandidate(v(
@@ -9797,11 +10502,11 @@ var KneekuraNativeMatchCore = (() => {
   }
   function coordinateLiveFielderMotionV1(input) {
     const dt = input.throughSeconds - input.fromSeconds, actors = input.actors;
-    assert6(Number.isFinite(input.fromSeconds) && input.fromSeconds >= 0 && Number.isFinite(dt) && dt > 0, "finite positive motor interval required");
-    assert6(actors.length > 0 && actors.length <= 9 && new Set(actors.map((a) => a.playerId)).size === actors.length, "one to nine distinct actors required");
+    assert9(Number.isFinite(input.fromSeconds) && input.fromSeconds >= 0 && Number.isFinite(dt) && dt > 0, "finite positive motor interval required");
+    assert9(actors.length > 0 && actors.length <= 9 && new Set(actors.map((a) => a.playerId)).size === actors.length, "one to nine distinct actors required");
     for (const a of actors) {
-      assert6(typeof a.playerId === "string" && a.playerId.length > 0 && finite5(a.position) && finite5(a.velocity) && a.velocity.y === 0 && [a.accelerationMps2, a.topSpeedMps, a.bodyRadiusMeters].every((n) => Number.isFinite(n) && n > 0) && Number.isFinite(a.priority) && typeof a.canSteer === "boolean" && typeof a.accepts === "function", "valid actor SI state required");
-      assert6(norm3(a.velocity) <= a.topSpeedMps + 1e-9 && validMotor(a, a.preferred, dt), "preferred motor violates speed, acceleration or stopping constraints");
+      assert9(typeof a.playerId === "string" && a.playerId.length > 0 && finite5(a.position) && finite5(a.velocity) && a.velocity.y === 0 && [a.accelerationMps2, a.topSpeedMps, a.bodyRadiusMeters].every((n) => Number.isFinite(n) && n > 0) && Number.isFinite(a.priority) && typeof a.canSteer === "boolean" && typeof a.accepts === "function", "valid actor SI state required");
+      assert9(norm4(a.velocity) <= a.topSpeedMps + 1e-9 && validMotor(a, a.preferred, dt), "preferred motor violates speed, acceleration or stopping constraints");
     }
     const order = actors.map((_, i) => i).sort((i, j) => actors[j].priority - actors[i].priority || actors[i].position.x - actors[j].position.x || actors[i].position.z - actors[j].position.z || actors[i].velocity.x - actors[j].velocity.x || actors[i].velocity.z - actors[j].velocity.z || actors[i].accelerationMps2 - actors[j].accelerationMps2 || actors[i].topSpeedMps - actors[j].topSpeedMps), canonicalPairs = [...order].sort((i, j) => actors[i].position.x - actors[j].position.x || actors[i].position.z - actors[j].position.z || actors[i].velocity.x - actors[j].velocity.x || actors[i].velocity.z - actors[j].velocity.z), clearance = policy.clearanceMeters + policy.numericalReserveMeters;
     let evaluations = 0, pairEvaluations = 0;
@@ -9836,7 +10541,7 @@ var KneekuraNativeMatchCore = (() => {
       };
     };
     const preferenceCost = (i, m) => {
-      const a = actors[i], difference = sub4(m.acceleration, a.preferred.acceleration), preferredSpeed = norm3(path(a, a.preferred, dt).sample(dt).velocity), speed2 = norm3(path(a, m, dt).sample(dt).velocity);
+      const a = actors[i], difference = sub4(m.acceleration, a.preferred.acceleration), preferredSpeed = norm4(path(a, a.preferred, dt).sample(dt).velocity), speed2 = norm4(path(a, m, dt).sample(dt).velocity);
       return dot10(difference, difference) / a.accelerationMps2 ** 2 + 0.25 * Math.max(0, preferredSpeed - speed2) / (a.accelerationMps2 * dt);
     };
     const preferred = actors.map((a) => a.preferred), preferredAnalysis = analyze(preferred), initialOverlapPairs = preferredAnalysis.pairs.filter((p) => p.currentGapMeters < -1e-10).map((p) => ({ firstPlayerId: p.firstPlayerId, secondPlayerId: p.secondPlayerId, gapMeters: p.currentGapMeters }));
@@ -9919,15 +10624,15 @@ var KneekuraNativeMatchCore = (() => {
   }
 
   // src/core/sim/fielding/GroundWallRollingCurveV1.ts
-  var freeze17 = (value) => {
+  var freeze21 = (value) => {
     if (value && typeof value === "object") {
-      Object.values(value).forEach(freeze17);
+      Object.values(value).forEach(freeze21);
       Object.freeze(value);
     }
     return value;
   };
   function createGroundWallRollingCurveV1(raw) {
-    const p = freeze17(cloneInert(raw)), initial = p.initial, b = initial.ball, tps = p.profile.ground.ticksPerSecond;
+    const p = freeze21(cloneInert(raw)), initial = p.initial, b = initial.ball, tps = p.profile.ground.ticksPerSecond;
     const rx = b.position.x - p.fenceCenter.x, rz = b.position.z - p.fenceCenter.z, radius = Math.hypot(rx, rz);
     const gap = p.nominalContactRadiusMeters - radius, tangent = { x: rz / radius, y: 0, z: -rx / radius };
     const radialVelocity = (rx * b.velocity.x + rz * b.velocity.z) / radius;
@@ -9978,16 +10683,16 @@ var KneekuraNativeMatchCore = (() => {
         times[i] - times[i - 1]
       ) });
     }
-    const norm10 = (x) => Math.hypot(x.x, x.y, x.z);
+    const norm11 = (x) => Math.hypot(x.x, x.y, x.z);
     const cells = samples.slice(0, -1).map((s, i) => ({
       fromElapsedSeconds: s.moment.elapsedSeconds,
       throughElapsedSeconds: times[i + 1],
-      maximumPositionSpeedMps: Math.max(norm10(s.moment.ball.velocity), norm10(samples[i + 1].moment.ball.velocity)) + p.profile.ground.material.slidingFriction * p.profile.ground.gravityMps2 * (times[i + 1] - times[i]),
-      positionRoundingBoundMeters: 256 * Number.EPSILON * Math.max(1, norm10(s.moment.ball.position), norm10(samples[i + 1].moment.ball.position))
+      maximumPositionSpeedMps: Math.max(norm11(s.moment.ball.velocity), norm11(samples[i + 1].moment.ball.velocity)) + p.profile.ground.material.slidingFriction * p.profile.ground.gravityMps2 * (times[i + 1] - times[i]),
+      positionRoundingBoundMeters: 256 * Number.EPSILON * Math.max(1, norm11(s.moment.ball.position), norm11(samples[i + 1].moment.ball.position))
     }));
-    freeze17(samples);
-    freeze17(cells);
-    freeze17(boundaries);
+    freeze21(samples);
+    freeze21(cells);
+    freeze21(boundaries);
     const evaluateAt = (time) => {
       if (!Number.isFinite(time) || time < initial.elapsedSeconds || time > p.throughElapsedSeconds) throw new Error("ground wall rolling: finite source horizon exceeded");
       let lo = 0, hi = samples.length - 1;
@@ -9998,7 +10703,7 @@ var KneekuraNativeMatchCore = (() => {
       }
       if (times[lo] === time) return samples[lo];
       const a = samples[lo], next = stateAt(time), w = a.moment.ball.spin, z = next.moment.ball.spin;
-      return freeze17({ ...next, orientation: advanceBaseballOrientation(
+      return freeze21({ ...next, orientation: advanceBaseballOrientation(
         a.orientation,
         { x: (w.x + z.x) / 2, y: (w.y + z.y) / 2, z: (w.z + z.z) / 2 },
         time - times[lo]
@@ -10023,14 +10728,14 @@ var KneekuraNativeMatchCore = (() => {
   }
 
   // src/core/sim/fielding/LiveFieldForecastV1.ts
-  var fields8 = (v3, keys2, optional = []) => !!v3 && typeof v3 === "object" && !Array.isArray(v3) && keys2.every((k) => Object.hasOwn(v3, k)) && Object.keys(v3).every((k) => keys2.includes(k) || optional.includes(k));
+  var fields11 = (v3, keys2, optional = []) => !!v3 && typeof v3 === "object" && !Array.isArray(v3) && keys2.every((k) => Object.hasOwn(v3, k)) && Object.keys(v3).every((k) => keys2.includes(k) || optional.includes(k));
   var magnitude12 = (v3) => Math.hypot(v3.x, v3.y, v3.z);
-  function assert7(v3, message) {
+  function assert10(v3, message) {
     if (!v3) throw new Error("live field forecast: " + message);
   }
   function createLiveFieldForecastV1(raw) {
     const started = performance.now(), input = cloneInert(raw), horizon = input.horizonSeconds ?? 8;
-    assert7(fields8(input, ["observation", "physics"], ["horizonSeconds"]) && fields8(input.observation, ["tick", "position", "velocity", "spin"]) && Number.isFinite(horizon) && horizon > 0 && horizon <= 8, "observation and finite horizon up to eight seconds required");
+    assert10(fields11(input, ["observation", "physics"], ["horizonSeconds"]) && fields11(input.observation, ["tick", "position", "velocity", "spin"]) && Number.isFinite(horizon) && horizon > 0 && horizon <= 8, "observation and finite horizon up to eight seconds required");
     const profile = createAeroGroundBallPhysicsProfile(input.physics), kernel = createSourceFreeBallKernel({
       kind: "aero_ground_continuous_source_kernel_v2",
       initial: { originTick: input.observation.tick, elapsedSeconds: 0, ball: input.observation },
@@ -10052,7 +10757,7 @@ var KneekuraNativeMatchCore = (() => {
       venueReflectionPrediction: "NOT_AVAILABLE_WITHOUT_VENUE_GEOMETRY"
     });
     const sampleAtElapsedSeconds = (seconds) => {
-      assert7(Number.isFinite(seconds) && seconds >= 0 && seconds <= horizon, "sample outside finite prediction horizon");
+      assert10(Number.isFinite(seconds) && seconds >= 0 && seconds <= horizon, "sample outside finite prediction horizon");
       const began = performance.now(), sample3 = kernel.evaluateAt(seconds, "outgoing");
       queries++;
       maximumSampledSpeedMps = Math.max(maximumSampledSpeedMps, magnitude12(sample3.moment.ball.velocity));
@@ -10130,20 +10835,20 @@ var KneekuraNativeMatchCore = (() => {
   var dot11 = (a, b) => a.x * b.x + a.y * b.y + a.z * b.z;
   var sub5 = (a, b) => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
   var finite6 = (p) => !!p && [p.x, p.y, p.z].every(Number.isFinite);
-  var freeze18 = (value) => {
+  var freeze22 = (value) => {
     if (value && typeof value === "object") {
-      Object.values(value).forEach(freeze18);
+      Object.values(value).forEach(freeze22);
       Object.freeze(value);
     }
     return value;
   };
-  function assert8(value, message) {
+  function assert11(value, message) {
     if (!value) throw new Error("grounded actor contact: " + message);
   }
   function resolveGroundedActorContactResponseV1(raw) {
     const input = cloneInert(raw);
     const { incoming, actorResponse, ground, surfaceVelocity } = input, length = Math.sqrt(dot11(input.normal, input.normal));
-    assert8([
+    assert11([
       incoming?.position,
       incoming?.velocity,
       incoming?.spin,
@@ -10174,10 +10879,10 @@ var KneekuraNativeMatchCore = (() => {
         velocity = { ...nominal.velocity, y: groundTarget };
       } else {
         const horizontalSquared = normal4.x * normal4.x + normal4.z * normal4.z;
-        assert8(horizontalSquared > 0, "opposed parallel contact normals have no admissible impulse");
+        assert11(horizontalSquared > 0, "opposed parallel contact normals have no admissible impulse");
         actorImpulsePerMass = (actorTarget - normal4.x * (nominal.velocity.x - surfaceVelocity.x) - normal4.z * (nominal.velocity.z - surfaceVelocity.z) - normal4.y * (groundTarget - surfaceVelocity.y)) / horizontalSquared;
         groundImpulsePerMass = groundTarget - nominal.velocity.y - actorImpulsePerMass * normal4.y;
-        assert8(actorImpulsePerMass >= 0 && groundImpulsePerMass >= 0, "contact active-set impulses are tensile");
+        assert11(actorImpulsePerMass >= 0 && groundImpulsePerMass >= 0, "contact active-set impulses are tensile");
         activeSet = "both";
         velocity = {
           x: nominal.velocity.x + actorImpulsePerMass * normal4.x,
@@ -10187,8 +10892,8 @@ var KneekuraNativeMatchCore = (() => {
       }
     }
     const actorNormalSpeed = dot11(sub5(velocity, surfaceVelocity), normal4), groundNormalSpeed = velocity.y;
-    assert8(finite6(velocity) && [actorImpulsePerMass, groundImpulsePerMass].every(Number.isFinite) && actorNormalSpeed >= 0 && groundNormalSpeed >= 0, "no finite nonclosing two-contact response");
-    return freeze18({ ball: { ...nominal, velocity }, proof: {
+    assert11(finite6(velocity) && [actorImpulsePerMass, groundImpulsePerMass].every(Number.isFinite) && actorNormalSpeed >= 0 && groundNormalSpeed >= 0, "no finite nonclosing two-contact response");
+    return freeze22({ ball: { ...nominal, velocity }, proof: {
       basis: "EXPLICIT_TWO_CONTACT_NORMAL_ACTIVE_SET_V1",
       activeSet,
       normal: normal4,
@@ -10208,21 +10913,21 @@ var KneekuraNativeMatchCore = (() => {
   var add13 = (a, b) => ({ x: a.x + b.x, y: a.y + b.y, z: a.z + b.z });
   var sub6 = (a, b) => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
   var mul2 = (a, n) => ({ x: a.x * n, y: a.y * n, z: a.z * n });
-  var norm4 = (v3) => Math.hypot(v3.x, v3.y, v3.z);
+  var norm5 = (v3) => Math.hypot(v3.x, v3.y, v3.z);
   var values = (v3) => [v3.x, v3.y, v3.z];
   var vector7 = (a) => ({ x: a[0], y: a[1], z: a[2] });
   var matvec = (a, v3) => a.map((row) => row.reduce((s, x, i) => s + x * v3[i], 0));
   var dot12 = (a, b) => a.reduce((s, x, i) => s + x * b[i], 0);
-  var fields9 = (a, required, optional = []) => !!a && typeof a === "object" && !Array.isArray(a) && required.every((k) => Object.hasOwn(a, k)) && Object.keys(a).every((k) => required.includes(k) || optional.includes(k));
-  var finiteVec = (v3) => fields9(v3, ["x", "y", "z"]) && values(v3).every(Number.isFinite);
-  function assert9(v3, message) {
+  var fields12 = (a, required, optional = []) => !!a && typeof a === "object" && !Array.isArray(a) && required.every((k) => Object.hasOwn(a, k)) && Object.keys(a).every((k) => required.includes(k) || optional.includes(k));
+  var finiteVec = (v3) => fields12(v3, ["x", "y", "z"]) && values(v3).every(Number.isFinite);
+  function assert12(v3, message) {
     if (!v3) throw new Error("live throw plan: " + message);
   }
   function planLiveThrowV1(raw) {
     const started = performance.now(), input = cloneInert(raw), maximumFlightSeconds = input.maximumFlightSeconds ?? 4;
-    assert9(fields9(input, ["releasePosition", "bodyVelocity", "maximumThrowSpeedMps", "spin", "physics", "target"], ["maximumFlightSeconds"]) && [input.releasePosition, input.bodyVelocity, input.spin, input.target].every(finiteVec) && Number.isFinite(input.maximumThrowSpeedMps) && input.maximumThrowSpeedMps > 0 && input.maximumThrowSpeedMps <= 120 && Number.isFinite(maximumFlightSeconds) && maximumFlightSeconds >= 0.05 && maximumFlightSeconds <= 8, "finite throw command, target and SI speed required");
+    assert12(fields12(input, ["releasePosition", "bodyVelocity", "maximumThrowSpeedMps", "spin", "physics", "target"], ["maximumFlightSeconds"]) && [input.releasePosition, input.bodyVelocity, input.spin, input.target].every(finiteVec) && Number.isFinite(input.maximumThrowSpeedMps) && input.maximumThrowSpeedMps > 0 && input.maximumThrowSpeedMps <= 120 && Number.isFinite(maximumFlightSeconds) && maximumFlightSeconds >= 0.05 && maximumFlightSeconds <= 8, "finite throw command, target and SI speed required");
     const physics = createAeroGroundBallPhysicsProfile(input.physics), tolerance = 0.02, initial = (velocity) => ({ tick: 0, position: input.releasePosition, velocity, spin: input.spin });
-    assert9(input.releasePosition.y >= physics.ground.radiusM && input.target.y >= physics.ground.radiusM, "airborne throw endpoints must be above the physical floor");
+    assert12(input.releasePosition.y >= physics.ground.radiusM && input.target.y >= physics.ground.radiusM, "airborne throw endpoints must be above the physical floor");
     let candidateCount = 0, solverEvaluationCount = 0, shootingIntegrationStepUpperBound = 0, verificationKernelBuilds = 0, completedWallMilliseconds = 0;
     const performanceCounters = () => Object.freeze({
       wallMilliseconds: completedWallMilliseconds,
@@ -10245,7 +10950,7 @@ var KneekuraNativeMatchCore = (() => {
       maximumFlightSeconds,
       maximumThrowSpeedMps: input.maximumThrowSpeedMps
     });
-    const delta = sub6(input.target, input.releasePosition), directDistance = norm4(delta), firstTime = Math.max(0.05, directDistance / (input.maximumThrowSpeedMps + norm4(input.bodyVelocity)));
+    const delta = sub6(input.target, input.releasePosition), directDistance = norm5(delta), firstTime = Math.max(0.05, directDistance / (input.maximumThrowSpeedMps + norm5(input.bodyVelocity)));
     const candidates = [];
     for (let t = firstTime; t < maximumFlightSeconds && candidates.length < 18; t = Math.max(t + 0.035, t * 1.16)) candidates.push(t);
     if (candidates.at(-1) !== maximumFlightSeconds) candidates.push(maximumFlightSeconds);
@@ -10257,7 +10962,7 @@ var KneekuraNativeMatchCore = (() => {
         if (solverEvaluationCount >= 100) break;
         solverEvaluationCount++;
         shootingIntegrationStepUpperBound += 1 + Math.ceil(seconds * physics.air.ticksPerSecond / physics.air.integrationStepTicks);
-        const arrival = sampleAerodynamicPitchStateAtElapsedSeconds(initial(velocity), seconds, physics.air), error = sub6(input.target, arrival.position), errorMeters = norm4(error), relativeSpeed = norm4(sub6(velocity, input.bodyVelocity));
+        const arrival = sampleAerodynamicPitchStateAtElapsedSeconds(initial(velocity), seconds, physics.air), error = sub6(input.target, arrival.position), errorMeters = norm5(error), relativeSpeed = norm5(sub6(velocity, input.bodyVelocity));
         if (errorMeters < bestRejectedError) {
           bestRejectedError = errorMeters;
           bestRejectedRelativeSpeed = relativeSpeed;
@@ -10270,7 +10975,7 @@ var KneekuraNativeMatchCore = (() => {
             initial: { originTick: 0, elapsedSeconds: 0, ball: initial(velocity) },
             throughElapsedSeconds: seconds,
             profile: physics
-          }), verified = kernel.evaluateAt(seconds, "incoming"), verifiedError = norm4(sub6(input.target, verified.moment.ball.position));
+          }), verified = kernel.evaluateAt(seconds, "incoming"), verifiedError = norm5(sub6(input.target, verified.moment.ball.position));
           if (kernel.boundaries.some((b) => b.kind === "ground" && b.elapsedSeconds < seconds) || verifiedError > tolerance) break;
           completedWallMilliseconds = performance.now() - started;
           const result = Object.freeze({
@@ -10288,17 +10993,17 @@ var KneekuraNativeMatchCore = (() => {
         }
         if (previous) {
           const step2 = values(sub6(velocity, previous.velocity)), change = values(sub6(arrival.position, previous.position)), mapped = matvec(inverse, change), row = [0, 1, 2].map((j) => step2.reduce((s, x, i) => s + x * inverse[i][j], 0)), denominator = dot12(step2, mapped);
-          if (Math.abs(denominator) > 1e-12 * Math.max(1, norm4(vector7(step2)) * norm4(vector7(mapped)))) {
+          if (Math.abs(denominator) > 1e-12 * Math.max(1, norm5(vector7(step2)) * norm5(vector7(mapped)))) {
             inverse = inverse.map((line, i) => line.map((x, j) => x + (step2[i] - mapped[i]) * row[j] / denominator));
           }
         }
         previous = { velocity, position: arrival.position };
         let step = vector7(matvec(inverse, values(error)));
         if (!finiteVec(step)) break;
-        const length = norm4(step), stepLimit = Math.max(20, input.maximumThrowSpeedMps * 2);
+        const length = norm5(step), stepLimit = Math.max(20, input.maximumThrowSpeedMps * 2);
         if (length > stepLimit) step = mul2(step, stepLimit / length);
         velocity = add13(velocity, step);
-        if (norm4(velocity) > 240) break;
+        if (norm5(velocity) > 240) break;
       }
     }
     completedWallMilliseconds = performance.now() - started;
@@ -10316,7 +11021,7 @@ var KneekuraNativeMatchCore = (() => {
 
   // src/core/sim/fielding/LiveHandPreparationV1.ts
   var zero3 = Object.freeze({ x: 0, y: 0, z: 0 });
-  var norm5 = (p) => Math.hypot(p.x, p.y, p.z);
+  var norm6 = (p) => Math.hypot(p.x, p.y, p.z);
   var dot13 = (a, b) => a.x * b.x + a.y * b.y + a.z * b.z;
   var add14 = (a, b) => ({ x: a.x + b.x, y: a.y + b.y, z: a.z + b.z });
   var sub7 = (a, b) => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
@@ -10328,7 +11033,7 @@ var KneekuraNativeMatchCore = (() => {
   function createLiveHandPreparationV1(raw) {
     if (!raw || typeof raw !== "object" || !Number.isFinite(raw.fromElapsedSeconds) || raw.fromElapsedSeconds < 0 || ![raw.initialOffset, raw.initialRelativeVelocity, raw.targetOffset].every(finiteVec2) || !Number.isFinite(raw.maximumRelativeSpeedMps) || raw.maximumRelativeSpeedMps <= 0 || !Number.isFinite(raw.maximumReachMeters) || raw.maximumReachMeters <= 0)
       return unreachable("INVALID_FINITE_HAND_PREPARATION_INPUT");
-    const from = raw.fromElapsedSeconds, a = copy(raw.initialOffset), v3 = copy(raw.initialRelativeVelocity), b = copy(raw.targetOffset), speedLimit = raw.maximumRelativeSpeedMps, reach = raw.maximumReachMeters, initialReach = norm5(a), targetReach = norm5(b), initialSpeed = norm5(v3), delta = sub7(b, a), distance6 = norm5(delta);
+    const from = raw.fromElapsedSeconds, a = copy(raw.initialOffset), v3 = copy(raw.initialRelativeVelocity), b = copy(raw.targetOffset), speedLimit = raw.maximumRelativeSpeedMps, reach = raw.maximumReachMeters, initialReach = norm6(a), targetReach = norm6(b), initialSpeed = norm6(v3), delta = sub7(b, a), distance6 = norm6(delta);
     if (initialReach > reach || targetReach > reach) return unreachable("ENDPOINT_OUTSIDE_REACH");
     if (initialSpeed > speedLimit) return unreachable("INITIAL_RELATIVE_SPEED_EXCEEDS_MOTOR");
     if (!Number.isFinite(distance6)) return unreachable("NO_FINITE_C1_PREPARATION_WITHIN_CONTROL_BOUNDS");
@@ -10375,7 +11080,7 @@ var KneekuraNativeMatchCore = (() => {
       const through = from + candidate, duration = through - from;
       if (!Number.isFinite(candidate) || !Number.isFinite(through) || !Number.isFinite(duration) || duration <= 0) continue;
       candidateCount++;
-      const fullControls = controls(a, add14(a, mul3(v3, duration / 3)), b, b), middleDerivative = sub7(mul3(delta, 3 / duration), v3), derivativeControls = fullControls.slice(1).map((point, n) => mul3(sub7(point, fullControls[n]), 3 / duration)), reachBound = Math.max(...fullControls.map(norm5)), speedBound = Math.max(initialSpeed, norm5(middleDerivative), ...derivativeControls.map(norm5)), startAcceleration = add14(mul3(mul3(delta, 1 / duration), 6 / duration), mul3(v3, -4 / duration)), endAcceleration = add14(mul3(mul3(delta, 1 / duration), -6 / duration), mul3(v3, 2 / duration));
+      const fullControls = controls(a, add14(a, mul3(v3, duration / 3)), b, b), middleDerivative = sub7(mul3(delta, 3 / duration), v3), derivativeControls = fullControls.slice(1).map((point, n) => mul3(sub7(point, fullControls[n]), 3 / duration)), reachBound = Math.max(...fullControls.map(norm6)), speedBound = Math.max(initialSpeed, norm6(middleDerivative), ...derivativeControls.map(norm6)), startAcceleration = add14(mul3(mul3(delta, 1 / duration), 6 / duration), mul3(v3, -4 / duration)), endAcceleration = add14(mul3(mul3(delta, 1 / duration), -6 / duration), mul3(v3, 2 / duration));
       if (!fullControls.every(finiteVec2) || !derivativeControls.every(finiteVec2) || !finiteVec2(middleDerivative) || !finiteVec2(startAcceleration) || !finiteVec2(endAcceleration) || reachBound > reach || speedBound > speedLimit) continue;
       return build(duration, through, fullControls, reachBound, speedBound, candidateCount);
     }
@@ -10398,9 +11103,9 @@ var KneekuraNativeMatchCore = (() => {
   });
   var flatDistance2 = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
   var finite7 = (p) => p && [p.x, p.y, p.z].every(Number.isFinite);
-  var freeze19 = (x) => {
+  var freeze23 = (x) => {
     if (x && typeof x === "object") {
-      Object.values(x).forEach(freeze19);
+      Object.values(x).forEach(freeze23);
       Object.freeze(x);
     }
     return x;
@@ -10551,7 +11256,7 @@ var KneekuraNativeMatchCore = (() => {
       result.push({ playerId: player.playerId, ...role, ...role.intent === "hold" ? { taskId: "hold:" + player.playerId, point: player.homePosition } : {} });
       mask ^= 1 << actor;
     }
-    return freeze19(actors.map((a) => result.find((r) => r.playerId === a.playerId)));
+    return freeze23(actors.map((a) => result.find((r) => r.playerId === a.playerId)));
   }
 
   // src/core/sim/fielding/LiveThrowDirectionV1.ts
@@ -10589,15 +11294,15 @@ var KneekuraNativeMatchCore = (() => {
     safetyMarginSeconds: 0.35,
     recognitionSeconds: 0
   });
-  function assert10(value, message) {
+  function assert13(value, message) {
     if (!value) throw new Error("live runner advance: " + message);
   }
-  var nonnegative = (value) => Number.isFinite(value) && value >= 0;
+  var nonnegative2 = (value) => Number.isFinite(value) && value >= 0;
   function estimateLiveRunnerLegSecondsV1(distanceMeters, topSpeedMps, accelerationMps2, touchRadiusMeters = 0) {
-    assert10(nonnegative(distanceMeters) && Number.isFinite(topSpeedMps) && topSpeedMps > 0 && Number.isFinite(accelerationMps2) && accelerationMps2 > 0 && nonnegative(touchRadiusMeters), "finite runner route SI required");
+    assert13(nonnegative2(distanceMeters) && Number.isFinite(topSpeedMps) && topSpeedMps > 0 && Number.isFinite(accelerationMps2) && accelerationMps2 > 0 && nonnegative2(touchRadiusMeters), "finite runner route SI required");
     if (distanceMeters <= touchRadiusMeters) return 0;
     const peak = Math.min(topSpeedMps, Math.sqrt(accelerationMps2 * distanceMeters)), accelerateFor = peak / accelerationMps2, coastFor = Math.max(0, (distanceMeters - peak * peak / accelerationMps2) / peak), duration = 2 * accelerateFor + coastFor;
-    assert10(Number.isFinite(duration), "runner duration exceeds finite SI");
+    assert13(Number.isFinite(duration), "runner duration exceeds finite SI");
     if (touchRadiusMeters === 0) return duration;
     const travel = distanceMeters - touchRadiusMeters, acceleratingDistance = peak * peak / (2 * accelerationMps2), coastingDistance = peak * coastFor;
     return travel <= acceleratingDistance ? Math.sqrt(2 * travel / accelerationMps2) : travel <= acceleratingDistance + coastingDistance ? accelerateFor + (travel - acceleratingDistance) / peak : duration - Math.sqrt(2 * touchRadiusMeters / accelerationMps2);
@@ -10605,28 +11310,28 @@ var KneekuraNativeMatchCore = (() => {
   function decideLiveRunnerAdvanceV1(input) {
     if (input.runner.technicalSkills !== void 0) validateTechnicalSkillControlsV75(input.runner.technicalSkills);
     const safetyMargin = input.policy?.safetyMarginSeconds ?? LIVE_RUNNER_ADVANCE_POLICY_V1.safetyMarginSeconds, recognition = input.policy?.recognitionSeconds ?? LIVE_RUNNER_ADVANCE_POLICY_V1.recognitionSeconds, reaction = input.runner.reactionSeconds;
-    assert10(nonnegative(input.nowSeconds) && nonnegative(input.playStartedAtSeconds) && input.playStartedAtSeconds <= input.nowSeconds, "finite ordered play clock required");
-    assert10([0, 1, 2, 3].includes(input.currentBase) && typeof input.targetOccupied === "boolean" && typeof input.forced === "boolean", "explicit runner base and obligation required");
-    assert10(input.outs === void 0 || [0, 1, 2].includes(input.outs), "invalid active out count");
-    assert10(nonnegative(reaction) && nonnegative(safetyMargin) && nonnegative(recognition), "finite reaction and policy SI required");
-    assert10(input.awardThroughBase === void 0 || input.awardThroughBase === null || [1, 2, 3, 4].includes(input.awardThroughBase), "invalid physical award target");
+    assert13(nonnegative2(input.nowSeconds) && nonnegative2(input.playStartedAtSeconds) && input.playStartedAtSeconds <= input.nowSeconds, "finite ordered play clock required");
+    assert13([0, 1, 2, 3].includes(input.currentBase) && typeof input.targetOccupied === "boolean" && typeof input.forced === "boolean", "explicit runner base and obligation required");
+    assert13(input.outs === void 0 || [0, 1, 2].includes(input.outs), "invalid active out count");
+    assert13(nonnegative2(reaction) && nonnegative2(safetyMargin) && nonnegative2(recognition), "finite reaction and policy SI required");
+    assert13(input.awardThroughBase === void 0 || input.awardThroughBase === null || [1, 2, 3, 4].includes(input.awardThroughBase), "invalid physical award target");
     const cues = [input.firstGroundContactElapsedSeconds, input.firstFielderTouchElapsedSeconds];
-    assert10(
-      cues.every((cue) => cue === null || nonnegative(cue) && cue >= input.playStartedAtSeconds && cue <= input.nowSeconds),
+    assert13(
+      cues.every((cue) => cue === null || nonnegative2(cue) && cue >= input.playStartedAtSeconds && cue <= input.nowSeconds),
       "departure cue must be an occurred physical event"
     );
-    assert10(
-      input.defenderControlSeconds === null || nonnegative(input.defenderControlSeconds) || input.defenderControlSeconds === Infinity,
+    assert13(
+      input.defenderControlSeconds === null || nonnegative2(input.defenderControlSeconds) || input.defenderControlSeconds === Infinity,
       "invalid defense control forecast"
     );
-    assert10(input.airborneAssessment === void 0 || nonnegative(input.airborneAssessment.observedAtSeconds) && input.airborneAssessment.observedAtSeconds >= input.playStartedAtSeconds && input.airborneAssessment.observedAtSeconds <= input.nowSeconds && Number.isFinite(input.airborneAssessment.catchMarginSeconds), "airborne assessment must come from occurred observation");
+    assert13(input.airborneAssessment === void 0 || nonnegative2(input.airborneAssessment.observedAtSeconds) && input.airborneAssessment.observedAtSeconds >= input.playStartedAtSeconds && input.airborneAssessment.observedAtSeconds <= input.nowSeconds && Number.isFinite(input.airborneAssessment.catchMarginSeconds), "airborne assessment must come from occurred observation");
     const runnerTravelSeconds = estimateLiveRunnerLegSecondsV1(
       input.distanceToNextBaseMeters,
       input.runner.topSpeedMps,
       input.runner.accelerationMps2,
       input.baseTouchRadiusMeters ?? 0
     ), award = input.awardThroughBase !== void 0 && input.awardThroughBase !== null && input.awardThroughBase > input.currentBase, batter = input.currentBase === 0, twoOuts = input.outs === 2 && input.firstGroundContactElapsedSeconds === null && input.firstFielderTouchElapsedSeconds === null, groundedForce = input.forced && input.firstGroundContactElapsedSeconds !== null, available = cues.filter((cue) => cue !== null), airborne = available.length === 0 && input.airborneAssessment !== void 0, legalCue = batter || award || twoOuts ? input.playStartedAtSeconds : groundedForce ? input.firstGroundContactElapsedSeconds : available.length ? Math.min(...available) : airborne ? input.playStartedAtSeconds : null, startSkill = batter ? input.runner.technicalSkills?.bat_to_run_transition ?? 0 : 0, departureReaction = startSkill > 0 ? reaction * (1 - 0.15 * startSkill) : reaction, readyAtElapsedSeconds = legalCue === null ? null : legalCue + (departureReaction + recognition);
-    assert10(readyAtElapsedSeconds === null || Number.isFinite(readyAtElapsedSeconds), "recognition exceeds finite play clock");
+    assert13(readyAtElapsedSeconds === null || Number.isFinite(readyAtElapsedSeconds), "recognition exceeds finite play clock");
     const runnerArrivalSeconds = readyAtElapsedSeconds === null ? null : Math.max(0, readyAtElapsedSeconds - input.nowSeconds) + runnerTravelSeconds, raceMarginSeconds = input.defenderControlSeconds === null || runnerArrivalSeconds === null ? null : input.defenderControlSeconds - runnerArrivalSeconds;
     const result = (advance, reason) => Object.freeze({
       advance,
@@ -10689,12 +11394,12 @@ var KneekuraNativeMatchCore = (() => {
   var add15 = (a, b) => ({ x: a.x + b.x, y: a.y + b.y, z: a.z + b.z });
   var sub8 = (a, b) => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
   var mul4 = (p, scale13) => ({ x: p.x * scale13, y: p.y * scale13, z: p.z * scale13 });
-  var norm6 = (p) => Math.hypot(p.x, p.y, p.z);
+  var norm7 = (p) => Math.hypot(p.x, p.y, p.z);
   var flatDistance3 = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
   var finite8 = (p) => !!p && [p.x, p.y, p.z].every(Number.isFinite);
-  var freeze20 = (value) => {
+  var freeze24 = (value) => {
     if (value && typeof value === "object") {
-      Object.values(value).forEach(freeze20);
+      Object.values(value).forEach(freeze24);
       Object.freeze(value);
     }
     return value;
@@ -10725,11 +11430,11 @@ var KneekuraNativeMatchCore = (() => {
       return { x: a.position.x + a.velocity.x * factor, y: a.position.y, z: a.position.z + a.velocity.z * factor };
     }, bodyPoint = (a) => a === holder ? a.position : relayBodyPoint(a), point = (a) => a === receiver ? input.target : add15(relayBodyPoint(a), sub8(a.glovePosition, a.position)), receiverPoint = (a) => a === receiver ? { x: input.target.x, y: a.position.y, z: input.target.z } : relayBodyPoint(a), remainingDistance = (a) => flatDistance3(bodyPoint(a), input.target), progresses = (from, to) => to === receiver || remainingDistance(to) + policy2.minimumProgressMeters < remainingDistance(from);
     const handOffset = (from, target) => {
-      const origin2 = bodyPoint(from), direction = { x: target.x - origin2.x, y: 0, z: target.z - origin2.z }, length = norm6(direction), desired = add15(
+      const origin2 = bodyPoint(from), direction = { x: target.x - origin2.x, y: 0, z: target.z - origin2.z }, length = norm7(direction), desired = add15(
         mul4(direction, input.throwHandOffset.forwardMeters / Math.max(length, 1e-30)),
         { x: 0, y: input.throwHandOffset.heightAboveHipMeters, z: 0 }
       );
-      return mul4(desired, Math.min(1, from.gloveReachMeters / Math.max(norm6(desired), 1e-30)));
+      return mul4(desired, Math.min(1, from.gloveReachMeters / Math.max(norm7(desired), 1e-30)));
     };
     const edgeGeometry = (from, to) => {
       const target = point(to), offset = handOffset(from, target), preparation = createLiveHandPreparationV1({
@@ -10777,7 +11482,7 @@ var KneekuraNativeMatchCore = (() => {
     const cheapCost = (route) => {
       let seconds = 0, risk = 0;
       for (let i = 1; i < route.length; i++) {
-        const from = route[i - 1], to = route[i], g = geometry(from, to), flight = Math.max(0.05, norm6(sub8(g.target, g.releasePosition)) / (from.throwSpeedMps + norm6(g.bodyVelocity)));
+        const from = route[i - 1], to = route[i], g = geometry(from, to), flight = Math.max(0.05, norm7(sub8(g.target, g.releasePosition)) / (from.throwSpeedMps + norm7(g.bodyVelocity)));
         seconds = Math.max(seconds + g.transferSeconds + g.preparationSeconds + flight, g.receiverArrivalSeconds) + g.acquisitionSeconds;
         risk += g.directionRecoveryCostSeconds;
       }
@@ -10845,7 +11550,7 @@ var KneekuraNativeMatchCore = (() => {
       if (!best || costSeconds2 < best.costSeconds) best = { legs: legs2, readySeconds: seconds, costSeconds: costSeconds2 };
     }
     const carrySeconds = liveFieldArrivalSecondsV1({ ...holder, remainingReactionSeconds: 0 }, input.target, policy2.baseTouchRadiusMeters), carryPreferred = !best || carrySeconds <= best.costSeconds, readySeconds = carryPreferred ? carrySeconds : best.readySeconds, costSeconds = carryPreferred ? carrySeconds : best.costSeconds, marginSeconds = input.runnerArrivalSeconds - costSeconds - minimumMargin, legs = !carryPreferred && marginSeconds > 0 ? best.legs : [], first = legs[0], kind = marginSeconds <= 0 ? "hold" : carryPreferred ? "carry" : legs.length === 1 ? "direct" : "relay";
-    return freeze20({
+    return freeze24({
       kind,
       finalBase: input.finalBase,
       runnerId: input.runnerId,
@@ -11020,15 +11725,15 @@ var KneekuraNativeMatchCore = (() => {
   var add16 = (a, b) => ({ x: a.x + b.x, z: a.z + b.z });
   var sub9 = (a, b) => ({ x: a.x - b.x, z: a.z - b.z });
   var mul5 = (a, n) => ({ x: a.x * n, z: a.z * n });
-  var norm7 = (a) => Math.hypot(a.x, a.z);
+  var norm8 = (a) => Math.hypot(a.x, a.z);
   var dot14 = (a, b) => a.x * b.x + a.z * b.z;
   var normal3 = (a) => ({ x: -a.z, z: a.x });
-  var unit3 = (a) => mul5(a, 1 / norm7(a));
+  var unit3 = (a) => mul5(a, 1 / norm8(a));
   var angle = (a) => Math.atan2(a.z, a.x);
   var polar = (a) => ({ x: Math.cos(a), z: Math.sin(a) });
   var positiveAngle = (a) => (a % TWO_PI + TWO_PI) % TWO_PI;
   var finite9 = (a) => !!a && Number.isFinite(a.x) && Number.isFinite(a.z);
-  var segmentLength2 = (s) => s.kind === "line" ? norm7(sub9(s.end, s.start)) : s.radiusMeters * Math.abs(s.sweepRadians);
+  var segmentLength2 = (s) => s.kind === "line" ? norm8(sub9(s.end, s.start)) : s.radiusMeters * Math.abs(s.sweepRadians);
   var arc = (center, radiusMeters, from, to, direction) => ({
     kind: "arc",
     center,
@@ -11037,12 +11742,12 @@ var KneekuraNativeMatchCore = (() => {
     sweepRadians: direction * positiveAngle(direction * (angle(sub9(to, center)) - angle(sub9(from, center))))
   });
   function connect(from, heading, to, endHeading, radius) {
-    if (norm7(sub9(from, to)) <= EPSILON16 && dot14(heading, endHeading) > 1 - EPSILON16) return [];
+    if (norm8(sub9(from, to)) <= EPSILON16 && dot14(heading, endHeading) > 1 - EPSILON16) return [];
     const candidates = [];
     for (const left of [-1, 1]) for (const right of [-1, 1]) {
       const first = add16(from, mul5(normal3(heading), left * radius));
       const last = add16(to, mul5(normal3(endHeading), right * radius));
-      const delta = sub9(last, first), length = norm7(delta), shift = (left - right) * radius;
+      const delta = sub9(last, first), length = norm8(delta), shift = (left - right) * radius;
       if (length > EPSILON16 && length + EPSILON16 >= Math.abs(shift)) {
         const tangent = polar(angle(delta) + Math.asin(Math.max(-1, Math.min(1, shift / length))));
         const a = sub9(first, mul5(normal3(tangent), left * radius));
@@ -11065,7 +11770,7 @@ var KneekuraNativeMatchCore = (() => {
     const cleaned = candidates.map((parts) => parts.filter((part) => segmentLength2(part) > EPSILON16)).filter((parts) => {
       const winding = parts.reduce((sum, s) => sum + (s.kind === "arc" ? Math.abs(s.sweepRadians) : 0), 0);
       const pathLength = parts.reduce((sum, s) => sum + segmentLength2(s), 0);
-      return winding <= Math.PI + EPSILON16 && pathLength <= norm7(sub9(to, from)) + 2 * radius + EPSILON16;
+      return winding <= Math.PI + EPSILON16 && pathLength <= norm8(sub9(to, from)) + 2 * radius + EPSILON16;
     });
     cleaned.sort((a, b) => a.reduce((sum, s) => sum + segmentLength2(s), 0) - b.reduce((sum, s) => sum + segmentLength2(s), 0));
     return cleaned[0] ?? null;
@@ -11167,7 +11872,7 @@ var KneekuraNativeMatchCore = (() => {
         const discriminant = b * b - dot14(offset, offset) + radius * radius;
         if (discriminant >= 0) candidates.push(-b - Math.sqrt(discriminant), -b + Math.sqrt(discriminant));
       } else {
-        const offset = sub9(bag, part.center), d = norm7(offset);
+        const offset = sub9(bag, part.center), d = norm8(offset);
         if (d > 0) {
           const cosine = (part.radiusMeters ** 2 + d * d - radius * radius) / (2 * part.radiusMeters * d);
           if (cosine >= -1 && cosine <= 1) for (const sign of [-1, 1]) {
@@ -11181,13 +11886,13 @@ var KneekuraNativeMatchCore = (() => {
         if (local < -EPSILON16 || local > maximum + EPSILON16) continue;
         let candidate = Math.max(traversed, Math.min(centerDistance, traversed + local));
         for (let attempt = 0; attempt < 12; attempt++) {
-          if (norm7(sub9(sampleRunnerRoute(route, candidate).position, bag)) <= radius) return candidate;
+          if (norm8(sub9(sampleRunnerRoute(route, candidate).position, bag)) <= radius) return candidate;
           candidate = Math.min(centerDistance, candidate + Number.EPSILON * Math.max(1, centerDistance) * 2 ** attempt);
         }
       }
       traversed += length;
     }
-    if (norm7(sub9(sampleRunnerRoute(route, centerDistance).position, bag)) <= radius) return centerDistance;
+    if (norm8(sub9(sampleRunnerRoute(route, centerDistance).position, bag)) <= radius) return centerDistance;
     throw new Error("live runner motion: planned base lacks a physical touch");
   }
   function createLiveRunnerMotionV1(input) {
@@ -11202,10 +11907,10 @@ var KneekuraNativeMatchCore = (() => {
     }
     let previous = input.position;
     for (const bag of input.bases) {
-      if (norm7(sub9(bag.position, previous)) <= EPSILON16) throw new Error("live runner motion: consecutive positions must differ");
+      if (norm8(sub9(bag.position, previous)) <= EPSILON16) throw new Error("live runner motion: consecutive positions must differ");
       previous = bag.position;
     }
-    const initialSpeed = input.velocity ? norm7(input.velocity) : 0;
+    const initialSpeed = input.velocity ? norm8(input.velocity) : 0;
     if (initialSpeed > input.topSpeedMps + EPSILON16) return null;
     const geometry = buildRoute(input, radius, lateral, initialSpeed);
     if (!geometry) return null;
@@ -11477,19 +12182,19 @@ var KneekuraNativeMatchCore = (() => {
   var add17 = (a, b) => v2(a.x + b.x, a.y + b.y, a.z + b.z);
   var sub10 = (a, b) => v2(a.x - b.x, a.y - b.y, a.z - b.z);
   var mul6 = (a, s) => v2(a.x * s, a.y * s, a.z * s);
-  var norm8 = (a) => Math.hypot(a.x, a.y, a.z);
+  var norm9 = (a) => Math.hypot(a.x, a.y, a.z);
   var flat = (a) => v2(a.x, 0, a.z);
-  var distance5 = (a, b) => norm8(sub10(a, b));
+  var distance5 = (a, b) => norm9(sub10(a, b));
   var finite10 = (a) => !!a && [a.x, a.y, a.z].every(Number.isFinite);
-  var clamp2 = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
-  var freeze21 = (a) => {
+  var clamp3 = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
+  var freeze25 = (a) => {
     if (a && typeof a === "object") {
-      Object.values(a).forEach(freeze21);
+      Object.values(a).forEach(freeze25);
       Object.freeze(a);
     }
     return a;
   };
-  function assert11(a, m) {
+  function assert14(a, m) {
     if (!a) throw new Error("live field play: " + m);
   }
   var at = (c, t) => {
@@ -11514,21 +12219,21 @@ var KneekuraNativeMatchCore = (() => {
     if (c.stopAfter !== void 0 && c.from + c.stopAfter > from && c.from + c.stopAfter < through)
       return Math.max(maximumCurveSpeed(c, from, c.from + c.stopAfter), maximumCurveSpeed(c, c.from + c.stopAfter, through));
     const dt = through - from, after = c.stopAfter !== void 0 && from - c.from >= c.stopAfter, local = from - c.from - (after ? c.stopAfter : 0), acceleration = add17(after ? c.continuingAcceleration ?? v2() : c.acceleration, mul6(after ? c.continuingJerk ?? v2() : c.jerk ?? v2(), local)), middleDerivativeControl = add17(velocityAt(c, from), mul6(acceleration, dt / 2));
-    return Math.max(norm8(velocityAt(c, from)), norm8(velocityAt(c, through)), norm8(middleDerivativeControl));
+    return Math.max(norm9(velocityAt(c, from)), norm9(velocityAt(c, through)), norm9(middleDerivativeControl));
   };
   var maximumCurveAcceleration = (c, through) => {
     const dt = Math.min(through - c.from, c.stopAfter ?? Infinity), after = Math.max(0, through - c.from - (c.stopAfter ?? Infinity));
     return Math.max(
-      norm8(c.acceleration),
-      norm8(add17(c.acceleration, mul6(c.jerk ?? v2(), dt))),
-      norm8(c.continuingAcceleration ?? v2()),
-      norm8(add17(c.continuingAcceleration ?? v2(), mul6(c.continuingJerk ?? v2(), after)))
+      norm9(c.acceleration),
+      norm9(add17(c.acceleration, mul6(c.jerk ?? v2(), dt))),
+      norm9(c.continuingAcceleration ?? v2()),
+      norm9(add17(c.continuingAcceleration ?? v2(), mul6(c.continuingJerk ?? v2(), after)))
     );
   };
   function deriveLiveFieldFenceGeometryV1(field) {
     const back = field.foulFenceRadiusMeters ?? 35;
-    assert11(finite10(field.bases.home) && Number.isFinite(back) && back > 0 && Number.isFinite(field.fenceRadiusMeters) && field.fenceRadiusMeters > 0 && Number.isFinite(field.fenceHeightMeters) && field.fenceHeightMeters >= 0, "finite fence geometry required");
-    return freeze21({
+    assert14(finite10(field.bases.home) && Number.isFinite(back) && back > 0 && Number.isFinite(field.fenceRadiusMeters) && field.fenceRadiusMeters > 0 && Number.isFinite(field.fenceHeightMeters) && field.fenceHeightMeters >= 0, "finite fence geometry required");
+    return freeze25({
       fenceCenter: add17(field.bases.home, v2(0, 0, (field.fenceRadiusMeters - back) / 2)),
       fenceRadiusMeters: (field.fenceRadiusMeters + back) / 2,
       fenceHeightMeters: field.fenceHeightMeters
@@ -11550,15 +12255,15 @@ var KneekuraNativeMatchCore = (() => {
   }
   function simulateLiveFieldPlayV1(raw) {
     const input = cloneInert(raw), start = input.ball.elapsedSeconds, originTick = input.ball.originTick, tps = input.physics.air.ticksPerSecond, max = start + (input.maxPlaySeconds ?? 35), frameSeconds = input.frameSeconds ?? 0.055;
-    assert11(input.fielders.length === 9 && new Set(input.fielders.map((f) => f.playerId)).size === 9, "nine unique defenders required");
-    assert11(input.runners.length >= 1 && input.runners.length <= 4 && new Set(input.runners.map((r) => r.runnerId)).size === input.runners.length && new Set(input.runners.map((r) => r.initialBase)).size === input.runners.length && input.runners.some((r) => r.initialBase === 0), "complete unique runner population required");
-    assert11(Number.isInteger(input.outs) && input.outs >= 0 && input.outs <= 2 && Number.isFinite(max) && max > start && max - start <= 120 && frameSeconds > 0 && Number.isFinite(frameSeconds) && (input.seed === void 0 || Number.isSafeInteger(input.seed) && input.seed >= 0 && input.seed <= 4294967295), "invalid finite play scope");
-    assert11(input.ball.ball.tick === quantizeEventTick(originTick, start, tps) && input.physics.ground.ticksPerSecond === tps, "actual contact clock differs");
+    assert14(input.fielders.length === 9 && new Set(input.fielders.map((f) => f.playerId)).size === 9, "nine unique defenders required");
+    assert14(input.runners.length >= 1 && input.runners.length <= 4 && new Set(input.runners.map((r) => r.runnerId)).size === input.runners.length && new Set(input.runners.map((r) => r.initialBase)).size === input.runners.length && input.runners.some((r) => r.initialBase === 0), "complete unique runner population required");
+    assert14(Number.isInteger(input.outs) && input.outs >= 0 && input.outs <= 2 && Number.isFinite(max) && max > start && max - start <= 120 && frameSeconds > 0 && Number.isFinite(frameSeconds) && (input.seed === void 0 || Number.isSafeInteger(input.seed) && input.seed >= 0 && input.seed <= 4294967295), "invalid finite play scope");
+    assert14(input.ball.ball.tick === quantizeEventTick(originTick, start, tps) && input.physics.ground.ticksPerSecond === tps, "actual contact clock differs");
     const field = input.field, base = (n) => field.bases[["home", "first", "second", "third", "home"][n]];
-    assert11(Object.values(field.bases).every(finite10) && Number.isFinite(field.fenceRadiusMeters) && Number.isFinite(field.fenceHeightMeters) && field.fenceRadiusMeters > 0 && field.fenceHeightMeters >= 0, "finite field geometry required");
+    assert14(Object.values(field.bases).every(finite10) && Number.isFinite(field.fenceRadiusMeters) && Number.isFinite(field.fenceHeightMeters) && field.fenceRadiusMeters > 0 && field.fenceHeightMeters >= 0, "finite field geometry required");
     const fieldGeometry = deriveLiveFieldFenceGeometryV1(field), fenceCenter = fieldGeometry.fenceCenter, fenceRadius = fieldGeometry.fenceRadiusMeters;
-    for (const f of input.fielders) assert11(f.playerId && finite10(f.position) && (!f.velocity || finite10(f.velocity)) && f.position.y > 0 && (f.defensivePosition === void 0 || ["P", "C", "1B", "2B", "3B", "SS", "LF", "CF", "RF"].includes(f.defensivePosition)) && [f.topSpeedMps, f.accelerationMps2, f.gloveSpeedMps, f.gloveReachMeters, f.gloveRadiusMeters, f.throwSpeedMps].every((x) => Number.isFinite(x) && x > 0) && [f.reactionSeconds, f.transferSeconds].every((x) => Number.isFinite(x) && x >= 0) && f.catchRetention.ticksPerSecond === tps && f.catchRetention.ballRadiusMeters === input.physics.ground.radiusM && f.catchRetention.ballMassKg === input.physics.air.aerodynamics.ballMassKg && [f.catchRetention.pocketRadiusMeters, f.catchRetention.centerRetentionCapacityJ, f.catchRetention.captureDissipationPowerW].every((x) => Number.isFinite(x) && x > 0) && [f.catchRetention.failedContactRestitution, f.catchRetention.failedTangentialDamping, f.catchRetention.failedSpinDamping].every((x) => Number.isFinite(x) && x >= 0 && x <= 1) && (f.throwBackspinRadPerSecond === void 0 || Number.isFinite(f.throwBackspinRadPerSecond) && f.throwBackspinRadPerSecond >= 0) && (!f.throwSpinRadPerSecond || finite10(f.throwSpinRadPerSecond)) && (f.throwDirectionStdRadians === void 0 || Number.isFinite(f.throwDirectionStdRadians) && f.throwDirectionStdRadians >= 0 && f.throwDirectionStdRadians <= 0.12) && (f.fieldingCognition === void 0 || Object.keys(f.fieldingCognition).every((k) => ["decisionSeconds", "pursuitCostWeight"].includes(k)) && Number.isFinite(f.fieldingCognition.decisionSeconds) && f.fieldingCognition.decisionSeconds >= 0 && (f.fieldingCognition.pursuitCostWeight === void 0 || Number.isFinite(f.fieldingCognition.pursuitCostWeight) && f.fieldingCognition.pursuitCostWeight >= 0.25 && f.fieldingCognition.pursuitCostWeight <= 4) && Number.isFinite(f.reactionSeconds + f.fieldingCognition.decisionSeconds)), "explicit fielder SI required");
-    for (const r of input.runners) assert11(r.runnerId && [0, 1, 2, 3].includes(r.initialBase) && [r.topSpeedMps, r.accelerationMps2].every((x) => Number.isFinite(x) && x > 0) && Number.isFinite(r.reactionSeconds) && r.reactionSeconds >= 0 && (!r.position || finite10(r.position)) && (r.advanceSafetyMarginSeconds === void 0 || Number.isFinite(r.advanceSafetyMarginSeconds) && r.advanceSafetyMarginSeconds >= 0 && r.advanceSafetyMarginSeconds <= 3) && (r.roundingRadiusMeters === void 0 || Number.isFinite(r.roundingRadiusMeters) && r.roundingRadiusMeters >= 0.5 && r.roundingRadiusMeters <= 10) && (r.lateralAccelerationMps2 === void 0 || Number.isFinite(r.lateralAccelerationMps2) && r.lateralAccelerationMps2 >= 0.5 && r.lateralAccelerationMps2 <= 20), "explicit runner SI required");
+    for (const f of input.fielders) assert14(f.playerId && finite10(f.position) && (!f.velocity || finite10(f.velocity)) && f.position.y > 0 && (f.defensivePosition === void 0 || ["P", "C", "1B", "2B", "3B", "SS", "LF", "CF", "RF"].includes(f.defensivePosition)) && [f.topSpeedMps, f.accelerationMps2, f.gloveSpeedMps, f.gloveReachMeters, f.gloveRadiusMeters, f.throwSpeedMps].every((x) => Number.isFinite(x) && x > 0) && [f.reactionSeconds, f.transferSeconds].every((x) => Number.isFinite(x) && x >= 0) && f.catchRetention.ticksPerSecond === tps && f.catchRetention.ballRadiusMeters === input.physics.ground.radiusM && f.catchRetention.ballMassKg === input.physics.air.aerodynamics.ballMassKg && [f.catchRetention.pocketRadiusMeters, f.catchRetention.centerRetentionCapacityJ, f.catchRetention.captureDissipationPowerW].every((x) => Number.isFinite(x) && x > 0) && [f.catchRetention.failedContactRestitution, f.catchRetention.failedTangentialDamping, f.catchRetention.failedSpinDamping].every((x) => Number.isFinite(x) && x >= 0 && x <= 1) && (f.throwBackspinRadPerSecond === void 0 || Number.isFinite(f.throwBackspinRadPerSecond) && f.throwBackspinRadPerSecond >= 0) && (!f.throwSpinRadPerSecond || finite10(f.throwSpinRadPerSecond)) && (f.throwDirectionStdRadians === void 0 || Number.isFinite(f.throwDirectionStdRadians) && f.throwDirectionStdRadians >= 0 && f.throwDirectionStdRadians <= 0.12) && (f.fieldingCognition === void 0 || Object.keys(f.fieldingCognition).every((k) => ["decisionSeconds", "pursuitCostWeight"].includes(k)) && Number.isFinite(f.fieldingCognition.decisionSeconds) && f.fieldingCognition.decisionSeconds >= 0 && (f.fieldingCognition.pursuitCostWeight === void 0 || Number.isFinite(f.fieldingCognition.pursuitCostWeight) && f.fieldingCognition.pursuitCostWeight >= 0.25 && f.fieldingCognition.pursuitCostWeight <= 4) && Number.isFinite(f.reactionSeconds + f.fieldingCognition.decisionSeconds)), "explicit fielder SI required");
+    for (const r of input.runners) assert14(r.runnerId && [0, 1, 2, 3].includes(r.initialBase) && [r.topSpeedMps, r.accelerationMps2].every((x) => Number.isFinite(x) && x > 0) && Number.isFinite(r.reactionSeconds) && r.reactionSeconds >= 0 && (!r.position || finite10(r.position)) && (r.advanceSafetyMarginSeconds === void 0 || Number.isFinite(r.advanceSafetyMarginSeconds) && r.advanceSafetyMarginSeconds >= 0 && r.advanceSafetyMarginSeconds <= 3) && (r.roundingRadiusMeters === void 0 || Number.isFinite(r.roundingRadiusMeters) && r.roundingRadiusMeters >= 0.5 && r.roundingRadiusMeters <= 10) && (r.lateralAccelerationMps2 === void 0 || Number.isFinite(r.lateralAccelerationMps2) && r.lateralAccelerationMps2 >= 0.5 && r.lateralAccelerationMps2 <= 20), "explicit runner SI required");
     for (const actor of [...input.fielders, ...input.runners]) if (actor.technicalSkills !== void 0) validateTechnicalSkillControlsV75(actor.technicalSkills);
     const facts = [], frames = [], runnerTouches = [], controlledBaseContacts = [], controlledRunnerTags = [], runnerDepartures = [], defensiveAppeals = [];
     const tick8 = (t) => quantizeEventTick(originTick, t, tps);
@@ -11680,7 +12385,7 @@ var KneekuraNativeMatchCore = (() => {
     const ballAt2 = (t) => {
       const holder = possession ?? pendingCatch?.fielder;
       if (holder) {
-        const u = pendingCatch ? clamp2((t - pendingCatch.first) / Math.max(pendingCatch.secure - pendingCatch.first, Number.MIN_VALUE), 0, 1) : 1;
+        const u = pendingCatch ? clamp3((t - pendingCatch.first) / Math.max(pendingCatch.secure - pendingCatch.first, Number.MIN_VALUE), 0, 1) : 1;
         const grip = at(holder.glove, t), translatedEntry = pendingCatch ? add17(pendingCatch.initialPosition, sub10(grip, pendingCatch.initialGlove)) : grip;
         return {
           position: pendingCatch ? u === 0 ? pendingCatch.initialPosition : u === 1 ? grip : add17(mul6(translatedEntry, 1 - u), mul6(grip, u)) : grip,
@@ -11795,7 +12500,10 @@ var KneekuraNativeMatchCore = (() => {
       const skill = f.spec.technicalSkills?.advanced_fielding ?? 0;
       return skill > 0 ? f.spec.transferSeconds * (1 - 0.08 * skill) : f.spec.transferSeconds;
     };
-    const responseSeconds = (f) => f.spec.reactionSeconds + (f.spec.fieldingCognition?.decisionSeconds ?? 0);
+    const responseSeconds = (f) => {
+      const skill = !hasThrown && f.spec.defensivePosition === "P" ? f.spec.technicalSkills?.pitcher_field_reaction ?? 0 : 0;
+      return (skill > 0 ? f.spec.reactionSeconds / (1 + 0.6 * skill) : f.spec.reactionSeconds) + (f.spec.fieldingCognition?.decisionSeconds ?? 0);
+    };
     const seenBy = (f, t) => {
       const delay = hasThrown && f === throwTarget?.receiver ? f.spec.reactionSeconds : responseSeconds(f);
       for (let i = history.length - 1; i >= 0; i--) if (history[i].t <= t - delay) return history[i];
@@ -11857,7 +12565,7 @@ var KneekuraNativeMatchCore = (() => {
         return Math.sqrt(Math.max(0, f.spec.gloveReachMeters * f.spec.gloveReachMeters - dy * dy)) + f.spec.gloveRadiusMeters * 0.5;
       };
       const travelTo = (p) => {
-        const toP = sub10(flat(p), bodyPos), dist = norm8(toP);
+        const toP = sub10(flat(p), bodyPos), dist = norm9(toP);
         let run = Math.max(0, dist - horizontalReachAt(p.y));
         if (run === 0) return wait;
         const rawAlong = dist > 1e-9 ? (bodyVel.x * toP.x + bodyVel.z * toP.z) / dist : 0;
@@ -11907,7 +12615,7 @@ var KneekuraNativeMatchCore = (() => {
       if (!best.intercepted && lastInFence) best = { point: lastInFence.point, eta: lastInFence.eta, prediction, intercepted: false };
       return best;
     };
-    const roundBound = (p) => 256 * Number.EPSILON * Math.max(1, norm8(p), norm8(fenceCenter), fenceRadius);
+    const roundBound = (p) => 256 * Number.EPSILON * Math.max(1, norm9(p), norm9(fenceCenter), fenceRadius);
     const pointInside = (p, radius) => distance5(flat(p), flat(fenceCenter)) + roundBound(p) <= radius;
     const curveInside = (c, from, through, radius, floor, depth = 0) => {
       if (c.stopAfter !== void 0 && c.from + c.stopAfter > from && c.from + c.stopAfter < through)
@@ -11926,16 +12634,16 @@ var KneekuraNativeMatchCore = (() => {
       ...c.stopAfter !== void 0 ? { continuingVelocity: add17(c.continuingVelocity ?? v2(), velocity) } : {}
     });
     const stopPoint = (c, t, acceleration) => {
-      const speed2 = norm8(velocityAt(c, t));
+      const speed2 = norm9(velocityAt(c, t));
       return add17(at(c, t), mul6(velocityAt(c, t), speed2 / (2 * acceleration)));
     };
     const targetInside = (p, radius) => {
-      const d = flat(sub10(p, fenceCenter)), length = norm8(d);
+      const d = flat(sub10(p, fenceCenter)), length = norm9(d);
       return length <= radius ? p : add17(fenceCenter, add17(mul6(d, radius / length), v2(0, p.y - fenceCenter.y, 0)));
     };
     const throwOffset = (f, position, target) => {
-      const direction = flat(sub10(target, position)), length = norm8(direction), model = LIVE_FIELD_TEST_MODEL_V1.throwHand, desired = add17(mul6(direction, model.forwardMeters / Math.max(length, 1e-30)), v2(0, model.heightAboveHipMeters, 0));
-      return mul6(desired, Math.min(1, f.spec.gloveReachMeters / norm8(desired)));
+      const direction = flat(sub10(target, position)), length = norm9(direction), model = LIVE_FIELD_TEST_MODEL_V1.throwHand, desired = add17(mul6(direction, model.forwardMeters / Math.max(length, 1e-30)), v2(0, model.heightAboveHipMeters, 0));
+      return mul6(desired, Math.min(1, f.spec.gloveReachMeters / norm9(desired)));
     };
     let motorBoundaryFailure = null;
     let previousRoles = [], previousHandlerId = null;
@@ -11989,7 +12697,7 @@ var KneekuraNativeMatchCore = (() => {
       const selection = selectLiveFieldHandlerV1({
         candidates: forecasts.flatMap(({ f, predicted }) => {
           if (!predicted) return [];
-          const route = flat(sub10(predicted.point, at(f.body, t))), incoming = flat(predicted.prediction.sample(Math.min(predicted.eta, predicted.prediction.maximumSeconds)).velocity), arrivalSeconds = liveFieldArrivalSecondsV1(roleActor(f, t), predicted.point, f.spec.gloveReachMeters), chasing = Math.max(0, (route.x * incoming.x + route.z * incoming.z) / Math.max(norm8(route) * norm8(incoming), 1e-30));
+          const route = flat(sub10(predicted.point, at(f.body, t))), incoming = flat(predicted.prediction.sample(Math.min(predicted.eta, predicted.prediction.maximumSeconds)).velocity), arrivalSeconds = liveFieldArrivalSecondsV1(roleActor(f, t), predicted.point, f.spec.gloveReachMeters), chasing = Math.max(0, (route.x * incoming.x + route.z * incoming.z) / Math.max(norm9(route) * norm9(incoming), 1e-30));
           return [{
             playerId: f.spec.playerId,
             intercepted: predicted.intercepted,
@@ -12269,8 +12977,8 @@ var KneekuraNativeMatchCore = (() => {
         const bodyRadius = LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters, gloveRadius = Math.max(f.spec.gloveRadiusMeters, input.physics.ground.radiusM), grip = at(f.glove, t), currentOffset = sub10(grip, before);
         let motorPoint = target.point;
         if (active && target.intent === "intercept" && target.point.y <= gloveRadius + 0.2 && (forecasts.find((x) => x.f === f)?.predicted?.prediction.observedPosition.y ?? Infinity) <= gloveRadius + 0.2) {
-          const pred = forecasts.find((x) => x.f === f)?.predicted, toT = flat(sub10(target.point, before)), distT = norm8(toT), stopTime = liveFieldArrivalSecondsV1({ ...roleActor(f, t), remainingReactionSeconds: 0 }, target.point, 0.02) + norm8(vel) / f.spec.accelerationMps2;
-          const chargeSkill = f.spec.technicalSkills?.slow_ball_charge ?? 0, seen = chargeSkill > 0 ? seenBy(f, t) : null, charging = chargeSkill > 0 && !possession && !pendingCatch && !hasThrown && !throwTarget && firstGroundContactSeconds !== null && seen !== null && seen.t >= firstGroundContactSeconds && seen.position.y <= input.physics.ground.radiusM + 0.05 && norm8(seen.velocity) <= 10;
+          const pred = forecasts.find((x) => x.f === f)?.predicted, toT = flat(sub10(target.point, before)), distT = norm9(toT), stopTime = liveFieldArrivalSecondsV1({ ...roleActor(f, t), remainingReactionSeconds: 0 }, target.point, 0.02) + norm9(vel) / f.spec.accelerationMps2;
+          const chargeSkill = f.spec.technicalSkills?.slow_ball_charge ?? 0, seen = chargeSkill > 0 ? seenBy(f, t) : null, charging = chargeSkill > 0 && !possession && !pendingCatch && !hasThrown && !throwTarget && firstGroundContactSeconds !== null && seen !== null && seen.t >= firstGroundContactSeconds && seen.position.y <= input.physics.ground.radiusM + 0.05 && norm9(seen.velocity) <= 10;
           if (distT > (charging ? 0.15 : 0.35) && (charging || !pred || !pred.intercepted || pred.eta < stopTime)) {
             const runThrough = f.spec.topSpeedMps * f.spec.topSpeedMps / (2 * f.spec.accelerationMps2) + 0.5;
             motorPoint = add17(target.point, mul6(toT, runThrough / distT));
@@ -12290,7 +12998,7 @@ var KneekuraNativeMatchCore = (() => {
             arrivalRadiusMeters: 0.02
           }
         )[0];
-        const proposed = { from: t, p: before, velocity: vel, acceleration: v2(seg.acceleration.x, 0, seg.acceleration.z) }, speed2 = norm8(vel), emergency2 = {
+        const proposed = { from: t, p: before, velocity: vel, acceleration: v2(seg.acceleration.x, 0, seg.acceleration.z) }, speed2 = norm9(vel), emergency2 = {
           from: t,
           p: before,
           velocity: vel,
@@ -12410,7 +13118,7 @@ var KneekuraNativeMatchCore = (() => {
         if (distance5(perceivedTarget, at(f.body, through)) <= f.spec.gloveReachMeters + f.spec.gloveRadiusMeters + input.physics.ground.radiusM)
           anticipated = perceivedTarget;
         if (f === throwTarget?.receiver) {
-          const bodyAtThrough = at(f.body, through), q = throwTarget.point, frontDist = Math.min(f.spec.gloveReachMeters * 0.55, LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters + f.spec.gloveRadiusMeters + 0.12), seen = seenBy(f, t), sourcePos = possession ? at(possession.glove, t) : throwTarget.releasedFrom ?? seen?.position ?? bodyAtThrough, toSourceFromQ = flat(sub10(sourcePos, q)), lenQ = norm8(toSourceFromQ), u = lenQ > 1e-6 ? mul6(toSourceFromQ, 1 / lenQ) : v2(0, 0, -1), bodyProj = Math.max(0, (bodyAtThrough.x - q.x) * u.x + (bodyAtThrough.z - q.z) * u.z), distFromQ = bodyProj + frontDist, frac = clamp2(distFromQ / Math.max(lenQ, 1), 0, 1), sourceY = Math.max(sourcePos.y, q.y + LIVE_FIELD_TEST_MODEL_V1.throwHand.heightAboveHipMeters * 0.85), frontPoint = add17(q, add17(mul6(u, distFromQ), v2(0, (sourceY - q.y) * frac, 0)));
+          const bodyAtThrough = at(f.body, through), q = throwTarget.point, frontDist = Math.min(f.spec.gloveReachMeters * 0.55, LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters + f.spec.gloveRadiusMeters + 0.12), seen = seenBy(f, t), sourcePos = possession ? at(possession.glove, t) : throwTarget.releasedFrom ?? seen?.position ?? bodyAtThrough, toSourceFromQ = flat(sub10(sourcePos, q)), lenQ = norm9(toSourceFromQ), u = lenQ > 1e-6 ? mul6(toSourceFromQ, 1 / lenQ) : v2(0, 0, -1), bodyProj = Math.max(0, (bodyAtThrough.x - q.x) * u.x + (bodyAtThrough.z - q.z) * u.z), distFromQ = bodyProj + frontDist, frac = clamp3(distFromQ / Math.max(lenQ, 1), 0, 1), sourceY = Math.max(sourcePos.y, q.y + LIVE_FIELD_TEST_MODEL_V1.throwHand.heightAboveHipMeters * 0.85), frontPoint = add17(q, add17(mul6(u, distFromQ), v2(0, (sourceY - q.y) * frac, 0)));
           if (expected && throwTarget.releasedAt !== void 0 && seen && seen.t >= throwTarget.releasedAt) {
             let lo = -(t - seen.t), hi = Math.min(2, expected.prediction.maximumSeconds);
             for (let i = 0; i < 10; i++) {
@@ -12426,7 +13134,7 @@ var KneekuraNativeMatchCore = (() => {
         const reachableTarget = v2(anticipated.x, Math.max(gloveRadius, anticipated.y), anticipated.z);
         const tagRunner = f === possession && target.intent === "tag" ? runners.filter((r) => !r.retired && !r.scored && r.leg).sort((a, b) => distance5(at(f.body, through), runnerAt(a, through)) - distance5(at(f.body, through), runnerAt(b, through)))[0] : null;
         const relative = sub10(bodyBoundaryLimited ? at(f.body, through) : tagRunner ? add17(runnerAt(tagRunner, through), v2(0, 0.9, 0)) : defensiveOpportunity ? at(f.body, through) : f === possession || f === pendingCatch?.fielder ? add17(at(f.body, through), heldOffset) : f === handler || f === throwTarget?.receiver ? reachableTarget : at(f.body, through), at(f.body, through));
-        const desired = add17(at(f.body, through), mul6(relative, Math.min(1, f.spec.gloveReachMeters / Math.max(norm8(relative), 1e-30)))), limited = targetInside(v2(desired.x, Math.max(gloveRadius, desired.y), desired.z), fenceRadius - gloveRadius - 0.02), wantedOffset = sub10(limited, at(f.body, through)), targetOffset = mul6(wantedOffset, Math.min(1, f.spec.gloveReachMeters / Math.max(norm8(wantedOffset), 1e-30))), relativeMove = sub10(targetOffset, currentOffset), relativeVelocity = active ? mul6(relativeMove, Math.min(1, f.spec.gloveSpeedMps * delta / Math.max(norm8(relativeMove), 1e-30)) / delta) : v2();
+        const desired = add17(at(f.body, through), mul6(relative, Math.min(1, f.spec.gloveReachMeters / Math.max(norm9(relative), 1e-30)))), limited = targetInside(v2(desired.x, Math.max(gloveRadius, desired.y), desired.z), fenceRadius - gloveRadius - 0.02), wantedOffset = sub10(limited, at(f.body, through)), targetOffset = mul6(wantedOffset, Math.min(1, f.spec.gloveReachMeters / Math.max(norm9(wantedOffset), 1e-30))), relativeMove = sub10(targetOffset, currentOffset), relativeVelocity = active ? mul6(relativeMove, Math.min(1, f.spec.gloveSpeedMps * delta / Math.max(norm9(relativeMove), 1e-30)) / delta) : v2();
         const gloveCurve = (u) => ({
           ...body,
           p: grip,
@@ -12526,7 +13234,7 @@ var KneekuraNativeMatchCore = (() => {
       const defenseControlCache = /* @__PURE__ */ new Map();
       const estimateDefenseControl = (n) => {
         if (defenseControlCache.has(n)) return defenseControlCache.get(n);
-        const fastestArm = Math.max(...defenders.map((f) => f.spec.throwSpeedMps + norm8(velocityAt(f.body, t)))), estimates = defenders.flatMap((f) => {
+        const fastestArm = Math.max(...defenders.map((f) => f.spec.throwSpeedMps + norm9(velocityAt(f.body, t)))), estimates = defenders.flatMap((f) => {
           const controlled = possession ?? pendingCatch?.fielder;
           if (controlled && controlled !== f) return [];
           const predicted = forecasts.find((x) => x.f === f)?.predicted;
@@ -12795,7 +13503,7 @@ var KneekuraNativeMatchCore = (() => {
             const gap = (t) => radius - distance5(flat(evaluated(t).moment.ball.position), flat(fenceCenter));
             let fenceFrom = lo;
             if (fenceEscape?.from === lo && fenceEscape.radius === radius && gap(lo) <= 0) {
-              const d = flat(sub10(evaluated(lo).moment.ball.position, fenceCenter)), radial = norm8(d), vel = evaluated(lo).moment.ball.velocity;
+              const d = flat(sub10(evaluated(lo).moment.ball.position, fenceCenter)), radial = norm9(d), vel = evaluated(lo).moment.ball.velocity;
               const outward = -(d.x * vel.x + d.z * vel.z) / radial, speed2 = cell.maximumPositionSpeedMps;
               const ballDeviation = kernel.evaluateAt(lo, "outgoing").phase === "airborne" ? sourceRk4PositionBounds(fenceEscape.outgoing.ball, hi - lo, input.physics.air).linearDeviationMps2 : Math.max(input.physics.ground.material.slidingFriction * input.physics.ground.gravityMps2, input.physics.ground.material.rollingDecelerationMps2) / 2;
               const denominator = radial - speed2 * (hi - lo), deviation = ballDeviation + speed2 * speed2 / (2 * Math.max(denominator, Number.MIN_VALUE));
@@ -12850,7 +13558,7 @@ var KneekuraNativeMatchCore = (() => {
         }
       }
       if (possession && !dead) {
-        const f = possession, speed2 = Math.max(norm8(velocityAt(f.body, time)), norm8(velocityAt(f.body, horizon)));
+        const f = possession, speed2 = Math.max(norm9(velocityAt(f.body, time)), norm9(velocityAt(f.body, horizon)));
         for (const n of [1, 2, 3, 4]) {
           const relevant = outTargets().some((o) => (o.forced || o.appeal) && o.targetBase === n);
           if (!relevant) continue;
@@ -12908,7 +13616,7 @@ var KneekuraNativeMatchCore = (() => {
             endReason = "foul_dead_ball";
           }
         } else if (e.kind === "glove" || e.kind === "body") {
-          const f = e.f, c = e.role === "glove" ? f.glove : f.body, incoming = kernel.evaluateAt(time, "incoming"), center = at(c, time), delta = sub10(incoming.moment.ball.position, center), normal4 = mul6(delta, 1 / norm8(delta));
+          const f = e.f, c = e.role === "glove" ? f.glove : f.body, incoming = kernel.evaluateAt(time, "incoming"), center = at(c, time), delta = sub10(incoming.moment.ball.position, center), normal4 = mul6(delta, 1 / norm9(delta));
           const phase = multiplyQuaternions(incoming.orientation, orientationBasis);
           if (!territoryFixed) determineTerritory(time, isFair(incoming.moment.ball.position) ? "fair" : "foul");
           if (firstTouchTick === null) {
@@ -12929,7 +13637,7 @@ var KneekuraNativeMatchCore = (() => {
             const ballSurfacePoint = sub10(incoming.moment.ball.position, mul6(normal4, input.physics.ground.radiusM));
             const pocketEntryCenter = add17(center, mul6(normal4, f.spec.gloveRadiusMeters));
             const pocketOffsetMeters = distance5(ballSurfacePoint, pocketEntryCenter);
-            const bodySpd = norm8(velocityAt(f.body, time)), gloveExt = distance5(center, at(f.body, time)), gloveRelSpd = norm8(sub10(velocityAt(c, time), velocityAt(f.body, time))), speedRatio = clamp2(bodySpd / Math.max(f.spec.topSpeedMps, 0.1), 0, 1), extRatio = clamp2(gloveExt / Math.max(f.spec.gloveReachMeters, 0.1), 0, 1), gloveMoveRatio = clamp2(gloveRelSpd / Math.max(f.spec.gloveSpeedMps, 0.1), 0, 1), legacyStability = clamp2(1 - 0.22 * speedRatio * speedRatio - 0.2 * Math.max(0, extRatio - 0.55) / 0.45 - 0.15 * gloveMoveRatio, 0.42, 1), skill = f.spec.technicalSkills?.advanced_fielding ?? 0, bodyStability = skill > 0 ? clamp2(legacyStability + (1 - legacyStability) * 0.08 * skill, 0.42, 1) : legacyStability;
+            const bodySpd = norm9(velocityAt(f.body, time)), gloveExt = distance5(center, at(f.body, time)), gloveRelSpd = norm9(sub10(velocityAt(c, time), velocityAt(f.body, time))), speedRatio = clamp3(bodySpd / Math.max(f.spec.topSpeedMps, 0.1), 0, 1), extRatio = clamp3(gloveExt / Math.max(f.spec.gloveReachMeters, 0.1), 0, 1), gloveMoveRatio = clamp3(gloveRelSpd / Math.max(f.spec.gloveSpeedMps, 0.1), 0, 1), legacyStability = clamp3(1 - 0.22 * speedRatio * speedRatio - 0.2 * Math.max(0, extRatio - 0.55) / 0.45 - 0.15 * gloveMoveRatio, 0.42, 1), skill = f.spec.technicalSkills?.advanced_fielding ?? 0, bodyStability = skill > 0 ? clamp3(legacyStability + (1 - legacyStability) * 0.08 * skill, 0.42, 1) : legacyStability;
             const retention = resolveCatchRetention({
               contactTick: tick8(time),
               ball: { ...incoming.moment.ball, tick: tick8(time) },
@@ -12942,7 +13650,7 @@ var KneekuraNativeMatchCore = (() => {
               elapsedSeconds: time,
               playerId: f.spec.playerId,
               role: "glove",
-              ballSpeedMps: norm8(incoming.moment.ball.velocity),
+              ballSpeedMps: norm9(incoming.moment.ball.velocity),
               bodySpeedMps: bodySpd,
               gloveOffsetMeters: gloveExt,
               intent: f.intent,
@@ -12963,7 +13671,7 @@ var KneekuraNativeMatchCore = (() => {
                 first: time,
                 secure: time + Math.max(
                   retention.diagnostics.retentionLoadJ / f.spec.catchRetention.captureDissipationPowerW,
-                  norm8(delta) / f.spec.gloveSpeedMps
+                  norm9(delta) / f.spec.gloveSpeedMps
                 ),
                 firstTouchWasAirborne: firstGroundContactTick === null,
                 offset: delta,
@@ -12984,8 +13692,8 @@ var KneekuraNativeMatchCore = (() => {
               elapsedSeconds: time,
               playerId: f.spec.playerId,
               role: "body",
-              ballSpeedMps: norm8(incoming.moment.ball.velocity),
-              bodySpeedMps: norm8(velocityAt(f.body, time)),
+              ballSpeedMps: norm9(incoming.moment.ball.velocity),
+              bodySpeedMps: norm9(velocityAt(f.body, time)),
               gloveOffsetMeters: distance5(at(f.glove, time), at(f.body, time)),
               intent: f.intent,
               targetBase: f.targetBase,
@@ -13072,13 +13780,13 @@ var KneekuraNativeMatchCore = (() => {
             brakeEtaToBag
           );
           const receiverPrepared = distToBag <= target.receiver.spec.gloveReachMeters + touchR && receiverEtaToBag <= distance5(position, q) / speed2;
-          if (norm8(radial) <= LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters + input.physics.ground.radiusM || !preparationReady || distance5(radial, desiredOffset) > input.physics.ground.radiusM || !otherShapeClear || !receiverPrepared) {
+          if (norm9(radial) <= LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters + input.physics.ground.radiusM || !preparationReady || distance5(radial, desiredOffset) > input.physics.ground.radiusM || !otherShapeClear || !receiverPrepared) {
             releaseAt = controlThrough;
             if (releaseAt === time) releaseAt += LIVE_FIELD_TEST_MODEL_V1.controlSeconds;
             continue;
           }
-          const horizontalSpeed = norm8(flat(d)), backspin = f.spec.throwBackspinRadPerSecond ?? 0;
-          assert11(Number.isFinite(backspin) && backspin >= 0 && (!f.spec.throwSpinRadPerSecond || finite10(f.spec.throwSpinRadPerSecond)), "explicit throw spin differs");
+          const horizontalSpeed = norm9(flat(d)), backspin = f.spec.throwBackspinRadPerSecond ?? 0;
+          assert14(Number.isFinite(backspin) && backspin >= 0 && (!f.spec.throwSpinRadPerSecond || finite10(f.spec.throwSpinRadPerSecond)), "explicit throw spin differs");
           const spin = f.spec.throwSpinRadPerSecond ?? (horizontalSpeed > 0 ? v2(-d.z / horizontalSpeed * backspin, 0, d.x / horizontalSpeed * backspin) : v2()), planned = planLiveThrowV1({
             releasePosition: position,
             bodyVelocity: velocityAt(f.body, time),
@@ -13181,7 +13889,7 @@ var KneekuraNativeMatchCore = (() => {
         } else if (e.kind === "base") applyBaseControl(e.f, e.base, time);
         else if (e.kind === "tag") {
           const r = e.runner;
-          const departure = physicalBaseDepartures.get(r.spec.runnerId), position = runnerAt(r, time), velocity = runnerVelocityAt(r, time), radial = departure ? flat(sub10(position, base(departure.base))) : v2(), protectionEndedByDeparture = departure && departure.base === r.base && departure.tick === tick8(time) && departure.elapsedSeconds <= time && !deriveCurrentForceObligations(force).some((o) => o.runnerId === r.spec.runnerId) && norm8(radial) > (field.baseTouchRadiusMeters ?? 0.28) && radial.x * velocity.x + radial.z * velocity.z > 0 && distance5(at(e.f.glove, time), add17(position, v2(0, 0.9, 0))) <= 0.28 ? { base: departure.base, tick: departure.tick } : void 0;
+          const departure = physicalBaseDepartures.get(r.spec.runnerId), position = runnerAt(r, time), velocity = runnerVelocityAt(r, time), radial = departure ? flat(sub10(position, base(departure.base))) : v2(), protectionEndedByDeparture = departure && departure.base === r.base && departure.tick === tick8(time) && departure.elapsedSeconds <= time && !deriveCurrentForceObligations(force).some((o) => o.runnerId === r.spec.runnerId) && norm9(radial) > (field.baseTouchRadiusMeters ?? 0.28) && radial.x * velocity.x + radial.z * velocity.z > 0 && distance5(at(e.f.glove, time), add17(position, v2(0, 0.9, 0))) <= 0.28 ? { base: departure.base, tick: departure.tick } : void 0;
           controlledRunnerTags.push({
             kind: "controlled_runner_tag",
             defenderId: e.f.spec.playerId,
@@ -13218,7 +13926,7 @@ var KneekuraNativeMatchCore = (() => {
             const elasticNormalEnergy = 0.5 * input.physics.air.aerodynamics.ballMassKg * normalVelocity ** 2;
             const remainingNormalEnergy = Math.max(0, elasticNormalEnergy - LIVE_FIELD_TEST_MODEL_V1.wallMaterial.groundNormalHysteresisLossJ);
             if (isGrounded && remainingNormalEnergy === 0) {
-              const radial = flat(sub10(b.position, fenceCenter)), r = norm8(radial), tangent = v2(radial.z / r, 0, -radial.x / r), speed2 = outgoing.velocity.x * tangent.x + outgoing.velocity.z * tangent.z;
+              const radial = flat(sub10(b.position, fenceCenter)), r = norm9(radial), tangent = v2(radial.z / r, 0, -radial.x / r), speed2 = outgoing.velocity.x * tangent.x + outgoing.velocity.z * tangent.z;
               outgoing = { ...outgoing, velocity: mul6(tangent, speed2) };
               const constrained = createGroundWallRollingCurveV1({
                 initial: { originTick, elapsedSeconds: time, ball: outgoing },
@@ -13287,7 +13995,7 @@ var KneekuraNativeMatchCore = (() => {
       overFence,
       playEnd
     };
-    return freeze21({
+    return freeze25({
       version: "live_field_play_v1",
       modelBasis: LIVE_FIELD_TEST_MODEL_V1.basis,
       model: LIVE_FIELD_TEST_MODEL_V1,
@@ -13305,6 +14013,12 @@ var KneekuraNativeMatchCore = (() => {
         retouchRequiredBase: r.retouchBase
       })),
       diagnostics: {
+        ...input.fielders.some((f) => f.defensivePosition === "P" && (f.technicalSkills?.pitcher_field_reaction ?? 0) > 0) ? { pitcherReactionTechnique: input.fielders.filter((f) => f.defensivePosition === "P" && (f.technicalSkills?.pitcher_field_reaction ?? 0) > 0).map((f) => ({
+          playerId: f.playerId,
+          baselineReactionSeconds: f.reactionSeconds,
+          effectiveReactionSeconds: f.reactionSeconds / (1 + 0.6 * f.technicalSkills.pitcher_field_reaction),
+          scope: "INITIAL_BATTED_BALL_BEFORE_FIRST_THROW"
+        })) } : {},
         kernelBuilds,
         kernelExtensions,
         wallKernelBuilds,
@@ -13558,29 +14272,29 @@ var KneekuraNativeMatchCore = (() => {
         simultaneous.push(touch);
       }
     }
-    const fields12 = {
+    const fields13 = {
       effectiveOut: input.appealOut,
       scored,
       suppressed,
       simultaneous
     };
-    return simultaneous.length > 0 ? { kind: "simultaneous_unresolved", ...fields12 } : { kind: "resolved", ...fields12 };
+    return simultaneous.length > 0 ? { kind: "simultaneous_unresolved", ...fields13 } : { kind: "resolved", ...fields13 };
   };
 
   // src/integration/browser/PlayableMatchRulesV1.ts
   var names = ["first", "second", "third"];
   var tick7 = (n) => Number.isSafeInteger(n) && n >= 0;
   var id5 = (s) => typeof s === "string" && s.length > 0 && s === s.trim();
-  function assert12(v3, message) {
+  function assert15(v3, message) {
     if (!v3) throw new Error("playable match rules: " + message);
   }
   var unresolved = (reason, time) => ({ kind: "unresolved", reason, tick: time });
   function validateMatch(m, batter) {
-    assert12(id5(m.ruleProfileId) && Number.isSafeInteger(m.inning) && m.inning >= 1 && ["top", "bottom"].includes(m.half) && Number.isInteger(m.outs) && m.outs >= 0 && m.outs <= 2 && Number.isSafeInteger(m.playId) && m.playId >= 0, "invalid active canonical match");
+    assert15(id5(m.ruleProfileId) && Number.isSafeInteger(m.inning) && m.inning >= 1 && ["top", "bottom"].includes(m.half) && Number.isInteger(m.outs) && m.outs >= 0 && m.outs <= 2 && Number.isSafeInteger(m.playId) && m.playId >= 0, "invalid active canonical match");
     resolvePitchCountRule(m, { kind: "ball_in_play" });
-    assert12([m.score.away, m.score.home].every((n) => Number.isSafeInteger(n) && n >= 0), "invalid score");
+    assert15([m.score.away, m.score.home].every((n) => Number.isSafeInteger(n) && n >= 0), "invalid score");
     const runners = names.map((n) => m.bases[n]).filter((r) => r !== null);
-    assert12(id5(batter) && runners.every(id5) && !runners.includes(batter) && new Set(runners).size === runners.length, "invalid original runner identities");
+    assert15(id5(batter) && runners.every(id5) && !runners.includes(batter) && new Set(runners).size === runners.length, "invalid original runner identities");
   }
   function finish(input, after, batterAdvanced, classification, scored, suppressed, outcomes, endedAtTick) {
     const regulation = input.regulationInnings ?? 9, batting = input.match.half === "top" ? "away" : "home";
@@ -13639,32 +14353,32 @@ var KneekuraNativeMatchCore = (() => {
       const a = resolveWalkForcedAdvancement({ batterRunnerId: input.batterRunnerId, bases: m.bases });
       return finish(input, { ...m, bases: a.bases }, true, "walk", a.scoredRunnerIds.map((runnerId) => ({ kind: "runner_base_touch", runnerId, base: 4, tick: time })), [], [], time);
     }
-    assert12(r.kind === "strikeout", "count adjudication did not resolve");
+    assert15(r.kind === "strikeout", "count adjudication did not resolve");
     return finish(input, m, true, "strikeout", [], [], [{ runnerId: input.batterRunnerId, tick: time, classification: "batter_runner_before_first", cause: "pitch_count", defenderId: null }], time);
   }
   function reducePlayableMatchV1(raw) {
     const input = cloneInert(raw), m = input.match, batter = input.batterRunnerId, regulation = input.regulationInnings ?? 9;
     validateMatch(m, batter);
-    assert12(Number.isSafeInteger(regulation) && regulation >= 1, "invalid regulation innings");
+    assert15(Number.isSafeInteger(regulation) && regulation >= 1, "invalid regulation innings");
     if (input.event.kind === "pitch_call") {
-      assert12(tick7(input.event.tick), "invalid pitch call tick");
+      assert15(tick7(input.event.tick), "invalid pitch call tick");
       return applyCount(input, input.event.call, input.event.tick);
     }
     const f = input.event.facts;
-    assert12(tick7(f.contactTick) && tick7(f.throughTick) && f.throughTick >= f.contactTick && f.playEnd.kind === "play_end" && tick7(f.playEnd.tick) && f.playEnd.tick >= f.contactTick && f.playEnd.tick <= f.throughTick && ["fair", "foul"].includes(f.territory), "invalid physical play interval or territory");
+    assert15(tick7(f.contactTick) && tick7(f.throughTick) && f.throughTick >= f.contactTick && f.playEnd.kind === "play_end" && tick7(f.playEnd.tick) && f.playEnd.tick >= f.contactTick && f.playEnd.tick <= f.throughTick && ["fair", "foul"].includes(f.territory), "invalid physical play interval or territory");
     const validTime = (t) => tick7(t) && t >= f.contactTick && t <= f.throughTick;
-    if (f.firstGroundContactTick !== void 0 && f.firstGroundContactTick !== null) assert12(validTime(f.firstGroundContactTick), "invalid ground contact tick");
+    if (f.firstGroundContactTick !== void 0 && f.firstGroundContactTick !== null) assert15(validTime(f.firstGroundContactTick), "invalid ground contact tick");
     const caught = f.flyCatch ? resolveFlyCatch({
       batterRunnerId: batter,
       firstTouch: { kind: "fly_ball_first_fielder_touch", fielderId: f.flyCatch.fielderId, tick: f.flyCatch.firstTouchTick },
       secureCatchTick: f.flyCatch.secureCatchTick,
       firstGroundContactTick: f.firstGroundContactTick ?? null
     }) : null;
-    if (f.flyCatch) assert12(id5(f.flyCatch.fielderId) && validTime(f.flyCatch.firstTouchTick) && validTime(f.flyCatch.secureCatchTick), "invalid catch facts");
+    if (f.flyCatch) assert15(id5(f.flyCatch.fielderId) && validTime(f.flyCatch.firstTouchTick) && validTime(f.flyCatch.secureCatchTick), "invalid catch facts");
     const foul = resolveFoulBallRule({ territory: f.territory, buntAttempt: f.buntAttempt ?? false, count: m, flyCatch: caught });
     if (foul.kind === "uncaught_foul") return applyCount(input, f.buntAttempt ? "foul_bunt" : "foul", f.playEnd.tick);
     if (foul.kind === "unresolved_foul_fly") return unresolved("unresolved_foul_catch", foul.firstFielderTouchTick);
-    if (f.overFence) assert12(validTime(f.overFence.tick) && typeof f.overFence.fair === "boolean" && typeof f.overFence.untouchedGround === "boolean", "invalid fence fact");
+    if (f.overFence) assert15(validTime(f.overFence.tick) && typeof f.overFence.fair === "boolean" && typeof f.overFence.untouchedGround === "boolean", "invalid fence fact");
     const homeRun = !!f.overFence && f.overFence.fair && f.overFence.untouchedGround && f.territory === "fair" && (f.firstGroundContactTick === void 0 || f.firstGroundContactTick === null || f.firstGroundContactTick > f.overFence.tick);
     const groundRuleAward = !!f.overFence && f.overFence.fair && !f.overFence.untouchedGround && f.territory === "fair" && (f.overFence.cause === "throw" || f.firstGroundContactTick !== void 0 && f.firstGroundContactTick !== null && f.firstGroundContactTick <= f.overFence.tick);
     if (f.overFence && !homeRun && !groundRuleAward) return unresolved("ground_rule_award_requires_out_of_play_geometry", f.overFence.tick);
@@ -13686,14 +14400,14 @@ var KneekuraNativeMatchCore = (() => {
       ...caught?.kind === "caught" ? [{ kind: "fly_catch", tick: caught.outTick, defenderId: f.flyCatch.fielderId }] : []
     ];
     for (const e of events) {
-      assert12(validTime(e.tick), "fact outside physical play interval");
-      if ("runnerId" in e) assert12(runners.includes(e.runnerId), "unknown physical runner");
-      if ("base" in e) assert12([1, 2, 3, 4].includes(e.base), "invalid physical base");
-      if ("defenderId" in e) assert12(id5(e.defenderId), "invalid physical defender");
-      if (e.kind === "defensive_appeal_attempt") assert12(e.reason === "tag_up_early_departure", "invalid physical appeal reason");
+      assert15(validTime(e.tick), "fact outside physical play interval");
+      if ("runnerId" in e) assert15(runners.includes(e.runnerId), "unknown physical runner");
+      if ("base" in e) assert15([1, 2, 3, 4].includes(e.base), "invalid physical base");
+      if ("defenderId" in e) assert15(id5(e.defenderId), "invalid physical defender");
+      if (e.kind === "defensive_appeal_attempt") assert15(e.reason === "tag_up_early_departure", "invalid physical appeal reason");
       if (e.kind === "controlled_runner_tag" && e.protectionEndedByDeparture) {
         const proof = e.protectionEndedByDeparture;
-        assert12([1, 2, 3, 4].includes(proof.base) && validTime(proof.tick) && proof.tick === e.tick, "invalid tag departure evidence");
+        assert15([1, 2, 3, 4].includes(proof.base) && validTime(proof.tick) && proof.tick === e.tick, "invalid tag departure evidence");
       }
     }
     const retire = (runnerId, time, classification2, cause, defenderId) => {
@@ -13793,7 +14507,7 @@ var KneekuraNativeMatchCore = (() => {
       const thirdAppeal = sustainedAppeals.find((a) => third.cause === "tag_up_appeal" && a.runnerId === third.runnerId && a.outTick === third.tick);
       const r = thirdAppeal ? evaluateSustainedTagUpAppealScoring({ precedence: createRunnerPrecedence(m.bases, batter), appealOut: thirdAppeal, homeTouches: homes }) : resolveThirdOutScoring({ outsAtStart: 2, thirdOutCandidate: { runnerId: third.runnerId, outTick: third.tick, classification: third.classification }, homeTouches: homes });
       if (r.kind === "simultaneous_unresolved") return unresolved("simultaneous_third_out_run", third.tick);
-      assert12(r.kind === "resolved", "third out was not resolved");
+      assert15(r.kind === "resolved", "third out was not resolved");
       scored = r.scored;
       suppressed = r.suppressed;
     } else finalizePendingRunsAtPlayEnd(homes, f.playEnd);
@@ -14034,18 +14748,22 @@ var KneekuraNativeMatchCore = (() => {
   var add18 = (a, b) => ({ x: a.x + b.x, y: a.y + b.y, z: a.z + b.z });
   var sub11 = (a, b) => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
   var mul7 = (a, s) => ({ x: a.x * s, y: a.y * s, z: a.z * s });
-  var norm9 = (v3) => Math.hypot(v3.x, v3.y, v3.z);
-  var clamp3 = (n, a, b) => Math.max(a, Math.min(b, n));
-  var bounded = (n, a, b) => Number.isFinite(n) && n >= a && n <= b;
-  function assert13(v3, message) {
+  var norm10 = (v3) => Math.hypot(v3.x, v3.y, v3.z);
+  var clamp4 = (n, a, b) => Math.max(a, Math.min(b, n));
+  var bounded2 = (n, a, b) => Number.isFinite(n) && n >= a && n <= b;
+  var techniqueBlend = (u) => {
+    const t = clamp4(u, 0, 1);
+    return t * t * (3 - 2 * t);
+  };
+  function assert16(v3, message) {
     if (!v3) throw new Error("live pitch: " + message);
   }
   function resolveLivePitchReleaseV1(p) {
     const bodyHeight = p.heightMeters ?? 1.83, rubber = p.moundPosition ?? { x: 0, y: 0.254, z: 18.44 }, explicit = p.heightMeters !== void 0 || p.moundPosition !== void 0 || p.pitchReleaseHeightMeters !== void 0 || p.pitchReleaseSideMeters !== void 0 || p.pitchReleaseExtensionMeters !== void 0;
-    assert13(p.heightMeters === void 0 || bounded(p.heightMeters, 1.1, 2.5), "invalid pitcher body height");
-    assert13(Object.values(rubber).every(Number.isFinite) && rubber.z >= 10 && rubber.z <= 25 && rubber.y >= 0 && rubber.y <= 1, "invalid mound surface anchor");
+    assert16(p.heightMeters === void 0 || bounded2(p.heightMeters, 1.1, 2.5), "invalid pitcher body height");
+    assert16(Object.values(rubber).every(Number.isFinite) && rubber.z >= 10 && rubber.z <= 25 && rubber.y >= 0 && rubber.y <= 1, "invalid mound surface anchor");
     for (const [key3, lo, hi] of [["pitchReleaseHeightMeters", 0.2, 3.2], ["pitchReleaseSideMeters", 0, 1.5], ["pitchReleaseExtensionMeters", 0, 3.5]])
-      assert13(p[key3] === void 0 || bounded(p[key3], lo, hi), "invalid release geometry: " + key3);
+      assert16(p[key3] === void 0 || bounded2(p[key3], lo, hi), "invalid release geometry: " + key3);
     const heightMeters = p.pitchReleaseHeightMeters ?? bodyHeight * 0.86, sideMeters = p.pitchReleaseSideMeters ?? bodyHeight * 0.25, extensionMeters = p.pitchReleaseExtensionMeters ?? 1.54, position = explicit ? { x: rubber.x + (p.throws === "L" ? 1 : -1) * sideMeters, y: rubber.y + heightMeters, z: rubber.z - extensionMeters } : { x: p.throws === "L" ? -0.18 : 0.18, y: 1.83, z: 16.9 };
     return {
       position,
@@ -14061,7 +14779,7 @@ var KneekuraNativeMatchCore = (() => {
   var dot15 = (a, b) => a.x * b.x + a.y * b.y + a.z * b.z;
   var cross10 = (a, b) => ({ x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x });
   function betweenDirections(from, to) {
-    const a = mul7(from, 1 / norm9(from)), b = mul7(to, 1 / norm9(to)), d = clamp3(dot15(a, b), -1, 1);
+    const a = mul7(from, 1 / norm10(from)), b = mul7(to, 1 / norm10(to)), d = clamp4(dot15(a, b), -1, 1);
     if (d < -1 + 1e-12) return quaternionFromAxisAngle(cross10(a, Math.abs(a.x) < 0.8 ? { x: 1, y: 0, z: 0 } : { x: 0, y: 1, z: 0 }), Math.PI);
     const axis = cross10(a, b);
     return normalizeQuaternion({ w: 1 + d, x: axis.x, y: axis.y, z: axis.z });
@@ -14076,14 +14794,14 @@ var KneekuraNativeMatchCore = (() => {
       t ^= t + Math.imul(t ^ t >>> 7, t | 61);
       return ((t ^ t >>> 14) >>> 0) / 4294967296;
     };
-    return { uniform, normal: () => clamp3(Math.sqrt(-2 * Math.log(Math.max(1e-12, uniform()))) * Math.cos(2 * Math.PI * uniform()), -3, 3) };
+    return { uniform, normal: () => clamp4(Math.sqrt(-2 * Math.log(Math.max(1e-12, uniform()))) * Math.cos(2 * Math.PI * uniform()), -3, 3) };
   }
   function firstContact2(kernel, gap, colliderSpeed, through) {
     let budget = 2e5;
     const search = (lo, hi, speed2, rounding, depth = 0) => {
-      assert13(--budget >= 0, "continuous collision proof budget exhausted");
+      assert16(--budget >= 0, "continuous collision proof budget exhausted");
       const a = gap(lo), b = gap(hi);
-      assert13(Number.isFinite(a) && Number.isFinite(b), "nonfinite collision gap");
+      assert16(Number.isFinite(a) && Number.isFinite(b), "nonfinite collision gap");
       if (a <= 0) return { kind: "hit", from: lo, at: lo };
       if (Math.min(a, b) > speed2 * (hi - lo) + rounding) return null;
       const mid = (lo + hi) / 2;
@@ -14122,11 +14840,12 @@ var KneekuraNativeMatchCore = (() => {
     const input = cloneInert(raw), b = input.batter, p = input.pitcher, profile = createAeroGroundBallPhysicsProfile(input.physics), tps = profile.air.ticksPerSecond, catcher = input.catcher ?? { gloveSpeedMps: 7, gloveReachMeters: 0.95, gloveRadiusMeters: 0.14, retentionCapacityJ: 350, captureDissipationPowerW: 1e4, pocketRadiusMeters: 0.18 };
     if (b.technicalSkills !== void 0) validateTechnicalSkillControlsV75(b.technicalSkills);
     if (p.technicalSkills !== void 0) validateTechnicalSkillControlsV75(p.technicalSkills);
-    assert13(Number.isSafeInteger(input.originTick) && input.originTick >= 0 && Number.isSafeInteger(input.seed) && tps === profile.ground.ticksPerSecond, "invalid original clock or seed");
-    assert13(bounded(b.heightMeters, 1.1, 2.5) && ["R", "L"].includes(b.bats) && bounded(b.batLengthM, 0.2, 3) && bounded(b.batMassKg, 0.1, 5) && bounded(b.swingRate, 0.3, 3) && bounded(b.timingStdSeconds, 0, 0.08) && bounded(b.aimStdMeters, 0, 0.35) && bounded(b.chaseMarginMeters, 0, 0.6), "invalid batter SI controls");
-    assert13(bounded(p.releaseSpeedMps, 15, 85) && bounded(p.commandStdMeters, 0, 0.6) && p.spinRadPerSecond && Object.values(p.spinRadPerSecond).every(Number.isFinite) && norm9(p.spinRadPerSecond) <= 1200, "invalid pitcher SI controls");
-    assert13((p.maximumPitchSpeedMps === void 0 || bounded(p.maximumPitchSpeedMps, 15, 85)) && (p.throws === void 0 || ["R", "L"].includes(p.throws)), "invalid pitcher limit or throwing side");
-    assert13(p.pitchApproach === void 0 || ["FASTBALL", "BALANCED", "BREAKING"].includes(p.pitchApproach), "invalid pitch approach preference");
+    if (p.pitchingMotion !== void 0) validatePitchingMotionV77(p.pitchingMotion);
+    assert16(Number.isSafeInteger(input.originTick) && input.originTick >= 0 && Number.isSafeInteger(input.seed) && tps === profile.ground.ticksPerSecond, "invalid original clock or seed");
+    assert16(bounded2(b.heightMeters, 1.1, 2.5) && ["R", "L"].includes(b.bats) && bounded2(b.batLengthM, 0.2, 3) && bounded2(b.batMassKg, 0.1, 5) && bounded2(b.swingRate, 0.3, 3) && bounded2(b.timingStdSeconds, 0, 0.08) && bounded2(b.aimStdMeters, 0, 0.35) && bounded2(b.chaseMarginMeters, 0, 0.6), "invalid batter SI controls");
+    assert16(bounded2(p.releaseSpeedMps, 15, 85) && bounded2(p.commandStdMeters, 0, 0.6) && p.spinRadPerSecond && Object.values(p.spinRadPerSecond).every(Number.isFinite) && norm10(p.spinRadPerSecond) <= 1200, "invalid pitcher SI controls");
+    assert16((p.maximumPitchSpeedMps === void 0 || bounded2(p.maximumPitchSpeedMps, 15, 85)) && (p.throws === void 0 || ["R", "L"].includes(p.throws)), "invalid pitcher limit or throwing side");
+    assert16(p.pitchApproach === void 0 || ["FASTBALL", "BALANCED", "BREAKING"].includes(p.pitchApproach), "invalid pitch approach preference");
     for (const [key3, lo, hi] of [
       ["maximumSweetSpotSpeedMps", 0.1, 90],
       ["targetSweetSpotSpeedMps", 0.1, 90],
@@ -14141,16 +14860,16 @@ var KneekuraNativeMatchCore = (() => {
       ["contactDepthMeters", 1e-3, 2],
       ["zoneJudgmentStdMeters", 0, 0.6]
     ])
-      assert13(b[key3] === void 0 || bounded(b[key3], lo, hi), "invalid authored batter control: " + key3);
-    if (b.swingDecision) assert13(["AUTO", "TAKE", "SWING"].includes(b.swingDecision.approach) && bounded(b.swingDecision.threshold, 0, 1) && bounded(b.swingDecision.aggressionWeight, 0, 1), "invalid authored swing decision");
-    assert13(bounded(catcher.gloveSpeedMps, 0.1, 40) && bounded(catcher.gloveReachMeters, 0.4, 3) && bounded(catcher.gloveRadiusMeters, 0.03, 0.3) && bounded(catcher.retentionCapacityJ, 1, 2e3) && bounded(catcher.captureDissipationPowerW, 10, 1e6) && bounded(catcher.pocketRadiusMeters, 0.02, 1), "invalid catcher SI controls");
-    assert13(["balanced", "contact", "power", "take", "bunt"].includes(input.batting), "invalid batting command");
+      assert16(b[key3] === void 0 || bounded2(b[key3], lo, hi), "invalid authored batter control: " + key3);
+    if (b.swingDecision) assert16(["AUTO", "TAKE", "SWING"].includes(b.swingDecision.approach) && bounded2(b.swingDecision.threshold, 0, 1) && bounded2(b.swingDecision.aggressionWeight, 0, 1), "invalid authored swing decision");
+    assert16(bounded2(catcher.gloveSpeedMps, 0.1, 40) && bounded2(catcher.gloveReachMeters, 0.4, 3) && bounded2(catcher.gloveRadiusMeters, 0.03, 0.3) && bounded2(catcher.retentionCapacityJ, 1, 2e3) && bounded2(catcher.captureDissipationPowerW, 10, 1e6) && bounded2(catcher.pocketRadiusMeters, 0.02, 1), "invalid catcher SI controls");
+    assert16(["balanced", "contact", "power", "take", "bunt"].includes(input.batting), "invalid batting command");
     const impactTrajectory = b.impactTrajectory === void 0 ? void 0 : validateImpactTrajectorySettingsV1(b.impactTrajectory), impactAngle = impactTrajectory === void 0 ? 0 : impactTrajectory.angleDegreesByLevel[impactTrajectory.level - 1], localImpactWindow = impactTrajectory !== void 0 && impactTrajectory.method === void 0 && impactAngle !== 0;
-    assert13(input.measuredClips.every((c) => c.defaultSelection === void 0 || typeof c.defaultSelection === "boolean"), "invalid measured clip default selection");
+    assert16(input.measuredClips.every((c) => c.defaultSelection === void 0 || typeof c.defaultSelection === "boolean"), "invalid measured clip default selection");
     const r = random(input.seed), clips = input.measuredClips.filter((c) => c.side === b.bats && (b.clipId ? c.id === b.clipId : c.defaultSelection !== false));
-    assert13(clips.length > 0, "a measured OpenBiomechanics clip for the actual batting side is required");
+    assert16(clips.length > 0, "a measured OpenBiomechanics clip for the actual batting side is required");
     const clip = clips[Math.floor(r.uniform() * clips.length)];
-    assert13(clip.id.startsWith("obp-") && clip.source.repository === openBiomechanics && /^[a-f0-9]{64}$/.test(clip.source.sha256) && Number.isFinite(clip.contactTimeSeconds) && clip.frames.length >= 2, "unsupported measured clip provenance");
+    assert16(clip.id.startsWith("obp-") && clip.source.repository === openBiomechanics && /^[a-f0-9]{64}$/.test(clip.source.sha256) && Number.isFinite(clip.contactTimeSeconds) && clip.frames.length >= 2, "unsupported measured clip provenance");
     const pitchApproach = p.pitchApproach ?? "BALANCED", autoPitchWeights = pitchApproach === "FASTBALL" ? [7, 1, 1, 1] : pitchApproach === "BREAKING" ? [1, 3, 3, 3] : [1, 1, 1, 1];
     let pitchType = input.pitchType, selectionDraw = null;
     if (pitchType === "auto") {
@@ -14170,33 +14889,24 @@ var KneekuraNativeMatchCore = (() => {
       }
       pitchType = ["fastball", "slider", "curve", "changeup"][choice];
     }
-    assert13(["fastball", "slider", "curve", "changeup", "cutter", "sinker", "splitter"].includes(pitchType), "unsupported physical pitch type");
-    const factor = { fastball: 1, slider: 0.91, curve: 0.8, changeup: 0.82, cutter: 0.95, sinker: 0.96, splitter: 0.89 }[pitchType], speed2 = Math.min(p.releaseSpeedMps, p.maximumPitchSpeedMps ?? Infinity) * factor * (0.98 + 0.02 * r.uniform()), spinMagnitude = norm9(p.spinRadPerSecond);
-    const axes5 = {
-      slider: { x: 0.25, y: -0.8, z: 0.55 },
-      curve: { x: -1, y: 0, z: 0.1 },
-      changeup: { x: 0.65, y: 0.2, z: 0.25 },
-      cutter: { x: 0.7, y: -0.45, z: 0.25 },
-      sinker: { x: 0.55, y: 0.5, z: 0.2 },
-      splitter: { x: -0.15, y: 0.15, z: 0.3 }
-    };
-    const spin = pitchType === "fastball" ? p.spinRadPerSecond : mul7(axes5[pitchType], spinMagnitude * (pitchType === "changeup" ? 0.7 : 1) / norm9(axes5[pitchType]));
+    assert16(["fastball", "slider", "curve", "changeup", "cutter", "sinker", "splitter"].includes(pitchType), "unsupported physical pitch type");
+    const repertoire = resolvePitcherRepertoireV77(p), selectedPitch = repertoire.find((row) => row.pitchType === pitchType), speed2 = selectedPitch.releaseSpeedMps * (0.98 + 0.02 * r.uniform()), spin = selectedPitch.spinRadPerSecond;
     const zone = resolveHeightRatioStrikeZoneRegion({ plateCenterX: 0, playerPhysicalProfile: { heightMeters: b.heightMeters } }), middle = (zone.lowerY + zone.upperY) / 2;
     const location = input.location === "auto" ? ["zone", "zone", "low", "outside", "inside"][Math.floor(r.uniform() * 5)] : input.location;
-    assert13(["zone", "low", "outside", "inside", "high"].includes(location), "unsupported target location");
+    assert16(["zone", "low", "outside", "inside", "high"].includes(location), "unsupported target location");
     const batterSide = b.bats === "R" ? -1 : 1, target = { x: (r.uniform() - 0.5) * 0.32, y: middle + (r.uniform() - 0.5) * (zone.upperY - zone.lowerY) * 0.7, z: 0.15 };
     if (location === "outside") target.x = -batterSide * (0.25 + r.uniform() * 0.25);
     if (location === "inside") target.x = batterSide * (0.19 + r.uniform() * 0.2);
     if (location === "low") target.y = zone.lowerY - 0.06 - r.uniform() * 0.16;
     if (location === "high") target.y = zone.upperY + 0.06 + r.uniform() * 0.16;
-    const lowZoneTechnique = p.technicalSkills?.low_zone_command ?? 0, lowZoneTechniqueActive = lowZoneTechnique > 0 && target.y <= zone.lowerY + (zone.upperY - zone.lowerY) / 3, effectiveCommandStd = lowZoneTechniqueActive ? p.commandStdMeters / (1 + 0.6 * lowZoneTechnique) : p.commandStdMeters;
+    const lowZoneTechnique = p.technicalSkills?.low_zone_command ?? 0, lowZoneTechniqueActive = lowZoneTechnique > 0 && target.y <= zone.lowerY + (zone.upperY - zone.lowerY) / 3, lowZoneCommandStd = lowZoneTechniqueActive ? p.commandStdMeters / (1 + 0.6 * lowZoneTechnique) : p.commandStdMeters, insideTechnique = p.technicalSkills?.inside_command ?? 0, insideTargetWeight = insideTechnique > 0 ? techniqueBlend((target.x * batterSide / zone.halfWidth - 0.45) / 0.55) : 0, effectiveCommandStd = insideTargetWeight > 0 ? lowZoneCommandStd / (1 + 0.6 * insideTechnique * insideTargetWeight) : lowZoneCommandStd;
     const commanded = { ...target, x: target.x + r.normal() * effectiveCommandStd, y: target.y + r.normal() * effectiveCommandStd };
     const releaseGeometry = resolveLivePitchReleaseV1(p), release = releaseGeometry.position, flightGuess = (release.z - commanded.z) / speed2;
     let vx = (commanded.x - release.x) / flightGuess, vy = (commanded.y - release.y - profile.air.gravityY * flightGuess * flightGuess / 2) / flightGuess, vz = -Math.sqrt(Math.max(speed2 * speed2 - vx * vx - vy * vy, speed2 * speed2 * 0.5)), flightTime = flightGuess;
     let initial = { tick: input.originTick, position: release, velocity: { x: vx, y: vy, z: vz }, spin };
     for (let i = 0; i < 3; i++) {
       const at2 = sampleAerodynamicPitchStateAtElapsedSeconds(initial, flightTime, profile.air);
-      flightTime = clamp3(flightTime + (commanded.z - at2.position.z) / at2.velocity.z, 0.12, 1.6);
+      flightTime = clamp4(flightTime + (commanded.z - at2.position.z) / at2.velocity.z, 0.12, 1.6);
       vx += (commanded.x - at2.position.x) / flightTime;
       vy += (commanded.y - at2.position.y) / flightTime;
       const horizontal = Math.hypot(vx, vy);
@@ -14213,17 +14923,17 @@ var KneekuraNativeMatchCore = (() => {
       throughElapsedSeconds: horizon,
       profile
     }, kernel = createSourceFreeBallKernel(descriptor), plateTime = crossing(kernel, 0.15), catchPlaneTime = crossing(kernel, -0.85);
-    assert13(plateTime !== null && catchPlaneTime !== null, "pitched ball did not cross the finite plate/catcher planes");
+    assert16(plateTime !== null && catchPlaneTime !== null, "pitched ball did not cross the finite plate/catcher planes");
     const decisionTime = Math.min(0.14, plateTime * 0.35), observed = kernel.evaluateAt(decisionTime).moment.ball;
     const predictAtPlane = (plane) => {
       let dt = Math.max(1e-3, (plane - observed.position.z) / observed.velocity.z), pred = observed;
       for (let i = 0; i < 3; i++) {
         pred = sampleAerodynamicPitchStateAtElapsedSeconds(observed, dt, profile.air);
-        dt = clamp3(dt + (plane - pred.position.z) / pred.velocity.z, 1e-3, horizon - decisionTime);
+        dt = clamp4(dt + (plane - pred.position.z) / pred.velocity.z, 1e-3, horizon - decisionTime);
       }
       return { elapsedSeconds: decisionTime + dt, ball: sampleAerodynamicPitchStateAtElapsedSeconds(observed, dt, profile.air) };
     };
-    const prediction = predictAtPlane(b.contactDepthMeters ?? 0.15), controlFactor = input.batting === "power" ? 1.08 : input.batting === "contact" ? 0.92 : 1, timingError = r.normal() * b.timingStdSeconds * (input.batting === "contact" ? 0.72 : input.batting === "power" ? 1.15 : 1), awkwardness = Math.max(0, Math.abs(prediction.ball.position.x) / 0.2159 - 1, (0.55 - prediction.ball.position.y) / 0.5, (prediction.ball.position.y - 1.5) / 0.5), awkwardErrorFactor = b.badBallControl === void 0 ? 1 : 1 + awkwardness * (1 - b.badBallControl), aimScale = b.aimStdMeters * (input.batting === "contact" ? 0.7 : input.batting === "power" ? 1.1 : 1) * awkwardErrorFactor, aimError = { x: r.normal() * aimScale, y: r.normal() * aimScale, z: r.normal() * aimScale * 0.3 }, sweetSpotT = clamp3((b.sweetSpotT ?? (b.batLengthM - 0.1524) / b.batLengthM) + (r.uniform() - 0.5) * 0.025, 0.65, 0.9), heightScale = b.heightMeters / 1.8;
+    const prediction = predictAtPlane(b.contactDepthMeters ?? 0.15), controlFactor = input.batting === "power" ? 1.08 : input.batting === "contact" ? 0.92 : 1, baselineTimingError = r.normal() * b.timingStdSeconds * (input.batting === "contact" ? 0.72 : input.batting === "power" ? 1.15 : 1), awkwardness = Math.max(0, Math.abs(prediction.ball.position.x) / 0.2159 - 1, (0.55 - prediction.ball.position.y) / 0.5, (prediction.ball.position.y - 1.5) / 0.5), awkwardErrorFactor = b.badBallControl === void 0 ? 1 : 1 + awkwardness * (1 - b.badBallControl), aimScale = b.aimStdMeters * (input.batting === "contact" ? 0.7 : input.batting === "power" ? 1.1 : 1) * awkwardErrorFactor, baselineAimError = { x: r.normal() * aimScale, y: r.normal() * aimScale, z: r.normal() * aimScale * 0.3 }, sweetSpotT = clamp4((b.sweetSpotT ?? (b.batLengthM - 0.1524) / b.batLengthM) + (r.uniform() - 0.5) * 0.025, 0.65, 0.9), heightScale = b.heightMeters / 1.8;
     const judgmentStd = b.zoneJudgmentStdMeters ?? 0, judgmentError = { x: 0, y: 0 };
     if (judgmentStd !== 0) {
       const judgmentRng = new SeedRoot(input.seed).streamRng(0, "batting", "zone-judgment-v1"), normal4 = () => Math.sqrt(-2 * Math.log(1 - judgmentRng.nextFloat())) * Math.cos(2 * Math.PI * judgmentRng.nextFloat());
@@ -14235,8 +14945,8 @@ var KneekuraNativeMatchCore = (() => {
       x: prediction.ball.position.x + judgmentError.x,
       y: prediction.ball.position.y + judgmentError.y
     };
-    const inChaseEnvelope = Math.abs(judgmentPosition.x) <= zone.halfWidth + b.chaseMarginMeters && judgmentPosition.y >= zone.lowerY - b.chaseMarginMeters && judgmentPosition.y <= zone.upperY + b.chaseMarginMeters, zoneMargin = Math.min(zone.halfWidth - Math.abs(judgmentPosition.x), judgmentPosition.y - zone.lowerY, zone.upperY - judgmentPosition.y), swingScore = clamp3(0.5 + zoneMargin / Math.max(0.1, zone.halfWidth) + (b.swingDecision ? (b.swingDecision.aggressionWeight - 0.5) * 0.2 : 0), 0, 1), swingOffered = input.batting !== "take" && (b.swingDecision ? b.swingDecision.approach === "SWING" || b.swingDecision.approach === "AUTO" && inChaseEnvelope && swingScore >= b.swingDecision.threshold : inChaseEnvelope);
-    const desiredContactTime = Math.max(0.055, prediction.elapsedSeconds + timingError + (b.technicalTimingOffsetSeconds ?? 0)), sourceContactTick = clip.contactTimeSeconds * 1e6;
+    const inChaseEnvelope = Math.abs(judgmentPosition.x) <= zone.halfWidth + b.chaseMarginMeters && judgmentPosition.y >= zone.lowerY - b.chaseMarginMeters && judgmentPosition.y <= zone.upperY + b.chaseMarginMeters, zoneMargin = Math.min(zone.halfWidth - Math.abs(judgmentPosition.x), judgmentPosition.y - zone.lowerY, zone.upperY - judgmentPosition.y), swingScore = clamp4(0.5 + zoneMargin / Math.max(0.1, zone.halfWidth) + (b.swingDecision ? (b.swingDecision.aggressionWeight - 0.5) * 0.2 : 0), 0, 1), swingOffered = input.batting !== "take" && (b.swingDecision ? b.swingDecision.approach === "SWING" || b.swingDecision.approach === "AUTO" && inChaseEnvelope && swingScore >= b.swingDecision.threshold : inChaseEnvelope);
+    const predictedZoneHeight = (prediction.ball.position.y - zone.lowerY) / (zone.upperY - zone.lowerY), highHitWeight = techniqueBlend((predictedZoneHeight - 0.55) / 0.35), lowHitWeight = techniqueBlend((0.45 - predictedZoneHeight) / 0.35), highHitTechnique = b.technicalSkills?.high_zone_hitting ?? 0, lowHitTechnique = b.technicalSkills?.low_zone_hitting ?? 0, zoneHitStrength = swingOffered && input.batting !== "bunt" ? highHitTechnique * highHitWeight + lowHitTechnique * lowHitWeight : 0, zoneHitErrorScale = zoneHitStrength > 0 ? 1 / (1 + 0.4 * zoneHitStrength) : 1, timingError = zoneHitStrength > 0 ? baselineTimingError * zoneHitErrorScale : baselineTimingError, aimError = zoneHitStrength > 0 ? mul7(baselineAimError, zoneHitErrorScale) : baselineAimError, desiredContactTime = Math.max(0.055, prediction.elapsedSeconds + timingError + (b.technicalTimingOffsetSeconds ?? 0)), sourceContactTick = clip.contactTimeSeconds * 1e6;
     const fullFrames = registerMeasuredBatToFieldV1(clip.frames).map((f) => ({ tick: f.tick, grip: mul7(f.grip, heightScale), orientation: f.orientation })), probeInput = {
       provenance: { clipId: clip.id, sourceSha256: clip.source.sha256 },
       frames: fullFrames,
@@ -14250,11 +14960,11 @@ var KneekuraNativeMatchCore = (() => {
     }, probe = createReferenceBatKinematicsV1(probeInput), probeVelocity = probe.sampleAtSourceTick(sourceContactTick, "outgoing").sweetSpotVelocity, adjustedProbe = impactTrajectory === void 0 ? probe : createReferenceBatKinematicsV1(withReferenceImpactTrajectoryV1(probeInput, sourceContactTick, impactTrajectory));
     let rate = b.swingRate * controlFactor;
     if (b.targetSweetSpotSpeedMps !== void 0) {
-      assert13(norm9(probeVelocity) > 1e-9, "measured reference has no finite contact speed");
-      rate *= b.targetSweetSpotSpeedMps / norm9(probeVelocity);
+      assert16(norm10(probeVelocity) > 1e-9, "measured reference has no finite contact speed");
+      rate *= b.targetSweetSpotSpeedMps / norm10(probeVelocity);
     }
     if (b.maximumSweetSpotSpeedMps !== void 0) rate = Math.min(rate, b.maximumSweetSpotSpeedMps / adjustedProbe.maximumSweetSpotSpeedMps);
-    assert13(bounded(rate, 0.01, 20), "authored motor rate is outside this finite reference model");
+    assert16(bounded2(rate, 0.01, 20), "authored motor rate is outside this finite reference model");
     let authoredRotation = IDENTITY_QUATERNION;
     if (b.attackAngleDegrees !== void 0 || b.pullAngleDegrees !== void 0) {
       const side = b.bats === "R" ? 1 : -1, attack = b.attackAngleDegrees === void 0 ? Math.atan2(probeVelocity.y, Math.hypot(probeVelocity.x, probeVelocity.z)) : b.attackAngleDegrees * Math.PI / 180, pull = b.pullAngleDegrees === void 0 ? -Math.atan2(probeVelocity.x, probeVelocity.z) : b.pullAngleDegrees * side * Math.PI / 180;
@@ -14276,7 +14986,7 @@ var KneekuraNativeMatchCore = (() => {
       ), last = selectedFrames.findIndex((f) => f.tick >= maximumSourceTick);
       if (last >= 0) selectedFrames = selectedFrames.slice(0, last + 1);
     }
-    assert13(selectedFrames.length >= 2 && selectedFrames[0].tick < sourceContactTick && selectedFrames.at(-1).tick > sourceContactTick, "measured swing does not bracket contact reference");
+    assert16(selectedFrames.length >= 2 && selectedFrames[0].tick < sourceContactTick && selectedFrames.at(-1).tick > sourceContactTick, "measured swing does not bracket contact reference");
     const startOffset = desiredContactTime - (sourceContactTick - selectedFrames[0].tick) / 1e6 / rate, plannedStartTick = input.originTick + Math.max(0, Math.round(startOffset * tps)), actualStartTick = b.motorLatencySeconds === void 0 ? plannedStartTick : Math.max(plannedStartTick, input.originTick + Math.ceil((decisionTime + b.motorLatencySeconds) * tps)), motorDelaySeconds = (actualStartTick - plannedStartTick) / tps, referenceInput = {
       provenance: { clipId: clip.id, sourceSha256: clip.source.sha256 },
       frames: selectedFrames,
@@ -14291,7 +15001,7 @@ var KneekuraNativeMatchCore = (() => {
     const referenceZero = createReferenceBatKinematicsV1(referenceInput), referenceContactTick = referenceInput.startTick + (sourceContactTick - selectedFrames[0].tick) / 1e6 / rate * tps, point = referenceZero.sampleContinuous(referenceContactTick).sweetSpot;
     const translatedReference = { ...referenceInput, transform: { ...referenceInput.transform, translation: sub11(add18(prediction.ball.position, aimError), point) } }, registeredReference = impactTrajectory === void 0 ? translatedReference : withReferenceImpactTrajectoryV1(translatedReference, sourceContactTick, impactTrajectory);
     const reference = createReferenceBatKinematicsV1(registeredReference);
-    assert13(b.maximumSweetSpotSpeedMps === void 0 || reference.maximumSweetSpotSpeedMps <= b.maximumSweetSpotSpeedMps * (1 + 1e-10), "adjusted reference exceeds declared motor ceiling");
+    assert16(b.maximumSweetSpotSpeedMps === void 0 || reference.maximumSweetSpotSpeedMps <= b.maximumSweetSpotSpeedMps * (1 + 1e-10), "adjusted reference exceeds declared motor ceiling");
     const radiusProfile = { knots: [
       { t: 0, radiusM: 0.019 },
       { t: 0.06, radiusM: 0.014 },
@@ -14309,8 +15019,8 @@ var KneekuraNativeMatchCore = (() => {
     const held = reference.sampleContinuous(input.batting === "bunt" ? referenceContactTick : input.originTick), buntTechnique = swingOffered && input.batting === "bunt" ? b.technicalSkills?.bunting ?? 0 : 0;
     const buntMotor = (() => {
       if (buntTechnique === 0) return null;
-      const precision = 1 / (1 + 0.75 * buntTechnique), yaw = aimScale > 0 ? clamp3(aimError.x / aimScale, -3, 3) * 0.1 * precision : 0, elevation = aimScale > 0 ? clamp3(aimError.y / aimScale, -3, 3) * 0.06 * precision : 0, axis = { x: -batterSide * Math.cos(yaw) * Math.cos(elevation), y: Math.sin(elevation), z: Math.sin(yaw) * Math.cos(elevation) }, startSweetSpot = { x: 0, y: middle, z: -0.2 }, targetSweetSpot = add18(prediction.ball.position, mul7(aimError, precision)), moveStartSeconds = decisionTime + (b.motorLatencySeconds ?? 0), arrivalSeconds = Math.max(moveStartSeconds + 0.045, prediction.elapsedSeconds + timingError * precision + (b.technicalTimingOffsetSeconds ?? 0) - 0.025), moveSeconds = arrivalSeconds - moveStartSeconds, maximumSpeedMps = Math.min(4, b.maximumSweetSpotSpeedMps ?? 4), wantedDelta = sub11(targetSweetSpot, startSweetSpot), wantedDistance = norm9(wantedDelta), maximumTravelMeters = maximumSpeedMps * 0.65 * moveSeconds / 1.5, delta2 = wantedDistance > maximumTravelMeters ? mul7(wantedDelta, maximumTravelMeters / wantedDistance) : wantedDelta, absorbStartSeconds = arrivalSeconds - 0.035, absorbSeconds = 0.16, absorbMeters = Math.min(0.12, maximumSpeedMps * 0.35 * absorbSeconds / 1.5), maximumSurfaceSpeedMps = 1.5 * norm9(delta2) / moveSeconds + 1.5 * absorbMeters / absorbSeconds, sample3 = (seconds) => {
-        const u = clamp3((seconds - moveStartSeconds) / moveSeconds, 0, 1), w = u * u * (3 - 2 * u), dw = seconds > moveStartSeconds && seconds < arrivalSeconds ? 6 * u * (1 - u) / moveSeconds : 0, a = clamp3((seconds - absorbStartSeconds) / absorbSeconds, 0, 1), aw = a * a * (3 - 2 * a), ad = seconds > absorbStartSeconds && seconds < absorbStartSeconds + absorbSeconds ? 6 * a * (1 - a) / absorbSeconds : 0, sweetSpot = add18(add18(startSweetSpot, mul7(delta2, w)), { x: 0, y: 0, z: -absorbMeters * aw }), linearVelocity = add18(mul7(delta2, dw), { x: 0, y: 0, z: -absorbMeters * ad }), grip = sub11(sweetSpot, mul7(axis, b.batLengthM * sweetSpotT));
+      const precision = 1 / (1 + 0.75 * buntTechnique), yaw = aimScale > 0 ? clamp4(aimError.x / aimScale, -3, 3) * 0.1 * precision : 0, elevation = aimScale > 0 ? clamp4(aimError.y / aimScale, -3, 3) * 0.06 * precision : 0, axis = { x: -batterSide * Math.cos(yaw) * Math.cos(elevation), y: Math.sin(elevation), z: Math.sin(yaw) * Math.cos(elevation) }, startSweetSpot = { x: 0, y: middle, z: -0.2 }, targetSweetSpot = add18(prediction.ball.position, mul7(aimError, precision)), moveStartSeconds = decisionTime + (b.motorLatencySeconds ?? 0), arrivalSeconds = Math.max(moveStartSeconds + 0.045, prediction.elapsedSeconds + timingError * precision + (b.technicalTimingOffsetSeconds ?? 0) - 0.025), moveSeconds = arrivalSeconds - moveStartSeconds, maximumSpeedMps = Math.min(4, b.maximumSweetSpotSpeedMps ?? 4), wantedDelta = sub11(targetSweetSpot, startSweetSpot), wantedDistance = norm10(wantedDelta), maximumTravelMeters = maximumSpeedMps * 0.65 * moveSeconds / 1.5, delta2 = wantedDistance > maximumTravelMeters ? mul7(wantedDelta, maximumTravelMeters / wantedDistance) : wantedDelta, absorbStartSeconds = arrivalSeconds - 0.035, absorbSeconds = 0.16, absorbMeters = Math.min(0.12, maximumSpeedMps * 0.35 * absorbSeconds / 1.5), maximumSurfaceSpeedMps = 1.5 * norm10(delta2) / moveSeconds + 1.5 * absorbMeters / absorbSeconds, sample3 = (seconds) => {
+        const u = clamp4((seconds - moveStartSeconds) / moveSeconds, 0, 1), w = u * u * (3 - 2 * u), dw = seconds > moveStartSeconds && seconds < arrivalSeconds ? 6 * u * (1 - u) / moveSeconds : 0, a = clamp4((seconds - absorbStartSeconds) / absorbSeconds, 0, 1), aw = a * a * (3 - 2 * a), ad = seconds > absorbStartSeconds && seconds < absorbStartSeconds + absorbSeconds ? 6 * a * (1 - a) / absorbSeconds : 0, sweetSpot = add18(add18(startSweetSpot, mul7(delta2, w)), { x: 0, y: 0, z: -absorbMeters * aw }), linearVelocity = add18(mul7(delta2, dw), { x: 0, y: 0, z: -absorbMeters * ad }), grip = sub11(sweetSpot, mul7(axis, b.batLengthM * sweetSpotT));
         return {
           ...held,
           sweetSpot,
@@ -14341,28 +15051,28 @@ var KneekuraNativeMatchCore = (() => {
     const batSample = (seconds) => buntMotor ? buntMotor.sample(seconds) : swingOffered && input.batting !== "bunt" ? reference.sampleContinuous(input.originTick + seconds * tps) : { ...held, state: { ...held.state, linearVelocity: zero4(), angularVelocity: zero4() } };
     const rigidAt = (seconds) => createRigidBatStateFromBatterSwingState(batSample(seconds).state, batPhysical), batBound = buntMotor?.diagnostics.maximumSurfaceSpeedMps ?? (swingOffered && input.batting !== "bunt" ? reference.maximumGripSpeedMps + reference.maximumAngularSpeedRadPerSecond * b.batLengthM : 0);
     const catcherForecast = createSourceFreeBallKernel({ ...descriptor, initial: kernel.evaluateAt(decisionTime).moment }), catcherForecastTime = crossing(catcherForecast, -0.85);
-    assert13(catcherForecastTime !== null, "catcher forecast did not reach its finite plane");
+    assert16(catcherForecastTime !== null, "catcher forecast did not reach its finite plane");
     const catcherPrediction = { elapsedSeconds: catcherForecastTime, ball: catcherForecast.evaluateAt(catcherForecastTime).moment.ball }, catcherStart = { x: 0, y: middle, z: -0.85 }, body = { x: 0, y: 0.8, z: -1.2 }, reach = catcher.gloveReachMeters, catcherTarget = { x: catcherPrediction.ball.position.x, y: catcherPrediction.ball.position.y, z: -0.85 };
     catcherTarget.y = Math.max(catcher.gloveRadiusMeters, catcherTarget.y);
     const planarReach = Math.sqrt(reach * reach - (catcherTarget.z - body.z) ** 2), fromBody = { x: catcherTarget.x - body.x, y: catcherTarget.y - body.y, z: 0 };
-    if (norm9(fromBody) > planarReach) {
-      const constrained = add18(body, mul7(fromBody, planarReach / norm9(fromBody)));
+    if (norm10(fromBody) > planarReach) {
+      const constrained = add18(body, mul7(fromBody, planarReach / norm10(fromBody)));
       catcherTarget.x = constrained.x;
       catcherTarget.y = constrained.y;
     }
-    const moveStart = decisionTime, moveEnd = Math.max(moveStart + 0.025, catcherPrediction.elapsedSeconds - 0.025), moveDuration = moveEnd - moveStart, delta = sub11(catcherTarget, catcherStart), distance6 = norm9(delta), maximumGloveSpeedMps = catcher.gloveSpeedMps;
+    const moveStart = decisionTime, moveEnd = Math.max(moveStart + 0.025, catcherPrediction.elapsedSeconds - 0.025), moveDuration = moveEnd - moveStart, delta = sub11(catcherTarget, catcherStart), distance6 = norm10(delta), maximumGloveSpeedMps = catcher.gloveSpeedMps;
     if (distance6 > maximumGloveSpeedMps * moveDuration / 1.5) {
       const limited = add18(catcherStart, mul7(delta, maximumGloveSpeedMps * moveDuration / 1.5 / distance6));
       catcherTarget.x = limited.x;
       catcherTarget.y = limited.y;
     }
     const finalDelta = sub11(catcherTarget, catcherStart), gloveAt = (seconds) => {
-      const u = clamp3((seconds - moveStart) / moveDuration, 0, 1), smooth = u * u * (3 - 2 * u), ds = seconds > moveStart && seconds < moveEnd ? 6 * u * (1 - u) / moveDuration : 0;
+      const u = clamp4((seconds - moveStart) / moveDuration, 0, 1), smooth = u * u * (3 - 2 * u), ds = seconds > moveStart && seconds < moveEnd ? 6 * u * (1 - u) / moveDuration : 0;
       return { position: add18(catcherStart, mul7(finalDelta, smooth)), velocity: mul7(finalDelta, ds) };
     };
     const ground = kernel.boundaries.find((x) => x.kind === "ground")?.elapsedSeconds ?? horizon, catcherHit = firstContact2(
       kernel,
-      (t) => norm9(sub11(kernel.evaluateAt(t, "incoming").moment.ball.position, gloveAt(t).position)) - catcher.gloveRadiusMeters - ballPhysical.radiusM,
+      (t) => norm10(sub11(kernel.evaluateAt(t, "incoming").moment.ball.position, gloveAt(t).position)) - catcher.gloveRadiusMeters - ballPhysical.radiusM,
       maximumGloveSpeedMps,
       horizon
     ), catcherAt = catcherHit?.kind === "hit" ? catcherHit.at : Math.min(horizon, catchPlaneTime + 0.05), batHit = firstContact2(kernel, (t) => measureRigidBatBallSurfaceSeparation(kernel.evaluateAt(t, "incoming").moment.ball, rigidAt(t), ballPhysical), batBound, catcherAt);
@@ -14385,7 +15095,7 @@ var KneekuraNativeMatchCore = (() => {
       unsupportedReason = "catcher_contact_refinement_required";
       endElapsedSeconds = catcherHit.from;
     } else if (catcherHit?.kind === "hit") {
-      const at2 = kernel.evaluateAt(catcherHit.at, "incoming"), glove = gloveAt(catcherHit.at), relative = sub11(at2.moment.ball.position, glove.position), normal4 = mul7(relative, 1 / norm9(relative)), retention = resolveCatchRetention({
+      const at2 = kernel.evaluateAt(catcherHit.at, "incoming"), glove = gloveAt(catcherHit.at), relative = sub11(at2.moment.ball.position, glove.position), normal4 = mul7(relative, 1 / norm10(relative)), retention = resolveCatchRetention({
         contactTick: at2.moment.ball.tick,
         ball: at2.moment.ball,
         glove: { tick: at2.moment.ball.tick, ...glove },
@@ -14431,7 +15141,7 @@ var KneekuraNativeMatchCore = (() => {
       };
     });
     const sampleBatAtTick = (atTick) => {
-      assert13(Number.isFinite(atTick) && atTick >= input.originTick, "bat observation precedes release");
+      assert16(Number.isFinite(atTick) && atTick >= input.originTick, "bat observation precedes release");
       if (atTick > referenceThroughTick) return null;
       return { ...batSample((atTick - input.originTick) / tps).state.pose, radiusProfile };
     };
@@ -14450,7 +15160,35 @@ var KneekuraNativeMatchCore = (() => {
         authority: "LOCAL_CORE_PHYSICAL_EXPERIMENT_V1",
         nativeAdmission: false,
         sourceDescriptor: descriptor,
+        ...p.pitchingMotion === void 0 ? {} : { pitchingMotion: p.pitchingMotion },
         ...buntMotor ? { buntTechnique: buntMotor.diagnostics } : {},
+        ...insideTargetWeight > 0 ? { insideCommandTechnique: {
+          calibrationId: "inside-command-v77",
+          strength: insideTechnique,
+          weight: insideTargetWeight,
+          battingSide: b.bats,
+          target,
+          commanded,
+          baselineStandardDeviationMeters: lowZoneCommandStd,
+          effectiveStandardDeviationMeters: effectiveCommandStd,
+          releaseVelocityOnly: true
+        } } : {},
+        ...zoneHitStrength > 0 ? { zoneHittingTechnique: {
+          calibrationId: "high-low-hitting-v77",
+          highStrength: highHitTechnique * highHitWeight,
+          lowStrength: lowHitTechnique * lowHitWeight,
+          predictedHeightMeters: prediction.ball.position.y,
+          errorScale: zoneHitErrorScale,
+          baselineTimingErrorSeconds: baselineTimingError,
+          baselineAimErrorMeters: baselineAimError,
+          postContactResultOverride: false
+        } } : {},
+        ...selectedPitch.authored ? { authoredPitch: {
+          pitchType: selectedPitch.pitchType,
+          releaseSpeedMps: selectedPitch.releaseSpeedMps,
+          spinRadPerSecond: selectedPitch.spinRadPerSecond,
+          sourceInitialOnly: true
+        } } : {},
         ...lowZoneTechniqueActive ? { lowZoneCommandTechnique: {
           calibrationId: "low-target-command-v75",
           strength: lowZoneTechnique,
@@ -14526,7 +15264,7 @@ var KneekuraNativeMatchCore = (() => {
         selectedSourceFirstTick: selectedFrames[0].tick,
         selectedSourceLastTick: selectedFrames.at(-1).tick,
         referenceSpeedCalibration: "EXACT_ORIGINAL_SOURCE_COORDINATE_OUTGOING_HALF_OPEN_SEGMENT",
-        referenceContactSweetSpotSpeedMps: norm9(reference.sampleAtSourceTick(sourceContactTick, "outgoing").sweetSpotVelocity),
+        referenceContactSweetSpotSpeedMps: norm10(reference.sampleAtSourceTick(sourceContactTick, "outgoing").sweetSpotVelocity),
         referenceContactSweetSpotVelocity: reference.sampleAtSourceTick(sourceContactTick, "outgoing").sweetSpotVelocity,
         referenceIncomingContactSweetSpotVelocity: reference.sampleAtSourceTick(sourceContactTick, "incoming").sweetSpotVelocity,
         referenceWorldSampleContactSweetSpotVelocity: reference.sampleContinuous(referenceContactTick).sweetSpotVelocity,
@@ -14618,34 +15356,34 @@ var KneekuraNativeMatchCore = (() => {
     }
     return v3;
   };
-  function assert14(v3, m) {
+  function assert17(v3, m) {
     if (!v3) throw new Error("live baseball match: " + m);
   }
   function cloneMatchInputWithMeasuredCatalogV68(raw) {
-    assert14(raw && typeof raw === "object" && !Array.isArray(raw) && (Object.getPrototypeOf(raw) === Object.prototype || Object.getPrototypeOf(raw) === null), "inert match input required");
+    assert17(raw && typeof raw === "object" && !Array.isArray(raw) && (Object.getPrototypeOf(raw) === Object.prototype || Object.getPrototypeOf(raw) === null), "inert match input required");
     const descriptors = Object.getOwnPropertyDescriptors(raw), catalogDescriptor = descriptors.measuredClips, other = {};
-    assert14(catalogDescriptor && catalogDescriptor.enumerable && "value" in catalogDescriptor, "inert measured clip catalog required");
+    assert17(catalogDescriptor && catalogDescriptor.enumerable && "value" in catalogDescriptor, "inert measured clip catalog required");
     for (const key3 of Reflect.ownKeys(raw)) if (key3 !== "measuredClips") Object.defineProperty(other, key3, Object.getOwnPropertyDescriptor(raw, key3));
     const rest = cloneInert(other), catalog2 = catalogDescriptor.value;
-    assert14(Array.isArray(catalog2) && catalog2.length > 0 && catalog2.length <= 1e3 && Reflect.ownKeys(catalog2).length === catalog2.length + 1, "bounded dense measured catalog required");
+    assert17(Array.isArray(catalog2) && catalog2.length > 0 && catalog2.length <= 1e3 && Reflect.ownKeys(catalog2).length === catalog2.length + 1, "bounded dense measured catalog required");
     const measuredClips = [];
     let totalFrames = 0;
     for (let i = 0; i < catalog2.length; i++) {
       const descriptor = Object.getOwnPropertyDescriptor(catalog2, String(i));
-      assert14(descriptor && descriptor.enumerable && "value" in descriptor, "inert measured catalog entries required");
+      assert17(descriptor && descriptor.enumerable && "value" in descriptor, "inert measured catalog entries required");
       const clip = cloneInert(descriptor.value);
-      assert14(clip && typeof clip === "object" && typeof clip.id === "string" && clip.id.startsWith("obp-") && ["R", "L"].includes(clip.side) && clip.source?.repository === "https://github.com/drivelineresearch/openbiomechanics" && /^[a-f0-9]{64}$/.test(clip.source.sha256) && Number.isFinite(clip.contactTimeSeconds) && Array.isArray(clip.frames) && clip.frames.length >= 2 && clip.frames.length <= 1e3 && (clip.defaultSelection === void 0 || typeof clip.defaultSelection === "boolean"), "invalid measured catalog clip");
+      assert17(clip && typeof clip === "object" && typeof clip.id === "string" && clip.id.startsWith("obp-") && ["R", "L"].includes(clip.side) && clip.source?.repository === "https://github.com/drivelineresearch/openbiomechanics" && /^[a-f0-9]{64}$/.test(clip.source.sha256) && Number.isFinite(clip.contactTimeSeconds) && Array.isArray(clip.frames) && clip.frames.length >= 2 && clip.frames.length <= 1e3 && (clip.defaultSelection === void 0 || typeof clip.defaultSelection === "boolean"), "invalid measured catalog clip");
       totalFrames += clip.frames.length;
-      assert14(totalFrames <= 15e4, "measured catalog frame budget exceeded");
-      assert14(clip.frames.every((f, j) => Number.isSafeInteger(f.tick) && f.tick >= 0 && (!j || f.tick > clip.frames[j - 1].tick)), "invalid measured catalog clock");
+      assert17(totalFrames <= 15e4, "measured catalog frame budget exceeded");
+      assert17(clip.frames.every((f, j) => Number.isSafeInteger(f.tick) && f.tick >= 0 && (!j || f.tick > clip.frames[j - 1].tick)), "invalid measured catalog clock");
       measuredClips.push(clip);
     }
-    assert14(new Set(measuredClips.map((c) => c.id)).size === measuredClips.length, "duplicate measured clip identity");
+    assert17(new Set(measuredClips.map((c) => c.id)).size === measuredClips.length, "duplicate measured clip identity");
     return { ...rest, measuredClips };
   }
   function physical(player) {
     const p = player.physical ?? LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1;
-    assert14(p.basis === "EXPLICIT_AUTHORED_SI_V1", "unknown player SI basis");
+    assert17(p.basis === "EXPLICIT_AUTHORED_SI_V1", "unknown player SI basis");
     const nonnegative3 = ["timingStdSeconds", "aimStdMeters", "chaseMarginMeters", "commandStdMeters", "reactionSeconds", "transferSeconds"];
     const positive2 = [
       "batLengthM",
@@ -14661,63 +15399,65 @@ var KneekuraNativeMatchCore = (() => {
       "captureDissipationPowerW",
       "throwSpeedMps"
     ];
-    assert14(nonnegative3.every((k) => Number.isFinite(p[k]) && p[k] >= 0) && positive2.every((k) => Number.isFinite(p[k]) && p[k] > 0) && Object.values(p.spinRadPerSecond).every(Number.isFinite), "invalid explicit player SI");
-    assert14(
+    assert17(nonnegative3.every((k) => Number.isFinite(p[k]) && p[k] >= 0) && positive2.every((k) => Number.isFinite(p[k]) && p[k] > 0) && Object.values(p.spinRadPerSecond).every(Number.isFinite), "invalid explicit player SI");
+    assert17(
       p.zoneJudgmentStdMeters === void 0 || Number.isFinite(p.zoneJudgmentStdMeters) && p.zoneJudgmentStdMeters >= 0 && p.zoneJudgmentStdMeters <= 0.6,
       "invalid zone judgment SI"
     );
-    assert14(
+    assert17(
       p.plateVision === void 0 || Number.isFinite(p.plateVision) && p.plateVision >= 1 && p.plateVision <= 100,
       "invalid absolute plate vision"
     );
     for (const [key3, lo, hi] of [["pitchReleaseHeightMeters", 0.2, 3.2], ["pitchReleaseSideMeters", 0, 1.5], ["pitchReleaseExtensionMeters", 0, 3.5]])
-      assert14(p[key3] === void 0 || Number.isFinite(p[key3]) && p[key3] >= lo && p[key3] <= hi, "invalid pitch release SI: " + key3);
-    assert14(
+      assert17(p[key3] === void 0 || Number.isFinite(p[key3]) && p[key3] >= lo && p[key3] <= hi, "invalid pitch release SI: " + key3);
+    assert17(
       p.baserunningSafetyMarginSeconds === void 0 || Number.isFinite(p.baserunningSafetyMarginSeconds) && p.baserunningSafetyMarginSeconds >= 0 && p.baserunningSafetyMarginSeconds <= 3,
       "invalid baserunning safety margin"
     );
-    assert14(
+    assert17(
       p.fieldingPursuitCostWeight === void 0 || Number.isFinite(p.fieldingPursuitCostWeight) && p.fieldingPursuitCostWeight >= 0.25 && p.fieldingPursuitCostWeight <= 4,
       "invalid fielding pursuit cost weight"
     );
-    assert14(
+    assert17(
       p.baserunningTurnRadiusMeters === void 0 || Number.isFinite(p.baserunningTurnRadiusMeters) && p.baserunningTurnRadiusMeters >= 0.5 && p.baserunningTurnRadiusMeters <= 10,
       "invalid baserunning turn radius SI"
     );
-    assert14(
+    assert17(
       p.baserunningLateralAccelerationMps2 === void 0 || Number.isFinite(p.baserunningLateralAccelerationMps2) && p.baserunningLateralAccelerationMps2 >= 0.5 && p.baserunningLateralAccelerationMps2 <= 20,
       "invalid baserunning lateral acceleration SI"
     );
     if (p.impactTrajectory !== void 0) validateImpactTrajectorySettingsV1(p.impactTrajectory);
-    return p;
+    if (p.pitchRepertoire !== void 0) validatePitchRepertoireV77(p.pitchRepertoire, p.maximumPitchSpeedMps);
+    if (p.pitchingMotion !== void 0) validatePitchingMotionV77(p.pitchingMotion);
+    return resolveLiveExecutionPhysicalV77(p, player.traitProfile);
   }
   function createLiveBaseballMatchV1(raw) {
     const input = cloneMatchInputWithMeasuredCatalogV68(raw), innings = input.innings ?? 9, tps = LIVE_MATCH_PHYSICS_V1.air.ticksPerSecond;
-    assert14(Number.isSafeInteger(input.seed) && Number.isSafeInteger(innings) && innings > 0, "invalid seed/innings");
-    assert14(input.teams.length === 2 && new Set(input.teams.map((t) => t.id)).size === 2, "two unique teams required");
+    assert17(Number.isSafeInteger(input.seed) && Number.isSafeInteger(innings) && innings > 0, "invalid seed/innings");
+    assert17(input.teams.length === 2 && new Set(input.teams.map((t) => t.id)).size === 2, "two unique teams required");
     const players = new Map(input.players.map((p) => [p.playerId, p]));
-    assert14(players.size === input.players.length && input.players.every((p) => p.playerId && p.name && Number.isFinite(p.heightMeters) && p.heightMeters > 0 && ["R", "L"].includes(p.bats) && (p.throws === void 0 || ["R", "L"].includes(p.throws))), "unique physical players required");
+    assert17(players.size === input.players.length && input.players.every((p) => p.playerId && p.name && Number.isFinite(p.heightMeters) && p.heightMeters > 0 && ["R", "L"].includes(p.bats) && (p.throws === void 0 || ["R", "L"].includes(p.throws))), "unique physical players required");
     input.players.forEach((p) => {
       const source = physical(p);
       if (p.traitProfile !== void 0) validateLiveTraitProfileV1(p.traitProfile, source);
     });
     input.teams.forEach((t) => {
-      assert14(t.battingOrder.length === 9 && new Set(t.battingOrder).size === 9 && t.battingOrder.every((id6) => players.has(id6)), "nine-player batting order required");
-      assert14(positions.every((pos) => players.has(t.defense[pos])) && new Set(positions.map((pos) => t.defense[pos])).size === 9 && t.defense.P === t.pitcherId, "complete defense required");
+      assert17(t.battingOrder.length === 9 && new Set(t.battingOrder).size === 9 && t.battingOrder.every((id6) => players.has(id6)), "nine-player batting order required");
+      assert17(positions.every((pos) => players.has(t.defense[pos])) && new Set(positions.map((pos) => t.defense[pos])).size === 9 && t.defense.P === t.pitcherId, "complete defense required");
     });
-    assert14(input.measuredClips.length > 0, "OpenBiomechanics measured bat clips required");
+    assert17(input.measuredClips.length > 0, "OpenBiomechanics measured bat clips required");
     for (const player of input.players) {
       const p = physical(player);
-      assert14(p.clipId === void 0 || typeof p.clipId === "string" && p.clipId.length > 0, "invalid explicit measured clip identity");
+      assert17(p.clipId === void 0 || typeof p.clipId === "string" && p.clipId.length > 0, "invalid explicit measured clip identity");
       const candidates = input.measuredClips.filter((clip) => clip.side === player.bats && (p.clipId === void 0 ? clip.defaultSelection !== false : clip.id === p.clipId));
-      assert14(candidates.length > 0, "unknown measured clip or wrong batting side for " + player.playerId);
+      assert17(candidates.length > 0, "unknown measured clip or wrong batting side for " + player.playerId);
       if (p.impactTrajectory !== void 0 && p.impactTrajectory.method === void 0) {
         const s = p.impactTrajectory;
-        assert14(candidates.every((clip) => clip.contactTimeSeconds * 1e6 - s.beforeSeconds * 1e6 >= clip.frames[0].tick && clip.contactTimeSeconds * 1e6 + s.afterSeconds * 1e6 <= clip.frames.at(-1).tick), "impact adjustment window exceeds measured form for " + player.playerId);
+        assert17(candidates.every((clip) => clip.contactTimeSeconds * 1e6 - s.beforeSeconds * 1e6 >= clip.frames[0].tick && clip.contactTimeSeconds * 1e6 + s.afterSeconds * 1e6 <= clip.frames.at(-1).tick), "impact adjustment window exceeds measured form for " + player.playerId);
       }
     }
     const park = input.park ?? { fenceRadiusMeters: 110, fenceHeightMeters: 3 };
-    assert14(Number.isFinite(park.fenceRadiusMeters) && park.fenceRadiusMeters > baseSide * 2 && Number.isFinite(park.fenceHeightMeters) && park.fenceHeightMeters >= 0, "invalid park geometry");
+    assert17(Number.isFinite(park.fenceRadiusMeters) && park.fenceRadiusMeters > baseSide * 2 && Number.isFinite(park.fenceHeightMeters) && park.fenceHeightMeters >= 0, "invalid park geometry");
     const fence = deriveLiveFieldFenceGeometryV1({ bases: LIVE_MATCH_BASES_V1, ...park }), fenceGeometry = frozen({
       center: { x: fence.fenceCenter.x, z: fence.fenceCenter.z },
       radiusMeters: fence.fenceRadiusMeters,
@@ -14785,9 +15525,9 @@ var KneekuraNativeMatchCore = (() => {
       history: [...history]
     });
     function issuePitch(command) {
-      assert14(!finished, "game already finished");
-      assert14(command && ["auto", "balanced", "contact", "power", "take", "bunt"].includes(command.batting) && [0, 1].includes(command.managedTeam), "invalid manager command");
-      assert14(command.baserunning === void 0 || ["conservative", "balanced", "aggressive"].includes(command.baserunning), "invalid manager baserunning command");
+      assert17(!finished, "game already finished");
+      assert17(command && ["auto", "balanced", "contact", "power", "take", "bunt"].includes(command.batting) && [0, 1].includes(command.managedTeam), "invalid manager command");
+      assert17(command.baserunning === void 0 || ["conservative", "balanced", "aggressive"].includes(command.baserunning), "invalid manager baserunning command");
       const beforeMatch = cloneInert(match), c = current(), batter = players.get(c.batterPlayerId), pitcher = players.get(c.pitcherPlayerId), bp = physical(batter), pp = physical(pitcher), cp = physical(players.get(input.teams[1 - c.team].defense.C)), ready = readyFrame();
       const batterTechnique = resolveLiveTechnicalTraitsV75(batter.traitProfile), pitcherTechnique = resolveLiveTechnicalTraitsV75(pitcher.traitProfile);
       const batterPreference = resolveLiveTraitPreferencesV54(batter.traitProfile), pitcherPreference = resolveLiveTraitPreferencesV54(pitcher.traitProfile), managedOffense = command.managedTeam === c.team, personalBatting = { POWER: "power", BALANCED: "balanced", CONTACT: "contact" }[batterPreference.swingMode], batting = managedOffense && command.batting !== "auto" ? command.batting : personalBatting, pitchTypeCommand = command.managedTeam === 1 - c.team ? command.pitchType : "auto", traitPreferences = command.batting === "auto" || batterPreference.swingMode !== "BALANCED" || pitcherPreference.pitchApproach !== "BALANCED" ? {
@@ -14950,10 +15690,10 @@ var KneekuraNativeMatchCore = (() => {
           });
         }
       } else {
-        assert14(pitch.call !== null, "pitch ended without physical contact or secured count call");
+        assert17(pitch.call !== null, "pitch ended without physical contact or secured count call");
         result = reducePlayableMatchV1({ match: beforeMatch, batterRunnerId: c.batterPlayerId, regulationInnings: innings, event: { kind: "pitch_call", tick: pitch.endedAtTick, call: pitch.call } });
       }
-      assert14(result.kind === "applied", "rule continuation unresolved: " + (result.kind === "unresolved" ? result.reason : ""));
+      assert17(result.kind === "applied", "rule continuation unresolved: " + (result.kind === "unresolved" ? result.reason : ""));
       const acceptedFrames = frames.filter((f) => f.tick <= result.endedAtTick);
       if (!acceptedFrames.length) acceptedFrames.push(ready);
       if (result.halfChanged || result.gameOver) {
@@ -15020,401 +15760,6 @@ var KneekuraNativeMatchCore = (() => {
     return Object.freeze({ issuePitch, inspect });
   }
 
-  // src/core/sim/pitching/CourseAwareSwingKinematicsV1.ts
-  var INCH_TO_M = 0.0254;
-  var EVIDENCE_BOUNDED_SWING_COURSE_PROFILE_V1 = Object.freeze({
-    profileId: "evidence-bounded-population-swing",
-    version: "swing-course-profile-v1",
-    batLengthM: 0.84,
-    sweetSpotT: 0.72,
-    centerContactDepthM: 20.1 * INCH_TO_M,
-    contactDepthPopulationStdDevM: 7.2 * INCH_TO_M,
-    insideOutsideDepthGainM: 0.075,
-    heightDepthGainM: 0.035,
-    baseContactSweetSpotSpeedMps: 31,
-    contactDepthSpeedGainMpsPerM: 4,
-    basePreContactSeconds: 0.165,
-    insideOutsideTimingGainSeconds: 0.01,
-    heightTimingGainSeconds: 4e-3,
-    followThroughSeconds: 0.135,
-    highAttackAngleDeg: 7,
-    middleAttackAngleDeg: 9,
-    lowAttackAngleDeg: 16,
-    courseAttackDirectionGainDeg: 6,
-    nominalContactSurfaceDistanceM: 0.0366 + 0.033
-  });
-
-  // src/integration/browser/WorkbenchPlayer.ts
-  var WORKBENCH_TICKS_PER_SECOND = 1e6;
-  var leagues = ["NPB", "MLB", "NLB", "KBO", "CUSTOM"];
-  var freeze22 = (value) => {
-    if (value !== null && typeof value === "object") {
-      Object.values(value).forEach(freeze22);
-      Object.freeze(value);
-    }
-    return value;
-  };
-  var fields10 = (value, keys2, path2) => {
-    if (value === null || typeof value !== "object" || Array.isArray(value) || Object.keys(value).sort().join("|") !== [...keys2].sort().join("|")) throw new Error(`invalid workbench fields: ${path2}`);
-  };
-  var text2 = (value, path2) => {
-    if (typeof value !== "string" || !value.length || value.trim() !== value || value.length > 160) throw new Error(`invalid workbench text: ${path2}`);
-  };
-  var range2 = (value, low, high, path2) => {
-    if (!Number.isFinite(value) || value < low || value > high) throw new Error(`invalid workbench range: ${path2}`);
-  };
-  var ticks = (value, low, high, path2) => {
-    range2(value, low, high, path2);
-    if (!Number.isSafeInteger(value)) throw new Error(`workbench ticks must be integers: ${path2}`);
-  };
-  function createWorkbenchPlayer(raw) {
-    const player = cloneInert(raw);
-    fields10(player, ["schemaVersion", "identity", "body", "capability", "bat", "swing", "decision", "traits"], "player");
-    if (player.schemaVersion !== 1) throw new Error("unsupported workbench player schema");
-    fields10(player.identity, ["playerId", "name", "leagueId", "bats", "throws"], "identity");
-    text2(player.identity.playerId, "playerId");
-    text2(player.identity.name, "name");
-    if (!leagues.includes(player.identity.leagueId) || !["R", "L"].includes(player.identity.bats) || !["R", "L"].includes(player.identity.throws)) throw new Error("invalid workbench identity");
-    fields10(player.body, ["heightMeters", "massKg"], "body");
-    range2(player.body.heightMeters, 0.8, 3, "heightMeters");
-    range2(player.body.massKg, 15, 300, "body.massKg");
-    fields10(player.capability, [
-      "maximumSweetSpotSpeedMps",
-      "motorLatencyTicks",
-      "technicalTimingOffsetTicks",
-      "runSpeedMps",
-      "throwSpeedMps",
-      "pitchSpeedMps",
-      "positionErrorMeters",
-      "timingErrorTicks"
-    ], "capability");
-    const c = player.capability;
-    range2(c.maximumSweetSpotSpeedMps, 0.1, 90, "maximumSweetSpotSpeedMps");
-    ticks(c.motorLatencyTicks, 1, 2e6, "motorLatencyTicks");
-    ticks(c.technicalTimingOffsetTicks, -5e5, 5e5, "technicalTimingOffsetTicks");
-    range2(c.runSpeedMps, 0.1, 20, "runSpeedMps");
-    range2(c.throwSpeedMps, 0.1, 80, "throwSpeedMps");
-    range2(c.pitchSpeedMps, 0.1, 80, "pitchSpeedMps");
-    range2(c.positionErrorMeters, 0, 1, "positionErrorMeters");
-    ticks(c.timingErrorTicks, 0, 5e5, "timingErrorTicks");
-    fields10(player.bat, ["lengthM", "massKg", "sweetSpotT"], "bat");
-    range2(player.bat.lengthM, 0.2, 3, "bat.lengthM");
-    range2(player.bat.massKg, 0.05, 5, "bat.massKg");
-    range2(player.bat.sweetSpotT, 0.65, 0.9, "sweetSpotT (declared barrel reference)");
-    fields10(player.swing, [
-      "speedMps",
-      "attackAngleDeg",
-      "pullAngleDeg",
-      "preContactSeconds",
-      "followThroughSeconds",
-      "contactDepthM",
-      "loadAngleDeg",
-      "finishAngleDeg",
-      "handTravelM"
-    ], "swing");
-    const s = player.swing;
-    range2(s.speedMps, 0.1, c.maximumSweetSpotSpeedMps, "swing speed envelope");
-    range2(s.attackAngleDeg, -80, 80, "attackAngleDeg");
-    range2(s.pullAngleDeg, -80, 80, "pullAngleDeg");
-    range2(s.preContactSeconds, 5e-3, 2, "preContactSeconds");
-    range2(s.followThroughSeconds, 5e-3, 2, "followThroughSeconds");
-    range2(s.contactDepthM, 1e-3, 2, "contactDepthM");
-    range2(s.loadAngleDeg, -179, 179, "loadAngleDeg");
-    range2(s.finishAngleDeg, -179, 179, "finishAngleDeg");
-    range2(s.handTravelM, 0, 1, "handTravelM");
-    fields10(player.decision, ["threshold", "aggressionWeight", "approach"], "decision");
-    range2(player.decision.threshold, 0, 1, "threshold");
-    range2(player.decision.aggressionWeight, 0, 1, "aggressionWeight");
-    if (!["AUTO", "TAKE", "SWING"].includes(player.decision.approach)) throw new Error("invalid workbench approach");
-    fields10(player.traits, ["badBallControl", "labels"], "traits");
-    range2(player.traits.badBallControl, 0, 1, "badBallControl");
-    if (!Array.isArray(player.traits.labels) || player.traits.labels.length > 32) throw new Error("invalid workbench trait labels");
-    player.traits.labels.forEach((label) => text2(label, "trait label"));
-    if (new Set(player.traits.labels).size !== player.traits.labels.length) throw new Error("duplicate workbench trait label");
-    return freeze22(player);
-  }
-
-  // src/integration/browser/LivePhysicalRosterV1.ts
-  var scalarKeys = [
-    "batLengthM",
-    "batMassKg",
-    "swingRate",
-    "timingStdSeconds",
-    "aimStdMeters",
-    "chaseMarginMeters",
-    "releaseSpeedMps",
-    "commandStdMeters",
-    "reactionSeconds",
-    "topSpeedMps",
-    "accelerationMps2",
-    "gloveSpeedMps",
-    "gloveReachMeters",
-    "gloveRadiusMeters",
-    "retentionCapacityJ",
-    "captureDissipationPowerW",
-    "transferSeconds",
-    "throwSpeedMps",
-    "maximumPitchSpeedMps",
-    "maximumSweetSpotSpeedMps",
-    "targetSweetSpotSpeedMps",
-    "motorLatencySeconds",
-    "technicalTimingOffsetSeconds",
-    "sweetSpotT",
-    "attackAngleDegrees",
-    "pullAngleDegrees",
-    "badBallControl",
-    "defensiveDecisionSeconds",
-    "preContactSeconds",
-    "followThroughSeconds",
-    "contactDepthMeters",
-    "throwDirectionStdRadians",
-    "zoneJudgmentStdMeters",
-    "baserunningSafetyMarginSeconds",
-    "fieldingPursuitCostWeight",
-    "baserunningTurnRadiusMeters",
-    "baserunningLateralAccelerationMps2",
-    "plateVision",
-    "pitchReleaseHeightMeters",
-    "pitchReleaseSideMeters",
-    "pitchReleaseExtensionMeters"
-  ];
-  var physicalKeys = ["basis", ...scalarKeys, "spinRadPerSecond", "clipId", "swingDecision", "impactTrajectory"];
-  var bounds = {
-    batLengthM: [0.2, 3],
-    batMassKg: [0.1, 5],
-    swingRate: [0.3, 3],
-    timingStdSeconds: [0, 0.08],
-    aimStdMeters: [0, 0.35],
-    chaseMarginMeters: [0, 0.6],
-    releaseSpeedMps: [15, 85],
-    maximumPitchSpeedMps: [15, 85],
-    commandStdMeters: [0, 0.6],
-    gloveSpeedMps: [0.1, 40],
-    gloveReachMeters: [0.4, 3],
-    gloveRadiusMeters: [0.03, 0.3],
-    retentionCapacityJ: [1, 2e3],
-    captureDissipationPowerW: [10, 1e6],
-    maximumSweetSpotSpeedMps: [0.1, 90],
-    targetSweetSpotSpeedMps: [0.1, 90],
-    motorLatencySeconds: [0, 2],
-    technicalTimingOffsetSeconds: [-0.5, 0.5],
-    sweetSpotT: [0.65, 0.9],
-    attackAngleDegrees: [-80, 80],
-    pullAngleDegrees: [-80, 80],
-    badBallControl: [0, 1],
-    preContactSeconds: [5e-3, 2],
-    followThroughSeconds: [5e-3, 2],
-    contactDepthMeters: [1e-3, 2],
-    throwDirectionStdRadians: [0, 0.12],
-    zoneJudgmentStdMeters: [0, 0.6],
-    plateVision: [1, 100],
-    pitchReleaseHeightMeters: [0.2, 3.2],
-    pitchReleaseSideMeters: [0, 1.5],
-    pitchReleaseExtensionMeters: [0, 3.5],
-    baserunningSafetyMarginSeconds: [0, 3],
-    fieldingPursuitCostWeight: [0.25, 4],
-    baserunningTurnRadiusMeters: [0.5, 10],
-    baserunningLateralAccelerationMps2: [0.5, 20]
-  };
-  var nonnegative2 = /* @__PURE__ */ new Set(["reactionSeconds", "transferSeconds", "defensiveDecisionSeconds"]);
-  var freeze23 = (value) => {
-    if (value && typeof value === "object") {
-      Object.values(value).forEach(freeze23);
-      Object.freeze(value);
-    }
-    return value;
-  };
-  function assert15(value, message) {
-    if (!value) throw new Error("live physical roster: " + message);
-  }
-  var validText = (value) => typeof value === "string" && value.trim() === value && value.length > 0 && value.length <= 200;
-  function resolveLivePlateVisionV1(physical3 = {}) {
-    if (physical3.plateVision !== void 0) {
-      assert15(Number.isFinite(physical3.plateVision) && physical3.plateVision >= 1 && physical3.plateVision <= 100, "invalid absolute plate vision");
-      return physical3.plateVision;
-    }
-    const std = physical3.zoneJudgmentStdMeters ?? 0.025;
-    assert15(Number.isFinite(std) && std >= 0 && std <= 0.6, "invalid zone judgment SI");
-    return std === 0 ? 100 : Math.max(1, Math.min(100, 45 - 100 * Math.log(std / 0.025)));
-  }
-  function fields11(value, allowed, required, path2) {
-    assert15(value && typeof value === "object" && !Array.isArray(value), "object required at " + path2);
-    assert15(Object.keys(value).every((k) => allowed.includes(k)) && required.every((k) => Object.hasOwn(value, k)), "unknown or missing fields at " + path2);
-  }
-  function validatePhysical(raw) {
-    fields11(raw, physicalKeys, ["basis"], "physical");
-    assert15(raw.basis === "EXPLICIT_AUTHORED_SI_V1", "explicit SI basis required");
-    for (const key3 of scalarKeys) if (Object.hasOwn(raw, key3)) {
-      const value = raw[key3], limits = bounds[key3];
-      assert15(typeof value === "number" && Number.isFinite(value) && (limits ? value >= limits[0] && value <= limits[1] : nonnegative2.has(key3) ? value >= 0 : value > 0), "unsupported physical range: " + key3);
-    }
-    if (Object.hasOwn(raw, "spinRadPerSecond")) {
-      fields11(raw.spinRadPerSecond, ["x", "y", "z"], ["x", "y", "z"], "spinRadPerSecond");
-      const spin = raw.spinRadPerSecond;
-      assert15(Object.values(spin).every((n) => typeof n === "number" && Number.isFinite(n)) && Math.hypot(spin.x, spin.y, spin.z) <= 1200, "invalid SI spin");
-    }
-    if (Object.hasOwn(raw, "clipId")) assert15(validText(raw.clipId), "invalid measured clip identity");
-    if (Object.hasOwn(raw, "impactTrajectory")) validateImpactTrajectorySettingsV1(raw.impactTrajectory);
-    if (Object.hasOwn(raw, "swingDecision")) {
-      fields11(raw.swingDecision, ["approach", "threshold", "aggressionWeight"], ["approach", "threshold", "aggressionWeight"], "swingDecision");
-      assert15(["AUTO", "TAKE", "SWING"].includes(raw.swingDecision.approach) && [raw.swingDecision.threshold, raw.swingDecision.aggressionWeight].every((v3) => typeof v3 === "number" && Number.isFinite(v3) && v3 >= 0 && v3 <= 1), "invalid explicit swing decision");
-    }
-    if (raw.maximumSweetSpotSpeedMps !== void 0 && raw.targetSweetSpotSpeedMps !== void 0)
-      assert15(raw.targetSweetSpotSpeedMps <= raw.maximumSweetSpotSpeedMps, "target swing speed exceeds declared motor ceiling");
-  }
-  function applyLivePhysicalRosterV1(raw) {
-    const input = cloneInert(raw);
-    fields11(input, ["players", "roster"], ["players", "roster"], "input");
-    assert15(Array.isArray(input.players), "players required");
-    const players = input.players;
-    assert15(players.every((p) => validText(p.playerId) && validText(p.name) && Number.isFinite(p.heightMeters) && p.heightMeters >= 1.1 && p.heightMeters <= 2.5 && ["R", "L"].includes(p.bats)) && new Set(players.map((p) => p.playerId)).size === players.length, "invalid roster identity");
-    fields11(input.roster, ["version", "sourceId", "entries"], ["version", "sourceId", "entries"], "roster");
-    assert15(input.roster.version === "live_physical_roster_v1" && validText(input.roster.sourceId) && Array.isArray(input.roster.entries), "invalid roster packet");
-    const entries = input.roster.entries;
-    assert15(new Set(entries.map((e) => e.playerId)).size === entries.length, "duplicate player source binding");
-    const byId = new Map(players.map((p) => [p.playerId, p]));
-    for (const entry of entries) {
-      fields11(entry, ["playerId", "sourceId", "workbenchPlayer", "physical", "maximumPitchSpeedKmh", "heightMeters", "legacyRelativeRatings", "traitLabels", "traitProfile"], ["playerId", "sourceId"], "entry");
-      assert15(validText(entry.playerId) && validText(entry.sourceId) && byId.has(entry.playerId), "unknown player or source binding");
-      assert15(!(Object.hasOwn(entry, "workbenchPlayer") && Object.hasOwn(entry, "physical")), "ambiguous physical authoring sources");
-      if (Object.hasOwn(entry, "workbenchPlayer")) assert15(entry.workbenchPlayer && typeof entry.workbenchPlayer === "object", "invalid maker authoring source");
-      if (Object.hasOwn(entry, "physical")) assert15(entry.physical && typeof entry.physical === "object", "invalid physical authoring source");
-    }
-    const auditPlayers = [];
-    const output = players.map((player) => {
-      const entry = entries.find((e) => e.playerId === player.playerId), projected = [], unsupported = [];
-      let physical3 = { ...player.physical ?? LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1 }, heightMeters = player.heightMeters;
-      validatePhysical(physical3);
-      let sourcePlayerId = null;
-      const project = (inputPath, targetPath, value, conversion = "identity") => {
-        projected.push({ inputPath, targetPath, value: cloneInert(value), conversion });
-      };
-      if (entry?.physical) {
-        validatePhysical(entry.physical);
-        physical3 = { ...physical3, ...entry.physical };
-        for (const key3 of Object.keys(entry.physical).filter((k) => k !== "basis")) project("physical." + key3, key3, entry.physical[key3]);
-      }
-      if (entry?.workbenchPlayer) {
-        const maker = createWorkbenchPlayer(entry.workbenchPlayer), c = maker.capability, s = maker.swing;
-        sourcePlayerId = maker.identity.playerId;
-        heightMeters = maker.body.heightMeters;
-        physical3 = {
-          ...physical3,
-          batLengthM: maker.bat.lengthM,
-          batMassKg: maker.bat.massKg,
-          sweetSpotT: maker.bat.sweetSpotT,
-          maximumSweetSpotSpeedMps: c.maximumSweetSpotSpeedMps,
-          targetSweetSpotSpeedMps: s.speedMps,
-          motorLatencySeconds: c.motorLatencyTicks / WORKBENCH_TICKS_PER_SECOND,
-          technicalTimingOffsetSeconds: c.technicalTimingOffsetTicks / WORKBENCH_TICKS_PER_SECOND,
-          timingStdSeconds: c.timingErrorTicks / WORKBENCH_TICKS_PER_SECOND,
-          aimStdMeters: c.positionErrorMeters,
-          topSpeedMps: c.runSpeedMps,
-          throwSpeedMps: c.throwSpeedMps,
-          releaseSpeedMps: c.pitchSpeedMps,
-          attackAngleDegrees: s.attackAngleDeg,
-          pullAngleDegrees: s.pullAngleDeg,
-          swingDecision: maker.decision,
-          badBallControl: maker.traits.badBallControl,
-          preContactSeconds: s.preContactSeconds,
-          followThroughSeconds: s.followThroughSeconds,
-          contactDepthMeters: s.contactDepthM
-        };
-        const mappings = [
-          ["body.heightMeters", "heightMeters"],
-          ["bat.lengthM", "batLengthM"],
-          ["bat.massKg", "batMassKg"],
-          ["bat.sweetSpotT", "sweetSpotT"],
-          ["capability.maximumSweetSpotSpeedMps", "maximumSweetSpotSpeedMps"],
-          ["swing.speedMps", "targetSweetSpotSpeedMps"],
-          ["capability.motorLatencyTicks", "motorLatencySeconds"],
-          ["capability.technicalTimingOffsetTicks", "technicalTimingOffsetSeconds"],
-          ["capability.timingErrorTicks", "timingStdSeconds"],
-          ["capability.positionErrorMeters", "aimStdMeters"],
-          ["capability.runSpeedMps", "topSpeedMps"],
-          ["capability.throwSpeedMps", "throwSpeedMps"],
-          ["capability.pitchSpeedMps", "releaseSpeedMps"],
-          ["swing.attackAngleDeg", "attackAngleDegrees"],
-          ["swing.pullAngleDeg", "pullAngleDegrees"],
-          ["decision", "swingDecision"],
-          ["traits.badBallControl", "badBallControl"],
-          ["swing.preContactSeconds", "preContactSeconds"],
-          ["swing.followThroughSeconds", "followThroughSeconds"],
-          ["swing.contactDepthM", "contactDepthMeters"]
-        ];
-        for (const [from, to] of mappings) project("workbenchPlayer." + from, to, to === "heightMeters" ? heightMeters : physical3[to], from.endsWith("Ticks") ? "tick / 1000000" : "identity");
-        for (const path2 of ["body.massKg", "swing.loadAngleDeg", "swing.finishAngleDeg", "swing.handTravelM"]) {
-          const [group, key3] = path2.split(".");
-          unsupported.push({
-            path: "workbenchPlayer." + path2,
-            value: maker[group][key3],
-            reason: "No corresponding individual body/reference-trajectory motor consumer in this local Host; no inferred effect."
-          });
-        }
-        for (const key3 of ["playerId", "name", "leagueId", "bats", "throws"]) unsupported.push({
-          path: "workbenchPlayer.identity." + key3,
-          value: maker.identity[key3],
-          reason: "Ability-only binding keeps the selected match identity and handedness; this identity field is retained as source provenance, not applied."
-        });
-        maker.traits.labels.forEach((value, index) => unsupported.push({
-          path: `workbenchPlayer.traits.labels[${index}]`,
-          value,
-          reason: "A display label does not supply a calibrated technical source or an extra physical bonus."
-        }));
-      }
-      if (entry?.maximumPitchSpeedKmh !== void 0) {
-        assert15(Number.isFinite(entry.maximumPitchSpeedKmh) && entry.maximumPitchSpeedKmh >= 54 && entry.maximumPitchSpeedKmh <= 306, "unsupported maximum pitch speed");
-        const maximumPitchSpeedMps = entry.maximumPitchSpeedKmh / 3.6;
-        assert15(physical3.maximumPitchSpeedMps === void 0 || physical3.maximumPitchSpeedMps === maximumPitchSpeedMps, "conflicting pitch speed limits");
-        physical3 = { ...physical3, maximumPitchSpeedMps };
-        project("maximumPitchSpeedKmh", "maximumPitchSpeedMps", maximumPitchSpeedMps, "km/h / 3.6");
-      }
-      if (entry?.heightMeters !== void 0) {
-        assert15(Number.isFinite(entry.heightMeters) && entry.heightMeters >= 1.1 && entry.heightMeters <= 2.5, "unsupported physical height");
-        assert15(!entry.workbenchPlayer || entry.workbenchPlayer.body.heightMeters === entry.heightMeters, "conflicting body heights");
-        heightMeters = entry.heightMeters;
-        project("heightMeters", "heightMeters", heightMeters);
-      }
-      if (entry?.legacyRelativeRatings !== void 0) {
-        assert15(entry.legacyRelativeRatings && typeof entry.legacyRelativeRatings === "object" && !Array.isArray(entry.legacyRelativeRatings), "invalid relative ratings");
-        for (const [key3, value] of Object.entries(entry.legacyRelativeRatings)) {
-          assert15(validText(key3) && Number.isFinite(value), "invalid relative rating entry");
-          unsupported.push({ path: "legacyRelativeRatings." + key3, value, reason: "Relative display rating has no calibrated SI inverse; preserved without physical conversion." });
-        }
-      }
-      if (entry?.traitLabels !== void 0) {
-        assert15(Array.isArray(entry.traitLabels) && entry.traitLabels.every(validText) && new Set(entry.traitLabels).size === entry.traitLabels.length, "invalid trait labels");
-        entry.traitLabels.forEach((value, index) => unsupported.push({
-          path: `traitLabels[${index}]`,
-          value,
-          reason: "Trait name alone is descriptive; an explicit current numerical source is required to execute its skill."
-        }));
-      }
-      validatePhysical(physical3);
-      const traitProfile = entry?.traitProfile === void 0 ? void 0 : validateLiveTraitProfileV1(entry.traitProfile, physical3);
-      if (traitProfile !== void 0) project("traitProfile", "traitProfile", traitProfile, "LOCAL_SOURCE_METADATA_NO_ADDITIONAL_EFFECT");
-      assert15(heightMeters >= 1.1 && heightMeters <= 2.5, "unsupported physical height");
-      const targetPaths = new Set(projected.map((p) => p.targetPath));
-      auditPlayers.push({
-        playerId: player.playerId,
-        sourceId: entry?.sourceId ?? null,
-        sourcePlayerId,
-        projected,
-        unsupported,
-        referenceDefaultPaths: player.physical ? [] : Object.keys(LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1).filter((k) => k !== "basis" && !targetPaths.has(k))
-      });
-      const { traitProfile: _previousProfile, ...basePlayer } = player;
-      return { ...basePlayer, heightMeters, physical: physical3, ...traitProfile === void 0 ? {} : { traitProfile } };
-    });
-    return freeze23({ players: output, audit: {
-      version: "live_physical_roster_projection_v1",
-      sourceId: input.roster.sourceId,
-      nativeAuthentication: false,
-      projectionOnly: true,
-      players: auditPlayers
-    } });
-  }
-
   // src/integration/browser/LivePublicAbilitiesV1.ts
   var up = (path2) => ({ path: path2, direction: 1, floor: 0 });
   var down = (path2, floor) => ({ path: path2, direction: -1, floor });
@@ -15432,43 +15777,43 @@ var KneekuraNativeMatchCore = (() => {
   ];
   var policyId = "individual-profile-public-authoring-v1";
   var pointsPerLogUnit = 100;
-  var assert16 = (value, message) => {
+  var assert18 = (value, message) => {
     if (!value) throw new Error("public abilities: " + message);
   };
-  var freeze24 = (value) => {
+  var freeze26 = (value) => {
     if (value && typeof value === "object") {
-      Object.values(value).forEach(freeze24);
+      Object.values(value).forEach(freeze26);
       Object.freeze(value);
     }
     return value;
   };
   var physical2 = (entry) => {
-    assert16(entry.physical && !entry.workbenchPlayer && entry.maximumPitchSpeedKmh === void 0, "explicit SI entry without competing speed source required");
+    assert18(entry.physical && !entry.workbenchPlayer && entry.maximumPitchSpeedKmh === void 0, "explicit SI entry without competing speed source required");
     return entry.physical;
   };
   function numeric(entry, path2) {
     const value = physical2(entry)[path2] ?? (path2 === "zoneJudgmentStdMeters" ? 0 : void 0);
-    assert16(typeof value === "number" && Number.isFinite(value), "missing SI control: " + path2);
+    assert18(typeof value === "number" && Number.isFinite(value), "missing SI control: " + path2);
     return value;
   }
   function context2(input) {
     const reference = input.reference;
-    assert16(reference?.version === "live_public_ability_reference_v1" && reference.policyId === policyId, "unsupported authoring reference");
-    assert16(Array.isArray(reference.players) && Array.isArray(reference.anchors) && reference.players.length === reference.anchors.length && new Set(reference.anchors.map((a) => a.playerId)).size === reference.anchors.length, "invalid reference bindings");
+    assert18(reference?.version === "live_public_ability_reference_v1" && reference.policyId === policyId, "unsupported authoring reference");
+    assert18(Array.isArray(reference.players) && Array.isArray(reference.anchors) && reference.players.length === reference.anchors.length && new Set(reference.anchors.map((a) => a.playerId)).size === reference.anchors.length, "invalid reference bindings");
     const ids2 = new Set(reference.players.map((p) => p.playerId));
-    assert16(reference.anchors.every((a) => ids2.has(a.playerId) && a.entry.playerId === a.playerId && typeof a.leagueId === "string" && typeof a.role === "string" && specs.filter((s) => s.mode === "group").every((s) => Number.isFinite(a.ratings[s.id]) && a.ratings[s.id] >= 0 && a.ratings[s.id] <= 100)), "invalid reference anchor");
+    assert18(reference.anchors.every((a) => ids2.has(a.playerId) && a.entry.playerId === a.playerId && typeof a.leagueId === "string" && typeof a.role === "string" && specs.filter((s) => s.mode === "group").every((s) => Number.isFinite(a.ratings[s.id]) && a.ratings[s.id] >= 0 && a.ratings[s.id] <= 100)), "invalid reference anchor");
     applyLivePhysicalRosterV1({ players: reference.players, roster: input.roster });
-    assert16(input.roster.entries.length === ids2.size && input.roster.entries.every((e) => ids2.has(e.playerId)), "complete reference roster required");
+    assert18(input.roster.entries.length === ids2.size && input.roster.entries.every((e) => ids2.has(e.playerId)), "complete reference roster required");
     applyLivePhysicalRosterV1({ players: reference.players, roster: { version: "live_physical_roster_v1", sourceId: policyId, entries: reference.anchors.map((a) => a.entry) } });
     const entry = input.roster.entries.find((e) => e.playerId === input.playerId), anchor = reference.anchors.find((a) => a.playerId === input.playerId);
-    assert16(entry && anchor, "unknown player");
+    assert18(entry && anchor, "unknown player");
     return { entry, anchor };
   }
   function quality(entry, spec) {
     const components = spec.mode === "pitchSpeed" ? spec.components.slice(0, 1) : spec.components;
     return components.reduce((sum, c) => {
       const value = numeric(entry, c.path) + c.floor;
-      assert16(value > 0, "nonpositive ability component: " + c.path);
+      assert18(value > 0, "nonpositive ability component: " + c.path);
       return sum + c.direction * Math.log(value);
     }, 0) / components.length;
   }
@@ -15485,7 +15830,7 @@ var KneekuraNativeMatchCore = (() => {
     for (const selected of copy2.entries) {
       if (selected.physical.plateVision !== void 0) continue;
       const before = input.roster.entries.find((e) => e.playerId === selected.playerId), anchor = input.reference.anchors.find((a) => a.playerId === selected.playerId), anchorValue = anchor.ratings.vision;
-      assert16(Number.isFinite(anchorValue), "missing legacy individual vision anchor");
+      assert18(Number.isFinite(anchorValue), "missing legacy individual vision anchor");
       const legacy = anchorValue + pointsPerLogUnit * Math.log((numeric(anchor.entry, "zoneJudgmentStdMeters") + 1e-3) / (numeric(before, "zoneJudgmentStdMeters") + 1e-3));
       const value = Math.max(1, Math.min(100, legacy));
       selected.physical.plateVision = value;
@@ -15493,11 +15838,11 @@ var KneekuraNativeMatchCore = (() => {
     }
     const roster = copy2;
     applyLivePhysicalRosterV1({ players: input.reference.players, roster });
-    return freeze24({ policyId: "absolute-plate-vision-v61", roster, migrations });
+    return freeze26({ policyId: "absolute-plate-vision-v61", roster, migrations });
   }
   function projectLivePublicAbilitiesV1(input) {
     const { entry, anchor } = context2(input);
-    return freeze24({ policyId, abilities: specs.map((spec) => ({
+    return freeze26({ policyId, abilities: specs.map((spec) => ({
       id: spec.id,
       label: spec.label,
       section: spec.section,
@@ -15514,8 +15859,8 @@ var KneekuraNativeMatchCore = (() => {
   }
   function editLivePublicAbilityV1(input) {
     const projection = projectLivePublicAbilitiesV1(input), spec = specs.find((s) => s.id === input.abilityId), old = projection.abilities.find((a) => a.id === input.abilityId);
-    assert16(spec && old && Number.isFinite(input.value), "invalid public ability value");
-    assert16(input.value === old.value || input.value >= old.min && (old.max === null || input.value <= old.max), "invalid public ability value");
+    assert18(spec && old && Number.isFinite(input.value), "invalid public ability value");
+    assert18(input.value === old.value || input.value >= old.min && (old.max === null || input.value <= old.max), "invalid public ability value");
     const copy2 = cloneInert(input.roster);
     const selected = copy2.entries.find((e) => e.playerId === input.playerId);
     const before = input.roster.entries.find((e) => e.playerId === input.playerId);
@@ -15528,7 +15873,7 @@ var KneekuraNativeMatchCore = (() => {
       for (const component of spec.components) {
         const previous = numeric(before, component.path);
         const next = spec.mode === "absolute" ? previous > 0 ? previous * Math.exp((old.value - input.value) / pointsPerLogUnit) : 0.025 * Math.exp((45 - input.value) / pointsPerLogUnit) : spec.mode === "percent" ? input.value / 100 : spec.mode === "pitchSpeed" ? previous * input.value / old.value : (previous + component.floor) * Math.exp(component.direction * (input.value - old.value) / pointsPerLogUnit) - component.floor;
-        assert16(Number.isFinite(next) && next >= 0, "requested value exceeds this individual profile; inspect detailed controls");
+        assert18(Number.isFinite(next) && next >= 0, "requested value exceeds this individual profile; inspect detailed controls");
         selected.physical[component.path] = next;
         changes.push({ path: component.path, before: previous, after: next });
       }
@@ -15537,14 +15882,14 @@ var KneekuraNativeMatchCore = (() => {
     }
     const roster = copy2;
     applyLivePhysicalRosterV1({ players: input.reference.players, roster });
-    return freeze24({ policyId, roster, projection: projectLivePublicAbilitiesV1({ ...input, roster }), changes });
+    return freeze26({ policyId, roster, projection: projectLivePublicAbilitiesV1({ ...input, roster }), changes });
   }
   function previewLivePublicLeagueV1(input) {
     const { entry, anchor } = context2(input);
-    assert16(["MLB", "NLB", "NPB", "KBO", "CUSTOM"].includes(input.leagueId), "unsupported preview league");
+    assert18(["MLB", "NLB", "NPB", "KBO", "CUSTOM"].includes(input.leagueId), "unsupported preview league");
     const candidates = input.reference.anchors.filter((a) => a.leagueId === input.leagueId);
     const byId = new Map(input.roster.entries.map((e) => [e.playerId, e]));
-    return freeze24({ leagueId: input.leagueId, sampleCount: candidates.length, metrics: specs.map((spec) => {
+    return freeze26({ leagueId: input.leagueId, sampleCount: candidates.length, metrics: specs.map((spec) => {
       if (spec.mode === "absolute") return {
         id: spec.id,
         label: spec.label,
@@ -15565,6 +15910,134 @@ var KneekuraNativeMatchCore = (() => {
         value: values2.length >= 2 && sd > 0 ? Math.max(0, 50 + 20 * (actual - mean) / sd) : null
       };
     }), sourceLeagueId: anchor.leagueId, basis: "SUPPLIED_LOCAL_SAMPLE_NOT_OFFICIAL_LEAGUE_POPULATION" });
+  }
+
+  // src/integration/browser/PitcherWorkbenchV77.ts
+  function assert19(value, message) {
+    if (!value) throw Error("pitcher workbench: " + message);
+  }
+  var freeze27 = (value) => {
+    if (value && typeof value === "object" && !Object.isFrozen(value)) {
+      Object.values(value).forEach(freeze27);
+      Object.freeze(value);
+    }
+    return value;
+  };
+  function buildPitcherWorkbenchInputV77(raw) {
+    const input = cloneInert(raw);
+    assert19(Object.keys(input).every((k) => ["players", "roster", "pitcherId", "batterId", "catcherId", "measuredClips", "seed", "originTick", "pitchType", "location"].includes(k)), "unknown construction fields");
+    assert19(["pitcherId", "batterId", "catcherId"].every((k) => typeof input[k] === "string" && input[k].length > 0) && Number.isSafeInteger(input.seed) && input.seed >= 0 && input.seed <= 4294967295 && (input.originTick === void 0 || Number.isSafeInteger(input.originTick) && input.originTick >= 0), "invalid construction identity or clock");
+    const players = input.roster ? applyLivePhysicalRosterV1({ players: input.players, roster: input.roster }).players : input.players, pitcher = players.find((p) => p.playerId === input.pitcherId), batter = players.find((p) => p.playerId === input.batterId), catcher = players.find((p) => p.playerId === input.catcherId);
+    assert19(pitcher && batter && catcher, "pitcher, batter and catcher are required");
+    const physical3 = (p) => resolveLiveExecutionPhysicalV77(p.physical ?? LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1, p.traitProfile), pp = physical3(pitcher), bp = physical3(batter), cp = physical3(catcher), bt = resolveLiveTechnicalTraitsV75(batter.traitProfile), pt = resolveLiveTechnicalTraitsV75(pitcher.traitProfile), clips = input.measuredClips.filter((c) => c.side === batter.bats && (bp.clipId === void 0 ? c.defaultSelection !== false : c.id === bp.clipId));
+    assert19(clips.length > 0, "actual batting-side measured clip required");
+    return freeze27({
+      originTick: input.originTick ?? 1e6,
+      seed: input.seed,
+      batter: { ...bp, heightMeters: batter.heightMeters, bats: batter.bats, ...bt ? { technicalSkills: bt } : {} },
+      pitcher: {
+        ...pp,
+        heightMeters: pitcher.heightMeters,
+        moundPosition: LIVE_MATCH_MOUND_SURFACE_V1,
+        ...pitcher.throws === void 0 ? {} : { throws: pitcher.throws },
+        ...pt ? { technicalSkills: pt } : {},
+        pitchApproach: resolveLiveTraitPreferencesV54(pitcher.traitProfile).pitchApproach
+      },
+      catcher: {
+        gloveSpeedMps: cp.gloveSpeedMps,
+        gloveReachMeters: cp.gloveReachMeters,
+        gloveRadiusMeters: cp.gloveRadiusMeters,
+        retentionCapacityJ: cp.retentionCapacityJ,
+        captureDissipationPowerW: cp.captureDissipationPowerW,
+        pocketRadiusMeters: 0.14
+      },
+      measuredClips: clips,
+      batting: "take",
+      pitchType: input.pitchType,
+      location: input.location,
+      physics: LIVE_MATCH_PHYSICS_V1
+    });
+  }
+  function planeTime(kernel, plane) {
+    for (const cell of kernel.cells) {
+      const from = kernel.evaluateAt(cell.fromElapsedSeconds).moment.ball.position.z, through = kernel.evaluateAt(cell.throughElapsedSeconds).moment.ball.position.z;
+      if (from < plane || through > plane) continue;
+      let lo = cell.fromElapsedSeconds, hi = cell.throughElapsedSeconds;
+      for (let n = 0; n < 60 && hi - lo > 1e-12; n++) {
+        const mid = (lo + hi) / 2;
+        if (kernel.evaluateAt(mid).moment.ball.position.z <= plane) hi = mid;
+        else lo = mid;
+      }
+      return hi;
+    }
+    return null;
+  }
+  function simulatePitcherWorkbenchV77(raw) {
+    const packet = cloneInert(raw);
+    assert19(packet && Object.keys(packet).every((k) => ["pitch", "context"].includes(k)) && packet.pitch, "pitch input required");
+    if (packet.context !== void 0) assert19(packet.context && typeof packet.context === "object" && !Array.isArray(packet.context) && Object.keys(packet.context).length === 2 && Object.keys(packet.context).every((k) => ["pitcherId", "batterId"].includes(k)) && [packet.context.pitcherId, packet.context.batterId].every((id6) => typeof id6 === "string" && id6.length > 0 && id6.length <= 200), "invalid observation context");
+    const input = { ...packet.pitch, batting: "take" }, pitch = simulateLivePitchV1(input), descriptor = pitch.diagnostics.sourceDescriptor, kernel = createSourceFreeBallKernel(descriptor), fixedInitial = descriptor.initial.ball, baselineInitial = { ...fixedInitial, spin: { x: 0, y: 0, z: 0 } }, baselineDescriptor = { ...descriptor, initial: { ...descriptor.initial, ball: baselineInitial } }, baseline = createSourceFreeBallKernel(baselineDescriptor), seconds = planeTime(kernel, 0.15);
+    assert19(seconds !== null, "actual Source did not reach the plate plane");
+    const actual = kernel.evaluateAt(seconds).moment.ball, baselineSeconds = planeTime(baseline, 0.15);
+    let baselinePosition = baselineSeconds === null ? null : baseline.evaluateAt(baselineSeconds).moment.ball.position;
+    if (baselinePosition === null) {
+      let lo = 0, hi = descriptor.throughElapsedSeconds;
+      assert19(sampleAerodynamicPitchStateAtElapsedSeconds(baselineInitial, hi, input.physics.air).position.z <= 0.15, "counterfactual did not reach plate plane");
+      for (let n = 0; n < 60 && hi - lo > 1e-12; n++) {
+        const mid = (lo + hi) / 2;
+        if (sampleAerodynamicPitchStateAtElapsedSeconds(baselineInitial, mid, input.physics.air).position.z <= 0.15) hi = mid;
+        else lo = mid;
+      }
+      baselinePosition = sampleAerodynamicPitchStateAtElapsedSeconds(baselineInitial, hi, input.physics.air).position;
+    }
+    const metrics = {
+      strikeZone: resolveHeightRatioStrikeZoneRegion({ plateCenterX: 0, playerPhysicalProfile: { heightMeters: input.batter.heightMeters } }),
+      platePosition: actual.position,
+      baselinePlatePosition: baselinePosition,
+      flightSeconds: seconds,
+      speedKmh: Math.hypot(actual.velocity.x, actual.velocity.y, actual.velocity.z) * 3.6,
+      releaseSpeedKmh: pitch.speedKmh,
+      spinRpm: Math.hypot(fixedInitial.spin.x, fixedInitial.spin.y, fixedInitial.spin.z) * 60 / (2 * Math.PI),
+      horizontalBreakCm: (actual.position.x - baselinePosition.x) * 100,
+      verticalBreakCm: (actual.position.y - baselinePosition.y) * 100,
+      baselineGroundIgnored: baselineSeconds === null,
+      measurementPlaneZ: 0.15,
+      movementBasis: "SAME_INITIAL_POSITION_AND_VELOCITY_ZERO_SPIN_SAME_PLATE_PLANE"
+    };
+    const sampleAtPitchElapsedSeconds = (at2) => {
+      assert19(Number.isFinite(at2) && at2 >= 0, "nonnegative observation seconds required");
+      if (at2 > descriptor.throughElapsedSeconds) return null;
+      const observation = kernel.evaluateAt(at2), ball = observation.moment.ball;
+      return freeze27({ ...ball, elapsedSeconds: at2, orientation: observation.orientation, phase: observation.phase });
+    };
+    const sampleBaselineAtPitchElapsedSeconds = (at2) => {
+      assert19(Number.isFinite(at2) && at2 >= 0, "nonnegative baseline observation seconds required");
+      if (at2 > descriptor.throughElapsedSeconds) return null;
+      if (baselineSeconds === null) return freeze27({
+        ...sampleAerodynamicPitchStateAtElapsedSeconds(baselineInitial, at2, input.physics.air),
+        elapsedSeconds: at2,
+        orientation: IDENTITY_QUATERNION,
+        phase: "airborne",
+        counterfactualGroundIgnored: true
+      });
+      const observation = baseline.evaluateAt(at2);
+      return freeze27({ ...observation.moment.ball, elapsedSeconds: at2, orientation: observation.orientation, phase: observation.phase, counterfactualGroundIgnored: false });
+    };
+    return freeze27({
+      version: 77,
+      authority: "SHARED_LIVE_PITCHER_WORKBENCH",
+      nativeAdmission: false,
+      officialResult: null,
+      input,
+      pitch,
+      context: packet.context ?? null,
+      fixedInitial,
+      baselineInitial,
+      baselineDescriptor,
+      metrics,
+      sampleAtPitchElapsedSeconds,
+      sampleBaselineAtPitchElapsedSeconds
+    });
   }
   return __toCommonJS(browser_exports);
 })();

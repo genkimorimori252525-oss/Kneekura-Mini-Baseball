@@ -46,7 +46,7 @@
   const roster=maker.getLiveRoster(),batterId=$('live-roster-player').value,pitcherId=$('comparison-pitcher').value,
    players=core.applyLivePhysicalRosterV1({players:catalog.players,roster}).players,batter=players.find(p=>p.playerId===batterId),pitcher=players.find(p=>p.playerId===pitcherId),
    pIdentity=catalog.players.find(p=>p.playerId===pitcherId),catcherId=catalog.players.find(p=>p.teamName===pIdentity?.teamName&&p.role==='C')?.playerId,
-   catcher=players.find(p=>p.playerId===catcherId),entry=roster.entries.find(p=>p.playerId===batterId),bp=batter.physical,pp=pitcher?.physical,cp=catcher?.physical,
+   catcher=players.find(p=>p.playerId===catcherId),entry=roster.entries.find(p=>p.playerId===batterId),bp=root.KneekuraIndependentTraitsV77?core.resolveLiveExecutionPhysicalV77(batter.physical,batter.traitProfile):batter.physical,pp=root.KneekuraIndependentTraitsV77?core.resolveLiveExecutionPhysicalV77(pitcher?.physical,pitcher?.traitProfile):pitcher?.physical,cp=root.KneekuraIndependentTraitsV77?core.resolveLiveExecutionPhysicalV77(catcher?.physical,catcher?.traitProfile):catcher?.physical,
    clip=library.clips.find(c=>c.id===bp.clipId)??library.clips.find(c=>c.side===batter.bats&&c.defaultSelection!==false),seed=Number($('comparison-seed').value);
   if(!pitcher||!catcher||!clip)throw Error('投手・捕手・打ち方の設定を確認してください。');
   if(!Number.isSafeInteger(seed)||seed<0||seed>4294967295)throw Error('ばらつき番号は0〜4294967295の整数にしてください。');

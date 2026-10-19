@@ -402,7 +402,10 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
   // One local technique owner: authored SI remains intact in movement, relay and forecasts.
   const effectiveTransferSeconds = (f: Fielder) => { const skill = f.spec.technicalSkills?.advanced_fielding ?? 0;
     return skill > 0 ? f.spec.transferSeconds * (1 - .08 * skill) : f.spec.transferSeconds; };
-  const responseSeconds = (f: Fielder) => f.spec.reactionSeconds + (f.spec.fieldingCognition?.decisionSeconds ?? 0);
+  const responseSeconds = (f: Fielder) => {
+    const skill = !hasThrown && f.spec.defensivePosition === 'P' ? f.spec.technicalSkills?.pitcher_field_reaction ?? 0 : 0;
+    return (skill > 0 ? f.spec.reactionSeconds / (1 + .6 * skill) : f.spec.reactionSeconds) + (f.spec.fieldingCognition?.decisionSeconds ?? 0);
+  };
   const seenBy = (f: Fielder, t: number) => {
     const delay = hasThrown && f === throwTarget?.receiver ? f.spec.reactionSeconds : responseSeconds(f);
     for (let i = history.length - 1; i >= 0; i--) if (history[i].t <= t - delay) return history[i];
@@ -1465,7 +1468,10 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
     frames, facts, ruleFacts, end: { elapsedSeconds: time, tick: tick(time), reason: endReason, complete },
     finalRunners: runners.map(r => ({ runnerId: r.spec.runnerId, base: r.base, position: runnerAt(r, time), retired: r.retired, scored: r.scored,
       retouchRequiredBase: r.retouchBase })),
-    diagnostics: { kernelBuilds, kernelExtensions, wallKernelBuilds, wallSupports, simultaneousContacts, throwDecisions, throwDirectionCommands, handPreparationProofs, forecastBuilds, collisionQueries, unresolvedDetail, departureProofs,
+    diagnostics: { ...(input.fielders.some(f => f.defensivePosition === 'P' && (f.technicalSkills?.pitcher_field_reaction ?? 0) > 0)
+      ? { pitcherReactionTechnique: input.fielders.filter(f => f.defensivePosition === 'P' && (f.technicalSkills?.pitcher_field_reaction ?? 0) > 0)
+        .map(f => ({ playerId: f.playerId, baselineReactionSeconds: f.reactionSeconds, effectiveReactionSeconds: f.reactionSeconds / (1 + .6 * f.technicalSkills!.pitcher_field_reaction!),
+          scope: 'INITIAL_BATTED_BALL_BEFORE_FIRST_THROW' as const })) } : {}), kernelBuilds, kernelExtensions, wallKernelBuilds, wallSupports, simultaneousContacts, throwDecisions, throwDirectionCommands, handPreparationProofs, forecastBuilds, collisionQueries, unresolvedDetail, departureProofs,
       fielderSeparation: { basis: 'CONTINUOUS_ISSUED_BODY_COMMANDS_AND_PROJECTED_MAXIMUM_BRAKING' as const,
         planCount: avoidancePlanCount, candidateEvaluations: avoidanceCandidateEvaluations,
         minimumPlannedStepGapMeters: Number.isFinite(minimumPlannedStepGapMeters) ? minimumPlannedStepGapMeters : null,

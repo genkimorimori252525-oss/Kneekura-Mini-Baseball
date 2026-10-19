@@ -1,0 +1,19 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LivePitchAuthoringV77.test.ts (3 tests) 5ms
+ ✓ src/integration/browser/LivePitchReleaseV62.test.ts (5 tests) 314ms
+ ✓ src/integration/browser/PitcherWorkbenchV77.test.ts (3 tests) 505ms
+ ✓ src/integration/browser/LivePitchTechnicalSkillsV75.test.ts (5 tests) 1574ms
+   ✓ keeps omitted and zero techniques exactly on the legacy prefix, including static bunt geometry and random draws 485ms
+   ✓ improves only bunt errors, obeys the declared motor ceiling and leaves takes and other swings unchanged 515ms
+ ✓ src/integration/browser/LivePitchTechnicalSkillsV77.test.ts (6 tests) 1651ms
+   ✓ keeps off and zero controls byte-exact, including takes and bunt execution 472ms
+   ✓ changes high swing errors and actual bat execution, retaining the physical incoming ball 364ms
+   ✓ changes low swing errors and actual bat execution, retaining the physical incoming ball 366ms
+
+ Test Files  5 passed (5)
+      Tests  22 passed (22)
+   Start at  03:55:57
+   Duration  2.88s (transform 848ms, setup 0ms, collect 3.06s, tests 4.05s, environment 1ms, prepare 854ms)
+

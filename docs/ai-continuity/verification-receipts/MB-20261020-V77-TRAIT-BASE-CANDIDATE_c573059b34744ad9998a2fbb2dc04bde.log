@@ -1,0 +1,13 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LiveTraitProfilesV1.test.ts (14 tests) 21ms
+ ✓ src/integration/browser/LiveTechnicalTraitsV75.test.ts (11 tests) 74ms
+ ✓ src/integration/browser/LiveTraitRuntimeV77.test.ts (7 tests) 1768ms
+   ✓ v77 independent trait execution > keeps base SI and every public ability unchanged for all independently authored states and scales 1672ms
+
+ Test Files  3 passed (3)
+      Tests  32 passed (32)
+   Start at  03:53:47
+   Duration  2.84s (transform 537ms, setup 0ms, collect 1.42s, tests 1.86s, environment 0ms, prepare 425ms)
+

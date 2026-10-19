@@ -1,0 +1,191 @@
+{
+  "pass": false,
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v77_投手調整と独立得能版.html",
+  "sha256": "db07c62e659cbbad0d7b17c8d4070e43598b57c93d3a862cec7d128642a72ae9",
+  "coreSha256": "1ec591604c370b4ca605e592e13e22d9feebd6678f667d2bf58fe094a9b3884e",
+  "sourcePinsSha256": "227b94b9e83c44f08325bdf79894bee718e109c761aa780838136893e15c0f45",
+  "sourceInputCount": 87,
+  "metadataSha256": "55372538ecd6cc6dae28f18444f7946fdbaa41641c1e0785cc5fe84b92432448",
+  "views": [],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    }
+  ],
+  "checks": [
+    {
+      "motionSingleOwner": [
+        {
+          "scale": 0.5,
+          "head": {
+            "settings": {
+              "enabled": true,
+              "scale": 0.5
+            },
+            "phase": "release-follow",
+            "baseEye": {
+              "x": 0,
+              "y": 2.0296000000000003,
+              "z": 18.44
+            },
+            "eye": {
+              "x": 0.0006249999999999997,
+              "y": 1.9996000000000003,
+              "z": 18.32
+            },
+            "offset": {
+              "x": 0.0006249999999999997,
+              "y": -0.030000000000000002,
+              "z": -0.12
+            },
+            "releaseProgress": 1,
+            "throwingHand": "L",
+            "moundSurfacePosition": {
+              "x": 0,
+              "y": 0.254,
+              "z": 18.44
+            },
+            "model": {
+              "basis": "AUTHORED_HEAD_JOINT_ON_EXISTING_DELIVERY_CLOCK",
+              "empiricallyCalibrated": false,
+              "sourcePhysicsChanged": false,
+              "eyeHeightRatio": 0.92,
+              "moundRadiusMeters": 2.74,
+              "followThroughMs": 1050
+            }
+          },
+          "expected": {
+            "settings": {
+              "enabled": true,
+              "scale": 1
+            },
+            "phase": "release-follow",
+            "baseEye": {
+              "x": 0,
+              "y": 2.0296000000000003,
+              "z": 18.44
+            },
+            "eye": {
+              "x": 0.0012499999999999994,
+              "y": 1.9696000000000002,
+              "z": 18.200000000000003
+            },
+            "offset": {
+              "x": 0.0012499999999999994,
+              "y": -0.060000000000000005,
+              "z": -0.24
+            },
+            "releaseProgress": 1,
+            "throwingHand": "L",
+            "moundSurfacePosition": {
+              "x": 0,
+              "y": 0.254,
+              "z": 18.44
+            },
+            "model": {
+              "basis": "AUTHORED_HEAD_JOINT_ON_EXISTING_DELIVERY_CLOCK",
+              "empiricallyCalibrated": false,
+              "sourcePhysicsChanged": false,
+              "eyeHeightRatio": 0.92,
+              "moundRadiusMeters": 2.74,
+              "followThroughMs": 1050
+            }
+          },
+          "cameraEye": {
+            "x": 0.0006249999999999997,
+            "y": 1.9996000000000003,
+            "z": 18.32
+          },
+          "hostUnchanged": true
+        },
+        {
+          "scale": 2,
+          "head": {
+            "settings": {
+              "enabled": true,
+              "scale": 2
+            },
+            "phase": "release-follow",
+            "baseEye": {
+              "x": 0,
+              "y": 2.0296000000000003,
+              "z": 18.44
+            },
+            "eye": {
+              "x": 0.009999999999999995,
+              "y": 1.5496000000000003,
+              "z": 16.520000000000003
+            },
+            "offset": {
+              "x": 0.009999999999999995,
+              "y": -0.48000000000000004,
+              "z": -1.92
+            },
+            "releaseProgress": 1,
+            "throwingHand": "L",
+            "moundSurfacePosition": {
+              "x": 0,
+              "y": 0.254,
+              "z": 18.44
+            },
+            "model": {
+              "basis": "AUTHORED_HEAD_JOINT_ON_EXISTING_DELIVERY_CLOCK",
+              "empiricallyCalibrated": false,
+              "sourcePhysicsChanged": false,
+              "eyeHeightRatio": 0.92,
+              "moundRadiusMeters": 2.74,
+              "followThroughMs": 1050
+            }
+          },
+          "expected": {
+            "settings": {
+              "enabled": true,
+              "scale": 1
+            },
+            "phase": "release-follow",
+            "baseEye": {
+              "x": 0,
+              "y": 2.0296000000000003,
+              "z": 18.44
+            },
+            "eye": {
+              "x": 0.0049999999999999975,
+              "y": 1.7896000000000003,
+              "z": 17.48
+            },
+            "offset": {
+              "x": 0.0049999999999999975,
+              "y": -0.24000000000000002,
+              "z": -0.96
+            },
+            "releaseProgress": 1,
+            "throwingHand": "L",
+            "moundSurfacePosition": {
+              "x": 0,
+              "y": 0.254,
+              "z": 18.44
+            },
+            "model": {
+              "basis": "AUTHORED_HEAD_JOINT_ON_EXISTING_DELIVERY_CLOCK",
+              "empiricallyCalibrated": false,
+              "sourcePhysicsChanged": false,
+              "eyeHeightRatio": 0.92,
+              "moundRadiusMeters": 2.74,
+              "followThroughMs": 1050
+            }
+          },
+          "cameraEye": {
+            "x": 0.009999999999999995,
+            "y": 1.5496000000000003,
+            "z": 16.520000000000003
+          },
+          "hostUnchanged": true
+        }
+      ]
+    }
+  ],
+  "scope": "Pitcher authoring, shared real Core trial and normal renderer, human/AI canonical JSON, invalid atomic rejection, 1200/390 UI. No full-match simulation claim.",
+  "error": "AssertionError [ERR_ASSERTION]: single head scale 0.5 x: 0.0006249999999999997 vs 0.0012499999999999994\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-maker-pitcher-v77.mjs:39:88"
+}
