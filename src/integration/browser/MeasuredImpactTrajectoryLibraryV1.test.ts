@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import { expect, it } from 'vitest';
 import { createReferenceBatKinematicsV1, type ReferenceBatKinematicsInputV1 } from '../../core/sim/contact/ReferenceBatKinematicsV1';
-import { DEFAULT_IMPACT_TRAJECTORY_V1, withReferenceImpactTrajectoryV1 } from '../../core/sim/contact/ReferenceBatImpactTrajectoryV1';
+import { DEFAULT_IMPACT_TRAJECTORY_V1, DEFAULT_WHOLE_ARC_TRAJECTORY_V1, withReferenceImpactTrajectoryV1 } from '../../core/sim/contact/ReferenceBatImpactTrajectoryV1';
 import { IDENTITY_QUATERNION } from '../../core/sim/pitching/BaseballOrientation';
 import { registerMeasuredBatToFieldV1 } from './MeasuredBatFieldRegistrationV1';
 import type { LiveMeasuredClipV1 } from './LivePitchV1';
@@ -69,3 +69,30 @@ it('rejects unknown or wrong-handed form IDs and unsupported windows before issu
   const sparse=[...fixture.measuredClips];delete sparse[0];expect(()=>createLiveBaseballMatchV1({...fixture,measuredClips:sparse})).toThrow(/dense measured/);
   const duplicated=[...fixture.measuredClips,fixture.measuredClips[0]];expect(()=>createLiveBaseballMatchV1({...fixture,measuredClips:duplicated})).toThrow(/duplicate measured/);
 },120_000);
+
+it('preserves all 673 full arcs and speed ceilings while setting the four absolute contact targets for both batting sides', () => {
+  let variants = 0;
+  for (const clip of fullCatalog()) {
+    const input: ReferenceBatKinematicsInputV1 = { provenance: { clipId: clip.id, sourceSha256: clip.source.sha256 },
+      frames: registerMeasuredBatToFieldV1(clip.frames), batLengthM: clip.normalization.batLengthM, sweetSpotT: clip.normalization.sweetSpotT,
+      sourceTicksPerSecond: 1e6, startTick: 1e6, ticksPerSecond: 1e6, playbackRate: 1,
+      transform: { rotation: IDENTITY_QUATERNION, translation: { x: 0, y: 0, z: 0 }, scale: 1 } },
+      sourceContact = clip.contactTimeSeconds * 1e6, original = createReferenceBatKinematicsV1(input), before = original.sampleAtSourceTick(sourceContact);
+    for (const level of [1, 2, 3, 4] as const) {
+      const changed = createReferenceBatKinematicsV1(withReferenceImpactTrajectoryV1(input, sourceContact, { ...DEFAULT_WHOLE_ARC_TRAJECTORY_V1, level })),
+        contact = changed.sampleAtSourceTick(sourceContact), v = contact.sweetSpotVelocity;
+      expect(Math.atan2(v.y, Math.hypot(v.x, v.z)) * 180 / Math.PI).toBeCloseTo(DEFAULT_WHOLE_ARC_TRAJECTORY_V1.angleDegreesByLevel[level - 1], 8);
+      expect(contact.sweetSpot).toEqual(before.sweetSpot); expect(contact.tick).toBe(before.tick);
+      expect(changed.maximumSweetSpotSpeedMps).toBe(original.maximumSweetSpotSpeedMps);
+      expect(changed.maximumSweetSpotSpeedUpperBoundMps).toBe(original.maximumSweetSpotSpeedUpperBoundMps);
+      for (const tick of [input.frames[0].tick, sourceContact - 120_000, sourceContact + 70_000, input.frames.at(-1)!.tick]) {
+        const a = original.sampleAtSourceTick(tick), b = changed.sampleAtSourceTick(tick), length = Math.hypot(b.state.pose.tip.x - b.state.pose.grip.x,
+          b.state.pose.tip.y - b.state.pose.grip.y, b.state.pose.tip.z - b.state.pose.grip.z);
+        expect(length).toBeCloseTo(input.batLengthM, 9);
+        expect(Math.hypot(b.sweetSpotVelocity.x, b.sweetSpotVelocity.y, b.sweetSpotVelocity.z)).toBeCloseTo(Math.hypot(a.sweetSpotVelocity.x, a.sweetSpotVelocity.y, a.sweetSpotVelocity.z), 9);
+      }
+      variants++;
+    }
+  }
+  expect(variants).toBe(2692);
+}, 120_000);

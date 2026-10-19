@@ -4,9 +4,11 @@ import { multiplyQuaternions, normalizeQuaternion, quaternionFromAxisAngle, rota
 import type { BatterSwingState } from './BatBallContact';
 import type { ReferenceBatKinematicsInputV1 } from './ReferenceBatKinematicsV1';
 
-/** Authored research controls, not measured launch-angle classes. Window times
- * belong to the original measured clock and scale with motor playback rate. */
+/** Authored bat attack-angle controls, not ball launch-angle classes. Omitted
+ * method retains local angle offsets; whole-arc-target sets an absolute contact
+ * angle. Legacy window times use the original measured clock. */
 export type ImpactTrajectorySettingsV1 = Readonly<{
+  method?: 'whole-arc-target';
   level: 1 | 2 | 3 | 4;
   angleDegreesByLevel: readonly [number, number, number, number];
   beforeSeconds: number;
@@ -16,6 +18,9 @@ export type ReferenceImpactTrajectoryV1 = ImpactTrajectorySettingsV1 & Readonly<
 export const DEFAULT_IMPACT_TRAJECTORY_V1: ImpactTrajectorySettingsV1 = Object.freeze({
   level: 2, angleDegreesByLevel: Object.freeze([-10, 0, 10, 20] as const), beforeSeconds: .1, afterSeconds: .06,
 });
+export const DEFAULT_WHOLE_ARC_TRAJECTORY_V1: ImpactTrajectorySettingsV1 = Object.freeze({
+  ...DEFAULT_IMPACT_TRAJECTORY_V1, method: 'whole-arc-target',
+});
 const add = (a: Vec3, b: Vec3): Vec3 => ({ x: a.x + b.x, y: a.y + b.y, z: a.z + b.z });
 const sub = (a: Vec3, b: Vec3): Vec3 => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
 const scale = (a: Vec3, n: number): Vec3 => ({ x: a.x * n, y: a.y * n, z: a.z * n });
@@ -24,7 +29,8 @@ const norm = (v: Vec3) => Math.hypot(v.x, v.y, v.z);
 const keys = ['level', 'angleDegreesByLevel', 'beforeSeconds', 'afterSeconds'];
 export function validateImpactTrajectorySettingsV1(raw: unknown): ImpactTrajectorySettingsV1 {
   const s = cloneInert(raw) as ImpactTrajectorySettingsV1;
-  if (!s || typeof s !== 'object' || Array.isArray(s) || Object.keys(s).sort().join('|') !== [...keys].sort().join('|')
+  if (!s || typeof s !== 'object' || Array.isArray(s) || Object.keys(s).sort().join('|') !== [...keys, ...(Object.hasOwn(s, 'method') ? ['method'] : [])].sort().join('|')
+    || Object.hasOwn(s, 'method') && s.method !== 'whole-arc-target'
     || !Number.isInteger(s.level) || s.level < 1 || s.level > 4 || !Array.isArray(s.angleDegreesByLevel)
     || s.angleDegreesByLevel.length !== 4 || Object.keys(s.angleDegreesByLevel).length !== 4
     || !s.angleDegreesByLevel.every(n => Number.isFinite(n) && n >= -30 && n <= 30)
@@ -49,18 +55,39 @@ type Motion = Readonly<{
   sample: (tick: number) => Sample; sampleContinuous: (tick: number) => Sample;
   sampleAtSourceTick: (tick: number, side?: 'incoming' | 'outgoing') => Sample;
 }>;
-/** Continuous rigid transformation with analytic velocities. Its compact
- * quintic envelope has zero first/second derivatives at both ends and impact.
- * The pivot is the original measured sweet spot at contact, not the ball. */
+/** Rigid transformations with analytic velocities around the original contact
+ * sweet spot. Whole-arc targets use one fixed rotation; legacy local offsets
+ * use a compact quintic envelope with zero derivatives at its ends and impact. */
 export function createImpactAdjustedReferenceMotionV1<T extends Motion>(input: ReferenceBatKinematicsInputV1, base: T): T {
   const raw = input.impactTrajectory;
   if (raw === undefined) return base;
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)
-    || Object.keys(raw).sort().join('|') !== [...keys, 'contactSourceTick'].sort().join('|')) throw new Error('invalid reference impact trajectory');
+    || Object.keys(raw).sort().join('|') !== [...keys, 'contactSourceTick', ...(Object.hasOwn(raw, 'method') ? ['method'] : [])].sort().join('|')) throw new Error('invalid reference impact trajectory');
   const { contactSourceTick, ...authoring } = raw, settings = validateImpactTrajectorySettingsV1(authoring);
   const angle = settings.angleDegreesByLevel[settings.level - 1] * Math.PI / 180;
   if (!Number.isFinite(contactSourceTick) || contactSourceTick < input.frames[0].tick || contactSourceTick > input.frames.at(-1)!.tick)
     throw new Error('impact contact lies outside measured reference');
+  if (settings.method === 'whole-arc-target') {
+    const contact = base.sampleAtSourceTick(contactSourceTick), pivot = contact.sweetSpot, velocity = contact.sweetSpotVelocity,
+      horizontalSpeed = Math.hypot(velocity.x, velocity.z);
+    if (horizontalSpeed <= 1e-9) throw new Error('impact reference has no horizontal contact direction');
+    const delta = angle - Math.atan2(velocity.y, horizontalSpeed);
+    if (delta === 0) return base;
+    const rotation = quaternionFromAxisAngle({ x: -velocity.z / horizontalSpeed, y: 0, z: velocity.x / horizontalSpeed }, delta),
+      point = (p: Vec3) => add(pivot, rotateVectorByQuaternion(sub(p, pivot), rotation));
+    // One fixed world-space rigid transform preserves the entire arc, clocks,
+    // lengths and all speed norms/bounds; there is no envelope derivative.
+    const adjust = (sample: Sample): Sample => ({ ...sample,
+      orientation: normalizeQuaternion(multiplyQuaternions(rotation, sample.orientation)),
+      state: { pose: { grip: point(sample.state.pose.grip), tip: point(sample.state.pose.tip) },
+        linearVelocity: rotateVectorByQuaternion(sample.state.linearVelocity, rotation),
+        angularVelocity: rotateVectorByQuaternion(sample.state.angularVelocity, rotation) },
+      sweetSpot: point(sample.sweetSpot), sweetSpotVelocity: rotateVectorByQuaternion(sample.sweetSpotVelocity, rotation) });
+    const sampleContinuous = (tick: number) => adjust(base.sampleContinuous(tick));
+    return Object.freeze({ ...base, sampleContinuous,
+      sample: (tick: number) => { base.sample(tick); return sampleContinuous(tick); },
+      sampleAtSourceTick: (tick: number, side: 'incoming' | 'outgoing' = 'outgoing') => adjust(base.sampleAtSourceTick(tick, side)) });
+  }
   // Zero is a true compatibility mode, including old frame-window selection.
   if (angle === 0) return base;
   const first = contactSourceTick - settings.beforeSeconds * input.sourceTicksPerSecond,

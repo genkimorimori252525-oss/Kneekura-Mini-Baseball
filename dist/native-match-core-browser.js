@@ -23,6 +23,7 @@ var KneekuraNativeMatchCore = (() => {
   var browser_exports = {};
   __export(browser_exports, {
     DEFAULT_IMPACT_TRAJECTORY_V1: () => DEFAULT_IMPACT_TRAJECTORY_V1,
+    DEFAULT_WHOLE_ARC_TRAJECTORY_V1: () => DEFAULT_WHOLE_ARC_TRAJECTORY_V1,
     LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1: () => LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1,
     LIVE_MATCH_BASES_V1: () => LIVE_MATCH_BASES_V1,
     REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS: () => REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS,
@@ -4079,6 +4080,10 @@ var KneekuraNativeMatchCore = (() => {
     beforeSeconds: 0.1,
     afterSeconds: 0.06
   });
+  var DEFAULT_WHOLE_ARC_TRAJECTORY_V1 = Object.freeze({
+    ...DEFAULT_IMPACT_TRAJECTORY_V1,
+    method: "whole-arc-target"
+  });
   var add6 = (a, b) => ({ x: a.x + b.x, y: a.y + b.y, z: a.z + b.z });
   var sub = (a, b) => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
   var scale8 = (a, n) => ({ x: a.x * n, y: a.y * n, z: a.z * n });
@@ -4087,7 +4092,7 @@ var KneekuraNativeMatchCore = (() => {
   var keys = ["level", "angleDegreesByLevel", "beforeSeconds", "afterSeconds"];
   function validateImpactTrajectorySettingsV1(raw) {
     const s = cloneInert(raw);
-    if (!s || typeof s !== "object" || Array.isArray(s) || Object.keys(s).sort().join("|") !== [...keys].sort().join("|") || !Number.isInteger(s.level) || s.level < 1 || s.level > 4 || !Array.isArray(s.angleDegreesByLevel) || s.angleDegreesByLevel.length !== 4 || Object.keys(s.angleDegreesByLevel).length !== 4 || !s.angleDegreesByLevel.every((n) => Number.isFinite(n) && n >= -30 && n <= 30) || ![s.beforeSeconds, s.afterSeconds].every((n) => Number.isFinite(n) && n >= 0.02 && n <= 0.3))
+    if (!s || typeof s !== "object" || Array.isArray(s) || Object.keys(s).sort().join("|") !== [...keys, ...Object.hasOwn(s, "method") ? ["method"] : []].sort().join("|") || Object.hasOwn(s, "method") && s.method !== "whole-arc-target" || !Number.isInteger(s.level) || s.level < 1 || s.level > 4 || !Array.isArray(s.angleDegreesByLevel) || s.angleDegreesByLevel.length !== 4 || Object.keys(s.angleDegreesByLevel).length !== 4 || !s.angleDegreesByLevel.every((n) => Number.isFinite(n) && n >= -30 && n <= 30) || ![s.beforeSeconds, s.afterSeconds].every((n) => Number.isFinite(n) && n >= 0.02 && n <= 0.3))
       throw new Error("invalid impact trajectory settings");
     return Object.freeze({ ...s, angleDegreesByLevel: Object.freeze([...s.angleDegreesByLevel]) });
   }
@@ -4099,11 +4104,39 @@ var KneekuraNativeMatchCore = (() => {
   function createImpactAdjustedReferenceMotionV1(input, base) {
     const raw = input.impactTrajectory;
     if (raw === void 0) return base;
-    if (!raw || typeof raw !== "object" || Array.isArray(raw) || Object.keys(raw).sort().join("|") !== [...keys, "contactSourceTick"].sort().join("|")) throw new Error("invalid reference impact trajectory");
+    if (!raw || typeof raw !== "object" || Array.isArray(raw) || Object.keys(raw).sort().join("|") !== [...keys, "contactSourceTick", ...Object.hasOwn(raw, "method") ? ["method"] : []].sort().join("|")) throw new Error("invalid reference impact trajectory");
     const { contactSourceTick, ...authoring } = raw, settings = validateImpactTrajectorySettingsV1(authoring);
     const angle2 = settings.angleDegreesByLevel[settings.level - 1] * Math.PI / 180;
     if (!Number.isFinite(contactSourceTick) || contactSourceTick < input.frames[0].tick || contactSourceTick > input.frames.at(-1).tick)
       throw new Error("impact contact lies outside measured reference");
+    if (settings.method === "whole-arc-target") {
+      const contact2 = base.sampleAtSourceTick(contactSourceTick), pivot2 = contact2.sweetSpot, velocity2 = contact2.sweetSpotVelocity, horizontalSpeed2 = Math.hypot(velocity2.x, velocity2.z);
+      if (horizontalSpeed2 <= 1e-9) throw new Error("impact reference has no horizontal contact direction");
+      const delta = angle2 - Math.atan2(velocity2.y, horizontalSpeed2);
+      if (delta === 0) return base;
+      const rotation = quaternionFromAxisAngle({ x: -velocity2.z / horizontalSpeed2, y: 0, z: velocity2.x / horizontalSpeed2 }, delta), point = (p) => add6(pivot2, rotateVectorByQuaternion(sub(p, pivot2), rotation));
+      const adjust2 = (sample3) => ({
+        ...sample3,
+        orientation: normalizeQuaternion(multiplyQuaternions(rotation, sample3.orientation)),
+        state: {
+          pose: { grip: point(sample3.state.pose.grip), tip: point(sample3.state.pose.tip) },
+          linearVelocity: rotateVectorByQuaternion(sample3.state.linearVelocity, rotation),
+          angularVelocity: rotateVectorByQuaternion(sample3.state.angularVelocity, rotation)
+        },
+        sweetSpot: point(sample3.sweetSpot),
+        sweetSpotVelocity: rotateVectorByQuaternion(sample3.sweetSpotVelocity, rotation)
+      });
+      const sampleContinuous3 = (tick8) => adjust2(base.sampleContinuous(tick8));
+      return Object.freeze({
+        ...base,
+        sampleContinuous: sampleContinuous3,
+        sample: (tick8) => {
+          base.sample(tick8);
+          return sampleContinuous3(tick8);
+        },
+        sampleAtSourceTick: (tick8, side = "outgoing") => adjust2(base.sampleAtSourceTick(tick8, side))
+      });
+    }
     if (angle2 === 0) return base;
     const first = contactSourceTick - settings.beforeSeconds * input.sourceTicksPerSecond, last = contactSourceTick + settings.afterSeconds * input.sourceTicksPerSecond;
     if (first < input.frames[0].tick || last > input.frames.at(-1).tick) throw new Error("impact adjustment window exceeds measured reference");
@@ -13640,7 +13673,7 @@ var KneekuraNativeMatchCore = (() => {
     if (b.swingDecision) assert12(["AUTO", "TAKE", "SWING"].includes(b.swingDecision.approach) && bounded(b.swingDecision.threshold, 0, 1) && bounded(b.swingDecision.aggressionWeight, 0, 1), "invalid authored swing decision");
     assert12(bounded(catcher.gloveSpeedMps, 0.1, 40) && bounded(catcher.gloveReachMeters, 0.4, 3) && bounded(catcher.gloveRadiusMeters, 0.03, 0.3) && bounded(catcher.retentionCapacityJ, 1, 2e3) && bounded(catcher.captureDissipationPowerW, 10, 1e6) && bounded(catcher.pocketRadiusMeters, 0.02, 1), "invalid catcher SI controls");
     assert12(["balanced", "contact", "power", "take", "bunt"].includes(input.batting), "invalid batting command");
-    const impactTrajectory = b.impactTrajectory === void 0 ? void 0 : validateImpactTrajectorySettingsV1(b.impactTrajectory), impactAngle = impactTrajectory === void 0 ? 0 : impactTrajectory.angleDegreesByLevel[impactTrajectory.level - 1];
+    const impactTrajectory = b.impactTrajectory === void 0 ? void 0 : validateImpactTrajectorySettingsV1(b.impactTrajectory), impactAngle = impactTrajectory === void 0 ? 0 : impactTrajectory.angleDegreesByLevel[impactTrajectory.level - 1], localImpactWindow = impactTrajectory !== void 0 && impactTrajectory.method === void 0 && impactAngle !== 0;
     assert12(input.measuredClips.every((c) => c.defaultSelection === void 0 || typeof c.defaultSelection === "boolean"), "invalid measured clip default selection");
     const r = random(input.seed), clips = input.measuredClips.filter((c) => c.side === b.bats && (b.clipId ? c.id === b.clipId : c.defaultSelection !== false));
     assert12(clips.length > 0, "a measured OpenBiomechanics clip for the actual batting side is required");
@@ -13756,17 +13789,17 @@ var KneekuraNativeMatchCore = (() => {
     }
     const minimumSourceTick = Math.min(
       sourceContactTick - (b.preContactSeconds ?? Math.max(0, desiredContactTime - 0.045)) * rate * 1e6,
-      impactAngle === 0 ? Infinity : sourceContactTick - impactTrajectory.beforeSeconds * 1e6
+      !localImpactWindow ? Infinity : sourceContactTick - impactTrajectory.beforeSeconds * 1e6
     );
     let selectedFrames = fullFrames.filter((f) => f.tick >= minimumSourceTick);
-    if (b.preContactSeconds !== void 0 || impactAngle !== 0) {
+    if (b.preContactSeconds !== void 0 || localImpactWindow) {
       const previous = fullFrames.filter((f) => f.tick < minimumSourceTick).at(-1);
       if (previous) selectedFrames = [previous, ...selectedFrames];
     }
     if (b.followThroughSeconds !== void 0) {
       const maximumSourceTick = Math.max(
         sourceContactTick + b.followThroughSeconds * rate * 1e6,
-        impactAngle === 0 ? -Infinity : sourceContactTick + impactTrajectory.afterSeconds * 1e6
+        !localImpactWindow ? -Infinity : sourceContactTick + impactTrajectory.afterSeconds * 1e6
       ), last = selectedFrames.findIndex((f) => f.tick >= maximumSourceTick);
       if (last >= 0) selectedFrames = selectedFrames.slice(0, last + 1);
     }
@@ -13967,7 +14000,7 @@ var KneekuraNativeMatchCore = (() => {
           ...impactTrajectory,
           contactSourceTick: sourceContactTick,
           timingBasis: "ORIGINAL_MEASURED_SOURCE_SECONDS",
-          model: "COMPACT_C2_RIGID_CONTACT_PIVOT",
+          model: impactTrajectory.method === "whole-arc-target" ? "WHOLE_ARC_RIGID_CONTACT_PIVOT_TARGET" : "COMPACT_C2_RIGID_CONTACT_PIVOT",
           speedCeilingRecomputed: true,
           launchAngleOrSpinOverridden: false
         } },
@@ -14553,7 +14586,7 @@ var KneekuraNativeMatchCore = (() => {
       assert14(p.clipId === void 0 || typeof p.clipId === "string" && p.clipId.length > 0, "invalid explicit measured clip identity");
       const candidates = input.measuredClips.filter((clip) => clip.side === player.bats && (p.clipId === void 0 ? clip.defaultSelection !== false : clip.id === p.clipId));
       assert14(candidates.length > 0, "unknown measured clip or wrong batting side for " + player.playerId);
-      if (p.impactTrajectory !== void 0) {
+      if (p.impactTrajectory !== void 0 && p.impactTrajectory.method === void 0) {
         const s = p.impactTrajectory;
         assert14(candidates.every((clip) => clip.contactTimeSeconds * 1e6 - s.beforeSeconds * 1e6 >= clip.frames[0].tick && clip.contactTimeSeconds * 1e6 + s.afterSeconds * 1e6 <= clip.frames.at(-1).tick), "impact adjustment window exceeds measured form for " + player.playerId);
       }

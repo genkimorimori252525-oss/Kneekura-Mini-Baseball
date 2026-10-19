@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { expect, it } from 'vitest';
-import { DEFAULT_IMPACT_TRAJECTORY_V1 } from '../../core/sim/contact/ReferenceBatImpactTrajectoryV1';
+import { DEFAULT_IMPACT_TRAJECTORY_V1, DEFAULT_WHOLE_ARC_TRAJECTORY_V1 } from '../../core/sim/contact/ReferenceBatImpactTrajectoryV1';
 import { REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS } from '../../core/sim/ball/BaseballAerodynamics';
 import { simulateLivePitchV1, type LiveMeasuredClipV1, type LivePitchInputV1 } from './LivePitchV1';
 import { applyLivePhysicalRosterV1 } from './LivePhysicalRosterV1';
@@ -96,3 +96,47 @@ it('finishes a full ordinary nine-inning match with imported per-player trajecto
   expect(host.inspect().finished).toBe(true);expect(host.inspect().match.inning).toBeGreaterThanOrEqual(9);
   expect(pitches).toBeGreaterThan(54);expect(contacts).toBeGreaterThan(5);expect(edited).toBeGreaterThan(5);
 },120_000);
+
+it.each(['R', 'L'] as const)('uses absolute whole-arc targets for %s after authored direction controls without changing speed or release Source', side => {
+  const source = input(side), batter = { ...source.batter, attackAngleDegrees: 15, pullAngleDegrees: 12,
+    maximumSweetSpotSpeedMps: 35, targetSweetSpotSpeedMps: 30 }, baseline = simulateLivePitchV1({ ...source, batter });
+  for (const level of [1, 2, 3, 4] as const) {
+    const changed = simulateLivePitchV1({ ...source, batter: { ...batter, impactTrajectory: { ...DEFAULT_WHOLE_ARC_TRAJECTORY_V1, level } } }),
+      d = changed.diagnostics, old = baseline.diagnostics, v = d.referenceContactSweetSpotVelocity;
+    expect(Math.atan2(v.y, Math.hypot(v.x, v.z)) * 180 / Math.PI).toBeCloseTo(DEFAULT_WHOLE_ARC_TRAJECTORY_V1.angleDegreesByLevel[level - 1], 8);
+    expect(d.sourceDescriptor).toEqual(old.sourceDescriptor); expect(d.playbackRate).toBe(old.playbackRate);
+    expect(d.referenceStartTick).toBe(old.referenceStartTick); expect(d.referenceThroughTick).toBe(old.referenceThroughTick);
+    expect(d.referenceContactTick).toBe(old.referenceContactTick);
+    expect(d.referenceMaximumSweetSpotSpeedMps).toBe(old.referenceMaximumSweetSpotSpeedMps);
+    expect(d.referenceContactSweetSpotSpeedMps).toBeCloseTo(old.referenceContactSweetSpotSpeedMps, 10);
+    expect(d.referenceMaximumSweetSpotSpeedMps).toBeLessThanOrEqual(35 * (1 + 1e-10));
+    expect(d.impactTrajectory).toMatchObject({ method: 'whole-arc-target', model: 'WHOLE_ARC_RIGID_CONTACT_PIVOT_TARGET', launchAngleOrSpinOverridden: false });
+    const at = changed.sampleBatAtTick(d.referenceContactTick)!, original = baseline.sampleBatAtTick(old.referenceContactTick)!,
+      a = sweet(at, d.sweetSpotT), b = sweet(original, old.sweetSpotT);
+    expect(Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z)).toBeLessThan(1e-12);
+    // Both physical output frames and replay observe the exact shared sampler.
+    for (const frame of changed.frames.filter(f => f.bat !== null)) {
+      const sampled = changed.sampleBatAtTick(source.originTick + frame.elapsedSeconds * 1e6)!;
+      expect(sampled.grip).toEqual(frame.bat!.grip); expect(sampled.tip).toEqual(frame.bat!.tip);
+    }
+  }
+});
+it('round-trips new per-player JSON and admits forms shorter than legacy adjustment windows before an ordinary pitch', () => {
+  const fixture = liveMatchFixture(2468), playerId = fixture.teams[0].battingOrder[0],
+    player = fixture.players.find(p => p.playerId === playerId)!, clip = fixture.measuredClips.find(c => c.side === player.bats)!,
+    sourceContact = clip.contactTimeSeconds * 1e6,
+    shortClip = { ...clip, frames: clip.frames.filter(f => f.tick >= sourceContact - 50_000 && f.tick <= sourceContact + 30_000) },
+    settings = { ...DEFAULT_WHOLE_ARC_TRAJECTORY_V1, level: 2 as const },
+    roster = { version: 'live_physical_roster_v1', sourceId: 'whole-arc-json', entries: [{ playerId, sourceId: 'whole-arc-authored',
+      physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', clipId: shortClip.id, impactTrajectory: settings } }] },
+    before = JSON.stringify(roster), projected = applyLivePhysicalRosterV1({ players: fixture.players, roster: JSON.parse(before) }),
+    matchInput = { ...fixture, measuredClips: fixture.measuredClips.map(c => c.id === shortClip.id ? shortClip : c), players: projected.players },
+    host = createLiveBaseballMatchV1(matchInput), record = host.issuePitch({ batting: 'take', managedTeam: 0, pitchType: 'fastball', location: 'zone' });
+  expect(projected.players.find(p => p.playerId === playerId)!.physical.impactTrajectory).toEqual(settings);
+  expect(projected.players.filter(p => p.playerId !== playerId).every(p => p.physical.impactTrajectory === undefined)).toBe(true);
+  expect((record.play.diagnostics as { impactTrajectory: unknown }).impactTrajectory).toMatchObject(settings);
+  expect(JSON.stringify(roster)).toBe(before);
+  const legacyPlayers = projected.players.map(p => p.playerId === playerId ? { ...p, physical: { ...p.physical,
+    impactTrajectory: DEFAULT_IMPACT_TRAJECTORY_V1 } } : p);
+  expect(() => createLiveBaseballMatchV1({ ...matchInput, players: legacyPlayers })).toThrow(/window exceeds/);
+});

@@ -133,7 +133,8 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
     &&bounded(catcher.retentionCapacityJ,1,2000)&&bounded(catcher.captureDissipationPowerW,10,1e6)&&bounded(catcher.pocketRadiusMeters,.02,1),'invalid catcher SI controls');
   assert(['balanced','contact','power','take','bunt'].includes(input.batting),'invalid batting command');
   const impactTrajectory=b.impactTrajectory===undefined?undefined:validateImpactTrajectorySettingsV1(b.impactTrajectory),
-    impactAngle=impactTrajectory===undefined?0:impactTrajectory.angleDegreesByLevel[impactTrajectory.level-1];
+    impactAngle=impactTrajectory===undefined?0:impactTrajectory.angleDegreesByLevel[impactTrajectory.level-1],
+    localImpactWindow=impactTrajectory!==undefined&&impactTrajectory.method===undefined&&impactAngle!==0;
   assert(input.measuredClips.every(c=>c.defaultSelection===undefined||typeof c.defaultSelection==='boolean'),'invalid measured clip default selection');
   const r=random(input.seed),clips=input.measuredClips.filter(c=>c.side===b.bats&&(b.clipId?c.id===b.clipId:c.defaultSelection!==false));
   assert(clips.length>0,'a measured OpenBiomechanics clip for the actual batting side is required');
@@ -231,11 +232,11 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
     authoredRotation=betweenDirections(probeVelocity,{x:-Math.sin(pull)*Math.cos(attack),y:Math.sin(attack),z:Math.cos(pull)*Math.cos(attack)});
   }
   const minimumSourceTick=Math.min(sourceContactTick-(b.preContactSeconds??Math.max(0,desiredContactTime-.045))*rate*1e6,
-    impactAngle===0?Infinity:sourceContactTick-impactTrajectory!.beforeSeconds*1e6);
+    !localImpactWindow?Infinity:sourceContactTick-impactTrajectory!.beforeSeconds*1e6);
   let selectedFrames=fullFrames.filter(f=>f.tick>=minimumSourceTick);
-  if(b.preContactSeconds!==undefined||impactAngle!==0){const previous=fullFrames.filter(f=>f.tick<minimumSourceTick).at(-1);if(previous)selectedFrames=[previous,...selectedFrames];}
+  if(b.preContactSeconds!==undefined||localImpactWindow){const previous=fullFrames.filter(f=>f.tick<minimumSourceTick).at(-1);if(previous)selectedFrames=[previous,...selectedFrames];}
   if(b.followThroughSeconds!==undefined){const maximumSourceTick=Math.max(sourceContactTick+b.followThroughSeconds*rate*1e6,
-      impactAngle===0?-Infinity:sourceContactTick+impactTrajectory!.afterSeconds*1e6),
+      !localImpactWindow?-Infinity:sourceContactTick+impactTrajectory!.afterSeconds*1e6),
     last=selectedFrames.findIndex(f=>f.tick>=maximumSourceTick);if(last>=0)selectedFrames=selectedFrames.slice(0,last+1);}
   assert(selectedFrames.length>=2&&selectedFrames[0].tick<sourceContactTick&&selectedFrames.at(-1)!.tick>sourceContactTick,'measured swing does not bracket contact reference');
   const startOffset=desiredContactTime-(sourceContactTick-selectedFrames[0].tick)/1e6/rate,
@@ -342,7 +343,8 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
       authoredTrajectoryPolicy:'FINITE_MEASURED_KEYS_WITH_EXPLICIT_RIGID_DIRECTION_RATE_AND_WINDOW_CONTROLS' as const,
       referenceMaximumSweetSpotSpeedMps:reference.maximumSweetSpotSpeedMps,referenceContactTick,
       ...(impactTrajectory===undefined?{}:{impactTrajectory:{...impactTrajectory,contactSourceTick:sourceContactTick,
-        timingBasis:'ORIGINAL_MEASURED_SOURCE_SECONDS' as const,model:'COMPACT_C2_RIGID_CONTACT_PIVOT' as const,
+        timingBasis:'ORIGINAL_MEASURED_SOURCE_SECONDS' as const,
+        model:impactTrajectory.method==='whole-arc-target'?'WHOLE_ARC_RIGID_CONTACT_PIVOT_TARGET' as const:'COMPACT_C2_RIGID_CONTACT_PIVOT' as const,
         speedCeilingRecomputed:true as const,launchAngleOrSpinOverridden:false as const}}),
       plannedReferenceStartTick:plannedStartTick,maximumOnTimeMotorLatencySeconds:(plannedStartTick-input.originTick)/tps-decisionTime,
       desiredContactElapsedSeconds:desiredContactTime,selectedSourceFirstTick:selectedFrames[0].tick,selectedSourceLastTick:selectedFrames.at(-1)!.tick,

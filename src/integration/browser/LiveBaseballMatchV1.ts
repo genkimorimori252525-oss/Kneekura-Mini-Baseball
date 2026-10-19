@@ -143,7 +143,7 @@ export function createLiveBaseballMatchV1(raw:LiveMatchInputV1){
     assert(p.clipId===undefined||typeof p.clipId==='string'&&p.clipId.length>0,'invalid explicit measured clip identity');
     const candidates=input.measuredClips.filter(clip=>clip.side===player.bats&&(p.clipId===undefined?clip.defaultSelection!==false:clip.id===p.clipId));
     assert(candidates.length>0,'unknown measured clip or wrong batting side for '+player.playerId);
-    if(p.impactTrajectory!==undefined){const s=p.impactTrajectory;
+    if(p.impactTrajectory!==undefined&&p.impactTrajectory.method===undefined){const s=p.impactTrajectory;
       assert(candidates.every(clip=>clip.contactTimeSeconds*1e6-s.beforeSeconds*1e6>=clip.frames[0].tick
         &&clip.contactTimeSeconds*1e6+s.afterSeconds*1e6<=clip.frames.at(-1)!.tick),'impact adjustment window exceeds measured form for '+player.playerId);}
   }

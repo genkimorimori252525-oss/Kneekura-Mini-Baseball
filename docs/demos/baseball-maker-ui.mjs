@@ -57,7 +57,7 @@
         && (entry.physical.clipId ? c.id === entry.physical.clipId : c.defaultSelection !== false));
       if (!candidates.length) throw Error(identity.name + 'の右打ち・左打ちに合う打ち方を選んでください。');
       const settings = entry.physical.impactTrajectory;
-      if (settings && candidates.some(c => settings.beforeSeconds > c.contactTimeSeconds - c.frames[0].tick / 1e6 + 1e-12
+      if (settings && settings.method !== 'whole-arc-target' && candidates.some(c => settings.beforeSeconds > c.contactTimeSeconds - c.frames[0].tick / 1e6 + 1e-12
         || settings.afterSeconds > c.frames.at(-1).tick / 1e6 - c.contactTimeSeconds + 1e-12))
         throw Error(identity.name + 'の打ち方には、指定した前後の時間の記録がありません。時間を短くしてください。');
     }

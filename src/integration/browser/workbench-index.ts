@@ -4,7 +4,7 @@ export { simulateBattingWorkbench } from './BattingWorkbench';
 export type { BattingWorkbenchInput, WorkbenchPitch } from './BattingWorkbench';
 export { createReferenceBatKinematicsV1 } from '../../core/sim/contact/ReferenceBatKinematicsV1';
 export type { ReferenceBatKinematicsInputV1 } from '../../core/sim/contact/ReferenceBatKinematicsV1';
-export { withReferenceImpactTrajectoryV1, validateImpactTrajectorySettingsV1, DEFAULT_IMPACT_TRAJECTORY_V1 } from '../../core/sim/contact/ReferenceBatImpactTrajectoryV1';
+export { withReferenceImpactTrajectoryV1, validateImpactTrajectorySettingsV1, DEFAULT_IMPACT_TRAJECTORY_V1, DEFAULT_WHOLE_ARC_TRAJECTORY_V1 } from '../../core/sim/contact/ReferenceBatImpactTrajectoryV1';
 export type { ImpactTrajectorySettingsV1, ReferenceImpactTrajectoryV1 } from '../../core/sim/contact/ReferenceBatImpactTrajectoryV1';
 export { simulateReferenceBattingWorkbench } from './ReferenceBattingWorkbench';
 export type { ReferenceBattingWorkbenchInput } from './ReferenceBattingWorkbench';

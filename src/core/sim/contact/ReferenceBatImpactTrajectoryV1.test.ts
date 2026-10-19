@@ -1,8 +1,9 @@
 import { expect, it } from 'vitest';
 import { createReferenceBatKinematicsV1, type ReferenceBatKinematicsInputV1 } from './ReferenceBatKinematicsV1';
-import { DEFAULT_IMPACT_TRAJECTORY_V1, createImpactAdjustedReferenceMotionV1, validateImpactTrajectorySettingsV1,
+import { DEFAULT_IMPACT_TRAJECTORY_V1, DEFAULT_WHOLE_ARC_TRAJECTORY_V1, createImpactAdjustedReferenceMotionV1, validateImpactTrajectorySettingsV1,
   withReferenceImpactTrajectoryV1 } from './ReferenceBatImpactTrajectoryV1';
-import { IDENTITY_QUATERNION } from '../pitching/BaseballOrientation';
+import { IDENTITY_QUATERNION, quaternionFromAxisAngle, rotateVectorByQuaternion } from '../pitching/BaseballOrientation';
+import type { Vec3 } from '../../model/geometry';
 
 const reference = (side = 1): ReferenceBatKinematicsInputV1 => ({
   provenance: { clipId: 'obp-research-test', sourceSha256: '1'.repeat(64) },
@@ -85,4 +86,80 @@ it('rejects malformed controls, unmeasured windows, non-horizontal contact and i
   let invoked=false;
   expect(()=>withReferenceImpactTrajectoryV1(Object.defineProperty({...input},'frames',{enumerable:true,get(){invoked=true;return input.frames;}}),200_000,DEFAULT_IMPACT_TRAJECTORY_V1)).toThrow(/accessors/);
   expect(invoked).toBe(false);
+});
+
+const tiltedReference = (side: number): ReferenceBatKinematicsInputV1 => {
+  const input = reference(side);
+  return { ...input, playbackRate: 1.7,
+    frames: input.frames.map((f, i) => ({ ...f, grip: { ...f.grip, y: f.grip.y + i * .04 },
+      orientation: quaternionFromAxisAngle({ x: 0, y: 0, z: 1 }, .25 * Math.sin(i / 40 * Math.PI)) })),
+    transform: { rotation: quaternionFromAxisAngle({ x: 0, y: 1, z: 0 }, .35), translation: { x: 1, y: .2, z: 2 }, scale: 1.25 } };
+};
+const expectVectorNear = (actual: Vec3, expected: Vec3) => {
+  for (const key of ['x', 'y', 'z'] as const) expect(actual[key]).toBeCloseTo(expected[key], 10);
+};
+
+it('sets absolute down/level/upper contact angles for both sides, including target zero on an originally tilted arc', () => {
+  for (const side of [1, -1]) for (const level of [1, 2, 3, 4] as const) {
+    const input = tiltedReference(side), base = createReferenceBatKinematicsV1(input),
+      changed = createReferenceBatKinematicsV1(withReferenceImpactTrajectoryV1(input, 200_000, { ...DEFAULT_WHOLE_ARC_TRAJECTORY_V1, level })),
+      original = base.sampleAtSourceTick(200_000), contact = changed.sampleAtSourceTick(200_000), v = contact.sweetSpotVelocity;
+    expect(Math.atan2(original.sweetSpotVelocity.y, Math.hypot(original.sweetSpotVelocity.x, original.sweetSpotVelocity.z))).not.toBe(0);
+    expect(Math.atan2(v.y, Math.hypot(v.x, v.z)) * 180 / Math.PI).toBeCloseTo(DEFAULT_WHOLE_ARC_TRAJECTORY_V1.angleDegreesByLevel[level - 1], 10);
+    expect(contact.sweetSpot).toEqual(original.sweetSpot);
+    expect(contact.tick).toBe(original.tick); expect(contact.sourceTick).toBe(original.sourceTick);
+    expect(norm(v)).toBeCloseTo(norm(original.sweetSpotVelocity), 10);
+    expect(changed.sampleAtSourceTick(0).state.pose).not.toEqual(base.sampleAtSourceTick(0).state.pose);
+    expect(changed.sampleAtSourceTick(400_000).state.pose).not.toEqual(base.sampleAtSourceTick(400_000).state.pose);
+  }
+});
+it('applies one rigid rotation to the entire arc and analytic derivatives while retaining every speed bound and source datum', () => {
+  const input = tiltedReference(-1), before = JSON.stringify(input), base = createReferenceBatKinematicsV1(input),
+    changed = createReferenceBatKinematicsV1(withReferenceImpactTrajectoryV1(input, 200_000, DEFAULT_WHOLE_ARC_TRAJECTORY_V1)),
+    contact = base.sampleAtSourceTick(200_000), pivot = contact.sweetSpot, v = contact.sweetSpotVelocity,
+    h = Math.hypot(v.x, v.z), axis = { x: -v.z / h, y: 0, z: v.x / h }, theta = -Math.atan2(v.y, h);
+  // Independent Rodrigues rotation checks the global transform without using
+  // the production quaternion construction or the production adjusted samples.
+  const rotate = (p: Vec3): Vec3 => {
+    const c = Math.cos(theta), sine = Math.sin(theta), dot = axis.x * p.x + axis.y * p.y + axis.z * p.z;
+    return { x: p.x * c + (axis.y * p.z - axis.z * p.y) * sine + axis.x * dot * (1 - c),
+      y: p.y * c + (axis.z * p.x - axis.x * p.z) * sine + axis.y * dot * (1 - c),
+      z: p.z * c + (axis.x * p.y - axis.y * p.x) * sine + axis.z * dot * (1 - c) };
+  };
+  const point = (p: Vec3) => { const r = rotate(difference(p, pivot)); return { x: pivot.x + r.x, y: pivot.y + r.y, z: pivot.z + r.z }; };
+  for (const tick of [0, 10_000, 77_123.25, 100_000, 199_999.75, 200_000, 260_000, 333_777.125, 400_000, 500_000]) {
+    for (const side of ['incoming', 'outgoing'] as const) {
+      const a = base.sampleAtSourceTick(tick, side), b = changed.sampleAtSourceTick(tick, side);
+      expectVectorNear(b.state.pose.grip, point(a.state.pose.grip)); expectVectorNear(b.state.pose.tip, point(a.state.pose.tip));
+      expectVectorNear(b.sweetSpot, point(a.sweetSpot)); expectVectorNear(b.state.linearVelocity, rotate(a.state.linearVelocity));
+      expectVectorNear(b.state.angularVelocity, rotate(a.state.angularVelocity)); expectVectorNear(b.sweetSpotVelocity, rotate(a.sweetSpotVelocity));
+      for (const basis of [{ x: 1, y: 0, z: 0 }, { x: 0, y: 1, z: 0 }, { x: 0, y: 0, z: 1 }])
+        expectVectorNear(rotateVectorByQuaternion(basis, b.orientation), rotate(rotateVectorByQuaternion(basis, a.orientation)));
+      expect(norm(difference(b.state.pose.tip, b.state.pose.grip))).toBeCloseTo(base.batLengthM, 10);
+      expect(norm(b.sweetSpotVelocity)).toBeCloseTo(norm(a.sweetSpotVelocity), 10);
+      expect(norm(b.state.linearVelocity)).toBeCloseTo(norm(a.state.linearVelocity), 10);
+      expect(norm(b.state.angularVelocity)).toBeCloseTo(norm(a.state.angularVelocity), 10);
+      expect(b.tick).toBe(a.tick); expect(b.sourceTick).toBe(a.sourceTick);
+    }
+  }
+  for (const key of ['maximumSweetSpotSpeedUpperBoundMps', 'maximumSweetSpotSpeedMps', 'maximumGripSpeedMps', 'maximumAngularSpeedRadPerSecond'] as const)
+    expect(changed[key]).toBe(base[key]);
+  const at = changed.sampleAtSourceTick(177_123.25), dt = .1, a = changed.sampleContinuous(at.tick - dt), b = changed.sampleContinuous(at.tick + dt), d = difference(b.sweetSpot, a.sweetSpot);
+  expect(norm(difference({ x: d.x * 1e6 / (2 * dt), y: d.y * 1e6 / (2 * dt), z: d.z * 1e6 / (2 * dt) }, at.sweetSpotVelocity))).toBeLessThan(1e-7);
+  expect(changed.sample(Math.round(at.tick))).toEqual(changed.sampleContinuous(Math.round(at.tick)));
+  expect(() => changed.sample(at.tick)).toThrow(/observation tick/);
+  expect(JSON.stringify(input)).toBe(before);
+});
+it('admits short measured clips without a local window and keeps legacy JSON validation strict', () => {
+  const original = tiltedReference(1), input = { ...original, frames: original.frames.slice(0, 11) },
+    whole = withReferenceImpactTrajectoryV1(input, 50_000, DEFAULT_WHOLE_ARC_TRAJECTORY_V1);
+  expect(() => createReferenceBatKinematicsV1(whole)).not.toThrow();
+  expect(() => createReferenceBatKinematicsV1(withReferenceImpactTrajectoryV1(input, 50_000, { ...DEFAULT_IMPACT_TRAJECTORY_V1, level: 4 }))).toThrow(/window/);
+  expect(DEFAULT_IMPACT_TRAJECTORY_V1).not.toHaveProperty('method');
+  expect(validateImpactTrajectorySettingsV1(JSON.parse(JSON.stringify(DEFAULT_IMPACT_TRAJECTORY_V1)))).toEqual(DEFAULT_IMPACT_TRAJECTORY_V1);
+  expect(validateImpactTrajectorySettingsV1(JSON.parse(JSON.stringify(DEFAULT_WHOLE_ARC_TRAJECTORY_V1)))).toEqual(DEFAULT_WHOLE_ARC_TRAJECTORY_V1);
+  for (const method of ['whole-arc-offset', 'local-offset', '', null])
+    expect(() => validateImpactTrajectorySettingsV1({ ...DEFAULT_IMPACT_TRAJECTORY_V1, method })).toThrow(/impact trajectory/);
+  expect(() => validateImpactTrajectorySettingsV1({ ...DEFAULT_IMPACT_TRAJECTORY_V1, method: undefined })).toThrow(/inert data/);
+  expect(() => createReferenceBatKinematicsV1({ ...whole, impactTrajectory: { ...whole.impactTrajectory!, method: 'invented' } } as unknown as ReferenceBatKinematicsInputV1)).toThrow(/impact trajectory/);
 });

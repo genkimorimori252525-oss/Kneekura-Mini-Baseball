@@ -24,7 +24,7 @@ export type { ExecutedFieldWorldRecordingV1 } from './ExecutedFieldWorldObservat
 export { createLiveBaseballMatchV1, LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1, LIVE_MATCH_BASES_V1 } from './LiveBaseballMatchV1';
 export type { LiveMatchInputV1, LiveMatchFrameV1, LivePlayerPhysicalV1, LiveIssuedPitchV1 } from './LiveBaseballMatchV1';
 export { applyLivePhysicalRosterV1, resolveLivePlateVisionV1 } from './LivePhysicalRosterV1';
-export { withReferenceImpactTrajectoryV1, validateImpactTrajectorySettingsV1, DEFAULT_IMPACT_TRAJECTORY_V1 } from '../../core/sim/contact/ReferenceBatImpactTrajectoryV1';
+export { withReferenceImpactTrajectoryV1, validateImpactTrajectorySettingsV1, DEFAULT_IMPACT_TRAJECTORY_V1, DEFAULT_WHOLE_ARC_TRAJECTORY_V1 } from '../../core/sim/contact/ReferenceBatImpactTrajectoryV1';
 export type { ImpactTrajectorySettingsV1, ReferenceImpactTrajectoryV1 } from '../../core/sim/contact/ReferenceBatImpactTrajectoryV1';
 export { projectLivePublicAbilitiesV1, editLivePublicAbilityV1, previewLivePublicLeagueV1, materializeLivePlateVisionV1 } from './LivePublicAbilitiesV1';
 export { getLiveTraitCatalogV1, projectLiveTraitProfilesV1, setLiveTraitProfileV1, validateLiveTraitProfileV1, resolveLiveTraitPreferencesV54, reconcileLiveTraitSourcesV54 } from './LiveTraitProfilesV1';
