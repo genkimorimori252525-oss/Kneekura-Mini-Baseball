@@ -42,3 +42,7 @@
 通常HTML SHA `99df7e9275f342f10b1febdf3d06df06b3817cda01928fbb844f28259ab8dd19`、調整室SHA `731f8b10648bb1a2e5e36e714ea70eb3ed41a6a77a379e77557852af3d07d95e`。Native114入力のraw照合とv54〜v64成果物の保持もPASS。新たなTypeScript／9回完走／100試合・実機の検証を実行したとは主張しない。
 
 継続監査は従来からの `CHARTER_UNAPPROVED/HOLD` によりexit1。元の未承認記録を保持し、自動承認へ変換しない。製品試験のPASSとは別に扱う。
+
+## GitHub保存
+
+製品コミット `e9450d3fb7497cd3b9c3ec694875a85157fa584e` を既存ブランチ／OPEN Draft PR380へ保存。STAGING `a405eed9` と最終照合で42ファイルのGit blobが試験済みraw byteと一致、credential pattern0、whitespace PASS、AGENTS除外。PUBLICATION `c9065f4d` PASS3.890秒でremote／PR headと公開raw12ファイルのbyte一致を確認。[公開証拠](../verification/releases/v65/publication.json)。後続コミットは記録のみ。main未マージ。
