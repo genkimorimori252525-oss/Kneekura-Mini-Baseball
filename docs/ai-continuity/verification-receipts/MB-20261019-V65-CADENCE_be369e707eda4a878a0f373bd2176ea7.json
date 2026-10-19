@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V65-CADENCE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v56-cadence.mjs",
+    "../../outputs/ばせぼーるlv65_TBD_vs_LAD_俯瞰の実遠近差調整版.html",
+    "../../outputs/カメラワーク調整室_v65.html",
+    "../../outputs/verification-v65-cadence"
+  ],
+  "observed_at": "2026-10-19T09:58:05.037+00:00",
+  "elapsed_ms": 8985,
+  "git_head": "ef678a9dbdca93bafdeea3d569a2fc5b491cb11c",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V65-CADENCE_be369e707eda4a878a0f373bd2176ea7.log",
+  "output_sha256": "482b0ee2ac585ce374b190d5f658bb3aa00088bdd753b886b4db6ccfc1de8281",
+  "receipt_id": "MB-20261019-V65-CADENCE_be369e707eda4a878a0f373bd2176ea7"
+}

@@ -1,12 +1,18 @@
 # 最新の再開入口 — 2026-10-19
 
-現在は **調整室v64／通常試合v64／共通メーカーv62**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
+現在は **調整室v65／通常試合v65／共通メーカーv62**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
 
-- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v64/README.md)
-- [原因・変更・最終検証・限界](../reports/2026-10-19-v64-overhead-ball-height.md)
-- [開発史](../history/README.md) / [原因別事例H38](../history/INCIDENTS.md)
+- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v65/README.md)
+- [原因・変更・最終検証・限界](../reports/2026-10-19-v65-overhead-real-perspective.md)
+- [開発史](../history/README.md) / [原因別事例H39](../history/INCIDENTS.md)
 - [元の全要求・計画・受入条件](2026-10-15-mini-baseball/00-START-HERE.md)
 - [v50の打者カメラ](../reports/2026-10-18-v50-v27-batter-camera.md) / [v49の守備責任・裁定](../reports/2026-10-18-v49-positional-defense.md) / [v47の中継・旋回](../reports/2026-10-18-v47-relay-rounding.md)
+
+## v65の現在地
+
+人間が「高さの倍率は現実の1.5倍」と回答したため、v64の回答前仮定（20mで最大指定倍率）を修正。現在球と同じx/zの地面球を現在の俯瞰カメラで投影し、実際の光学比の地面からの差を指定倍率で強調する。例えば地面比1.2なら設定1.5で1.3。初期値1は従来表示を厳密保持し、ゴロと他視点、物理、保持球非表示は不変。通常UIと調整室へ反映し、v64以前の成果物・原証拠は保持する。
+
+[実装・検証・互換上の注意](../reports/2026-10-19-v65-overhead-real-perspective.md)。1は従来表示、1より大きい値は実差の強調で、markerに抑制されていた実差を復元するため1付近の連続性は保証しない。Source/Core114入力865078dc・打者v63・投手v62・メーカーv62は維持。元全計画、未達、原FAIL／UNKNOWN／Charter HOLDは継続する。
 
 ## v64の現在地
 

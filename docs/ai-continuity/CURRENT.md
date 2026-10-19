@@ -1,13 +1,17 @@
 ---
-current_task: "MB-20261019-V64-PUBLICATION"
+current_task: "MB-20261019-V65-PACKAGE"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "86f7151dbbe03e9716c570b93bac30a032bddaf1"
+commit_head: "ef678a9dbdca93bafdeea3d569a2fc5b491cb11c"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V64-PUBLICATION_69b3db6247a543ff9daed7dc6ff01660.json"
-updated_at: "2026-10-18T20:23:37.543840+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V65-PACKAGE_4f8b2d9f77d64d49b1a2aa012bec3512.json"
+updated_at: "2026-10-19T10:00:35.781283+00:00"
 
 ---
+
+## Active human priority — v65 physical height contrast (SCOPED VERIFIED; publication pending)
+
+Human answered heightfactor means physicalheightperspectivechange×1.5; supersedesv64 unanswered20mmaxassumption. New65controls uses samecurrentcam/samexzgroundy.0366 opticalratio beforemarker, groundDisplay*[1+k*(max(1,r)-1)]for k>1; k1exactlegacybypass defaultpixels. No20mcap; markerfloorrequires explicit1compatmode (near1discontinuity documented). UI/lab65/storage65/settingsJSONsamekey latestmeaning/oldmissing1. BUILD2e09ba86PASS.405s/CADENCEbe369e70PASS8.985s/BROWSER6b6d05c7PASS60.468s1200+390/default5cam×3pixels+6SourcebatSHA2f939a68exact/ground/31projectioncases/held/othercam/UI/JSONsession/atomicvalidation. PACKAGE4f8b2d9fPASS8.422s114Native865078dc+oldv54..64 unchanged. Normal99df7e92/lab731f8b10. Camera63/pitcher62/maker62/Core/abilities/AI/rules/bat unchanged. No newTSC/9game/100game/phoneclaim. UserAGENTS/unrelated/originalfullplan/FAILUNKNOWN/CharterHOLD retained. Next: GitHubsave+actualrawpublicationcheck existingbranch/Draft380, no mainmerge.
 
 ## Active human priority — v64 overhead ball-height display (SCOPED VERIFIED; PUBLISHED)
 

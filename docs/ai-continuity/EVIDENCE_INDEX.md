@@ -1091,3 +1091,16 @@ Only record verification that was actually performed.
 | MB-20261019-V64-PACKAGE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V64-PACKAGE_e5c2db69a7a64f6d9f51c66a9e65fc9a.json |
 | MB-20261019-V64-STAGING | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V64-STAGING_48781f7c11124114a77aab9a98d81621.json |
 | MB-20261019-V64-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V64-PUBLICATION_69b3db6247a543ff9daed7dc6ff01660.json |
+| MB-20261019-V65-BUILD | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V65-BUILD_2e09ba86b04b49dab1210bc65d46a359.json |
+| MB-20261019-V65-CADENCE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V65-CADENCE_be369e707eda4a878a0f373bd2176ea7.json |
+| MB-20261019-V65-BROWSER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V65-BROWSER_6b6d05c7d02e4050b94b530c35586cc4.json |
+| MB-20261019-V65-PACKAGE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V65-PACKAGE_4f8b2d9f77d64d49b1a2aa012bec3512.json |
+
+## MB-20261019-V65 — ground-referenced physical-height contrast
+
+- MB-20261019-V65-BROWSER PASS 60468ms: [receipt](verification-receipts/MB-20261019-V65-BROWSER_6b6d05c7d02e4050b94b530c35586cc4.json); original command/log SHA retained.
+- MB-20261019-V65-BUILD PASS 405ms: [receipt](verification-receipts/MB-20261019-V65-BUILD_2e09ba86b04b49dab1210bc65d46a359.json); original command/log SHA retained.
+- MB-20261019-V65-CADENCE PASS 8985ms: [receipt](verification-receipts/MB-20261019-V65-CADENCE_be369e707eda4a878a0f373bd2176ea7.json); original command/log SHA retained.
+- MB-20261019-V65-PACKAGE PASS 8422ms: [receipt](verification-receipts/MB-20261019-V65-PACKAGE_4f8b2d9f77d64d49b1a2aa012bec3512.json); original command/log SHA retained.
+- Browser1200/390/defaultpixels+6Sourcebat exact/ground/31physicalprojectionprobes/no20mcap/othercamera+held/UI+JSONsession; unchanged Native114865078dc. [Report](../reports/2026-10-19-v65-overhead-real-perspective.md). No newTSC/9game/100game/realphoneclaim. Original CharterHOLD and failures retained.
+| MB-20261019-V65-STAGING | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V65-STAGING_a405eed91f7e4165b5a9c1b420ba9597.json |
