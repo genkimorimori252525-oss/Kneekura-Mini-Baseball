@@ -7,6 +7,8 @@
   defaults={level:2,angleDegreesByLevel:[-10,0,10,20],beforeSeconds:.1,afterSeconds:.06};
  if(!maker||!library?.clips?.length||!core?.withReferenceImpactTrajectoryV1)return;
  let current=null,motions=[],clockMs=0,playing=false,lastTime=null,cacheKey='',error=null,refreshing=false;
+ const viewSettings=Object.fromEntries(['front','side','top'].map(view=>[view,{yawDegrees:0,pitchDegrees:0}]));
+ let projectedViews={},rotationDrag=null;
  const panel=document.createElement('section');panel.id='player-swing-editor';panel.className='swing-editor';
  panel.innerHTML=`<h3>この選手の打ち方と弾道</h3>
   <p class="note">元の打ち方を選び、ボールに当たる付近だけ振り上げ方を変えて比べます。打球の結果を指定する設定ではありません。</p>
@@ -25,6 +27,7 @@
    <label>再生の速さ<select id="swing-preview-speed" data-help="比較画面の再生速度だけを変えます。選手のバット速度や、通常試合の速さには影響しません。"><option value="0.1">0.1倍</option><option value="0.25">0.25倍</option><option value="0.5" selected>0.5倍</option><option value="1">1倍</option></select></label>
    <label><input id="swing-all-paths" type="checkbox" checked data-help="元の道筋と弾道1〜4を同じ時刻で重ねて表示します。外すと元の道筋と選んだ弾道だけを比べます。">すべての弾道を重ねる</label></div>
   <label>当たる瞬間からの時間 <output id="swing-time-label"></output><input id="swing-preview-time" data-help="元の測定で当たった瞬間を0ミリ秒として、前後の同じ時刻を見比べます。負の値は当たる前、正の値は当たった後です。" type="range" min="-300" max="77" step="1" value="0"></label>
+  <p class="note">下の3つのバット図は、右ボタンを押しながらドラッグすると、それぞれ別の角度から見られます。図を選んで矢印キーでも向きを変えられます。打ち方や能力は変わりません。</p><button id="swing-preview-reset-views" type="button" data-help="3つのバット図の向きだけを最初の状態へ戻します。再生時間・選手・弾道の設定は変わりません。">3つの図の向きを戻す</button>
   <div class="swing-preview-grid"><figure><figcaption>投手側から見る</figcaption><canvas id="swing-preview-front" width="720" height="360"></canvas></figure><figure><figcaption>横から見る</figcaption><canvas id="swing-preview-side" width="720" height="360"></canvas></figure><figure><figcaption>上から見る</figcaption><canvas id="swing-preview-top" width="720" height="360"></canvas></figure></div>
   <div id="swing-comparison-values" class="swing-legend"></div><p class="note">比較は元の測定でのバット長・芯の位置・体格・速さを基準にした道筋です。通常試合では選手の用具・体格・速さ・従来の全体角度を反映し、投球へ合わせた位置で振ります。頭や身体のフォームは描きません。</p><p id="swing-editor-status" class="note" aria-live="polite"></p>`;
  $('live-roster-identity').after(panel);
@@ -65,10 +68,18 @@
   const samples=motions.map(m=>m.sampleAtSourceTick(current.contactTick+clockMs*1000)),
    active=current.entry.physical.impactTrajectory?.level??2,all=$('swing-all-paths').checked;
   for(const [view,a,b]of [['front','x','y'],['side','z','y'],['top','x','z']]){
-   const canvas=$('swing-preview-'+view),c=canvas.getContext('2d'),points=current.boundsPoints,
+   const canvas=$('swing-preview-'+view),c=canvas.getContext('2d'),angles=viewSettings[view],depth=['x','y','z'].find(axis=>axis!==a&&axis!==b),depthSign=view==='front'?1:-1,
+    yaw=angles.yawDegrees*Math.PI/180,pitch=angles.pitchDegrees*Math.PI/180,worldPivot=current.pivot,
+    rotated=angles.yawDegrees===0&&angles.pitchDegrees===0?p=>p:p=>{
+     const u=p[a]-worldPivot[a],v=p[b]-worldPivot[b],w=(p[depth]-worldPivot[depth])*depthSign,
+      horizontal=u*Math.cos(yaw)+w*Math.sin(yaw),back=-u*Math.sin(yaw)+w*Math.cos(yaw);
+     return {[a]:worldPivot[a]+horizontal,[b]:worldPivot[b]+v*Math.cos(pitch)-back*Math.sin(pitch)};
+    },points=current.boundsPoints.map(rotated),
     loA=Math.min(...points.map(p=>p[a])),hiA=Math.max(...points.map(p=>p[a])),loB=Math.min(...points.map(p=>p[b])),hiB=Math.max(...points.map(p=>p[b])),
     scale=Math.min(650/Math.max(.3,hiA-loA),285/Math.max(.3,hiB-loB)),cx=(loA+hiA)/2,cy=(loB+hiB)/2,
-    point=p=>({x:360+(p[a]-cx)*scale,y:185-(p[b]-cy)*scale});
+    point=p=>{const q=rotated(p);return {x:360+(q[a]-cx)*scale,y:185-(q[b]-cy)*scale};};
+   projectedViews[view]={...angles,projection:{a,b,depth,depthSign,scale,cx,cy},pivot:point(worldPivot),
+    samples:samples.map((s,level)=>({level,grip:point(s.state.pose.grip),tip:point(s.state.pose.tip),sweetSpot:point(s.sweetSpot)}))};
    c.clearRect(0,0,720,360);c.fillStyle='#fbfdfb';c.fillRect(0,0,720,360);
    c.strokeStyle='#dae6df';c.lineWidth=1;for(let x=30;x<720;x+=40){c.beginPath();c.moveTo(x,15);c.lineTo(x,345);c.stroke();}for(let y=25;y<360;y+=40){c.beginPath();c.moveTo(15,y);c.lineTo(705,y);c.stroke();}
    for(let i=0;i<motions.length;i++){
@@ -81,6 +92,34 @@
    }
    const pivot=point(current.pivot);c.globalAlpha=1;c.strokeStyle='#192c22';c.lineWidth=1.5;c.beginPath();c.arc(pivot.x,pivot.y,8,0,2*Math.PI);c.stroke();
   }
+ }
+ function setView(view,patch){
+  if(!Object.hasOwn(viewSettings,view)||!patch||typeof patch!=='object'||Array.isArray(patch))throw Error('バット図の向きを確認してください。');
+  const next={...viewSettings[view]};
+  for(const [key,descriptor]of Object.entries(Object.getOwnPropertyDescriptors(patch))){
+   if(!['yawDegrees','pitchDegrees'].includes(key)||!Object.hasOwn(descriptor,'value')||!Number.isFinite(descriptor.value)
+    ||Math.abs(descriptor.value)>(key==='yawDegrees'?180:85))throw Error('バット図の角度が範囲外です。');next[key]=descriptor.value;
+  }
+  viewSettings[view]=next;render();return clone(next);
+ }
+ function stopRotation(){const previous=rotationDrag;rotationDrag=null;
+  if(previous){const canvas=$('swing-preview-'+previous.view);canvas.style.cursor='default';if(canvas.hasPointerCapture(previous.id))canvas.releasePointerCapture(previous.id);}}
+ function resetViews(){stopRotation();for(const view of Object.keys(viewSettings))viewSettings[view]={yawDegrees:0,pitchDegrees:0};render();return clone(viewSettings);}
+ $('swing-preview-reset-views').onclick=resetViews;
+ for(const view of Object.keys(viewSettings)){
+  const canvas=$('swing-preview-'+view);canvas.tabIndex=0;canvas.setAttribute('aria-label','バット軌道。右ドラッグまたは矢印キーで見る向きを変えられます。');
+  canvas.addEventListener('contextmenu',event=>event.preventDefault());
+  canvas.addEventListener('pointerdown',event=>{if(event.button!==2||rotationDrag)return;event.preventDefault();canvas.focus({preventScroll:true});
+   rotationDrag={id:event.pointerId,view,x:event.clientX,y:event.clientY,angles:{...viewSettings[view]}};canvas.setPointerCapture(event.pointerId);canvas.style.cursor='move';});
+  canvas.addEventListener('pointermove',event=>{if(!rotationDrag||rotationDrag.id!==event.pointerId||rotationDrag.view!==view)return;
+   const bounds=canvas.getBoundingClientRect(),drag=rotationDrag;
+   setView(view,{yawDegrees:Math.max(-180,Math.min(180,drag.angles.yawDegrees+(event.clientX-drag.x)/bounds.width*180)),
+    pitchDegrees:Math.max(-85,Math.min(85,drag.angles.pitchDegrees-(event.clientY-drag.y)/bounds.height*90))});});
+  for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,event=>{if(rotationDrag?.id===event.pointerId)stopRotation();});
+  canvas.addEventListener('keydown',event=>{const step=event.shiftKey?10:2,angles=viewSettings[view];let patch;
+   if(event.key==='ArrowLeft'||event.key==='ArrowRight')patch={yawDegrees:Math.max(-180,Math.min(180,angles.yawDegrees+(event.key==='ArrowLeft'?-step:step)))};
+   else if(event.key==='ArrowUp'||event.key==='ArrowDown')patch={pitchDegrees:Math.max(-85,Math.min(85,angles.pitchDegrees+(event.key==='ArrowUp'?step:-step)))};
+   else return;event.preventDefault();setView(view,patch);});
  }
  function refresh(){
   if(refreshing)return;refreshing=true;
@@ -119,9 +158,9 @@
  $('swing-preview-play').addEventListener('click',()=>{playing=!playing;lastTime=null;if(playing&&clockMs>=Number($('swing-preview-time').max))clockMs=Number($('swing-preview-time').min);$('swing-preview-play').textContent=playing?'⏸ 停止':'▶ 再生';});
  document.addEventListener('kneekura:maker-roster-change',refresh);
  function loop(now){if(playing&&current){if(lastTime!==null)clockMs+=Math.min(100,now-lastTime)*Number($('swing-preview-speed').value);if(clockMs>=Number($('swing-preview-time').max)){clockMs=Number($('swing-preview-time').max);playing=false;$('swing-preview-play').textContent='▶ 再生';}render();}lastTime=now;requestAnimationFrame(loop);}
- root.KneekuraSwingMaker=Object.freeze({refresh,seek,setTrajectory:settings=>commit({impactTrajectory:settings}),setClip:clipId=>commit({clipId}),
+ root.KneekuraSwingMaker=Object.freeze({refresh,seek,setTrajectory:settings=>commit({impactTrajectory:settings}),setClip:clipId=>commit({clipId}),setView,resetViews,
   inspect:()=>({ready:!!current&&motions.length===5,error,playerId:current?.id,clipId:current?.clip.id,explicitClipId:current?.entry.physical.clipId??null,
    settings:current?.settings,enabled:!!current?.entry.physical.impactTrajectory,clockMs,playing,clips:library.clips.length,
-   sourceTick:current?current.contactTick+clockMs*1000:null,samples:current?motions.map((m,level)=>({level,...clone(m.sampleAtSourceTick(current.contactTick+clockMs*1000))})):[]})});
+   sourceTick:current?current.contactTick+clockMs*1000:null,views:clone(projectedViews),samples:current?motions.map((m,level)=>({level,...clone(m.sampleAtSourceTick(current.contactTick+clockMs*1000))})):[]})});
  refresh();requestAnimationFrame(loop);
 })(globalThis);

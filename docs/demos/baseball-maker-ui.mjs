@@ -16,6 +16,8 @@
   let playing = false, lastPaint = null, revision = 0, timer, camera = 'side', league = 'NPB';
   const previewDisplayDefault = Object.freeze({ zoom: 1, panX: 0, panY: 0 });
   let previewDisplay = { ...previewDisplayDefault };
+  const previewOrbitDefault = Object.freeze({ yawRadians: 0, pitchRadians: 0 });
+  let previewOrbit = { ...previewOrbitDefault };
   const defaultPreviewDisplay = () => previewDisplay.zoom === 1 && previewDisplay.panX === 0 && previewDisplay.panY === 0;
   function previewDisplayPatch(raw, complete = false) {
     if (!raw || typeof raw !== 'object' || Array.isArray(raw)
@@ -702,7 +704,7 @@
   const dot = (a, b) => a.x * b.x + a.y * b.y + a.z * b.z;
   const unit = a => { const n = Math.hypot(a.x, a.y, a.z); return { x: a.x / n, y: a.y / n, z: a.z / n }; };
   const cross = (a, b) => ({ x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x });
-  function projector(selectedCamera = camera, width = canvas.width, height = canvas.height, selectedFit = referenceFit, usePreviewDisplay = false) {
+  function projector(selectedCamera = camera, width = canvas.width, height = canvas.height, selectedFit = referenceFit, usePreviewDisplay = false, usePreviewOrbit = usePreviewDisplay) {
     const views = { side: [{ x: -4.2, y: 1.6, z: .65 }, { x: 0, y: 1, z: .3 }],
       catcher: [{ x: 0, y: 1.8, z: -3.7 }, { x: 0, y: .95, z: .55 }],
       pitcher: [{ x: .15, y: 1.7, z: 5 }, { x: 0, y: 1, z: 0 }],
@@ -711,6 +713,13 @@
     let [eye, target] = views[selectedCamera]; const focal = width * .83;
     if (isReferenceBased() && selectedFit) { const direction = unit(sub(eye, target)), distance = selectedFit.radius * (1 + focal / (Math.min(width, height) * .32));
       target = selectedFit.center; eye = { x: target.x + direction.x * distance, y: target.y + direction.y * distance, z: target.z + direction.z * distance }; }
+    if (usePreviewOrbit && (previewOrbit.yawRadians !== 0 || previewOrbit.pitchRadians !== 0)) {
+      const offset = sub(eye, target), distance = Math.hypot(offset.x, offset.y, offset.z),
+        yaw = Math.atan2(offset.x, offset.z) + previewOrbit.yawRadians,
+        pitch = Math.max(-Math.PI / 2 + .01, Math.min(Math.PI / 2 - .01, Math.asin(offset.y / distance) + previewOrbit.pitchRadians));
+      eye = { x: target.x + distance * Math.cos(pitch) * Math.sin(yaw), y: target.y + distance * Math.sin(pitch),
+        z: target.z + distance * Math.cos(pitch) * Math.cos(yaw) };
+    }
     const forward = unit(sub(target, eye)), right = unit(cross(forward, { x: 0, y: 1, z: 0 })), up = cross(right, forward);
     const project = p => { if (!vec(p)) return null; const rel = sub(p, eye), depth = dot(rel, forward); if (depth <= .04) return null;
       const projected = { x: width / 2 + dot(rel, right) * focal / depth,
@@ -730,9 +739,22 @@
     previewDisplay = { ...previewDisplay, ...previewDisplayPatch(patch) };
     refreshPreviewDisplayControls(); draw(); return clone(previewDisplay);
   }
+  function setPreviewOrbit(patch) {
+    if (!patch || typeof patch !== 'object' || Array.isArray(patch)
+      || ![Object.prototype, null].includes(Object.getPrototypeOf(patch))) throw Error('バットを見る角度は数値で指定してください。');
+    const next = { ...previewOrbit };
+    for (const key of Reflect.ownKeys(patch)) {
+      const descriptor = Object.getOwnPropertyDescriptor(patch, key), limit = key === 'yawRadians' ? Math.PI : Math.PI / 2;
+      if (!Object.hasOwn(previewOrbitDefault, key) || !Object.hasOwn(descriptor, 'value')
+        || !numeric(descriptor.value) || Math.abs(descriptor.value) > limit) throw Error('バットを見る角度が範囲外です。');
+      next[key] = descriptor.value;
+    }
+    previewOrbit = next; draw(); return clone(previewOrbit);
+  }
+  function resetPreviewDisplay() { previewOrbit = { ...previewOrbitDefault }; return setPreviewDisplay(previewDisplayDefault); }
   function centerPreviewOnBat() {
     const frame = sceneFrame(), middle = frame?.grip && frame?.tip ? mix(frame.grip, frame.tip, .5) : null,
-      projected = middle ? projector()(middle) : null;
+      projected = middle ? projector(camera, canvas.width, canvas.height, referenceFit, false, true)(middle) : null;
     return setPreviewDisplay(projected ? { panX: -(projected.x / canvas.width - .5) * previewDisplay.zoom,
       panY: -(projected.y / canvas.height - .5) * previewDisplay.zoom } : { panX: 0, panY: 0 });
   }
@@ -744,10 +766,10 @@
       + '<input id="preview-zoom" type="range" min="0.25" max="12" step="0.05" value="1" aria-label="黒い画面の拡大率" data-help-label="黒い画面の拡大率" data-help="黒い画面だけを0.25〜12倍に拡大・縮小します。球やバットの物理上の大きさ、計算結果は変わりません。ドラッグで見たい場所へ動かせます。">'
       + '<button id="preview-zoom-in" type="button" aria-label="黒い画面を拡大">＋</button>'
       + '<button id="preview-zoom-center" type="button" data-help="今のバットを黒い画面の中央へ移します。拡大率と元の位置・時刻は変わりません。">バットを中央へ</button>'
-      + '<button id="preview-zoom-reset" type="button" data-help="黒い画面の拡大率と移動量を初期値へ戻し、元の全体表示に戻します。">全体表示へ戻す</button>';
+      + '<button id="preview-zoom-reset" type="button" data-help="黒い画面の角度・拡大率・移動量を初期値へ戻します。選手やバットの道筋は変更しません。">角度と全体表示を戻す</button>';
     canvas.closest('.stage').after(controls);
     const note = document.createElement('p'); note.className = 'note'; note.id = 'maker-preview-display-note';
-    note.textContent = '黒い画面はドラッグで移動、ホイールで拡大できます。タッチでは2本指で拡大・縮小できます。'; controls.after(note);
+    note.textContent = '黒い画面は右ボタンでドラッグするとバットを回り込んで見られます。左ドラッグは移動、ホイールは拡大。タッチでは2本指で拡大・縮小できます。'; controls.after(note);
     const clampZoom = value => Math.max(.25, Math.min(12, value)), clampPan = value => Math.max(-10, Math.min(10, value));
     const anchoredZoom = (zoom, pointer) => { const rect = canvas.getBoundingClientRect(), x = (pointer.x - rect.left) / rect.width - .5,
       y = (pointer.y - rect.top) / rect.height - .5, ratio = zoom / previewDisplay.zoom;
@@ -757,18 +779,31 @@
     $('preview-zoom-in').onclick = () => setPreviewDisplay({ zoom: clampZoom(previewDisplay.zoom * 1.25) });
     $('preview-zoom-out').onclick = () => setPreviewDisplay({ zoom: clampZoom(previewDisplay.zoom / 1.25) });
     $('preview-zoom-center').onclick = centerPreviewOnBat;
-    $('preview-zoom-reset').onclick = () => setPreviewDisplay(previewDisplayDefault);
+    $('preview-zoom-reset').onclick = resetPreviewDisplay;
+    canvas.addEventListener('contextmenu', event => event.preventDefault());
     canvas.style.touchAction = 'none'; canvas.style.cursor = 'grab';
     canvas.addEventListener('wheel', event => { event.preventDefault(); const units = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? 300 : 1;
       anchoredZoom(clampZoom(previewDisplay.zoom * Math.exp(-event.deltaY * units * .0015)), { x: event.clientX, y: event.clientY }); }, { passive: false });
-    const pointers = new Map(); let gesture = null;
+    const pointers = new Map(); let gesture = null, orbitDrag = null;
     const begin = () => { const points = [...pointers.values()].slice(0, 2); gesture = points.length ? { points, display: { ...previewDisplay } } : null; };
     canvas.addEventListener('pointerdown', event => {
+      if (event.button === 2) {
+        if (pointers.size || orbitDrag) return; event.preventDefault();
+        orbitDrag = { id: event.pointerId, x: event.clientX, y: event.clientY, orbit: { ...previewOrbit } };
+        try { canvas.setPointerCapture(event.pointerId); } catch { /* Synthetic test events have no native capture. */ }
+        canvas.style.cursor = 'move'; return;
+      }
+      if (orbitDrag) return;
       if (event.button !== 0) return; event.preventDefault(); pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
       try { canvas.setPointerCapture(event.pointerId); } catch { /* Synthetic test events have no native capture. */ }
       canvas.style.cursor = 'grabbing'; begin();
     });
     canvas.addEventListener('pointermove', event => {
+      if (orbitDrag?.id === event.pointerId) {
+        event.preventDefault(); const rect = canvas.getBoundingClientRect();
+        setPreviewOrbit({ yawRadians: Math.max(-Math.PI, Math.min(Math.PI, orbitDrag.orbit.yawRadians + (event.clientX - orbitDrag.x) / rect.width * 2 * Math.PI)),
+          pitchRadians: Math.max(-Math.PI / 2, Math.min(Math.PI / 2, orbitDrag.orbit.pitchRadians + (event.clientY - orbitDrag.y) / rect.height * Math.PI)) }); return;
+      }
       if (!pointers.has(event.pointerId) || !gesture) return; event.preventDefault();
       pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
       const points = [...pointers.values()].slice(0, 2), rect = canvas.getBoundingClientRect();
@@ -786,7 +821,7 @@
           panY: clampPan((next.y - rect.top) / rect.height - .5 - ((old.y - rect.top) / rect.height - .5 - gesture.display.panY) * ratio) });
       }
     });
-    const end = event => { pointers.delete(event.pointerId); begin(); if (!pointers.size) canvas.style.cursor = 'grab'; };
+    const end = event => { if (orbitDrag?.id === event.pointerId) orbitDrag = null; pointers.delete(event.pointerId); begin(); if (!pointers.size && !orbitDrag) canvas.style.cursor = 'grab'; };
     for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) canvas.addEventListener(type, end);
     refreshPreviewDisplayControls(); rootHelp();
   }
@@ -1019,7 +1054,8 @@
     return clone(entry.physical);
   }
   globalThis.baseballMaker = Object.freeze({ getState: state, importState, setPlayerSwing, publicRank, getResult: () => clone(result), getFrame: () => clone(sceneFrame()),
-    getPreviewDisplay: () => clone(previewDisplay), setPreviewDisplay, resetPreviewDisplay: () => setPreviewDisplay(previewDisplayDefault), centerPreviewOnBat,
+    getPreviewDisplay: () => clone(previewDisplay), setPreviewDisplay, resetPreviewDisplay, centerPreviewOnBat,
+    getPreviewOrbit: () => clone(previewOrbit), setPreviewOrbit,
     getPhysicsResult: () => clone(physicsResult()), getReferenceExperimentInput: () => clone(isExperiment() ? experimentInput : null),
     getThreeViews: () => clone(threeViews),
     getProjection: () => clone(projectedBat), getRevision: () => revision, seek: seconds => { time = Math.max(replayStart(), Math.min(duration, seconds)); playing = false; draw(); },

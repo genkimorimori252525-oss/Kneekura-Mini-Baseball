@@ -1,13 +1,17 @@
 ---
-current_task: "MB-20261019-V70-PUBLICATION"
+current_task: "MB-20261019-V71-PACKAGE"
 active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "28b1eb87b63cff296d48eb0eb224249a480c43ed"
+commit_head: "f74ab9a018a56bdce5e64752e5ad25152204e1e7"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V70-PUBLICATION_7aed3f1d3e4b4b19903ebf8f16a227f6.json"
-updated_at: "2026-10-19T13:08:39.186328+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V71-PACKAGE_46fa483e2e4a4d6e9cc54a3be742bdf9.json"
+updated_at: "2026-10-19T13:22:44.340873+00:00"
 
 ---
+
+## Active human priority — v71 bat-preview orbit (SCOPED VERIFIED; PUBLICATION NEXT)
+
+Human corrects rightdragtarget=battrajectorypreview, notmatch; then explicitly retains70batterrightdrag too. Mainblack target-orbit afterfixedfit, zeroexact, centerinorbitedview, oldleftpan/wheel+reset; white3views shared5motionrotatedbounds/independentrightdrag/reset. session-only display, Source/clock/ability/JSON invariant. FINALBUILDe665ef3d; BROWSER04e257e1PASS22.108s1200/390/70defaultmain+3whitepixels exact/realrightdrag/leftpanwheel/resetexact/sharedprojection/SourceFrame+physics+revision+20rosterJSONsame/nooverflowerrorsnet. PACKAGE46fa483ePASS1.561s: HTML768aadd2/35672372bytes/Maker82ee745194/Native115308d8e63unchanged/old191frozenexact/70batterUI-CSS-adapterSHAunchanged. Rootnarrowimagechecked. Next publish maker71+proof existingDraft380. Originalfullplan/FAILUNKNOWN/CharterHOLD/userAGENTS preserved; nowholegoalcomplete, no newTS/9game/realphoneclaim.
 
 ## Active human priority — v70 same-pitch batter view (SCOPED VERIFIED; PUBLISHED)
 
