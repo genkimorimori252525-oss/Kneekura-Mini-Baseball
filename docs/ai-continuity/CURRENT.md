@@ -1,13 +1,17 @@
 ---
-current_task: "MB-20261019-V65-PUBLICATION"
+current_task: "MB-20261019-V66-PACKAGE"
 active_agent: "codex-root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "e9450d3fb7497cd3b9c3ec694875a85157fa584e"
+commit_head: "bd0965b06ee331986db7f8f63e26bd344fce5e13"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V65-PUBLICATION_c9065f4dc48a42ed836f656dcc17d069.json"
-updated_at: "2026-10-19T10:02:22.639487+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V66-PACKAGE_a553dbda68fe4242b037205de534be9d.json"
+updated_at: "2026-10-19T10:15:31.555615+00:00"
 
 ---
+
+## Active human priority — v66 swing-response / runner independence (SCOPED VERIFIED; publication pending)
+
+Humanlikesv59swing+micro but asksrunnerstartvs61audit+fusion, keepmicro. Actual61→63worldrunstartdelta.026–.380ms (Corechanged); same65record61/63/coupling0eyeexact, angularresponse~2deg persists atfirst run. RED63 51c58aaaFAILcarryover. Helper66 basemotorzero-couplingpath + independentobservedbatangularresponse, samebodyeye/clock, quinticsettlethrough+180ms, nofeedback/extraeye/newability/settings. UNITfinal05dbc6e0PASS1.329s18actual/8swingR5L3/early5late1/default.025+max.08/bodyeyeexact/afterthrough+.4andactualrun+.14residual0/impact.032974rad/takebunt/59+61compat/futureseek/Sourcesame. OriginalUNITd858fa94FAILstrict2.5 retainedfullraw: baseitself2.500533 in2intervals; no unrelatedbasemotorfix, final nonregressionaddedovershoot0 andstrictInheritedBaseLimit=false explicitly. BUILDddba5ad5PASS.139s/BROWSER726038c3PASS45.311s1200+390/UI6Sourcebat+oldnewJSONsession/CADENCE328d5c93PASS8.687s/PACKAGEa553dbdaPASS1.344s114Native865078dc+oldv54..65same, restorehelper+edition→v65rawexactallothercode. Normal/lab66 frozen. Maker62/pitcher62/ball65/AI/rules/abilities/Core/bat unchanged. Originalfullplan/FAILUNKNOWN/CharterHOLD/AGENTS untouched. Next: saveGitHubexistingbranch/Draft380 + actualrawpublicationcheck; no mainmerge/no newTSC/9game/100games/realphoneclaim.
 
 ## Active human priority — v65 physical height contrast (SCOPED VERIFIED; PUBLISHED)
 

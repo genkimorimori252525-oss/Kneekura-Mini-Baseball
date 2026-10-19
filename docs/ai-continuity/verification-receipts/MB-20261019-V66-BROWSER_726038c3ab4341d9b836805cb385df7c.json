@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V66-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v66-presentation.mjs",
+    "../../outputs/ばせぼーるlv66_TBD_vs_LAD_スイングと走者視点の分離版.html",
+    "../../outputs/カメラワーク調整室_v66.html",
+    "../../outputs/verification-v66-presentation"
+  ],
+  "observed_at": "2026-10-19T10:12:12.385+00:00",
+  "elapsed_ms": 45311,
+  "git_head": "bd0965b06ee331986db7f8f63e26bd344fce5e13",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V66-BROWSER_726038c3ab4341d9b836805cb385df7c.log",
+  "output_sha256": "086954f8aa715018d3a04611cd62358808655c56a7c0256a50dc3ec4e55799c0",
+  "receipt_id": "MB-20261019-V66-BROWSER_726038c3ab4341d9b836805cb385df7c"
+}

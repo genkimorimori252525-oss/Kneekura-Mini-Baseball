@@ -1,12 +1,18 @@
 # 最新の再開入口 — 2026-10-19
 
-現在は **調整室v65／通常試合v65／共通メーカーv62**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
+現在は **調整室v66／通常試合v66／共通メーカーv62**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
 
-- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v65/README.md)
-- [原因・変更・最終検証・限界](../reports/2026-10-19-v65-overhead-real-perspective.md)
-- [開発史](../history/README.md) / [原因別事例H39](../history/INCIDENTS.md)
+- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v66/README.md)
+- [原因・変更・最終検証・限界](../reports/2026-10-19-v66-swing-running-camera.md)
+- [開発史](../history/README.md) / [原因別事例H40](../history/INCIDENTS.md)
 - [元の全要求・計画・受入条件](2026-10-15-mini-baseball/00-START-HERE.md)
 - [v50の打者カメラ](../reports/2026-10-18-v50-v27-batter-camera.md) / [v49の守備責任・裁定](../reports/2026-10-18-v49-positional-defense.md) / [v47の中継・旋回](../reports/2026-10-18-v47-relay-rounding.md)
+
+## v66の現在地
+
+v61／v63の実走比較と同一打球で、実際の走り出しの大きな遅延は確認されず、微動の角度が打球追尾へ残ることを再現した。v59寄りの視点と微動を残し、微動を基準の視線制御から独立して合成。振り終わり180msで角度と角速度を収束させる。身体・走者の時計と位置、Sourceとバットは不変。調整室の既存強度欄・v65俯瞰倍率・旧JSON／sessionを継承する。
+
+[原因・実検証・原FAIL](../reports/2026-10-19-v66-swing-running-camera.md)。実18投球8スイングで左右／早遅カーブ／強度0.025と0.08／身体位置exact／残留0／見逃し・バント／未来遮断／seekを確認。既存の分数時刻での微小角速度超過2.500533rad/sは原FAILとともに保持し、厳密2.5達成とは主張せず、追加超過0を検証する。通常UI・調整室1200／390px、6球のSource+bat、22／55msと配布raw照合もPASS。元全計画・未達・FAIL／UNKNOWN・Charter HOLDは継続する。
 
 ## v65の現在地
 

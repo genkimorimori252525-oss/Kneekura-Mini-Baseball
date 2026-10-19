@@ -1106,3 +1106,21 @@ Only record verification that was actually performed.
 | MB-20261019-V65-STAGING | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V65-STAGING_a405eed91f7e4165b5a9c1b420ba9597.json |
 | MB-20261019-V65-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V65-PUBLICATION_c9065f4dc48a42ed836f656dcc17d069.json |
 - V65 STAGINGa405eed9 PASS671ms plusfinal42blobs exact; PUBLICATIONc9065f4d PASS3890ms remote/PRhead/DraftOPEN/12rawfiles exact. [receipt](verification-receipts/MB-20261019-V65-PUBLICATION_c9065f4dc48a42ed836f656dcc17d069.json), [raw publication](../verification/releases/v65/publication.json). Metadata closure follows, mainunmerged.
+| MB-20261019-V66-RUNNER-RED | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261019-V66-RUNNER-RED_51c58aaa3b5f455a88b76387e58c4d89.json |
+| MB-20261019-V66-BUILD | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V66-BUILD_ddba5ad51ba54f3faa52901ab44a2229.json |
+| MB-20261019-V66-RUNNER-UNIT | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V66-RUNNER-UNIT_05dbc6e09be94ed09e887948d072e377.json |
+| MB-20261019-V66-CADENCE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V66-CADENCE_328d5c939fb24c1ba7b29b7fc16f8a6f.json |
+| MB-20261019-V66-BROWSER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V66-BROWSER_726038c3ab4341d9b836805cb385df7c.json |
+| MB-20261019-V66-PACKAGE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V66-PACKAGE_a553dbda68fe4242b037205de534be9d.json |
+
+## MB-20261019-V66 — independent swing response / runner tracking
+
+- MB-20261019-V66-BROWSER PASS 45311ms: [receipt](verification-receipts/MB-20261019-V66-BROWSER_726038c3ab4341d9b836805cb385df7c.json); original log/command SHA retained.
+- MB-20261019-V66-BUILD PASS 139ms: [receipt](verification-receipts/MB-20261019-V66-BUILD_ddba5ad51ba54f3faa52901ab44a2229.json); original log/command SHA retained.
+- MB-20261019-V66-CADENCE PASS 8687ms: [receipt](verification-receipts/MB-20261019-V66-CADENCE_328d5c939fb24c1ba7b29b7fc16f8a6f.json); original log/command SHA retained.
+- MB-20261019-V66-PACKAGE PASS 1344ms: [receipt](verification-receipts/MB-20261019-V66-PACKAGE_a553dbda68fe4242b037205de534be9d.json); original log/command SHA retained.
+- MB-20261019-V66-RUNNER-RED FAIL 9273ms: [receipt](verification-receipts/MB-20261019-V66-RUNNER-RED_51c58aaa3b5f455a88b76387e58c4d89.json); original log/command SHA retained.
+- MB-20261019-V66-RUNNER-UNIT PASS 1329ms: [receipt](verification-receipts/MB-20261019-V66-RUNNER-UNIT_05dbc6e09be94ed09e887948d072e377.json); original log/command SHA retained.
+- MB-20261019-V66-RUNNER-UNIT FAIL 1015ms: [receipt](verification-receipts/MB-20261019-V66-RUNNER-UNIT_d858fa94ff264cd290166f95f099b5e9.json); original log/command SHA retained.
+- Actual18/8RL/earlylatecurve/noSourceorbodyeyechange/zeroafterthrough+.4+actualrun+.14/takebunt/futureseek/newUI+JSONsession1200+390/cadencePASS. Existing strict2.5 fieldrateFAIL retained (basealso2.500533); final scoped nonregression adds0overshoot, notstrictlimitPASS. [Report](../reports/2026-10-19-v66-swing-running-camera.md). Originalfullplan/FAILUNKNOWN/CharterHOLD retained.
+| MB-20261019-V66-STAGING | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V66-STAGING_01d1e2d62dce45419a4514452b2f5db0.json |
