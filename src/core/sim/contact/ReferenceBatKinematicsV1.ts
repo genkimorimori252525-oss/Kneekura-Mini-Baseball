@@ -3,6 +3,7 @@ import { cloneInert } from '../../adjudication/OfficialWindowPolicy';
 import type { BatterSwingState } from './BatBallContact';
 import { multiplyQuaternions, normalizeQuaternion, quaternionFromAxisAngle,
   rotateVectorByQuaternion, type Quaternion } from '../pitching/BaseballOrientation';
+import { createImpactAdjustedReferenceMotionV1, type ReferenceImpactTrajectoryV1 } from './ReferenceBatImpactTrajectoryV1';
 
 export type ReferenceBatKinematicsInputV1 = Readonly<{
   provenance: Readonly<{ clipId: string; sourceSha256: string }>;
@@ -10,6 +11,7 @@ export type ReferenceBatKinematicsInputV1 = Readonly<{
   batLengthM: number; sweetSpotT: number; sourceTicksPerSecond: number;
   startTick: number; ticksPerSecond: number; playbackRate: number;
   transform: Readonly<{ rotation: Quaternion; translation: Vec3; scale: number }>;
+  impactTrajectory?: ReferenceImpactTrajectoryV1;
 }>;
 const add = (a: Vec3, b: Vec3): Vec3 => ({x:a.x+b.x,y:a.y+b.y,z:a.z+b.z});
 const sub = (a: Vec3, b: Vec3): Vec3 => ({x:a.x-b.x,y:a.y-b.y,z:a.z-b.z});
@@ -33,7 +35,8 @@ const zero = (): Vec3 => ({x:0,y:0,z:0});
  * not an additional measurement or an exact continuous reconstruction. */
 export const createReferenceBatKinematicsV1 = (raw: ReferenceBatKinematicsInputV1) => {
   const input = cloneInert(raw);
-  if (!fields(input,['provenance','frames','batLengthM','sweetSpotT','sourceTicksPerSecond','startTick','ticksPerSecond','playbackRate','transform'])
+  if (!fields(input,['provenance','frames','batLengthM','sweetSpotT','sourceTicksPerSecond','startTick','ticksPerSecond','playbackRate','transform',
+      ...(Object.hasOwn(input, 'impactTrajectory') ? ['impactTrajectory'] : [])])
     || !fields(input.provenance,['clipId','sourceSha256']) || !input.provenance.clipId?.trim()
     || !/^[0-9a-f]{64}$/.test(input.provenance.sourceSha256)
     || !Array.isArray(input.frames) || input.frames.length < 2 || input.frames.length > 10_000
@@ -109,10 +112,10 @@ export const createReferenceBatKinematicsV1 = (raw: ReferenceBatKinematicsInputV
     return sampleCoordinate(sourceTick,atTick,side);
   };
   const sample=(atTick:number)=>{if(!tick(atTick))throw new Error('invalid reference bat observation tick');return sampleContinuous(atTick);};
-  return Object.freeze({authority:'SAMPLED_RIGID_REFERENCE_RESEARCH' as const,nativeAdmission:false as const,officialResult:null,
+  return createImpactAdjustedReferenceMotionV1(input, Object.freeze({authority:'SAMPLED_RIGID_REFERENCE_RESEARCH' as const,nativeAdmission:false as const,officialResult:null,
     provenance:Object.freeze({...input.provenance}),batLengthM:length,sweetSpotT:input.sweetSpotT,
     maximumSweetSpotSpeedUpperBoundMps:Math.max(...segments.map(s=>s.speedBound)),
     maximumSweetSpotSpeedMps:Math.max(...segments.map(s=>s.maximumSweetSpeed)),
     maximumGripSpeedMps:Math.max(...segments.map(s=>magnitude(s.velocity)*speedScale)),
-    maximumAngularSpeedRadPerSecond:Math.max(...segments.map(s=>magnitude(s.omega)*input.playbackRate)),sample,sampleContinuous,sampleAtSourceTick});
+    maximumAngularSpeedRadPerSecond:Math.max(...segments.map(s=>magnitude(s.omega)*input.playbackRate)),sample,sampleContinuous,sampleAtSourceTick}));
 };

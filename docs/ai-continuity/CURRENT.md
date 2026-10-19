@@ -1,13 +1,21 @@
 ---
-current_task: "MB-20261019-V66-PUBLICATION"
-active_agent: "codex-root"
+current_task: "MB-20261019-V68-PACKAGE-FINAL"
+active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "b687c2a85341231e2546bb5370d55fbc7c794f46"
+commit_head: "652aa75ccb24df723c2d413e5dc37e7395dc8679"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V66-PUBLICATION_0fe429b915ad44faa8ffc63a2ad2d60a.json"
-updated_at: "2026-10-19T10:17:49.421568+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V68-PACKAGE-FINAL_c35356768d3e44d7ba7dd6497148bdd9.json"
+updated_at: "2026-10-19T11:03:18.363614+00:00"
 
 ---
+
+## Active human priority — v68 full measured-form/impact trajectory maker (SCOPED VERIFIED; publication pending)
+
+Latesthuman corrects65meaning: literalairdiameter factor2, notperspective-delta2; thenperplayerformselection+impactonlytrajectory1..4+compare+JSON+brightmaker+GS. Humanansweredoption1 FULL673candidatevalidation+normalconnection, keep20defaults; asksplainwords+1000mshoverdetails/touchhelp. Plan docs/design/2026-10-19-impact-trajectory-maker-plan.md explicitlyapprovedinchat. GS canonical09 ref63ccf99e hasG0–19/F20–39/E40–49/D50–59/C60–69/B70–79/A80–89/S90–100; visionabsolute1–100 retained.
+
+Phase67 COMPLETEoldCore865, localcommit652aa75ccb24df723c2d413e5dc37e7395dc8679: literal groundDisplay*physicalRatio*factor, default2, groundunchanged, oneballdiameterC2groundblend; >.1098my including2m fullfactor. Factor1v66pixels exact5cam×3scene, 6Sourcebat2f939a68exact, othercam/heldhidden, oldmissingJSON1, explicitnewmeaning; BUILD b470a587/CADENCE98d5e0b1/BROWSER312fa5d9PASS83s1200+390each61probes/PACKAGEdf60d422PASS8.671s. FirstPACKAGEdbaec5a8FAILwrongproofpath retained/correctedno productchange. Frozen67HTML normalafa1fcf3/lab82372ba2, originalSource114atcommit. Now oldSourcefilesmaychangerequested68.
+
+v68 implemented/tested/frozen. Full673/92201keys originalCSV469377rows exact; decoder220b935d/jsonb53a8d68; old12auto/order preserved. Source-clock optionalimpact levels1..4 angles[-10,0,10,20],before.1/after.06 C2rigidcontactpivot/sharedcollision+draw/speedcap; oldomitted/zeroexact. Core82tests85d47d6f then13guard319c878c; finalHostcatalog10PASS1SKIP415c374a/all673×4; finalTSCbea747f2. Hostcatalog1000clips/150000frames, ordinary100000guard unchanged; eachpitch sidelegacy6/explicit1; importunknown/side/window atomic. Final Native308d8e63/115inputs, maker429dea36/81inputs. BrowserFINALce1ac8d6PASS130.672s actualnormal320p/127contact/9top3outs/A18H34,6initialv67Source+bat+call exact/new661form+level3/importrefusals/sessionnew+oldCore reject/PC390/errorsnet0. Makerfinale1fadaeaPASS16.702s1200+390/initial20exact/hand673/560Corematches/allGS/vision90allleagues/help/realJSONdownload-reload/invalidrollback/pixels+nooverflow+errorsnet0. Helpb3f7dde1PASS6.233s47fields/495optionlabels/1000ms/touch. CADENCEa03366b5PASS14.718s. PACKAGEc3535676PASS8.469s3exactHTML+embeddedgame/121sourceunion/176oldfrozenfiles/<100MB. HTMLnormal8b709ab3/labe9f607f4/makered10241a. FirstPACKAGEa604d160FAIL templateSHA meantCSSmodifiedtemplate; buildermetadata nowseparatessource/renderedSHA, rebuildc78c0176 HTMLunchangedexact. RawallFAIL preserved (marker/sourcepin/fixtureoverlap/testnativechange), descriptionsinproofREADME. No unresolvedscopeproductblocker. Rootindependentreadreview+PC390png checked. STAGING168e30a8PASS4.139s allowlistedrawblobs/credentialpatterns0/nonlogwhitespace/AGENTSexcluded. Next allowlistedrawstage→commit/pushexistingOpenDraft380→rawGitHubverify; no extraSourcechange/testsrequired. Originalfullplan/FAILUNKNOWN/CharterHOLD and66baserate2.500533 remain; thisisnotwholegoalcomplete. UserAGENTS untouched; no config/lock/deps/secrets/DB/mainmerge.
 
 ## Active human priority — v66 swing-response / runner independence (SCOPED VERIFIED; PUBLISHED)
 

@@ -1,0 +1,11 @@
+{
+  "pass": false,
+  "phase": "load",
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v68.html",
+  "smokeOnly": true,
+  "views": [],
+  "faults": [],
+  "scope": "Actual maker UI / measured form selection / shared Core preview / saved player settings. Game integration is separately verified.",
+  "sha256": "a21c90574277505b17e58e4c754c8804285464814d57d3f989b168c177ef9730",
+  "error": "AssertionError [ERR_ASSERTION]: input pin src/integration/browser/LiveBaseballMatchV1.ts\n+ actual - expected\n\n+ '67ad5811850aa8264f9e24914df984b6b968b7705bb41401c7fc66fe219b1fef'\n- '526c5d6d40880b60d844c3218001f39d6a6023af10fcf7372fdef56502192196'\n\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-maker-v68.mjs:34:72"
+}

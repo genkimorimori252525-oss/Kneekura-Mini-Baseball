@@ -12,6 +12,7 @@ import { reducePlayableMatchV1, type PlayableMatchRuleResultV1 } from './Playabl
 import { simulateLivePitchV1, type LiveMeasuredClipV1 } from './LivePitchV1';
 import type { LivePhysicalAbilityControlsV1 } from './LivePhysicalRosterV1';
 import { resolveLiveTraitPreferencesV54, validateLiveTraitProfileV1, type LiveTraitProfileV1 } from './LiveTraitProfilesV1';
+import { validateImpactTrajectorySettingsV1 } from '../../core/sim/contact/ReferenceBatImpactTrajectoryV1';
 
 export type LivePositionV1 = 'P'|'C'|'1B'|'2B'|'3B'|'SS'|'LF'|'CF'|'RF';
 export type LivePlayerPhysicalV1 = LivePhysicalAbilityControlsV1 & Readonly<{
@@ -69,6 +70,32 @@ export const LIVE_MATCH_PHYSICS_V1:AeroGroundBallPhysicsV1=Object.freeze({kind:'
     material:Object.freeze({restitution:.48,slidingFriction:.24,rollingDecelerationMps2:.36,normalSpinDecayPerSecond:.18})})});
 const frozen=<T>(v:T):T=>{if(v&&typeof v==='object'&&!Object.isFrozen(v)){Object.values(v).forEach(frozen);Object.freeze(v);}return v;};
 function assert(v:unknown,m:string):asserts v{if(!v)throw new Error('live baseball match: '+m);}
+/** A catalog is a bounded collection of independently inert measured clips.
+ * Do not relax cloneInert's ordinary 100,000-node input boundary or copy all
+ * 673 clips into every pitch. Descriptor reads reject getters before access. */
+function cloneMatchInputWithMeasuredCatalogV68(raw:LiveMatchInputV1):LiveMatchInputV1{
+  assert(raw&&typeof raw==='object'&&!Array.isArray(raw)&&(Object.getPrototypeOf(raw)===Object.prototype||Object.getPrototypeOf(raw)===null),'inert match input required');
+  const descriptors=Object.getOwnPropertyDescriptors(raw),catalogDescriptor=descriptors.measuredClips,other={};
+  assert(catalogDescriptor&&catalogDescriptor.enumerable&&'value' in catalogDescriptor,'inert measured clip catalog required');
+  for(const key of Reflect.ownKeys(raw))if(key!=='measuredClips')Object.defineProperty(other,key,Object.getOwnPropertyDescriptor(raw,key)!);
+  const rest=cloneInert(other) as Omit<LiveMatchInputV1,'measuredClips'>,catalog=catalogDescriptor.value as unknown[];
+  assert(Array.isArray(catalog)&&catalog.length>0&&catalog.length<=1000&&Reflect.ownKeys(catalog).length===catalog.length+1,'bounded dense measured catalog required');
+  const measuredClips:LiveMeasuredClipV1[]=[];let totalFrames=0;
+  for(let i=0;i<catalog.length;i++){
+    const descriptor=Object.getOwnPropertyDescriptor(catalog,String(i));
+    assert(descriptor&&descriptor.enumerable&&'value' in descriptor,'inert measured catalog entries required');
+    const clip=cloneInert(descriptor.value) as LiveMeasuredClipV1;
+    assert(clip&&typeof clip==='object'&&typeof clip.id==='string'&&clip.id.startsWith('obp-')&&['R','L'].includes(clip.side)
+      &&clip.source?.repository==='https://github.com/drivelineresearch/openbiomechanics'&&/^[a-f0-9]{64}$/.test(clip.source.sha256)
+      &&Number.isFinite(clip.contactTimeSeconds)&&Array.isArray(clip.frames)&&clip.frames.length>=2&&clip.frames.length<=1000
+      &&(clip.defaultSelection===undefined||typeof clip.defaultSelection==='boolean'),'invalid measured catalog clip');
+    totalFrames+=clip.frames.length;assert(totalFrames<=150000,'measured catalog frame budget exceeded');
+    assert(clip.frames.every((f,j)=>Number.isSafeInteger(f.tick)&&f.tick>=0&&(!j||f.tick>clip.frames[j-1].tick)),'invalid measured catalog clock');
+    measuredClips.push(clip);
+  }
+  assert(new Set(measuredClips.map(c=>c.id)).size===measuredClips.length,'duplicate measured clip identity');
+  return {...rest,measuredClips};
+}
 function physical(player:LivePlayerV1):LivePlayerPhysicalV1{
   const p=player.physical??LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1;
   assert(p.basis==='EXPLICIT_AUTHORED_SI_V1','unknown player SI basis');
@@ -91,6 +118,7 @@ function physical(player:LivePlayerV1):LivePlayerPhysicalV1{
     'invalid baserunning turn radius SI');
   assert(p.baserunningLateralAccelerationMps2===undefined||Number.isFinite(p.baserunningLateralAccelerationMps2)&&p.baserunningLateralAccelerationMps2>=.5&&p.baserunningLateralAccelerationMps2<=20,
     'invalid baserunning lateral acceleration SI');
+  if(p.impactTrajectory!==undefined)validateImpactTrajectorySettingsV1(p.impactTrajectory);
   return p;
 }
 
@@ -98,7 +126,7 @@ function physical(player:LivePlayerV1):LivePlayerPhysicalV1{
  * consuming a finite recording or delegating results to the former HTML game.
  * This is a separate local match, not authenticated Native SQLite history. */
 export function createLiveBaseballMatchV1(raw:LiveMatchInputV1){
-  const input=cloneInert(raw),innings=input.innings??9,tps=LIVE_MATCH_PHYSICS_V1.air.ticksPerSecond;
+  const input=cloneMatchInputWithMeasuredCatalogV68(raw),innings=input.innings??9,tps=LIVE_MATCH_PHYSICS_V1.air.ticksPerSecond;
   assert(Number.isSafeInteger(input.seed)&&Number.isSafeInteger(innings)&&innings>0,'invalid seed/innings');
   assert(input.teams.length===2&&new Set(input.teams.map(t=>t.id)).size===2,'two unique teams required');
   const players=new Map(input.players.map(p=>[p.playerId,p]));
@@ -111,6 +139,14 @@ export function createLiveBaseballMatchV1(raw:LiveMatchInputV1){
       &&t.defense.P===t.pitcherId,'complete defense required');
   });
   assert(input.measuredClips.length>0,'OpenBiomechanics measured bat clips required');
+  for(const player of input.players){const p=physical(player);
+    assert(p.clipId===undefined||typeof p.clipId==='string'&&p.clipId.length>0,'invalid explicit measured clip identity');
+    const candidates=input.measuredClips.filter(clip=>clip.side===player.bats&&(p.clipId===undefined?clip.defaultSelection!==false:clip.id===p.clipId));
+    assert(candidates.length>0,'unknown measured clip or wrong batting side for '+player.playerId);
+    if(p.impactTrajectory!==undefined){const s=p.impactTrajectory;
+      assert(candidates.every(clip=>clip.contactTimeSeconds*1e6-s.beforeSeconds*1e6>=clip.frames[0].tick
+        &&clip.contactTimeSeconds*1e6+s.afterSeconds*1e6<=clip.frames.at(-1)!.tick),'impact adjustment window exceeds measured form for '+player.playerId);}
+  }
   const park=input.park??{fenceRadiusMeters:110,fenceHeightMeters:3};
   assert(Number.isFinite(park.fenceRadiusMeters)&&park.fenceRadiusMeters>baseSide*2&&Number.isFinite(park.fenceHeightMeters)&&park.fenceHeightMeters>=0,'invalid park geometry');
   const fence=deriveLiveFieldFenceGeometryV1({bases:LIVE_MATCH_BASES_V1,...park}),fenceGeometry=frozen({
@@ -154,7 +190,8 @@ export function createLiveBaseballMatchV1(raw:LiveMatchInputV1){
       runningMargin=(p:LivePlayerPhysicalV1)=>Math.max(0,Math.min(3,(p.baserunningSafetyMarginSeconds??.35)+runningMarginAdjustment));
     const pitch=simulateLivePitchV1({originTick:nextTick,seed:(input.seed+Math.imul(pitchCount+1,0x9e3779b9))>>>0,
       batter:{...bp,heightMeters:batter.heightMeters,bats:batter.bats},pitcher:{...pp,heightMeters:pitcher.heightMeters,moundPosition:LIVE_MATCH_MOUND_SURFACE_V1,...(pitcher.throws===undefined?{}:{throws:pitcher.throws}),
-        pitchApproach:pitcherPreference.pitchApproach},measuredClips:input.measuredClips,
+        pitchApproach:pitcherPreference.pitchApproach},measuredClips:input.measuredClips.filter(clip=>clip.side===batter.bats
+          &&(bp.clipId===undefined?clip.defaultSelection!==false:clip.id===bp.clipId)),
       catcher:{gloveSpeedMps:cp.gloveSpeedMps,gloveReachMeters:cp.gloveReachMeters,gloveRadiusMeters:cp.gloveRadiusMeters,
         retentionCapacityJ:cp.retentionCapacityJ,captureDissipationPowerW:cp.captureDissipationPowerW,pocketRadiusMeters:.14},
       batting,pitchType:pitchTypeCommand,location:command.managedTeam===1-c.team?command.location:'auto',physics:LIVE_MATCH_PHYSICS_V1});

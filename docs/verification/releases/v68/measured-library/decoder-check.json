@@ -1,0 +1,47 @@
+{
+  "pass": true,
+  "decoderSha256": "220b935db75c7f4ee4406c71dd61e4dcdfb5685da6b3749b7974f4ee83606209",
+  "librarySha256": "b53a8d687f663a5578315120445de1407fb82efec594cde27cc313c1ea5b106a",
+  "libraryBytes": 29835543,
+  "checks": [
+    "673 original windows / 92201 keys / provenance; legacy12 entire runtime JSON and automatic ordering exact; frozen detached output",
+    "Node plain-object and JSON-text entry points agree without freezing caller input",
+    "reject: unknown top field",
+    "reject: nonfinite key",
+    "reject: duplicate key time",
+    "reject: nonunit quaternion",
+    "reject: unit orientation unrelated to bat",
+    "reject: unmeasured authority",
+    "reject: new trial automatic selection",
+    "reject: legacy trial automatic selection removed",
+    "reject: provenance replacement",
+    "reject: missing source row",
+    "reject: sparse source array"
+  ],
+  "browser": [
+    {
+      "viewport": {
+        "width": 1200,
+        "height": 860
+      },
+      "decodedClips": 673,
+      "originalKeys": 92201,
+      "legacyDefaultRuntimeExact": true,
+      "getterReads": 0,
+      "requests": 0,
+      "errors": 0
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "decodedClips": 673,
+      "originalKeys": 92201,
+      "legacyDefaultRuntimeExact": true,
+      "getterReads": 0,
+      "requests": 0,
+      "errors": 0
+    }
+  ]
+}

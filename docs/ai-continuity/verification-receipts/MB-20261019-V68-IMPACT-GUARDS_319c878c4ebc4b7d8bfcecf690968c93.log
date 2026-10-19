@@ -1,0 +1,17 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/contact/ReferenceBatImpactTrajectoryV1.test.ts (6 tests) 133ms
+ ✓ src/integration/browser/ReferenceBattingWorkbench.test.ts (6 tests) 2489ms
+   ✓ uses the same reference state for the visible bat, actual rigid contact, and subsequent Aero/ground ball 736ms
+   ✓ keeps geometric misses and declared input trajectories unchanged 312ms
+   ✓ keeps league labels outside actual impulse and makes unmodelled body/recoil explicit 702ms
+   ✓ shares one adjusted reference between optional maker settings, collision, and every visible bat sample 736ms
+ ✓ src/integration/browser/MeasuredImpactTrajectoryLibraryV1.test.ts (1 test) 6338ms
+   ✓ admits all 673 measured forms and four research levels through the actual shared continuous Core sampler 6337ms
+
+ Test Files  3 passed (3)
+      Tests  13 passed (13)
+   Start at  19:44:18
+   Duration  6.96s (transform 299ms, setup 0ms, collect 648ms, tests 8.96s, environment 0ms, prepare 421ms)
+

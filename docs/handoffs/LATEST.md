@@ -1,12 +1,20 @@
 # 最新の再開入口 — 2026-10-19
 
-現在は **調整室v66／通常試合v66／共通メーカーv62**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
+現在は **通常試合v68／選手メーカーv68／調整室v68**。既存ブランチ `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続。main未マージ。
 
-- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v66/README.md)
-- [原因・変更・最終検証・限界](../reports/2026-10-19-v66-swing-running-camera.md)
-- [開発史](../history/README.md) / [原因別事例H40](../history/INCIDENTS.md)
+- [通常試合HTML・共通メーカー・保存方法](../demos/releases/v68/README.md)
+- [原因・変更・最終検証・限界](../reports/2026-10-19-v68-measured-form-trajectory-maker.md)
+- [開発史](../history/README.md) / [原因別事例H41／H42](../history/INCIDENTS.md)
 - [元の全要求・計画・受入条件](2026-10-15-mini-baseball/00-START-HERE.md)
 - [v50の打者カメラ](../reports/2026-10-18-v50-v27-batter-camera.md) / [v49の守備責任・裁定](../reports/2026-10-18-v49-positional-defense.md) / [v47の中継・旋回](../reports/2026-10-18-v47-relay-rounding.md)
+
+## v68の現在地
+
+実測の打ち方を右495／左178の全673試行から選手別に選び、弾道1〜4のインパクト付近の局所変形を共有Coreへ接続した。元と4段階を同時刻・3方向で比較し、JSONへ保存して通常試合へ読み込む。初期20選手・自動選択12本は維持する。明るいメーカー、正式G〜S、平易な項目名と約1秒の説明／タップ説明を追加。俯瞰は球径そのものへ倍率2を掛けるv67を継承する。
+
+Native115入力308d8e63／Maker81入力429dea36。原CSV全469,377行と673区間、全2692変形、最終型検査、通常HTML320球127接触の9回、同seed旧版6球exact、PC1200／390、メーカー560標本・実JSON保存再読を検証。[証拠と原FAIL](../verification/releases/v68/README.md)。完全な身体モーションや実測の弾道分類ではない。旧Coreの再現sessionは拒否し、設定JSONとは区別する。元全計画、未達、全FAIL／UNKNOWN、既存角速度超過とCharter HOLDは継続する。
+
+以下の過去版の「現在地」は当時の状態であり、最新v68の保証とは区別する。
 
 ## v66の現在地
 

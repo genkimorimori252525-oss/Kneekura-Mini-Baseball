@@ -10,9 +10,11 @@ import { advanceBaseballOrientation, IDENTITY_QUATERNION } from '../../core/sim/
 import { createWorkbenchPlayer, exportWorkbenchPlayerSources, WORKBENCH_TICKS_PER_SECOND, type WorkbenchPlayer } from './WorkbenchPlayer';
 import { createWorkbenchPitchTrajectory } from './WorkbenchPitchTrajectory';
 import type { WorkbenchPitch } from './BattingWorkbench';
+import { withReferenceImpactTrajectoryV1, type ImpactTrajectorySettingsV1 } from '../../core/sim/contact/ReferenceBatImpactTrajectoryV1';
 
 export type ReferenceBattingWorkbenchInput = Readonly<{ player: WorkbenchPlayer; pitch: WorkbenchPitch;
-  referenceTrajectory: ReferenceBatKinematicsInputV1; throughSeconds?: number }>;
+  referenceTrajectory: ReferenceBatKinematicsInputV1; throughSeconds?: number;
+  impactTrajectory?: ImpactTrajectorySettingsV1; impactContactSourceTick?: number }>;
 const add = (a: Vec3,b: Vec3):Vec3=>({x:a.x+b.x,y:a.y+b.y,z:a.z+b.z});
 const scale = (a:Vec3,n:number):Vec3=>({x:a.x*n,y:a.y*n,z:a.z*n});
 const norm = (a:Vec3)=>Math.hypot(a.x,a.y,a.z);
@@ -23,22 +25,26 @@ const cross = (a:Vec3,b:Vec3):Vec3=>({x:a.y*b.z-a.z*b.y,y:a.z*b.x-a.x*b.z,z:a.x*
  * trajectory or outcome is generated. Body reach and recoil are unmodelled;
  * this experiment cannot supply a Native accepted player/motor Source. */
 export const simulateReferenceBattingWorkbench = (raw: ReferenceBattingWorkbenchInput) => {
-  const input=cloneInert(raw), player=createWorkbenchPlayer(input.player), reference=createReferenceBatKinematicsV1(input.referenceTrajectory);
+  const input=cloneInert(raw), player=createWorkbenchPlayer(input.player);
+  if ((input.impactTrajectory===undefined)!==(input.impactContactSourceTick===undefined)) throw new Error('impact adjustment requires settings and measured contact time');
+  const referenceInput=input.impactTrajectory===undefined?input.referenceTrajectory:
+      withReferenceImpactTrajectoryV1(input.referenceTrajectory,input.impactContactSourceTick!,input.impactTrajectory),
+    reference=createReferenceBatKinematicsV1(referenceInput);
   const p=WORKBENCH_TICKS_PER_SECOND, duration=input.throughSeconds??8;
-  if(!Number.isFinite(duration)||duration<1||duration>20||input.referenceTrajectory.ticksPerSecond!==p)
+  if(!Number.isFinite(duration)||duration<1||duration>20||referenceInput.ticksPerSecond!==p)
     throw new Error('invalid reference experiment duration or clock');
   if(Math.abs(reference.batLengthM-player.bat.lengthM)>1e-9||reference.sweetSpotT!==player.bat.sweetSpotT)
     throw new Error('参考バットの長さ・芯と選手の用具が一致しません');
-  if(input.referenceTrajectory.startTick<player.capability.motorLatencyTicks)throw new Error('参考スイング始動が選手の反応時間より早すぎます');
+  if(referenceInput.startTick<player.capability.motorLatencyTicks)throw new Error('参考スイング始動が選手の反応時間より早すぎます');
   if(reference.maximumSweetSpotSpeedMps>player.capability.maximumSweetSpotSpeedMps*(1+1e-10))
     throw new Error('参考軌道の実速度が選手の身体上限を超えます');
-  const frames=input.referenceTrajectory.frames, refEnd=input.referenceTrajectory.startTick
-    +(frames[frames.length-1].tick-frames[0].tick)/input.referenceTrajectory.sourceTicksPerSecond/input.referenceTrajectory.playbackRate*p;
+  const frames=referenceInput.frames, refEnd=referenceInput.startTick
+    +(frames[frames.length-1].tick-frames[0].tick)/referenceInput.sourceTicksPerSecond/referenceInput.playbackRate*p;
   if(refEnd>20*p)throw new Error('reference experiment clip exceeds twenty seconds');
   const sourceValues=exportWorkbenchPlayerSources(player),equipment=sourceValues.equipment;
   const {initial,parameters,flightEnd}=createWorkbenchPitchTrajectory(input.pitch);
   const trajectory = {start:initial,endTick:flightEnd,parameters};
-  const swing = createRigidBatSwingWindowFromSampledV1(input.referenceTrajectory,equipment.batPhysical,{startTick:initial.tick,endTick:flightEnd});
+  const swing = createRigidBatSwingWindowFromSampledV1(referenceInput,equipment.batPhysical,{startTick:initial.tick,endTick:flightEnd});
   const outcome = resolveAerodynamicRigidBatSwing({trajectory,swing,ball:equipment.ball,
     parameterResolver:k=>resolveWoodBatSpeedResponse(NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1,k.normalApproachSpeedMps)});
   const contact = outcome.kind==='contact'?outcome.contact:null, end = contact?.tick??flightEnd;

@@ -4,6 +4,10 @@
   const canvas = $('maker-scene'), context = canvas.getContext('2d');
   const clone = value => JSON.parse(JSON.stringify(value));
   const numeric = value => typeof value === 'number' && Number.isFinite(value);
+  const publicRank = value => !numeric(value) ? '未算出' : value < 0 || value > 100 ? '範囲外'
+    : value >= 90 ? 'S' : value >= 80 ? 'A' : value >= 70 ? 'B' : value >= 60 ? 'C'
+      : value >= 50 ? 'D' : value >= 40 ? 'E' : value >= 20 ? 'F' : 'G';
+
   const get = (object, path) => path.split('.').reduce((value, key) => value?.[key], object);
   const set = (object, path, value) => { const keys = path.split('.'); const key = keys.pop(); const parent = keys.reduce((v, k) => v[k], object); parent[key] = value; };
   const scenarioDefaults = { seed: 20261015, pitch: { speedMps: 40, spinRpm: 2200, spinAxis: 'backspin', courseX: 0, courseY: 1 },
@@ -26,6 +30,16 @@
     const ids = liveCatalog.players.map(p => p.playerId);
     if (packet.entries.length !== ids.length || packet.entries.some(e => !ids.includes(e.playerId) || !e.physical || e.workbenchPlayer))
       throw Error('全選手のphysicalを含む試合用能力JSONを選択してください。単体実験用の選手JSONはこの欄へ適用できません。');
+    for (const entry of packet.entries) {
+      const identity = liveCatalog.players.find(p => p.playerId === entry.playerId);
+      const candidates = referenceData.clips.filter(c => c.side === identity.bats
+        && (entry.physical.clipId ? c.id === entry.physical.clipId : c.defaultSelection !== false));
+      if (!candidates.length) throw Error(identity.name + 'の右打ち・左打ちに合う打ち方を選んでください。');
+      const settings = entry.physical.impactTrajectory;
+      if (settings && candidates.some(c => settings.beforeSeconds > c.contactTimeSeconds - c.frames[0].tick / 1e6 + 1e-12
+        || settings.afterSeconds > c.frames.at(-1).tick / 1e6 - c.contactTimeSeconds + 1e-12))
+        throw Error(identity.name + 'の打ち方には、指定した前後の時間の記録がありません。時間を短くしてください。');
+    }
     if (livePublicReference) core.projectLivePublicAbilitiesV1({ roster: packet, reference: livePublicReference, playerId: liveRosterPlayerId || ids[0] });
     return { packet, proof };
   }
@@ -38,6 +52,7 @@
     $('live-roster-status').textContent = pending.length ? pending.map(p => `${p.playerName} · ${p.label}: ${p.error}`).join('\n')
       : `${livePhysicalRoster.entries.length}選手 · 入力値の形式・範囲を確認しました。通常試合への反映には「試合用能力JSON」を読み込んでください。`;
     $('live-roster-status').classList.toggle('error', pending.length > 0);
+    document.dispatchEvent(new CustomEvent('kneekura:maker-roster-change', { detail: { playerId: liveRosterPlayerId } }));
   }
   function publicProjection() {
     return core.projectLivePublicAbilitiesV1({ roster: livePhysicalRoster, reference: livePublicReference, playerId: liveRosterPlayerId });
@@ -50,7 +65,7 @@
     $('live-public-league-preview').replaceChildren();
     for (const metric of preview.metrics) {
       const item = document.createElement('div'); item.className = 'rating';
-      const value = document.createElement('strong'); value.textContent = numeric(metric.value) ? metric.value.toLocaleString('ja-JP', { maximumFractionDigits: 1 }) : '未算出';
+      const value = document.createElement('strong'); value.textContent = metric.label === '球速' ? (numeric(metric.value) ? metric.value.toLocaleString('ja-JP', { maximumFractionDigits: 1 }) + ' km/h' : '未算出') : publicRank(metric.value);
       item.append(document.createTextNode(metric.basis === 'ABSOLUTE_1_TO_100' ? `${metric.label}（絶対能力）` : `${metric.label}（${metric.sampleCount}人）`), value);
       $('live-public-league-preview').append(item);
     }
@@ -63,6 +78,8 @@
       const displayed = numeric(value) ? Number(value.toPrecision(12)) : value;
       const pending = liveRosterPending.get(liveRosterPlayerId + ':public:' + control.abilityId);
       control.input.value = pending ? pending.raw : displayed;
+      control.grade.textContent = control.abilityId === 'maxSpeedKmh' ? (numeric(displayed) ? displayed + ' km/h' : '未算出') : publicRank(displayed);
+      control.grade.dataset.rank = control.grade.textContent;
       control.input.setCustomValidity(pending?.error ?? '');
       control.rangeNote.textContent = numeric(displayed) && (displayed < ability.min || displayed > ability.max) ? '詳細設定から算出・範囲外' : '';
       control.rangeNote.hidden = control.rangeNote.textContent === '';
@@ -92,7 +109,7 @@
     const panel = $('live-trait-editor'); if (!panel || !livePhysicalRoster) return;
     panel.replaceChildren();
     const heading = document.createElement('h3'); heading.textContent = '得能'; panel.append(heading);
-    const colors = { blue: '#7ecaff', red: '#ff8a8a', green: '#a9e5ad', gold: '#f1cf65' };
+    const colors = { blue: '#2166a5', red: '#a12d36', green: '#27633e', gold: '#805700' };
     const definitions = core.getLiveTraitCatalogV1(), projection = traitProjection(), identity = liveCatalog.players.find(p => p.playerId === liveRosterPlayerId);
     const sectionOf = id => id === 'pitch_approach' ? 'pitcher' : ['bad_ball_hitting', 'plate_aggression', 'swing_mode_preference'].includes(id) ? 'batter' : 'common';
     const notes = {
@@ -197,7 +214,8 @@
           rosterStatus();
         };
         const rangeNote = document.createElement('p'); rangeNote.className = 'note'; rangeNote.dataset.publicRangeNote = ability.id;
-        wrapper.append(label, input, rangeNote); container.append(wrapper); livePublicControls.push({ abilityId: ability.id, input, rangeNote });
+        const grade = document.createElement('output'); grade.className = 'public-grade'; grade.dataset.helpLabel = '能力のランク'; grade.dataset.help = '能力をGからSで表示します。Gは0〜19、Fは20〜39、Eは40〜49、Dは50〜59、Cは60〜69、Bは70〜79、Aは80〜89、Sは90〜100。隣の数値で細かく編集できます。球速はkm/hです。';
+        wrapper.append(label, grade, input, rangeNote); container.append(wrapper); livePublicControls.push({ abilityId: ability.id, input, rangeNote, grade });
       }
     }
     refreshPublicValues();
@@ -266,7 +284,7 @@
   }
   function importLiveRoster(raw) {
     const accepted = validateLiveRoster(raw); livePhysicalRoster = accepted.packet; liveRosterPending.clear();
-    liveRosterRevision = Math.max(liveRosterRevision, Number(livePhysicalRoster.sourceId.match(/:maker-edited-r(\d+)$/)?.[1] ?? 0));
+    liveRosterRevision = Math.max(liveRosterRevision, Number(livePhysicalRoster.sourceId.match(/:(?:maker|swing)-edited-r(\d+)$/)?.[1] ?? 0));
     if (!livePhysicalRoster.entries.some(e => e.playerId === liveRosterPlayerId)) liveRosterPlayerId = liveCatalog.players[0].playerId;
     renderLiveRoster(); clearProblem();
   }
@@ -623,7 +641,7 @@
       if (!values?.available) { $('population-status').textContent = values?.sampleCount ? `${league} · 比較データ ${values.sampleCount}人。評価には異なる実値の選手が2人以上必要です。` : '比較する選手データを読み込んでください。'; return; }
       $('population-status').textContent = `${league} · 比較データ ${values.sampleCount}人`;
       for (const metric of values.metrics) { const item = document.createElement('div'); item.className = 'rating';
-        const strong = document.createElement('strong'); strong.textContent = numeric(metric.rating) ? Math.round(metric.rating) : '—';
+        const strong = document.createElement('strong'); strong.textContent = publicRank(metric.rating);
         item.append(document.createTextNode(metric.label), strong); $('ratings').append(item); }
     } catch (error) { $('population-status').textContent = error.message; }
   }
@@ -881,7 +899,28 @@
     const saved = { ...state(), player: clone(normalized) }, blob = new Blob([JSON.stringify(saved, null, 2) + '\n'], { type: 'application/json' }), url = URL.createObjectURL(blob);
     const a = document.createElement('a'); a.href = url; a.download = 'にーくら選手とバット.json'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); clearProblem();
   } catch (error) { problem(error); } };
-  globalThis.baseballMaker = Object.freeze({ getState: state, importState, getResult: () => clone(result), getFrame: () => clone(sceneFrame()),
+  function setPlayerSwing({ playerId = liveRosterPlayerId, clipId, impactTrajectory } = {}) {
+    assertLiveRosterEdits();
+    const identity = liveCatalog.players.find(p => p.playerId === playerId);
+    if (!identity) throw Error('編集する選手を選んでください。');
+    if (clipId !== undefined && clipId !== null) {
+      const clip = referenceData.clips.find(c => c.id === clipId);
+      if (!clip || clip.side !== identity.bats) throw Error('この選手の右打ち・左打ちに合う打ち方を選んでください。');
+    }
+    const next = clone(livePhysicalRoster), entry = next.entries.find(e => e.playerId === playerId);
+    if (clipId !== undefined) { if (clipId === null) delete entry.physical.clipId; else entry.physical.clipId = clipId; }
+    if (impactTrajectory !== undefined) {
+      if (impactTrajectory === null) delete entry.physical.impactTrajectory;
+      else entry.physical.impactTrajectory = clone(core.validateImpactTrajectorySettingsV1(impactTrajectory));
+    }
+    if (!entry.sourceId.endsWith(':swing-edited')) entry.sourceId += ':swing-edited';
+    const nextRevision = liveRosterRevision + 1;
+    next.sourceId = next.sourceId.replace(/:swing-edited-r\d+$/, '') + ':swing-edited-r' + nextRevision;
+    const accepted = validateLiveRoster(next); livePhysicalRoster = accepted.packet; liveRosterRevision = nextRevision;
+    renderLiveRoster(); clearProblem();
+    return clone(entry.physical);
+  }
+  globalThis.baseballMaker = Object.freeze({ getState: state, importState, setPlayerSwing, publicRank, getResult: () => clone(result), getFrame: () => clone(sceneFrame()),
     getPhysicsResult: () => clone(physicsResult()), getReferenceExperimentInput: () => clone(isExperiment() ? experimentInput : null),
     getThreeViews: () => clone(threeViews),
     getProjection: () => clone(projectedBat), getRevision: () => revision, seek: seconds => { time = Math.max(replayStart(), Math.min(duration, seconds)); playing = false; draw(); },

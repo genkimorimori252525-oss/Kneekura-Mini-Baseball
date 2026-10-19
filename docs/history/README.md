@@ -62,3 +62,5 @@ ID / 観測日 / 対象経路・Source・HTML SHA
 [v60の安定調整と名前レイヤー](../reports/2026-10-19-v60-impact-and-name-controls.md)をH33へ追加。カメラ別の名前回避、DOM/canvasの描画順、調整室へのDOM転記を区別する。v59の初期姿勢が不変であることと自由調整の検証を残す。
 
 [v61の見逃し同期と絶対選球眼](../reports/2026-10-19-v61-take-sync-absolute-vision.md)をH34へ追加。捕球後の目標角分岐と、公開値/判断SI/カメラ実効値の断絶を区別し、旧値の移行と原REDを記録する。
+
+[v67の倍率訂正とv68の実測フォーム・弾道メーカー](../reports/2026-10-19-v68-measured-form-trajectory-maker.md)をH41／H42へ追加。原データ検証、有限カタログの入力境界、共有軌道の物理／描画、説明UIと保存原子性を区別する。

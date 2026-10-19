@@ -2,6 +2,7 @@ import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1, type LivePlayerPhysicalV1, type LivePlayerV1 } from './LiveBaseballMatchV1';
 import { createWorkbenchPlayer, WORKBENCH_TICKS_PER_SECOND, type WorkbenchPlayer } from './WorkbenchPlayer';
 import { validateLiveTraitProfileV1, type LiveTraitProfileV1 } from './LiveTraitProfilesV1';
+import { validateImpactTrajectorySettingsV1, type ImpactTrajectorySettingsV1 } from '../../core/sim/contact/ReferenceBatImpactTrajectoryV1';
 
 /** Explicit numerical controls, not conversions from a trait grade or league.
  * SI/tick authoring remains local input; this adapter grants no Native authority. */
@@ -9,6 +10,8 @@ export type LivePhysicalAbilityControlsV1 = Readonly<{
   maximumPitchSpeedMps?: number; maximumSweetSpotSpeedMps?: number; targetSweetSpotSpeedMps?: number;
   motorLatencySeconds?: number; technicalTimingOffsetSeconds?: number; sweetSpotT?: number;
   attackAngleDegrees?: number; pullAngleDegrees?: number; badBallControl?: number; defensiveDecisionSeconds?: number;
+  /** Optional local measured-bat adjustment; omitted values preserve old paths. */
+  impactTrajectory?: ImpactTrajectorySettingsV1;
   /** Course-estimate uncertainty, independent of willingness to chase/swing. */
   zoneJudgmentStdMeters?: number;
   /** Absolute 1–100 course-reading ability; never a league percentile. */
@@ -42,7 +45,7 @@ const scalarKeys = ['batLengthM', 'batMassKg', 'swingRate', 'timingStdSeconds', 
   'attackAngleDegrees', 'pullAngleDegrees', 'badBallControl', 'defensiveDecisionSeconds', 'preContactSeconds', 'followThroughSeconds', 'contactDepthMeters', 'throwDirectionStdRadians', 'zoneJudgmentStdMeters',
   'baserunningSafetyMarginSeconds', 'fieldingPursuitCostWeight', 'baserunningTurnRadiusMeters', 'baserunningLateralAccelerationMps2', 'plateVision',
   'pitchReleaseHeightMeters', 'pitchReleaseSideMeters', 'pitchReleaseExtensionMeters'] as const;
-const physicalKeys: readonly string[] = ['basis', ...scalarKeys, 'spinRadPerSecond', 'clipId', 'swingDecision'];
+const physicalKeys: readonly string[] = ['basis', ...scalarKeys, 'spinRadPerSecond', 'clipId', 'swingDecision', 'impactTrajectory'];
 const bounds: Partial<Record<typeof scalarKeys[number], readonly [number, number]>> = {
   batLengthM: [.55, 1.2], batMassKg: [.4, 1.8], swingRate: [.3, 3], timingStdSeconds: [0, .08], aimStdMeters: [0, .35],
   chaseMarginMeters: [0, .6], releaseSpeedMps: [15, 85], maximumPitchSpeedMps: [15, 85], commandStdMeters: [0, .6],
@@ -92,6 +95,7 @@ function validatePhysical(raw: unknown): asserts raw is LiveRosterPhysicalV1 {
       && Math.hypot(spin.x as number, spin.y as number, spin.z as number) <= 1200, 'invalid SI spin');
   }
   if (Object.hasOwn(raw, 'clipId')) assert(validText(raw.clipId), 'invalid measured clip identity');
+  if (Object.hasOwn(raw, 'impactTrajectory')) validateImpactTrajectorySettingsV1(raw.impactTrajectory);
   if (Object.hasOwn(raw, 'swingDecision')) {
     fields(raw.swingDecision, ['approach', 'threshold', 'aggressionWeight'], ['approach', 'threshold', 'aggressionWeight'], 'swingDecision');
     assert(['AUTO', 'TAKE', 'SWING'].includes(raw.swingDecision.approach as string)

@@ -2,6 +2,8 @@ import { expect, it } from 'vitest';
 import { defaultWorkbenchPlayer, type WorkbenchPlayer } from './WorkbenchPlayer';
 import { simulateReferenceBattingWorkbench } from './ReferenceBattingWorkbench';
 import { quaternionFromAxisAngle } from '../../core/sim/pitching/BaseballOrientation';
+import { DEFAULT_IMPACT_TRAJECTORY_V1, withReferenceImpactTrajectoryV1 } from '../../core/sim/contact/ReferenceBatImpactTrajectoryV1';
+import { createReferenceBatKinematicsV1 } from '../../core/sim/contact/ReferenceBatKinematicsV1';
 
 const scenario = () => {
   type Mutable<T> = { -readonly [K in keyof T]: T[K] extends object ? Mutable<T[K]> : T[K] };
@@ -42,4 +44,28 @@ it('keeps league labels outside actual impulse and makes unmodelled body/recoil 
   expect(second.contact).toEqual(first.contact);expect(second.flightFrames).toEqual(first.flightFrames);
   expect(first.trajectoryAuthority.afterContact).toBe('PRESCRIBED_REFERENCE_REPLAY_RECOIL_NOT_COUPLED');
   expect(first.bodyConstraintsApplied).toBe(false);
+});
+it('shares one adjusted reference between optional maker settings, collision, and every visible bat sample',()=>{
+  const input=scenario(),settings={...DEFAULT_IMPACT_TRAJECTORY_V1,level:4 as const},contactSourceTick=400_000,
+    optional=simulateReferenceBattingWorkbench({...input,impactTrajectory:settings,impactContactSourceTick:contactSourceTick}),
+    referenceInput=withReferenceImpactTrajectoryV1(input.referenceTrajectory,contactSourceTick,settings),
+    embedded=simulateReferenceBattingWorkbench({...input,referenceTrajectory:referenceInput}),
+    reference=createReferenceBatKinematicsV1(referenceInput);
+  expect(optional).toEqual(embedded);expect(optional.contact).not.toBeNull();
+  for(const frame of optional.batFrames){const s=reference.sample(frame.tick);
+    expect(frame.grip).toEqual(s.state.pose.grip);expect(frame.tip).toEqual(s.state.pose.tip);
+    expect(frame.sweetSpotVelocity).toEqual(s.sweetSpotVelocity);}
+  const c=optional.contact!,pose=reference.sample(c.tick).state.pose,
+    center={x:pose.grip.x+(pose.tip.x-pose.grip.x)*c.segmentT,y:pose.grip.y+(pose.tip.y-pose.grip.y)*c.segmentT,z:pose.grip.z+(pose.tip.z-pose.grip.z)*c.segmentT},
+    surface={x:center.x+c.normal.x*c.localBatRadiusM,y:center.y+c.normal.y*c.localBatRadiusM,z:center.z+c.normal.z*c.localBatRadiusM};
+  expect(surface.x).toBeCloseTo(c.batSurfacePoint.x,12);expect(surface.y).toBeCloseTo(c.batSurfacePoint.y,12);expect(surface.z).toBeCloseTo(c.batSurfacePoint.z,12);
+});
+it('refuses partial maker controls and locally adjusted trajectories above the existing player ceiling',()=>{
+  const input=scenario(),settings={...DEFAULT_IMPACT_TRAJECTORY_V1,level:4 as const};
+  expect(()=>simulateReferenceBattingWorkbench({...input,impactTrajectory:settings})).toThrow(/requires/);
+  const referenceInput=withReferenceImpactTrajectoryV1(input.referenceTrajectory,400_000,settings),
+    original=createReferenceBatKinematicsV1(input.referenceTrajectory),adjusted=createReferenceBatKinematicsV1(referenceInput),
+    limit=(original.maximumSweetSpotSpeedMps+adjusted.maximumSweetSpotSpeedMps)/2;
+  input.player.capability.maximumSweetSpotSpeedMps=limit;input.player.swing.speedMps=limit;
+  expect(()=>simulateReferenceBattingWorkbench({...input,referenceTrajectory:referenceInput})).toThrow(/上限/);
 });

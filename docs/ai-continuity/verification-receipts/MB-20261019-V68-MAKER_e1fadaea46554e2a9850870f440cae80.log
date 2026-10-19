@@ -1,0 +1,9 @@
+▲ [WARNING] "youkaishomecoming:yukari" is not a valid value for the "type" field [package.json]
+
+    ../../../../../../package.json:1:8:
+      1 │ {"type":"youkaishomecoming:yukari","texture":"touhou_little_maid:te...
+        ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The "type" field must be set to either "commonjs" or "module".
+
+{"pass":true,"smokeOnly":false,"sha256":"ed10241a66c31b90a177adc17b7a59150b7c92a60150594b6dddc7cb934ab949","widths":[1200,390],"comparisonSamples":560,"initialPlayers":20,"libraryClips":673}

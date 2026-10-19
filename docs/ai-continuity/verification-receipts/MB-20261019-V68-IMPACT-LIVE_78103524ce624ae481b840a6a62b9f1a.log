@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LiveImpactTrajectoryV1.test.ts (7 tests) 1121ms
+   ✓ leaves legacy automatic clip selection unchanged when expanded clips are opt-in only 536ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  19:38:43
+   Duration  2.23s (transform 432ms, setup 0ms, collect 652ms, tests 1.12s, environment 0ms, prepare 131ms)
+

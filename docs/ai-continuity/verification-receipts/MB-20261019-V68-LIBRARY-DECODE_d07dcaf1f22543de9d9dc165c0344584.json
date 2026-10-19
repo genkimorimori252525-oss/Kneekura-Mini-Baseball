@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V68-LIBRARY-DECODE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-measured-bat-library.mjs"
+  ],
+  "observed_at": "2026-10-19T10:37:43.266+00:00",
+  "elapsed_ms": 12796,
+  "git_head": "652aa75ccb24df723c2d413e5dc37e7395dc8679",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V68-LIBRARY-DECODE_d07dcaf1f22543de9d9dc165c0344584.log",
+  "output_sha256": "0d80241991295e9e62096f6acc5b8780d519e9ed20acb9960b34c90477bfd0e0",
+  "receipt_id": "MB-20261019-V68-LIBRARY-DECODE_d07dcaf1f22543de9d9dc165c0344584"
+}

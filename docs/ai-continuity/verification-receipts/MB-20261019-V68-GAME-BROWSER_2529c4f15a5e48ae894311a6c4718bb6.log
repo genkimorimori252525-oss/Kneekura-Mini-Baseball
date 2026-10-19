@@ -1,0 +1,13 @@
+{"phase":"regulation","sourceCoreSha256":"308d8e63c8c426e524a9f082e8e97b9ff9e127578f3f780855577d76eb30132e"}
+{"phase":"regulation","pitches":30,"inning":1,"elapsedMs":7470}
+{"phase":"regulation","pitches":56,"inning":2,"elapsedMs":13566}
+{"phase":"regulation","pitches":83,"inning":2,"elapsedMs":20149}
+{"phase":"regulation","pitches":109,"inning":2,"elapsedMs":26086}
+{"phase":"regulation","pitches":142,"inning":3,"elapsedMs":32357}
+{"phase":"regulation","pitches":167,"inning":4,"elapsedMs":39540}
+{"phase":"regulation","pitches":198,"inning":5,"elapsedMs":48219}
+{"phase":"regulation","pitches":226,"inning":6,"elapsedMs":51588}
+{"phase":"regulation","pitches":252,"inning":7,"elapsedMs":57171}
+{"phase":"regulation","pitches":280,"inning":8,"elapsedMs":68670}
+{"phase":"regulation","pitches":306,"inning":8,"elapsedMs":75707}
+{"pass":true,"normalSha256":"8b709ab3c69fc8bdc5f9980a8b66912e0b9b86f73c67970cc1bf9b37cfa6ccbc","workbenchSha256":"e9f607f49d101f37e7dc7cb107e5e2f54798f9e3077d1c2e1d54c6dabb591c5e","pitches":320,"contacts":127}
