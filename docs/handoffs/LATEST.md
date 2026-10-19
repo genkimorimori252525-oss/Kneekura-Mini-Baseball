@@ -1,6 +1,6 @@
 # 最新の再開入口 — 2026-10-20
 
-最新の作成・検証済み成果物は **通常試合v77／調整室v77／メーカーv77**。GitHub公開はまだ未実行。既存branch `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続し、mainへマージしない。
+最新の作成・検証済み成果物は **通常試合v77／調整室v77／メーカーv77**。製品`c9371bd`をGitHubへ保存済み。PUBLICATION c2733f14でremote/PR head・3HTML blob/size・raw9一致。既存branch `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続し、mainへマージしない。
 
 - [HTML・独立得能・投手調整の操作](../demos/releases/v77/README.md)
 - [変更・原因・検証・限界](../reports/2026-10-20-v77-independent-traits-and-pitcher-lab.md)

@@ -1,15 +1,15 @@
 ---
-current_task: "MB-20261020-V77-PACKAGE"
+current_task: "MB-20261020-V77-PUBLICATION"
 active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "76c564765f6a6d15fd1a2740a201080e3c534bfe"
-status: "SCOPED_VERIFIED"
+commit_head: "c9371bdd46ce347d6fe19886e234367e0841b468"
+status: "SCOPED_VERIFIED_PUBLISHED"
 evidence_ref: "docs/verification/releases/v77/README.md"
-updated_at: "2026-10-19T19:16:28.622769+00:00"
+updated_at: "2026-10-19T19:20:05.854280+00:00"
 
 ---
 
-## Active human priority — v77 independent traits and pitcher lab (SCOPED VERIFIED; PUBLICATION PENDING)
+## Active human priority — v77 independent traits and pitcher lab (SCOPED VERIFIED; PUBLISHED)
 
 人間が確認案の全範囲を承認。基礎physical/publicと独立profilev2、分かる得能名、新4系統を含む17family、球種別spin/release/motionと投手調整室、maker共通human/AIを通常HTMLへ接続。旧v1APIはexact。旧送球JSONは現在SI維持+独立得能未設定、旧greenは保存baselineを復元して実行時だけ合成。初期20人・673実測打撃clip・従来UI/カメラは維持。仕様とAMENDMENTSを参照。
 
@@ -17,7 +17,7 @@ Core9files110tests cb9ac360、pitcher10files58tests4b257529、最終TSC6c3bfa29 
 
 CCG audit b12725b7は原CHARTER_UNAPPROVED1件でFAIL、旧handoff警告を保持。製品検証とは別。
 
-次は文書と明示allowlistのstage確認後、既存OpenDraft380へcommit/push、実Gitblobとraw公開照合。ユーザーAGENTSは除外。設定/lockfile/secret変更なし。原CharterHOLD/旧FAILBLOCKEDUNKNOWN/元の未完/100試合監査・実機・Native連続world未達を保持。全計画完了とは扱わない。
+STAGING最終420187faと全160blob byte一致/credential0/whitespace0を確認。製品c9371bdd46ce347d6fe19886e234367e0841b468を既存OpenDraft380へpush、PUBLICATIONc2733f14 PASS6.671s：remote/PR head・3HTMLblob/size・raw9一致。後続は検証/公開追記のmetadataだけ。次は人間がv77投手調整と独立得能を使用し、実プレーの具体的な問題と元計画の未完を続ける。ユーザーAGENTSは除外。設定/lockfile/secret変更なし。原CharterHOLD/旧FAILBLOCKEDUNKNOWN/元の未完/100試合監査・実機・Native連続world未達を保持。全計画完了とは扱わない。
 
 ## Active human priority — held-ball base-control audit (EXISTING FEATURE VERIFIED)
 

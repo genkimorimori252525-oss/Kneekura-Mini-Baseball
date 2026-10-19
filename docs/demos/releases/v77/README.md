@@ -16,4 +16,4 @@
 
 [変更・検証・限界](../../../reports/2026-10-20-v77-independent-traits-and-pitcher-lab.md) · [検証索引](../../../verification/releases/v77/README.md) · [元の全計画](../../../handoffs/2026-10-15-mini-baseball/00-START-HERE.md)
 
-GitHub公開はこの記録の作成時点では未実行です。公開コミットと照合結果は後で追記します。
+製品コミット `c9371bdd46ce347d6fe19886e234367e0841b468` を既存Draft PR #380へ保存済み。公開検証c2733f14 PASS：remote/PR head、3HTML Git blob・size、raw9ファイル一致。後続コミットは検証記録と公開追記のみです。

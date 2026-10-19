@@ -73,3 +73,5 @@ CCG auditのFAILは原Charterの独立承認receipt不足（CHARTER_UNAPPROVED�
 STAGING初回bd94644f PASS3.296秒：明示allowlist、全Gitblob raw bytes一致、credential pattern0、whitespace0、ユーザーAGENTS除外。後続の新しい文書を含め、commit前にも再確認する。
 
 最終STAGING420187fa PASS1.703秒。文書の追加後もraw bytes/whitespace/credential検査が通過。
+
+PUBLICATION [c2733f14](../../../ai-continuity/verification-receipts/MB-20261020-V77-PUBLICATION_c2733f14b91c4a6382e3a64bb12f045b.json) PASS6.671秒。製品`c9371bdd46ce347d6fe19886e234367e0841b468`のremote/PR head、3HTML Gitblob/sizeとraw9ファイルを照合。[公開バイト詳細](publication.json)。既存PR380はOpen Draft、mainマージなし。
