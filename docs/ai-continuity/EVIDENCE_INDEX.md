@@ -1215,3 +1215,4 @@ Only record verification that was actually performed.
 | MB-20261019-V71-MAKER-BROWSER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V71-MAKER-BROWSER_04e257e177ec4127930beeb6906d3795.json |
 | MB-20261019-V71-PACKAGE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V71-PACKAGE_46fa483e2e4a4d6e9cc54a3be742bdf9.json |
 | MB-20261019-V71-STAGING | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V71-STAGING_15ce16b64b9f484cbd10d952d8dd6993.json |
+| MB-20261019-V71-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V71-PUBLICATION_5ecc14b090d14419848e397fbb1a30f9.json |
