@@ -109,6 +109,19 @@ describe('public authoring with individual SI profiles', () => {
       .toBeLessThan(32 * Number.EPSILON));
     expect(value(first.roster, id)).toBeCloseTo(start + 2, 10);
   });
+  it.each(['contact', 'power', 'run', 'arm', 'field', 'catching', 'throwingAccuracy', 'control'])
+    ('authors %s above 100 in SI without clipping it and reverses the edit', id => {
+      const before = JSON.stringify(roster), start = value(roster, id), target = 125;
+      expect(projectLivePublicAbilitiesV1(input).abilities.find(a => a.id === id)!.max).toBeNull();
+      const first = editLivePublicAbilityV1({ ...input, abilityId: id, value: target });
+      expect(value(first.roster, id)).toBeCloseTo(target, 10);
+      expect(first.changes.length).toBeGreaterThan(0);
+      expect(first.roster.entries.filter(e => e.playerId !== playerId)).toEqual(roster.entries.filter(e => e.playerId !== playerId));
+      expect(editLivePublicAbilityV1({ ...input, roster: first.roster, abilityId: id, value: value(first.roster, id) }).roster).toEqual(first.roster);
+      const restored = editLivePublicAbilityV1({ ...input, roster: first.roster, abilityId: id, value: start });
+      for (const change of first.changes) expect(read(restored.roster, change.path)).toBeCloseTo(read(roster, change.path), 10);
+      expect(JSON.stringify(roster)).toBe(before);
+    });
   it('keeps distinct defensive profiles instead of assigning one identical SI row to equal public values', () => {
     const first = editLivePublicAbilityV1({ ...input, playerId: '0-b1', abilityId: 'field', value: 80 }).roster;
     const second = editLivePublicAbilityV1({ ...input, playerId: '1-b3', abilityId: 'field', value: 80 }).roster;
@@ -134,7 +147,7 @@ describe('public authoring with individual SI profiles', () => {
   });
   it('rejects invalid edits atomically and does not silently clip an impossible physical request', () => {
     const before = JSON.stringify(roster);
-    for (const n of [-1, 101, NaN, Infinity]) expect(() => editLivePublicAbilityV1({ ...input, abilityId: 'power', value: n })).toThrow();
+    for (const n of [-1, 1000, Number.MAX_VALUE, NaN, Infinity]) expect(() => editLivePublicAbilityV1({ ...input, abilityId: 'power', value: n })).toThrow();
     expect(() => editLivePublicAbilityV1({ ...input, abilityId: 'not-a-control', value: 70 })).toThrow();
     expect(() => editLivePublicAbilityV1({ ...input, playerId: 'missing', abilityId: 'power', value: 70 })).toThrow();
     const impossible = structuredClone(roster);
@@ -142,6 +155,13 @@ describe('public authoring with individual SI profiles', () => {
     selected.aimStdMeters = .35; selected.timingStdSeconds = 0;
     expect(() => editLivePublicAbilityV1({ ...input, roster: impossible, abilityId: 'contact', value: 100 })).toThrow();
     expect(JSON.stringify(roster)).toBe(before);
+  });
+  it('keeps above-100 supplied-cohort preview values without changing SI or the absolute vision scale', () => {
+    const stronger = editLivePublicAbilityV1({ ...input, abilityId: 'power', value: 150 }).roster, before = JSON.stringify(stronger);
+    const preview = previewLivePublicLeagueV1({ ...input, roster: stronger, leagueId: 'MLB' });
+    expect(preview.metrics.find(m => m.id === 'power')!.value).toBeGreaterThan(100);
+    expect(preview.metrics.find(m => m.id === 'vision')).toMatchObject({ value: 96, basis: 'ABSOLUTE_1_TO_100' });
+    expect(JSON.stringify(stronger)).toBe(before);
   });
   it('reprojects detailed SI imports and accepts original v40 packets with omitted sensory error', () => {
     const old = load<LivePhysicalRosterInputV1>('live-game-roster-v1.json'), before = JSON.stringify(old);

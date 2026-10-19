@@ -1,13 +1,19 @@
 ---
-current_task: "MB-20261019-V73-PUBLICATION"
+current_task: "MB-20261020-V74-PACKAGE-FINAL"
 active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "3df8aeb69a69f02b86eb8326abc84ffc5483bfd8"
+commit_head: "6eb26f350b78639ed4d240bbb957ef25a150ef30"
 status: "PASS"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261019-V73-PUBLICATION_8515861bb06b459bbf0ce9fb3884275c.json"
-updated_at: "2026-10-19T14:16:15.713117+00:00"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261020-V74-PACKAGE-FINAL_84346e544cd84917866c1b24d18cd48c.json"
+updated_at: "2026-10-19T15:12:22.900400+00:00"
 
 ---
+
+## Active human priority — v74 equipment, maker-only public overflow and comparison layout (SCOPED VERIFIED; PUBLICATION PENDING)
+
+人間は1.2m超の用具と、メーカーだけ公開能力100超を編集・表示する方針を確認。選球眼1〜100維持。Live長さ.2〜3m/質量.1〜5kg、研究draft旧下限.05kg維持、shared previewに選手長さ/芯を構築時から渡す。group max=null＋既存SI原子検証、league参考100上限解除。通常gameには公開能力表/投影DOM経路なし、Hostは版名/版番号以外exact。元20人/673記録/分類は不変。比較paneだけ全幅次行へ、計算/再生を打者canvasへ近接、tabhidden同期。中間PC幅277pxをroot目視で発見し追加修正、原画像/report保存。
+
+CORE-TEST6bef2926 PASS6files104tests6.266s、TSC63a52c60 PASS27.953s、NativeBUILD7940513f/.422s、GAMEBUILD2331263c/.984s、GAME-BROWSER2a3f11b7 PASS13.438s長さ1.5m/2.2kg実sampleとatomic refusal、DEFAULT-PREFIX-FINAL8dc6c8ec PASS10.812s既存6球全Source/bat/裁定exact。初回未生成checker呼出50f11666FAIL保存。メーカー中間dfab00de PASS12.984s能力125/保存/共有geometry等だが旧幅のため最終版に外挿しない。全幅makerBUILD735c8396 PASS2.421s。最終MAKER2a429a15 PASS12.859s PC比較1160/canvas900＋390/全用具能力JSON、PACKAGE-FINAL84346e54 PASS3.859s122union/旧206凍結物exact。初回PACKAGE5463ae51はcheckerの版期待73残りでFAIL、修正後同製品PASS、原保存。次にGit公開照合を完了する。元全計画/旧FAILUNKNOWN/CharterHOLD/ユーザーAGENTS保持。全目標完了や新9回/100試合/実機校正を主張しない。
 
 ## Active human priority — v73 whole-arc absolute attack angle + swing classification (SCOPED VERIFIED; PUBLISHED)
 

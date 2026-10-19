@@ -5,7 +5,8 @@
   core=root.KneekuraBaseballWorkbench,maker=root.baseballMaker,library=root.KneekuraReferenceBatMotions,
   colors=['#64748b','#1763a6','#18824d','#b05200','#8937a3'],labels=['元の打ち方','弾道1：低め','弾道2：基準','弾道3：高め','弾道4：さらに高め'],
   defaults={level:2,angleDegreesByLevel:[-10,0,10,20],beforeSeconds:.1,afterSeconds:.06},
-  connectedPreview=root.KneekuraPlayerSwingPreviewEnabled===true,wholeArcUI=root.KneekuraWholeArcTrajectoryEnabled===true;
+  connectedPreview=root.KneekuraPlayerSwingPreviewEnabled===true,wholeArcUI=root.KneekuraWholeArcTrajectoryEnabled===true,
+  equipmentPreview=root.KneekuraPlayerEquipmentPreviewEnabled===true;
  if(!maker||!library?.clips?.length||!core?.withReferenceImpactTrajectoryV1)return;
  let current=null,motions=[],clockMs=0,playing=false,lastTime=null,cacheKey='',error=null,refreshing=false;
  const viewSettings=Object.fromEntries(['front','side','top'].map(view=>[view,{yawDegrees:0,pitchDegrees:0}]));
@@ -27,6 +28,7 @@
    ${wholeArcUI?'<label>軌道の変え方<select id="swing-method" data-help="弧全体を傾ける方式は、当たる瞬間の実際の角度を目標にします。従来の方式は、元の角度に差を加えて当たる前後だけを変えます。保存済みの設定は、自分で方式を選ぶまで従来のままです。"><option value="whole-arc-target">弧全体を傾ける・実際の角度を指定</option><option value="local-window-offset">従来：当たる前後だけ・元からの差を指定</option></select></label>':''}
    <label>試合で使う弾道<select id="swing-grade" data-help="1は低め、2は基準、3・4は上向きに振るための試験設定です。実際の打球は投球、当たった場所、タイミング、能力で変わります。必ずゴロやフライになる指定ではありません。"><option value="1">1：低め</option><option value="2">2：元の振り方が基準</option><option value="3">3：高め</option><option value="4">4：さらに高め</option></select></label>
   </div><p id="swing-source-note" class="note"></p>
+  ${equipmentPreview?'<h4>この選手のバット</h4><div class="swing-settings-grid"><label>バットの長さ（m）<input id="swing-bat-length" type="number" step="any" data-help="長さはmで入力します。1mは100cm、1.15mは115cmです。選手作成のバット長と同じ値を保存し、大きい画面と3方向の図に反映します。"><output id="swing-bat-length-cm"></output></label><label>バットの重さ（kg）<input id="swing-bat-mass" type="number" step="any" data-help="重さはkgで入力します。1kgは1000g、0.9kgは900gです。重さだけでは軌道の形は変わりません。打球の比較は、値を変えた後でもう一度計算してください。"><output id="swing-bat-mass-g"></output></label></div><p class="note">長さと芯の位置は、この選手の値で軌道を計算します。重さを変えた効果は、下の打球比較を再計算して確認してください。</p><p id="swing-equipment-status" class="note" role="status"></p>':''}
   ${connectedPreview?'<h4 id="swing-angle-heading">弾道ごとの振り上げ方</h4><p id="swing-angle-note" class="note">プラスは上向き、マイナスは下向き。0度なら元の打ち方です。数値を変えると大きい黒い画面にもすぐ反映します。</p><div class="swing-settings-grid">'+angleFields+'</div><details><summary>当たる前後の時間など</summary>'+(wholeArcUI?'<p id="swing-window-note" class="note"></p>':'')+'<div class="swing-settings-grid">':'<details><summary>弾道ごとの変え方を細かく調整</summary><p class="note">プラスは上向き、マイナスは下向き。0度なら元の打ち方です。</p><div class="swing-settings-grid">'+angleFields}
    <label>当たる前に変える時間（ミリ秒）<input id="swing-before-ms" type="number" min="20" max="300" step="1" data-help="元の打ち方で、当たる何ミリ秒前から道筋を変え始めるかです。100ミリ秒は0.1秒です。振る速さを変えると試合中の時間も変わります。区間の外は元の道筋を保ちます。"></label>
    <label>当たった後に戻す時間（ミリ秒）<input id="swing-after-ms" type="number" min="20" max="77" step="1" data-help="元の打ち方で、当たった後に何ミリ秒かけて元の道筋へ戻すかです。元の記録がある範囲で設定します。振り抜き全体を一律に回す設定ではありません。"></label>
@@ -38,7 +40,7 @@
   <label>当たる瞬間からの時間 <output id="swing-time-label"></output><input id="swing-preview-time" data-help="元の測定で当たった瞬間を0ミリ秒として、前後の同じ時刻を見比べます。負の値は当たる前、正の値は当たった後です。" type="range" min="-300" max="77" step="1" value="0"></label>
   <p class="note">下の3つのバット図は、右ボタンを押しながらドラッグすると、それぞれ別の角度から見られます。図を選んで矢印キーでも向きを変えられます。打ち方や能力は変わりません。</p><button id="swing-preview-reset-views" type="button" data-help="3つのバット図の向きだけを最初の状態へ戻します。再生時間・選手・弾道の設定は変わりません。">3つの図の向きを戻す</button>
   <div class="swing-preview-grid"><figure><figcaption>投手側から見る</figcaption><canvas id="swing-preview-front" width="720" height="360"></canvas></figure><figure><figcaption>横から見る</figcaption><canvas id="swing-preview-side" width="720" height="360"></canvas></figure><figure><figcaption>上から見る</figcaption><canvas id="swing-preview-top" width="720" height="360"></canvas></figure></div>
-  <div id="swing-comparison-values" class="swing-legend"></div><p class="note">比較は元の測定でのバット長・芯の位置・体格・速さを基準にした道筋です。通常試合では選手の用具・体格・速さ・従来の全体角度を反映し、投球へ合わせた位置で振ります。頭や身体のフォームは描きません。</p><p id="swing-editor-status" class="note" aria-live="polite"></p>`;
+  <div id="swing-comparison-values" class="swing-legend"></div><p class="note">${equipmentPreview?'比較は元の手元の動きを保ち、この選手のバット長と芯の位置で計算した軌道です。元フォームの種類分けだけは、測定時のバット長と芯の位置を使います。':'比較は元の測定でのバット長・芯の位置・体格・速さを基準にした道筋です。'}通常試合では選手の用具・体格・速さ・従来の全体角度を反映し、投球へ合わせた位置で振ります。頭や身体のフォームは描きません。</p><p id="swing-editor-status" class="note" aria-live="polite"></p>`;
  let research=null;
  if(connectedPreview){
   $('maker-layout').classList.add('player-swing-connected');
@@ -59,13 +61,35 @@
    entry=maker.getLiveRoster().entries.find(p=>p.playerId===id),settings=entry.physical.impactTrajectory??(wholeArcUI?core.DEFAULT_WHOLE_ARC_TRAJECTORY_V1:defaults),
    clip=library.clips.find(c=>c.id===entry.physical.clipId)??library.clips.find(c=>c.side===identity.bats&&c.defaultSelection!==false);
   if(!clip)throw Error('この選手に合う打ち方を読み込めませんでした。');
-  return {id,identity,entry,settings:clone(settings),clip};
+  return {id,identity,entry,settings:clone(settings),clip,equipment:{batLengthM:entry.physical.batLengthM??clip.normalization.batLengthM,
+   sweetSpotT:entry.physical.sweetSpotT??clip.normalization.sweetSpotT,batMassKg:entry.physical.batMassKg}};
  }
- function makeInput(clip){return {provenance:{clipId:clip.id,sourceSha256:clip.source.sha256},
+ function makeInput(clip,equipment){return {provenance:{clipId:clip.id,sourceSha256:clip.source.sha256},
   frames:clip.frames.map(f=>({tick:f.tick,grip:{...f.grip},orientation:{...f.orientation}})),
-  batLengthM:clip.normalization.batLengthM,sweetSpotT:clip.normalization.sweetSpotT,
+  batLengthM:equipment?.batLengthM??clip.normalization.batLengthM,sweetSpotT:equipment?.sweetSpotT??clip.normalization.sweetSpotT,
   sourceTicksPerSecond:1e6,startTick:0,ticksPerSecond:1e6,playbackRate:1,
   transform:{rotation:{w:1,x:0,y:0,z:0},translation:{x:0,y:0,z:0},scale:1}};}
+ const equipmentControls=[['swing-bat-length','batLengthM','swing-bat-length-cm',100,'cm'],['swing-bat-mass','batMassKg','swing-bat-mass-g',1000,'g']];
+ function refreshEquipmentControls(){if(!equipmentPreview)return;const errors=[];
+  for(const [id,path,output,factor,unit]of equipmentControls){const control=$(id),canonical=$('live-ability-'+path);if(!canonical)continue;
+   for(const attr of ['min','max'])control[attr]=canonical[attr];
+   if(control.value!==canonical.value)control.value=canonical.value;
+   const pending=canonical.validity.customError?canonical.validationMessage:'';control.setCustomValidity(pending);if(pending)errors.push(pending);
+   $(output).textContent=control.value!==''&&Number.isFinite(Number(control.value))?(Number(control.value)*factor).toLocaleString('ja-JP',{maximumFractionDigits:6})+' '+unit:'';
+  }
+  $('swing-equipment-status').textContent=errors.length?'未確定：'+[...new Set(errors)].join(' ／ '):'長さはm、重さはkgで保存します。';
+  $('swing-equipment-status').classList.toggle('error',errors.length>0);
+ }
+ if(equipmentPreview)for(const [id,path,output,factor,unit]of equipmentControls){
+  $(id).addEventListener('input',()=>{const control=$(id),canonical=$('live-ability-'+path),accepted=current.entry.physical[path];
+   if(control.value!==''&&Number.isFinite(Number(control.value))&&Number(control.value)===accepted&&!canonical.validity.customError){$(output).textContent=(accepted*factor).toLocaleString('ja-JP',{maximumFractionDigits:6})+' '+unit;return;}
+   canonical.value=control.value;canonical.dispatchEvent(new Event('input',{bubbles:true}));
+  });
+  $(id).addEventListener('change',()=>{const canonical=$('live-ability-'+path);if(!canonical.validity.customError)return;
+   canonical.value=String(current.entry.physical[path]);canonical.dispatchEvent(new Event('input',{bubbles:true}));
+  });
+ }
+ function motionKey(){return current.clip.id+JSON.stringify(current.settings)+(equipmentPreview?JSON.stringify(current.equipment):'');}
  function formMetadata(clip){
   if(formCache.has(clip.id))return formCache.get(clip.id);
   const velocity=core.createReferenceBatKinematicsV1(makeInput(clip)).sampleAtSourceTick(Math.round(clip.contactTimeSeconds*1e6)).sweetSpotVelocity,
@@ -90,7 +114,7 @@
   $('swing-window-note').textContent=whole?'弧全体を傾ける方式では、当たる前後の時間設定は使いません。':'従来方式では、この時間の範囲だけ軌道を変えます。';
  }
  function buildMotions(){
-  const input=makeInput(current.clip),contactTick=Math.round(current.clip.contactTimeSeconds*1e6),
+  const input=makeInput(current.clip,equipmentPreview?current.equipment:undefined),contactTick=Math.round(current.clip.contactTimeSeconds*1e6),
    sourceTicks=current.clip.frames.map(f=>f.tick),min=current.clip.frames[0].tick,max=sourceTicks.at(-1);
   motions=[core.createReferenceBatKinematicsV1(input),...[1,2,3,4].map(level=>
    core.createReferenceBatKinematicsV1(core.withReferenceImpactTrajectoryV1(input,contactTick,{...current.settings,level})))];
@@ -190,16 +214,16 @@
    sel.value=current.entry.physical.clipId??'';$('swing-enabled').checked=!!current.entry.physical.impactTrajectory;
    $('swing-grade').value=String(current.settings.level);
    for(let i=0;i<4;i++)$('swing-angle-'+(i+1)).value=String(current.settings.angleDegreesByLevel[i]);
-   $('swing-before-ms').value=String(Math.round(current.settings.beforeSeconds*1000));$('swing-after-ms').value=String(Math.round(current.settings.afterSeconds*1000));updateMethodControls();
+   $('swing-before-ms').value=String(Math.round(current.settings.beforeSeconds*1000));$('swing-after-ms').value=String(Math.round(current.settings.afterSeconds*1000));updateMethodControls();refreshEquipmentControls();
    $('swing-source-note').textContent=library.clips.length+'本の記録（元の索引は'+library.index.length+'試行）から、'+current.identity.name+'に合う'+clips.length+'本を選べます。'+(!current.entry.physical.clipId?'比較には代表例を表示しています。':'選んだ打ち方は試合用JSONへ保存されます。')+(wholeArcUI?' 元の角度による種類分けは、探すためのゲーム内の便宜分類です。同じ匿名選手の別の試行も含まれます。':'');
    if(wholeArcUI){const meta=formMetadata(current.clip);$('swing-source-note').textContent+=' 表示中の元フォーム：匿名'+meta.athleteId+'・試行'+meta.trialId+'・元の角度'+angleText(meta.angleDegrees)+'（'+meta.label+'）。原記録の最大バット速度 '+current.clip.metrics.recordedBatSpeedMph+' mph。角度は、この軌道を再生する計算から求めた値です。';}
-   const key=current.clip.id+JSON.stringify(current.settings);
+   const key=motionKey();
    if(key!==cacheKey){buildMotions();cacheKey=key;}
    else for(const field of ['contactTick','pivot','traces','boundsPoints'])current[field]=previous[field];
    error=null;$('swing-editor-status').classList.remove('error');$('swing-editor-status').textContent=current.entry.physical.impactTrajectory?'この選手の弾道設定を保存しています。通常試合では試合用JSONを読み込んで反映します。':wholeArcUI?'この選手の設定はまだ変更していません。色の線で4つの目標角度を比較できます。':'この選手は従来の弾道設定です。色の線で変更例を比較できます。';render();
   }catch(e){error=String(e.message??e);$('swing-editor-status').textContent=error;$('swing-editor-status').classList.add('error');}
   finally{refreshing=false;root.KneekuraMakerHelp?.decorate(panel);}
-  if(connectedPreview&&!error){const next=JSON.stringify({playerId:current.id,clipId:current.clip.id,enabled:!!current.entry.physical.impactTrajectory,settings:current.settings});
+  if(connectedPreview&&!error){const next=JSON.stringify({playerId:current.id,clipId:current.clip.id,enabled:!!current.entry.physical.impactTrajectory,settings:current.settings,...(equipmentPreview?{equipment:current.equipment}:{})});
    if(next!==previewSignature){previewSignature=next;document.dispatchEvent(new CustomEvent('kneekura:swing-preview-source-change'));}}
  }
  function activatePlayerPreview(){if(connectedPreview){research.open=false;if(!maker.getPlayerSwingPreview?.().active)maker.showPlayerSwingPreview?.(true);}}
@@ -237,7 +261,7 @@
  function getPreviewFrames({adjusted=true}={}){if(!current)return [];
   return current.clip.frames.map(frame=>{const sample=chosenMotion(adjusted).sampleAtSourceTick(frame.tick);return {tick:frame.tick,grip:clone(sample.state.pose.grip),tip:clone(sample.state.pose.tip),
    sweetSpot:clone(sample.sweetSpot),orientation:clone(sample.orientation),sweetSpotVelocity:clone(sample.sweetSpotVelocity)};});}
- function getPreviewSource(){return current?{ready:motions.length===5&&cacheKey===current.clip.id+JSON.stringify(current.settings),clip:clone(current.clip),playerId:current.id,identity:clone(current.identity),
+ function getPreviewSource(){return current?{ready:motions.length===5&&cacheKey===motionKey(),clip:clone(current.clip),playerId:current.id,identity:clone(current.identity),...(equipmentPreview?{equipment:clone(current.equipment)}:{}),
   contactTick:current.contactTick,startTick:current.clip.frames[0].tick,endTick:current.clip.frames.at(-1).tick,enabled:!!current.entry.physical.impactTrajectory,
   level:current.settings.level,settings:clone(current.settings)}:{ready:false};}
  function syncClock(sourceTick,isPlaying,speed){if(!current||!Number.isFinite(sourceTick)||typeof isPlaying!=='boolean'||!Number.isFinite(speed)||speed<=0)throw Error('バット図の再生時刻を確認してください。');
@@ -247,7 +271,7 @@
  root.KneekuraSwingMaker=Object.freeze({refresh,seek,setTrajectory:settings=>commit({impactTrajectory:settings}),setClip:clipId=>commit({clipId}),setView,resetViews,
   getPreviewFrames,sampleAtSourceTick,getPreviewSource,getPreviewBounds:()=>current?{points:clone(current.boundsPoints),pivot:clone(current.pivot)}:null,syncClock,getFormCatalog,
   inspect:()=>({ready:!!current&&motions.length===5,error,playerId:current?.id,clipId:current?.clip.id,explicitClipId:current?.entry.physical.clipId??null,
-   settings:current?.settings,enabled:!!current?.entry.physical.impactTrajectory,clockMs,playing,clips:library.clips.length,
+   settings:current?.settings,enabled:!!current?.entry.physical.impactTrajectory,clockMs,playing,clips:library.clips.length,equipment:equipmentPreview&&current?clone(current.equipment):null,
    sourceTick:current?currentSourceTick():null,form:wholeArcUI&&current?clone(formMetadata(current.clip)):null,
    formCounts:wholeArcUI?library.clips.reduce((counts,clip)=>{counts[formMetadata(clip).classification]++;return counts;},{down:0,level:0,upper:0,strong:0}):null,
    views:clone(projectedViews),samples:current?motions.map((m,level)=>({level,...clone(m.sampleAtSourceTick(currentSourceTick()))})):[]})});

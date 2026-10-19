@@ -92,11 +92,11 @@ it('does not invent a reference from one member or zero variance and rejects dup
   expect(() => previewLeagueRatings(player, [member('a', 'NPB', 30), member('a', 'NPB', 40)], 'NPB')).toThrow(/duplicate/);
 });
 
-it('keeps identical physical/authoring inputs while switching preview leagues and clamps only the display', () => {
+it('keeps above-100 authoring previews and identical physical inputs while switching preview leagues', () => {
   const player = defaultWorkbenchPlayer(), before = JSON.stringify(player), sources = exportWorkbenchPlayerSources(player);
   const population = [member('a', 'NPB', 10), member('b', 'NPB', 11), member('c', 'MLB', 80), member('d', 'MLB', 81)];
   const npb = previewLeagueRatings(player, population, 'NPB'), mlb = previewLeagueRatings(player, population, 'MLB');
-  expect(npb.metrics[0].rating).toBe(100); expect(mlb.metrics[0].rating).toBe(0);
+  expect(npb.metrics[0].rating).toBe(1430); expect(mlb.metrics[0].rating).toBe(0);
   expect(JSON.stringify(player)).toBe(before); expect(exportWorkbenchPlayerSources(player)).toEqual(sources);
   expect(npb.metrics[0].actual).toBe(mlb.metrics[0].actual);
 });
@@ -125,4 +125,19 @@ it('derives generic solid-bat inertia from actual length/mass and preserves unsu
   expect(after.equipment.batPhysical.centerOfMassT).toBeCloseTo(before.equipment.batPhysical.centerOfMassT);
   expect(after.authoring.traits.badBallControl).toBe(0.8); expect(after.authoring.swing.handTravelM).toBe(0.3);
   expect(cloneInert(after)).toEqual(after);
+});
+
+it('accepts experimental bat dimensions without narrowing existing workbench inputs', () => {
+  for (const [lengthM, massKg] of [[.2, .05], [3, 5]]) {
+    const value = draft(); Object.assign(value.bat, { lengthM, massKg });
+    const before = structuredClone(value), player = createWorkbenchPlayer(value);
+    expect(player.bat).toMatchObject({ lengthM, massKg }); expect(value).toEqual(before);
+    expect(exportWorkbenchPlayerSources(player).repertoire.profiles[0].profile.batLengthM).toBe(lengthM);
+  }
+  for (const [key, values] of [['lengthM', [0, 3.0001, NaN, Infinity]], ['massKg', [0, 5.0001, NaN, Infinity]]] as const) {
+    for (const number of values) {
+      const value = draft(); value.bat[key] = number; const before = structuredClone(value);
+      expect(() => createWorkbenchPlayer(value)).toThrow(); expect(value).toEqual(before);
+    }
+  }
 });

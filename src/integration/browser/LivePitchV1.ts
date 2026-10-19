@@ -117,7 +117,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   const input=cloneInert(raw),b=input.batter,p=input.pitcher,profile=createAeroGroundBallPhysicsProfile(input.physics),tps=profile.air.ticksPerSecond,
     catcher=input.catcher??{gloveSpeedMps:7,gloveReachMeters:.95,gloveRadiusMeters:.14,retentionCapacityJ:350,captureDissipationPowerW:10000,pocketRadiusMeters:.18};
   assert(Number.isSafeInteger(input.originTick)&&input.originTick>=0&&Number.isSafeInteger(input.seed)&&tps===profile.ground.ticksPerSecond,'invalid original clock or seed');
-  assert(bounded(b.heightMeters,1.1,2.5)&&['R','L'].includes(b.bats)&&bounded(b.batLengthM,.55,1.2)&&bounded(b.batMassKg,.4,1.8)
+  assert(bounded(b.heightMeters,1.1,2.5)&&['R','L'].includes(b.bats)&&bounded(b.batLengthM,.2,3)&&bounded(b.batMassKg,.1,5)
     &&bounded(b.swingRate,.3,3)&&bounded(b.timingStdSeconds,0,.08)&&bounded(b.aimStdMeters,0,.35)&&bounded(b.chaseMarginMeters,0,.6),'invalid batter SI controls');
   assert(bounded(p.releaseSpeedMps,15,85)&&bounded(p.commandStdMeters,0,.6)&&p.spinRadPerSecond&&Object.values(p.spinRadPerSecond).every(Number.isFinite)
     &&norm(p.spinRadPerSecond)<=1200,'invalid pitcher SI controls');

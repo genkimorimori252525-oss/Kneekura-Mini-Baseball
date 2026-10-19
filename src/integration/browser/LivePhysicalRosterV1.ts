@@ -47,7 +47,7 @@ const scalarKeys = ['batLengthM', 'batMassKg', 'swingRate', 'timingStdSeconds', 
   'pitchReleaseHeightMeters', 'pitchReleaseSideMeters', 'pitchReleaseExtensionMeters'] as const;
 const physicalKeys: readonly string[] = ['basis', ...scalarKeys, 'spinRadPerSecond', 'clipId', 'swingDecision', 'impactTrajectory'];
 const bounds: Partial<Record<typeof scalarKeys[number], readonly [number, number]>> = {
-  batLengthM: [.55, 1.2], batMassKg: [.4, 1.8], swingRate: [.3, 3], timingStdSeconds: [0, .08], aimStdMeters: [0, .35],
+  batLengthM: [.2, 3], batMassKg: [.1, 5], swingRate: [.3, 3], timingStdSeconds: [0, .08], aimStdMeters: [0, .35],
   chaseMarginMeters: [0, .6], releaseSpeedMps: [15, 85], maximumPitchSpeedMps: [15, 85], commandStdMeters: [0, .6],
   gloveSpeedMps: [.1, 40], gloveReachMeters: [.4, 3], gloveRadiusMeters: [.03, .3], retentionCapacityJ: [1, 2000],
   captureDissipationPowerW: [10, 1e6], maximumSweetSpotSpeedMps: [.1, 90], targetSweetSpotSpeedMps: [.1, 90],

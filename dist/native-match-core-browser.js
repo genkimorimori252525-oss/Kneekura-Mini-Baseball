@@ -4213,7 +4213,7 @@ var KneekuraNativeMatchCore = (() => {
       "playbackRate",
       "transform",
       ...Object.hasOwn(input, "impactTrajectory") ? ["impactTrajectory"] : []
-    ]) || !fields(input.provenance, ["clipId", "sourceSha256"]) || !input.provenance.clipId?.trim() || !/^[0-9a-f]{64}$/.test(input.provenance.sourceSha256) || !Array.isArray(input.frames) || input.frames.length < 2 || input.frames.length > 1e4 || ![input.batLengthM, input.sweetSpotT, input.sourceTicksPerSecond, input.ticksPerSecond, input.playbackRate].every(Number.isFinite) || input.batLengthM <= 0 || input.batLengthM > 2 || input.sweetSpotT < 0.65 || input.sweetSpotT > 0.9 || !Number.isSafeInteger(input.sourceTicksPerSecond) || input.sourceTicksPerSecond <= 0 || input.sourceTicksPerSecond > 1e9 || !Number.isSafeInteger(input.ticksPerSecond) || input.ticksPerSecond <= 0 || input.ticksPerSecond > 1e9 || input.playbackRate < 0.01 || input.playbackRate > 20 || !tick(input.startTick) || !fields(input.transform, ["rotation", "translation", "scale"]) || !quat(input.transform.rotation) || !vec(input.transform.translation) || !Number.isFinite(input.transform.scale) || input.transform.scale <= 0 || input.transform.scale > 10 || input.frames.some((f, i) => !fields(f, ["tick", "grip", "orientation"]) || !tick(f.tick) || !vec(f.grip) || !quat(f.orientation) || i > 0 && f.tick <= input.frames[i - 1].tick)) throw new Error("invalid sampled reference bat trajectory");
+    ]) || !fields(input.provenance, ["clipId", "sourceSha256"]) || !input.provenance.clipId?.trim() || !/^[0-9a-f]{64}$/.test(input.provenance.sourceSha256) || !Array.isArray(input.frames) || input.frames.length < 2 || input.frames.length > 1e4 || ![input.batLengthM, input.sweetSpotT, input.sourceTicksPerSecond, input.ticksPerSecond, input.playbackRate].every(Number.isFinite) || input.batLengthM <= 0 || input.batLengthM > 3 || input.sweetSpotT < 0.65 || input.sweetSpotT > 0.9 || !Number.isSafeInteger(input.sourceTicksPerSecond) || input.sourceTicksPerSecond <= 0 || input.sourceTicksPerSecond > 1e9 || !Number.isSafeInteger(input.ticksPerSecond) || input.ticksPerSecond <= 0 || input.ticksPerSecond > 1e9 || input.playbackRate < 0.01 || input.playbackRate > 20 || !tick(input.startTick) || !fields(input.transform, ["rotation", "translation", "scale"]) || !quat(input.transform.rotation) || !vec(input.transform.translation) || !Number.isFinite(input.transform.scale) || input.transform.scale <= 0 || input.transform.scale > 10 || input.frames.some((f, i) => !fields(f, ["tick", "grip", "orientation"]) || !tick(f.tick) || !vec(f.grip) || !quat(f.orientation) || i > 0 && f.tick <= input.frames[i - 1].tick)) throw new Error("invalid sampled reference bat trajectory");
     const rotation = normalizeQuaternion(input.transform.rotation), length = input.batLengthM * input.transform.scale;
     const radius = length * input.sweetSpotT, speedScale = input.transform.scale * input.playbackRate;
     const frames = input.frames.map((f) => ({ ...f, orientation: normalizeQuaternion(f.orientation) }));
@@ -13651,7 +13651,7 @@ var KneekuraNativeMatchCore = (() => {
   function simulateLivePitchV1(raw) {
     const input = cloneInert(raw), b = input.batter, p = input.pitcher, profile = createAeroGroundBallPhysicsProfile(input.physics), tps = profile.air.ticksPerSecond, catcher = input.catcher ?? { gloveSpeedMps: 7, gloveReachMeters: 0.95, gloveRadiusMeters: 0.14, retentionCapacityJ: 350, captureDissipationPowerW: 1e4, pocketRadiusMeters: 0.18 };
     assert12(Number.isSafeInteger(input.originTick) && input.originTick >= 0 && Number.isSafeInteger(input.seed) && tps === profile.ground.ticksPerSecond, "invalid original clock or seed");
-    assert12(bounded(b.heightMeters, 1.1, 2.5) && ["R", "L"].includes(b.bats) && bounded(b.batLengthM, 0.55, 1.2) && bounded(b.batMassKg, 0.4, 1.8) && bounded(b.swingRate, 0.3, 3) && bounded(b.timingStdSeconds, 0, 0.08) && bounded(b.aimStdMeters, 0, 0.35) && bounded(b.chaseMarginMeters, 0, 0.6), "invalid batter SI controls");
+    assert12(bounded(b.heightMeters, 1.1, 2.5) && ["R", "L"].includes(b.bats) && bounded(b.batLengthM, 0.2, 3) && bounded(b.batMassKg, 0.1, 5) && bounded(b.swingRate, 0.3, 3) && bounded(b.timingStdSeconds, 0, 0.08) && bounded(b.aimStdMeters, 0, 0.35) && bounded(b.chaseMarginMeters, 0, 0.6), "invalid batter SI controls");
     assert12(bounded(p.releaseSpeedMps, 15, 85) && bounded(p.commandStdMeters, 0, 0.6) && p.spinRadPerSecond && Object.values(p.spinRadPerSecond).every(Number.isFinite) && norm9(p.spinRadPerSecond) <= 1200, "invalid pitcher SI controls");
     assert12((p.maximumPitchSpeedMps === void 0 || bounded(p.maximumPitchSpeedMps, 15, 85)) && (p.throws === void 0 || ["R", "L"].includes(p.throws)), "invalid pitcher limit or throwing side");
     assert12(p.pitchApproach === void 0 || ["FASTBALL", "BALANCED", "BREAKING"].includes(p.pitchApproach), "invalid pitch approach preference");
@@ -14967,8 +14967,8 @@ var KneekuraNativeMatchCore = (() => {
     range2(c.positionErrorMeters, 0, 1, "positionErrorMeters");
     ticks(c.timingErrorTicks, 0, 5e5, "timingErrorTicks");
     fields10(player.bat, ["lengthM", "massKg", "sweetSpotT"], "bat");
-    range2(player.bat.lengthM, 0.2, 1.5, "bat.lengthM");
-    range2(player.bat.massKg, 0.05, 3, "bat.massKg");
+    range2(player.bat.lengthM, 0.2, 3, "bat.lengthM");
+    range2(player.bat.massKg, 0.05, 5, "bat.massKg");
     range2(player.bat.sweetSpotT, 0.65, 0.9, "sweetSpotT (declared barrel reference)");
     fields10(player.swing, [
       "speedMps",
@@ -15049,8 +15049,8 @@ var KneekuraNativeMatchCore = (() => {
   ];
   var physicalKeys = ["basis", ...scalarKeys, "spinRadPerSecond", "clipId", "swingDecision", "impactTrajectory"];
   var bounds = {
-    batLengthM: [0.55, 1.2],
-    batMassKg: [0.4, 1.8],
+    batLengthM: [0.2, 3],
+    batMassKg: [0.1, 5],
     swingRate: [0.3, 3],
     timingStdSeconds: [0, 0.08],
     aimStdMeters: [0, 0.35],
@@ -15370,9 +15370,12 @@ var KneekuraNativeMatchCore = (() => {
       id: spec.id,
       label: spec.label,
       section: spec.section,
+      // Group ratings describe SI, so 100 is a display ceiling in the game, not
+      // an authoring or physical ceiling. null means no separate rating cap;
+      // the existing SI validator still accepts or rejects the whole edit.
       value: abilityValue(entry, anchor, spec),
       min: spec.mode === "pitchSpeed" ? 54 : spec.mode === "absolute" ? 1 : 0,
-      max: spec.mode === "pitchSpeed" ? 306 : 100,
+      max: spec.mode === "pitchSpeed" ? 306 : spec.mode === "absolute" || spec.mode === "percent" ? 100 : null,
       unit: spec.mode === "pitchSpeed" ? "km/h" : "",
       linkedPaths: [...spec.mode === "absolute" ? ["plateVision"] : [], ...spec.components.map((c) => c.path)],
       note: spec.note
@@ -15381,7 +15384,7 @@ var KneekuraNativeMatchCore = (() => {
   function editLivePublicAbilityV1(input) {
     const projection = projectLivePublicAbilitiesV1(input), spec = specs.find((s) => s.id === input.abilityId), old = projection.abilities.find((a) => a.id === input.abilityId);
     assert16(spec && old && Number.isFinite(input.value), "invalid public ability value");
-    assert16(input.value === old.value || input.value >= old.min && input.value <= old.max, "invalid public ability value");
+    assert16(input.value === old.value || input.value >= old.min && (old.max === null || input.value <= old.max), "invalid public ability value");
     const copy2 = cloneInert(input.roster);
     const selected = copy2.entries.find((e) => e.playerId === input.playerId);
     const before = input.roster.entries.find((e) => e.playerId === input.playerId);
@@ -15428,7 +15431,7 @@ var KneekuraNativeMatchCore = (() => {
         label: spec.label,
         sampleCount: values2.length,
         basis: "SUPPLIED_LEAGUE_COHORT",
-        value: values2.length >= 2 && sd > 0 ? Math.max(0, Math.min(100, 50 + 20 * (actual - mean) / sd)) : null
+        value: values2.length >= 2 && sd > 0 ? Math.max(0, 50 + 20 * (actual - mean) / sd) : null
       };
     }), sourceLeagueId: anchor.leagueId, basis: "SUPPLIED_LOCAL_SAMPLE_NOT_OFFICIAL_LEAGUE_POPULATION" });
   }

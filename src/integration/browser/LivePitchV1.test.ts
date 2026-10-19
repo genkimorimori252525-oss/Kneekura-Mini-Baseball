@@ -79,3 +79,23 @@ it('uses the same supplied catcher SI and Core absorption delay instead of a hid
   expect(weak.call).toBeNull();expect(weak.diagnostics.unsupportedReason).toBe('catcher_retention_failed_live_ball_requires_successor');
   expect(weak.diagnostics.catcherSI.retentionCapacityJ).toBe(1);
 });
+
+it('executes long experimental bats with the authored geometry, mass and unchanged motor ceiling',()=>{
+  const source=input(1),batter={...source.batter,batLengthM:3,batMassKg:5,maximumSweetSpotSpeedMps:45,targetSweetSpotSpeedMps:31},
+    long=simulateLivePitchV1({...source,batter}),light=simulateLivePitchV1({...source,batter:{...batter,batMassKg:.1}}),
+    pose=long.sampleBatAtTick(long.diagnostics.referenceContactTick)!;
+  expect(Math.hypot(pose.tip.x-pose.grip.x,pose.tip.y-pose.grip.y,pose.tip.z-pose.grip.z)).toBeCloseTo(3,12);
+  expect(long.diagnostics.referenceContactSweetSpotSpeedMps).toBeLessThanOrEqual(45);
+  expect(long.contact).not.toBeNull();expect(light.contact).not.toBeNull();
+  expect(long.contact!.normalImpulseNs).toBeGreaterThan(0);expect(long.contact!.exitVelocity).not.toEqual(light.contact!.exitVelocity);
+  expect(long.diagnostics.sourceDescriptor).toEqual(light.diagnostics.sourceDescriptor);
+  const short=simulateLivePitchV1({...source,batter:{...batter,batLengthM:.2,batMassKg:.1}}),shortPose=short.sampleBatAtTick(short.diagnostics.referenceContactTick)!;
+  expect(Math.hypot(shortPose.tip.x-shortPose.grip.x,shortPose.tip.y-shortPose.grip.y,shortPose.tip.z-shortPose.grip.z)).toBeCloseTo(.2,12);
+  expect(()=>simulateLivePitchV1({...source,batter:{...batter,swingRate:3.01}})).toThrow(/batter SI/);
+});
+it('rejects invalid experimental equipment without changing the supplied pitch',()=>{
+  for(const [key,values] of [['batLengthM',[0,3.0001,NaN,Infinity]],['batMassKg',[0,5.0001,NaN,Infinity]]] as const){
+    for(const value of values){const source=input(),raw={...source,batter:{...source.batter,[key]:value}},before=structuredClone(raw);
+      expect(()=>simulateLivePitchV1(raw)).toThrow();expect(raw).toEqual(before);}
+  }
+});

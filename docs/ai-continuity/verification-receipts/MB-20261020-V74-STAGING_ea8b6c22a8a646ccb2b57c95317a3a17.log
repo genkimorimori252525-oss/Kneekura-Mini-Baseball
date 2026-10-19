@@ -1,0 +1,7 @@
+{"pass": false, "stagedFiles": 109, "byteExactAllStagedBlobs": true, "credentialPatternMatches": 0, "whitespaceExit": 2, "whitespaceFiles": 91, "rawReceiptLogsExcludedFromWhitespace": 18, "userAgentsFileExcluded": true, "sourceAfterTestNormalization": false}
+Traceback (most recent call last):
+  File "C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\check-v74-staging.py", line 41, in <module>
+    assert r.returncode == 0, r.stdout.decode('utf-8', errors='replace')[:4000]
+AssertionError: tools/browser-bridge/check-v74-game.mjs:19: trailing whitespace.
++ 
+

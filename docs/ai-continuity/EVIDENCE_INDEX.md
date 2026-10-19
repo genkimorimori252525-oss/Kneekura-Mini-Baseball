@@ -1244,3 +1244,44 @@ Only record verification that was actually performed.
 | MB-20261019-V73-PACKAGE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V73-PACKAGE_21c9e12d38574e87affbb80ed6ca61d2.json |
 | MB-20261019-V73-STAGING | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V73-STAGING_d403828e464443dd9872870833cdde99.json |
 | MB-20261019-V73-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261019-V73-PUBLICATION_8515861bb06b459bbf0ce9fb3884275c.json |
+| MB-20261020-V74-RATINGS-OVERFLOW | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V74-RATINGS-OVERFLOW_16bbdc75631247cb819bee21bb9fd469.json |
+| MB-20261020-V74-CORE-TEST | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V74-CORE-TEST_6bef2926a7074ec88026afd77153e857.json |
+| MB-20261020-V74-BUILD-NATIVE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V74-BUILD-NATIVE_7940513f7d844fd484c051117ece34e0.json |
+| MB-20261020-V74-BUILD-GAME | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V74-BUILD-GAME_2331263c7605422f97e5ae1167b85d81.json |
+| MB-20261020-V74-TSC | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V74-TSC_63a52c605476401eac3b0e542ce4b82e.json |
+| MB-20261020-V74-BUILD-MAKER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V74-BUILD-MAKER_50b58dc4927945e295f553256d574e8a.json |
+| MB-20261020-V74-DEFAULT-PREFIX | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261020-V74-DEFAULT-PREFIX_50f11666b7674c6aa492aaa28f4e42da.json |
+| MB-20261020-V74-GAME-BROWSER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V74-GAME-BROWSER_2a3f11b7d4aa4255b77a2ca9a26dcedc.json |
+| MB-20261020-V74-DEFAULT-PREFIX-FINAL | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V74-DEFAULT-PREFIX-FINAL_8dc6c8ec78204e4691122ccc86456113.json |
+| MB-20261020-V74-BUILD-MAKER-FINAL | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V74-BUILD-MAKER-FINAL_a8bb23acd8c343a6a9d62e102e81024a.json |
+| MB-20261020-V74-PRESENTATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V74-PRESENTATION_a87c47d3d394473c801b68647279dc9d.json |
+| MB-20261020-V74-MAKER-BROWSER | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261020-V74-MAKER-BROWSER_98d5c4cf758e48be86fa7c85fb221cd5.json |
+| MB-20261020-V74-MAKER-BROWSER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V74-MAKER-BROWSER_dfab00de04bd4112979e615d2b264458.json |
+| MB-20261020-V74-BUILD-MAKER-WIDE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V74-BUILD-MAKER-WIDE_735c8396556348a0a66592d4dd6736a1.json |
+| MB-20261020-V74-MAKER-BROWSER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V74-MAKER-BROWSER_2a429a158ff948559e89fa830e16ef18.json |
+| MB-20261020-V74-PACKAGE | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261020-V74-PACKAGE_5463ae513b964864a6a0f61048ccfb1e.json |
+| MB-20261020-V74-PACKAGE-FINAL | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V74-PACKAGE-FINAL_84346e544cd84917866c1b24d18cd48c.json |
+
+## v74 — equipment and maker-only public overflow
+
+| [MB-20261020-V74-BUILD-GAME](verification-receipts/MB-20261020-V74-BUILD-GAME_2331263c7605422f97e5ae1167b85d81.json) | PASS | 0.984 |
+| [MB-20261020-V74-BUILD-MAKER-FINAL](verification-receipts/MB-20261020-V74-BUILD-MAKER-FINAL_a8bb23acd8c343a6a9d62e102e81024a.json) | PASS | 2.625 |
+| [MB-20261020-V74-BUILD-MAKER-WIDE](verification-receipts/MB-20261020-V74-BUILD-MAKER-WIDE_735c8396556348a0a66592d4dd6736a1.json) | PASS | 2.421 |
+| [MB-20261020-V74-BUILD-MAKER](verification-receipts/MB-20261020-V74-BUILD-MAKER_50b58dc4927945e295f553256d574e8a.json) | PASS | 2.453 |
+| [MB-20261020-V74-BUILD-NATIVE](verification-receipts/MB-20261020-V74-BUILD-NATIVE_7940513f7d844fd484c051117ece34e0.json) | PASS | 0.422 |
+| [MB-20261020-V74-CORE-TEST](verification-receipts/MB-20261020-V74-CORE-TEST_6bef2926a7074ec88026afd77153e857.json) | PASS | 6.266 |
+| [MB-20261020-V74-DEFAULT-PREFIX-FINAL](verification-receipts/MB-20261020-V74-DEFAULT-PREFIX-FINAL_8dc6c8ec78204e4691122ccc86456113.json) | PASS | 10.812 |
+| [MB-20261020-V74-DEFAULT-PREFIX](verification-receipts/MB-20261020-V74-DEFAULT-PREFIX_50f11666b7674c6aa492aaa28f4e42da.json) | FAIL | 0.046 |
+| [MB-20261020-V74-GAME-BROWSER](verification-receipts/MB-20261020-V74-GAME-BROWSER_2a3f11b7d4aa4255b77a2ca9a26dcedc.json) | PASS | 13.438 |
+| [MB-20261020-V74-MAKER-BROWSER](verification-receipts/MB-20261020-V74-MAKER-BROWSER_2a429a158ff948559e89fa830e16ef18.json) | PASS | 12.859 |
+| [MB-20261020-V74-MAKER-BROWSER](verification-receipts/MB-20261020-V74-MAKER-BROWSER_98d5c4cf758e48be86fa7c85fb221cd5.json) | FAIL | 4.797 |
+| [MB-20261020-V74-MAKER-BROWSER](verification-receipts/MB-20261020-V74-MAKER-BROWSER_dfab00de04bd4112979e615d2b264458.json) | PASS | 12.984 |
+| [MB-20261020-V74-PACKAGE-FINAL](verification-receipts/MB-20261020-V74-PACKAGE-FINAL_84346e544cd84917866c1b24d18cd48c.json) | PASS | 3.859 |
+| [MB-20261020-V74-PACKAGE](verification-receipts/MB-20261020-V74-PACKAGE_5463ae513b964864a6a0f61048ccfb1e.json) | FAIL | 0.125 |
+| [MB-20261020-V74-PRESENTATION](verification-receipts/MB-20261020-V74-PRESENTATION_a87c47d3d394473c801b68647279dc9d.json) | PASS | 0.750 |
+| [MB-20261020-V74-RATINGS-OVERFLOW](verification-receipts/MB-20261020-V74-RATINGS-OVERFLOW_16bbdc75631247cb819bee21bb9fd469.json) | PASS | 2.922 |
+| [MB-20261020-V74-TSC](verification-receipts/MB-20261020-V74-TSC_63a52c605476401eac3b0e542ce4b82e.json) | PASS | 27.953 |
+| MB-20261020-V74-STAGING | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261020-V74-STAGING_ea8b6c22a8a646ccb2b57c95317a3a17.json |
+| MB-20261020-V74-STAGING-FINAL | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V74-STAGING-FINAL_34364f71644f4ab3b5dd4bbf688af285.json |
+
+初回STAGING ea8b6c22は新checker空行の末尾空白1文字でFAIL。checkerの空白だけを除き、製品HTML/Source物理は変更せず34364f71 PASS。ユーザーAGENTSを除外し、全staged blobの実bytes/credential pattern/whitespaceを照合。

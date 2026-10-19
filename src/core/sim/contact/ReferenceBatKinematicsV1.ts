@@ -41,7 +41,7 @@ export const createReferenceBatKinematicsV1 = (raw: ReferenceBatKinematicsInputV
     || !/^[0-9a-f]{64}$/.test(input.provenance.sourceSha256)
     || !Array.isArray(input.frames) || input.frames.length < 2 || input.frames.length > 10_000
     || ![input.batLengthM,input.sweetSpotT,input.sourceTicksPerSecond,input.ticksPerSecond,input.playbackRate].every(Number.isFinite)
-    || input.batLengthM <= 0 || input.batLengthM > 2 || input.sweetSpotT < .65 || input.sweetSpotT > .9
+    || input.batLengthM <= 0 || input.batLengthM > 3 || input.sweetSpotT < .65 || input.sweetSpotT > .9
     || !Number.isSafeInteger(input.sourceTicksPerSecond) || input.sourceTicksPerSecond <= 0 || input.sourceTicksPerSecond > 1_000_000_000
     || !Number.isSafeInteger(input.ticksPerSecond) || input.ticksPerSecond <= 0 || input.ticksPerSecond > 1_000_000_000
     || input.playbackRate < .01 || input.playbackRate > 20

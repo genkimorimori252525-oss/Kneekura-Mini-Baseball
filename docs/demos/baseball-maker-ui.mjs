@@ -4,7 +4,7 @@
   const canvas = $('maker-scene'), context = canvas.getContext('2d');
   const clone = value => JSON.parse(JSON.stringify(value));
   const numeric = value => typeof value === 'number' && Number.isFinite(value);
-  const publicRank = value => !numeric(value) ? '未算出' : value < 0 || value > 100 ? '範囲外'
+  const publicRank = value => !numeric(value) ? '未算出' : value < 0 ? '範囲外'
     : value >= 90 ? 'S' : value >= 80 ? 'A' : value >= 70 ? 'B' : value >= 60 ? 'C'
       : value >= 50 ? 'D' : value >= 40 ? 'E' : value >= 20 ? 'F' : 'G';
 
@@ -86,7 +86,7 @@
     $('live-public-league-preview').replaceChildren();
     for (const metric of preview.metrics) {
       const item = document.createElement('div'); item.className = 'rating';
-      const value = document.createElement('strong'); value.textContent = metric.label === '球速' ? (numeric(metric.value) ? metric.value.toLocaleString('ja-JP', { maximumFractionDigits: 1 }) + ' km/h' : '未算出') : publicRank(metric.value);
+      const value = document.createElement('strong'); value.textContent = metric.label === '球速' ? (numeric(metric.value) ? metric.value.toLocaleString('ja-JP', { maximumFractionDigits: 1 }) + ' km/h' : '未算出') : publicRank(metric.value)+(metric.value>100?' '+metric.value.toLocaleString('ja-JP',{maximumFractionDigits:2}):'');
       item.append(document.createTextNode(metric.basis === 'ABSOLUTE_1_TO_100' ? `${metric.label}（絶対能力）` : `${metric.label}（${metric.sampleCount}人）`), value);
       $('live-public-league-preview').append(item);
     }
@@ -102,7 +102,7 @@
       control.grade.textContent = control.abilityId === 'maxSpeedKmh' ? (numeric(displayed) ? displayed + ' km/h' : '未算出') : publicRank(displayed);
       control.grade.dataset.rank = control.grade.textContent;
       control.input.setCustomValidity(pending?.error ?? '');
-      control.rangeNote.textContent = numeric(displayed) && (displayed < ability.min || displayed > ability.max) ? '詳細設定から算出・範囲外' : '';
+      control.rangeNote.textContent = numeric(displayed) && (displayed < ability.min || numeric(ability.max) && displayed > ability.max) ? '詳細設定から算出・範囲外' : '';
       control.rangeNote.hidden = control.rangeNote.textContent === '';
     }
     refreshPublicLeague();
@@ -202,6 +202,8 @@
     if (!livePublicReference) return;
     livePublicControls = []; $('live-public-abilities').replaceChildren();
     const projection = publicProjection();
+    if(projection.abilities.some(ability=>ability.max===null)){const note=document.createElement('p');note.id='live-public-authoring-note';note.className='note';
+      note.textContent='メーカーでは100を超える実値を編集・保存できます。通常試合の能力表示は100までです。選球眼は絶対能力1〜100、球速は従来の範囲を保ちます。物理の許容範囲を超える値は保存できません。';$('live-public-abilities').append(note);}
     const pitcher = identity.role === 'P', sections = pitcher ? [['common', '共通'], ['pitcher', '投手'], ['batter', '打者']] : [['common', '共通'], ['batter', '打者'], ['pitcher', '投手']];
     for (const [section, title] of sections) {
       const abilities = projection.abilities.filter(a => a.section === section); if (!abilities.length) continue;
@@ -216,8 +218,9 @@
       }
       for (const ability of abilities) {
         const wrapper = document.createElement('div'); wrapper.className = 'control';
-        const input = document.createElement('input'); input.type = 'number'; input.step = 'any'; input.min = ability.min; input.max = ability.max;
+        const input = document.createElement('input'); input.type = 'number'; input.step = 'any'; input.min = ability.min;if(numeric(ability.max))input.max=ability.max;
         input.id = 'public-ability-' + ability.id; input.dataset.publicAbility = ability.id; input.title = ability.note ?? '';
+        if(ability.max===null)input.dataset.help=(ability.note??'')+'。メーカーでは100を超える実値を編集できます。通常試合の能力表示は100までです。関連する物理の許容範囲を超える値は拒否され、前の設定を維持します。';
         const label = document.createElement('label'); label.htmlFor = input.id; label.textContent = ability.label + (ability.unit ? ` (${ability.unit})` : '');
         input.oninput = () => {
           const key = liveRosterPlayerId + ':public:' + ability.id;
@@ -235,7 +238,7 @@
           rosterStatus();
         };
         const rangeNote = document.createElement('p'); rangeNote.className = 'note'; rangeNote.dataset.publicRangeNote = ability.id;
-        const grade = document.createElement('output'); grade.className = 'public-grade'; grade.dataset.helpLabel = '能力のランク'; grade.dataset.help = '能力をGからSで表示します。Gは0〜19、Fは20〜39、Eは40〜49、Dは50〜59、Cは60〜69、Bは70〜79、Aは80〜89、Sは90〜100。隣の数値で細かく編集できます。球速はkm/hです。';
+        const grade = document.createElement('output'); grade.className = 'public-grade'; grade.dataset.helpLabel = '能力のランク'; grade.dataset.help = '能力をGからSで表示します。Gは0〜19、Fは20〜39、Eは40〜49、Dは50〜59、Cは60〜69、Bは70〜79、Aは80〜89、Sは90以上。メーカーでは100を超える実値も保存できますが、通常試合の能力表示は100までです。選球眼は1〜100、球速は従来の範囲です。物理の許容範囲を超える設定は拒否されます。';
         wrapper.append(label, grade, input, rangeNote); container.append(wrapper); livePublicControls.push({ abilityId: ability.id, input, rangeNote, grade });
       }
     }
@@ -276,6 +279,11 @@
             const nextValue = input.type === 'number' ? Number(input.value) : input.value;
             if (input.type === 'number' && !numeric(nextValue)) throw Error('有限の数値を入力してください。');
             const previousValue = get(spec.entryPath ? selected : selected.physical, spec.path);
+            if (globalThis.KneekuraPlayerEquipmentPreviewEnabled === true && !spec.entryPath
+              && ['batLengthM', 'batMassKg'].includes(spec.path) && nextValue === previousValue) {
+              liveRosterPending.delete(key); input.setCustomValidity('');
+              refreshInternalValues(); refreshPublicValues(); if (!liveRosterPending.size) clearProblem(); rosterStatus(); return;
+            }
             set(spec.entryPath ? selected : selected.physical, spec.path, nextValue);
             // An explicit sensory-SI edit replaces the linked public authoring
             // source. Recompute absolute vision instead of keeping a stale grade.
@@ -596,7 +604,7 @@
     ['approach', '打撃方針', 'decision.approach', 'select', [['AUTO', '判断に任せる'], ['TAKE', '見送る'], ['SWING', '振る']]],
     ['bad-ball-control', '悪球への対応', 'traits.badBallControl', 'number', 0, 1, .05, ''],
     ['technical-timing', '技術的なタイミング補正', 'capability.technicalTimingOffsetTicks', 'number', -500, 500, 1, 'ms'],
-    ['bat-mass', 'バット重量', 'bat.massKg', 'number', .05, 3, .01, 'kg'],
+    ['bat-mass', 'バット重量', 'bat.massKg', 'number', .05, 5, .01, 'kg'],
     ['sweet-spot', '芯の位置（ノブからの割合）', 'bat.sweetSpotT', 'number', .65, .9, .0001, ''],
     ['traits', '特性の名前（カンマ区切り）', 'traits.labels', 'text'],
   ];
@@ -690,7 +698,7 @@
       if (!values?.available) { $('population-status').textContent = values?.sampleCount ? `${league} · 比較データ ${values.sampleCount}人。評価には異なる実値の選手が2人以上必要です。` : '比較する選手データを読み込んでください。'; return; }
       $('population-status').textContent = `${league} · 比較データ ${values.sampleCount}人`;
       for (const metric of values.metrics) { const item = document.createElement('div'); item.className = 'rating';
-        const strong = document.createElement('strong'); strong.textContent = publicRank(metric.rating);
+        const strong = document.createElement('strong'); strong.textContent = publicRank(metric.rating)+(metric.rating>100?' '+metric.rating.toLocaleString('ja-JP',{maximumFractionDigits:2}):'');
         item.append(document.createTextNode(metric.label), strong); $('ratings').append(item); }
     } catch (error) { $('population-status').textContent = error.message; }
   }
@@ -717,7 +725,7 @@
       // Use the declared source length; rounded source coordinates can differ
       // by nanometres and must not trigger an equipment edit on identity replay.
       const sourceLength = referenceClip().normalization?.batLengthM ?? (bat ? Math.hypot(bat.tip.x-bat.grip.x,bat.tip.y-bat.grip.y,bat.tip.z-bat.grip.z) : null);
-      const resized = bat && numeric(draft.bat.lengthM) && draft.bat.lengthM >= .2 && draft.bat.lengthM <= 1.5
+      const resized = bat && numeric(draft.bat.lengthM) && draft.bat.lengthM >= .2 && draft.bat.lengthM <= 3
         && Math.abs(draft.bat.lengthM-sourceLength) > 1e-10;
       const pointAt = distance => ({x:bat.grip.x+localAxes.y.x*distance,y:bat.grip.y+localAxes.y.y*distance,z:bat.grip.z+localAxes.y.z*distance});
       return { mode: 'reference', authority: referenceData.authority, tick, batSourceTick: bat?.tick ?? null,
@@ -1002,6 +1010,7 @@
   }
   async function readFile(file, apply) { if (!file) return; try { apply(JSON.parse(await file.text())); clearProblem(); } catch (error) { problem(error); } }
   function tab(which) { const bat = which === 'bat'; $('tab-bat').setAttribute('aria-selected', String(bat)); $('tab-player').setAttribute('aria-selected', String(!bat)); $('bat-panel').hidden = !bat; $('player-panel').hidden = bat;
+    if (globalThis.KneekuraBallComparisonLayoutV74 === true && $('ball-comparison-editor')) $('ball-comparison-editor').hidden = !bat;
     $('maker-layout').classList.toggle('public-player-editor', !!livePublicReference && !bat); }
   $('tab-bat').onclick = () => tab('bat'); $('tab-player').onclick = () => tab('player');
   $('pattern-select').onchange = () => { selectedPatternId = $('pattern-select').value; const selected = trajectoryPatterns.find(pattern => pattern.id === selectedPatternId);
@@ -1168,7 +1177,7 @@
     const measuredDefault = referenceClip(); draft.bat.lengthM = measuredDefault.normalization.batLengthM;
     draft.bat.sweetSpotT = measuredDefault.normalization.sweetSpotT; player = core.createWorkbenchPlayer(clone(draft));
     const equipmentControls=document.createElement('div'); equipmentControls.id='bat-equipment-controls'; $('core-bat-controls').before(equipmentControls);
-    createControl(equipmentControls,['bat-length','バット全長','bat.lengthM','number',20,150,.1,'cm']);
+    createControl(equipmentControls,['bat-length','バット全長','bat.lengthM','number',20,300,.1,'cm']);
     const lengths=document.createElement('div'); lengths.setAttribute('aria-label','バット長の選択');
     for(const cm of [78,84,90]){const button=document.createElement('button');button.type='button';button.id='bat-length-'+cm;button.textContent=cm+'cm';
       button.onclick=()=>{$('bat-length').value=cm;$('bat-length').dispatchEvent(new Event('input',{bubbles:true}));};lengths.append(button);}

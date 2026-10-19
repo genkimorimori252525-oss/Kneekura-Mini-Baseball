@@ -17,3 +17,7 @@
 #comparison-details{overflow-wrap:anywhere;white-space:normal}
 @media(max-width:600px){.comparison-settings{grid-template-columns:minmax(0,1fr) 30px}.comparison-views figcaption{font-size:12px}#comparison-results{font-size:12px}}
 .comparison-shortcuts{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.ball-comparison-fullwidth{grid-column:1/-1;min-width:0}
+.ball-comparison-fullwidth .comparison-batter-surface{max-width:900px;margin-inline:auto}
+.ball-comparison-fullwidth .comparison-views{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:800px){.ball-comparison-fullwidth .comparison-views{grid-template-columns:minmax(0,1fr)}}

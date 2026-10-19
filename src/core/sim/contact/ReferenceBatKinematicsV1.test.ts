@@ -122,3 +122,11 @@ it('feeds actual reference velocities to the existing rigid collision kernel and
   expect(resolveRigidBatBallContact({...ball,position:{...ball.position,x:ball.position.x+1}},bat,
     REFERENCE_BASEBALL_RIGID_BODY,CROSS_NATHAN_2006_LOW_SPEED_BAT_CONTACT_FIXTURE)).toBeNull();
 });
+
+it('samples the full experimental three-metre length and keeps the finite upper bound', () => {
+  const raw = { ...input(), batLengthM: 3 }, before = structuredClone(raw), trajectory = createReferenceBatKinematicsV1(raw);
+  const pose = trajectory.sample(250_000).state.pose;
+  expect(Math.hypot(pose.tip.x-pose.grip.x,pose.tip.y-pose.grip.y,pose.tip.z-pose.grip.z)).toBeCloseTo(3,12);
+  expect(raw).toEqual(before);
+  expect(() => createReferenceBatKinematicsV1({ ...raw, batLengthM: 3.0001 })).toThrow(/reference bat trajectory/);
+});

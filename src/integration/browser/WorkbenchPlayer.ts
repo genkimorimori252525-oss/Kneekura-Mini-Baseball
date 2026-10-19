@@ -60,7 +60,7 @@ export function createWorkbenchPlayer(raw: unknown): WorkbenchPlayer {
   range(c.pitchSpeedMps, 0.1, 80, 'pitchSpeedMps'); range(c.positionErrorMeters, 0, 1, 'positionErrorMeters');
   ticks(c.timingErrorTicks, 0, 500_000, 'timingErrorTicks');
   fields(player.bat, ['lengthM', 'massKg', 'sweetSpotT'], 'bat');
-  range(player.bat.lengthM, 0.2, 1.5, 'bat.lengthM'); range(player.bat.massKg, 0.05, 3, 'bat.massKg');
+  range(player.bat.lengthM, 0.2, 3, 'bat.lengthM'); range(player.bat.massKg, 0.05, 5, 'bat.massKg');
   // Measured model points six inches from a 34-inch tip are at T≈.824.
   // Keep the authored value; the older image-only .78 limit excluded them.
   range(player.bat.sweetSpotT, 0.65, 0.9, 'sweetSpotT (declared barrel reference)');
@@ -133,7 +133,7 @@ export function previewLeagueRatings(rawPlayer: WorkbenchPlayer, population: rea
     const stddev = cohort.length ? Math.sqrt(Math.max(0, variance / cohort.length)) : null;
     const actual = metric.value(player);
     const rating = cohort.length >= 2 && stddev !== null && stddev > 0
-      ? Math.max(0, Math.min(100, 50 + 20 * metric.direction * (actual - mean) / stddev)) : null;
+      ? Math.max(0, 50 + 20 * metric.direction * (actual - mean) / stddev) : null;
     return { key: metric.key, label: metric.label, unit: metric.unit, actual,
       mean: cohort.length ? mean : null, stddev, rating };
   });

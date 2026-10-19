@@ -26,6 +26,7 @@
   <div class="comparison-views"><figure><figcaption>横から：高さと伸びを比べる</figcaption><canvas id="comparison-canvas-side" width="960" height="480" aria-label="横から見た4弾道の比較"></canvas></figure><figure><figcaption>上から：飛ぶ方向を比べる</figcaption><canvas id="comparison-canvas-top" width="960" height="480" aria-label="上から見た4弾道の比較"></canvas></figure></div>
   <p class="note">線と球の色は弾道1〜4に対応します。すべて同じ縮尺・時刻で描きます。「最初の着地まで」は打点からの水平距離です。守備・フェンス・公式の安打／本塁打の裁定は、この比較には含みません。回転の向きと接触時刻は結果の説明欄でも確認できます。</p><details><summary>回転の向きと計算の条件</summary><div id="comparison-details" class="note"></div></details>`;
  $('player-swing-editor').after(panel);
+ if(root.KneekuraBallComparisonLayoutV74===true){panel.classList.add('ball-comparison-fullwidth');$('maker-layout').append(panel);panel.hidden=$('bat-panel').hidden;}
  const shortcuts=document.createElement('nav');shortcuts.className='comparison-shortcuts';shortcuts.setAttribute('aria-label','比較画面への移動');
  const jump=document.createElement('button');jump.id='comparison-jump';jump.type='button';jump.textContent='弾道ごとの打球比較へ';
  jump.onclick=()=>{$(root.KneekuraPlayerSwingPreviewEnabled===true?'tab-bat':'tab-player').click();panel.scrollIntoView({block:'start'});};

@@ -18,6 +18,17 @@
   <p id="comparison-batter-status" class="note" role="status">「同じ球で4段階を計算」を押すと表示します。</p>
   <div id="comparison-batter-surface" class="comparison-batter-surface" tabindex="0" role="img" aria-label="試合と同じ打者目線。右ドラッグで見回し、左ドラッグで表示位置を調整。矢印キーで向き、プラス・マイナスで拡大、Homeで初期状態へ戻します。"><canvas id="comparison-canvas-batter" width="1200" height="864"></canvas></div>`;
  $('ball-comparison-editor').querySelector('.comparison-views').before(panel);
+ if(root.KneekuraBallComparisonLayoutV74===true){
+  panel.classList.add('comparison-batter-compact');panel.querySelector('h4').textContent='打者目線で比べる';
+  const actions=document.createElement('div');actions.className='swing-toolbar comparison-batter-actions';actions.id='comparison-batter-actions';
+  const moveWithHelp=(node,parent)=>{const help=node.nextElementSibling?.classList.contains('maker-help-button')?node.nextElementSibling:null;parent.append(node);if(help)parent.append(help);};
+  moveWithHelp($('comparison-run'),actions);moveWithHelp($('comparison-next'),actions);panel.querySelector('h4').after(actions);
+  const playback=$('comparison-play').closest('.swing-toolbar');playback.classList.add('comparison-batter-playback');actions.after(playback);
+  const timeline=document.createElement('div');timeline.className='comparison-batter-timeline';moveWithHelp($('comparison-time').closest('label'),timeline);playback.after(timeline);
+  const controls=panel.querySelector('.comparison-batter-controls'),details=document.createElement('details'),summary=document.createElement('summary');
+  summary.textContent='打者画面の向き・拡大を調整';details.append(summary,controls);$('comparison-batter-surface').after(details);
+  panel.append(panel.querySelector('p.note'));
+ }
  const canvas=$('comparison-canvas-batter'),surface=$('comparison-batter-surface'),status=$('comparison-batter-status'),
   frame=document.createElement('iframe');frame.id='comparison-batter-frame';frame.className='comparison-batter-frame';
  frame.title='打者比較の試合描画';frame.setAttribute('aria-hidden','true');frame.tabIndex=-1;

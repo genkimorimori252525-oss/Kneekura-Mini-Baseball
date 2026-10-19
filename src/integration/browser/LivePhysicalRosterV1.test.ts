@@ -233,3 +233,18 @@ it('refuses ambiguous authoring, unknown players and duplicate bindings', () => 
   expect(() => applyLivePhysicalRosterV1({ ...input, roster: { ...input.roster, entries: [{ ...input.roster.entries[0], playerId: 'missing' }] } })).toThrow();
   expect(() => applyLivePhysicalRosterV1({ ...input, roster: { ...input.roster, entries: [input.roster.entries[0], input.roster.entries[0]] } })).toThrow();
 });
+
+it('projects experimental bat bounds and rejects invalid equipment atomically', () => {
+  const maker = defaultWorkbenchPlayer(), authored = { ...maker, bat: { ...maker.bat, lengthM: 3, massKg: 5 } };
+  expect(applyLivePhysicalRosterV1(packet({ workbenchPlayer: authored })).players[0].physical).toMatchObject({ batLengthM: 3, batMassKg: 5 });
+  for (const [batLengthM, batMassKg] of [[.2, .1], [3, 5]]) {
+    const raw = packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', batLengthM, batMassKg } }), before = structuredClone(raw);
+    expect(applyLivePhysicalRosterV1(raw).players[0].physical).toMatchObject({ batLengthM, batMassKg }); expect(raw).toEqual(before);
+  }
+  for (const [key, values] of [['batLengthM', [0, 3.0001, NaN, Infinity]], ['batMassKg', [0, 5.0001, NaN, Infinity]]] as const) {
+    for (const value of values) {
+      const raw = packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', [key]: value } }), before = structuredClone(raw);
+      expect(() => applyLivePhysicalRosterV1(raw)).toThrow(); expect(raw).toEqual(before);
+    }
+  }
+});

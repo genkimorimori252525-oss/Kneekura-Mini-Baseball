@@ -101,14 +101,18 @@ export function materializeLivePlateVisionV1(input: Readonly<{ roster: LivePhysi
 export function projectLivePublicAbilitiesV1(input: Readonly<{ roster: LivePhysicalRosterInputV1; reference: LivePublicAbilityReferenceV1; playerId: string }>) {
   const { entry, anchor } = context(input);
   return freeze({ policyId, abilities: specs.map(spec => ({ id: spec.id, label: spec.label, section: spec.section,
-    value: abilityValue(entry, anchor, spec), min: spec.mode === 'pitchSpeed' ? 54 : spec.mode === 'absolute' ? 1 : 0, max: spec.mode === 'pitchSpeed' ? 306 : 100,
+    // Group ratings describe SI, so 100 is a display ceiling in the game, not
+    // an authoring or physical ceiling. null means no separate rating cap;
+    // the existing SI validator still accepts or rejects the whole edit.
+    value: abilityValue(entry, anchor, spec), min: spec.mode === 'pitchSpeed' ? 54 : spec.mode === 'absolute' ? 1 : 0,
+    max: spec.mode === 'pitchSpeed' ? 306 : spec.mode === 'absolute' || spec.mode === 'percent' ? 100 : null,
     unit: spec.mode === 'pitchSpeed' ? 'km/h' : '', linkedPaths: [...(spec.mode === 'absolute' ? ['plateVision'] : []), ...spec.components.map(c => c.path)], note: spec.note })) });
 }
 export function editLivePublicAbilityV1(input: Readonly<{ roster: LivePhysicalRosterInputV1; reference: LivePublicAbilityReferenceV1;
   playerId: string; abilityId: string; value: number }>) {
   const projection = projectLivePublicAbilitiesV1(input), spec = specs.find(s => s.id === input.abilityId), old = projection.abilities.find(a => a.id === input.abilityId);
   assert(spec && old && Number.isFinite(input.value), 'invalid public ability value');
-  assert(input.value === old!.value || input.value >= old!.min && input.value <= old!.max, 'invalid public ability value');
+  assert(input.value === old!.value || input.value >= old!.min && (old!.max === null || input.value <= old!.max), 'invalid public ability value');
   const copy = cloneInert(input.roster) as unknown as MutablePacket;
   const selected = copy.entries.find(e => e.playerId === input.playerId)!;
   const before = input.roster.entries.find(e => e.playerId === input.playerId)!;
@@ -155,6 +159,6 @@ export function previewLivePublicLeagueV1(input: Readonly<{ roster: LivePhysical
     const sd = Math.sqrt(values.reduce((sum, n) => sum + (n - mean) ** 2, 0) / (values.length || 1));
     const actual = spec.mode === 'percent' ? numeric(entry, spec.components[0].path) : quality(entry, spec);
     return { id: spec.id, label: spec.label, sampleCount: values.length, basis: 'SUPPLIED_LEAGUE_COHORT' as const,
-      value: values.length >= 2 && sd > 0 ? Math.max(0, Math.min(100, 50 + 20 * (actual - mean) / sd)) : null };
+      value: values.length >= 2 && sd > 0 ? Math.max(0, 50 + 20 * (actual - mean) / sd) : null };
   }), sourceLeagueId: anchor.leagueId, basis: 'SUPPLIED_LOCAL_SAMPLE_NOT_OFFICIAL_LEAGUE_POPULATION' as const });
 }
