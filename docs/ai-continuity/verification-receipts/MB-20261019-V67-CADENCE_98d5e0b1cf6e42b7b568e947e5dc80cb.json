@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V67-CADENCE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v56-cadence.mjs",
+    "../../outputs/ばせぼーるlv67_TBD_vs_LAD_俯瞰の空中球2倍版.html",
+    "../../outputs/カメラワーク調整室_v67.html",
+    "../../outputs/verification-v67-cadence"
+  ],
+  "observed_at": "2026-10-19T10:33:14.780+00:00",
+  "elapsed_ms": 9172,
+  "git_head": "f0f065b28ff1cee3ca24db5cbef4b815dacb5615",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V67-CADENCE_98d5e0b1cf6e42b7b568e947e5dc80cb.log",
+  "output_sha256": "ed9dd6d36a30d16e1f3180ef1315f4ca4cb63170d514758f80b614e737b15218",
+  "receipt_id": "MB-20261019-V67-CADENCE_98d5e0b1cf6e42b7b568e947e5dc80cb"
+}
