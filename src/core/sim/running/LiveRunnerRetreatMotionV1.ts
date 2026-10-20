@@ -1,4 +1,5 @@
 import type { Vec2 } from '../../model/geometry';
+import { createLiveLocomotionProfileV84 } from '../locomotion/LiveLocomotionV84';
 import { createLiveRunnerMotionV1, type LiveRunnerMotionV1, type LiveRunnerMotionTouchV1 } from './LiveRunnerMotionV1';
 import type { RunnerRouteSegment } from './RunnerRoute';
 
@@ -9,18 +10,21 @@ import type { RunnerRouteSegment } from './RunnerRoute';
 export function createLiveRunnerRetreatMotionV1(input: Readonly<{
   position: Vec2; velocity: Vec2; bases: Readonly<Record<1 | 2 | 3 | 4, Vec2>>;
   originBase: 1 | 2 | 3; lastTouchedBase: number; topSpeedMps: number; accelerationMps2: number;
+  brakingMps2?: number;
   roundingRadiusMeters?: number; lateralAccelerationMps2?: number; baseTouchRadiusMeters?: number;
 }>): LiveRunnerMotionV1 | null {
   const { position: p, velocity, accelerationMps2: a } = input, radius = input.baseTouchRadiusMeters ?? .28,
-    speed = Math.hypot(velocity.x, velocity.z), stopTime = speed / a, stopDistance = speed * speed / (2 * a),
-    direction = speed > 0 ? { x: velocity.x / speed, z: velocity.z / speed } : { x: 0, z: 0 },
-    stopped = { x: p.x + direction.x * stopDistance, z: p.z + direction.z * stopDistance };
-  if (![p.x, p.z, velocity.x, velocity.z, a, input.topSpeedMps, radius].every(Number.isFinite)
-    || a <= 0 || input.topSpeedMps <= 0 || radius <= 0 || speed > input.topSpeedMps + 1e-9
+    speed = Math.hypot(velocity.x, velocity.z), braking = input.brakingMps2 ?? 1.8 * a;
+  if (![p.x, p.z, velocity.x, velocity.z, a, braking, input.topSpeedMps, radius].every(Number.isFinite)
+    || a <= 0 || braking <= 0 || input.topSpeedMps <= 0 || radius <= 0 || speed > input.topSpeedMps + 1e-9
     || ![1, 2, 3].includes(input.originBase) || !Number.isInteger(input.lastTouchedBase)
     || input.lastTouchedBase < input.originBase || input.lastTouchedBase > 4)
     throw new Error('live runner retreat: finite actual runner state and origin required');
-  const brakingTimeAt = (distance: number) => distance <= 0 ? 0 : 2 * distance / (speed + Math.sqrt(Math.max(0, speed * speed - 2 * a * distance))),
+  const profile = createLiveLocomotionProfileV84({ topSpeedMps: input.topSpeedMps, accelerationMps2: a, brakingMps2: braking }),
+    b = profile.brakingMps2, stopTime = speed / b, stopDistance = speed * speed / (2 * b),
+    direction = speed > 0 ? { x: velocity.x / speed, z: velocity.z / speed } : { x: 0, z: 0 },
+    stopped = { x: p.x + direction.x * stopDistance, z: p.z + direction.z * stopDistance };
+  const brakingTimeAt = (distance: number) => distance <= 0 ? 0 : 2 * distance / (speed + Math.sqrt(Math.max(0, speed * speed - 2 * b * distance))),
     prefixTouches: LiveRunnerMotionTouchV1[] = [];
   if (speed > 0) for (const base of [1, 2, 3, 4] as const) {
     if (base < input.originBase) continue;
@@ -51,7 +55,7 @@ export function createLiveRunnerRetreatMotionV1(input: Readonly<{
       centerElapsedSeconds: t.centerElapsedSeconds + stopTime }));
   return Object.freeze({ route: { segments: routeSegments }, lengthMeters, durationSeconds,
     speedSegments: [...(stopTime > 0 ? [{ startElapsedSeconds: 0, endElapsedSeconds: stopTime,
-      startDistanceMeters: 0, endDistanceMeters: stopDistance, startSpeedMps: speed, accelerationMps2: -a }] : []),
+      startDistanceMeters: 0, endDistanceMeters: stopDistance, startSpeedMps: speed, accelerationMps2: -b }] : []),
     ...(retreat?.speedSegments ?? []).map(s => ({ ...s, startElapsedSeconds: s.startElapsedSeconds + stopTime,
       endElapsedSeconds: s.endElapsedSeconds + stopTime, startDistanceMeters: s.startDistanceMeters + stopDistance,
       endDistanceMeters: s.endDistanceMeters + stopDistance }))],
@@ -65,7 +69,7 @@ export function createLiveRunnerRetreatMotionV1(input: Readonly<{
         const sample = retreat.sampleAtElapsedSeconds(elapsed - stopTime);
         return { ...sample, distanceMeters: stopDistance + sample.distanceMeters };
       }
-      const t = Math.min(elapsed, stopTime), distance = speed * t - .5 * a * t * t, remaining = Math.max(0, speed - a * t);
+      const t = Math.min(elapsed, stopTime), distance = speed * t - .5 * b * t * t, remaining = Math.max(0, speed - b * t);
       return { position: { x: p.x + direction.x * distance, z: p.z + direction.z * distance },
         velocity: { x: direction.x * remaining, z: direction.z * remaining }, speedMps: remaining, distanceMeters: distance };
     } });

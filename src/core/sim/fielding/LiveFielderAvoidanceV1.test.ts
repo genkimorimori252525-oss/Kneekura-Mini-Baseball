@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { coordinateLiveFielderMotionV1, type LiveFielderAvoidanceActorV1 } from './LiveFielderAvoidanceV1';
 import { buildDefenderMotionTrajectory } from './DefenderMotion';
+import { createLiveLocomotionProfileV84 } from '../locomotion/LiveLocomotionV84';
 
 const v = (x = 0, y = 0, z = 0) => ({ x, y, z });
 const actor = (playerId: string, x: number, z: number, vx = 0, vz = 0,
@@ -10,6 +11,16 @@ const actor = (playerId: string, x: number, z: number, vx = 0, vz = 0,
 });
 const coordinate = (actors: readonly LiveFielderAvoidanceActorV1[], fromSeconds = 0, dt = .04) =>
   coordinateLiveFielderMotionV1({ fromSeconds, throughSeconds: fromSeconds + dt, actors });
+
+it('accepts live planting strength independently of propulsion and retains continuous stopping reserve', () => {
+  const locomotionProfile = createLiveLocomotionProfileV84({ accelerationMps2: 6, topSpeedMps: 7 }),
+    a = actor('plant', -10, 0, 3, 0, { locomotionProfile, preferred: { acceleration: v(-10.8) } }),
+    result = coordinate([a]);
+  expect(result.safe).toBe(true);
+  expect(result.commands[0].motion.acceleration.x).toBe(-10.8);
+  expect(() => coordinate([{ ...a, preferred: { acceleration: v(10.8) } }])).toThrow(/preferred motor/);
+  expect(() => coordinate([{ ...a, preferred: { acceleration: v(-10, 0, 5) } }])).toThrow(/preferred motor/);
+});
 const step = (actors: readonly LiveFielderAvoidanceActorV1[]) => {
   const result = coordinate(actors);
   return { result, actors: actors.map(a => {

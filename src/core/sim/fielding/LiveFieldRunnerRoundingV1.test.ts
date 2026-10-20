@@ -107,7 +107,11 @@ describe('actual live runner rounding', () => {
     const third = result.facts.find(f => f.kind === 'runner_base_touch' && f.runnerId === runnerId && f.base === 3)!;
     expect(through.record.elapsedSeconds).toBeLessThan(third.elapsedSeconds);
     expect(through.motion.sampleAtElapsedSeconds(third.elapsedSeconds - through.record.elapsedSeconds).speedMps).toBeGreaterThan(.1);
-    expect(result.finalRunners.find(r => r.runnerId === runnerId)).toMatchObject({ scored: true, retired: false, position: input.field.bases.home });
+    const final = result.finalRunners.find(r => r.runnerId === runnerId)!;
+    expect(final).toMatchObject({ scored: true, retired: false });
+    // The piecewise clock/route sum can leave an ULP-scale endpoint residual.
+    expect(distance(final.position, input.field.bases.home)).toBeLessThan(1e-12);
+    expect(final.position.y).toBeCloseTo(input.field.bases.home.y, 12);
     expect(result.frames.at(-1)!.runners.find(r => r.runnerId === runnerId)!.velocity).toEqual(v());
   });
 
@@ -120,7 +124,11 @@ describe('actual live runner rounding', () => {
     const events = result.facts.filter(f => f.kind === 'runner_base_touch');
     for (let i = 1; i < events.length; i++) expect(events[i].elapsedSeconds).toBeGreaterThan(events[i - 1].elapsedSeconds);
     const final = result.frames.at(-1)!.runners[0];
-    expect(final.position).toEqual(input.field.bases.home);
+    // Summing the piecewise speed-plan clock may leave a sub-femtometre
+    // route-sampling residual at the final frame; the runner still stops home.
+    expect(final.position.x).toBeCloseTo(input.field.bases.home.x, 12);
+    expect(final.position.y).toBeCloseTo(input.field.bases.home.y, 12);
+    expect(final.position.z).toBeCloseTo(input.field.bases.home.z, 12);
     expect(final.velocity).toEqual(v());
   });
 

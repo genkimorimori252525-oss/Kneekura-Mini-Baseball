@@ -15,11 +15,17 @@ const motion = (patch: Partial<LiveRunnerMotionInputV1> = {}): LiveRunnerMotionV
 };
 
 describe('LiveRunnerMotionV1', () => {
-  it('keeps the existing stop-to-stop straight duration and acceleration', () => {
+  it('uses declining propulsion bands and stronger braking for a stop-to-stop straight leg', () => {
     const m = motion();
     expect(m.lengthMeters).toBeCloseTo(27.432, 10);
-    expect(m.durationSeconds).toBeCloseTo(27.432 / 8 + 8 / 5, 10);
-    expect(m.sampleAtElapsedSeconds(.5)).toMatchObject({ position: v(.625, 0), velocity: v(2.5, 0), speedMps: 2.5 });
+    // Independently integrate the authored 0-2, 2-5.2, 5.2-8 m/s bands.
+    const accelerationDistance = 2 ** 2 / 10 + (5.2 ** 2 - 2 ** 2) / 7 + (8 ** 2 - 5.2 ** 2) / 3.5;
+    const accelerationTime = 2 / 5 + 3.2 / 3.5 + 2.8 / 1.75;
+    expect(m.durationSeconds).toBeCloseTo(accelerationTime + (27.432 - accelerationDistance - 8 ** 2 / 18) / 8 + 8 / 9, 10);
+    expect(m.sampleAtElapsedSeconds(.5).position.x).toBeCloseTo(.6175, 12);
+    expect(m.sampleAtElapsedSeconds(.5).speedMps).toBeCloseTo(2.35, 12);
+    expect(m.sampleAtElapsedSeconds(2).speedMps).toBeCloseTo(6.4, 12);
+    expect(m.speedSegments.map(s => s.accelerationMps2)).toEqual([5, 3.5, 1.75, 0, -9]);
     expect(m.sampleAtElapsedSeconds(m.durationSeconds)).toMatchObject({ position: v(27.432, 0), velocity: v(0, 0), speedMps: 0 });
   });
 
@@ -94,15 +100,14 @@ describe('LiveRunnerMotionV1', () => {
     const wide = motion({ bases, roundingRadiusMeters: 4, lateralAccelerationMps2: 2 });
     expect(tight.sampleAtElapsedSeconds(tight.touches[0].centerElapsedSeconds).speedMps).toBeCloseTo(Math.sqrt(2), 8);
     expect(wide.sampleAtElapsedSeconds(wide.touches[0].centerElapsedSeconds).speedMps).toBeCloseTo(Math.sqrt(8), 8);
-    for (const m of [tight, wide]) for (const s of m.speedSegments) {
-      expect(Math.abs(s.accelerationMps2)).toBeLessThanOrEqual(5);
-      expect([0, 5, -5]).toContain(s.accelerationMps2);
-    }
+    for (const m of [tight, wide]) for (const s of m.speedSegments)
+      expect([0, 5, 3.5, 1.75, -9]).toContain(s.accelerationMps2);
   });
 
   it('keeps short triangular stop legs and arbitrary moving headings continuous', () => {
     const short = motion({ bases: [{ base: 1, position: v(1, 0) }] });
-    expect(short.durationSeconds).toBeCloseTo(2 * Math.sqrt(1 / 5), 10);
+    const peak = Math.sqrt((1 - .4 + 4 / 7) / (1 / 7 + 1 / 18));
+    expect(short.durationSeconds).toBeCloseTo(.4 + (peak - 2) / 3.5 + peak / 9, 10);
     const m = motion({ velocity: v(3, 1) });
     const first = m.sampleAtElapsedSeconds(1e-7);
     expect(distance(first.velocity, v(3, 1))).toBeLessThan(1e-5);
@@ -118,6 +123,14 @@ describe('LiveRunnerMotionV1', () => {
     expect(JSON.stringify(authored)).toBe(before);
   });
 
+  it('honors explicit braking and retains acceleration and speed ability differences', () => {
+    const authored = motion({ brakingMps2: 3 });
+    expect(authored.speedSegments.at(-1)!.accelerationMps2).toBe(-3);
+    expect(authored.durationSeconds).toBeGreaterThan(motion().durationSeconds);
+    expect(motion({ accelerationMps2: 3 }).durationSeconds).toBeGreaterThan(motion().durationSeconds);
+    expect(motion({ topSpeedMps: 6 }).durationSeconds).toBeGreaterThan(motion().durationSeconds);
+  });
+
   it('inverts finite path distance and time throughout acceleration, cruise and braking', () => {
     const m = motion({ bases: [{ base: 1, position: v(27.432, 0) }, { base: 2, position: v(27.432, 27.432) }] });
     for (let t = .001; t < m.durationSeconds; t += .037) {
@@ -125,5 +138,28 @@ describe('LiveRunnerMotionV1', () => {
     }
     expect(() => m.sampleAtElapsedSeconds(Number.NaN)).toThrow(/finite/);
     expect(() => m.elapsedSecondsAtDistanceMeters(-1)).toThrow(/finite route/);
+  });
+
+  it('keeps derived rotated velocities inside their scalar cap and replans without boundary exceptions', () => {
+    for (let degrees = 0; degrees < 360; degrees += 5) {
+      const radians = degrees * Math.PI / 180, cosine = Math.cos(radians), sine = Math.sin(radians),
+        rotate = (x: number, z: number) => v(3 + cosine * x - sine * z, -4 + sine * x + cosine * z),
+        bases = [{ base: 1, position: rotate(100, 0) }, { base: 2, position: rotate(100, 100) }],
+        m = motion({ position: rotate(0, 0), bases });
+      for (const elapsed of [4, m.touches[0].centerElapsedSeconds - .2, m.touches[0].centerElapsedSeconds + .2]) {
+        const sampled = m.sampleAtElapsedSeconds(elapsed);
+        expect(Math.hypot(sampled.velocity.x, sampled.velocity.z)).toBeLessThanOrEqual(sampled.speedMps);
+        expect(sampled.speedMps).toBeLessThanOrEqual(8);
+        expect(() => createLiveRunnerMotionV1(input({ position: sampled.position, velocity: sampled.velocity,
+          bases: elapsed < m.touches[0].centerElapsedSeconds ? bases : bases.slice(1) }))).not.toThrow();
+      }
+      const sampled = m.sampleAtElapsedSeconds(4), next = createLiveRunnerMotionV1(input({ position: sampled.position, velocity: sampled.velocity, bases }));
+      expect(next).not.toBeNull();
+      expect(next!.sampleAtElapsedSeconds(0).velocity).toEqual(sampled.velocity);
+    }
+  });
+
+  it('retains an infeasible incoming velocity as a null result without clamping or throwing', () => {
+    expect(createLiveRunnerMotionV1(input({ velocity: v(8 + 2 * Number.EPSILON * 8, 0) }))).toBeNull();
   });
 });

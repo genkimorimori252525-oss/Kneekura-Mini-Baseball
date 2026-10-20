@@ -1,0 +1,20 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/LiveDefensiveOpportunityV1.test.ts (7 tests) 2805ms
+   ✓ confirms from distinct observations, brakes all nine bodies continuously, and rules only at the actual fence crossing 2025ms
+   ✓ keeps sensor prediction and defense independent of frame cadence, future scope, and generic IQ preference 774ms
+ ✓ src/core/sim/fielding/LiveFieldRoleMotionV1.test.ts (5 tests) 6572ms
+   ✓ executes unique receiver coverage through a real throw while spare outfielders retain deep coverage 767ms
+   ✓ keeps actual positions and velocities continuous through role changes without candidate jumps 557ms
+   ✓ keeps zero-error actual physics exact and launches a reproducible physical miss for nonzero angular error 5035ms
+ ✓ src/core/sim/fielding/LiveFieldRelayMotionV1.test.ts (3 tests) 9729ms
+   ✓ makes two actual throws with a secured relay, a new transfer and actual final base control 3729ms
+   ✓ uses a faster actual direct throw when the same holder has sufficient arm speed 1902ms
+   ✓ executes two intermediate receipts as three separate actual throws and custody intervals 4097ms
+
+ Test Files  3 passed (3)
+      Tests  15 passed (15)
+   Start at  00:38:22
+   Duration  11.02s (transform 650ms, setup 0ms, collect 1.83s, tests 19.11s, environment 1ms, prepare 611ms)
+

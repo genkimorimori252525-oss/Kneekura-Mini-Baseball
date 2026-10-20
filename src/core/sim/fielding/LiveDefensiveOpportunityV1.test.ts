@@ -101,8 +101,11 @@ it('confirms from distinct observations, brakes all nine bodies continuously, an
   expect(settled.fielders.every(f => Math.hypot(f.velocity.x, f.velocity.z) < 1e-9)).toBe(true);
   for (let i = 1; i < during.length; i++) for (let d = 0; d < 9; d++) {
     const a = during[i - 1], b = during[i], dt = b.elapsedSeconds - a.elapsedSeconds;
+    // V84 hold dissipates momentum with b=1.8a. This is an integrated vector
+    // continuity bound; propulsion and lateral budgets are tested separately.
+    const maximumMotorAcceleration = 1.8 * input.fielders[d].accelerationMps2;
     expect(Math.hypot(b.fielders[d].velocity.x - a.fielders[d].velocity.x,
-      b.fielders[d].velocity.z - a.fielders[d].velocity.z)).toBeLessThanOrEqual(input.fielders[d].accelerationMps2 * dt + 1e-8);
+      b.fielders[d].velocity.z - a.fielders[d].velocity.z)).toBeLessThanOrEqual(maximumMotorAcceleration * dt + 1e-8);
   }
   expect(result.end).toMatchObject({ complete: true, reason: 'home_run_completed' });
 });

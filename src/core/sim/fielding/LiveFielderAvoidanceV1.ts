@@ -1,9 +1,11 @@
 import type { Vec3 } from '../../model/geometry';
+import { livePropulsionAccelerationV84, type LiveLocomotionProfileV84 } from '../locomotion/LiveLocomotionV84';
 
 export type LiveFielderAvoidanceMotionV1 = Readonly<{ acceleration: Vec3; stopAfter?: number }>;
 export type LiveFielderAvoidanceActorV1 = Readonly<{
   playerId: string; position: Vec3; velocity: Vec3; accelerationMps2: number; topSpeedMps: number;
   bodyRadiusMeters: number; priority: number; canSteer: boolean; preferred: LiveFielderAvoidanceMotionV1;
+  locomotionProfile?: LiveLocomotionProfileV84;
   accepts: (motion: LiveFielderAvoidanceMotionV1) => boolean;
 }>;
 export type LiveFielderAvoidanceInputV1 = Readonly<{
@@ -25,6 +27,15 @@ const sub = (a: Vec3, b: Vec3) => v(a.x - b.x, 0, a.z - b.z);
 const mul = (a: Vec3, k: number) => v(a.x * k, 0, a.z * k);
 const dot = (a: Vec3, b: Vec3) => a.x * b.x + a.z * b.z;
 const norm = (a: Vec3) => Math.hypot(a.x, a.z);
+const braking = (a: LiveFielderAvoidanceActorV1) => a.locomotionProfile?.brakingMps2 ?? a.accelerationMps2;
+function accelerationBudget(a: LiveFielderAvoidanceActorV1, acceleration: Vec3): number {
+  const profile = a.locomotionProfile, speed = norm(a.velocity);
+  if (!profile || speed === 0) return norm(acceleration) / a.accelerationMps2;
+  const along = dot(acceleration, a.velocity) / speed,
+    sideways = (acceleration.x * a.velocity.z - acceleration.z * a.velocity.x) / speed,
+    propulsion = livePropulsionAccelerationV84(profile, Math.min(speed, profile.topSpeedMps));
+  return Math.hypot(along / (along > 0 ? propulsion : profile.brakingMps2), sideways / profile.lateralAccelerationMps2);
+}
 const finite = (a: Vec3) => !!a && [a.x, a.y, a.z].every(Number.isFinite);
 const policy = LIVE_FIELDER_AVOIDANCE_POLICY_V1;
 function assert(condition: unknown, message: string): asserts condition {
@@ -42,8 +53,8 @@ function path(a: LiveFielderAvoidanceActorV1, m: LiveFielderAvoidanceMotionV1, d
   const movingThrough = Math.min(dt, m.stopAfter ?? dt),
     endPosition = add(a.position, add(mul(a.velocity, movingThrough), mul(m.acceleration, movingThrough ** 2 / 2))),
     endVelocity = m.stopAfter !== undefined && m.stopAfter <= dt ? v() : add(a.velocity, mul(m.acceleration, dt)),
-    endSpeed = norm(endVelocity), stopSeconds = endSpeed / a.accelerationMps2, stopAtSeconds = dt + stopSeconds,
-    stopAcceleration = endSpeed > 0 ? mul(endVelocity, -a.accelerationMps2 / endSpeed) : v(),
+    endSpeed = norm(endVelocity), stopSeconds = endSpeed / braking(a), stopAtSeconds = dt + stopSeconds,
+    stopAcceleration = endSpeed > 0 ? mul(endVelocity, -braking(a) / endSpeed) : v(),
     stoppedPosition = add(endPosition, add(mul(endVelocity, stopSeconds), mul(stopAcceleration, stopSeconds ** 2 / 2)));
   return { breaks: [0, movingThrough, dt, stopAtSeconds], duration: stopAtSeconds,
     sample: seconds => {
@@ -127,10 +138,10 @@ function measurePair(a: LiveFielderAvoidanceActorV1, b: LiveFielderAvoidanceActo
 
 function emergency(a: LiveFielderAvoidanceActorV1): LiveFielderAvoidanceMotionV1 {
   const speed = norm(a.velocity);
-  return speed === 0 ? { acceleration: v() } : { acceleration: mul(a.velocity, -a.accelerationMps2 / speed), stopAfter: speed / a.accelerationMps2 };
+  return speed === 0 ? { acceleration: v() } : { acceleration: mul(a.velocity, -braking(a) / speed), stopAfter: speed / braking(a) };
 }
 function validMotor(a: LiveFielderAvoidanceActorV1, m: LiveFielderAvoidanceMotionV1, dt: number) {
-  if (!finite(m.acceleration) || m.acceleration.y !== 0 || norm(m.acceleration) > a.accelerationMps2 + 1e-9) return false;
+  if (!finite(m.acceleration) || m.acceleration.y !== 0 || accelerationBudget(a, m.acceleration) > 1 + 1e-9) return false;
   if (m.stopAfter !== undefined && (!Number.isFinite(m.stopAfter) || m.stopAfter < 0
     || norm(add(a.velocity, mul(m.acceleration, m.stopAfter))) > 1e-8)) return false;
   const movingFor = Math.min(dt, m.stopAfter ?? dt);
@@ -148,8 +159,8 @@ function candidatesFor(a: LiveFielderAvoidanceActorV1, actors: readonly LiveFiel
     brakeEnd = path(a, brake, dt).sample(dt).velocity;
   push(brake);
   const velocityCandidate = (wanted: Vec3) => {
-    const difference = sub(wanted, a.velocity), length = norm(difference), maximum = a.accelerationMps2 * dt,
-      limited = length > maximum ? add(a.velocity, mul(difference, maximum / length)) : wanted,
+    const difference = sub(wanted, a.velocity), budget = accelerationBudget(a, mul(difference, 1 / dt)),
+      limited = budget > 1 ? add(a.velocity, mul(difference, 1 / budget)) : wanted,
       speed = norm(limited), capped = speed > a.topSpeedMps ? mul(limited, a.topSpeedMps / speed) : limited;
     push({ acceleration: mul(sub(capped, a.velocity), 1 / dt) });
   };
@@ -176,6 +187,8 @@ export function coordinateLiveFielderMotionV1(input: LiveFielderAvoidanceInputV1
   for (const a of actors) {
     assert(typeof a.playerId === 'string' && a.playerId.length > 0 && finite(a.position) && finite(a.velocity) && a.velocity.y === 0
       && [a.accelerationMps2, a.topSpeedMps, a.bodyRadiusMeters].every(n => Number.isFinite(n) && n > 0)
+      && (!a.locomotionProfile || a.locomotionProfile.accelerationMps2 === a.accelerationMps2
+        && a.locomotionProfile.topSpeedMps === a.topSpeedMps)
       && Number.isFinite(a.priority) && typeof a.canSteer === 'boolean' && typeof a.accepts === 'function', 'valid actor SI state required');
     assert(norm(a.velocity) <= a.topSpeedMps + 1e-9 && validMotor(a, a.preferred, dt), 'preferred motor violates speed, acceleration or stopping constraints');
   }

@@ -1,4 +1,5 @@
 import { expect, it } from 'vitest';
+import { createLiveRunnerMotionV1 } from '../running/LiveRunnerMotionV1';
 import {
   decideLiveRunnerAdvanceV1,
   estimateLiveRunnerLegSecondsV1,
@@ -19,17 +20,20 @@ const fixture = (): LiveRunnerAdvanceInputV1 => ({
 });
 
 it('uses the same accelerate, coast and brake duration as the actual stop-to-stop runner leg', () => {
-  expect(estimateLiveRunnerLegSecondsV1(27.432, 8, 5)).toBeCloseTo(27.432 / 8 + 8 / 5, 12);
-  // A short leg never reaches top speed and has no coasting phase.
-  expect(estimateLiveRunnerLegSecondsV1(1, 8, 5)).toBeCloseTo(2 * Math.sqrt(1 / 5), 12);
+  for (const distance of [27.432, 1]) {
+    const actual = createLiveRunnerMotionV1({ position: { x: 0, z: 0 }, bases: [{ base: 1, position: { x: distance, z: 0 } }],
+      topSpeedMps: 8, accelerationMps2: 5 })!;
+    expect(estimateLiveRunnerLegSecondsV1(distance, 8, 5)).toBeCloseTo(actual.durationSeconds, 12);
+  }
   expect(estimateLiveRunnerLegSecondsV1(0, 8, 5)).toBe(0);
 });
 
 it('advances a legal elective runner when the physical race exceeds the safety margin', () => {
   const input = fixture(), before = JSON.stringify(input), decision = decideLiveRunnerAdvanceV1(input);
   expect(decision).toMatchObject({ advance: true, reason: 'safe_race_advance', readyAtElapsedSeconds: 1.2 });
-  expect(decision.runnerArrivalSeconds).toBeCloseTo(5.029, 12);
-  expect(decision.raceMarginSeconds).toBeCloseTo(8 - 5.029, 12);
+  const physicalTravel = estimateLiveRunnerLegSecondsV1(27.432, 8, 5);
+  expect(decision.runnerArrivalSeconds).toBeCloseTo(physicalTravel, 12);
+  expect(decision.raceMarginSeconds).toBeCloseTo(8 - physicalTravel, 12);
   expect(JSON.stringify(input)).toBe(before);
   expect(Object.isFrozen(decision)).toBe(true);
 });

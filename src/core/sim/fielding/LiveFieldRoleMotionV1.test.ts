@@ -51,8 +51,11 @@ it('keeps actual positions and velocities continuous through role changes withou
     const before = result.frames[k - 1], after = result.frames[k], dt = after.elapsedSeconds - before.elapsedSeconds;
     for (let i = 0; i < raw.fielders.length; i++) {
       const a = before.fielders[i], b = after.fielders[i], spec = raw.fielders[i];
+      // V84 keeps directional propulsion/lateral limits while permitting
+      // planting and braking up to b=1.8a; continuity uses that largest axis.
+      const maximumMotorAcceleration = 1.8 * spec.accelerationMps2;
       expect(Math.hypot(b.position.x - a.position.x, b.position.z - a.position.z)).toBeLessThanOrEqual(spec.topSpeedMps * dt + 1e-8);
-      expect(Math.hypot(b.velocity.x - a.velocity.x, b.velocity.z - a.velocity.z)).toBeLessThanOrEqual(spec.accelerationMps2 * dt + 1e-8);
+      expect(Math.hypot(b.velocity.x - a.velocity.x, b.velocity.z - a.velocity.z)).toBeLessThanOrEqual(maximumMotorAcceleration * dt + 1e-8);
     }
   }
 });

@@ -41,3 +41,9 @@ field Canvas contextはrendererが専有する。外部の`clip`、非opaque alp
 再利用harnessは`check-performance-scenes-v81.mjs`、`check-maker-pixels-performance-v81.mjs`、`check-lab-performance-v81.mjs`、`check-full-history-performance-v81.mjs`、`check-live-cadence-performance-v81.mjs`。各々artifactと証拠directoryを引数に取る。比較元reportがあるharnessはそれを最後の引数へ渡す。
 
 Worker/GPU、全画面RGBA転送削減、分割配信、全UIの更新抑制は、計測と同一品質の証明後に採用する候補。原計画の60FPS/p95 16.7ms、実Android/iOSのFPS・発熱・電力、オンラインは未達/未検証として扱う。物理係数の校正、100試合分布、Native認証、元の機能残件を性能改善の完了に含めない。
+
+## v84の明示的な変更範囲
+
+2026-10-21、人間は目標描画頻度2倍、空間サンプル密度の縦横1.2倍、live移動置換を承認した。[v84仕様](../design/2026-10-21-v84-render-locomotion.md)参照。4pxは品質1.0の比較基準として残し、既定1.2では`4/1.2px`の格子を全層で共有する。通常`55/6ms`、自由投球追加2.5倍、自由打球追加2倍を目標とする。静止背景cache等の既存削減策は継承する。
+
+この版で意図的に変わるのは描画密度とlive移動であり、無劣化最適化そのものの契約とは分ける。品質1.0の旧画素一致は同じ旧Core・recordを使った独立fixtureで証明し、新移動の結果に旧history一致を要求しない。新Coreの同じhistoryを観測するだけの品質・頻度変更では、物理・裁定・保存データ不変を検査する。将来の最適化が許可なく密度を戻したり、球だけ別時刻で描いたりする根拠にしない。

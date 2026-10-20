@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-LOCOMOTION-CORE-BOUNDS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveDefensiveOpportunityV1.test.ts",
+    "src/core/sim/fielding/LiveFieldRelayMotionV1.test.ts",
+    "src/core/sim/fielding/LiveFieldRoleMotionV1.test.ts"
+  ],
+  "observed_at": "2026-10-20T15:38:33.540+00:00",
+  "elapsed_ms": 11546,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-LOCOMOTION-CORE-BOUNDS_033e8610e5814e16bfb9747ae165ec1d.log",
+  "output_sha256": "bc5b1734676a6d302ecd7e6dc3cbd6a8e5be2d355b4d7769cc092fccd9d37ea6",
+  "receipt_id": "MB-20261021-V84-LOCOMOTION-CORE-BOUNDS_033e8610e5814e16bfb9747ae165ec1d"
+}

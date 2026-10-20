@@ -3,7 +3,6 @@ import { deriveLiveFieldFenceGeometryV1, simulateLiveFieldPlayV1, type LiveField
 import { REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS } from '../ball/BaseballAerodynamics';
 import { quantizeEventTick } from '../ExactEventTime';
 import { createSourceFreeBallKernel } from '../ball/SourceFreeBallKernel';
-import { LIVE_RUNNER_ADVANCE_POLICY_V1 } from './LiveRunnerAdvancePolicyV1';
 const v = (x = 0, y = 0, z = 0) => ({ x, y, z });
 export const liveFieldFixture = (): LiveFieldPlayInputV1 => {
   const tps = 1e6, originTick = 100000, elapsedSeconds = .123456789;
@@ -69,7 +68,11 @@ it('measures pocket miss on the contact entry plane instead of counting the norm
 });
 
 it('derives two retirements from a received first-base force followed by the same defender carrying the ball to a runner tag', () => {
-  const input = liveFieldFixture(), result = simulateLiveFieldPlayV1({ ...input, outs: 0,
+  const original = liveFieldFixture(), input = { ...original,
+    // V84 changes the race: a slightly faster first-base receiver can still
+    // carry to the tag; at 7m/s a genuine second throw becomes preferable.
+    fielders: original.fielders.map((f, i) => i === 2 ? { ...f, topSpeedMps: 7.2 } : f) },
+    result = simulateLiveFieldPlayV1({ ...input, outs: 0,
     ball: { ...input.ball, ball: { ...input.ball.ball, position: v(0, .2, 0), velocity: v(1, -1, 5) } },
     runners: [{ ...input.runners[0], topSpeedMps: 3 },
       { runnerId: 'first-runner', initialBase: 1, topSpeedMps: 3, accelerationMps2: 3, reactionSeconds: .2 }] });
@@ -297,7 +300,7 @@ it('keeps a deep retrieved ball when every force throw would arrive after the ru
 it('rejects unready force receivers without fictional throws while the batter takes a safe extra base and declines an unsafe third', () => {
   const input = liveFieldFixture(), result = simulateLiveFieldPlayV1({ ...input, outs: 0,
     ball: { ...input.ball, ball: { ...input.ball.ball, position: v(0, .2, 0), velocity: v(1, -1, 5) } },
-    fielders: input.fielders.map((f, i) => ({ ...f, ...(i === 0 ? {} : { reactionSeconds: 60 }),
+    fielders: input.fielders.map((f, i) => ({ ...f, ...(i === 0 ? { topSpeedMps: 3 } : { reactionSeconds: 60 }),
       ...(i === 2 ? { position: v(25, 1, 25) } : {}) })) });
   if (process.env.FIELDING_DIAG_REPORT === '1') console.log('UNREADY_RECEIVER_TRACE', JSON.stringify({
     facts: result.facts.filter(f => ['catch_secured', 'throw_release', 'controlled_base_contact', 'controlled_runner_tag', 'runner_base_touch', 'play_end'].includes(f.kind)),
@@ -323,9 +326,11 @@ it('rejects unready force receivers without fictional throws while the batter ta
   expect(result.diagnostics.throwDecisions).toEqual([]);
   expect(result.diagnostics.aiTelemetry.relayPlans.some(d => d.base === 1 && d.kind === 'hold' && d.marginSeconds < 0)).toBe(true);
   expect(result.diagnostics.aiTelemetry.holderDecisions.some(d => d.state === 'pursue_tag')).toBe(true);
-  const safeAdvance = result.diagnostics.aiTelemetry.runnerDecisions.find(d => d.targetBase === 2 && d.advance)!;
-  expect(safeAdvance).toMatchObject({ reason: 'safe_race_advance' });
-  expect(safeAdvance.raceMarginSeconds).toBeGreaterThan(LIVE_RUNNER_ADVANCE_POLICY_V1.safetyMarginSeconds);
+  // The slower holder now permits a continuous first-to-second route before
+  // first contact, rather than a second departure decision after stopping.
+  const throughRoute = result.diagnostics.aiTelemetry.runnerMotions.find(m => m.throughBases.join(',') === '1,2')!;
+  expect(throughRoute).toBeDefined();
+  expect(throughRoute.elapsedSeconds).toBeLessThan(result.facts.find(f => f.kind === 'runner_base_touch' && f.base === 1)!.elapsedSeconds);
   expect(result.diagnostics.aiTelemetry.runnerDecisions.some(d => d.targetBase === 3 && !d.advance
     && d.reason === 'insufficient_safety_margin')).toBe(true);
   expect(result.finalRunners[0]).toMatchObject({ base: 2, retired: false, scored: false });

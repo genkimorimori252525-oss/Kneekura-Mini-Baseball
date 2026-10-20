@@ -1,4 +1,6 @@
 import type { Vec3 } from '../../model/geometry';
+import { createLiveLocomotionProfileV84, liveAccelerationDistanceV84, liveAccelerationTimeV84,
+  liveReachableSpeedV84, type LiveLocomotionProfileV84 } from '../locomotion/LiveLocomotionV84';
 import { quantizeEventTick } from '../ExactEventTime';
 import { createSourceFreeBallKernel } from '../ball/SourceFreeBallKernel';
 import type { BaseballBase } from '../../rules/PhysicalRuleFacts';
@@ -93,12 +95,14 @@ const sub = (a: Vec3, b: Vec3): Vec3 => v(a.x - b.x, a.y - b.y, a.z - b.z);
 const norm = (a: Vec3) => Math.hypot(a.x, a.y, a.z);
 const distance = (a: Vec3, b: Vec3) => norm(sub(a, b));
 
-function kinematicTravelSeconds(runMeters: number, topSpeedMps: number, accelerationMps2: number): number {
-  const d = Math.max(0, runMeters);
-  const accelDist = topSpeedMps ** 2 / (2 * accelerationMps2);
-  return d <= accelDist
-    ? Math.sqrt((2 * d) / accelerationMps2)
-    : d / topSpeedMps + topSpeedMps / (2 * accelerationMps2);
+function kinematicTravelSeconds(runMeters: number, profile: LiveLocomotionProfileV84): number {
+  const d = Math.max(0, runMeters), maximum = profile.topSpeedMps,
+    accelDist = liveAccelerationDistanceV84(profile, 0, maximum);
+  // An optimistic rest-to-first-entry bound, without target braking or AI.
+  // The old constant-a oracle would falsely report a reachable leaked ball
+  // after V84 deliberately reduced propulsion at higher running speeds.
+  return d <= accelDist ? liveAccelerationTimeV84(profile, 0, liveReachableSpeedV84(profile, 0, d))
+    : liveAccelerationTimeV84(profile, 0, maximum) + (d - accelDist) / maximum;
 }
 
 export function diagnoseLiveFieldPlayV1(
@@ -134,7 +138,7 @@ export function diagnoseLiveFieldPlayV1(
     let earliestElapsedSeconds: number | null = null;
     let interceptPoint: Vec3 | null = null;
     let minMarginSeconds = Infinity;
-    const gloveFloor = Math.max(f.gloveRadiusMeters, radiusM);
+    const gloveFloor = Math.max(f.gloveRadiusMeters, radiusM), locomotion = createLiveLocomotionProfileV84(f);
     for (let dt = 0.04; dt <= oracleHorizon; dt += 0.02) {
       const t = start + dt;
       const sample = undisturbed.evaluateAt(t, 'outgoing').moment.ball;
@@ -146,7 +150,7 @@ export function diagnoseLiveFieldPlayV1(
       const dy = f.position.y - Math.max(gloveFloor, sample.position.y);
       const horizReach = Math.sqrt(Math.max(0, f.gloveReachMeters * f.gloveReachMeters - dy * dy)) + f.gloveRadiusMeters * 0.5;
       const runDist = Math.max(0, distance(flat(f.position), flat(sample.position)) - horizReach);
-      const travel = kinematicTravelSeconds(runDist, f.topSpeedMps, f.accelerationMps2);
+      const travel = kinematicTravelSeconds(runDist, locomotion);
       const margin = travel - activeTime;
       if (margin < minMarginSeconds) minMarginSeconds = margin;
       if (travel <= activeTime && earliestElapsedSeconds === null) {

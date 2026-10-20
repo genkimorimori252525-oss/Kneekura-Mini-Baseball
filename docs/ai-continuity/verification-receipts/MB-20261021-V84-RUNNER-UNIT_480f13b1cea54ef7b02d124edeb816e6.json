@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-RUNNER-UNIT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/running/LiveRunnerMotionV1.test.ts",
+    "src/core/sim/running/LiveRunnerRetreatMotionV1.test.ts",
+    "src/core/sim/fielding/LiveRunnerAdvancePolicyV1.test.ts",
+    "src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts",
+    "src/core/sim/fielding/LiveRunnerAirbornePolicyV53.test.ts"
+  ],
+  "observed_at": "2026-10-20T15:21:37.378+00:00",
+  "elapsed_ms": 1453,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-RUNNER-UNIT_480f13b1cea54ef7b02d124edeb816e6.log",
+  "output_sha256": "4c2e1bcb2c0c28e51943cbff095009a96cdc821e5c9d5f3841d2274785fc6e1a",
+  "receipt_id": "MB-20261021-V84-RUNNER-UNIT_480f13b1cea54ef7b02d124edeb816e6"
+}

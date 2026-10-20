@@ -52,7 +52,10 @@ it('uses rounding route selection while preserving straight motion and every phy
   expect(b.route).toEqual(a.route);expect(b.speedSegments).toEqual(a.speedSegments);
   for(let t=0;t<good.durationSeconds;t+=.01){const sample=good.sampleAtElapsedSeconds(t),part=good.route.segments[sampleRunnerRoute(good.route,sample.distanceMeters).segmentIndex];
     expect(sample.speedMps).toBeLessThanOrEqual(8+1e-9);if(part.kind==='arc')expect(sample.speedMps**2/part.radiusMeters).toBeLessThanOrEqual(7.5+1e-8);}
-  for(const segment of good.speedSegments)expect(Math.abs(segment.accelerationMps2)).toBeLessThanOrEqual(5);
+  // Technique changes the route, while V84 keeps propulsion and braking
+  // within their distinct authored motor limits (a and 1.8a).
+  for(const segment of good.speedSegments){expect(segment.accelerationMps2).toBeLessThanOrEqual(5);
+    expect(segment.accelerationMps2).toBeGreaterThanOrEqual(-9);}
 });
 
 it('shortens only the batter initial departure, preserving baserunner recognition and run speed',()=>{

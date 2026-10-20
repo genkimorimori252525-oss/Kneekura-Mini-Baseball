@@ -1,0 +1,17 @@
+evalmachine.<anonymous>:2270
+  const started = performance.now(), input = cloneInert(raw), horizon = input.horizonSeconds ?? 8;
+                  ^
+
+ReferenceError: performance is not defined
+    at createLiveFieldForecastV1 (evalmachine.<anonymous>:2270:19)
+    at predictObservation (evalmachine.<anonymous>:4182:48)
+    at predict (evalmachine.<anonymous>:4201:29)
+    at forecast (evalmachine.<anonymous>:4215:24)
+    at evalmachine.<anonymous>:4313:61
+    at Array.map (<anonymous>)
+    at plan (evalmachine.<anonymous>:4313:33)
+    at simulateLiveFieldPlayV1 (evalmachine.<anonymous>:5070:7)
+    at Object.diagnoseLiveFieldPlayV1 (evalmachine.<anonymous>:5725:50)
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-fielding-matrix-v84.mjs:14:89
+
+Node.js v26.1.0

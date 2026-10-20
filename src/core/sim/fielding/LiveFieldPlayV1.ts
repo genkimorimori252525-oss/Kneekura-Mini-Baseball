@@ -7,7 +7,7 @@ import { respondToBallContact } from '../ball/BallContactResponse';
 import { sourceRk4PositionBounds } from '../ball/SourceFreeBallSpeedBound';
 import { quantizeEventTick } from '../ExactEventTime';
 import { IDENTITY_QUATERNION, advanceBaseballOrientation, multiplyQuaternions, type Quaternion } from '../pitching/BaseballOrientation';
-import { buildDefenderMotionTrajectory } from './DefenderMotion';
+import { createLiveLocomotionProfileV84, stepLiveDefenderMotionV84 } from '../locomotion/LiveLocomotionV84';
 import { coordinateLiveFielderMotionV1, LIVE_FIELDER_AVOIDANCE_POLICY_V1 } from './LiveFielderAvoidanceV1';
 import { resolveCatchRetention, type CatchRetentionParameters } from './CatchRetention';
 import { createGroundWallRollingCurveV1 } from './GroundWallRollingCurveV1';
@@ -134,7 +134,8 @@ const maximumCurveAcceleration = (c: Curve, through: number) => {
   return Math.max(norm(c.acceleration), norm(add(c.acceleration, mul(c.jerk ?? v(), dt))), norm(c.continuingAcceleration ?? v()),
     norm(add(c.continuingAcceleration ?? v(), mul(c.continuingJerk ?? v(), after))));
 };
-type Fielder = { spec: LiveFielderV1; body: Curve; glove: Curve; intent: LiveFieldFrameV1['fielders'][number]['intent'];
+type Fielder = { spec: LiveFielderV1; locomotion: ReturnType<typeof createLiveLocomotionProfileV84>;
+  body: Curve; glove: Curve; intent: LiveFieldFrameV1['fielders'][number]['intent'];
   targetBase: BaseballBase | null; catchEnabledAfter: number };
 type HandPreparationState = { fielder: Fielder; base: BaseballBase;
   curve: Extract<ReturnType<typeof createLiveHandPreparationV1>, { kind: 'planned' }>; prepared: boolean };
@@ -218,7 +219,7 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
   const tick = (t: number) => quantizeEventTick(originTick, t, tps);
   const findContact = (gap: (t: number) => number, speed: number, rounding: number, lo: number, hi: number) => firstContact(gap, speed, rounding, lo, hi, 0, 1 / tps);
   const emit = (kind: LiveFieldFactV1['kind'], t: number, extra: Omit<LiveFieldFactV1, 'kind' | 'tick' | 'elapsedSeconds'> = {}) => facts.push({ kind, tick: tick(t), elapsedSeconds: t, ...extra });
-  const defenders: Fielder[] = input.fielders.map(spec => ({ spec, body: { from: start, p: spec.position, velocity: spec.velocity ?? v(), acceleration: v() },
+  const defenders: Fielder[] = input.fielders.map(spec => ({ spec, locomotion: createLiveLocomotionProfileV84(spec), body: { from: start, p: spec.position, velocity: spec.velocity ?? v(), acceleration: v() },
     glove: { from: start, p: spec.position, velocity: spec.velocity ?? v(), acceleration: v() }, intent: 'hold', targetBase: null, catchEnabledAfter: start }));
   const runners: Runner[] = input.runners.map(spec => ({ spec, base: spec.initialBase, p: spec.position ?? base(spec.initialBase), leg: null,
     retired: false, scored: false, retouchBase: null, returnReadyAt: null }));
@@ -450,27 +451,16 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
     ...(f.spec.fieldingCognition?.pursuitCostWeight === undefined ? {} : { pursuitCostWeight: f.spec.fieldingCognition.pursuitCostWeight }) });
   const forecast = (f: Fielder, t: number) => {
     const prediction = predict(f, t); if (!prediction) return null;
-    const bodyPos = flat(at(f.body, t)), bodyVel = velocityAt(f.body, t),
+    const bodyPos = at(f.body, t), bodyVel = velocityAt(f.body, t),
       activeAt = start + Math.ceil(Math.max(0, responseSeconds(f) - 1e-12) / LIVE_FIELD_TEST_MODEL_V1.controlSeconds) * LIVE_FIELD_TEST_MODEL_V1.controlSeconds,
       wait = Math.max(0, activeAt - t),
-      a = f.spec.accelerationMps2, vmax = f.spec.topSpeedMps,
       gloveFloor = Math.max(f.spec.gloveRadiusMeters, input.physics.ground.radiusM);
     const horizontalReachAt = (y: number) => {
       const dy = f.spec.position.y - Math.max(gloveFloor, y);
       return Math.sqrt(Math.max(0, f.spec.gloveReachMeters * f.spec.gloveReachMeters - dy * dy)) + f.spec.gloveRadiusMeters * .5;
     };
-    const travelTo = (p: Vec3) => {
-      const toP = sub(flat(p), bodyPos), dist = norm(toP);
-      let run = Math.max(0, dist - horizontalReachAt(p.y));
-      if (run === 0) return wait;
-      const rawAlong = dist > 1e-9 ? (bodyVel.x * toP.x + bodyVel.z * toP.z) / dist : 0;
-      let along = Math.min(vmax, rawAlong), reversal = 0;
-      if (along < 0) { reversal = -along / a; run += along * along / (2 * a); along = 0; }
-      const accelDist = Math.max(0, (vmax * vmax - along * along) / (2 * a)),
-        move = run <= accelDist ? (Math.sqrt(along * along + 2 * a * run) - along) / a
-          : (vmax - along) / a + (run - accelDist) / vmax;
-      return wait + reversal + move;
-    };
+    const travelTo = (p: Vec3) => liveFieldArrivalSecondsV1({ ...roleActor(f, t),
+      position: bodyPos, velocity: bodyVel, remainingReactionSeconds: wait }, p, horizontalReachAt(p.y));
     const observed = prediction.observedPosition, fallbackTravel = travelTo(observed);
     let best = { point: observed, eta: fallbackTravel + Math.max(0, observed.y - f.spec.position.y - f.spec.gloveReachMeters), prediction, intercepted: false };
     let lastInFence = null as { point: Vec3; eta: number } | null;
@@ -760,7 +750,7 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
       accepts: (motion: Readonly<{ acceleration: Vec3; stopAfter?: number }>) => boolean }>();
     for (const f of defenders) {
       const before = at(f.body, t), vel = velocityAt(f.body, t), target = assigned.get(f)!, delta = through - t;
-      const active = !dead && t >= start + responseSeconds(f);
+      const active = !dead && t >= start + responseSeconds(f), locomotion = f.locomotion;
       const bodyRadius = LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters, gloveRadius = Math.max(f.spec.gloveRadiusMeters, input.physics.ground.radiusM),
         grip = at(f.glove, t), currentOffset = sub(grip, before);
       let motorPoint = target.point;
@@ -768,38 +758,43 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
         && (forecasts.find(x => x.f === f)?.predicted?.prediction.observedPosition.y ?? Infinity) <= gloveRadius + .2) {
         const pred = forecasts.find(x => x.f === f)?.predicted,
           toT = flat(sub(target.point, before)), distT = norm(toT),
-          stopTime = liveFieldArrivalSecondsV1({ ...roleActor(f, t), remainingReactionSeconds: 0 }, target.point, .02) + norm(vel) / f.spec.accelerationMps2;
+          stopTime = liveFieldArrivalSecondsV1({ ...roleActor(f, t), remainingReactionSeconds: 0 }, target.point, .02) + norm(vel) / locomotion.brakingMps2;
         const chargeSkill = f.spec.technicalSkills?.slow_ball_charge ?? 0, seen = chargeSkill > 0 ? seenBy(f, t) : null,
           charging = chargeSkill > 0 && !possession && !pendingCatch && !hasThrown && !throwTarget
             && firstGroundContactSeconds !== null && seen !== null && seen.t >= firstGroundContactSeconds
             && seen.position.y <= input.physics.ground.radiusM + .05 && norm(seen.velocity) <= 10;
         if (distT > (charging ? .15 : .35) && (charging || !pred || !pred.intercepted || pred.eta < stopTime)) {
-          const runThrough = (f.spec.topSpeedMps * f.spec.topSpeedMps) / (2 * f.spec.accelerationMps2) + .5;
+          const runThrough = (f.spec.topSpeedMps * f.spec.topSpeedMps) / (2 * locomotion.brakingMps2) + .5;
           motorPoint = add(target.point, mul(toT, runThrough / distT));
           // A bounded observed-ball lead changes the approach route; all motor/avoidance limits still apply.
           if (charging) motorPoint = add(motorPoint, mul(flat(seen!.velocity), .03 * chargeSkill));
         }
       }
-      const seg = buildDefenderMotionTrajectory({ tick: 0, position: flat(before), velocity: flat(vel) }, active && !defensiveOpportunity ? flat(targetInside(motorPoint, fenceRadius - bodyRadius - .02)) : null,
-        Math.max(1, Math.round(delta * tps)), { ticksPerSecond: tps, maxIntegrationStepTicks: Math.max(1, Math.round(delta * tps)),
-          accelerationMps2: f.spec.accelerationMps2, brakingMps2: f.spec.accelerationMps2, topSpeedMps: f.spec.topSpeedMps, arrivalRadiusMeters: .02 })[0];
-      const proposed: Curve = { from: t, p: before, velocity: vel, acceleration: v(seg.acceleration.x, 0, seg.acceleration.z) },
+      const seg = stepLiveDefenderMotionV84({ position: flat(before), velocity: flat(vel) },
+        active && !defensiveOpportunity ? flat(targetInside(motorPoint, fenceRadius - bodyRadius - .02)) : null, delta, locomotion);
+      const proposed: Curve = { from: t, p: before, velocity: vel, acceleration: v(seg.acceleration.x, 0, seg.acceleration.z),
+        ...(seg.stopAfter === undefined ? {} : { stopAfter: seg.stopAfter }) },
         speed = norm(vel), emergency: Curve = { from: t, p: before, velocity: vel,
-          acceleration: speed > 0 ? mul(vel, -f.spec.accelerationMps2 / speed) : v(), stopAfter: speed / f.spec.accelerationMps2 };
+          acceleration: speed > 0 ? mul(vel, -locomotion.brakingMps2 / speed) : v(), stopAfter: speed / locomotion.brakingMps2 };
       const bodySafe = (c: Curve, stoppingReserve: number = LIVE_FIELD_TEST_MODEL_V1.fenceMotorStoppingReserveMeters) => [ { offset: v(), radius: bodyRadius }, { offset: currentOffset, radius: gloveRadius } ].every(o => {
         const translated = shifted(c, o.offset);
         return curveInside(translated, t, through, fenceRadius - o.radius, 0)
-          && pointInside(add(stopPoint(c, through, f.spec.accelerationMps2), o.offset), fenceRadius - o.radius - stoppingReserve);
+          && pointInside(add(stopPoint(c, through, locomotion.brakingMps2), o.offset), fenceRadius - o.radius - stoppingReserve);
       });
       let body = proposed, bodyBoundaryLimited = false;
       if (!bodySafe(body)) {
         bodyBoundaryLimited = true;
         if (!bodySafe(emergency, 0)) { motorBoundaryFailure = { kind: 'body_fence_motor_infeasible', playerId: f.spec.playerId, position: before, velocity: vel,
-          currentOffset, emergencyStop: stopPoint(emergency, through, f.spec.accelerationMps2), emergencyEnd: at(emergency, through) }; return; }
-        body = emergency; let low = 0, high = 1;
-        for (let i = 0; i < 32; i++) {
-          const u = (low + high) / 2, candidate = { ...proposed, acceleration: add(mul(emergency.acceleration, 1 - u), mul(proposed.acceleration, u)) };
-          if (bodySafe(candidate)) { low = u; body = candidate; } else high = u;
+          currentOffset, emergencyStop: stopPoint(emergency, through, locomotion.brakingMps2), emergencyEnd: at(emergency, through) }; return; }
+        body = emergency;
+        // Blending different stopAfter boundaries would make the acceleration
+        // and its zero-speed boundary disagree. Only blend full-step commands.
+        if (proposed.stopAfter === undefined && speed / locomotion.brakingMps2 >= delta) {
+          let low = 0, high = 1;
+          for (let i = 0; i < 32; i++) {
+            const u = (low + high) / 2, candidate = { ...proposed, acceleration: add(mul(emergency.acceleration, 1 - u), mul(proposed.acceleration, u)) };
+            if (bodySafe(candidate)) { low = u; body = candidate; } else high = u;
+          }
         }
       }
       const asCurve = (motion: Readonly<{ acceleration: Vec3; stopAfter?: number }>): Curve => ({ from: t, p: before, velocity: vel,
@@ -812,6 +807,7 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
       actors: defenders.map(f => { const p = bodyPlans.get(f)!;
         return { playerId: f.spec.playerId, position: p.before, velocity: p.vel,
           accelerationMps2: f.spec.accelerationMps2, topSpeedMps: f.spec.topSpeedMps, bodyRadiusMeters: LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters,
+          locomotionProfile: f.locomotion,
           priority: f === possession || f === pendingCatch?.fielder ? 700 : f === throwTarget?.receiver ? 600 : f === handler ? 500
             : p.target.intent === 'tag' ? 450 : p.target.intent === 'base_cover' ? 300 : p.target.intent === 'relay' ? 200 : p.target.intent === 'backup' ? 100 : 0,
           canSteer: t >= start + responseSeconds(f),
@@ -890,7 +886,7 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
         ...(body.stopAfter !== undefined ? { continuingVelocity: mul(relativeVelocity, u) } : {}) });
       const gloveSafe = (c: Curve, stoppingReserve: number = LIVE_FIELD_TEST_MODEL_V1.fenceMotorStoppingReserveMeters, motorThrough = through) => {
         if (!curveInside(c, t, motorThrough, fenceRadius - gloveRadius, gloveRadius)
-          || !pointInside(add(stopPoint(body, motorThrough, f.spec.accelerationMps2), sub(at(c, motorThrough), at(body, motorThrough))), fenceRadius - gloveRadius - stoppingReserve)) return false;
+          || !pointInside(add(stopPoint(body, motorThrough, f.locomotion.brakingMps2), sub(at(c, motorThrough), at(body, motorThrough))), fenceRadius - gloveRadius - stoppingReserve)) return false;
         if (pendingCatch?.fielder === f) {
           const capture = pendingCatch, duration = capture.secure - capture.first, until = Math.min(through, capture.secure),
             offset = mul(capture.offset, Math.max(0, 1 - (t - capture.first) / duration)), captureCurve = shifted(c, offset, mul(capture.offset, -1 / duration));
@@ -1326,8 +1322,8 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
           && distance(position, at(other.glove, time)) > other.spec.gloveRadiusMeters + input.physics.ground.radiusM);
         const distToBag = distance(flat(at(target.receiver.body, time)), flat(target.receiverPoint)),
           touchR = field.baseTouchRadiusMeters ?? .28,
-          brakeEtaToBag = distToBag <= touchR ? 0
-            : Math.sqrt(2 * distToBag / target.receiver.spec.accelerationMps2) - Math.sqrt(2 * touchR / target.receiver.spec.accelerationMps2),
+          brakeEtaToBag = liveFieldArrivalSecondsV1({ ...roleActor(target.receiver, time),
+            velocity: v(), remainingReactionSeconds: 0 }, target.receiverPoint, touchR),
           receiverEtaToBag = Math.max(
             liveFieldArrivalSecondsV1({ ...roleActor(target.receiver, time), remainingReactionSeconds: 0 }, target.receiverPoint, touchR),
             brakeEtaToBag);

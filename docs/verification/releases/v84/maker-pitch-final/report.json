@@ -1,0 +1,27 @@
+{
+  "pass": true,
+  "file": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v84_描画と接地移動版.html",
+  "artifactSha256": "30c9de32e19b83099e997128c22a4f501d9b47023e17980073df16b259486e63",
+  "cases": [
+    {
+      "width": 1200,
+      "visibleRemoval": true,
+      "exactUndo": true,
+      "dirtyRecovery": true,
+      "staleUndoRejected": true,
+      "lastPitchRetained": true,
+      "libraryHistoryUnchanged": true,
+      "jsonCompatible": true
+    },
+    {
+      "width": 390,
+      "visibleRemoval": true,
+      "exactUndo": true,
+      "dirtyRecovery": true,
+      "staleUndoRejected": true,
+      "lastPitchRetained": true,
+      "libraryHistoryUnchanged": true,
+      "jsonCompatible": true
+    }
+  ]
+}

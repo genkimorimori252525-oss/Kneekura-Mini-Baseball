@@ -99,32 +99,44 @@ it('reconsiders a newly vacated advance reservation after a live retirement befo
   expect(result.diagnostics.playClosure.possessedBy).not.toBeNull();
 });
 
-it('adjudicates the actual normal-game tag enabled by a witnessed through-base departure', () => {
+it('keeps the recorded normal-game runner protected when V84 movement makes a further advance unsafe', () => {
   const input = JSON.parse(readFileSync(new URL('./__fixtures__/live-runner-base-exit-tag-v49.json', import.meta.url), 'utf8')) as LiveFieldPlayInputV1,
     result = simulateLiveFieldPlayV1(input), runnerId = '1-b0',
-    tag = result.ruleFacts.controlledRunnerTags.find(f => f.runnerId === runnerId)!,
+    touch = result.ruleFacts.runnerTouches.find(f => f.runnerId === runnerId && f.base === 3)!;
+  expect(result.end.complete).toBe(true);
+  // This recorded V49 input produced a through-base tag with the old motor.
+  // V84 changes observed departure timing and the race forecast: the runner
+  // now holds third. A historical outcome cannot invent a departure or tag.
+  expect(touch).toBeDefined();
+  expect(result.finalRunners.find(r => r.runnerId === runnerId)).toMatchObject({ base: 3, retired: false, scored: false });
+  expect(result.diagnostics.aiTelemetry.runnerDecisions.some(d => d.runnerId === runnerId && d.targetBase === 4
+    && d.reason === 'insufficient_safety_margin')).toBe(true);
+  expect(result.ruleFacts.runnerDepartures.filter(f => f.runnerId === runnerId && f.base === 3)).toEqual([]);
+  expect(result.ruleFacts.controlledRunnerTags.filter(f => f.runnerId === runnerId)).toEqual([]);
+});
+
+it('retains actual through-base departure and rule causality with a weaker authored throwing arm', () => {
+  const raw = JSON.parse(readFileSync(new URL('./__fixtures__/live-runner-base-exit-tag-v49.json', import.meta.url), 'utf8')) as LiveFieldPlayInputV1,
+    // A weaker arm creates a real safe race under the new movement profile;
+    // only the input ability changes, never the resulting route or rule facts.
+    input = { ...raw, fielders: raw.fielders.map(f => ({ ...f, throwSpeedMps: .6 * f.throwSpeedMps })) },
+    result = simulateLiveFieldPlayV1(input), runnerId = '1-b0',
     departure = result.ruleFacts.runnerDepartures.find(f => f.runnerId === runnerId && f.base === 3)!,
     touch = result.ruleFacts.runnerTouches.find(f => f.runnerId === runnerId && f.base === 3)!;
   expect(result.end.complete).toBe(true);
-  expect(tag).toBeDefined();
-  expect(departure.tick).toBe(tag.tick);
-  expect(tag.protectionEndedByDeparture).toEqual({ base: 3, tick: departure.tick });
+  expect(result.diagnostics.aiTelemetry.runnerMotions.some(m => m.runnerId === runnerId && m.throughBases.join(',') === '3,4')).toBe(true);
   expect(touch.tick).toBeLessThan(departure.tick);
   const actualDeparture = result.facts.find(f => f.kind === 'runner_base_departure' && f.runnerId === runnerId && f.base === 3)!,
-    actualTag = result.facts.find(f => f.kind === 'controlled_runner_tag' && f.runnerId === runnerId)!;
-  expect(actualDeparture.elapsedSeconds).toBe(actualTag.elapsedSeconds);
-  expect(result.facts.indexOf(actualDeparture)).toBeLessThan(result.facts.indexOf(actualTag));
+    actualTouch = result.facts.find(f => f.kind === 'runner_base_touch' && f.runnerId === runnerId && f.base === 3)!;
+  expect(actualDeparture.tick).toBe(departure.tick);
+  expect(actualTouch.elapsedSeconds).toBeLessThan(actualDeparture.elapsedSeconds);
+  expect(result.facts.indexOf(actualTouch)).toBeLessThan(result.facts.indexOf(actualDeparture));
+  expect(result.finalRunners.find(r => r.runnerId === runnerId)).toMatchObject({ scored: true, retired: false });
   const batter = input.runners.find(r => r.initialBase === 0)!, at = (n: number) => input.runners.find(r => r.initialBase === n)?.runnerId ?? null,
     rules = reducePlayableMatchV1({ match: { ruleProfileId: asRuleProfileId('offline-causal-exit'), inning: 1, half: 'top',
       outs: input.outs, balls: 0, strikes: 0, bases: { first: at(1), second: at(2), third: at(3) }, score: { away: 0, home: 0 }, playId: 0 },
       batterRunnerId: batter.runnerId, event: { kind: 'field_play', facts: result.ruleFacts } });
   expect(rules.kind).toBe('applied');
   if (rules.kind !== 'applied') throw new Error(rules.reason);
-  expect(rules.outcomes).toContainEqual(expect.objectContaining({ runnerId, tick: tag.tick, cause: 'runner_tag', classification: 'time_play' }));
   expect(result.finalRunners.filter(r => r.retired).map(r => r.runnerId).sort()).toEqual(rules.outcomes.map(o => o.runnerId).sort());
-  const unproven = reducePlayableMatchV1({ match: { ruleProfileId: asRuleProfileId('offline-causal-exit'), inning: 1, half: 'top',
-    outs: input.outs, balls: 0, strikes: 0, bases: { first: at(1), second: at(2), third: at(3) }, score: { away: 0, home: 0 }, playId: 0 },
-    batterRunnerId: batter.runnerId, event: { kind: 'field_play', facts: { ...result.ruleFacts,
-      controlledRunnerTags: result.ruleFacts.controlledRunnerTags.map(({ protectionEndedByDeparture: _proof, ...fact }) => fact) } } });
-  expect(unproven).toEqual({ kind: 'unresolved', reason: 'simultaneous_tag_arrival_or_departure', tick: tag.tick });
 });

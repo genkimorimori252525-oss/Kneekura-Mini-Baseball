@@ -1,0 +1,29 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/running/LiveRunnerRetreatMotionV1.test.ts (5 tests) 15ms
+ ✓ src/core/sim/fielding/LiveRunnerAdvancePolicyV1.test.ts (13 tests) 9ms
+ ✓ src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts (3 tests) 16ms
+ ❯ src/core/sim/running/LiveRunnerMotionV1.test.ts (14 tests | 1 failed) 78ms
+   × LiveRunnerMotionV1 > keeps derived rotated velocities inside their scalar cap and replans without boundary exceptions 8ms
+     → expected null not to be null
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/running/LiveRunnerMotionV1.test.ts > LiveRunnerMotionV1 > keeps derived rotated velocities inside their scalar cap and replans without boundary exceptions
+AssertionError: expected null not to be null
+ ❯ src/core/sim/running/LiveRunnerMotionV1.test.ts:157:24
+    155|       }
+    156|       const sampled = m.sampleAtElapsedSeconds(4), next = createLiveRu…
+    157|       expect(next).not.toBeNull();
+       |                        ^
+    158|       expect(next!.sampleAtElapsedSeconds(0).velocity).toEqual(sampled…
+    159|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 34 passed (35)
+   Start at  00:34:17
+   Duration  855ms (transform 300ms, setup 0ms, collect 475ms, tests 118ms, environment 1ms, prepare 833ms)
+

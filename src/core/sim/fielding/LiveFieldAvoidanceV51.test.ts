@@ -39,9 +39,13 @@ it.each(cases)('keeps fielders separated with continuous acceleration-limited mo
       const dv = Math.hypot(actor.velocity.x - previous.velocity.x, actor.velocity.z - previous.velocity.z),
         displacementResidual = Math.hypot(actor.position.x - previous.position.x - previous.velocity.x * dt,
           actor.position.z - previous.position.z - previous.velocity.z * dt);
-      expect(dv, `${actor.playerId} acceleration at ${frame.elapsedSeconds}`).toBeLessThanOrEqual(spec.accelerationMps2 * dt + 1e-7);
+      // V84 separates propulsion a from planting/braking 1.8a. This bound is
+      // the integrated vector magnitude; directional limits are checked by
+      // the shared motor/avoidance tests rather than treating braking as a.
+      const motorMaximum = 1.8 * spec.accelerationMps2;
+      expect(dv, `${actor.playerId} acceleration at ${frame.elapsedSeconds}`).toBeLessThanOrEqual(motorMaximum * dt + 1e-7);
       expect(displacementResidual, `${actor.playerId} continuous motor at ${frame.elapsedSeconds}`)
-        .toBeLessThanOrEqual(.5 * spec.accelerationMps2 * dt * dt + 1e-7);
+        .toBeLessThanOrEqual(.5 * motorMaximum * dt * dt + 1e-7);
     }
   }
   expect.soft(result.end.complete).toBe(true);

@@ -1,5 +1,6 @@
 import type { Vec2 } from '../../model/geometry';
 import { validateTechnicalSkillControlsV75, type TechnicalSkillControlsV75 } from '../TechnicalSkillControlsV75';
+import { buildLiveSpeedPlanV84, createLiveLocomotionProfileV84, liveReachableSpeedV84, type LiveLocomotionProfileV84 } from '../locomotion/LiveLocomotionV84';
 import { getRunnerRouteLength, sampleRunnerRoute, type RunnerRoute, type RunnerRouteSegment } from './RunnerRoute';
 
 export type LiveRunnerMotionBaseV1 = Readonly<{ base: number; position: Vec2 }>;
@@ -107,7 +108,9 @@ function buildRoute(input: LiveRunnerMotionInputV1, radius: number, lateral: num
     const bag = input.bases[index].position;
     const previous = index ? input.bases[index - 1].position : input.position;
     const incoming = unit(sub(bag, previous));
-    const connectorRadius = segments.length === 0 ? Math.max(radius, initialSpeed * initialSpeed / lateral) : radius;
+    // Round only the velocity-derived radius outward, so its reconstructed
+    // lateral speed cap cannot land below the unchanged incoming speed.
+    const connectorRadius = segments.length === 0 ? Math.max(radius, initialSpeed * initialSpeed / lateral * (1 + 4 * Number.EPSILON)) : radius;
     if (index === input.bases.length - 1) {
       const connector = connect(position, heading, bag, incoming, connectorRadius);
       if (!connector) return null;
@@ -143,35 +146,36 @@ function buildRoute(input: LiveRunnerMotionInputV1, radius: number, lateral: num
   return { route, centerDistances, lengthMeters: getRunnerRouteLength(route) };
 }
 
-function buildSpeedSegments(route: RunnerRoute, initialSpeed: number, topSpeed: number, acceleration: number, braking: number, lateral: number) {
+function buildSpeedSegments(route: RunnerRoute, initialSpeed: number, profile: LiveLocomotionProfileV84) {
+  const { topSpeedMps: topSpeed, brakingMps2: braking, lateralAccelerationMps2: lateral } = profile;
   const lengths = route.segments.map(segmentLength);
   const caps = route.segments.map(s => s.kind === 'line' ? topSpeed : Math.min(topSpeed, Math.sqrt(lateral * s.radiusMeters)));
-  if (initialSpeed > caps[0] + EPSILON) return null;
+  if (initialSpeed > caps[0]) return null;
   const speeds = [initialSpeed];
   for (let i = 0; i < lengths.length; i++) speeds.push(Math.min(
     i === lengths.length - 1 ? 0 : Math.min(caps[i], caps[i + 1]),
-    Math.sqrt(speeds[i] * speeds[i] + 2 * acceleration * lengths[i]),
+    liveReachableSpeedV84(profile, speeds[i], lengths[i], caps[i]),
   ));
-  for (let i = lengths.length - 1; i >= 0; i--) speeds[i] = Math.min(speeds[i], Math.sqrt(speeds[i + 1] ** 2 + 2 * braking * lengths[i]));
+  for (let i = lengths.length - 1; i >= 0; i--) {
+    let limit = Math.sqrt(speeds[i + 1] ** 2 + 2 * braking * lengths[i]);
+    // The inverse square root may round above the feasible braking envelope.
+    // Keep this derived boundary conservative, without resetting source speed.
+    if ((limit - speeds[i + 1]) * (limit + speeds[i + 1]) / (2 * braking) > lengths[i])
+      limit *= 1 - 4 * Number.EPSILON;
+    speeds[i] = Math.min(speeds[i], limit);
+  }
   if (speeds[0] < initialSpeed - EPSILON) return null;
   speeds[0] = initialSpeed;
   const segments: LiveRunnerMotionSpeedSegmentV1[] = [];
   let time = 0, distance = 0;
-  const append = (duration: number, startSpeed: number, a: number, endDistance: number) => {
-    if (duration <= 0) return;
-    segments.push({ startElapsedSeconds: time, endElapsedSeconds: time + duration,
-      startDistanceMeters: distance, endDistanceMeters: endDistance, startSpeedMps: startSpeed, accelerationMps2: a });
-    time += duration; distance = endDistance;
-  };
   for (let i = 0; i < lengths.length; i++) {
-    const from = speeds[i], to = speeds[i + 1], startDistance = distance;
-    const peak = Math.min(caps[i], Math.sqrt((2 * acceleration * braking * lengths[i] + braking * from ** 2 + acceleration * to ** 2) / (acceleration + braking)));
-    const acceleratingDistance = Math.max(0, (peak ** 2 - from ** 2) / (2 * acceleration));
-    const brakingDistance = Math.max(0, (peak ** 2 - to ** 2) / (2 * braking));
-    const coastingDistance = Math.max(0, lengths[i] - acceleratingDistance - brakingDistance);
-    append(Math.max(0, (peak - from) / acceleration), from, acceleration, startDistance + acceleratingDistance);
-    append(coastingDistance / peak, peak, 0, startDistance + acceleratingDistance + coastingDistance);
-    append(Math.max(0, (peak - to) / braking), peak, -braking, startDistance + lengths[i]);
+    const plan = buildLiveSpeedPlanV84({ profile, distanceMeters: lengths[i], initialSpeedMps: speeds[i],
+      finalSpeedMps: speeds[i + 1], speedLimitMps: caps[i] });
+    if (!plan) return null;
+    segments.push(...plan.segments.map(s => ({ ...s,
+      startElapsedSeconds: s.startElapsedSeconds + time, endElapsedSeconds: s.endElapsedSeconds + time,
+      startDistanceMeters: s.startDistanceMeters + distance, endDistanceMeters: s.endDistanceMeters + distance })));
+    time += plan.durationSeconds; distance += lengths[i];
   }
   return { segments, durationSeconds: time };
 }
@@ -221,7 +225,7 @@ function firstTouchDistance(route: RunnerRoute, bag: Vec2, radius: number, cente
  * caller must retain its plan. */
 export function createLiveRunnerMotionV1(input: LiveRunnerMotionInputV1): LiveRunnerMotionV1 | null {
   if (input.technicalSkills !== undefined) validateTechnicalSkillControlsV75(input.technicalSkills);
-  const braking = input.brakingMps2 ?? input.accelerationMps2;
+  const braking = input.brakingMps2 ?? 1.8 * input.accelerationMps2;
   const authoredRadius = input.roundingRadiusMeters ?? 4.5, skill = input.technicalSkills?.baserunning ?? 0;
   // Technique selects a slightly wider/narrower through-base route, never extra motor capacity.
   const radius = skill !== 0 && input.bases.length > 1 ? authoredRadius * (1 + .04 * skill) : authoredRadius;
@@ -238,10 +242,12 @@ export function createLiveRunnerMotionV1(input: LiveRunnerMotionInputV1): LiveRu
     previous = bag.position;
   }
   const initialSpeed = input.velocity ? norm(input.velocity) : 0;
-  if (initialSpeed > input.topSpeedMps + EPSILON) return null;
+  if (initialSpeed > input.topSpeedMps) return null;
   const geometry = buildRoute(input, radius, lateral, initialSpeed);
   if (!geometry) return null;
-  const timing = buildSpeedSegments(geometry.route, initialSpeed, input.topSpeedMps, input.accelerationMps2, braking, lateral);
+  const profile = createLiveLocomotionProfileV84({ topSpeedMps: input.topSpeedMps, accelerationMps2: input.accelerationMps2,
+    brakingMps2: braking, lateralAccelerationMps2: lateral });
+  const timing = buildSpeedSegments(geometry.route, initialSpeed, profile);
   if (!timing) return null;
   const elapsedSecondsAtDistanceMeters = (rawDistance: number) => {
     if (!Number.isFinite(rawDistance) || rawDistance < 0 || rawDistance > geometry.lengthMeters + EPSILON)
@@ -260,9 +266,17 @@ export function createLiveRunnerMotionV1(input: LiveRunnerMotionInputV1): LiveRu
     const s = timing.segments.find(s => elapsed <= s.endElapsedSeconds) ?? timing.segments[timing.segments.length - 1];
     const dt = Math.max(0, elapsed - s.startElapsedSeconds);
     const distance = Math.min(geometry.lengthMeters, Math.max(0, s.startDistanceMeters + s.startSpeedMps * dt + .5 * s.accelerationMps2 * dt * dt));
-    const speed = Math.max(0, s.startSpeedMps + s.accelerationMps2 * dt);
     const point = sampleRunnerRoute(geometry.route, distance);
-    return { position: point.position, velocity: mul(point.tangent, speed), speedMps: speed, distanceMeters: distance };
+    const part = geometry.route.segments[point.segmentIndex],
+      cap = part.kind === 'line' ? input.topSpeedMps : Math.min(input.topSpeedMps, Math.sqrt(lateral * part.radiusMeters)),
+      speed = Math.min(cap, Math.max(0, s.startSpeedMps + s.accelerationMps2 * dt));
+    let velocity = mul(point.tangent, speed);
+    const reconstructedSpeed = norm(velocity);
+    // Only derived roundoff is corrected: a unit tangent times a capped scalar
+    // may reconstruct one ULP above that scalar and invalidate the next plan.
+    // Incoming velocity at elapsed zero remains exactly as supplied.
+    if (reconstructedSpeed > speed) velocity = mul(velocity, speed / reconstructedSpeed * (1 - 4 * Number.EPSILON));
+    return { position: point.position, velocity, speedMps: speed, distanceMeters: distance };
   };
   const touches = input.bases.map((bag, index) => {
     const centerDistanceMeters = geometry.centerDistances[index];

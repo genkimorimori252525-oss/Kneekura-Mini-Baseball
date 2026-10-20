@@ -82,10 +82,13 @@ it('does not punish a motor started before first touch if the runner has not act
   expect(result.finalRunners.find(r=>r.runnerId===runnerId)!.retired).toBe(false); played(input,result);
 });
 it('uses the same official tick for departure and first-touch legality even when the disk exit is physically 10ns earlier',()=>{
+  // Retune only the authored first-band acceleration for V84's observed catch
+  // clock; the actual disk exit remains 10ns before contact in the same tick.
   const raw=fixture(),input: LiveFieldPlayInputV1={...raw,seed:1,runners:raw.runners.map(r=>r.runnerId===runnerId?
-    {...r,accelerationMps2:3.343642129248945,reactionSeconds:2,advanceSafetyMarginSeconds:0}:r)},result=simulateLiveFieldPlayV1(input),
+    {...r,accelerationMps2:3.7094449691639966,reactionSeconds:2,advanceSafetyMarginSeconds:0}:r)},result=simulateLiveFieldPlayV1(input),
     first=result.facts.find(f=>f.kind==='glove_contact')!,left=result.facts.find(f=>f.kind==='runner_base_departure'&&f.runnerId===runnerId)!;
   expect(left.elapsedSeconds).toBeLessThan(first.elapsedSeconds);expect(left.tick).toBe(first.tick);
+  expect(first.elapsedSeconds-left.elapsedSeconds).toBeCloseTo(1e-8,12);
   expect(result.diagnostics.aiTelemetry.runnerMotions.filter(m=>m.runnerId===runnerId).some(m=>m.throughBases.includes(2))).toBe(false);
   expect(result.finalRunners.find(r=>r.runnerId===runnerId)).toMatchObject({retired:false,retouchRequiredBase:null});
   expect(result.ruleFacts.defensiveAppeals).toEqual([]);played(input,result);

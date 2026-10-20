@@ -1,6 +1,7 @@
 import { cloneInert } from '../../adjudication/OfficialWindowPolicy';
 import type { Vec3 } from '../../model/geometry';
 import type { BaseballBase } from '../../rules/PhysicalRuleFacts';
+import { estimateLiveFieldArrivalV84 } from './LiveFieldArrivalV84';
 
 export type LiveFieldRoleV1 = Readonly<{ playerId: string; taskId: string; point: Vec3;
   intent: 'intercept' | 'base_cover' | 'relay' | 'backup' | 'hold' | 'tag'; targetBase: BaseballBase | null }>;
@@ -36,21 +37,7 @@ const freeze = <T>(x: T): T => { if (x && typeof x === 'object') { Object.values
  * velocity, reversal and lateral braking. Used for ranking only; the actual
  * motor integrates its own continuous command and alone establishes arrival. */
 export function liveFieldArrivalSecondsV1(actor: LiveFieldRoleActorV1, target: Vec3, radius = .28): number {
-  if (!finite(actor.position) || !finite(actor.velocity) || !finite(target)
-    || ![actor.accelerationMps2, actor.topSpeedMps].every(n => Number.isFinite(n) && n > 0)
-    || !Number.isFinite(radius) || radius < 0 || !Number.isFinite(actor.remainingReactionSeconds) || actor.remainingReactionSeconds < 0)
-    throw new Error('invalid live field arrival estimate');
-  let d = Math.max(0, flatDistance(actor.position, target) - radius);
-  if (d === 0) return 0;
-  const length = flatDistance(actor.position, target), dx = (target.x - actor.position.x) / length, dz = (target.z - actor.position.z) / length,
-    a = actor.accelerationMps2, maximum = actor.topSpeedMps,
-    along = actor.velocity.x * dx + actor.velocity.z * dz,
-    lateral = Math.abs(actor.velocity.x * dz - actor.velocity.z * dx);
-  let initial = Math.max(-maximum, Math.min(maximum, along)), delay = actor.remainingReactionSeconds + lateral / a;
-  if (initial < 0) { delay -= initial / a; d += initial * initial / (2 * a); initial = 0; }
-  const acceleratingDistance = (maximum * maximum - initial * initial) / (2 * a);
-  return delay + (d <= acceleratingDistance ? (Math.sqrt(initial * initial + 2 * a * d) - initial) / a
-    : (maximum - initial) / a + (d - acceleratingDistance) / maximum);
+  return estimateLiveFieldArrivalV84(actor, target, radius);
 }
 
 /** Inspectable tactical cost. Holding always means this actor's own home;

@@ -1,4 +1,5 @@
 import { validateTechnicalSkillControlsV75, type TechnicalSkillControlsV75 } from '../TechnicalSkillControlsV75';
+import { buildLiveSpeedPlanV84, createLiveLocomotionProfileV84 } from '../locomotion/LiveLocomotionV84';
 
 /** Shared controller settings, not player abilities or empirical calibration.
  * Existing runner reaction is added to each new legal departure cue. */
@@ -57,17 +58,15 @@ export function estimateLiveRunnerLegSecondsV1(distanceMeters: number, topSpeedM
   assert(nonnegative(distanceMeters) && Number.isFinite(topSpeedMps) && topSpeedMps > 0
     && Number.isFinite(accelerationMps2) && accelerationMps2 > 0 && nonnegative(touchRadiusMeters), 'finite runner route SI required');
   if (distanceMeters <= touchRadiusMeters) return 0;
-  const peak = Math.min(topSpeedMps, Math.sqrt(accelerationMps2 * distanceMeters)),
-    accelerateFor = peak / accelerationMps2,
-    coastFor = Math.max(0, (distanceMeters - peak * peak / accelerationMps2) / peak),
-    duration = 2 * accelerateFor + coastFor;
-  assert(Number.isFinite(duration), 'runner duration exceeds finite SI');
-  if (touchRadiusMeters === 0) return duration;
-  const travel = distanceMeters - touchRadiusMeters, acceleratingDistance = peak * peak / (2 * accelerationMps2),
-    coastingDistance = peak * coastFor;
-  return travel <= acceleratingDistance ? Math.sqrt(2 * travel / accelerationMps2)
-    : travel <= acceleratingDistance + coastingDistance ? accelerateFor + (travel - acceleratingDistance) / peak
-      : duration - Math.sqrt(2 * touchRadiusMeters / accelerationMps2);
+  const profile = createLiveLocomotionProfileV84({ topSpeedMps, accelerationMps2 }),
+    plan = buildLiveSpeedPlanV84({ profile, distanceMeters, initialSpeedMps: 0, finalSpeedMps: 0 });
+  assert(plan && Number.isFinite(plan.durationSeconds), 'runner duration exceeds finite SI');
+  if (touchRadiusMeters === 0) return plan.durationSeconds;
+  const travel = distanceMeters - touchRadiusMeters,
+    segment = plan.segments.find(s => travel <= s.endDistanceMeters) ?? plan.segments[plan.segments.length - 1],
+    local = Math.max(0, travel - segment.startDistanceMeters),
+    speed = Math.sqrt(Math.max(0, segment.startSpeedMps ** 2 + 2 * segment.accelerationMps2 * local));
+  return segment.startElapsedSeconds + (local === 0 ? 0 : 2 * local / (segment.startSpeedMps + speed));
 }
 
 /** Pure single-runner policy. The host supplies observed physical facts and a

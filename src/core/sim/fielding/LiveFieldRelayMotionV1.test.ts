@@ -60,8 +60,11 @@ it('makes two actual throws with a secured relay, a new transfer and actual fina
     const a = result.frames[k - 1], b = result.frames[k], dt = b.elapsedSeconds - a.elapsedSeconds;
     for (let i = 0; i < raw.fielders.length; i++) {
       const from = a.fielders[i], to = b.fielders[i], spec = raw.fielders[i];
+      // The V84 acceleration ellipse has largest axis b=1.8a, so braking
+      // may change vector velocity faster than the forward propulsion a.
+      const maximumMotorAcceleration = 1.8 * spec.accelerationMps2;
       expect(Math.hypot(to.position.x - from.position.x, to.position.z - from.position.z)).toBeLessThanOrEqual(spec.topSpeedMps * dt + 1e-8);
-      expect(Math.hypot(to.velocity.x - from.velocity.x, to.velocity.z - from.velocity.z)).toBeLessThanOrEqual(spec.accelerationMps2 * dt + 1e-8);
+      expect(Math.hypot(to.velocity.x - from.velocity.x, to.velocity.z - from.velocity.z)).toBeLessThanOrEqual(maximumMotorAcceleration * dt + 1e-8);
       expect(Math.hypot(to.glove.x - to.position.x, to.glove.y - to.position.y, to.glove.z - to.position.z)).toBeLessThanOrEqual(spec.gloveReachMeters + 1e-8);
     }
   }
