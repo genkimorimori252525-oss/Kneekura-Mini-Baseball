@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-PERFORMANCE-BASELINE-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-performance-scenes-v81.mjs",
+    "docs/demos/releases/v79/game.html",
+    "docs/verification/releases/v81/baseline-final"
+  ],
+  "observed_at": "2026-10-20T12:45:54.857+00:00",
+  "elapsed_ms": 46000,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-PERFORMANCE-BASELINE-FINAL_8b3b079841624a00ae25e2932203ab32.log",
+  "output_sha256": "e0e72a6e10722c8c010011ee406900bbbecdef1cc2b57d6e5275ae575c32e71f",
+  "receipt_id": "MB-20261020-V81-PERFORMANCE-BASELINE-FINAL_8b3b079841624a00ae25e2932203ab32"
+}

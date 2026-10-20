@@ -1,0 +1,24 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: L curve spinRadPerSecond
++ actual - expected
+
+  {
+    x: -249.17288920119563,
++   y: 0,
+-   y: -0,
+    z: -24.917288920119564
+  }
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-pitch-menu-v80.mjs:36:283 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: { x: -249.17288920119563, y: 0, z: -24.917288920119564 },
+  expected: { x: -249.17288920119563, y: -0, z: -24.917288920119564 },
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

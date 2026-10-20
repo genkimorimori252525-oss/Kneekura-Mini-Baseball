@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "entrySha256": "9325bef8449048034847b912d3a9c83ab171dcfdf8b3a22daf68c4963fb8a7a5",
+  "entrySha256": "a25f2da5d941219a3038e9c27ac0a49cc4cdd79ac0e50d0203a5603e1264e4bd",
   "inputs": {
     "src/core/adjudication/OfficialWindowPolicy.ts": "e1a9d54ce2ca6e27116588b083156f524f22d978dcef83c59351642044c71cad",
     "src/core/adjudication/PlayAdjudicationLedger.ts": "c4be34efb190da338f159eeff798afaa47a1f2e15c3d31eea39d223a0f082011",
@@ -102,7 +102,7 @@
     "src/integration/browser/BatterCourseProfileV79.ts": "bb7b3471a0573bb47da7789ebc9aa527974b1136459e795d47017e83c27a849f",
     "src/integration/browser/BatterCourseWorkbenchV79.ts": "fa28daeb2d555f257a678b4950c5c2aba71db5a648d797551a0564dced912426",
     "src/integration/browser/ExecutedFieldWorldObservationV1.ts": "810642e2775b9e3337769d1c2c6853f83dd03b71ad4eb137e93698aea33ff60d",
-    "src/integration/browser/LiveBaseballMatchV1.ts": "4d6cda54eaa18a271dd26ff42ce12b2e7504c2a0ce88c9c70c4945bb2d0a0558",
+    "src/integration/browser/LiveBaseballMatchV1.ts": "f1fc7176bf973406d8b7ad27746d85faad2467b06e07314abaf21f7da82cd842",
     "src/integration/browser/LiveCourseScoringV79.ts": "38df101af60cbbe2141eae27a23cbabfea704bba071bd657bd36211c1e2895c9",
     "src/integration/browser/LivePhysicalRosterV1.ts": "87ab31d4433d50fad61a2c01f48ccf6a2cbdd918beb5595616783ba343e1c21d",
     "src/integration/browser/LivePitchAuthoringV77.ts": "fe7a82a65452e6ad417e7fc4541c50f92a6b7f31f8cd376f7a5e5b074229fec5",
@@ -115,6 +115,7 @@
     "src/integration/browser/LiveTraitProfilesV1.ts": "47c823621763e6d9e7797b938466a8c33cdab1531e9e456cbd09426ec181ccc2",
     "src/integration/browser/LiveTraitRuntimeV77.ts": "ab9054ab273f442fbcf9f4d524d8635d042e20175797acdb2c3fdeb041cf38e7",
     "src/integration/browser/MeasuredBatFieldRegistrationV1.ts": "2cba5f556b08a82ac56fbdfb304f9a46f16cadb033d6c9e94687edbed1808300",
+    "src/integration/browser/MeasuredClipValidationCacheV81.ts": "adcf4d0ebfaa2c39162bdd0619111c18d62670054620ee1086a95d997c1cc556",
     "src/integration/browser/NativeAerodynamicObserver.ts": "955656d202863aab8cbe75a85cfcdfeb2f4220e5f32b1cf64f5526ca682e5131",
     "src/integration/browser/NativeAerodynamicReferenceFixture.ts": "54ca707c43ffe198368ea6092397e8a136a1a486cf2f1b3f4e41c6dad99c3b95",
     "src/integration/browser/NativeAerodynamicSession.ts": "ccd25e89010cad07f8b80fe92241fec6686a8a4acaea0151412f381b6c71255d",

@@ -1,0 +1,13 @@
+✔ patches only the exact renderer and fails closed on changed or duplicate markers (107.5418ms)
+✔ caches only a repeated exact park and restores diagnostics with private dynamic ownership (176.2334ms)
+✔ invalidates the park for exact projection, park, style and canvas changes without rounded keys (386.7505ms)
+✔ retains the original park path if optional bitmap readback is unavailable (176.9177ms)
+✔ shares camera coefficients while preserving project, ray and ground results exactly (31.6029ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1005.5258

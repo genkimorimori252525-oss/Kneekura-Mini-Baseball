@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-COURSE-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-course-v79.mjs",
+    "../../outputs/にーくら野球メーカー_v81_無劣化性能改善版.html",
+    "docs/verification/releases/v81/course-final",
+    "docs/verification/releases/v79/game-final/finished-local-game.json"
+  ],
+  "observed_at": "2026-10-20T13:03:03.955+00:00",
+  "elapsed_ms": 17593,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-COURSE-REGRESSION_0f25583c6953422d9f4e156f4de0d4c3.log",
+  "output_sha256": "86e74973faa06b9df85c3bd405970324606adaa6c3d3a8f6c9225a48eb225077",
+  "receipt_id": "MB-20261020-V81-COURSE-REGRESSION_0f25583c6953422d9f4e156f4de0d4c3"
+}

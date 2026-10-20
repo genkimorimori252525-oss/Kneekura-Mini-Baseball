@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-PITCH-VIEWS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-pitcher-views-browser-v81.mjs",
+    "../../outputs/にーくら野球メーカー_v81_無劣化性能改善版.html",
+    "docs/verification/releases/v81/pitch-views-final"
+  ],
+  "observed_at": "2026-10-20T13:00:20.734+00:00",
+  "elapsed_ms": 19718,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-PITCH-VIEWS_74bcfc10fa85450eb541d113e1764780.log",
+  "output_sha256": "c0f80b4a8b8925eb7b98d0f116efe4faa9a33ceccd9446bf728c3ac3e800d60a",
+  "receipt_id": "MB-20261020-V81-PITCH-VIEWS_74bcfc10fa85450eb541d113e1764780"
+}

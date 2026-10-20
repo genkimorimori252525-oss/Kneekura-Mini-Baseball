@@ -1,5 +1,9 @@
 # 最新の再開入口 — 2026-10-20
 
+最新v81：[3つのHTMLと操作](../demos/releases/v81/README.md)、[恒久性能標準](../performance/PERFORMANCE-STANDARD.md)、[最新計測と採否](../performance/2026-10-20-v81-lossless-results.md)、[検証](../verification/releases/v81/README.md)。通常/調整室/メーカーの同時刻画素、9回320球＋別seed82球の全記録一致を確認。全673軌道、PNG/4px、v80方向UIを維持。次版はv81 builder/共通moduleを継承する。初回起動コスト増・実機未検証は明記。公開commitは後続の公開照合へ追記。以下の各時点の記録は履歴として保持。
+
+最新ローカル追加：[v80 球種の方向別メニュー](../demos/releases/v80/README.md)。所持球常設、15分類24候補を一塁側/三塁側等で選択、矢印維持。PC390×左右と既存シーズン回帰PASS。v80はローカルのみ、GitHub公開済み基準は下記v79。
+
 製品 `6b7e1eff4281784847bff1e457f0cd302e7dd911` を既存Draft PR #380へpush済み。PUBLICATION `b77b9377` PASS：remote/PR head、3HTMLのGit blob/size、raw9ファイルを製品commitで照合。後続の公開記録commitは製品Sourceを変更しない。
 
 最新追加は [v79 — 63コース・シーズン成績・方向配分](../demos/releases/v79/README.md)。[相談用仕様](../design-consultation/course-season-v79.md) と [検証索引](../verification/releases/v79/README.md) を参照。人間が公開9=zone内、シーズン選択/試合蓄積/練習/締め保存まで承認。V78.1の4方向投球図も継承。ローカル記録とNative公式認証は別で、判定不足はpendingのまま保存する。以下は各時点の履歴として保持。

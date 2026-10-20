@@ -1,0 +1,273 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ tools/browser-bridge/presentation-ui-performance-v81.test.mjs (5 tests | 2 failed) 884ms
+   ✓ requires each exact v79 patch marker once and preserves unrelated source 394ms
+   × matches label DOM/style order and boxes across roles, hidden BAT, resize, scale and font loading 95ms
+     → expected { hostStyle: [ [ …(2) ] ], …(2) } to deeply equal { hostStyle: [ [ …(2) ] ], …(2) }
+   × reuses actor nodes and skips equal DOM writes while measuring current font and host dimensions every draw 64ms
+     → expected 20 to be 16 // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tools/browser-bridge/presentation-ui-performance-v81.test.mjs > matches label DOM/style order and boxes across roles, hidden BAT, resize, scale and font loading
+AssertionError: expected { hostStyle: [ [ …(2) ] ], …(2) } to deeply equal { hostStyle: [ [ …(2) ] ], …(2) }
+
+- Expected
++ Received
+
+  Object {
+    "hostStyle": Array [
+      Array [
+        "--kneekura-name-scale",
+        "1",
+      ],
+    ],
+    "nodes": Array [
+      Object {
+        "data": Object {
+          "actor": "LF",
+          "nameScale": "1",
+          "role": "LF",
+        },
+        "style": Array [
+          Array [
+            "--kneekura-name-base-font",
+            "0px",
+          ],
+          Array [
+            "font-size",
+            "calc(var(--kneekura-name-base-font) * var(--kneekura-name-scale))",
+          ],
+          Array [
+            "white-space",
+            "nowrap",
+          ],
+          Array [
+            "z-index",
+            "1",
+          ],
++         Array [
++           "left",
++           "309.15024px",
++         ],
++         Array [
++           "top",
++           "215.680887px",
++         ],
+        ],
+        "text": "選手LF",
+      },
+      Object {
+        "data": Object {
+          "actor": "BAT",
+          "nameScale": "1",
+          "role": "batter",
+        },
+        "style": Array [
+          Array [
+            "--kneekura-name-base-font",
+            "0px",
+          ],
+          Array [
+            "font-size",
+            "calc(var(--kneekura-name-base-font) * var(--kneekura-name-scale))",
+          ],
+          Array [
+            "white-space",
+            "nowrap",
+          ],
+          Array [
+            "z-index",
+            "1",
++         ],
++         Array [
++           "left",
++           "311.90208px",
++         ],
++         Array [
++           "top",
++           "212.002947px",
+          ],
+        ],
+        "text": "打者",
+      },
+      Object {
+        "data": Object {
+          "actor": "P",
+          "nameScale": "1",
+          "role": "P",
+        },
+        "style": Array [
+          Array [
+            "--kneekura-name-base-font",
+            "0px",
+          ],
+          Array [
+            "font-size",
+            "calc(var(--kneekura-name-base-font) * var(--kneekura-name-scale))",
+          ],
+          Array [
+            "white-space",
+            "nowrap",
+          ],
+          Array [
+            "z-index",
+            "1",
++         ],
++         Array [
++           "left",
++           "304.99504px",
++         ],
++         Array [
++           "top",
++           "207.099027px",
+          ],
+        ],
+        "text": "選手P",
+      },
+      Object {
+        "data": Object {
+          "actor": "R1",
+          "nameScale": "1",
+          "role": "runner",
+        },
+        "style": Array [
+          Array [
+            "--kneekura-name-base-font",
+            "0px",
+          ],
+          Array [
+            "font-size",
+            "calc(var(--kneekura-name-base-font) * var(--kneekura-name-scale))",
+          ],
+          Array [
+            "white-space",
+            "nowrap",
+          ],
+          Array [
+            "z-index",
+            "3",
+          ],
+          Array [
+            "color",
+            "rgb(255, 119, 119)",
++         ],
++         Array [
++           "left",
++           "305.64576px",
++         ],
++         Array [
++           "top",
++           "212.002947px",
+          ],
+        ],
+        "text": "選手R1",
+      },
+    ],
+    "positions": Array [
+      Object {
+        "fontPx": 2,
+        "id": "LF",
+        "labelBox": Object {
+          "h": NaN,
+          "w": NaN,
+          "x": NaN,
+          "y": NaN,
+        },
+        "name": "選手LF",
+        "nameAnchor": Object {
+          "x": 230,
+          "y": 200,
+        },
+        "nameDisplayScale": 1,
+        "role": "LF",
+      },
+      Object {
+        "fontPx": 14,
+        "id": "BAT",
+        "labelBox": Object {
+          "h": NaN,
+          "w": NaN,
+          "x": NaN,
+          "y": NaN,
+        },
+        "name": "打者",
+        "nameAnchor": Object {
+          "x": 230,
+          "y": 200,
+        },
+        "nameDisplayScale": 1,
+        "role": "batter",
+      },
+      Object {
+        "fontPx": 14,
+        "id": "R1",
+        "labelBox": Object {
+          "h": NaN,
+          "w": NaN,
+          "x": NaN,
+          "y": NaN,
+        },
+        "name": "選手R1",
+        "nameAnchor": Object {
+          "x": 230,
+          "y": 200,
+        },
+        "nameDisplayScale": 1,
+        "role": "runner",
+      },
+      Object {
+        "fontPx": 99,
+        "id": "P",
+        "labelBox": Object {
+          "h": NaN,
+          "w": NaN,
+          "x": NaN,
+          "y": NaN,
+        },
+        "name": "選手P",
+        "nameAnchor": Object {
+          "x": 230,
+          "y": 200,
+        },
+        "nameDisplayScale": 1,
+        "role": "P",
+      },
+    ],
+  }
+
+ ❯ tools/browser-bridge/presentation-ui-performance-v81.test.mjs:84:57
+     82|     {labels:false,rows:base},{labels:false,rows:base},{rows:[]},{rows:…
+     83|     {rows:[row('P','P',{name:'名前が変更された選手'}),row('LF','LF')]}…
+     84|   for(const scene of scenes)expect(after.render(scene)).toEqual(before…
+       |                                                         ^
+     85| });
+     86| it('reuses actor nodes and skips equal DOM writes while measuring curr…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tools/browser-bridge/presentation-ui-performance-v81.test.mjs > reuses actor nodes and skips equal DOM writes while measuring current font and host dimensions every draw
+AssertionError: expected 20 to be 16 // Object.is equality
+
+- Expected
++ Received
+
+- 16
++ 20
+
+ ❯ tools/browser-bridge/presentation-ui-performance-v81.test.mjs:90:107
+     88|   const nodes=[...after.host.children],first={...after.stats};after.re…
+     89|   expect(after.host.children).toEqual(nodes);expect(after.stats.create…
+     90|   for(const key of ['styleWrites','dataWrites','textWrites','inserts',…
+       |                                                                                                           ^
+     91|   expect(after.stats.measurements-first.measurements).toBe(2);
+     92|   after.render({rows:rows.toReversed()});expect(after.host.children).t…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 3 passed (5)
+   Start at  21:46:42
+   Duration  1.91s (transform 56ms, setup 0ms, collect 185ms, tests 884ms, environment 0ms, prepare 249ms)
+

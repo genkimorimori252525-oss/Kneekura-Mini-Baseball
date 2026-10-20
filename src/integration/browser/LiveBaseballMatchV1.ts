@@ -3,6 +3,7 @@ import { resolveLiveExecutionPhysicalV77 } from './LiveTraitRuntimeV77';
 import { validatePitchRepertoireV77, validatePitchingMotionV77 } from './LivePitchAuthoringV77';
 import { validatePitchRepertoireV78 } from './LivePitchAuthoringV78';
 import { validateBatterCourseProfileV79 } from './BatterCourseProfileV79';
+import { cloneValidatedMeasuredCatalogV81 } from './MeasuredClipValidationCacheV81';
 import type { Vec3 } from '../../core/model/geometry';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
 import { asRuleProfileId } from '../../core/model/RuleProfileRef';
@@ -84,21 +85,7 @@ function cloneMatchInputWithMeasuredCatalogV68(raw:LiveMatchInputV1):LiveMatchIn
   assert(catalogDescriptor&&catalogDescriptor.enumerable&&'value' in catalogDescriptor,'inert measured clip catalog required');
   for(const key of Reflect.ownKeys(raw))if(key!=='measuredClips')Object.defineProperty(other,key,Object.getOwnPropertyDescriptor(raw,key)!);
   const rest=cloneInert(other) as Omit<LiveMatchInputV1,'measuredClips'>,catalog=catalogDescriptor.value as unknown[];
-  assert(Array.isArray(catalog)&&catalog.length>0&&catalog.length<=1000&&Reflect.ownKeys(catalog).length===catalog.length+1,'bounded dense measured catalog required');
-  const measuredClips:LiveMeasuredClipV1[]=[];let totalFrames=0;
-  for(let i=0;i<catalog.length;i++){
-    const descriptor=Object.getOwnPropertyDescriptor(catalog,String(i));
-    assert(descriptor&&descriptor.enumerable&&'value' in descriptor,'inert measured catalog entries required');
-    const clip=cloneInert(descriptor.value) as LiveMeasuredClipV1;
-    assert(clip&&typeof clip==='object'&&typeof clip.id==='string'&&clip.id.startsWith('obp-')&&['R','L'].includes(clip.side)
-      &&clip.source?.repository==='https://github.com/drivelineresearch/openbiomechanics'&&/^[a-f0-9]{64}$/.test(clip.source.sha256)
-      &&Number.isFinite(clip.contactTimeSeconds)&&Array.isArray(clip.frames)&&clip.frames.length>=2&&clip.frames.length<=1000
-      &&(clip.defaultSelection===undefined||typeof clip.defaultSelection==='boolean'),'invalid measured catalog clip');
-    totalFrames+=clip.frames.length;assert(totalFrames<=150000,'measured catalog frame budget exceeded');
-    assert(clip.frames.every((f,j)=>Number.isSafeInteger(f.tick)&&f.tick>=0&&(!j||f.tick>clip.frames[j-1].tick)),'invalid measured catalog clock');
-    measuredClips.push(clip);
-  }
-  assert(new Set(measuredClips.map(c=>c.id)).size===measuredClips.length,'duplicate measured clip identity');
+  const measuredClips=cloneValidatedMeasuredCatalogV81(catalog);
   return {...rest,measuredClips};
 }
 function physical(player:LivePlayerV1):LivePlayerPhysicalV1{

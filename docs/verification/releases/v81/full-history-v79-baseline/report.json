@@ -1,0 +1,246 @@
+{
+  "pass": false,
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\docs\\demos\\releases\\v79\\game.html",
+  "artifactSha256": "4b5089187fd868317b2c0a7b4399e56f4ee057231962b687a56a5d6cfb8d2340",
+  "coreSha256": "9325bef8449048034847b912d3a9c83ab171dcfdf8b3a22daf68c4963fb8a7a5",
+  "baselinePath": null,
+  "historyAlgorithm": "SHA256_JSON_RECORD_DIGEST_LIST_V81",
+  "startedAt": "2026-10-20T12:56:08.305Z",
+  "environment": {
+    "browser": "Chrome headless",
+    "viewport": {
+      "width": 1200,
+      "height": 860
+    },
+    "deviceScaleFactor": 1,
+    "actualMobileDevice": false
+  },
+  "scope": "Whole canonical history JSON is hashed inside the browser per record and then as an ordered digest list. No physics fields are dropped from a record. UI clocks and random local game IDs are outside Host history. Node helper timing is separate from this application timing.",
+  "scenarios": [
+    {
+      "id": "default-nine",
+      "seedText": "TBD-LAD-2025",
+      "innings": 9,
+      "start": {
+        "newGameMs": 549.2000000029802,
+        "closeError": "進行中の試合があります。完走するか、新しい単独試合へ切り替えてから成績帳を読み込んでください。",
+        "replaceError": "進行中の試合があります。完走するか、新しい単独試合へ切り替えてから成績帳を読み込んでください。",
+        "active": {
+          "gameId": "game-95e65bd6-d4a0-4c80-9e47-39e809988fbc",
+          "seasonId": "default-nine",
+          "finished": false,
+          "saved": false,
+          "pitches": 0
+        },
+        "rosterSha256": "3c7f36e6eff3afac96de341475ee7209f75f7436290de7fd63183123ecd0d084"
+      },
+      "progress": [
+        {
+          "pitches": 8,
+          "finished": false,
+          "inning": 1,
+          "half": "top",
+          "batchMs": 3663.5999999940395,
+          "elapsedMs": 3680
+        },
+        {
+          "pitches": 16,
+          "finished": false,
+          "inning": 1,
+          "half": "top",
+          "batchMs": 3672.2999999970198,
+          "elapsedMs": 7361
+        },
+        {
+          "pitches": 24,
+          "finished": false,
+          "inning": 1,
+          "half": "top",
+          "batchMs": 676.5,
+          "elapsedMs": 8047
+        },
+        {
+          "pitches": 32,
+          "finished": false,
+          "inning": 1,
+          "half": "bottom",
+          "batchMs": 2021.2999999970198,
+          "elapsedMs": 10077
+        },
+        {
+          "pitches": 40,
+          "finished": false,
+          "inning": 1,
+          "half": "bottom",
+          "batchMs": 2840.5999999940395,
+          "elapsedMs": 12928
+        },
+        {
+          "pitches": 48,
+          "finished": false,
+          "inning": 1,
+          "half": "bottom",
+          "batchMs": 1313.4000000059605,
+          "elapsedMs": 14254
+        },
+        {
+          "pitches": 56,
+          "finished": false,
+          "inning": 2,
+          "half": "top",
+          "batchMs": 2824.7000000029802,
+          "elapsedMs": 17091
+        },
+        {
+          "pitches": 64,
+          "finished": false,
+          "inning": 2,
+          "half": "top",
+          "batchMs": 1414.2999999970198,
+          "elapsedMs": 18518
+        },
+        {
+          "pitches": 72,
+          "finished": false,
+          "inning": 2,
+          "half": "bottom",
+          "batchMs": 3314.300000011921,
+          "elapsedMs": 21842
+        },
+        {
+          "pitches": 80,
+          "finished": false,
+          "inning": 2,
+          "half": "bottom",
+          "batchMs": 2413.5,
+          "elapsedMs": 24266
+        },
+        {
+          "pitches": 88,
+          "finished": false,
+          "inning": 2,
+          "half": "bottom",
+          "batchMs": 3936.7000000029802,
+          "elapsedMs": 28213
+        },
+        {
+          "pitches": 96,
+          "finished": false,
+          "inning": 2,
+          "half": "bottom",
+          "batchMs": 616.5,
+          "elapsedMs": 28839
+        },
+        {
+          "pitches": 104,
+          "finished": false,
+          "inning": 2,
+          "half": "bottom",
+          "batchMs": 2182.4000000059605,
+          "elapsedMs": 31031
+        },
+        {
+          "pitches": 112,
+          "finished": false,
+          "inning": 3,
+          "half": "top",
+          "batchMs": 1534.7999999970198,
+          "elapsedMs": 32576
+        },
+        {
+          "pitches": 120,
+          "finished": false,
+          "inning": 3,
+          "half": "top",
+          "batchMs": 2813.7999999970198,
+          "elapsedMs": 35400
+        },
+        {
+          "pitches": 128,
+          "finished": false,
+          "inning": 3,
+          "half": "top",
+          "batchMs": 1471.7000000029802,
+          "elapsedMs": 36880
+        },
+        {
+          "pitches": 136,
+          "finished": false,
+          "inning": 3,
+          "half": "bottom",
+          "batchMs": 1399,
+          "elapsedMs": 38288
+        },
+        {
+          "pitches": 144,
+          "finished": false,
+          "inning": 3,
+          "half": "bottom",
+          "batchMs": 1242.7999999970198,
+          "elapsedMs": 39545
+        },
+        {
+          "pitches": 152,
+          "finished": false,
+          "inning": 3,
+          "half": "bottom",
+          "batchMs": 1030.2999999970198,
+          "elapsedMs": 40584
+        },
+        {
+          "pitches": 160,
+          "finished": false,
+          "inning": 4,
+          "half": "top",
+          "batchMs": 2066.5999999940395,
+          "elapsedMs": 42665
+        },
+        {
+          "pitches": 168,
+          "finished": false,
+          "inning": 4,
+          "half": "top",
+          "batchMs": 5467.70000000298,
+          "elapsedMs": 48143
+        },
+        {
+          "pitches": 176,
+          "finished": false,
+          "inning": 4,
+          "half": "top",
+          "batchMs": 3220.2000000029802,
+          "elapsedMs": 51373
+        },
+        {
+          "pitches": 184,
+          "finished": false,
+          "inning": 4,
+          "half": "bottom",
+          "batchMs": 2403.0999999940395,
+          "elapsedMs": 53786
+        }
+      ]
+    }
+  ],
+  "faults": {
+    "errors": [],
+    "external": []
+  },
+  "coldReadyWallMs": 1753,
+  "coldHeap": {
+    "usedJSHeapSize": 176573472,
+    "totalJSHeapSize": 238157908,
+    "jsHeapSizeLimit": 4395630592
+  },
+  "defaultSeedText": "TBD-LAD-2025",
+  "warmNewGameMs": [
+    578.2999999970198,
+    542.5,
+    579.5
+  ],
+  "warmHeap": {
+    "usedJSHeapSize": 290334833,
+    "totalJSHeapSize": 332429769,
+    "jsHeapSizeLimit": 4395630592
+  }
+}

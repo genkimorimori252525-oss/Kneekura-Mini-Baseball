@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-RENDERER-NUMERIC",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "--test",
+    "tools/browser-bridge/broadcast-renderer-performance-v81.test.mjs"
+  ],
+  "observed_at": "2026-10-20T12:48:50.525+00:00",
+  "elapsed_ms": 1516,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-RENDERER-NUMERIC_25a0e7034bfa41788a2a7d4f4e6b212e.log",
+  "output_sha256": "c3b78d4dc401c56794c10c18feb0f7f0e42adc86a424aaab2429aa341891bdd7",
+  "receipt_id": "MB-20261020-V81-RENDERER-NUMERIC_25a0e7034bfa41788a2a7d4f4e6b212e"
+}

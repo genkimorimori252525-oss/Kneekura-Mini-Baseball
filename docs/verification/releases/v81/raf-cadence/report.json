@@ -1,0 +1,560 @@
+{
+  "pass": true,
+  "scope": "Animation-RAF Canvas submissions on this headless Chrome. Not display scanout or real phone FPS.",
+  "cases": [
+    {
+      "version": "baseline",
+      "measures": [
+        {
+          "phase": "preparation",
+          "elapsedMs": 677.7999999970198,
+          "frames": [
+            {
+              "time": 1906.552,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 1994.5,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2024.7,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2073.3,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2127.7,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2182.3,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2236.8,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2297.4,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2351.9,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2406.5,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2461,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2515.5,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2570,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            }
+          ],
+          "fullSceneDraws": 13,
+          "ballOnlyRafs": 0,
+          "ballOnlyPaintDelta": 0,
+          "configuration": {
+            "sceneMs": 55,
+            "pitchBallMs": 22,
+            "sceneDraws": 20,
+            "pitchBallSamples": 0,
+            "pitchBallPaints": 0,
+            "nonPitchFastPaints": 0,
+            "lastSceneMs": 876.5,
+            "lastPitchBallMs": null
+          },
+          "submittedFps": 19.179699026345766
+        },
+        {
+          "phase": "freePitch",
+          "elapsedMs": 295.5,
+          "frames": [
+            {
+              "time": 2639.832,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2721.8,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2752,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2782.2,
+              "field": 0,
+              "ball": 1,
+              "bat": 0
+            },
+            {
+              "time": 2794.3,
+              "field": 0,
+              "ball": 1,
+              "bat": 0
+            },
+            {
+              "time": 2806.5,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2830.8,
+              "field": 0,
+              "ball": 1,
+              "bat": 0
+            },
+            {
+              "time": 2842.8,
+              "field": 0,
+              "ball": 1,
+              "bat": 0
+            },
+            {
+              "time": 2861,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2885.3,
+              "field": 0,
+              "ball": 1,
+              "bat": 0
+            },
+            {
+              "time": 2909.5,
+              "field": 0,
+              "ball": 1,
+              "bat": 0
+            },
+            {
+              "time": 2915.5,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            }
+          ],
+          "fullSceneDraws": 6,
+          "ballOnlyRafs": 6,
+          "ballOnlyPaintDelta": 6,
+          "configuration": {
+            "sceneMs": 55,
+            "pitchBallMs": 22,
+            "sceneDraws": 29,
+            "pitchBallSamples": 10,
+            "pitchBallPaints": 6,
+            "nonPitchFastPaints": 0,
+            "lastSceneMs": 1835.2999999970198,
+            "lastPitchBallMs": 1829.2999999970198
+          },
+          "submittedFps": 20.304568527918782
+        }
+      ]
+    },
+    {
+      "version": "v81",
+      "measures": [
+        {
+          "phase": "preparation",
+          "elapsedMs": 657.7999999970198,
+          "frames": [
+            {
+              "time": 2490.7,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2514.9,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2533.1,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2551.4,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2569.5,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2587.7,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2605.8,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2624,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2642.2,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2660.4,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2678.5,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2696.6,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2714.9,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2733.1,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2751.3,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2769.4,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2787.7,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2805.8,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2823.9,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2842.1,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2860.3,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2878.5,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2896.6,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2914.8,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2933,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2951.2,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2969.4,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 2987.6,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 3005.8,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 3024,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 3042.1,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 3060.3,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 3078.5,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 3096.7,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 3114.9,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 3133,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 3151.2,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            }
+          ],
+          "fullSceneDraws": 37,
+          "ballOnlyRafs": 0,
+          "ballOnlyPaintDelta": 0,
+          "configuration": {
+            "sceneMs": 55,
+            "pitchBallMs": 22,
+            "sceneDraws": 44,
+            "pitchBallSamples": 0,
+            "pitchBallPaints": 0,
+            "nonPitchFastPaints": 0,
+            "lastSceneMs": 851.40000000298,
+            "lastPitchBallMs": null,
+            "effectiveSceneMs": 18.333333333333332,
+            "effectiveFreePitchMs": 7.333333333333333,
+            "ballOnlyPainting": false,
+            "boundaryRedraws": 0
+          },
+          "submittedFps": 56.248099726615436
+        },
+        {
+          "phase": "freePitch",
+          "elapsedMs": 313,
+          "frames": [
+            {
+              "time": 3163.4,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 3187.6,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 3199.7,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 3205.7,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 3211.8,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 3223.9,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 3248.1,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 3278.5,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 3308.9,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 3339.2,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 3363.3,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 3393.6,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 3423.8,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            },
+            {
+              "time": 3454.3,
+              "field": 1,
+              "ball": 2,
+              "bat": 2
+            }
+          ],
+          "fullSceneDraws": 14,
+          "ballOnlyRafs": 0,
+          "ballOnlyPaintDelta": 0,
+          "configuration": {
+            "sceneMs": 55,
+            "pitchBallMs": 22,
+            "sceneDraws": 61,
+            "pitchBallSamples": 15,
+            "pitchBallPaints": 0,
+            "nonPitchFastPaints": 0,
+            "lastSceneMs": 1850.59999999702,
+            "lastPitchBallMs": 1850.59999999702,
+            "effectiveSceneMs": 18.333333333333332,
+            "effectiveFreePitchMs": 7.333333333333333,
+            "ballOnlyPainting": false,
+            "boundaryRedraws": 0
+          },
+          "submittedFps": 44.72843450479233
+        }
+      ]
+    }
+  ]
+}

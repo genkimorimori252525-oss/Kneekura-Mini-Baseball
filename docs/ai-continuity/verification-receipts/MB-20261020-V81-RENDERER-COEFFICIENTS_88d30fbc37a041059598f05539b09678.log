@@ -1,0 +1,28 @@
+✖ patches only the exact renderer and fails closed on changed or duplicate markers (94.0016ms)
+✔ shares camera coefficients while preserving project, ray and ground results exactly (38.3254ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 1
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 272.436
+
+✖ failing tests:
+
+test at tools\browser-bridge\broadcast-renderer-performance-v81.test.mjs:21:1
+✖ patches only the exact renderer and fails closed on changed or duplicate markers (94.0016ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at TestContext.<anonymous> (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/broadcast-renderer-performance-v81.test.mjs:26:9)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'throws',
+    diff: 'simple'
+  }

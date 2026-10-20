@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-VITEST-ENTRY-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/browser-bridge/broadcast-renderer-performance-v81.test.mjs",
+    "tools/browser-bridge/presentation-ui-performance-v81.test.mjs",
+    "tools/browser-bridge/presentation-cadence-performance-v81.test.mjs",
+    "tools/browser-bridge/whole-scene-adapters-v81.test.mjs"
+  ],
+  "observed_at": "2026-10-20T13:08:08.995+00:00",
+  "elapsed_ms": 3188,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-VITEST-ENTRY-RED_e2d3b2ad2c4c4e6699b14236d7ac77f7.log",
+  "output_sha256": "ef691c3d6b3a94f3e69f466b3e248395a9612a30f4fac9848ec2e7dd805796cd",
+  "receipt_id": "MB-20261020-V81-VITEST-ENTRY-RED_e2d3b2ad2c4c4e6699b14236d7ac77f7"
+}

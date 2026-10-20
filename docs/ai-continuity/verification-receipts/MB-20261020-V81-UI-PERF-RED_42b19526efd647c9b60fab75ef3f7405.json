@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-UI-PERF-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/browser-bridge/presentation-ui-performance-v81.test.mjs"
+  ],
+  "observed_at": "2026-10-20T12:44:34.812+00:00",
+  "elapsed_ms": 1139,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-UI-PERF-RED_42b19526efd647c9b60fab75ef3f7405.log",
+  "output_sha256": "b6ac62a8ef9628f3ebdf33e930237210dba8491a991a3b35f907027983044637",
+  "receipt_id": "MB-20261020-V81-UI-PERF-RED_42b19526efd647c9b60fab75ef3f7405"
+}

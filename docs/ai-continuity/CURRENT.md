@@ -1,13 +1,33 @@
 ---
-current_task: "MB-20261020-V79-PUBLICATION"
+current_task: "MB-20261020-V81-IMPLEMENTATION"
 active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "6b7e1eff4281784847bff1e457f0cd302e7dd911"
-status: "SCOPED_VERIFIED_PUBLISHED"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261020-V79-PUBLICATION_b77b9377c99e4d458970b2d8608d0687.json"
-updated_at: "2026-10-20T00:38:51.123162+00:00"
+commit_head: "087fce57861e8f45b1c3fcc2a509f07d287e1f59"
+status: "SCOPED_VERIFIED_PUBLICATION_NEXT"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261020-V81-REPRODUCIBLE-BUILD_5e2a7d872a4648de85a88aea4bb09708.json"
+updated_at: "2026-10-20T13:11:05.795856+00:00"
 
 ---
+
+## Active v81 — 無劣化性能標準と最新版移植（SCOPED VERIFIED; PUBLICATION NEXT）
+
+人間の5段階承認はAMENDMENTS/2026-10-20-v81-lossless-performance.md。実装済み通常/lab/makerはdocs/demos/releases/v81、134 Source入力。品質契約はdocs/performance/PERFORMANCE-STANDARD.md、採否と計測は2026-10-20-v81-lossless-results.md、証拠索引docs/verification/releases/v81/README.md。通常144/lab60/maker64場面の画素一致、9回320＋別seed82球の全JSONhistory一致、全field complete、保存/JSON/シーズン/17得能/全24候補左右/多方向投球図回帰PASS。Vitest入口27件、cache関連14件/TSC/実673資料検証PASS。3HTMLの再生成もbyte一致。
+
+cacheは全673保持、warmも全descriptor検査。cold起動+約0.5s（メーカーは約+1.8s）、warm新試合533→214ms。RAF全scene提出は準備19→56/投球20→45回秒の当環境参考値。全60FPS/実機を達成とは扱わない。Source/4px/原画/物理/裁定は維持。静止park・係数・frame二分探索・名前DOM・catalog再利用・全scene共通時刻を通常/lab/makerへ適用。
+
+次: 実装branchへSource/3HTML/証拠と恒久規約を明示列挙でcommit/push、設計foundation branchは文書のみatomic commitしAI-INDEX/PLAN-REGISTER/原計画へ追記、remote3HTML blob/size/固定commit rawを公開照合。mainへmergeしない。既存user AGENTS.mdと所有外.agents、secret/settings/lockfileは除外。v80ローカル成果も今回保存する。
+
+原FAIL（検査ボタン/混在EOL/CSSOM/1回option/旧Corehash/Vitest登録）と修正後証拠を保持。元Charter独立承認HOLD、Native認証、実機/熱/電力/オンライン、100試合校正、Worker/GPU候補、元の機能残件と旧FAILUNKNOWNを保持する。
+
+
+## 最新ローカル追加 — v80 球種の方向別候補（SCOPED VERIFIED; LOCAL ONLY）
+
+人間は所持球常設・全候補方向タブ・矢印維持、追加で腕/グラブ側を「一塁側/三塁側」へ変更と指定。docs/demos/baseball-maker-pitch-menu-v80.js/.cssをopt-in --pitch-menuで追加。既存24候補（15分類）を全て表示。元Core/投手UI/能力/renderer/673資料/seasonはv79と同一。候補は投げる腕に応じて生成、所持球は変更せず表示。追加・所持球選択のdirty guardとキーボードfocusを保持。
+
+最終b3c6d718 PASS22.733s：1200/390×R/L、24候補全保存値・SVG/常設7球/31+同種32球/JSON/dirty/キーボード/試投4図。既存course regression97aa7bee PASS17.250s（実320球再読）。PACKAGE490b2ac8 PASS：Core93pins/元UI・renderer等hash一致、v79凍結物不変。原-0比較FAILと中間旧名称artifactの証拠を保持し、最終receiptと区別。出力outputs/にーくら野球メーカー_v80_球種の方向別メニュー版.html、凍結docs/demos/releases/v80。
+
+次は人間がv80の所持/候補UIを確認し、具体プレーと元計画の残件を継続。この追加はローカルのみでGitHubへ未push。元のCharter独立承認HOLD/旧FAILBLOCKEDUNKNOWN/Native認証・100試合校正・実機・元未完を維持。既存公開は下記v79。
+
 
 ## 最新完了範囲 — v79 63コース・シーズン成績（SCOPED VERIFIED; PUBLISHED）
 
