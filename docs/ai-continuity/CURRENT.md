@@ -2,20 +2,20 @@
 current_task: "MB-20261020-HR-WATCH-V83"
 active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "040c8ef685e97010e617be478e56d6cc54d8f099"
-status: "SCOPED_VERIFIED_LOCAL"
+commit_head: "82b23bfba3322c1ee10ab611fd3851974766ab18"
+status: "SCOPED_COMPLETE_GITHUB_VERIFIED"
 evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261020-HR-WATCH-V83-PACKAGE_03f5105f76234429b97af0929bf322d4.json"
-updated_at: "2026-10-20T14:27:02.524934+00:00"
+updated_at: "2026-10-20T14:29:18.793728+00:00"
 
 ---
 
-## Active v83 — ホームランの守備目線見送り（SCOPED VERIFIED; LOCAL）
+## Active v83 — ホームランの守備目線見送り（SCOPED COMPLETE; GITHUB VERIFIED）
 
 人間の追加依頼「投手→守備へ移行したHRで、スタンド到達後1.5〜2秒見続ける」を1.75表示秒で実装。AMENDMENTS/2026-10-20-v83-home-run-watch.md。通常outputs/ばせぼーるlv83_TBD_vs_LAD_HR見送り延長版.html SHAde87fdc68cf91cb4a4d2454e9336e67cfbb646b8a6786759c113c1a619ef345a、調整室outputs/カメラワーク調整室_v83_HR見送り.html SHA3c4e5bd76d20fd812c41ec09d3b1d9c719f5535682f9fea8043cb9a2d9168123。凍結docs/demos/releases/v83、証拠docs/verification/releases/v83-hr-watch/README.md。
 
 確認済みフェンス越えから1750ms、既存条件で過去に守備カメラへ移行したobserverを保持。現在Source死球sampleは表示copyだけ再可視化し、保持球/捕球は表示しない。benchで球sampleがなくなれば確認済み到達点を見続ける。新軌道/スタンド衝突を創作しない。Core/得点/走者/4px/旧FPS/画質/移動は不変。初めから決定的HRの投手維持も残す。
 
-9unit、通常第39球HRの1200/390幅端点/逆seek/Source不変/他視点/非HR、通常144+調整室60場面RGBA/観測一致、9回320球+別3回82球全history/最終match/全field完走/保存回帰PASS。再build4file byte一致、package4report/旧v81不変/NativeCore実byte一致PASS。格子外crossingの確認flag漏れはRED→修正、原log保存。元Charter承認HOLD/旧FAILUNKNOWN/全体残件保持。配布HTMLのブラウザー表示を依頼済み。次はGit保存と人間実操作確認。
+9unit、通常第39球HRの1200/390幅端点/逆seek/Source不変/他視点/非HR、通常144+調整室60場面RGBA/観測一致、9回320球+別3回82球全history/最終match/全field完走/保存回帰PASS。再build4file byte一致、package4report/旧v81不変/NativeCore実byte一致PASS。格子外crossingの確認flag漏れはRED→修正、原log保存。元Charter承認HOLD/旧FAILUNKNOWN/全体残件保持。配布HTMLのブラウザー表示を依頼済み。製品commit82b23bfを既存branchとDraft PR #380へpush。git ls-remote/gh pr viewでremote/PR head一致を実読確認、main未merge。次は人間実操作確認。
 
 **先行のFPS2倍/画質1.2/接地移動の案は回答待ちのまま維持**。v83はHR限定修正に割り当て、その大改修の版番号は次回決定する。未回答を承認とみなさない。
 
