@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "entrySha256": "596b968cbb7041ee7ef3eb885bcfd5f1fc989939a124265e3b9f669c20cd5ea2",
+  "entrySha256": "f27760e65100b6f1d998008dc521ff996b2a76d1d04b9dd2aeec523779bfe29b",
   "inputs": {
     "src/core/adjudication/OfficialWindowPolicy.ts": "e1a9d54ce2ca6e27116588b083156f524f22d978dcef83c59351642044c71cad",
     "src/core/adjudication/PlayAdjudicationLedger.ts": "c4be34efb190da338f159eeff798afaa47a1f2e15c3d31eea39d223a0f082011",
@@ -105,11 +105,12 @@
     "src/integration/browser/BatterCourseWorkbenchV79.ts": "fa28daeb2d555f257a678b4950c5c2aba71db5a648d797551a0564dced912426",
     "src/integration/browser/ExecutedFieldWorldObservationV1.ts": "810642e2775b9e3337769d1c2c6853f83dd03b71ad4eb137e93698aea33ff60d",
     "src/integration/browser/LiveBaseballMatchV1.ts": "6344e8b2cd746fdc6fbc6a869e13a671e19e378c23aef5aa2ac3175fcecdf0a1",
+    "src/integration/browser/LiveBatPlaybackV88.ts": "2e67bb4e99ed7142cf3685656ddedd9c1ece2736a16658d31407a80709199be4",
     "src/integration/browser/LiveCourseScoringV79.ts": "247075f3678c5129312d621d9b6b44cd01e5a1e1792196901812389c292ea0fb",
     "src/integration/browser/LivePhysicalRosterV1.ts": "11bb3baf9f4ffe56133c7ae891a2b264f57201c499703c63638f54ecbf688351",
     "src/integration/browser/LivePitchAuthoringV77.ts": "fe7a82a65452e6ad417e7fc4541c50f92a6b7f31f8cd376f7a5e5b074229fec5",
     "src/integration/browser/LivePitchAuthoringV78.ts": "0477a185541fae86a0e7ee3908d76e2226d9c3847f1d1096a06fc95ee88adb71",
-    "src/integration/browser/LivePitchV1.ts": "e98bffef3406820fadf57906dd2aa3317fb96081387ad5b0fdfe461b7511ec36",
+    "src/integration/browser/LivePitchV1.ts": "c2a880718e6a343c2181a413b973f48fc43864dc09e6ecdb137f9678f02c991f",
     "src/integration/browser/LivePublicAbilitiesV1.ts": "a0e4a2bf3d3af5618a7c9d4d8396375774c182c26f2ac78e3e03c577ae8dfb31",
     "src/integration/browser/LiveSeasonCourseV87.ts": "ee923abe93972247ffc34c3944848ede329151e2cf2c5ba085223c7c574950c9",
     "src/integration/browser/LiveSeasonV79.ts": "0d5541c6407735e479cbc068504f4618719fbff09cd979927f118683f3ee62b7",
@@ -129,7 +130,7 @@
     "src/integration/browser/PlayableMatchRulesV1.ts": "dba2f55e65e0792dd842f10890cac0a5e60d101976cd1d682655db23e447a873",
     "src/integration/browser/WorkbenchPlayer.ts": "056de4fa77a7576793f3a2cf72480100e234f3297f8d2369c1186552a5f6df21",
     "src/integration/browser/ZoneRecognitionV87.ts": "f280dd1f851a93fc60d9ff8565116845903d95bf87db14b2dbf194a2042fe939",
-    "src/integration/browser/index.ts": "af59639d22aa640cc1781b731baab30e7ce8fc83203799458cc82809ecda0509",
+    "src/integration/browser/index.ts": "09a6c6711274a8b9bb52a40d4e18309f42f5b78499ac39f444337d08e23ce2eb",
     "src/presentation/mini/MiniPresentationTimeline.ts": "bbda21b1f8dcfa06940596805140768dce420840328ce9cca8efaffa457bc7a2",
     "src/presentation/mini/NativeSpinOrientationObserver.ts": "d7605b7a9753208898e977e88495e9e2a24b98d134b0e0d1a9540b882e9db199",
     "src/presentation/mini/model.ts": "c138d4799f5f4dddb9ea3d7378ac79774bdc607471e62862f2e4c17b8de6062e"

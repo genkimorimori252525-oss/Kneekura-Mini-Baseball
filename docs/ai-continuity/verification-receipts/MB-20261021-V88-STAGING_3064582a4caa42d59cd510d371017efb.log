@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\check-staged-v88.py", line 24, in <module>
+    assert result.returncode == 0, result.stdout.decode(errors='replace')
+AssertionError: docs/research/2026-10-21-check-swing-v88.md:5: trailing whitespace.
++確認日: 2026-10-21  
+docs/research/2026-10-21-check-swing-v88.md:47: new blank line at EOF.
+

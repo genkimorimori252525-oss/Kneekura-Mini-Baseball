@@ -1,0 +1,37 @@
+{
+  "pass": true,
+  "files": [
+    {
+      "path": "../../outputs/ばせぼーるlv88_TBD_vs_LAD_空振りとHR見送り版.html",
+      "sha256": "d8194e776c969e249e838fa6e01931fe7bcc7fb9b166822c26840d5595f5a6a5"
+    },
+    {
+      "path": "../../outputs/ばせぼーるlv88_TBD_vs_LAD_空振りとHR見送り版.html.build.json",
+      "sha256": "cac1a6f52c92547cf08b48a24050490289ee6dc179eb5ce2d0016c2675895599"
+    },
+    {
+      "path": "../../outputs/ばせぼーるlv88_TBD_vs_LAD_空振りとHR見送り版.html.bundle-inputs.json",
+      "sha256": "be169ffdada5942b9f1ebe31ba59e539f483490d16d68c5692e8c8bcd8ec00b2"
+    },
+    {
+      "path": "../../outputs/カメラワーク調整室_v88_空振りとHR見送り.html",
+      "sha256": "38bf9f160d40ccd95f58c08ee01ed45c0124268e39dfd464c41b35d79094f7a7"
+    },
+    {
+      "path": "../../outputs/カメラワーク調整室_v88_空振りとHR見送り.html.build.json",
+      "sha256": "d53f00876da73e1090be8d3aaae37438e31fc339e63ea594612364b158623cf3"
+    },
+    {
+      "path": "../../outputs/にーくら野球メーカー_v88_空振りとHR見送り版.html",
+      "sha256": "aaa70244e1171e527f5d873cb34f2694fc3c3bf672224e56d6d480887abcd649"
+    },
+    {
+      "path": "../../outputs/にーくら野球メーカー_v88_空振りとHR見送り版.html.build.json",
+      "sha256": "0ec94e95f8f4c2a6be4505711d7a67421280e880abe71267167eb93a34855d9e"
+    },
+    {
+      "path": "../../outputs/にーくら野球メーカー_v88_空振りとHR見送り版.html.bundle-inputs.json",
+      "sha256": "a5a2a136286fe47a9045fe2b51bb22c0926ab19b3e60131cfce26524d90d7e78"
+    }
+  ]
+}

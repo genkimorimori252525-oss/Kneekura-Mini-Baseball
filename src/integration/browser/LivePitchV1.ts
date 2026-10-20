@@ -23,6 +23,7 @@ import { validateTechnicalSkillControlsV75, type TechnicalSkillControlsV75 } fro
 import { classifyBatterCourseV79, validateBatterCourseProfileV79 } from './BatterCourseProfileV79';
 import {expandBatterCourseProfileV87ToV79,resolveBatterCourseProfileV87} from './BatterCourseProfileV87';
 import {recognizeZoneV87,selectZoneTargetV87,validateZoneRecognitionV87,type ZoneRecognitionV87} from './ZoneRecognitionV87';
+import type { LiveBatPlaybackDescriptorV88 } from './LiveBatPlaybackV88';
 
 export type LiveMeasuredClipV1=Readonly<{
   id:string;side:'R'|'L';source:Readonly<{sha256:string;repository?:string}>;contactTimeSeconds:number;
@@ -452,9 +453,15 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   const sampleBatAtTick=(atTick:number)=>{assert(Number.isFinite(atTick)&&atTick>=input.originTick,'bat observation precedes release');
     if(atTick>referenceThroughTick)return null;
     return {...batSample((atTick-input.originTick)/tps).state.pose,radiusProfile};};
+  const {frames:_measuredFrames,...playbackReference}=registeredReference;
+  const batPlaybackV88:LiveBatPlaybackDescriptorV88|undefined=swingOffered&&input.batting!=='bunt'?{
+    version:88,originTick:input.originTick,battingSide:b.bats,heightScale,
+    sourceFirstTick:selectedFrames[0].tick,sourceLastTick:selectedFrames.at(-1)!.tick,radiusProfile,reference:playbackReference,
+  }:undefined;
   return {frames,contact,contactMoment,contactOrientation,call,endedAtTick,clipId:clip.id,pitchType,
     ...(selectedSnapshot?{pitchId:selectedSnapshot.pitchId,pitchName:selectedSnapshot.name}:{}),speedKmh:speed*3.6,sampleBatAtTick,
     diagnostics:{authority:'LOCAL_CORE_PHYSICAL_EXPERIMENT_V1' as const,nativeAdmission:false as const,sourceDescriptor:descriptor,
+      ...(batPlaybackV88===undefined?{}:{batPlaybackV88}),
       courseRecognitionV87:{batter:{...batterRecognition.diagnostics,requestedPosition:prediction.ball.position,selectedPosition:motorAimPosition,requestedCourseId:batterRecognition.diagnostics.predictedCourseId,selectedCourseId:batterRecognition.diagnostics.courseId,reason:input.batting==='take'||b.swingDecision?.approach==='TAKE'?'manual_take_retained':b.swingDecision?.approach==='SWING'?'forced_swing_retained':'perceived_course_swing_and_aim'},
         pitcher:{...pitcherRecognition.diagnostics,requestedPosition,selectedPosition:pitcherRequest.position,requestedCourseId:classifyBatterCourseV79({position:requestedPosition,zone}).courseId,selectedCourseId:pitcherRequest.courseId,locationConstraint:input.location,selectedLocation:location,catcherRequestedPosition:catcherRequest.position,catcherRequestReason:catcherRequest.reason},
         catcher:{...catcherRecognition.diagnostics,requestedPosition:requestedPosition,selectedPosition:catcherRequest.position,requestedCourseId:classifyBatterCourseV79({position:requestedPosition,zone}).courseId,selectedCourseId:catcherRequest.courseId,requestPlaneZ:.15,requestReason:catcherRequest.reason,captureTarget:catcherTarget}},

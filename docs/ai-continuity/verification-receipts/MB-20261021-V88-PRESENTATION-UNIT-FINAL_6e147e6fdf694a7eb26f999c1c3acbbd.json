@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V88-PRESENTATION-UNIT-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/browser-bridge/home-run-watch-v88.test.mjs",
+    "tools/browser-bridge/whiff-follow-through-v88.test.mjs",
+    "--maxWorkers=2",
+    "--minWorkers=1"
+  ],
+  "observed_at": "2026-10-20T17:46:59.432+00:00",
+  "elapsed_ms": 625,
+  "git_head": "6a7b3500d315de70a46f70d697aa032b18b37cb1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V88-PRESENTATION-UNIT-FINAL_6e147e6fdf694a7eb26f999c1c3acbbd.log",
+  "output_sha256": "dc1034e66af927b056b8e6e28fbdae508dd45d07989fbf7748cbdab693605208",
+  "receipt_id": "MB-20261021-V88-PRESENTATION-UNIT-FINAL_6e147e6fdf694a7eb26f999c1c3acbbd"
+}

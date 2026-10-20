@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V88-HR-GREEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/browser-bridge/home-run-watch-v88.test.mjs",
+    "--maxWorkers=2",
+    "--minWorkers=1"
+  ],
+  "observed_at": "2026-10-20T17:38:34.469+00:00",
+  "elapsed_ms": 797,
+  "git_head": "6a7b3500d315de70a46f70d697aa032b18b37cb1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V88-HR-GREEN_097b87352f694095923462b8601c1e94.log",
+  "output_sha256": "992516ff5b933fd56ba41784ccc0a35b502a80b2c89e40b9f576b68360d84095",
+  "receipt_id": "MB-20261021-V88-HR-GREEN_097b87352f694095923462b8601c1e94"
+}

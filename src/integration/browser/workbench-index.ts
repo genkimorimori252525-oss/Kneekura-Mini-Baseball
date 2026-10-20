@@ -49,3 +49,5 @@ export { getLiveSeasonReportV87, deriveLiveCourseProfileV87 } from './LiveSeason
 export type { LiveCourseRegionTallyV87 } from './LiveSeasonCourseV87';
 export { createNeutralZoneRecognitionV87, validateZoneRecognitionV87, recognizeZoneV87, selectZoneTargetV87 } from './ZoneRecognitionV87';
 export type { ZoneRecognitionV87, ZoneRecognitionRoleV87, ZoneRecognitionCellV87 } from './ZoneRecognitionV87';
+export { createLiveBatPlaybackV88 } from './LiveBatPlaybackV88';
+export type { LiveBatPlaybackDescriptorV88 } from './LiveBatPlaybackV88';

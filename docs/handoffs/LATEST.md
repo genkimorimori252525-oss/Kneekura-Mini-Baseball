@@ -1,5 +1,7 @@
 # 最新の再開入口 — 2026-10-21
 
+最新v88：[通常/調整室/メーカー](../demos/releases/v88/README.md)、[表示修正の設計](../design/2026-10-21-v88-home-run-watch-and-whiff.md)、[Lunaのハーフスイング調査](../research/2026-10-21-check-swing-v88.md)、[最終検証](../verification/releases/v88/README.md)。HR見送りはseed付き1500..2000ms、確信HRは投手維持。空振りは登録済み実測motorの有限終端まで表示し、球/裁定/次球時刻は維持。40球の旧v87との全物理・裁定・frame一致、最終通常343球9回＋別54球/全field完走と保存往復を確認。新半スイング生成/新能力は未実装で研究案を区別する。公開状態はpublication.jsonを参照。以下の「最新」は過去時点。
+
 最新v87：[3つのHTMLと操作](../demos/releases/v87/README.md)、[設計・直接承認](../design/2026-10-21-v87-course-display-perception-proposal.md)、[実装計画](../superpowers/plans/2026-10-21-v87-course-display-perception.md)、[検証・原FAIL・限界](../verification/releases/v87/README.md)。公開状態は同検証フォルダーのpublication.jsonを確認する。以下の旧「最新」は当時の履歴。
 
 人間用の打率は中央9＋周囲4区画、内部認識は元画像の形の63区画。打率と認識を独立schemaにし、旧JSON/成績を保持する。入力preview・保存取消・方向の割合・MLB2025比較・3役認識と監査ログを接続。通常9回343球/123守備＋別seed54球/23守備の全field完走、保存往復を確認。メーカー/通常/labの新Coreを一致させ、673軌道・20選手・v86入力復帰・v84描画設計を維持する。

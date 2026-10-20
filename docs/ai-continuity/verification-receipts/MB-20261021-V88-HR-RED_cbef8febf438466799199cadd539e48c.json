@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V88-HR-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/browser-bridge/home-run-watch-v88.test.mjs",
+    "--maxWorkers=2",
+    "--minWorkers=1"
+  ],
+  "observed_at": "2026-10-20T17:38:21.683+00:00",
+  "elapsed_ms": 967,
+  "git_head": "6a7b3500d315de70a46f70d697aa032b18b37cb1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V88-HR-RED_cbef8febf438466799199cadd539e48c.log",
+  "output_sha256": "f7d69e3b49d66baaa62aed7565942d4bd6c5a386db6738cffb440c278d803fa0",
+  "receipt_id": "MB-20261021-V88-HR-RED_cbef8febf438466799199cadd539e48c"
+}

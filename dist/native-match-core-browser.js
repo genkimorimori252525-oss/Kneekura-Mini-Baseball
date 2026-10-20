@@ -40,6 +40,7 @@ var KneekuraNativeMatchCore = (() => {
     compareBatterCourseDirectionsV79: () => compareBatterCourseDirectionsV79,
     createExecutedFieldWorldObserverV1: () => createExecutedFieldWorldObserverV1,
     createLiveBaseballMatchV1: () => createLiveBaseballMatchV1,
+    createLiveBatPlaybackV88: () => createLiveBatPlaybackV88,
     createLiveGameStatisticsV79: () => createLiveGameStatisticsV79,
     createLiveSeasonStoreV79: () => createLiveSeasonStoreV79,
     createNativeAerodynamicSession: () => createNativeAerodynamicSession,
@@ -241,8 +242,8 @@ var KneekuraNativeMatchCore = (() => {
   };
 
   // src/core/sim/plateAppearance/CanonicalPlateAppearanceTimeline.ts
-  var validateTick = (name, tick8) => {
-    if (!Number.isSafeInteger(tick8) || tick8 < 0) {
+  var validateTick = (name, tick9) => {
+    if (!Number.isSafeInteger(tick9) || tick9 < 0) {
       throw new Error(
         `${name} must be a non-negative safe integer tick`
       );
@@ -256,9 +257,9 @@ var KneekuraNativeMatchCore = (() => {
     }
     return timeline.status;
   };
-  var assertMonotonicTick = (timeline, tick8) => {
-    validateTick("plate appearance event tick", tick8);
-    if (tick8 < timeline.lastEventTick) {
+  var assertMonotonicTick = (timeline, tick9) => {
+    validateTick("plate appearance event tick", tick9);
+    if (tick9 < timeline.lastEventTick) {
       throw new Error(
         "plate appearance event tick must not precede the previous event"
       );
@@ -290,9 +291,9 @@ var KneekuraNativeMatchCore = (() => {
       events: []
     };
   };
-  var recordCountedPitch = (timeline, tick8, adjudication) => {
+  var recordCountedPitch = (timeline, tick9, adjudication) => {
     const active = assertActive(timeline);
-    assertMonotonicTick(timeline, tick8);
+    assertMonotonicTick(timeline, tick9);
     if (![
       "ball",
       "called_strike",
@@ -312,7 +313,7 @@ var KneekuraNativeMatchCore = (() => {
       );
     }
     const event = {
-      tick: tick8,
+      tick: tick9,
       sequence: timeline.nextSequence,
       kind: "PitchAdjudicated",
       payload: {
@@ -333,7 +334,7 @@ var KneekuraNativeMatchCore = (() => {
     };
     return {
       ...timeline,
-      lastEventTick: tick8,
+      lastEventTick: tick9,
       nextSequence: timeline.nextSequence + 1,
       status,
       events: [...timeline.events, event]
@@ -771,8 +772,8 @@ var KneekuraNativeMatchCore = (() => {
   };
 
   // src/core/sim/plateAppearance/PlateAppearanceCommandSession.ts
-  var validateTick3 = (name, tick8) => {
-    if (!Number.isSafeInteger(tick8) || tick8 < 0) {
+  var validateTick3 = (name, tick9) => {
+    if (!Number.isSafeInteger(tick9) || tick9 < 0) {
       throw new Error(
         `${name} must be a non-negative safe integer tick`
       );
@@ -985,8 +986,8 @@ var KneekuraNativeMatchCore = (() => {
 
   // src/core/sim/ExactEventTime.ts
   var FLOATING_TICK_TOLERANCE = 1e-9;
-  var assertAuthoritativeTick = (tick8, name) => {
-    if (!Number.isSafeInteger(tick8) || tick8 < 0) {
+  var assertAuthoritativeTick = (tick9, name) => {
+    if (!Number.isSafeInteger(tick9) || tick9 < 0) {
       throw new Error(`${name} must be a non-negative safe integer tick`);
     }
   };
@@ -1135,20 +1136,20 @@ var KneekuraNativeMatchCore = (() => {
       )
     }
   });
-  var samplePitchTrajectorySegment = (segment, tick8) => {
+  var samplePitchTrajectorySegment = (segment, tick9) => {
     validateSegment(segment);
-    if (!Number.isSafeInteger(tick8) || tick8 < segment.start.tick || tick8 > segment.endTick) {
+    if (!Number.isSafeInteger(tick9) || tick9 < segment.start.tick || tick9 > segment.endTick) {
       throw new Error(
         "pitch sample tick must lie inside the trajectory segment"
       );
     }
-    const elapsedSeconds = (tick8 - segment.start.tick) / segment.ticksPerSecond;
+    const elapsedSeconds = (tick9 - segment.start.tick) / segment.ticksPerSecond;
     const sampled = sampleContinuous(
       segment,
       elapsedSeconds
     );
     return {
-      tick: tick8,
+      tick: tick9,
       position: sampled.position,
       velocity: sampled.velocity,
       spin: segment.start.spin
@@ -1255,15 +1256,15 @@ var KneekuraNativeMatchCore = (() => {
     validateSwingWindow(input);
     const parameters = input.contactParameters ?? DEFAULT_CONTACT_PARAMETERS;
     const maxClosingSpeed = maximumGeometricClosingSpeed(input);
-    let tick8 = input.swing.startTick;
-    while (tick8 <= input.swing.endTick) {
+    let tick9 = input.swing.startTick;
+    while (tick9 <= input.swing.endTick) {
       const pitch = samplePitchTrajectorySegment(
         input.trajectory,
-        tick8
+        tick9
       );
       const swing = sampleBatterSwingState(
         input.swing.stateAtStart,
-        tick8 - input.swing.startTick,
+        tick9 - input.swing.startTick,
         input.swing.ticksPerSecond
       );
       const separation = measureBatBallContactSeparation(
@@ -1284,15 +1285,15 @@ var KneekuraNativeMatchCore = (() => {
           };
         }
       }
-      if (tick8 === input.swing.endTick) {
+      if (tick9 === input.swing.endTick) {
         break;
       }
       const safeAdvanceTicks = separation > 0 && maxClosingSpeed > EPSILON3 ? Math.floor(
         separation / maxClosingSpeed * input.swing.ticksPerSecond
       ) - 1 : 1;
-      tick8 = Math.min(
+      tick9 = Math.min(
         input.swing.endTick,
-        tick8 + Math.max(1, safeAdvanceTicks)
+        tick9 + Math.max(1, safeAdvanceTicks)
       );
     }
     return {
@@ -1661,8 +1662,8 @@ var KneekuraNativeMatchCore = (() => {
       }
     }
   }
-  var assertScheduleTick = (name, tick8) => {
-    if (!Number.isSafeInteger(tick8) || tick8 < 0) {
+  var assertScheduleTick = (name, tick9) => {
+    if (!Number.isSafeInteger(tick9) || tick9 < 0) {
       throw new Error(
         `${name} must be a non-negative safe integer tick.`
       );
@@ -1684,10 +1685,10 @@ var KneekuraNativeMatchCore = (() => {
     const ticks2 = /* @__PURE__ */ new Set();
     ticks2.add(startTick);
     ticks2.add(endTick);
-    let tick8 = startTick;
-    while (tick8 + cadenceTicks < endTick) {
-      tick8 += cadenceTicks;
-      ticks2.add(tick8);
+    let tick9 = startTick;
+    while (tick9 + cadenceTicks < endTick) {
+      tick9 += cadenceTicks;
+      ticks2.add(tick9);
     }
     for (const event of events) {
       assertScheduleTick("event.tick", event.tick);
@@ -1720,13 +1721,13 @@ var KneekuraNativeMatchCore = (() => {
     const frames = [];
     let cameraMode = preContactCameraMode;
     for (const sample3 of samples) {
-      const tick8 = sample3.world.tick;
-      const tickEvents = eventsByTick.get(tick8) ?? [];
+      const tick9 = sample3.world.tick;
+      const tickEvents = eventsByTick.get(tick9) ?? [];
       const fairDeclaration = tickEvents.find(
         isFairBattedBallDeclaration
       );
       frames.push({
-        tick: tick8,
+        tick: tick9,
         cameraMode,
         sample: sample3,
         events: tickEvents
@@ -1734,7 +1735,7 @@ var KneekuraNativeMatchCore = (() => {
       if (cameraMode !== "FIELD_OVERHEAD" && fairDeclaration) {
         cameraMode = "FIELD_OVERHEAD";
         frames.push({
-          tick: tick8,
+          tick: tick9,
           cameraMode,
           sample: sample3,
           events: tickEvents,
@@ -1746,13 +1747,13 @@ var KneekuraNativeMatchCore = (() => {
   }
 
   // src/integration/browser/NativePitchObserverAdapter.ts
-  var validTick = (tick8) => Number.isSafeInteger(tick8) && tick8 >= 0;
-  function nativeBatPose(input, tick8) {
+  var validTick = (tick9) => Number.isSafeInteger(tick9) && tick9 >= 0;
+  function nativeBatPose(input, tick9) {
     if (input.action.kind === "take") {
       return { handedness: "R", action: "idle", bat: null };
     }
     const swing = input.action.swing;
-    const clampedTick = Math.max(swing.startTick, Math.min(swing.endTick, tick8));
+    const clampedTick = Math.max(swing.startTick, Math.min(swing.endTick, tick9));
     const pose = sampleBatterSwingState(swing.stateAtStart, clampedTick - swing.startTick).pose;
     return { handedness: "R", action: "normal_swing", bat: pose };
   }
@@ -1781,16 +1782,16 @@ var KneekuraNativeMatchCore = (() => {
       MINI_PRESENTATION_CADENCE_MICROS,
       newlyAcceptedEvents
     );
-    const samples = eventTicks.map((tick8) => {
-      const body = input.actorsAtTick(tick8);
+    const samples = eventTicks.map((tick9) => {
+      const body = input.actorsAtTick(tick9);
       if (!body || !Array.isArray(body.defenders) || !Array.isArray(body.runners)) {
-        throw new Error("Missing authoritative actor observation at tick " + tick8);
+        throw new Error("Missing authoritative actor observation at tick " + tick9);
       }
-      const ball = samplePitchTrajectorySegment(trajectory, tick8);
-      const bat = nativeBatPose(input.pitch, tick8);
+      const ball = samplePitchTrajectorySegment(trajectory, tick9);
+      const bat = nativeBatPose(input.pitch, tick9);
       return {
         world: {
-          tick: tick8,
+          tick: tick9,
           defenders: body.defenders,
           runners: body.runners,
           ball: { position: ball.position, velocity: ball.velocity, spin: ball.spin }
@@ -2376,29 +2377,29 @@ var KneekuraNativeMatchCore = (() => {
       batAxisDerivative: axis.derivativePerSecond
     };
   };
-  var sampleSwingKinematicsV1 = (trajectory, tick8) => {
+  var sampleSwingKinematicsV1 = (trajectory, tick9) => {
     validateTrajectory(
       trajectory
     );
-    if (!Number.isSafeInteger(tick8) || tick8 < trajectory.startTick || tick8 > trajectory.endTick) {
+    if (!Number.isSafeInteger(tick9) || tick9 < trajectory.startTick || tick9 > trajectory.endTick) {
       throw new Error(
         "swing kinematics sample tick must lie within the trajectory interval"
       );
     }
-    const phase = tick8 < trajectory.contactTick ? "pre_contact" : tick8 === trajectory.contactTick ? "contact" : "follow_through";
-    const sampled = tick8 <= trajectory.contactTick ? sampleSegment(
+    const phase = tick9 < trajectory.contactTick ? "pre_contact" : tick9 === trajectory.contactTick ? "contact" : "follow_through";
+    const sampled = tick9 <= trajectory.contactTick ? sampleSegment(
       trajectory.start,
       trajectory.contact,
       trajectory.startTick,
       trajectory.contactTick,
-      tick8,
+      tick9,
       trajectory.ticksPerSecond
     ) : sampleSegment(
       trajectory.contact,
       trajectory.finish,
       trajectory.contactTick,
       trajectory.endTick,
-      tick8,
+      tick9,
       trajectory.ticksPerSecond
     );
     const grip = subtract2(
@@ -2427,7 +2428,7 @@ var KneekuraNativeMatchCore = (() => {
       sampled.batAxisDerivative
     );
     return {
-      tick: tick8,
+      tick: tick9,
       phase,
       sweetSpotPosition: sampled.sweetSpotPosition,
       sweetSpotVelocity: sampled.sweetSpotVelocity,
@@ -2443,9 +2444,9 @@ var KneekuraNativeMatchCore = (() => {
       }
     };
   };
-  var sampleSwingStateV1 = (trajectory, tick8) => sampleSwingKinematicsV1(
+  var sampleSwingStateV1 = (trajectory, tick9) => sampleSwingKinematicsV1(
     trajectory,
-    tick8
+    tick9
   ).swingState;
 
   // src/core/rules/TagUpCompliance.ts
@@ -2501,8 +2502,8 @@ var KneekuraNativeMatchCore = (() => {
   };
 
   // src/core/rules/AppealWindow.ts
-  var validateTick4 = (name, tick8) => {
-    if (!Number.isSafeInteger(tick8) || tick8 < 0) {
+  var validateTick4 = (name, tick9) => {
+    if (!Number.isSafeInteger(tick9) || tick9 < 0) {
       throw new Error(`${name} must be a non-negative safe integer tick`);
     }
   };
@@ -3638,16 +3639,16 @@ var KneekuraNativeMatchCore = (() => {
     }
     return { ...current, tick: throughTick };
   };
-  var sampleAerodynamicPitchTrajectory = (trajectory, tick8) => {
+  var sampleAerodynamicPitchTrajectory = (trajectory, tick9) => {
     validateTrajectory2(trajectory);
-    if (!Number.isSafeInteger(tick8) || tick8 < trajectory.start.tick || tick8 > trajectory.endTick) {
+    if (!Number.isSafeInteger(tick9) || tick9 < trajectory.start.tick || tick9 > trajectory.endTick) {
       throw new Error(
         "aerodynamic pitch sample tick must lie inside the trajectory interval"
       );
     }
     return advanceAerodynamicPitchState(
       trajectory.start,
-      tick8 - trajectory.start.tick,
+      tick9 - trajectory.start.tick,
       trajectory.parameters,
       trajectory.parameters.aerodynamics.seamForce?.coefficientScale ? trajectory.releaseOrientation : void 0
     );
@@ -3714,10 +3715,10 @@ var KneekuraNativeMatchCore = (() => {
     const crossingTick = findFirstTrueTick(
       trajectory.start.tick,
       trajectory.endTick,
-      (tick8) => {
+      (tick9) => {
         const sampled = sampleAerodynamicPitchTrajectory(
           trajectory,
-          tick8
+          tick9
         );
         return crossedPlate(
           trajectory.start.position.z,
@@ -3897,8 +3898,8 @@ var KneekuraNativeMatchCore = (() => {
   function speed(spin) {
     return Math.hypot(spin.x, spin.y, spin.z);
   }
-  function finiteSpin(state2, tick8) {
-    if (state2.tick !== tick8) {
+  function finiteSpin(state2, tick9) {
+    if (state2.tick !== tick9) {
       throw new Error("Native spin physical sampler returned a different canonical tick.");
     }
     finiteVector(state2.spin, "angular velocity");
@@ -3966,33 +3967,33 @@ var KneekuraNativeMatchCore = (() => {
       unwrappedAngularTravelRadians: 0
     }];
     const gridStep = parameters.integrationStepTicks;
-    const integrateToTick = (tick8) => {
-      requireTick(tick8, "sample");
-      if (tick8 < start.tick || tick8 > physicalStopTick) {
+    const integrateToTick = (tick9) => {
+      requireTick(tick9, "sample");
+      if (tick9 < start.tick || tick9 > physicalStopTick) {
         throw new Error("Native spin cannot observe outside actual release/physical stop.");
       }
-      const gridIndex = Math.floor((tick8 - start.tick) / gridStep);
+      const gridIndex = Math.floor((tick9 - start.tick) / gridStep);
       while (anchors.length <= gridIndex) {
         const prior = anchors[anchors.length - 1];
         anchors.push(integrateInterval(prior, gridStep, trajectory));
       }
       const base = anchors[gridIndex];
-      return integrateInterval(base, tick8 - base.tick, trajectory);
+      return integrateInterval(base, tick9 - base.tick, trajectory);
     };
-    const sampleAtTick = (tick8, options) => {
+    const sampleAtTick = (tick9, options) => {
       if (!options) throw new Error("Native spin requires explicit display shutter settings.");
       requireTick(options.shutterTicks, "shutterTicks");
-      const current = integrateToTick(tick8);
+      const current = integrateToTick(tick9);
       const previous = options.previousFrameTick;
       if (previous !== void 0) {
         requireTick(previous, "previous frame");
-        if (previous >= tick8) {
+        if (previous >= tick9) {
           throw new Error("Native spin previous frame must strictly precede the current tick.");
         }
       }
       const previousAnchor = previous === void 0 ? null : integrateToTick(previous);
-      const openTick = Math.max(start.tick, tick8 - Math.floor(options.shutterTicks / 2));
-      const closeTick = Math.min(physicalStopTick, tick8 + Math.ceil(options.shutterTicks / 2));
+      const openTick = Math.max(start.tick, tick9 - Math.floor(options.shutterTicks / 2));
+      const closeTick = Math.min(physicalStopTick, tick9 + Math.ceil(options.shutterTicks / 2));
       const opened = integrateToTick(openTick);
       const closed = integrateToTick(closeTick);
       const shutterAngle = Math.max(
@@ -4024,8 +4025,8 @@ var KneekuraNativeMatchCore = (() => {
       };
       return copyAndFreezeInert({
         authority: "PRESENTATION_ONLY_NATIVE_SPIN",
-        tick: tick8,
-        elapsedSecondsSinceRelease: (tick8 - start.tick) / parameters.ticksPerSecond,
+        tick: tick9,
+        elapsedSecondsSinceRelease: (tick9 - start.tick) / parameters.ticksPerSecond,
         ticksPerSecond: parameters.ticksPerSecond,
         angularVelocityWorldRadPerSecond: instantSpin,
         angularSpeedRadPerSecond: angularSpeed,
@@ -4055,7 +4056,7 @@ var KneekuraNativeMatchCore = (() => {
           throw new Error("Native spin frame is outside true source flight.");
         }
       }
-      return Object.freeze(ticks2.map((tick8, i) => sampleAtTick(tick8, {
+      return Object.freeze(ticks2.map((tick9, i) => sampleAtTick(tick9, {
         shutterTicks: options.shutterTicks,
         previousFrameTick: i === 0 ? void 0 : ticks2[i - 1]
       })));
@@ -4071,11 +4072,11 @@ var KneekuraNativeMatchCore = (() => {
   }
 
   // src/integration/browser/NativeAerodynamicObserver.ts
-  var isTick = (tick8) => Number.isSafeInteger(tick8) && tick8 >= 0;
+  var isTick = (tick9) => Number.isSafeInteger(tick9) && tick9 >= 0;
   var sameVector = (a, b) => a.x === b.x && a.y === b.y && a.z === b.z;
   var sameContact = (actual, expected) => actual.tick === expected.tick && actual.segmentT === expected.segmentT && sameVector(actual.ballCenter, expected.ballCenter) && sameVector(actual.point, expected.point) && sameVector(actual.batPoint, expected.batPoint) && sameVector(actual.normal, expected.normal) && sameVector(actual.exitVelocity, expected.exitVelocity) && sameVector(actual.exitSpin, expected.exitSpin);
-  function assertCountedCall(call, kind, tick8, before, after) {
-    if (call?.kind !== "PitchAdjudicated" || call.tick !== tick8 || call.payload.adjudication.kind !== kind || before.status.kind !== "active" || call.payload.countBefore.balls !== before.status.count.balls || call.payload.countBefore.strikes !== before.status.count.strikes) {
+  function assertCountedCall(call, kind, tick9, before, after) {
+    if (call?.kind !== "PitchAdjudicated" || call.tick !== tick9 || call.payload.adjudication.kind !== kind || before.status.kind !== "active" || call.payload.countBefore.balls !== before.status.count.balls || call.payload.countBefore.strikes !== before.status.count.strikes) {
       throw new Error("Native aerodynamic observation requires the exact accepted pitch adjudication.");
     }
     const counted = call.payload.result;
@@ -4139,12 +4140,12 @@ var KneekuraNativeMatchCore = (() => {
     }
     return { events, contact };
   }
-  function batterPose(input, tick8) {
+  function batterPose(input, tick9) {
     const handedness = input.batterHandedness;
     if (input.pitch.action.kind === "take") return { handedness, action: "idle", bat: null };
     const { swing } = input.pitch.action;
-    if (tick8 < swing.startTick || tick8 > swing.endTick) return { handedness, action: "idle", bat: null };
-    const pose = swing.kinematicsV1 !== void 0 ? sampleSwingStateV1(swing.kinematicsV1, tick8).pose : sampleCompatibilityBatterSwingState(swing.stateAtStart, tick8 - swing.startTick, swing.ticksPerSecond).pose;
+    if (tick9 < swing.startTick || tick9 > swing.endTick) return { handedness, action: "idle", bat: null };
+    const pose = swing.kinematicsV1 !== void 0 ? sampleSwingStateV1(swing.kinematicsV1, tick9).pose : sampleCompatibilityBatterSwingState(swing.stateAtStart, tick9 - swing.startTick, swing.ticksPerSecond).pose;
     return { handedness, action: "normal_swing", bat: pose };
   }
   function observedSpinTicks(canonicalTicks, additionalTicks, startTick, stopTick) {
@@ -4153,11 +4154,11 @@ var KneekuraNativeMatchCore = (() => {
       throw new Error("Native spin render ticks must be an array of physical source ticks.");
     }
     for (let index = 0; index < additionalTicks.length; index++) {
-      const tick8 = additionalTicks[index];
-      if (!isTick(tick8) || tick8 < startTick || tick8 > stopTick) {
+      const tick9 = additionalTicks[index];
+      if (!isTick(tick9) || tick9 < startTick || tick9 > stopTick) {
         throw new Error("Native spin render tick must lie inside the true source flight through physical contact.");
       }
-      if (index > 0 && tick8 <= additionalTicks[index - 1]) {
+      if (index > 0 && tick9 <= additionalTicks[index - 1]) {
         throw new Error("Native spin render ticks must be strictly increasing.");
       }
     }
@@ -4181,16 +4182,16 @@ var KneekuraNativeMatchCore = (() => {
       trajectory,
       physicalStopTick: stopTick
     }).sampleFrameTicks(spinTicks, { shutterTicks: input.spinShutterTicks ?? 0 });
-    const samples = ticks2.map((tick8) => {
-      const actors = input.actorsAtTick(tick8);
+    const samples = ticks2.map((tick9) => {
+      const actors = input.actorsAtTick(tick9);
       if (!actors || !Array.isArray(actors.defenders) || !Array.isArray(actors.runners)) {
-        throw new Error(`Missing authoritative native actor state at tick ${tick8}.`);
+        throw new Error(`Missing authoritative native actor state at tick ${tick9}.`);
       }
-      const flight = sampleAerodynamicPitchTrajectory(trajectory, tick8);
-      const ball = contact !== null && tick8 === contact.tick ? { position: contact.ballCenter, velocity: contact.exitVelocity, spin: contact.exitSpin } : { position: flight.position, velocity: flight.velocity, spin: flight.spin };
+      const flight = sampleAerodynamicPitchTrajectory(trajectory, tick9);
+      const ball = contact !== null && tick9 === contact.tick ? { position: contact.ballCenter, velocity: contact.exitVelocity, spin: contact.exitSpin } : { position: flight.position, velocity: flight.velocity, spin: flight.spin };
       return {
-        world: { tick: tick8, defenders: actors.defenders, runners: actors.runners, ball },
-        batter: batterPose(input, tick8),
+        world: { tick: tick9, defenders: actors.defenders, runners: actors.runners, ball },
+        batter: batterPose(input, tick9),
         pitcherHandedness: input.pitcherHandedness
       };
     });
@@ -4261,15 +4262,15 @@ var KneekuraNativeMatchCore = (() => {
         sweetSpot: point(sample3.sweetSpot),
         sweetSpotVelocity: rotateVectorByQuaternion(sample3.sweetSpotVelocity, rotation)
       });
-      const sampleContinuous3 = (tick8) => adjust2(base.sampleContinuous(tick8));
+      const sampleContinuous3 = (tick9) => adjust2(base.sampleContinuous(tick9));
       return Object.freeze({
         ...base,
         sampleContinuous: sampleContinuous3,
-        sample: (tick8) => {
-          base.sample(tick8);
-          return sampleContinuous3(tick8);
+        sample: (tick9) => {
+          base.sample(tick9);
+          return sampleContinuous3(tick9);
         },
-        sampleAtSourceTick: (tick8, side = "outgoing") => adjust2(base.sampleAtSourceTick(tick8, side))
+        sampleAtSourceTick: (tick9, side = "outgoing") => adjust2(base.sampleAtSourceTick(tick9, side))
       });
     }
     if (angle2 === 0) return base;
@@ -4296,8 +4297,8 @@ var KneekuraNativeMatchCore = (() => {
         sweetSpotVelocity: add6(rotateVectorByQuaternion(sample3.sweetSpotVelocity, rotation), scale8(cross6(axis, rotatedSweet), e.thetaPrime))
       };
     };
-    const sampleContinuous2 = (tick8) => adjust(base.sampleContinuous(tick8));
-    const sourceToWorld = (tick8) => input.startTick + (tick8 - input.frames[0].tick) / input.sourceTicksPerSecond / input.playbackRate * input.ticksPerSecond;
+    const sampleContinuous2 = (tick9) => adjust(base.sampleContinuous(tick9));
+    const sourceToWorld = (tick9) => input.startTick + (tick9 - input.frames[0].tick) / input.sourceTicksPerSecond / input.playbackRate * input.ticksPerSecond;
     const cuts = [.../* @__PURE__ */ new Set([first, contactSourceTick, last, ...input.frames.filter((f) => f.tick > first && f.tick < last).map((f) => f.tick)])].sort((a, b) => a - b), thetaPrimeBound = Math.abs(angle2) * 1.875 / Math.min(before, after), thetaSecondBound = Math.abs(angle2) * (10 * Math.sqrt(3) / 3) / Math.min(before, after) ** 2, radius = input.batLengthM * input.transform.scale * input.sweetSpotT;
     let maximumSweetSpotSpeedMps = base.maximumSweetSpotSpeedMps, maximumGripSpeedMps = base.maximumGripSpeedMps;
     for (let i = 1; i < cuts.length; i++) {
@@ -4315,11 +4316,11 @@ var KneekuraNativeMatchCore = (() => {
       maximumGripSpeedMps,
       maximumAngularSpeedRadPerSecond: base.maximumAngularSpeedRadPerSecond + thetaPrimeBound,
       sampleContinuous: sampleContinuous2,
-      sample: (tick8) => {
-        base.sample(tick8);
-        return sampleContinuous2(tick8);
+      sample: (tick9) => {
+        base.sample(tick9);
+        return sampleContinuous2(tick9);
       },
-      sampleAtSourceTick: (tick8, side = "outgoing") => adjust(base.sampleAtSourceTick(tick8, side))
+      sampleAtSourceTick: (tick9, side = "outgoing") => adjust(base.sampleAtSourceTick(tick9, side))
     });
   }
 
@@ -5142,12 +5143,12 @@ var KneekuraNativeMatchCore = (() => {
       );
     }
   };
-  var sampleSwing = (swing, tick8) => swing.kinematicsV1 !== void 0 ? sampleSwingStateV1(
+  var sampleSwing = (swing, tick9) => swing.kinematicsV1 !== void 0 ? sampleSwingStateV1(
     swing.kinematicsV1,
-    tick8
+    tick9
   ) : sampleCompatibilityBatterSwingState(
     swing.stateAtStart,
-    tick8 - swing.startTick,
+    tick9 - swing.startTick,
     swing.ticksPerSecond
   );
   var maximumClosingSpeed = (input, sampledBatPointSpeed) => {
@@ -5232,13 +5233,13 @@ var KneekuraNativeMatchCore = (() => {
       if (!Number.isFinite(pointSpeed)) throw new Error("sampled rigid swing point-speed bound overflow");
     }
     const closingSpeed = maximumClosingSpeed(input, pointSpeed);
-    let tick8 = input.swing.startTick;
+    let tick9 = input.swing.startTick;
     let pitch = sampleAerodynamicPitchTrajectory(
       input.trajectory,
-      tick8
+      tick9
     );
-    while (tick8 <= input.swing.endTick) {
-      const sampledSwing = sampled ? sampled.sample(tick8).state : sampleSwing(input.swing, tick8);
+    while (tick9 <= input.swing.endTick) {
+      const sampledSwing = sampled ? sampled.sample(tick9).state : sampleSwing(input.swing, tick9);
       validateV1PointSpeed(
         input.swing,
         sampledSwing
@@ -5266,21 +5267,21 @@ var KneekuraNativeMatchCore = (() => {
           };
         }
       }
-      if (tick8 === input.swing.endTick) {
+      if (tick9 === input.swing.endTick) {
         break;
       }
       const safeAdvanceTicks = separation > 0 && closingSpeed > EPSILON10 ? Math.floor(
         separation / closingSpeed * input.swing.ticksPerSecond
       ) - 1 : 1;
       const advanceTicks = Math.min(
-        input.swing.endTick - tick8,
+        input.swing.endTick - tick9,
         Math.max(
           1,
           safeAdvanceTicks
         )
       );
-      pitch = sampled ? sampleAerodynamicPitchTrajectory(input.trajectory, tick8 + advanceTicks) : advanceAerodynamicPitchState(pitch, advanceTicks, input.trajectory.parameters);
-      tick8 += advanceTicks;
+      pitch = sampled ? sampleAerodynamicPitchTrajectory(input.trajectory, tick9 + advanceTicks) : advanceAerodynamicPitchState(pitch, advanceTicks, input.trajectory.parameters);
+      tick9 += advanceTicks;
     }
     return {
       kind: "swinging_miss",
@@ -5391,8 +5392,8 @@ var KneekuraNativeMatchCore = (() => {
   };
 
   // src/integration/browser/NativeAerodynamicSession.ts
-  function isTick2(tick8) {
-    return Number.isSafeInteger(tick8) && tick8 >= 0;
+  function isTick2(tick9) {
+    return Number.isSafeInteger(tick9) && tick9 >= 0;
   }
   function observablePhase(status) {
     switch (status) {
@@ -5825,9 +5826,9 @@ var KneekuraNativeMatchCore = (() => {
         (ball.tick - anchor.tick) / aero.ticksPerSecond
       ) };
     };
-    const advance = (anchor, tick8) => oriented(
+    const advance = (anchor, tick9) => oriented(
       anchor,
-      grounded(anchor.ball) ? advanceBaseballGroundMotion(anchor.ball, tick8 - anchor.tick, ground).ball : advanceAerodynamicPitchState(anchor.ball, tick8 - anchor.tick, aero, materialForce ? anchor.orientation : void 0)
+      grounded(anchor.ball) ? advanceBaseballGroundMotion(anchor.ball, tick9 - anchor.tick, ground).ball : advanceAerodynamicPitchState(anchor.ball, tick9 - anchor.tick, aero, materialForce ? anchor.orientation : void 0)
     );
     let current = {
       tick: initialBall.tick,
@@ -5856,7 +5857,7 @@ var KneekuraNativeMatchCore = (() => {
       const proposed = advance(current, endTick);
       let floorHorizon = endTick;
       if (!grounded(current.ball) && current.ball.velocity.y < 0 && proposed.ball.velocity.y >= 0) {
-        const turnTick = findFirstTrueTick(current.tick, endTick, (tick8) => advance(current, tick8).ball.velocity.y >= 0);
+        const turnTick = findFirstTrueTick(current.tick, endTick, (tick9) => advance(current, tick9).ball.velocity.y >= 0);
         if (turnTick !== null) {
           const before = Math.max(current.tick, turnTick - 1);
           floorHorizon = advance(current, before).ball.position.y < advance(current, turnTick).ball.position.y ? before : turnTick;
@@ -5867,7 +5868,7 @@ var KneekuraNativeMatchCore = (() => {
         const contactTick = findFirstTrueTick(
           first,
           floorHorizon,
-          (tick8) => advance(current, tick8).ball.position.y <= ground.radiusM
+          (tick9) => advance(current, tick9).ball.position.y <= ground.radiusM
         );
         if (contactTick === null) throw new Error("free trajectory ground crossing has no physical contact");
         const atContact = advance(current, contactTick);
@@ -5885,19 +5886,19 @@ var KneekuraNativeMatchCore = (() => {
     const frozenSamples = freeze(samples), frozenContacts = freeze(groundContacts);
     const observe = (ticks2) => {
       let previous = -1;
-      return ticks2.map((tick8) => {
-        if (!Number.isSafeInteger(tick8) || tick8 <= previous || tick8 < initialBall.tick || tick8 > throughTick) {
+      return ticks2.map((tick9) => {
+        if (!Number.isSafeInteger(tick9) || tick9 <= previous || tick9 < initialBall.tick || tick9 > throughTick) {
           throw new Error("free baseball observation requires strictly increasing available source ticks");
         }
-        previous = tick8;
+        previous = tick9;
         let low = 0, high = frozenSamples.length - 1;
         while (low < high) {
           const mid = Math.ceil((low + high) / 2);
-          if (frozenSamples[mid].tick <= tick8) low = mid;
+          if (frozenSamples[mid].tick <= tick9) low = mid;
           else high = mid - 1;
         }
         const anchor = frozenSamples[low];
-        return anchor.tick === tick8 ? anchor : freeze(advance(anchor, tick8));
+        return anchor.tick === tick9 ? anchor : freeze(advance(anchor, tick9));
       });
     };
     return Object.freeze({ samples: frozenSamples, groundContacts: frozenContacts, observe });
@@ -5930,7 +5931,7 @@ var KneekuraNativeMatchCore = (() => {
     const ticks2 = input.sampleTicks ? [...input.sampleTicks] : [];
     if (!input.sampleTicks) {
       const cadence = Math.max(1, Math.round(0.0275 * input.aerodynamics.ticksPerSecond));
-      for (let tick8 = contact.tick; tick8 <= input.throughTick; tick8 += cadence) ticks2.push(tick8);
+      for (let tick9 = contact.tick; tick9 <= input.throughTick; tick9 += cadence) ticks2.push(tick9);
       ticks2.push(input.throughTick, ...trajectory.groundContacts.map((c) => c.outgoing.tick));
     }
     const sampleTicks = input.sampleTicks ? ticks2 : [...new Set(ticks2)].sort((a, b) => a - b);
@@ -6507,11 +6508,11 @@ var KneekuraNativeMatchCore = (() => {
     if (deltaTicks === 0) {
       return null;
     }
-    return findFirstTrueTick(state2.tick, state2.tick + deltaTicks, (tick8) => {
-      if (tick8 === state2.tick) {
+    return findFirstTrueTick(state2.tick, state2.tick + deltaTicks, (tick9) => {
+      if (tick9 === state2.tick) {
         return false;
       }
-      const dt = (tick8 - state2.tick) / parameters.ticksPerSecond;
+      const dt = (tick9 - state2.tick) / parameters.ticksPerSecond;
       const y = state2.position.y + state2.velocity.y * dt + 0.5 * parameters.gravityY * dt * dt;
       return y <= parameters.ballRadius;
     });
@@ -7248,18 +7249,18 @@ var KneekuraNativeMatchCore = (() => {
       throw new Error(`${name} must be a non-negative safe integer tick`);
     }
   };
-  var sampleDefenderPhysicalPrimitiveSegment = (segment, tick8) => {
-    validateTick5("tick", tick8);
-    if (tick8 < segment.startTick || tick8 > segment.endTick) {
+  var sampleDefenderPhysicalPrimitiveSegment = (segment, tick9) => {
+    validateTick5("tick", tick9);
+    if (tick9 < segment.startTick || tick9 > segment.endTick) {
       throw new Error("tick must be inside the defender physical primitive segment");
     }
     if (!Number.isSafeInteger(segment.ticksPerSecond) || segment.ticksPerSecond <= 0) {
       throw new Error("segment.ticksPerSecond must be a positive safe integer");
     }
-    const dt = (tick8 - segment.startTick) / segment.ticksPerSecond;
+    const dt = (tick9 - segment.startTick) / segment.ticksPerSecond;
     const halfDt2 = 0.5 * dt * dt;
     return {
-      tick: tick8,
+      tick: tick9,
       center: {
         x: clean(segment.startCenter.x + segment.startVelocity.x * dt + segment.acceleration.x * halfDt2),
         y: clean(segment.startCenter.y + segment.startVelocity.y * dt + segment.acceleration.y * halfDt2),
@@ -9415,10 +9416,10 @@ var KneekuraNativeMatchCore = (() => {
     if (!value) throw new Error("live trait profiles: " + message);
   }
   var text = (value) => typeof value === "string" && value.length > 0 && value.trim() === value && value.length <= 160;
-  var object = (value, fields16, path2) => {
+  var object = (value, fields17, path2) => {
     assert5(value && typeof value === "object" && !Array.isArray(value), "invalid " + path2);
     const record = value;
-    assert5(Object.keys(record).length === fields16.length && fields16.every((key3) => Object.hasOwn(record, key3)), "invalid fields " + path2);
+    assert5(Object.keys(record).length === fields17.length && fields17.every((key3) => Object.hasOwn(record, key3)), "invalid fields " + path2);
     return record;
   };
   var range = (value, min, max) => {
@@ -13066,9 +13067,9 @@ var KneekuraNativeMatchCore = (() => {
     for (const r of input.runners) assert19(r.runnerId && [0, 1, 2, 3].includes(r.initialBase) && [r.topSpeedMps, r.accelerationMps2].every((x) => Number.isFinite(x) && x > 0) && Number.isFinite(r.reactionSeconds) && r.reactionSeconds >= 0 && (!r.position || finite10(r.position)) && (r.advanceSafetyMarginSeconds === void 0 || Number.isFinite(r.advanceSafetyMarginSeconds) && r.advanceSafetyMarginSeconds >= 0 && r.advanceSafetyMarginSeconds <= 3) && (r.roundingRadiusMeters === void 0 || Number.isFinite(r.roundingRadiusMeters) && r.roundingRadiusMeters >= 0.5 && r.roundingRadiusMeters <= 10) && (r.lateralAccelerationMps2 === void 0 || Number.isFinite(r.lateralAccelerationMps2) && r.lateralAccelerationMps2 >= 0.5 && r.lateralAccelerationMps2 <= 20), "explicit runner SI required");
     for (const actor of [...input.fielders, ...input.runners]) if (actor.technicalSkills !== void 0) validateTechnicalSkillControlsV75(actor.technicalSkills);
     const facts = [], frames = [], runnerTouches = [], controlledBaseContacts = [], controlledRunnerTags = [], runnerDepartures = [], defensiveAppeals = [];
-    const tick8 = (t) => quantizeEventTick(originTick, t, tps);
+    const tick9 = (t) => quantizeEventTick(originTick, t, tps);
     const findContact = (gap, speed2, rounding, lo, hi) => firstContact(gap, speed2, rounding, lo, hi, 0, 1 / tps);
-    const emit = (kind, t, extra = {}) => facts.push({ kind, tick: tick8(t), elapsedSeconds: t, ...extra });
+    const emit = (kind, t, extra = {}) => facts.push({ kind, tick: tick9(t), elapsedSeconds: t, ...extra });
     const defenders = input.fielders.map((spec) => ({
       spec,
       locomotion: createLiveLocomotionProfileV84(spec),
@@ -13207,7 +13208,7 @@ var KneekuraNativeMatchCore = (() => {
       const b = ballAt2(t);
       frames.push({
         elapsedSeconds: t,
-        tick: tick8(t),
+        tick: tick9(t),
         defensiveOpportunity,
         ball: {
           position: b.position,
@@ -13330,7 +13331,7 @@ var KneekuraNativeMatchCore = (() => {
       }
       if (!hypothesis) {
         hypothesis = { observation: seen, curve: createLiveFieldForecastV1({ observation: {
-          tick: tick8(seen.t),
+          tick: tick9(seen.t),
           position: seen.position,
           velocity: seen.velocity,
           spin: seen.spin
@@ -13341,7 +13342,7 @@ var KneekuraNativeMatchCore = (() => {
       const age = t - hypothesis.observation.t;
       return {
         observedPosition: seen.position,
-        observationTick: tick8(seen.t),
+        observationTick: tick9(seen.t),
         maximumPositionSpeedMps: hypothesis.curve.diagnostics.maximumPositionSpeedUpperBoundMps,
         maximumSeconds: policy3.horizonSeconds - age,
         firstPredictedGroundSeconds: (hypothesis.curve.diagnostics.groundContactElapsedSeconds[0] ?? Infinity) - age,
@@ -13463,7 +13464,7 @@ var KneekuraNativeMatchCore = (() => {
       const forecasts = defenders.map((f) => ({ f, predicted: forecast(f, t) }));
       if (!dead) {
         const seen = defenders.map((f) => seenBy(f, t)).filter((h) => h !== null).sort((a, b) => b.t - a.t)[0], prediction = seen && !hasThrown && !possession && !pendingCatch && firstGroundContactSeconds === null && firstFielderTouchSeconds === null ? predictObservation(seen, t, 0) : null, candidate = prediction ? predictLiveDefensiveOpportunityV1({
-          availableAtTick: tick8(t),
+          availableAtTick: tick9(t),
           observationTick: prediction.observationTick,
           ballRadiusMeters: input.physics.ground.radiusM,
           home: base(0),
@@ -13486,10 +13487,10 @@ var KneekuraNativeMatchCore = (() => {
           decisiveCandidate = null;
           defensiveOpportunity = null;
         } else {
-          decisiveCandidate ??= { tick: tick8(t), observationTick: candidate.observationTick };
-          defensiveOpportunity = tick8(t) - decisiveCandidate.tick >= Math.ceil(LIVE_DEFENSIVE_OPPORTUNITY_POLICY_V1.confirmationSeconds * tps) && candidate.observationTick > decisiveCandidate.observationTick ? candidate : null;
+          decisiveCandidate ??= { tick: tick9(t), observationTick: candidate.observationTick };
+          defensiveOpportunity = tick9(t) - decisiveCandidate.tick >= Math.ceil(LIVE_DEFENSIVE_OPPORTUNITY_POLICY_V1.confirmationSeconds * tps) && candidate.observationTick > decisiveCandidate.observationTick ? candidate : null;
         }
-        if (Boolean(prior) !== Boolean(defensiveOpportunity)) defensiveOpportunityTransitions.push({ tick: tick8(t), elapsedSeconds: t, opportunity: defensiveOpportunity });
+        if (Boolean(prior) !== Boolean(defensiveOpportunity)) defensiveOpportunityTransitions.push({ tick: tick9(t), elapsedSeconds: t, opportunity: defensiveOpportunity });
       }
       const selection = selectLiveFieldHandlerV1({
         candidates: forecasts.flatMap(({ f, predicted }) => {
@@ -14177,8 +14178,8 @@ var KneekuraNativeMatchCore = (() => {
     };
     const applyBaseControl = (f, n, t) => {
       const current = controlledBaseContacts.at(-1);
-      if (current?.defenderId === f.spec.playerId && current.base === n && tick8(t) - current.tick < tps / 5) return;
-      controlledBaseContacts.push({ kind: "controlled_base_contact", defenderId: f.spec.playerId, base: n, tick: tick8(t) });
+      if (current?.defenderId === f.spec.playerId && current.base === n && tick9(t) - current.tick < tps / 5) return;
+      controlledBaseContacts.push({ kind: "controlled_base_contact", defenderId: f.spec.playerId, base: n, tick: tick9(t) });
       emit("controlled_base_contact", t, { playerId: f.spec.playerId, base: n });
       for (const o of deriveCurrentForceObligations(force)) if (o.targetBase === n) {
         const r = runners.find((r2) => r2.spec.runnerId === o.runnerId);
@@ -14194,17 +14195,17 @@ var KneekuraNativeMatchCore = (() => {
         runnerId: r.spec.runnerId,
         base: origin2,
         reason: "tag_up_early_departure",
-        tick: tick8(t)
+        tick: tick9(t)
       });
       if (!flyCatch || !runnerDepartures.some((d) => d.runnerId === r.spec.runnerId && d.base === origin2 && d.tick < flyCatch.firstTouchTick)) {
-        unresolvedDetail = { kind: "unproven_tag_up_origin_departure", runnerId: r.spec.runnerId, tick: tick8(t) };
+        unresolvedDetail = { kind: "unproven_tag_up_origin_departure", runnerId: r.spec.runnerId, tick: tick9(t) };
         terminal = true;
         endReason = "tag_up_appeal_refinement_required";
         return;
       }
       const retouch = r.leg?.motion.touches.slice(r.leg.nextTouchIndex).find((b) => b.base === origin2);
-      if (retouch && r.leg && tick8(r.leg.from + retouch.elapsedSeconds) === tick8(t)) {
-        unresolvedDetail = { kind: "simultaneous_tag_up_appeal_retouch", runnerId: r.spec.runnerId, tick: tick8(t) };
+      if (retouch && r.leg && tick9(r.leg.from + retouch.elapsedSeconds) === tick9(t)) {
+        unresolvedDetail = { kind: "simultaneous_tag_up_appeal_retouch", runnerId: r.spec.runnerId, tick: tick9(t) };
         terminal = true;
         endReason = "tag_up_appeal_refinement_required";
         return;
@@ -14271,7 +14272,7 @@ var KneekuraNativeMatchCore = (() => {
               const deviation = ballDeviation + maximumCurveAcceleration(c, hi) / 2;
               const span = Math.min(hi - lo, deviation > 0 ? outward / (2 * deviation) : hi - lo), escape = 2 * (-gap(lo) + cell.positionRoundingBoundMeters) / outward;
               const penetrationBound = proof.hit.rounding + proof.hit.speed * (proof.hit.t - proof.hit.from), lower = gap(lo) + outward * escape - deviation * escape * escape - cell.positionRoundingBoundMeters;
-              if (!(tick8(proof.hit.t) === tick8(proof.hit.from) && gap(lo) >= -penetrationBound && outward > 0 && escape >= 0 && Number.isFinite(escape) && escape < span && lower > 0 && gap(lo + escape) > 0 && gap(lo + span) > 0)) {
+              if (!(tick9(proof.hit.t) === tick9(proof.hit.from) && gap(lo) >= -penetrationBound && outward > 0 && escape >= 0 && Number.isFinite(escape) && escape < span && lower > 0 && gap(lo + escape) > 0 && gap(lo + span) > 0)) {
                 unresolvedDetail = { kind: "contact_departure", outward, escape, span, signedGap: gap(lo), rounding: cell.positionRoundingBoundMeters, witness: proof.hit };
                 choose({ kind: "unresolved", t: time });
                 continue;
@@ -14292,7 +14293,7 @@ var KneekuraNativeMatchCore = (() => {
               collisionQueries++;
               const hit = findContact(gap, cell.maximumPositionSpeedMps + maximumCurveSpeed(c, from, hi), cell.positionRoundingBoundMeters, from, hi);
               if (hit) {
-                const unsupported = hit.ambiguous || tick8(hit.from) !== tick8(hit.t);
+                const unsupported = hit.ambiguous || tick9(hit.from) !== tick9(hit.t);
                 if (unsupported) unresolvedDetail = { kind: "actor_contact_refinement", playerId: f.spec.playerId, role, hit };
                 choose({ kind: unsupported ? "unresolved" : role, t: hit.t, f, role, hit });
               }
@@ -14309,7 +14310,7 @@ var KneekuraNativeMatchCore = (() => {
               const denominator = radial - speed2 * (hi - lo), deviation = ballDeviation + speed2 * speed2 / (2 * Math.max(denominator, Number.MIN_VALUE));
               const span = Math.min(hi - lo, outward / (2 * deviation)), escape = 2 * (-gap(lo) + cell.positionRoundingBoundMeters) / outward;
               const hit = fenceEscape.witness, penetrationBound = hit.rounding + hit.speed * (hit.t - hit.from), lower = gap(lo) + outward * escape - deviation * escape * escape - cell.positionRoundingBoundMeters;
-              if (!(tick8(hit.t) === tick8(hit.from) && gap(lo) >= -penetrationBound && denominator > 0 && outward > 0 && Number.isFinite(escape) && escape >= 0 && escape < span && lower > 0 && gap(lo + escape) > 0 && gap(lo + span) > 0)) {
+              if (!(tick9(hit.t) === tick9(hit.from) && gap(lo) >= -penetrationBound && denominator > 0 && outward > 0 && Number.isFinite(escape) && escape >= 0 && escape < span && lower > 0 && gap(lo + escape) > 0 && gap(lo + span) > 0)) {
                 unresolvedDetail = {
                   kind: "fence_departure",
                   denominator,
@@ -14343,7 +14344,7 @@ var KneekuraNativeMatchCore = (() => {
               fenceFrom,
               Math.min(hi, horizon)
             ) : null;
-            if (crossing2) choose({ kind: crossing2.ambiguous || tick8(crossing2.from) !== tick8(crossing2.t) ? "unresolved" : "fence", t: crossing2.t, hit: crossing2 });
+            if (crossing2) choose({ kind: crossing2.ambiguous || tick9(crossing2.from) !== tick9(crossing2.t) ? "unresolved" : "fence", t: crossing2.t, hit: crossing2 });
           }
           if (!hasThrown && firstGroundContactTick !== null && !territoryFixed) {
             const gate = findContact(
@@ -14353,7 +14354,7 @@ var KneekuraNativeMatchCore = (() => {
               lo,
               Math.min(hi, horizon)
             );
-            if (gate) choose({ kind: gate.ambiguous || tick8(gate.from) !== tick8(gate.t) ? "unresolved" : "fair_foul_gate", t: gate.t });
+            if (gate) choose({ kind: gate.ambiguous || tick9(gate.from) !== tick9(gate.t) ? "unresolved" : "fair_foul_gate", t: gate.t });
           }
         }
       }
@@ -14394,7 +14395,7 @@ var KneekuraNativeMatchCore = (() => {
         } else if (e.kind === "ground" || e.kind === "rolling_stop") {
           if (e.kind === "ground") {
             if (!hasThrown) {
-              firstGroundContactTick ??= tick8(time);
+              firstGroundContactTick ??= tick9(time);
               firstGroundContactSeconds ??= time;
             }
             emit("ground_contact", time, { position: kernel.evaluateAt(time, "incoming").moment.ball.position });
@@ -14423,7 +14424,7 @@ var KneekuraNativeMatchCore = (() => {
             for (const r of runners) if (r.spec.initialBase > 0)
               tagUpAtFirstTouch.set(r.spec.runnerId, distance5(flat(runnerAt(r, time)), flat(base(r.spec.initialBase))) <= (field.baseTouchRadiusMeters ?? 0.28));
           }
-          firstTouchTick ??= tick8(time);
+          firstTouchTick ??= tick9(time);
           firstFielderTouchSeconds ??= time;
           if (territory === "foul" && firstGroundContactTick !== null) {
             dead = true;
@@ -14439,9 +14440,9 @@ var KneekuraNativeMatchCore = (() => {
             const pocketOffsetMeters = distance5(ballSurfacePoint, pocketEntryCenter);
             const bodySpd = norm9(velocityAt(f.body, time)), gloveExt = distance5(center, at(f.body, time)), gloveRelSpd = norm9(sub10(velocityAt(c, time), velocityAt(f.body, time))), speedRatio = clamp3(bodySpd / Math.max(f.spec.topSpeedMps, 0.1), 0, 1), extRatio = clamp3(gloveExt / Math.max(f.spec.gloveReachMeters, 0.1), 0, 1), gloveMoveRatio = clamp3(gloveRelSpd / Math.max(f.spec.gloveSpeedMps, 0.1), 0, 1), legacyStability = clamp3(1 - 0.22 * speedRatio * speedRatio - 0.2 * Math.max(0, extRatio - 0.55) / 0.45 - 0.15 * gloveMoveRatio, 0.42, 1), skill = f.spec.technicalSkills?.advanced_fielding ?? 0, bodyStability = skill > 0 ? clamp3(legacyStability + (1 - legacyStability) * 0.08 * skill, 0.42, 1) : legacyStability;
             const retention = resolveCatchRetention({
-              contactTick: tick8(time),
-              ball: { ...incoming.moment.ball, tick: tick8(time) },
-              glove: { tick: tick8(time), position: center, velocity: velocityAt(c, time) },
+              contactTick: tick9(time),
+              ball: { ...incoming.moment.ball, tick: tick9(time) },
+              glove: { tick: tick9(time), position: center, velocity: velocityAt(c, time) },
               contactNormal: normal4,
               pocketOffsetMeters,
               bodyStability
@@ -14543,10 +14544,10 @@ var KneekuraNativeMatchCore = (() => {
           handPreparation = null;
           emit("catch_secured", time, { playerId: possession.spec.playerId, position: at(possession.glove, time) });
           if (c.firstTouchWasAirborne && !flyCatch) {
-            flyCatch = { fielderId: possession.spec.playerId, firstTouchTick, secureCatchTick: tick8(time) };
+            flyCatch = { fielderId: possession.spec.playerId, firstTouchTick, secureCatchTick: tick9(time) };
             retire(batter, time);
             for (const r of runners) if (!r.retired && r.spec.initialBase > 0 && !tagUpAtFirstTouch.get(r.spec.runnerId)) {
-              const left = runnerDepartures.slice().reverse().find((d) => d.runnerId === r.spec.runnerId && d.base === r.spec.initialBase && d.tick <= firstTouchTick), retouched = runnerTouches.some((b) => b.runnerId === r.spec.runnerId && b.base === r.spec.initialBase && b.tick >= firstTouchTick && b.tick <= tick8(time));
+              const left = runnerDepartures.slice().reverse().find((d) => d.runnerId === r.spec.runnerId && d.base === r.spec.initialBase && d.tick <= firstTouchTick), retouched = runnerTouches.some((b) => b.runnerId === r.spec.runnerId && b.base === r.spec.initialBase && b.tick >= firstTouchTick && b.tick <= tick9(time));
               if (retouched || left && left.tick === firstTouchTick) continue;
               r.retouchBase = r.spec.initialBase;
               r.returnReadyAt = time + r.spec.reactionSeconds;
@@ -14622,7 +14623,7 @@ var KneekuraNativeMatchCore = (() => {
           }), velocity = actualDirection.velocity;
           throwDirectionCommands.push({ elapsedSeconds: time, plannedVelocity: planned.initialVelocity, bodyVelocity, actual: actualDirection });
           throwDecisions.push({ elapsedSeconds: time, base: target.base, reason: "positive_margin_physical_throw", flightSeconds: planned.flightSeconds });
-          kernel = build({ originTick, elapsedSeconds: time, ball: { tick: tick8(time), position, velocity, spin } });
+          kernel = build({ originTick, elapsedSeconds: time, ball: { tick: tick9(time), position, velocity, spin } });
           wallContact = null;
           emit("throw_release", time, {
             playerId: f.spec.playerId,
@@ -14673,7 +14674,7 @@ var KneekuraNativeMatchCore = (() => {
               leg.departure = { base: r.base, elapsedSeconds: leg.from + hi };
             }
           }
-          runnerTouches.push({ kind: "runner_base_touch", runnerId: r.spec.runnerId, base: touch.base, tick: tick8(time) });
+          runnerTouches.push({ kind: "runner_base_touch", runnerId: r.spec.runnerId, base: touch.base, tick: tick9(time) });
           emit("runner_base_touch", time, { runnerId: r.spec.runnerId, base: touch.base, position: r.p });
           if (deriveCurrentForceObligations(force).some((o) => o.runnerId === r.spec.runnerId && o.targetBase === touch.base))
             force = satisfyForceParticipantObligation(force, r.spec.runnerId);
@@ -14688,18 +14689,18 @@ var KneekuraNativeMatchCore = (() => {
         } else if (e.kind === "runner_departure") {
           const r = e.runner, departure = r.leg.departure;
           r.leg.departure = null;
-          physicalBaseDepartures.set(r.spec.runnerId, { ...departure, tick: tick8(time) });
-          runnerDepartures.push({ kind: "runner_base_departure", runnerId: r.spec.runnerId, base: departure.base, tick: tick8(time) });
+          physicalBaseDepartures.set(r.spec.runnerId, { ...departure, tick: tick9(time) });
+          runnerDepartures.push({ kind: "runner_base_departure", runnerId: r.spec.runnerId, base: departure.base, tick: tick9(time) });
           emit("runner_base_departure", time, { runnerId: r.spec.runnerId, base: departure.base });
         } else if (e.kind === "base") applyBaseControl(e.f, e.base, time);
         else if (e.kind === "tag") {
           const r = e.runner;
-          const departure = physicalBaseDepartures.get(r.spec.runnerId), position = runnerAt(r, time), velocity = runnerVelocityAt(r, time), radial = departure ? flat(sub10(position, base(departure.base))) : v2(), protectionEndedByDeparture = departure && departure.base === r.base && departure.tick === tick8(time) && departure.elapsedSeconds <= time && !deriveCurrentForceObligations(force).some((o) => o.runnerId === r.spec.runnerId) && norm9(radial) > (field.baseTouchRadiusMeters ?? 0.28) && radial.x * velocity.x + radial.z * velocity.z > 0 && distance5(at(e.f.glove, time), add16(position, v2(0, 0.9, 0))) <= 0.28 ? { base: departure.base, tick: departure.tick } : void 0;
+          const departure = physicalBaseDepartures.get(r.spec.runnerId), position = runnerAt(r, time), velocity = runnerVelocityAt(r, time), radial = departure ? flat(sub10(position, base(departure.base))) : v2(), protectionEndedByDeparture = departure && departure.base === r.base && departure.tick === tick9(time) && departure.elapsedSeconds <= time && !deriveCurrentForceObligations(force).some((o) => o.runnerId === r.spec.runnerId) && norm9(radial) > (field.baseTouchRadiusMeters ?? 0.28) && radial.x * velocity.x + radial.z * velocity.z > 0 && distance5(at(e.f.glove, time), add16(position, v2(0, 0.9, 0))) <= 0.28 ? { base: departure.base, tick: departure.tick } : void 0;
           controlledRunnerTags.push({
             kind: "controlled_runner_tag",
             defenderId: e.f.spec.playerId,
             runnerId: r.spec.runnerId,
-            tick: tick8(time),
+            tick: tick9(time),
             ...protectionEndedByDeparture ? { protectionEndedByDeparture } : {}
           });
           emit("controlled_runner_tag", time, { playerId: e.f.spec.playerId, runnerId: r.spec.runnerId });
@@ -14709,7 +14710,7 @@ var KneekuraNativeMatchCore = (() => {
           const b = kernel.evaluateAt(time, "incoming").moment.ball, geometricFair = isFair(b.position), fair = territoryFixed ? territory === "fair" : geometricFair, untouchedGround = !hasThrown && firstGroundContactTick === null;
           if (b.position.y - input.physics.ground.radiusM > field.fenceHeightMeters || !fair) {
             overFence = {
-              tick: tick8(time),
+              tick: tick9(time),
               fair,
               untouchedGround,
               cause: hasThrown ? "throw" : "batted",
@@ -14785,11 +14786,11 @@ var KneekuraNativeMatchCore = (() => {
       if (time === horizon && !e && horizon === max) break;
     }
     sampleFrame(time);
-    const complete = ["third_out", "foul_dead_ball", "home_run_completed", "ground_rule_award_completed", "live_action_complete"].includes(endReason), playEnd = { kind: "play_end", tick: tick8(time), reason: dead ? "dead_ball" : "live_action_complete" };
+    const complete = ["third_out", "foul_dead_ball", "home_run_completed", "ground_rule_award_completed", "live_action_complete"].includes(endReason), playEnd = { kind: "play_end", tick: tick9(time), reason: dead ? "dead_ball" : "live_action_complete" };
     emit("play_end", time, { reason: endReason });
     const ruleFacts = {
       contactTick: input.ball.ball.tick,
-      throughTick: tick8(time),
+      throughTick: tick9(time),
       territory,
       firstGroundContactTick,
       flyCatch,
@@ -14809,7 +14810,7 @@ var KneekuraNativeMatchCore = (() => {
       frames,
       facts,
       ruleFacts,
-      end: { elapsedSeconds: time, tick: tick8(time), reason: endReason, complete },
+      end: { elapsedSeconds: time, tick: tick9(time), reason: endReason, complete },
       finalRunners: runners.map((r) => ({
         runnerId: r.spec.runnerId,
         base: r.base,
@@ -14863,8 +14864,8 @@ var KneekuraNativeMatchCore = (() => {
   }
 
   // src/core/rules/FlyCatchRule.ts
-  var validateOptionalTick = (name, tick8) => {
-    if (tick8 !== null && (!Number.isSafeInteger(tick8) || tick8 < 0)) {
+  var validateOptionalTick = (name, tick9) => {
+    if (tick9 !== null && (!Number.isSafeInteger(tick9) || tick9 < 0)) {
       throw new Error(`${name} must be null or a non-negative safe integer tick`);
     }
   };
@@ -14908,8 +14909,8 @@ var KneekuraNativeMatchCore = (() => {
   };
 
   // src/core/rules/ThirdOutScoring.ts
-  var validateTick6 = (tick8) => {
-    if (!Number.isSafeInteger(tick8) || tick8 < 0) {
+  var validateTick6 = (tick9) => {
+    if (!Number.isSafeInteger(tick9) || tick9 < 0) {
       throw new Error("third-out candidate tick must be a non-negative safe integer");
     }
   };
@@ -15078,13 +15079,13 @@ var KneekuraNativeMatchCore = (() => {
         simultaneous.push(touch);
       }
     }
-    const fields16 = {
+    const fields17 = {
       effectiveOut: input.appealOut,
       scored,
       suppressed,
       simultaneous
     };
-    return simultaneous.length > 0 ? { kind: "simultaneous_unresolved", ...fields16 } : { kind: "resolved", ...fields16 };
+    return simultaneous.length > 0 ? { kind: "simultaneous_unresolved", ...fields17 } : { kind: "resolved", ...fields17 };
   };
 
   // src/integration/browser/PlayableMatchRulesV1.ts
@@ -16052,6 +16053,17 @@ var KneekuraNativeMatchCore = (() => {
       if (atTick > referenceThroughTick) return null;
       return { ...batSample((atTick - input.originTick) / tps).state.pose, radiusProfile };
     };
+    const { frames: _measuredFrames, ...playbackReference } = registeredReference;
+    const batPlaybackV88 = swingOffered && input.batting !== "bunt" ? {
+      version: 88,
+      originTick: input.originTick,
+      battingSide: b.bats,
+      heightScale,
+      sourceFirstTick: selectedFrames[0].tick,
+      sourceLastTick: selectedFrames.at(-1).tick,
+      radiusProfile,
+      reference: playbackReference
+    } : void 0;
     return {
       frames,
       contact,
@@ -16068,6 +16080,7 @@ var KneekuraNativeMatchCore = (() => {
         authority: "LOCAL_CORE_PHYSICAL_EXPERIMENT_V1",
         nativeAdmission: false,
         sourceDescriptor: descriptor,
+        ...batPlaybackV88 === void 0 ? {} : { batPlaybackV88 },
         courseRecognitionV87: {
           batter: { ...batterRecognition.diagnostics, requestedPosition: prediction.ball.position, selectedPosition: motorAimPosition, requestedCourseId: batterRecognition.diagnostics.predictedCourseId, selectedCourseId: batterRecognition.diagnostics.courseId, reason: input.batting === "take" || b.swingDecision?.approach === "TAKE" ? "manual_take_retained" : b.swingDecision?.approach === "SWING" ? "forced_swing_retained" : "perceived_course_swing_and_aim" },
           pitcher: { ...pitcherRecognition.diagnostics, requestedPosition, selectedPosition: pitcherRequest.position, requestedCourseId: classifyBatterCourseV79({ position: requestedPosition, zone }).courseId, selectedCourseId: pitcherRequest.courseId, locationConstraint: input.location, selectedLocation: location, catcherRequestedPosition: catcherRequest.position, catcherRequestReason: catcherRequest.reason },
@@ -17601,6 +17614,37 @@ var KneekuraNativeMatchCore = (() => {
       return boundedAverage2(reference + cap2(gameDelta + practiceDelta, p.combinedSeasonLimit));
     });
     return validateBatterCourseProfileV87({ ...baseline, referenceAverages });
+  }
+
+  // src/integration/browser/LiveBatPlaybackV88.ts
+  var fields16 = (value, names2) => Object.keys(value).sort().join("|") === [...names2].sort().join("|");
+  var tick8 = (value) => Number.isSafeInteger(value) && value >= 0;
+  function createLiveBatPlaybackV88(raw) {
+    const { descriptor: d, measuredClip: clip } = cloneInert(raw);
+    if (!d || typeof d !== "object" || Array.isArray(d) || !fields16(d, ["version", "originTick", "battingSide", "heightScale", "sourceFirstTick", "sourceLastTick", "radiusProfile", "reference"]) || d.version !== 88 || !tick8(d.originTick) || !["R", "L"].includes(d.battingSide) || !Number.isFinite(d.heightScale) || d.heightScale <= 0 || d.heightScale > 10 || !tick8(d.sourceFirstTick) || !tick8(d.sourceLastTick) || d.sourceFirstTick >= d.sourceLastTick || !d.reference || typeof d.reference !== "object" || Object.hasOwn(d.reference, "frames") || d.reference.startTick < d.originTick || !clip || clip.side !== d.battingSide || clip.id !== d.reference.provenance?.clipId || clip.source?.sha256 !== d.reference.provenance?.sourceSha256 || !Array.isArray(clip.frames) || clip.frames.some((frame2, index) => !tick8(frame2.tick) || index > 0 && frame2.tick <= clip.frames[index - 1].tick))
+      throw new Error("invalid live bat playback descriptor or measured provenance");
+    const selected2 = registerMeasuredBatToFieldV1(clip.frames).filter((frame2) => frame2.tick >= d.sourceFirstTick && frame2.tick <= d.sourceLastTick);
+    if (selected2[0]?.tick !== d.sourceFirstTick || selected2.at(-1)?.tick !== d.sourceLastTick)
+      throw new Error("live bat playback requires the original selected source keys");
+    const frames = selected2.map((frame2) => ({ ...frame2, grip: {
+      x: frame2.grip.x * d.heightScale,
+      y: frame2.grip.y * d.heightScale,
+      z: frame2.grip.z * d.heightScale
+    } }));
+    const reference = createReferenceBatKinematicsV1({ ...d.reference, frames });
+    sampleBatRadius(d.radiusProfile, 0);
+    const throughTick = d.reference.startTick + (d.sourceLastTick - d.sourceFirstTick) / d.reference.sourceTicksPerSecond / d.reference.playbackRate * d.reference.ticksPerSecond;
+    if (!Number.isFinite(throughTick) || throughTick > Number.MAX_SAFE_INTEGER) throw new Error("invalid live bat playback boundary");
+    const sampleAtTick = (atTick) => {
+      if (!Number.isFinite(atTick) || atTick < d.originTick) throw new Error("bat observation precedes release or has an invalid clock");
+      if (atTick > throughTick) return null;
+      const seconds = (atTick - d.originTick) / d.reference.ticksPerSecond;
+      return {
+        ...reference.sampleContinuous(d.originTick + seconds * d.reference.ticksPerSecond).state.pose,
+        radiusProfile: cloneInert(d.radiusProfile)
+      };
+    };
+    return Object.freeze({ throughTick, sampleAtTick });
   }
   return __toCommonJS(browser_exports);
 })();

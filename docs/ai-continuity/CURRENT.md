@@ -1,13 +1,17 @@
 ---
-current_task: "MB-20261021-V87"
+current_task: "MB-20261021-V88"
 active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "8b2184f2a73599914f6477abca8fe8e886318087"
-status: "PUBLISHED_VERIFIED_SCOPED"
-evidence_ref: "docs/verification/releases/v87/publication.json"
-updated_at: "2026-10-20T17:31:26.127440+00:00"
+commit_head: "6a7b3500d315de70a46f70d697aa032b18b37cb1"
+status: "LOCAL_VERIFIED_READY_PUBLISH"
+evidence_ref: "docs/verification/releases/v88/README.md"
+updated_at: "2026-10-20T17:53:48.942738+00:00"
 
 ---
+
+## Active v88 — 見送り抽選・空振り終端・Luna調査（LOCAL VERIFIED）
+
+直接依頼はAMENDMENTS/2026-10-21-v88-watch-whiff-research.md。通常/lab/makerをdocs/demos/releases/v88へ凍結。HR固定1750→seed付き1500..2000ms、確信HR投手維持を観測済みflagで最優先。空振り第34球の残りmotor(22.537ms/tip0.634m)を登録descriptorから再観測、official/Source球/走者/次球tick/第三out即benchは不変。Core13新+13旧/impact5/fullTSC/表示8unit、40球v87全record比較(新diagのみ除去)/2幅whiff+HR、最終9回343球123field+別54球23field全complete/保存、Maker v87回帰/描画9case/8file byte再生成 PASS。180 Source pins/5report package72d67b85 PASS。Luna(gpt-6-luna)研究はresearch/check-swing-v88。2026 PCL challenge済み記録は公開、全チェック停止率/ミート相関は不明。新半スイング/新能力は未実装。次は選択stage・公開Gitblobs照合。原HOLD/FAILUNKNOWN/元未完/userdirtyを保持。以下は過去時点。
 
 ## Active v87 — 打率マップと内部コース認識（PUBLISHED VERIFIED）
 

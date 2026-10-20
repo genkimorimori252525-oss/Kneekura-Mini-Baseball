@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V88",
+  "result": "FAIL",
+  "exit_code": 124,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveBatPlaybackV88.test.ts",
+    "src/integration/browser/LivePitchV1.test.ts",
+    "src/integration/browser/LiveImpactTrajectoryV1.test.ts"
+  ],
+  "observed_at": "2026-10-20T17:41:44.956+00:00",
+  "elapsed_ms": 120031,
+  "git_head": "6a7b3500d315de70a46f70d697aa032b18b37cb1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V88_a3603d60adf544909e7168d5801da3d5.log",
+  "output_sha256": "cfd0e2b9fc3fb97df1acab5b07b32b013ed0a3b811242ee7f89ec1be1f772d00",
+  "receipt_id": "MB-20261021-V88_a3603d60adf544909e7168d5801da3d5"
+}
