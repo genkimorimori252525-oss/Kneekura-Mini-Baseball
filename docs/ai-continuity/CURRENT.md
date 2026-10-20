@@ -1,13 +1,17 @@
 ---
-current_task: "MB-20261021-V85"
+current_task: "MB-20261021-V86"
 active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "e13afc0a1c327503045982fc8c27972ba2ea4493"
-status: "PUBLISHED_VERIFIED_SCOPED"
-evidence_ref: "docs/verification/releases/v85/publication.json"
-updated_at: "2026-10-20T16:20:11.923432+00:00"
+commit_head: "58c9163a9007598d6a51d8178f38ce3b9ee14eca"
+status: "VERIFIED_LOCAL_UI_ONLY"
+evidence_ref: "docs/verification/releases/v86/README.md"
+updated_at: "2026-10-20T16:44:49.392344+00:00"
 
 ---
+
+## Active v86 — メーカー入力・近接エラー（VERIFIED LOCAL）
+
+直接依頼の入力未反映/確定不能と近接エラーをUI-only v86で修正。docs/demos/releases/v86/maker.html SHA93d5342fe1b00748dbf6650865442de737c6ba76cd1adfb9a7bb64b2379da4f2。投手相互pending拒否/checkboxやraw消失/表示だけの変更event/同一JSON読込undo/バット同値復帰・個別取消/保管庫取消後残留/seed例外/コース独立確定を修正。Core89c78290・v84通常/埋込renderer・JSON形式/精度不変。最終16case＋284field往復＋10操作経路＋swing2test＋unit4＋旧入力/球種/17得能/ガイド/7比較図browser、3file再build・package PASS。設計docs/design/2026-10-21-v86-maker-validation.md、証拠docs/verification/releases/v86/README.md。原RED・初期runtime error・旧undo回帰FAIL・harness旧pin/古いDOM参照を保持し修正結果を分離。次は選択stage照合とGitHub公開。旧release/原FAILUNKNOWN/CharterHOLD/Native/100試合/実機/v84実FPS未達を保持。以下は過去時点。
 
 ## Active v85 — メーカー解説と比較線（PUBLISHED VERIFIED; UI ONLY）
 

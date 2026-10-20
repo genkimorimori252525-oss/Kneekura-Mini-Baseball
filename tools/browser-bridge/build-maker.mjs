@@ -5,7 +5,7 @@ import { build } from 'esbuild';
 import vm from 'node:vm';
 import {presentationControlsSourceV84} from './presentation-cadence-v84.mjs';
 
-const args = process.argv.slice(2), makerGuidesV85 = args.includes('--maker-guides'), presentationV84 = args.includes('--presentation-v84'), makerRecovery = args.includes('--maker-recovery'), losslessPerformance = args.includes('--lossless-performance'), pitchMenu = args.includes('--pitch-menu'), courseSeasons = args.includes('--course-seasons'), pitchViews = args.includes('--pitch-views'), pitchLibrary = args.includes('--pitch-library'), pitcherWorkbench = args.includes('--pitcher-workbench'), ballDisplayFix = args.includes('--ball-display-fix'), technicalTraits = args.includes('--technical-traits'), equipmentPreview = args.includes('--equipment-preview'), wholeArc = args.includes('--whole-arc'), playerSwingPreview = args.includes('--player-swing-preview'), batOrbit = args.includes('--bat-orbit'), batterComparison = args.includes('--batter-comparison'), ballComparison = args.includes('--ball-comparison'), measuredLibrary = args.includes('--measured-library'), executableTraits = args.includes('--executable-traits'), traitProfiles = executableTraits || args.includes('--traits'), publicAbilities = traitProfiles || args.includes('--public-abilities');
+const args = process.argv.slice(2), makerValidationV86 = args.includes('--maker-validation'), makerGuidesV85 = args.includes('--maker-guides'), presentationV84 = args.includes('--presentation-v84'), makerRecovery = args.includes('--maker-recovery'), losslessPerformance = args.includes('--lossless-performance'), pitchMenu = args.includes('--pitch-menu'), courseSeasons = args.includes('--course-seasons'), pitchViews = args.includes('--pitch-views'), pitchLibrary = args.includes('--pitch-library'), pitcherWorkbench = args.includes('--pitcher-workbench'), ballDisplayFix = args.includes('--ball-display-fix'), technicalTraits = args.includes('--technical-traits'), equipmentPreview = args.includes('--equipment-preview'), wholeArc = args.includes('--whole-arc'), playerSwingPreview = args.includes('--player-swing-preview'), batOrbit = args.includes('--bat-orbit'), batterComparison = args.includes('--batter-comparison'), ballComparison = args.includes('--ball-comparison'), measuredLibrary = args.includes('--measured-library'), executableTraits = args.includes('--executable-traits'), traitProfiles = executableTraits || args.includes('--traits'), publicAbilities = traitProfiles || args.includes('--public-abilities');
 if (ballComparison && !measuredLibrary) throw Error('--ball-comparison requires --measured-library');
 if (batterComparison && !ballComparison) throw Error('--batter-comparison requires --ball-comparison');
 if (batOrbit && !measuredLibrary) throw Error('--bat-orbit requires --measured-library');
@@ -20,6 +20,7 @@ if (pitchViews && !pitchLibrary) throw Error('--pitch-views requires --pitch-lib
 if (courseSeasons && !pitchLibrary) throw Error('--course-seasons requires --pitch-library');
 if (pitchMenu && (!courseSeasons || !pitchViews)) throw Error('--pitch-menu requires --course-seasons and --pitch-views');
 if (losslessPerformance && !pitchMenu) throw Error('--lossless-performance requires --pitch-menu');
+if (makerValidationV86 && !makerGuidesV85) throw Error('--maker-validation requires --maker-guides');
 if (makerGuidesV85 && !presentationV84) throw Error('--maker-guides requires --presentation-v84');
 if (presentationV84 && !makerRecovery) throw Error('--presentation-v84 requires --maker-recovery');
 if (makerRecovery && !losslessPerformance) throw Error('--maker-recovery requires --lossless-performance');
@@ -28,7 +29,7 @@ const inputOverride = name => {
   if(options.length>1||options.some(arg=>!arg.slice(name.length+3)))throw Error('Exactly one nonempty --'+name+'=PATH is required when overriding input');
   return options[0]?.slice(name.length+3);
 };
-const output = resolve(args.find(arg => !['--public-abilities','--traits','--executable-traits','--measured-library','--ball-comparison','--batter-comparison','--bat-orbit','--player-swing-preview','--whole-arc','--equipment-preview','--technical-traits','--ball-display-fix','--pitcher-workbench','--pitch-library','--pitch-views','--course-seasons','--pitch-menu','--lossless-performance','--maker-recovery','--presentation-v84','--maker-guides'].includes(arg)
+const output = resolve(args.find(arg => !['--public-abilities','--traits','--executable-traits','--measured-library','--ball-comparison','--batter-comparison','--bat-orbit','--player-swing-preview','--whole-arc','--equipment-preview','--technical-traits','--ball-display-fix','--pitcher-workbench','--pitch-library','--pitch-views','--course-seasons','--pitch-menu','--lossless-performance','--maker-recovery','--presentation-v84','--maker-guides','--maker-validation'].includes(arg)
   && !arg.startsWith('--roster=') && !arg.startsWith('--catalog=') && !arg.startsWith('--match-renderer=')) ?? (publicAbilities ? 'outputs/にーくら野球メーカー_公開能力編集版.html' : 'outputs/にーくら野球メーカー_実測スイング版.html'));
 const rosterPath = inputOverride('roster') ?? 'docs/demos/live-game-roster-' + (traitProfiles ? 'v3' : publicAbilities ? 'v2' : 'v1') + '.json';
 const rosterCatalogPath = inputOverride('catalog') ?? 'docs/demos/live-game-roster-catalog-' + (executableTraits ? 'v4' : traitProfiles ? 'v3' : publicAbilities ? 'v2' : 'v1') + '.json';
@@ -37,7 +38,7 @@ await mkdir(dirname(bundlePath), { recursive: true });
 const bundledBuild = await build({ entryPoints: ['src/integration/browser/workbench-index.ts'], outfile: bundlePath, bundle: true,
   platform: 'browser', format: 'iife', globalName: 'KneekuraBaseballWorkbench', target: ['es2022'],
   legalComments: 'none', minify: false, sourcemap: false, metafile: true });
-const uiPath = makerRecovery ? 'docs/demos/baseball-maker-ui-v82.mjs' : 'docs/demos/baseball-maker-ui.mjs';
+const uiPath = makerValidationV86 ? 'docs/demos/baseball-maker-ui-v86.mjs' : makerRecovery ? 'docs/demos/baseball-maker-ui-v82.mjs' : 'docs/demos/baseball-maker-ui.mjs';
 let [template, core, ui, referenceJson, batSprites, batManifestJson, rosterJson, rosterCatalogJson] = await Promise.all([
   readFile('docs/demos/baseball-maker.html', 'utf8'), readFile(bundlePath, 'utf8'), readFile(uiPath, 'utf8'),
   readFile(measuredLibrary ? 'docs/demos/measured-bat-library-v1.json' : 'docs/demos/measured-bat-motions.json', 'utf8'),
@@ -91,7 +92,7 @@ const batVariants = await Promise.all(batManifest.variants.map(async (variant, i
 }));
 const batSpriteData = { authority: batManifest.authority, manifestSha256: sha(batManifestJson), variants: batVariants };
 const libraryDecoder = measuredLibrary ? await readFile('tools/browser-bridge/measured-bat-library-v1.js', 'utf8') : '';
-const swingUi = measuredLibrary ? await readFile('docs/demos/baseball-maker-swing-v68.js', 'utf8') : '';
+const swingUi = measuredLibrary ? await readFile(makerValidationV86 ? 'docs/demos/baseball-maker-swing-v86.js' : 'docs/demos/baseball-maker-swing-v68.js', 'utf8') : '';
 const helpUi = measuredLibrary ? await readFile('docs/demos/baseball-maker-help-v68.js', 'utf8') : '';
 const lightCss = measuredLibrary ? await readFile('docs/demos/baseball-maker-light-v68.css', 'utf8') : '';
 const recoveryCssPath = 'docs/demos/baseball-maker-recovery-v82.css';
@@ -102,7 +103,7 @@ const comparisonCss = ballComparison ? await readFile('docs/demos/baseball-maker
 const batterUi = batterComparison ? await readFile('docs/demos/baseball-maker-batter-comparison-'+(presentationV84?'v84':losslessPerformance?'v81':'v70')+'.js', 'utf8') : '';
 const batterCss = batterComparison ? await readFile('docs/demos/baseball-maker-batter-comparison-v70.css', 'utf8') : '';
 const matchAdapter = batterComparison ? await readFile('tools/browser-bridge/maker-match-renderer-'+(presentationV84?'v84':losslessPerformance?'v81':'v70')+'.js', 'utf8') : '';
-const pitcherUiPath = 'docs/demos/baseball-maker-pitcher-' + (makerGuidesV85 ? 'v85' : presentationV84 ? 'v84' : makerRecovery ? 'v82' : pitchLibrary ? 'v78' : 'v77') + '.js';
+const pitcherUiPath = 'docs/demos/baseball-maker-pitcher-' + (makerValidationV86 ? 'v86' : makerGuidesV85 ? 'v85' : presentationV84 ? 'v84' : makerRecovery ? 'v82' : pitchLibrary ? 'v78' : 'v77') + '.js';
 const pitcherUi = pitcherWorkbench ? await readFile(pitcherUiPath, 'utf8') : '',
   pitcherCss = pitcherWorkbench ? await readFile('docs/demos/baseball-maker-pitcher-' + (pitchLibrary ? 'v78' : 'v77') + '.css', 'utf8') : '',
   pitcherAdapter = pitcherWorkbench ? await readFile('tools/browser-bridge/maker-pitcher-renderer-'+(presentationV84?'v84':losslessPerformance?'v81':'v77')+'.js', 'utf8') : '';
@@ -149,13 +150,16 @@ for (const clip of referenceData.clips) {
 const pitcherViewsPath = 'docs/demos/baseball-maker-pitcher-views-' + (makerGuidesV85 ? 'v85' : 'v78') + '.js';
 const pitcherViewsUi = pitchViews ? await readFile(pitcherViewsPath, 'utf8') : '';
 const guidesUiPath = 'docs/demos/baseball-maker-guides-v85.js', guidesCssPath = 'docs/demos/baseball-maker-guides-v85.css';
+const validationUiPath='docs/demos/baseball-maker-validation-v86.js', validationCssPath='docs/demos/baseball-maker-validation-v86.css';
+const validationUi=makerValidationV86?await readFile(validationUiPath,'utf8'):'', validationCss=makerValidationV86?await readFile(validationCssPath,'utf8'):'';
 const guidesUi = makerGuidesV85 ? await readFile(guidesUiPath, 'utf8') : '', guidesCss = makerGuidesV85 ? await readFile(guidesCssPath, 'utf8') : '';
+if (/<\/script/i.test(validationUi) || /<\/style/i.test(validationCss)) throw Error('Unexpected closing token in maker validation');
 if (/<\/script/i.test(guidesUi) || /<\/style/i.test(guidesCss)) throw Error('Unexpected closing token in maker guides');
 const pitchMenuUiPath = 'docs/demos/baseball-maker-pitch-menu-' + (makerRecovery ? 'v82' : 'v80') + '.js',
   pitchMenuCssPath = 'docs/demos/baseball-maker-pitch-menu-' + (makerRecovery ? 'v82' : 'v80') + '.css';
 const pitchMenuUi = pitchMenu ? await readFile(pitchMenuUiPath, 'utf8') : '',
   pitchMenuCss = pitchMenu ? await readFile(pitchMenuCssPath, 'utf8') : '';
-const courseUi = courseSeasons ? await readFile('docs/demos/baseball-maker-course-v79.js', 'utf8') : '',
+const courseUi = courseSeasons ? await readFile(makerValidationV86 ? 'docs/demos/baseball-maker-course-v86.js' : 'docs/demos/baseball-maker-course-v79.js', 'utf8') : '',
   courseCss = courseSeasons ? await readFile('docs/demos/baseball-maker-course-v79.css', 'utf8') : '',
   courseCharts = courseSeasons ? await readFile('tools/browser-bridge/course-charts-v79.js', 'utf8') : '',
   seasonClient = courseSeasons ? await readFile('tools/browser-bridge/live-season-client-v79.js', 'utf8') : '';
@@ -166,11 +170,12 @@ for (const marker of ['<!-- WORKBENCH_CORE -->', '<!-- WORKBENCH_REFERENCE -->',
 }
 if (measuredLibrary) {
   template = template.replace('</head>', () => '<style>\n' + lightCss + '\n' + comparisonCss + '\n' + batterCss + '\n' + pitcherCss + '\n' + courseCss + (pitchMenu ? '\n' + pitchMenuCss : '') + (makerRecovery ? '\n' + recoveryCss : '') + '\n</style></head>');
-  template = template.replace('にーくら野球メーカー</title>', 'にーくら野球メーカー v' + (makerGuidesV85 ? 85 : presentationV84 ? 84 : makerRecovery ? 82 : losslessPerformance ? 81 : pitchMenu ? 80 : courseSeasons ? 79 : pitchViews ? '78.1' : pitchLibrary ? 78 : pitcherWorkbench ? 77 : ballDisplayFix ? 76 : technicalTraits ? 75 : equipmentPreview ? 74 : wholeArc ? 73 : playerSwingPreview ? 72 : batOrbit ? 71 : batterComparison ? 70 : ballComparison ? 69 : 68) + '</title>');
+  template = template.replace('にーくら野球メーカー</title>', 'にーくら野球メーカー v' + (makerValidationV86 ? 86 : makerGuidesV85 ? 85 : presentationV84 ? 84 : makerRecovery ? 82 : losslessPerformance ? 81 : pitchMenu ? 80 : courseSeasons ? 79 : pitchViews ? '78.1' : pitchLibrary ? 78 : pitcherWorkbench ? 77 : ballDisplayFix ? 76 : technicalTraits ? 75 : equipmentPreview ? 74 : wholeArc ? 73 : playerSwingPreview ? 72 : batOrbit ? 71 : batterComparison ? 70 : ballComparison ? 69 : 68) + '</title>');
 }
 const presentationBridgePath = 'tools/browser-bridge/maker-presentation-bridge-v84.js';
 const presentationBridge = presentationV84 ? await readFile(presentationBridgePath, 'utf8') : '';
 if (presentationV84) template = template.replace('</head>', () => '<script>' + presentationControlsSourceV84 + '\n' + presentationBridge + '</script></head>');
+if (makerValidationV86) template=template.replace('</head>',()=>'<style>\n'+validationCss+'\n</style></head>');
 if (makerGuidesV85) template = template.replace('</head>', () => '<style>\n' + guidesCss + '\n</style></head>');
 const referenceInline = measuredLibrary ? libraryDecoder + '\n;globalThis.KneekuraReferenceBatMotions=KneekuraMeasuredBatLibrary.decode('
   + JSON.stringify(referenceJson).replace(/</g, '\\u003c') + ');' : 'globalThis.KneekuraReferenceBatMotions=' + JSON.stringify(referenceData).replace(/</g, '\\u003c') + ';';
@@ -187,7 +192,7 @@ const html = template.replace('<!-- WORKBENCH_CORE -->', () => '<script>\n' + co
     + (pitchLibrary ? 'globalThis.KneekuraPitcherWorkbenchV78=true;\n' : '')
     + (equipmentPreview ? 'globalThis.KneekuraPlayerEquipmentPreviewEnabled=true;\nglobalThis.KneekuraBallComparisonLayoutV74=true;\n' : '')
     + (playerSwingPreview ? 'globalThis.KneekuraPlayerSwingPreviewEnabled=true;\n' : '')
-    + ui + '\n' + swingUi + '\n' + comparisonUi + '\n'
+    + validationUi + '\n' + ui + '\n' + swingUi + '\n' + comparisonUi + '\n'
     + (batterComparison ? 'globalThis.KneekuraMakerMatchHtmlV70=' + JSON.stringify(makerMatchHtml).replace(/</g, '\\u003c') + ';\n' : '')
     + batterUi + '\n' + helpUi
     + (pitcherWorkbench ? '\nglobalThis.KneekuraMakerPitcherMatchHtmlV77=' + JSON.stringify(makerPitcherHtml).replace(/</g, '\\u003c') + ';\n' + pitcherUi : '')
@@ -203,7 +208,8 @@ const makerRecoverySources = makerRecovery ? { [uiPath]: sha(ui), [pitcherUiPath
 if (makerRecoverySources && Object.values(makerRecoverySources).some(value => typeof value !== 'string' || !/^[a-f0-9]{64}$/.test(value)))
   throw Error('Maker recovery source pin unavailable');
 await mkdir(dirname(output), { recursive: true }); await writeFile(output, html);
-const report = { ...(makerGuidesV85 ? {makerGuidesVersion:85,unspunComparisonDefault:false,makerGuideSources:{[guidesUiPath]:sha(guidesUi),[guidesCssPath]:sha(guidesCss),[pitcherUiPath]:sha(pitcherUi),[pitcherViewsPath]:sha(pitcherViewsUi)}} : {}), ...(presentationV84 ? { presentationVersion:84, presentationControlsVersion:84, frequencyScale:2, qualityScale:1.2, pitchFrequencyMultiplier:2.5, battedFrequencyMultiplier:2, presentationBridgeSha256:sha(presentationBridge) } : {}), ...(makerRecovery ? { makerRecoveryVersion: 82, makerRecoverySources } : {}), ...(losslessPerformance ? {losslessPerformanceVersion:81,fullMeasuredCatalogPreserved:true,fullSceneCadence:true} : {}), ...(pitchMenu ? { pitchMenu: true, pitchMenuUiSha256: sha(pitchMenuUi), pitchMenuCssSha256: sha(pitchMenuCss) } : {}), ...(courseSeasons ? { courseSeasons: true, courseUiSha256: sha(courseUi), courseCssSha256: sha(courseCss), courseChartsSha256: sha(courseCharts), seasonClientSha256: sha(seasonClient) } : {}), ...(pitchViews ? { pitchViews: true, pitchViewsUiSha256: sha(pitcherViewsUi) } : {}), output, bytes: Buffer.byteLength(html), sha256: sha(html), coreSha256: sha(core), uiSha256: sha(ui),
+const report = { ...(makerValidationV86 ? {makerValidationVersion:86,makerValidationSources:{[uiPath]:sha(ui),[pitcherUiPath]:sha(pitcherUi),['docs/demos/baseball-maker-swing-v86.js']:sha(swingUi),['docs/demos/baseball-maker-course-v86.js']:sha(courseUi),[validationUiPath]:sha(validationUi),[validationCssPath]:sha(validationCss)}}:{}),
+  ...(makerGuidesV85 ? {makerGuidesVersion:85,unspunComparisonDefault:false,makerGuideSources:{[guidesUiPath]:sha(guidesUi),[guidesCssPath]:sha(guidesCss),[pitcherUiPath]:sha(pitcherUi),[pitcherViewsPath]:sha(pitcherViewsUi)}} : {}), ...(presentationV84 ? { presentationVersion:84, presentationControlsVersion:84, frequencyScale:2, qualityScale:1.2, pitchFrequencyMultiplier:2.5, battedFrequencyMultiplier:2, presentationBridgeSha256:sha(presentationBridge) } : {}), ...(makerRecovery ? { makerRecoveryVersion: 82, makerRecoverySources } : {}), ...(losslessPerformance ? {losslessPerformanceVersion:81,fullMeasuredCatalogPreserved:true,fullSceneCadence:true} : {}), ...(pitchMenu ? { pitchMenu: true, pitchMenuUiSha256: sha(pitchMenuUi), pitchMenuCssSha256: sha(pitchMenuCss) } : {}), ...(courseSeasons ? { courseSeasons: true, courseUiSha256: sha(courseUi), courseCssSha256: sha(courseCss), courseChartsSha256: sha(courseCharts), seasonClientSha256: sha(seasonClient) } : {}), ...(pitchViews ? { pitchViews: true, pitchViewsUiSha256: sha(pitcherViewsUi) } : {}), output, bytes: Buffer.byteLength(html), sha256: sha(html), coreSha256: sha(core), uiSha256: sha(ui),
   bundleInputCount: Object.keys(bundleInputs).length, bundleInputManifestSha256: sha(bundleInputManifest),
   templateSha256: templateSourceSha256, renderedTemplateSha256: sha(template), referenceSha256: sha(referenceJson), referenceClips: referenceData.clips.length,
   liveRosterSha256: sha(rosterJson), liveRosterCatalogSha256: sha(rosterCatalogJson), gamePlayers: liveRoster.entries.length,
