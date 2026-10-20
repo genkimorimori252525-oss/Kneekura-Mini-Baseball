@@ -2,6 +2,8 @@
 
 > **2026-10-16 repository orientation, on `jolly/core-foundation-plan-2026-09-17`.** This is the central documentation navigator for new AI agents. If you arrived on GitHub's default `main`, **do not assume it contains the latest project**; follow links to this working branch and inspect the user's local checkout before modifying anything.
 
+> **2026-10-20 performance addendum:** [無劣化・高FPS軽量化の最新版移植計画](superpowers/plans/2026-10-20-zero-degradation-mobile-desktop-performance.md) / [旧lv76実証・計測台帳](performance/2026-10-20-lv76-lossless-optimization-evidence.md)。所有者の方針は**PNG/見た目/物理/公式結果を変えず、重複描画・余剰メモリ等だけ削る**こと。旧HTML v1/v2での測定を最新版の実装完了と混同しない。
+
 **Read together:**
 - [Root agent instructions](../AGENTS.md)
 - [World-First / Low-FPS Broadcast design philosophy](architecture/WORLD-FIRST-BROADCAST.md)
@@ -56,6 +58,7 @@ The [current handoff](game-design/00-current-design-handoff.md) defines lifecycl
 | Condition, psychological reaction, team flow | [Psychology 05](game-design/05-psychology-emotion.md); [Team Mood 37](game-design/37-team-mood-architecture.md) | [Mood consequence 38](game-design/38-team-mood-manager-interventions-DRAFT.md); [In-game form **discussion only**](notes/2026-10-16-in-game-form-discussion.md) |
 | Club/world competition / league / career | [World Competition 11](game-design/11-world-competition-architecture.md); [Competition 12](game-design/12-competition-identity-hosting.md) | [Calendar 14](game-design/14-regular-season-calendar-and-volume.md); [Club Model 18](game-design/18-club-state-lifecycle.md); [Roster/Development 32](game-design/32-roster-development-architecture-DRAFT.md); [Scouting 31](game-design/31-scouting-recruitment-system.md) |
 | Current approved visual identity, cameras / sprites | [PNG continuation](presentation/2026-10-01-png-player-continuation.md); [Visual baseline manifest](presentation/2026-10-01-png-baseline-manifest.json) | [Display 07](game-design/07-drone-art-presentation.md); [Batter POV spec](superpowers/specs/2026-09-17-batter-pov-drone-art-design.md); [Broadcast Contract](architecture/WORLD-FIRST-BROADCAST.md) |
+| **Mobile/desktop lossless FPS optimization & future headroom (2026-10-20)** | [Zero-degradation performance plan](superpowers/plans/2026-10-20-zero-degradation-mobile-desktop-performance.md) | [Historical lv76 v1/v2 evidence](performance/2026-10-20-lv76-lossless-optimization-evidence.md): user-tested old HTML only; latest local/branch Core is **NOT PORTED / NOT VERIFIED**, no multiplayer implementation. Preserve original PNGs, same canonical time across scene, physics/score invariance and scene-adaptive cadence. |
 | Next playable match / runtime | [TBD home vs LAD plan 10/14](implementation/2026-10-14-tbd-vs-lad-match-slice.md) | [Reality/status guide](implementation/GITHUB-LOCAL-STATUS.md); `src/core/index.ts` |
 | Legacy/reference media experiments | [Pixel archive](archive/pixel-player-system/README.md) | Older Sept 17 POV plans and historical v16 demonstration; **not automatically implemented** |
 
