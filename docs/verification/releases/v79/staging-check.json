@@ -1,11 +1,11 @@
 {
   "pass": true,
-  "stagedFiles": 220,
+  "stagedFiles": 11,
   "byteExactAllStagedBlobs": true,
   "credentialPatternMatches": 0,
   "whitespaceExit": 0,
-  "whitespaceFiles": 168,
-  "rawReceiptLogsExcludedFromWhitespace": 52,
+  "whitespaceFiles": 10,
+  "rawReceiptLogsExcludedFromWhitespace": 1,
   "userAgentsFileExcluded": true,
   "sourceAfterTestNormalization": false
 }

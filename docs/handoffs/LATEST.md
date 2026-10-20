@@ -1,5 +1,7 @@
 # 最新の再開入口 — 2026-10-20
 
+製品 `6b7e1eff4281784847bff1e457f0cd302e7dd911` を既存Draft PR #380へpush済み。PUBLICATION `b77b9377` PASS：remote/PR head、3HTMLのGit blob/size、raw9ファイルを製品commitで照合。後続の公開記録commitは製品Sourceを変更しない。
+
 最新追加は [v79 — 63コース・シーズン成績・方向配分](../demos/releases/v79/README.md)。[相談用仕様](../design-consultation/course-season-v79.md) と [検証索引](../verification/releases/v79/README.md) を参照。人間が公開9=zone内、シーズン選択/試合蓄積/練習/締め保存まで承認。V78.1の4方向投球図も継承。ローカル記録とNative公式認証は別で、判定不足はpendingのまま保存する。以下は各時点の履歴として保持。
 
 ローカルのメーカー追加版：[v78.1 投球の多方向比較](../demos/releases/v78.1/README.md)。投手真後ろ／捕手正面／左右打者を追加。物理・元UIはv78のまま、PC390pxと同じSourceの不変を確認。v78.1単体の当時の状態はローカルのみ。63コースの確認待ちは解消し、v79へ実装。

@@ -47,3 +47,7 @@
 初回maker `course-maker/report.json` の試打失敗は明示レパートリーなしでowned pitchIdを渡した接続漏れ。後続hover試験のFAILは自動scrollがpointer timerを消した検査手順で、scroll安定後に検証した。旧reportと失敗receipt/logは保持している。レビューでは能力専用importの未保存guard漏れも再現し、最終checkerへ回帰を追加した。
 
 CCG audit `669d3435` は元Charterの独立承認不足1件でFAIL、旧handoff警告193件を保持。製品試験とは別の未承認状態で、承認を自動生成しない。staging `06def4b7` は明示allowlist・全stage blob byte一致・credential pattern 0・whitespace 0を確認。
+
+## GitHub保存
+
+製品 `6b7e1eff4281784847bff1e457f0cd302e7dd911` を既存作業branch／Open Draft PR #380へ保存。[publication.json](publication.json) と [PUBLICATION receipt](../../../ai-continuity/verification-receipts/MB-20261020-V79-PUBLICATION_b77b9377c99e4d458970b2d8608d0687.json) がremote/PR head・3HTML Git blob/size・raw9ファイルを照合。main未マージ。後続commitは公開記録のみ。

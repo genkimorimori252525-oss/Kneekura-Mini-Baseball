@@ -1,15 +1,15 @@
 ---
-current_task: "MB-20261020-V79-PACKAGE"
+current_task: "MB-20261020-V79-PUBLICATION"
 active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "98819b9ab5c8e4bdd7ddfc7d644d484df08ab55d"
-status: "SCOPED_VERIFIED_PENDING_PUBLICATION"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261020-V79-PACKAGE_08012e47e4654325b81218b85c0b3621.json"
-updated_at: "2026-10-20T00:36:34.479900+00:00"
+commit_head: "6b7e1eff4281784847bff1e457f0cd302e7dd911"
+status: "SCOPED_VERIFIED_PUBLISHED"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261020-V79-PUBLICATION_b77b9377c99e4d458970b2d8608d0687.json"
+updated_at: "2026-10-20T00:38:51.123162+00:00"
 
 ---
 
-## 最新完了範囲 — v79 63コース・シーズン成績（SCOPED VERIFIED; PUBLICATION PENDING）
+## 最新完了範囲 — v79 63コース・シーズン成績（SCOPED VERIFIED; PUBLISHED）
 
 人間がzone内公開9＋外側別枠、season選択/試合蓄積/練習/締め保存を明示承認。63profileを知覚予測の打撃動作へ一度合成、5方向は意図として剛体motorへ渡す。結果の確率・角度を上書きしない。先天baseline/今季/練習/公開HAB/長期差分を分離。元20人・673資料・17得能・v78camera/physics・v78.1の4図を維持。
 
@@ -17,7 +17,7 @@ updated_at: "2026-10-20T00:36:34.479900+00:00"
 
 レビュー修正：置換marker改行、初期owned pitch IDの所有確認、0球/再生前finish保存先保護、全体JSON256MB上限、成績帳の文字配色、能力専用importのcourse未保存guard。各原FAILは保持。製品の最終検証後はSourceを正規化しない。ユーザーAGENTS、無関係untracked、設定locksecretは除外。
 
-STAGING06def4b7 PASS：明示allowlistのbyte一致/credential0/whitespace0。CCG669d3435は元Charter独立承認不足1件/旧handoff警告193を保持。次は既存branch/PR380へ保存・公開照合。main mergeしない。判定不足H/E/FC/SF/SHはpending、学習係数は作者設定、Native公式履歴/連続world認証・100試合現実校正・実機・元計画の残件は未完。原Charter独立承認HOLDと旧FAIL/BLOCKED/UNKNOWNを保持。以下は過去時点の記録。
+STAGING06def4b7 PASS：明示allowlistのbyte一致/credential0/whitespace0。CCG669d3435は元Charter独立承認不足1件/旧handoff警告193を保持。製品6b7e1eff4281784847bff1e457f0cd302e7dd911を既存branch/PR380へpush済み。PUBLICATIONb77b9377 PASS10.906s：remote/PRhead・3HTML blob/size・raw9files一致。後続は公開記録のみ。次は人間の実プレー結果と元計画の未完を継続。main mergeしない。判定不足H/E/FC/SF/SHはpending、学習係数は作者設定、Native公式履歴/連続world認証・100試合現実校正・実機・元計画の残件は未完。原Charter独立承認HOLDと旧FAIL/BLOCKED/UNKNOWNを保持。以下は過去時点の記録。
 
 
 ## Completed local addition — v78.1 pitcher trajectory views (SCOPED VERIFIED; LOCAL ONLY)

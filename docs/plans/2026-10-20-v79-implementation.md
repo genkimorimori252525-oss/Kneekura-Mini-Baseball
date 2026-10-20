@@ -85,7 +85,7 @@ Files: live-season-client-v79.js, live-season-match-v79.js, build-v79.mjs, base 
 - [x] Baseline omitted V78 history exact; new profiles+season game9 innings with all compact records/totals audited; duplicate save rejected.
 - [x] Real browser1200/390, course clicks/intent/season/training/close/file roundtrips/AI/invalid input, Source and public/base invariance.
 - [x] Fresh whole-change review, one evidence-backed repair pass, record original FAIL and model limits.
-- [ ] Freeze artifacts, concise current spec/history/consultation. Save to existing branch/PR only within standing authorization; never merge main.
+- [x] Freeze artifacts, concise current spec/history/consultation. Save to existing branch/PR only within standing authorization; never merge main.
 
 ## Workspace ruling
 
