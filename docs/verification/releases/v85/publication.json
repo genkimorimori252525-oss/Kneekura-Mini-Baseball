@@ -1,0 +1,13 @@
+{
+  "pass": true,
+  "productCommit": "e13afc0a1c327503045982fc8c27972ba2ea4493",
+  "remoteHead": "e13afc0a1c327503045982fc8c27972ba2ea4493",
+  "pullRequest": {
+    "headRefOid": "e13afc0a1c327503045982fc8c27972ba2ea4493",
+    "isDraft": true,
+    "state": "OPEN",
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380"
+  },
+  "remoteSourceAndArtifactGitBlobsMatched": 120,
+  "mainMerged": false
+}

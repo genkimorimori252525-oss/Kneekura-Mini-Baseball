@@ -53,3 +53,7 @@ py -3.10 -X utf8 -B tools/browser-bridge/package-maker-v85.py
 ```
 
 receipt経由のコマンドと実出力は `docs/ai-continuity/verification-receipts/MB-20261021-V85-*` に保存。Core/通常renderer不変のため、v85で845件Core試験や9回完走の再実行はしていない。元CharterHOLD、旧FAIL/UNKNOWN、Native認証・100試合監査・実機、v84の全場面実FPS2倍未達は解消したと扱わない。
+
+## GitHub保存
+
+製品commit `e13afc0` を既存branch `jolly/tbd-lad-native-browser-core-2026-10-14` とDraft PR #380へpush。`PUBLICATION_17785f77` receiptでremote/PR head一致、公開Source/artifact Gitblob 120件一致を実読確認。`publication.json`。mainは未merge。

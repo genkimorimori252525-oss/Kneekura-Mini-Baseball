@@ -2,16 +2,16 @@
 current_task: "MB-20261021-V85"
 active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "a0ca8087caddc79322ad91ba37bc14e7555c62ed"
-status: "VERIFIED_LOCAL_UI_ONLY"
-evidence_ref: "docs/verification/releases/v85/README.md"
-updated_at: "2026-10-20T16:18:19.945605+00:00"
+commit_head: "e13afc0a1c327503045982fc8c27972ba2ea4493"
+status: "PUBLISHED_VERIFIED_SCOPED"
+evidence_ref: "docs/verification/releases/v85/publication.json"
+updated_at: "2026-10-20T16:20:11.923432+00:00"
 
 ---
 
-## Active v85 — メーカー解説と比較線（VERIFIED LOCAL; UI ONLY）
+## Active v85 — メーカー解説と比較線（PUBLISHED VERIFIED; UI ONLY）
 
-人間の現行回転/縫い目監査・例付き解説・小数丸め評価・灰無回転比較初期OFFの依頼を実装。maker-only v85はdocs/demos/releases/v85、SHA c34cb0234c20df08eb9a219cf4cb2c6624d34e8ccee3fafebbe11cd23c8aad4c。Core89c78290・v84通常renderer b68c9541・埋込renderer・673軌道・20選手・JSON精度不変。4解説カード、全7図OFF/ON。unit4件、1200/390幅/DPR/左右/keyboard/精度/比較不変/入力復帰/球種削除取消/17得能のbrowser、3file再build、116Source pins・6report package PASS。証拠docs/verification/releases/v85/README.md。縫い目未校正、設定gyro目安と実測Active Spinは区別。原FAILは保持し原因/修正を記録。次は選択stage照合・GitHub公開検証。元CharterHOLD・旧FAILUNKNOWN・Native/100試合/実機・v84実FPS未達を保持。以下は過去時点の記録。
+人間の現行回転/縫い目監査・例付き解説・小数丸め評価・灰無回転比較初期OFFの依頼を実装。maker-only v85はdocs/demos/releases/v85、SHA c34cb0234c20df08eb9a219cf4cb2c6624d34e8ccee3fafebbe11cd23c8aad4c。Core89c78290・v84通常renderer b68c9541・埋込renderer・673軌道・20選手・JSON精度不変。4解説カード、全7図OFF/ON。unit4件、1200/390幅/DPR/左右/keyboard/精度/比較不変/入力復帰/球種削除取消/17得能のbrowser、3file再build、116Source pins・6report package PASS。証拠docs/verification/releases/v85/README.md。縫い目未校正、設定gyro目安と実測Active Spinは区別。原FAILは保持し原因/修正を記録。製品commit e13afc0を既存branch/PR380へpush済み。PUBLICATION17785f77でremote/PR head一致とSource/artifact Gitblob120件一致を実読確認。main未merge。次は人間の実操作確認と元計画の残件。元CharterHOLD・旧FAILUNKNOWN・Native/100試合/実機・v84実FPS未達を保持。以下は過去時点の記録。
 
 ## Active v84 — 描画頻度・画質・接地移動（PUBLISHED; PERFORMANCE LIMITATION）
 
