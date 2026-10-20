@@ -1,0 +1,778 @@
+{
+  "pass": true,
+  "file": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v85_設定解説と比較切替版.html",
+  "artifactSha256": "59190dcbcbcf2d81cf6a38a17fe764e1915412558e0fad0290007633977dbe27",
+  "sourceHashes": {
+    "pitcher": "965830b92ea197ccafeadeeecb7255da4a0495c79891996acfdcc7c6fa314063",
+    "views": "e39f1785c4e18d4391822de8836525781d42740a7148e5141f5a390b5273dacc"
+  },
+  "scope": "Headless Chrome, viewport widths 1200/390, R/L fastball and curve trials; six trajectory canvases plus plate-position canvas.",
+  "cases": [
+    {
+      "width": 1200,
+      "hand": "R",
+      "pitch": "fastball",
+      "initialOff": true,
+      "grayAddedToAllSeven": true,
+      "actualCoordinatesAndScaleUnchanged": true,
+      "trialIdentityInputMetricsSourceRosterModelUnchanged": true,
+      "offPixelsAndCommandsRestored": true,
+      "fitEnabledAndDisabled": true,
+      "off": [
+        {
+          "id": "pitcher-plot-side",
+          "grayPixels": 0,
+          "greenPixels": 493,
+          "cssWidth": 275.40625,
+          "pngSha256": "78de38af8d1df4faf692ea1150212a84a6294b924a8191b19d055184915fc869",
+          "visualSha256": "78de38af8d1df4faf692ea1150212a84a6294b924a8191b19d055184915fc869",
+          "drawingSha256": "e9236c92bef37633193e1634a271d91b5427dd9d415e02d96b193838b02625f5",
+          "actualSha256": "eea19037fbb2b481d5e3412b32aa0fbd9564ba25912c0bfa5be8617b7d1c88af",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-plot-top",
+          "grayPixels": 0,
+          "greenPixels": 520,
+          "cssWidth": 275.40625,
+          "pngSha256": "6352096e4a80ced33d05472d7c03fc9bb74b00fd01da6d2444557519cc233424",
+          "visualSha256": "6352096e4a80ced33d05472d7c03fc9bb74b00fd01da6d2444557519cc233424",
+          "drawingSha256": "fedc49429b024624005081e5fd4ec8a57ab65fe301eea6cd96ec05d1cea3349e",
+          "actualSha256": "e581243ffad83401a708eff33f2d1e4e98a23bf72721a6cfa9ff003549be4237",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-plot-behind",
+          "grayPixels": 0,
+          "greenPixels": 788,
+          "cssWidth": 274.90625,
+          "pngSha256": "b23d512d0d26084fc3f48c21c17262189a116a78ff1ff1108b8f514d4046ecb1",
+          "visualSha256": "b23d512d0d26084fc3f48c21c17262189a116a78ff1ff1108b8f514d4046ecb1",
+          "drawingSha256": "33e396d85183cca02beaa0257e0152ee7b73e712e64fe2591ed15abadc7bae9b",
+          "actualSha256": "dd80bb53ba9220f63dde7db4d401e30ee1a0db0a1cf027b9b4c70d880dfaa2ec",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-plot-catcher",
+          "grayPixels": 0,
+          "greenPixels": 241,
+          "cssWidth": 274.90625,
+          "pngSha256": "850b15829fc40543cb291c34a60037ee4727cde5a6d65db13bcaa553a6079eae",
+          "visualSha256": "850b15829fc40543cb291c34a60037ee4727cde5a6d65db13bcaa553a6079eae",
+          "drawingSha256": "543c950594c677e52946f8b77a763ee91ef9a56fa6a09156a02c3d54b2941de0",
+          "actualSha256": "6e22d1be6bf58da0457da23288280aa29f1e3a20f2d29f9cc16a40cc245dd391",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-plot-batter-right",
+          "grayPixels": 0,
+          "greenPixels": 306,
+          "cssWidth": 274.90625,
+          "pngSha256": "ac8df5fd7e77c70e219a21e0ef521f558b470fbaf0aadfada35247c2e8bfa40a",
+          "visualSha256": "ac8df5fd7e77c70e219a21e0ef521f558b470fbaf0aadfada35247c2e8bfa40a",
+          "drawingSha256": "d4b12ed19dd9e14c5976e9790deca43fabe1059facdfecf5af1da7dfb85a5a74",
+          "actualSha256": "8ce506fd49f2a340cafd6cea25d6d5eaf49b02d1096e78dc52e3c76d4b56dffc",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-plot-batter-left",
+          "grayPixels": 0,
+          "greenPixels": 314,
+          "cssWidth": 274.90625,
+          "pngSha256": "b1e670889c2d3d6f82c5f97e8631870d12226f6142ebdb42c7d28b51a23278ba",
+          "visualSha256": "b1e670889c2d3d6f82c5f97e8631870d12226f6142ebdb42c7d28b51a23278ba",
+          "drawingSha256": "62af6540b18b43cf2f8f0655abcb820d4af7c7ff652a0fba7ca09fe697a631b7",
+          "actualSha256": "a258848ea41ff0802e1ef431ecb47abf44d5803cdcb660ac9e23267b01f1067c",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-zone",
+          "grayPixels": 0,
+          "greenPixels": 92,
+          "cssWidth": 216.921875,
+          "pngSha256": "1b04cd2c58ac56a0e42623e2b632a9651b2779cb355f346f83bdc6d0519be95f",
+          "visualSha256": "1b04cd2c58ac56a0e42623e2b632a9651b2779cb355f346f83bdc6d0519be95f",
+          "drawingSha256": "a2069d4cf092d8f11de28251352c7b07401bda4452b03853e43435b7b3e3cb5d",
+          "actualSha256": "b79079926e1b746a5ee7e04fd6fbe0e7de3ee59ac2c809d195a2cada832993d9",
+          "grayCount": 0
+        }
+      ],
+      "on": [
+        {
+          "id": "pitcher-plot-side",
+          "grayPixels": 436,
+          "greenPixels": 493,
+          "cssWidth": 275.40625,
+          "pngSha256": "5f945e4c75fcbf57859bb912e969858bfb4f577b6210f93dca9f2b087d821773",
+          "visualSha256": "5f945e4c75fcbf57859bb912e969858bfb4f577b6210f93dca9f2b087d821773",
+          "drawingSha256": "ab66ac1218657f0ea4bf63ad96f30ea9108343ce6c052753078ab9e43b727c67",
+          "actualSha256": "eea19037fbb2b481d5e3412b32aa0fbd9564ba25912c0bfa5be8617b7d1c88af",
+          "grayCount": 2
+        },
+        {
+          "id": "pitcher-plot-top",
+          "grayPixels": 96,
+          "greenPixels": 520,
+          "cssWidth": 275.40625,
+          "pngSha256": "c31c54c6ee112b68d4d25c69cbadf4ffbfee8ea46c2a27bd4d343656db8ea8f5",
+          "visualSha256": "c31c54c6ee112b68d4d25c69cbadf4ffbfee8ea46c2a27bd4d343656db8ea8f5",
+          "drawingSha256": "599de19003b23d20fde634fcc8d34af0e4ebf6a879ae08f3af5f496d704cc3fb",
+          "actualSha256": "e581243ffad83401a708eff33f2d1e4e98a23bf72721a6cfa9ff003549be4237",
+          "grayCount": 2
+        },
+        {
+          "id": "pitcher-plot-behind",
+          "grayPixels": 621,
+          "greenPixels": 788,
+          "cssWidth": 274.90625,
+          "pngSha256": "73f63bb524c3ea3d701f81e5bb68022efe1481339d1753756d8d48924543fc20",
+          "visualSha256": "73f63bb524c3ea3d701f81e5bb68022efe1481339d1753756d8d48924543fc20",
+          "drawingSha256": "610bb5e293852ccdfbfcf4392c49726709bb5747a6c1712fa033b909b3ed459e",
+          "actualSha256": "dd80bb53ba9220f63dde7db4d401e30ee1a0db0a1cf027b9b4c70d880dfaa2ec",
+          "grayCount": 3
+        },
+        {
+          "id": "pitcher-plot-catcher",
+          "grayPixels": 433,
+          "greenPixels": 242,
+          "cssWidth": 274.90625,
+          "pngSha256": "46dbe1d1f54370c6ba8c61fc44420e470558156a32f816e8444c731a61ffad36",
+          "visualSha256": "46dbe1d1f54370c6ba8c61fc44420e470558156a32f816e8444c731a61ffad36",
+          "drawingSha256": "c624580348e7bbc603e4dc1fa1519cf32b2ff65cdd98d06c250d7470a80df933",
+          "actualSha256": "6e22d1be6bf58da0457da23288280aa29f1e3a20f2d29f9cc16a40cc245dd391",
+          "grayCount": 3
+        },
+        {
+          "id": "pitcher-plot-batter-right",
+          "grayPixels": 480,
+          "greenPixels": 306,
+          "cssWidth": 274.90625,
+          "pngSha256": "6b1edec634375058061c380eb1f407d40e43226da54723c34d10d1af20dc0b94",
+          "visualSha256": "6b1edec634375058061c380eb1f407d40e43226da54723c34d10d1af20dc0b94",
+          "drawingSha256": "9f2ebb6168a8ec547c99ff54fed7ac6912261c507b5ff9c08659fdc7e389bd91",
+          "actualSha256": "8ce506fd49f2a340cafd6cea25d6d5eaf49b02d1096e78dc52e3c76d4b56dffc",
+          "grayCount": 3
+        },
+        {
+          "id": "pitcher-plot-batter-left",
+          "grayPixels": 480,
+          "greenPixels": 315,
+          "cssWidth": 274.90625,
+          "pngSha256": "c9f3a426e8a0fe37df55f70e80bfe4d0a76e0f949a4a1af93ce15324cf88a8d8",
+          "visualSha256": "c9f3a426e8a0fe37df55f70e80bfe4d0a76e0f949a4a1af93ce15324cf88a8d8",
+          "drawingSha256": "253c245621ae0e28e1b298d558f79f1916a8e27f07ce357c1db1d504aa8383ad",
+          "actualSha256": "a258848ea41ff0802e1ef431ecb47abf44d5803cdcb660ac9e23267b01f1067c",
+          "grayCount": 3
+        },
+        {
+          "id": "pitcher-zone",
+          "grayPixels": 41,
+          "greenPixels": 92,
+          "cssWidth": 216.921875,
+          "pngSha256": "64f14e504a6706041efc2cd972cac91e0b5ec0a0888a57acd278c691e64082bf",
+          "visualSha256": "64f14e504a6706041efc2cd972cac91e0b5ec0a0888a57acd278c691e64082bf",
+          "drawingSha256": "384d130139e904903e102f74961074f8087021c0a469ceadf9fae9c4c0dd41c2",
+          "actualSha256": "b79079926e1b746a5ee7e04fd6fbe0e7de3ee59ac2c809d195a2cada832993d9",
+          "grayCount": 1
+        }
+      ]
+    },
+    {
+      "width": 1200,
+      "hand": "L",
+      "pitch": "fastball",
+      "initialOff": true,
+      "grayAddedToAllSeven": true,
+      "actualCoordinatesAndScaleUnchanged": true,
+      "trialIdentityInputMetricsSourceRosterModelUnchanged": true,
+      "offPixelsAndCommandsRestored": true,
+      "fitEnabledAndDisabled": true,
+      "off": [
+        {
+          "id": "pitcher-plot-side",
+          "grayPixels": 0,
+          "greenPixels": 490,
+          "cssWidth": 275.40625,
+          "pngSha256": "c490f73f9bd1e3d5dd5634bc62ee0e20d9adff5133310bc01563b8090d32c304",
+          "visualSha256": "c490f73f9bd1e3d5dd5634bc62ee0e20d9adff5133310bc01563b8090d32c304",
+          "drawingSha256": "ad1af5a8a6ba52566547fcc52c5d6abee46a114081dc9b78ba4ffb7d0b8a60e4",
+          "actualSha256": "f3278a5bf20ee1c7172c862adb021e86e3e8456d4bcdbf5fded3788dea39b449",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-plot-top",
+          "grayPixels": 0,
+          "greenPixels": 514,
+          "cssWidth": 275.40625,
+          "pngSha256": "07c7303e97161954bc2acd4addc3982768e72e98730b5ab0468b9cc8232ff36b",
+          "visualSha256": "07c7303e97161954bc2acd4addc3982768e72e98730b5ab0468b9cc8232ff36b",
+          "drawingSha256": "a82c34234d0077c9262ba8d95fdb24fee41e59494b3142bb004e004605110874",
+          "actualSha256": "c1f588a7cfe79f4cb75602933ae12946ffaa48352f5dbeb2a61df8b59ed24dd6",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-plot-behind",
+          "grayPixels": 0,
+          "greenPixels": 816,
+          "cssWidth": 274.90625,
+          "pngSha256": "37894b1b5976ab6231dc24e76c149888acdc42728423c4e55ce1f8f13d452542",
+          "visualSha256": "37894b1b5976ab6231dc24e76c149888acdc42728423c4e55ce1f8f13d452542",
+          "drawingSha256": "663bff2b58536da199fff607f360a19c0c88fbbf8a4af85ea56f446479f9426f",
+          "actualSha256": "51d820cb74b2b7acdd612e6b598ed974932dc796e01b3aa13f8c5936556958b8",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-plot-catcher",
+          "grayPixels": 0,
+          "greenPixels": 233,
+          "cssWidth": 274.90625,
+          "pngSha256": "f9e220c8726ca9a1da9cad9e9eebb685ba589cdaf2b3dacba135bbbbd9d10c37",
+          "visualSha256": "f9e220c8726ca9a1da9cad9e9eebb685ba589cdaf2b3dacba135bbbbd9d10c37",
+          "drawingSha256": "b65b742e887bdf126f5c51a5816fa6b679d2dd264685b6a12bc22b017f32c7d5",
+          "actualSha256": "e7da2cbacd8385c0995ed4330770b7c4f459a5e4bd48ce6f7a1daee0636e9634",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-plot-batter-right",
+          "grayPixels": 0,
+          "greenPixels": 313,
+          "cssWidth": 274.90625,
+          "pngSha256": "c75ce63b34e466f897cfbb0ebc706fa201b87e23c5ef7a794a667ca31b22b203",
+          "visualSha256": "c75ce63b34e466f897cfbb0ebc706fa201b87e23c5ef7a794a667ca31b22b203",
+          "drawingSha256": "4fd5508b7b47ad7bc5eaf94736b1250e5f69b53d15cc856a3fe40a531d6b76ac",
+          "actualSha256": "94c1d749001a6d87e30d275ecc5fcd723f11de97f3eb7b2250d26d58ade085bb",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-plot-batter-left",
+          "grayPixels": 0,
+          "greenPixels": 336,
+          "cssWidth": 274.90625,
+          "pngSha256": "400cc2b7e7383450dc2700e78c2614101ceebd97b595863f40ba8b478db8d091",
+          "visualSha256": "400cc2b7e7383450dc2700e78c2614101ceebd97b595863f40ba8b478db8d091",
+          "drawingSha256": "210c843f017c897a1ef3444297ce07fb3c63b0a6f472d4039ab8d2b0acdd36f2",
+          "actualSha256": "20cdcf7d8612b8c0e68e56aef0ec8ac1a438ef08ab1c27ff7c219610746061fa",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-zone",
+          "grayPixels": 0,
+          "greenPixels": 92,
+          "cssWidth": 216.921875,
+          "pngSha256": "03ef5deb5ea759c85fc5482dcf060beff70d35862caa11a7bf1be29b53374279",
+          "visualSha256": "03ef5deb5ea759c85fc5482dcf060beff70d35862caa11a7bf1be29b53374279",
+          "drawingSha256": "5196ed9d83bdd0e4acbbe0fd8b95abfd0cd9d4d4f2d07c904da6e5d64ec7b291",
+          "actualSha256": "71d4f7a9f037a6ef32939ecd71abcb9e051ba66b6878f9b74fb04d94ef0f62d6",
+          "grayCount": 0
+        }
+      ],
+      "on": [
+        {
+          "id": "pitcher-plot-side",
+          "grayPixels": 432,
+          "greenPixels": 490,
+          "cssWidth": 275.40625,
+          "pngSha256": "1890f4393dd453fe23d33ea21eedd7dab8ef0bfa742fb876cadd5b808c48cc76",
+          "visualSha256": "1890f4393dd453fe23d33ea21eedd7dab8ef0bfa742fb876cadd5b808c48cc76",
+          "drawingSha256": "3e26632267cf8423e0d433dabe2757cc19214a5be30c9cfb3d28a32f28fd428d",
+          "actualSha256": "f3278a5bf20ee1c7172c862adb021e86e3e8456d4bcdbf5fded3788dea39b449",
+          "grayCount": 2
+        },
+        {
+          "id": "pitcher-plot-top",
+          "grayPixels": 107,
+          "greenPixels": 514,
+          "cssWidth": 275.40625,
+          "pngSha256": "71583f30c77d5549d5c3d564aae4702052fae846e7909c5a7d75c08235c8f84e",
+          "visualSha256": "71583f30c77d5549d5c3d564aae4702052fae846e7909c5a7d75c08235c8f84e",
+          "drawingSha256": "c999dad6e6edf69d9db9521711416e93d85785f26648651a0ae2843975789a83",
+          "actualSha256": "c1f588a7cfe79f4cb75602933ae12946ffaa48352f5dbeb2a61df8b59ed24dd6",
+          "grayCount": 2
+        },
+        {
+          "id": "pitcher-plot-behind",
+          "grayPixels": 641,
+          "greenPixels": 816,
+          "cssWidth": 274.90625,
+          "pngSha256": "62e687da0c65ed21af4ffbcd307d418137f11ef31e51481104a7d6dcdd93da0a",
+          "visualSha256": "62e687da0c65ed21af4ffbcd307d418137f11ef31e51481104a7d6dcdd93da0a",
+          "drawingSha256": "9b5ac5c534f60adafcc53b4e6f3906e502bccf692c9ed0d8c666bffcdf346acc",
+          "actualSha256": "51d820cb74b2b7acdd612e6b598ed974932dc796e01b3aa13f8c5936556958b8",
+          "grayCount": 3
+        },
+        {
+          "id": "pitcher-plot-catcher",
+          "grayPixels": 465,
+          "greenPixels": 233,
+          "cssWidth": 274.90625,
+          "pngSha256": "07849bb30994686ab9434e1d80afcf6b3e443649ebdb1f65b8be0874287d0da1",
+          "visualSha256": "07849bb30994686ab9434e1d80afcf6b3e443649ebdb1f65b8be0874287d0da1",
+          "drawingSha256": "631c2b00b76d462ab885aa6b4a57d111c7ca079b9b977f7d171d896dbc266924",
+          "actualSha256": "e7da2cbacd8385c0995ed4330770b7c4f459a5e4bd48ce6f7a1daee0636e9634",
+          "grayCount": 3
+        },
+        {
+          "id": "pitcher-plot-batter-right",
+          "grayPixels": 487,
+          "greenPixels": 313,
+          "cssWidth": 274.90625,
+          "pngSha256": "ba72ff52659afa789e7dae07b0cb4b69c0837fb711a7d8d2fc8b01db5a846bc4",
+          "visualSha256": "ba72ff52659afa789e7dae07b0cb4b69c0837fb711a7d8d2fc8b01db5a846bc4",
+          "drawingSha256": "6ab80c648ea412d6ae34d5a1c1bd9b1614c070cd42a5df6077f3016efc2c41e4",
+          "actualSha256": "94c1d749001a6d87e30d275ecc5fcd723f11de97f3eb7b2250d26d58ade085bb",
+          "grayCount": 3
+        },
+        {
+          "id": "pitcher-plot-batter-left",
+          "grayPixels": 475,
+          "greenPixels": 336,
+          "cssWidth": 274.90625,
+          "pngSha256": "95d4bdf36a66f16db775aaefbf89f54281a2637af7bd2a17ca94692bfbc2f208",
+          "visualSha256": "95d4bdf36a66f16db775aaefbf89f54281a2637af7bd2a17ca94692bfbc2f208",
+          "drawingSha256": "4eb3db8c5186ca8b7d6fded02612536327c17d363ee7c9fc5ce3f027099b5abe",
+          "actualSha256": "20cdcf7d8612b8c0e68e56aef0ec8ac1a438ef08ab1c27ff7c219610746061fa",
+          "grayCount": 3
+        },
+        {
+          "id": "pitcher-zone",
+          "grayPixels": 40,
+          "greenPixels": 92,
+          "cssWidth": 216.921875,
+          "pngSha256": "0a1b2bbd18c10edca389d378b228f632c12260e05c59b9499be471fa9dc7aa94",
+          "visualSha256": "0a1b2bbd18c10edca389d378b228f632c12260e05c59b9499be471fa9dc7aa94",
+          "drawingSha256": "b510647d64212c9b9adadb4f54e1c27362fb72b2095f706804116c75ee657e1a",
+          "actualSha256": "71d4f7a9f037a6ef32939ecd71abcb9e051ba66b6878f9b74fb04d94ef0f62d6",
+          "grayCount": 1
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "hand": "R",
+      "pitch": "fastball",
+      "initialOff": true,
+      "grayAddedToAllSeven": true,
+      "actualCoordinatesAndScaleUnchanged": true,
+      "trialIdentityInputMetricsSourceRosterModelUnchanged": true,
+      "offPixelsAndCommandsRestored": true,
+      "fitEnabledAndDisabled": true,
+      "off": [
+        {
+          "id": "pitcher-plot-side",
+          "grayPixels": 0,
+          "greenPixels": 493,
+          "cssWidth": 312,
+          "pngSha256": "78de38af8d1df4faf692ea1150212a84a6294b924a8191b19d055184915fc869",
+          "visualSha256": "78de38af8d1df4faf692ea1150212a84a6294b924a8191b19d055184915fc869",
+          "drawingSha256": "e9236c92bef37633193e1634a271d91b5427dd9d415e02d96b193838b02625f5",
+          "actualSha256": "eea19037fbb2b481d5e3412b32aa0fbd9564ba25912c0bfa5be8617b7d1c88af",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-plot-top",
+          "grayPixels": 0,
+          "greenPixels": 520,
+          "cssWidth": 312,
+          "pngSha256": "6352096e4a80ced33d05472d7c03fc9bb74b00fd01da6d2444557519cc233424",
+          "visualSha256": "6352096e4a80ced33d05472d7c03fc9bb74b00fd01da6d2444557519cc233424",
+          "drawingSha256": "fedc49429b024624005081e5fd4ec8a57ab65fe301eea6cd96ec05d1cea3349e",
+          "actualSha256": "e581243ffad83401a708eff33f2d1e4e98a23bf72721a6cfa9ff003549be4237",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-plot-behind",
+          "grayPixels": 0,
+          "greenPixels": 788,
+          "cssWidth": 312,
+          "pngSha256": "b23d512d0d26084fc3f48c21c17262189a116a78ff1ff1108b8f514d4046ecb1",
+          "visualSha256": "b23d512d0d26084fc3f48c21c17262189a116a78ff1ff1108b8f514d4046ecb1",
+          "drawingSha256": "33e396d85183cca02beaa0257e0152ee7b73e712e64fe2591ed15abadc7bae9b",
+          "actualSha256": "dd80bb53ba9220f63dde7db4d401e30ee1a0db0a1cf027b9b4c70d880dfaa2ec",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-plot-catcher",
+          "grayPixels": 0,
+          "greenPixels": 241,
+          "cssWidth": 312,
+          "pngSha256": "850b15829fc40543cb291c34a60037ee4727cde5a6d65db13bcaa553a6079eae",
+          "visualSha256": "850b15829fc40543cb291c34a60037ee4727cde5a6d65db13bcaa553a6079eae",
+          "drawingSha256": "543c950594c677e52946f8b77a763ee91ef9a56fa6a09156a02c3d54b2941de0",
+          "actualSha256": "6e22d1be6bf58da0457da23288280aa29f1e3a20f2d29f9cc16a40cc245dd391",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-plot-batter-right",
+          "grayPixels": 0,
+          "greenPixels": 306,
+          "cssWidth": 312,
+          "pngSha256": "ac8df5fd7e77c70e219a21e0ef521f558b470fbaf0aadfada35247c2e8bfa40a",
+          "visualSha256": "ac8df5fd7e77c70e219a21e0ef521f558b470fbaf0aadfada35247c2e8bfa40a",
+          "drawingSha256": "d4b12ed19dd9e14c5976e9790deca43fabe1059facdfecf5af1da7dfb85a5a74",
+          "actualSha256": "8ce506fd49f2a340cafd6cea25d6d5eaf49b02d1096e78dc52e3c76d4b56dffc",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-plot-batter-left",
+          "grayPixels": 0,
+          "greenPixels": 314,
+          "cssWidth": 312,
+          "pngSha256": "b1e670889c2d3d6f82c5f97e8631870d12226f6142ebdb42c7d28b51a23278ba",
+          "visualSha256": "b1e670889c2d3d6f82c5f97e8631870d12226f6142ebdb42c7d28b51a23278ba",
+          "drawingSha256": "62af6540b18b43cf2f8f0655abcb820d4af7c7ff652a0fba7ca09fe697a631b7",
+          "actualSha256": "a258848ea41ff0802e1ef431ecb47abf44d5803cdcb660ac9e23267b01f1067c",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-zone",
+          "grayPixels": 0,
+          "greenPixels": 92,
+          "cssWidth": 119.1875,
+          "pngSha256": "1b04cd2c58ac56a0e42623e2b632a9651b2779cb355f346f83bdc6d0519be95f",
+          "visualSha256": "1b04cd2c58ac56a0e42623e2b632a9651b2779cb355f346f83bdc6d0519be95f",
+          "drawingSha256": "a2069d4cf092d8f11de28251352c7b07401bda4452b03853e43435b7b3e3cb5d",
+          "actualSha256": "b79079926e1b746a5ee7e04fd6fbe0e7de3ee59ac2c809d195a2cada832993d9",
+          "grayCount": 0
+        }
+      ],
+      "on": [
+        {
+          "id": "pitcher-plot-side",
+          "grayPixels": 436,
+          "greenPixels": 493,
+          "cssWidth": 312,
+          "pngSha256": "5f945e4c75fcbf57859bb912e969858bfb4f577b6210f93dca9f2b087d821773",
+          "visualSha256": "5f945e4c75fcbf57859bb912e969858bfb4f577b6210f93dca9f2b087d821773",
+          "drawingSha256": "ab66ac1218657f0ea4bf63ad96f30ea9108343ce6c052753078ab9e43b727c67",
+          "actualSha256": "eea19037fbb2b481d5e3412b32aa0fbd9564ba25912c0bfa5be8617b7d1c88af",
+          "grayCount": 2
+        },
+        {
+          "id": "pitcher-plot-top",
+          "grayPixels": 96,
+          "greenPixels": 520,
+          "cssWidth": 312,
+          "pngSha256": "c31c54c6ee112b68d4d25c69cbadf4ffbfee8ea46c2a27bd4d343656db8ea8f5",
+          "visualSha256": "c31c54c6ee112b68d4d25c69cbadf4ffbfee8ea46c2a27bd4d343656db8ea8f5",
+          "drawingSha256": "599de19003b23d20fde634fcc8d34af0e4ebf6a879ae08f3af5f496d704cc3fb",
+          "actualSha256": "e581243ffad83401a708eff33f2d1e4e98a23bf72721a6cfa9ff003549be4237",
+          "grayCount": 2
+        },
+        {
+          "id": "pitcher-plot-behind",
+          "grayPixels": 621,
+          "greenPixels": 788,
+          "cssWidth": 312,
+          "pngSha256": "73f63bb524c3ea3d701f81e5bb68022efe1481339d1753756d8d48924543fc20",
+          "visualSha256": "73f63bb524c3ea3d701f81e5bb68022efe1481339d1753756d8d48924543fc20",
+          "drawingSha256": "610bb5e293852ccdfbfcf4392c49726709bb5747a6c1712fa033b909b3ed459e",
+          "actualSha256": "dd80bb53ba9220f63dde7db4d401e30ee1a0db0a1cf027b9b4c70d880dfaa2ec",
+          "grayCount": 3
+        },
+        {
+          "id": "pitcher-plot-catcher",
+          "grayPixels": 433,
+          "greenPixels": 242,
+          "cssWidth": 312,
+          "pngSha256": "46dbe1d1f54370c6ba8c61fc44420e470558156a32f816e8444c731a61ffad36",
+          "visualSha256": "46dbe1d1f54370c6ba8c61fc44420e470558156a32f816e8444c731a61ffad36",
+          "drawingSha256": "c624580348e7bbc603e4dc1fa1519cf32b2ff65cdd98d06c250d7470a80df933",
+          "actualSha256": "6e22d1be6bf58da0457da23288280aa29f1e3a20f2d29f9cc16a40cc245dd391",
+          "grayCount": 3
+        },
+        {
+          "id": "pitcher-plot-batter-right",
+          "grayPixels": 480,
+          "greenPixels": 306,
+          "cssWidth": 312,
+          "pngSha256": "6b1edec634375058061c380eb1f407d40e43226da54723c34d10d1af20dc0b94",
+          "visualSha256": "6b1edec634375058061c380eb1f407d40e43226da54723c34d10d1af20dc0b94",
+          "drawingSha256": "9f2ebb6168a8ec547c99ff54fed7ac6912261c507b5ff9c08659fdc7e389bd91",
+          "actualSha256": "8ce506fd49f2a340cafd6cea25d6d5eaf49b02d1096e78dc52e3c76d4b56dffc",
+          "grayCount": 3
+        },
+        {
+          "id": "pitcher-plot-batter-left",
+          "grayPixels": 480,
+          "greenPixels": 315,
+          "cssWidth": 312,
+          "pngSha256": "c9f3a426e8a0fe37df55f70e80bfe4d0a76e0f949a4a1af93ce15324cf88a8d8",
+          "visualSha256": "c9f3a426e8a0fe37df55f70e80bfe4d0a76e0f949a4a1af93ce15324cf88a8d8",
+          "drawingSha256": "253c245621ae0e28e1b298d558f79f1916a8e27f07ce357c1db1d504aa8383ad",
+          "actualSha256": "a258848ea41ff0802e1ef431ecb47abf44d5803cdcb660ac9e23267b01f1067c",
+          "grayCount": 3
+        },
+        {
+          "id": "pitcher-zone",
+          "grayPixels": 41,
+          "greenPixels": 92,
+          "cssWidth": 119.1875,
+          "pngSha256": "64f14e504a6706041efc2cd972cac91e0b5ec0a0888a57acd278c691e64082bf",
+          "visualSha256": "64f14e504a6706041efc2cd972cac91e0b5ec0a0888a57acd278c691e64082bf",
+          "drawingSha256": "384d130139e904903e102f74961074f8087021c0a469ceadf9fae9c4c0dd41c2",
+          "actualSha256": "b79079926e1b746a5ee7e04fd6fbe0e7de3ee59ac2c809d195a2cada832993d9",
+          "grayCount": 1
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "hand": "L",
+      "pitch": "fastball",
+      "initialOff": true,
+      "grayAddedToAllSeven": true,
+      "actualCoordinatesAndScaleUnchanged": true,
+      "trialIdentityInputMetricsSourceRosterModelUnchanged": true,
+      "offPixelsAndCommandsRestored": true,
+      "fitEnabledAndDisabled": true,
+      "off": [
+        {
+          "id": "pitcher-plot-side",
+          "grayPixels": 0,
+          "greenPixels": 490,
+          "cssWidth": 312,
+          "pngSha256": "c490f73f9bd1e3d5dd5634bc62ee0e20d9adff5133310bc01563b8090d32c304",
+          "visualSha256": "c490f73f9bd1e3d5dd5634bc62ee0e20d9adff5133310bc01563b8090d32c304",
+          "drawingSha256": "ad1af5a8a6ba52566547fcc52c5d6abee46a114081dc9b78ba4ffb7d0b8a60e4",
+          "actualSha256": "f3278a5bf20ee1c7172c862adb021e86e3e8456d4bcdbf5fded3788dea39b449",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-plot-top",
+          "grayPixels": 0,
+          "greenPixels": 514,
+          "cssWidth": 312,
+          "pngSha256": "07c7303e97161954bc2acd4addc3982768e72e98730b5ab0468b9cc8232ff36b",
+          "visualSha256": "07c7303e97161954bc2acd4addc3982768e72e98730b5ab0468b9cc8232ff36b",
+          "drawingSha256": "a82c34234d0077c9262ba8d95fdb24fee41e59494b3142bb004e004605110874",
+          "actualSha256": "c1f588a7cfe79f4cb75602933ae12946ffaa48352f5dbeb2a61df8b59ed24dd6",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-plot-behind",
+          "grayPixels": 0,
+          "greenPixels": 816,
+          "cssWidth": 312,
+          "pngSha256": "37894b1b5976ab6231dc24e76c149888acdc42728423c4e55ce1f8f13d452542",
+          "visualSha256": "37894b1b5976ab6231dc24e76c149888acdc42728423c4e55ce1f8f13d452542",
+          "drawingSha256": "663bff2b58536da199fff607f360a19c0c88fbbf8a4af85ea56f446479f9426f",
+          "actualSha256": "51d820cb74b2b7acdd612e6b598ed974932dc796e01b3aa13f8c5936556958b8",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-plot-catcher",
+          "grayPixels": 0,
+          "greenPixels": 233,
+          "cssWidth": 312,
+          "pngSha256": "f9e220c8726ca9a1da9cad9e9eebb685ba589cdaf2b3dacba135bbbbd9d10c37",
+          "visualSha256": "f9e220c8726ca9a1da9cad9e9eebb685ba589cdaf2b3dacba135bbbbd9d10c37",
+          "drawingSha256": "b65b742e887bdf126f5c51a5816fa6b679d2dd264685b6a12bc22b017f32c7d5",
+          "actualSha256": "e7da2cbacd8385c0995ed4330770b7c4f459a5e4bd48ce6f7a1daee0636e9634",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-plot-batter-right",
+          "grayPixels": 0,
+          "greenPixels": 313,
+          "cssWidth": 312,
+          "pngSha256": "c75ce63b34e466f897cfbb0ebc706fa201b87e23c5ef7a794a667ca31b22b203",
+          "visualSha256": "c75ce63b34e466f897cfbb0ebc706fa201b87e23c5ef7a794a667ca31b22b203",
+          "drawingSha256": "4fd5508b7b47ad7bc5eaf94736b1250e5f69b53d15cc856a3fe40a531d6b76ac",
+          "actualSha256": "94c1d749001a6d87e30d275ecc5fcd723f11de97f3eb7b2250d26d58ade085bb",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-plot-batter-left",
+          "grayPixels": 0,
+          "greenPixels": 336,
+          "cssWidth": 312,
+          "pngSha256": "400cc2b7e7383450dc2700e78c2614101ceebd97b595863f40ba8b478db8d091",
+          "visualSha256": "400cc2b7e7383450dc2700e78c2614101ceebd97b595863f40ba8b478db8d091",
+          "drawingSha256": "210c843f017c897a1ef3444297ce07fb3c63b0a6f472d4039ab8d2b0acdd36f2",
+          "actualSha256": "20cdcf7d8612b8c0e68e56aef0ec8ac1a438ef08ab1c27ff7c219610746061fa",
+          "grayCount": 0
+        },
+        {
+          "id": "pitcher-zone",
+          "grayPixels": 0,
+          "greenPixels": 92,
+          "cssWidth": 119.1875,
+          "pngSha256": "03ef5deb5ea759c85fc5482dcf060beff70d35862caa11a7bf1be29b53374279",
+          "visualSha256": "03ef5deb5ea759c85fc5482dcf060beff70d35862caa11a7bf1be29b53374279",
+          "drawingSha256": "5196ed9d83bdd0e4acbbe0fd8b95abfd0cd9d4d4f2d07c904da6e5d64ec7b291",
+          "actualSha256": "71d4f7a9f037a6ef32939ecd71abcb9e051ba66b6878f9b74fb04d94ef0f62d6",
+          "grayCount": 0
+        }
+      ],
+      "on": [
+        {
+          "id": "pitcher-plot-side",
+          "grayPixels": 432,
+          "greenPixels": 490,
+          "cssWidth": 312,
+          "pngSha256": "1890f4393dd453fe23d33ea21eedd7dab8ef0bfa742fb876cadd5b808c48cc76",
+          "visualSha256": "1890f4393dd453fe23d33ea21eedd7dab8ef0bfa742fb876cadd5b808c48cc76",
+          "drawingSha256": "3e26632267cf8423e0d433dabe2757cc19214a5be30c9cfb3d28a32f28fd428d",
+          "actualSha256": "f3278a5bf20ee1c7172c862adb021e86e3e8456d4bcdbf5fded3788dea39b449",
+          "grayCount": 2
+        },
+        {
+          "id": "pitcher-plot-top",
+          "grayPixels": 107,
+          "greenPixels": 514,
+          "cssWidth": 312,
+          "pngSha256": "71583f30c77d5549d5c3d564aae4702052fae846e7909c5a7d75c08235c8f84e",
+          "visualSha256": "71583f30c77d5549d5c3d564aae4702052fae846e7909c5a7d75c08235c8f84e",
+          "drawingSha256": "c999dad6e6edf69d9db9521711416e93d85785f26648651a0ae2843975789a83",
+          "actualSha256": "c1f588a7cfe79f4cb75602933ae12946ffaa48352f5dbeb2a61df8b59ed24dd6",
+          "grayCount": 2
+        },
+        {
+          "id": "pitcher-plot-behind",
+          "grayPixels": 641,
+          "greenPixels": 816,
+          "cssWidth": 312,
+          "pngSha256": "62e687da0c65ed21af4ffbcd307d418137f11ef31e51481104a7d6dcdd93da0a",
+          "visualSha256": "62e687da0c65ed21af4ffbcd307d418137f11ef31e51481104a7d6dcdd93da0a",
+          "drawingSha256": "9b5ac5c534f60adafcc53b4e6f3906e502bccf692c9ed0d8c666bffcdf346acc",
+          "actualSha256": "51d820cb74b2b7acdd612e6b598ed974932dc796e01b3aa13f8c5936556958b8",
+          "grayCount": 3
+        },
+        {
+          "id": "pitcher-plot-catcher",
+          "grayPixels": 465,
+          "greenPixels": 233,
+          "cssWidth": 312,
+          "pngSha256": "07849bb30994686ab9434e1d80afcf6b3e443649ebdb1f65b8be0874287d0da1",
+          "visualSha256": "07849bb30994686ab9434e1d80afcf6b3e443649ebdb1f65b8be0874287d0da1",
+          "drawingSha256": "631c2b00b76d462ab885aa6b4a57d111c7ca079b9b977f7d171d896dbc266924",
+          "actualSha256": "e7da2cbacd8385c0995ed4330770b7c4f459a5e4bd48ce6f7a1daee0636e9634",
+          "grayCount": 3
+        },
+        {
+          "id": "pitcher-plot-batter-right",
+          "grayPixels": 487,
+          "greenPixels": 313,
+          "cssWidth": 312,
+          "pngSha256": "ba72ff52659afa789e7dae07b0cb4b69c0837fb711a7d8d2fc8b01db5a846bc4",
+          "visualSha256": "ba72ff52659afa789e7dae07b0cb4b69c0837fb711a7d8d2fc8b01db5a846bc4",
+          "drawingSha256": "6ab80c648ea412d6ae34d5a1c1bd9b1614c070cd42a5df6077f3016efc2c41e4",
+          "actualSha256": "94c1d749001a6d87e30d275ecc5fcd723f11de97f3eb7b2250d26d58ade085bb",
+          "grayCount": 3
+        },
+        {
+          "id": "pitcher-plot-batter-left",
+          "grayPixels": 475,
+          "greenPixels": 336,
+          "cssWidth": 312,
+          "pngSha256": "95d4bdf36a66f16db775aaefbf89f54281a2637af7bd2a17ca94692bfbc2f208",
+          "visualSha256": "95d4bdf36a66f16db775aaefbf89f54281a2637af7bd2a17ca94692bfbc2f208",
+          "drawingSha256": "4eb3db8c5186ca8b7d6fded02612536327c17d363ee7c9fc5ce3f027099b5abe",
+          "actualSha256": "20cdcf7d8612b8c0e68e56aef0ec8ac1a438ef08ab1c27ff7c219610746061fa",
+          "grayCount": 3
+        },
+        {
+          "id": "pitcher-zone",
+          "grayPixels": 40,
+          "greenPixels": 92,
+          "cssWidth": 119.1875,
+          "pngSha256": "0a1b2bbd18c10edca389d378b228f632c12260e05c59b9499be471fa9dc7aa94",
+          "visualSha256": "0a1b2bbd18c10edca389d378b228f632c12260e05c59b9499be471fa9dc7aa94",
+          "drawingSha256": "b510647d64212c9b9adadb4f54e1c27362fb72b2095f706804116c75ee657e1a",
+          "actualSha256": "71d4f7a9f037a6ef32939ecd71abcb9e051ba66b6878f9b74fb04d94ef0f62d6",
+          "grayCount": 1
+        }
+      ]
+    }
+  ],
+  "lifecycle": [
+    {
+      "width": 1200,
+      "kind": "emptyTrial",
+      "initialOff": true,
+      "onOffWithoutErrors": true,
+      "sourceAndRosterUnchanged": true,
+      "visiblePixelsRestored": true,
+      "rawAlphaRepainted": [
+        "pitcher-plot-side",
+        "pitcher-plot-top"
+      ]
+    },
+    {
+      "width": 1200,
+      "hand": "R",
+      "kind": "pitchSelection",
+      "pitch": "curve",
+      "invalidatesTrial": true,
+      "retainsUiState": true,
+      "newTrialUsesState": true
+    },
+    {
+      "width": 1200,
+      "hand": "L",
+      "kind": "pitchSelection",
+      "pitch": "curve",
+      "invalidatesTrial": true,
+      "retainsUiState": true,
+      "newTrialUsesState": true
+    },
+    {
+      "width": 1200,
+      "kind": "playerSelection",
+      "playerId": "1-p0",
+      "invalidatesTrial": true,
+      "retainsUiState": true,
+      "newTrialUsesState": true
+    },
+    {
+      "width": 390,
+      "kind": "emptyTrial",
+      "initialOff": true,
+      "onOffWithoutErrors": true,
+      "sourceAndRosterUnchanged": true,
+      "visiblePixelsRestored": true,
+      "rawAlphaRepainted": [
+        "pitcher-plot-side",
+        "pitcher-plot-top"
+      ]
+    },
+    {
+      "width": 390,
+      "hand": "R",
+      "kind": "pitchSelection",
+      "pitch": "curve",
+      "invalidatesTrial": true,
+      "retainsUiState": true,
+      "newTrialUsesState": true
+    },
+    {
+      "width": 390,
+      "hand": "L",
+      "kind": "pitchSelection",
+      "pitch": "curve",
+      "invalidatesTrial": true,
+      "retainsUiState": true,
+      "newTrialUsesState": true
+    },
+    {
+      "width": 390,
+      "kind": "playerSelection",
+      "playerId": "1-p0",
+      "invalidatesTrial": true,
+      "retainsUiState": true,
+      "newTrialUsesState": true
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "errors": [],
+      "external": []
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V85-RECOVERY",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-internal-recovery-v82.mjs",
+    "../../outputs/にーくら野球メーカー_v85_設定解説と比較切替版.html",
+    "docs/verification/releases/v85/maker-recovery"
+  ],
+  "observed_at": "2026-10-20T16:15:00.114+00:00",
+  "elapsed_ms": 40608,
+  "git_head": "a0ca8087caddc79322ad91ba37bc14e7555c62ed",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V85-RECOVERY_1c98c1d7fa5744b082c57fb5279dbffc.log",
+  "output_sha256": "d14413ee0feea288eb8b1180a1e89ea56748e382ece3405cb2f44d506b53f7f5",
+  "receipt_id": "MB-20261021-V85-RECOVERY_1c98c1d7fa5744b082c57fb5279dbffc"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V85-GUIDES-BROWSER2",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-guides-v85.mjs",
+    "../../outputs/にーくら野球メーカー_v85_設定解説と比較切替版.html",
+    "docs/verification/releases/v85/guides-browser-final"
+  ],
+  "observed_at": "2026-10-20T16:10:03.094+00:00",
+  "elapsed_ms": 7078,
+  "git_head": "a0ca8087caddc79322ad91ba37bc14e7555c62ed",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V85-GUIDES-BROWSER2_1ebe3e528bf24d269dac65ba12876a4c.log",
+  "output_sha256": "9c61a7802990a0097a4d239af73c48f5b3719c4184029fcd9ce13493271a7c3b",
+  "receipt_id": "MB-20261021-V85-GUIDES-BROWSER2_1ebe3e528bf24d269dac65ba12876a4c"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V85-COMPARE-GREEN-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/browser-bridge/pitcher-comparison-v85.test.mjs"
+  ],
+  "observed_at": "2026-10-20T15:59:36.757+00:00",
+  "elapsed_ms": 1264,
+  "git_head": "a0ca8087caddc79322ad91ba37bc14e7555c62ed",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V85-COMPARE-GREEN-FINAL_a4e5dda35e1e408c972b4176c6f4e8c1.log",
+  "output_sha256": "87835af26423c825fc9a207863b6954c9205c7b992b5c3dc7d201b1dbe3ed200",
+  "receipt_id": "MB-20261021-V85-COMPARE-GREEN-FINAL_a4e5dda35e1e408c972b4176c6f4e8c1"
+}
