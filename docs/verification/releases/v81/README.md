@@ -23,3 +23,5 @@
 全てChromeの仮想1200/390pxであり、実機/熱/電力/オンラインはUNKNOWN。Native認証、全100試合、成績/係数の実測校正、元の全機能の完成証拠ではない。Charter独立承認HOLDと原FAIL/BLOCKED/UNKNOWNは保持する。
 
 CCG auditは`CHARTER_UNAPPROVED`によりFAIL（a818f43e）。元の独立承認不足と旧handoff警告を保持し、今回の人間の実装承認で自動昇格しない。最初のstaging検査は既存65入力のGit改行差を検出したためFAIL（9a3e4521）。検証後のSourceを変更せず、Gitへ同じraw bytesを格納して修正する。
+
+公開照合：PUBLICATION `98f88599` PASS、[実装公開の正本](publication-check.json)。remote/PR product head、134 Source Git blobs、raw9ファイルとsize一致。設計branch文書の公開はDESIGN-PUBLICATION `2251cb56` PASS、[正本](design-publication.json)。公開後の記録commitはSource/HTMLに差分を入れない。

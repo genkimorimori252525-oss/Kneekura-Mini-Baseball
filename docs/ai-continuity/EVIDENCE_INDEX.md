@@ -1564,3 +1564,6 @@ PUBLICATION [MB-20261020-V75-PUBLICATION](verification-receipts/MB-20261020-V75-
 | MB-20261020-V81-CONTINUITY-AUDIT | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261020-V81-CONTINUITY-AUDIT_a818f43e3ed54fa6b754eaa8b69c2e3e.json |
 | MB-20261020-V81-STAGING-RAW-BYTES | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261020-V81-STAGING-RAW-BYTES_e764f98b89ac4536b64774de4e26b628.json |
 | MB-20261020-V81-STAGING-EXACT | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V81-STAGING-EXACT_f07c365cf5ea41059900b84d59032f97.json |
+| MB-20261020-V81-PUSH | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V81-PUSH_d431e195249d4a14a954c146777dea56.json |
+| MB-20261020-V81-DESIGN-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V81-DESIGN-PUBLICATION_2251cb569d1843a481bb76c3b0b585bf.json |
+| MB-20261020-V81-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V81-PUBLICATION_98f885998ab84a10985c993bdd9f4a25.json |

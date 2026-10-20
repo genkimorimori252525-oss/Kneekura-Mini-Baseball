@@ -1,5 +1,7 @@
 # 最新の再開入口 — 2026-10-20
 
+v81保存・公開照合完了：製品`1f2155fd4c7241ca627dca53d288f28478c94654`、PUBLICATION `98f88599` PASS（134 Source Git blobs/raw9ファイル/size）。指定設計branchは文書のみ`a71c017d085bb6213a1facfc6eee6aba17723d78`、AI-INDEX/PLAN-REGISTER/原性能計画から標準規約へ到達可能。既存Draft PR #380で継続、main未merge。以下の「公開前」「ローカルのみ」は当時の履歴。
+
 最新v81：[3つのHTMLと操作](../demos/releases/v81/README.md)、[恒久性能標準](../performance/PERFORMANCE-STANDARD.md)、[最新計測と採否](../performance/2026-10-20-v81-lossless-results.md)、[検証](../verification/releases/v81/README.md)。通常/調整室/メーカーの同時刻画素、9回320球＋別seed82球の全記録一致を確認。全673軌道、PNG/4px、v80方向UIを維持。次版はv81 builder/共通moduleを継承する。初回起動コスト増・実機未検証は明記。公開commitは後続の公開照合へ追記。以下の各時点の記録は履歴として保持。
 
 最新ローカル追加：[v80 球種の方向別メニュー](../demos/releases/v80/README.md)。所持球常設、15分類24候補を一塁側/三塁側等で選択、矢印維持。PC390×左右と既存シーズン回帰PASS。v80はローカルのみ、GitHub公開済み基準は下記v79。

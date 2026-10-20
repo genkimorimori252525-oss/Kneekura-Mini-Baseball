@@ -2,20 +2,20 @@
 current_task: "MB-20261020-V81-IMPLEMENTATION"
 active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "087fce57861e8f45b1c3fcc2a509f07d287e1f59"
-status: "SCOPED_VERIFIED_PUBLICATION_NEXT"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261020-V81-REPRODUCIBLE-BUILD_5e2a7d872a4648de85a88aea4bb09708.json"
-updated_at: "2026-10-20T13:11:05.795856+00:00"
+commit_head: "1f2155fd4c7241ca627dca53d288f28478c94654"
+status: "SCOPED_COMPLETE_GITHUB_VERIFIED"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261020-V81-PUBLICATION_98f885998ab84a10985c993bdd9f4a25.json"
+updated_at: "2026-10-20T13:22:30.113793+00:00"
 
 ---
 
-## Active v81 — 無劣化性能標準と最新版移植（SCOPED VERIFIED; PUBLICATION NEXT）
+## Active v81 — 無劣化性能標準と最新版移植（SCOPED COMPLETE; GITHUB VERIFIED）
 
 人間の5段階承認はAMENDMENTS/2026-10-20-v81-lossless-performance.md。実装済み通常/lab/makerはdocs/demos/releases/v81、134 Source入力。品質契約はdocs/performance/PERFORMANCE-STANDARD.md、採否と計測は2026-10-20-v81-lossless-results.md、証拠索引docs/verification/releases/v81/README.md。通常144/lab60/maker64場面の画素一致、9回320＋別seed82球の全JSONhistory一致、全field complete、保存/JSON/シーズン/17得能/全24候補左右/多方向投球図回帰PASS。Vitest入口27件、cache関連14件/TSC/実673資料検証PASS。3HTMLの再生成もbyte一致。
 
 cacheは全673保持、warmも全descriptor検査。cold起動+約0.5s（メーカーは約+1.8s）、warm新試合533→214ms。RAF全scene提出は準備19→56/投球20→45回秒の当環境参考値。全60FPS/実機を達成とは扱わない。Source/4px/原画/物理/裁定は維持。静止park・係数・frame二分探索・名前DOM・catalog再利用・全scene共通時刻を通常/lab/makerへ適用。
 
-次: 実装branchへSource/3HTML/証拠と恒久規約を明示列挙でcommit/push、設計foundation branchは文書のみatomic commitしAI-INDEX/PLAN-REGISTER/原計画へ追記、remote3HTML blob/size/固定commit rawを公開照合。mainへmergeしない。既存user AGENTS.mdと所有外.agents、secret/settings/lockfileは除外。v80ローカル成果も今回保存する。
+保存完了: 製品1f2155fd4c7241ca627dca53d288f28478c94654、既存Draft PR #380へpush。PUBLICATION98f88599 PASS（remote/PR product head、134 Source Gitblob、raw9file/size）。指定設計branchへ文書のみa71c017d085bb6213a1facfc6eee6aba17723d78、AI-INDEX/PLAN-REGISTER/原計画から恒久規約を登録・remote全6文書SHA照合。後続commitはこの公開記録のみ。main未merge。既存user AGENTS.md/所有外.agents、secret/settings/lockfileを除外。v80成果も保存済み。次は人間がv81で実プレー確認、元の機能残件/実測校正/実機等を継続。
 
 原FAIL（検査ボタン/混在EOL/CSSOM/1回option/旧Corehash/Vitest登録）と修正後証拠を保持。元Charter独立承認HOLD、Native認証、実機/熱/電力/オンライン、100試合校正、Worker/GPU候補、元の機能残件と旧FAILUNKNOWNを保持する。
 
