@@ -1,0 +1,12 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/BatterCourseProfileV87.test.ts (4 tests) 11ms
+ ✓ src/integration/browser/LiveSeasonCourseV87.test.ts (5 tests) 689ms
+   ✓ uses H/AB rather than mean averages, keeps walks unknown, and bounds adaptation at large sample sizes 604ms
+
+ Test Files  2 passed (2)
+      Tests  9 passed (9)
+   Start at  02:11:09
+   Duration  2.29s (transform 876ms, setup 0ms, collect 1.84s, tests 700ms, environment 1ms, prepare 421ms)
+

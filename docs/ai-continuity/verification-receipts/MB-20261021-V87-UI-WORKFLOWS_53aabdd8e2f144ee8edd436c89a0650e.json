@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V87-UI-WORKFLOWS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-course-authoring-v87.mjs",
+    "../../outputs/にーくら野球メーカー_v87_コース打率と認識AI版.html",
+    "docs/verification/releases/v87/course-workflows"
+  ],
+  "observed_at": "2026-10-20T17:15:13.301+00:00",
+  "elapsed_ms": 18265,
+  "git_head": "9f6b6ed69d8682f417490d4b761914f1b4a6d6a1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V87-UI-WORKFLOWS_53aabdd8e2f144ee8edd436c89a0650e.log",
+  "output_sha256": "36602c6d59ed51b570c55e34cc761d0a4fc94bbfbfc81b55438c621a22ce342e",
+  "receipt_id": "MB-20261021-V87-UI-WORKFLOWS_53aabdd8e2f144ee8edd436c89a0650e"
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V87-METADATA-EXACT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-course-v87.mjs"
+  ],
+  "observed_at": "2026-10-20T17:17:50.395+00:00",
+  "elapsed_ms": 1687,
+  "git_head": "9f6b6ed69d8682f417490d4b761914f1b4a6d6a1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V87-METADATA-EXACT_43d168e34fc745b5b640a19bbe482e0d.log",
+  "output_sha256": "07104c235e5af399da1f297d2e8c64b026e6d7fbf6aa29214b8f9586e5e74ff7",
+  "receipt_id": "MB-20261021-V87-METADATA-EXACT_43d168e34fc745b5b640a19bbe482e0d"
+}

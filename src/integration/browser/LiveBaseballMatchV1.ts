@@ -3,6 +3,8 @@ import { resolveLiveExecutionPhysicalV77 } from './LiveTraitRuntimeV77';
 import { validatePitchRepertoireV77, validatePitchingMotionV77 } from './LivePitchAuthoringV77';
 import { validatePitchRepertoireV78 } from './LivePitchAuthoringV78';
 import { validateBatterCourseProfileV79 } from './BatterCourseProfileV79';
+import {validateBatterCourseProfileV87} from './BatterCourseProfileV87';
+import {validateZoneRecognitionV87} from './ZoneRecognitionV87';
 import { cloneValidatedMeasuredCatalogV81 } from './MeasuredClipValidationCacheV81';
 import type { Vec3 } from '../../core/model/geometry';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
@@ -115,6 +117,8 @@ function physical(player:LivePlayerV1):LivePlayerPhysicalV1{
   assert(!(p.pitchRepertoire&&p.pitchRepertoireV78),'ambiguous V77 and V78 pitch ownership');
   if(p.pitchRepertoireV78!==undefined)validatePitchRepertoireV78(p.pitchRepertoireV78,p.maximumPitchSpeedMps);
   if(p.batterCourseProfileV79!==undefined)validateBatterCourseProfileV79(p.batterCourseProfileV79);
+  if(p.batterCourseProfileV87!==undefined)validateBatterCourseProfileV87(p.batterCourseProfileV87);
+  if(p.zoneRecognitionV87!==undefined)validateZoneRecognitionV87(p.zoneRecognitionV87);
   assert(p.minimumSpinRatio===undefined||Number.isFinite(p.minimumSpinRatio)&&p.minimumSpinRatio>=0&&p.minimumSpinRatio<=1,'invalid minimum spin ratio');
   if(p.pitchingMotion!==undefined)validatePitchingMotionV77(p.pitchingMotion);
   return resolveLiveExecutionPhysicalV77(p,player.traitProfile);
@@ -192,7 +196,7 @@ export function createLiveBaseballMatchV1(raw:LiveMatchInputV1){
         pitchApproach:pitcherPreference.pitchApproach},measuredClips:input.measuredClips.filter(clip=>clip.side===batter.bats
           &&(bp.clipId===undefined?clip.defaultSelection!==false:clip.id===bp.clipId)),
       catcher:{gloveSpeedMps:cp.gloveSpeedMps,gloveReachMeters:cp.gloveReachMeters,gloveRadiusMeters:cp.gloveRadiusMeters,
-        retentionCapacityJ:cp.retentionCapacityJ,captureDissipationPowerW:cp.captureDissipationPowerW,pocketRadiusMeters:.14},
+        retentionCapacityJ:cp.retentionCapacityJ,captureDissipationPowerW:cp.captureDissipationPowerW,pocketRadiusMeters:.14,...(cp.defensiveDecisionSeconds===undefined?{}:{defensiveDecisionSeconds:cp.defensiveDecisionSeconds}),...(cp.zoneRecognitionV87===undefined?{}:{zoneRecognitionV87:cp.zoneRecognitionV87})},
       batting,pitchType:pitchTypeCommand,...(command.managedTeam===1-c.team&&command.pitchId!==undefined?{pitchId:command.pitchId}:{}),
       location:command.managedTeam===1-c.team?command.location:'auto',physics:LIVE_MATCH_PHYSICS_V1});
     const frames:LiveMatchFrameV1[]=pitch.frames.map(f=>({...ready,tick:f.tick,ball:f.ball,bat:f.bat,phase:'pitch',possessedBy:f.ball.possessedBy==='catcher'?input.teams[1-c.team].defense.C:null}));

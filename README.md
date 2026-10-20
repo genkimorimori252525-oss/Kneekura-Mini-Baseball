@@ -1,6 +1,6 @@
 # Kneekura-Mini-Baseball
 
-**2026-10-18更新:** [最新の通常試合v52・再開入口](docs/handoffs/LATEST.md) / [開発史・失敗の原因と改善](docs/history/README.md)。以下の旧入口・設計は当時の記録を含みます。
+**2026-10-21更新:** [最新v87の通常試合・メーカー・調整室](docs/demos/releases/v87/README.md) / [再開入口](docs/handoffs/LATEST.md) / [開発史・失敗の原因と改善](docs/history/README.md)。以下の旧入口・設計は当時の記録を含みます。
 
 軽量な自動試合エンジンを土台に、采配と野球らしい結果の因果関係を中心に据える野球ゲームです。
 

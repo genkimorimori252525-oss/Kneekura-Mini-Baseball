@@ -1,4 +1,10 @@
-# 最新の再開入口 — 2026-10-20
+# 最新の再開入口 — 2026-10-21
+
+最新v87：[3つのHTMLと操作](../demos/releases/v87/README.md)、[設計・直接承認](../design/2026-10-21-v87-course-display-perception-proposal.md)、[実装計画](../superpowers/plans/2026-10-21-v87-course-display-perception.md)、[検証・原FAIL・限界](../verification/releases/v87/README.md)。公開状態は同検証フォルダーのpublication.jsonを確認する。以下の旧「最新」は当時の履歴。
+
+人間用の打率は中央9＋周囲4区画、内部認識は元画像の形の63区画。打率と認識を独立schemaにし、旧JSON/成績を保持する。入力preview・保存取消・方向の割合・MLB2025比較・3役認識と監査ログを接続。通常9回343球/123守備＋別seed54球/23守備の全field完走、保存往復を確認。メーカー/通常/labの新Coreを一致させ、673軌道・20選手・v86入力復帰・v84描画設計を維持する。
+
+2025MLBは公式H/ABの比較用で、選手設定を上書きしない。未知10H/63ABは別枠。13↔63は面積加重近似で原63を保持し、独立の認識データに転用しない。実機/100試合/Native認証/空力校正/実FPS残件と元Charter HOLDを引き継ぐ。既存branch/Draft PR380へ保存し、mainへmergeしない。
 
 v81保存・公開照合完了：製品`1f2155fd4c7241ca627dca53d288f28478c94654`、PUBLICATION `98f88599` PASS（134 Source Git blobs/raw9ファイル/size）。指定設計branchは文書のみ`a71c017d085bb6213a1facfc6eee6aba17723d78`、AI-INDEX/PLAN-REGISTER/原性能計画から標準規約へ到達可能。既存Draft PR #380で継続、main未merge。以下の「公開前」「ローカルのみ」は当時の履歴。
 

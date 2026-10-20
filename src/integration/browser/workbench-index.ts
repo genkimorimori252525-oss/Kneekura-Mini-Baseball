@@ -41,3 +41,11 @@ export { summarizeLiveIssuedPitchV79, createLiveGameStatisticsV79, validateLiveG
 export type { LivePitchSummaryV79, LiveGameStatisticsV79 } from './LiveCourseScoringV79';
 export { createLiveSeasonStoreV79, validateLiveSeasonStoreV79, reduceLiveSeasonStoreV79, getLiveSeasonReportV79, deriveLiveCourseProfileV79, LIVE_COURSE_LEARNING_POLICY_V79 } from './LiveSeasonV79';
 export type { LiveSeasonStoreV79, LiveSeasonCommandV79, LiveCourseTallyV79 } from './LiveSeasonV79';
+export { PUBLIC_COURSE_IDS_V87, createNeutralBatterCourseProfileV87, validateBatterCourseProfileV87, classifyPublicCourseV87,
+  resolveBatterCourseProfileV87, expandBatterCourseProfileV87ToV79, projectBatterCourseProfileV79ToV87,
+  getInternalCourseIdsV87, getRepresentativeCourseIdV87, publicCourseIndexForInternalIdV87 } from './BatterCourseProfileV87';
+export type { BatterCourseProfileV87, PublicCourseIdV87, PublicCourseClassificationV87 } from './BatterCourseProfileV87';
+export { getLiveSeasonReportV87, deriveLiveCourseProfileV87 } from './LiveSeasonCourseV87';
+export type { LiveCourseRegionTallyV87 } from './LiveSeasonCourseV87';
+export { createNeutralZoneRecognitionV87, validateZoneRecognitionV87, recognizeZoneV87, selectZoneTargetV87 } from './ZoneRecognitionV87';
+export type { ZoneRecognitionV87, ZoneRecognitionRoleV87, ZoneRecognitionCellV87 } from './ZoneRecognitionV87';

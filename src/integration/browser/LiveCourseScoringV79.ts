@@ -3,6 +3,7 @@ import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
 import { createSourceFreeBallKernel,type SourceFreeBallDescriptorV2 } from '../../core/sim/ball/SourceFreeBallKernel';
 import { resolveHeightRatioStrikeZoneRegion } from '../../core/sim/pitching/RulebookStrikeZone';
 import { classifyBatterCourseV79,validateBatterCourseProfileV79,type BatterCourseProfileV79 } from './BatterCourseProfileV79';
+import { expandBatterCourseProfileV87ToV79, validateBatterCourseProfileV87, type BatterCourseProfileV87 } from './BatterCourseProfileV87';
 import type { LiveIssuedPitchV1,LivePlayerV1 } from './LiveBaseballMatchV1';
 
 const fail=(s:string):never=>{throw new Error('live course scoring v79: '+s);};
@@ -22,7 +23,7 @@ export type LivePitchSummaryV79=Readonly<{version:'live_pitch_summary_v79';scori
   batterPlayerId:string;pitcherPlayerId:string;before:CanonicalMatchState;after:CanonicalMatchState;endedAtTick:number;
   classification:string;ended:boolean;gameOver:boolean;scoring:LiveScoringDecisionV79;facts:LiveScoringFactsV79;course:LiveCourseObservationV79;
   spray:Readonly<{velocity:Readonly<{x:number;y:number;z:number}>|null;directionIndex:number|null;foul:boolean;homeRun:boolean}>}>;
-export type LiveGamePlayerV79=Readonly<{playerId:string;name:string;bats:'R'|'L';heightMeters:number;courseProfile?:BatterCourseProfileV79}>;
+export type LiveGamePlayerV79=Readonly<{playerId:string;name:string;bats:'R'|'L';heightMeters:number;courseProfile?:BatterCourseProfileV79;courseProfileV87?:BatterCourseProfileV87}>;
 export type LiveGameStatisticsV79=Readonly<{version:'local_course_game_v79';gameId:string;seed:number;players:readonly LiveGamePlayerV79[];
   records:readonly LivePitchSummaryV79[];finished:boolean;nativeAdmission:false}>;
 
@@ -162,9 +163,12 @@ export function createLiveGameStatisticsV79(input:Readonly<{gameId:string;seed:n
   assert(Array.isArray(input.players)&&input.players.length>=2&&input.players.length<=100&&Array.isArray(input.records)&&input.records.length<=3000,'bounded game data required');
   const players=input.players.map(raw=>{
     // Explicit projection avoids cloning abilities, measured clips or unrelated rosters.
-    const candidate=raw as LivePlayerV1&{courseProfile?:BatterCourseProfileV79};
-    const profile=candidate.courseProfile??raw.physical?.batterCourseProfileV79;
-    const p:LiveGamePlayerV79=cloneInert({playerId:raw.playerId,name:raw.name,bats:raw.bats,heightMeters:raw.heightMeters,...(profile===undefined?{}:{courseProfile:validateBatterCourseProfileV79(profile)})});
+    const candidate=raw as LivePlayerV1&{courseProfile?:BatterCourseProfileV79;courseProfileV87?:BatterCourseProfileV87};
+    const profileV87=candidate.courseProfileV87??raw.physical?.batterCourseProfileV87;
+    const profile=candidate.courseProfile??(profileV87===undefined?raw.physical?.batterCourseProfileV79:expandBatterCourseProfileV87ToV79(profileV87));
+    const p:LiveGamePlayerV79=cloneInert({playerId:raw.playerId,name:raw.name,bats:raw.bats,heightMeters:raw.heightMeters,
+      ...(profile===undefined?{}:{courseProfile:validateBatterCourseProfileV79(profile)}),
+      ...(profileV87===undefined?{}:{courseProfileV87:validateBatterCourseProfileV87(profileV87)})});
     assert(id(p.playerId)&&id(p.name)&&['R','L'].includes(p.bats)&&Number.isFinite(p.heightMeters)&&p.heightMeters>=1.1&&p.heightMeters<=2.5,'invalid game player');return p;
   });
   assert(new Set(players.map(p=>p.playerId)).size===players.length,'duplicate game player');
@@ -183,6 +187,6 @@ export function validateLiveGameStatisticsV79(raw:unknown):LiveGameStatisticsV79
   fields(raw,['finished','gameId','nativeAdmission','players','records','seed','version']);
   const r=raw as LiveGameStatisticsV79;assert(r.version==='local_course_game_v79'&&r.nativeAdmission===false,'local game version required');
   dense(r.players,100);dense(r.records,3000);
-  const players=r.players.map(p=>{fields(p,['playerId','name','bats','heightMeters'],['courseProfile']);return cloneInert(p);});
+  const players=r.players.map(p=>{fields(p,['playerId','name','bats','heightMeters'],['courseProfile','courseProfileV87']);return cloneInert(p);});
   const checked=createLiveGameStatisticsV79({...r,players});assert(same(checked,r),'imported game differs from canonical local projection');return checked;
 }

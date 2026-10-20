@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V87-UI-CHARTS-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/browser-bridge/course-charts-v87.test.mjs"
+  ],
+  "observed_at": "2026-10-20T17:18:09.066+00:00",
+  "elapsed_ms": 2608,
+  "git_head": "9f6b6ed69d8682f417490d4b761914f1b4a6d6a1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V87-UI-CHARTS-FINAL_844b392c63bb432f9c5253d59346b8ad.log",
+  "output_sha256": "618eaee93dc1b1025cd59b0c737780a1d7f3473ad46e24c4fe72574450e200f5",
+  "receipt_id": "MB-20261021-V87-UI-CHARTS-FINAL_844b392c63bb432f9c5253d59346b8ad"
+}

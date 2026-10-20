@@ -35,7 +35,8 @@ export function buildPitcherWorkbenchInputV77(raw: PitcherWorkbenchBuildInputV77
       ...(pitcher.throws === undefined ? {} : { throws: pitcher.throws }), ...(pt ? { technicalSkills: pt } : {}),
       pitchApproach: resolveLiveTraitPreferencesV54(pitcher.traitProfile).pitchApproach },
     catcher: { gloveSpeedMps: cp.gloveSpeedMps, gloveReachMeters: cp.gloveReachMeters, gloveRadiusMeters: cp.gloveRadiusMeters,
-      retentionCapacityJ: cp.retentionCapacityJ, captureDissipationPowerW: cp.captureDissipationPowerW, pocketRadiusMeters: .14 },
+      retentionCapacityJ: cp.retentionCapacityJ, captureDissipationPowerW: cp.captureDissipationPowerW, pocketRadiusMeters: .14, ...(cp.defensiveDecisionSeconds===undefined?{}:{defensiveDecisionSeconds:cp.defensiveDecisionSeconds}),
+      ...(cp.zoneRecognitionV87===undefined?{}:{zoneRecognitionV87:cp.zoneRecognitionV87}) },
     measuredClips: clips, batting: 'take', pitchType: input.pitchType, ...(input.pitchId === undefined ? {} : { pitchId: input.pitchId }), location: input.location, physics: LIVE_MATCH_PHYSICS_V1 });
 }
 function planeTime(kernel: SourceFreeBallKernel, plane: number): number | null {

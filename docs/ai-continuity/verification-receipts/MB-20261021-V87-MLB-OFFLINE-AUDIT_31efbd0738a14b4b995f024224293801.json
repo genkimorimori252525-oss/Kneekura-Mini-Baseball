@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V87-MLB-OFFLINE-AUDIT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "tools/browser-bridge/import-mlb-course-reference-v87.py",
+    "--audit-only"
+  ],
+  "observed_at": "2026-10-20T17:07:49.883+00:00",
+  "elapsed_ms": 578,
+  "git_head": "9f6b6ed69d8682f417490d4b761914f1b4a6d6a1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V87-MLB-OFFLINE-AUDIT_31efbd0738a14b4b995f024224293801.log",
+  "output_sha256": "4400e18f12026ce3b4ea4c8d7f7d386a9d6b1432880164eab0568696e2bb666a",
+  "receipt_id": "MB-20261021-V87-MLB-OFFLINE-AUDIT_31efbd0738a14b4b995f024224293801"
+}

@@ -1,13 +1,17 @@
 ---
-current_task: "MB-20261021-V86"
+current_task: "MB-20261021-V87"
 active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "f0b855149445ed975e357f42c4b3367b64e7d327"
-status: "PUBLISHED_VERIFIED_SCOPED"
-evidence_ref: "docs/verification/releases/v86/publication.json"
-updated_at: "2026-10-20T16:47:51.108090+00:00"
+commit_head: "9f6b6ed69d8682f417490d4b761914f1b4a6d6a1"
+status: "LOCAL_VERIFIED_READY_PUBLISH"
+evidence_ref: "docs/verification/releases/v87/README.md"
+updated_at: "2026-10-20T17:27:36.969425+00:00"
 
 ---
+
+## Active v87 — 打率マップと内部コース認識（LOCAL VERIFIED）
+
+直接承認の6項目を実装。追加依頼の63grid元画像形状もmaker-onlyで復元。通常/lab/makerはdocs/demos/releases/v87、Source192pins・8report、8file byte再build一致。最終通常9c31a38c/lab5ec891c6/maker3c451f61。新data9/主要runtime75/最終認識34/fullTSC/Python4、通常343球9回123field＋別54球23field全completeと保存往復、統合4case/描画9case、新UIとgrid2幅、旧284field/16draft/10action PASS。MLB公式H/AB比較のみ・未知10H63AB独立・原63保持。package初回basenamepath FAILを訂正、最終3229cccd PASS。次は選択stage/公開Gitblobs照合。元CharterHOLD・原FAILUNKNOWN/Native/100試合/実機/実FPS残件を保持。以下は過去時点。
 
 ## Active v86 — メーカー入力・近接エラー（PUBLISHED VERIFIED）
 
