@@ -1,6 +1,6 @@
 # Implementation Plan Register — status, owners and dependencies
 
-> **Updated:** 2026-10-16. **This is a discoverability index, not implementation authorization or a new canonical specification.** Each linked document's internal Status and the later explicitly approved canonical design take precedence.
+> **Updated:** 2026-10-20 (lossless-performance reference added; 2026-10-16 baseball-plan statuses unchanged). **This is a discoverability index, not implementation authorization or a new canonical specification.** Each linked document's internal Status and the later explicitly approved canonical design take precedence.
 >
 > **Caution:** The user mentioned **four** plans in this conversation, but this GitHub branch currently contains **three newly written 2026-10-16 implementation plans**. The “flow / in-game form” discussion has **not** been approved as a fourth implementation plan. It has its own [discovery note](notes/2026-10-16-in-game-form-discussion.md) so an AI will not silently omit or implement it.
 
@@ -39,6 +39,7 @@
 
 | Document | Status / warning | Relevant domain |
 | --- | --- | --- |
+| **[Lossless mobile/desktop performance & scene-wide FPS — 2026-10-20](superpowers/plans/2026-10-20-zero-degradation-mobile-desktop-performance.md)** + [historical lv76 evidence](performance/2026-10-20-lv76-lossless-optimization-evidence.md) | **USER-DIRECTED QUALITY POLICY / FUTURE PORTING PLAN; LEGACY HTML EXPERIMENT VERIFIED / CURRENT GITHUB RUNTIME NOT INTEGRATED** | No visual/PNG/pixel/UI/audio degradation; no change to physical/official Core, observe one canonical scene time, raise scene-relative cadence and remove redundant work. Old lv76 v1/v2 benchmarks ≠ present project or Android/iOS telemetry; profile actual worktree first, include further headroom and multiplayer authority boundary. |
 | [Pitch Timing / Cadence / Quick Delivery — 2026-09-23](superpowers/plans/2026-09-23-pitch-timing-cadence-quick-delivery.md) | APPROVED direction + implementation plan; actual integration not proven here | Batter preparation, pitcher rhythm/quick, `BatteryPitchDecision`; PitchCall cannot be mutated by cadence |
 | [Pitch Arsenal Development — 2026-10-07](superpowers/plans/2026-10-07-pitch-arsenal-development-system.md) | **PLANNED / principles frozen; implementation unstarted per handoff** | No arbitrary count cap, no hidden per-pitch ceiling, finite practice and causal quality, 2-pitch/8-pitch variety |
 | [TBD home vs LAD first playable match — 2026-10-14, clarified 10/16](implementation/2026-10-14-tbd-vs-lad-match-slice.md) | **IMPLEMENTATION PLAN / NOT YET VERIFIED** | Real nine-inning canonical Core on mobile/desktop, PNG and **scene-appropriate drawing cadence** for pitching/batted-ball play; **not** a ball-only quality upgrade or mandatory 2×, versioned LAD roster |
