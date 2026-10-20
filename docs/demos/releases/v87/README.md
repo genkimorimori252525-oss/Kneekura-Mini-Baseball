@@ -1,6 +1,6 @@
 # v87 — コース打率と内部認識
 
-実装・ローカル検証・8ファイルの再生成照合済み。公開状態は検証索引とpublication.jsonで確認する。
+実装・検証・GitHub保存済み。製品コミット `8b2184f`、既存Draft PR #380、main未merge。公開ソース・配布物201 Git blobsの一致は `docs/verification/releases/v87/publication.json` で確認した。
 
 - [通常試合](game.html)：9回まで遊べる通常UI。シーズン成績は13区画、設定詳細に3役の認識デバッグ。
 - [選手メーカー](maker.html)：「コース・方向」で先天設定、今季の対応、実成績、MLB2025比較を切り替える。

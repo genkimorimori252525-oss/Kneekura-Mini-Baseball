@@ -1,6 +1,6 @@
 # v87 検証索引
 
-状態：最終63区画の形・凍結配布照合PASS。GitHub公開照合待ち。最終HTMLのSHAは `docs/demos/releases/v87/SHA256.json`、公開確認は `publication.json` を正本とする。
+状態：最終63区画の形・凍結配布照合PASS。GitHub公開照合PASS（製品 `8b2184f`、PUBLICATION `8aa2981f`、201 Source/artifact Git blobs）。最終HTMLのSHAは `docs/demos/releases/v87/SHA256.json`、公開確認は `publication.json` を正本とする。
 
 ## 変更と原因
 
@@ -54,3 +54,5 @@ py -3.10 -X utf8 -B tools/browser-bridge/package-course-v87.py
 headless PC/390幅は実機ではない。全100試合監査・統計校正・Native認証、旧CHARTER_UNAPPROVED、原FAIL/BLOCKED/UNKNOWNとv84実FPS未達を維持する。
 
 継続記録auditは旧CHARTER_UNAPPROVEDを返す。旧形式のamendment pending情報を今回の直接チャット承認の否定と解釈しない。今回の承認原文はAMENDMENTSに記録済みであり、Charter全体承認は別件として原HOLDを保持する。
+
+GitHub：既存branch `jolly/tbd-lad-native-browser-core-2026-10-14` とDraft PR #380で継続、main未merge。remote head/PR head/実Git blob一致を `publication.json` へ保存した。後続の証跡commitは製品ソースを変更しない。

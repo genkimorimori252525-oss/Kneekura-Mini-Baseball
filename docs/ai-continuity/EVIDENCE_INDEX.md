@@ -1777,3 +1777,4 @@ PUBLICATION [MB-20261020-V75-PUBLICATION](verification-receipts/MB-20261020-V75-
 | MB-20261021-V87-CONTINUITY-AUDIT | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261021-V87-CONTINUITY-AUDIT_d731f3189da94c9480d4342437767e40.json |
 | MB-20261021-V87-STAGING | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261021-V87-STAGING_2da6fcc860a84ce69089c596d8a002ba.json |
 | MB-20261021-V87-STAGING-FINAL | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261021-V87-STAGING-FINAL_e23ae21163c84729b0a2fc4bf226c3b5.json |
+| MB-20261021-V87-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261021-V87-PUBLICATION_8aa2981f06ff4154ba9b33bae0b20985.json |

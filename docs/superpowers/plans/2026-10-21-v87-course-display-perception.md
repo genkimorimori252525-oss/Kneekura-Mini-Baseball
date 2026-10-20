@@ -54,4 +54,4 @@
 - [x] Confirm direction comparison denominator before adopting any sprayChart data; otherwise explicitly mark unavailable without fabricating a baseline.
 - [x] Opt-in maker builder/releaseV87, normal game from frozenv84 presentation with rebuilt Core, course chart/source selection, updated player snapshots, workbench/lab embedding and logs.
 - [x] Run relevant new/legacy tests, fullsrc TSC, v86 recovery, course/perception tests, nine-inning ordinary UI + saved reload + diagnostics; verify MLB never replaces player/game data.
-- [ ] GitHub existing branch/PR380 publication check and final CCG checkpoint. Local freeze/source pins/rebuild byte equality completed; remaining risks and original FAIL/HOLD/UNKNOWN retained.
+- [x] GitHub existing branch/PR380 publication check and final CCG checkpoint. Local freeze/source pins/rebuild byte equality completed; remaining risks and original FAIL/HOLD/UNKNOWN retained.
