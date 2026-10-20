@@ -1,5 +1,9 @@
 # 最新の再開入口 — 2026-10-20
 
+最新追加は [v79 — 63コース・シーズン成績・方向配分](../demos/releases/v79/README.md)。[相談用仕様](../design-consultation/course-season-v79.md) と [検証索引](../verification/releases/v79/README.md) を参照。人間が公開9=zone内、シーズン選択/試合蓄積/練習/締め保存まで承認。V78.1の4方向投球図も継承。ローカル記録とNative公式認証は別で、判定不足はpendingのまま保存する。以下は各時点の履歴として保持。
+
+ローカルのメーカー追加版：[v78.1 投球の多方向比較](../demos/releases/v78.1/README.md)。投手真後ろ／捕手正面／左右打者を追加。物理・元UIはv78のまま、PC390pxと同じSourceの不変を確認。v78.1単体の当時の状態はローカルのみ。63コースの確認待ちは解消し、v79へ実装。
+
 最新のローカル成果物は **通常試合v78／調整室v78／メーカーv78**。球種・保管庫・縫い目空力・俯瞰投影を実装し、Core／物理／型検査と最終HTMLのメーカー・表示・得能回帰はPASS。**新球種を含む最終HTMLは262球／105打球・守備処理で9回完走。GitHub公開照合2e0f0832 PASS、製品`8b4bc90905dc5708f3181959dd8657552e344b75`を保存済み。** 公開済み基準はv77製品`c9371bd`／PUBLICATION `c2733f14`。既存branch `jolly/tbd-lad-native-browser-core-2026-10-14`、[Draft PR #380](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380)で継続し、mainへマージしない。
 
 - [他AIへの設計相談入口](../design-consultation/README.md)

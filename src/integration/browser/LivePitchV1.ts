@@ -20,6 +20,7 @@ import type { LivePhysicalAbilityControlsV1 } from './LivePhysicalRosterV1';
 import { resolvePitcherRepertoireV77, validatePitchingMotionV77, type PitchRepertoireV77, type PitchingMotionV77 } from './LivePitchAuthoringV77';
 import { validatePitchRepertoireV78, samplePitchSpinExecutionV78, type PitchRepertoireV78, type PitchSnapshotV78 } from './LivePitchAuthoringV78';
 import { validateTechnicalSkillControlsV75, type TechnicalSkillControlsV75 } from '../../core/sim/TechnicalSkillControlsV75';
+import { classifyBatterCourseV79, validateBatterCourseProfileV79 } from './BatterCourseProfileV79';
 
 export type LiveMeasuredClipV1=Readonly<{
   id:string;side:'R'|'L';source:Readonly<{sha256:string;repository?:string}>;contactTimeSeconds:number;
@@ -30,6 +31,8 @@ export type LiveMeasuredClipV1=Readonly<{
 }>;
 export type LivePitchInputV1=Readonly<{
   originTick:number;seed:number;
+  /** Optional paired-trial execution seed; affects only V79 direction intention. */
+  directionTrialSeedV79?:number;
   batter:LivePhysicalAbilityControlsV1 & Readonly<{heightMeters:number;bats:'R'|'L';batLengthM:number;batMassKg:number;swingRate:number;
     timingStdSeconds:number;aimStdMeters:number;chaseMarginMeters:number;clipId?:string;technicalSkills?:TechnicalSkillControlsV75}>;
   pitcher:Readonly<{releaseSpeedMps:number;spinRadPerSecond:Vec3;commandStdMeters:number;maximumPitchSpeedMps?:number;throws?:'R'|'L';
@@ -122,10 +125,12 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   const input=cloneInert(raw),b=input.batter,p=input.pitcher,baseProfile=createAeroGroundBallPhysicsProfile(input.physics),tps=baseProfile.air.ticksPerSecond,
     catcher=input.catcher??{gloveSpeedMps:7,gloveReachMeters:.95,gloveRadiusMeters:.14,retentionCapacityJ:350,captureDissipationPowerW:10000,pocketRadiusMeters:.18};
   let profile=baseProfile;
+  const courseProfile=b.batterCourseProfileV79===undefined?undefined:validateBatterCourseProfileV79(b.batterCourseProfileV79);
   if(b.technicalSkills!==undefined)validateTechnicalSkillControlsV75(b.technicalSkills);
   if(p.technicalSkills!==undefined)validateTechnicalSkillControlsV75(p.technicalSkills);
   if(p.pitchingMotion!==undefined)validatePitchingMotionV77(p.pitchingMotion);
   assert(Number.isSafeInteger(input.originTick)&&input.originTick>=0&&Number.isSafeInteger(input.seed)&&tps===profile.ground.ticksPerSecond,'invalid original clock or seed');
+  assert(input.directionTrialSeedV79===undefined||Number.isSafeInteger(input.directionTrialSeedV79)&&input.directionTrialSeedV79>=0&&input.directionTrialSeedV79<=0xffffffff,'invalid V79 direction trial seed');
   assert(bounded(b.heightMeters,1.1,2.5)&&['R','L'].includes(b.bats)&&bounded(b.batLengthM,.2,3)&&bounded(b.batMassKg,.1,5)
     &&bounded(b.swingRate,.3,3)&&bounded(b.timingStdSeconds,0,.08)&&bounded(b.aimStdMeters,0,.35)&&bounded(b.chaseMarginMeters,0,.6),'invalid batter SI controls');
   assert(bounded(p.releaseSpeedMps,15,85)&&bounded(p.commandStdMeters,0,.6)&&p.spinRadPerSecond&&Object.values(p.spinRadPerSecond).every(Number.isFinite)
@@ -255,13 +260,30 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
     swingScore=clamp(.5+zoneMargin/Math.max(.1,zone.halfWidth)+(b.swingDecision?(b.swingDecision.aggressionWeight-.5)*.2:0),0,1),
     swingOffered=input.batting!=='take'&&(b.swingDecision?b.swingDecision.approach==='SWING'
       ||b.swingDecision.approach==='AUTO'&&inChaseEnvelope&&swingScore>=b.swingDecision.threshold:inChaseEnvelope);
+  // The course is chosen from the current perceived forecast. Neither a
+  // future Source sample nor the eventual contact/result selects the ability.
+  const predictedCourse=courseProfile===undefined?null:classifyBatterCourseV79({position:judgmentPosition,zone}),
+    courseAverage=predictedCourse?.courseIndex===null||predictedCourse===null?null:courseProfile!.referenceAverages[predictedCourse.courseIndex],
+    courseMotorActive=courseProfile!==undefined&&swingOffered&&input.batting!=='bunt',
+    courseErrorScale=courseMotorActive&&courseAverage!==null?clamp(1-1.25*(courseAverage-.25)*courseProfile!.effectScale,.75,1.25):1;
+  const directionIntent=(()=>{
+    if(!courseMotorActive||courseProfile!.directionWeights===undefined)return null;
+    const draw=new SeedRoot(input.directionTrialSeedV79??input.seed).streamRng(0,'batting','direction-intent-v79').nextFloat();
+    const target=draw*courseProfile!.directionWeights.reduce((sum,weight)=>sum+weight,0);
+    let cumulative=0,sectorIndex=4;
+    for(let i=0;i<5;i++){cumulative+=courseProfile!.directionWeights[i];if(target<cumulative){sectorIndex=i;break;}}
+    const fieldAngleDegrees=-36+18*sectorIndex,pullAngleDegrees=-fieldAngleDegrees*(b.bats==='R'?1:-1);
+    return {sectorIndex,fieldAngleDegrees,pullAngleDegrees,draw,stream:'direction-intent-v79' as const};
+  })();
   const predictedZoneHeight=(prediction.ball.position.y-zone.lowerY)/(zone.upperY-zone.lowerY),
     highHitWeight=techniqueBlend((predictedZoneHeight-.55)/.35),lowHitWeight=techniqueBlend((.45-predictedZoneHeight)/.35),
     highHitTechnique=b.technicalSkills?.high_zone_hitting??0,lowHitTechnique=b.technicalSkills?.low_zone_hitting??0,
     zoneHitStrength=swingOffered&&input.batting!=='bunt'?highHitTechnique*highHitWeight+lowHitTechnique*lowHitWeight:0,
     zoneHitErrorScale=zoneHitStrength>0?1/(1+.4*zoneHitStrength):1,
-    timingError=zoneHitStrength>0?baselineTimingError*zoneHitErrorScale:baselineTimingError,
-    aimError=zoneHitStrength>0?mul(baselineAimError,zoneHitErrorScale):baselineAimError,
+    zoneTimingError=zoneHitStrength>0?baselineTimingError*zoneHitErrorScale:baselineTimingError,
+    zoneAimError=zoneHitStrength>0?mul(baselineAimError,zoneHitErrorScale):baselineAimError,
+    timingError=courseErrorScale===1?zoneTimingError:zoneTimingError*courseErrorScale,
+    aimError=courseErrorScale===1?zoneAimError:mul(zoneAimError,courseErrorScale),
     desiredContactTime=Math.max(.055,prediction.elapsedSeconds+timingError+(b.technicalTimingOffsetSeconds??0)),sourceContactTick=clip.contactTimeSeconds*1e6;
   const fullFrames=registerMeasuredBatToFieldV1(clip.frames).map(f=>({tick:f.tick,grip:mul(f.grip,heightScale),orientation:f.orientation})),
     probeInput:ReferenceBatKinematicsInputV1={provenance:{clipId:clip.id,sourceSha256:clip.source.sha256},frames:fullFrames,batLengthM:b.batLengthM,
@@ -274,9 +296,10 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   if(b.maximumSweetSpotSpeedMps!==undefined)rate=Math.min(rate,b.maximumSweetSpotSpeedMps/adjustedProbe.maximumSweetSpotSpeedMps);
   assert(bounded(rate,.01,20),'authored motor rate is outside this finite reference model');
   let authoredRotation=IDENTITY_QUATERNION;
-  if(b.attackAngleDegrees!==undefined||b.pullAngleDegrees!==undefined){
+  const intendedPullAngleDegrees=directionIntent?.pullAngleDegrees??b.pullAngleDegrees;
+  if(b.attackAngleDegrees!==undefined||intendedPullAngleDegrees!==undefined){
     const side=b.bats==='R'?1:-1,attack=b.attackAngleDegrees===undefined?Math.atan2(probeVelocity.y,Math.hypot(probeVelocity.x,probeVelocity.z)):b.attackAngleDegrees*Math.PI/180,
-      pull=b.pullAngleDegrees===undefined?-Math.atan2(probeVelocity.x,probeVelocity.z):b.pullAngleDegrees*side*Math.PI/180;
+      pull=intendedPullAngleDegrees===undefined?-Math.atan2(probeVelocity.x,probeVelocity.z):intendedPullAngleDegrees*side*Math.PI/180;
     authoredRotation=betweenDirections(probeVelocity,{x:-Math.sin(pull)*Math.cos(attack),y:Math.sin(attack),z:Math.cos(pull)*Math.cos(attack)});
   }
   const minimumSourceTick=Math.min(sourceContactTick-(b.preContactSeconds??Math.max(0,desiredContactTime-.045))*rate*1e6,
@@ -421,6 +444,10 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
       ...(insideTargetWeight>0?{insideCommandTechnique:{calibrationId:'inside-command-v77',strength:insideTechnique,weight:insideTargetWeight,
         battingSide:b.bats,target,commanded,baselineStandardDeviationMeters:lowZoneCommandStd,effectiveStandardDeviationMeters:effectiveCommandStd,
         releaseVelocityOnly:true}}:{}),
+      ...(courseProfile===undefined?{}:{courseV79:{version:'batter_course_profile_v79' as const,predictedCourse,
+        predictedPosition:judgmentPosition,zone:{centerX:0,halfWidth:zone.halfWidth,lowerY:zone.lowerY,upperY:zone.upperY},
+        referenceAverage:courseAverage,effectScale:courseProfile.effectScale,errorScale:courseErrorScale,motorActive:courseMotorActive,
+        directionIntent,predictionMadeAtElapsedSeconds:decisionTime,postContactResultOverride:false as const}}),
       ...(zoneHitStrength>0?{zoneHittingTechnique:{calibrationId:'high-low-hitting-v77',highStrength:highHitTechnique*highHitWeight,
         lowStrength:lowHitTechnique*lowHitWeight,predictedHeightMeters:prediction.ball.position.y,errorScale:zoneHitErrorScale,
         baselineTimingErrorSeconds:baselineTimingError,baselineAimErrorMeters:baselineAimError,postContactResultOverride:false}}:{}),

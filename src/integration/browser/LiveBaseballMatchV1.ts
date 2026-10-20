@@ -2,6 +2,7 @@ import { resolveLiveTechnicalTraitsV75 } from './LiveTraitProfilesV1';
 import { resolveLiveExecutionPhysicalV77 } from './LiveTraitRuntimeV77';
 import { validatePitchRepertoireV77, validatePitchingMotionV77 } from './LivePitchAuthoringV77';
 import { validatePitchRepertoireV78 } from './LivePitchAuthoringV78';
+import { validateBatterCourseProfileV79 } from './BatterCourseProfileV79';
 import type { Vec3 } from '../../core/model/geometry';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
 import { asRuleProfileId } from '../../core/model/RuleProfileRef';
@@ -126,6 +127,7 @@ function physical(player:LivePlayerV1):LivePlayerPhysicalV1{
   if(p.pitchRepertoire!==undefined)validatePitchRepertoireV77(p.pitchRepertoire,p.maximumPitchSpeedMps);
   assert(!(p.pitchRepertoire&&p.pitchRepertoireV78),'ambiguous V77 and V78 pitch ownership');
   if(p.pitchRepertoireV78!==undefined)validatePitchRepertoireV78(p.pitchRepertoireV78,p.maximumPitchSpeedMps);
+  if(p.batterCourseProfileV79!==undefined)validateBatterCourseProfileV79(p.batterCourseProfileV79);
   assert(p.minimumSpinRatio===undefined||Number.isFinite(p.minimumSpinRatio)&&p.minimumSpinRatio>=0&&p.minimumSpinRatio<=1,'invalid minimum spin ratio');
   if(p.pitchingMotion!==undefined)validatePitchingMotionV77(p.pitchingMotion);
   return resolveLiveExecutionPhysicalV77(p,player.traitProfile);

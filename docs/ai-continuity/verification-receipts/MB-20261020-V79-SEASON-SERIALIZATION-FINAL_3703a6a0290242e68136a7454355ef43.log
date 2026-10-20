@@ -1,0 +1,12 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LiveCourseScoringV79.test.ts (8 tests | 1 skipped) 47ms
+ ✓ src/integration/browser/LiveSeasonV79.test.ts (9 tests) 846ms
+   ✓ roundtrips and aggregates a 162-game season beyond a global inert clone budget 650ms
+
+ Test Files  2 passed (2)
+      Tests  16 passed | 1 skipped (17)
+   Start at  09:19:11
+   Duration  1.88s (transform 474ms, setup 0ms, collect 1.26s, tests 893ms, environment 0ms, prepare 255ms)
+

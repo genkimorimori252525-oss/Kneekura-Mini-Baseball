@@ -29,3 +29,13 @@ export { LIVE_PITCH_TYPES_V78, getLivePitchCatalogV78, validatePitchSnapshotV78,
   appendPitchLibraryRevisionV78, createPitchSnapshotFromLibraryV78, createPitchSnapshotFromPresetV78,
   migratePitchRepertoireV77ToV78, resolvePitcherRepertoireV78, samplePitchSpinExecutionV78 } from './LivePitchAuthoringV78';
 export type { LivePitchTypeV78, PitchSnapshotV78, PitchRepertoireV78, PitchLibraryV78, PitchLibraryRecordV78 } from './LivePitchAuthoringV78';
+
+export { createNeutralBatterCourseProfileV79, validateBatterCourseProfileV79, classifyBatterCourseV79 } from './BatterCourseProfileV79';
+export type { BatterCourseProfileV79, BatterCourseZoneV79, BatterCourseClassificationV79 } from './BatterCourseProfileV79';
+
+export { compareBatterCourseDirectionsV79 } from './BatterCourseWorkbenchV79';
+export type { BatterCourseWorkbenchInputV79 } from './BatterCourseWorkbenchV79';
+export { summarizeLiveIssuedPitchV79, createLiveGameStatisticsV79, validateLiveGameStatisticsV79 } from './LiveCourseScoringV79';
+export type { LivePitchSummaryV79, LiveGameStatisticsV79 } from './LiveCourseScoringV79';
+export { createLiveSeasonStoreV79, validateLiveSeasonStoreV79, reduceLiveSeasonStoreV79, getLiveSeasonReportV79, deriveLiveCourseProfileV79, LIVE_COURSE_LEARNING_POLICY_V79 } from './LiveSeasonV79';
+export type { LiveSeasonStoreV79, LiveSeasonCommandV79, LiveCourseTallyV79 } from './LiveSeasonV79';

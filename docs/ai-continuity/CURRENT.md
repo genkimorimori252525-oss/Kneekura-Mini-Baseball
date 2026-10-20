@@ -1,13 +1,40 @@
 ---
-current_task: "MB-20261020-V78-PUBLICATION"
+current_task: "MB-20261020-V79-PACKAGE"
 active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "8b4bc90905dc5708f3181959dd8657552e344b75"
-status: "SCOPED_VERIFIED_PUBLISHED"
-evidence_ref: "docs/verification/releases/v78/publication.json"
-updated_at: "2026-10-19T20:10:35.522170+00:00"
+commit_head: "98819b9ab5c8e4bdd7ddfc7d644d484df08ab55d"
+status: "SCOPED_VERIFIED_PENDING_PUBLICATION"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261020-V79-PACKAGE_08012e47e4654325b81218b85c0b3621.json"
+updated_at: "2026-10-20T00:36:34.479900+00:00"
 
 ---
+
+## 最新完了範囲 — v79 63コース・シーズン成績（SCOPED VERIFIED; PUBLICATION PENDING）
+
+人間がzone内公開9＋外側別枠、season選択/試合蓄積/練習/締め保存を明示承認。63profileを知覚予測の打撃動作へ一度合成、5方向は意図として剛体motorへ渡す。結果の確率・角度を上書きしない。先天baseline/今季/練習/公開HAB/長期差分を分離。元20人・673資料・17得能・v78camera/physics・v78.1の4図を維持。
+
+統合TSC ea4f6337 PASS。Core実133球80PA(74確定6pending/H29)、162小game保存試験を別記。最終通常9a5ed678 PASS182.500s：320球127打球/守備すべてcomplete、9回、111確定17pending/H53、v78初期6球history exact、保存一回/重複拒否/再生終端/0球guard/PC390/lab同session replay。最終maker6c414d91、4図530f2286、17得能18fd2b25 PASS。Source/HTML開始終了hash一致。通常4b508918/lab8f3020b5/maker16d277f0。PACKAGE08012e47 PASS：Native126/Maker93/union133pins、旧254凍結物不変。証拠docs/verification/releases/v79、仕様docs/design-consultation/course-season-v79.md、製品docs/demos/releases/v79。
+
+レビュー修正：置換marker改行、初期owned pitch IDの所有確認、0球/再生前finish保存先保護、全体JSON256MB上限、成績帳の文字配色、能力専用importのcourse未保存guard。各原FAILは保持。製品の最終検証後はSourceを正規化しない。ユーザーAGENTS、無関係untracked、設定locksecretは除外。
+
+STAGING06def4b7 PASS：明示allowlistのbyte一致/credential0/whitespace0。CCG669d3435は元Charter独立承認不足1件/旧handoff警告193を保持。次は既存branch/PR380へ保存・公開照合。main mergeしない。判定不足H/E/FC/SF/SHはpending、学習係数は作者設定、Native公式履歴/連続world認証・100試合現実校正・実機・元計画の残件は未完。原Charter独立承認HOLDと旧FAIL/BLOCKED/UNKNOWNを保持。以下は過去時点の記録。
+
+
+## Completed local addition — v78.1 pitcher trajectory views (SCOPED VERIFIED; LOCAL ONLY)
+
+人間は既存の横/上に投手真後ろ・捕手正面・左右打者の4方向図を追加要求。新docs/demos/baseball-maker-pitcher-views-v78.jsが同じtrial sampleを透視投影、元UI/Source/能力/試合カメラ不変。builderにopt-in --pitch-views、最新版outputs/にーくら野球メーカー_v78_1_投球の多方向比較版.html。図ごと拡大は表示のみ、解除で同じ視野倍率。灰の比較は独自plate時刻まで同じ観測関数を使用し、nearplaneをまたぐ線をつながない。
+
+geometry73743c5e PASS46ms、BUILDbd0a66f8 PASS2.421s、browser2192438d PASS11.218s。PC1200/390×直球/カーブ、4図の緑/灰、左右、拡大してもSource/roster不変、球変更invalidate、overflow/例外/外部通信0。2画像目視済み。frozen docs/demos/releases/v78.1、検証docs/verification/releases/v78.1。Core89pins/v78元UI/CSS/renderer/roster/673clip同一。原RED/浮動小数testFAILを保持。GitHub公開は要求へ推定せず未実行。
+
+次：回答済み63コース・シーズン保存を実装し通常HTMLで検証する。元計画/原HOLD/旧FAILUNKNOWN/ユーザーAGENTS除外を継続。
+
+## Active human priority — v79 course63, long-term/season response and spray display (IMPLEMENTING; ANSWERS RECEIVED)
+
+人間は内部63(9列×7行、ID10列+行、zone列3..7/行1..5)・公開9、maker赤→淡青→灰click、先天と今季の分離、試合だけから打数を考慮した緩い長期形成、練習は今季のみ、.300/.200配色、5方向扇形の編集/実績表示を要求。原文をAMENDMENTv79へ保存。設計案112行をdocs/plans/2026-10-20-v79-course63-and-spray-review.mdへ作成。Source/生成物は未変更、まだ実装完了でない。
+
+調査：現行LivePitchは連続コース予測/timing/aimと剛体contact、63/seasonモデルなし。LiveBaseballMatch hits/errors=null、PlayableMatchRules live_ballはH/E/FCを区別しない。打率集計前にローカル記録層と未確定保持が必要。63IDと公開9IDは元座標から別々に分類(5×5→3×3の境界差)、公開H/ABは合算。先天/今季効果は動作入力へ、安打率抽選にはしない。方向配分は意図、公開扇形は実exitVelocity由来。Native公式記録/育成の認証を緩めずローカルモデルと区別。
+
+人間の回答：公開9はzone内、外側別枠。season台帳・練習・締め/保存まで実装する。実装中：63分類/予測動作・方向意図、成績射影とseason reducerを追加。型検査・Core実9回133球80打席(74確定6pending/H29)・162game往復通過。通常/maker/lab生成済み、最終browser試験は未完。係数未校正・Native認証別・原HOLD/旧FAILUNKNOWNを維持。
 
 ## Active human priority — v78 pitch catalog, spin repeatability, virtual-height projection (SCOPED VERIFIED; PUBLISHED)
 

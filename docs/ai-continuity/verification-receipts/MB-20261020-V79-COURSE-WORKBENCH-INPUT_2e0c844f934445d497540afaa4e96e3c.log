@@ -1,0 +1,10 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/BatterCourseWorkbenchV79.test.ts (3 tests) 626ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  09:15:44
+   Duration  1.71s (transform 424ms, setup 0ms, collect 650ms, tests 626ms, environment 0ms, prepare 133ms)
+

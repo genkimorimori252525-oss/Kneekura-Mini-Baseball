@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V79-COURSE-WORKBENCH",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/BatterCourseWorkbenchV79.test.ts",
+    "src/integration/browser/BatterCourseProfileV79.test.ts"
+  ],
+  "observed_at": "2026-10-20T00:14:16.649+00:00",
+  "elapsed_ms": 2218,
+  "git_head": "98819b9ab5c8e4bdd7ddfc7d644d484df08ab55d",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V79-COURSE-WORKBENCH_c556ec2c73214608b1bbfbc51ac2942c.log",
+  "output_sha256": "dc548a47e00670e1f0ebb675c65abe436f551b7833c6f02bbe53af46333a48c1",
+  "receipt_id": "MB-20261020-V79-COURSE-WORKBENCH_c556ec2c73214608b1bbfbc51ac2942c"
+}

@@ -68,6 +68,7 @@
   function assertLiveRosterEdits() {
     globalThis.KneekuraPitcherMakerV77?.assertNoPending?.();
     globalThis.KneekuraPitchLibraryV78?.assertNoPending?.();
+    globalThis.KneekuraBatterMakerV79?.assertNoPending?.();
     if (liveRosterPending.size) throw Error('試合用能力に未確定の入力があります。選手と項目のエラーを修正してから保存してください。');
     if (livePhysicalRoster) validateLiveRoster(livePhysicalRoster);
   }
@@ -385,6 +386,7 @@
     renderPublicAbilities(identity); renderLiveTraits(); rosterStatus();
   }
   function importLiveRoster(raw) {
+    globalThis.KneekuraBatterMakerV79?.assertRosterImport?.();
     const accepted = validateLiveRoster(raw); livePhysicalRoster = accepted.packet; liveRosterPending.clear();
     liveRosterRevision = Math.max(liveRosterRevision, Number(livePhysicalRoster.sourceId.match(/:(?:maker|swing)-edited-r(\d+)$/)?.[1] ?? 0));
     if (!livePhysicalRoster.entries.some(e => e.playerId === liveRosterPlayerId)) liveRosterPlayerId = liveCatalog.players[0].playerId;
@@ -1054,16 +1056,21 @@
   }
   function loop(now) { if (playing && result) { if (lastPaint !== null) time += Math.min(.1, (now - lastPaint) / 1000) * Number($('play-speed').value);
       if (time >= duration) { time = duration; playing = false; } draw(); } lastPaint = now; requestAnimationFrame(loop); }
-  function state() { return { player: clone(draft), population: clone(population), scenario: clone(scenario), ...(referenceTouched ? { reference: clone(reference) } : {}),
+  function state() { const seasons = globalThis.KneekuraCourseSeasonsV79?.getState(); return { player: clone(draft), population: clone(population), scenario: clone(scenario), ...(referenceTouched ? { reference: clone(reference) } : {}),
     ...(patternsTouched ? { trajectoryPatterns: clone(trajectoryPatterns) } : {}), ...(livePhysicalRoster ? { livePhysicalRoster: clone(livePhysicalRoster) } : {}),
     ...(defaultPreviewDisplay() ? {} : { previewDisplay: clone(previewDisplay) }),
-    ...(globalThis.KneekuraPitchLibraryV78?.exportState()?.records?.length ? { pitchLibrary: clone(globalThis.KneekuraPitchLibraryV78.exportState()) } : {}) }; }
+    ...(globalThis.KneekuraPitchLibraryV78?.exportState()?.records?.length ? { pitchLibrary: clone(globalThis.KneekuraPitchLibraryV78.exportState()) } : {}),
+    ...(seasons && (seasons.seasons.length || seasons.longTerm.length) ? { courseSeasons: seasons } : {}) }; }
   function importState(raw) {
     if (!raw || !raw.player || !Array.isArray(raw.population) || !raw.scenario?.pitch) throw Error('選手・比較データ・投球設定を含むJSONを選択してください。');
     const pitchLibrary = globalThis.KneekuraPitchLibraryV78,
       nextPitchLibrary = pitchLibrary?.validateState(raw.pitchLibrary ?? { version: 'pitch_library_v78', records: [] }),
       previousPitchLibrary = pitchLibrary?.exportState();
     pitchLibrary?.assertNoPending?.();
+    globalThis.KneekuraBatterMakerV79?.assertNoPending?.();
+    const seasonClient = globalThis.KneekuraCourseSeasonsV79, seasonDescriptor = Object.getOwnPropertyDescriptor(raw, 'courseSeasons');
+    if (seasonDescriptor && !('value' in seasonDescriptor)) throw Error('シーズン記録は通常のJSONデータで指定してください。');
+    const nextSeasons = seasonClient?.validateState(seasonDescriptor ? seasonDescriptor.value : core.createLiveSeasonStoreV79()), previousSeasons = seasonClient?.getState();
     const next = core.createWorkbenchPlayer(raw.player), nextScenario = clone(raw.scenario), nextPopulation = raw.population.map(value => core.createWorkbenchPlayer(value));
     const displayDescriptor = Object.getOwnPropertyDescriptor(raw, 'previewDisplay');
     if (displayDescriptor && !('value' in displayDescriptor)) throw Error('拡大表示の設定は数値で指定してください。');
@@ -1085,7 +1092,8 @@
       refreshScenario(); refreshControls(); $('population-json').value = JSON.stringify(population, null, 2); refreshReference(true); preview(); draw();
       if (nextRoster) importLiveRoster(nextRoster);
       if (pitchLibrary) pitchLibrary.replaceValidated(nextPitchLibrary);
-    } catch (error) { ({ player, draft, population, scenario, result, time, duration, revision, reference, referenceTouched, trajectoryPatterns, patternsTouched, selectedPatternId, experimentResult, experimentInput, previewDisplay } = previous); if (pitchLibrary) pitchLibrary.replaceValidated(previousPitchLibrary); refreshPreviewDisplayControls(); throw error; }
+      if (seasonClient) seasonClient.replaceValidated(nextSeasons);
+    } catch (error) { ({ player, draft, population, scenario, result, time, duration, revision, reference, referenceTouched, trajectoryPatterns, patternsTouched, selectedPatternId, experimentResult, experimentInput, previewDisplay } = previous); if (pitchLibrary) pitchLibrary.replaceValidated(previousPitchLibrary); if (seasonClient) seasonClient.replaceValidated(previousSeasons); refreshPreviewDisplayControls(); throw error; }
   }
   async function readFile(file, apply) { if (!file) return; try { apply(JSON.parse(await file.text())); clearProblem(); } catch (error) { problem(error); } }
   function tab(which) { const bat = which === 'bat'; $('tab-bat').setAttribute('aria-selected', String(bat)); $('tab-player').setAttribute('aria-selected', String(!bat)); $('bat-panel').hidden = !bat; $('player-panel').hidden = bat;

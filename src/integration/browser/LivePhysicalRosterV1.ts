@@ -5,6 +5,7 @@ import { validateLiveTraitProfileV1, type LiveTraitProfileV1 } from './LiveTrait
 import { validateImpactTrajectorySettingsV1, type ImpactTrajectorySettingsV1 } from '../../core/sim/contact/ReferenceBatImpactTrajectoryV1';
 import { validatePitchRepertoireV77, validatePitchingMotionV77, type PitchRepertoireV77, type PitchingMotionV77 } from './LivePitchAuthoringV77';
 import { validatePitchRepertoireV78, type PitchRepertoireV78 } from './LivePitchAuthoringV78';
+import { validateBatterCourseProfileV79, type BatterCourseProfileV79 } from './BatterCourseProfileV79';
 
 /** Explicit numerical controls, not conversions from a trait grade or league.
  * SI/tick authoring remains local input; this adapter grants no Native authority. */
@@ -18,6 +19,8 @@ export type LivePhysicalAbilityControlsV1 = Readonly<{
   zoneJudgmentStdMeters?: number;
   /** Absolute 1–100 course-reading ability; never a league percentile. */
   plateVision?: number;
+  /** Optional V79 course consistency and fixed-field direction intention. */
+  batterCourseProfileV79?: BatterCourseProfileV79;
   /** Release geometry in metres, above the rubber surface / handed side /
    * toward home from the rubber. Omitted values use local body-height ratios. */
   pitchReleaseHeightMeters?: number; pitchReleaseSideMeters?: number; pitchReleaseExtensionMeters?: number;
@@ -50,7 +53,7 @@ const scalarKeys = ['batLengthM', 'batMassKg', 'swingRate', 'timingStdSeconds', 
   'attackAngleDegrees', 'pullAngleDegrees', 'badBallControl', 'defensiveDecisionSeconds', 'preContactSeconds', 'followThroughSeconds', 'contactDepthMeters', 'throwDirectionStdRadians', 'zoneJudgmentStdMeters',
   'baserunningSafetyMarginSeconds', 'fieldingPursuitCostWeight', 'baserunningTurnRadiusMeters', 'baserunningLateralAccelerationMps2', 'plateVision',
   'pitchReleaseHeightMeters', 'pitchReleaseSideMeters', 'pitchReleaseExtensionMeters', 'minimumSpinRatio'] as const;
-const physicalKeys: readonly string[] = ['basis', ...scalarKeys, 'spinRadPerSecond', 'clipId', 'swingDecision', 'impactTrajectory', 'pitchRepertoire', 'pitchingMotion', 'pitchRepertoireV78'];
+const physicalKeys: readonly string[] = ['basis', ...scalarKeys, 'spinRadPerSecond', 'clipId', 'swingDecision', 'impactTrajectory', 'pitchRepertoire', 'pitchingMotion', 'pitchRepertoireV78', 'batterCourseProfileV79'];
 const bounds: Partial<Record<typeof scalarKeys[number], readonly [number, number]>> = {
   batLengthM: [.2, 3], batMassKg: [.1, 5], swingRate: [.3, 3], timingStdSeconds: [0, .08], aimStdMeters: [0, .35],
   chaseMarginMeters: [0, .6], releaseSpeedMps: [15, 85], maximumPitchSpeedMps: [15, 85], commandStdMeters: [0, .6],
@@ -102,6 +105,7 @@ function validatePhysical(raw: unknown): asserts raw is LiveRosterPhysicalV1 {
   }
   if (Object.hasOwn(raw, 'clipId')) assert(validText(raw.clipId), 'invalid measured clip identity');
   if (Object.hasOwn(raw, 'impactTrajectory')) validateImpactTrajectorySettingsV1(raw.impactTrajectory);
+  if (Object.hasOwn(raw, 'batterCourseProfileV79')) validateBatterCourseProfileV79(raw.batterCourseProfileV79);
   if (Object.hasOwn(raw, 'pitchRepertoire')) validatePitchRepertoireV77(raw.pitchRepertoire, raw.maximumPitchSpeedMps as number | undefined);
   assert(!(Object.hasOwn(raw, 'pitchRepertoire') && Object.hasOwn(raw, 'pitchRepertoireV78')), 'ambiguous V77 and V78 pitch ownership');
   if (Object.hasOwn(raw, 'pitchRepertoireV78')) validatePitchRepertoireV78(raw.pitchRepertoireV78, raw.maximumPitchSpeedMps as number | undefined);

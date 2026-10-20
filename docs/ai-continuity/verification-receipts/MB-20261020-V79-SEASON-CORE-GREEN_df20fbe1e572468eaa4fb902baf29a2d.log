@@ -1,0 +1,34 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LiveSeasonV79.test.ts (7 tests) 439ms
+   ✓ roundtrips and aggregates a 162-game season beyond a global inert clone budget 392ms
+ ❯ src/integration/browser/LiveCourseScoringV79.test.ts (8 tests | 1 failed) 93783ms
+   × summarizes a complete physical game and preserves confirmed and pending coverage through JSON 93736ms
+     → live course scoring v79: invalid match count
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LiveCourseScoringV79.test.ts > summarizes a complete physical game and preserves confirmed and pending coverage through JSON
+Error: live course scoring v79: invalid match count
+ ❯ fail src/integration/browser/LiveCourseScoringV79.ts:8:37
+      6| import type { LiveIssuedPitchV1,LivePlayerV1 } from './LiveBaseballMat…
+      7| 
+      8| const fail=(s:string):never=>{throw new Error('live course scoring v79…
+       |                                     ^
+      9| const assert=(v:unknown,s:string):void=>{if(!v)fail(s);};
+     10| const id=(s:unknown):s is string=>typeof s==='string'&&s.length>0&&s.l…
+ ❯ assert src/integration/browser/LiveCourseScoringV79.ts:9:48
+ ❯ checkState src/integration/browser/LiveCourseScoringV79.ts:111:3
+ ❯ checkRecord src/integration/browser/LiveCourseScoringV79.ts:119:24
+ ❯ src/integration/browser/LiveCourseScoringV79.ts:152:82
+ ❯ Module.createLiveGameStatisticsV79 src/integration/browser/LiveCourseScoringV79.ts:152:75
+ ❯ src/integration/browser/LiveCourseScoringV79.test.ts:69:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 14 passed (15)
+   Start at  09:14:12
+   Duration  94.91s (transform 477ms, setup 0ms, collect 1.29s, tests 94.22s, environment 0ms, prepare 257ms)
+

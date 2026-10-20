@@ -248,3 +248,25 @@ it('projects experimental bat bounds and rejects invalid equipment atomically', 
     }
   }
 });
+
+
+it('preserves explicit V79 course data through roster/Host JSON and rejects invalid profiles atomically', () => {
+  const profile = { version: 'batter_course_profile_v79', referenceAverages: Array(63).fill(.33), effectScale: 1,
+    directionWeights: [.1, .2, .4, .2, .1] }, raw = packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', batterCourseProfileV79: profile } }),
+    before = JSON.stringify(raw), projected = applyLivePhysicalRosterV1(JSON.parse(before));
+  expect(projected.players[0].physical.batterCourseProfileV79).toEqual(profile);
+  expect(Object.isFrozen(projected.players[0].physical.batterCourseProfileV79!.referenceAverages)).toBe(true);
+  expect(projected.audit.players[0].projected).toContainEqual(expect.objectContaining({ targetPath: 'batterCourseProfileV79', value: profile }));
+  expect(JSON.stringify(raw)).toBe(before);
+  const fixture = liveMatchFixture(2468), batterId = fixture.teams[0].battingOrder[0],
+    hostPlayers = fixture.players.map(p => p.playerId !== batterId ? p : { ...p,
+      physical: { ...LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1, batterCourseProfileV79: { ...profile, version: 'batter_course_profile_v79' as const } } });
+  expect(() => createLiveBaseballMatchV1({ ...fixture, players: hostPlayers })).not.toThrow();
+  for (const effectScale of [-1, 3.001, NaN]) {
+    expect(() => applyLivePhysicalRosterV1(packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1',
+      batterCourseProfileV79: { ...profile, effectScale } } }))).toThrow();
+    expect(() => createLiveBaseballMatchV1({ ...fixture, players: hostPlayers.map(p => p.playerId !== batterId ? p : { ...p,
+      physical: { ...p.physical!, batterCourseProfileV79: { ...p.physical!.batterCourseProfileV79!, effectScale } } }) })).toThrow();
+  }
+  expect(applyLivePhysicalRosterV1(packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1' } })).players[0].physical).not.toHaveProperty('batterCourseProfileV79');
+});

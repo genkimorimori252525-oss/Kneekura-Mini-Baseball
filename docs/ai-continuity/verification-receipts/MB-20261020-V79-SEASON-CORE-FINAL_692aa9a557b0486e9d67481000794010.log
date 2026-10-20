@@ -1,0 +1,16 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LiveSeasonV79.test.ts (9 tests) 670ms
+   ✓ roundtrips and aggregates a 162-game season beyond a global inert clone budget 500ms
+stdout | src/integration/browser/LiveCourseScoringV79.test.ts > summarizes a complete physical game and preserves confirmed and pending coverage through JSON
+v79 local scoring coverage {"pitches":133,"plateAppearances":80,"confirmed":74,"pending":6,"hits":29,"gameBytes":208290}
+
+ ✓ src/integration/browser/LiveCourseScoringV79.test.ts (8 tests) 91534ms
+   ✓ summarizes a complete physical game and preserves confirmed and pending coverage through JSON 91488ms
+
+ Test Files  2 passed (2)
+      Tests  17 passed (17)
+   Start at  09:16:08
+   Duration  92.66s (transform 506ms, setup 0ms, collect 1.35s, tests 92.20s, environment 0ms, prepare 263ms)
+

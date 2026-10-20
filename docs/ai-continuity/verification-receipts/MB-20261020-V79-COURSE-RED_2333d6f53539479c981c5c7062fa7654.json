@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V79-COURSE-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/BatterCourseProfileV79.test.ts",
+    "src/integration/browser/LivePitchCourseV79.test.ts",
+    "src/integration/browser/LivePhysicalRosterV1.test.ts"
+  ],
+  "observed_at": "2026-10-20T00:09:29.192+00:00",
+  "elapsed_ms": 2218,
+  "git_head": "98819b9ab5c8e4bdd7ddfc7d644d484df08ab55d",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V79-COURSE-RED_2333d6f53539479c981c5c7062fa7654.log",
+  "output_sha256": "78811cdda6b69098fb7efd49d5bf1c8ccec2bb52d440968d844637bd5a9f2e30",
+  "receipt_id": "MB-20261020-V79-COURSE-RED_2333d6f53539479c981c5c7062fa7654"
+}
