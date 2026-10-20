@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V58-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v58-pitcher-view.mjs",
+    "../../outputs/ばせぼーるlv58_TBD_vs_LAD_投手追尾待機短縮版.html",
+    "../../outputs/カメラワーク調整室_v58.html",
+    "../../outputs/verification-v58-pitcher"
+  ],
+  "observed_at": "2026-10-18T18:22:29.798+00:00",
+  "elapsed_ms": 12593,
+  "git_head": "b8f2911a5c48622986d527eead1e0d6879099801",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V58-BROWSER_680c8bedfed443d68bd7e98b42f5346f.log",
+  "output_sha256": "4f0316c6554ab0a449ae935a067057f5550a00272e45ad1619a735b882f70927",
+  "receipt_id": "MB-20261019-V58-BROWSER_680c8bedfed443d68bd7e98b42f5346f"
+}

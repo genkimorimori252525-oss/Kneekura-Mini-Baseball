@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-AUTHORED-PIPELINE-PHYSICAL-NATIVE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-authored-initial-cut-v2/readback.mjs",
+    "../../outputs/verification-authored-initial-pitch-physical-v2",
+    "../../outputs/verification-authored-initial-pipeline-physical-v2"
+  ],
+  "observed_at": "2026-10-16T00:20:03.331+00:00",
+  "elapsed_ms": 80405,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-AUTHORED-PIPELINE-PHYSICAL-NATIVE_5b9ad3117dab4e0cb10675ccee316ca5.log",
+  "output_sha256": "fdf311e1b5dd0587f260f1f2e1ad06701321b5864bad7b19a204d253d8f8798f",
+  "receipt_id": "MB-20261016-AUTHORED-PIPELINE-PHYSICAL-NATIVE_5b9ad3117dab4e0cb10675ccee316ca5"
+}

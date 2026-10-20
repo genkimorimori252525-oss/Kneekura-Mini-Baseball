@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V61-CORE-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePublicAbilitiesV1.test.ts",
+    "src/integration/browser/LivePhysicalRosterV1.test.ts",
+    "src/integration/browser/LiveHiddenAiControlsV1.test.ts",
+    "src/integration/browser/LiveBaseballMatchV1.test.ts",
+    "src/integration/browser/LivePitchAbilitiesV1.test.ts",
+    "src/integration/browser/LiveTraitHostV53.test.ts"
+  ],
+  "observed_at": "2026-10-18T19:15:39.865+00:00",
+  "elapsed_ms": 58063,
+  "git_head": "a384dfdfac341d3180abc7f750c9825bf137289e",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V61-CORE-REGRESSION_fdbfad857b2c4f738a39f10c01f5e566.log",
+  "output_sha256": "21797cecfdff857ca19109ce2fcf84cafd9b4f7425c4284413b45f487ab9ce78",
+  "receipt_id": "MB-20261019-V61-CORE-REGRESSION_fdbfad857b2c4f738a39f10c01f5e566"
+}

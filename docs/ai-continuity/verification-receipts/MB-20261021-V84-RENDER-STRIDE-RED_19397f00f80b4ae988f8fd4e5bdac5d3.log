@@ -1,0 +1,42 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ tools/browser-bridge/live-actor-stride-v84.test.mjs (3 tests | 3 failed) 7ms
+   × existing two poses follow actual movement distance and reverse seeks deterministically 5ms
+     → ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\live-actor-stride-v84.js'
+   × slow movement changes the pose more slowly and stationary actors do not accumulate distance 1ms
+     → ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\live-actor-stride-v84.js'
+   × never reads future actor payloads and can disable the wrapper for exact legacy comparison 0ms
+     → ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\live-actor-stride-v84.js'
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tools/browser-bridge/live-actor-stride-v84.test.mjs > existing two poses follow actual movement distance and reverse seeks deterministically
+Error: ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\live-actor-stride-v84.js'
+ ❯ helper tools/browser-bridge/live-actor-stride-v84.test.mjs:4:273
+
+ ❯ tools/browser-bridge/live-actor-stride-v84.test.mjs:6:111
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tools/browser-bridge/live-actor-stride-v84.test.mjs > slow movement changes the pose more slowly and stationary actors do not accumulate distance
+Error: ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\live-actor-stride-v84.js'
+ ❯ helper tools/browser-bridge/live-actor-stride-v84.test.mjs:4:273
+
+ ❯ tools/browser-bridge/live-actor-stride-v84.test.mjs:7:116
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tools/browser-bridge/live-actor-stride-v84.test.mjs > never reads future actor payloads and can disable the wrapper for exact legacy comparison
+Error: ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\live-actor-stride-v84.js'
+ ❯ helper tools/browser-bridge/live-actor-stride-v84.test.mjs:4:273
+
+ ❯ tools/browser-bridge/live-actor-stride-v84.test.mjs:8:114
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  00:20:00
+   Duration  733ms (transform 33ms, setup 0ms, collect 26ms, tests 7ms, environment 0ms, prepare 211ms)
+

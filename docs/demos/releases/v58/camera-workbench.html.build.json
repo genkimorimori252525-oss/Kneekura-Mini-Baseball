@@ -1,0 +1,47 @@
+{
+  "presentationVersion": 58,
+  "sourceGamePath": "docs/demos/releases/v54/game.html",
+  "sourceGameSha256": "80c68e3ddb5c961ab6f18b325c6f267f883cd02d27381dfa10a9334bf8afae9f",
+  "basePresentationPath": "docs/demos/releases/v57/game.html",
+  "basePresentationSha256": "238fce33e1e7087ecc5b08f1a8a1487c1f65d92e6a6dbd718dbf8ddb6d068d0f",
+  "sourceCoreSha256": "4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279",
+  "sourceInputCount": 113,
+  "helpers": {
+    "live-ball-display-controls-v56.js": "e5cf59b078c9959bbe76969e8296eeab8cd65c6a7a224475b06c86496a483996",
+    "live-pitch-ball-cadence-v56.js": "bf72b94742b7de19abd863edd610fea493d648ba43b5823c906222e02aac4536",
+    "live-camera-tuning-batter-view-v57.js": "80bda3e659b6e0d38a820c04b92e2531012d41e038e7ad1324cad787b7064d3f",
+    "live-pitcher-reaction-view-v58.js": "5916750a6000356c5c86e947458bb5abdfb01083d45e209d849ed50f5a4497af"
+  },
+  "workbenchDriverSha256": "52c416a1c70a6535bda7bb79044f596a8fd027651bca0510f634194a32f6bb78",
+  "workbenchTemplateSha256": "e4c91ef0d3fc5e808b4029e72681bce3799c0b95ce593df7478b0f736637de37",
+  "builderSha256": "c21b2e1af239e0d1466abe6a56a1120ea47fb42bf1b925a975319aea1c1c698b",
+  "worldAuthority": "UNCHANGED_V54_OFFLINE_HOST_SHARED_CORE",
+  "displayGridPixels": 4,
+  "ordinaryCadenceMs": 55,
+  "pitchBallCadenceMs": 22,
+  "ballDisplayDefaults": {
+    "perspective": 1,
+    "overhead": 1
+  },
+  "readOnlyCamera": true,
+  "headHold": "REGISTERED_MEASURED_BAT_ONSET_TO_THROUGH_WITH_OBSERVED_HIT_WAIT",
+  "preset": {
+    "enabled": true,
+    "aimLiftMeters": 0.3,
+    "swingMaxDownRadians": 0.2,
+    "hitFollowDelayMs": 300,
+    "aimReleaseMs": 70,
+    "pitchTrackingGain": 0.26,
+    "pitchTrackingDeadbandRadians": 0.02
+  },
+  "baseWorkbenchPath": "docs/demos/releases/v57/camera-workbench.html",
+  "baseWorkbenchSha256": "82532cb37e4420785913686633d0d5e37e8ea4d80a0119566f99066dc222fd90",
+  "pitcherReaction": {
+    "minimumDelaySeconds": 0.1,
+    "maximumDelaySeconds": 0.25,
+    "speedScaleMeters": 7,
+    "blendMs": 180
+  },
+  "kind": "CAMERA_WORKBENCH",
+  "sha256": "92274c68020b260d4333405bfd46d6c4dc1bfac5f829ad9189a136ea9c76f6bf"
+}

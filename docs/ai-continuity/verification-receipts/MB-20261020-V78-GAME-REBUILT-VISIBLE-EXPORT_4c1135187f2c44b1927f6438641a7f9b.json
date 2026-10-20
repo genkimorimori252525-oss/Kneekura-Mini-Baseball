@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-GAME-REBUILT-VISIBLE-EXPORT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v78-game.mjs"
+  ],
+  "observed_at": "2026-10-19T20:06:20.568+00:00",
+  "elapsed_ms": 258359,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-GAME-REBUILT-VISIBLE-EXPORT_4c1135187f2c44b1927f6438641a7f9b.log",
+  "output_sha256": "30141df8e46b6d2755d124fc597474beb5624a5889be53b5b6a55a3105cae32b",
+  "receipt_id": "MB-20261020-V78-GAME-REBUILT-VISIBLE-EXPORT_4c1135187f2c44b1927f6438641a7f9b"
+}

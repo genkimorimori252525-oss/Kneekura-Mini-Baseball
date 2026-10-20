@@ -1,0 +1,23 @@
+{
+  "phase": "FINAL",
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/WorkbenchPlayer.test.ts",
+    "src/integration/browser/LivePhysicalRosterV1.test.ts",
+    "src/integration/browser/LivePitchV1.test.ts",
+    "src/core/sim/contact/ReferenceBatKinematicsV1.test.ts",
+    "src/core/sim/contact/InitialHeldBatV1.test.ts",
+    "--reporter=default",
+    "--reporter=json",
+    "--outputFile.json=outputs\\maker-equipment-extended-range\\vitest-results.json"
+  ],
+  "cwd": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball",
+  "startedAtUtc": "2026-10-19T15:01:34.023545+00:00",
+  "endedAtUtc": "2026-10-19T15:01:36.727054+00:00",
+  "exitCode": 0,
+  "report": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\outputs\\maker-equipment-extended-range\\vitest-results.json",
+  "rawOutput": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\outputs\\maker-equipment-extended-range\\final-vitest-output.txt",
+  "redEvidence": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\outputs\\maker-equipment-extended-range\\original-red-observation.json"
+}

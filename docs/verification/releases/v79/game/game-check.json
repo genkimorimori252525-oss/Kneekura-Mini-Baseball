@@ -1,0 +1,291 @@
+{
+  "pass": true,
+  "startedAt": "2026-10-20T00:25:51.188Z",
+  "checks": [
+    {
+      "width": 1200,
+      "labReplayExact": true,
+      "seasonRecordingDisabled": true,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "labReplayExact": true,
+      "seasonRecordingDisabled": true,
+      "overflow": false
+    }
+  ],
+  "faults": [
+    {
+      "errors": [],
+      "external": []
+    },
+    {
+      "errors": [],
+      "external": []
+    },
+    {
+      "errors": [],
+      "external": []
+    },
+    {
+      "errors": [],
+      "external": []
+    }
+  ],
+  "scope": "Actual normal HTML nine innings and season commit, old six-pitch complete history exactness, 1200/390 lab same-roster replay. Local scoring policy, no Native admission claim.",
+  "hashesAtStart": {
+    "normal": "caa0dfe2b1dca980706d64a3020685e4cd62d4a1762ec58faf0c73bf8655386e",
+    "lab": "d9d670cf14d0efd0c6c5edabf862a19e9967c19b4b3d5872dcacfff20e952c67",
+    "normalMetadata": "b2d37f9919babe216d7d4d04de385f489c1448893a3454a0a339c6c7c3862ee4",
+    "labMetadata": "2778bf1ec752ce2b5a4c8bf20160ea1a2467c2cad21e32dd72d869332475c76b",
+    "pins": "4afe4d7f26ace8b25296399a63777cc8987facc4f4ec0e035aaa589af7df2c3d"
+  },
+  "coreSha256": "9325bef8449048034847b912d3a9c83ab171dcfdf8b3a22daf68c4963fb8a7a5",
+  "baseline": {
+    "pitches": 6,
+    "exact": true,
+    "historySha256": "db7103e17aedbd95de83236d610a410f91fce638b3e4817a59edda2e3021010d"
+  },
+  "phase": "complete",
+  "emptyGameProtected": true,
+  "progress": {
+    "pitches": 320,
+    "finished": true,
+    "elapsedMs": 150549
+  },
+  "game": {
+    "finished": true,
+    "match": {
+      "ruleProfileId": "npb-2026",
+      "inning": 9,
+      "half": "top",
+      "outs": 3,
+      "balls": 0,
+      "strikes": 0,
+      "bases": {
+        "first": null,
+        "second": null,
+        "third": null
+      },
+      "score": {
+        "away": 18,
+        "home": 34
+      },
+      "playId": 128
+    },
+    "pitches": 320,
+    "contacts": 127,
+    "fields": 127,
+    "allFieldComplete": true,
+    "fallback": false,
+    "error": null,
+    "elapsedMs": 151201,
+    "onceOnly": true,
+    "records": 320
+  },
+  "scoring": {
+    "confirmed": 111,
+    "pending": 17,
+    "hits": 53
+  },
+  "roundTrip": {
+    "restored": true,
+    "duplicateError": "live season v79: finished unique game required",
+    "duplicateAtomic": true,
+    "closed": "closed",
+    "report": {
+      "seasonId": "qa-season",
+      "playerId": "0-b0",
+      "status": "open",
+      "inside": [
+        {
+          "ab": 0,
+          "h": 0,
+          "hr": 0,
+          "pending": 0,
+          "plateAppearances": 0,
+          "average": null,
+          "knownAverage": null,
+          "color": "gray",
+          "complete": true,
+          "publicZoneId": 1
+        },
+        {
+          "ab": 0,
+          "h": 0,
+          "hr": 0,
+          "pending": 0,
+          "plateAppearances": 0,
+          "average": null,
+          "knownAverage": null,
+          "color": "gray",
+          "complete": true,
+          "publicZoneId": 2
+        },
+        {
+          "ab": 1,
+          "h": 0,
+          "hr": 0,
+          "pending": 0,
+          "plateAppearances": 1,
+          "average": 0,
+          "knownAverage": 0,
+          "color": "blue",
+          "complete": true,
+          "publicZoneId": 3
+        },
+        {
+          "ab": 1,
+          "h": 0,
+          "hr": 0,
+          "pending": 0,
+          "plateAppearances": 1,
+          "average": 0,
+          "knownAverage": 0,
+          "color": "blue",
+          "complete": true,
+          "publicZoneId": 4
+        },
+        {
+          "ab": 2,
+          "h": 1,
+          "hr": 1,
+          "pending": 0,
+          "plateAppearances": 2,
+          "average": 0.5,
+          "knownAverage": 0.5,
+          "color": "red",
+          "complete": true,
+          "publicZoneId": 5
+        },
+        {
+          "ab": 0,
+          "h": 0,
+          "hr": 0,
+          "pending": 0,
+          "plateAppearances": 0,
+          "average": null,
+          "knownAverage": null,
+          "color": "gray",
+          "complete": true,
+          "publicZoneId": 6
+        },
+        {
+          "ab": 1,
+          "h": 1,
+          "hr": 0,
+          "pending": 0,
+          "plateAppearances": 1,
+          "average": 1,
+          "knownAverage": 1,
+          "color": "red",
+          "complete": true,
+          "publicZoneId": 7
+        },
+        {
+          "ab": 0,
+          "h": 0,
+          "hr": 0,
+          "pending": 0,
+          "plateAppearances": 0,
+          "average": null,
+          "knownAverage": null,
+          "color": "gray",
+          "complete": true,
+          "publicZoneId": 8
+        },
+        {
+          "ab": 0,
+          "h": 0,
+          "hr": 0,
+          "pending": 0,
+          "plateAppearances": 0,
+          "average": null,
+          "knownAverage": null,
+          "color": "gray",
+          "complete": true,
+          "publicZoneId": 9
+        }
+      ],
+      "outside": {
+        "ab": 2,
+        "h": 1,
+        "hr": 0,
+        "pending": 0,
+        "plateAppearances": 2,
+        "average": 0.5,
+        "knownAverage": 0.5,
+        "color": "red",
+        "complete": true
+      },
+      "offGrid": {
+        "ab": 0,
+        "h": 0,
+        "hr": 0,
+        "pending": 0,
+        "plateAppearances": 0,
+        "average": null,
+        "knownAverage": null,
+        "color": "gray",
+        "complete": true
+      },
+      "missing": {
+        "ab": 0,
+        "h": 0,
+        "hr": 0,
+        "pending": 0,
+        "plateAppearances": 0,
+        "average": null,
+        "knownAverage": null,
+        "color": "gray",
+        "complete": true
+      },
+      "totals": {
+        "ab": 7,
+        "h": 3,
+        "hr": 1,
+        "pending": 0,
+        "plateAppearances": 7,
+        "average": 0.42857142857142855,
+        "knownAverage": 0.42857142857142855,
+        "color": "red",
+        "complete": true
+      },
+      "spray": {
+        "counts": [
+          0,
+          2,
+          2,
+          3,
+          0
+        ],
+        "ratios": [
+          0,
+          0.2857142857142857,
+          0.2857142857142857,
+          0.42857142857142855,
+          0
+        ],
+        "homeRuns": [
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        "total": 7,
+        "fouls": 2
+      },
+      "policyVersion": "local_course_learning_v79_1",
+      "nativeAdmission": false
+    }
+  },
+  "hashesAtEnd": {
+    "normal": "caa0dfe2b1dca980706d64a3020685e4cd62d4a1762ec58faf0c73bf8655386e",
+    "lab": "d9d670cf14d0efd0c6c5edabf862a19e9967c19b4b3d5872dcacfff20e952c67",
+    "normalMetadata": "b2d37f9919babe216d7d4d04de385f489c1448893a3454a0a339c6c7c3862ee4",
+    "labMetadata": "2778bf1ec752ce2b5a4c8bf20160ea1a2467c2cad21e32dd72d869332475c76b",
+    "pins": "4afe4d7f26ace8b25296399a63777cc8987facc4f4ec0e035aaa589af7df2c3d"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-FIELD-RETRACK-PRIORITY-RETRACT",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T00:48:45.377+00:00",
+  "elapsed_ms": 3875,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-FIELD-RETRACK-PRIORITY-RETRACT_8185c97ea601421686a918fd776557e1.log",
+  "output_sha256": "93628acb8394b008f5828facb3547e6c79e9e2a47892ed86e51fddf5753c3e42",
+  "receipt_id": "MB-20261017-FIELD-RETRACK-PRIORITY-RETRACT_8185c97ea601421686a918fd776557e1"
+}

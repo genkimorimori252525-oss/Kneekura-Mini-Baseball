@@ -1,0 +1,61 @@
+{
+  "pass": true,
+  "sourceCommit": "969e3d51076a7b141d4ea0c2e7c73db61cf9b43d",
+  "verifiedRemoteHead": "969e3d51076a7b141d4ea0c2e7c73db61cf9b43d",
+  "branch": "jolly/tbd-lad-native-browser-core-2026-10-14",
+  "pullRequest": {
+    "headRefOid": "969e3d51076a7b141d4ea0c2e7c73db61cf9b43d",
+    "isDraft": true,
+    "state": "OPEN",
+    "title": "fix: restore v49 batter view and soften camera pursuit (v52)",
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380"
+  },
+  "rawFiles": {
+    "docs/history/INCIDENTS.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/969e3d51076a7b141d4ea0c2e7c73db61cf9b43d/docs/history/INCIDENTS.md",
+      "bytes": 29208,
+      "sha256": "bf170ae4d5e777177adf98574c7eacc0c5fff60396d9563e3456987b72dc9f3f"
+    },
+    "docs/handoffs/LATEST.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/969e3d51076a7b141d4ea0c2e7c73db61cf9b43d/docs/handoffs/LATEST.md",
+      "bytes": 6292,
+      "sha256": "43823e6ff83ba8a34a50d70e617fc1aee16d2a4080cefc9e08adcfcb1b784c55"
+    },
+    "tools/browser-bridge/live-soft-pitch-batter-view.js": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/969e3d51076a7b141d4ea0c2e7c73db61cf9b43d/tools/browser-bridge/live-soft-pitch-batter-view.js",
+      "bytes": 15784,
+      "sha256": "0027d0afc49e7350257cb8c9695fbbbd36709ae1cddd34f29a5c24a9e4df8559"
+    },
+    "tools/browser-bridge/live-pitcher-reaction-view.js": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/969e3d51076a7b141d4ea0c2e7c73db61cf9b43d/tools/browser-bridge/live-pitcher-reaction-view.js",
+      "bytes": 4976,
+      "sha256": "f8610ca6d3d553b8070708d00d3e6a1b98c195b66e93487f6ac88460f1b876d2"
+    },
+    "tools/browser-bridge/v52-live-presentation.mjs": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/969e3d51076a7b141d4ea0c2e7c73db61cf9b43d/tools/browser-bridge/v52-live-presentation.mjs",
+      "bytes": 1928,
+      "sha256": "3a2bac36350b8454baec1b62a1520f46a1b4284bdc560a2710af6e1f61f06849"
+    },
+    "tools/browser-bridge/build-v52.mjs": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/969e3d51076a7b141d4ea0c2e7c73db61cf9b43d/tools/browser-bridge/build-v52.mjs",
+      "bytes": 7215,
+      "sha256": "9d943db62d548c567e4e9ed37bf4d32bb52d3ca03881f66256bf764459524557"
+    },
+    "docs/reports/2026-10-18-v52-camera-pursuit.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/969e3d51076a7b141d4ea0c2e7c73db61cf9b43d/docs/reports/2026-10-18-v52-camera-pursuit.md",
+      "bytes": 7491,
+      "sha256": "d95ebcbb3fbc1df3ef4099160362fb24cfd7dc902bbf5450e0bc127296211269"
+    },
+    "docs/demos/releases/v52/game.html": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/969e3d51076a7b141d4ea0c2e7c73db61cf9b43d/docs/demos/releases/v52/game.html",
+      "bytes": 3504429,
+      "sha256": "aff78f191ba6f24958403dc51c503e73393b57d495335bc58d32dc2646f9b85b"
+    },
+    "docs/demos/releases/v52/SHA256.json": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/969e3d51076a7b141d4ea0c2e7c73db61cf9b43d/docs/demos/releases/v52/SHA256.json",
+      "bytes": 545,
+      "sha256": "fe72ab3e288e17bb541f689b5fac189d4cca5ce5ea0958b0a467e4912fd876f2"
+    }
+  },
+  "scope": "actual current raw bytes and remote branch/Draft PR; no main merge"
+}

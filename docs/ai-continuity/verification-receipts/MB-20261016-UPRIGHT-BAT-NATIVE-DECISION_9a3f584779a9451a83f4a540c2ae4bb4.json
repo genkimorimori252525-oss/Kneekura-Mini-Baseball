@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-UPRIGHT-BAT-NATIVE-DECISION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-with-bat-upright-decision-v1/readback.mjs",
+    "../../outputs/verification-authored-with-bat-upright-motor-v2",
+    "../../outputs/verification-authored-with-bat-upright-decision-v1"
+  ],
+  "observed_at": "2026-10-16T12:48:57.786+00:00",
+  "elapsed_ms": 62625,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-UPRIGHT-BAT-NATIVE-DECISION_9a3f584779a9451a83f4a540c2ae4bb4.log",
+  "output_sha256": "79c7577a749ac0e34dfd769fe63b6cf7a5c0566cd75f4e650e667706a5701b4e",
+  "receipt_id": "MB-20261016-UPRIGHT-BAT-NATIVE-DECISION_9a3f584779a9451a83f4a540c2ae4bb4"
+}

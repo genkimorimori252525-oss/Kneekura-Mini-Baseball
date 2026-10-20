@@ -1,0 +1,17 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/ball/SourceBattedFieldMotionV3.test.ts (3 tests) 215ms
+ ✓ src/host/world/SamePlateAppearanceDefensiveCandidateSourceV1.test.ts (3 tests) 5ms
+ ✓ src/host/world/SamePlateAppearanceBallPhysics.test.ts (4 tests) 14ms
+ ✓ src/host/world/SamePlateAppearanceSourceFieldV3.test.ts (6 tests) 830ms
+   ✓ inserts all five metadata kinds at the exact post-impulse cut without adding a physical horizon 336ms
+ ✓ src/host/world/SamePlateAppearancePhysicalFieldActions.test.ts (14 tests) 3892ms
+   ✓ FS02 all nine original defenders execute including cover after a genuinely moved and locally perceived handler 666ms
+   ✓ FT01 team actor selections drive nine real motor calculations using the team choice, preserving the original body curves 2440ms
+
+ Test Files  5 passed (5)
+      Tests  30 passed (30)
+   Start at  02:00:57
+   Duration  10.75s (transform 6.85s, setup 0ms, collect 25.70s, tests 4.96s, environment 1ms, prepare 1.12s)
+

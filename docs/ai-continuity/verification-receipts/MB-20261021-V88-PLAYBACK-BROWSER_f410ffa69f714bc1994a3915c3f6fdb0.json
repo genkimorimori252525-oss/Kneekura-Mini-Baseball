@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V88-PLAYBACK-BROWSER",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-playback-v88.mjs",
+    "../../outputs/ばせぼーるlv88_TBD_vs_LAD_空振りとHR見送り版.html",
+    "docs/verification/releases/v88/playback"
+  ],
+  "observed_at": "2026-10-20T17:46:19.331+00:00",
+  "elapsed_ms": 45608,
+  "git_head": "6a7b3500d315de70a46f70d697aa032b18b37cb1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V88-PLAYBACK-BROWSER_f410ffa69f714bc1994a3915c3f6fdb0.log",
+  "output_sha256": "354eb4b13951f3947bf29f1cb300436258fa6566188f4c7466681c1f89eecab2",
+  "receipt_id": "MB-20261021-V88-PLAYBACK-BROWSER_f410ffa69f714bc1994a3915c3f6fdb0"
+}

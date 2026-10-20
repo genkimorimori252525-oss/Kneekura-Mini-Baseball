@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-ACTUAL-RAF-CADENCE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-live-cadence-performance-v81.mjs",
+    "docs/demos/releases/v79/game.html",
+    "../../outputs/ばせぼーるlv81_TBD_vs_LAD_無劣化性能改善版.html",
+    "docs/verification/releases/v81/raf-cadence"
+  ],
+  "observed_at": "2026-10-20T13:02:45.719+00:00",
+  "elapsed_ms": 7187,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-ACTUAL-RAF-CADENCE_5605209ab27c42518b0003ca209f4a06.log",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "receipt_id": "MB-20261020-V81-ACTUAL-RAF-CADENCE_5605209ab27c42518b0003ca209f4a06"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V82-MAKER-RECOVERY-UI-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-internal-recovery-v82.mjs",
+    "docs/demos/releases/v81/maker.html",
+    "docs/verification/releases/v82/maker-recovery-red"
+  ],
+  "observed_at": "2026-10-20T13:36:29.955+00:00",
+  "elapsed_ms": 6000,
+  "git_head": "2b3a8aafd04f0d49edc5c9f12637babc620901f6",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V82-MAKER-RECOVERY-UI-RED_1e894114073046d39da369608e5fee7f.log",
+  "output_sha256": "22fe8ea2f772981266c708d4ede7d5514d899cbf9729a2172733ff1c5fd5fb85",
+  "receipt_id": "MB-20261020-V82-MAKER-RECOVERY-UI-RED_1e894114073046d39da369608e5fee7f"
+}

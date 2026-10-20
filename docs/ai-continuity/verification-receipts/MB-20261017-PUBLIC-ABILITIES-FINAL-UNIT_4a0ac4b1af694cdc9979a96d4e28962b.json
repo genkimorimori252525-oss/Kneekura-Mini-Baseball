@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-PUBLIC-ABILITIES-FINAL-UNIT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePublicAbilitiesV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T03:52:02.379+00:00",
+  "elapsed_ms": 2375,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-PUBLIC-ABILITIES-FINAL-UNIT_4a0ac4b1af694cdc9979a96d4e28962b.log",
+  "output_sha256": "f97c01d8ce89daf335b40245938b6200eaf74210859d3c8427263a0c42f1d78b",
+  "receipt_id": "MB-20261017-PUBLIC-ABILITIES-FINAL-UNIT_4a0ac4b1af694cdc9979a96d4e28962b"
+}

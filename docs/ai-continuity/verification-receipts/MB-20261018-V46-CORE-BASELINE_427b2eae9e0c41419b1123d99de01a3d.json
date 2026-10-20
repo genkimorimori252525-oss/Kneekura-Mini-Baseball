@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V46-CORE-BASELINE",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts",
+    "src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts",
+    "src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts",
+    "src/core/sim/fielding/LiveFieldRoleMotionV1.test.ts",
+    "src/core/rules/PlayableMatchRulesV1.test.ts",
+    "src/integration/browser/LiveBaseballMatchV1.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T05:18:29.731+00:00",
+  "elapsed_ms": 45797,
+  "git_head": "6a8caf40153d76daba6a5acca34f5db12ca7f615",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V46-CORE-BASELINE_427b2eae9e0c41419b1123d99de01a3d.log",
+  "output_sha256": "e8df3a374a094e6dc1b1ab404a9bb851d2b166e146817705ced3d285ebb1d3ed",
+  "receipt_id": "MB-20261018-V46-CORE-BASELINE_427b2eae9e0c41419b1123d99de01a3d"
+}

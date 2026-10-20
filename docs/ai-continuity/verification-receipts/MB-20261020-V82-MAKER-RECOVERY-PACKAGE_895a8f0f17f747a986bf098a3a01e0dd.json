@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V82-MAKER-RECOVERY-PACKAGE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "tools/browser-bridge/package-maker-v82.py"
+  ],
+  "observed_at": "2026-10-20T13:56:17.303+00:00",
+  "elapsed_ms": 1061,
+  "git_head": "2b3a8aafd04f0d49edc5c9f12637babc620901f6",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V82-MAKER-RECOVERY-PACKAGE_895a8f0f17f747a986bf098a3a01e0dd.log",
+  "output_sha256": "bbb4e89a27982b8131b02fea90a07ddf96c21f1a7763218af529a7e823176e71",
+  "receipt_id": "MB-20261020-V82-MAKER-RECOVERY-PACKAGE_895a8f0f17f747a986bf098a3a01e0dd"
+}

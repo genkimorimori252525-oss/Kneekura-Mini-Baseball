@@ -1,0 +1,52 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
++ [Object: null prototype] {
+- {
+    career_id: 'career-a',
+    enrollment_source_id: 'native-enrollment',
+    game_id: 'game-1',
+    last_owner: 'pa_physical_v1_field_steps',
+    last_snapshot_hash: '58ed4f9cb894ac45190bece898ff94200eaf65edad8e3315cce6885dc7a59da4',
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/verification/aero-ground-samepa/verify-integer-closed.mjs:38:16
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:636:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: [Object: null prototype] {
+    proof_rowid: 1,
+    enrollment_source_id: 'native-enrollment',
+    career_id: 'career-a',
+    game_id: 'game-1',
+    play_id: 7,
+    pitch_ordinal: 3,
+    launch_source_id: 'aero-native:pitch3:launch',
+    operation_ordinal: 8,
+    last_owner: 'pa_physical_v1_field_steps',
+    last_source_id: 'source-integer-native-v1:checkpoint:0',
+    last_snapshot_hash: '58ed4f9cb894ac45190bece898ff94200eaf65edad8e3315cce6885dc7a59da4'
+  },
+  expected: {
+    proof_rowid: 1,
+    enrollment_source_id: 'native-enrollment',
+    career_id: 'career-a',
+    game_id: 'game-1',
+    play_id: 7,
+    pitch_ordinal: 3,
+    launch_source_id: 'aero-native:pitch3:launch',
+    operation_ordinal: 8,
+    last_owner: 'pa_physical_v1_field_steps',
+    last_source_id: 'source-integer-native-v1:checkpoint:0',
+    last_snapshot_hash: '58ed4f9cb894ac45190bece898ff94200eaf65edad8e3315cce6885dc7a59da4'
+  },
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

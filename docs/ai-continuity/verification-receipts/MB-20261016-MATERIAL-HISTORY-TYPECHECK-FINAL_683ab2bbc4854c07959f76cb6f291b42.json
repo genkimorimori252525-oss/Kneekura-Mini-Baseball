@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-MATERIAL-HISTORY-TYPECHECK-FINAL",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "npx.cmd",
+    "tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-15T16:04:44.377+00:00",
+  "elapsed_ms": 33844,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-MATERIAL-HISTORY-TYPECHECK-FINAL_683ab2bbc4854c07959f76cb6f291b42.log",
+  "output_sha256": "d6ca9d450a31ba1fc8b667c1b9d0b76f016fc5a3e136193733308a25466541c9",
+  "receipt_id": "MB-20261016-MATERIAL-HISTORY-TYPECHECK-FINAL_683ab2bbc4854c07959f76cb6f291b42"
+}

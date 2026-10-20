@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V53-MAKER-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-maker.mjs",
+    "../../outputs/にーくら野球メーカー_得能編集版.html",
+    "--traits"
+  ],
+  "observed_at": "2026-10-18T10:21:49.011+00:00",
+  "elapsed_ms": 219,
+  "git_head": "ea9ca61b0971da3cc3b3ce1cfb344d4496e2ecc9",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V53-MAKER-BUILD_1a08302efd994f36aba12a18e26e0243.log",
+  "output_sha256": "e952d7e96e1df8641c9bed28783eaaff1adc5dbddf70f0057bc047c82acea46d",
+  "receipt_id": "MB-20261018-V53-MAKER-BUILD_1a08302efd994f36aba12a18e26e0243"
+}

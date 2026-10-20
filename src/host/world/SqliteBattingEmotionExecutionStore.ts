@@ -1,3 +1,5 @@
+import { deriveInitialBattingEmotionExecutionFromSqlite } from './InitialBattingEmotionExecutionFromSqlite';
+import { assertCurrentObservedInitialPitchOperationFromSqlite } from './SqliteObservedInitialPitchStore';
 import { assertInFlightBattingWriteCurrentFromSqlite } from './InFlightBattingLifecycleFenceFromSqlite';
 import { readCurrentSamePaLifecycleViewFromSqlite, readHistoricalSamePaLifecycleViewFromSqlite, readSamePaLifecycleRecordFromSqlite } from './SamePlateAppearanceLifecycleFromSqlite';
 import { readCurrentSamePaInFlightCutFromSqlite, readHistoricalSamePaInFlightCutFromSqlite } from './SamePlateAppearancePhysicalEpisodeFromSqlite';
@@ -84,8 +86,27 @@ const assembly = (db: DatabaseSync) => {
   if (!(db instanceof Native)) return fail('requires a Native connection');
   if (!db.isTransaction || db.prepare('PRAGMA query_only').get()!.query_only !== 1) return fail('requires a private read-only proof');
   const active = new Set<string>(), cache = new Map<string, DurableBattingEmotionExecution>();
+  const assertCurrentHead = (value: DurableBattingEmotionExecution, previous: DurableBattingEmotionExecution | null) => {
+    {
+      const currentHead = head(db, scope(value));
+      if (previous) { assertHead(db, previous); if (currentHead?.last_source_id !== previous.source.sourceId || currentHead.state_hash !== hash(value.acceptance.proposal.request.beforeEmotion)) return fail('stale emotion head'); }
+      else if (currentHead !== null || storage(db) && scopeRows(db, scope(value)).length) return fail('emotion genesis cannot restart existing history');
+      if (storage(db)) {
+        const aliases = db.prepare(`SELECT source_id FROM main.${table} WHERE execution_id=? OR (career_id=? AND game_id=? AND player_id=? AND emotion_revision=?)`)
+          .all(value.source.executionId, ...scope(value), value.acceptance.afterEmotionRevision);
+        if (aliases.some(r => r.source_id !== value.source.sourceId)) return fail('execution meaning belongs to another Source');
+      }
+    }
+  };
   const derive = (source: AcceptedBattingEmotionExecution, current: boolean): DurableBattingEmotionExecution | Pending => {
     assertBattingAssessmentOwnership(db, table, source);
+    if(source.capability==='owned_initial_batting_emotion_execution_v1'){
+      const previous=source.previousExecutionReference===null?null:read(source.previousExecutionReference.sourceId);
+      const value=deriveInitialBattingEmotionExecutionFromSqlite(db,source,current,previous);
+      if(value.kind==='pending')return value;
+      if(current)assertCurrentHead(value,previous);
+      return value;
+    }
     const inFlight = source.capability === 'owned_in_flight_batting_emotion_execution_v1';
     const b = inFlight ? (current ? readCurrentSamePaLifecycleViewFromSqlite : readHistoricalSamePaLifecycleViewFromSqlite)(db, source.viewReference)
       : (current ? readCurrentSamePaContinuationViewFromSqlite : readHistoricalSamePaContinuationViewFromSqlite)(db, source.viewReference);
@@ -127,16 +148,7 @@ const assembly = (db: DatabaseSync) => {
     const beforeEmotion = previous?.acceptance.proposal.appraisal.state ?? genesis.state;
     const value = deriveBattingEmotionExecution(source, { actor: b.actor, lineage: b.view.lineage, worldBefore, beforeEmotion, observation, delivery,
       time: { tick: evaluationTick, sequence }, physicalPitchReference: { ...physicalPitchReference, owner: physicalPitchReference.owner } });
-    if (current) {
-      const currentHead = head(db, scope(value));
-      if (previous) { assertHead(db, previous); if (currentHead?.last_source_id !== previous.source.sourceId || currentHead.state_hash !== hash(beforeEmotion)) return fail('stale emotion head'); }
-      else if (currentHead !== null || storage(db) && scopeRows(db, scope(value)).length) return fail('emotion genesis cannot restart existing history');
-      if (storage(db)) {
-        const aliases = db.prepare(`SELECT source_id FROM main.${table} WHERE execution_id=? OR (career_id=? AND game_id=? AND player_id=? AND emotion_revision=?)`)
-          .all(source.executionId, ...scope(value), value.acceptance.afterEmotionRevision);
-        if (aliases.some(r => r.source_id !== source.sourceId)) return fail('execution meaning belongs to another Source');
-      }
-    }
+    if(current)assertCurrentHead(value,previous);
     return value;
   };
   const read = (id: string): DurableBattingEmotionExecution | null => {
@@ -184,8 +196,10 @@ export const openSqliteBattingEmotionExecutionStore = (path: string, authority?:
     accept(id: string): DurableBattingEmotionExecution | Pending {
       if (!samePaText(id)) return fail('invalid Source identity');
       let fresh = false;
-      const fence = (value: DurableBattingEmotionExecution) => { if (!fresh || value.source.capability !== 'owned_in_flight_batting_emotion_execution_v1') return;
-        assertInFlightBattingWriteCurrentFromSqlite(db, value.source.viewReference, reference(table, value));
+      const fence = (value: DurableBattingEmotionExecution) => { if (!fresh) return;
+        if(value.source.capability==='owned_initial_batting_emotion_execution_v1')assertCurrentObservedInitialPitchOperationFromSqlite(db,value.source.physicalOperationReference);
+        else if(value.source.capability !== 'owned_in_flight_batting_emotion_execution_v1')return;
+        if(value.source.capability==='owned_in_flight_batting_emotion_execution_v1')assertInFlightBattingWriteCurrentFromSqlite(db, value.source.viewReference, reference(table, value));
         const world = readEmotionWorldRevisionFromSqlite(db, value.lineage.careerId);
         if (!world || world.head.worldRevision !== value.acceptance.afterWorldRevision) return fail('in-flight appraisal World head changed');
         same(world.head.control, value.worldBefore.head.control);

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-NATIVE-RESERVATION-INDEPENDENT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-reservation-readback-v1/readback.mjs",
+    "../../outputs/verification-authored-native-reservation-v1/reservation.sqlite",
+    "../../outputs/verification-authored-native-reservation-v1/expected.json",
+    "../../outputs/verification-authored-native-reservation-v1/independent-readback-report.json"
+  ],
+  "observed_at": "2026-10-15T22:16:49.110+00:00",
+  "elapsed_ms": 250,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-NATIVE-RESERVATION-INDEPENDENT_92a8ab36f81f47f28ab9b80461abd2f7.log",
+  "output_sha256": "270b5ef801e31d1317b303de3476fd9772935f30a6db876c8248e4a5469b47f6",
+  "receipt_id": "MB-20261016-NATIVE-RESERVATION-INDEPENDENT_92a8ab36f81f47f28ab9b80461abd2f7"
+}

@@ -1,0 +1,2 @@
+src/integration/browser/LiveBaseballMatchV1.ts(102,64): error TS6133: 'i' is declared but its value is never read.
+src/integration/browser/LivePitchV1.ts(146,28): error TS2540: Cannot assign to 'translation' because it is a read-only property.

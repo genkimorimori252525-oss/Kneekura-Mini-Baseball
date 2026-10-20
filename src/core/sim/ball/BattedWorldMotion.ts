@@ -4,7 +4,7 @@ import type { Vec3 } from '../../model/geometry';
 import type { DefenderPhysicalPrimitiveRole } from '../fielding/DefenderPhysicalPrimitive';
 import { deriveAcceleratedBallWorldMotion, deriveBallWorldContinuation, type AcceleratedBallWorldMotion,
   type BallWorldContinuation, type BallWorldMotionActor } from './BallWorldContinuation';
-import type { BattedBallContactResponseInput } from './BattedBallContactResponse';
+import type { BattedBallContactResponseInput, BallWorldResponseInput } from './BattedBallContactResponse';
 import { respondToBattedWorldBoundary, type BattedWorldBallCursor, type BattedWorldContinuationStepResponse } from './BattedWorldContinuation';
 
 export type BattedWorldPrimitiveMotionCommand = Readonly<{ playerId: string; role: DefenderPhysicalPrimitiveRole; acceleration: Vec3 }>;
@@ -12,6 +12,7 @@ export type BattedWorldMotionInput = Readonly<{
   response: BattedBallContactResponseInput; cursor: BattedWorldBallCursor; actors: readonly BallWorldMotionActor[];
   carrierPlayerId: string | null; availableAtTick: number; throughTick: number; commands: readonly BattedWorldPrimitiveMotionCommand[];
 }>;
+export type BallWorldMotionActorInput = Omit<BattedWorldMotionInput, 'response'> & Readonly<{ response: BallWorldResponseInput }>;
 type CarriedResponse = Readonly<{ kind: 'carried'; cursor: BattedWorldBallCursor }>
   | Readonly<{ kind: 'unresolved'; reason: 'carried_contact'; cursor: null }>
   | Readonly<{ kind: 'capture_pending' | 'capture_interrupted'; cursor: null }>;
@@ -26,7 +27,7 @@ const key = (playerId: string, role: string) => JSON.stringify([playerId, role])
 const freeze = <T>(value: T): T => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
 
 /** Shared actor basis for accepted future motion, including a transfer that must stop before its release. */
-const prepareMotion = (raw: BattedWorldMotionInput, exactCoverage = false, availableAtElapsedSeconds?: number) => {
+const prepareMotion = (raw: BallWorldMotionActorInput, exactCoverage = false, availableAtElapsedSeconds?: number) => {
   const input = cloneInert(raw), moment = input?.cursor?.moment, p = input?.response?.world?.parameters;
   if (availableAtElapsedSeconds !== undefined && (!exactCoverage || !moment || !p || !Number.isFinite(availableAtElapsedSeconds)
     || availableAtElapsedSeconds < 0 || quantizeEventTick(moment.originTick,availableAtElapsedSeconds,p.ticksPerSecond) !== input.availableAtTick))
@@ -61,7 +62,7 @@ const prepareMotion = (raw: BattedWorldMotionInput, exactCoverage = false, avail
   return { input, actors };
 };
 /** Exact-time preparation used only by the additive versioned checkpoint contract. */
-export const deriveBattedWorldMotionActorsAtExactCoverage = (raw: BattedWorldMotionInput, availableAtElapsedSeconds?: number): readonly BallWorldMotionActor[] => freeze(prepareMotion(raw, true, availableAtElapsedSeconds).actors);
+export const deriveBattedWorldMotionActorsAtExactCoverage = (raw: BallWorldMotionActorInput, availableAtElapsedSeconds?: number): readonly BallWorldMotionActor[] => freeze(prepareMotion(raw, true, availableAtElapsedSeconds).actors);
 export const deriveBattedWorldMotionActors = (raw: BattedWorldMotionInput): readonly BallWorldMotionActor[] => freeze(prepareMotion(raw).actors);
 
 /** Starts accepted future motion at the true preceding state. A caller result or old trajectory never selects a new start. */

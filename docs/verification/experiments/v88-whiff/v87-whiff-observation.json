@@ -1,0 +1,786 @@
+{
+  "url": "file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/docs/demos/releases/v87/game.html",
+  "debuggerBreakpointLine": 18242,
+  "base": {
+    "version": 87,
+    "authority": "OFFLINE_HOST_SHARED_CORE",
+    "nativeAdmission": false,
+    "pitchNumber": 34,
+    "pitchIndex": 33,
+    "batterId": "1-b3",
+    "command": {
+      "batting": "auto",
+      "pitchType": "auto",
+      "location": "auto",
+      "managedTeam": 1,
+      "baserunning": "balanced"
+    },
+    "firstTick": 151481801,
+    "lastFrameTick": 152034830,
+    "officialTick": 152034830,
+    "secureTick": 152034830,
+    "throughTick": 152057366.6964166,
+    "contactReferenceTick": 152009518.04436228,
+    "preparationMs": 1540,
+    "durationMs": 3688.029,
+    "frameCount": 53,
+    "beforeMatch": {
+      "ruleProfileId": "npb-2026",
+      "inning": 1,
+      "half": "bottom",
+      "outs": 1,
+      "balls": 1,
+      "strikes": 0,
+      "bases": {
+        "first": "1-b2",
+        "second": null,
+        "third": "1-b1"
+      },
+      "score": {
+        "away": 4,
+        "home": 0
+      },
+      "playId": 13
+    },
+    "afterMatch": {
+      "ruleProfileId": "npb-2026",
+      "inning": 1,
+      "half": "bottom",
+      "outs": 1,
+      "balls": 1,
+      "strikes": 1,
+      "bases": {
+        "first": "1-b2",
+        "second": null,
+        "third": "1-b1"
+      },
+      "score": {
+        "away": 4,
+        "home": 0
+      },
+      "playId": 13
+    },
+    "playRules": {
+      "kind": "applied",
+      "match": {
+        "ruleProfileId": "npb-2026",
+        "inning": 1,
+        "half": "bottom",
+        "outs": 1,
+        "balls": 1,
+        "strikes": 1,
+        "bases": {
+          "first": "1-b2",
+          "second": null,
+          "third": "1-b1"
+        },
+        "score": {
+          "away": 4,
+          "home": 0
+        },
+        "playId": 13
+      },
+      "batterAdvanced": false,
+      "halfChanged": false,
+      "gameOver": false,
+      "winner": null,
+      "scoredRunnerIds": [],
+      "suppressedRunnerIds": [],
+      "outcomes": [],
+      "endedAtTick": 152034830,
+      "classification": "count"
+    },
+    "selectedSourceFirstTick": 897200,
+    "selectedSourceLastTick": 1236100,
+    "recordFrozen": true,
+    "samplerOnRecord": "undefined"
+  },
+  "motorObservations": [
+    {
+      "originTick": 151481801,
+      "seed": 1231468053,
+      "call": "swinging_strike",
+      "endedAtTick": 152034830,
+      "referenceStartTick": 151848936,
+      "referenceContactTick": 152009518.04436228,
+      "referenceThroughTick": 152057366.6964166,
+      "measuredClipId": "obp-123_6",
+      "playbackRate": 1.6259601192457673,
+      "samples": [
+        {
+          "tick": 152034830,
+          "pose": {
+            "grip": {
+              "x": -0.8672499111393726,
+              "y": 0.9630495674201118,
+              "z": -0.13795800684748363
+            },
+            "tip": {
+              "x": -0.36951374301911116,
+              "y": 1.1543250087604984,
+              "z": 0.5367807666678668
+            },
+            "radiusProfile": {
+              "knots": [
+                {
+                  "t": 0,
+                  "radiusM": 0.019
+                },
+                {
+                  "t": 0.06,
+                  "radiusM": 0.014
+                },
+                {
+                  "t": 0.42,
+                  "radiusM": 0.014
+                },
+                {
+                  "t": 0.7,
+                  "radiusM": 0.03
+                },
+                {
+                  "t": 0.94,
+                  "radiusM": 0.033
+                },
+                {
+                  "t": 1,
+                  "radiusM": 0.031
+                }
+              ]
+            }
+          }
+        },
+        {
+          "tick": 152046098.3482083,
+          "pose": {
+            "grip": {
+              "x": -0.8992548485359129,
+              "y": 0.9303178614109353,
+              "z": -0.18993869708686476
+            },
+            "tip": {
+              "x": -0.6558231184441795,
+              "y": 1.2910334916359376,
+              "z": 0.5518329840225752
+            },
+            "radiusProfile": {
+              "knots": [
+                {
+                  "t": 0,
+                  "radiusM": 0.019
+                },
+                {
+                  "t": 0.06,
+                  "radiusM": 0.014
+                },
+                {
+                  "t": 0.42,
+                  "radiusM": 0.014
+                },
+                {
+                  "t": 0.7,
+                  "radiusM": 0.03
+                },
+                {
+                  "t": 0.94,
+                  "radiusM": 0.033
+                },
+                {
+                  "t": 1,
+                  "radiusM": 0.031
+                }
+              ]
+            }
+          }
+        },
+        {
+          "tick": 152057366.6964166,
+          "pose": {
+            "grip": {
+              "x": -0.9091159093786321,
+              "y": 0.9131632298427713,
+              "z": -0.23580742699887977
+            },
+            "tip": {
+              "x": -0.9597554554437059,
+              "y": 1.3783916821506486,
+              "z": 0.48571743295920966
+            },
+            "radiusProfile": {
+              "knots": [
+                {
+                  "t": 0,
+                  "radiusM": 0.019
+                },
+                {
+                  "t": 0.06,
+                  "radiusM": 0.014
+                },
+                {
+                  "t": 0.42,
+                  "radiusM": 0.014
+                },
+                {
+                  "t": 0.7,
+                  "radiusM": 0.03
+                },
+                {
+                  "t": 0.94,
+                  "radiusM": 0.033
+                },
+                {
+                  "t": 1,
+                  "radiusM": 0.031
+                }
+              ]
+            }
+          }
+        },
+        {
+          "tick": 152057367.6964166,
+          "pose": null
+        }
+      ]
+    }
+  ],
+  "presentationSamples": [
+    {
+      "sceneMs": 2093.029,
+      "stage": "result",
+      "currentTick": 152034830,
+      "frameIndex": 52,
+      "bat": {
+        "grip": {
+          "x": -0.8672499111393726,
+          "y": 0.9630495674201118,
+          "z": -0.13795800684748363
+        },
+        "tip": {
+          "x": -0.36951374301911116,
+          "y": 1.1543250087604984,
+          "z": 0.5367807666678668
+        },
+        "radiusProfile": {
+          "knots": [
+            {
+              "t": 0,
+              "radiusM": 0.019
+            },
+            {
+              "t": 0.06,
+              "radiusM": 0.014
+            },
+            {
+              "t": 0.42,
+              "radiusM": 0.014
+            },
+            {
+              "t": 0.7,
+              "radiusM": 0.03
+            },
+            {
+              "t": 0.94,
+              "radiusM": 0.033
+            },
+            {
+              "t": 1,
+              "radiusM": 0.031
+            }
+          ]
+        }
+      },
+      "bodyFrame": 2,
+      "bodyReason": {
+        "action": "bat",
+        "frame": 2,
+        "reason": "MEASURED_REFERENCE_IMPACT_BODY_POSE"
+      },
+      "swingTiming": {
+        "referenceStartTick": 151848936,
+        "referenceContactTick": 152009518.04436228,
+        "referenceThroughTick": 152057366.6964166,
+        "actualContactTick": null,
+        "actualContactObserved": false,
+        "measuredClipId": "obp-123_6",
+        "bodyPhaseConvention": "FIVE_TO_THREE_PRECONTACT_SPLIT; 55MS_IMPACT_POSE; 22_LEGACY_TICKS_FOLLOW_HOLD",
+        "nativeBodyMotion": false
+      },
+      "renderedKeys": [
+        "camera",
+        "cameraEye",
+        "cameraProjection",
+        "zonePlaneZ",
+        "custody",
+        "fieldObserver",
+        "cameraYaw",
+        "cameraPitch",
+        "gridAligned",
+        "fieldGeometry",
+        "fieldMarkCells",
+        "actors",
+        "actorCells",
+        "nearRunnerHiddenActors",
+        "batScreen",
+        "batterRig",
+        "batVisible",
+        "physicalBatVisible",
+        "batDisplayMode",
+        "ballDotDisplay",
+        "ballCells",
+        "zoneCorners",
+        "blockedZoneCells",
+        "historyMarks",
+        "ballSurface"
+      ]
+    },
+    {
+      "sceneMs": 2104.297348208308,
+      "stage": "result",
+      "currentTick": 152034830,
+      "frameIndex": 52,
+      "bat": {
+        "grip": {
+          "x": -0.8672499111393726,
+          "y": 0.9630495674201118,
+          "z": -0.13795800684748363
+        },
+        "tip": {
+          "x": -0.36951374301911116,
+          "y": 1.1543250087604984,
+          "z": 0.5367807666678668
+        },
+        "radiusProfile": {
+          "knots": [
+            {
+              "t": 0,
+              "radiusM": 0.019
+            },
+            {
+              "t": 0.06,
+              "radiusM": 0.014
+            },
+            {
+              "t": 0.42,
+              "radiusM": 0.014
+            },
+            {
+              "t": 0.7,
+              "radiusM": 0.03
+            },
+            {
+              "t": 0.94,
+              "radiusM": 0.033
+            },
+            {
+              "t": 1,
+              "radiusM": 0.031
+            }
+          ]
+        }
+      },
+      "bodyFrame": 2,
+      "bodyReason": {
+        "action": "bat",
+        "frame": 2,
+        "reason": "MEASURED_REFERENCE_IMPACT_BODY_POSE"
+      },
+      "swingTiming": {
+        "referenceStartTick": 151848936,
+        "referenceContactTick": 152009518.04436228,
+        "referenceThroughTick": 152057366.6964166,
+        "actualContactTick": null,
+        "actualContactObserved": false,
+        "measuredClipId": "obp-123_6",
+        "bodyPhaseConvention": "FIVE_TO_THREE_PRECONTACT_SPLIT; 55MS_IMPACT_POSE; 22_LEGACY_TICKS_FOLLOW_HOLD",
+        "nativeBodyMotion": false
+      },
+      "renderedKeys": [
+        "camera",
+        "cameraEye",
+        "cameraProjection",
+        "zonePlaneZ",
+        "custody",
+        "fieldObserver",
+        "cameraYaw",
+        "cameraPitch",
+        "gridAligned",
+        "fieldGeometry",
+        "fieldMarkCells",
+        "actors",
+        "actorCells",
+        "nearRunnerHiddenActors",
+        "batScreen",
+        "batterRig",
+        "batVisible",
+        "physicalBatVisible",
+        "batDisplayMode",
+        "ballDotDisplay",
+        "ballCells",
+        "zoneCorners",
+        "blockedZoneCells",
+        "historyMarks",
+        "ballSurface"
+      ]
+    },
+    {
+      "sceneMs": 2115.5656964165864,
+      "stage": "result",
+      "currentTick": 152034830,
+      "frameIndex": 52,
+      "bat": {
+        "grip": {
+          "x": -0.8672499111393726,
+          "y": 0.9630495674201118,
+          "z": -0.13795800684748363
+        },
+        "tip": {
+          "x": -0.36951374301911116,
+          "y": 1.1543250087604984,
+          "z": 0.5367807666678668
+        },
+        "radiusProfile": {
+          "knots": [
+            {
+              "t": 0,
+              "radiusM": 0.019
+            },
+            {
+              "t": 0.06,
+              "radiusM": 0.014
+            },
+            {
+              "t": 0.42,
+              "radiusM": 0.014
+            },
+            {
+              "t": 0.7,
+              "radiusM": 0.03
+            },
+            {
+              "t": 0.94,
+              "radiusM": 0.033
+            },
+            {
+              "t": 1,
+              "radiusM": 0.031
+            }
+          ]
+        }
+      },
+      "bodyFrame": 2,
+      "bodyReason": {
+        "action": "bat",
+        "frame": 2,
+        "reason": "MEASURED_REFERENCE_IMPACT_BODY_POSE"
+      },
+      "swingTiming": {
+        "referenceStartTick": 151848936,
+        "referenceContactTick": 152009518.04436228,
+        "referenceThroughTick": 152057366.6964166,
+        "actualContactTick": null,
+        "actualContactObserved": false,
+        "measuredClipId": "obp-123_6",
+        "bodyPhaseConvention": "FIVE_TO_THREE_PRECONTACT_SPLIT; 55MS_IMPACT_POSE; 22_LEGACY_TICKS_FOLLOW_HOLD",
+        "nativeBodyMotion": false
+      },
+      "renderedKeys": [
+        "camera",
+        "cameraEye",
+        "cameraProjection",
+        "zonePlaneZ",
+        "custody",
+        "fieldObserver",
+        "cameraYaw",
+        "cameraPitch",
+        "gridAligned",
+        "fieldGeometry",
+        "fieldMarkCells",
+        "actors",
+        "actorCells",
+        "nearRunnerHiddenActors",
+        "batScreen",
+        "batterRig",
+        "batVisible",
+        "physicalBatVisible",
+        "batDisplayMode",
+        "ballDotDisplay",
+        "ballCells",
+        "zoneCorners",
+        "blockedZoneCells",
+        "historyMarks",
+        "ballSurface"
+      ]
+    },
+    {
+      "sceneMs": 2215.5656964165864,
+      "stage": "result",
+      "currentTick": 152034830,
+      "frameIndex": 52,
+      "bat": {
+        "grip": {
+          "x": -0.8672499111393726,
+          "y": 0.9630495674201118,
+          "z": -0.13795800684748363
+        },
+        "tip": {
+          "x": -0.36951374301911116,
+          "y": 1.1543250087604984,
+          "z": 0.5367807666678668
+        },
+        "radiusProfile": {
+          "knots": [
+            {
+              "t": 0,
+              "radiusM": 0.019
+            },
+            {
+              "t": 0.06,
+              "radiusM": 0.014
+            },
+            {
+              "t": 0.42,
+              "radiusM": 0.014
+            },
+            {
+              "t": 0.7,
+              "radiusM": 0.03
+            },
+            {
+              "t": 0.94,
+              "radiusM": 0.033
+            },
+            {
+              "t": 1,
+              "radiusM": 0.031
+            }
+          ]
+        }
+      },
+      "bodyFrame": 3,
+      "bodyReason": {
+        "action": "bat",
+        "frame": 3,
+        "reason": "MEASURED_REFERENCE_FOLLOW_THROUGH"
+      },
+      "swingTiming": {
+        "referenceStartTick": 151848936,
+        "referenceContactTick": 152009518.04436228,
+        "referenceThroughTick": 152057366.6964166,
+        "actualContactTick": null,
+        "actualContactObserved": false,
+        "measuredClipId": "obp-123_6",
+        "bodyPhaseConvention": "FIVE_TO_THREE_PRECONTACT_SPLIT; 55MS_IMPACT_POSE; 22_LEGACY_TICKS_FOLLOW_HOLD",
+        "nativeBodyMotion": false
+      },
+      "renderedKeys": [
+        "camera",
+        "cameraEye",
+        "cameraProjection",
+        "zonePlaneZ",
+        "custody",
+        "fieldObserver",
+        "cameraYaw",
+        "cameraPitch",
+        "gridAligned",
+        "fieldGeometry",
+        "fieldMarkCells",
+        "actors",
+        "actorCells",
+        "nearRunnerHiddenActors",
+        "batScreen",
+        "batterRig",
+        "batVisible",
+        "physicalBatVisible",
+        "batDisplayMode",
+        "ballDotDisplay",
+        "ballCells",
+        "zoneCorners",
+        "blockedZoneCells",
+        "historyMarks",
+        "ballSurface"
+      ]
+    },
+    {
+      "sceneMs": 2815.5656964165864,
+      "stage": "result",
+      "currentTick": 152034830,
+      "frameIndex": 52,
+      "bat": {
+        "grip": {
+          "x": -0.8672499111393726,
+          "y": 0.9630495674201118,
+          "z": -0.13795800684748363
+        },
+        "tip": {
+          "x": -0.36951374301911116,
+          "y": 1.1543250087604984,
+          "z": 0.5367807666678668
+        },
+        "radiusProfile": {
+          "knots": [
+            {
+              "t": 0,
+              "radiusM": 0.019
+            },
+            {
+              "t": 0.06,
+              "radiusM": 0.014
+            },
+            {
+              "t": 0.42,
+              "radiusM": 0.014
+            },
+            {
+              "t": 0.7,
+              "radiusM": 0.03
+            },
+            {
+              "t": 0.94,
+              "radiusM": 0.033
+            },
+            {
+              "t": 1,
+              "radiusM": 0.031
+            }
+          ]
+        }
+      },
+      "bodyFrame": 3,
+      "bodyReason": {
+        "action": "bat",
+        "frame": 3,
+        "reason": "MEASURED_REFERENCE_FOLLOW_THROUGH"
+      },
+      "swingTiming": {
+        "referenceStartTick": 151848936,
+        "referenceContactTick": 152009518.04436228,
+        "referenceThroughTick": 152057366.6964166,
+        "actualContactTick": null,
+        "actualContactObserved": false,
+        "measuredClipId": "obp-123_6",
+        "bodyPhaseConvention": "FIVE_TO_THREE_PRECONTACT_SPLIT; 55MS_IMPACT_POSE; 22_LEGACY_TICKS_FOLLOW_HOLD",
+        "nativeBodyMotion": false
+      },
+      "renderedKeys": [
+        "camera",
+        "cameraEye",
+        "cameraProjection",
+        "zonePlaneZ",
+        "custody",
+        "fieldObserver",
+        "cameraYaw",
+        "cameraPitch",
+        "gridAligned",
+        "fieldGeometry",
+        "fieldMarkCells",
+        "actors",
+        "actorCells",
+        "nearRunnerHiddenActors",
+        "batScreen",
+        "batterRig",
+        "batVisible",
+        "physicalBatVisible",
+        "batDisplayMode",
+        "ballDotDisplay",
+        "ballCells",
+        "zoneCorners",
+        "blockedZoneCells",
+        "historyMarks",
+        "ballSurface"
+      ]
+    },
+    {
+      "sceneMs": 3688.029,
+      "stage": "result",
+      "currentTick": 152034830,
+      "frameIndex": 52,
+      "bat": {
+        "grip": {
+          "x": -0.8672499111393726,
+          "y": 0.9630495674201118,
+          "z": -0.13795800684748363
+        },
+        "tip": {
+          "x": -0.36951374301911116,
+          "y": 1.1543250087604984,
+          "z": 0.5367807666678668
+        },
+        "radiusProfile": {
+          "knots": [
+            {
+              "t": 0,
+              "radiusM": 0.019
+            },
+            {
+              "t": 0.06,
+              "radiusM": 0.014
+            },
+            {
+              "t": 0.42,
+              "radiusM": 0.014
+            },
+            {
+              "t": 0.7,
+              "radiusM": 0.03
+            },
+            {
+              "t": 0.94,
+              "radiusM": 0.033
+            },
+            {
+              "t": 1,
+              "radiusM": 0.031
+            }
+          ]
+        }
+      },
+      "bodyFrame": 0,
+      "bodyReason": {
+        "action": "bat",
+        "frame": 0,
+        "reason": "FOLLOW_BODY_HOLD_COMPLETED"
+      },
+      "swingTiming": {
+        "referenceStartTick": 151848936,
+        "referenceContactTick": 152009518.04436228,
+        "referenceThroughTick": 152057366.6964166,
+        "actualContactTick": null,
+        "actualContactObserved": false,
+        "measuredClipId": "obp-123_6",
+        "bodyPhaseConvention": "FIVE_TO_THREE_PRECONTACT_SPLIT; 55MS_IMPACT_POSE; 22_LEGACY_TICKS_FOLLOW_HOLD",
+        "nativeBodyMotion": false
+      },
+      "renderedKeys": [
+        "camera",
+        "cameraEye",
+        "cameraProjection",
+        "zonePlaneZ",
+        "custody",
+        "fieldObserver",
+        "cameraYaw",
+        "cameraPitch",
+        "gridAligned",
+        "fieldGeometry",
+        "fieldMarkCells",
+        "actors",
+        "actorCells",
+        "nearRunnerHiddenActors",
+        "batScreen",
+        "batterRig",
+        "batVisible",
+        "physicalBatVisible",
+        "batDisplayMode",
+        "ballDotDisplay",
+        "ballCells",
+        "zoneCorners",
+        "blockedZoneCells",
+        "historyMarks",
+        "ballSurface"
+      ]
+    }
+  ],
+  "following": {
+    "firstTick": 154034830,
+    "pitchNumber": 35
+  }
+}

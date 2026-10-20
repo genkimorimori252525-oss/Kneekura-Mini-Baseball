@@ -1,0 +1,40 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ tools/browser-bridge/home-run-watch-v88.test.mjs (5 tests | 2 failed) 16ms
+   × samples a stable per-play duration across the inclusive 1500..2000ms range 9ms
+     → expected 1 to be greater than 40
+   × decisive home runs keep the actual mound observer through the same watch window 2ms
+     → expected null not to be null
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tools/browser-bridge/home-run-watch-v88.test.mjs > samples a stable per-play duration across the inclusive 1500..2000ms range
+AssertionError: expected 1 to be greater than 40
+ ❯ tools/browser-bridge/home-run-watch-v88.test.mjs:14:107
+     12| test('samples a stable per-play duration across the inclusive 1500..20…
+     13|  const a=api(),samples=Array.from({length:128},(_,i)=>a.create().obser…
+     14|  expect(samples.every(n=>Number.isInteger(n)&&n>=1500&&n<=2000)).toBe(…
+       |                                                                                                           ^
+     15|  const f=fixture(8),w=a.create(),first=plain(w.observe(f));expect(plai…
+     16|  expect(a.create().observe(plain({...f,cameraAt:undefined})??f)).toBeN…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tools/browser-bridge/home-run-watch-v88.test.mjs > decisive home runs keep the actual mound observer through the same watch window
+AssertionError: expected null not to be null
+ ❯ tools/browser-bridge/home-run-watch-v88.test.mjs:27:16
+     25| test('decisive home runs keep the actual mound observer through the sa…
+     26|  const f={...fixture(),cameraAt:()=>({camera:'mound',observerPlayerId:…
+     27|  expect(v).not.toBeNull();expect(v.camera).toBe('mound');expect(v.obse…
+       |                ^
+     28|  expect(w.observe({...f,sceneMs:v.untilMs-.001}).camera).toBe('mound')…
+     29| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 3 passed (5)
+   Start at  02:38:21
+   Duration  398ms (transform 31ms, setup 0ms, collect 26ms, tests 16ms, environment 0ms, prepare 124ms)
+

@@ -16,7 +16,7 @@ const counted = (db: import('node:sqlite').DatabaseSync) => {
   return { count: (sql: string) => counts.get(sql) ?? 0, close() { db.prepare = prepare; } };
 };
 
-it('reuses exact SQL only, executes every get/all, and binds the current document', () => {
+it('prepares and executes every get/all with the current document', () => {
   const db = new DatabaseSync(':memory:'), observed = counted(db);
   let executions = 0;
   db.function('observed_document', value => { executions++; return value; });
@@ -28,14 +28,14 @@ it('reuses exact SQL only, executes every get/all, and binds the current documen
       expect(all(db, many, 'third').map(row => row.value)).toEqual(['third']);
       expect(all(db, many, 'fourth').map(row => row.value)).toEqual(['fourth']);
     });
-    expect([observed.count(single), observed.count(many), executions]).toEqual([1, 1, 4]);
+    expect([observed.count(single), observed.count(many), executions]).toEqual([2, 2, 4]);
     get(db, single, 'outside'); get(db, single, 'outside again');
     scope(db, () => get(db, single, 'independent'));
-    expect([observed.count(single), executions]).toEqual([4, 7]);
+    expect([observed.count(single), executions]).toEqual([5, 7]);
   } finally { observed.close(); db.close(); }
 });
 
-it('isolates nested scopes and connections then restores the outer scope', () => {
+it('prepares independently in nested scopes and connections', () => {
   const db = new DatabaseSync(':memory:'), peer = new DatabaseSync(':memory:');
   const observed = counted(db), other = counted(peer), sql = 'SELECT ? AS value';
   try {
@@ -45,7 +45,7 @@ it('isolates nested scopes and connections then restores the outer scope', () =>
       expect(get(db, sql, 'outer again')!.value).toBe('outer again');
       get(peer, sql, 'peer'); get(peer, sql, 'peer again');
     });
-    expect([observed.count(sql), other.count(sql)]).toEqual([2, 2]);
+    expect([observed.count(sql), other.count(sql)]).toEqual([3, 2]);
   } finally { observed.close(); other.close(); db.close(); peer.close(); }
 });
 
@@ -66,14 +66,14 @@ it('rebinds ownership identities and reexecutes typed duplicate/escaped claims a
       expect(claims(db, sql, 'second').map(r => r.source_id)).toEqual(['alias', 'second']);
       db.exec("UPDATE metadata SET source_json='[\"first\"]',snapshot_json='null' WHERE source_id='alias'");
       expect(claims(db, sql, 'first').map(r => r.source_id)).toEqual(['first']);
-      expect(observed.count(sql)).toBe(1);
+      expect(observed.count(sql)).toBe(5);
     });
     scope(db, () => expect(claims(db, sql, 'second').map(r => r.source_id)).toEqual(['second']));
-    expect(observed.count(sql)).toBe(2);
+    expect(observed.count(sql)).toBe(6);
   } finally { observed.close(); db.close(); }
 });
 
-it('preserves SQL errors and disposes the scope on exceptional exit', () => {
+it('preserves SQL errors and prepares afresh after exceptional exit', () => {
   const db = new DatabaseSync(':memory:'), observed = counted(db), sql = "SELECT json_extract(?, '$.value') AS value";
   try {
     expect(() => scope(db, () => {
@@ -82,10 +82,10 @@ it('preserves SQL errors and disposes the scope on exceptional exit', () => {
       expect(get(db, sql, '{"value":"after"}')!.value).toBe('after');
       throw new Error('derive aborted');
     })).toThrow('derive aborted');
-    expect(observed.count(sql)).toBe(1);
+    expect(observed.count(sql)).toBe(3);
     expect(get(db, sql, '{"value":"outside"}')!.value).toBe('outside');
     scope(db, () => expect(get(db, sql, '{"value":"new scope"}')!.value).toBe('new scope'));
-    expect(observed.count(sql)).toBe(3);
+    expect(observed.count(sql)).toBe(5);
   } finally { observed.close(); db.close(); }
 });
 
@@ -105,11 +105,11 @@ it('never lends an executing statement to a reentrant metadata read', () => {
       expect(get(db, sql, 'second')!.value).toBe('second:nested');
     });
     expect(executions).toBe(4);
-    expect(observed.count(sql)).toBe(3);
+    expect(observed.count(sql)).toBe(4);
   } finally { observed.close(); db.close(); }
 });
 
-it('rechecks current rows after writes and recompiles the reused statement after schema changes', () => {
+it('rechecks current rows and prepares against the current schema after changes', () => {
   const db = new DatabaseSync(':memory:'), observed = counted(db), sql = 'SELECT value FROM metadata WHERE id=?';
   try {
     db.exec("CREATE TABLE metadata(id TEXT, value TEXT); INSERT INTO metadata VALUES('id','initial')");
@@ -122,7 +122,7 @@ it('rechecks current rows after writes and recompiles the reused statement after
       db.exec("CREATE TABLE metadata(extra INTEGER, id TEXT, value TEXT); INSERT INTO metadata VALUES(1,'id','new schema')");
       expect(get(db, sql, 'id')!.value).toBe('new schema');
     });
-    expect(observed.count(sql)).toBe(1);
+    expect(observed.count(sql)).toBe(4);
   } finally { observed.close(); db.close(); }
 });
 
@@ -142,6 +142,6 @@ it('follows real WAL snapshot visibility across commit without retaining prior r
       db.exec('COMMIT');
       expect(get(db, sql, 'id')!.value).toBe('peer changed');
     });
-    expect(observed.count(sql)).toBe(1);
+    expect(observed.count(sql)).toBe(3);
   } finally { observed.close(); db.close(); peer.close(); rmSync(directory, { recursive: true, force: true }); }
 });

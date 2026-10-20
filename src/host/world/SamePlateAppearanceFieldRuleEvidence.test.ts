@@ -13,6 +13,7 @@ import { samePaExecutionReference as reference } from './SamePlateAppearanceExec
 import { actorHash as hash, actorFreeze as freeze, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import type { SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep, SamePaPhysicalFieldStepSource } from './SamePlateAppearancePhysicalEpisode';
 import { deriveSamePaFieldRuleEvidence } from './SamePlateAppearanceFieldRuleEvidence';
+import { SAME_PA_AERO_GROUND_FIELD_ROOT_SOURCE_VERSION, SAME_PA_AERO_GROUND_ESCAPE_FIELD_ROOT_SOURCE_VERSION } from './SamePlateAppearanceBallPhysics';
 import { deriveSamePaLiveWorkCensus } from './SamePlateAppearanceLiveWorkCensus';
 import { withSamePaLifecycleReadPhase } from './SamePlateAppearanceLifecycleFromSqlite';
 import { readSamePaFieldRuleEvidenceWithInputsFromSqlite as readPair, readSamePaFieldRuleEvidenceFromSqlite as readEvidence } from './SamePlateAppearanceFieldRuleEvidenceFromSqlite';
@@ -50,6 +51,15 @@ const setup = () => {
   };
   return { root, scope, append };
 };
+it('refuses the unconnected versioned Aero/ground rule projection, including a dropped profile or descriptor', () => {
+  const h = setup();
+  for (const root of [{ ...h.root, source: { ...h.root.source, sourceVersion: SAME_PA_AERO_GROUND_FIELD_ROOT_SOURCE_VERSION } },
+    { ...h.root, source: { ...h.root.source, sourceVersion: SAME_PA_AERO_GROUND_ESCAPE_FIELD_ROOT_SOURCE_VERSION } },
+    { ...h.root, source: { ...h.root.source, ballPhysics: {} as never } },
+    { ...h.root, response: { ...h.root.response, world: { ...h.root.response.world, sourceCurve: {} as never } } }]) {
+    expect(() => deriveSamePaFieldRuleEvidence({ ...h.scope, fields: [root] })).toThrow('unsupported same-PA Aero/ground field-rule evidence');
+  }
+});
 it('FR01 reads sole-glove territory while capture and all terminal effects remain pending', () => {
   const h = setup(), result = deriveSamePaFieldRuleEvidence({ ...h.scope, fields: [h.root] });
   expect(result.rule.fieldTerritory).toMatchObject({ kind: 'resolved', territory: 'fair', basis: 'fielder_touch' });

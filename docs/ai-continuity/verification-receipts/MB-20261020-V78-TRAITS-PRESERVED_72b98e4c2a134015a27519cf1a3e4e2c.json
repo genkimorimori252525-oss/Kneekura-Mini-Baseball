@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-TRAITS-PRESERVED",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v77-traits-browser.mjs",
+    "../../outputs/にーくら野球メーカー_v78_球種と縫い目物理版.html",
+    "docs/verification/releases/v78/traits"
+  ],
+  "observed_at": "2026-10-19T20:00:35.196+00:00",
+  "elapsed_ms": 7858,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-TRAITS-PRESERVED_72b98e4c2a134015a27519cf1a3e4e2c.log",
+  "output_sha256": "4a12db420e92c8287582561c900a84a9a82884da41e603c7aa78cdc7b0065001",
+  "receipt_id": "MB-20261020-V78-TRAITS-PRESERVED_72b98e4c2a134015a27519cf1a3e4e2c"
+}

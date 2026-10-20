@@ -1,0 +1,33 @@
+{
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_得能接続版.html",
+  "sha256": "f1443bb1c7699ce88249fd4f6f293ec6cd2fd705767b9e1ff04db24e0c62bbd9",
+  "inputs": [
+    {
+      "path": "docs/demos/live-game-roster-v3.json",
+      "sha256": "3e46fe67e1c94939d1e919cdb2353313ccfbc7680463ca726331afd983c54255"
+    },
+    {
+      "path": "docs/demos/live-game-roster-catalog-v4.json",
+      "sha256": "0bba85275a656789ffc08f97d43aaf58f396a7360274da3aaedc726ba6e0ecb1"
+    },
+    {
+      "path": "docs/demos/live-public-ability-reference-v1.json",
+      "sha256": "b448f82f81620085b1f4923609cec23f69db4c639da76b6b1f877abb22622e4e"
+    },
+    {
+      "path": "docs/demos/live-game-roster-v1.json",
+      "sha256": "998effb128bce728e957c660da1ea4d6cac450a88d8937ef3cb13e530ffcefb3"
+    },
+    {
+      "path": "docs/demos/live-game-roster-v2.json",
+      "sha256": "a2fdb7835bada8dddcd2599e72f0034e540bebb360febb8cd25279f2ba1e6ccd"
+    },
+    {
+      "path": "docs/demos/live-trait-availability-v54.json",
+      "sha256": "2e4841fcac50d573e9d6dbca95d042f49f54bd192950799c36ef162187e0220f"
+    }
+  ],
+  "views": [],
+  "status": "FAIL",
+  "error": "AssertionError [ERR_ASSERTION]: Japanese unsupported reason pitch_pressure\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-maker-traits-v54.mjs:246:69"
+}

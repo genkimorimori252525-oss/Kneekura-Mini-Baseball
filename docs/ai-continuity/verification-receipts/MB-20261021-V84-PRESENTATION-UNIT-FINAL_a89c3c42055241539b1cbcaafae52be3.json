@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-PRESENTATION-UNIT-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/browser-bridge/presentation-controls-v84.test.mjs",
+    "tools/browser-bridge/presentation-quality-v84.test.mjs",
+    "tools/browser-bridge/live-actor-stride-v84.test.mjs",
+    "tools/browser-bridge/whole-scene-adapters-v84.test.mjs",
+    "tools/browser-bridge/maker-presentation-bridge-v84.test.mjs",
+    "tools/browser-bridge/home-run-watch-v83.test.mjs"
+  ],
+  "observed_at": "2026-10-20T15:48:02.869+00:00",
+  "elapsed_ms": 2078,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-PRESENTATION-UNIT-FINAL_a89c3c42055241539b1cbcaafae52be3.log",
+  "output_sha256": "e105fd048d765763a3d9c2799b15a8ece139e33f0a0a86c2bae30d4b2f487257",
+  "receipt_id": "MB-20261021-V84-PRESENTATION-UNIT-FINAL_a89c3c42055241539b1cbcaafae52be3"
+}

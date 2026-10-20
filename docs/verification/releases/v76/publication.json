@@ -1,0 +1,81 @@
+{
+  "pass": true,
+  "sourceCommit": "03c487516550dbb6353dce5f8155f0d94fdbb82a",
+  "remoteHead": "03c487516550dbb6353dce5f8155f0d94fdbb82a",
+  "pullRequest": {
+    "headRefName": "jolly/tbd-lad-native-browser-core-2026-10-14",
+    "headRefOid": "03c487516550dbb6353dce5f8155f0d94fdbb82a",
+    "isDraft": true,
+    "state": "OPEN",
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380"
+  },
+  "publishedHtmlBlobs": [
+    {
+      "path": "docs/demos/releases/v76/game.html",
+      "gitBlobSha1": "11d7367f3323bddafe844d115441fdc3bfe66e07",
+      "sha256": "b21d25b7811fba44f8e5d09cbedb39099cc9454d9ebf0366c0ed9799fb66efcd",
+      "bytes": 32197893
+    },
+    {
+      "path": "docs/demos/releases/v76/camera-workbench.html",
+      "gitBlobSha1": "abdce349e042b9ec57e9038d6d550c517ee14e74",
+      "sha256": "fb6c1ca0647f72c569985691ddfd0938f0e03d5c4413e2153dd19a35077b5588",
+      "bytes": 32417955
+    },
+    {
+      "path": "docs/demos/releases/v76/maker.html",
+      "gitBlobSha1": "687fddc3747eb65ed45cc151f54d4be93a8b3655",
+      "sha256": "f69b481cae348934d44a2ae880499a8e1e0a4e009abeda31e386ffffb2b91dcd",
+      "bytes": 35743543
+    }
+  ],
+  "largeHtmlVerification": "GITHUB_GIT_TREE_BLOB_AND_SIZE_MATCH_LOCAL_BYTES",
+  "rawFiles": [
+    {
+      "path": "docs/demos/releases/v76/SHA256.json",
+      "sha256": "fed7eb1bcf7ffa2c27aaafc68ff19de5081e6dd308a0e6666c0721822ad234fe",
+      "bytes": 874
+    },
+    {
+      "path": "docs/demos/releases/v76/README.md",
+      "sha256": "323a2e4cd21f1c3d444a6ff28be69b2c448530fa84f40879f53879ddb2089219",
+      "bytes": 1157
+    },
+    {
+      "path": "docs/demos/releases/v76/game.html.build.json",
+      "sha256": "c00e40ed0a3a187ffc7f46ccfc870761d93c96f927b3daae00b391c3cd82a220",
+      "bytes": 7039
+    },
+    {
+      "path": "docs/demos/releases/v76/maker.html.build.json",
+      "sha256": "c9c91ba640da1ad249c1251f75f2fe96f69118f6fae5aed2e1ffb5bf22074681",
+      "bytes": 3766
+    },
+    {
+      "path": "docs/reports/2026-10-20-v76-air-ground-display.md",
+      "sha256": "940b8fec79cc9893cce74980854cc1ceffcfa1497aae540fa8d0437a8f3fd075",
+      "bytes": 2534
+    },
+    {
+      "path": "docs/handoffs/LATEST.md",
+      "sha256": "5c1952f1bbb666ab1a41bb2bc4598e4d20c1f19dbe007d7a20ed1b4c46574c3c",
+      "bytes": 1679
+    },
+    {
+      "path": "tools/browser-bridge/live-ball-display-controls-v76.js",
+      "sha256": "b60ff7de4d67ddcb3ac20b98f2b452e14561a86a1aab92488852cf5d25fd3880",
+      "bytes": 4161
+    },
+    {
+      "path": "tools/browser-bridge/build-v76.mjs",
+      "sha256": "9ce0316f22f20b0c2750bbfb73c99fb986239aeb34a74d71e184bdfee9c768f6",
+      "bytes": 4952
+    },
+    {
+      "path": "docs/verification/releases/v76/release-check.json",
+      "sha256": "4fd4656aa84c9f6133c64f9a7d21539b814c10c9e125dccc57e95365cadc6c91",
+      "bytes": 569
+    }
+  ],
+  "mainMerged": false
+}

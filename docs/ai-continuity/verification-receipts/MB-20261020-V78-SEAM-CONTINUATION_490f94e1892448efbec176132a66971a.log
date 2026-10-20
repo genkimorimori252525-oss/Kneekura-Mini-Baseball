@@ -1,0 +1,19 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/ball/BattedWorldContinuation.test.ts (14 tests) 24ms
+ ✓ src/core/sim/ball/SourceBaseImpulseV3.test.ts (2 tests) 63ms
+ ✓ src/core/sim/ball/SourceBallMaterialHistoryV1.test.ts (6 tests) 212ms
+ ✓ src/core/sim/ball/SourceFreeBallWorldQuery.test.ts (11 tests) 192ms
+ ✓ src/core/sim/ball/SourceImpactEscapeV3.test.ts (5 tests) 232ms
+ ✓ src/core/sim/ball/SourceBattedFieldMotionV3.test.ts (3 tests) 247ms
+ ✓ src/core/sim/ball/SourceBallMaterialHistoryFromContinuationV3.test.ts (7 tests) 1452ms
+   ✓ rejects forged history, phases, profiles, clocks, certificates, extra custody fields and absent original Sources 693ms
+ ✓ src/core/sim/ball/SourceBallSeamContinuationV78.test.ts (4 tests) 1631ms
+   ✓ carries seam phase through actual wall/ground response and preserves future observations under extra checkpoints 1384ms
+
+ Test Files  8 passed (8)
+      Tests  52 passed (52)
+   Start at  04:44:57
+   Duration  2.64s (transform 995ms, setup 0ms, collect 3.13s, tests 4.05s, environment 1ms, prepare 1.65s)
+

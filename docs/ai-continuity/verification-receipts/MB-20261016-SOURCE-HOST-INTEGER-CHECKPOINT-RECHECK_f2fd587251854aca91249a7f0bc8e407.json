@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-HOST-INTEGER-CHECKPOINT-RECHECK",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/SamePlateAppearanceSourceIntegerCheckpointV1.test.ts",
+    "src/host/world/SamePlateAppearanceSourceFieldV3.test.ts",
+    "src/host/world/SamePlateAppearanceBallPhysics.test.ts",
+    "src/core/sim/ball/SourceFieldIntegerBoundaryV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T18:18:39.040+00:00",
+  "elapsed_ms": 20360,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-HOST-INTEGER-CHECKPOINT-RECHECK_f2fd587251854aca91249a7f0bc8e407.log",
+  "output_sha256": "ea6c66ccf4de37c6213a4b1c600cb6a63184ffefd64df5a5f5b52fbf47af4dbc",
+  "receipt_id": "MB-20261016-SOURCE-HOST-INTEGER-CHECKPOINT-RECHECK_f2fd587251854aca91249a7f0bc8e407"
+}

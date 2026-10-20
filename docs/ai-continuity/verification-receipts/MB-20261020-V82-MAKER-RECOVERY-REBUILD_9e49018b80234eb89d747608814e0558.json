@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V82-MAKER-RECOVERY-REBUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-rebuild-v82.mjs"
+  ],
+  "observed_at": "2026-10-20T13:56:06.630+00:00",
+  "elapsed_ms": 3188,
+  "git_head": "2b3a8aafd04f0d49edc5c9f12637babc620901f6",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V82-MAKER-RECOVERY-REBUILD_9e49018b80234eb89d747608814e0558.log",
+  "output_sha256": "7f383bd2e660894692818b7e728a09179dd226500ff64b2f65f6f03e7e0f99d6",
+  "receipt_id": "MB-20261020-V82-MAKER-RECOVERY-REBUILD_9e49018b80234eb89d747608814e0558"
+}

@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\package-v74.py", line 40, in <module>
+    assert meta['presentationVersion'] == 73 and meta['optionalWholeArcTrajectoryConnected']
+AssertionError

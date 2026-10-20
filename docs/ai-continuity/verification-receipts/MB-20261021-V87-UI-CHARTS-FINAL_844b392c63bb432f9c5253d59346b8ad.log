@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ tools/browser-bridge/course-charts-v87.test.mjs (2 tests) 996ms
+   ✓ 13-region map preserves missing values and routes keyboard selection to its region 359ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  02:18:06
+   Duration  2.04s (transform 37ms, setup 0ms, collect 345ms, tests 996ms, environment 0ms, prepare 226ms)
+

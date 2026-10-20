@@ -1,0 +1,28 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/BatterCourseProfileV79.test.ts (4 tests) 8ms
+ ❯ src/integration/browser/LivePhysicalRosterV1.test.ts (29 tests | 1 failed) 916ms
+   × preserves explicit V79 course data through roster/Host JSON and rejects invalid profiles atomically 57ms
+     → expected [Function] to throw an error
+ ✓ src/integration/browser/LivePitchCourseV79.test.ts (12 tests) 1429ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LivePhysicalRosterV1.test.ts > preserves explicit V79 course data through roster/Host JSON and rejects invalid profiles atomically
+AssertionError: expected [Function] to throw an error
+ ❯ src/integration/browser/LivePhysicalRosterV1.test.ts:269:124
+    267|       batterCourseProfileV79: { ...profile, effectScale } } }))).toThr…
+    268|     expect(() => createLiveBaseballMatchV1({ ...fixture, players: host…
+    269|       physical: { ...p.physical!, batterCourseProfileV79: { ...p.physi…
+       |                                                                                                                            ^
+    270|   }
+    271|   expect(applyLivePhysicalRosterV1(packet({ physical: { basis: 'EXPLIC…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 44 passed (45)
+   Start at  09:10:37
+   Duration  2.28s (transform 615ms, setup 0ms, collect 1.14s, tests 2.35s, environment 0ms, prepare 424ms)
+

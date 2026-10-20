@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V82-MAKER-RECOVERY-MENU-RELEASE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-pitch-menu-v82.mjs",
+    "../../outputs/にーくら野球メーカー_v82_削除と入力復帰版.html",
+    "docs/verification/releases/v82/pitch-menu-release"
+  ],
+  "observed_at": "2026-10-20T13:55:15.224+00:00",
+  "elapsed_ms": 37703,
+  "git_head": "2b3a8aafd04f0d49edc5c9f12637babc620901f6",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V82-MAKER-RECOVERY-MENU-RELEASE_576ed37241e145eead3ff58debd719b5.log",
+  "output_sha256": "e4089a6f0881896091ff23b7a0909a1922a86b656d69e6a2ff11dbbe1c68bbbf",
+  "receipt_id": "MB-20261020-V82-MAKER-RECOVERY-MENU-RELEASE_576ed37241e145eead3ff58debd719b5"
+}

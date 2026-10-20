@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V80-PITCH-MENU-PACKAGE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "tools/browser-bridge/package-pitch-menu-v80.py"
+  ],
+  "observed_at": "2026-10-20T12:28:09.980+00:00",
+  "elapsed_ms": 3437,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V80-PITCH-MENU-PACKAGE_490b2ac8091a4bfdba6695af3c41f435.log",
+  "output_sha256": "6b2bbb386efa36f9e2e77f684528c985d913f9baa871f2b96c6a7debde38df00",
+  "receipt_id": "MB-20261020-V80-PITCH-MENU-PACKAGE_490b2ac8091a4bfdba6695af3c41f435"
+}

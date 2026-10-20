@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-UPRIGHT-BAT-CUT-INDEPENDENT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-with-bat-upright-reader-v1/readback.mjs",
+    "../../outputs/verification-authored-with-bat-upright-cut-v1/match.sqlite",
+    "../../outputs/verification-authored-with-bat-upright-cut-v1/expected.json",
+    "../../outputs/verification-authored-with-bat-upright-cut-v1/independent-readback.json",
+    "../../outputs/verification-authored-with-bat-upright-v1/manifest.json"
+  ],
+  "observed_at": "2026-10-16T12:47:14.913+00:00",
+  "elapsed_ms": 5578,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-UPRIGHT-BAT-CUT-INDEPENDENT_e179c7dd5d1f44c2884e2353cad52318.log",
+  "output_sha256": "3e52f292483cbe6191ab07b0a0f074ba3c090d3e2ebbc3d50e656d63495a113f",
+  "receipt_id": "MB-20261016-UPRIGHT-BAT-CUT-INDEPENDENT_e179c7dd5d1f44c2884e2353cad52318"
+}

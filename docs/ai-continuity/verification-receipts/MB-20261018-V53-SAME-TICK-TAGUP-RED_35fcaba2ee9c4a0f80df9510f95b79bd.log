@@ -1,0 +1,33 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts (5 tests | 1 failed | 4 skipped) 1557ms
+   × uses the same official tick for departure and first-touch legality even when the disk exit is physically 10ns earlier 1556ms
+     → expected true to be false // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts > uses the same official tick for departure and first-touch legality even when the disk exit is physically 10ns earlier
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts:89:125
+     87|     first=result.facts.find(f=>f.kind==='glove_contact')!,left=result.…
+     88|   expect(left.elapsedSeconds).toBeLessThan(first.elapsedSeconds);expec…
+     89|   expect(result.diagnostics.aiTelemetry.runnerMotions.filter(m=>m.runn…
+       |                                                                                                                             ^
+     90|   expect(result.finalRunners.find(r=>r.runnerId===runnerId)).toMatchOb…
+     91|   expect(result.ruleFacts.defensiveAppeals).toEqual([]);played(input,r…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 skipped (5)
+   Start at  19:28:35
+   Duration  2.49s (transform 310ms, setup 0ms, collect 459ms, tests 1.56s, environment 0ms, prepare 139ms)
+

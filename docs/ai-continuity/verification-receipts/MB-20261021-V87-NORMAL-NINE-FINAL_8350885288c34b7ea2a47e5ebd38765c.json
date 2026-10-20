@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V87-NORMAL-NINE-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-full-history-performance-v81.mjs",
+    "../../outputs/ばせぼーるlv87_TBD_vs_LAD_コース認識と打率版.html",
+    "docs/verification/releases/v87/normal-nine-final"
+  ],
+  "observed_at": "2026-10-20T17:19:48.189+00:00",
+  "elapsed_ms": 162250,
+  "git_head": "9f6b6ed69d8682f417490d4b761914f1b4a6d6a1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V87-NORMAL-NINE-FINAL_8350885288c34b7ea2a47e5ebd38765c.log",
+  "output_sha256": "9396a689a5313173e5dca1a960e70748eec502c8efc927210781cd0c7f0aaaba",
+  "receipt_id": "MB-20261021-V87-NORMAL-NINE-FINAL_8350885288c34b7ea2a47e5ebd38765c"
+}

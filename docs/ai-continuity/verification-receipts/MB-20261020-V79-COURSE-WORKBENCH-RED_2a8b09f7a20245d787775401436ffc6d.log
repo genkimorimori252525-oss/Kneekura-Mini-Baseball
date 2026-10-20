@@ -1,0 +1,42 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/BatterCourseWorkbenchV79.test.ts (0 test)
+ ❯ src/integration/browser/BatterCourseProfileV79.test.ts (5 tests | 1 failed) 11ms
+   × keeps each inclusive strike-zone edge in its internal zone cells across heights and widths 4ms
+     → expected 9 to be 10 // Object.is equality
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/BatterCourseWorkbenchV79.test.ts [ src/integration/browser/BatterCourseWorkbenchV79.test.ts ]
+Error: Failed to load url ./BatterCourseWorkbenchV79 (resolved id: ./BatterCourseWorkbenchV79) in C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/src/integration/browser/BatterCourseWorkbenchV79.test.ts. Does the file exist?
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:51969:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/BatterCourseProfileV79.test.ts > keeps each inclusive strike-zone edge in its internal zone cells across heights and widths
+AssertionError: expected 9 to be 10 // Object.is equality
+
+- Expected
++ Received
+
+- 10
++ 9
+
+ ❯ src/integration/browser/BatterCourseProfileV79.test.ts:63:149
+     61|       .toEqual({ courseId: 31, courseIndex: 15, publicZoneId: 7, insid…
+     62|     const cellWidth = zone.halfWidth * 2 / 5, cellHeight = (zone.upper…
+     63|     expect(classifyBatterCourseV79({ position: { x: zone.centerX - zon…
+       |                                                                                                                                                     ^
+     64|     expect(classifyBatterCourseV79({ position: { x: zone.centerX + zon…
+     65|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  2 failed (2)
+      Tests  1 failed | 4 passed (5)
+   Start at  09:13:54
+   Duration  646ms (transform 179ms, setup 0ms, collect 180ms, tests 11ms, environment 0ms, prepare 281ms)
+

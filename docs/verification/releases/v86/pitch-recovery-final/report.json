@@ -1,0 +1,27 @@
+{
+  "pass": true,
+  "file": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v86_入力確定とエラー復帰版.html",
+  "artifactSha256": "93d5342fe1b00748dbf6650865442de737c6ba76cd1adfb9a7bb64b2379da4f2",
+  "cases": [
+    {
+      "width": 1200,
+      "visibleRemoval": true,
+      "exactUndo": true,
+      "dirtyRecovery": true,
+      "staleUndoRejected": true,
+      "lastPitchRetained": true,
+      "libraryHistoryUnchanged": true,
+      "jsonCompatible": true
+    },
+    {
+      "width": 390,
+      "visibleRemoval": true,
+      "exactUndo": true,
+      "dirtyRecovery": true,
+      "staleUndoRejected": true,
+      "lastPitchRetained": true,
+      "libraryHistoryUnchanged": true,
+      "jsonCompatible": true
+    }
+  ]
+}

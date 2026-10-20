@@ -1,0 +1,20 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LivePitchAuthoringV77.test.ts (3 tests) 4ms
+ ✓ src/integration/browser/LivePitchAuthoringV78.test.ts (5 tests) 226ms
+ ✓ src/integration/browser/LivePitchHostAuthoringV77.test.ts (2 tests) 234ms
+ ✓ src/integration/browser/PitcherWorkbenchV77.test.ts (4 tests) 1492ms
+   ✓ executes seven authored pitches on both throwing sides with observed spin and break directions 1037ms
+ ✓ src/integration/browser/LivePitchExecutionV78.test.ts (6 tests) 14697ms
+   ✓ keeps omitted and fixed spin execution exactly equal to the legacy record 345ms
+   ✓ does not compensate material seam force in the nominal inverse command solve 304ms
+   ✓ selects owned IDs rather than generating an unowned type, and rejects ambiguous explicit classification 1867ms
+   ✓ uses the exact same snapshot and downward spin in Host and pitcher trial 2445ms
+   ✓ executes every classified preset and variant with explicit material physics on both throwing sides 9642ms
+
+ Test Files  5 passed (5)
+      Tests  20 passed (20)
+   Start at  04:56:15
+   Duration  15.77s (transform 837ms, setup 0ms, collect 2.53s, tests 16.65s, environment 1ms, prepare 807ms)
+

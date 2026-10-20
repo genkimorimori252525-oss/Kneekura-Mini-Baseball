@@ -1,0 +1,81 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/LivePhysicalRosterV1.test.ts (16 tests | 1 failed) 112ms
+   × projects explicit course judgment precision independently of chase margin and swing preference 5ms
+     → live physical roster: unknown or missing fields at physical
+ ❯ src/integration/browser/LivePitchAbilitiesV1.test.ts (11 tests | 3 failed) 1027ms
+   × keeps zero judgment error exact and isolates its random stream from pitch, timing, aim and forced swing physics 123ms
+     → Cannot read properties of undefined (reading 'errorMeters')
+   × uses the noisy course estimate in actual AUTO judgment while keeping chase margin and aggression separate 133ms
+     → expected true to be false // Object.is equality
+   × rejects unsupported judgment-error ranges before any physical command runs 43ms
+     → expected [Function] to throw an error
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LivePhysicalRosterV1.test.ts > projects explicit course judgment precision independently of chase margin and swing preference
+Error: live physical roster: unknown or missing fields at physical
+ ❯ assert src/integration/browser/LivePhysicalRosterV1.ts:43:85
+     41| const nonnegative = new Set<string>(['reactionSeconds', 'transferSecon…
+     42| const freeze = <T>(value: T): T => { if (value && typeof value === 'ob…
+     43| function assert(value: unknown, message: string): asserts value { if (…
+       |                                                                                     ^
+     44| const validText = (value: unknown): value is string => typeof value ==…
+     45| function fields(value: unknown, allowed: readonly string[], required: …
+ ❯ fields src/integration/browser/LivePhysicalRosterV1.ts:47:3
+ ❯ validatePhysical src/integration/browser/LivePhysicalRosterV1.ts:50:3
+ ❯ src/integration/browser/LivePhysicalRosterV1.ts:104:7
+ ❯ Module.applyLivePhysicalRosterV1 src/integration/browser/LivePhysicalRosterV1.ts:95:26
+ ❯ src/integration/browser/LivePhysicalRosterV1.test.ts:13:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/integration/browser/LivePitchAbilitiesV1.test.ts > keeps zero judgment error exact and isolates its random stream from pitch, timing, aim and forced swing physics
+TypeError: Cannot read properties of undefined (reading 'errorMeters')
+ ❯ src/integration/browser/LivePitchAbilitiesV1.test.ts:81:41
+     79|     noisy = simulateLivePitchV1({ ...forced, batter: { ...forced.batte…
+     80|   expect(zero.diagnostics).toEqual(omitted.diagnostics); expect(zero.f…
+     81|   expect(noisy.diagnostics.zoneJudgment.errorMeters).not.toEqual({ x: …
+       |                                         ^
+     82|   expect(noisy.diagnostics.sourceDescriptor).toEqual(omitted.diagnosti…
+     83|   expect(noisy.diagnostics.aimErrorMeters).toEqual(omitted.diagnostics…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/integration/browser/LivePitchAbilitiesV1.test.ts > uses the noisy course estimate in actual AUTO judgment while keeping chase margin and aggression separate
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/integration/browser/LivePitchAbilitiesV1.test.ts:93:93
+     91|     clean = simulateLivePitchV1(input), noisyInput = { ...input, batte…
+     92|     noisy = simulateLivePitchV1(noisyInput), repeated = simulateLivePi…
+     93|   expect(clean.diagnostics.swingOffered).toBe(true); expect(noisy.diag…
+       |                                                                                             ^
+     94|   expect(noisy.diagnostics.zoneJudgment).toEqual(repeated.diagnostics.…
+     95|   expect(noisy.diagnostics.zoneJudgment.estimatedPosition).not.toEqual…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/integration/browser/LivePitchAbilitiesV1.test.ts > rejects unsupported judgment-error ranges before any physical command runs
+AssertionError: expected [Function] to throw an error
+ ❯ src/integration/browser/LivePitchAbilitiesV1.test.ts:116:97
+    114|   const i = source();
+    115|   for (const zoneJudgmentStdMeters of [-.001, .600001, NaN, Infinity])
+    116|     expect(() => simulateLivePitchV1({ ...i, batter: { ...i.batter, zo…
+       |                                                                                                 ^
+    117| });
+    118| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+ Test Files  2 failed (2)
+      Tests  4 failed | 23 passed (27)
+   Start at  12:39:55
+   Duration  1.91s (transform 374ms, setup 0ms, collect 854ms, tests 1.14s, environment 0ms, prepare 237ms)
+

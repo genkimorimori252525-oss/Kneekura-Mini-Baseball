@@ -1,0 +1,1 @@
+{"pass":true,"api":"STRICT_PRESENTATION_ONLY","cameras":["overhead","batter","catcher","runner","mound","fielder"],"overlap":"ORIGINAL_ANCHOR","runnerPriority":true,"scaleBounds":[0.5,2.5],"defaultScale":1,"ballRendererUnchanged":true,"canvasLabels":2}

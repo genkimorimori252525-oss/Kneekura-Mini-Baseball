@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-PACKAGE-MEASURED-COMMITMENT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../package-delivery.py"
+  ],
+  "observed_at": "2026-10-15T22:11:35.857+00:00",
+  "elapsed_ms": 22139,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-PACKAGE-MEASURED-COMMITMENT_02f00145c851403c9f93a6c15fd444e6.log",
+  "output_sha256": "9358def32c50b780e5fd80d183ae4c7192684d4f94c99a5ab90c890034546448",
+  "receipt_id": "MB-20261016-PACKAGE-MEASURED-COMMITMENT_02f00145c851403c9f93a6c15fd444e6"
+}

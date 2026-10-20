@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V86-DRAFTS-BROWSER-RED-FINAL",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-drafts-v86.mjs",
+    "../../outputs/にーくら野球メーカー_v85_設定解説と比較切替版.html",
+    "docs/verification/releases/v86/drafts-browser-red-final"
+  ],
+  "observed_at": "2026-10-20T16:30:17.505+00:00",
+  "elapsed_ms": 91750,
+  "git_head": "58c9163a9007598d6a51d8178f38ce3b9ee14eca",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V86-DRAFTS-BROWSER-RED-FINAL_86a831b753fc4d7d8e511da31a6d4d48.log",
+  "output_sha256": "c639830869f5f2dab7e601d923d14c28364d3300638c49f82a381678d31c214b",
+  "receipt_id": "MB-20261021-V86-DRAFTS-BROWSER-RED-FINAL_86a831b753fc4d7d8e511da31a6d4d48"
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-SEAM-STEP-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "./node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/BaseballSeamForceV1.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-19T19:38:24.637+00:00",
+  "elapsed_ms": 1171,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-SEAM-STEP-RED_bc3c07fd66e54221adb23bfbe755f43f.log",
+  "output_sha256": "ff629e8ae07ae165cc743b2915265f11bfb3301fa48b609ca18eb72e6cbe6e76",
+  "receipt_id": "MB-20261020-V78-SEAM-STEP-RED_bc3c07fd66e54221adb23bfbe755f43f"
+}

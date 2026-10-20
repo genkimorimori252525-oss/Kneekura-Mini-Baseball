@@ -7,6 +7,19 @@ import {
 const observer = { x: 0, y: 1.7, z: 0 };
 const target = { x: 0, y: 1.7, z: 10 };
 
+it('resolves a thin bat capsule without hiding the empty space in its large enclosing sphere',()=>{
+  const start={x:.3,y:1,z:1},end={x:.3,y:2,z:1};
+  expect(estimateOcclusionVisibility(observer,target,[{shape:'capsule',start,end,radiusMeters:.034}])).toBe(1);
+  expect(estimateOcclusionVisibility(observer,target,[{shape:'capsule',start:{...start,x:0},end:{...end,x:0},radiusMeters:.034}])).toBe(0);
+});
+it('handles capsule endpoints, parallel segments and reversed viewing directions',()=>{
+  const cap={shape:'capsule' as const,start:{x:0,y:1.7,z:5},end:{x:0,y:1.7,z:7},radiusMeters:.034};
+  expect(estimateOcclusionVisibility(observer,target,[cap])).toBe(0);
+  expect(estimateOcclusionVisibility(target,observer,[cap])).toBe(0);
+  expect(estimateOcclusionVisibility(observer,target,[{...cap,start:{...cap.start,x:.1},end:{...cap.end,x:.1}}])).toBe(1);
+  expect(estimateOcclusionVisibility(observer,target,[{...cap,start:{x:0,y:1.72,z:10.02},end:{x:0,y:2,z:11}}])).toBe(0);
+});
+
 describe('estimateOcclusionVisibility', () => {
   it('returns full visibility when no blocker exists', () => {
     expect(estimateOcclusionVisibility(observer, target, [])).toBe(1);

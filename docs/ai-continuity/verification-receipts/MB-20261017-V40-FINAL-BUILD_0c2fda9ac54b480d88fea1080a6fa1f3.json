@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V40-FINAL-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-v40.mjs",
+    "../../outputs/ばせぼーるlv40_TBD_vs_LAD_個人能力と守備カバー接続版.html"
+  ],
+  "observed_at": "2026-10-17T03:29:16.918+00:00",
+  "elapsed_ms": 265,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V40-FINAL-BUILD_0c2fda9ac54b480d88fea1080a6fa1f3.log",
+  "output_sha256": "fcfc6afa586e1d0fd7caf16830a05840529cfa381720b7d58a90a1cb04f39db9",
+  "receipt_id": "MB-20261017-V40-FINAL-BUILD_0c2fda9ac54b480d88fea1080a6fa1f3"
+}

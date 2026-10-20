@@ -1,0 +1,442 @@
+{
+  "pass": true,
+  "file": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv88_TBD_vs_LAD_空振りとHR見送り版.html",
+  "artifactSha256": "d8194e776c969e249e838fa6e01931fe7bcc7fb9b166822c26840d5595f5a6a5",
+  "cases": [
+    {
+      "width": 1200,
+      "swing": {
+        "pitch": 34,
+        "lastTick": 152034830,
+        "throughTick": 152057366.6964166,
+        "tipBefore": {
+          "x": -0.36951374301911116,
+          "y": 1.1543250087604984,
+          "z": 0.5367807666678668
+        },
+        "follow": {
+          "bat": {
+            "grip": {
+              "x": -0.9091159093786321,
+              "y": 0.9131632298427713,
+              "z": -0.23580742699887977
+            },
+            "tip": {
+              "x": -0.9597554554437059,
+              "y": 1.3783916821506486,
+              "z": 0.48571743295920966
+            },
+            "radiusProfile": {
+              "knots": [
+                {
+                  "t": 0,
+                  "radiusM": 0.019
+                },
+                {
+                  "t": 0.06,
+                  "radiusM": 0.014
+                },
+                {
+                  "t": 0.42,
+                  "radiusM": 0.014
+                },
+                {
+                  "t": 0.7,
+                  "radiusM": 0.03
+                },
+                {
+                  "t": 0.94,
+                  "radiusM": 0.033
+                },
+                {
+                  "t": 1,
+                  "radiusM": 0.031
+                }
+              ]
+            }
+          },
+          "sampleTick": 152057366.6964166,
+          "throughTick": 152057366.6964166,
+          "reason": "FINITE_MEASURED_END_POSE"
+        },
+        "reverse": {
+          "bat": {
+            "grip": {
+              "x": -0.9091159093786321,
+              "y": 0.9131632298427713,
+              "z": -0.23580742699887977
+            },
+            "tip": {
+              "x": -0.9597554554437059,
+              "y": 1.3783916821506486,
+              "z": 0.48571743295920966
+            },
+            "radiusProfile": {
+              "knots": [
+                {
+                  "t": 0,
+                  "radiusM": 0.019
+                },
+                {
+                  "t": 0.06,
+                  "radiusM": 0.014
+                },
+                {
+                  "t": 0.42,
+                  "radiusM": 0.014
+                },
+                {
+                  "t": 0.7,
+                  "radiusM": 0.03
+                },
+                {
+                  "t": 0.94,
+                  "radiusM": 0.033
+                },
+                {
+                  "t": 1,
+                  "radiusM": 0.031
+                }
+              ]
+            }
+          },
+          "sampleTick": 152057366.6964166,
+          "throughTick": 152057366.6964166,
+          "reason": "FINITE_MEASURED_END_POSE"
+        },
+        "completed": {
+          "bat": null,
+          "reason": "FINITE_FOLLOW_BODY_HOLD_COMPLETED",
+          "throughTick": 152057366.6964166
+        },
+        "ballHidden": true,
+        "custody": "0-b3"
+      },
+      "hr": {
+        "pitch": 39,
+        "views": [
+          {
+            "selected": "mound",
+            "camera": "fielder",
+            "watch": {
+              "active": true,
+              "camera": "fielder",
+              "observerPlayerId": "0-b8",
+              "target": {
+                "x": 22.24946848893972,
+                "y": 11.123700201648047,
+                "z": 107.7643131388579
+              },
+              "displayBall": {
+                "position": {
+                  "x": 22.24946848893972,
+                  "y": 11.123700201648047,
+                  "z": 107.7643131388579
+                },
+                "velocity": {
+                  "x": 5.831616067693013,
+                  "y": -13.696852685927887,
+                  "z": 16.789499952223437
+                },
+                "spin": {
+                  "x": -198.23253211517098,
+                  "y": 102.46683963699431,
+                  "z": -22.0370298037054
+                },
+                "orientation": {
+                  "w": 0.32008309237613636,
+                  "x": -0.8571825420497605,
+                  "y": 0.23922206682131916,
+                  "z": -0.32489645477563545
+                },
+                "phase": "dead",
+                "visible": true,
+                "possessedBy": null
+              },
+              "crossingTick": 175655619,
+              "startAtMs": 6391.804999999999,
+              "untilMs": 8145.804999999999,
+              "holdMs": 1754,
+              "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+            },
+            "nearCamera": "fielder",
+            "nearActive": true,
+            "afterWatch": null,
+            "revisited": {
+              "active": true,
+              "camera": "fielder",
+              "observerPlayerId": "0-b8",
+              "target": {
+                "x": 22.24946848893972,
+                "y": 11.123700201648047,
+                "z": 107.7643131388579
+              },
+              "displayBall": {
+                "position": {
+                  "x": 22.24946848893972,
+                  "y": 11.123700201648047,
+                  "z": 107.7643131388579
+                },
+                "velocity": {
+                  "x": 5.831616067693013,
+                  "y": -13.696852685927887,
+                  "z": 16.789499952223437
+                },
+                "spin": {
+                  "x": -198.23253211517098,
+                  "y": 102.46683963699431,
+                  "z": -22.0370298037054
+                },
+                "orientation": {
+                  "w": 0.32008309237613636,
+                  "x": -0.8571825420497605,
+                  "y": 0.23922206682131916,
+                  "z": -0.32489645477563545
+                },
+                "phase": "dead",
+                "visible": true,
+                "possessedBy": null
+              },
+              "crossingTick": 175655619,
+              "startAtMs": 6391.804999999999,
+              "untilMs": 8145.804999999999,
+              "holdMs": 1754,
+              "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+            }
+          }
+        ]
+      },
+      "bench": null,
+      "historyUnchanged": true,
+      "normalizedHistorySha256": "443040c388fc54eecfc5d3973343d04a4a14202385b7179346c1dc6ef1533b17"
+    },
+    {
+      "width": 390,
+      "swing": {
+        "pitch": 34,
+        "lastTick": 152034830,
+        "throughTick": 152057366.6964166,
+        "tipBefore": {
+          "x": -0.36951374301911116,
+          "y": 1.1543250087604984,
+          "z": 0.5367807666678668
+        },
+        "follow": {
+          "bat": {
+            "grip": {
+              "x": -0.9091159093786321,
+              "y": 0.9131632298427713,
+              "z": -0.23580742699887977
+            },
+            "tip": {
+              "x": -0.9597554554437059,
+              "y": 1.3783916821506486,
+              "z": 0.48571743295920966
+            },
+            "radiusProfile": {
+              "knots": [
+                {
+                  "t": 0,
+                  "radiusM": 0.019
+                },
+                {
+                  "t": 0.06,
+                  "radiusM": 0.014
+                },
+                {
+                  "t": 0.42,
+                  "radiusM": 0.014
+                },
+                {
+                  "t": 0.7,
+                  "radiusM": 0.03
+                },
+                {
+                  "t": 0.94,
+                  "radiusM": 0.033
+                },
+                {
+                  "t": 1,
+                  "radiusM": 0.031
+                }
+              ]
+            }
+          },
+          "sampleTick": 152057366.6964166,
+          "throughTick": 152057366.6964166,
+          "reason": "FINITE_MEASURED_END_POSE"
+        },
+        "reverse": {
+          "bat": {
+            "grip": {
+              "x": -0.9091159093786321,
+              "y": 0.9131632298427713,
+              "z": -0.23580742699887977
+            },
+            "tip": {
+              "x": -0.9597554554437059,
+              "y": 1.3783916821506486,
+              "z": 0.48571743295920966
+            },
+            "radiusProfile": {
+              "knots": [
+                {
+                  "t": 0,
+                  "radiusM": 0.019
+                },
+                {
+                  "t": 0.06,
+                  "radiusM": 0.014
+                },
+                {
+                  "t": 0.42,
+                  "radiusM": 0.014
+                },
+                {
+                  "t": 0.7,
+                  "radiusM": 0.03
+                },
+                {
+                  "t": 0.94,
+                  "radiusM": 0.033
+                },
+                {
+                  "t": 1,
+                  "radiusM": 0.031
+                }
+              ]
+            }
+          },
+          "sampleTick": 152057366.6964166,
+          "throughTick": 152057366.6964166,
+          "reason": "FINITE_MEASURED_END_POSE"
+        },
+        "completed": {
+          "bat": null,
+          "reason": "FINITE_FOLLOW_BODY_HOLD_COMPLETED",
+          "throughTick": 152057366.6964166
+        },
+        "ballHidden": true,
+        "custody": "0-b3"
+      },
+      "hr": {
+        "pitch": 39,
+        "views": [
+          {
+            "selected": "mound",
+            "camera": "fielder",
+            "watch": {
+              "active": true,
+              "camera": "fielder",
+              "observerPlayerId": "0-b8",
+              "target": {
+                "x": 22.24946848893972,
+                "y": 11.123700201648047,
+                "z": 107.7643131388579
+              },
+              "displayBall": {
+                "position": {
+                  "x": 22.24946848893972,
+                  "y": 11.123700201648047,
+                  "z": 107.7643131388579
+                },
+                "velocity": {
+                  "x": 5.831616067693013,
+                  "y": -13.696852685927887,
+                  "z": 16.789499952223437
+                },
+                "spin": {
+                  "x": -198.23253211517098,
+                  "y": 102.46683963699431,
+                  "z": -22.0370298037054
+                },
+                "orientation": {
+                  "w": 0.32008309237613636,
+                  "x": -0.8571825420497605,
+                  "y": 0.23922206682131916,
+                  "z": -0.32489645477563545
+                },
+                "phase": "dead",
+                "visible": true,
+                "possessedBy": null
+              },
+              "crossingTick": 175655619,
+              "startAtMs": 6391.804999999999,
+              "untilMs": 8145.804999999999,
+              "holdMs": 1754,
+              "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+            },
+            "nearCamera": "fielder",
+            "nearActive": true,
+            "afterWatch": null,
+            "revisited": {
+              "active": true,
+              "camera": "fielder",
+              "observerPlayerId": "0-b8",
+              "target": {
+                "x": 22.24946848893972,
+                "y": 11.123700201648047,
+                "z": 107.7643131388579
+              },
+              "displayBall": {
+                "position": {
+                  "x": 22.24946848893972,
+                  "y": 11.123700201648047,
+                  "z": 107.7643131388579
+                },
+                "velocity": {
+                  "x": 5.831616067693013,
+                  "y": -13.696852685927887,
+                  "z": 16.789499952223437
+                },
+                "spin": {
+                  "x": -198.23253211517098,
+                  "y": 102.46683963699431,
+                  "z": -22.0370298037054
+                },
+                "orientation": {
+                  "w": 0.32008309237613636,
+                  "x": -0.8571825420497605,
+                  "y": 0.23922206682131916,
+                  "z": -0.32489645477563545
+                },
+                "phase": "dead",
+                "visible": true,
+                "possessedBy": null
+              },
+              "crossingTick": 175655619,
+              "startAtMs": 6391.804999999999,
+              "untilMs": 8145.804999999999,
+              "holdMs": 1754,
+              "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+            }
+          }
+        ]
+      },
+      "bench": null,
+      "historyUnchanged": true,
+      "normalizedHistorySha256": "443040c388fc54eecfc5d3973343d04a4a14202385b7179346c1dc6ef1533b17"
+    }
+  ],
+  "faults": [
+    {
+      "path": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\docs\\demos\\releases\\v87\\game.html",
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "path": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv88_TBD_vs_LAD_空振りとHR見送り版.html",
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "path": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv88_TBD_vs_LAD_空振りとHR見送り版.html",
+      "width": 390,
+      "errors": [],
+      "external": []
+    }
+  ],
+  "scope": "40 ordinary pitches compared to frozen v87 with only the new replay descriptor removed from diagnostics; no physical/call/frame fields omitted. Sampled whiff tail and HR watch in actual HTML, PC/390px."
+}

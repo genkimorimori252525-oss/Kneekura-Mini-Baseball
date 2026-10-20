@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-V3-METADATA-CALIBRATE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-v3-metadata-entry.mjs",
+    "../native-v3-metadata-proof/manifest.json",
+    "../native-v3-metadata-proof/run",
+    "calibrate"
+  ],
+  "observed_at": "2026-10-15T17:20:35.807+00:00",
+  "elapsed_ms": 86109,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-V3-METADATA-CALIBRATE_c022e901607a4e668aa3d04333920d82.log",
+  "output_sha256": "f2cf200b3359577831f63139032c96b0f9d088f80f423e6b3f3d2be493bcfe0e",
+  "receipt_id": "MB-20261016-V3-METADATA-CALIBRATE_c022e901607a4e668aa3d04333920d82"
+}

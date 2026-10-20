@@ -1,0 +1,69 @@
+{
+  "verificationStatus": "PASS",
+  "pipelineStatus": "OFFICIAL_SCORE_APPLIED_CHECKPOINT_PENDING",
+  "scorerSourceStatus": "QUEUED",
+  "verifiedAt": "2026-10-14T18:04:22.973Z",
+  "authority": "NATIVE_ORIGINAL_PHYSICAL_GROUND_OUT",
+  "archiveSha256": "97c9d8122e488cb11d4400791ff9f9ba66e83f5c8582670f5d9b74b53c5fbc07",
+  "originalFixtureSha256": "585ab7862ab93991e97cd5032ba8d520e113635559aa0019b5dd9bd43257a04a",
+  "unchangedOriginalTables": [
+    "actual_first_base_play_ends",
+    "actual_live_play_fences",
+    "batted_world_field_actions",
+    "batted_world_field_executions",
+    "physical_pitch_progress_actions",
+    "actual_first_base_umpire_calls",
+    "actual_call_communications",
+    "actual_live_play_admissions"
+  ],
+  "receipt": {
+    "applicationId": "native-live-smoke-application",
+    "appliedMatchState": {
+      "balls": 0,
+      "bases": {
+        "first": null,
+        "second": null,
+        "third": null
+      },
+      "half": "top",
+      "inning": 1,
+      "outs": 1,
+      "playId": 8,
+      "ruleProfileId": "npb-2026",
+      "score": {
+        "away": 0,
+        "home": 0
+      },
+      "strikes": 0
+    },
+    "closureId": "native-live-smoke-closure",
+    "durableRevision": 1,
+    "previousPlayId": 7
+  },
+  "score": {
+    "closureId": "native-live-smoke-closure",
+    "matchId": "game-1",
+    "officialApplicationId": "native-live-smoke-application",
+    "record": {
+      "basisRulingId": "operative-call",
+      "battingTeam": "away",
+      "classification": "ground_out",
+      "closureId": "native-live-smoke-closure",
+      "errorsCharged": 0,
+      "hitsCredited": 0,
+      "playId": 7,
+      "runsScored": 0
+    },
+    "scoringApplicationId": "native-live-smoke-scoring",
+    "sourceEventId": "native-live-smoke-ground-out"
+  },
+  "sourceHashes": {
+    "src/integration/native-game/PhysicalLivePlaySmoke.ts": "be4473966a7cffebbc3254400069a5feccd23e040b04a5eaebc60a0e66f309e4",
+    "src/integration/native-game/PhysicalLivePlaySmoke.test.ts": "ca92c0ef4ccbda3fc80ef9322c76952875206c0ce75ae6a6db4d9eaad0fa0778",
+    "src/host/world/SqliteBattedWorldFieldExecutionStore.ts": "0e7bdca4f78327b2e0e613d48213fbf5e47abbf4293d06866e2f18ff979be1a9",
+    "src/host/world/SqliteBattedWorldFieldStore.ts": "43ef61f2c6c41b011a39f4f5f89304367a35c29c74e44af785e4d33aae10e836",
+    "src/host/world/OwnedScheduledMotionDependencyEncoding.ts": "7cd0d733931f22335597aede1c05e420ebf5ed511469a6eed081f43b09096d71",
+    "src/host/world/ActualLiveScoringEvidenceFromSqlite.ts": "f72acb11b1d7dd120b1ee84dafaca814d21568262d4f4c60cef9a66d7eca8c25",
+    "src/host/world/ActualObservationPhysicalPrefixHash.ts": "1ccc1d63cab3b14d40f2bd347e46ec8fbbace06eb44b579e9976bba3be8e5d41"
+  }
+}

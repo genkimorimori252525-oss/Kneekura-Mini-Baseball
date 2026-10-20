@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ tools/browser-bridge/whiff-follow-through-v88.test.mjs (2 tests) 5ms
+ ✓ tools/browser-bridge/home-run-watch-v88.test.mjs (5 tests) 15ms
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Start at  02:41:00
+   Duration  430ms (transform 50ms, setup 0ms, collect 71ms, tests 20ms, environment 0ms, prepare 245ms)
+

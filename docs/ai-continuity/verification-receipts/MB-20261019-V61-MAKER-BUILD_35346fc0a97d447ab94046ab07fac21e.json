@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V61-MAKER-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-maker.mjs",
+    "../../outputs/にーくら野球メーカー_選球眼絶対値版_v61.html",
+    "--executable-traits"
+  ],
+  "observed_at": "2026-10-18T19:13:20.800+00:00",
+  "elapsed_ms": 266,
+  "git_head": "a384dfdfac341d3180abc7f750c9825bf137289e",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V61-MAKER-BUILD_35346fc0a97d447ab94046ab07fac21e.log",
+  "output_sha256": "1bfdfde8f225ca1944d15053dca4c8621c9da9d9f2cff20dc48a04f48fa6de08",
+  "receipt_id": "MB-20261019-V61-MAKER-BUILD_35346fc0a97d447ab94046ab07fac21e"
+}

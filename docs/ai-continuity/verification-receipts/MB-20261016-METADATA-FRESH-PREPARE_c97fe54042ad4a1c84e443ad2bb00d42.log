@@ -1,0 +1,14 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/SqliteOwnershipMetadata.test.ts (21 tests) 8ms
+ ✓ src/host/world/SqliteMetadataStatementScope.test.ts (7 tests) 28ms
+ ✓ src/host/world/SamePlateAppearanceMetadataCompilation.test.ts (3 tests) 30ms
+ ✓ src/host/world/SamePlateAppearanceContinuationClaimReuse.test.ts (4 tests) 56ms
+ ✓ src/host/world/SamePlateAppearanceContinuationReadPhase.test.ts (5 tests) 106ms
+
+ Test Files  5 passed (5)
+      Tests  40 passed (40)
+   Start at  01:48:01
+   Duration  8.44s (transform 7.84s, setup 0ms, collect 31.22s, tests 228ms, environment 1ms, prepare 944ms)
+

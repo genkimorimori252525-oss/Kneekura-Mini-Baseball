@@ -1,0 +1,19 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/SamePlateAppearanceObservationClockProjectionV1.test.ts (5 tests) 54ms
+ ✓ src/host/world/SamePlateAppearanceSourceIntegerCheckpointV1.test.ts (8 tests) 10675ms
+   ✓ branches from the full original v3 metadata prefix and executes same-tick positive physical time on its original Source 847ms
+   ✓ routes the dedicated action through the owner calculation without relaxing the ordinary stale-step guard 763ms
+   ✓ retains the new branch for later metadata/free steps and rejects returning to the old version 2473ms
+   ✓ rejects exact-zero waits, different ticks, marker/result injection, unsupported motor/custody and legacy roots 895ms
+   ✓ rejects forged prefix refs, metadata, Source side/state, actors and saved checkpoint diagnostics 1894ms
+   ✓ retains an earlier real impulse as a physical boundary, then rederives its private escape before another wait 1071ms
+   ✓ accepts a bounded 50-primitive nine-defender metadata collection while each original record keeps the inert size limit 2122ms
+   ✓ rejects active envelopes/records, exotic prototypes, sparse or excessive histories and oversized individual records 609ms
+
+ Test Files  2 passed (2)
+      Tests  13 passed (13)
+   Start at  03:41:39
+   Duration  16.69s (transform 4.87s, setup 0ms, collect 11.07s, tests 10.73s, environment 0ms, prepare 293ms)
+

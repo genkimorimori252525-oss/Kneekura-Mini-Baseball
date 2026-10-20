@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V49-BASELINE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T08:02:03.515+00:00",
+  "elapsed_ms": 34672,
+  "git_head": "d54aa62aec6ce643f216dbaedfbaba2f36b31e3b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V49-BASELINE_8b5ffb1f995345bdaaec52d70f7f60f7.log",
+  "output_sha256": "555ef765e963882172b1a688871061005702a4595b0427a5da123bac7ca61835",
+  "receipt_id": "MB-20261018-V49-BASELINE_8b5ffb1f995345bdaaec52d70f7f60f7"
+}

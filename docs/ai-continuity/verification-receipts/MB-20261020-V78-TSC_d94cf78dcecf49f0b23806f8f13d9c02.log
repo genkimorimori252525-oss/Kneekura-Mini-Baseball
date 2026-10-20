@@ -1,0 +1,1 @@
+src/integration/browser/LivePitchExecutionV78.test.ts(46,60): error TS18046: 'record.play.diagnostics' is of type 'unknown'.

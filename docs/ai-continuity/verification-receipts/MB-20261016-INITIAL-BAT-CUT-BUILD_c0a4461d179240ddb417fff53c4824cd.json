@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-BAT-CUT-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/native-game/build-measured-model-readback.mjs",
+    "../native-authored-with-bat-cut-v1",
+    "observed_cut_native"
+  ],
+  "observed_at": "2026-10-16T12:08:31.188+00:00",
+  "elapsed_ms": 906,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-BAT-CUT-BUILD_c0a4461d179240ddb417fff53c4824cd.log",
+  "output_sha256": "8b99e305652b685c1c6688b4cbde76f1a5bd360281ebcaf2213205bf5b815f49",
+  "receipt_id": "MB-20261016-INITIAL-BAT-CUT-BUILD_c0a4461d179240ddb417fff53c4824cd"
+}

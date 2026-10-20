@@ -1,0 +1,17 @@
+file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v4/readback.mjs:51235
+  if (timeline.followThroughEndUs > input21.posture.source.geometry.validUntilTick) throw new Error("observed initial motion exceeds owned scene posture");
+                                                                                          ^
+
+Error: observed initial motion exceeds owned scene posture
+    at bindSamePaInitialPlayToObservedPitch (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v4/readback.mjs:51235:91)
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v4/readback.mjs:52411:24
+    at assemble3 (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v4/readback.mjs:52236:21)
+    at derivePitchBundle (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v4/readback.mjs:52361:48)
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v4/readback.mjs:52558:70
+    at withSqliteMetadataStatementScope (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v4/readback.mjs:17790:59)
+    at immutable (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v4/readback.mjs:60578:19)
+    at withSamePaContinuationReadPhase (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v4/readback.mjs:60595:54)
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v4/readback.mjs:51706:71
+    at withOwnedScheduledMotionDependencyEncodingScope (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v4/readback.mjs:15795:12)
+
+Node.js v26.1.0

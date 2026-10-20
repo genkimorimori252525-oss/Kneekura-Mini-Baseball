@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V75-FINAL-SOURCE-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveTechnicalTraitsV75.test.ts",
+    "src/integration/browser/LiveTraitProfilesV1.test.ts",
+    "src/integration/browser/LiveTraitHostV53.test.ts",
+    "src/integration/browser/LivePitchTechnicalSkillsV75.test.ts",
+    "src/core/sim/fielding/LiveFieldTechniquesV75.test.ts",
+    "--maxWorkers=1",
+    "--minWorkers=1"
+  ],
+  "observed_at": "2026-10-19T18:10:22.131+00:00",
+  "elapsed_ms": 8092,
+  "git_head": "4acba0c3f3d502f778107ca134c0352d0f5e3572",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V75-FINAL-SOURCE-REGRESSION_d1a7dfe87f15466cb08f46ee0a0b9b4d.log",
+  "output_sha256": "93aca43418718e8c9adedb030b116fa3e5b59e9afb3a133c8269cef21cda1dcc",
+  "receipt_id": "MB-20261020-V75-FINAL-SOURCE-REGRESSION_d1a7dfe87f15466cb08f46ee0a0b9b4d"
+}

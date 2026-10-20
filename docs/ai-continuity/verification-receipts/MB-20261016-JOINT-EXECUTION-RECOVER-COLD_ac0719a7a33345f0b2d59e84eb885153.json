@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-JOINT-EXECUTION-RECOVER-COLD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-owned-joint-execution-reader-v2/readback.mjs",
+    "../../outputs/verification-authored-with-bat-physical-execution-v1",
+    "recover_committed"
+  ],
+  "observed_at": "2026-10-16T14:58:20.717+00:00",
+  "elapsed_ms": 50014,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-JOINT-EXECUTION-RECOVER-COLD_ac0719a7a33345f0b2d59e84eb885153.log",
+  "output_sha256": "cec23286dc1692e6f09364a713e392aa9bd4190bfcda887b42c516fb4bac2c1d",
+  "receipt_id": "MB-20261016-JOINT-EXECUTION-RECOVER-COLD_ac0719a7a33345f0b2d59e84eb885153"
+}

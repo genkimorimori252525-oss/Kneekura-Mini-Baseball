@@ -1,0 +1,74 @@
+{
+  "defaultSeed": "TBD-LAD-2025",
+  "generated": 20,
+  "found": {
+    "fly": {
+      "pitch": 6,
+      "name": "フレディ・フリーマン",
+      "classification": "fly_out",
+      "overFence": null,
+      "flyCatch": {
+        "fielderId": "1-b6",
+        "firstTouchTick": 34643761,
+        "secureCatchTick": 34657088
+      },
+      "firstHRFrame": null,
+      "homes": [],
+      "endedAtTick": 35283761,
+      "delay": 0.626673,
+      "outcomes": [
+        {
+          "runnerId": "0-b2",
+          "tick": 34657088,
+          "classification": "batter_runner_before_first",
+          "cause": "fly_catch",
+          "defenderId": "1-b6"
+        }
+      ]
+    },
+    "fanzawa": {
+      "pitch": 20,
+      "name": "FANZAWA",
+      "classification": "home_run",
+      "overFence": {
+        "tick": 127535723,
+        "fair": true,
+        "untouchedGround": true,
+        "cause": "batted"
+      },
+      "flyCatch": null,
+      "firstHRFrame": {
+        "tick": 127564912,
+        "phase": "batted",
+        "ballKind": "batted",
+        "homeRunConfirmed": true,
+        "possessedBy": null,
+        "fairKnown": true
+      },
+      "homes": [
+        {
+          "kind": "runner_base_touch",
+          "runnerId": "1-b4",
+          "base": 4,
+          "tick": 137527373
+        },
+        {
+          "kind": "runner_base_touch",
+          "runnerId": "1-b5",
+          "base": 4,
+          "tick": 142527373
+        },
+        {
+          "kind": "runner_base_touch",
+          "runnerId": "1-b6",
+          "base": 4,
+          "tick": 147607373
+        }
+      ],
+      "endedAtTick": 147607373,
+      "delay": 20.07165,
+      "outcomes": []
+    }
+  },
+  "evidence": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\verification-v36-early-result-facts-v1"
+}

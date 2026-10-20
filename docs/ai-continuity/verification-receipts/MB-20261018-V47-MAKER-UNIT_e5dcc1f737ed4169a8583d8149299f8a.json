@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V47-MAKER-UNIT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePhysicalRosterV1.test.ts",
+    "src/integration/browser/LiveHiddenAiControlsV1.test.ts",
+    "src/integration/browser/LivePublicAbilitiesV1.test.ts"
+  ],
+  "observed_at": "2026-10-18T07:25:31.880+00:00",
+  "elapsed_ms": 4312,
+  "git_head": "61a3afc1d7262e5d787358869d096df55ff8f2ac",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V47-MAKER-UNIT_e5dcc1f737ed4169a8583d8149299f8a.log",
+  "output_sha256": "8e92fcfed569c9fdca09eebfac202b9d50e91763c93e409b99202d012c9a61b6",
+  "receipt_id": "MB-20261018-V47-MAKER-UNIT_e5dcc1f737ed4169a8583d8149299f8a"
+}

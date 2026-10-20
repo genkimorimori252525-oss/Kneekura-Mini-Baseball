@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-GITHUB-SNAPSHOT-TESTS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePublicAbilitiesV1.test.ts",
+    "src/integration/browser/LivePhysicalRosterV1.test.ts",
+    "src/integration/browser/LivePitchAbilitiesV1.test.ts",
+    "src/integration/browser/LivePitchV1.test.ts",
+    "src/core/sim/contact/ReferenceBatKinematicsV1.test.ts",
+    "src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts",
+    "src/core/sim/fielding/LiveFieldRoleMotionV1.test.ts",
+    "src/core/sim/fielding/LiveThrowDirectionV1.test.ts",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts",
+    "src/core/sim/fielding/LiveThrowPlanV1.test.ts",
+    "tools/verification/LiveMatchRecordingV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T04:03:42.997+00:00",
+  "elapsed_ms": 7187,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-GITHUB-SNAPSHOT-TESTS_f75ebeeabd544e4ea9bc042c0146affe.log",
+  "output_sha256": "ffd820e85373e2dc44de8a127f2b64a5971400455b5f33e3f6dd784ec487e3f9",
+  "receipt_id": "MB-20261017-GITHUB-SNAPSHOT-TESTS_f75ebeeabd544e4ea9bc042c0146affe"
+}

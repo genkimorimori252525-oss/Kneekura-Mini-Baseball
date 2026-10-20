@@ -1,0 +1,249 @@
+{
+  "pass": true,
+  "phase": "complete",
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v73_スイング分類と全体角度版.html",
+  "views": [
+    {
+      "width": 1200,
+      "levels": [
+        {
+          "level": 1,
+          "sourceTick": 1732800,
+          "grip": {
+            "x": 0.29349881896511076,
+            "y": 1.066306213905349,
+            "z": 0.06089845513014085
+          },
+          "tip": {
+            "x": -0.24659712615081275,
+            "y": 0.8775200424048495,
+            "z": -0.5859872469220233
+          },
+          "targetAngle": -10,
+          "entireArcVerified": true
+        },
+        {
+          "level": 2,
+          "sourceTick": 1732800,
+          "grip": {
+            "x": 0.28087414456015297,
+            "y": 1.0790519530639195,
+            "z": -0.004842993354899468
+          },
+          "tip": {
+            "x": -0.2509274327225063,
+            "y": 0.7651318302161849,
+            "z": -0.608536788975609
+          },
+          "targetAngle": -9.758662635306887e-16,
+          "entireArcVerified": true
+        },
+        {
+          "level": 3,
+          "sourceTick": 1732800,
+          "grip": {
+            "x": 0.2680238673291957,
+            "y": 1.0799795839478277,
+            "z": -0.07175924097437894
+          },
+          "tip": {
+            "x": -0.2515114407103732,
+            "y": 0.6504638138343396,
+            "z": -0.6115779391722529
+          },
+          "targetAngle": 9.999999999999998,
+          "entireArcVerified": true
+        },
+        {
+          "level": 4,
+          "sourceTick": 1732800,
+          "grip": {
+            "x": 0.25533843644334764,
+            "y": 1.06906092096207,
+            "z": -0.13781707140563473
+          },
+          "tip": {
+            "x": -0.24833140532722442,
+            "y": 0.5370001229122601,
+            "z": -0.5950182937021266
+          },
+          "targetAngle": 20.000000000000004,
+          "entireArcVerified": true
+        }
+      ],
+      "formClasses": {
+        "down": 7,
+        "level": 49,
+        "upper": 412,
+        "strong": 205
+      },
+      "player": {
+        "playerId": "0-b1",
+        "clipId": "obp-103_1"
+      },
+      "comparisonInvalidated": true,
+      "leftLevels": [
+        {
+          "level": 1,
+          "targetAngle": -9.999999999999899,
+          "entireArcVerified": true
+        },
+        {
+          "level": 2,
+          "targetAngle": 1.0026415902289514e-13,
+          "entireArcVerified": true
+        },
+        {
+          "level": 3,
+          "targetAngle": 10.000000000000101,
+          "entireArcVerified": true
+        },
+        {
+          "level": 4,
+          "targetAngle": 20.000000000000103,
+          "entireArcVerified": true
+        }
+      ],
+      "selectedFormPreservedOutsideFilter": true,
+      "emptyAngleRejectedWithoutLosingAcceptedPreview": true,
+      "emptyAngleMessage": "official window input must be finite",
+      "sharedClock": {
+        "mainScrub": true,
+        "mainPlayPause": true,
+        "speedMirrored": true
+      },
+      "displayControls": {
+        "rightOrbit": true,
+        "leftPan": true,
+        "wheelZoom": true,
+        "resetExact": true
+      },
+      "json": {
+        "actualDownload": true,
+        "actualRosterDownload": true,
+        "fileReload": true,
+        "other19Preserved": true
+      },
+      "methodCompatibility": {
+        "selectorWritesOmittedOldMethod": true,
+        "oldJsonNotMigrated": true,
+        "newJsonRestored": true
+      },
+      "legacy": {
+        "researchOpenClose": true,
+        "oldJsonWithoutOptionalFields": true
+      }
+    },
+    {
+      "width": 390,
+      "levels": [
+        {
+          "level": 1,
+          "sourceTick": 1732800,
+          "grip": {
+            "x": 0.29349881896511076,
+            "y": 1.066306213905349,
+            "z": 0.06089845513014085
+          },
+          "tip": {
+            "x": -0.24659712615081275,
+            "y": 0.8775200424048495,
+            "z": -0.5859872469220233
+          },
+          "targetAngle": -10,
+          "entireArcVerified": true
+        },
+        {
+          "level": 2,
+          "sourceTick": 1732800,
+          "grip": {
+            "x": 0.28087414456015297,
+            "y": 1.0790519530639195,
+            "z": -0.004842993354899468
+          },
+          "tip": {
+            "x": -0.2509274327225063,
+            "y": 0.7651318302161849,
+            "z": -0.608536788975609
+          },
+          "targetAngle": -9.758662635306887e-16,
+          "entireArcVerified": true
+        },
+        {
+          "level": 3,
+          "sourceTick": 1732800,
+          "grip": {
+            "x": 0.2680238673291957,
+            "y": 1.0799795839478277,
+            "z": -0.07175924097437894
+          },
+          "tip": {
+            "x": -0.2515114407103732,
+            "y": 0.6504638138343396,
+            "z": -0.6115779391722529
+          },
+          "targetAngle": 9.999999999999998,
+          "entireArcVerified": true
+        },
+        {
+          "level": 4,
+          "sourceTick": 1732800,
+          "grip": {
+            "x": 0.25533843644334764,
+            "y": 1.06906092096207,
+            "z": -0.13781707140563473
+          },
+          "tip": {
+            "x": -0.24833140532722442,
+            "y": 0.5370001229122601,
+            "z": -0.5950182937021266
+          },
+          "targetAngle": 20.000000000000004,
+          "entireArcVerified": true
+        }
+      ],
+      "formClasses": {
+        "down": 7,
+        "level": 49,
+        "upper": 412,
+        "strong": 205
+      },
+      "player": {
+        "playerId": "0-b1",
+        "clipId": "obp-103_1"
+      },
+      "sharedClock": {
+        "mainScrub": true,
+        "mainPlayPause": true,
+        "speedMirrored": true
+      },
+      "displayControls": {
+        "rightOrbit": true,
+        "leftPan": true,
+        "wheelZoom": true,
+        "resetExact": true
+      },
+      "json": {
+        "actualDownload": true,
+        "actualRosterDownload": true,
+        "fileReload": true,
+        "other19Preserved": true
+      }
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "errors": [],
+      "external": []
+    }
+  ],
+  "scope": "v73 whole-arc target-angle authoring and form classification; independent rigid transform, shared main/white source clock, saved new method and backward-compatible old JSON",
+  "sha256": "821536e0994345e5b9fe50b8b7bae00b3e3b77fcb915507b597c6fbffd3c57d4",
+  "coreSha256": "c321f1aeb0887623441d39775204828a526f5ba91c27ec862d1ead71f5365c16"
+}

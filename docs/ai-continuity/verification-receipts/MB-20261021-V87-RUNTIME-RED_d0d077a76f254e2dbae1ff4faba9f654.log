@@ -1,0 +1,44 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/LivePitchRecognitionV87.test.ts (3 tests | 3 failed) 409ms
+   × always records three causal role observations and keeps explicit neutral execution identical 164ms
+     → Cannot read properties of undefined (reading 'batter')
+   × uses the edited batter estimate for swing aim without changing the incoming Source 121ms
+     → Cannot read properties of undefined (reading 'batter')
+   × separates pitcher request from execution and catcher perception from actual flight 124ms
+     → Cannot read properties of undefined (reading 'pitcher')
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LivePitchRecognitionV87.test.ts > always records three causal role observations and keeps explicit neutral execution identical
+TypeError: Cannot read properties of undefined (reading 'batter')
+ ❯ src/integration/browser/LivePitchRecognitionV87.test.ts:12:69
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/integration/browser/LivePitchRecognitionV87.test.ts > uses the edited batter estimate for swing aim without changing the incoming Source
+TypeError: Cannot read properties of undefined (reading 'batter')
+ ❯ src/integration/browser/LivePitchRecognitionV87.test.ts:19:49
+     17|  const input=source(),baseline=simulateLivePitchV1(input),actual=simul…
+     18|  expect(actual.diagnostics.sourceDescriptor).toEqual(baseline.diagnost…
+     19|  expect(actual.diagnostics.courseRecognitionV87.batter.errorMeters.x).…
+       |                                                 ^
+     20|  expect(actual.diagnostics.referenceContactSweetSpotVelocity).toEqual(…
+     21|  expect(actual.frames).not.toEqual(baseline.frames);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/integration/browser/LivePitchRecognitionV87.test.ts > separates pitcher request from execution and catcher perception from actual flight
+TypeError: Cannot read properties of undefined (reading 'pitcher')
+ ❯ src/integration/browser/LivePitchRecognitionV87.test.ts:25:50
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  02:05:54
+   Duration  1.89s (transform 574ms, setup 0ms, collect 862ms, tests 409ms, environment 0ms, prepare 204ms)
+

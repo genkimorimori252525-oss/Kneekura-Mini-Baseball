@@ -1,0 +1,11 @@
+{
+  "game.html": "b68c954154e7ce4b3af9f9d493329bc213fb7752789394cd11d74250dba2fb1a",
+  "game.html.build.json": "93727a7498cfff4df3472320470623d95ad604c5a8f6acd740b0a6536256a772",
+  "game.html.bundle-inputs.json": "6f33451da19adc21b17ba4825303d8270d7c0ef4c367726c7de89da30beee60f",
+  "camera-workbench.html": "b03580808b530b1458a1027b3f52c28a2978ece2a2cea6b1a81800b2481e484e",
+  "camera-workbench.html.build.json": "5ff288d696b6c14e760516d05474b17564575b430d149fc34fa0b726ac53bdbc",
+  "maker.html": "30c9de32e19b83099e997128c22a4f501d9b47023e17980073df16b259486e63",
+  "maker.html.build.json": "65e4c8fc86edbb502e9edabf7f4c5953573ff954590c8d2f53909b5c0017d595",
+  "maker.html.bundle-inputs.json": "75dc50c8aa82d7f40abc441defb9726d39070e865abd2dc72c1f4e39b3d1c6e7",
+  "source-contract.json": "778c9f443f1a6d42e6ab2f02f1b76698ced3e5bfb55793f59e645a8478b16852"
+}

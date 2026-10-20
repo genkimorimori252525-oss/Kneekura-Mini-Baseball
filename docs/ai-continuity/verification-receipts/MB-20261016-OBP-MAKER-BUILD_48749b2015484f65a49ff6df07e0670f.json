@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OBP-MAKER-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-maker.mjs",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/にーくら野球メーカー_実測スイング版.html"
+  ],
+  "observed_at": "2026-10-15T18:07:48.062+00:00",
+  "elapsed_ms": 250,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OBP-MAKER-BUILD_48749b2015484f65a49ff6df07e0670f.log",
+  "output_sha256": "5f9f55d3281577e4b0fa627dc597113c6375497545d3d47893f43c67bccadf43",
+  "receipt_id": "MB-20261016-OBP-MAKER-BUILD_48749b2015484f65a49ff6df07e0670f"
+}

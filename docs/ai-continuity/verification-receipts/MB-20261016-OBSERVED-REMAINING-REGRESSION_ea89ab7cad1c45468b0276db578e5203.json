@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OBSERVED-REMAINING-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/SamePlateAppearanceDispatchSource.test.ts",
+    "src/host/world/SamePlateAppearanceObservedInitialCalculation.test.ts",
+    "src/host/world/SamePlateAppearancePhysicalEpisode.test.ts",
+    "src/host/world/SamePlateAppearanceInitialBall.test.ts",
+    "src/host/world/SamePlateAppearanceInitialBallDispatch.test.ts",
+    "src/host/world/InFlightBattingFixtureTiming.test.ts",
+    "--maxWorkers=2",
+    "--minWorkers=1"
+  ],
+  "observed_at": "2026-10-15T22:45:42.181+00:00",
+  "elapsed_ms": 52171,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OBSERVED-REMAINING-REGRESSION_ea89ab7cad1c45468b0276db578e5203.log",
+  "output_sha256": "5f5574018dbdbb06b2c83cea60b671b494b21bd88d3e242955b70c852323dd43",
+  "receipt_id": "MB-20261016-OBSERVED-REMAINING-REGRESSION_ea89ab7cad1c45468b0276db578e5203"
+}

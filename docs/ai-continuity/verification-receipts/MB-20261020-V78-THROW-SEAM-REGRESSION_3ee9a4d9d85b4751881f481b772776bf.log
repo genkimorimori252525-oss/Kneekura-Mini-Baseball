@@ -1,0 +1,21 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+stdout | src/core/sim/fielding/LiveThrowPlanV1.test.ts > remains deterministic and reports performance outside the issued command
+{"benchmark":"70M_AERO_THROW_COMMAND","wallMilliseconds":80.76950000000011,"candidateCount":4,"solverEvaluationCount":19,"shootingIntegrationStepUpperBound":10047,"verificationKernelBuilds":1,"timingBasis":"MONOTONIC_WALL_CLOCK_NOT_PROCESS_CPU","processCpuUserMilliseconds":78,"processCpuSystemMilliseconds":0}
+
+ ✓ src/core/sim/fielding/LiveThrowPlanV1.test.ts (6 tests) 550ms
+ ✓ src/core/sim/fielding/LiveRelayPlanV1.test.ts (8 tests) 1912ms
+   ✓ supports two actual intermediate receivers without duplicate actors or throw cycles 645ms
+   ✓ bounds search work and caches Aero edges while using no position names or future world state 803ms
+ ✓ src/core/sim/fielding/LiveFieldTechniquesV75.test.ts (7 tests) 3122ms
+   ✓ keeps ground events, frames and diagnostics exactly unchanged for all zero controls 833ms
+   ✓ shortens only the batter initial departure, preserving baserunner recognition and run speed 711ms
+   ✓ uses actual capture posture and one shortened transfer without exceeding physical hand speed 639ms
+   ✓ changes real approach movement only after observing a slow grounded ball and leaves a fly exact 699ms
+
+ Test Files  3 passed (3)
+      Tests  21 passed (21)
+   Start at  04:40:28
+   Duration  3.98s (transform 411ms, setup 0ms, collect 954ms, tests 5.58s, environment 0ms, prepare 454ms)
+

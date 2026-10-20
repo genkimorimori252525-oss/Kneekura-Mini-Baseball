@@ -1,0 +1,75 @@
+{
+  "pass": true,
+  "sourceCommit": "e9450d3fb7497cd3b9c3ec694875a85157fa584e",
+  "remoteHead": "e9450d3fb7497cd3b9c3ec694875a85157fa584e",
+  "pullRequest": {
+    "headRefName": "jolly/tbd-lad-native-browser-core-2026-10-14",
+    "headRefOid": "e9450d3fb7497cd3b9c3ec694875a85157fa584e",
+    "isDraft": true,
+    "state": "OPEN",
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380"
+  },
+  "rawFiles": [
+    {
+      "path": "docs/demos/releases/v65/game.html",
+      "sha256": "99df7e9275f342f10b1febdf3d06df06b3817cda01928fbb844f28259ab8dd19",
+      "bytes": 3663786
+    },
+    {
+      "path": "docs/demos/releases/v65/camera-workbench.html",
+      "sha256": "731f8b10648bb1a2e5e36e714ea70eb3ed41a6a77a379e77557852af3d07d95e",
+      "bytes": 3954859
+    },
+    {
+      "path": "docs/demos/releases/v65/SHA256.json",
+      "sha256": "6f9239fc3de68b6a5ce155344a175b52e0c9a4153450970d024014d091514ff3",
+      "bytes": 490
+    },
+    {
+      "path": "docs/demos/releases/v65/game.html.build.json",
+      "sha256": "a9d2675574d5371a07ce511b20f8a9fb75f2ea48cd03a01278de2761196a9650",
+      "bytes": 4131
+    },
+    {
+      "path": "docs/demos/releases/v65/camera-workbench.html.build.json",
+      "sha256": "67e7e6f96c07da240a6338bb364cac9eaaecea6eb0a2d66b49cf5cf7fdef94d1",
+      "bytes": 4135
+    },
+    {
+      "path": "docs/demos/releases/v65/game.html.bundle-inputs.json",
+      "sha256": "bf8154f3be49abd30dea35fb55a3520898a7ee43dd0172fab82ede3ded14f7ad",
+      "bytes": 14005
+    },
+    {
+      "path": "docs/demos/releases/v65/README.md",
+      "sha256": "3656853832b17e96651e1d2ee9a6ec5757eba14a3ca4de7e5386e010714cb67e",
+      "bytes": 1301
+    },
+    {
+      "path": "docs/reports/2026-10-19-v65-overhead-real-perspective.md",
+      "sha256": "9c83b161d3350e026d9339eb57813111d82bff3ada80f11e886bb99c73ae43ee",
+      "bytes": 5011
+    },
+    {
+      "path": "docs/handoffs/LATEST.md",
+      "sha256": "64d6a970bf0ca9295c3ce42620414717cbf2d1ae72081d673b665af956896f37",
+      "bytes": 19721
+    },
+    {
+      "path": "tools/browser-bridge/live-ball-display-controls-v65.js",
+      "sha256": "91caf4329ca5510a05225d3a03998bb0aa0d765b0837d0e81936f71dd9746ff2",
+      "bytes": 3025
+    },
+    {
+      "path": "tools/browser-bridge/camera-workbench-v65.js",
+      "sha256": "fb57259cd9d12f48ea4f5c98ea85354eaddb03519adc5e601cc230011ad43ce6",
+      "bytes": 37706
+    },
+    {
+      "path": "docs/verification/releases/v65/release-check.json",
+      "sha256": "831ee8307dcc6b8ec5706d02c65424c394692d9b350bf899794aafffa77929d6",
+      "bytes": 666
+    }
+  ],
+  "mainMerged": false
+}

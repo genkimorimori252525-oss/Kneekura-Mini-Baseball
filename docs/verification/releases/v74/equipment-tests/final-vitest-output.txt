@@ -1,0 +1,15 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/contact/InitialHeldBatV1.test.ts (7 tests) 5ms
+ ✓ src/integration/browser/WorkbenchPlayer.test.ts (19 tests) 26ms
+ ✓ src/core/sim/contact/ReferenceBatKinematicsV1.test.ts (10 tests) 230ms
+ ✓ src/integration/browser/LivePhysicalRosterV1.test.ts (28 tests) 865ms
+ ✓ src/integration/browser/LivePitchV1.test.ts (13 tests) 1242ms
+
+ Test Files  5 passed (5)
+      Tests  77 passed (77)
+   Start at  00:01:34
+   Duration  2.31s (transform 1.08s, setup 0ms, collect 2.07s, tests 2.37s, environment 1ms, prepare 974ms)
+
+JSON report written to C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/outputs/maker-equipment-extended-range/vitest-results.json

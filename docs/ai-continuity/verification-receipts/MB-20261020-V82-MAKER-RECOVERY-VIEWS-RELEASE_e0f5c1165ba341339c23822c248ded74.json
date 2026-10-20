@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V82-MAKER-RECOVERY-VIEWS-RELEASE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-pitcher-views-browser-v82.mjs",
+    "../../outputs/にーくら野球メーカー_v82_削除と入力復帰版.html",
+    "docs/verification/releases/v82/pitch-views-release"
+  ],
+  "observed_at": "2026-10-20T13:55:03.922+00:00",
+  "elapsed_ms": 26360,
+  "git_head": "2b3a8aafd04f0d49edc5c9f12637babc620901f6",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V82-MAKER-RECOVERY-VIEWS-RELEASE_e0f5c1165ba341339c23822c248ded74.log",
+  "output_sha256": "3ca740492c52b5127ef4f13a927bacef880515b70f2fb19b84b29312fd81e61d",
+  "receipt_id": "MB-20261020-V82-MAKER-RECOVERY-VIEWS-RELEASE_e0f5c1165ba341339c23822c248ded74"
+}

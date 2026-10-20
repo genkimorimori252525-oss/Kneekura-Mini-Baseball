@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V86-PITCH-RECOVERY2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-pitch-recovery-v82.mjs",
+    "../../outputs/にーくら野球メーカー_v86_入力確定とエラー復帰版.html",
+    "docs/verification/releases/v86/pitch-recovery-final"
+  ],
+  "observed_at": "2026-10-20T16:39:53.800+00:00",
+  "elapsed_ms": 24718,
+  "git_head": "58c9163a9007598d6a51d8178f38ce3b9ee14eca",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V86-PITCH-RECOVERY2_1929548305ad4150a7b28a520c7c7597.log",
+  "output_sha256": "3f86e3f2ec90fef213c1f60dd4b3ca70e670b47df12ad61a3149ef36a38637c7",
+  "receipt_id": "MB-20261021-V86-PITCH-RECOVERY2_1929548305ad4150a7b28a520c7c7597"
+}

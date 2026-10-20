@@ -1,0 +1,81 @@
+{
+  "pass": true,
+  "sourceCommit": "8b4bc90905dc5708f3181959dd8657552e344b75",
+  "remoteHead": "8b4bc90905dc5708f3181959dd8657552e344b75",
+  "pullRequest": {
+    "headRefName": "jolly/tbd-lad-native-browser-core-2026-10-14",
+    "headRefOid": "8b4bc90905dc5708f3181959dd8657552e344b75",
+    "isDraft": true,
+    "state": "OPEN",
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380"
+  },
+  "publishedHtmlBlobs": [
+    {
+      "path": "docs/demos/releases/v78/game.html",
+      "gitBlobSha1": "c493a960255da167c9039c672f8fcba52fd8a727",
+      "sha256": "15804efd7eec66e8eea265c55cc3f3a73337c93d243ab71e386e8510dbe86b48",
+      "bytes": 32266920
+    },
+    {
+      "path": "docs/demos/releases/v78/camera-workbench.html",
+      "gitBlobSha1": "33173082ed3685ccbb9b55d7f3b63b05d75abdf7",
+      "sha256": "f5a0a171875ccd5a48146a74bc4eb1d1a219938778d1ef89108d7c33e8b512c6",
+      "bytes": 32491431
+    },
+    {
+      "path": "docs/demos/releases/v78/maker.html",
+      "gitBlobSha1": "8be9e7254ca9301fd498a73111dc140b98ebcfc9",
+      "sha256": "0ceb277f8b5ad53f32d97e8e64be8f0debfbce1799f91c12a2702a05518eac51",
+      "bytes": 38454114
+    }
+  ],
+  "largeHtmlVerification": "GITHUB_GIT_TREE_BLOB_AND_SIZE_MATCH_LOCAL_BYTES",
+  "rawFiles": [
+    {
+      "path": "docs/demos/releases/v78/SHA256.json",
+      "sha256": "aefe4290abafdeb79c4e0e614f1a4e7b3fcbc4f926143be65ca2e59f94871bc3",
+      "bytes": 874
+    },
+    {
+      "path": "docs/demos/releases/v78/README.md",
+      "sha256": "40d8a5d223b73114e2b85e1f123abffc7613e100d012469992a1b889058e0b0c",
+      "bytes": 3103
+    },
+    {
+      "path": "docs/demos/releases/v78/game.html.build.json",
+      "sha256": "a441c4de859bbb1cbd130e29aa1976f9c5bade08980f91373fd9d6945af0ee9f",
+      "bytes": 7664
+    },
+    {
+      "path": "docs/demos/releases/v78/maker.html.build.json",
+      "sha256": "539ec96242d33ff937b748a368922d4468cc27eec11a3f890b33e88fc4dd1508",
+      "bytes": 4217
+    },
+    {
+      "path": "docs/reports/2026-10-20-v78-pitch-library-and-seam-physics.md",
+      "sha256": "94be7f975bcd08a9609b8f889fea5b5476fb06f9010fd29cee3e71359f3c8d38",
+      "bytes": 9807
+    },
+    {
+      "path": "docs/design-consultation/CURRENT-SPEC.md",
+      "sha256": "7817f9f5d5b1fb350bb743b6604d97283f7f2d9f96923193e2bde09b1bb0c168",
+      "bytes": 7296
+    },
+    {
+      "path": "tools/browser-bridge/live-ball-display-controls-v78.js",
+      "sha256": "d3d466a217e70f72f2cfa413194f58409d43c9aa91058902548106136dc427b0",
+      "bytes": 6542
+    },
+    {
+      "path": "tools/browser-bridge/build-v78.mjs",
+      "sha256": "e34a55a35655d52fa4360977ebaba09c0c440579fd8bfb454a9bd1a166fc54ab",
+      "bytes": 10799
+    },
+    {
+      "path": "docs/verification/releases/v78/release-check.json",
+      "sha256": "b4c2d6dab36bed9407d8b99b65f91345f769107651d67699034a6769ddd570ba",
+      "bytes": 559
+    }
+  ],
+  "mainMerged": false
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-MOTOR-GREEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "npx.cmd",
+    "vitest",
+    "run",
+    "src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T18:05:49.164+00:00",
+  "elapsed_ms": 2344,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-MOTOR-GREEN_2920dac358e6475cb27536b09c515e10.log",
+  "output_sha256": "c4af8d58695bda1602dd3ae09b2211dc37b81ba506018e8289a850b5c3f9317c",
+  "receipt_id": "MB-20261016-SOURCE-MOTOR-GREEN_2920dac358e6475cb27536b09c515e10"
+}

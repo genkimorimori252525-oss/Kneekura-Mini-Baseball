@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-HOST-INTEGRATED-GAME-V2",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveBaseballMatchV1.test.ts"
+  ],
+  "observed_at": "2026-10-16T23:59:23.944+00:00",
+  "elapsed_ms": 9437,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-HOST-INTEGRATED-GAME-V2_7b5d2f9cc70e41439e39e5869d7d99ce.log",
+  "output_sha256": "b009743802109efe6da3960113bff30f2b9bde4f812ffaa2f41f4e2b76e00f62",
+  "receipt_id": "MB-20261017-LIVE-HOST-INTEGRATED-GAME-V2_7b5d2f9cc70e41439e39e5869d7d99ce"
+}

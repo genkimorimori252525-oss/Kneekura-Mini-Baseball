@@ -1,0 +1,36 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/running/LiveRunnerRetreatMotionV1.test.ts (5 tests) 19ms
+ ✓ src/core/sim/fielding/LiveRunnerAdvancePolicyV1.test.ts (13 tests) 15ms
+ ✓ src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts (3 tests) 23ms
+ ❯ src/core/sim/running/LiveRunnerMotionV1.test.ts (14 tests | 1 failed) 77ms
+   × LiveRunnerMotionV1 > keeps derived rotated velocities inside their scalar cap and replans without boundary exceptions 8ms
+     → expected [Function] to not throw an error but 'Error: live locomotion V84: accelerat…' was thrown
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/running/LiveRunnerMotionV1.test.ts > LiveRunnerMotionV1 > keeps derived rotated velocities inside their scalar cap and replans without boundary exceptions
+AssertionError: expected [Function] to not throw an error but 'Error: live locomotion V84: accelerat…' was thrown
+
+- Expected: 
+undefined
+
++ Received: 
+"Error: live locomotion V84: acceleration speeds must be ordered"
+
+ ❯ src/core/sim/running/LiveRunnerMotionV1.test.ts:154:96
+    152|         expect(sampled.speedMps).toBeLessThanOrEqual(8);
+    153|         expect(() => createLiveRunnerMotionV1(input({ position: sample…
+    154|           bases: elapsed < m.touches[0].centerElapsedSeconds ? bases :…
+       |                                                                                                ^
+    155|       }
+    156|       const sampled = m.sampleAtElapsedSeconds(4), next = createLiveRu…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 34 passed (35)
+   Start at  00:35:02
+   Duration  843ms (transform 301ms, setup 0ms, collect 491ms, tests 135ms, environment 1ms, prepare 826ms)
+

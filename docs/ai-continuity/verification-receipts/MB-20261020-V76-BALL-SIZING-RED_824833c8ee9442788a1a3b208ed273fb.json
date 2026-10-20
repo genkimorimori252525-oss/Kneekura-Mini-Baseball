@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V76-BALL-SIZING-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v76-ball-sizing.mjs",
+    "tools/browser-bridge/live-ball-display-controls-v67.js"
+  ],
+  "observed_at": "2026-10-19T18:25:08.262+00:00",
+  "elapsed_ms": 45,
+  "git_head": "b8acaba00ccab4e40bb176bac3c51cf2f15dd876",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V76-BALL-SIZING-RED_824833c8ee9442788a1a3b208ed273fb.log",
+  "output_sha256": "9f086fe22e197b8b4201d600b8113635bed70550fddff48249591726f9f39ff3",
+  "receipt_id": "MB-20261020-V76-BALL-SIZING-RED_824833c8ee9442788a1a3b208ed273fb"
+}

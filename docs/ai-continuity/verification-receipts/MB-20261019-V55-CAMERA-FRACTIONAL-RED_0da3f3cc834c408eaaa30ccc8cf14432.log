@@ -1,0 +1,18 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: sensory onset is independent of partial integration query
+
+0.581 !== 0.584
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-camera-tuning-batter-view.mjs:80:8 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 0.581,
+  expected: 0.584,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

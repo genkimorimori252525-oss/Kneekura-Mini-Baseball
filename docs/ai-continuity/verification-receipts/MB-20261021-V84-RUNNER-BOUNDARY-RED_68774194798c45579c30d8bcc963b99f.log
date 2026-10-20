@@ -1,0 +1,45 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/running/LiveRunnerMotionV1.test.ts (14 tests | 2 failed) 74ms
+   × LiveRunnerMotionV1 > keeps derived rotated velocities inside their scalar cap and replans without boundary exceptions 7ms
+     → expected 5.809475019311126 to be less than or equal to 5.809475019311125
+   × LiveRunnerMotionV1 > retains an infeasible incoming velocity as a null result without clamping or throwing 2ms
+     → live locomotion V84: speed exceeds top speed
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/running/LiveRunnerMotionV1.test.ts > LiveRunnerMotionV1 > keeps derived rotated velocities inside their scalar cap and replans without boundary exceptions
+AssertionError: expected 5.809475019311126 to be less than or equal to 5.809475019311125
+ ❯ src/core/sim/running/LiveRunnerMotionV1.test.ts:151:68
+    149|       for (const elapsed of [4, m.touches[0].centerElapsedSeconds - .2…
+    150|         const sampled = m.sampleAtElapsedSeconds(elapsed);
+    151|         expect(Math.hypot(sampled.velocity.x, sampled.velocity.z)).toB…
+       |                                                                    ^
+    152|         expect(sampled.speedMps).toBeLessThanOrEqual(8);
+    153|         expect(() => createLiveRunnerMotionV1(input({ position: sample…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/core/sim/running/LiveRunnerMotionV1.test.ts > LiveRunnerMotionV1 > retains an infeasible incoming velocity as a null result without clamping or throwing
+Error: live locomotion V84: speed exceeds top speed
+ ❯ validateSpeed src/core/sim/locomotion/LiveLocomotionV84.ts:54:42
+     52| function validateSpeed(profile: LiveLocomotionProfileV84, speed: numbe…
+     53|   requireNonnegative(speed, 'speed');
+     54|   if (speed > profile.topSpeedMps) throw new Error('live locomotion V8…
+       |                                          ^
+     55| }
+     56| const magnitude = (a: Vec2): number => Math.hypot(a.x, a.z);
+ ❯ increasingSpeeds src/core/sim/locomotion/LiveLocomotionV84.ts:99:29
+ ❯ Module.liveReachableSpeedV84 src/core/sim/locomotion/LiveLocomotionV84.ts:118:3
+ ❯ buildSpeedSegments src/core/sim/running/LiveRunnerMotionV1.ts:155:5
+ ❯ Module.createLiveRunnerMotionV1 src/core/sim/running/LiveRunnerMotionV1.ts:241:18
+ ❯ src/core/sim/running/LiveRunnerMotionV1.test.ts:163:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 12 passed (14)
+   Start at  00:32:28
+   Duration  749ms (transform 98ms, setup 0ms, collect 113ms, tests 74ms, environment 0ms, prepare 169ms)
+

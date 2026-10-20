@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V80-PITCH-MENU-BROWSER",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-pitch-menu-v80.mjs"
+  ],
+  "observed_at": "2026-10-20T12:21:32.551+00:00",
+  "elapsed_ms": 11952,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V80-PITCH-MENU-BROWSER_afa30aa3b5874b5b9aba8f9a11f1b6b4.log",
+  "output_sha256": "2584e82f3cec9a2a41a0b198f1cd5243e9458f99e41c680a913881ec0fcb235b",
+  "receipt_id": "MB-20261020-V80-PITCH-MENU-BROWSER_afa30aa3b5874b5b9aba8f9a11f1b6b4"
+}

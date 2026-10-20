@@ -1,0 +1,12 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/locomotion/LiveLocomotionV84.test.ts (19 tests) 18ms
+ ✓ src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts (3 tests) 18ms
+ ✓ src/core/sim/running/LiveRunnerMotionV1.test.ts (12 tests) 69ms
+
+ Test Files  3 passed (3)
+      Tests  34 passed (34)
+   Start at  00:20:55
+   Duration  873ms (transform 271ms, setup 0ms, collect 371ms, tests 105ms, environment 1ms, prepare 684ms)
+

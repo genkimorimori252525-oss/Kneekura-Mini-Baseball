@@ -1,0 +1,31 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/ball/BaseballGroundDynamics.test.ts (7 tests) 6ms
+ ✓ src/core/sim/ball/FreeBaseballTrajectory.test.ts (7 tests) 147ms
+ ✓ src/integration/browser/WorkbenchPlayer.test.ts (17 tests) 24ms
+ ✓ src/integration/browser/NativeFreeBallObservation.test.ts (2 tests) 107ms
+ ✓ src/integration/browser/NativeAerodynamicReferenceFixture.test.ts (8 tests) 1059ms
+   ✓ uses explicit measured aerodynamic coefficient and spin-decay inputs on the actual pitch 425ms
+   ✓ reference-only physical source, not a player ability > honors next-pitch command without changing the accepted prefix; same seed is deterministic 305ms
+ ✓ src/host/world/SamePlateAppearanceDefensiveSupportGeometry.test.ts (3 tests) 14ms
+ ✓ src/host/world/SamePlateAppearancePhysicalFieldActions.test.ts (13 tests) 1844ms
+   ✓ FS01 source-backed relay, backup and deep coverage execute the rated motor into the same physical checkpoint 310ms
+   ✓ FS02 all nine original defenders execute including cover after a genuinely moved and locally perceived handler 698ms
+ ✓ src/integration/browser/BattingWorkbench.test.ts (11 tests) 11110ms
+   ✓ creates one body-attached rigid bat path and feeds its actual collision to Core Aero/ground physics 742ms
+   ✓ changing actual bat speed changes impulse and batted-ball velocity rather than a hit probability 1160ms
+   ✓ a late motor cannot retroactively meet the pitch, and a take creates no contact 1302ms
+   ✓ replays the same physical inputs and preserves league labels as display-only context 2239ms
+   ✓ keeps both actual arm bone lengths on the near-folded regression path 755ms
+   ✓ mirrors the body and contact for right/left hitters at a constrained course 1523ms
+   ✓ detects contact that starts and ends between the old 1ms sample endpoints 538ms
+   ✓ audits the actual motor speed independently of the 4ms drawing frames 640ms
+   ✓ keeps the same pitched ball when only authored contact depth changes 1475ms
+   ✓ does not make a visible held bat transparent when the hitter takes 734ms
+
+ Test Files  8 passed (8)
+      Tests  68 passed (68)
+   Start at  03:53:44
+   Duration  12.47s (transform 9.13s, setup 0ms, collect 19.05s, tests 14.31s, environment 2ms, prepare 1.82s)
+

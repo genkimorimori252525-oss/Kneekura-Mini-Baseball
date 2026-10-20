@@ -1,0 +1,51 @@
+{
+  "pass": true,
+  "sourceCommit": "b3bf598ba33d0e81d2846054b0e96e2b9972d460",
+  "verifiedRemoteHead": "b3bf598ba33d0e81d2846054b0e96e2b9972d460",
+  "branch": "jolly/tbd-lad-native-browser-core-2026-10-14",
+  "pullRequest": {
+    "headRefOid": "b3bf598ba33d0e81d2846054b0e96e2b9972d460",
+    "isDraft": true,
+    "state": "OPEN",
+    "title": "Core通常試合・公開能力メーカー・視線修正と開発史（v44）",
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380"
+  },
+  "rawFiles": {
+    "docs/history/README.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/b3bf598ba33d0e81d2846054b0e96e2b9972d460/docs/history/README.md",
+      "bytes": 2574,
+      "sha256": "ac8ac08ff8c3a1f440ddae0f52a26085304d5dd3b685078dd4773789cd777374"
+    },
+    "docs/history/TIMELINE.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/b3bf598ba33d0e81d2846054b0e96e2b9972d460/docs/history/TIMELINE.md",
+      "bytes": 7257,
+      "sha256": "54dd37948bf4856bbdc34ea4aba01ff1fe9eec8eba7ce1a85a99be10e7097d04"
+    },
+    "docs/history/INCIDENTS.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/b3bf598ba33d0e81d2846054b0e96e2b9972d460/docs/history/INCIDENTS.md",
+      "bytes": 14065,
+      "sha256": "bdac14ac3d57008d41357f4e5545307b4ce920720fb7a91009a57534b6b94d91"
+    },
+    "docs/handoffs/LATEST.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/b3bf598ba33d0e81d2846054b0e96e2b9972d460/docs/handoffs/LATEST.md",
+      "bytes": 3725,
+      "sha256": "841c4820bb9e2f0828b6beea22ca46c7a470d9a76d39ee91edea6312016fe224"
+    },
+    "docs/demos/releases/v43/game.html": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/b3bf598ba33d0e81d2846054b0e96e2b9972d460/docs/demos/releases/v43/game.html",
+      "bytes": 3398443,
+      "sha256": "7b05c8dd2600a92e5d53ad534478a13be68d500ddf5c3ccb3bd922d333778a0d"
+    },
+    "docs/demos/releases/v44/game.html": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/b3bf598ba33d0e81d2846054b0e96e2b9972d460/docs/demos/releases/v44/game.html",
+      "bytes": 3400991,
+      "sha256": "def5e0c9e4a27ad99422a615c10e58f9f4cf9e3e778b6f58c7336457c383cee5"
+    },
+    "docs/demos/releases/v44/SHA256.json": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/b3bf598ba33d0e81d2846054b0e96e2b9972d460/docs/demos/releases/v44/SHA256.json",
+      "bytes": 553,
+      "sha256": "d0506dcbc56cab5e2663572258fca45364c062755db4082f8c4e567b4541c66b"
+    }
+  },
+  "scope": "actual current raw bytes and remote branch/Draft PR; no main merge"
+}

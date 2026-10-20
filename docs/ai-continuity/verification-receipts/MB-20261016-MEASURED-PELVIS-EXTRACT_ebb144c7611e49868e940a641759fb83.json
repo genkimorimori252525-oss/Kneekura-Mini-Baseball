@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-MEASURED-PELVIS-EXTRACT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "tools/browser-bridge/import-openbiomechanics-pelvis.py",
+    "../../outputs/参考データ/openbiomechanics",
+    "docs/demos/measured-batter-pelvis-v1.json"
+  ],
+  "observed_at": "2026-10-16T13:08:25.052+00:00",
+  "elapsed_ms": 4750,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-MEASURED-PELVIS-EXTRACT_ebb144c7611e49868e940a641759fb83.log",
+  "output_sha256": "6e67aafd4f1c8fe17315a188463bdb9cf51f65419357cddb96e14ef1a382e949",
+  "receipt_id": "MB-20261016-MEASURED-PELVIS-EXTRACT_ebb144c7611e49868e940a641759fb83"
+}

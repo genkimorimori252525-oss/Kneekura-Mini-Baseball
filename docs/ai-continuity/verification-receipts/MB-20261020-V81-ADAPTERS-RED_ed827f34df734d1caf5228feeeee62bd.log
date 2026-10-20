@@ -1,0 +1,30 @@
+node:internal/fs/promises:1281
+  return new FileHandle(await PromisePrototypeThen(
+                        ^
+
+Error: ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\maker-match-renderer-v81.js'
+    at async open (node:internal/fs/promises:1281:25)
+    at async readFile (node:internal/fs/promises:1929:14)
+    at async file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/whole-scene-adapters-v81.test.mjs:10:11 {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\tools\\browser-bridge\\maker-match-renderer-v81.js'
+}
+
+Node.js v26.1.0
+✖ tools\browser-bridge\whole-scene-adapters-v81.test.mjs (62.8369ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 68.099
+
+✖ failing tests:
+
+test at tools\browser-bridge\whole-scene-adapters-v81.test.mjs:1:1
+✖ tools\browser-bridge\whole-scene-adapters-v81.test.mjs (62.8369ms)
+  'test failed'

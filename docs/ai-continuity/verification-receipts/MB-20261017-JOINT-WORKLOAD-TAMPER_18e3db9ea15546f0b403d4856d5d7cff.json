@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-JOINT-WORKLOAD-TAMPER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-owned-joint-workload-v3/readback.mjs",
+    "tamper",
+    "../../outputs/verification-authored-with-bat-physical-execution-v1",
+    "../../outputs/verification-authored-with-bat-workload-v1"
+  ],
+  "observed_at": "2026-10-16T15:20:16.925+00:00",
+  "elapsed_ms": 156,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-JOINT-WORKLOAD-TAMPER_18e3db9ea15546f0b403d4856d5d7cff.log",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "receipt_id": "MB-20261017-JOINT-WORKLOAD-TAMPER_18e3db9ea15546f0b403d4856d5d7cff"
+}

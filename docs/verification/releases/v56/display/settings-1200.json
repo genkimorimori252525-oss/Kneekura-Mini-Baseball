@@ -1,0 +1,28 @@
+{
+  "schema": "kneekura_camera_tuning_v1",
+  "sourceGameSha256": "80c68e3ddb5c961ab6f18b325c6f267f883cd02d27381dfa10a9334bf8afae9f",
+  "settings": {
+    "A": {
+      "enabled": false,
+      "aimLiftMeters": 0.3,
+      "swingMaxDownRadians": 0.3,
+      "hitFollowDelayMs": 100,
+      "aimReleaseMs": 100,
+      "pitchTrackingGain": 1,
+      "pitchTrackingDeadbandRadians": 0
+    },
+    "B": {
+      "enabled": true,
+      "aimLiftMeters": 0.3,
+      "swingMaxDownRadians": 0.3,
+      "hitFollowDelayMs": 100,
+      "aimReleaseMs": 100,
+      "pitchTrackingGain": 0.15,
+      "pitchTrackingDeadbandRadians": 0.02
+    }
+  },
+  "ballDisplay": {
+    "perspective": 2.2,
+    "overhead": 3
+  }
+}

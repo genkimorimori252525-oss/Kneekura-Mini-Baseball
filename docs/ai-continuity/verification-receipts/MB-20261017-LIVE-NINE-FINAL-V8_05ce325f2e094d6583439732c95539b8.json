@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-NINE-FINAL-V8",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveBaseballMatchV1.test.ts",
+    "src/integration/browser/LivePitchV1.test.ts",
+    "src/integration/browser/PlayableMatchRulesV1.test.ts",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts",
+    "src/core/sim/fielding/GroundWallRollingCurveV1.test.ts",
+    "src/core/sim/fielding/LiveFieldForecastV1.test.ts",
+    "src/core/sim/fielding/GroundedActorContactResponseV1.test.ts",
+    "src/core/sim/fielding/LiveHandPreparationV1.test.ts",
+    "src/core/sim/fielding/LiveThrowPlanV1.test.ts",
+    "tools/verification/LiveMatchRecordingV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T01:14:06.142+00:00",
+  "elapsed_ms": 285890,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-NINE-FINAL-V8_05ce325f2e094d6583439732c95539b8.log",
+  "output_sha256": "4abf29c2f44023c04197f55c3756d369b7b7ad79f2b94350ee886d3525e45c9d",
+  "receipt_id": "MB-20261017-LIVE-NINE-FINAL-V8_05ce325f2e094d6583439732c95539b8"
+}

@@ -1,0 +1,54 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/LivePublicAbilitiesV1.test.ts (14 tests | 2 failed) 158ms
+   × public authoring with individual SI profiles > projects all 20 profiles without changing the packet and exact no-op edits preserve all bytes 11ms
+     → expected [ { id: 'contact', …(8) }, …(10) ] to have a length of 10 but got 11
+   × public authoring with individual SI profiles > moves bad-ball technique out of public numeric abilities while preserving legacy SI and reference anchors 4ms
+     → expected true to be false // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LivePublicAbilitiesV1.test.ts > public authoring with individual SI profiles > projects all 20 profiles without changing the packet and exact no-op edits preserve all bytes
+AssertionError: expected [ { id: 'contact', …(8) }, …(10) ] to have a length of 10 but got 11
+
+- Expected
++ Received
+
+- 10
++ 11
+
+ ❯ src/integration/browser/LivePublicAbilitiesV1.test.ts:20:36
+     18|     for (const anchor of reference.anchors) {
+     19|       const projection = projectLivePublicAbilitiesV1({ roster, refere…
+     20|       expect(projection.abilities).toHaveLength(10);
+       |                                    ^
+     21|       for (const ability of projection.abilities) {
+     22|         if (ability.id !== 'maxSpeedKmh') expect(ability.value).toBe(a…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/integration/browser/LivePublicAbilitiesV1.test.ts > public authoring with individual SI profiles > moves bad-ball technique out of public numeric abilities while preserving legacy SI and reference anchors
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/integration/browser/LivePublicAbilitiesV1.test.ts:32:83
+     30|     legacyReference.anchors.forEach(anchor => { anchor.ratings.badBall…
+     31|     const projection = projectLivePublicAbilitiesV1({ ...input, refere…
+     32|     expect(projection.abilities.some(ability => ability.id === 'badBal…
+       |                                                                                   ^
+     33|     expect(projection.abilities.some(ability => ability.linkedPaths.in…
+     34|     expect(() => editLivePublicAbilityV1({ ...input, abilityId: 'badBa…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 12 passed (14)
+   Start at  19:10:57
+   Duration  1.21s (transform 382ms, setup 0ms, collect 567ms, tests 158ms, environment 0ms, prepare 139ms)
+

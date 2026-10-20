@@ -35,6 +35,12 @@ const domains: readonly Domain[] = [
 ];
 /** A private copy of the declared dependency graph; consumers cannot mutate registration. */
 export const originalLiveOwnerDomains = (): readonly Domain[] => structuredClone(domains);
+const prospectiveV3Domains: readonly Domain[] = [...domains,
+  { owner: 'batted_world_continuations_v3', links: [['responseSourceId', 'response_source_id', 'batted_contact_responses']], head: { owner: 'batted_world_continuation_heads_v3' } },
+];
+/** A separate future-work registry. The frozen v1 replay census above must never
+ * grow, including when a database contains newer owner tables. */
+export const prospectiveLiveOwnerDomainsV3 = (): readonly Domain[] => structuredClone(prospectiveV3Domains);
 const mirrors: readonly (readonly [string, Path])[] = [['source_json', []], ['snapshot_json', ['source']],
   ['snapshot_json', ['history', { array: 'all' }]], ['snapshot_json', ['history']]];
 const contexts: readonly Path[] = [[], ['recipient'], ['receipt', 'self'], ['receipt', 'self', 'cut'], ['setup'], ['observation'], ['observation', 'setup'], ['baseField'], ['scope'], ['execution', 'physicalHistory', 'scope']];
@@ -101,7 +107,7 @@ export const assertActualLiveRegistrationBeforeWork = (db: Db, scope: Scope): vo
     }
     return clauses.length ? db.prepare(`SELECT * FROM ${table} WHERE ${clauses.join(' OR ')}`).all(bindings) : [];
   };
-  for (const domain of domains) {
+  for (const domain of prospectiveV3Domains) {
     const ids = new Set<string>(); known.set(domain.owner, ids);
     const links: readonly Link[] = domain.previous ? [...domain.links, [domain.previous, 'previous_source_id', domain.owner]] : domain.links;
     const seen = new Set<string>();
@@ -152,7 +158,7 @@ export const assertActualLiveRegistrationBeforeWork = (db: Db, scope: Scope): vo
  * a shared Player identity never links otherwise unrelated PA histories. */
 export const assertSamePaRegistrationBeforeWork = (db:Db,scope:Scope & Readonly<{actorSourceId:string;initialWorldSourceId?:string;activationApplicationId?:string}>):void => {
   const owners=new Set(['physical_pitch_progress_actions','physical_pitch_progress_heads','actual_live_play_runtimes',
-    'actual_live_play_fences','actual_first_base_play_ends','actual_foul_play_ends',...domains.flatMap(d=>[d.owner,...(d.head?[d.head.owner]:[])])]);
+    'actual_live_play_fences','actual_first_base_play_ends','actual_foul_play_ends',...prospectiveV3Domains.flatMap(d=>[d.owner,...(d.head?[d.head.owner]:[])])]);
   const paths:readonly Path[]=[[],['source'],['history',{array:'all'}],['history'],['history',{array:'all'},'source'],['history','source'],
     ['frame'],['scope'],['physicalPitch','frame'],['frame','batterActor'],['frame','batterActor','source'],
     ...contexts,...flights.flatMap(p=>[[...p,'physicalPitch','frame'] as Path,[...p,'physicalPitch'] as Path,
@@ -168,6 +174,10 @@ export const assertSamePaRegistrationBeforeWork = (db:Db,scope:Scope & Readonly<
     if(owner==='physical_pitch_progress_actions'&&cols.has('source_id'))clauses.push('source_id=$pitch');
     if(owner==='physical_pitch_progress_heads'&&cols.has('last_source_id'))clauses.push('last_source_id=$pitch');
     for(const document of ['source_json','snapshot_json','proof_json'])if(cols.has(document)){
+      if(owner==='batted_world_continuations_v3')for(const flight of flights){
+        clauses.push(claim(document,[...flight,'source','physicalPitchSourceId'],'$pitch'));
+        clauses.push(claim(document,[...flight,'physicalPitch','source','sourceId'],'$pitch'));
+      }
       for(const path of paths){
         clauses.push(claim(document,[...path,'physicalPitchSourceId'],'$pitch'));
         clauses.push(claim(document,[...path,'initialWorldSourceId'],'$initial'));

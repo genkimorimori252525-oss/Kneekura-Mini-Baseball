@@ -1,0 +1,65 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts (10 tests | 2 failed) 19ms
+   × uses nearby outfield pickup backup without exchanging spare players home positions 7ms
+     → expected { x: -46, y: 0.9, z: 76 } to deeply equal { x: +0, y: 0.85, z: -1.5 }
+   × keeps an infielder available for a useful relay while spare actors hold their own homes 2ms
+     → expected { x: 20, y: 1, z: 20 } to deeply equal { x: 40, y: 1, z: 70 }
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts > uses nearby outfield pickup backup without exchanging spare players home positions
+AssertionError: expected { x: -46, y: 0.9, z: 76 } to deeply equal { x: +0, y: 0.85, z: -1.5 }
+
+- Expected
++ Received
+
+  Object {
+-   "x": 0,
+-   "y": 0.85,
+-   "z": -1.5,
++   "x": -46,
++   "y": 0.9,
++   "z": 76,
+  }
+
+ ❯ src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts:93:24
+     91|   expect(roles.find(r => r.taskId === 'pickup-backup')?.playerId).toBe…
+     92|   for (const role of roles.filter(r => r.intent === 'hold')) {
+     93|     expect(role.point).toEqual(actors.find(a => a.playerId === role.pl…
+       |                        ^
+     94|     expect(role.taskId).toBe('hold:' + role.playerId);
+     95|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts > keeps an infielder available for a useful relay while spare actors hold their own homes
+AssertionError: expected { x: 20, y: 1, z: 20 } to deeply equal { x: 40, y: 1, z: 70 }
+
+- Expected
++ Received
+
+  Object {
+-   "x": 40,
++   "x": 20,
+    "y": 1,
+-   "z": 70,
++   "z": 20,
+  }
+
+ ❯ src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts:107:24
+    105|   expect(roles.filter(r => r.intent === 'base_cover')).toHaveLength(2);
+    106|   for (const role of roles.filter(r => r.intent === 'hold'))
+    107|     expect(role.point).toEqual(raw.actors.find(a => a.playerId === rol…
+       |                        ^
+    108| });
+    109| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 8 passed (10)
+   Start at  14:16:36
+   Duration  588ms (transform 111ms, setup 0ms, collect 141ms, tests 19ms, environment 0ms, prepare 129ms)
+

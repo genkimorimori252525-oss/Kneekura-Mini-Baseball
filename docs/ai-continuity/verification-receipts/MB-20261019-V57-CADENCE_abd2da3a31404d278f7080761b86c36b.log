@@ -1,0 +1,12 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+page.waitForFunction: Timeout 30000ms exceeded.
+    at setupNormal (C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\check-v56-cadence.mjs:29:89)
+    at async file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v56-cadence.mjs:42:15 {
+  log: [],
+  name: 'TimeoutError'
+}
+
+Node.js v26.1.0

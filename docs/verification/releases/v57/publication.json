@@ -1,0 +1,61 @@
+{
+  "pass": true,
+  "sourceCommit": "fa2a0ab6d356a3535fd37914be68e81730ccb49b",
+  "verifiedRemoteHead": "fa2a0ab6d356a3535fd37914be68e81730ccb49b",
+  "branch": "jolly/tbd-lad-native-browser-core-2026-10-14",
+  "pullRequest": {
+    "headRefOid": "fa2a0ab6d356a3535fd37914be68e81730ccb49b",
+    "isDraft": true,
+    "state": "OPEN",
+    "title": "通常試合・調整室v57: スイング開始で打者の頭を固定",
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380"
+  },
+  "rawFiles": {
+    "docs/handoffs/LATEST.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/fa2a0ab6d356a3535fd37914be68e81730ccb49b/docs/handoffs/LATEST.md",
+      "bytes": 12729,
+      "sha256": "7d701bcb3e49ac2e474787a9a30a9269c58769d8922e51300824b71c321f7f3d"
+    },
+    "tools/browser-bridge/camera-workbench-v57.js": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/fa2a0ab6d356a3535fd37914be68e81730ccb49b/tools/browser-bridge/camera-workbench-v57.js",
+      "bytes": 32168,
+      "sha256": "52c416a1c70a6535bda7bb79044f596a8fd027651bca0510f634194a32f6bb78"
+    },
+    "tools/browser-bridge/camera-workbench-v57.html": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/fa2a0ab6d356a3535fd37914be68e81730ccb49b/tools/browser-bridge/camera-workbench-v57.html",
+      "bytes": 11117,
+      "sha256": "e4c91ef0d3fc5e808b4029e72681bce3799c0b95ce593df7478b0f736637de37"
+    },
+    "tools/browser-bridge/build-v57.mjs": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/fa2a0ab6d356a3535fd37914be68e81730ccb49b/tools/browser-bridge/build-v57.mjs",
+      "bytes": 3876,
+      "sha256": "cf4ba409860a380eb7ad59a92688b6c5cba109fcf51258081dfc9d674a2aedb7"
+    },
+    "tools/browser-bridge/live-camera-tuning-batter-view-v57.js": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/fa2a0ab6d356a3535fd37914be68e81730ccb49b/tools/browser-bridge/live-camera-tuning-batter-view-v57.js",
+      "bytes": 24960,
+      "sha256": "80bda3e659b6e0d38a820c04b92e2531012d41e038e7ad1324cad787b7064d3f"
+    },
+    "docs/reports/2026-10-19-v57-swing-head-hold.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/fa2a0ab6d356a3535fd37914be68e81730ccb49b/docs/reports/2026-10-19-v57-swing-head-hold.md",
+      "bytes": 5469,
+      "sha256": "136bf82ae04a7a5b6946077d4a2266c49803090c75cf080b47c927aacd2c7d34"
+    },
+    "docs/demos/releases/v57/game.html": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/fa2a0ab6d356a3535fd37914be68e81730ccb49b/docs/demos/releases/v57/game.html",
+      "bytes": 3596409,
+      "sha256": "238fce33e1e7087ecc5b08f1a8a1487c1f65d92e6a6dbd718dbf8ddb6d068d0f"
+    },
+    "docs/demos/releases/v57/camera-workbench.html": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/fa2a0ab6d356a3535fd37914be68e81730ccb49b/docs/demos/releases/v57/camera-workbench.html",
+      "bytes": 3873050,
+      "sha256": "82532cb37e4420785913686633d0d5e37e8ea4d80a0119566f99066dc222fd90"
+    },
+    "docs/demos/releases/v57/SHA256.json": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/fa2a0ab6d356a3535fd37914be68e81730ccb49b/docs/demos/releases/v57/SHA256.json",
+      "bytes": 490,
+      "sha256": "687305235b0f63c4537bda259a6f0b7b859ff8654ed41198252e711e11c8adeb"
+    }
+  },
+  "scope": "actual current raw bytes and remote branch/Draft PR; no main merge"
+}

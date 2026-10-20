@@ -1,0 +1,17 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/adjudication/OfficialWindowPolicy.test.ts (6 tests) 10ms
+ ✓ src/core/adjudication/InertCloneValidationScope.test.ts (12 tests) 169ms
+ ✓ src/core/sim/contact/ReferenceBatKinematicsV1.test.ts (7 tests) 328ms
+   ✓ selects the human-requested upper Miku fifth stage and keeps both original sources unchanged 318ms
+ ✓ src/host/world/ActualFirstBasePhysicalReadTraversal.test.ts (25 tests) 1175ms
+ ✓ src/host/world/OwnedScheduledMotionDependencyEncoding.test.ts (16 tests) 1318ms
+   ✓ retains long per-record snapshot budgets without introducing an aggregate cache limit 374ms
+   ✓ caches a per-record validated large whole-history snapshot without a generic aggregate bypass 499ms
+
+ Test Files  5 passed (5)
+      Tests  66 passed (66)
+   Start at  05:39:35
+   Duration  9.74s (transform 6.93s, setup 0ms, collect 16.44s, tests 3.00s, environment 1ms, prepare 1.22s)
+

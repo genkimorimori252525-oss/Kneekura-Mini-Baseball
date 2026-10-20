@@ -1,0 +1,60 @@
+file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/node_modules/vitest/dist/chunks/utils.C8RiOc4B.js:8
+    throw new Error(errorMsg);
+          ^
+
+Error: Vitest failed to access its internal state.
+
+One of the following is possible:
+- "vitest" is imported directly without running "vitest" command
+- "vitest" is imported inside "globalSetup" (to fix this, use "setupFiles" instead, because "globalSetup" runs in a different context)
+- Otherwise, it might be a Vitest bug. Please report it to https://github.com/vitest-dev/vitest/issues
+
+    at getWorkerState (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/node_modules/vitest/dist/chunks/utils.C8RiOc4B.js:8:11)
+    at getCurrentEnvironment (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/node_modules/vitest/dist/chunks/utils.C8RiOc4B.js:22:17)
+    at createExpect (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/node_modules/vitest/dist/chunks/vi.DgezovHB.js:521:20)
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/node_modules/vitest/dist/chunks/vi.DgezovHB.js:566:22
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:636:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v26.1.0
+✖ tools\browser-bridge\maker-guides-v85.test.mjs (149.8304ms)
+file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/node_modules/vitest/dist/chunks/utils.C8RiOc4B.js:8
+    throw new Error(errorMsg);
+          ^
+
+Error: Vitest failed to access its internal state.
+
+One of the following is possible:
+- "vitest" is imported directly without running "vitest" command
+- "vitest" is imported inside "globalSetup" (to fix this, use "setupFiles" instead, because "globalSetup" runs in a different context)
+- Otherwise, it might be a Vitest bug. Please report it to https://github.com/vitest-dev/vitest/issues
+
+    at getWorkerState (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/node_modules/vitest/dist/chunks/utils.C8RiOc4B.js:8:11)
+    at getCurrentEnvironment (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/node_modules/vitest/dist/chunks/utils.C8RiOc4B.js:22:17)
+    at createExpect (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/node_modules/vitest/dist/chunks/vi.DgezovHB.js:521:20)
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/node_modules/vitest/dist/chunks/vi.DgezovHB.js:566:22
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:636:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v26.1.0
+✖ tools\browser-bridge\pitcher-comparison-v85.test.mjs (151.169ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 177.7531
+
+✖ failing tests:
+
+test at tools\browser-bridge\maker-guides-v85.test.mjs:1:1
+✖ tools\browser-bridge\maker-guides-v85.test.mjs (149.8304ms)
+  'test failed'
+
+test at tools\browser-bridge\pitcher-comparison-v85.test.mjs:1:1
+✖ tools\browser-bridge\pitcher-comparison-v85.test.mjs (151.169ms)
+  'test failed'

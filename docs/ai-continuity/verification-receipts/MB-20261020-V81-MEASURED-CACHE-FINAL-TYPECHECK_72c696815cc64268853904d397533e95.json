@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-MEASURED-CACHE-FINAL-TYPECHECK",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-20T12:50:40.675+00:00",
+  "elapsed_ms": 25187,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-MEASURED-CACHE-FINAL-TYPECHECK_72c696815cc64268853904d397533e95.log",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "receipt_id": "MB-20261020-V81-MEASURED-CACHE-FINAL-TYPECHECK_72c696815cc64268853904d397533e95"
+}

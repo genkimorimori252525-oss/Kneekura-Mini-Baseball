@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V49-HARNESS-POSITIONS-GREEN",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T08:18:05.789+00:00",
+  "elapsed_ms": 36375,
+  "git_head": "d54aa62aec6ce643f216dbaedfbaba2f36b31e3b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V49-HARNESS-POSITIONS-GREEN_ebbf4fe68c154fc984c7ad967efcd5d1.log",
+  "output_sha256": "a76eebdcefe76ebbfcb34a29c324a83d4a8404210fb9a86f7f8cb0e0762b460a",
+  "receipt_id": "MB-20261018-V49-HARNESS-POSITIONS-GREEN_ebbf4fe68c154fc984c7ad967efcd5d1"
+}

@@ -1,0 +1,26 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/locomotion/LiveLocomotionV84.test.ts (21 tests | 1 failed) 57ms
+   × averaged alternating-support live locomotion V84 > retains propulsion capacity across tiny continuous event cuts without subtractive speed cancellation 6ms
+     → expected 3.5000000000451337 to be close to 3.5, received difference is 4.5133674575481564e-11, but expected 5e-13
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/locomotion/LiveLocomotionV84.test.ts > averaged alternating-support live locomotion V84 > retains propulsion capacity across tiny continuous event cuts without subtractive speed cancellation
+AssertionError: expected 3.5000000000451337 to be close to 3.5, received difference is 4.5133674575481564e-11, but expected 5e-13
+ ❯ src/core/sim/locomotion/LiveLocomotionV84.test.ts:173:38
+    171|     for (const dt of [1e-6, 1e-12, 1e-15, 1e-16, 1e-18]) {
+    172|       const command = stepLiveDefenderMotionV84({ position: { x: 0, z:…
+    173|       expect(command.acceleration.x).toBeCloseTo(3.5, 12);
+       |                                      ^
+    174|       expect(command.acceleration.x).toBeLessThanOrEqual(3.5 + 1e-12);
+    175|       expect(command.acceleration.z).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 20 passed (21)
+   Start at  00:25:45
+   Duration  802ms (transform 107ms, setup 0ms, collect 106ms, tests 57ms, environment 0ms, prepare 207ms)
+

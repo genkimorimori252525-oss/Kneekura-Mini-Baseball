@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-SEAM-PHYSICS-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "./node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/BaseballSeamForceV1.test.ts",
+    "src/core/sim/ball/SourceFreeBallSpeedBound.test.ts",
+    "src/core/sim/ball/SourceFreeBallKernel.test.ts",
+    "src/core/sim/ball/FreeBaseballTrajectory.test.ts",
+    "src/core/sim/ball/VersionedBattedBallPhysics.test.ts",
+    "src/core/sim/ball/SourceBallMaterialHistoryV1.test.ts",
+    "src/core/sim/ball/SourceBallMaterialHistoryFromContinuationV3.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-19T19:40:39.564+00:00",
+  "elapsed_ms": 2764,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-SEAM-PHYSICS-FINAL_55f4e4f23cd848c89412fb2b084330a7.log",
+  "output_sha256": "cffdb7752664dd85c0680861b45a8ae4ac13db00bba35b0fb889903fde54ad20",
+  "receipt_id": "MB-20261020-V78-SEAM-PHYSICS-FINAL_55f4e4f23cd848c89412fb2b084330a7"
+}

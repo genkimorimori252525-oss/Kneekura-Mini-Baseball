@@ -1,0 +1,2 @@
+src/core/sim/ball/SourceBaseImpulseV3.test.ts(23,86): error TS2322: Type 'Readonly<{ x: number; y: number; z: number; }> | null' is not assignable to type 'Readonly<{ x: number; y: number; z: number; }>'.
+  Type 'null' is not assignable to type 'Readonly<{ x: number; y: number; z: number; }>'.

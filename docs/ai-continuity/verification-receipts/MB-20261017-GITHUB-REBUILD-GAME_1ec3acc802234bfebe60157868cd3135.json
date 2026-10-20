@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-GITHUB-REBUILD-GAME",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-v41.mjs",
+    "../../work/github-publication-check/game.html"
+  ],
+  "observed_at": "2026-10-17T04:03:46.377+00:00",
+  "elapsed_ms": 328,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-GITHUB-REBUILD-GAME_1ec3acc802234bfebe60157868cd3135.log",
+  "output_sha256": "22d5fc2cbbf1c96c32a9145b26e768c8accf09441c92d75b96c233166ea0f919",
+  "receipt_id": "MB-20261017-GITHUB-REBUILD-GAME_1ec3acc802234bfebe60157868cd3135"
+}

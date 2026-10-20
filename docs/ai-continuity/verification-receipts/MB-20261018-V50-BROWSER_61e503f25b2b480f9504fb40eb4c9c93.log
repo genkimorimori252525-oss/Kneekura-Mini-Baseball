@@ -1,0 +1,39 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: existing v49 field tracking resumes exactly
++ actual - expected
+
+  {
+    camera: 'batter',
+    eye: {
+      x: 2.9071198364713964,
+      y: 1.4861,
+      z: 1.6990525314956155
+    },
++   pitch: 0.04222711622602826,
+-   pitch: 0.04222711622602827,
+    yaw: 0.2553621874219225
+  }
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v50-batter-view.mjs:127:32 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: {
+    camera: 'batter',
+    eye: { x: 2.9071198364713964, y: 1.4861, z: 1.6990525314956155 },
+    yaw: 0.2553621874219225,
+    pitch: 0.04222711622602826
+  },
+  expected: {
+    camera: 'batter',
+    eye: { x: 2.9071198364713964, y: 1.4861, z: 1.6990525314956155 },
+    yaw: 0.2553621874219225,
+    pitch: 0.04222711622602827
+  },
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

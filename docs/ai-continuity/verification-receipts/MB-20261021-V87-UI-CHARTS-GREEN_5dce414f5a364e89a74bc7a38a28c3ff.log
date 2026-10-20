@@ -1,0 +1,32 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ tools/browser-bridge/course-charts-v87.test.mjs (2 tests | 1 failed) 854ms
+   × 13-region map preserves missing values and routes keyboard selection to its region 285ms
+     → locator.inputValue: Error: Node is not an <input>, <textarea> or <select> element
+Call log:
+[2m  - waiting for locator('#selected')[22m
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tools/browser-bridge/course-charts-v87.test.mjs > 13-region map preserves missing values and routes keyboard selection to its region
+Error: locator.inputValue: Error: Node is not an <input>, <textarea> or <select> element
+Call log:
+[2m  - waiting for locator('#selected')[22m
+
+ ❯ tools/browser-bridge/course-charts-v87.test.mjs:20:127
+     18|   expect(observed.available).toBe(true);expect(observed.ids).toEqual([…
+     19|   expect(observed.values.slice(0,3)).toEqual(['.330','.180','—']);expe…
+     20|   await page.locator('[data-zone-id="12"]').focus();await page.keyboar…
+       |                                                                                                                               ^
+     21|  }finally{await page.close();}
+     22| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  02:05:19
+   Duration  1.78s (transform 30ms, setup 0ms, collect 279ms, tests 854ms, environment 0ms, prepare 177ms)
+

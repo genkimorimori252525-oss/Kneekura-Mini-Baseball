@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V51-SPACING-BASELINE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "work/v51-spacing-baseline.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T09:18:50.787+00:00",
+  "elapsed_ms": 23483,
+  "git_head": "01834d9e8361b7747083b9fbb7539c93ee662b50",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V51-SPACING-BASELINE_218993d71c924fe98499831849276b12.log",
+  "output_sha256": "a9ad25f08a807a66953de8ccc0413a18cbcd36a10b33f68d5a56262697f8940d",
+  "receipt_id": "MB-20261018-V51-SPACING-BASELINE_218993d71c924fe98499831849276b12"
+}

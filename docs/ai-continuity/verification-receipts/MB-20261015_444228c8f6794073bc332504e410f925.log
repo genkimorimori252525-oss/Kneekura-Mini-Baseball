@@ -1,0 +1,8 @@
+src/integration/browser/BattingWorkbench.test.ts(25,21): error TS2540: Cannot assign to 'speedMps' because it is a read-only property.
+src/integration/browser/BattingWorkbench.test.ts(25,54): error TS2540: Cannot assign to 'speedMps' because it is a read-only property.
+src/integration/browser/BattingWorkbench.test.ts(41,33): error TS2540: Cannot assign to 'leagueId' because it is a read-only property.
+src/integration/browser/BattingWorkbench.test.ts(50,49): error TS2540: Cannot assign to 'speedMps' because it is a read-only property.
+src/integration/browser/BattingWorkbench.test.ts(56,25): error TS2540: Cannot assign to 'contactDepthM' because it is a read-only property.
+src/integration/browser/BattingWorkbench.test.ts(71,21): error TS2540: Cannot assign to 'heightMeters' because it is a read-only property.
+src/integration/browser/BattingWorkbench.test.ts(71,53): error TS2540: Cannot assign to 'heightMeters' because it is a read-only property.
+src/integration/browser/BattingWorkbench.test.ts(74,24): error TS2540: Cannot assign to 'bats' because it is a read-only property.

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V53-TRAIT-IMPORT-GREEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveTraitProfilesV1.test.ts",
+    "src/integration/browser/LivePhysicalRosterV1.test.ts",
+    "src/integration/browser/LivePublicAbilitiesV1.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T10:19:42.335+00:00",
+  "elapsed_ms": 2375,
+  "git_head": "ea9ca61b0971da3cc3b3ce1cfb344d4496e2ecc9",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V53-TRAIT-IMPORT-GREEN_85cf5885f9f2452aaa28a6587adb1f0d.log",
+  "output_sha256": "d2bc7f2bf9b086cfc986ae5f2105133c09fdfa29775f0202b1b1057f7f920258",
+  "receipt_id": "MB-20261018-V53-TRAIT-IMPORT-GREEN_85cf5885f9f2452aaa28a6587adb1f0d"
+}

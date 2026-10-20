@@ -1,0 +1,54 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/fielding/LiveFieldAvoidanceV51.test.ts (3 tests | 3 failed) 72ms
+   × keeps fielders separated with continuous acceleration-limited movement: low-slow_roller_3B 26ms
+     → observed body centers must not penetrate each other: expected 0.32915435290219225 to be greater than or equal to 0.48
+   × keeps fielders separated with continuous acceleration-limited movement: default-1B_routine 16ms
+     → observed body centers must not penetrate each other: expected 0.3976679531094321 to be greater than or equal to 0.48
+   × keeps fielders separated with continuous acceleration-limited movement: default-fast_grounder_CF_wall 29ms
+     → observed body centers must not penetrate each other: expected 0.4738662590651878 to be greater than or equal to 0.48
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldAvoidanceV51.test.ts > keeps fielders separated with continuous acceleration-limited movement: low-slow_roller_3B
+AssertionError: observed body centers must not penetrate each other: expected 0.32915435290219225 to be greater than or equal to 0.48
+ ❯ src/core/sim/fielding/LiveFieldAvoidanceV51.test.ts:48:79
+     46|   }
+     47|   expect.soft(result.end.complete).toBe(true);
+     48|   expect.soft(minimum, 'observed body centers must not penetrate each …
+       |                                                                               ^
+     49| });
+     50| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldAvoidanceV51.test.ts > keeps fielders separated with continuous acceleration-limited movement: default-1B_routine
+AssertionError: observed body centers must not penetrate each other: expected 0.3976679531094321 to be greater than or equal to 0.48
+ ❯ src/core/sim/fielding/LiveFieldAvoidanceV51.test.ts:48:79
+     46|   }
+     47|   expect.soft(result.end.complete).toBe(true);
+     48|   expect.soft(minimum, 'observed body centers must not penetrate each …
+       |                                                                               ^
+     49| });
+     50| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldAvoidanceV51.test.ts > keeps fielders separated with continuous acceleration-limited movement: default-fast_grounder_CF_wall
+AssertionError: observed body centers must not penetrate each other: expected 0.4738662590651878 to be greater than or equal to 0.48
+ ❯ src/core/sim/fielding/LiveFieldAvoidanceV51.test.ts:48:79
+     46|   }
+     47|   expect.soft(result.end.complete).toBe(true);
+     48|   expect.soft(minimum, 'observed body centers must not penetrate each …
+       |                                                                               ^
+     49| });
+     50| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  18:24:22
+   Duration  592ms (transform 52ms, setup 0ms, collect 59ms, tests 72ms, environment 0ms, prepare 132ms)
+

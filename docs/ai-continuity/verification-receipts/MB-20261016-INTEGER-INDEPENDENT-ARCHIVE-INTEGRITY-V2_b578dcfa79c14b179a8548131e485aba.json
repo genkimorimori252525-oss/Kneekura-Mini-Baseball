@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INTEGER-INDEPENDENT-ARCHIVE-INTEGRITY-V2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/aero-ground-samepa/verify-integer-closed.mjs",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-source-integer-checkpoint-v1/manifest.json",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-source-integer-checkpoint-v1/run/reopen.json",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-source-integer-checkpoint-v1/independent-all-schema-v2.json"
+  ],
+  "observed_at": "2026-10-15T18:43:04.552+00:00",
+  "elapsed_ms": 202,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INTEGER-INDEPENDENT-ARCHIVE-INTEGRITY-V2_b578dcfa79c14b179a8548131e485aba.log",
+  "output_sha256": "95f8bb6a329f43074fd302b0c0f718c4f428c2fa5074691aa5ec03ac31d22603",
+  "receipt_id": "MB-20261016-INTEGER-INDEPENDENT-ARCHIVE-INTEGRITY-V2_b578dcfa79c14b179a8548131e485aba"
+}

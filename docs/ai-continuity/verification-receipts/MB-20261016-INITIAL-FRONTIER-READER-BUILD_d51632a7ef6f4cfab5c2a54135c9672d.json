@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-FRONTIER-READER-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/native-game/build-measured-model-readback.mjs",
+    "../native-observed-initial-cut-readback-v3",
+    "observed_cut_readback"
+  ],
+  "observed_at": "2026-10-15T23:50:11.292+00:00",
+  "elapsed_ms": 906,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-FRONTIER-READER-BUILD_d51632a7ef6f4cfab5c2a54135c9672d.log",
+  "output_sha256": "d57af719bb6ea6574c41dc67cede8aea7701d4ffd7622fe07c84d5e1581abce5",
+  "receipt_id": "MB-20261016-INITIAL-FRONTIER-READER-BUILD_d51632a7ef6f4cfab5c2a54135c9672d"
+}

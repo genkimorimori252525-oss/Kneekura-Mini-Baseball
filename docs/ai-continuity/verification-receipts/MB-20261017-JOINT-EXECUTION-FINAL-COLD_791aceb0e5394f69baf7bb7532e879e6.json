@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-JOINT-EXECUTION-FINAL-COLD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-owned-joint-execution-reader-v3/readback.mjs",
+    "../../outputs/verification-authored-with-bat-physical-execution-v1",
+    "verify_final"
+  ],
+  "observed_at": "2026-10-16T15:03:04.896+00:00",
+  "elapsed_ms": 46859,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-JOINT-EXECUTION-FINAL-COLD_791aceb0e5394f69baf7bb7532e879e6.log",
+  "output_sha256": "cec23286dc1692e6f09364a713e392aa9bd4190bfcda887b42c516fb4bac2c1d",
+  "receipt_id": "MB-20261017-JOINT-EXECUTION-FINAL-COLD_791aceb0e5394f69baf7bb7532e879e6"
+}

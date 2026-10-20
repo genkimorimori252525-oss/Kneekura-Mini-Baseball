@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V52-PITCHER-REACTION-PURE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-pitcher-reaction-view.mjs"
+  ],
+  "observed_at": "2026-10-18T09:53:48.450+00:00",
+  "elapsed_ms": 61,
+  "git_head": "f5be0639f0a8ffbecfa08ec403b8025733e34e35",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V52-PITCHER-REACTION-PURE_8f50e7d9fa3b4e52bbab98a1658ad3d1.log",
+  "output_sha256": "f26d0e65de8d03a40a88001e80d105ee92692b786486d6698ca54b9d7ca8b40b",
+  "receipt_id": "MB-20261018-V52-PITCHER-REACTION-PURE_8f50e7d9fa3b4e52bbab98a1658ad3d1"
+}

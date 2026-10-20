@@ -1,0 +1,8 @@
+file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v37-animations.mjs:109
+   assert.equal(s.rendered.batterRig.hand,side);assert.equal(s.rendered.batterRig.sourceId,side==='L'?'bat-left':'bat-right');
+                                     ^
+
+TypeError: Cannot read properties of null (reading 'hand')
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v37-animations.mjs:109:38
+
+Node.js v26.1.0

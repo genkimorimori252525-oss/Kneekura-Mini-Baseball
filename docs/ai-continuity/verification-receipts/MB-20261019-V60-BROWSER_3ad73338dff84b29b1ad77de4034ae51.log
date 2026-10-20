@@ -1,0 +1,28 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: actual white ball remains visible through opaque name text and box
++ actual - expected
+
+  [
+-   2,
+-   2,
+-   2,
+    255,
++   0,
++   255,
++   255
+  ]
+
+    at ballOverlap (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v60-presentation.mjs:24:1097)
+    at async file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v60-presentation.mjs:29:1729 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [ 255, 0, 255, 255 ],
+  expected: [ 2, 2, 2, 255 ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

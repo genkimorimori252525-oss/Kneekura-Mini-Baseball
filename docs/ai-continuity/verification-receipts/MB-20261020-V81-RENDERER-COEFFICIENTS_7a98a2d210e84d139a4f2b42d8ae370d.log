@@ -1,0 +1,10 @@
+✔ patches only the exact renderer and fails closed on changed or duplicate markers (121.4199ms)
+✔ shares camera coefficients while preserving project, ray and ground results exactly (48.7372ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 329.6675

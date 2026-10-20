@@ -1,0 +1,1 @@
+{"pass":false,"phase":"custom-angle-1200","error":"AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'official window input must be finite'\n- null\n"}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-MEASURED-CACHE-GREEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/MeasuredClipValidationCacheV81.test.ts"
+  ],
+  "observed_at": "2026-10-20T12:45:30.565+00:00",
+  "elapsed_ms": 53217,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-MEASURED-CACHE-GREEN_2c4c743cc56e4553acd3664feff16982.log",
+  "output_sha256": "4a46dcc13966c909b2ba8ae0762f1a01f34a3aa4e178c87ab826b56ee12f6d24",
+  "receipt_id": "MB-20261020-V81-MEASURED-CACHE-GREEN_2c4c743cc56e4553acd3664feff16982"
+}

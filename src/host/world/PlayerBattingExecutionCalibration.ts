@@ -1,6 +1,7 @@
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { createPlayerObservationCalibration } from '../../core/sim/perception/PlayerObservationCalibration';
 import { resolvePreferredContactDepthV1 } from '../../core/sim/pitching/CourseAwareSwingKinematicsV1';
+import { assertMeasuredBattingRepertoireV1 } from '../../core/world/psychology/batting/MeasuredBattingTrajectoryV1';
 import { bodySourceId as id, bodySourceFields as fields } from './PlayerBodyCapabilityMaterialization';
 import type { AcceptedBattingCapability, AcceptedBattingRepertoire, AcceptedBattingDecisionModel, AcceptedBattingObservationCalibration } from './PlayerBattingModel';
 const requireFields = (value: unknown, required: readonly string[]): void => {
@@ -22,7 +23,7 @@ export const battingCapabilityValuesInput = (raw: AcceptedBattingCapability['val
 
 export const battingRepertoireValuesInput = (raw: AcceptedBattingRepertoire['values']): AcceptedBattingRepertoire['values'] => {
   const repertoire = cloneInert(raw);
-  requireFields(repertoire, ['repertoireId', 'repertoireVersion', 'profiles']);
+  requireFields(repertoire, ['repertoireId', 'repertoireVersion', 'profiles', ...(Object.hasOwn(repertoire,'sampledProfiles')?['sampledProfiles']:[])]);
   if (!id(repertoire.repertoireId) || !id(repertoire.repertoireVersion) || !Array.isArray(repertoire.profiles)
     || repertoire.profiles.length < 1 || repertoire.profiles.length > 32) throw new Error('invalid accepted batting repertoire');
   const ids = new Set<string>();
@@ -40,6 +41,7 @@ export const battingRepertoireValuesInput = (raw: AcceptedBattingRepertoire['val
     resolvePreferredContactDepthV1({ heightNormalized: 0, insideOutsideNormalized: 0 }, row.profile);
     ids.add(row.profile.profileId);
   });
+  assertMeasuredBattingRepertoireV1(repertoire);
   return repertoire;
 };
 

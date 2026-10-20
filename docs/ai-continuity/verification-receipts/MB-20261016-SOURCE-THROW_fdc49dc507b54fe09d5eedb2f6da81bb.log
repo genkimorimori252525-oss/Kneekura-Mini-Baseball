@@ -1,0 +1,32 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/ball/SourceBattedFieldAcquisitionV1.test.ts (6 tests) 186ms
+ ❯ src/core/sim/ball/SourceBattedFieldThrowV1.test.ts (3 tests | 1 failed) 247ms
+   × flies on the original aero/ground kernel with the declared throw spin, independently of observation partition 65ms
+     → Source field throw cannot adopt unresolved contact
+ ✓ src/core/sim/ball/BattedWorldScheduledFieldThrow.test.ts (31 tests) 3616ms
+   ✓ keeps exact release contact and ownership identical after 100 deltas with acceleration 0.3 1028ms
+   ✓ keeps exact release contact and ownership identical after 100 deltas with acceleration 1.7 1004ms
+   ✓ keeps exact release contact and ownership identical after 100 deltas with acceleration 2.3 1159ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/ball/SourceBattedFieldThrowV1.test.ts > flies on the original aero/ground kernel with the declared throw spin, independently of observation partition
+Error: Source field throw cannot adopt unresolved contact
+ ❯ Module.deriveSourceBattedFieldThrowV1 src/core/sim/ball/SourceBattedFieldThrowV1.ts:104:74
+    102|       ? { ...prior, previousContacts: [] } : prior;
+    103|     const response = respondToBallWorldBoundary(responseInput, respons…
+    104|     if (!response.cursor && response.kind !== 'capture_candidate') thr…
+       |                                                                          ^
+    105|     if (response.kind === 'rebound' && response.cursor.sourceCurve) {
+    106|       const originalResponse = { ...root.response, world: { ...root.re…
+ ❯ src/core/sim/ball/SourceBattedFieldThrowV1.test.ts:55:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 39 passed (40)
+   Start at  03:52:51
+   Duration  4.55s (transform 615ms, setup 0ms, collect 1.33s, tests 4.05s, environment 0ms, prepare 478ms)
+

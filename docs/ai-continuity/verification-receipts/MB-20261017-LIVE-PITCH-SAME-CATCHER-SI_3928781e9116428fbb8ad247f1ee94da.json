@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-PITCH-SAME-CATCHER-SI",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePitchV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T00:09:22.757+00:00",
+  "elapsed_ms": 1906,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-PITCH-SAME-CATCHER-SI_3928781e9116428fbb8ad247f1ee94da.log",
+  "output_sha256": "8a2f3e5db9be8f3188a8750c490e984b7ef28a8bcca1f07875fbf5285fe57f63",
+  "receipt_id": "MB-20261017-LIVE-PITCH-SAME-CATCHER-SI_3928781e9116428fbb8ad247f1ee94da"
+}

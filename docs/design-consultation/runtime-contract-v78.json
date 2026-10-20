@@ -1,0 +1,634 @@
+{
+  "version": 78,
+  "authority": "CONSULTATION_SUMMARY_NOT_RUNTIME_AUTHORITY",
+  "sourceCoreSha256": "5c0ac424da2e5a690c972b323234dd9bf2a0c3f5dadebdbc8e2e882e13e77ef1",
+  "authoringCoreSha256": "c38ebb1ceaf4af48b91e053d7f9d80bab5c4287b9907fbd2f20bc30037438a5f",
+  "pitchTypes": [
+    {
+      "id": "fastball",
+      "name": "フォーシーム"
+    },
+    {
+      "id": "sinker",
+      "name": "シンカー"
+    },
+    {
+      "id": "cutter",
+      "name": "カットボール"
+    },
+    {
+      "id": "changeup",
+      "name": "チェンジアップ"
+    },
+    {
+      "id": "splitter",
+      "name": "スプリット"
+    },
+    {
+      "id": "forkball",
+      "name": "フォーク"
+    },
+    {
+      "id": "screwball",
+      "name": "スクリューボール"
+    },
+    {
+      "id": "curve",
+      "name": "カーブ"
+    },
+    {
+      "id": "knuckle_curve",
+      "name": "ナックルカーブ"
+    },
+    {
+      "id": "slow_curve",
+      "name": "スローカーブ"
+    },
+    {
+      "id": "slider",
+      "name": "スライダー"
+    },
+    {
+      "id": "sweeper",
+      "name": "スイーパー"
+    },
+    {
+      "id": "slurve",
+      "name": "スラーブ"
+    },
+    {
+      "id": "knuckleball",
+      "name": "ナックル"
+    },
+    {
+      "id": "eephus",
+      "name": "イーファス"
+    }
+  ],
+  "presetCount": 24,
+  "authoringApi": [
+    "appendPitchLibraryRevisionV78",
+    "createPitchSnapshotFromLibraryV78",
+    "createPitchSnapshotFromPresetV78",
+    "getLivePitchCatalogV78",
+    "migratePitchRepertoireV77ToV78",
+    "resolvePitcherRepertoireV78",
+    "samplePitchSpinExecutionV78",
+    "validatePitchLibraryV78",
+    "validatePitchRepertoireV78",
+    "validatePitchSnapshotV78"
+  ],
+  "repertoire": {
+    "version": "pitch_repertoire_v78",
+    "identity": "pitchId differs from pitchType; multiple pitches of one classification allowed",
+    "assignment": "complete immutable physical snapshot",
+    "legacy": "V77 fields optional and semantically preserved"
+  },
+  "spinRepeatability": {
+    "field": "physical.minimumSpinRatio",
+    "range": [
+      0,
+      1
+    ],
+    "omitted": 1,
+    "meaning": "actual magnitude between nominal*minimumSpinRatio and nominal; axis preserved",
+    "distribution": "AUTHORED_UNIFORM_NOT_EMPIRICALLY_FITTED",
+    "owner": "independent seeded stream after nominal aim solver"
+  },
+  "seamForce": {
+    "version": "baseball_seam_force_v1",
+    "coefficientScale": [
+      0,
+      2
+    ],
+    "referenceMaximumCoefficient": 0.25,
+    "owner": "shared source physics with material orientation",
+    "scope": "AUTHORED_QUASISTEADY_SEAM_GEOMETRY_NOT_CFD_FIT"
+  },
+  "overhead": {
+    "model": "VIRTUAL_HEIGHT_V1",
+    "legacyModel": "LEGACY_DIAMETER_V4",
+    "default": 2,
+    "range": [
+      1,
+      8
+    ],
+    "meaning": "scale height above ground for diameter projection only",
+    "groundCenterMeters": 0.0366,
+    "maximumProjectionRatio": 16,
+    "camera": "overhead",
+    "ballKind": "batted",
+    "physicsAffected": false
+  },
+  "publicAbilities": {
+    "traitsChangeBase": false,
+    "gameDisplayMaximum": 100,
+    "plateVisionAbsolute": [
+      1,
+      100
+    ]
+  },
+  "traits": [
+    {
+      "familyId": "bad_ball_hitting",
+      "label": "悪球打ち",
+      "lifecycleClass": "LEARNED_MASTERY_PERSISTENT",
+      "sourceRoute": "SOURCE_EXECUTION",
+      "states": [
+        {
+          "stateId": "LEARNED",
+          "label": "悪球打ち",
+          "color": "blue"
+        }
+      ],
+      "editor": "TECHNIQUE",
+      "availability": "EXECUTABLE",
+      "sourcePaths": [
+        "traitProfile.selections.source.effectScale"
+      ],
+      "effectOwner": "LivePitchV1 awkward execution error / BattingWorkbench execution error",
+      "sourceDefinition": "V77 independent execution technique; base SI and public abilities are unchanged. LOCAL_AUTHORING_ONLY, not empirically calibrated."
+    },
+    {
+      "familyId": "throw_accuracy",
+      "label": "送球",
+      "lifecycleClass": "GRADED_DYNAMIC",
+      "sourceRoute": "SOURCE_EXECUTION",
+      "states": [
+        {
+          "stateId": "G",
+          "label": "送球G",
+          "color": "red"
+        },
+        {
+          "stateId": "F",
+          "label": "送球F",
+          "color": "red"
+        },
+        {
+          "stateId": "E",
+          "label": "送球E",
+          "color": "neutral"
+        },
+        {
+          "stateId": "D",
+          "label": "送球D",
+          "color": "neutral"
+        },
+        {
+          "stateId": "C",
+          "label": "送球C",
+          "color": "neutral"
+        },
+        {
+          "stateId": "B",
+          "label": "送球B",
+          "color": "blue"
+        },
+        {
+          "stateId": "A",
+          "label": "送球A",
+          "color": "blue"
+        },
+        {
+          "stateId": "GOLD",
+          "label": "ストライク送球",
+          "color": "gold"
+        }
+      ],
+      "editor": "TECHNIQUE",
+      "availability": "EXECUTABLE",
+      "calibrationId": "local-throw-direction-sigma-v54",
+      "sourcePaths": [
+        "traitProfile.selections.source.effectScale"
+      ],
+      "effectOwner": "LiveThrowDirectionV1 angular release error",
+      "sourceDefinition": "V77 independent execution technique; base SI and public abilities are unchanged. LOCAL_AUTHORING_ONLY, not empirically calibrated."
+    },
+    {
+      "familyId": "plate_aggression",
+      "label": "打撃積極性",
+      "lifecycleClass": "GREEN_SLOW_PREFERENCE",
+      "sourceRoute": "PREFERENCE",
+      "states": [
+        {
+          "stateId": "AGGRESSIVE",
+          "label": "積極打法",
+          "color": "green"
+        },
+        {
+          "stateId": "BALANCED",
+          "label": "標準",
+          "color": "neutral"
+        },
+        {
+          "stateId": "CAUTIOUS",
+          "label": "慎重打法",
+          "color": "green"
+        }
+      ],
+      "editor": "PREFERENCE",
+      "availability": "EXECUTABLE",
+      "calibrationId": "local-plate-threshold-v54",
+      "sourcePaths": [
+        "traitProfile.selections.source.effectScale"
+      ],
+      "effectOwner": "LivePitchV1 AUTO swing decision",
+      "sourceDefinition": "V77 independent execution technique; base SI and public abilities are unchanged. LOCAL_AUTHORING_ONLY, not empirically calibrated."
+    },
+    {
+      "familyId": "running_aggression",
+      "label": "走塁積極性",
+      "lifecycleClass": "GREEN_SLOW_PREFERENCE",
+      "sourceRoute": "PREFERENCE",
+      "states": [
+        {
+          "stateId": "AGGRESSIVE",
+          "label": "積極走塁",
+          "color": "green"
+        },
+        {
+          "stateId": "BALANCED",
+          "label": "標準",
+          "color": "neutral"
+        }
+      ],
+      "editor": "PREFERENCE",
+      "availability": "EXECUTABLE",
+      "calibrationId": "local-running-margin-v54",
+      "sourcePaths": [
+        "traitProfile.selections.source.effectScale"
+      ],
+      "effectOwner": "LiveRunnerAdvancePolicyV1 safety margin",
+      "sourceDefinition": "V77 independent execution technique; base SI and public abilities are unchanged. LOCAL_AUTHORING_ONLY, not empirically calibrated."
+    },
+    {
+      "familyId": "fielding_aggression",
+      "label": "守備積極性",
+      "lifecycleClass": "GREEN_SLOW_PREFERENCE",
+      "sourceRoute": "PREFERENCE",
+      "states": [
+        {
+          "stateId": "AGGRESSIVE",
+          "label": "積極守備",
+          "color": "green"
+        },
+        {
+          "stateId": "BALANCED",
+          "label": "標準",
+          "color": "neutral"
+        }
+      ],
+      "editor": "PREFERENCE",
+      "availability": "EXECUTABLE",
+      "calibrationId": "local-fielding-pursuit-v54",
+      "sourcePaths": [
+        "traitProfile.selections.source.effectScale"
+      ],
+      "effectOwner": "LiveFieldHandlerSelectionV1 feasible-candidate pursuit cost",
+      "sourceDefinition": "V77 independent execution technique; base SI and public abilities are unchanged. LOCAL_AUTHORING_ONLY, not empirically calibrated."
+    },
+    {
+      "familyId": "pitch_approach",
+      "label": "投球傾向",
+      "lifecycleClass": "GREEN_SLOW_PREFERENCE",
+      "sourceRoute": "PREFERENCE",
+      "states": [
+        {
+          "stateId": "FASTBALL",
+          "label": "速球中心",
+          "color": "green"
+        },
+        {
+          "stateId": "BALANCED",
+          "label": "標準",
+          "color": "neutral"
+        },
+        {
+          "stateId": "BREAKING",
+          "label": "変化球中心",
+          "color": "green"
+        }
+      ],
+      "editor": "PREFERENCE",
+      "availability": "EXECUTABLE",
+      "sourcePaths": [],
+      "effectOwner": "Host AUTO pitch selection",
+      "sourceDefinition": "canonical09 §5.11 / §6; accepted explicit pitch commands take priority"
+    },
+    {
+      "familyId": "swing_mode_preference",
+      "label": "打撃傾向",
+      "lifecycleClass": "GREEN_SLOW_PREFERENCE",
+      "sourceRoute": "PREFERENCE",
+      "states": [
+        {
+          "stateId": "POWER",
+          "label": "強振多用",
+          "color": "green"
+        },
+        {
+          "stateId": "BALANCED",
+          "label": "標準",
+          "color": "neutral"
+        },
+        {
+          "stateId": "CONTACT",
+          "label": "ミート多用",
+          "color": "green"
+        }
+      ],
+      "editor": "PREFERENCE",
+      "availability": "EXECUTABLE",
+      "sourcePaths": [],
+      "effectOwner": "Host AUTO batting motor selection",
+      "sourceDefinition": "canonical09 §5.11 / §6; accepted explicit batting commands take priority"
+    },
+    {
+      "familyId": "baserunning",
+      "label": "走塁",
+      "lifecycleClass": "GRADED_DYNAMIC",
+      "sourceRoute": "SOURCE_EXECUTION",
+      "editor": "TECHNIQUE",
+      "availability": "EXECUTABLE",
+      "calibrationId": "local-technique-authoring-v75-not-empirically-calibrated",
+      "sourcePaths": [
+        "traitProfile.selections.source.effectScale"
+      ],
+      "effectOwner": "LiveFieldPlayV1 dedicated technique",
+      "sourceDefinition": "ベース旋回の経路選択。最高走速と身体の加速度上限は変更しません。 local-technique-authoring-v75-not-empirically-calibrated",
+      "states": [
+        {
+          "stateId": "G",
+          "label": "走塁G",
+          "color": "red"
+        },
+        {
+          "stateId": "F",
+          "label": "走塁F",
+          "color": "red"
+        },
+        {
+          "stateId": "E",
+          "label": "走塁E",
+          "color": "neutral"
+        },
+        {
+          "stateId": "D",
+          "label": "走塁D",
+          "color": "neutral"
+        },
+        {
+          "stateId": "C",
+          "label": "走塁C",
+          "color": "neutral"
+        },
+        {
+          "stateId": "B",
+          "label": "走塁B",
+          "color": "blue"
+        },
+        {
+          "stateId": "A",
+          "label": "走塁A",
+          "color": "blue"
+        },
+        {
+          "stateId": "GOLD",
+          "label": "高速ベースラン",
+          "color": "gold"
+        }
+      ]
+    },
+    {
+      "familyId": "bunting",
+      "label": "バント○ / バント職人",
+      "lifecycleClass": "LEARNED_MASTERY_PERSISTENT",
+      "sourceRoute": "SOURCE_EXECUTION",
+      "editor": "TECHNIQUE",
+      "availability": "EXECUTABLE",
+      "calibrationId": "local-technique-authoring-v75-not-empirically-calibrated",
+      "sourcePaths": [
+        "traitProfile.selections.source.effectScale"
+      ],
+      "effectOwner": "LivePitchV1 dedicated technique",
+      "sourceDefinition": "バント時だけ、予測した打点へバットを構え、迎球して引く動作と面・位置・時刻の再現性。 local-technique-authoring-v75-not-empirically-calibrated",
+      "states": [
+        {
+          "stateId": "LEARNED",
+          "label": "バント○",
+          "color": "blue"
+        },
+        {
+          "stateId": "MASTERED",
+          "label": "バント職人",
+          "color": "gold"
+        }
+      ]
+    },
+    {
+      "familyId": "advanced_fielding",
+      "label": "守備職人 / 魔術師",
+      "lifecycleClass": "LEARNED_MASTERY_PERSISTENT",
+      "sourceRoute": "SOURCE_EXECUTION",
+      "editor": "TECHNIQUE",
+      "availability": "EXECUTABLE",
+      "calibrationId": "local-technique-authoring-v75-not-empirically-calibrated",
+      "sourcePaths": [
+        "traitProfile.selections.source.effectScale"
+      ],
+      "effectOwner": "LiveFieldPlayV1 dedicated technique",
+      "sourceDefinition": "捕球体勢と捕球後の持ち替え。一般走力・肩力・手の速度上限は変更しません。 local-technique-authoring-v75-not-empirically-calibrated",
+      "states": [
+        {
+          "stateId": "LEARNED",
+          "label": "守備職人",
+          "color": "blue"
+        },
+        {
+          "stateId": "MASTERED",
+          "label": "魔術師",
+          "color": "gold"
+        }
+      ]
+    },
+    {
+      "familyId": "bat_to_run_transition",
+      "label": "内野安打○ / ロケットスタート",
+      "lifecycleClass": "DYNAMIC_DESCRIPTOR",
+      "sourceRoute": "SOURCE_EXECUTION",
+      "editor": "TECHNIQUE",
+      "availability": "EXECUTABLE",
+      "calibrationId": "local-technique-authoring-v75-not-empirically-calibrated",
+      "sourcePaths": [
+        "traitProfile.selections.source.effectScale"
+      ],
+      "effectOwner": "LiveFieldPlayV1 dedicated technique",
+      "sourceDefinition": "打者走者だけの打撃から初動への切り替え。塁上走者と最高走速は変更しません。 local-technique-authoring-v75-not-empirically-calibrated",
+      "states": [
+        {
+          "stateId": "LEARNED",
+          "label": "内野安打○",
+          "color": "blue"
+        },
+        {
+          "stateId": "MASTERED",
+          "label": "ロケットスタート",
+          "color": "gold"
+        }
+      ]
+    },
+    {
+      "familyId": "slow_ball_charge",
+      "label": "高速チャージ",
+      "lifecycleClass": "LEARNED_MASTERY_PERSISTENT",
+      "sourceRoute": "SOURCE_EXECUTION",
+      "editor": "TECHNIQUE",
+      "availability": "EXECUTABLE",
+      "calibrationId": "local-technique-authoring-v75-not-empirically-calibrated",
+      "sourcePaths": [
+        "traitProfile.selections.source.effectScale"
+      ],
+      "effectOwner": "LiveFieldPlayV1 dedicated technique",
+      "sourceDefinition": "観測した低速の接地打球へ前進して拾う動作。飛球・送球には適用しません。 local-technique-authoring-v75-not-empirically-calibrated",
+      "states": [
+        {
+          "stateId": "LEARNED",
+          "label": "高速チャージ",
+          "color": "blue"
+        }
+      ]
+    },
+    {
+      "familyId": "low_zone_command",
+      "label": "低め○ / 精密機械",
+      "lifecycleClass": "LEARNED_MASTERY_PERSISTENT",
+      "sourceRoute": "SOURCE_EXECUTION",
+      "editor": "TECHNIQUE",
+      "availability": "EXECUTABLE",
+      "calibrationId": "local-technique-authoring-v75-not-empirically-calibrated",
+      "sourcePaths": [
+        "traitProfile.selections.source.effectScale"
+      ],
+      "effectOwner": "LivePitchV1 dedicated technique",
+      "sourceDefinition": "低めを狙った投球だけの狙い誤差。球速・回転・審判やリリース後の球は上書きしません。 local-technique-authoring-v75-not-empirically-calibrated",
+      "states": [
+        {
+          "stateId": "LEARNED",
+          "label": "低め○",
+          "color": "blue"
+        },
+        {
+          "stateId": "MASTERED",
+          "label": "精密機械",
+          "color": "gold"
+        }
+      ]
+    },
+    {
+      "familyId": "inside_command",
+      "label": "内角攻め / 内角無双",
+      "lifecycleClass": "LEARNED_MASTERY_PERSISTENT",
+      "sourceRoute": "SOURCE_EXECUTION",
+      "editor": "TECHNIQUE",
+      "availability": "EXECUTABLE",
+      "calibrationId": "local-technique-authoring-v75-not-empirically-calibrated",
+      "sourcePaths": [
+        "traitProfile.selections.source.effectScale"
+      ],
+      "effectOwner": "LivePitchV1 dedicated technique",
+      "sourceDefinition": "打者の左右を考慮した内角目標だけで投球実行誤差を低減。基礎制球と公開値、放球後の物理を変更しません。 local-technique-authoring-v75-not-empirically-calibrated",
+      "states": [
+        {
+          "stateId": "LEARNED",
+          "label": "内角攻め",
+          "color": "blue"
+        },
+        {
+          "stateId": "MASTERED",
+          "label": "内角無双",
+          "color": "gold"
+        }
+      ]
+    },
+    {
+      "familyId": "high_zone_hitting",
+      "label": "ハイボールヒッター / 高球必打",
+      "lifecycleClass": "LEARNED_MASTERY_PERSISTENT",
+      "sourceRoute": "SOURCE_EXECUTION",
+      "editor": "TECHNIQUE",
+      "availability": "EXECUTABLE",
+      "calibrationId": "local-technique-authoring-v75-not-empirically-calibrated",
+      "sourcePaths": [
+        "traitProfile.selections.source.effectScale"
+      ],
+      "effectOwner": "LivePitchV1 dedicated technique",
+      "sourceDefinition": "高い予測打点に向かうスイングだけで位置と時刻の実行誤差を低減。基礎ミートと公開値は変更しません。 local-technique-authoring-v75-not-empirically-calibrated",
+      "states": [
+        {
+          "stateId": "LEARNED",
+          "label": "ハイボールヒッター",
+          "color": "blue"
+        },
+        {
+          "stateId": "MASTERED",
+          "label": "高球必打",
+          "color": "gold"
+        }
+      ]
+    },
+    {
+      "familyId": "low_zone_hitting",
+      "label": "ローボールヒッター / 低球必打",
+      "lifecycleClass": "LEARNED_MASTERY_PERSISTENT",
+      "sourceRoute": "SOURCE_EXECUTION",
+      "editor": "TECHNIQUE",
+      "availability": "EXECUTABLE",
+      "calibrationId": "local-technique-authoring-v75-not-empirically-calibrated",
+      "sourcePaths": [
+        "traitProfile.selections.source.effectScale"
+      ],
+      "effectOwner": "LivePitchV1 dedicated technique",
+      "sourceDefinition": "低い予測打点に向かうスイングだけで位置と時刻の実行誤差を低減。基礎ミートと公開値は変更しません。 local-technique-authoring-v75-not-empirically-calibrated",
+      "states": [
+        {
+          "stateId": "LEARNED",
+          "label": "ローボールヒッター",
+          "color": "blue"
+        },
+        {
+          "stateId": "MASTERED",
+          "label": "低球必打",
+          "color": "gold"
+        }
+      ]
+    },
+    {
+      "familyId": "pitcher_field_reaction",
+      "label": "打球反応○",
+      "lifecycleClass": "LEARNED_MASTERY_PERSISTENT",
+      "sourceRoute": "SOURCE_EXECUTION",
+      "editor": "TECHNIQUE",
+      "availability": "EXECUTABLE",
+      "calibrationId": "local-technique-authoring-v75-not-empirically-calibrated",
+      "sourcePaths": [
+        "traitProfile.selections.source.effectScale"
+      ],
+      "effectOwner": "LiveFieldPlayV1 dedicated technique",
+      "sourceDefinition": "投手本人の打球への最初の反応だけを速めます。一般野手と送球の受球には作用しません。 local-technique-authoring-v75-not-empirically-calibrated",
+      "states": [
+        {
+          "stateId": "LEARNED",
+          "label": "打球反応○",
+          "color": "blue"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "No empirical 100-game calibration",
+    "No real-device mobile certification",
+    "Native authenticated continuous world unfinished",
+    "See CURRENT-SPEC and original plan for remaining systems"
+  ]
+}

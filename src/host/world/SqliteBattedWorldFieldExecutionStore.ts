@@ -13,7 +13,7 @@ import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualL
 import { ownedScheduledMotionActionInput, isOwnedScheduledMotionKind, type OwnedScheduledMotionAction, type OwnedScheduledMotionExecution } from './OwnedScheduledBattedWorldMotion';
 import { createOwnedScheduledMotionExecutionReplay, pendingOwnedScheduledPlan } from './OwnedScheduledMotionExecution';
 import { ownedScheduledMotionArchiveJson as snapshotJson, ownedScheduledMotionArchiveEncoding as snapshotEncoding } from './OwnedScheduledMotionArchive';
-import { createOwnedScheduledMotionDependencyEncoding } from './OwnedScheduledMotionDependencyEncoding';
+import { createOwnedScheduledMotionDependencyEncoding, withOwnedScheduledMotionDependencyEncodingScope } from './OwnedScheduledMotionDependencyEncoding';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { deriveBattedWorldFieldMotionCheckpoint, advanceBattedWorldFieldMotionCheckpoint, deriveBattedWorldFieldMotion, type BattedWorldFieldMotion } from '../../core/sim/ball/BattedWorldFieldMotion';
@@ -34,7 +34,7 @@ import { deriveBallWorldFieldFirstBaseRaceWithPossessionEvidence } from '../../c
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { battedWorldResponseInput } from './SqliteBattedWorldContinuationStore';
 import { battedWorldMotionCommandsInput, battedWorldMotionPrimitiveCommands, type AcceptedBattedWorldMotion } from './SqliteBattedWorldMotionStore';
-import { battedWorldFieldEvidenceFromSqlite, withBattedWorldFieldReadTraversal, activeBattedWorldFieldReadFrame, isAuthenticatedBattedWorldFieldTraversalValue, type DurableBattedWorldFieldAction, type SqliteBattedWorldFieldStore } from './SqliteBattedWorldFieldStore';
+import { battedWorldFieldEvidenceFromSqlite, withBattedWorldFieldReadTraversal, activeBattedWorldFieldReadFrame, reusableBattedWorldFieldReadSnapshot, isAuthenticatedBattedWorldFieldTraversalValue, type DurableBattedWorldFieldAction, type SqliteBattedWorldFieldStore } from './SqliteBattedWorldFieldStore';
 import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
 import { playerFieldingModelEvidenceFromSqlite, type DurablePlayerFieldingModel } from './SqlitePlayerFieldingModelStore';
 import { battedWorldFieldPhysicalPrefix, battedWorldFieldBaseTouchHistoryFromPrefix, type BattedWorldFieldCustodyPolicy } from './BattedWorldFieldPhysicalPrefix';
@@ -94,6 +94,20 @@ type Db = Pick<import('node:sqlite').DatabaseSync, 'prepare'>;
 type Row = { source_id: string; physical_pitch_source_id: string; base_field_source_id: string; previous_source_id: string | null;
   revision: number; game_id: string; source_json: string; source_hash: string; snapshot_json: string; snapshot_hash: string };
 type Head = { physical_pitch_source_id: string; base_field_source_id: string; source_id: string; revision: number };
+// Only ownership metadata is reused within an already guarded, read-only SQLite
+// snapshot. Physical replay, exact archive comparison and predecessor ceilings
+// remain independent below. Failed descendants invalidate the snapshot owner;
+// callbacks and writes cannot carry this private identity into a later proof.
+const executionMetadataSnapshots = new WeakMap<object, Map<string, readonly Row[]>>();
+const sameExecutionMetadataRows = (left: readonly Row[], right: readonly Row[]): boolean =>
+  left.length === right.length && left.every((row, index) => {
+    const current = right[index];
+    return row.source_id === current.source_id && row.physical_pitch_source_id === current.physical_pitch_source_id
+      && row.base_field_source_id === current.base_field_source_id && row.previous_source_id === current.previous_source_id
+      && row.revision === current.revision && row.game_id === current.game_id
+      && row.source_json === current.source_json && row.source_hash === current.source_hash
+      && row.snapshot_json === current.snapshot_json && row.snapshot_hash === current.snapshot_hash;
+  });
 const id = (v: unknown): v is string => typeof v === 'string' && !!v.length && v === v.trim();
 const tick = (v: unknown): v is number => typeof v === 'number' && Number.isSafeInteger(v) && v >= 0;
 const fields = (v: unknown, names: readonly string[]) => !!v && typeof v === 'object' && !Array.isArray(v)
@@ -167,7 +181,9 @@ export const withBattedWorldPhysicalReadTraversal = <T>(db: Db, body: () => T): 
   const value = withBattedWorldFieldReadTraversal(db, () => {
     executionReadTraversals.set(db, { fieldFrame: activeBattedWorldFieldReadFrame(db), nodes: completedNodes,
       encoding: createOwnedScheduledMotionDependencyEncoding() });
-    try { return body(); }
+    const snapshot = reusableBattedWorldFieldReadSnapshot(db);
+    try { return withOwnedScheduledMotionDependencyEncodingScope(snapshot,
+      () => snapshot !== null && reusableBattedWorldFieldReadSnapshot(db) === snapshot, body); }
     finally { if (previous) executionReadTraversals.set(db, previous); else executionReadTraversals.delete(db); }
   });
   // Field validation, private savepoint release and cleanup have all succeeded.
@@ -462,6 +478,10 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
     }
     if (heads.length !== 1 || head.physical_pitch_source_id !== pitchId || head.base_field_source_id !== anchorId
       || head.source_id !== rows.at(-1)!.source_id || !tick(head.revision) || head.revision !== rows.length) throw new Error('actual field execution prefix head differs');
+    const metadataSnapshot = executionReadTraversals.has(db) ? reusableBattedWorldFieldReadSnapshot(db) : null;
+    const metadataKey = JSON.stringify([pitchId, anchorId]);
+    const priorMetadata = metadataSnapshot && executionMetadataSnapshots.get(metadataSnapshot)?.get(metadataKey);
+    const metadataAuthenticated = priorMetadata && sameExecutionMetadataRows(priorMetadata, rows);
     const unique = new Set<string>();
     for (const [index, row] of rows.entries()) {
       if (!id(row.source_id) || unique.has(row.source_id) || !tick(row.revision) || row.revision !== index + 1
@@ -469,10 +489,18 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
         || row.previous_source_id !== (rows[index - 1]?.source_id ?? null) || row.game_id !== baseField.response.model.gameId) {
         throw new Error('corrupt actual field execution prefix metadata');
       }
-      const identities = identityRows(row.source_id);
-      if (identities.length !== 1 || identities[0].source_id !== row.source_id) throw new Error('actual field execution Source identity ownership differs');
-      assertOwnedMotionPhysicalMetadata(db, row, rows.slice(0, index + 1));
+      if (!metadataAuthenticated) {
+        const identities = identityRows(row.source_id);
+        if (identities.length !== 1 || identities[0].source_id !== row.source_id) throw new Error('actual field execution Source identity ownership differs');
+        assertOwnedMotionPhysicalMetadata(db, row, rows.slice(0, index + 1));
+      }
       unique.add(row.source_id);
+    }
+    if (metadataSnapshot) {
+      if (reusableBattedWorldFieldReadSnapshot(db) !== metadataSnapshot) throw new Error('actual field execution metadata read snapshot changed');
+      let authenticated = executionMetadataSnapshots.get(metadataSnapshot);
+      if (!authenticated) { authenticated = new Map(); executionMetadataSnapshots.set(metadataSnapshot, authenticated); }
+      authenticated.set(metadataKey, rows);
     }
     const bound = throughSourceId === null ? -1 : throughSourceId === undefined ? rows.length - 1 : rows.findIndex((row) => row.source_id === throughSourceId);
     if (bound < 0 && throughSourceId !== null) throw new Error('actual field execution Source is outside original prefix');

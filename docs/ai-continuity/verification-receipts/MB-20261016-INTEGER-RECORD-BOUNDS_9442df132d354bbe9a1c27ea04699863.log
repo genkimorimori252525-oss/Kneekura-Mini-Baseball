@@ -1,0 +1,20 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/SamePlateAppearanceSourceFieldV3.test.ts (6 tests) 859ms
+   ✓ inserts all five metadata kinds at the exact post-impulse cut without adding a physical horizon 345ms
+ ✓ src/host/world/SamePlateAppearanceSourceIntegerCheckpointV1.test.ts (8 tests) 11412ms
+   ✓ branches from the full original v3 metadata prefix and executes same-tick positive physical time on its original Source 969ms
+   ✓ routes the dedicated action through the owner calculation without relaxing the ordinary stale-step guard 835ms
+   ✓ retains the new branch for later metadata/free steps and rejects returning to the old version 2410ms
+   ✓ rejects exact-zero waits, different ticks, marker/result injection, unsupported motor/custody and legacy roots 923ms
+   ✓ rejects forged prefix refs, metadata, Source side/state, actors and saved checkpoint diagnostics 1999ms
+   ✓ retains an earlier real impulse as a physical boundary, then rederives its private escape before another wait 1173ms
+   ✓ accepts a bounded 50-primitive nine-defender metadata collection while each original record keeps the inert size limit 2392ms
+   ✓ rejects active envelopes/records, exotic prototypes, sparse or excessive histories and oversized individual records 710ms
+
+ Test Files  2 passed (2)
+      Tests  14 passed (14)
+   Start at  03:40:37
+   Duration  17.56s (transform 5.15s, setup 0ms, collect 11.41s, tests 12.27s, environment 0ms, prepare 277ms)
+

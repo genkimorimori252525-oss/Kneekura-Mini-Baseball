@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-UPRIGHT-VELOCITY-CONTROL",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "../native-initial-bat-control-upright-velocity-v1/readback.mjs",
+    "../../outputs/verification-authored-with-bat-upright-velocity-decision-v1",
+    "../../outputs/verification-authored-with-bat-upright-velocity-control-v1"
+  ],
+  "observed_at": "2026-10-16T12:54:50.544+00:00",
+  "elapsed_ms": 4530,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-UPRIGHT-VELOCITY-CONTROL_68d0f5a65de54c41b4a8cfab91d8e7ce.log",
+  "output_sha256": "85458afa5cd31cddd40dd025646174d1a4562422932eaf15c1af7a5ed9af01bc",
+  "receipt_id": "MB-20261016-UPRIGHT-VELOCITY-CONTROL_68d0f5a65de54c41b4a8cfab91d8e7ce"
+}

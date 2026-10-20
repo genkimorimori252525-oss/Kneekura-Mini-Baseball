@@ -1,0 +1,58 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/LiveFielderAvoidanceV1.test.ts (24 tests) 56ms
+ ✓ src/core/sim/fielding/LiveFieldArrivalV84.test.ts (3 tests) 3ms
+ ✓ src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts (20 tests) 61ms
+ ✓ src/core/sim/fielding/LiveFieldAvoidanceV51.test.ts (3 tests) 2962ms
+   ✓ keeps fielders separated with continuous acceleration-limited movement: low-slow_roller_3B 1496ms
+   ✓ keeps fielders separated with continuous acceleration-limited movement: default-1B_routine 467ms
+   ✓ keeps fielders separated with continuous acceleration-limited movement: default-fast_grounder_CF_wall 999ms
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts (20 tests | 2 failed) 17852ms
+   ✓ runs the complete actual base path after a fair over-fence flight instead of teleporting runners 1359ms
+   × derives two retirements from a received first-base force followed by the same defender carrying the ball to a runner tag 940ms
+     → expected 7.00886906572221 to be less than or equal to 7.000000001
+   ✓ preserves two force retirements when the second-base runner deadline favors the second-to-first throw chain 1164ms
+   ✓ continues a true wall rebound through its signed-gap certificate and retrieves the ball 2647ms
+   ✓ runs only the actual two-base award after a fair ground bounce clears the continuous fence 517ms
+   ✓ publishes fair territory only at its actual determination boundary 546ms
+   ✓ catches an ordinary high center-field fly using a causal aero-ground forecast 2021ms
+   ✓ fields a straight infield grounder and makes a real throw to first before the batter arrives 436ms
+   ✓ keeps bodies, independent gloves and a possessed ball inside the physical fence through pickup and release 2746ms
+   ✓ finishes the pinned fast grounder after causal interception without an invented result 1239ms
+   ✓ extends a finite free-ball cache from its original root without changing any sampled physics 1612ms
+   ✓ keeps a deep retrieved ball when every force throw would arrive after the runner 1054ms
+   × rejects unready force receivers without fictional throws while the batter takes a safe extra base and declines an unsafe third 719ms
+     → expected 0.36345678899999995 to be less than NaN
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayV1.test.ts > derives two retirements from a received first-base force followed by the same defender carrying the ball to a runner tag
+AssertionError: expected 7.00886906572221 to be less than or equal to 7.000000001
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts:127:66
+    125|   for (const frame of result.frames) for (const f of frame.fielders) {
+    126|     const spec = input.fielders.find(p => p.playerId === f.playerId)!;
+    127|     expect(Math.hypot(f.velocity.x, f.velocity.y, f.velocity.z)).toBeL…
+       |                                                                  ^
+    128|     expect(Math.hypot(f.glove.x - f.position.x, f.glove.y - f.position…
+    129|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayV1.test.ts > rejects unready force receivers without fictional throws while the batter takes a safe extra base and declines an unsafe third
+AssertionError: expected 0.36345678899999995 to be less than NaN
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts:333:39
+    331|   const throughRoute = result.diagnostics.aiTelemetry.runnerMotions.fi…
+    332|   expect(throughRoute).toBeDefined();
+    333|   expect(throughRoute.elapsedSeconds).toBeLessThan(result.ruleFacts.ru…
+       |                                       ^
+    334|   expect(result.diagnostics.aiTelemetry.runnerDecisions.some(d => d.ta…
+    335|     && d.reason === 'insufficient_safety_margin')).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  2 failed | 68 passed (70)
+   Start at  00:27:47
+   Duration  19.32s (transform 1.08s, setup 0ms, collect 1.99s, tests 20.93s, environment 1ms, prepare 1.31s)
+

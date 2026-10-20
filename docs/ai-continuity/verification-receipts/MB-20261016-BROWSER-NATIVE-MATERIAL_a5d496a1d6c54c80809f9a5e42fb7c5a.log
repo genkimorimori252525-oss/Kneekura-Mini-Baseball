@@ -1,0 +1,10 @@
+▲ [WARNING] "youkaishomecoming:yukari" is not a valid value for the "type" field [package.json]
+
+    ../../../../../../package.json:1:8:
+      1 │ {"type":"youkaishomecoming:yukari","texture":"touhou_little_maid:te...
+        ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The "type" field must be set to either "commonjs" or "module".
+
+{"status":"PASS_ORIGINAL_NATIVE_WORLD_TO_READONLY_MATERIAL_OBSERVER","sourceId":"native-wall-v3-step-2","sourceHash":"16001d5f639ce7f11211f7b6e0c75fc3f0fa60a1efca74dd95ef02c4b637667f","snapshotHash":"1d9205ceb9aadf439948a4a48c23da3c093d301ad88cae8dd277908d53f885cb","databaseSha256":"7716af27ed38dd205cce6c6eff0e9377e134d88b326f329f9164626f4f9f5f27","physicalHistoryAuthority":"ORIGINAL_NATIVE_OWNER_COLD_READ","phaseAuthority":"DECLARED_INITIAL_PHASE","physicalCursorStatesCompared":3,"frameCount":31,"repeatAndReverseOrder":"BYTE_IDENTICAL","observerNativeAdmission":false,"officialResult":null,"rendererIntegration":"NOT_CONNECTED","formalMixedNineInnings":"INCOMPLETE"}
+{"status":"PASS_NATIVE_SAVED_WORLD_AND_BROWSER_MODULE_SAME_PHYSICAL_STATE","physicalHistoryAuthority":"ORIGINAL_NATIVE_OWNER_COLD_READ","syntheticNativeFixture":true,"sourceId":"native-wall-v3-step-2","sourceHash":"16001d5f639ce7f11211f7b6e0c75fc3f0fa60a1efca74dd95ef02c4b637667f","snapshotHash":"1d9205ceb9aadf439948a4a48c23da3c093d301ad88cae8dd277908d53f885cb","databaseSha256":"7716af27ed38dd205cce6c6eff0e9377e134d88b326f329f9164626f4f9f5f27","browserBundleSha256":"fbe3bccf1861117f1ab45b5ffc6affd48101b0843e5c8e35167a153572b9d5a5","inputSha256":"20494033019190a1e851fc6689305cbf6b38dd18c76da922ab72914850260908","comparedFrames":31,"sampledInReverseOrder":true,"positionsVelocitySpinAndOrientation":"BYTE_EQUIVALENT_NUMBERS","phaseAuthority":"DECLARED_INITIAL_PHASE","browserRuntime":"ISOLATED_JS_REALM_WITHOUT_NODE_GLOBALS","realBrowserOrPhone":"NOT_RUN_BY_THIS_CHECK","gameRendererIntegration":"NOT_CONNECTED","officialResult":null,"nativeNineActorExecution":"NOT_PROVEN","formalMixedNineInnings":"INCOMPLETE"}

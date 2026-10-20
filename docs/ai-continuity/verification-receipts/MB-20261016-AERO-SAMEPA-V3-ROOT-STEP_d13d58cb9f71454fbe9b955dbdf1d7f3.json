@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-AERO-SAMEPA-V3-ROOT-STEP",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/aero-ground-samepa/run-retained-suffix-v6.mjs",
+    "../aero-ground-samepa-recovery-20261016/retained-entry-v6-v3-branch.mjs",
+    "../aero-ground-samepa-recovery-20261016/v3-branch",
+    "field-root",
+    "field-step",
+    "v3"
+  ],
+  "observed_at": "2026-10-15T17:10:44.030+00:00",
+  "elapsed_ms": 598358,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-AERO-SAMEPA-V3-ROOT-STEP_d13d58cb9f71454fbe9b955dbdf1d7f3.log",
+  "output_sha256": "ab43f29ae7027bc5b5f3ec861a2dee897fd4f994b206903beb5fac9a43ad0455",
+  "receipt_id": "MB-20261016-AERO-SAMEPA-V3-ROOT-STEP_d13d58cb9f71454fbe9b955dbdf1d7f3"
+}

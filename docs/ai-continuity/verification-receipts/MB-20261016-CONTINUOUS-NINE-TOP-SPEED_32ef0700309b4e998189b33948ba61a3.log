@@ -1,0 +1,12 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/ball/SourceDefensiveControlV1.test.ts (14 tests) 9232ms
+   ✓ yields bounded work without renewing decisions and resumes the same control/ball state 4282ms
+   ✓ stops all bodies at the actual fractional ground contact and resumes the original ball through its bounce 3636ms
+
+ Test Files  1 passed (1)
+      Tests  14 passed (14)
+   Start at  05:32:42
+   Duration  10.08s (transform 287ms, setup 0ms, collect 426ms, tests 9.23s, environment 0ms, prepare 132ms)
+

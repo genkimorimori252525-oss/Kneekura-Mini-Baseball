@@ -1,0 +1,13 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+page.evaluate: Error: live baseball match: physical field continuation unresolved: actor_boundary_motor_required (pitch 5, seed 1174965123)
+    at eval (eval at evaluate (:311:30), <anonymous>:1:133)
+    at UtilityScript.evaluate (<anonymous>:313:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+    at C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\check-v51-game.mjs:132:14 {
+  log: []
+}
+
+Node.js v26.1.0

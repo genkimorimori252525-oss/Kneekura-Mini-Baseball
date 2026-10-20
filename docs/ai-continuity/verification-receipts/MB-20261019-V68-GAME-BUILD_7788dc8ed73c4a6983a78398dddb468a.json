@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V68-GAME-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-v68.mjs"
+  ],
+  "observed_at": "2026-10-19T10:53:34.342+00:00",
+  "elapsed_ms": 969,
+  "git_head": "652aa75ccb24df723c2d413e5dc37e7395dc8679",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V68-GAME-BUILD_7788dc8ed73c4a6983a78398dddb468a.log",
+  "output_sha256": "3170b4172b31d687ebbb02d3a1e818bb0846dfd23217ccaf9033f5e40a5a2473",
+  "receipt_id": "MB-20261019-V68-GAME-BUILD_7788dc8ed73c4a6983a78398dddb468a"
+}

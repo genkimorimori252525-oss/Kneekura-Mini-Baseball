@@ -66,6 +66,14 @@ export const activeBattedWorldFieldReadSnapshot = (db: Db): object | null => {
   return traversal.snapshot.identity;
 };
 
+/** Metadata reuse may expire after a caught descendant error while original
+ * independent physical reads remain legal. Never grant an expired identity. */
+export const reusableBattedWorldFieldReadSnapshot = (db: Db): object | null => {
+  const traversal = fieldReadTraversals.get(db);
+  if (!traversal || traversal.snapshot.failed) return null;
+  return activeBattedWorldFieldReadSnapshot(db);
+};
+
 /** Internal root-owned read bracket. It never replaces a connection authorizer.
  * query_only belongs to this synchronous operation, not an adversarial SQL sandbox. */
 export const withBattedWorldFieldReadTraversal = <T>(db: Db, body: () => T): T => {

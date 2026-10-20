@@ -1,0 +1,12 @@
+{
+  "inputCount": 105,
+  "sourceMismatches": [],
+  "bundleEntryMatches": true,
+  "htmlBundleMatches": true,
+  "htmlManifestMatches": true,
+  "htmlFileMatches": true,
+  "rosterMatches": true,
+  "catalogMatches": true,
+  "bundleSha256": "3e2a6f06c24152d2648bb0ae7876910ae3cc0f695f1e0427a9e57cb511539fab",
+  "manifestSha256": "e7606e18e678c55eb6afa085e54aeb713186858d253aeb5c28962456d2b3c5ac"
+}

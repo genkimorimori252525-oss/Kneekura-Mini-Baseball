@@ -1,0 +1,46 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+stdout | src/core/sim/fielding/LiveThrowPlanV1.test.ts > remains deterministic and reports performance outside the issued command
+{"benchmark":"70M_AERO_THROW_COMMAND","wallMilliseconds":96.29250000000002,"candidateCount":4,"solverEvaluationCount":19,"shootingIntegrationStepUpperBound":10047,"verificationKernelBuilds":1,"timingBasis":"MONOTONIC_WALL_CLOCK_NOT_PROCESS_CPU","processCpuUserMilliseconds":62,"processCpuSystemMilliseconds":15}
+
+ ❯ src/core/sim/fielding/LiveThrowPlanV1.test.ts (7 tests | 1 failed) 655ms
+   ✓ remains deterministic and reports performance outside the issued command 330ms
+   × retains held seam orientation when planning and verifying a new physical throw 92ms
+     → expected [Function] to throw error matching /orientation|material|phase/i but got 'official window input must contain in…'
+ ✓ src/core/sim/fielding/LiveFieldForecastV1.test.ts (7 tests) 1090ms
+   ✓ measures process CPU outside the browser-neutral helper while reusing one kernel for nine defenders 781ms
+stdout | src/core/sim/fielding/LiveFieldForecastV1.test.ts > measures process CPU outside the browser-neutral helper while reusing one kernel for nine defenders
+{"benchmark":"EXPLICIT_20_OBSERVATIONS_9_DEFENDERS_8_SECOND_HYPOTHESES","hypotheses":20,"sharedQueries":1440,"wallMilliseconds":780.3729000000001,"processCpuUserMilliseconds":704,"processCpuSystemMilliseconds":250,"meanBuildWallMilliseconds":38.83483999999999,"mean72SamplesWallMilliseconds":0.03376499999974954}
+
+ ✓ src/core/sim/fielding/LiveRelayPlanV1.test.ts (9 tests) 2501ms
+   ✓ supports two actual intermediate receivers without duplicate actors or throw cycles 679ms
+   ✓ carries predicted seam phase through relay hypotheses while requiring a new plan after actual receipt 683ms
+   ✓ bounds search work and caches Aero edges while using no position names or future world state 720ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveThrowPlanV1.test.ts > retains held seam orientation when planning and verifying a new physical throw
+AssertionError: expected [Function] to throw error matching /orientation|material|phase/i but got 'official window input must contain in…'
+
+- Expected: 
+/orientation|material|phase/i
+
++ Received: 
+"official window input must contain inert data only"
+
+ ❯ src/core/sim/fielding/LiveThrowPlanV1.test.ts:54:121
+     52|   expect(result.predictedArrivalPosition).toEqual(arrival.moment.ball.…
+     53|   expect(result.predictedMaterialOrientation).not.toEqual(phase);expec…
+     54|   expect(JSON.stringify(raw)).toBe(before);expect(()=>planLiveThrowV1(…
+       |                                                                                                                         ^
+     55| });
+     56| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 22 passed (23)
+   Start at  04:44:33
+   Duration  3.21s (transform 289ms, setup 0ms, collect 791ms, tests 4.25s, environment 0ms, prepare 397ms)
+

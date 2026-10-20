@@ -1,0 +1,25 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/pitching/SampledRigidBatSwingV1.test.ts (14 tests) 163ms
+ ✓ src/core/world/psychology/batting/BattingCommitment.test.ts (23 tests) 206ms
+ ✓ src/core/world/psychology/batting/BattingEventAdoption.test.ts (9 tests) 260ms
+ ✓ src/core/world/psychology/batting/BattingResolution.test.ts (16 tests) 418ms
+ ✓ src/core/world/psychology/batting/MeasuredBattingCommitment.test.ts (22 tests) 1449ms
+ ✓ src/host/world/SamePlateAppearancePhysicalEpisode.test.ts (6 tests) 46ms
+ ✓ src/host/world/SamePlateAppearanceBatterCatchResponse.test.ts (19 tests) 470ms
+ ✓ src/host/world/PlayerBattingModelOwnershipGuards.test.ts (4 tests) 1162ms
+   ✓ rejects a hidden foreign model whose nested body claims the original Player history 388ms
+   ✓ rejects a hidden foreign model whose nested pose claims the original Player history 322ms
+ ✓ src/integration/native-game/AuthoredNativeMatchV1.test.ts (3 tests) 3630ms
+   ✓ creates two real Native SI model cohorts, official initial World and nineteen bodies without legacy fixtures or owner mocks 3586ms
+ ✓ src/integration/native-game/AuthoredMeasuredBattingModelV1.test.ts (1 test) 3917ms
+   ✓ stores measured repertoire on the new Native genesis Person/body and rereads without any author callbacks 3916ms
+ ✓ src/host/world/PlayerBattingModelNative.test.ts (30 tests) 6376ms
+   ✓ selects later explicitly accepted capability history while reading and retrying original model bytes 464ms
+
+ Test Files  11 passed (11)
+      Tests  147 passed (147)
+   Start at  07:07:39
+   Duration  17.50s (transform 11.05s, setup 0ms, collect 65.31s, tests 18.10s, environment 2ms, prepare 2.48s)
+

@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V49-TAG-DEPARTURE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts",
+    "src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts",
+    "src/integration/browser/PlayableRunnerCausalityV49.test.ts",
+    "src/integration/browser/PlayableMatchRulesV1.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T08:29:27.777+00:00",
+  "elapsed_ms": 14139,
+  "git_head": "d54aa62aec6ce643f216dbaedfbaba2f36b31e3b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V49-TAG-DEPARTURE_78ad78cf84204b5eae278b2ca16dedd3.log",
+  "output_sha256": "c5d5f0c488301277946d2ebf7a5bb5236f789022d750306a7dc83557dd3ff10b",
+  "receipt_id": "MB-20261018-V49-TAG-DEPARTURE_78ad78cf84204b5eae278b2ca16dedd3"
+}

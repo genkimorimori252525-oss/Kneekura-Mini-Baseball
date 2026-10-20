@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-POST-IMPACT-WORLD-CORE-V2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "--maxWorkers",
+    "1",
+    "--minWorkers",
+    "1",
+    "src/core/sim/pitch/PostImpactBatBodyWorldV1.test.ts",
+    "src/core/sim/contact/PostImpactBatBodyControlV1.test.ts"
+  ],
+  "observed_at": "2026-10-16T15:40:46.022+00:00",
+  "elapsed_ms": 1515,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-POST-IMPACT-WORLD-CORE-V2_503cbdc00fdc45bfa6cbd71d50eea2d7.log",
+  "output_sha256": "71176291aad0d0af0f12a4fbf7bca39ca55e50e8829e794c35ff5b8cd8ebf16b",
+  "receipt_id": "MB-20261017-POST-IMPACT-WORLD-CORE-V2_503cbdc00fdc45bfa6cbd71d50eea2d7"
+}

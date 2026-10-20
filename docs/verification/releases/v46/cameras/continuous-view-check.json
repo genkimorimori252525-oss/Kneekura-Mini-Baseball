@@ -1,0 +1,1815 @@
+{
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv46_TBD_vs_LAD_走塁と守備AI改善版.html",
+  "sha256": "d6bbcd5c7cb2990028693d968f27e73997c7cd603d2fbaf244b04842ae32ccb0",
+  "baseline": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv46_TBD_vs_LAD_走塁と守備AI改善版.html",
+  "baselineSha256": "d6bbcd5c7cb2990028693d968f27e73997c7cd603d2fbaf244b04842ae32ccb0",
+  "views": [
+    {
+      "width": 1200,
+      "cases": {
+        "sides": {
+          "L": {
+            "pitch": 0,
+            "side": "L",
+            "start": 1903.847,
+            "contact": 2061.726,
+            "end": 2137.154044964538,
+            "run": 2061.726
+          },
+          "R": {
+            "pitch": 1,
+            "side": "R",
+            "start": 1845.326,
+            "contact": 2010.871,
+            "end": 2079.9246527173705,
+            "run": 2010.871
+          }
+        },
+        "takes": [
+          {
+            "pitch": 2,
+            "held": 2137.977
+          },
+          {
+            "pitch": 5,
+            "held": 2139.1639999999998
+          },
+          {
+            "pitch": 7,
+            "held": 2113.058
+          },
+          {
+            "pitch": 8,
+            "held": 2064.471
+          },
+          {
+            "pitch": 10,
+            "held": 2027.212
+          },
+          {
+            "pitch": 11,
+            "held": 2031.874
+          }
+        ]
+      },
+      "boundaries": [
+        {
+          "side": "L",
+          "kind": "start",
+          "ms": 1903.847,
+          "angleDelta": 1.9426860290393224e-7,
+          "eyeDelta": 0
+        },
+        {
+          "side": "L",
+          "kind": "contact",
+          "ms": 2061.726,
+          "angleDelta": 0.000004224425971546468,
+          "eyeDelta": 0
+        },
+        {
+          "side": "L",
+          "kind": "end",
+          "ms": 2137.154044964538,
+          "angleDelta": 0.0000034422918210295444,
+          "eyeDelta": 0
+        },
+        {
+          "side": "L",
+          "kind": "runner",
+          "ms": 2061.726,
+          "angleDelta": 0.000004224425971546468,
+          "eyeDelta": 0
+        },
+        {
+          "side": "R",
+          "kind": "start",
+          "ms": 1845.326,
+          "angleDelta": 3.818975598397733e-7,
+          "eyeDelta": 0
+        },
+        {
+          "side": "R",
+          "kind": "contact",
+          "ms": 2010.871,
+          "angleDelta": 0.000004965692746485366,
+          "eyeDelta": 0
+        },
+        {
+          "side": "R",
+          "kind": "end",
+          "ms": 2079.9246527173705,
+          "angleDelta": 0.000004708574706831957,
+          "eyeDelta": 0
+        },
+        {
+          "side": "R",
+          "kind": "runner",
+          "ms": 2010.871,
+          "angleDelta": 0.000004965692746485366,
+          "eyeDelta": 0
+        }
+      ],
+      "curves": [
+        {
+          "side": "L",
+          "samples": [
+            {
+              "ms": 1540,
+              "yaw": -0.020615635625603763,
+              "pitch": 0.08,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "ready",
+              "aimWeight": 0,
+              "surprise": 0,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1595,
+              "yaw": -0.020615635625603763,
+              "pitch": 0.08,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "incoming",
+              "aimWeight": 0,
+              "surprise": 0,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1650,
+              "yaw": -0.020287527395851795,
+              "pitch": 0.07452136227257265,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "incoming",
+              "aimWeight": 0,
+              "surprise": 0.5763805609705169,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1705,
+              "yaw": -0.01955082577851235,
+              "pitch": 0.05872590254441377,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "incoming",
+              "aimWeight": 0,
+              "surprise": 0.3891290340964194,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1760,
+              "yaw": -0.019205364936858777,
+              "pitch": 0.04058837558428848,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "incoming",
+              "aimWeight": 0,
+              "surprise": 0.2627108119709087,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1815,
+              "yaw": -0.019820745736433876,
+              "pitch": 0.02486120529503504,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "incoming",
+              "aimWeight": 0,
+              "surprise": 0.17736268609890699,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1870,
+              "yaw": -0.021891825242634392,
+              "pitch": 0.014218819320771806,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "incoming",
+              "aimWeight": 0,
+              "surprise": 0.1197420166464366,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1925,
+              "yaw": -0.026212255215535364,
+              "pitch": 0.010655201283954675,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "swing-aim",
+              "aimWeight": 0.12534360351063986,
+              "surprise": 0.0808408513984716,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1980,
+              "yaw": -0.039448627165828795,
+              "pitch": 0.025825057637442445,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "swing-aim",
+              "aimWeight": 0.7432494671400461,
+              "surprise": 0.05457769492997968,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2035,
+              "yaw": -0.07995182956116569,
+              "pitch": 0.08790443934006556,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "swing-aim",
+              "aimWeight": 1,
+              "surprise": 0.04559156858258125,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2090,
+              "yaw": -0.14173404611606968,
+              "pitch": 0.18351726221275894,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "swing-aim",
+              "aimWeight": 1,
+              "surprise": 0.043705299241019326,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2145,
+              "yaw": -0.19809282253233224,
+              "pitch": 0.2708301250226612,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "aim-release",
+              "aimWeight": 0.9992250333300033,
+              "surprise": 0.96491594437237,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2200,
+              "yaw": -0.23073856234672524,
+              "pitch": 0.33108161816811327,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "aim-release",
+              "aimWeight": 0.7661579214025068,
+              "surprise": 0.6514390575310554,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2255,
+              "yaw": -0.21356978295460802,
+              "pitch": 0.3631388865311208,
+              "eye": {
+                "x": 0.40003485687586043,
+                "y": 1.4861,
+                "z": -0.9499631698118715
+              },
+              "phase": "aim-release",
+              "aimWeight": 0.22791773276765737,
+              "surprise": 0.9787993892143565,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2310,
+              "yaw": -0.1582958299187936,
+              "pitch": 0.3524286454691018,
+              "eye": {
+                "x": 0.4009056200226004,
+                "y": 1.4861,
+                "z": -0.9490431111514721
+              },
+              "phase": "aim-release",
+              "aimWeight": 0.0005909894438161922,
+              "surprise": 0.6608121208283262,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2365,
+              "yaw": -0.08280114730538357,
+              "pitch": 0.3084283744262756,
+              "eye": {
+                "x": 0.4075651568532829,
+                "y": 1.4861,
+                "z": -0.9420065656129323
+              },
+              "phase": "batted-tracking",
+              "aimWeight": 0,
+              "surprise": 0.4461309067470205,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2420,
+              "yaw": -0.0031756785121823308,
+              "pitch": 0.2523412631375089,
+              "eye": {
+                "x": 0.4252264396293168,
+                "y": 1.4861,
+                "z": -0.9233454449250753
+              },
+              "phase": "batted-tracking",
+              "aimWeight": 0,
+              "surprise": 0.3011942119122021,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2475,
+              "yaw": 0.06913002249577742,
+              "pitch": 0.1971316609517028,
+              "eye": {
+                "x": 0.45500108014766455,
+                "y": 1.4861,
+                "z": -0.8918852068893411
+              },
+              "phase": "batted-tracking",
+              "aimWeight": 0,
+              "surprise": 0.20334379868654628,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2530,
+              "yaw": 0.12854252761016685,
+              "pitch": 0.15028379983110451,
+              "eye": {
+                "x": 0.49686634963806603,
+                "y": 1.4861,
+                "z": -0.8476498669937489
+              },
+              "phase": "batted-tracking",
+              "aimWeight": 0,
+              "surprise": 0.13728252014460296,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2585,
+              "yaw": 0.1740272190218683,
+              "pitch": 0.11460249671017186,
+              "eye": {
+                "x": 0.5508023937490222,
+                "y": 1.4861,
+                "z": -0.7906604035813893
+              },
+              "phase": "batted-tracking",
+              "aimWeight": 0,
+              "surprise": 0.09268288710542442,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            }
+          ]
+        },
+        {
+          "side": "R",
+          "samples": [
+            {
+              "ms": 1540,
+              "yaw": 0.020615635625603763,
+              "pitch": 0.08,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "phase": "ready",
+              "aimWeight": 0,
+              "surprise": 0,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1595,
+              "yaw": 0.020615635625603763,
+              "pitch": 0.08,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "phase": "incoming",
+              "aimWeight": 0,
+              "surprise": 0,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1650,
+              "yaw": 0.021073682341179595,
+              "pitch": 0.07634078138937803,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "phase": "incoming",
+              "aimWeight": 0,
+              "surprise": 0.7182997502725231,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1705,
+              "yaw": 0.023096839790261284,
+              "pitch": 0.06226387820811308,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "phase": "incoming",
+              "aimWeight": 0,
+              "surprise": 0.48494225333450103,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1760,
+              "yaw": 0.026385715599808148,
+              "pitch": 0.04478272330779644,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "phase": "incoming",
+              "aimWeight": 0,
+              "surprise": 0.32739672954072474,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1815,
+              "yaw": 0.03104328007986305,
+              "pitch": 0.029803066540565637,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "phase": "incoming",
+              "aimWeight": 0,
+              "surprise": 0.22103377830437554,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1870,
+              "yaw": 0.038077877697582835,
+              "pitch": 0.021878080856692184,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "phase": "swing-aim",
+              "aimWeight": 0.14658428554040923,
+              "surprise": 0.14922547094481797,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1925,
+              "yaw": 0.057110574934756325,
+              "pitch": 0.036214816878662084,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "phase": "swing-aim",
+              "aimWeight": 0.770828605923727,
+              "surprise": 0.10074587399957545,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1980,
+              "yaw": 0.10870205056404356,
+              "pitch": 0.09745778307164572,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "phase": "swing-aim",
+              "aimWeight": 1,
+              "surprise": 0.06801607703882936,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2035,
+              "yaw": 0.19167655665128952,
+              "pitch": 0.19905797838170228,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "phase": "swing-aim",
+              "aimWeight": 1,
+              "surprise": 0.05019003701132737,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2090,
+              "yaw": 0.27585531398945423,
+              "pitch": 0.30300668672906905,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "phase": "aim-release",
+              "aimWeight": 0.9983902191911167,
+              "surprise": 1,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2145,
+              "yaw": 0.33328602287719633,
+              "pitch": 0.38374711472895945,
+              "eye": {
+                "x": -0.3999983372342906,
+                "y": 1.3475000000000001,
+                "z": -0.949998390613994
+              },
+              "phase": "aim-release",
+              "aimWeight": 0.7466620828266606,
+              "surprise": 1,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2200,
+              "yaw": 0.3426619929700628,
+              "pitch": 0.43215396567052866,
+              "eye": {
+                "x": -0.39973555478576045,
+                "y": 1.3475000000000001,
+                "z": -0.9497440442602797
+              },
+              "phase": "aim-release",
+              "aimWeight": 0.2092567905939584,
+              "surprise": 0.6897482718033082,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2255,
+              "yaw": 0.30460491582597216,
+              "pitch": 0.44306321620396644,
+              "eye": {
+                "x": -0.3956670363695041,
+                "y": 1.3475000000000001,
+                "z": -0.9458061373339122
+              },
+              "phase": "aim-release",
+              "aimWeight": 0.00019647790100951745,
+              "surprise": 0.465666431089485,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2310,
+              "yaw": 0.21972343915528722,
+              "pitch": 0.41568153758744636,
+              "eye": {
+                "x": -0.3814970579056973,
+                "y": 1.3475000000000001,
+                "z": -0.932091057142522
+              },
+              "phase": "batted-tracking",
+              "aimWeight": 0,
+              "surprise": 0.3143831364400353,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2365,
+              "yaw": 0.10119294531109592,
+              "pitch": 0.35357209561503805,
+              "eye": {
+                "x": -0.3543529357059708,
+                "y": 1.3475000000000001,
+                "z": -0.905818341651455
+              },
+              "phase": "batted-tracking",
+              "aimWeight": 0,
+              "surprise": 0.21224797382674315,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2420,
+              "yaw": -0.016008624966997845,
+              "pitch": 0.28167978408498495,
+              "eye": {
+                "x": -0.3135793694902781,
+                "y": 1.3475000000000001,
+                "z": -0.8663537276602953
+              },
+              "phase": "batted-tracking",
+              "aimWeight": 0,
+              "surprise": 0.14329395305256898,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2475,
+              "yaw": -0.13208097987519424,
+              "pitch": 0.20846976043867657,
+              "eye": {
+                "x": -0.26045830973554734,
+                "y": 1.3475000000000001,
+                "z": -0.8149380112392252
+              },
+              "phase": "batted-tracking",
+              "aimWeight": 0,
+              "surprise": 0.09674135687247101,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2530,
+              "yaw": -0.23911571813879637,
+              "pitch": 0.14217146640148423,
+              "eye": {
+                "x": -0.19467868134548438,
+                "y": 1.3475000000000001,
+                "z": -0.751270103723776
+              },
+              "phase": "batted-tracking",
+              "aimWeight": 0,
+              "surprise": 0.06531252666393668,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            }
+          ]
+        }
+      ],
+      "repeatedBoundarySamples": [
+        {
+          "side": "L",
+          "kind": "start",
+          "angleDelta": 1.9426860290393224e-7,
+          "eyeDelta": 0
+        },
+        {
+          "side": "L",
+          "kind": "end",
+          "angleDelta": 0.0000034422918210295444,
+          "eyeDelta": 0
+        },
+        {
+          "side": "R",
+          "kind": "start",
+          "angleDelta": 3.818975598397733e-7,
+          "eyeDelta": 0
+        },
+        {
+          "side": "R",
+          "kind": "end",
+          "angleDelta": 0.000004708574706831957,
+          "eyeDelta": 0
+        }
+      ],
+      "coreHashes": [
+        "ed40913efe3aac3bbe88de1b99f8ca83061cdf15bd0dfece04f7ec1621c16b15",
+        "95ce6755af19c58619ebcfba032857033531ba7e127f91771dbc53d868bc28e9",
+        "a0df4dd017b562ed7677285c875b0193f65d10b9a087a97c1ca75327c08938b7",
+        "2f916cf4706447174926fa14761c47023add71d1fc73fad87ddb9333aac3056a",
+        "92555527c726c0366bab29e3fd7460b1285760a9cd4729b904dd571d040e6eaa",
+        "d73086bad2507614df168753b1892d19a3e3e3b8b65f7ab04b422d6d04e5f7d8",
+        "9a1c2dbe2e401b54ad197ddd45757adfeace1a8ce587ec12dc5d43a2bf7dca22",
+        "f5da291788b34d0c9e96526c4103a945a76138db3370d1dbccd387ac04b08587",
+        "05c6005ea94511c70af82b3309e98a8826d3ee8895dc6aa133b90d00f2748918",
+        "8e88457a30cc45dea5ea644c08dd7bab7d3b28b7bd1c66a4584509d33e2dcaed",
+        "0a3b6ef55ec4fb2cba4670e38a744254f8b06606f53dc6160ad1f9ac69f1aef4",
+        "f6606c6f014336e85f914af0ed025118df0d60e76b7f4b6be024472635d49f32"
+      ],
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "width": 390,
+      "cases": {
+        "sides": {
+          "L": {
+            "pitch": 0,
+            "side": "L",
+            "start": 1903.847,
+            "contact": 2061.726,
+            "end": 2137.154044964538,
+            "run": 2061.726
+          },
+          "R": {
+            "pitch": 1,
+            "side": "R",
+            "start": 1845.326,
+            "contact": 2010.871,
+            "end": 2079.9246527173705,
+            "run": 2010.871
+          }
+        },
+        "takes": [
+          {
+            "pitch": 2,
+            "held": 2137.977
+          },
+          {
+            "pitch": 5,
+            "held": 2139.1639999999998
+          },
+          {
+            "pitch": 7,
+            "held": 2113.058
+          },
+          {
+            "pitch": 8,
+            "held": 2064.471
+          },
+          {
+            "pitch": 10,
+            "held": 2027.212
+          },
+          {
+            "pitch": 11,
+            "held": 2031.874
+          }
+        ]
+      },
+      "boundaries": [
+        {
+          "side": "L",
+          "kind": "start",
+          "ms": 1903.847,
+          "angleDelta": 1.9426860290393224e-7,
+          "eyeDelta": 0
+        },
+        {
+          "side": "L",
+          "kind": "contact",
+          "ms": 2061.726,
+          "angleDelta": 0.000004224425971546468,
+          "eyeDelta": 0
+        },
+        {
+          "side": "L",
+          "kind": "end",
+          "ms": 2137.154044964538,
+          "angleDelta": 0.0000034422918210295444,
+          "eyeDelta": 0
+        },
+        {
+          "side": "L",
+          "kind": "runner",
+          "ms": 2061.726,
+          "angleDelta": 0.000004224425971546468,
+          "eyeDelta": 0
+        },
+        {
+          "side": "R",
+          "kind": "start",
+          "ms": 1845.326,
+          "angleDelta": 3.818975598397733e-7,
+          "eyeDelta": 0
+        },
+        {
+          "side": "R",
+          "kind": "contact",
+          "ms": 2010.871,
+          "angleDelta": 0.000004965692746485366,
+          "eyeDelta": 0
+        },
+        {
+          "side": "R",
+          "kind": "end",
+          "ms": 2079.9246527173705,
+          "angleDelta": 0.000004708574706831957,
+          "eyeDelta": 0
+        },
+        {
+          "side": "R",
+          "kind": "runner",
+          "ms": 2010.871,
+          "angleDelta": 0.000004965692746485366,
+          "eyeDelta": 0
+        }
+      ],
+      "curves": [
+        {
+          "side": "L",
+          "samples": [
+            {
+              "ms": 1540,
+              "yaw": -0.020615635625603763,
+              "pitch": 0.08,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "ready",
+              "aimWeight": 0,
+              "surprise": 0,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1595,
+              "yaw": -0.020615635625603763,
+              "pitch": 0.08,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "incoming",
+              "aimWeight": 0,
+              "surprise": 0,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1650,
+              "yaw": -0.020287527395851795,
+              "pitch": 0.07452136227257265,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "incoming",
+              "aimWeight": 0,
+              "surprise": 0.5763805609705169,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1705,
+              "yaw": -0.01955082577851235,
+              "pitch": 0.05872590254441377,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "incoming",
+              "aimWeight": 0,
+              "surprise": 0.3891290340964194,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1760,
+              "yaw": -0.019205364936858777,
+              "pitch": 0.04058837558428848,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "incoming",
+              "aimWeight": 0,
+              "surprise": 0.2627108119709087,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1815,
+              "yaw": -0.019820745736433876,
+              "pitch": 0.02486120529503504,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "incoming",
+              "aimWeight": 0,
+              "surprise": 0.17736268609890699,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1870,
+              "yaw": -0.021891825242634392,
+              "pitch": 0.014218819320771806,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "incoming",
+              "aimWeight": 0,
+              "surprise": 0.1197420166464366,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1925,
+              "yaw": -0.026212255215535364,
+              "pitch": 0.010655201283954675,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "swing-aim",
+              "aimWeight": 0.12534360351063986,
+              "surprise": 0.0808408513984716,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1980,
+              "yaw": -0.039448627165828795,
+              "pitch": 0.025825057637442445,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "swing-aim",
+              "aimWeight": 0.7432494671400461,
+              "surprise": 0.05457769492997968,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2035,
+              "yaw": -0.07995182956116569,
+              "pitch": 0.08790443934006556,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "swing-aim",
+              "aimWeight": 1,
+              "surprise": 0.04559156858258125,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2090,
+              "yaw": -0.14173404611606968,
+              "pitch": 0.18351726221275894,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "swing-aim",
+              "aimWeight": 1,
+              "surprise": 0.043705299241019326,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2145,
+              "yaw": -0.19809282253233224,
+              "pitch": 0.2708301250226612,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "aim-release",
+              "aimWeight": 0.9992250333300033,
+              "surprise": 0.96491594437237,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2200,
+              "yaw": -0.23073856234672524,
+              "pitch": 0.33108161816811327,
+              "eye": {
+                "x": 0.4,
+                "y": 1.4861,
+                "z": -0.95
+              },
+              "phase": "aim-release",
+              "aimWeight": 0.7661579214025068,
+              "surprise": 0.6514390575310554,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2255,
+              "yaw": -0.21356978295460802,
+              "pitch": 0.3631388865311208,
+              "eye": {
+                "x": 0.40003485687586043,
+                "y": 1.4861,
+                "z": -0.9499631698118715
+              },
+              "phase": "aim-release",
+              "aimWeight": 0.22791773276765737,
+              "surprise": 0.9787993892143565,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2310,
+              "yaw": -0.1582958299187936,
+              "pitch": 0.3524286454691018,
+              "eye": {
+                "x": 0.4009056200226004,
+                "y": 1.4861,
+                "z": -0.9490431111514721
+              },
+              "phase": "aim-release",
+              "aimWeight": 0.0005909894438161922,
+              "surprise": 0.6608121208283262,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2365,
+              "yaw": -0.08280114730538357,
+              "pitch": 0.3084283744262756,
+              "eye": {
+                "x": 0.4075651568532829,
+                "y": 1.4861,
+                "z": -0.9420065656129323
+              },
+              "phase": "batted-tracking",
+              "aimWeight": 0,
+              "surprise": 0.4461309067470205,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2420,
+              "yaw": -0.0031756785121823308,
+              "pitch": 0.2523412631375089,
+              "eye": {
+                "x": 0.4252264396293168,
+                "y": 1.4861,
+                "z": -0.9233454449250753
+              },
+              "phase": "batted-tracking",
+              "aimWeight": 0,
+              "surprise": 0.3011942119122021,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2475,
+              "yaw": 0.06913002249577742,
+              "pitch": 0.1971316609517028,
+              "eye": {
+                "x": 0.45500108014766455,
+                "y": 1.4861,
+                "z": -0.8918852068893411
+              },
+              "phase": "batted-tracking",
+              "aimWeight": 0,
+              "surprise": 0.20334379868654628,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2530,
+              "yaw": 0.12854252761016685,
+              "pitch": 0.15028379983110451,
+              "eye": {
+                "x": 0.49686634963806603,
+                "y": 1.4861,
+                "z": -0.8476498669937489
+              },
+              "phase": "batted-tracking",
+              "aimWeight": 0,
+              "surprise": 0.13728252014460296,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2585,
+              "yaw": 0.1740272190218683,
+              "pitch": 0.11460249671017186,
+              "eye": {
+                "x": 0.5508023937490222,
+                "y": 1.4861,
+                "z": -0.7906604035813893
+              },
+              "phase": "batted-tracking",
+              "aimWeight": 0,
+              "surprise": 0.09268288710542442,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            }
+          ]
+        },
+        {
+          "side": "R",
+          "samples": [
+            {
+              "ms": 1540,
+              "yaw": 0.020615635625603763,
+              "pitch": 0.08,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "phase": "ready",
+              "aimWeight": 0,
+              "surprise": 0,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1595,
+              "yaw": 0.020615635625603763,
+              "pitch": 0.08,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "phase": "incoming",
+              "aimWeight": 0,
+              "surprise": 0,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1650,
+              "yaw": 0.021073682341179595,
+              "pitch": 0.07634078138937803,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "phase": "incoming",
+              "aimWeight": 0,
+              "surprise": 0.7182997502725231,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1705,
+              "yaw": 0.023096839790261284,
+              "pitch": 0.06226387820811308,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "phase": "incoming",
+              "aimWeight": 0,
+              "surprise": 0.48494225333450103,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1760,
+              "yaw": 0.026385715599808148,
+              "pitch": 0.04478272330779644,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "phase": "incoming",
+              "aimWeight": 0,
+              "surprise": 0.32739672954072474,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1815,
+              "yaw": 0.03104328007986305,
+              "pitch": 0.029803066540565637,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "phase": "incoming",
+              "aimWeight": 0,
+              "surprise": 0.22103377830437554,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1870,
+              "yaw": 0.038077877697582835,
+              "pitch": 0.021878080856692184,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "phase": "swing-aim",
+              "aimWeight": 0.14658428554040923,
+              "surprise": 0.14922547094481797,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1925,
+              "yaw": 0.057110574934756325,
+              "pitch": 0.036214816878662084,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "phase": "swing-aim",
+              "aimWeight": 0.770828605923727,
+              "surprise": 0.10074587399957545,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 1980,
+              "yaw": 0.10870205056404356,
+              "pitch": 0.09745778307164572,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "phase": "swing-aim",
+              "aimWeight": 1,
+              "surprise": 0.06801607703882936,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2035,
+              "yaw": 0.19167655665128952,
+              "pitch": 0.19905797838170228,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "phase": "swing-aim",
+              "aimWeight": 1,
+              "surprise": 0.05019003701132737,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2090,
+              "yaw": 0.27585531398945423,
+              "pitch": 0.30300668672906905,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "phase": "aim-release",
+              "aimWeight": 0.9983902191911167,
+              "surprise": 1,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2145,
+              "yaw": 0.33328602287719633,
+              "pitch": 0.38374711472895945,
+              "eye": {
+                "x": -0.3999983372342906,
+                "y": 1.3475000000000001,
+                "z": -0.949998390613994
+              },
+              "phase": "aim-release",
+              "aimWeight": 0.7466620828266606,
+              "surprise": 1,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2200,
+              "yaw": 0.3426619929700628,
+              "pitch": 0.43215396567052866,
+              "eye": {
+                "x": -0.39973555478576045,
+                "y": 1.3475000000000001,
+                "z": -0.9497440442602797
+              },
+              "phase": "aim-release",
+              "aimWeight": 0.2092567905939584,
+              "surprise": 0.6897482718033082,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2255,
+              "yaw": 0.30460491582597216,
+              "pitch": 0.44306321620396644,
+              "eye": {
+                "x": -0.3956670363695041,
+                "y": 1.3475000000000001,
+                "z": -0.9458061373339122
+              },
+              "phase": "aim-release",
+              "aimWeight": 0.00019647790100951745,
+              "surprise": 0.465666431089485,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2310,
+              "yaw": 0.21972343915528722,
+              "pitch": 0.41568153758744636,
+              "eye": {
+                "x": -0.3814970579056973,
+                "y": 1.3475000000000001,
+                "z": -0.932091057142522
+              },
+              "phase": "batted-tracking",
+              "aimWeight": 0,
+              "surprise": 0.3143831364400353,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2365,
+              "yaw": 0.10119294531109592,
+              "pitch": 0.35357209561503805,
+              "eye": {
+                "x": -0.3543529357059708,
+                "y": 1.3475000000000001,
+                "z": -0.905818341651455
+              },
+              "phase": "batted-tracking",
+              "aimWeight": 0,
+              "surprise": 0.21224797382674315,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2420,
+              "yaw": -0.016008624966997845,
+              "pitch": 0.28167978408498495,
+              "eye": {
+                "x": -0.3135793694902781,
+                "y": 1.3475000000000001,
+                "z": -0.8663537276602953
+              },
+              "phase": "batted-tracking",
+              "aimWeight": 0,
+              "surprise": 0.14329395305256898,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2475,
+              "yaw": -0.13208097987519424,
+              "pitch": 0.20846976043867657,
+              "eye": {
+                "x": -0.26045830973554734,
+                "y": 1.3475000000000001,
+                "z": -0.8149380112392252
+              },
+              "phase": "batted-tracking",
+              "aimWeight": 0,
+              "surprise": 0.09674135687247101,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            },
+            {
+              "ms": 2530,
+              "yaw": -0.23911571813879637,
+              "pitch": 0.14217146640148423,
+              "eye": {
+                "x": -0.19467868134548438,
+                "y": 1.3475000000000001,
+                "z": -0.751270103723776
+              },
+              "phase": "batted-tracking",
+              "aimWeight": 0,
+              "surprise": 0.06531252666393668,
+              "model": {
+                "sensorDelaySeconds": 0.075,
+                "angularSpeedLimitRadPerSecond": 2.5,
+                "angularAccelerationLimitRadPerSecond2": 20,
+                "abilityBasis": "EXISTING_ZONE_JUDGMENT_UNCERTAINTY_PROVISIONAL_PRESENTATION_POLICY"
+              }
+            }
+          ]
+        }
+      ],
+      "repeatedBoundarySamples": [
+        {
+          "side": "L",
+          "kind": "start",
+          "angleDelta": 1.9426860290393224e-7,
+          "eyeDelta": 0
+        },
+        {
+          "side": "L",
+          "kind": "end",
+          "angleDelta": 0.0000034422918210295444,
+          "eyeDelta": 0
+        },
+        {
+          "side": "R",
+          "kind": "start",
+          "angleDelta": 3.818975598397733e-7,
+          "eyeDelta": 0
+        },
+        {
+          "side": "R",
+          "kind": "end",
+          "angleDelta": 0.000004708574706831957,
+          "eyeDelta": 0
+        }
+      ],
+      "coreHashes": [
+        "ed40913efe3aac3bbe88de1b99f8ca83061cdf15bd0dfece04f7ec1621c16b15",
+        "95ce6755af19c58619ebcfba032857033531ba7e127f91771dbc53d868bc28e9",
+        "a0df4dd017b562ed7677285c875b0193f65d10b9a087a97c1ca75327c08938b7",
+        "2f916cf4706447174926fa14761c47023add71d1fc73fad87ddb9333aac3056a",
+        "92555527c726c0366bab29e3fd7460b1285760a9cd4729b904dd571d040e6eaa",
+        "d73086bad2507614df168753b1892d19a3e3e3b8b65f7ab04b422d6d04e5f7d8",
+        "9a1c2dbe2e401b54ad197ddd45757adfeace1a8ce587ec12dc5d43a2bf7dca22",
+        "f5da291788b34d0c9e96526c4103a945a76138db3370d1dbccd387ac04b08587",
+        "05c6005ea94511c70af82b3309e98a8826d3ee8895dc6aa133b90d00f2748918",
+        "8e88457a30cc45dea5ea644c08dd7bab7d3b28b7bd1c66a4584509d33e2dcaed",
+        "0a3b6ef55ec4fb2cba4670e38a744254f8b06606f53dc6160ad1f9ac69f1aef4",
+        "f6606c6f014336e85f914af0ed025118df0d60e76b7f4b6be024472635d49f32"
+      ],
+      "errors": [],
+      "externalRequests": []
+    }
+  ],
+  "nativeBundleSha256": "3e2a6f06c24152d2648bb0ae7876910ae3cc0f695f1e0427a9e57cb511539fab",
+  "currentSourceInputs": 105,
+  "pass": true
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-PRESENTATION-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-v81.mjs"
+  ],
+  "observed_at": "2026-10-20T12:57:40.177+00:00",
+  "elapsed_ms": 1093,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-PRESENTATION-BUILD_cdaa95f7c6a94429948251ba10d0710b.log",
+  "output_sha256": "446991ea95771b7d777b4e672c90b5bbfd103f7b01b0718884ccf6c02be0e6a7",
+  "receipt_id": "MB-20261020-V81-PRESENTATION-BUILD_cdaa95f7c6a94429948251ba10d0710b"
+}

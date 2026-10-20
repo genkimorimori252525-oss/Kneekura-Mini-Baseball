@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-AUTHORED-PIPELINE-INDEPENDENT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-authored-initial-cut-readback-v2/readback.mjs",
+    "../../outputs/verification-authored-initial-pipeline-physical-v2/match.sqlite",
+    "../../outputs/verification-authored-initial-pipeline-physical-v2/expected.json",
+    "../../outputs/verification-authored-initial-pipeline-physical-v2/independent-readback.json",
+    "../../outputs/verification-authored-initial-pitch-physical-v2/manifest.json"
+  ],
+  "observed_at": "2026-10-16T00:23:33.926+00:00",
+  "elapsed_ms": 13203,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-AUTHORED-PIPELINE-INDEPENDENT_f96525a676ca49eab373f852e861dca9.log",
+  "output_sha256": "7371d99b865872c08b554fde63416e43eff522a726e3ea857dcb48c31b54f4eb",
+  "receipt_id": "MB-20261016-AUTHORED-PIPELINE-INDEPENDENT_f96525a676ca49eab373f852e861dca9"
+}

@@ -1,0 +1,391 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/LiveRunnerAirbornePolicyV53.test.ts (3 tests) 6ms
+ ✓ src/core/sim/fielding/LiveRunnerAdvancePolicyV1.test.ts (13 tests) 13ms
+ ✓ src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts (3 tests) 22ms
+ ✓ src/core/sim/running/LiveRunnerRetreatMotionV1.test.ts (5 tests) 19ms
+ ✓ src/core/sim/running/LiveRunnerMotionV1.test.ts (12 tests) 79ms
+ ❯ src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts (5 tests | 5 failed) 6497ms
+   × advances from an observed airborne hit read before the actual first landing, independently of render cadence 1470ms
+     → live locomotion V84: speed exceeds top speed
+   × keeps a mistaken read live through reaction and a physical return, retouching passed bags in reverse order 1453ms
+     → live locomotion V84: speed exceeds top speed
+   × allows a real throw and original-base appeal to beat a mistaken runner back, without making a force out 1406ms
+     → live locomotion V84: speed exceeds top speed
+   × does not punish a motor started before first touch if the runner has not actually left the original bag disk 1131ms
+     → live locomotion V84: speed exceeds top speed
+   × uses the same official tick for departure and first-touch legality even when the disk exit is physically 10ns earlier 1036ms
+     → live locomotion V84: speed exceeds top speed
+ ❯ src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts (5 tests | 5 failed) 10278ms
+   × satisfies first-base force on the same physical bag-contact geometry as the defense 510ms
+     → live locomotion V84: speed exceeds top speed
+   × still retires a runner when actual controlled first-base contact wins the physical race 418ms
+     → live locomotion V84: speed exceeds top speed
+   × keeps physical runner retirements equal to rule-interpreted outs in both race orders 364ms
+     → live locomotion V84: speed exceeds top speed
+   × reconsiders a newly vacated advance reservation after a live retirement before closing the play 7385ms
+     → live locomotion V84: speed exceeds top speed
+   × adjudicates the actual normal-game tag enabled by a witnessed through-base departure 1599ms
+     → expected undefined to be defined
+ ❯ src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts (12 tests | 8 failed) 10503ms
+   × physically advances second to third on a deep caught fly against a weak arm 1274ms
+     → live locomotion V84: speed exceeds top speed
+   ✓ physically advances while a distant ground ball cannot be retrieved before the runner arrives 1096ms
+   × starts a legal tag-up after first touch and reaction, before a later secure catch 1075ms
+     → live locomotion V84: speed exceeds top speed
+   × uses the hidden safety margin in the actual runner decision 1209ms
+     → live locomotion V84: speed exceeds top speed
+   × waits for the runner reaction after the actual first touch and keeps that decision alive 1047ms
+     → live locomotion V84: speed exceeds top speed
+   × runs on contact with two outs and stops on the actual secured third-out fly 1031ms
+     → live locomotion V84: speed exceeds top speed
+   × throws home after the force dissolves and retires the runner by a physically held tag (3 m/s) 887ms
+     → live locomotion V84: speed exceeds top speed
+   × throws home after the force dissolves and retires the runner by a physically held tag (4 m/s) 785ms
+     → live locomotion V84: speed exceeds top speed
+   × commits a safe next advance through third instead of closing the held-ball play 1041ms
+     → live locomotion V84: speed exceeds top speed
+   ✓ allows a physical tag of a forced runner still standing on the old base before reacting 611ms
+ ❯ src/core/sim/fielding/LiveFieldRunnerRoundingV1.test.ts (6 tests | 3 failed) 10872ms
+   × actual live runner rounding > commits a safe ordinary extra base and physically runs through third without stopping 1278ms
+     → live locomotion V84: speed exceeds top speed
+   × actual live runner rounding > runs a home run through all four actual bags in order and stops at home 1454ms
+     → expected { x: 8.881784197001252e-16, …(2) } to deeply equal { x: +0, y: +0, z: +0 }
+   ✓ actual live runner rounding > records each through-bag departure exactly once at the physical bag-disk exit 1311ms
+   × actual live runner rounding > keeps a runner stopped at third when the following advance is unsafe 1192ms
+     → live locomotion V84: speed exceeds top speed
+   ✓ actual live runner rounding > changes actual turning path and speed when the hidden radius and lateral ability change 4240ms
+   ✓ actual live runner rounding > keeps all occupied-base runners physically separated during a home-run award 1397ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 21 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts > physically advances second to third on a deep caught fly against a weak arm
+Error: live locomotion V84: speed exceeds top speed
+ ❯ validateSpeed src/core/sim/locomotion/LiveLocomotionV84.ts:54:42
+     52| function validateSpeed(profile: LiveLocomotionProfileV84, speed: numbe…
+     53|   requireNonnegative(speed, 'speed');
+     54|   if (speed > profile.topSpeedMps) throw new Error('live locomotion V8…
+       |                                          ^
+     55| }
+     56| const magnitude = (a: Vec2): number => Math.hypot(a.x, a.z);
+ ❯ Module.stepLiveDefenderMotionV84 src/core/sim/locomotion/LiveLocomotionV84.ts:211:44
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:772:19
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1091:147
+ ❯ src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts:35:37
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/21]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts > starts a legal tag-up after first touch and reaction, before a later secure catch
+Error: live locomotion V84: speed exceeds top speed
+ ❯ validateSpeed src/core/sim/locomotion/LiveLocomotionV84.ts:54:42
+     52| function validateSpeed(profile: LiveLocomotionProfileV84, speed: numbe…
+     53|   requireNonnegative(speed, 'speed');
+     54|   if (speed > profile.topSpeedMps) throw new Error('live locomotion V8…
+       |                                          ^
+     55| }
+     56| const magnitude = (a: Vec2): number => Math.hypot(a.x, a.z);
+ ❯ Module.stepLiveDefenderMotionV84 src/core/sim/locomotion/LiveLocomotionV84.ts:211:44
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:772:19
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1091:147
+ ❯ src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts:61:35
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/21]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts > uses the hidden safety margin in the actual runner decision
+Error: live locomotion V84: speed exceeds top speed
+ ❯ validateSpeed src/core/sim/locomotion/LiveLocomotionV84.ts:54:42
+     52| function validateSpeed(profile: LiveLocomotionProfileV84, speed: numbe…
+     53|   requireNonnegative(speed, 'speed');
+     54|   if (speed > profile.topSpeedMps) throw new Error('live locomotion V8…
+       |                                          ^
+     55| }
+     56| const magnitude = (a: Vec2): number => Math.hypot(a.x, a.z);
+ ❯ Module.stepLiveDefenderMotionV84 src/core/sim/locomotion/LiveLocomotionV84.ts:211:44
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:772:19
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1091:147
+ ❯ src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts:85:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/21]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts > waits for the runner reaction after the actual first touch and keeps that decision alive
+Error: live locomotion V84: speed exceeds top speed
+ ❯ validateSpeed src/core/sim/locomotion/LiveLocomotionV84.ts:54:42
+     52| function validateSpeed(profile: LiveLocomotionProfileV84, speed: numbe…
+     53|   requireNonnegative(speed, 'speed');
+     54|   if (speed > profile.topSpeedMps) throw new Error('live locomotion V8…
+       |                                          ^
+     55| }
+     56| const magnitude = (a: Vec2): number => Math.hypot(a.x, a.z);
+ ❯ Module.stepLiveDefenderMotionV84 src/core/sim/locomotion/LiveLocomotionV84.ts:211:44
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:772:19
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1091:147
+ ❯ src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts:94:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/21]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts > runs on contact with two outs and stops on the actual secured third-out fly
+Error: live locomotion V84: speed exceeds top speed
+ ❯ validateSpeed src/core/sim/locomotion/LiveLocomotionV84.ts:54:42
+     52| function validateSpeed(profile: LiveLocomotionProfileV84, speed: numbe…
+     53|   requireNonnegative(speed, 'speed');
+     54|   if (speed > profile.topSpeedMps) throw new Error('live locomotion V8…
+       |                                          ^
+     55| }
+     56| const magnitude = (a: Vec2): number => Math.hypot(a.x, a.z);
+ ❯ Module.stepLiveDefenderMotionV84 src/core/sim/locomotion/LiveLocomotionV84.ts:211:44
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:772:19
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1091:147
+ ❯ src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts:105:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/21]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts > throws home after the force dissolves and retires the runner by a physically held tag (3 m/s)
+ FAIL  src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts > throws home after the force dissolves and retires the runner by a physically held tag (4 m/s)
+Error: live locomotion V84: speed exceeds top speed
+ ❯ validateSpeed src/core/sim/locomotion/LiveLocomotionV84.ts:54:42
+     52| function validateSpeed(profile: LiveLocomotionProfileV84, speed: numbe…
+     53|   requireNonnegative(speed, 'speed');
+     54|   if (speed > profile.topSpeedMps) throw new Error('live locomotion V8…
+       |                                          ^
+     55| }
+     56| const magnitude = (a: Vec2): number => Math.hypot(a.x, a.z);
+ ❯ Module.stepLiveDefenderMotionV84 src/core/sim/locomotion/LiveLocomotionV84.ts:211:44
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:772:19
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1091:147
+ ❯ src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts:122:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/21]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts > commits a safe next advance through third instead of closing the held-ball play
+Error: live locomotion V84: speed exceeds top speed
+ ❯ validateSpeed src/core/sim/locomotion/LiveLocomotionV84.ts:54:42
+     52| function validateSpeed(profile: LiveLocomotionProfileV84, speed: numbe…
+     53|   requireNonnegative(speed, 'speed');
+     54|   if (speed > profile.topSpeedMps) throw new Error('live locomotion V8…
+       |                                          ^
+     55| }
+     56| const magnitude = (a: Vec2): number => Math.hypot(a.x, a.z);
+ ❯ Module.stepLiveDefenderMotionV84 src/core/sim/locomotion/LiveLocomotionV84.ts:211:44
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:772:19
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1091:147
+ ❯ src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts:157:35
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/21]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts > satisfies first-base force on the same physical bag-contact geometry as the defense
+Error: live locomotion V84: speed exceeds top speed
+ ❯ validateSpeed src/core/sim/locomotion/LiveLocomotionV84.ts:54:42
+     52| function validateSpeed(profile: LiveLocomotionProfileV84, speed: numbe…
+     53|   requireNonnegative(speed, 'speed');
+     54|   if (speed > profile.topSpeedMps) throw new Error('live locomotion V8…
+       |                                          ^
+     55| }
+     56| const magnitude = (a: Vec2): number => Math.hypot(a.x, a.z);
+ ❯ Module.stepLiveDefenderMotionV84 src/core/sim/locomotion/LiveLocomotionV84.ts:211:44
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:772:19
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1091:147
+ ❯ src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts:35:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/21]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts > still retires a runner when actual controlled first-base contact wins the physical race
+Error: live locomotion V84: speed exceeds top speed
+ ❯ validateSpeed src/core/sim/locomotion/LiveLocomotionV84.ts:54:42
+     52| function validateSpeed(profile: LiveLocomotionProfileV84, speed: numbe…
+     53|   requireNonnegative(speed, 'speed');
+     54|   if (speed > profile.topSpeedMps) throw new Error('live locomotion V8…
+       |                                          ^
+     55| }
+     56| const magnitude = (a: Vec2): number => Math.hypot(a.x, a.z);
+ ❯ Module.stepLiveDefenderMotionV84 src/core/sim/locomotion/LiveLocomotionV84.ts:211:44
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:772:19
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1091:147
+ ❯ src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts:54:44
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/21]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts > keeps physical runner retirements equal to rule-interpreted outs in both race orders
+Error: live locomotion V84: speed exceeds top speed
+ ❯ validateSpeed src/core/sim/locomotion/LiveLocomotionV84.ts:54:42
+     52| function validateSpeed(profile: LiveLocomotionProfileV84, speed: numbe…
+     53|   requireNonnegative(speed, 'speed');
+     54|   if (speed > profile.topSpeedMps) throw new Error('live locomotion V8…
+       |                                          ^
+     55| }
+     56| const magnitude = (a: Vec2): number => Math.hypot(a.x, a.z);
+ ❯ Module.stepLiveDefenderMotionV84 src/core/sim/locomotion/LiveLocomotionV84.ts:211:44
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:772:19
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1091:147
+ ❯ src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts:66:46
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/21]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts > reconsiders a newly vacated advance reservation after a live retirement before closing the play
+Error: live locomotion V84: speed exceeds top speed
+ ❯ validateSpeed src/core/sim/locomotion/LiveLocomotionV84.ts:54:42
+     52| function validateSpeed(profile: LiveLocomotionProfileV84, speed: numbe…
+     53|   requireNonnegative(speed, 'speed');
+     54|   if (speed > profile.topSpeedMps) throw new Error('live locomotion V8…
+       |                                          ^
+     55| }
+     56| const magnitude = (a: Vec2): number => Math.hypot(a.x, a.z);
+ ❯ Module.stepLiveDefenderMotionV84 src/core/sim/locomotion/LiveLocomotionV84.ts:211:44
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:772:19
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1091:147
+ ❯ src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts:81:44
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/21]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts > adjudicates the actual normal-game tag enabled by a witnessed through-base departure
+AssertionError: expected undefined to be defined
+ ❯ src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts:109:15
+    107|     touch = result.ruleFacts.runnerTouches.find(f => f.runnerId === ru…
+    108|   expect(result.end.complete).toBe(true);
+    109|   expect(tag).toBeDefined();
+       |               ^
+    110|   expect(departure.tick).toBe(tag.tick);
+    111|   expect(tag.protectionEndedByDeparture).toEqual({ base: 3, tick: depa…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/21]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRunnerRoundingV1.test.ts > actual live runner rounding > commits a safe ordinary extra base and physically runs through third without stopping
+Error: live locomotion V84: speed exceeds top speed
+ ❯ validateSpeed src/core/sim/locomotion/LiveLocomotionV84.ts:54:42
+     52| function validateSpeed(profile: LiveLocomotionProfileV84, speed: numbe…
+     53|   requireNonnegative(speed, 'speed');
+     54|   if (speed > profile.topSpeedMps) throw new Error('live locomotion V8…
+       |                                          ^
+     55| }
+     56| const magnitude = (a: Vec2): number => Math.hypot(a.x, a.z);
+ ❯ Module.stepLiveDefenderMotionV84 src/core/sim/locomotion/LiveLocomotionV84.ts:211:44
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:772:19
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1091:147
+ ❯ src/core/sim/fielding/LiveFieldRunnerRoundingV1.test.ts:100:39
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/21]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRunnerRoundingV1.test.ts > actual live runner rounding > runs a home run through all four actual bags in order and stops at home
+AssertionError: expected { x: 8.881784197001252e-16, …(2) } to deeply equal { x: +0, y: +0, z: +0 }
+
+- Expected
++ Received
+
+  Object {
+-   "x": 0,
++   "x": 8.881784197001252e-16,
+    "y": 0,
+    "z": 0,
+  }
+
+ ❯ src/core/sim/fielding/LiveFieldRunnerRoundingV1.test.ts:123:28
+    121|     for (let i = 1; i < events.length; i++) expect(events[i].elapsedSe…
+    122|     const final = result.frames.at(-1)!.runners[0];
+    123|     expect(final.position).toEqual(input.field.bases.home);
+       |                            ^
+    124|     expect(final.velocity).toEqual(v());
+    125|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/21]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRunnerRoundingV1.test.ts > actual live runner rounding > keeps a runner stopped at third when the following advance is unsafe
+Error: live locomotion V84: speed exceeds top speed
+ ❯ validateSpeed src/core/sim/locomotion/LiveLocomotionV84.ts:54:42
+     52| function validateSpeed(profile: LiveLocomotionProfileV84, speed: numbe…
+     53|   requireNonnegative(speed, 'speed');
+     54|   if (speed > profile.topSpeedMps) throw new Error('live locomotion V8…
+       |                                          ^
+     55| }
+     56| const magnitude = (a: Vec2): number => Math.hypot(a.x, a.z);
+ ❯ Module.stepLiveDefenderMotionV84 src/core/sim/locomotion/LiveLocomotionV84.ts:211:44
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:772:19
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1091:147
+ ❯ src/core/sim/fielding/LiveFieldRunnerRoundingV1.test.ts:161:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/21]⎯
+
+ FAIL  src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts > advances from an observed airborne hit read before the actual first landing, independently of render cadence
+Error: live locomotion V84: speed exceeds top speed
+ ❯ validateSpeed src/core/sim/locomotion/LiveLocomotionV84.ts:54:42
+     52| function validateSpeed(profile: LiveLocomotionProfileV84, speed: numbe…
+     53|   requireNonnegative(speed, 'speed');
+     54|   if (speed > profile.topSpeedMps) throw new Error('live locomotion V8…
+       |                                          ^
+     55| }
+     56| const magnitude = (a: Vec2): number => Math.hypot(a.x, a.z);
+ ❯ Module.stepLiveDefenderMotionV84 src/core/sim/locomotion/LiveLocomotionV84.ts:211:44
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:772:19
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1091:147
+ ❯ src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts:47:102
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/21]⎯
+
+ FAIL  src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts > keeps a mistaken read live through reaction and a physical return, retouching passed bags in reverse order
+Error: live locomotion V84: speed exceeds top speed
+ ❯ validateSpeed src/core/sim/locomotion/LiveLocomotionV84.ts:54:42
+     52| function validateSpeed(profile: LiveLocomotionProfileV84, speed: numbe…
+     53|   requireNonnegative(speed, 'speed');
+     54|   if (speed > profile.topSpeedMps) throw new Error('live locomotion V8…
+       |                                          ^
+     55| }
+     56| const magnitude = (a: Vec2): number => Math.hypot(a.x, a.z);
+ ❯ Module.stepLiveDefenderMotionV84 src/core/sim/locomotion/LiveLocomotionV84.ts:211:44
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:772:19
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1091:147
+ ❯ src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts:57:40
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/21]⎯
+
+ FAIL  src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts > allows a real throw and original-base appeal to beat a mistaken runner back, without making a force out
+Error: live locomotion V84: speed exceeds top speed
+ ❯ validateSpeed src/core/sim/locomotion/LiveLocomotionV84.ts:54:42
+     52| function validateSpeed(profile: LiveLocomotionProfileV84, speed: numbe…
+     53|   requireNonnegative(speed, 'speed');
+     54|   if (speed > profile.topSpeedMps) throw new Error('live locomotion V8…
+       |                                          ^
+     55| }
+     56| const magnitude = (a: Vec2): number => Math.hypot(a.x, a.z);
+ ❯ Module.stepLiveDefenderMotionV84 src/core/sim/locomotion/LiveLocomotionV84.ts:211:44
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:772:19
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1091:147
+ ❯ src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts:68:39
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/21]⎯
+
+ FAIL  src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts > does not punish a motor started before first touch if the runner has not actually left the original bag disk
+Error: live locomotion V84: speed exceeds top speed
+ ❯ validateSpeed src/core/sim/locomotion/LiveLocomotionV84.ts:54:42
+     52| function validateSpeed(profile: LiveLocomotionProfileV84, speed: numbe…
+     53|   requireNonnegative(speed, 'speed');
+     54|   if (speed > profile.topSpeedMps) throw new Error('live locomotion V8…
+       |                                          ^
+     55| }
+     56| const magnitude = (a: Vec2): number => Math.hypot(a.x, a.z);
+ ❯ Module.stepLiveDefenderMotionV84 src/core/sim/locomotion/LiveLocomotionV84.ts:211:44
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:772:19
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1091:147
+ ❯ src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts:78:70
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/21]⎯
+
+ FAIL  src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts > uses the same official tick for departure and first-touch legality even when the disk exit is physically 10ns earlier
+Error: live locomotion V84: speed exceeds top speed
+ ❯ validateSpeed src/core/sim/locomotion/LiveLocomotionV84.ts:54:42
+     52| function validateSpeed(profile: LiveLocomotionProfileV84, speed: numbe…
+     53|   requireNonnegative(speed, 'speed');
+     54|   if (speed > profile.topSpeedMps) throw new Error('live locomotion V8…
+       |                                          ^
+     55| }
+     56| const magnitude = (a: Vec2): number => Math.hypot(a.x, a.z);
+ ❯ Module.stepLiveDefenderMotionV84 src/core/sim/locomotion/LiveLocomotionV84.ts:211:44
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:772:19
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1091:147
+ ❯ src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts:86:105
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/21]⎯
+
+ Test Files  4 failed | 5 passed (9)
+      Tests  21 failed | 43 passed (64)
+   Start at  00:21:10
+   Duration  12.36s (transform 1.39s, setup 0ms, collect 4.10s, tests 38.29s, environment 2ms, prepare 2.54s)
+

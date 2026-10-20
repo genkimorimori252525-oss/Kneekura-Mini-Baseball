@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-UI-PERF-GREEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/browser-bridge/presentation-ui-performance-v81.test.mjs"
+  ],
+  "observed_at": "2026-10-20T12:45:27.949+00:00",
+  "elapsed_ms": 2327,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-UI-PERF-GREEN_3e99a77029e345e6b8dcf77a5ff5d6e5.log",
+  "output_sha256": "12743e916b28cdfff4f22feb98c6cab15205e117eb0e8f8af7cb8ef074115aea",
+  "receipt_id": "MB-20261020-V81-UI-PERF-GREEN_3e99a77029e345e6b8dcf77a5ff5d6e5"
+}

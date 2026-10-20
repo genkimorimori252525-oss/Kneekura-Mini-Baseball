@@ -1,0 +1,1 @@
+src/core/sim/contact/ReferenceBatKinematicsV1.test.ts(52,58): error TS2540: Cannot assign to 'w' because it is a read-only property.

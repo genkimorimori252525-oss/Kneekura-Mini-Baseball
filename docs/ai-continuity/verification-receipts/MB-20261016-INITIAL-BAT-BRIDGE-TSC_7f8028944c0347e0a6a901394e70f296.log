@@ -1,0 +1,1 @@
+src/core/sim/contact/HeldToMeasuredBatControlV1.ts(51,9): error TS6133: 'initial' is declared but its value is never read.

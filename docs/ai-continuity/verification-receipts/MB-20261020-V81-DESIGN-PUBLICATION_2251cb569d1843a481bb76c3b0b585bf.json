@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-DESIGN-PUBLICATION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "tools/browser-bridge/publish-performance-standard-v81.py",
+    "1f2155fd4c7241ca627dca53d288f28478c94654"
+  ],
+  "observed_at": "2026-10-20T13:18:12.389+00:00",
+  "elapsed_ms": 29139,
+  "git_head": "1f2155fd4c7241ca627dca53d288f28478c94654",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-DESIGN-PUBLICATION_2251cb569d1843a481bb76c3b0b585bf.log",
+  "output_sha256": "12d24802b4a1ed4fbe526a01a75fe4bb27135a45eece42ae55c3e469fbb483cd",
+  "receipt_id": "MB-20261020-V81-DESIGN-PUBLICATION_2251cb569d1843a481bb76c3b0b585bf"
+}

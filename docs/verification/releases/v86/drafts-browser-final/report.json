@@ -1,0 +1,186 @@
+{
+  "pass": true,
+  "file": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v86_入力確定とエラー復帰版.html",
+  "artifactSha256": "9f9126af89cbbd2a2e4290f489b290eac1377d824b002f42ca31dc4fd8ea4e87",
+  "scope": "Headless Chrome at 1200/390px; maker draft preservation, correction, and cross-panel status events.",
+  "cases": [
+    {
+      "width": 1200,
+      "name": "checkbox-mode-tab-save",
+      "pass": true,
+      "observed": {
+        "checkboxRetained": true,
+        "seamSaved": true
+      }
+    },
+    {
+      "width": 1200,
+      "name": "auto-input-before-change",
+      "pass": true,
+      "observed": {
+        "numericInputRetained": true,
+        "correctValueSaved": true
+      }
+    },
+    {
+      "width": 1200,
+      "name": "base-public-invalid",
+      "pass": true,
+      "observed": {
+        "kind": "base-public-invalid",
+        "draftName": "v86 draft base-public-invalid",
+        "pitcherId": "0-p0",
+        "draftRetained": true,
+        "correctedAndSaved": true
+      }
+    },
+    {
+      "width": 1200,
+      "name": "base-internal-invalid",
+      "pass": true,
+      "observed": {
+        "kind": "base-internal-invalid",
+        "draftName": "v86 draft base-internal-invalid",
+        "pitcherId": "0-p0",
+        "draftRetained": true,
+        "correctedAndSaved": true
+      }
+    },
+    {
+      "width": 1200,
+      "name": "base-player-selection",
+      "pass": true,
+      "observed": {
+        "kind": "base-player-selection",
+        "draftName": "v86 draft base-player-selection",
+        "pitcherId": "0-p0",
+        "draftRetained": true,
+        "correctedAndSaved": true
+      }
+    },
+    {
+      "width": 1200,
+      "name": "multiple-auto-errors-corrected",
+      "pass": true,
+      "observed": {
+        "errorsRetained": true,
+        "independentCorrection": true,
+        "pendingCleared": true
+      }
+    },
+    {
+      "width": 1200,
+      "name": "pitch-and-public-groups",
+      "pass": true,
+      "observed": {
+        "pitchAndPublicValuesSaved": true,
+        "noCrossGroupDeadlock": true
+      }
+    },
+    {
+      "width": 1200,
+      "name": "pitch-error-localization-and-correction",
+      "pass": true,
+      "observed": {
+        "groupErrorNearSettings": true,
+        "correctedRpmSaved": true,
+        "pendingAndLocalErrorsCleared": true
+      }
+    },
+    {
+      "width": 390,
+      "name": "checkbox-mode-tab-save",
+      "pass": true,
+      "observed": {
+        "checkboxRetained": true,
+        "seamSaved": true
+      }
+    },
+    {
+      "width": 390,
+      "name": "auto-input-before-change",
+      "pass": true,
+      "observed": {
+        "numericInputRetained": true,
+        "correctValueSaved": true
+      }
+    },
+    {
+      "width": 390,
+      "name": "base-public-invalid",
+      "pass": true,
+      "observed": {
+        "kind": "base-public-invalid",
+        "draftName": "v86 draft base-public-invalid",
+        "pitcherId": "0-p0",
+        "draftRetained": true,
+        "correctedAndSaved": true
+      }
+    },
+    {
+      "width": 390,
+      "name": "base-internal-invalid",
+      "pass": true,
+      "observed": {
+        "kind": "base-internal-invalid",
+        "draftName": "v86 draft base-internal-invalid",
+        "pitcherId": "0-p0",
+        "draftRetained": true,
+        "correctedAndSaved": true
+      }
+    },
+    {
+      "width": 390,
+      "name": "base-player-selection",
+      "pass": true,
+      "observed": {
+        "kind": "base-player-selection",
+        "draftName": "v86 draft base-player-selection",
+        "pitcherId": "0-p0",
+        "draftRetained": true,
+        "correctedAndSaved": true
+      }
+    },
+    {
+      "width": 390,
+      "name": "multiple-auto-errors-corrected",
+      "pass": true,
+      "observed": {
+        "errorsRetained": true,
+        "independentCorrection": true,
+        "pendingCleared": true
+      }
+    },
+    {
+      "width": 390,
+      "name": "pitch-and-public-groups",
+      "pass": true,
+      "observed": {
+        "pitchAndPublicValuesSaved": true,
+        "noCrossGroupDeadlock": true
+      }
+    },
+    {
+      "width": 390,
+      "name": "pitch-error-localization-and-correction",
+      "pass": true,
+      "observed": {
+        "groupErrorNearSettings": true,
+        "correctedRpmSaved": true,
+        "pendingAndLocalErrorsCleared": true
+      }
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "errors": [],
+      "external": []
+    }
+  ]
+}

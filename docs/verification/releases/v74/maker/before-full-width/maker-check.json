@@ -1,0 +1,204 @@
+{
+  "pass": true,
+  "phase": "complete",
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v74_用具と能力上限拡張版.html",
+  "views": [
+    {
+      "width": 1200,
+      "lengths": [
+        {
+          "length": 1.5,
+          "sourceTick": 999400,
+          "tip": {
+            "x": -0.07253665070513005,
+            "y": 0.4182279991845004,
+            "z": -0.8654010668892109
+          }
+        },
+        {
+          "length": 3,
+          "sourceTick": 999400,
+          "tip": {
+            "x": 0.6292635840275439,
+            "y": -0.3287627093548615,
+            "z": -1.9606094086603212
+          }
+        }
+      ],
+      "atomicRejected": true,
+      "public": {
+        "power": 125,
+        "contact": 125,
+        "rank": "S",
+        "vision101Rejected": true,
+        "league": [
+          "B",
+          "S 105.01",
+          "A",
+          "B",
+          "D",
+          "F",
+          "F",
+          "E",
+          "未算出",
+          "未算出"
+        ]
+      },
+      "comparison": {
+        "cases": [
+          {
+            "level": 1,
+            "call": null,
+            "contact": 1431673,
+            "reference": 1435635.011715806
+          },
+          {
+            "level": 2,
+            "call": null,
+            "contact": 1431558,
+            "reference": 1435635.011715806
+          },
+          {
+            "level": 3,
+            "call": null,
+            "contact": 1431561,
+            "reference": 1435635.011715806
+          },
+          {
+            "level": 4,
+            "call": null,
+            "contact": 1431691,
+            "reference": 1435635.011715806
+          }
+        ],
+        "pitchLayers": {
+          "field": 1036800,
+          "bat-overlay": 0,
+          "ball-overlay": 108
+        },
+        "swingLayers": {
+          "field": 1036800,
+          "bat-overlay": 140288,
+          "ball-overlay": 1260
+        },
+        "proximity": {
+          "buttonToCanvas": 332.734375,
+          "headingToButton": 8
+        },
+        "inputMass": 2.2
+      },
+      "json": {
+        "fullDownload": true,
+        "rosterDownload": true,
+        "bothFileImports": true,
+        "other19Unchanged": true
+      }
+    },
+    {
+      "width": 390,
+      "lengths": [
+        {
+          "length": 1.5,
+          "sourceTick": 999400,
+          "tip": {
+            "x": -0.07253665070513005,
+            "y": 0.4182279991845004,
+            "z": -0.8654010668892109
+          }
+        },
+        {
+          "length": 3,
+          "sourceTick": 999400,
+          "tip": {
+            "x": 0.6292635840275439,
+            "y": -0.3287627093548615,
+            "z": -1.9606094086603212
+          }
+        }
+      ],
+      "atomicRejected": true,
+      "public": {
+        "power": 125,
+        "contact": 125,
+        "rank": "S",
+        "vision101Rejected": true,
+        "league": [
+          "B",
+          "S 105.01",
+          "A",
+          "B",
+          "D",
+          "F",
+          "F",
+          "E",
+          "未算出",
+          "未算出"
+        ]
+      },
+      "comparison": {
+        "cases": [
+          {
+            "level": 1,
+            "call": null,
+            "contact": 1431673,
+            "reference": 1435635.011715806
+          },
+          {
+            "level": 2,
+            "call": null,
+            "contact": 1431558,
+            "reference": 1435635.011715806
+          },
+          {
+            "level": 3,
+            "call": null,
+            "contact": 1431561,
+            "reference": 1435635.011715806
+          },
+          {
+            "level": 4,
+            "call": null,
+            "contact": 1431691,
+            "reference": 1435635.011715806
+          }
+        ],
+        "pitchLayers": {
+          "field": 1036800,
+          "bat-overlay": 0,
+          "ball-overlay": 108
+        },
+        "swingLayers": {
+          "field": 1036800,
+          "bat-overlay": 140288,
+          "ball-overlay": 1260
+        },
+        "proximity": {
+          "buttonToCanvas": 279.140625,
+          "headingToButton": 8
+        },
+        "inputMass": 2.2
+      },
+      "json": {
+        "fullDownload": true,
+        "rosterDownload": true,
+        "bothFileImports": true,
+        "other19Unchanged": true
+      }
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "errors": [],
+      "external": []
+    }
+  ],
+  "scope": "Focused v74 equipment/SI/public-ability authoring, shared equipped geometry, atomic pending rejection, real JSON and comparison control/layer integration",
+  "sha256": "4facf475caedcf6fbf5236eef959fa7032288e6cce4fba9de170a852bf54595e",
+  "coreSha256": "837d0b2b7e7fd7adc6e233f72030d9a7018b591fbe03bdfec0d07ccc3c2883fd"
+}

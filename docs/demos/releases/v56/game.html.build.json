@@ -1,0 +1,28 @@
+{
+  "presentationVersion": 56,
+  "sourceGamePath": "docs/demos/releases/v54/game.html",
+  "sourceGameSha256": "80c68e3ddb5c961ab6f18b325c6f267f883cd02d27381dfa10a9334bf8afae9f",
+  "basePresentationPath": "docs/demos/releases/v55/game.html",
+  "basePresentationSha256": "02644793d8c6e41b66d5330fe37cc0ce8d2fa7756ad6bc139b045fbef38d3b17",
+  "sourceCoreSha256": "4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279",
+  "sourceInputCount": 113,
+  "helpers": {
+    "live-ball-display-controls-v56.js": "e5cf59b078c9959bbe76969e8296eeab8cd65c6a7a224475b06c86496a483996",
+    "live-pitch-ball-cadence-v56.js": "bf72b94742b7de19abd863edd610fea493d648ba43b5823c906222e02aac4536",
+    "live-camera-tuning-batter-view-v56.js": "06c37df74f7c2c7d7b305bbdd9808f03cca610e9654af7bc997f39ab54a6a011"
+  },
+  "workbenchDriverSha256": "66e7d40a3cd91920113ac16e91db3197c559e409f633f92a5de658053e9abf92",
+  "workbenchTemplateSha256": "95b9c78ddde2bf5f54db652c8ac0521c2e2a48715c215bd088a61395190a0518",
+  "transformSha256": "15154d82546f34d3d1331178d4ec7e22505a3bb540ab00109fcb1f1f353f155e",
+  "worldAuthority": "UNCHANGED_V54_OFFLINE_HOST_SHARED_CORE",
+  "displayGridPixels": 4,
+  "ordinaryCadenceMs": 55,
+  "pitchBallCadenceMs": 22,
+  "ballDisplayDefaults": {
+    "perspective": 1,
+    "overhead": 1
+  },
+  "readOnlyCamera": true,
+  "kind": "NORMAL_MATCH",
+  "sha256": "331f5f9a3bafb78ba2ae5009ba25fb795eeb08d5f42c85db3844c2d186ec32c5"
+}

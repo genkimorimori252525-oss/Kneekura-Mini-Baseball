@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-BAT-CORE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/contact/InitialHeldBatV1.test.ts"
+  ],
+  "observed_at": "2026-10-16T11:57:40.924+00:00",
+  "elapsed_ms": 1062,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-BAT-CORE_ab02387dc7034f5282d9f1e0e851cfc6.log",
+  "output_sha256": "88bbdc4d4a53d2a8dc593525a5d8a666b29a7c22b83a249f5a72d2b19dfa3bdb",
+  "receipt_id": "MB-20261016-INITIAL-BAT-CORE_ab02387dc7034f5282d9f1e0e851cfc6"
+}

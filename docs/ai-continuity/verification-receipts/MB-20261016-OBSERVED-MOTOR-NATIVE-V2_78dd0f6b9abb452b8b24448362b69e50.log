@@ -1,0 +1,20 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ 'df7f5dfa937f857256961986765407b5ee863da42b6de42daaa08c32ee764c46'
+- 'e237a6793c023e4c3ccb858d5aa9ef104c0cefb5d5179b6ba6c3dfd26c8b17b3'
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-motor-preparation-v2/readback.mjs:80624:41 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'df7f5dfa937f857256961986765407b5ee863da42b6de42daaa08c32ee764c46',
+  expected: 'e237a6793c023e4c3ccb858d5aa9ef104c0cefb5d5179b6ba6c3dfd26c8b17b3',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

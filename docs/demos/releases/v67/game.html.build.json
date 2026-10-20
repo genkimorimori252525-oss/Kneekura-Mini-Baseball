@@ -1,0 +1,100 @@
+{
+  "presentationVersion": 67,
+  "sourceGamePath": "docs/demos/releases/v54/game.html",
+  "sourceGameSha256": "80c68e3ddb5c961ab6f18b325c6f267f883cd02d27381dfa10a9334bf8afae9f",
+  "basePresentationPath": "docs/demos/releases/v66/game.html",
+  "basePresentationSha256": "e6ff4a3924872ecbe3b0a5044cf102a5ac02ac45cb63cd771f122f3f04f34a3d",
+  "sourceCoreSha256": "865078dc9881ce5c37754dbe2c7b502f586206f3ada972cfe2d3368207720c00",
+  "sourceInputCount": 114,
+  "compatibleSessionCoreSha256": [],
+  "sessionMigration": "SAME_V62_SOURCE_CORE_LEGACY_MISSING_ONE_NEW_DEFAULT_TWO_LITERAL_FACTOR",
+  "helpers": {
+    "live-ball-display-controls-v67.js": "6a003996a55c6d3484e9d38d7afa5e5bb273d8f45492fdefc8e6ec8b01918db2",
+    "live-pitch-ball-cadence-v56.js": "bf72b94742b7de19abd863edd610fea493d648ba43b5823c906222e02aac4536",
+    "live-camera-tuning-batter-view-v66.js": "35f49f39c49243f51d7f31d48c18513b22cf9cb7b00dd65d6ddb1b32afeff43b",
+    "live-pitcher-reaction-view-v62.js": "e71a89bfcd93acc115c955ef2571aab32a94dad09ea1200367929b316e1aee30",
+    "live-name-display-controls-v60.js": "7d9810843459b3d02450585e8ab5c7f74415ed0791cb5ef0c6f67c96b3684f20",
+    "live-pitcher-body-head-view-v62.js": "b992f5c46b2c4b07132733c156ea3d22f58b3e372ad67b5b72d7763f39d9dcc3"
+  },
+  "workbenchDriverSha256": "a18d85469465e1200ba676825bd44e9f27ccc156c021d2dc9a51aa23ff768382",
+  "workbenchTemplateSha256": "542949617d5ac445f082158ae456c7733dcbeea32210e5e7a110d1df605eb378",
+  "builderSha256": "64419a8777b4ffa59111e508511fe5c03b2b3999534feecf4b59f455085d5e1a",
+  "pitcherTransformSha256": "33a6d447ae5590aab1c0cc72d889363a5310c48d05c7e74ae4a5c92385ae7ea0",
+  "rosterSha256": "546b69369c975a85469492029f8a5306fb5fdabc48e9d36ec82bfcb75e4829c7",
+  "catalogSha256": "d98041720cd4b7367489bac0d04502f58477a22b759e0867150f64774fe1ff01",
+  "publicReferenceSha256": "b448f82f81620085b1f4923609cec23f69db4c639da76b6b1f877abb22622e4e",
+  "worldAuthority": "OFFLINE_HOST_SHARED_CORE_HANDED_SI_RELEASE_AND_CAUSAL_DEFENSIVE_OPPORTUNITY",
+  "displayGridPixels": 4,
+  "ordinaryCadenceMs": 55,
+  "pitchBallCadenceMs": 22,
+  "ballDisplayDefaults": {
+    "perspective": 1,
+    "overhead": 1,
+    "overheadHeightEmphasis": 2
+  },
+  "nameDisplayDefaults": {
+    "scale": 1
+  },
+  "readOnlyCamera": true,
+  "pitcherReaction": {
+    "minimumDelaySeconds": 0.1,
+    "maximumDelaySeconds": 0.25,
+    "speedScaleMeters": 7,
+    "blendMs": 180
+  },
+  "pitcherBodyHead": {
+    "enabled": true,
+    "scale": 1,
+    "basis": "AUTHORED_HEAD_JOINT_ON_EXISTING_DELIVERY_CLOCK",
+    "moundSurface": {
+      "x": 0,
+      "y": 0.254,
+      "z": 18.44
+    }
+  },
+  "decisiveHomeRun": "CURRENT_OBSERVATION_FORECAST_AND_ALL_NINE_REACH_ENVELOPE_EXCLUDED_NOT_OFFICIAL_RULING",
+  "absoluteVision": {
+    "min": 1,
+    "max": 100,
+    "baseline": 45,
+    "maximumTrackingGain": 0.7,
+    "minimumDeadbandRadians": 0,
+    "leagueRelative": false
+  },
+  "takeGaze": "CURRENT_OBSERVED_PITCH_PREFIX_AND_CAUSAL_CATCH_POSE_HOLD",
+  "preset": {
+    "enabled": true,
+    "aimLiftMeters": 0.3,
+    "swingMaxDownRadians": 0.2,
+    "hitFollowDelayMs": 300,
+    "aimReleaseMs": 70,
+    "pitchTrackingGain": 0.26,
+    "pitchTrackingDeadbandRadians": 0.02,
+    "impactStabilizeOffsetMs": 0,
+    "impactMaxMotionRadians": 0.04,
+    "impactMaxSpeedRadPerSecond": 0.35,
+    "swingUsesAbsoluteVision": false,
+    "swingHeadCoupling": 0.025
+  },
+  "worldPhysicsRulesAiChanged": false,
+  "batHeadCoupling": {
+    "basis": "CURRENT_OBSERVED_RIGID_BAT_AXIS_ROTATION",
+    "measuredHeadMotion": false,
+    "maximumOffsetRadians": 0.06,
+    "composition": "INDEPENDENT_ANGULAR_RESPONSE_NO_GAZE_MOTOR_FEEDBACK",
+    "settleAfterThroughMs": 180
+  },
+  "swingViewDefault": "V59_BEFORE_DECISION_AND_SWING_ACQUISITION_PLUS_AUTHORED_BAT_HEAD_RESPONSE",
+  "overheadHeightCue": {
+    "basis": "GROUND_REFERENCED_LITERAL_AIR_DIAMETER_FACTOR",
+    "groundCenterMeters": 0.0366,
+    "groundBlendHeightMeters": 0.0732,
+    "legacyAtOne": true,
+    "default": 2,
+    "minimum": 1,
+    "maximum": 8,
+    "sourcePhysicsChanged": false
+  },
+  "kind": "NORMAL_MATCH",
+  "sha256": "afa1fcf344acf5ba801ac486b28779a9ed9fb71912c65c092d3263ecae5f25e9"
+}

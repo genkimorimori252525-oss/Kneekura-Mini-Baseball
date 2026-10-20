@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-SEAM-PHYSICS-FROZEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "./node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/BaseballSeamForceV1.test.ts",
+    "src/core/sim/ball/SourceFreeBallSpeedBound.test.ts",
+    "src/core/sim/ball/SourceFreeBallKernel.test.ts",
+    "src/core/sim/ball/FreeBaseballTrajectory.test.ts",
+    "src/core/sim/ball/VersionedBattedBallPhysics.test.ts",
+    "src/core/sim/ball/SourceBallMaterialHistoryV1.test.ts",
+    "src/core/sim/ball/SourceBallMaterialHistoryFromContinuationV3.test.ts",
+    "src/core/sim/ball/SourceBallSeamContinuationV78.test.ts",
+    "src/core/sim/ball/BattedWorldContinuation.test.ts",
+    "src/core/sim/ball/SourceFreeBallWorldQuery.test.ts",
+    "src/core/sim/ball/SourceImpactEscapeV3.test.ts",
+    "src/core/sim/ball/SourceBaseImpulseV3.test.ts",
+    "src/core/sim/ball/SourceBattedFieldMotionV3.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-19T19:45:41.254+00:00",
+  "elapsed_ms": 3266,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-SEAM-PHYSICS-FROZEN_930d942523bb411e885997ba27540b62.log",
+  "output_sha256": "ee5ae6f9526971e001393e4fbedbbca26dd1d6dc6e2eed30cc1dbe4d59809723",
+  "receipt_id": "MB-20261020-V78-SEAM-PHYSICS-FROZEN_930d942523bb411e885997ba27540b62"
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-WALL-SUPPORT-CAPTURE-PHASE-TEST",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/GroundWallRollingCurveV1.test.ts",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts",
+    "src/integration/browser/PlayableMatchRulesV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T00:17:06.451+00:00",
+  "elapsed_ms": 2094,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-WALL-SUPPORT-CAPTURE-PHASE-TEST_e23a28445cb84e8298926b3626739c75.log",
+  "output_sha256": "2c8ec6e9e594cbd8453c366dcf3909ce211067610b6f852446ecf0d6c8509b43",
+  "receipt_id": "MB-20261017-WALL-SUPPORT-CAPTURE-PHASE-TEST_e23a28445cb84e8298926b3626739c75"
+}

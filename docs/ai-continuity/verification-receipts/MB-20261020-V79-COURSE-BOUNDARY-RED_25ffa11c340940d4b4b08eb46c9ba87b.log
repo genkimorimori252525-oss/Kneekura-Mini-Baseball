@@ -1,0 +1,39 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/BatterCourseProfileV79.test.ts (5 tests | 1 failed) 12ms
+   × keeps each inclusive strike-zone edge in its internal zone cells across heights and widths 5ms
+     → expected { courseId: 86, courseIndex: 55, …(2) } to deeply equal { courseId: 75, courseIndex: 47, …(2) }
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/BatterCourseProfileV79.test.ts > keeps each inclusive strike-zone edge in its internal zone cells across heights and widths
+AssertionError: expected { courseId: 86, courseIndex: 55, …(2) } to deeply equal { courseId: 75, courseIndex: 47, …(2) }
+
+- Expected
++ Received
+
+  Object {
+-   "courseId": 75,
+-   "courseIndex": 47,
++   "courseId": 86,
++   "courseIndex": 55,
+    "insideStrikeZone": true,
+    "publicZoneId": 3,
+  }
+
+ ❯ src/integration/browser/BatterCourseProfileV79.test.ts:59:8
+     57|     { centerX: -.13, halfWidth: .2159, lowerY: .51, upperY: 1.23 }]) {
+     58|     expect(classifyBatterCourseV79({ position: { x: zone.centerX + zon…
+     59|       .toEqual({ courseId: 75, courseIndex: 47, publicZoneId: 3, insid…
+       |        ^
+     60|     expect(classifyBatterCourseV79({ position: { x: zone.centerX - zon…
+     61|       .toEqual({ courseId: 31, courseIndex: 15, publicZoneId: 7, insid…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  09:12:00
+   Duration  563ms (transform 112ms, setup 0ms, collect 146ms, tests 12ms, environment 0ms, prepare 125ms)
+

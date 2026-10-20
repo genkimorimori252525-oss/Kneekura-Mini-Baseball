@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OWNED-COUPLED-BODY-NATIVE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-owned-coupled-body-v1/readback.mjs",
+    "../../outputs/verification-authored-with-bat-upright-velocity-decision-v1",
+    "../../outputs/verification-authored-with-bat-upright-velocity-prefix-control-v1",
+    "../../outputs/verification-authored-with-bat-coupled-pelvis-v4",
+    "../../outputs/verification-authored-with-bat-owned-body-v1"
+  ],
+  "observed_at": "2026-10-16T13:36:23.702+00:00",
+  "elapsed_ms": 35250,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OWNED-COUPLED-BODY-NATIVE_25ec7e2833394adaab1bda0fb0ac1ba1.log",
+  "output_sha256": "30be295255098be44d1f5e1fc91775a9e4c85631840e93c56fd6e57649b774ac",
+  "receipt_id": "MB-20261016-OWNED-COUPLED-BODY-NATIVE_25ec7e2833394adaab1bda0fb0ac1ba1"
+}

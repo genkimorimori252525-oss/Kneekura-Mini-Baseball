@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V48-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v48-batter-view.mjs",
+    "../../outputs/ばせぼーるlv48_TBD_vs_LAD_打者視点の制動調整版.html",
+    "../../outputs/verification-v48-batter-braking-v1"
+  ],
+  "observed_at": "2026-10-18T07:53:03.126+00:00",
+  "elapsed_ms": 46062,
+  "git_head": "16f0ef5a6b1b1f077424c6a54ce0d76ee9a49d88",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V48-BROWSER_9adbce44e44b4a3681b57b8f79a2c980.log",
+  "output_sha256": "c7166ba1fe3a11a655fa899fe8a11519c0c36f3f2b86df7266e45f9e5e719026",
+  "receipt_id": "MB-20261018-V48-BROWSER_9adbce44e44b4a3681b57b8f79a2c980"
+}

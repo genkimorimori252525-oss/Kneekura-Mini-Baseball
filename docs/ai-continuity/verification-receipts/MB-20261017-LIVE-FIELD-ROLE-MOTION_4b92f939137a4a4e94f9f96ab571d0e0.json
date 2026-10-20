@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-FIELD-ROLE-MOTION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts",
+    "src/core/sim/fielding/LiveFieldRoleMotionV1.test.ts",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T03:11:28.382+00:00",
+  "elapsed_ms": 5859,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-FIELD-ROLE-MOTION_4b92f939137a4a4e94f9f96ab571d0e0.log",
+  "output_sha256": "401fd6526c4bc7810b2662c9426a1cf8cc7c0d931f0199238649c76a59b5286d",
+  "receipt_id": "MB-20261017-LIVE-FIELD-ROLE-MOTION_4b92f939137a4a4e94f9f96ab571d0e0"
+}

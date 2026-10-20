@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-MOTOR-INTEGER-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "npx.cmd",
+    "vitest",
+    "run",
+    "src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts",
+    "src/core/sim/ball/SourceFieldIntegerBoundaryV1.test.ts",
+    "src/core/sim/ball/SourceBattedFieldMotionV3.test.ts",
+    "src/core/sim/ball/SourceImpactEscapeV3.test.ts",
+    "src/core/sim/ball/SourceBaseImpulseV3.test.ts",
+    "src/core/sim/ball/BattedWorldMotion.test.ts",
+    "src/core/sim/ball/BattedWorldFieldMotionCheckpoint.test.ts",
+    "src/core/sim/ball/SourceBallMaterialHistoryV1.test.ts",
+    "src/core/sim/ball/SourceBallMaterialHistoryFromContinuationV3.test.ts"
+  ],
+  "observed_at": "2026-10-15T18:12:26.697+00:00",
+  "elapsed_ms": 3843,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-MOTOR-INTEGER-FINAL_efb6a88881684021a7289f273da8b250.log",
+  "output_sha256": "127156c7b528043ad9797ad20fe7f967ff8fb4daf815f4eb6d3ade80ed584fce",
+  "receipt_id": "MB-20261016-SOURCE-MOTOR-INTEGER-FINAL_efb6a88881684021a7289f273da8b250"
+}

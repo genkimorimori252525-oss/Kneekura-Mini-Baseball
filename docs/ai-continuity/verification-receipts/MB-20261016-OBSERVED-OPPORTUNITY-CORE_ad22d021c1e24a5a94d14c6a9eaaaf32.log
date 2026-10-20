@@ -1,0 +1,10 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/world/psychology/batting/ObservedStrikeZoneOpportunityV1.test.ts (4 tests) 33ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  20:20:13
+   Duration  1.91s (transform 545ms, setup 0ms, collect 686ms, tests 33ms, environment 0ms, prepare 711ms)
+

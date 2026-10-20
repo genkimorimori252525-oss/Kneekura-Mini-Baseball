@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V53-BUILD-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-v53-artifacts.mjs"
+  ],
+  "observed_at": "2026-10-18T10:34:06.819+00:00",
+  "elapsed_ms": 891,
+  "git_head": "ea9ca61b0971da3cc3b3ce1cfb344d4496e2ecc9",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V53-BUILD-FINAL_3a663a225092447fa4a1386959e30689.log",
+  "output_sha256": "1376564e9a017b14f0c55e8f09c9e1bbd31c6e4d2687a284342cc9c399bac9c1",
+  "receipt_id": "MB-20261018-V53-BUILD-FINAL_3a663a225092447fa4a1386959e30689"
+}

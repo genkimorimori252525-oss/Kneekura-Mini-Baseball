@@ -1,0 +1,1358 @@
+{
+  "player": {
+    "schemaVersion": 1,
+    "identity": {
+      "playerId": "workbench-new-player",
+      "name": "新規選手",
+      "leagueId": "CUSTOM",
+      "bats": "R",
+      "throws": "R"
+    },
+    "body": {
+      "heightMeters": 1.8,
+      "massKg": 80
+    },
+    "capability": {
+      "maximumSweetSpotSpeedMps": 45,
+      "motorLatencyTicks": 140000,
+      "technicalTimingOffsetTicks": 0,
+      "runSpeedMps": 7,
+      "throwSpeedMps": 35,
+      "pitchSpeedMps": 40,
+      "positionErrorMeters": 0.006,
+      "timingErrorTicks": 8000
+    },
+    "bat": {
+      "lengthM": 0.8635999999999999,
+      "massKg": 0.9,
+      "sweetSpotT": 0.8235294117647058
+    },
+    "swing": {
+      "speedMps": 31,
+      "attackAngleDeg": 9,
+      "pullAngleDeg": 0,
+      "preContactSeconds": 0.165,
+      "followThroughSeconds": 0.135,
+      "contactDepthM": 0.51054,
+      "loadAngleDeg": -70,
+      "finishAngleDeg": 65,
+      "handTravelM": 0.22
+    },
+    "decision": {
+      "threshold": 0.5,
+      "aggressionWeight": 0.5,
+      "approach": "AUTO"
+    },
+    "traits": {
+      "badBallControl": 0,
+      "labels": []
+    }
+  },
+  "population": [],
+  "scenario": {
+    "seed": 20261015,
+    "pitch": {
+      "speedMps": 40,
+      "spinRpm": 2200,
+      "spinAxis": "backspin",
+      "courseX": 0,
+      "courseY": 1
+    },
+    "timingOffsetMs": 0,
+    "positionOffsetM": 0,
+    "throughSeconds": 8
+  },
+  "reference": {
+    "mode": "reference",
+    "clipId": "obp-103_5",
+    "startTimeSeconds": 1.4694,
+    "endTimeSeconds": 1.8472,
+    "speed": 0.5,
+    "compareClipId": "obp-353_2"
+  },
+  "livePhysicalRoster": {
+    "version": "live_physical_roster_v1",
+    "sourceId": "USER_APPROVED_PROVISIONAL_SI_V3_TRAIT_OWNERSHIP_20261018:release-geometry-v62:trait-edited",
+    "entries": [
+      {
+        "playerId": "0-b0",
+        "sourceId": "USER_APPROVED_PROVISIONAL_INDIVIDUAL_SI_V2:0-b0:release-height-ratio-v62:trait-edited",
+        "heightMeters": 1.93,
+        "physical": {
+          "basis": "EXPLICIT_AUTHORED_SI_V1",
+          "batLengthM": 0.84,
+          "batMassKg": 0.88,
+          "swingRate": 1,
+          "timingStdSeconds": 0.008,
+          "aimStdMeters": 0.016,
+          "chaseMarginMeters": 0.12,
+          "releaseSpeedMps": 36,
+          "spinRadPerSecond": {
+            "x": 210,
+            "y": 12,
+            "z": 8
+          },
+          "commandStdMeters": 0.16,
+          "reactionSeconds": 0.2,
+          "topSpeedMps": 8.9,
+          "accelerationMps2": 5.8,
+          "gloveSpeedMps": 11,
+          "gloveReachMeters": 1.35,
+          "gloveRadiusMeters": 0.11,
+          "retentionCapacityJ": 160,
+          "captureDissipationPowerW": 3000,
+          "transferSeconds": 0.44,
+          "throwSpeedMps": 39,
+          "maximumPitchSpeedMps": 40,
+          "maximumSweetSpotSpeedMps": 40,
+          "targetSweetSpotSpeedMps": 34.5,
+          "motorLatencySeconds": 0.08,
+          "technicalTimingOffsetSeconds": 0,
+          "sweetSpotT": 0.825,
+          "attackAngleDegrees": 16,
+          "pullAngleDegrees": 7,
+          "badBallControl": 0.45,
+          "defensiveDecisionSeconds": 0.07,
+          "preContactSeconds": 0.16,
+          "followThroughSeconds": 0.32,
+          "contactDepthMeters": 0.15,
+          "throwDirectionStdRadians": 0.004,
+          "swingDecision": {
+            "approach": "AUTO",
+            "threshold": 0.5,
+            "aggressionWeight": 0.5
+          },
+          "zoneJudgmentStdMeters": 0.025,
+          "plateVision": 88,
+          "pitchReleaseHeightMeters": 1.6598,
+          "pitchReleaseSideMeters": 0.4825,
+          "pitchReleaseExtensionMeters": 1.54
+        },
+        "traitProfile": {
+          "version": "live_trait_profile_v1",
+          "selections": [
+            {
+              "familyId": "baserunning",
+              "stateId": "GOLD",
+              "source": {
+                "effectScale": 0
+              }
+            },
+            {
+              "familyId": "advanced_fielding",
+              "stateId": "MASTERED",
+              "source": {
+                "effectScale": 0
+              }
+            },
+            {
+              "familyId": "bat_to_run_transition",
+              "stateId": "MASTERED",
+              "source": {
+                "effectScale": 0
+              }
+            },
+            {
+              "familyId": "slow_ball_charge",
+              "stateId": "LEARNED",
+              "source": {
+                "effectScale": 0
+              }
+            },
+            {
+              "familyId": "low_zone_command",
+              "stateId": "MASTERED",
+              "source": {
+                "effectScale": 0
+              }
+            },
+            {
+              "familyId": "bunting",
+              "stateId": "MASTERED",
+              "source": {
+                "effectScale": 1.5
+              }
+            }
+          ]
+        }
+      },
+      {
+        "playerId": "0-b1",
+        "sourceId": "USER_APPROVED_PROVISIONAL_INDIVIDUAL_SI_V2:0-b1:release-height-ratio-v62",
+        "heightMeters": 1.75,
+        "physical": {
+          "basis": "EXPLICIT_AUTHORED_SI_V1",
+          "batLengthM": 0.84,
+          "batMassKg": 0.88,
+          "swingRate": 1,
+          "timingStdSeconds": 0.006,
+          "aimStdMeters": 0.012,
+          "chaseMarginMeters": 0.12,
+          "releaseSpeedMps": 36,
+          "spinRadPerSecond": {
+            "x": 210,
+            "y": 12,
+            "z": 8
+          },
+          "commandStdMeters": 0.16,
+          "reactionSeconds": 0.15,
+          "topSpeedMps": 8.7,
+          "accelerationMps2": 5.9,
+          "gloveSpeedMps": 12,
+          "gloveReachMeters": 1.35,
+          "gloveRadiusMeters": 0.11,
+          "retentionCapacityJ": 160,
+          "captureDissipationPowerW": 3000,
+          "transferSeconds": 0.34,
+          "throwSpeedMps": 39,
+          "maximumPitchSpeedMps": 40,
+          "maximumSweetSpotSpeedMps": 38,
+          "targetSweetSpotSpeedMps": 32.5,
+          "motorLatencySeconds": 0.08,
+          "technicalTimingOffsetSeconds": 0,
+          "sweetSpotT": 0.825,
+          "attackAngleDegrees": 12,
+          "pullAngleDegrees": 4,
+          "badBallControl": 0.5,
+          "defensiveDecisionSeconds": 0.04,
+          "preContactSeconds": 0.16,
+          "followThroughSeconds": 0.32,
+          "contactDepthMeters": 0.15,
+          "throwDirectionStdRadians": 0.0025,
+          "swingDecision": {
+            "approach": "AUTO",
+            "threshold": 0.5,
+            "aggressionWeight": 0.5
+          },
+          "zoneJudgmentStdMeters": 0.025,
+          "plateVision": 89,
+          "pitchReleaseHeightMeters": 1.505,
+          "pitchReleaseSideMeters": 0.4375,
+          "pitchReleaseExtensionMeters": 1.54
+        }
+      },
+      {
+        "playerId": "0-b2",
+        "sourceId": "USER_APPROVED_PROVISIONAL_INDIVIDUAL_SI_V2:0-b2:release-height-ratio-v62",
+        "heightMeters": 1.96,
+        "physical": {
+          "basis": "EXPLICIT_AUTHORED_SI_V1",
+          "batLengthM": 0.84,
+          "batMassKg": 0.88,
+          "swingRate": 1,
+          "timingStdSeconds": 0.006,
+          "aimStdMeters": 0.012,
+          "chaseMarginMeters": 0.12,
+          "releaseSpeedMps": 36,
+          "spinRadPerSecond": {
+            "x": 210,
+            "y": -12,
+            "z": -8
+          },
+          "commandStdMeters": 0.16,
+          "reactionSeconds": 0.18,
+          "topSpeedMps": 7.5,
+          "accelerationMps2": 4.8,
+          "gloveSpeedMps": 11.8,
+          "gloveReachMeters": 1.35,
+          "gloveRadiusMeters": 0.11,
+          "retentionCapacityJ": 160,
+          "captureDissipationPowerW": 3000,
+          "transferSeconds": 0.38,
+          "throwSpeedMps": 35,
+          "maximumPitchSpeedMps": 40,
+          "maximumSweetSpotSpeedMps": 37,
+          "targetSweetSpotSpeedMps": 31.8,
+          "motorLatencySeconds": 0.08,
+          "technicalTimingOffsetSeconds": 0,
+          "sweetSpotT": 0.825,
+          "attackAngleDegrees": 14,
+          "pullAngleDegrees": -2,
+          "badBallControl": 0.48,
+          "defensiveDecisionSeconds": 0.05,
+          "preContactSeconds": 0.16,
+          "followThroughSeconds": 0.32,
+          "contactDepthMeters": 0.15,
+          "throwDirectionStdRadians": 0.0035,
+          "swingDecision": {
+            "approach": "AUTO",
+            "threshold": 0.5,
+            "aggressionWeight": 0.5
+          },
+          "zoneJudgmentStdMeters": 0.025,
+          "plateVision": 91,
+          "pitchReleaseHeightMeters": 1.6856,
+          "pitchReleaseSideMeters": 0.49,
+          "pitchReleaseExtensionMeters": 1.54
+        }
+      },
+      {
+        "playerId": "0-b3",
+        "sourceId": "USER_APPROVED_PROVISIONAL_INDIVIDUAL_SI_V2:0-b3:release-height-ratio-v62",
+        "heightMeters": 1.78,
+        "physical": {
+          "basis": "EXPLICIT_AUTHORED_SI_V1",
+          "batLengthM": 0.84,
+          "batMassKg": 0.88,
+          "swingRate": 1,
+          "timingStdSeconds": 0.008,
+          "aimStdMeters": 0.015,
+          "chaseMarginMeters": 0.12,
+          "releaseSpeedMps": 36,
+          "spinRadPerSecond": {
+            "x": 210,
+            "y": 12,
+            "z": 8
+          },
+          "commandStdMeters": 0.16,
+          "reactionSeconds": 0.17,
+          "topSpeedMps": 7.6,
+          "accelerationMps2": 4.9,
+          "gloveSpeedMps": 12,
+          "gloveReachMeters": 1.35,
+          "gloveRadiusMeters": 0.11,
+          "retentionCapacityJ": 160,
+          "captureDissipationPowerW": 3000,
+          "transferSeconds": 0.32,
+          "throwSpeedMps": 39.5,
+          "maximumPitchSpeedMps": 40,
+          "maximumSweetSpotSpeedMps": 37,
+          "targetSweetSpotSpeedMps": 31.5,
+          "motorLatencySeconds": 0.08,
+          "technicalTimingOffsetSeconds": 0,
+          "sweetSpotT": 0.825,
+          "attackAngleDegrees": 14,
+          "pullAngleDegrees": 3,
+          "badBallControl": 0.35,
+          "defensiveDecisionSeconds": 0.05,
+          "preContactSeconds": 0.16,
+          "followThroughSeconds": 0.32,
+          "contactDepthMeters": 0.15,
+          "throwDirectionStdRadians": 0.003,
+          "swingDecision": {
+            "approach": "AUTO",
+            "threshold": 0.5,
+            "aggressionWeight": 0.5
+          },
+          "zoneJudgmentStdMeters": 0.025,
+          "plateVision": 88,
+          "pitchReleaseHeightMeters": 1.5308,
+          "pitchReleaseSideMeters": 0.445,
+          "pitchReleaseExtensionMeters": 1.54
+        }
+      },
+      {
+        "playerId": "0-b4",
+        "sourceId": "USER_APPROVED_PROVISIONAL_INDIVIDUAL_SI_V2:0-b4:release-height-ratio-v62",
+        "heightMeters": 1.88,
+        "physical": {
+          "basis": "EXPLICIT_AUTHORED_SI_V1",
+          "batLengthM": 0.84,
+          "batMassKg": 0.88,
+          "swingRate": 1,
+          "timingStdSeconds": 0.012,
+          "aimStdMeters": 0.024,
+          "chaseMarginMeters": 0.12,
+          "releaseSpeedMps": 36,
+          "spinRadPerSecond": {
+            "x": 210,
+            "y": 12,
+            "z": 8
+          },
+          "commandStdMeters": 0.16,
+          "reactionSeconds": 0.2,
+          "topSpeedMps": 8.1,
+          "accelerationMps2": 5.3,
+          "gloveSpeedMps": 10.8,
+          "gloveReachMeters": 1.35,
+          "gloveRadiusMeters": 0.11,
+          "retentionCapacityJ": 160,
+          "captureDissipationPowerW": 3000,
+          "transferSeconds": 0.46,
+          "throwSpeedMps": 40,
+          "maximumPitchSpeedMps": 40,
+          "maximumSweetSpotSpeedMps": 39,
+          "targetSweetSpotSpeedMps": 33.5,
+          "motorLatencySeconds": 0.08,
+          "technicalTimingOffsetSeconds": 0,
+          "sweetSpotT": 0.825,
+          "attackAngleDegrees": 16,
+          "pullAngleDegrees": 7,
+          "badBallControl": 0.28,
+          "defensiveDecisionSeconds": 0.08,
+          "preContactSeconds": 0.16,
+          "followThroughSeconds": 0.32,
+          "contactDepthMeters": 0.15,
+          "throwDirectionStdRadians": 0.005,
+          "swingDecision": {
+            "approach": "AUTO",
+            "threshold": 0.5,
+            "aggressionWeight": 0.5
+          },
+          "zoneJudgmentStdMeters": 0.025,
+          "plateVision": 71,
+          "pitchReleaseHeightMeters": 1.6168,
+          "pitchReleaseSideMeters": 0.47,
+          "pitchReleaseExtensionMeters": 1.54
+        }
+      },
+      {
+        "playerId": "0-b5",
+        "sourceId": "USER_APPROVED_PROVISIONAL_INDIVIDUAL_SI_V2:0-b5:release-height-ratio-v62",
+        "heightMeters": 1.83,
+        "physical": {
+          "basis": "EXPLICIT_AUTHORED_SI_V1",
+          "batLengthM": 0.84,
+          "batMassKg": 0.88,
+          "swingRate": 1,
+          "timingStdSeconds": 0.011,
+          "aimStdMeters": 0.023,
+          "chaseMarginMeters": 0.12,
+          "releaseSpeedMps": 36,
+          "spinRadPerSecond": {
+            "x": 210,
+            "y": 12,
+            "z": 8
+          },
+          "commandStdMeters": 0.16,
+          "reactionSeconds": 0.21,
+          "topSpeedMps": 7.2,
+          "accelerationMps2": 4.4,
+          "gloveSpeedMps": 10.5,
+          "gloveReachMeters": 1.35,
+          "gloveRadiusMeters": 0.11,
+          "retentionCapacityJ": 160,
+          "captureDissipationPowerW": 3000,
+          "transferSeconds": 0.48,
+          "throwSpeedMps": 35,
+          "maximumPitchSpeedMps": 40,
+          "maximumSweetSpotSpeedMps": 38.5,
+          "targetSweetSpotSpeedMps": 32.8,
+          "motorLatencySeconds": 0.08,
+          "technicalTimingOffsetSeconds": 0,
+          "sweetSpotT": 0.825,
+          "attackAngleDegrees": 19,
+          "pullAngleDegrees": 12,
+          "badBallControl": 0.25,
+          "defensiveDecisionSeconds": 0.09,
+          "preContactSeconds": 0.16,
+          "followThroughSeconds": 0.32,
+          "contactDepthMeters": 0.15,
+          "throwDirectionStdRadians": 0.005,
+          "swingDecision": {
+            "approach": "AUTO",
+            "threshold": 0.5,
+            "aggressionWeight": 0.5
+          },
+          "zoneJudgmentStdMeters": 0.025,
+          "plateVision": 94,
+          "pitchReleaseHeightMeters": 1.5738,
+          "pitchReleaseSideMeters": 0.4575,
+          "pitchReleaseExtensionMeters": 1.54
+        }
+      },
+      {
+        "playerId": "0-b6",
+        "sourceId": "USER_APPROVED_PROVISIONAL_INDIVIDUAL_SI_V2:0-b6:release-height-ratio-v62",
+        "heightMeters": 1.8,
+        "physical": {
+          "basis": "EXPLICIT_AUTHORED_SI_V1",
+          "batLengthM": 0.84,
+          "batMassKg": 0.88,
+          "swingRate": 1,
+          "timingStdSeconds": 0.01,
+          "aimStdMeters": 0.021,
+          "chaseMarginMeters": 0.12,
+          "releaseSpeedMps": 36,
+          "spinRadPerSecond": {
+            "x": 210,
+            "y": 12,
+            "z": 8
+          },
+          "commandStdMeters": 0.16,
+          "reactionSeconds": 0.18,
+          "topSpeedMps": 8.1,
+          "accelerationMps2": 5.4,
+          "gloveSpeedMps": 11.4,
+          "gloveReachMeters": 1.35,
+          "gloveRadiusMeters": 0.11,
+          "retentionCapacityJ": 160,
+          "captureDissipationPowerW": 3000,
+          "transferSeconds": 0.38,
+          "throwSpeedMps": 37.5,
+          "maximumPitchSpeedMps": 40,
+          "maximumSweetSpotSpeedMps": 36.5,
+          "targetSweetSpotSpeedMps": 30.8,
+          "motorLatencySeconds": 0.08,
+          "technicalTimingOffsetSeconds": 0,
+          "sweetSpotT": 0.825,
+          "attackAngleDegrees": 13,
+          "pullAngleDegrees": 4,
+          "badBallControl": 0.35,
+          "defensiveDecisionSeconds": 0.055,
+          "preContactSeconds": 0.16,
+          "followThroughSeconds": 0.32,
+          "contactDepthMeters": 0.15,
+          "throwDirectionStdRadians": 0.0035,
+          "swingDecision": {
+            "approach": "AUTO",
+            "threshold": 0.5,
+            "aggressionWeight": 0.5
+          },
+          "zoneJudgmentStdMeters": 0.025,
+          "plateVision": 77,
+          "pitchReleaseHeightMeters": 1.548,
+          "pitchReleaseSideMeters": 0.45,
+          "pitchReleaseExtensionMeters": 1.54
+        }
+      },
+      {
+        "playerId": "0-b7",
+        "sourceId": "USER_APPROVED_PROVISIONAL_INDIVIDUAL_SI_V2:0-b7:release-height-ratio-v62",
+        "heightMeters": 1.78,
+        "physical": {
+          "basis": "EXPLICIT_AUTHORED_SI_V1",
+          "batLengthM": 0.84,
+          "batMassKg": 0.88,
+          "swingRate": 1,
+          "timingStdSeconds": 0.007,
+          "aimStdMeters": 0.014,
+          "chaseMarginMeters": 0.12,
+          "releaseSpeedMps": 36,
+          "spinRadPerSecond": {
+            "x": 210,
+            "y": 12,
+            "z": 8
+          },
+          "commandStdMeters": 0.16,
+          "reactionSeconds": 0.15,
+          "topSpeedMps": 9,
+          "accelerationMps2": 6.1,
+          "gloveSpeedMps": 12,
+          "gloveReachMeters": 1.35,
+          "gloveRadiusMeters": 0.11,
+          "retentionCapacityJ": 160,
+          "captureDissipationPowerW": 3000,
+          "transferSeconds": 0.33,
+          "throwSpeedMps": 37,
+          "maximumPitchSpeedMps": 40,
+          "maximumSweetSpotSpeedMps": 36,
+          "targetSweetSpotSpeedMps": 30.5,
+          "motorLatencySeconds": 0.08,
+          "technicalTimingOffsetSeconds": 0,
+          "sweetSpotT": 0.825,
+          "attackAngleDegrees": 11,
+          "pullAngleDegrees": 1,
+          "badBallControl": 0.42,
+          "defensiveDecisionSeconds": 0.04,
+          "preContactSeconds": 0.16,
+          "followThroughSeconds": 0.32,
+          "contactDepthMeters": 0.15,
+          "throwDirectionStdRadians": 0.003,
+          "swingDecision": {
+            "approach": "AUTO",
+            "threshold": 0.5,
+            "aggressionWeight": 0.5
+          },
+          "zoneJudgmentStdMeters": 0.025,
+          "plateVision": 77,
+          "pitchReleaseHeightMeters": 1.5308,
+          "pitchReleaseSideMeters": 0.445,
+          "pitchReleaseExtensionMeters": 1.54
+        }
+      },
+      {
+        "playerId": "0-b8",
+        "sourceId": "USER_APPROVED_PROVISIONAL_INDIVIDUAL_SI_V2:0-b8:release-height-ratio-v62",
+        "heightMeters": 1.85,
+        "physical": {
+          "basis": "EXPLICIT_AUTHORED_SI_V1",
+          "batLengthM": 0.84,
+          "batMassKg": 0.88,
+          "swingRate": 1,
+          "timingStdSeconds": 0.01,
+          "aimStdMeters": 0.02,
+          "chaseMarginMeters": 0.12,
+          "releaseSpeedMps": 36,
+          "spinRadPerSecond": {
+            "x": 210,
+            "y": 12,
+            "z": 8
+          },
+          "commandStdMeters": 0.16,
+          "reactionSeconds": 0.18,
+          "topSpeedMps": 8.5,
+          "accelerationMps2": 5.7,
+          "gloveSpeedMps": 11.3,
+          "gloveReachMeters": 1.35,
+          "gloveRadiusMeters": 0.11,
+          "retentionCapacityJ": 160,
+          "captureDissipationPowerW": 3000,
+          "transferSeconds": 0.41,
+          "throwSpeedMps": 40,
+          "maximumPitchSpeedMps": 40,
+          "maximumSweetSpotSpeedMps": 37.5,
+          "targetSweetSpotSpeedMps": 32,
+          "motorLatencySeconds": 0.08,
+          "technicalTimingOffsetSeconds": 0,
+          "sweetSpotT": 0.825,
+          "attackAngleDegrees": 15,
+          "pullAngleDegrees": 6,
+          "badBallControl": 0.28,
+          "defensiveDecisionSeconds": 0.065,
+          "preContactSeconds": 0.16,
+          "followThroughSeconds": 0.32,
+          "contactDepthMeters": 0.15,
+          "throwDirectionStdRadians": 0.004,
+          "swingDecision": {
+            "approach": "AUTO",
+            "threshold": 0.5,
+            "aggressionWeight": 0.5
+          },
+          "zoneJudgmentStdMeters": 0.025,
+          "plateVision": 70,
+          "pitchReleaseHeightMeters": 1.591,
+          "pitchReleaseSideMeters": 0.4625,
+          "pitchReleaseExtensionMeters": 1.54
+        }
+      },
+      {
+        "playerId": "0-p0",
+        "sourceId": "USER_APPROVED_PROVISIONAL_INDIVIDUAL_SI_V2:0-p0:release-height-ratio-v62:trait-edited",
+        "heightMeters": 1.93,
+        "physical": {
+          "basis": "EXPLICIT_AUTHORED_SI_V1",
+          "batLengthM": 0.84,
+          "batMassKg": 0.88,
+          "swingRate": 1,
+          "timingStdSeconds": 0.014,
+          "aimStdMeters": 0.03,
+          "chaseMarginMeters": 0.12,
+          "releaseSpeedMps": 43.2,
+          "spinRadPerSecond": {
+            "x": 250,
+            "y": -12,
+            "z": -8
+          },
+          "commandStdMeters": 0.12,
+          "reactionSeconds": 0.2,
+          "topSpeedMps": 7.7,
+          "accelerationMps2": 4.8,
+          "gloveSpeedMps": 10.7,
+          "gloveReachMeters": 1.35,
+          "gloveRadiusMeters": 0.11,
+          "retentionCapacityJ": 160,
+          "captureDissipationPowerW": 3000,
+          "transferSeconds": 0.44,
+          "throwSpeedMps": 43.5,
+          "maximumPitchSpeedMps": 44.44444444444444,
+          "maximumSweetSpotSpeedMps": 33,
+          "targetSweetSpotSpeedMps": 27,
+          "motorLatencySeconds": 0.08,
+          "technicalTimingOffsetSeconds": 0,
+          "sweetSpotT": 0.825,
+          "attackAngleDegrees": 10,
+          "pullAngleDegrees": 0,
+          "badBallControl": 0.2,
+          "defensiveDecisionSeconds": 0.08,
+          "preContactSeconds": 0.16,
+          "followThroughSeconds": 0.32,
+          "contactDepthMeters": 0.15,
+          "throwDirectionStdRadians": 0.004,
+          "swingDecision": {
+            "approach": "AUTO",
+            "threshold": 0.5,
+            "aggressionWeight": 0.5
+          },
+          "zoneJudgmentStdMeters": 0.025,
+          "plateVision": 42,
+          "pitchReleaseHeightMeters": 1.6598,
+          "pitchReleaseSideMeters": 0.4825,
+          "pitchReleaseExtensionMeters": 1.54
+        },
+        "traitProfile": {
+          "version": "live_trait_profile_v1",
+          "selections": [
+            {
+              "familyId": "low_zone_command",
+              "stateId": "MASTERED",
+              "source": {
+                "effectScale": 1.25
+              }
+            }
+          ]
+        }
+      },
+      {
+        "playerId": "1-b0",
+        "sourceId": "USER_APPROVED_PROVISIONAL_INDIVIDUAL_SI_V2:1-b0:release-height-ratio-v62",
+        "heightMeters": 1.8,
+        "physical": {
+          "basis": "EXPLICIT_AUTHORED_SI_V1",
+          "batLengthM": 0.84,
+          "batMassKg": 0.88,
+          "swingRate": 1,
+          "timingStdSeconds": 0.004,
+          "aimStdMeters": 0.007,
+          "chaseMarginMeters": 0.12,
+          "releaseSpeedMps": 36,
+          "spinRadPerSecond": {
+            "x": 210,
+            "y": 12,
+            "z": 8
+          },
+          "commandStdMeters": 0.16,
+          "reactionSeconds": 0.13,
+          "topSpeedMps": 10,
+          "accelerationMps2": 6.8,
+          "gloveSpeedMps": 13.5,
+          "gloveReachMeters": 1.35,
+          "gloveRadiusMeters": 0.11,
+          "retentionCapacityJ": 160,
+          "captureDissipationPowerW": 3000,
+          "transferSeconds": 0.3,
+          "throwSpeedMps": 45,
+          "maximumPitchSpeedMps": 40,
+          "maximumSweetSpotSpeedMps": 40,
+          "targetSweetSpotSpeedMps": 34,
+          "motorLatencySeconds": 0.07,
+          "technicalTimingOffsetSeconds": 0,
+          "sweetSpotT": 0.825,
+          "attackAngleDegrees": 9,
+          "pullAngleDegrees": -3,
+          "badBallControl": 0.94,
+          "defensiveDecisionSeconds": 0.035,
+          "preContactSeconds": 0.16,
+          "followThroughSeconds": 0.32,
+          "contactDepthMeters": 0.15,
+          "throwDirectionStdRadians": 0.002,
+          "swingDecision": {
+            "approach": "AUTO",
+            "threshold": 0.5,
+            "aggressionWeight": 0.38
+          },
+          "zoneJudgmentStdMeters": 0.025,
+          "plateVision": 93,
+          "pitchReleaseHeightMeters": 1.548,
+          "pitchReleaseSideMeters": 0.45,
+          "pitchReleaseExtensionMeters": 1.54
+        },
+        "traitProfile": {
+          "version": "live_trait_profile_v1",
+          "selections": [
+            {
+              "familyId": "bad_ball_hitting",
+              "stateId": "LEARNED",
+              "source": {
+                "badBallControl": 0.94
+              }
+            }
+          ]
+        }
+      },
+      {
+        "playerId": "1-b1",
+        "sourceId": "USER_APPROVED_PROVISIONAL_INDIVIDUAL_SI_V2:1-b1:release-height-ratio-v62",
+        "heightMeters": 1.79,
+        "physical": {
+          "basis": "EXPLICIT_AUTHORED_SI_V1",
+          "batLengthM": 0.84,
+          "batMassKg": 0.88,
+          "swingRate": 1,
+          "timingStdSeconds": 0.0045,
+          "aimStdMeters": 0.008,
+          "chaseMarginMeters": 0.12,
+          "releaseSpeedMps": 36,
+          "spinRadPerSecond": {
+            "x": 210,
+            "y": 12,
+            "z": 8
+          },
+          "commandStdMeters": 0.16,
+          "reactionSeconds": 0.13,
+          "topSpeedMps": 9.8,
+          "accelerationMps2": 6.6,
+          "gloveSpeedMps": 13,
+          "gloveReachMeters": 1.35,
+          "gloveRadiusMeters": 0.11,
+          "retentionCapacityJ": 160,
+          "captureDissipationPowerW": 3000,
+          "transferSeconds": 0.3,
+          "throwSpeedMps": 42,
+          "maximumPitchSpeedMps": 40,
+          "maximumSweetSpotSpeedMps": 39.5,
+          "targetSweetSpotSpeedMps": 33.5,
+          "motorLatencySeconds": 0.07,
+          "technicalTimingOffsetSeconds": 0,
+          "sweetSpotT": 0.825,
+          "attackAngleDegrees": 10,
+          "pullAngleDegrees": 0,
+          "badBallControl": 0.91,
+          "defensiveDecisionSeconds": 0.035,
+          "preContactSeconds": 0.16,
+          "followThroughSeconds": 0.32,
+          "contactDepthMeters": 0.15,
+          "throwDirectionStdRadians": 0.0025,
+          "swingDecision": {
+            "approach": "AUTO",
+            "threshold": 0.5,
+            "aggressionWeight": 0.5
+          },
+          "zoneJudgmentStdMeters": 0.025,
+          "plateVision": 90,
+          "pitchReleaseHeightMeters": 1.5394,
+          "pitchReleaseSideMeters": 0.4475,
+          "pitchReleaseExtensionMeters": 1.54
+        },
+        "traitProfile": {
+          "version": "live_trait_profile_v1",
+          "selections": [
+            {
+              "familyId": "bad_ball_hitting",
+              "stateId": "LEARNED",
+              "source": {
+                "badBallControl": 0.91
+              }
+            }
+          ]
+        }
+      },
+      {
+        "playerId": "1-b2",
+        "sourceId": "USER_APPROVED_PROVISIONAL_INDIVIDUAL_SI_V2:1-b2:release-height-ratio-v62",
+        "heightMeters": 1.85,
+        "physical": {
+          "basis": "EXPLICIT_AUTHORED_SI_V1",
+          "batLengthM": 0.86,
+          "batMassKg": 0.95,
+          "swingRate": 1,
+          "timingStdSeconds": 0.006,
+          "aimStdMeters": 0.012,
+          "chaseMarginMeters": 0.12,
+          "releaseSpeedMps": 36,
+          "spinRadPerSecond": {
+            "x": 210,
+            "y": 12,
+            "z": 8
+          },
+          "commandStdMeters": 0.16,
+          "reactionSeconds": 0.43,
+          "topSpeedMps": 8,
+          "accelerationMps2": 5.2,
+          "gloveSpeedMps": 8.8,
+          "gloveReachMeters": 1.35,
+          "gloveRadiusMeters": 0.11,
+          "retentionCapacityJ": 160,
+          "captureDissipationPowerW": 3000,
+          "transferSeconds": 0.72,
+          "throwSpeedMps": 46,
+          "maximumPitchSpeedMps": 40,
+          "maximumSweetSpotSpeedMps": 48,
+          "targetSweetSpotSpeedMps": 41,
+          "motorLatencySeconds": 0.07,
+          "technicalTimingOffsetSeconds": 0,
+          "sweetSpotT": 0.825,
+          "attackAngleDegrees": 19,
+          "pullAngleDegrees": 6,
+          "badBallControl": 0.95,
+          "defensiveDecisionSeconds": 0.28,
+          "preContactSeconds": 0.16,
+          "followThroughSeconds": 0.32,
+          "contactDepthMeters": 0.15,
+          "throwDirectionStdRadians": 0.01,
+          "swingDecision": {
+            "approach": "AUTO",
+            "threshold": 0.5,
+            "aggressionWeight": 0.38
+          },
+          "zoneJudgmentStdMeters": 0.025,
+          "plateVision": 96,
+          "pitchReleaseHeightMeters": 1.591,
+          "pitchReleaseSideMeters": 0.4625,
+          "pitchReleaseExtensionMeters": 1.54
+        },
+        "traitProfile": {
+          "version": "live_trait_profile_v1",
+          "selections": [
+            {
+              "familyId": "bad_ball_hitting",
+              "stateId": "LEARNED",
+              "source": {
+                "badBallControl": 0.95
+              }
+            }
+          ]
+        }
+      },
+      {
+        "playerId": "1-b3",
+        "sourceId": "USER_APPROVED_PROVISIONAL_INDIVIDUAL_SI_V2:1-b3:release-height-ratio-v62",
+        "heightMeters": 1.91,
+        "physical": {
+          "basis": "EXPLICIT_AUTHORED_SI_V1",
+          "batLengthM": 0.86,
+          "batMassKg": 0.95,
+          "swingRate": 1,
+          "timingStdSeconds": 0.014,
+          "aimStdMeters": 0.027,
+          "chaseMarginMeters": 0.16,
+          "releaseSpeedMps": 36,
+          "spinRadPerSecond": {
+            "x": 210,
+            "y": 12,
+            "z": 8
+          },
+          "commandStdMeters": 0.16,
+          "reactionSeconds": 0.45,
+          "topSpeedMps": 6.3,
+          "accelerationMps2": 3.8,
+          "gloveSpeedMps": 8.5,
+          "gloveReachMeters": 1.35,
+          "gloveRadiusMeters": 0.11,
+          "retentionCapacityJ": 160,
+          "captureDissipationPowerW": 3000,
+          "transferSeconds": 0.74,
+          "throwSpeedMps": 47,
+          "maximumPitchSpeedMps": 40,
+          "maximumSweetSpotSpeedMps": 50,
+          "targetSweetSpotSpeedMps": 43,
+          "motorLatencySeconds": 0.08,
+          "technicalTimingOffsetSeconds": 0,
+          "sweetSpotT": 0.825,
+          "attackAngleDegrees": 23,
+          "pullAngleDegrees": 18,
+          "badBallControl": 0.93,
+          "defensiveDecisionSeconds": 0.3,
+          "preContactSeconds": 0.16,
+          "followThroughSeconds": 0.32,
+          "contactDepthMeters": 0.15,
+          "throwDirectionStdRadians": 0.011,
+          "swingDecision": {
+            "approach": "AUTO",
+            "threshold": 0.5,
+            "aggressionWeight": 0.64
+          },
+          "zoneJudgmentStdMeters": 0.025,
+          "plateVision": 44,
+          "pitchReleaseHeightMeters": 1.6426,
+          "pitchReleaseSideMeters": 0.4775,
+          "pitchReleaseExtensionMeters": 1.54
+        },
+        "traitProfile": {
+          "version": "live_trait_profile_v1",
+          "selections": [
+            {
+              "familyId": "bad_ball_hitting",
+              "stateId": "LEARNED",
+              "source": {
+                "badBallControl": 0.93
+              }
+            }
+          ]
+        }
+      },
+      {
+        "playerId": "1-b4",
+        "sourceId": "USER_APPROVED_PROVISIONAL_INDIVIDUAL_SI_V2:1-b4:release-height-ratio-v62",
+        "heightMeters": 1.9,
+        "physical": {
+          "basis": "EXPLICIT_AUTHORED_SI_V1",
+          "batLengthM": 0.86,
+          "batMassKg": 0.95,
+          "swingRate": 1,
+          "timingStdSeconds": 0.01,
+          "aimStdMeters": 0.021,
+          "chaseMarginMeters": 0.12,
+          "releaseSpeedMps": 36,
+          "spinRadPerSecond": {
+            "x": 210,
+            "y": 12,
+            "z": 8
+          },
+          "commandStdMeters": 0.16,
+          "reactionSeconds": 0.35,
+          "topSpeedMps": 7,
+          "accelerationMps2": 4.2,
+          "gloveSpeedMps": 9.2,
+          "gloveReachMeters": 1.35,
+          "gloveRadiusMeters": 0.1,
+          "retentionCapacityJ": 160,
+          "captureDissipationPowerW": 3000,
+          "transferSeconds": 0.68,
+          "throwSpeedMps": 46,
+          "maximumPitchSpeedMps": 40,
+          "maximumSweetSpotSpeedMps": 47,
+          "targetSweetSpotSpeedMps": 40,
+          "motorLatencySeconds": 0.08,
+          "technicalTimingOffsetSeconds": 0,
+          "sweetSpotT": 0.825,
+          "attackAngleDegrees": 18,
+          "pullAngleDegrees": 3,
+          "badBallControl": 0.88,
+          "defensiveDecisionSeconds": 0.23,
+          "preContactSeconds": 0.16,
+          "followThroughSeconds": 0.32,
+          "contactDepthMeters": 0.15,
+          "throwDirectionStdRadians": 0.012,
+          "swingDecision": {
+            "approach": "AUTO",
+            "threshold": 0.5,
+            "aggressionWeight": 0.5
+          },
+          "zoneJudgmentStdMeters": 0.025,
+          "plateVision": 69,
+          "pitchReleaseHeightMeters": 1.634,
+          "pitchReleaseSideMeters": 0.475,
+          "pitchReleaseExtensionMeters": 1.54
+        },
+        "traitProfile": {
+          "version": "live_trait_profile_v1",
+          "selections": [
+            {
+              "familyId": "bad_ball_hitting",
+              "stateId": "LEARNED",
+              "source": {
+                "badBallControl": 0.88
+              }
+            }
+          ]
+        }
+      },
+      {
+        "playerId": "1-b5",
+        "sourceId": "USER_APPROVED_PROVISIONAL_INDIVIDUAL_SI_V2:1-b5:release-height-ratio-v62",
+        "heightMeters": 1.86,
+        "physical": {
+          "basis": "EXPLICIT_AUTHORED_SI_V1",
+          "batLengthM": 0.86,
+          "batMassKg": 0.95,
+          "swingRate": 1,
+          "timingStdSeconds": 0.011,
+          "aimStdMeters": 0.023,
+          "chaseMarginMeters": 0.12,
+          "releaseSpeedMps": 36,
+          "spinRadPerSecond": {
+            "x": 210,
+            "y": 12,
+            "z": 8
+          },
+          "commandStdMeters": 0.16,
+          "reactionSeconds": 0.23,
+          "topSpeedMps": 8.5,
+          "accelerationMps2": 5.5,
+          "gloveSpeedMps": 10.6,
+          "gloveReachMeters": 1.35,
+          "gloveRadiusMeters": 0.11,
+          "retentionCapacityJ": 160,
+          "captureDissipationPowerW": 3000,
+          "transferSeconds": 0.52,
+          "throwSpeedMps": 40,
+          "maximumPitchSpeedMps": 40,
+          "maximumSweetSpotSpeedMps": 46.5,
+          "targetSweetSpotSpeedMps": 39.5,
+          "motorLatencySeconds": 0.08,
+          "technicalTimingOffsetSeconds": 0,
+          "sweetSpotT": 0.825,
+          "attackAngleDegrees": 18,
+          "pullAngleDegrees": 5,
+          "badBallControl": 0.85,
+          "defensiveDecisionSeconds": 0.12,
+          "preContactSeconds": 0.16,
+          "followThroughSeconds": 0.32,
+          "contactDepthMeters": 0.15,
+          "throwDirectionStdRadians": 0.028,
+          "swingDecision": {
+            "approach": "AUTO",
+            "threshold": 0.5,
+            "aggressionWeight": 0.5
+          },
+          "zoneJudgmentStdMeters": 0.025,
+          "plateVision": 67,
+          "pitchReleaseHeightMeters": 1.5996,
+          "pitchReleaseSideMeters": 0.465,
+          "pitchReleaseExtensionMeters": 1.54
+        },
+        "traitProfile": {
+          "version": "live_trait_profile_v1",
+          "selections": [
+            {
+              "familyId": "bad_ball_hitting",
+              "stateId": "LEARNED",
+              "source": {
+                "badBallControl": 0.85
+              }
+            }
+          ]
+        }
+      },
+      {
+        "playerId": "1-b6",
+        "sourceId": "USER_APPROVED_PROVISIONAL_INDIVIDUAL_SI_V2:1-b6:release-height-ratio-v62",
+        "heightMeters": 1.81,
+        "physical": {
+          "basis": "EXPLICIT_AUTHORED_SI_V1",
+          "batLengthM": 0.84,
+          "batMassKg": 0.88,
+          "swingRate": 1,
+          "timingStdSeconds": 0.0055,
+          "aimStdMeters": 0.01,
+          "chaseMarginMeters": 0.12,
+          "releaseSpeedMps": 36,
+          "spinRadPerSecond": {
+            "x": 210,
+            "y": -12,
+            "z": -8
+          },
+          "commandStdMeters": 0.16,
+          "reactionSeconds": 0.22,
+          "topSpeedMps": 8.5,
+          "accelerationMps2": 5.6,
+          "gloveSpeedMps": 11,
+          "gloveReachMeters": 1.35,
+          "gloveRadiusMeters": 0.11,
+          "retentionCapacityJ": 160,
+          "captureDissipationPowerW": 3000,
+          "transferSeconds": 0.47,
+          "throwSpeedMps": 37.5,
+          "maximumPitchSpeedMps": 40,
+          "maximumSweetSpotSpeedMps": 42,
+          "targetSweetSpotSpeedMps": 35.5,
+          "motorLatencySeconds": 0.07,
+          "technicalTimingOffsetSeconds": 0,
+          "sweetSpotT": 0.825,
+          "attackAngleDegrees": 13,
+          "pullAngleDegrees": -9,
+          "badBallControl": 0.92,
+          "defensiveDecisionSeconds": 0.1,
+          "preContactSeconds": 0.16,
+          "followThroughSeconds": 0.32,
+          "contactDepthMeters": 0.15,
+          "throwDirectionStdRadians": 0.006,
+          "swingDecision": {
+            "approach": "AUTO",
+            "threshold": 0.5,
+            "aggressionWeight": 0.38
+          },
+          "zoneJudgmentStdMeters": 0.025,
+          "plateVision": 93,
+          "pitchReleaseHeightMeters": 1.5566,
+          "pitchReleaseSideMeters": 0.4525,
+          "pitchReleaseExtensionMeters": 1.54
+        },
+        "traitProfile": {
+          "version": "live_trait_profile_v1",
+          "selections": [
+            {
+              "familyId": "bad_ball_hitting",
+              "stateId": "LEARNED",
+              "source": {
+                "badBallControl": 0.92
+              }
+            }
+          ]
+        }
+      },
+      {
+        "playerId": "1-b7",
+        "sourceId": "USER_APPROVED_PROVISIONAL_INDIVIDUAL_SI_V2:1-b7:release-height-ratio-v62",
+        "heightMeters": 1.88,
+        "physical": {
+          "basis": "EXPLICIT_AUTHORED_SI_V1",
+          "batLengthM": 0.86,
+          "batMassKg": 0.95,
+          "swingRate": 1,
+          "timingStdSeconds": 0.011,
+          "aimStdMeters": 0.022,
+          "chaseMarginMeters": 0.12,
+          "releaseSpeedMps": 36,
+          "spinRadPerSecond": {
+            "x": 210,
+            "y": 12,
+            "z": 8
+          },
+          "commandStdMeters": 0.16,
+          "reactionSeconds": 0.41,
+          "topSpeedMps": 9.9,
+          "accelerationMps2": 6.6,
+          "gloveSpeedMps": 8.8,
+          "gloveReachMeters": 1.35,
+          "gloveRadiusMeters": 0.11,
+          "retentionCapacityJ": 160,
+          "captureDissipationPowerW": 3000,
+          "transferSeconds": 0.69,
+          "throwSpeedMps": 44,
+          "maximumPitchSpeedMps": 40,
+          "maximumSweetSpotSpeedMps": 48.5,
+          "targetSweetSpotSpeedMps": 41.5,
+          "motorLatencySeconds": 0.08,
+          "technicalTimingOffsetSeconds": 0,
+          "sweetSpotT": 0.825,
+          "attackAngleDegrees": 21,
+          "pullAngleDegrees": 8,
+          "badBallControl": 0.86,
+          "defensiveDecisionSeconds": 0.27,
+          "preContactSeconds": 0.16,
+          "followThroughSeconds": 0.32,
+          "contactDepthMeters": 0.15,
+          "throwDirectionStdRadians": 0.014,
+          "swingDecision": {
+            "approach": "AUTO",
+            "threshold": 0.5,
+            "aggressionWeight": 0.5
+          },
+          "zoneJudgmentStdMeters": 0.025,
+          "plateVision": 71,
+          "pitchReleaseHeightMeters": 1.6168,
+          "pitchReleaseSideMeters": 0.47,
+          "pitchReleaseExtensionMeters": 1.54
+        },
+        "traitProfile": {
+          "version": "live_trait_profile_v1",
+          "selections": [
+            {
+              "familyId": "bad_ball_hitting",
+              "stateId": "LEARNED",
+              "source": {
+                "badBallControl": 0.86
+              }
+            }
+          ]
+        }
+      },
+      {
+        "playerId": "1-b8",
+        "sourceId": "USER_APPROVED_PROVISIONAL_INDIVIDUAL_SI_V2:1-b8:release-height-ratio-v62",
+        "heightMeters": 1.79,
+        "physical": {
+          "basis": "EXPLICIT_AUTHORED_SI_V1",
+          "batLengthM": 0.84,
+          "batMassKg": 0.88,
+          "swingRate": 1,
+          "timingStdSeconds": 0.007,
+          "aimStdMeters": 0.013,
+          "chaseMarginMeters": 0.12,
+          "releaseSpeedMps": 36,
+          "spinRadPerSecond": {
+            "x": 210,
+            "y": -12,
+            "z": -8
+          },
+          "commandStdMeters": 0.16,
+          "reactionSeconds": 0.13,
+          "topSpeedMps": 9.8,
+          "accelerationMps2": 6.5,
+          "gloveSpeedMps": 13,
+          "gloveReachMeters": 1.35,
+          "gloveRadiusMeters": 0.11,
+          "retentionCapacityJ": 160,
+          "captureDissipationPowerW": 3000,
+          "transferSeconds": 0.31,
+          "throwSpeedMps": 43,
+          "maximumPitchSpeedMps": 40,
+          "maximumSweetSpotSpeedMps": 44,
+          "targetSweetSpotSpeedMps": 37,
+          "motorLatencySeconds": 0.07,
+          "technicalTimingOffsetSeconds": 0,
+          "sweetSpotT": 0.825,
+          "attackAngleDegrees": 10,
+          "pullAngleDegrees": 2,
+          "badBallControl": 0.9,
+          "defensiveDecisionSeconds": 0.035,
+          "preContactSeconds": 0.16,
+          "followThroughSeconds": 0.32,
+          "contactDepthMeters": 0.15,
+          "throwDirectionStdRadians": 0.0025,
+          "swingDecision": {
+            "approach": "AUTO",
+            "threshold": 0.5,
+            "aggressionWeight": 0.5
+          },
+          "zoneJudgmentStdMeters": 0.025,
+          "plateVision": 81,
+          "pitchReleaseHeightMeters": 1.5394,
+          "pitchReleaseSideMeters": 0.4475,
+          "pitchReleaseExtensionMeters": 1.54
+        },
+        "traitProfile": {
+          "version": "live_trait_profile_v1",
+          "selections": [
+            {
+              "familyId": "bad_ball_hitting",
+              "stateId": "LEARNED",
+              "source": {
+                "badBallControl": 0.9
+              }
+            }
+          ]
+        }
+      },
+      {
+        "playerId": "1-p0",
+        "sourceId": "USER_APPROVED_PROVISIONAL_INDIVIDUAL_SI_V2:1-p0:release-height-ratio-v62",
+        "heightMeters": 1.84,
+        "physical": {
+          "basis": "EXPLICIT_AUTHORED_SI_V1",
+          "batLengthM": 0.84,
+          "batMassKg": 0.88,
+          "swingRate": 1,
+          "timingStdSeconds": 0.013,
+          "aimStdMeters": 0.026,
+          "chaseMarginMeters": 0.12,
+          "releaseSpeedMps": 41.2,
+          "spinRadPerSecond": {
+            "x": 245,
+            "y": 12,
+            "z": 8
+          },
+          "commandStdMeters": 0.065,
+          "reactionSeconds": 0.2,
+          "topSpeedMps": 7.8,
+          "accelerationMps2": 5,
+          "gloveSpeedMps": 10.8,
+          "gloveReachMeters": 1.35,
+          "gloveRadiusMeters": 0.11,
+          "retentionCapacityJ": 160,
+          "captureDissipationPowerW": 3000,
+          "transferSeconds": 0.44,
+          "throwSpeedMps": 40,
+          "maximumPitchSpeedMps": 41.94444444444444,
+          "maximumSweetSpotSpeedMps": 34,
+          "targetSweetSpotSpeedMps": 28,
+          "motorLatencySeconds": 0.08,
+          "technicalTimingOffsetSeconds": 0,
+          "sweetSpotT": 0.825,
+          "attackAngleDegrees": 10,
+          "pullAngleDegrees": 0,
+          "badBallControl": 0.82,
+          "defensiveDecisionSeconds": 0.08,
+          "preContactSeconds": 0.16,
+          "followThroughSeconds": 0.32,
+          "contactDepthMeters": 0.15,
+          "throwDirectionStdRadians": 0.004,
+          "swingDecision": {
+            "approach": "AUTO",
+            "threshold": 0.5,
+            "aggressionWeight": 0.5
+          },
+          "zoneJudgmentStdMeters": 0.025,
+          "plateVision": 52,
+          "pitchReleaseHeightMeters": 1.5824,
+          "pitchReleaseSideMeters": 0.46,
+          "pitchReleaseExtensionMeters": 1.54
+        },
+        "traitProfile": {
+          "version": "live_trait_profile_v1",
+          "selections": [
+            {
+              "familyId": "bad_ball_hitting",
+              "stateId": "LEARNED",
+              "source": {
+                "badBallControl": 0.82
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

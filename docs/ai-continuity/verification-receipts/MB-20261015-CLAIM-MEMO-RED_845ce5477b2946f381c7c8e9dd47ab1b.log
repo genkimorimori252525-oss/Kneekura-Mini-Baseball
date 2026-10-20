@@ -1,0 +1,79 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/host/world/SamePlateAppearanceMetadataCompilation.test.ts (3 tests | 1 failed) 23ms
+   × reuses a completed metadata closure only inside one Native proof and returns independent mutable copies 20ms
+     → expected [ [ …(2) ], [ …(2) ], [ …(2) ], …(1) ] to deeply equal [ [ …(2) ], [ …(2) ], [ …(2) ], …(1) ]
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/host/world/SamePlateAppearanceMetadataCompilation.test.ts > reuses a completed metadata closure only inside one Native proof and returns independent mutable copies
+AssertionError: expected [ [ …(2) ], [ …(2) ], [ …(2) ], …(1) ] to deeply equal [ [ …(2) ], [ …(2) ], [ …(2) ], …(1) ]
+
+- Expected
++ Received
+
+  Array [
+    Array [
+      "SELECT atom FROM (SELECT metadata_child_1.value,metadata_child_1.type,metadata_child_1.atom FROM (SELECT metadata_child_0.value,metadata_child_0.type,metadata_child_0.atom FROM (SELECT CASE WHEN json_valid($document) THEN $document ELSE 'null' END AS value,json_type(CASE WHEN json_valid($document) THEN $document ELSE 'null' END) AS type,
+      CASE WHEN json_type(CASE WHEN json_valid($document) THEN $document ELSE 'null' END) NOT IN ('object','array') THEN json_extract(CASE WHEN json_valid($document) THEN $document ELSE 'null' END,'$') END AS atom) metadata_parent_0,
+        json_each(CASE WHEN metadata_parent_0.type='object'
+        THEN metadata_parent_0.value ELSE '{}' END) metadata_child_0 WHERE metadata_child_0.key='enrollmentReference') metadata_parent_1,
+        json_each(CASE WHEN metadata_parent_1.type='object'
+        THEN metadata_parent_1.value ELSE '{}' END) metadata_child_1 WHERE metadata_child_1.key='sourceId') WHERE type='text'",
+-     6,
++     12,
+    ],
+    Array [
+      "SELECT atom FROM (SELECT metadata_child_2.value,metadata_child_2.type,metadata_child_2.atom FROM (SELECT metadata_child_1.value,metadata_child_1.type,metadata_child_1.atom FROM (SELECT metadata_child_0.value,metadata_child_0.type,metadata_child_0.atom FROM (SELECT CASE WHEN json_valid($document) THEN $document ELSE 'null' END AS value,json_type(CASE WHEN json_valid($document) THEN $document ELSE 'null' END) AS type,
+      CASE WHEN json_type(CASE WHEN json_valid($document) THEN $document ELSE 'null' END) NOT IN ('object','array') THEN json_extract(CASE WHEN json_valid($document) THEN $document ELSE 'null' END,'$') END AS atom) metadata_parent_0,
+        json_each(CASE WHEN metadata_parent_0.type='object'
+        THEN metadata_parent_0.value ELSE '{}' END) metadata_child_0 WHERE metadata_child_0.key='source') metadata_parent_1,
+        json_each(CASE WHEN metadata_parent_1.type='object'
+        THEN metadata_parent_1.value ELSE '{}' END) metadata_child_1 WHERE metadata_child_1.key='enrollmentReference') metadata_parent_2,
+        json_each(CASE WHEN metadata_parent_2.type='object'
+        THEN metadata_parent_2.value ELSE '{}' END) metadata_child_2 WHERE metadata_child_2.key='sourceId') WHERE type='text'",
+-     6,
++     12,
+    ],
+    Array [
+      "SELECT atom FROM (SELECT metadata_child_2.value,metadata_child_2.type,metadata_child_2.atom FROM (SELECT metadata_child_1.value,metadata_child_1.type,metadata_child_1.atom FROM (SELECT metadata_child_0.value,metadata_child_0.type,metadata_child_0.atom FROM (SELECT CASE WHEN json_valid($document) THEN $document ELSE 'null' END AS value,json_type(CASE WHEN json_valid($document) THEN $document ELSE 'null' END) AS type,
+      CASE WHEN json_type(CASE WHEN json_valid($document) THEN $document ELSE 'null' END) NOT IN ('object','array') THEN json_extract(CASE WHEN json_valid($document) THEN $document ELSE 'null' END,'$') END AS atom) metadata_parent_0,
+        json_each(CASE WHEN metadata_parent_0.type='object'
+        THEN metadata_parent_0.value ELSE '{}' END) metadata_child_0 WHERE metadata_child_0.key='lineage') metadata_parent_1,
+        json_each(CASE WHEN metadata_parent_1.type='object'
+        THEN metadata_parent_1.value ELSE '{}' END) metadata_child_1 WHERE metadata_child_1.key='enrollmentReference') metadata_parent_2,
+        json_each(CASE WHEN metadata_parent_2.type='object'
+        THEN metadata_parent_2.value ELSE '{}' END) metadata_child_2 WHERE metadata_child_2.key='sourceId') WHERE type='text'",
+-     6,
++     12,
+    ],
+    Array [
+      "SELECT o.atom owner,i.atom sourceId
+      FROM json_tree(CASE WHEN json_valid($document) THEN $document ELSE 'null' END) obj,
+        json_each(CASE WHEN obj.type='object' THEN obj.value ELSE '{}' END) o,json_each(CASE WHEN obj.type='object' THEN obj.value ELSE '{}' END) i
+      WHERE o.key='owner' AND o.type='text' AND i.key='sourceId' AND i.type='text'",
+-     6,
++     12,
+    ],
+  ]
+
+ ❯ src/host/world/SamePlateAppearanceMetadataCompilation.test.ts:46:62
+     44|       expect(first.map(r => r.enrollmentSourceIds)).toEqual([['root']]…
+     45|       const executed=[...executions], second=readSamePaLifecycleClaimR…
+     46|       expect(second).toEqual(first); expect([...executions]).toEqual(e…
+       |                                                              ^
+     47|       expect(second).not.toBe(first); expect(second[0].row).not.toBe(f…
+     48|       expect(Object.getPrototypeOf(second[0].row)).toBe(Object.getProt…
+ ❯ Module.withSqliteMetadataStatementScope src/host/world/SqliteMetadataStatementScope.ts:12:16
+ ❯ immutable src/host/world/SamePlateAppearanceContinuationFromSqlite.ts:88:23
+ ❯ Module.withSamePaContinuationReadPhase src/host/world/SamePlateAppearanceContinuationFromSqlite.ts:95:91
+ ❯ src/host/world/SamePlateAppearanceMetadataCompilation.test.ts:42:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  07:06:45
+   Duration  7.84s (transform 4.60s, setup 0ms, collect 7.15s, tests 23ms, environment 0ms, prepare 192ms)
+

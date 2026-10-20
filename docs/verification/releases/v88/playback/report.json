@@ -1,0 +1,22 @@
+{
+  "pass": false,
+  "file": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv88_TBD_vs_LAD_空振りとHR見送り版.html",
+  "artifactSha256": "37aed54222332dbc823b7dee82cd030789b7eb62f4a56de75633e1d4825723c2",
+  "cases": [],
+  "faults": [
+    {
+      "path": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\docs\\demos\\releases\\v87\\game.html",
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "path": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv88_TBD_vs_LAD_空振りとHR見送り版.html",
+      "width": 1200,
+      "errors": [],
+      "external": []
+    }
+  ],
+  "scope": "40 ordinary pitches compared to frozen v87 with only the new replay descriptor removed from diagnostics; no physical/call/frame fields omitted. Sampled whiff tail and HR watch in actual HTML, PC/390px.",
+  "error": "page.evaluate: TypeError: Cannot read properties of null (reading 'click')\n    at eval (eval at evaluate (:311:30), <anonymous>:12:97)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\tools\\browser-bridge\\check-playback-v88.mjs:17:32"
+}

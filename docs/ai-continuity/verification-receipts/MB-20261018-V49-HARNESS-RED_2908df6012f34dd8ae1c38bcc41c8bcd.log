@@ -1,0 +1,135 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts (14 tests | 6 failed | 8 skipped) 1630ms
+   × LiveFieldPlayDiagnosticsV1 > detects a completed live play whose final observed runner is still advancing 379ms
+     → expected [] to deep equally contain ObjectContaining{…}
+   × LiveFieldPlayDiagnosticsV1 > detects a completed live play with a free ball at the final observation 264ms
+     → expected [] to deep equally contain ObjectContaining{…}
+   × LiveFieldPlayDiagnosticsV1 > detects duplicate base cover assignments without treating nearby different tasks as duplicate coverage 251ms
+     → expected [] to deep equally contain ObjectContaining{…}
+   × LiveFieldPlayDiagnosticsV1 > detects retirement supported only by bag control after a legal first-base touch (offset=-0.01) 244ms
+     → expected [] to deep equally contain ObjectContaining{…}
+   × LiveFieldPlayDiagnosticsV1 > detects retirement supported only by bag control after a legal first-base touch (offset=0) 236ms
+     → expected [] to deep equally contain ObjectContaining{…}
+   × LiveFieldPlayDiagnosticsV1 > detects an observed bag-volume arrival that precedes the official touch fact 255ms
+     → expected [] to deep equally contain ObjectContaining{…}
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > detects a completed live play whose final observed runner is still advancing
+AssertionError: expected [] to deep equally contain ObjectContaining{…}
+
+- Expected: 
+ObjectContaining {
+  "kind": "LIVE_PLAY_CLOSED_WITH_ACTIVE_RUNNER",
+  "playerId": "runner-0",
+}
+
++ Received: 
+Array []
+
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:48:71
+     46|       runners: last.runners.map(r => ({ ...r, targetBase: 2, velocity:…
+     47|     expect(result.end.reason).toBe('live_action_complete');
+     48|     expect(diagnoseLiveFieldPlayV1(input, broken, roleMap).anomalies).…
+       |                                                                       ^
+     49|       expect.objectContaining({ kind: 'LIVE_PLAY_CLOSED_WITH_ACTIVE_RU…
+     50|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > detects a completed live play with a free ball at the final observation
+AssertionError: expected [] to deep equally contain ObjectContaining{…}
+
+- Expected: 
+ObjectContaining {
+  "kind": "LIVE_PLAY_CLOSED_WITH_FREE_BALL",
+}
+
++ Received: 
+Array []
+
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:56:71
+     54|     const broken = { ...result, frames: [...result.frames.slice(0, -1)…
+     55|       ball: { ...last.ball, possessedBy: null, visible: true, phase: '…
+     56|     expect(diagnoseLiveFieldPlayV1(input, broken, roleMap).anomalies).…
+       |                                                                       ^
+     57|       expect.objectContaining({ kind: 'LIVE_PLAY_CLOSED_WITH_FREE_BALL…
+     58|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > detects duplicate base cover assignments without treating nearby different tasks as duplicate coverage
+AssertionError: expected [] to deep equally contain ObjectContaining{…}
+
+- Expected: 
+ObjectContaining {
+  "base": 1,
+  "kind": "DUPLICATE_BASE_COVER",
+}
+
++ Received: 
+Array []
+
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:64:71
+     62|     const broken = { ...result, frames: [{ ...last, fielders: last.fie…
+     63|       ? { ...f, intent: 'base_cover' as const, targetBase: 1 as const …
+     64|     expect(diagnoseLiveFieldPlayV1(input, broken, roleMap).anomalies).…
+       |                                                                       ^
+     65|       expect.objectContaining({ kind: 'DUPLICATE_BASE_COVER', base: 1 …
+     66|     const distinctTasks = { ...broken, frames: [{ ...broken.frames[0],…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > detects retirement supported only by bag control after a legal first-base touch (offset=-0.01)
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > detects retirement supported only by bag control after a legal first-base touch (offset=0)
+AssertionError: expected [] to deep equally contain ObjectContaining{…}
+
+- Expected: 
+ObjectContaining {
+  "kind": "UNSUPPORTED_RUNNER_RETIREMENT",
+  "playerId": "runner-0",
+}
+
++ Received: 
+Array []
+
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:81:71
+     79|         runnerTouches: [...result.ruleFacts.runnerTouches, { kind: tou…
+     80|     expect(result.finalRunners[0].retired).toBe(true);
+     81|     expect(diagnoseLiveFieldPlayV1(input, broken, roleMap).anomalies).…
+       |                                                                       ^
+     82|       expect.objectContaining({ kind: 'UNSUPPORTED_RUNNER_RETIREMENT',…
+     83|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > detects an observed bag-volume arrival that precedes the official touch fact
+AssertionError: expected [] to deep equally contain ObjectContaining{…}
+
+- Expected: 
+ObjectContaining {
+  "base": 1,
+  "kind": "RUNNER_BASE_TOUCH_LATE",
+  "playerId": "runner-0",
+}
+
++ Received: 
+Array []
+
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:94:71
+     92|       broken = { ...result, frames: [...result.frames.filter(f => f.el…
+     93|         .sort((a, b) => a.elapsedSeconds - b.elapsedSeconds) };
+     94|     expect(diagnoseLiveFieldPlayV1(input, broken, roleMap).anomalies).…
+       |                                                                       ^
+     95|       expect.objectContaining({ kind: 'RUNNER_BASE_TOUCH_LATE', player…
+     96|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 8 skipped (14)
+   Start at  17:04:36
+   Duration  2.52s (transform 273ms, setup 0ms, collect 390ms, tests 1.63s, environment 0ms, prepare 153ms)
+

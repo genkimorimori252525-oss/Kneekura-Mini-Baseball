@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-PACKAGE-WITH-REFERENCE-INDEX",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "python",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/package-delivery.py"
+  ],
+  "observed_at": "2026-10-15T17:06:05.896+00:00",
+  "elapsed_ms": 8125,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-PACKAGE-WITH-REFERENCE-INDEX_c99b4d71dbc0418e80fe239e4b449092.log",
+  "output_sha256": "b7f06b7e658bce6567e7a038d291ccc609d6317ee12365c18d92ca40f3867d2b",
+  "receipt_id": "MB-20261016-PACKAGE-WITH-REFERENCE-INDEX_c99b4d71dbc0418e80fe239e4b449092"
+}

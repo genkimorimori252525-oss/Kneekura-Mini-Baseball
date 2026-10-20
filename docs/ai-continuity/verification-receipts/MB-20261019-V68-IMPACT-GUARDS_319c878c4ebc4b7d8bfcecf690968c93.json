@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V68-IMPACT-GUARDS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/contact/ReferenceBatImpactTrajectoryV1.test.ts",
+    "src/integration/browser/ReferenceBattingWorkbench.test.ts",
+    "src/integration/browser/MeasuredImpactTrajectoryLibraryV1.test.ts"
+  ],
+  "observed_at": "2026-10-19T10:44:25.271+00:00",
+  "elapsed_ms": 7296,
+  "git_head": "652aa75ccb24df723c2d413e5dc37e7395dc8679",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V68-IMPACT-GUARDS_319c878c4ebc4b7d8bfcecf690968c93.log",
+  "output_sha256": "b57ac5c3c96da75546f65ae8556a6b9606fe6928688b7f443c0b5c136bfe3dfb",
+  "receipt_id": "MB-20261019-V68-IMPACT-GUARDS_319c878c4ebc4b7d8bfcecf690968c93"
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V54-MAKER-CHECKER-FIX",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-traits-v54.mjs",
+    "../../outputs/にーくら野球メーカー_得能接続版.html",
+    "../../outputs/verification-v54-maker-initial-r1",
+    "../../outputs/ばせぼーるlv54_TBD_vs_LAD_得能と個人采配接続版.html"
+  ],
+  "observed_at": "2026-10-18T16:14:43.493+00:00",
+  "elapsed_ms": 22032,
+  "git_head": "3cdfee5c0c1211d6a892c87b073a4bdf6fb1e3dd",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V54-MAKER-CHECKER-FIX_346c53c075e546f0a4191806e66b010f.log",
+  "output_sha256": "2a7c8c8bf8d15f0a6015abbfb6395360e637cc40fab6c85e7ca013e85f0c638b",
+  "receipt_id": "MB-20261019-V54-MAKER-CHECKER-FIX_346c53c075e546f0a4191806e66b010f"
+}

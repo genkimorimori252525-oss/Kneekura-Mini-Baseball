@@ -1,0 +1,51 @@
+{
+  "pass": true,
+  "sourceCommit": "3de1c3abf4190c05e67067ac612170b68086089d",
+  "verifiedRemoteHead": "3de1c3abf4190c05e67067ac612170b68086089d",
+  "branch": "jolly/tbd-lad-native-browser-core-2026-10-14",
+  "pullRequest": {
+    "headRefOid": "3de1c3abf4190c05e67067ac612170b68086089d",
+    "isDraft": true,
+    "state": "OPEN",
+    "title": "fix: restore lv27 batter camera and delay hit tracking (v50)",
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380"
+  },
+  "rawFiles": {
+    "docs/history/INCIDENTS.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/3de1c3abf4190c05e67067ac612170b68086089d/docs/history/INCIDENTS.md",
+      "bytes": 25856,
+      "sha256": "f70bd0e4caeabc9ff9dc15d2186ef99bdb6c7e69fa82133d64acc6e73c6de5cf"
+    },
+    "docs/handoffs/LATEST.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/3de1c3abf4190c05e67067ac612170b68086089d/docs/handoffs/LATEST.md",
+      "bytes": 5372,
+      "sha256": "7fcf06f00df14424d65b6b91ab91d2cb8f0aeafcbda9cfbd34383546c8cf760f"
+    },
+    "tools/browser-bridge/live-v27-batter-view.js": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/3de1c3abf4190c05e67067ac612170b68086089d/tools/browser-bridge/live-v27-batter-view.js",
+      "bytes": 5030,
+      "sha256": "b5282910135f4a3abdeb5512a80e65c9311f52e55369bb410600f5b4d900048d"
+    },
+    "tools/browser-bridge/build-v50.mjs": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/3de1c3abf4190c05e67067ac612170b68086089d/tools/browser-bridge/build-v50.mjs",
+      "bytes": 7097,
+      "sha256": "a5bb1f4d90ff40d74f4f739135a7a6616056fd64fa0cbbe2d75f5ae19d0258dd"
+    },
+    "docs/reports/2026-10-18-v50-v27-batter-camera.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/3de1c3abf4190c05e67067ac612170b68086089d/docs/reports/2026-10-18-v50-v27-batter-camera.md",
+      "bytes": 6103,
+      "sha256": "faeeaa795080ad0c6fcee521c2341a71dacce4c709ae50e01f27ecb686c41f09"
+    },
+    "docs/demos/releases/v50/game.html": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/3de1c3abf4190c05e67067ac612170b68086089d/docs/demos/releases/v50/game.html",
+      "bytes": 3480641,
+      "sha256": "acc38cf4566438a2a4faadc1a7ef105c7bfd83e512af5b1a46ac75b76c32ee26"
+    },
+    "docs/demos/releases/v50/SHA256.json": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/3de1c3abf4190c05e67067ac612170b68086089d/docs/demos/releases/v50/SHA256.json",
+      "bytes": 553,
+      "sha256": "00b03be5c056ff3a17e9c0f628e00f46211d5c2c734b77b810ef8e5567e8ecb9"
+    }
+  },
+  "scope": "actual current raw bytes and remote branch/Draft PR; no main merge"
+}

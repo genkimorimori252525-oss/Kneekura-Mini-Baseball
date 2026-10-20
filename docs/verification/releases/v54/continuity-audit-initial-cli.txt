@@ -1,0 +1,4 @@
+usage: continuity.py [-h]
+                     {doctor,init,approve-charter,status,checkpoint,restore,audit,export,rollback}
+                     ...
+continuity.py: error: unrecognized arguments: --project .

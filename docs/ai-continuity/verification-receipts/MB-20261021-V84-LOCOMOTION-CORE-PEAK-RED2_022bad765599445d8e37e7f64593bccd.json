@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-LOCOMOTION-CORE-PEAK-RED2",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/locomotion/LiveLocomotionV84.test.ts"
+  ],
+  "observed_at": "2026-10-20T15:37:10.601+00:00",
+  "elapsed_ms": 1327,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-LOCOMOTION-CORE-PEAK-RED2_022bad765599445d8e37e7f64593bccd.log",
+  "output_sha256": "94ab9003a47db5d6d38abeeba98d23e4c0dbb27068d4529233f0b1798cffba0a",
+  "receipt_id": "MB-20261021-V84-LOCOMOTION-CORE-PEAK-RED2_022bad765599445d8e37e7f64593bccd"
+}

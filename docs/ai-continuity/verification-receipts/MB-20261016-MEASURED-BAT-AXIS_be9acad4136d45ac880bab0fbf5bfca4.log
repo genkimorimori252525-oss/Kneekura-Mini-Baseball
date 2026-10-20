@@ -1,0 +1,81 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/MeasuredBatAxisReferenceV1.test.ts (5 tests | 4 failed) 8ms
+   × preserves every measured sweet-spot key with one declared rigid length 5ms
+     → invalid sampled reference bat trajectory
+   × reports and bounds the hand reference residual without moving measured sweet spots 0ms
+     → invalid sampled reference bat trajectory
+   × transports the axis by the shortest rotation without inventing measured axial roll 0ms
+     → invalid sampled reference bat trajectory
+   × retains detached source measurements and does not let observation order change the motor 0ms
+     → invalid sampled reference bat trajectory
+ ✓ src/core/sim/contact/ReferenceBatKinematicsV1.test.ts (8 tests) 206ms
+ ✓ src/integration/browser/ReferenceBattingWorkbench.test.ts (4 tests) 1733ms
+   ✓ uses the same reference state for the visible bat, actual rigid contact, and subsequent Aero/ground ball 726ms
+   ✓ keeps geometric misses and declared input trajectories unchanged 324ms
+   ✓ keeps league labels outside actual impulse and makes unmodelled body/recoil explicit 681ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/MeasuredBatAxisReferenceV1.test.ts > preserves every measured sweet-spot key with one declared rigid length
+Error: invalid sampled reference bat trajectory
+ ❯ Module.createReferenceBatKinematicsV1 src/core/sim/contact/ReferenceBatKinematicsV1.ts:48:60
+     46|     || !Number.isFinite(input.transform.scale) || input.transform.scal…
+     47|     || input.frames.some((f,i) => !fields(f,['tick','grip','orientatio…
+     48|       || i > 0 && f.tick <= input.frames[i-1].tick)) throw new Error('…
+       |                                                            ^
+     49|   const rotation = normalizeQuaternion(input.transform.rotation), leng…
+     50|   const radius = length * input.sweetSpotT, speedScale = input.transfo…
+ ❯ Module.createMeasuredBatAxisReferenceV1 src/integration/browser/MeasuredBatAxisReferenceV1.ts:65:3
+ ❯ src/integration/browser/MeasuredBatAxisReferenceV1.test.ts:19:37
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/integration/browser/MeasuredBatAxisReferenceV1.test.ts > reports and bounds the hand reference residual without moving measured sweet spots
+Error: invalid sampled reference bat trajectory
+ ❯ Module.createReferenceBatKinematicsV1 src/core/sim/contact/ReferenceBatKinematicsV1.ts:48:60
+     46|     || !Number.isFinite(input.transform.scale) || input.transform.scal…
+     47|     || input.frames.some((f,i) => !fields(f,['tick','grip','orientatio…
+     48|       || i > 0 && f.tick <= input.frames[i-1].tick)) throw new Error('…
+       |                                                            ^
+     49|   const rotation = normalizeQuaternion(input.transform.rotation), leng…
+     50|   const radius = length * input.sweetSpotT, speedScale = input.transfo…
+ ❯ Module.createMeasuredBatAxisReferenceV1 src/integration/browser/MeasuredBatAxisReferenceV1.ts:65:3
+ ❯ src/integration/browser/MeasuredBatAxisReferenceV1.test.ts:33:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/integration/browser/MeasuredBatAxisReferenceV1.test.ts > transports the axis by the shortest rotation without inventing measured axial roll
+Error: invalid sampled reference bat trajectory
+ ❯ Module.createReferenceBatKinematicsV1 src/core/sim/contact/ReferenceBatKinematicsV1.ts:48:60
+     46|     || !Number.isFinite(input.transform.scale) || input.transform.scal…
+     47|     || input.frames.some((f,i) => !fields(f,['tick','grip','orientatio…
+     48|       || i > 0 && f.tick <= input.frames[i-1].tick)) throw new Error('…
+       |                                                            ^
+     49|   const rotation = normalizeQuaternion(input.transform.rotation), leng…
+     50|   const radius = length * input.sweetSpotT, speedScale = input.transfo…
+ ❯ Module.createMeasuredBatAxisReferenceV1 src/integration/browser/MeasuredBatAxisReferenceV1.ts:65:3
+ ❯ src/integration/browser/MeasuredBatAxisReferenceV1.test.ts:41:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/integration/browser/MeasuredBatAxisReferenceV1.test.ts > retains detached source measurements and does not let observation order change the motor
+Error: invalid sampled reference bat trajectory
+ ❯ Module.createReferenceBatKinematicsV1 src/core/sim/contact/ReferenceBatKinematicsV1.ts:48:60
+     46|     || !Number.isFinite(input.transform.scale) || input.transform.scal…
+     47|     || input.frames.some((f,i) => !fields(f,['tick','grip','orientatio…
+     48|       || i > 0 && f.tick <= input.frames[i-1].tick)) throw new Error('…
+       |                                                            ^
+     49|   const rotation = normalizeQuaternion(input.transform.rotation), leng…
+     50|   const radius = length * input.sweetSpotT, speedScale = input.transfo…
+ ❯ Module.createMeasuredBatAxisReferenceV1 src/integration/browser/MeasuredBatAxisReferenceV1.ts:65:3
+ ❯ src/integration/browser/MeasuredBatAxisReferenceV1.test.ts:63:66
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  4 failed | 13 passed (17)
+   Start at  02:12:45
+   Duration  2.57s (transform 353ms, setup 0ms, collect 756ms, tests 1.95s, environment 0ms, prepare 503ms)
+

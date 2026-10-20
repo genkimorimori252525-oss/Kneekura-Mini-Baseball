@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V77-BADBALL-DETAIL-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v77-traits-browser.mjs",
+    "../../outputs/にーくら野球メーカー_v77_投手調整と独立得能版.html",
+    "docs/verification/releases/v77/traits/before-detail-routing"
+  ],
+  "observed_at": "2026-10-19T19:01:46.594+00:00",
+  "elapsed_ms": 4860,
+  "git_head": "76c564765f6a6d15fd1a2740a201080e3c534bfe",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V77-BADBALL-DETAIL-RED_bec736f5ca8b46f4a00a5cae93c825b3.log",
+  "output_sha256": "dd992a22ba4feb491ce9e8c1766a730f616bfab025bb41d1c56557f8dcb8c507",
+  "receipt_id": "MB-20261020-V77-BADBALL-DETAIL-RED_bec736f5ca8b46f4a00a5cae93c825b3"
+}

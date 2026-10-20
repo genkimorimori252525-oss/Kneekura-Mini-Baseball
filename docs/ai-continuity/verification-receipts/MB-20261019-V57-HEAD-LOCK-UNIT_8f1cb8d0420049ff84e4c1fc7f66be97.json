@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V57-HEAD-LOCK-UNIT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-camera-head-lock-v57.mjs"
+  ],
+  "observed_at": "2026-10-18T18:10:56.886+00:00",
+  "elapsed_ms": 5328,
+  "git_head": "ff242d680d0e1af05a767d08d62a1fb0b4af3331",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V57-HEAD-LOCK-UNIT_8f1cb8d0420049ff84e4c1fc7f66be97.log",
+  "output_sha256": "01f82e6e057c031e353c8d32b50c3117c10489d59f5f8035e97470e698a87806",
+  "receipt_id": "MB-20261019-V57-HEAD-LOCK-UNIT_8f1cb8d0420049ff84e4c1fc7f66be97"
+}

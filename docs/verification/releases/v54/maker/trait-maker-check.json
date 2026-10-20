@@ -1,0 +1,1799 @@
+{
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_得能接続版.html",
+  "sha256": "f1443bb1c7699ce88249fd4f6f293ec6cd2fd705767b9e1ff04db24e0c62bbd9",
+  "inputs": [
+    {
+      "path": "docs/demos/live-game-roster-v3.json",
+      "sha256": "3e46fe67e1c94939d1e919cdb2353313ccfbc7680463ca726331afd983c54255"
+    },
+    {
+      "path": "docs/demos/live-game-roster-catalog-v4.json",
+      "sha256": "0bba85275a656789ffc08f97d43aaf58f396a7360274da3aaedc726ba6e0ecb1"
+    },
+    {
+      "path": "docs/demos/live-public-ability-reference-v1.json",
+      "sha256": "b448f82f81620085b1f4923609cec23f69db4c639da76b6b1f877abb22622e4e"
+    },
+    {
+      "path": "docs/demos/live-game-roster-v1.json",
+      "sha256": "998effb128bce728e957c660da1ea4d6cac450a88d8937ef3cb13e530ffcefb3"
+    },
+    {
+      "path": "docs/demos/live-game-roster-v2.json",
+      "sha256": "a2fdb7835bada8dddcd2599e72f0034e540bebb360febb8cd25279f2ba1e6ccd"
+    },
+    {
+      "path": "docs/demos/live-trait-availability-v54.json",
+      "sha256": "2e4841fcac50d573e9d6dbca95d042f49f54bd192950799c36ef162187e0220f"
+    }
+  ],
+  "views": [
+    {
+      "width": 1200,
+      "coverage": [
+        {
+          "playerId": "0-b0",
+          "role": "DH",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED",
+          "throwingGrade": "B",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "0-b1",
+          "role": "SS",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED",
+          "throwingGrade": "A",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "0-b2",
+          "role": "1B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED",
+          "throwingGrade": "B",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "0-b3",
+          "role": "C",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED",
+          "throwingGrade": "A",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "0-b4",
+          "role": "RF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED",
+          "throwingGrade": "B",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "0-b5",
+          "role": "3B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED",
+          "throwingGrade": "B",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "0-b6",
+          "role": "LF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED",
+          "throwingGrade": "B",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "0-b7",
+          "role": "2B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED",
+          "throwingGrade": "A",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "0-b8",
+          "role": "CF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED",
+          "throwingGrade": "B",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "0-p0",
+          "role": "P",
+          "primaryCount": 7,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED",
+          "throwingGrade": "B",
+          "traitSecondary": "batter"
+        },
+        {
+          "playerId": "1-b0",
+          "role": "RF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED",
+          "throwingGrade": "A",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "1-b1",
+          "role": "2B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED",
+          "throwingGrade": "A",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "1-b2",
+          "role": "DH",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED",
+          "throwingGrade": "C",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "1-b3",
+          "role": "3B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED",
+          "throwingGrade": "D",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "1-b4",
+          "role": "C",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED",
+          "throwingGrade": "D",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "1-b5",
+          "role": "CF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED",
+          "throwingGrade": "F",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "1-b6",
+          "role": "LF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED",
+          "throwingGrade": "B",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "1-b7",
+          "role": "1B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED",
+          "throwingGrade": "D",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "1-b8",
+          "role": "SS",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED",
+          "throwingGrade": "A",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "1-p0",
+          "role": "P",
+          "primaryCount": 7,
+          "publicCount": 10,
+          "traitStatus": "OWNED",
+          "throwingGrade": "B",
+          "traitSecondary": "batter"
+        }
+      ],
+      "selected": "1-b2",
+      "originalSource": 0.95,
+      "restoredOriginalSource": 0.95,
+      "editedSource": 0.73,
+      "offSource": 0,
+      "editChecks": [
+        {
+          "abilityId": "contact",
+          "value": 86,
+          "changes": [
+            {
+              "path": "aimStdMeters",
+              "before": 0.012,
+              "after": 0.01174258275298782
+            },
+            {
+              "path": "timingStdSeconds",
+              "before": 0.006,
+              "after": 0.005861390713147287
+            }
+          ]
+        },
+        {
+          "abilityId": "contact",
+          "value": 84,
+          "changes": [
+            {
+              "path": "aimStdMeters",
+              "before": 0.01174258275298782,
+              "after": 0.012000000000000007
+            },
+            {
+              "path": "timingStdSeconds",
+              "before": 0.005861390713147287,
+              "after": 0.006000000000000003
+            }
+          ]
+        },
+        {
+          "abilityId": "power",
+          "value": 96,
+          "changes": [
+            {
+              "path": "targetSweetSpotSpeedMps",
+              "before": 41,
+              "after": 41.828254941096986
+            },
+            {
+              "path": "maximumSweetSpotSpeedMps",
+              "before": 48,
+              "after": 48.96966432128428
+            }
+          ]
+        },
+        {
+          "abilityId": "power",
+          "value": 94,
+          "changes": [
+            {
+              "path": "targetSweetSpotSpeedMps",
+              "before": 41.828254941096986,
+              "after": 41.000000000000014
+            },
+            {
+              "path": "maximumSweetSpotSpeedMps",
+              "before": 48.96966432128428,
+              "after": 48.000000000000014
+            }
+          ]
+        },
+        {
+          "abilityId": "vision",
+          "value": 98,
+          "changes": [
+            {
+              "path": "zoneJudgmentStdMeters",
+              "before": 0.025,
+              "after": 0.02448516550597564
+            }
+          ]
+        },
+        {
+          "abilityId": "vision",
+          "value": 96,
+          "changes": [
+            {
+              "path": "zoneJudgmentStdMeters",
+              "before": 0.02448516550597564,
+              "after": 0.02499999999999999
+            }
+          ]
+        },
+        {
+          "abilityId": "run",
+          "value": 60,
+          "changes": [
+            {
+              "path": "topSpeedMps",
+              "before": 8,
+              "after": 8.161610720214046
+            },
+            {
+              "path": "accelerationMps2",
+              "before": 5.2,
+              "after": 5.305046968139131
+            }
+          ]
+        },
+        {
+          "abilityId": "run",
+          "value": 58,
+          "changes": [
+            {
+              "path": "topSpeedMps",
+              "before": 8.161610720214046,
+              "after": 7.999999999999999
+            },
+            {
+              "path": "accelerationMps2",
+              "before": 5.305046968139131,
+              "after": 5.2
+            }
+          ]
+        },
+        {
+          "abilityId": "arm",
+          "value": 98,
+          "changes": [
+            {
+              "path": "throwSpeedMps",
+              "before": 46,
+              "after": 46.92926164123077
+            }
+          ]
+        },
+        {
+          "abilityId": "arm",
+          "value": 96,
+          "changes": [
+            {
+              "path": "throwSpeedMps",
+              "before": 46.92926164123077,
+              "after": 46
+            }
+          ]
+        },
+        {
+          "abilityId": "field",
+          "value": 7,
+          "changes": [
+            {
+              "path": "reactionSeconds",
+              "before": 0.43,
+              "after": 0.4212874162549723
+            },
+            {
+              "path": "defensiveDecisionSeconds",
+              "before": 0.28,
+              "after": 0.27425761525895903
+            },
+            {
+              "path": "transferSeconds",
+              "before": 0.72,
+              "after": 0.7055450315139313
+            }
+          ]
+        },
+        {
+          "abilityId": "field",
+          "value": 5,
+          "changes": [
+            {
+              "path": "reactionSeconds",
+              "before": 0.4212874162549723,
+              "after": 0.42999999999999994
+            },
+            {
+              "path": "defensiveDecisionSeconds",
+              "before": 0.27425761525895903,
+              "after": 0.27999999999999997
+            },
+            {
+              "path": "transferSeconds",
+              "before": 0.7055450315139313,
+              "after": 0.72
+            }
+          ]
+        },
+        {
+          "abilityId": "catching",
+          "value": 7,
+          "changes": [
+            {
+              "path": "gloveSpeedMps",
+              "before": 8.8,
+              "after": 8.977771792235451
+            },
+            {
+              "path": "retentionCapacityJ",
+              "before": 160,
+              "after": 163.2322144042809
+            },
+            {
+              "path": "captureDissipationPowerW",
+              "before": 3000,
+              "after": 3060.604020080267
+            }
+          ]
+        },
+        {
+          "abilityId": "catching",
+          "value": 5,
+          "changes": [
+            {
+              "path": "gloveSpeedMps",
+              "before": 8.977771792235451,
+              "after": 8.799999999999995
+            },
+            {
+              "path": "retentionCapacityJ",
+              "before": 163.2322144042809,
+              "after": 159.9999999999999
+            },
+            {
+              "path": "captureDissipationPowerW",
+              "before": 3060.604020080267,
+              "after": 2999.999999999998
+            }
+          ]
+        },
+        {
+          "abilityId": "throwingAccuracy",
+          "value": 45,
+          "changes": [
+            {
+              "path": "throwDirectionStdRadians",
+              "before": 0.01,
+              "after": 0.009800006600398228
+            }
+          ]
+        },
+        {
+          "abilityId": "throwingAccuracy",
+          "value": 43,
+          "changes": [
+            {
+              "path": "throwDirectionStdRadians",
+              "before": 0.009800006600398228,
+              "after": 0.010000000000000004
+            }
+          ]
+        },
+        {
+          "abilityId": "maxSpeedKmh",
+          "value": 146,
+          "changes": [
+            {
+              "path": "maximumPitchSpeedMps",
+              "before": 40,
+              "after": 40.55555555555556
+            },
+            {
+              "path": "releaseSpeedMps",
+              "before": 36,
+              "after": 36.5
+            }
+          ]
+        },
+        {
+          "abilityId": "maxSpeedKmh",
+          "value": 144,
+          "changes": [
+            {
+              "path": "maximumPitchSpeedMps",
+              "before": 40.55555555555556,
+              "after": 40
+            },
+            {
+              "path": "releaseSpeedMps",
+              "before": 36.5,
+              "after": 36
+            }
+          ]
+        },
+        {
+          "abilityId": "control",
+          "value": 52,
+          "changes": [
+            {
+              "path": "commandStdMeters",
+              "before": 0.16,
+              "after": 0.1568119864023876
+            }
+          ]
+        },
+        {
+          "abilityId": "control",
+          "value": 50,
+          "changes": [
+            {
+              "path": "commandStdMeters",
+              "before": 0.1568119864023876,
+              "after": 0.15999999999999998
+            }
+          ]
+        }
+      ],
+      "legacyChecks": [
+        {
+          "version": 1,
+          "serializedSha256": "457104c96801415ee18ae912c5ccf6ca32da2465acaebcab20c0f3ac395fb2c2",
+          "canonicalExportSha256": "405a2d89b16a902459b39099fab7f47e83a2adc62609a6d5f8db6e2a7d4db16e",
+          "allPlayersUnassessed": true
+        },
+        {
+          "version": 2,
+          "serializedSha256": "23c3b7aad36a7e406f07e027ce81d87d233e0cd464421528ed23cf437cd329c3",
+          "canonicalExportSha256": "2c168fdda0b821119e307f24973875d644596761dfa7f8c3d5ad7720af756ad2",
+          "allPlayersUnassessed": true
+        }
+      ],
+      "stateChecks": [
+        {
+          "familyId": "bad_ball_hitting",
+          "stateId": "LEARNED",
+          "color": "blue",
+          "editor": "OWNERSHIP"
+        },
+        {
+          "familyId": "throw_accuracy",
+          "stateId": "G",
+          "color": "red",
+          "editor": "GRADE"
+        },
+        {
+          "familyId": "throw_accuracy",
+          "stateId": "F",
+          "color": "red",
+          "editor": "GRADE"
+        },
+        {
+          "familyId": "throw_accuracy",
+          "stateId": "E",
+          "color": "neutral",
+          "editor": "GRADE"
+        },
+        {
+          "familyId": "throw_accuracy",
+          "stateId": "D",
+          "color": "neutral",
+          "editor": "GRADE"
+        },
+        {
+          "familyId": "throw_accuracy",
+          "stateId": "C",
+          "color": "neutral",
+          "editor": "GRADE"
+        },
+        {
+          "familyId": "throw_accuracy",
+          "stateId": "B",
+          "color": "blue",
+          "editor": "GRADE"
+        },
+        {
+          "familyId": "throw_accuracy",
+          "stateId": "A",
+          "color": "blue",
+          "editor": "GRADE"
+        },
+        {
+          "familyId": "throw_accuracy",
+          "stateId": "GOLD",
+          "color": "gold",
+          "editor": "GRADE"
+        },
+        {
+          "familyId": "plate_aggression",
+          "stateId": "AGGRESSIVE",
+          "color": "green",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "plate_aggression",
+          "stateId": "BALANCED",
+          "color": "neutral",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "plate_aggression",
+          "stateId": "CAUTIOUS",
+          "color": "green",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "running_aggression",
+          "stateId": "AGGRESSIVE",
+          "color": "green",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "running_aggression",
+          "stateId": "BALANCED",
+          "color": "neutral",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "fielding_aggression",
+          "stateId": "AGGRESSIVE",
+          "color": "green",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "fielding_aggression",
+          "stateId": "BALANCED",
+          "color": "neutral",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "pitch_approach",
+          "stateId": "FASTBALL",
+          "color": "green",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "pitch_approach",
+          "stateId": "BALANCED",
+          "color": "neutral",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "pitch_approach",
+          "stateId": "BREAKING",
+          "color": "green",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "swing_mode_preference",
+          "stateId": "POWER",
+          "color": "green",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "swing_mode_preference",
+          "stateId": "BALANCED",
+          "color": "neutral",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "swing_mode_preference",
+          "stateId": "CONTACT",
+          "color": "green",
+          "editor": "PREFERENCE"
+        }
+      ],
+      "cycleChecks": [
+        {
+          "familyId": "running_aggression",
+          "stateId": "AGGRESSIVE",
+          "effectiveSource": 0.09999999999999998
+        },
+        {
+          "familyId": "running_aggression",
+          "stateId": "BALANCED",
+          "effectiveSource": 0.35
+        },
+        {
+          "familyId": "running_aggression",
+          "stateId": "AGGRESSIVE",
+          "effectiveSource": 0.09999999999999998
+        },
+        {
+          "familyId": "running_aggression",
+          "stateId": null,
+          "effectiveSource": 0.35
+        },
+        {
+          "familyId": "running_aggression",
+          "stateId": "AGGRESSIVE",
+          "effectiveSource": 0.09999999999999998
+        },
+        {
+          "familyId": "running_aggression",
+          "stateId": null,
+          "effectiveSource": 0.35
+        },
+        {
+          "familyId": "fielding_aggression",
+          "stateId": "AGGRESSIVE",
+          "effectiveSource": 0.65
+        },
+        {
+          "familyId": "fielding_aggression",
+          "stateId": "BALANCED",
+          "effectiveSource": 1
+        },
+        {
+          "familyId": "fielding_aggression",
+          "stateId": "AGGRESSIVE",
+          "effectiveSource": 0.65
+        },
+        {
+          "familyId": "fielding_aggression",
+          "stateId": null,
+          "effectiveSource": 1
+        },
+        {
+          "familyId": "fielding_aggression",
+          "stateId": "AGGRESSIVE",
+          "effectiveSource": 0.65
+        },
+        {
+          "familyId": "fielding_aggression",
+          "stateId": null,
+          "effectiveSource": 1
+        },
+        {
+          "familyId": "plate_aggression",
+          "stateId": "AGGRESSIVE",
+          "effectiveSource": 0.38
+        },
+        {
+          "familyId": "plate_aggression",
+          "stateId": "BALANCED",
+          "effectiveSource": 0.5
+        },
+        {
+          "familyId": "plate_aggression",
+          "stateId": "AGGRESSIVE",
+          "effectiveSource": 0.38
+        },
+        {
+          "familyId": "plate_aggression",
+          "stateId": "CAUTIOUS",
+          "effectiveSource": 0.62
+        },
+        {
+          "familyId": "plate_aggression",
+          "stateId": "AGGRESSIVE",
+          "effectiveSource": 0.38
+        },
+        {
+          "familyId": "plate_aggression",
+          "stateId": null,
+          "effectiveSource": 0.5
+        },
+        {
+          "familyId": "plate_aggression",
+          "stateId": "AGGRESSIVE",
+          "effectiveSource": 0.38
+        },
+        {
+          "familyId": "plate_aggression",
+          "stateId": null,
+          "effectiveSource": 0.5
+        }
+      ],
+      "directChecks": [
+        {
+          "familyId": "running_aggression",
+          "path": "baserunningSafetyMarginSeconds",
+          "value": 1.2
+        },
+        {
+          "familyId": "fielding_aggression",
+          "path": "fieldingPursuitCostWeight",
+          "value": 0.77
+        },
+        {
+          "familyId": "plate_aggression",
+          "path": "swingDecision.threshold",
+          "value": 0.61
+        }
+      ],
+      "rejection": [
+        {
+          "familyId": "pitch_pressure",
+          "error": "live trait profiles: unknown or duplicate trait family"
+        },
+        {
+          "familyId": "throw_velocity_descriptor",
+          "error": "live trait profiles: unknown or duplicate trait family"
+        },
+        {
+          "familyId": "throw_accuracy",
+          "error": "live trait profiles: a source-derived grade must not be saved as a second trait effect"
+        }
+      ],
+      "catalogFamilyCount": 7,
+      "availabilityCount": 119,
+      "unsupportedCount": 112,
+      "missingGrade": {
+        "familyId": "throw_accuracy",
+        "label": "送球",
+        "status": "UNASSESSED",
+        "owned": null,
+        "stateId": null,
+        "color": "neutral",
+        "sourceValue": null,
+        "effectiveSourceValue": null,
+        "sourcePath": "physical.throwDirectionStdRadians",
+        "sourceRoute": "SOURCE_EXECUTION",
+        "editor": "GRADE",
+        "availability": "SOURCE_DERIVED",
+        "states": [
+          {
+            "stateId": "G",
+            "label": "送球G",
+            "color": "red"
+          },
+          {
+            "stateId": "F",
+            "label": "送球F",
+            "color": "red"
+          },
+          {
+            "stateId": "E",
+            "label": "送球E",
+            "color": "neutral"
+          },
+          {
+            "stateId": "D",
+            "label": "送球D",
+            "color": "neutral"
+          },
+          {
+            "stateId": "C",
+            "label": "送球C",
+            "color": "neutral"
+          },
+          {
+            "stateId": "B",
+            "label": "送球B",
+            "color": "blue"
+          },
+          {
+            "stateId": "A",
+            "label": "送球A",
+            "color": "blue"
+          },
+          {
+            "stateId": "GOLD",
+            "label": "ストライク送球",
+            "color": "gold"
+          }
+        ],
+        "calibrationId": "local-throw-direction-sigma-v54"
+      },
+      "internalSourceSynchronized": true,
+      "offNumericEditorDisabled": true,
+      "standaloneUnchanged": true,
+      "completeStateRoundTrip": true,
+      "gameChecks": [
+        {
+          "state": "OFF",
+          "sourceValue": 0,
+          "generatedPitches": 1,
+          "frames": 109,
+          "version": 54,
+          "traitPreferences": {
+            "batting": {
+              "preference": "BALANCED",
+              "resolvedCommand": "balanced",
+              "source": "player_preference",
+              "overrideReason": "manager_auto"
+            },
+            "pitching": {
+              "preference": "BALANCED",
+              "pitchTypeCommand": "auto",
+              "source": "player_preference",
+              "overrideReason": "unmanaged_pitcher"
+            }
+          }
+        },
+        {
+          "state": "ON",
+          "sourceValue": 0.73,
+          "generatedPitches": 1,
+          "frames": 108,
+          "version": 54,
+          "traitPreferences": {
+            "batting": {
+              "preference": "POWER",
+              "resolvedCommand": "power",
+              "source": "player_preference",
+              "overrideReason": "manager_auto"
+            },
+            "pitching": {
+              "preference": "BREAKING",
+              "pitchTypeCommand": "auto",
+              "source": "player_preference",
+              "overrideReason": "unmanaged_pitcher"
+            }
+          }
+        }
+      ],
+      "errors": [],
+      "network": []
+    },
+    {
+      "width": 390,
+      "coverage": [
+        {
+          "playerId": "0-b0",
+          "role": "DH",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED",
+          "throwingGrade": "B",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "0-b1",
+          "role": "SS",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED",
+          "throwingGrade": "A",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "0-b2",
+          "role": "1B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED",
+          "throwingGrade": "B",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "0-b3",
+          "role": "C",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED",
+          "throwingGrade": "A",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "0-b4",
+          "role": "RF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED",
+          "throwingGrade": "B",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "0-b5",
+          "role": "3B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED",
+          "throwingGrade": "B",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "0-b6",
+          "role": "LF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED",
+          "throwingGrade": "B",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "0-b7",
+          "role": "2B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED",
+          "throwingGrade": "A",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "0-b8",
+          "role": "CF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED",
+          "throwingGrade": "B",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "0-p0",
+          "role": "P",
+          "primaryCount": 7,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED",
+          "throwingGrade": "B",
+          "traitSecondary": "batter"
+        },
+        {
+          "playerId": "1-b0",
+          "role": "RF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED",
+          "throwingGrade": "A",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "1-b1",
+          "role": "2B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED",
+          "throwingGrade": "A",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "1-b2",
+          "role": "DH",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED",
+          "throwingGrade": "C",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "1-b3",
+          "role": "3B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED",
+          "throwingGrade": "D",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "1-b4",
+          "role": "C",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED",
+          "throwingGrade": "D",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "1-b5",
+          "role": "CF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED",
+          "throwingGrade": "F",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "1-b6",
+          "role": "LF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED",
+          "throwingGrade": "B",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "1-b7",
+          "role": "1B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED",
+          "throwingGrade": "D",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "1-b8",
+          "role": "SS",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED",
+          "throwingGrade": "A",
+          "traitSecondary": "pitcher"
+        },
+        {
+          "playerId": "1-p0",
+          "role": "P",
+          "primaryCount": 7,
+          "publicCount": 10,
+          "traitStatus": "OWNED",
+          "throwingGrade": "B",
+          "traitSecondary": "batter"
+        }
+      ],
+      "selected": "1-b2",
+      "originalSource": 0.95,
+      "restoredOriginalSource": 0.95,
+      "editedSource": 0.73,
+      "offSource": 0,
+      "editChecks": [
+        {
+          "abilityId": "contact",
+          "value": 86,
+          "changes": [
+            {
+              "path": "aimStdMeters",
+              "before": 0.012,
+              "after": 0.01174258275298782
+            },
+            {
+              "path": "timingStdSeconds",
+              "before": 0.006,
+              "after": 0.005861390713147287
+            }
+          ]
+        },
+        {
+          "abilityId": "contact",
+          "value": 84,
+          "changes": [
+            {
+              "path": "aimStdMeters",
+              "before": 0.01174258275298782,
+              "after": 0.012000000000000007
+            },
+            {
+              "path": "timingStdSeconds",
+              "before": 0.005861390713147287,
+              "after": 0.006000000000000003
+            }
+          ]
+        },
+        {
+          "abilityId": "power",
+          "value": 96,
+          "changes": [
+            {
+              "path": "targetSweetSpotSpeedMps",
+              "before": 41,
+              "after": 41.828254941096986
+            },
+            {
+              "path": "maximumSweetSpotSpeedMps",
+              "before": 48,
+              "after": 48.96966432128428
+            }
+          ]
+        },
+        {
+          "abilityId": "power",
+          "value": 94,
+          "changes": [
+            {
+              "path": "targetSweetSpotSpeedMps",
+              "before": 41.828254941096986,
+              "after": 41.000000000000014
+            },
+            {
+              "path": "maximumSweetSpotSpeedMps",
+              "before": 48.96966432128428,
+              "after": 48.000000000000014
+            }
+          ]
+        },
+        {
+          "abilityId": "vision",
+          "value": 98,
+          "changes": [
+            {
+              "path": "zoneJudgmentStdMeters",
+              "before": 0.025,
+              "after": 0.02448516550597564
+            }
+          ]
+        },
+        {
+          "abilityId": "vision",
+          "value": 96,
+          "changes": [
+            {
+              "path": "zoneJudgmentStdMeters",
+              "before": 0.02448516550597564,
+              "after": 0.02499999999999999
+            }
+          ]
+        },
+        {
+          "abilityId": "run",
+          "value": 60,
+          "changes": [
+            {
+              "path": "topSpeedMps",
+              "before": 8,
+              "after": 8.161610720214046
+            },
+            {
+              "path": "accelerationMps2",
+              "before": 5.2,
+              "after": 5.305046968139131
+            }
+          ]
+        },
+        {
+          "abilityId": "run",
+          "value": 58,
+          "changes": [
+            {
+              "path": "topSpeedMps",
+              "before": 8.161610720214046,
+              "after": 7.999999999999999
+            },
+            {
+              "path": "accelerationMps2",
+              "before": 5.305046968139131,
+              "after": 5.2
+            }
+          ]
+        },
+        {
+          "abilityId": "arm",
+          "value": 98,
+          "changes": [
+            {
+              "path": "throwSpeedMps",
+              "before": 46,
+              "after": 46.92926164123077
+            }
+          ]
+        },
+        {
+          "abilityId": "arm",
+          "value": 96,
+          "changes": [
+            {
+              "path": "throwSpeedMps",
+              "before": 46.92926164123077,
+              "after": 46
+            }
+          ]
+        },
+        {
+          "abilityId": "field",
+          "value": 7,
+          "changes": [
+            {
+              "path": "reactionSeconds",
+              "before": 0.43,
+              "after": 0.4212874162549723
+            },
+            {
+              "path": "defensiveDecisionSeconds",
+              "before": 0.28,
+              "after": 0.27425761525895903
+            },
+            {
+              "path": "transferSeconds",
+              "before": 0.72,
+              "after": 0.7055450315139313
+            }
+          ]
+        },
+        {
+          "abilityId": "field",
+          "value": 5,
+          "changes": [
+            {
+              "path": "reactionSeconds",
+              "before": 0.4212874162549723,
+              "after": 0.42999999999999994
+            },
+            {
+              "path": "defensiveDecisionSeconds",
+              "before": 0.27425761525895903,
+              "after": 0.27999999999999997
+            },
+            {
+              "path": "transferSeconds",
+              "before": 0.7055450315139313,
+              "after": 0.72
+            }
+          ]
+        },
+        {
+          "abilityId": "catching",
+          "value": 7,
+          "changes": [
+            {
+              "path": "gloveSpeedMps",
+              "before": 8.8,
+              "after": 8.977771792235451
+            },
+            {
+              "path": "retentionCapacityJ",
+              "before": 160,
+              "after": 163.2322144042809
+            },
+            {
+              "path": "captureDissipationPowerW",
+              "before": 3000,
+              "after": 3060.604020080267
+            }
+          ]
+        },
+        {
+          "abilityId": "catching",
+          "value": 5,
+          "changes": [
+            {
+              "path": "gloveSpeedMps",
+              "before": 8.977771792235451,
+              "after": 8.799999999999995
+            },
+            {
+              "path": "retentionCapacityJ",
+              "before": 163.2322144042809,
+              "after": 159.9999999999999
+            },
+            {
+              "path": "captureDissipationPowerW",
+              "before": 3060.604020080267,
+              "after": 2999.999999999998
+            }
+          ]
+        },
+        {
+          "abilityId": "throwingAccuracy",
+          "value": 45,
+          "changes": [
+            {
+              "path": "throwDirectionStdRadians",
+              "before": 0.01,
+              "after": 0.009800006600398228
+            }
+          ]
+        },
+        {
+          "abilityId": "throwingAccuracy",
+          "value": 43,
+          "changes": [
+            {
+              "path": "throwDirectionStdRadians",
+              "before": 0.009800006600398228,
+              "after": 0.010000000000000004
+            }
+          ]
+        },
+        {
+          "abilityId": "maxSpeedKmh",
+          "value": 146,
+          "changes": [
+            {
+              "path": "maximumPitchSpeedMps",
+              "before": 40,
+              "after": 40.55555555555556
+            },
+            {
+              "path": "releaseSpeedMps",
+              "before": 36,
+              "after": 36.5
+            }
+          ]
+        },
+        {
+          "abilityId": "maxSpeedKmh",
+          "value": 144,
+          "changes": [
+            {
+              "path": "maximumPitchSpeedMps",
+              "before": 40.55555555555556,
+              "after": 40
+            },
+            {
+              "path": "releaseSpeedMps",
+              "before": 36.5,
+              "after": 36
+            }
+          ]
+        },
+        {
+          "abilityId": "control",
+          "value": 52,
+          "changes": [
+            {
+              "path": "commandStdMeters",
+              "before": 0.16,
+              "after": 0.1568119864023876
+            }
+          ]
+        },
+        {
+          "abilityId": "control",
+          "value": 50,
+          "changes": [
+            {
+              "path": "commandStdMeters",
+              "before": 0.1568119864023876,
+              "after": 0.15999999999999998
+            }
+          ]
+        }
+      ],
+      "legacyChecks": [
+        {
+          "version": 1,
+          "serializedSha256": "457104c96801415ee18ae912c5ccf6ca32da2465acaebcab20c0f3ac395fb2c2",
+          "canonicalExportSha256": "405a2d89b16a902459b39099fab7f47e83a2adc62609a6d5f8db6e2a7d4db16e",
+          "allPlayersUnassessed": true
+        },
+        {
+          "version": 2,
+          "serializedSha256": "23c3b7aad36a7e406f07e027ce81d87d233e0cd464421528ed23cf437cd329c3",
+          "canonicalExportSha256": "2c168fdda0b821119e307f24973875d644596761dfa7f8c3d5ad7720af756ad2",
+          "allPlayersUnassessed": true
+        }
+      ],
+      "stateChecks": [
+        {
+          "familyId": "bad_ball_hitting",
+          "stateId": "LEARNED",
+          "color": "blue",
+          "editor": "OWNERSHIP"
+        },
+        {
+          "familyId": "throw_accuracy",
+          "stateId": "G",
+          "color": "red",
+          "editor": "GRADE"
+        },
+        {
+          "familyId": "throw_accuracy",
+          "stateId": "F",
+          "color": "red",
+          "editor": "GRADE"
+        },
+        {
+          "familyId": "throw_accuracy",
+          "stateId": "E",
+          "color": "neutral",
+          "editor": "GRADE"
+        },
+        {
+          "familyId": "throw_accuracy",
+          "stateId": "D",
+          "color": "neutral",
+          "editor": "GRADE"
+        },
+        {
+          "familyId": "throw_accuracy",
+          "stateId": "C",
+          "color": "neutral",
+          "editor": "GRADE"
+        },
+        {
+          "familyId": "throw_accuracy",
+          "stateId": "B",
+          "color": "blue",
+          "editor": "GRADE"
+        },
+        {
+          "familyId": "throw_accuracy",
+          "stateId": "A",
+          "color": "blue",
+          "editor": "GRADE"
+        },
+        {
+          "familyId": "throw_accuracy",
+          "stateId": "GOLD",
+          "color": "gold",
+          "editor": "GRADE"
+        },
+        {
+          "familyId": "plate_aggression",
+          "stateId": "AGGRESSIVE",
+          "color": "green",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "plate_aggression",
+          "stateId": "BALANCED",
+          "color": "neutral",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "plate_aggression",
+          "stateId": "CAUTIOUS",
+          "color": "green",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "running_aggression",
+          "stateId": "AGGRESSIVE",
+          "color": "green",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "running_aggression",
+          "stateId": "BALANCED",
+          "color": "neutral",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "fielding_aggression",
+          "stateId": "AGGRESSIVE",
+          "color": "green",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "fielding_aggression",
+          "stateId": "BALANCED",
+          "color": "neutral",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "pitch_approach",
+          "stateId": "FASTBALL",
+          "color": "green",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "pitch_approach",
+          "stateId": "BALANCED",
+          "color": "neutral",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "pitch_approach",
+          "stateId": "BREAKING",
+          "color": "green",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "swing_mode_preference",
+          "stateId": "POWER",
+          "color": "green",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "swing_mode_preference",
+          "stateId": "BALANCED",
+          "color": "neutral",
+          "editor": "PREFERENCE"
+        },
+        {
+          "familyId": "swing_mode_preference",
+          "stateId": "CONTACT",
+          "color": "green",
+          "editor": "PREFERENCE"
+        }
+      ],
+      "cycleChecks": [
+        {
+          "familyId": "running_aggression",
+          "stateId": "AGGRESSIVE",
+          "effectiveSource": 0.09999999999999998
+        },
+        {
+          "familyId": "running_aggression",
+          "stateId": "BALANCED",
+          "effectiveSource": 0.35
+        },
+        {
+          "familyId": "running_aggression",
+          "stateId": "AGGRESSIVE",
+          "effectiveSource": 0.09999999999999998
+        },
+        {
+          "familyId": "running_aggression",
+          "stateId": null,
+          "effectiveSource": 0.35
+        },
+        {
+          "familyId": "running_aggression",
+          "stateId": "AGGRESSIVE",
+          "effectiveSource": 0.09999999999999998
+        },
+        {
+          "familyId": "running_aggression",
+          "stateId": null,
+          "effectiveSource": 0.35
+        },
+        {
+          "familyId": "fielding_aggression",
+          "stateId": "AGGRESSIVE",
+          "effectiveSource": 0.65
+        },
+        {
+          "familyId": "fielding_aggression",
+          "stateId": "BALANCED",
+          "effectiveSource": 1
+        },
+        {
+          "familyId": "fielding_aggression",
+          "stateId": "AGGRESSIVE",
+          "effectiveSource": 0.65
+        },
+        {
+          "familyId": "fielding_aggression",
+          "stateId": null,
+          "effectiveSource": 1
+        },
+        {
+          "familyId": "fielding_aggression",
+          "stateId": "AGGRESSIVE",
+          "effectiveSource": 0.65
+        },
+        {
+          "familyId": "fielding_aggression",
+          "stateId": null,
+          "effectiveSource": 1
+        },
+        {
+          "familyId": "plate_aggression",
+          "stateId": "AGGRESSIVE",
+          "effectiveSource": 0.38
+        },
+        {
+          "familyId": "plate_aggression",
+          "stateId": "BALANCED",
+          "effectiveSource": 0.5
+        },
+        {
+          "familyId": "plate_aggression",
+          "stateId": "AGGRESSIVE",
+          "effectiveSource": 0.38
+        },
+        {
+          "familyId": "plate_aggression",
+          "stateId": "CAUTIOUS",
+          "effectiveSource": 0.62
+        },
+        {
+          "familyId": "plate_aggression",
+          "stateId": "AGGRESSIVE",
+          "effectiveSource": 0.38
+        },
+        {
+          "familyId": "plate_aggression",
+          "stateId": null,
+          "effectiveSource": 0.5
+        },
+        {
+          "familyId": "plate_aggression",
+          "stateId": "AGGRESSIVE",
+          "effectiveSource": 0.38
+        },
+        {
+          "familyId": "plate_aggression",
+          "stateId": null,
+          "effectiveSource": 0.5
+        }
+      ],
+      "directChecks": [
+        {
+          "familyId": "running_aggression",
+          "path": "baserunningSafetyMarginSeconds",
+          "value": 1.2
+        },
+        {
+          "familyId": "fielding_aggression",
+          "path": "fieldingPursuitCostWeight",
+          "value": 0.77
+        },
+        {
+          "familyId": "plate_aggression",
+          "path": "swingDecision.threshold",
+          "value": 0.61
+        }
+      ],
+      "rejection": [
+        {
+          "familyId": "pitch_pressure",
+          "error": "live trait profiles: unknown or duplicate trait family"
+        },
+        {
+          "familyId": "throw_velocity_descriptor",
+          "error": "live trait profiles: unknown or duplicate trait family"
+        },
+        {
+          "familyId": "throw_accuracy",
+          "error": "live trait profiles: a source-derived grade must not be saved as a second trait effect"
+        }
+      ],
+      "catalogFamilyCount": 7,
+      "availabilityCount": 119,
+      "unsupportedCount": 112,
+      "missingGrade": {
+        "familyId": "throw_accuracy",
+        "label": "送球",
+        "status": "UNASSESSED",
+        "owned": null,
+        "stateId": null,
+        "color": "neutral",
+        "sourceValue": null,
+        "effectiveSourceValue": null,
+        "sourcePath": "physical.throwDirectionStdRadians",
+        "sourceRoute": "SOURCE_EXECUTION",
+        "editor": "GRADE",
+        "availability": "SOURCE_DERIVED",
+        "states": [
+          {
+            "stateId": "G",
+            "label": "送球G",
+            "color": "red"
+          },
+          {
+            "stateId": "F",
+            "label": "送球F",
+            "color": "red"
+          },
+          {
+            "stateId": "E",
+            "label": "送球E",
+            "color": "neutral"
+          },
+          {
+            "stateId": "D",
+            "label": "送球D",
+            "color": "neutral"
+          },
+          {
+            "stateId": "C",
+            "label": "送球C",
+            "color": "neutral"
+          },
+          {
+            "stateId": "B",
+            "label": "送球B",
+            "color": "blue"
+          },
+          {
+            "stateId": "A",
+            "label": "送球A",
+            "color": "blue"
+          },
+          {
+            "stateId": "GOLD",
+            "label": "ストライク送球",
+            "color": "gold"
+          }
+        ],
+        "calibrationId": "local-throw-direction-sigma-v54"
+      },
+      "internalSourceSynchronized": true,
+      "offNumericEditorDisabled": true,
+      "standaloneUnchanged": true,
+      "completeStateRoundTrip": true,
+      "gameChecks": [
+        {
+          "state": "OFF",
+          "sourceValue": 0,
+          "generatedPitches": 1,
+          "frames": 109,
+          "version": 54,
+          "traitPreferences": {
+            "batting": {
+              "preference": "BALANCED",
+              "resolvedCommand": "balanced",
+              "source": "player_preference",
+              "overrideReason": "manager_auto"
+            },
+            "pitching": {
+              "preference": "BALANCED",
+              "pitchTypeCommand": "auto",
+              "source": "player_preference",
+              "overrideReason": "unmanaged_pitcher"
+            }
+          }
+        },
+        {
+          "state": "ON",
+          "sourceValue": 0.73,
+          "generatedPitches": 1,
+          "frames": 108,
+          "version": 54,
+          "traitPreferences": {
+            "batting": {
+              "preference": "POWER",
+              "resolvedCommand": "power",
+              "source": "player_preference",
+              "overrideReason": "manager_auto"
+            },
+            "pitching": {
+              "preference": "BREAKING",
+              "pitchTypeCommand": "auto",
+              "source": "player_preference",
+              "overrideReason": "unmanaged_pitcher"
+            }
+          }
+        }
+      ],
+      "errors": [],
+      "network": []
+    }
+  ],
+  "status": "PASS"
+}

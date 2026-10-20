@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-BAT-LENGTH-MAKER-UI",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/check-bat-length-maker.mjs"
+  ],
+  "observed_at": "2026-10-15T17:33:43.582+00:00",
+  "elapsed_ms": 812,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-BAT-LENGTH-MAKER-UI_f060b11e44e348289aecf02a74d9fea8.log",
+  "output_sha256": "b04003db1aa47d646d680a0597d698e5210a0ffd30741d5b081d94fdf6cd7ffa",
+  "receipt_id": "MB-20261016-BAT-LENGTH-MAKER-UI_f060b11e44e348289aecf02a74d9fea8"
+}

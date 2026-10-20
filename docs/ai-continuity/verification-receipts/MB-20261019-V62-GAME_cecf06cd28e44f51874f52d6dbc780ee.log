@@ -1,0 +1,6 @@
+{"phase":"nine-inning-match","pitches":66}
+{"phase":"nine-inning-match","pitches":113}
+{"phase":"nine-inning-match","pitches":171}
+{"phase":"nine-inning-match","pitches":234}
+{"phase":"nine-inning-match","pitches":276}
+{"pass":true,"normalSha256":"e035ca5fa575ee3528c3f029353419a4a92fe0d2e94e96417494a083cf02a8fc","pitches":320,"match":{"ruleProfileId":"npb-2026","inning":9,"half":"top","outs":3,"balls":0,"strikes":0,"bases":{"first":null,"second":null,"third":null},"score":{"away":18,"home":34},"playId":128},"viewports":[1200,390]}

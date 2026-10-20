@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V56-BALL-DISPLAY-UNIT-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-ball-display-controls-v56.mjs"
+  ],
+  "observed_at": "2026-10-18T17:25:40.181+00:00",
+  "elapsed_ms": 46,
+  "git_head": "a829d9278b0999afd4e0a368cd07fc91669b8366",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V56-BALL-DISPLAY-UNIT-RED_0592d8b380f049f090cb38dc6b5bfd6b.log",
+  "output_sha256": "a103d8a1bc858f4a716af92c394d4d94aef9d9d385c348e3d8f35d82c48e9400",
+  "receipt_id": "MB-20261019-V56-BALL-DISPLAY-UNIT-RED_0592d8b380f049f090cb38dc6b5bfd6b"
+}

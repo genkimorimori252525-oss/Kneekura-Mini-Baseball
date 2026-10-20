@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V50-OLD-CAMERA-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v27-batter-view.mjs",
+    "--baseline"
+  ],
+  "observed_at": "2026-10-18T08:48:33.068+00:00",
+  "elapsed_ms": 46,
+  "git_head": "60ad5092b27a3eb9401cc4281de708150862c15e",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V50-OLD-CAMERA-RED_24ff82879ff44f16a2f385021a49369f.log",
+  "output_sha256": "d7d60d43ca991d1624082982fd52e54beed78c8dd0871e139484eae46f6dd478",
+  "receipt_id": "MB-20261018-V50-OLD-CAMERA-RED_24ff82879ff44f16a2f385021a49369f"
+}

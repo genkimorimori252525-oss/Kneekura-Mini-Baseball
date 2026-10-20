@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "python",
+    "-X",
+    "utf8",
+    "-B",
+    "tools/browser-bridge/test-vmd-importer.py"
+  ],
+  "observed_at": "2026-10-14T19:46:50.487+00:00",
+  "elapsed_ms": 140,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015_ea2d0f6524a14b3aa76a97ebc930506e.log",
+  "output_sha256": "851328c26940ec363111db2e30ffec9f2f115a15d86f5d4f87a11612e234f213",
+  "receipt_id": "MB-20261015_ea2d0f6524a14b3aa76a97ebc930506e"
+}

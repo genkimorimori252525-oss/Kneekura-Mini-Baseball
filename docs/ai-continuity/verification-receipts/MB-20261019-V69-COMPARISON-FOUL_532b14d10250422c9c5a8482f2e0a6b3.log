@@ -1,0 +1,33 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/MeasuredTrajectoryComparisonWorkbenchV69.test.ts (7 tests | 1 failed | 6 skipped) 183ms
+   × retains a physical foul-side landing rather than forcing the comparison into fair hits 182ms
+     → expected false to be true // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/MeasuredTrajectoryComparisonWorkbenchV69.test.ts > retains a physical foul-side landing rather than forcing the comparison into fair hits
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/integration/browser/MeasuredTrajectoryComparisonWorkbenchV69.test.ts:82:77
+     80|   const base=input(),comparison=compareMeasuredTrajectoriesV69({pitch:…
+     81|     timingStdSeconds:0,aimStdMeters:0,pullAngleDegrees:75,technicalTim…
+     82|   expect(comparison.cases.some(c=>c.metrics.firstGroundSide==='FOUL_SI…
+       |                                                                             ^
+     83|   for(const row of comparison.cases.filter(c=>c.metrics.firstGroundSid…
+     84|     expect(row.pitch.contact).not.toBeNull();expect(row.metrics.firstG…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 skipped (7)
+   Start at  20:46:33
+   Duration  1.23s (transform 390ms, setup 0ms, collect 590ms, tests 183ms, environment 0ms, prepare 140ms)
+

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-LOCOMOTION-CORE-BOUNDARY",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/locomotion/LiveLocomotionV84.test.ts"
+  ],
+  "observed_at": "2026-10-20T15:21:30.444+00:00",
+  "elapsed_ms": 1358,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-LOCOMOTION-CORE-BOUNDARY_9858b6bc382b49d9aa300465f154d960.log",
+  "output_sha256": "954351074fc8e942fe45b769e87c316087c6da48ac22a78c783e416390ff5b16",
+  "receipt_id": "MB-20261021-V84-LOCOMOTION-CORE-BOUNDARY_9858b6bc382b49d9aa300465f154d960"
+}

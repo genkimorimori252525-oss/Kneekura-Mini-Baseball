@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SAMPLED-CORE-FIRST-TSC",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-15T21:43:00.145+00:00",
+  "elapsed_ms": 51406,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SAMPLED-CORE-FIRST-TSC_5b8a18531f904df0bf9a9105e635fa05.log",
+  "output_sha256": "77569d68abcac882014e011242c5096e287031673f33e8d8dfded78df4b91059",
+  "receipt_id": "MB-20261016-SAMPLED-CORE-FIRST-TSC_5b8a18531f904df0bf9a9105e635fa05"
+}

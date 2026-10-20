@@ -1,0 +1,29 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
+  {
++   '-wal': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+-   '-wal': null,
+    main: '08b25b647dbfa5d28fa520eeed33347c7b36459034dc93de824a56448449c776'
+  }
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-initial-decision-reader-v1/readback.mjs:82539:3 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: {
+    main: '08b25b647dbfa5d28fa520eeed33347c7b36459034dc93de824a56448449c776',
+    '-wal': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+  },
+  expected: {
+    main: '08b25b647dbfa5d28fa520eeed33347c7b36459034dc93de824a56448449c776',
+    '-wal': null
+  },
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

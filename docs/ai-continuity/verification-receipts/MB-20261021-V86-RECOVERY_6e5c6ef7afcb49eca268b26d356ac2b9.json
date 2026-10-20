@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V86-RECOVERY",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-internal-recovery-v82.mjs",
+    "../../outputs/にーくら野球メーカー_v86_入力確定とエラー復帰版.html",
+    "docs/verification/releases/v86/maker-recovery"
+  ],
+  "observed_at": "2026-10-20T16:38:02.875+00:00",
+  "elapsed_ms": 41110,
+  "git_head": "58c9163a9007598d6a51d8178f38ce3b9ee14eca",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V86-RECOVERY_6e5c6ef7afcb49eca268b26d356ac2b9.log",
+  "output_sha256": "d43b8bc286f98765c62807b090a17782efad29dd4af75328ef39f32fbebf1797",
+  "receipt_id": "MB-20261021-V86-RECOVERY_6e5c6ef7afcb49eca268b26d356ac2b9"
+}

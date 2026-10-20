@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ tools/browser-bridge/presentation-ui-performance-v81.test.mjs (5 tests) 766ms
+   ✓ requires each exact v79 patch marker once and preserves unrelated source 336ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  21:45:26
+   Duration  1.75s (transform 54ms, setup 0ms, collect 171ms, tests 766ms, environment 0ms, prepare 263ms)
+

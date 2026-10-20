@@ -2,7 +2,7 @@ import type { Vec3 } from '../../core/model/geometry';
 import type { AcceptedBattedWorldModel } from './BattedWorldModel';
 import type { DurablePlayerLocomotionModel } from './SqlitePlayerLocomotionModelStore';
 import type { PlayerLocomotionCalibration } from '../../core/sim/fielding/PlayerLocomotionCalibration';
-import { deriveIssuedDefenderMotionReceipt, type IssuedDefenderMotionDecision } from './ActualLocomotion';
+import { deriveIssuedDefenderMotionReceipt, deriveIssuedSupportDefenderMotionReceipt, type IssuedDefenderMotionDecision } from './ActualLocomotion';
 import type { SamePaPhysicalAction, SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep } from './SamePlateAppearancePhysicalEpisode';
 import { actorFreeze as freeze, actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
@@ -50,6 +50,8 @@ export const samePaPhysicalDefenderSelf = (action: SamePaPhysicalAction, root: S
 };
 export const deriveSamePaPhysicalFieldMotor = (decision: IssuedDefenderMotionDecision, model: DurablePlayerLocomotionModel,
   self: ReturnType<typeof samePaPhysicalDefenderSelf>, calibration: PlayerLocomotionCalibration) => deriveIssuedDefenderMotionReceipt(decision, model, self, calibration);
+export const deriveSamePaPhysicalSupportFieldMotor = (decision: IssuedDefenderMotionDecision, model: DurablePlayerLocomotionModel,
+  self: ReturnType<typeof samePaPhysicalDefenderSelf>, calibration: PlayerLocomotionCalibration) => deriveIssuedSupportDefenderMotionReceipt(decision, model, self, calibration);
 export type SamePaPhysicalFieldMotor = ReturnType<typeof deriveSamePaPhysicalFieldMotor>;
 
 export { deriveSamePaBatterRunMotion } from './SamePlateAppearanceBatterRunMotion';

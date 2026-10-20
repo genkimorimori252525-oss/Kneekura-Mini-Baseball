@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OBSERVED-OPPORTUNITY-CORE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/world/psychology/batting/ObservedStrikeZoneOpportunityV1.test.ts"
+  ],
+  "observed_at": "2026-10-16T11:20:15.432+00:00",
+  "elapsed_ms": 4344,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OBSERVED-OPPORTUNITY-CORE_ad22d021c1e24a5a94d14c6a9eaaaf32.log",
+  "output_sha256": "bfe688a06ac35a4975699975c3f89bc65ca7094a0d2f353b7551648bed1f5067",
+  "receipt_id": "MB-20261016-OBSERVED-OPPORTUNITY-CORE_ad22d021c1e24a5a94d14c6a9eaaaf32"
+}

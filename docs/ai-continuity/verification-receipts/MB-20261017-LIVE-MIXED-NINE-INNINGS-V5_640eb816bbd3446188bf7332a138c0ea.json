@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-MIXED-NINE-INNINGS-V5",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveBaseballMatchV1.test.ts",
+    "src/integration/browser/LivePitchV1.test.ts",
+    "src/integration/browser/PlayableMatchRulesV1.test.ts",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts",
+    "src/core/sim/fielding/GroundWallRollingCurveV1.test.ts",
+    "src/core/sim/fielding/LiveFieldForecastV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T00:34:28.750+00:00",
+  "elapsed_ms": 77750,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-MIXED-NINE-INNINGS-V5_640eb816bbd3446188bf7332a138c0ea.log",
+  "output_sha256": "09486c8f4bfac45cbdd2250292cefafc3b10dea2a3b936e70cc5c73a2da15da1",
+  "receipt_id": "MB-20261017-LIVE-MIXED-NINE-INNINGS-V5_640eb816bbd3446188bf7332a138c0ea"
+}

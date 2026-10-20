@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-MEASURED-CACHE-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/MeasuredClipValidationCacheV81.test.ts",
+    "src/integration/browser/LiveBaseballMatchV1.test.ts"
+  ],
+  "observed_at": "2026-10-20T12:49:40.074+00:00",
+  "elapsed_ms": 92000,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-MEASURED-CACHE-FINAL_57ec34a5a4754eb9a4698cf1e4d33137.log",
+  "output_sha256": "fba55891a9c5c26e07ce07e1943a0fe980540c7d147cca6e7dc0cc5f7e440f52",
+  "receipt_id": "MB-20261020-V81-MEASURED-CACHE-FINAL_57ec34a5a4754eb9a4698cf1e4d33137"
+}

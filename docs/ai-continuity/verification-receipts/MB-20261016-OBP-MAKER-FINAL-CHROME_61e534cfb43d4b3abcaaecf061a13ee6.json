@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OBP-MAKER-FINAL-CHROME",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-measured-maker.mjs",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/にーくら野球メーカー_実測スイング版.html",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/参考データ/openbiomechanics",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/measured-maker-evidence"
+  ],
+  "observed_at": "2026-10-15T18:12:59.827+00:00",
+  "elapsed_ms": 25187,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OBP-MAKER-FINAL-CHROME_61e534cfb43d4b3abcaaecf061a13ee6.log",
+  "output_sha256": "9af560fa0592b2c40f142bcd11165988f9f7e09f54d3c8dde8d21ffe2f1c3023",
+  "receipt_id": "MB-20261016-OBP-MAKER-FINAL-CHROME_61e534cfb43d4b3abcaaecf061a13ee6"
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V87-MAKER-GRID-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-maker-release-v87.mjs"
+  ],
+  "observed_at": "2026-10-20T17:23:48.329+00:00",
+  "elapsed_ms": 3125,
+  "git_head": "9f6b6ed69d8682f417490d4b761914f1b4a6d6a1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V87-MAKER-GRID-FINAL_7ca1fcfc8e9443f08efd9208a6f0f644.log",
+  "output_sha256": "ad3ea5afd6411354f55e1e4378afe04fdf390c3341e2678c9e217814f79a84b7",
+  "receipt_id": "MB-20261021-V87-MAKER-GRID-FINAL_7ca1fcfc8e9443f08efd9208a6f0f644"
+}

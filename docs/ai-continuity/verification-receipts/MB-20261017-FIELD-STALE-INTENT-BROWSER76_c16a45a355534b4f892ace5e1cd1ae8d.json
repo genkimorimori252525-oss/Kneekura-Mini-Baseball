@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-FIELD-STALE-INTENT-BROWSER76",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../live-field-departure-diagnostic.mjs",
+    "../../outputs/verification-v33-live-browser-full-v3/failure-1200.json",
+    "compact"
+  ],
+  "observed_at": "2026-10-17T01:05:28.532+00:00",
+  "elapsed_ms": 1578,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-FIELD-STALE-INTENT-BROWSER76_c16a45a355534b4f892ace5e1cd1ae8d.log",
+  "output_sha256": "9496fa9e266d0d60b3c69e3e040c786030fef1d2c2e8dcfcaf13fb81763b872d",
+  "receipt_id": "MB-20261017-FIELD-STALE-INTENT-BROWSER76_c16a45a355534b4f892ace5e1cd1ae8d"
+}

@@ -1,0 +1,19 @@
+{
+  "pass": true,
+  "gameSha256": "aff78f191ba6f24958403dc51c503e73393b57d495335bc58d32dc2646f9b85b",
+  "nativeBundleSha256": "01f25940860caff6f9a92a9d8d11d876d87056ed173d8589374226f7c4eccd8f",
+  "unchangedCoreInputs": 108,
+  "v49BatterBaselineRestored": true,
+  "pitchOnlyBoundedMeetVisionPursuit": true,
+  "pitcherDelaySeconds": [
+    0.5,
+    1.2
+  ],
+  "pitcherBlendMs": 180,
+  "widths": [
+    1200,
+    390
+  ],
+  "linksChecked": 132,
+  "scope": "new presentation/browser evidence; existing v51 280 tests and regulation game retained as same-Core evidence, not newly rerun"
+}

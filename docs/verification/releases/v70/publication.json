@@ -1,0 +1,60 @@
+{
+  "pass": true,
+  "sourceCommit": "28b1eb87b63cff296d48eb0eb224249a480c43ed",
+  "remoteHead": "28b1eb87b63cff296d48eb0eb224249a480c43ed",
+  "pullRequest": {
+    "headRefName": "jolly/tbd-lad-native-browser-core-2026-10-14",
+    "headRefOid": "28b1eb87b63cff296d48eb0eb224249a480c43ed",
+    "isDraft": true,
+    "state": "OPEN",
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380"
+  },
+  "rawFiles": [
+    {
+      "path": "docs/demos/releases/v70/maker.html",
+      "sha256": "fcc9d190680351553f4451ccb7d067cb12ca9233bc0e1d6da4c15a2bb89f23bc",
+      "bytes": 35664998
+    },
+    {
+      "path": "docs/demos/releases/v70/SHA256.json",
+      "sha256": "cce0afac29e89565efcaa9e41a04a5c1d9653954d3af89f179e5224559f9b6b1",
+      "bytes": 290
+    },
+    {
+      "path": "docs/demos/releases/v70/maker.html.build.json",
+      "sha256": "51a6e7590a8b53abef5375e2e064cf3feabdf0bb3f824e1f84d61f859f5edcfd",
+      "bytes": 3460
+    },
+    {
+      "path": "docs/demos/releases/v70/README.md",
+      "sha256": "19123624ab97c70b77b15f71bc10e710879265689d805bc9e598c2198790263b",
+      "bytes": 1794
+    },
+    {
+      "path": "docs/reports/2026-10-19-v70-batter-comparison.md",
+      "sha256": "5537a9d04ad427771dd0588ca84d8623c5fa0cae464f0a6fa85ca683f740f251",
+      "bytes": 3369
+    },
+    {
+      "path": "docs/handoffs/LATEST.md",
+      "sha256": "9698450dce68143f81df5cad8754c5b3d6a300c4e1d859cf413ee7bd6469164c",
+      "bytes": 23858
+    },
+    {
+      "path": "docs/demos/baseball-maker-batter-comparison-v70.js",
+      "sha256": "c2b9714381745e4ff3a08453e71755d404ddd5d7bb002071d41a224e88dccb3f",
+      "bytes": 10882
+    },
+    {
+      "path": "tools/browser-bridge/maker-match-renderer-v70.js",
+      "sha256": "4fba7aca62a1e57e5ee763bf9cdcc350a9cd1f12e62cc233e8ead674347a5d47",
+      "bytes": 14468
+    },
+    {
+      "path": "docs/verification/releases/v70/release-check.json",
+      "sha256": "6c3f06a809446aac9430115ae49e9e09eeb6f62781681988b2bc1d0cafed74db",
+      "bytes": 482
+    }
+  ],
+  "mainMerged": false
+}

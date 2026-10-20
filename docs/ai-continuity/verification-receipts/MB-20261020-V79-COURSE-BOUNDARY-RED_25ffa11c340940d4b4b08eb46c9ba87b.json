@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V79-COURSE-BOUNDARY-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/BatterCourseProfileV79.test.ts"
+  ],
+  "observed_at": "2026-10-20T00:12:00.653+00:00",
+  "elapsed_ms": 936,
+  "git_head": "98819b9ab5c8e4bdd7ddfc7d644d484df08ab55d",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V79-COURSE-BOUNDARY-RED_25ffa11c340940d4b4b08eb46c9ba87b.log",
+  "output_sha256": "4ba3a4adcca5d472e1e644417fc44a238dadc11674069c8aec1d4479062ce5c8",
+  "receipt_id": "MB-20261020-V79-COURSE-BOUNDARY-RED_25ffa11c340940d4b4b08eb46c9ba87b"
+}

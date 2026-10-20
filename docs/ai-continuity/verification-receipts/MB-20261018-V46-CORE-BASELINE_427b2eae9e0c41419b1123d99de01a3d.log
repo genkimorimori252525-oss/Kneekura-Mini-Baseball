@@ -1,0 +1,59 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts (11 tests) 16ms
+ ✓ src/core/sim/fielding/LiveFieldRoleMotionV1.test.ts (5 tests) 2741ms
+   ✓ executes unique receiver coverage through a real throw while spare outfielders retain deep coverage 352ms
+   ✓ keeps zero-error actual physics exact and launches a reproducible physical miss for nonzero angular error 2022ms
+ ✓ src/core/sim/fielding/LiveFieldPlayV1.test.ts (18 tests) 6820ms
+   ✓ runs the complete actual base path after a fair over-fence flight instead of teleporting runners 780ms
+   ✓ derives two force retirements from actual pickup, two throws, receptions and base contacts 598ms
+   ✓ continues a true wall rebound through its signed-gap certificate and retrieves the ball 792ms
+   ✓ catches an ordinary high center-field fly using a causal aero-ground forecast 1023ms
+   ✓ keeps bodies, independent gloves and a possessed ball inside the physical fence through pickup and release 1010ms
+   ✓ finishes the pinned fast grounder after causal interception without an invented result 388ms
+   ✓ extends a finite free-ball cache from its original root without changing any sampled physics 848ms
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts (3 tests | 1 failed) 13278ms
+   ✓ LiveFieldPlayDiagnosticsV1 > captures structured AI telemetry, kinematic oracle, and anomaly classifications without altering simulation facts 737ms
+   ✓ LiveFieldPlayDiagnosticsV1 > audits the full 20-scenario canonical fielding matrix 7478ms
+   × LiveFieldPlayDiagnosticsV1 > demonstrates monotonic physical fielding progression across low, default, and high ability tiers 5063ms
+     → expected [ { …(5) } ] to deeply equal []
+ ✓ src/integration/browser/LiveBaseballMatchV1.test.ts (4 tests) 44371ms
+   ✓ does not pre-generate an initial pitch, and freezes observations independently of later issues 386ms
+   ✓ plays a mixed physical game through regulation without a replay frontier or old engine result 41753ms
+   ✓ does not derive SI or alter results from presentation names or league labels 2028ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > demonstrates monotonic physical fielding progression across low, default, and high ability tiers
+AssertionError: expected [ { …(5) } ] to deeply equal []
+
+- Expected
++ Received
+
+- Array []
++ Array [
++   Object {
++     "base": 3,
++     "detail": "Receiver SS secured throw at base 3 -4.68s before runner arrival (dist=0.01m), but never touched the base.",
++     "elapsedSeconds": 4.6771485490200675,
++     "kind": "CAUGHT_THROW_NO_BASE_TOUCH",
++     "playerId": "def-SS",
++   },
++ ]
+
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:91:32
+     89|         const { input, roleMap } = buildCanonicalFieldingPlayInputV1(s…
+     90|         const diag = diagnoseLiveFieldPlayV1(input, undefined, roleMap…
+     91|         expect(diag.anomalies).toEqual([]);
+       |                                ^
+     92|         outsByTier[tier] += diag.outsRecorded;
+     93|       }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  1 failed | 40 passed (41)
+   Start at  14:17:44
+   Duration  45.40s (transform 623ms, setup 0ms, collect 1.79s, tests 67.23s, environment 1ms, prepare 824ms)
+

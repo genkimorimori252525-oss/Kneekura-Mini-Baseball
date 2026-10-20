@@ -1,0 +1,20 @@
+{
+  "scope": "V78 normal/lab browser integration checker only; neither failure below establishes a product Source regression.",
+  "incidents": [
+    {
+      "receipt": "docs/ai-continuity/verification-receipts/MB-20261020-V78-GAME-INITIAL_9effe800b8b5497488742d4f5e1b936c.json",
+      "originalResult": "FAIL",
+      "cause": "The checker read pitcher.team from a LivePlayer object without that property. The managed-team menu became empty, so the Host legitimately used AUTO instead of the requested defensive pitch ID.",
+      "correction": "Derive the current defensive team from host.match.half. The original timestamped report and receipt log remain unchanged."
+    },
+    {
+      "receipt": "docs/ai-continuity/verification-receipts/MB-20261020-V78-GAME-REBUILT_0668bde7ab7d4dd6afb72aa3e1fe3b1d.json",
+      "originalResult": "FAIL",
+      "cause": "The checker waited for a roster download while its save button remained inside a closed details element. The pending download promise timed out before the click could complete.",
+      "correction": "Open the roster details before clicking its actual save button. The original receipt log and partial timestamped report remain unchanged; the nine-inning game had not yet started."
+    }
+  ],
+  "finalReceipt": "docs/ai-continuity/verification-receipts/MB-20261020-V78-GAME-REBUILT-VISIBLE-EXPORT_4c1135187f2c44b1927f6438641a7f9b.json",
+  "finalResult": "PASS",
+  "sessionScope": "A V78 session replay was verified with the same roster already loaded. The camera session schema does not itself embed that roster."
+}

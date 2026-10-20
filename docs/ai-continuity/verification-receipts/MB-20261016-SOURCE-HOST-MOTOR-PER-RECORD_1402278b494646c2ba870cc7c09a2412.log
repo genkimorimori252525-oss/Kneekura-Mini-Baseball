@@ -1,0 +1,13 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/SamePlateAppearanceSourceMotorFieldV1.test.ts (3 tests) 13729ms
+   ✓ connects complete owned team selections through real rated motor and Source replay, retaining all six roles and ball spin 2519ms
+   ✓ replays later free/metadata history and rejects mutated original motors/evidence or returning to integer/old versions 7480ms
+   ✓ rejects legacy/subset/stale team selections and future first-step or invalid body calibration before any Source movement 3729ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  03:34:58
+   Duration  20.36s (transform 3.94s, setup 0ms, collect 6.17s, tests 13.73s, environment 0ms, prepare 134ms)
+

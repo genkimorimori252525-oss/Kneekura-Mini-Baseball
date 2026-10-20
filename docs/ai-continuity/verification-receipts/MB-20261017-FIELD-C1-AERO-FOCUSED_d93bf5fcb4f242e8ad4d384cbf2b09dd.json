@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-FIELD-C1-AERO-FOCUSED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts",
+    "src/core/sim/fielding/LiveHandPreparationV1.test.ts",
+    "src/core/sim/fielding/LiveThrowPlanV1.test.ts",
+    "src/core/sim/fielding/GroundedActorContactResponseV1.test.ts",
+    "src/core/sim/fielding/LiveFieldForecastV1.test.ts",
+    "src/core/sim/fielding/GroundWallRollingCurveV1.test.ts",
+    "src/integration/browser/PlayableMatchRulesV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T00:58:30.912+00:00",
+  "elapsed_ms": 6280,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-FIELD-C1-AERO-FOCUSED_d93bf5fcb4f242e8ad4d384cbf2b09dd.log",
+  "output_sha256": "511bb06bd6fdfffd2a04710690566147e3e47fdaf8d61f29a281eb64641249d4",
+  "receipt_id": "MB-20261017-FIELD-C1-AERO-FOCUSED_d93bf5fcb4f242e8ad4d384cbf2b09dd"
+}

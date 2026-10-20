@@ -12,12 +12,13 @@ import { openSqliteSamePlateAppearanceExecutionStore } from './SqliteSamePlateAp
 import { openSqliteSamePlateAppearanceDispatchStore } from './SqliteSamePlateAppearanceDispatchStore';
 import { deriveSamePaDispatchRoles } from './SamePlateAppearanceDispatchRoles';
 import { dispatchCalibrationValues } from './SamePlateAppearanceDispatchCalibration.test-support';
+import type { AerodynamicPitchTrajectory } from '../../core/sim/pitching/AerodynamicPitchTrajectory';
 
 /** Source-only synthetic Native fixture. All actors, Persons, body/model inputs,
  * reserved states and accepted32 rows use their unchanged real Native owners.
  * Numerical declarations reuse the existing explicit fixture values; no mock,
  * genuine donor, model default or production fatigue calibration is involved. */
-export const directNativeDispatchFixture = (options: Parameters<typeof battingModelStanceFixture>[0] = {}) => {
+export const directNativeDispatchFixture = (options: Parameters<typeof battingModelStanceFixture>[0] = {}, observedFlight?:AerodynamicPitchTrajectory['parameters']) => {
   const f = battingModelStanceFixture(options), db = f.x.f.db, track = f.x.f.track;
   try {
     const actor = f.actor, batting = f.modelStore.accept(f.source.sourceId), values = dispatchCalibrationValues();
@@ -87,9 +88,12 @@ export const directNativeDispatchFixture = (options: Parameters<typeof battingMo
     const release = nominalRef('world_player_release_baselines', 'world_player_release_baselines', 'release', f.x.f.release.readHead('career-a', 'p2'));
     const policy = { owner: 'world_pitch_fatigue_policies', sourceId: f.x.f.response.sourceId, sourceHash: hash(f.x.f.response), snapshotHash: hash(f.x.f.response) };
     const { careerId: _career, playerId: _player, gameDay: _day, playId: _play, pitchIndex: _index, ...delivery } = f.x.f.input.delivery;
-    const action = { ...base, sourceId: 'native-action', capability: 'same_pa_first_pitch_action_v1', variant: 'declared_take_v1', pitcherPlayerId: 'p2', batterPlayerId: actor.binding.playerId,
+    const takeAction = { ...base, sourceId: 'native-action', capability: 'same_pa_first_pitch_action_v1', variant: 'declared_take_v1', pitcherPlayerId: 'p2', batterPlayerId: actor.binding.playerId,
       nominalPitch: { delivery, flight: f.x.f.input.flight, batter: { ...f.x.f.input.batter, ballRadiusMeters: batting.equipment.values.ball.radiusM } },
       timingReference: timing, releaseReference: release, pitchResponseReference: policy, batterModelReference: reference('world_player_batting_models', batting), geometryReference: { kind: 'action_source_take_geometry_v1' } };
+    const {action:_take,...batterGeometry}=takeAction.nominalPitch.batter;
+    const action=observedFlight?{...takeAction,variant:'observer_decision_v1',geometryReference:{kind:'action_source_batting_geometry_v1'},
+      actualFlightParameters:observedFlight,nominalPitch:{delivery,flight:{durationUs:takeAction.nominalPitch.flight.durationUs},batter:batterGeometry}}:takeAction;
     const parameters = { batter_observation: 'observationCalibration', batter_decision: 'decisionModel', batter_motor: 'capability', batter_swing: 'repertoire' } as const;
     const calibrations = roles.flatMap(role => role.routes.map(route => {
       const key = parameters[route as keyof typeof parameters], parameter = key ? batting[key] : null;

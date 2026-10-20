@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V79-SEASON-STORE-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveSeasonV79.test.ts"
+  ],
+  "observed_at": "2026-10-20T00:10:40.520+00:00",
+  "elapsed_ms": 1109,
+  "git_head": "98819b9ab5c8e4bdd7ddfc7d644d484df08ab55d",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V79-SEASON-STORE-RED_f6649ada6ba34d85ac5d72599eb00d01.log",
+  "output_sha256": "d2b5a976ff81309dbbd977f41b8458618e23ada11e6af7c4da717f981e755155",
+  "receipt_id": "MB-20261020-V79-SEASON-STORE-RED_f6649ada6ba34d85ac5d72599eb00d01"
+}

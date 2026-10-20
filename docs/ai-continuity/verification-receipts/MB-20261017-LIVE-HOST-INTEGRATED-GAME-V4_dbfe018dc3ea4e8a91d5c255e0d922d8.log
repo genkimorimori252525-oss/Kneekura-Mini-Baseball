@@ -1,0 +1,31 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/PlayableMatchRulesV1.test.ts (21 tests) 10ms
+ ✓ src/core/sim/fielding/LiveFieldPlayV1.test.ts (11 tests) 823ms
+ ✓ src/integration/browser/LivePitchV1.test.ts (11 tests) 842ms
+ ❯ src/integration/browser/LiveBaseballMatchV1.test.ts (4 tests | 1 failed) 25861ms
+   × plays a mixed physical game through regulation without a replay frontier or old engine result 23819ms
+     → live baseball match: physical field continuation unresolved: numerical_contact_refinement_required (pitch 128, seed 2468)
+   ✓ does not derive SI or alter results from presentation names or league labels 1568ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LiveBaseballMatchV1.test.ts > plays a mixed physical game through regulation without a replay frontier or old engine result
+Error: live baseball match: physical field continuation unresolved: numerical_contact_refinement_required (pitch 128, seed 2468)
+ ❯ Object.issuePitch src/integration/browser/LiveBaseballMatchV1.ts:144:36
+    142|       field=simulateLiveFieldPlayV1({ball:outgoingMoment,orientation:p…
+    143|         field:{bases:LIVE_MATCH_BASES_V1,...park},fielders,runners:run…
+    144|       if(!field.end.complete)throw new Error('live baseball match: phy…
+       |                                    ^
+    145|         {cause:{outgoingMoment,fielders,runners:runnerSpecs,outs:befor…
+    146|       result=reducePlayableMatchV1({match:beforeMatch,batterRunnerId:c…
+ ❯ src/integration/browser/LiveBaseballMatchV1.test.ts:14:89
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 46 passed (47)
+   Start at  09:18:28
+   Duration  26.79s (transform 604ms, setup 0ms, collect 1.37s, tests 27.54s, environment 1ms, prepare 649ms)
+

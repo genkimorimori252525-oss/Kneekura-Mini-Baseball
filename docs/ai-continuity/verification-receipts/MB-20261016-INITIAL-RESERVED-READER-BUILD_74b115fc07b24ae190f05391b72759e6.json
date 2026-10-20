@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-RESERVED-READER-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/native-game/build-measured-model-readback.mjs",
+    "../native-observed-initial-cut-readback-v4",
+    "observed_cut_readback"
+  ],
+  "observed_at": "2026-10-15T23:52:24.843+00:00",
+  "elapsed_ms": 843,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-RESERVED-READER-BUILD_74b115fc07b24ae190f05391b72759e6.log",
+  "output_sha256": "bb8311a907f5924a153281c79ee4158b4c1afc21953bfd65e390a0ddbdbe22e1",
+  "receipt_id": "MB-20261016-INITIAL-RESERVED-READER-BUILD_74b115fc07b24ae190f05391b72759e6"
+}

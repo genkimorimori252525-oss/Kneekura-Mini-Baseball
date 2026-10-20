@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-FIELD-FORECAST-ARENA-FINAL-2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts",
+    "src/core/sim/fielding/GroundWallRollingCurveV1.test.ts",
+    "src/core/sim/fielding/LiveFieldForecastV1.test.ts",
+    "src/integration/browser/PlayableMatchRulesV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T00:32:40.969+00:00",
+  "elapsed_ms": 3405,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-FIELD-FORECAST-ARENA-FINAL-2_af3f447ca3f64bb2b528de77f83c9e68.log",
+  "output_sha256": "8fe98e284846914d6f1397baf886583f560e6af1f35aacf2d07bd297de5a1cad",
+  "receipt_id": "MB-20261017-FIELD-FORECAST-ARENA-FINAL-2_af3f447ca3f64bb2b528de77f83c9e68"
+}

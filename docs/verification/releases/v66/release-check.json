@@ -1,0 +1,20 @@
+{
+  "pass": true,
+  "normalSha256": "e6ff4a3924872ecbe3b0a5044cf102a5ac02ac45cb63cd771f122f3f04f34a3d",
+  "workbenchSha256": "fbe3038d617f557e1b679dd5a67d67edb737f64fc88634455f30bbdb261aab79",
+  "oneExactEmbeddedGame": true,
+  "sourceCoreSha256": "865078dc9881ce5c37754dbe2c7b502f586206f3ada972cfe2d3368207720c00",
+  "sourceInputCount": 114,
+  "worldPhysicsRulesAiChanged": false,
+  "olderReleasesUnchanged": true,
+  "defaultHeightEmphasis": 1,
+  "groundSizeUnchanged": true,
+  "independentSwingResponse": true,
+  "baseRunnerEyeUnchanged": true,
+  "otherNormalCodeRestoresExactV65": true,
+  "strictInheritedBaseRateLimit": false,
+  "heightOnlyOverhead": true,
+  "heldBallsHidden": true,
+  "newNormalHtmlNineInningTest": false,
+  "wholeOriginalPlanComplete": false
+}

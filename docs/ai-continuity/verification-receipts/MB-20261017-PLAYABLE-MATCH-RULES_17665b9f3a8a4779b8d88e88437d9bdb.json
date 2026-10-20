@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-PLAYABLE-MATCH-RULES",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/PlayableMatchRulesV1.test.ts",
+    "src/core/rules/ForceObligation.test.ts",
+    "src/core/rules/ThirdOutScoring.test.ts",
+    "src/core/rules/WalkAdvancementRule.test.ts",
+    "src/core/rules/HalfInningTransitionRule.test.ts"
+  ],
+  "observed_at": "2026-10-16T22:15:50.485+00:00",
+  "elapsed_ms": 1046,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-PLAYABLE-MATCH-RULES_17665b9f3a8a4779b8d88e88437d9bdb.log",
+  "output_sha256": "eee2f976e4bc5f98c91e3353be4821e829f761d183de2e519104f3ca2face8c7",
+  "receipt_id": "MB-20261017-PLAYABLE-MATCH-RULES_17665b9f3a8a4779b8d88e88437d9bdb"
+}

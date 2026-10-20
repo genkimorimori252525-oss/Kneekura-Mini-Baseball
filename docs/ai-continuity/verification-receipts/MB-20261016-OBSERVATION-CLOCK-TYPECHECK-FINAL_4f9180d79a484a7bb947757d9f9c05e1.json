@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OBSERVATION-CLOCK-TYPECHECK-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "npx.cmd",
+    "tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-15T17:44:03.609+00:00",
+  "elapsed_ms": 44406,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OBSERVATION-CLOCK-TYPECHECK-FINAL_4f9180d79a484a7bb947757d9f9c05e1.log",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "receipt_id": "MB-20261016-OBSERVATION-CLOCK-TYPECHECK-FINAL_4f9180d79a484a7bb947757d9f9c05e1"
+}

@@ -1,0 +1,17 @@
+▲ [WARNING] "youkaishomecoming:yukari" is not a valid value for the "type" field [package.json]
+
+    ../../../../../../package.json:1:8:
+      1 │ {"type":"youkaishomecoming:yukari","texture":"touhou_little_maid:te...
+        ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The "type" field must be set to either "commonjs" or "module".
+
+▲ [WARNING] "youkaishomecoming:yukari" is not a valid value for the "type" field [package.json]
+
+    ../../../../../../package.json:1:8:
+      1 │ {"type":"youkaishomecoming:yukari","texture":"touhou_little_maid:te...
+        ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The "type" field must be set to either "commonjs" or "module".
+
+{"pass": true, "rebuildEntry": "tools/browser-bridge/build-lossless-release-v81.mjs", "allThreeHtmlBytesEqual": true, "hashes": {"game.html": "b87445d9fdb0bc569d3ed2d6bd0fb9d02198e923323712887c524e9d7335e02c", "camera-workbench.html": "8a678de235c50d96cc39c46339c21949013d5212017bc82358f2ad9eec2c13b7", "maker.html": "9a05aabd41e152b2ead5b590397ac1de42e420d6d8b15105dc0c35daffedee09"}}

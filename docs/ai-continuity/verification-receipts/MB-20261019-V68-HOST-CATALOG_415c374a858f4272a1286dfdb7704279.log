@@ -1,0 +1,15 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LiveImpactTrajectoryV1.test.ts (8 tests | 1 skipped) 1119ms
+   ✓ leaves legacy automatic clip selection unchanged when expanded clips are opt-in only 536ms
+ ✓ src/integration/browser/MeasuredImpactTrajectoryLibraryV1.test.ts (3 tests) 14240ms
+   ✓ admits all 673 measured forms and four research levels through the actual shared continuous Core sampler 6249ms
+   ✓ accepts the bounded full catalog while preserving old automatic pitch records and using new explicit forms 5440ms
+   ✓ rejects unknown or wrong-handed form IDs and unsupported windows before issuing any pitch, without invoking accessors 2551ms
+
+ Test Files  2 passed (2)
+      Tests  10 passed | 1 skipped (11)
+   Start at  19:52:28
+   Duration  15.23s (transform 474ms, setup 0ms, collect 1.04s, tests 15.36s, environment 0ms, prepare 254ms)
+

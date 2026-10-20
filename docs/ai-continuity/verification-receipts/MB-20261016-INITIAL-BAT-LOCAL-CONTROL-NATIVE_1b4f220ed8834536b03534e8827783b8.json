@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-BAT-LOCAL-CONTROL-NATIVE",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "../native-initial-bat-control-preparation-v2/readback.mjs",
+    "../../outputs/verification-authored-with-bat-zero-observation-decision-v1",
+    "../../outputs/verification-authored-with-bat-zero-observation-control-v2"
+  ],
+  "observed_at": "2026-10-16T12:41:08.549+00:00",
+  "elapsed_ms": 4500,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-BAT-LOCAL-CONTROL-NATIVE_1b4f220ed8834536b03534e8827783b8.log",
+  "output_sha256": "c46a31cc2f842ed72432d35bfd27cda99e9562b4fee62c40597d1cdadfcc74cf",
+  "receipt_id": "MB-20261016-INITIAL-BAT-LOCAL-CONTROL-NATIVE_1b4f220ed8834536b03534e8827783b8"
+}

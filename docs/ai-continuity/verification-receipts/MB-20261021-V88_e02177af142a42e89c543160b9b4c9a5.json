@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V88",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveBatPlaybackV88.test.ts"
+  ],
+  "observed_at": "2026-10-20T17:38:51.955+00:00",
+  "elapsed_ms": 1312,
+  "git_head": "6a7b3500d315de70a46f70d697aa032b18b37cb1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V88_e02177af142a42e89c543160b9b4c9a5.log",
+  "output_sha256": "ecf5e3b83ea59142c6a7da159d11136437e6121d81d6ab59a98e08e2ecfbe25f",
+  "receipt_id": "MB-20261021-V88_e02177af142a42e89c543160b9b4c9a5"
+}

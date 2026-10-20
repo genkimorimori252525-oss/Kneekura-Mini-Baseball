@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-RENDER-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/browser-bridge/presentation-controls-v84.test.mjs",
+    "tools/browser-bridge/presentation-quality-v84.test.mjs",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-20T15:18:12.420+00:00",
+  "elapsed_ms": 1906,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-RENDER-RED_aab23b2a288e44d087c82cf9742b5860.log",
+  "output_sha256": "42ca93f81805923b04181eb1cc85c299b6d8d876c4aa950e48f53e42c72e8cf2",
+  "receipt_id": "MB-20261021-V84-RENDER-RED_aab23b2a288e44d087c82cf9742b5860"
+}

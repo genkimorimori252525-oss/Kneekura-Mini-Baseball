@@ -1,0 +1,100 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/BatterCourseProfileV79.test.ts (5 tests) 15ms
+ ✓ src/integration/browser/BatterCourseProfileV87.test.ts (4 tests) 15ms
+ ✓ src/integration/browser/LiveSeasonCourseV87.test.ts (4 tests) 121ms
+ ❯ src/integration/browser/LiveCourseScoringV79.test.ts (8 tests | 1 failed) 193ms
+   × summarizes a complete physical game and preserves confirmed and pending coverage through JSON 100ms
+     → official window input must contain inert data only
+ ❯ src/integration/browser/LivePhysicalRosterV1.test.ts (29 tests | 3 failed) 1175ms
+   × passes ON/OFF controls from imported trait profiles to actual Host pitches without altering a taken ball 94ms
+     → official window input must contain inert data only
+   × passes absolute vision through JSON/roster/Host without adding a physical pitch or batting bonus 62ms
+     → official window input must contain inert data only
+   × feeds the imported limits, motor controls and retained throwing identity into an actual local Host pitch 69ms
+     → official window input must contain inert data only
+ ✓ src/integration/browser/LiveSeasonV79.test.ts (9 tests) 1574ms
+   ✓ roundtrips and aggregates a 162-game season beyond a global inert clone budget 1229ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LiveCourseScoringV79.test.ts > summarizes a complete physical game and preserves confirmed and pending coverage through JSON
+Error: official window input must contain inert data only
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:42:42
+     40|       return value;
+     41|     }
+     42|     if (typeof value !== 'object') throw new Error('official window in…
+       |                                          ^
+     43|     if (ancestors.has(value)) throw new Error('official window input m…
+     44|     ancestors.add(value);
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:62:16
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:62:16
+ ❯ Module.cloneInert src/core/adjudication/OfficialWindowPolicy.ts:68:10
+ ❯ Module.simulateLivePitchV1 src/integration/browser/LivePitchV1.ts:127:15
+ ❯ Object.issuePitch src/integration/browser/LiveBaseballMatchV1.ts:194:17
+ ❯ src/integration/browser/LiveCourseScoringV79.test.ts:69:100
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/integration/browser/LivePhysicalRosterV1.test.ts > passes ON/OFF controls from imported trait profiles to actual Host pitches without altering a taken ball
+Error: official window input must contain inert data only
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:42:42
+     40|       return value;
+     41|     }
+     42|     if (typeof value !== 'object') throw new Error('official window in…
+       |                                          ^
+     43|     if (ancestors.has(value)) throw new Error('official window input m…
+     44|     ancestors.add(value);
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:62:16
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:62:16
+ ❯ Module.cloneInert src/core/adjudication/OfficialWindowPolicy.ts:68:10
+ ❯ Module.simulateLivePitchV1 src/integration/browser/LivePitchV1.ts:127:15
+ ❯ Object.issuePitch src/integration/browser/LiveBaseballMatchV1.ts:194:17
+ ❯ issue src/integration/browser/LivePhysicalRosterV1.test.ts:56:10
+ ❯ src/integration/browser/LivePhysicalRosterV1.test.ts:57:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/integration/browser/LivePhysicalRosterV1.test.ts > passes absolute vision through JSON/roster/Host without adding a physical pitch or batting bonus
+Error: official window input must contain inert data only
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:42:42
+     40|       return value;
+     41|     }
+     42|     if (typeof value !== 'object') throw new Error('official window in…
+       |                                          ^
+     43|     if (ancestors.has(value)) throw new Error('official window input m…
+     44|     ancestors.add(value);
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:62:16
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:62:16
+ ❯ Module.cloneInert src/core/adjudication/OfficialWindowPolicy.ts:68:10
+ ❯ Module.simulateLivePitchV1 src/integration/browser/LivePitchV1.ts:127:15
+ ❯ Object.issuePitch src/integration/browser/LiveBaseballMatchV1.ts:194:17
+ ❯ issue src/integration/browser/LivePhysicalRosterV1.test.ts:137:10
+ ❯ src/integration/browser/LivePhysicalRosterV1.test.ts:138:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/integration/browser/LivePhysicalRosterV1.test.ts > feeds the imported limits, motor controls and retained throwing identity into an actual local Host pitch
+Error: official window input must contain inert data only
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:42:42
+     40|       return value;
+     41|     }
+     42|     if (typeof value !== 'object') throw new Error('official window in…
+       |                                          ^
+     43|     if (ancestors.has(value)) throw new Error('official window input m…
+     44|     ancestors.add(value);
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:62:16
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:62:16
+ ❯ Module.cloneInert src/core/adjudication/OfficialWindowPolicy.ts:68:10
+ ❯ Module.simulateLivePitchV1 src/integration/browser/LivePitchV1.ts:127:15
+ ❯ Object.issuePitch src/integration/browser/LiveBaseballMatchV1.ts:194:17
+ ❯ src/integration/browser/LivePhysicalRosterV1.test.ts:207:84
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+ Test Files  2 failed | 4 passed (6)
+      Tests  4 failed | 55 passed (59)
+   Start at  02:07:09
+   Duration  3.63s (transform 1.75s, setup 0ms, collect 6.52s, tests 3.09s, environment 2ms, prepare 1.70s)
+

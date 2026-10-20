@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-NATIVE-JOINT-SUCCESSOR-GUARDS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-joint-field-successor-v3/readback.mjs",
+    "guards",
+    "../../outputs/verification-authored-with-bat-recovery-v1",
+    "../../outputs/verification-authored-with-bat-field-successor-v1"
+  ],
+  "observed_at": "2026-10-16T21:54:22.146+00:00",
+  "elapsed_ms": 250,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-NATIVE-JOINT-SUCCESSOR-GUARDS_d4d3e1d6995444cca33a3fb4e762e37e.log",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "receipt_id": "MB-20261017-NATIVE-JOINT-SUCCESSOR-GUARDS_d4d3e1d6995444cca33a3fb4e762e37e"
+}

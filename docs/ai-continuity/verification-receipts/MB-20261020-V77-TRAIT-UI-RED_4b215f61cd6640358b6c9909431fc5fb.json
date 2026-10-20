@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V77-TRAIT-UI-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v77-traits-browser.mjs",
+    "../../outputs/にーくら野球メーカー_v75_技術得能調整版.html",
+    "docs/verification/releases/v77/traits/red-v75"
+  ],
+  "observed_at": "2026-10-19T18:52:33.086+00:00",
+  "elapsed_ms": 3875,
+  "git_head": "76c564765f6a6d15fd1a2740a201080e3c534bfe",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V77-TRAIT-UI-RED_4b215f61cd6640358b6c9909431fc5fb.log",
+  "output_sha256": "c77fe60f0ffbee4850c0551ef87af0fcaa2c7e56ad59e7176833208bd3af84ce",
+  "receipt_id": "MB-20261020-V77-TRAIT-UI-RED_4b215f61cd6640358b6c9909431fc5fb"
+}
