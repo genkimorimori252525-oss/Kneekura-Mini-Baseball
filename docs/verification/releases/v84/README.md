@@ -60,3 +60,7 @@ repo rootで `node tools/browser-bridge/build-render-locomotion-v84.mjs`。通�
 元Charter独立承認HOLD、旧FAIL/BLOCKED/UNKNOWN、実機FPS・熱・電力、100試合の現実分布、Native world認証、Worker/GPU候補、元計画の残件は継続する。野手ETAは戦術近似で、実motorと完全同一の軌道ではない。制御係数と1.4m/poseは未校正である。
 
 公開前のstage検査は151件の実Git blob、9件の凍結artifact blob、user所有ファイル・設定・secret・lockfileの除外、旧Native motor不変を確認した（`MB-20261021-V84-STAGING_850d37088bad4fbcb7a75326082b2f4a`）。CCG全体auditは元Charter独立承認不足1件でFAILのまま保持（`MB-20261021-V84-CCG-AUDIT_6df91bc805044362ac144496e951d420`）、今回の明示承認や製品検証と区別する。
+
+## 公開確認
+
+製品commit `e5389e614a7ed8d79daeaff835d82835e63d6509` を既存branchとDraft PR #380へpush済み。[publication.json](publication.json) と `MB-20261021-V84-PUBLICATION_47495c636db8473aa5a37415a4cd3bf5` でremote/PR head一致、公開Git treeのSource/artifact160 blob一致を確認。main未merge。後続commitはこの公開記録だけで、製品byteは変えない。

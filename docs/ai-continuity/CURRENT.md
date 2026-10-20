@@ -2,20 +2,20 @@
 current_task: "MB-20261021-V84"
 active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "4057a83acb7efe5542b9a0565ecb0cba4b904ef8"
-status: "LOCAL_VERIFIED_PERFORMANCE_LIMITATION"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261021-V84-PACKAGE-FINAL_7c52b8812df8431aba4027e8bbafda57.json"
-updated_at: "2026-10-20T15:49:46.118630+00:00"
+commit_head: "e5389e614a7ed8d79daeaff835d82835e63d6509"
+status: "PUBLISHED_PERFORMANCE_LIMITATION"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261021-V84-PUBLICATION_47495c636db8473aa5a37415a4cd3bf5.json"
+updated_at: "2026-10-20T15:53:25.936129+00:00"
 
 ---
 
-## Active v84 — 描画頻度・画質・接地移動（LOCAL VERIFIED; PERFORMANCE LIMITATION）
+## Active v84 — 描画頻度・画質・接地移動（PUBLISHED; PERFORMANCE LIMITATION）
 
 2026-10-21の2問承認を実装。通常/lab/makerはdocs/demos/releases/v84、設計docs/design/2026-10-21-v84-render-locomotion.md、証拠docs/verification/releases/v84/README.md。通常b68c9541/lab b0358080/maker30c9de32、Native65c841a3/128pins、makerCore89c78290不変。現在151Source照合・旧v81/82/83不変・8file byte再build一致。CORE845、表示26、全src TSC、9回343球/123field＋別3回54球/23field全complete・保存往復、maker復帰/球種/17得能、q1旧Core分離240RGBA＋q1.2/3成果物/DPR/逆seek/HR1750ms PASS。
 
 全体目標109.1Hz、自由投球追加2.5/打球追加2、密度1.2、速度帯/plant/b=1.8a/距離同期足画像を接続。旧Native motor不変更、実touchのみ裁定。通常初回28球ULP crash等の原FAILは保持し修正後完走を確認。守備oracleの旧一定aも修正し、20場面物理異常0、能力段階比較を維持。
 
-**全場面の実FPS2倍は未達**。同条件headless参考：打者準備53.99→101.27、打者投球45.80→36.92、投手準備34.35→25.22、投手投球30.03→20.52。高密度シーンCPU負荷は残件。目標設定と実測、保存tickと表示時刻を区別する。制御係数/足画像1.4mは未校正。次は選択stageのGitblob151pins/差分を確認し、既存branch/PR380へ保存、公開headを実読確認。main未merge。元CharterHOLD・旧FAILUNKNOWN・Native認証/100試合/実機/元未完を保持。以下は過去時点の記録。
+**全場面の実FPS2倍は未達**。同条件headless参考：打者準備53.99→101.27、打者投球45.80→36.92、投手準備34.35→25.22、投手投球30.03→20.52。高密度シーンCPU負荷は残件。目標設定と実測、保存tickと表示時刻を区別する。制御係数/足画像1.4mは未校正。製品commit e5389e614a7ed8d79daeaff835d82835e63d6509を既存branch/PR380へpush済み。PUBLICATION47495c63でremote/PR head一致と160件の公開Source/artifact Gitblob一致を実読確認。次は人間のv84実操作確認と高密度シーンの無劣化CPU最適化。main未merge。元CharterHOLD・旧FAILUNKNOWN・Native認証/100試合/実機/元未完を保持。以下は過去時点の記録。
 
 ## Active v83 — ホームランの守備目線見送り（SCOPED COMPLETE; GITHUB VERIFIED）
 

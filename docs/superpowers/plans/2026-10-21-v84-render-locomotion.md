@@ -71,4 +71,8 @@
 - [x] 共通moduleの全owner接続後、Coreと3HTMLをビルド。
 - [x] TSC、関連Core/Presentation回帰、通常9回完走/保存/触塁/裁定、maker v82機能/673/得能回帰。
 - [x] 品質1.0旧RGBA、1.2幾何/遮蔽、PC/390・DPR1/2。目標/実FPS/計算負荷を別報告。
-- [ ] 最終Source/HTML hash、再生成、凍結、GitHub保存。mainはマージしない。
+- [x] 最終Source/HTML hash、再生成、凍結、GitHub保存。mainはマージしない。
+
+## 実測と残件
+
+実装・3成果物・GitHub保存は検証済み。全場面の実FPS2倍は未達。headless参考で打者準備54→101、投手投球30→21 FPSとなり、高密度CPU描画の最適化は後続事項として保持する。元CharterHOLD・100試合校正・Native認証・実機・元機能残件は今回で完了しない。
