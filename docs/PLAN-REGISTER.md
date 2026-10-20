@@ -60,3 +60,8 @@ Other Sept 17 view/runtime/POV plans are reference/context; inspect their own St
 3. **AI/manager:** [Manager Architecture v1](game-design/49-manager-architecture-v1.md), [Player Trait Catalog](game-design/09-player-trait-catalog.md), [Player trait philosophy](game-design/08-player-traits-design-seed.md). Traits and displayed grades summarize true skill; no direct outcome buff.
 4. **Local code before GitHub:** The owner has files being worked on locally at home. This index knows nothing about their contents. On a real workspace, inspect before overwriting, pulling, cherry-picking or “cleaning up.” [Safety checklist](implementation/GITHUB-LOCAL-STATUS.md).
 5. **Update protocol:** When a plan is implemented, verify commit/tests/integration, then update its **status here** and the existing internal Status with evidence and link to the actual owner. Never claim `PASS` for `NOT RUN`/fixture-only or infer a complete match from documentation.
+
+
+## v81 最新版への無劣化性能実装（2026-10-20）
+
+[恒久標準](performance/PERFORMANCE-STANDARD.md)・[採否と実測](performance/2026-10-20-v81-lossless-results.md)。実装/3HTMLは `1f2155fd4c7241ca627dca53d288f28478c94654`（既存Draft PR #380、main未merge）。通常144/調整室60/メーカー64場面の画素一致、9回320＋別seed82球の全record一致。全673軌道を保持。全シーン同期更新を実装したが、初回起動コスト増・実機/60FPS全場面・Worker/GPU等は未達/未検証として残す。旧lv76証跡とは区別する。

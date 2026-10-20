@@ -94,3 +94,8 @@ For individual competitions/country rosters, first use the relevant numbered [`d
 3. Reconcile the **exact canonical status** before reusing a document, and compare newer user decisions with stale proposals. Do not decide which is newest from name alone.
 4. When creating a new plan: include explicit Status, sources, owner, dependencies, prohibited shortcuts, implementation/test gates and links in [PLAN-REGISTER.md](PLAN-REGISTER.md) and this Index.
 5. When completing code: update verified status **only with concrete test receipts**, and record any worktree/branch-only results rather than implying they exist on this branch.
+
+
+## v81 最新版への無劣化性能実装（2026-10-20）
+
+[恒久標準](performance/PERFORMANCE-STANDARD.md)・[採否と実測](performance/2026-10-20-v81-lossless-results.md)。実装/3HTMLは `1f2155fd4c7241ca627dca53d288f28478c94654`（既存Draft PR #380、main未merge）。通常144/調整室60/メーカー64場面の画素一致、9回320＋別seed82球の全record一致。全673軌道を保持。全シーン同期更新を実装したが、初回起動コスト増・実機/60FPS全場面・Worker/GPU等は未達/未検証として残す。旧lv76証跡とは区別する。
