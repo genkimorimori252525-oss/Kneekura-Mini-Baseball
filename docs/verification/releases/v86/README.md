@@ -50,3 +50,7 @@ py -3.10 -X utf8 -B tools/browser-bridge/package-maker-v86.py
 物理/通常試合はbyte不変なのでCore845試験・9回完走をv86で再実行したとは扱わない。未知の入力・JSON組合せや実機での無欠陥を保証しない。元CharterHOLD・旧FAILUNKNOWN・Native/100試合/実機・v84実FPS未達は保持する。
 
 継続記録auditは既存の `CHARTER_UNAPPROVED`（1件）と旧handoff等の警告を返した。今回の実装試験PASSと混同せず、原HOLDを維持。最新AGENTSのchat承認方式を妨げないが、今回の発言からCharter承認を推定していない。
+
+## GitHub保存
+
+製品commit `f0b8551` を既存branch `jolly/tbd-lad-native-browser-core-2026-10-14` とDraft PR #380へpush。`PUBLICATION_0c130fc9` receiptでremote/PR head一致、公開Source/artifact Gitblob128件一致を実読確認。`publication.json`。mainは未merge。
