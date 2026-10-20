@@ -1,6 +1,6 @@
 # v88 — 空振りとホームラン見送り
 
-実装・ローカル検証・8ファイル再生成一致を確認済み。GitHub公開状態は `docs/verification/releases/v88/publication.json` を参照。
+実装・検証・GitHub保存済み。製品 `f88733d`、既存Draft PR #380、main未merge。公開Source/artifact189 Git blobsの一致は `docs/verification/releases/v88/publication.json` で確認した。
 
 - [通常試合](game.html)
 - [カメラ調整室](lab.html)

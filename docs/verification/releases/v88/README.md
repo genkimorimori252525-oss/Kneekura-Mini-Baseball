@@ -49,3 +49,7 @@ py -3.10 -X utf8 -B tools/browser-bridge/package-playback-v88.py
 ```
 
 実command/log SHA付きreceiptは `docs/ai-continuity/verification-receipts/MB-20261021-V88-*`。
+
+GitHub公開照合PASS：製品 `f88733d`、PUBLICATION `09509a85`。remote/PR headと189 Source/artifact Git blobsが一致。既存branch/Draft PR #380、main未merge。後続の証跡commitは製品Sourceを変更しない。
+
+継続記録auditは旧CHARTER_UNAPPROVEDのHOLDを返した（CONTINUITY-AUDIT_200298de…）。今回の直接依頼と原Charter全体の承認は区別し、旧HOLD/原証拠を保持する。製品検証PASSとauditのFAILを混同しない。

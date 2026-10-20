@@ -1804,3 +1804,5 @@ PUBLICATION [MB-20261020-V75-PUBLICATION](verification-receipts/MB-20261020-V75-
 | MB-20261021-V88-PACKAGE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261021-V88-PACKAGE_72d67b85c48a4c40bb0400fe0cabcdaf.json |
 | MB-20261021-V88-STAGING | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261021-V88-STAGING_3064582a4caa42d59cd510d371017efb.json |
 | MB-20261021-V88-STAGING-FINAL | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261021-V88-STAGING-FINAL_03c1d88ee1eb4dac8570f3762185c7be.json |
+| MB-20261021-V88-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261021-V88-PUBLICATION_09509a85997c47d98e9d20f139d38eeb.json |
+| MB-20261021-V88-CONTINUITY-AUDIT | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261021-V88-CONTINUITY-AUDIT_200298de41e245e7912fcebb6a428dd8.json |
