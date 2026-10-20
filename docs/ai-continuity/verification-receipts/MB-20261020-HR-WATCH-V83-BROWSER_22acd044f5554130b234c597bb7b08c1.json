@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-HR-WATCH-V83-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-home-run-watch-v83.mjs",
+    "../../outputs/ばせぼーるlv83_TBD_vs_LAD_HR見送り延長版.html",
+    "docs/verification/releases/v83-hr-watch/browser-initial"
+  ],
+  "observed_at": "2026-10-20T14:21:07.998+00:00",
+  "elapsed_ms": 31968,
+  "git_head": "040c8ef685e97010e617be478e56d6cc54d8f099",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-HR-WATCH-V83-BROWSER_22acd044f5554130b234c597bb7b08c1.log",
+  "output_sha256": "374b082454babf89cef3856fe0838f3ffb9d3e759cf16f023393f3e805041597",
+  "receipt_id": "MB-20261020-HR-WATCH-V83-BROWSER_22acd044f5554130b234c597bb7b08c1"
+}

@@ -1592,3 +1592,11 @@ PUBLICATION [MB-20261020-V75-PUBLICATION](verification-receipts/MB-20261020-V75-
 | MB-20261020-V82-MAKER-RECOVERY-PACKAGE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V82-MAKER-RECOVERY-PACKAGE_895a8f0f17f747a986bf098a3a01e0dd.json |
 | MB-20261020-V82-MAKER-RECOVERY-GIT-PREFLIGHT | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V82-MAKER-RECOVERY-GIT-PREFLIGHT_1530ac3515a9446db2718b58aedffd5c.json |
 | MB-20261020-V82-MAKER-RECOVERY-PUBLICATION | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-V82-MAKER-RECOVERY-PUBLICATION_c48e0a77a8904e6cb017edb2746b106e.json |
+| MB-20261020-HR-WATCH-V83-RED | FAIL | Executed command exit=1 | docs/ai-continuity/verification-receipts/MB-20261020-HR-WATCH-V83-RED_3c3b157bf8e5404fb6ab1e04915b5d9b.json |
+| MB-20261020-HR-WATCH-V83-UNIT | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-HR-WATCH-V83-UNIT_9ed4db23adeb4e13a1c6a87f38685e58.json |
+| MB-20261020-HR-WATCH-V83-BROWSER | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-HR-WATCH-V83-BROWSER_22acd044f5554130b234c597bb7b08c1.json |
+| MB-20261020-HR-WATCH-V83-PIXELS | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-HR-WATCH-V83-PIXELS_e300f8435701417f85826b9fd75ca60f.json |
+| MB-20261020-HR-WATCH-V83-BROWSER-FINAL | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-HR-WATCH-V83-BROWSER-FINAL_d5a1d8e662da4c06a2cadf3567eca5f0.json |
+| MB-20261020-HR-WATCH-V83-HISTORY | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-HR-WATCH-V83-HISTORY_c0276bf815114c0ba9081acf86e6fcb1.json |
+| MB-20261020-HR-WATCH-V83-LAB | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-HR-WATCH-V83-LAB_300b050fc0c94947b88c3324db5e1054.json |
+| MB-20261020-HR-WATCH-V83-PACKAGE | PASS | Executed command exit=0 | docs/ai-continuity/verification-receipts/MB-20261020-HR-WATCH-V83-PACKAGE_03f5105f76234429b97af0929bf322d4.json |

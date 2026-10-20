@@ -1,0 +1,16 @@
+{
+  "version": 83,
+  "coreSha256": "a25f2da5d941219a3038e9c27ac0a49cc4cdd79ac0e50d0203a5603e1264e4bd",
+  "presentationSources": {
+    "tools/browser-bridge/home-run-watch-v83.js": "0a15a52c2515669b9a70288612db798e15b716c8ec6a0af6894a51a594a3d3a3",
+    "tools/browser-bridge/home-run-watch-patch-v83.mjs": "17d6375c7b793bd6cc9b6be37c4d153ac3abdcd9e4d9b63aab91c43b66bc106f",
+    "tools/browser-bridge/build-home-run-watch-v83.mjs": "ded80e992587df98dc9c89368850cadc0737af7b7d81100f81c1a0257b2854ba"
+  },
+  "reports": {
+    "browser-final/report.json": "406e517a6c8a5b545a36784c9d3e1314f0d9ace3c4874d71c1833a25fd9c082a",
+    "pixels/report.json": "71f4af4b9864e6bb46fa3551b117fcf93771bd687f1eccc28677f21b5d4e6693",
+    "history/report.json": "472d79c905dfa3ecae9f9af9241a0bd1bbc64e4c4a2d3aa390d263bfb42ce6e2",
+    "lab/report.json": "b59ec2973133000b672a34d55913368c73339231710a9770acccdd6359de37c9"
+  },
+  "scope": "HR camera watch only; FPS, quality and locomotion requests remain pending."
+}

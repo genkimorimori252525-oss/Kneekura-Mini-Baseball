@@ -1,0 +1,47 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ tools/browser-bridge/home-run-watch-v83.test.mjs > holds the previously admitted defender camera for exactly 1750 presentation milliseconds
+ ✓ tools/browser-bridge/home-run-watch-v83.test.mjs > reverse seeks and interleaved records do not retain a stale camera or countdown
+ ✓ tools/browser-bridge/home-run-watch-v83.test.mjs > uses the declared Source clock, including one tick per second, for start and duration
+ ✓ tools/browser-bridge/home-run-watch-v83.test.mjs > does not read payloads after the admitted crossing prefix or reveal a future confirmation
+ ✓ tools/browser-bridge/home-run-watch-v83.test.mjs > requires an actual past defender view and preserves the existing decisive-HR mound view
+ ✓ tools/browser-bridge/home-run-watch-v83.test.mjs > continues the hold into a bench frame without a duplicated homeRunConfirmed flag
+ × tools/browser-bridge/home-run-watch-v83.test.mjs > accepts confirmation in the first admitted saved frame after a crossing between saved frames
+   → expected null to match object { crossingTick: 101975000, …(5) }
+ ✓ tools/browser-bridge/home-run-watch-v83.test.mjs > changes only a copied dead HR ball visibility and never mutates canonical rows
+ ✓ tools/browser-bridge/home-run-watch-v83.test.mjs > does not affect other selected cameras, non-HR outcomes, caught balls, or invalid fence evidence
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tools/browser-bridge/home-run-watch-v83.test.mjs > accepts confirmation in the first admitted saved frame after a crossing between saved frames
+AssertionError: expected null to match object { crossingTick: 101975000, …(5) }
+
+- Expected: 
+Object {
+  "active": true,
+  "camera": "fielder",
+  "crossingTick": 101975000,
+  "observerPlayerId": "LF",
+  "startAtMs": 3515,
+  "untilMs": 5265,
+}
+
++ Received: 
+null
+
+ ❯ tools/browser-bridge/home-run-watch-v83.test.mjs:121:62
+    119|   f.frame = f.record.frames[2];
+    120|   expect(f.record.frames.some(frame => frame.tick <= f.crossingTick &&…
+    121|   expect(plain(watch.observe(request(f, f.startAtMs + 25)))).toMatchOb…
+       |                                                              ^
+    122|     crossingTick: f.crossingTick, startAtMs: f.startAtMs, untilMs: f.s…
+    123|     camera: 'fielder', observerPlayerId: 'LF', active: true,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  23:17:58
+   Duration  681ms (transform 38ms, setup 0ms, collect 34ms, tests 25ms, environment 0ms, prepare 195ms)
+
