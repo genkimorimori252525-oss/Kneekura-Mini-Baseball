@@ -42,3 +42,5 @@
 旧凍結v81 rendererと現メーカーCoreは別bundle。共有ソース2件のauthoring accessor追加による履歴hash差は最終reportの `native.sourcePinsAtEnd.currentSourceDifferences` に保存。旧bundle・manifestを現在ソースのhashに書き換えていない。
 
 元Charter独立承認HOLD、Native認証、100試合校正、実機/熱/電力/オンライン、元の機能残件は継続する。シーズン確定履歴の削除や全体Undoは今回実装していない。
+
+GitHub保存: 製品commit `5cac000`、既存Draft PR #380。remote/PR head、104件のSource Git blobと凍結配布物を照合。記録は [publication.json](publication.json)、receipt `RECOVERY-PUBLICATION_c48e0a77a8904e6cb017edb2746b106e.json`。main未merge。
