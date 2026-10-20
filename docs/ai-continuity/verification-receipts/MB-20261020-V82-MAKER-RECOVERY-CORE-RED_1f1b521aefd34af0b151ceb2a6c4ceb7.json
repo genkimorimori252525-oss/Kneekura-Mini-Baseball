@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V82-MAKER-RECOVERY-CORE-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/MakerValueRecoveryV82.test.ts",
+    "--maxWorkers",
+    "1",
+    "--minWorkers",
+    "1"
+  ],
+  "observed_at": "2026-10-20T13:34:05.152+00:00",
+  "elapsed_ms": 1562,
+  "git_head": "2b3a8aafd04f0d49edc5c9f12637babc620901f6",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V82-MAKER-RECOVERY-CORE-RED_1f1b521aefd34af0b151ceb2a6c4ceb7.log",
+  "output_sha256": "d78dc71c2399ce05d6c36721c257dc2bd87c29804cb1d9931110d507ff65d4a9",
+  "receipt_id": "MB-20261020-V82-MAKER-RECOVERY-CORE-RED_1f1b521aefd34af0b151ceb2a6c4ceb7"
+}

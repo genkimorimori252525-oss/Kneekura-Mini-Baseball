@@ -1,13 +1,22 @@
 ---
-current_task: "MB-20261020-V81-IMPLEMENTATION"
+current_task: "MB-20261020-V82-MAKER-RECOVERY"
 active_agent: "root"
 branch: "jolly/tbd-lad-native-browser-core-2026-10-14"
-commit_head: "1f2155fd4c7241ca627dca53d288f28478c94654"
-status: "SCOPED_COMPLETE_GITHUB_VERIFIED"
-evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261020-V81-PUBLICATION_98f885998ab84a10985c993bdd9f4a25.json"
-updated_at: "2026-10-20T13:22:30.113793+00:00"
+commit_head: "2b3a8aafd04f0d49edc5c9f12637babc620901f6"
+status: "SCOPED_VERIFIED_LOCAL"
+evidence_ref: "docs/ai-continuity/verification-receipts/MB-20261020-V82-MAKER-RECOVERY-PACKAGE_895a8f0f17f747a986bf098a3a01e0dd.json"
+updated_at: "2026-10-20T13:57:45.637759+00:00"
 
 ---
+
+## Active v82 — メーカー削除・入力復帰（SCOPED VERIFIED; LOCAL）
+
+人間の5項目承認はAMENDMENTS/2026-10-20-v82-maker-recovery.md。所持球の可視削除/直前取消/最後1球・dirty保護、内部値の日本語理由/具体的増減/単一項目の最近傍候補/明示適用・取消、cm表示/SI保存維持、個別・全選手pending復帰、研究用復帰、比較集団個別除去/取消を実装。正規Core制約を共有しcatalog便宜範囲でclampしない。旧public APIs/JSON/独立17得能/100超と選球眼境界/全673/v81性能標準を維持。
+
+最終HTML outputs/にーくら野球メーカー_v82_削除と入力復帰版.html SHA5c4ab2836fff35957f4480afb48e7d0a6096879184fccb6b997e635dbb582edf。凍結docs/demos/releases/v82/maker.html。設計docs/design/2026-10-20-maker-recovery-v82.md、全証拠docs/verification/releases/v82/README.md。Core87 tests/TSC、両幅8群・球削除・24候補左右・投球図・63コース/成績/保存・17得能PASS。v81と64場面RGBA/試投/roster一致、95Source現在一致、再build3file byte一致、package7report PASS。旧v81rendererは別bundleのまま保持しauthoring source2件の履歴hash差も記録。
+
+原RED・旧暗黙取消course試験FAIL・reviewで再現した名前/ID空欄例外と研究実験の旧結果を全保持。2bugは追加RED→修正→最終拡張GREEN。通常試合の物理/裁定/原画/カメラ/軽量化を変更していない。現在次手順は選択的Git保存と配布HTMLを開くこと。既存user AGENTS.md/AGENTS.md.bak/.agents/旧dist等を除外。元Charter独立承認HOLD、Native認証、実測校正/100試合/実機/旧FAILUNKNOWNを継続。シーズン確定履歴の破壊的取消と全体Undoは対象外。
+
 
 ## Active v81 — 無劣化性能標準と最新版移植（SCOPED COMPLETE; GITHUB VERIFIED）
 

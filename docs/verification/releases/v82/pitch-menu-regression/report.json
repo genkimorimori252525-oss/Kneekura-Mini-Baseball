@@ -1,0 +1,79 @@
+{
+  "pass": true,
+  "sha256": "35eb7d7f80a558ecc95936ea4f69978c93af3f4b3aa5081b01b49cc96e98206a",
+  "coreSha256": "89c782901927abe3a1cd615a0ca99fc77132623c72b8b2cd63c54395f4db4c85",
+  "sourceCount": 95,
+  "recoverySourcesPinned": true,
+  "inheritedPitchViewsAndRosterUnchanged": true,
+  "currentAuthoringCoreAndFrozenRendererPinned": true,
+  "cases": [
+    {
+      "width": 1200,
+      "hand": "R",
+      "allPresets": 24,
+      "ownedAlwaysVisible": true,
+      "ownedAfterAdd": 32,
+      "uniquePitchIds": true,
+      "arrowsMatchSharedSpin": true,
+      "browseReadOnly": true,
+      "dirtyGuards": true,
+      "rosterOnlyRepertoireChanged": true,
+      "jsonRoundTrip": true,
+      "trial": true
+    },
+    {
+      "width": 1200,
+      "hand": "L",
+      "allPresets": 24,
+      "ownedAlwaysVisible": true,
+      "ownedAfterAdd": 32,
+      "uniquePitchIds": true,
+      "arrowsMatchSharedSpin": true,
+      "browseReadOnly": true,
+      "dirtyGuards": true,
+      "rosterOnlyRepertoireChanged": true,
+      "jsonRoundTrip": true,
+      "trial": false
+    },
+    {
+      "width": 390,
+      "hand": "R",
+      "allPresets": 24,
+      "ownedAlwaysVisible": true,
+      "ownedAfterAdd": 32,
+      "uniquePitchIds": true,
+      "arrowsMatchSharedSpin": true,
+      "browseReadOnly": true,
+      "dirtyGuards": true,
+      "rosterOnlyRepertoireChanged": true,
+      "jsonRoundTrip": true,
+      "trial": true
+    },
+    {
+      "width": 390,
+      "hand": "L",
+      "allPresets": 24,
+      "ownedAlwaysVisible": true,
+      "ownedAfterAdd": 32,
+      "uniquePitchIds": true,
+      "arrowsMatchSharedSpin": true,
+      "browseReadOnly": true,
+      "dirtyGuards": true,
+      "rosterOnlyRepertoireChanged": true,
+      "jsonRoundTrip": true,
+      "trial": false
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "errors": [],
+      "external": []
+    }
+  ]
+}

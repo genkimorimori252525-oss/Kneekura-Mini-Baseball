@@ -19,6 +19,25 @@ export type WorkbenchPlayer = Readonly<{
 }>;
 
 const leagues: readonly WorkbenchLeagueId[] = ['NPB', 'MLB', 'NLB', 'KBO', 'CUSTOM'];
+const inputRanges = {
+  'body.heightMeters': [.8, 3], 'body.massKg': [15, 300],
+  'capability.maximumSweetSpotSpeedMps': [.1, 90], 'capability.motorLatencyTicks': [1, 2_000_000],
+  'capability.technicalTimingOffsetTicks': [-500_000, 500_000], 'capability.runSpeedMps': [.1, 20],
+  'capability.throwSpeedMps': [.1, 80], 'capability.pitchSpeedMps': [.1, 80],
+  'capability.positionErrorMeters': [0, 1], 'capability.timingErrorTicks': [0, 500_000],
+  'bat.lengthM': [.2, 3], 'bat.massKg': [.05, 5], 'bat.sweetSpotT': [.65, .9],
+  'swing.speedMps': [.1, 90], 'swing.attackAngleDeg': [-80, 80], 'swing.pullAngleDeg': [-80, 80],
+  'swing.preContactSeconds': [.005, 2], 'swing.followThroughSeconds': [.005, 2],
+  'swing.contactDepthM': [.001, 2], 'swing.loadAngleDeg': [-179, 179], 'swing.finishAngleDeg': [-179, 179],
+  'swing.handTravelM': [0, 1], 'decision.threshold': [0, 1], 'decision.aggressionWeight': [0, 1], 'traits.badBallControl': [0, 1],
+} as const;
+/** Input limits only. Dynamic swing-speed coupling remains checked by the validator. */
+export function getWorkbenchInternalValueLimitsV82(path: string) {
+  if (typeof path !== 'string' || !Object.hasOwn(inputRanges, path)) return null;
+  const limits = inputRanges[path as keyof typeof inputRanges];
+  return Object.freeze({ minimum: limits[0], maximum: limits[1], minimumInclusive: true, maximumInclusive: true,
+    integer: path.endsWith('Ticks') });
+}
 const freeze = <T>(value: T): T => {
   if (value !== null && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); }
   return value;
@@ -49,33 +68,33 @@ export function createWorkbenchPlayer(raw: unknown): WorkbenchPlayer {
   if (!leagues.includes(player.identity.leagueId) || !['R', 'L'].includes(player.identity.bats)
     || !['R', 'L'].includes(player.identity.throws)) throw new Error('invalid workbench identity');
   fields(player.body, ['heightMeters', 'massKg'], 'body');
-  range(player.body.heightMeters, 0.8, 3, 'heightMeters'); range(player.body.massKg, 15, 300, 'body.massKg');
+  range(player.body.heightMeters, ...inputRanges['body.heightMeters'], 'heightMeters'); range(player.body.massKg, ...inputRanges['body.massKg'], 'body.massKg');
   fields(player.capability, ['maximumSweetSpotSpeedMps', 'motorLatencyTicks', 'technicalTimingOffsetTicks', 'runSpeedMps',
     'throwSpeedMps', 'pitchSpeedMps', 'positionErrorMeters', 'timingErrorTicks'], 'capability');
   const c = player.capability;
-  range(c.maximumSweetSpotSpeedMps, 0.1, 90, 'maximumSweetSpotSpeedMps');
-  ticks(c.motorLatencyTicks, 1, 2_000_000, 'motorLatencyTicks');
-  ticks(c.technicalTimingOffsetTicks, -500_000, 500_000, 'technicalTimingOffsetTicks');
-  range(c.runSpeedMps, 0.1, 20, 'runSpeedMps'); range(c.throwSpeedMps, 0.1, 80, 'throwSpeedMps');
-  range(c.pitchSpeedMps, 0.1, 80, 'pitchSpeedMps'); range(c.positionErrorMeters, 0, 1, 'positionErrorMeters');
-  ticks(c.timingErrorTicks, 0, 500_000, 'timingErrorTicks');
+  range(c.maximumSweetSpotSpeedMps, ...inputRanges['capability.maximumSweetSpotSpeedMps'], 'maximumSweetSpotSpeedMps');
+  ticks(c.motorLatencyTicks, ...inputRanges['capability.motorLatencyTicks'], 'motorLatencyTicks');
+  ticks(c.technicalTimingOffsetTicks, ...inputRanges['capability.technicalTimingOffsetTicks'], 'technicalTimingOffsetTicks');
+  range(c.runSpeedMps, ...inputRanges['capability.runSpeedMps'], 'runSpeedMps'); range(c.throwSpeedMps, ...inputRanges['capability.throwSpeedMps'], 'throwSpeedMps');
+  range(c.pitchSpeedMps, ...inputRanges['capability.pitchSpeedMps'], 'pitchSpeedMps'); range(c.positionErrorMeters, ...inputRanges['capability.positionErrorMeters'], 'positionErrorMeters');
+  ticks(c.timingErrorTicks, ...inputRanges['capability.timingErrorTicks'], 'timingErrorTicks');
   fields(player.bat, ['lengthM', 'massKg', 'sweetSpotT'], 'bat');
-  range(player.bat.lengthM, 0.2, 3, 'bat.lengthM'); range(player.bat.massKg, 0.05, 5, 'bat.massKg');
+  range(player.bat.lengthM, ...inputRanges['bat.lengthM'], 'bat.lengthM'); range(player.bat.massKg, ...inputRanges['bat.massKg'], 'bat.massKg');
   // Measured model points six inches from a 34-inch tip are at T≈.824.
   // Keep the authored value; the older image-only .78 limit excluded them.
-  range(player.bat.sweetSpotT, 0.65, 0.9, 'sweetSpotT (declared barrel reference)');
+  range(player.bat.sweetSpotT, ...inputRanges['bat.sweetSpotT'], 'sweetSpotT (declared barrel reference)');
   fields(player.swing, ['speedMps', 'attackAngleDeg', 'pullAngleDeg', 'preContactSeconds', 'followThroughSeconds',
     'contactDepthM', 'loadAngleDeg', 'finishAngleDeg', 'handTravelM'], 'swing');
   const s = player.swing;
-  range(s.speedMps, 0.1, c.maximumSweetSpotSpeedMps, 'swing speed envelope');
-  range(s.attackAngleDeg, -80, 80, 'attackAngleDeg'); range(s.pullAngleDeg, -80, 80, 'pullAngleDeg');
-  range(s.preContactSeconds, 0.005, 2, 'preContactSeconds'); range(s.followThroughSeconds, 0.005, 2, 'followThroughSeconds');
-  range(s.contactDepthM, 0.001, 2, 'contactDepthM'); range(s.loadAngleDeg, -179, 179, 'loadAngleDeg');
-  range(s.finishAngleDeg, -179, 179, 'finishAngleDeg'); range(s.handTravelM, 0, 1, 'handTravelM');
+  range(s.speedMps, inputRanges['swing.speedMps'][0], c.maximumSweetSpotSpeedMps, 'swing speed envelope');
+  range(s.attackAngleDeg, ...inputRanges['swing.attackAngleDeg'], 'attackAngleDeg'); range(s.pullAngleDeg, ...inputRanges['swing.pullAngleDeg'], 'pullAngleDeg');
+  range(s.preContactSeconds, ...inputRanges['swing.preContactSeconds'], 'preContactSeconds'); range(s.followThroughSeconds, ...inputRanges['swing.followThroughSeconds'], 'followThroughSeconds');
+  range(s.contactDepthM, ...inputRanges['swing.contactDepthM'], 'contactDepthM'); range(s.loadAngleDeg, ...inputRanges['swing.loadAngleDeg'], 'loadAngleDeg');
+  range(s.finishAngleDeg, ...inputRanges['swing.finishAngleDeg'], 'finishAngleDeg'); range(s.handTravelM, ...inputRanges['swing.handTravelM'], 'handTravelM');
   fields(player.decision, ['threshold', 'aggressionWeight', 'approach'], 'decision');
-  range(player.decision.threshold, 0, 1, 'threshold'); range(player.decision.aggressionWeight, 0, 1, 'aggressionWeight');
+  range(player.decision.threshold, ...inputRanges['decision.threshold'], 'threshold'); range(player.decision.aggressionWeight, ...inputRanges['decision.aggressionWeight'], 'aggressionWeight');
   if (!['AUTO', 'TAKE', 'SWING'].includes(player.decision.approach)) throw new Error('invalid workbench approach');
-  fields(player.traits, ['badBallControl', 'labels'], 'traits'); range(player.traits.badBallControl, 0, 1, 'badBallControl');
+  fields(player.traits, ['badBallControl', 'labels'], 'traits'); range(player.traits.badBallControl, ...inputRanges['traits.badBallControl'], 'badBallControl');
   if (!Array.isArray(player.traits.labels) || player.traits.labels.length > 32) throw new Error('invalid workbench trait labels');
   player.traits.labels.forEach(label => text(label, 'trait label'));
   if (new Set(player.traits.labels).size !== player.traits.labels.length) throw new Error('duplicate workbench trait label');

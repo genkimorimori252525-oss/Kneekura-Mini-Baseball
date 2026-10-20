@@ -1,0 +1,253 @@
+{
+  "pass": true,
+  "phase": "complete",
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v82_削除と入力復帰版.html",
+  "views": [
+    {
+      "width": 1200,
+      "checks": [
+        {
+          "targetSpeed": {
+            "requested": 60,
+            "suggested": 40,
+            "difference": 20,
+            "explicitApply": true,
+            "cancelKeepsRaw": true,
+            "discardKeepsAccepted": true,
+            "dynamicMaximum": true,
+            "canLeaveInvalidInput": true
+          }
+        },
+        {
+          "units": {
+            "heightCmToM": [
+              300,
+              250,
+              2.5
+            ],
+            "batCmToM": [
+              [
+                400,
+                300,
+                3
+              ],
+              [
+                0,
+                20,
+                0.2
+              ]
+            ],
+            "validLongBatM": 1.5
+          },
+          "precision": 7.123456789012345
+        },
+        {
+          "pendingAcrossPlayers": {
+            "named": true,
+            "selectedOnlyRevert": true,
+            "explicitAllPlayersRevert": true,
+            "acceptedRosterExact": true
+          }
+        },
+        {
+          "researchWorkbench": {
+            "cancelKeepsRaw": true,
+            "discardRestoresValidDraft": true,
+            "applyExact": true,
+            "gameRosterExact": true
+          }
+        },
+        {
+          "comparisonPopulation": {
+            "individualRemove": true,
+            "exactUndo": true,
+            "laterEditInvalidatesUndo": true,
+            "importInvalidatesUndo": true
+          }
+        },
+        {
+          "realJsonDownloads": true,
+          "noDependencyErrors": true,
+          "noExternalRequests": true,
+          "sourceClipsExact": true
+        }
+      ],
+      "api": {
+        "getRecoveryStateV82": "function",
+        "requestInternalAdjustmentV82": "function",
+        "applyInternalAdjustmentV82": "function",
+        "cancelInternalAdjustmentV82": "function",
+        "revertInternalEditsV82": "function",
+        "requestWorkbenchAdjustmentV82": "function",
+        "revertWorkbenchDraftV82": "function"
+      },
+      "source": {
+        "clips": 673,
+        "referenceSha256": "215e1e44d20c7d1506b4fc8ef6f95edf98119da4c9bfd8899267855c33bb4626"
+      },
+      "proposalLayout": {
+        "client": 1200,
+        "scroll": 1200,
+        "inner": 1200
+      },
+      "layout": {
+        "client": 1200,
+        "scroll": 1200,
+        "inner": 1200
+      },
+      "researchLayout": {
+        "client": 1200,
+        "scroll": 1200,
+        "inner": 1200
+      }
+    },
+    {
+      "width": 390,
+      "checks": [
+        {
+          "targetSpeed": {
+            "requested": 60,
+            "suggested": 40,
+            "difference": 20,
+            "explicitApply": true,
+            "cancelKeepsRaw": true,
+            "discardKeepsAccepted": true,
+            "dynamicMaximum": true,
+            "canLeaveInvalidInput": true
+          }
+        },
+        {
+          "units": {
+            "heightCmToM": [
+              300,
+              250,
+              2.5
+            ],
+            "batCmToM": [
+              [
+                400,
+                300,
+                3
+              ],
+              [
+                0,
+                20,
+                0.2
+              ]
+            ],
+            "validLongBatM": 1.5
+          },
+          "precision": 7.123456789012345
+        },
+        {
+          "pendingAcrossPlayers": {
+            "named": true,
+            "selectedOnlyRevert": true,
+            "explicitAllPlayersRevert": true,
+            "acceptedRosterExact": true
+          }
+        },
+        {
+          "researchWorkbench": {
+            "cancelKeepsRaw": true,
+            "discardRestoresValidDraft": true,
+            "applyExact": true,
+            "gameRosterExact": true
+          }
+        },
+        {
+          "comparisonPopulation": {
+            "individualRemove": true,
+            "exactUndo": true,
+            "laterEditInvalidatesUndo": true,
+            "importInvalidatesUndo": true
+          }
+        },
+        {
+          "realJsonDownloads": true,
+          "noDependencyErrors": true,
+          "noExternalRequests": true,
+          "sourceClipsExact": true
+        }
+      ],
+      "api": {
+        "getRecoveryStateV82": "function",
+        "requestInternalAdjustmentV82": "function",
+        "applyInternalAdjustmentV82": "function",
+        "cancelInternalAdjustmentV82": "function",
+        "revertInternalEditsV82": "function",
+        "requestWorkbenchAdjustmentV82": "function",
+        "revertWorkbenchDraftV82": "function"
+      },
+      "source": {
+        "clips": 673,
+        "referenceSha256": "215e1e44d20c7d1506b4fc8ef6f95edf98119da4c9bfd8899267855c33bb4626"
+      },
+      "proposalLayout": {
+        "client": 390,
+        "scroll": 390,
+        "inner": 390
+      },
+      "layout": {
+        "client": 390,
+        "scroll": 390,
+        "inner": 390
+      },
+      "researchLayout": {
+        "client": 390,
+        "scroll": 390,
+        "inner": 390
+      }
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "errors": [],
+      "external": []
+    }
+  ],
+  "scope": "v82 internal capability recovery, explicit proposals and discard, cm/SI and arbitrary precision, research draft recovery, comparison population removal/undo, 1200/390 offline browser.",
+  "harnessSha256": "1359811daceffdc25c7dd117c27612fe7b52711fa34f1ba652a98eb449abb468",
+  "sha256": "35eb7d7f80a558ecc95936ea4f69978c93af3f4b3aa5081b01b49cc96e98206a",
+  "coreSha256": "89c782901927abe3a1cd615a0ca99fc77132623c72b8b2cd63c54395f4db4c85",
+  "metadataSha256": "3e9489c1d83908d7994efd130bb705c3bb4891ecf999071875047542dff5ee74",
+  "manifestSha256": "343e74ad7c5dc03198e7d998d9426eba4be06ff3c976014cd7cf0a2afe10b635",
+  "native": {
+    "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\docs\\demos\\releases\\v81\\game.html",
+    "sha256": "b87445d9fdb0bc569d3ed2d6bd0fb9d02198e923323712887c524e9d7335e02c",
+    "coreSha256": "a25f2da5d941219a3038e9c27ac0a49cc4cdd79ac0e50d0203a5603e1264e4bd",
+    "metadataSha256": "a7e1a6c6afc0d7368ce59fddcea62e606e8cc45fccd686349bc5f098898236c7",
+    "manifestSha256": "602222be9b29d6b5d067ccc69f460533eaff22a40518b46b0a6f393005678f9e",
+    "latestCompiledCoreSha256": "a25f2da5d941219a3038e9c27ac0a49cc4cdd79ac0e50d0203a5603e1264e4bd",
+    "latestCompiledCoreMatchesFrozen": true,
+    "sourcePinsAtEnd": {
+      "frozenManifestUnchanged": true,
+      "count": 127,
+      "entrySha256": "a25f2da5d941219a3038e9c27ac0a49cc4cdd79ac0e50d0203a5603e1264e4bd",
+      "currentSourceDifferences": [
+        {
+          "path": "src/integration/browser/LivePhysicalRosterV1.ts",
+          "frozenSourceSha256": "87ab31d4433d50fad61a2c01f48ccf6a2cbdd918beb5595616783ba343e1c21d",
+          "currentSourceSha256": "4fa99f42d845a68ffe5bcb2b936f89bbe0396b98dccfb1facf68a9d1bb516eca"
+        },
+        {
+          "path": "src/integration/browser/WorkbenchPlayer.ts",
+          "frozenSourceSha256": "e2a88c204be298c433c015d2254d5747a82316c50a35da55dae8373a030db2b2",
+          "currentSourceSha256": "056de4fa77a7576793f3a2cf72480100e234f3297f8d2369c1186552a5f6df21"
+        }
+      ],
+      "scope": "Frozen normal renderer bytes/metadata/manifest are verified. Its historical source hashes are not asserted equal to current authoring sources."
+    }
+  },
+  "sourcePinsAtEnd": {
+    "verified": true,
+    "count": 95,
+    "entrySha256": "89c782901927abe3a1cd615a0ca99fc77132623c72b8b2cd63c54395f4db4c85"
+  }
+}

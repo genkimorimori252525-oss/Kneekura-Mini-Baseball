@@ -71,6 +71,19 @@ const bounds: Partial<Record<typeof scalarKeys[number], readonly [number, number
   baserunningTurnRadiusMeters: [.5, 10], baserunningLateralAccelerationMps2: [.5, 20],
 };
 const nonnegative = new Set<string>(['reactionSeconds', 'transferSeconds', 'defensiveDecisionSeconds']);
+const heightBounds = [1.1, 2.5] as const, maximumPitchSpeedKmhBounds = [54, 306] as const;
+const decisionBounds = [0, 1] as const, spinMagnitudeLimit = 1200;
+/** The same scalar limits used below; catalog display increments are not constraints. */
+export function getLiveInternalValueLimitsV82(path: string, entryPath = false) {
+  if (typeof path !== 'string') return null;
+  const scalar = (scalarKeys as readonly string[]).includes(path);
+  const limits = entryPath ? path === 'heightMeters' ? heightBounds : path === 'maximumPitchSpeedKmh' ? maximumPitchSpeedKmhBounds : null
+    : scalar ? bounds[path as typeof scalarKeys[number]] : ['swingDecision.threshold', 'swingDecision.aggressionWeight'].includes(path) ? decisionBounds
+    : ['spinRadPerSecond.x', 'spinRadPerSecond.y', 'spinRadPerSecond.z'].includes(path) ? [-spinMagnitudeLimit, spinMagnitudeLimit] as const : null;
+  if (!limits && (entryPath || !scalar)) return null;
+  return Object.freeze({ minimum: limits?.[0] ?? 0, maximum: limits?.[1] ?? null,
+    minimumInclusive: !!limits || nonnegative.has(path), maximumInclusive: true, integer: false });
+}
 const freeze = <T>(value: T): T => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
 function assert(value: unknown, message: string): asserts value { if (!value) throw new Error('live physical roster: ' + message); }
 const validText = (value: unknown): value is string => typeof value === 'string' && value.trim() === value && value.length > 0 && value.length <= 200;
@@ -101,7 +114,7 @@ function validatePhysical(raw: unknown): asserts raw is LiveRosterPhysicalV1 {
     fields(raw.spinRadPerSecond, ['x', 'y', 'z'], ['x', 'y', 'z'], 'spinRadPerSecond');
     const spin = raw.spinRadPerSecond;
     assert(Object.values(spin).every(n => typeof n === 'number' && Number.isFinite(n))
-      && Math.hypot(spin.x as number, spin.y as number, spin.z as number) <= 1200, 'invalid SI spin');
+      && Math.hypot(spin.x as number, spin.y as number, spin.z as number) <= spinMagnitudeLimit, 'invalid SI spin');
   }
   if (Object.hasOwn(raw, 'clipId')) assert(validText(raw.clipId), 'invalid measured clip identity');
   if (Object.hasOwn(raw, 'impactTrajectory')) validateImpactTrajectorySettingsV1(raw.impactTrajectory);
@@ -113,7 +126,7 @@ function validatePhysical(raw: unknown): asserts raw is LiveRosterPhysicalV1 {
   if (Object.hasOwn(raw, 'swingDecision')) {
     fields(raw.swingDecision, ['approach', 'threshold', 'aggressionWeight'], ['approach', 'threshold', 'aggressionWeight'], 'swingDecision');
     assert(['AUTO', 'TAKE', 'SWING'].includes(raw.swingDecision.approach as string)
-      && [raw.swingDecision.threshold, raw.swingDecision.aggressionWeight].every(v => typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 1), 'invalid explicit swing decision');
+      && [raw.swingDecision.threshold, raw.swingDecision.aggressionWeight].every(v => typeof v === 'number' && Number.isFinite(v) && v >= decisionBounds[0] && v <= decisionBounds[1]), 'invalid explicit swing decision');
   }
   if (raw.maximumSweetSpotSpeedMps !== undefined && raw.targetSweetSpotSpeedMps !== undefined)
     assert((raw.targetSweetSpotSpeedMps as number) <= (raw.maximumSweetSpotSpeedMps as number), 'target swing speed exceeds declared motor ceiling');
@@ -126,7 +139,7 @@ export function applyLivePhysicalRosterV1(raw: unknown) {
   fields(input, ['players', 'roster'], ['players', 'roster'], 'input');
   assert(Array.isArray(input.players), 'players required');
   const players = input.players as LivePlayerV1[];
-  assert(players.every(p => validText(p.playerId) && validText(p.name) && Number.isFinite(p.heightMeters) && p.heightMeters >= 1.1 && p.heightMeters <= 2.5 && ['R', 'L'].includes(p.bats))
+  assert(players.every(p => validText(p.playerId) && validText(p.name) && Number.isFinite(p.heightMeters) && p.heightMeters >= heightBounds[0] && p.heightMeters <= heightBounds[1] && ['R', 'L'].includes(p.bats))
     && new Set(players.map(p => p.playerId)).size === players.length, 'invalid roster identity');
   fields(input.roster, ['version', 'sourceId', 'entries'], ['version', 'sourceId', 'entries'], 'roster');
   assert(input.roster.version === 'live_physical_roster_v1' && validText(input.roster.sourceId) && Array.isArray(input.roster.entries), 'invalid roster packet');
@@ -185,14 +198,14 @@ export function applyLivePhysicalRosterV1(raw: unknown) {
         reason: 'A display label does not supply a calibrated technical source or an extra physical bonus.' }));
     }
     if (entry?.maximumPitchSpeedKmh !== undefined) {
-      assert(Number.isFinite(entry.maximumPitchSpeedKmh) && entry.maximumPitchSpeedKmh >= 54 && entry.maximumPitchSpeedKmh <= 306, 'unsupported maximum pitch speed');
+      assert(Number.isFinite(entry.maximumPitchSpeedKmh) && entry.maximumPitchSpeedKmh >= maximumPitchSpeedKmhBounds[0] && entry.maximumPitchSpeedKmh <= maximumPitchSpeedKmhBounds[1], 'unsupported maximum pitch speed');
       const maximumPitchSpeedMps = entry.maximumPitchSpeedKmh / 3.6;
       assert(physical.maximumPitchSpeedMps === undefined || physical.maximumPitchSpeedMps === maximumPitchSpeedMps, 'conflicting pitch speed limits');
       physical = { ...physical, maximumPitchSpeedMps };
       project('maximumPitchSpeedKmh', 'maximumPitchSpeedMps', maximumPitchSpeedMps, 'km/h / 3.6');
     }
     if (entry?.heightMeters !== undefined) {
-      assert(Number.isFinite(entry.heightMeters) && entry.heightMeters >= 1.1 && entry.heightMeters <= 2.5, 'unsupported physical height');
+      assert(Number.isFinite(entry.heightMeters) && entry.heightMeters >= heightBounds[0] && entry.heightMeters <= heightBounds[1], 'unsupported physical height');
       assert(!entry.workbenchPlayer || entry.workbenchPlayer.body.heightMeters === entry.heightMeters, 'conflicting body heights');
       heightMeters = entry.heightMeters; project('heightMeters', 'heightMeters', heightMeters);
     }
@@ -213,7 +226,7 @@ export function applyLivePhysicalRosterV1(raw: unknown) {
     const traitProfile = entry?.traitProfile === undefined ? undefined : validateLiveTraitProfileV1(entry.traitProfile, physical);
     if (traitProfile !== undefined) project('traitProfile', 'traitProfile', traitProfile,
       traitProfile.version === 'live_trait_profile_v2' ? 'INDEPENDENT_RUNTIME_TECHNIQUE_BASE_SI_UNCHANGED' : 'LOCAL_SOURCE_METADATA_NO_ADDITIONAL_EFFECT');
-    assert(heightMeters >= 1.1 && heightMeters <= 2.5, 'unsupported physical height');
+    assert(heightMeters >= heightBounds[0] && heightMeters <= heightBounds[1], 'unsupported physical height');
     const targetPaths = new Set(projected.map(p => p.targetPath));
     auditPlayers.push({ playerId: player.playerId, sourceId: entry?.sourceId ?? null, sourcePlayerId, projected, unsupported,
       referenceDefaultPaths: player.physical ? [] : Object.keys(LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1).filter(k => k !== 'basis' && !targetPaths.has(k)) });

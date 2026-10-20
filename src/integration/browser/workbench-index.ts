@@ -1,4 +1,4 @@
-export { createWorkbenchPlayer, defaultWorkbenchPlayer, previewLeagueRatings, exportWorkbenchPlayerSources } from './WorkbenchPlayer';
+export { createWorkbenchPlayer, defaultWorkbenchPlayer, previewLeagueRatings, exportWorkbenchPlayerSources, getWorkbenchInternalValueLimitsV82 } from './WorkbenchPlayer';
 export type { WorkbenchPlayer, WorkbenchLeagueId } from './WorkbenchPlayer';
 export { simulateBattingWorkbench } from './BattingWorkbench';
 export type { BattingWorkbenchInput, WorkbenchPitch } from './BattingWorkbench';
@@ -10,7 +10,9 @@ export { simulateReferenceBattingWorkbench } from './ReferenceBattingWorkbench';
 export type { ReferenceBattingWorkbenchInput } from './ReferenceBattingWorkbench';
 export { createMeasuredBatAxisReferenceV1 } from './MeasuredBatAxisReferenceV1';
 export type { MeasuredBatAxisReferenceInputV1 } from './MeasuredBatAxisReferenceV1';
-export { applyLivePhysicalRosterV1, resolveLivePlateVisionV1 } from './LivePhysicalRosterV1';
+export { applyLivePhysicalRosterV1, resolveLivePlateVisionV1, getLiveInternalValueLimitsV82 } from './LivePhysicalRosterV1';
+export { suggestLiveInternalValueV82, suggestWorkbenchInternalValueV82 } from './MakerValueRecoveryV82';
+export type { MakerValueRecoveryV82 } from './MakerValueRecoveryV82';
 export { projectLivePublicAbilitiesV1, editLivePublicAbilityV1, previewLivePublicLeagueV1, materializeLivePlateVisionV1 } from './LivePublicAbilitiesV1';
 export { getLiveTraitCatalogV1, projectLiveTraitProfilesV1, setLiveTraitProfileV1, validateLiveTraitProfileV1, resolveLiveTraitPreferencesV54, reconcileLiveTraitSourcesV54 } from './LiveTraitProfilesV1';
 export type { LiveTraitProfileV1, LiveTraitRosterInputV1, LiveTraitDefinitionV1 } from './LiveTraitProfilesV1';
