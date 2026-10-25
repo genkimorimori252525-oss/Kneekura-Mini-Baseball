@@ -53,3 +53,7 @@ The user referred to four plans; repository audit located **three** such new imp
 ## Tooling boundary
 
 `npm run typecheck`, `npm test`, `npm run verify` are defined in this branch's package metadata, but run them **only when the actual worktree is available**; reading GitHub docs does not constitute test execution. Never claim a full nine-inning playable match from an isolated contact or decision fixture.
+
+## 2026-10-25 守備ユニフォーム・頭部描画
+
+採用PNGの衣装・帽子・ヘルメットを変更するAIは、[つば基準の向き確定と共通ユニフォーム手順](docs/drawing-department/DEFENSE-UNIFORM-WORKFLOW.md)を先に読む。ローカル検証用テンプレートであり、Core統合や全コマの本人採用を意味しない。
