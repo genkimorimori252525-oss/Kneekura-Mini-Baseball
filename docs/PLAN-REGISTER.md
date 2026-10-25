@@ -1,6 +1,6 @@
 # Implementation Plan Register — status, owners and dependencies
 
-> **Updated:** 2026-10-20 (lossless-performance reference added; 2026-10-16 baseball-plan statuses unchanged). **This is a discoverability index, not implementation authorization or a new canonical specification.** Each linked document's internal Status and the later explicitly approved canonical design take precedence.
+> **Updated:** 2026-10-26 (SWG design plan registered; 2026-10-16 CATCH/BAT/DIR statuses unchanged). **This is a discoverability index, not implementation authorization or a new canonical specification.** Each linked document's internal Status and the later explicitly approved canonical design take precedence.
 >
 > **Caution:** The user mentioned **four** plans in this conversation, but this GitHub branch currently contains **three newly written 2026-10-16 implementation plans**. The “flow / in-game form” discussion has **not** been approved as a fourth implementation plan. It has its own [discovery note](notes/2026-10-16-in-game-form-discussion.md) so an AI will not silently omit or implement it.
 
@@ -11,6 +11,12 @@
 | **CATCH** | [Catcher Game Intelligence v1](superpowers/plans/2026-10-16-catcher-game-intelligence-system.md) | **IMPLEMENTATION PLAN / PROPOSED / NOT IMPLEMENTED** | Generic pitch choice, manager instruction, seven distinct cognition domains, `CATCHER_LED`/`PITCHER_LED`, pitch-cadence separation; **CATCH-01..25**. The batter-belief portion is refined by BAT, not independently duplicated. |
 | **BAT** | [Batter Anticipation, Intent & Adaptive Swing v1](superpowers/plans/2026-10-16-batter-anticipation-intent-adaptive-swing.md) | **USER-APPROVED DIRECTION / IMPLEMENTATION PLAN / NOT IMPLEMENTED** | Subjective pitch family × region probabilities, 反応型 vs 狙い球型, TAKE/SWING decision times, temporal/spatial in-swing correction, existing ミート/パワー/選球眼/悪球打ち source, continuous physical swing; **BAT-01..29**. Owns the single planned BatterPitchBelief with CATCH and includes DIR as supplementary scope. |
 | **DIR** | [Batter Directional Intent & Causal Spray v1](superpowers/plans/2026-10-16-batter-directional-intent-and-spray.md) | **USER-APPROVED DIRECTION / IMPLEMENTATION PLAN / NOT IMPLEMENTED** | `PULL / CENTER / OPPOSITE / REACTIVE`, intent-only zero frequencies, existing Pull/流し/広角 technical skills, world and handed spray coordinates, contact-output direction; **DIR-01..26**. **Extends BAT's existing policy and swing, does not create a duplicate engine.** |
+
+### 2026-10-26 Batter Swing Capacity × Intent × Context (SWG)
+
+| ID | Link | Status | Dependencies / how to use |
+| --- | --- | --- | --- |
+| **SWG** | [Batter swing capacity, personal approach and count-dependent execution](superpowers/plans/2026-10-26-batter-swing-capacity-intent-context.md) | **USER-AGREED DESIGN PRINCIPLES / IMPLEMENTATION PLAN DRAFT / NOT IMPLEMENTED** | Follow-up to **BAT** (one BatterApproachPolicy and Swing Controller) and **DIR**. Separates physical potential from actual swing effort/speed; individual long-term preference from pitch-by-pitch count/manager/pitch context; continuous motor action from POWER/CONTACT labels. Reuse Native rigid-bat effective-mass contact; inspect true active worktree before integration. Do not treat plan presence as evidence of completed implementation. |
 
 **Unified acceptance:** The three plans are interconnected, not three independently working products. Taken together their specified regression set is **CATCH-01..25 + BAT-01..29 + DIR-01..26 = 80 named acceptance cases**, subject to actual live-Core availability. Checking boxes in Markdown does not prove tests passed.
 
