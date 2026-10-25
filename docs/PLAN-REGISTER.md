@@ -1,6 +1,6 @@
 # Implementation Plan Register — status, owners and dependencies
 
-> **Updated:** 2026-10-26 (SWG design plan registered; 2026-10-16 CATCH/BAT/DIR statuses unchanged). **This is a discoverability index, not implementation authorization or a new canonical specification.** Each linked document's internal Status and the later explicitly approved canonical design take precedence.
+> **Updated:** 2026-10-26 (SWG design + bat mass / maker max speed plan registered; 2026-10-16 CATCH/BAT/DIR statuses unchanged). **This is a discoverability index, not implementation authorization or a new canonical specification.** Each linked document's internal Status and the later explicitly approved canonical design take precedence.
 >
 > **Caution:** The user mentioned **four** plans in this conversation, but this GitHub branch currently contains **three newly written 2026-10-16 implementation plans**. The “flow / in-game form” discussion has **not** been approved as a fourth implementation plan. It has its own [discovery note](notes/2026-10-16-in-game-form-discussion.md) so an AI will not silently omit or implement it.
 
@@ -17,6 +17,8 @@
 | ID | Link | Status | Dependencies / how to use |
 | --- | --- | --- | --- |
 | **SWG** | [Batter swing capacity, personal approach and count-dependent execution](superpowers/plans/2026-10-26-batter-swing-capacity-intent-context.md) | **USER-AGREED DESIGN PRINCIPLES / IMPLEMENTATION PLAN DRAFT / NOT IMPLEMENTED** | Follow-up to **BAT** (one BatterApproachPolicy and Swing Controller) and **DIR**. Separates physical potential from actual swing effort/speed; individual long-term preference from pitch-by-pitch count/manager/pitch context; continuous motor action from POWER/CONTACT labels. Reuse Native rigid-bat effective-mass contact; inspect true active worktree before integration. Do not treat plan presence as evidence of completed implementation. |
+
+| **BAT-MASS-MAX** | [Bat mass → conditional maximum swing speed & Maker readout](superpowers/plans/2026-10-26-bat-mass-max-swing-speed-maker.md) | **SOURCE-AUDITED / SMALL IMPLEMENTATION PLAN / NOT IMPLEMENTED** | Supplements **SWG**. Current Native code uses bat mass/inertia in contact but inspected Maker/motor paths do not derive a weight-adjusted max swing speed. Audit local active worktree; if no existing source, add one constrained weight-dependent max and a small read-only value directly below the existing bat-weight input. No new contact solver or public stat. |
 
 **Unified acceptance:** The three plans are interconnected, not three independently working products. Taken together their specified regression set is **CATCH-01..25 + BAT-01..29 + DIR-01..26 = 80 named acceptance cases**, subject to actual live-Core availability. Checking boxes in Markdown does not prove tests passed.
 
