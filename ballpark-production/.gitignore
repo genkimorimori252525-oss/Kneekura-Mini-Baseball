@@ -1,0 +1,5 @@
+node_modules/
+.build/
+dist/
+validation/*
+!validation/publication-report.json

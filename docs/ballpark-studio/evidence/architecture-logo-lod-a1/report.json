@@ -1,0 +1,339 @@
+{
+  "pass": true,
+  "sha256": "bcd191cff3e634c85c338aa67033e52de25e7f07e6b841d95520b94becd8fcf6",
+  "errors": [],
+  "external": [],
+  "views": [
+    {
+      "camera": "stadium",
+      "editToThreeCachedFramesMs": 171,
+      "detail": {
+        "logoProfiles": [
+          {
+            "id": "wolf-4173",
+            "widthPixels": 29.35836711786169,
+            "heightPixels": 23.754069162588138,
+            "depth": 582.6532892213378,
+            "maximum": 6,
+            "density": 2.060689938922353,
+            "brightness": 1.187889692059906,
+            "glow": 0.006750378879186631,
+            "footprintU": 0.06261112762896552,
+            "footprintV": 0.07738297207156002,
+            "sampling": "premultiplied_mipmap_trilinear",
+            "policy": "provisional_screen_footprint_lod"
+          },
+          {
+            "id": "wolf-4174",
+            "widthPixels": 54.89340580087645,
+            "heightPixels": 27.832769999321602,
+            "depth": 344.7171068578258,
+            "maximum": 6,
+            "density": 2.3945029454141076,
+            "brightness": 1.231285382903834,
+            "glow": 0.011667830788611727,
+            "footprintU": 0.028817779936446433,
+            "footprintV": 0.05683609961819348,
+            "sampling": "premultiplied_mipmap_trilinear",
+            "policy": "provisional_screen_footprint_lod"
+          }
+        ],
+        "fineCells": 6012,
+        "emblemCells": 495,
+        "fineGeometryOccluded": 7618,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 5667
+      }
+    },
+    {
+      "camera": "exterior",
+      "editToThreeCachedFramesMs": 176,
+      "detail": {
+        "logoProfiles": [
+          {
+            "id": "wolf-4173",
+            "widthPixels": 24.591016656474704,
+            "heightPixels": 23.349444118867638,
+            "depth": 607.897618395757,
+            "maximum": 6,
+            "density": 2.0291708734232663,
+            "brightness": 1.1837922135450247,
+            "glow": 0.006355156120216852,
+            "footprintU": 0.07591034571214714,
+            "footprintV": 0.07994676731073683,
+            "sampling": "premultiplied_mipmap_trilinear",
+            "policy": "provisional_screen_footprint_lod"
+          },
+          {
+            "id": "wolf-4174",
+            "widthPixels": 36.37469863632053,
+            "heightPixels": 36.75320088681432,
+            "depth": 374.9984775974461,
+            "maximum": 6,
+            "density": 3.1610585957279795,
+            "brightness": 1.3309376174446375,
+            "glow": 0.02802104552501872,
+            "footprintU": 0.03294307408367506,
+            "footprintV": 0.032603810363019695,
+            "sampling": "premultiplied_mipmap_trilinear",
+            "policy": "provisional_screen_footprint_lod"
+          }
+        ],
+        "fineCells": 8603,
+        "emblemCells": 543,
+        "fineGeometryOccluded": 6033,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 7965
+      }
+    },
+    {
+      "camera": "interior",
+      "editToThreeCachedFramesMs": 350,
+      "detail": {
+        "logoProfiles": [
+          {
+            "id": "wolf-4173",
+            "widthPixels": 64.54985544307897,
+            "heightPixels": 61.960315211924424,
+            "depth": 253.5194945921384,
+            "maximum": 6,
+            "density": 5.351934208003577,
+            "brightness": 1.615751447040465,
+            "glow": 0.11363598810475034,
+            "footprintU": 0.010964530327991199,
+            "footprintV": 0.011422776744313223,
+            "sampling": "premultiplied_mipmap_trilinear",
+            "policy": "provisional_screen_footprint_lod"
+          },
+          {
+            "id": "wolf-4174",
+            "widthPixels": 75362.13846792182,
+            "heightPixels": 385743.5875675813,
+            "depth": 6.211396872460153,
+            "maximum": 6,
+            "density": 6,
+            "brightness": 1.7000000000000002,
+            "glow": 0.15,
+            "footprintU": 0.000008377059676748055,
+            "footprintV": 0.0000016366134179807382,
+            "sampling": "premultiplied_mipmap_trilinear",
+            "policy": "provisional_screen_footprint_lod"
+          }
+        ],
+        "fineCells": 12614,
+        "emblemCells": 3028,
+        "fineGeometryOccluded": 20560,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 9417
+      }
+    },
+    {
+      "camera": "overhead",
+      "editToThreeCachedFramesMs": 288,
+      "detail": {
+        "logoProfiles": [
+          {
+            "id": "wolf-4173",
+            "widthPixels": 108.25072352725162,
+            "heightPixels": 132.57606794019904,
+            "depth": 165.99808080930194,
+            "maximum": 6,
+            "density": 6,
+            "brightness": 1.7000000000000002,
+            "glow": 0.15,
+            "footprintU": 0.005831952995253663,
+            "footprintV": 0.004761893614146839,
+            "sampling": "premultiplied_mipmap_trilinear",
+            "policy": "provisional_screen_footprint_lod"
+          }
+        ],
+        "fineCells": 0,
+        "emblemCells": 0,
+        "fineGeometryOccluded": 0,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 0
+      }
+    },
+    {
+      "camera": "catcher",
+      "editToThreeCachedFramesMs": 165,
+      "detail": {
+        "logoProfiles": [
+          {
+            "id": "wolf-4173",
+            "widthPixels": 87.35857792807963,
+            "heightPixels": 78.71865004274727,
+            "depth": 191.39554615214277,
+            "maximum": 6,
+            "density": 5.996192985717893,
+            "brightness": 1.6995050881433262,
+            "glow": 0.14977166610322004,
+            "footprintU": 0.007231275626322123,
+            "footprintV": 0.008024959205708415,
+            "sampling": "premultiplied_mipmap_trilinear",
+            "policy": "provisional_screen_footprint_lod"
+          }
+        ],
+        "fineCells": 844,
+        "emblemCells": 0,
+        "fineGeometryOccluded": 13242,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 11
+      }
+    },
+    {
+      "camera": "mound",
+      "editToThreeCachedFramesMs": 178,
+      "detail": {
+        "logoProfiles": [
+          {
+            "id": "wolf-4174",
+            "widthPixels": 423.8812017467434,
+            "heightPixels": 388.7671412279358,
+            "depth": 158.54101262847237,
+            "maximum": 6,
+            "density": 6,
+            "brightness": 1.7000000000000002,
+            "glow": 0.15,
+            "footprintU": 0.0014893633610351103,
+            "footprintV": 0.0016238850056079965,
+            "sampling": "premultiplied_mipmap_trilinear",
+            "policy": "provisional_screen_footprint_lod"
+          }
+        ],
+        "fineCells": 0,
+        "emblemCells": 0,
+        "fineGeometryOccluded": 0,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 0
+      }
+    },
+    {
+      "camera": "batter",
+      "editToThreeCachedFramesMs": 157,
+      "detail": {
+        "logoProfiles": [
+          {
+            "id": "wolf-4173",
+            "widthPixels": 81.65865619478687,
+            "heightPixels": 75.59244280664143,
+            "depth": 186.19181982031745,
+            "maximum": 6,
+            "density": 5.956141336456291,
+            "brightness": 1.694298373739318,
+            "glow": 0.14738002168158448,
+            "footprintU": 0.00778805212538366,
+            "footprintV": 0.008413035051142822,
+            "sampling": "premultiplied_mipmap_trilinear",
+            "policy": "provisional_screen_footprint_lod"
+          }
+        ],
+        "fineCells": 688,
+        "emblemCells": 0,
+        "fineGeometryOccluded": 10067,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 12
+      }
+    },
+    {
+      "camera": "fielder",
+      "editToThreeCachedFramesMs": 214,
+      "detail": {
+        "logoProfiles": [
+          {
+            "id": "wolf-4174",
+            "widthPixels": 196.6587298729719,
+            "heightPixels": 129.34204251825844,
+            "depth": 158.91169651291045,
+            "maximum": 6,
+            "density": 6,
+            "brightness": 1.7000000000000002,
+            "glow": 0.15,
+            "footprintU": 0.0032101963219274146,
+            "footprintV": 0.004880958418636483,
+            "sampling": "premultiplied_mipmap_trilinear",
+            "policy": "provisional_screen_footprint_lod"
+          }
+        ],
+        "fineCells": 1455,
+        "emblemCells": 0,
+        "fineGeometryOccluded": 29072,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 156
+      }
+    }
+  ],
+  "fineDepth": [
+    {
+      "name": "open-exterior",
+      "candidates": 8603,
+      "samples": 717,
+      "leaks": 0,
+      "rejectedByTriangleDepth": 6033,
+      "examples": []
+    },
+    {
+      "name": "closed-exterior",
+      "candidates": 8216,
+      "samples": 747,
+      "leaks": 0,
+      "rejectedByTriangleDepth": 6420,
+      "examples": []
+    },
+    {
+      "name": "open-interior",
+      "candidates": 12614,
+      "samples": 701,
+      "leaks": 0,
+      "rejectedByTriangleDepth": 20560,
+      "examples": []
+    },
+    {
+      "name": "orbit",
+      "candidates": 12842,
+      "samples": 714,
+      "leaks": 0,
+      "rejectedByTriangleDepth": 13453,
+      "examples": []
+    }
+  ],
+  "imageMaterialToggle": true,
+  "independentDensity": {
+    "factors": [
+      3482,
+      20377
+    ]
+  },
+  "ornamentsToggle": true,
+  "approvedGrassPixelsIdentical": true,
+  "attendanceAndSeatMaterials": true,
+  "worldOrbit": true,
+  "detailsSaveReload": true,
+  "legacyNoMutation": true,
+  "noIdleSceneRebuild": true,
+  "mobile": true
+}

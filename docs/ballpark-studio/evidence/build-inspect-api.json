@@ -1,0 +1,69 @@
+{
+  "pass": true,
+  "kind": "BALLPARK_STUDIO_V1",
+  "output": "<LOCAL_HOME>/Documents\\Codex\\2026-10-15\\new-chat\\outputs\\球場設計室_v1.html",
+  "sha256": "0b97ab18f3639b2f086405e3574ff47cec9954780af58c2aa379aa3ceeb48a20",
+  "bytes": 43886705,
+  "version": 1,
+  "sourceSha256": "c6f32e13eb34a3545a178b1d40db92d58ac794732d224af5ad97b37133d77a71",
+  "sourceCoreSha256": "3d0ef3a2477816a3157e59f9a8235e1459913fa35f74f791541c8cee8e885a37",
+  "sourceCoreChanged": false,
+  "sharedNormalMatchChanged": false,
+  "sourceInputs": {
+    "tools/ballpark-studio/model.mjs": "a5b9db9f3c5f900ae7bc9cddc1f85de7a98191c24b4fa687076bc8e98ca2bafb",
+    "tools/ballpark-studio/geometry-window.mjs": "0355c25ea7aaf0b025f4456d696b89b2119c31fcb90e2b8c2c9222adc22a7a6e",
+    "tools/ballpark-studio/studio.mjs": "ae5f851061e586ea20faa336e06d0edd2e66f96fb6716a6a21202c28e737edf5",
+    "tools/ballpark-studio/studio.html": "e7a7968e54c81412a6c04ca8394b2801e53b1c46ba965300e64de9ec3c2cb710",
+    "tools/ballpark-studio/studio.css": "8e40bd1d546ab8be6eac0211659484da0874c367c6b84887e4852970042949f4",
+    "tools/ballpark-studio/renderer-patch.mjs": "e8037b9bb18c47ba1f777f508c98a3b7b3f1fa42acf4b2db6e0a6518639d5df0",
+    "tools/ballpark-studio/preview-bridge.js": "33eb32202213add103ef081c8982b2abe47b1e76acffaafe81c1ceb89dac8c09",
+    "tools/ballpark-studio/build.mjs": "9c40eee0d2ba222acbe1843beb657d938914d7527cba5f106bd77186e6629610"
+  },
+  "rendererScriptIndex": 6,
+  "fixedGeometryPreserved": true,
+  "simulationIntegration": "DESIGN_ONLY_NOT_MATCH_CORE_ADMITTED",
+  "rendererChanges": [
+    {
+      "before": "function liveFenceDistance(t){",
+      "after": "function liveFenceDistance(t){\n if(observed.ballparkGeometryV1?.kind==='editable')return window.KneekuraBallparkGeometry"
+    },
+    {
+      "before": "function fence(t,offset=0,y=0){",
+      "after": "function fence(t,offset=0,y=0){\n if(observed.ballparkGeometryV1?.kind==='editable'&&offset===0&&y===observed.livePark.he"
+    },
+    {
+      "before": "for(let i=0;i<=80;i++)ps.push(fence(start+i*range/80,offset,y));",
+      "after": "if(observed.ballparkGeometryV1?.kind==='editable'){\n const angles=[...new Set([...Array.from({length:81},(_,i)=>start+i*"
+    },
+    {
+      "before": "if(observed.liveObservation?Math.hypot(x-observed.livePark.center.x,z-observed.livePark.center.z)>observed.livePark.radi",
+      "after": "if(observed.liveObservation?(observed.ballparkGeometryV1?.kind==='editable'?rad>edge+3:Math.hypot(x-observed.livePark.ce"
+    },
+    {
+      "before": "if(rad>edge-3.5)return",
+      "after": "if(rad>edge-(observed.ballparkGeometryV1?.trackWidthMeters??3.5))return"
+    },
+    {
+      "before": "cam=chooseCamera();cam.f*=settings.zoom||1;",
+      "after": "cam=observed.ballparkCameraV1?{...chooseCamera(),...observed.ballparkCameraV1}:chooseCamera();cam.f*=settings.zoom||1;"
+    },
+    {
+      "before": "function park(){const wallHeight=observed.liveObservation?observed.livePark.heightMeters:3;",
+      "after": "function park(){const wallHeight=observed.liveObservation?observed.livePark.heightMeters:3,boardZ=observed.ballparkGeome"
+    },
+    {
+      "before": "wline(left,{...left,y:15},C.wall,1.15,.95);wline(right,{...right,y:15},C.wall,1.15,.95)",
+      "after": "wline(left,{...left,y:observed.ballparkGeometryV1?.kind==='editable'?Math.max(15,window.KneekuraBallparkGeometryV1.wallA"
+    },
+    {
+      "before": "for(const[x,z]of[[-86,84],[86,84],[-45,-1],[45,-1]]){",
+      "after": "for(const[sourceX,sourceZ]of[[-86,84],[86,84],[-45,-1],[45,-1]]){\n let x=sourceX,z=sourceZ;if(observed.ballparkGeometryV"
+    },
+    {
+      "before": "function park(){const wallHeight=observed.liveObservation?observed.livePark.heightMeters:3,boardZ=observed.ballparkGeome",
+      "after": "function park(){const wallHeight=observed.liveObservation?observed.livePark.heightMeters:3,boardZ=observed.ballparkGeome"
+    }
+  ],
+  "exactRendererReverse": true,
+  "htmlScriptSyntaxChecked": true
+}

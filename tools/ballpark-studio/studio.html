@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>にーくら 球場設計室 v3 · 局所密度</title>
+<style>__STUDIO_CSS__</style></head><body>
+<header><div><small>Kneekura</small><h1>球場設計室</h1></div><span class="pill">設計プレビュー</span><div class="file-actions"><button id="download">JSON保存</button><label class="file-button">JSON読込<input id="load-file" type="file" accept=".json,application/json"></label><button id="browser-save">ブラウザに保存</button></div></header>
+<main>
+ <section class="toolbar"><label>球場名<input id="park-name" maxlength="80" autocomplete="off"><span id="name-error" class="error"></span></label><div class="history-actions"><button id="undo" disabled>取り消す</button><button id="redo" disabled>やり直す</button><button id="reset">現行球場に戻す</button></div><span id="saved-state" class="muted">ブラウザ未保存</span></section>
+ <div class="workspace">
+  <aside class="panel controls"><nav aria-label="編集方法"><button id="human-mode" aria-pressed="true">通常編集</button><button id="ai-mode" aria-pressed="false">AI・JSON</button></nav>
+   <div id="human-panel">
+    <section class="dome-section"><button id="dome-preset">赤・青・金のドームに戻す</button>
+     <div id="architecture-settings"><h2>観客席と屋根</h2><label>定員（人）<input id="capacity" type="number" min="1000" max="250000" step="1000"></label>
+      <div class="color-row"><label>赤<input id="color-red" type="color"></label><label>青<input id="color-blue" type="color"></label><label>金<input id="color-gold" type="color"></label></div>
+      <label class="roof-slider">屋根の開き具合 <output id="roof-value">100%</output><input id="roof-opening" type="range" min="0" max="100" step="1" value="100"></label><p id="architecture-error" class="error" aria-live="polite"></p>
+      <details class="scoreboard-settings"><summary>スコアボード（表示見本）</summary><label class="check"><input id="scoreboard-enabled" type="checkbox" checked>スコアボードを表示</label><div id="scoreboard-teams"></div><div class="score-counts"><label>B<input id="score-balls" type="number" min="0" max="3"></label><label>S<input id="score-strikes" type="number" min="0" max="2"></label><label>O<input id="score-outs" type="number" min="0" max="2"></label></div><label>球速（km/h）<input id="score-speedKmh" type="number" min="0" max="300" step="0.1"></label><p id="scoreboard-error" class="error" aria-live="polite"></p></details>
+      <details class="building-details"><summary>建築の細部</summary><label class="check"><input id="building-logos" type="checkbox" checked>壁面のオオカミ</label><label class="check"><input id="building-ornaments" type="checkbox" checked>外装の装飾</label><label>ロゴ周囲の細かさ（上限）<select id="building-factor"><option value="2">2倍</option><option value="3">3倍</option><option value="4">4倍</option><option value="5">5倍</option><option value="6" selected>6倍</option><option value="7">7倍</option><option value="8">8倍</option></select></label><p id="building-error" class="error" aria-live="polite"></p></details>
+      <details class="logo-settings"><summary>芝生のオオカミと描画密度</summary><label class="check"><input id="logo-enabled" type="checkbox" checked>ロゴを描く</label><label class="check"><input id="logo-fine" type="checkbox" checked>周囲の芝生も細かい光点にする</label>
+       <div class="numeric-pair"><label>横幅（m）<input id="logo-width" type="number" min="10" max="40" step="1"></label><label>本塁から（m）<input id="logo-center" type="number" min="60" max="110" step="1"></label></div><p id="logo-error" class="error" aria-live="polite"></p>
+       <label>細かさ（縦横）<select id="detail-factor"><option value="2">2倍</option><option value="3">3倍</option><option value="4">4倍</option><option value="5">5倍</option><option value="6" selected>6倍</option><option value="7">7倍</option><option value="8">8倍</option></select></label>
+       <label>ロゴの明るさ <output id="logo-brightness-value"></output><input id="logo-brightness" type="range" min="0.5" max="3" step="0.1"></label><label>ロゴの光り方 <output id="logo-glow-value"></output><input id="logo-glow" type="range" min="0" max="1" step="0.05"></label>
+       <div class="numeric-pair"><label>輪郭の余白（m）<input id="detail-margin" type="number" min="0" max="30" step="0.1"></label><label>密度の移行幅（m）<input id="detail-feather" type="number" min="0.1" max="20" step="0.1"></label></div>
+       <p id="detail-error" class="error" aria-live="polite"></p><label class="check"><input id="detail-debug" type="checkbox">密度範囲の外接枠を見る</label></details>
+      <details><summary>観客の見え方</summary><label>LEDの密度 <output id="crowd-density-value"></output><input id="crowd-density" type="range" min="5" max="100" step="5"></label><label>塊の描き込み<select id="crowd-detail"><option value="lights">光だけ</option><option value="simple" selected>簡素</option><option value="full">詳しく</option></select></label><label>塊の模様の大きさ <output id="crowd-size-value"></output><input id="crowd-size" type="range" min="50" max="180" step="10"></label><label>LEDの明るさ <output id="crowd-brightness-value"></output><input id="crowd-brightness" type="range" min="20" max="150" step="5"></label><label>LEDの光り方 <output id="crowd-glow-value"></output><input id="crowd-glow" type="range" min="0" max="100" step="5"></label><p id="crowd-error" class="error" aria-live="polite"></p></details>
+     </div><p class="muted note">左翼105m・フェンス高1.3mは仮設定です。</p></section>
+    <section><h2>外野の距離と壁</h2><div class="section-actions"><button id="symmetric">左右対称の寸法例</button></div><div id="anchor-inputs"></div>
+      <p id="shape-error" class="error"></p><p class="muted note">図の点も動かせます。距離は本塁から、壁の高さは地面から。</p></section>
+    <details id="extra-points"><summary>壁の曲がり角を追加</summary><label>編集する点<select id="point-select"></select></label>
+      <div class="numeric-pair"><label>角度（度）<input id="point-angle" type="number" step="0.1"></label><label>距離（m）<input id="point-distance" type="number" step="0.1"></label></div>
+      <label>壁の高さ（m）<input id="point-height" type="number" step="0.1"></label><p id="point-error" class="error" aria-live="polite"></p>
+      <div class="row"><button id="add-point">間に点を追加</button><button id="remove-point">この点を削除</button></div><p class="muted note">5つの基準点の向きは固定。追加した点は移動・削除できます。</p></details>
+    <details><summary>ファウル側と外野の土</summary><label>バックネットまで（m）<input id="backstop" type="number" step="0.1" title="本塁の後方にある外周までの距離です。白線や打席の位置は動きません。"></label><p id="backstop-error" class="error"></p>
+      <div class="numeric-pair"><label>一塁側の外周（m）<input id="first-side" type="number" step="0.1" title="本塁から一塁側へ真横に測った外周の距離。ファウル側の広さを変えます。"></label><label>三塁側の外周（m）<input id="third-side" type="number" step="0.1" title="本塁から三塁側へ真横に測った外周の距離です。"></label></div><p id="sides-error" class="error"></p>
+      <label>ファウル側の壁高（m）<input id="foul-height" type="number" step="0.1"></label><p id="foul-height-error" class="error"></p>
+      <label>外野の土の幅（m）<input id="track-width" type="number" step="0.1" title="外野フェンス内側の土色の帯。今回は表示設計用で、地面の摩擦は変えません。"></label><p id="track-error" class="error"></p></details>
+    <section><h2>規則の確認</h2><label>基準<select id="ruleset"><option value="obr_general_2026">一般規則・推奨値を確認</option><option value="mlb_new_2026">MLB新設球場の距離基準</option></select></label>
+      <div id="warnings" class="warnings"></div><a href="https://mktg.mlbstatic.com/mlb/official-information/2026-official-baseball-rules.pdf" target="_blank" rel="noreferrer">2026年公式規則 2.01–2.04</a></section>
+    <details><summary>変更できない共通部分</summary><dl class="fixed-list"><div><dt>塁間</dt><dd>27.432m</dd></div><div><dt>投手板まで</dt><dd>18.4404m</dd></div><div><dt>ファウル線の開き</dt><dd>90°</dd></div><div><dt>本塁・塁・打席・白線</dt><dd>共通固定</dd></div></dl><p class="muted note">球場ごとに内野を拡大・回転させることはできません。</p></details>
+   </div>
+   <div id="ai-panel" hidden><h2>設計JSON</h2><p class="muted note">適用してから表示を更新します。エラー時は現在の形を維持します。</p><textarea id="design-json" spellcheck="false" aria-label="球場設計JSON"></textarea><div class="row"><button id="apply-json">JSONを適用</button><button id="cancel-json">現在の設定へ戻す</button></div><p id="json-error" class="error" aria-live="polite"></p>
+    <details><summary>検査結果・AI用API</summary><pre id="audit-json"></pre><p class="mono note">BallparkStudio.inspect()<br>BallparkStudio.setDesign(jsonObject)<br>BallparkStudio.updatePoint(id, values)<br>BallparkStudio.exportJSON()<br>BallparkStudio.measure(angleDegrees)<br>BallparkStudio.undo() / redo()</p></details>
+   </div>
+  </aside>
+  <section class="preview-column">
+   <div class="panel view-toolbar"><label>視点<select id="camera"><option value="stadium">球場全景</option><option value="exterior">外観</option><option value="interior">スタンドから</option><option value="scoreboard">スコアボード</option><option value="overhead">俯瞰</option><option value="catcher">捕手から</option><option value="mound">投手から</option><option value="batter">打者から</option><option value="fielder">外野から</option></select></label><label class="zoom">拡大<input id="zoom" type="range" min="0.4" max="2.5" value="1" step="0.05"><output id="zoom-value">1.0×</output></label><label class="check"><input id="people" type="checkbox" checked>選手を表示</label><button id="reset-view">視点を戻す</button><label class="check roof-cutaway"><input id="roof-cutaway" type="checkbox" checked>手前の屋根を省略</label></div>
+   <div class="scene"><canvas id="preview" width="1200" height="864" aria-label="既存の描画エンジンによる球場プレビュー"></canvas><span id="render-status">描画エンジンを読み込み中</span></div>
+   <div class="panel crowd-controls"><label>観客席<select id="crowd-attendance"><option value="full" selected>満員</option><option value="empty">無観客</option></select></label><label class="check"><input id="crowd-play" type="checkbox" checked>動かす</label><label>動作ループ<select id="crowd-frames"><option value="223" selected>2コマ×2周 → 3コマ×1周</option><option value="2">2コマのみ</option><option value="3">3コマのみ</option></select></label><span id="crowd-status" class="muted">通常の応援</span><div class="crowd-reactions"><span class="muted">反応を試す</span><button id="crowd-hit">安打</button><button id="crowd-home_run">本塁打</button><button id="crowd-out">アウト</button><button id="crowd-error">失策</button></div></div>
+   <p class="view-hint muted">右ドラッグで角度、ホイールで拡大。球場の形は下の図からも編集できます。</p>
+   <p id="validation-status" role="status" class="validation-status" aria-live="polite"></p>
+   <div class="panel plan-panel"><div class="plan-title"><h2>設計図</h2><span id="shape-status" class="muted"></span></div><svg id="plan" viewBox="-140 -160 280 215" role="img" aria-label="固定された内野と編集できる外野の設計図"></svg><p id="point-info" class="muted"></p></div>
+   <details class="panel"><summary>設計室の対応範囲</summary><p>現在の原画・光点・投影・深度描画を再利用しています。通常試合は変更していません。非対称の壁を試合の衝突・守備・ホームラン判定へ接続する工程は、まだ含みません。低いフェンスでのホームランキャッチ成立も未接続です。</p><p>定員は設計上の指定値で、観客の光点は群れを表します。屋根の省略は内部を見るための断面表示です。左翼105m・フェンス高1.3mは暫定で、いずれも編集できます。</p><p>高さ0〜30m、外野距離76.2〜220mは設計室の作業範囲です。高さ30mを公式規則の上限とする意味ではありません。規則確認は球場全体の公式認可を保証しません。</p></details>
+  </section>
+ </div><p id="message" class="message" role="status" aria-live="polite"></p>
+</main>
+<iframe id="engine" title="既存の描画エンジン" aria-hidden="true" tabindex="-1"></iframe>
+<script>const BALLPARK_ENGINE_HTML=__ENGINE_HTML__;const BALLPARK_BUILD_INFO=__BUILD_INFO__;const BALLPARK_LOGO_DATA_URL=__LOGO_DATA__;
+__STUDIO_APP__
+</script></body></html>

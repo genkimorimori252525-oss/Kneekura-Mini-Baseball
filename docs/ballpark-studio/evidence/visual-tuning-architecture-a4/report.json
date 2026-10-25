@@ -1,0 +1,41 @@
+{
+  "pass": true,
+  "errors": [],
+  "sha256": "9e62342ed9e8d7f7f1b57a50eaa1750ca6321f6991f77ce92c9ea42cfa745bcb",
+  "defaultGroups": 1920,
+  "factors": [
+    {
+      "factor": 5,
+      "points": 5993
+    },
+    {
+      "factor": 6,
+      "points": 8630
+    },
+    {
+      "factor": 7,
+      "points": 11758
+    },
+    {
+      "factor": 8,
+      "points": 15343
+    }
+  ],
+  "brightnessChangesImage": true,
+  "glowChangesImage": true,
+  "roofHidesMaximumGlow": true,
+  "ledCells": {
+    "fivePercent": 205,
+    "full": 1174,
+    "groups": 1920
+  },
+  "details": [
+    "0dead9c33e267dddb77c05128b2d957283047aba385cd45fae51816bfc0a8e65",
+    "5ff76e4ba369637fa4776b8b6f0d44992c96c3f08e02f202158bdb544ed24362",
+    "9fa0dd7b382719ef02837a7326ef7e84e7fe3e726f671ae4cdb5f58a14c7c1e5"
+  ],
+  "ledBrightness": true,
+  "saveRoundtrip": true,
+  "oldJsonPreserved": true,
+  "mobile": true
+}

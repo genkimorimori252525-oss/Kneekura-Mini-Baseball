@@ -1,0 +1,9 @@
+# Preserve the byte-pinned ballpark sources and evidence across OS checkouts.
+ballpark-production/** -text whitespace=cr-at-eol
+tools/ballpark-studio/** -text whitespace=cr-at-eol
+docs/ballpark-studio/** -text whitespace=cr-at-eol
+/README.md text eol=lf
+/AGENTS.md text eol=lf
+docs/AI-INDEX.md text eol=lf
+docs/PLAN-REGISTER.md text eol=lf
+.gitattributes text eol=lf

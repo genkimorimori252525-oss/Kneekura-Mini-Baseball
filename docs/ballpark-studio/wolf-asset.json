@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-24",
+  "request": "芝生のロゴはオオカミだけ。ロゴだけ精密描画の許可あり。",
+  "tool": "built-in image_gen",
+  "reference": "assets/tambov.png",
+  "sourceReferenceSHA256": "1981bab7ef9609bd9a62052857410f2367c69addcef474fad4c6063d343c3b80",
+  "asset": "assets/wolf-v1.png",
+  "prompt": "Edit the supplied Tambov crest reference into ONE isolated wolf-head emblem on a genuinely transparent background. Preserve the recognizable front-facing snarling wolf identity, sharp upright ears, black-and-white facial markings, bright eyes, long muzzle, fangs, angular fur and clean strong black outlines of the wolf depicted inside the reference. Keep ONLY the WOLF HEAD and a short neck-fur silhouette. Remove the surrounding red/blue/gold shield, all Cyrillic lettering, the football/soccer ball, and every other badge element. No circular border, no shield, no letters, no numbers, no background, no colored accents. Faithful monochrome high-contrast sports emblem, centered with a small transparent margin, sharp clean silhouette suitable for a perspective-projected mark on baseball grass. Black regions and white fur must both be opaque; only the area outside the wolf silhouette is transparent. Do not add a body or props. This is an asset cutout/edit, not a new stadium illustration.",
+  "notes": [
+    "背景のalphaを保持。既存参照画像は原本を保管。",
+    "芝生上の世界座標に投影する。画面の固定HUDではない。",
+    "元画像の厳密な画素切抜きではなく、参照に基づく生成した狼の顔素材。"
+  ]
+}

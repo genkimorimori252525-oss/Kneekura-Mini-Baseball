@@ -1,0 +1,152 @@
+{
+  "pass": true,
+  "kind": "BALLPARK_STUDIO_V3",
+  "output": "<LOCAL_HOME>/Documents\\Codex\\2026-10-15\\new-chat\\outputs\\球場設計室_v3_局所密度版.html",
+  "sha256": "43f5f2cf701e231d3aac80b8508cd85a92fa848b2cccabb76e145f6f939540b9",
+  "bytes": 45824359,
+  "version": 3,
+  "sourceSha256": "c6f32e13eb34a3545a178b1d40db92d58ac794732d224af5ad97b37133d77a71",
+  "sourceCoreSha256": "3d0ef3a2477816a3157e59f9a8235e1459913fa35f74f791541c8cee8e885a37",
+  "sourceCoreChanged": false,
+  "sharedNormalMatchChanged": false,
+  "sourceInputs": {
+    "tools/ballpark-studio/model.mjs": "decfb1156090e94780ca22d284c0dd83d29dd6034f57a66e898fe87a3cc86321",
+    "tools/ballpark-studio/architecture.mjs": "85d5c13dc260be050c313a1594111dc28bbab60942bf262edad8730f46f52ca0",
+    "tools/ballpark-studio/stadium-mesh.mjs": "8187df6f321c29db019c553c22e580365dfacd6a35df5786931968c6906f0226",
+    "tools/ballpark-studio/crowd.mjs": "91aa3b38059375f9ec571a5846a18b078b0606ba348690692957099118cdaf9f",
+    "tools/ballpark-studio/crowd-tiles.mjs": "c774cd8e275e7078cdbb0a84c0b35005b2b191c2573b840521c2a2d49dceae0b",
+    "tools/ballpark-studio/ground-logo.mjs": "e8fa6eebc532a413b35f1e07fe4ae9ad64efc7450a77eaa82c7c9c2e42dc23f2",
+    "tools/ballpark-studio/surface-layers.mjs": "7ab90ddf6161a39bd222a286ba5836b1f172f85cafe7d1c814a9dae9c1398417",
+    "tools/ballpark-studio/assets/wolf-gold-cutout-v1.png": "b9181b700e184697d1d8dc7397d0eda4aceb1a481a311778e8203d45d8d153f4",
+    "tools/ballpark-studio/geometry-window.mjs": "7fb452a9e976e09cb403cf54ea3708be3441ba346b6246abf3d53a40fc8b16ae",
+    "tools/ballpark-studio/studio.mjs": "623090c239a6b3a8678901f3524f0ddce406a09097ffdcc57f4ee9e3d5c580b0",
+    "tools/ballpark-studio/studio.html": "5e0697aaa75518b8fbed06c2f2efd822c8ae1ba4b82af992c656579b7f89385e",
+    "tools/ballpark-studio/studio.css": "b37bb2156fe09eaa540288e99b774d8fb3be7cf4756c3196b6860dc5f0435d4a",
+    "tools/ballpark-studio/renderer-patch.mjs": "06334490c6d5316a13af94e612fd37012d9f4f7ddc785f0423835dbb76ee78a5",
+    "tools/ballpark-studio/preview-bridge.js": "638ecb3f5c685fbe925e7851034646cdee31f4c6a126520e7fa1b3273575d5ca",
+    "tools/ballpark-studio/build.mjs": "88ad9682098f3d4ba8b2d09a64d5c8acc6d778ca8655e923c6f20c06dfcd8dc0"
+  },
+  "rendererScriptIndex": 6,
+  "fixedGeometryPreserved": true,
+  "simulationIntegration": "DESIGN_ONLY_NOT_MATCH_CORE_ADMITTED",
+  "rendererChanges": [
+    {
+      "before": "function liveFenceDistance(t){",
+      "after": "function liveFenceDistance(t){\n if(observed.ballparkGeometryV1?.kind==='editable')return window.KneekuraBallparkGeometry"
+    },
+    {
+      "before": "function fence(t,offset=0,y=0){",
+      "after": "function fence(t,offset=0,y=0){\n if(observed.ballparkGeometryV1?.kind==='editable'&&offset===0&&y===observed.livePark.he"
+    },
+    {
+      "before": "for(let i=0;i<=80;i++)ps.push(fence(start+i*range/80,offset,y));",
+      "after": "if(observed.ballparkGeometryV1?.kind==='editable'){\n const angles=[...new Set([...Array.from({length:81},(_,i)=>start+i*"
+    },
+    {
+      "before": "if(observed.liveObservation?Math.hypot(x-observed.livePark.center.x,z-observed.livePark.center.z)>observed.livePark.radi",
+      "after": "if(observed.liveObservation?(observed.ballparkGeometryV1?.kind==='editable'?rad>edge+3:Math.hypot(x-observed.livePark.ce"
+    },
+    {
+      "before": "if(rad>edge-3.5)return",
+      "after": "if(rad>edge-(observed.ballparkGeometryV1?.trackWidthMeters??3.5))return"
+    },
+    {
+      "before": "cam=chooseCamera();cam.f*=settings.zoom||1;",
+      "after": "cam=observed.ballparkCameraV1?{...chooseCamera(),...observed.ballparkCameraV1}:chooseCamera();cam.f*=settings.zoom||1;"
+    },
+    {
+      "before": "g?.radiusMeters,g?.heightMeters,",
+      "after": "g?.radiusMeters,g?.heightMeters,observed.ballparkGeometryV1?.boundaryKey,observed.ballparkGeometryV1?.surfaceKey,!!obser"
+    },
+    {
+      "before": "let sceneDepth=new Map(),rasterCells=new Map(),",
+      "after": "let architectureDetailCellsV4=[],groundDetailCellsV3=[];\n let sceneDepth=new Map(),rasterCells=new Map(),"
+    },
+    {
+      "before": "sceneDepth=new Map(parkCacheV81.depth);fieldMarkCells=parkCacheV81.marks.map(cell=>({...cell}));",
+      "after": "sceneDepth=new Map(parkCacheV81.depth);fieldMarkCells=parkCacheV81.marks.map(cell=>({...cell}));groundDetailCellsV3=park"
+    },
+    {
+      "before": "marks:fieldMarkCells.map(cell=>({...cell})),anchors:",
+      "after": "marks:fieldMarkCells.map(cell=>({...cell})),detailCellsV3:groundDetailCellsV3.slice(),surfaceReportV3:window.KneekuraBal"
+    },
+    {
+      "before": "function dot(x,y,r,color,alpha=1,glow=0){x=snap(x);y=snap(y);",
+      "after": "function dot(x,y,r,color,alpha=1,glow=0,density=1){x=density===1?snap(x):snap(x*density)/density;y=density===1?snap(y):s"
+    },
+    {
+      "before": "function ground(){\n groundCells=0;",
+      "after": "function ground(){\n const surfaceV3=window.KneekuraBallparkSurfaceV3,gV3=observed.ballparkGeometryV1,zoneV3=surfaceV3.de"
+    },
+    {
+      "before": "const p=groundAt(x,y),s=surfaceAt(p);\n  if(s){dot(x,y,LIGHT_RADIUS,s.color,s.alpha);",
+      "after": "const p=groundAt(x,y),s=surfaceV3.materialAt(gV3,p,surfaceAt(p));\n  if(s){const w=surfaceV3.densityWeight(zoneV3,p);if(s"
+    },
+    {
+      "before": "groundCells++;}\n }\n}\nfunction insidePolygon",
+      "after": "groundCells++;}\n }\n window.KneekuraBallparkSurfaceReportV3=surfaceV3.renderDetailRegion({geometry:gV3,project,groundAt,s"
+    },
+    {
+      "before": "flushWorld();guides();history();labels();",
+      "after": "{\n   const marksV3=new Set(fieldMarkCells.map(c=>rasterKeyV81(c.x,c.y))),reportV3=window.KneekuraBallparkSurfaceReportV3"
+    },
+    {
+      "before": "function flushWorld(){\n  actorCells=[];",
+      "after": "function flushWorld(){\n  // Opaque architectural cells clear complete device pixels, preventing a finer ground lattice l"
+    },
+    {
+      "before": "function paintWorldCell(x,y,depth,color,alpha,owner){",
+      "after": "function paintWorldCell(x,y,depth,color,alpha,owner,glow=0,density=1,surfaceId=null){\n if(density>1){architectureDetailC"
+    },
+    {
+      "before": "rasterCells.set(key,{x,y,r:LIGHT_RADIUS,color,alpha:owner==='ball'?1:owner==='bat'?Math.max(.85,alpha):alpha,owner,depth",
+      "after": "rasterCells.set(key,{x,y,r:LIGHT_RADIUS,color,alpha:owner==='ball'?1:owner==='bat'?Math.max(.85,alpha):alpha,owner,depth"
+    },
+    {
+      "before": "  // Outfielders are tiny from this distance but still need identifiable labels.",
+      "after": "  // Emit only surviving crowd LED cells after opaque cells have finished clearing their neighbors.\n  let visibleCrowdLe"
+    },
+    {
+      "before": "function park(){const wallHeight=observed.liveObservation?observed.livePark.heightMeters:3;",
+      "after": "function park(){const wallHeight=observed.liveObservation?observed.livePark.heightMeters:3,boardZ=observed.ballparkGeome"
+    },
+    {
+      "before": "},left,C.chalk,LIGHT_RADIUS,1);",
+      "after": "},left,lineColorV3,LIGHT_RADIUS,1);"
+    },
+    {
+      "before": "},right,C.chalk,LIGHT_RADIUS,1);",
+      "after": "},right,lineColorV3,LIGHT_RADIUS,1);"
+    },
+    {
+      "before": "markingOwner=id;poly([...points,points[0]],C.chalk,LIGHT_RADIUS,1);",
+      "after": "markingOwner=id;poly([...points,points[0]],id==='home'||id==='rubber'?C.chalk:lineColorV3,LIGHT_RADIUS,1);"
+    },
+    {
+      "before": "poly(fieldGeometry.catcherLines,C.chalk,LIGHT_RADIUS,1);",
+      "after": "poly(fieldGeometry.catcherLines,lineColorV3,LIGHT_RADIUS,1);"
+    },
+    {
+      "before": "poly(fieldGeometry.runningLane,C.chalk,1.25,.95);",
+      "after": "poly(fieldGeometry.runningLane,lineColorV3,1.25,.95);"
+    },
+    {
+      "before": "wline(left,{...left,y:15},C.wall,1.15,.95);wline(right,{...right,y:15},C.wall,1.15,.95)",
+      "after": "wline(left,{...left,y:observed.ballparkGeometryV1?.kind==='editable'?Math.max(15,window.KneekuraBallparkGeometryV1.wallA"
+    },
+    {
+      "before": "for(const[x,z]of[[-86,84],[86,84],[-45,-1],[45,-1]]){",
+      "after": "for(const[sourceX,sourceZ]of[[-86,84],[86,84],[-45,-1],[45,-1]]){\n let x=sourceX,z=sourceZ;if(observed.ballparkGeometryV"
+    },
+    {
+      "before": "function park(){const wallHeight=observed.liveObservation?observed.livePark.heightMeters:3,boardZ=observed.ballparkGeome",
+      "after": "function park(){const wallHeight=observed.liveObservation?observed.livePark.heightMeters:3,boardZ=observed.ballparkGeome"
+    },
+    {
+      "before": "drawParkV81();observed.actors.forEach(actor);",
+      "after": "drawParkV81();\n  architectureDetailCellsV4=[];\n  window.KneekuraBallparkLastRenderV2=observed.ballparkGeometryV1?.archit"
+    }
+  ],
+  "exactRendererReverse": true,
+  "htmlScriptSyntaxChecked": true
+}

@@ -1,5 +1,7 @@
 # Kneekura Mini Baseball — AI / Coding Agent Entry Point
 
+**球場制作（2026-10-25）:** [球場制作部](ballpark-production/README.md) → [技術解説](ballpark-production/METHODS.md) → [制作手順](ballpark-production/WORKFLOW.md) → [採用記録](docs/ballpark-studio/CURRENT-accepted.md)。芝生ロゴは0.8倍採用。表示の完成確認と通常試合Coreの未接続を混同せず、素材/局所光点/共有world/深度を保つ。技術は比較と検証による自己改善を認める。
+
 > **Read this before planning, editing, claiming implementation, or asking another agent to work.**
 > This repository's GitHub default branch is **`main`**, which contains an older bootstrap/design snapshot. The documented design work and the three 2026-10-16 baseball-AI implementation plans live on **`jolly/core-foundation-plan-2026-09-17`** as of 2026-10-16. This does **not** prove that this branch contains all of the user's current local or parallel-branch code. Inspect rather than assume.
 

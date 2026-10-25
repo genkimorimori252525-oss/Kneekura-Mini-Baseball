@@ -1,0 +1,135 @@
+{
+  "pass": true,
+  "file": "<LOCAL_HOME>/Documents\\Codex\\2026-10-15\\new-chat\\outputs\\球場設計室_v3_局所密度版.html",
+  "sha256": "b87062c7dc5d2a9e0691bee81138125603390b4d70e3a3057f3bb908c8d22406",
+  "errors": [],
+  "external": [],
+  "cameras": [
+    {
+      "camera": "stadium",
+      "triangles": 4182,
+      "candidateCells": 31662
+    },
+    {
+      "camera": "overhead",
+      "triangles": 855,
+      "candidateCells": 14898
+    },
+    {
+      "camera": "catcher",
+      "triangles": 395,
+      "candidateCells": 7111
+    },
+    {
+      "camera": "mound",
+      "triangles": 47,
+      "candidateCells": 10760
+    },
+    {
+      "camera": "batter",
+      "triangles": 365,
+      "candidateCells": 6036
+    },
+    {
+      "camera": "fielder",
+      "triangles": 845,
+      "candidateCells": 12961
+    }
+  ],
+  "widths": [
+    1280,
+    390,
+    320
+  ],
+  "mesh": {
+    "capacity": 120000,
+    "tiers": 5,
+    "rowsPerTier": 24,
+    "spectatorLights": 17280,
+    "roof": {
+      "halfX": 88.24621202458748,
+      "z0": -45,
+      "z1": 148,
+      "y": 105.88,
+      "openingPercent": 100,
+      "leftInnerEdge": -88.24621202458748,
+      "rightInnerEdge": 88.24621202458748,
+      "cutaway": true
+    },
+    "surfaces": 2446,
+    "triangles": 4182,
+    "candidateCells": 31662,
+    "omittedRoofSurfaces": 186,
+    "renderer": "original_projection_grid_depth_and_dot",
+    "simulationIntegration": "DESIGN_ONLY_NOT_MATCH_CORE_ADMITTED"
+  },
+  "logo": {
+    "cells": 69,
+    "mode": "fine",
+    "glyph": "gold_wolf_image_v1",
+    "widthMeters": 28,
+    "lengthMeters": 25.164021164021165,
+    "centerZ": 82
+  },
+  "surface": {
+    "zone": {
+      "id": "grass-wolf-material",
+      "shape": "material_alpha_distance",
+      "footprint": {
+        "width": 28,
+        "length": 25.164021164021165,
+        "centerZ": 82
+      },
+      "center": {
+        "x": 0,
+        "z": 82
+      },
+      "halfX": 14.6,
+      "halfZ": 13.182010582010582,
+      "factor": 3,
+      "marginMeters": 0.6,
+      "featherMeters": 0.8,
+      "materials": [
+        "original_ground",
+        "gold_wolf_image_v1"
+      ]
+    },
+    "finePoints": 254,
+    "fineGrassPoints": 185,
+    "fineLogoPoints": 69,
+    "transitionPoints": 79,
+    "samples": 558,
+    "logo": {
+      "cells": 69,
+      "mode": "fine",
+      "glyph": "gold_wolf_image_v1",
+      "widthMeters": 28,
+      "lengthMeters": 25.164021164021165,
+      "centerZ": 82
+    },
+    "raster": "shared_circle_dots",
+    "layerOrder": "ground_and_image_material_then_density_then_dots",
+    "integration": "DESIGN_ONLY_NOT_MATCH_CORE_ADMITTED",
+    "bounds": {
+      "minX": 283.0535027423801,
+      "maxX": 316.9464972576199,
+      "minY": 183.2662998635111,
+      "maxY": 202.50843057706743
+    },
+    "step": 1.1111111111111112,
+    "visibleFinePoints": 254,
+    "visibleFineLogoPoints": 69
+  },
+  "infieldSeatsAndCoachClearance": true,
+  "roofOpenCloseUndo": true,
+  "logoToggle": true,
+  "surfaceDensityControls": true,
+  "colors": true,
+  "localErrors": true,
+  "boundaryCacheInvalidation": true,
+  "referencePixelIdentical": true,
+  "saveRoundtrip": true,
+  "noIdleRedraw": true,
+  "v1AndOriginalUnchanged": true,
+  "fixedGeometryUnchanged": true
+}

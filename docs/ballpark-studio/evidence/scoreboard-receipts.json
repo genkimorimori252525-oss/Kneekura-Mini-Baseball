@@ -1,0 +1,368 @@
+[
+  {
+    "schema_version": 1,
+    "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+    "result": "FAIL",
+    "exit_code": 1,
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "--test",
+      "tools/ballpark-studio/scoreboard.test.mjs",
+      "tools/ballpark-studio/material-lod.test.mjs",
+      "tools/ballpark-studio/model.test.mjs",
+      "tools/ballpark-studio/architecture.test.mjs",
+      "tools/ballpark-studio/surface-layers.test.mjs",
+      "tools/ballpark-studio/crowd.test.mjs",
+      "tools/ballpark-studio/crowd-tiles.test.mjs"
+    ],
+    "observed_at": "2026-10-24T08:47:57.967+00:00",
+    "elapsed_ms": 281,
+    "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+    "git_dirty": true,
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_c4fdd90289e74fe09c96d9d656541d46.log",
+    "output_sha256": "8f2e2ddbb0d2311aefe88ab6bdea39f8b7ca6b692f2c36c1f57d61f76c5f7879",
+    "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_c4fdd90289e74fe09c96d9d656541d46"
+  },
+  {
+    "schema_version": 1,
+    "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+    "result": "PASS",
+    "exit_code": 0,
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/build.mjs",
+      "scoreboard-a2"
+    ],
+    "observed_at": "2026-10-24T08:50:08.039+00:00",
+    "elapsed_ms": 3016,
+    "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+    "git_dirty": true,
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_cb5d8de728fe414e9a8a51a6d7fe40f1.log",
+    "output_sha256": "8098db22fac64e82d84da5929969c0158d7d8c0c20ccbf483b3aef8d87d5fc40",
+    "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_cb5d8de728fe414e9a8a51a6d7fe40f1"
+  },
+  {
+    "schema_version": 1,
+    "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+    "result": "PASS",
+    "exit_code": 0,
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "--test",
+      "tools/ballpark-studio/scoreboard.test.mjs",
+      "tools/ballpark-studio/material-lod.test.mjs",
+      "tools/ballpark-studio/model.test.mjs",
+      "tools/ballpark-studio/architecture.test.mjs",
+      "tools/ballpark-studio/surface-layers.test.mjs",
+      "tools/ballpark-studio/crowd.test.mjs",
+      "tools/ballpark-studio/crowd-tiles.test.mjs"
+    ],
+    "observed_at": "2026-10-24T08:50:58.910+00:00",
+    "elapsed_ms": 328,
+    "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+    "git_dirty": true,
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_1c42020585864b42a304a136039574d2.log",
+    "output_sha256": "7f4962ba418fefd70fd9e527f20dfe6787a5f406a04aff1c6e080238675abcdb",
+    "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_1c42020585864b42a304a136039574d2"
+  },
+  {
+    "schema_version": 1,
+    "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+    "result": "PASS",
+    "exit_code": 0,
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/build.mjs",
+      "scoreboard-a3"
+    ],
+    "observed_at": "2026-10-24T08:53:27.095+00:00",
+    "elapsed_ms": 2733,
+    "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+    "git_dirty": true,
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_e648871868284605a826652958f546ea.log",
+    "output_sha256": "d44daa68151c4c6136a8f1c3e6bdb45ace3c2417deb7bf320644816449a92256",
+    "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_e648871868284605a826652958f546ea"
+  },
+  {
+    "schema_version": 1,
+    "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+    "result": "PASS",
+    "exit_code": 0,
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/build.mjs",
+      "scoreboard-a4"
+    ],
+    "observed_at": "2026-10-24T08:55:09.303+00:00",
+    "elapsed_ms": 2764,
+    "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+    "git_dirty": true,
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_9f9ea88ca4054ffa9803541b7768f01d.log",
+    "output_sha256": "7ef7952f9598e02719fcaf23b2b8a2ecc04dd80342c9336b969d06fcf70583ca",
+    "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_9f9ea88ca4054ffa9803541b7768f01d"
+  },
+  {
+    "schema_version": 1,
+    "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+    "result": "PASS",
+    "exit_code": 0,
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/verify-source.mjs",
+      "scoreboard-a4"
+    ],
+    "observed_at": "2026-10-24T08:55:50.136+00:00",
+    "elapsed_ms": 233,
+    "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+    "git_dirty": true,
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_100aa523a20540bebd0907ead142ac10.log",
+    "output_sha256": "02fcf8140bb03d21d257451c9702fa14b46b93fea0e57840b7da4caddb2ed4e9",
+    "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_100aa523a20540bebd0907ead142ac10"
+  },
+  {
+    "schema_version": 1,
+    "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+    "result": "PASS",
+    "exit_code": 0,
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "--test",
+      "tools/ballpark-studio/scoreboard.test.mjs",
+      "tools/ballpark-studio/material-lod.test.mjs",
+      "tools/ballpark-studio/model.test.mjs",
+      "tools/ballpark-studio/architecture.test.mjs",
+      "tools/ballpark-studio/surface-layers.test.mjs",
+      "tools/ballpark-studio/crowd.test.mjs",
+      "tools/ballpark-studio/crowd-tiles.test.mjs"
+    ],
+    "observed_at": "2026-10-24T08:56:00.643+00:00",
+    "elapsed_ms": 421,
+    "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+    "git_dirty": true,
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_c6805e4382ec48998dc4f380a60a04ac.log",
+    "output_sha256": "7a143e4a68371e5efaeed5d242a4e85f60bb465d4917d0c8b9c3160972ac26dd",
+    "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_c6805e4382ec48998dc4f380a60a04ac"
+  },
+  {
+    "schema_version": 1,
+    "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+    "result": "FAIL",
+    "exit_code": 1,
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-scoreboard.mjs",
+      "scoreboard-a4"
+    ],
+    "observed_at": "2026-10-24T08:56:13.798+00:00",
+    "elapsed_ms": 23907,
+    "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+    "git_dirty": true,
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_fee80e6c27f844349297bdc1c832fee9.log",
+    "output_sha256": "7db1943e9b6fd1a211167df16e6dbb08e9b622d0b324f392b98d4604c91347d2",
+    "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_fee80e6c27f844349297bdc1c832fee9"
+  },
+  {
+    "schema_version": 1,
+    "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+    "result": "PASS",
+    "exit_code": 0,
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-crowd-tiles.mjs",
+      "scoreboard-a4"
+    ],
+    "observed_at": "2026-10-24T08:56:14.562+00:00",
+    "elapsed_ms": 24672,
+    "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+    "git_dirty": true,
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_5c0cc920fadb4110bb3005dd14eba31f.log",
+    "output_sha256": "3e803c251ba03fa6b1dc6ab067454b292c4637a5581882f967b9ee98e1f8d755",
+    "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_5c0cc920fadb4110bb3005dd14eba31f"
+  },
+  {
+    "schema_version": 1,
+    "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+    "result": "PASS",
+    "exit_code": 0,
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-dome.mjs",
+      "scoreboard-a4"
+    ],
+    "observed_at": "2026-10-24T08:56:20.892+00:00",
+    "elapsed_ms": 31000,
+    "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+    "git_dirty": true,
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_26e086ead7424feaa2a5234fafade39d.log",
+    "output_sha256": "16eb3d24cca2b9121119814a8003ecc73611e0450b0eb9d429d33058fc277c68",
+    "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_26e086ead7424feaa2a5234fafade39d"
+  },
+  {
+    "schema_version": 1,
+    "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+    "result": "PASS",
+    "exit_code": 0,
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-architecture.mjs",
+      "scoreboard-a4"
+    ],
+    "observed_at": "2026-10-24T08:56:24.811+00:00",
+    "elapsed_ms": 34922,
+    "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+    "git_dirty": true,
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_3cf5115eeb904b41bc10c0ef63871d85.log",
+    "output_sha256": "b6005288c6871b29ab0eb6f703baca5c82f1493a86fc547402d25f1bc8fc25db",
+    "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_3cf5115eeb904b41bc10c0ef63871d85"
+  },
+  {
+    "schema_version": 1,
+    "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+    "result": "PASS",
+    "exit_code": 0,
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "--test",
+      "tools/ballpark-studio/scoreboard.test.mjs",
+      "tools/ballpark-studio/material-lod.test.mjs",
+      "tools/ballpark-studio/model.test.mjs",
+      "tools/ballpark-studio/architecture.test.mjs",
+      "tools/ballpark-studio/surface-layers.test.mjs",
+      "tools/ballpark-studio/crowd.test.mjs",
+      "tools/ballpark-studio/crowd-tiles.test.mjs"
+    ],
+    "observed_at": "2026-10-24T08:59:19.970+00:00",
+    "elapsed_ms": 312,
+    "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+    "git_dirty": true,
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_0b52cd00314f41e59e677d4313fee49f.log",
+    "output_sha256": "335b3d20fa860c4c1782765f9574bca860afc759269a68774b74075946cf5bf2",
+    "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_0b52cd00314f41e59e677d4313fee49f"
+  },
+  {
+    "schema_version": 1,
+    "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+    "result": "PASS",
+    "exit_code": 0,
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/build.mjs",
+      "scoreboard-a5"
+    ],
+    "observed_at": "2026-10-24T08:59:23.075+00:00",
+    "elapsed_ms": 2813,
+    "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+    "git_dirty": true,
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_237510b0e539472ba65dbae44aaa71c4.log",
+    "output_sha256": "4ed6723ff49ee7ed7f2530a7883898869c2f7ee04ef918a0c377f503c297a193",
+    "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_237510b0e539472ba65dbae44aaa71c4"
+  },
+  {
+    "schema_version": 1,
+    "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+    "result": "PASS",
+    "exit_code": 0,
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/verify-source.mjs",
+      "scoreboard-a5"
+    ],
+    "observed_at": "2026-10-24T09:00:14.459+00:00",
+    "elapsed_ms": 250,
+    "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+    "git_dirty": true,
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_428548152ae249d7a8571443b34ccc82.log",
+    "output_sha256": "711b37581e970b8771ab2431307fe6ac729424d08bbb0bcfc506be0d45b14209",
+    "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_428548152ae249d7a8571443b34ccc82"
+  },
+  {
+    "schema_version": 1,
+    "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+    "result": "PASS",
+    "exit_code": 0,
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-crowd-tiles.mjs",
+      "scoreboard-a5"
+    ],
+    "observed_at": "2026-10-24T09:00:37.374+00:00",
+    "elapsed_ms": 23171,
+    "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+    "git_dirty": true,
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_7f965e6e23614ca1a0c298ebe8b5f1af.log",
+    "output_sha256": "765a3243fca21d0d420a2d6483ca67c0da2c3d5defd015e8a2d55aaf4707f8c1",
+    "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_7f965e6e23614ca1a0c298ebe8b5f1af"
+  },
+  {
+    "schema_version": 1,
+    "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+    "result": "PASS",
+    "exit_code": 0,
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-dome.mjs",
+      "scoreboard-a5"
+    ],
+    "observed_at": "2026-10-24T09:00:44.562+00:00",
+    "elapsed_ms": 30375,
+    "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+    "git_dirty": true,
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_703e55090f4e418ba25f0c25d41aa434.log",
+    "output_sha256": "ef940c310d8bc7422c557ebf68bdae6395b005cc457a0380faacefe1b51cc5fa",
+    "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_703e55090f4e418ba25f0c25d41aa434"
+  },
+  {
+    "schema_version": 1,
+    "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+    "result": "PASS",
+    "exit_code": 0,
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-architecture.mjs",
+      "scoreboard-a5"
+    ],
+    "observed_at": "2026-10-24T09:00:48.825+00:00",
+    "elapsed_ms": 34656,
+    "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+    "git_dirty": true,
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_1beff892635343a1b5734cc1cae4b033.log",
+    "output_sha256": "d2c687e5a1af6076b9b944de4cc295ee4ef090762eee97efa9d8d766bb8af3a2",
+    "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_1beff892635343a1b5734cc1cae4b033"
+  },
+  {
+    "schema_version": 1,
+    "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+    "result": "PASS",
+    "exit_code": 0,
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-scoreboard.mjs",
+      "scoreboard-a5"
+    ],
+    "observed_at": "2026-10-24T09:00:57.582+00:00",
+    "elapsed_ms": 43421,
+    "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+    "git_dirty": true,
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_426e8883f44d40d5a35f64be0edc52b5.log",
+    "output_sha256": "48cbac081f231304e8fee0060f799393053df9051c84e3860c86d8b53bfeafe5",
+    "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_426e8883f44d40d5a35f64be0edc52b5"
+  },
+  {
+    "schema_version": 1,
+    "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+    "result": "PASS",
+    "exit_code": 0,
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/audit-scoreboard.mjs",
+      "scoreboard-a5"
+    ],
+    "observed_at": "2026-10-24T09:07:18.474+00:00",
+    "elapsed_ms": 2437,
+    "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+    "git_dirty": true,
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_903a66beb90744a2aac51d0368d0ff35.log",
+    "output_sha256": "397592f76253c133cc97596d81e42785bcc30dc2c2352d294d3f4b1849b9aa57",
+    "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_903a66beb90744a2aac51d0368d0ff35"
+  }
+]

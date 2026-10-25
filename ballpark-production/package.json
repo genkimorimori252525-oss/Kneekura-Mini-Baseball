@@ -1,0 +1,14 @@
+{
+  "name": "kneekura-ballpark-production",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "verify": "node production.mjs verify",
+    "test": "node production.mjs test",
+    "build": "node production.mjs build",
+    "extract": "node production.mjs extract"
+  },
+  "dependencies": { "esbuild": "0.21.5" }
+}

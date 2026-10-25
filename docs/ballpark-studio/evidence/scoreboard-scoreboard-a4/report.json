@@ -1,0 +1,55 @@
+{
+  "pass": false,
+  "sha256": "618944d07609d22e898a5938021a4ee16978e4707dbba4ad552c971d589a40ad",
+  "errors": [],
+  "default": {
+    "enabled": true,
+    "mode": "DESIGN_SAMPLE",
+    "z": 162.776,
+    "baseY": 38.879999999999995,
+    "width": 164,
+    "teams": [
+      {
+        "name": "TBD",
+        "innings": [
+          0,
+          0,
+          1,
+          0,
+          0,
+          2,
+          0,
+          1,
+          0
+        ],
+        "hits": 8,
+        "errors": 0,
+        "runs": 4
+      },
+      {
+        "name": "LAD",
+        "innings": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        "hits": 6,
+        "errors": 1,
+        "runs": 2
+      }
+    ],
+    "balls": 3,
+    "strikes": 2,
+    "outs": 2,
+    "speedKmh": 148
+  },
+  "inningTotalAndUndo": true,
+  "editableSample": true,
+  "error": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert(s.architectureRender.detail.logoProfiles.length===2)\n\n    at file:///<LOCAL_HOME>/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/ballpark-studio/check-scoreboard.mjs:15:156"
+}

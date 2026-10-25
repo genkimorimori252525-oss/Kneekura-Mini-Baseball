@@ -1,0 +1,165 @@
+{
+  "pass": false,
+  "sha256": "ea78bd34639ab9d4365022d3a3e1a47fe238324868c9fc3e79b68b4f0f7b1150",
+  "errors": [],
+  "external": [],
+  "views": [
+    {
+      "camera": "stadium",
+      "editToThreeCachedFramesMs": 355,
+      "detail": {
+        "fineCells": 11488,
+        "emblemCells": 894,
+        "fineGeometryOccluded": 8313,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 10352
+      }
+    },
+    {
+      "camera": "exterior",
+      "editToThreeCachedFramesMs": 326,
+      "detail": {
+        "fineCells": 12521,
+        "emblemCells": 694,
+        "fineGeometryOccluded": 6272,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 11160
+      }
+    },
+    {
+      "camera": "interior",
+      "editToThreeCachedFramesMs": 379,
+      "detail": {
+        "fineCells": 11637,
+        "emblemCells": 1267,
+        "fineGeometryOccluded": 18638,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 9368
+      }
+    },
+    {
+      "camera": "overhead",
+      "editToThreeCachedFramesMs": 256,
+      "detail": {
+        "fineCells": 0,
+        "emblemCells": 0,
+        "fineGeometryOccluded": 0,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 0
+      }
+    },
+    {
+      "camera": "catcher",
+      "editToThreeCachedFramesMs": 170,
+      "detail": {
+        "fineCells": 844,
+        "emblemCells": 0,
+        "fineGeometryOccluded": 13242,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 11
+      }
+    },
+    {
+      "camera": "mound",
+      "editToThreeCachedFramesMs": 178,
+      "detail": {
+        "fineCells": 0,
+        "emblemCells": 0,
+        "fineGeometryOccluded": 0,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 0
+      }
+    },
+    {
+      "camera": "batter",
+      "editToThreeCachedFramesMs": 141,
+      "detail": {
+        "fineCells": 688,
+        "emblemCells": 0,
+        "fineGeometryOccluded": 10067,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 12
+      }
+    },
+    {
+      "camera": "fielder",
+      "editToThreeCachedFramesMs": 189,
+      "detail": {
+        "fineCells": 1455,
+        "emblemCells": 0,
+        "fineGeometryOccluded": 29072,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 156
+      }
+    }
+  ],
+  "fineDepth": [
+    {
+      "name": "open-exterior",
+      "candidates": 12521,
+      "samples": 737,
+      "leaks": 0,
+      "rejectedByTriangleDepth": 6272,
+      "examples": []
+    },
+    {
+      "name": "closed-exterior",
+      "candidates": 10742,
+      "samples": 717,
+      "leaks": 0,
+      "rejectedByTriangleDepth": 8051,
+      "examples": []
+    },
+    {
+      "name": "open-interior",
+      "candidates": 11637,
+      "samples": 728,
+      "leaks": 0,
+      "rejectedByTriangleDepth": 18638,
+      "examples": []
+    },
+    {
+      "name": "orbit",
+      "candidates": 0,
+      "samples": 0,
+      "leaks": 0,
+      "rejectedByTriangleDepth": 24354,
+      "examples": []
+    }
+  ],
+  "imageMaterialToggle": true,
+  "independentDensity": {
+    "factors": [
+      3046,
+      19099
+    ]
+  },
+  "ornamentsToggle": true,
+  "approvedGrassPixelsIdentical": true,
+  "attendanceAndSeatMaterials": true,
+  "error": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert(data.fine.length>0)\n\n    at checkFineDepth (file:///<LOCAL_HOME>/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/ballpark-studio/check-architecture.mjs:27:2)\n    at async file:///<LOCAL_HOME>/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/ballpark-studio/check-architecture.mjs:44:485"
+}

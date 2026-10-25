@@ -1,0 +1,155 @@
+{
+  "pass": true,
+  "kind": "BALLPARK_STUDIO_V3",
+  "output": "<LOCAL_HOME>/Documents\\Codex\\2026-10-15\\new-chat\\outputs\\球場設計室_v3_局所密度版.html",
+  "sha256": "e092666bfdf103d01892acb9cd622b39dff345a9524b7dd20039d7f9eb585882",
+  "bytes": 45851256,
+  "version": 3,
+  "sourceSha256": "c6f32e13eb34a3545a178b1d40db92d58ac794732d224af5ad97b37133d77a71",
+  "sourceCoreSha256": "3d0ef3a2477816a3157e59f9a8235e1459913fa35f74f791541c8cee8e885a37",
+  "sourceCoreChanged": false,
+  "sharedNormalMatchChanged": false,
+  "sourceInputs": {
+    "tools/ballpark-studio/model.mjs": "decfb1156090e94780ca22d284c0dd83d29dd6034f57a66e898fe87a3cc86321",
+    "tools/ballpark-studio/architecture.mjs": "bf944ba97064eba6e48c0b70732fd82536dedd9c3808def3dff8b6c977791828",
+    "tools/ballpark-studio/stadium-mesh.mjs": "ebe05b1a9f3280935bf5d75f86ecc2aa194e3713bf7ed971c7f777a05459ea8b",
+    "tools/ballpark-studio/scoreboard.mjs": "a3253f28a4bc0e5ee5c469bed9414e69bb74e76d91cd80b04704efb8ca1e752b",
+    "tools/ballpark-studio/material-lod.mjs": "2e8ddecc0fffa59038a2e712538a7dec1d9f338512df28bd76916cf582a39ea0",
+    "tools/ballpark-studio/texture-filter.mjs": "c299ee9082b1993c00d43054253968a2c0d49874bb660ee544a562371f892581",
+    "tools/ballpark-studio/crowd.mjs": "91aa3b38059375f9ec571a5846a18b078b0606ba348690692957099118cdaf9f",
+    "tools/ballpark-studio/crowd-tiles.mjs": "c774cd8e275e7078cdbb0a84c0b35005b2b191c2573b840521c2a2d49dceae0b",
+    "tools/ballpark-studio/ground-logo.mjs": "3d5c949501762b4527c48d5b026ae71c6e372ff8937d9e84f290e1077e39a496",
+    "tools/ballpark-studio/surface-layers.mjs": "7ab90ddf6161a39bd222a286ba5836b1f172f85cafe7d1c814a9dae9c1398417",
+    "tools/ballpark-studio/assets/wolf-gold-cutout-v1.png": "b9181b700e184697d1d8dc7397d0eda4aceb1a481a311778e8203d45d8d153f4",
+    "tools/ballpark-studio/geometry-window.mjs": "1e22ae042a0e1c39d89cb890293fe6b53f91a39c3ef1db0fb9593b5a5f9efb2a",
+    "tools/ballpark-studio/studio.mjs": "e468e2a5dc7b710fdc3e206911344dc1cb261e5436201c46037b5cee19958639",
+    "tools/ballpark-studio/studio.html": "fcb52c54a4addf82e488880f39689bf75917e765c228e4c806c745ad50bc653a",
+    "tools/ballpark-studio/studio.css": "c5dc3355397f1f47eea08d41c29bbd0bd22436450f4c89b28473e61fc6ddded4",
+    "tools/ballpark-studio/renderer-patch.mjs": "671611458b46653a290f03c0d11c2f93904b50ebb0b356cd844c06d73199807c",
+    "tools/ballpark-studio/preview-bridge.js": "b67cc388a00b6df49478e33994ee1d1e5dec5db80d6a824c1ab7a610f6dac889",
+    "tools/ballpark-studio/build.mjs": "83cea6f6cc245286c921b304d7ef65fc2c2c759c24f0e0674858ae91b96d86ac"
+  },
+  "rendererScriptIndex": 6,
+  "fixedGeometryPreserved": true,
+  "simulationIntegration": "DESIGN_ONLY_NOT_MATCH_CORE_ADMITTED",
+  "rendererChanges": [
+    {
+      "before": "function liveFenceDistance(t){",
+      "after": "function liveFenceDistance(t){\n if(observed.ballparkGeometryV1?.kind==='editable')return window.KneekuraBallparkGeometry"
+    },
+    {
+      "before": "function fence(t,offset=0,y=0){",
+      "after": "function fence(t,offset=0,y=0){\n if(observed.ballparkGeometryV1?.kind==='editable'&&offset===0&&y===observed.livePark.he"
+    },
+    {
+      "before": "for(let i=0;i<=80;i++)ps.push(fence(start+i*range/80,offset,y));",
+      "after": "if(observed.ballparkGeometryV1?.kind==='editable'){\n const angles=[...new Set([...Array.from({length:81},(_,i)=>start+i*"
+    },
+    {
+      "before": "if(observed.liveObservation?Math.hypot(x-observed.livePark.center.x,z-observed.livePark.center.z)>observed.livePark.radi",
+      "after": "if(observed.liveObservation?(observed.ballparkGeometryV1?.kind==='editable'?rad>edge+3:Math.hypot(x-observed.livePark.ce"
+    },
+    {
+      "before": "if(rad>edge-3.5)return",
+      "after": "if(rad>edge-(observed.ballparkGeometryV1?.trackWidthMeters??3.5))return"
+    },
+    {
+      "before": "cam=chooseCamera();cam.f*=settings.zoom||1;",
+      "after": "cam=observed.ballparkCameraV1?{...chooseCamera(),...observed.ballparkCameraV1}:chooseCamera();cam.f*=settings.zoom||1;"
+    },
+    {
+      "before": "g?.radiusMeters,g?.heightMeters,",
+      "after": "g?.radiusMeters,g?.heightMeters,observed.ballparkGeometryV1?.boundaryKey,observed.ballparkGeometryV1?.surfaceKey,!!obser"
+    },
+    {
+      "before": "let sceneDepth=new Map(),rasterCells=new Map(),",
+      "after": "let architectureDetailCellsV4=[],groundDetailCellsV3=[];\n let sceneDepth=new Map(),rasterCells=new Map(),"
+    },
+    {
+      "before": "sceneDepth=new Map(parkCacheV81.depth);fieldMarkCells=parkCacheV81.marks.map(cell=>({...cell}));",
+      "after": "sceneDepth=new Map(parkCacheV81.depth);fieldMarkCells=parkCacheV81.marks.map(cell=>({...cell}));groundDetailCellsV3=park"
+    },
+    {
+      "before": "marks:fieldMarkCells.map(cell=>({...cell})),anchors:",
+      "after": "marks:fieldMarkCells.map(cell=>({...cell})),detailCellsV3:groundDetailCellsV3.slice(),surfaceReportV3:window.KneekuraBal"
+    },
+    {
+      "before": "function dot(x,y,r,color,alpha=1,glow=0){x=snap(x);y=snap(y);",
+      "after": "function dot(x,y,r,color,alpha=1,glow=0,density=1){x=density===1?snap(x):snap(x*density)/density;y=density===1?snap(y):s"
+    },
+    {
+      "before": "function ground(){\n groundCells=0;",
+      "after": "function ground(){\n const surfaceV3=window.KneekuraBallparkSurfaceV3,gV3=observed.ballparkGeometryV1,zoneV3=surfaceV3.de"
+    },
+    {
+      "before": "const p=groundAt(x,y),s=surfaceAt(p);\n  if(s){dot(x,y,LIGHT_RADIUS,s.color,s.alpha);",
+      "after": "const p=groundAt(x,y),s=surfaceV3.materialAt(gV3,p,surfaceAt(p));\n  if(s){const w=surfaceV3.densityWeight(zoneV3,p);if(s"
+    },
+    {
+      "before": "groundCells++;}\n }\n}\nfunction insidePolygon",
+      "after": "groundCells++;}\n }\n window.KneekuraBallparkSurfaceReportV3=surfaceV3.renderDetailRegion({geometry:gV3,project,groundAt,s"
+    },
+    {
+      "before": "flushWorld();guides();history();labels();",
+      "after": "{\n   const marksV3=new Set(fieldMarkCells.map(c=>rasterKeyV81(c.x,c.y))),reportV3=window.KneekuraBallparkSurfaceReportV3"
+    },
+    {
+      "before": "function flushWorld(){\n  actorCells=[];",
+      "after": "function flushWorld(){\n  // Opaque architectural cells clear complete device pixels, preventing a finer ground lattice l"
+    },
+    {
+      "before": "function paintWorldCell(x,y,depth,color,alpha,owner){",
+      "after": "function paintWorldCell(x,y,depth,color,alpha,owner,glow=0,density=1,surfaceId=null){\n if(density>1){architectureDetailC"
+    },
+    {
+      "before": "rasterCells.set(key,{x,y,r:LIGHT_RADIUS,color,alpha:owner==='ball'?1:owner==='bat'?Math.max(.85,alpha):alpha,owner,depth",
+      "after": "rasterCells.set(key,{x,y,r:LIGHT_RADIUS,color,alpha:owner==='ball'?1:owner==='bat'?Math.max(.85,alpha):alpha,owner,depth"
+    },
+    {
+      "before": "  // Outfielders are tiny from this distance but still need identifiable labels.",
+      "after": "  // Emit only surviving crowd LED cells after opaque cells have finished clearing their neighbors.\n  let visibleCrowdLe"
+    },
+    {
+      "before": "function park(){const wallHeight=observed.liveObservation?observed.livePark.heightMeters:3;",
+      "after": "function park(){const wallHeight=observed.liveObservation?observed.livePark.heightMeters:3,boardZ=observed.ballparkGeome"
+    },
+    {
+      "before": "},left,C.chalk,LIGHT_RADIUS,1);",
+      "after": "},left,lineColorV3,LIGHT_RADIUS,1);"
+    },
+    {
+      "before": "},right,C.chalk,LIGHT_RADIUS,1);",
+      "after": "},right,lineColorV3,LIGHT_RADIUS,1);"
+    },
+    {
+      "before": "markingOwner=id;poly([...points,points[0]],C.chalk,LIGHT_RADIUS,1);",
+      "after": "markingOwner=id;poly([...points,points[0]],id==='home'||id==='rubber'?C.chalk:lineColorV3,LIGHT_RADIUS,1);"
+    },
+    {
+      "before": "poly(fieldGeometry.catcherLines,C.chalk,LIGHT_RADIUS,1);",
+      "after": "poly(fieldGeometry.catcherLines,lineColorV3,LIGHT_RADIUS,1);"
+    },
+    {
+      "before": "poly(fieldGeometry.runningLane,C.chalk,1.25,.95);",
+      "after": "poly(fieldGeometry.runningLane,lineColorV3,1.25,.95);"
+    },
+    {
+      "before": "wline(left,{...left,y:15},C.wall,1.15,.95);wline(right,{...right,y:15},C.wall,1.15,.95)",
+      "after": "wline(left,{...left,y:observed.ballparkGeometryV1?.kind==='editable'?Math.max(15,window.KneekuraBallparkGeometryV1.wallA"
+    },
+    {
+      "before": "for(const[x,z]of[[-86,84],[86,84],[-45,-1],[45,-1]]){",
+      "after": "for(const[sourceX,sourceZ]of[[-86,84],[86,84],[-45,-1],[45,-1]]){\n let x=sourceX,z=sourceZ;if(observed.ballparkGeometryV"
+    },
+    {
+      "before": "function park(){const wallHeight=observed.liveObservation?observed.livePark.heightMeters:3,boardZ=observed.ballparkGeome",
+      "after": "function park(){const wallHeight=observed.liveObservation?observed.livePark.heightMeters:3,boardZ=observed.ballparkGeome"
+    },
+    {
+      "before": "drawParkV81();observed.actors.forEach(actor);",
+      "after": "drawParkV81();\n  architectureDetailCellsV4=[];\n  window.KneekuraBallparkLastRenderV2=observed.ballparkGeometryV1?.archit"
+    }
+  ],
+  "exactRendererReverse": true,
+  "htmlScriptSyntaxChecked": true
+}

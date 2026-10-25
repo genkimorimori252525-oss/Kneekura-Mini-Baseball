@@ -1,0 +1,385 @@
+[
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_fd5339b8c7a94ffa8dcaa89f66c9c00f",
+    "result": "FAIL",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "--test",
+      "tools/ballpark-studio/architecture.test.mjs"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_fd5339b8c7a94ffa8dcaa89f66c9c00f.log",
+    "output_sha256": "1e107e2e8d6d330325048006c9a5427aff9160617eef28fe4b97c9f8bd68795d",
+    "observed_at": "2026-10-24T07:41:03.250+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_2847f2bc59e940a3837eaee475de4aff",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "--test",
+      "tools/ballpark-studio/model.test.mjs",
+      "tools/ballpark-studio/architecture.test.mjs",
+      "tools/ballpark-studio/surface-layers.test.mjs",
+      "tools/ballpark-studio/crowd.test.mjs",
+      "tools/ballpark-studio/crowd-tiles.test.mjs"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_2847f2bc59e940a3837eaee475de4aff.log",
+    "output_sha256": "1f0c56c0e5b1522378c388060c72e2a42ab37159f47b1404edd9bc92bc247c7d",
+    "observed_at": "2026-10-24T07:43:59.578+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_9578a123c0454a63b22fbc6f9a298d62",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/probe-roof-depth.mjs",
+      "architecture-a4"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_9578a123c0454a63b22fbc6f9a298d62.log",
+    "output_sha256": "e21d6aa646bda54292a412eb793d7bb7a58b777c386ac312f704b0963fad55b5",
+    "observed_at": "2026-10-24T07:44:22.868+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_920c77a796884aadb639b4d98fa42e81",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-visual-tuning.mjs",
+      "architecture-a4"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_920c77a796884aadb639b4d98fa42e81.log",
+    "output_sha256": "ac61c63d497e8782af08f18ee1c1a2e1d198478f53c9906dd3abfca1874d8052",
+    "observed_at": "2026-10-24T07:44:34.538+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_85838ad723e24a809f84fad50948445a",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-crowd.mjs",
+      "architecture-a4"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_85838ad723e24a809f84fad50948445a.log",
+    "output_sha256": "127789a2806964c9a50e07f4b60beed83a2e7032cf65c4cf8fed37ffbc756ee2",
+    "observed_at": "2026-10-24T07:44:36.530+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_d3ace8ae8f0345e39133e1634bffbf91",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-dome.mjs",
+      "architecture-a4"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_d3ace8ae8f0345e39133e1634bffbf91.log",
+    "output_sha256": "fe8117c27d575fc4e693d15ce11d15148b1ef2d446b1d4032810adf5e27e36a8",
+    "observed_at": "2026-10-24T07:44:42.805+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_c37dc812a6c5497d8d0fd5d85a6d3249",
+    "result": "FAIL",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-architecture.mjs",
+      "a5"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_c37dc812a6c5497d8d0fd5d85a6d3249.log",
+    "output_sha256": "8399b80976c7d8c9b327bc15d6453064977ddf5787a633c9b65c57f98af7c7be",
+    "observed_at": "2026-10-24T07:47:44.643+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_13296f3896e14ed7b078f4f06836d8f2",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/build.mjs",
+      "architecture-a6"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_13296f3896e14ed7b078f4f06836d8f2.log",
+    "output_sha256": "429a7bfc973c9e9287dd355ec45eb42b1dd92f69b1321ad0a5868f205c196f47",
+    "observed_at": "2026-10-24T07:50:56.508+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_01d9b8fce92a4b7086c7f6083e6938c7",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/verify-source.mjs",
+      "architecture-a6"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_01d9b8fce92a4b7086c7f6083e6938c7.log",
+    "output_sha256": "8e800e20bb0920fc884b7d170db1c35211783ff7454e4322cc5e36d7fab59025",
+    "observed_at": "2026-10-24T07:51:45.008+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_9aaee078ee4c470da425b2e689455d11",
+    "result": "FAIL",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "--test",
+      "tools/ballpark-studio/model.test.mjs",
+      "tools/ballpark-studio/architecture.test.mjs",
+      "tools/ballpark-studio/surface-layers.test.mjs",
+      "tools/ballpark-studio/crowd.test.mjs",
+      "tools/ballpark-studio/crowd-tiles.test.mjs"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_9aaee078ee4c470da425b2e689455d11.log",
+    "output_sha256": "ba2958b9369f99928765e23100ab5099c4ea8f4036d1dddb6a517ee22663eba2",
+    "observed_at": "2026-10-24T07:51:55.547+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_7eab840784754282b4258cc9f6f02d65",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/probe-roof-depth.mjs",
+      "architecture-a6"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_7eab840784754282b4258cc9f6f02d65.log",
+    "output_sha256": "49c495231c70c72ca770fd3c6b464922778a2aaa2b41aee1068db60520eada51",
+    "observed_at": "2026-10-24T07:51:56.087+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_0ebcb9c8f7f54891bfb38e8477d1c95e",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-crowd.mjs",
+      "architecture-a6"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_0ebcb9c8f7f54891bfb38e8477d1c95e.log",
+    "output_sha256": "f37e472f69cf74ee3bd3613f36cca600e5132256cca058e893b8f6361e03c22f",
+    "observed_at": "2026-10-24T07:52:12.767+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_7780e3e4e131400c85cb169b66309068",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-visual-tuning.mjs",
+      "architecture-a6"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_7780e3e4e131400c85cb169b66309068.log",
+    "output_sha256": "0e5229a52b1c7a82411c3a37b6cf9a0f0a9ae1508702047a1b5992effbc92fe2",
+    "observed_at": "2026-10-24T07:52:12.820+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_3c03bd55abb74245bb25b8db97855ff9",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-browser.mjs",
+      "architecture-a6"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_3c03bd55abb74245bb25b8db97855ff9.log",
+    "output_sha256": "5fd3aa006e4fd29d08937c9cd33d6b2dd31088ed3befddcab0ba1e41d7b20d0b",
+    "observed_at": "2026-10-24T07:52:13.931+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_b43e6d58ca994cabb20522a42622cbb8",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-dome.mjs",
+      "architecture-a6"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_b43e6d58ca994cabb20522a42622cbb8.log",
+    "output_sha256": "b143a2b7a1267b5879f6bb5fcc7f755ea9d8b1709741b20941457e4213963832",
+    "observed_at": "2026-10-24T07:52:20.729+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_3dd1ea7d06e745c2b8aeec8a83495ea6",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-architecture.mjs",
+      "architecture-a6"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_3dd1ea7d06e745c2b8aeec8a83495ea6.log",
+    "output_sha256": "67a538d839b8bf31767a66c114ad429a960a2585963d261b23ebaf76c9b9463c",
+    "observed_at": "2026-10-24T07:52:22.306+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_b613c6ea231348df9da89ab4a43b1234",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/build.mjs",
+      "architecture-a7"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_b613c6ea231348df9da89ab4a43b1234.log",
+    "output_sha256": "0f3a1f27bf8f49f7c342545801dda5949d62e489aacc64e6f66f35611d580720",
+    "observed_at": "2026-10-24T07:53:44.019+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_55dcf296b7234fd7a40d99d7387c604e",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "--test",
+      "tools/ballpark-studio/model.test.mjs",
+      "tools/ballpark-studio/architecture.test.mjs",
+      "tools/ballpark-studio/surface-layers.test.mjs",
+      "tools/ballpark-studio/crowd.test.mjs",
+      "tools/ballpark-studio/crowd-tiles.test.mjs"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_55dcf296b7234fd7a40d99d7387c604e.log",
+    "output_sha256": "2f7dfc61c06b97da81db05d8662c9adb22a32c7d13c405d02433d2586a3c0972",
+    "observed_at": "2026-10-24T07:53:44.633+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_4420929be67d4e9e976c3a6f11cd6858",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/verify-source.mjs",
+      "architecture-a7"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_4420929be67d4e9e976c3a6f11cd6858.log",
+    "output_sha256": "614c3f4bc517097a9ea79ef46569660a17eed9090b876e736838fc24a36b4b7e",
+    "observed_at": "2026-10-24T07:54:18.707+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_adf26187da1b43df994f6378686bd3d5",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/probe-roof-depth.mjs",
+      "architecture-a7"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_adf26187da1b43df994f6378686bd3d5.log",
+    "output_sha256": "267081d7d77665ab8a0797402cb085fe4701d992e875b98b41a76fd8aea3e83c",
+    "observed_at": "2026-10-24T07:54:29.178+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_b72d8899c8e942c597fb133644c26332",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-visual-tuning.mjs",
+      "architecture-a7"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_b72d8899c8e942c597fb133644c26332.log",
+    "output_sha256": "cab9480d0d284802fd8580003b8567c2a3528af6d8b00863f7d5e66c6b58751e",
+    "observed_at": "2026-10-24T07:54:43.518+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_0a7793e796244b27b6590fcd8163af24",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-crowd.mjs",
+      "architecture-a7"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_0a7793e796244b27b6590fcd8163af24.log",
+    "output_sha256": "7f7a418e69d07e9cbd4907013db9d26663ab82dada67978e7e7593b29268fee6",
+    "observed_at": "2026-10-24T07:54:44.594+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_94991d9fa68644499ff154d978ed30fc",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-browser.mjs",
+      "architecture-a7"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_94991d9fa68644499ff154d978ed30fc.log",
+    "output_sha256": "b6a31efa8db03ee5ce363a312499a82321dd7a447d582376a54df655260d5da9",
+    "observed_at": "2026-10-24T07:54:45.240+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_08e9255cc0d544c6bbc6b81aaaff3281",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-dome.mjs",
+      "architecture-a7"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_08e9255cc0d544c6bbc6b81aaaff3281.log",
+    "output_sha256": "b5c71b32eb9ee34fa16ad5b5d61ca1e8c9cd83770a33754565645e057a87d13c",
+    "observed_at": "2026-10-24T07:54:53.414+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_696195f675634d2093d1f9110d618e08",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-architecture.mjs",
+      "architecture-a7"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_696195f675634d2093d1f9110d618e08.log",
+    "output_sha256": "7a86ac7be9e8eca31316cb1a97290ce99c5b2391e598dd2efe8d03f13e5b8d55",
+    "observed_at": "2026-10-24T07:54:54.650+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_0a34e96e199a4b688c2e1a4459766e8e",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/build.mjs",
+      "architecture-a8"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_0a34e96e199a4b688c2e1a4459766e8e.log",
+    "output_sha256": "ce7f1e7c180ab667d67580279ea6203bbd7eac7330b01e678b6aabe2b8a79bda",
+    "observed_at": "2026-10-24T07:57:00.861+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_d74e469bb917433cb80efb87c4b668fa",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/verify-source.mjs",
+      "architecture-a8"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_d74e469bb917433cb80efb87c4b668fa.log",
+    "output_sha256": "e98a3c4dd8d3e35248cf193e92fbe539160bacc8028840e347cca584fa97d91d",
+    "observed_at": "2026-10-24T07:57:32.353+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_88527e7820da404fa02d6ceaabe7b937",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-architecture.mjs",
+      "architecture-a8"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_88527e7820da404fa02d6ceaabe7b937.log",
+    "output_sha256": "dc1602023091f547a79b4098963624c742bf0b7911bf60f6ce49a2d9e1664498",
+    "observed_at": "2026-10-24T07:57:57.850+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_8012ee02853e48ae9cd97275a19f1554",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-attendance.mjs",
+      "architecture-a8"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_8012ee02853e48ae9cd97275a19f1554.log",
+    "output_sha256": "6fbd1a70dbd4888401f1d6dd5cf2f321ab995eee4dd02868d9791e58427261b9",
+    "observed_at": "2026-10-24T08:01:23.773+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_130ea67e22e9475dbd60bb51f0edcb38",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/check-crowd-tiles.mjs",
+      "architecture-a8"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_130ea67e22e9475dbd60bb51f0edcb38.log",
+    "output_sha256": "e673a4fb66e613f2651cca54f683bd8b46c54f24daa93ee5fea65dcb2a6848b0",
+    "observed_at": "2026-10-24T08:01:30.093+00:00"
+  },
+  {
+    "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_d9484c5ad6ea4791a203dc7590d2d247",
+    "result": "PASS",
+    "command": [
+      "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+      "tools/ballpark-studio/audit-architecture.mjs"
+    ],
+    "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_d9484c5ad6ea4791a203dc7590d2d247.log",
+    "output_sha256": "d83a60e252f87203cec813ec2d5eeb12f6e812192e2758dc7b30aa6fa6e1f540",
+    "observed_at": "2026-10-24T08:05:42.172+00:00"
+  }
+]

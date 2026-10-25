@@ -1,5 +1,9 @@
 # Kneekura Mini Baseball
 
+## 球場制作部 — 2026-10-25
+
+[球場制作部](ballpark-production/README.md)に、タンボフドラゴンズ球場のロゴ素材・輪郭に沿う局所光点・遠近と遮蔽・立体建築・開閉屋根・群衆タイル・スコアボード・制作履歴・再現コマンドを公開。球場設計室のデザイン完成確認済み、芝生ロゴ0.8倍採用。通常試合Coreへの新球場接続は未実装。既存プロジェクトの説明は以下に保持する。
+
 > **新しいAI・Codex・人間の共同開発者へ:** まず [AGENTS.md](AGENTS.md) → [AI設計ナビゲーション](docs/AI-INDEX.md) → [設計正本・優先順位](docs/game-design/00-current-design-handoff.md) → [実装計画一覧](docs/PLAN-REGISTER.md) を読むこと。**GitHub既定の `main` は古いブートストラップ状態**であり、`jolly/core-foundation-plan-2026-09-17` にこのドキュメント群がある。家のPCの未コミット・未push作業はGitHubだけでは見えない。
 
 ## ゲームの根本思想 — 試合が存在し、中継がそれを映す

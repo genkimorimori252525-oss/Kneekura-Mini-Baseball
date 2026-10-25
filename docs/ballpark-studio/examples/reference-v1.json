@@ -1,0 +1,45 @@
+{
+  "schema": "kneekura_ballpark_design_v1",
+  "name": "現行球場",
+  "mode": "reference_circle",
+  "ruleset": "obr_general_2026",
+  "fencePoints": [
+    {
+      "id": "LF",
+      "angleDegrees": -45,
+      "distanceMeters": 93.99335217582443,
+      "heightMeters": 3
+    },
+    {
+      "id": "LCF",
+      "angleDegrees": -22.5,
+      "distanceMeters": 105.71101177503147,
+      "heightMeters": 3
+    },
+    {
+      "id": "CF",
+      "angleDegrees": 0,
+      "distanceMeters": 110,
+      "heightMeters": 3
+    },
+    {
+      "id": "RCF",
+      "angleDegrees": 22.5,
+      "distanceMeters": 105.71101177503147,
+      "heightMeters": 3
+    },
+    {
+      "id": "RF",
+      "angleDegrees": 45,
+      "distanceMeters": 93.99335217582443,
+      "heightMeters": 3
+    }
+  ],
+  "foul": {
+    "firstSideMeters": 62.048368229954285,
+    "thirdSideMeters": 62.048368229954285,
+    "backstopMeters": 35,
+    "heightMeters": 3
+  },
+  "trackWidthMeters": 3.5
+}

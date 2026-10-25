@@ -1,0 +1,89 @@
+{
+  "pass": true,
+  "checked": [
+    {
+      "path": "tools/ballpark-studio/model.mjs",
+      "sha256": "decfb1156090e94780ca22d284c0dd83d29dd6034f57a66e898fe87a3cc86321"
+    },
+    {
+      "path": "tools/ballpark-studio/architecture.mjs",
+      "sha256": "86b09188889ddfd00130cb999d1aa5f01a41cd12da9e23c15d199d89c7e61d9f"
+    },
+    {
+      "path": "tools/ballpark-studio/stadium-mesh.mjs",
+      "sha256": "372744c228b151f2c0aa7eb1cb22f1f6f4c38176802ce9d39fa3a16a52b0ddbe"
+    },
+    {
+      "path": "tools/ballpark-studio/material-lod.mjs",
+      "sha256": "09a31f50f48db6eacd8c59e2826a4c0e18b0525083154f32fa80a3c337f093f4"
+    },
+    {
+      "path": "tools/ballpark-studio/texture-filter.mjs",
+      "sha256": "c299ee9082b1993c00d43054253968a2c0d49874bb660ee544a562371f892581"
+    },
+    {
+      "path": "tools/ballpark-studio/crowd.mjs",
+      "sha256": "91aa3b38059375f9ec571a5846a18b078b0606ba348690692957099118cdaf9f"
+    },
+    {
+      "path": "tools/ballpark-studio/crowd-tiles.mjs",
+      "sha256": "c774cd8e275e7078cdbb0a84c0b35005b2b191c2573b840521c2a2d49dceae0b"
+    },
+    {
+      "path": "tools/ballpark-studio/ground-logo.mjs",
+      "sha256": "3d5c949501762b4527c48d5b026ae71c6e372ff8937d9e84f290e1077e39a496"
+    },
+    {
+      "path": "tools/ballpark-studio/surface-layers.mjs",
+      "sha256": "7ab90ddf6161a39bd222a286ba5836b1f172f85cafe7d1c814a9dae9c1398417"
+    },
+    {
+      "path": "tools/ballpark-studio/assets/wolf-gold-cutout-v1.png",
+      "sha256": "b9181b700e184697d1d8dc7397d0eda4aceb1a481a311778e8203d45d8d153f4"
+    },
+    {
+      "path": "tools/ballpark-studio/geometry-window.mjs",
+      "sha256": "7fb452a9e976e09cb403cf54ea3708be3441ba346b6246abf3d53a40fc8b16ae"
+    },
+    {
+      "path": "tools/ballpark-studio/studio.mjs",
+      "sha256": "9f7c4c237482966ca893153599e37f4de48957cce09efc3e3603fca67180d6ea"
+    },
+    {
+      "path": "tools/ballpark-studio/studio.html",
+      "sha256": "b57a858afd6b17cc4d5cf3b11ce828489fab60c895b6c6c93ae9230e5eacab07"
+    },
+    {
+      "path": "tools/ballpark-studio/studio.css",
+      "sha256": "b37bb2156fe09eaa540288e99b774d8fb3be7cf4756c3196b6860dc5f0435d4a"
+    },
+    {
+      "path": "tools/ballpark-studio/renderer-patch.mjs",
+      "sha256": "671611458b46653a290f03c0d11c2f93904b50ebb0b356cd844c06d73199807c"
+    },
+    {
+      "path": "tools/ballpark-studio/preview-bridge.js",
+      "sha256": "a5ea762ad42215a1a6d23e148ac176642b48c9aeb58f57981cbc28947b504718"
+    },
+    {
+      "path": "tools/ballpark-studio/build.mjs",
+      "sha256": "b08028ea4e09ce9b1577f2df70fb439df8dae1543eb9bed498454af45c617a1b"
+    },
+    {
+      "path": "../../outputs/ばせぼーるlv114_TBD_vs_LAD_顔写真枠試作版.html",
+      "sha256": "c6f32e13eb34a3545a178b1d40db92d58ac794732d224af5ad97b37133d77a71"
+    },
+    {
+      "path": "../../outputs/球場設計室_v1.html",
+      "sha256": "0b97ab18f3639b2f086405e3574ff47cec9954780af58c2aa379aa3ceeb48a20"
+    },
+    {
+      "path": "../../outputs/球場設計室_v2_開閉式ドーム.html",
+      "sha256": "766a3495443c7480c33a38f7d2c51e55f49278fafa24fdbc306740efcf4173a5"
+    },
+    {
+      "path": "<LOCAL_HOME>/Documents\\Codex\\2026-10-15\\new-chat\\outputs\\球場設計室_v3_局所密度版.html",
+      "sha256": "bcd191cff3e634c85c338aa67033e52de25e7f07e6b841d95520b94becd8fcf6"
+    }
+  ]
+}

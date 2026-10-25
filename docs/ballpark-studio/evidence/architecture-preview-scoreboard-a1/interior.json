@@ -1,0 +1,1423 @@
+{
+  "version": 3,
+  "ready": true,
+  "error": null,
+  "revision": 0,
+  "renderedRevision": 0,
+  "renderCount": 4,
+  "design": {
+    "schema": "kneekura_ballpark_design_v2",
+    "name": "赤・青・金の開閉式ドーム",
+    "mode": "editable",
+    "ruleset": "mlb_new_2026",
+    "fencePoints": [
+      {
+        "id": "LF",
+        "angleDegrees": -45,
+        "distanceMeters": 105,
+        "heightMeters": 1.3
+      },
+      {
+        "id": "CURVE_1",
+        "angleDegrees": -39.375,
+        "distanceMeters": 109.48707740637096,
+        "heightMeters": 1.3
+      },
+      {
+        "id": "CURVE_2",
+        "angleDegrees": -33.75,
+        "distanceMeters": 113.80171894439707,
+        "heightMeters": 1.3
+      },
+      {
+        "id": "CURVE_3",
+        "angleDegrees": -28.125,
+        "distanceMeters": 117.77811535945085,
+        "heightMeters": 1.3
+      },
+      {
+        "id": "LCF",
+        "angleDegrees": -22.5,
+        "distanceMeters": 121.2634559672906,
+        "heightMeters": 1.3
+      },
+      {
+        "id": "CURVE_5",
+        "angleDegrees": -16.875,
+        "distanceMeters": 124.12380108295854,
+        "heightMeters": 1.3
+      },
+      {
+        "id": "CURVE_6",
+        "angleDegrees": -11.25,
+        "distanceMeters": 126.24922924775959,
+        "heightMeters": 1.3
+      },
+      {
+        "id": "CURVE_7",
+        "angleDegrees": -5.625,
+        "distanceMeters": 127.5580614492743,
+        "heightMeters": 1.3
+      },
+      {
+        "id": "CF",
+        "angleDegrees": 0,
+        "distanceMeters": 128,
+        "heightMeters": 1.3
+      },
+      {
+        "id": "CURVE_9",
+        "angleDegrees": 5.625,
+        "distanceMeters": 127.5580614492743,
+        "heightMeters": 1.3
+      },
+      {
+        "id": "CURVE_10",
+        "angleDegrees": 11.25,
+        "distanceMeters": 126.24922924775959,
+        "heightMeters": 1.3
+      },
+      {
+        "id": "CURVE_11",
+        "angleDegrees": 16.875,
+        "distanceMeters": 124.12380108295854,
+        "heightMeters": 1.3
+      },
+      {
+        "id": "RCF",
+        "angleDegrees": 22.5,
+        "distanceMeters": 121.2634559672906,
+        "heightMeters": 1.3
+      },
+      {
+        "id": "CURVE_13",
+        "angleDegrees": 28.125,
+        "distanceMeters": 117.77811535945085,
+        "heightMeters": 1.3
+      },
+      {
+        "id": "CURVE_14",
+        "angleDegrees": 33.75,
+        "distanceMeters": 113.80171894439707,
+        "heightMeters": 1.3
+      },
+      {
+        "id": "CURVE_15",
+        "angleDegrees": 39.375,
+        "distanceMeters": 109.48707740637096,
+        "heightMeters": 1.3
+      },
+      {
+        "id": "RF",
+        "angleDegrees": 45,
+        "distanceMeters": 105,
+        "heightMeters": 1.3
+      }
+    ],
+    "foul": {
+      "firstSideMeters": 18.288,
+      "thirdSideMeters": 18.288,
+      "backstopMeters": 26,
+      "heightMeters": 3
+    },
+    "trackWidthMeters": 3.5,
+    "architecture": {
+      "version": 1,
+      "style": "russian_dome",
+      "capacity": 120000,
+      "tiers": 5,
+      "colors": {
+        "red": "#b72e3d",
+        "blue": "#254f9a",
+        "gold": "#d6ae4d"
+      },
+      "roof": {
+        "type": "retractable",
+        "openingPercent": 100
+      },
+      "details": {
+        "factor": 6,
+        "logos": true,
+        "ornaments": true
+      },
+      "scoreboard": {
+        "enabled": true,
+        "teams": [
+          {
+            "name": "TBD",
+            "innings": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              2,
+              0,
+              1,
+              0
+            ],
+            "hits": 8,
+            "errors": 0
+          },
+          {
+            "name": "LAD",
+            "innings": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0
+            ],
+            "hits": 6,
+            "errors": 1
+          }
+        ],
+        "balls": 3,
+        "strikes": 2,
+        "outs": 2,
+        "speedKmh": 148
+      },
+      "logo": {
+        "enabled": true,
+        "detail": "fine",
+        "widthMeters": 28,
+        "centerZ": 82,
+        "brightness": 1.7,
+        "glow": 0.3
+      },
+      "surfaceDetail": {
+        "factor": 6,
+        "marginMeters": 0.6,
+        "featherMeters": 0.8
+      },
+      "crowd": {
+        "density": 0.75,
+        "detail": "simple",
+        "size": 1,
+        "brightness": 1,
+        "glow": 0.7,
+        "attendance": "full"
+      }
+    }
+  },
+  "view": {
+    "camera": "interior",
+    "zoom": 1,
+    "orbit": null,
+    "people": true,
+    "roofCutaway": false
+  },
+  "validation": {
+    "ok": true,
+    "errors": [],
+    "warnings": [],
+    "fairMinimumDistanceMeters": 105
+  },
+  "geometry": {
+    "version": 1,
+    "kind": "editable",
+    "fixedLayoutId": "professional_fixed_diamond_v1",
+    "circle": {
+      "center": {
+        "x": 0,
+        "z": 37.5
+      },
+      "radiusMeters": 72.5,
+      "heightMeters": 3
+    },
+    "vertices": [
+      {
+        "id": "BACK",
+        "angleDegrees": -180,
+        "distanceMeters": 26,
+        "heightMeters": 3,
+        "x": 0,
+        "z": -26
+      },
+      {
+        "id": "THIRD_SIDE",
+        "angleDegrees": -90,
+        "distanceMeters": 18.288,
+        "heightMeters": 3,
+        "x": -18.288,
+        "z": 0
+      },
+      {
+        "id": "LF",
+        "angleDegrees": -45,
+        "distanceMeters": 105,
+        "heightMeters": 1.3,
+        "x": -74.24621202458748,
+        "z": 74.24621202458749
+      },
+      {
+        "id": "CURVE_1",
+        "angleDegrees": -39.375,
+        "distanceMeters": 109.48707740637096,
+        "heightMeters": 1.3,
+        "x": -69.45786660930695,
+        "z": 84.6346553432599
+      },
+      {
+        "id": "CURVE_2",
+        "angleDegrees": -33.75,
+        "distanceMeters": 113.80171894439707,
+        "heightMeters": 1.3,
+        "x": -63.224847511969955,
+        "z": 94.62267113006105
+      },
+      {
+        "id": "CURVE_3",
+        "angleDegrees": -28.125,
+        "distanceMeters": 117.77811535945085,
+        "heightMeters": 1.3,
+        "x": -55.520219249961045,
+        "z": 103.87102441037331
+      },
+      {
+        "id": "LCF",
+        "angleDegrees": -22.5,
+        "distanceMeters": 121.2634559672906,
+        "heightMeters": 1.3,
+        "x": -46.40551555001569,
+        "z": 112.03282500976344
+      },
+      {
+        "id": "CURVE_5",
+        "angleDegrees": -16.875,
+        "distanceMeters": 124.12380108295854,
+        "heightMeters": 1.3,
+        "x": -36.0312375369637,
+        "z": 118.77907188068424
+      },
+      {
+        "id": "CURVE_6",
+        "angleDegrees": -11.25,
+        "distanceMeters": 126.24922924775959,
+        "heightMeters": 1.3,
+        "x": -24.630002788233416,
+        "z": 123.8233857084556
+      },
+      {
+        "id": "CURVE_7",
+        "angleDegrees": -5.625,
+        "distanceMeters": 127.5580614492743,
+        "heightMeters": 1.3,
+        "x": -12.502876409240233,
+        "z": 126.94383451823136
+      },
+      {
+        "id": "CF",
+        "angleDegrees": 0,
+        "distanceMeters": 128,
+        "heightMeters": 1.3,
+        "x": 0,
+        "z": 128
+      },
+      {
+        "id": "CURVE_9",
+        "angleDegrees": 5.625,
+        "distanceMeters": 127.5580614492743,
+        "heightMeters": 1.3,
+        "x": 12.502876409240233,
+        "z": 126.94383451823136
+      },
+      {
+        "id": "CURVE_10",
+        "angleDegrees": 11.25,
+        "distanceMeters": 126.24922924775959,
+        "heightMeters": 1.3,
+        "x": 24.630002788233416,
+        "z": 123.8233857084556
+      },
+      {
+        "id": "CURVE_11",
+        "angleDegrees": 16.875,
+        "distanceMeters": 124.12380108295854,
+        "heightMeters": 1.3,
+        "x": 36.0312375369637,
+        "z": 118.77907188068424
+      },
+      {
+        "id": "RCF",
+        "angleDegrees": 22.5,
+        "distanceMeters": 121.2634559672906,
+        "heightMeters": 1.3,
+        "x": 46.40551555001569,
+        "z": 112.03282500976344
+      },
+      {
+        "id": "CURVE_13",
+        "angleDegrees": 28.125,
+        "distanceMeters": 117.77811535945085,
+        "heightMeters": 1.3,
+        "x": 55.520219249961045,
+        "z": 103.87102441037331
+      },
+      {
+        "id": "CURVE_14",
+        "angleDegrees": 33.75,
+        "distanceMeters": 113.80171894439707,
+        "heightMeters": 1.3,
+        "x": 63.224847511969955,
+        "z": 94.62267113006105
+      },
+      {
+        "id": "CURVE_15",
+        "angleDegrees": 39.375,
+        "distanceMeters": 109.48707740637096,
+        "heightMeters": 1.3,
+        "x": 69.45786660930695,
+        "z": 84.6346553432599
+      },
+      {
+        "id": "RF",
+        "angleDegrees": 45,
+        "distanceMeters": 105,
+        "heightMeters": 1.3,
+        "x": 74.24621202458748,
+        "z": 74.24621202458749
+      },
+      {
+        "id": "FIRST_SIDE",
+        "angleDegrees": 90,
+        "distanceMeters": 18.288,
+        "heightMeters": 3,
+        "x": 18.288,
+        "z": 0
+      },
+      {
+        "id": "BACK",
+        "angleDegrees": 180,
+        "distanceMeters": 26,
+        "heightMeters": 3,
+        "x": 0,
+        "z": -26
+      }
+    ],
+    "architecture": {
+      "version": 1,
+      "style": "russian_dome",
+      "capacity": 120000,
+      "tiers": 5,
+      "colors": {
+        "red": "#b72e3d",
+        "blue": "#254f9a",
+        "gold": "#d6ae4d"
+      },
+      "roof": {
+        "type": "retractable",
+        "openingPercent": 100
+      },
+      "details": {
+        "factor": 6,
+        "logos": true,
+        "ornaments": true
+      },
+      "scoreboard": {
+        "enabled": true,
+        "teams": [
+          {
+            "name": "TBD",
+            "innings": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              2,
+              0,
+              1,
+              0
+            ],
+            "hits": 8,
+            "errors": 0
+          },
+          {
+            "name": "LAD",
+            "innings": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0
+            ],
+            "hits": 6,
+            "errors": 1
+          }
+        ],
+        "balls": 3,
+        "strikes": 2,
+        "outs": 2,
+        "speedKmh": 148
+      },
+      "logo": {
+        "enabled": true,
+        "detail": "fine",
+        "widthMeters": 28,
+        "centerZ": 82,
+        "brightness": 1.7,
+        "glow": 0.3
+      },
+      "surfaceDetail": {
+        "factor": 6,
+        "marginMeters": 0.6,
+        "featherMeters": 0.8
+      },
+      "crowd": {
+        "density": 0.75,
+        "detail": "simple",
+        "size": 1,
+        "brightness": 1,
+        "glow": 0.7,
+        "attendance": "full"
+      }
+    },
+    "boundaryKey": "[\"editable\",[{\"id\":\"LF\",\"angleDegrees\":-45,\"distanceMeters\":105,\"heightMeters\":1.3},{\"id\":\"CURVE_1\",\"angleDegrees\":-39.375,\"distanceMeters\":109.48707740637096,\"heightMeters\":1.3},{\"id\":\"CURVE_2\",\"angleDegrees\":-33.75,\"distanceMeters\":113.80171894439707,\"heightMeters\":1.3},{\"id\":\"CURVE_3\",\"angleDegrees\":-28.125,\"distanceMeters\":117.77811535945085,\"heightMeters\":1.3},{\"id\":\"LCF\",\"angleDegrees\":-22.5,\"distanceMeters\":121.2634559672906,\"heightMeters\":1.3},{\"id\":\"CURVE_5\",\"angleDegrees\":-16.875,\"distanceMeters\":124.12380108295854,\"heightMeters\":1.3},{\"id\":\"CURVE_6\",\"angleDegrees\":-11.25,\"distanceMeters\":126.24922924775959,\"heightMeters\":1.3},{\"id\":\"CURVE_7\",\"angleDegrees\":-5.625,\"distanceMeters\":127.5580614492743,\"heightMeters\":1.3},{\"id\":\"CF\",\"angleDegrees\":0,\"distanceMeters\":128,\"heightMeters\":1.3},{\"id\":\"CURVE_9\",\"angleDegrees\":5.625,\"distanceMeters\":127.5580614492743,\"heightMeters\":1.3},{\"id\":\"CURVE_10\",\"angleDegrees\":11.25,\"distanceMeters\":126.24922924775959,\"heightMeters\":1.3},{\"id\":\"CURVE_11\",\"angleDegrees\":16.875,\"distanceMeters\":124.12380108295854,\"heightMeters\":1.3},{\"id\":\"RCF\",\"angleDegrees\":22.5,\"distanceMeters\":121.2634559672906,\"heightMeters\":1.3},{\"id\":\"CURVE_13\",\"angleDegrees\":28.125,\"distanceMeters\":117.77811535945085,\"heightMeters\":1.3},{\"id\":\"CURVE_14\",\"angleDegrees\":33.75,\"distanceMeters\":113.80171894439707,\"heightMeters\":1.3},{\"id\":\"CURVE_15\",\"angleDegrees\":39.375,\"distanceMeters\":109.48707740637096,\"heightMeters\":1.3},{\"id\":\"RF\",\"angleDegrees\":45,\"distanceMeters\":105,\"heightMeters\":1.3}],{\"firstSideMeters\":18.288,\"thirdSideMeters\":18.288,\"backstopMeters\":26,\"heightMeters\":3},3.5]",
+    "surfaceKey": "[{\"enabled\":true,\"detail\":\"fine\",\"widthMeters\":28,\"centerZ\":82,\"brightness\":1.7,\"glow\":0.3},{\"factor\":6,\"marginMeters\":0.6,\"featherMeters\":0.8}]",
+    "fencePoints": [
+      {
+        "id": "LF",
+        "angleDegrees": -45,
+        "distanceMeters": 105,
+        "heightMeters": 1.3,
+        "x": -74.24621202458748,
+        "z": 74.24621202458749
+      },
+      {
+        "id": "CURVE_1",
+        "angleDegrees": -39.375,
+        "distanceMeters": 109.48707740637096,
+        "heightMeters": 1.3,
+        "x": -69.45786660930695,
+        "z": 84.6346553432599
+      },
+      {
+        "id": "CURVE_2",
+        "angleDegrees": -33.75,
+        "distanceMeters": 113.80171894439707,
+        "heightMeters": 1.3,
+        "x": -63.224847511969955,
+        "z": 94.62267113006105
+      },
+      {
+        "id": "CURVE_3",
+        "angleDegrees": -28.125,
+        "distanceMeters": 117.77811535945085,
+        "heightMeters": 1.3,
+        "x": -55.520219249961045,
+        "z": 103.87102441037331
+      },
+      {
+        "id": "LCF",
+        "angleDegrees": -22.5,
+        "distanceMeters": 121.2634559672906,
+        "heightMeters": 1.3,
+        "x": -46.40551555001569,
+        "z": 112.03282500976344
+      },
+      {
+        "id": "CURVE_5",
+        "angleDegrees": -16.875,
+        "distanceMeters": 124.12380108295854,
+        "heightMeters": 1.3,
+        "x": -36.0312375369637,
+        "z": 118.77907188068424
+      },
+      {
+        "id": "CURVE_6",
+        "angleDegrees": -11.25,
+        "distanceMeters": 126.24922924775959,
+        "heightMeters": 1.3,
+        "x": -24.630002788233416,
+        "z": 123.8233857084556
+      },
+      {
+        "id": "CURVE_7",
+        "angleDegrees": -5.625,
+        "distanceMeters": 127.5580614492743,
+        "heightMeters": 1.3,
+        "x": -12.502876409240233,
+        "z": 126.94383451823136
+      },
+      {
+        "id": "CF",
+        "angleDegrees": 0,
+        "distanceMeters": 128,
+        "heightMeters": 1.3,
+        "x": 0,
+        "z": 128
+      },
+      {
+        "id": "CURVE_9",
+        "angleDegrees": 5.625,
+        "distanceMeters": 127.5580614492743,
+        "heightMeters": 1.3,
+        "x": 12.502876409240233,
+        "z": 126.94383451823136
+      },
+      {
+        "id": "CURVE_10",
+        "angleDegrees": 11.25,
+        "distanceMeters": 126.24922924775959,
+        "heightMeters": 1.3,
+        "x": 24.630002788233416,
+        "z": 123.8233857084556
+      },
+      {
+        "id": "CURVE_11",
+        "angleDegrees": 16.875,
+        "distanceMeters": 124.12380108295854,
+        "heightMeters": 1.3,
+        "x": 36.0312375369637,
+        "z": 118.77907188068424
+      },
+      {
+        "id": "RCF",
+        "angleDegrees": 22.5,
+        "distanceMeters": 121.2634559672906,
+        "heightMeters": 1.3,
+        "x": 46.40551555001569,
+        "z": 112.03282500976344
+      },
+      {
+        "id": "CURVE_13",
+        "angleDegrees": 28.125,
+        "distanceMeters": 117.77811535945085,
+        "heightMeters": 1.3,
+        "x": 55.520219249961045,
+        "z": 103.87102441037331
+      },
+      {
+        "id": "CURVE_14",
+        "angleDegrees": 33.75,
+        "distanceMeters": 113.80171894439707,
+        "heightMeters": 1.3,
+        "x": 63.224847511969955,
+        "z": 94.62267113006105
+      },
+      {
+        "id": "CURVE_15",
+        "angleDegrees": 39.375,
+        "distanceMeters": 109.48707740637096,
+        "heightMeters": 1.3,
+        "x": 69.45786660930695,
+        "z": 84.6346553432599
+      },
+      {
+        "id": "RF",
+        "angleDegrees": 45,
+        "distanceMeters": 105,
+        "heightMeters": 1.3,
+        "x": 74.24621202458748,
+        "z": 74.24621202458749
+      }
+    ],
+    "maximumHeightMeters": 3,
+    "trackWidthMeters": 3.5
+  },
+  "fixed": {
+    "id": "professional_fixed_diamond_v1",
+    "baseDistanceMeters": 27.432,
+    "pitcherPlateFrontMeters": 18.4404,
+    "pitcherPlateHeightMeters": 0.254,
+    "foulAngleDegrees": 90,
+    "baseSideMeters": 0.4572,
+    "homePlateWidthMeters": 0.4318
+  },
+  "renderedFixed": {
+    "baseDistance": 27.432,
+    "baseSide": 0.4572,
+    "homePlate": [
+      {
+        "x": 0,
+        "z": 0
+      },
+      {
+        "x": 0.2159,
+        "z": 0.2159
+      },
+      {
+        "x": 0.2159,
+        "z": 0.4318
+      },
+      {
+        "x": -0.2159,
+        "z": 0.4318
+      },
+      {
+        "x": -0.2159,
+        "z": 0.2159
+      }
+    ],
+    "batterBoxes": [
+      {
+        "side": -1,
+        "width": 1.2192,
+        "length": 1.8288,
+        "points": [
+          {
+            "x": -1.5875,
+            "z": -0.6985
+          },
+          {
+            "x": -0.3683,
+            "z": -0.6985
+          },
+          {
+            "x": -0.3683,
+            "z": 1.1303
+          },
+          {
+            "x": -1.5875,
+            "z": 1.1303
+          }
+        ]
+      },
+      {
+        "side": 1,
+        "width": 1.2192,
+        "length": 1.8288,
+        "points": [
+          {
+            "x": 0.3683,
+            "z": -0.6985
+          },
+          {
+            "x": 1.5875,
+            "z": -0.6985
+          },
+          {
+            "x": 1.5875,
+            "z": 1.1303
+          },
+          {
+            "x": 0.3683,
+            "z": 1.1303
+          }
+        ]
+      }
+    ],
+    "catcherBox": [
+      {
+        "x": -0.5461,
+        "z": -2.4384
+      },
+      {
+        "x": 0.5461,
+        "z": -2.4384
+      },
+      {
+        "x": 0.5461,
+        "z": 0
+      },
+      {
+        "x": -0.5461,
+        "z": 0
+      }
+    ],
+    "catcherLines": [
+      {
+        "x": -0.5461,
+        "z": -0.6985
+      },
+      {
+        "x": -0.5461,
+        "z": -2.4384
+      },
+      {
+        "x": 0.5461,
+        "z": -2.4384
+      },
+      {
+        "x": 0.5461,
+        "z": -0.6985
+      }
+    ],
+    "rubber": [
+      {
+        "x": -0.3048,
+        "z": 18.4404
+      },
+      {
+        "x": 0.3048,
+        "z": 18.4404
+      },
+      {
+        "x": 0.3048,
+        "z": 18.5928
+      },
+      {
+        "x": -0.3048,
+        "z": 18.5928
+      }
+    ],
+    "mound": {
+      "x": 0,
+      "z": 17.9832,
+      "radius": 2.7432
+    },
+    "infieldDirtRadius": 28.956,
+    "coachesBoxes": [
+      [
+        {
+          "x": 20.47498395603767,
+          "z": 9.698676610754683
+        },
+        {
+          "x": 24.785506894150863,
+          "z": 14.009199548867876
+        },
+        {
+          "x": 22.630245425094262,
+          "z": 16.164461017924474
+        },
+        {
+          "x": 18.31972248698107,
+          "z": 11.85393807981128
+        }
+      ],
+      [
+        {
+          "x": -20.47498395603767,
+          "z": 9.698676610754683
+        },
+        {
+          "x": -18.31972248698107,
+          "z": 11.85393807981128
+        },
+        {
+          "x": -22.630245425094262,
+          "z": 16.164461017924474
+        },
+        {
+          "x": -24.785506894150863,
+          "z": 14.009199548867876
+        }
+      ]
+    ],
+    "bases": [
+      [
+        {
+          "x": 19.07406400115088,
+          "z": 19.07406400115088
+        },
+        {
+          "x": 19.39735322150937,
+          "z": 19.39735322150937
+        },
+        {
+          "x": 19.07406400115088,
+          "z": 19.72064244186786
+        },
+        {
+          "x": 18.75077478079239,
+          "z": 19.39735322150937
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "z": 38.47141722266025
+        },
+        {
+          "x": 0.3232892203584897,
+          "z": 38.79470644301874
+        },
+        {
+          "x": 0,
+          "z": 39.11799566337723
+        },
+        {
+          "x": -0.3232892203584897,
+          "z": 38.79470644301874
+        }
+      ],
+      [
+        {
+          "x": -19.07406400115088,
+          "z": 19.07406400115088
+        },
+        {
+          "x": -18.75077478079239,
+          "z": 19.39735322150937
+        },
+        {
+          "x": -19.07406400115088,
+          "z": 19.72064244186786
+        },
+        {
+          "x": -19.39735322150937,
+          "z": 19.39735322150937
+        }
+      ]
+    ],
+    "runningLane": [
+      {
+        "x": 9.698676610754685,
+        "z": 9.698676610754685
+      },
+      {
+        "x": 10.345255051471664,
+        "z": 9.052098170037706
+      },
+      {
+        "x": 20.04393166222635,
+        "z": 18.75077478079239
+      }
+    ],
+    "diamondChalk": false
+  },
+  "rendererGeometry": {
+    "profile": "OFFLINE_HOST_REFERENCE_PARK",
+    "baseDistance": 27.432,
+    "baseSide": 0.4572,
+    "homePlate": [
+      {
+        "x": 0,
+        "z": 0
+      },
+      {
+        "x": 0.2159,
+        "z": 0.2159
+      },
+      {
+        "x": 0.2159,
+        "z": 0.4318
+      },
+      {
+        "x": -0.2159,
+        "z": 0.4318
+      },
+      {
+        "x": -0.2159,
+        "z": 0.2159
+      }
+    ],
+    "batterBoxes": [
+      {
+        "side": -1,
+        "width": 1.2192,
+        "length": 1.8288,
+        "points": [
+          {
+            "x": -1.5875,
+            "z": -0.6985
+          },
+          {
+            "x": -0.3683,
+            "z": -0.6985
+          },
+          {
+            "x": -0.3683,
+            "z": 1.1303
+          },
+          {
+            "x": -1.5875,
+            "z": 1.1303
+          }
+        ]
+      },
+      {
+        "side": 1,
+        "width": 1.2192,
+        "length": 1.8288,
+        "points": [
+          {
+            "x": 0.3683,
+            "z": -0.6985
+          },
+          {
+            "x": 1.5875,
+            "z": -0.6985
+          },
+          {
+            "x": 1.5875,
+            "z": 1.1303
+          },
+          {
+            "x": 0.3683,
+            "z": 1.1303
+          }
+        ]
+      }
+    ],
+    "catcherBox": [
+      {
+        "x": -0.5461,
+        "z": -2.4384
+      },
+      {
+        "x": 0.5461,
+        "z": -2.4384
+      },
+      {
+        "x": 0.5461,
+        "z": 0
+      },
+      {
+        "x": -0.5461,
+        "z": 0
+      }
+    ],
+    "catcherLines": [
+      {
+        "x": -0.5461,
+        "z": -0.6985
+      },
+      {
+        "x": -0.5461,
+        "z": -2.4384
+      },
+      {
+        "x": 0.5461,
+        "z": -2.4384
+      },
+      {
+        "x": 0.5461,
+        "z": -0.6985
+      }
+    ],
+    "rubber": [
+      {
+        "x": -0.3048,
+        "z": 18.4404
+      },
+      {
+        "x": 0.3048,
+        "z": 18.4404
+      },
+      {
+        "x": 0.3048,
+        "z": 18.5928
+      },
+      {
+        "x": -0.3048,
+        "z": 18.5928
+      }
+    ],
+    "mound": {
+      "x": 0,
+      "z": 17.9832,
+      "radius": 2.7432
+    },
+    "infieldDirtRadius": 28.956,
+    "coachesBoxes": [
+      [
+        {
+          "x": 20.47498395603767,
+          "z": 9.698676610754683
+        },
+        {
+          "x": 24.785506894150863,
+          "z": 14.009199548867876
+        },
+        {
+          "x": 22.630245425094262,
+          "z": 16.164461017924474
+        },
+        {
+          "x": 18.31972248698107,
+          "z": 11.85393807981128
+        }
+      ],
+      [
+        {
+          "x": -20.47498395603767,
+          "z": 9.698676610754683
+        },
+        {
+          "x": -18.31972248698107,
+          "z": 11.85393807981128
+        },
+        {
+          "x": -22.630245425094262,
+          "z": 16.164461017924474
+        },
+        {
+          "x": -24.785506894150863,
+          "z": 14.009199548867876
+        }
+      ]
+    ],
+    "bases": [
+      [
+        {
+          "x": 19.07406400115088,
+          "z": 19.07406400115088
+        },
+        {
+          "x": 19.39735322150937,
+          "z": 19.39735322150937
+        },
+        {
+          "x": 19.07406400115088,
+          "z": 19.72064244186786
+        },
+        {
+          "x": 18.75077478079239,
+          "z": 19.39735322150937
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "z": 38.47141722266025
+        },
+        {
+          "x": 0.3232892203584897,
+          "z": 38.79470644301874
+        },
+        {
+          "x": 0,
+          "z": 39.11799566337723
+        },
+        {
+          "x": -0.3232892203584897,
+          "z": 38.79470644301874
+        }
+      ],
+      [
+        {
+          "x": -19.07406400115088,
+          "z": 19.07406400115088
+        },
+        {
+          "x": -18.75077478079239,
+          "z": 19.39735322150937
+        },
+        {
+          "x": -19.07406400115088,
+          "z": 19.72064244186786
+        },
+        {
+          "x": -19.39735322150937,
+          "z": 19.39735322150937
+        }
+      ]
+    ],
+    "runningLane": [
+      {
+        "x": 9.698676610754685,
+        "z": 9.698676610754685
+      },
+      {
+        "x": 10.345255051471664,
+        "z": 9.052098170037706
+      },
+      {
+        "x": 20.04393166222635,
+        "z": 18.75077478079239
+      }
+    ],
+    "diamondChalk": false,
+    "backstopDistance": 25.999999999999993,
+    "lf": 105,
+    "cf": 128,
+    "rf": 104.99999999999994,
+    "verticalTerrain": "not-connected",
+    "fenceCenter": {
+      "x": 0,
+      "z": 37.5
+    },
+    "fenceRadiusMeters": 72.5,
+    "wallHeight": 3
+  },
+  "cameraProjection": {
+    "camera": "overhead",
+    "eye": {
+      "x": 0,
+      "y": 130,
+      "z": -80
+    },
+    "yaw": 0,
+    "pitch": 0.6171913915403622,
+    "f": 430,
+    "cx": 300,
+    "cy": 230
+  },
+  "architectureRender": {
+    "scoreboard": {
+      "enabled": true,
+      "mode": "DESIGN_SAMPLE",
+      "z": 185.96,
+      "baseY": 40.879999999999995,
+      "width": 164,
+      "teams": [
+        {
+          "name": "TBD",
+          "innings": [
+            0,
+            0,
+            1,
+            0,
+            0,
+            2,
+            0,
+            1,
+            0
+          ],
+          "hits": 8,
+          "errors": 0,
+          "runs": 4
+        },
+        {
+          "name": "LAD",
+          "innings": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0
+          ],
+          "hits": 6,
+          "errors": 1,
+          "runs": 2
+        }
+      ],
+      "balls": 3,
+      "strikes": 2,
+      "outs": 2,
+      "speedKmh": 148
+    },
+    "capacity": 120000,
+    "tiers": 5,
+    "rowsPerTier": 24,
+    "spectatorLights": 0,
+    "crowd": {
+      "frame": 2,
+      "frames": 3,
+      "visible": true,
+      "mode": "tiled_clusters",
+      "attendance": "full",
+      "groups": 1920,
+      "coverage": 1,
+      "individualWorldObjects": 0,
+      "tile": {
+        "width": 16,
+        "height": 12,
+        "frameCount": 3,
+        "occupancy": 1,
+        "individualWorldObjects": 0
+      },
+      "candidateCrowdCells": 13033,
+      "candidateLedCells": 1097,
+      "appearance": {
+        "density": 0.75,
+        "detail": "simple",
+        "size": 1,
+        "brightness": 1,
+        "glow": 0.7,
+        "attendance": "full"
+      },
+      "penLengthMeters": 0.07,
+      "palette": [
+        "#b72e3d",
+        "#254f9a"
+      ],
+      "visibleLedCells": 951
+    },
+    "envelope": {
+      "rx": 163.5571758502397,
+      "rz": 195.42000000000002,
+      "centerZ": 53.500000000000014,
+      "frontZ": -141.92000000000002,
+      "bowlTop": 80.88,
+      "eaveY": 88.88,
+      "topY": 103.88,
+      "exponent": 3.3
+    },
+    "detail": {
+      "logoProfiles": [
+        {
+          "id": "wolf-4185",
+          "widthPixels": 54.936296857442926,
+          "heightPixels": 53.32942125061326,
+          "depth": 242.90537972990657,
+          "maximum": 6,
+          "density": 5.481351073941991,
+          "brightness": 1.45,
+          "glow": 0.08,
+          "contrast": 1,
+          "footprintU": 0.01350557958138442,
+          "footprintV": 0.013912517925669826,
+          "sampling": "premultiplied_mipmap_trilinear",
+          "policy": "mild_distance_softening_without_fade"
+        },
+        {
+          "id": "wolf-4186",
+          "widthPixels": 75362.13846792182,
+          "heightPixels": 385743.5875675813,
+          "depth": 6.211396872460153,
+          "maximum": 6,
+          "density": 6,
+          "brightness": 1.45,
+          "glow": 0.08,
+          "contrast": 1,
+          "footprintU": 0.000008377059676748055,
+          "footprintV": 0.0000016366134179807382,
+          "sampling": "premultiplied_mipmap_trilinear",
+          "policy": "mild_distance_softening_without_fade"
+        }
+      ],
+      "fineCells": 29266,
+      "emblemCells": 2696,
+      "fineGeometryOccluded": 25496,
+      "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+      "raster": "shared_circle_dots",
+      "material": "approved_wolf_png_and_facade_ornament",
+      "factor": 6,
+      "visibleFineCells": 25442
+    },
+    "roof": {
+      "halfX": 68.50688229380022,
+      "z0": -95,
+      "z1": 156,
+      "y": 98.88,
+      "openingPercent": 100,
+      "leftInnerEdge": -68.50688229380022,
+      "rightInnerEdge": 68.50688229380022,
+      "cutaway": false
+    },
+    "surfaces": 4195,
+    "triangles": 4034,
+    "candidateCells": 71339,
+    "omittedRoofSurfaces": 0,
+    "renderer": "original_projection_grid_depth_and_dot",
+    "simulationIntegration": "DESIGN_ONLY_NOT_MATCH_CORE_ADMITTED"
+  },
+  "logoRender": {
+    "cells": 1051,
+    "mode": "fine",
+    "glyph": "gold_wolf_image_v1",
+    "widthMeters": 28,
+    "lengthMeters": 25.164021164021165,
+    "centerZ": 82,
+    "brightness": 1.7,
+    "glow": 0.3
+  },
+  "surfaceDetailRender": {
+    "zone": {
+      "id": "grass-wolf-material",
+      "shape": "material_alpha_distance",
+      "footprint": {
+        "width": 28,
+        "length": 25.164021164021165,
+        "centerZ": 82
+      },
+      "center": {
+        "x": 0,
+        "z": 82
+      },
+      "halfX": 14.6,
+      "halfZ": 13.182010582010582,
+      "factor": 6,
+      "marginMeters": 0.6,
+      "featherMeters": 0.8,
+      "materials": [
+        "original_ground",
+        "gold_wolf_image_v1"
+      ]
+    },
+    "finePoints": 3697,
+    "fineGrassPoints": 2646,
+    "fineLogoPoints": 1051,
+    "transitionPoints": 1083,
+    "samples": 7986,
+    "logo": {
+      "cells": 1051,
+      "mode": "fine",
+      "glyph": "gold_wolf_image_v1",
+      "widthMeters": 28,
+      "lengthMeters": 25.164021164021165,
+      "centerZ": 82,
+      "brightness": 1.7,
+      "glow": 0.3
+    },
+    "raster": "shared_circle_dots",
+    "layerOrder": "ground_and_image_material_then_density_then_dots",
+    "integration": "DESIGN_ONLY_NOT_MATCH_CORE_ADMITTED",
+    "bounds": {
+      "minX": 266.2051194895425,
+      "maxX": 333.7948805104575,
+      "minY": 238.19080659900564,
+      "maxY": 274.6596287168696
+    },
+    "step": 0.5555555555555556,
+    "visibleFinePoints": 3689,
+    "visibleFineLogoPoints": 1051
+  },
+  "crowd": {
+    "visible": true,
+    "paused": true,
+    "hidden": false,
+    "frames": 3,
+    "pattern": "223",
+    "loopFrames": 7,
+    "frame": 0,
+    "intervalMs": 400,
+    "nextInMs": 162.79999999701977,
+    "active": false,
+    "reaction": null,
+    "elapsedMs": 3837.2000000029802,
+    "shownFrame": 0,
+    "cachedFrames": 3,
+    "blits": 8,
+    "sceneRenders": 12,
+    "cacheBytes": 12441600
+  },
+  "selectedPoint": "CF",
+  "canUndo": false,
+  "canRedo": false,
+  "browserSaved": false,
+  "simulationIntegration": "DESIGN_ONLY_NOT_MATCH_CORE_ADMITTED",
+  "logs": [
+    {
+      "action": "ready",
+      "revision": 0,
+      "valid": true
+    }
+  ],
+  "build": {
+    "version": 3,
+    "sourceSha256": "c6f32e13eb34a3545a178b1d40db92d58ac794732d224af5ad97b37133d77a71",
+    "sourceCoreSha256": "3d0ef3a2477816a3157e59f9a8235e1459913fa35f74f791541c8cee8e885a37",
+    "sourceCoreChanged": false,
+    "sharedNormalMatchChanged": false,
+    "sourceInputs": {
+      "tools/ballpark-studio/model.mjs": "decfb1156090e94780ca22d284c0dd83d29dd6034f57a66e898fe87a3cc86321",
+      "tools/ballpark-studio/architecture.mjs": "bf944ba97064eba6e48c0b70732fd82536dedd9c3808def3dff8b6c977791828",
+      "tools/ballpark-studio/stadium-mesh.mjs": "5b7f7e54521b8b61fcd4251c44ff89818433b978f02207c1b6c107d627a96122",
+      "tools/ballpark-studio/scoreboard.mjs": "8adebc05249959f8dd10e1ce914eb3873af27ef3288f4f7b0236b4baf1764e99",
+      "tools/ballpark-studio/material-lod.mjs": "2e8ddecc0fffa59038a2e712538a7dec1d9f338512df28bd76916cf582a39ea0",
+      "tools/ballpark-studio/texture-filter.mjs": "c299ee9082b1993c00d43054253968a2c0d49874bb660ee544a562371f892581",
+      "tools/ballpark-studio/crowd.mjs": "91aa3b38059375f9ec571a5846a18b078b0606ba348690692957099118cdaf9f",
+      "tools/ballpark-studio/crowd-tiles.mjs": "c774cd8e275e7078cdbb0a84c0b35005b2b191c2573b840521c2a2d49dceae0b",
+      "tools/ballpark-studio/ground-logo.mjs": "3d5c949501762b4527c48d5b026ae71c6e372ff8937d9e84f290e1077e39a496",
+      "tools/ballpark-studio/surface-layers.mjs": "7ab90ddf6161a39bd222a286ba5836b1f172f85cafe7d1c814a9dae9c1398417",
+      "tools/ballpark-studio/assets/wolf-gold-cutout-v1.png": "b9181b700e184697d1d8dc7397d0eda4aceb1a481a311778e8203d45d8d153f4",
+      "tools/ballpark-studio/geometry-window.mjs": "7fb452a9e976e09cb403cf54ea3708be3441ba346b6246abf3d53a40fc8b16ae",
+      "tools/ballpark-studio/studio.mjs": "e468e2a5dc7b710fdc3e206911344dc1cb261e5436201c46037b5cee19958639",
+      "tools/ballpark-studio/studio.html": "80c7bed20b25487d304e719781bd1dbe6c23914aa112ed0252f02afeb1ff8b79",
+      "tools/ballpark-studio/studio.css": "c5dc3355397f1f47eea08d41c29bbd0bd22436450f4c89b28473e61fc6ddded4",
+      "tools/ballpark-studio/renderer-patch.mjs": "671611458b46653a290f03c0d11c2f93904b50ebb0b356cd844c06d73199807c",
+      "tools/ballpark-studio/preview-bridge.js": "a5ea762ad42215a1a6d23e148ac176642b48c9aeb58f57981cbc28947b504718",
+      "tools/ballpark-studio/build.mjs": "83cea6f6cc245286c921b304d7ef65fc2c2c759c24f0e0674858ae91b96d86ac"
+    },
+    "rendererScriptIndex": 6,
+    "fixedGeometryPreserved": true,
+    "simulationIntegration": "DESIGN_ONLY_NOT_MATCH_CORE_ADMITTED"
+  }
+}

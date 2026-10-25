@@ -1,0 +1,27 @@
+{
+  "pass": true,
+  "sha256": "72eb3584a2d74a59e9b88127c0c336235b77e4ff1e9ebdb1a458aa06dbbbd5fd",
+  "bytes": 45834614,
+  "frozenGeometryCameraCoreAndPng": true,
+  "sourcePins": 17,
+  "unitTests": 40,
+  "reports": [
+    "evidence/logo-lod-logo-lod-a2/report.json",
+    "evidence/architecture-logo-lod-a2/report.json",
+    "evidence/dome-logo-lod-a2/report.json",
+    "evidence/crowd-blocks-logo-lod-a2/report.json"
+  ],
+  "receiptLogHashesVerified": 15,
+  "authoring": {
+    "path": "docs/ballpark-studio/STADIUM-AUTHORING.md",
+    "sha256": "9083eab3b982680ef072d5bd95c657294aab1fbb8fa483f70e7d26d194a3d0db",
+    "linkedFromEnvironment": true,
+    "provisionalAndSelfImproving": true
+  },
+  "github": {
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380#issuecomment-6375221684",
+    "bodyEqual": true,
+    "bodySha256": "b66acbf7b64bdf15c9fd8a5b1ad588fef035d9e5191362fa4c780b2870a5bb00"
+  },
+  "boundary": "DESIGN_ONLY_NOT_MATCH_CORE_ADMITTED"
+}

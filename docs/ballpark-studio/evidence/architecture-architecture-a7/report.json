@@ -1,0 +1,169 @@
+{
+  "pass": true,
+  "sha256": "ecb0d9dcd02ce5d4292557e20de8a0c621b1cdb4dd6c257dda779358c23efee9",
+  "errors": [],
+  "external": [],
+  "views": [
+    {
+      "camera": "stadium",
+      "editToThreeCachedFramesMs": 274,
+      "detail": {
+        "fineCells": 11478,
+        "emblemCells": 894,
+        "fineGeometryOccluded": 8323,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 10352
+      }
+    },
+    {
+      "camera": "exterior",
+      "editToThreeCachedFramesMs": 313,
+      "detail": {
+        "fineCells": 12483,
+        "emblemCells": 694,
+        "fineGeometryOccluded": 6310,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 11139
+      }
+    },
+    {
+      "camera": "interior",
+      "editToThreeCachedFramesMs": 395,
+      "detail": {
+        "fineCells": 9093,
+        "emblemCells": 935,
+        "fineGeometryOccluded": 17702,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 7120
+      }
+    },
+    {
+      "camera": "overhead",
+      "editToThreeCachedFramesMs": 307,
+      "detail": {
+        "fineCells": 0,
+        "emblemCells": 0,
+        "fineGeometryOccluded": 0,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 0
+      }
+    },
+    {
+      "camera": "catcher",
+      "editToThreeCachedFramesMs": 188,
+      "detail": {
+        "fineCells": 844,
+        "emblemCells": 0,
+        "fineGeometryOccluded": 13242,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 11
+      }
+    },
+    {
+      "camera": "mound",
+      "editToThreeCachedFramesMs": 205,
+      "detail": {
+        "fineCells": 0,
+        "emblemCells": 0,
+        "fineGeometryOccluded": 0,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 0
+      }
+    },
+    {
+      "camera": "batter",
+      "editToThreeCachedFramesMs": 170,
+      "detail": {
+        "fineCells": 688,
+        "emblemCells": 0,
+        "fineGeometryOccluded": 10067,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 12
+      }
+    },
+    {
+      "camera": "fielder",
+      "editToThreeCachedFramesMs": 240,
+      "detail": {
+        "fineCells": 1455,
+        "emblemCells": 0,
+        "fineGeometryOccluded": 29072,
+        "depthMethod": "projected_triangle_bins_then_shared_world_depth",
+        "raster": "shared_circle_dots",
+        "material": "approved_wolf_png_and_facade_ornament",
+        "factor": 6,
+        "visibleFineCells": 156
+      }
+    }
+  ],
+  "fineDepth": [
+    {
+      "name": "open-exterior",
+      "candidates": 12483,
+      "samples": 735,
+      "leaks": 0,
+      "rejectedByTriangleDepth": 6310,
+      "examples": []
+    },
+    {
+      "name": "closed-exterior",
+      "candidates": 10742,
+      "samples": 717,
+      "leaks": 0,
+      "rejectedByTriangleDepth": 8051,
+      "examples": []
+    },
+    {
+      "name": "open-interior",
+      "candidates": 9093,
+      "samples": 758,
+      "leaks": 0,
+      "rejectedByTriangleDepth": 17702,
+      "examples": []
+    },
+    {
+      "name": "orbit",
+      "candidates": 12842,
+      "samples": 714,
+      "leaks": 0,
+      "rejectedByTriangleDepth": 18858,
+      "examples": []
+    }
+  ],
+  "imageMaterialToggle": true,
+  "independentDensity": {
+    "factors": [
+      2726,
+      14600
+    ]
+  },
+  "ornamentsToggle": true,
+  "approvedGrassPixelsIdentical": true,
+  "attendanceAndSeatMaterials": true,
+  "worldOrbit": true,
+  "detailsSaveReload": true,
+  "legacyNoMutation": true,
+  "noIdleSceneRebuild": true,
+  "mobile": true
+}

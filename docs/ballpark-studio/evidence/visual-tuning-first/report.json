@@ -1,0 +1,27 @@
+{
+  "pass": false,
+  "errors": [],
+  "sha256": "cffdb8988a5eb89c43d3a9f2883f8d99e250b24419e8dd23ebcbdfdae211ec0b",
+  "defaultGroups": 4321,
+  "factors": [
+    {
+      "factor": 5,
+      "points": 5993
+    },
+    {
+      "factor": 6,
+      "points": 8630
+    },
+    {
+      "factor": 7,
+      "points": 11758
+    },
+    {
+      "factor": 8,
+      "points": 15343
+    }
+  ],
+  "brightnessChangesImage": true,
+  "glowChangesImage": true,
+  "error": "AssertionError [ERR_ASSERTION]: closed roof hides even maximum brightness/glow\n+ actual - expected\n\n+ '017a85ecd0120a784a50ea28a08a7f33074f3fbbc725abf444f2a8b9e4d5acdd'\n- '47714a3e612ad18cc2c45c0dbce259536abfa2f8109505da43be3822af84f007'\n\n    at file:///<LOCAL_HOME>/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/ballpark-studio/check-visual-tuning.mjs:19:123"
+}
