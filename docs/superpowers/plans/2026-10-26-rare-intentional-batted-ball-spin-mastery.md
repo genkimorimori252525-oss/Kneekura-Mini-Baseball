@@ -59,10 +59,10 @@
 
 | 習得技術（青特候補） | 目標にする打球の性質 | 非保有でも起こる自然現象との区別 |
 | --- | --- | --- |
-| **スライス打ち** \`SLICE\` | 飛行中にスライス側へ曲がる横回転を狙うMotor操作 | 偶然のスライスやスライス多用フォームは誰でも合法 |
-| **フック打ち** \`HOOK\` | 逆側へ曲がる横回転を狙うMotor操作 | 偶然のフックは誰でも合法 |
-| **バックスピン打ち** \`BACKSPIN\` | 進行方向に対する揚力側の回転成分を狙うMotor操作 | 通常のフライがバックスピンを持つだけでは習得としない |
-| **トップスピン打ち** \`TOPSPIN\` | 進行方向に対する落下を促す側の回転成分を狙うMotor操作 | 普通のゴロ・低い打球のトップスピンだけでは習得としない |
+| **スライス打ち** `SLICE` | 飛行中にスライス側へ曲がる横回転を狙うMotor操作 | 偶然のスライスやスライス多用フォームは誰でも合法 |
+| **フック打ち** `HOOK` | 逆側へ曲がる横回転を狙うMotor操作 | 偶然のフックは誰でも合法 |
+| **バックスピン打ち** `BACKSPIN` | 進行方向に対する揚力側の回転成分を狙うMotor操作 | 通常のフライがバックスピンを持つだけでは習得としない |
+| **トップスピン打ち** `TOPSPIN` | 進行方向に対する落下を促す側の回転成分を狙うMotor操作 | 普通のゴロ・低い打球のトップスピンだけでは習得としない |
 
 **「打球がそう回転した」ことと「本人が狙った回転を安定して作れる」ことを絶対に混同しない。** 特にバックスピンは日常的に発生するため、高RPMフライを打っただけで青特を付与しない。狙いを変えても運動を選び直せる再現技術が要る。
 
@@ -71,19 +71,21 @@
 | 習得済みの独立した技術 | 同Familyで唯一表示する得能 | 実行可能な技術 |
 | --- | --- | --- |
 | なし | 表示なし | 通常打撃。自然回転は全種起こり得る |
-| \`{SLICE}\` | 青：**スライス打ち** | スライスのみ意図的に選べる |
-| \`{HOOK}\` | 青：**フック打ち** | フックのみ |
-| \`{BACKSPIN}\` | 青：**バックスピン打ち** | バックスピンのみ |
-| \`{TOPSPIN}\` | 青：**トップスピン打ち** | トップスピンのみ |
-| \`{SLICE, HOOK}\` | 金：**打球回転制御** | 2種のみ。落合型の参照例 |
-| \`{SLICE, BACKSPIN}\` | 金：**打球回転制御** | 2種のみ。フック／トップスピンは未習得 |
-| \`{HOOK, TOPSPIN}\` | 金：**打球回転制御** | 2種のみ。ほかの組み合わせも同様 |
+| `{SLICE}` | 青：**スライス打ち** | スライスのみ意図的に選べる |
+| `{HOOK}` | 青：**フック打ち** | フックのみ |
+| `{BACKSPIN}` | 青：**バックスピン打ち** | バックスピンのみ |
+| `{TOPSPIN}` | 青：**トップスピン打ち** | トップスピンのみ |
+| `{SLICE, HOOK}` | 金：**打球回転制御** | 2種のみ。落合型の参照例 |
+| `{SLICE, BACKSPIN}` | 金：**打球回転制御** | 2種のみ。フック／トップスピンは未習得 |
+| `{HOOK, TOPSPIN}` | 金：**打球回転制御** | 2種のみ。ほかの組み合わせも同様 |
 | 相異なる3種 | 金：**打球回転制御** | 実際に習得した3種のみ |
 | 4種全部 | 金：**打球回転制御** | 4種を個別選択できるが身体・接触物理は同じ |
 
-**Family:** 仮ID \`intentional_batted_spin_control\`。**Lifecycle:** \`LEARNED_MASTERY_PERSISTENT\`。**Effective UI State:** \`NONE | BLUE_SLICE | BLUE_HOOK | BLUE_BACKSPIN | BLUE_TOPSPIN | GOLD\` のいずれか**1つだけ**。既存\`09-player-trait-catalog.md\`の「同一Family同時重複表示・適用禁止」を遵守する。
+**Family:** 仮ID `intentional_batted_spin_control`。**Lifecycle:** `LEARNED_MASTERY_PERSISTENT`。**Effective UI State:** `NONE | BLUE_SLICE | BLUE_HOOK | BLUE_BACKSPIN | BLUE_TOPSPIN | GOLD` のいずれか**1つだけ**。既存`09-player-trait-catalog.md`の「同一Family同時重複表示・適用禁止」を遵守する。
 
-**内部正本:** 1つの本人技術Source内に4つの独立した習得証拠・使用可能条件を保持する。**金特の表示になっても、各青特の習得履歴・実行可能領域は消去しない。** 能力使用判定はGoldラベルや保有個数ではなく実際の\`masteredTechniqueSet\`に従う。Gold獲得時の追加ボーナスは禁止。
+**内部正本:** 1つの本人技術Source内に4つの独立した習得証拠・使用可能条件を保持する。**金特の表示になっても、各青特の習得履歴・実行可能領域は消去しない。** 能力使用判定はGoldラベルや保有個数ではなく実際の`masteredTechniqueSet`に従う。Gold獲得時の追加ボーナスは禁止。
+
+**【既存実装との必須Adapter】** 現行Nativeの`src/core/world/traits/TraitFamilies.ts` / `TraitValidation.ts` / `TraitLifecycle.ts`は、習得型Familyの`stateIds`を**順序付きTier**として扱い、`stateIds.indexOf`による単調な昇格判定、`tiers.length === stateIds.length`と単調な閾値を要求する。したがって**BLUE_SLICE→BLUE_HOOK→BLUE_BACKSPIN→BLUE_TOPSPIN→GOLDを順番に並べて実装することは禁止**。独立4技能を既存Development/Skill ownerで別々に認証し、その真正Mastery集合から`NONE / 該当BLUE variant / GOLD`を**一つのFamily状態として導出する専用の最小Adapter**を追加するか、既存Trait Frameworkの互換性を保った明示的なVariant Mastery拡張を設計する。既存Familyの単調習得条件を壊さず、表示Goldのみの偽Masteryや別技能の証拠の流用を許さない。
 
 **Goldへの移行:** 少なくとも**2種類の互いに識別可能な操作技術**を、それぞれGold判定に耐える再現性・対応場面の証拠とともにConsolidationしていること。単に練習中2種／1回だけ曲げた2種／同じ回転技術を違う名前で登録しただけではGold不可。上位への移行率・習得精度は未校正であり、物理的実在性と長期Soakに従い極めて希少にする。**2種＝必ず容易にGold**ではない。
 
@@ -91,24 +93,24 @@
 
 ### 3.3 4種は別の物理エンジンではない（重要）
 
-正史では打球回転は**一つの3D角速度ベクトル\`exitSpin: Vec3\`**であり、4つの独立した増幅スロットではない。
+正史では打球回転は**一つの3D角速度ベクトル`exitSpin: Vec3`**であり、4つの独立した増幅スロットではない。
 
 - バックスピン／トップスピンは**同じ上下揚力軸上の反対符号**。一球で両方を同時に正の強度として加算できない。両方を習得した選手は打撃条件ごとに使い分ける。
-- スライス／フックは**横方向に曲がる回転の反対符号**。世界\`x/y/z\`固定の符号ではなく、打球の実際の飛行方向・視点・左右打者と狙ったフィールド側から分類する。
+- スライス／フックは**横方向に曲がる回転の反対符号**。世界`x/y/z`固定の符号ではなく、打球の実際の飛行方向・視点・左右打者と狙ったフィールド側から分類する。
 - 斜めの回転軸なら横への曲がりと上下揚力が同時に存在し得る（例：スライス成分＋バックスピン成分）。**ただし2技術を持つだけで自動合成しない**。その同時Motorが本当に実行可能・習得済み・校正済みの場合に限る。
-- 進行方向に平行なジャイロ成分が存在してもよい。便宜的に4つのラベルへ押し込まず、既存物理は全ベクトルを保持する。ほぼ鉛直な球道等で分類座標が不安定なら\`UNCLASSIFIED\`としてよい。
+- 進行方向に平行なジャイロ成分が存在してもよい。便宜的に4つのラベルへ押し込まず、既存物理は全ベクトルを保持する。ほぼ鉛直な球道等で分類座標が不安定なら`UNCLASSIFIED`としてよい。
 - 「スライス打ちで毎回サイドスピン+500rpm」「金特だからトップスピンに+X」は禁止。**実際のバット速度・角度・接触点・摩擦から一度だけ回転が生成**される。
 
-大学・実験研究では、バットの入射角／打点と回転に関連がある一方、目標方向やバット角に依存し、意図的な回転制御が実際に自由自在と実証されているわけではない。**習得可能な各操作は実際の再現性の検証が通ったものだけ実装し、現実に実行不能なら対応技術を\`UNVERIFIED\`のままにする。** 非現実的な全4種自在操作を金特の標準像にしない。
+大学・実験研究では、バットの入射角／打点と回転に関連がある一方、目標方向やバット角に依存し、意図的な回転制御が実際に自由自在と実証されているわけではない。**習得可能な各操作は実際の再現性の検証が通ったものだけ実装し、現実に実行不能なら対応技術を`UNVERIFIED`のままにする。** 非現実的な全4種自在操作を金特の標準像にしない。
 
-**正式Traitとの独立性:** \`ラインドライブ\`は引き続きLaunch Distributionの\`DYNAMIC_DESCRIPTOR\`。\`広角打法/プルヒッター/流し打ち\`の方向技能と本Familyの回転を狙う技術も同一SourceをBuffとして二重加算せず、単独で回転操作の独立性が認められなければFamily増設を再検討する。
+**正式Traitとの独立性:** `ラインドライブ`は引き続きLaunch Distributionの`DYNAMIC_DESCRIPTOR`。`広角打法/プルヒッター/流し打ち`の方向技能と本Familyの回転を狙う技術も同一SourceをBuffとして二重加算せず、単独で回転操作の独立性が認められなければFamily増設を再検討する。
 
 
 ## 4. 技術Source・意思・実運動の契約（4種レパートリー方式）
 
-\`SpinShapingTechniqueSource\` は新しい万能\`spinPower\`ではなく、既存Skill Sourceと整合した一組の**習得済み操作レパートリー**を表す。以下は概念型であって実装直行の最終型・校正値ではない。
+`SpinShapingTechniqueSource` は新しい万能`spinPower`ではなく、既存Skill Sourceと整合した一組の**習得済み操作レパートリー**を表す。以下は概念型であって実装直行の最終型・校正値ではない。
 
-\`\`\`ts
+```ts
 type SpinTechniqueId = 'SLICE' | 'HOOK' | 'BACKSPIN' | 'TOPSPIN';
 type LearnedSpinTechnique = Readonly<{
   kind: SpinTechniqueId;
@@ -123,17 +125,17 @@ type SpinShapingTechniqueSource = Readonly<{
   sourceVersion: string;
   techniques: Readonly<Partial<Record<SpinTechniqueId, LearnedSpinTechnique>>>;
 }>;
-\`\`\`
+```
 
 - **権限:** 技術ごとの学習・証拠・マスタリーSourceは既存`Trait/Development`が所有。Goldはその**表示Projection**であり、Coreの万能な実行フラグではない。Technique Sourceにある個々の資格で有界なMotor候補を列挙する。
-- **意思:** 本人の観測した球／カウント／監督命令／DIR（引っ張り・センター・流し・反応型）を踏まえて、\`NO_SPIN_TARGET\`もしくは**習得済みの具体的な1技術**を選ぶ。必要な場合の複合回転は単一の校正済みMotor候補として表現。Goldだから常時全技術使用・複合技術発動は禁止。
+- **意思:** 本人の観測した球／カウント／監督命令／DIR（引っ張り・センター・流し・反応型）を踏まえて、`NO_SPIN_TARGET`もしくは**習得済みの具体的な1技術**を選ぶ。必要な場合の複合回転は単一の校正済みMotor候補として表現。Goldだから常時全技術使用・複合技術発動は禁止。
 - **正史バット運動:** 既存の一組のBAT/SWG Motor Controllerが軌道、面、打点、時間、角速度、バット慣性等を守り運動生成。候補が物理的に不可能なら通常打撃へ戻す。
 - **情報:** 事前プランへ相手の真のPitchCall・未来の球道・成功した打球結果を流さない。本人の当時の主観的予測だけを使う。
-- **変換:** \`RigidBatBallContact.ts\`で唯一の本物の\`exitSpin\`を計算。続く\`BaseballAerodynamics.ts\`の3D回転→空力、飛行、公式Fair/Foulを変更しない。
-- **副作用:** 軌道や接触条件を変えることで接触失敗／初速低下／高度変化／飛距離差などが自然に発生し得る。しかし\`Gold=true => contact probability 0.8\`のような直接Buff／Debuffは一切作らない。
-- **追跡:** 開発・Replay向けに当時の\`masteredTechniqueSet\`と実際に選ばれた\`spinTechniqueIntent\`、接触と回転結果を別々の時刻付き記録として扱い、ユーザー画面・AIスカウトへ未来情報を流さない。
+- **変換:** `RigidBatBallContact.ts`で唯一の本物の`exitSpin`を計算。続く`BaseballAerodynamics.ts`の3D回転→空力、飛行、公式Fair/Foulを変更しない。
+- **副作用:** 軌道や接触条件を変えることで接触失敗／初速低下／高度変化／飛距離差などが自然に発生し得る。しかし`Gold=true => contact probability 0.8`のような直接Buff／Debuffは一切作らない。
+- **追跡:** 開発・Replay向けに当時の`masteredTechniqueSet`と実際に選ばれた`spinTechniqueIntent`、接触と回転結果を別々の時刻付き記録として扱い、ユーザー画面・AIスカウトへ未来情報を流さない。
 
-\`\`\`text
+```text
 自然なフォーム／本人の方針（全打者に共通）
  + 観測・カウント・監督指示・DIR/バット/身体状態
  + 本人が個別にConsolidateした技術の「その球で可能な操作」だけ
@@ -141,7 +143,7 @@ type SpinShapingTechniqueSource = Readonly<{
  → 既存BAT/SWG Controller（唯一のSwing源）
  → 既存RigidBatBallContact（接触でexitSpin: Vec3を物理生成）
  → 既存空力／飛行／フェア判定／公式結果
-\`\`\`
+```
 
 ## 5. 落合型のポール際技術とフェア／ファウル
 
@@ -154,15 +156,15 @@ type SpinShapingTechniqueSource = Readonly<{
 
 ## 6. 4種類それぞれの希少習得と、Goldの大量発生防止
 
-既存\`09-player-trait-catalog.md\`の\`Trait Density Guard\`と、\`53`の\`Catalyst → Hypothesis → Repetition → Consolidation\`を**各技術ごとに**再利用する（表示Familyは一つ）。ミート・パワー・年齢・通算安打だけで習得しない。
+既存`09-player-trait-catalog.md`の`Trait Density Guard`と、`53`の`Catalyst → Hypothesis → Repetition → Consolidation`を**各技術ごとに**再利用する（表示Familyは一つ）。ミート・パワー・年齢・通算安打だけで習得しない。
 
-1. **個別の発見:** \`SLICE\`、\`HOOK\`、\`BACKSPIN\`、\`TOPSPIN\`のそれぞれについて、本人の仮説・適性・狙う打球・利用可能な学習機会を独立に持つ。学習が始まっただけでは得能にならない。
+1. **個別の発見:** `SLICE`、`HOOK`、`BACKSPIN`、`TOPSPIN`のそれぞれについて、本人の仮説・適性・狙う打球・利用可能な学習機会を独立に持つ。学習が始まっただけでは得能にならない。
 2. **練習と証拠:** 練習回数、日数、技能の独自性、実際の軌道と回転の関係、異なる投球への対応、制約下の再現精度を記録する。スライスを習得しただけでフックにも技術を転写しない。
 3. **最初のBlue:** **1種類が実際にConsolidate**されたら、当該名の青特を表示。その技術を使うかどうかは打席の意思による。
 4. **Gold:** 2種類目以降が独立した運動技能として高度にConsolidateされ、当該2種類に対する再現性の別々の証拠が確認できた時だけ**一つの金特**を表示。どの2種類かは問わない。**Goldそのものは他の技術や直接Buffを付与しない**。
 5. **追加習得:** Gold後に3・4種類目を学習しても名称は同じGold。内部習得集合だけ変わる。習得条件は段階的に困難になってよいが、機械的に特定の技術を自動解禁しない。
 6. **高齢・故障:** Consolidatedな技術の記憶は原則持続。ただし現在の筋力／姿勢／可動域／Motor精度で当該条件を実行できるかは別。Gold保有でも使用可能なMotorがゼロとなる打席があり得る。
-7. **初期・OB生成:** 史実に記述がある落合型の\`SLICE+HOOK\`は参照仮説。実測しないバックスピン・トップスピン技術は勝手に補完しない。自動生成選手には各習得証拠を要求。メーカーの手動デバッグ設定と真正史の習得証明は区別する。
+7. **初期・OB生成:** 史実に記述がある落合型の`SLICE+HOOK`は参照仮説。実測しないバックスピン・トップスピン技術は勝手に補完しない。自動生成選手には各習得証拠を要求。メーカーの手動デバッグ設定と真正史の習得証明は区別する。
 
 **100〜300年の複数seed Soak:** 集計は「Gold総人数」だけでなく、**各Blueの保有率／1人当たりのConsolidated種類数／Gold内の組み合わせ／3種・4種保有率／育成履歴／上位選手のGold独占度**を追う。自然出現が暴走したら発見・練習機会・再現難度を見直し、人数ハードキャップで塞がない。数値目標は校正後に定める。全4種習得は理論上許すが**極めて例外的**で、あらゆる投球に万能とはならない。
 
@@ -170,27 +172,27 @@ type SpinShapingTechniqueSource = Readonly<{
 ## 7. 実装順・所有者境界（v2）
 
 ### A. 4回転の物理・独立性をGateとして確認
-- [ ] 最新ローカルworktree / 並行作業者 / Native採用Sourceを確認し、\`RigidBatBallContact → exitSpin(Vec3) → BaseballAerodynamics → FreeBaseballTrajectory → Fair/Foul\`を一つの正史経路で追う。
-- [ ] 既存物理の実接触のみで\`SLICE/HOOK/BACKSPIN/TOPSPIN\`が生成可能かを、通常打球＋軌道・打点変更fixtureで確認する。研究で制御が実証されていない技術は\`UNVERIFIED\`として不実装／校正留保。
+- [ ] 最新ローカルworktree / 並行作業者 / Native採用Sourceを確認し、`RigidBatBallContact → exitSpin(Vec3) → BaseballAerodynamics → FreeBaseballTrajectory → Fair/Foul`を一つの正史経路で追う。
+- [ ] 既存物理の実接触のみで`SLICE/HOOK/BACKSPIN/TOPSPIN`が生成可能かを、通常打球＋軌道・打点変更fixtureで確認する。研究で制御が実証されていない技術は`UNVERIFIED`として不実装／校正留保。
 - [ ] サイドスピンの左右は速度座標系・打者左右・フィールド側で正規化。バックとトップが同時に正になる誤分類、スライスとフックの符号誤り、ほぼ垂直方向での分類不能を検証。
 - [ ] 打球方向と実際の球道の曲がりが一致しない打球、ポール命中・フェンス上空通過・ファウル／フェア境界を検証する。
 
 ### B. 1 Family / 4 Mastery Source / 1 Gold Projection
-- [ ] \`09\`の正本管理下で4つの青Variantと単一Goldを持つ**1つのFamily**を追加。既存TraitLifecycle／Development evidenceの正本を再利用し、別々の\`masteredTechniqueSet\`をSourceに保持する。
+- [ ] `09`の正本管理下で4つの青Variantと単一Goldを持つ**1つのFamily**を追加。**現行`TraitLifecycle`が線形Tierのみ処理する実装差を監査し、専用Projection Adapterまたは互換性を保ったVariant Mastery拡張を先行**。Blue間に架空の強弱順を付けず、別々の`masteredTechniqueSet`と習得証拠をOwnerへ保持する。
 - [ ] Mastered=0なら表示なし、1なら対応青Variant、2以上の独立高度習得なら金。Goldラベルだけを入力した旧Dataから4技術を推測しない。
 - [ ] メーカー／選手詳細で金特の下に**実際の習得技術の内訳**を小さく表示する。青4個やGold+Blueを重複表示しない。
 
 ### C. 既存BAT / DIR / SWGのMotorへ統合
 - [ ] 本人が習得した種類に対応したMotor候補だけを、既存Controllerの一組のIntentへ渡す。時刻・可動域・バット慣性／投球予測・初速Tradeoffなどすべて正史制約内に収める。
-- [ ] Gold保有者にも\`NO_SPIN_TARGET\`／通常強振・ミートを許可。1打席で上下相反する回転を同時に押し付けない。複合回転は校正済みのMotorが存在するときのみ。
+- [ ] Gold保有者にも`NO_SPIN_TARGET`／通常強振・ミートを許可。1打席で上下相反する回転を同時に押し付けない。複合回転は校正済みのMotorが存在するときのみ。
 - [ ] 既存物理を唯一のTruthにし、当たり判定・回転・飛距離・フェア／ファウルを後から補正しない。
 
 ### D. 育成・希少性・回帰
-- [ ] \`53\`に沿い各技術独立で発見／練習／Feedback／Consolidation。単発の好結果、年齢、能力査定、1試合の回転傾向でGold付与しない。
+- [ ] `53`に沿い各技術独立で発見／練習／Feedback／Consolidation。単発の好結果、年齢、能力査定、1試合の回転傾向でGold付与しない。
 - [ ] 100〜300年複数seedのGold率／4種全習得率／技術組合せ／習得証拠／人物の多様性をSoak。ハードキャップ・都合の良い固定確率による出現制御は禁止。
-- [ ] 同seed、保存/読込、Mini/Natural、FPS不変、既存09/53/BAT/DIR/SWG/ルール非回帰を\`PASS/FAIL/NOT RUN/NOT CONNECTED\`で報告。
+- [ ] 同seed、保存/読込、Mini/Natural、FPS不変、既存09/53/BAT/DIR/SWG/ルール非回帰を`PASS/FAIL/NOT RUN/NOT CONNECTED`で報告。
 
-## 8. 受入テスト SPIN-01〜SPIN-36
+## 8. 受入テスト SPIN-01〜SPIN-39
 
 | ID | 必須の検証 |
 | --- | --- |
@@ -231,6 +233,10 @@ type SpinShapingTechniqueSource = Readonly<{
 | SPIN-34 | ほぼ真上・真下等で横/縦成分の分類基底が不定の場合は`UNCLASSIFIED`。架空の4技術へ分解しない。 |
 | SPIN-35 | 二つの技能が見せかけの別名・未認証の練習・同一Sourceの二重計上なら金を拒否する。 |
 | SPIN-36 | 全4種習得を制度的に許しても、各技術の身体実行限界・希少な発生分布・試合の失敗可能性が維持される。 |
+
+| SPIN-37 | 6種類すべての2技術の組み合わせ（SLICE+HOOK、SLICE+BACKSPIN、SLICE+TOPSPIN、HOOK+BACKSPIN、HOOK+TOPSPIN、BACKSPIN+TOPSPIN）で、個別Consolidation済みなら同じGold・能力セットはその2種だけ。 |
+| SPIN-38 | 技術習得の順番を入れ替えてもGoldへの資格・保存Source・使える運動候補が等価。既存の線形Tier順と誤連動しない。 |
+| SPIN-39 | 4技術のうち1つのSourceが未認証・破損・重複・未完了ならその技術は使えず、Gold判定は残りの真正Sourceだけから決まる。旧Familyの検証動作は不変。 |
 
 ## 9. 当面の非対象・史実ソース
 
