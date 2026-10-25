@@ -1,6 +1,6 @@
 # Implementation Plan Register — status, owners and dependencies
 
-> **Updated:** 2026-10-26 (SWG, bat-mass/MAX-speed, and PLV-75+ supplemental plans registered; 2026-10-16 CATCH/BAT/DIR statuses unchanged). **This is a discoverability index, not implementation authorization or a new canonical specification.** Each linked document's internal Status and the later explicitly approved canonical design take precedence.
+> **Updated:** 2026-10-26 (SWG, bat-mass/MAX-speed, PLV-75+, SPIN-GOLD supplemental plans registered; 2026-10-16 CATCH/BAT/DIR statuses unchanged). **This is a discoverability index, not implementation authorization or a new canonical specification.** Each linked document's internal Status and the later explicitly approved canonical design take precedence.
 >
 > **Caution:** The user mentioned **four** plans in this conversation, but this GitHub branch currently contains **three newly written 2026-10-16 implementation plans**. The “flow / in-game form” discussion has **not** been approved as a fourth implementation plan. It has its own [discovery note](notes/2026-10-16-in-game-form-discussion.md) so an AI will not silently omit or implement it.
 
@@ -21,6 +21,8 @@
 | **BAT-MASS-MAX** | [Bat mass → conditional maximum swing speed & Maker readout](superpowers/plans/2026-10-26-bat-mass-max-swing-speed-maker.md) | **SOURCE-AUDITED / SMALL IMPLEMENTATION PLAN / NOT IMPLEMENTED** | Supplements **SWG**. Current Native code uses bat mass/inertia in contact but inspected Maker/motor paths do not derive a weight-adjusted max swing speed. Audit local active worktree; if no existing source, add one constrained weight-dependent max and a small read-only value directly below the existing bat-weight input. No new contact solver or public stat. |
 
 | **PLV-75+** | [Absolute plate vision 75–100 and late usable pitch evidence](superpowers/plans/2026-10-26-absolute-plate-vision-late-evidence.md) | **USER-APPROVED DESIGN DIRECTION / IMPLEMENTATION PLAN / NOT IMPLEMENTED** | Supplements **BAT / DIR / SWG**. Absolute non-league 1–100 vision; keep 1–75 behavior unchanged, improve bounded use of late-observed pitch data above 75 without forced late swing, deep contact, lost pull/power swing, or outcome buffs. 16 planned acceptance checks; confirm active Native code before implementing. |
+
+| **SPIN-GOLD** | [Rare intentional batted-ball spin shaping mastery / trait plan](superpowers/plans/2026-10-26-rare-intentional-batted-ball-spin-mastery.md) | **USER-APPROVED DIRECTION / IMPLEMENTATION PLAN / NOT IMPLEMENTED** | Learned mastery as one rare Blue→Gold Family, keeping natural spin and line-drive descriptions available to all players. Motor-candidate control only (no exitSpin/result buffs), accurate pole/fair rule, rare career acquisition via actual evidence and long-run soak. 24 acceptance cases. Complements **BAT / DIR / SWG**, does not supersede canonical 09. |
 
 **Unified acceptance:** The three plans are interconnected, not three independently working products. Taken together their specified regression set is **CATCH-01..25 + BAT-01..29 + DIR-01..26 = 80 named acceptance cases**, subject to actual live-Core availability. Checking boxes in Markdown does not prove tests passed.
 
