@@ -63,3 +63,13 @@ node --expose-gc output/b2-defense-motion-probe/uniform-design/wardrobe-qa.cjs
 現在は`catcher-layered/draw.cjs`に既存の修正済み描画を共有し、該当素材の`wardrobe-profiles/catcher.json`に`rendering.mode=catcher-layered`を指定。衣装一覧・拡大表示・PNG保存・Node／CLI一括書き出しを同じ経路につなぐ。AIはこの指定を無視して旧原画への配色だけに戻さない。元PNGは修正前の比較資料として保持し、変更しない。派生PNGは既存分離描画の800×720になり、この1コマに原画alpha一致を主張しない。他56素材の保護検査は維持する。
 
 最終20群PASS `B2-CATCHER-WARDROBE-ROUTING-FINAL_6da42157326a490dbe449a25fd8da90d`。両kitの前腕で胸線漏れ0、ブラウザーの既存修正版と一覧のPNGが両kit／白靴で完全一致し、保存PNGも一致。原画・採用台帳・Core・暴投の原画経路は保持。新しい本人採用と本番統合は未確認。
+
+## 2026-10-26 正面ゴロ守備の帽子限定修正
+
+本人が正面で構える選手の横向きのつばを修正するよう依頼。頂点の独立点を除去し、高い帽体の案を不採用とした後、本人の正面野球帽写真に基づく形の使用を了承。共通部品に模様は不要、帽子ごとに配色／マークを変える指定を受けた。
+
+field-ground-v1の3姿勢、field-backhand-v1:2の確保、outfield-ground-v1の2姿勢、計6素材を対象とする。帽子修正版の`sourceVariant`を描画器・一覧・PNG保存・一括出力で共有。元PNGを保持し、変更は許可した帽子マスク内だけ。見えていた肌／グラブと帽子外のRGBAを保持する。旧つばを除去して露出した額は帽子マスク内で元の無地顔のドット列を再利用する。横向きリーチ、送球、フライ、後ろ姿、捕手マスクへ一律の正面帽子を貼らない。
+
+部品はbuilt-in image_genで制作し、了承された形のシルエットだけを用いて無地の丸ドットへ描画。装飾的な縦横線や頂点の1点は使わず、チーム色／マークを後から設定で適用する。不採用3候補は制作履歴のみ。実装は`front-cap-build.cjs`、`cap-corrections/catalog.json`、`wardrobe-sources.cjs`。元画像SHA／rectと修正版SHA／rectを区別し、旧ブラウザー確定値を修正版へ流用しない。再構築はfront-cap-build→wardrobe-build。
+
+最終21群PASS `B2-FRONT-CAP-ONLY-FINAL_c76487c70f034c77aac5d42a02d2d01b`。6素材の帽子外画素一致、既存肌／グラブ一致、正面つば、旧保存値の分離、小型マーク、全57/114画像、従来の捕手と守備を検証。派生画像を対象とする向きJSON取り込みも追加確認PASS `B2-FRONT-CAP-IMPORT_285abae24abd4d91aec713815400c147`。形の方針の了承を、6適用画像の個別採用・本番統合へ拡張しない。
