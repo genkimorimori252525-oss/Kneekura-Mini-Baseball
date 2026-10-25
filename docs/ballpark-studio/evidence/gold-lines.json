@@ -1,0 +1,11 @@
+{
+  "pass": true,
+  "changedPixels": 6413,
+  "brightGoldPixels": 2308,
+  "lineColor": "#debe71",
+  "fixedGeometryUnchanged": true,
+  "pointFootprintIdentical": true,
+  "themeCacheRoundtrip": true,
+  "errors": [],
+  "sha256": "916e9cad7e1cf782f0bf828207c1c552ebed41e73a57b75f7e883e04abc90d9d"
+}

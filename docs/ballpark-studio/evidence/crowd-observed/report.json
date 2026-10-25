@@ -1,0 +1,25 @@
+{
+  "pass": true,
+  "errors": [],
+  "external": [],
+  "sha256": "991f7bde3850841b626f78303f70cc452e67e2e035593bb52f67d2285bd6f7db",
+  "frames": {
+    "0": "4f413f728d7626bd72308a1a7c18acd067e517d6916a9e0ad2ba1f4942138272",
+    "1": "7b4448a2d31e24351ed22baf28d4c37a6eb2619ee7c3c6bf5e17f8ffb9893ea5",
+    "2": "90a391ca5fe3ed6199b0ea2a6782cf9a6bbb7806076fdb05c592f97232006e0a"
+  },
+  "pause": true,
+  "rates": {
+    "normal": 2,
+    "cheering": 7,
+    "windowMs": 650
+  },
+  "hiddenStopsTimer": true,
+  "twoFrames": true,
+  "cacheBytes": 8294400,
+  "paletteInvalidatesFrames": true,
+  "hideCrowd": true,
+  "oldParkStopsTimer": true,
+  "mobile": true,
+  "reducedMotion": true
+}

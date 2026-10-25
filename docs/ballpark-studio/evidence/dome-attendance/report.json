@@ -1,0 +1,172 @@
+{
+  "pass": true,
+  "file": "<LOCAL_HOME>/Documents\\Codex\\2026-10-15\\new-chat\\outputs\\球場設計室_v3_局所密度版.html",
+  "sha256": "82f83110a3b09a33ce637795045a29ee1d092e76b048dff88b7f3d553dc82344",
+  "errors": [],
+  "external": [],
+  "cameras": [
+    {
+      "camera": "stadium",
+      "triangles": 4182,
+      "candidateCells": 14382
+    },
+    {
+      "camera": "overhead",
+      "triangles": 855,
+      "candidateCells": 11964
+    },
+    {
+      "camera": "catcher",
+      "triangles": 395,
+      "candidateCells": 5759
+    },
+    {
+      "camera": "mound",
+      "triangles": 47,
+      "candidateCells": 10704
+    },
+    {
+      "camera": "batter",
+      "triangles": 365,
+      "candidateCells": 4778
+    },
+    {
+      "camera": "fielder",
+      "triangles": 845,
+      "candidateCells": 9733
+    }
+  ],
+  "widths": [
+    1280,
+    390,
+    320
+  ],
+  "mesh": {
+    "capacity": 120000,
+    "tiers": 5,
+    "rowsPerTier": 24,
+    "spectatorLights": 0,
+    "crowd": {
+      "frame": 2,
+      "frames": 3,
+      "visible": true,
+      "mode": "tiled_clusters",
+      "attendance": "full",
+      "groups": 1920,
+      "coverage": 1,
+      "individualWorldObjects": 0,
+      "tile": {
+        "width": 16,
+        "height": 12,
+        "frameCount": 3,
+        "occupancy": 1,
+        "individualWorldObjects": 0
+      },
+      "candidateCrowdCells": 5650,
+      "candidateLedCells": 437,
+      "appearance": {
+        "density": 0.75,
+        "detail": "simple",
+        "size": 1,
+        "brightness": 1,
+        "glow": 0.7,
+        "attendance": "full"
+      },
+      "penLengthMeters": 0.07,
+      "palette": [
+        "#b72e3d",
+        "#254f9a"
+      ],
+      "visibleLedCells": 357
+    },
+    "roof": {
+      "halfX": 88.24621202458748,
+      "z0": -45,
+      "z1": 148,
+      "y": 105.88,
+      "openingPercent": 100,
+      "leftInnerEdge": -88.24621202458748,
+      "rightInnerEdge": 88.24621202458748,
+      "cutaway": true
+    },
+    "surfaces": 2446,
+    "triangles": 4182,
+    "candidateCells": 14382,
+    "omittedRoofSurfaces": 186,
+    "renderer": "original_projection_grid_depth_and_dot",
+    "simulationIntegration": "DESIGN_ONLY_NOT_MATCH_CORE_ADMITTED"
+  },
+  "logo": {
+    "cells": 294,
+    "mode": "fine",
+    "glyph": "gold_wolf_image_v1",
+    "widthMeters": 28,
+    "lengthMeters": 25.164021164021165,
+    "centerZ": 82,
+    "brightness": 1.7,
+    "glow": 0.3
+  },
+  "surface": {
+    "zone": {
+      "id": "grass-wolf-material",
+      "shape": "material_alpha_distance",
+      "footprint": {
+        "width": 28,
+        "length": 25.164021164021165,
+        "centerZ": 82
+      },
+      "center": {
+        "x": 0,
+        "z": 82
+      },
+      "halfX": 14.6,
+      "halfZ": 13.182010582010582,
+      "factor": 6,
+      "marginMeters": 0.6,
+      "featherMeters": 0.8,
+      "materials": [
+        "original_ground",
+        "gold_wolf_image_v1"
+      ]
+    },
+    "finePoints": 1012,
+    "fineGrassPoints": 718,
+    "fineLogoPoints": 294,
+    "transitionPoints": 303,
+    "samples": 2135,
+    "logo": {
+      "cells": 294,
+      "mode": "fine",
+      "glyph": "gold_wolf_image_v1",
+      "widthMeters": 28,
+      "lengthMeters": 25.164021164021165,
+      "centerZ": 82,
+      "brightness": 1.7,
+      "glow": 0.3
+    },
+    "raster": "shared_circle_dots",
+    "layerOrder": "ground_and_image_material_then_density_then_dots",
+    "integration": "DESIGN_ONLY_NOT_MATCH_CORE_ADMITTED",
+    "bounds": {
+      "minX": 283.0535027423801,
+      "maxX": 316.9464972576199,
+      "minY": 183.2662998635111,
+      "maxY": 202.50843057706743
+    },
+    "step": 0.5555555555555556,
+    "visibleFinePoints": 1012,
+    "visibleFineLogoPoints": 294
+  },
+  "infieldSeatsAndCoachClearance": true,
+  "roofOpenCloseUndo": true,
+  "logoToggle": true,
+  "surfaceDensityControls": true,
+  "colors": true,
+  "localErrors": true,
+  "boundaryCacheInvalidation": true,
+  "referencePixelIdentical": true,
+  "saveRoundtrip": true,
+  "noIdleRedraw": true,
+  "v1AndOriginalUnchanged": true,
+  "fixedGeometryUnchanged": true
+}

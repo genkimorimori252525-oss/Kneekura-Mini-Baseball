@@ -1,0 +1,35 @@
+{
+  "pass": true,
+  "file": "<LOCAL_HOME>/Documents\\Codex\\2026-10-15\\new-chat\\outputs\\球場設計室_v3_局所密度版.html",
+  "sha256": "cffdb8988a5eb89c43d3a9f2883f8d99e250b24419e8dd23ebcbdfdae211ec0b",
+  "errors": [],
+  "external": [],
+  "widths": [
+    {
+      "width": 1280,
+      "fixedUnchanged": true
+    },
+    {
+      "width": 390,
+      "fixedUnchanged": true
+    },
+    {
+      "width": 320,
+      "fixedUnchanged": true
+    }
+  ],
+  "referencePixelsSha256": "262059187a44f825b7ba01e529a1f4c468f2d7f41d1e8fc65acae8906a856c21",
+  "referencePixelIdentical": true,
+  "readiness": true,
+  "fixedGeometryUnchanged": true,
+  "invalidInputRetained": true,
+  "undoRedo": true,
+  "addDeletePoints": true,
+  "jsonRoundtrip": true,
+  "fixedJsonRejected": true,
+  "browserSaveReload": true,
+  "rightDragCamera": true,
+  "noIdleRedraw": true,
+  "planPointDrag": true,
+  "jsonDownload": true
+}

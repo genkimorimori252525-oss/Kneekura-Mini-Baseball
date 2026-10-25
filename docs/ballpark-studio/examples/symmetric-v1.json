@@ -1,0 +1,45 @@
+{
+  "schema": "kneekura_ballpark_design_v1",
+  "name": "左右対称の寸法例",
+  "mode": "editable",
+  "ruleset": "mlb_new_2026",
+  "fencePoints": [
+    {
+      "id": "LF",
+      "angleDegrees": -45,
+      "distanceMeters": 100,
+      "heightMeters": 3
+    },
+    {
+      "id": "LCF",
+      "angleDegrees": -22.5,
+      "distanceMeters": 116,
+      "heightMeters": 3
+    },
+    {
+      "id": "CF",
+      "angleDegrees": 0,
+      "distanceMeters": 122,
+      "heightMeters": 3
+    },
+    {
+      "id": "RCF",
+      "angleDegrees": 22.5,
+      "distanceMeters": 116,
+      "heightMeters": 3
+    },
+    {
+      "id": "RF",
+      "angleDegrees": 45,
+      "distanceMeters": 100,
+      "heightMeters": 3
+    }
+  ],
+  "foul": {
+    "firstSideMeters": 62.048368229954285,
+    "thirdSideMeters": 62.048368229954285,
+    "backstopMeters": 35,
+    "heightMeters": 3
+  },
+  "trackWidthMeters": 3.5
+}

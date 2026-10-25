@@ -1,5 +1,7 @@
 # AI START HERE — Kneekura Mini Baseball Knowledge Map
 
+> **2026-10-25 球場制作部:** [入口](../ballpark-production/README.md) / [技術解説](../ballpark-production/METHODS.md) / [制作手順](../ballpark-production/WORKFLOW.md) / [再現](../ballpark-production/REPRODUCTION.md)。ロゴ・局所光点・遠近/遮蔽・共通world建築・開閉屋根・群衆・スコアボードのソース/素材/履歴を収録。本人が球場デザイン完成を確認、芝生ロゴ0.8倍採用。通常試合Coreへの新球場接続は **NOT CONNECTED**。
+
 > **2026-10-16 repository orientation, on `jolly/core-foundation-plan-2026-09-17`.** This is the central documentation navigator for new AI agents. If you arrived on GitHub's default `main`, **do not assume it contains the latest project**; follow links to this working branch and inspect the user's local checkout before modifying anything.
 
 > **2026-10-20 performance addendum:** [無劣化・高FPS軽量化の最新版移植計画](superpowers/plans/2026-10-20-zero-degradation-mobile-desktop-performance.md) / [旧lv76実証・計測台帳](performance/2026-10-20-lv76-lossless-optimization-evidence.md)。所有者の方針は**PNG/見た目/物理/公式結果を変えず、重複描画・余剰メモリ等だけ削る**こと。旧HTML v1/v2での測定を最新版の実装完了と混同しない。

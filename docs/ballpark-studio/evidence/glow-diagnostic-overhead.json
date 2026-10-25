@@ -1,0 +1,230 @@
+{
+  "count": 10772,
+  "examples": [
+    {
+      "x": 573,
+      "y": 244,
+      "a": [
+        37,
+        74,
+        32
+      ],
+      "b": [
+        38,
+        74,
+        32
+      ]
+    },
+    {
+      "x": 574,
+      "y": 244,
+      "a": [
+        23,
+        46,
+        20
+      ],
+      "b": [
+        24,
+        47,
+        20
+      ]
+    },
+    {
+      "x": 571,
+      "y": 245,
+      "a": [
+        39,
+        78,
+        34
+      ],
+      "b": [
+        40,
+        79,
+        34
+      ]
+    },
+    {
+      "x": 572,
+      "y": 245,
+      "a": [
+        55,
+        109,
+        48
+      ],
+      "b": [
+        56,
+        110,
+        48
+      ]
+    },
+    {
+      "x": 573,
+      "y": 245,
+      "a": [
+        55,
+        109,
+        48
+      ],
+      "b": [
+        56,
+        110,
+        48
+      ]
+    },
+    {
+      "x": 574,
+      "y": 245,
+      "a": [
+        55,
+        109,
+        48
+      ],
+      "b": [
+        56,
+        110,
+        48
+      ]
+    },
+    {
+      "x": 575,
+      "y": 245,
+      "a": [
+        20,
+        41,
+        18
+      ],
+      "b": [
+        21,
+        41,
+        18
+      ]
+    },
+    {
+      "x": 571,
+      "y": 246,
+      "a": [
+        53,
+        106,
+        46
+      ],
+      "b": [
+        54,
+        107,
+        46
+      ]
+    },
+    {
+      "x": 572,
+      "y": 246,
+      "a": [
+        55,
+        109,
+        48
+      ],
+      "b": [
+        56,
+        110,
+        48
+      ]
+    },
+    {
+      "x": 573,
+      "y": 246,
+      "a": [
+        55,
+        109,
+        48
+      ],
+      "b": [
+        56,
+        110,
+        48
+      ]
+    },
+    {
+      "x": 574,
+      "y": 246,
+      "a": [
+        55,
+        109,
+        48
+      ],
+      "b": [
+        56,
+        110,
+        48
+      ]
+    },
+    {
+      "x": 575,
+      "y": 246,
+      "a": [
+        36,
+        71,
+        31
+      ],
+      "b": [
+        36,
+        72,
+        31
+      ]
+    }
+  ],
+  "bounds": {
+    "minX": 524,
+    "maxX": 682,
+    "minY": 244,
+    "maxY": 349
+  },
+  "surface": {
+    "zone": {
+      "id": "grass-wolf-material",
+      "shape": "material_alpha_distance",
+      "footprint": {
+        "width": 28,
+        "length": 25.164021164021165,
+        "centerZ": 82
+      },
+      "center": {
+        "x": 0,
+        "z": 82
+      },
+      "halfX": 14.6,
+      "halfZ": 13.182010582010582,
+      "factor": 8,
+      "marginMeters": 0.6,
+      "featherMeters": 0.8,
+      "materials": [
+        "original_ground",
+        "gold_wolf_image_v1"
+      ]
+    },
+    "finePoints": 15343,
+    "fineGrassPoints": 10984,
+    "fineLogoPoints": 4359,
+    "transitionPoints": 4563,
+    "samples": 33291,
+    "logo": {
+      "cells": 4359,
+      "mode": "fine",
+      "glyph": "gold_wolf_image_v1",
+      "widthMeters": 28,
+      "lengthMeters": 25.164021164021165,
+      "centerZ": 82,
+      "brightness": 3,
+      "glow": 1
+    },
+    "raster": "shared_circle_dots",
+    "layerOrder": "ground_and_image_material_then_density_then_dots",
+    "integration": "DESIGN_ONLY_NOT_MATCH_CORE_ADMITTED",
+    "bounds": {
+      "minX": 249.35393373697912,
+      "maxX": 350.6460662630209,
+      "minY": 121.73783456419334,
+      "maxY": 178.85062838083329
+    },
+    "step": 0.4166666666666667,
+    "visibleFinePoints": 15280,
+    "visibleFineLogoPoints": 4359
+  }
+}

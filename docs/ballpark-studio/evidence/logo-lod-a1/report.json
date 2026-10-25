@@ -1,0 +1,55 @@
+{
+  "pass": true,
+  "errors": [],
+  "profiles": [
+    {
+      "zoom": 0.5,
+      "id": "wolf-4173",
+      "widthPixels": 32.274927721539484,
+      "heightPixels": 30.980157605962226,
+      "depth": 253.5194945921384,
+      "maximum": 6,
+      "density": 2.6687224384499695,
+      "brightness": 1.2669339169984961,
+      "glow": 0.016707807459518477,
+      "footprintU": 0.04397718105982709,
+      "footprintV": 0.04581514265214113,
+      "sampling": "premultiplied_mipmap_trilinear",
+      "policy": "provisional_screen_footprint_lod"
+    },
+    {
+      "zoom": 1,
+      "id": "wolf-4173",
+      "widthPixels": 64.54985544307897,
+      "heightPixels": 61.960315211924424,
+      "depth": 253.5194945921384,
+      "maximum": 6,
+      "density": 5.351934208003577,
+      "brightness": 1.615751447040465,
+      "glow": 0.11363598810475034,
+      "footprintU": 0.010964530327991199,
+      "footprintV": 0.011422776744313223,
+      "sampling": "premultiplied_mipmap_trilinear",
+      "policy": "provisional_screen_footprint_lod"
+    },
+    {
+      "zoom": 2,
+      "id": "wolf-4173",
+      "widthPixels": 129.099710886158,
+      "heightPixels": 123.92063042384885,
+      "depth": 253.5194945921384,
+      "maximum": 6,
+      "density": 6,
+      "brightness": 1.7000000000000002,
+      "glow": 0.15,
+      "footprintU": 0.004890120411422396,
+      "footprintV": 0.005094495800689806,
+      "sampling": "premultiplied_mipmap_trilinear",
+      "policy": "provisional_screen_footprint_lod"
+    }
+  ],
+  "sha256": "bcd191cff3e634c85c338aa67033e52de25e7f07e6b841d95520b94becd8fcf6",
+  "continuousProjectedLod": true,
+  "projectionAndGeometryUnchanged": true,
+  "approvedGrassPixelIdentical": true
+}

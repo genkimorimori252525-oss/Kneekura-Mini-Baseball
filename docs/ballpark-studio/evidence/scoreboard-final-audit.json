@@ -1,0 +1,25 @@
+{
+  "pass": true,
+  "label": "scoreboard-a5",
+  "sha256": "e092666bfdf103d01892acb9cd622b39dff345a9524b7dd20039d7f9eb585882",
+  "bytes": 45851256,
+  "sourcePins": 18,
+  "unitTests": 44,
+  "views": 9,
+  "originalFailLogsPreserved": 2,
+  "receiptLogHashesVerified": 18,
+  "reports": [
+    "scoreboard-scoreboard-a5",
+    "architecture-scoreboard-a5",
+    "dome-scoreboard-a5",
+    "crowd-blocks-scoreboard-a5"
+  ],
+  "referenceImagePreserved": true,
+  "frozenCorePngFieldAndCrowd": true,
+  "github": {
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380#issuecomment-6375221684",
+    "bodyEqual": true,
+    "bodySha256": "58c5876a12213a2f57191d360caab47ffc180b625a84e81bd84b21c76b6c3654"
+  },
+  "scope": "DESIGN_ONLY_NOT_MATCH_CORE_ADMITTED"
+}

@@ -1,0 +1,2182 @@
+{
+  "version": 1,
+  "date": "2026-10-25",
+  "scope": "BALLPARK_PRODUCTION_DEPARTMENT",
+  "status": "DESIGN_ACCEPTED_NOT_MATCH_CORE_ADMITTED",
+  "files": [
+    {
+      "path": "tools/ballpark-studio/AGENTS.md",
+      "bytes": 6379,
+      "sha256": "1acba295d2a906e758d228b2d6731cdf00b908a43a5ef971b5af79249dbf669d",
+      "originalSha256": "1acba295d2a906e758d228b2d6731cdf00b908a43a5ef971b5af79249dbf669d",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/architecture.mjs",
+      "bytes": 4804,
+      "sha256": "34acd50dd290835e77726556edc04b296d5e7005cd2597a8d1b5da2124bba07d",
+      "originalSha256": "34acd50dd290835e77726556edc04b296d5e7005cd2597a8d1b5da2124bba07d",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/architecture.test.mjs",
+      "bytes": 7847,
+      "sha256": "c78bbdf091aec2061b817fc4bbc00ef3d66b35641f8225edad9f9596fa5a04e5",
+      "originalSha256": "c78bbdf091aec2061b817fc4bbc00ef3d66b35641f8225edad9f9596fa5a04e5",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/assets/tambov.png",
+      "bytes": 49573,
+      "sha256": "1981bab7ef9609bd9a62052857410f2367c69addcef474fad4c6063d343c3b80",
+      "originalSha256": "1981bab7ef9609bd9a62052857410f2367c69addcef474fad4c6063d343c3b80",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/assets/wolf-gold-cutout-v1.png",
+      "bytes": 1400351,
+      "sha256": "b9181b700e184697d1d8dc7397d0eda4aceb1a481a311778e8203d45d8d153f4",
+      "originalSha256": "b9181b700e184697d1d8dc7397d0eda4aceb1a481a311778e8203d45d8d153f4",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/assets/wolf-gold-full-reference.png",
+      "bytes": 117096,
+      "sha256": "9680680f446351e0eb3f4d0cfe04b50bd628a5396fd5328c862f4dcdcfb08c12",
+      "originalSha256": "9680680f446351e0eb3f4d0cfe04b50bd628a5396fd5328c862f4dcdcfb08c12",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/assets/wolf-v1.png",
+      "bytes": 892131,
+      "sha256": "718167dcc4fcc7f1828da5ef7fe973489b6375533590b749335cb89859326cb1",
+      "originalSha256": "718167dcc4fcc7f1828da5ef7fe973489b6375533590b749335cb89859326cb1",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/audit-architecture.mjs",
+      "bytes": 2592,
+      "sha256": "a46310b49ab9ce8d18084367c6a2d3d1cf57a6edb19e6c5b00313c69bbca16b2",
+      "originalSha256": "a46310b49ab9ce8d18084367c6a2d3d1cf57a6edb19e6c5b00313c69bbca16b2",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/audit-logo-lod.mjs",
+      "bytes": 3041,
+      "sha256": "f56566f9fd1f103093597ba4e3728bcd54fe061a476e178a72939422eab0799f",
+      "originalSha256": "f56566f9fd1f103093597ba4e3728bcd54fe061a476e178a72939422eab0799f",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/audit-scoreboard.mjs",
+      "bytes": 3003,
+      "sha256": "80612eef1fafd41e2ef098ed6d132b24210349deacae28ea239d1a8320940096",
+      "originalSha256": "80612eef1fafd41e2ef098ed6d132b24210349deacae28ea239d1a8320940096",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/build.mjs",
+      "bytes": 4701,
+      "sha256": "83cea6f6cc245286c921b304d7ef65fc2c2c759c24f0e0674858ae91b96d86ac",
+      "originalSha256": "83cea6f6cc245286c921b304d7ef65fc2c2c759c24f0e0674858ae91b96d86ac",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/check-accepted.mjs",
+      "bytes": 1548,
+      "sha256": "ec66e5df24c7385e8cf4cd81566252cae66bc042ae6736182c9af83e8791f995",
+      "originalSha256": "dd0764262188629b00e8aa98c15d1fb4cd8b0c1228d7340e2d92fed1c69b32b0",
+      "sanitized": true
+    },
+    {
+      "path": "tools/ballpark-studio/check-architecture.mjs",
+      "bytes": 9954,
+      "sha256": "22ead0669177e3e1f4a865d72e3a5fb2dc14a94139d3a9c540b27ad674c9b1a1",
+      "originalSha256": "24586db22c8267e1970c5273ab01b5fbcb5acb6e03c0446466bfaa5de5ebc16b",
+      "sanitized": true
+    },
+    {
+      "path": "tools/ballpark-studio/check-attendance.mjs",
+      "bytes": 5586,
+      "sha256": "71af48a55e18d4470deff5cce38b330e2fc58f23aca0a7d357324f8a98ce8649",
+      "originalSha256": "f9f61c578f1807682a867d616cb3cefaf2bff615da99ff26a21c2d02f9f7e166",
+      "sanitized": true
+    },
+    {
+      "path": "tools/ballpark-studio/check-browser.mjs",
+      "bytes": 9499,
+      "sha256": "a9f5f05b18ed5d0f522438793b4ffafa0f00275dfbf850a37c3c733c20829490",
+      "originalSha256": "2b78c34b3d5cdac8c329a096152b2194475f7a5f29b28af2e18fc10861ecb71a",
+      "sanitized": true
+    },
+    {
+      "path": "tools/ballpark-studio/check-crowd-tiles.mjs",
+      "bytes": 5748,
+      "sha256": "9b9622599bfc1e4a7c77f9dfb43209adca6602a1a8ea7ada5bae9358d6308999",
+      "originalSha256": "3b0cb9938b0bd4e40c411166967a1d1b0df545123af9360626beb0b189d51bb6",
+      "sanitized": true
+    },
+    {
+      "path": "tools/ballpark-studio/check-crowd.mjs",
+      "bytes": 6214,
+      "sha256": "d0edf772fb92ac696e96ac4da6a45069364b236f3e433177968ac5a1aab2c045",
+      "originalSha256": "0c330023161b6c82c19384cc432f2a05cc3bfdc23d5ac47171c4115928974192",
+      "sanitized": true
+    },
+    {
+      "path": "tools/ballpark-studio/check-dome.mjs",
+      "bytes": 11574,
+      "sha256": "0bb64c3e3dfd9f7d371e9778949e23ca94a6a74a305f8d31d138bae112f42810",
+      "originalSha256": "15c6921db6b50f20703aa145bd2f330c6a85aa3d21f6d03579893cba6c903294",
+      "sanitized": true
+    },
+    {
+      "path": "tools/ballpark-studio/check-line-color.mjs",
+      "bytes": 3108,
+      "sha256": "2a169d8f081a46df84fc74d57b9b1d20858fec2fb457464ca47c989a4cafdbb7",
+      "originalSha256": "c45876139e4014c922fe629a7ad2bad00e413445c63c0d3525d64265d9b19b75",
+      "sanitized": true
+    },
+    {
+      "path": "tools/ballpark-studio/check-logo-lod.mjs",
+      "bytes": 4147,
+      "sha256": "07b86b741289e0aba7ed74eb4d889c5a93eddf3fc41aec731e53d6b621f1aada",
+      "originalSha256": "e5e64e084c1cabd98a0375a7d324fff162b5118834ceaac58b76ef5991a61f22",
+      "sanitized": true
+    },
+    {
+      "path": "tools/ballpark-studio/check-scoreboard.mjs",
+      "bytes": 6158,
+      "sha256": "5768fdd13aac7dfc0fce4faab39a3c20b89b9972a517497e9568868087b0c084",
+      "originalSha256": "6b3b3bd3dea9f41b8528757962263b54d0036710f3113041c4a987e26fc1854c",
+      "sanitized": true
+    },
+    {
+      "path": "tools/ballpark-studio/check-visual-tuning.mjs",
+      "bytes": 6536,
+      "sha256": "533ecea5fb964f6cbb3560ac740976f168601cf3244239d33cc6978e0cd8584b",
+      "originalSha256": "ffcdd2afdb2b96f305d976171b322f5576e74b3f32cce9a9312b1fd697153e14",
+      "sanitized": true
+    },
+    {
+      "path": "tools/ballpark-studio/cli.mjs",
+      "bytes": 967,
+      "sha256": "910730a20f6ef8a541817930b74edab804ba03665a99881cca276164b1aef945",
+      "originalSha256": "910730a20f6ef8a541817930b74edab804ba03665a99881cca276164b1aef945",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/crowd-tiles.mjs",
+      "bytes": 2349,
+      "sha256": "c774cd8e275e7078cdbb0a84c0b35005b2b191c2573b840521c2a2d49dceae0b",
+      "originalSha256": "c774cd8e275e7078cdbb0a84c0b35005b2b191c2573b840521c2a2d49dceae0b",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/crowd-tiles.test.mjs",
+      "bytes": 1779,
+      "sha256": "88ce995c22690193db50f2519dd52de03a68a59f4d698ae30a275ed3736bb634",
+      "originalSha256": "88ce995c22690193db50f2519dd52de03a68a59f4d698ae30a275ed3736bb634",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/crowd.mjs",
+      "bytes": 4454,
+      "sha256": "91aa3b38059375f9ec571a5846a18b078b0606ba348690692957099118cdaf9f",
+      "originalSha256": "91aa3b38059375f9ec571a5846a18b078b0606ba348690692957099118cdaf9f",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/crowd.test.mjs",
+      "bytes": 3253,
+      "sha256": "0d3ae28caf0a65ab62fa5ee18b73245a82f7107b36f39c64acac6fef19221cc9",
+      "originalSha256": "0d3ae28caf0a65ab62fa5ee18b73245a82f7107b36f39c64acac6fef19221cc9",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/geometry-window.mjs",
+      "bytes": 609,
+      "sha256": "1e22ae042a0e1c39d89cb890293fe6b53f91a39c3ef1db0fb9593b5a5f9efb2a",
+      "originalSha256": "1e22ae042a0e1c39d89cb890293fe6b53f91a39c3ef1db0fb9593b5a5f9efb2a",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/ground-logo.mjs",
+      "bytes": 3918,
+      "sha256": "3d5c949501762b4527c48d5b026ae71c6e372ff8937d9e84f290e1077e39a496",
+      "originalSha256": "3d5c949501762b4527c48d5b026ae71c6e372ff8937d9e84f290e1077e39a496",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/material-lod.mjs",
+      "bytes": 1160,
+      "sha256": "2e8ddecc0fffa59038a2e712538a7dec1d9f338512df28bd76916cf582a39ea0",
+      "originalSha256": "2e8ddecc0fffa59038a2e712538a7dec1d9f338512df28bd76916cf582a39ea0",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/material-lod.test.mjs",
+      "bytes": 3077,
+      "sha256": "673ac07c8720af958a120cd3749f98c7ef77ee357c75958d38a3e313b0349464",
+      "originalSha256": "673ac07c8720af958a120cd3749f98c7ef77ee357c75958d38a3e313b0349464",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/model.mjs",
+      "bytes": 11522,
+      "sha256": "decfb1156090e94780ca22d284c0dd83d29dd6034f57a66e898fe87a3cc86321",
+      "originalSha256": "decfb1156090e94780ca22d284c0dd83d29dd6034f57a66e898fe87a3cc86321",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/model.test.mjs",
+      "bytes": 3885,
+      "sha256": "b5c9df08ee2aeb9e9fe3501c00661671ff3d1e870824f810e80bf3577b529aa7",
+      "originalSha256": "b5c9df08ee2aeb9e9fe3501c00661671ff3d1e870824f810e80bf3577b529aa7",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/preview-architecture.mjs",
+      "bytes": 1727,
+      "sha256": "7a309ab590c3ed69a4643fc9c0f43e33a20af03ba848b5b79eb3bb3f13ed4eed",
+      "originalSha256": "37eefd0aa531e4f0d07e34d14c448e02c648f4a6ddb81c8b4fc939f78d5ebf87",
+      "sanitized": true
+    },
+    {
+      "path": "tools/ballpark-studio/preview-bridge.js",
+      "bytes": 4432,
+      "sha256": "b67cc388a00b6df49478e33994ee1d1e5dec5db80d6a824c1ab7a610f6dac889",
+      "originalSha256": "b67cc388a00b6df49478e33994ee1d1e5dec5db80d6a824c1ab7a610f6dac889",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/probe-logo-glow.mjs",
+      "bytes": 2534,
+      "sha256": "5ec5a49cb4d71257d88f9fa2e985368e8068348ab6da0765d26fa61d1acd4090",
+      "originalSha256": "ef216be49dc77675a12d9a1006769dfe52aabcd5f1fb98d5f855aebaba30ffc0",
+      "sanitized": true
+    },
+    {
+      "path": "tools/ballpark-studio/probe-roof-depth.mjs",
+      "bytes": 3527,
+      "sha256": "6fe712921f8c089fbb44b63c012a2ebac05b77bbdaa52ac8cdf82f5f7f5c8353",
+      "originalSha256": "a6b76c516abac748f60c3614dc5595677a1fa242af48c6504575e9ba7834cb33",
+      "sanitized": true
+    },
+    {
+      "path": "tools/ballpark-studio/renderer-patch.mjs",
+      "bytes": 10774,
+      "sha256": "671611458b46653a290f03c0d11c2f93904b50ebb0b356cd844c06d73199807c",
+      "originalSha256": "671611458b46653a290f03c0d11c2f93904b50ebb0b356cd844c06d73199807c",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/scoreboard.mjs",
+      "bytes": 4578,
+      "sha256": "a3253f28a4bc0e5ee5c469bed9414e69bb74e76d91cd80b04704efb8ca1e752b",
+      "originalSha256": "a3253f28a4bc0e5ee5c469bed9414e69bb74e76d91cd80b04704efb8ca1e752b",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/scoreboard.test.mjs",
+      "bytes": 3149,
+      "sha256": "9aa699495a7f4f4c912bb0083fc713714599f2df93c331651a559f3e5b9b84f9",
+      "originalSha256": "9aa699495a7f4f4c912bb0083fc713714599f2df93c331651a559f3e5b9b84f9",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/stadium-mesh.mjs",
+      "bytes": 18590,
+      "sha256": "ebe05b1a9f3280935bf5d75f86ecc2aa194e3713bf7ed971c7f777a05459ea8b",
+      "originalSha256": "ebe05b1a9f3280935bf5d75f86ecc2aa194e3713bf7ed971c7f777a05459ea8b",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/studio.css",
+      "bytes": 7734,
+      "sha256": "c5dc3355397f1f47eea08d41c29bbd0bd22436450f4c89b28473e61fc6ddded4",
+      "originalSha256": "c5dc3355397f1f47eea08d41c29bbd0bd22436450f4c89b28473e61fc6ddded4",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/studio.html",
+      "bytes": 13538,
+      "sha256": "fcb52c54a4addf82e488880f39689bf75917e765c228e4c806c745ad50bc653a",
+      "originalSha256": "fcb52c54a4addf82e488880f39689bf75917e765c228e4c806c745ad50bc653a",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/studio.mjs",
+      "bytes": 29567,
+      "sha256": "e468e2a5dc7b710fdc3e206911344dc1cb261e5436201c46037b5cee19958639",
+      "originalSha256": "e468e2a5dc7b710fdc3e206911344dc1cb261e5436201c46037b5cee19958639",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/surface-layers.mjs",
+      "bytes": 3705,
+      "sha256": "7ab90ddf6161a39bd222a286ba5836b1f172f85cafe7d1c814a9dae9c1398417",
+      "originalSha256": "7ab90ddf6161a39bd222a286ba5836b1f172f85cafe7d1c814a9dae9c1398417",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/surface-layers.test.mjs",
+      "bytes": 4170,
+      "sha256": "bb45722da83001ecf2db0d149ce02b314449651dcef4ce1c52df56edfdda6b18",
+      "originalSha256": "bb45722da83001ecf2db0d149ce02b314449651dcef4ce1c52df56edfdda6b18",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/texture-filter.mjs",
+      "bytes": 2065,
+      "sha256": "c299ee9082b1993c00d43054253968a2c0d49874bb660ee544a562371f892581",
+      "originalSha256": "c299ee9082b1993c00d43054253968a2c0d49874bb660ee544a562371f892581",
+      "sanitized": false
+    },
+    {
+      "path": "tools/ballpark-studio/verify-source.mjs",
+      "bytes": 1219,
+      "sha256": "5735767eb0dfc10d4a3febd076d67692287186a0424fca8cc739d45ba8a7ae2e",
+      "originalSha256": "5735767eb0dfc10d4a3febd076d67692287186a0424fca8cc739d45ba8a7ae2e",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/CURRENT-accepted.md",
+      "bytes": 2497,
+      "sha256": "ea8fc4561d9bc384f44894892e7ea09abf67a7cdc5682ef3d8060ee82a5c6fa2",
+      "originalSha256": "ea8fc4561d9bc384f44894892e7ea09abf67a7cdc5682ef3d8060ee82a5c6fa2",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/CURRENT-architecture.md",
+      "bytes": 6020,
+      "sha256": "f92b3af2cabb0fe04383a273db6583141fc8294edbaf0006fb980f361bc5c304",
+      "originalSha256": "f92b3af2cabb0fe04383a273db6583141fc8294edbaf0006fb980f361bc5c304",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/CURRENT-attendance.md",
+      "bytes": 3218,
+      "sha256": "6d33f16d7a362d5a5b3f2fc741c7d811111cf4effba70c1f66e3f6c3f893266a",
+      "originalSha256": "6d33f16d7a362d5a5b3f2fc741c7d811111cf4effba70c1f66e3f6c3f893266a",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/CURRENT-crowd-tiles.md",
+      "bytes": 5392,
+      "sha256": "2590804c7bbfb8aa824e38f2102d302534f0b5d028e9388c7c61b9ccb7e840d0",
+      "originalSha256": "2590804c7bbfb8aa824e38f2102d302534f0b5d028e9388c7c61b9ccb7e840d0",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/CURRENT-crowd.md",
+      "bytes": 4601,
+      "sha256": "27306a8b38815063d30793daec97a7880677302de5e1ace0863860414b2713a5",
+      "originalSha256": "27306a8b38815063d30793daec97a7880677302de5e1ace0863860414b2713a5",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/CURRENT-logo-lod.md",
+      "bytes": 5562,
+      "sha256": "861de7c99f54a7344383367e57bd26b1cdf6c85c1dd4ec510cb70425127b8336",
+      "originalSha256": "861de7c99f54a7344383367e57bd26b1cdf6c85c1dd4ec510cb70425127b8336",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/CURRENT-scoreboard.md",
+      "bytes": 7071,
+      "sha256": "e3e1ea396a3d81215b34ad5c9abad86beda2eabd0256b5a10561ec90bc562bfd",
+      "originalSha256": "e3e1ea396a3d81215b34ad5c9abad86beda2eabd0256b5a10561ec90bc562bfd",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/CURRENT-v2.md",
+      "bytes": 5380,
+      "sha256": "23345cccbf2e9237209bdc083b0d1b63b062d3c0ed7574f66e1bd7d4cff32676",
+      "originalSha256": "23345cccbf2e9237209bdc083b0d1b63b062d3c0ed7574f66e1bd7d4cff32676",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/CURRENT-v3.md",
+      "bytes": 6576,
+      "sha256": "816d9441cfabeb7f719b8d0e4c8cf88a85ebed3834c50512f1c0df0e72d8ffde",
+      "originalSha256": "816d9441cfabeb7f719b8d0e4c8cf88a85ebed3834c50512f1c0df0e72d8ffde",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/CURRENT-visual-tuning.md",
+      "bytes": 4859,
+      "sha256": "5d10c6d9c3d493785b5f7f1f258c7871444b356108e9ab6ac273a18de2a0c179",
+      "originalSha256": "5d10c6d9c3d493785b5f7f1f258c7871444b356108e9ab6ac273a18de2a0c179",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/CURRENT.md",
+      "bytes": 5213,
+      "sha256": "007f57bb6fe084a6e3b4dad83e1e4319937144780e375e5eca207e73fae37a6f",
+      "originalSha256": "007f57bb6fe084a6e3b4dad83e1e4319937144780e375e5eca207e73fae37a6f",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/accepted-grass08.json",
+      "bytes": 165,
+      "sha256": "dab9a2efe3a2971cda3d7ef13ca50d7f7aa96deddc54deeb35292a2d94a92726",
+      "originalSha256": "dab9a2efe3a2971cda3d7ef13ca50d7f7aa96deddc54deeb35292a2d94a92726",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-a5/report.json",
+      "bytes": 4875,
+      "sha256": "5376412097494603c9b6c29ac1ed7baef7f24c9e5b48213ce1f6b805549496d0",
+      "originalSha256": "5713439e7feea4b2b2d2e563567c73e418e52b743167254fbc9df0a67697aaba",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-architecture-a6/report.json",
+      "bytes": 4588,
+      "sha256": "c6a549dbb70db482133f235c7a2d9b2827b6c27415b137eb7be23502837f9c46",
+      "originalSha256": "c6a549dbb70db482133f235c7a2d9b2827b6c27415b137eb7be23502837f9c46",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-architecture-a7/report.json",
+      "bytes": 4588,
+      "sha256": "20285a8f921e128aa35419c7d9ead185c690a08842148b883d28cb6d010b80e9",
+      "originalSha256": "20285a8f921e128aa35419c7d9ead185c690a08842148b883d28cb6d010b80e9",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-architecture-a8/report.json",
+      "bytes": 4592,
+      "sha256": "cc223dd5e7dd4f06845c0a5eef31ccf9b64960cf0d6727c5f17824e4da9c249e",
+      "originalSha256": "cc223dd5e7dd4f06845c0a5eef31ccf9b64960cf0d6727c5f17824e4da9c249e",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-final-audit.json",
+      "bytes": 1011,
+      "sha256": "035aba09c7ac21711c33bf759ae4090f940ea5bfe86585f14eee243c34f95db8",
+      "originalSha256": "035aba09c7ac21711c33bf759ae4090f940ea5bfe86585f14eee243c34f95db8",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-logo-lod-a1/report.json",
+      "bytes": 10871,
+      "sha256": "5212d32422eca9f1bac68c2b2abc31191d44cb5fc5cb36da75063799dc67e0f7",
+      "originalSha256": "5212d32422eca9f1bac68c2b2abc31191d44cb5fc5cb36da75063799dc67e0f7",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-logo-lod-a2/report.json",
+      "bytes": 11350,
+      "sha256": "0fcd121ffcfce2a96f4cace0f6aaeefeb626beded173ae43ebdf26671fb90af4",
+      "originalSha256": "0fcd121ffcfce2a96f4cace0f6aaeefeb626beded173ae43ebdf26671fb90af4",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-a1/batter.json",
+      "bytes": 30267,
+      "sha256": "2040b8160bd40c2ad9ce77e8b09e4fa896891ec9cfb1fa4f075cb767eeeceaed",
+      "originalSha256": "2040b8160bd40c2ad9ce77e8b09e4fa896891ec9cfb1fa4f075cb767eeeceaed",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-a1/catcher.json",
+      "bytes": 30244,
+      "sha256": "53ffcc19a9a4c0a0001767f03dd84bb54b6a66a466bed1213559980bc68ab81c",
+      "originalSha256": "53ffcc19a9a4c0a0001767f03dd84bb54b6a66a466bed1213559980bc68ab81c",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-a1/exterior.json",
+      "bytes": 30275,
+      "sha256": "4aacce85b15cf8173da57897d33daa3ce99822b18052eb21a50af844f2792bb7",
+      "originalSha256": "4aacce85b15cf8173da57897d33daa3ce99822b18052eb21a50af844f2792bb7",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-a1/fielder.json",
+      "bytes": 30276,
+      "sha256": "10338cd8999ca70e1fa8a3e0c7f6e8ce18deb52014f023ef69f123b5e14336a1",
+      "originalSha256": "10338cd8999ca70e1fa8a3e0c7f6e8ce18deb52014f023ef69f123b5e14336a1",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-a1/mound.json",
+      "bytes": 30063,
+      "sha256": "014b640544ff17b62c25cb6892c64aea39e94d410be8b8e62fe0ca0d4caa2ee9",
+      "originalSha256": "014b640544ff17b62c25cb6892c64aea39e94d410be8b8e62fe0ca0d4caa2ee9",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-a1/overhead.json",
+      "bytes": 30264,
+      "sha256": "05365926c58d148ee8931ad8dada48fcf4d021b4d328b4b1b627046426af85c8",
+      "originalSha256": "05365926c58d148ee8931ad8dada48fcf4d021b4d328b4b1b627046426af85c8",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-a1/stadium.json",
+      "bytes": 30265,
+      "sha256": "50f8aca4cc0c7353f2046659da3a9c2feb03876d882bde4104250219e151d416",
+      "originalSha256": "50f8aca4cc0c7353f2046659da3a9c2feb03876d882bde4104250219e151d416",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-a2/batter.json",
+      "bytes": 30270,
+      "sha256": "fcf6b9a826f262994e0175b7f08fb257864cfc67a50b73fc58b2e56f332bd6fb",
+      "originalSha256": "fcf6b9a826f262994e0175b7f08fb257864cfc67a50b73fc58b2e56f332bd6fb",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-a2/catcher.json",
+      "bytes": 30246,
+      "sha256": "e6f8cef2293d0b25a2edcc218c05b515d49e6a62c2f2bc4f8bbc556e1ac819ae",
+      "originalSha256": "e6f8cef2293d0b25a2edcc218c05b515d49e6a62c2f2bc4f8bbc556e1ac819ae",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-a2/exterior.json",
+      "bytes": 30276,
+      "sha256": "6144cf8a5d1e43aaa5ffb3c2995163bad972c631a4de345838f59a229e4b0e51",
+      "originalSha256": "6144cf8a5d1e43aaa5ffb3c2995163bad972c631a4de345838f59a229e4b0e51",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-a2/fielder.json",
+      "bytes": 30278,
+      "sha256": "71f0656440ba0fda0a051968ca37317fb467bc444c9a906903683bc0ff4f4f5a",
+      "originalSha256": "71f0656440ba0fda0a051968ca37317fb467bc444c9a906903683bc0ff4f4f5a",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-a2/interior.json",
+      "bytes": 30268,
+      "sha256": "c8007e170c7d33c43c0919f1981b6ddcd63a237644c32507840bcb20ef893801",
+      "originalSha256": "c8007e170c7d33c43c0919f1981b6ddcd63a237644c32507840bcb20ef893801",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-a2/mound.json",
+      "bytes": 30064,
+      "sha256": "61f250bf0c15a0f2d4f5f576a830114bbf91e2674603f6deb548f21efdeadec7",
+      "originalSha256": "61f250bf0c15a0f2d4f5f576a830114bbf91e2674603f6deb548f21efdeadec7",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-a2/overhead.json",
+      "bytes": 30266,
+      "sha256": "6806f56e7cfe9e6eaa42d71c30ea06451b570580956e16737faa040087726231",
+      "originalSha256": "6806f56e7cfe9e6eaa42d71c30ea06451b570580956e16737faa040087726231",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-a2/stadium.json",
+      "bytes": 30265,
+      "sha256": "38ec8730a35640baad49d494e6a715da97aa356d2e2e18843fb81b7ecc2fdc4e",
+      "originalSha256": "38ec8730a35640baad49d494e6a715da97aa356d2e2e18843fb81b7ecc2fdc4e",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-a3/batter.json",
+      "bytes": 30467,
+      "sha256": "aba8b431677a4f2568bf42daf7ecefd8bacce5541d1786ad7b7d5e3e1fdecede",
+      "originalSha256": "aba8b431677a4f2568bf42daf7ecefd8bacce5541d1786ad7b7d5e3e1fdecede",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-a3/catcher.json",
+      "bytes": 30444,
+      "sha256": "36673ad1735bd8310ee318dd1b051475a429a6df89b96680619dc275ece124c7",
+      "originalSha256": "36673ad1735bd8310ee318dd1b051475a429a6df89b96680619dc275ece124c7",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-a3/exterior.json",
+      "bytes": 30473,
+      "sha256": "b6c79cf30b3455483af854f9cb755d3ba7cfef1a9c8b0feb2424eb89664c80e4",
+      "originalSha256": "b6c79cf30b3455483af854f9cb755d3ba7cfef1a9c8b0feb2424eb89664c80e4",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-a3/fielder.json",
+      "bytes": 30475,
+      "sha256": "7f48566e7866f23c27f6b3386e8109ceeef009002f4b90c3f9457b861eddb836",
+      "originalSha256": "7f48566e7866f23c27f6b3386e8109ceeef009002f4b90c3f9457b861eddb836",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-a3/interior.json",
+      "bytes": 30473,
+      "sha256": "e4ab58d36b2ad69f60e4b5384e11b3dc5b6527ebda1c206930348ff8eec6316d",
+      "originalSha256": "e4ab58d36b2ad69f60e4b5384e11b3dc5b6527ebda1c206930348ff8eec6316d",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-a3/mound.json",
+      "bytes": 30261,
+      "sha256": "ad8068a769c11825ecb7d1cfabf99321646016ef8dcea259540962fedf3fcfa3",
+      "originalSha256": "ad8068a769c11825ecb7d1cfabf99321646016ef8dcea259540962fedf3fcfa3",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-a3/overhead.json",
+      "bytes": 30463,
+      "sha256": "8212b62a5db4a1ad38f1cc39fae6ed7f6980e903011c2651d71a6203e2a7eb41",
+      "originalSha256": "8212b62a5db4a1ad38f1cc39fae6ed7f6980e903011c2651d71a6203e2a7eb41",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-a3/stadium.json",
+      "bytes": 30462,
+      "sha256": "e44a216952f46d9b01bab33300c7db203d0ef2fad840d73e491fc3e01efe6a6e",
+      "originalSha256": "e44a216952f46d9b01bab33300c7db203d0ef2fad840d73e491fc3e01efe6a6e",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a1/batter.json",
+      "bytes": 33826,
+      "sha256": "3ff26569be5d57ed2616077390279942ccaf0cb679d88a1bfaa07e08d7fe09eb",
+      "originalSha256": "3ff26569be5d57ed2616077390279942ccaf0cb679d88a1bfaa07e08d7fe09eb",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a1/catcher.json",
+      "bytes": 33802,
+      "sha256": "a0f442226736c336b0dba3991ec088ce4f552faa0957ad1e83a7fafa9feefb65",
+      "originalSha256": "a0f442226736c336b0dba3991ec088ce4f552faa0957ad1e83a7fafa9feefb65",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a1/exterior.json",
+      "bytes": 34359,
+      "sha256": "8d3f2a2628019301d00c60cc735fb6b26c2ffd680a7ac5e01f37bf2882ed2dc1",
+      "originalSha256": "8d3f2a2628019301d00c60cc735fb6b26c2ffd680a7ac5e01f37bf2882ed2dc1",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a1/fielder.json",
+      "bytes": 33820,
+      "sha256": "ee4d1362b4f5918b0096721259586930fe4c46f4220a10c634b1b6945673285b",
+      "originalSha256": "ee4d1362b4f5918b0096721259586930fe4c46f4220a10c634b1b6945673285b",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a1/interior.json",
+      "bytes": 34351,
+      "sha256": "350d91f9cdc8a484abf2849fdd9aaefd3e755951e11a286e200cc57869a3af29",
+      "originalSha256": "350d91f9cdc8a484abf2849fdd9aaefd3e755951e11a286e200cc57869a3af29",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a1/mound.json",
+      "bytes": 33602,
+      "sha256": "9719930311c42fc6b3d24bbdee2f93aa093049f526db4bae8c26a42e01733b1b",
+      "originalSha256": "9719930311c42fc6b3d24bbdee2f93aa093049f526db4bae8c26a42e01733b1b",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a1/overhead.json",
+      "bytes": 33802,
+      "sha256": "f86191f9cd9224753d564e4c1b8a08d293474182fee54f425b4120493695b11f",
+      "originalSha256": "f86191f9cd9224753d564e4c1b8a08d293474182fee54f425b4120493695b11f",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a1/stadium.json",
+      "bytes": 34351,
+      "sha256": "928eba91654d1315c4a12dbbf013d564dc551367e2af9c9f5d4d9042d1a481ab",
+      "originalSha256": "928eba91654d1315c4a12dbbf013d564dc551367e2af9c9f5d4d9042d1a481ab",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a2/batter.json",
+      "bytes": 33823,
+      "sha256": "05d918b4d1f94feeb4d41d223b2ece01fb400f866bdcfcf2d86ea5f97e9ed84b",
+      "originalSha256": "05d918b4d1f94feeb4d41d223b2ece01fb400f866bdcfcf2d86ea5f97e9ed84b",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a2/catcher.json",
+      "bytes": 33803,
+      "sha256": "96a906f7701a5b346e1c38527436cf652c46426d43a9511717804b118bce3576",
+      "originalSha256": "96a906f7701a5b346e1c38527436cf652c46426d43a9511717804b118bce3576",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a2/exterior.json",
+      "bytes": 34360,
+      "sha256": "21378e6c1d0dd2b23016fe91c70bb4e4d30e88897dc15eca794d67419b205277",
+      "originalSha256": "21378e6c1d0dd2b23016fe91c70bb4e4d30e88897dc15eca794d67419b205277",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a2/fielder.json",
+      "bytes": 34341,
+      "sha256": "4f708bc1aa0700b673ab7176f300a095bfd7a7347b80384aba171d145ae1df8c",
+      "originalSha256": "4f708bc1aa0700b673ab7176f300a095bfd7a7347b80384aba171d145ae1df8c",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a2/interior.json",
+      "bytes": 34351,
+      "sha256": "3a2fa2882b7b7e5942a7e0c5292559717e1e98abb74f31c4aa920a429d51233e",
+      "originalSha256": "3a2fa2882b7b7e5942a7e0c5292559717e1e98abb74f31c4aa920a429d51233e",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a2/mound.json",
+      "bytes": 33603,
+      "sha256": "c3ee10769d5f2991de52ff44b7b7d28ae1499c7e77558669dd2a9bfaffc8cf58",
+      "originalSha256": "c3ee10769d5f2991de52ff44b7b7d28ae1499c7e77558669dd2a9bfaffc8cf58",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a2/overhead.json",
+      "bytes": 33801,
+      "sha256": "8a7c0e089802796eb67f0124014818a090782483aed93437c4feff0b7292ad30",
+      "originalSha256": "8a7c0e089802796eb67f0124014818a090782483aed93437c4feff0b7292ad30",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a2/stadium.json",
+      "bytes": 34351,
+      "sha256": "3b27c8c052d6c277e876aa096aac47ac3967c5185d6e04a204475d5d0030d560",
+      "originalSha256": "3b27c8c052d6c277e876aa096aac47ac3967c5185d6e04a204475d5d0030d560",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a3/batter.json",
+      "bytes": 33821,
+      "sha256": "eeae4fe5fe8e63632b4d62c6aa2cac364834b1d89fd34b7b1255eac171feff9c",
+      "originalSha256": "eeae4fe5fe8e63632b4d62c6aa2cac364834b1d89fd34b7b1255eac171feff9c",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a3/catcher.json",
+      "bytes": 33801,
+      "sha256": "905cdd7490b9f0599fecb7f0c3ac9202c6343bd6fee46fd3c51b8384d1e7d1b3",
+      "originalSha256": "905cdd7490b9f0599fecb7f0c3ac9202c6343bd6fee46fd3c51b8384d1e7d1b3",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a3/exterior.json",
+      "bytes": 34358,
+      "sha256": "7cd64da08bff748894e986f8c53390b44eb258f4ba31b51f4ea31a7fad697f3f",
+      "originalSha256": "7cd64da08bff748894e986f8c53390b44eb258f4ba31b51f4ea31a7fad697f3f",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a3/fielder.json",
+      "bytes": 34340,
+      "sha256": "98a57343afd7374b2a505f799a42e5219cc87f98dcb3a1b9cb3600ff7bd61dba",
+      "originalSha256": "98a57343afd7374b2a505f799a42e5219cc87f98dcb3a1b9cb3600ff7bd61dba",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a3/interior.json",
+      "bytes": 34349,
+      "sha256": "5d7a1a07dcccc4563c9f124195fa1e1907ea2a285f831b5e249fddfad24b0035",
+      "originalSha256": "5d7a1a07dcccc4563c9f124195fa1e1907ea2a285f831b5e249fddfad24b0035",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a3/mound.json",
+      "bytes": 33601,
+      "sha256": "a67f28d15be77d019b4d29c9d4f09c9db16c784c237301c3d4ed11fcd99911cc",
+      "originalSha256": "a67f28d15be77d019b4d29c9d4f09c9db16c784c237301c3d4ed11fcd99911cc",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a3/overhead.json",
+      "bytes": 33799,
+      "sha256": "d3df9b2ca39bd4bd4756da00208917ee5ba95eb5f0d21cf4dfa6996e98bbd85e",
+      "originalSha256": "d3df9b2ca39bd4bd4756da00208917ee5ba95eb5f0d21cf4dfa6996e98bbd85e",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a3/scoreboard.json",
+      "bytes": 33814,
+      "sha256": "9a87d63152c5f1431b4707abf2506a8f1f5b41621a5e4d3d59db9cc82b1c4de0",
+      "originalSha256": "9a87d63152c5f1431b4707abf2506a8f1f5b41621a5e4d3d59db9cc82b1c4de0",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-preview-scoreboard-a3/stadium.json",
+      "bytes": 34349,
+      "sha256": "82e2dc222fec0a0c318ccaaffacc14c2258948a66e27ff4f96d31e6dc50795cb",
+      "originalSha256": "82e2dc222fec0a0c318ccaaffacc14c2258948a66e27ff4f96d31e6dc50795cb",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-receipts.json",
+      "bytes": 19144,
+      "sha256": "11b14b9ed5f11a75c33cb18174e718863cea7b1c545990e79028b048c9216275",
+      "originalSha256": "3fc2021e52ceb343dc7e2f738797437b02ac3e750caf3d3e8d248472a813fa30",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-scoreboard-a4/report.json",
+      "bytes": 12543,
+      "sha256": "f9ca0b46c497829c50b26b61c4f3c60b09cf5307fc71e08ca4389397bd265ad7",
+      "originalSha256": "f9ca0b46c497829c50b26b61c4f3c60b09cf5307fc71e08ca4389397bd265ad7",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-scoreboard-a5/batter.png",
+      "bytes": 966553,
+      "sha256": "08d36a752a8c6f49774e19026578e625b27e3ad4dcbe2f162693bb1383f5d5f6",
+      "originalSha256": "08d36a752a8c6f49774e19026578e625b27e3ad4dcbe2f162693bb1383f5d5f6",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-scoreboard-a5/catcher.png",
+      "bytes": 971859,
+      "sha256": "080fd3ad6dbb857286301c1a363a736b87463272e04d02dccfa1c7c9d7f58cc4",
+      "originalSha256": "080fd3ad6dbb857286301c1a363a736b87463272e04d02dccfa1c7c9d7f58cc4",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-scoreboard-a5/closed-exterior.png",
+      "bytes": 455463,
+      "sha256": "e2c46113a97e3a738f0418614b934d3a0599621e866e0aa383bf3f2d95bc9db9",
+      "originalSha256": "e2c46113a97e3a738f0418614b934d3a0599621e866e0aa383bf3f2d95bc9db9",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-scoreboard-a5/exterior.png",
+      "bytes": 474997,
+      "sha256": "c2422423604d14074c1db2ce3b51b31f394009d4a41afe627704562c8ff84031",
+      "originalSha256": "c2422423604d14074c1db2ce3b51b31f394009d4a41afe627704562c8ff84031",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-scoreboard-a5/fielder.png",
+      "bytes": 1067110,
+      "sha256": "9724ba0e67fe5d18e715cf54764d753f45e3f2a4c9d18b253a3e1d016c5f2e57",
+      "originalSha256": "9724ba0e67fe5d18e715cf54764d753f45e3f2a4c9d18b253a3e1d016c5f2e57",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-scoreboard-a5/interior.png",
+      "bytes": 1431464,
+      "sha256": "e22ce0c5d09c28fef1099e363b9709345b8f97a954c8d0a7bdb10f77ab12aa83",
+      "originalSha256": "e22ce0c5d09c28fef1099e363b9709345b8f97a954c8d0a7bdb10f77ab12aa83",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-scoreboard-a5/mobile-320.png",
+      "bytes": 193973,
+      "sha256": "cacdfcd32fc4064a4b115ce4cd23223e8bbde54f54cf9c0b934ab9477aec71c9",
+      "originalSha256": "cacdfcd32fc4064a4b115ce4cd23223e8bbde54f54cf9c0b934ab9477aec71c9",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-scoreboard-a5/mobile-390.png",
+      "bytes": 220922,
+      "sha256": "6946e5e373a3bb8b2eb2db8b4636272c8547db9e118d8c00904cb1b5a8895674",
+      "originalSha256": "6946e5e373a3bb8b2eb2db8b4636272c8547db9e118d8c00904cb1b5a8895674",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-scoreboard-a5/mound.png",
+      "bytes": 969590,
+      "sha256": "958bad8b40d159f37a97acc50d203c88c1c40532afdcc1ab57bc555e42aa08ed",
+      "originalSha256": "958bad8b40d159f37a97acc50d203c88c1c40532afdcc1ab57bc555e42aa08ed",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-scoreboard-a5/orbit.png",
+      "bytes": 934209,
+      "sha256": "2814314cf824c8ed7728b3318c09abcb1e1126dcec9b70cccd6006edd4b52830",
+      "originalSha256": "2814314cf824c8ed7728b3318c09abcb1e1126dcec9b70cccd6006edd4b52830",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-scoreboard-a5/overhead.png",
+      "bytes": 1316843,
+      "sha256": "93ad9dc107e56bdf87cf86479a4a595b32c075839c7e138fd201dacdefc5a892",
+      "originalSha256": "93ad9dc107e56bdf87cf86479a4a595b32c075839c7e138fd201dacdefc5a892",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-scoreboard-a5/report.json",
+      "bytes": 12543,
+      "sha256": "f9464e7d61c9e9fbfa21f7f570238d3cd8977a9da46d1d7a17ab06cb82deb7f0",
+      "originalSha256": "f9464e7d61c9e9fbfa21f7f570238d3cd8977a9da46d1d7a17ab06cb82deb7f0",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-scoreboard-a5/scoreboard.png",
+      "bytes": 1041725,
+      "sha256": "cf86052f00bafef921b8b9f80607e9e1d2f72c4a1ced2a953cdc0dac0aa9eab5",
+      "originalSha256": "cf86052f00bafef921b8b9f80607e9e1d2f72c4a1ced2a953cdc0dac0aa9eab5",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/architecture-scoreboard-a5/stadium.png",
+      "bytes": 588672,
+      "sha256": "2493ea9b8546bfeb5ccef6ec3eb43f400fd41dc92de80b485346172c5b447af8",
+      "originalSha256": "2493ea9b8546bfeb5ccef6ec3eb43f400fd41dc92de80b485346172c5b447af8",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/attendance-architecture-a8/report.json",
+      "bytes": 339,
+      "sha256": "067de06442285bd0db6424a0d8d5bcc94d3bf7ebdf63f35d3b0192107a76627b",
+      "originalSha256": "067de06442285bd0db6424a0d8d5bcc94d3bf7ebdf63f35d3b0192107a76627b",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/attendance-final/report.json",
+      "bytes": 335,
+      "sha256": "e50f588f8b2aba8de86e062411ac2d2b18c633affafbbbe19de49f1be76f86bb",
+      "originalSha256": "e50f588f8b2aba8de86e062411ac2d2b18c633affafbbbe19de49f1be76f86bb",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/browser-architecture-a6/report.json",
+      "bytes": 900,
+      "sha256": "a9e9817fbbb3b526f8d2143fd2fbe832749291a6b8c77a9b7536077f5e49244c",
+      "originalSha256": "95edc46bd58e4a09507285b5cd21696236e42ef8d8600cb76aa75d7c8eadd95e",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/browser-architecture-a7/report.json",
+      "bytes": 900,
+      "sha256": "849680c4a30fe4e53785af1e168ff94ded88522c2808084438c1785676c78946",
+      "originalSha256": "026c9d6f1457f21989f578bf9d4295aea8b7b76847a1aa583108d68a8a11adf5",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/browser-crowd-final/report.json",
+      "bytes": 900,
+      "sha256": "3c6d99acf2f34028795bbf245d837bc1a27ec71f4912cabb8d91765954c7b53e",
+      "originalSha256": "732fa31627b8350a733d5d9354d8f33567257616cdbeb0fb40c864b7bbc1422b",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/browser-crowd-tiles-lit/report.json",
+      "bytes": 900,
+      "sha256": "8873e8e209905cb8e2f77ef672d8ef385613be0fcd50e3d2fb11be845cb55917",
+      "originalSha256": "11c7ae3f57abbf3ad922001eb20bfa984e6d1d18ef03891055fdae3ef3a54121",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/browser-drag-visible/report.json",
+      "bytes": 884,
+      "sha256": "ab2087551f818b0e4f8909c6c8940251b3eafb19e2adeb35b300972b78cbcb1b",
+      "originalSha256": "10b12f3491a3a885d20f7dda6a1b8970ff9d342825f2e7ddb1eb78bab639b131",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/browser-final/report.json",
+      "bytes": 18208,
+      "sha256": "b2ef53740f6a70727d1019e929c1a4c89784c8ba22c96a6b3b7f73030a8ea070",
+      "originalSha256": "1339a248b2e7f0e2ccf17badcfa8c17a2fbe24fc4062cec5df0236e8eb70132d",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/browser-first/report.json",
+      "bytes": 835,
+      "sha256": "e4cd9cfdf2d9a0c23e3be8b30d2e16ebf17a17316fafc2655af33be8eef311be",
+      "originalSha256": "8a84b57c17da9c41a20ddb6b05b7709f20f6b69ab5127941290efa89612bbcad",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/browser-surface-mask/report.json",
+      "bytes": 900,
+      "sha256": "292351fc43809e461007b2ee5660ee56a59e3f37565b2f12ee37ddec4ded8999",
+      "originalSha256": "c1a204b5760c70c80ffeb30bd8f727461259455893d7381549eb9773b61ff83f",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/browser-v2-regression/report.json",
+      "bytes": 903,
+      "sha256": "f3b10c44e6ee5b9997787de47f401e14fdadfc529f7bc6e5a5a1511ccd3b6b79",
+      "originalSha256": "2fde724aaf04f6c6e0587a5806ea46c1d382447fb01eb54cb3871eeca6e943de",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/browser-visual-tuning/report.json",
+      "bytes": 900,
+      "sha256": "0923da029862a8c461d998f1c25f2f391992e9abeb7d033c4bd3d994e78ff033",
+      "originalSha256": "9d9d7fdc527bc6ad1645f47c31b7bad349cd4c080d53a6b561e9707ee9a60831",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-accepted-grass08.json",
+      "bytes": 9135,
+      "sha256": "4b01ecb4333e99d3c2d20922bb5724d335a166a373f17c02a04f660119597050",
+      "originalSha256": "fd50d2cb4a123ae692d856934fe869d0dbf181b87b00067f265a520937e7551e",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-architecture-a1.json",
+      "bytes": 8793,
+      "sha256": "08c2de8473b2f372ae959362bf168f9469df8b8ae9bd8ec854803d124f4b82fd",
+      "originalSha256": "c208ed4a33758cb4625770cc3f29e09cf8f7a1a882763bf91f9d22a6785b2cd9",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-architecture-a2.json",
+      "bytes": 8793,
+      "sha256": "980e6bd604845fdc72e5f34b1cf12d9e7f9a745c5db517ea16d80b647988461b",
+      "originalSha256": "d2a6e05243525cb9695dcc18c215aead7f37f3ccd823ecefb76bcd7172adf275",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-architecture-a3.json",
+      "bytes": 8793,
+      "sha256": "0fec432620cb7bae413510baa2dd289daa203d1b9374079d03dcffbab5337f0c",
+      "originalSha256": "677a0af2611bf2ba29d2eed5bf4124cb91f4fc5b8b346b6896b802798bb8470c",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-architecture-a4.json",
+      "bytes": 8793,
+      "sha256": "f32d4171250003c19795e7af9b535b2b0682d48029d0251d441cbaa006f3e05f",
+      "originalSha256": "54bf16223c2653ae00358f04adbef1d0365fb56b23edc1a59661dd2395671b84",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-architecture-a5.json",
+      "bytes": 8793,
+      "sha256": "46755306bad32ebea148e791c49c9c8bc49590b72fc08161852b87edbab70e54",
+      "originalSha256": "00b4cac02ef3f68c8de02f969045982e5b98610078303da080ad2fb8de5c3bce",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-architecture-a6.json",
+      "bytes": 8793,
+      "sha256": "65006c8380ad7e25d17fd56d0bc46f04bde2f398e49ef74f34752667a86337fa",
+      "originalSha256": "7e07c2443ca1a484fba0ca73d20670acd8763f857a8f52d141437573bd8ea05d",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-architecture-a7.json",
+      "bytes": 8793,
+      "sha256": "722318134ecf09cd7b632cbf685423a32b78174117b1f11baec9cf9d6d4bda5a",
+      "originalSha256": "51ae15f0ef498135a0a1af235aa7d65b7fbf8fad6ebbd26134c30be4cfa60c1e",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-architecture-a8.json",
+      "bytes": 8793,
+      "sha256": "f15afa8364c94405bdbfc414bf345370d2f325f3c6edad3193933a0c2825e1a3",
+      "originalSha256": "81a3c563159c391c508fbf60669008d2b9906f8c8fe97c8558799fdcb46e75a4",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-attendance.json",
+      "bytes": 8702,
+      "sha256": "c90955f484e11b68dd2aa4ee98b9c2dd989e69534c5aeaae83ad309ebdb77367",
+      "originalSha256": "e247a5727075d76e8dd23413d50ad20a80fe25b41f8fb499505351dc52f9e6d9",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-crowd-final.json",
+      "bytes": 7882,
+      "sha256": "5da4f33353551749adb925ebd085fdeb942130e2a037759f3615dd549b0df338",
+      "originalSha256": "d50124afd653c27511270024a100cdad185e8b778625bb347858f2cd6c2adfa1",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-crowd-first.json",
+      "bytes": 7882,
+      "sha256": "6a1fde6e86df7c4f5d6db0057669b5b6835bf08a02d87dcba3e207f9506edf12",
+      "originalSha256": "ac40409c63bf2fa2734c09fd9179e8e0085a9fc5b99b1a08c6da3170ce776d98",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-crowd-observed.json",
+      "bytes": 7882,
+      "sha256": "66bca06c6ddb9f3794691757777ab9013b0d286b5a4ced0849eb2fa0da40badd",
+      "originalSha256": "a18937bf757bc22bd6db33b6064884247a2a1026bb3e2bd9ecbe0290bdb27898",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-crowd-tiles-first.json",
+      "bytes": 8702,
+      "sha256": "3f7b87607054c948908cbdd30155785c48395245c4b329a6c04054eb27667f58",
+      "originalSha256": "276ae329f158ba49dba7d5d5a02752fd648b77c711d941f9fffdc3aadff94620",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-crowd-tiles-lit.json",
+      "bytes": 8702,
+      "sha256": "d74642b3d7069f99e294d03ca7e944f615791ebd2727141ed90982996c7691e6",
+      "originalSha256": "3481dcdadc29f79c45fedeb31b1b65bc4d581468eac8312ae6d13091cb931337",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-dome-first.json",
+      "bytes": 4633,
+      "sha256": "2e3f0f54dca02dc125baf75d2b9c4161f121107516bb4a4e4f903f174ed6e755",
+      "originalSha256": "9621b564eb782368cacf519afe8c123c0756845fe0e6e489e377856b0cfb5e67",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-dome-lattice.json",
+      "bytes": 4633,
+      "sha256": "fa01d41d3e3f84878dbc057aee7ebc16208a1e45995c5c9c54785f78f62483c1",
+      "originalSha256": "328c6b502b90e78ab9e6aec09825330016918cb6b0552deda6f97b200a366baf",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-dome-seams.json",
+      "bytes": 4633,
+      "sha256": "a8931fcdc72466f913680076891aa97d5e081d4a618daf8c7734177abfb459ad",
+      "originalSha256": "6eda0a601a57348a74600bf18586e75d389c9f398acd9127bfb372a8a1d8b124",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-first.json",
+      "bytes": 3969,
+      "sha256": "8feba2a2255d8727cb100a09c6553f85c01511823597685ed1252d7da1420525",
+      "originalSha256": "710f738d619e969e3f3e69f97e321e1ba7e1b6f705473e69cf254c04ef1cd3ee",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-gold-image-blend.json",
+      "bytes": 4874,
+      "sha256": "74ba64ba053d0c9380cc73e04f468fab29eb3c54706dadcf0375e0905b843cdb",
+      "originalSha256": "8e408e4627f10eec4fd6cf090697f62f14d8a659fac7bb768c0646fca5304b5f",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-gold-image.json",
+      "bytes": 4874,
+      "sha256": "7b5b1ad57c6a5e283696ade98f2afeb6a05388bfd8e2a8376b08d7358a2602d8",
+      "originalSha256": "af6ffeb1be71df1aa26f23d39653140194d55e0aa62a00047b2295228b76cd32",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-gold-lines.json",
+      "bytes": 7775,
+      "sha256": "9f03bb001d24c51f2fe2c1318a9da88db09bfb010ad86c484c63c034ea727645",
+      "originalSha256": "12e7ed836752b58606f9bd96cfc65c67b3e8aa254e65d678192a20a5c8b36cac",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-gold-wolf.json",
+      "bytes": 4858,
+      "sha256": "9139b53ae134255e89214f40eb8c295a17d743d5da6d4b7d1797fcb9f321c57e",
+      "originalSha256": "e4c1a12f4308406a4fa86ea12684ee58b41d42429443c7e54588c571f30ad756",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-infield-logo-first.json",
+      "bytes": 4861,
+      "sha256": "99e6c44aa67270c4bd48c9e1acee11e623a6dd390749859b6f85fab5b073142e",
+      "originalSha256": "b96a0158f38124775a73c31457d8285287b18b710534a46dea3b3dee5cc5e79e",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-inspect-api.json",
+      "bytes": 3969,
+      "sha256": "38f1452d03d32bfca348db2650b6a0c1cdc51d93f488f1d08c11a55b631b0a55",
+      "originalSha256": "6cf8f643a312fe8b981588b05c9e142534e7bbca20fd396ad7cab899c7c1e710",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-logo-lod-a1.json",
+      "bytes": 9023,
+      "sha256": "3f4bead5726dc46bcc2ae2d5de667cca758aaf55f276791841925c6bc2e29b57",
+      "originalSha256": "40266a07715c58deee5f3a043f6d763fcd8f7c399eea522667a9973f0f227c83",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-logo-lod-a2.json",
+      "bytes": 9023,
+      "sha256": "64273b2f192088bd54a91a81642cae76670fb43ad99da064e2447ee4f5ceae79",
+      "originalSha256": "3d8945af4b28d38cc784b21ad1f205735468585f23b6077503fe23f6780fb307",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-scoreboard-a1.json",
+      "bytes": 9135,
+      "sha256": "8fecd19c35f9116d60b0734b370704753fe490216a2619bc95899f220e1a0d00",
+      "originalSha256": "925afb9d50c6d58dbeefdde3c2332ed635cb9e3578a14d83d1749fbdb8654e5d",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-scoreboard-a2.json",
+      "bytes": 9135,
+      "sha256": "a18a321a634b35d81172af335fef46a855ba17122ed7d0160880782c45b9a7fb",
+      "originalSha256": "4872f2fe810f6d8ed3643cc34dbbf9f32b282dd27e3dd69fdb85241b859a2e50",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-scoreboard-a3.json",
+      "bytes": 9135,
+      "sha256": "9a6bbcc226b7dc965d63c4c27d30bf84ee627fb17b5ad08a5782e04c383e361a",
+      "originalSha256": "4cdee0e004a2e3c8bbddb6ad473bc8e30ffd1639c74fa93c9b55d50ac230ee5f",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-scoreboard-a4.json",
+      "bytes": 9135,
+      "sha256": "9752a802af2979e5c75a9db06f0b4170d2ad3b63b450aa613265a13f14173dcf",
+      "originalSha256": "8f7d797b00da47485d0d428491bc7c7ae0bfe9a2eb6c8fd6518aa628090f3946",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-scoreboard-a5.json",
+      "bytes": 9135,
+      "sha256": "42b94dc298303949cacfd60f23367e445d6d413d6e4a8d9456d92735251d313c",
+      "originalSha256": "930c084462fd59c56a181d7add45737bab4c297cf183bed1a99267f978d688ea",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-surface-depth.json",
+      "bytes": 6995,
+      "sha256": "6006a614061be00052054b90da77390de8dc0824ea016611d6b0a64d4d1cc0ad",
+      "originalSha256": "0dbdc7a8fc5a4b8a8d739f3f257f4531f3f3294b2c5b89110759645778443c17",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-surface-first.json",
+      "bytes": 5905,
+      "sha256": "1f8223ddd766f35e46a3406394705e954de2be6a57b57e448ca390872ab8d1a2",
+      "originalSha256": "8155c7663ad1130f792ed269474379201143ca30afa2857f44f7b672ede67320",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-surface-mask.json",
+      "bytes": 6995,
+      "sha256": "3be408bb3d779b4373d9f8be7c07e9f83723ee1fba4b33d3ddd3c51119125565",
+      "originalSha256": "3bc435fb9fd5f3c2a9d71ca92f6126382947260d95c06475a2a662c8d4d8e581",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-visual-tuning-first.json",
+      "bytes": 7882,
+      "sha256": "5c057b7c3503256c8a402dd21a8935d8ac7e36eff339de6c5a3e4515a4841aa8",
+      "originalSha256": "c24031a129bc395192478c8ec87ea01b8a522a9436b0c238b9da3ff7c375109f",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/build-wolf-only.json",
+      "bytes": 4862,
+      "sha256": "e7be14ed0235ea04215fd373334c6970cdcad42fcc879f743b16877e0b148cd1",
+      "originalSha256": "cefe9a1ae1a61037f69536edc576e640c1c051314545c4e0b1a9b08e7c1f4545",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/crowd-architecture-a4/report.json",
+      "bytes": 676,
+      "sha256": "c603496e2e0fe87f8c00d33ec24410587fc3d8bcba27983f3549217e5bb5c69f",
+      "originalSha256": "c603496e2e0fe87f8c00d33ec24410587fc3d8bcba27983f3549217e5bb5c69f",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/crowd-architecture-a6/report.json",
+      "bytes": 676,
+      "sha256": "8e7b993e6770ec0d4d9c09e5d4fe7bd3aadf5dd0220e421fd398c5e4610696f4",
+      "originalSha256": "8e7b993e6770ec0d4d9c09e5d4fe7bd3aadf5dd0220e421fd398c5e4610696f4",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/crowd-architecture-a7/report.json",
+      "bytes": 676,
+      "sha256": "3b498278c2976f597178914e7e1024ed633af84da2e3504ee0d846ddd4cfd632",
+      "originalSha256": "3b498278c2976f597178914e7e1024ed633af84da2e3504ee0d846ddd4cfd632",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/crowd-attendance/report.json",
+      "bytes": 676,
+      "sha256": "bb7404a46e387f64df31257b1ad599d20aedaca6cd916632dd68e161e02f8ce7",
+      "originalSha256": "bb7404a46e387f64df31257b1ad599d20aedaca6cd916632dd68e161e02f8ce7",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/crowd-blocks-architecture-a8/report.json",
+      "bytes": 1063,
+      "sha256": "68c5e8863f0bd94bb3dd1be7f6c64283c12bf3e4901b0509fce5fb99a7e21c94",
+      "originalSha256": "68c5e8863f0bd94bb3dd1be7f6c64283c12bf3e4901b0509fce5fb99a7e21c94",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/crowd-blocks-attendance/report.json",
+      "bytes": 1004,
+      "sha256": "969813ffe7c04f6b376511a3ce3c5fda4fa8e29515831348801ad016a9c6560e",
+      "originalSha256": "969813ffe7c04f6b376511a3ce3c5fda4fa8e29515831348801ad016a9c6560e",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/crowd-blocks-lit-proof/report.json",
+      "bytes": 950,
+      "sha256": "3b2e98e45eb4741a82419de26de37d52f6453f155b8c8e3ac37ac05cbe88bb38",
+      "originalSha256": "3b2e98e45eb4741a82419de26de37d52f6453f155b8c8e3ac37ac05cbe88bb38",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/crowd-blocks-logo-lod-a1/report.json",
+      "bytes": 1063,
+      "sha256": "440162075e8c1b3b5f65728584f59aee1d1ca460027914a3c8b3a9617b275c9e",
+      "originalSha256": "440162075e8c1b3b5f65728584f59aee1d1ca460027914a3c8b3a9617b275c9e",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/crowd-blocks-logo-lod-a2/report.json",
+      "bytes": 1063,
+      "sha256": "45b6cec9a4341bd01c227ded065bf90e1d3b2d82ff34a47f44177cdd64a9ddcf",
+      "originalSha256": "45b6cec9a4341bd01c227ded065bf90e1d3b2d82ff34a47f44177cdd64a9ddcf",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/crowd-blocks-scoreboard-a4/report.json",
+      "bytes": 1063,
+      "sha256": "b39d337e6cc6edda6fba381a9f91c1e701d9026a6c8411ba956d27e553700edf",
+      "originalSha256": "b39d337e6cc6edda6fba381a9f91c1e701d9026a6c8411ba956d27e553700edf",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/crowd-blocks-scoreboard-a5/packed-glowing.png",
+      "bytes": 840677,
+      "sha256": "fd7f0189b0597c9aaf8d448987d7b2dfe1b42bc49ac7c7cfa6f3ee48ba02e288",
+      "originalSha256": "fd7f0189b0597c9aaf8d448987d7b2dfe1b42bc49ac7c7cfa6f3ee48ba02e288",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/crowd-blocks-scoreboard-a5/report.json",
+      "bytes": 1063,
+      "sha256": "d4d85a4fa344c05744a4e3c6eef5d458814441574583a2d9559862c271172b69",
+      "originalSha256": "d4d85a4fa344c05744a4e3c6eef5d458814441574583a2d9559862c271172b69",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/crowd-final/report.json",
+      "bytes": 676,
+      "sha256": "97ac897f97c630fe7fb8e2ec6d98e135534a4fbfe1e6c3fd6ef2fee62b7b9f8b",
+      "originalSha256": "97ac897f97c630fe7fb8e2ec6d98e135534a4fbfe1e6c3fd6ef2fee62b7b9f8b",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/crowd-observed/report.json",
+      "bytes": 676,
+      "sha256": "4474761a30c2a5d5ad4d3c8027e1d56cca3923d0e63d810bd040163fb81971c1",
+      "originalSha256": "4474761a30c2a5d5ad4d3c8027e1d56cca3923d0e63d810bd040163fb81971c1",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/crowd-tiles-first/report.json",
+      "bytes": 950,
+      "sha256": "8c18b8a5f24f2f680bda6fd8d582b74ed2778028f0331dbbdbe3a88a4f0dbf8f",
+      "originalSha256": "8c18b8a5f24f2f680bda6fd8d582b74ed2778028f0331dbbdbe3a88a4f0dbf8f",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/crowd-tiles-lit/report.json",
+      "bytes": 676,
+      "sha256": "fb4f9fe8749de42d3258948130c9e118602c27e67dd498a11148b010cde918a7",
+      "originalSha256": "fb4f9fe8749de42d3258948130c9e118602c27e67dd498a11148b010cde918a7",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/crowd-tuned-first/report.json",
+      "bytes": 676,
+      "sha256": "615ce28b69ad3c0164596f1a0d9c5aed68b056698dce5694fc6e0d5ec908a1dc",
+      "originalSha256": "615ce28b69ad3c0164596f1a0d9c5aed68b056698dce5694fc6e0d5ec908a1dc",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-architecture-a4/report.json",
+      "bytes": 4500,
+      "sha256": "695b7313768887c4ffa07548713f8b4bc93966e7dca598867f0640be746e8888",
+      "originalSha256": "78b12c4e1767e0cec51c11951e35bb087c95301516356df2139e7df8ea910091",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-architecture-a6/report.json",
+      "bytes": 4630,
+      "sha256": "9d9344a30f5395f638d32312e4159b132e1f1df5725df10bc6e7b3d64a48f369",
+      "originalSha256": "52f4d87dd4b4ed2fd71a6d3adf2d8f07f96baaaeb9f8a3fb6a96637b95c29d9a",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-architecture-a7/report.json",
+      "bytes": 4630,
+      "sha256": "7a124f402b6d7f45fe30bf25eb473f44fc228d32959e0e9a75ae9bf991b6cb5d",
+      "originalSha256": "215bb9cbe43847ea8ca7bceeee7031606db4b0ca2da5d511ca2f2c02c63431ff",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-attendance/report.json",
+      "bytes": 4042,
+      "sha256": "556a06205e80032eea95c1b6d4aad07245860adbfcdc9713751681d4f25b7d73",
+      "originalSha256": "e9b41d17b179a4876857a2d25a06debae14fdd066a5060459e8109d015bd8753",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-crowd-final/report.json",
+      "bytes": 3385,
+      "sha256": "4c8c271e79ad0611be77b3b056e83044387c763ed827da140d6992e119e57241",
+      "originalSha256": "c0e7e828528cb546627a326df1bf21c197e0f65404ed1c9ed5d9995315a4b4dc",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-crowd-observed/report.json",
+      "bytes": 3385,
+      "sha256": "acacab015d9facc69abded5d26b4b85e44d7098f4e4e92acffa6630147c7fd40",
+      "originalSha256": "831f4745571e032041ce59dccbadd733b6423d5b0065ed78434da7d49d21a623",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-crowd-tiles-first/report.json",
+      "bytes": 3983,
+      "sha256": "74f3df7bcad55d749f5beaccc033c2959a56e0e86709bea5d70abbf72d91a10b",
+      "originalSha256": "5e508fbb9da0d39d22135f0e396ebd2eb0cb629b5924b3ab9193512eda48d460",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-crowd-tiles-lit/report.json",
+      "bytes": 3984,
+      "sha256": "12cf50cb86561642ba68760a7b61a4467fcd3a1dcc584ffdf6a923e072c35965",
+      "originalSha256": "c1ff1ea1bf94f06caa36e57a6c165f5fba82831924019d164e5bc75e37d9a77e",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-first/report.json",
+      "bytes": 1719,
+      "sha256": "6474b0f2c5bd04b9280ec70f3aa4349850cb63fcf7680abbfd88118303f87237",
+      "originalSha256": "de320645e921f1b5a1d5dae39cc1d890f79d27ab3355d2c09952150bbe254dd6",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-gold-image/report.json",
+      "bytes": 2047,
+      "sha256": "c32504b43a25c1ed19bae54e4dab3fdf1c4825b61671cd3d4953e0d7dfbdd7cf",
+      "originalSha256": "e8ffef659126d91b705ed37a076915a41b256d89b3da2ac2cd224cd4cadffc60",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-gold-image-blend/report.json",
+      "bytes": 2046,
+      "sha256": "0782c3e286541cc280fe2c43f1a5f6f464bcdcb3089e9caf341d783a88418680",
+      "originalSha256": "ecca42f631f5e2afb6b9420b07da970802c0ca6eef1d8c116ef85e5050ee7ff1",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-gold-lines/report.json",
+      "bytes": 3212,
+      "sha256": "416d134f6db106d39284c570e50f323643d284a132169d5c1150b51c22902410",
+      "originalSha256": "f7638c7d034665433b7c64cdf7f2d30be6c314e4eaf0fa0e02bfed8b9bd44ce9",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-gold-wolf/report.json",
+      "bytes": 2041,
+      "sha256": "ac5f4a6aa7d0f8dd94fd386ae5f392302102dbacce82736c4b6928ca778983e0",
+      "originalSha256": "71fba761a2f80415cf6a1b012a79ca2d9a95e752eddf5afd5d31c012f6f9824b",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-infield-logo-first/report.json",
+      "bytes": 2009,
+      "sha256": "cff3c311b81d3fc91e296dd451a822595b5db5c4da83336c279ce610a6ea84d2",
+      "originalSha256": "042ab5e7544d45600c2e74b0aac5eaddb725b27263ae74e42c42554086985e33",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-lattice-final/report.json",
+      "bytes": 1719,
+      "sha256": "e349a96b606b0ef7081a9c0fe48a5cb95c0a1d7b6e2eb1f8b407c54a87da4560",
+      "originalSha256": "e44d034174a28bef29ff452f2fad8d0fa8c4e28aca05214a84dc49a5f97c4c5f",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-logo-lod-a1/report.json",
+      "bytes": 5714,
+      "sha256": "9f64da2aea71092942689c8f8504fdbdc3d3e72bf48fea9793b5a3ddad5f5a02",
+      "originalSha256": "88e30098b2d4a011011d4a1be5b0a5cce01cd468b248eb4d14cc051de711c8cd",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-logo-lod-a2/report.json",
+      "bytes": 5767,
+      "sha256": "1e3e4040c558bb560372b8160e3ae13a84f8163a6745cca69035912a07c91d7a",
+      "originalSha256": "0b6fdbbb6b1b3bff3a9061f6e0c0c333633a07d31e936966696ff704566f33d8",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-scoreboard-a4/report.json",
+      "bytes": 6536,
+      "sha256": "e3fcc4e38370f7ed1ac6688c0deefa8bea741bfec0311f6b97d845345f0415d6",
+      "originalSha256": "ef48a0aa18a0d65045e8aadc1290ad1ef95d59bd69285890f25ceff1e4d81d7d",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-scoreboard-a5/report.json",
+      "bytes": 6554,
+      "sha256": "64a2613091df032e6dcdc1b3c908a311ba600a556e360d66d90beba79891a725",
+      "originalSha256": "67953432b296913bcd341967701dcdbfe9ccbdfcdc92a47ec607974021fb433a",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-seams/report.json",
+      "bytes": 1719,
+      "sha256": "d919bed85a3d20e2d4d4a02fea7bb205b91610130ceb8cc2e88986faca78cc63",
+      "originalSha256": "9de767bb6e9c7478f322bff547915731b17cb22ce0b657cc17b3cf89da51f0a8",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-surface-depth/report.json",
+      "bytes": 3060,
+      "sha256": "d1bc0bb6fee4bbdf143b1026e48f0d78ca27ff2e4a56423dc675426def8dcfc3",
+      "originalSha256": "e2892c082fb5534bd9e6e2610f2ec7cc6a03b5e706e44b0ffdc22abb70136c37",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-surface-first/report.json",
+      "bytes": 31691,
+      "sha256": "0f439594c3e888ba1a2274c5ed69bdb5f9455f383e1532321f929847eca633c3",
+      "originalSha256": "27655b9a787cc4aa15b1b9579f9a8a0038f91f276e800053e1803eb983e09912",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-surface-mask/report.json",
+      "bytes": 3212,
+      "sha256": "9e221d528f2f547873bbbb93de862732b7cab92468740b934ab3972ef3e31562",
+      "originalSha256": "32aa3af5ad26113c35dde295fcf925eb60742bd008a2691d37b0f5fd6803fce4",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-tuned-first/report.json",
+      "bytes": 3632,
+      "sha256": "ea4ec701f7891019efee549f97c260e5963d4a5c0dd38770c054919c4c2e1e45",
+      "originalSha256": "adc49367d5b990417b54df59485492753e7b6f681463c66f4819072a9dc27480",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/dome-wolf-only/report.json",
+      "bytes": 2012,
+      "sha256": "d4a9f040de1f016a54f1d1883fc538c3b0b17f3e08cd2ed04da026efe5a3c1b7",
+      "originalSha256": "2a267c4159806415d94df83b7b0222613f70893e9474aae058621a933be925b3",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/glow-diagnostic-overhead.json",
+      "bytes": 3322,
+      "sha256": "ead2a9706d68af83221f0b8e836a1046678aa1bf948dbbbf6ac493029da8f42a",
+      "originalSha256": "ead2a9706d68af83221f0b8e836a1046678aa1bf948dbbbf6ac493029da8f42a",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/glow-diagnostic.json",
+      "bytes": 1321,
+      "sha256": "5ff770a4e1b105095b831f45216aa60987b183c654351d9740d98f35c3c19ae5",
+      "originalSha256": "5ff770a4e1b105095b831f45216aa60987b183c654351d9740d98f35c3c19ae5",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/gold-lines.json",
+      "bytes": 294,
+      "sha256": "132b89a98d641857f24262c28c44c626a8737ac2e105ea61bd8559f981d00f85",
+      "originalSha256": "132b89a98d641857f24262c28c44c626a8737ac2e105ea61bd8559f981d00f85",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/logo-lod-a1/report.json",
+      "bytes": 1687,
+      "sha256": "1f343272c05f546ac126ac09e68c0e3a23b7af712d2fba567b2d686e11dc9664",
+      "originalSha256": "1f343272c05f546ac126ac09e68c0e3a23b7af712d2fba567b2d686e11dc9664",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/logo-lod-final-audit.json",
+      "bytes": 983,
+      "sha256": "d2a74fbaed6dfd31cf0fb807d3cb1b632067c61c5c7ac6c7a35a6f66407a9355",
+      "originalSha256": "d2a74fbaed6dfd31cf0fb807d3cb1b632067c61c5c7ac6c7a35a6f66407a9355",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/logo-lod-logo-lod-a2/after-interior.png",
+      "bytes": 1419450,
+      "sha256": "0b1156e970abd8b90815e9a4645aa8fe77dfeb0d34876ce896cba77f7af39b31",
+      "originalSha256": "0b1156e970abd8b90815e9a4645aa8fe77dfeb0d34876ce896cba77f7af39b31",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/logo-lod-logo-lod-a2/before-interior.png",
+      "bytes": 1412696,
+      "sha256": "50600fb1c5058167650c263fd6cb6c5ae31f977c310b72ee7292e35edd65b85b",
+      "originalSha256": "50600fb1c5058167650c263fd6cb6c5ae31f977c310b72ee7292e35edd65b85b",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/logo-lod-logo-lod-a2/report.json",
+      "bytes": 1831,
+      "sha256": "f7dc6f9ab8a6b5a71e380e03b61712c049662a69088f38649b4348e568ec874b",
+      "originalSha256": "f7dc6f9ab8a6b5a71e380e03b61712c049662a69088f38649b4348e568ec874b",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/logo-lod-logo-lod-a2/zoom-0.5.png",
+      "bytes": 1016047,
+      "sha256": "5585e881980e3213eab96de63ea44a82c7cc843de1a6ad4d6620764010c0ed65",
+      "originalSha256": "5585e881980e3213eab96de63ea44a82c7cc843de1a6ad4d6620764010c0ed65",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/logo-lod-logo-lod-a2/zoom-1.png",
+      "bytes": 1419450,
+      "sha256": "0b1156e970abd8b90815e9a4645aa8fe77dfeb0d34876ce896cba77f7af39b31",
+      "originalSha256": "0b1156e970abd8b90815e9a4645aa8fe77dfeb0d34876ce896cba77f7af39b31",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/logo-lod-logo-lod-a2/zoom-2.png",
+      "bytes": 1206397,
+      "sha256": "2c484681c4341dc5d007b03a06ace57cf62cf7930f8dbe6ab966c77258085352",
+      "originalSha256": "2c484681c4341dc5d007b03a06ace57cf62cf7930f8dbe6ab966c77258085352",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/logo-lod-receipts.json",
+      "bytes": 13155,
+      "sha256": "df20f48b73a35ed29c4ff094ab8ebf2ef937c4d516fd79dc60cccd1ec083e5c2",
+      "originalSha256": "b11e3f75b116a82b9cc1a9432021400d3f9ed122aa93fb99a968171366f86955",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/roof-depth-architecture-a4.json",
+      "bytes": 328,
+      "sha256": "e21d6aa646bda54292a412eb793d7bb7a58b777c386ac312f704b0963fad55b5",
+      "originalSha256": "e21d6aa646bda54292a412eb793d7bb7a58b777c386ac312f704b0963fad55b5",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/roof-depth-architecture-a6.json",
+      "bytes": 328,
+      "sha256": "49c495231c70c72ca770fd3c6b464922778a2aaa2b41aee1068db60520eada51",
+      "originalSha256": "49c495231c70c72ca770fd3c6b464922778a2aaa2b41aee1068db60520eada51",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/roof-depth-architecture-a7.json",
+      "bytes": 328,
+      "sha256": "267081d7d77665ab8a0797402cb085fe4701d992e875b98b41a76fd8aea3e83c",
+      "originalSha256": "267081d7d77665ab8a0797402cb085fe4701d992e875b98b41a76fd8aea3e83c",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/roof-depth-crowd-final.json",
+      "bytes": 328,
+      "sha256": "d93af656198c81ce927f2ac3f9111bb412d956fc733290202d554aadd2691565",
+      "originalSha256": "d93af656198c81ce927f2ac3f9111bb412d956fc733290202d554aadd2691565",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/roof-depth-crowd-observed.json",
+      "bytes": 328,
+      "sha256": "952e0fa0ea83d1391e3fb591c376a3b1b4222a271dd8e072275ae5d883a1fdf2",
+      "originalSha256": "952e0fa0ea83d1391e3fb591c376a3b1b4222a271dd8e072275ae5d883a1fdf2",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/roof-depth-crowd-tiles-lit.json",
+      "bytes": 328,
+      "sha256": "e33d60b3080bbe2b81f8acbbed1950bb5d7acb21927d549766c11c936d43c2b1",
+      "originalSha256": "e33d60b3080bbe2b81f8acbbed1950bb5d7acb21927d549766c11c936d43c2b1",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/roof-depth-lattice.json",
+      "bytes": 328,
+      "sha256": "16bcc6dadd7750d3ce3f82772e917121d5aa7283a06e2002b79d6731ca076427",
+      "originalSha256": "16bcc6dadd7750d3ce3f82772e917121d5aa7283a06e2002b79d6731ca076427",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/roof-depth-surface-mask.json",
+      "bytes": 328,
+      "sha256": "8275aa0befef617f20503f01018c080af891f2704ceb02515d20b2855f9bf9cf",
+      "originalSha256": "8275aa0befef617f20503f01018c080af891f2704ceb02515d20b2855f9bf9cf",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/roof-depth-visual-tuning.json",
+      "bytes": 328,
+      "sha256": "ca8064dd6fe8e6f48c0fa9bbca759dffd7bac5ae88074cd0cd8232fc73a045c8",
+      "originalSha256": "ca8064dd6fe8e6f48c0fa9bbca759dffd7bac5ae88074cd0cd8232fc73a045c8",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/scoreboard-final-audit.json",
+      "bytes": 777,
+      "sha256": "6b1b44ab4657f01e0f3cbf126d27eb04833355bc01aed5afa0174357d50b1da4",
+      "originalSha256": "6b1b44ab4657f01e0f3cbf126d27eb04833355bc01aed5afa0174357d50b1da4",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/scoreboard-receipts.json",
+      "bytes": 16439,
+      "sha256": "a87e077929242436d8909527eff17f2cf0acdb34e551bd2ea0496bd0a1591840",
+      "originalSha256": "1dbdb51fefd18b44c89bc19fbd1d7eea9ce02efd41334033b187e12d7ac84f52",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/scoreboard-scoreboard-a4/report.json",
+      "bytes": 1183,
+      "sha256": "35b69ee47362f6e5551f0b21d4657857f578c773ad8414bd3f603656724ee1ba",
+      "originalSha256": "92b1676737d36a036d3196ecee8fd65ce685a476e4c853082b4ce4a6de33722f",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/scoreboard-scoreboard-a5/logo-zoom-0.5.png",
+      "bytes": 991653,
+      "sha256": "aad01d2d435ac99e36fb61bd0e6dd55f7a058662085d91df11a9c613e8da981f",
+      "originalSha256": "aad01d2d435ac99e36fb61bd0e6dd55f7a058662085d91df11a9c613e8da981f",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/scoreboard-scoreboard-a5/logo-zoom-1.png",
+      "bytes": 1043694,
+      "sha256": "5be581d0957683fe027bbaaf837db7f83ace22f776e13362721871b8081b70f5",
+      "originalSha256": "5be581d0957683fe027bbaaf837db7f83ace22f776e13362721871b8081b70f5",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/scoreboard-scoreboard-a5/logo-zoom-2.png",
+      "bytes": 999690,
+      "sha256": "ab09adde2a58ee2714887d88ee799134bf6f7b3243aa44aa0051481f96fd412d",
+      "originalSha256": "ab09adde2a58ee2714887d88ee799134bf6f7b3243aa44aa0051481f96fd412d",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/scoreboard-scoreboard-a5/mobile-320.png",
+      "bytes": 233440,
+      "sha256": "781022ab8002feac010ae542e7cc6cebc918e88d583d3c1d398fd40a90bf2ae8",
+      "originalSha256": "781022ab8002feac010ae542e7cc6cebc918e88d583d3c1d398fd40a90bf2ae8",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/scoreboard-scoreboard-a5/mobile-390.png",
+      "bytes": 282479,
+      "sha256": "249d17b0ed85ba55a9987b76fb6833086c6bcdd1f8ff40192a56faba6e0daadc",
+      "originalSha256": "249d17b0ed85ba55a9987b76fb6833086c6bcdd1f8ff40192a56faba6e0daadc",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/scoreboard-scoreboard-a5/report.json",
+      "bytes": 2553,
+      "sha256": "1861ee29bdd621fc327acaf150b565de70870ad8791e274b5ca9909a39681f01",
+      "originalSha256": "1861ee29bdd621fc327acaf150b565de70870ad8791e274b5ca9909a39681f01",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/scoreboard-scoreboard-a5/scoreboard-default.png",
+      "bytes": 1042537,
+      "sha256": "77fda303e412c9adc6c1092d1e8624b29381bef090925bd56853401867309390",
+      "originalSha256": "77fda303e412c9adc6c1092d1e8624b29381bef090925bd56853401867309390",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/scoreboard-scoreboard-a5/scoreboard-edited.png",
+      "bytes": 1043712,
+      "sha256": "47fce59165c2093fb65bd12378b6be3530521f5c02c03598ade48ec83d807694",
+      "originalSha256": "47fce59165c2093fb65bd12378b6be3530521f5c02c03598ade48ec83d807694",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/source-pins-accepted-grass08.json",
+      "bytes": 3478,
+      "sha256": "6660447fadca5cac63fd33255a7c00d986d2d10b3da82e776449f8a06fa5c447",
+      "originalSha256": "8bedf786c650ae47923ae8f7df592140b25b599345b60d8a632c9eb2eab4a29c",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/source-pins-architecture-a6.json",
+      "bytes": 3022,
+      "sha256": "a3ae756ccd535e4c43350b4c77d11a2619e75a4cb501bc9d1ebb069507dbc6b2",
+      "originalSha256": "a11a4992e94777b4a054a4a83be9506eb18c4276235c8ce2e4fa266cc6b2fc5d",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/source-pins-architecture-a7.json",
+      "bytes": 3022,
+      "sha256": "f78f0b173b858ef2f97dcbfc1a2d9cf67ff59f288ca8ea27cfe779a8d67d1711",
+      "originalSha256": "60a6b86b79cab101533db32578b6fb2951253609a7e14123b3db471b601298b5",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/source-pins-architecture-a8.json",
+      "bytes": 3022,
+      "sha256": "cc356e7127ee85f0cb92fce0f1c6496d3508f1d7c65202556f84b6bc1a62b6dd",
+      "originalSha256": "f9833de656a9ac5fd760491040003fe4abf93a9d28b766dc45415572ab26535a",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/source-pins-attendance.json",
+      "bytes": 3022,
+      "sha256": "ddc1b5df71cdbb8eaa7a631bc6a5d843808ef7b1ee0afb15e2cef8b221d50953",
+      "originalSha256": "6a74a8dc0606afaec5ededc752945ede249f06bd4b4eae8d41d849b38662067d",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/source-pins-crowd-final.json",
+      "bytes": 2871,
+      "sha256": "e2ae9cf6cb8200507b870f448ad457705d7347853ae4de794ad6b09452dbbcda",
+      "originalSha256": "e605a868960a653145032be9dafdb66b3785fc7322963d310ebfc285b4fe376b",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/source-pins-crowd-tiles-lit.json",
+      "bytes": 3022,
+      "sha256": "9bc55c4fc034c81ba199b3dd8c567107842e2bb44ef6c27734960ad3ade0adbc",
+      "originalSha256": "b6704ed142b8e17098ca2f55e478550aeab194f194343048b01e18703296290d",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/source-pins-gold-lines.json",
+      "bytes": 2726,
+      "sha256": "433edb8fbebf367115bdf24fd26f55e090027ea9cf4d613d483a044d8190b924",
+      "originalSha256": "f0914a4eb144286d0caf8b0fb6b3d596f48730bd196a4fe87dd244c215291274",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/source-pins-logo-lod-a1.json",
+      "bytes": 3328,
+      "sha256": "0559d50c54eb3e14b4e44f7bf060502e5c9e1a7df6d64bd5c94d1c23ca24526f",
+      "originalSha256": "16e8b1ed117c9a0cdbd807770ea682d624710f20ac290f82c9edbe653a7b210f",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/source-pins-logo-lod-a2.json",
+      "bytes": 3328,
+      "sha256": "c01be072d8ab96381bd108355509f5293bf387ee1ae0350a6151cdda92ada94f",
+      "originalSha256": "c5e50af07658eb02b56b73d4b603f5b09d3e563bf854be8adfe05f0e22672860",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/source-pins-scoreboard-a4.json",
+      "bytes": 3478,
+      "sha256": "e30128765e299343ca8444e955a649ee64f262ee7e6c0c0b6e61e962434d4e95",
+      "originalSha256": "e0964b9b1f219870bfec3120b263a3d9088c098fd72b76366e95c38216417c75",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/source-pins-scoreboard-a5.json",
+      "bytes": 3478,
+      "sha256": "8dc3a8a9d5fa7aaaac07a116264a949a3a43ca9c520efc21b6cdbc48fdffb48d",
+      "originalSha256": "3de848c94050b9c2dddeca3f24fc4ca90c442a0467654a826e780806652550a1",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/source-pins-surface-mask.json",
+      "bytes": 2726,
+      "sha256": "bfac9f750d830e8a6321e7791d43a4685f4d778344b50759dc9ab0c5923b252a",
+      "originalSha256": "e22710a2f2ce2f36ac7a9194101f10d771fbaa91ad8b5b3d4b000cc2f997f624",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/source-pins-visual-tuning-first.json",
+      "bytes": 2871,
+      "sha256": "aa83c15f185257a2287981c95ae18b7a76de99c7cfb24edae9b1e439fb7cfb2c",
+      "originalSha256": "5ac0ee9e54a5a324d61fd2ab24b4d02d2fe15b84beefa63b7c001641dec3cec9",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/visual-tuning-architecture-a4/report.json",
+      "bytes": 880,
+      "sha256": "538c1a4861f6119d0acb774ae31a614aeef273703e51ff34cf6b17618f0c2377",
+      "originalSha256": "538c1a4861f6119d0acb774ae31a614aeef273703e51ff34cf6b17618f0c2377",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/visual-tuning-architecture-a6/report.json",
+      "bytes": 880,
+      "sha256": "ec19ba43c86337ae66f085e2a83c2852c8a135fed2127899e39b3a0f72792e56",
+      "originalSha256": "ec19ba43c86337ae66f085e2a83c2852c8a135fed2127899e39b3a0f72792e56",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/visual-tuning-architecture-a7/report.json",
+      "bytes": 880,
+      "sha256": "dc0784482d9136072ba1514536e88340450a446b28a9285977e4da699fd72139",
+      "originalSha256": "dc0784482d9136072ba1514536e88340450a446b28a9285977e4da699fd72139",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/visual-tuning-first/report.json",
+      "bytes": 831,
+      "sha256": "8024e55fe1d7dd683534faa798aee3c72264f49068b09331a6146b38cb423158",
+      "originalSha256": "d5f5e768ae52e19c0d2f3109ddbb17d8fc328eb01c4cdd26ad5b103b45cfe4ab",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/visual-tuning-roof-camera/report.json",
+      "bytes": 859,
+      "sha256": "1a575217247e827b875632fedecd1f52d4bffacc4365614eb7ac124ecef949a2",
+      "originalSha256": "1a575217247e827b875632fedecd1f52d4bffacc4365614eb7ac124ecef949a2",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/evidence/visual-tuning-tiled-crowd/report.json",
+      "bytes": 880,
+      "sha256": "e45a70259ebb821aea5cf4ff1bb24edfc6539afc01fb1fa3fb7175ffd815ca23",
+      "originalSha256": "e45a70259ebb821aea5cf4ff1bb24edfc6539afc01fb1fa3fb7175ffd815ca23",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/examples/reference-v1.json",
+      "bytes": 951,
+      "sha256": "39cdc9a8420ebecef53176bc2cafef1b15e25d1f3ed903cce81a10adf23ace00",
+      "originalSha256": "39cdc9a8420ebecef53176bc2cafef1b15e25d1f3ed903cce81a10adf23ace00",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/examples/russian-dome-v2.json",
+      "bytes": 2863,
+      "sha256": "d5b36f8978e162e91e439580e130f0d4018e932f4333350a3bf0a3cffafe0e95",
+      "originalSha256": "d5b36f8978e162e91e439580e130f0d4018e932f4333350a3bf0a3cffafe0e95",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/examples/russian-dome-v3-architecture.json",
+      "bytes": 3344,
+      "sha256": "818003dfc00677e524ed04380f7eaa9447fe88063681048f5072c0f991acedd4",
+      "originalSha256": "818003dfc00677e524ed04380f7eaa9447fe88063681048f5072c0f991acedd4",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/examples/russian-dome-v3-crowd-tiles.json",
+      "bytes": 3228,
+      "sha256": "68d56131a11efa0274af90e6d45ff2c9c82870b56d7b5e41c367630deac8be86",
+      "originalSha256": "68d56131a11efa0274af90e6d45ff2c9c82870b56d7b5e41c367630deac8be86",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/examples/russian-dome-v3-tuned.json",
+      "bytes": 3211,
+      "sha256": "add807060532d1271c234e3b8df4ed53bfda6c35053460cc18519f4141bded69",
+      "originalSha256": "add807060532d1271c234e3b8df4ed53bfda6c35053460cc18519f4141bded69",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/examples/russian-dome-v3.json",
+      "bytes": 3055,
+      "sha256": "7486075b754ba515d8472ed838a32ffdaa5029b2d8d58e6690781778c5ac2c4e",
+      "originalSha256": "7486075b754ba515d8472ed838a32ffdaa5029b2d8d58e6690781778c5ac2c4e",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/examples/symmetric-v1.json",
+      "bytes": 893,
+      "sha256": "d7a1e9c2cc91b3148f4a7a7dfe0c838a54be6b5cd60a44c506d09050f7b4303a",
+      "originalSha256": "d7a1e9c2cc91b3148f4a7a7dfe0c838a54be6b5cd60a44c506d09050f7b4303a",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/github-decision-v2.md",
+      "bytes": 2112,
+      "sha256": "dc081d27f50adb5de7cad889f7ac01106f09dc57c5d370861640dadb2e9779e4",
+      "originalSha256": "dc081d27f50adb5de7cad889f7ac01106f09dc57c5d370861640dadb2e9779e4",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/github-decision-v3.md",
+      "bytes": 11259,
+      "sha256": "bd3fbb5e2fee909baf13001f22d8cb42dd7cf72cf8cf39597f0e490397e8e06e",
+      "originalSha256": "bd3fbb5e2fee909baf13001f22d8cb42dd7cf72cf8cf39597f0e490397e8e06e",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/github-decision.md",
+      "bytes": 2293,
+      "sha256": "a74fb7c5d0969835566f5f97459fda35067d0d0d03114479db929e5e70496c48",
+      "originalSha256": "a74fb7c5d0969835566f5f97459fda35067d0d0d03114479db929e5e70496c48",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/gold-wolf-asset.json",
+      "bytes": 1906,
+      "sha256": "2fa99b2b2627f59057fb507a14f396887aad74bd1ed8ec8ef6a200cc7382ee41",
+      "originalSha256": "2fa99b2b2627f59057fb507a14f396887aad74bd1ed8ec8ef6a200cc7382ee41",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/PLAN-architecture-v4.md",
+      "bytes": 2791,
+      "sha256": "43f9c060c755dd174bf0498bbd8da61003b79e6e1d9ff77e812d3506b7b34dbd",
+      "originalSha256": "43f9c060c755dd174bf0498bbd8da61003b79e6e1d9ff77e812d3506b7b34dbd",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/PLAN-attendance.md",
+      "bytes": 1089,
+      "sha256": "1ce37fe64fae7965ca86e2998caa33bed047d1c057aa5656a51290eff951c748",
+      "originalSha256": "1ce37fe64fae7965ca86e2998caa33bed047d1c057aa5656a51290eff951c748",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/PLAN-crowd-tiles.md",
+      "bytes": 1652,
+      "sha256": "9a491a6852678d20b91a986fa43074dfe9cf19569cfb76723c0fae311f9e0f1f",
+      "originalSha256": "9a491a6852678d20b91a986fa43074dfe9cf19569cfb76723c0fae311f9e0f1f",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/PLAN-crowd.md",
+      "bytes": 1739,
+      "sha256": "60d147f22ebc74416e3451e9bba179d2fc21d4a7cd7a44827a648f9e4714803b",
+      "originalSha256": "60d147f22ebc74416e3451e9bba179d2fc21d4a7cd7a44827a648f9e4714803b",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/PLAN-logo-lod.md",
+      "bytes": 1777,
+      "sha256": "e9ec37584c1befa5757a0f9b4c213a5b3b844c9064e6c2301981f51a9685b67f",
+      "originalSha256": "e9ec37584c1befa5757a0f9b4c213a5b3b844c9064e6c2301981f51a9685b67f",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/PLAN-scoreboard.md",
+      "bytes": 2350,
+      "sha256": "ee2e3ba29d099fcc99a2e3aaa5c32f6fbfe0acffe080eb170586a800b44836be",
+      "originalSha256": "ee2e3ba29d099fcc99a2e3aaa5c32f6fbfe0acffe080eb170586a800b44836be",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/PLAN-v1.md",
+      "bytes": 4266,
+      "sha256": "4de3f0d6370db13e359ca18413de79df3cf96ed3e631b5ca81f61c52b1b7e494",
+      "originalSha256": "4de3f0d6370db13e359ca18413de79df3cf96ed3e631b5ca81f61c52b1b7e494",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/PLAN-v2.md",
+      "bytes": 3081,
+      "sha256": "9e7e29995b96658617d7bc406f21d80a14d2a418c2d3b8fc2870bd16c7c088aa",
+      "originalSha256": "9e7e29995b96658617d7bc406f21d80a14d2a418c2d3b8fc2870bd16c7c088aa",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/PLAN-v3.md",
+      "bytes": 1977,
+      "sha256": "6353ef7d28b2fc7b427c4ee81e78127d0493d62ded115f96bcf1830b5a40635c",
+      "originalSha256": "6353ef7d28b2fc7b427c4ee81e78127d0493d62ded115f96bcf1830b5a40635c",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/PLAN-visual-tuning.md",
+      "bytes": 1356,
+      "sha256": "895054c5c0682adfd836b57a1c3cf969c7c76c98b757ffb098099f7068cd245e",
+      "originalSha256": "895054c5c0682adfd836b57a1c3cf969c7c76c98b757ffb098099f7068cd245e",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/README-architecture.md",
+      "bytes": 4773,
+      "sha256": "a64590f0b7379dccb59651d88a1ae3f16542f7661fb0f3ebbf1a4a6f37c6b1d5",
+      "originalSha256": "a64590f0b7379dccb59651d88a1ae3f16542f7661fb0f3ebbf1a4a6f37c6b1d5",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/README-crowd-tiles.md",
+      "bytes": 3681,
+      "sha256": "66725bea19e7065db9ed6aec79e20f3aff3c02667a6d8df84310e65e185bb65e",
+      "originalSha256": "66725bea19e7065db9ed6aec79e20f3aff3c02667a6d8df84310e65e185bb65e",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/README-crowd.md",
+      "bytes": 3376,
+      "sha256": "145312b63552c60ac1783688826bb2417c69e2974f9bd0e7a3261cc54f7ef6b2",
+      "originalSha256": "145312b63552c60ac1783688826bb2417c69e2974f9bd0e7a3261cc54f7ef6b2",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/README-scoreboard.md",
+      "bytes": 3646,
+      "sha256": "8ac1e7868d01c0dc1fb3d6b836b3d11331f3896b049b722900230a2a2e140d04",
+      "originalSha256": "8ac1e7868d01c0dc1fb3d6b836b3d11331f3896b049b722900230a2a2e140d04",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/README-v2.md",
+      "bytes": 6056,
+      "sha256": "29f354817d9993df4ccd057f924bb43cd52975cd674fac44b1a77807f05c3c60",
+      "originalSha256": "29f354817d9993df4ccd057f924bb43cd52975cd674fac44b1a77807f05c3c60",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/README-v3.md",
+      "bytes": 4363,
+      "sha256": "19c76a1e46cb41b21a61e99790ced6481de188601c84b181aab1461bb10a838a",
+      "originalSha256": "19c76a1e46cb41b21a61e99790ced6481de188601c84b181aab1461bb10a838a",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/README-visual-tuning.md",
+      "bytes": 3136,
+      "sha256": "ae9e00edbbf0039050f182daed3ee3d858510630141db3fef1fde2bf11df95f5",
+      "originalSha256": "ae9e00edbbf0039050f182daed3ee3d858510630141db3fef1fde2bf11df95f5",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/README.md",
+      "bytes": 6981,
+      "sha256": "0fdda2c6bb1f002aaef4750bbe6d90df6ef91de1fb69f7c646f51547166b1bba",
+      "originalSha256": "72cfd0ca0ae63ae582af125323a2d825885cf81e3cadc2e43547048dd2215d2e",
+      "sanitized": true
+    },
+    {
+      "path": "docs/ballpark-studio/references/scoreboard-approved-v1.png",
+      "bytes": 3517224,
+      "sha256": "76d8606e082abb5be74c07d8863024972496c7da8731d275b7b57d84bf059088",
+      "originalSha256": "76d8606e082abb5be74c07d8863024972496c7da8731d275b7b57d84bf059088",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/RENDERING-POLICY.md",
+      "bytes": 3971,
+      "sha256": "d13a13db94b086a88e8afb206cdf1836e87fd611cb33585a3508799325f2c2f6",
+      "originalSha256": "d13a13db94b086a88e8afb206cdf1836e87fd611cb33585a3508799325f2c2f6",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/STADIUM-AUTHORING.md",
+      "bytes": 7780,
+      "sha256": "67538150da456b24317c8fef25382c0246abbf0634a5bf2684ec7709e9b9f303",
+      "originalSha256": "67538150da456b24317c8fef25382c0246abbf0634a5bf2684ec7709e9b9f303",
+      "sanitized": false
+    },
+    {
+      "path": "docs/ballpark-studio/wolf-asset.json",
+      "bytes": 1612,
+      "sha256": "620c5736916a9dc12e1c9df9a7e3382c86ad044f2795d71ff3c27593c3c1eea2",
+      "originalSha256": "620c5736916a9dc12e1c9df9a7e3382c86ad044f2795d71ff3c27593c3c1eea2",
+      "sanitized": false
+    },
+    {
+      "path": "ballpark-production/artifacts/frozen-v114.html.gz",
+      "bytes": 21842609,
+      "sha256": "dcf69e36316f78a099c0976e527ea77f14424a0d1b995b88379ceb378e3ded6a",
+      "originalSha256": "dcf69e36316f78a099c0976e527ea77f14424a0d1b995b88379ceb378e3ded6a",
+      "sanitized": false,
+      "expandedSha256": "c6f32e13eb34a3545a178b1d40db92d58ac794732d224af5ad97b37133d77a71",
+      "expandedBytes": 43637386
+    },
+    {
+      "path": "ballpark-production/artifacts/accepted-studio-v3.html.gz",
+      "bytes": 23268413,
+      "sha256": "48d1068587b07cdb9771fb31e9889eec22ccb77c1d43b3eb9fceacbc2da1aafc",
+      "originalSha256": "48d1068587b07cdb9771fb31e9889eec22ccb77c1d43b3eb9fceacbc2da1aafc",
+      "sanitized": false,
+      "expandedSha256": "af2c00aa1cd56e596027af42eb3d547391a21322c8a9df75638194d907c8c1df",
+      "expandedBytes": 45851256
+    },
+    {
+      "path": "ballpark-production/history/verification-receipts.json",
+      "bytes": 138993,
+      "sha256": "518a7ad45c91b45bca5ce69fc9841f20e6c6ce787ddf615ea06dd3485174eb89",
+      "originalSha256": "518a7ad45c91b45bca5ce69fc9841f20e6c6ce787ddf615ea06dd3485174eb89",
+      "sanitized": false
+    }
+  ]
+}

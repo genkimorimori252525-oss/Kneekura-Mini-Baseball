@@ -1,0 +1,111 @@
+{
+  "pass": true,
+  "sha256": "e092666bfdf103d01892acb9cd622b39dff345a9524b7dd20039d7f9eb585882",
+  "errors": [],
+  "default": {
+    "enabled": true,
+    "mode": "DESIGN_SAMPLE",
+    "z": 162.776,
+    "baseY": 38.879999999999995,
+    "scale": 1,
+    "width": 164,
+    "teams": [
+      {
+        "name": "TBD",
+        "innings": [
+          0,
+          0,
+          1,
+          0,
+          0,
+          2,
+          0,
+          1,
+          0
+        ],
+        "hits": 8,
+        "errors": 0,
+        "runs": 4
+      },
+      {
+        "name": "LAD",
+        "innings": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        "hits": 6,
+        "errors": 1,
+        "runs": 2
+      }
+    ],
+    "balls": 3,
+    "strikes": 2,
+    "outs": 2,
+    "speedKmh": 148
+  },
+  "inningTotalAndUndo": true,
+  "editableSample": true,
+  "boardOffRetainsWolf": true,
+  "independentLogoToggle": true,
+  "invalidInputPreservesLastValid": true,
+  "saveReload": true,
+  "logoDoesNotFade": [
+    {
+      "zoom": 0.5,
+      "id": "wolf-4185",
+      "widthPixels": 43.38926539843834,
+      "heightPixels": 38.72311515186206,
+      "depth": 178.62851500236803,
+      "maximum": 6,
+      "density": 4.9521330828638845,
+      "brightness": 1.45,
+      "glow": 0.08,
+      "contrast": 1,
+      "footprintU": 0.018234796274685938,
+      "footprintV": 0.020432096228465677,
+      "sampling": "premultiplied_mipmap_trilinear",
+      "policy": "mild_distance_softening_without_fade"
+    },
+    {
+      "zoom": 1,
+      "id": "wolf-4185",
+      "widthPixels": 86.77853079687662,
+      "heightPixels": 77.44623030372414,
+      "depth": 178.62851500236803,
+      "maximum": 6,
+      "density": 5.994015986419694,
+      "brightness": 1.45,
+      "glow": 0.08,
+      "contrast": 1,
+      "footprintU": 0.007532607361720893,
+      "footprintV": 0.00844028944154359,
+      "sampling": "premultiplied_mipmap_trilinear",
+      "policy": "mild_distance_softening_without_fade"
+    },
+    {
+      "zoom": 2,
+      "id": "wolf-4185",
+      "widthPixels": 173.55706159375325,
+      "heightPixels": 154.89246060744827,
+      "depth": 178.62851500236803,
+      "maximum": 6,
+      "density": 6,
+      "brightness": 1.45,
+      "glow": 0.08,
+      "contrast": 1,
+      "footprintU": 0.003762547412131475,
+      "footprintV": 0.004215935820218469,
+      "sampling": "premultiplied_mipmap_trilinear",
+      "policy": "mild_distance_softening_without_fade"
+    }
+  ],
+  "oldJsonNoMutation": true,
+  "mobile": true
+}

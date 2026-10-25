@@ -1,0 +1,89 @@
+{
+  "pass": true,
+  "file": "<LOCAL_HOME>/Documents\\Codex\\2026-10-15\\new-chat\\outputs\\球場設計室_v2_開閉式ドーム.html",
+  "sha256": "47890eb6c22184ef0cbd4aa5bcfe0fbec8740bc0f6db029fa962783553096458",
+  "errors": [],
+  "external": [],
+  "cameras": [
+    {
+      "camera": "stadium",
+      "triangles": 4182,
+      "candidateCells": 31662
+    },
+    {
+      "camera": "overhead",
+      "triangles": 855,
+      "candidateCells": 14898
+    },
+    {
+      "camera": "catcher",
+      "triangles": 395,
+      "candidateCells": 7111
+    },
+    {
+      "camera": "mound",
+      "triangles": 47,
+      "candidateCells": 10760
+    },
+    {
+      "camera": "batter",
+      "triangles": 365,
+      "candidateCells": 6036
+    },
+    {
+      "camera": "fielder",
+      "triangles": 845,
+      "candidateCells": 12961
+    }
+  ],
+  "widths": [
+    1280,
+    390,
+    320
+  ],
+  "mesh": {
+    "capacity": 120000,
+    "tiers": 5,
+    "rowsPerTier": 24,
+    "spectatorLights": 17280,
+    "roof": {
+      "halfX": 88.24621202458748,
+      "z0": -45,
+      "z1": 148,
+      "y": 105.88,
+      "openingPercent": 100,
+      "leftInnerEdge": -88.24621202458748,
+      "rightInnerEdge": 88.24621202458748,
+      "cutaway": true
+    },
+    "surfaces": 2446,
+    "triangles": 4182,
+    "candidateCells": 31662,
+    "omittedRoofSurfaces": 186,
+    "renderer": "original_projection_grid_depth_and_dot",
+    "simulationIntegration": "DESIGN_ONLY_NOT_MATCH_CORE_ADMITTED"
+  },
+  "logo": {
+    "cells": 152,
+    "samples": 627,
+    "mode": "fine",
+    "glyph": "gold_wolf_image_v1",
+    "widthMeters": 28,
+    "lengthMeters": 25.164021164021165,
+    "centerZ": 82,
+    "planeY": 0.008,
+    "sourceWidth": 1323,
+    "sourceHeight": 1189
+  },
+  "infieldSeatsAndCoachClearance": true,
+  "roofOpenCloseUndo": true,
+  "logoToggle": true,
+  "colors": true,
+  "localErrors": true,
+  "boundaryCacheInvalidation": true,
+  "referencePixelIdentical": true,
+  "saveRoundtrip": true,
+  "noIdleRedraw": true,
+  "v1AndOriginalUnchanged": true,
+  "fixedGeometryUnchanged": true
+}

@@ -1,0 +1,13 @@
+{
+  "pass": true,
+  "errors": [],
+  "sha256": "82f83110a3b09a33ce637795045a29ee1d092e76b048dff88b7f3d553dc82344",
+  "emptyStopsAnimation": true,
+  "originalSeatPixelsIdentical": true,
+  "undoRedo": true,
+  "emptySeatsFollowTheme": true,
+  "saveReload": true,
+  "fullRestored": true,
+  "mobile": true,
+  "legacyWithoutMutation": true
+}

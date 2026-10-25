@@ -1,0 +1,51 @@
+{
+  "task": "MB-20261025-BALLPARK-PUBLICATION",
+  "date": "2026-10-25",
+  "status": "VERIFIED_PUBLICATION_PACKAGE",
+  "unit": {
+    "command": "node ballpark-production/production.mjs test",
+    "tests": 44,
+    "pass": 44,
+    "fail": 0,
+    "localLogSha256": "2f442a3136bd1e1c45d4b891804eafbacd14d34dc6babfe58bc14bce5722d760"
+  },
+  "build": {
+    "command": "node ballpark-production/production.mjs build",
+    "pass": true,
+    "sha256": "af2c00aa1cd56e596027af42eb3d547391a21322c8a9df75638194d907c8c1df",
+    "acceptedHtmlByteIdentical": true,
+    "sourceCoreChanged": false,
+    "exactRendererReverse": true,
+    "scriptSyntax": true
+  },
+  "browser": {
+    "pass": true,
+    "productSha256": "af2c00aa1cd56e596027af42eb3d547391a21322c8a9df75638194d907c8c1df",
+    "views": [
+      "stadium",
+      "exterior",
+      "interior",
+      "scoreboard",
+      "overhead",
+      "catcher",
+      "mound",
+      "batter",
+      "fielder"
+    ],
+    "errors": [],
+    "grassLogoBrightness": 0.8,
+    "browser": "Desktop Chrome, fresh context"
+  },
+  "package": {
+    "pass": true,
+    "files": 330,
+    "links": 13,
+    "privatePaths": 0,
+    "credentialPatterns": 0
+  },
+  "limitations": [
+    "NOT_CONNECTED: new stadium collision, fielding, HR rulings, official scoreboard in normal match",
+    "NOT_VERIFIED: physical mobile devices, Safari, long-duration FPS",
+    "Historical raw execution logs and redundant intermediate images are preserved locally, not published"
+  ]
+}

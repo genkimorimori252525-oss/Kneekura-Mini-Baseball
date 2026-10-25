@@ -1,0 +1,81 @@
+{
+  "pass": true,
+  "kind": "BALLPARK_STUDIO_V2",
+  "output": "<LOCAL_HOME>/Documents\\Codex\\2026-10-15\\new-chat\\outputs\\球場設計室_v2_開閉式ドーム.html",
+  "sha256": "766a3495443c7480c33a38f7d2c51e55f49278fafa24fdbc306740efcf4173a5",
+  "bytes": 45784674,
+  "version": 2,
+  "sourceSha256": "c6f32e13eb34a3545a178b1d40db92d58ac794732d224af5ad97b37133d77a71",
+  "sourceCoreSha256": "3d0ef3a2477816a3157e59f9a8235e1459913fa35f74f791541c8cee8e885a37",
+  "sourceCoreChanged": false,
+  "sharedNormalMatchChanged": false,
+  "sourceInputs": {
+    "tools/ballpark-studio/model.mjs": "cac00a5990f8dab60fe78165f37644506b2b4e754e369e869e0fd17e4516e9a1",
+    "tools/ballpark-studio/architecture.mjs": "4d366c65787e1d41f54b47f7f956bd6a7ad04e82be6c1718920729bdb7aa3223",
+    "tools/ballpark-studio/stadium-mesh.mjs": "b0f1c44a82e31b3e31347134f3bff302f8055504ed4ea05a3548eaff6e436ce9",
+    "tools/ballpark-studio/ground-logo.mjs": "02149d37470ef1abff5022600ac4654c5638c22c69099cff80c5bee35300ac39",
+    "tools/ballpark-studio/assets/wolf-gold-cutout-v1.png": "b9181b700e184697d1d8dc7397d0eda4aceb1a481a311778e8203d45d8d153f4",
+    "tools/ballpark-studio/geometry-window.mjs": "3f6e86e59af113462195e6f9cc58ef9bb99a6ac3440592e7111ebaecfffb3324",
+    "tools/ballpark-studio/studio.mjs": "1283117484bb072318893b247f0b8d156b79bff423e37e8ab67ec503a10b25ae",
+    "tools/ballpark-studio/studio.html": "622fe2f0b4b7a22d923d6d1fe6f8a18930567210a4c5a568d0e4b82404a9c297",
+    "tools/ballpark-studio/studio.css": "01b717f088ce197da027c478586016aad41111c16551129c3389fbe53aa712c1",
+    "tools/ballpark-studio/renderer-patch.mjs": "de5da453c6fe60f10384f18038bee8483cbb5acc9f97673ead368ddb1ec17b85",
+    "tools/ballpark-studio/preview-bridge.js": "d9677949a9f0bd11f84ce9102171b7ded17f22556a934bf5f546316f7beecaa7",
+    "tools/ballpark-studio/build.mjs": "2fe2d92f0e57fbbf3b282aecc826e29b69e0e626c4daefbc81a7731f68035de4"
+  },
+  "rendererScriptIndex": 6,
+  "fixedGeometryPreserved": true,
+  "simulationIntegration": "DESIGN_ONLY_NOT_MATCH_CORE_ADMITTED",
+  "rendererChanges": [
+    {
+      "before": "function liveFenceDistance(t){",
+      "after": "function liveFenceDistance(t){\n if(observed.ballparkGeometryV1?.kind==='editable')return window.KneekuraBallparkGeometry"
+    },
+    {
+      "before": "function fence(t,offset=0,y=0){",
+      "after": "function fence(t,offset=0,y=0){\n if(observed.ballparkGeometryV1?.kind==='editable'&&offset===0&&y===observed.livePark.he"
+    },
+    {
+      "before": "for(let i=0;i<=80;i++)ps.push(fence(start+i*range/80,offset,y));",
+      "after": "if(observed.ballparkGeometryV1?.kind==='editable'){\n const angles=[...new Set([...Array.from({length:81},(_,i)=>start+i*"
+    },
+    {
+      "before": "if(observed.liveObservation?Math.hypot(x-observed.livePark.center.x,z-observed.livePark.center.z)>observed.livePark.radi",
+      "after": "if(observed.liveObservation?(observed.ballparkGeometryV1?.kind==='editable'?rad>edge+3:Math.hypot(x-observed.livePark.ce"
+    },
+    {
+      "before": "if(rad>edge-3.5)return",
+      "after": "if(rad>edge-(observed.ballparkGeometryV1?.trackWidthMeters??3.5))return"
+    },
+    {
+      "before": "cam=chooseCamera();cam.f*=settings.zoom||1;",
+      "after": "cam=observed.ballparkCameraV1?{...chooseCamera(),...observed.ballparkCameraV1}:chooseCamera();cam.f*=settings.zoom||1;"
+    },
+    {
+      "before": "g?.radiusMeters,g?.heightMeters,",
+      "after": "g?.radiusMeters,g?.heightMeters,observed.ballparkGeometryV1?.boundaryKey,!!observed.ballparkGeometryV1?.architecture,"
+    },
+    {
+      "before": "function park(){const wallHeight=observed.liveObservation?observed.livePark.heightMeters:3;",
+      "after": "function park(){const wallHeight=observed.liveObservation?observed.livePark.heightMeters:3,boardZ=observed.ballparkGeome"
+    },
+    {
+      "before": "wline(left,{...left,y:15},C.wall,1.15,.95);wline(right,{...right,y:15},C.wall,1.15,.95)",
+      "after": "wline(left,{...left,y:observed.ballparkGeometryV1?.kind==='editable'?Math.max(15,window.KneekuraBallparkGeometryV1.wallA"
+    },
+    {
+      "before": "for(const[x,z]of[[-86,84],[86,84],[-45,-1],[45,-1]]){",
+      "after": "for(const[sourceX,sourceZ]of[[-86,84],[86,84],[-45,-1],[45,-1]]){\n let x=sourceX,z=sourceZ;if(observed.ballparkGeometryV"
+    },
+    {
+      "before": "function park(){const wallHeight=observed.liveObservation?observed.livePark.heightMeters:3,boardZ=observed.ballparkGeome",
+      "after": "function park(){const wallHeight=observed.liveObservation?observed.livePark.heightMeters:3,boardZ=observed.ballparkGeome"
+    },
+    {
+      "before": "drawParkV81();observed.actors.forEach(actor);",
+      "after": "drawParkV81();\n  window.KneekuraBallparkLastRenderV2=observed.ballparkGeometryV1?.architecture?window.KneekuraBallparkAr"
+    }
+  ],
+  "exactRendererReverse": true,
+  "htmlScriptSyntaxChecked": true
+}

@@ -1,0 +1,3056 @@
+{
+  "notice": "Historical receipts, local paths redacted. Raw execution logs remain in the original workspace; this file is not a new execution.",
+  "receipts": [
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/verify-source.mjs",
+        "architecture-a6"
+      ],
+      "observed_at": "2026-10-24T07:51:45.008+00:00",
+      "elapsed_ms": 1030,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_01d9b8fce92a4b7086c7f6083e6938c7.log",
+      "output_sha256": "8e800e20bb0920fc884b7d170db1c35211783ff7454e4322cc5e36d7fab59025",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_01d9b8fce92a4b7086c7f6083e6938c7"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "architecture-a7"
+      ],
+      "observed_at": "2026-10-24T07:54:53.414+00:00",
+      "elapsed_ms": 35032,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_08e9255cc0d544c6bbc6b81aaaff3281.log",
+      "output_sha256": "b5c71b32eb9ee34fa16ad5b5d61ca1e8c9cd83770a33754565645e057a87d13c",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_08e9255cc0d544c6bbc6b81aaaff3281"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "architecture-a8"
+      ],
+      "observed_at": "2026-10-24T07:57:00.861+00:00",
+      "elapsed_ms": 2734,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_0a34e96e199a4b688c2e1a4459766e8e.log",
+      "output_sha256": "ce7f1e7c180ab667d67580279ea6203bbd7eac7330b01e678b6aabe2b8a79bda",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_0a34e96e199a4b688c2e1a4459766e8e"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-crowd.mjs",
+        "architecture-a7"
+      ],
+      "observed_at": "2026-10-24T07:54:44.594+00:00",
+      "elapsed_ms": 26218,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_0a7793e796244b27b6590fcd8163af24.log",
+      "output_sha256": "7f7a418e69d07e9cbd4907013db9d26663ab82dada67978e7e7593b29268fee6",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_0a7793e796244b27b6590fcd8163af24"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-crowd.mjs",
+        "architecture-a6"
+      ],
+      "observed_at": "2026-10-24T07:52:12.767+00:00",
+      "elapsed_ms": 28827,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_0ebcb9c8f7f54891bfb38e8477d1c95e.log",
+      "output_sha256": "f37e472f69cf74ee3bd3613f36cca600e5132256cca058e893b8f6361e03c22f",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_0ebcb9c8f7f54891bfb38e8477d1c95e"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-crowd-tiles.mjs",
+        "architecture-a8"
+      ],
+      "observed_at": "2026-10-24T08:01:30.093+00:00",
+      "elapsed_ms": 18514,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_130ea67e22e9475dbd60bb51f0edcb38.log",
+      "output_sha256": "e673a4fb66e613f2651cca54f683bd8b46c54f24daa93ee5fea65dcb2a6848b0",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_130ea67e22e9475dbd60bb51f0edcb38"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "architecture-a6"
+      ],
+      "observed_at": "2026-10-24T07:50:56.508+00:00",
+      "elapsed_ms": 2750,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_13296f3896e14ed7b078f4f06836d8f2.log",
+      "output_sha256": "429a7bfc973c9e9287dd355ec45eb42b1dd92f69b1321ad0a5868f205c196f47",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_13296f3896e14ed7b078f4f06836d8f2"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs",
+        "tools/ballpark-studio/surface-layers.test.mjs",
+        "tools/ballpark-studio/crowd.test.mjs",
+        "tools/ballpark-studio/crowd-tiles.test.mjs"
+      ],
+      "observed_at": "2026-10-24T07:43:59.578+00:00",
+      "elapsed_ms": 266,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_2847f2bc59e940a3837eaee475de4aff.log",
+      "output_sha256": "1f0c56c0e5b1522378c388060c72e2a42ab37159f47b1404edd9bc92bc247c7d",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_2847f2bc59e940a3837eaee475de4aff"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-browser.mjs",
+        "architecture-a6"
+      ],
+      "observed_at": "2026-10-24T07:52:13.931+00:00",
+      "elapsed_ms": 29968,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_3c03bd55abb74245bb25b8db97855ff9.log",
+      "output_sha256": "5fd3aa006e4fd29d08937c9cd33d6b2dd31088ed3befddcab0ba1e41d7b20d0b",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_3c03bd55abb74245bb25b8db97855ff9"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-architecture.mjs",
+        "architecture-a6"
+      ],
+      "observed_at": "2026-10-24T07:52:22.306+00:00",
+      "elapsed_ms": 38358,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_3dd1ea7d06e745c2b8aeec8a83495ea6.log",
+      "output_sha256": "67a538d839b8bf31767a66c114ad429a960a2585963d261b23ebaf76c9b9463c",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_3dd1ea7d06e745c2b8aeec8a83495ea6"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/verify-source.mjs",
+        "architecture-a7"
+      ],
+      "observed_at": "2026-10-24T07:54:18.707+00:00",
+      "elapsed_ms": 296,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_4420929be67d4e9e976c3a6f11cd6858.log",
+      "output_sha256": "614c3f4bc517097a9ea79ef46569660a17eed9090b876e736838fc24a36b4b7e",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_4420929be67d4e9e976c3a6f11cd6858"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs",
+        "tools/ballpark-studio/surface-layers.test.mjs",
+        "tools/ballpark-studio/crowd.test.mjs",
+        "tools/ballpark-studio/crowd-tiles.test.mjs"
+      ],
+      "observed_at": "2026-10-24T07:53:44.633+00:00",
+      "elapsed_ms": 311,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_55dcf296b7234fd7a40d99d7387c604e.log",
+      "output_sha256": "2f7dfc61c06b97da81db05d8662c9adb22a32c7d13c405d02433d2586a3c0972",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_55dcf296b7234fd7a40d99d7387c604e"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-architecture.mjs",
+        "architecture-a7"
+      ],
+      "observed_at": "2026-10-24T07:54:54.650+00:00",
+      "elapsed_ms": 36281,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_696195f675634d2093d1f9110d618e08.log",
+      "output_sha256": "7a86ac7be9e8eca31316cb1a97290ce99c5b2391e598dd2efe8d03f13e5b8d55",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_696195f675634d2093d1f9110d618e08"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-visual-tuning.mjs",
+        "architecture-a6"
+      ],
+      "observed_at": "2026-10-24T07:52:12.820+00:00",
+      "elapsed_ms": 28860,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_7780e3e4e131400c85cb169b66309068.log",
+      "output_sha256": "0e5229a52b1c7a82411c3a37b6cf9a0f0a9ae1508702047a1b5992effbc92fe2",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_7780e3e4e131400c85cb169b66309068"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/probe-roof-depth.mjs",
+        "architecture-a6"
+      ],
+      "observed_at": "2026-10-24T07:51:56.087+00:00",
+      "elapsed_ms": 12078,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_7eab840784754282b4258cc9f6f02d65.log",
+      "output_sha256": "49c495231c70c72ca770fd3c6b464922778a2aaa2b41aee1068db60520eada51",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_7eab840784754282b4258cc9f6f02d65"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-attendance.mjs",
+        "architecture-a8"
+      ],
+      "observed_at": "2026-10-24T08:01:23.773+00:00",
+      "elapsed_ms": 12202,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_8012ee02853e48ae9cd97275a19f1554.log",
+      "output_sha256": "6fbd1a70dbd4888401f1d6dd5cf2f321ab995eee4dd02868d9791e58427261b9",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_8012ee02853e48ae9cd97275a19f1554"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-crowd.mjs",
+        "architecture-a4"
+      ],
+      "observed_at": "2026-10-24T07:44:36.530+00:00",
+      "elapsed_ms": 22296,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_85838ad723e24a809f84fad50948445a.log",
+      "output_sha256": "127789a2806964c9a50e07f4b60beed83a2e7032cf65c4cf8fed37ffbc756ee2",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_85838ad723e24a809f84fad50948445a"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-architecture.mjs",
+        "architecture-a8"
+      ],
+      "observed_at": "2026-10-24T07:57:57.850+00:00",
+      "elapsed_ms": 25719,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_88527e7820da404fa02d6ceaabe7b937.log",
+      "output_sha256": "dc1602023091f547a79b4098963624c742bf0b7911bf60f6ce49a2d9e1664498",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_88527e7820da404fa02d6ceaabe7b937"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-visual-tuning.mjs",
+        "architecture-a4"
+      ],
+      "observed_at": "2026-10-24T07:44:34.538+00:00",
+      "elapsed_ms": 20312,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_920c77a796884aadb639b4d98fa42e81.log",
+      "output_sha256": "ac61c63d497e8782af08f18ee1c1a2e1d198478f53c9906dd3abfca1874d8052",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_920c77a796884aadb639b4d98fa42e81"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-browser.mjs",
+        "architecture-a7"
+      ],
+      "observed_at": "2026-10-24T07:54:45.240+00:00",
+      "elapsed_ms": 26860,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_94991d9fa68644499ff154d978ed30fc.log",
+      "output_sha256": "b6a31efa8db03ee5ce363a312499a82321dd7a447d582376a54df655260d5da9",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_94991d9fa68644499ff154d978ed30fc"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/probe-roof-depth.mjs",
+        "architecture-a4"
+      ],
+      "observed_at": "2026-10-24T07:44:22.868+00:00",
+      "elapsed_ms": 8640,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_9578a123c0454a63b22fbc6f9a298d62.log",
+      "output_sha256": "e21d6aa646bda54292a412eb793d7bb7a58b777c386ac312f704b0963fad55b5",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_9578a123c0454a63b22fbc6f9a298d62"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs",
+        "tools/ballpark-studio/surface-layers.test.mjs",
+        "tools/ballpark-studio/crowd.test.mjs",
+        "tools/ballpark-studio/crowd-tiles.test.mjs"
+      ],
+      "observed_at": "2026-10-24T07:51:55.547+00:00",
+      "elapsed_ms": 625,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_9aaee078ee4c470da425b2e689455d11.log",
+      "output_sha256": "ba2958b9369f99928765e23100ab5099c4ea8f4036d1dddb6a517ee22663eba2",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_9aaee078ee4c470da425b2e689455d11"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/probe-roof-depth.mjs",
+        "architecture-a7"
+      ],
+      "observed_at": "2026-10-24T07:54:29.178+00:00",
+      "elapsed_ms": 10797,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_adf26187da1b43df994f6378686bd3d5.log",
+      "output_sha256": "267081d7d77665ab8a0797402cb085fe4701d992e875b98b41a76fd8aea3e83c",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_adf26187da1b43df994f6378686bd3d5"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "architecture-a6"
+      ],
+      "observed_at": "2026-10-24T07:52:20.729+00:00",
+      "elapsed_ms": 36766,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_b43e6d58ca994cabb20522a42622cbb8.log",
+      "output_sha256": "b143a2b7a1267b5879f6bb5fcc7f755ea9d8b1709741b20941457e4213963832",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_b43e6d58ca994cabb20522a42622cbb8"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "architecture-a7"
+      ],
+      "observed_at": "2026-10-24T07:53:44.019+00:00",
+      "elapsed_ms": 2750,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_b613c6ea231348df9da89ab4a43b1234.log",
+      "output_sha256": "0f3a1f27bf8f49f7c342545801dda5949d62e489aacc64e6f66f35611d580720",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_b613c6ea231348df9da89ab4a43b1234"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-visual-tuning.mjs",
+        "architecture-a7"
+      ],
+      "observed_at": "2026-10-24T07:54:43.518+00:00",
+      "elapsed_ms": 25141,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_b72d8899c8e942c597fb133644c26332.log",
+      "output_sha256": "cab9480d0d284802fd8580003b8567c2a3528af6d8b00863f7d5e66c6b58751e",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_b72d8899c8e942c597fb133644c26332"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-architecture.mjs",
+        "a5"
+      ],
+      "observed_at": "2026-10-24T07:47:44.643+00:00",
+      "elapsed_ms": 23921,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_c37dc812a6c5497d8d0fd5d85a6d3249.log",
+      "output_sha256": "8399b80976c7d8c9b327bc15d6453064977ddf5787a633c9b65c57f98af7c7be",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_c37dc812a6c5497d8d0fd5d85a6d3249"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "architecture-a4"
+      ],
+      "observed_at": "2026-10-24T07:44:42.805+00:00",
+      "elapsed_ms": 28577,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_d3ace8ae8f0345e39133e1634bffbf91.log",
+      "output_sha256": "fe8117c27d575fc4e693d15ce11d15148b1ef2d446b1d4032810adf5e27e36a8",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_d3ace8ae8f0345e39133e1634bffbf91"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/verify-source.mjs",
+        "architecture-a8"
+      ],
+      "observed_at": "2026-10-24T07:57:32.353+00:00",
+      "elapsed_ms": 219,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_d74e469bb917433cb80efb87c4b668fa.log",
+      "output_sha256": "e98a3c4dd8d3e35248cf193e92fbe539160bacc8028840e347cca584fa97d91d",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_d74e469bb917433cb80efb87c4b668fa"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/audit-architecture.mjs"
+      ],
+      "observed_at": "2026-10-24T08:05:42.172+00:00",
+      "elapsed_ms": 1812,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_d9484c5ad6ea4791a203dc7590d2d247.log",
+      "output_sha256": "d83a60e252f87203cec813ec2d5eeb12f6e812192e2758dc7b30aa6fa6e1f540",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_d9484c5ad6ea4791a203dc7590d2d247"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ARCHITECTURE",
+      "result": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/architecture.test.mjs"
+      ],
+      "observed_at": "2026-10-24T07:41:03.250+00:00",
+      "elapsed_ms": 202,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ARCHITECTURE_fd5339b8c7a94ffa8dcaa89f66c9c00f.log",
+      "output_sha256": "1e107e2e8d6d330325048006c9a5427aff9160617eef28fe4b97c9f8bd68795d",
+      "receipt_id": "MB-20261024-BALLPARK-ARCHITECTURE_fd5339b8c7a94ffa8dcaa89f66c9c00f"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ATTENDANCE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "attendance"
+      ],
+      "observed_at": "2026-10-24T07:22:36.890+00:00",
+      "elapsed_ms": 2842,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ATTENDANCE_3982838d63b047bbbfcaf3540f26f101.log",
+      "output_sha256": "424c82a2763c1d5b8e74ce31520b19175a7d8c0f0756e777246b882bca156e05",
+      "receipt_id": "MB-20261024-BALLPARK-ATTENDANCE_3982838d63b047bbbfcaf3540f26f101"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ATTENDANCE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs",
+        "tools/ballpark-studio/surface-layers.test.mjs",
+        "tools/ballpark-studio/crowd.test.mjs",
+        "tools/ballpark-studio/crowd-tiles.test.mjs"
+      ],
+      "observed_at": "2026-10-24T07:22:33.756+00:00",
+      "elapsed_ms": 202,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ATTENDANCE_45c708c573bf44ee9d6401ff595d2b11.log",
+      "output_sha256": "d137f53abbd8a35e4e3cddb13590dcacbed1d22fd10fd412c518c1e85040303c",
+      "receipt_id": "MB-20261024-BALLPARK-ATTENDANCE_45c708c573bf44ee9d6401ff595d2b11"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ATTENDANCE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/verify-source.mjs",
+        "attendance"
+      ],
+      "observed_at": "2026-10-24T07:23:56.896+00:00",
+      "elapsed_ms": 233,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ATTENDANCE_4ad3b4eb152d401296265470f9018c2b.log",
+      "output_sha256": "f3a3e17636e7da834f54567c66daad6da80d0622fa837f13e71bc391eb877653",
+      "receipt_id": "MB-20261024-BALLPARK-ATTENDANCE_4ad3b4eb152d401296265470f9018c2b"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ATTENDANCE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "attendance"
+      ],
+      "observed_at": "2026-10-24T07:23:19.006+00:00",
+      "elapsed_ms": 31202,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ATTENDANCE_88edd03205914fbe941130a3384feaa0.log",
+      "output_sha256": "9b3914a18e47a10a8a0712eb5d6fad0314467924b19625ae7ac232edeeefefe4",
+      "receipt_id": "MB-20261024-BALLPARK-ATTENDANCE_88edd03205914fbe941130a3384feaa0"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ATTENDANCE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-crowd-tiles.mjs",
+        "attendance"
+      ],
+      "observed_at": "2026-10-24T07:23:14.128+00:00",
+      "elapsed_ms": 26358,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ATTENDANCE_8d81ed72be4842988de0fb551d0913ee.log",
+      "output_sha256": "90187684cfafd6893cfb5b99fcb565720701bf19c457b8d2615921ae44f8e1c6",
+      "receipt_id": "MB-20261024-BALLPARK-ATTENDANCE_8d81ed72be4842988de0fb551d0913ee"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ATTENDANCE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-attendance.mjs",
+        "final"
+      ],
+      "observed_at": "2026-10-24T07:23:12.938+00:00",
+      "elapsed_ms": 25156,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ATTENDANCE_a4d06f5bbbd340ad850c81a7a7698ba3.log",
+      "output_sha256": "1335b204917825f0124c3d7f0158bed6317a0f8e2105b5a72121facad1b5cc5b",
+      "receipt_id": "MB-20261024-BALLPARK-ATTENDANCE_a4d06f5bbbd340ad850c81a7a7698ba3"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-ATTENDANCE",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-crowd.mjs",
+        "attendance"
+      ],
+      "observed_at": "2026-10-24T07:23:12.377+00:00",
+      "elapsed_ms": 24593,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-ATTENDANCE_d0e84861a6aa4c738013fdb0d18c46e6.log",
+      "output_sha256": "b7f1cdc7b25ce8b8f699fe1241beccd8f456eaa93558883195d2457ca6d4bc46",
+      "receipt_id": "MB-20261024-BALLPARK-ATTENDANCE_d0e84861a6aa4c738013fdb0d18c46e6"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD-TILES",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs",
+        "tools/ballpark-studio/surface-layers.test.mjs",
+        "tools/ballpark-studio/crowd.test.mjs",
+        "tools/ballpark-studio/crowd-tiles.test.mjs"
+      ],
+      "observed_at": "2026-10-24T07:05:39.366+00:00",
+      "elapsed_ms": 187,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD-TILES_06c9b7c9ce824e3db32fdfd9c588ab38.log",
+      "output_sha256": "243e215c569aa94b91f24ea079f9f1cbfb14c80eb1f64d8a6f0802904c4758d0",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD-TILES_06c9b7c9ce824e3db32fdfd9c588ab38"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD-TILES",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/verify-source.mjs",
+        "crowd-tiles-lit"
+      ],
+      "observed_at": "2026-10-24T07:11:30.282+00:00",
+      "elapsed_ms": 250,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD-TILES_6597830a5f78460f8d16511e0ba0813f.log",
+      "output_sha256": "e344dd13222729403f2848f8dc0d553f7120336a222aff9158d523a366613995",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD-TILES_6597830a5f78460f8d16511e0ba0813f"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD-TILES",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-browser.mjs",
+        "crowd-tiles-lit"
+      ],
+      "observed_at": "2026-10-24T07:11:50.994+00:00",
+      "elapsed_ms": 20968,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD-TILES_7d87872be18544f5b5cc94ddd3695792.log",
+      "output_sha256": "7d49c6f5536b2aba144422bf2ccae0f03f34bc7602d139aefe541d57d52f15a3",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD-TILES_7d87872be18544f5b5cc94ddd3695792"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD-TILES",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-crowd-tiles.mjs",
+        "first"
+      ],
+      "observed_at": "2026-10-24T07:07:55.900+00:00",
+      "elapsed_ms": 20906,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD-TILES_7ef98b93a6164dc499666493d6769b67.log",
+      "output_sha256": "acc814e75f0ecfab99d331cc0967feca20f3faeac2e4af29ad04e36822bb87e1",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD-TILES_7ef98b93a6164dc499666493d6769b67"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD-TILES",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "crowd-tiles-lit"
+      ],
+      "observed_at": "2026-10-24T07:10:06.018+00:00",
+      "elapsed_ms": 26468,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD-TILES_858f3f1fe573402daa40aca27111459c.log",
+      "output_sha256": "594a1f026fb6dc41eadfd07b31764e0a2629fde96e0fa05687bd390e52390253",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD-TILES_858f3f1fe573402daa40aca27111459c"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD-TILES",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-crowd-tiles.mjs",
+        "lit-proof"
+      ],
+      "observed_at": "2026-10-24T07:11:51.022+00:00",
+      "elapsed_ms": 21000,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD-TILES_87f65a44c2a64218b6b4ca5a396116fe.log",
+      "output_sha256": "84fd05d5a3b7710e1cbc42a60f20396ad0591636f45a6a19416c30368cfce641",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD-TILES_87f65a44c2a64218b6b4ca5a396116fe"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD-TILES",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-visual-tuning.mjs",
+        "tiled-crowd"
+      ],
+      "observed_at": "2026-10-24T07:11:48.467+00:00",
+      "elapsed_ms": 18437,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD-TILES_90fb932efa514bafb789d74fd921e023.log",
+      "output_sha256": "652402f5928c36026fcc17356cacf21393f04a8f930068469fc83ab7c57cecde",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD-TILES_90fb932efa514bafb789d74fd921e023"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD-TILES",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-crowd.mjs",
+        "tiles-lit"
+      ],
+      "observed_at": "2026-10-24T07:10:00.746+00:00",
+      "elapsed_ms": 21187,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD-TILES_9b70b71265b44dacbc4ba37bd98a6277.log",
+      "output_sha256": "b991d583dd2854f78faf3a76368d3f03789b0c05a1f04f76cb78d1fd6e36abd0",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD-TILES_9b70b71265b44dacbc4ba37bd98a6277"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD-TILES",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-crowd.mjs",
+        "tiles-first"
+      ],
+      "observed_at": "2026-10-24T07:07:55.532+00:00",
+      "elapsed_ms": 20546,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD-TILES_b00d2784645a470dbc49f2ccb6107394.log",
+      "output_sha256": "957e00382843b4c7979f8233ad17d62336e850b768acf8d5d2e18468a0180890",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD-TILES_b00d2784645a470dbc49f2ccb6107394"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD-TILES",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/probe-roof-depth.mjs",
+        "crowd-tiles-lit"
+      ],
+      "observed_at": "2026-10-24T07:09:47.422+00:00",
+      "elapsed_ms": 7860,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD-TILES_c3d77f8d029f4dc18b2d9e6e9373b9a7.log",
+      "output_sha256": "e33d60b3080bbe2b81f8acbbed1950bb5d7acb21927d549766c11c936d43c2b1",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD-TILES_c3d77f8d029f4dc18b2d9e6e9373b9a7"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD-TILES",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "crowd-tiles-first"
+      ],
+      "observed_at": "2026-10-24T07:05:43.418+00:00",
+      "elapsed_ms": 3782,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD-TILES_c64c0efdc7a04724b689471e30ba7a2e.log",
+      "output_sha256": "e882ded1bbfbd46b48c2e62ac50ae2627e65e92b08b99cd990f484bd725cee46",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD-TILES_c64c0efdc7a04724b689471e30ba7a2e"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD-TILES",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs",
+        "tools/ballpark-studio/surface-layers.test.mjs",
+        "tools/ballpark-studio/crowd.test.mjs",
+        "tools/ballpark-studio/crowd-tiles.test.mjs"
+      ],
+      "observed_at": "2026-10-24T07:09:19.679+00:00",
+      "elapsed_ms": 202,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD-TILES_ca43a652747f4d0bb684b3ae8957510b.log",
+      "output_sha256": "42100ec6ba68bf60e077fb462d3315115bdfa4ef901b10eab4bf231cc91b3008",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD-TILES_ca43a652747f4d0bb684b3ae8957510b"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD-TILES",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "crowd-tiles-first"
+      ],
+      "observed_at": "2026-10-24T07:08:00.512+00:00",
+      "elapsed_ms": 25514,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD-TILES_db54d6e16e914214b69bc8cbcd9ccc94.log",
+      "output_sha256": "b0f561f769314b863c53406ae20b300400f2d260586e653873f509afe9513540",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD-TILES_db54d6e16e914214b69bc8cbcd9ccc94"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD-TILES",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-crowd-tiles.mjs",
+        "lit"
+      ],
+      "observed_at": "2026-10-24T07:10:00.629+00:00",
+      "elapsed_ms": 21077,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD-TILES_e080e5c9b18842538797e3e5dd9add2a.log",
+      "output_sha256": "84fd05d5a3b7710e1cbc42a60f20396ad0591636f45a6a19416c30368cfce641",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD-TILES_e080e5c9b18842538797e3e5dd9add2a"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD-TILES",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "crowd-tiles-lit"
+      ],
+      "observed_at": "2026-10-24T07:09:22.751+00:00",
+      "elapsed_ms": 2796,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD-TILES_f922b2c8c0064588b75af6edf6b417c0.log",
+      "output_sha256": "e70e61221fadf36a1b8dfb726e60d0ef341c09efba38b4aa86cdd00bec5470bc",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD-TILES_f922b2c8c0064588b75af6edf6b417c0"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-crowd.mjs",
+        "observed"
+      ],
+      "observed_at": "2026-10-23T21:49:23.016+00:00",
+      "elapsed_ms": 18985,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD_1a54c7135d4844c4b3b5f4d8ff0f9530.log",
+      "output_sha256": "8c96c594e02c8adef574a48d915daaa02271dc556e9cc700d8a79d95e033c96e",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD_1a54c7135d4844c4b3b5f4d8ff0f9530"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/probe-roof-depth.mjs",
+        "crowd-observed"
+      ],
+      "observed_at": "2026-10-23T21:49:11.800+00:00",
+      "elapsed_ms": 7765,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD_205e390ce6dd4383a5baea9556d8b780.log",
+      "output_sha256": "952e0fa0ea83d1391e3fb591c376a3b1b4222a271dd8e072275ae5d883a1fdf2",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD_205e390ce6dd4383a5baea9556d8b780"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-browser.mjs",
+        "crowd-final"
+      ],
+      "observed_at": "2026-10-23T21:51:05.679+00:00",
+      "elapsed_ms": 22953,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD_2a116fc6c0004ff680d8fc4d693f0fb3.log",
+      "output_sha256": "a9ffbf91d329e10ab2668a08af10ee26ab0fcbc0dd34b2d53a4047c0c29ffb6c",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD_2a116fc6c0004ff680d8fc4d693f0fb3"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "crowd-final"
+      ],
+      "observed_at": "2026-10-23T21:51:11.157+00:00",
+      "elapsed_ms": 28421,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD_37cb03fad7924478af8bb6c88f4eeecb.log",
+      "output_sha256": "4c390c52a390cc669e94cd6fab6b7affa5396647916f825e9e4f39e5942d90cf",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD_37cb03fad7924478af8bb6c88f4eeecb"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/verify-source.mjs",
+        "crowd-final"
+      ],
+      "observed_at": "2026-10-23T21:51:56.263+00:00",
+      "elapsed_ms": 219,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD_3beb77b58c1748318e4752252224e2cb.log",
+      "output_sha256": "eb4d38d74cb86f516414cfbd69cc3330e48a96f67e7c1a8fc5f62d84853aada8",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD_3beb77b58c1748318e4752252224e2cb"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs",
+        "tools/ballpark-studio/surface-layers.test.mjs",
+        "tools/ballpark-studio/crowd.test.mjs"
+      ],
+      "observed_at": "2026-10-23T21:50:27.058+00:00",
+      "elapsed_ms": 218,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD_5a42876a95b647559d4361ab73a0afac.log",
+      "output_sha256": "923b412f86c76986c705a051884498a90f6d44b8c09b9c86b3332bde9adb78a6",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD_5a42876a95b647559d4361ab73a0afac"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "crowd-observed"
+      ],
+      "observed_at": "2026-10-23T21:48:46.712+00:00",
+      "elapsed_ms": 2656,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD_5c7d18af20564f5a8cfbc926bbed1702.log",
+      "output_sha256": "cdd4cefc62d0d5f43ee09a705fa83de11f98ef1308581b816e33a4eca6d1d669",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD_5c7d18af20564f5a8cfbc926bbed1702"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs",
+        "tools/ballpark-studio/surface-layers.test.mjs",
+        "tools/ballpark-studio/crowd.test.mjs"
+      ],
+      "observed_at": "2026-10-23T21:46:51.058+00:00",
+      "elapsed_ms": 235,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD_60e8dd327f844e0ba58bb15dd734bf59.log",
+      "output_sha256": "bce003674f47eb17776798a4d590fbcdbae4d59a0c62e5aa85ae5ab9b16ac742",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD_60e8dd327f844e0ba58bb15dd734bf59"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "crowd-final"
+      ],
+      "observed_at": "2026-10-23T21:50:29.950+00:00",
+      "elapsed_ms": 2608,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD_62048e8efb714ec98650619c33fa6498.log",
+      "output_sha256": "b7306381244696619ce29236e5f49b8a46f3474e7090f32995dc03a1a30b4795",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD_62048e8efb714ec98650619c33fa6498"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-crowd.mjs",
+        "final"
+      ],
+      "observed_at": "2026-10-23T21:51:03.996+00:00",
+      "elapsed_ms": 21265,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD_81a9949ddb9f4ea480d66d681d2179ed.log",
+      "output_sha256": "e6b2a5273ac9f9c0313db8815a43e0025d666af1e7b08a3aa2538c672d4ba09a",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD_81a9949ddb9f4ea480d66d681d2179ed"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/probe-roof-depth.mjs",
+        "crowd-final"
+      ],
+      "observed_at": "2026-10-23T21:50:51.028+00:00",
+      "elapsed_ms": 8281,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD_94d0f2f61c0a4aeb929ec496f0c2ce27.log",
+      "output_sha256": "d93af656198c81ce927f2ac3f9111bb412d956fc733290202d554aadd2691565",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD_94d0f2f61c0a4aeb929ec496f0c2ce27"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "crowd-first"
+      ],
+      "observed_at": "2026-10-23T21:47:38.364+00:00",
+      "elapsed_ms": 3139,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD_a9e3e0df5bd8475f9f2dad3a687c4d64.log",
+      "output_sha256": "f6cfdea156dc71ec665e9d7416521dbaf0ef5ddbb1e5436302bbc091e8724e5b",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD_a9e3e0df5bd8475f9f2dad3a687c4d64"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-CROWD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "crowd-observed"
+      ],
+      "observed_at": "2026-10-23T21:49:29.082+00:00",
+      "elapsed_ms": 25046,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-CROWD_eb4c4e6d6811416ba978b8d93d61b2b7.log",
+      "output_sha256": "5f4b45c47e57538c11893e0dba8bbef59ec904e4db1abeecf62116ebfef4ebee",
+      "receipt_id": "MB-20261024-BALLPARK-CROWD_eb4c4e6d6811416ba978b8d93d61b2b7"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-LOGO-LOD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/verify-source.mjs",
+        "logo-lod-a2"
+      ],
+      "observed_at": "2026-10-24T08:16:17.233+00:00",
+      "elapsed_ms": 234,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-LOGO-LOD_1e2ecd0c68334b389c886c14cbafd0a9.log",
+      "output_sha256": "176b520c2afb67f4b1d1864170c4f9b20e946055f38a4f584c38481a6b8db1ce",
+      "receipt_id": "MB-20261024-BALLPARK-LOGO-LOD_1e2ecd0c68334b389c886c14cbafd0a9"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-LOGO-LOD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-architecture.mjs",
+        "logo-lod-a1"
+      ],
+      "observed_at": "2026-10-24T08:12:53.590+00:00",
+      "elapsed_ms": 27625,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-LOGO-LOD_37dd5af1f45b41c381c5f6a0b0c86154.log",
+      "output_sha256": "34c4812949dc1acc24ee842dad7880e7de1c564d9348528f4fbca076566b350d",
+      "receipt_id": "MB-20261024-BALLPARK-LOGO-LOD_37dd5af1f45b41c381c5f6a0b0c86154"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-LOGO-LOD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-crowd-tiles.mjs",
+        "logo-lod-a1"
+      ],
+      "observed_at": "2026-10-24T08:12:46.868+00:00",
+      "elapsed_ms": 20906,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-LOGO-LOD_5ab62f0a18a0416d853a039fb23b60c2.log",
+      "output_sha256": "3c35df4f43e6abb1890a66ee95585a9c3210d0ffe34f814abf27f2fee816097b",
+      "receipt_id": "MB-20261024-BALLPARK-LOGO-LOD_5ab62f0a18a0416d853a039fb23b60c2"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-LOGO-LOD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "logo-lod-a2"
+      ],
+      "observed_at": "2026-10-24T08:16:45.014+00:00",
+      "elapsed_ms": 28014,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-LOGO-LOD_5e490536126142d5b5214728223c1dbd.log",
+      "output_sha256": "c6f0e0fa1e1a78889f01f51e08d3c672be7fbbdf37e78b7d597df8758f3d9ca5",
+      "receipt_id": "MB-20261024-BALLPARK-LOGO-LOD_5e490536126142d5b5214728223c1dbd"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-LOGO-LOD",
+      "result": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/audit-logo-lod.mjs"
+      ],
+      "observed_at": "2026-10-24T08:22:00.625+00:00",
+      "elapsed_ms": 546,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-LOGO-LOD_61e163e61197486ba1868723c5349e64.log",
+      "output_sha256": "5c6d7c65fb68899d8b2308f5eaf0c37c89e23e8b5c8dd3281cf11625a26742d5",
+      "receipt_id": "MB-20261024-BALLPARK-LOGO-LOD_61e163e61197486ba1868723c5349e64"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-LOGO-LOD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-logo-lod.mjs",
+        "logo-lod-a2"
+      ],
+      "observed_at": "2026-10-24T08:16:35.665+00:00",
+      "elapsed_ms": 18718,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-LOGO-LOD_6aa2b24190c3497aaeea855b38983ded.log",
+      "output_sha256": "55bc56446f33a0baca8833135125cca26fa8cc02b7f6b28895eeb9c0d6ca4336",
+      "receipt_id": "MB-20261024-BALLPARK-LOGO-LOD_6aa2b24190c3497aaeea855b38983ded"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-LOGO-LOD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-architecture.mjs",
+        "logo-lod-a2"
+      ],
+      "observed_at": "2026-10-24T08:16:46.341+00:00",
+      "elapsed_ms": 29358,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-LOGO-LOD_826ddc6ee50b48de91d2b522b9c5a48d.log",
+      "output_sha256": "067dfa20877f9d3905648455ae48d7fc33d99d9a12e4ab4f78de66a3339d4721",
+      "receipt_id": "MB-20261024-BALLPARK-LOGO-LOD_826ddc6ee50b48de91d2b522b9c5a48d"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-LOGO-LOD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/material-lod.test.mjs",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs",
+        "tools/ballpark-studio/surface-layers.test.mjs",
+        "tools/ballpark-studio/crowd.test.mjs",
+        "tools/ballpark-studio/crowd-tiles.test.mjs"
+      ],
+      "observed_at": "2026-10-24T08:11:55.056+00:00",
+      "elapsed_ms": 312,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-LOGO-LOD_8b7bc5b02b4d4a38a47d2ab077fb84e4.log",
+      "output_sha256": "70a521e16960edaaf6789733e6d19f421ea0cb960a19e553790a003b33caa38f",
+      "receipt_id": "MB-20261024-BALLPARK-LOGO-LOD_8b7bc5b02b4d4a38a47d2ab077fb84e4"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-LOGO-LOD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "logo-lod-a1"
+      ],
+      "observed_at": "2026-10-24T08:12:52.006+00:00",
+      "elapsed_ms": 26046,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-LOGO-LOD_a5dfd3255d4b4b7eaa7c99dd6ee10e79.log",
+      "output_sha256": "47b9a7cf39be667c426f64a30126d9009e1912a3560d52b6b4e05c8b4007d8ee",
+      "receipt_id": "MB-20261024-BALLPARK-LOGO-LOD_a5dfd3255d4b4b7eaa7c99dd6ee10e79"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-LOGO-LOD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/audit-logo-lod.mjs"
+      ],
+      "observed_at": "2026-10-24T08:23:52.734+00:00",
+      "elapsed_ms": 1484,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-LOGO-LOD_ae20deb92d1c4115903df14ff7c97a18.log",
+      "output_sha256": "6795642a526f7a024cc106be605c662db9be5529261e4b112111f28ac99fdf97",
+      "receipt_id": "MB-20261024-BALLPARK-LOGO-LOD_ae20deb92d1c4115903df14ff7c97a18"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-LOGO-LOD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/material-lod.test.mjs",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs",
+        "tools/ballpark-studio/surface-layers.test.mjs",
+        "tools/ballpark-studio/crowd.test.mjs",
+        "tools/ballpark-studio/crowd-tiles.test.mjs"
+      ],
+      "observed_at": "2026-10-24T08:15:45.499+00:00",
+      "elapsed_ms": 296,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-LOGO-LOD_b527bf82980d4c38bc273ad5d49ef02f.log",
+      "output_sha256": "871b28254c8e544d266e333dfe1ba12b42f737034080f44861dd054467c9cb0d",
+      "receipt_id": "MB-20261024-BALLPARK-LOGO-LOD_b527bf82980d4c38bc273ad5d49ef02f"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-LOGO-LOD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-crowd-tiles.mjs",
+        "logo-lod-a2"
+      ],
+      "observed_at": "2026-10-24T08:16:39.834+00:00",
+      "elapsed_ms": 22843,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-LOGO-LOD_be3f4d7c461a4d92b423824d83eac6e0.log",
+      "output_sha256": "a5aa9c4d6e8ff1f7c9ad0512e05e32ba943f44e2ac6f82a1b513d7caf5ab4a9a",
+      "receipt_id": "MB-20261024-BALLPARK-LOGO-LOD_be3f4d7c461a4d92b423824d83eac6e0"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-LOGO-LOD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "logo-lod-a1"
+      ],
+      "observed_at": "2026-10-24T08:11:58.099+00:00",
+      "elapsed_ms": 2766,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-LOGO-LOD_be520e99aebb4f59a37cca69ff71df51.log",
+      "output_sha256": "2543b340580667c26f197f4c721288f6c91d012c15c941d6fd10722f0f588e5f",
+      "receipt_id": "MB-20261024-BALLPARK-LOGO-LOD_be520e99aebb4f59a37cca69ff71df51"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-LOGO-LOD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/verify-source.mjs",
+        "logo-lod-a1"
+      ],
+      "observed_at": "2026-10-24T08:12:26.202+00:00",
+      "elapsed_ms": 235,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-LOGO-LOD_c8382849e2fe4d44a8d005b78dc3bbda.log",
+      "output_sha256": "ac06c4cbf3655e7e00def35421ca35b3dd1057348d19b65bd27c913ae6fd86cb",
+      "receipt_id": "MB-20261024-BALLPARK-LOGO-LOD_c8382849e2fe4d44a8d005b78dc3bbda"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-LOGO-LOD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-logo-lod.mjs",
+        "a1"
+      ],
+      "observed_at": "2026-10-24T08:14:14.163+00:00",
+      "elapsed_ms": 13937,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-LOGO-LOD_d86e6134d0f74e5cbc271e4a0e5ebcac.log",
+      "output_sha256": "92da025e909a99a70144ab9cf9d587d26fe71be690d1bd7949a3ca11366e3f19",
+      "receipt_id": "MB-20261024-BALLPARK-LOGO-LOD_d86e6134d0f74e5cbc271e4a0e5ebcac"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-LOGO-LOD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "logo-lod-a2"
+      ],
+      "observed_at": "2026-10-24T08:15:48.422+00:00",
+      "elapsed_ms": 2657,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-LOGO-LOD_dbfafb04cb894d07a0d423c185dff937.log",
+      "output_sha256": "3caeb9026b31f9595e797c9e0b44ef586dcb2c96ac1a6cab29c19db204ddab8b",
+      "receipt_id": "MB-20261024-BALLPARK-LOGO-LOD_dbfafb04cb894d07a0d423c185dff937"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/scoreboard.test.mjs",
+        "tools/ballpark-studio/material-lod.test.mjs",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs",
+        "tools/ballpark-studio/surface-layers.test.mjs",
+        "tools/ballpark-studio/crowd.test.mjs",
+        "tools/ballpark-studio/crowd-tiles.test.mjs"
+      ],
+      "observed_at": "2026-10-24T08:59:19.970+00:00",
+      "elapsed_ms": 312,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_0b52cd00314f41e59e677d4313fee49f.log",
+      "output_sha256": "335b3d20fa860c4c1782765f9574bca860afc759269a68774b74075946cf5bf2",
+      "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_0b52cd00314f41e59e677d4313fee49f"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/verify-source.mjs",
+        "scoreboard-a4"
+      ],
+      "observed_at": "2026-10-24T08:55:50.136+00:00",
+      "elapsed_ms": 233,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_100aa523a20540bebd0907ead142ac10.log",
+      "output_sha256": "02fcf8140bb03d21d257451c9702fa14b46b93fea0e57840b7da4caddb2ed4e9",
+      "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_100aa523a20540bebd0907ead142ac10"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-architecture.mjs",
+        "scoreboard-a5"
+      ],
+      "observed_at": "2026-10-24T09:00:48.825+00:00",
+      "elapsed_ms": 34656,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_1beff892635343a1b5734cc1cae4b033.log",
+      "output_sha256": "d2c687e5a1af6076b9b944de4cc295ee4ef090762eee97efa9d8d766bb8af3a2",
+      "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_1beff892635343a1b5734cc1cae4b033"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/scoreboard.test.mjs",
+        "tools/ballpark-studio/material-lod.test.mjs",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs",
+        "tools/ballpark-studio/surface-layers.test.mjs",
+        "tools/ballpark-studio/crowd.test.mjs",
+        "tools/ballpark-studio/crowd-tiles.test.mjs"
+      ],
+      "observed_at": "2026-10-24T08:50:58.910+00:00",
+      "elapsed_ms": 328,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_1c42020585864b42a304a136039574d2.log",
+      "output_sha256": "7f4962ba418fefd70fd9e527f20dfe6787a5f406a04aff1c6e080238675abcdb",
+      "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_1c42020585864b42a304a136039574d2"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "scoreboard-a5"
+      ],
+      "observed_at": "2026-10-24T08:59:23.075+00:00",
+      "elapsed_ms": 2813,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_237510b0e539472ba65dbae44aaa71c4.log",
+      "output_sha256": "4ed6723ff49ee7ed7f2530a7883898869c2f7ee04ef918a0c377f503c297a193",
+      "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_237510b0e539472ba65dbae44aaa71c4"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "scoreboard-a4"
+      ],
+      "observed_at": "2026-10-24T08:56:20.892+00:00",
+      "elapsed_ms": 31000,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_26e086ead7424feaa2a5234fafade39d.log",
+      "output_sha256": "16eb3d24cca2b9121119814a8003ecc73611e0450b0eb9d429d33058fc277c68",
+      "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_26e086ead7424feaa2a5234fafade39d"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-architecture.mjs",
+        "scoreboard-a4"
+      ],
+      "observed_at": "2026-10-24T08:56:24.811+00:00",
+      "elapsed_ms": 34922,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_3cf5115eeb904b41bc10c0ef63871d85.log",
+      "output_sha256": "b6005288c6871b29ab0eb6f703baca5c82f1493a86fc547402d25f1bc8fc25db",
+      "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_3cf5115eeb904b41bc10c0ef63871d85"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-scoreboard.mjs",
+        "scoreboard-a5"
+      ],
+      "observed_at": "2026-10-24T09:00:57.582+00:00",
+      "elapsed_ms": 43421,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_426e8883f44d40d5a35f64be0edc52b5.log",
+      "output_sha256": "48cbac081f231304e8fee0060f799393053df9051c84e3860c86d8b53bfeafe5",
+      "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_426e8883f44d40d5a35f64be0edc52b5"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/verify-source.mjs",
+        "scoreboard-a5"
+      ],
+      "observed_at": "2026-10-24T09:00:14.459+00:00",
+      "elapsed_ms": 250,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_428548152ae249d7a8571443b34ccc82.log",
+      "output_sha256": "711b37581e970b8771ab2431307fe6ac729424d08bbb0bcfc506be0d45b14209",
+      "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_428548152ae249d7a8571443b34ccc82"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-crowd-tiles.mjs",
+        "scoreboard-a4"
+      ],
+      "observed_at": "2026-10-24T08:56:14.562+00:00",
+      "elapsed_ms": 24672,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_5c0cc920fadb4110bb3005dd14eba31f.log",
+      "output_sha256": "3e803c251ba03fa6b1dc6ab067454b292c4637a5581882f967b9ee98e1f8d755",
+      "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_5c0cc920fadb4110bb3005dd14eba31f"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "scoreboard-a5"
+      ],
+      "observed_at": "2026-10-24T09:00:44.562+00:00",
+      "elapsed_ms": 30375,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_703e55090f4e418ba25f0c25d41aa434.log",
+      "output_sha256": "ef940c310d8bc7422c557ebf68bdae6395b005cc457a0380faacefe1b51cc5fa",
+      "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_703e55090f4e418ba25f0c25d41aa434"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-crowd-tiles.mjs",
+        "scoreboard-a5"
+      ],
+      "observed_at": "2026-10-24T09:00:37.374+00:00",
+      "elapsed_ms": 23171,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_7f965e6e23614ca1a0c298ebe8b5f1af.log",
+      "output_sha256": "765a3243fca21d0d420a2d6483ca67c0da2c3d5defd015e8a2d55aaf4707f8c1",
+      "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_7f965e6e23614ca1a0c298ebe8b5f1af"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/audit-scoreboard.mjs",
+        "scoreboard-a5"
+      ],
+      "observed_at": "2026-10-24T09:07:18.474+00:00",
+      "elapsed_ms": 2437,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_903a66beb90744a2aac51d0368d0ff35.log",
+      "output_sha256": "397592f76253c133cc97596d81e42785bcc30dc2c2352d294d3f4b1849b9aa57",
+      "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_903a66beb90744a2aac51d0368d0ff35"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "scoreboard-a4"
+      ],
+      "observed_at": "2026-10-24T08:55:09.303+00:00",
+      "elapsed_ms": 2764,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_9f9ea88ca4054ffa9803541b7768f01d.log",
+      "output_sha256": "7ef7952f9598e02719fcaf23b2b8a2ecc04dd80342c9336b969d06fcf70583ca",
+      "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_9f9ea88ca4054ffa9803541b7768f01d"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+      "result": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/scoreboard.test.mjs",
+        "tools/ballpark-studio/material-lod.test.mjs",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs",
+        "tools/ballpark-studio/surface-layers.test.mjs",
+        "tools/ballpark-studio/crowd.test.mjs",
+        "tools/ballpark-studio/crowd-tiles.test.mjs"
+      ],
+      "observed_at": "2026-10-24T08:47:57.967+00:00",
+      "elapsed_ms": 281,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_c4fdd90289e74fe09c96d9d656541d46.log",
+      "output_sha256": "8f2e2ddbb0d2311aefe88ab6bdea39f8b7ca6b692f2c36c1f57d61f76c5f7879",
+      "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_c4fdd90289e74fe09c96d9d656541d46"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/scoreboard.test.mjs",
+        "tools/ballpark-studio/material-lod.test.mjs",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs",
+        "tools/ballpark-studio/surface-layers.test.mjs",
+        "tools/ballpark-studio/crowd.test.mjs",
+        "tools/ballpark-studio/crowd-tiles.test.mjs"
+      ],
+      "observed_at": "2026-10-24T08:56:00.643+00:00",
+      "elapsed_ms": 421,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_c6805e4382ec48998dc4f380a60a04ac.log",
+      "output_sha256": "7a143e4a68371e5efaeed5d242a4e85f60bb465d4917d0c8b9c3160972ac26dd",
+      "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_c6805e4382ec48998dc4f380a60a04ac"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "scoreboard-a2"
+      ],
+      "observed_at": "2026-10-24T08:50:08.039+00:00",
+      "elapsed_ms": 3016,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_cb5d8de728fe414e9a8a51a6d7fe40f1.log",
+      "output_sha256": "8098db22fac64e82d84da5929969c0158d7d8c0c20ccbf483b3aef8d87d5fc40",
+      "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_cb5d8de728fe414e9a8a51a6d7fe40f1"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "scoreboard-a3"
+      ],
+      "observed_at": "2026-10-24T08:53:27.095+00:00",
+      "elapsed_ms": 2733,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_e648871868284605a826652958f546ea.log",
+      "output_sha256": "d44daa68151c4c6136a8f1c3e6bdb45ace3c2417deb7bf320644816449a92256",
+      "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_e648871868284605a826652958f546ea"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-SCOREBOARD",
+      "result": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-scoreboard.mjs",
+        "scoreboard-a4"
+      ],
+      "observed_at": "2026-10-24T08:56:13.798+00:00",
+      "elapsed_ms": 23907,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-SCOREBOARD_fee80e6c27f844349297bdc1c832fee9.log",
+      "output_sha256": "7db1943e9b6fd1a211167df16e6dbb08e9b622d0b324f392b98d4604c91347d2",
+      "receipt_id": "MB-20261024-BALLPARK-SCOREBOARD_fee80e6c27f844349297bdc1c832fee9"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-1",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-browser.mjs",
+        "first"
+      ],
+      "observed_at": "2026-10-23T20:08:31.551+00:00",
+      "elapsed_ms": 19937,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-1_040881c9d0964250bce70a5cf3e11399.log",
+      "output_sha256": "93ac0289eb7565263892425f4abef40d2a6d10a86af8a61bd9b5e101b35144da",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-1_040881c9d0964250bce70a5cf3e11399"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-1",
+      "result": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-browser.mjs",
+        "final"
+      ],
+      "observed_at": "2026-10-23T20:11:51.862+00:00",
+      "elapsed_ms": 12593,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-1_4747d9820ffb46a4a99cdf4bb67b2b57.log",
+      "output_sha256": "0884eb3420f7a49aca00ee7cf0ad4c21596c9bc4669690678465ed127addf387",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-1_4747d9820ffb46a4a99cdf4bb67b2b57"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-1",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/model.test.mjs"
+      ],
+      "observed_at": "2026-10-23T19:58:26.772+00:00",
+      "elapsed_ms": 156,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-1_7360dff90f264c32bb1fe8934fa2533f.log",
+      "output_sha256": "15b86793bd936bde4d68a4233d69e491a500bae91e32321e904799924828504a",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-1_7360dff90f264c32bb1fe8934fa2533f"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-1",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-browser.mjs",
+        "drag-visible"
+      ],
+      "observed_at": "2026-10-23T20:12:53.837+00:00",
+      "elapsed_ms": 18985,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-1_7d079085cf424b418cecbc7c62f081f1.log",
+      "output_sha256": "3b06e21ec62bc46daf9c7860a133e9d83fe6430c47f3289b8f71a2fe8797a46a",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-1_7d079085cf424b418cecbc7c62f081f1"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-1",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "inspect-api"
+      ],
+      "observed_at": "2026-10-23T20:08:11.318+00:00",
+      "elapsed_ms": 1875,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-1_9664d66e1572442db3b4245357f10783.log",
+      "output_sha256": "c61f238a23663574a49e6992216bcf0b88078ac4eb1de888d1679cdfa59a7e79",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-1_9664d66e1572442db3b4245357f10783"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-1",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "first"
+      ],
+      "observed_at": "2026-10-23T20:06:01.203+00:00",
+      "elapsed_ms": 2656,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-1_bfeb5dacc0d448e09e2ffb6cfd8bb620.log",
+      "output_sha256": "fe03d0439625e8672c3d7984c59b932f1b3d637aa3cec93771973c0e084dd072",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-1_bfeb5dacc0d448e09e2ffb6cfd8bb620"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-1",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/cli.mjs",
+        "check",
+        "docs/ballpark-studio/examples/symmetric-v1.json"
+      ],
+      "observed_at": "2026-10-23T20:12:18.346+00:00",
+      "elapsed_ms": 47,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-1_c84ddf56599d402faa90acfa8ce717b3.log",
+      "output_sha256": "34871a9fd13f1b759185df15a9ab2d41723d908e6bc4a37a82ab64977f8edc8f",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-1_c84ddf56599d402faa90acfa8ce717b3"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-1",
+      "result": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/model.test.mjs"
+      ],
+      "observed_at": "2026-10-23T19:56:45.106+00:00",
+      "elapsed_ms": 187,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-1_e16da2e1189b4fceba0efdbf5e6d1431.log",
+      "output_sha256": "2087cea6e3fde0699751be090e8b6e0ea0302e381eca79c92c1cd78b3070dda5",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-1_e16da2e1189b4fceba0efdbf5e6d1431"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-1",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/cli.mjs",
+        "check",
+        "docs/ballpark-studio/examples/reference-v1.json"
+      ],
+      "observed_at": "2026-10-23T20:12:19.138+00:00",
+      "elapsed_ms": 63,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-1_e9e5b7529d1249ab970ed9195c8c9e99.log",
+      "output_sha256": "fe817a3338a9bb47dae1ce0a0009e8fd54fb9335cae485f106d5b693031847d9",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-1_e9e5b7529d1249ab970ed9195c8c9e99"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "gold-wolf"
+      ],
+      "observed_at": "2026-10-23T20:56:47.936+00:00",
+      "elapsed_ms": 24875,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_011b66b03cfb449c8643fc7fe17cfe4f.log",
+      "output_sha256": "2a8432e75179bfa129d7fed9c5badd34956109e187be9b2b7749ef6803537838",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_011b66b03cfb449c8643fc7fe17cfe4f"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "dome-lattice"
+      ],
+      "observed_at": "2026-10-23T20:39:38.570+00:00",
+      "elapsed_ms": 2233,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_05bf113fe36549098cb4c7ff8184f0e0.log",
+      "output_sha256": "b47236932447dbda9c7e835943e6bef84edf97bf4f14116b8957d4835533b99c",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_05bf113fe36549098cb4c7ff8184f0e0"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs"
+      ],
+      "observed_at": "2026-10-23T20:39:35.586+00:00",
+      "elapsed_ms": 219,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_0b2d0f295f9643108a9b1f0b10f95eee.log",
+      "output_sha256": "4266abae9826cdbc8653769ba2860b838a0d9d052ab400a1a7b77323d569362f",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_0b2d0f295f9643108a9b1f0b10f95eee"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "first"
+      ],
+      "observed_at": "2026-10-23T20:34:00.960+00:00",
+      "elapsed_ms": 19297,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_40fa999571644fb698a619db3f3b0171.log",
+      "output_sha256": "5c000afa5dfa5f776f8b95f62c96647f78e1439cbe65f0222d2cc616f3c964f9",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_40fa999571644fb698a619db3f3b0171"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "wolf-only"
+      ],
+      "observed_at": "2026-10-23T20:53:49.159+00:00",
+      "elapsed_ms": 21968,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_45f96dfe0f8c429580974788577920ba.log",
+      "output_sha256": "554aacfcef87715064483a8f7b51dbb00c965f4b3f7d81a2ded4a3a549aeb328",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_45f96dfe0f8c429580974788577920ba"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "dome-first"
+      ],
+      "observed_at": "2026-10-23T20:32:13.677+00:00",
+      "elapsed_ms": 1860,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_4dae4ccd7d2b43c39942b784a7571b58.log",
+      "output_sha256": "db64d40f3cc8a13a7d2c210024485d2a8f328b51b6d1883c9c65735199e2a383",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_4dae4ccd7d2b43c39942b784a7571b58"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "seams"
+      ],
+      "observed_at": "2026-10-23T20:36:14.919+00:00",
+      "elapsed_ms": 29280,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_4e7f2b2d60a2442993fc0c72ddbc0d1d.log",
+      "output_sha256": "699fda9d877e7ad46b78f5880bf5a1ea1af45c67e89060e4cb30d4aef28dc035",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_4e7f2b2d60a2442993fc0c72ddbc0d1d"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "gold-wolf"
+      ],
+      "observed_at": "2026-10-23T20:56:22.389+00:00",
+      "elapsed_ms": 2063,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_530456f4c264476a8cee960357f4112b.log",
+      "output_sha256": "5a1ef29dc821849415ce063d08f80d80271087bee8256175735a03cefe5df73f",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_530456f4c264476a8cee960357f4112b"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs"
+      ],
+      "observed_at": "2026-10-23T20:49:40.989+00:00",
+      "elapsed_ms": 218,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_5c553b3be43c482e8c02612024519ed0.log",
+      "output_sha256": "611e6b714f4c0abdeda2f799eb039ad22d376b66692a7275f4826db6b1995c07",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_5c553b3be43c482e8c02612024519ed0"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "gold-image"
+      ],
+      "observed_at": "2026-10-23T21:01:27.553+00:00",
+      "elapsed_ms": 2468,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_7a4a970e3be04c07a56d6b8176666efa.log",
+      "output_sha256": "be3d0a1b4f0d94f02800c0b839fa1d792a4a36b1cad1256993be2a2c69cbd26e",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_7a4a970e3be04c07a56d6b8176666efa"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "gold-image-blend"
+      ],
+      "observed_at": "2026-10-23T21:03:52.850+00:00",
+      "elapsed_ms": 2312,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_8a76ec4136fd473986019f7ccbd510a3.log",
+      "output_sha256": "02c6c1a1a8caa7ea0e93540cb5e411055605e054580ac0f10aee5f37b7098337",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_8a76ec4136fd473986019f7ccbd510a3"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs"
+      ],
+      "observed_at": "2026-10-23T20:35:39.963+00:00",
+      "elapsed_ms": 281,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_a855839209314e6babc06fc471f83830.log",
+      "output_sha256": "8853b304ad0c4047e951cef25c101b19315a010531685fe2a338c54049848615",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_a855839209314e6babc06fc471f83830"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "gold-image"
+      ],
+      "observed_at": "2026-10-23T21:01:50.625+00:00",
+      "elapsed_ms": 22328,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_a9dcb373f7b2430088bd57f1e95d1945.log",
+      "output_sha256": "fefaa92cc9c3b63bcf31399b764e44971403ebb9a98b6977a8e51ee350e09830",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_a9dcb373f7b2430088bd57f1e95d1945"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "dome-seams"
+      ],
+      "observed_at": "2026-10-23T20:35:44.490+00:00",
+      "elapsed_ms": 3405,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_aa302b9d034b436986277d030eef640a.log",
+      "output_sha256": "198295a513c2f34b18c0d15a32a4814c352d3473e68c1cb4eb7f0cfe624029df",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_aa302b9d034b436986277d030eef640a"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs"
+      ],
+      "observed_at": "2026-10-23T20:32:11.171+00:00",
+      "elapsed_ms": 155,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_b387fe6106184a229c729d35078fe7a6.log",
+      "output_sha256": "3d87d8fdb9fef2b147421f1add10b66f8cf48a7b10c74c82f7f97df1354f218e",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_b387fe6106184a229c729d35078fe7a6"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "gold-image-blend"
+      ],
+      "observed_at": "2026-10-23T21:04:14.180+00:00",
+      "elapsed_ms": 20578,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_c34bf1d525954bf8a6c6fdd75300a34b.log",
+      "output_sha256": "dd394a8d7e74248474fb0e043e9bd03cd0ccec49e1c075e39f6aac85d87c96bc",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_c34bf1d525954bf8a6c6fdd75300a34b"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/probe-roof-depth.mjs",
+        "lattice"
+      ],
+      "observed_at": "2026-10-23T20:40:20.396+00:00",
+      "elapsed_ms": 6156,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_d395fd82191c4e00a1732cbf977e6925.log",
+      "output_sha256": "16bcc6dadd7750d3ce3f82772e917121d5aa7283a06e2002b79d6731ca076427",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_d395fd82191c4e00a1732cbf977e6925"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "infield-logo-first"
+      ],
+      "observed_at": "2026-10-23T20:49:44.372+00:00",
+      "elapsed_ms": 2233,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_d7f10a5549cc4a7091f3a62254f59a69.log",
+      "output_sha256": "d2ca3b71e57d85d9b58b8854779d95ca4183ab23989dd372b8b23be7f283e1d5",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_d7f10a5549cc4a7091f3a62254f59a69"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/cli.mjs",
+        "check",
+        "docs/ballpark-studio/examples/russian-dome-v2.json"
+      ],
+      "observed_at": "2026-10-23T20:41:11.537+00:00",
+      "elapsed_ms": 62,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_d827b629f56342608cc7fdace4b01e2b.log",
+      "output_sha256": "03945a28aea92766676072945d33aed6e0b9c71bbbf44c56c5fbeb873b3adddb",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_d827b629f56342608cc7fdace4b01e2b"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "infield-logo-first"
+      ],
+      "observed_at": "2026-10-23T20:50:05.168+00:00",
+      "elapsed_ms": 20093,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_dea5d4b4198c4f9886c9db6e62a3a823.log",
+      "output_sha256": "3dc3d8a15833b0f5c2fbb20374daf88f1bd2d0b0460340da97d2a6cb27121494",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_dea5d4b4198c4f9886c9db6e62a3a823"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs"
+      ],
+      "observed_at": "2026-10-23T21:04:04.046+00:00",
+      "elapsed_ms": 233,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_e09087826279450bbff2c114fd41100d.log",
+      "output_sha256": "c1a90c21d509679e4506e99a463daab455b7fc8c8f3ba7b4800a62b08793b0af",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_e09087826279450bbff2c114fd41100d"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "lattice-final"
+      ],
+      "observed_at": "2026-10-23T20:40:43.044+00:00",
+      "elapsed_ms": 21812,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_e608f82a4eec4d90b8d3e9490616490f.log",
+      "output_sha256": "f6e036f92d7611e0805cde4e0423f2d776e7ddf7613d24ec2e9f2def00f8fec7",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_e608f82a4eec4d90b8d3e9490616490f"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "wolf-only"
+      ],
+      "observed_at": "2026-10-23T20:53:26.407+00:00",
+      "elapsed_ms": 2359,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_eb6c92511a81471a9bd53f590057a16a.log",
+      "output_sha256": "4c558acb397dba48cc9df2f3bad160e3fd8b8e1aac99f59f0a40cf44b3e64bf8",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_eb6c92511a81471a9bd53f590057a16a"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-2",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-browser.mjs",
+        "v2-regression"
+      ],
+      "observed_at": "2026-10-23T20:41:56.793+00:00",
+      "elapsed_ms": 17843,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-2_ef898a1acee84ddc9b36275385d49e85.log",
+      "output_sha256": "5dc44ceb191c7cc06c8e41c659b64ea277c81f8efb166a84c27b773f8cb49d18",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-2_ef898a1acee84ddc9b36275385d49e85"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-3",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "gold-lines"
+      ],
+      "observed_at": "2026-10-23T21:38:48.080+00:00",
+      "elapsed_ms": 3061,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-3_178e9c7aabe34968aba93d0b845207e8.log",
+      "output_sha256": "cb9dd75fba2e67d7a8eefca20cb7d4f230c5c0bb8b38141e8ebcb3c2c05b7833",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-3_178e9c7aabe34968aba93d0b845207e8"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-3",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs",
+        "tools/ballpark-studio/surface-layers.test.mjs"
+      ],
+      "observed_at": "2026-10-23T21:28:38.264+00:00",
+      "elapsed_ms": 203,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-3_39c4c0878fb749d48cf496697b051ed9.log",
+      "output_sha256": "3d425dddd994f4a9a3dba8e0466aead5321e72bb68248e4f6da9d125bb177886",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-3_39c4c0878fb749d48cf496697b051ed9"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-3",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "surface-first"
+      ],
+      "observed_at": "2026-10-23T21:14:29.613+00:00",
+      "elapsed_ms": 2687,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-3_437f5c6ceadb48eb897ae73c38710f68.log",
+      "output_sha256": "c20c8dbc82f47ef52448b2366c568e371842c8545bfa34d83a66c6ec8375e9d7",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-3_437f5c6ceadb48eb897ae73c38710f68"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-3",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "surface-depth"
+      ],
+      "observed_at": "2026-10-23T21:18:14.896+00:00",
+      "elapsed_ms": 3389,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-3_458c0890fa524b419b1f44f56b0698c8.log",
+      "output_sha256": "0a12f09a1e17bce64fffb51dd520071e8be16dd11a405dabc2e66e54941d0483",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-3_458c0890fa524b419b1f44f56b0698c8"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-3",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "surface-mask"
+      ],
+      "observed_at": "2026-10-23T21:27:16.397+00:00",
+      "elapsed_ms": 19281,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-3_5859f43e7cca4da299ebd061fd7a1b91.log",
+      "output_sha256": "30f17d733b3d5b0bb86662a94f62f6e93f64b6506f80b3bcee19a94618a0acf8",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-3_5859f43e7cca4da299ebd061fd7a1b91"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-3",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-line-color.mjs"
+      ],
+      "observed_at": "2026-10-23T21:40:09.764+00:00",
+      "elapsed_ms": 34938,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-3_70064cbda91a4d7592a41d589f522f0a.log",
+      "output_sha256": "58106fa73ee93fd2a48c6ffdf76fb368b722bbedef89c7fef26517ec33ab13e0",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-3_70064cbda91a4d7592a41d589f522f0a"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-3",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/verify-source.mjs",
+        "surface-mask"
+      ],
+      "observed_at": "2026-10-23T21:34:10.189+00:00",
+      "elapsed_ms": 218,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-3_885eb4fdd4de4eac8d148b1d22fb7a40.log",
+      "output_sha256": "1858fd74c18226f1441b69154ca78d7e2426267ad74cc395dd99f2369e2835ec",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-3_885eb4fdd4de4eac8d148b1d22fb7a40"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-3",
+      "result": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "surface-first"
+      ],
+      "observed_at": "2026-10-23T21:15:01.287+00:00",
+      "elapsed_ms": 7405,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-3_a9700b56844b4cc7bb0529c2ce68828c.log",
+      "output_sha256": "f6228daf2e2027da1b9322ec9a538780dba6cc36f6e4d7ba4d1a1aac4c1c8d3c",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-3_a9700b56844b4cc7bb0529c2ce68828c"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-3",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs",
+        "tools/ballpark-studio/surface-layers.test.mjs"
+      ],
+      "observed_at": "2026-10-23T21:14:26.135+00:00",
+      "elapsed_ms": 266,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-3_b51047d02db74c04a3168238d219e65c.log",
+      "output_sha256": "197c4584121f482aaff3505bfeade6edc9558f6c443462f5579aabc46c5b26aa",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-3_b51047d02db74c04a3168238d219e65c"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-3",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/verify-source.mjs",
+        "gold-lines"
+      ],
+      "observed_at": "2026-10-23T21:39:57.631+00:00",
+      "elapsed_ms": 328,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-3_baa5d7faa3b841d0b8fa4fd6a123f302.log",
+      "output_sha256": "52f2e056ee24dfe821349cf043936ef1e2cbd092bb1855ff8ea0101cd3e1f130",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-3_baa5d7faa3b841d0b8fa4fd6a123f302"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-3",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "surface-mask"
+      ],
+      "observed_at": "2026-10-23T21:26:56.478+00:00",
+      "elapsed_ms": 2468,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-3_bd041fe13cf641d685a24b4a33146674.log",
+      "output_sha256": "0173a55a99abd0b8a6a06a09fe264a6c7fcca927041a45d4c8f70a8740126ab4",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-3_bd041fe13cf641d685a24b4a33146674"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-3",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-browser.mjs",
+        "surface-mask"
+      ],
+      "observed_at": "2026-10-23T21:32:29.805+00:00",
+      "elapsed_ms": 18953,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-3_c00b5e2f4d2c4be68300b70d017c936a.log",
+      "output_sha256": "d7d3222cc08fbf9f687a766f0aa4933813b6fad26ad7198e8628d1efb8d477d3",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-3_c00b5e2f4d2c4be68300b70d017c936a"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-3",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/probe-roof-depth.mjs",
+        "surface-mask"
+      ],
+      "observed_at": "2026-10-23T21:32:18.101+00:00",
+      "elapsed_ms": 7250,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-3_ead1377286ff40a9a2930b527e355928.log",
+      "output_sha256": "8275aa0befef617f20503f01018c080af891f2704ceb02515d20b2855f9bf9cf",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-3_ead1377286ff40a9a2930b527e355928"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-3",
+      "result": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs",
+        "tools/ballpark-studio/surface-layers.test.mjs"
+      ],
+      "observed_at": "2026-10-23T21:26:53.387+00:00",
+      "elapsed_ms": 203,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-3_edc297dc28cc453abbf30bf90a9e10d6.log",
+      "output_sha256": "1bc08c359769dedab51722920e256f094959b13755d00bf4a0156c2735c8c191",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-3_edc297dc28cc453abbf30bf90a9e10d6"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-3",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "surface-depth"
+      ],
+      "observed_at": "2026-10-23T21:18:39.517+00:00",
+      "elapsed_ms": 23750,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-3_efdcac24b99f4560ad2817fecedb6388.log",
+      "output_sha256": "58c18441f374ffbd21b18e262657cb380f6454edd16d95fae1159ab65b2fe479",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-3_efdcac24b99f4560ad2817fecedb6388"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-STUDIO-3",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "gold-lines"
+      ],
+      "observed_at": "2026-10-23T21:39:58.580+00:00",
+      "elapsed_ms": 23750,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-STUDIO-3_f2d211f657264f14ae396ab452d56571.log",
+      "output_sha256": "839aa7c988bbe66f0790a126ea0dc8ed3e47098582f3d455103638422d345ac5",
+      "receipt_id": "MB-20261024-BALLPARK-STUDIO-3_f2d211f657264f14ae396ab452d56571"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-VISUAL-TUNING",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-visual-tuning.mjs",
+        "roof-camera"
+      ],
+      "observed_at": "2026-10-24T06:52:03.056+00:00",
+      "elapsed_ms": 14672,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-VISUAL-TUNING_05328d5e7b044d82baba84f74b215196.log",
+      "output_sha256": "5eca0e2df9b1af7017a1146c24936761b8b64b762bc57aecec568413c9807460",
+      "receipt_id": "MB-20261024-BALLPARK-VISUAL-TUNING_05328d5e7b044d82baba84f74b215196"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-VISUAL-TUNING",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/verify-source.mjs",
+        "visual-tuning-first"
+      ],
+      "observed_at": "2026-10-24T06:52:52.870+00:00",
+      "elapsed_ms": 671,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-VISUAL-TUNING_059bc2e28a104ba3a767af6ffd7088cd.log",
+      "output_sha256": "936ff00c1e7cc4bc7b6bee244670a2b6f03474a83f1e9e251d639c1e4cb14819",
+      "receipt_id": "MB-20261024-BALLPARK-VISUAL-TUNING_059bc2e28a104ba3a767af6ffd7088cd"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-VISUAL-TUNING",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-crowd.mjs",
+        "tuned-first"
+      ],
+      "observed_at": "2026-10-24T06:48:16.608+00:00",
+      "elapsed_ms": 21437,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-VISUAL-TUNING_06663b4e42ed4ca182d936cc25e62482.log",
+      "output_sha256": "bd0add62a6270747a7bb2c1ebc3aee5446becf3a9c4f06102eda30b513c74d84",
+      "receipt_id": "MB-20261024-BALLPARK-VISUAL-TUNING_06663b4e42ed4ca182d936cc25e62482"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-VISUAL-TUNING",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/probe-logo-glow.mjs"
+      ],
+      "observed_at": "2026-10-24T06:49:49.670+00:00",
+      "elapsed_ms": 24047,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-VISUAL-TUNING_2ad501f82ddb4ac89258a07092d34034.log",
+      "output_sha256": "10ed5e36b052cbcf8e098440e722ca9af555a6f22df061b7a25e195f98ae94f3",
+      "receipt_id": "MB-20261024-BALLPARK-VISUAL-TUNING_2ad501f82ddb4ac89258a07092d34034"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-VISUAL-TUNING",
+      "result": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-visual-tuning.mjs",
+        "first"
+      ],
+      "observed_at": "2026-10-24T06:48:06.959+00:00",
+      "elapsed_ms": 11812,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-VISUAL-TUNING_3276a301711c4ebaa803c227eb86ee8e.log",
+      "output_sha256": "d1726b675ed35a5fd9920f0cc8e7ba7870463f96d925a2cf3a7830f5f10df8b8",
+      "receipt_id": "MB-20261024-BALLPARK-VISUAL-TUNING_3276a301711c4ebaa803c227eb86ee8e"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-VISUAL-TUNING",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/probe-roof-depth.mjs",
+        "visual-tuning"
+      ],
+      "observed_at": "2026-10-24T06:52:58.609+00:00",
+      "elapsed_ms": 6406,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-VISUAL-TUNING_6babfe2b7d36458d937e58a1cfbc34d9.log",
+      "output_sha256": "ca8064dd6fe8e6f48c0fa9bbca759dffd7bac5ae88074cd0cd8232fc73a045c8",
+      "receipt_id": "MB-20261024-BALLPARK-VISUAL-TUNING_6babfe2b7d36458d937e58a1cfbc34d9"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-VISUAL-TUNING",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/probe-logo-glow.mjs",
+        "overhead"
+      ],
+      "observed_at": "2026-10-24T06:50:55.974+00:00",
+      "elapsed_ms": 24406,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-VISUAL-TUNING_870ce9e2349342d5838217c56dc2c362.log",
+      "output_sha256": "28f66a289e5538219ba1b11eb76ac9e23b6a458bbbca028717975eae24c0b0d5",
+      "receipt_id": "MB-20261024-BALLPARK-VISUAL-TUNING_870ce9e2349342d5838217c56dc2c362"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-VISUAL-TUNING",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-dome.mjs",
+        "tuned-first"
+      ],
+      "observed_at": "2026-10-24T06:48:21.214+00:00",
+      "elapsed_ms": 26046,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-VISUAL-TUNING_b90c5b87318c4a56ba4a80590f1c2555.log",
+      "output_sha256": "592005b22f9d4225c240446d8c1742ad747e116eb4127f9070285eb577be7add",
+      "receipt_id": "MB-20261024-BALLPARK-VISUAL-TUNING_b90c5b87318c4a56ba4a80590f1c2555"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-VISUAL-TUNING",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs",
+        "tools/ballpark-studio/surface-layers.test.mjs",
+        "tools/ballpark-studio/crowd.test.mjs"
+      ],
+      "observed_at": "2026-10-24T06:46:51.572+00:00",
+      "elapsed_ms": 235,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-VISUAL-TUNING_ba2c931941f441e9a370440daed60d38.log",
+      "output_sha256": "58aedb8555b3a0e8364e8c87751dc1d0ecee4b32956a5cc833b972b50421e832",
+      "receipt_id": "MB-20261024-BALLPARK-VISUAL-TUNING_ba2c931941f441e9a370440daed60d38"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-VISUAL-TUNING",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-browser.mjs",
+        "visual-tuning"
+      ],
+      "observed_at": "2026-10-24T06:53:10.186+00:00",
+      "elapsed_ms": 18000,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-VISUAL-TUNING_dc91108c9bf849108d37cea5f76a08c7.log",
+      "output_sha256": "ef693e3b41b0d5f602478412220e8ac9de387c746e8797b28a5d3d91bf882d18",
+      "receipt_id": "MB-20261024-BALLPARK-VISUAL-TUNING_dc91108c9bf849108d37cea5f76a08c7"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261024-BALLPARK-VISUAL-TUNING",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "visual-tuning-first"
+      ],
+      "observed_at": "2026-10-24T06:46:55.269+00:00",
+      "elapsed_ms": 3437,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261024-BALLPARK-VISUAL-TUNING_f9cda7feb6594c6b81b65ca693f1a533.log",
+      "output_sha256": "314c63ae554f998168d52056fe5601863c8012f0a492b636352cfbe4d0cdb52d",
+      "receipt_id": "MB-20261024-BALLPARK-VISUAL-TUNING_f9cda7feb6594c6b81b65ca693f1a533"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261025-BALLPARK-ACCEPTED",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/check-accepted.mjs"
+      ],
+      "observed_at": "2026-10-24T16:00:17.869+00:00",
+      "elapsed_ms": 6562,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261025-BALLPARK-ACCEPTED_057de0a223e94c93a50dedcbec5ce9d7.log",
+      "output_sha256": "0302962f249109058e04a62e31a8e25aecdac2b326069d8a6397fc29ab2d3ac8",
+      "receipt_id": "MB-20261025-BALLPARK-ACCEPTED_057de0a223e94c93a50dedcbec5ce9d7"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261025-BALLPARK-ACCEPTED",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/verify-source.mjs",
+        "accepted-grass08"
+      ],
+      "observed_at": "2026-10-24T15:59:56.744+00:00",
+      "elapsed_ms": 1000,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261025-BALLPARK-ACCEPTED_27be52e5557a4ae385907b4f2a0ca02b.log",
+      "output_sha256": "4b6836a4219f249b8ceb2418cd1b772c9f95d5984cde94e9e15c4a11b9019000",
+      "receipt_id": "MB-20261025-BALLPARK-ACCEPTED_27be52e5557a4ae385907b4f2a0ca02b"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261025-BALLPARK-ACCEPTED",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "tools/ballpark-studio/build.mjs",
+        "accepted-grass08"
+      ],
+      "observed_at": "2026-10-24T15:57:44.139+00:00",
+      "elapsed_ms": 4811,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261025-BALLPARK-ACCEPTED_8fd5e02bc29f49fead9d25512551b9a6.log",
+      "output_sha256": "96d4e0faaca6d90ea3335ecb242aaf41c8263242883108d1ead53cd78d3e5cf9",
+      "receipt_id": "MB-20261025-BALLPARK-ACCEPTED_8fd5e02bc29f49fead9d25512551b9a6"
+    },
+    {
+      "schema_version": 1,
+      "task_id": "MB-20261025-BALLPARK-ACCEPTED",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": [
+        "<LOCAL_HOME>/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+        "--test",
+        "tools/ballpark-studio/scoreboard.test.mjs",
+        "tools/ballpark-studio/material-lod.test.mjs",
+        "tools/ballpark-studio/model.test.mjs",
+        "tools/ballpark-studio/architecture.test.mjs",
+        "tools/ballpark-studio/surface-layers.test.mjs",
+        "tools/ballpark-studio/crowd.test.mjs",
+        "tools/ballpark-studio/crowd-tiles.test.mjs"
+      ],
+      "observed_at": "2026-10-24T15:57:39.058+00:00",
+      "elapsed_ms": 389,
+      "git_head": "90dba70ba1a0b92840b303769e854047e725a317",
+      "git_dirty": true,
+      "output_path": "docs/ai-continuity/verification-receipts/MB-20261025-BALLPARK-ACCEPTED_e02b553945004cff89675fb4c01f7460.log",
+      "output_sha256": "9c5b7473a10d2e75d361281f7a7eb3e638ac641572464ad0663483aa8e794f81",
+      "receipt_id": "MB-20261025-BALLPARK-ACCEPTED_e02b553945004cff89675fb4c01f7460"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "cam": {
+    "camera": "overhead",
+    "eye": {
+      "x": 0,
+      "y": 350,
+      "z": -335
+    },
+    "yaw": 0,
+    "pitch": 0.6794138054078485,
+    "f": 450,
+    "cx": 300,
+    "cy": 185
+  },
+  "red": 1586,
+  "leaks": 0,
+  "examples": [],
+  "sha256": "33ad70d2d54e4fdd9d4cb23d0eb822f2142cde855b3296aaee43e9d247c35dad"
+}

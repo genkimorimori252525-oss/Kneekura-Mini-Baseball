@@ -1,0 +1,10 @@
+{
+  "date": "2026-10-24",
+  "tool": "built-in image_gen",
+  "target": "元画像の金色光点のオオカミだけを背景透過し、芝生の世界座標に投影する。",
+  "reference": "assets/wolf-gold-full-reference.png",
+  "selectedAsset": "assets/wolf-gold-cutout-v1.png",
+  "outputCopy": "outputs/球場構想_v1/オオカミ_金色_透過_v1.png",
+  "prompt": "Precise object edit of the supplied screenshot. The TARGET is the complete GOLD DOTTED WOLF FACE centered in this image. Extract exactly this wolf emblem from the stadium screenshot onto true transparent alpha. PRESERVE the actual pictured wolf: its exact ear spacing and angles, forehead, asymmetrical dotted fur contour, narrowed eyes, broad cheek tufts, long muzzle, mouth and chin, proportions, layout and discrete golden luminous dot construction. Do not redesign, simplify, stylize into another wolf, trace it as smooth vector lines, fill the face solid, or substitute a generic mascot. Keep the complete ears and chin. Remove the blue spectator/background grid, dark background, lower gold stadium rail, and all peripheral stadium lights not belonging to the wolf. Keep only the existing gold wolf dots and their restrained warm glow, with transparent gaps between dots. The source image itself is the design authority. Center the extracted emblem with a small clean transparent margin. Faithful raster extraction and cleanup for a decal on baseball grass. No shield, no text, no football, no extra features, no newly invented ornament. Maintain the gold tone from the original screenshot.",
+  "note": "ネイティブ線画案は本人の『全然画像と違う』で不採用。最後の完全な金色狼参照を画像加工した素材を採用。生成加工であり原画の画素同一切抜きという主張はしない。外側alphaを保持し、芝生描画ではgold色/弱い透過でなじませる。"
+}

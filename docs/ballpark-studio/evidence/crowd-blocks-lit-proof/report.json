@@ -1,0 +1,43 @@
+{
+  "pass": true,
+  "errors": [],
+  "sha256": "6b2ebaf869e8c11c3015e2f27db5efb52b1e7cf7eb46743709f3d53bb31f6d99",
+  "crowd": {
+    "frame": 2,
+    "frames": 3,
+    "visible": true,
+    "mode": "tiled_clusters",
+    "groups": 1920,
+    "coverage": 1,
+    "individualWorldObjects": 0,
+    "tile": {
+      "width": 16,
+      "height": 12,
+      "frameCount": 3,
+      "occupancy": 1,
+      "individualWorldObjects": 0
+    },
+    "candidateCrowdCells": 9345,
+    "candidateLedCells": 774,
+    "appearance": {
+      "density": 0.75,
+      "detail": "simple",
+      "size": 1,
+      "brightness": 1,
+      "glow": 0.7
+    },
+    "penLengthMeters": 0.07,
+    "palette": [
+      "#b72e3d",
+      "#254f9a"
+    ],
+    "visibleLedCells": 753
+  },
+  "actualGlowChangesPixels": true,
+  "densityDoesNotEmptyStands": true,
+  "crowdOffPixelIdentical": true,
+  "logoPixelsUnchanged": true,
+  "closedRoofHidesCrowdGlow": true,
+  "glowSaved": true,
+  "mobile": true
+}

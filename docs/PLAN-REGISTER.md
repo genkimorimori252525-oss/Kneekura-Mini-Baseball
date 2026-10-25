@@ -1,5 +1,15 @@
 # Implementation Plan Register — status, owners and dependencies
 
+## 2026-10-25 球場制作部の登録
+
+| 項目 | 状態・入口 |
+|---|---|
+| タンボフ球場の制作技術・環境 | [球場制作部](../ballpark-production/README.md)。SOURCE PRESENT / DESIGN HUMAN ACCEPTED。芝生ロゴ0.8倍採用 |
+| 公開package再現・検証 | [再現手順](../ballpark-production/REPRODUCTION.md) / [今回の結果](../ballpark-production/validation/publication-report.json)。原ソース・採用HTMLと凍結入力・制作履歴を収録 |
+| 新球場の通常試合Coreへの接続 | NOT CONNECTED。壁/屋根衝突・HR・守備予測・公式表示盤の別工程。制作部公開を接続済みと扱わない |
+
+以下の既存計画は履歴・状態を保持する。
+
 > **Updated:** 2026-10-20 (lossless-performance reference added; 2026-10-16 baseball-plan statuses unchanged). **This is a discoverability index, not implementation authorization or a new canonical specification.** Each linked document's internal Status and the later explicitly approved canonical design take precedence.
 >
 > **Caution:** The user mentioned **four** plans in this conversation, but this GitHub branch currently contains **three newly written 2026-10-16 implementation plans**. The “flow / in-game form” discussion has **not** been approved as a fourth implementation plan. It has its own [discovery note](notes/2026-10-16-in-game-form-discussion.md) so an AI will not silently omit or implement it.

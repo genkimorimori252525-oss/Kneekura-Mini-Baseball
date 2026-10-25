@@ -1,0 +1,75 @@
+{
+  "pass": true,
+  "file": "<LOCAL_HOME>/Documents\\Codex\\2026-10-15\\new-chat\\outputs\\球場設計室_v2_開閉式ドーム.html",
+  "sha256": "7560582fd1eda1ab67a5f7e3bbed3e56a40458319936b5631cb33dadecd92424",
+  "errors": [],
+  "external": [],
+  "cameras": [
+    {
+      "camera": "stadium",
+      "triangles": 4313,
+      "candidateCells": 33891
+    },
+    {
+      "camera": "overhead",
+      "triangles": 411,
+      "candidateCells": 7051
+    },
+    {
+      "camera": "catcher",
+      "triangles": 381,
+      "candidateCells": 6132
+    },
+    {
+      "camera": "mound",
+      "triangles": 50,
+      "candidateCells": 9626
+    },
+    {
+      "camera": "batter",
+      "triangles": 351,
+      "candidateCells": 5207
+    },
+    {
+      "camera": "fielder",
+      "triangles": 958,
+      "candidateCells": 12816
+    }
+  ],
+  "widths": [
+    1280,
+    390,
+    320
+  ],
+  "mesh": {
+    "capacity": 120000,
+    "tiers": 5,
+    "rowsPerTier": 24,
+    "spectatorLights": 17280,
+    "roof": {
+      "halfX": 88.24621202458748,
+      "z0": -47,
+      "z1": 148,
+      "y": 105.88,
+      "openingPercent": 100,
+      "leftInnerEdge": -88.24621202458748,
+      "rightInnerEdge": 88.24621202458748,
+      "cutaway": true
+    },
+    "surfaces": 2433,
+    "triangles": 4313,
+    "candidateCells": 33891,
+    "omittedRoofSurfaces": 184,
+    "renderer": "original_projection_grid_depth_and_dot",
+    "simulationIntegration": "DESIGN_ONLY_NOT_MATCH_CORE_ADMITTED"
+  },
+  "roofOpenCloseUndo": true,
+  "colors": true,
+  "localErrors": true,
+  "boundaryCacheInvalidation": true,
+  "referencePixelIdentical": true,
+  "saveRoundtrip": true,
+  "noIdleRedraw": true,
+  "v1AndOriginalUnchanged": true,
+  "fixedGeometryUnchanged": true
+}
