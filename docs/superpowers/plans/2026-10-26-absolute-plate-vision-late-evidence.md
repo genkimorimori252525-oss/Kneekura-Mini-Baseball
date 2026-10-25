@@ -60,7 +60,7 @@ V = 100  →  1（相対能力の上限）
 
 ## 4. 最小実装手順
 
-1. 最新作業ツリー・並行ブランチ・Git未commit差分を保全して監査。`plateVision → 認識誤差/観測配達 → BatterPrediction → TAK E/SWING判断 → Motor → 接触` の実際の採用経路を特定（表記上 `TAKE/SWING`）。
+1. 最新作業ツリー・並行ブランチ・Git未commit差分を保全して監査。`plateVision → 認識誤差/観測配達 → BatterPrediction → TAKE/SWING判断 → Motor → 接触` の実際の採用経路を特定。
 2. 1/45/74/75の旧挙動のfixtureを固定する。旧saveからの絶対選球眼解決・メーカー編集・リーグ切替も含める。
 3. 現在の真の認識Sourceに75超の後半情報処理余地を統合。独立したTraitや二重Beliefを作らず、追加性能は校正可能な処理時刻または情報品質のみに反映。
 4. 既存 `selectPredictionAt`・BATの一つの意思決定境界に接続する。途中再計画の実運動がまだ未完成なら、その段階は `NOT CONNECTED` と記録し、独立した見た目だけの補正を作らない。
