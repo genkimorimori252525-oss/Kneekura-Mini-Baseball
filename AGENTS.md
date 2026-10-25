@@ -57,3 +57,5 @@ The user referred to four plans; repository audit located **three** such new imp
 ## 2026-10-25 守備ユニフォーム・頭部描画
 
 採用PNGの衣装・帽子・ヘルメットを変更するAIは、[つば基準の向き確定と共通ユニフォーム手順](docs/drawing-department/DEFENSE-UNIFORM-WORKFLOW.md)を先に読む。ローカル検証用テンプレートであり、Core統合や全コマの本人採用を意味しない。
+
+2026-10-26訂正：捕手ball-leftの修正済みrendering指定を衣装一覧・保存・一括出力でも優先する。旧全身PNGの配色だけへ戻さない。詳細は上記の制作手順の2026-10-26訂正節。

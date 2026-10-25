@@ -55,3 +55,11 @@ node --expose-gc output/b2-defense-motion-probe/uniform-design/wardrobe-qa.cjs
 実検証の結果は[描画担当の既存記録Issue #381](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/issues/381)へ集約する。Core・物理・公式結果・本番ゲームへの接続は未実施。この文書を追加しただけで統合完了にしない。
 
 関連: [PNG継続](../presentation/2026-10-01-png-player-continuation.md)、[World-First/Broadcast](../architecture/WORLD-FIRST-BROADCAST.md)。
+
+## 2026-10-26 訂正：修正済み捕手の描画経路を衣装一覧で共有
+
+本人が`catcher-ball-v1 / ball-left`の腕が胸へ埋まる表示を再指摘。以前修正した腕／ミット分離描画と別に、一覧が旧全身PNGへ衣装だけを適用していた。目視確認でも見落とした。
+
+現在は`catcher-layered/draw.cjs`に既存の修正済み描画を共有し、該当素材の`wardrobe-profiles/catcher.json`に`rendering.mode=catcher-layered`を指定。衣装一覧・拡大表示・PNG保存・Node／CLI一括書き出しを同じ経路につなぐ。AIはこの指定を無視して旧原画への配色だけに戻さない。元PNGは修正前の比較資料として保持し、変更しない。派生PNGは既存分離描画の800×720になり、この1コマに原画alpha一致を主張しない。他56素材の保護検査は維持する。
+
+最終20群PASS `B2-CATCHER-WARDROBE-ROUTING-FINAL_6da42157326a490dbe449a25fd8da90d`。両kitの前腕で胸線漏れ0、ブラウザーの既存修正版と一覧のPNGが両kit／白靴で完全一致し、保存PNGも一致。原画・採用台帳・Core・暴投の原画経路は保持。新しい本人採用と本番統合は未確認。
