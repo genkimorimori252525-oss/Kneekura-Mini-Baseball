@@ -1,5 +1,7 @@
 # Kneekura Mini Baseball — 選手由来シグネチャー得能・リーグ文化生成 実装計画 v1
 
+> **2026-10-26 本人回答で実装段階を確定:** このSIGN v1とSPIN v2が依頼対象の2計画であることは確認済み。同じ対象確認を繰り返さない。SIGNの自動認定・自動名付け・Career文化生成は**ペナント実装時**に行う。現在の実装はSource分離・公式context Evidence・凍結ID/時刻/表示契約などの**基盤のみ**であり、自動名付けを現在のgoal完了条件に含めない。本人がペナント実装を依頼した段階で後半の認定・命名を進める。名称から物理/真能力へのBuff禁止とDRAFT32の個別fenceは維持。[範囲確定の判断記録](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380#issuecomment-6412388620)。
+
 > **作成:** 2026-10-26 (JST)  
 > **状態:** **USER-APPROVED DESIGN DIRECTION / FUTURE IMPLEMENTATION PLAN / NOT IMPLEMENTED**。本会話で確定した趣旨をまとめる計画。アルゴリズムの閾値、校正係数、名称デザイン、UI詳細、史実選手の扱いは未Freeze。  
 > **対象:** `genkimorimori252525-oss/Kneekura-Mini-Baseball`。長期ペナント／現役選手／引退後の歴史／後継者。Mini/Natural共通のWorld-first Match Coreを変更せず利用。  
