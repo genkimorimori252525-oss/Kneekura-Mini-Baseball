@@ -102,3 +102,7 @@ For individual competitions/country rosters, first use the relevant numbered [`d
 ## v81 最新版への無劣化性能実装（2026-10-20）
 
 [恒久標準](performance/PERFORMANCE-STANDARD.md)・[採否と実測](performance/2026-10-20-v81-lossless-results.md)。実装/3HTMLは `1f2155fd4c7241ca627dca53d288f28478c94654`（既存Draft PR #380、main未merge）。通常144/調整室60/メーカー64場面の画素一致、9回320＋別seed82球の全record一致。全673軌道を保持。全シーン同期更新を実装したが、初回起動コスト増・実機/60FPS全場面・Worker/GPU等は未達/未検証として残す。旧lv76証跡とは区別する。
+
+## 2026-10-25 守備衣装と頭部テンプレート
+
+[制作手順・AI操作・検証境界](drawing-department/DEFENSE-UNIFORM-WORKFLOW.md)。原画のつばで方向を確定し、同じ投影でLAを描画する。採用57守備の衣装派生をローカル生成、Core未接続。

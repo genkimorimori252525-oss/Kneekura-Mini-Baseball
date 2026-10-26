@@ -53,3 +53,11 @@ The user referred to four plans; repository audit located **three** such new imp
 ## Tooling boundary
 
 `npm run typecheck`, `npm test`, `npm run verify` are defined in this branch's package metadata, but run them **only when the actual worktree is available**; reading GitHub docs does not constitute test execution. Never claim a full nine-inning playable match from an isolated contact or decision fixture.
+
+## 2026-10-25 守備ユニフォーム・頭部描画
+
+採用PNGの衣装・帽子・ヘルメットを変更するAIは、[つば基準の向き確定と共通ユニフォーム手順](docs/drawing-department/DEFENSE-UNIFORM-WORKFLOW.md)を先に読む。ローカル検証用テンプレートであり、Core統合や全コマの本人採用を意味しない。
+
+2026-10-26訂正：捕手ball-leftの修正済みrendering指定を衣装一覧・保存・一括出力でも優先する。旧全身PNGの配色だけへ戻さない。詳細は上記の制作手順の2026-10-26訂正節。
+
+正面ゴロ守備6素材の帽子はsourceVariantを優先する。共通形へ頂点の点や装飾模様を付けず、色／マークはチーム設定で別描画。元／派生のSHAとrectを区別し、古い向きを流用しない。上記手順の2026-10-26正面ゴロ守備節を参照。
