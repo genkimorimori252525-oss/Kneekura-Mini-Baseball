@@ -145,6 +145,14 @@ Task1→Task2→Task3→Task4→Task5→Task6。Task1の測定を使って以後
 
 **一次資料と限界:** [NASA: Lift of a Baseball](https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/lift-of-a-baseball/) は回転・流速・縫い目と空力、[Nathan et al.](https://arxiv.org/abs/physics/0605041) は回転球の空力測定を支える。これらだけから任意の遅い変化開始を実証したとはしない。時間分布によるキレ観測は今回の設計提案。
 
+**2026-10-28 V164 3入力候補:** V162固定40/厳密3段階0、V163局所位相/候補0を保持。固定中/強の量条件不成立を入口で見落としたため、V164では既存Bへ中を変更してanchor事前検査を追加した。通常19件は全件再利用し、候補5件のdense/半stepだけ10件を新規実行。3条件共通で弱(.04/30/-5)/中(.1/30/270)/強(.02/30/0)が量最大差4.9888%以内、p50/late20の順序を維持。188cf834 PASS4.233秒、全型841a1b81/新9件a1bcdb8d。モデル内の相対入力であり、無技能比の改善・全球種/実測校正・3選択UIは未完。次はV165で通常保存/狙い補正/比較を確認する。詳細 `docs/verification/realism-debug-20261027/KIRE-THREE-INPUTS-V164.md`。完了済みの物理探索/共通CCG/V161を再実行しない。
+
+**V164保存record追記:** p10が弱181.516ms/中158.491ms/強200.677msと逆転したため、p50/p90順の3入力を本人定義の変化初期順へ昇格しない。次はV165で保存56件だけを早期順まで診断し、新規飛行を計算しない。通常authoring/狙い補正確認はV166の別harnessを準備し、入力確定後に行う。
+
+**V165判定（最新）:** 保存56条件/27720組を新飛行0で診断し、近量方向311組・旧primary候補3組に対し、p10/p50/p90順も満たす候補0。fb5920e1 PASS718ms。V164候補を3技能へ採用しない。V166通常authoring harnessは準備済みだが適格入力がないためChrome未実行、不要な試投を開始しない。次は既存空力Sourceの入力をrelease制御/球の物性/環境に分け、技能入力の有効域と未測定境界を固定する。既存範囲を自動拡張した総当たりや、量閾値/名前/時刻補正による成立化は行わない。UIには既存catalog/select/null復帰を使えるが、breaking_ball_qualityの実state/consumerは未定義であり、数値effectScale欄を出さず3選択で実Sourceへ通す接続が必要。
+
+**Source適用域の固定:** `simulateLivePitchV1()` がrelease owner、`LivePitchAuthoringV78.ts`が名目spin/qの供給元。既存spin再現誤差は一様倍率で、キレ技能/手指動作→名目spin/qや軸/姿勢精度は未接続。空力の開始時刻入力は存在せず、mass/air/seam係数の技能別変更へ置換しない。次はこの既存owner内の最小接続案を具体化し、3表示・数値手入力なし・null復帰・旧省略互換・基準無技能と球別適用域を先に対応する。未測定値と既存56件の範囲外はUNKNOWNのまま。詳細は上のV164/V165結果文書。
+
 ### Task5: SPIN v2/SIGN基盤と継承残件
 
 **Files:** 継承計画 `docs/verification/traits-spin-continuation-v123/PLAN.md`、`IMPLEMENTATION-SCOPE.json`、`LIVE-POLE-SEAM-V148-RESULTS.md`、`SPIN16-17-OWNER-AUDIT.md`、`docs/verification/swing-remainder-v122/RESULTS.md`。実装所有者は既存 `SpinControlMasteryV123.ts`、`SpinMotorQualificationV123.ts`、`SpinMotorPlanV123.ts`、`LiveSpinControlV123.ts`、`SignatureContextEvidenceV123.ts` と該当Native/Live Owner。Task1のcase/manifestを実Native認証と混同しない。
@@ -178,7 +186,7 @@ Task1→Task2→Task3→Task4→Task5→Task6。Task1の測定を使って以後
 
 ## 作業運用と次手順
 
-- **2026-10-28 反復防止改訂:** V160自然連続診断は実行済（26比較一致、receipt f2b74d33）。再開入口に未実行として残した不整合を修正する。CURRENT本文を完了証拠/現在一件/次の具体的操作へ更新してからWorkflowとcheckpointを揃える。新しいreceiptが入口より後なら、再実行の前に整合する。同じ成功試験を開き直すのは関係Source/入力/runtime変更・新失敗・本人の明示再検証がある時だけで、理由を実行前に記録する。既存pending handleを再利用し、説明/tool出力は新差分へ限定する。過去の本文/原証拠は保持し、新たな台帳/Hook/設定は増やさない。次の一件は `../../verification/realism-debug-20261027/FIRST-PITCH-INTENT-V160.md` のV161-R1。強制swing案は不正commandでFAIL17bbe1ea、合法APIで同一球の判断だけを変えられないため撤回。新しい診断権限やダミー本人profileを加えて成立させない。
+- **2026-10-28 反復防止改訂:** V160自然連続診断は実行済（26比較一致、receipt f2b74d33）。再開入口に未実行として残した不整合を修正する。CURRENT本文を完了証拠/現在一件/次の具体的操作へ更新してからWorkflowとcheckpointを揃える。新しいreceiptが入口より後なら、再実行の前に整合する。同じ成功試験を開き直すのは関係Source/入力/runtime変更・新失敗・本人の明示再検証がある時だけで、理由を実行前に記録する。既存pending handleを再利用し、説明/tool出力は新差分へ限定する。過去の本文/原証拠は保持し、新たな台帳/Hook/設定は増やさない。当時の次手順V161-R1（`../../verification/realism-debug-20261027/FIRST-PITCH-INTENT-V160.md`）は実装/限定検証済み。現在の一件はCURRENT本文と対応する最新WorkflowのnextActionを正本とし、この履歴から再起動しない。強制swing案は不正commandでFAIL17bbe1ea、合法APIで同一球の判断だけを変えられないため撤回。新しい診断権限やダミー本人profileを加えて成立させない。
 - 初回Task1のharness・manifest読取と最小case化は実行済み履歴として参照する。再開時はCURRENT/Workflowの現在一件から進める。各検証はそのmanifestを使い、古い固定harnessを最新distへ無修正で走らせない。
 - 1変更=1仮説=1最小caseを原則とし、壁時計待ち・巨大logの読み直し・同じ成功試験の反復を減らす。profilerで重いphaseを特定してから最適化する。
 - Source/設定/seed/command/runtimeと正規データをhash固定。counterfactualは分析専用、実選手/実球へ逆流させない。traceは決定点と失敗前後を保存し、必要な全記録の検証能力は保持する。
