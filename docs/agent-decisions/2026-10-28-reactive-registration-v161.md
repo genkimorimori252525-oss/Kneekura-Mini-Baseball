@@ -1,0 +1,15 @@
+# V161: 明示AUTO/REACTIVEの観測対応運動
+
+2026-10-28 JST / MB-20261027-REALISM-DEBUG-PLAN。共通CCGの先行整備を完了してから着手した。ゲームSourceでは本工程が初めてのV161変更で、V160自然probe/初球方向の未実証を保持する。
+
+未設定AUTOで元clip方向を使うだけの不足へ、既存V153の有限yaw/surface登録/最初の主観接触/準備arc回復certificateを共用する。REACTIVE/null角を維持し、固定held姿勢からarc開始姿勢へ必要な最大grip/tip移動量÷準備時間が小さい実行可能候補を選ぶ。角度0の目標や3方向抽選へ置換しない。このcostは明示した幾何的選択規約で、人体の努力量の校正値ではない。
+
+適用は明示AUTO＋REACTIVE＋V153 policy＋配達済み主観予測＋振る判断成立＋SPIN専用motorなし。手動/V122目標方向、request省略、policy省略の従来経路は維持。実行誤差は名目plan後、実接触は既存solverへ渡す。新RNG draw、未来実球、角度/打球結果の直接補正を加えない。既存上限・全候補拒否・V154未校正は保持する。
+
+rootの新integration試験では、実装前に2件がNOT_APPLIED対PLANNEDでRED、request省略の物理対照はPASS（aa107480e73f4725857b181b6adbea5e）。所有者workerのcore contractも未export理由でRED（67d698e7903c4497a46c4a86dfb868d6）。合成SWING controlは本人profile/自然な振る判断の証拠にしない。
+
+既存V153のAUTO試験には『方向motorを使わず旧framesと一致する』という当時の未接続状態を固定した期待がある。本人の今回の改善指示に従い、この期待だけをREACTIVEの観測対応へ変更する。旧入力の省略互換は新integrationの対照と既存whole-record digestで検証する。旧FAIL・原JSON・元clip・前版bundleは取り除かない。
+
+対象は既存contact planner/LivePitchと限定test。Source変更後に限定test/型検査、同Chromeの本人連続case、通常Host/実Worker、手動/省略互換を検証する。本人caseで拒否/失敗が出ても上限緩和や黙示fallbackへ変えず原診断を保持する。復旧はこの工程の限定差分を確認して戻し、共有dirty treeの全resetはしない。
+
+最初の同Chrome入口は、旧V159 Makerに新Core manifestを渡した不一致を実guardが拒否した（6473f8f13e6d4df2b69fb2beb0dd5a00、試投0）。guardを緩めず、新Coreを埋めた限定Makerを生成する。再現runnerには明示 `--maker <folder>` の選択だけ追加し、従来5引数は元V159既定を保持する。原V160 harness/FAIL/JSONは保存したまま、新bundleと新Makerの全pin一致を再試験の条件にする。

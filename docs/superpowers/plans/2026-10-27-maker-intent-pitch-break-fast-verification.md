@@ -10,7 +10,7 @@
 
 **Spec:** [判断・要件・根拠](../../agent-decisions/2026-10-27-realism-debug-goal.md)。Task `MB-20261027-REALISM-DEBUG-PLAN`、Workflow `15a72f44966b4def9008983dc87c9a8a`。計画保存/goal登録と実装完了を区別する。
 
-**再開入口（2026-10-28更新）:** 現在の一件と実行済み境界は `../../ai-continuity/CURRENT.md` の同task節とWorkflowの最新receiptを使う。以下の段階計画と工程当時の記述を、完了済作業を最初から繰り返す指示にしない。直近V160自然診断は実行済み、次は先行CCG共通整備を閉じてからV161-R1。
+**再開入口（2026-10-28更新）:** 現在の一件と実行済み境界は `../../ai-continuity/CURRENT.md` の同task節とWorkflowの最新receiptを使う。以下の段階計画と工程当時の記述を、完了済作業を最初から繰り返す指示にしない。共通CCG先行整備とV161のREACTIVE観測対応は実行済み。具体的な次操作は再開入口の一件に従う。
 
 **本人指定の先行条件（2026-10-28）:** 野球実装の再開前に、反復防止をCCG利用全agentの共通core・共有Skill・共通入口へ整備して実検証する。個別projectだけの規則で終了しない。既存projectの一括書換え/初期化・Hook ON・認証変更は行わない。この条件が満たされてからV161-R1へ戻る。
 
@@ -103,6 +103,8 @@ Task1→Task2→Task3→Task4→Task5→Task6。Task1の測定を使って以後
 **Acceptance:** 合法な対照条件でPULL/CENTER/OPPOSITEの指示が合理的に異なる運動を作り、元の流し偏りの原因と改善幅を数値で示す。狙いどおりの全成功や中央0度への強制は要求しない。
 
 **2026-10-27 V153工程結果:** 凍結V151主観p/v/aと自己clip/物性から有限yawのsurface登録を選び、名目planとV152実行誤差を分離。固定held/C1 bridge・利用可能時間の測定key window・slowing-only実行制限を通常Host/Makerへ接続。最終61件/全型、元選手72対比較の絶対方向誤差中央値19.0933→6.2636度、16実接触/lateと2接触2守備の通常Host/実Worker全record一致、PC390/JSON/旧入力互換と全Source/原JSON整合を確認。公開matrixは48条件実行、別4groupの準備回復証明は未解決。詳細 `docs/verification/realism-debug-20261027/OBSERVED-DIRECTION-MOTOR-V153.md`。この運用予測を人体校正/Native権限へ昇格しない。既資格SPIN motorは今回未適用、人体到達/通常戦術・観測分類/校正と後続scopeを保持。次は公開obp-190_7の証明値を区間別に分け、補完時間の未校正・証明の保守性・実装不整合を切分け、候補計画コストも同caseで診断。Task1性能B/9回と全goal/step-007はACTIVE。
+
+**2026-10-28 V161限定工程結果:** 共通CCG整備後、明示AUTO/REACTIVEを既存の主観接触/有限運動へ接続。仮角度/3方向抽選を使わず固定held→arcのendpoint転送costを最小化し、名目と実行誤差を分けた。core既存14＋新5、最終新5/統合16/全型4a7d0947、同Chrome本人26比較817916a3、PC1200/390の10casesと旧省略2球full-record05c8b960、最終整合82a29fda PASS。同じ自然第2球は旧後方foul146.86度から新live_ball/左打者引張側30.15度へ変化し、初球/TAKE全recordと次球のSource/観測/乱数/誤差等12対照は厳密一致9cca9408。初球は見送りで打球方向未実証、全分布/心理/人体の完成ではない。限定Maker candidate-maker-reactive-v161-01（HTMLf10fc2a3、Native212/7e65f1ca、WB189/d62b8880）、詳細 `docs/verification/realism-debug-20261027/REACTIVE-MOTOR-V161.md`。V154/人体/通常戦術/分類校正・SPIN/Native/旧残件/性能B/9回/配送・キレ3選択/最終GitHub照合は未完、全goal ACTIVE。
 
 ### Task4: キレ・変化量・ブレーキと投球比較
 
