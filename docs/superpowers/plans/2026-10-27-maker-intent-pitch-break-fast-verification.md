@@ -10,6 +10,10 @@
 
 **Spec:** [判断・要件・根拠](../../agent-decisions/2026-10-27-realism-debug-goal.md)。Task `MB-20261027-REALISM-DEBUG-PLAN`、Workflow `15a72f44966b4def9008983dc87c9a8a`。計画保存/goal登録と実装完了を区別する。
 
+**再開入口（2026-10-28更新）:** 現在の一件と実行済み境界は `../../ai-continuity/CURRENT.md` の同task節とWorkflowの最新receiptを使う。以下の段階計画と工程当時の記述を、完了済作業を最初から繰り返す指示にしない。直近V160自然診断は実行済み、次は先行CCG共通整備を閉じてからV161-R1。
+
+**本人指定の先行条件（2026-10-28）:** 野球実装の再開前に、反復防止をCCG利用全agentの共通core・共有Skill・共通入口へ整備して実検証する。個別projectだけの規則で終了しない。既存projectの一括書換え/初期化・Hook ON・認証変更は行わない。この条件が満たされてからV161-R1へ戻る。
+
 ## Global Constraints
 
 - World-first causality。Presentation is read-only。Mini/Naturalは同じMatch Core。
@@ -112,8 +116,20 @@ Task1→Task2→Task3→Task4→Task5→Task6。Task1の測定を使って以後
 - [x] Step4: 同じ目標へ狙い補正する通常試投と、基準球の投げ出し位置/初速度を固定した比較を既存様式に追加。狙い、補正した角度、到達点、球速/飛行時間、飛行中の減速を保存・再読する。変化量1/7の終点が似た原因をこの対比較で示す。
 - [ ] Step5: 既存回転軸/有効回転/縫い目姿勢/速度依存係数/回転減衰から「同程度の変化量・異なる終盤集中」が実現可能か探索し、Sourceと許容差を記録。成立しない場合はモデル不足をUNKNOWNとして対象化し、任意の時間に力をON/OFFして完成扱いにしない。実測/一次資料で支持された時系列モデルだけを明示versionで追加する。
 - [x] Step6: `npx vitest run src/integration/browser/PitchQualityV121.test.ts src/integration/browser/PitcherWorkbenchV77.test.ts src/integration/browser/PitchMovementV92.test.ts src/integration/browser/PitchBreakTiming.test.ts`、Task1の同Chrome試投・保存再読を実行。
+- [ ] Step7（2026-10-28本人追加）: メーカーのキレを「キレ○／キレ◎／脅威の切れ味◎」から選ぶだけで適用できるようにする。通常の利用で回転軸・材料位相・係数の手入力を要求しない。詳細入力は調整用として保持し、選択直後の試投と保存/再読/通常試合まで同じ効果を接続する。下記の選択契約と受入を満たすまで未完とする。
 
 **Acceptance:** 本人の「いつから、短時間にどれだけ変化するか」が軌道・時間・距離で比較可能。変化量/キレ/減速/狙い補正は別。物理上独立でない項目を無条件に独立調整可能と表示しない。得能がある場合も真の投球技能/Sourceの要約とし、タグから曲げない。6秒/1秒・70cmは説明例で、実試投へ固定しない。
+
+**キレ3選択の契約（本人指定・未実装）:**
+
+- 表記は本人の指定どおり「キレ○」「キレ◎」「脅威の切れ味◎」。既存の通常/未適用状態へ戻せる。選ぶ操作で現在の球へ適用し、低水準値の転記や別の適用ボタンを通常手順にしない。
+- 各選択を、共有Coreが使うversion付き投球技能/実入力の設定へ変換する。名札だけの変更や計算後の軌道/打者反応/打球結果の補正で代用しない。選択名と元の物理入力・適用versionを保存し、読み直して同じSourceを再構成する。詳細を手編集した場合は適用状態を正確に表示する。
+- 既存在庫 `live-trait-availability-v77.json` の `breaking_ball_quality` はUNSUPPORTEDであり、従来aliasは「キレ○/驚異の切れ味」。この在庫との対応と3段階の実技能Sourceを実装し、本人の今回の表示指定を採用する。既存在庫の名称やstatusだけを変更して対応済みとしない。既存ID/旧保存の扱いはversionを明示し、旧aliasも履歴に保持する。
+- 段階差は本人定義の「変化の始まり・短い終盤区間への集中」で実証する。回転量/変化量の倍率を増やしただけでキレ上昇と表示しない。現在のモデルで3段階に十分な差が出ない部分は、モデル/入力の不足として実装課題に残し、選択UIだけで完成扱いにしない。手入力を利用者へ戻して解決しない。
+- 球種・球速・狙い・変化量とキレの指定を区別する。選択前後の軌道を重ね、変化開始/終盤集中/実変化量/到達時間を簡潔に示す。副次的に変化量や減速が変わる場合は併記し、独立制御や実測校正の未確認部分を隠さない。
+- 受入は3選択それぞれの即時適用、通常へ復帰、PC/390px、同Chromeの通常/描画OFF/実Worker、選手保存/JSON再読/通常試合の実Source一致、旧入力互換。名前だけを変え同じ実入力にした対照では物理不変を確認する。既存の低水準比較/原入力/旧FAILは保持する。
+
+**設計理由:** V159の位相入力や時間分布観測の接続は開発者の検証入口として機能したが、本人が求める「選ぶだけで使える」メーカー操作を満たしていなかった。これをStep7として追加し、実装・最終配送・最新設計GitHub照合の対象に含める。
 
 **2026-10-27 V155限定工程結果:** 実Sourceの共通時刻3基準・同z断面・force/gravity・減速・名目投げ出しの観測を接続。通常同targetとPV固定の反実仮想を分離し、保存入力対で現在版の同一結果を再構成する。ground境界が全標本間に隠れる実反例も既存kernel履歴で未分類へ修正した。関連45件/全型、同Chrome156のNative/Workbench/実Workerの全6.76MB完全一致、PC1200/390の保存ファイル読込/旧版/異版/無効入力/設定保持/比較/可読性を確認。最新候補 `docs/verification/realism-debug-20261027/candidate-maker-pitch-break-v155-04/maker.html`、詳細 `PITCH-BREAK-OBSERVATION-V155.md`。公開curve1/7は通常着点差1.843cmだが、仰角.797→3.250度、固定PVなら46.265cm差。late20比.351584/.351658で、量の強化を遅いキレと呼べない。**Step5は未完**。固定PV・spin軸2×材料位相2×seam無効/保存値×減衰なし/保存値の事前固定16条件を正規Sourceで比較し、同程度の変化量の時間形状差を調べる。成立しない範囲をUNKNOWNのまま残し、任意の時刻で力をON/OFFしない。Task2分類/人的校正/通常戦術、V154証明/人体/再構築性能、SPIN/Native/旧残件、性能B/9回/同版配送とSIGN延期を維持し、全goal/step-007 ACTIVE。
 
@@ -160,7 +176,8 @@ Task1→Task2→Task3→Task4→Task5→Task6。Task1の測定を使って以後
 
 ## 作業運用と次手順
 
-- 最初の実行点はTask1の既存harness・manifest読取と最小case化。旧v120固定harnessを最新distへ無修正で走らせない。現distはV133、未bundleのV148を検証したと称さない。
+- **2026-10-28 反復防止改訂:** V160自然連続診断は実行済（26比較一致、receipt f2b74d33）。再開入口に未実行として残した不整合を修正する。CURRENT本文を完了証拠/現在一件/次の具体的操作へ更新してからWorkflowとcheckpointを揃える。新しいreceiptが入口より後なら、再実行の前に整合する。同じ成功試験を開き直すのは関係Source/入力/runtime変更・新失敗・本人の明示再検証がある時だけで、理由を実行前に記録する。既存pending handleを再利用し、説明/tool出力は新差分へ限定する。過去の本文/原証拠は保持し、新たな台帳/Hook/設定は増やさない。次の一件は `../../verification/realism-debug-20261027/FIRST-PITCH-INTENT-V160.md` のV161-R1。強制swing案は不正commandでFAIL17bbe1ea、合法APIで同一球の判断だけを変えられないため撤回。新しい診断権限やダミー本人profileを加えて成立させない。
+- 初回Task1のharness・manifest読取と最小case化は実行済み履歴として参照する。再開時はCURRENT/Workflowの現在一件から進める。各検証はそのmanifestを使い、古い固定harnessを最新distへ無修正で走らせない。
 - 1変更=1仮説=1最小caseを原則とし、壁時計待ち・巨大logの読み直し・同じ成功試験の反復を減らす。profilerで重いphaseを特定してから最適化する。
 - Source/設定/seed/command/runtimeと正規データをhash固定。counterfactualは分析専用、実選手/実球へ逆流させない。traceは決定点と失敗前後を保存し、必要な全記録の検証能力は保持する。
 - CURRENTは新入口と直近の次手順だけを短く保ち、過去の履歴・原受入表はリンクで保持。重要milestoneはCCG checkpoint/実command receipt、Workflowは工程状態を記録。重複要約を増やさない。

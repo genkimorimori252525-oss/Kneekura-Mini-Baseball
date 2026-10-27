@@ -1,0 +1,32 @@
+{
+  "kind": "RECOVERY_METADATA_AND_INTEGRITY_AUDIT_ONLY",
+  "pass": true,
+  "gameTrialsRerun": 0,
+  "workflowStateVersion": 20,
+  "activeRecoveryLines": 17,
+  "archiveSha256": "19ecb945852cf0e480cc167e8e4b76846d256d8b998c0a1d93d1d81beb78c48f",
+  "naturalReceipt": "f2b74d331f444ac2b37baa799eadb911",
+  "forcedBranchRetainedFailure": "17bbe1ea23ac46bfad260385823a78ef",
+  "runnerSha256": "707bd142f6febb43cc79e5a94badbb40a90de22aea21fafea122f34085e0b269",
+  "checks": [
+    "active task retained",
+    "bounded active recovery section",
+    "old section exact bytes retained",
+    "workflow remains active step007",
+    "current and workflow next action exact",
+    "next action advances to V161-R1",
+    "completed natural probe not scheduled again",
+    "scope and final GitHub requirement retained",
+    "freshness rule and reopen conditions installed",
+    "stale initial Task1 instruction removed",
+    "natural diagnostic retains original success scope",
+    "initial pitch observation limit retained",
+    "failed forced branch retained as failure",
+    "runner exact to originally executed source",
+    "runner syntactically valid",
+    "original receipt/log intact f2b74d331f444ac2b37baa799eadb911",
+    "original receipt/log intact 17bbe1ea23ac46bfad260385823a78ef",
+    "existing source manifest intact candidate-pitch-time-shape-native-v159-01",
+    "existing source manifest intact candidate-pitch-time-shape-workbench-v159-01"
+  ]
+}
