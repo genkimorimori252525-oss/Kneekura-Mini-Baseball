@@ -153,7 +153,13 @@ Task1→Task2→Task3→Task4→Task5→Task6。Task1の測定を使って以後
 
 **Source適用域の固定:** `simulateLivePitchV1()` がrelease owner、`LivePitchAuthoringV78.ts`が名目spin/qの供給元。既存spin再現誤差は一様倍率で、キレ技能/手指動作→名目spin/qや軸/姿勢精度は未接続。空力の開始時刻入力は存在せず、mass/air/seam係数の技能別変更へ置換しない。次はこの既存owner内の最小接続案を具体化し、3表示・数値手入力なし・null復帰・旧省略互換・基準無技能と球別適用域を先に対応する。未測定値と既存56件の範囲外はUNKNOWNのまま。詳細は上のV164/V165結果文書。
 
+**V167–168実装（最新）:** p90順位を必須にせずp10増加・p90-p10短縮・late20増加を分けるV167を追加、新11件/保存56条件の新判定候補0 e3c50e45、新flight0。旧結果は保持。V168は元V78保存値を保持した1球名目spin/qを既存release ownerの逆算前へ接続し、誤差/workload→同じSourceへ流す。名札の物理倍率なし、null/省略は元入力。helper7件/関連5file24件/全型、同Chrome2Core×Main/実Worker/JSONの48record84項目7bcb8edb PASS16.703秒、実旧V161 binaryの同じ省略入力全record/161sampleも厳密一致。nullのWB保存input1field差と初回harnessキー順FAILはraw保持。新Native213 b2aeef0d/WB190 a1398483。詳細 `docs/verification/realism-debug-20261027/PITCH-RELEASE-PLAN-V168.md`。これはauthor-plan seamで、3選択UI/自動profile/選手保存/通常Match/全球種は未完。次は未調査のrelease軸方向/姿勢を有界条件で具体化してprofile生成へ進む。全設定が未指定より必ず改善するという追加要件は置かず、3設定間の段階差と基準比の副作用を分ける。未指定は最弱設定ではなく元入力復元。
+
+**次のV169事前固定:** 追加56件のgyro30固定を外し、spinScale .04/.08 × gyro0/60/85 × phase0/90/180/270の新24件だけを調べる。旧56件は同じ計測依存のpinを検証して再利用し、新規飛行は24。新factory7件d063bbb7 PASS、Chrome runner準備中/実flight未実行。全80件をV167同gateで扱い、0候補ならrefinement/authoringを起動しない。有れば候補ID和集合だけを次へ回す。事前入力と再利用条件は `docs/agent-decisions/2026-10-28-kire-gyro-domain-v169.md`。新しい物理係数/力timer/自動的な探索拡大は導入しない。
+
 ### Task5: SPIN v2/SIGN基盤と継承残件
+
+**資料の鮮度（2026-10-28限定読取）:** `SPIN16-17-OWNER-AUDIT.md`は接続前の提案であり、末尾NOT CONNECTEDを新しいV146–148実証の否定に使わない。旧free-flight/V147 Nativeを再実行しない。独立して進められる次の物理残件は、同じ円形フェンスのconstrained ballに対するnear-zero control cut前後の有限window/イベント順の新1case。変更する実Ownerの確定は未実施であり、既存結果や公式HRへ昇格しない。V169のSource pin計測中には並行Source編集をしない。
 
 **Files:** 継承計画 `docs/verification/traits-spin-continuation-v123/PLAN.md`、`IMPLEMENTATION-SCOPE.json`、`LIVE-POLE-SEAM-V148-RESULTS.md`、`SPIN16-17-OWNER-AUDIT.md`、`docs/verification/swing-remainder-v122/RESULTS.md`。実装所有者は既存 `SpinControlMasteryV123.ts`、`SpinMotorQualificationV123.ts`、`SpinMotorPlanV123.ts`、`LiveSpinControlV123.ts`、`SignatureContextEvidenceV123.ts` と該当Native/Live Owner。Task1のcase/manifestを実Native認証と混同しない。
 
