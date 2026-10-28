@@ -1,0 +1,19 @@
+# V185: 原接触から速度・回転・打上角への接続
+
+2026-10-28 JST / MB-20261027-REALISM-DEBUG-PLAN Task5 SPIN-03。NativeMeasuredBattingContactCollectionV185.tsを追加した。careerId/playerIdと明示3種fullrefを受け、同一Native read snapshotでV182/SamePA、V183/Original、V184/InitialJointの正規getterを呼ぶ。原evidenceとexitVelocityMps/exitSpinRadPerSecondを保持し、打上角だけatan2で導く。物理・保存形式・UIを変更しない。
+
+同owner/sourceIdのhash衝突は取得前に拒否し、完全に同じrefは1回だけ読む。requestsは重複と入力順を保ち、contactsは一意参照だけを持つ。非null接触は原actor本人を要求scopeと照合する。nullはその照会のNO_CONTACTであり、他経路や全試合の無接触を意味しない。
+
+## 検証
+
+- 限定TDDはd1fda43b5c404193ac469ff40a1f02e6のRED(7件/6失敗)から1f2dd126f5be46ec8e66011b16cdbaec PASS7063ms/7件へ。3分岐、同snapshot/query_only、重複/NO_CONTACT cache、hash衝突、不正owner/ref、本人不一致、同payloadでも別owner/sourceを統合しないこと、原vector/-0/key順/sub-tick/freeze/detachを検査した。reader doubleはNative認証の証拠ではない。
+- 新Source確定後の全型16ecbfcf9f1f484abb03e7300090d4e6 PASS24860ms。独立Source/受入scriptのread-only reviewで具体的欠陥は見つからなかった。
+- Collector固有の新入力によるNative受入ee5f4e529b094a05b939b3b6636216d4 PASS45217ms。既存V184準備DBの私的コピーをさらに複製し、InitialJoint fullrefを2回指定した。新API成功2読取の全record/debug codec/key順/数値が厳密一致し、2request→一意証拠1件、原contact/actor/moment/速度/回転/打上角、連続時刻保持、deep freeze/detach、入力不変、caller tx/query_only/authorizer、改変ref/別subjectの2拒否を確認した。Source804入力のload/終了SHA、準備DB/新コピー全files、bundle/harness/準備reportのpinが一致した。
+
+新probeは共通copy/pin/compile/end-check helperを再利用した。旧V184 probe・prepare/accept・全Native工程・成功済みtest/型/キレgridの再実行は0。実Nativeで今回通したproducerはInitialJointだけ。3分岐の組立はmock試験、個別producerの真正認証はV182/183/184の当時範囲として保持する。私的payloadは公開しない。
+
+## 測定と認識の境界
+
+返回はNATIVE_RAW_CONTACT_COLLECTION_ONLY、EXPLICIT_REFERENCES_ONLY、OWNER_REFERENCE_ONLY、chronology UNRESOLVED、classification nullを明記する。異なるfullrefを独立した実打球件数と数えず、同tick/同payloadや共有firstPhysicalPitchSourceIdでowner横断の同一性を補完しない。入力順は時系列ではない。
+
+career暦、独立接触identity、全件populationの集計snapshot、production model、純粋表示joinは未完。TraitTimeやfixture閾値で認識を作らない。限定calendar調査ではNationalのreadSelection、Domesticの明示seasonId、ClubのreadAcceptedClubHistoryが別scopeであり、共通絶対時刻への正式変換は未確認だった。新getterの追加だけを反復せず、次は既存の正式season/fixture参照による時刻bindingの一件を具体化し、欠落する入力と認識までの契約を確定する。

@@ -49,3 +49,9 @@ V144の正例は別のpa_initial_joint_v1_executionsであり、まだこの測�
 NativeMeasuredInitialJointContactV184.tsで採用済みInitialJointも接続した。4test542fe5a1/全型24489a2c、保存Native2読取ed2b2b3a PASS34375ms。原値差0、sub-tick保持、Source802入力/DB等pin一致。archiveとの差19はキー順だけとして保持する。詳細NATIVE-INITIAL-JOINT-CONTACT-V184.md。
 
 3producerの取得とpopulationの完成は異なる。次は既存causal lineageで同一接触/累積timelineを解決するraw集約入口を実装する。Macroの無接触とInitialJointの実接触は表現経路が異なり得るため、一方のnullを全経路の不存在へ拡張しない。ownerの任意優先順、PA内sequence→career日内時刻、fixture閾値→production modelの補完は行わない。暦/集計snapshot/model/純粋表示joinと現版の名札不変対照は未完。
+
+## V185: raw取得から実測値まで
+
+明示ref collectionを追加し、正規3getterへの同snapshot分岐、本人scope、ref重複除外、原速度/回転/打上角を接続した。7mock test1f2dd126/全型16ecbfcf、InitialJoint重複ref新入力のNative collector2read ee5f4e52 PASS45217ms/Source804入力・DB等pin一致。詳細NATIVE-CONTACT-COLLECTION-V185.md。
+
+contactsは一意参照数であり、独立打球population数ではない。異なるowner/refはraw evidenceとして保持し、chronology未解決/classificationなしを明示する。全件population/正式時刻binding/production model/表示joinは未完。次は既存正式season/fixture参照に基づくbindingの一件を具体化し、未確認のcalendar/modelを補わず認識までの入力契約を確定する。
