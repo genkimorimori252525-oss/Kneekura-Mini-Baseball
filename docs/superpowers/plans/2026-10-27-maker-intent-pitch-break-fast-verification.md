@@ -199,6 +199,7 @@ Task1→Task2→Task3→Task4→Task5→Task6。Task1の測定を使って以後
 - [x] Step1（索引作成のみ）: 原表77要件へ `既存証拠/現在の適用性/不足する実経路/担当Task/延期理由` を `SPIN-SIGN-SCOPE-MAP-V175.md` に対応した。606923b7 PASS63msで原要求77行exact/unique/7列/参照11件を確認。現在Sourceの各行実証はUNKNOWNを保持し、索引作成を実装PASSへ転用しない。remote SIGN冒頭へのscope2行追記db0ad7a9とローカル固定6d914ad7原文の差も記録。未読をNOT_RUNへ書き換えない。
 - [ ] Step2: 不足する実装ごとに最小の失敗caseをTask1へ保存→既存Ownerで修正→限定Core/Native受入→再読非消費/旧schema互換を確認。準備・初球資格等の成功fixtureを一から再作成しない。
 - **V182実装済み境界:** NativeMeasuredBattingContactV182.tsでSamePAの正規resolution/launch→当該投球の原contact/actor/Source/元scopeをread-only接続。3test f58f4f66/全型ad49f2a5、私的コピーの正規Owner成功2読取/改変ref拒否/原vector等差0/再読非消費519919ed PASS21000ms、Source791入力/元DB/コピーpin一致。初回locator table名688549ec/WAL停止3eaf5ff4はFAIL保持。TraitTime/認識Source/model/UIを作らず、元PhysicalPitch直接経路・暦/集計/表示joinを継続する。詳細NATIVE-MEASURED-CONTACT-V182.md。本人のproject context window872000/compact750000調整もfresh config/read66c6e19eで確認済み、稼働ターン旧枠へのhot反映とは区別する。
+- **V183実装済み境界:** Original PhysicalPitchの認証済み接触getterを追加。3test e9eb5373/新接触1件だけe928c35c、compiled buntの正規2読取・改変ref拒否・Source821入力/DB/copy pin3fa9dbe3 PASS2110ms、最終型5575fd77。copy/pin/compile helperを共通化し人工12件4a6af195、旧V182を複製/再実行しない。test入力readonly型FAIL375dbd78は型消去JS exact/Native再実行0で修正。別所有のInitialJoint contactを次に接続し、暦/集計Source/model/表示joinを未完保持。詳細NATIVE-ORIGINAL-CONTACT-V183.md。
 - [ ] Step3: SPIN使用/不使用・未習得・複数技能・左右鏡映・動作不能を、実バット→接触→3D回転→空力へ通す。Gold label変更だけの対比較で物理結果不変を確認。
 - [ ] Step4: 一つの制限された公式採用UNKNOWNを全goalのblocked理由にしない。未接続/不成立は受入表に残し、その枝の具体的な次手順と並行可能Taskを保存。
 

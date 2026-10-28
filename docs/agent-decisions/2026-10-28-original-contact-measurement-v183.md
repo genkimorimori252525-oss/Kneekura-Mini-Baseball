@@ -1,0 +1,17 @@
+# V183: Original PhysicalPitchの測定producer
+
+Task MB-20261027-REALISM-DEBUG-PLAN / Task5 SPIN-03。V182の正規SamePA測定入口/型/Native実対照を反復せず、残るOriginal PhysicalPitch直接経路を接続する。新Source/testを別fileに追加し、既存V182/物理/DB schema/UIを変更しない。
+
+入力は既存形式の `SamePaReference<'physical_pitch_progress_actions'>`（owner/sourceId/sourceHash/snapshotHash）。既存readOriginalPhysicalPitchPrefixFromSqliteまたはそのpaired readerで元prefix/committed head/全archiveを認証し、同じNative read snapshot内で指定refの元hashも照合する。端点のbeforeTimeline以後だけからBatBallContactを選ぶ。正規の無接触はnull。接触時の本人actor/bindingが無い場合は本人を推定しない。
+
+返却は原contact/Source/本人binding/原game-play-source-event identityとprogressRevisionをdetached/frozenで保持する。progressRevisionをSamePA pitchOrdinalへ読み替えず、gameDay/sequenceをcareer時刻へ変換しない。TraitTime/認識model/名札や結果補正は作らない。既存pure event selectorを再利用し、大きな新frameworkを作らない。
+
+限定RED→GREENで正常選択/null/前contact除外/不正ref/actor不足を境界ごとに確認する。pure synthetic testと真正Native adapterの成功を区別する。既存保存1件のNative refを対照に使い、私的pathを通常testやGitHubへ含めない。既存probeのcopy/pin/compile機構を小さな共通helperへ切り出すか入力modeとして再利用し、200行の別harnessを複製しない。元DB/旧V182成果物は不変、非空WAL/journalはコピー対象外、0B WAL判断はV182のものを継承する。
+
+成功済みV182の再受入・旧V147全工程・DB全列挙・全77要件再監査・キレgridは実行しない。Originalのcontact正例とNoContact例に必要な不足だけを検証する。暦/日内順序/集計Source/model/表示join、正式calendar/自然cohortと全goalは未完のまま保持する。
+
+## 正例の入口を確定
+
+保存資料の限定調査で、V144の接触はpa_initial_joint_v1_executions所有と判明し、この直接経路の正例へ流用しない。対応する保存PhysicalPitch fullrefが未発見のため、既存OriginalBattingIntentFixtures.test-support.tsのoriginalBattingIntentFixtureを再利用する。これは原actorと実接触を正規Ownerでacceptする既存fixtureで、新しいsetup架構ではない。
+
+新unit正例はordinary_swing。別のcompiled Node受入は同じ既存fixtureのbunt Source1件を事前固定し、Ownedな新DB生成→全接続close→pin付き私的コピー→新API2読取/改変ref拒否を行う。合成配置は抽出経路のNative認証だけを証明し、通常AIが未来の球を知ること、習得技能、正式calendarや自然cohortの証明にしない。元DB/旧成果物は触れず、Source/結果の丸めを加えない。

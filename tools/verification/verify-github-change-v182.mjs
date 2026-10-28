@@ -13,8 +13,8 @@ assert.equal(git(['rev-parse','HEAD']).toString().trim(),commit);
 assert.equal(git(['remote','get-url','origin']).toString().trim(),'https://github.com/'+repo+'.git');
 const files=git(['diff-tree','--no-commit-id','--name-only','-r',commit]).toString().trim().split('\n');
 assert(files.length>0&&files.every(path=>/^docs\/.*\.md$/.test(path)
-  ||/^src\/host\/world\/NativeMeasuredBattingContactV182(?:\.test)?\.ts$/.test(path)
-  ||/^tools\/verification\/(?:check-native-measured-contact|verify-github-change)-v182\.mjs$/.test(path)),
+  ||/^src\/host\/world\/(?:NativeMeasuredBattingContactV182|NativeMeasuredOriginalPitchContactV183)(?:\.test)?\.ts$/.test(path)
+  ||/^tools\/verification\/(?:(?:check-native-measured-contact|verify-github-change)-v182\.mjs|native-measurement-probe-support-v183(?:\.test)?\.mjs|native-original-contact-case-v183\.ts|check-native-original-contact-v183\.mjs)$/.test(path)),
   'only the explicitly owned source/tests/verifiers and Markdown may be published');
 const head=api(`repos/${repo}/git/ref/heads/${branch}`);assert.equal(head.object.sha,commit);
 const pr=api(`repos/${repo}/pulls/380`);assert.equal(pr.head.repo.full_name,repo);assert.equal(pr.head.ref,branch);
