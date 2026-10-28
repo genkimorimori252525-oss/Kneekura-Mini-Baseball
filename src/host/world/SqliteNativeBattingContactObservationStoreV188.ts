@@ -185,6 +185,29 @@ const snapshot = (scope: TraitScope, meta: Metadata, facts: Map<string, Fact>): 
     timeSemantics: 'LATEST_REGISTERED_CONTACT_NOT_CURRENT_TIME' as const, inventoryFreshness: 'NOT_RECHECKED_SINCE_CAPTURE' as const, classification: null });
 };
 
+const readRegisteredSnapshot = (db: DatabaseSync, scope: TraitScope): NativeBattingContactObservationSnapshotV188 | null => {
+  const meta = loadMetadata(db, scope); if (!meta.head) return null;
+  const byEdition = new Map<string, NativeMeasuredContactReferenceV185[]>(), facts = new Map<string, Fact>();
+  for (const receipt of meta.receipts) { const refs = byEdition.get(receipt.careerCalendarEditionId) ?? []; refs.push(receipt.reference); byEdition.set(receipt.careerCalendarEditionId, refs); }
+  for (const [edition, refs] of byEdition) for (const [key, fact] of readFacts(db, scope, refs, edition)) facts.set(key, fact);
+  return snapshot(scope, meta, facts);
+};
+
+/** Borrow an existing immutable Native snapshot without installing observation
+ * storage or taking ownership of the caller's transaction or connection. */
+export const readNativeBattingContactObservationSnapshotV189FromSqlite = (
+  db: DatabaseSync, rawScope: TraitScope,
+): NativeBattingContactObservationSnapshotV188 | null => {
+  const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  assert(db instanceof Native, 'borrowed snapshot requires an actual Native connection');
+  assert(db.isTransaction && db.prepare('PRAGMA query_only').get()!.query_only === 1, 'borrowed snapshot requires a query-only Native snapshot');
+  const scope = readScope(rawScope);
+  return withBattedVenueLegalReadSnapshot(db, () => withSamePaLifecycleReadPhase(db, () => {
+    if (!schemaRows(db).length) return null;
+    return readRegisteredSnapshot(db, scope);
+  }));
+};
+
 /** Append-only observation ownership. Only metadata/binary measurement hashes
  * are archived. Raw vectors always come back through their normal Native owner.
  * Sequence is this owner's acceptance counter, never a global physical order. */
@@ -273,13 +296,7 @@ export const openSqliteNativeBattingContactObservationStoreV188 = (path: string)
     },
     readSnapshot(rawScope: TraitScope) {
       check(); const scope = readScope(rawScope);
-      return proof(() => {
-        const meta = loadMetadata(db, scope); if (!meta.head) return null;
-        const byEdition = new Map<string, NativeMeasuredContactReferenceV185[]>(), facts = new Map<string, Fact>();
-        for (const receipt of meta.receipts) { const refs = byEdition.get(receipt.careerCalendarEditionId) ?? []; refs.push(receipt.reference); byEdition.set(receipt.careerCalendarEditionId, refs); }
-        for (const [edition, refs] of byEdition) for (const [key, fact] of readFacts(db, scope, refs, edition)) facts.set(key, fact);
-        return snapshot(scope, meta, facts);
-      });
+      return proof(() => readRegisteredSnapshot(db, scope));
     },
     close() { if (!closed) { closed = true; db.close(); } },
   });
