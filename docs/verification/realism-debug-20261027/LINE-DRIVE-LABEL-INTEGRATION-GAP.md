@@ -67,3 +67,9 @@ contactsは一意参照数であり、独立打球population数ではない。�
 原経路のoptional Nativecalendar初期化からactor/実bunt接触を作り、正式Core生成game/day11とNative origin/selectionを同snapshotで結合した。新Native1件05368026 PASS7671ms、全型aa1f74fb、実Node b9546b09 PASS1625ms/2read全record・原vectors・Source858入力/DB pin一致。ISO2032-02-29/seasonDay11/careerDay425を独立期待値へ照合。旧一試合へ起点を偽装せず、production/既定物理不変。NATIVE-FORMAL-CONTACT-CALENDAR-V187.md。
 
 これでOriginal一接触のpositive joinは実証済み。次はNative受理済みfullrefの永続observation receiptと同日受理sequenceを持つBATTING_CONTACT集計Sourceへ接続する。TraitTime.sequenceはsame-day observationsの順であり、global物理tickを作る必要はない。独立接触identity/全population coverage/model/認識/表示joinは未完で、date正例を完成へ昇格しない。
+
+## V188: 永続観測receiptとBATTING_CONTACT Source
+
+3producerの正規inventoryから自動captureし、原Native ref/calendarを再認証したreceiptと日内受理順を保存、BATTING_CONTACT snapshot/ContactObservationへ接続した。元vectorsは正規再読し6float64 bitHashで保持。Native/doubleの限定TDDとreview修正、最終型f4a253fe、実Node a05e30a5 PASS1795ms/capture2 retry1 snapshot3/原41tableと全schema・Source860入力/DBpin不変。NATIVE-CONTACT-OBSERVATION-V188.md。
+
+coverageは登録済み範囲またはcapture時点の3対応producerで、世界全population/自然cohort/production model/認識/表示を完成にしない。次はこの真正Source/observationsを既存classifier/projectionへ接続し、明示model/policyと不足時の扱いを確定する。fixture閾値のproduction転用や物理へのlabel逆流は行わない。

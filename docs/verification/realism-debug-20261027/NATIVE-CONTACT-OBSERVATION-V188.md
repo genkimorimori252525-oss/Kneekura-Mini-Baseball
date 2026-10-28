@@ -1,0 +1,27 @@
+# V188: Native観測の永続化・自動収集・集計Source
+
+2026-10-29 JST / MB-20261027-REALISM-DEBUG-PLAN Task5 SPIN-03。新SqliteNativeBattingContactObservationStoreV188は、正規contact/calendarを再認証して観測receiptを保存し、BATTING_CONTACTのTraitSourceSnapshotとContactObservation配列へ接続する。同contact refの再受理は同receiptへ戻り、revision/日内sequenceを増やさない。sequenceは本Ownerの同日受理順であり、globalな物理発生時計ではない。
+
+新inventoryは対象打者の正規actorと3producerを認証し、追加された実contactだけを発見する。captureは同じBEGIN IMMEDIATE内で全ref/calendarを認証してappendし、途中失敗を全rollbackする。standalone練習を混ぜない。原Source/物理/本人JSON/旧保存行は変更せず、新journal/head表だけを追加する。
+
+速度・回転の6float64値はJSONへ丸めて保存せず、正規refから再読する。IEEE bit hashで-0を含む差を検出する。receipt chain/head/連番/epoch/本人を照合し、同epochを表す別editionからのretryも元proofを厳密再認証して保持する。Snapshotはdeep frozen/detached、空はnull、classificationはnull。
+
+## 検証
+
+- inventory: module欠落7ada2c6a RED→f517fd35 PASS12984ms/新3Native件。scope key順hashの新RED79e1f9d→ca43b03d PASS16764ms/新N01・旧2skip。reviewでindex改変による候補欠落と別career破損への依存を確認し、0dd13bac RED→94c67731 PASS8968ms/新2件・旧3skip。SamePA/InitialJointのsnapshot全壊は独立enrollment indexから候補へ届け、07313234 RED→7c1fff34 PASS7594ms/metadata-double2件で確認した。doubleはNative権限証明ではない。
+- store: ec8f3bc5 RED→eef2deed PASS18735ms/初期15件。真正Nativeの1件受理/retry/reopen/実inventory captureと、mock14件の受理順/過去日/epoch alias/bit変化/chain/atomicityを区別した。
+- coverage review修正: refs削除＋hash再計算を207b9045で再現し、febb94f0 PASS8092ms/影響8件・旧12skip。inventory hash/捕捉時全receipt集合を照合する。追加producer ABSENT矛盾は4ea7266a RED→2a3c1cb2 PASS18500ms/影響10件・旧12skip、metadata読取とwriter preflightの双方で各ref.ownerのPRESENTを要求する。
+- compiled初回eb9a9189 FAIL1484msは、captureと再open後でevidence.referenceのkey順だけが違う問題を検出した。Native N01の全key・primitive/Object.is比較44a0b415 RED→8a6f7232 PASS17655ms/新1件・旧21skip。共通facts入口でref4fieldだけ固定順に渡し、raw evidence/floatのJSON roundtripや比較の緩和をしなかった。初回FAIL/DB/bundleを保持する。
+- 最終型f4a253fef0bd46868f38afbb3f562fd8 PASS40843ms。修正前のd80a8a22 PASS、nullable型2b7257db FAIL、any index型b587c0e4 FAILは各当時範囲で保持する。type predicateは型消去JS exactも確認した。最終型はincrementalの私的build-infoを使い、Sourceが再変更された場合の全再読コストを抑える。設定/依存を変更しない。
+
+## 実Nodeの新受入
+
+a05e30a549464dcb9af8b18d4c4c88c2 PASS1795ms。新fresh正式V187 fixtureから自動capture2回・明示retry1回でreceipt1件/revision1/sequence0、正式career日425を保持した。原velocity/spin6値のbit hash、Source owner、元41tableの全rows、全元sqlite_master catalog（index/trigger/viewを含む）が不変だった。新Owner2tableに属するschemaだけを除外して比較した。
+
+新metadataを閉鎖後、厳密な私的copyを作り、再open snapshot2読取と不正observe後の回復読取、計3回を全record/debug codec/key順/数値で厳密比較した。不正ref/不存在起点2拒否、Source860入力のload/終了SHA、元prepared DB/新copy全files/bundle/harness/helper pinも一致。私的DB/raw/bundle/build-infoは公開しない。
+
+## 完了境界
+
+単独observeはREGISTERED_NATIVE_CONTACTS_ONLY、自動captureはSUPPORTED_NATIVE_INVENTORY_AT_CAPTURE。inventoryFreshnessはNOT_RECHECKED_SINCE_CAPTUREであり、将来追加された未capture接触まで現在完全とは呼ばない。source.timeは最新登録contactの時点で、実行時の「今」ではない。
+
+これで実contact→正式日付→永続receipt→実測Source/observationsを接続した。全populationのcoverage/独立identity、production measurement model、分類・純表示joinは未完。モデル未指定をfixture閾値で補完せず、次はNative Sourceを既存classifier/projectionへ通す契約と、明示model/policy・不足時の扱いを実装する。物理・球道・得能の結果補正は追加しない。
