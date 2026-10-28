@@ -8,7 +8,7 @@ import { generateWorldBoundLeagueSchedule } from
   '../../core/world/competition/WorldLeagueSchedule';
 import { initializeDomesticSeason,
   type DomesticSeasonStores } from './DomesticSeasonRuntime';
-import type { DurableDomesticSchedule } from
+import type { DurableDomesticSchedule, DurableDomesticCalendarOrigin } from
   './SqliteDomesticScheduleStore';
 import type { InitializeWorldSeason } from
   './SqliteWorldSettlementStore';
@@ -26,7 +26,21 @@ export type WorldBoundDomesticSeasonInput =
 export type DurableWorldBoundDomesticSeason = Readonly<{
   schedule: DurableDomesticSchedule;
   worldWindowSnapshotId: string;
+  calendarOrigin: DurableDomesticCalendarOrigin;
 }>;
+
+/** Resume the real post-archive stage without replaying a League or Club
+ * transition. Both writes are idempotent against the accepted original inputs. */
+export const resumeWorldBoundDomesticSeasonCalendar = (
+  stores: Pick<DomesticSeasonStores, 'archive'>,
+  input: Pick<WorldBoundDomesticSeasonInput, 'careerId' | 'cycleOrdinal' | 'leagueRegion' | 'seasonDayOne' | 'generatorInput' | 'eventProfile'>,
+): DurableDomesticCalendarOrigin => {
+  stores.archive.initializeEvents(input.careerId, input.generatorInput.seasonId, input.eventProfile);
+  return stores.archive.bindCalendarOrigin(input.careerId, {
+    cycleOrdinal: input.cycleOrdinal, leagueRegion: input.leagueRegion,
+    seasonDayOne: input.seasonDayOne, generatorInput: input.generatorInput,
+  });
+};
 
 /** Reserve the frozen World cycle before committing a domestic base schedule. */
 export const initializeWorldBoundDomesticSeason = (
@@ -46,6 +60,10 @@ export const initializeWorldBoundDomesticSeason = (
     baseSchedule: bound.schedule,
     eventProfile: input.eventProfile,
   });
-  return Object.freeze({ schedule,
+  const calendarOrigin = stores.archive.bindCalendarOrigin(input.careerId, {
+    cycleOrdinal: input.cycleOrdinal, leagueRegion: input.leagueRegion,
+    seasonDayOne: input.seasonDayOne, generatorInput: input.generatorInput,
+  });
+  return Object.freeze({ schedule, calendarOrigin,
     worldWindowSnapshotId: bound.worldWindowSnapshotId });
 };
