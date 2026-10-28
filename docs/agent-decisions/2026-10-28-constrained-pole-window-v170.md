@@ -25,3 +25,7 @@ GroundDynamicsでは滑走velocityが一次式、rollingは一定方向の減速
 workerは該当rolling curve/pole window helperと限定test、`LiveFieldPlayV1.ts`の該当branchを所有。Rootは記録/統合/全体状態。新1caseを先にRED、近zeroの正window・同arc前後状態・先行control/actor順・近接拒否を限定GREENで確認する。意味のある数学boundを得られなければ実装せずUNKNOWNを記録し、chord近似や固定速度で証明を捏造しない。
 
 Native DB/schema/権限/原input/旧HTML/共有distは変更しない。held→release/実pole接触時の拘束反応・Native legal/moving/custody・公式HR・全SPINはこのwindowだけで完了扱いにしない。復旧は新optional proof経路を外して従来unresolvedへ戻せる。
+
+## V173実行時のruntime更新（2026-10-28）
+
+通常公開APIのChrome初回実行00943452は、実Chromeが156.0.8078.48から156.0.8078.49へ自動更新されていたため、version確認でFAIL。capture0/物理比較未起動、旧結果を保持する。再実行の理由はruntime変更と新失敗で、同じ成功試験の再読ではない。新harnessは全経路と旧V168実binary対照を同じ現Chrome.49内で実行する。過去.48とのcross-build厳密同値を主張せず、旧研究/全型/Source/buildをこのために再実行しない。

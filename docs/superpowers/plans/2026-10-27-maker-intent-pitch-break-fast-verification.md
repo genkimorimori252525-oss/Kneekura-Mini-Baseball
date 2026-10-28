@@ -155,11 +155,23 @@ Task1→Task2→Task3→Task4→Task5→Task6。Task1の測定を使って以後
 
 **V167–168実装（最新）:** p90順位を必須にせずp10増加・p90-p10短縮・late20増加を分けるV167を追加、新11件/保存56条件の新判定候補0 e3c50e45、新flight0。旧結果は保持。V168は元V78保存値を保持した1球名目spin/qを既存release ownerの逆算前へ接続し、誤差/workload→同じSourceへ流す。名札の物理倍率なし、null/省略は元入力。helper7件/関連5file24件/全型、同Chrome2Core×Main/実Worker/JSONの48record84項目7bcb8edb PASS16.703秒、実旧V161 binaryの同じ省略入力全record/161sampleも厳密一致。nullのWB保存input1field差と初回harnessキー順FAILはraw保持。新Native213 b2aeef0d/WB190 a1398483。詳細 `docs/verification/realism-debug-20261027/PITCH-RELEASE-PLAN-V168.md`。これはauthor-plan seamで、3選択UI/自動profile/選手保存/通常Match/全球種は未完。次は未調査のrelease軸方向/姿勢を有界条件で具体化してprofile生成へ進む。全設定が未指定より必ず改善するという追加要件は置かず、3設定間の段階差と基準比の副作用を分ける。未指定は最弱設定ではなく元入力復元。
 
-**次のV169事前固定:** 追加56件のgyro30固定を外し、spinScale .04/.08 × gyro0/60/85 × phase0/90/180/270の新24件だけを調べる。旧56件は同じ計測依存のpinを検証して再利用し、新規飛行は24。新factory7件d063bbb7 PASS、Chrome runner準備中/実flight未実行。全80件をV167同gateで扱い、0候補ならrefinement/authoringを起動しない。有れば候補ID和集合だけを次へ回す。事前入力と再利用条件は `docs/agent-decisions/2026-10-28-kire-gyro-domain-v169.md`。新しい物理係数/力timer/自動的な探索拡大は導入しない。
+**V169完了:** gyro0/60/85の新24件＋旧56再利用、同Chrome/Main/実Worker/JSONの全record一致、80件/3160対/82160組のlossless判定99c62667 PASS9.421秒。旧A込みmodelCandidate0、refinement/authoring0を保持。新factory7件d063bbb7/新TS後全型2080ded9 PASS。詳細 `docs/verification/realism-debug-20261027/KIRE-GYRO-DOMAIN-V169.md`。protocolを自動拡大しない。
+
+**V171別category:** 保存near311中143組はQ/P/D/Lを満たし、本人指定/知覚閾値ではない旧探索screen A=.05だけ未達。旧0結果を変えず「物理的順序入力・実用的段階差未確認」として別評価する。選択規則は測定前に固定し、保存データだけのd247f518（新flight0）で .04/gyro30/phase5→-5→-15を一度選択。4秒差の最小 .009936922092284917、最大相対量差 .049581268750372。新nominalは計算せず、dense/half/通常PVを次へ確認する。`docs/agent-decisions/2026-10-28-kire-physical-order-v171.md`。旧A未達/実測・知覚・Native認定/全球種/UI可否は未決のまま。V170 Source実装と測定が競合しないよう、Source安定後の最新Coreを別buildして使う。
+
+**V172によるV171次手順の訂正:** 重力基準残差は空力寄与の時間分布であり、実軌道の曲がり始めと逆順になり得る数学的反例を確認した。新read-only `PitchTrajectoryShapeV172.ts` は初期接線に垂直な偏差と実速度方向を観測する。7件b91f7257、全型8ee4e8b1 PASS。固定した旧3件の保存sample再観測170fa70bではnet late20が .34870821277112557/.3474639447925034/.34771109864648747で順序不成立。小さい差に新知覚閾値を置くのではなく、本人定義の必要な順序が未成立と判断する。旧選択/旧基準/旧A/旧0結果を保持し、V171追加flightは未起動のままHOLD。詳細 `docs/verification/realism-debug-20261027/NET-TRAJECTORY-OBSERVATION-V172.md`。
+
+**V174実行対象:** 新category `NET_INITIAL_TANGENT_TRAJECTORY_ORDER_RESEARCH_ONLY` で保存80件を再観測する。新flight/現game Core再実行なし。共通時間のP/D/Lと、共通時間・保存own endpoint両方の量/方向を比較する。own-plane全時系列は保存されていないためown timingは未測定とし、CLASSIFIEDへ補完しない。事前rankは最小の隣接p10遅延/区間短縮を最大→最小late20増分を最大→最大相対量差を最小→IDs辞書順。旧V171入力の差替えや、この観測だけでの技能/UI採用は行わない。事前固定 `docs/agent-decisions/2026-10-28-net-trajectory-matrix-v174.md`。
+
+**V174完了/次のV176:** 保存80件/3160対/82160組を新flight0で観測しc71a392b PASS2703ms。近量方向6739組中net Q/P/D/L成立2319組、旧A込み0を保持。事前rankは `.04/30/225 → .02/30/0 → .1/30/270`、最小隣接時間差.005924013261098704秒、最大相対量差.0040342203726206095。own timing未取得/知覚・実測未校正/全球種・UI未採用。詳細 `NET-KIRE-ORDER-V174.md`。次は `docs/agent-decisions/2026-10-28-net-kire-refinement-v176.md` に固定した3件だけの保存dense/半step再利用と通常Owner/own全時系列/同Chrome.49を確認する。旧V171を解除・再選択しない。
 
 ### Task5: SPIN v2/SIGN基盤と継承残件
 
-**資料の鮮度（2026-10-28限定読取）:** `SPIN16-17-OWNER-AUDIT.md`は接続前の提案であり、末尾NOT CONNECTEDを新しいV146–148実証の否定に使わない。旧free-flight/V147 Nativeを再実行しない。独立して進められる次の物理残件は、同じ円形フェンスのconstrained ballに対するnear-zero control cut前後の有限window/イベント順の新1case。変更する実Ownerの確定は未実施であり、既存結果や公式HRへ昇格しない。V169のSource pin計測中には並行Source編集をしない。
+**資料の鮮度（2026-10-28更新）:** `SPIN16-17-OWNER-AUDIT.md`は接続前の提案であり、末尾NOT CONNECTEDを新しいV146–148実証の否定に使わない。旧free-flight/V147 Nativeを再実行しない。V170は実ground-wall arcへ有限window queryを接続し、遠方poleでも無条件current-stopになる問題を修正した。全cell/poleの距離下界が速度/半径/geometry-aware丸め上界を上回る窓だけ進み、near/tangent/coverage不明は従来unresolvedを保持。14件52ef7ffb/旧pole回帰16件cff69245/全型8ee4e8b1 PASS。新Core Native214 d54af3e7/WB191 0b36a10a、build8bf1f361。実pole接触/Native/legal/公式HRへは昇格しない。詳細 `docs/verification/realism-debug-20261027/CONSTRAINED-POLE-WINDOW-V170.md`。
+
+**V173通常経路の受入:** synthetic colliderの限定unitに加え、公開 `runFieldPracticeV98` の通常SI/body/glove.11で両Coreのwall_supportと正時間窓への到達をNode診断6e074ed8で確認。これはChrome/Worker一致の証拠ではない。到達可能なnear入力、同Chromeの2Core/Main/実Worker/JSON全record、旧V168実binaryとの同入力差を新harnessで確認する。production Sourceは凍結済み。既存成功test/全型/buildは再実行せず、新入力・新harnessの範囲だけを測る。
+
+**V173実測結果:** Chrome.49内で24record/31比較は厳密一致し、旧V168 current-stop→新正時間窓、到達可能nearの未解決停止を確認。command d7b59a0cは自身のWorker blob requestを拒む末尾assertでFAILを保持。保存record/原harness/ログ/全pinの再照合037494f0 PASS733msで物理再実行なしに回収した。初回Chrome版更新00943452と回収metadata順4908daffのFAILも保持。将来用harness修正後の新Chrome実行はしていない。Native/legal/custody/公式HRは未完。詳細 `PUBLIC-CONSTRAINED-WINDOW-V173.md`。
 
 **Files:** 継承計画 `docs/verification/traits-spin-continuation-v123/PLAN.md`、`IMPLEMENTATION-SCOPE.json`、`LIVE-POLE-SEAM-V148-RESULTS.md`、`SPIN16-17-OWNER-AUDIT.md`、`docs/verification/swing-remainder-v122/RESULTS.md`。実装所有者は既存 `SpinControlMasteryV123.ts`、`SpinMotorQualificationV123.ts`、`SpinMotorPlanV123.ts`、`LiveSpinControlV123.ts`、`SignatureContextEvidenceV123.ts` と該当Native/Live Owner。Task1のcase/manifestを実Native認証と混同しない。
 
@@ -174,7 +186,7 @@ Task1→Task2→Task3→Task4→Task5→Task6。Task1の測定を使って以後
 | 外部確認 | NPB採用規則/実球場寸法材質はUNKNOWN保持。影響する公式採用だけに局所化し、メーカー・心理・高速検証全体を止めない |
 | 旧別課題 | 100試合校正/全runtime互換/別性能未達の原課題を保持。今回の最終受入へ無制限に混入しない |
 
-- [ ] Step1: 原表の各要件へ `既存証拠/現在の適用性/不足する実経路/担当Task/延期理由` を記録する。未読をNOT_RUNへ書き換えず、まず既存証拠を参照。取得したremote SIGN冒頭のscopeとローカル固定原文の差を履歴として残す。
+- [x] Step1（索引作成のみ）: 原表77要件へ `既存証拠/現在の適用性/不足する実経路/担当Task/延期理由` を `SPIN-SIGN-SCOPE-MAP-V175.md` に対応した。606923b7 PASS63msで原要求77行exact/unique/7列/参照11件を確認。現在Sourceの各行実証はUNKNOWNを保持し、索引作成を実装PASSへ転用しない。remote SIGN冒頭へのscope2行追記db0ad7a9とローカル固定6d914ad7原文の差も記録。未読をNOT_RUNへ書き換えない。
 - [ ] Step2: 不足する実装ごとに最小の失敗caseをTask1へ保存→既存Ownerで修正→限定Core/Native受入→再読非消費/旧schema互換を確認。準備・初球資格等の成功fixtureを一から再作成しない。
 - [ ] Step3: SPIN使用/不使用・未習得・複数技能・左右鏡映・動作不能を、実バット→接触→3D回転→空力へ通す。Gold label変更だけの対比較で物理結果不変を確認。
 - [ ] Step4: 一つの制限された公式採用UNKNOWNを全goalのblocked理由にしない。未接続/不成立は受入表に残し、その枝の具体的な次手順と並行可能Taskを保存。
