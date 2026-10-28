@@ -1,0 +1,21 @@
+# V184: 初球の採用済みjoint executionを測定へ接続
+
+Task MB-20261027-REALISM-DEBUG-PLAN Task5 SPIN-03。V182/SamePAとV183/Original PhysicalPitchに続き、pa_initial_joint_v1_executionsの第三producerを追加する。既存V144の原採用済みexecutionを正規readerで読むだけで、新しいprepare/accept/投球/制御権や旧全工程を発行しない。
+
+新NativeMeasuredInitialJointContactV184.tsと限定testだけを追加する。入力はSamePaReference<typeof initialJointExecutionTable>。既存Native read snapshot＋withSamePaLifecycleReadPhase内でreadInitialJointPhysicalExecutionFromSqliteを呼ぶ。bat_contactでなければnull。元launchのbeforeTimelineから追加されたcanonical BatBallContactを選び、lineage.actorReferenceの原actor/fullrefとcalculation.input.batterPlayerId/lineage scopeを照合する。
+
+canonical contact/event/原actor/Source/lineageをdetached/frozenで返す。rigid contactと正確なsub-tick momentも保持し、整数tickだけへ潰さない。無接触と本人不明/不整合を同一にせず、Source不足を名前/別人/既定値で補わない。TraitTime/認識Source/model/名札/結果補正は作らない。
+
+先に限定REDを記録し最小実装。pure selectorのsynthetic入力はNative authorityでない。正規成功は保存済みfixtureの既知iqj141:execution1rowから私的コピーでrefを確定して対照する。既存copy/pin/compile helperを使い、元DB/旧成果物へwrite/open/PRAGMAをせず、非空WAL/journalをコピーしない。Native正例2読取/改変ref拒否/原値・sub-tick保持/Caller state/入力/Source pinを検証する。
+
+正常AI/習得技能/正式calendar/自然cohortの証明へ昇格しない。同じ実投球の複数owner表現の重複は後続の集計Sourceで正式に解決し、このreaderだけで全件populationが完成したとしない。暦/集計Source/model/表示join、キレUNKNOWNと全goalは未完のまま保持する。
+
+## 読取probeのauthorizer条件
+
+初回2a35e83bは3906ms/API成功0で停止。既存personGenesisEvidenceFromSqliteは借用した同じNative接続でownerを構築し、readだけでも未実行INSERT文をprepareする（SqlitePersonGenesisStore.ts:65–80/185/304）。harnessがprepare時のSQLITE_INSERTまで拒否していたため、認証や再現計算へ到達しなかった。元Source802入力/両私的DBのpinは不変。
+
+Source/既存認証は変更せず、次のharnessはjoint execution表へのDELETEとATTACH/DETACHを拒否するcaller authorizerを設定してその保持を検証する。他のCRUD文のprepareは許すが、正規snapshot内のquery_only=1・全処理前後total_changes/schema/全DB file pin不変で実行writeを防止・検出する。借用接続のgenesis factoryはDDL/PRAGMAを実行しないこともSourceで確認済み。実行を阻止する契約を、未実行文のprepare禁止へ不必要に広げない。元FAILを保持し、新out02で一度だけ再開する。本人の通常判断の記録方針に基づき、認証の緩和やSource修正へ拡張しない。
+
+## 結果
+
+4test542fe5a1・全型24489a2c・正規Native2読取ed2b2b3a PASS。値差0/sub-tick保持、raw保存キー順19差は別記録し、archive bit一致を主張しない。Source802入力/DB/コピー/bundle等pin一致。既済test/型や旧Native全工程の再実行なし。復旧は追加getterの呼出を外すことで既存producerへ影響せず行える。新保存形式/DB migrationはない。詳細NATIVE-INITIAL-JOINT-CONTACT-V184.md。全goalは継続する。
