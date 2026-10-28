@@ -14,12 +14,18 @@ import type { AcceptedPhysicalPitchActionSource } from './SqlitePhysicalPitchPro
 /** Existing explicit fixture mound, shared with prospective original-world setup. */
 export const continuousPitchMoundReference = Object.freeze({ x: 0, y: 0, z: 18 });
 
+export type ContinuousPitchFixtureGameIdentity = Readonly<{
+  initialWorldSourceId: string; pitchSourcePrefix: string; outingId: string;
+}>;
+
 /** Actual Native owners, explicit synthetic bodies/physics/calibration, no forced count events. */
 export const continuousPitchFixture = (databasePath?: string, bothSides = false, fixture?: Parameters<typeof officialPitchWorkloadFixture>[4], profile?: Parameters<typeof officialPitchWorkloadFixture>[5], rehabPlayerIds: readonly string[] = [],
   originalBaseCenters?: ReturnType<typeof worldSetup>['baseCenters'], originalDefenders?: ReturnType<typeof worldSetup>['defenders'],
-  initializeCalendar?: Parameters<typeof officialPitchWorkloadFixture>[7]) => {
+  initializeCalendar?: Parameters<typeof officialPitchWorkloadFixture>[7], identity?: ContinuousPitchFixtureGameIdentity) => {
   const f = officialPitchWorkloadFixture(true, true, databasePath, bothSides, fixture, profile, rehabPlayerIds, initializeCalendar);
-  const setup = { sourceId: 'initial-world', sourceVersion: 'fixture-v1', gameId: f.gameId, fixtureEventId: f.fixtureBinding.fixtureEventId,
+  const gameIdentity: ContinuousPitchFixtureGameIdentity = { initialWorldSourceId: identity?.initialWorldSourceId ?? 'initial-world',
+    pitchSourcePrefix: identity?.pitchSourcePrefix ?? 'pitch', outingId: identity?.outingId ?? 'outing-1' };
+  const setup = { sourceId: gameIdentity.initialWorldSourceId, sourceVersion: 'fixture-v1', gameId: f.gameId, fixtureEventId: f.fixtureBinding.fixtureEventId,
     startedAtTick: 0, worldSetup: { ...worldSetup('p2'), ...(originalBaseCenters ? { baseCenters: originalBaseCenters } : {}),
       ...(originalDefenders === undefined ? {} : { defenders: originalDefenders }) } };
   const initialWorlds = f.track(openSqliteOfficialInitialWorldStore(f.path, { matches: f.official, participation: f.participation }, { readAcceptedSetup: () => setup }));
@@ -30,7 +36,7 @@ export const continuousPitchFixture = (databasePath?: string, bothSides = false,
   const activities = new Map<string, PlayerWorkloadActivity>();
   const workload = f.track(openSqlitePlayerWorkloadRecoveryStore(f.path, f.links, { readAcceptedBaseline: () => baseline,
     readAcceptedActivity: (id) => activities.get(id) ?? null }));
-  workload.initialize(baseline.sourceId);
+  const currentWorkload = workload.initialize(baseline.sourceId);
   const timingInput = { sourceId: 'timing', sourceVersion: 'fixture-v1', personLinkSourceId: 'intake-p2', careerId: 'career-a', playerId: 'p2', acceptedAtDay: 1,
     profile: { baseStartIntervalUs: 10_000_000, normalMotionToReleaseUs: 600_000, followThroughUs: 200_000, quickSpeedFactor: 1.8,
       cadenceExecutionControl: 0.8, cadenceTimingKnowledge: 0.8, quickRepeatability: 0.8, naturalVariationUs: 50_000,
@@ -54,16 +60,16 @@ export const continuousPitchFixture = (databasePath?: string, bothSides = false,
     motionDurationScaleAtFullFatigue: 1.5, velocityRetentionAtFullFatigue: 0.5, spinRetentionAtFullFatigue: 0.75 };
   const policies = f.track(openSqlitePitchFatiguePolicyStore(f.path, { readAcceptedPolicy: () => response })); policies.accept(response.sourceId);
   const effort = { sourceId: 'effort', sourceVersion: 'fixture-v1', policyId: 'effort', version: 'v1', availableAtDay: 1, effortUnitsPerPhysicalPitch: 2 };
-  const input = { timeline: createCanonicalPlateAppearanceTimeline(initial.match, initial.world.tick), workloadRevision: 0,
+  const input = { timeline: createCanonicalPlateAppearanceTimeline(initial.match, initial.world.tick), workloadRevision: currentWorkload.revision,
     policySourceId: response.sourceId, effortPolicySourceId: effort.sourceId,
     delivery: { careerId: 'career-a', playerId: 'p2', gameDay: f.gameDay, matchSeed: 19, moundReference: { ...continuousPitchMoundReference },
-      outingId: 'outing-1', playId: initial.match.playId, pitchIndex: 0, readyAtUs: initial.world.tick,
+      outingId: gameIdentity.outingId, playId: initial.match.playId, pitchIndex: 0, readyAtUs: initial.world.tick,
       timingIntent: { deliveryMode: 'NORMAL' as const, cadenceIntent: 'STANDARD' as const },
       physics: { velocity: { x: 0, y: 0, z: -30 }, spin: { x: 0, y: 100, z: 0 } } },
     flight: { durationUs: 1_500_000, acceleration: { x: 0, y: 0, z: 0 } },
     batter: { action: { kind: 'take' as const }, plateZ: 0, strikeZone: { centerX: 0, halfWidth: 0.2, lowerY: 1.4, upperY: 1.8 }, ballRadiusMeters: 0.0366 } };
   return { path: f.path, links: f.links, official: f.official, scoring: f.scoring, participation: f.participation, world: f.world, roster: f.roster,
-    gameId: f.gameId, gameDay: f.gameDay, seasonId: f.seasonId, calendarFixture: f.calendarFixture,
+    gameId: f.gameId, gameDay: f.gameDay, seasonId: f.seasonId, calendarFixture: f.calendarFixture, gameIdentity,
     firstInput: { ...f.firstInput, worldSetup: setup.worldSetup }, db: f.db, track: f.track, close: f.close, initialWorlds, initial, baseline,
     timing, release, workload, policies, response, effort, input, activities,
     stores: { workload, timing, release, policies, effortPolicies: { readAcceptedPolicy: (id: string) => id === effort.sourceId ? effort : null } } };
@@ -72,7 +78,7 @@ export const continuousPitchFixture = (databasePath?: string, bothSides = false,
 export const continuousPitchAction = (f: ReturnType<typeof continuousPitchFixture>, index: number, readyAtUs: number): AcceptedPhysicalPitchActionSource => {
   const { timeline: _timeline, effortPolicySourceId: _effortPolicySourceId, ...request } = f.input;
   const { playId: _playId, pitchIndex: _pitchIndex, ...delivery } = request.delivery;
-  return { sourceId: `pitch-${index}`, sourceVersion: 'fixture-v1', gameId: f.gameId, initialWorldSourceId: 'initial-world',
+  return { sourceId: `${f.gameIdentity.pitchSourcePrefix}-${index}`, sourceVersion: 'fixture-v1', gameId: f.gameId, initialWorldSourceId: f.initial.source.sourceId,
     effortPolicy: f.effort, request: { ...request, delivery: { ...delivery, readyAtUs } } };
 };
 

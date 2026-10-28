@@ -1,5 +1,7 @@
 # SPIN-03: ラインドライブ表示の接続不足
 
+最新入口（2026-10-29 V190）: 3producer→正式calendar→永続観測Source→既存分類/投影まで接続済み。真正Nativeの2試合/2日で明示synthetic modelのREADY/ABSENTを実証した。production校正・実画面consumer・名札だけを変えた実飛行全record対照は未完。下段V189–190と対応結果文書を入口にし、以下の旧「未接続」は各当時の記録として保持する。
+
 2026-10-28 JST / `MB-20261027-REALISM-DEBUG-PLAN` Task5。kire_recipe_leaf_v177による狭域read-only調査。新Source実行・テスト・全77項目再監査は0。物理逆流の具体的欠陥は見つからず、実eventから表示までの接続と現版対照が不足している。
 
 ## 確認できた境界
@@ -73,3 +75,11 @@ contactsは一意参照数であり、独立打球population数ではない。�
 3producerの正規inventoryから自動captureし、原Native ref/calendarを再認証したreceiptと日内受理順を保存、BATTING_CONTACT snapshot/ContactObservationへ接続した。元vectorsは正規再読し6float64 bitHashで保持。Native/doubleの限定TDDとreview修正、最終型f4a253fe、実Node a05e30a5 PASS1795ms/capture2 retry1 snapshot3/原41tableと全schema・Source860入力/DBpin不変。NATIVE-CONTACT-OBSERVATION-V188.md。
 
 coverageは登録済み範囲またはcapture時点の3対応producerで、世界全population/自然cohort/production model/認識/表示を完成にしない。次はこの真正Source/observationsを既存classifier/projectionへ接続し、明示model/policyと不足時の扱いを確定する。fixture閾値のproduction転用や物理へのlabel逆流は行わない。
+
+## V189–190: 既存分類・投影とNative複数日の接続
+
+V189でborrowed q1 readerと最新inventory照合を加え、同Native snapshotから既存classifier/projectionへ接続した。Native1contactがINSUFFICIENT_EVIDENCE/assessment null/UNASSESSEDとなることを最終e60aeb72 PASS1811msで確認。長期8000観測の全体clone制限を修正し、影響2件960972aaと最終型1a0a3c0b PASS。詳細NATIVE-CONTACT-TRAIT-PROJECTION-V189.md。
+
+V190で同DB・別の正式Core game/day10/11の実contactを取得し、2receipt/別2PA・career日424/425を既存分類へ接続した。Native91a2ff9f/型a2a9130f、実Node61717ce1 PASS1875ms/870Sourceと全DBfiles pin一致。明示synthetic modelに対して実角度0°/0°からfraction0・READY/ABSENTへ解決した。production校正や通常AI/完了試合を証明せず、原Source/6float64/時刻の表現境界を保つ。詳細NATIVE-TWO-DAY-CONTACT-V190.md。
+
+次は純表示consumerと名札変更だけの実飛行対照。live trait ability setterや物理Coreへline_driveを追加せず、model不在・証拠不足・対象scope違いは理由付き未評価として扱う。Nativeとstandalone練習は別populationのまま保持する。
