@@ -28,6 +28,12 @@
 
 **Unified acceptance:** The three plans are interconnected, not three independently working products. Taken together their specified regression set is **CATCH-01..25 + BAT-01..29 + DIR-01..26 = 80 named acceptance cases**, subject to actual live-Core availability. Checking boxes in Markdown does not prove tests passed.
 
+### 2026-10-28 APPROVED: 主体的方向選択・適応スイング DIR-v2
+
+| ID | Link | Status | Dependencies / how to use |
+| --- | --- | --- | --- |
+| **DCA / DIR-v2** | [打撃方向の主体的選択・コース対応・途中修正 統合計画](superpowers/plans/2026-10-28-batter-contextual-direction-v2.md) · [全38設計原則](superpowers/plans/2026-10-28-batter-contextual-direction-v2-principles.md) · [実装工程](superpowers/plans/2026-10-28-batter-contextual-direction-v2-implementation.md) · [追加DCA-01..40受入](superpowers/plans/2026-10-28-batter-contextual-direction-v2-acceptance.md) | **USER-APPROVED DESIGN / IMPLEMENTATION PLAN / NOT IMPLEMENTED AS A WHOLE** | BAT/DIR/SWGの同じOwnerへ統合。内角流し・外角引っ張りを許容、80%Preferenceを無条件方向ガチャへしない、REACTIVEはCENTERではない、途中修正の成功と失敗は時間制約付きの実バット接触から生成。V79方向配分のコース非依存、V160/V161の現場記録が調査入口。既存CATCH/BAT/DIR/SWG/Native/保存を保全し、独立エンジン/後付け打球角Buffは禁止。 |
+
 ### Cross-cutting quality department — **newly created; not a fourth Match Core implementation plan**
 
 | Topic | Entry | Status | Meaning |
