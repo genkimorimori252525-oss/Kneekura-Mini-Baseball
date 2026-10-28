@@ -58,3 +58,7 @@ UI run05 `fbca7815633242d6bd35b13af1d71a3c` PASS24734ms、同Chrome.49、PC1200/
 内部ID `THREATENING_DOUBLE_CIRCLE` とrecipe版を維持。物理不変は上記Core03のliteral-only同値証拠を再利用し、この表示確認で再証明した扱いにしない。既存85項目/旧Source検証は再実行せず、原FAILも変更していない。
 
 記録と小さいselector/comparison画像は `kire-label-colors-v177-01/report.json` と同folder。PC/390pxの表示受入であり、他球種の品質・段階順序や全goal完成へは昇格しない。
+
+## 後続の採用判断
+
+V179は固定scale/gyro/phase8で両球種候補0。さらにV177の2–10%低回転化/gyro30置換が元の球種を保持する品質操作ではないため、普遍recipeとしての採用を撤回した。V180では元通常PV/全spinを保持した16材料姿勢×2/通常を含む4段階を検証したが、fbe53dd7のruntime整合PASS/16922msに対し品質候補は両球種0。詳細 `KIRE-PHASE-DOMAIN-V179.md` / `KIRE-BASE-PRESERVING-V180.md`。旧Source/保存/局所PASS/UI受入は研究履歴として保持する。現在の候補を完成版として配送せず、旧保存の物理を黙って新しい方式へ変更しない。追加gridを停止し、モデル/入力不足をTask4のUNKNOWNに保持する。

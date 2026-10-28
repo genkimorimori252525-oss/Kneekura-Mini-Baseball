@@ -1,0 +1,33 @@
+# SPIN-03: ラインドライブ表示の接続不足
+
+2026-10-28 JST / `MB-20261027-REALISM-DEBUG-PLAN` Task5。kire_recipe_leaf_v177による狭域read-only調査。新Source実行・テスト・全77項目再監査は0。物理逆流の具体的欠陥は見つからず、実eventから表示までの接続と現版対照が不足している。
+
+## 確認できた境界
+
+- `SourceTraitFamilies.ts:9` のline_driveはRECOGNITION_REQUIRED/DYNAMIC_DESCRIPTOR/BATTING_CONTACT。
+- `MeasuredTraitStatistics.ts:7–11` はexitVelocityの打上角分布からLINE_DRIVEを観測し、`MeasuredTraitClassifier.ts:9–37`→`SourceTraitProjection.ts:7–38` は認識・投影だけを行う。effect/exitSpinを生成せず、projection自体に表示名もない。
+- 現production検索ではclassifier/projectionのconsumerは同traits配下に限られ、Live/Native/Makerの実event→自動認識/表示joinを確認できない。LiveTraitProfilesV1にline_driveはなく、既存V77 setterへの混入はunknown familyで拒否される。
+- V177 RuntimeV77の追加はbreaking_ball_qualityのみ。実物理はLivePitchV1のselectLiveSpinIntentV123→運動候補、resolveWoodBatSpeedProfileBallContact→RigidBatBallContactのstate.ballSpin、LiveBaseballMatchV1のoutgoingへの一回採用という経路で、descriptor/nameを読む枝は確認されなかった。
+
+既存MeasuredContact.testのeffect不在、MeasuredTraitIntegrity.testの測定/clear/stale、LiveSpinExecutionV123.testの実vector一回採用/通常RNG同値は別の限定証拠。E1/E2の当時snapshotや名称/リーグ不変029b95eeを、line_drive名だけを変えた現版全record/全球道のPASSへ転用しない。
+
+## 次の一件
+
+真正のBATTING_CONTACT記録のproducer/ID/時点/認識条件を確認し、測定→純粋な表示joinを最小の境界で接続する。その表示名だけが異なる同seed/同physicalのactual API全record対照を一度行う。不存在のLive profile fieldを足して「label-only」と呼ばず、結果補正や新しい技能Sourceも生成しない。SPIN-03はNOT CONNECTED/現版実証UNKNOWNを維持し、この文書を実装完了の証拠にしない。
+
+## producer/Ownerの限定追加調査
+
+ContactObservationはscope(careerId/playerId)、episodeId、eventId、time(season/day/sequence)、exitVelocityMpsを要求する。classification requestは評価時点/source/model/observationsを持つ。sourceはBATTING_CONTACT owner、subjectId/sourceKey/revision/snapshotId/timeを持ち、scope一致・event<=source<=評価・eventIdと日内sequenceの一意性を要求する。dayはcareer通算日。frameや飛行horizon延長を別episode/打球として増殖させない。
+
+既存Nativeの正規producer候補は次の2つ。
+
+- PhysicalPitchEvidenceFromSqliteのreadOriginalPhysicalPitchPrefixFromSqlite/readPhysicalPitchProgressFromSqlite。元Source/row hash/snapshot/revisionを照合した採用済みpitchのBatBallContactと、frame.batterActor.binding(careerId/playerId/gameDay/competitionEditionId/fixtureEventId)を結合できる。actor無しは本人を認証できず対象外。SqliteBattedBallFlightStoreの元pending接触/actor照合が参考となる。
+- EpisodeFromSqliteのreadSamePaPhysicalOperationFromSqlite。committed headとsourceHash/snapshotHashを検証し、SamePA resolutionの元BatBallContact、lineage/physicalPitchReference/pitchOrdinal、event.tick/sequenceを参照できる。既存NonPitchRepetitionEvidenceFromSqliteのcontact照合を参考にするが、learning/workload/閉鎖条件による選別を全接触populationへ持ち込まない。
+
+通常ブラウザーHostのcontact/outgoingは実測だがcareer/day/durable eventIdがなく、Native資格を代替しない。standalone練習は既存Native eventId/episodeId/proofHashを持つ別populationで、試合全接触/意図技能の認定へ混ぜない。
+
+classifier/投影の閾値は明示model/policyが必須。fixtureの角度10–30/割合.6/3episode/2日/10日window/age1はsynthetic-onlyで、production校正には使わない。投影はsource snapshot全内容とmodel/versionの一致、追加認識episode/日数も検査する。
+
+現時点でBATTING_CONTACT集計snapshot owner、episode正式mapping、日内global sequence、season対応、production認識model、表示consumerは未接続。PA内で再開するtimeline.sequenceを日内globalへ直用しない。既存Native calendar/time/model ownerを次に狭く調査し、既存Ownerがあれば再利用する。不存在なら時系列や閾値を推測してREADYにせず、未認識の純粋測定と認識の境界を設計する。
+
+最小adapter候補は新host/world/MeasuredBattingContactEvidenceFromSqlite.ts相当のread-only変換、UI候補はbaseball-maker-ui-v94のrenderLiveTraitsの別descriptor表示。classifier/projectionの物理変更やLiveTraitProfile setter/resolveLiveExecutionPhysicalへのline_drive追加は不要。NativeDBの実在件数/複数日充足は未確認で、真正認識のPASSを主張しない。

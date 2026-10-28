@@ -171,6 +171,8 @@ Task1→Task2→Task3→Task4→Task5→Task6。Task1の測定を使って以後
 
 **V179不成立とV180入力是正（最新）:** 3cb32be7 PASS19485msはruntime整合のみ、54capture168record266check/全pin一致。42new+元6reuse、全512組×2でQ成立9/4だが共通+own QPDL候補0。逆に両時計PDL成立45/38はすべて量差2cm超。さらに現V177の回転2–10%化/gyro30置換は元の球種を保つ品質操作として不適切なため、普遍recipeとしての採用を撤回する。旧Source/保存/候補/局所PASSを履歴として残し、低回転のラベル並替えで完成にしない。V180は通常PV/全spinを保持し材料q0のlocal x/y姿勢16×2、identity通常2件reuse/新30だけの有界研究。通常を含む4段階の近量方向とcommon/own PDLを事前固定し、0なら無制限gridを増やさない。モデルの係数/任意timer変更なし。詳細 `KIRE-PHASE-DOMAIN-V179.md` / `2026-10-28-kire-base-preserving-v180.md`。fd298bb4で最新名称/青青金の実DOM確認も完了したが、物理3段階/Step7/全goalは未完。
 
+**V180結果/次の一件Task5:** fbe53dd7 PASS16922msはruntime整合、38capture120record219check/全pin一致。通常fullspin/PV保持の新30+identity2reuse、2Owner先行対照12calls一致後のみ残り28、各3360役割列。Q成立slider336/splitter24だが両球種common QPDL/候補0。16姿勢断面の不成立としてモデル/入力不足UNKNOWNを保持し、追加gridを停止する。`KIRE-BASE-PRESERVING-V180.md`。独立のSPIN-03狭域調査ではline_driveの物理逆流は見つからず、実contact→測定→表示joinがNOT CONNECTED。次はNative calendar/time/source snapshot/model ownerを確認し、実打球測定と純粋表示を接続する一件へ絞る。既存fixture閾値やPA内sequenceをproductionへ転用しない。`LINE-DRIVE-LABEL-INTEGRATION-GAP.md`。キレと全残件/全goalを未完のまま維持する。
+
 ### Task5: SPIN v2/SIGN基盤と継承残件
 
 **資料の鮮度（2026-10-28更新）:** `SPIN16-17-OWNER-AUDIT.md`は接続前の提案であり、末尾NOT CONNECTEDを新しいV146–148実証の否定に使わない。旧free-flight/V147 Nativeを再実行しない。V170は実ground-wall arcへ有限window queryを接続し、遠方poleでも無条件current-stopになる問題を修正した。全cell/poleの距離下界が速度/半径/geometry-aware丸め上界を上回る窓だけ進み、near/tangent/coverage不明は従来unresolvedを保持。14件52ef7ffb/旧pole回帰16件cff69245/全型8ee4e8b1 PASS。新Core Native214 d54af3e7/WB191 0b36a10a、build8bf1f361。実pole接触/Native/legal/公式HRへは昇格しない。詳細 `docs/verification/realism-debug-20261027/CONSTRAINED-POLE-WINDOW-V170.md`。
