@@ -10,9 +10,10 @@ export const physicalPlateAppearanceFixtureGame = (): AcceptedPhysicalPlayClosur
 });
 
 export const physicalPlateAppearanceActorFixture = (databasePath?: string, fixture?: Parameters<typeof continuousPitchFixture>[2], profile?: Parameters<typeof continuousPitchFixture>[3], rehabPlayerIds: readonly string[] = [],
-  originalBaseCenters?: Parameters<typeof continuousPitchFixture>[5], originalDefenders?: Parameters<typeof continuousPitchFixture>[6]) => {
-  const f = continuousPitchFixture(databasePath, true, fixture, profile, rehabPlayerIds, originalBaseCenters, originalDefenders);
-  const source: AcceptedPhysicalPlateAppearanceActor = { sourceId: 'batter-1', sourceVersion: 'fixture-v1', gameId: 'game-1', playerId: 'away-1', initialWorldSourceId: 'initial-world' };
+  originalBaseCenters?: Parameters<typeof continuousPitchFixture>[5], originalDefenders?: Parameters<typeof continuousPitchFixture>[6],
+  initializeCalendar?: Parameters<typeof continuousPitchFixture>[7]) => {
+  const f = continuousPitchFixture(databasePath, true, fixture, profile, rehabPlayerIds, originalBaseCenters, originalDefenders, initializeCalendar);
+  const source: AcceptedPhysicalPlateAppearanceActor = { sourceId: 'batter-1', sourceVersion: 'fixture-v1', gameId: f.gameId, playerId: 'away-1', initialWorldSourceId: 'initial-world' };
   const accepted = new Map<string, AcceptedPhysicalPlateAppearanceActor>([[source.sourceId, source]]);
   const sources = { matches: f.official, initialWorlds: f.initialWorlds, participation: f.participation };
   const actors = f.track(openSqlitePhysicalPlateAppearanceActorStore(f.path, sources, { readAcceptedActor: (id) => accepted.get(id) ?? null }));
