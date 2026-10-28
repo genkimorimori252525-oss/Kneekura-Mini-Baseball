@@ -1,6 +1,6 @@
 # SPIN-03: ラインドライブ表示の接続不足
 
-最新入口（2026-10-29 V190）: 3producer→正式calendar→永続観測Source→既存分類/投影まで接続済み。真正Nativeの2試合/2日で明示synthetic modelのREADY/ABSENTを実証した。production校正・実画面consumer・名札だけを変えた実飛行全record対照は未完。下段V189–190と対応結果文書を入口にし、以下の旧「未接続」は各当時の記録として保持する。
+最新入口（2026-10-29 V191）: 3producer→正式calendar→永続観測Source→既存分類/投影→smallreport→Maker保存観測の純表示まで接続済み。真正Native2試合/2日の試験model READY/ABSENTと、実表示名変更のNative最初の接地・Chrome Workbench801flight frame不変を実証した。production校正・通常report生成・現在career時計・最終同版配送は未完。下段V189–191と対応結果文書を入口にし、以下の旧「未接続」は各当時の記録として保持する。
 
 2026-10-28 JST / `MB-20261027-REALISM-DEBUG-PLAN` Task5。kire_recipe_leaf_v177による狭域read-only調査。新Source実行・テスト・全77項目再監査は0。物理逆流の具体的欠陥は見つからず、実eventから表示までの接続と現版対照が不足している。
 
@@ -83,3 +83,11 @@ V189でborrowed q1 readerと最新inventory照合を加え、同Native snapshot�
 V190で同DB・別の正式Core game/day10/11の実contactを取得し、2receipt/別2PA・career日424/425を既存分類へ接続した。Native91a2ff9f/型a2a9130f、実Node61717ce1 PASS1875ms/870Sourceと全DBfiles pin一致。明示synthetic modelに対して実角度0°/0°からfraction0・READY/ABSENTへ解決した。production校正や通常AI/完了試合を証明せず、原Source/6float64/時刻の表現境界を保つ。詳細NATIVE-TWO-DAY-CONTACT-V190.md。
 
 次は純表示consumerと名札変更だけの実飛行対照。live trait ability setterや物理Coreへline_driveを追加せず、model不在・証拠不足・対象scope違いは理由付き未評価として扱う。Nativeとstandalone練習は別populationのまま保持する。
+
+## V191: 保存観測の純表示と名称だけの対照
+
+small reportのcreate/read/名称変更を接続し、新36unit782b59d3・型9eb100a0 PASS。Native分類→実report→名称変更→normal Original/current continuous flightの全契約record対照8416c0e5 PASS2063ms/872Source pin。検索horizon2秒のAPIだが保存stateは初期/最初の接地（.554638秒）で、全飛行終端を証明しない。
+
+Makerには編集・練習から独立した保存試合の観測欄、JSON読込/閉じるを追加した。別career同playerIdの名前誤joinを新RED3e91000cで再現して修正。Chrome.49最終2deeb706 PASS14391ms/1200・390px、実Core Workbenchの接触と192bat/59pitch/801flight frame・state/Sourceが名称変更/再実行後も全field同値。モデル未設定/未集計を未評価として扱い、常時校正前の参考表示を保持する。NATIVE-CONTACT-DISPLAY-V191.md。
+
+通常Native report生成入口はfixture試験modelから独立させる必要がある。共有barrel/builder/ignored UIの先行未公開差分は取り込まず、実装Sourceの最終同期・同版配送を未完保持する。全population/同PA identity/production校正/現在時計・回転技術をこの表示証拠だけで完了しない。
