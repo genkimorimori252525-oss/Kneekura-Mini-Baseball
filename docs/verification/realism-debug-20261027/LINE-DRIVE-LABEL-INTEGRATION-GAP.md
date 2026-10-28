@@ -1,6 +1,6 @@
 # SPIN-03: ラインドライブ表示の接続不足
 
-最新入口（2026-10-29 V191）: 3producer→正式calendar→永続観測Source→既存分類/投影→smallreport→Maker保存観測の純表示まで接続済み。真正Native2試合/2日の試験model READY/ABSENTと、実表示名変更のNative最初の接地・Chrome Workbench801flight frame不変を実証した。production校正・通常report生成・現在career時計・最終同版配送は未完。下段V189–191と対応結果文書を入口にし、以下の旧「未接続」は各当時の記録として保持する。
+最新入口（2026-10-29 V192）: 3producer→正式calendar→永続観測Source→既存分類/投影→smallreport→通常Native collect/export→Maker保存観測の純表示まで接続済み。真正Native2試合/2日の試験model READY/ABSENT、実表示名変更のNative最初の接地・Chrome Workbench801flight frame不変、modelなし通常command→未評価表示を実証した。production校正・現在career時計・全population/identity・最終同版配送は未完。下段V189–192と対応結果文書を入口にし、以下の旧「未接続」は各当時の記録として保持する。
 
 2026-10-28 JST / `MB-20261027-REALISM-DEBUG-PLAN` Task5。kire_recipe_leaf_v177による狭域read-only調査。新Source実行・テスト・全77項目再監査は0。物理逆流の具体的欠陥は見つからず、実eventから表示までの接続と現版対照が不足している。
 
@@ -91,3 +91,9 @@ small reportのcreate/read/名称変更を接続し、新36unit782b59d3・型9eb
 Makerには編集・練習から独立した保存試合の観測欄、JSON読込/閉じるを追加した。別career同playerIdの名前誤joinを新RED3e91000cで再現して修正。Chrome.49最終2deeb706 PASS14391ms/1200・390px、実Core Workbenchの接触と192bat/59pitch/801flight frame・state/Sourceが名称変更/再実行後も全field同値。モデル未設定/未集計を未評価として扱い、常時校正前の参考表示を保持する。NATIVE-CONTACT-DISPLAY-V191.md。
 
 通常Native report生成入口はfixture試験modelから独立させる必要がある。共有barrel/builder/ignored UIの先行未公開差分は取り込まず、実装Sourceの最終同期・同版配送を未完保持する。全population/同PA identity/production校正/現在時計・回転技術をこの表示証拠だけで完了しない。
+
+## V192: fixtureに依存しない通常Native tool
+
+通常collect/exportを追加。player/personの正規Sourceとrosterから対象を認証し、未知scopeをemptyへ変えない。OSreadonly exportと観測metadata collectionを別操作とし、model/policyの数値既定なしでV189/V191を呼ぶ。新19Native31fdddf7・14CLIc59715bc・明示tools型a04cc1df PASS。最終9child process b1082003 PASS10188ms、通常runtime827Sourceのload/終了pinと全childSHA・元41table/既存catalog不変を確認した。通常生成no-model report→Maker5307d42b PASS14485ms、未評価/対象分離/既存physical不変を確認。NATIVE-CONTACT-REPORT-CLI-V192.md。
+
+通常report生成の未接続は解消した。production校正・現在時計・同PA identity/全populationと全Goalの他残件は維持し、fixture値を既定化しない。

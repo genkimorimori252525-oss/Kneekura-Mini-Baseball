@@ -69,7 +69,8 @@ try{
     assert.equal(changed.report.displayName,'対照表示名');assert.equal(firstDebugDifference(changed.report,{...nativeReport,displayName:'対照表示名'}),null);
     assert.equal(firstDebugDifference(changed.physics,before.physics),null,'all actual workbench physical fields must remain exact');
     assert.equal(firstDebugDifference(changed.state,before.state),null);assert.equal(firstDebugDifference(changed.sources,before.sources),null);
-    const afterText=await page.locator('#contact-observation-report-v191').innerText();assert(afterText.includes('対照表示名'));assert(afterText.includes('校正前'));
+    const afterText=await page.locator('#contact-observation-report-v191').innerText();assert(afterText.includes('対照表示名'));
+    assert(afterText.includes(nativeReport.model===null?'判定基準が未設定':'校正前'));
     assert(await page.evaluate(({scope})=>{try{baseballMaker.setContactObservationReportV191(baseballMaker.getContactObservationReportV191(),{...scope,careerId:'wrong-career'});return false;}catch{return true;}},{scope}));
     assert.equal((await page.evaluate(()=>baseballMaker.getContactObservationReportV191())).displayName,'対照表示名');
     await page.evaluate(({nativeReport,scope})=>baseballMaker.setContactObservationReportV191({...nativeReport,status:'UNAVAILABLE',

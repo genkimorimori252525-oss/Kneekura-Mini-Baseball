@@ -22,6 +22,8 @@ assert(files.length>0&&files.every(path=>/^docs\/.*\.md$/.test(path)
   ||/^src\/host\/world\/NativeLineDriveFlightV191\.test-support\.ts$/.test(path)
   ||/^src\/integration\/traits\/ContactDescriptorReportV191(?:\.test)?\.ts$/.test(path)
   ||path==='tools/browser-bridge/check-maker-contact-descriptor-v191.mjs'
+  ||/^tools\/(?:native-contact-report-v192(?:\.test)?\.mjs|native-contact-report-runtime-v192(?:\.test)?\.ts)$/.test(path)
+  ||path==='tools/verification/check-native-contact-report-cli-v192.mjs'
   ||/^src\/core\/world\/competition\/WorldCalendarDate(?:\.test)?\.ts$/.test(path)
   ||/^tools\/verification\/(?:(?:check-native-measured-contact|verify-github-change)-v182\.mjs|native-measurement-probe-support-v183(?:\.test)?\.mjs|native-original-contact-case-v183\.ts|check-native-original-contact-v183\.mjs|(?:prepare|check)-native-initial-joint-contact-v184\.mjs|check-native-contact-collection-v185\.mjs|check-native-contact-calendar-v186\.mjs|native-contact-calendar-case-v187\.ts|check-native-contact-calendar-v187\.mjs|native-contact-observation-case-v188\.ts|check-native-contact-observation-v188\.mjs|native-contact-trait-projection-case-v189\.ts|check-native-contact-trait-projection-v189\.mjs|native-two-day-contact-case-v190\.ts|check-native-two-day-contact-v190\.mjs|native-line-drive-flight-case-v191\.ts|check-native-line-drive-flight-v191\.mjs)$/.test(path)),
   'only the explicitly owned source/tests/verifiers and Markdown may be published');
