@@ -21,6 +21,8 @@ assert(files.length>0&&files.every(path=>/^docs\/.*\.md$/.test(path)
   ||/^src\/host\/world\/WorldBoundOriginalContactsV190\.(?:test-support|test)\.ts$/.test(path)
   ||/^src\/host\/world\/NativeLineDriveFlightV191\.test-support\.ts$/.test(path)
   ||/^src\/integration\/traits\/ContactDescriptorReportV191(?:\.test)?\.ts$/.test(path)
+  ||/^src\/integration\/browser\/SpinNeutralGoldV193\.(?:test-support|test)\.ts$/.test(path)
+  ||/^tools\/verification\/(?:spin-neutral-live-case-v193\.ts|check-spin-neutral-live-v193\.mjs)$/.test(path)
   ||path==='tools/browser-bridge/check-maker-contact-descriptor-v191.mjs'
   ||/^tools\/(?:native-contact-report-v192(?:\.test)?\.mjs|native-contact-report-runtime-v192(?:\.test)?\.ts)$/.test(path)
   ||path==='tools/verification/check-native-contact-report-cli-v192.mjs'
