@@ -48,3 +48,13 @@ UI run05 `fbca7815633242d6bd35b13af1d71a3c` PASS24734ms、同Chrome.49、PC1200/
 本人の最新訂正で表示をキレ○/キレ◎（blue）/驚異の切れ味（gold）へ更新、最高に◎を付けない。内部ID/recipe/物理は維持。catalog限定99dfc2a7 PASS1875ms。Core03/0738cc67 PASS797msは、Core02との両全bundleがこの表示literal1個だけの差であることをexact証明（物理試投0）。Native216 `9904009b29a0828defcceef3c320ff65f3440dd7774c06abe6cbf7dc15575c57`、WB193 `784b6eaae366d7b6f095a8ac40d04ef4ccc2180ef15add77e42ef9f173212262`。
 
 新candidate-maker-auto-kire-v177-02は8291d50f PASS2609msで別生成。投手選択肢/選択中/比較表にもblue/blue/goldを指定。変更分のDOM名/色だけを追加確認し、旧物理/85受入を繰り返さない。V178で他球種の品質不成立を実証したため、UI操作成功を全球種品質や全goal完成へ昇格しない。
+
+## 名称・色の追加DOM受入
+
+`fd298bb4c09045b4a6cbef154db7a8f5` PASS10469ms、Chrome156.0.8078.49。新候補02の実DOMで、キレ○/キレ◎は青 `#2166a5`、驚異の切れ味は金 `#805700`。投手の選択肢/選択中色とmain traitsの選択肢が一致し、最高段階の末尾◎と旧「脅威」表記がないことを確認した。
+
+3状態のauthoring同期は投手試投0。追加は最高段階の実DOM選択1回＋UI内の元球比較1回に限定した。PC1200から同じpageを390pxへresizeし追加試投0で、比較表header「驚異の切れ味」の金色、横overflow0、page errors0、HTML/UI/旧候補のendpins一致を確認。inspect/getInput/planのpitchIdは同じ `preset-curve`。
+
+内部ID `THREATENING_DOUBLE_CIRCLE` とrecipe版を維持。物理不変は上記Core03のliteral-only同値証拠を再利用し、この表示確認で再証明した扱いにしない。既存85項目/旧Source検証は再実行せず、原FAILも変更していない。
+
+記録と小さいselector/comparison画像は `kire-label-colors-v177-01/report.json` と同folder。PC/390pxの表示受入であり、他球種の品質・段階順序や全goal完成へは昇格しない。
