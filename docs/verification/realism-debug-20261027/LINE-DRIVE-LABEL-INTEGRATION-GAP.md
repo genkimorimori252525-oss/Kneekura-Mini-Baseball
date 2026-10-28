@@ -31,3 +31,9 @@ classifier/投影の閾値は明示model/policyが必須。fixtureの角度10–
 現時点でBATTING_CONTACT集計snapshot owner、episode正式mapping、日内global sequence、season対応、production認識model、表示consumerは未接続。PA内で再開するtimeline.sequenceを日内globalへ直用しない。既存Native calendar/time/model ownerを次に狭く調査し、既存Ownerがあれば再利用する。不存在なら時系列や閾値を推測してREADYにせず、未認識の純粋測定と認識の境界を設計する。
 
 最小adapter候補は新host/world/MeasuredBattingContactEvidenceFromSqlite.ts相当のread-only変換、UI候補はbaseball-maker-ui-v94のrenderLiveTraitsの別descriptor表示。classifier/projectionの物理変更やLiveTraitProfile setter/resolveLiveExecutionPhysicalへのline_drive追加は不要。NativeDBの実在件数/複数日充足は未確認で、真正認識のPASSを主張しない。
+
+## V182で接続した最初の境界
+
+NativeMeasuredBattingContactV182.tsの新read-only APIを実装し、SamePAの正規resolution/launchから当該投球の実contact/actor/Source/元scopeを返す入口を接続した。専用3test f58f4f66/全型ad49f2a5、保存Native fixtureの私的コピーでOwner成功2読取・原vector等差0・再読非消費・改変ref拒否519919ed PASS21000ms。Source791入力/元DB/コピーpin一致。詳細 NATIVE-MEASURED-CONTACT-V182.md。
+
+この境界は生の認証済み接触を渡すだけで、旧記述のcareer暦/集計Source/model/表示consumerの未接続は維持する。次は元PhysicalPitch直接経路も同じ測定populationの入口へ加え、原PA/本人/投球/eventのidentityを揃える。Nativeの成功と正式calendar/自然cohortを混同しない。
