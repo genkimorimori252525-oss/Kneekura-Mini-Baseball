@@ -26,6 +26,11 @@ assert(files.length>0&&files.every(path=>/^docs\/.*\.md$/.test(path)
   ||/^tools\/verification\/NativeSpinNeutralV193-(?:sql|gates\.test|frontier|advance)\.ts$/.test(path)
   ||/^tools\/verification\/check-NativeSpinNeutralV193-(?:backup|advance)\.mjs$/.test(path)
   ||path==='src/host/world/SamePlateAppearanceLifecycleFixture.test-support.ts'
+  ||path==='src/host/world/InFlightBattingLifecycleFixture.test-support.ts'
+  ||/^tools\/verification\/NativeSpinNeutralV193-suffix\.(?:test-support|test)\.ts$/.test(path)
+  ||path==='tools/verification/check-NativeSpinNeutralV193-suffix.mjs'
+  ||path==='tools/verification/NativeSpinNeutralV193-recover.ts'
+  ||path==='tools/verification/check-NativeSpinNeutralV193-recover.mjs'
   ||path==='tools/browser-bridge/check-maker-contact-descriptor-v191.mjs'
   ||/^tools\/(?:native-contact-report-v192(?:\.test)?\.mjs|native-contact-report-runtime-v192(?:\.test)?\.ts)$/.test(path)
   ||path==='tools/verification/check-native-contact-report-cli-v192.mjs'

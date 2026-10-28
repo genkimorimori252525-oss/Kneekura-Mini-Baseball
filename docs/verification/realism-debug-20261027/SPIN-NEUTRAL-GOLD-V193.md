@@ -59,6 +59,36 @@ Sourceをload時/終了時にpinし、fixture bundleとharness自身も終了照
 
 このPASSは保存状態から正規履歴更新へ復帰できる証拠で、`consumerAdoptionProven=false`、`physicalOperationCreated=false`、`performancePass=false`のまま。次はこの新DBを不変baselineとして、別owned copyのcut4からdelivery/commitment/actual contactだけを継続する。元のTIMEOUT/異常終了を成功へ変更しない。
 
+### 接触部分の限定再開
+
+新しい入口は正常readerのActor/lineage/launch/posture/intent/captureとcut4 current coverageを結合してから、既存のInFlight forecast/emotion/input/commitment/resolution処理を再利用する。過去の練習や2TAKE、観測の再生成、無関係のearly delivery/stale-cut負例は実行しない。既存差分の進捗通知は同じNative診断に必要なnoop既定のinstrumentationとして確認し、thin型と新入口の差分と併せて採用する。productionの運動・接触式は変更しない。
+
+実行は専用Native Vitest1case。esbuildで作ったSource closureはpinのためだけに使い、そのbundleを実行したとは扱わない。baselineの正常SQLite backupを新owned DBへ行い、元DBのdata pinと許可した追記/mutable table以外の不変を終了時に検査する。
+
+空Nativeを拒否する入口S00は初期RED `1de3b9ca54ab406989d7f93955a7dce9`→`d2cbf1c40d7d47bbb1adea6b0ac42d0e` PASS7139ms。strict型はvariant/nullableの`ad929c3d9c5848939ec570c10ab59bf8` FAIL後、実体guardだけを追加して`8b846610d13944a28a586a74ce280f22` PASS2610ms。
+
+suffix01 `ab5c0dd94e394ad3a9d880950595b4bc`はFAIL7750ms/0test。新helperの`node:sqlite`直接runtime importをViteが解決できず、物理処理は未起動だった。既存Native検証と同じ`createRequire('node:sqlite')`へ局所修正し、type-only importを保持した。Native Vitest向けの新helperではこの既存パターンを先に使い、Node専用CLIの直接importと混同しない。旧FAILを残し、新outのsuffix02で接触部分だけを検証する。
+
+suffix02 `f7d6a03c90074cd48a7addc2f0988ef4`はFAIL600047ms/CCG TIMEOUT。正規v123 commitmentとresolutionを受理した後、cut11 prefixの受理まで進んだ。履歴view/calibrationと末尾assertionは未完。checkpointに受理済みresolution/commitment/inputのfullrefsを保存したため、同じphysical operationを再実行せずに回収する。元process/childはterminalで、600秒の失敗は保持する。
+
+TIMEOUTがmjsのfinally前だったため、元実行の完走Source endpin/reportは未生成でUNKNOWN。この不足を、後の回収Source pinで過去へ遡ってPASSにしない。新しい回収probeは、Native DBopen/import前にSource/bundle/harness/runtime/DB開始pinとinert fullrefsのmanifestを排他保存し、中断時も開始証拠を残す。
+
+### 読取専用回収: 実consumer・実接触を確認
+
+`0f10069df77e4cb98141d6a52e920c3c`はPASS7468ms。保存DBの正常Actorと受理済resolution→v123 commitment→original inputを、正常Ownerで同snapshot再認証した。
+
+- BACKSPIN/TOPSPINの真正qualification refsとmotor refs2件が実consumerに残る。
+- 選択は`NO_SPIN_TARGET`、選択qualificationとfallbackはnull。
+- 同じ正規inputを用いた既存pure v1計算と、nominalRequest/effectiveValues/commitment/status/scheduledTickがstrict一致する。元inputのfloat bit値も一致する。
+- 実`BatBallContact`1件を確認。純v1側の別Native受理branchや別接触を作った証拠ではない。
+- 新physical/practice/lifecycle writeは0。失敗suffix DBとcut4 baselineのmain/WAL/journal、全table行・rowid・catalog、callerのtransaction/query-only/total_changes/schemaを保持した。
+
+回収は現在Source792 inputsの実Node bundleを使い、bundle/harness/Sourceの開始→終了pinが一致した。これは受理済みrecordsの現Source認証であり、元600秒実行の未生成endpinとは別の証拠。private `start-manifest.json`、actual records、DB、reportは公開しない。
+
+回収readerのstrict型はnullable commitmentRefの`985ddc77` FAIL後、TAKE等を拒否するnonnull guardだけ追加して`ac7ea04f` PASS2188ms。suffix loader修正後の最終専用型も`c17deaa1c15d42ba83b04d15452b953e` PASS2453ms。旧unit/Native全体を再実行していない。critical入口/終了の静的reviewで具体的欠陥は見つからなかった。
+
+次は保存stageのwall時間を解析して、認証/SQLite/履歴更新の遅延を絞る。物理を簡略化せず、必要な証明を保持した高速化の対象を具体化してから、未完の別Native対照・公式終端へ進む。
+
 ## 残る範囲
 
-SPIN-04のLive作者設定に関する現版証拠を得た。Native正規Goldと公式終端までの対照、他4技術の実採用、自然rare校正、通常UIと3HTMLの同版配送、全goalの残件は継続する。
+SPIN-04のLive作者設定と、Native Gold2資格の実consumer採用・pure v1運動計算同値・実接触1件を確認した。Native第二control branch、cut11 current/公式終端、元600秒実行endpin、性能、他4技術の実採用、自然rare校正、通常UIと3HTMLの同版配送、全goalの残件は継続する。

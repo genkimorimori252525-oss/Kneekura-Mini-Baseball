@@ -10,7 +10,7 @@
 
 表の `PARTIAL` は参照文書に当時限定の証拠があるという意味で、現在Source全体のPASSではない。**全行の現版実証状態は、この文書作成では `UNKNOWN`**。既存PASSは当時のsnapshot/fixture/適用範囲に限定し、Source差の完全照合をしていない。`NOT CONNECTED` は参照文書が明示する欠落を継承する。未読や現版未確認を `NOT_RUN` へ変更しない。元FAIL/TIMEOUT/UNKNOWN、真正Nativeと作者fixtureの区別を保持する。
 
-2026-10-29 V193追記: [SPIN-04の現版対照](SPIN-NEUTRAL-GOLD-V193.md)はLive作者Gold/NO_SPIN_TARGETについて同Chrome Main/Workerの実接触・公式PA終了・全physical record/continuation一致を確認した。Nativeの正常Gold2資格は成立したがconsumerは2件の失敗後も未証明であり、この限定証拠から他行やNative全体のUNKNOWNを解除しない。表の原要求77行は保持する。
+2026-10-29 V193追記: [SPIN-04の現版対照](SPIN-NEUTRAL-GOLD-V193.md)はLive作者Gold/NO_SPIN_TARGETについて同Chrome Main/Workerの実接触・公式PA終了・全physical record/continuation一致を確認した。Nativeは正規Gold2資格の実consumer採用・pure v1運動計算同値・実接触1件を保存DBの正常Owner読取で確認した。元600秒TIMEOUT/endpin UNKNOWN、cut11 current/第二Native対照/公式終端/性能は未証明であり、この限定証拠から他行やNative全体のUNKNOWNを解除しない。表の原要求77行は保持する。
 
 担当欄の「現」は全体計画のTask、「旧」はV123統合計画のTask番号。現Task5が継承実装、現Task6が同版配送/最終受入を担当する。延期項目は今回完了条件から外れるが、今回基盤の未完を延期に付け替えない。
 
@@ -35,7 +35,7 @@
 | SPIN-01 | 非保有者でも物理条件によってスライス／フック／自然な曲がりが発生する。 | [E1][E1], [E2][E2] | 今回/PARTIAL | 現版の非保有者通常接触・飛行の原経路を最終同版で確認 | 現5/旧1,3;現6 | なし |
 | SPIN-02 | 自然なスライス頻度が高いだけの選手にはGoldが自動付与されない。 | [E1][E1], [E3][E3] | 今回/PARTIAL | 自然頻度だけでは資格Sourceが作られない通常育成経路と自然cohort | 現5/旧2;現6 | なし |
 | SPIN-03 | `ラインドライブ`のTraitラベルを変えても打球の`exitSpin`／球道不変。 | [E1][E1], [E2][E2] | 今回/PARTIAL | line_drive descriptor名だけを変えた現版全record対照 | 現5/旧1;現6 | なし |
-| SPIN-04 | 同一球・同一フォーム・同一seedで意図的回転目標なしなら、Gold保有に依存せず接触結果不変。 | [E1][E1], [E2][E2], [E4][E4], [V193](SPIN-NEUTRAL-GOLD-V193.md) | 今回/PARTIAL、V193 Live作者設定のみ実証 | Native正規GoldのNO_SPIN_TARGET対照と公式終端。旧TIMEOUT/異常終了を保持し保存prefixから継続 | 現5/旧3;現6 | なし |
+| SPIN-04 | 同一球・同一フォーム・同一seedで意図的回転目標なしなら、Gold保有に依存せず接触結果不変。 | [E1][E1], [E2][E2], [E4][E4], [V193](SPIN-NEUTRAL-GOLD-V193.md) | 今回/PARTIAL、Live対照とNative Gold2 consumer/運動同値/接触1件実証 | 第二Native control branchと公式終端/性能、元実行endpin UNKNOWN。旧TIMEOUT/異常終了を保持 | 現5/旧3;現6 | なし |
 | SPIN-05 | 青特は4種類のどれか1種の確かな習得に対応し、未習得の別技術を解禁しない。 | [E1][E1], [E3][E3] | 今回/PARTIAL | 4種単独Sourceから各実候補までの現版接続 | 現5/旧2,3;現6 | なし |
 | SPIN-06 | 金特は同Familyの青特と同時表示・二重適用されず、1個のGold＋内部の実習得集合で表される。 | [E1][E1], [E3][E3] | 今回/PARTIAL | 単一Gold投影を現版Maker/通常表示と実行非加算で確認 | 現5/旧2;現6 | なし |
 | SPIN-07 | Goldの`stateId`や表示名だけを改変してもSource固定なら公式結果不変。 | [E1][E1], [E2][E2], [E4][E4] | 今回/PARTIAL | stateId/名称だけを変える現版公式結果の対照 | 現5/旧2,3;現6 | なし |
