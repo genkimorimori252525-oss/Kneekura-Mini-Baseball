@@ -13,3 +13,11 @@ Task `MB-20261027-REALISM-DEBUG-PLAN` Task5。最新V170 Native214/Workbench191�
 - 旧runでは生成URLを独立fieldへ保存していないため、そのURLの帰属は固定harness内の唯一のWorker生成と単一blob requestからの推定と明記した。将来harnessは生成URL自体を保存し、そのURLへの1requestだけを許可する。将来用修正版harnessのChrome再実行はしていない。
 
 原Chrome結果は `constrained-pole-practice-v173-chrome-02/`、回収結果は `constrained-pole-practice-v173-recovery-02/report.json`。これは限定された実通常経路のデータ実証であり、元Chrome command全体のFAILをPASSへ付け替えるものではない。production Source/旧候補/共有distは変更せず、成功済みunit/型/buildも再実行していない。
+
+## 新入力: 通常55ms窓のcommand全体PASS
+
+100nsのnear-zero限定窓に加え、maxPlaySecondsだけを.055へ変えた新しい通常1frame範囲を実行した。`5dac3c2ce9f149e3a8cd8329e08ee623` PASS2062ms、Chrome.49の24record/31比較と全Source end pinsが厳密一致。
+
+far/省略ともelapsed .178456789、tick278457まで実arcで進み、frames/facts/endが一致した。nearは元elapsed .123456789/tick223457で未解決を保持。旧V168実binaryは同じ55ms requestでも元時刻停止。生成したWorker URL自体を保存し、そのURLへのexact1 requestだけを許可、外部network0/pageerrors0。`constrained-pole-practice-v173-frame-01/report.json`。
+
+これは入力窓を広げた新受入であり、成功済み100nsの再実行ではない。上の将来用harnessはこの新入力で実行済みとなったが、default100ns修正版の再実行はしていない。pole接触応答/Native/legal/custody/最終配送/9回の未完は変わらない。

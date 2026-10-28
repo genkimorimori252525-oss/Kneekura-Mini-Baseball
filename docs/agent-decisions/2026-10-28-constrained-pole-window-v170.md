@@ -29,3 +29,7 @@ Native DB/schema/権限/原input/旧HTML/共有distは変更しない。held→r
 ## V173実行時のruntime更新（2026-10-28）
 
 通常公開APIのChrome初回実行00943452は、実Chromeが156.0.8078.48から156.0.8078.49へ自動更新されていたため、version確認でFAIL。capture0/物理比較未起動、旧結果を保持する。再実行の理由はruntime変更と新失敗で、同じ成功試験の再読ではない。新harnessは全経路と旧V168実binary対照を同じ現Chrome.49内で実行する。過去.48とのcross-build厳密同値を主張せず、旧研究/全型/Source/buildをこのために再実行しない。
+
+## 次の限定受入: 通常55ms窓
+
+V173の100ns正窓はnear-zero cutを確認したが、通常1frame55msの進行を実証したものではない。成功済みデータを再計算せず、同じ公開factory入力のmaxPlaySecondsだけを明示.055へ変えた新範囲を確認する。省略/farは実horizonまで進みtickも増えること、接触可能nearは元時刻unresolved、旧V168farは同じ長窓要求でも元stopとなることを要求する。同じ現Chrome.49/2Core/Main/実Worker/保存JSON、生成Worker URLを保存する修正版harnessをこの新入力で確認する。production/fixture Source・既存型/test/buildは変更しない。別の正当なstopが判明した場合はhorizonや条件を都合よく下げず、新しい不足として記録する。

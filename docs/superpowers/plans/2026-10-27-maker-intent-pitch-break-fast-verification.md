@@ -165,6 +165,8 @@ Task1→Task2→Task3→Task4→Task5→Task6。Task1の測定を使って以後
 
 **V174完了/次のV176:** 保存80件/3160対/82160組を新flight0で観測しc71a392b PASS2703ms。近量方向6739組中net Q/P/D/L成立2319組、旧A込み0を保持。事前rankは `.04/30/225 → .02/30/0 → .1/30/270`、最小隣接時間差.005924013261098704秒、最大相対量差.0040342203726206095。own timing未取得/知覚・実測未校正/全球種・UI未採用。詳細 `NET-KIRE-ORDER-V174.md`。次は `docs/agent-decisions/2026-10-28-net-kire-refinement-v176.md` に固定した3件だけの保存dense/半step再利用と通常Owner/own全時系列/同Chrome.49を確認する。旧V171を解除・再選択しない。
 
+**V176実証済み/次は選択recipe実装:** f90c5070 PASS27563ms、同Chrome.49の25capture/157check/全pin一致。4保存refinement再利用/2new、固定PV nominal/dense/halfすべてQ/P/D/L成立。実通常2Coreの60 Workbench callsでplan/直接V78/null/label対照と保持samplerの共通641+own641点が厳密一致、通常でも共通Q/P/D/Lとown P/D/L成立。共通量差最大.008253653350464463m/相対.0060616460609804095。p10は最終偏差10%の時刻で無力期間や知覚時刻ではない。固定prototype外/全球種/実測・知覚校正と3選択UI/選手保存/通常Matchは未完。詳細 `NET-KIRE-REFINEMENT-V176.md`。次は元q/名目方向/wind/左投げ/ゼロspin/旧保存の扱いを固定し、名札の倍率を作らず3状態→version付き名目spin/q recipeを既存release ownerへ接続する。
+
 ### Task5: SPIN v2/SIGN基盤と継承残件
 
 **資料の鮮度（2026-10-28更新）:** `SPIN16-17-OWNER-AUDIT.md`は接続前の提案であり、末尾NOT CONNECTEDを新しいV146–148実証の否定に使わない。旧free-flight/V147 Nativeを再実行しない。V170は実ground-wall arcへ有限window queryを接続し、遠方poleでも無条件current-stopになる問題を修正した。全cell/poleの距離下界が速度/半径/geometry-aware丸め上界を上回る窓だけ進み、near/tangent/coverage不明は従来unresolvedを保持。14件52ef7ffb/旧pole回帰16件cff69245/全型8ee4e8b1 PASS。新Core Native214 d54af3e7/WB191 0b36a10a、build8bf1f361。実pole接触/Native/legal/公式HRへは昇格しない。詳細 `docs/verification/realism-debug-20261027/CONSTRAINED-POLE-WINDOW-V170.md`。
@@ -172,6 +174,8 @@ Task1→Task2→Task3→Task4→Task5→Task6。Task1の測定を使って以後
 **V173通常経路の受入:** synthetic colliderの限定unitに加え、公開 `runFieldPracticeV98` の通常SI/body/glove.11で両Coreのwall_supportと正時間窓への到達をNode診断6e074ed8で確認。これはChrome/Worker一致の証拠ではない。到達可能なnear入力、同Chromeの2Core/Main/実Worker/JSON全record、旧V168実binaryとの同入力差を新harnessで確認する。production Sourceは凍結済み。既存成功test/全型/buildは再実行せず、新入力・新harnessの範囲だけを測る。
 
 **V173実測結果:** Chrome.49内で24record/31比較は厳密一致し、旧V168 current-stop→新正時間窓、到達可能nearの未解決停止を確認。command d7b59a0cは自身のWorker blob requestを拒む末尾assertでFAILを保持。保存record/原harness/ログ/全pinの再照合037494f0 PASS733msで物理再実行なしに回収した。初回Chrome版更新00943452と回収metadata順4908daffのFAILも保持。将来用harness修正後の新Chrome実行はしていない。Native/legal/custody/公式HRは未完。詳細 `PUBLIC-CONSTRAINED-WINDOW-V173.md`。
+
+**V173通常55ms新受入:** maxPlaySecondsだけ.055へ広げた新入力で5dac3c2c PASS2062ms。同Chrome.49の24record/31比較・全pin一致、far/省略はelapsed .178456789/tick278457、nearと旧V168farは元時刻停止。生成Worker URLを保存した修正harnessもこの新入力で実行済み（default100ns再runではない）。元FAIL/回収証拠は保持。
 
 **Files:** 継承計画 `docs/verification/traits-spin-continuation-v123/PLAN.md`、`IMPLEMENTATION-SCOPE.json`、`LIVE-POLE-SEAM-V148-RESULTS.md`、`SPIN16-17-OWNER-AUDIT.md`、`docs/verification/swing-remainder-v122/RESULTS.md`。実装所有者は既存 `SpinControlMasteryV123.ts`、`SpinMotorQualificationV123.ts`、`SpinMotorPlanV123.ts`、`LiveSpinControlV123.ts`、`SignatureContextEvidenceV123.ts` と該当Native/Live Owner。Task1のcase/manifestを実Native認証と混同しない。
 
