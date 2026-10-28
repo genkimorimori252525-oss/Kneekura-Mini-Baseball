@@ -18,7 +18,7 @@ import { readSamePaPhysicalOperationFromSqlite } from './SamePlateAppearancePhys
 import { samePaPhysicalOperationOwners, type SamePaPhysicalOperationReference } from './SamePlateAppearancePhysicalEpisode';
 import { readSamePaBattingInvocationFromSqlite, readSamePaBattingInvocationClaims, type SamePaBattingInvocationReference } from './SamePlateAppearanceBattingInvocationFromSqlite';
 import { readSamePaContinuationClaimRows } from './SamePlateAppearanceContinuationClaimGuard';
-import { battingAssessmentOwners } from './BattingAssessmentOwnership';
+import { assertSamePaAssessmentProvenanceV129 } from './SamePaAssessmentProvenanceV129';
 import { assertSamePaLifecycleStorage } from './SamePlateAppearanceLifecycleStorage';
 import { deriveSamePaLifecycleCalibration, type SamePaLifecycleCalibration } from './SamePlateAppearanceLifecycleCalibration';
 import { readSamePaLifecycleOutcomeFromSqlite, readSamePaLifecycleResetFromSqlite } from './SamePlateAppearanceLifecycleOutcomeFromSqlite';
@@ -46,12 +46,7 @@ export const samePaLifecycleRow = (v: SamePaLifecycleRecord): Record<string, str
     enrollment_source_id: l.enrollmentReference.sourceId, actor_source_id: l.actorReference.sourceId, first_pitch_source_id: l.firstPhysicalPitchSourceId,
     ...extra, source_json: json(s), source_hash: hash(s), snapshot_json: json(v), snapshot_hash: hash(v) };
 };
-const inspectLifecycleIdentity = (db: DatabaseSync, kind: SamePaLifecycleKind, id: string) => {
-  const installed = assertSamePaLifecycleStorage(db);
-  const rows = installed ? Object.values(tables).flatMap(table => sqliteMetadataClaimRows(db, `SELECT * FROM main.${table} WHERE source_id=$id
-    OR ${claim('source_json', ['sourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')}`, id).map(row => ({ table, row }))) : [];
-  if (rows.length > 1 || rows.length === 1 && (rows[0].table !== tables[kind] || rows[0].row.source_id !== id)) throw new Error('lifecycle Source identity alias differs');
-  if (!rows.length) {
+const assertNoSurvivingLifecycleClaim = (db: DatabaseSync, kind: SamePaLifecycleKind, id: string) => {
     // A removed owner remains claimed through typed references in either mirror.
     const descendants = db.prepare("SELECT name FROM main.sqlite_master WHERE type='table' AND (name GLOB 'pa_*' OR name GLOB 'batting_*')").all();
     for (const d of descendants) {
@@ -60,6 +55,16 @@ const inspectLifecycleIdentity = (db: DatabaseSync, kind: SamePaLifecycleKind, i
         WHERE obj.type='object' AND EXISTS(SELECT 1 FROM json_each(obj.value) o WHERE o.key='owner' AND o.type='text' AND o.atom=$owner)
         AND EXISTS(SELECT 1 FROM json_each(obj.value) i WHERE i.key='sourceId' AND i.type='text' AND i.atom=$id) LIMIT 1`).get({ owner: tables[kind], id })) throw new Error('lifecycle owner missing with surviving typed claims');
     }
+};
+const inspectLifecycleIdentity = (db: DatabaseSync, kind: SamePaLifecycleKind, id: string) => {
+  const installed = assertSamePaLifecycleStorage(db);
+  const rows = installed ? Object.values(tables).flatMap(table => sqliteMetadataClaimRows(db, `SELECT * FROM main.${table} WHERE source_id=$id
+    OR ${claim('source_json', ['sourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')}`, id).map(row => ({ table, row }))) : [];
+  if (rows.length > 1 || rows.length === 1 && (rows[0].table !== tables[kind] || rows[0].row.source_id !== id)) throw new Error('lifecycle Source identity alias differs');
+  if (!rows.length) {
+    const batch = phases.get(db)?.absence;
+    if (batch?.kind === kind && batch.ids.has(id)) batch.assertMissing(id);
+    else assertNoSurvivingLifecycleClaim(db, kind, id);
   }
   return rows[0]?.row ?? null;
 };
@@ -72,13 +77,52 @@ export const samePaLifecycleIdentityRow = (db: DatabaseSync, kind: SamePaLifecyc
     : inspectLifecycleIdentity(db, kind, id);
 };
 type Anchor = ReturnType<typeof readHistoricalSamePaContinuationViewFromSqlite>;
+type AbsenceBatch = { kind: SamePaLifecycleKind; ids: ReadonlySet<string>; assertMissing(id: string): void };
+/** Each completed mirror scan belongs only to this immutable batch. Pause after
+ * each mirror so an earlier orphan still rejects before later tables are read. */
+const absenceBatch = (db: DatabaseSync, kind: SamePaLifecycleKind, ids: readonly string[]): AbsenceBatch => {
+  const targets = new Set(ids), ordered = [...targets], bindings: Record<string, string> = { owner: tables[kind] };
+  const parameters = ordered.map((id, i) => { const name = 'id' + i; bindings[name] = id; return '$' + name; }).join(',');
+  // SQLite compares the original bound text, including its Unicode replacement.
+  // Return matching input positions, never decode an atom into a JavaScript key.
+  const matches = ordered.map((_id, i) => `i.atom=$id${i} AS matched_${i}`).join(',');
+  function* scan() {
+    const descendants = db.prepare("SELECT name,sql FROM main.sqlite_master WHERE type='table' AND (name GLOB 'pa_*' OR name GLOB 'batting_*')").all();
+    for (const d of descendants) {
+      const name = String(d.name).replaceAll('"', '""'), info = db.prepare(`PRAGMA main.table_info("${name}")`).all();
+      const columns = ['source_json', 'snapshot_json'].filter(c => info.some(row => row.name === c));
+      // Virtual or non-TEXT payloads keep the original per-ID evaluation. The
+      // original table_info already excludes generated/hidden mirror columns.
+      if (columns.length && (/\bVIRTUAL\b/i.test(String(d.sql)) || columns.some(c => !info.some(row => row.name === c && String(row.type).toUpperCase() === 'TEXT')))) {
+        yield null; return;
+      }
+      for (const c of columns) {
+        const rows = db.prepare(`SELECT DISTINCT ${matches} FROM main."${name}",
+          json_tree(CASE WHEN json_valid(${c}) THEN ${c} ELSE 'null' END) obj, json_each(obj.value) i
+          WHERE obj.type='object' AND EXISTS(SELECT 1 FROM json_each(obj.value) o WHERE o.key='owner' AND o.type='text' AND o.atom=$owner)
+          AND i.key='sourceId' AND i.type='text' AND i.atom IN (${parameters})`).all(bindings);
+        yield ordered.filter((_id, i) => rows.some(row => row['matched_' + i] === 1));
+      }
+    }
+  }
+  const cursor = scan(), claimed = new Set<string>(); let legacy = false;
+  return { kind, ids: targets, assertMissing(id) {
+    if (legacy) return assertNoSurvivingLifecycleClaim(db, kind, id);
+    while (!claimed.has(id)) {
+      const next = cursor.next(); if (next.done) return;
+      if (next.value === null) { legacy = true; return assertNoSurvivingLifecycleClaim(db, kind, id); }
+      for (const value of next.value) claimed.add(value);
+    }
+    throw new Error('lifecycle owner missing with surviving typed claims');
+  } };
+};
 type Phase = { signature: string; failed: boolean; records: Map<string, SamePaLifecycleRecord>; anchors: Map<string, Anchor>;
-  seconds: Map<string, ReturnType<typeof readSamePaSuccessorTakePitchFromSqlite>>; physical: Map<string, ReturnType<typeof readSamePaPhysicalOperationFromSqlite>>; shared: Map<string,unknown>; active: Set<string> };
+  seconds: Map<string, ReturnType<typeof readSamePaSuccessorTakePitchFromSqlite>>; physical: Map<string, ReturnType<typeof readSamePaPhysicalOperationFromSqlite>>; shared: Map<string,unknown>; active: Set<string>; absence?: AbsenceBatch };
 const phases = new WeakMap<DatabaseSync, Phase>();
 const signature = (db: DatabaseSync) => json({ transaction: db.isTransaction, query: db.prepare('PRAGMA query_only').get()!.query_only,
   changes: db.prepare('SELECT total_changes() n').get()!.n, main: db.prepare('PRAGMA main.schema_version').get()!.schema_version,
   temp: db.prepare('PRAGMA temp.schema_version').get()!.schema_version, user: db.prepare('PRAGMA main.user_version').get()!.user_version });
-const clear = (p: Phase) => { p.failed = true; p.records.clear(); p.anchors.clear(); p.seconds.clear(); p.physical.clear(); p.shared.clear(); p.active.clear(); };
+const clear = (p: Phase) => { p.failed = true; p.records.clear(); p.anchors.clear(); p.seconds.clear(); p.physical.clear(); p.shared.clear(); p.active.clear(); p.absence = undefined; };
 /** One private immutable phase only. Nested normal readers may reuse completed
  * proofs; no proof survives a DML/DDL boundary, commit or owner operation. */
 export const withSamePaLifecycleReadPhase = <T>(db: DatabaseSync, body: () => T): T => withSamePaContinuationReadPhase(db, () => {
@@ -129,11 +173,8 @@ const assemble = <T>(db: DatabaseSync, current: boolean, body: (read: (kind: Sam
   };
   const assessmentOwnership = (s: Extract<SamePaLifecycleSource, { provenance: unknown }>) =>
     memoSamePaContinuationRead(db, 'lifecycle-assessment:' + json([tables[samePaLifecycleKind(s)], s.sourceId, s.provenance.assessmentSourceId]), () => {
-      for (const table of [...battingAssessmentOwners, 'pa_lifecycle_v1_total_assessments', 'pa_lifecycle_v1_execution_calibrations', 'pa_continuation_v1_total_assessments', 'pa_continuation_v1_execution_calibrations', 'reserved_pa_total_assessments', 'actual_role_workload_assessments', 'pa_dispatch_v1_execution_calibrations']) {
-        if (!db.prepare('SELECT 1 FROM main.sqlite_master WHERE name=?').get(table)) continue;
-        const rows = sqliteMetadataClaimRows(db, `SELECT source_id FROM main.${table} WHERE source_id=$id OR ${claim('source_json', ['provenance', 'assessmentSourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'provenance', 'assessmentSourceId'], '$id')}`, s.provenance.assessmentSourceId);
-        if (rows.some(r => table !== tables[samePaLifecycleKind(s)] || r.source_id !== s.sourceId)) throw new Error('lifecycle assessment identity already claimed');
-      }
+      assertSamePaAssessmentProvenanceV129(db, s.provenance.assessmentSourceId,
+        { table: tables[samePaLifecycleKind(s)], sourceId: s.sourceId }, 'lifecycle assessment identity already claimed', 'provenance-only');
   });
   const derivePrefix = (source: AcceptedSamePaLifecyclePrefix): SamePaLifecyclePrefix => {
     const first = source.eventReferences[0]; if (first.owner !== 'pa_take_successor_v1_pitch_actions') throw new Error('lifecycle requires original second TAKE anchor');
@@ -262,7 +303,13 @@ export const deriveCurrentSamePaLifecycleSetFromSqlite = (db: DatabaseSync, raw:
 export const readSamePaLifecycleRecordFromSqlite = (db: DatabaseSync, kind: SamePaLifecycleKind, id: string) => {
   if (!samePaText(id)) throw new Error('invalid lifecycle Source identity'); return assemble(db, false, read => read(kind, id));
 };
-export const readSamePaLifecycleSetFromSqlite = (db: DatabaseSync, kind: 'total' | 'calibration', ids: readonly string[]) => assemble(db, false, read => ids.map(id => read(kind,id)));
+export const readSamePaLifecycleSetFromSqlite = (db: DatabaseSync, kind: 'total' | 'calibration', ids: readonly string[]) => assemble(db, false, read => {
+  // Native TOTAL/calibration owners supply at most 32 text IDs. Other callers
+  // retain the original path and binding behavior, without a new input limit.
+  if (ids.length < 2 || ids.length > 32 || !Array.from(ids).every(samePaText) || kind !== 'total' && kind !== 'calibration') return ids.map(id => read(kind,id));
+  const phase = phases.get(db)!, prior = phase.absence; phase.absence = absenceBatch(db, kind, ids);
+  try { return ids.map(id => read(kind,id)); } finally { phase.absence = prior; }
+});
 const readView = (db: DatabaseSync, raw: SamePaReference<'pa_lifecycle_v1_execution_views'>, current: boolean): SamePaLifecycleViewBasis => {
   const ref = cloneInert(raw); if (!samePaReferenceValid(ref, tables.view)) throw new Error('invalid lifecycle view reference');
   return assemble(db, current, read => { const view = read('view',ref.sourceId) as SamePaLifecycleView | null; if (!view) throw new Error('lifecycle view missing'); same(reference(tables.view, view), ref);

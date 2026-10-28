@@ -31,6 +31,8 @@ assert(files.length>0&&files.every(path=>/^docs\/.*\.md$/.test(path)
   ||path==='tools/verification/check-NativeSpinNeutralV193-suffix.mjs'
   ||path==='tools/verification/NativeSpinNeutralV193-recover.ts'
   ||path==='tools/verification/check-NativeSpinNeutralV193-recover.mjs'
+  ||/^src\/host\/world\/(?:SamePlateAppearanceLifecycleFromSqlite|SamePlateAppearanceContinuationFromSqlite|SamePaAssessmentProvenanceV129(?:\.test)?|SamePaAssessmentProvenanceV130\.test|SamePaLifecycleAbsentIdsV194\.test)\.ts$/.test(path)
+  ||/^tools\/verification\/(?:native-lifecycle-absence-case-v194\.ts|check-native-lifecycle-absence-v194\.mjs)$/.test(path)
   ||path==='tools/browser-bridge/check-maker-contact-descriptor-v191.mjs'
   ||/^tools\/(?:native-contact-report-v192(?:\.test)?\.mjs|native-contact-report-runtime-v192(?:\.test)?\.ts)$/.test(path)
   ||path==='tools/verification/check-native-contact-report-cli-v192.mjs'
@@ -44,7 +46,7 @@ for(const path of files){
   const blob=git(['show',`${commit}:${path}`]),local=await readFile(path),
     remote=api(`repos/${repo}/contents/${path}?ref=${commit}`),content=Buffer.from(remote.content,'base64'),
     blobSha=git(['rev-parse',`${commit}:${path}`]).toString().trim();
-  assert.equal(local.toString('utf8').replace(/\r\n/g,'\n'),blob.toString('utf8'));
+  assert.equal(local.toString('utf8').replace(/\r\n/g,'\n'),blob.toString('utf8').replace(/\r\n/g,'\n'));
   assert.deepEqual(content,blob);assert.equal(remote.sha,blobSha);
   verified.push({path,url:remote.html_url,gitBlobSha:blobSha,bytes:blob.length,contentSha256:sha(blob),localAdoptedTextExact:true});
 }
