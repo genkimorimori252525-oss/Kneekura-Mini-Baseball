@@ -89,6 +89,22 @@ TIMEOUTがmjsのfinally前だったため、元実行の完走Source endpin/repo
 
 次は保存stageのwall時間を解析して、認証/SQLite/履歴更新の遅延を絞る。物理を簡略化せず、必要な証明を保持した高速化の対象を具体化してから、未完の別Native対照・公式終端へ進む。
 
+### 保存stageの時間集計
+
+DBopen・Native実行・Source変更0で既存69stageを集計した。600.047秒中、lifecycle advance関連は約411.7秒（68.6%）。完了advance5–10は約373.8秒、未完11はprefix22.334秒とその後の打切りまで15.562秒で、TOTAL完了記録はない。
+
+| 完了advance5–10の区間 | 累計wall秒（概数） |
+| --- | ---: |
+| prefix | 80.30 |
+| TOTAL | 84.74 |
+| view | 83.95 |
+| 独立current coverage | 21.22 |
+| calibration | 103.57 |
+
+advance一式はcut5の44.418秒からcut10の92.699秒へ約2.09倍に増えた。非advance受理区間にはcommitment34.589秒・resolution31.923秒を含むが、Core計算/認証/SQLite/GC/checkpoint I/Oの個別時間は分離していない。これらを純粋な物理計算時間と断定しない。
+
+原stage14868BのSHA-256は`0c4d7cba874e443810b9666a41b7293824b50d139e9406c0ac369494c6a6af1d`、原600秒receiptのSHA-256は`4f936accee83d83fd78de17537f85334b590d535a353cceb189e886e03bbbec8`。次は既知の全rows比較・不在ID JSON走査が守る不変条件と既存batchの重複を、対象Sourceだけで確認する。認証を省略せず、global cacheや新しいprofiling基盤を先に増やさない。
+
 ## 残る範囲
 
 SPIN-04のLive作者設定と、Native Gold2資格の実consumer採用・pure v1運動計算同値・実接触1件を確認した。Native第二control branch、cut11 current/公式終端、元600秒実行endpin、性能、他4技術の実採用、自然rare校正、通常UIと3HTMLの同版配送、全goalの残件は継続する。
