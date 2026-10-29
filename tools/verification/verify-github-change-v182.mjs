@@ -46,6 +46,7 @@ assert(files.length>0&&files.every(path=>/^docs\/.*\.md$/.test(path)
   ||/^tools\/verification\/(?:native-field-observation-v203(?:\.test)?\.ts|check-native-field-observation-v203\.mjs)$/.test(path)
   ||/^tools\/verification\/(?:native-field-delivery-v204(?:\.test)?\.ts|check-native-field-delivery(?:-retained)?-v204\.mjs)$/.test(path)
   ||/^tools\/verification\/(?:native-post-delivery-auth-v205(?:\.test)?\.ts|check-native-post-delivery-auth-v205\.mjs)$/.test(path)
+  ||/^tools\/verification\/(?:native-delivery-forecast-v206(?:\.test)?\.ts|check-native-delivery-forecast-v206\.mjs)$/.test(path)
   ||path==='tools/browser-bridge/check-maker-contact-descriptor-v191.mjs'
   ||/^tools\/(?:native-contact-report-v192(?:\.test)?\.mjs|native-contact-report-runtime-v192(?:\.test)?\.ts)$/.test(path)
   ||path==='tools/verification/check-native-contact-report-cli-v192.mjs'
