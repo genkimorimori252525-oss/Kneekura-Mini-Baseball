@@ -47,3 +47,5 @@ SPINの追加根拠: [SPIN-ORIGINAL-MOTOR-EVIDENCE-V224.md](SPIN-ORIGINAL-MOTOR-
 元運動の保存単位も受入済み: [SPIN-ORIGINAL-MOTION-BINDING-V225.md](SPIN-ORIGINAL-MOTION-BINDING-V225.md)。元DB非open、コピーの新table2行だけを追加し、旧全行・rowid・schema・head不変とproviderless再読を確認した。Worker異常終了の原因UNKNOWNは保持。現在は観測anchorを用いる新しい試行controlへ進み、通常試合の適用許可と区別する。
 
 新TOP試行の結果は [SPIN-OBSERVED-AIM-TRIAL-V226.md](SPIN-OBSERVED-AIM-TRIAL-V226.md)。その保存済み接触を、新しい正常Readerで再認証して資格評価へ渡せる証拠にした: [SPIN-TRIAL-MOTOR-EVIDENCE-V227.md](SPIN-TRIAL-MOTOR-EVIDENCE-V227.md)。元の4分試行は再演せず、readonly gateは6.625秒。次はaim / domainを含む新資格Sourceとearned consumerの接続であり、1接触だけで習得済みとは扱わない。
+
+閉集合の追加受入: [SPIN-CLOSED-TRIAL-COHORT-V228.md](SPIN-CLOSED-TRIAL-COHORT-V228.md)。正常commitment / resolution全件と共有観測条件を認証し、真正1試行の集合を確認。criterion・資格は作成せず、元接触は再実行していない。適用資格Ownerと通常consumerの接続が次の未完。
