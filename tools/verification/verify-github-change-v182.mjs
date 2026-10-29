@@ -52,6 +52,7 @@ assert(files.length>0&&files.every(path=>/^docs\/.*\.md$/.test(path)
   ||path==='src/host/world/SamePlateAppearanceLifecycleFixture.test-support.ts'
   ||/^tools\/verification\/(?:native-execution-input-recovery-v209(?:\.test)?\.ts|check-native-execution-input-recovery-v209\.mjs)$/.test(path)
   ||/^tools\/verification\/(?:native-post-input-resolution-v210(?:\.test)?\.ts|check-native-post-input-resolution-v210\.mjs)$/.test(path)
+  ||/^tools\/verification\/(?:native-field-root-v211(?:\.test)?\.ts|check-native-field-root-v211\.mjs)$/.test(path)
   ||path==='tools/browser-bridge/check-maker-contact-descriptor-v191.mjs'
   ||/^tools\/(?:native-contact-report-v192(?:\.test)?\.mjs|native-contact-report-runtime-v192(?:\.test)?\.ts)$/.test(path)
   ||path==='tools/verification/check-native-contact-report-cli-v192.mjs'
