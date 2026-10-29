@@ -29,7 +29,9 @@ getterを再実行せず、private CPU profileとpinned bundleのSource位置を
 
 ## 次の一件
 
-`SamePlateAppearanceLifecycleFromSqlite.ts`のidentity候補SQLを対象に、既知10/32 IDの現行scalar取得とNative SQL batchの限定比較を行う。4table・両JSON mirror・alias/重複/Unicode binding・全rowid候補の同値を確認し、fresh prepareと四つの検証境界を保持する。候補取得の一致を正常Owner認証の証拠へ昇格しない。production Sourceへの適用や速度効果はまだ未実証。
+`SamePlateAppearanceLifecycleFromSqlite.ts`のidentity候補SQLを対象に、既知10/32 IDの現行scalar取得とNative SQL batchの限定比較を行う。6table・両JSON mirror・alias/重複/Unicode binding・全rowid候補の同値を確認し、fresh prepareと四つの検証境界を保持する。候補取得の一致を正常Owner認証の証拠へ昇格しない。production Sourceへの適用や速度効果はまだ未実証。
+
+走査table数の初期説明は4から6へ訂正した。受理kindのprefix/total/view/calibrationは4種類だが、identity候補SQLはoutcome/resetも含む6tableを横断する。実Sourceとprofile計数は6tableのままで、30.03%のcallsite帰属値は変わらない。
 
 既存physical traversal/lifecycle phase/shared memoを追加し直さない。過去のmalformed JSON/heap問題との関係が未確定なprepared statement cacheも復活させない。private DB/raw/profile/manifest/bundle/分析payloadは公開しない。
 

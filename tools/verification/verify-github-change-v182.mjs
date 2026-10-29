@@ -40,6 +40,7 @@ assert(files.length>0&&files.every(path=>/^docs\/.*\.md$/.test(path)
   ||/^tools\/verification\/(?:native-field-preparation-v198(?:\.test)?\.ts|check-native-field-preparation-v198\.mjs)$/.test(path)
   ||/^tools\/verification\/(?:native-field-continuation-v199(?:\.test)?\.ts|check-native-field-continuation-v199\.mjs)$/.test(path)
   ||/^tools\/verification\/(?:native-lifecycle-read-profile-v200\.ts|check-native-lifecycle-read-profile-v200\.mjs)$/.test(path)
+  ||/^tools\/verification\/(?:native-lifecycle-identity-batch-v201(?:\.test)?\.ts|check-native-lifecycle-identity-batch-v201\.mjs)$/.test(path)
   ||path==='tools/browser-bridge/check-maker-contact-descriptor-v191.mjs'
   ||/^tools\/(?:native-contact-report-v192(?:\.test)?\.mjs|native-contact-report-runtime-v192(?:\.test)?\.ts)$/.test(path)
   ||path==='tools/verification/check-native-contact-report-cli-v192.mjs'
