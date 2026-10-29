@@ -70,6 +70,19 @@ export const completeSamePaLifecycleFixtureView=(f:SamePaLifecycleFixtureContext
     explicitBatterObservation,explicitDefenderObservation,explicitBatterMotor,explicitDefenderLocomotion,f.executionRepertoire,onStage);
 };
 
+/** Pure declaration of the original calibration Sources, in dispatch order.
+ * The caller supplies its normally authenticated view and member basis. */
+export const createSamePaLifecycleFixtureCalibrationSources=(acceptedCalibrations:SamePaLifecycleFixtureContext['acceptedCalibrations'],
+  viewReference:SamePaReference<'pa_lifecycle_v1_execution_views'>,basis:Pick<SamePaLifecycleViewBasis,'members'>,label:string,
+  explicitBatterObservation?:AcceptedBattingObservationCalibration['values'],explicitDefenderObservation?:PlayerObservationCalibration,
+  explicitBatterMotor?:AcceptedBattingCapability['values'],explicitDefenderLocomotion?:PlayerLocomotionCalibration,
+  executionRepertoire?:SamePaLifecycleExecutionRepertoire)=>{
+  const explicitBatterSwing=samePaLifecycleExecutionRepertoireValues(viewReference.sourceId,executionRepertoire);
+  return acceptedCalibrations.calibrations.map(c=>({...c.source,sourceId:label+':'+c.source.sourceId,capability:'same_pa_lifecycle_execution_calibration_v1',
+    viewReference,member:basis.members.find(m=>m.playerId===c.source.member.playerId)!,provenance:{...c.source.provenance,assessmentSourceId:label+':'+c.source.provenance.assessmentSourceId,...(c.source.route==='batter_motor'&&explicitBatterMotor?{calibrationSourceId:label+':explicit-batter-motor',calibrationVersion:'fixture-only-declared-motor-v1'}:{}),...(c.source.route==='defender_locomotion'&&explicitDefenderLocomotion?{calibrationSourceId:label+':explicit-defender-locomotion',calibrationVersion:'fixture-only-declared-coverage-v1'}:{}),...(c.source.route==='batter_swing'&&explicitBatterSwing?{calibrationSourceId:label+':explicit-batter-swing',calibrationVersion:'fixture-only-declared-swing-v1'}:{})},
+    response:c.source.route==='batter_swing'&&explicitBatterSwing?{kind:'accepted_execution_values_v1',values:explicitBatterSwing}:c.source.route==='defender_locomotion'&&explicitDefenderLocomotion?{kind:'accepted_execution_values_v1',values:explicitDefenderLocomotion}:c.source.route==='batter_motor'&&explicitBatterMotor?{kind:'accepted_execution_values_v1',values:explicitBatterMotor}:c.source.route==='batter_observation'&&explicitBatterObservation?{kind:'accepted_execution_values_v1',values:explicitBatterObservation}:c.source.route==='defender_observation'&&explicitDefenderObservation?{kind:'accepted_execution_values_v1',values:explicitDefenderObservation}:c.source.response}));
+};
+
 /** Original calibration-only tail after a genuine accepted view and its basis.
  * Retained LAN view entries authenticate all preceding owner records before
  * calling this first unperformed writer; no prefix, TOTAL or view is accepted. */
@@ -79,10 +92,8 @@ export const completeSamePaLifecycleFixtureCalibrations=(f:SamePaLifecycleFixtur
   explicitBatterMotor?:AcceptedBattingCapability['values'],explicitDefenderLocomotion?:PlayerLocomotionCalibration,
   executionRepertoire:SamePaLifecycleExecutionRepertoire|undefined=f.executionRepertoire,onStage:(name:string)=>void=()=>{})=>{
   const {owner,accepted,prefixSource,prefix,prefixReference,totals,totalSet,viewSource,view,viewReference,basis}=prepared;
-  const explicitBatterSwing=samePaLifecycleExecutionRepertoireValues(viewReference.sourceId,executionRepertoire);
-  const calibrations=f.acceptedCalibrations.calibrations.map(c=>({...c.source,sourceId:label+':'+c.source.sourceId,capability:'same_pa_lifecycle_execution_calibration_v1',
-    viewReference,member:basis.members.find(m=>m.playerId===c.source.member.playerId)!,provenance:{...c.source.provenance,assessmentSourceId:label+':'+c.source.provenance.assessmentSourceId,...(c.source.route==='batter_motor'&&explicitBatterMotor?{calibrationSourceId:label+':explicit-batter-motor',calibrationVersion:'fixture-only-declared-motor-v1'}:{}),...(c.source.route==='defender_locomotion'&&explicitDefenderLocomotion?{calibrationSourceId:label+':explicit-defender-locomotion',calibrationVersion:'fixture-only-declared-coverage-v1'}:{}),...(c.source.route==='batter_swing'&&explicitBatterSwing?{calibrationSourceId:label+':explicit-batter-swing',calibrationVersion:'fixture-only-declared-swing-v1'}:{})},
-    response:c.source.route==='batter_swing'&&explicitBatterSwing?{kind:'accepted_execution_values_v1',values:explicitBatterSwing}:c.source.route==='defender_locomotion'&&explicitDefenderLocomotion?{kind:'accepted_execution_values_v1',values:explicitDefenderLocomotion}:c.source.route==='batter_motor'&&explicitBatterMotor?{kind:'accepted_execution_values_v1',values:explicitBatterMotor}:c.source.route==='batter_observation'&&explicitBatterObservation?{kind:'accepted_execution_values_v1',values:explicitBatterObservation}:c.source.route==='defender_observation'&&explicitDefenderObservation?{kind:'accepted_execution_values_v1',values:explicitDefenderObservation}:c.source.response}));
+  const calibrations=createSamePaLifecycleFixtureCalibrationSources(f.acceptedCalibrations,viewReference,basis,label,
+    explicitBatterObservation,explicitDefenderObservation,explicitBatterMotor,explicitDefenderLocomotion,executionRepertoire);
   calibrations.forEach(s=>accepted.set(s.sourceId,s));const calibrationSet=owner.acceptCalibrationSet(calibrations.map(s=>s.sourceId));if(calibrationSet.kind!=='same_pa_lifecycle_calibration_set')throw new Error('real lifecycle32 calibration set pending');
   onStage('calibrations-ready');
   return {owner,accepted,prefixSource,prefix,prefixReference,totals,totalSet,viewSource,view,viewReference,basis,calibrations,calibrationSet};

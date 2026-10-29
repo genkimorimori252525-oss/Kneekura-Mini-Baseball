@@ -668,7 +668,7 @@ const readRetainedInFlightBattingDecisionCut = (h: Pick<RetainedInFlightBattingD
 /** The original decision-cut is already physical and admitted. Its interrupted
  * TOTAL/view must be retried by the fixture before this suffix can write input.
  * Earlier transient rejection flags are deliberately not reconstructed. */
-export const resumeInFlightBattingDecisionCut = (h: Fixture, label: string, pins: RetainedDecisionPins, options: SwingOptions = {}) => {
+export const resumeInFlightBattingDecisionCut = (h: NativeSpinNeutralPostObservationContextV193, label: string, pins: RetainedDecisionPins, options: SwingOptions = {}) => {
   const retained = withSqliteReadTransaction(h.f.db, () => withSamePaLifecycleReadPhase(h.f.db, () =>
     readRetainedInFlightBattingDecisionCut(h, label, pins, options, () => readCurrentSamePaLifecycleViewFromSqlite(h.f.db, h.current().viewReference))));
   const { f, accepted } = h, track = f.x.f.track;
