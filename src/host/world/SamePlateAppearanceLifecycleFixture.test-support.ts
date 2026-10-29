@@ -9,6 +9,7 @@ import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support'
 import type { PlayerObservationCalibration } from '../../core/sim/perception/PlayerObservationCalibration';
 import type { PlayerLocomotionCalibration } from '../../core/sim/fielding/PlayerLocomotionCalibration';
 import type { AcceptedBattingCapability, AcceptedBattingObservationCalibration, AcceptedBattingRepertoire } from './PlayerBattingModel';
+import { createSamePaObservationClockProjectionSourcesV212, type SamePaObservationClockProjectionContextV212 } from './SamePaObservationClockProjectionSourcesV212';
 
 type DirectFixture = ReturnType<typeof directNativeDispatchFixture>;
 export type SamePaLifecycleExecutionRepertoire = Readonly<{
@@ -18,6 +19,7 @@ export type SamePaLifecycleFixtureContext = Pick<DirectFixture, 'db' | 'path' | 
   x: { f: Pick<DirectFixture['x']['f'], 'track'> };
   /** Prospective fixture declaration only; accepted Sources remain unchanged. */
   executionRepertoire?: SamePaLifecycleExecutionRepertoire;
+  observationClockProjection?: SamePaObservationClockProjectionContextV212;
 };
 export const samePaLifecycleExecutionRepertoireValues = (viewSourceId: string,
   declaration?: SamePaLifecycleExecutionRepertoire): AcceptedBattingRepertoire['values'] | undefined =>
@@ -92,8 +94,10 @@ export const completeSamePaLifecycleFixtureCalibrations=(f:SamePaLifecycleFixtur
   explicitBatterMotor?:AcceptedBattingCapability['values'],explicitDefenderLocomotion?:PlayerLocomotionCalibration,
   executionRepertoire:SamePaLifecycleExecutionRepertoire|undefined=f.executionRepertoire,onStage:(name:string)=>void=()=>{})=>{
   const {owner,accepted,prefixSource,prefix,prefixReference,totals,totalSet,viewSource,view,viewReference,basis}=prepared;
-  const calibrations=createSamePaLifecycleFixtureCalibrationSources(f.acceptedCalibrations,viewReference,basis,label,
+  const declaredCalibrations=createSamePaLifecycleFixtureCalibrationSources(f.acceptedCalibrations,viewReference,basis,label,
     explicitBatterObservation,explicitDefenderObservation,explicitBatterMotor,explicitDefenderLocomotion,executionRepertoire);
+  const calibrations=f.observationClockProjection===undefined?declaredCalibrations:
+    createSamePaObservationClockProjectionSourcesV212(declaredCalibrations,f.observationClockProjection);
   calibrations.forEach(s=>accepted.set(s.sourceId,s));const calibrationSet=owner.acceptCalibrationSet(calibrations.map(s=>s.sourceId));if(calibrationSet.kind!=='same_pa_lifecycle_calibration_set')throw new Error('real lifecycle32 calibration set pending');
   onStage('calibrations-ready');
   return {owner,accepted,prefixSource,prefix,prefixReference,totals,totalSet,viewSource,view,viewReference,basis,calibrations,calibrationSet};
