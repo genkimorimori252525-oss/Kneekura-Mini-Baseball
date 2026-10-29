@@ -34,6 +34,7 @@ assert(files.length>0&&files.every(path=>/^docs\/.*\.md$/.test(path)
   ||/^src\/host\/world\/(?:SamePlateAppearanceLifecycleFromSqlite|SamePlateAppearanceContinuationFromSqlite|SamePaAssessmentProvenanceV129(?:\.test)?|SamePaAssessmentProvenanceV130\.test|SamePaLifecycleAbsentIdsV194\.test)\.ts$/.test(path)
   ||/^tools\/verification\/(?:native-lifecycle-absence-case-v194\.ts|check-native-lifecycle-absence-v194\.mjs)$/.test(path)
   ||/^tools\/verification\/(?:native-spin-neutral-cut11-v195\.ts|check-native-spin-neutral-cut11-v195\.mjs)$/.test(path)
+  ||/^tools\/verification\/(?:native-spin-neutral-witness-v196\.ts|check-native-spin-neutral-witness-v196\.mjs)$/.test(path)
   ||path==='tools/browser-bridge/check-maker-contact-descriptor-v191.mjs'
   ||/^tools\/(?:native-contact-report-v192(?:\.test)?\.mjs|native-contact-report-runtime-v192(?:\.test)?\.ts)$/.test(path)
   ||path==='tools/verification/check-native-contact-report-cli-v192.mjs'
