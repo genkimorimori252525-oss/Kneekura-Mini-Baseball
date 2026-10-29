@@ -222,6 +222,70 @@ export const continueNativeSpinNeutralV193PostObservation = (h: NativeSpinNeutra
   options.onStage?.('delivery-ready');
   return completeInFlightBattingDelivery(h, label, { ...prefix, deliveryCut, delivery }, options, perception, inputOwner);
 };
+/** Native V193's delivery is retained but not yet admitted into cut6. This
+ * entry never imports LAN's fixed fixture IDs or occupied-runner prerequisites. */
+export const continueNativeSpinNeutralV193PostDelivery = (h: NativeSpinNeutralPostObservationContextV193, label: string,
+  pins: Readonly<{ postureReference: SamePaReference<'batting_observation_v1_postures'>; intentReference: SamePaReference<'batting_execution_v1_intents'>;
+    launchReference: SamePaReference<'pa_physical_v1_launches'>; captureCutReference: SamePaReference<'pa_physical_v1_cuts'>;
+    observationReference: SamePaReference<'batting_observation_v1_observations'>; deliveryCutReference: SamePaReference<'pa_physical_v1_cuts'>;
+    deliveryReference: SamePaReference<'batting_observation_v1_deliveries'> }>, options: SwingOptions = {}) => {
+  const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw Error('Native post-delivery original frontier differs'); };
+  const prefix = withSqliteReadTransaction(h.f.db, () => withSamePaLifecycleReadPhase(h.f.db, () => {
+    const physical = readCurrentSamePaInFlightCutFromSqlite(h.f.db, pins.deliveryCutReference);
+    const deliveryCut = physical.record, captureCut = readSamePaPhysicalOperationFromSqlite(h.f.db, pins.captureCutReference).record;
+    const launch = readSamePaPhysicalOperationFromSqlite(h.f.db, pins.launchReference).record;
+    const capture = readBattingPerceptionFromSqlite(h.f.db, 'observation', pins.observationReference);
+    const delivery = readBattingPerceptionFromSqlite(h.f.db, 'delivery', pins.deliveryReference);
+    const posture = readBattingPerceptionFromSqlite(h.f.db, 'posture', pins.postureReference);
+    const intent = readSamePaBattingIntentFromSqlite(h.f.db, pins.intentReference);
+    if (label !== 'native-spin-neutral-v193:pitch3' || deliveryCut.kind !== 'same_pa_physical_cut_v1' || deliveryCut.operationOrdinal !== 2 || physical.stage !== 'in_flight'
+      || captureCut.kind !== 'same_pa_physical_cut_v1' || captureCut.operationOrdinal !== 1
+      || launch.kind !== 'same_pa_physical_launch_v1' || launch.operationOrdinal !== 0 || launch.stage !== 'in_flight'
+      || capture.kind !== 'batting_observation' || capture.source.capability !== 'owned_in_flight_batting_observation_v1'
+      || delivery.kind !== 'batting_observation_delivery' || delivery.source.capability !== 'owned_in_flight_batting_observation_delivery_v1'
+      || posture.kind !== 'batting_invocation_posture' || posture.source.capability !== 'owned_in_flight_batting_posture_v1'
+      || intent.source.capability !== 'owned_in_flight_same_pa_batting_intent_v1') throw Error('Native post-delivery owners differ');
+    for (const [value, suffix] of [[launch, 'launch'], [captureCut, 'capture-cut'], [capture, 'capture'], [deliveryCut, 'delivery-cut'],
+      [delivery, 'delivery'], [posture, 'posture'], [intent, 'intent']] as const) same(value.source.sourceId, label + ':' + suffix);
+    const historical = readHistoricalSamePaLifecycleViewFromSqlite(h.f.db, h.current().viewReference);
+    same(historical.actor, h.f.actor); same(physical.actor, h.f.actor);
+    same(physical.lineage.actorReference, reference('physical_plate_appearance_actors', h.f.actor));
+    same(historical.view, h.current().view); same(historical.members, h.current().basis.members);
+    same(historical.view.source.sourceId, 'physical-fixture:cut5:view');
+    same(historical.view.cut.operationReference, pins.deliveryCutReference); same(historical.view.cut.physicalOperationReference, pins.deliveryCutReference);
+    same(physical.physicalPitchReference, pins.launchReference);
+    for (const value of [captureCut, capture, deliveryCut, delivery, posture, intent]) same(value.lineage, launch.lineage);
+    same(captureCut.source.launchReference, pins.launchReference); same(captureCut.source.previousOperationReference, pins.launchReference);
+    same(deliveryCut.source.launchReference, pins.launchReference); same(deliveryCut.source.previousOperationReference, pins.captureCutReference);
+    same(capture.source.physicalPitchReference, pins.launchReference); same(capture.source.physicalOperationReference, pins.captureCutReference);
+    same(capture.source.observedTick, captureCut.evaluationTick); same(capture.source.previousObservationReference, null);
+    same(deliveryCut.source.throughTick, captureCut.evaluationTick + capture.calculation.effectiveValues.deliveryLatencyTicks);
+    same(delivery.source.observationReference, pins.observationReference); same(delivery.source.physicalPitchReference, pins.launchReference);
+    same(delivery.source.physicalOperationReference, pins.deliveryCutReference); same(delivery.source.viewReference, h.current().viewReference);
+    same(posture.source.actionReference, launch.source.actionReference); same(intent.source.postureReference, pins.postureReference);
+    same(posture.source.viewReference, launch.source.viewReference); same(intent.source.viewReference, launch.source.viewReference);
+    same(captureCut.source.viewReference.sourceId, 'physical-fixture:cut2:view'); same(capture.source.viewReference.sourceId, 'physical-fixture:cut3:view');
+    same(deliveryCut.source.viewReference.sourceId, 'physical-fixture:cut4:view');
+    const prefix = readSamePaLifecycleRecordFromSqlite(h.f.db, 'prefix', historical.view.source.prefixReference.sourceId);
+    const before = readHistoricalSamePaLifecycleViewFromSqlite(h.f.db, launch.source.viewReference);
+    const beforePrefix = readSamePaLifecycleRecordFromSqlite(h.f.db, 'prefix', before.view.source.prefixReference.sourceId);
+    const world = readEmotionWorldRevisionFromSqlite(h.f.db, h.f.actor.binding.careerId);
+    if (prefix?.kind !== 'same_pa_lifecycle_prefix' || beforePrefix?.kind !== 'same_pa_lifecycle_prefix' || !world) throw Error('Native post-delivery lifecycle context missing');
+    same(prefix.source.eventReferences, h.events); same(prefix.source.eventReferences.at(-1), pins.deliveryCutReference);
+    same(prefix.source.eventReferences, [...beforePrefix.source.eventReferences, pins.launchReference, pins.captureCutReference, pins.observationReference, pins.deliveryCutReference]);
+    assertInFlightBattingWriteCurrentFromSqlite(h.f.db, h.current().viewReference, pins.deliveryReference);
+    return { posture, intent, launch, captureCut, capture, deliveryCut, delivery,
+      beforeLaunch: { posture, intent, eventCount: beforePrefix.source.eventReferences.length, worldRevision: world.head.worldRevision } };
+  }));
+  options.onStage?.('native-post-delivery-entry-authenticated');
+  const { accepted } = h, track = h.f.x.f.track;
+  const perception = track(openSqliteBattingPerceptionStore(h.f.path, { readAcceptedPosture: id => accepted.get(id), readAcceptedObservation: id => accepted.get(id),
+    readAcceptedDelivery: id => accepted.get(id), readAcceptedPrediction: id => accepted.get(id), readAcceptedAssessment: id => accepted.get(id) }));
+  const inputOwner = track(openSqliteBattingExecutionInputStore(h.f.path, { readAcceptedIntent: id => accepted.get(id), readAcceptedInput: id => accepted.get(id) }));
+  // The unchanged tail receives the caller's existing NO_SPIN_TARGET hook.
+  return completeInFlightBattingDelivery(h, label, prefix, options, perception, inputOwner);
+};
+
 /** Original forecast/emotion/decision tail. An accepted delivery is the one
  * unadmitted event, so its lifecycle advance is always the first new write. */
 const completeInFlightBattingDelivery = (h: NativeSpinNeutralPostObservationContextV193, label: string, prefix: OwnedDeliveredSwingPrefix, options: SwingOptions,
