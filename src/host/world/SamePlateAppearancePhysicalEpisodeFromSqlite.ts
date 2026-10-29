@@ -18,6 +18,7 @@ import { deriveSamePaObservedSpinAimTrialV226 } from './SamePaObservedSpinAimTri
 import { readSamePaSpinContextV123 } from './SamePlateAppearanceSpinBindingV123';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
+import { physicalCommitmentWorldEventV232 } from './PhysicalCommitmentWorldMembershipV232';
 import { samePaReferenceValid, samePaText, type SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import { samePaMetadataClaim as claim } from './SamePlateAppearanceReservationGuard';
 import { samePaNativeAdapterImplemented, deriveSamePaDispatchRoles } from './SamePlateAppearanceDispatchRoles';
@@ -141,7 +142,6 @@ const launchCompanion = (value: SamePaPhysicalLaunch, role: 'consumer'|'consumpt
   const receipt={kind:s.capability,source:s,lineage:value.lineage,pitchOrdinal:value.pitchOrdinal,physicalPitchSourceId:value.physicalPitchSourceId,launchReference:role==='consumer'?null:reference(tables.launch,value)};
   return {...rowFor(value),source_id:s.sourceId,source_version:s.sourceVersion,canonical_key:json([value.lineage.enrollmentReference,value.pitchOrdinal,role]),source_json:json(s),source_hash:hash(s),snapshot_json:json(receipt),snapshot_hash:hash(receipt)};
 };
-const commitmentWorldEvent=(value:SamePaPhysicalCommitment)=>({kind:'SAME_PA_EFFECTIVE_BATTING_COMMITMENT_V1',reference:reference(tables.commitment,value),beforeWorldRevision:value.beforeWorldRevision,afterWorldRevision:value.afterWorldRevision,actionKey:value.actionKey});
 
 const assembly = <T>(db: DatabaseSync, body: (own: { read(kind: Kind,id: string): RecordValue|null; derive(source: Source,current: boolean): RecordValue|Pending }) => T): T =>
 withSamePaLifecycleReadPhase(db, () => {
@@ -323,7 +323,7 @@ withSamePaLifecycleReadPhase(db, () => {
       const row=identityRow(db,tables[kind],id);if(!row)return null;const source=input(JSON.parse(String(row.source_json)),id);if(kindOf(source)!==kind)throw new Error('physical Source kind differs');
       const value=derive(source,false);if(value.kind==='pending')throw new Error('accepted physical record lost prerequisite');same(row,rowFor(value));
       if(value.kind==='same_pa_physical_launch_v1')for(const role of ['consumer','consumption','admission'] as const){const expected=launchCompanion(value,role);same(identityRow(db,tables[role],String(expected.source_id)),expected);}
-      if(value.kind==='same_pa_physical_commitment_v1'){const event=commitmentWorldEvent(value);same(db.prepare('SELECT * FROM main.world_decision_revision_events WHERE career_id=? AND world_revision=?').get(value.lineage.careerId,value.afterWorldRevision),
+      if(value.kind==='same_pa_physical_commitment_v1'){const event=physicalCommitmentWorldEventV232(value);same(db.prepare('SELECT * FROM main.world_decision_revision_events WHERE career_id=? AND world_revision=?').get(value.lineage.careerId,value.afterWorldRevision),
         {career_id:value.lineage.careerId,world_revision:value.afterWorldRevision,source_kind:event.kind,source_event_id:value.source.sourceId,event_json:json(event)});}
       return value;
     });
@@ -429,7 +429,7 @@ export const openSqliteSamePlateAppearancePhysicalEpisodeStore=(path:string,auth
         step(()=>{const changed=db.prepare('UPDATE main.world_control_heads SET world_revision=? WHERE career_id=? AND world_revision=? AND control_revision=? AND control_json=?').run(value.afterWorldRevision,value.lineage.careerId,value.beforeWorldRevision,value.controlRevision,world.controlJson);if(changed.changes!==1)throw new Error('physical commitment World CAS differs');},1);
         proof(()=>{same(db.prepare('SELECT * FROM main.world_control_heads WHERE career_id=?').get(value.lineage.careerId),{career_id:value.lineage.careerId,world_revision:value.afterWorldRevision,control_revision:value.controlRevision,control_json:world.controlJson});
           same(db.prepare('SELECT count(*) n FROM main.world_decision_revision_events WHERE career_id=?').get(value.lineage.careerId)!.n,value.beforeWorldRevision);same(allRows(),expected);});
-        const event=commitmentWorldEvent(value);
+        const event=physicalCommitmentWorldEventV232(value);
         step(()=>{const changed=db.prepare('INSERT INTO main.world_decision_revision_events VALUES(?,?,?,?,?)').run(value.lineage.careerId,value.afterWorldRevision,event.kind,value.source.sourceId,json(event));if(changed.changes!==1)throw new Error('physical commitment World event differs');},1);reproof();
       }
       proof(()=>{same(assembly(db,own=>own.read(requested,id)),value);if(work(requested))assertHead(db,value.lineage.enrollmentReference.sourceId);completeCurrentProof(value);same(allRows(),expected);});return value;

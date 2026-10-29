@@ -33,3 +33,9 @@ V228で全commitment / resolutionを正常physical Readerへ通し、World event
 group分離、取りこぼし・未解決・miss、重複・異hash、再導出・rollbackはunit / SQLite＋代替censusの範囲で確認した。真正DBは1件の不足評価のみで、将来eventや合格資格の実証とは別。診断基準と意味差は `../../agent-decisions/2026-10-30-spin-application-diagnostic-criterion.md`、結果は `../../verification/realism-debug-20261027/SPIN-APPLICATION-EVALUATION-OWNER-V230.md`。
 
 次は計画時の正常precommit inputからdomainを得るseamと新consumer。posttrial resolution依存のdomain Readerを計画に使わず、偽commitmentや未来の球情報を渡さない。元技能保有AND現在のproject適用資格が揃うときだけ同じaim計算へ接続し、真正反復・通常AI・4技術の受入を閉じる。過去の成功は再演しない。
+
+## consumerの因果境界
+
+V231で正常historical precommit条件とposttrial条件の全値一致を実証した。V232ではcanonicalな全commitment metadataとWorld eventの一対一所属を先に認証し、固定prefix内だけをfull再導出する。capabilityや未認証row revisionで先に除外せず、World全payload hash、career / Source ID / fullref / before-after / actionKeyを照合する。
+
+resolutionはWorld位置を持たないためcandidateであり、対応する正常commitmentとSource固定fullrefsを別の閉鎖証拠にする。新qualified consumerは、再入前に資格end<=commitment.beforeを検査し、依存するWorld位置を厳密に減らす。未確定資格の仮信用やcacheによる検証省略は行わない。新arm・実consumer・真資格成立はまだ未実証。

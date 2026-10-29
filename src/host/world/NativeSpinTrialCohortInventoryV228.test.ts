@@ -22,6 +22,7 @@ it('V228-I00 absent Native producer is unavailable, preserves caller q1 snapshot
 import { afterEach, vi } from 'vitest';
 import * as storage from './SamePlateAppearancePhysicalEpisodeStorage';
 import * as claimsOwner from './SamePlateAppearanceLifecycleClaimGuard';
+import * as membershipOwner from './PhysicalCommitmentWorldMembershipV232';
 import * as physical from './SamePlateAppearancePhysicalEpisodeFromSqlite';
 import * as trialOwner from './NativeSpinTrialMotorEvidenceV227';
 import * as bindingOwner from './SqliteSpinMotionBindingV225';
@@ -42,7 +43,7 @@ it('V228-I01 enumerates unresolved and miss before filtering future revision (st
     nominalObservationValuesHash:hashSpinAimDomainValueV228(nominal),captureEffectiveValuesHash:hashSpinAimDomainValueV228(captureValues),deliveryEffectiveValuesHash:hashSpinAimDomainValueV228(deliveryValues),predictionParameterValuesHash:hashSpinAimDomainValueV228(predictionValues)},
    s={...source,bindingReference:bindingRef,domain:d,cohort:{...source.cohort,start:{...source.cohort.start,worldRevision:5},end:{...source.cohort.end,worldRevision:7}}},
    actor={binding:{careerId:'c',playerId:'p',personId:'person'}};
-  const mkCommit=(id:string,revision:number)=>({kind:'same_pa_physical_commitment_v1',afterWorldRevision:revision,source:{capability:'same_pa_physical_observed_spin_aim_trial_v226',inputReference:ref('batting_execution_v1_inputs','input-'+id),trial:{bindingReference:bindingRef}},
+  const mkCommit=(id:string,revision:number)=>({kind:'same_pa_physical_commitment_v1',beforeWorldRevision:revision-1,afterWorldRevision:revision,actionKey:'key',source:{capability:'same_pa_physical_observed_spin_aim_trial_v226',inputReference:ref('batting_execution_v1_inputs','input-'+id),trial:{bindingReference:bindingRef}},
    calculation:{algorithm:'batting-observed-spin-aim-trial-v226',trialContext:{selectedProfile:d.profile,trace:{coordinateSystem:d.coordinateSystem},transform:d.transform,pair:d.targetPair}},
    trialEvidenceV226:{masteryReference:source.masteryReference,modelReference:d.modelReference,currentGeometry:{handedness:'R',plateZ:0,ticksPerSecond:1000000,...d.geometry},forecastParameters:forecast,actualFlightParameters:actual,
     observationReference:ref('batting_observation_v1_observations','capture-'+id),deliveryReference:ref('batting_observation_v1_deliveries','delivery-'+id),predictionReference:ref('batting_prediction_v1_predictions','prediction-'+id),observedTick:100,availableTick:10100}});
@@ -53,6 +54,7 @@ it('V228-I01 enumerates unresolved and miss before filtering future revision (st
   vi.spyOn(worldOwner,'readHistoricalEmotionWorldRevisionFromSqlite').mockReturnValue({head:{worldRevision:7}} as never);
   vi.spyOn(bindingOwner,'readNativeSpinMotionBindingV225').mockReturnValue(binding);vi.spyOn(masteryOwner,'readNativeSpinControlMasteryV123').mockReturnValue({person:{personId:'person'}} as never);
   vi.spyOn(claimsOwner,'readSamePaLifecycleClaimRows').mockReturnValue(rows);
+  const membership=vi.spyOn(membershipOwner,'readPhysicalCommitmentWorldMembershipV232').mockImplementation(()=>({commitments:['c1','c2','foreign','differentDomain'].map((id,i)=>({reference:ref('pa_physical_v1_commitments',id),careerId:'c',beforeWorldRevision:[4,6,5,5][i],afterWorldRevision:[5,7,6,6][i],actionKey:'key'})),resolutionCandidates:[{reference:ref('pa_physical_v1_resolutions','r2'),commitmentReference:ref('pa_physical_v1_commitments','c2')}]}));
   const reader=vi.spyOn(physical,'readSamePaPhysicalOperationFromSqlite').mockImplementation((_db,r)=>({actor:r.sourceId==='foreign'?{binding:{careerId:'c',playerId:'other',personId:'other'}}:actor,record:r.owner==='pa_physical_v1_resolutions'?{kind:'same_pa_physical_resolution_v1',source:{commitmentReference:ref('pa_physical_v1_commitments','c2')}}:records[r.sourceId],physicalPitchReference:ref('pa_physical_v1_launches','pitch-'+r.sourceId)} as never));
   vi.spyOn(perception,'readBattingPerceptionFromSqlite').mockImplementation((_db,kind,r)=>{const id=r.sourceId.split('-').at(-1)!,view=ref('pa_lifecycle_v1_execution_views','view-'+id);
    if(kind==='observation')return {kind:'batting_observation',source:{capability:'owned_in_flight_batting_observation_v1',calibrationReference:ref('pa_lifecycle_v1_execution_calibrations','capture-cal-'+id),viewReference:view,member},calculation:{nominalValues:nominal,effectiveValues:captureValues}} as never;
@@ -63,18 +65,19 @@ it('V228-I01 enumerates unresolved and miss before filtering future revision (st
    independenceKey:{policy:'ONE_PER_PHYSICAL_PITCH',careerId:'c',playerId:'p',personId:'person',physicalPitchOwner:pitch.owner,physicalPitchSourceId:pitch.sourceId},
    provenance:{physicalPitchReference:pitch,inputReference:records.c2.source.inputReference},hasActualContact:false,spinObservation:null} as never});
   db.exec('PRAGMA query_only=1; BEGIN');const result=readNativeSpinTrialCohortInventoryV228(db,s);expect(result.scopeComplete).toBe(true);expect(result.firstEligibleWorldRevision).toBe(5);
-  expect(result.members.map(m=>m.outcome)).toEqual(['UNRESOLVED','MISS']);expect(reader).toHaveBeenCalledTimes(6);
+  expect(result.members.map(m=>m.outcome)).toEqual(['UNRESOLVED','MISS']);expect(reader).toHaveBeenCalledTimes(5);expect(membership).toHaveBeenCalled();expect(reader.mock.calls.some(call=>call[1].sourceId==='c3')).toBe(false);expect(membership.mock.invocationCallOrder[0]).toBeLessThan(reader.mock.invocationCallOrder[0]);expect(membership.mock.calls[0][1]).toMatchObject({endWorldRevision:7,expectedWorldEventHash:h,expectedWorldPrefixHash:h});
   const scope={subject:s.subject,masteryReference:s.masteryReference,bindingReference:s.bindingReference,domain:s.domain,endWorldRevision:7};
   expect(readNativeSpinTrialCohortSnapshotV228(db,scope)).toEqual(result);
   const {criterion:_criterion,...withoutCriterion}=s;expect(()=>readNativeSpinTrialCohortInventoryV228(db,withoutCriterion)).toThrow();
   expect(()=>readNativeSpinTrialCohortSnapshotV228(db,{...scope,endWorldRevision:-1})).toThrow();expect(result.currentWorldRevision).toBe(9);
   expect(result.members.map(m=>m.observationProvenance.captureCalibrationReference.sourceId)).toEqual(['capture-cal-1','capture-cal-2']);
   expect(result.members.map(m=>m.observationProvenance.deliveryCalibrationReference.sourceId)).toEqual(['delivery-cal-1','delivery-cal-2']);
+  records.c1.beforeWorldRevision=3;expect(()=>readNativeSpinTrialCohortInventoryV228(db,s)).toThrow(/classification differs/);records.c1.beforeWorldRevision=4;
   rows.push({table:'pa_physical_v1_resolutions',row:{source_id:'r2-duplicate',source_hash:h,snapshot_hash:h,source_json:JSON.stringify({commitmentReference:ref('pa_physical_v1_commitments','c2')})}});
-  expect(readNativeSpinTrialCohortInventoryV228(db,s).scopeComplete).toBe(false);rows.pop();
+  membership.mockImplementationOnce(()=>{throw Error('duplicate metadata rejected')});expect(()=>readNativeSpinTrialCohortInventoryV228(db,s)).toThrow(/duplicate metadata rejected/);rows.pop();
   rows.push({table:'pa_physical_v1_commitments',row:{source_id:'concealed',source_hash:h,snapshot_hash:h,source_json:JSON.stringify({capability:'same_pa_physical_commitment_v1'})}});
   reader.mockImplementation((_db,r)=>{if(r.sourceId==='concealed')throw Error('normal Owner detects mismatched snapshot');return {actor:r.sourceId==='foreign'?{binding:{careerId:'c',playerId:'other',personId:'other'}}:actor,record:r.owner==='pa_physical_v1_resolutions'?{kind:'same_pa_physical_resolution_v1',source:{commitmentReference:ref('pa_physical_v1_commitments','c2')}}:records[r.sourceId],physicalPitchReference:ref('pa_physical_v1_launches','pitch-'+r.sourceId)} as never});
-  expect(()=>readNativeSpinTrialCohortInventoryV228(db,s)).toThrow(/normal Owner detects/);db.exec('ROLLBACK');
+  membership.mockImplementationOnce(()=>{throw Error('tampered metadata rejected')});expect(()=>readNativeSpinTrialCohortInventoryV228(db,s)).toThrow(/tampered metadata rejected/);db.exec('ROLLBACK');
  }finally{if(db.isTransaction)db.exec('ROLLBACK');db.close()}
 });
 

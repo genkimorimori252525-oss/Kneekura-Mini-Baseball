@@ -53,3 +53,5 @@ SPINの追加根拠: [SPIN-ORIGINAL-MOTOR-EVIDENCE-V224.md](SPIN-ORIGINAL-MOTOR-
 適用評価の保存: [SPIN-APPLICATION-EVALUATION-OWNER-V230.md](SPIN-APPLICATION-EVALUATION-OWNER-V230.md)。旧技能と分離したOwnerへ真正1件の不足評価を保存し、接続を閉じた再読を受入。資格は発行せず、診断用project基準と人間・domainの校正を区別する。次は未来情報を使わないprecommit条件と新consumer、真正反復による成立の検証。
 
 計画前条件の追加根拠: [SPIN-PRECOMMIT-DOMAIN-V231.md](SPIN-PRECOMMIT-DOMAIN-V231.md)。正常な過去入力から得た条件と実行後記録の条件・来歴が全値一致。現在判断・新接触の受理は0。次は資格読取の循環を避けるmembership境界と通常consumer。
+
+所属境界の追加受入: [SPIN-CAUSAL-WORLD-MEMBERSHIP-V232.md](SPIN-CAUSAL-WORLD-MEMBERSHIP-V232.md)。World所属の先行認証後に閉範囲内だけを正常再導出し、保存1trial・条件・不足評価が全値一致。新qualified consumer / 真正な資格成立は次の未完。

@@ -91,6 +91,8 @@ assert(files.length>0&&files.every(path=>/^docs\/.*\.md$/.test(path)
   ||/^tools\/verification\/(?:spin-aim-qualification-owned-copy-v230\.ts|check-spin-aim-qualification-owned-copy-v230\.mjs)$/.test(path)
   ||/^src\/host\/world\/SpinAimObservedDomainConditionsV231(?:\.test)?\.ts$/.test(path)
   ||/^tools\/verification\/(?:spin-aim-precommit-domain-v231\.ts|check-spin-aim-precommit-domain-v231\.mjs)$/.test(path)
+  ||/^src\/host\/world\/PhysicalCommitmentWorldMembershipV232(?:\.test)?\.ts$/.test(path)
+  ||/^tools\/verification\/(?:spin-aim-causal-membership-v232\.ts|check-spin-aim-causal-membership-v232\.mjs)$/.test(path)
   ||/^src\/host\/world\/SamePlateAppearanceSourcePoleFieldV1(?:\.test)?\.ts$/.test(path)
   ||path==='src/integration/browser/LivePoleScopeV148.test.ts'
   ||/^src\/host\/world\/SamePaObservationClockProjectionSourcesV212(?:\.test)?\.ts$/.test(path)

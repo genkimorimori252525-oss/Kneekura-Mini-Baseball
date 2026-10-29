@@ -3,7 +3,7 @@ import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { assertSamePaPhysicalEpisodeStorage } from './SamePlateAppearancePhysicalEpisodeStorage';
-import { readSamePaLifecycleClaimRows } from './SamePlateAppearanceLifecycleClaimGuard';
+import { readPhysicalCommitmentWorldMembershipV232 } from './PhysicalCommitmentWorldMembershipV232';
 import { readSamePaPhysicalOperationFromSqlite } from './SamePlateAppearancePhysicalEpisodeFromSqlite';
 import { readNativeSpinTrialMotorEvidenceV227, type SpinTrialIndependenceKeyV227 } from './NativeSpinTrialMotorEvidenceV227';
 import { readNativeSpinMotionBindingV225, spinMotionBindingReferenceV225 } from './SqliteSpinMotionBindingV225';
@@ -18,7 +18,6 @@ import { SPIN_TECHNIQUES_V123 } from '../../core/world/traits/SpinControlMastery
 import { hashSpinAimDomainValueV228, validateSpinAimQualificationSourceV228, type SpinAimQualificationSourceV228, type SpinAimDomainV228, type SpinAimCohortMemberV228, type SpinAimInventoryMemberV228, type SpinAimInventoryV228 } from './SpinAimQualificationV228';
 
 const same=(a:unknown,b:unknown)=>isDeepStrictEqual(a,b);
-type PhysicalRef<O extends 'pa_physical_v1_commitments'|'pa_physical_v1_resolutions'>=SamePaReference<O>;
 type Commitment=Extract<ReturnType<typeof readSamePaPhysicalOperationFromSqlite>['record'],{kind:'same_pa_physical_commitment_v1'}>;
 type Binding=NonNullable<ReturnType<typeof readNativeSpinMotionBindingV225>>;
 type Perception=ReturnType<typeof readBattingPerceptionFromSqlite>;
@@ -57,7 +56,7 @@ export function readNativeSpinTrialDomainV228(db:DatabaseSync,resolutionReferenc
  * themselves invalidate an authenticated frozen World prefix. */
 export function readNativeSpinTrialCohortInventoryV228(db:DatabaseSync,raw:unknown):SpinAimInventoryV228 {
  const source=validateSpinAimQualificationSourceV228(raw);
- return readCensusV228(db,{subject:source.subject,masteryReference:source.masteryReference,bindingReference:source.bindingReference,domain:source.domain,endWorldRevision:source.cohort.end.worldRevision},source.cohort.start.worldRevision);
+ return readCensusV228(db,{subject:source.subject,masteryReference:source.masteryReference,bindingReference:source.bindingReference,domain:source.domain,endWorldRevision:source.cohort.end.worldRevision},source.cohort.start.worldRevision,{worldEventHash:source.cohort.end.worldEventHash,worldPrefixHash:source.cohort.end.worldPrefixHash});
 }
 export type SpinTrialCohortSnapshotScopeV228=Readonly<{subject:SpinAimQualificationSourceV228['subject'];masteryReference:SpinAimQualificationSourceV228['masteryReference'];bindingReference:SpinAimQualificationSourceV228['bindingReference'];domain:SpinAimDomainV228;endWorldRevision:number}>;
 /** Observational census only; no criterion, qualification, or authority is issued. */
@@ -78,7 +77,7 @@ export function readNativeSpinTrialCohortSnapshotV228(db:DatabaseSync,raw:unknow
   ||d.observationMethod!=='OWNED_IN_FLIGHT_BATTING_CAPTURE_DELIVERY_V1'||!nat(d.deliveryLatencyTicks))throw Error('spin trial cohort v228: invalid snapshot scope');
  return readCensusV228(db,scope,0);
 }
-function readCensusV228(db:DatabaseSync,scope:SpinTrialCohortSnapshotScopeV228,startWorldRevision:number):SpinAimInventoryV228 {
+function readCensusV228(db:DatabaseSync,scope:SpinTrialCohortSnapshotScopeV228,startWorldRevision:number,expected?:Readonly<{worldEventHash:string;worldPrefixHash:string}>):SpinAimInventoryV228 {
  return withBattedVenueLegalReadSnapshot(db,()=>withSamePaLifecycleReadPhase(db,()=>{
   if(db.prepare('PRAGMA query_only').get()!.query_only!==1)throw Error('spin trial cohort v228: query_only snapshot required');
   const world=readEmotionWorldRevisionFromSqlite(db,scope.subject.careerId),end=scope.endWorldRevision;
@@ -88,24 +87,20 @@ function readCensusV228(db:DatabaseSync,scope:SpinTrialCohortSnapshotScopeV228,s
   const prefix=db.prepare('SELECT career_id,world_revision,source_kind,source_event_id,event_json FROM main.world_decision_revision_events WHERE career_id=? AND world_revision<=? ORDER BY world_revision').all(scope.subject.careerId,end);
   if(prefix.length!==end||Number(prefix.at(-1)?.world_revision)!==end)return unavailable();
   const closedWorldEventHash=hashSpinAimDomainValueV228(prefix.at(-1)),closedWorldPrefixHash=hashSpinAimDomainValueV228(prefix);
+  const membership=readPhysicalCommitmentWorldMembershipV232(db,{careerId:scope.subject.careerId,endWorldRevision:end,expectedWorldPrefixHash:expected?.worldPrefixHash??closedWorldPrefixHash,expectedWorldEventHash:expected?.worldEventHash??closedWorldEventHash});
   const binding=readNativeSpinMotionBindingV225(db,scope.bindingReference.sourceId),mastery=readNativeSpinControlMasteryV123(db,scope.masteryReference.sourceId);
   if(!binding||!mastery||!same(spinMotionBindingReferenceV225(binding),scope.bindingReference)||!same(binding.source.masteryReference,scope.masteryReference)
    ||binding.source.technique!==scope.subject.technique||binding.source.careerId!==scope.subject.careerId||binding.source.playerId!==scope.subject.playerId
    ||mastery.person.personId!==scope.subject.personId)throw Error('spin trial cohort v228: original binding/mastery scope differs');
-  const claims=readSamePaLifecycleClaimRows(db),commits=claims.filter(c=>c.table==='pa_physical_v1_commitments'),resolutions=claims.filter(c=>c.table==='pa_physical_v1_resolutions');
-  const makeRef=<O extends 'pa_physical_v1_commitments'|'pa_physical_v1_resolutions'>(owner:O,row:Record<string,unknown>):PhysicalRef<O>=>{
-   const result={owner,sourceId:String(row.source_id),sourceHash:String(row.source_hash),snapshotHash:String(row.snapshot_hash)};
-   if(!samePaReferenceValid(result,owner))throw Error('spin trial cohort v228: invalid candidate fullref');return result;
-  };
-  const authenticatedResolutions=resolutions.map(claim=>{
-   const reference=makeRef('pa_physical_v1_resolutions',claim.row),proof=readSamePaPhysicalOperationFromSqlite(db,reference),record=proof.record;
-   if(record.kind!=='same_pa_physical_resolution_v1')throw Error('spin trial cohort v228: resolution classification differs');
+  const authenticatedResolutions=membership.resolutionCandidates.map(candidate=>{
+   const reference=candidate.reference,proof=readSamePaPhysicalOperationFromSqlite(db,reference),record=proof.record;
+   if(record.kind!=='same_pa_physical_resolution_v1'||!same(record.source.commitmentReference,candidate.commitmentReference))throw Error('spin trial cohort v228: resolution classification differs');
    return {reference,commitmentReference:record.source.commitmentReference};
   });
   const expectedDomain=scope.domain,candidates:SpinAimInventoryMemberV228[]=[];let complete=true;
-  for(const claim of commits){
-   const commitmentReference=makeRef('pa_physical_v1_commitments',claim.row),proof=readSamePaPhysicalOperationFromSqlite(db,commitmentReference),record=proof.record;
-   if(record.kind!=='same_pa_physical_commitment_v1')throw Error('spin trial cohort v228: original commitment classification differs');
+  for(const member of membership.commitments){
+   const commitmentReference=member.reference,proof=readSamePaPhysicalOperationFromSqlite(db,commitmentReference),record=proof.record;
+   if(record.kind!=='same_pa_physical_commitment_v1'||record.afterWorldRevision!==member.afterWorldRevision||record.beforeWorldRevision!==member.beforeWorldRevision||record.actionKey!==member.actionKey)throw Error('spin trial cohort v228: original commitment classification differs');
    if(record.source.capability!=='same_pa_physical_observed_spin_aim_trial_v226')continue;
    if(record.calculation.algorithm!=='batting-observed-spin-aim-trial-v226'||!record.trialEvidenceV226)throw Error('spin trial cohort v228: trial calculation differs');
    const actor=proof.actor;if(actor.binding.careerId!==scope.subject.careerId||actor.binding.playerId!==scope.subject.playerId||actor.binding.personId!==scope.subject.personId)continue;
