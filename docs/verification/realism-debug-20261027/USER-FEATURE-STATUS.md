@@ -45,3 +45,5 @@ Maker統合単位は受入済み。Chrome156.0.8078.49で1200の有限統合と3
 SPINの追加根拠: [SPIN-ORIGINAL-MOTOR-EVIDENCE-V224.md](SPIN-ORIGINAL-MOTOR-EVIDENCE-V224.md)。正規Readerで6元plan/releaseを取得し、技術目標差を確認。次球転用・資格への後付けは未実施で、新bindingと観測anchor適用の実証が残る。
 
 元運動の保存単位も受入済み: [SPIN-ORIGINAL-MOTION-BINDING-V225.md](SPIN-ORIGINAL-MOTION-BINDING-V225.md)。元DB非open、コピーの新table2行だけを追加し、旧全行・rowid・schema・head不変とproviderless再読を確認した。Worker異常終了の原因UNKNOWNは保持。現在は観測anchorを用いる新しい試行controlへ進み、通常試合の適用許可と区別する。
+
+新TOP試行の結果は [SPIN-OBSERVED-AIM-TRIAL-V226.md](SPIN-OBSERVED-AIM-TRIAL-V226.md)。その保存済み接触を、新しい正常Readerで再認証して資格評価へ渡せる証拠にした: [SPIN-TRIAL-MOTOR-EVIDENCE-V227.md](SPIN-TRIAL-MOTOR-EVIDENCE-V227.md)。元の4分試行は再演せず、readonly gateは6.625秒。次はaim / domainを含む新資格Sourceとearned consumerの接続であり、1接触だけで習得済みとは扱わない。

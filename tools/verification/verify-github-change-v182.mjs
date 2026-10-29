@@ -78,6 +78,8 @@ assert(files.length>0&&files.every(path=>/^docs\/.*\.md$/.test(path)
   ||/^src\/core\/world\/psychology\/batting\/(?:BattingMotorPlanV1|BattingCommitment|ObservedSpinAimTrialV226(?:\.test)?|BattingObservedSpinAimExecutionV226\.test)\.ts$/.test(path)
   ||/^src\/host\/world\/(?:SamePlateAppearancePhysicalEpisode|SamePlateAppearancePhysicalEpisodeFromSqlite|SamePlateAppearanceLifecycleClaimGuard|SamePaObservedSpinAimTrialV226(?:\.test)?)\.ts$/.test(path)
   ||/^tools\/verification\/(?:native-observed-spin-aim-trial-v226(?:\.test)?\.ts|check-native-observed-spin-aim-trial-v226\.mjs)$/.test(path)
+  ||/^src\/host\/world\/NativeSpinTrialMotorEvidenceV227(?:\.test)?\.ts$/.test(path)
+  ||/^tools\/verification\/(?:native-spin-trial-motor-evidence-v227(?:\.test)?\.ts|check-native-spin-trial-motor-evidence-v227\.mjs)$/.test(path)
   ||/^src\/host\/world\/SamePlateAppearanceSourcePoleFieldV1(?:\.test)?\.ts$/.test(path)
   ||path==='src/integration/browser/LivePoleScopeV148.test.ts'
   ||/^src\/host\/world\/SamePaObservationClockProjectionSourcesV212(?:\.test)?\.ts$/.test(path)
