@@ -80,6 +80,11 @@ assert(files.length>0&&files.every(path=>/^docs\/.*\.md$/.test(path)
   ||/^tools\/verification\/(?:native-observed-spin-aim-trial-v226(?:\.test)?\.ts|check-native-observed-spin-aim-trial-v226\.mjs)$/.test(path)
   ||/^src\/host\/world\/NativeSpinTrialMotorEvidenceV227(?:\.test)?\.ts$/.test(path)
   ||/^tools\/verification\/(?:native-spin-trial-motor-evidence-v227(?:\.test)?\.ts|check-native-spin-trial-motor-evidence-v227\.mjs)$/.test(path)
+  ||/^src\/integration\/traits\/ContactDescriptorEnvelopeV229(?:\.test)?\.ts$/.test(path)
+  ||/^tools\/native-contact-report-(?:runtime-v192\.ts|v192\.mjs|v229\.test\.mjs)$/.test(path)
+  ||path==='docs/demos/baseball-maker-ui-v94.mjs'
+  ||/^tools\/browser-bridge\/(?:build-maker|prepare-maker-contact-envelope-v229|check-maker-contact-envelope-v229)\.mjs$/.test(path)
+  ||/^tools\/verification\/(?:native-contact-envelope-readonly-v229\.ts|check-native-contact-envelope-readonly-v229\.mjs)$/.test(path)
   ||/^src\/host\/world\/SamePlateAppearanceSourcePoleFieldV1(?:\.test)?\.ts$/.test(path)
   ||path==='src/integration/browser/LivePoleScopeV148.test.ts'
   ||/^src\/host\/world\/SamePaObservationClockProjectionSourcesV212(?:\.test)?\.ts$/.test(path)

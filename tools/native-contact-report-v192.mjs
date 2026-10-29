@@ -9,7 +9,7 @@ const repositoryRoot=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const {DatabaseSync}=createRequire(import.meta.url)('node:sqlite');
 export const nativeContactReportUsageV192=`Native contact report (Node 26)
   export --database=PATH --career=ID --player=ID --output=REPORT.json
-         [--model=MODEL.json] [--policy=POLICY.json] [--projection-revision=N]
+         [--model=MODEL.json] [--policy=POLICY.json] [--projection-revision=N] [--envelope]
   collect --database=PATH --career=ID --player=ID [--calendar-edition=ID]
 
 export opens an existing database read-only and writes a new report file.
@@ -22,6 +22,7 @@ export function parseNativeContactReportArgsV192(args){
   if(!['export','collect'].includes(operation))throw Error('Expected export or collect operation');
   const names=new Set(['database','career','player',...(operation==='export'?['output','model','policy','projection-revision']:['calendar-edition'])]),values={};
   for(const option of options){
+    if(option==='--envelope' && operation==='export'){if(Object.hasOwn(values,'envelope'))throw Error('Duplicate argument: envelope');values.envelope=true;continue;}
     const at=option.indexOf('=');
     if(!option.startsWith('--')||at<3)throw Error('Expected --name=value argument');
     const name=option.slice(2,at),value=option.slice(at+1);
@@ -34,7 +35,7 @@ export function parseNativeContactReportArgsV192(args){
   if(operation==='collect')return {...common,...(values['calendar-edition']?{calendarEdition:values['calendar-edition']}:{})};
   const revision=values['projection-revision']??'0';
   if(!/^\d+$/.test(revision)||!Number.isSafeInteger(Number(revision)))throw Error('Projection revision must be a nonnegative safe integer');
-  return {...common,output:values.output,...(values.model?{model:values.model}:{}),...(values.policy?{policy:values.policy}:{}),projectionRevision:Number(revision)};
+  return {...common,output:values.output,...(values.model?{model:values.model}:{}),...(values.policy?{policy:values.policy}:{}),projectionRevision:Number(revision),...(values.envelope?{envelope:true}:{})};
 }
 async function requireAbsent(path){
   try{await lstat(path);}catch(error){if(error.code==='ENOENT')return;throw error;}
@@ -66,12 +67,14 @@ export async function runNativeContactReportCliV192(args){
       ...(input.calendarEdition?{careerCalendarEditionId:input.calendarEdition}:{})});
     else{
       databaseHandle=new DatabaseSync(database,{readOnly:true});
-      result=runtime.readNativeContactReportV192FromSqlite(databaseHandle,{scope,model,policy,worldRevision:input.projectionRevision});
+      result=input.envelope?runtime.readNativeContactReportEnvelopeV229FromSqlite(databaseHandle,{scope,model,policy,worldRevision:input.projectionRevision})
+        :runtime.readNativeContactReportV192FromSqlite(databaseHandle,{scope,model,policy,worldRevision:input.projectionRevision});
       databaseHandle.close();databaseHandle=undefined;
     }
     await checkSourcePins(bundle);
     if(output!==null)await writeFile(output,JSON.stringify(result,null,2)+'\n',{flag:'wx'});
-    return {operation:input.operation,scope,...(output===null?{collection:result}:{output,status:result.status,reasons:result.reasons}),
+    const report=input.envelope?result.report:result;
+    return {operation:input.operation,scope,...(output===null?{collection:result}:{output,status:report.status,reasons:report.reasons}),
       runtime:{sha256:bundle.sha256,sourceInputs:bundle.inputCount,nodeVersion:bundle.nodeVersion,fixtureImports:false}};
   }finally{
     if(databaseHandle)databaseHandle.close();

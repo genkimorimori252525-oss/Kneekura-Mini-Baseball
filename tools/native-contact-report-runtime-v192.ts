@@ -8,6 +8,8 @@ import type { MeasurementModel } from '../src/core/world/traits/classifiers/Meas
 import type { SourceTraitPolicy, TraitSourceSnapshot } from '../src/core/world/traits/sources/SourceTraitTypes';
 import { playerPersonLinkEvidenceFromSqlite, type DurablePlayerPersonLink } from '../src/host/world/SqlitePlayerPersonLinkStore';
 import { createContactDescriptorReportV191, type ContactDescriptorReportV191 } from '../src/integration/traits/ContactDescriptorReportV191';
+import { createContactDescriptorEnvelopeV229, type ContactDescriptorEnvelopeV229 } from '../src/integration/traits/ContactDescriptorEnvelopeV229';
+import { readNativeBattingContactObservationSnapshotV189FromSqlite } from '../src/host/world/SqliteNativeBattingContactObservationStoreV188';
 import { readNativeBattingContactTraitProjectionV189FromSqlite } from '../src/host/world/NativeBattingContactTraitProjectionV189';
 import { openSqliteNativeBattingContactObservationStoreV188 } from '../src/host/world/SqliteNativeBattingContactObservationStoreV188';
 import { withBattedVenueLegalReadSnapshot } from '../src/host/world/SqliteBattedVenueLegalPolicyStore';
@@ -54,6 +56,27 @@ export function readNativeContactReportV192FromSqlite(db: DatabaseSync, raw: Nat
     return createContactDescriptorReportV191(readNativeBattingContactTraitProjectionV189FromSqlite(db, { scope, model, policy, worldRevision,
       classificationId: 'native-contact-report-v192:classification:' + scopeKey,
       projectionId: 'native-contact-report-v192:projection:' + scopeKey }));
+  });
+}
+
+/** Opt-in envelope: all subject, projection and capture reads borrow one Native snapshot.
+ * This remains an as-of observation description, not a current career clock. */
+export function readNativeContactReportEnvelopeV229FromSqlite(db: DatabaseSync, raw: NativeContactReportInputV192): ContactDescriptorEnvelopeV229 {
+  const input = obj(raw, ['scope', 'model', 'policy', 'worldRevision'], 'request'), scope = readScope(input.scope, 'request.scope');
+  const worldRevision = integer(input.worldRevision, 'request.worldRevision');
+  if (input.model !== null) record(input.model, 'request.model');
+  if (input.policy !== null) record(input.policy, 'request.policy');
+  const model = cloneInert(input.model) as MeasurementModel | null, policy = cloneInert(input.policy) as SourceTraitPolicy | null;
+  const scopeKey = JSON.stringify([scope.careerId, scope.playerId]);
+  return snapshot(db, () => {
+    assertNativeContactReportSubjectV192FromSqlite(db, scope);
+    const result = readNativeBattingContactTraitProjectionV189FromSqlite(db, { scope, model, policy, worldRevision,
+      classificationId: 'native-contact-report-v192:classification:' + scopeKey,
+      projectionId: 'native-contact-report-v192:projection:' + scopeKey });
+    const observation = readNativeBattingContactObservationSnapshotV189FromSqlite(db, scope);
+    const report = createContactDescriptorReportV191(result);
+    return createContactDescriptorEnvelopeV229(report, observation ? { scope: observation.scope, source: observation.source,
+      capturedInventoryHash: observation.captureCoverage?.inventoryHash ?? null, currentInventoryHash: result.currentInventoryHash } : null);
   });
 }
 
