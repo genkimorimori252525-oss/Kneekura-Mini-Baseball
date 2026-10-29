@@ -1,4 +1,5 @@
 import { sqliteMetadataClaimRows } from './SqliteMetadataStatementScope';
+import { samePaLifecycleIdentityCandidatesV202, type SamePaLifecycleIdentityCandidatesV202 } from './SamePaLifecycleIdentityCandidatesV202';
 import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
 import { randomUUID } from 'node:crypto';
 import { createRequire } from 'node:module';
@@ -58,7 +59,9 @@ const assertNoSurvivingLifecycleClaim = (db: DatabaseSync, kind: SamePaLifecycle
 };
 const inspectLifecycleIdentity = (db: DatabaseSync, kind: SamePaLifecycleKind, id: string) => {
   const installed = assertSamePaLifecycleStorage(db);
-  const rows = installed ? Object.values(tables).flatMap(table => sqliteMetadataClaimRows(db, `SELECT * FROM main.${table} WHERE source_id=$id
+  const candidates = phases.get(db)?.identities;
+  const rows = installed ? (candidates?.kind === kind && candidates.ids.has(id) ? candidates.read(id) : null)
+    ?? Object.values(tables).flatMap(table => sqliteMetadataClaimRows(db, `SELECT * FROM main.${table} WHERE source_id=$id
     OR ${claim('source_json', ['sourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')}`, id).map(row => ({ table, row }))) : [];
   if (rows.length > 1 || rows.length === 1 && (rows[0].table !== tables[kind] || rows[0].row.source_id !== id)) throw new Error('lifecycle Source identity alias differs');
   if (!rows.length) {
@@ -117,12 +120,12 @@ const absenceBatch = (db: DatabaseSync, kind: SamePaLifecycleKind, ids: readonly
   } };
 };
 type Phase = { signature: string; failed: boolean; records: Map<string, SamePaLifecycleRecord>; anchors: Map<string, Anchor>;
-  seconds: Map<string, ReturnType<typeof readSamePaSuccessorTakePitchFromSqlite>>; physical: Map<string, ReturnType<typeof readSamePaPhysicalOperationFromSqlite>>; shared: Map<string,unknown>; active: Set<string>; absence?: AbsenceBatch };
+  seconds: Map<string, ReturnType<typeof readSamePaSuccessorTakePitchFromSqlite>>; physical: Map<string, ReturnType<typeof readSamePaPhysicalOperationFromSqlite>>; shared: Map<string,unknown>; active: Set<string>; absence?: AbsenceBatch; identities?: SamePaLifecycleIdentityCandidatesV202 };
 const phases = new WeakMap<DatabaseSync, Phase>();
 const signature = (db: DatabaseSync) => json({ transaction: db.isTransaction, query: db.prepare('PRAGMA query_only').get()!.query_only,
   changes: db.prepare('SELECT total_changes() n').get()!.n, main: db.prepare('PRAGMA main.schema_version').get()!.schema_version,
   temp: db.prepare('PRAGMA temp.schema_version').get()!.schema_version, user: db.prepare('PRAGMA main.user_version').get()!.user_version });
-const clear = (p: Phase) => { p.failed = true; p.records.clear(); p.anchors.clear(); p.seconds.clear(); p.physical.clear(); p.shared.clear(); p.active.clear(); p.absence = undefined; };
+const clear = (p: Phase) => { p.failed = true; p.records.clear(); p.anchors.clear(); p.seconds.clear(); p.physical.clear(); p.shared.clear(); p.active.clear(); p.absence = undefined; p.identities?.clear(); p.identities = undefined; };
 /** One private immutable phase only. Nested normal readers may reuse completed
  * proofs; no proof survives a DML/DDL boundary, commit or owner operation. */
 export const withSamePaLifecycleReadPhase = <T>(db: DatabaseSync, body: () => T): T => withSamePaContinuationReadPhase(db, () => {
@@ -135,6 +138,14 @@ export const withSamePaLifecycleReadPhase = <T>(db: DatabaseSync, body: () => T)
   catch (e) { if (db.isTransaction) try { db.exec('RELEASE ' + marker); } catch (cleanup) { throw new AggregateError([e, cleanup], 'lifecycle proof identity changed', { cause: e }); } throw e; }
   finally { clear(p); phases.delete(db); }
 });
+// Candidate selection only; this neither acquires a phase nor changes its
+// snapshot/signature fences. Nested view cohorts restore the caller's cohort.
+const identityCandidates = <T>(db: DatabaseSync, kind: 'total' | 'calibration', ids: readonly string[], body: () => T): T => {
+  const phase = phases.get(db)!, candidates = samePaLifecycleIdentityCandidatesV202(db, kind, ids);
+  if (!candidates) return body();
+  const prior = phase.identities; phase.identities = candidates;
+  try { return body(); } finally { candidates.clear(); phase.identities = prior; }
+};
 const anchor = (db: DatabaseSync, ref: SamePaReference<'pa_continuation_v1_execution_views'>) => {
   const p = phases.get(db)!; const key = json(ref), saved = p.anchors.get(key); if (saved) return saved;
   const value = readHistoricalSamePaContinuationViewFromSqlite(db, ref); p.anchors.set(key, value); return value;
@@ -274,7 +285,7 @@ const assemble = <T>(db: DatabaseSync, current: boolean, body: (read: (kind: Sam
       assessmentOwnership(source); return freeze({ kind: 'same_pa_lifecycle_total', source, lineage: prefix.lineage, coverageHash: prefix.coverageHash, effortUnits: source.effortUnits });
     }
     same(source.participantTotalReferences.map(p => p.playerId).sort(), old.view.participants.map(p => p.playerId).sort());
-    const participants = old.view.participants.map(p => {
+    const participants = identityCandidates(db, 'total', source.participantTotalReferences.map(p => p.assessmentReference.sourceId), () => old.view.participants.map(p => {
       const r = source.participantTotalReferences.find(r => r.playerId === p.playerId); if (!r) throw new Error('lifecycle complete original TOTAL missing');
       const total = linked('total', r.assessmentReference) as SamePaLifecycleTotal; same(total.source.prefixReference, source.prefixReference); same(total.source.enrollmentReference, source.enrollmentReference);
       same(total.source.participantReference, prefix.lineage.participantReferences.find(r => r.playerId === p.playerId)); same(total.coverageHash, prefix.coverageHash);
@@ -282,7 +293,7 @@ const assemble = <T>(db: DatabaseSync, current: boolean, body: (read: (kind: Sam
       const activity: PlayerWorkloadActivity = { ...p.activity, evidenceId: prefix.source.sourceId, effortUnits: total.effortUnits };
       const projectedState = advancePlayerWorkloadRecovery(p.reservedState, p.reservedState.revision, activity);
       return { playerId: p.playerId, totalReference: r.assessmentReference, reservedState: p.reservedState, activity, projectedState, projectedStateHash: hash(projectedState) };
-    });
+    }));
     if (participants.length !== prefix.lineage.participantReferences.length) throw new Error('lifecycle complete original participant set differs');
     return freeze({ kind: 'same_pa_lifecycle_view', source, lineage: prefix.lineage, coverageHash: prefix.coverageHash,
       assessmentSetHash: hash([...source.participantTotalReferences].sort((a,b) => a.playerId.localeCompare(b.playerId))), cut: prefix.cut, participants });
@@ -308,7 +319,7 @@ export const readSamePaLifecycleSetFromSqlite = (db: DatabaseSync, kind: 'total'
   // retain the original path and binding behavior, without a new input limit.
   if (ids.length < 2 || ids.length > 32 || !Array.from(ids).every(samePaText) || kind !== 'total' && kind !== 'calibration') return ids.map(id => read(kind,id));
   const phase = phases.get(db)!, prior = phase.absence; phase.absence = absenceBatch(db, kind, ids);
-  try { return ids.map(id => read(kind,id)); } finally { phase.absence = prior; }
+  try { return identityCandidates(db, kind, ids, () => ids.map(id => read(kind,id))); } finally { phase.absence = prior; }
 });
 const readView = (db: DatabaseSync, raw: SamePaReference<'pa_lifecycle_v1_execution_views'>, current: boolean): SamePaLifecycleViewBasis => {
   const ref = cloneInert(raw); if (!samePaReferenceValid(ref, tables.view)) throw new Error('invalid lifecycle view reference');
