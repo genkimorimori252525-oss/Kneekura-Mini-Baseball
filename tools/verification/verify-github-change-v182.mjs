@@ -87,6 +87,8 @@ assert(files.length>0&&files.every(path=>/^docs\/.*\.md$/.test(path)
   ||/^tools\/verification\/(?:native-contact-envelope-readonly-v229\.ts|check-native-contact-envelope-readonly-v229\.mjs)$/.test(path)
   ||/^src\/host\/world\/(?:SpinAimQualificationV228|NativeSpinTrialCohortInventoryV228)(?:\.test)?\.ts$/.test(path)
   ||/^tools\/verification\/(?:native-spin-trial-cohort-v228\.ts|check-native-spin-trial-cohort-v228\.mjs)$/.test(path)
+  ||/^src\/host\/world\/SqliteSpinAimQualificationV230(?:\.test)?\.ts$/.test(path)
+  ||/^tools\/verification\/(?:spin-aim-qualification-owned-copy-v230\.ts|check-spin-aim-qualification-owned-copy-v230\.mjs)$/.test(path)
   ||/^src\/host\/world\/SamePlateAppearanceSourcePoleFieldV1(?:\.test)?\.ts$/.test(path)
   ||path==='src/integration/browser/LivePoleScopeV148.test.ts'
   ||/^src\/host\/world\/SamePaObservationClockProjectionSourcesV212(?:\.test)?\.ts$/.test(path)
