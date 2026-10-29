@@ -36,6 +36,8 @@ assert(files.length>0&&files.every(path=>/^docs\/.*\.md$/.test(path)
   ||/^tools\/verification\/(?:native-spin-neutral-cut11-v195\.ts|check-native-spin-neutral-cut11-v195\.mjs)$/.test(path)
   ||/^tools\/verification\/(?:native-spin-neutral-witness-v196\.ts|check-native-spin-neutral-witness-v196\.mjs)$/.test(path)
   ||/^tools\/verification\/(?:native-spin-neutral-prelaunch-v197\.ts|check-native-spin-neutral-prelaunch-v197\.mjs)$/.test(path)
+  ||path==='src/host/world/SamePlateAppearancePhysicalFieldFixture.test-support.ts'
+  ||/^tools\/verification\/(?:native-field-preparation-v198(?:\.test)?\.ts|check-native-field-preparation-v198\.mjs)$/.test(path)
   ||path==='tools/browser-bridge/check-maker-contact-descriptor-v191.mjs'
   ||/^tools\/(?:native-contact-report-v192(?:\.test)?\.mjs|native-contact-report-runtime-v192(?:\.test)?\.ts)$/.test(path)
   ||path==='tools/verification/check-native-contact-report-cli-v192.mjs'

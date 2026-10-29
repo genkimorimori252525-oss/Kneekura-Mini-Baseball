@@ -2,7 +2,7 @@ import { createFairTerritoryWedge } from '../../core/sim/ball/FairTerritoryGeome
 import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { openSqlitePlayerBodyCapabilityMaterializationStore } from './SqlitePlayerBodyCapabilityMaterializationStore';
-import type { BattedBodyModelAssembly } from './PlayerBodyCapabilityMaterialization';
+import type { BattedBodyModelAssembly, BodyMaterializationReceipt } from './PlayerBodyCapabilityMaterialization';
 import type { SamePaPhysicalFieldCalibrationSource, SamePaPhysicalFieldCalibration, SamePaPhysicalResolution, SamePaPhysicalFieldRoot, SamePaPhysicalFieldRootSource } from './SamePlateAppearancePhysicalEpisode';
 import type { BallWorldVenueLegalPolicy } from '../../core/rules/BallWorldVenueLegalCoverage';
 import type { AcceptedBattedVenueLegalCoveragePolicy } from './BattedVenueLegalCoveragePolicy';
@@ -12,6 +12,13 @@ import type { SamePaPreparedPhysicalLifecycle, SamePaPhysicalLifecycleSuffix } f
 import type { AeroGroundBallPhysicsV1 } from '../../core/sim/ball/VersionedBattedBallPhysics';
 import { SAME_PA_AERO_GROUND_FIELD_ROOT_SOURCE_VERSION, SAME_PA_AERO_GROUND_FIELD_STEP_SOURCE_VERSION } from './SamePlateAppearanceBallPhysics';
 type Fixture=SamePaPreparedPhysicalLifecycle;
+
+export type FreshPhysicalFieldCalibrationFixtureContext=Pick<Fixture,'save'>&{
+  f:Pick<Fixture['f'],'db'|'path'|'actor'>&{x:{f:Pick<Fixture['f']['x']['f'],'track'>}};
+  physical:Pick<Fixture['physical'],'acceptFieldCalibration'>;
+  current():Pick<ReturnType<Fixture['current']>,'viewReference'>;
+};
+type PreparedFieldAction=Pick<ReturnType<Fixture['prepareAction']>,'action'|'actionReference'>;
 type PhysicalFieldFixtureOptions=Readonly<{liveProducerProfile?:SamePaPhysicalFieldRootSource['liveProducerProfile'];
   ballPhysics?:AeroGroundBallPhysicsV1;
   actorProducerPolicies?:SamePaPhysicalFieldRootSource['actorProducerPolicies'];
@@ -21,10 +28,10 @@ type PhysicalFieldFixtureOptions=Readonly<{liveProducerProfile?:SamePaPhysicalFi
 /** Explicit values from BattedWorldContact/Field/ContactResponse fixtures.
  * Normal ten-body assembly is accepted without an old flight, contact, field
  * row, or copied receipt. The new calibration preparation emits no work fact. */
-export const prepareFreshPhysicalFieldFixture=(h:Fixture,prepared:ReturnType<Fixture['prepareAction']>,posture:DurableBattingInvocationPosture,
+export const prepareFreshPhysicalFieldCalibrationFixture=(h:FreshPhysicalFieldCalibrationFixtureContext,prepared:PreparedFieldAction,posture:DurableBattingInvocationPosture,
   postureReference:SamePaReference<'batting_observation_v1_postures'>,label:string,
-  options:PhysicalFieldFixtureOptions={})=>{
-  const {f}=h,action=prepared.action,bodies=[posture.model.bodyMaterialization,...posture.sceneBodies];
+  options:PhysicalFieldFixtureOptions={},assemblyBatterBody?:BodyMaterializationReceipt)=>{
+  const {f}=h,action=prepared.action,bodies=[assemblyBatterBody??posture.model.bodyMaterialization,...posture.sceneBodies];
   const fixture=f.db.prepare('SELECT * FROM official_fixtures WHERE game_id=?').get(f.actor.source.gameId)!;
   const assembly:BattedBodyModelAssembly={sourceId:label+':body-model',sourceVersion:'fixture-only-v1',kind:'body_materialized_batted_model_v1',
     gameId:f.actor.source.gameId,careerId:f.actor.binding.careerId,fixtureEventId:f.actor.binding.fixtureEventId,venueId:String(fixture.venue_id),availableAtDay:1,atDay:f.actor.binding.gameDay,
@@ -47,7 +54,16 @@ export const prepareFreshPhysicalFieldFixture=(h:Fixture,prepared:ReturnType<Fix
         pocketCenterOffset:{x:0,y:0,z:-0.08},bodyStability:1,parameters:{ticksPerSecond:1_000_000,ballMassKg:0.145,ballRadiusMeters:0.0366,pocketRadiusMeters:0.2,
           centerRetentionCapacityJ:1_000_000,captureDissipationPowerW:1000,failedContactRestitution:0.5,failedTangentialDamping:0.25,failedSpinDamping:0.2}})})),surfaces:[]}};
   h.save(source);const calibration=h.physical.acceptFieldCalibration(source.sourceId);if(calibration.kind!=='same_pa_physical_field_calibration_prepared_v1')throw new Error('real fresh field calibration pending');
-  return continuePhysicalFieldFixtureFromCalibration(h,calibration,label,options);
+  return{source,calibration,calibrationReference:reference('pa_physical_v1_field_calibrations',calibration),model,bodyModelReference};
+};
+
+/** The existing full fixture retains its original calibration acceptance order,
+ * values and append closure. Preparation-only callers stop before this tail. */
+export const prepareFreshPhysicalFieldFixture=(h:Fixture,prepared:ReturnType<Fixture['prepareAction']>,posture:DurableBattingInvocationPosture,
+  postureReference:SamePaReference<'batting_observation_v1_postures'>,label:string,
+  options:PhysicalFieldFixtureOptions={})=>{
+  const preparedField=prepareFreshPhysicalFieldCalibrationFixture(h,prepared,posture,postureReference,label,options);
+  return continuePhysicalFieldFixtureFromCalibration(h,preparedField.calibration,label,options);
 };
 
 /** The exact existing field append declarations consume an owner-authenticated
