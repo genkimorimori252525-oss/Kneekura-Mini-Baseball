@@ -13,6 +13,7 @@ import { readEmotionWorldRevisionFromSqlite, readHistoricalEmotionWorldRevisionF
 import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
 import { readSamePaLifecycleCalibrationFromSqlite, withSamePaLifecycleReadPhase } from './SamePlateAppearanceLifecycleFromSqlite';
 import { samePaReferenceValid, samePaFields, samePaText, samePaHash, type SamePaReference } from './SamePlateAppearanceWorkPrefix';
+import { deriveObservedSpinAimDomainV231 } from './SpinAimObservedDomainConditionsV231';
 import { SPIN_TECHNIQUES_V123 } from '../../core/world/traits/SpinControlMasteryV123';
 import { hashSpinAimDomainValueV228, validateSpinAimQualificationSourceV228, type SpinAimQualificationSourceV228, type SpinAimDomainV228, type SpinAimCohortMemberV228, type SpinAimInventoryMemberV228, type SpinAimInventoryV228 } from './SpinAimQualificationV228';
 
@@ -27,27 +28,7 @@ type Calibration=ReturnType<typeof readSamePaLifecycleCalibrationFromSqlite>;
 export function deriveSpinTrialDomainFromRecordsV228(record:Commitment,binding:Binding,capture:Perception,delivery:Perception,prediction:Perception,captureCal:Calibration,deliveryCal:Calibration):Readonly<{domain:SpinAimDomainV228;provenance:SpinAimCohortMemberV228['observationProvenance']}> {
  if(record.source.capability!=='same_pa_physical_observed_spin_aim_trial_v226'||record.calculation.algorithm!=='batting-observed-spin-aim-trial-v226'||!record.trialEvidenceV226)
   throw Error('spin trial domain v228: trial commitment differs');
- if(capture.kind!=='batting_observation'||capture.source.capability!=='owned_in_flight_batting_observation_v1'
-  ||delivery.kind!=='batting_observation_delivery'||delivery.source.capability!=='owned_in_flight_batting_observation_delivery_v1'
-  ||prediction.kind!=='batting_observed_prediction'||prediction.source.capability!=='owned_in_flight_batting_observed_prediction_v1')throw Error('spin trial domain v228: observation method differs');
- const e=record.trialEvidenceV226,context=record.calculation.trialContext,cc=captureCal.source,dc=deliveryCal.source,model=binding.observations[0]?.model;
- if(!model||cc.route!=='batter_observation'||dc.route!=='batter_observation'||cc.response.kind!=='accepted_execution_values_v1'||dc.response.kind!=='accepted_execution_values_v1')
-  throw Error('spin trial domain v228: calibration route differs');
- if(!same(cc.member,capture.source.member)||!same(dc.member,delivery.source.member)||!same(cc.viewReference,capture.source.viewReference)
-  ||!same(dc.viewReference,delivery.source.viewReference)||!same(cc.nominalReference,e.modelReference)||!same(dc.nominalReference,e.modelReference)
-  ||!same(capture.calculation.nominalValues,model.observationCalibration.values)||!same(capture.calculation.effectiveValues,cc.response.values))
-  throw Error('spin trial domain v228: calibration ownership or values differ');
- const observationProvenance={captureReference:e.observationReference,deliveryReference:e.deliveryReference,predictionReference:e.predictionReference,
-  captureCalibrationReference:capture.source.calibrationReference,deliveryCalibrationReference:delivery.source.calibrationReference};
- const domain:SpinAimDomainV228={version:'spin_aim_domain_v228',bindingReference:record.source.trial.bindingReference,modelReference:e.modelReference,
-  profile:context.selectedProfile,coordinateSystem:context.trace.coordinateSystem,transform:context.transform,handedness:'R',
-  plateZ:e.currentGeometry.plateZ,ticksPerSecond:e.currentGeometry.ticksPerSecond,geometry:{centerOfMass:e.currentGeometry.centerOfMass,strikeZone:e.currentGeometry.strikeZone},targetPair:context.pair,
-  equipmentHash:hashSpinAimDomainValueV228(model.equipment.values),forecastParametersHash:hashSpinAimDomainValueV228(e.forecastParameters),actualFlightParametersHash:hashSpinAimDomainValueV228(e.actualFlightParameters),
-  observationMethod:'OWNED_IN_FLIGHT_BATTING_CAPTURE_DELIVERY_V1',nominalObservationValuesHash:hashSpinAimDomainValueV228(capture.calculation.nominalValues),
-  captureEffectiveValuesHash:hashSpinAimDomainValueV228(cc.response.values),deliveryEffectiveValuesHash:hashSpinAimDomainValueV228(dc.response.values),
-  predictionParameterValuesHash:hashSpinAimDomainValueV228(model.predictionCalibration.values),deliveryLatencyTicks:e.availableTick-e.observedTick};
- if(e.currentGeometry.handedness!=='R'||e.availableTick<e.observedTick)throw Error('spin trial domain v228: coordinate or latency differs');
- return freeze(cloneInert({domain,provenance:observationProvenance}));
+ return deriveObservedSpinAimDomainV231({trialContext:record.calculation.trialContext,evidence:record.trialEvidenceV226,bindingReference:record.source.trial.bindingReference,binding,capture,delivery,prediction,captureCalibration:captureCal,deliveryCalibration:deliveryCal});
 }
 function readDomainFromCommitmentV228(db:DatabaseSync,record:Commitment,binding:Binding) {
  if(!record.trialEvidenceV226)throw Error('spin trial domain v228: trial evidence missing');const e=record.trialEvidenceV226,

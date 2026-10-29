@@ -51,3 +51,5 @@ SPINの追加根拠: [SPIN-ORIGINAL-MOTOR-EVIDENCE-V224.md](SPIN-ORIGINAL-MOTOR-
 閉集合の追加受入: [SPIN-CLOSED-TRIAL-COHORT-V228.md](SPIN-CLOSED-TRIAL-COHORT-V228.md)。正常commitment / resolution全件と共有観測条件を認証し、真正1試行の集合を確認。criterion・資格は作成せず、元接触は再実行していない。適用資格Ownerと通常consumerの接続が次の未完。
 
 適用評価の保存: [SPIN-APPLICATION-EVALUATION-OWNER-V230.md](SPIN-APPLICATION-EVALUATION-OWNER-V230.md)。旧技能と分離したOwnerへ真正1件の不足評価を保存し、接続を閉じた再読を受入。資格は発行せず、診断用project基準と人間・domainの校正を区別する。次は未来情報を使わないprecommit条件と新consumer、真正反復による成立の検証。
+
+計画前条件の追加根拠: [SPIN-PRECOMMIT-DOMAIN-V231.md](SPIN-PRECOMMIT-DOMAIN-V231.md)。正常な過去入力から得た条件と実行後記録の条件・来歴が全値一致。現在判断・新接触の受理は0。次は資格読取の循環を避けるmembership境界と通常consumer。
