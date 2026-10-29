@@ -54,6 +54,7 @@ assert(files.length>0&&files.every(path=>/^docs\/.*\.md$/.test(path)
   ||/^tools\/verification\/(?:native-post-input-resolution-v210(?:\.test)?\.ts|check-native-post-input-resolution-v210\.mjs)$/.test(path)
   ||/^tools\/verification\/(?:native-field-root-v211(?:\.test)?\.ts|check-native-field-root-v211\.mjs)$/.test(path)
   ||/^tools\/verification\/(?:native-field-clock-v212(?:\.test)?\.ts|check-native-field-clock-v212\.mjs)$/.test(path)
+  ||/^tools\/verification\/live-debug-(?:case|batch(?:\.test)?)\.mjs$/.test(path)
   ||/^src\/host\/world\/SamePaObservationClockProjectionSourcesV212(?:\.test)?\.ts$/.test(path)
   ||path==='tools/browser-bridge/check-maker-contact-descriptor-v191.mjs'
   ||/^tools\/(?:native-contact-report-v192(?:\.test)?\.mjs|native-contact-report-runtime-v192(?:\.test)?\.ts)$/.test(path)
