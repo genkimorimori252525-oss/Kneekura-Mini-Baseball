@@ -5,9 +5,9 @@ import { cloneExecutionData } from '../execution/ExecutionValidation';
 import { coreCall, readFlight, readBattingRepertoireValues, readBattingPhysicalValues, numberValue } from './BattingValidation';
 import { resolveMotorStart } from './BattingTiming';
 import { assertSwingSpeedEnvelope } from './BattingSpeedEnvelope';
-import { planMeasuredBattingTrajectoryV1,MEASURED_BATTING_REPERTOIRE_UPRIGHT_V2 } from './MeasuredBattingTrajectoryV1';
+import { planMeasuredBattingTrajectoryV1,registrationForMeasuredRepertoireV137 } from './MeasuredBattingTrajectoryV1';
 import { planAerodynamicCourseAwareSwingV1 } from '../../../sim/pitching/AerodynamicCourseAwareSwingV1';
-import { shiftSwingKinematicsTrajectoryV1 } from '../../../sim/contact/SwingKinematicsV1';
+import { shiftSwingKinematicsTrajectoryV1, type SwingKinematicsTrajectoryV1 } from '../../../sim/contact/SwingKinematicsV1';
 import { createReferenceBatKinematicsV1 } from '../../../sim/contact/ReferenceBatKinematicsV1';
 
 type Geometry = Pick<BattingSource, 'handedness'|'centerOfMass'|'batPhysical'|'plateZ'|'strikeZone'|'bodyReadyTick'|'latestMotorStartTick'>;
@@ -25,17 +25,31 @@ export type BattingMotorPlanV1 = Readonly<
 /** Shared by actual execution and observed initial-pitch preparation. Inputs
  * here have already passed their Core/owner validators. This plans a motor;
  * it neither chooses SWING/TAKE nor issues a physical control or event. */
-export function planBattingMotorV1(input:BattingMotorPlanInputV1):BattingMotorPlanV1 {
-  const {geometry:s,motor,repertoire,forecast,aggression,decisionTick:now}=input;
-  const profile=repertoire.profiles.filter(x=>x.minimumAggression<=aggression).at(-1)!.profile;
+export function planBattingMotorV1(input:BattingMotorPlanInputV1,
+  selectedProfile?:Readonly<{profileId:string;version:string}>):BattingMotorPlanV1 {
+  const {geometry:s,repertoire,forecast,aggression}=input;
+  // A qualified repertoire planner may select an existing profile. Execution
+  // and envelopes below remain the same single controller for every intent.
+  const profile=selectedProfile?repertoire.profiles.find(x=>x.profile.profileId===selectedProfile.profileId
+    &&x.profile.version===selectedProfile.version&&x.minimumAggression<=aggression)?.profile
+    :repertoire.profiles.filter(x=>x.minimumAggression<=aggression).at(-1)!.profile;
+  if(!profile)fail('INVALID_INPUT','batting.selectedProfile.unavailable');
   const planned=coreCall('batting.plan',()=>planAerodynamicCourseAwareSwingV1({predictedTrajectory:forecast.trajectory,
     plateZ:s.plateZ,strikeZone:s.strikeZone,handedness:s.handedness,batterCenterOfMass:s.centerOfMass,physical:s.batPhysical,profile}));
   if(planned===null)return {status:'UNRESOLVED_PREDICTION',motion:null};
-  const preferred=coreCall('batting.technicalTiming',()=>shiftSwingKinematicsTrajectoryV1(planned.swingPlan.trajectory,motor.technicalTimingOffsetTicks));
+  return finalizeBattingMotorPlanV1(input,profile,planned.swingPlan.trajectory);
+}
+
+/** Shared timing, window, measured registration and speed validation for an
+ * already planned trajectory. No Source or physical result is accepted here. */
+export function finalizeBattingMotorPlanV1(input:BattingMotorPlanInputV1,
+  profile:BattingRepertoireValues['profiles'][number]['profile'],plannedTrajectory:SwingKinematicsTrajectoryV1):BattingMotorPlanV1 {
+  const {geometry:s,motor,repertoire,decisionTick:now}=input;
+  const preferred=coreCall('batting.technicalTiming',()=>shiftSwingKinematicsTrajectoryV1(plannedTrajectory,motor.technicalTimingOffsetTicks));
   const measured=repertoire.sampledProfiles?.find(p=>p.profileId===profile.profileId);
   if(measured){
     const sampled=coreCall('batting.measuredPlanning',()=>planMeasuredBattingTrajectoryV1(measured,s.handedness,preferred,
-      repertoire.repertoireVersion===MEASURED_BATTING_REPERTOIRE_UPRIGHT_V2?'upright_yaw_v2':'legacy_axis_v1'));
+      registrationForMeasuredRepertoireV137(repertoire.repertoireVersion)));
     const motorStartTick=resolveMotorStart(sampled.startTick,now,s.bodyReadyTick,motor.motorLatencyTicks);
     if(motorStartTick>s.latestMotorStartTick)return {status:'MOTOR_WINDOW_MISSED',motion:null};
     const motorDelayTicks=motorStartTick-sampled.startTick,sampledTrajectoryV1={...sampled,startTick:motorStartTick};
@@ -54,10 +68,9 @@ export function planBattingMotorV1(input:BattingMotorPlanInputV1):BattingMotorPl
     motorStartTick,motorDelayTicks,technicalTimingOffsetTicks:motor.technicalTimingOffsetTicks,trajectory}};
 }
 
-/** Validated pure preparation boundary. No score, emotion acceptance, actual
- * trajectory, contact outcome or execution receipt is accepted as a shortcut. */
-export function calculateObservedBattingMotorPlanV1(raw:unknown):EmotionResult<BattingMotorPlanV1> {
-  return attempt(()=>{
+/** Validate the original observed input without assuming its default profile
+ * is executable. A qualified alternative still uses these same validators. */
+export function readObservedBattingMotorInputV1(raw:unknown):BattingMotorPlanInputV1 {
     const p='batting.motorPreparation',v=obj(cloneExecutionData(raw,p),['decisionTick','aggression','geometry','motor','repertoire','forecast'],p);
     const now=integer(v.decisionTick,p+'.decisionTick'),aggression=fraction(v.aggression,p+'.aggression');
     const g=obj(v.geometry,['handedness','centerOfMass','batPhysical','plateZ','strikeZone','bodyReadyTick','latestMotorStartTick'],p+'.geometry');
@@ -78,6 +91,10 @@ export function calculateObservedBattingMotorPlanV1(raw:unknown):EmotionResult<B
     const flight=readFlight(trajectory,trajectory?.parameters?.ticksPerSecond,p+'.forecast.trajectory');
     if(flight.start.tick>observed||flight.parameters.ticksPerSecond<=0)fail('INVALID_INPUT',p+'.forecast.clock');
     const repertoire=readBattingRepertoireValues(v.repertoire,p+'.repertoire');
-    return planBattingMotorV1({decisionTick:now,aggression,geometry:g as Geometry,motor:motor as Motor,repertoire,forecast:{observedTick:observed,availableTick:available,validUntilTick:until,trajectory:flight}});
-  });
+    return {decisionTick:now,aggression,geometry:g as Geometry,motor:motor as Motor,repertoire,forecast:{observedTick:observed,availableTick:available,validUntilTick:until,trajectory:flight}};
+}
+/** Validated pure preparation boundary. No score, emotion acceptance, actual
+ * trajectory, contact outcome or execution receipt is accepted as a shortcut. */
+export function calculateObservedBattingMotorPlanV1(raw:unknown):EmotionResult<BattingMotorPlanV1> {
+  return attempt(()=>planBattingMotorV1(readObservedBattingMotorInputV1(raw)));
 }

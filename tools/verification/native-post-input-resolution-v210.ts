@@ -30,13 +30,17 @@ export { rawNativeSpinNeutralSqlDigestV193 } from './NativeSpinNeutralV193-sql';
 
 export type NativePostInputResolutionV210Input = Readonly<Pick<ReturnType<typeof resumeNativeExecutionInputV209>,
   'retainedInputReferences' | 'resumePins' | 'finalViewReference' | 'eventReferences'>>;
+export type NativePostInputResolutionV210Hooks = Readonly<{
+  prepareCommitment: NonNullable<NonNullable<Parameters<typeof continueNativeSpinNeutralV193PostDelivery>[3]>['prepareCommitment']>;
+  verifyCommitment: (commitment: Extract<ReturnType<typeof readSamePaPhysicalOperationFromSqlite>['record'], { kind: 'same_pa_physical_commitment_v1' }>) => void;
+}>;
 const label = 'native-spin-neutral-v193:pitch3';
 const same = (a: unknown, b: unknown) => assert.equal(json(a), json(b), 'V210 retained owner input differs');
 const must = <T>(value: T | null | undefined): T => { if (value == null) throw Error('V210 normal retained prerequisite missing'); return value; };
 
 /** Resume the existing Native input consumer, preserving its two normal full
  * lifecycle advances and saving each completed current/cal32 boundary. */
-export function resumeNativePostInputResolutionV210(path: string, input: NativePostInputResolutionV210Input, emit: (name: string, value?: unknown) => void) {
+export function resumeNativePostInputResolutionV210(path: string, input: NativePostInputResolutionV210Input, emit: (name: string, value?: unknown) => void, hooks?: NativePostInputResolutionV210Hooks) {
   assert.equal(input.finalViewReference.sourceId, 'physical-fixture:cut9:view'); assert.equal(input.eventReferences.length, 9);
   assert.equal(Object.keys(input.resumePins).length, 12);
   assert.deepStrictEqual(input.retainedInputReferences.futureProfileDeclarationOnly, createNativeFieldPreparationV198Declaration());
@@ -225,9 +229,12 @@ export function resumeNativePostInputResolutionV210(path: string, input: NativeP
       same(commitmentProof.actor, original.actor); same(commitment.source.viewReference, input.finalViewReference);
       same(commitment.source.launchReference, pins.launchReference); same(commitment.source.previousOperationReference, pins.decisionCutReference);
       same(commitment.source.inputReference, pins.inputReference); same(commitment.source.intentReference, pins.intentReference);
+      if (hooks) hooks.verifyCommitment(commitment);
+      else {
       if (commitment.source.capability !== 'same_pa_physical_commitment_v123') throw Error('V210 original Native spin binding required');
       same(commitment.source.spinBindingV123.modelReference, refs.modelReference); same(commitment.source.spinBindingV123.qualificationReferences, refs.qualificationReferences);
       assert.equal(commitment.source.spinBindingV123.intent.technique, 'NO_SPIN_TARGET');
+      }
       assert.equal(commitment.beforeWorldRevision, original.world.head.worldRevision); assert.equal(commitment.afterWorldRevision, original.world.head.worldRevision + 1);
       assert.equal(commitment.controlRevision, original.world.head.control.revision); assert.equal(commitment.controlHash, hash(original.world.head.control));
       const resolutionReference = cut === 11 ? locate('pa_physical_v1_resolutions', label + ':resolution') : null;
@@ -285,7 +292,8 @@ export function resumeNativePostInputResolutionV210(path: string, input: NativeP
       onStage(stage) { assert.equal(stage, 'native-post-input-entry-authenticated'); assert.equal(advances, 0); assert.equal(accepted.size, 0);
         assert.equal(db.isTransaction, false); assert.equal(db.prepare('PRAGMA query_only').get()!.query_only, 0); postInputEntryAuthenticated = true;
         emit('native-post-input-entry-authenticated', { viewReference: basis.viewReference, eventReferences: [...events] }); },
-      prepareCommitment(source, executionInput) { const { buntProfileBinding: _bunt, ...ordinary } = source;
+      prepareCommitment(source, executionInput) { if (hooks) return hooks.prepareCommitment(source, executionInput);
+        const { buntProfileBinding: _bunt, ...ordinary } = source;
         return { ...ordinary, capability: 'same_pa_physical_commitment_v123' as const, spinBindingV123: {
           kind: 'fixed_native_spin_binding_v123' as const, modelReference: refs.modelReference,
           intent: { technique: 'NO_SPIN_TARGET' as const, selectedAtTick: executionInput.nominalRequest.currentFrame.time.tick }, qualificationReferences: refs.qualificationReferences } }; }
