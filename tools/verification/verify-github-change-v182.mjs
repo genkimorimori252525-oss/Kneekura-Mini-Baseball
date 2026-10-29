@@ -56,6 +56,9 @@ assert(files.length>0&&files.every(path=>/^docs\/.*\.md$/.test(path)
   ||/^tools\/verification\/(?:native-field-clock-v212(?:\.test)?\.ts|check-native-field-clock-v212\.mjs)$/.test(path)
   ||/^tools\/verification\/live-debug-(?:case|batch(?:\.test)?)\.mjs$/.test(path)
   ||/^src\/core\/sim\/fielding\/(?:LiveFieldPlayV1|LivePoleContactWitnessV213(?:\.test)?)\.ts$/.test(path)
+  ||/^src\/host\/world\/SamePaInitialDefenderObservationViewV214(?:\.test)?\.ts$/.test(path)
+  ||/^src\/host\/world\/(?:RuleSourceRegistryV1|SqliteRuleSourceRegistryStore)(?:\.test)?\.ts$/.test(path)
+  ||/^tools\/verification\/(?:native-initial-defender-views-v214(?:\.test)?\.ts|check-native-initial-defender-views-v214\.mjs)$/.test(path)
   ||path==='src/integration/browser/LivePoleScopeV148.test.ts'
   ||/^src\/host\/world\/SamePaObservationClockProjectionSourcesV212(?:\.test)?\.ts$/.test(path)
   ||path==='tools/browser-bridge/check-maker-contact-descriptor-v191.mjs'
