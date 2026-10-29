@@ -120,7 +120,7 @@ export const prepareInFlightBattingSwing = (h: Fixture, prepared: ReturnType<Fix
 };
 
 /** Shared existing suffix. All new records still pass through their actual owners. */
-const continueInFlightBattingSwing = (h: Fixture, label: string, prefix: OwnedSwingPrefix, options: SwingOptions,
+const continueInFlightBattingSwing = (h: NativeSpinNeutralPostObservationContextV193, label: string, prefix: OwnedSwingPrefix, options: SwingOptions,
   perception: ReturnType<typeof openSqliteBattingPerceptionStore>, inputOwner: ReturnType<typeof openSqliteBattingExecutionInputStore>) => {
   const { f, save } = h;
   const member = () => h.current().basis.members.find(m => m.playerId === f.actor.binding.playerId)!;
@@ -324,7 +324,7 @@ const completeInFlightBattingInput = (h: NativeSpinNeutralPostObservationContext
 /** Resume only the original first capture cut. References are locators; the
  * existing readers authenticate every value, the exact current physical head,
  * and the preceding historical lifecycle prefix before any new owner write. */
-export const resumeInFlightBattingSwing = (h: Fixture, label: string, pins: Readonly<{
+export const resumeInFlightBattingSwing = (h: NativeSpinNeutralPostObservationContextV193, label: string, pins: Readonly<{
   postureReference: SamePaReference<'batting_observation_v1_postures'>;
   intentReference: SamePaReference<'batting_execution_v1_intents'>;
   launchReference: SamePaReference<'pa_physical_v1_launches'>;
