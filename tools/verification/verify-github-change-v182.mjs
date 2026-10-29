@@ -70,6 +70,9 @@ assert(files.length>0&&files.every(path=>/^docs\/.*\.md$/.test(path)
   ||path==='docs/demos/baseball-maker-batting-practice-v150.js'
   ||path==='tools/browser-bridge/background-match-v116.mjs'
   ||path==='tools/verification/check-observed-region-compat-v222.mjs'
+  ||/^tools\/verification\/(?:native-spin-motion-binding-gate-v223(?:\.test)?\.ts|check-native-spin-motion-binding-gate-v223\.mjs)$/.test(path)
+  ||/^tools\/verification\/(?:motor-evidence-readonly-gate-v224(?:\.test)?\.ts|check-motor-evidence-readonly-gate-v224\.mjs)$/.test(path)
+  ||/^src\/host\/world\/(?:SqliteStandalonePracticeStore|StandaloneBattingMotorEvidenceV224\.test)\.ts$/.test(path)
   ||/^src\/host\/world\/SamePlateAppearanceSourcePoleFieldV1(?:\.test)?\.ts$/.test(path)
   ||path==='src/integration/browser/LivePoleScopeV148.test.ts'
   ||/^src\/host\/world\/SamePaObservationClockProjectionSourcesV212(?:\.test)?\.ts$/.test(path)

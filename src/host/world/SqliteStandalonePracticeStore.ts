@@ -1,4 +1,5 @@
 import { isStandaloneContactCommand, readStandaloneConsumedRelease } from './StandalonePracticeContact';
+import { observeBattedBallSpinV123 } from '../../core/sim/contact/BattedBallSpinObservationV123';
 import { readNativePitchPracticeAttemptFromSqlite, assertNativePitchPracticeLearningSettledFromSqlite } from './NativePitchPracticeEvidenceFromSqlite';
 import { practiceActivityId, practiceWorkload } from './PitchPracticeAttempt';
 import { createRequire } from 'node:module';
@@ -17,6 +18,8 @@ import { standalonePracticeInput, standaloneTick, readStandalonePracticeMotionFr
   type AcceptedStandalonePractice } from './StandalonePracticeMotion';
 import { defensiveMetadataId as claim } from './ActualDefensiveMetadata';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { registeredMeasuredMotorBindingV133 } from './StandaloneMeasuredPracticeV133';
+import { memoSamePaContinuationRead, assertNoMutableSamePaContinuationReadPhase } from './SamePlateAppearanceContinuationFromSqlite';
 
 export type AcceptedStandalonePracticeAssessment = Omit<AcceptedNonPitchRepetitionAssessment, 'closureSourceId'> & Readonly<{ effortUnits: number }>;
 export type StandalonePracticeAuthority = Readonly<{
@@ -94,7 +97,17 @@ const reader = (db: DatabaseSync, development: Development) => {
   const required = (sourceId: string) => { const value = reservation(sourceId); if (!value) throw new Error('standalone practice command is missing'); return value; };
   const execution = (value: Reservation, throughTick: number) => {
     const proof = readStandaloneConsumedRelease(db, value.source, throughTick);
-    const result = executeStandalonePracticeMotion(value.source, value.frame, throughTick);
+    const calculate = () => executeStandalonePracticeMotion(value.source, value.frame, throughTick);
+    let result: ReturnType<typeof calculate>;
+    if (value.source.command.kind === 'BATTING_CONTACT' && value.source.command.measuredMotorV133 && throughTick === value.source.endTick) {
+      // Original frame/Owned episode and consumed release are authenticated
+      // before this point on EVERY read. Only the completed pure calculation
+      // shares a q1 phase; no provider, receipt, statement or head is cached.
+      if (db.prepare('PRAGMA query_only').get()!.query_only === 1) {
+        result = memoSamePaContinuationRead(db, 'standalone-measured-complete-v134:'
+          + json({ source: value.source, frame: value.frame, throughTick, proof }), calculate);
+      } else { assertNoMutableSamePaContinuationReadPhase(db); result = calculate(); }
+    } else result = calculate();
     return isStandaloneContactCommand(value.source.command) ? freeze({ ...result, releaseProof: proof }) : result;
   };
   const progress = (value: Reservation, revision?: number) => {
@@ -169,8 +182,8 @@ const reader = (db: DatabaseSync, development: Development) => {
     }
     return { activity, before, after };
   };
-  const learningGuard = (event: DevelopmentLearningEventInput, phase: string) => {
-    const value = byEvent(event.sourceEventId), before = value.physical.reservation.episode;
+  const learningGuard = (event: DevelopmentLearningEventInput, phase: string, accepted?: NonNullable<ReturnType<typeof assessed>>) => {
+    const value = accepted ?? byEvent(event.sourceEventId), before = value.physical.reservation.episode;
     if (!value.event || json(value.event) !== json(event)) throw new Error('standalone learning differs from accepted relevance');
     workloadEvidence(value, 'read');
     const rows = db.prepare(`SELECT * FROM world_development_learning_events WHERE source_id=$id
@@ -242,10 +255,34 @@ export const assertStandalonePracticeWorkloadActivity = (db: DatabaseSync, activ
 export const readStandalonePracticeRepetition = (db: DatabaseSync, development: Development, sourceEventId: string) => {
   const own = reader(db, development), value = own.byEvent(sourceEventId);
   if (!value.event || !value.repetition) throw new Error('standalone practice is not an accepted relevant repetition');
-  own.learningGuard(value.event, 'read');
+  own.learningGuard(value.event, 'read', value);
   const source = value.physical.reservation.source;
   return freeze({ event: value.event, repetition: value.repetition, episodeId: source.episodeId,
     careerId: source.careerId, playerId: source.playerId, proofHash: hash(value) });
+};
+
+/** An actual settled bat/ball contact, re-executed from its original Native
+ * reservation and consumed pitch. Observation never certifies intentional skill.
+ * The existing repetition receipt/hash is left unchanged for old consumers. */
+export const readNativeStandaloneBattingContactV123 = (db: DatabaseSync, sourceEventId: string) => {
+  const own = reader(db, null), value = own.byEvent(sourceEventId);
+  if (!value.event || !value.repetition) throw new Error('batting contact has no accepted relevant repetition');
+  own.learningGuard(value.event, 'read', value);
+  const source = value.physical.reservation.source, execution = value.physical.progress.execution, frame = value.physical.reservation.frame;
+  if (source.command.kind !== 'BATTING_CONTACT' || execution.kind !== 'BATTING_CONTACT' || frame.kind !== 'BATTING_CONTACT' || !execution.contact || !execution.ball) {
+    throw new Error('original standalone repetition is not an actual batting contact');
+  }
+  return freeze({ sourceRef: { sourceId: source.sourceId, sourceVersion: source.sourceVersion },
+    careerId: source.careerId, playerId: source.playerId, personLinkSourceId: source.personLinkSourceId,
+    episodeId: source.episodeId, event: value.event, proofHash: hash(value),
+    modelSourceId: source.modelSourceId, profileRef: { profileId: source.command.profileId, version: source.command.profileVersion },
+    ...(source.command.measuredMotorV133 ? { motorBindingV133: registeredMeasuredMotorBindingV133(frame.model.repertoire.values,
+      frame.model.equipment.values, { profileId: source.command.profileId, version: source.command.profileVersion }) } : {}),
+    repertoireRef: { sourceId: frame.model.repertoire.sourceId, sourceVersion: frame.model.repertoire.sourceVersion },
+    spinIntentV123: source.command.spinIntentV123 ?? null,
+    contact: execution.contact, ball: execution.ball,
+    observation: observeBattedBallSpinV123({ velocityMps: execution.contact.exitVelocity, spinRadPerSecond: execution.contact.exitSpin,
+      bats: source.command.plan.handedness }) });
 };
 
 /** Durably consumes a prescribed motor interval, then charges its explicitly
@@ -373,4 +410,26 @@ export const openSqliteStandalonePracticeStore = (path: string, development: Pic
     close() { if (!closed) { db.close(); closed = true; } },
   };
   return Object.freeze(api);
+};
+
+/** Original accepted practice evidence only. This detached read does not add a
+ * mastery, transfer a target to a later pitch, or admit a new contact. */
+export const readNativeStandaloneBattingMotorEvidenceV224 = (db: DatabaseSync, sourceEventId: string) => {
+  const own = reader(db, null), value = own.byEvent(sourceEventId);
+  if (!value.event || !value.repetition) throw new Error('batting motor evidence has no accepted relevant repetition');
+  own.learningGuard(value.event, 'read', value);
+  const source = value.physical.reservation.source, frame = value.physical.reservation.frame, execution = value.physical.progress.execution;
+  if (source.command.kind !== 'BATTING_CONTACT' || frame.kind !== 'BATTING_CONTACT' || execution.kind !== 'BATTING_CONTACT'
+    || !execution.contact || !execution.ball || !('releaseProof' in execution) || !execution.releaseProof || !value.physical.physicalProofHash) {
+    throw new Error('original standalone motor evidence lacks an accepted batting contact or consumed release');
+  }
+  const consumedRelease = readStandaloneConsumedRelease(db, source, value.physical.progress.throughTick);
+  if (!consumedRelease || json(consumedRelease) !== json(execution.releaseProof)) throw new Error('original consumed release proof differs');
+  return freeze(cloneInert({ version: 'native_standalone_batting_motor_evidence_v224' as const,
+    scope: 'ORIGINAL_PRACTICE_ONLY' as const, originalContactNativeAdmission: true as const,
+    sourceEventId, acceptedEvidenceHash: hash(value), physicalProofHash: value.physical.physicalProofHash,
+    source: { ...source, command: source.command }, model: frame.model, plannedDelivery: frame.pitch.plannedDelivery, consumedRelease,
+    contact: execution.contact, ball: execution.ball,
+    implementationFamily: source.command.measuredMotorV133 ? 'REGISTERED_MEASURED_V133' as const : 'COURSE_AWARE_V1' as const,
+    futurePitchTransferProven: false as const, relativeRuleProven: false as const }));
 };
