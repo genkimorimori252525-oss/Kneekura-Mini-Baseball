@@ -25,3 +25,9 @@ Terra所有は既存Storeの新exportだけ＋新test＋必要な新readonly gat
 genuine SQLite正常Reader、missing / wrongfamily / reference / proof改竄、caller transaction / query_only / savepoint / authorizer、old DTO全値不変、detach / freeze、全rowid / schema / head / data保全を確認する。新readonly gateは原DBを開かずpaired copyで元6plan・anchor有無を再認証し、前gateと目的を区別する。新practice・新接触・Native技術採用・回転加算はこの段階では0。
 
 根拠不足を外部Raw不足と決めつけず、正規原本のどの情報が未保存かを具体に記録する。全SPIN4・希少Gold・球種認識・最終配送の受入をこの単位へ縮めない。
+
+## 元動作の保存が完了した後の境界
+
+V225は正常Masteryと元3 motor evidenceから、neutral anchor / absolute targetの正確な対を保存するdescription-only Owner。実コピーでBACK/TOP各1登録とproviderless再読まで受入した。`futureTransferProven:false`は維持し、rule enumを資格権限にしない。追加のProducerRule registryは作らない。詳細は `../../verification/realism-debug-20261027/SPIN-ORIGINAL-MOTION-BINDING-V225.md`。
+
+次のBは、配達済みforecastのneutral plate crossing→明示aimed plate target→同profileのcontact depth→同forecastのdepth crossing/tick→aimed contact targetの順を実行前に固定する新しい試行control。forecast自体を加工せず、既存course-aware motor・timing offset・latency・speed上限を用いる。元の0g/air0/R条件を通常重力の成功域へ転用した扱いにせず、新正常練習の実接触と適用域を別に認証する。旧v1/v123/NO_TARGET/省略時のkeys・値・drawを保護する。

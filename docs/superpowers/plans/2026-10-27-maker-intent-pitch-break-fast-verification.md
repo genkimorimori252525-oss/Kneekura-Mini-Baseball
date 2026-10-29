@@ -48,7 +48,7 @@
 
 **2026-10-30 本人指示による優先順位の再整理（以後の運用）:** 全scope/受入/配送を保持し、利用機能の正本を `../../verification/realism-debug-20261027/USER-FEATURE-STATUS.md` に置く。SQL OLD→最小patch→NEWと効果/採否を一単位で閉じ、追加の内部改善や守備metadata工程を自動で連鎖させない。その後Maker方向/連続打席・心理の最新検証版統合と不足受入、SPIN4の意図的実経路、観測分類のproduction接続を機能単位で完成へ進める。キレの未確認Sourceは独立管理し、同条件の再grid/再相談をせず他機能を止めない。最終Source固定後に不足する同Chrome batch/9回/性能と3HTML配送/最新設計GitHub全文を閉じる。下記過去の実施順は履歴であり、新指示に反して内部工程待ちを増やす根拠にしない。
 
-**役割:** 実runtime確認済みSol6.1が主担当、Terra6.1が所有file/小差分/関連検証。Astraは今回の新SQL比較の精度・境界の一点だけを短く独立review。全ログ/長い会話の毎回配送0、同コード同条件の再相談0。各完了単位は利用可能化/新検証/未完を機能表へ記録し、局所PASS/中間版を全機能/配送完成へ昇格0。
+**役割:** 実runtime確認済みSol6.1が主担当、Terra6.1が所有file/小差分/関連検証。Astraは新しい共有契約・物理・整合性・検証精度の難しい一点だけを短く独立review。全ログ/長い会話の毎回配送0、同コード同条件の再相談0。各完了単位は利用可能化/新検証/未完を機能表へ記録し、局所PASS/中間版を全機能/配送完成へ昇格0。
 
 Task1→Task2→Task3→Task4→Task5→Task6。Task1の測定を使って以後は小さい再現ケースで実装し、終盤に同じ9回試合を毎回繰り返す運用を避ける。依存のない読取監査は限定並行、同じfile/状態を二人が同時編集しない。
 
@@ -272,6 +272,7 @@ V180読取再照合ではQ/P/D/L同時成立候補0であり軌道差0ではな�
 - **SPIN運動binding gate V223:** 保存V193真正資格2/元接触6/inputを現正規ReaderでRO再認証f74e5e2f PASS7391ms、pureTOPは正資格選択だがneutralとplan/commitment一致→NO_MOTOR_DISTINCTION、元motion正規DTO未露出UNKNOWN。新practice/contact0、旧suffixFAIL/endUNKNOWN保持、原DB/全rowid-schema-head-data/sourcepins不変。次は旧資格/DTOhashを変えない別version motor evidence/Owner sidecarへ元planと適用域を結ぶ。事前anchor原本とplane/depth/time規則を証明できる時だけrelative、actualcontact逆算/技術名定数追加/4技術証拠転用0。SPIN-MOTION-BINDING-GATE-V223.md。
 - **技術別元運動の認証Reader V224:** V223で同motorを確定したため、旧contactDTO/資格hashにfieldを足さずStore別versionreadonlyexportからbyEvent/learningGuard・元command/clock/model/repertoire/equipment/delivery/release/contact proofを取得する。編集前全bytesbaseline4fbf保存/Gitparent1428別保存。新test/caller-integrity/旧DTOと全rowid-data保全/厳格型/追加export逆変換全bytes→独立review→1readonlygateで元6planと事前anchor有無を確認。A同setup再現限定/B原本事前anchor・clock/plane-depth変換が証明できる時だけrelative、technique定数/actualcontact逆算0。新practice/重いcontactを先行0、4tech証拠転用0。spec ../specs/2026-10-30-spin-authenticated-motor-evidence.md。
 - **V224正規元目標取得完了:** d6cc2373 PASS7093ms、2資格/元6plan-releaseとprofile/person/day/proofをRO再認証、全oldrows-rowid-schema-head-data/Source-artifacts-caller保持。BACKplateY1.50/TOP1.54/releaseY1.52を確認、contactTarget無し/relative-domain原plan無し、futuretransferfalse。newreaderだけ2000Bappend/旧baseline全文一致、既DTO/資格hash変更0。Astraは元producerpinとDTOの対応で事前anchor固定可と判断、観測forecast適用は別pre-source/clock-plane-depth規則とnewactualcontact-aero証拠が必要。元6接触再生成0/4tech転用0、SPIN-ORIGINAL-MOTOR-EVIDENCE-V224.md。次は新immutablemotionBinding typed契約を確定する。
+- **元練習動作の保存・再読 V225:** 正常Mastery＋元3V224の結合、exact target/anchor対を新description-only Ownerへ保存。最終pure/strict/genuine経路とSol独立reviewを通過し、fresh-owned-copy actual `af34040b30f74998b34549fa847c2781` PASS30500ms。BACK/TOP各1登録→close→providerless再読exact、新table2rows以外旧全rows-rowid-schema-head不変、原DB/baseline非open・全file/endpins保持。新practice/contact0、oldhash/DTO変更0、futureTransferfalse。Worker異常96b95d50の原因UNKNOWNは保持。次は新version観測aimの試行controlを既存単一motorへつなぎ、正常重力下の新実接触→spin→aeroを検証する。descriptionを次球の資格へ昇格しない。SPIN-ORIGINAL-MOTION-BINDING-V225.md。
 - [ ] Step3: SPIN使用/不使用・未習得・複数技能・左右鏡映・動作不能を、実バット→接触→3D回転→空力へ通す。Gold label変更だけの対比較で物理結果不変を確認。
 - [ ] Step4: 一つの制限された公式採用UNKNOWNを全goalのblocked理由にしない。未接続/不成立は受入表に残し、その枝の具体的な次手順と並行可能Taskを保存。
 

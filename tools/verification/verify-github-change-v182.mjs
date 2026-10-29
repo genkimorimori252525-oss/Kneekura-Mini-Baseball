@@ -73,6 +73,8 @@ assert(files.length>0&&files.every(path=>/^docs\/.*\.md$/.test(path)
   ||/^tools\/verification\/(?:native-spin-motion-binding-gate-v223(?:\.test)?\.ts|check-native-spin-motion-binding-gate-v223\.mjs)$/.test(path)
   ||/^tools\/verification\/(?:motor-evidence-readonly-gate-v224(?:\.test)?\.ts|check-motor-evidence-readonly-gate-v224\.mjs)$/.test(path)
   ||/^src\/host\/world\/(?:SqliteStandalonePracticeStore|StandaloneBattingMotorEvidenceV224\.test)\.ts$/.test(path)
+  ||/^src\/host\/world\/(?:SpinMotionBindingV225|SqliteSpinMotionBindingV225)(?:\.test)?\.ts$/.test(path)
+  ||/^tools\/verification\/(?:spin-motion-binding-owned-copy-v225(?:\.test)?\.ts|check-spin-motion-binding-owned-copy-v225\.mjs)$/.test(path)
   ||/^src\/host\/world\/SamePlateAppearanceSourcePoleFieldV1(?:\.test)?\.ts$/.test(path)
   ||path==='src/integration/browser/LivePoleScopeV148.test.ts'
   ||/^src\/host\/world\/SamePaObservationClockProjectionSourcesV212(?:\.test)?\.ts$/.test(path)
