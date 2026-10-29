@@ -59,6 +59,9 @@ assert(files.length>0&&files.every(path=>/^docs\/.*\.md$/.test(path)
   ||/^src\/host\/world\/SamePaInitialDefenderObservationViewV214(?:\.test)?\.ts$/.test(path)
   ||/^src\/host\/world\/(?:RuleSourceRegistryV1|SqliteRuleSourceRegistryStore)(?:\.test)?\.ts$/.test(path)
   ||/^tools\/verification\/(?:native-initial-defender-views-v214(?:\.test)?\.ts|check-native-initial-defender-views-v214\.mjs)$/.test(path)
+  ||/^tools\/verification\/(?:native-initial-defender-views-inventory-v216(?:\.test)?\.ts|check-native-initial-defender-views-inventory(?:-proof)?-v216\.mjs)$/.test(path)
+  ||/^tools\/verification\/(?:native-initial-defender-views-recovery-v217(?:\.test)?\.ts|check-native-initial-defender-views-recovery-v217\.mjs)$/.test(path)
+  ||/^src\/host\/world\/SamePlateAppearanceSourcePoleFieldV1(?:\.test)?\.ts$/.test(path)
   ||path==='src/integration/browser/LivePoleScopeV148.test.ts'
   ||/^src\/host\/world\/SamePaObservationClockProjectionSourcesV212(?:\.test)?\.ts$/.test(path)
   ||path==='tools/browser-bridge/check-maker-contact-descriptor-v191.mjs'
