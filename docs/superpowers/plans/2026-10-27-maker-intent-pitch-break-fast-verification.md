@@ -64,6 +64,12 @@ Task1→Task2→Task3→Task4→Task5→Task6。Task1の測定を使って以後
 
 **利用可能化単位の受入:** 最新単一Makerは4ff9502360504dac845f4b89cfb43864 PASS56437ms/Chrome156.0.8078.49、1200方向/AUTO/roster/TAKE-preview-次球-記憶-JSON再開を同NativeCore通常Host対実Worker fullrecord exact、390到達/表示保持、report明示import参考physicsNONE、キレ未採用文言。実埋込2Native+1WB bundle全文/673clips92201frames/全Source/旧V133/startendpins保持。目視は同HTMLscreenshot-onlyで再演0、Root確認済み。MAKER-DIRECTION-PRACTICE-INTEGRATION.md。これを最初の使える検証版とし、未完の心理/配球推定/通常方向方針・SPIN/分類/キレ物理・完成3HTMLは維持する。
 
+**次の利用機能単位（2026-10-30）:** region経験を同投手の次球準備へ集約し、配達済み最大3位置標本/時刻・raw forecastを別version sidecarへ保存する。V151厳密schemaと旧省略record/draw/JSONは維持し、実V151が記憶するraw cutoff/usedIDsに対応。明示V122prior優先/公式受理paircommit/preview非消費、familyUNKNOWNconfidence null・2標本acc0仮定を保持。Astraは新共有契約一点でB推奨、source不足を真ラベル教示で埋めない。spec ../specs/2026-10-30-batter-observed-region-experience.md。通常Host/Worker/Creatorへ明示採用して利用可能化し、region先行を全family/心理/Goal完成と呼ばない。
+
+**配球経験の利用可能化V222:** 新sidecar/region平均priorのCoreはf9b82631関連12/3adff59d strict PASS、Sol指摘のlossless signedzero/extra拒否をRED→修正、eviction/foreignも受入。sameChrome旧4ffWB→new01adc2e6 PASS24172msでfullrecord-nextcapture-RNG exact（有限fixture・target UI外付け全build gate）。newMakerCDF生成8ad08d7c PASS。採用r2 43b7827dは1200実受理2件region45→4球prepared/実mixedpredictionの正weight消費・HostWorker/capture/RNG・preview/newresume/oldUIrestore5negativeが保存済み、後続QA親コンテキスト誤りで全体FAIL。r3 a9dea850444c4c86977373fbb156da4a PASS15265msで実Maker親srcdocの2normal実Host/Worker4policy/素材673-92201/390/旧r2開始→新終了pins継続を確認。旧r2FAIL/endUNKNOWNは保持、1200練習の再演0。BATTER-OBSERVED-REGION-EXPERIENCE-V222.md。family UNKNOWN/NOT_MEASURED/性能falseを維持し、この単位を全心理/全Goal完成へ縮めない。
+
+**V222追加の関連省略回帰:** 0c08e3f9旧memory-observer-Worker17件/7bec0683practice-preview-JSON-Host4件 PASS、Corefreeze同SHA確認。new12/型/旧Chrome/2048seed/full9再演0。以後このSourceの旧成功として再利用。
+
 ### Task1: 同Coreの高速再現・同値検証入口
 
 **Files:** Modify `tools/browser-bridge/audit-fast-match-parity-v120.mjs`、`tools/browser-bridge/background-match-v116.mjs`、`tools/browser-bridge/background-match-v116.js`。必要時のみ `src/integration/browser/LiveBaseballMatchV1.ts` のcontinuation境界。Create `tools/verification/live-debug-case.mjs`、`docs/verification/realism-debug-20261027/fast-parity/`。既存harnessは旧固定manifestでも起動可能に保つ。

@@ -65,6 +65,11 @@ assert(files.length>0&&files.every(path=>/^docs\/.*\.md$/.test(path)
   ||/^tools\/verification\/(?:native-lifecycle-current-profile-v220(?:\.test)?\.ts|check-native-lifecycle-current-profile-v220\.mjs)$/.test(path)
   ||/^tools\/verification\/(?:native-lifecycle-claim-metadata-compare-v221(?:\.test)?\.ts|check-native-lifecycle-claim-metadata-compare-v221\.mjs)$/.test(path)
   ||/^tools\/verification\/(?:prepare-maker-direction|check-maker-direction-practice-current)\.mjs$/.test(path)
+  ||/^src\/core\/decision\/batting\/BatterObservedRegionExperienceV222(?:\.test)?\.ts$/.test(path)
+  ||/^src\/integration\/browser\/(?:LiveBatterObservationV151|LivePitchV1|LiveBaseballMatchV1|LiveObservedRegionExperienceV222\.test|index|workbench-index)\.ts$/.test(path)
+  ||path==='docs/demos/baseball-maker-batting-practice-v150.js'
+  ||path==='tools/browser-bridge/background-match-v116.mjs'
+  ||path==='tools/verification/check-observed-region-compat-v222.mjs'
   ||/^src\/host\/world\/SamePlateAppearanceSourcePoleFieldV1(?:\.test)?\.ts$/.test(path)
   ||path==='src/integration/browser/LivePoleScopeV148.test.ts'
   ||/^src\/host\/world\/SamePaObservationClockProjectionSourcesV212(?:\.test)?\.ts$/.test(path)

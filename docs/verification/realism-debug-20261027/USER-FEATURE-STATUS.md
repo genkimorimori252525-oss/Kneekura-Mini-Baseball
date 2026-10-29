@@ -5,7 +5,7 @@
 | 要求機能 | 状態 | 現在使える範囲・根拠 | 完成までの次の具体操作 |
 | --- | --- | --- | --- |
 | メーカー打撃練習の方向指定／おまかせ | 使える（最新検証版。最終配送は未完） | 最新統合検証版で手動3方向＋おまかせ、本人方針へ復帰、roster保存値不変、連続打席・保存再開を受入。新組合せreceipt `4ff9502360504dac845f4b89cfb43864` PASS56437ms、通常Hostと実Workerの有限全record一致。`DIRECTION-PRACTICE-V149.md` / `REACTIVE-MOTOR-V161.md`、receipt `05c8b960…`。完成3HTMLへは未配送。 | この受入済み統合を作り直さず、通常試合の方向戦術・心理の未完を閉じ、最終同版配送へ組み込む。 |
-| 打者心理・配球履歴・独立seed・ニッチロー | 一部できている | 連続カウント／投球連番、preview非消費、JSON再開、配達済み位置の未分類経験・次球想起、独立13 domain RNG。`CONTINUOUS-PRACTICE-V150.md` / `OBSERVED-BATTING-V151.md` / `INDEPENDENT-RANDOMNESS-V152.md`。初球はTAKEのため初球の実打球方向は未証明。次球のREACTIVE打撃改善は1例に限定。 | 未分類経験からのコース／球種family予測と判断への接続を明示し、初球・次球の意図／誤差／実接触を分離する受入を埋める。既存独立RNG試験は再実行しない。 |
+| 打者心理・配球履歴・独立seed・ニッチロー | 一部できている | 連続カウント／投球連番、preview非消費、JSON再開、独立13 domain RNGに加え、同投手のregion経験平均を次球準備へ実消費し、配達済み最大3標本を保存する検証版を受入。`BATTER-OBSERVED-REGION-EXPERIENCE-V222.md`（r2部分成功＋r3残り受入/継続pins）。familyはUNKNOWN。`CONTINUOUS-PRACTICE-V150.md` / `OBSERVED-BATTING-V151.md` / `INDEPENDENT-RANDOMNESS-V152.md`。初球はTAKEのため初球の実打球方向は未証明。次球のREACTIVE打撃改善は1例に限定。 | コース経験の接続を作り直さず、新観測根拠からのfamily認識モデル／校正と初球以降の一般的受入を閉じる。名札や真pitchTypeから認識を捏造しない。 |
 | キレ○・キレ◎・驚異の切れ味の物理3段階 | 未完成（選択・保存UIは局所利用可） | 3選択／即保存／自動試投／通常復帰／JSON再読は受入済み。元球種を変える低spin / gyro置換recipeの普遍採用は撤回。`AUTO-KIRE-RELEASE-V177.md:64` / `KIRE-BASE-PRESERVING-V180.md`。 | 同期したmaterial姿勢・角速度・相対風速と横力／PV時系列という不足Sourceを解消する。既に不成立とした同じgridやUIを再実装しない。取得できない部分は未解決のまま他機能を完成へ進める。 |
 | スライス・フック・バックスピン・トップスピン | 一部できている | 資格→運動→実剛体接触→3D回転→空力の経路が存在。BACKSPIN真正Nativeの局所採用あり。通常／Goldのneutral一致は4技術の意図的制御証明ではない。`docs/verification/spin-trial-v124/NATIVE-SPIN-CLAIM-V131.md` / `SPIN-NEUTRAL-GOLD-V193.md`。 | 保存済み資格・接触を再生成せず、未検証の技術選択を伴うNative対照を不足分だけ実行する。4技術、3/4種保有、自然Gold希少性と公式終端の未完を別に記録する。 |
 | 打球記録・ラインドライブ分類・表示 | 一部できている | 正常接触収集→明示modelの事後分類→report→Maker読込・純表示。modelなしは未評価。`NATIVE-CONTACT-DISPLAY-V191.md` / `NATIVE-CONTACT-REPORT-CLI-V192.md`。`physicsEffects:NONE`。 | 現在career時計・観測集合identityを正規Ownerへ結び、production分類基準を校正する。全producer人口・同PA複数記録・自然cohortを受入へ追加する。 |
@@ -39,3 +39,5 @@
 **最新の利用可能化単位:** [Maker検証HTML](candidate-maker-direction-practice-current-01/maker.html)。HTML SHA36cc176a94e15f61f677a9aa62288bce8da87561b036c1a90f7f8b5b15a41ea1。2Native+1Workbenchの実埋込codeを採用bundleへ全文exact照合、673clips/92201frames、全Source/入力/HTML開始終了pins一致。1200でpreview非消費、TAKE→次球、観測記憶、JSON再開を通常Host対実Workerで検証。390は同じ全試験を繰り返さず初期操作/表示保持に限定。キレは説明文言のみ、記録は未評価→明示import参考/physicsEffectsNONE。完成3HTML・キレ物理・全試合性能は未完。
 
 最新Makerの受入・採用Source・未完の詳細: [MAKER-DIRECTION-PRACTICE-INTEGRATION.md](MAKER-DIRECTION-PRACTICE-INTEGRATION.md)。1200/390のscreenshot-onlyは主担当が目視済み、受入ケース再演0。
+
+**追加の利用可能化:** [配球コース経験を反映する新Maker](candidate-maker-observed-region-v222-01/maker.html)。旧版保持。region45の実受理2件を次球prepared priorへ正weightで混合、通常Host/実Workerの全記録・継続・RNG一致、限定旧UI復元を実証。通常2ゲームの実方針と390をr3で追加確認し、r2の通過済み練習再演0。family認識/人間校正/全体性能/完成3HTMLは未完。
