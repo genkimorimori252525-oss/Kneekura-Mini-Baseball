@@ -17,7 +17,7 @@ import { samePaExecutionReference as reference } from './SamePlateAppearanceExec
 import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { openSqliteBattingPerceptionStore, readBattingPerceptionFromSqlite } from './SqliteBattingPerceptionStore';
 import { openSqliteBattingEmotionExecutionStore, readBattingEmotionExecutionFromSqlite } from './SqliteBattingEmotionExecutionStore';
-import { openSqliteBattingExecutionInputStore, readSamePaBattingIntentFromSqlite, readSamePaBattingExecutionInputFromSqlite } from './SqliteBattingExecutionInputStore';
+import { openSqliteBattingExecutionInputStore, readSamePaBattingIntentFromSqlite, readSamePaBattingExecutionInputFromSqlite, readCurrentSamePaBattingExecutionInputFromSqlite } from './SqliteBattingExecutionInputStore';
 import { assertInFlightBattingWriteCurrentFromSqlite } from './InFlightBattingLifecycleFenceFromSqlite';
 import { readEmotionWorldRevisionFromSqlite } from './EmotionWorldRevisionFromSqlite';
 import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
@@ -228,6 +228,11 @@ type NativeSpinNeutralDeliveredPins = Readonly<{
   observationReference: SamePaReference<'batting_observation_v1_observations'>; deliveryCutReference: SamePaReference<'pa_physical_v1_cuts'>;
   deliveryReference: SamePaReference<'batting_observation_v1_deliveries'>; forecastReference?: SamePaReference<'batting_prediction_v1_predictions'>;
 }>;
+type NativeSpinNeutralInputPins = NativeSpinNeutralDeliveredPins & Readonly<{
+  forecastReference: SamePaReference<'batting_prediction_v1_predictions'>;
+  scoreReference: SamePaReference<'batting_score_v1_assessments'>; emotionReference: SamePaReference<'batting_emotion_execution_v1_executions'>;
+  decisionCutReference: SamePaReference<'pa_physical_v1_cuts'>; inputReference: SamePaReference<'batting_execution_v1_inputs'>;
+}>;
 /** The original seven Native graph readers retain their order. Forecast state
  * is admitted only by normal current coverage and a complete stored cal32. */
 const readNativeSpinNeutralDeliveredPrefix = (h: NativeSpinNeutralPostObservationContextV193, label: string, pins: NativeSpinNeutralDeliveredPins) => {
@@ -338,10 +343,102 @@ const readNativeSpinNeutralDeliveredPrefix = (h: NativeSpinNeutralPostObservatio
   }));
 };
 
+/** Twelve Native references resume only a complete current cut9 input. The
+ * generic graph reader owns the physical chain; current input and cal32 remain
+ * separate normal proofs before the existing commitment body may execute. */
+const readNativeSpinNeutralInputPrefix = (h: NativeSpinNeutralPostObservationContextV193, label: string, pins: NativeSpinNeutralInputPins, options: SwingOptions) => {
+  const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw Error('Native post-input original frontier differs'); };
+  return withSqliteReadTransaction(h.f.db, () => withSamePaLifecycleReadPhase(h.f.db, () => {
+    if (label !== 'native-spin-neutral-v193:pitch3') throw Error('Native post-input requires the original Native swing');
+    const current = readCurrentSamePaLifecycleViewFromSqlite(h.f.db, h.current().viewReference);
+    same(current.actor, h.f.actor); same(current.view, h.current().view); same(current.members, h.current().basis.members);
+    same(current.view.source.sourceId, 'physical-fixture:cut9:view'); same(current.view.cut.operationReference, pins.decisionCutReference);
+    same(current.view.cut.physicalOperationReference, pins.decisionCutReference);
+    const retained = readRetainedInFlightBattingDecisionCut(h, label, { ...pins, predictionReference: pins.forecastReference,
+      decisionPrefixReference: current.view.source.prefixReference }, options, () => current);
+    const { posture, intent, launch, captureCut, capture, deliveryCut, delivery, forecast, score, emotion, decisionCut } = retained;
+    const input = readCurrentSamePaBattingExecutionInputFromSqlite(h.f.db, pins.inputReference);
+    if (posture.source.capability !== 'owned_in_flight_batting_posture_v1'
+      || intent.source.capability !== 'owned_in_flight_same_pa_batting_intent_v1'
+      || capture.source.capability !== 'owned_in_flight_batting_observation_v1'
+      || delivery.source.capability !== 'owned_in_flight_batting_observation_delivery_v1'
+      || forecast.source.capability !== 'owned_in_flight_batting_observed_prediction_v1'
+      || score.source.capability !== 'owned_in_flight_batting_score_assessment_v1'
+      || emotion.source.capability !== 'owned_in_flight_batting_emotion_execution_v1'
+      || input.source.capability !== 'owned_in_flight_same_pa_batting_execution_input_v1'
+      || launch.stage !== 'in_flight' || captureCut.stage !== 'in_flight' || deliveryCut.stage !== 'in_flight' || decisionCut.stage !== 'in_flight')
+      throw Error('Native post-input original batting owners differ');
+    for (const [value, suffix] of [[posture, 'posture'], [intent, 'intent'], [capture, 'capture'], [delivery, 'delivery'],
+      [forecast, 'forecast'], [score, 'score'], [emotion, 'emotion'], [input, 'input']] as const) same(value.source.sourceId, label + ':' + suffix);
+    same(input.lineage, launch.lineage); same(input.physicalPitchReference, pins.launchReference);
+    same(posture.source.viewReference, launch.source.viewReference); same(intent.source.viewReference, launch.source.viewReference);
+    for (const cut of [captureCut, deliveryCut, decisionCut]) same(cut.source.launchReference, pins.launchReference);
+    same(captureCut.source.throughTick, launch.evaluationTick + 50_000);
+    same(capture.source.physicalPitchReference, pins.launchReference); same(capture.source.physicalOperationReference, pins.captureCutReference);
+    same(capture.source.previousObservationReference, null); same(capture.source.observedTick, captureCut.evaluationTick);
+    same(deliveryCut.source.throughTick, captureCut.evaluationTick + capture.calculation.effectiveValues.deliveryLatencyTicks);
+    same(delivery.source.physicalPitchReference, pins.launchReference); same(delivery.source.physicalOperationReference, pins.deliveryCutReference);
+    same(emotion.source.physicalPitchReference, pins.launchReference); same(emotion.source.physicalOperationReference, pins.deliveryCutReference);
+    same(forecast.source.modelReference, posture.source.modelReference);
+    same(captureCut.source.viewReference.sourceId, 'physical-fixture:cut2:view'); same(capture.source.viewReference.sourceId, 'physical-fixture:cut3:view');
+    same(deliveryCut.source.viewReference.sourceId, 'physical-fixture:cut4:view'); same(delivery.source.viewReference.sourceId, 'physical-fixture:cut5:view');
+    same(forecast.source.viewReference.sourceId, 'physical-fixture:cut6:view'); same(score.source.viewReference.sourceId, 'physical-fixture:cut7:view');
+    same(emotion.source.viewReference.sourceId, 'physical-fixture:cut7:view'); same(decisionCut.source.viewReference.sourceId, 'physical-fixture:cut8:view');
+    same(input.source.viewReference, h.current().viewReference); same(input.source.postureReference, pins.postureReference);
+    same(input.source.intentReference, pins.intentReference); same(input.source.emotionReference, pins.emotionReference);
+    same(input.source.physicalPitchReference, pins.launchReference); same(input.source.physicalOperationReference, pins.decisionCutReference);
+    same(input.source.assessmentReferences, [pins.scoreReference]); same(input.source.directive, 'SWING');
+    const calibrationIds = h.f.db.prepare('SELECT source_id FROM main.pa_lifecycle_v1_execution_calibrations WHERE view_source_id=? ORDER BY rowid')
+      .all(current.view.source.sourceId).map(row => String(row.source_id));
+    const supplied = h.current().calibrationSet.calibrations, suppliedIds = supplied.map(value => value.source.sourceId);
+    if (calibrationIds.length !== 32 || new Set(calibrationIds).size !== 32 || suppliedIds.length !== 32 || new Set(suppliedIds).size !== 32) throw Error('Native post-input complete calibration set missing');
+    same([...calibrationIds].sort(), [...suppliedIds].sort());
+    const calibrations = readSamePaLifecycleSetFromSqlite(h.f.db, 'calibration', suppliedIds).map(value => {
+      if (value?.kind !== 'same_pa_lifecycle_calibration') throw Error('Native post-input calibration owner missing'); return value;
+    });
+    same(calibrations, supplied);
+    const routes = new Map<string, string[]>();
+    for (const calibration of calibrations) {
+      same(calibration.source.viewReference, h.current().viewReference);
+      const member = current.members.find(value => value.playerId === calibration.source.member.playerId);
+      if (!member) throw Error('Native post-input calibration member missing'); same(calibration.source.member, member);
+      const group = routes.get(member.playerId) ?? []; group.push(calibration.source.route); routes.set(member.playerId, group);
+    }
+    if (current.members.length !== 10 || routes.size !== 10) throw Error('Native post-input all-ten route coverage missing');
+    same([...routes.keys()].sort(), current.members.map(member => member.playerId).sort());
+    const batter = h.f.actor.binding.playerId, defender = 'defender_decision,defender_locomotion,defender_observation';
+    same(routes.get(batter)?.sort().join(','), 'batter_decision,batter_motor,batter_observation,batter_swing');
+    same([...routes].filter(([playerId]) => playerId !== batter).map(([, group]) => group.sort().join(',')).sort(),
+      [...Array.from({ length: 8 }, () => defender), defender + ',pitch_delivery'].sort());
+    const member = current.members.find(value => value.playerId === batter);
+    if (!member) throw Error('Native post-input original batter missing'); same(input.source.member, member);
+    same(input.source.calibrationReferences, (['batter_decision', 'batter_motor', 'batter_swing'] as const).map(route => {
+      const calibration = calibrations.find(value => value.source.route === route && value.source.member.playerId === batter);
+      if (!calibration) throw Error('Native post-input input calibration missing');
+      return { route, calibrationReference: reference('pa_lifecycle_v1_execution_calibrations', calibration) };
+    }));
+    const world = readEmotionWorldRevisionFromSqlite(h.f.db, h.f.actor.binding.careerId);
+    if (!world || world.head.worldRevision !== 1 || emotion.source.expectedWorld.worldRevision !== 0 || emotion.acceptance.afterWorldRevision !== 1)
+      throw Error('Native post-input current World revision differs');
+    same(input.source.expectedWorld, { careerId: h.f.actor.binding.careerId, worldRevision: world.head.worldRevision,
+      controlRevision: world.head.control.revision, controlHash: hash(world.head.control) });
+    same(input.source.expectedWorld, { ...emotion.source.expectedWorld, worldRevision: emotion.acceptance.afterWorldRevision });
+    assertInFlightBattingWriteCurrentFromSqlite(h.f.db, h.current().viewReference, null);
+    return { ...retained, input };
+  }));
+};
+
 /** Seven pins resume an unadmitted delivery. Eight pins authenticate either
  * the pending forecast at cut6 or that same forecast normally admitted at cut7. */
 export const continueNativeSpinNeutralV193PostDelivery = (h: NativeSpinNeutralPostObservationContextV193, label: string,
-  pins: NativeSpinNeutralDeliveredPins, options: SwingOptions = {}) => {
+  pins: NativeSpinNeutralDeliveredPins | NativeSpinNeutralInputPins, options: SwingOptions = {}) => {
+  if ('inputReference' in pins) {
+    const retained = readNativeSpinNeutralInputPrefix(h, label, pins, options);
+    options.onStage?.('native-post-input-entry-authenticated');
+    const completed = completeInFlightBattingInput(h, label, retained, options);
+    return { ...retained, ...completed, postureReference: pins.postureReference, intentReference: pins.intentReference,
+      launchReference: pins.launchReference, observationReference: pins.observationReference, deliveryReference: pins.deliveryReference };
+  }
   const entry = readNativeSpinNeutralDeliveredPrefix(h, label, pins);
   options.onStage?.(entry.kind === 'delivery' ? 'native-post-delivery-entry-authenticated' : 'native-post-forecast-entry-authenticated');
   const { accepted } = h, track = h.f.x.f.track;
