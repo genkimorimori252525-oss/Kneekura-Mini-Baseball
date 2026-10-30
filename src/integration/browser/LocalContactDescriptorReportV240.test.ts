@@ -1,5 +1,5 @@
 import { describe,it,expect } from 'vitest';
-import { createLocalContactDescriptorReportV240, appendAcceptedContactV240, readLocalSavedContactDescriptorReportV240, withLocalContactDescriptorRuleV240 } from './LocalContactDescriptorReportV240';
+import { createLocalContactDescriptorReportV240, appendAcceptedContactV240, readLocalSavedContactDescriptorReportV240, withLocalContactDescriptorRuleV240, projectLocalLineDriveAngleReferenceV249 } from './LocalContactDescriptorReportV240';
 import type { LiveIssuedPitchV1 } from './LiveBaseballMatchV1';
 const pitch=(velocity={x:1,y:1,z:0})=>({batterPlayerId:'p',play:{contact:{},contactMoment:{ball:{tick:7}},outgoingBallMoment:{ball:{velocity}}}} as unknown as LiveIssuedPitchV1);
 const binding={sessionId:'s',configId:'c',buildId:'b',playerId:'p'};
@@ -47,4 +47,13 @@ it('rejects malformed and missing saved rule instead of silently treating it as 
  }
  expect(readLocalSavedContactDescriptorReportV240({...base,rule:null}).rule).toBe(null);
  expect(readLocalSavedContactDescriptorReportV240({...base,rule:{reference:'explicit',lowerAngleDeg:0,upperAngleDeg:45,minimumFraction:.5}}).rule?.reference).toBe('explicit');
+});
+
+it('projects unrounded line-drive reference boundaries without mutating or assessing the report',()=>{
+ const original=appendAcceptedContactV240(createLocalContactDescriptorReportV240(binding,null),{pitch:pitch(),pitchOrdinal:1,playId:'a'}).report;
+ const angles=[9.999,10,24.999,25,25.001],report={...original,contacts:angles.map((launchAngleDeg,i)=>({...original.contacts[0],pitchOrdinal:i+1,launchAngleDeg}))},before=structuredClone(report);
+ expect(projectLocalLineDriveAngleReferenceV249(report)).toEqual({reference:'MLB_LA_GENERAL_GUIDELINE',referenceUrl:'https://www.mlb.com/glossary/statcast/launch-angle',totalContacts:5,bandCount:3,boundary25Count:1,outsideCount:2,fraction:3/5,contacts:angles.map((launchAngleDeg,i)=>({playerId:'p',pitchOrdinal:i+1,launchAngleDeg,label:i===3?'BOUNDARY_25':i===1||i===2?'LINE_DRIVE_BAND':'OUTSIDE'}))});
+ expect(report).toEqual(before);expect(report.summary).toEqual({status:'UNASSESSED',count:0,fraction:null,matched:null});expect(report.physicsEffects).toBe('NONE');
+ const empty=projectLocalLineDriveAngleReferenceV249(createLocalContactDescriptorReportV240(binding,null));expect(empty).toMatchObject({totalContacts:0,bandCount:0,boundary25Count:0,outsideCount:0,fraction:null,contacts:[]});
+ const saved=readLocalSavedContactDescriptorReportV240(original);expect(projectLocalLineDriveAngleReferenceV249(saved)).toEqual(projectLocalLineDriveAngleReferenceV249(original));
 });

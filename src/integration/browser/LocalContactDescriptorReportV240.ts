@@ -50,3 +50,11 @@ export function withLocalContactDescriptorRuleV240(report:LocalContactDescriptor
  const validated=createLocalContactDescriptorReportV240(report.binding,rule).rule;
  return {...report,rule:validated,summary:summarize(report.contacts,validated)};
 }
+
+/** Descriptive angle reference for all recorded contacts; not an MLB BBE or trait classification. */
+export function projectLocalLineDriveAngleReferenceV249(report:LocalContactDescriptorReportV240) {
+ const contacts=report.contacts.map(({playerId,pitchOrdinal,launchAngleDeg})=>({playerId,pitchOrdinal,launchAngleDeg,
+  label:launchAngleDeg===25?'BOUNDARY_25' as const:launchAngleDeg>=10&&launchAngleDeg<25?'LINE_DRIVE_BAND' as const:'OUTSIDE' as const}));
+ const totalContacts=contacts.length,boundary25Count=contacts.filter(c=>c.label==='BOUNDARY_25').length,bandCount=contacts.filter(c=>c.label!=='OUTSIDE').length;
+ return {reference:'MLB_LA_GENERAL_GUIDELINE' as const,referenceUrl:'https://www.mlb.com/glossary/statcast/launch-angle' as const,totalContacts,bandCount,boundary25Count,outsideCount:totalContacts-bandCount,fraction:totalContacts?bandCount/totalContacts:null,contacts};
+}

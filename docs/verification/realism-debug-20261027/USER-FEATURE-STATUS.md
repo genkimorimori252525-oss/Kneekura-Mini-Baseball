@@ -8,7 +8,7 @@
 | 打者心理・配球履歴・独立seed・ニッチロー | 一部できている | 連続カウント／投球連番、preview非消費、JSON再開、独立13 domain RNGに加え、同投手のregion経験平均を次球準備へ実消費し、配達済み最大3標本を保存する検証版を受入。`BATTER-OBSERVED-REGION-EXPERIENCE-V222.md`（r2部分成功＋r3残り受入/継続pins）。familyはUNKNOWN。`CONTINUOUS-PRACTICE-V150.md` / `OBSERVED-BATTING-V151.md` / `INDEPENDENT-RANDOMNESS-V152.md`。旧方向受入の初球はTAKEで実方向未証明。追加固定HOOKでは初球normal接触も観測したが、一般的偏り解消は未証明。V241の意思UIとV242の同本人反復は新候補でMain/実Worker・保存再開を受入。SWING制御を通常心理の改善証拠にはしない。 | コース経験の接続を作り直さず、新観測根拠からのfamily認識モデル／校正と初球以降の一般的受入を閉じる。名札や真pitchTypeから認識を捏造しない。 |
 | キレ○・キレ◎・驚異の切れ味の物理3段階 | 未完成（選択・保存UIは局所利用可） | 3選択／即保存／自動試投／通常復帰／JSON再読は受入済み。元球種を変える低spin / gyro置換recipeの普遍採用は撤回。`AUTO-KIRE-RELEASE-V177.md:64` / `KIRE-BASE-PRESERVING-V180.md`。 | 同期したmaterial姿勢・角速度・相対風速と横力／PV時系列という不足Sourceを解消する。既に不成立とした同じgridやUIを再実装しない。取得できない部分は未解決のまま他機能を完成へ進める。 |
 | スライス・フック・バックスピン・トップスピン | 一部できている | BACKSPIN真正Nativeの局所採用あり。TOP選択と無指定が同運動になる不足に対し、元のtarget/anchorと配達済み観測をつなぐ新試行を実装。Native実接触1件でTOP 626.25 rad/s、既存空力Core25msへ接続 `30a0abef`。元DB・既存行・終了pins保持。`SPIN-OBSERVED-AIM-TRIAL-V226.md`。 | 保存済み結果を再生成せず、同本人の2episode/Main実Worker/全replayを受入済み。HOOKは両fair接触でも成分が負で0/2未成立のため、世界XYと接触面の対応を新たに調べ、回転制御を閉じる。4技術、3/4種保有、自然Gold、全弾道・公式終端も未完。 |
-| 打球記録・ラインドライブ分類・表示 | 一部できている | 正常接触収集→明示modelの事後分類→report→Maker。新CLIの集合情報付きJSONを正常snapshotで生成し、Chromeで新旧読込・scope/hash拒否・状態不変・390px表示を受入。modelなしは未評価、`physicsEffects:NONE`。`CONTACT-COLLECTION-IDENTITY-MAKER-V229.md`。 | V240で受理したTOP/HOOK各1contactの参考分類・保存再分類を実Browser確認済み（下記結果）。新episodeのglobalordinal通知を接続し、現在career時計・production基準・全producer・自然cohortの未完を閉じる。 |
+| 打球記録・ラインドライブ分類・表示 | 一部できている | 保存された実接触を、手書きJSONなしでMLBの角度参考帯に集計・表示。実ブラウザ・通常Workerの本人打球1件は帯外0/1、保存復元と新セッション分離を確認。参考帯は能力認定でも物理制御でもない。[LINE-DRIVE-REFERENCE-V249.md](LINE-DRIVE-REFERENCE-V249.md)。 | 帯内の実打球、通常試合を含む全producer、記録のcareer統合と本人の求める傾向分類を検証する。 |
 | 同Coreの高速再現・診断 | 一部できている | 同Chromeで通常／描画OFF／実Worker等の12球局所一致。batch CLI準備は完了、実複数seed・pool1/2/4・9回・性能受入は未完。`FAST-DEBUG-RESULTS.md` / `FAST-DEBUG-BATCH-PREPARATION.md`。Native current22 getterのCPU測定は診断であり試合性能ではない。 | SQL比較はOLD11.89秒→NEW24.15秒で改善証拠なし、不採用・元Source全bytes復旧で閉じた。その後はMaker・通常試合の受入ケースへ戻り、固定した最新Coreで不足するbatch／9回／最終性能を検証する。 |
 | 完成版Maker・通常HTML・調整室の検証／配送 | 未完成 | 旧V133の3HTML配送と9回は旧版の証拠。最新の局所UI受入・部分Source公開は最終配送ではない。`docs/verification/swing-envelope-v133/DELIVERY-RESULTS.md`。 | 採用Source対応表を固定し、旧版を保護した新出力先へ3HTMLを同版生成。統合・旧入力・Worker・PC／390px・9回・性能・配送SHAと最新設計GitHub本文を照合する。 |
 
@@ -21,14 +21,14 @@
 ## 作業順・終了単位
 
 1. **SQL比較は終了。** OLD / NEW各1回は全値と検査維持PASS、改善証拠が無いため不採用・baseline全bytes復旧。SQL-METADATA-COMPARISON-V221.md。追加の内部高速化へ広げない。
-2. **現在: Makerでの同本人反復練習と意思指定。** Maker方向4選択・連続打席／region経験の受入済み統合は再演しない。normal planを保つ4固定motor/参考分類は局所受入済み。次は打席終了後も同本人clipで事前予定を完了できるepisodeと、方向とは別の振る意思を接続する。独立reviewで見つけたtail/候補鮮度/保存入力の不備を先に閉じる。Native資格とLiveの運動契約を混同せず、技術名だけ選ばれて実運動が同じになる不足を閉じる。
+2. **現在: 利用者向け機能を優先。** 受入済みのおまかせ・連続練習を再演せず、実打球の記録と参考表示を利用可能にし、残る通常試合の打者判断・4種類の回転の成立に戻る。
 3. **SPINの物理経路と記録表示を別々に閉じる。** 各単位を「使えるようになったこと／新たな検証／残ること」で記録し、4技術の物理制御と分類の完成を別判定にする。
 4. **キレの不足Source解消を独立して追う。** 同じ不成立条件への再相談・再計算をせず、新たなSourceまたはモデル変更があるときだけ次の判断を行う。他機能の完了をこの枝で停止しない。
 5. **最終3HTMLと配送を閉じる。** 最終Source固定後の統合・batch・9回・性能と配布実体を検証する。全受入と配送完了前にGoalを完了扱いしない。
 
 ## モデル分担
 
-- **Sol 6.1：主担当。** 現runtime metadataで `gpt-6.1-sol` を確認。全Goal、優先順位、証拠再利用、担当境界、利用者向け結果を統合する。
+- **Sol 6.1：全体統合を優先。** 現在の主実行runtimeはTerra 6.1で、Sol 6.1を独立レビューに使用。利用可能なモデルと分担を正確に記録し、Goal全体を管理する。
 - **Terra 6.1：実装担当。** 指定modelで起動済み。所有file・受入・変更禁止範囲を明示し、最小差分と関連検証を担当する。
 - **Astra：必要な独立判断だけ。** 新しい共有契約・物理モデル・適用権限などの判断点に限定し、決めたい一点・必要根拠・制約・候補を短く渡す。全会話／全ログや、条件が変わらない判断の再配送はしない。
 
@@ -77,3 +77,5 @@ SPINの追加根拠: [SPIN-ORIGINAL-MOTOR-EVIDENCE-V224.md](SPIN-ORIGINAL-MOTOR-
 接触面を使う回転試行: [CONTACT-FRAME-SPIN-V244.md](CONTACT-FRAME-SPIN-V244.md)。本人HOOKは実Browserで2回中1回が要求方向の実spin、もう1回は候補なしで通常打撃。全分母で基準未達、残る3技術と物理成立を引き続き検証する。
 
 実Browser固定2回の追加結果: バックスピン1/2、トップスピン1/2。接触・回転の実値と失敗を [CONTACT-FRAME-SPIN-V244.md](CONTACT-FRAME-SPIN-V244.md) に記録。スライスは同本人・同clipの固定2回で診断基準2/2。いずれも習得やGoal達成ではない。
+
+誤差幅を用いた固定9点の回転選択も実験したが、同じ8slotの変位・実接触・打球処理は前方式と完全一致し、追加探索が発生した。既定採用せず [ROBUST-SPIN-V248-RESULTS.md](ROBUST-SPIN-V248-RESULTS.md) に証拠を残す。

@@ -329,3 +329,6 @@ V180読取再照合ではQ/P/D/L同時成立候補0であり軌道差0ではな�
 [CAUSAL-FORECAST-PILOT-V245.md](../../verification/realism-debug-20261027/CAUSAL-FORECAST-PILOT-V245.md)。同Core・固定6投球の理想観測では、従来3点定加速度の位置誤差中央値34.815mmに対し最大7点三次QRは2.774mm。これは未校正の小標本であり、人間全般の精度を示さない。明示policy V246をHost/Liveへ接続し、旧V151/V222記憶・旧default/JSON/RNG/clockを保持。
 
 本人1clipの固定2回／Main実Worker検証はTOP 2/2、HOOK/BACK/SLICE各1/2。SLICEは従来予測で2/2だったため新予測を製品defaultに採用しない。全実record/NO_TARGET/旧失敗・旧結果を保持し、同じ物理sourceの差を分析する。予測モデルの改善を4技術の習得、Gold、キレ物理や完成3HTML配送の完了に置き換えない。
+
+
+2026-10-31: 手書きモデル不要の参考打出角帯を実接触1件・保存復元で部分検証。帯内の実打球、通常試合を含む記録統合、技能判定、回転物理は別途未完。[結果](../../verification/realism-debug-20261027/LINE-DRIVE-REFERENCE-V249.md)。V248誤差幅探索は固定8機会で改善を確認できず既定採用しない。元のGoal・受入・配送条件は変更しない。
