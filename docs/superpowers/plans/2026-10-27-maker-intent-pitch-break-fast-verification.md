@@ -303,3 +303,5 @@ V180読取再照合ではQ/P/D/L同時成立候補0であり軌道差0ではな�
 - Source/設定/seed/command/runtimeと正規データをhash固定。counterfactualは分析専用、実選手/実球へ逆流させない。traceは決定点と失敗前後を保存し、必要な全記録の検証能力は保持する。
 - CURRENTは新入口と直近の次手順だけを短く保ち、過去の履歴・原受入表はリンクで保持。重要milestoneはCCG checkpoint/実command receipt、Workflowは工程状態を記録。重複要約を増やさない。
 - この計画の作成段階はコード未変更。計画/Source参照整合を確認した記録を残す。計画の自己レビューで人間要求・適用scope・受入条件を対応させ、実装開始のための定型的な再承認は求めない。
+
+**2026-10-30 V234同分岐の守備開始:** 4986760742414057a1516f1e749e60f0 PASS149687ms、既存TOP実contact→正常fieldRoot→cut12/cal32。元DB非open/files/旧全rows-rowid-catalog-otherheads/caller/endpins不変、45append+physicalCAS1/World不変。初期stationaryは接触tickだけの明示制御であり継続AI守備を証明しない。次は正常firststep/新viewから観測・判断・移動→official/resetまたはsettlement/release→独立反復。V212の8.7秒静止、V219別branch移植、pitchコピー反復は行わない。結果 ../../verification/realism-debug-20261027/SPIN-SAME-BRANCH-FIELD-ROOT-V234.md。全Goal/3HTML配送は未完。

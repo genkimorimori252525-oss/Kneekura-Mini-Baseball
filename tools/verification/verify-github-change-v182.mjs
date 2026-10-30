@@ -97,6 +97,7 @@ assert(files.length>0&&files.every(path=>/^docs\/.*\.md$/.test(path)
   ||path==='src/host/world/SamePaObservedSpinAimTrialV226.ts'
   ||path==='src/core/world/psychology/batting/BattingQualifiedSpinAimExecutionV233.test.ts'
   ||/^tools\/verification\/(?:spin-aim-qualified-fallback-v233\.ts|check-spin-aim-qualified-fallback-v233\.mjs)$/.test(path)
+  ||/^tools\/verification\/(?:native-observed-spin-field-continuation-v234(?:\.test)?\.ts|check-native-observed-spin-field-continuation-v234\.mjs)$/.test(path)
   ||/^src\/host\/world\/SamePlateAppearanceSourcePoleFieldV1(?:\.test)?\.ts$/.test(path)
   ||path==='src/integration/browser/LivePoleScopeV148.test.ts'
   ||/^src\/host\/world\/SamePaObservationClockProjectionSourcesV212(?:\.test)?\.ts$/.test(path)

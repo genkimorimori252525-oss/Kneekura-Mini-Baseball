@@ -57,3 +57,5 @@ SPINの追加根拠: [SPIN-ORIGINAL-MOTOR-EVIDENCE-V224.md](SPIN-ORIGINAL-MOTOR-
 所属境界の追加受入: [SPIN-CAUSAL-WORLD-MEMBERSHIP-V232.md](SPIN-CAUSAL-WORLD-MEMBERSHIP-V232.md)。World所属の先行認証後に閉範囲内だけを正常再導出し、保存1trial・条件・不足評価が全値一致。新qualified consumer / 真正な資格成立は次の未完。
 
 資格付き経路の実装と不足fallback: [SPIN-QUALIFIED-CONSUMER-EXPERIMENTAL-V233.md](SPIN-QUALIFIED-CONSUMER-EXPERIMENTAL-V233.md)。真正1件では通常fallback・未来資格拒否・旧Core全計算一致を確認。実Producer、真qualified Native受理と保存順序の実Owner検証は未完成・採用保留。正規打球処理と解放を経て独立反復を得る必要がある。
+
+同分岐の守備開始接続: [SPIN-SAME-BRANCH-FIELD-ROOT-V234.md](SPIN-SAME-BRANCH-FIELD-ROOT-V234.md)。実TOP contactから正常field root/cut12へ進み、元データ・caller・終了pinsを保持。飛行・守備判断/移動・公式判定・解放・次独立trialは未完。
