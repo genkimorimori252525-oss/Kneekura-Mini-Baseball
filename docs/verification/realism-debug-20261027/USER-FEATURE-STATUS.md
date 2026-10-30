@@ -9,7 +9,7 @@
 | キレ○・キレ◎・驚異の切れ味の物理3段階 | 未完成（選択・保存UIは局所利用可） | 3選択／即保存／自動試投／通常復帰／JSON再読は受入済み。元球種を変える低spin / gyro置換recipeの普遍採用は撤回。`AUTO-KIRE-RELEASE-V177.md:64` / `KIRE-BASE-PRESERVING-V180.md`。 | 同期したmaterial姿勢・角速度・相対風速と横力／PV時系列という不足Sourceを解消する。既に不成立とした同じgridやUIを再実装しない。取得できない部分は未解決のまま他機能を完成へ進める。 |
 | スライス・フック・バックスピン・トップスピン | 一部できている | BACKSPIN真正Nativeの局所採用あり。TOP選択と無指定が同運動になる不足に対し、元のtarget/anchorと配達済み観測をつなぐ新試行を実装。Native実接触1件でTOP 626.25 rad/s、既存空力Core25msへ接続 `30a0abef`。元DB・既存行・終了pins保持。`SPIN-OBSERVED-AIM-TRIAL-V226.md`。 | 保存済み結果を再生成せず、同本人の2episode/Main実Worker/全replayを受入済み。HOOKは両fair接触でも成分が負で0/2未成立のため、世界XYと接触面の対応を新たに調べ、回転制御を閉じる。4技術、3/4種保有、自然Gold、全弾道・公式終端も未完。 |
 | 打球記録・ラインドライブ分類・表示 | 一部できている | メーカー練習と通常試合候補で受理打球を選手別に参考帯表示。通常試合は別ファイルに保存・再表示でき、現在の試合と分離する実GUIを検証。[保存の結果](NORMAL-CONTACT-ARCHIVE-V253.md)。 | 保存は自己申告であり、通常試合の正規再開・career統合・全producer・傾向判定と完成版配送は未完。回転物理や能力認定と混同しない。 |
-| 同Coreの高速再現・診断 | 一部できている | 現WIP・Chrome 156.0.8078.76で固定12球を５経路比較し、接触４・守備４を含め全記録一致。さらにseed 1〜4 × pool 1/2/4の12件は各12球・接触３・守備３を含み、通常HostとWorkerの記録・状態が一致。[FAST-DEBUG-BATCH-CURRENT-WIP.md](FAST-DEBUG-BATCH-CURRENT-WIP.md)。 | 最新採用Coreへ反映し全９回と性能を固定条件で評価、完成３HTMLに組み込む。 |
+| 同Coreの高速再現・診断 | 一部できている | r6・同Chromeの通常Host／実Workerで固定477球が正常終端まで完全一致。記録と比較を含む１試合の実測は約13分７秒。[全試合の結果](FULLGAME-R6-EXACT-AND-REALISM.md)。 | 性能の受入・他条件・完成HTMLへの統合を検証する。固定１試合の 33–50／92安打は現実性の重大な懸念として原因を調査する。 |
 | 完成版Maker・通常HTML・調整室の検証／配送 | 未完成 | 旧V133の3HTML配送と9回は旧版の証拠。最新の局所UI受入・部分Source公開は最終配送ではない。`docs/verification/swing-envelope-v133/DELIVERY-RESULTS.md`。 | 採用Source対応表を固定し、旧版を保護した新出力先へ3HTMLを同版生成。統合・旧入力・Worker・PC／390px・9回・性能・配送SHAと最新設計GitHub本文を照合する。 |
 
 ## 混同しない境界
