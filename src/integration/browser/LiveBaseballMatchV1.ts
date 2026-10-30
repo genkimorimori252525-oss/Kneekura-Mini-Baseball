@@ -69,6 +69,7 @@ export const LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1:LivePlayerPhysicalV1 = Object.fr
 });
 export type LiveTeamV1 = Readonly<{id:string;name:string;battingOrder:readonly string[];pitcherId:string;defense:Readonly<Record<LivePositionV1,string>>}>;
 export type LivePlayerV1 = Readonly<{playerId:string;name:string;heightMeters:number;bats:'R'|'L';throws?:'R'|'L';physical?:LivePlayerPhysicalV1;traitProfile?:LiveTraitProfileV1}>;
+export type LiveMatchAutoDirectionPolicyV250=Readonly<{version:'live_match_auto_direction_policy_v250';sourceId:string}>;
 export type LiveMatchInputV1 = Readonly<{seed:number;innings?:number;teams:readonly [LiveTeamV1,LiveTeamV1];players:readonly LivePlayerV1[];
   communicationScopeV122?:Readonly<{sessionId:string;matchId:string;managerId:string}>;
   workloadV122?:LiveMatchWorkloadConfigV122;
@@ -77,6 +78,7 @@ export type LiveMatchInputV1 = Readonly<{seed:number;innings?:number;teams:reado
   batterForecastPolicyV246?:ObservedPitchForecastPolicyV246;
   batterObservedRegionExperienceV222?:BatterObservedRegionExperiencePolicyV222;
   batterDirectionMotorV153?:ObservedDirectionMotorPolicyV153;
+  batterAutoDirectionPolicyV250?:LiveMatchAutoDirectionPolicyV250;
   /** MATCH roots; per-play overrides are derived with the global pitch ordinal. */
   randomnessV152?:LiveRandomnessV152;
   measuredClips:readonly LiveMeasuredClipV1[];park?:Readonly<{fenceRadiusMeters:number;fenceHeightMeters:number;groundMaterialV101?:BaseballGroundMaterial;
@@ -243,7 +245,7 @@ export type LiveMatchContinuationV116=Readonly<{version:'live_match_continuation
  batterKnowledgeV122?:Readonly<{initialBinding:string;beliefs:readonly BatterBeliefV122[]}>;
  batterObservedMemoryV151?:Readonly<{policyBinding:string;memories:readonly BatterObservedMemoryV151[]}>;
  batterObservedRegionExperienceV222?:Readonly<{policyBinding:string;entries:readonly BatterObservedRegionEvidenceV222[]}>;
- randomnessBindingV152?:string;directionMotorBindingV153?:string;batterForecastBindingV246?:string}>;
+ randomnessBindingV152?:string;directionMotorBindingV153?:string;batterForecastBindingV246?:string;batterAutoDirectionBindingV250?:string}>;
 export function createLiveBaseballMatchV1(raw:LiveMatchInputV1){
  const host=createLiveBaseballMatchWorkerV116(raw);
  return Object.freeze({issuePitch:host.issuePitch,inspect:host.inspect});
@@ -260,6 +262,9 @@ export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:L
   const directionMotorPolicyV153=input.batterDirectionMotorV153===undefined?undefined:validateObservedDirectionMotorV153(input.batterDirectionMotorV153),
     directionMotorBindingV153=directionMotorPolicyV153===undefined?undefined:JSON.stringify(directionMotorPolicyV153);
   assert(directionMotorPolicyV153===undefined||observationPolicyV151!==undefined,'direction motor requires position-only observation policy');
+  const autoDirectionPolicyV250=input.batterAutoDirectionPolicyV250;
+  if(autoDirectionPolicyV250!==undefined)assert(autoDirectionPolicyV250&&typeof autoDirectionPolicyV250==='object'&&!Array.isArray(autoDirectionPolicyV250)&&Object.keys(autoDirectionPolicyV250).sort().join('|')==='sourceId|version'&&autoDirectionPolicyV250.version==='live_match_auto_direction_policy_v250'&&typeof autoDirectionPolicyV250.sourceId==='string'&&autoDirectionPolicyV250.sourceId.length>0&&autoDirectionPolicyV250.sourceId.length<=200&&autoDirectionPolicyV250.sourceId.trim()===autoDirectionPolicyV250.sourceId&&observationPolicyV151!==undefined&&directionMotorPolicyV153!==undefined,'invalid match auto direction policy');
+  const autoDirectionBindingV250=autoDirectionPolicyV250===undefined?undefined:JSON.stringify({version:autoDirectionPolicyV250.version,sourceId:autoDirectionPolicyV250.sourceId});
   const randomnessPolicyV152=input.randomnessV152===undefined?undefined:validateLiveRandomnessV152(input.randomnessV152,'MATCH'),
     randomnessBindingV152=randomnessPolicyV152===undefined?undefined:JSON.stringify(randomnessPolicyV152);
   assert(randomnessPolicyV152===undefined||input.seed>=0&&input.seed<=0xffffffff,'randomness match seed must be uint32');
@@ -308,6 +313,7 @@ export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:L
     assert(c?.poleScopeBindingV148===poleScopeBindingV148,'same-game pole geometry, material or physical profile differs');
     assert(c?.randomnessBindingV152===randomnessBindingV152,'same-game randomness policy differs');
     assert(c?.directionMotorBindingV153===directionMotorBindingV153,'same-game direction motor policy differs');
+    assert(c?.batterAutoDirectionBindingV250===autoDirectionBindingV250,'same-game auto direction policy differs');
     assert(c?.batterForecastBindingV246===forecastBindingV246,'same-game forecast policy differs');
     assert(c?.version==='live_match_continuation_v116'&&c.seed===input.seed&&c.innings===innings
       &&integer(c.pitchCount)&&integer(c.nextTick)&&c.nextTick>=tps&&typeof c.finished==='boolean'
@@ -373,6 +379,7 @@ export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:L
     ...(poleScopeBindingV148===undefined?{}:{poleScopeBindingV148}),
     ...(randomnessBindingV152===undefined?{}:{randomnessBindingV152}),
     ...(directionMotorBindingV153===undefined?{}:{directionMotorBindingV153}),
+    ...(autoDirectionBindingV250===undefined?{}:{batterAutoDirectionBindingV250:autoDirectionBindingV250}),
     ...(forecastBindingV246===undefined?{}:{batterForecastBindingV246:forecastBindingV246}),
     battingOrderIndices:[...battingOrderIndices],line:cloneInert(line),...(workloadOwnerV122?{workloadV122:workloadOwnerV122.capture()}: {}),
     ...(input.batterKnowledgeV122===undefined?{}:{batterKnowledgeV122:captureKnowledgeV122()}),
@@ -440,7 +447,7 @@ export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:L
     const pitch=simulateLivePitchV1({originTick:nextTick,seed:(input.seed+Math.imul(pitchCount+1,0x9e3779b9))>>>0,
       ...(playRandomnessV152===undefined?{}:{randomnessV152:playRandomnessV152}),
       ...(managedOffense&&command.swingInstructionV121!==undefined?{swingInstructionV121:command.swingInstructionV121}:{}),
-      ...(managedOffense&&command.battingDirectionRequestV149!==undefined?{battingDirectionRequestV149:command.battingDirectionRequestV149}:{}),
+      ...(managedOffense&&command.battingDirectionRequestV149!==undefined?{battingDirectionRequestV149:command.battingDirectionRequestV149}:autoDirectionPolicyV250?{battingDirectionRequestV149:{version:'batting_direction_request_v149' as const,sourceId:autoDirectionPolicyV250.sourceId,mode:'AUTO' as const}}:{}),
       ...(command.observedSpinTrialV236===undefined?{}:{observedSpinTrialV236:command.observedSpinTrialV236}),
       ...(command.spinMotorPracticePolicyV239===undefined?{}:{spinMotorPracticePolicyV239:command.spinMotorPracticePolicyV239}),
       ...(command.practiceSwingDecisionV241===undefined?{}:{practiceSwingDecisionV241:command.practiceSwingDecisionV241}),
