@@ -32,3 +32,9 @@ TOPのnormalとtrialの生exitSpinベクトル差は約11.44 rad/s。一方、�
 選択された1候補の予測contact tick／normal／ball center／衝撃量／予測exit velocity・spin等をV244診断へ追加。plannerに存在しないslipベクトルや入射速度は捏造せず、25候補に原framesを重複保存しない。予測は配達済み情報由来、actual未来や実結果を同球の選択へ戻さない。保存済本人HOOKの新diagnostic＋Owner全再生3ce1e649 PASS、NO_TARGET通常物理と旧V238回帰も維持。4技術の上記Browser結果はdiagnostic追加前のLivePitch af98dd63であり、新SourceのBrowser結果へ付け替えない。
 
 GitHubに載せるのは本単位の明示対象だけ。V244のBrowser検証時の作業bench bundle Source依存211件のうち、73件は当時のHEAD 3596e62で未追跡（新Sourceを含む）であり、部分公開を完全な再現環境や最終配送とは扱わない。無関係な作業ファイルを一括stageしない。
+
+## 保存済みTOP一投の詳細診断
+
+同Chrome156.0.8078.76・同Coreで保存済みTOP第1球のnormal/trialを各1回再計算した3d8579a6 PASS19.030s。normal record全文、trial recordのselectedPrediction追加以外、両continuationは完全一致。予測接触tick 1512281.0225におけるforecast位置と実球位置は約42.2mm、実接触tick 1511330では約41.9mm異なった。予測と実接触では法線・接線相対速度も異なり、入力spin0仮定、時刻、位置・姿勢差の単一原因は未確定。選択への未来実球入力はない。旧4技術結果に新たな独立試行を加算しない。計測19.030秒はこの一球の二つの診断armと準備等の時間であり、試合全体の性能値ではない。
+
+新しい3検証scriptで端末固有の入力パス文字列を環境変数 `MAKER_PLAYER_JSON_PATH` へ変更。未指定時は出力先を作る前に停止する。最新Sourceから固有パス文字列を外したが、過去コミット4637913には当時の文字列が残る。Git履歴の強制書換えは行っていない。入力JSON本文・実case・生成HTMLは公開していない。

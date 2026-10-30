@@ -8,11 +8,12 @@ import {pathToFileURL} from 'node:url';
 import {verifyPinnedLiveCore} from '../verification/live-debug-core.mjs';
 import {stringifyDebugRecord,parseDebugRecord} from '../verification/live-debug-record.mjs';
 const {chromium}=createRequire(import.meta.url)(process.env.BASEBALL_PLAYWRIGHT_CORE_PATH??resolve(homedir(),'.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright-core'));
+const userPath=process.env.MAKER_PLAYER_JSON_PATH;assert(typeof userPath==='string'&&userPath.length>0,'MAKER_PLAYER_JSON_PATH is required');
 const root=process.cwd(),out=resolve(process.argv[2]??''),candidate=resolve(process.argv[3]??''),rel=relative(root,out);
 assert(process.argv.length===5&&rel&&!rel.startsWith('..')&&!isAbsolute(rel),'new output and candidate required');await mkdir(out,{recursive:false});
 const sha=b=>createHash('sha256').update(b).digest('hex'),pins={},artifacts={};
 async function save(name,value){const b=Buffer.from(stringifyDebugRecord(value)+'\n');await writeFile(resolve(out,name),b,{flag:'wx'});artifacts[name]={bytes:b.length,sha256:sha(b)}}
-const userPath='C:/Users/genki/Downloads/にーくら選手とバット (2).json',manifestPath=resolve(candidate,'manifest.json'),htmlPath=resolve(candidate,'maker.html');
+const manifestPath=resolve(candidate,'manifest.json'),htmlPath=resolve(candidate,'maker.html');
 const technique=process.argv[4],cohorts={BACKSPIN:[20261030,20261031],TOPSPIN:[20261031,20261032],SLICE:[20261101,20261102],HOOK:[20261102,20261103]};assert(Object.hasOwn(cohorts,technique),'declared technique required');
 const report={pass:false,operationPass:false,boundary:'V244_PREDICTED_CONTACT_FRAME_LOCAL_PRACTICE',earnedQualification:false,nativeQualification:false,gold:false,seeds:cohorts[technique],technique,policy:'FIXED_25_UNCALIBRATED_V243',fixedStepsLimitPerEpisode:12,episodes:[],errors:[],requests:[],scopeExclusions:['normal human psychology','human calibration','Native qualification','career entitlement']};let browser;
 try{
