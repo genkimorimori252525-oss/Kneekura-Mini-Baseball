@@ -1,0 +1,30 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/fielding/LiveFieldHandlerSelectionV1.test.ts (7 tests | 1 failed) 7ms
+   × accounts for a harder chase approach only inside the same physical catch window 5ms
+     → expected 'going-back' to be 'coming-in' // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldHandlerSelectionV1.test.ts > accounts for a harder chase approach only inside the same physical catch window
+AssertionError: expected 'going-back' to be 'coming-in' // Object.is equality
+
+Expected: "coming-in"
+Received: "going-back"
+
+ ❯ src/core/sim/fielding/LiveFieldHandlerSelectionV1.test.ts:22:61
+     20| it('accounts for a harder chase approach only inside the same physical…
+     21|   const candidates = [{ ...candidate('going-back', 5.5, 4.2, 28), appr…
+     22|   expect(selectLiveFieldHandlerV1({ candidates }).playerId).toBe('comi…
+       |                                                             ^
+     23|   expect(selectLiveFieldHandlerV1({ candidates: [{ ...candidates[0], i…
+     24|   expect(() => selectLiveFieldHandlerV1({ candidates: [{ ...candidates…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  14:18:40
+   Duration  534ms (transform 49ms, setup 0ms, collect 46ms, tests 7ms, environment 0ms, prepare 141ms)
+

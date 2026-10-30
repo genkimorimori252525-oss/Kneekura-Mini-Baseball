@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-BROWSER-MATERIAL-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-native.mjs"
+  ],
+  "observed_at": "2026-10-15T16:34:30.670+00:00",
+  "elapsed_ms": 235,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-BROWSER-MATERIAL-BUILD_1ba28b38980d4abcb49055d49d1dc746.log",
+  "output_sha256": "b155df186e92988b2f709c53ea3b154fa6828f952c7b60e964d1f1c4fdab87e3",
+  "receipt_id": "MB-20261016-BROWSER-MATERIAL-BUILD_1ba28b38980d4abcb49055d49d1dc746"
+}

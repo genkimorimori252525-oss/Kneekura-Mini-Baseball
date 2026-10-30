@@ -1,0 +1,308 @@
+{
+  "pass": true,
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v80_球種の方向別メニュー版.html",
+  "sha256": "8f2a0c7a9b16c232ff9b3716b77dbb6b9845825f7490763a56c476c9b61b8879",
+  "scope": "v79 maker course/direction authoring, season practice/close/JSON, shared trial and 1200/390 browser UI. No full-match calibration claim.",
+  "physicalGameSource": {
+    "path": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\docs\\verification\\releases\\v79\\game-final\\finished-local-game.json",
+    "sha256": "3b22882cd96e37724bca815178f10cfc84262eab8da23e69b48b75204f8c602a"
+  },
+  "views": [
+    {
+      "width": 1200,
+      "layout": {
+        "width": 1200,
+        "scrollWidth": 1200,
+        "panelWidth": 1160
+      },
+      "optIn": true,
+      "idsFixed": true,
+      "cycleAndKeyboard": true,
+      "numericAndDirection": true,
+      "publicBasisUnchanged": true,
+      "dirtySaveGuard": true,
+      "dirtyImport": {
+        "error": "未保存の入力があります：コース・方向の数値。反映・記録、または「未保存入力を戻す」を実行してください。",
+        "unchanged": true,
+        "value": "2"
+      },
+      "dirtyRosterImport": {
+        "error": "未保存の入力があります：コース・方向の数値。反映・記録、または「未保存入力を戻す」を実行してください。",
+        "unchanged": true,
+        "value": "2",
+        "pending": 1
+      },
+      "otherTabDirty": {
+        "pendingPreserved": 1,
+        "coursePendingPreserved": 1,
+        "inputPreserved": true,
+        "unchangedRoster": true
+      },
+      "apiValidation": {
+        "errors": [
+          "batter course v79: invalid profile version or effect scale",
+          "batter course v79: five normalized direction weights required",
+          "batter course v79: 63 finite reference averages required"
+        ],
+        "reads": 0,
+        "unchanged": true
+      },
+      "modeAndTabs": true,
+      "emptyActualStatistics": true,
+      "actualStatistics": {
+        "tested": true,
+        "seasonId": "actual-1200",
+        "playerId": "0-b1",
+        "gameId": "game-380dd6ba-1718-4f88-b2ea-4b3ec11adf57",
+        "pitches": 320,
+        "totals": {
+          "ab": 6,
+          "h": 5,
+          "hr": 1,
+          "pending": 1,
+          "plateAppearances": 7,
+          "average": null,
+          "knownAverage": 0.8333333333333334,
+          "color": "gray",
+          "complete": false
+        },
+        "spray": {
+          "counts": [
+            1,
+            1,
+            5,
+            0,
+            0
+          ],
+          "ratios": [
+            0.14285714285714285,
+            0.14285714285714285,
+            0.7142857142857143,
+            0,
+            0
+          ],
+          "homeRuns": [
+            0,
+            0,
+            1,
+            0,
+            0
+          ],
+          "total": 7,
+          "fouls": 0
+        },
+        "duplicateError": "live season v79: finished unique game required",
+        "atomicDuplicate": true,
+        "unchangedRoster": true,
+        "visibleCells": [
+          "高め・左1.0001打数 1安打0HR · 未確定0少数打数",
+          "高め・中央.0001打数 0安打0HR · 未確定0少数打数",
+          "高め・右—0打数 0安打0HR · 未確定0",
+          "真ん中・左—0打数 0安打0HR · 未確定0",
+          "真ん中・中央—0打数 0安打0HR · 未確定1記録確認中",
+          "真ん中・右1.0001打数 1安打0HR · 未確定0少数打数",
+          "低め・左—0打数 0安打0HR · 未確定0",
+          "低め・中央1.0001打数 1安打0HR · 未確定0少数打数",
+          "低め・右1.0002打数 2安打1HR · 未確定0少数打数",
+          "ボールゾーン—0打数 0安打0HR · 未確定0",
+          "63マスの範囲外—0打数 0安打0HR · 未確定0",
+          "位置の記録なし—0打数 0安打0HR · 未確定0"
+        ],
+        "exactRenderedStatistics": true
+      },
+      "practiceSeparated": true,
+      "localAndJsonRoundTrip": true,
+      "wholeJson": {
+        "restored": true,
+        "error": "live season v79: invalid/duplicate season",
+        "atomic": true,
+        "legacyEmpty": true
+      },
+      "closeOnce": true,
+      "sharedTrial": {
+        "attempts": 3,
+        "pitchSourceUnchanged": true
+      }
+    },
+    {
+      "width": 390,
+      "layout": {
+        "width": 390,
+        "scrollWidth": 390,
+        "panelWidth": 366
+      },
+      "optIn": true,
+      "idsFixed": true,
+      "cycleAndKeyboard": true,
+      "numericAndDirection": true,
+      "publicBasisUnchanged": true,
+      "dirtySaveGuard": true,
+      "dirtyImport": {
+        "error": "未保存の入力があります：コース・方向の数値。反映・記録、または「未保存入力を戻す」を実行してください。",
+        "unchanged": true,
+        "value": "2"
+      },
+      "dirtyRosterImport": {
+        "error": "未保存の入力があります：コース・方向の数値。反映・記録、または「未保存入力を戻す」を実行してください。",
+        "unchanged": true,
+        "value": "2",
+        "pending": 1
+      },
+      "otherTabDirty": {
+        "pendingPreserved": 1,
+        "coursePendingPreserved": 1,
+        "inputPreserved": true,
+        "unchangedRoster": true
+      },
+      "apiValidation": {
+        "errors": [
+          "batter course v79: invalid profile version or effect scale",
+          "batter course v79: five normalized direction weights required",
+          "batter course v79: 63 finite reference averages required"
+        ],
+        "reads": 0,
+        "unchanged": true
+      },
+      "modeAndTabs": true,
+      "emptyActualStatistics": true,
+      "actualStatistics": {
+        "tested": true,
+        "seasonId": "actual-390",
+        "playerId": "0-b1",
+        "gameId": "game-380dd6ba-1718-4f88-b2ea-4b3ec11adf57",
+        "pitches": 320,
+        "totals": {
+          "ab": 6,
+          "h": 5,
+          "hr": 1,
+          "pending": 1,
+          "plateAppearances": 7,
+          "average": null,
+          "knownAverage": 0.8333333333333334,
+          "color": "gray",
+          "complete": false
+        },
+        "spray": {
+          "counts": [
+            1,
+            1,
+            5,
+            0,
+            0
+          ],
+          "ratios": [
+            0.14285714285714285,
+            0.14285714285714285,
+            0.7142857142857143,
+            0,
+            0
+          ],
+          "homeRuns": [
+            0,
+            0,
+            1,
+            0,
+            0
+          ],
+          "total": 7,
+          "fouls": 0
+        },
+        "duplicateError": "live season v79: finished unique game required",
+        "atomicDuplicate": true,
+        "unchangedRoster": true,
+        "visibleCells": [
+          "高め・左1.0001打数 1安打0HR · 未確定0少数打数",
+          "高め・中央.0001打数 0安打0HR · 未確定0少数打数",
+          "高め・右—0打数 0安打0HR · 未確定0",
+          "真ん中・左—0打数 0安打0HR · 未確定0",
+          "真ん中・中央—0打数 0安打0HR · 未確定1記録確認中",
+          "真ん中・右1.0001打数 1安打0HR · 未確定0少数打数",
+          "低め・左—0打数 0安打0HR · 未確定0",
+          "低め・中央1.0001打数 1安打0HR · 未確定0少数打数",
+          "低め・右1.0002打数 2安打1HR · 未確定0少数打数",
+          "ボールゾーン—0打数 0安打0HR · 未確定0",
+          "63マスの範囲外—0打数 0安打0HR · 未確定0",
+          "位置の記録なし—0打数 0安打0HR · 未確定0"
+        ],
+        "exactRenderedStatistics": true
+      },
+      "practiceSeparated": true,
+      "localAndJsonRoundTrip": true,
+      "wholeJson": {
+        "restored": true,
+        "error": "live season v79: invalid/duplicate season",
+        "atomic": true,
+        "legacyEmpty": true
+      },
+      "closeOnce": true,
+      "sharedTrial": {
+        "attempts": 3,
+        "pitchSourceUnchanged": true
+      }
+    }
+  ],
+  "progress": [
+    {
+      "width": 1200,
+      "stage": "course-edit-and-dirty-guards",
+      "pass": true
+    },
+    {
+      "width": 1200,
+      "stage": "api-modes-and-other-tab-dirty",
+      "pass": true
+    },
+    {
+      "width": 1200,
+      "stage": "season-practice-and-json-roundtrips",
+      "pass": true
+    },
+    {
+      "width": 1200,
+      "stage": "close-once-and-shared-physical-trial",
+      "pass": true
+    },
+    {
+      "width": 1200,
+      "stage": "actual-game-statistics-and-file-roundtrip",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "stage": "course-edit-and-dirty-guards",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "stage": "api-modes-and-other-tab-dirty",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "stage": "season-practice-and-json-roundtrips",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "stage": "close-once-and-shared-physical-trial",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "stage": "actual-game-statistics-and-file-roundtrip",
+      "pass": true
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "errors": [],
+      "external": []
+    }
+  ]
+}

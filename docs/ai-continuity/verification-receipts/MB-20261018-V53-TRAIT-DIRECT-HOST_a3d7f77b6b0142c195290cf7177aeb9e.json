@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V53-TRAIT-DIRECT-HOST",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveTraitHostV53.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T10:22:06.189+00:00",
+  "elapsed_ms": 3796,
+  "git_head": "ea9ca61b0971da3cc3b3ce1cfb344d4496e2ecc9",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V53-TRAIT-DIRECT-HOST_a3d7f77b6b0142c195290cf7177aeb9e.log",
+  "output_sha256": "dba4a7e57ecf13dc36be136a79df8c1cc572fcbb2682552a8669924dda2e5db1",
+  "receipt_id": "MB-20261018-V53-TRAIT-DIRECT-HOST_a3d7f77b6b0142c195290cf7177aeb9e"
+}

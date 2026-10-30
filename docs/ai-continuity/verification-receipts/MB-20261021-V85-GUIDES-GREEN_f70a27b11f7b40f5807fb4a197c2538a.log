@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ tools/browser-bridge/maker-guides-v85.test.mjs (2 tests) 3ms
+ ✓ tools/browser-bridge/pitcher-comparison-v85.test.mjs (2 tests) 29ms
+
+ Test Files  2 passed (2)
+      Tests  4 passed (4)
+   Start at  01:03:30
+   Duration  700ms (transform 50ms, setup 0ms, collect 65ms, tests 31ms, environment 0ms, prepare 403ms)
+

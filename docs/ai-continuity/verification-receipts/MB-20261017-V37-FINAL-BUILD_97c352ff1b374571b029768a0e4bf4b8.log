@@ -1,0 +1,22 @@
+{
+  "output": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv37_TBD_vs_LAD_アニメーション復元版.html",
+  "sha256": "f7281baac644411d95f1ceff175a74a50e0d611f8a58acb5698d59a0191d6870",
+  "presentationVersion": 37,
+  "baselineSha256": "c613574b377afd19060d89100c1bd7c1fa693efd42361c77ed7ab21943670f1f",
+  "nativeBundleSha256": "58fd175690dc2fc75791bc0d782c4f04069a7970dcc24c76f5ad6766b84fe2e7",
+  "runtimeSha256": "13ee8ccaf770764938ed84869d6dcdbd8855cfdfb4f795f8f6c751ea31342599",
+  "chartHelperSha256": "c0fbdcf9c95b54b6855234f0c39a819c2219658bc163f9df0bc2774e71e7060a",
+  "fieldCameraHelperSha256": "42d261dbc3611c5fffd59889b864fde3febfe634a7a92e01d2f0ee8dbb696976",
+  "actorAnimationHelperSha256": "dd26234d2d6f8a4b26b69c897a54fb73f12b99e3bb86d778b8d76a681691304a",
+  "bundleInputManifestSha256": "24d0864f66ac7642d24346fbe06c4656ef6bb5cbb5e7aeb519f69218ca25ffa1",
+  "bundleInputCount": 97,
+  "approvedPngMasksSha256": "51005451401727fb84c31be9ae63712c8a815bdd0a7edbde7606af36a69a0944",
+  "approvedFontSha256": "6bd1592ef0d1a47ecd13bf7ef81ac361a12c29239f31d43bec1c3f54f6023aeb",
+  "primaryCanvas": "shared Core observations; adopted actor animation from presentation/Source clock; mound illustrated bat only",
+  "nativeSqliteAdmission": false,
+  "legacyResultFallback": false,
+  "ordinaryCadenceMs": 55,
+  "displayGridPixels": 4,
+  "measuredReferenceSha256": "72b615a28cd99b4a91c6e52cb02ee35f4ff97850c3bfe71ca73d0e609ba480ef",
+  "measuredReferenceAuthority": "OPENBIOMECHANICS_MEASURED_BAT_AXIS_RESEARCH"
+}

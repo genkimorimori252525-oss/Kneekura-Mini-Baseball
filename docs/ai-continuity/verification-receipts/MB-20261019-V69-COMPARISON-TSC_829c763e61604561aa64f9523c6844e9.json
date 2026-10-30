@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V69-COMPARISON-TSC",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-19T11:48:01.424+00:00",
+  "elapsed_ms": 27532,
+  "git_head": "936cd23907b8e078e179aa03e041420a3339932b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V69-COMPARISON-TSC_829c763e61604561aa64f9523c6844e9.log",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "receipt_id": "MB-20261019-V69-COMPARISON-TSC_829c763e61604561aa64f9523c6844e9"
+}

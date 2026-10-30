@@ -1,0 +1,219 @@
+{
+  "pass": true,
+  "phase": "complete",
+  "cases": [
+    {
+      "pitch": 0,
+      "side": "L",
+      "curve": false,
+      "timingErrorSeconds": 0.0041974179520495175,
+      "legacyExact": true,
+      "restoredExact": true,
+      "maximumCoupledDeltaRadians": 0.04250887461305986,
+      "maximumStepRadians": 0.004378330173554631,
+      "impactMotionRadians": 0.016310348928845614,
+      "zeroImpactMotionRadians": 0.00017041946268920528
+    },
+    {
+      "pitch": 1,
+      "side": "R",
+      "curve": false,
+      "timingErrorSeconds": -0.008718902143785533,
+      "legacyExact": true,
+      "restoredExact": true,
+      "maximumCoupledDeltaRadians": 0.014774550565863258,
+      "maximumStepRadians": 0.0049561869682144205,
+      "impactMotionRadians": 0.017255667649590436,
+      "zeroImpactMotionRadians": 0.003681646374111569
+    },
+    {
+      "pitch": 3,
+      "side": "L",
+      "curve": true,
+      "timingErrorSeconds": -0.001757280319244022,
+      "legacyExact": true,
+      "restoredExact": true,
+      "maximumCoupledDeltaRadians": 0.04247770059423573,
+      "maximumStepRadians": 0.004865984606493434,
+      "impactMotionRadians": 0.017804713837732827,
+      "zeroImpactMotionRadians": 0.0003831035684593957
+    },
+    {
+      "pitch": 4,
+      "side": "R",
+      "curve": true,
+      "timingErrorSeconds": -0.002593922006835077,
+      "legacyExact": true,
+      "restoredExact": true,
+      "maximumCoupledDeltaRadians": 0.04546136524614388,
+      "maximumStepRadians": 0.004225157397398526,
+      "impactMotionRadians": 0.01675828215410632,
+      "zeroImpactMotionRadians": 0.0004923520260043169
+    },
+    {
+      "pitch": 5,
+      "side": "R",
+      "curve": true,
+      "timingErrorSeconds": -0.021400465120107296,
+      "legacyExact": true,
+      "restoredExact": true,
+      "maximumCoupledDeltaRadians": 0.04041336870735314,
+      "maximumStepRadians": 0.00494975855940296,
+      "impactMotionRadians": 0.017932754132001655,
+      "zeroImpactMotionRadians": 0.0006176886906778489
+    },
+    {
+      "pitch": 12,
+      "side": "R",
+      "curve": true,
+      "timingErrorSeconds": -0.001970639045903929,
+      "legacyExact": true,
+      "restoredExact": true,
+      "maximumCoupledDeltaRadians": 0.029016765007830413,
+      "maximumStepRadians": 0.004845628276359519,
+      "impactMotionRadians": 0.015248110710674397,
+      "zeroImpactMotionRadians": 0.0013285500639319031
+    },
+    {
+      "pitch": 13,
+      "side": "R",
+      "curve": true,
+      "timingErrorSeconds": -0.020224412648540902,
+      "legacyExact": true,
+      "restoredExact": true,
+      "maximumCoupledDeltaRadians": 0.034100016678248,
+      "maximumStepRadians": 0.004702690663080645,
+      "impactMotionRadians": 0.018915574805290686,
+      "zeroImpactMotionRadians": 0.0019691279261544333
+    },
+    {
+      "pitch": 14,
+      "side": "L",
+      "curve": true,
+      "timingErrorSeconds": 0.00006306410658668157,
+      "legacyExact": true,
+      "restoredExact": true,
+      "maximumCoupledDeltaRadians": 0.04320879523707077,
+      "maximumStepRadians": 0.004494014949441102,
+      "impactMotionRadians": 0.01881549919798246,
+      "zeroImpactMotionRadians": 0.0009959658946388156
+    }
+  ],
+  "sourceRecords": 18,
+  "sourceSha256": "74f72107c74955d90d131d01df633586657833cda91eae5ad3e05069afc975e1",
+  "curveCoverage": {
+    "early": 5,
+    "late": 1
+  },
+  "takeAndBuntUnchanged": true,
+  "newDefaultTakes": [
+    {
+      "playerId": "0-b2",
+      "grade": 1,
+      "caughtTick": 14715128,
+      "checkedAfterCatchMs": [
+        250,
+        700
+      ],
+      "mappingAtDecisionPlusMs": 300,
+      "gain": 0.13,
+      "deadbandRadians": 0.04
+    },
+    {
+      "playerId": "0-b2",
+      "grade": 45,
+      "caughtTick": 14715128,
+      "checkedAfterCatchMs": [
+        250,
+        700
+      ],
+      "mappingAtDecisionPlusMs": 300,
+      "gain": 0.26,
+      "deadbandRadians": 0.02
+    },
+    {
+      "playerId": "0-b2",
+      "grade": 100,
+      "caughtTick": 14715128,
+      "checkedAfterCatchMs": [
+        250,
+        700
+      ],
+      "mappingAtDecisionPlusMs": 300,
+      "gain": 0.7,
+      "deadbandRadians": 0
+    },
+    {
+      "playerId": "0-b5",
+      "grade": 1,
+      "caughtTick": 61837881,
+      "checkedAfterCatchMs": [
+        250,
+        700
+      ],
+      "mappingAtDecisionPlusMs": 300,
+      "gain": 0.13,
+      "deadbandRadians": 0.04
+    },
+    {
+      "playerId": "0-b5",
+      "grade": 45,
+      "caughtTick": 61837881,
+      "checkedAfterCatchMs": [
+        250,
+        700
+      ],
+      "mappingAtDecisionPlusMs": 300,
+      "gain": 0.26,
+      "deadbandRadians": 0.02
+    },
+    {
+      "playerId": "0-b5",
+      "grade": 100,
+      "caughtTick": 61837881,
+      "checkedAfterCatchMs": [
+        250,
+        700
+      ],
+      "mappingAtDecisionPlusMs": 300,
+      "gain": 0.7,
+      "deadbandRadians": 0
+    }
+  ],
+  "preDecisionNoFutureChoice": true,
+  "nonRotatingBatControl": {
+    "observedSamples": 197,
+    "yawSweep": 0,
+    "pitchSweep": 0,
+    "yawOffset": 0,
+    "pitchOffset": 0,
+    "wholePoseEqualityRequired": false
+  },
+  "nonDefaultSI": [
+    {
+      "zoneJudgmentStdMeters": 0.05,
+      "plateVision": 45,
+      "exactV59Pose": true
+    },
+    {
+      "zoneJudgmentStdMeters": 0.005,
+      "plateVision": 1,
+      "exactV59Pose": true
+    },
+    {
+      "zoneJudgmentStdMeters": 0.6,
+      "plateVision": 100,
+      "exactV59Pose": true
+    }
+  ],
+  "futurePayloadAndSeek": true,
+  "summary": {
+    "swingRecords": 8,
+    "curveCoverage": {
+      "early": 5,
+      "late": 1
+    },
+    "maximumCoupledDeltaDegrees": 2.604744359506763,
+    "maximumImpactMotionDegrees": 1.0837826034071503
+  }
+}

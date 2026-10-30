@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-RENDER-BROWSER-SURFACES",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-presentation-surfaces-v84.mjs",
+    "../../outputs/ばせぼーるlv84_TBD_vs_LAD_描画と接地移動版.html",
+    "../../outputs/カメラワーク調整室_v84_描画と接地移動.html",
+    "../../outputs/にーくら野球メーカー_v84_描画と接地移動版.html",
+    "docs/verification/releases/v84/presentation-surfaces"
+  ],
+  "observed_at": "2026-10-20T15:32:28.819+00:00",
+  "elapsed_ms": 69968,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-RENDER-BROWSER-SURFACES_5d5b79908305488f90552b9188db8074.log",
+  "output_sha256": "cf3e7e57fd5d560df201dad1d1d75b0d1c7aaad3bf0d5bc601f7a721342d8958",
+  "receipt_id": "MB-20261021-V84-RENDER-BROWSER-SURFACES_5d5b79908305488f90552b9188db8074"
+}

@@ -1,0 +1,8 @@
+file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/build-v68.mjs:27
+if(!oldCreate)throw Error('Frozen createGame marker missing');
+                    ^
+
+Error: Frozen createGame marker missing
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/build-v68.mjs:27:21
+
+Node.js v26.1.0

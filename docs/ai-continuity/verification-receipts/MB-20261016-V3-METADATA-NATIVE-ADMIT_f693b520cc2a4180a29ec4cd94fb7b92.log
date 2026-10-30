@@ -1,0 +1,17 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+Error: observation model clock differs from actual physical clock
+    at sampleExecutedFieldObservationWithCalibration (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-v3-metadata-entry.mjs:18415:70)
+    at deriveSamePaPhysicalFieldAction (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-v3-metadata-entry.mjs:46798:21)
+    at Object.derive10 [as derive] (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-v3-metadata-entry.mjs:47527:23)
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-v3-metadata-entry.mjs:47671:49
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-v3-metadata-entry.mjs:47565:10
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-v3-metadata-entry.mjs:55474:18
+    at immutable (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-v3-metadata-entry.mjs:57261:21)
+    at withSamePaContinuationReadPhase (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-v3-metadata-entry.mjs:57291:53)
+    at withSamePaLifecycleReadPhase (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-v3-metadata-entry.mjs:55468:50)
+    at assembly3 (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-v3-metadata-entry.mjs:47214:31)
+
+Node.js v26.1.0

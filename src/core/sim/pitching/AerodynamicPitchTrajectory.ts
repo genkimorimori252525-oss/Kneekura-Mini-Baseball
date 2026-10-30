@@ -1,5 +1,6 @@
 import type { Vec3 } from '../../model/geometry';
 import type { PitchWorldState } from '../contact/BatBallContact';
+import { validateBaseballMaterialOrientationV1, validateBaseballSeamForceV1 } from '../ball/BaseballSeamForceV1';
 import {
   calculateBaseballAerodynamics,
   type BaseballAerodynamicsParameters,
@@ -9,6 +10,7 @@ import {
 } from '../ball/BaseballSpinDecay';
 import {
   findFirstTrueTick,
+  quantizeEventTick,
 } from '../ExactEventTime';
 import {
   decomposePitchSpin,
@@ -26,6 +28,7 @@ export type AerodynamicPitchTrajectoryParameters = Readonly<{
   gravityY: number;
   aerodynamics: BaseballAerodynamicsParameters;
 }>;
+export type MaterialAerodynamicPitchStateV1 = PitchWorldState & Readonly<{ materialOrientation?: Quaternion }>;
 
 export type AerodynamicPitchTrajectory = Readonly<{
   start: PitchWorldState;
@@ -49,6 +52,18 @@ export type AerodynamicPitchPlateCrossing = Readonly<{
 }>;
 
 const EPSILON = 1e-12;
+
+/** A source-rooted physical lattice, refined only by an explicitly enabled seam
+ * model. Quarter-radian cells prevent high-spin seam phase aliasing. Recompute
+ * only at a real new free basis/impulse; observations keep the original basis. */
+export function resolveAerodynamicIntegrationStepTicksV1(spin: Vec3, parameters: AerodynamicPitchTrajectoryParameters): number {
+  if (!(parameters.aerodynamics.seamForce?.coefficientScale)) return parameters.integrationStepTicks;
+  const rate = Math.hypot(spin.x, spin.y, spin.z);
+  if (!Number.isFinite(rate) || rate > .25 * parameters.ticksPerSecond)
+    throw new Error('baseball seam force: material rotation exceeds source clock phase resolution');
+  return rate <= EPSILON ? parameters.integrationStepTicks
+    : Math.min(parameters.integrationStepTicks, Math.max(1, Math.floor(.25 * parameters.ticksPerSecond / rate)));
+}
 
 const add = (a: Vec3, b: Vec3): Vec3 => ({
   x: a.x + b.x,
@@ -92,6 +107,7 @@ const lerpVec3 = (
 const validateParameters = (
   parameters: AerodynamicPitchTrajectoryParameters,
 ): void => {
+  if (parameters.aerodynamics.seamForce !== undefined) validateBaseballSeamForceV1(parameters.aerodynamics.seamForce);
   if (
     !Number.isSafeInteger(parameters.ticksPerSecond)
     || parameters.ticksPerSecond <= 0
@@ -141,11 +157,13 @@ const accelerationAt = (
   velocity: Vec3,
   spin: Vec3,
   parameters: AerodynamicPitchTrajectoryParameters,
+  materialOrientation?: Quaternion,
 ): Vec3 => {
   const aerodynamic = calculateBaseballAerodynamics(
     velocity,
     spin,
     parameters.aerodynamics,
+    materialOrientation,
   );
 
   return {
@@ -183,10 +201,10 @@ const spinDerivativeAt = (
 };
 
 const advanceAerodynamicPitchStep = (
-  state: PitchWorldState,
+  state: MaterialAerodynamicPitchStateV1,
   stepTicks: number,
   parameters: AerodynamicPitchTrajectoryParameters,
-): PitchWorldState => {
+): MaterialAerodynamicPitchStateV1 => {
   const dt = stepTicks / parameters.ticksPerSecond;
 
   const k1Position = state.velocity;
@@ -194,6 +212,7 @@ const advanceAerodynamicPitchStep = (
     state.velocity,
     state.spin,
     parameters,
+    state.materialOrientation,
   );
   const k1Spin = spinDerivativeAt(
     state.velocity,
@@ -210,10 +229,12 @@ const advanceAerodynamicPitchStep = (
     scale(k1Spin, dt / 2),
   );
   const k2Position = k2VelocityInput;
+  const q2 = state.materialOrientation === undefined ? undefined : advanceBaseballOrientation(state.materialOrientation, state.spin, dt / 2);
   const k2Velocity = accelerationAt(
     k2VelocityInput,
     k2SpinInput,
     parameters,
+    q2,
   );
   const k2Spin = spinDerivativeAt(
     k2VelocityInput,
@@ -230,10 +251,12 @@ const advanceAerodynamicPitchStep = (
     scale(k2Spin, dt / 2),
   );
   const k3Position = k3VelocityInput;
+  const q3 = state.materialOrientation === undefined ? undefined : advanceBaseballOrientation(state.materialOrientation, k2SpinInput, dt / 2);
   const k3Velocity = accelerationAt(
     k3VelocityInput,
     k3SpinInput,
     parameters,
+    q3,
   );
   const k3Spin = spinDerivativeAt(
     k3VelocityInput,
@@ -250,10 +273,12 @@ const advanceAerodynamicPitchStep = (
     scale(k3Spin, dt),
   );
   const k4Position = k4VelocityInput;
+  const q4 = state.materialOrientation === undefined ? undefined : advanceBaseballOrientation(state.materialOrientation, k3SpinInput, dt);
   const k4Velocity = accelerationAt(
     k4VelocityInput,
     k4SpinInput,
     parameters,
+    q4,
   );
   const k4Spin = spinDerivativeAt(
     k4VelocityInput,
@@ -301,6 +326,8 @@ const advanceAerodynamicPitchStep = (
         dt / 6,
       ),
     ),
+    ...(state.materialOrientation === undefined ? {} : { materialOrientation: advanceBaseballOrientation(state.materialOrientation,
+      scale(weightedSum(state.spin, k2SpinInput, k3SpinInput, k4SpinInput), 1 / 6), dt) }),
   };
 };
 
@@ -308,7 +335,8 @@ export const advanceAerodynamicPitchState = (
   state: PitchWorldState,
   deltaTicks: number,
   parameters: AerodynamicPitchTrajectoryParameters,
-): PitchWorldState => {
+  materialOrientationAtStart?: Quaternion,
+): MaterialAerodynamicPitchStateV1 => {
   validateParameters(parameters);
   if (!Number.isSafeInteger(deltaTicks) || deltaTicks < 0) {
     throw new Error(
@@ -316,12 +344,15 @@ export const advanceAerodynamicPitchState = (
     );
   }
 
-  let current = state;
+  let current: MaterialAerodynamicPitchStateV1 = materialOrientationAtStart === undefined ? state
+    : { ...state, materialOrientation: validateBaseballMaterialOrientationV1(materialOrientationAtStart) };
+  if (parameters.aerodynamics.seamForce?.coefficientScale) validateBaseballMaterialOrientationV1(current.materialOrientation);
+  const integrationStepTicks = resolveAerodynamicIntegrationStepTicksV1(state.spin, parameters);
   let remaining = deltaTicks;
 
   while (remaining > 0) {
     const stepTicks = Math.min(
-      parameters.integrationStepTicks,
+      integrationStepTicks,
       remaining,
     );
     current = advanceAerodynamicPitchStep(
@@ -333,6 +364,36 @@ export const advanceAerodynamicPitchState = (
   }
 
   return current;
+};
+
+/** Additive continuous evaluation of the original RK4 kernel. The returned
+ * clock is quantized; position, velocity and spin retain the requested physical
+ * elapsed time. The integer-tick API and its arithmetic remain unchanged. */
+export const sampleAerodynamicPitchStateAtElapsedSeconds = (
+  state: PitchWorldState,
+  elapsedSeconds: number,
+  parameters: AerodynamicPitchTrajectoryParameters,
+  materialOrientationAtStart?: Quaternion,
+): MaterialAerodynamicPitchStateV1 => {
+  validateParameters(parameters);
+  if (!state || !Number.isSafeInteger(state.tick) || state.tick < 0
+    || ![state.position, state.velocity, state.spin].every(v => v && [v.x, v.y, v.z].every(Number.isFinite))) {
+    throw new Error('continuous aerodynamic evaluation requires an original finite source ball');
+  }
+  const throughTick = quantizeEventTick(state.tick, elapsedSeconds, parameters.ticksPerSecond);
+  const rawTicks = elapsedSeconds * parameters.ticksPerSecond, nearest = Math.round(rawTicks);
+  // An explicit clock quotient must share the old integer RK4 partition exactly.
+  let remaining = elapsedSeconds === nearest / parameters.ticksPerSecond ? nearest : rawTicks;
+  let current: MaterialAerodynamicPitchStateV1 = materialOrientationAtStart === undefined ? state
+    : { ...state, materialOrientation: validateBaseballMaterialOrientationV1(materialOrientationAtStart) };
+  if (parameters.aerodynamics.seamForce?.coefficientScale) validateBaseballMaterialOrientationV1(current.materialOrientation);
+  const integrationStepTicks = resolveAerodynamicIntegrationStepTicksV1(state.spin, parameters);
+  while (remaining > 0) {
+    const stepTicks = Math.min(integrationStepTicks, remaining);
+    current = advanceAerodynamicPitchStep(current, stepTicks, parameters);
+    remaining -= stepTicks;
+  }
+  return { ...current, tick: throughTick };
 };
 
 export const sampleAerodynamicPitchTrajectory = (
@@ -354,6 +415,7 @@ export const sampleAerodynamicPitchTrajectory = (
     trajectory.start,
     tick - trajectory.start.tick,
     trajectory.parameters,
+    trajectory.parameters.aerodynamics.seamForce?.coefficientScale ? trajectory.releaseOrientation : undefined,
   );
 };
 
@@ -371,6 +433,10 @@ export const sampleAerodynamicPitchOrientation = (
     throw new Error(
       'pitch orientation elapsedSeconds must be finite and non-negative',
     );
+  }
+
+  if (trajectory.parameters.aerodynamics.seamForce?.coefficientScale) {
+    return sampleAerodynamicPitchStateAtElapsedSeconds(trajectory.start, elapsedSeconds, trajectory.parameters, trajectory.releaseOrientation).materialOrientation;
   }
 
   return advanceBaseballOrientation(

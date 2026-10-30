@@ -1,0 +1,32 @@
+{"pass":false,"artifactSha256":"c34cb0234c20df08eb9a219cf4cb2c6624d34e8ccee3fafebbe11cd23c8aad4c","cases":14,"failed":[{"width":1200,"name":"checkbox-mode-tab-save","error":"AssertionError [ERR_ASSERTION]: unsaved checkbox survives mode and tab refresh"},{"width":1200,"name":"auto-input-before-change","error":"AssertionError [ERR_ASSERTION]: uncommitted numeric input survives refresh"},{"width":1200,"name":"base-public-invalid","error":"AssertionError [ERR_ASSERTION]: base failure preserves pitch name"},{"width":1200,"name":"base-internal-invalid","error":"locator.inputValue: Timeout 10000ms exceeded."},{"width":1200,"name":"base-player-selection","error":"AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:"},{"width":1200,"name":"multiple-auto-errors-corrected","error":"AssertionError [ERR_ASSERTION]: first corrected field commits despite other error: 1.6598 vs 1.95"},{"width":1200,"name":"pitch-and-public-groups","error":"AssertionError [ERR_ASSERTION]: pitch rpm saved: 2391.293354120181 vs 2300"},{"width":390,"name":"checkbox-mode-tab-save","error":"AssertionError [ERR_ASSERTION]: unsaved checkbox survives mode and tab refresh"},{"width":390,"name":"auto-input-before-change","error":"AssertionError [ERR_ASSERTION]: uncommitted numeric input survives refresh"},{"width":390,"name":"base-public-invalid","error":"AssertionError [ERR_ASSERTION]: base failure preserves pitch name"},{"width":390,"name":"base-internal-invalid","error":"locator.inputValue: Timeout 10000ms exceeded."},{"width":390,"name":"base-player-selection","error":"AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:"},{"width":390,"name":"multiple-auto-errors-corrected","error":"AssertionError [ERR_ASSERTION]: first corrected field commits despite other error: 1.6598 vs 1.95"},{"width":390,"name":"pitch-and-public-groups","error":"AssertionError [ERR_ASSERTION]: pitch rpm saved: 2391.293354120181 vs 2300"}],"output":"C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\docs\\verification\\releases\\v86\\drafts-browser-red"}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: 1200/checkbox-mode-tab-save: AssertionError [ERR_ASSERTION]: unsaved checkbox survives mode and tab refresh
+1200/auto-input-before-change: AssertionError [ERR_ASSERTION]: uncommitted numeric input survives refresh
+1200/base-public-invalid: AssertionError [ERR_ASSERTION]: base failure preserves pitch name
+1200/base-internal-invalid: locator.inputValue: Timeout 10000ms exceeded.
+1200/base-player-selection: AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+1200/multiple-auto-errors-corrected: AssertionError [ERR_ASSERTION]: first corrected field commits despite other error: 1.6598 vs 1.95
+1200/pitch-and-public-groups: AssertionError [ERR_ASSERTION]: pitch rpm saved: 2391.293354120181 vs 2300
+390/checkbox-mode-tab-save: AssertionError [ERR_ASSERTION]: unsaved checkbox survives mode and tab refresh
+390/auto-input-before-change: AssertionError [ERR_ASSERTION]: uncommitted numeric input survives refresh
+390/base-public-invalid: AssertionError [ERR_ASSERTION]: base failure preserves pitch name
+390/base-internal-invalid: locator.inputValue: Timeout 10000ms exceeded.
+390/base-player-selection: AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+390/multiple-auto-errors-corrected: AssertionError [ERR_ASSERTION]: first corrected field commits despite other error: 1.6598 vs 1.95
+390/pitch-and-public-groups: AssertionError [ERR_ASSERTION]: pitch rpm saved: 2391.293354120181 vs 2300
+
+14 !== 0
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-maker-drafts-v86.mjs:102:58 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 14,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

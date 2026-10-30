@@ -1,0 +1,20 @@
+{
+  "task": "MB-20261021-V86-SWING-FINAL2",
+  "artifact": "../../outputs/にーくら野球メーカー_v86_入力確定とエラー復帰版.html",
+  "artifactSha256": "93d5342fe1b00748dbf6650865442de737c6ba76cd1adfb9a7bb64b2379da4f2",
+  "sourceSha256": "581192531ddd09f5267a5cb3ab4510d93f7f6bd751fb5ce4c82de6caaa245276",
+  "testSha256": "12a10cd7af1ff5b8812aff5a9ab0afff27364b3b6299bd3a7ada937cdc9fc753",
+  "receipt": "docs/ai-continuity/verification-receipts/MB-20261021-V86-SWING-FINAL2_5b2e0ad268ba43768e55e1fbdc83a621.json",
+  "results": "docs/verification/releases/v86/swing-final2/results.json",
+  "passed": 2,
+  "failed": 0,
+  "mode": "Final V86 HTML loaded unchanged; included swing source matched exactly, no source replacement",
+  "cases": [
+    "unfinished angle restored to saved value clears message without rewriting roster",
+    "external refresh and another accepted equipment edit retain raw angle draft",
+    "multiple unfinished fields permit correction and individual cancel",
+    "legacy before-ms field retains draft across refresh and clears on same-value restoration",
+    "player selection synchronizes current settings and preserves previous-player draft",
+    "new player receives only its requested angle edit without previous-player settings"
+  ]
+}

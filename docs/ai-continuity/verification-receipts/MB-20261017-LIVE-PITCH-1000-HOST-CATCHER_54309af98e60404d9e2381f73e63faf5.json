@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-PITCH-1000-HOST-CATCHER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../live-pitch-audit-v3/audit.mjs",
+    "docs/demos/measured-bat-motions.json",
+    "../../outputs/verification-live-pitch-1000-v3",
+    "1000",
+    "host"
+  ],
+  "observed_at": "2026-10-17T00:10:12.246+00:00",
+  "elapsed_ms": 75532,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-PITCH-1000-HOST-CATCHER_54309af98e60404d9e2381f73e63faf5.log",
+  "output_sha256": "50a1e6c6db3f030647f2fb3c93af1e7ab3563c366f1f90f266d4ce4e518070ef",
+  "receipt_id": "MB-20261017-LIVE-PITCH-1000-HOST-CATCHER_54309af98e60404d9e2381f73e63faf5"
+}

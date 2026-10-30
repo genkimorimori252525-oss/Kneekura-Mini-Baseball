@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V79-SEASON-SCORING-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveCourseScoringV79.test.ts"
+  ],
+  "observed_at": "2026-10-20T00:09:07.671+00:00",
+  "elapsed_ms": 1578,
+  "git_head": "98819b9ab5c8e4bdd7ddfc7d644d484df08ab55d",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V79-SEASON-SCORING-RED_c34b6196873b49779c767e71ea702e06.log",
+  "output_sha256": "2d35986c2ce098a502316b1500587f320d772fa375d0e2c45b882e620115b65a",
+  "receipt_id": "MB-20261020-V79-SEASON-SCORING-RED_c34b6196873b49779c767e71ea702e06"
+}

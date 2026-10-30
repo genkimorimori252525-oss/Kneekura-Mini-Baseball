@@ -1,0 +1,274 @@
+{
+  "pass": true,
+  "carryFixture": true,
+  "scope": "Read-only audit of ordinary HTML: possession, physical carry, controlled base contact and rule out. No product changes.",
+  "cases": [
+    {
+      "version": 73,
+      "htmlSha256": "38d1d09cca6471642a22d0d27d87bbfd5c71b7235c338ac572966d1aa8faa04d",
+      "coreSha256": "82aa947e35cff51a2705b98a0f205a203503a4a43ff967f26786f3d9813750cd",
+      "pitches": 1,
+      "controls": [
+        {
+          "pitch": 1,
+          "inning": 1,
+          "half": "top",
+          "contact": {
+            "kind": "controlled_base_contact",
+            "tick": 5369441,
+            "elapsedSeconds": 4.369440985095434,
+            "playerId": "1-b1",
+            "base": 1
+          },
+          "caught": {
+            "kind": "catch_secured",
+            "tick": 2564020,
+            "elapsedSeconds": 1.5640190992566605,
+            "playerId": "1-b1",
+            "position": {
+              "x": 12.051605725334824,
+              "y": 0.38013294370657713,
+              "z": 33.405520748480704
+            }
+          },
+          "releasesAfterCatch": [],
+          "outcome": {
+            "runnerId": "0-b0",
+            "tick": 5369441,
+            "classification": "batter_runner_before_first",
+            "cause": "base_control",
+            "defenderId": "1-b1"
+          },
+          "carryDecision": {
+            "elapsedSeconds": 1.9027990334185672,
+            "playerId": "1-b1",
+            "state": "carry_to_base",
+            "base": 1,
+            "margin": 23.24053442344713,
+            "carrySeconds": 2.367500364269807,
+            "receivingSeconds": null,
+            "receiverDistanceToBaseMeters": 15.24329537464703
+          },
+          "lastCarryDecision": {
+            "elapsedSeconds": 4.342799033418569,
+            "playerId": "1-b1",
+            "state": "carry_to_base",
+            "base": 1,
+            "margin": 23.14296805377383,
+            "carrySeconds": 0.02506673394310426,
+            "receivingSeconds": 1.761548624440337,
+            "receiverDistanceToBaseMeters": 0.3488449746453469
+          },
+          "totalThrows": 0
+        }
+      ],
+      "carries": [
+        {
+          "pitch": 1,
+          "inning": 1,
+          "half": "top",
+          "contact": {
+            "kind": "controlled_base_contact",
+            "tick": 5369441,
+            "elapsedSeconds": 4.369440985095434,
+            "playerId": "1-b1",
+            "base": 1
+          },
+          "caught": {
+            "kind": "catch_secured",
+            "tick": 2564020,
+            "elapsedSeconds": 1.5640190992566605,
+            "playerId": "1-b1",
+            "position": {
+              "x": 12.051605725334824,
+              "y": 0.38013294370657713,
+              "z": 33.405520748480704
+            }
+          },
+          "releasesAfterCatch": [],
+          "outcome": {
+            "runnerId": "0-b0",
+            "tick": 5369441,
+            "classification": "batter_runner_before_first",
+            "cause": "base_control",
+            "defenderId": "1-b1"
+          },
+          "carryDecision": {
+            "elapsedSeconds": 1.9027990334185672,
+            "playerId": "1-b1",
+            "state": "carry_to_base",
+            "base": 1,
+            "margin": 23.24053442344713,
+            "carrySeconds": 2.367500364269807,
+            "receivingSeconds": null,
+            "receiverDistanceToBaseMeters": 15.24329537464703
+          },
+          "lastCarryDecision": {
+            "elapsedSeconds": 4.342799033418569,
+            "playerId": "1-b1",
+            "state": "carry_to_base",
+            "base": 1,
+            "margin": 23.14296805377383,
+            "carrySeconds": 0.02506673394310426,
+            "receivingSeconds": 1.761548624440337,
+            "receiverDistanceToBaseMeters": 0.3488449746453469
+          },
+          "totalThrows": 0
+        }
+      ],
+      "host": {
+        "ruleProfileId": "npb-2026",
+        "inning": 1,
+        "half": "top",
+        "outs": 1,
+        "balls": 0,
+        "strikes": 0,
+        "bases": {
+          "first": null,
+          "second": null,
+          "third": null
+        },
+        "score": {
+          "away": 0,
+          "home": 0
+        },
+        "playId": 1
+      },
+      "errors": []
+    },
+    {
+      "version": 76,
+      "htmlSha256": "b21d25b7811fba44f8e5d09cbedb39099cc9454d9ebf0366c0ed9799fb66efcd",
+      "coreSha256": "eed87f92656f5f6e1ac2664e009960c95077288033d474f91ecc2195c3dbc1a5",
+      "pitches": 1,
+      "controls": [
+        {
+          "pitch": 1,
+          "inning": 1,
+          "half": "top",
+          "contact": {
+            "kind": "controlled_base_contact",
+            "tick": 5369441,
+            "elapsedSeconds": 4.369440985095434,
+            "playerId": "1-b1",
+            "base": 1
+          },
+          "caught": {
+            "kind": "catch_secured",
+            "tick": 2564020,
+            "elapsedSeconds": 1.5640190992566605,
+            "playerId": "1-b1",
+            "position": {
+              "x": 12.051605725334824,
+              "y": 0.38013294370657713,
+              "z": 33.405520748480704
+            }
+          },
+          "releasesAfterCatch": [],
+          "outcome": {
+            "runnerId": "0-b0",
+            "tick": 5369441,
+            "classification": "batter_runner_before_first",
+            "cause": "base_control",
+            "defenderId": "1-b1"
+          },
+          "carryDecision": {
+            "elapsedSeconds": 1.9027990334185672,
+            "playerId": "1-b1",
+            "state": "carry_to_base",
+            "base": 1,
+            "margin": 23.24053442344713,
+            "carrySeconds": 2.367500364269807,
+            "receivingSeconds": null,
+            "receiverDistanceToBaseMeters": 15.24329537464703
+          },
+          "lastCarryDecision": {
+            "elapsedSeconds": 4.342799033418569,
+            "playerId": "1-b1",
+            "state": "carry_to_base",
+            "base": 1,
+            "margin": 23.14296805377383,
+            "carrySeconds": 0.02506673394310426,
+            "receivingSeconds": 1.761548624440337,
+            "receiverDistanceToBaseMeters": 0.3488449746453469
+          },
+          "totalThrows": 0
+        }
+      ],
+      "carries": [
+        {
+          "pitch": 1,
+          "inning": 1,
+          "half": "top",
+          "contact": {
+            "kind": "controlled_base_contact",
+            "tick": 5369441,
+            "elapsedSeconds": 4.369440985095434,
+            "playerId": "1-b1",
+            "base": 1
+          },
+          "caught": {
+            "kind": "catch_secured",
+            "tick": 2564020,
+            "elapsedSeconds": 1.5640190992566605,
+            "playerId": "1-b1",
+            "position": {
+              "x": 12.051605725334824,
+              "y": 0.38013294370657713,
+              "z": 33.405520748480704
+            }
+          },
+          "releasesAfterCatch": [],
+          "outcome": {
+            "runnerId": "0-b0",
+            "tick": 5369441,
+            "classification": "batter_runner_before_first",
+            "cause": "base_control",
+            "defenderId": "1-b1"
+          },
+          "carryDecision": {
+            "elapsedSeconds": 1.9027990334185672,
+            "playerId": "1-b1",
+            "state": "carry_to_base",
+            "base": 1,
+            "margin": 23.24053442344713,
+            "carrySeconds": 2.367500364269807,
+            "receivingSeconds": null,
+            "receiverDistanceToBaseMeters": 15.24329537464703
+          },
+          "lastCarryDecision": {
+            "elapsedSeconds": 4.342799033418569,
+            "playerId": "1-b1",
+            "state": "carry_to_base",
+            "base": 1,
+            "margin": 23.14296805377383,
+            "carrySeconds": 0.02506673394310426,
+            "receivingSeconds": 1.761548624440337,
+            "receiverDistanceToBaseMeters": 0.3488449746453469
+          },
+          "totalThrows": 0
+        }
+      ],
+      "host": {
+        "ruleProfileId": "npb-2026",
+        "inning": 1,
+        "half": "top",
+        "outs": 1,
+        "balls": 0,
+        "strikes": 0,
+        "bases": {
+          "first": null,
+          "second": null,
+          "third": null
+        },
+        "score": {
+          "away": 0,
+          "home": 0
+        },
+        "playId": 1
+      },
+      "errors": []
+    }
+  ],
+  "ordinaryCarryObserved": true
+}

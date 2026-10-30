@@ -5,7 +5,7 @@ import { sampleBatRadius, sampleBatEffectiveMass } from '../../core/sim/contact/
 import { validateBaseballAerodynamicCoefficientProfile } from '../../core/sim/ball/BaseballAerodynamicCoefficientProfile';
 import { validateBaseballSpinDecayParameters } from '../../core/sim/ball/BaseballSpinDecay';
 import type { AerodynamicPitchTrajectory } from '../../core/sim/pitching/AerodynamicPitchTrajectory';
-import type { BattingSource } from '../../core/world/psychology/batting/BattingTypes';
+import type { BattingSource, BattingRepertoireValues } from '../../core/world/psychology/batting/BattingTypes';
 import { bodySourceId as id, bodySourceDay as day, bodySourceFields as fields, validBodySourceRef,
   type BodySourceRef, type BodyMaterializationReceipt } from './PlayerBodyCapabilityMaterialization';
 import type { DurablePlayerPersonLink } from './SqlitePlayerPersonLinkStore';
@@ -14,7 +14,7 @@ type Scope = Readonly<{ careerId: string; playerId: string; personId: string; pe
 type Parameter<T> = BodySourceRef & Scope & Readonly<{ acceptedAtDay: number; values: T }>;
 export type AcceptedBattingCapability = Parameter<Pick<BattingSource,
   'motorLatencyTicks' | 'technicalTimingOffsetTicks' | 'maximumSweetSpotSpeedMps'>>;
-export type AcceptedBattingRepertoire = Parameter<Pick<BattingSource, 'repertoireId' | 'repertoireVersion' | 'profiles'>>;
+export type AcceptedBattingRepertoire = Parameter<BattingRepertoireValues>;
 export type AcceptedBattingDecisionModel = Parameter<BattingSource['decisionModel']>;
 export type AcceptedBattingEquipment = Parameter<Pick<BattingSource, 'batPhysical' | 'ball'>>;
 export type AcceptedBattingObservationCalibration = Parameter<Readonly<{

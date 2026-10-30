@@ -1,0 +1,20 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: coreSha256
++ actual - expected
+
++ '1b2d39c095e79882e223965904a6d7e8fead1a96cb6aa471bcf2af3534edd5bd'
+- 'd2cb9749237ec57c62b44df68b713a7b733a5e5b38b48be05825f71ac3006f87'
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-pitch-menu-v81.mjs:10:279 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: '1b2d39c095e79882e223965904a6d7e8fead1a96cb6aa471bcf2af3534edd5bd',
+  expected: 'd2cb9749237ec57c62b44df68b713a7b733a5e5b38b48be05825f71ac3006f87',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

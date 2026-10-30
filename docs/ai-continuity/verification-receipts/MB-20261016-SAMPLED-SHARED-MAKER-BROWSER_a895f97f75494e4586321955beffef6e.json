@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SAMPLED-SHARED-MAKER-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-measured-maker.mjs",
+    "../../outputs/にーくら野球メーカー_実測スイング版.html",
+    "../../outputs/参考データ/openbiomechanics",
+    "../../outputs/measured-maker-shared-core-evidence-v1"
+  ],
+  "observed_at": "2026-10-15T21:46:22.229+00:00",
+  "elapsed_ms": 26672,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SAMPLED-SHARED-MAKER-BROWSER_a895f97f75494e4586321955beffef6e.log",
+  "output_sha256": "9af560fa0592b2c40f142bcd11165988f9f7e09f54d3c8dde8d21ffe2f1c3023",
+  "receipt_id": "MB-20261016-SAMPLED-SHARED-MAKER-BROWSER_a895f97f75494e4586321955beffef6e"
+}

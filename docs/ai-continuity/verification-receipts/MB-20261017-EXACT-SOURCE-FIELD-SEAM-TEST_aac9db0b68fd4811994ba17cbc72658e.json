@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-EXACT-SOURCE-FIELD-SEAM-TEST",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/SourceBallWorldMotionV1.test.ts",
+    "src/core/sim/ball/BattedWorldMotion.test.ts"
+  ],
+  "observed_at": "2026-10-16T21:07:26.317+00:00",
+  "elapsed_ms": 3969,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-EXACT-SOURCE-FIELD-SEAM-TEST_aac9db0b68fd4811994ba17cbc72658e.log",
+  "output_sha256": "6be42ea3d832610126f0d06fd2a1f34c5a327d62be844ba1b9f52518012a91a4",
+  "receipt_id": "MB-20261017-EXACT-SOURCE-FIELD-SEAM-TEST_aac9db0b68fd4811994ba17cbc72658e"
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V82-MAKER-RECOVERY-PUBLICATION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "tools/browser-bridge/check-maker-publication-v82.py"
+  ],
+  "observed_at": "2026-10-20T14:00:56.932+00:00",
+  "elapsed_ms": 7186,
+  "git_head": "5cac00061f0feb39d0ecb85cf090e7a3092076ac",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V82-MAKER-RECOVERY-PUBLICATION_c48e0a77a8904e6cb017edb2746b106e.log",
+  "output_sha256": "b1335bd7c1bdcbf3b78d2a9dec09437f46b5ab4d4e8fcc189a041789962edde9",
+  "receipt_id": "MB-20261020-V82-MAKER-RECOVERY-PUBLICATION_c48e0a77a8904e6cb017edb2746b106e"
+}

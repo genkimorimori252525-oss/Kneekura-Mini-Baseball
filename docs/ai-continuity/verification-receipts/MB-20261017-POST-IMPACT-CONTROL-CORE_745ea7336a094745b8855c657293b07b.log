@@ -1,0 +1,27 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/contact/PostImpactBatBodyControlV1.test.ts (4 tests | 1 failed) 134ms
+   × reaches a real finite rest through continuous recovery, without extending original leases 27ms
+     → expected -0.04429231648117593 to be close to -0.04429235104706478, received difference is 3.4565888852589044e-8, but expected 5e-11
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/contact/PostImpactBatBodyControlV1.test.ts > reaches a real finite rest through continuous recovery, without extending original leases
+AssertionError: expected -0.04429231648117593 to be close to -0.04429235104706478, received difference is 3.4565888852589044e-8, but expected 5e-11
+ ❯ near src/core/sim/contact/PostImpactBatBodyControlV1.test.ts:6:128
+      4| import { createPostImpactBatBodyControlV1 } from './PostImpactBatBodyC…
+      5| const fixture=()=>({version:'post_impact_bat_body_control_v1' as const…
+      6| const near=(a:{x:number;y:number;z:number},b:{x:number;y:number;z:numb…
+       |                                                                                                                                ^
+      7| it('begins at the exact original fractional impact pose with actual re…
+      8|   const p=fixture(),before=JSON.stringify(p),c=createPostImpactBatBody…
+ ❯ src/core/sim/contact/PostImpactBatBodyControlV1.test.ts:19:3
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  00:34:29
+   Duration  763ms (transform 274ms, setup 0ms, collect 409ms, tests 134ms, environment 0ms, prepare 70ms)
+

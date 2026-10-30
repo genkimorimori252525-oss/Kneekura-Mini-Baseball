@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-HELD-BASE-FIXTURE-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/audit-held-base-control.mjs",
+    "--carry-fixture"
+  ],
+  "observed_at": "2026-10-19T18:39:32.757+00:00",
+  "elapsed_ms": 10702,
+  "git_head": "f06e74e3df35fd2c3b30cd5f6c8ba8a9eadbb36b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-HELD-BASE-FIXTURE-BROWSER_9bd3df2115ee4cf68083bab7e1fa27a1.log",
+  "output_sha256": "a236a06cb3e1bb2a37decd14807dce396e39448bfbfef9700acad01434285da5",
+  "receipt_id": "MB-20261020-HELD-BASE-FIXTURE-BROWSER_9bd3df2115ee4cf68083bab7e1fa27a1"
+}

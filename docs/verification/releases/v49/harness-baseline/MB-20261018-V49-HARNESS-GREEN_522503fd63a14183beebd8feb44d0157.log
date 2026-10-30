@@ -1,0 +1,13 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts (14 tests | 8 skipped) 1859ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects a completed live play whose final observed runner is still advancing 390ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects a completed live play with a free ball at the final observation 321ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects duplicate base cover assignments without treating nearby different tasks as duplicate coverage 400ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed | 8 skipped (14)
+   Start at  17:05:26
+   Duration  2.67s (transform 263ms, setup 0ms, collect 369ms, tests 1.86s, environment 0ms, prepare 125ms)
+

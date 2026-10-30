@@ -1,0 +1,23 @@
+{"phase":"authored-roster","elapsedMs":9007}
+{"phase":"authored-roster","elapsedMs":10995}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ 'qa-original'
+- 'qa-fast'
+      ^
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v78-game.mjs:52:10 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'qa-original',
+  expected: 'qa-fast',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V49-TAG-PURSUIT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts",
+    "src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts",
+    "src/integration/browser/LiveBaseballPositionsV49.test.ts",
+    "src/integration/browser/PlayableRunnerCausalityV49.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T08:23:01.351+00:00",
+  "elapsed_ms": 15000,
+  "git_head": "d54aa62aec6ce643f216dbaedfbaba2f36b31e3b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V49-TAG-PURSUIT_048685b884c043d29708b4e91d743021.log",
+  "output_sha256": "99ee979efc625d34856f9702728e5054d413fe9d97cfdf2c3ba1bde17fca7178",
+  "receipt_id": "MB-20261018-V49-TAG-PURSUIT_048685b884c043d29708b4e91d743021"
+}

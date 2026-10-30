@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V53-SAME-TICK-TAGUP-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts",
+    "-t",
+    "same official tick",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T10:28:37.778+00:00",
+  "elapsed_ms": 2875,
+  "git_head": "ea9ca61b0971da3cc3b3ce1cfb344d4496e2ecc9",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V53-SAME-TICK-TAGUP-RED_35fcaba2ee9c4a0f80df9510f95b79bd.log",
+  "output_sha256": "fcd8f0bae45d6d2f6a83a0aec30f59b7f17674eba1536ec637648ca5aa254fde",
+  "receipt_id": "MB-20261018-V53-SAME-TICK-TAGUP-RED_35fcaba2ee9c4a0f80df9510f95b79bd"
+}

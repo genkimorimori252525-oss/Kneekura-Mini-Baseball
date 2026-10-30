@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-CADENCE-GREEN2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/browser-bridge/presentation-cadence-performance-v81.test.mjs"
+  ],
+  "observed_at": "2026-10-20T12:54:01.782+00:00",
+  "elapsed_ms": 1906,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-CADENCE-GREEN2_2bbe505ab655464989506ea50af5954b.log",
+  "output_sha256": "f9935410d0513807d61657fa5f45baf0ffe2cb0c7460277002b829e01ba5f8b6",
+  "receipt_id": "MB-20261020-V81-CADENCE-GREEN2_2bbe505ab655464989506ea50af5954b"
+}

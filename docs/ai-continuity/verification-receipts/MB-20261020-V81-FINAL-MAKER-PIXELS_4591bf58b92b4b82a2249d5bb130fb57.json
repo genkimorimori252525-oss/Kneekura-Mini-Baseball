@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-FINAL-MAKER-PIXELS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-pixels-performance-v81.mjs",
+    "../../outputs/にーくら野球メーカー_v81_無劣化性能改善版.html",
+    "docs/verification/releases/v81/maker-final",
+    "docs/verification/releases/v81/maker-baseline/report.json"
+  ],
+  "observed_at": "2026-10-20T12:58:23.492+00:00",
+  "elapsed_ms": 20953,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-FINAL-MAKER-PIXELS_4591bf58b92b4b82a2249d5bb130fb57.log",
+  "output_sha256": "e55d658dfcf44c92aefc4716ad87e2f3a69b360066d58bbe12909f7efbee5f43",
+  "receipt_id": "MB-20261020-V81-FINAL-MAKER-PIXELS_4591bf58b92b4b82a2249d5bb130fb57"
+}

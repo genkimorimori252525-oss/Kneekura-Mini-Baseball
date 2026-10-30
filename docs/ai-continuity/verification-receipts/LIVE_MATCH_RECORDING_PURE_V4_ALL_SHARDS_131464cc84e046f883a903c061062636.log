@@ -1,0 +1,19 @@
+{"kind":"local-core-saved-records-verified-v1","verifiedGames":1,"totalPitches":243,"replayedGames":0,"tamperChecks":4,"nativeAuthentication":false,"scope":"complete saved games, full hash chains, identities and Core rule replay for every game; full compact physical re-execution comparison for selected games"}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: no saved game records
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/verification-live-match-recordings-pure-v1/verify.mjs:5699:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:636:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

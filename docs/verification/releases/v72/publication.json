@@ -1,0 +1,60 @@
+{
+  "pass": true,
+  "sourceCommit": "81d8a388fae22bd59714d1424cc69ebae2d9f3f4",
+  "remoteHead": "81d8a388fae22bd59714d1424cc69ebae2d9f3f4",
+  "pullRequest": {
+    "headRefName": "jolly/tbd-lad-native-browser-core-2026-10-14",
+    "headRefOid": "81d8a388fae22bd59714d1424cc69ebae2d9f3f4",
+    "isDraft": true,
+    "state": "OPEN",
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380"
+  },
+  "rawFiles": [
+    {
+      "path": "docs/demos/releases/v72/maker.html",
+      "sha256": "3c24444ffa61b00f429ae0aaaf4fa26bc0f8ce35bfd7cc34e3b63d18db18b8ea",
+      "bytes": 35688209
+    },
+    {
+      "path": "docs/demos/releases/v72/SHA256.json",
+      "sha256": "38ee426853dec6d761dcea04c4514222dd4957a1992561578e94117484bc4058",
+      "bytes": 290
+    },
+    {
+      "path": "docs/demos/releases/v72/maker.html.build.json",
+      "sha256": "3214f576d9c153c3cc899b08845d0b2a5256f8b5a235f4b578e1fd4350bfe269",
+      "bytes": 3519
+    },
+    {
+      "path": "docs/demos/releases/v72/README.md",
+      "sha256": "b639940facdc2b30173455923f19ae8644eeb52c2734101c6a4081de36b178e0",
+      "bytes": 1520
+    },
+    {
+      "path": "docs/reports/2026-10-19-v72-player-swing-preview.md",
+      "sha256": "deeb76478187aa620be3dc7bbb6d733963f6b1932e956edf7b94f2b79fa2a717",
+      "bytes": 2855
+    },
+    {
+      "path": "docs/handoffs/LATEST.md",
+      "sha256": "69490f66a399eb705c7f6001d28817ea618d901ec83116ed2975088e11f02ff7",
+      "bytes": 25318
+    },
+    {
+      "path": "docs/demos/baseball-maker-ui.mjs",
+      "sha256": "c74af18b8f422cb1ba0812eb4c7e7e2e9300c02e5057bd3234094d4ddb677c64",
+      "bytes": 118598
+    },
+    {
+      "path": "docs/demos/baseball-maker-swing-v68.js",
+      "sha256": "ceb5d8f8ac79efcefb0c6a05dc0aaa61eaade7c62b95bb82c3cdae9fb210bc37",
+      "bytes": 27712
+    },
+    {
+      "path": "docs/verification/releases/v72/release-check.json",
+      "sha256": "1cd9a0e2cb8f5ac42669e0864c98de3d79bcc56ba2a4a5b6ff3d3e2cb37a5350",
+      "bytes": 482
+    }
+  ],
+  "mainMerged": false
+}

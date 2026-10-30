@@ -1,0 +1,17 @@
+{"phase":"normal-nine-inning-game","pitches":27,"inning":1,"half":"bottom","score":{"away":1,"home":3}}
+{"phase":"normal-nine-inning-game","pitches":47,"inning":2,"half":"top","score":{"away":1,"home":6}}
+{"phase":"normal-nine-inning-game","pitches":72,"inning":3,"half":"top","score":{"away":1,"home":6}}
+{"phase":"normal-nine-inning-game","pitches":86,"inning":3,"half":"bottom","score":{"away":2,"home":10}}
+{"phase":"normal-nine-inning-game","pitches":102,"inning":4,"half":"top","score":{"away":2,"home":12}}
+{"phase":"normal-nine-inning-game","pitches":117,"inning":4,"half":"bottom","score":{"away":4,"home":13}}
+{"phase":"normal-nine-inning-game","pitches":136,"inning":4,"half":"bottom","score":{"away":4,"home":16}}
+{"phase":"normal-nine-inning-game","pitches":155,"inning":5,"half":"top","score":{"away":4,"home":19}}
+{"phase":"normal-nine-inning-game","pitches":170,"inning":6,"half":"top","score":{"away":4,"home":22}}
+{"phase":"normal-nine-inning-game","pitches":191,"inning":6,"half":"bottom","score":{"away":6,"home":23}}
+{"phase":"normal-nine-inning-game","pitches":212,"inning":6,"half":"bottom","score":{"away":6,"home":26}}
+{"phase":"normal-nine-inning-game","pitches":235,"inning":7,"half":"top","score":{"away":6,"home":30}}
+{"phase":"normal-nine-inning-game","pitches":254,"inning":7,"half":"bottom","score":{"away":9,"home":32}}
+{"phase":"normal-nine-inning-game","pitches":276,"inning":8,"half":"top","score":{"away":9,"home":39}}
+{"phase":"normal-nine-inning-game","pitches":293,"inning":8,"half":"bottom","score":{"away":10,"home":40}}
+{"phase":"normal-nine-inning-game","pitches":307,"inning":9,"half":"top","score":{"away":10,"home":46}}
+{"status":"PASS","mode":"normal-nine-inning-game","sourceInputs":113,"viewports":[1200,390],"completedPitches":320}

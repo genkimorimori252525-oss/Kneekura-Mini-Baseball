@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V55-CAMERA-FRACTIONAL-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-camera-tuning-batter-view.mjs"
+  ],
+  "observed_at": "2026-10-18T16:33:52.612+00:00",
+  "elapsed_ms": 141,
+  "git_head": "d75f45df3b5f015893f9ad9a95edb2abbcfb282e",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V55-CAMERA-FRACTIONAL-RED_0da3f3cc834c408eaaa30ccc8cf14432.log",
+  "output_sha256": "a19fd3acbf26eb4fc046268dc782d06462caa2f0b0d5e9bc3629baf4e5741b5e",
+  "receipt_id": "MB-20261019-V55-CAMERA-FRACTIONAL-RED_0da3f3cc834c408eaaa30ccc8cf14432"
+}

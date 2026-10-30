@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-BROWSER-NATIVE-MATERIAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../verify-browser-native-material.mjs"
+  ],
+  "observed_at": "2026-10-15T16:38:20.458+00:00",
+  "elapsed_ms": 4890,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-BROWSER-NATIVE-MATERIAL_a5d496a1d6c54c80809f9a5e42fb7c5a.log",
+  "output_sha256": "eacad58613a47757157b549abd904962b567e04440255dfcd4f3e787836f11b6",
+  "receipt_id": "MB-20261016-BROWSER-NATIVE-MATERIAL_a5d496a1d6c54c80809f9a5e42fb7c5a"
+}

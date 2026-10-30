@@ -1,0 +1,30 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
+  {
++   x: -0.7602143140140649,
++   y: 1.1033542083061139,
++   z: -0.5791401167582061
+-   x: -0.760214312,
+-   y: 1.103354207,
+-   z: -0.579140117
+  }
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-maker.mjs:135:77 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: {
+    x: -0.7602143140140649,
+    y: 1.1033542083061139,
+    z: -0.5791401167582061
+  },
+  expected: { x: -0.760214312, y: 1.103354207, z: -0.579140117 },
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

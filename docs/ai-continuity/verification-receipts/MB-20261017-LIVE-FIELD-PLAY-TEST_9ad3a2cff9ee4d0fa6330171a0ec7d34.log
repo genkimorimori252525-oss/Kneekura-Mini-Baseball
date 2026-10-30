@@ -1,0 +1,55 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts (4 tests | 2 failed) 475ms
+   × secures a physically contacted fly before recording a third out and hides the possessed ball 170ms
+     → expected { …(4) } to match object { complete: true, reason: 'third_out' }
+(2 matching properties omitted from actual)
+   × runs the complete actual base path after a fair over-fence flight instead of teleporting runners 105ms
+     → force participant obligation is already satisfied
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayV1.test.ts > secures a physically contacted fly before recording a third out and hides the possessed ball
+AssertionError: expected { …(4) } to match object { complete: true, reason: 'third_out' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  Object {
+-   "complete": true,
+-   "reason": "third_out",
++   "complete": false,
++   "reason": "numerical_contact_refinement_required",
+  }
+
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts:27:22
+     25| it('secures a physically contacted fly before recording a third out an…
+     26|   const input = liveFieldFixture(), before = JSON.stringify(input), re…
+     27|   expect(result.end).toMatchObject({ complete: true, reason: 'third_ou…
+       |                      ^
+     28|   expect(result.ruleFacts.flyCatch).not.toBeNull();
+     29|   expect(result.ruleFacts.flyCatch!.secureCatchTick).toBeGreaterThan(r…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayV1.test.ts > runs the complete actual base path after a fair over-fence flight instead of teleporting runners
+Error: force participant obligation is already satisfied
+ ❯ Module.satisfyForceParticipantObligation src/core/rules/ForceObligation.ts:150:11
+    148|   }
+    149|   if (participant.obligationSatisfied) {
+    150|     throw new Error('force participant obligation is already satisfied…
+       |           ^
+    151|   }
+    152| 
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:384:17
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts:39:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+   Start at  07:19:05
+   Duration  1.22s (transform 204ms, setup 0ms, collect 286ms, tests 475ms, environment 0ms, prepare 133ms)
+

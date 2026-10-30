@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-UPRIGHT-BAT-NATIVE-LAUNCH",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-authored-with-bat-upright-v1/readback.mjs",
+    "../../outputs/verification-authored-native-reservation-v2",
+    "../../outputs/verification-authored-with-bat-upright-v1",
+    "with-initial-bat",
+    "tools/verification/native-game/fixtures/authored-center-pitch-v1.json",
+    "tools/verification/native-game/fixtures/authored-zero-observation-error-v1.json",
+    "upright-measured-v2"
+  ],
+  "observed_at": "2026-10-16T12:45:23.940+00:00",
+  "elapsed_ms": 47828,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-UPRIGHT-BAT-NATIVE-LAUNCH_4bc482070e604515a41f53531639c862.log",
+  "output_sha256": "d682778eb4e9c28e272f896392cb3cad9c9958e4a2e71a7f26c34679b1090d15",
+  "receipt_id": "MB-20261016-UPRIGHT-BAT-NATIVE-LAUNCH_4bc482070e604515a41f53531639c862"
+}

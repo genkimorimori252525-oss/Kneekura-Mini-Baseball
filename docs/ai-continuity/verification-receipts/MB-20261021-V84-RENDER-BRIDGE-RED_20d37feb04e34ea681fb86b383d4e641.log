@@ -1,0 +1,26 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ tools/browser-bridge/maker-presentation-bridge-v84.test.mjs (1 test | 1 failed) 7ms
+   × maker transfers only presentation settings to its renderer frames and does not advance playback 6ms
+     → ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\maker-presentation-bridge-v84.js'
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tools/browser-bridge/maker-presentation-bridge-v84.test.mjs > maker transfers only presentation settings to its renderer frames and does not advance playback
+Error: ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\maker-presentation-bridge-v84.js'
+ ❯ tools/browser-bridge/maker-presentation-bridge-v84.test.mjs:10:21
+      8|   addEventListener:(name,fn)=>{listeners[name]=fn;},dispatchEvent:even…
+      9|  vm.runInNewContext(presentationControlsSourceV84,{globalThis:root});
+     10|  vm.runInNewContext(readFileSync(new URL('./maker-presentation-bridge-…
+       |                     ^
+     11|  root.KneekuraPresentationControlsV84.configure({frequencyScale:1,qual…
+     12|  expect(calls).toEqual([{frequencyScale:1,qualityScale:1},{frequencySc…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  00:24:36
+   Duration  700ms (transform 35ms, setup 0ms, collect 36ms, tests 7ms, environment 0ms, prepare 211ms)
+

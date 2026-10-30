@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V67-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v67-ball-height.mjs",
+    "../../outputs/ばせぼーるlv67_TBD_vs_LAD_俯瞰の空中球2倍版.html",
+    "../../outputs/カメラワーク調整室_v67.html",
+    "docs/verification/releases/v67/ball-height"
+  ],
+  "observed_at": "2026-10-19T10:34:18.663+00:00",
+  "elapsed_ms": 83000,
+  "git_head": "f0f065b28ff1cee3ca24db5cbef4b815dacb5615",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V67-BROWSER_312fa5d9725c4d0d8cdfce49c78ba150.log",
+  "output_sha256": "61955093e6b4a7ce427c628eb8b46f25d690d17006d23bed2bc04a36a0e87c46",
+  "receipt_id": "MB-20261019-V67-BROWSER_312fa5d9725c4d0d8cdfce49c78ba150"
+}

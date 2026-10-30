@@ -1,0 +1,55 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: a trait must not alter any public ability
++ actual - expected
+... Skipped lines
+
+  [
+    [
+      'run',
+      '85'
+    ],
+...
+      'throwingAccuracy',
++     '97.9584862219'
+-     '70'
+    ],
+    [
+      'contact',
+      '90'
+    ],
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v77-traits-browser.mjs:21:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [
+    [ 'run', '85' ],
+    [ 'arm', '77' ],
+    [ 'field', '65' ],
+    [ 'catching', '63' ],
+    [ 'throwingAccuracy', '97.9584862219' ],
+    [ 'contact', '90' ],
+    [ 'power', '98' ],
+    [ 'vision', '88' ],
+    [ 'maxSpeedKmh', '144' ],
+    [ 'control', '50' ]
+  ],
+  expected: [
+    [ 'run', '85' ],
+    [ 'arm', '77' ],
+    [ 'field', '65' ],
+    [ 'catching', '63' ],
+    [ 'throwingAccuracy', '70' ],
+    [ 'contact', '90' ],
+    [ 'power', '98' ],
+    [ 'vision', '88' ],
+    [ 'maxSpeedKmh', '144' ],
+    [ 'control', '50' ]
+  ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

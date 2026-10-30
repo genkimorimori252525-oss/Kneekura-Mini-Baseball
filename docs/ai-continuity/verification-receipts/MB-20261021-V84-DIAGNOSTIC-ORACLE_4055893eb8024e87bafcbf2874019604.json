@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-DIAGNOSTIC-ORACLE",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts"
+  ],
+  "observed_at": "2026-10-20T15:38:31.144+00:00",
+  "elapsed_ms": 48233,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-DIAGNOSTIC-ORACLE_4055893eb8024e87bafcbf2874019604.log",
+  "output_sha256": "e85cef682d923c1b27fa666350129d55ab15c60ea88ccc111c0114a10a66a54a",
+  "receipt_id": "MB-20261021-V84-DIAGNOSTIC-ORACLE_4055893eb8024e87bafcbf2874019604"
+}

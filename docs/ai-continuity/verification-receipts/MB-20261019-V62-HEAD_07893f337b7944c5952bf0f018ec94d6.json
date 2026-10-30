@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V62-HEAD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/test-pitcher-body-head-v62.mjs"
+  ],
+  "observed_at": "2026-10-18T19:39:52.572+00:00",
+  "elapsed_ms": 47,
+  "git_head": "6cab540b173526893d7d8f78f701a8087f62d0e8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V62-HEAD_07893f337b7944c5952bf0f018ec94d6.log",
+  "output_sha256": "2091568da1163c80fb41233ae64fbc78a819920a101145b3c16a1a53ce67c866",
+  "receipt_id": "MB-20261019-V62-HEAD_07893f337b7944c5952bf0f018ec94d6"
+}

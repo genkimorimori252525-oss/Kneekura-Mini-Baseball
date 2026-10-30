@@ -1,0 +1,81 @@
+{
+  "pass": true,
+  "sourceCommit": "c9371bdd46ce347d6fe19886e234367e0841b468",
+  "remoteHead": "c9371bdd46ce347d6fe19886e234367e0841b468",
+  "pullRequest": {
+    "headRefName": "jolly/tbd-lad-native-browser-core-2026-10-14",
+    "headRefOid": "c9371bdd46ce347d6fe19886e234367e0841b468",
+    "isDraft": true,
+    "state": "OPEN",
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380"
+  },
+  "publishedHtmlBlobs": [
+    {
+      "path": "docs/demos/releases/v77/game.html",
+      "gitBlobSha1": "f3fe551c4d8c69e7949eddea7c0af6a879d065a5",
+      "sha256": "58319352d3fd31465c0ada0dd48a60ebcc9431c9aba86783e48523b591248c21",
+      "bytes": 32229782
+    },
+    {
+      "path": "docs/demos/releases/v77/camera-workbench.html",
+      "gitBlobSha1": "5a2e4d7bfbf07dba26c16561100f6fdcc7902a54",
+      "sha256": "97fea36b4c560e29724c311b7cbdf6162063adf1f7a887b23d91beedab4962ad",
+      "bytes": 32451275
+    },
+    {
+      "path": "docs/demos/releases/v77/maker.html",
+      "gitBlobSha1": "6e76e42fc07af3b0249fbe0436d9c1d15eac11b4",
+      "sha256": "2c75b2bf44f1a241ec2800acf2d60d35435fa2bc422e8f656becdbdc423e5880",
+      "bytes": 38323813
+    }
+  ],
+  "largeHtmlVerification": "GITHUB_GIT_TREE_BLOB_AND_SIZE_MATCH_LOCAL_BYTES",
+  "rawFiles": [
+    {
+      "path": "docs/demos/releases/v77/SHA256.json",
+      "sha256": "57a5806f4eb29321723f5336751bb7f52082bd6b2f953ace0d2dbc3709d0403c",
+      "bytes": 874
+    },
+    {
+      "path": "docs/demos/releases/v77/README.md",
+      "sha256": "dc23ab317dca7b85cff670f60c2d9a2b0a4027780db0e24c901f012fe4e2e73a",
+      "bytes": 2456
+    },
+    {
+      "path": "docs/demos/releases/v77/game.html.build.json",
+      "sha256": "0e58bbe14183e1b3eb972c10d0e61b9da299b08cc304725b4165a8bbfd804f9e",
+      "bytes": 7531
+    },
+    {
+      "path": "docs/demos/releases/v77/maker.html.build.json",
+      "sha256": "e5077131122ea5eb12b266fd0bfb7aa8e2058654bd6b5e73f22799a82a3f684f",
+      "bytes": 4199
+    },
+    {
+      "path": "docs/reports/2026-10-20-v77-independent-traits-and-pitcher-lab.md",
+      "sha256": "24812b74fbf410da0b49025c0d08ee97152e01593f93fd2573503d26590db84b",
+      "bytes": 6355
+    },
+    {
+      "path": "docs/handoffs/LATEST.md",
+      "sha256": "bbc47c96b921f49d497accdac8b76221e78addf86dbbeaca66b603c0e12c2313",
+      "bytes": 2608
+    },
+    {
+      "path": "tools/browser-bridge/live-pitcher-body-head-view-v77.js",
+      "sha256": "6f82e2e47c532f134027a6218ac1127dba77b454fa725f2ce880a4c7d6fa96ed",
+      "bytes": 3473
+    },
+    {
+      "path": "tools/browser-bridge/build-v77.mjs",
+      "sha256": "746fec5c2391daa24fd08fba81fb49ca654961f3b97f6cf6e96e56ff8af3f51d",
+      "bytes": 5753
+    },
+    {
+      "path": "docs/verification/releases/v77/release-check.json",
+      "sha256": "515813788cae6f7dc22b3a45dd936ba0f23058a46459d9e6856a80ed30096679",
+      "bytes": 559
+    }
+  ],
+  "mainMerged": false
+}

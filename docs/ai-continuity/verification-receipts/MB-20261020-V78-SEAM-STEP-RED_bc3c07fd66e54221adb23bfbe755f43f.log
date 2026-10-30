@@ -1,0 +1,26 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/ball/BaseballSeamForceV1.test.ts (8 tests | 1 failed) 70ms
+   × v78 optional material seam force > limits every seam Source cell to a quarter-radian using the shared Aero step without altering the header 10ms
+     → expected 5.244044240850758 to be less than or equal to 0.250000000001
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/ball/BaseballSeamForceV1.test.ts > v78 optional material seam force > limits every seam Source cell to a quarter-radian using the shared Aero step without altering the header
+AssertionError: expected 5.244044240850758 to be less than or equal to 0.250000000001
+ ❯ src/core/sim/ball/BaseballSeamForceV1.test.ts:114:122
+    112|       fine = sampleAerodynamicPitchStateAtElapsedSeconds(initial, .02,…
+    113|     expect(kernel.descriptor.profile.air.integrationStepTicks).toBe(5_…
+    114|     for (const cell of kernel.cells) expect((cell.throughElapsedSecond…
+       |                                                                                                                          ^
+    115|     for (const k of ['x', 'y', 'z'] as const) {
+    116|       expect(kernel.evaluateAt(.02).moment.ball.position[k]).toBeClose…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  04:38:23
+   Duration  780ms (transform 170ms, setup 0ms, collect 240ms, tests 70ms, environment 0ms, prepare 136ms)
+

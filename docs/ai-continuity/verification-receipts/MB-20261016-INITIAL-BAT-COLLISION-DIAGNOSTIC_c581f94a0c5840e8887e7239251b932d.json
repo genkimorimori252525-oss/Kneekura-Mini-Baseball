@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-BAT-COLLISION-DIAGNOSTIC",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "../native-initial-bat-control-preparation-v3/readback.mjs",
+    "../../outputs/verification-authored-with-bat-zero-observation-decision-v1",
+    "../../outputs/verification-authored-with-bat-zero-observation-control-v3"
+  ],
+  "observed_at": "2026-10-16T12:41:46.029+00:00",
+  "elapsed_ms": 4625,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-BAT-COLLISION-DIAGNOSTIC_c581f94a0c5840e8887e7239251b932d.log",
+  "output_sha256": "0347a2d77f0a0ef2912ed1aba4527e4f7eb1acf7501077f3eb1d28c08b3c5e2d",
+  "receipt_id": "MB-20261016-INITIAL-BAT-COLLISION-DIAGNOSTIC_c581f94a0c5840e8887e7239251b932d"
+}

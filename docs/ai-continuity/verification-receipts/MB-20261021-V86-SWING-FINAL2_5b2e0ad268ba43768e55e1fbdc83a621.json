@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V86-SWING-FINAL2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/browser-bridge/swing-input-recovery-v86.test.mjs",
+    "--reporter=json",
+    "--outputFile=docs/verification/releases/v86/swing-final2/results.json"
+  ],
+  "observed_at": "2026-10-20T16:39:44.317+00:00",
+  "elapsed_ms": 11092,
+  "git_head": "58c9163a9007598d6a51d8178f38ce3b9ee14eca",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V86-SWING-FINAL2_5b2e0ad268ba43768e55e1fbdc83a621.log",
+  "output_sha256": "e81a1390ab184b5b236e869ed25a5704f84131164064dc47902708d9f770126e",
+  "receipt_id": "MB-20261021-V86-SWING-FINAL2_5b2e0ad268ba43768e55e1fbdc83a621"
+}

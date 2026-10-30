@@ -1,0 +1,47 @@
+{
+  "presentationVersion": 59,
+  "sourceGamePath": "docs/demos/releases/v54/game.html",
+  "sourceGameSha256": "80c68e3ddb5c961ab6f18b325c6f267f883cd02d27381dfa10a9334bf8afae9f",
+  "basePresentationPath": "docs/demos/releases/v58/game.html",
+  "basePresentationSha256": "89a0ba3c52bd0299e5b9bb3c853cae48185493d48179339e523c25e0dd1b52ed",
+  "sourceCoreSha256": "4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279",
+  "sourceInputCount": 113,
+  "helpers": {
+    "live-ball-display-controls-v56.js": "e5cf59b078c9959bbe76969e8296eeab8cd65c6a7a224475b06c86496a483996",
+    "live-pitch-ball-cadence-v56.js": "bf72b94742b7de19abd863edd610fea493d648ba43b5823c906222e02aac4536",
+    "live-camera-tuning-batter-view-v59.js": "04fa7486057e94c41762ce43c5a1717c17739fa57ba624dfe191b1dda167e53e",
+    "live-pitcher-reaction-view-v58.js": "5916750a6000356c5c86e947458bb5abdfb01083d45e209d849ed50f5a4497af"
+  },
+  "workbenchDriverSha256": "97d9584f35c2898cad972edca29951dd29beb2b10f4711b822d61d8f4d9a8e89",
+  "workbenchTemplateSha256": "7852f8efb85b819be67a68389859d9cfec1c244671cc6126e2bc5c665148878a",
+  "builderSha256": "4c227b020d0e1d0c04a21370e18f5d5afb7de3f9115f89165913cd222c759aec",
+  "worldAuthority": "UNCHANGED_V54_OFFLINE_HOST_SHARED_CORE",
+  "displayGridPixels": 4,
+  "ordinaryCadenceMs": 55,
+  "pitchBallCadenceMs": 22,
+  "ballDisplayDefaults": {
+    "perspective": 1,
+    "overhead": 1
+  },
+  "readOnlyCamera": true,
+  "pitcherReaction": {
+    "minimumDelaySeconds": 0.1,
+    "maximumDelaySeconds": 0.25,
+    "speedScaleMeters": 7,
+    "blendMs": 180
+  },
+  "headHold": "REGISTERED_INTENT_ACQUIRE_EXPECTED_IMPACT_STABILIZATION",
+  "impactConeRadians": 0.025,
+  "impactSpeedRadPerSecond": 0.18,
+  "preset": {
+    "enabled": true,
+    "aimLiftMeters": 0.3,
+    "swingMaxDownRadians": 0.2,
+    "hitFollowDelayMs": 300,
+    "aimReleaseMs": 70,
+    "pitchTrackingGain": 0.26,
+    "pitchTrackingDeadbandRadians": 0.02
+  },
+  "kind": "CAMERA_WORKBENCH",
+  "sha256": "67160af7cb25d435893b299430849dc26cacfe2cb3b7e119278a79de77fd6ae0"
+}

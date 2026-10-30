@@ -1,0 +1,68 @@
+# v46 — 走塁・守備AIの共通判断を改善
+
+[通常試合とメーカー](../demos/releases/v46/README.md) / [最終検証・開発中の再現](../verification/releases/v46/) / [最新入口](../handoffs/LATEST.md)
+
+## 変更と原因
+
+ユーザーが報告した二塁走者の停滞と、ショートの不必要な外野追球を実シミュレーターで再現した。公開能力の種類を増やさず、共有Coreの判断・移動・捕球・送球・タッグを修正した。
+
+| 問題 | 確認した原因 | 修正 |
+| --- | --- | --- |
+| 深いフライでも二塁に留まる | タッチアップ判断がなく、追加進塁は地上接触かつ自由球だけだった | 最初の野手接触を合法な出発の根拠とし、反応時間後に走者と守備の競争を評価 |
+| 明らかに回収が遅いゴロでも動かない | 球と塁の距離を固定25m/sで割っていた | 回収予測・持ち替え・個々の肩・受け手到達・運搬を比較。走者も実行する加速／減速と一致する所要時間を使用 |
+| 到達した塁から先を検討しない | 到達直後、到達前の判断を使ってプレーを閉じていた | 塁到達・占有解除後は必ず判断を更新。反応待ちの間にも閉じない |
+| 追加進塁に守備が送球しない | 送球候補とリリース検査がフォース義務だけを扱った | 非フォース走者の行先も候補にする。アウトは実際の保持グラブと身体のタッグで成立 |
+| SSがLFの位置まで追う | 同じ捕球可能時刻を移動負担と取り違え、入力順と継続優先で担当が固定された | 捕球可能時刻を優先した上で到達負担・進入方向を比較。SSを守備位置名で禁止しない |
+| 外野手が捕球点を通過する | 将来の低い捕球点をゴロと解釈し、高いフライにも走り抜けを追加した | 走り抜けは観測球も低い場合だけ適用 |
+| 不要なカバー移動 | 余剰のhold先が交換可能で、自分以外の初期位置へ割り当てられた | holdは各野手自身の初期位置。backupは到達と初期位置を離れる負担を合わせて割り当てる |
+
+二死では打球への反応後に出発し、地上接触／野手接触後の次の進塁は通常の危険判断へ戻す。非フォース走者は元の塁に触れている間保護する。強制進塁の走者は旧塁上でもタッグ対象となる。送球記録は`force_play`／`tag_play`と対象走者を記録し、診断も「タッグプレーなのに塁を踏まない」という誤検出をしない。
+
+## 能力とメーカー
+
+既存の走力は速度・加速、守備力は反応・判断遅れ・持ち替え、肩と捕球は対応する物理SIを通じて引き続き作用する。公開能力は11項目のまま。内部詳細は40から42項目となり、次の任意の戦術設定を追加した。未指定の旧JSONはそのまま受け付ける。
+
+- `baserunningSafetyMarginSeconds`: 0〜3秒、既定0.35。大きいほど安全な進塁だけを選ぶ。
+- `fieldingPursuitCostWeight`: 0.25〜4、既定1。小さいほど追球負担を軽く評価する。捕れない球を捕れる能力に変換しない。
+
+主な編集欄は従来の公開能力のまま。二つは「内部能力の詳細設定」で選手ごとに編集し、試合用能力JSONを保存して通常試合へ読み込める。既存の能力・特性・リーグ比較を別の保存状態へ分裂させていない。
+
+## 検証
+
+- 純粋な進塁判断13件、実際の走塁11件には、安全なタッチアップ、強肩相手の待機、第一接触と捕球確定の区別、反応待ち、三塁到達後の生還、非フォース送球と実タッグ、元の塁での保護／フォースの違いを含む。
+- 高い飛球でLFの捕球とSSの不要な追球抑制を確認し、内野手が先に届く小飛球ではSSの後方捕球を維持する。
+- 20シナリオを低・標準・高の3能力構成で実行。最終候補のアウト数13／18／21、診断異常0。最終検証は155件／18ファイルPASS `MB-20261018-V46-AI-TESTS-FINAL2_c42a5eae9cc249b5be8439a834c8ba38`（50.047秒）。Host9回、Playable規則、TagUp、Force義務の回帰も含む。これは現実の成績分布の校正ではない。
+- 通常HTMLの新しいSourceで251球、規定9回を完了。旧計算への結果フォールバックなし。Chrome 1200px／390px、配球減光・所持球非表示・捕手追尾・打者視点の左右16境界・巻戻し・表示によるSource不変を確認。打者視線helperはv45と同じbyte。
+- メーカーは20選手・公開11項目・詳細42項目、2タブ、旧JSON、編集・保存・再読・通常試合への反映を1200px／390pxで確認。実機スマートフォンの検証ではない。
+- 全体`tsc --noEmit` PASS `MB-20261018-V46-TSC-FINAL_e7514de4464243f4bb3145bb288ad55b`。build PASS `MB-20261018-V46-BUILD_f714fcee9d7445dbb72af7918c675084`。通常試合 PASS `MB-20261018-V46-NORMAL-GAME_be1955466c804bfa8cd940ffc825ced1`。視点 PASS `MB-20261018-V46-CAMERAS_bb26848556644e80bffb3cc87f9d0d88`。メーカー PASS `MB-20261018-V46-MAKER_0b70ab9360db4f15b95909f00cd48e4b`。
+
+開発中のFAILも残した。最初の3走塁再現はすべて進塁せず失敗。捕球担当の改善だけではLFが走り抜けて捕れず、観測球の高さの条件を直して解消した。最初の全体検査では非フォース送球を旧診断が異常扱いした。後の検査では到達後の追加進塁に対し旧試験の終了時刻・到達塁が固定されていた。期待を緩めるだけでなく、実際の塁接触と古い送球命令の取消を確認する試験へ変更した。中間FAILは`EVIDENCE_INDEX`と原receipt/logに保持する。
+
+開発用の旧／改善traceは[development](../verification/releases/v46/development/)に保存。旧SSの最大深度66.37mに対し改善traceは36.00m、LF捕球5.8891秒。traceは開発途中の計測であり、最終Sourceの保証は恒久回帰テストと新しいreceiptで行う。
+
+## 参考と実装上の判断
+
+- [MLB 2026 Official Baseball Rules](https://mktg.mlbstatic.com/mlb/official-information/2026-official-baseball-rules.pdf)、Definitions: Catch、5.09: 最初の野手接触、確実な捕球、フォースとタッグの区別を確認した。本ゲームの規則profileは`npb-2026`で、資料だけを根拠にNPBの全裁定を実装済みとは扱わない。
+- [USA Baseball: Fly Ball Priority](https://www.usabaseball.com/video/monday-manager-fly-ball-priority): 捕球の担当と意思疎通の考え方を参照した。
+- [ABCA: Execution of the Cutoff and Relay System](https://www.abca.org/magazine/magazine/2020-4-July_August/The_Hot_Corner_Execution_of_the_Cutoff_and_Relay_System.aspx): 走者・送球先・カバーの組合せ、無益な送球を避ける方針を参照した。
+- [ABCA: The Details of Running Around the Diamond](https://www.abca.org/magazine/2025-4-July-August/Coach_Your_Kids_Details_of_Running_Around_the_Diamond.aspx): アウト数と飛球判断、速さだけでは決まらない走塁を参照した。
+
+捕球進入方向の係数0.3、backupの位置放棄費用0.1、安全余裕0.35秒は作者用の暫定方針。記事の実測定数ではない。未来の結果やシナリオ名、所属リーグ、特定選手名から成功を与えていない。
+
+## 残る範囲
+
+意図的な多段階中継送球の探索、リード／スライディング／連続したベース旋回、Nativeの`battedBallRead`／`routeEfficiency`／`positionSuitability`等の全能力消費、タッチアップ違反のアピール経路、公式H/E、実選手SIと成績分布の校正、最新Sourceでの100試合以上、実機スマートフォンは未完。現在の各塁の走行は加速・減速して停止するモデルで、走行中の投球前リードを新設していない。
+
+Native SQLite認証された全体連続世界の完成を意味しない。元計画・承認HOLD・以前のFAIL/UNKNOWNを維持し、[最新入口](../handoffs/LATEST.md)へ引き継ぐ。v45を上書きせず、別のv46として配布する。
+
+検証後の105入力・bundle・HTML・roster/catalog照合PASS `MB-20261018-V46-SOURCE-MATCH_5a658fa7f6664d44ba34135c5a67f75e`。配布bundle SHA `3e2a6f06c24152d2648bb0ae7876910ae3cc0f695f1e0427a9e57cb511539fab`、HTML SHA `d6bbcd5c7cb2990028693d968f27e73997c7cd603d2fbaf244b04842ae32ccb0`。
+
+配布整合PASS MB-20261018-V46-RELEASE_40a66292802948cdbd3be50651d5a757。ZIP107項目のCRC・105入力byte・compiled bundle、配布HTML／メーカー、7文書の相対リンク、v45カメラhelper／旧HTMLの保存を確認。
+
+## 変更ファイルとGitHub保存
+
+- Core: [プレー実行](../../src/core/sim/fielding/LiveFieldPlayV1.ts)、[進塁方針](../../src/core/sim/fielding/LiveRunnerAdvancePolicyV1.ts)、[捕球担当](../../src/core/sim/fielding/LiveFieldHandlerSelectionV1.ts)、[役割割当](../../src/core/sim/fielding/LiveFieldRoleAssignmentV1.ts)、[診断](../../src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.ts)と対応する回帰テスト。
+- Hostと能力: [通常試合Host](../../src/integration/browser/LiveBaseballMatchV1.ts)、[能力検証adapter](../../src/integration/browser/LivePhysicalRosterV1.ts)、[メーカーUI](../demos/baseball-maker-ui.mjs)、[詳細設定カタログ](../demos/live-game-roster-catalog-v2.json)と接続テスト。
+- 配布・再生成・QA: tools/browser-bridge のv46 build/check、docs/demos/releases/v46、docs/verification/releases/v46。入口・歴史・continuityを更新。
+
+実装・HTML・メーカー・検証101ファイルをcommit 9c140868ebc648896d1933d40c16066ec83cf134で既存ブランチへ通常push。Draft PR #380のhead一致とGitHub raw8ファイルの元byte一致を確認した。公開照合PASS MB-20261018-V46-PUBLICATION_5519558ac2c04cc18827cd81d7ef6a7b（5.483秒）、[公開記録](../verification/releases/v46/publication.json)。main未マージ。後続の記録用commitは製品コードを変更しない。

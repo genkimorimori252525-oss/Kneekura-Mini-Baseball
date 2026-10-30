@@ -1,0 +1,178 @@
+{
+  "pass": true,
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v82_削除と入力復帰版.html",
+  "sha256": "5c4ab2836fff35957f4480afb48e7d0a6096879184fccb6b997e635dbb582edf",
+  "coreSha256": "89c782901927abe3a1cd615a0ca99fc77132623c72b8b2cd63c54395f4db4c85",
+  "sourceCount": 95,
+  "v82SourcePinsMatched": true,
+  "recoverySourcesPinned": true,
+  "inheritedPitchViewsAndDataUnchanged": true,
+  "frozenV81RendererPinned": true,
+  "referenceClips": 673,
+  "cases": [
+    {
+      "width": 1200,
+      "pitch": "fastball",
+      "points": 53,
+      "viewNames": [
+        "投手の真後ろ → 本塁",
+        "捕手の正面 → 投手",
+        "右打者の目 → 投手",
+        "左打者の目 → 投手"
+      ],
+      "pixels": [
+        {
+          "id": "pitcher-plot-behind",
+          "green": 1091,
+          "gray": 762,
+          "width": 274.90625
+        },
+        {
+          "id": "pitcher-plot-catcher",
+          "green": 313,
+          "gray": 503,
+          "width": 274.90625
+        },
+        {
+          "id": "pitcher-plot-batter-right",
+          "green": 439,
+          "gray": 545,
+          "width": 274.90625
+        },
+        {
+          "id": "pitcher-plot-batter-left",
+          "green": 454,
+          "gray": 570,
+          "width": 274.90625
+        }
+      ],
+      "sourceAndRosterUnchanged": true
+    },
+    {
+      "width": 1200,
+      "pitch": "curve",
+      "points": 67,
+      "viewNames": [
+        "投手の真後ろ → 本塁",
+        "捕手の正面 → 投手",
+        "右打者の目 → 投手",
+        "左打者の目 → 投手"
+      ],
+      "pixels": [
+        {
+          "id": "pitcher-plot-behind",
+          "green": 1288,
+          "gray": 775,
+          "width": 274.90625
+        },
+        {
+          "id": "pitcher-plot-catcher",
+          "green": 362,
+          "gray": 177,
+          "width": 274.90625
+        },
+        {
+          "id": "pitcher-plot-batter-right",
+          "green": 551,
+          "gray": 219,
+          "width": 274.90625
+        },
+        {
+          "id": "pitcher-plot-batter-left",
+          "green": 586,
+          "gray": 273,
+          "width": 274.90625
+        }
+      ],
+      "sourceAndRosterUnchanged": true
+    },
+    {
+      "width": 390,
+      "pitch": "fastball",
+      "points": 53,
+      "viewNames": [
+        "投手の真後ろ → 本塁",
+        "捕手の正面 → 投手",
+        "右打者の目 → 投手",
+        "左打者の目 → 投手"
+      ],
+      "pixels": [
+        {
+          "id": "pitcher-plot-behind",
+          "green": 1091,
+          "gray": 762,
+          "width": 312
+        },
+        {
+          "id": "pitcher-plot-catcher",
+          "green": 313,
+          "gray": 503,
+          "width": 312
+        },
+        {
+          "id": "pitcher-plot-batter-right",
+          "green": 439,
+          "gray": 545,
+          "width": 312
+        },
+        {
+          "id": "pitcher-plot-batter-left",
+          "green": 454,
+          "gray": 570,
+          "width": 312
+        }
+      ],
+      "sourceAndRosterUnchanged": true
+    },
+    {
+      "width": 390,
+      "pitch": "curve",
+      "points": 67,
+      "viewNames": [
+        "投手の真後ろ → 本塁",
+        "捕手の正面 → 投手",
+        "右打者の目 → 投手",
+        "左打者の目 → 投手"
+      ],
+      "pixels": [
+        {
+          "id": "pitcher-plot-behind",
+          "green": 1288,
+          "gray": 775,
+          "width": 312
+        },
+        {
+          "id": "pitcher-plot-catcher",
+          "green": 362,
+          "gray": 177,
+          "width": 312
+        },
+        {
+          "id": "pitcher-plot-batter-right",
+          "green": 551,
+          "gray": 219,
+          "width": 312
+        },
+        {
+          "id": "pitcher-plot-batter-left",
+          "green": 586,
+          "gray": 273,
+          "width": 312
+        }
+      ],
+      "sourceAndRosterUnchanged": true
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "errors": [],
+      "external": []
+    }
+  ]
+}

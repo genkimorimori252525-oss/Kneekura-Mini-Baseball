@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V88",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-presentation-surfaces-v84.mjs",
+    "../../outputs/ばせぼーるlv88_TBD_vs_LAD_空振りとHR見送り版.html",
+    "../../outputs/カメラワーク調整室_v88_空振りとHR見送り.html",
+    "../../outputs/にーくら野球メーカー_v88_空振りとHR見送り版.html",
+    "docs/verification/releases/v88/presentation"
+  ],
+  "observed_at": "2026-10-20T17:46:05.808+00:00",
+  "elapsed_ms": 75108,
+  "git_head": "6a7b3500d315de70a46f70d697aa032b18b37cb1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V88_18129e6e1e5f46c593c72cd9746c5c7f.log",
+  "output_sha256": "cf3e7e57fd5d560df201dad1d1d75b0d1c7aaad3bf0d5bc601f7a721342d8958",
+  "receipt_id": "MB-20261021-V88_18129e6e1e5f46c593c72cd9746c5c7f"
+}

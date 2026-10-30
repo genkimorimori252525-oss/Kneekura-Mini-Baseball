@@ -1,0 +1,142 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/LiveTraitPreferenceExecutionV54.test.ts (12 tests | 11 failed) 10404ms
+   × keeps omitted, neutral and BALANCED preferences exactly equivalent under old commands 129ms
+     → live trait profiles: unknown or duplicate trait family
+   × executes personal POWER/CONTACT through the existing real bat motor for R 111ms
+     → live trait profiles: unknown or duplicate trait family
+   × executes personal POWER/CONTACT through the existing real bat motor for L 87ms
+     → live trait profiles: unknown or duplicate trait family
+   × lets explicit balanced override a personal swing preference 27ms
+     → live trait profiles: unknown or duplicate trait family
+   × lets explicit contact override a personal swing preference 28ms
+     → live trait profiles: unknown or duplicate trait family
+   × lets explicit power override a personal swing preference 29ms
+     → live trait profiles: unknown or duplicate trait family
+   × lets explicit take override a personal swing preference 25ms
+     → live trait profiles: unknown or duplicate trait family
+   × lets explicit bunt override a personal swing preference 28ms
+     → live trait profiles: unknown or duplicate trait family
+   × uses the actual unmanaged batter preference instead of the other club manager command 29ms
+     → live trait profiles: unknown or duplicate trait family
+   × resolves only the actual pitcher profile and preserves the managed/unmanaged auto pitch Source 28ms
+     → live trait profiles: unknown or duplicate trait family
+   ✓ keeps BALANCED auto and every explicit pitch exactly equal, including RNG-dependent Source and controls 1837ms
+   × changes only auto pitch selection weights, with the same downstream draw stream when a type is unchanged 8047ms
+     → expected 21 to be greater than 21
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LiveTraitPreferenceExecutionV54.test.ts > keeps omitted, neutral and BALANCED preferences exactly equivalent under old commands
+Error: live trait profiles: unknown or duplicate trait family
+ ❯ assert src/integration/browser/LiveTraitProfilesV1.ts:33:79
+     31| }]);
+     32| export const getLiveTraitCatalogV1 = (): readonly LiveTraitDefinitionV…
+     33| const assert = (value: unknown, message: string): void => { if (!value…
+       |                                                                               ^
+     34| const text = (value: unknown): value is string => typeof value === 'st…
+     35| const object = (value: unknown, fields: readonly string[], path: strin…
+ ❯ src/integration/browser/LiveTraitProfilesV1.ts:52:5
+ ❯ readProfile src/integration/browser/LiveTraitProfilesV1.ts:49:56
+ ❯ Module.validateLiveTraitProfileV1 src/integration/browser/LiveTraitProfilesV1.ts:64:19
+ ❯ src/integration/browser/LiveBaseballMatchV1.ts:99:84
+ ❯ Module.createLiveBaseballMatchV1 src/integration/browser/LiveBaseballMatchV1.ts:99:17
+ ❯ src/integration/browser/LiveTraitPreferenceExecutionV54.test.ts:38:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  src/integration/browser/LiveTraitPreferenceExecutionV54.test.ts > executes personal POWER/CONTACT through the existing real bat motor for R
+ FAIL  src/integration/browser/LiveTraitPreferenceExecutionV54.test.ts > executes personal POWER/CONTACT through the existing real bat motor for L
+Error: live trait profiles: unknown or duplicate trait family
+ ❯ assert src/integration/browser/LiveTraitProfilesV1.ts:33:79
+     31| }]);
+     32| export const getLiveTraitCatalogV1 = (): readonly LiveTraitDefinitionV…
+     33| const assert = (value: unknown, message: string): void => { if (!value…
+       |                                                                               ^
+     34| const text = (value: unknown): value is string => typeof value === 'st…
+     35| const object = (value: unknown, fields: readonly string[], path: strin…
+ ❯ src/integration/browser/LiveTraitProfilesV1.ts:52:5
+ ❯ readProfile src/integration/browser/LiveTraitProfilesV1.ts:49:56
+ ❯ Module.validateLiveTraitProfileV1 src/integration/browser/LiveTraitProfilesV1.ts:64:19
+ ❯ src/integration/browser/LiveBaseballMatchV1.ts:99:84
+ ❯ Module.createLiveBaseballMatchV1 src/integration/browser/LiveBaseballMatchV1.ts:99:17
+ ❯ src/integration/browser/LiveTraitPreferenceExecutionV54.test.ts:49:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  src/integration/browser/LiveTraitPreferenceExecutionV54.test.ts > lets explicit balanced override a personal swing preference
+ FAIL  src/integration/browser/LiveTraitPreferenceExecutionV54.test.ts > lets explicit contact override a personal swing preference
+ FAIL  src/integration/browser/LiveTraitPreferenceExecutionV54.test.ts > lets explicit power override a personal swing preference
+ FAIL  src/integration/browser/LiveTraitPreferenceExecutionV54.test.ts > lets explicit take override a personal swing preference
+ FAIL  src/integration/browser/LiveTraitPreferenceExecutionV54.test.ts > lets explicit bunt override a personal swing preference
+Error: live trait profiles: unknown or duplicate trait family
+ ❯ assert src/integration/browser/LiveTraitProfilesV1.ts:33:79
+     31| }]);
+     32| export const getLiveTraitCatalogV1 = (): readonly LiveTraitDefinitionV…
+     33| const assert = (value: unknown, message: string): void => { if (!value…
+       |                                                                               ^
+     34| const text = (value: unknown): value is string => typeof value === 'st…
+     35| const object = (value: unknown, fields: readonly string[], path: strin…
+ ❯ src/integration/browser/LiveTraitProfilesV1.ts:52:5
+ ❯ readProfile src/integration/browser/LiveTraitProfilesV1.ts:49:56
+ ❯ Module.validateLiveTraitProfileV1 src/integration/browser/LiveTraitProfilesV1.ts:64:19
+ ❯ src/integration/browser/LiveBaseballMatchV1.ts:99:84
+ ❯ Module.createLiveBaseballMatchV1 src/integration/browser/LiveBaseballMatchV1.ts:99:17
+ ❯ src/integration/browser/LiveTraitPreferenceExecutionV54.test.ts:59:38
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  src/integration/browser/LiveTraitPreferenceExecutionV54.test.ts > uses the actual unmanaged batter preference instead of the other club manager command
+Error: live trait profiles: unknown or duplicate trait family
+ ❯ assert src/integration/browser/LiveTraitProfilesV1.ts:33:79
+     31| }]);
+     32| export const getLiveTraitCatalogV1 = (): readonly LiveTraitDefinitionV…
+     33| const assert = (value: unknown, message: string): void => { if (!value…
+       |                                                                               ^
+     34| const text = (value: unknown): value is string => typeof value === 'st…
+     35| const object = (value: unknown, fields: readonly string[], path: strin…
+ ❯ src/integration/browser/LiveTraitProfilesV1.ts:52:5
+ ❯ readProfile src/integration/browser/LiveTraitProfilesV1.ts:49:56
+ ❯ Module.validateLiveTraitProfileV1 src/integration/browser/LiveTraitProfilesV1.ts:64:19
+ ❯ src/integration/browser/LiveBaseballMatchV1.ts:99:84
+ ❯ Module.createLiveBaseballMatchV1 src/integration/browser/LiveBaseballMatchV1.ts:99:17
+ ❯ src/integration/browser/LiveTraitPreferenceExecutionV54.test.ts:67:41
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+ FAIL  src/integration/browser/LiveTraitPreferenceExecutionV54.test.ts > resolves only the actual pitcher profile and preserves the managed/unmanaged auto pitch Source
+Error: live trait profiles: unknown or duplicate trait family
+ ❯ assert src/integration/browser/LiveTraitProfilesV1.ts:33:79
+     31| }]);
+     32| export const getLiveTraitCatalogV1 = (): readonly LiveTraitDefinitionV…
+     33| const assert = (value: unknown, message: string): void => { if (!value…
+       |                                                                               ^
+     34| const text = (value: unknown): value is string => typeof value === 'st…
+     35| const object = (value: unknown, fields: readonly string[], path: strin…
+ ❯ src/integration/browser/LiveTraitProfilesV1.ts:52:5
+ ❯ readProfile src/integration/browser/LiveTraitProfilesV1.ts:49:56
+ ❯ Module.validateLiveTraitProfileV1 src/integration/browser/LiveTraitProfilesV1.ts:64:19
+ ❯ src/integration/browser/LiveBaseballMatchV1.ts:99:84
+ ❯ Module.createLiveBaseballMatchV1 src/integration/browser/LiveBaseballMatchV1.ts:99:17
+ ❯ src/integration/browser/LiveTraitPreferenceExecutionV54.test.ts:75:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
+
+ FAIL  src/integration/browser/LiveTraitPreferenceExecutionV54.test.ts > changes only auto pitch selection weights, with the same downstream draw stream when a type is unchanged
+AssertionError: expected 21 to be greater than 21
+ ❯ src/integration/browser/LiveTraitPreferenceExecutionV54.test.ts:109:27
+    107|     }
+    108|   }
+    109|   expect(counts.FASTBALL).toBeGreaterThan(counts.BALANCED); expect(cou…
+       |                           ^
+    110|   expect(matchingTypes).toBeGreaterThan(0);
+    111| }, 30_000);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯
+
+ Test Files  1 failed (1)
+      Tests  11 failed | 1 passed (12)
+   Start at  01:03:18
+   Duration  11.50s (transform 396ms, setup 0ms, collect 575ms, tests 10.40s, environment 0ms, prepare 131ms)
+

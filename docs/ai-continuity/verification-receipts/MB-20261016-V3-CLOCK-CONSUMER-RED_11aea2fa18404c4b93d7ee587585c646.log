@@ -1,0 +1,34 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/host/world/SamePlateAppearanceSourceFieldV3.test.ts (6 tests | 1 failed) 747ms
+   ✓ inserts all five metadata kinds at the exact post-impulse cut without adding a physical horizon 303ms
+   × feeds actual Source post-rebound position/velocity into observation and decision, keeping spin in the unchanged physical record 105ms
+     → expected [Function] to throw an error
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/host/world/SamePlateAppearanceSourceFieldV3.test.ts > feeds actual Source post-rebound position/velocity into observation and decision, keeping spin in the unchanged physical record
+AssertionError: expected [Function] to throw an error
+
+- Expected: 
+null
+
++ Received: 
+undefined
+
+ ❯ src/host/world/SamePlateAppearanceSourceFieldV3.test.ts:126:138
+    124|   const c=modelReads.calibrations.get('observation') as {source:{nomin…
+    125|   c.source.nominalReference=reference('world_player_observation_models…
+    126|   expect(()=>deriveSamePaPhysicalFieldAction({} as DatabaseSync,observ…
+       |                                                                                                                                          ^
+    127|   model.source.calibration=originalNominal;c.source.nominalReference=r…
+    128|   const record={...physical,...observed,source:observationSource,opera…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  02:41:58
+   Duration  7.70s (transform 4.12s, setup 0ms, collect 6.48s, tests 747ms, environment 0ms, prepare 161ms)
+

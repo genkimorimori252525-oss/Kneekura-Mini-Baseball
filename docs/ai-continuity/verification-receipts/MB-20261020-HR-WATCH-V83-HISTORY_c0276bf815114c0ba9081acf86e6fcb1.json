@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-HR-WATCH-V83-HISTORY",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-full-history-performance-v81.mjs",
+    "../../outputs/ばせぼーるlv83_TBD_vs_LAD_HR見送り延長版.html",
+    "docs/verification/releases/v83-hr-watch/history",
+    "docs/verification/releases/v81/full-history-v81-comparison/report.json"
+  ],
+  "observed_at": "2026-10-20T14:23:14.658+00:00",
+  "elapsed_ms": 121391,
+  "git_head": "040c8ef685e97010e617be478e56d6cc54d8f099",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-HR-WATCH-V83-HISTORY_c0276bf815114c0ba9081acf86e6fcb1.log",
+  "output_sha256": "fb69b825bff46681072345d72c25cbd45a96187774030e16f8de0b0814a32dcf",
+  "receipt_id": "MB-20261020-HR-WATCH-V83-HISTORY_c0276bf815114c0ba9081acf86e6fcb1"
+}

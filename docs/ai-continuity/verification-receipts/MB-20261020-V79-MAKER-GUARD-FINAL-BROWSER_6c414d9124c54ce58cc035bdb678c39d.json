@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V79-MAKER-GUARD-FINAL-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-course-v79.mjs",
+    "../../outputs/にーくら野球メーカー_v79_63コースとシーズン成績版.html",
+    "docs/verification/releases/v79/course-maker-guard-final",
+    "docs/verification/releases/v79/game/finished-local-game.json"
+  ],
+  "observed_at": "2026-10-20T00:35:02.192+00:00",
+  "elapsed_ms": 21234,
+  "git_head": "98819b9ab5c8e4bdd7ddfc7d644d484df08ab55d",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V79-MAKER-GUARD-FINAL-BROWSER_6c414d9124c54ce58cc035bdb678c39d.log",
+  "output_sha256": "fc5dac669ee2bb4e249dd7af3feacec5f3b54b9664251533bffec45a4120a85d",
+  "receipt_id": "MB-20261020-V79-MAKER-GUARD-FINAL-BROWSER_6c414d9124c54ce58cc035bdb678c39d"
+}

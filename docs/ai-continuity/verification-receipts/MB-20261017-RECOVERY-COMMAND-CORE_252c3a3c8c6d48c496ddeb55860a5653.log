@@ -1,0 +1,12 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/pitch/PostImpactBatBodyWorldV1.test.ts (5 tests) 236ms
+ ✓ src/core/sim/contact/PostImpactBatBodyControlV1.test.ts (4 tests) 132ms
+ ✓ src/host/world/InitialJointRecoveryCommand.test.ts (4 tests) 7ms
+
+ Test Files  3 passed (3)
+      Tests  13 passed (13)
+   Start at  00:53:38
+   Duration  12.26s (transform 7.87s, setup 0ms, collect 11.28s, tests 376ms, environment 0ms, prepare 204ms)
+

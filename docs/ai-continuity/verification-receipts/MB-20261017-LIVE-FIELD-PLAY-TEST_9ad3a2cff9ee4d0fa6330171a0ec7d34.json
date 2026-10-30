@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-FIELD-PLAY-TEST",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts"
+  ],
+  "observed_at": "2026-10-16T22:19:06.898+00:00",
+  "elapsed_ms": 1655,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-FIELD-PLAY-TEST_9ad3a2cff9ee4d0fa6330171a0ec7d34.log",
+  "output_sha256": "b91fa975429f1c32982898bd3008b4bbe2283216b95779b95d82e767c400f75e",
+  "receipt_id": "MB-20261017-LIVE-FIELD-PLAY-TEST_9ad3a2cff9ee4d0fa6330171a0ec7d34"
+}

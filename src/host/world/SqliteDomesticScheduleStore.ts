@@ -21,6 +21,10 @@ import { captureOfficialStandingsSchedule } from
   '../../core/world/competition/OfficialStandingsScheduleSource';
 import { projectProvisionalOfficialStandings } from
   '../../core/world/competition/ProvisionalOfficialStandings';
+import type { ClubWorldRegion } from '../../core/world/competition/ClubWorldBerths';
+import type { LeagueScheduleGeneratorInput } from '../../core/world/competition/LeagueScheduleGenerator';
+import { generateWorldBoundLeagueSchedule } from '../../core/world/competition/WorldLeagueSchedule';
+import { worldCompetitionCycleEvidenceFromSqlite } from './SqliteWorldCompetitionCycleStore';
 
 export type DurableDomesticSchedule = Readonly<{
   careerId: string;
@@ -29,6 +33,22 @@ export type DurableDomesticSchedule = Readonly<{
   baseSchedule: BaseScheduleSnapshot;
   revisions: readonly ScheduleRevisionEvent[];
   acceptedAtDays: readonly number[];
+}>;
+export type DomesticCalendarOriginInput = Readonly<{
+  cycleOrdinal: number;
+  leagueRegion: ClubWorldRegion;
+  seasonDayOne: string;
+  generatorInput: LeagueScheduleGeneratorInput;
+}>;
+export type DurableDomesticCalendarOrigin = Readonly<{
+  kind: 'world_bound_domestic_calendar_origin_v186';
+  careerId: string;
+  seasonId: string;
+  source: DomesticCalendarOriginInput;
+  sourceHash: string;
+  baseScheduleHash: string;
+  calendarPolicyVersion: string;
+  worldWindowSnapshotId: string;
 }>;
 export type DurableLeagueSeasonEvents = Readonly<{
   careerId: string;
@@ -58,6 +78,8 @@ export type SqliteDomesticScheduleStore = Readonly<{
   initialize(careerId: string,
     baseSchedule: BaseScheduleSnapshot): DurableDomesticSchedule;
   read(careerId: string, seasonId: string): DurableDomesticSchedule | null;
+  bindCalendarOrigin(careerId: string, input: DomesticCalendarOriginInput): DurableDomesticCalendarOrigin;
+  readCalendarOrigin(careerId: string, seasonId: string): DurableDomesticCalendarOrigin | null;
   appendRevision(careerId: string, seasonId: string,
     expectedRevision: number, event: ScheduleRevisionEvent,
     acceptedAtDay: number): DurableDomesticSchedule;
@@ -76,6 +98,7 @@ type ArchiveRow = { revision: number; base_json: string;
 type SeasonRow = { revision: number; schedule_json: string;
   policy_json: string; results_json: string };
 type EventsRow = { profile_json: string; snapshot_json: string };
+type CalendarOriginRow = { career_id: string; season_id: string; source_json: string; source_hash: string; base_schedule_hash: string };
 type RevisionRecord = Readonly<{ event: ScheduleRevisionEvent;
   acceptedAtDay: number }>;
 const id = (value: unknown): value is string =>
@@ -87,6 +110,11 @@ const canonicalJson = (value: unknown): string => JSON.stringify(cloneInert(valu
     && !Array.isArray(item)
     ? Object.fromEntries(Object.entries(item).sort(([left], [right]) =>
       left < right ? -1 : left > right ? 1 : 0)) : item);
+const calendarHash = (value: unknown): string => createHash('sha256').update(canonicalJson(value)).digest('hex');
+const freezeCalendar = <T>(value: T): T => {
+  if (value && typeof value === 'object') { Object.values(value).forEach(freezeCalendar); Object.freeze(value); }
+  return value;
+};
 
 const parse = (careerId: string, seasonId: string,
   row: ArchiveRow, season: SeasonRow): DurableDomesticSchedule => {
@@ -115,6 +143,67 @@ const parse = (careerId: string, seasonId: string,
     baseSchedule, revisions: Object.freeze(revisions),
     acceptedAtDays: Object.freeze(records.map((record) =>
       record.acceptedAtDay)) });
+};
+
+const calendarOriginInput = (raw: DomesticCalendarOriginInput): DomesticCalendarOriginInput => {
+  const input = cloneInert(raw), fields = ['cycleOrdinal', 'leagueRegion', 'seasonDayOne', 'generatorInput'];
+  if (!input || Object.keys(input).length !== fields.length || fields.some(field => !Object.hasOwn(input, field))
+    || !day(input.cycleOrdinal) || !input.generatorInput || !id(input.generatorInput.seasonId)) {
+    throw new Error('invalid domestic calendar origin source');
+  }
+  return input;
+};
+const deriveCalendarOrigin = (db: DatabaseSync, careerId: string, raw: DomesticCalendarOriginInput): DurableDomesticCalendarOrigin => {
+  if (!id(careerId)) throw new Error('invalid domestic calendar origin Career scope');
+  const source = calendarOriginInput(raw), seasonId = source.generatorInput.seasonId;
+  const archive = db.prepare('SELECT revision,base_json,records_json FROM main.world_domestic_schedules WHERE career_id=? AND season_id=?')
+    .get(careerId, seasonId) as ArchiveRow | undefined;
+  const season = db.prepare('SELECT revision,schedule_json,policy_json,results_json FROM main.world_season_heads WHERE career_id=? AND season_id=?')
+    .get(careerId, seasonId) as SeasonRow | undefined;
+  if (!archive || !season) throw new Error('domestic calendar origin requires its original schedule and World season');
+  const original = parse(careerId, seasonId, archive, season), cycle = worldCompetitionCycleEvidenceFromSqlite(db).readCycle(careerId, source.cycleOrdinal);
+  if (!cycle) throw new Error('accepted World cycle for domestic calendar origin is missing');
+  const generated = generateWorldBoundLeagueSchedule(source.generatorInput, cycle, source.leagueRegion, source.seasonDayOne);
+  if (!isDeepStrictEqual(generated.schedule, original.baseSchedule)) throw new Error('domestic calendar origin differs from its original generator base');
+  return freezeCalendar({ kind: 'world_bound_domestic_calendar_origin_v186' as const, careerId, seasonId, source,
+    sourceHash: calendarHash({ careerId, seasonId, source }), baseScheduleHash: calendarHash(original.baseSchedule),
+    calendarPolicyVersion: cycle.calendarPolicyVersion, worldWindowSnapshotId: generated.worldWindowSnapshotId });
+};
+
+/** Borrow the caller's real immutable snapshot. A missing legacy origin stays
+ * unknown; Club plan day numbers do not supply a calendar epoch. No schema is
+ * installed or repaired while reading. */
+export const readDomesticCalendarOriginFromSqlite = (
+  db: DatabaseSync, careerId: string, seasonId: string,
+): DurableDomesticCalendarOrigin | null => {
+  const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  if (!(db instanceof Native)) throw new Error('domestic calendar origin requires an actual Native connection');
+  if (!db.isTransaction || db.prepare('PRAGMA query_only').get()!.query_only !== 1) throw new Error('domestic calendar origin requires a query-only Native snapshot');
+  if (!id(careerId) || !id(seasonId)) throw new Error('invalid domestic calendar origin read scope');
+  if (db.prepare('PRAGMA database_list').all().some(row => row.name !== 'main' && row.name !== 'temp')
+    || db.prepare("SELECT name FROM temp.sqlite_master WHERE type IN ('table','view') LIMIT 1").get()) {
+    throw new Error('domestic calendar origin requires main-only storage');
+  }
+  const schema = db.prepare("SELECT type FROM main.sqlite_master WHERE name='world_domestic_calendar_origins'").all();
+  if (!schema.length) return null;
+  const columns = db.prepare('PRAGMA main.table_xinfo(world_domestic_calendar_origins)').all(), names = ['career_id', 'season_id', 'source_json', 'source_hash', 'base_schedule_hash'];
+  if (schema.length !== 1 || schema[0].type !== 'table' || columns.length !== names.length
+    || columns.some((column, i) => column.name !== names[i] || column.type !== 'TEXT' || column.notnull !== 1 || column.hidden !== 0 || column.pk !== (i < 2 ? i + 1 : 0))) {
+    throw new Error('corrupt domestic calendar origin schema');
+  }
+  const row = db.prepare('SELECT career_id,season_id,source_json,source_hash,base_schedule_hash FROM main.world_domestic_calendar_origins WHERE career_id=? AND season_id=?')
+    .get(careerId, seasonId) as CalendarOriginRow | undefined;
+  if (!row) return null;
+  const body = JSON.parse(row.source_json) as { careerId: string; seasonId: string; source: DomesticCalendarOriginInput };
+  if (!body || Object.keys(body).length !== 3 || !['careerId', 'seasonId', 'source'].every(field => Object.hasOwn(body, field))
+    || body.careerId !== careerId || body.seasonId !== seasonId) throw new Error('corrupt domestic calendar origin source scope');
+  const value = deriveCalendarOrigin(db, careerId, body.source);
+  if (value.seasonId !== seasonId || row.career_id !== careerId || row.season_id !== seasonId
+    || row.source_json !== canonicalJson({ careerId, seasonId, source: value.source })
+    || row.source_hash !== value.sourceHash || row.base_schedule_hash !== value.baseScheduleHash) {
+    throw new Error('corrupt domestic calendar origin source or base hash');
+  }
+  return value;
 };
 /** The accepted day is a write precondition on the actual Match connection.
  * Legacy preparation without a day guard can still use separate databases. */
@@ -233,6 +322,12 @@ export const openSqliteDomesticScheduleStore = (
     career_id TEXT NOT NULL, season_id TEXT NOT NULL,
     profile_json TEXT NOT NULL, snapshot_json TEXT NOT NULL,
     PRIMARY KEY (career_id, season_id)
+  );
+  CREATE TABLE IF NOT EXISTS world_domestic_calendar_origins (
+    career_id TEXT NOT NULL, season_id TEXT NOT NULL,
+    source_json TEXT NOT NULL, source_hash TEXT NOT NULL,
+    base_schedule_hash TEXT NOT NULL,
+    PRIMARY KEY (career_id, season_id)
   );`);
   const archiveQuery = db.prepare(`SELECT revision, base_json, records_json
     FROM world_domestic_schedules WHERE career_id=? AND season_id=?`);
@@ -257,6 +352,12 @@ export const openSqliteDomesticScheduleStore = (
       db.exec('ROLLBACK');
       throw error;
     }
+  };
+  const calendarProof = <T>(read: () => T): T => {
+    const before = db.prepare('PRAGMA query_only').get()!.query_only;
+    if (before !== 0 && before !== 1) throw new Error('domestic calendar query-only setting is unavailable');
+    if (before === 0) db.exec('PRAGMA query_only=1');
+    try { return read(); } finally { if (before === 0) db.exec('PRAGMA query_only=0'); }
   };
   const readSchedule = (careerId: string,
     seasonId: string): DurableDomesticSchedule | null => {
@@ -364,6 +465,26 @@ export const openSqliteDomesticScheduleStore = (
     },
     read(careerId: string, seasonId: string): DurableDomesticSchedule | null {
       return readSchedule(careerId, seasonId);
+    },
+    bindCalendarOrigin(careerId: string, raw: DomesticCalendarOriginInput): DurableDomesticCalendarOrigin {
+      const source = calendarOriginInput(raw);
+      return transaction(() => {
+        const prepared = calendarProof(() => {
+          const value = deriveCalendarOrigin(db, careerId, source), prior = readDomesticCalendarOriginFromSqlite(db, careerId, value.seasonId);
+          if (prior && prior.sourceHash !== value.sourceHash) throw new Error('domestic calendar origin is already pinned differently');
+          return { value: prior ?? value, exists: prior !== null };
+        });
+        if (prepared.exists) return prepared.value;
+        const value = prepared.value;
+        db.prepare('INSERT INTO main.world_domestic_calendar_origins(career_id,season_id,source_json,source_hash,base_schedule_hash) VALUES(?,?,?,?,?)')
+          .run(careerId, value.seasonId, canonicalJson({ careerId, seasonId: value.seasonId, source: value.source }), value.sourceHash, value.baseScheduleHash);
+        return calendarProof(() => readDomesticCalendarOriginFromSqlite(db, careerId, value.seasonId)!);
+      });
+    },
+    readCalendarOrigin(careerId: string, seasonId: string): DurableDomesticCalendarOrigin | null {
+      db.exec('BEGIN');
+      try { const value = calendarProof(() => readDomesticCalendarOriginFromSqlite(db, careerId, seasonId)); db.exec('COMMIT'); return value; }
+      catch (error) { if (db.isTransaction) db.exec('ROLLBACK'); throw error; }
     },
     appendRevision(careerId: string, seasonId: string,
       expectedRevision: number, event: ScheduleRevisionEvent,

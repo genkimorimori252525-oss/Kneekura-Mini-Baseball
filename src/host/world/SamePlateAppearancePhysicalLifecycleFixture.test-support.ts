@@ -38,6 +38,7 @@ export const samePaPhysicalLifecycleFixture=(options:Readonly<{explicitBatterObs
   const save=<T extends {sourceId:string}>(s:T):T=>{accepted.set(s.sourceId,s);return s;};
   try{
     const original=f.acceptedAction.source,sceneBodyReferences=prepareSamePaSceneBodies(f,options.explicitDefenderGloveOffsets);
+    if(original.variant!=='declared_take_v1')throw new Error('legacy TAKE fixture requires a declared take');
     const genesisSource=save({sourceId:'physical-fixture:emotion-genesis',sourceVersion:'fixture-only-v1',capability:'owned_batting_emotion_genesis_v1',
       viewReference:original.viewReference,member:deriveSamePaDispatchRoles(f.actor,f.view)[0].member,policy:policy(),provenance:{assessmentSourceId:'physical-fixture:genesis-assessment',
         assessmentVersion:'fixture-only-v1',calibrationSourceId:'existing-explicit-Core-fixture',calibrationVersion:'fixture-only-v1'}});
@@ -91,6 +92,7 @@ export const prepareSamePaPhysicalLifecycleContinuation = <F extends SamePaPhysi
     explicitDefenderObservation?: PlayerObservationCalibration; explicitBatterMotor?: AcceptedBattingCapability['values'];
     explicitDefenderLocomotion?: PlayerLocomotionCalibration }> = {}, label = 'physical-fixture') => {
   const track = f.x.f.track, original = f.acceptedAction.source;
+  if(original.variant!=='declared_take_v1')throw new Error('legacy TAKE fixture requires a declared take');
   const save = <T extends { sourceId: string }>(source: T): T => { accepted.set(source.sourceId, source); return source; };
   const holdReferences = original.occupiedRunnerHoldReferences;
   const { originals, throughTick } = withSqliteReadTransaction(f.db, () => ({
@@ -157,6 +159,7 @@ export const completeSamePaPhysicalLifecycleFromCutFixture = <F extends SamePaPh
     explicitDefenderLocomotion?: PlayerLocomotionCalibration }> = {}, label = 'physical-fixture') => {
   const { first, second, anchor, sceneBodyReferences, geometry, genesis, worldOwner, roles, throughTick } = prepared;
   const track = f.x.f.track, original = f.acceptedAction.source;
+  if(original.variant!=='declared_take_v1')throw new Error('legacy TAKE fixture requires a declared take');
   const save = <T extends { sourceId: string }>(source: T): T => { accepted.set(source.sourceId, source); return source; };
   const holdReferences = original.occupiedRunnerHoldReferences;
   const occupiedPosture = holdReferences === undefined ? {} : { occupiedRunnerHoldReferences: holdReferences };

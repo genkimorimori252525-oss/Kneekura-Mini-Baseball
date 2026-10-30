@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-AERO-GROUND-SOURCE",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/VersionedBattedBallPhysics.test.ts",
+    "src/host/world/VersionedBattedBallFlightSource.test.ts",
+    "src/host/world/SqliteBattedBallFlightStore.test.ts",
+    "src/host/world/SqliteBattedWorldContactStore.test.ts",
+    "--maxWorkers=1",
+    "--minWorkers=1"
+  ],
+  "observed_at": "2026-10-14T20:06:16.231+00:00",
+  "elapsed_ms": 25625,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-AERO-GROUND-SOURCE_e1bf60456286469992796622764a9af0.log",
+  "output_sha256": "e8a20167e9f54342cece02e4495efccb3a6875b4b557a3e01fa7a40877a15d44",
+  "receipt_id": "MB-20261015-AERO-GROUND-SOURCE_e1bf60456286469992796622764a9af0"
+}

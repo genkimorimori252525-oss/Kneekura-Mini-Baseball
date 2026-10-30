@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V79-SEASON-CLIENT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-season-client-v79.mjs"
+  ],
+  "observed_at": "2026-10-20T00:12:30.274+00:00",
+  "elapsed_ms": 61,
+  "git_head": "98819b9ab5c8e4bdd7ddfc7d644d484df08ab55d",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V79-SEASON-CLIENT_8a25484394674d9d858c54050439058e.log",
+  "output_sha256": "851b994f6223f432e7e693947db1d4ba0415a7a9906a0517ef0cc42fcf24e184",
+  "receipt_id": "MB-20261020-V79-SEASON-CLIENT_8a25484394674d9d858c54050439058e"
+}

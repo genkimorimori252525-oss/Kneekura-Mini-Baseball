@@ -1,0 +1,33 @@
+{
+  "pass": false,
+  "phase": "authored-roster",
+  "startedAt": "2026-10-19T19:59:16.846Z",
+  "faults": [
+    {
+      "label": "page-0",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "page-1",
+      "errors": [],
+      "external": []
+    }
+  ],
+  "checks": [],
+  "scope": "Real offline normal/lab HTML, V77 six-pitch exactness, authored pitch JSON and history, one nine-inning game, lab 1200/390 settings and same-roster session replay.",
+  "hashesAtStart": {
+    "normal": "15804efd7eec66e8eea265c55cc3f3a73337c93d243ab71e386e8510dbe86b48",
+    "lab": "f5a0a171875ccd5a48146a74bc4eb1d1a219938778d1ef89108d7c33e8b512c6",
+    "normalMetadata": "a441c4de859bbb1cbd130e29aa1976f9c5bade08980f91373fd9d6945af0ee9f",
+    "labMetadata": "9031e705105e01632eb97a064711e854a9eee100399945ee9f36fd2682bd2245",
+    "pins": "1e1683d43158fa0088efdcf0e75c9594c9734132e46161b74cbf008347aa96b1"
+  },
+  "coreSha256": "5c0ac424da2e5a690c972b323234dd9bf2a0c3f5dadebdbc8e2e882e13e77ef1",
+  "sourceInputCount": 122,
+  "baseline": {
+    "records": 6,
+    "historySha256": "db7103e17aedbd95de83236d610a410f91fce638b3e4817a59edda2e3021010d",
+    "exact": true
+  }
+}

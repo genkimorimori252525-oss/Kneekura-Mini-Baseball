@@ -1,0 +1,39 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+✔ match adapter keeps paused observations, canvas commands and public version unchanged (9.5736ms)
+✔ match adapter updates the whole free-pitch scene at 22/3ms without ball-only painting (4.8748ms)
+✔ pitcher adapter keeps paused observations, canvas commands and public version unchanged (5.0732ms)
+✔ pitcher adapter updates the whole free-pitch scene at 22/3ms without ball-only painting (1.8486ms)
+✔ match adapter keeps 55/3ms for batted scenes and forces the pitch boundary (1.7451ms)
+✔ pitcher adapter keeps 55/3ms before release and renders release immediately (1.2836ms)
+✔ lab retains paused A/B copies at the identical requested scene time (3.593ms)
+✔ lab copies every layer for both observers at the same whole-scene time (1.0102ms)
+ ❯ tools/browser-bridge/whole-scene-adapters-v81.test.mjs (0 test)
+ ✓ tools/browser-bridge/presentation-ui-performance-v81.test.mjs (5 tests) 562ms
+✔ patches only the exact renderer and fails closed on changed or duplicate markers (117.0113ms)
+✔ caches only a repeated exact park and restores diagnostics with private dynamic ownership (159.0488ms)
+✔ invalidates the park for exact projection, park, style and canvas changes without rounded keys (370.2055ms)
+✔ retains the original park path if optional bitmap readback is unavailable (178.5723ms)
+✔ keeps distinct depth cells and the original non-finite-coordinate behavior (32.4604ms)
+✔ shares camera coefficients while preserving project, ray and ground results exactly (36.0724ms)
+ ❯ tools/browser-bridge/broadcast-renderer-performance-v81.test.mjs (0 test)
+ ✓ tools/browser-bridge/presentation-cadence-performance-v81.test.mjs (8 tests) 2181ms
+   ✓ fails closed on altered or duplicate v79 experiment markers 435ms
+   ✓ changes only the declared Presentation experiment regions and commutes with the independent UI patch 644ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tools/browser-bridge/broadcast-renderer-performance-v81.test.mjs [ tools/browser-bridge/broadcast-renderer-performance-v81.test.mjs ]
+Error: No test suite found in file C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/broadcast-renderer-performance-v81.test.mjs
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tools/browser-bridge/whole-scene-adapters-v81.test.mjs [ tools/browser-bridge/whole-scene-adapters-v81.test.mjs ]
+Error: No test suite found in file C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/whole-scene-adapters-v81.test.mjs
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  2 failed | 2 passed (4)
+      Tests  13 passed (13)
+   Start at  22:08:06
+   Duration  2.82s (transform 118ms, setup 0ms, collect 490ms, tests 2.74s, environment 1ms, prepare 635ms)
+

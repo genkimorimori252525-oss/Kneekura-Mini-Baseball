@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-JOINT-WORKLOAD-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "--maxWorkers",
+    "1",
+    "--minWorkers",
+    "1",
+    "src/core/world/development/PlayerWorkloadRecovery.test.ts",
+    "src/host/world/InitialJointWorkloadProjection.test.ts",
+    "src/host/world/InitialJointPhysicalSourceInput.test.ts",
+    "src/core/sim/pitch/ControlledBatBodyPitchWorldV1.test.ts"
+  ],
+  "observed_at": "2026-10-16T15:19:58.667+00:00",
+  "elapsed_ms": 13140,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-JOINT-WORKLOAD-REGRESSION_6811c30c9cd944b1918ac384203f6808.log",
+  "output_sha256": "53fefd8486f470ebe8bb38e9c253b6275d90826dfbb8d8d06434d0451883e10c",
+  "receipt_id": "MB-20261017-JOINT-WORKLOAD-REGRESSION_6811c30c9cd944b1918ac384203f6808"
+}

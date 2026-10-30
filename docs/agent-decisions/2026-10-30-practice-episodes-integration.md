@@ -1,0 +1,17 @@
+# 同本人の反復練習と意思指定の接続
+
+2026-10-30 JST / MB-20261027-REALISM-DEBUG-PLAN。ユーザーの全機能・受入・配送の維持と、確認待ちを増やさず進める直接指示に基づく通常の実装判断。
+
+## 判断と影響
+
+同本人のfirst target pitchを事前予定から省かず、正常な打席終了を保存して次のepisodeへ進める。episode内の時刻・記憶・負荷をresetする局所練習であり、careerや獲得の連続性とは扱わない。方向指定とは別にAUTO/SWING/TAKEを一球入力として保存する。
+
+独立Solレビューで、SWING固定時のPA尾球拒否、episode開始前の古い通常候補受理、保存tailのcaller入力変更を確認した。対象本人の尾球で同意思を維持し、別打者のprefixへ転用しない。候補はepisode状態にもbindし、tail入力をcloneして公開前に保存状態を構築する。UUID等のラベルだけで独立機会を増やさない。
+
+意思をspin motor policyの存在に結び付けると通常練習でもspinControlを抑制するdummy指定が必要になるため、strict parse済みEXPLICIT_PRACTICE request自体を明示局所宣言として採用する。managed offense・manager/TAKE競合拒否・現在配達済み予測・effort/latency/motor/物理制約は保持する。別の同義context追加案は採らない。宣言をNative/earnedの認証には使わない。
+
+## 検証と復旧
+
+変更前Source/Git親を別保存し、8既存fileへの逆変換を保存。新組合せと旧経路を含む43件456511ea、strict8300a888、既存spin profile非抑制87a5de6a等は担当実行PASS。Rootはtask/command/log実bytesを照合する。これらは実Browserや全4回転・獲得・最終配送の完了ではない。最終freezeの独立レビューと同本人2episode/Main/実Worker/保存再生を次に行う。
+
+旧FAIL 3a786b1cは初球fairのため尾球assert未発生だった記録として保持。他の旧FAIL/TIMEOUT/UNKNOWNも削除しない。復旧は保存した開始Sourceへの対象差分の逆適用、旧候補HTMLは保護する。共有dirtyの一括reset/stashや原本人JSONの変更は行わない。

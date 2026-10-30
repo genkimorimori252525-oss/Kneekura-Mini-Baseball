@@ -1,0 +1,422 @@
+{
+  "pass": true,
+  "helperVersion": 66,
+  "phase": "complete",
+  "cases": [
+    {
+      "pitch": 0,
+      "side": "L",
+      "curve": false,
+      "timingErrorSeconds": 0.0041974179520495175,
+      "start": 0.364145,
+      "impact": 0.5248468925715741,
+      "through": 0.5974520449645382,
+      "runStart": 0.74203,
+      "maximumCoupledDifferenceRadians": 0.03145979845499151,
+      "maximumImpactDifferenceRadians": 0.02806596050019996,
+      "maximumOutputSpeedRadPerSecond": 2.4694995056650293,
+      "maximumRateOverInheritedBudgetRadPerSecond": 0,
+      "carryoverAfterThrough400msRadians": 0,
+      "runStartCoupledRadians": 0.0021883089865950265,
+      "runPlus140msCoupledRadians": 0,
+      "bodyEyeExact": true,
+      "zeroMatchesPrevious63": true,
+      "boundaryStrength": {
+        "gain": 0.08,
+        "maximumDifferenceRadians": 0.03486422142153863,
+        "maximumOutputSpeedRadPerSecond": 2.4694995056650293,
+        "maximumRateOverInheritedBudgetRadPerSecond": 0,
+        "carryoverAfterThrough400msRadians": 0
+      },
+      "maximumSpeedWindow": {
+        "fromSeconds": 1.054,
+        "toSeconds": 1.056,
+        "fromYaw": -0.13488432462790548,
+        "fromPitch": 0.1490414678871432,
+        "toYaw": -0.13009876887774635,
+        "toPitch": 0.1478199248481805,
+        "baseSpeedRadPerSecond": 2.4694995056650293,
+        "headResponse": {
+          "yaw": 0,
+          "pitch": 0,
+          "vy": 0,
+          "vp": 0,
+          "phase": "settled",
+          "stop": {
+            "atSeconds": 0.5974520449645382,
+            "yaw": 0.026020147044087862,
+            "pitch": -0.010519034490048564,
+            "vy": 0.15828179921903607,
+            "vp": -0.05658342797501733
+          },
+          "settledAtSeconds": 0.7774520449645381
+        }
+      },
+      "maximumImpactMotionRadians": 0.01670355171564476
+    },
+    {
+      "pitch": 1,
+      "side": "R",
+      "curve": false,
+      "timingErrorSeconds": -0.008718902143785533,
+      "start": 0.305676,
+      "impact": 0.46726755199172443,
+      "through": 0.5402746527173705,
+      "runStart": 0.636251,
+      "maximumCoupledDifferenceRadians": 0.03330483618330463,
+      "maximumImpactDifferenceRadians": 0.03095478316235561,
+      "maximumOutputSpeedRadPerSecond": 2.500533114316953,
+      "maximumRateOverInheritedBudgetRadPerSecond": 0,
+      "carryoverAfterThrough400msRadians": 0,
+      "runStartCoupledRadians": 0.01690680277440518,
+      "runPlus140msCoupledRadians": 0,
+      "bodyEyeExact": true,
+      "zeroMatchesPrevious63": true,
+      "boundaryStrength": {
+        "gain": 0.08,
+        "maximumDifferenceRadians": 0.03564177791804502,
+        "maximumOutputSpeedRadPerSecond": 2.500533114316953,
+        "maximumRateOverInheritedBudgetRadPerSecond": 0,
+        "carryoverAfterThrough400msRadians": 0
+      },
+      "maximumSpeedWindow": {
+        "fromSeconds": 0.804,
+        "toSeconds": 0.806,
+        "fromYaw": 0.04296950801417555,
+        "fromPitch": 0.11847901682684611,
+        "toYaw": 0.038119837228559716,
+        "toPitch": 0.1172578056680669,
+        "baseSpeedRadPerSecond": 2.500533114316953,
+        "headResponse": {
+          "yaw": 0,
+          "pitch": 0,
+          "vy": 0,
+          "vp": 0,
+          "phase": "settled",
+          "stop": {
+            "atSeconds": 0.5402746527173705,
+            "yaw": -0.02967922752122072,
+            "pitch": -0.008794433146716699,
+            "vy": -0.13244237927407185,
+            "vp": -0.016522265016148653
+          },
+          "settledAtSeconds": 0.7202746527173705
+        }
+      },
+      "maximumImpactMotionRadians": 0.011179876576550653
+    },
+    {
+      "pitch": 3,
+      "side": "L",
+      "curve": true,
+      "timingErrorSeconds": -0.001757280319244022,
+      "start": 0.384582,
+      "impact": 0.5455541945368312,
+      "through": 0.6148988054724113,
+      "runStart": 0.765346,
+      "maximumCoupledDifferenceRadians": 0.03262370733697406,
+      "maximumImpactDifferenceRadians": 0.029890575794224484,
+      "maximumOutputSpeedRadPerSecond": 2.432992303246715,
+      "maximumRateOverInheritedBudgetRadPerSecond": 0,
+      "carryoverAfterThrough400msRadians": 0,
+      "runStartCoupledRadians": 0.0013588227232414827,
+      "runPlus140msCoupledRadians": 0,
+      "bodyEyeExact": true,
+      "zeroMatchesPrevious63": true,
+      "boundaryStrength": {
+        "gain": 0.08,
+        "maximumDifferenceRadians": 0.03540362118610043,
+        "maximumOutputSpeedRadPerSecond": 2.432992303246715,
+        "maximumRateOverInheritedBudgetRadPerSecond": 0,
+        "carryoverAfterThrough400msRadians": 0
+      },
+      "maximumSpeedWindow": {
+        "fromSeconds": 0.32,
+        "toSeconds": 0.322,
+        "fromYaw": -0.2123183117606046,
+        "fromPitch": 0.12028964557334225,
+        "toYaw": -0.21687891334282172,
+        "toPitch": 0.12198632450552407,
+        "baseSpeedRadPerSecond": 2.432992303246715,
+        "headResponse": {
+          "yaw": 0,
+          "pitch": 0,
+          "vy": 0,
+          "vp": 0,
+          "phase": "inactive"
+        }
+      },
+      "maximumImpactMotionRadians": 0.015189645374792482
+    },
+    {
+      "pitch": 4,
+      "side": "R",
+      "curve": true,
+      "timingErrorSeconds": -0.002593922006835077,
+      "start": 0.378413,
+      "impact": 0.5392884439240619,
+      "through": 0.6107171410263404,
+      "runStart": 0.759245,
+      "maximumCoupledDifferenceRadians": 0.031105658219984164,
+      "maximumImpactDifferenceRadians": 0.027467538322465623,
+      "maximumOutputSpeedRadPerSecond": 2.112578698699261,
+      "maximumRateOverInheritedBudgetRadPerSecond": 0,
+      "carryoverAfterThrough400msRadians": 0,
+      "runStartCoupledRadians": 0.0015954549086072173,
+      "runPlus140msCoupledRadians": 0,
+      "bodyEyeExact": true,
+      "zeroMatchesPrevious63": true,
+      "boundaryStrength": {
+        "gain": 0.08,
+        "maximumDifferenceRadians": 0.03341448710468659,
+        "maximumOutputSpeedRadPerSecond": 2.112578698699261,
+        "maximumRateOverInheritedBudgetRadPerSecond": 0,
+        "carryoverAfterThrough400msRadians": 0
+      },
+      "maximumSpeedWindow": {
+        "fromSeconds": 0.312,
+        "toSeconds": 0.314,
+        "fromYaw": 0.15110317550355187,
+        "fromPitch": 0.11028117112038942,
+        "toYaw": 0.15475406253727045,
+        "toPitch": 0.11240790074585126,
+        "baseSpeedRadPerSecond": 2.112578698699261,
+        "headResponse": {
+          "yaw": 0,
+          "pitch": 0,
+          "vy": 0,
+          "vp": 0,
+          "phase": "inactive"
+        }
+      },
+      "maximumImpactMotionRadians": 0.016747612768840032
+    },
+    {
+      "pitch": 5,
+      "side": "R",
+      "curve": true,
+      "timingErrorSeconds": -0.021400465120107296,
+      "start": 0.361496,
+      "impact": 0.521530433302857,
+      "through": 0.5915961559306756,
+      "runStart": 0.752644,
+      "maximumCoupledDifferenceRadians": 0.03268719942742122,
+      "maximumImpactDifferenceRadians": 0.030004437535074882,
+      "maximumOutputSpeedRadPerSecond": 2.4999999685691403,
+      "maximumRateOverInheritedBudgetRadPerSecond": 0,
+      "carryoverAfterThrough400msRadians": 0,
+      "runStartCoupledRadians": 0.0003971371967379397,
+      "runPlus140msCoupledRadians": 0,
+      "bodyEyeExact": true,
+      "zeroMatchesPrevious63": true,
+      "boundaryStrength": {
+        "gain": 0.08,
+        "maximumDifferenceRadians": 0.03514431145618195,
+        "maximumOutputSpeedRadPerSecond": 2.4999999685691403,
+        "maximumRateOverInheritedBudgetRadPerSecond": 0,
+        "carryoverAfterThrough400msRadians": 0
+      },
+      "maximumSpeedWindow": {
+        "fromSeconds": 0.776,
+        "toSeconds": 0.778,
+        "fromYaw": 0.20763924421143076,
+        "fromPitch": -0.015262247090493453,
+        "toYaw": 0.2052757797016331,
+        "toPitch": -0.019668383139494865,
+        "baseSpeedRadPerSecond": 2.4999999685691403,
+        "headResponse": {
+          "yaw": 0,
+          "pitch": 0,
+          "vy": 0,
+          "vp": 0,
+          "phase": "settled",
+          "stop": {
+            "atSeconds": 0.5915961559306756,
+            "yaw": -0.02862958116396687,
+            "pitch": -0.008978493981289111,
+            "vy": -0.14390603863578713,
+            "vp": -0.021720956495791813
+          },
+          "settledAtSeconds": 0.7715961559306757
+        }
+      },
+      "maximumImpactMotionRadians": 0.015539429570883218
+    },
+    {
+      "pitch": 12,
+      "side": "R",
+      "curve": true,
+      "timingErrorSeconds": -0.001970639045903929,
+      "start": 0.38297,
+      "impact": 0.5432668919356912,
+      "through": 0.6155539987459183,
+      "runStart": 0.818103,
+      "maximumCoupledDifferenceRadians": 0.031430277179201355,
+      "maximumImpactDifferenceRadians": 0.027984267844046937,
+      "maximumOutputSpeedRadPerSecond": 2.422814138179757,
+      "maximumRateOverInheritedBudgetRadPerSecond": 0,
+      "carryoverAfterThrough400msRadians": 0,
+      "runStartCoupledRadians": 0,
+      "runPlus140msCoupledRadians": 0,
+      "bodyEyeExact": true,
+      "zeroMatchesPrevious63": true,
+      "boundaryStrength": {
+        "gain": 0.08,
+        "maximumDifferenceRadians": 0.03369568179426218,
+        "maximumOutputSpeedRadPerSecond": 2.422814138179757,
+        "maximumRateOverInheritedBudgetRadPerSecond": 0,
+        "carryoverAfterThrough400msRadians": 0
+      },
+      "maximumSpeedWindow": {
+        "fromSeconds": 0.334,
+        "toSeconds": 0.336,
+        "fromYaw": 0.21836233421877874,
+        "fromPitch": 0.11400258980269244,
+        "toYaw": 0.2228239740067404,
+        "toPitch": 0.11589306164726786,
+        "baseSpeedRadPerSecond": 2.422814138179757,
+        "headResponse": {
+          "yaw": 0,
+          "pitch": 0,
+          "vy": 0,
+          "vp": 0,
+          "phase": "inactive"
+        }
+      },
+      "maximumImpactMotionRadians": 0.018472801920745064
+    },
+    {
+      "pitch": 13,
+      "side": "R",
+      "curve": true,
+      "timingErrorSeconds": -0.020224412648540902,
+      "start": 0.358475,
+      "impact": 0.5207430688472986,
+      "through": 0.5978154483120144,
+      "runStart": 0.806723,
+      "maximumCoupledDifferenceRadians": 0.03390122603213041,
+      "maximumImpactDifferenceRadians": 0.0318722149661063,
+      "maximumOutputSpeedRadPerSecond": 2.3513453315403203,
+      "maximumRateOverInheritedBudgetRadPerSecond": 0,
+      "carryoverAfterThrough400msRadians": 0,
+      "runStartCoupledRadians": 0,
+      "runPlus140msCoupledRadians": 0,
+      "bodyEyeExact": true,
+      "zeroMatchesPrevious63": true,
+      "boundaryStrength": {
+        "gain": 0.08,
+        "maximumDifferenceRadians": 0.0360843464272178,
+        "maximumOutputSpeedRadPerSecond": 2.3513453315403203,
+        "maximumRateOverInheritedBudgetRadPerSecond": 0,
+        "carryoverAfterThrough400msRadians": 0
+      },
+      "maximumSpeedWindow": {
+        "fromSeconds": 0.32,
+        "toSeconds": 0.322,
+        "fromYaw": 0.18485035578841497,
+        "fromPitch": 0.11597514448727994,
+        "toYaw": 0.1891611754192681,
+        "toPitch": 0.1178545416201066,
+        "baseSpeedRadPerSecond": 2.3513453315403203,
+        "headResponse": {
+          "yaw": 0,
+          "pitch": 0,
+          "vy": 0,
+          "vp": 0,
+          "phase": "inactive"
+        }
+      },
+      "maximumImpactMotionRadians": 0.016814376154642742
+    },
+    {
+      "pitch": 14,
+      "side": "L",
+      "curve": true,
+      "timingErrorSeconds": 0.00006306410658668157,
+      "start": 0.358709,
+      "impact": 0.5201394494847953,
+      "through": 0.5918145690560341,
+      "runStart": 0.684169,
+      "maximumCoupledDifferenceRadians": 0.03463223291902106,
+      "maximumImpactDifferenceRadians": 0.032974084181209194,
+      "maximumOutputSpeedRadPerSecond": 2.247007474720549,
+      "maximumRateOverInheritedBudgetRadPerSecond": 0,
+      "carryoverAfterThrough400msRadians": 0,
+      "runStartCoupledRadians": 0.018516409155294136,
+      "runPlus140msCoupledRadians": 0,
+      "bodyEyeExact": true,
+      "zeroMatchesPrevious63": true,
+      "boundaryStrength": {
+        "gain": 0.08,
+        "maximumDifferenceRadians": 0.03645616107483501,
+        "maximumOutputSpeedRadPerSecond": 2.247007474720549,
+        "maximumRateOverInheritedBudgetRadPerSecond": 0,
+        "carryoverAfterThrough400msRadians": 0
+      },
+      "maximumSpeedWindow": {
+        "fromSeconds": 0.318,
+        "toSeconds": 0.32,
+        "fromYaw": -0.17215508988232514,
+        "fromPitch": 0.11380756885548045,
+        "toYaw": -0.17616794484766998,
+        "toPitch": 0.11583072613876501,
+        "baseSpeedRadPerSecond": 2.247007474720549,
+        "headResponse": {
+          "yaw": 0,
+          "pitch": 0,
+          "vy": 0,
+          "vp": 0,
+          "phase": "inactive"
+        }
+      },
+      "maximumImpactMotionRadians": 0.013090850129975549
+    }
+  ],
+  "failures": [],
+  "rateContract": "COMPOSED_INTERVAL_SPEED_LE_MAX_2_5_OR_SAME_INTERVAL_ZERO_COUPLING_BASE_PLUS_1E_8",
+  "strictInheritedBaseLimit": false,
+  "existingBaseNumericalOvershoots": [
+    {
+      "pitch": 1,
+      "fromSeconds": 0.804,
+      "toSeconds": 0.806,
+      "baseSpeedRadPerSecond": 2.500533114316953,
+      "composedDefaultSpeedRadPerSecond": 2.500533114316953,
+      "composedMaximumGainSpeedRadPerSecond": 2.500533114316953
+    },
+    {
+      "pitch": 1,
+      "fromSeconds": 0.806,
+      "toSeconds": 0.808,
+      "baseSpeedRadPerSecond": 2.500427400085014,
+      "composedDefaultSpeedRadPerSecond": 2.500427400085014,
+      "composedMaximumGainSpeedRadPerSecond": 2.500427400085014
+    }
+  ],
+  "helperSha256": "35f49f39c49243f51d7f31d48c18513b22cf9cb7b00dd65d6ddb1b32afeff43b",
+  "sourceSha256": "74f72107c74955d90d131d01df633586657833cda91eae5ad3e05069afc975e1",
+  "sourceRecords": 18,
+  "sourcePath": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\v66-audit-source-18.json",
+  "coverage": {
+    "left": 3,
+    "right": 5,
+    "earlyCurves": 5,
+    "lateCurves": 1
+  },
+  "takeAndBuntUnchanged": true,
+  "futurePayloadAndSeek": true,
+  "summary": {
+    "swings": 8,
+    "left": 3,
+    "right": 5,
+    "earlyCurves": 5,
+    "lateCurves": 1,
+    "maximumOutputSpeedRadPerSecond": 2.500533114316953,
+    "maximumCarryoverRadians": 0,
+    "maximumImpactDifferenceRadians": 0.032974084181209194,
+    "strictInheritedBaseLimit": false,
+    "existingBaseOvershootIntervals": 2,
+    "maximumExistingBaseSpeedRadPerSecond": 2.500533114316953,
+    "maximumRateOverInheritedBudgetRadPerSecond": 0
+  }
+}

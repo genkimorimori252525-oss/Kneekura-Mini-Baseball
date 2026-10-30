@@ -1,0 +1,61 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts (17 tests | 2 failed) 2729ms
+   ✓ runs the complete actual base path after a fair over-fence flight instead of teleporting runners 363ms
+   × catches an ordinary high center-field fly using a causal aero-ground forecast 622ms
+     → expected { …(4) } to match object { complete: true, reason: 'third_out' }
+(2 matching properties omitted from actual)
+   ✓ keeps bodies, independent gloves and a possessed ball inside the physical fence through pickup and release 505ms
+   × continues a pinned failed glove contact on the floor through both actual normal impulses 144ms
+     → expected false to be true // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayV1.test.ts > catches an ordinary high center-field fly using a causal aero-ground forecast
+AssertionError: expected { …(4) } to match object { complete: true, reason: 'third_out' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  Object {
+    "complete": true,
+-   "reason": "third_out",
++   "reason": "ground_rule_award_completed",
+  }
+
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts:147:22
+    145|   const input = liveFieldFixture(), result = simulateLiveFieldPlayV1({…
+    146|     ball: { ...input.ball, ball: { ...input.ball.ball, position: v(0, …
+    147|   expect(result.end).toMatchObject({ complete: true, reason: 'third_ou…
+       |                      ^
+    148|   expect(result.ruleFacts.firstGroundContactTick).toBeNull();
+    149|   expect(result.ruleFacts.flyCatch).not.toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayV1.test.ts > continues a pinned failed glove contact on the floor through both actual normal impulses
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts:204:85
+    202|       ...(n === 0 ? { position: v(.85, 0, -.2) } : {}), topSpeedMps: 8…
+    203|   expect(result.end.complete).toBe(true);
+    204|   expect(result.diagnostics.simultaneousContacts.some(c => c.activeSet…
+       |                                                                                     ^
+    205|   for (const c of result.diagnostics.simultaneousContacts) {
+    206|     expect(c.actorNormalSpeed).toBeGreaterThanOrEqual(0); expect(c.gro…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 15 passed (17)
+   Start at  09:47:29
+   Duration  3.56s (transform 250ms, setup 0ms, collect 356ms, tests 2.73s, environment 0ms, prepare 146ms)
+

@@ -7,8 +7,9 @@ import type { AcceptedOriginalBattingIntent } from './OriginalBattingIntent';
 
 /** Prepares original accepted actors/calibration and a contact action, but does not
  * accept the physical pitch. The bat placement is the existing batted-flight fixture. */
-export const originalBattingIntentFixture = (path: string) => {
-  const x = physicalPlateAppearanceActorFixture(path, undefined, { ruleProfileId: NPB_2026_RULE_PROFILE.id });
+export const originalBattingIntentFixture = (path: string, initializeCalendar?: Parameters<typeof physicalPlateAppearanceActorFixture>[6],
+  identity?: Parameters<typeof physicalPlateAppearanceActorFixture>[7]) => {
+  const x = physicalPlateAppearanceActorFixture(path, undefined, { ruleProfileId: NPB_2026_RULE_PROFILE.id }, [], undefined, undefined, initializeCalendar, identity);
   try {
     const actor = x.actors.accept(x.source.sourceId);
     const preview = resolveContinuousPlayerPitchAgainstBatterFromWorld(x.f.stores, x.f.input);

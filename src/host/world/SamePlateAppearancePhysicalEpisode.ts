@@ -10,7 +10,7 @@ import type { BattedWorldFieldGeometry, BattedWorldFieldMotion } from '../../cor
 import type { BallFlightParameters } from '../../core/sim/ball/BallFlight';
 import { calculateBaseballAerodynamics } from '../../core/sim/ball/BaseballAerodynamics';
 import { actorFreeze as freeze, type DurablePhysicalPlateAppearanceActor } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
-import { samePaNominalTakeInput, type AcceptedSamePaFirstPitchAction } from './SamePlateAppearanceDispatchSource';
+import { samePaNominalTakeInput, type AcceptedSamePaFirstPitchAction, type SamePaNominalTakePitch } from './SamePlateAppearanceDispatchSource';
 import { samePaDispatchMemberValid, samePaDispatchRouteValid, type SamePaDispatchMember, type SamePaDispatchRoute } from './SamePlateAppearanceDispatchRoles';
 import { samePaFields as fields, samePaReferenceValid as ref, samePaText as text, type SamePaReference, type SamePaExecutionLineage } from './SamePlateAppearanceWorkPrefix';
 import type { SamePaLifecycleBodyCut } from './SamePlateAppearanceLifecycle';
@@ -18,9 +18,30 @@ import { samePaPhysicalFieldCalibrationSourceInput, type SamePaPhysicalFieldCali
 export type { SamePaPhysicalFieldCalibrationSource } from './SamePlateAppearancePhysicalFieldCalibration';
 import { samePaPhysicalFieldActionInput, type SamePaPhysicalFieldAction, type SamePaPhysicalFieldActionResult } from './SamePlateAppearancePhysicalFieldAction';
 import { samePaBuntProfileBindingInput, type SamePaBuntProfileBinding } from './SamePlateAppearanceBuntProfile';
+import { samePaSpinBindingInputV123, type SamePaSpinBindingV123 } from './SamePlateAppearanceSpinBindingV123';
+import { samePaObservedSpinAimTrialInputV226, type SamePaObservedSpinAimTrialV226 } from './SamePaObservedSpinAimTrialV226';
+import { samePaQualifiedSpinAimInputV233, type SamePaQualifiedSpinAimV233 } from './SamePaQualifiedSpinAimV233';
 import { battedVenuePlayableWallPolicyInput, type AcceptedBattedVenuePlayableWallPolicy } from './BattedVenuePlayableWallPolicy';
 import type { SamePaPlayableWallPolicyBinding } from './SamePlateAppearancePlayableWallPolicy';
 import { battedVenueLegalCoveragePolicyInput, type AcceptedBattedVenueLegalCoveragePolicy, type SamePaVenueLegalCoveragePolicyBinding } from './BattedVenueLegalCoveragePolicy';
+import type { AeroGroundBallPhysicsV1 } from '../../core/sim/ball/VersionedBattedBallPhysics';
+import { samePaFieldBallPhysics } from './SamePlateAppearanceBallPhysics';
+import { SAME_PA_POLE_ESCAPE_FIELD_ROOT_SOURCE_VERSION } from './SamePlateAppearanceBallPhysics';
+import { samePaParkEquipmentInputV145, type AcceptedSamePaParkEquipmentV145, type SamePaParkEquipmentBindingV145 } from './SamePlateAppearanceParkEquipmentV145';
+import type { SourceBattedFieldMotionTraceV3 } from '../../core/sim/ball/SourceBattedFieldMotionV3';
+export type SamePaFieldBallSolverEvidenceV3 = Pick<SourceBattedFieldMotionTraceV3, 'solverVersion' | 'impulseCertificates' | 'escapedIntervals'>;
+export type SamePaFieldBallSolverEvidenceV145 = Omit<SamePaFieldBallSolverEvidenceV3,'solverVersion'> & Readonly<{solverVersion:'source_field_pole_contact_escape_v145'}>;
+/** Retained index keys index ordered Core actions (including adoption) only
+ * for this version. Archived V3 evidence retains its physical-step semantics. */
+export type SamePaFieldBallSolverEvidenceMotorV1 = Omit<SamePaFieldBallSolverEvidenceV3, 'solverVersion'> & Readonly<{ solverVersion: 'source_field_motor_motion_v1' }>;
+export type SamePaFieldBallSolverEvidenceControlV1 = Omit<SamePaFieldBallSolverEvidenceMotorV1, 'solverVersion'> & Readonly<{ solverVersion: 'source_defensive_control_v1' }>;
+/** Capture indices are independent of the free prefix's ordered action indices. */
+export type SamePaFieldBallSolverEvidenceAcquisitionV1 = Omit<SamePaFieldBallSolverEvidenceMotorV1, 'solverVersion'> & Readonly<{
+  solverVersion:'source_field_acquisition_v1';freeSolverVersion:'source_field_motor_motion_v1';
+  captureAdvances:readonly Readonly<{captureStepIndex:number;throughElapsedSeconds:number;
+    kind:import('../../core/sim/ball/BattedWorldScheduledFieldAcquisition').BattedWorldScheduledFieldAcquisitionAdvance['kind'];
+    worldMoment:import('../../core/sim/ball/BallWorldContinuation').BallWorldMoment;remainingEnergyJ:number}>[];
+}>;
 
 export const samePaPhysicalOperationOwners = Object.freeze(['pa_physical_v1_launches', 'pa_physical_v1_cuts', 'pa_physical_v1_commitments',
   'pa_physical_v1_resolutions', 'pa_physical_v1_field_roots', 'pa_physical_v1_field_steps'] as const);
@@ -29,7 +50,7 @@ export type SamePaPhysicalOperationReference = SamePaReference<SamePaPhysicalOpe
 export type SamePaPhysicalLaunchReference = SamePaReference<'pa_physical_v1_launches'>;
 type SourceBase = Readonly<{ sourceId: string; sourceVersion: string; viewReference: SamePaReference<'pa_lifecycle_v1_execution_views'> }>;
 export type SamePaPhysicalActionSource = SourceBase & Readonly<{ capability: 'same_pa_physical_action_v1'; physicalPitchSourceId: string;
-  nominalPitch: AcceptedSamePaFirstPitchAction['nominalPitch']; timingReference: AcceptedSamePaFirstPitchAction['timingReference'];
+  nominalPitch: SamePaNominalTakePitch; timingReference: AcceptedSamePaFirstPitchAction['timingReference'];
   releaseReference: AcceptedSamePaFirstPitchAction['releaseReference']; pitchResponseReference: AcceptedSamePaFirstPitchAction['pitchResponseReference'];
   batterModelReference: AcceptedSamePaFirstPitchAction['batterModelReference']; battingMode: 'declared_take' | 'observer_decision';
   actualFlightParameters: AerodynamicPitchTrajectoryParameters; contactResponse: 'nathan_2012_wood_local_v1' }>;
@@ -42,9 +63,14 @@ export type SamePaPhysicalLaunchSource = SourceBase & Readonly<{ capability: 'sa
   actionReference: SamePaReference<'pa_physical_v1_action_plans'>; rightReference: SamePaReference<'pa_physical_v1_rights'> }>;
 type OperationSource = SourceBase & Readonly<{ launchReference: SamePaPhysicalLaunchReference; previousOperationReference: SamePaPhysicalOperationReference }>;
 export type SamePaPhysicalCutSource = OperationSource & Readonly<{ capability: 'same_pa_physical_cut_v1'; throughTick: number }>;
-export type SamePaPhysicalCommitmentSource = OperationSource & Readonly<{ capability: 'same_pa_physical_commitment_v1';
+export type SamePaPhysicalCommitmentSource = OperationSource & (Readonly<{ capability: 'same_pa_physical_commitment_v1';
   inputReference: SamePaReference<'batting_execution_v1_inputs'>; intentReference: SamePaReference<'batting_execution_v1_intents'>;
-  buntProfileBinding?: SamePaBuntProfileBinding }>;
+  buntProfileBinding?: SamePaBuntProfileBinding }> | Readonly<{ capability: 'same_pa_physical_commitment_v123';
+  inputReference: SamePaReference<'batting_execution_v1_inputs'>; intentReference: SamePaReference<'batting_execution_v1_intents'>;
+  spinBindingV123: SamePaSpinBindingV123; buntProfileBinding?: never }> | Readonly<{ capability: 'same_pa_physical_observed_spin_aim_trial_v226';
+  inputReference: SamePaReference<'batting_execution_v1_inputs'>; intentReference: SamePaReference<'batting_execution_v1_intents'>;
+  trial: SamePaObservedSpinAimTrialV226; buntProfileBinding?: never }> | Readonly<{ capability:'same_pa_physical_qualified_spin_aim_v233';
+  inputReference:SamePaReference<'batting_execution_v1_inputs'>;intentReference:SamePaReference<'batting_execution_v1_intents'>;qualifiedAim:SamePaQualifiedSpinAimV233;buntProfileBinding?:never }>);
 export type SamePaPhysicalResolutionSource = OperationSource & Readonly<{ capability: 'same_pa_physical_resolution_v1'; throughTick: number;
   commitmentReference: SamePaReference<'pa_physical_v1_commitments'> | null }>;
 export type SamePaPhysicalFieldRootSource = OperationSource & Readonly<{ capability: 'same_pa_physical_field_root_v1';
@@ -52,6 +78,8 @@ export type SamePaPhysicalFieldRootSource = OperationSource & Readonly<{ capabil
   fieldInputs: Readonly<{kind:'reused_normal_field_inputs_v1';geometryReference:SamePaReference<'batted_world_field_geometries'>;modelReference:SamePaReference<'batted_world_models'>;responseModelReference:SamePaReference<'batted_contact_response_models'>}>
     |Readonly<{kind:'fresh_physical_field_calibration_v1';calibrationReference:SamePaReference<'pa_physical_v1_field_calibrations'>}>;
   commands: import('./SqliteBattedWorldContactStore').AcceptedBattedWorldContact['commands']; parameters: Required<BallFlightParameters>; throughTick: number;
+  ballPhysics?: AeroGroundBallPhysicsV1;
+  parkEquipment?: AcceptedSamePaParkEquipmentV145;
   venuePolicy?: AcceptedBattedVenuePlayableWallPolicy;
   venueLegalCoveragePolicy?: AcceptedBattedVenueLegalCoveragePolicy;
   liveProducerProfile?: 'same_pa_empty_base_catch_v1' | 'same_pa_stationary_occupied_catch_v1';
@@ -78,16 +106,24 @@ export type SamePaPhysicalLaunch = RecordBase<SamePaPhysicalLaunchSource> & Read
 export type SamePaPhysicalCut = RecordBase<SamePaPhysicalCutSource> & Readonly<{ kind: 'same_pa_physical_cut_v1'; stage: 'in_flight' | 'committed';
   ball: ReturnType<typeof import('../../core/sim/pitching/AerodynamicPitchTrajectory').sampleAerodynamicPitchTrajectory> }>;
 export type SamePaPhysicalCommitment = RecordBase<SamePaPhysicalCommitmentSource> & Readonly<{ kind: 'same_pa_physical_commitment_v1'; stage: 'committed';
-  commitment: BattingCommitment; calculation: import('../../core/world/psychology/batting/BattingCommitment').BattingExecutionCalculation;
+  commitment: BattingCommitment; calculation: import('../../core/world/psychology/batting/BattingCommitment').BattingExecutionCalculation
+    | import('../../core/world/psychology/batting/BattingCommitment').BattingSpinExecutionCalculationV123
+    | import('../../core/world/psychology/batting/BattingCommitment').BattingObservedSpinAimTrialCalculationV226
+    | import('../../core/world/psychology/batting/BattingCommitment').BattingQualifiedSpinAimCalculationV233;
   inputSource: import('./NativeBattingExecutionInput').AcceptedInFlightSamePaBattingExecutionInput;
   originalIntent: import('./OriginalBattingIntent').AcceptedOriginalBattingIntent;
+  trialEvidenceV226?: ReturnType<typeof import('./SamePaObservedSpinAimTrialV226').deriveSamePaObservedSpinAimTrialV226>['evidence'];
+  qualifiedEvidenceV233?: ReturnType<typeof import('./SamePaQualifiedSpinAimV233').deriveSamePaQualifiedSpinAimV233>['qualifiedEvidenceV233'];
   beforeWorldRevision: number; afterWorldRevision: number; controlRevision: number; controlHash: string; actionKey: string }>;
 export type SamePaPhysicalResolution = RecordBase<SamePaPhysicalResolutionSource> & Readonly<{ kind: 'same_pa_physical_resolution_v1'; stage: 'resolved';
   resolution: AerodynamicRigidPitchAgainstBatterResolution; contact: import('../../core/sim/contact/BatBallContact').BatBallContactResult | null }>;
 export type SamePaPhysicalFieldRoot = RecordBase<SamePaPhysicalFieldRootSource> & Readonly<{ kind: 'same_pa_physical_field_root_v1'; stage: 'field';
   response: BattedBallContactResponseInput; geometry: BattedWorldFieldGeometry; field: BattedWorldFieldMotion; geometryBindingHash: string;
-  venuePolicyBinding?: SamePaPlayableWallPolicyBinding; venueLegalCoveragePolicyBinding?: SamePaVenueLegalCoveragePolicyBinding }>;
-export type SamePaPhysicalFieldStep = RecordBase<SamePaPhysicalFieldStepSource> & Readonly<{ kind: 'same_pa_physical_field_step_v1'; stage: 'field'; field: BattedWorldFieldMotion; actionResult?: SamePaPhysicalFieldActionResult }>;
+  ballSolverEvidence?: SamePaFieldBallSolverEvidenceV3 | SamePaFieldBallSolverEvidenceV145;
+  venuePolicyBinding?: SamePaPlayableWallPolicyBinding; venueLegalCoveragePolicyBinding?: SamePaVenueLegalCoveragePolicyBinding;
+  parkEquipmentBinding?: SamePaParkEquipmentBindingV145 }>;
+export type SamePaPhysicalFieldStep = RecordBase<SamePaPhysicalFieldStepSource> & Readonly<{ kind: 'same_pa_physical_field_step_v1'; stage: 'field'; field: BattedWorldFieldMotion; actionResult?: SamePaPhysicalFieldActionResult;
+  ballSolverEvidence?: SamePaFieldBallSolverEvidenceV3 | SamePaFieldBallSolverEvidenceV145 | SamePaFieldBallSolverEvidenceMotorV1 | SamePaFieldBallSolverEvidenceAcquisitionV1 | SamePaFieldBallSolverEvidenceControlV1 }>;
 export type SamePaPhysicalOperation = SamePaPhysicalLaunch | SamePaPhysicalCut | SamePaPhysicalCommitment | SamePaPhysicalResolution | SamePaPhysicalFieldRoot | SamePaPhysicalFieldStep;
 export type SamePaPhysicalEpisodeRecord = SamePaPhysicalAction | SamePaPhysicalRight | SamePaPhysicalOperation | SamePaPhysicalFieldCalibration;
 export type SamePaPhysicalOperationProof = Readonly<{ reference: SamePaPhysicalOperationReference; record: SamePaPhysicalOperation;
@@ -141,14 +177,23 @@ export const samePaPhysicalEpisodeSourceInput = (raw: unknown, id?: string): Sam
     if (s.capability === 'same_pa_physical_cut_v1') { if (!fields(s, [...op, 'throughTick']) || !tick(s.throughTick)) throw new Error('invalid physical cut'); }
     else if (s.capability === 'same_pa_physical_commitment_v1') { if (!fields(s, [...op, 'inputReference', 'intentReference', ...('buntProfileBinding' in s ? ['buntProfileBinding'] : [])]) || !ref(s.inputReference, 'batting_execution_v1_inputs') || !ref(s.intentReference, 'batting_execution_v1_intents')) throw new Error('invalid physical commitment');
       if ('buntProfileBinding' in s) samePaBuntProfileBindingInput(s.buntProfileBinding); }
+    else if (s.capability === 'same_pa_physical_commitment_v123') { if (!fields(s, [...op, 'inputReference', 'intentReference', 'spinBindingV123']) || !ref(s.inputReference, 'batting_execution_v1_inputs') || !ref(s.intentReference, 'batting_execution_v1_intents')) throw new Error('invalid physical spin commitment');
+      samePaSpinBindingInputV123(s.spinBindingV123); }
+    else if (s.capability === 'same_pa_physical_observed_spin_aim_trial_v226') { if (!fields(s, [...op, 'inputReference', 'intentReference', 'trial']) || !ref(s.inputReference, 'batting_execution_v1_inputs') || !ref(s.intentReference, 'batting_execution_v1_intents')) throw new Error('invalid physical observed spin aim trial');
+      samePaObservedSpinAimTrialInputV226(s.trial); }
+    else if (s.capability === 'same_pa_physical_qualified_spin_aim_v233') { if (!fields(s,[...op,'inputReference','intentReference','qualifiedAim']) || !ref(s.inputReference,'batting_execution_v1_inputs') || !ref(s.intentReference,'batting_execution_v1_intents')) throw new Error('invalid physical qualified spin aim');
+      samePaQualifiedSpinAimInputV233(s.qualifiedAim); }
     else if (s.capability === 'same_pa_physical_resolution_v1') { if (!fields(s, [...op, 'throughTick', 'commitmentReference']) || !tick(s.throughTick) || s.commitmentReference !== null && !ref(s.commitmentReference, 'pa_physical_v1_commitments')) throw new Error('invalid physical resolution'); }
-    else if (s.capability === 'same_pa_physical_field_root_v1') { const f=s.fieldInputs; if (!fields(s, [...op, 'resolutionReference', 'fieldInputs', 'postureReference', 'commands', 'parameters', 'throughTick', ...('venuePolicy' in s ? ['venuePolicy'] : []), ...('venueLegalCoveragePolicy' in s ? ['venueLegalCoveragePolicy'] : []), ...('liveProducerProfile' in s ? ['liveProducerProfile'] : []), ...('actorProducerPolicies' in s ? ['actorProducerPolicies'] : [])]) || !tick(s.throughTick)
+    else if (s.capability === 'same_pa_physical_field_root_v1') { const f=s.fieldInputs; if (!fields(s, [...op, 'resolutionReference', 'fieldInputs', 'postureReference', 'commands', 'parameters', 'throughTick', ...('ballPhysics' in s ? ['ballPhysics'] : []), ...('parkEquipment' in s ? ['parkEquipment'] : []), ...('venuePolicy' in s ? ['venuePolicy'] : []), ...('venueLegalCoveragePolicy' in s ? ['venueLegalCoveragePolicy'] : []), ...('liveProducerProfile' in s ? ['liveProducerProfile'] : []), ...('actorProducerPolicies' in s ? ['actorProducerPolicies'] : [])]) || !tick(s.throughTick)
       || 'liveProducerProfile' in s && !['same_pa_empty_base_catch_v1', 'same_pa_stationary_occupied_catch_v1'].includes(s.liveProducerProfile!)
       || !ref(s.resolutionReference, 'pa_physical_v1_resolutions') || !ref(s.postureReference, 'batting_observation_v1_postures')
       ||!(f?.kind==='reused_normal_field_inputs_v1'&&fields(f,['kind','geometryReference','modelReference','responseModelReference'])&&ref(f.geometryReference,'batted_world_field_geometries')&&ref(f.modelReference,'batted_world_models')&&ref(f.responseModelReference,'batted_contact_response_models')
         ||f?.kind==='fresh_physical_field_calibration_v1'&&fields(f,['kind','calibrationReference'])&&ref(f.calibrationReference,'pa_physical_v1_field_calibrations'))|| !Array.isArray(s.commands) || s.commands.length < 10 || s.commands.length > 13
       || !fields(s.parameters, ['ticksPerSecond', 'gravityY', 'ballRadius', 'groundRestitution', 'groundFriction', 'groundRollingDecelerationMps2', 'integrationStepTicks', 'restingVerticalSpeed'])
       || Object.values(s.parameters).some(n => typeof n !== 'number' || !Number.isFinite(n))) throw new Error('invalid physical field root');
+      samePaFieldBallPhysics(s);
+      if(s.sourceVersion===SAME_PA_POLE_ESCAPE_FIELD_ROOT_SOURCE_VERSION)samePaParkEquipmentInputV145(s.parkEquipment!);
+      else if(Object.hasOwn(s,'parkEquipment'))throw Error('park equipment requires its explicit same-PA root algorithm');
       if ('actorProducerPolicies' in s && (!Array.isArray(s.actorProducerPolicies)||!s.actorProducerPolicies.length
         ||new Set(s.actorProducerPolicies.map(p=>p.playerId)).size!==s.actorProducerPolicies.length
         ||s.actorProducerPolicies.some(p=>!fields(p,['playerId','policy'])||!text(p.playerId)||!samePaActorProducerPolicyValid(p.policy)

@@ -1,6 +1,8 @@
+import { readInitialBatEquipmentFromSqlite } from './SqliteInitialBatEquipmentStore';
+import { bindSamePaInitialPlayToObservedPitchWithBatV2 } from './SamePlateAppearanceInitialBallProof';
 import { sqliteMetadataClaimRows } from './SqliteMetadataStatementScope';
 import { readSamePaInitialPlayFromSqlite } from './SqliteSamePlateAppearanceInitialBallStore';
-import { bindSamePaInitialPlayToPitch } from './SamePlateAppearanceInitialBallProof';
+import { bindSamePaInitialPlayToPitch, bindSamePaInitialPlayToObservedPitch } from './SamePlateAppearanceInitialBallProof';
 import { battingAssessmentOwners } from './BattingAssessmentOwnership';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
@@ -9,7 +11,7 @@ import { actorHash as hash, actorJson as json, actorFreeze as freeze, readPhysic
 import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { withSamePaContinuationReadPhase } from './SamePlateAppearanceContinuationFromSqlite';
 import { paDispatchSchema, assertPaDispatchStorage } from './SamePlateAppearanceDispatchStorage';
-import { samePaDispatchSourceInput, assertSamePaDispatchSourceBasis, type SamePaDispatchBase, type AcceptedSamePaFirstPitchAction, type AcceptedSamePaExecutionCalibration, type AcceptedSamePaPhysicalPitch } from './SamePlateAppearanceDispatchSource';
+import { samePaDispatchSourceInput, assertSamePaDispatchSourceBasis, type SamePaDispatchBase, type AcceptedSamePaFirstPitchAction, type AcceptedSamePaExecutionCalibration, type AcceptedSamePaPhysicalPitch, type AcceptedSamePaObservedPhysicalPitch } from './SamePlateAppearanceDispatchSource';
 import { deriveSamePaDispatchRoles, samePaDispatchPrerequisites, type SamePaDispatchRoleBinding, type SamePaDispatchRoute } from './SamePlateAppearanceDispatchRoles';
 import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
 import { readSamePaOccupiedRunnerHolds } from './SqliteSamePlateAppearanceOccupiedRunnerHoldStore';
@@ -40,6 +42,10 @@ import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { SeedRoot } from '../../core/rng/SeedRoot';
 import { applyPitchFatigueToExecution } from '../../core/sim/pitch/PitchFatigueExecution';
 import { resolveCanonicalPitchDelivery } from '../../core/sim/pitch/CanonicalPitchDelivery';
+import { sampleAerodynamicPitchTrajectory } from '../../core/sim/pitching/AerodynamicPitchTrajectory';
+import { readBattingPerceptionFromSqlite } from './SqliteBattingPerceptionStore';
+import { samePaObservedPitchConsumerSourceInput, type SamePaNativeObservedLaunchCalculation,
+  type SamePaObservedPitchConsumerRecord, type SamePaObservedLaunchedPitch } from './SamePlateAppearanceDispatchExecution';
 import { createPitchTrajectoryFromRelease } from '../../core/sim/pitch/CanonicalPitchRelease';
 import { createCanonicalPlateAppearanceTimeline } from '../../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 import { resolveAndRecordPitchAgainstBatter } from '../../core/sim/pitching/PitchAgainstBatter';
@@ -213,6 +219,8 @@ const createSqliteSamePlateAppearanceDispatchOwner = (path: string, authority?: 
       if (model.equipment.values.ball.radiusM !== source.nominalPitch.batter.ballRadiusMeters
         || model.observationCalibration.values.calibration.memoryDecayParameters.ticksPerSecond !== 1_000_000
         || model.predictionCalibration.values.parameters.ticksPerSecond !== 1_000_000) throw new Error('same-PA dispatch TAKE equipment or actor clock differs');
+      if(source.variant==='observer_decision_v1'&&(source.actualFlightParameters.aerodynamics.ballMassKg!==model.equipment.values.ball.massKg
+        ||source.actualFlightParameters.aerodynamics.ballRadiusM!==model.equipment.values.ball.radiusM))throw new Error('observed first pitch ball equipment differs');
       assertActive();
       return { source, basis: b, pitcher, timing, timingProfile, release, geometry, policy, model };
     };
@@ -371,8 +379,22 @@ const createSqliteSamePlateAppearanceDispatchOwner = (path: string, authority?: 
           playId: actor.match.playId, pitchIndex: 0, readyAtUs: nominal.delivery.readyAtUs, timingIntent: nominal.delivery.timingIntent,
           timingProfile: effective.timingProfile, body: { ...original.geometry.body, moundReference: nominal.delivery.moundReference },
           releaseProfile: original.geometry.profile, physics: effective.physics });
-        const trajectory = createPitchTrajectoryFromRelease(delivery.release, nominal.flight.acceleration, delivery.release.releaseAtUs + nominal.flight.durationUs);
-        const resolution = resolveAndRecordPitchAgainstBatter(timeline, { ...nominal.batter, trajectory });
+        if(source.variant==='observer_decision_v1'){
+          const trajectory={start:{tick:delivery.release.releaseAtUs,position:delivery.release.position,velocity:delivery.release.velocity,spin:delivery.release.spin},
+            endTick:delivery.release.releaseAtUs+source.nominalPitch.flight.durationUs,parameters:source.actualFlightParameters};
+          sampleAerodynamicPitchTrajectory(trajectory,trajectory.start.tick);
+          readSamePaOccupiedRunnerHolds(db,actor,source.enrollmentReference,source.occupiedRunnerHoldReferences,
+            actor.world.tick,Math.max(trajectory.endTick,delivery.timeline.followThroughEndUs));
+          assertActive();
+          return freeze({kind:'native_observed_launch_calculation_only',route:'pitch_delivery',operation,
+            frame:{kind:'reserved_same_pa_pitch_frame_v1',actorReference:input.basis.view.lineage.actorReference,
+              viewReference:input.source.viewReference,member:input.member,binding:input.player,person:input.person,
+              reservedActualState:input.reservedState,projectedExecutionState:input.projectedState,nominalTiming:original.timingProfile,
+              nominalRelease:original.geometry,nominalBattingModel:original.model,acceptedPitchResponse:input.effective},
+            beforeTimeline:timeline,calculation:{delivery,trajectory}} satisfies SamePaNativeObservedLaunchCalculation);
+        }
+        const trajectory = createPitchTrajectoryFromRelease(delivery.release, source.nominalPitch.flight.acceleration, delivery.release.releaseAtUs + nominal.flight.durationUs);
+        const resolution = resolveAndRecordPitchAgainstBatter(timeline, { ...source.nominalPitch.batter, trajectory });
         if (resolution.kind !== 'recorded') throw new Error('Native same-PA TAKE calculation is unresolved');
         readSamePaOccupiedRunnerHolds(db, actor, source.enrollmentReference, source.occupiedRunnerHoldReferences,
           actor.world.tick, Math.max(resolution.timeline.lastEventTick, delivery.timeline.followThroughEndUs));
@@ -474,12 +496,12 @@ const createSqliteSamePlateAppearanceDispatchOwner = (path: string, authority?: 
       proof(() => { const saved = setProof(sources, true); if (!saved.present) throw new Error('dispatch calibration accepted set missing'); same(saved.value, preflight.value); same(ownedRows(), expectedRows); }); return preflight.value;
     }, value => { const saved = setProof(sources, true); if (!saved.present) throw new Error('dispatch calibration durable set missing'); same(saved.value, value); same(ownedRows(), expectedRows); });
   };
-  const physicalInput = (raw: unknown, id?: string): AcceptedSamePaPhysicalPitch => {
+  const physicalInput = (raw: unknown, id?: string): AcceptedSamePaPhysicalPitch|AcceptedSamePaObservedPhysicalPitch => {
     const value = samePaDispatchSourceInput(raw, id);
-    if (value.capability !== 'same_pa_physical_pitch_v1' && value.capability !== 'same_pa_physical_pitch_v2') throw new Error('same-PA physical Source owner differs');
+    if (value.capability !== 'same_pa_physical_pitch_v1' && value.capability !== 'same_pa_physical_pitch_v2'&&value.capability!=='same_pa_observed_physical_pitch_v1'&&value.capability!=='same_pa_observed_physical_pitch_with_bat_v2') throw new Error('same-PA physical Source owner differs');
     return value;
   };
-  const derivePitchBundle = (mode: AssemblyMode, source: AcceptedSamePaPhysicalPitch) => assemble(mode, (read, _derive, _roles, calculate) => {
+  const derivePitchBundle = (mode: AssemblyMode, source: AcceptedSamePaPhysicalPitch|AcceptedSamePaObservedPhysicalPitch) => assemble(mode, (read, _derive, _roles, calculate) => {
     const right = read('right', source.rightReference.sourceId);
     if (!right || right.kind !== 'immutable_right_prepared') throw new Error('same-PA physical right missing');
     same(reference('pa_dispatch_v1_rights', right), source.rightReference); same(right.source.actionReference, source.actionReference);
@@ -493,27 +515,51 @@ const createSqliteSamePlateAppearanceDispatchOwner = (path: string, authority?: 
     const calibration = read('calibration', calibrationReference.sourceId);
     if (!calibration || calibration.kind !== 'execution_calibration_prepared' || calibration.source.route !== 'pitch_delivery') throw new Error('same-PA accepted pitcher calibration missing');
     same(reference('pa_dispatch_v1_execution_calibrations', calibration), calibrationReference);
-    const initial = source.capability === 'same_pa_physical_pitch_v2' ? readSamePaInitialPlayFromSqlite(db, source.initialPlayReference) : null;
+    const initial = 'initialPlayReference'in source ? readSamePaInitialPlayFromSqlite(db, source.initialPlayReference) : null;
     if (initial) { same(initial.setup.source.actionReference, source.actionReference); same(initial.setup.lineage, right.lineage); }
-    const calculated = calculate({ route: 'pitch_delivery', actionReference: source.actionReference, calibrationReference }) as SamePaNativePitchCalculation;
-    if (calculated.kind !== 'native_calculation_only' || calculated.route !== 'pitch_delivery') throw new Error('same-PA pitch calculation route differs');
+    const calculated = calculate({ route: 'pitch_delivery', actionReference: source.actionReference, calibrationReference }) as SamePaNativePitchCalculation|SamePaNativeObservedLaunchCalculation;
     const actor = readPhysicalPlateAppearanceActorFromSqlite(db, calculated.frame.actorReference.sourceId);
     if (!actor) throw new Error('same-PA physical original actor missing'); same(reference('physical_plate_appearance_actors', actor), calculated.frame.actorReference);
     const physical = samePaPhysicalSourceReference(source), common = { lineage: right.lineage, viewReference: right.source.viewReference };
-    const invocationSource = samePaPitchConsumerSourceInput({ sourceId: samePaDispatchDerivedId(physical, 'pitch_delivery'), sourceVersion: 'same-pa-consumer-v1',
+    const invocationBase = { sourceId: samePaDispatchDerivedId(physical, 'pitch_delivery'), sourceVersion: 'same-pa-consumer-v1',
       capability: 'same_pa_consumer_action_v1', rightReference: source.rightReference, physicalSourceReference: physical, member: participant.member, route: 'pitch_delivery',
       calibrationReferences: [{ route: 'pitch_delivery', calibrationReference }], originalInputReferences: { actionReference: source.actionReference,
         timingReference: action.source.timingReference, releaseReference: action.source.releaseReference, pitchResponseReference: action.source.pitchResponseReference,
-        batterModelReference: action.source.batterModelReference }, actionOrdinal: 0, operation: { kind: 'reserved_same_pa_pitch_delivery_v1' } });
-    const consumer: SamePaPitchConsumerRecord = freeze({ ...common, kind: 'same_pa_pitch_delivery_invocation_v1', source: invocationSource,
+        batterModelReference: action.source.batterModelReference }, actionOrdinal: 0 };
+    let consumer:SamePaPitchConsumerRecord|SamePaObservedPitchConsumerRecord,pitch:SamePaExecutedPitch|SamePaObservedLaunchedPitch;
+    if(source.capability==='same_pa_observed_physical_pitch_v1'||source.capability==='same_pa_observed_physical_pitch_with_bat_v2'){
+      if(calculated.kind!=='native_observed_launch_calculation_only'||action.source.variant!=='observer_decision_v1'||!initial)throw new Error('observed first pitch calculation or initial Play differs');
+      const posture=readBattingPerceptionFromSqlite(db,'posture',initial.setup.source.postureReference);
+      if(posture.kind!=='batting_invocation_posture')throw new Error('observed first pitch original posture missing');
+      same(posture.sceneBodies.find(b=>b.source.playerId===action.source.pitcherPlayerId)?.releaseGeometry??null,calculated.frame.nominalRelease);
+      const bindingInput={sourceId:source.sourceId,actionReference:source.actionReference,
+        playReference:source.initialPlayReference,delivery:calculated.calculation.delivery,trajectory:calculated.calculation.trajectory,custodyMotion:source.custodyMotion,
+        body:{...calculated.frame.nominalRelease.body,moundReference:action.source.nominalPitch.delivery.moundReference},actor,posture};
+      const binding=source.capability==='same_pa_observed_physical_pitch_with_bat_v2'
+        ?bindSamePaInitialPlayToObservedPitchWithBatV2(initial.play,initial.setup,bindingInput,
+          readInitialBatEquipmentFromSqlite(db,source.initialBatReference),source.initialBatReference)
+        :bindSamePaInitialPlayToObservedPitch(initial.play,initial.setup,bindingInput);
+      const result={...calculated.calculation,trajectory:{...calculated.calculation.trajectory,releaseOrientation:binding.motion.releaseOrientation}};
+      consumer=freeze({...common,kind:'same_pa_observed_pitch_delivery_invocation_v1',source:samePaObservedPitchConsumerSourceInput({...invocationBase,
+        operation:{kind:'reserved_same_pa_observed_pitch_delivery_v1'}}),nominalInputHash:calibration.nominalInputHash,effectiveResponseHash:calibration.effectiveResponseHash,
+        frame:calculated.frame,beforeTimeline:calculated.beforeTimeline,calculation:result});
+      pitch=freeze({...common,kind:'same_pa_first_pitch_launched_v1',source,progressRevision:1,episodeReference:right.source.episodeReference,originalActor:actor,
+        frame:calculated.frame,beforeTimeline:calculated.beforeTimeline,result,initialLiveBallBinding:binding,
+        consumerReferences:[reference('pa_dispatch_v1_consumer_actions',consumer)]});
+    }else{
+      if(calculated.kind!=='native_calculation_only'||calculated.route!=='pitch_delivery')throw new Error('same-PA pitch calculation route differs');
+      const invocationSource=samePaPitchConsumerSourceInput({...invocationBase,operation:{kind:'reserved_same_pa_pitch_delivery_v1'}});
+      consumer = freeze({ ...common, kind: 'same_pa_pitch_delivery_invocation_v1', source: invocationSource,
       nominalInputHash: calibration.nominalInputHash, effectiveResponseHash: calibration.effectiveResponseHash,
       frame: calculated.frame, beforeTimeline: calculated.beforeTimeline, calculation: calculated.calculation });
     const consumerReferences = [reference('pa_dispatch_v1_consumer_actions', consumer)];
-    const pitch: SamePaExecutedPitch = freeze({ ...common, kind: 'same_pa_first_pitch_executed_v1', source, progressRevision: 1,
+      pitch = freeze({ ...common, kind: 'same_pa_first_pitch_executed_v1', source, progressRevision: 1,
       episodeReference: right.source.episodeReference, originalActor: actor, frame: calculated.frame, beforeTimeline: calculated.beforeTimeline,
       result: calculated.calculation, consumerReferences, ...(initial && source.capability === 'same_pa_physical_pitch_v2' ? {
         initialLiveBallBinding: bindSamePaInitialPlayToPitch(initial.play, initial.setup, { sourceId: source.sourceId,
           actionReference: source.actionReference, playReference: source.initialPlayReference, delivery: calculated.calculation.delivery, trajectory: calculated.calculation.trajectory }) } : {}) });
+    }
+    const consumerReferences=pitch.consumerReferences;
     const receiptSource = { sourceVersion: 'same-pa-dispatch-receipt-v1', rightReference: source.rightReference,
       episodeReference: right.source.episodeReference, physicalSourceReference: physical };
     const pitchReference = reference('pa_dispatch_v1_pitch_actions', pitch);
@@ -546,11 +592,14 @@ const createSqliteSamePlateAppearanceDispatchOwner = (path: string, authority?: 
     return freeze({ pitch: bundle.pitch, action: bundle.action, consumer: bundle.consumer, consumption: bundle.consumption, admission: bundle.admission,
       reference: reference('pa_dispatch_v1_pitch_actions', bundle.pitch) });
   };
-  const readPhysicalPitch = (id: string) => { check(); if (!samePaText(id)) throw new Error('invalid same-PA physical Source id');
+  const readAnyPhysicalPitch = (id: string) => { check(); if (!samePaText(id)) throw new Error('invalid same-PA physical Source id');
     return run(false, proof => proof(() => readPitchInProof(id)))?.pitch ?? null; };
-  const acceptPhysicalPitch = (id: string): SamePaExecutedPitch | SamePaDispatchPending => {
+  const readPhysicalPitch=(id:string)=>{const v=readAnyPhysicalPitch(id);if(v&&v.kind!=='same_pa_first_pitch_executed_v1')throw new Error('observed launch requires its own reader');return v;};
+  const readObservedPitch=(id:string)=>{const v=readAnyPhysicalPitch(id);if(v&&v.kind!=='same_pa_first_pitch_launched_v1')throw new Error('declared take requires its own reader');return v;};
+  const acceptAnyPhysicalPitch = (id: string,observed:boolean) => {
     check(); if (!samePaText(id)) throw new Error('invalid same-PA physical Source id');
-    const raw = authority?.readAcceptedPhysicalPitch?.(id) ?? null, source = raw === null ? null : physicalInput(raw, id), prior = readPhysicalPitch(id);
+    const raw = authority?.readAcceptedPhysicalPitch?.(id) ?? null, source = raw === null ? null : physicalInput(raw, id), prior = readAnyPhysicalPitch(id);
+    if(source&&(source.capability==='same_pa_observed_physical_pitch_v1'||source.capability==='same_pa_observed_physical_pitch_with_bat_v2')!==observed||prior&&(prior.kind==='same_pa_first_pitch_launched_v1')!==observed)throw new Error('physical pitch adoption mode differs');
     if (prior) { if (source) same(prior.source, source); return prior; } if (!source) return pending([id]);
     const preflight = run(false, proof => proof(() => ({ bundle: derivePitchBundle('fresh', source), rows: ownedRows() })));
     const plan = executionRows(preflight.bundle), tables = Object.keys(paDispatchSchema);
@@ -572,6 +621,12 @@ const createSqliteSamePlateAppearanceDispatchOwner = (path: string, authority?: 
       return preflight.bundle.pitch;
     }, pitch => { const committed = readPitchInProof(id); if (!committed) throw new Error('same-PA committed pitch missing'); same(committed.pitch, pitch); });
   };
+  const acceptPhysicalPitch=(id:string):SamePaExecutedPitch|SamePaDispatchPending=>{
+    const v=acceptAnyPhysicalPitch(id,false);if(v.kind==='same_pa_first_pitch_launched_v1')throw new Error('physical pitch adoption mode differs');return v;
+  };
+  const acceptObservedPitch=(id:string):SamePaObservedLaunchedPitch|SamePaDispatchPending=>{
+    const v=acceptAnyPhysicalPitch(id,true);if(v.kind==='same_pa_first_pitch_executed_v1')throw new Error('physical pitch adoption mode differs');return v;
+  };
   const store = Object.freeze({ acceptAction: (id: string) => accept('action', id) as SamePaPreparedAction | SamePaDispatchPending,
     readAction: (id: string) => read('action', id) as SamePaPreparedAction | null, acceptCalibrationSet,
     readCalibrationSet: (ids: readonly string[]) => { check(); const values = setIds(ids); return run(false, proof => proof(() => {
@@ -583,7 +638,7 @@ const createSqliteSamePlateAppearanceDispatchOwner = (path: string, authority?: 
     readEpisode: (id: string) => read('episode', id) as SamePaPreparedEpisode | null,
     acceptRight: (id: string) => accept('right', id) as SamePaPreparedRight | SamePaDispatchPending,
     readRight: (id: string) => read('right', id) as SamePaPreparedRight | null,
-    acceptPhysicalPitch, readPhysicalPitch,
+    acceptPhysicalPitch, readPhysicalPitch,acceptObservedPitch,readObservedPitch,
     close() { if (!closed) { db.close(); closed = true; } } });
   const calculateFirstPitch = (raw: SamePaFirstPitchCalculationRequest) => {
     check(); const request = cloneInert(raw);
@@ -638,7 +693,17 @@ export const readSamePaExecutedPitchFromSqlite = (db: DatabaseSync, raw: SamePaR
   const ref = cloneInert(raw); if (!samePaReferenceValid(ref, 'pa_dispatch_v1_pitch_actions')) throw new Error('invalid same-PA historical pitch reference');
   return readDispatchOriginalFromSqlite(db, owner => {
     const value = owner.readPitchInProof(ref.sourceId); if (!value) throw new Error('same-PA historical pitch owner missing');
-    same(value.reference, ref); return value;
+    if(value.pitch.kind!=='same_pa_first_pitch_executed_v1')throw new Error('observed launch requires its own historical reader');
+    if(value.consumer.kind!=='same_pa_pitch_delivery_invocation_v1')throw new Error('declared take consumer kind differs');
+    same(value.reference, ref); return {...value,pitch:value.pitch,consumer:value.consumer};
+  });
+};
+export const readSamePaObservedPitchFromSqlite=(db:DatabaseSync,raw:SamePaReference<'pa_dispatch_v1_pitch_actions'>)=>{
+  const ref=cloneInert(raw);if(!samePaReferenceValid(ref,'pa_dispatch_v1_pitch_actions'))throw new Error('invalid observed first pitch reference');
+  return readDispatchOriginalFromSqlite(db,owner=>{
+    const value=owner.readPitchInProof(ref.sourceId);
+    if(!value||value.pitch.kind!=='same_pa_first_pitch_launched_v1'||value.consumer.kind!=='same_pa_observed_pitch_delivery_invocation_v1')throw new Error('observed first pitch or consumer missing');
+    same(value.reference,ref);return {...value,pitch:value.pitch,consumer:value.consumer};
   });
 };
 /** Stored original action only. Fresh posture/admission owners separately prove

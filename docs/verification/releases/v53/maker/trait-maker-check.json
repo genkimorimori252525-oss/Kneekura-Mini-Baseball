@@ -1,0 +1,1005 @@
+{
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_得能編集版.html",
+  "sha256": "48e60a46ae57f8b1b4735cbb69d68569b2164537587ee3e56bf4459d4da5c26e",
+  "inputs": [
+    {
+      "path": "docs/demos/live-game-roster-v3.json",
+      "sha256": "3e46fe67e1c94939d1e919cdb2353313ccfbc7680463ca726331afd983c54255"
+    },
+    {
+      "path": "docs/demos/live-game-roster-catalog-v3.json",
+      "sha256": "87b837dd35450f2fce8bbf5b5bfa7bbb16ad7880ff15b6da3d2d13579ceba40e"
+    },
+    {
+      "path": "docs/demos/live-public-ability-reference-v1.json",
+      "sha256": "b448f82f81620085b1f4923609cec23f69db4c639da76b6b1f877abb22622e4e"
+    },
+    {
+      "path": "docs/demos/live-game-roster-v1.json",
+      "sha256": "998effb128bce728e957c660da1ea4d6cac450a88d8937ef3cb13e530ffcefb3"
+    },
+    {
+      "path": "docs/demos/live-game-roster-v2.json",
+      "sha256": "a2fdb7835bada8dddcd2599e72f0034e540bebb360febb8cd25279f2ba1e6ccd"
+    }
+  ],
+  "views": [
+    {
+      "width": 1200,
+      "coverage": [
+        {
+          "playerId": "0-b0",
+          "role": "DH",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED"
+        },
+        {
+          "playerId": "0-b1",
+          "role": "SS",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED"
+        },
+        {
+          "playerId": "0-b2",
+          "role": "1B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED"
+        },
+        {
+          "playerId": "0-b3",
+          "role": "C",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED"
+        },
+        {
+          "playerId": "0-b4",
+          "role": "RF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED"
+        },
+        {
+          "playerId": "0-b5",
+          "role": "3B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED"
+        },
+        {
+          "playerId": "0-b6",
+          "role": "LF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED"
+        },
+        {
+          "playerId": "0-b7",
+          "role": "2B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED"
+        },
+        {
+          "playerId": "0-b8",
+          "role": "CF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED"
+        },
+        {
+          "playerId": "0-p0",
+          "role": "P",
+          "primaryCount": 7,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED"
+        },
+        {
+          "playerId": "1-b0",
+          "role": "RF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED"
+        },
+        {
+          "playerId": "1-b1",
+          "role": "2B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED"
+        },
+        {
+          "playerId": "1-b2",
+          "role": "DH",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED"
+        },
+        {
+          "playerId": "1-b3",
+          "role": "3B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED"
+        },
+        {
+          "playerId": "1-b4",
+          "role": "C",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED"
+        },
+        {
+          "playerId": "1-b5",
+          "role": "CF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED"
+        },
+        {
+          "playerId": "1-b6",
+          "role": "LF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED"
+        },
+        {
+          "playerId": "1-b7",
+          "role": "1B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED"
+        },
+        {
+          "playerId": "1-b8",
+          "role": "SS",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED"
+        },
+        {
+          "playerId": "1-p0",
+          "role": "P",
+          "primaryCount": 7,
+          "publicCount": 10,
+          "traitStatus": "OWNED"
+        }
+      ],
+      "selected": "1-b2",
+      "originalSource": 0.95,
+      "restoredOriginalSource": 0.95,
+      "editedSource": 0.73,
+      "offSource": 0,
+      "editChecks": [
+        {
+          "abilityId": "contact",
+          "value": 86,
+          "changes": [
+            {
+              "path": "aimStdMeters",
+              "before": 0.012,
+              "after": 0.01174258275298782
+            },
+            {
+              "path": "timingStdSeconds",
+              "before": 0.006,
+              "after": 0.005861390713147287
+            }
+          ]
+        },
+        {
+          "abilityId": "contact",
+          "value": 84,
+          "changes": [
+            {
+              "path": "aimStdMeters",
+              "before": 0.01174258275298782,
+              "after": 0.012000000000000007
+            },
+            {
+              "path": "timingStdSeconds",
+              "before": 0.005861390713147287,
+              "after": 0.006000000000000003
+            }
+          ]
+        },
+        {
+          "abilityId": "power",
+          "value": 96,
+          "changes": [
+            {
+              "path": "targetSweetSpotSpeedMps",
+              "before": 41,
+              "after": 41.828254941096986
+            },
+            {
+              "path": "maximumSweetSpotSpeedMps",
+              "before": 48,
+              "after": 48.96966432128428
+            }
+          ]
+        },
+        {
+          "abilityId": "power",
+          "value": 94,
+          "changes": [
+            {
+              "path": "targetSweetSpotSpeedMps",
+              "before": 41.828254941096986,
+              "after": 41.000000000000014
+            },
+            {
+              "path": "maximumSweetSpotSpeedMps",
+              "before": 48.96966432128428,
+              "after": 48.000000000000014
+            }
+          ]
+        },
+        {
+          "abilityId": "vision",
+          "value": 98,
+          "changes": [
+            {
+              "path": "zoneJudgmentStdMeters",
+              "before": 0.025,
+              "after": 0.02448516550597564
+            }
+          ]
+        },
+        {
+          "abilityId": "vision",
+          "value": 96,
+          "changes": [
+            {
+              "path": "zoneJudgmentStdMeters",
+              "before": 0.02448516550597564,
+              "after": 0.02499999999999999
+            }
+          ]
+        },
+        {
+          "abilityId": "run",
+          "value": 60,
+          "changes": [
+            {
+              "path": "topSpeedMps",
+              "before": 8,
+              "after": 8.161610720214046
+            },
+            {
+              "path": "accelerationMps2",
+              "before": 5.2,
+              "after": 5.305046968139131
+            }
+          ]
+        },
+        {
+          "abilityId": "run",
+          "value": 58,
+          "changes": [
+            {
+              "path": "topSpeedMps",
+              "before": 8.161610720214046,
+              "after": 7.999999999999999
+            },
+            {
+              "path": "accelerationMps2",
+              "before": 5.305046968139131,
+              "after": 5.2
+            }
+          ]
+        },
+        {
+          "abilityId": "arm",
+          "value": 98,
+          "changes": [
+            {
+              "path": "throwSpeedMps",
+              "before": 46,
+              "after": 46.92926164123077
+            }
+          ]
+        },
+        {
+          "abilityId": "arm",
+          "value": 96,
+          "changes": [
+            {
+              "path": "throwSpeedMps",
+              "before": 46.92926164123077,
+              "after": 46
+            }
+          ]
+        },
+        {
+          "abilityId": "field",
+          "value": 7,
+          "changes": [
+            {
+              "path": "reactionSeconds",
+              "before": 0.43,
+              "after": 0.4212874162549723
+            },
+            {
+              "path": "defensiveDecisionSeconds",
+              "before": 0.28,
+              "after": 0.27425761525895903
+            },
+            {
+              "path": "transferSeconds",
+              "before": 0.72,
+              "after": 0.7055450315139313
+            }
+          ]
+        },
+        {
+          "abilityId": "field",
+          "value": 5,
+          "changes": [
+            {
+              "path": "reactionSeconds",
+              "before": 0.4212874162549723,
+              "after": 0.42999999999999994
+            },
+            {
+              "path": "defensiveDecisionSeconds",
+              "before": 0.27425761525895903,
+              "after": 0.27999999999999997
+            },
+            {
+              "path": "transferSeconds",
+              "before": 0.7055450315139313,
+              "after": 0.72
+            }
+          ]
+        },
+        {
+          "abilityId": "catching",
+          "value": 7,
+          "changes": [
+            {
+              "path": "gloveSpeedMps",
+              "before": 8.8,
+              "after": 8.977771792235451
+            },
+            {
+              "path": "retentionCapacityJ",
+              "before": 160,
+              "after": 163.2322144042809
+            },
+            {
+              "path": "captureDissipationPowerW",
+              "before": 3000,
+              "after": 3060.604020080267
+            }
+          ]
+        },
+        {
+          "abilityId": "catching",
+          "value": 5,
+          "changes": [
+            {
+              "path": "gloveSpeedMps",
+              "before": 8.977771792235451,
+              "after": 8.799999999999995
+            },
+            {
+              "path": "retentionCapacityJ",
+              "before": 163.2322144042809,
+              "after": 159.9999999999999
+            },
+            {
+              "path": "captureDissipationPowerW",
+              "before": 3060.604020080267,
+              "after": 2999.999999999998
+            }
+          ]
+        },
+        {
+          "abilityId": "throwingAccuracy",
+          "value": 45,
+          "changes": [
+            {
+              "path": "throwDirectionStdRadians",
+              "before": 0.01,
+              "after": 0.009800006600398228
+            }
+          ]
+        },
+        {
+          "abilityId": "throwingAccuracy",
+          "value": 43,
+          "changes": [
+            {
+              "path": "throwDirectionStdRadians",
+              "before": 0.009800006600398228,
+              "after": 0.010000000000000004
+            }
+          ]
+        },
+        {
+          "abilityId": "maxSpeedKmh",
+          "value": 146,
+          "changes": [
+            {
+              "path": "maximumPitchSpeedMps",
+              "before": 40,
+              "after": 40.55555555555556
+            },
+            {
+              "path": "releaseSpeedMps",
+              "before": 36,
+              "after": 36.5
+            }
+          ]
+        },
+        {
+          "abilityId": "maxSpeedKmh",
+          "value": 144,
+          "changes": [
+            {
+              "path": "maximumPitchSpeedMps",
+              "before": 40.55555555555556,
+              "after": 40
+            },
+            {
+              "path": "releaseSpeedMps",
+              "before": 36.5,
+              "after": 36
+            }
+          ]
+        },
+        {
+          "abilityId": "control",
+          "value": 52,
+          "changes": [
+            {
+              "path": "commandStdMeters",
+              "before": 0.16,
+              "after": 0.1568119864023876
+            }
+          ]
+        },
+        {
+          "abilityId": "control",
+          "value": 50,
+          "changes": [
+            {
+              "path": "commandStdMeters",
+              "before": 0.1568119864023876,
+              "after": 0.15999999999999998
+            }
+          ]
+        }
+      ],
+      "legacyChecks": [
+        {
+          "version": 1,
+          "serializedSha256": "457104c96801415ee18ae912c5ccf6ca32da2465acaebcab20c0f3ac395fb2c2",
+          "canonicalExportSha256": "405a2d89b16a902459b39099fab7f47e83a2adc62609a6d5f8db6e2a7d4db16e",
+          "allPlayersUnassessed": true
+        },
+        {
+          "version": 2,
+          "serializedSha256": "23c3b7aad36a7e406f07e027ce81d87d233e0cd464421528ed23cf437cd329c3",
+          "canonicalExportSha256": "2c168fdda0b821119e307f24973875d644596761dfa7f8c3d5ad7720af756ad2",
+          "allPlayersUnassessed": true
+        }
+      ],
+      "internalSourceSynchronized": true,
+      "offNumericEditorDisabled": true,
+      "standaloneUnchanged": true,
+      "completeStateRoundTrip": true,
+      "gameChecks": [
+        {
+          "state": "OFF",
+          "sourceValue": 0,
+          "generatedPitches": 1,
+          "frames": 109,
+          "version": 53
+        },
+        {
+          "state": "ON",
+          "sourceValue": 0.73,
+          "generatedPitches": 1,
+          "frames": 109,
+          "version": 53
+        }
+      ],
+      "errors": [],
+      "network": []
+    },
+    {
+      "width": 390,
+      "coverage": [
+        {
+          "playerId": "0-b0",
+          "role": "DH",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED"
+        },
+        {
+          "playerId": "0-b1",
+          "role": "SS",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED"
+        },
+        {
+          "playerId": "0-b2",
+          "role": "1B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED"
+        },
+        {
+          "playerId": "0-b3",
+          "role": "C",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED"
+        },
+        {
+          "playerId": "0-b4",
+          "role": "RF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED"
+        },
+        {
+          "playerId": "0-b5",
+          "role": "3B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED"
+        },
+        {
+          "playerId": "0-b6",
+          "role": "LF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED"
+        },
+        {
+          "playerId": "0-b7",
+          "role": "2B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED"
+        },
+        {
+          "playerId": "0-b8",
+          "role": "CF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED"
+        },
+        {
+          "playerId": "0-p0",
+          "role": "P",
+          "primaryCount": 7,
+          "publicCount": 10,
+          "traitStatus": "UNASSESSED"
+        },
+        {
+          "playerId": "1-b0",
+          "role": "RF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED"
+        },
+        {
+          "playerId": "1-b1",
+          "role": "2B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED"
+        },
+        {
+          "playerId": "1-b2",
+          "role": "DH",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED"
+        },
+        {
+          "playerId": "1-b3",
+          "role": "3B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED"
+        },
+        {
+          "playerId": "1-b4",
+          "role": "C",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED"
+        },
+        {
+          "playerId": "1-b5",
+          "role": "CF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED"
+        },
+        {
+          "playerId": "1-b6",
+          "role": "LF",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED"
+        },
+        {
+          "playerId": "1-b7",
+          "role": "1B",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED"
+        },
+        {
+          "playerId": "1-b8",
+          "role": "SS",
+          "primaryCount": 8,
+          "publicCount": 10,
+          "traitStatus": "OWNED"
+        },
+        {
+          "playerId": "1-p0",
+          "role": "P",
+          "primaryCount": 7,
+          "publicCount": 10,
+          "traitStatus": "OWNED"
+        }
+      ],
+      "selected": "1-b2",
+      "originalSource": 0.95,
+      "restoredOriginalSource": 0.95,
+      "editedSource": 0.73,
+      "offSource": 0,
+      "editChecks": [
+        {
+          "abilityId": "contact",
+          "value": 86,
+          "changes": [
+            {
+              "path": "aimStdMeters",
+              "before": 0.012,
+              "after": 0.01174258275298782
+            },
+            {
+              "path": "timingStdSeconds",
+              "before": 0.006,
+              "after": 0.005861390713147287
+            }
+          ]
+        },
+        {
+          "abilityId": "contact",
+          "value": 84,
+          "changes": [
+            {
+              "path": "aimStdMeters",
+              "before": 0.01174258275298782,
+              "after": 0.012000000000000007
+            },
+            {
+              "path": "timingStdSeconds",
+              "before": 0.005861390713147287,
+              "after": 0.006000000000000003
+            }
+          ]
+        },
+        {
+          "abilityId": "power",
+          "value": 96,
+          "changes": [
+            {
+              "path": "targetSweetSpotSpeedMps",
+              "before": 41,
+              "after": 41.828254941096986
+            },
+            {
+              "path": "maximumSweetSpotSpeedMps",
+              "before": 48,
+              "after": 48.96966432128428
+            }
+          ]
+        },
+        {
+          "abilityId": "power",
+          "value": 94,
+          "changes": [
+            {
+              "path": "targetSweetSpotSpeedMps",
+              "before": 41.828254941096986,
+              "after": 41.000000000000014
+            },
+            {
+              "path": "maximumSweetSpotSpeedMps",
+              "before": 48.96966432128428,
+              "after": 48.000000000000014
+            }
+          ]
+        },
+        {
+          "abilityId": "vision",
+          "value": 98,
+          "changes": [
+            {
+              "path": "zoneJudgmentStdMeters",
+              "before": 0.025,
+              "after": 0.02448516550597564
+            }
+          ]
+        },
+        {
+          "abilityId": "vision",
+          "value": 96,
+          "changes": [
+            {
+              "path": "zoneJudgmentStdMeters",
+              "before": 0.02448516550597564,
+              "after": 0.02499999999999999
+            }
+          ]
+        },
+        {
+          "abilityId": "run",
+          "value": 60,
+          "changes": [
+            {
+              "path": "topSpeedMps",
+              "before": 8,
+              "after": 8.161610720214046
+            },
+            {
+              "path": "accelerationMps2",
+              "before": 5.2,
+              "after": 5.305046968139131
+            }
+          ]
+        },
+        {
+          "abilityId": "run",
+          "value": 58,
+          "changes": [
+            {
+              "path": "topSpeedMps",
+              "before": 8.161610720214046,
+              "after": 7.999999999999999
+            },
+            {
+              "path": "accelerationMps2",
+              "before": 5.305046968139131,
+              "after": 5.2
+            }
+          ]
+        },
+        {
+          "abilityId": "arm",
+          "value": 98,
+          "changes": [
+            {
+              "path": "throwSpeedMps",
+              "before": 46,
+              "after": 46.92926164123077
+            }
+          ]
+        },
+        {
+          "abilityId": "arm",
+          "value": 96,
+          "changes": [
+            {
+              "path": "throwSpeedMps",
+              "before": 46.92926164123077,
+              "after": 46
+            }
+          ]
+        },
+        {
+          "abilityId": "field",
+          "value": 7,
+          "changes": [
+            {
+              "path": "reactionSeconds",
+              "before": 0.43,
+              "after": 0.4212874162549723
+            },
+            {
+              "path": "defensiveDecisionSeconds",
+              "before": 0.28,
+              "after": 0.27425761525895903
+            },
+            {
+              "path": "transferSeconds",
+              "before": 0.72,
+              "after": 0.7055450315139313
+            }
+          ]
+        },
+        {
+          "abilityId": "field",
+          "value": 5,
+          "changes": [
+            {
+              "path": "reactionSeconds",
+              "before": 0.4212874162549723,
+              "after": 0.42999999999999994
+            },
+            {
+              "path": "defensiveDecisionSeconds",
+              "before": 0.27425761525895903,
+              "after": 0.27999999999999997
+            },
+            {
+              "path": "transferSeconds",
+              "before": 0.7055450315139313,
+              "after": 0.72
+            }
+          ]
+        },
+        {
+          "abilityId": "catching",
+          "value": 7,
+          "changes": [
+            {
+              "path": "gloveSpeedMps",
+              "before": 8.8,
+              "after": 8.977771792235451
+            },
+            {
+              "path": "retentionCapacityJ",
+              "before": 160,
+              "after": 163.2322144042809
+            },
+            {
+              "path": "captureDissipationPowerW",
+              "before": 3000,
+              "after": 3060.604020080267
+            }
+          ]
+        },
+        {
+          "abilityId": "catching",
+          "value": 5,
+          "changes": [
+            {
+              "path": "gloveSpeedMps",
+              "before": 8.977771792235451,
+              "after": 8.799999999999995
+            },
+            {
+              "path": "retentionCapacityJ",
+              "before": 163.2322144042809,
+              "after": 159.9999999999999
+            },
+            {
+              "path": "captureDissipationPowerW",
+              "before": 3060.604020080267,
+              "after": 2999.999999999998
+            }
+          ]
+        },
+        {
+          "abilityId": "throwingAccuracy",
+          "value": 45,
+          "changes": [
+            {
+              "path": "throwDirectionStdRadians",
+              "before": 0.01,
+              "after": 0.009800006600398228
+            }
+          ]
+        },
+        {
+          "abilityId": "throwingAccuracy",
+          "value": 43,
+          "changes": [
+            {
+              "path": "throwDirectionStdRadians",
+              "before": 0.009800006600398228,
+              "after": 0.010000000000000004
+            }
+          ]
+        },
+        {
+          "abilityId": "maxSpeedKmh",
+          "value": 146,
+          "changes": [
+            {
+              "path": "maximumPitchSpeedMps",
+              "before": 40,
+              "after": 40.55555555555556
+            },
+            {
+              "path": "releaseSpeedMps",
+              "before": 36,
+              "after": 36.5
+            }
+          ]
+        },
+        {
+          "abilityId": "maxSpeedKmh",
+          "value": 144,
+          "changes": [
+            {
+              "path": "maximumPitchSpeedMps",
+              "before": 40.55555555555556,
+              "after": 40
+            },
+            {
+              "path": "releaseSpeedMps",
+              "before": 36.5,
+              "after": 36
+            }
+          ]
+        },
+        {
+          "abilityId": "control",
+          "value": 52,
+          "changes": [
+            {
+              "path": "commandStdMeters",
+              "before": 0.16,
+              "after": 0.1568119864023876
+            }
+          ]
+        },
+        {
+          "abilityId": "control",
+          "value": 50,
+          "changes": [
+            {
+              "path": "commandStdMeters",
+              "before": 0.1568119864023876,
+              "after": 0.15999999999999998
+            }
+          ]
+        }
+      ],
+      "legacyChecks": [
+        {
+          "version": 1,
+          "serializedSha256": "457104c96801415ee18ae912c5ccf6ca32da2465acaebcab20c0f3ac395fb2c2",
+          "canonicalExportSha256": "405a2d89b16a902459b39099fab7f47e83a2adc62609a6d5f8db6e2a7d4db16e",
+          "allPlayersUnassessed": true
+        },
+        {
+          "version": 2,
+          "serializedSha256": "23c3b7aad36a7e406f07e027ce81d87d233e0cd464421528ed23cf437cd329c3",
+          "canonicalExportSha256": "2c168fdda0b821119e307f24973875d644596761dfa7f8c3d5ad7720af756ad2",
+          "allPlayersUnassessed": true
+        }
+      ],
+      "internalSourceSynchronized": true,
+      "offNumericEditorDisabled": true,
+      "standaloneUnchanged": true,
+      "completeStateRoundTrip": true,
+      "gameChecks": [
+        {
+          "state": "OFF",
+          "sourceValue": 0,
+          "generatedPitches": 1,
+          "frames": 109,
+          "version": 53
+        },
+        {
+          "state": "ON",
+          "sourceValue": 0.73,
+          "generatedPitches": 1,
+          "frames": 109,
+          "version": 53
+        }
+      ],
+      "errors": [],
+      "network": []
+    }
+  ],
+  "status": "PASS"
+}

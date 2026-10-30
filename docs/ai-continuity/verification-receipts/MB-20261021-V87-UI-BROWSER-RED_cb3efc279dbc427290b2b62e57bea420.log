@@ -1,0 +1,18 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: public editing uses 13 regions
+
+0 !== 13
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-course-authoring-v87.mjs:16:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 0,
+  expected: 13,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

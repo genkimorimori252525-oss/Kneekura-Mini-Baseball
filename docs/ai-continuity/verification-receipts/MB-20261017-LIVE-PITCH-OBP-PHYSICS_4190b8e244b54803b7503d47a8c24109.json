@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-PITCH-OBP-PHYSICS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePitchV1.test.ts"
+  ],
+  "observed_at": "2026-10-16T22:24:45.897+00:00",
+  "elapsed_ms": 2921,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-PITCH-OBP-PHYSICS_4190b8e244b54803b7503d47a8c24109.log",
+  "output_sha256": "c6c330870744349193efa52853cafff07a629bb16f5b1857197709a5cc7e4b34",
+  "receipt_id": "MB-20261017-LIVE-PITCH-OBP-PHYSICS_4190b8e244b54803b7503d47a8c24109"
+}

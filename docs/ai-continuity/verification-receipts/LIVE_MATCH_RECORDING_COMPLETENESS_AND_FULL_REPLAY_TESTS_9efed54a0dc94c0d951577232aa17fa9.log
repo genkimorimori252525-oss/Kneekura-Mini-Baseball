@@ -1,0 +1,10 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ tools/verification/LiveMatchRecordingV1.test.ts (17 tests) 45ms
+
+ Test Files  1 passed (1)
+      Tests  17 passed (17)
+   Start at  10:00:29
+   Duration  673ms (transform 144ms, setup 0ms, collect 204ms, tests 45ms, environment 0ms, prepare 120ms)
+

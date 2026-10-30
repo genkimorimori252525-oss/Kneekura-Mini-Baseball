@@ -1,0 +1,86 @@
+{
+  "pass": true,
+  "phase": "complete",
+  "normal": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv74_TBD_vs_LAD_用具と能力上限拡張版.html",
+  "lab": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\カメラワーク調整室_v74.html",
+  "cases": [
+    {
+      "level": 1,
+      "target": -10,
+      "actual": -10.000000000000005,
+      "diagnostics": {
+        "method": "whole-arc-target",
+        "level": 1,
+        "angleDegreesByLevel": [
+          -10,
+          0,
+          10,
+          20
+        ],
+        "beforeSeconds": 0.1,
+        "afterSeconds": 0.06,
+        "contactSourceTick": 1238900,
+        "timingBasis": "ORIGINAL_MEASURED_SOURCE_SECONDS",
+        "model": "WHOLE_ARC_RIGID_CONTACT_PIVOT_TARGET",
+        "speedCeilingRecomputed": true,
+        "launchAngleOrSpinOverridden": false
+      },
+      "classification": "live_ball",
+      "actualPhysicalPitch": true
+    },
+    {
+      "level": 4,
+      "target": 20,
+      "actual": 19.999999999999996,
+      "diagnostics": {
+        "method": "whole-arc-target",
+        "level": 4,
+        "angleDegreesByLevel": [
+          -10,
+          0,
+          10,
+          20
+        ],
+        "beforeSeconds": 0.1,
+        "afterSeconds": 0.06,
+        "contactSourceTick": 1238900,
+        "timingBasis": "ORIGINAL_MEASURED_SOURCE_SECONDS",
+        "model": "WHOLE_ARC_RIGID_CONTACT_PIVOT_TARGET",
+        "speedCeilingRecomputed": true,
+        "launchAngleOrSpinOverridden": false
+      },
+      "classification": "live_ball",
+      "actualPhysicalPitch": true
+    }
+  ],
+  "faults": [
+    {
+      "label": "normal-1200",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "lab",
+      "errors": [],
+      "external": []
+    }
+  ],
+  "scope": "Focused new-method/old-JSON physical-pitch and normal/lab integration; Focused equipment/whole-arc/old-JSON integration; frozen unchanged math is compared to six default v73 pitches separately, previous v73 nine-inning evidence retained",
+  "sha256": "734b7af9d50eb1acdf2be1da769502ce2fc529e14032c3b3c736f692008a108d",
+  "coreSha256": "2073bc28e7b63bad280e02b8a6e7f35c5ea179818c3999af71235767f43797a2",
+  "labSha256": "1c3b965b02d95a547e422ed4727362ddf27eb85061b0887e84c607ddc09a76c0",
+  "normalSha256": "734b7af9d50eb1acdf2be1da769502ce2fc529e14032c3b3c736f692008a108d",
+  "workbenchSha256": "1c3b965b02d95a547e422ed4727362ddf27eb85061b0887e84c607ddc09a76c0",
+  "lead": "0-b0",
+  "extendedEquipment": {
+    "batLengthM": 1.5,
+    "batMassKg": 2.2,
+    "sampledBats": 52,
+    "overLimitAtomicRejection": true
+  },
+  "oldJson": {
+    "omittedMethodRetainsOldModel": true,
+    "packetPreserved": true,
+    "invalidExplicitMethodRejectedAtomically": true
+  }
+}

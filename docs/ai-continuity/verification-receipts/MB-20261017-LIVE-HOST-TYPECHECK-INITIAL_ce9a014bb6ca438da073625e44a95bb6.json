@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-HOST-TYPECHECK-INITIAL",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-16T22:24:19.804+00:00",
+  "elapsed_ms": 45703,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-HOST-TYPECHECK-INITIAL_ce9a014bb6ca438da073625e44a95bb6.log",
+  "output_sha256": "ab8183c4fe12f14d93363f11a359ac12ef75e5e41386377dd89cb864d012acb3",
+  "receipt_id": "MB-20261017-LIVE-HOST-TYPECHECK-INITIAL_ce9a014bb6ca438da073625e44a95bb6"
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V87-PRESENTATION-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-presentation-surfaces-v84.mjs",
+    "../../outputs/ばせぼーるlv87_TBD_vs_LAD_コース認識と打率版.html",
+    "../../outputs/カメラワーク調整室_v87_コース認識.html",
+    "../../outputs/にーくら野球メーカー_v87_コース打率と認識AI版.html",
+    "docs/verification/releases/v87/presentation-final"
+  ],
+  "observed_at": "2026-10-20T17:21:10.924+00:00",
+  "elapsed_ms": 66437,
+  "git_head": "9f6b6ed69d8682f417490d4b761914f1b4a6d6a1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V87-PRESENTATION-FINAL_3a5685082f8a40cabe3ad9800c16a934.log",
+  "output_sha256": "cf3e7e57fd5d560df201dad1d1d75b0d1c7aaad3bf0d5bc601f7a721342d8958",
+  "receipt_id": "MB-20261021-V87-PRESENTATION-FINAL_3a5685082f8a40cabe3ad9800c16a934"
+}

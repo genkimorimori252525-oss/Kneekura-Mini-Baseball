@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V51-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-v51-release.mjs"
+  ],
+  "observed_at": "2026-10-18T09:32:18.553+00:00",
+  "elapsed_ms": 608,
+  "git_head": "01834d9e8361b7747083b9fbb7539c93ee662b50",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V51-BUILD_e4f2acb5a28944688cecdf2303ddbb0a.log",
+  "output_sha256": "c64d64e9e34b1c52bf52784a9997944307bdfd7d9d263adeac113bdf2136b148",
+  "receipt_id": "MB-20261018-V51-BUILD_e4f2acb5a28944688cecdf2303ddbb0a"
+}

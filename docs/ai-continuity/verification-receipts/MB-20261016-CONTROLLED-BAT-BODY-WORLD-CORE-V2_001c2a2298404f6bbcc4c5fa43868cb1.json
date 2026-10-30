@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-CONTROLLED-BAT-BODY-WORLD-CORE-V2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/pitch/ControlledBatBodyPitchWorldV1.test.ts"
+  ],
+  "observed_at": "2026-10-16T14:32:20.845+00:00",
+  "elapsed_ms": 1250,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-CONTROLLED-BAT-BODY-WORLD-CORE-V2_001c2a2298404f6bbcc4c5fa43868cb1.log",
+  "output_sha256": "ae4821c04eeec6061867e26c813eb6c78e880db893803577f6fdb3cef626f5ab",
+  "receipt_id": "MB-20261016-CONTROLLED-BAT-BODY-WORLD-CORE-V2_001c2a2298404f6bbcc4c5fa43868cb1"
+}

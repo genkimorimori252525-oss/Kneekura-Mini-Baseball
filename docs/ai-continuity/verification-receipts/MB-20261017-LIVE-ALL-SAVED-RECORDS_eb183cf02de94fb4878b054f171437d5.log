@@ -1,0 +1,17 @@
+{"shard":"shard-08","verifiedGames":6,"replayedGames":0}
+{"shard":"shard-06","verifiedGames":6,"replayedGames":0}
+{"shard":"shard-07","verifiedGames":6,"replayedGames":0}
+{"shard":"shard-01","verifiedGames":7,"replayedGames":0}
+{"shard":"shard-04","verifiedGames":7,"replayedGames":0}
+{"shard":"shard-03","verifiedGames":7,"replayedGames":0}
+{"shard":"shard-05","verifiedGames":7,"replayedGames":0}
+{"shard":"shard-02","verifiedGames":7,"replayedGames":0}
+{"shard":"shard-09","verifiedGames":6,"replayedGames":0}
+{"shard":"shard-11","verifiedGames":6,"replayedGames":0}
+{"shard":"shard-10","verifiedGames":6,"replayedGames":0}
+{"shard":"shard-12","verifiedGames":6,"replayedGames":0}
+{"shard":"shard-15","verifiedGames":6,"replayedGames":0}
+{"shard":"shard-13","verifiedGames":6,"replayedGames":0}
+{"shard":"shard-16","verifiedGames":6,"replayedGames":0}
+{"shard":"shard-14","verifiedGames":6,"replayedGames":0}
+{"kind":"local-core-population-records-verified-v1","targetGames":101,"verifiedGames":101,"totalPitches":20346,"replayedGames":0,"tamperChecks":404,"nativeAuthentication":false,"bundleSha256":"c1f676fe953af73e5de6ea0fae027935dd31058c2ec37802325293b7a0286ac7","verificationSha256":"0a7c17156d88dba71977a7e7007cc72795122d0b677b9c9022eb4dbfdf4a2904","measurementHash":"a4540da076375cb126ccbda08e8621f95f57dd11f4c0434c2e7ed30137c9a839","totals":{"games":101,"pitches":20346,"contacts":13015,"throws":3680,"catches":13671,"groundContacts":33846,"homeRuns":849,"walks":245,"strikeouts":21,"multiOutPlays":269,"runs":3122,"maximumInning":10},"verification":16,"scope":"All expected seeds, files, summaries and aggregate statistics; every saved chain and Core adjudication; selected complete physical re-executions."}

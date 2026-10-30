@@ -1,0 +1,10 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/LiveFielderAvoidanceV1.test.ts (23 tests) 33ms
+
+ Test Files  1 passed (1)
+      Tests  23 passed (23)
+   Start at  18:38:53
+   Duration  548ms (transform 68ms, setup 0ms, collect 73ms, tests 33ms, environment 0ms, prepare 129ms)
+

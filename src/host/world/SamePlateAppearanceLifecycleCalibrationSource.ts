@@ -16,9 +16,19 @@ export type SamePaFieldThrowValues = Pick<AcceptedPlayerFieldingModel, 'transfer
 export type AcceptedSamePaLifecycleThrowCalibration = Omit<Lifecycle<Extract<AcceptedSamePaExecutionCalibration, { route: 'defender_locomotion' }>>,
   'route' | 'nominalReference' | 'response'> & Readonly<{ route: 'defender_throw'; nominalReference: SamePaReference<'world_player_fielding_models'>;
     response: Readonly<{ kind: 'accepted_execution_values_v1'; values: SamePaFieldThrowValues }> }>;
-export type AcceptedSamePaLifecycleCalibration = Lifecycle<AcceptedSamePaExecutionCalibration> | AcceptedSamePaLifecycleThrowCalibration;
+export const SAME_PA_OBSERVATION_CLOCK_PROJECTION_VERSION = 'same_pa_observation_clock_projection_v1';
+export type SamePaObservationClockProjectionV1 = Readonly<{ kind: 'observation_clock_projection_v1';
+  originalNominalReference: SamePaReference<'world_player_observation_models'>;
+  originalEffectiveCalibrationReference: SamePaReference<'pa_lifecycle_v1_execution_calibrations'>;
+  fieldReference: SamePaReference<'pa_physical_v1_field_roots'|'pa_physical_v1_field_steps'> }>;
+export type SamePaObservationClockProjectionEvidenceV1 = Readonly<{ authority: 'UNIT_CONVERSION_NOT_ABILITY_CHANGE';
+  originalNominalInputHash: string; originalEffectiveCalibrationHash: string; originalTicksPerSecond: number; targetTicksPerSecond: number;
+  projectedNominalCalibrationHash: string; projectedEffectiveCalibrationHash: string; fieldReference: SamePaObservationClockProjectionV1['fieldReference'] }>;
+export type AcceptedSamePaLifecycleCalibration = (Lifecycle<AcceptedSamePaExecutionCalibration> | AcceptedSamePaLifecycleThrowCalibration)
+  & Readonly<{ observationClockProjection?: SamePaObservationClockProjectionV1 }>;
 export type SamePaLifecycleCalibration = Readonly<{ kind: 'same_pa_lifecycle_calibration'; source: AcceptedSamePaLifecycleCalibration;
-  lineage: SamePaExecutionLineage; nominalInputHash: string; effectiveResponseHash: string }>;
+  lineage: SamePaExecutionLineage; nominalInputHash: string; effectiveResponseHash: string;
+  observationClockProjection?: SamePaObservationClockProjectionEvidenceV1 }>;
 const keys = { batter_observation: 'observationCalibration', batter_decision: 'decisionModel', batter_motor: 'capability', batter_swing: 'repertoire' } as const;
 export const samePaFieldThrowValuesInput = (values: SamePaFieldThrowValues): void => {
   const transfer = values?.transferParameters, c = values?.throwCalibration;
@@ -32,11 +42,19 @@ export const samePaFieldThrowValuesInput = (values: SamePaFieldThrowValues): voi
 export const samePaLifecycleCalibrationInput = (raw: unknown, id?: string): AcceptedSamePaLifecycleCalibration => {
   const s = cloneInert(raw) as AcceptedSamePaLifecycleCalibration;
   if (!fields(s, ['sourceId', 'sourceVersion', 'capability', 'enrollmentReference', 'viewReference', 'firstPhysicalPitchSourceId', 'member', 'route', 'nominalReference',
-    'nominalParameterReference', 'acceptedAtDay', 'provenance', 'response']) || !text(s.sourceId) || !text(s.sourceVersion) || id !== undefined && s.sourceId !== id
+    'nominalParameterReference', 'acceptedAtDay', 'provenance', 'response', ...(s&&Object.hasOwn(s,'observationClockProjection')?['observationClockProjection']:[])]) || !text(s.sourceId) || !text(s.sourceVersion) || id !== undefined && s.sourceId !== id
     || s.capability !== 'same_pa_lifecycle_execution_calibration_v1' || !ref(s.enrollmentReference, 'same_pa_enrollments')
     || !ref(s.viewReference, 'pa_lifecycle_v1_execution_views') || !text(s.firstPhysicalPitchSourceId) || !samePaDispatchMemberValid(s.member)
     || !(samePaDispatchRouteValid(s.route) || s.route === 'defender_throw') || !Number.isSafeInteger(s.acceptedAtDay) || s.acceptedAtDay < 0
     || !fields(s.provenance, ['assessmentSourceId', 'assessmentVersion', 'calibrationSourceId', 'calibrationVersion']) || !Object.values(s.provenance).every(text)) throw new Error('invalid lifecycle calibration Source');
+  const projection=s.observationClockProjection;
+  if(Object.hasOwn(s,'observationClockProjection')!==(s.sourceVersion===SAME_PA_OBSERVATION_CLOCK_PROJECTION_VERSION)
+    || Object.hasOwn(s,'observationClockProjection')&& (!projection||s.route!=='defender_observation'||!fields(projection,['kind','originalNominalReference','originalEffectiveCalibrationReference','fieldReference'])
+      ||projection.kind!=='observation_clock_projection_v1'||!ref(projection.originalNominalReference,'world_player_observation_models')
+      ||!ref(projection.originalEffectiveCalibrationReference,'pa_lifecycle_v1_execution_calibrations')
+      ||projection.originalEffectiveCalibrationReference.sourceId===s.sourceId
+      ||!ref(projection.fieldReference,'pa_physical_v1_field_roots')&&!ref(projection.fieldReference,'pa_physical_v1_field_steps')))
+    throw new Error('invalid explicit observation clock projection Source');
   if (s.route === 'pitch_delivery') {
     if (!(ref(s.nominalReference, 'world_pitch_timing_baselines') || ref(s.nominalReference, 'world_pitch_timing_updates')) || s.nominalParameterReference !== null
       || !fields(s.response, ['kind', 'policyReference']) || s.response.kind !== 'accepted_pitch_response_v1' || !ref(s.response.policyReference, 'world_pitch_fatigue_policies')) throw new Error('invalid lifecycle pitch calibration');

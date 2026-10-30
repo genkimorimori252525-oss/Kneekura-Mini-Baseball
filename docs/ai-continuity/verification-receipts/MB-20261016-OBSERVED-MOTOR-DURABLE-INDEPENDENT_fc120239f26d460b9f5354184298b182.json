@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OBSERVED-MOTOR-DURABLE-INDEPENDENT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-observed-motor-reader-v3/readback.mjs",
+    "../../outputs/verification-observed-motor-preparation-v3/match.sqlite",
+    "../../outputs/verification-observed-motor-preparation-v3/expected.json",
+    "../../outputs/verification-observed-motor-preparation-v3/independent-durable-readback.json",
+    "../../outputs/verification-authored-initial-pitch-physical-v2/manifest.json"
+  ],
+  "observed_at": "2026-10-16T11:12:04.336+00:00",
+  "elapsed_ms": 9967,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OBSERVED-MOTOR-DURABLE-INDEPENDENT_fc120239f26d460b9f5354184298b182.log",
+  "output_sha256": "32600f512726c43ba995d6f1fa32a59576fbe44e065b7bab46538982b14713c2",
+  "receipt_id": "MB-20261016-OBSERVED-MOTOR-DURABLE-INDEPENDENT_fc120239f26d460b9f5354184298b182"
+}

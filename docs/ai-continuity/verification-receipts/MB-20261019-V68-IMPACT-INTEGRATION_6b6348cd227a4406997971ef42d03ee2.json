@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V68-IMPACT-INTEGRATION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/contact/ReferenceBatImpactTrajectoryV1.test.ts",
+    "src/integration/browser/LivePitchV1.test.ts",
+    "src/integration/browser/LivePhysicalRosterV1.test.ts",
+    "src/integration/browser/ReferenceBattingWorkbench.test.ts",
+    "src/core/sim/pitching/SampledRigidBatSwingV1.test.ts",
+    "src/core/sim/contact/ReferenceBatKinematicsV1.test.ts"
+  ],
+  "observed_at": "2026-10-19T10:37:30.616+00:00",
+  "elapsed_ms": 3202,
+  "git_head": "652aa75ccb24df723c2d413e5dc37e7395dc8679",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V68-IMPACT-INTEGRATION_6b6348cd227a4406997971ef42d03ee2.log",
+  "output_sha256": "7023e4bb186c01595cabd4ad7677675703dfffce98625f1a1d69c7ab16af17a8",
+  "receipt_id": "MB-20261019-V68-IMPACT-INTEGRATION_6b6348cd227a4406997971ef42d03ee2"
+}

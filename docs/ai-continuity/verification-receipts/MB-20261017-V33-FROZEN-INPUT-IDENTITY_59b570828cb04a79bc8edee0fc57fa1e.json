@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V33-FROZEN-INPUT-IDENTITY",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v33-inputs.mjs",
+    "../../outputs/ばせぼーるlv33_TBD_vs_LAD_Core試合版.html",
+    "../live-game-audit-v5/manifest.json",
+    "../../outputs/verification-v33-live-browser-full-v3/frozen-input-identity-v2.json"
+  ],
+  "observed_at": "2026-10-17T01:03:00.380+00:00",
+  "elapsed_ms": 94,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V33-FROZEN-INPUT-IDENTITY_59b570828cb04a79bc8edee0fc57fa1e.log",
+  "output_sha256": "4f8c24ae5e3fdb3f3b813239ce92700f2859d049fdff2bd5f9cd7529611080c5",
+  "receipt_id": "MB-20261017-V33-FROZEN-INPUT-IDENTITY_59b570828cb04a79bc8edee0fc57fa1e"
+}

@@ -1,0 +1,11 @@
+{"phase":"regulation-with-techniques","coreSha256":"eed87f92656f5f6e1ac2664e009960c95077288033d474f91ecc2195c3dbc1a5"}
+{"phase":"regulation","pitches":28,"inning":1,"elapsedMs":6794}
+{"phase":"regulation","pitches":54,"inning":2,"elapsedMs":15409}
+{"phase":"regulation","pitches":79,"inning":3,"elapsedMs":20451}
+{"phase":"regulation","pitches":104,"inning":3,"elapsedMs":25168}
+{"phase":"regulation","pitches":131,"inning":4,"elapsedMs":33027}
+{"phase":"regulation","pitches":156,"inning":4,"elapsedMs":38092}
+{"phase":"regulation","pitches":184,"inning":5,"elapsedMs":45288}
+{"phase":"regulation","pitches":210,"inning":6,"elapsedMs":51959}
+{"phase":"regulation","pitches":238,"inning":8,"elapsedMs":58948}
+{"pass":true,"normalSha256":"2482dbaa0ae61d91ec50d8dedac1a391c031498c89b26b970fc370d23ae2b365","workbenchSha256":"8a6b1d004f8d95d55b31424a4fc0d0182c2c62ea88f279a76dd05965505cc822","pitches":254,"contacts":95}

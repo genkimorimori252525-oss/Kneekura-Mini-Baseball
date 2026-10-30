@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\package-v57.py", line 14, in <module>
+    assert sha(data)==meta['sha256'] and meta['presentationVersion']==56
+AssertionError

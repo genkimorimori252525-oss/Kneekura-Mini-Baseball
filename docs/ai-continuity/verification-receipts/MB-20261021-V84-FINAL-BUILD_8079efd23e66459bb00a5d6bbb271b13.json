@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-FINAL-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-render-locomotion-v84.mjs"
+  ],
+  "observed_at": "2026-10-20T15:38:31.124+00:00",
+  "elapsed_ms": 6047,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-FINAL-BUILD_8079efd23e66459bb00a5d6bbb271b13.log",
+  "output_sha256": "ee3fd020c6c7c82fe3a27a36572b918575b39c5714942b863c7f9de341f4e505",
+  "receipt_id": "MB-20261021-V84-FINAL-BUILD_8079efd23e66459bb00a5d6bbb271b13"
+}

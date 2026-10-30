@@ -1,0 +1,31 @@
+{
+  "command": [
+    "git",
+    "-c",
+    "core.whitespace=cr-at-eol",
+    "diff",
+    "--check",
+    "--",
+    "src/core/sim/fielding/LiveFieldPlayV1.ts",
+    "src/core/sim/fielding/LiveRunnerAdvancePolicyV1.ts",
+    "src/core/sim/running/LiveRunnerMotionV1.ts",
+    "src/core/sim/fielding/LiveFieldTechniquesV75.test.ts"
+  ],
+  "exitCode": 0,
+  "stdout": "",
+  "stderr": "warning: in the working copy of 'src/core/sim/fielding/LiveRunnerAdvancePolicyV1.ts', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/core/sim/running/LiveRunnerMotionV1.ts', LF will be replaced by CRLF the next time Git touches it\n",
+  "eol": [
+    {
+      "file": "src/core/sim/fielding/LiveFieldPlayV1.ts",
+      "preserved": true
+    },
+    {
+      "file": "src/core/sim/fielding/LiveRunnerAdvancePolicyV1.ts",
+      "preserved": true
+    },
+    {
+      "file": "src/core/sim/running/LiveRunnerMotionV1.ts",
+      "preserved": true
+    }
+  ]
+}

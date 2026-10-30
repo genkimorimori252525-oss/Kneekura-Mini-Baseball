@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V68-IMPACT-LIVE",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveImpactTrajectoryV1.test.ts"
+  ],
+  "observed_at": "2026-10-19T10:38:34.333+00:00",
+  "elapsed_ms": 2500,
+  "git_head": "652aa75ccb24df723c2d413e5dc37e7395dc8679",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V68-IMPACT-LIVE_c27739f5c16045b2b6b014bd559142bc.log",
+  "output_sha256": "2f95bad8a074aff511320de52cf99c5fa0798d7b9b9e276b0a89fd18a906f328",
+  "receipt_id": "MB-20261019-V68-IMPACT-LIVE_c27739f5c16045b2b6b014bd559142bc"
+}

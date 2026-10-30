@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-DECISION-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/world/psychology/batting/ObservedStrikeZoneOpportunityV1.test.ts",
+    "src/core/world/psychology/batting/BattingMotorPlanV1.test.ts",
+    "src/core/world/psychology/batting/BattingCommitment.test.ts",
+    "src/core/world/psychology/batting/MeasuredBattingCommitment.test.ts",
+    "src/host/world/NativeBattingEmotionExecution.test.ts",
+    "src/host/world/NativeBattingEmotion.test.ts"
+  ],
+  "observed_at": "2026-10-16T11:26:09.952+00:00",
+  "elapsed_ms": 24077,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-DECISION-REGRESSION_dd9b52bdbae44d44b859121f45177750.log",
+  "output_sha256": "bca46e971286b5b5a3c0d640573b42422d845d0189e8b90efa6f2f5b7c827bc8",
+  "receipt_id": "MB-20261016-INITIAL-DECISION-REGRESSION_dd9b52bdbae44d44b859121f45177750"
+}

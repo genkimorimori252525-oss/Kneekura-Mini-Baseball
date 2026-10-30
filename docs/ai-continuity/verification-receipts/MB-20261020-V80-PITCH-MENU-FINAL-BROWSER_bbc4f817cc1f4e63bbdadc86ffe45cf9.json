@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V80-PITCH-MENU-FINAL-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-pitch-menu-v80.mjs",
+    "../../outputs/にーくら野球メーカー_v80_球種の方向別メニュー版.html",
+    "docs/verification/releases/v80/pitch-menu-final"
+  ],
+  "observed_at": "2026-10-20T12:22:31.156+00:00",
+  "elapsed_ms": 22062,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V80-PITCH-MENU-FINAL-BROWSER_bbc4f817cc1f4e63bbdadc86ffe45cf9.log",
+  "output_sha256": "54c46830a96d6e170414e20642256fa3138c67c881cc6549dc95300e9ec93d00",
+  "receipt_id": "MB-20261020-V80-PITCH-MENU-FINAL-BROWSER_bbc4f817cc1f4e63bbdadc86ffe45cf9"
+}

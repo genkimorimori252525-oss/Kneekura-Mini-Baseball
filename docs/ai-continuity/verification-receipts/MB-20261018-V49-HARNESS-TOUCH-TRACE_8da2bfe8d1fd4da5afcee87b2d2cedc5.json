@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V49-HARNESS-TOUCH-TRACE",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts",
+    "--reporter=dot",
+    "-t",
+    "actual nonforce|explicitly evaluated losing|monotonic"
+  ],
+  "observed_at": "2026-10-18T08:11:47.573+00:00",
+  "elapsed_ms": 3967,
+  "git_head": "d54aa62aec6ce643f216dbaedfbaba2f36b31e3b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V49-HARNESS-TOUCH-TRACE_8da2bfe8d1fd4da5afcee87b2d2cedc5.log",
+  "output_sha256": "9362c9fb80873cc4ed277b4068ea324c3cdd2253790ace2ee4b508dc07cdca52",
+  "receipt_id": "MB-20261018-V49-HARNESS-TOUCH-TRACE_8da2bfe8d1fd4da5afcee87b2d2cedc5"
+}

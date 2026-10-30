@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-PITCH-CORE-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePitchAuthoringV78.test.ts",
+    "src/integration/browser/LivePitchExecutionV78.test.ts",
+    "src/integration/browser/LivePitchAuthoringV77.test.ts",
+    "src/integration/browser/PitcherWorkbenchV77.test.ts",
+    "src/integration/browser/LivePitchHostAuthoringV77.test.ts",
+    "src/integration/browser/LivePitchRosterV77.test.ts",
+    "src/integration/browser/LivePhysicalRosterV1.test.ts",
+    "src/integration/browser/LivePublicAbilitiesV1.test.ts",
+    "src/integration/browser/LiveTraitRuntimeV77.test.ts",
+    "src/core/sim/fielding/LiveFieldForecastV1.test.ts",
+    "src/core/sim/fielding/LiveThrowPlanV1.test.ts",
+    "src/core/sim/fielding/LiveRelayPlanV1.test.ts",
+    "src/core/sim/fielding/LiveFieldTechniquesV75.test.ts"
+  ],
+  "observed_at": "2026-10-19T19:48:46.148+00:00",
+  "elapsed_ms": 18703,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-PITCH-CORE-FINAL_b23f36bf102d4eb88b3f1ef4248b2642.log",
+  "output_sha256": "704cc6291d0e02f2d6f814becb8d98bb16d44be4ab21d3d708ce11975447e973",
+  "receipt_id": "MB-20261020-V78-PITCH-CORE-FINAL_b23f36bf102d4eb88b3f1ef4248b2642"
+}

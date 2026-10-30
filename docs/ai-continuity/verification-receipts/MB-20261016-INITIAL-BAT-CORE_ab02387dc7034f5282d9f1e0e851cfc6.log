@@ -1,0 +1,10 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/contact/InitialHeldBatV1.test.ts (7 tests) 4ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  20:57:40
+   Duration  658ms (transform 137ms, setup 0ms, collect 176ms, tests 4ms, environment 0ms, prepare 162ms)
+

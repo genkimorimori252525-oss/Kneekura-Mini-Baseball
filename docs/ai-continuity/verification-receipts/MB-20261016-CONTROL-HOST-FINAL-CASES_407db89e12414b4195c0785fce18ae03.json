@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-CONTROL-HOST-FINAL-CASES",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/SamePlateAppearanceSourceControlV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T20:54:45.190+00:00",
+  "elapsed_ms": 47717,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-CONTROL-HOST-FINAL-CASES_407db89e12414b4195c0785fce18ae03.log",
+  "output_sha256": "a04b7debe18e69568a62ec637deffb45abccccd7d7740f27b9f255b2f81289ff",
+  "receipt_id": "MB-20261016-CONTROL-HOST-FINAL-CASES_407db89e12414b4195c0785fce18ae03"
+}

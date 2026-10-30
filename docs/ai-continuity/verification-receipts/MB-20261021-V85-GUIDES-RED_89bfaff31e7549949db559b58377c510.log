@@ -1,0 +1,24 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ tools/browser-bridge/maker-guides-v85.test.mjs (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tools/browser-bridge/maker-guides-v85.test.mjs [ tools/browser-bridge/maker-guides-v85.test.mjs ]
+Error: ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\docs\demos\baseball-maker-guides-v85.js'
+ ❯ tools/browser-bridge/maker-guides-v85.test.mjs:4:34
+      2| import {readFileSync} from 'node:fs';
+      3| import vm from 'node:vm';
+      4| const root={};vm.runInNewContext(readFileSync(new URL('../../docs/demo…
+       |                                  ^
+      5| it('explains settings-axis gyro decomposition without rewriting the re…
+      6|  const input=Object.freeze({rpm:2400.12345,gyro:.6}),before=JSON.strin…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  01:00:55
+   Duration  735ms (transform 25ms, setup 0ms, collect 0ms, tests 0ms, environment 0ms, prepare 258ms)
+

@@ -1,0 +1,45 @@
+{
+  "pass": true,
+  "file": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v87_コース打率と認識AI版.html",
+  "artifactSha256": "b5a0c75fe58a2c4b870e51bc02430e99a9453fe1050db308efcf210482c40bc2",
+  "cases": [
+    {
+      "width": 1200,
+      "regions": 13,
+      "previewCommitCancel": true,
+      "proportionalDirection": true,
+      "readOnlyComparisons": true,
+      "roleRecognitionSaved": true,
+      "allRolesAndBounds": true,
+      "legacyOriginalRestored": true,
+      "practiceHistoryAdaptation": true,
+      "zeroAbMissing": true,
+      "mlbExactReference": true
+    },
+    {
+      "width": 390,
+      "regions": 13,
+      "previewCommitCancel": true,
+      "proportionalDirection": true,
+      "readOnlyComparisons": true,
+      "roleRecognitionSaved": true,
+      "allRolesAndBounds": true,
+      "legacyOriginalRestored": true,
+      "practiceHistoryAdaptation": true,
+      "zeroAbMissing": true,
+      "mlbExactReference": true
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "errors": [],
+      "external": []
+    }
+  ]
+}

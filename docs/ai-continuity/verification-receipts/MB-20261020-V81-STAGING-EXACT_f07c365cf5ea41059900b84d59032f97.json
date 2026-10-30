@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-STAGING-EXACT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "tools/browser-bridge/check-v81-staging.py"
+  ],
+  "observed_at": "2026-10-20T13:14:55.092+00:00",
+  "elapsed_ms": 20422,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-STAGING-EXACT_f07c365cf5ea41059900b84d59032f97.log",
+  "output_sha256": "d286b6de35a8b5880b39b96bdfbf83d2878ec3569b2cde964664958f8fe6eae8",
+  "receipt_id": "MB-20261020-V81-STAGING-EXACT_f07c365cf5ea41059900b84d59032f97"
+}

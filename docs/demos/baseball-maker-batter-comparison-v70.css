@@ -1,0 +1,15 @@
+.comparison-batter-panel{margin:18px 0;border:1px solid #bdd6c5;border-radius:9px;padding:14px;background:#fff;min-width:0}
+.comparison-batter-panel h4{font-size:17px;margin:0 0 8px}
+.comparison-batter-controls>label{display:flex;flex-direction:column;gap:5px;min-width:150px;flex:1;font-size:13px}
+.comparison-batter-controls input[type=range]{width:100%;min-width:0}
+.comparison-batter-surface{position:relative;overflow:hidden;width:100%;aspect-ratio:25/18;background:#18221c;touch-action:none;cursor:grab;outline-offset:3px}
+.comparison-batter-surface[data-dragging=angle]{cursor:move}
+.comparison-batter-surface[data-dragging=pan]{cursor:grabbing}
+.comparison-batter-surface canvas{display:block;width:100%;height:100%;transform-origin:center;pointer-events:none}
+.comparison-batter-frame{position:fixed;left:-13000px;top:0;width:1200px;height:900px;border:0;pointer-events:none}
+.comparison-batter-compact .comparison-batter-actions{margin:8px 0}
+.comparison-batter-compact .comparison-batter-actions>button{max-width:100%;white-space:normal}
+.comparison-batter-timeline{display:grid;grid-template-columns:minmax(0,1fr) 30px;gap:6px;align-items:end;font-size:13px}
+.comparison-batter-timeline input[type=range]{display:block;width:100%;margin:8px 0}
+.comparison-batter-compact>details{margin-top:12px}
+@media(max-width:600px){.comparison-batter-panel{padding:10px}.comparison-batter-controls>label{min-width:120px}.comparison-batter-controls>#comparison-batter-reset{width:100%}}

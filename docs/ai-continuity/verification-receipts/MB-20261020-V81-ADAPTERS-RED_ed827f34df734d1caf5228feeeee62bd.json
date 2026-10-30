@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-ADAPTERS-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "--test",
+    "tools/browser-bridge/whole-scene-adapters-v81.test.mjs"
+  ],
+  "observed_at": "2026-10-20T12:52:45.872+00:00",
+  "elapsed_ms": 125,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-ADAPTERS-RED_ed827f34df734d1caf5228feeeee62bd.log",
+  "output_sha256": "73b23a13f6f7fe0a99419e03e2bfba92f927b22c6ae8c1412b976b7a5861a51f",
+  "receipt_id": "MB-20261020-V81-ADAPTERS-RED_ed827f34df734d1caf5228feeeee62bd"
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-UPRIGHT-BAT-FINAL-TSC",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-16T12:45:09.274+00:00",
+  "elapsed_ms": 22921,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-UPRIGHT-BAT-FINAL-TSC_3dae72f456114db9a9aa97fefab2c23f.log",
+  "output_sha256": "a084d9f939467ede127b6a5b4f210c855ea589f17fb411cef161209a9ff8be14",
+  "receipt_id": "MB-20261016-UPRIGHT-BAT-FINAL-TSC_3dae72f456114db9a9aa97fefab2c23f"
+}

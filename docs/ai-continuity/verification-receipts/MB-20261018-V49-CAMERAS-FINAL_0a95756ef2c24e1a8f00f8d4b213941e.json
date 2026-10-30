@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V49-CAMERAS-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v47-continuous-view.mjs",
+    "../../outputs/ばせぼーるlv49_TBD_vs_LAD_守備責任と走塁裁定修正版.html",
+    "../../outputs/verification-v49-cameras-final"
+  ],
+  "observed_at": "2026-10-18T08:30:53.425+00:00",
+  "elapsed_ms": 27218,
+  "git_head": "d54aa62aec6ce643f216dbaedfbaba2f36b31e3b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V49-CAMERAS-FINAL_0a95756ef2c24e1a8f00f8d4b213941e.log",
+  "output_sha256": "c7166ba1fe3a11a655fa899fe8a11519c0c36f3f2b86df7266e45f9e5e719026",
+  "receipt_id": "MB-20261018-V49-CAMERAS-FINAL_0a95756ef2c24e1a8f00f8d4b213941e"
+}

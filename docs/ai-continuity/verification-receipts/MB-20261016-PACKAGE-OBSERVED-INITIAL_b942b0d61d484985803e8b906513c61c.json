@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-PACKAGE-OBSERVED-INITIAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../package-delivery.py"
+  ],
+  "observed_at": "2026-10-15T22:48:05.945+00:00",
+  "elapsed_ms": 19875,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-PACKAGE-OBSERVED-INITIAL_b942b0d61d484985803e8b906513c61c.log",
+  "output_sha256": "bd46ddfa4a299bee742adf1d6dd9e14747fa7113cc7f4cea230a340a9bc6a407",
+  "receipt_id": "MB-20261016-PACKAGE-OBSERVED-INITIAL_b942b0d61d484985803e8b906513c61c"
+}

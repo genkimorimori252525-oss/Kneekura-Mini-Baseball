@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V74-BUILD-MAKER-WIDE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-maker.mjs",
+    "../../outputs/にーくら野球メーカー_v74_用具と能力上限拡張版.html",
+    "--executable-traits",
+    "--measured-library",
+    "--ball-comparison",
+    "--batter-comparison",
+    "--bat-orbit",
+    "--player-swing-preview",
+    "--whole-arc",
+    "--equipment-preview",
+    "--match-renderer=../../outputs/ばせぼーるlv74_TBD_vs_LAD_用具と能力上限拡張版.html",
+    "--roster=docs/demos/live-game-roster-v62.json",
+    "--catalog=docs/demos/live-game-roster-catalog-v62.json"
+  ],
+  "observed_at": "2026-10-19T15:10:27.343+00:00",
+  "elapsed_ms": 2421,
+  "git_head": "6eb26f350b78639ed4d240bbb957ef25a150ef30",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V74-BUILD-MAKER-WIDE_735c8396556348a0a66592d4dd6736a1.log",
+  "output_sha256": "944bd6f62cce75437ae7d3df48939d1c78e8ca76931906e1a9036ebbd6dba4f2",
+  "receipt_id": "MB-20261020-V74-BUILD-MAKER-WIDE_735c8396556348a0a66592d4dd6736a1"
+}

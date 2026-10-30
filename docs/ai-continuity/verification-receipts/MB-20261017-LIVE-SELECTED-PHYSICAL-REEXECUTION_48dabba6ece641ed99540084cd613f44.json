@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-SELECTED-PHYSICAL-REEXECUTION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../../work/live-game-audit-v6/verify-live-match-recordings.mjs",
+    "../../outputs/verification-live-match-selected-reexecution-v1",
+    "2"
+  ],
+  "observed_at": "2026-10-17T01:25:01.118+00:00",
+  "elapsed_ms": 556250,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-SELECTED-PHYSICAL-REEXECUTION_48dabba6ece641ed99540084cd613f44.log",
+  "output_sha256": "a9280a102e80896fc51d2cd51dfb78ed6f41754e9dbb5200db3fb2af50e6ab92",
+  "receipt_id": "MB-20261017-LIVE-SELECTED-PHYSICAL-REEXECUTION_48dabba6ece641ed99540084cd613f44"
+}

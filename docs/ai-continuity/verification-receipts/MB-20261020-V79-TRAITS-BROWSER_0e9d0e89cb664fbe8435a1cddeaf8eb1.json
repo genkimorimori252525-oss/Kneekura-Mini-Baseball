@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V79-TRAITS-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v77-traits-browser.mjs",
+    "../../outputs/にーくら野球メーカー_v79_63コースとシーズン成績版.html",
+    "docs/verification/releases/v79/traits"
+  ],
+  "observed_at": "2026-10-20T00:27:05.385+00:00",
+  "elapsed_ms": 9375,
+  "git_head": "98819b9ab5c8e4bdd7ddfc7d644d484df08ab55d",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V79-TRAITS-BROWSER_0e9d0e89cb664fbe8435a1cddeaf8eb1.log",
+  "output_sha256": "4a12db420e92c8287582561c900a84a9a82884da41e603c7aa78cdc7b0065001",
+  "receipt_id": "MB-20261020-V79-TRAITS-BROWSER_0e9d0e89cb664fbe8435a1cddeaf8eb1"
+}

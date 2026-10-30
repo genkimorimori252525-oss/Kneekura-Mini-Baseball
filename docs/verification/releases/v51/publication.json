@@ -1,0 +1,61 @@
+{
+  "pass": true,
+  "sourceCommit": "f7b91b99e08044df92094912cc437d2e1036e838",
+  "verifiedRemoteHead": "f7b91b99e08044df92094912cc437d2e1036e838",
+  "branch": "jolly/tbd-lad-native-browser-core-2026-10-14",
+  "pullRequest": {
+    "headRefOid": "f7b91b99e08044df92094912cc437d2e1036e838",
+    "isDraft": true,
+    "state": "OPEN",
+    "title": "fix: coordinate fielder avoidance in the playable Core match (v51)",
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380"
+  },
+  "rawFiles": {
+    "docs/history/INCIDENTS.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/f7b91b99e08044df92094912cc437d2e1036e838/docs/history/INCIDENTS.md",
+      "bytes": 27745,
+      "sha256": "a4e4dde446359ae35053feab1328fc76b10e595ebd37182880982781cbe34d11"
+    },
+    "docs/handoffs/LATEST.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/f7b91b99e08044df92094912cc437d2e1036e838/docs/handoffs/LATEST.md",
+      "bytes": 5173,
+      "sha256": "04c06b87f2c70a5a1873b89407e59e44e750497bf23546d1dce19212bcf98a47"
+    },
+    "src/core/sim/fielding/LiveFieldPlayV1.ts": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/f7b91b99e08044df92094912cc437d2e1036e838/src/core/sim/fielding/LiveFieldPlayV1.ts",
+      "bytes": 116535,
+      "sha256": "8ffe9835f13bf455d6571754d447506124525c8df5de7e7002d79177a544d7f8"
+    },
+    "src/core/sim/fielding/LiveFielderAvoidanceV1.ts": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/f7b91b99e08044df92094912cc437d2e1036e838/src/core/sim/fielding/LiveFielderAvoidanceV1.ts",
+      "bytes": 19064,
+      "sha256": "ac5f68647e783fd5f3f22f7e5ecfbe1d62fe64e87fe8633c2e77793c6ac75413"
+    },
+    "tools/browser-bridge/build-v51.mjs": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/f7b91b99e08044df92094912cc437d2e1036e838/tools/browser-bridge/build-v51.mjs",
+      "bytes": 7348,
+      "sha256": "ed26e58786e77e42d9c64b081e2df8c3dad1c899a494126385544d77a157a5a3"
+    },
+    "docs/reports/2026-10-18-v51-fielder-avoidance.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/f7b91b99e08044df92094912cc437d2e1036e838/docs/reports/2026-10-18-v51-fielder-avoidance.md",
+      "bytes": 8741,
+      "sha256": "3c143cbb95bc3e05adf293a2c2ef171853d83298df89645002af3982822fb55f"
+    },
+    "docs/demos/releases/v51/game.html": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/f7b91b99e08044df92094912cc437d2e1036e838/docs/demos/releases/v51/game.html",
+      "bytes": 3502235,
+      "sha256": "9a2b4761d87b6c908dd51c969d5425a036870caf1f57b474e1113126b409a54e"
+    },
+    "docs/demos/releases/v51/tested-core-inputs.zip": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/f7b91b99e08044df92094912cc437d2e1036e838/docs/demos/releases/v51/tested-core-inputs.zip",
+      "bytes": 465845,
+      "sha256": "c206e380c2948f3707165a1311c4146bd2ddd3db7588552afa1671854b4ddc46"
+    },
+    "docs/demos/releases/v51/SHA256.json": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/f7b91b99e08044df92094912cc437d2e1036e838/docs/demos/releases/v51/SHA256.json",
+      "bytes": 641,
+      "sha256": "b0ba0fc38955a241678b6af6b7b2a14ff0829560cea410e7471c20378653bf2a"
+    }
+  },
+  "scope": "actual current raw bytes and remote branch/Draft PR; no main merge"
+}

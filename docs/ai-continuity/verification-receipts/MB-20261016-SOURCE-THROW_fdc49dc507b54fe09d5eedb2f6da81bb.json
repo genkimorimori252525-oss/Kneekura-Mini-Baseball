@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-THROW",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/SourceBattedFieldThrowV1.test.ts",
+    "src/core/sim/ball/SourceBattedFieldAcquisitionV1.test.ts",
+    "src/core/sim/ball/BattedWorldScheduledFieldThrow.test.ts"
+  ],
+  "observed_at": "2026-10-15T18:52:56.586+00:00",
+  "elapsed_ms": 5000,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-THROW_fdc49dc507b54fe09d5eedb2f6da81bb.log",
+  "output_sha256": "e38fea0abb34769883a719b5a61d114c4f8de55f08f3834621e7a117f23cbba5",
+  "receipt_id": "MB-20261016-SOURCE-THROW_fdc49dc507b54fe09d5eedb2f6da81bb"
+}

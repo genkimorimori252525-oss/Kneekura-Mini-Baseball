@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/SamePlateAppearanceLifecycleSource.test.ts (7 tests) 11ms
+ ✓ src/host/world/SamePlateAppearanceMetadataCompilation.test.ts (3 tests) 23ms
+
+ Test Files  2 passed (2)
+      Tests  10 passed (10)
+   Start at  07:31:05
+   Duration  7.58s (transform 4.71s, setup 0ms, collect 13.97s, tests 34ms, environment 0ms, prepare 352ms)
+

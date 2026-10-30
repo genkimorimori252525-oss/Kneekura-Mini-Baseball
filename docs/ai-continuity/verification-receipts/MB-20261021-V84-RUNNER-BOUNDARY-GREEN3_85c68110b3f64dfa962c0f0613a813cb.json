@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-RUNNER-BOUNDARY-GREEN3",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/running/LiveRunnerMotionV1.test.ts",
+    "src/core/sim/running/LiveRunnerRetreatMotionV1.test.ts",
+    "src/core/sim/fielding/LiveRunnerAdvancePolicyV1.test.ts",
+    "src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts"
+  ],
+  "observed_at": "2026-10-20T15:35:03.587+00:00",
+  "elapsed_ms": 1375,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-RUNNER-BOUNDARY-GREEN3_85c68110b3f64dfa962c0f0613a813cb.log",
+  "output_sha256": "8d1877805e3c7d76375f56958b2758ceb90f1e0559505157c377deb855e9c9de",
+  "receipt_id": "MB-20261021-V84-RUNNER-BOUNDARY-GREEN3_85c68110b3f64dfa962c0f0613a813cb"
+}

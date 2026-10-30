@@ -1,0 +1,650 @@
+{
+  "pass": true,
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v82_削除と入力復帰版.html",
+  "sha256": "35eb7d7f80a558ecc95936ea4f69978c93af3f4b3aa5081b01b49cc96e98206a",
+  "cases": [
+    {
+      "width": 1200,
+      "startupMs": 5227,
+      "observations": {
+        "clips": 673,
+        "trials": [
+          {
+            "kind": "batter",
+            "hash": "5f7bfd22c4ba3c5ef92fe5fdfeb8ec5ddbe8d4b3948967e3a55155e88b580d00"
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "fastball",
+            "hash": "3e6082158ee8949da7adebac56f126e3320c059ff78088e85c34fa2965586b55"
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "curve",
+            "hash": "124a46096c519935acd505c2e6e5ca395b39972d276e8cdcf445c073c74ce32a"
+          }
+        ],
+        "captures": [
+          {
+            "kind": "batter",
+            "level": 1,
+            "seconds": 0.1,
+            "hash": "5fabe77c6a5a4b45739193220d2a2d00198cca825c0011dad20411d05ac73a2d",
+            "scene": 0.1,
+            "ball": 0.1,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 1,
+            "seconds": 0.3,
+            "hash": "5cfc4ece6aea93bf8891cc9561b30c041bcd36f1b1430a99788fc886f1fbbc1f",
+            "scene": 0.3,
+            "ball": 0.3,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 1,
+            "seconds": 0.5,
+            "hash": "9fd22e094c909b4d5dcc8bd662b26a949cef8374853e775f5261801504a22a34",
+            "scene": 0.5,
+            "ball": 0.5,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 1,
+            "seconds": 1,
+            "hash": "752e5b130d2b65ec55c8c1e09188d914d3f56b129428411e0f4a54fbebe7b88b",
+            "scene": 1,
+            "ball": 1,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 1,
+            "seconds": 2,
+            "hash": "1d621401fd7cc359c162f2e7be0b4b15085979a461f069b17d1484f741fac4df",
+            "scene": 2,
+            "ball": 2,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 2,
+            "seconds": 0.1,
+            "hash": "a1c937e8a6469004587e0f3d1f339a40ce67f46e1522e5ccfd998999f4baf78f",
+            "scene": 0.1,
+            "ball": 0.1,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 2,
+            "seconds": 0.3,
+            "hash": "8b64ec50dc95d9dc9a383d877688f61aef9aa9f1c42bc325932d7cbed758f46f",
+            "scene": 0.3,
+            "ball": 0.3,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 2,
+            "seconds": 0.5,
+            "hash": "6cbe2ec03c01fae34d3226a63b01a4e32e0a88753682149681332176ca4226de",
+            "scene": 0.5,
+            "ball": 0.5,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 2,
+            "seconds": 1,
+            "hash": "2ec03257628bb9a3d2a7c97622671b488db0418283f1bf3d0e8981c3393761cc",
+            "scene": 1,
+            "ball": 1,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 2,
+            "seconds": 2,
+            "hash": "ce8db75ac95e918585e11927b1d6b407bf3bbf94bb47d7e753272fee60e4977f",
+            "scene": 2,
+            "ball": 2,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 3,
+            "seconds": 0.1,
+            "hash": "10dafdc65cbf15800c53b86dc4bee7d5d0a28d95d88d1cb3f7dc38815d0fbd14",
+            "scene": 0.1,
+            "ball": 0.1,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 3,
+            "seconds": 0.3,
+            "hash": "0c7382f77e33e2dfdf0a84e43221bc800808200fee3feb2b2d1e634e7468b228",
+            "scene": 0.3,
+            "ball": 0.3,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 3,
+            "seconds": 0.5,
+            "hash": "30cd4d758a50d996ad64d4bc1b772f72455f98162ee9c6d773d6c4d9c7c9ff3f",
+            "scene": 0.5,
+            "ball": 0.5,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 3,
+            "seconds": 1,
+            "hash": "83f72bd9c144e82a1eaa5feb0c45d225a1c47a28dbda8d663691bd6315ca63ed",
+            "scene": 1,
+            "ball": 1,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 3,
+            "seconds": 2,
+            "hash": "bab87a1d54a7a9dbeb67d1bed9a6490beeb51025a3582d80af08019b738c71d5",
+            "scene": 2,
+            "ball": 2,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 4,
+            "seconds": 0.1,
+            "hash": "2a0c70b456345fc416c3fb6f2c968454d1991e759ca1d5bfe08960fb389548d3",
+            "scene": 0.1,
+            "ball": 0.1,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 4,
+            "seconds": 0.3,
+            "hash": "002eb415f9bb592014402376c113b81224eb1fb9f9800a6f3bc864542fa07be0",
+            "scene": 0.3,
+            "ball": 0.3,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 4,
+            "seconds": 0.5,
+            "hash": "8c23ffb282fc3781d92f0ce6a1943739de6c94eb6cb487e4839d6f577ca0dbbd",
+            "scene": 0.5,
+            "ball": 0.5,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 4,
+            "seconds": 1,
+            "hash": "ac56f25a3c5145e409291b513e1370cd09d1e1823a24d068791e590f72c155e9",
+            "scene": 1,
+            "ball": 1,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 4,
+            "seconds": 2,
+            "hash": "c41c14e7da83ed2d601b90967c0970d9cc1893ed1c42254f56cfc90b34049408",
+            "scene": 2,
+            "ball": 2,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "fastball",
+            "seconds": 0,
+            "hash": "203b36e2a7507a8006e0f0d4f245b851da93288c68eaa60628e84307571a2888",
+            "scene": 0,
+            "ball": -1.54,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "fastball",
+            "seconds": 1,
+            "hash": "e38cc762484aea76c86d7c5dc812739788562e9dc74d3010921e28f716db7380",
+            "scene": 1,
+            "ball": -0.54,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "fastball",
+            "seconds": 1.55,
+            "hash": "fb83ebc2be0703fcaaf931190aed8cdc8403c12bd36e89372d33be23c013f763",
+            "scene": 1.55,
+            "ball": 0.010000000000000009,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "fastball",
+            "seconds": 1.7,
+            "hash": "9e7015542c094754af553fa82a64745d58b2b90ca6dc95fbde9b13eaa9fb97cd",
+            "scene": 1.7,
+            "ball": 0.15999999999999992,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "fastball",
+            "seconds": 1.85,
+            "hash": "de2523b9c0568539e5270351ac6cfee17b0e061dda9a9500e66e23ba08ec8d07",
+            "scene": 1.85,
+            "ball": 0.31000000000000005,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "fastball",
+            "seconds": 2.1,
+            "hash": "4315b88d5f8db3e86d2e4c56298574a86078b19c9fb52152f9b9c73c6f10298d",
+            "scene": 2.012931,
+            "ball": 0.472931,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "curve",
+            "seconds": 0,
+            "hash": "203b36e2a7507a8006e0f0d4f245b851da93288c68eaa60628e84307571a2888",
+            "scene": 0,
+            "ball": -1.54,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "curve",
+            "seconds": 1,
+            "hash": "e38cc762484aea76c86d7c5dc812739788562e9dc74d3010921e28f716db7380",
+            "scene": 1,
+            "ball": -0.54,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "curve",
+            "seconds": 1.55,
+            "hash": "fb83ebc2be0703fcaaf931190aed8cdc8403c12bd36e89372d33be23c013f763",
+            "scene": 1.55,
+            "ball": 0.010000000000000009,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "curve",
+            "seconds": 1.7,
+            "hash": "465af820216febdc6d81da0e3716ccaf19d3d14b74ea45fc004bdd645ea004f3",
+            "scene": 1.7,
+            "ball": 0.15999999999999992,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "curve",
+            "seconds": 1.85,
+            "hash": "c434805650e9319030368bc3a87e8b74f854982e5cf619a6b61596f0af58f2a5",
+            "scene": 1.85,
+            "ball": 0.31000000000000005,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "curve",
+            "seconds": 2.1,
+            "hash": "3a55f5f8a9304169a0ffa122cafa752cf3e4cc541b636199ae1152fcced184c3",
+            "scene": 2.1,
+            "ball": 0.56,
+            "hostUnchanged": true
+          }
+        ],
+        "rosterHash": "3c7f36e6eff3afac96de341475ee7209f75f7436290de7fd63183123ecd0d084",
+        "overflow": false
+      }
+    },
+    {
+      "width": 390,
+      "startupMs": 5139,
+      "observations": {
+        "clips": 673,
+        "trials": [
+          {
+            "kind": "batter",
+            "hash": "5f7bfd22c4ba3c5ef92fe5fdfeb8ec5ddbe8d4b3948967e3a55155e88b580d00"
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "fastball",
+            "hash": "3e6082158ee8949da7adebac56f126e3320c059ff78088e85c34fa2965586b55"
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "curve",
+            "hash": "124a46096c519935acd505c2e6e5ca395b39972d276e8cdcf445c073c74ce32a"
+          }
+        ],
+        "captures": [
+          {
+            "kind": "batter",
+            "level": 1,
+            "seconds": 0.1,
+            "hash": "5fabe77c6a5a4b45739193220d2a2d00198cca825c0011dad20411d05ac73a2d",
+            "scene": 0.1,
+            "ball": 0.1,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 1,
+            "seconds": 0.3,
+            "hash": "5cfc4ece6aea93bf8891cc9561b30c041bcd36f1b1430a99788fc886f1fbbc1f",
+            "scene": 0.3,
+            "ball": 0.3,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 1,
+            "seconds": 0.5,
+            "hash": "9fd22e094c909b4d5dcc8bd662b26a949cef8374853e775f5261801504a22a34",
+            "scene": 0.5,
+            "ball": 0.5,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 1,
+            "seconds": 1,
+            "hash": "752e5b130d2b65ec55c8c1e09188d914d3f56b129428411e0f4a54fbebe7b88b",
+            "scene": 1,
+            "ball": 1,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 1,
+            "seconds": 2,
+            "hash": "1d621401fd7cc359c162f2e7be0b4b15085979a461f069b17d1484f741fac4df",
+            "scene": 2,
+            "ball": 2,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 2,
+            "seconds": 0.1,
+            "hash": "a1c937e8a6469004587e0f3d1f339a40ce67f46e1522e5ccfd998999f4baf78f",
+            "scene": 0.1,
+            "ball": 0.1,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 2,
+            "seconds": 0.3,
+            "hash": "8b64ec50dc95d9dc9a383d877688f61aef9aa9f1c42bc325932d7cbed758f46f",
+            "scene": 0.3,
+            "ball": 0.3,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 2,
+            "seconds": 0.5,
+            "hash": "6cbe2ec03c01fae34d3226a63b01a4e32e0a88753682149681332176ca4226de",
+            "scene": 0.5,
+            "ball": 0.5,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 2,
+            "seconds": 1,
+            "hash": "2ec03257628bb9a3d2a7c97622671b488db0418283f1bf3d0e8981c3393761cc",
+            "scene": 1,
+            "ball": 1,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 2,
+            "seconds": 2,
+            "hash": "ce8db75ac95e918585e11927b1d6b407bf3bbf94bb47d7e753272fee60e4977f",
+            "scene": 2,
+            "ball": 2,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 3,
+            "seconds": 0.1,
+            "hash": "10dafdc65cbf15800c53b86dc4bee7d5d0a28d95d88d1cb3f7dc38815d0fbd14",
+            "scene": 0.1,
+            "ball": 0.1,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 3,
+            "seconds": 0.3,
+            "hash": "0c7382f77e33e2dfdf0a84e43221bc800808200fee3feb2b2d1e634e7468b228",
+            "scene": 0.3,
+            "ball": 0.3,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 3,
+            "seconds": 0.5,
+            "hash": "30cd4d758a50d996ad64d4bc1b772f72455f98162ee9c6d773d6c4d9c7c9ff3f",
+            "scene": 0.5,
+            "ball": 0.5,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 3,
+            "seconds": 1,
+            "hash": "83f72bd9c144e82a1eaa5feb0c45d225a1c47a28dbda8d663691bd6315ca63ed",
+            "scene": 1,
+            "ball": 1,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 3,
+            "seconds": 2,
+            "hash": "bab87a1d54a7a9dbeb67d1bed9a6490beeb51025a3582d80af08019b738c71d5",
+            "scene": 2,
+            "ball": 2,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 4,
+            "seconds": 0.1,
+            "hash": "2a0c70b456345fc416c3fb6f2c968454d1991e759ca1d5bfe08960fb389548d3",
+            "scene": 0.1,
+            "ball": 0.1,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 4,
+            "seconds": 0.3,
+            "hash": "002eb415f9bb592014402376c113b81224eb1fb9f9800a6f3bc864542fa07be0",
+            "scene": 0.3,
+            "ball": 0.3,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 4,
+            "seconds": 0.5,
+            "hash": "8c23ffb282fc3781d92f0ce6a1943739de6c94eb6cb487e4839d6f577ca0dbbd",
+            "scene": 0.5,
+            "ball": 0.5,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 4,
+            "seconds": 1,
+            "hash": "ac56f25a3c5145e409291b513e1370cd09d1e1823a24d068791e590f72c155e9",
+            "scene": 1,
+            "ball": 1,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "batter",
+            "level": 4,
+            "seconds": 2,
+            "hash": "c41c14e7da83ed2d601b90967c0970d9cc1893ed1c42254f56cfc90b34049408",
+            "scene": 2,
+            "ball": 2,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "fastball",
+            "seconds": 0,
+            "hash": "203b36e2a7507a8006e0f0d4f245b851da93288c68eaa60628e84307571a2888",
+            "scene": 0,
+            "ball": -1.54,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "fastball",
+            "seconds": 1,
+            "hash": "e38cc762484aea76c86d7c5dc812739788562e9dc74d3010921e28f716db7380",
+            "scene": 1,
+            "ball": -0.54,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "fastball",
+            "seconds": 1.55,
+            "hash": "fb83ebc2be0703fcaaf931190aed8cdc8403c12bd36e89372d33be23c013f763",
+            "scene": 1.55,
+            "ball": 0.010000000000000009,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "fastball",
+            "seconds": 1.7,
+            "hash": "9e7015542c094754af553fa82a64745d58b2b90ca6dc95fbde9b13eaa9fb97cd",
+            "scene": 1.7,
+            "ball": 0.15999999999999992,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "fastball",
+            "seconds": 1.85,
+            "hash": "de2523b9c0568539e5270351ac6cfee17b0e061dda9a9500e66e23ba08ec8d07",
+            "scene": 1.85,
+            "ball": 0.31000000000000005,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "fastball",
+            "seconds": 2.1,
+            "hash": "4315b88d5f8db3e86d2e4c56298574a86078b19c9fb52152f9b9c73c6f10298d",
+            "scene": 2.012931,
+            "ball": 0.472931,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "curve",
+            "seconds": 0,
+            "hash": "203b36e2a7507a8006e0f0d4f245b851da93288c68eaa60628e84307571a2888",
+            "scene": 0,
+            "ball": -1.54,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "curve",
+            "seconds": 1,
+            "hash": "e38cc762484aea76c86d7c5dc812739788562e9dc74d3010921e28f716db7380",
+            "scene": 1,
+            "ball": -0.54,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "curve",
+            "seconds": 1.55,
+            "hash": "fb83ebc2be0703fcaaf931190aed8cdc8403c12bd36e89372d33be23c013f763",
+            "scene": 1.55,
+            "ball": 0.010000000000000009,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "curve",
+            "seconds": 1.7,
+            "hash": "465af820216febdc6d81da0e3716ccaf19d3d14b74ea45fc004bdd645ea004f3",
+            "scene": 1.7,
+            "ball": 0.15999999999999992,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "curve",
+            "seconds": 1.85,
+            "hash": "c434805650e9319030368bc3a87e8b74f854982e5cf619a6b61596f0af58f2a5",
+            "scene": 1.85,
+            "ball": 0.31000000000000005,
+            "hostUnchanged": true
+          },
+          {
+            "kind": "pitcher",
+            "pitch": "curve",
+            "seconds": 2.1,
+            "hash": "3a55f5f8a9304169a0ffa122cafa752cf3e4cc541b636199ae1152fcced184c3",
+            "scene": 2.1,
+            "ball": 0.56,
+            "hostUnchanged": true
+          }
+        ],
+        "rosterHash": "3c7f36e6eff3afac96de341475ee7209f75f7436290de7fd63183123ecd0d084",
+        "overflow": false
+      }
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "errors": [],
+      "external": []
+    }
+  ],
+  "scope": "Same-time maker ball/bat/ordinary composite pixels and actual shared Core trials, simulated PC/mobile viewports."
+}

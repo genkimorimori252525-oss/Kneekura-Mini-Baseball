@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V76-BALL-SIZING",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v76-ball-sizing.mjs"
+  ],
+  "observed_at": "2026-10-19T18:25:12.461+00:00",
+  "elapsed_ms": 79,
+  "git_head": "b8acaba00ccab4e40bb176bac3c51cf2f15dd876",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V76-BALL-SIZING_4fc2887e1a464cb18c95900f79ce74be.log",
+  "output_sha256": "c86a93ee3ccec8208b9a984dd3b3e95119f32110cfa371d8c0501a3bae6185b2",
+  "receipt_id": "MB-20261020-V76-BALL-SIZING_4fc2887e1a464cb18c95900f79ce74be"
+}

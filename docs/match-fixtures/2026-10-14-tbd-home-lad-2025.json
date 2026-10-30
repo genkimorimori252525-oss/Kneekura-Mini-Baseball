@@ -1,0 +1,202 @@
+{
+  "id": "TBD-LAD-2025-EXHIBITION-v1",
+  "status": "PLAYABLE_BROWSER_FIXTURE_PROVISIONAL",
+  "regulation": "9-inning exhibition, home TBD; away LAD",
+  "sourceYear": 2025,
+  "teams": [
+    {
+      "id": "LAD",
+      "side": "away",
+      "league": "MLB",
+      "source": "2025 World Series roster / game 1 lineup",
+      "sourceUrl": "https://www.mlb.com/press-release/dodgers-announce-2025-world-series-roster",
+      "lineup": [
+        {
+          "order": 1,
+          "name": "Shohei Ohtani",
+          "position": "DH",
+          "throws": "R",
+          "bats": "L"
+        },
+        {
+          "order": 2,
+          "name": "Mookie Betts",
+          "position": "SS",
+          "throws": "R",
+          "bats": "R"
+        },
+        {
+          "order": 3,
+          "name": "Freddie Freeman",
+          "position": "1B",
+          "throws": "L",
+          "bats": "L"
+        },
+        {
+          "order": 4,
+          "name": "Will Smith",
+          "position": "C",
+          "throws": "R",
+          "bats": "R"
+        },
+        {
+          "order": 5,
+          "name": "Teoscar Hernández",
+          "position": "RF",
+          "throws": "R",
+          "bats": "R"
+        },
+        {
+          "order": 6,
+          "name": "Max Muncy",
+          "position": "3B",
+          "throws": "R",
+          "bats": "L"
+        },
+        {
+          "order": 7,
+          "name": "Kiké Hernández",
+          "position": "LF",
+          "throws": "R",
+          "bats": "R"
+        },
+        {
+          "order": 8,
+          "name": "Tommy Edman",
+          "position": "2B",
+          "throws": "R",
+          "bats": "S"
+        },
+        {
+          "order": 9,
+          "name": "Andy Pages",
+          "position": "CF",
+          "throws": "R",
+          "bats": "R"
+        }
+      ],
+      "startingPitcher": {
+        "name": "Blake Snell",
+        "throws": "L",
+        "bats": "L"
+      }
+    },
+    {
+      "id": "TBD",
+      "side": "home",
+      "league": "NLB",
+      "source": "User-supplied Tambov Dragons roster; 2026-10-14",
+      "lineup": [
+        {
+          "order": 1,
+          "name": "ニッチロー",
+          "position": "RF",
+          "throws": "R",
+          "bats": "L",
+          "traits": [
+            "悪球打ち"
+          ]
+        },
+        {
+          "order": 2,
+          "name": "メルセデス",
+          "fullName": "メルセデス・ベンツ",
+          "position": "2B",
+          "throws": "R",
+          "bats": "L",
+          "traits": [
+            "悪球打ち"
+          ]
+        },
+        {
+          "order": 3,
+          "name": "ちんすけ",
+          "position": "DH",
+          "throws": "R",
+          "bats": "L",
+          "traits": [
+            "悪球打ち"
+          ]
+        },
+        {
+          "order": 4,
+          "name": "ロッツォ",
+          "position": "3B",
+          "throws": "R",
+          "bats": "R",
+          "traits": [
+            "悪球打ち"
+          ]
+        },
+        {
+          "order": 5,
+          "name": "ナッパ",
+          "position": "C",
+          "throws": "R",
+          "bats": "R",
+          "traits": [
+            "悪球打ち"
+          ]
+        },
+        {
+          "order": 6,
+          "name": "ペイン酒井",
+          "position": "CF",
+          "throws": "R",
+          "bats": "L",
+          "traits": [
+            "悪球打ち"
+          ]
+        },
+        {
+          "order": 7,
+          "name": "FANZAWA",
+          "position": "LF",
+          "throws": "L",
+          "bats": "L",
+          "traits": [
+            "悪球打ち"
+          ]
+        },
+        {
+          "order": 8,
+          "name": "李将軍",
+          "position": "1B",
+          "throws": "R",
+          "bats": "L",
+          "traits": [
+            "悪球打ち"
+          ]
+        },
+        {
+          "order": 9,
+          "name": "ライポア",
+          "fullName": "ライバル・ポア",
+          "position": "SS",
+          "throws": "L",
+          "bats": "S",
+          "traits": [
+            "悪球打ち"
+          ],
+          "positionProvisional": true
+        }
+      ],
+      "startingPitcher": {
+        "name": "ティカオ",
+        "throws": "R",
+        "bats": "R",
+        "maxSpeedKmh": 151,
+        "traits": [
+          "悪球打ち"
+        ]
+      }
+    }
+  ],
+  "notes": [
+    "LAD historical lineup and actual roster identities are sourced; numbers calibrated in a future step, not official ability ratings.",
+    "TBD NLB-relative ratings are derived from actual NLB player population; do not give NLB name buffs.",
+    "This fixture is not a Native Match Core integration and is not validated for all official rules.",
+    "TBD shortstop Rai-poa is a provisional assignment; Li Jiangjun's .305 is provisional.",
+    "v18 browser demo is delivered as an attached offline standalone HTML plus source/test archive."
+  ]
+}

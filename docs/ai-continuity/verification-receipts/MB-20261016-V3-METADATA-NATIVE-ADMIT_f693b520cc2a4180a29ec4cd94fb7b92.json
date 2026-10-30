@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-V3-METADATA-NATIVE-ADMIT",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "../native-v3-metadata-entry.mjs",
+    "../native-v3-metadata-proof/manifest.json",
+    "../native-v3-metadata-proof/run",
+    "admit"
+  ],
+  "observed_at": "2026-10-15T17:22:18.761+00:00",
+  "elapsed_ms": 64421,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-V3-METADATA-NATIVE-ADMIT_f693b520cc2a4180a29ec4cd94fb7b92.log",
+  "output_sha256": "6666939adee1935e133b7a5ae77ad7634ae905b8c1fcbda374d2bed11fea0364",
+  "receipt_id": "MB-20261016-V3-METADATA-NATIVE-ADMIT_f693b520cc2a4180a29ec4cd94fb7b92"
+}

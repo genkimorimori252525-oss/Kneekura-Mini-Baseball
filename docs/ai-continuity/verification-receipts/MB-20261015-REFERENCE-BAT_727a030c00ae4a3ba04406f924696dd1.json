@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-REFERENCE-BAT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/contact/ReferenceBatKinematicsV1.test.ts",
+    "src/core/adjudication/InertCloneValidationScope.test.ts",
+    "src/core/adjudication/OfficialWindowPolicy.test.ts"
+  ],
+  "observed_at": "2026-10-14T20:28:59.188+00:00",
+  "elapsed_ms": 1406,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-REFERENCE-BAT_727a030c00ae4a3ba04406f924696dd1.log",
+  "output_sha256": "388d5e61a41519735a6aa0c46dcfd7773a0fbee5c75179fdf55c456635006b7d",
+  "receipt_id": "MB-20261015-REFERENCE-BAT_727a030c00ae4a3ba04406f924696dd1"
+}

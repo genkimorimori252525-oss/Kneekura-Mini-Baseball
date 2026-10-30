@@ -1,0 +1,337 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ work/v51-baseline-matrix.test.ts (22 tests | 21 failed) 17ms
+   × LiveFieldPlayDiagnosticsV1 > detects an observed pair of overlapping fielder bodies with both tasks and distance 8ms
+     → official window input must be a plain inert object
+   × LiveFieldPlayDiagnosticsV1 > accepts legal close coordination at a body-center distance of 0.48m 0ms
+     → official window input must be a plain inert object
+   × LiveFieldPlayDiagnosticsV1 > accepts legal close coordination at a body-center distance of 0.481m 0ms
+     → official window input must be a plain inert object
+   × LiveFieldPlayDiagnosticsV1 > uses the declared body radius and observes three nearby fielders without inventing a cluster violation 0ms
+     → official window input must be a plain inert object
+   × LiveFieldPlayDiagnosticsV1 > detects a completed live play whose final observed runner is still advancing 0ms
+     → official window input must be a plain inert object
+   × LiveFieldPlayDiagnosticsV1 > detects a completed live play with a free ball at the final observation 0ms
+     → official window input must be a plain inert object
+   × LiveFieldPlayDiagnosticsV1 > detects duplicate base cover assignments without treating nearby different tasks as duplicate coverage 0ms
+     → official window input must be a plain inert object
+   × LiveFieldPlayDiagnosticsV1 > detects retirement supported only by bag control after a legal first-base touch (offset=-0.01) 0ms
+     → official window input must be a plain inert object
+   × LiveFieldPlayDiagnosticsV1 > detects retirement supported only by bag control after a legal first-base touch (offset=0) 0ms
+     → official window input must be a plain inert object
+   × LiveFieldPlayDiagnosticsV1 > detects an observed bag-volume arrival that precedes the official touch fact 0ms
+     → official window input must be a plain inert object
+   × LiveFieldPlayDiagnosticsV1 > accepts an explicit controlled tag after first-base arrival as retirement evidence 0ms
+     → official window input must be a plain inert object
+   × LiveFieldPlayDiagnosticsV1 > reports sampled travel by actor and task without declaring long movement irrational 0ms
+     → official window input must be a plain inert object
+   × LiveFieldPlayDiagnosticsV1 > recognizes an actual relay receipt away from the final bag without reporting a missing force-base touch 0ms
+     → official window input must be a plain inert object
+   × LiveFieldPlayDiagnosticsV1 > recognizes an actual nonforce throw and catcher tag without requiring a bag contact 0ms
+     → official window input must be a plain inert object
+   × LiveFieldPlayDiagnosticsV1 > distinguishes post-pass ball recovery from cancellation based on a stale pre-release observation 0ms
+     → official window input must be a plain inert object
+   × LiveFieldPlayDiagnosticsV1 > retains missing-bag detection for a force throw (release reason=force_play) 0ms
+     → official window input must be a plain inert object
+   × LiveFieldPlayDiagnosticsV1 > retains missing-bag detection for a force throw (release reason=undefined) 0ms
+     → official window input must be a plain inert object
+   × LiveFieldPlayDiagnosticsV1 > accepts an explicitly evaluated losing hold while still reporting a contradictory positive throw opportunity 0ms
+     → official window input must be a plain inert object
+   × LiveFieldPlayDiagnosticsV1 > captures structured AI telemetry, kinematic oracle, and anomaly classifications without altering simulation facts 0ms
+     → official window input must be a plain inert object
+   × LiveFieldPlayDiagnosticsV1 > audits the full 20-scenario canonical fielding matrix 2ms
+     → official window input must be a plain inert object
+   × LiveFieldPlayDiagnosticsV1 > demonstrates monotonic physical fielding progression across low, default, and high ability tiers 0ms
+     → official window input must be a plain inert object
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 21 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  work/v51-baseline-matrix.test.ts > LiveFieldPlayDiagnosticsV1 > detects an observed pair of overlapping fielder bodies with both tasks and distance
+Error: official window input must be a plain inert object
+ ❯ visit evalmachine.<anonymous>:3903:17
+ ❯ cloneInert evalmachine.<anonymous>:3925:12
+ ❯ Proxy.simulateLiveFieldPlayV1 evalmachine.<anonymous>:10385:19
+ ❯ diagnosticFixture src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:40:32
+     38|     const scenario = CANONICAL_FIELDING_SCENARIOS_V1.find(s => s.id ==…
+     39|     const built = buildCanonicalFieldingPlayInputV1(scenario);
+     40|     return { ...built, result: simulateLiveFieldPlayV1(built.input) };
+       |                                ^
+     41|   };
+     42| 
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:44:40
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/21]⎯
+
+ FAIL  work/v51-baseline-matrix.test.ts > LiveFieldPlayDiagnosticsV1 > accepts legal close coordination at a body-center distance of 0.48m
+ FAIL  work/v51-baseline-matrix.test.ts > LiveFieldPlayDiagnosticsV1 > accepts legal close coordination at a body-center distance of 0.481m
+Error: official window input must be a plain inert object
+ ❯ visit evalmachine.<anonymous>:3903:17
+ ❯ cloneInert evalmachine.<anonymous>:3925:12
+ ❯ Proxy.simulateLiveFieldPlayV1 evalmachine.<anonymous>:10385:19
+ ❯ diagnosticFixture src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:40:32
+     38|     const scenario = CANONICAL_FIELDING_SCENARIOS_V1.find(s => s.id ==…
+     39|     const built = buildCanonicalFieldingPlayInputV1(scenario);
+     40|     return { ...built, result: simulateLiveFieldPlayV1(built.input) };
+       |                                ^
+     41|   };
+     42| 
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:55:40
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/21]⎯
+
+ FAIL  work/v51-baseline-matrix.test.ts > LiveFieldPlayDiagnosticsV1 > uses the declared body radius and observes three nearby fielders without inventing a cluster violation
+Error: official window input must be a plain inert object
+ ❯ visit evalmachine.<anonymous>:3903:17
+ ❯ cloneInert evalmachine.<anonymous>:3925:12
+ ❯ Proxy.simulateLiveFieldPlayV1 evalmachine.<anonymous>:10385:19
+ ❯ diagnosticFixture src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:40:32
+     38|     const scenario = CANONICAL_FIELDING_SCENARIOS_V1.find(s => s.id ==…
+     39|     const built = buildCanonicalFieldingPlayInputV1(scenario);
+     40|     return { ...built, result: simulateLiveFieldPlayV1(built.input) };
+       |                                ^
+     41|   };
+     42| 
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:63:40
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/21]⎯
+
+ FAIL  work/v51-baseline-matrix.test.ts > LiveFieldPlayDiagnosticsV1 > detects a completed live play whose final observed runner is still advancing
+Error: official window input must be a plain inert object
+ ❯ visit evalmachine.<anonymous>:3903:17
+ ❯ cloneInert evalmachine.<anonymous>:3925:12
+ ❯ Proxy.simulateLiveFieldPlayV1 evalmachine.<anonymous>:10385:19
+ ❯ diagnosticFixture src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:40:32
+     38|     const scenario = CANONICAL_FIELDING_SCENARIOS_V1.find(s => s.id ==…
+     39|     const built = buildCanonicalFieldingPlayInputV1(scenario);
+     40|     return { ...built, result: simulateLiveFieldPlayV1(built.input) };
+       |                                ^
+     41|   };
+     42| 
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:81:40
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/21]⎯
+
+ FAIL  work/v51-baseline-matrix.test.ts > LiveFieldPlayDiagnosticsV1 > detects a completed live play with a free ball at the final observation
+Error: official window input must be a plain inert object
+ ❯ visit evalmachine.<anonymous>:3903:17
+ ❯ cloneInert evalmachine.<anonymous>:3925:12
+ ❯ Proxy.simulateLiveFieldPlayV1 evalmachine.<anonymous>:10385:19
+ ❯ diagnosticFixture src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:40:32
+     38|     const scenario = CANONICAL_FIELDING_SCENARIOS_V1.find(s => s.id ==…
+     39|     const built = buildCanonicalFieldingPlayInputV1(scenario);
+     40|     return { ...built, result: simulateLiveFieldPlayV1(built.input) };
+       |                                ^
+     41|   };
+     42| 
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:90:40
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/21]⎯
+
+ FAIL  work/v51-baseline-matrix.test.ts > LiveFieldPlayDiagnosticsV1 > detects duplicate base cover assignments without treating nearby different tasks as duplicate coverage
+Error: official window input must be a plain inert object
+ ❯ visit evalmachine.<anonymous>:3903:17
+ ❯ cloneInert evalmachine.<anonymous>:3925:12
+ ❯ Proxy.simulateLiveFieldPlayV1 evalmachine.<anonymous>:10385:19
+ ❯ diagnosticFixture src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:40:32
+     38|     const scenario = CANONICAL_FIELDING_SCENARIOS_V1.find(s => s.id ==…
+     39|     const built = buildCanonicalFieldingPlayInputV1(scenario);
+     40|     return { ...built, result: simulateLiveFieldPlayV1(built.input) };
+       |                                ^
+     41|   };
+     42| 
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:98:40
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/21]⎯
+
+ FAIL  work/v51-baseline-matrix.test.ts > LiveFieldPlayDiagnosticsV1 > detects retirement supported only by bag control after a legal first-base touch (offset=-0.01)
+ FAIL  work/v51-baseline-matrix.test.ts > LiveFieldPlayDiagnosticsV1 > detects retirement supported only by bag control after a legal first-base touch (offset=0)
+Error: official window input must be a plain inert object
+ ❯ visit evalmachine.<anonymous>:3903:17
+ ❯ cloneInert evalmachine.<anonymous>:3925:12
+ ❯ Proxy.simulateLiveFieldPlayV1 evalmachine.<anonymous>:10385:19
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:110:82
+    108|   it.each([-.01, 0])('detects retirement supported only by bag control…
+    109|     const scenario = CANONICAL_FIELDING_SCENARIOS_V1.find(s => s.id ==…
+    110|       { input, roleMap } = buildCanonicalFieldingPlayInputV1(scenario)…
+       |                                                                                  ^
+    111|       contact = result.facts.find(f => f.kind === 'controlled_base_con…
+    112|       elapsedSeconds = contact.elapsedSeconds + offset, tick = contact…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/21]⎯
+
+ FAIL  work/v51-baseline-matrix.test.ts > LiveFieldPlayDiagnosticsV1 > detects an observed bag-volume arrival that precedes the official touch fact
+Error: official window input must be a plain inert object
+ ❯ visit evalmachine.<anonymous>:3903:17
+ ❯ cloneInert evalmachine.<anonymous>:3925:12
+ ❯ Proxy.simulateLiveFieldPlayV1 evalmachine.<anonymous>:10385:19
+ ❯ diagnosticFixture src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:40:32
+     38|     const scenario = CANONICAL_FIELDING_SCENARIOS_V1.find(s => s.id ==…
+     39|     const built = buildCanonicalFieldingPlayInputV1(scenario);
+     40|     return { ...built, result: simulateLiveFieldPlayV1(built.input) };
+       |                                ^
+     41|   };
+     42| 
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:123:40
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/21]⎯
+
+ FAIL  work/v51-baseline-matrix.test.ts > LiveFieldPlayDiagnosticsV1 > accepts an explicit controlled tag after first-base arrival as retirement evidence
+Error: official window input must be a plain inert object
+ ❯ visit evalmachine.<anonymous>:3903:17
+ ❯ cloneInert evalmachine.<anonymous>:3925:12
+ ❯ Proxy.simulateLiveFieldPlayV1 evalmachine.<anonymous>:10385:19
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:137:82
+    135|   it('accepts an explicit controlled tag after first-base arrival as r…
+    136|     const scenario = CANONICAL_FIELDING_SCENARIOS_V1.find(s => s.id ==…
+    137|       { input, roleMap } = buildCanonicalFieldingPlayInputV1(scenario)…
+       |                                                                                  ^
+    138|       contact = result.facts.find(f => f.kind === 'controlled_base_con…
+    139|       touch = { kind: 'runner_base_touch' as const, runnerId, base: 1 …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/21]⎯
+
+ FAIL  work/v51-baseline-matrix.test.ts > LiveFieldPlayDiagnosticsV1 > reports sampled travel by actor and task without declaring long movement irrational
+Error: official window input must be a plain inert object
+ ❯ visit evalmachine.<anonymous>:3903:17
+ ❯ cloneInert evalmachine.<anonymous>:3925:12
+ ❯ Proxy.simulateLiveFieldPlayV1 evalmachine.<anonymous>:10385:19
+ ❯ diagnosticFixture src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:40:32
+     38|     const scenario = CANONICAL_FIELDING_SCENARIOS_V1.find(s => s.id ==…
+     39|     const built = buildCanonicalFieldingPlayInputV1(scenario);
+     40|     return { ...built, result: simulateLiveFieldPlayV1(built.input) };
+       |                                ^
+     41|   };
+     42| 
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:148:40
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/21]⎯
+
+ FAIL  work/v51-baseline-matrix.test.ts > LiveFieldPlayDiagnosticsV1 > recognizes an actual relay receipt away from the final bag without reporting a missing force-base touch
+Error: official window input must be a plain inert object
+ ❯ visit evalmachine.<anonymous>:3903:17
+ ❯ cloneInert evalmachine.<anonymous>:3925:12
+ ❯ Proxy.simulateLiveFieldPlayV1 evalmachine.<anonymous>:10385:19
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:164:16
+    162|         position: i === 7 ? v(0, 1, 90) : i === 6 ? v(0, 1, 70) : f.po…
+    163|       runners: raw.runners.map(r => ({ ...r, topSpeedMps: r.initialBas…
+    164|       result = simulateLiveFieldPlayV1(input), before = JSON.stringify…
+       |                ^
+    165|       relay = diag.throws.find(t => t.relayHop)!, final = diag.throws.…
+    166|     expect(result.end.complete).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/21]⎯
+
+ FAIL  work/v51-baseline-matrix.test.ts > LiveFieldPlayDiagnosticsV1 > recognizes an actual nonforce throw and catcher tag without requiring a bag contact
+Error: official window input must be a plain inert object
+ ❯ visit evalmachine.<anonymous>:3903:17
+ ❯ cloneInert evalmachine.<anonymous>:3925:12
+ ❯ Proxy.simulateLiveFieldPlayV1 evalmachine.<anonymous>:10385:19
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:179:54
+    177| 
+    178|   it('recognizes an actual nonforce throw and catcher tag without requ…
+    179|     const input = actualNonforceTagInput(), result = simulateLiveField…
+       |                                                      ^
+    180|       diag = diagnoseLiveFieldPlayV1(input, result), tag = result.rule…
+    181|       release = result.facts.filter(f => f.kind === 'throw_release' &&…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/21]⎯
+
+ FAIL  work/v51-baseline-matrix.test.ts > LiveFieldPlayDiagnosticsV1 > distinguishes post-pass ball recovery from cancellation based on a stale pre-release observation
+Error: official window input must be a plain inert object
+ ❯ visit evalmachine.<anonymous>:3903:17
+ ❯ cloneInert evalmachine.<anonymous>:3925:12
+ ❯ Proxy.simulateLiveFieldPlayV1 evalmachine.<anonymous>:10385:19
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:206:16
+    204|       // all nine explicit positions and tests the production role pol…
+    205|       input = { ...positionedInput, fielders: positionedInput.fielders…
+    206|       result = simulateLiveFieldPlayV1(input),
+       |                ^
+    207|       cancellation = result.diagnostics.aiTelemetry.throwTargetCancell…
+    208|     expect(cancellation).toBeDefined();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/21]⎯
+
+ FAIL  work/v51-baseline-matrix.test.ts > LiveFieldPlayDiagnosticsV1 > retains missing-bag detection for a force throw (release reason=force_play)
+ FAIL  work/v51-baseline-matrix.test.ts > LiveFieldPlayDiagnosticsV1 > retains missing-bag detection for a force throw (release reason=undefined)
+Error: official window input must be a plain inert object
+ ❯ visit evalmachine.<anonymous>:3903:17
+ ❯ cloneInert evalmachine.<anonymous>:3925:12
+ ❯ Proxy.simulateLiveFieldPlayV1 evalmachine.<anonymous>:10385:19
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:227:82
+    225|   it.each(['force_play', undefined] as const)('retains missing-bag det…
+    226|     const scenario = CANONICAL_FIELDING_SCENARIOS_V1.find(s => s.id ==…
+    227|       { input, roleMap } = buildCanonicalFieldingPlayInputV1(scenario)…
+       |                                                                                  ^
+    228|       release = result.facts.find(f => f.kind === 'throw_release')!;
+    229|     expect(release.reason).toBe('force_play');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/21]⎯
+
+ FAIL  work/v51-baseline-matrix.test.ts > LiveFieldPlayDiagnosticsV1 > accepts an explicitly evaluated losing hold while still reporting a contradictory positive throw opportunity
+Error: official window input must be a plain inert object
+ ❯ visit evalmachine.<anonymous>:3903:17
+ ❯ cloneInert evalmachine.<anonymous>:3925:12
+ ❯ Proxy.simulateLiveFieldPlayV1 evalmachine.<anonymous>:10385:19
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:240:82
+    238|   it('accepts an explicitly evaluated losing hold while still reportin…
+    239|     const scenario = CANONICAL_FIELDING_SCENARIOS_V1.find(s => s.id ==…
+    240|       { input, roleMap } = buildCanonicalFieldingPlayInputV1(scenario)…
+       |                                                                                  ^
+    241|       diag = diagnoseLiveFieldPlayV1(input, result, roleMap);
+    242|     expect(result.facts.some(f => f.kind === 'catch_secured')).toBe(tr…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/21]⎯
+
+ FAIL  work/v51-baseline-matrix.test.ts > LiveFieldPlayDiagnosticsV1 > captures structured AI telemetry, kinematic oracle, and anomaly classifications without altering simulation facts
+Error: official window input must be a plain inert object
+ ❯ visit evalmachine.<anonymous>:3903:17
+ ❯ cloneInert evalmachine.<anonymous>:3925:12
+ ❯ Proxy.simulateLiveFieldPlayV1 evalmachine.<anonymous>:10385:19
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:260:21
+    258|     const scenario = CANONICAL_FIELDING_SCENARIOS_V1.find((s) => s.id …
+    259|     const { input, roleMap } = buildCanonicalFieldingPlayInputV1(scena…
+    260|     const resultA = simulateLiveFieldPlayV1(input);
+       |                     ^
+    261|     const diag = diagnoseLiveFieldPlayV1(input, resultA, roleMap);
+    262|     const resultB = simulateLiveFieldPlayV1(input);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/21]⎯
+
+ FAIL  work/v51-baseline-matrix.test.ts > LiveFieldPlayDiagnosticsV1 > audits the full 20-scenario canonical fielding matrix
+Error: official window input must be a plain inert object
+ ❯ visit evalmachine.<anonymous>:3903:17
+ ❯ cloneInert evalmachine.<anonymous>:3925:12
+ ❯ Proxy.simulateLiveFieldPlayV1 evalmachine.<anonymous>:10385:19
+ ❯ Module.diagnoseLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.ts:106:12
+    104| export function diagnoseLiveFieldPlayV1(
+    105|   input: LiveFieldPlayInputV1,
+    106|   result = simulateLiveFieldPlayV1(input),
+       |            ^
+    107|   roleMap?: Readonly<Record<string, string>>,
+    108| ) {
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:291:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/21]⎯
+
+ FAIL  work/v51-baseline-matrix.test.ts > LiveFieldPlayDiagnosticsV1 > demonstrates monotonic physical fielding progression across low, default, and high ability tiers
+Error: official window input must be a plain inert object
+ ❯ visit evalmachine.<anonymous>:3903:17
+ ❯ cloneInert evalmachine.<anonymous>:3925:12
+ ❯ Proxy.simulateLiveFieldPlayV1 evalmachine.<anonymous>:10385:19
+ ❯ Module.diagnoseLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.ts:106:12
+    104| export function diagnoseLiveFieldPlayV1(
+    105|   input: LiveFieldPlayInputV1,
+    106|   result = simulateLiveFieldPlayV1(input),
+       |            ^
+    107|   roleMap?: Readonly<Record<string, string>>,
+    108| ) {
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:335:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/21]⎯
+
+ Test Files  1 failed (1)
+      Tests  21 failed | 1 passed (22)
+   Start at  18:25:04
+   Duration  1.04s (transform 293ms, setup 0ms, collect 411ms, tests 17ms, environment 0ms, prepare 234ms)
+

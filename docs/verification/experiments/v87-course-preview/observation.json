@@ -1,0 +1,2174 @@
+{
+  "pass": true,
+  "projectRoot": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball",
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v86_入力確定とエラー復帰版.html",
+  "artifactSha256": "93d5342fe1b00748dbf6650865442de737c6ba76cd1adfb9a7bb64b2379da4f2",
+  "probePath": "/C:/Users/genki/AppData/Local/Temp/mini-baseball-v87-course-preview-observe.mjs",
+  "probeSha256": "b161d51959181e5856072880c0f02afe661a5aff013a0584dfc4de1684a118e8",
+  "cases": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": [],
+      "phases": [
+        {
+          "phase": "initial",
+          "courseId": 54,
+          "direction": 2,
+          "pending": [],
+          "status": "選手を選んでコースまたは方向を編集できます。表示しただけでは新設定を付与しません。",
+          "input": {
+            "course": "0.25",
+            "courseRange": "0.25",
+            "effect": "1",
+            "direction": "20",
+            "directionRange": "20"
+          },
+          "saved": null,
+          "selectedCell": {
+            "text": ".250",
+            "color": "rgb(229, 233, 231)",
+            "aria": "コース54、先天設定0.250"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼20.0%",
+              "左中間20.0%",
+              "中堅20.0%",
+              "右中間20.0%",
+              "右翼20.0%"
+            ],
+            "aria": "左翼 20.0%、左中間 20.0%、中堅 20.0%、右中間 20.0%、右翼 20.0%",
+            "list": [
+              "左翼 20.0%",
+              "左中間 20.0%",
+              "中堅 20.0%",
+              "右中間 20.0%",
+              "右翼 20.0%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "course-number-unconfirmed",
+          "courseId": 54,
+          "direction": 2,
+          "pending": [
+            "course-value-v79"
+          ],
+          "status": "コース・方向の数値は未保存です。対応する反映・記録ボタンで確定してください。",
+          "input": {
+            "course": "0.330",
+            "courseRange": "0.33",
+            "effect": "1",
+            "direction": "20",
+            "directionRange": "20"
+          },
+          "saved": null,
+          "selectedCell": {
+            "text": ".250",
+            "color": "rgb(229, 233, 231)",
+            "aria": "コース54、先天設定0.250"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼20.0%",
+              "左中間20.0%",
+              "中堅20.0%",
+              "右中間20.0%",
+              "右翼20.0%"
+            ],
+            "aria": "左翼 20.0%、左中間 20.0%、中堅 20.0%、右中間 20.0%、右翼 20.0%",
+            "list": [
+              "左翼 20.0%",
+              "左中間 20.0%",
+              "中堅 20.0%",
+              "右中間 20.0%",
+              "右翼 20.0%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "course-number-unconfirmed-tab-roundtrip",
+          "courseId": 54,
+          "direction": 2,
+          "pending": [
+            "course-value-v79"
+          ],
+          "status": "コース・方向の数値は未保存です。対応する反映・記録ボタンで確定してください。",
+          "input": {
+            "course": "0.330",
+            "courseRange": "0.33",
+            "effect": "1",
+            "direction": "20",
+            "directionRange": "20"
+          },
+          "saved": null,
+          "selectedCell": {
+            "text": ".250",
+            "color": "rgb(229, 233, 231)",
+            "aria": "コース54、先天設定0.250"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼20.0%",
+              "左中間20.0%",
+              "中堅20.0%",
+              "右中間20.0%",
+              "右翼20.0%"
+            ],
+            "aria": "左翼 20.0%、左中間 20.0%、中堅 20.0%、右中間 20.0%、右翼 20.0%",
+            "list": [
+              "左翼 20.0%",
+              "左中間 20.0%",
+              "中堅 20.0%",
+              "右中間 20.0%",
+              "右翼 20.0%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "course-number-applied",
+          "courseId": 54,
+          "direction": 2,
+          "pending": [],
+          "status": "先天設定と狙う配分を選手へ反映しました。",
+          "input": {
+            "course": "0.33",
+            "courseRange": "0.33",
+            "effect": "1",
+            "direction": "20",
+            "directionRange": "20"
+          },
+          "saved": {
+            "course": 0.33,
+            "effect": 1,
+            "direction": null
+          },
+          "selectedCell": {
+            "text": ".330",
+            "color": "rgb(245, 166, 165)",
+            "aria": "コース54、先天設定0.330"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".269",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".260",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼20.0%",
+              "左中間20.0%",
+              "中堅20.0%",
+              "右中間20.0%",
+              "右翼20.0%"
+            ],
+            "aria": "左翼 20.0%、左中間 20.0%、中堅 20.0%、右中間 20.0%、右翼 20.0%",
+            "list": [
+              "左翼 20.0%",
+              "左中間 20.0%",
+              "中堅 20.0%",
+              "右中間 20.0%",
+              "右翼 20.0%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "course-same-color-bucket-applied",
+          "courseId": 54,
+          "direction": 2,
+          "pending": [],
+          "status": "先天設定と狙う配分を選手へ反映しました。",
+          "input": {
+            "course": "0.36",
+            "courseRange": "0.36",
+            "effect": "1",
+            "direction": "20",
+            "directionRange": "20"
+          },
+          "saved": {
+            "course": 0.36,
+            "effect": 1,
+            "direction": null
+          },
+          "selectedCell": {
+            "text": ".360",
+            "color": "rgb(245, 166, 165)",
+            "aria": "コース54、先天設定0.360"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".276",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".263",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼20.0%",
+              "左中間20.0%",
+              "中堅20.0%",
+              "右中間20.0%",
+              "右翼20.0%"
+            ],
+            "aria": "左翼 20.0%、左中間 20.0%、中堅 20.0%、右中間 20.0%、右翼 20.0%",
+            "list": [
+              "左翼 20.0%",
+              "左中間 20.0%",
+              "中堅 20.0%",
+              "右中間 20.0%",
+              "右翼 20.0%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "course-range-applied",
+          "courseId": 54,
+          "direction": 2,
+          "pending": [],
+          "status": "先天設定と狙う配分を選手へ反映しました。",
+          "input": {
+            "course": "0.18",
+            "courseRange": "0.18",
+            "effect": "1",
+            "direction": "20",
+            "directionRange": "20"
+          },
+          "saved": {
+            "course": 0.18,
+            "effect": 1,
+            "direction": null
+          },
+          "selectedCell": {
+            "text": ".180",
+            "color": "rgb(200, 229, 244)",
+            "aria": "コース54、先天設定0.180"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".233",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".242",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼20.0%",
+              "左中間20.0%",
+              "中堅20.0%",
+              "右中間20.0%",
+              "右翼20.0%"
+            ],
+            "aria": "左翼 20.0%、左中間 20.0%、中堅 20.0%、右中間 20.0%、右翼 20.0%",
+            "list": [
+              "左翼 20.0%",
+              "左中間 20.0%",
+              "中堅 20.0%",
+              "右中間 20.0%",
+              "右翼 20.0%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "direction-number-unconfirmed",
+          "courseId": 54,
+          "direction": 2,
+          "pending": [
+            "course-direction-value-v79"
+          ],
+          "status": "コース・方向の数値は未保存です。対応する反映・記録ボタンで確定してください。",
+          "input": {
+            "course": "0.18",
+            "courseRange": "0.18",
+            "effect": "1",
+            "direction": "80",
+            "directionRange": "80"
+          },
+          "saved": {
+            "course": 0.18,
+            "effect": 1,
+            "direction": null
+          },
+          "selectedCell": {
+            "text": ".180",
+            "color": "rgb(200, 229, 244)",
+            "aria": "コース54、先天設定0.180"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".233",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".242",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼20.0%",
+              "左中間20.0%",
+              "中堅20.0%",
+              "右中間20.0%",
+              "右翼20.0%"
+            ],
+            "aria": "左翼 20.0%、左中間 20.0%、中堅 20.0%、右中間 20.0%、右翼 20.0%",
+            "list": [
+              "左翼 20.0%",
+              "左中間 20.0%",
+              "中堅 20.0%",
+              "右中間 20.0%",
+              "右翼 20.0%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "direction-number-unconfirmed-tab-roundtrip",
+          "courseId": 54,
+          "direction": 2,
+          "pending": [
+            "course-direction-value-v79"
+          ],
+          "status": "コース・方向の数値は未保存です。対応する反映・記録ボタンで確定してください。",
+          "input": {
+            "course": "0.18",
+            "courseRange": "0.18",
+            "effect": "1",
+            "direction": "80",
+            "directionRange": "80"
+          },
+          "saved": {
+            "course": 0.18,
+            "effect": 1,
+            "direction": null
+          },
+          "selectedCell": {
+            "text": ".180",
+            "color": "rgb(200, 229, 244)",
+            "aria": "コース54、先天設定0.180"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".233",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".242",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼20.0%",
+              "左中間20.0%",
+              "中堅20.0%",
+              "右中間20.0%",
+              "右翼20.0%"
+            ],
+            "aria": "左翼 20.0%、左中間 20.0%、中堅 20.0%、右中間 20.0%、右翼 20.0%",
+            "list": [
+              "左翼 20.0%",
+              "左中間 20.0%",
+              "中堅 20.0%",
+              "右中間 20.0%",
+              "右翼 20.0%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "direction-number-applied",
+          "courseId": 54,
+          "direction": 2,
+          "pending": [],
+          "status": "先天設定と狙う配分を選手へ反映しました。",
+          "input": {
+            "course": "0.18",
+            "courseRange": "0.18",
+            "effect": "1",
+            "direction": "80",
+            "directionRange": "80"
+          },
+          "saved": {
+            "course": 0.18,
+            "effect": 1,
+            "direction": [
+              0.04999999999999999,
+              0.04999999999999999,
+              0.8,
+              0.04999999999999999,
+              0.04999999999999999
+            ]
+          },
+          "selectedCell": {
+            "text": ".180",
+            "color": "rgb(200, 229, 244)",
+            "aria": "コース54、先天設定0.180"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".233",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".242",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼5.0%",
+              "左中間5.0%",
+              "中堅80.0%",
+              "右中間5.0%",
+              "右翼5.0%"
+            ],
+            "aria": "左翼 5.0%、左中間 5.0%、中堅 80.0%、右中間 5.0%、右翼 5.0%",
+            "list": [
+              "左翼 5.0%",
+              "左中間 5.0%",
+              "中堅 80.0%",
+              "右中間 5.0%",
+              "右翼 5.0%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "direction-applied-tab-roundtrip",
+          "courseId": 54,
+          "direction": 2,
+          "pending": [],
+          "status": "先天設定と狙う配分を選手へ反映しました。",
+          "input": {
+            "course": "0.18",
+            "courseRange": "0.18",
+            "effect": "1",
+            "direction": "80",
+            "directionRange": "80"
+          },
+          "saved": {
+            "course": 0.18,
+            "effect": 1,
+            "direction": [
+              0.04999999999999999,
+              0.04999999999999999,
+              0.8,
+              0.04999999999999999,
+              0.04999999999999999
+            ]
+          },
+          "selectedCell": {
+            "text": ".180",
+            "color": "rgb(200, 229, 244)",
+            "aria": "コース54、先天設定0.180"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".233",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".242",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼5.0%",
+              "左中間5.0%",
+              "中堅80.0%",
+              "右中間5.0%",
+              "右翼5.0%"
+            ],
+            "aria": "左翼 5.0%、左中間 5.0%、中堅 80.0%、右中間 5.0%、右翼 5.0%",
+            "list": [
+              "左翼 5.0%",
+              "左中間 5.0%",
+              "中堅 80.0%",
+              "右中間 5.0%",
+              "右翼 5.0%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "direction-range-applied",
+          "courseId": 54,
+          "direction": 2,
+          "pending": [],
+          "status": "先天設定と狙う配分を選手へ反映しました。",
+          "input": {
+            "course": "0.18",
+            "courseRange": "0.18",
+            "effect": "1",
+            "direction": "30",
+            "directionRange": "30"
+          },
+          "saved": {
+            "course": 0.18,
+            "effect": 1,
+            "direction": [
+              0.175,
+              0.175,
+              0.3,
+              0.175,
+              0.175
+            ]
+          },
+          "selectedCell": {
+            "text": ".180",
+            "color": "rgb(200, 229, 244)",
+            "aria": "コース54、先天設定0.180"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".233",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".242",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼17.5%",
+              "左中間17.5%",
+              "中堅30.0%",
+              "右中間17.5%",
+              "右翼17.5%"
+            ],
+            "aria": "左翼 17.5%、左中間 17.5%、中堅 30.0%、右中間 17.5%、右翼 17.5%",
+            "list": [
+              "左翼 17.5%",
+              "左中間 17.5%",
+              "中堅 30.0%",
+              "右中間 17.5%",
+              "右翼 17.5%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "outside-course-selected",
+          "courseId": 10,
+          "direction": 2,
+          "pending": [],
+          "status": "先天設定と狙う配分を選手へ反映しました。",
+          "input": {
+            "course": "0.25",
+            "courseRange": "0.25",
+            "effect": "1",
+            "direction": "30",
+            "directionRange": "30"
+          },
+          "saved": {
+            "course": 0.25,
+            "effect": 1,
+            "direction": [
+              0.175,
+              0.175,
+              0.3,
+              0.175,
+              0.175
+            ]
+          },
+          "selectedCell": {
+            "text": ".250",
+            "color": "rgb(229, 233, 231)",
+            "aria": "コース10、先天設定0.250"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".233",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".242",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼17.5%",
+              "左中間17.5%",
+              "中堅30.0%",
+              "右中間17.5%",
+              "右翼17.5%"
+            ],
+            "aria": "左翼 17.5%、左中間 17.5%、中堅 30.0%、右中間 17.5%、右翼 17.5%",
+            "list": [
+              "左翼 17.5%",
+              "左中間 17.5%",
+              "中堅 30.0%",
+              "右中間 17.5%",
+              "右翼 17.5%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "outside-course-applied",
+          "courseId": 10,
+          "direction": 2,
+          "pending": [],
+          "status": "先天設定と狙う配分を選手へ反映しました。",
+          "input": {
+            "course": "0.9",
+            "courseRange": "0.9",
+            "effect": "1",
+            "direction": "30",
+            "directionRange": "30"
+          },
+          "saved": {
+            "course": 0.9,
+            "effect": 1,
+            "direction": [
+              0.175,
+              0.175,
+              0.3,
+              0.175,
+              0.175
+            ]
+          },
+          "selectedCell": {
+            "text": ".900",
+            "color": "rgb(245, 166, 165)",
+            "aria": "コース10、先天設定0.900"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".233",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".242",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼17.5%",
+              "左中間17.5%",
+              "中堅30.0%",
+              "右中間17.5%",
+              "右翼17.5%"
+            ],
+            "aria": "左翼 17.5%、左中間 17.5%、中堅 30.0%、右中間 17.5%、右翼 17.5%",
+            "list": [
+              "左翼 17.5%",
+              "左中間 17.5%",
+              "中堅 30.0%",
+              "右中間 17.5%",
+              "右翼 17.5%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        }
+      ],
+      "result": {
+        "immediatePreview": false,
+        "courseSavedValueAndCellRefresh": true,
+        "directionSavedPercentRefresh": true,
+        "directionGeometryFixed": true,
+        "sameBucketColorFixed": true,
+        "outsideCoursePublicNineFixed": true,
+        "unconfirmedAndConfirmedTabRoundtripRetained": true
+      }
+    },
+    {
+      "width": 390,
+      "errors": [],
+      "external": [],
+      "phases": [
+        {
+          "phase": "initial",
+          "courseId": 54,
+          "direction": 2,
+          "pending": [],
+          "status": "選手を選んでコースまたは方向を編集できます。表示しただけでは新設定を付与しません。",
+          "input": {
+            "course": "0.25",
+            "courseRange": "0.25",
+            "effect": "1",
+            "direction": "20",
+            "directionRange": "20"
+          },
+          "saved": null,
+          "selectedCell": {
+            "text": ".250",
+            "color": "rgb(229, 233, 231)",
+            "aria": "コース54、先天設定0.250"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼20.0%",
+              "左中間20.0%",
+              "中堅20.0%",
+              "右中間20.0%",
+              "右翼20.0%"
+            ],
+            "aria": "左翼 20.0%、左中間 20.0%、中堅 20.0%、右中間 20.0%、右翼 20.0%",
+            "list": [
+              "左翼 20.0%",
+              "左中間 20.0%",
+              "中堅 20.0%",
+              "右中間 20.0%",
+              "右翼 20.0%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "course-number-unconfirmed",
+          "courseId": 54,
+          "direction": 2,
+          "pending": [
+            "course-value-v79"
+          ],
+          "status": "コース・方向の数値は未保存です。対応する反映・記録ボタンで確定してください。",
+          "input": {
+            "course": "0.330",
+            "courseRange": "0.33",
+            "effect": "1",
+            "direction": "20",
+            "directionRange": "20"
+          },
+          "saved": null,
+          "selectedCell": {
+            "text": ".250",
+            "color": "rgb(229, 233, 231)",
+            "aria": "コース54、先天設定0.250"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼20.0%",
+              "左中間20.0%",
+              "中堅20.0%",
+              "右中間20.0%",
+              "右翼20.0%"
+            ],
+            "aria": "左翼 20.0%、左中間 20.0%、中堅 20.0%、右中間 20.0%、右翼 20.0%",
+            "list": [
+              "左翼 20.0%",
+              "左中間 20.0%",
+              "中堅 20.0%",
+              "右中間 20.0%",
+              "右翼 20.0%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "course-number-unconfirmed-tab-roundtrip",
+          "courseId": 54,
+          "direction": 2,
+          "pending": [
+            "course-value-v79"
+          ],
+          "status": "コース・方向の数値は未保存です。対応する反映・記録ボタンで確定してください。",
+          "input": {
+            "course": "0.330",
+            "courseRange": "0.33",
+            "effect": "1",
+            "direction": "20",
+            "directionRange": "20"
+          },
+          "saved": null,
+          "selectedCell": {
+            "text": ".250",
+            "color": "rgb(229, 233, 231)",
+            "aria": "コース54、先天設定0.250"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼20.0%",
+              "左中間20.0%",
+              "中堅20.0%",
+              "右中間20.0%",
+              "右翼20.0%"
+            ],
+            "aria": "左翼 20.0%、左中間 20.0%、中堅 20.0%、右中間 20.0%、右翼 20.0%",
+            "list": [
+              "左翼 20.0%",
+              "左中間 20.0%",
+              "中堅 20.0%",
+              "右中間 20.0%",
+              "右翼 20.0%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "course-number-applied",
+          "courseId": 54,
+          "direction": 2,
+          "pending": [],
+          "status": "先天設定と狙う配分を選手へ反映しました。",
+          "input": {
+            "course": "0.33",
+            "courseRange": "0.33",
+            "effect": "1",
+            "direction": "20",
+            "directionRange": "20"
+          },
+          "saved": {
+            "course": 0.33,
+            "effect": 1,
+            "direction": null
+          },
+          "selectedCell": {
+            "text": ".330",
+            "color": "rgb(245, 166, 165)",
+            "aria": "コース54、先天設定0.330"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".269",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".260",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼20.0%",
+              "左中間20.0%",
+              "中堅20.0%",
+              "右中間20.0%",
+              "右翼20.0%"
+            ],
+            "aria": "左翼 20.0%、左中間 20.0%、中堅 20.0%、右中間 20.0%、右翼 20.0%",
+            "list": [
+              "左翼 20.0%",
+              "左中間 20.0%",
+              "中堅 20.0%",
+              "右中間 20.0%",
+              "右翼 20.0%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "course-same-color-bucket-applied",
+          "courseId": 54,
+          "direction": 2,
+          "pending": [],
+          "status": "先天設定と狙う配分を選手へ反映しました。",
+          "input": {
+            "course": "0.36",
+            "courseRange": "0.36",
+            "effect": "1",
+            "direction": "20",
+            "directionRange": "20"
+          },
+          "saved": {
+            "course": 0.36,
+            "effect": 1,
+            "direction": null
+          },
+          "selectedCell": {
+            "text": ".360",
+            "color": "rgb(245, 166, 165)",
+            "aria": "コース54、先天設定0.360"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".276",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".263",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼20.0%",
+              "左中間20.0%",
+              "中堅20.0%",
+              "右中間20.0%",
+              "右翼20.0%"
+            ],
+            "aria": "左翼 20.0%、左中間 20.0%、中堅 20.0%、右中間 20.0%、右翼 20.0%",
+            "list": [
+              "左翼 20.0%",
+              "左中間 20.0%",
+              "中堅 20.0%",
+              "右中間 20.0%",
+              "右翼 20.0%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "course-range-applied",
+          "courseId": 54,
+          "direction": 2,
+          "pending": [],
+          "status": "先天設定と狙う配分を選手へ反映しました。",
+          "input": {
+            "course": "0.18",
+            "courseRange": "0.18",
+            "effect": "1",
+            "direction": "20",
+            "directionRange": "20"
+          },
+          "saved": {
+            "course": 0.18,
+            "effect": 1,
+            "direction": null
+          },
+          "selectedCell": {
+            "text": ".180",
+            "color": "rgb(200, 229, 244)",
+            "aria": "コース54、先天設定0.180"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".233",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".242",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼20.0%",
+              "左中間20.0%",
+              "中堅20.0%",
+              "右中間20.0%",
+              "右翼20.0%"
+            ],
+            "aria": "左翼 20.0%、左中間 20.0%、中堅 20.0%、右中間 20.0%、右翼 20.0%",
+            "list": [
+              "左翼 20.0%",
+              "左中間 20.0%",
+              "中堅 20.0%",
+              "右中間 20.0%",
+              "右翼 20.0%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "direction-number-unconfirmed",
+          "courseId": 54,
+          "direction": 2,
+          "pending": [
+            "course-direction-value-v79"
+          ],
+          "status": "コース・方向の数値は未保存です。対応する反映・記録ボタンで確定してください。",
+          "input": {
+            "course": "0.18",
+            "courseRange": "0.18",
+            "effect": "1",
+            "direction": "80",
+            "directionRange": "80"
+          },
+          "saved": {
+            "course": 0.18,
+            "effect": 1,
+            "direction": null
+          },
+          "selectedCell": {
+            "text": ".180",
+            "color": "rgb(200, 229, 244)",
+            "aria": "コース54、先天設定0.180"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".233",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".242",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼20.0%",
+              "左中間20.0%",
+              "中堅20.0%",
+              "右中間20.0%",
+              "右翼20.0%"
+            ],
+            "aria": "左翼 20.0%、左中間 20.0%、中堅 20.0%、右中間 20.0%、右翼 20.0%",
+            "list": [
+              "左翼 20.0%",
+              "左中間 20.0%",
+              "中堅 20.0%",
+              "右中間 20.0%",
+              "右翼 20.0%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "direction-number-unconfirmed-tab-roundtrip",
+          "courseId": 54,
+          "direction": 2,
+          "pending": [
+            "course-direction-value-v79"
+          ],
+          "status": "コース・方向の数値は未保存です。対応する反映・記録ボタンで確定してください。",
+          "input": {
+            "course": "0.18",
+            "courseRange": "0.18",
+            "effect": "1",
+            "direction": "80",
+            "directionRange": "80"
+          },
+          "saved": {
+            "course": 0.18,
+            "effect": 1,
+            "direction": null
+          },
+          "selectedCell": {
+            "text": ".180",
+            "color": "rgb(200, 229, 244)",
+            "aria": "コース54、先天設定0.180"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".233",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".242",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼20.0%",
+              "左中間20.0%",
+              "中堅20.0%",
+              "右中間20.0%",
+              "右翼20.0%"
+            ],
+            "aria": "左翼 20.0%、左中間 20.0%、中堅 20.0%、右中間 20.0%、右翼 20.0%",
+            "list": [
+              "左翼 20.0%",
+              "左中間 20.0%",
+              "中堅 20.0%",
+              "右中間 20.0%",
+              "右翼 20.0%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "direction-number-applied",
+          "courseId": 54,
+          "direction": 2,
+          "pending": [],
+          "status": "先天設定と狙う配分を選手へ反映しました。",
+          "input": {
+            "course": "0.18",
+            "courseRange": "0.18",
+            "effect": "1",
+            "direction": "80",
+            "directionRange": "80"
+          },
+          "saved": {
+            "course": 0.18,
+            "effect": 1,
+            "direction": [
+              0.04999999999999999,
+              0.04999999999999999,
+              0.8,
+              0.04999999999999999,
+              0.04999999999999999
+            ]
+          },
+          "selectedCell": {
+            "text": ".180",
+            "color": "rgb(200, 229, 244)",
+            "aria": "コース54、先天設定0.180"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".233",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".242",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼5.0%",
+              "左中間5.0%",
+              "中堅80.0%",
+              "右中間5.0%",
+              "右翼5.0%"
+            ],
+            "aria": "左翼 5.0%、左中間 5.0%、中堅 80.0%、右中間 5.0%、右翼 5.0%",
+            "list": [
+              "左翼 5.0%",
+              "左中間 5.0%",
+              "中堅 80.0%",
+              "右中間 5.0%",
+              "右翼 5.0%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "direction-applied-tab-roundtrip",
+          "courseId": 54,
+          "direction": 2,
+          "pending": [],
+          "status": "先天設定と狙う配分を選手へ反映しました。",
+          "input": {
+            "course": "0.18",
+            "courseRange": "0.18",
+            "effect": "1",
+            "direction": "80",
+            "directionRange": "80"
+          },
+          "saved": {
+            "course": 0.18,
+            "effect": 1,
+            "direction": [
+              0.04999999999999999,
+              0.04999999999999999,
+              0.8,
+              0.04999999999999999,
+              0.04999999999999999
+            ]
+          },
+          "selectedCell": {
+            "text": ".180",
+            "color": "rgb(200, 229, 244)",
+            "aria": "コース54、先天設定0.180"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".233",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".242",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼5.0%",
+              "左中間5.0%",
+              "中堅80.0%",
+              "右中間5.0%",
+              "右翼5.0%"
+            ],
+            "aria": "左翼 5.0%、左中間 5.0%、中堅 80.0%、右中間 5.0%、右翼 5.0%",
+            "list": [
+              "左翼 5.0%",
+              "左中間 5.0%",
+              "中堅 80.0%",
+              "右中間 5.0%",
+              "右翼 5.0%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "direction-range-applied",
+          "courseId": 54,
+          "direction": 2,
+          "pending": [],
+          "status": "先天設定と狙う配分を選手へ反映しました。",
+          "input": {
+            "course": "0.18",
+            "courseRange": "0.18",
+            "effect": "1",
+            "direction": "30",
+            "directionRange": "30"
+          },
+          "saved": {
+            "course": 0.18,
+            "effect": 1,
+            "direction": [
+              0.175,
+              0.175,
+              0.3,
+              0.175,
+              0.175
+            ]
+          },
+          "selectedCell": {
+            "text": ".180",
+            "color": "rgb(200, 229, 244)",
+            "aria": "コース54、先天設定0.180"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".233",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".242",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼17.5%",
+              "左中間17.5%",
+              "中堅30.0%",
+              "右中間17.5%",
+              "右翼17.5%"
+            ],
+            "aria": "左翼 17.5%、左中間 17.5%、中堅 30.0%、右中間 17.5%、右翼 17.5%",
+            "list": [
+              "左翼 17.5%",
+              "左中間 17.5%",
+              "中堅 30.0%",
+              "右中間 17.5%",
+              "右翼 17.5%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "outside-course-selected",
+          "courseId": 10,
+          "direction": 2,
+          "pending": [],
+          "status": "先天設定と狙う配分を選手へ反映しました。",
+          "input": {
+            "course": "0.25",
+            "courseRange": "0.25",
+            "effect": "1",
+            "direction": "30",
+            "directionRange": "30"
+          },
+          "saved": {
+            "course": 0.25,
+            "effect": 1,
+            "direction": [
+              0.175,
+              0.175,
+              0.3,
+              0.175,
+              0.175
+            ]
+          },
+          "selectedCell": {
+            "text": ".250",
+            "color": "rgb(229, 233, 231)",
+            "aria": "コース10、先天設定0.250"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".233",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".242",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼17.5%",
+              "左中間17.5%",
+              "中堅30.0%",
+              "右中間17.5%",
+              "右翼17.5%"
+            ],
+            "aria": "左翼 17.5%、左中間 17.5%、中堅 30.0%、右中間 17.5%、右翼 17.5%",
+            "list": [
+              "左翼 17.5%",
+              "左中間 17.5%",
+              "中堅 30.0%",
+              "右中間 17.5%",
+              "右翼 17.5%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        },
+        {
+          "phase": "outside-course-applied",
+          "courseId": 10,
+          "direction": 2,
+          "pending": [],
+          "status": "先天設定と狙う配分を選手へ反映しました。",
+          "input": {
+            "course": "0.9",
+            "courseRange": "0.9",
+            "effect": "1",
+            "direction": "30",
+            "directionRange": "30"
+          },
+          "saved": {
+            "course": 0.9,
+            "effect": 1,
+            "direction": [
+              0.175,
+              0.175,
+              0.3,
+              0.175,
+              0.175
+            ]
+          },
+          "selectedCell": {
+            "text": ".900",
+            "color": "rgb(245, 166, 165)",
+            "aria": "コース10、先天設定0.900"
+          },
+          "publicNine": [
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".233",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".242",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            },
+            {
+              "text": ".250",
+              "color": "rgb(229, 233, 231)"
+            }
+          ],
+          "fan": {
+            "text": [
+              "左翼17.5%",
+              "左中間17.5%",
+              "中堅30.0%",
+              "右中間17.5%",
+              "右翼17.5%"
+            ],
+            "aria": "左翼 17.5%、左中間 17.5%、中堅 30.0%、右中間 17.5%、右翼 17.5%",
+            "list": [
+              "左翼 17.5%",
+              "左中間 17.5%",
+              "中堅 30.0%",
+              "右中間 17.5%",
+              "右翼 17.5%"
+            ],
+            "geometrySha256": "11fb5f5aaaaa348dad8116b7fedacc39460dbb6497f52866a6ff207889613f82"
+          }
+        }
+      ],
+      "result": {
+        "immediatePreview": false,
+        "courseSavedValueAndCellRefresh": true,
+        "directionSavedPercentRefresh": true,
+        "directionGeometryFixed": true,
+        "sameBucketColorFixed": true,
+        "outsideCoursePublicNineFixed": true,
+        "unconfirmedAndConfirmedTabRoundtripRetained": true
+      }
+    }
+  ]
+}

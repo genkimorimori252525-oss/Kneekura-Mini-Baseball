@@ -1,0 +1,25 @@
+# 接触面から選ぶ運動をLive/反復練習へ保存する
+
+2026-10-30 JST / MB-20261027-REALISM-DEBUG-PLAN。既存V243の因果的予測plannerを、原clip/身体/方向plan/実clock/誤差/late correctionを保持したLiveの実接触経路へ通す。V239 XY motorの意味は変えず、新Ownerは作らない。
+
+## 明示motorとrequest
+
+新LiveContactFrameMotorV244: version live_contact_frame_motor_v244、motorId/motorVersion/subjectId/technique/clip/domain/provenance/trainingOpportunitiesは旧と同じ意味、deltaは持たずpolicy FIXED_25_UNCALIBRATED_V243とthresholds minimumComponent/minimumImprovement（有限正値）を持つ。新request version live_observed_contact_frame_trial_v244 はsubjectId/technique/clip/domain/policy/thresholdsだけ。strict shapeでXY deltaやextra実futureを拒否。EXPLICIT_DIAGNOSTIC_UNCALIBRATEDで、EARNEDは拒否。
+
+V242 episode motorのみ旧V239と新V244のversion unionを許可する。旧V239単独paired plan/validatorはstrict維持。evaluateは旧入口と新strict入口を分離し、閉集合/重複/全分母/方向成分/不足判定のpure innerを共用。V244をdelta0の偽V239へ変換しない。semantic plan hashは旧deltaか新policy/thresholdsをversionごとに含め、任意labelを独立性に使わない。
+
+## 実Liveと既存Owner
+
+既存observedSpinTrialV236に新versionを追加してsubjectチェック/Worker輸送/command/fullcaptureを共用。normal armは新trialを省略、trial armだけplannerを使用し、必要な本人clip固定practice policyは両arm同じ。通常nominal登録後/aimError前に、既に選択済みreferenceと同cutoffの配達p/v/a、同bat/ball/limitsから予測候補を計算。PLANNED deltaだけ通常nominalSweetSpotへ一回合成。planner.reference全体でactual referenceを置換せず、実timingerror/latencyを消さない。NO_TARGET/zero/無指定は通常経路。原heldを保つ同じreference生成で予測と実施を一致させる。
+
+新diagnosticsはV238と別versionにし、selected ordinal/delta、予測scope/既知候補内順位/未解決理由/入射spin0仮定を記録する。実結果spinの直接設定0。旧既存Source/JSON/無指定RNG/clockは保持。旧fixedXY診断の保存再開は残し、新episodeの4技術選択だけで新motorを作る。数値の手入力は増やさない。
+
+## 分担と受入
+
+Terra contact_frame_motorはnew motor/testsと旧239shared pure評価/testsだけ。Terra spin_trial_gateはV243 core4fileとV153最小helper exportだけ。Rootは共有契約とLive/episode/Maker統合の順序・担当を管理する。関連Source/入力変更がある検証だけ最初からrunnerで記録し、旧実Browser2HOOK/旧成功の帳尻再演0。
+
+必要な証拠はstrict old/new拒否、旧評価JSON同値、新閉集合、予測とLiveのnominal motion一致/held不変/再証明、zero/NO_TARGET/無指定exact、本人実clipのnormal対trial実接触・回転・弾道・空力、4技術同Core/Main実Worker/全予定分母/replay。これらが揃う前に4技術成立/Native資格/Gold/完成配送としない。全旧FAIL/TIMEOUT/UNKNOWNと元Goal scopeは保持する。
+
+## 実行速度が制約で変化したとき
+
+事前選択した同じworld-space δとordinalを固定し、既存saturationで実行可能なrateへ制限する。誤差後のrateに基づいてδを取消・再選択せず、再構築でも二重加算しない。nominalPlanningRateとactualExecutedRateを記録し、不一致時の予測値は名目条件のみのモデル出力であり実行条件の証明とは扱わない。実行不能は既存の判定を維持し、実contact/spinは事後評価だけ。Astraの実装境界レビューによる判断、旧FAIL 6c9efccb/6925024eは保持。

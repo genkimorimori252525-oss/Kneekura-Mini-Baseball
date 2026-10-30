@@ -1,0 +1,13 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ tools/browser-bridge/presentation-ui-performance-v81.test.mjs (5 tests) 556ms
+ ✓ tools/browser-bridge/presentation-cadence-performance-v81.test.mjs (8 tests) 2284ms
+   ✓ fails closed on altered or duplicate v79 experiment markers 427ms
+   ✓ changes only the declared Presentation experiment regions and commutes with the independent UI patch 668ms
+
+ Test Files  2 passed (2)
+      Tests  13 passed (13)
+   Start at  21:56:54
+   Duration  2.88s (transform 54ms, setup 0ms, collect 194ms, tests 2.84s, environment 0ms, prepare 287ms)
+

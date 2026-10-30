@@ -1,0 +1,34 @@
+{"pass":false,"artifactSha256":"c34cb0234c20df08eb9a219cf4cb2c6624d34e8ccee3fafebbe11cd23c8aad4c","cases":16,"failed":[{"width":1200,"name":"checkbox-mode-tab-save","error":"AssertionError [ERR_ASSERTION]: unsaved checkbox survives mode and tab refresh"},{"width":1200,"name":"auto-input-before-change","error":"AssertionError [ERR_ASSERTION]: uncommitted numeric input survives refresh"},{"width":1200,"name":"base-public-invalid","error":"AssertionError [ERR_ASSERTION]: base failure preserves pitch name"},{"width":1200,"name":"base-internal-invalid","error":"AssertionError [ERR_ASSERTION]: base failure preserves pitch name"},{"width":1200,"name":"base-player-selection","error":"AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:"},{"width":1200,"name":"multiple-auto-errors-corrected","error":"AssertionError [ERR_ASSERTION]: pitcher-release-height has local feedback"},{"width":1200,"name":"pitch-and-public-groups","error":"AssertionError [ERR_ASSERTION]: pitch rpm saved: 2391.293354120181 vs 2300"},{"width":1200,"name":"pitch-error-localization-and-correction","error":"AssertionError [ERR_ASSERTION]: pitch settings group has local feedback"},{"width":390,"name":"checkbox-mode-tab-save","error":"AssertionError [ERR_ASSERTION]: unsaved checkbox survives mode and tab refresh"},{"width":390,"name":"auto-input-before-change","error":"AssertionError [ERR_ASSERTION]: uncommitted numeric input survives refresh"},{"width":390,"name":"base-public-invalid","error":"AssertionError [ERR_ASSERTION]: base failure preserves pitch name"},{"width":390,"name":"base-internal-invalid","error":"AssertionError [ERR_ASSERTION]: base failure preserves pitch name"},{"width":390,"name":"base-player-selection","error":"AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:"},{"width":390,"name":"multiple-auto-errors-corrected","error":"AssertionError [ERR_ASSERTION]: pitcher-release-height has local feedback"},{"width":390,"name":"pitch-and-public-groups","error":"AssertionError [ERR_ASSERTION]: pitch rpm saved: 2391.293354120181 vs 2300"},{"width":390,"name":"pitch-error-localization-and-correction","error":"AssertionError [ERR_ASSERTION]: pitch settings group has local feedback"}],"output":"C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\docs\\verification\\releases\\v86\\drafts-browser-red-final"}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: 1200/checkbox-mode-tab-save: AssertionError [ERR_ASSERTION]: unsaved checkbox survives mode and tab refresh
+1200/auto-input-before-change: AssertionError [ERR_ASSERTION]: uncommitted numeric input survives refresh
+1200/base-public-invalid: AssertionError [ERR_ASSERTION]: base failure preserves pitch name
+1200/base-internal-invalid: AssertionError [ERR_ASSERTION]: base failure preserves pitch name
+1200/base-player-selection: AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+1200/multiple-auto-errors-corrected: AssertionError [ERR_ASSERTION]: pitcher-release-height has local feedback
+1200/pitch-and-public-groups: AssertionError [ERR_ASSERTION]: pitch rpm saved: 2391.293354120181 vs 2300
+1200/pitch-error-localization-and-correction: AssertionError [ERR_ASSERTION]: pitch settings group has local feedback
+390/checkbox-mode-tab-save: AssertionError [ERR_ASSERTION]: unsaved checkbox survives mode and tab refresh
+390/auto-input-before-change: AssertionError [ERR_ASSERTION]: uncommitted numeric input survives refresh
+390/base-public-invalid: AssertionError [ERR_ASSERTION]: base failure preserves pitch name
+390/base-internal-invalid: AssertionError [ERR_ASSERTION]: base failure preserves pitch name
+390/base-player-selection: AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+390/multiple-auto-errors-corrected: AssertionError [ERR_ASSERTION]: pitcher-release-height has local feedback
+390/pitch-and-public-groups: AssertionError [ERR_ASSERTION]: pitch rpm saved: 2391.293354120181 vs 2300
+390/pitch-error-localization-and-correction: AssertionError [ERR_ASSERTION]: pitch settings group has local feedback
+
+16 !== 0
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-maker-drafts-v86.mjs:122:58 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 16,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

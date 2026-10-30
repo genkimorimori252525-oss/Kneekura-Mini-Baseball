@@ -1,0 +1,23 @@
+{
+  "result": "PASS",
+  "artifactSha256": "38fe1775ddc31835561b769bbff42b8306797b9d900ed16fa281090a8fd5e866",
+  "viewports": [
+    {
+      "width": 1200,
+      "playerCount": 10,
+      "primitiveCount": 50,
+      "storedFrameCount": 27,
+      "cameras": 5,
+      "coverageEndStops": true
+    },
+    {
+      "width": 390,
+      "playerCount": 10,
+      "primitiveCount": 50,
+      "storedFrameCount": 27,
+      "cameras": 5,
+      "coverageEndStops": true
+    }
+  ],
+  "evidence": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\verification-authored-with-bat-v32-browser-v4"
+}

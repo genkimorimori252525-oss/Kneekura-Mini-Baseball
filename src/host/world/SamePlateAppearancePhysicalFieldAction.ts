@@ -4,6 +4,7 @@ import { samePaLiveAppealInput, type SamePaLiveAppealIndicationRequest, type Sam
 import { samePaOccupiedRunnerMotionInput, type SamePaOccupiedRunnerMotionRequest, type SamePaOccupiedRunnerMotionResult } from './SamePlateAppearanceOccupiedRunnerMotion';
 import { samePaOccupiedRunnerCatchResponseInput, type SamePaOccupiedRunnerCatchResponseRequest, type SamePaOccupiedRunnerCatchResponse, type SamePaOccupiedRunnerCatchMotionRequest } from './SamePlateAppearanceOccupiedRunnerCatchResponse';
 import type { PrePlayDefensivePlan } from '../../core/sim/fielding/DefensiveDecision';
+import type { SamePaDefensiveSupportGeometry } from './SamePlateAppearanceDefensiveSupportGeometry';
 import type { BattedWorldScheduledFieldAcquisitionAdvance } from '../../core/sim/ball/BattedWorldScheduledFieldAcquisition';
 import type { BattedWorldScheduledFieldThrowAdvance, BattedWorldScheduledFieldThrowPlan } from '../../core/sim/ball/BattedWorldScheduledFieldThrow';
 import type { AcceptedActualFieldObservation, ActualFieldObservationReceipt } from './ActualFieldObservation';
@@ -18,10 +19,12 @@ import type { SamePaCatchDefenderResponse } from './SamePlateAppearanceCatchDefe
 import { samePaBatterCatchResponseInput, type SamePaBatterCatchResponseRequest, type SamePaBatterCatchResponse } from './SamePlateAppearanceBatterCatchResponse';
 import { samePaOrdinaryPlayPurposeValid, type SamePaOrdinaryPlayPurpose } from './SamePlateAppearanceOrdinaryPlay';
 import { samePaDefenderDeparturePurposeInput, type SamePaDefenderDeparturePurposeRequest, type SamePaDefenderDeparturePurpose } from './SamePlateAppearanceDefenderDeparture';
+import { samePaDefensiveCandidateSourceV1Input, type SamePaDefensiveCandidateActionV1, type SamePaDefensiveCandidateActionResultV1 } from './SamePlateAppearanceDefensiveCandidateSourceV1';
 export type SamePaPhysicalFieldReference = SamePaReference<'pa_physical_v1_field_roots' | 'pa_physical_v1_field_steps'>;
 type CalibrationReference = SamePaReference<'pa_lifecycle_v1_execution_calibrations'>;
 type StepReference = SamePaReference<'pa_physical_v1_field_steps'>;
 export type SamePaPhysicalFieldAction =
+  | SamePaDefensiveCandidateActionV1
   | SamePaBatterRecoveryRequest
   | SamePaDefenderDeparturePurposeRequest
   | SamePaLiveAppealIndicationRequest | SamePaLiveAppealContactRequest
@@ -30,15 +33,18 @@ export type SamePaPhysicalFieldAction =
   | SamePaBatterCatchResponseRequest
   | Readonly<{ kind: 'batter_catch_motion_v1'; responseReference: StepReference }>
   | Readonly<{ kind: 'retained_quantizer_checkpoint_v1' }>
+  | Readonly<{ kind: 'source_integer_boundary_checkpoint_v1' }>
   | Readonly<{ kind: 'batter_run_motion_v1'; planReference: SamePaReference<'world_batter_run_plans'>;
       stationaryHoldContinuations?: readonly Readonly<{ playerId: string; decisionReference: StepReference; throughTick: number }>[] }>
   | Readonly<{ kind: 'defender_observation_v1'; member: SamePaDispatchMember; calibrationReference: CalibrationReference;
       previousObservationReference: StepReference | null; view: AcceptedActualFieldObservation['view']; catchWorkReference?: SamePaCatchWorkReference; actorProducerPolicy?: SamePaActorProducerPolicy }>
   | Readonly<{ kind: 'defender_decision_v1'; member: SamePaDispatchMember; calibrationReference: CalibrationReference;
-      observationReference: StepReference; priorities: PrePlayDefensivePlan }>
+      observationReference: StepReference; priorities: PrePlayDefensivePlan; supportGeometry?: SamePaDefensiveSupportGeometry }>
   | Readonly<{ kind: 'defender_catch_response_v1'; member: SamePaDispatchMember; observationReference: StepReference;
       predecessorDecisionReference: StepReference; predecessorMotionReference: StepReference;
       policyDataReference: SamePaReference<'world_received_umpire_defender_policy_data'> | null; previousResponseReference: StepReference | null }>
+  | Readonly<{ kind: 'defender_control_v1'; selections: readonly Readonly<{ member: SamePaDispatchMember;
+      decisionReference: StepReference; calibrationReference: CalibrationReference; observationCalibrationReference: CalibrationReference }>[] }>
   | Readonly<{ kind: 'defender_motion_v1'; selections: readonly Readonly<{ member: SamePaDispatchMember;
       decisionReference: StepReference; calibrationReference: CalibrationReference }>[] }>
   | Readonly<{ kind: 'throw_plan_v1'; member: SamePaDispatchMember; calibrationReference: CalibrationReference;
@@ -46,6 +52,7 @@ export type SamePaPhysicalFieldAction =
   | Readonly<{ kind: 'throw_checkpoint_v1'; planReference: StepReference; throughElapsedSeconds: number }>
   | Readonly<{ kind: 'capture_checkpoint_v1'; candidateReference: SamePaPhysicalFieldReference; throughElapsedSeconds: number }>;
 export type SamePaPhysicalFieldActionResult =
+  | SamePaDefensiveCandidateActionResultV1
   | SamePaBatterRecoveryResult
   | SamePaDefenderDeparturePurpose
   | SamePaLiveAppealIndication | SamePaLiveAppealContact
@@ -59,6 +66,8 @@ export type SamePaPhysicalFieldActionResult =
       exactControllerPiece?: import('./SamePlateAppearanceExactRunnerControllerPiece').SamePaExactRunnerControllerPiece }>
   | Readonly<{ kind: 'retained_quantizer_checkpoint_v1'; boundary: import('../../core/sim/liveAction/QuantizerClosedGenerationBoundary').QuantizerClosedGenerationBoundary;
       status: 'checkpoint_reached' | 'physical_boundary' }>
+  | Readonly<{ kind: 'source_integer_boundary_checkpoint_v1'; boundary: import('../../core/sim/ball/SourceFieldIntegerBoundaryV1').FieldIntegerBoundaryV1;
+      status: 'checkpoint_reached' | 'physical_boundary' }>
   | SamePaCatchDefenderResponse
   | Readonly<{ kind: 'batter_run_motion_v1'; planReference: SamePaReference<'world_batter_run_plans'>; playerId: string;
       completedRecoveryReference?: StepReference;
@@ -68,7 +77,10 @@ export type SamePaPhysicalFieldActionResult =
       fieldingModelHash: string; catchCommunication?: SamePaCatchObservationEvidence }>
   | Readonly<{ kind: 'defender_decision_v1'; playerId: string; observationReference: StepReference;
       calculation: DefensiveExecutionCalculation; target: Readonly<{ x: number; z: number }> | null;
-      availability: ActualFieldObservationReceipt['at']; fieldingModelHash: string }>
+      availability: ActualFieldObservationReceipt['at']; fieldingModelHash: string;
+      supportGeometry?: ReturnType<typeof import('./SamePlateAppearanceDefensiveSupportGeometry').deriveSamePaDefensiveSupportGeometry> }>
+  | Readonly<{ kind: 'defender_control_v1'; motors: readonly SamePaPhysicalFieldMotor[];
+      plans: readonly import('../../core/sim/ball/SourceDefensiveControlV1').SourceDefensiveControlPlanV1[]; coverageThroughTick: number }>
   | Readonly<{ kind: 'defender_motion_v1'; motors: readonly SamePaPhysicalFieldMotor[]; coverageThroughTick: number }>
   | Readonly<{ kind: 'throw_plan_v1'; plan: BattedWorldScheduledFieldThrowPlan; fieldingModelHash: string; appealIndicationReference?: StepReference;
       ordinaryPlayPurpose?: SamePaOrdinaryPlayPurpose }>
@@ -79,7 +91,8 @@ const unit = (v: unknown) => typeof v === 'number' && Number.isFinite(v) && v >=
 const member = (value: unknown, calibrationReference: unknown) => samePaDispatchMemberValid(value)
   && ref(calibrationReference, 'pa_lifecycle_v1_execution_calibrations');
 export const samePaPhysicalFieldActionInput = (a: SamePaPhysicalFieldAction): void => {
-  if (a?.kind === 'batter_recovery_motion_v1') samePaBatterRecoveryInput(a);
+  if (a?.kind === 'defender_candidate_set_v1' || a?.kind === 'defender_team_selection_v1' || a?.kind === 'defender_actor_selection_v1') samePaDefensiveCandidateSourceV1Input(a);
+  else if (a?.kind === 'batter_recovery_motion_v1') samePaBatterRecoveryInput(a);
   else if (a?.kind === 'defender_departure_purpose_v1') samePaDefenderDeparturePurposeInput(a);
   else if (a?.kind === 'appeal_indication_v1' || a?.kind === 'appeal_contact_v1') samePaLiveAppealInput(a);
   else if (a?.kind === 'occupied_runner_motion_v1') samePaOccupiedRunnerMotionInput(a);
@@ -91,6 +104,8 @@ export const samePaPhysicalFieldActionInput = (a: SamePaPhysicalFieldAction): vo
     if (!fields(a, ['kind', 'responseReference']) || !ref(a.responseReference, 'pa_physical_v1_field_steps')) throw new Error('invalid received batter motion Source');
   } else if (a?.kind === 'retained_quantizer_checkpoint_v1') {
     if (!fields(a, ['kind'])) throw new Error('invalid retained quantizer checkpoint Source');
+  } else if (a?.kind === 'source_integer_boundary_checkpoint_v1') {
+    if (!fields(a, ['kind'])) throw new Error('invalid Source integer boundary checkpoint Source');
   } else if (a?.kind === 'defender_observation_v1') {
     const v = a.view, target = v?.attentionTarget;
     if (!fields(a, ['kind', 'member', 'calibrationReference', 'previousObservationReference', 'view', ...('catchWorkReference' in a ? ['catchWorkReference'] : []), ...('actorProducerPolicy' in a ? ['actorProducerPolicy'] : [])]) || !member(a.member, a.calibrationReference)
@@ -104,7 +119,11 @@ export const samePaPhysicalFieldActionInput = (a: SamePaPhysicalFieldAction): vo
         && text(target.playerId) && target.playerId !== a.member.playerId)) throw new Error('invalid physical field observation Source');
   } else if (a?.kind === 'defender_decision_v1') {
     const p = a.priorities;
-    if (!fields(a, ['kind', 'member', 'calibrationReference', 'observationReference', 'priorities']) || !member(a.member, a.calibrationReference)
+    const g = a.supportGeometry;
+    if (!fields(a, ['kind', 'member', 'calibrationReference', 'observationReference', 'priorities', ...('supportGeometry' in a ? ['supportGeometry'] : [])]) || !member(a.member, a.calibrationReference)
+      || 'supportGeometry' in a && (!fields(g, ['kind', 'base', ...('teammateMotionReference' in (g ?? {}) ? ['teammateMotionReference'] : [])])
+        || g?.kind !== 'perceived_ball_support_geometry_v1' || ![1, 2, 3, 4].includes(g.base)
+        || 'teammateMotionReference' in g && !ref(g.teammateMotionReference, 'pa_physical_v1_field_steps'))
       || !ref(a.observationReference, 'pa_physical_v1_field_steps')
       || !fields(p, ['ballPursuitPriority', 'baseCoverPriorities', 'relayPriority', 'backupPriority', 'deepCoveragePriority', 'holdPriority'])
       || ![p.ballPursuitPriority, p.relayPriority, p.backupPriority, p.deepCoveragePriority, p.holdPriority].every(unit)
@@ -115,6 +134,12 @@ export const samePaPhysicalFieldActionInput = (a: SamePaPhysicalFieldAction): vo
       || !samePaDispatchMemberValid(a.member) || ![a.observationReference, a.predecessorDecisionReference, a.predecessorMotionReference].every(r => ref(r, 'pa_physical_v1_field_steps'))
       || a.policyDataReference !== null && !ref(a.policyDataReference, 'world_received_umpire_defender_policy_data')
       || a.previousResponseReference !== null && !ref(a.previousResponseReference, 'pa_physical_v1_field_steps')) throw new Error('invalid caught defender response Source');
+  } else if (a?.kind === 'defender_control_v1') {
+    if (!fields(a, ['kind', 'selections']) || !Array.isArray(a.selections) || a.selections.length !== 9
+      || new Set(a.selections.map(s => s.member?.playerId)).size !== 9
+      || a.selections.some(s => !fields(s, ['member', 'decisionReference', 'calibrationReference', 'observationCalibrationReference'])
+        || !member(s.member, s.calibrationReference) || !ref(s.observationCalibrationReference, 'pa_lifecycle_v1_execution_calibrations')
+        || !ref(s.decisionReference, 'pa_physical_v1_field_steps'))) throw new Error('invalid continuous defender control Source');
   } else if (a?.kind === 'defender_motion_v1') {
     if (!fields(a, ['kind', 'selections']) || !Array.isArray(a.selections) || a.selections.length < 1 || a.selections.length > 9
       || new Set(a.selections.map(s => s.member?.playerId)).size !== a.selections.length

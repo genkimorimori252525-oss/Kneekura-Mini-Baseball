@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V32-EXECUTED-FIELD-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v32.mjs",
+    "../../outputs/ばせぼーるlv32_正式Core後続動作観測版.html",
+    "../../outputs/verification-authored-with-bat-field-successor-v1/execution.json",
+    "../../outputs/verification-authored-with-bat-v32-browser-v4"
+  ],
+  "observed_at": "2026-10-16T21:56:14.017+00:00",
+  "elapsed_ms": 4625,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V32-EXECUTED-FIELD-BROWSER_9805e6805bef4f96bfe38f27051247e5.log",
+  "output_sha256": "a846fb81472adba7f1c8521935eeacf1d7cf2aa9ef10e16f84980d3341925001",
+  "receipt_id": "MB-20261017-V32-EXECUTED-FIELD-BROWSER_9805e6805bef4f96bfe38f27051247e5"
+}

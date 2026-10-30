@@ -1,0 +1,30 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/ball/BaseballSeamForceV1.test.ts (9 tests | 1 failed) 83ms
+   × v78 optional material seam force > preserves material phase through a floor impulse and later rolling/resting boundaries 6ms
+     → baseball seam force: explicit finite material orientation required
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/ball/BaseballSeamForceV1.test.ts > v78 optional material seam force > preserves material phase through a floor impulse and later rolling/resting boundaries
+Error: baseball seam force: explicit finite material orientation required
+ ❯ Module.validateBaseballMaterialOrientationV1 src/core/sim/ball/BaseballSeamForceV1.ts:22:11
+     20|   if (!q || typeof q !== 'object' || Array.isArray(q) || Object.keys(q…
+     21|     || !Object.values(q).every(v => typeof v === 'number' && Number.is…
+     22|     throw new Error('baseball seam force: explicit finite material ori…
+       |           ^
+     23|   return normalizeQuaternion(q);
+     24| }
+ ❯ Module.sampleAerodynamicPitchStateAtElapsedSeconds src/core/sim/pitching/AerodynamicPitchTrajectory.ts:389:60
+ ❯ advance src/core/sim/ball/SourceFreeBallKernel.ts:78:37
+ ❯ Module.createSourceFreeBallKernel src/core/sim/ball/SourceFreeBallKernel.ts:134:22
+ ❯ src/core/sim/ball/BaseballSeamForceV1.test.ts:122:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  04:39:10
+   Duration  772ms (transform 189ms, setup 0ms, collect 254ms, tests 83ms, environment 0ms, prepare 122ms)
+

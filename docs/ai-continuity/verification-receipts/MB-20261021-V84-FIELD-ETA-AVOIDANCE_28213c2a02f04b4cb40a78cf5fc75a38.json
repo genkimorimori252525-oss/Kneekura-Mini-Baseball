@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-FIELD-ETA-AVOIDANCE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldArrivalV84.test.ts",
+    "src/core/sim/fielding/LiveFielderAvoidanceV1.test.ts",
+    "src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts"
+  ],
+  "observed_at": "2026-10-20T15:20:13.311+00:00",
+  "elapsed_ms": 1530,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-FIELD-ETA-AVOIDANCE_28213c2a02f04b4cb40a78cf5fc75a38.log",
+  "output_sha256": "12c8838d96c41bcf14452e8708110af5cafafac49323564246f5a4c9709438eb",
+  "receipt_id": "MB-20261021-V84-FIELD-ETA-AVOIDANCE_28213c2a02f04b4cb40a78cf5fc75a38"
+}

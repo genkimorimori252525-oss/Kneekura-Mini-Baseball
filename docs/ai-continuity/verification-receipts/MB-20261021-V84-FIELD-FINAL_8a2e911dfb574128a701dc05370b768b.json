@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-FIELD-FINAL",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts",
+    "src/core/sim/fielding/LiveFieldAvoidanceV51.test.ts",
+    "src/core/sim/fielding/LiveFieldArrivalV84.test.ts",
+    "src/core/sim/fielding/LiveFielderAvoidanceV1.test.ts",
+    "src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts"
+  ],
+  "observed_at": "2026-10-20T15:28:06.731+00:00",
+  "elapsed_ms": 19922,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-FIELD-FINAL_8a2e911dfb574128a701dc05370b768b.log",
+  "output_sha256": "6b27ac539a903ce51bca3e97d95ca9dbc40cb89b2a9cd00535fb06b4dc274225",
+  "receipt_id": "MB-20261021-V84-FIELD-FINAL_8a2e911dfb574128a701dc05370b768b"
+}

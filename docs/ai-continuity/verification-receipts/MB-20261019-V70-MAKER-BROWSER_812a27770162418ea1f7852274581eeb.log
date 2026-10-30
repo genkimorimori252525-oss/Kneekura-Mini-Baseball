@@ -1,0 +1,1 @@
+{"pass":false,"phase":"pixel-clock-1200","error":"AssertionError [ERR_ASSERTION]: the ordinary game renderer must redraw the same observed world\n+ actual - expected\n\n+ '55afe8a9d156ca08b5165be4ba4016887a2da9a63009f81694d24865171cf253'\n- '65bb6385ea42dc1b2d7c9e2f5fff3658f87d463e5e0d552b8314044e970cd120'\n"}

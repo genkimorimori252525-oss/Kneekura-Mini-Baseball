@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-RENDER-BRIDGE-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/browser-bridge/maker-presentation-bridge-v84.test.mjs",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-20T15:24:37.268+00:00",
+  "elapsed_ms": 1233,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-RENDER-BRIDGE-RED_20d37feb04e34ea681fb86b383d4e641.log",
+  "output_sha256": "7e93611b8a44b04184083327e7e7a916fd05a05ebb4cf3739324e2623c7f6885",
+  "receipt_id": "MB-20261021-V84-RENDER-BRIDGE-RED_20d37feb04e34ea681fb86b383d4e641"
+}

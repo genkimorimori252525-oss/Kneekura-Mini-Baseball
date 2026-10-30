@@ -1,0 +1,107 @@
+{
+  "pass": true,
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v86_入力確定とエラー復帰版.html",
+  "sha256": "9f9126af89cbbd2a2e4290f489b290eac1377d824b002f42ca31dc4fd8ea4e87",
+  "coreSha256": "89c782901927abe3a1cd615a0ca99fc77132623c72b8b2cd63c54395f4db4c85",
+  "normalRendererUnchanged": true,
+  "cases": [
+    {
+      "width": 1200,
+      "dpr": 1,
+      "topics": [
+        "maker-guide-player-v85-abilities",
+        "maker-guide-player-v85-contact",
+        "maker-guide-player-v85-power",
+        "maker-guide-player-v85-traits",
+        "maker-guide-bat-v85-orbit",
+        "maker-guide-bat-v85-compare",
+        "maker-guide-bat-v85-precision",
+        "maker-guide-pitcher-v85-spin",
+        "maker-guide-pitcher-v85-gyro",
+        "maker-guide-pitcher-v85-seams",
+        "maker-guide-pitcher-v85-release",
+        "maker-guide-pitcher-v85-compare"
+      ],
+      "saved": {
+        "controls": {
+          "spinRpm": 2400.123456789,
+          "breakDirectionDegrees": 2.74808818004999,
+          "gyroFraction": -0.0319468845395
+        },
+        "pending": [],
+        "error": null
+      },
+      "layout": {
+        "inner": 1200,
+        "client": 1200,
+        "scroll": 1200,
+        "controls": {
+          "frequencyScale": 2,
+          "qualityScale": 1.2,
+          "baseSceneMs": 18.333333333333332,
+          "sceneMs": 9.166666666666666,
+          "pitchMs": 3.6666666666666665,
+          "battedMs": 4.583333333333333,
+          "gridStep": 3.3333333333333335,
+          "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+          "rafLimited": true
+        }
+      }
+    },
+    {
+      "width": 390,
+      "dpr": 2,
+      "topics": [
+        "maker-guide-player-v85-abilities",
+        "maker-guide-player-v85-contact",
+        "maker-guide-player-v85-power",
+        "maker-guide-player-v85-traits",
+        "maker-guide-bat-v85-orbit",
+        "maker-guide-bat-v85-compare",
+        "maker-guide-bat-v85-precision",
+        "maker-guide-pitcher-v85-spin",
+        "maker-guide-pitcher-v85-gyro",
+        "maker-guide-pitcher-v85-seams",
+        "maker-guide-pitcher-v85-release",
+        "maker-guide-pitcher-v85-compare"
+      ],
+      "saved": {
+        "controls": {
+          "spinRpm": 2400.123456789,
+          "breakDirectionDegrees": 2.74808818004999,
+          "gyroFraction": -0.0319468845395
+        },
+        "pending": [],
+        "error": null
+      },
+      "layout": {
+        "inner": 390,
+        "client": 390,
+        "scroll": 390,
+        "controls": {
+          "frequencyScale": 2,
+          "qualityScale": 1.2,
+          "baseSceneMs": 18.333333333333332,
+          "sceneMs": 9.166666666666666,
+          "pitchMs": 3.6666666666666665,
+          "battedMs": 4.583333333333333,
+          "gridStep": 3.3333333333333335,
+          "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+          "rafLimited": true
+        }
+      }
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "errors": [],
+      "external": []
+    }
+  ]
+}

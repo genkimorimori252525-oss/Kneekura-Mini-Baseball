@@ -1,0 +1,81 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/LiveTraitProfilesV1.test.ts (8 tests | 1 failed) 11ms
+   × local trait authoring with one numerical source > requires an explicit source on first enabling missing or zero source rather than inventing mastery 4ms
+     → live trait profiles: an explicit technique source is required for initial zero or missing control
+ ❯ src/integration/browser/LivePhysicalRosterV1.test.ts (25 tests | 3 failed) 458ms
+   × accepts source-consistent trait metadata, preserves it on players and executes its numerical source once 4ms
+     → live physical roster: unknown or missing fields at entry
+   × checks trait metadata against the final workbench source and rejects false labels without partial updates 1ms
+     → live trait profiles: an explicit technique source is required for initial zero or missing control
+   × passes ON/OFF controls from imported trait profiles to actual Host pitches without altering a taken ball 9ms
+     → live physical roster: unknown or missing fields at entry
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LivePhysicalRosterV1.test.ts > accepts source-consistent trait metadata, preserves it on players and executes its numerical source once
+Error: live physical roster: unknown or missing fields at entry
+ ❯ assert src/integration/browser/LivePhysicalRosterV1.ts:53:85
+     51| const nonnegative = new Set<string>(['reactionSeconds', 'transferSecon…
+     52| const freeze = <T>(value: T): T => { if (value && typeof value === 'ob…
+     53| function assert(value: unknown, message: string): asserts value { if (…
+       |                                                                                     ^
+     54| const validText = (value: unknown): value is string => typeof value ==…
+     55| function fields(value: unknown, allowed: readonly string[], required: …
+ ❯ fields src/integration/browser/LivePhysicalRosterV1.ts:57:3
+ ❯ Module.applyLivePhysicalRosterV1 src/integration/browser/LivePhysicalRosterV1.ts:98:5
+ ❯ src/integration/browser/LivePhysicalRosterV1.test.ts:16:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/integration/browser/LivePhysicalRosterV1.test.ts > checks trait metadata against the final workbench source and rejects false labels without partial updates
+Error: live trait profiles: an explicit technique source is required for initial zero or missing control
+ ❯ assert src/integration/browser/LiveTraitProfilesV1.ts:33:79
+     31| }]);
+     32| export const getLiveTraitCatalogV1 = (): readonly LiveTraitDefinitionV…
+     33| const assert = (value: unknown, message: string): void => { if (!value…
+       |                                                                               ^
+     34| const text = (value: unknown): value is string => typeof value === 'st…
+     35| const object = (value: unknown, fields: readonly string[], path: strin…
+ ❯ Module.setLiveTraitProfileV1 src/integration/browser/LiveTraitProfilesV1.ts:117:3
+ ❯ src/integration/browser/LivePhysicalRosterV1.test.ts:34:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/integration/browser/LivePhysicalRosterV1.test.ts > passes ON/OFF controls from imported trait profiles to actual Host pitches without altering a taken ball
+Error: live physical roster: unknown or missing fields at entry
+ ❯ assert src/integration/browser/LivePhysicalRosterV1.ts:53:85
+     51| const nonnegative = new Set<string>(['reactionSeconds', 'transferSecon…
+     52| const freeze = <T>(value: T): T => { if (value && typeof value === 'ob…
+     53| function assert(value: unknown, message: string): asserts value { if (…
+       |                                                                                     ^
+     54| const validText = (value: unknown): value is string => typeof value ==…
+     55| function fields(value: unknown, allowed: readonly string[], required: …
+ ❯ fields src/integration/browser/LivePhysicalRosterV1.ts:57:3
+ ❯ Module.applyLivePhysicalRosterV1 src/integration/browser/LivePhysicalRosterV1.ts:98:5
+ ❯ issue src/integration/browser/LivePhysicalRosterV1.test.ts:54:25
+ ❯ src/integration/browser/LivePhysicalRosterV1.test.ts:57:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/integration/browser/LiveTraitProfilesV1.test.ts > local trait authoring with one numerical source > requires an explicit source on first enabling missing or zero source rather than inventing mastery
+Error: live trait profiles: an explicit technique source is required for initial zero or missing control
+ ❯ assert src/integration/browser/LiveTraitProfilesV1.ts:33:79
+     31| }]);
+     32| export const getLiveTraitCatalogV1 = (): readonly LiveTraitDefinitionV…
+     33| const assert = (value: unknown, message: string): void => { if (!value…
+       |                                                                               ^
+     34| const text = (value: unknown): value is string => typeof value === 'st…
+     35| const object = (value: unknown, fields: readonly string[], path: strin…
+ ❯ Module.setLiveTraitProfileV1 src/integration/browser/LiveTraitProfilesV1.ts:117:3
+ ❯ edit src/integration/browser/LiveTraitProfilesV1.test.ts:15:3
+ ❯ src/integration/browser/LiveTraitProfilesV1.test.ts:53:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+ Test Files  2 failed (2)
+      Tests  4 failed | 29 passed (33)
+   Start at  19:17:28
+   Duration  1.38s (transform 398ms, setup 0ms, collect 652ms, tests 469ms, environment 0ms, prepare 253ms)
+

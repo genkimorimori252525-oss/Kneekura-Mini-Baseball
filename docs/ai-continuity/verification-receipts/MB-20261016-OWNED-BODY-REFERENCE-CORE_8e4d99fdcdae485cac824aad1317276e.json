@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OWNED-BODY-REFERENCE-CORE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/MeasuredBattingBodyReferenceInput.test.ts",
+    "src/core/sim/contact/MeasuredPelvisControlV1.test.ts",
+    "src/core/sim/contact/HeldToMeasuredBatControlV1.test.ts"
+  ],
+  "observed_at": "2026-10-16T13:33:00.603+00:00",
+  "elapsed_ms": 13250,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OWNED-BODY-REFERENCE-CORE_8e4d99fdcdae485cac824aad1317276e.log",
+  "output_sha256": "aae28deb8e62ec39aa581c4aeae6c0ee456b2e3b056752cc9967e08db266776a",
+  "receipt_id": "MB-20261016-OWNED-BODY-REFERENCE-CORE_8e4d99fdcdae485cac824aad1317276e"
+}

@@ -1,0 +1,121 @@
+{
+  "pass": false,
+  "phase": "pending-1200",
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v75_技術得能調整版.html",
+  "views": [
+    {
+      "width": 1200,
+      "families": [
+        {
+          "id": "baserunning",
+          "states": [
+            "G",
+            "F",
+            "E",
+            "D",
+            "C",
+            "B",
+            "A",
+            "GOLD"
+          ],
+          "strengths": [
+            0,
+            1,
+            2
+          ],
+          "stateStrengthMutualRetention": true,
+          "imported": true
+        },
+        {
+          "id": "bunting",
+          "states": [
+            "LEARNED",
+            "MASTERED"
+          ],
+          "strengths": [
+            0,
+            1,
+            2
+          ],
+          "stateStrengthMutualRetention": true,
+          "imported": true
+        },
+        {
+          "id": "advanced_fielding",
+          "states": [
+            "LEARNED",
+            "MASTERED"
+          ],
+          "strengths": [
+            0,
+            1,
+            2
+          ],
+          "stateStrengthMutualRetention": true,
+          "imported": true
+        },
+        {
+          "id": "bat_to_run_transition",
+          "states": [
+            "LEARNED",
+            "MASTERED"
+          ],
+          "strengths": [
+            0,
+            1,
+            2
+          ],
+          "stateStrengthMutualRetention": true,
+          "imported": true
+        },
+        {
+          "id": "slow_ball_charge",
+          "states": [
+            "LEARNED"
+          ],
+          "strengths": [
+            0,
+            1,
+            2
+          ],
+          "stateStrengthMutualRetention": true,
+          "imported": true
+        },
+        {
+          "id": "low_zone_command",
+          "states": [
+            "LEARNED",
+            "MASTERED"
+          ],
+          "strengths": [
+            0,
+            1,
+            2
+          ],
+          "stateStrengthMutualRetention": true,
+          "imported": true
+        }
+      ],
+      "referenceSha256": "215e1e44d20c7d1506b4fc8ef6f95edf98119da4c9bfd8899267855c33bb4626",
+      "pitcherSections": {
+        "low_zone_command": "primary",
+        "bunting": "batter",
+        "bat_to_run_transition": "batter",
+        "baserunning": "primary",
+        "advanced_fielding": "primary",
+        "slow_ball_charge": "primary"
+      }
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    }
+  ],
+  "scope": "v75 technique state/source authoring and real JSON round trips, legacy 7-family compatibility, pending rejection, comparison input wiring, existing v74 layout, 1200/390 offline browser",
+  "sha256": "40f6ac42093023727125756799348d0b4419fb1ec69e8438878314b36e1de013",
+  "coreSha256": "1fd2072fd489202cac5f83d3fb081cbca220076d89f38c20d937acc6c53493a4",
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\nfalse !== true\n\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-maker-v75.mjs:118:14"
+}

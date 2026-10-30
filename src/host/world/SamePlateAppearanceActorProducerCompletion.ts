@@ -53,7 +53,7 @@ export const deriveSamePaActorProducerWork=(input:Readonly<{fields:readonly Fiel
     const reconsiderObservation=(cause:SamePaReference,observation:SamePaReference,consumer:SamePaReference)=>{
       const terminal=census.terminalObservations?.find(o=>json(o.observationReference)===json(observation));
       const adopted=original(consumer),motor=adopted.f.kind==='same_pa_physical_field_step_v1'
-        &&adopted.f.actionResult?.kind==='defender_motion_v1'?adopted.f.actionResult.motors.find(m=>m.self.playerId===playerId):null;
+        &&(adopted.f.actionResult?.kind==='defender_motion_v1'||adopted.f.actionResult?.kind==='defender_control_v1')?adopted.f.actionResult.motors.find(m=>m.self.playerId===playerId):null;
       if(terminal&&motor&&motor.intent.kind!=='hold')for(const refresh of terminal.reconsiderationRefresh){
         const sampled=observations.find(o=>original(ref(o)).index>adopted.index&&o.actionResult?.kind==='defender_observation_v1'
           &&o.actionResult.receipt.results.some(r=>json(r.target)===json(refresh.target)&&r.status!=='refresh_not_due'));

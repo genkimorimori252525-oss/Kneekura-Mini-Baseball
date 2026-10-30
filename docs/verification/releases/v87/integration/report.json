@@ -1,0 +1,96 @@
+{
+  "pass": true,
+  "paths": {
+    "game": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv87_TBD_vs_LAD_コース認識と打率版.html",
+    "lab": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\カメラワーク調整室_v87_コース認識.html"
+  },
+  "hashes": {
+    "game": "9c31a38c73567acc71792c1f9b18a4ab191a6d0246ae446055d1289fab4b75ee",
+    "lab": "5ec891c6746f06839e740c03d343ed9d3dbe200a136feed7daade07ce89ea469"
+  },
+  "cases": [
+    {
+      "kind": "normal",
+      "width": 1200,
+      "allRoles": true,
+      "authoredImport": true,
+      "regions": 13,
+      "clips": 673,
+      "actualProvenance": "source_plate_crossing"
+    },
+    {
+      "kind": "lab",
+      "width": 1200,
+      "error": null,
+      "version": 87,
+      "recognition": true,
+      "A": 1600,
+      "B": 1600,
+      "controls": {
+        "frequencyScale": 2,
+        "qualityScale": 1.2,
+        "baseSceneMs": 18.333333333333332,
+        "sceneMs": 9.166666666666666,
+        "pitchMs": 3.6666666666666665,
+        "battedMs": 4.583333333333333,
+        "gridStep": 3.3333333333333335,
+        "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+        "rafLimited": true
+      },
+      "overflow": false
+    },
+    {
+      "kind": "normal",
+      "width": 390,
+      "allRoles": true,
+      "authoredImport": true,
+      "regions": 13,
+      "clips": 673,
+      "actualProvenance": "source_plate_crossing"
+    },
+    {
+      "kind": "lab",
+      "width": 390,
+      "error": null,
+      "version": 87,
+      "recognition": true,
+      "A": 1600,
+      "B": 1600,
+      "controls": {
+        "frequencyScale": 2,
+        "qualityScale": 1.2,
+        "baseSceneMs": 18.333333333333332,
+        "sceneMs": 9.166666666666666,
+        "pitchMs": 3.6666666666666665,
+        "battedMs": 4.583333333333333,
+        "gridStep": 3.3333333333333335,
+        "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+        "rafLimited": true
+      },
+      "overflow": false
+    }
+  ],
+  "faults": [
+    {
+      "label": "normal-1200",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "lab-1200",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "normal-390",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "lab-390",
+      "errors": [],
+      "external": []
+    }
+  ],
+  "scope": "Ordinary offline UI, authored JSON import, all-role read-only diagnostics, separate physical crossing, 13-region actual stats, and embedded camera lab. PC/390px are simulated widths, not real devices."
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-FIELD-C1-RAW-SEED26225",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../live-field-departure-diagnostic.mjs",
+    "../../outputs/verification-authored-with-bat-v33-population-probe-v1/shard-04/failed-1.json",
+    "compact"
+  ],
+  "observed_at": "2026-10-17T01:00:44.010+00:00",
+  "elapsed_ms": 1297,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-FIELD-C1-RAW-SEED26225_12f00882bd3b4027b2dc2ddde3119155.log",
+  "output_sha256": "4bcf34bab56680fe6a7fff2cafb4ab10973bdaf257c2f0fbd4070d3bbab0ee50",
+  "receipt_id": "MB-20261017-FIELD-C1-RAW-SEED26225_12f00882bd3b4027b2dc2ddde3119155"
+}

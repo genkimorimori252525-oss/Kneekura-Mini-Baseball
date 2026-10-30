@@ -1,3 +1,4 @@
+import { contactAngleDegV240, evaluateContactAngleRuleV240 } from './MeasuredContactAngleRuleV240';
 import { fail } from '../TraitValidation';
 import type { ContactObservation, SpinObservation, CommandObservation, ReleaseObservation, MeasuredTraitRequest, MeasurementMetric } from './MeasuredTraitTypes';
 export type MeasuredStatistics = Readonly<{ stateId: string | null; metrics: readonly MeasurementMetric[]; insufficientFailureEpisodes: boolean }>;
@@ -5,9 +6,9 @@ export type MeasuredStatistics = Readonly<{ stateId: string | null; metrics: rea
 export function summarizeMeasurements(r: MeasuredTraitRequest): MeasuredStatistics {
   const rule=r.model.rule;
   if (rule.familyId==='line_drive'||rule.familyId==='pitcher_contact_distribution') {
-    const angles=(r.observations as readonly ContactObservation[]).map(o=>Math.atan2(o.exitVelocityMps.y,Math.hypot(o.exitVelocityMps.x,o.exitVelocityMps.z))*180/Math.PI);
+    const angles=(r.observations as readonly ContactObservation[]).map(o=>contactAngleDegV240(o.exitVelocityMps));
     if(rule.familyId==='line_drive') {
-      const lineDriveFraction=angles.filter(x=>x>=rule.lowerAngleDeg&&x<rule.upperAngleDeg).length/angles.length;
+      const lineDriveFraction=evaluateContactAngleRuleV240(angles,rule).fraction;
       return {stateId:lineDriveFraction>=rule.minimumFraction?'LINE_DRIVE':null,metrics:[{key:'lineDriveFraction',value:lineDriveFraction}],insufficientFailureEpisodes:false};
     }
     const groundFraction=angles.filter(x=>x<rule.groundUpperAngleDeg).length/angles.length;

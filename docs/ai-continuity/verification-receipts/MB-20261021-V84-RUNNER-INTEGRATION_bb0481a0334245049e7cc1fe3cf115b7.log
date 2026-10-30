@@ -1,0 +1,105 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/LiveRunnerAirbornePolicyV53.test.ts (3 tests) 8ms
+ ✓ src/core/sim/fielding/LiveRunnerAdvancePolicyV1.test.ts (13 tests) 10ms
+ ✓ src/core/sim/running/LiveRunnerRetreatMotionV1.test.ts (5 tests) 21ms
+ ✓ src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts (3 tests) 23ms
+ ✓ src/core/sim/running/LiveRunnerMotionV1.test.ts (12 tests) 82ms
+ ✓ src/integration/browser/PlayableRunnerCausalityV49.test.ts (8 tests) 11ms
+ ❯ src/core/sim/fielding/LiveFieldRunnerRoundingV1.test.ts (6 tests | 1 failed) 17990ms
+   ✓ actual live runner rounding > commits a safe ordinary extra base and physically runs through third without stopping 4926ms
+   ✓ actual live runner rounding > runs a home run through all four actual bags in order and stops at home 1637ms
+   ✓ actual live runner rounding > records each through-bag departure exactly once at the physical bag-disk exit 1511ms
+   × actual live runner rounding > keeps a runner stopped at third when the following advance is unsafe 3168ms
+     → live locomotion V84: acceleration speeds must be ordered
+   ✓ actual live runner rounding > changes actual turning path and speed when the hidden radius and lateral ability change 4887ms
+   ✓ actual live runner rounding > keeps all occupied-base runners physically separated during a home-run award 1861ms
+ ✓ src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts (6 tests) 23887ms
+   ✓ satisfies first-base force on the same physical bag-contact geometry as the defense 1228ms
+   ✓ still retires a runner when actual controlled first-base contact wins the physical race 912ms
+   ✓ keeps physical runner retirements equal to rule-interpreted outs in both race orders 1665ms
+   ✓ reconsiders a newly vacated advance reservation after a live retirement before closing the play 14327ms
+   ✓ keeps the recorded normal-game runner protected when V84 movement makes a further advance unsafe 1930ms
+   ✓ retains actual through-base departure and rule causality with a weaker authored throwing arm 3823ms
+ ❯ src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts (5 tests | 1 failed) 24062ms
+   ✓ advances from an observed airborne hit read before the actual first landing, independently of render cadence 5690ms
+   ✓ keeps a mistaken read live through reaction and a physical return, retouching passed bags in reverse order 7586ms
+   ✓ allows a real throw and original-base appeal to beat a mistaken runner back, without making a force out 4160ms
+   ✓ does not punish a motor started before first touch if the runner has not actually left the original bag disk 3687ms
+   × uses the same official tick for departure and first-touch legality even when the disk exit is physically 10ns earlier 2939ms
+     → live locomotion V84: acceleration speeds must be ordered
+ ❯ src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts (12 tests | 1 failed) 29847ms
+   × physically advances second to third on a deep caught fly against a weak arm 4419ms
+     → live locomotion V84: acceleration speeds must be ordered
+   ✓ physically advances while a distant ground ball cannot be retrieved before the runner arrives 1225ms
+   ✓ starts a legal tag-up after first touch and reaction, before a later secure catch 3650ms
+   ✓ uses the hidden safety margin in the actual runner decision 6027ms
+   ✓ waits for the runner reaction after the actual first touch and keeps that decision alive 3675ms
+   ✓ runs on contact with two outs and stops on the actual secured third-out fly 2046ms
+   ✓ throws home after the force dissolves and retires the runner by a physically held tag (3 m/s) 2796ms
+   ✓ throws home after the force dissolves and retires the runner by a physically held tag (4 m/s) 2192ms
+   ✓ commits a safe next advance through third instead of closing the held-ball play 2789ms
+   ✓ allows a physical tag of a forced runner still standing on the old base before reacting 582ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts > physically advances second to third on a deep caught fly against a weak arm
+Error: live locomotion V84: acceleration speeds must be ordered
+ ❯ increasingSpeeds src/core/sim/locomotion/LiveLocomotionV84.ts:100:24
+     98| function increasingSpeeds(profile: LiveLocomotionProfileV84, from: num…
+     99|   validateProfile(profile); validateSpeed(profile, from); validateSpee…
+    100|   if (to < from) throw new Error('live locomotion V84: acceleration sp…
+       |                        ^
+    101| }
+    102| const speedChangeDistance = (from: number, to: number, acceleration: n…
+ ❯ Module.liveReachableSpeedV84 src/core/sim/locomotion/LiveLocomotionV84.ts:118:3
+ ❯ buildSpeedSegments src/core/sim/running/LiveRunnerMotionV1.ts:155:5
+ ❯ Module.createLiveRunnerMotionV1 src/core/sim/running/LiveRunnerMotionV1.ts:241:18
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:1049:84
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1092:147
+ ❯ src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts:35:37
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRunnerRoundingV1.test.ts > actual live runner rounding > keeps a runner stopped at third when the following advance is unsafe
+Error: live locomotion V84: acceleration speeds must be ordered
+ ❯ increasingSpeeds src/core/sim/locomotion/LiveLocomotionV84.ts:100:24
+     98| function increasingSpeeds(profile: LiveLocomotionProfileV84, from: num…
+     99|   validateProfile(profile); validateSpeed(profile, from); validateSpee…
+    100|   if (to < from) throw new Error('live locomotion V84: acceleration sp…
+       |                        ^
+    101| }
+    102| const speedChangeDistance = (from: number, to: number, acceleration: n…
+ ❯ Module.liveReachableSpeedV84 src/core/sim/locomotion/LiveLocomotionV84.ts:118:3
+ ❯ buildSpeedSegments src/core/sim/running/LiveRunnerMotionV1.ts:155:5
+ ❯ Module.createLiveRunnerMotionV1 src/core/sim/running/LiveRunnerMotionV1.ts:241:18
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:1049:84
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1092:147
+ ❯ src/core/sim/fielding/LiveFieldRunnerRoundingV1.test.ts:165:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts > uses the same official tick for departure and first-touch legality even when the disk exit is physically 10ns earlier
+Error: live locomotion V84: acceleration speeds must be ordered
+ ❯ increasingSpeeds src/core/sim/locomotion/LiveLocomotionV84.ts:100:24
+     98| function increasingSpeeds(profile: LiveLocomotionProfileV84, from: num…
+     99|   validateProfile(profile); validateSpeed(profile, from); validateSpee…
+    100|   if (to < from) throw new Error('live locomotion V84: acceleration sp…
+       |                        ^
+    101| }
+    102| const speedChangeDistance = (from: number, to: number, acceleration: n…
+ ❯ Module.liveReachableSpeedV84 src/core/sim/locomotion/LiveLocomotionV84.ts:118:3
+ ❯ buildSpeedSegments src/core/sim/running/LiveRunnerMotionV1.ts:155:5
+ ❯ Module.createLiveRunnerMotionV1 src/core/sim/running/LiveRunnerMotionV1.ts:241:18
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:1049:84
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1092:147
+ ❯ src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts:86:105
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+ Test Files  3 failed | 7 passed (10)
+      Tests  3 failed | 70 passed (73)
+   Start at  00:30:04
+   Duration  31.66s (transform 1.80s, setup 0ms, collect 5.58s, tests 95.94s, environment 2ms, prepare 3.43s)
+

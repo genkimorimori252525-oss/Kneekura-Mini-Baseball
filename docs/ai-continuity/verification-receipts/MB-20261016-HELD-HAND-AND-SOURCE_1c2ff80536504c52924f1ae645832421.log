@@ -1,0 +1,12 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/SamePlateAppearanceDispatchSource.test.ts (9 tests) 28ms
+ ✓ src/host/world/SamePlateAppearanceInitialBall.test.ts (11 tests) 17ms
+ ✓ src/core/sim/pitch/ControlledHeldPitchV1.test.ts (10 tests) 6ms
+
+ Test Files  3 passed (3)
+      Tests  30 passed (30)
+   Start at  08:25:08
+   Duration  11.24s (transform 6.19s, setup 0ms, collect 10.60s, tests 51ms, environment 0ms, prepare 179ms)
+

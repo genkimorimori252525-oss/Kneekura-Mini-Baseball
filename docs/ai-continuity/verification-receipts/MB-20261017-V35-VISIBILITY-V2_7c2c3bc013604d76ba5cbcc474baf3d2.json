@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V35-VISIBILITY-V2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v35-visibility.mjs",
+    "../../outputs/ばせぼーるlv35_TBD_vs_LAD_俯瞰と左右スイング修正版.html",
+    "../../outputs/verification-v35-visibility-v2"
+  ],
+  "observed_at": "2026-10-17T02:13:06.795+00:00",
+  "elapsed_ms": 11983,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V35-VISIBILITY-V2_7c2c3bc013604d76ba5cbcc474baf3d2.log",
+  "output_sha256": "07adb3eebebd2b57386b5ae41c6e8e7cf7496c2728819e9b8f7ae96130b759ab",
+  "receipt_id": "MB-20261017-V35-VISIBILITY-V2_7c2c3bc013604d76ba5cbcc474baf3d2"
+}

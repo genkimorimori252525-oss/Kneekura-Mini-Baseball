@@ -1,0 +1,26 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/PlayableRunnerCausalityV49.test.ts (8 tests) 5ms
+ ✓ src/integration/browser/PlayableMatchRulesV1.test.ts (21 tests) 8ms
+ ✓ src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts (5 tests) 8852ms
+   ✓ keeps physical runner retirements equal to rule-interpreted outs in both race orders 420ms
+   ✓ reconsiders a newly vacated advance reservation after a live retirement before closing the play 7171ms
+   ✓ adjudicates the actual normal-game tag enabled by a witnessed through-base departure 716ms
+ ✓ src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts (12 tests) 12894ms
+   ✓ physically advances second to third on a deep caught fly against a weak arm 1457ms
+   ✓ physically advances while a distant ground ball cannot be retrieved before the runner arrives 311ms
+   ✓ starts a legal tag-up after first touch and reaction, before a later secure catch 1414ms
+   ✓ uses the hidden safety margin in the actual runner decision 2388ms
+   ✓ waits for the runner reaction after the actual first touch and keeps that decision alive 1284ms
+   ✓ runs on contact with two outs and stops on the actual secured third-out fly 952ms
+   ✓ throws home after the force dissolves and retires the runner by a physically held tag (3 m/s) 1738ms
+   ✓ throws home after the force dissolves and retires the runner by a physically held tag (4 m/s) 1596ms
+   ✓ commits a safe next advance through third instead of closing the held-ball play 1222ms
+   ✓ allows a physical tag of a forced runner still standing on the old base before reacting 311ms
+
+ Test Files  4 passed (4)
+      Tests  46 passed (46)
+   Start at  17:29:13
+   Duration  13.79s (transform 476ms, setup 0ms, collect 1.31s, tests 21.76s, environment 1ms, prepare 631ms)
+

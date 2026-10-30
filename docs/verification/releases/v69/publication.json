@@ -1,0 +1,75 @@
+{
+  "pass": true,
+  "sourceCommit": "916d184dbe171b6661e7b81857216beb5662fabf",
+  "remoteHead": "916d184dbe171b6661e7b81857216beb5662fabf",
+  "pullRequest": {
+    "headRefName": "jolly/tbd-lad-native-browser-core-2026-10-14",
+    "headRefOid": "916d184dbe171b6661e7b81857216beb5662fabf",
+    "isDraft": true,
+    "state": "OPEN",
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380"
+  },
+  "rawFiles": [
+    {
+      "path": "docs/demos/releases/v69/maker.html",
+      "sha256": "cea63f717b77f5003b2e7bfb485aded54c60de3d87355571a62b8ad03936e8ca",
+      "bytes": 33232301
+    },
+    {
+      "path": "docs/demos/releases/v69/SHA256.json",
+      "sha256": "66135f08c7d7696bd0c74b5a78ab78bf75a32221ff9ee060be06891c077f5500",
+      "bytes": 290
+    },
+    {
+      "path": "docs/demos/releases/v69/maker.html.build.json",
+      "sha256": "8b103e47e4ecf3a09222a9439bee115e2b55a520a31bfdd0077991e4580b40ee",
+      "bytes": 2958
+    },
+    {
+      "path": "docs/demos/releases/v69/maker.html.bundle-inputs.json",
+      "sha256": "899a657235490a26ebfcb300b6ffd9cb11d8181bf3e2b11bd58777148e4dfab5",
+      "bytes": 10009
+    },
+    {
+      "path": "docs/demos/releases/v69/README.md",
+      "sha256": "1cc964bdc3763c89babb322e79558943f12ae2c49d745270bd3d291e0c39d132",
+      "bytes": 2751
+    },
+    {
+      "path": "docs/reports/2026-10-19-v69-ball-comparison-and-zoom.md",
+      "sha256": "0b6746382dd6a5cc7ba80ab86b360a885facc83632c1696d4cb58055e5a9d145",
+      "bytes": 5437
+    },
+    {
+      "path": "docs/handoffs/LATEST.md",
+      "sha256": "ea6208db82c55a6f875fb92b18fb396c849845a4843a308918ccc692435c103e",
+      "bytes": 23070
+    },
+    {
+      "path": "docs/demos/baseball-maker-ui.mjs",
+      "sha256": "db71909c29c16f37eb717806da746b0508ed58b3834de3839a85b2913cb238ad",
+      "bytes": 106722
+    },
+    {
+      "path": "docs/demos/baseball-maker-ball-comparison-v69.js",
+      "sha256": "c000f274ed9ce4b46f29d922a996e9f9de6eecf959acc34da2e8e0eb8ddf176d",
+      "bytes": 24567
+    },
+    {
+      "path": "docs/demos/baseball-maker-ball-comparison-v69.css",
+      "sha256": "c4072a3cf8bd1d0c06612cf69da0f6ac96e5deeb833bc832589c4667775a0327",
+      "bytes": 1638
+    },
+    {
+      "path": "src/integration/browser/MeasuredTrajectoryComparisonWorkbenchV69.ts",
+      "sha256": "6dd71de8fd963c697f10399aa6725347b909343e7240f29ae0109165894454ac",
+      "bytes": 7823
+    },
+    {
+      "path": "docs/verification/releases/v69/release-check.json",
+      "sha256": "97646b690f2baf7342bda93461f843b532e3c0a4342a4fb336fa896f916c286e",
+      "bytes": 443
+    }
+  ],
+  "mainMerged": false
+}

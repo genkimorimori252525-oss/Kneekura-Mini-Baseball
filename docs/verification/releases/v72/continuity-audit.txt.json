@@ -1,0 +1,13 @@
+{
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "C:/Users/genki/.codex/tools/continuity-guard/continuity.py",
+    "audit"
+  ],
+  "exitCode": 1,
+  "outputSha256": "996fc0bc9d1e5103d31cb1c725bc6064a5f6f50fa0fd4705db1f6c280b9b0455"
+}

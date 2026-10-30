@@ -1,0 +1,82 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts (11 tests | 3 failed) 16829ms
+   × runs the complete actual base path after a fair over-fence flight instead of teleporting runners 80ms
+     → expected { elapsedSeconds: 0.123456789, …(3) } to match object { complete: true, …(1) }
+(2 matching properties omitted from actual)
+   ✓ derives two force retirements from actual pickup, two throws, receptions and base contacts 323ms
+   × continues a true wall rebound through its signed-gap certificate and retrieves the ball 79ms
+     → live field forecast: sample outside finite prediction horizon
+   × runs only the actual two-base award after a fair ground bounce clears the continuous fence 15642ms
+     → live field forecast: sample outside finite prediction horizon
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayV1.test.ts > runs the complete actual base path after a fair over-fence flight instead of teleporting runners
+AssertionError: expected { elapsedSeconds: 0.123456789, …(3) } to match object { complete: true, …(1) }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  Object {
+-   "complete": true,
+-   "reason": "home_run_completed",
++   "complete": false,
++   "reason": "actor_boundary_motor_required",
+  }
+
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts:40:22
+     38|     ball: { ...original.ball, ball: { ...original.ball.ball, position:…
+     39|   const result = simulateLiveFieldPlayV1(input);
+     40|   expect(result.end).toMatchObject({ complete: true, reason: 'home_run…
+       |                      ^
+     41|   expect(result.ruleFacts.overFence).toMatchObject({ fair: true, untou…
+     42|   expect(result.ruleFacts.runnerTouches.map(f => f.base)).toEqual([1, …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayV1.test.ts > continues a true wall rebound through its signed-gap certificate and retrieves the ball
+Error: live field forecast: sample outside finite prediction horizon
+ ❯ assert src/core/sim/fielding/LiveFieldForecastV1.ts:12:66
+     10|   &&keys.every(k=>Object.hasOwn(v,k))&&Object.keys(v).every(k=>keys.in…
+     11| const magnitude=(v:Readonly<{x:number;y:number;z:number}>)=>Math.hypot…
+     12| function assert(v:unknown,message:string):asserts v {if(!v)throw new E…
+       |                                                                  ^
+     13| 
+     14| /** An AI hypothesis rooted in one past sensor observation. This is no…
+ ❯ Object.sampleAtElapsedSeconds src/core/sim/fielding/LiveFieldForecastV1.ts:34:5
+ ❯ Object.sample src/core/sim/fielding/LiveFieldPlayV1.ts:244:55
+ ❯ forecast src/core/sim/fielding/LiveFieldPlayV1.ts:250:28
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.ts:291:59
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:291:33
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:412:116
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts:87:46
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayV1.test.ts > runs only the actual two-base award after a fair ground bounce clears the continuous fence
+Error: live field forecast: sample outside finite prediction horizon
+ ❯ assert src/core/sim/fielding/LiveFieldForecastV1.ts:12:66
+     10|   &&keys.every(k=>Object.hasOwn(v,k))&&Object.keys(v).every(k=>keys.in…
+     11| const magnitude=(v:Readonly<{x:number;y:number;z:number}>)=>Math.hypot…
+     12| function assert(v:unknown,message:string):asserts v {if(!v)throw new E…
+       |                                                                  ^
+     13| 
+     14| /** An AI hypothesis rooted in one past sensor observation. This is no…
+ ❯ Object.sampleAtElapsedSeconds src/core/sim/fielding/LiveFieldForecastV1.ts:34:5
+ ❯ Object.sample src/core/sim/fielding/LiveFieldPlayV1.ts:244:55
+ ❯ forecast src/core/sim/fielding/LiveFieldPlayV1.ts:250:28
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.ts:291:59
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:291:33
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:412:116
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts:100:46
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 8 passed (11)
+   Start at  09:29:24
+   Duration  17.73s (transform 221ms, setup 0ms, collect 317ms, tests 16.83s, environment 0ms, prepare 128ms)
+

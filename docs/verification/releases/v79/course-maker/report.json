@@ -1,0 +1,15 @@
+{
+  "pass": false,
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v79_63コースとシーズン成績版.html",
+  "sha256": "9fab98806b03cfc4ab907a4826f85adb0dec9da28611213896943e4374a028d5",
+  "scope": "v79 maker course/direction authoring, season practice/close/JSON, shared trial and 1200/390 browser UI. No full-match calibration claim.",
+  "views": [],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    }
+  ],
+  "error": "AssertionError [ERR_ASSERTION]: live pitch: owned pitch ID requires a V78 repertoire\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-maker-course-v79.mjs:56:195"
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V82-MAKER-RECOVERY-COURSE",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-course-v79.mjs",
+    "../../outputs/にーくら野球メーカー_v82_削除と入力復帰版.html",
+    "docs/verification/releases/v82/course",
+    "docs/verification/releases/v79/game-final/finished-local-game.json"
+  ],
+  "observed_at": "2026-10-20T13:47:03.234+00:00",
+  "elapsed_ms": 8875,
+  "git_head": "2b3a8aafd04f0d49edc5c9f12637babc620901f6",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V82-MAKER-RECOVERY-COURSE_f94b3b12d0cd447c868d975357f1c907.log",
+  "output_sha256": "8e9acd22be05e666d8dfef8ef116e332b9dde3fbb5a8788adb94a2e497ee72d4",
+  "receipt_id": "MB-20261020-V82-MAKER-RECOVERY-COURSE_f94b3b12d0cd447c868d975357f1c907"
+}

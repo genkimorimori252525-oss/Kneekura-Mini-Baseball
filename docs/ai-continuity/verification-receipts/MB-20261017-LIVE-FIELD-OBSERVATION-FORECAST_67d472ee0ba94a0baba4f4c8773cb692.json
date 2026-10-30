@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-FIELD-OBSERVATION-FORECAST",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldForecastV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T00:24:51.177+00:00",
+  "elapsed_ms": 1344,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-FIELD-OBSERVATION-FORECAST_67d472ee0ba94a0baba4f4c8773cb692.log",
+  "output_sha256": "7449bc966655b9bd653713c5fe01aabce88ea42620916c27a462a3d47f3a632e",
+  "receipt_id": "MB-20261017-LIVE-FIELD-OBSERVATION-FORECAST_67d472ee0ba94a0baba4f4c8773cb692"
+}

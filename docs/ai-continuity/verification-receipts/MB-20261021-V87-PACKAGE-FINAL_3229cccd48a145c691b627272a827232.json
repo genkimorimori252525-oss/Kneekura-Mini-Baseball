@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V87-PACKAGE-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "tools/browser-bridge/package-course-v87.py"
+  ],
+  "observed_at": "2026-10-20T17:27:00.679+00:00",
+  "elapsed_ms": 1389,
+  "git_head": "9f6b6ed69d8682f417490d4b761914f1b4a6d6a1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V87-PACKAGE-FINAL_3229cccd48a145c691b627272a827232.log",
+  "output_sha256": "3003a6700b33fd41f752bee342006c4bdde2d08f3176fdff8ac36ba1f87adf95",
+  "receipt_id": "MB-20261021-V87-PACKAGE-FINAL_3229cccd48a145c691b627272a827232"
+}

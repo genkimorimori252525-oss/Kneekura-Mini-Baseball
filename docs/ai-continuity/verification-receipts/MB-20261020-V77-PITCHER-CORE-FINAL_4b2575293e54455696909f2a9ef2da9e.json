@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V77-PITCHER-CORE-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePitchAuthoringV77.test.ts",
+    "src/integration/browser/PitcherWorkbenchV77.test.ts",
+    "src/integration/browser/LivePitchTechnicalSkillsV77.test.ts",
+    "src/integration/browser/LivePitchTechnicalSkillsV75.test.ts",
+    "src/integration/browser/LivePitchReleaseV62.test.ts",
+    "src/integration/browser/LivePitchHostAuthoringV77.test.ts",
+    "src/core/sim/fielding/LivePitcherReactionV77.test.ts",
+    "src/core/sim/fielding/LiveFieldTechniquesV75.test.ts",
+    "src/integration/browser/LivePitchV1.test.ts",
+    "src/integration/browser/LivePitchAbilitiesV1.test.ts"
+  ],
+  "observed_at": "2026-10-19T18:58:50.573+00:00",
+  "elapsed_ms": 5405,
+  "git_head": "76c564765f6a6d15fd1a2740a201080e3c534bfe",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V77-PITCHER-CORE-FINAL_4b2575293e54455696909f2a9ef2da9e.log",
+  "output_sha256": "59e7769deaa538f8f3c1c496b38ffb9fb84e8f8f240973c687b17b5b29a096c7",
+  "receipt_id": "MB-20261020-V77-PITCHER-CORE-FINAL_4b2575293e54455696909f2a9ef2da9e"
+}

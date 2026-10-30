@@ -1,0 +1,53 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/LiveRunnerAirbornePolicyV53.test.ts (3 tests) 5ms
+ ✓ src/core/sim/fielding/LiveRunnerAdvancePolicyV1.test.ts (13 tests) 13ms
+ ✓ src/core/sim/running/LiveRunnerRetreatMotionV1.test.ts (5 tests) 19ms
+ ✓ src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts (3 tests) 25ms
+ ✓ src/core/sim/running/LiveRunnerMotionV1.test.ts (14 tests) 165ms
+ ✓ src/integration/browser/PlayableRunnerCausalityV49.test.ts (8 tests) 8ms
+ ✓ src/core/sim/fielding/LiveFieldTechniquesV75.test.ts (7 tests) 8345ms
+   ✓ keeps fly events, frames and diagnostics exactly unchanged for all zero controls 506ms
+   ✓ keeps ground events, frames and diagnostics exactly unchanged for all zero controls 2227ms
+   ✓ shortens only the batter initial departure, preserving baserunner recognition and run speed 1867ms
+   ✓ uses actual capture posture and one shortened transfer without exceeding physical hand speed 1768ms
+   ✓ changes real approach movement only after observing a slow grounded ball and leaves a fly exact 1941ms
+ ✓ src/core/sim/fielding/LiveFieldRunnerRoundingV1.test.ts (6 tests) 21035ms
+   ✓ actual live runner rounding > commits a safe ordinary extra base and physically runs through third without stopping 5513ms
+   ✓ actual live runner rounding > runs a home run through all four actual bags in order and stops at home 1975ms
+   ✓ actual live runner rounding > records each through-bag departure exactly once at the physical bag-disk exit 1798ms
+   ✓ actual live runner rounding > keeps a runner stopped at third when the following advance is unsafe 4062ms
+   ✓ actual live runner rounding > changes actual turning path and speed when the hidden radius and lateral ability change 5634ms
+   ✓ actual live runner rounding > keeps all occupied-base runners physically separated during a home-run award 2052ms
+ ✓ src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts (6 tests) 27452ms
+   ✓ satisfies first-base force on the same physical bag-contact geometry as the defense 1099ms
+   ✓ still retires a runner when actual controlled first-base contact wins the physical race 1179ms
+   ✓ keeps physical runner retirements equal to rule-interpreted outs in both race orders 1793ms
+   ✓ reconsiders a newly vacated advance reservation after a live retirement before closing the play 16494ms
+   ✓ keeps the recorded normal-game runner protected when V84 movement makes a further advance unsafe 2215ms
+   ✓ retains actual through-base departure and rule causality with a weaker authored throwing arm 4670ms
+ ✓ src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts (5 tests) 28301ms
+   ✓ advances from an observed airborne hit read before the actual first landing, independently of render cadence 6140ms
+   ✓ keeps a mistaken read live through reaction and a physical return, retouching passed bags in reverse order 9057ms
+   ✓ allows a real throw and original-base appeal to beat a mistaken runner back, without making a force out 4678ms
+   ✓ does not punish a motor started before first touch if the runner has not actually left the original bag disk 4234ms
+   ✓ uses the same official tick for departure and first-touch legality even when the disk exit is physically 10ns earlier 4191ms
+ ✓ src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts (12 tests) 36722ms
+   ✓ physically advances second to third on a deep caught fly against a weak arm 5175ms
+   ✓ physically advances while a distant ground ball cannot be retrieved before the runner arrives 1491ms
+   ✓ starts a legal tag-up after first touch and reaction, before a later secure catch 4621ms
+   ✓ uses the hidden safety margin in the actual runner decision 6948ms
+   ✓ waits for the runner reaction after the actual first touch and keeps that decision alive 4096ms
+   ✓ runs on contact with two outs and stops on the actual secured third-out fly 2494ms
+   ✓ throws home after the force dissolves and retires the runner by a physically held tag (3 m/s) 3618ms
+   ✓ throws home after the force dissolves and retires the runner by a physically held tag (4 m/s) 3064ms
+   ✓ commits a safe next advance through third instead of closing the held-ball play 3790ms
+   ✓ protects a nonforced runner still touching the origin even while a controlled glove overlaps the body 333ms
+   ✓ allows a physical tag of a forced runner still standing on the old base before reacting 884ms
+
+ Test Files  11 passed (11)
+      Tests  82 passed (82)
+   Start at  00:39:36
+   Duration  38.59s (transform 2.18s, setup 0ms, collect 6.67s, tests 122.09s, environment 3ms, prepare 3.60s)
+

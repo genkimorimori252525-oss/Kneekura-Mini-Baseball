@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-AERO-CAL10-COMMITTED-OWNER-READ",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../aero-ground-samepa-recovery-20261016/malformed-json-cut10/read-cut10.mjs",
+    "../aero-ground-samepa-recovery-20261016/malformed-json-cut10"
+  ],
+  "observed_at": "2026-10-15T16:35:13.225+00:00",
+  "elapsed_ms": 54281,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-AERO-CAL10-COMMITTED-OWNER-READ_36a0e4f9775d47db8cda08c5c9e3b25b.log",
+  "output_sha256": "530acc1dcc0733e796730f87baf56029872512e333276c12b2c1684214600cb7",
+  "receipt_id": "MB-20261016-AERO-CAL10-COMMITTED-OWNER-READ_36a0e4f9775d47db8cda08c5c9e3b25b"
+}

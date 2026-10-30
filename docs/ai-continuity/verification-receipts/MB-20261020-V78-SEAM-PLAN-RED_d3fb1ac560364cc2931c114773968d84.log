@@ -1,0 +1,56 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/LivePitchExecutionV78.test.ts (6 tests | 1 failed | 5 skipped) 314ms
+   × does not compensate material seam force in the nominal inverse command solve 313ms
+     → expected { originTick: 1000000, …(2) } to deeply equal { originTick: 1000000, …(2) }
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LivePitchExecutionV78.test.ts > does not compensate material seam force in the nominal inverse command solve
+AssertionError: expected { originTick: 1000000, …(2) } to deeply equal { originTick: 1000000, …(2) }
+
+- Expected
++ Received
+
+  Object {
+    "ball": Object {
+      "position": Object {
+        "x": -0.475,
+        "y": 1.888,
+        "z": 16.900000000000002,
+      },
+      "spin": Object {
+        "x": 136.7081411755767,
+        "y": 124.28012834143335,
+        "z": 49.712051336573346,
+      },
+      "tick": 1000000,
+      "velocity": Object {
+-       "x": 2.107703097079539,
+-       "y": -1.587817147863262,
+-       "z": -40.04283416814312,
++       "x": 2.151045095726784,
++       "y": -1.563743535592881,
++       "z": -40.04147668367063,
+      },
+    },
+    "elapsedSeconds": 0,
+    "originTick": 1000000,
+  }
+
+ ❯ src/integration/browser/LivePitchExecutionV78.test.ts:37:26
+     35|       minimumSpinRatio:.8,pitchRepertoireV78:{version:'pitch_repertoir…
+     36|     without=execute(0),withSeams=execute(1),mean=without.diagnostics.s…
+     37|   expect(actual.initial).toEqual(mean.initial);expect(withSeams.diagno…
+       |                          ^
+     38|   expect(actual.profile.air.aerodynamics.seamForce?.coefficientScale).…
+     39|   expect(createSourceFreeBallKernel(actual).evaluateAt(.2).moment.ball…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 skipped (6)
+   Start at  04:55:59
+   Duration  1.47s (transform 517ms, setup 0ms, collect 738ms, tests 314ms, environment 0ms, prepare 126ms)
+

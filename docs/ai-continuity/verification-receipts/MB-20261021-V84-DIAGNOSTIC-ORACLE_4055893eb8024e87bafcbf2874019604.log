@@ -1,0 +1,46 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts (22 tests | 1 failed) 46530ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects an observed pair of overlapping fielder bodies with both tasks and distance 838ms
+   ✓ LiveFieldPlayDiagnosticsV1 > accepts legal close coordination at a body-center distance of 0.48m 740ms
+   ✓ LiveFieldPlayDiagnosticsV1 > accepts legal close coordination at a body-center distance of 0.481m 696ms
+   ✓ LiveFieldPlayDiagnosticsV1 > uses the declared body radius and observes three nearby fielders without inventing a cluster violation 673ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects a completed live play whose final observed runner is still advancing 603ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects a completed live play with a free ball at the final observation 599ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects duplicate base cover assignments without treating nearby different tasks as duplicate coverage 616ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects retirement supported only by bag control after a legal first-base touch (offset=-0.01) 491ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects retirement supported only by bag control after a legal first-base touch (offset=0) 544ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects an observed bag-volume arrival that precedes the official touch fact 650ms
+   ✓ LiveFieldPlayDiagnosticsV1 > accepts an explicit controlled tag after first-base arrival as retirement evidence 532ms
+   ✓ LiveFieldPlayDiagnosticsV1 > reports sampled travel by actor and task without declaring long movement irrational 603ms
+   ✓ LiveFieldPlayDiagnosticsV1 > recognizes an actual relay receipt away from the final bag without reporting a missing force-base touch 2533ms
+   ✓ LiveFieldPlayDiagnosticsV1 > recognizes an actual nonforce throw and catcher tag without requiring a bag contact 1030ms
+   ✓ LiveFieldPlayDiagnosticsV1 > distinguishes post-pass ball recovery from cancellation based on a stale pre-release observation 2359ms
+   ✓ LiveFieldPlayDiagnosticsV1 > retains missing-bag detection for a force throw (release reason=force_play) 542ms
+   ✓ LiveFieldPlayDiagnosticsV1 > retains missing-bag detection for a force throw (release reason=undefined) 555ms
+   ✓ LiveFieldPlayDiagnosticsV1 > accepts an explicitly evaluated losing hold while still reporting a contradictory positive throw opportunity 695ms
+   ✓ LiveFieldPlayDiagnosticsV1 > captures structured AI telemetry, kinematic oracle, and anomaly classifications without altering simulation facts 1018ms
+   × LiveFieldPlayDiagnosticsV1 > audits the full 20-scenario canonical fielding matrix 15483ms
+     → expected 11 to be greater than or equal to 12
+   ✓ LiveFieldPlayDiagnosticsV1 > demonstrates monotonic physical fielding progression across low, default, and high ability tiers 14728ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > audits the full 20-scenario canonical fielding matrix
+AssertionError: expected 11 to be greater than or equal to 12
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:319:55
+    317|     expect(summaryByTier.default.infieldGrounderCount).toBe(13);
+    318|     expect(summaryByTier.default.totalAnomalies).toBe(0);
+    319|     expect(summaryByTier.default.infieldGrounderOuts).toBeGreaterThanO…
+       |                                                       ^
+    320|     expect(summaryByTier.default.totalOuts).toBeGreaterThanOrEqual(17);
+    321|     if (process.env.FIELDING_DIAG_TIERS === '1') {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 21 passed (22)
+   Start at  00:37:43
+   Duration  47.71s (transform 406ms, setup 0ms, collect 587ms, tests 46.53s, environment 0ms, prepare 179ms)
+

@@ -1,0 +1,7 @@
+{
+  "extends": "../../tsconfig.json",
+  "files": [
+    "../../src/core/sim/fielding/LiveFieldTechniquesV75.test.ts"
+  ],
+  "include": []
+}

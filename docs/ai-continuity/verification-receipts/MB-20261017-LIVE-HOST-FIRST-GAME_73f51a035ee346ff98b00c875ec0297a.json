@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-HOST-FIRST-GAME",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveBaseballMatchV1.test.ts"
+  ],
+  "observed_at": "2026-10-16T22:24:00.464+00:00",
+  "elapsed_ms": 16092,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-HOST-FIRST-GAME_73f51a035ee346ff98b00c875ec0297a.log",
+  "output_sha256": "10513159926cbdb81784f2dbe0535f8d61ada427065a006dd0937ef3d78b8d00",
+  "receipt_id": "MB-20261017-LIVE-HOST-FIRST-GAME_73f51a035ee346ff98b00c875ec0297a"
+}

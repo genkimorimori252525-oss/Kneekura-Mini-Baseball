@@ -1,0 +1,362 @@
+{
+  "pass": true,
+  "phase": "complete",
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v75_技術得能調整版.html",
+  "views": [
+    {
+      "width": 1200,
+      "families": [
+        {
+          "id": "baserunning",
+          "states": [
+            "G",
+            "F",
+            "E",
+            "D",
+            "C",
+            "B",
+            "A",
+            "GOLD"
+          ],
+          "strengths": [
+            0,
+            1,
+            2
+          ],
+          "stateStrengthMutualRetention": true,
+          "imported": true
+        },
+        {
+          "id": "bunting",
+          "states": [
+            "LEARNED",
+            "MASTERED"
+          ],
+          "strengths": [
+            0,
+            1,
+            2
+          ],
+          "stateStrengthMutualRetention": true,
+          "imported": true
+        },
+        {
+          "id": "advanced_fielding",
+          "states": [
+            "LEARNED",
+            "MASTERED"
+          ],
+          "strengths": [
+            0,
+            1,
+            2
+          ],
+          "stateStrengthMutualRetention": true,
+          "imported": true
+        },
+        {
+          "id": "bat_to_run_transition",
+          "states": [
+            "LEARNED",
+            "MASTERED"
+          ],
+          "strengths": [
+            0,
+            1,
+            2
+          ],
+          "stateStrengthMutualRetention": true,
+          "imported": true
+        },
+        {
+          "id": "slow_ball_charge",
+          "states": [
+            "LEARNED"
+          ],
+          "strengths": [
+            0,
+            1,
+            2
+          ],
+          "stateStrengthMutualRetention": true,
+          "imported": true
+        },
+        {
+          "id": "low_zone_command",
+          "states": [
+            "LEARNED",
+            "MASTERED"
+          ],
+          "strengths": [
+            0,
+            1,
+            2
+          ],
+          "stateStrengthMutualRetention": true,
+          "imported": true
+        }
+      ],
+      "publicResolverBoundary": {
+        "unknownFamily": {
+          "rejected": true,
+          "unchanged": true,
+          "message": "live trait profiles: unknown or duplicate trait family"
+        },
+        "wrongVersion": {
+          "rejected": true,
+          "unchanged": true,
+          "message": "live trait profiles: unsupported profile"
+        },
+        "extraSourceKey": {
+          "rejected": true,
+          "unchanged": true,
+          "message": "live trait profiles: invalid fields source"
+        }
+      },
+      "referenceSha256": "215e1e44d20c7d1506b4fc8ef6f95edf98119da4c9bfd8899267855c33bb4626",
+      "pitcherSections": {
+        "low_zone_command": "primary",
+        "bunting": "batter",
+        "bat_to_run_transition": "batter",
+        "baserunning": "primary",
+        "advanced_fielding": "primary",
+        "slow_ball_charge": "primary"
+      },
+      "pending": {
+        "emptyAndRangeAtomic": true,
+        "bothRealExportsBlocked": true,
+        "compareBlocked": true,
+        "correctionAccepted": true
+      },
+      "disabled": {
+        "offAndZeroRuntimeAbsent": true,
+        "originalPhysicalExact": true
+      },
+      "comparison": {
+        "bunting": 1.5,
+        "lowZoneCommand": 1.25,
+        "cases": 4,
+        "layout": {
+          "comparisonParent": "maker-layout",
+          "comparison": {
+            "x": 20,
+            "y": -188.890625,
+            "width": 1160,
+            "bottom": 2090.234375
+          },
+          "preview": {
+            "x": 20,
+            "y": -2817.625,
+            "width": 797,
+            "bottom": -222.890625
+          },
+          "bat": {
+            "x": 835,
+            "y": -2817.625,
+            "width": 345,
+            "bottom": -222.890625
+          },
+          "canvas": {
+            "x": 150,
+            "y": 860.8125,
+            "width": 900,
+            "bottom": 1508.8125
+          },
+          "actions": "comparison-batter-actions"
+        }
+      },
+      "json": {
+        "realFullAndRosterDownloads": true,
+        "bothFileInputs": true,
+        "all20PhysicalExact": true,
+        "unrelated18EntriesExact": true,
+        "referenceDataExact": true
+      }
+    },
+    {
+      "width": 390,
+      "families": [
+        {
+          "id": "baserunning",
+          "states": [
+            "G",
+            "F",
+            "E",
+            "D",
+            "C",
+            "B",
+            "A",
+            "GOLD"
+          ],
+          "strengths": [
+            0,
+            1,
+            2
+          ],
+          "stateStrengthMutualRetention": true,
+          "imported": true
+        },
+        {
+          "id": "bunting",
+          "states": [
+            "LEARNED",
+            "MASTERED"
+          ],
+          "strengths": [
+            0,
+            1,
+            2
+          ],
+          "stateStrengthMutualRetention": true,
+          "imported": true
+        },
+        {
+          "id": "advanced_fielding",
+          "states": [
+            "LEARNED",
+            "MASTERED"
+          ],
+          "strengths": [
+            0,
+            1,
+            2
+          ],
+          "stateStrengthMutualRetention": true,
+          "imported": true
+        },
+        {
+          "id": "bat_to_run_transition",
+          "states": [
+            "LEARNED",
+            "MASTERED"
+          ],
+          "strengths": [
+            0,
+            1,
+            2
+          ],
+          "stateStrengthMutualRetention": true,
+          "imported": true
+        },
+        {
+          "id": "slow_ball_charge",
+          "states": [
+            "LEARNED"
+          ],
+          "strengths": [
+            0,
+            1,
+            2
+          ],
+          "stateStrengthMutualRetention": true,
+          "imported": true
+        },
+        {
+          "id": "low_zone_command",
+          "states": [
+            "LEARNED",
+            "MASTERED"
+          ],
+          "strengths": [
+            0,
+            1,
+            2
+          ],
+          "stateStrengthMutualRetention": true,
+          "imported": true
+        }
+      ],
+      "publicResolverBoundary": {
+        "unknownFamily": {
+          "rejected": true,
+          "unchanged": true,
+          "message": "live trait profiles: unknown or duplicate trait family"
+        },
+        "wrongVersion": {
+          "rejected": true,
+          "unchanged": true,
+          "message": "live trait profiles: unsupported profile"
+        },
+        "extraSourceKey": {
+          "rejected": true,
+          "unchanged": true,
+          "message": "live trait profiles: invalid fields source"
+        }
+      },
+      "referenceSha256": "215e1e44d20c7d1506b4fc8ef6f95edf98119da4c9bfd8899267855c33bb4626",
+      "pitcherSections": {
+        "low_zone_command": "primary",
+        "bunting": "batter",
+        "bat_to_run_transition": "batter",
+        "baserunning": "primary",
+        "advanced_fielding": "primary",
+        "slow_ball_charge": "primary"
+      },
+      "pending": {
+        "emptyAndRangeAtomic": true,
+        "bothRealExportsBlocked": true,
+        "compareBlocked": true,
+        "correctionAccepted": true
+      },
+      "disabled": {
+        "offAndZeroRuntimeAbsent": true,
+        "originalPhysicalExact": true
+      },
+      "comparison": {
+        "bunting": 1.5,
+        "lowZoneCommand": 1.25,
+        "cases": 4,
+        "layout": {
+          "comparisonParent": "maker-layout",
+          "comparison": {
+            "x": 12,
+            "y": -504.796875,
+            "width": 366,
+            "bottom": 2024.59375
+          },
+          "preview": {
+            "x": 12,
+            "y": -4989.609375,
+            "width": 366,
+            "bottom": -3882.71875
+          },
+          "bat": {
+            "x": 12,
+            "y": -3864.71875,
+            "width": 366,
+            "bottom": -538.796875
+          },
+          "canvas": {
+            "x": 36,
+            "y": 982.171875,
+            "width": 318,
+            "bottom": 1211.125
+          },
+          "actions": "comparison-batter-actions"
+        }
+      },
+      "json": {
+        "realFullAndRosterDownloads": true,
+        "bothFileInputs": true,
+        "all20PhysicalExact": true,
+        "unrelated18EntriesExact": true,
+        "referenceDataExact": true
+      }
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "errors": [],
+      "external": []
+    }
+  ],
+  "scope": "v75 technique state/source authoring and real JSON round trips, legacy 7-family compatibility, pending rejection, comparison input wiring, existing v74 layout, 1200/390 offline browser",
+  "sha256": "453490f4038ca76b16d7b2630650ee810f35c8bc5b6585490581853dd7cb959a",
+  "coreSha256": "008d2b361e3b592d10e3eee52b6c787464ff6dfad86472c0c847c1601dfe9b09"
+}

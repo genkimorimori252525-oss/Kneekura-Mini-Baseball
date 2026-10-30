@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V51-SPACING-DIAG-UNIT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "work/v51-baseline-matrix.test.ts",
+    "--reporter=dot",
+    "-t",
+    "overlapping fielder bodies|legal close coordination|declared body radius"
+  ],
+  "observed_at": "2026-10-18T09:26:03.320+00:00",
+  "elapsed_ms": 2407,
+  "git_head": "01834d9e8361b7747083b9fbb7539c93ee662b50",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V51-SPACING-DIAG-UNIT_fda92c76c3a246dea99f4ec636bba099.log",
+  "output_sha256": "abe01e4e9b562ffe246cd0a9fba744b0177e9e066eded77fe00ccf84decccfe1",
+  "receipt_id": "MB-20261018-V51-SPACING-DIAG-UNIT_fda92c76c3a246dea99f4ec636bba099"
+}

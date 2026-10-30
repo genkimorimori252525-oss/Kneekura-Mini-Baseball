@@ -1,0 +1,84 @@
+{"outfile":"dist/native-match-core-browser.js","bytes":680251,"sha256":"a470058b7fe0c95c5119fd1376bfa5a91ffc82f9767d95e4cae3daf369ea6a1d","inputCount":107,"inputManifestSha256":"94f4e9039b33cf10aafdc2e5909758148de6c749c622186e9526637409419aae","exports":["createNativeSinglePaSession","issueNativeCommandPitch","observeNativePitch","createNativeAerodynamicSession","observeNativeAerodynamicPitch","createReferenceAerodynamicPhysicalSource","observeNativeFreeBallContinuation","createSourceBallMaterialHistoryV1","createSourceBallMaterialHistoryFromContinuationV3","createExecutedFieldWorldObserverV1","createLiveBaseballMatchV1"]}
+▲ [WARNING] "youkaishomecoming:yukari" is not a valid value for the "type" field [package.json]
+
+    ../../../../../../package.json:1:8:
+      1 │ {"type":"youkaishomecoming:yukari","texture":"touhou_little_maid:te...
+        ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The "type" field must be set to either "commonjs" or "module".
+
+{
+  "output": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv47_TBD_vs_LAD_中継とベース旋回版.html",
+  "sha256": "81cdc7c402f2a8461ef07cac8d6d541cf304208fe97f23ba9bc02915ba880747",
+  "presentationVersion": 47,
+  "continuousViewSha256": "5b12f483785a4e0ac975edfdb3483e8e0fc0dae4a069b19a088b1840781500f5",
+  "baselineSha256": "c613574b377afd19060d89100c1bd7c1fa693efd42361c77ed7ab21943670f1f",
+  "nativeBundleSha256": "a470058b7fe0c95c5119fd1376bfa5a91ffc82f9767d95e4cae3daf369ea6a1d",
+  "runtimeSha256": "2e508b1a609fe77f9a09394300959ea16d678cc44c675e9350300528007b4548",
+  "takenGazeHelperSha256": "321f2839fad7bddfb299d8b74c9d8c4ae3fe3fdb23fde46b0f76f2cb426ea7b1",
+  "batterGazeHelperSha256": "769ebb95d9356a8c8515aac108e0e7dcd6cff966ab22785324f406a79d885158",
+  "chartHelperSha256": "ba18541a442e783ba46d556c76c5495e2cbeabbbb84287c22cc652093d4f1e1a",
+  "fieldCameraHelperSha256": "9285506f18fc8eac050f8e33ee5dd9f4c36b5e7e588b7dc56c603a949b381edd",
+  "actorAnimationHelperSha256": "131aae500c7bf92f5f462070a5719cee4207ee4098faa92b3acbcc1240e0ecc9",
+  "playDescriptionHelperSha256": "ea07eb44e510f304e911db69388cc54f62ae601a9e204f062e36c2e8c711578e",
+  "physicalRosterSha256": "a2fdb7835bada8dddcd2599e72f0034e540bebb360febb8cd25279f2ba1e6ccd",
+  "physicalCatalogSha256": "e7c3d8d0fb9d79f7316937287941a690d857b65be416bfcf49b93d8fe0be421d",
+  "bundleInputManifestSha256": "94f4e9039b33cf10aafdc2e5909758148de6c749c622186e9526637409419aae",
+  "bundleInputCount": 107,
+  "approvedPngMasksSha256": "51005451401727fb84c31be9ae63712c8a815bdd0a7edbde7606af36a69a0944",
+  "approvedFontSha256": "6bd1592ef0d1a47ecd13bf7ef81ac361a12c29239f31d43bec1c3f54f6023aeb",
+  "primaryCanvas": "shared Core observations; single continuous embodied batter view with delayed predictive tracking and bounded angular motion; provisional visual uncertainty policy",
+  "nativeSqliteAdmission": false,
+  "legacyResultFallback": false,
+  "ordinaryCadenceMs": 55,
+  "displayGridPixels": 4,
+  "measuredReferenceSha256": "72b615a28cd99b4a91c6e52cb02ee35f4ff97850c3bfe71ca73d0e609ba480ef",
+  "measuredReferenceAuthority": "OPENBIOMECHANICS_MEASURED_BAT_AXIS_RESEARCH"
+}
+{
+  "output": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_中継とベース旋回調整版.html",
+  "bytes": 4340866,
+  "sha256": "7848228105d598f75c8e1eeb347c2ecbb6f3b749c9b1ea5433f2dcdfc97abd8c",
+  "coreSha256": "1455eccdfdf1490dae2b60ebe55daca08b1e921089664c3fa993e8c51e404916",
+  "uiSha256": "12f5a55fc79245f3cd8bb08facdfce7155118115194311a2cf22fc40479e1370",
+  "templateSha256": "f1fc9b5ca539488da44622d35e481ce5c44777171a0661e5dc2c27365aa32e5c",
+  "referenceSha256": "72b615a28cd99b4a91c6e52cb02ee35f4ff97850c3bfe71ca73d0e609ba480ef",
+  "referenceClips": 12,
+  "liveRosterSha256": "a2fdb7835bada8dddcd2599e72f0034e540bebb360febb8cd25279f2ba1e6ccd",
+  "liveRosterCatalogSha256": "e7c3d8d0fb9d79f7316937287941a690d857b65be416bfcf49b93d8fe0be421d",
+  "gamePlayers": 20,
+  "publicAbilities": true,
+  "liveRosterPath": "docs/demos/live-game-roster-v2.json",
+  "liveRosterCatalogPath": "docs/demos/live-game-roster-catalog-v2.json",
+  "publicReferenceSha256": "b448f82f81620085b1f4923609cec23f69db4c639da76b6b1f877abb22622e4e",
+  "batSpriteModuleSha256": "aa675212434b677b1fe8fb245d438f49f4afcef9022cecc2d512fd7cd32c35d9",
+  "batSpriteManifestSha256": "29f76d56ef02f56f4eda9b6b626df8e1b5ce98acbaa957b6534bbdcf2cff4dcc",
+  "batSprites": [
+    {
+      "file": "bat-78cm.png",
+      "nominalLengthM": 0.78,
+      "sha256": "41a9920ce99d43fcf4f18ff1121c30063ff6f02ed076d3a0032934d92910e430"
+    },
+    {
+      "file": "bat-84cm.png",
+      "nominalLengthM": 0.84,
+      "sha256": "c2902280e948c71afd5d346a18fffb587eccae868b1e9f7adf2009112ded2d4e"
+    },
+    {
+      "file": "bat-90cm.png",
+      "nominalLengthM": 0.9,
+      "sha256": "1e69c292727402112a6506c88e796d725db93bb28a1eb5d763bcaeff77ae5bd9"
+    }
+  ],
+  "batSpriteAuthority": "GENERATED_RENDER_SPRITES_NOT_MEASURED_BAT_GEOMETRY",
+  "selfContained": true,
+  "authority": "Shared Core samples; separate OpenBiomechanics measured-axis research replay"
+}
+▲ [WARNING] "youkaishomecoming:yukari" is not a valid value for the "type" field [package.json]
+
+    ../../../../../../package.json:1:8:
+      1 │ {"type":"youkaishomecoming:yukari","texture":"touhou_little_maid:te...
+        ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The "type" field must be set to either "commonjs" or "module".
+

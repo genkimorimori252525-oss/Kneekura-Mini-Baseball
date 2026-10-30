@@ -1,0 +1,23 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ '903cfa4e29042b6e529253cc7ae8d46f00d7fa70e8f1950f52709dc89dd0db89'
+- '028bff5fe2a7c23ec5f63ff7614b2f9d047e5a88e492b7e75ce71485977b0ddf'
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-coupled-pelvis-study-v1/readback.mjs:81322:3
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:636:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: '903cfa4e29042b6e529253cc7ae8d46f00d7fa70e8f1950f52709dc89dd0db89',
+  expected: '028bff5fe2a7c23ec5f63ff7614b2f9d047e5a88e492b7e75ce71485977b0ddf',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

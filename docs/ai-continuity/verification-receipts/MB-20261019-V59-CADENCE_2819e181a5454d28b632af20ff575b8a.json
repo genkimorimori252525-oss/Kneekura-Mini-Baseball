@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V59-CADENCE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v56-cadence.mjs",
+    "../../outputs/ばせぼーるlv59_TBD_vs_LAD_打点注視と微動安定版.html",
+    "../../outputs/カメラワーク調整室_v59.html",
+    "../../outputs/verification-v59-cadence"
+  ],
+  "observed_at": "2026-10-18T18:35:36.052+00:00",
+  "elapsed_ms": 7343,
+  "git_head": "4fa32b2c6342e5b5a81aae27ec60885067a6b217",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V59-CADENCE_2819e181a5454d28b632af20ff575b8a.log",
+  "output_sha256": "44cc660e4a662e44c536fd7991c30954c9008f8fd152a3f3bcd60bc152ccf138",
+  "receipt_id": "MB-20261019-V59-CADENCE_2819e181a5454d28b632af20ff575b8a"
+}

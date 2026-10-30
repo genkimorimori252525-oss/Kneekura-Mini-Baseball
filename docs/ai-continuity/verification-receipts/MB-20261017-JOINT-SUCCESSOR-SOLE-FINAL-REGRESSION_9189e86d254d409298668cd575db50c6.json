@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-JOINT-SUCCESSOR-SOLE-FINAL-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/InitialJointWorkloadProjection.test.ts",
+    "src/host/world/InitialJointRecoveryWorkloadProjection.test.ts",
+    "src/host/world/SqliteInitialJointRecoveryWorkloadStore.test.ts",
+    "src/host/world/JointFieldSuccessorCommand.test.ts",
+    "src/core/sim/fielding/FiniteFieldActorClearanceV1.test.ts",
+    "src/core/sim/ball/SourceBallWorldMotionV1.test.ts",
+    "src/core/sim/ball/SourceBallWorldMotionV1.additional.test.ts",
+    "src/core/sim/pitch/RecoveredBallFieldRootV1.test.ts",
+    "src/core/sim/pitch/PostImpactBatBodyWorldV1.test.ts",
+    "src/integration/browser/ExecutedFieldWorldObservationV1.test.ts",
+    "src/integration/browser/NativeFreeBallObservation.test.ts"
+  ],
+  "observed_at": "2026-10-16T21:59:05.357+00:00",
+  "elapsed_ms": 8108,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-JOINT-SUCCESSOR-SOLE-FINAL-REGRESSION_9189e86d254d409298668cd575db50c6.log",
+  "output_sha256": "0ed253af924eb0a449d87b09197af6b1a8526aba3506a2ecc03361c7a1726f79",
+  "receipt_id": "MB-20261017-JOINT-SUCCESSOR-SOLE-FINAL-REGRESSION_9189e86d254d409298668cd575db50c6"
+}

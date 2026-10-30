@@ -1,0 +1,29 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/LiveHandPreparationV1.test.ts (5 tests) 7ms
+ ✓ src/core/sim/fielding/GroundedActorContactResponseV1.test.ts (5 tests) 5ms
+ ✓ src/core/sim/fielding/GroundWallRollingCurveV1.test.ts (4 tests) 23ms
+ ✓ src/integration/browser/PlayableMatchRulesV1.test.ts (21 tests) 9ms
+stdout | src/core/sim/fielding/LiveThrowPlanV1.test.ts > remains deterministic and reports performance outside the issued command
+{"benchmark":"70M_AERO_THROW_COMMAND","wallMilliseconds":91.53680000000008,"candidateCount":4,"solverEvaluationCount":19,"shootingIntegrationStepUpperBound":10047,"verificationKernelBuilds":1,"timingBasis":"MONOTONIC_WALL_CLOCK_NOT_PROCESS_CPU","processCpuUserMilliseconds":93,"processCpuSystemMilliseconds":0}
+
+ ✓ src/core/sim/fielding/LiveThrowPlanV1.test.ts (6 tests) 554ms
+   ✓ remains deterministic and reports performance outside the issued command 309ms
+stdout | src/core/sim/fielding/LiveFieldForecastV1.test.ts > measures process CPU outside the browser-neutral helper while reusing one kernel for nine defenders
+{"benchmark":"EXPLICIT_20_OBSERVATIONS_9_DEFENDERS_8_SECOND_HYPOTHESES","hypotheses":20,"sharedQueries":1440,"wallMilliseconds":740.9517999999999,"processCpuUserMilliseconds":797,"processCpuSystemMilliseconds":63,"meanBuildWallMilliseconds":36.862129999999986,"mean72SamplesWallMilliseconds":0.03248000000022557}
+
+ ✓ src/core/sim/fielding/LiveFieldForecastV1.test.ts (5 tests) 982ms
+   ✓ measures process CPU outside the browser-neutral helper while reusing one kernel for nine defenders 742ms
+ ✓ src/core/sim/fielding/LiveFieldPlayV1.test.ts (17 tests) 4237ms
+   ✓ runs the complete actual base path after a fair over-fence flight instead of teleporting runners 535ms
+   ✓ derives two force retirements from actual pickup, two throws, receptions and base contacts 435ms
+   ✓ catches an ordinary high center-field fly using a causal aero-ground forecast 819ms
+   ✓ keeps bodies, independent gloves and a possessed ball inside the physical fence through pickup and release 813ms
+   ✓ finishes the pinned fast grounder after causal interception without an invented result 422ms
+
+ Test Files  7 passed (7)
+      Tests  63 passed (63)
+   Start at  09:59:48
+   Duration  5.22s (transform 803ms, setup 0ms, collect 1.96s, tests 5.82s, environment 1ms, prepare 1.41s)
+

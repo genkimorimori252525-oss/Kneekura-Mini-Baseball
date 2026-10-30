@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ work/v51-baseline-matrix.test.ts (22 tests | 18 skipped) 1254ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects an observed pair of overlapping fielder bodies with both tasks and distance 412ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed | 18 skipped (22)
+   Start at  18:26:01
+   Duration  2.03s (transform 195ms, setup 0ms, collect 291ms, tests 1.25s, environment 0ms, prepare 140ms)
+

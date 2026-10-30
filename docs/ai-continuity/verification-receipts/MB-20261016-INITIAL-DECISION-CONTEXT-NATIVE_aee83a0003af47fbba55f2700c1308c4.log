@@ -1,0 +1,28 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The input did not match the regular expression /changed|snapshot|read/. Input:
+
+'Error: same-PA lifecycle original ownership or complete coverage differs'
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-initial-decision-v4/readback.mjs:81494:5 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: Error: same-PA lifecycle original ownership or complete coverage differs
+      at same76 (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-initial-decision-v4/readback.mjs:57608:44)
+      at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-initial-decision-v4/readback.mjs:57689:5
+      at withSqliteMetadataStatementScope (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-initial-decision-v4/readback.mjs:21776:59)
+      at immutable (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-initial-decision-v4/readback.mjs:59471:19)
+      at withSamePaContinuationReadPhase (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-initial-decision-v4/readback.mjs:59488:54)
+      at withSamePaLifecycleReadPhase (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-initial-decision-v4/readback.mjs:57668:51)
+      at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-initial-decision-v4/readback.mjs:81494:65
+      at withOwnedScheduledMotionDependencyEncodingScope (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-initial-decision-v4/readback.mjs:19803:12)
+      at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-initial-decision-v4/readback.mjs:71302:14
+      at withBattedWorldFieldReadTraversal (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-observed-initial-decision-v4/readback.mjs:72688:13),
+  expected: /changed|snapshot|read/,
+  operator: 'throws',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

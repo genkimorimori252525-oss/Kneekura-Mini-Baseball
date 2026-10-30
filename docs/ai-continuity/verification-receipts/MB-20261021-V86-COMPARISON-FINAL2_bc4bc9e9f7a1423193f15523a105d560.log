@@ -1,0 +1,20 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: docs/demos/baseball-maker-pitcher-v85.js
++ actual - expected
+
++ '965830b92ea197ccafeadeeecb7255da4a0495c79891996acfdcc7c6fa314063'
+- '83d83fc0d250e88e94acb88f78017b287178f330716d8293954c1eb74ad63bef'
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-pitch-comparison-v85.mjs:13:168 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: '965830b92ea197ccafeadeeecb7255da4a0495c79891996acfdcc7c6fa314063',
+  expected: '83d83fc0d250e88e94acb88f78017b287178f330716d8293954c1eb74ad63bef',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

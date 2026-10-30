@@ -1,0 +1,10 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/contact/HeldToMeasuredBatControlV1.test.ts (12 tests) 26ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  21:56:00
+   Duration  626ms (transform 131ms, setup 0ms, collect 170ms, tests 26ms, environment 0ms, prepare 125ms)
+

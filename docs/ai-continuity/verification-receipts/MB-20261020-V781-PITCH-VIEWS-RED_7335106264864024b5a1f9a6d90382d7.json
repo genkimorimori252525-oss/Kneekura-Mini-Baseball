@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V781-PITCH-VIEWS-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-pitcher-views-v78.mjs"
+  ],
+  "observed_at": "2026-10-19T20:21:01.260+00:00",
+  "elapsed_ms": 46,
+  "git_head": "98819b9ab5c8e4bdd7ddfc7d644d484df08ab55d",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V781-PITCH-VIEWS-RED_7335106264864024b5a1f9a6d90382d7.log",
+  "output_sha256": "b5aaa4463c4ea1fb32dd68f81f3181bd7e5f21ab99212dedfc16dfcbd9f717ba",
+  "receipt_id": "MB-20261020-V781-PITCH-VIEWS-RED_7335106264864024b5a1f9a6d90382d7"
+}

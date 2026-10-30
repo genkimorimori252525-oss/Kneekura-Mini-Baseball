@@ -1,0 +1,18 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LiveImpactTrajectoryV1.test.ts (8 tests) 65307ms
+   ✓ leaves legacy automatic clip selection unchanged when expanded clips are opt-in only 558ms
+   ✓ finishes a full ordinary nine-inning match with imported per-player trajectory edits and physical live plays 64138ms
+ ✓ src/integration/browser/LiveBaseballMatchV1.test.ts (5 tests) 69257ms
+   ✓ does not pre-generate an initial pitch, and freezes observations independently of later issues 529ms
+   ✓ copies each current analytic runner velocity into its Host actor frame 546ms
+   ✓ plays a mixed physical game through regulation without a replay frontier or old engine result 65584ms
+   ✓ does not derive SI or alter results from presentation names or league labels 2246ms
+   ✓ rejects malformed physical rosters and mutating a frozen result 351ms
+
+ Test Files  2 passed (2)
+      Tests  13 passed (13)
+   Start at  19:41:12
+   Duration  70.39s (transform 532ms, setup 0ms, collect 1.15s, tests 134.56s, environment 0ms, prepare 357ms)
+

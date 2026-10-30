@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V51-MAKER-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-public-abilities.mjs",
+    "../../outputs/にーくら野球メーカー_中継とベース旋回調整版.html",
+    "../../outputs/verification-v51-maker-final",
+    "../../outputs/ばせぼーるlv51_TBD_vs_LAD_野手の回避と間隔改善版.html"
+  ],
+  "observed_at": "2026-10-18T09:40:13.730+00:00",
+  "elapsed_ms": 10500,
+  "git_head": "01834d9e8361b7747083b9fbb7539c93ee662b50",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V51-MAKER-FINAL_956af8c03c8b44589c69300ff5360f7d.log",
+  "output_sha256": "6b2bff4d0d08edb15c964a444bda5967e0dd2a7974821f72245a1a318662b78b",
+  "receipt_id": "MB-20261018-V51-MAKER-FINAL_956af8c03c8b44589c69300ff5360f7d"
+}

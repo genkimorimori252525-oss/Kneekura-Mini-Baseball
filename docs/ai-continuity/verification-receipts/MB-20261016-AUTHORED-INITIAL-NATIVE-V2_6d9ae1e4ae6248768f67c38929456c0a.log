@@ -1,0 +1,17 @@
+file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v3/readback.mjs:45625
+    throw new Error("dispatch nominal endpoint Source or reconstructed snapshot hash differs");
+          ^
+
+Error: dispatch nominal endpoint Source or reconstructed snapshot hash differs
+    at assertNominalReference (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v3/readback.mjs:45625:11)
+    at readPlayerReleaseGeometryPrefixFromSqlite (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v3/readback.mjs:46370:3)
+    at authenticateActionInputsUncached (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v3/readback.mjs:51723:102)
+    at authenticateActionInputs (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v3/readback.mjs:51746:21)
+    at derive10 (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v3/readback.mjs:51863:25)
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v3/readback.mjs:52094:109
+    at assemble3 (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v3/readback.mjs:52068:21)
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v3/readback.mjs:52094:69
+    at withSqliteMetadataStatementScope (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v3/readback.mjs:17790:59)
+    at immutable (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v3/readback.mjs:60410:19)
+
+Node.js v26.1.0

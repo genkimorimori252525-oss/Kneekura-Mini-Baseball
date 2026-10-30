@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V86-STAGED",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "tools/browser-bridge/check-staged-v86.py"
+  ],
+  "observed_at": "2026-10-20T16:46:36.342+00:00",
+  "elapsed_ms": 4735,
+  "git_head": "58c9163a9007598d6a51d8178f38ce3b9ee14eca",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V86-STAGED_d3d2eff5d3fe4b7dbaa653b969aaa057.log",
+  "output_sha256": "f25ceb9e2df25fee0823e4144b5efdc8a84ae5f7ceffcbc0a9a98afaf8040c3a",
+  "receipt_id": "MB-20261021-V86-STAGED_d3d2eff5d3fe4b7dbaa653b969aaa057"
+}

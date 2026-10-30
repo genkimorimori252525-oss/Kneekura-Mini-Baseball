@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-DECISION-CHECKPOINT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../preserve-initial-decision.py"
+  ],
+  "observed_at": "2026-10-16T11:46:47.249+00:00",
+  "elapsed_ms": 328,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-DECISION-CHECKPOINT_b823927682f64232946028b008ffc43e.log",
+  "output_sha256": "944fbf0c9f59956a8da9ad2388097432a34c9134f51138ef0fb6b6f3ea44cae2",
+  "receipt_id": "MB-20261016-INITIAL-DECISION-CHECKPOINT_b823927682f64232946028b008ffc43e"
+}

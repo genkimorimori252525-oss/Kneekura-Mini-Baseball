@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V74-RATINGS-OVERFLOW",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePublicAbilitiesV1.test.ts",
+    "src/integration/browser/WorkbenchPlayer.test.ts"
+  ],
+  "observed_at": "2026-10-19T15:00:16.522+00:00",
+  "elapsed_ms": 2922,
+  "git_head": "6eb26f350b78639ed4d240bbb957ef25a150ef30",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V74-RATINGS-OVERFLOW_16bbdc75631247cb819bee21bb9fd469.log",
+  "output_sha256": "2733adfbdf6d3129186aa83db1496a2547426d971cdb4a66c8a6a7988c2be745",
+  "receipt_id": "MB-20261020-V74-RATINGS-OVERFLOW_16bbdc75631247cb819bee21bb9fd469"
+}

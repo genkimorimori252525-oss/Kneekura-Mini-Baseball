@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "task_id": "V53-TAGUP-REVERSE-HOME-GREEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/PlayableMatchTagUpAppealV1.test.ts",
+    "src/integration/browser/PlayableMatchRulesV1.test.ts",
+    "src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts",
+    "src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts",
+    "src/core/rules/TagUpCompliance.test.ts",
+    "src/core/rules/TagUpAppealRule.test.ts",
+    "src/core/rules/AppealOutScoring.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T10:28:12.368+00:00",
+  "elapsed_ms": 14359,
+  "git_head": "ea9ca61b0971da3cc3b3ce1cfb344d4496e2ecc9",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/V53-TAGUP-REVERSE-HOME-GREEN_952f20d2ac1f440b8f694291c8a0021d.log",
+  "output_sha256": "12942c14c8486257403347e4e4dea19dd14a23421541d23025769423faa23e0d",
+  "receipt_id": "V53-TAGUP-REVERSE-HOME-GREEN_952f20d2ac1f440b8f694291c8a0021d"
+}

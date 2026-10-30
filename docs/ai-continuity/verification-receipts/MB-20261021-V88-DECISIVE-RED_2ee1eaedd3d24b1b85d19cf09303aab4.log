@@ -1,0 +1,30 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ tools/browser-bridge/home-run-watch-v88.test.mjs (6 tests | 1 failed) 14ms
+   × a confirmed decisive-HR mound view takes priority over an older fielder handoff 5ms
+     → expected 'fielder' to be 'mound' // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tools/browser-bridge/home-run-watch-v88.test.mjs > a confirmed decisive-HR mound view takes priority over an older fielder handoff
+AssertionError: expected 'fielder' to be 'mound' // Object.is equality
+
+Expected: "mound"
+Received: "fielder"
+
+ ❯ tools/browser-bridge/home-run-watch-v88.test.mjs:33:43
+     31|  const f=fixture();f.frame.defensiveOpportunity={kind:'none-decisive-o…
+     32|  f.cameraAt=sample=>sample.tick===2000000?{camera:'fielder',observerPl…
+     33|  expect(api().create().observe(f).camera).toBe('mound');
+       |                                           ^
+     34| });
+     35| test('requires a physically confirmed fair fence crossing and never re…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  02:46:57
+   Duration  257ms (transform 15ms, setup 0ms, collect 17ms, tests 14ms, environment 0ms, prepare 70ms)
+

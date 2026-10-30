@@ -1,0 +1,26 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/locomotion/LiveLocomotionV84.test.ts (20 tests | 1 failed) 31ms
+   × averaged alternating-support live locomotion V84 > retains a strictly admissible speed at rotated top-speed control boundaries 12ms
+     → top-speed sample 29 turn 0: expected 8.000000000000002 to be less than or equal to 8
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/locomotion/LiveLocomotionV84.test.ts > averaged alternating-support live locomotion V84 > retains a strictly admissible speed at rotated top-speed control boundaries
+AssertionError: top-speed sample 29 turn 0: expected 8.000000000000002 to be less than or equal to 8
+ ❯ src/core/sim/locomotion/LiveLocomotionV84.test.ts:163:90
+    161|           command = stepLiveDefenderMotionV84({ position: { x: 0, z: 0…
+    162|           end = { x: velocity.x + command.acceleration.x * .04, z: vel…
+    163|         expect(Math.hypot(end.x, end.z), 'top-speed sample ' + sample …
+       |                                                                                          ^
+    164|         expect(() => stepLiveDefenderMotionV84({ position: { x: 0, z: …
+    165|       }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 19 passed (20)
+   Start at  00:21:29
+   Duration  823ms (transform 109ms, setup 0ms, collect 111ms, tests 31ms, environment 0ms, prepare 242ms)
+

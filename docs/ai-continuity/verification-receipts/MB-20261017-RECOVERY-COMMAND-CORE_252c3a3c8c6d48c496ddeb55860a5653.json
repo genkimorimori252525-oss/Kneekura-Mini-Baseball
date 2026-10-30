@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-RECOVERY-COMMAND-CORE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "--maxWorkers",
+    "1",
+    "--minWorkers",
+    "1",
+    "src/host/world/InitialJointRecoveryCommand.test.ts",
+    "src/core/sim/pitch/PostImpactBatBodyWorldV1.test.ts",
+    "src/core/sim/contact/PostImpactBatBodyControlV1.test.ts"
+  ],
+  "observed_at": "2026-10-16T15:53:50.696+00:00",
+  "elapsed_ms": 12719,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-RECOVERY-COMMAND-CORE_252c3a3c8c6d48c496ddeb55860a5653.log",
+  "output_sha256": "dffd20d887047c126aacdff0826fe86a1c4273c1eb766ae67b2886c6423d8881",
+  "receipt_id": "MB-20261017-RECOVERY-COMMAND-CORE_252c3a3c8c6d48c496ddeb55860a5653"
+}

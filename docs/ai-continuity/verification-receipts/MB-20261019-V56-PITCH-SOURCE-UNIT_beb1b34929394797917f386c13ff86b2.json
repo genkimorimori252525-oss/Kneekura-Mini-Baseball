@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V56-PITCH-SOURCE-UNIT",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-pitch-ball-cadence-v56.mjs"
+  ],
+  "observed_at": "2026-10-18T17:39:33.571+00:00",
+  "elapsed_ms": 1125,
+  "git_head": "a829d9278b0999afd4e0a368cd07fc91669b8366",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V56-PITCH-SOURCE-UNIT_beb1b34929394797917f386c13ff86b2.log",
+  "output_sha256": "ec14aa1fbd7d9d61b92975ce5a106fae46aaec7eacada72ac3b1d770f88aa428",
+  "receipt_id": "MB-20261019-V56-PITCH-SOURCE-UNIT_beb1b34929394797917f386c13ff86b2"
+}

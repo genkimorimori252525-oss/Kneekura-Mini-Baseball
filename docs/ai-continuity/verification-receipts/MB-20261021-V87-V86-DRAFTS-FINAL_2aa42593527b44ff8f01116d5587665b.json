@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V87-V86-DRAFTS-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-drafts-v86.mjs",
+    "../../outputs/にーくら野球メーカー_v87_コース打率と認識AI版.html",
+    "docs/verification/releases/v87/v86-drafts-final"
+  ],
+  "observed_at": "2026-10-20T17:18:49.016+00:00",
+  "elapsed_ms": 94500,
+  "git_head": "9f6b6ed69d8682f417490d4b761914f1b4a6d6a1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V87-V86-DRAFTS-FINAL_2aa42593527b44ff8f01116d5587665b.log",
+  "output_sha256": "0dd70456b222fce5254ff350dc4655cb06f911d45dad5436485035407a0882d5",
+  "receipt_id": "MB-20261021-V87-V86-DRAFTS-FINAL_2aa42593527b44ff8f01116d5587665b"
+}

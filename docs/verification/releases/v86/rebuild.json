@@ -1,0 +1,17 @@
+{
+  "pass": true,
+  "files": [
+    {
+      "suffix": "",
+      "sha256": "93d5342fe1b00748dbf6650865442de737c6ba76cd1adfb9a7bb64b2379da4f2"
+    },
+    {
+      "suffix": ".build.json",
+      "sha256": "f080f3216417d064bf21c8e759b32a0b92c8957d69479061f4ba01c42adc3e6e"
+    },
+    {
+      "suffix": ".bundle-inputs.json",
+      "sha256": "75dc50c8aa82d7f40abc441defb9726d39070e865abd2dc72c1f4e39b3d1c6e7"
+    }
+  ]
+}

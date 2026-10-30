@@ -1,0 +1,8 @@
+{
+  "productCommit": "82b23bfba3322c1ee10ab611fd3851974766ab18",
+  "remoteBranch": "jolly/tbd-lad-native-browser-core-2026-10-14",
+  "pullRequest": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380",
+  "draft": true,
+  "remoteAndPRHeadMatched": true,
+  "observation": "git ls-remote and gh pr view were executed after push; both advertised the product commit."
+}

@@ -1,0 +1,1 @@
+src/core/sim/pitching/SampledRigidBatSwingV1.test.ts(59,22): error TS2540: Cannot assign to 'x' because it is a read-only property.

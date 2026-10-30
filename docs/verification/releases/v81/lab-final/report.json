@@ -1,0 +1,1387 @@
+{
+  "pass": true,
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\カメラワーク調整室_v81.html",
+  "sha256": "8a678de235c50d96cc39c46339c21949013d5212017bc82358f2ad9eec2c13b7",
+  "cases": [
+    {
+      "width": 1200,
+      "observations": {
+        "history": "87960ab01c263cb5e3d776fe264271d3a281082ead02d3d3d4d8521bcfefa000",
+        "captures": [
+          {
+            "camera": "batter",
+            "ms": 0,
+            "A": {
+              "sceneMs": 0,
+              "tick": 1000000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "B": {
+              "sceneMs": 0,
+              "tick": 1000000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "hashes": {
+              "view-A": "c2e8e3dc64b02647c1df29527cbdc76dafb1fdab0db9c9ffb1bb0545a60cde7f",
+              "view-B": "c2e8e3dc64b02647c1df29527cbdc76dafb1fdab0db9c9ffb1bb0545a60cde7f",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "batter",
+            "ms": 1100,
+            "A": {
+              "sceneMs": 1100,
+              "tick": 1000000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "B": {
+              "sceneMs": 1100,
+              "tick": 1000000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "hashes": {
+              "view-A": "4b6be4e84bcd5ebf5de799483092597b0c2228be0a212b1a0434cdc5af91a442",
+              "view-B": "4b6be4e84bcd5ebf5de799483092597b0c2228be0a212b1a0434cdc5af91a442",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "batter",
+            "ms": 1620,
+            "A": {
+              "sceneMs": 1620,
+              "tick": 1077000,
+              "pitch": 0.07997169882811077,
+              "yaw": -0.02062383785395303
+            },
+            "B": {
+              "sceneMs": 1620,
+              "tick": 1077000,
+              "pitch": 0.07997169882811077,
+              "yaw": -0.02062383785395303
+            },
+            "hashes": {
+              "view-A": "1b1d220ee905f6f61ca3000d9a4fa564caf6528c174ea821a8f23d4b35b008bd",
+              "view-B": "1b1d220ee905f6f61ca3000d9a4fa564caf6528c174ea821a8f23d4b35b008bd",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "batter",
+            "ms": 1740,
+            "A": {
+              "sceneMs": 1740,
+              "tick": 1198000,
+              "pitch": 0.07081181746159503,
+              "yaw": -0.028140224025202613
+            },
+            "B": {
+              "sceneMs": 1740,
+              "tick": 1198000,
+              "pitch": 0.07081181746159503,
+              "yaw": -0.028140224025202613
+            },
+            "hashes": {
+              "view-A": "f4cb0581dd4c7c4f84351305b00ccca80f7df1d6fd4a2c45f97e40f97574a066",
+              "view-B": "f4cb0581dd4c7c4f84351305b00ccca80f7df1d6fd4a2c45f97e40f97574a066",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "batter",
+            "ms": 1880,
+            "A": {
+              "sceneMs": 1880,
+              "tick": 1330000,
+              "pitch": 0.1461262432443363,
+              "yaw": -0.22979222726614526
+            },
+            "B": {
+              "sceneMs": 1880,
+              "tick": 1330000,
+              "pitch": 0.1461262432443363,
+              "yaw": -0.22979222726614526
+            },
+            "hashes": {
+              "view-A": "0818645ba97ad3c5292b614f10af99bae42a7e0d2e5ece11ce5ac8ec7221c8e2",
+              "view-B": "0818645ba97ad3c5292b614f10af99bae42a7e0d2e5ece11ce5ac8ec7221c8e2",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "batter",
+            "ms": 2400,
+            "A": {
+              "sceneMs": 2400,
+              "tick": 1852030,
+              "pitch": 0.1999982309140142,
+              "yaw": -0.3260295764650777
+            },
+            "B": {
+              "sceneMs": 2400,
+              "tick": 1852030,
+              "pitch": 0.1999982309140142,
+              "yaw": -0.3260295764650777
+            },
+            "hashes": {
+              "view-A": "c67c4037d517c47fd6423cc8bdeb32db43c39d4d33cfd04467b854691276520b",
+              "view-B": "c67c4037d517c47fd6423cc8bdeb32db43c39d4d33cfd04467b854691276520b",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "mound",
+            "ms": 0,
+            "A": {
+              "sceneMs": 0,
+              "tick": 1000000,
+              "pitch": 0.0496770993425061,
+              "yaw": -3.141592653589793
+            },
+            "B": {
+              "sceneMs": 0,
+              "tick": 1000000,
+              "pitch": 0.0496770993425061,
+              "yaw": -3.141592653589793
+            },
+            "hashes": {
+              "view-A": "0bab03b522f92d912c53c54c2050f64e30fb4f9e173ea242237bd7935464d80c",
+              "view-B": "0bab03b522f92d912c53c54c2050f64e30fb4f9e173ea242237bd7935464d80c",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "mound",
+            "ms": 1100,
+            "A": {
+              "sceneMs": 1100,
+              "tick": 1000000,
+              "pitch": 0.049133896347363516,
+              "yaw": 3.138867487113759
+            },
+            "B": {
+              "sceneMs": 1100,
+              "tick": 1000000,
+              "pitch": 0.049133896347363516,
+              "yaw": 3.138867487113759
+            },
+            "hashes": {
+              "view-A": "a4e751cee72ea6da2c5b8ef4ffe76cbc49e6ee01a3be980a4cbb468b7a7a226a",
+              "view-B": "a4e751cee72ea6da2c5b8ef4ffe76cbc49e6ee01a3be980a4cbb468b7a7a226a",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "mound",
+            "ms": 1620,
+            "A": {
+              "sceneMs": 1620,
+              "tick": 1077000,
+              "pitch": 0.04449600947370093,
+              "yaw": 3.1412918925359694
+            },
+            "B": {
+              "sceneMs": 1620,
+              "tick": 1077000,
+              "pitch": 0.04449600947370093,
+              "yaw": 3.1412918925359694
+            },
+            "hashes": {
+              "view-A": "255ded8950275022b9f301bfe1d5d4d028636d7ae1e97d56f5da1987eb329ba9",
+              "view-B": "255ded8950275022b9f301bfe1d5d4d028636d7ae1e97d56f5da1987eb329ba9",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "mound",
+            "ms": 1740,
+            "A": {
+              "sceneMs": 1740,
+              "tick": 1198000,
+              "pitch": 0.04340179392944667,
+              "yaw": -3.1407618476311696
+            },
+            "B": {
+              "sceneMs": 1740,
+              "tick": 1198000,
+              "pitch": 0.04340179392944667,
+              "yaw": -3.1407618476311696
+            },
+            "hashes": {
+              "view-A": "ddb3557c515ea497f6a102c46712844560aa677abad707d6b667a03ae5b4e7f8",
+              "view-B": "ddb3557c515ea497f6a102c46712844560aa677abad707d6b667a03ae5b4e7f8",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "mound",
+            "ms": 1880,
+            "A": {
+              "sceneMs": 1880,
+              "tick": 1330000,
+              "pitch": 0.04489037995896329,
+              "yaw": -3.141092147538546
+            },
+            "B": {
+              "sceneMs": 1880,
+              "tick": 1330000,
+              "pitch": 0.04489037995896329,
+              "yaw": -3.141092147538546
+            },
+            "hashes": {
+              "view-A": "2f791b4d31fbaedbbc509d029ebf90271e54cfe52161f783d281d936731597ae",
+              "view-B": "2f791b4d31fbaedbbc509d029ebf90271e54cfe52161f783d281d936731597ae",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "mound",
+            "ms": 2400,
+            "A": {
+              "sceneMs": 2400,
+              "tick": 1852030,
+              "pitch": 0.13773151089012034,
+              "yaw": 2.5277395143516004
+            },
+            "B": {
+              "sceneMs": 2400,
+              "tick": 1852030,
+              "pitch": 0.13773151089012034,
+              "yaw": 2.5277395143516004
+            },
+            "hashes": {
+              "view-A": "47917b7ccb2790d51a7c0a768b616be7f11df12313a97e3f2bd2e92d3c56fd3f",
+              "view-B": "47917b7ccb2790d51a7c0a768b616be7f11df12313a97e3f2bd2e92d3c56fd3f",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "catcher",
+            "ms": 0,
+            "A": {
+              "sceneMs": 0,
+              "tick": 1000000,
+              "pitch": 0.018,
+              "yaw": 0
+            },
+            "B": {
+              "sceneMs": 0,
+              "tick": 1000000,
+              "pitch": 0.018,
+              "yaw": 0
+            },
+            "hashes": {
+              "view-A": "2e791b6e294c79fb8e4cc076bbb8930fc6dd89fd000b6694e9b7f04c9c120192",
+              "view-B": "2e791b6e294c79fb8e4cc076bbb8930fc6dd89fd000b6694e9b7f04c9c120192",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "catcher",
+            "ms": 1100,
+            "A": {
+              "sceneMs": 1100,
+              "tick": 1000000,
+              "pitch": 0.018,
+              "yaw": 0
+            },
+            "B": {
+              "sceneMs": 1100,
+              "tick": 1000000,
+              "pitch": 0.018,
+              "yaw": 0
+            },
+            "hashes": {
+              "view-A": "c1e67cc59247ca5d9ec75627518d7c2c726c9a12f77b3a04d42cada754c932d2",
+              "view-B": "c1e67cc59247ca5d9ec75627518d7c2c726c9a12f77b3a04d42cada754c932d2",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "catcher",
+            "ms": 1620,
+            "A": {
+              "sceneMs": 1620,
+              "tick": 1077000,
+              "pitch": 0.018,
+              "yaw": 0
+            },
+            "B": {
+              "sceneMs": 1620,
+              "tick": 1077000,
+              "pitch": 0.018,
+              "yaw": 0
+            },
+            "hashes": {
+              "view-A": "7ea44a2ea838f6071ef75bc4fb81990ce04624949c21907592941f608b3ab5f3",
+              "view-B": "7ea44a2ea838f6071ef75bc4fb81990ce04624949c21907592941f608b3ab5f3",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "catcher",
+            "ms": 1740,
+            "A": {
+              "sceneMs": 1740,
+              "tick": 1198000,
+              "pitch": 0.018,
+              "yaw": 0
+            },
+            "B": {
+              "sceneMs": 1740,
+              "tick": 1198000,
+              "pitch": 0.018,
+              "yaw": 0
+            },
+            "hashes": {
+              "view-A": "b9b281f453106ee0ef82a95815668543d859ca7a9bd3ff03b699618e2d6f1bd6",
+              "view-B": "b9b281f453106ee0ef82a95815668543d859ca7a9bd3ff03b699618e2d6f1bd6",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "catcher",
+            "ms": 1880,
+            "A": {
+              "sceneMs": 1880,
+              "tick": 1330000,
+              "pitch": 0.018,
+              "yaw": 0
+            },
+            "B": {
+              "sceneMs": 1880,
+              "tick": 1330000,
+              "pitch": 0.018,
+              "yaw": 0
+            },
+            "hashes": {
+              "view-A": "7e553bd5b40b37afd2d1f345fa0d0db2819e6cbe68448ccd632ec6885fd12a74",
+              "view-B": "7e553bd5b40b37afd2d1f345fa0d0db2819e6cbe68448ccd632ec6885fd12a74",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "catcher",
+            "ms": 2400,
+            "A": {
+              "sceneMs": 2400,
+              "tick": 1852030,
+              "pitch": 0.00965073178838759,
+              "yaw": 0.3128658961072004
+            },
+            "B": {
+              "sceneMs": 2400,
+              "tick": 1852030,
+              "pitch": 0.00965073178838759,
+              "yaw": 0.3128658961072004
+            },
+            "hashes": {
+              "view-A": "f6c8a0538a9e3a3b105e6638b626cd87c4cd3e63d83283dfd64ded2e7ce29382",
+              "view-B": "f6c8a0538a9e3a3b105e6638b626cd87c4cd3e63d83283dfd64ded2e7ce29382",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "runner",
+            "ms": 0,
+            "A": {
+              "sceneMs": 0,
+              "tick": 1000000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "B": {
+              "sceneMs": 0,
+              "tick": 1000000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "hashes": {
+              "view-A": "5eaf33332b9ca7f7674d8471b538725fa12a72f149c6722dc09059aa2af5dbf0",
+              "view-B": "5eaf33332b9ca7f7674d8471b538725fa12a72f149c6722dc09059aa2af5dbf0",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "runner",
+            "ms": 1100,
+            "A": {
+              "sceneMs": 1100,
+              "tick": 1000000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "B": {
+              "sceneMs": 1100,
+              "tick": 1000000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "hashes": {
+              "view-A": "7573bbb8076cd0364f73165ca3480069baa3d1f1c81ab0e3e6273af424798e82",
+              "view-B": "7573bbb8076cd0364f73165ca3480069baa3d1f1c81ab0e3e6273af424798e82",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "runner",
+            "ms": 1620,
+            "A": {
+              "sceneMs": 1620,
+              "tick": 1077000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "B": {
+              "sceneMs": 1620,
+              "tick": 1077000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "hashes": {
+              "view-A": "1b905b644ee11058bb45dad7f4cb2121f159cd276bcfe191f781593e9b172a9f",
+              "view-B": "1b905b644ee11058bb45dad7f4cb2121f159cd276bcfe191f781593e9b172a9f",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "runner",
+            "ms": 1740,
+            "A": {
+              "sceneMs": 1740,
+              "tick": 1198000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "B": {
+              "sceneMs": 1740,
+              "tick": 1198000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "hashes": {
+              "view-A": "564d88b28b89761341c9a1cf269f5f8542f15fff60c32ef2c1a0ef3b069abd71",
+              "view-B": "564d88b28b89761341c9a1cf269f5f8542f15fff60c32ef2c1a0ef3b069abd71",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "runner",
+            "ms": 1880,
+            "A": {
+              "sceneMs": 1880,
+              "tick": 1330000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "B": {
+              "sceneMs": 1880,
+              "tick": 1330000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "hashes": {
+              "view-A": "b2983eda70dde99f0e9c3bc51def86b9cd7bfcf3ec26c8c3ba657844cd5e9767",
+              "view-B": "b2983eda70dde99f0e9c3bc51def86b9cd7bfcf3ec26c8c3ba657844cd5e9767",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "runner",
+            "ms": 2400,
+            "A": {
+              "sceneMs": 2400,
+              "tick": 1852030,
+              "pitch": 0.06816979838243548,
+              "yaw": 0.2675805931770238
+            },
+            "B": {
+              "sceneMs": 2400,
+              "tick": 1852030,
+              "pitch": 0.06816979838243548,
+              "yaw": 0.2675805931770238
+            },
+            "hashes": {
+              "view-A": "b1f5d6d94ed7f1987f4d0d01b329885e175322857888901d3f77cf9224359f66",
+              "view-B": "b1f5d6d94ed7f1987f4d0d01b329885e175322857888901d3f77cf9224359f66",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "overhead",
+            "ms": 0,
+            "A": {
+              "sceneMs": 0,
+              "tick": 1000000,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "B": {
+              "sceneMs": 0,
+              "tick": 1000000,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "hashes": {
+              "view-A": "1eeeb25d2ff5331e6995e2d2423bb55581189f38833bb1f2a8bd0eee85fb2c05",
+              "view-B": "1eeeb25d2ff5331e6995e2d2423bb55581189f38833bb1f2a8bd0eee85fb2c05",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "overhead",
+            "ms": 1100,
+            "A": {
+              "sceneMs": 1100,
+              "tick": 1000000,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "B": {
+              "sceneMs": 1100,
+              "tick": 1000000,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "hashes": {
+              "view-A": "41d4eaca4dfb51dac2f6b94f3d8fd4c48c1a01939a4006da313522847d9b4037",
+              "view-B": "41d4eaca4dfb51dac2f6b94f3d8fd4c48c1a01939a4006da313522847d9b4037",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "overhead",
+            "ms": 1620,
+            "A": {
+              "sceneMs": 1620,
+              "tick": 1077000,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "B": {
+              "sceneMs": 1620,
+              "tick": 1077000,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "hashes": {
+              "view-A": "140ea52a456a86fc9e127b6fcf48b76434d591af2792a920e21caf7d05614a5e",
+              "view-B": "140ea52a456a86fc9e127b6fcf48b76434d591af2792a920e21caf7d05614a5e",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "overhead",
+            "ms": 1740,
+            "A": {
+              "sceneMs": 1740,
+              "tick": 1198000,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "B": {
+              "sceneMs": 1740,
+              "tick": 1198000,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "hashes": {
+              "view-A": "180e034b3574fc3ebdbbdc9ea3985ce52765b1201d1e3e07ae34e6d9722e01ef",
+              "view-B": "180e034b3574fc3ebdbbdc9ea3985ce52765b1201d1e3e07ae34e6d9722e01ef",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "overhead",
+            "ms": 1880,
+            "A": {
+              "sceneMs": 1880,
+              "tick": 1330000,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "B": {
+              "sceneMs": 1880,
+              "tick": 1330000,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "hashes": {
+              "view-A": "5f1d8afb85a46dff65ff7b04a2ee283442c85cd67408c8497ccda51d8239c69f",
+              "view-B": "5f1d8afb85a46dff65ff7b04a2ee283442c85cd67408c8497ccda51d8239c69f",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "overhead",
+            "ms": 2400,
+            "A": {
+              "sceneMs": 2400,
+              "tick": 1852030,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "B": {
+              "sceneMs": 2400,
+              "tick": 1852030,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "hashes": {
+              "view-A": "57c6764b2d068115e0cef95626d638277fb449e033fb62c359782541f8f09700",
+              "view-B": "57c6764b2d068115e0cef95626d638277fb449e033fb62c359782541f8f09700",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          }
+        ],
+        "overflow": false,
+        "settingsRoundTrip": true,
+        "sessionRoundTrip": true,
+        "seasonRecordingDisabled": true
+      },
+      "cadence": {
+        "cadence": {
+          "sceneMs": 18.333333333333332,
+          "pitchBallMs": 7.333333333333333,
+          "sceneDraws": 64,
+          "pitchBallSamples": 0,
+          "pitchBallPaints": 0,
+          "nonPitchFastPaints": 0
+        },
+        "A": 1712.8999999999996,
+        "B": 1712.8999999999996
+      }
+    },
+    {
+      "width": 390,
+      "observations": {
+        "history": "87960ab01c263cb5e3d776fe264271d3a281082ead02d3d3d4d8521bcfefa000",
+        "captures": [
+          {
+            "camera": "batter",
+            "ms": 0,
+            "A": {
+              "sceneMs": 0,
+              "tick": 1000000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "B": {
+              "sceneMs": 0,
+              "tick": 1000000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "hashes": {
+              "view-A": "c2e8e3dc64b02647c1df29527cbdc76dafb1fdab0db9c9ffb1bb0545a60cde7f",
+              "view-B": "c2e8e3dc64b02647c1df29527cbdc76dafb1fdab0db9c9ffb1bb0545a60cde7f",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "batter",
+            "ms": 1100,
+            "A": {
+              "sceneMs": 1100,
+              "tick": 1000000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "B": {
+              "sceneMs": 1100,
+              "tick": 1000000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "hashes": {
+              "view-A": "4b6be4e84bcd5ebf5de799483092597b0c2228be0a212b1a0434cdc5af91a442",
+              "view-B": "4b6be4e84bcd5ebf5de799483092597b0c2228be0a212b1a0434cdc5af91a442",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "batter",
+            "ms": 1620,
+            "A": {
+              "sceneMs": 1620,
+              "tick": 1077000,
+              "pitch": 0.07997169882811077,
+              "yaw": -0.02062383785395303
+            },
+            "B": {
+              "sceneMs": 1620,
+              "tick": 1077000,
+              "pitch": 0.07997169882811077,
+              "yaw": -0.02062383785395303
+            },
+            "hashes": {
+              "view-A": "1b1d220ee905f6f61ca3000d9a4fa564caf6528c174ea821a8f23d4b35b008bd",
+              "view-B": "1b1d220ee905f6f61ca3000d9a4fa564caf6528c174ea821a8f23d4b35b008bd",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "batter",
+            "ms": 1740,
+            "A": {
+              "sceneMs": 1740,
+              "tick": 1198000,
+              "pitch": 0.07081181746159503,
+              "yaw": -0.028140224025202613
+            },
+            "B": {
+              "sceneMs": 1740,
+              "tick": 1198000,
+              "pitch": 0.07081181746159503,
+              "yaw": -0.028140224025202613
+            },
+            "hashes": {
+              "view-A": "f4cb0581dd4c7c4f84351305b00ccca80f7df1d6fd4a2c45f97e40f97574a066",
+              "view-B": "f4cb0581dd4c7c4f84351305b00ccca80f7df1d6fd4a2c45f97e40f97574a066",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "batter",
+            "ms": 1880,
+            "A": {
+              "sceneMs": 1880,
+              "tick": 1330000,
+              "pitch": 0.1461262432443363,
+              "yaw": -0.22979222726614526
+            },
+            "B": {
+              "sceneMs": 1880,
+              "tick": 1330000,
+              "pitch": 0.1461262432443363,
+              "yaw": -0.22979222726614526
+            },
+            "hashes": {
+              "view-A": "0818645ba97ad3c5292b614f10af99bae42a7e0d2e5ece11ce5ac8ec7221c8e2",
+              "view-B": "0818645ba97ad3c5292b614f10af99bae42a7e0d2e5ece11ce5ac8ec7221c8e2",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "batter",
+            "ms": 2400,
+            "A": {
+              "sceneMs": 2400,
+              "tick": 1852030,
+              "pitch": 0.1999982309140142,
+              "yaw": -0.3260295764650777
+            },
+            "B": {
+              "sceneMs": 2400,
+              "tick": 1852030,
+              "pitch": 0.1999982309140142,
+              "yaw": -0.3260295764650777
+            },
+            "hashes": {
+              "view-A": "c67c4037d517c47fd6423cc8bdeb32db43c39d4d33cfd04467b854691276520b",
+              "view-B": "c67c4037d517c47fd6423cc8bdeb32db43c39d4d33cfd04467b854691276520b",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "mound",
+            "ms": 0,
+            "A": {
+              "sceneMs": 0,
+              "tick": 1000000,
+              "pitch": 0.0496770993425061,
+              "yaw": -3.141592653589793
+            },
+            "B": {
+              "sceneMs": 0,
+              "tick": 1000000,
+              "pitch": 0.0496770993425061,
+              "yaw": -3.141592653589793
+            },
+            "hashes": {
+              "view-A": "0bab03b522f92d912c53c54c2050f64e30fb4f9e173ea242237bd7935464d80c",
+              "view-B": "0bab03b522f92d912c53c54c2050f64e30fb4f9e173ea242237bd7935464d80c",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "mound",
+            "ms": 1100,
+            "A": {
+              "sceneMs": 1100,
+              "tick": 1000000,
+              "pitch": 0.049133896347363516,
+              "yaw": 3.138867487113759
+            },
+            "B": {
+              "sceneMs": 1100,
+              "tick": 1000000,
+              "pitch": 0.049133896347363516,
+              "yaw": 3.138867487113759
+            },
+            "hashes": {
+              "view-A": "a4e751cee72ea6da2c5b8ef4ffe76cbc49e6ee01a3be980a4cbb468b7a7a226a",
+              "view-B": "a4e751cee72ea6da2c5b8ef4ffe76cbc49e6ee01a3be980a4cbb468b7a7a226a",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "mound",
+            "ms": 1620,
+            "A": {
+              "sceneMs": 1620,
+              "tick": 1077000,
+              "pitch": 0.04449600947370093,
+              "yaw": 3.1412918925359694
+            },
+            "B": {
+              "sceneMs": 1620,
+              "tick": 1077000,
+              "pitch": 0.04449600947370093,
+              "yaw": 3.1412918925359694
+            },
+            "hashes": {
+              "view-A": "255ded8950275022b9f301bfe1d5d4d028636d7ae1e97d56f5da1987eb329ba9",
+              "view-B": "255ded8950275022b9f301bfe1d5d4d028636d7ae1e97d56f5da1987eb329ba9",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "mound",
+            "ms": 1740,
+            "A": {
+              "sceneMs": 1740,
+              "tick": 1198000,
+              "pitch": 0.04340179392944667,
+              "yaw": -3.1407618476311696
+            },
+            "B": {
+              "sceneMs": 1740,
+              "tick": 1198000,
+              "pitch": 0.04340179392944667,
+              "yaw": -3.1407618476311696
+            },
+            "hashes": {
+              "view-A": "ddb3557c515ea497f6a102c46712844560aa677abad707d6b667a03ae5b4e7f8",
+              "view-B": "ddb3557c515ea497f6a102c46712844560aa677abad707d6b667a03ae5b4e7f8",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "mound",
+            "ms": 1880,
+            "A": {
+              "sceneMs": 1880,
+              "tick": 1330000,
+              "pitch": 0.04489037995896329,
+              "yaw": -3.141092147538546
+            },
+            "B": {
+              "sceneMs": 1880,
+              "tick": 1330000,
+              "pitch": 0.04489037995896329,
+              "yaw": -3.141092147538546
+            },
+            "hashes": {
+              "view-A": "2f791b4d31fbaedbbc509d029ebf90271e54cfe52161f783d281d936731597ae",
+              "view-B": "2f791b4d31fbaedbbc509d029ebf90271e54cfe52161f783d281d936731597ae",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "mound",
+            "ms": 2400,
+            "A": {
+              "sceneMs": 2400,
+              "tick": 1852030,
+              "pitch": 0.13773151089012034,
+              "yaw": 2.5277395143516004
+            },
+            "B": {
+              "sceneMs": 2400,
+              "tick": 1852030,
+              "pitch": 0.13773151089012034,
+              "yaw": 2.5277395143516004
+            },
+            "hashes": {
+              "view-A": "47917b7ccb2790d51a7c0a768b616be7f11df12313a97e3f2bd2e92d3c56fd3f",
+              "view-B": "47917b7ccb2790d51a7c0a768b616be7f11df12313a97e3f2bd2e92d3c56fd3f",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "catcher",
+            "ms": 0,
+            "A": {
+              "sceneMs": 0,
+              "tick": 1000000,
+              "pitch": 0.018,
+              "yaw": 0
+            },
+            "B": {
+              "sceneMs": 0,
+              "tick": 1000000,
+              "pitch": 0.018,
+              "yaw": 0
+            },
+            "hashes": {
+              "view-A": "2e791b6e294c79fb8e4cc076bbb8930fc6dd89fd000b6694e9b7f04c9c120192",
+              "view-B": "2e791b6e294c79fb8e4cc076bbb8930fc6dd89fd000b6694e9b7f04c9c120192",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "catcher",
+            "ms": 1100,
+            "A": {
+              "sceneMs": 1100,
+              "tick": 1000000,
+              "pitch": 0.018,
+              "yaw": 0
+            },
+            "B": {
+              "sceneMs": 1100,
+              "tick": 1000000,
+              "pitch": 0.018,
+              "yaw": 0
+            },
+            "hashes": {
+              "view-A": "c1e67cc59247ca5d9ec75627518d7c2c726c9a12f77b3a04d42cada754c932d2",
+              "view-B": "c1e67cc59247ca5d9ec75627518d7c2c726c9a12f77b3a04d42cada754c932d2",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "catcher",
+            "ms": 1620,
+            "A": {
+              "sceneMs": 1620,
+              "tick": 1077000,
+              "pitch": 0.018,
+              "yaw": 0
+            },
+            "B": {
+              "sceneMs": 1620,
+              "tick": 1077000,
+              "pitch": 0.018,
+              "yaw": 0
+            },
+            "hashes": {
+              "view-A": "7ea44a2ea838f6071ef75bc4fb81990ce04624949c21907592941f608b3ab5f3",
+              "view-B": "7ea44a2ea838f6071ef75bc4fb81990ce04624949c21907592941f608b3ab5f3",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "catcher",
+            "ms": 1740,
+            "A": {
+              "sceneMs": 1740,
+              "tick": 1198000,
+              "pitch": 0.018,
+              "yaw": 0
+            },
+            "B": {
+              "sceneMs": 1740,
+              "tick": 1198000,
+              "pitch": 0.018,
+              "yaw": 0
+            },
+            "hashes": {
+              "view-A": "b9b281f453106ee0ef82a95815668543d859ca7a9bd3ff03b699618e2d6f1bd6",
+              "view-B": "b9b281f453106ee0ef82a95815668543d859ca7a9bd3ff03b699618e2d6f1bd6",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "catcher",
+            "ms": 1880,
+            "A": {
+              "sceneMs": 1880,
+              "tick": 1330000,
+              "pitch": 0.018,
+              "yaw": 0
+            },
+            "B": {
+              "sceneMs": 1880,
+              "tick": 1330000,
+              "pitch": 0.018,
+              "yaw": 0
+            },
+            "hashes": {
+              "view-A": "7e553bd5b40b37afd2d1f345fa0d0db2819e6cbe68448ccd632ec6885fd12a74",
+              "view-B": "7e553bd5b40b37afd2d1f345fa0d0db2819e6cbe68448ccd632ec6885fd12a74",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "catcher",
+            "ms": 2400,
+            "A": {
+              "sceneMs": 2400,
+              "tick": 1852030,
+              "pitch": 0.00965073178838759,
+              "yaw": 0.3128658961072004
+            },
+            "B": {
+              "sceneMs": 2400,
+              "tick": 1852030,
+              "pitch": 0.00965073178838759,
+              "yaw": 0.3128658961072004
+            },
+            "hashes": {
+              "view-A": "f6c8a0538a9e3a3b105e6638b626cd87c4cd3e63d83283dfd64ded2e7ce29382",
+              "view-B": "f6c8a0538a9e3a3b105e6638b626cd87c4cd3e63d83283dfd64ded2e7ce29382",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "runner",
+            "ms": 0,
+            "A": {
+              "sceneMs": 0,
+              "tick": 1000000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "B": {
+              "sceneMs": 0,
+              "tick": 1000000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "hashes": {
+              "view-A": "5eaf33332b9ca7f7674d8471b538725fa12a72f149c6722dc09059aa2af5dbf0",
+              "view-B": "5eaf33332b9ca7f7674d8471b538725fa12a72f149c6722dc09059aa2af5dbf0",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "runner",
+            "ms": 1100,
+            "A": {
+              "sceneMs": 1100,
+              "tick": 1000000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "B": {
+              "sceneMs": 1100,
+              "tick": 1000000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "hashes": {
+              "view-A": "7573bbb8076cd0364f73165ca3480069baa3d1f1c81ab0e3e6273af424798e82",
+              "view-B": "7573bbb8076cd0364f73165ca3480069baa3d1f1c81ab0e3e6273af424798e82",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "runner",
+            "ms": 1620,
+            "A": {
+              "sceneMs": 1620,
+              "tick": 1077000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "B": {
+              "sceneMs": 1620,
+              "tick": 1077000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "hashes": {
+              "view-A": "1b905b644ee11058bb45dad7f4cb2121f159cd276bcfe191f781593e9b172a9f",
+              "view-B": "1b905b644ee11058bb45dad7f4cb2121f159cd276bcfe191f781593e9b172a9f",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "runner",
+            "ms": 1740,
+            "A": {
+              "sceneMs": 1740,
+              "tick": 1198000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "B": {
+              "sceneMs": 1740,
+              "tick": 1198000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "hashes": {
+              "view-A": "564d88b28b89761341c9a1cf269f5f8542f15fff60c32ef2c1a0ef3b069abd71",
+              "view-B": "564d88b28b89761341c9a1cf269f5f8542f15fff60c32ef2c1a0ef3b069abd71",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "runner",
+            "ms": 1880,
+            "A": {
+              "sceneMs": 1880,
+              "tick": 1330000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "B": {
+              "sceneMs": 1880,
+              "tick": 1330000,
+              "pitch": 0.08,
+              "yaw": -0.020615635625603763
+            },
+            "hashes": {
+              "view-A": "b2983eda70dde99f0e9c3bc51def86b9cd7bfcf3ec26c8c3ba657844cd5e9767",
+              "view-B": "b2983eda70dde99f0e9c3bc51def86b9cd7bfcf3ec26c8c3ba657844cd5e9767",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "runner",
+            "ms": 2400,
+            "A": {
+              "sceneMs": 2400,
+              "tick": 1852030,
+              "pitch": 0.06816979838243548,
+              "yaw": 0.2675805931770238
+            },
+            "B": {
+              "sceneMs": 2400,
+              "tick": 1852030,
+              "pitch": 0.06816979838243548,
+              "yaw": 0.2675805931770238
+            },
+            "hashes": {
+              "view-A": "b1f5d6d94ed7f1987f4d0d01b329885e175322857888901d3f77cf9224359f66",
+              "view-B": "b1f5d6d94ed7f1987f4d0d01b329885e175322857888901d3f77cf9224359f66",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "overhead",
+            "ms": 0,
+            "A": {
+              "sceneMs": 0,
+              "tick": 1000000,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "B": {
+              "sceneMs": 0,
+              "tick": 1000000,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "hashes": {
+              "view-A": "1eeeb25d2ff5331e6995e2d2423bb55581189f38833bb1f2a8bd0eee85fb2c05",
+              "view-B": "1eeeb25d2ff5331e6995e2d2423bb55581189f38833bb1f2a8bd0eee85fb2c05",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "overhead",
+            "ms": 1100,
+            "A": {
+              "sceneMs": 1100,
+              "tick": 1000000,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "B": {
+              "sceneMs": 1100,
+              "tick": 1000000,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "hashes": {
+              "view-A": "41d4eaca4dfb51dac2f6b94f3d8fd4c48c1a01939a4006da313522847d9b4037",
+              "view-B": "41d4eaca4dfb51dac2f6b94f3d8fd4c48c1a01939a4006da313522847d9b4037",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "overhead",
+            "ms": 1620,
+            "A": {
+              "sceneMs": 1620,
+              "tick": 1077000,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "B": {
+              "sceneMs": 1620,
+              "tick": 1077000,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "hashes": {
+              "view-A": "140ea52a456a86fc9e127b6fcf48b76434d591af2792a920e21caf7d05614a5e",
+              "view-B": "140ea52a456a86fc9e127b6fcf48b76434d591af2792a920e21caf7d05614a5e",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "overhead",
+            "ms": 1740,
+            "A": {
+              "sceneMs": 1740,
+              "tick": 1198000,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "B": {
+              "sceneMs": 1740,
+              "tick": 1198000,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "hashes": {
+              "view-A": "180e034b3574fc3ebdbbdc9ea3985ce52765b1201d1e3e07ae34e6d9722e01ef",
+              "view-B": "180e034b3574fc3ebdbbdc9ea3985ce52765b1201d1e3e07ae34e6d9722e01ef",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "overhead",
+            "ms": 1880,
+            "A": {
+              "sceneMs": 1880,
+              "tick": 1330000,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "B": {
+              "sceneMs": 1880,
+              "tick": 1330000,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "hashes": {
+              "view-A": "5f1d8afb85a46dff65ff7b04a2ee283442c85cd67408c8497ccda51d8239c69f",
+              "view-B": "5f1d8afb85a46dff65ff7b04a2ee283442c85cd67408c8497ccda51d8239c69f",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          },
+          {
+            "camera": "overhead",
+            "ms": 2400,
+            "A": {
+              "sceneMs": 2400,
+              "tick": 1852030,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "B": {
+              "sceneMs": 2400,
+              "tick": 1852030,
+              "pitch": 0.866302262552679,
+              "yaw": 0
+            },
+            "hashes": {
+              "view-A": "57c6764b2d068115e0cef95626d638277fb449e033fb62c359782541f8f09700",
+              "view-B": "57c6764b2d068115e0cef95626d638277fb449e033fb62c359782541f8f09700",
+              "pitch-view-A": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980",
+              "pitch-view-B": "2a2cdc6867289e6e4ebc5405b17ce0f71c4c16026cbc6ac47fe5632157bd3980"
+            }
+          }
+        ],
+        "overflow": false,
+        "settingsRoundTrip": true,
+        "sessionRoundTrip": true,
+        "seasonRecordingDisabled": true
+      },
+      "cadence": {
+        "cadence": {
+          "sceneMs": 18.333333333333332,
+          "pitchBallMs": 7.333333333333333,
+          "sceneDraws": 64,
+          "pitchBallSamples": 0,
+          "pitchBallPaints": 0,
+          "nonPitchFastPaints": 0
+        },
+        "A": 1727.2999999880794,
+        "B": 1727.2999999880794
+      }
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "errors": [],
+      "external": []
+    }
+  ]
+}

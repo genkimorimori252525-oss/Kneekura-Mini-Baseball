@@ -1,0 +1,20 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LivePitchAuthoringV78.test.ts (4 tests) 18ms
+stdout | src/core/sim/fielding/LiveFieldForecastV1.test.ts > measures process CPU outside the browser-neutral helper while reusing one kernel for nine defenders
+{"benchmark":"EXPLICIT_20_OBSERVATIONS_9_DEFENDERS_8_SECOND_HYPOTHESES","hypotheses":20,"sharedQueries":1440,"wallMilliseconds":708.7561999999999,"processCpuUserMilliseconds":813,"processCpuSystemMilliseconds":78,"meanBuildWallMilliseconds":35.262010000000004,"mean72SamplesWallMilliseconds":0.030760000000088893}
+
+ ✓ src/core/sim/fielding/LiveFieldForecastV1.test.ts (5 tests) 919ms
+   ✓ measures process CPU outside the browser-neutral helper while reusing one kernel for nine defenders 710ms
+ ✓ src/integration/browser/LivePitchExecutionV78.test.ts (5 tests) 16229ms
+   ✓ keeps omitted and fixed spin execution exactly equal to the legacy record 326ms
+   ✓ selects owned IDs rather than generating an unowned type, and rejects ambiguous explicit classification 2241ms
+   ✓ uses the exact same snapshot and downward spin in Host and pitcher trial 2427ms
+   ✓ executes every classified preset and variant with explicit material physics on both throwing sides 11142ms
+
+ Test Files  3 passed (3)
+      Tests  14 passed (14)
+   Start at  04:41:27
+   Duration  17.25s (transform 624ms, setup 0ms, collect 1.40s, tests 17.17s, environment 0ms, prepare 425ms)
+

@@ -1,0 +1,359 @@
+{
+  "pass": true,
+  "phase": "complete",
+  "views": [
+    {
+      "width": 1200,
+      "defaults": {
+        "enabled": true,
+        "aimLiftMeters": 0.3,
+        "swingMaxDownRadians": 0.2,
+        "hitFollowDelayMs": 300,
+        "aimReleaseMs": 70,
+        "pitchTrackingGain": 0.26,
+        "pitchTrackingDeadbandRadians": 0.02,
+        "impactStabilizeOffsetMs": 0,
+        "impactMaxMotionRadians": 0.04,
+        "impactMaxSpeedRadPerSecond": 0.35,
+        "swingUsesAbsoluteVision": false,
+        "swingHeadCoupling": 0.025
+      },
+      "normalView": {
+        "eye": {
+          "x": 0.4,
+          "y": 1.4861,
+          "z": -0.95
+        },
+        "yaw": -0.29217659416503894,
+        "pitch": 0.18700834418384568,
+        "f": 400,
+        "cx": 300,
+        "cy": 110,
+        "labelMetres": 0.55,
+        "phase": "swing-impact-stabilize",
+        "aimWeight": 1,
+        "surprise": 0.042675658339427804,
+        "trackingErrorRadians": 0.03268578719267688,
+        "regulation": {
+          "mode": "impact-stabilize",
+          "targetYaw": -0.32216955273133485,
+          "targetPitch": 0.2,
+          "pitchPursuit": null,
+          "measurementBasis": "DELAYED_OBSERVED_PREFIX",
+          "measurementTick": 1462000,
+          "takeStopTarget": null
+        },
+        "model": {
+          "sensorDelaySeconds": 0.075,
+          "angularSpeedLimitRadPerSecond": 2.5,
+          "angularAccelerationLimitRadPerSecond2": 20,
+          "abilityBasis": "V59_SWING_AND_POST_DECISION_ABSOLUTE_TAKE",
+          "pitchTrackingGain": 0.7905,
+          "pitchTrackingDeadbandRadians": 0.013,
+          "contactQuality": 0.6571428571428573,
+          "visionQuality": 0.6428571428571428,
+          "absolutePlateVision": 88,
+          "pitchTracking": {
+            "gain": 0.26,
+            "deadbandRadians": 0.02,
+            "absolutePlateVision": 88,
+            "baselinePlateVision": 45,
+            "rawErrorRadians": null,
+            "headTargetErrorRadians": null,
+            "configuredGain": 0.26,
+            "configuredDeadbandRadians": 0.02,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": false,
+            "swingUsesAbsoluteVision": false,
+            "takeVisionWeight": 0
+          },
+          "swingHeadCoupling": {
+            "gain": 0.025,
+            "basis": "CURRENT_OBSERVED_RIGID_BAT_AXIS_ROTATION",
+            "measuredHeadMotion": false
+          },
+          "impactStabilization": {
+            "basis": "REGISTERED_EXPECTED_IMPACT",
+            "offsetMs": 0,
+            "angleConeRadians": 0.04,
+            "speedLimitRadPerSecond": 0.35
+          }
+        },
+        "tuning": {
+          "settings": {
+            "enabled": true,
+            "aimLiftMeters": 0.3,
+            "swingMaxDownRadians": 0.2,
+            "hitFollowDelayMs": 300,
+            "aimReleaseMs": 70,
+            "pitchTrackingGain": 0.26,
+            "pitchTrackingDeadbandRadians": 0.02,
+            "impactStabilizeOffsetMs": 0,
+            "impactMaxMotionRadians": 0.04,
+            "impactMaxSpeedRadPerSecond": 0.35,
+            "swingUsesAbsoluteVision": false,
+            "swingHeadCoupling": 0.025
+          },
+          "hitObservedAtSeconds": null,
+          "firstBattedTick": null,
+          "aimReleaseAtSeconds": 0.5974520449645382,
+          "plannedAimThroughSeconds": 0.5974520449645382,
+          "aimTarget": {
+            "x": 0.03584838026259232,
+            "y": 1.2115940318196645,
+            "z": 0.14093098540235605
+          },
+          "downwardTargetLimited": true,
+          "pitchTracking": {
+            "rawErrorRadians": null,
+            "headTargetErrorRadians": null,
+            "gain": 0.26,
+            "deadbandRadians": 0.02,
+            "absolutePlateVision": 88,
+            "baselinePlateVision": 45,
+            "configuredGain": 0.26,
+            "configuredDeadbandRadians": 0.02,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": false,
+            "swingUsesAbsoluteVision": false,
+            "takeVisionWeight": 0
+          },
+          "swingBatMotion": {
+            "axis": {
+              "x": -0.7251634188014001,
+              "y": -0.6878586956301747,
+              "z": 0.03143932057504186
+            },
+            "observedTick": 1522030,
+            "yawSweep": 2.006452107981787,
+            "pitchSweep": -2.294528800616606,
+            "yawOffset": 0.03713584865101986,
+            "pitchOffset": -0.014863671988056866,
+            "basis": "CURRENT_OBSERVED_RIGID_BAT_AXIS_ROTATION",
+            "measuredHeadMotion": false
+          },
+          "swingHeadLock": {
+            "startSeconds": 0.5248468925715741,
+            "throughSeconds": 0.5974520449645382,
+            "motorStartSeconds": 0.364145,
+            "expectedImpactSeconds": 0.5248468925715741,
+            "requestedStartSeconds": 0.5248468925715741,
+            "basis": "REGISTERED_EXPECTED_IMPACT",
+            "yaw": -0.2985448000152604,
+            "pitch": 0.18986080112696502,
+            "releaseAtSeconds": null,
+            "batYawOffset": 0.03713584865101986,
+            "batPitchOffset": -0.014863671988056866,
+            "active": true,
+            "releasing": false
+          },
+          "takeCatchLock": null
+        }
+      },
+      "v59BaselineReset": true,
+      "legacyMigration": {
+        "oldSourceCoreSha256": "865078dc9881ce5c37754dbe2c7b502f586206f3ada972cfe2d3368207720c00",
+        "newSourceCoreSha256": "865078dc9881ce5c37754dbe2c7b502f586206f3ada972cfe2d3368207720c00",
+        "absoluteVision": true,
+        "coupling": 0
+      },
+      "coupledVsZeroRadians": 0.03233796344182799
+    },
+    {
+      "width": 390,
+      "defaults": {
+        "enabled": true,
+        "aimLiftMeters": 0.3,
+        "swingMaxDownRadians": 0.2,
+        "hitFollowDelayMs": 300,
+        "aimReleaseMs": 70,
+        "pitchTrackingGain": 0.26,
+        "pitchTrackingDeadbandRadians": 0.02,
+        "impactStabilizeOffsetMs": 0,
+        "impactMaxMotionRadians": 0.04,
+        "impactMaxSpeedRadPerSecond": 0.35,
+        "swingUsesAbsoluteVision": false,
+        "swingHeadCoupling": 0.025
+      },
+      "normalView": {
+        "eye": {
+          "x": 0.4,
+          "y": 1.4861,
+          "z": -0.95
+        },
+        "yaw": -0.29217659416503894,
+        "pitch": 0.18700834418384568,
+        "f": 400,
+        "cx": 300,
+        "cy": 110,
+        "labelMetres": 0.55,
+        "phase": "swing-impact-stabilize",
+        "aimWeight": 1,
+        "surprise": 0.042675658339427804,
+        "trackingErrorRadians": 0.03268578719267688,
+        "regulation": {
+          "mode": "impact-stabilize",
+          "targetYaw": -0.32216955273133485,
+          "targetPitch": 0.2,
+          "pitchPursuit": null,
+          "measurementBasis": "DELAYED_OBSERVED_PREFIX",
+          "measurementTick": 1462000,
+          "takeStopTarget": null
+        },
+        "model": {
+          "sensorDelaySeconds": 0.075,
+          "angularSpeedLimitRadPerSecond": 2.5,
+          "angularAccelerationLimitRadPerSecond2": 20,
+          "abilityBasis": "V59_SWING_AND_POST_DECISION_ABSOLUTE_TAKE",
+          "pitchTrackingGain": 0.7905,
+          "pitchTrackingDeadbandRadians": 0.013,
+          "contactQuality": 0.6571428571428573,
+          "visionQuality": 0.6428571428571428,
+          "absolutePlateVision": 88,
+          "pitchTracking": {
+            "gain": 0.26,
+            "deadbandRadians": 0.02,
+            "absolutePlateVision": 88,
+            "baselinePlateVision": 45,
+            "rawErrorRadians": null,
+            "headTargetErrorRadians": null,
+            "configuredGain": 0.26,
+            "configuredDeadbandRadians": 0.02,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": false,
+            "swingUsesAbsoluteVision": false,
+            "takeVisionWeight": 0
+          },
+          "swingHeadCoupling": {
+            "gain": 0.025,
+            "basis": "CURRENT_OBSERVED_RIGID_BAT_AXIS_ROTATION",
+            "measuredHeadMotion": false
+          },
+          "impactStabilization": {
+            "basis": "REGISTERED_EXPECTED_IMPACT",
+            "offsetMs": 0,
+            "angleConeRadians": 0.04,
+            "speedLimitRadPerSecond": 0.35
+          }
+        },
+        "tuning": {
+          "settings": {
+            "enabled": true,
+            "aimLiftMeters": 0.3,
+            "swingMaxDownRadians": 0.2,
+            "hitFollowDelayMs": 300,
+            "aimReleaseMs": 70,
+            "pitchTrackingGain": 0.26,
+            "pitchTrackingDeadbandRadians": 0.02,
+            "impactStabilizeOffsetMs": 0,
+            "impactMaxMotionRadians": 0.04,
+            "impactMaxSpeedRadPerSecond": 0.35,
+            "swingUsesAbsoluteVision": false,
+            "swingHeadCoupling": 0.025
+          },
+          "hitObservedAtSeconds": null,
+          "firstBattedTick": null,
+          "aimReleaseAtSeconds": 0.5974520449645382,
+          "plannedAimThroughSeconds": 0.5974520449645382,
+          "aimTarget": {
+            "x": 0.03584838026259232,
+            "y": 1.2115940318196645,
+            "z": 0.14093098540235605
+          },
+          "downwardTargetLimited": true,
+          "pitchTracking": {
+            "rawErrorRadians": null,
+            "headTargetErrorRadians": null,
+            "gain": 0.26,
+            "deadbandRadians": 0.02,
+            "absolutePlateVision": 88,
+            "baselinePlateVision": 45,
+            "configuredGain": 0.26,
+            "configuredDeadbandRadians": 0.02,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": false,
+            "swingUsesAbsoluteVision": false,
+            "takeVisionWeight": 0
+          },
+          "swingBatMotion": {
+            "axis": {
+              "x": -0.7251634188014001,
+              "y": -0.6878586956301747,
+              "z": 0.03143932057504186
+            },
+            "observedTick": 1522030,
+            "yawSweep": 2.006452107981787,
+            "pitchSweep": -2.294528800616606,
+            "yawOffset": 0.03713584865101986,
+            "pitchOffset": -0.014863671988056866,
+            "basis": "CURRENT_OBSERVED_RIGID_BAT_AXIS_ROTATION",
+            "measuredHeadMotion": false
+          },
+          "swingHeadLock": {
+            "startSeconds": 0.5248468925715741,
+            "throughSeconds": 0.5974520449645382,
+            "motorStartSeconds": 0.364145,
+            "expectedImpactSeconds": 0.5248468925715741,
+            "requestedStartSeconds": 0.5248468925715741,
+            "basis": "REGISTERED_EXPECTED_IMPACT",
+            "yaw": -0.2985448000152604,
+            "pitch": 0.18986080112696502,
+            "releaseAtSeconds": null,
+            "batYawOffset": 0.03713584865101986,
+            "batPitchOffset": -0.014863671988056866,
+            "active": true,
+            "releasing": false
+          },
+          "takeCatchLock": null
+        }
+      },
+      "v59BaselineReset": true,
+      "legacyMigration": {
+        "oldSourceCoreSha256": "865078dc9881ce5c37754dbe2c7b502f586206f3ada972cfe2d3368207720c00",
+        "newSourceCoreSha256": "865078dc9881ce5c37754dbe2c7b502f586206f3ada972cfe2d3368207720c00",
+        "absoluteVision": true,
+        "coupling": 0
+      },
+      "coupledVsZeroRadians": 0.03233796344182799
+    }
+  ],
+  "faults": [
+    {
+      "label": "frozen-v62",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "old-v62-lab",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "normal-1200",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "lab-1200",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "normal-390",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "lab-390",
+      "errors": [],
+      "external": []
+    }
+  ],
+  "normalSha256": "0cb5d9ae43aab96e4edf389136b15fc5cb28fb7d855ebf1d4f43bcdcde93542a",
+  "workbenchSha256": "7cafbf6efa634a96884fc6deb0e1db115a147033c5f9bac41185092fb0139356",
+  "canonicalRecordsSha256": "2f939a684f2bad6fe5f86c40960a2871f4ed88618feca638c378ed6a20ce9829"
+}

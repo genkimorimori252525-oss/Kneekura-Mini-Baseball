@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-BATTER-GAZE-HELPER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-live-batter-gaze.mjs"
+  ],
+  "observed_at": "2026-10-18T04:19:53.881+00:00",
+  "elapsed_ms": 47,
+  "git_head": "7bc3982789bf563bb9a25a8b82f632c982c3ab84",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-BATTER-GAZE-HELPER_41a94c3f2c06444eb0da868f9efd64dc.log",
+  "output_sha256": "4e44325e1bc3c4ea29212b18eee3080a97b7091cc9fac3b495eb9f1c4560ace8",
+  "receipt_id": "MB-20261018-BATTER-GAZE-HELPER_41a94c3f2c06444eb0da868f9efd64dc"
+}

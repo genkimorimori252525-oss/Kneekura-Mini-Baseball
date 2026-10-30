@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-RENDER-CADENCE-IDLE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-render-cadence-comparison-v84.mjs",
+    "docs/demos/releases/v83/game.html",
+    "../../outputs/ばせぼーるlv84_TBD_vs_LAD_描画と接地移動版.html",
+    "docs/verification/releases/v84/cadence-idle-comparison"
+  ],
+  "observed_at": "2026-10-20T15:45:38.889+00:00",
+  "elapsed_ms": 19703,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-RENDER-CADENCE-IDLE_372e5736a6264f518a821e3ceff871b5.log",
+  "output_sha256": "777a224b39eb22e3c88e84e267708113ec1ec437bb0f8a1bda4c35917de75912",
+  "receipt_id": "MB-20261021-V84-RENDER-CADENCE-IDLE_372e5736a6264f518a821e3ceff871b5"
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V77-PITCHER-MAKER-BROWSER",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-pitcher-v77.mjs"
+  ],
+  "observed_at": "2026-10-19T19:00:10.281+00:00",
+  "elapsed_ms": 4422,
+  "git_head": "76c564765f6a6d15fd1a2740a201080e3c534bfe",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V77-PITCHER-MAKER-BROWSER_200824fb0e7340fa93fbe31d289b186a.log",
+  "output_sha256": "d6ad002b1a1fc41c24b035e69489db39fcf68550bb97ee6002320376dc77343d",
+  "receipt_id": "MB-20261020-V77-PITCHER-MAKER-BROWSER_200824fb0e7340fa93fbe31d289b186a"
+}

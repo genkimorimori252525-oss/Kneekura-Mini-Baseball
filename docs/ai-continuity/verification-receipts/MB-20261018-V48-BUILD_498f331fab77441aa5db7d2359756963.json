@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V48-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-v48.mjs",
+    "../../outputs/ばせぼーるlv48_TBD_vs_LAD_打者視点の制動調整版.html"
+  ],
+  "observed_at": "2026-10-18T07:52:16.414+00:00",
+  "elapsed_ms": 280,
+  "git_head": "16f0ef5a6b1b1f077424c6a54ce0d76ee9a49d88",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V48-BUILD_498f331fab77441aa5db7d2359756963.log",
+  "output_sha256": "9caae00e909b21b25a1dd0a7fa2110117beb8ceafdbe5b8c556522b63be65a5f",
+  "receipt_id": "MB-20261018-V48-BUILD_498f331fab77441aa5db7d2359756963"
+}

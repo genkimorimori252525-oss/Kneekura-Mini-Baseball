@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-CLAIM-MEMO-GREEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/SamePlateAppearanceMetadataCompilation.test.ts",
+    "src/host/world/SamePlateAppearanceLifecycleSource.test.ts"
+  ],
+  "observed_at": "2026-10-14T22:08:10.823+00:00",
+  "elapsed_ms": 7718,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-CLAIM-MEMO-GREEN_d2240d8484994ce0b58e9b44cc5f49e0.log",
+  "output_sha256": "62bdcce884cbbc3ec9a3777b48f55dd5128215123bd6297a2b716d2e25278799",
+  "receipt_id": "MB-20261015-CLAIM-MEMO-GREEN_d2240d8484994ce0b58e9b44cc5f49e0"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-PITCHER-MAKER-BROWSER",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-pitcher-v78.mjs",
+    "../../outputs/にーくら野球メーカー_v78_球種と縫い目物理版.html",
+    "docs/verification/releases/v78/pitcher-maker"
+  ],
+  "observed_at": "2026-10-19T19:53:10.126+00:00",
+  "elapsed_ms": 21125,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-PITCHER-MAKER-BROWSER_552b91ea712d4497baa419cb73cb436c.log",
+  "output_sha256": "4a3d0d8223d271a8303f83df76a260b6377ce60f292058790573336d6d5f626b",
+  "receipt_id": "MB-20261020-V78-PITCHER-MAKER-BROWSER_552b91ea712d4497baa419cb73cb436c"
+}

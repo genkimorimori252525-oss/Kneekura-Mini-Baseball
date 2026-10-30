@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-CONTINUOUS-WORLD-RESPONSE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/SourceFreeBallWorldQuery.test.ts",
+    "src/core/sim/ball/SourceBattedWorldContacts.test.ts",
+    "src/core/sim/ball/BallWorldContinuation.test.ts",
+    "src/core/sim/ball/BattedWorldContinuation.test.ts",
+    "src/host/world/VersionedBattedBallFlightSource.test.ts",
+    "--maxWorkers=1",
+    "--minWorkers=1"
+  ],
+  "observed_at": "2026-10-14T21:44:14.049+00:00",
+  "elapsed_ms": 39532,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-CONTINUOUS-WORLD-RESPONSE_9371f36a2bb940319b6ee7923f3b3b85.log",
+  "output_sha256": "50130ee5ad758a64a9727b71f02dbe27f75f5bc16e3df2bc68f60c8a286b312b",
+  "receipt_id": "MB-20261015-CONTINUOUS-WORLD-RESPONSE_9371f36a2bb940319b6ee7923f3b3b85"
+}

@@ -1,4 +1,4 @@
-import type { SamePaInitialPitchLiveBinding } from './SamePlateAppearanceInitialBallProof';
+import type { SamePaInitialPitchLiveBinding, SamePaObservedInitialPitchLiveBinding } from './SamePlateAppearanceInitialBallProof';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { PitchTimingProfile } from '../../core/sim/pitch/PitchTimingModel';
 import type { PlayerWorkloadRecoveryState } from '../../core/world/development/PlayerWorkloadRecovery';
@@ -10,7 +10,7 @@ import { actorHash as hash, actorJson as json, actorFreeze as freeze, type Durab
 import { samePaFields as fields, samePaText, samePaHash, samePaReferenceValid as ref, type SamePaReference, type SamePaExecutionLineage } from './SamePlateAppearanceWorkPrefix';
 import { samePaDispatchMemberValid, type SamePaDispatchMember } from './SamePlateAppearanceDispatchRoles';
 import type { AcceptedSamePaPhysicalPitch, SamePaPhysicalSourceReference, SamePaDerivedConsumption, SamePaDerivedEpisodeAdmission,
-  SamePaTimingReference, SamePaReleaseReference } from './SamePlateAppearanceDispatchSource';
+  SamePaTimingReference, SamePaReleaseReference, AcceptedSamePaObservedPhysicalPitch } from './SamePlateAppearanceDispatchSource';
 import type { PlayerReleaseGeometrySnapshot } from './SqlitePlayerReleaseGeometryStore';
 import type { AcceptedPitchFatiguePolicy } from './SqlitePitchFatiguePolicyStore';
 import type { DurablePlayerBattingModelV1 } from './PlayerBattingModel';
@@ -25,6 +25,13 @@ export type SamePaNativePitchCalculation = Readonly<{
   calculation: Readonly<{ delivery: ReturnType<typeof resolveCanonicalPitchDelivery>; trajectory: ReturnType<typeof createPitchTrajectoryFromRelease>;
     resolution: Extract<ReturnType<typeof resolveAndRecordPitchAgainstBatter>, { kind: 'recorded' }> }>;
 }>;
+/** Preparation only: this carries no adjudication or timeline suffix. A Native
+ * launch owner must adopt it with the original initial custody/Play evidence. */
+export type SamePaNativeObservedLaunchCalculation = Omit<SamePaNativePitchCalculation,'kind'|'calculation'> & Readonly<{
+  kind:'native_observed_launch_calculation_only';
+  calculation:Readonly<{delivery:ReturnType<typeof resolveCanonicalPitchDelivery>;
+    trajectory:import('../../core/sim/pitching/AerodynamicPitchTrajectory').AerodynamicPitchTrajectory}>;
+}>;
 export type SamePaPitchConsumerSource = Readonly<{
   sourceId: string; sourceVersion: string; capability: 'same_pa_consumer_action_v1'; rightReference: SamePaReference<'pa_dispatch_v1_rights'>;
   physicalSourceReference: SamePaPhysicalSourceReference; member: SamePaDispatchMember; route: 'pitch_delivery';
@@ -34,13 +41,14 @@ export type SamePaPitchConsumerSource = Readonly<{
     batterModelReference: SamePaReference<'world_player_batting_models'> }>;
   actionOrdinal: 0; operation: Readonly<{ kind: 'reserved_same_pa_pitch_delivery_v1' }>;
 }>;
-export const samePaPhysicalSourceReference = (s: AcceptedSamePaPhysicalPitch): SamePaPhysicalSourceReference =>
+export const samePaPhysicalSourceReference = (s: AcceptedSamePaPhysicalPitch|AcceptedSamePaObservedPhysicalPitch): SamePaPhysicalSourceReference =>
   freeze({ sourceId: s.sourceId, sourceVersion: s.sourceVersion, sourceHash: hash(s) });
 export const samePaDispatchDerivedId = (source: SamePaPhysicalSourceReference, role: 'pitch_delivery' | 'consumption' | 'episode_admission') =>
   'pa-dispatch-v1:' + role + ':' + hash([source.sourceId, source.sourceVersion, source.sourceHash]);
 /** Exact code-derived pitch-consumer Source domain. No owner proof is accepted. */
-export const samePaPitchConsumerSourceInput = (raw: unknown): SamePaPitchConsumerSource => {
-  const s = cloneInert(raw) as SamePaPitchConsumerSource;
+export type SamePaObservedPitchConsumerSource=Omit<SamePaPitchConsumerSource,'operation'>&Readonly<{operation:Readonly<{kind:'reserved_same_pa_observed_pitch_delivery_v1'}>}>;
+const pitchConsumerInput = (raw: unknown,kind:SamePaPitchConsumerSource['operation']['kind']|SamePaObservedPitchConsumerSource['operation']['kind']) => {
+  const s = cloneInert(raw) as SamePaPitchConsumerSource|SamePaObservedPitchConsumerSource;
   if (!fields(s, ['sourceId', 'sourceVersion', 'capability', 'rightReference', 'physicalSourceReference', 'member', 'route', 'calibrationReferences', 'originalInputReferences', 'actionOrdinal', 'operation'])
     || !samePaText(s.sourceId) || !samePaText(s.sourceVersion) || s.capability !== 'same_pa_consumer_action_v1' || s.route !== 'pitch_delivery'
     || !ref(s.rightReference, 'pa_dispatch_v1_rights') || !samePaDispatchMemberValid(s.member) || s.actionOrdinal !== 0
@@ -54,9 +62,11 @@ export const samePaPitchConsumerSourceInput = (raw: unknown): SamePaPitchConsume
     || !(ref(s.originalInputReferences.timingReference, 'world_pitch_timing_baselines') || ref(s.originalInputReferences.timingReference, 'world_pitch_timing_updates'))
     || !(ref(s.originalInputReferences.releaseReference, 'world_player_release_baselines') || ref(s.originalInputReferences.releaseReference, 'world_player_release_changes'))
     || !ref(s.originalInputReferences.pitchResponseReference, 'world_pitch_fatigue_policies') || !ref(s.originalInputReferences.batterModelReference, 'world_player_batting_models')
-    || !fields(s.operation, ['kind']) || s.operation.kind !== 'reserved_same_pa_pitch_delivery_v1') throw new Error('invalid same-PA pitch consumer Source');
+    || !fields(s.operation, ['kind']) || s.operation.kind !== kind) throw new Error('invalid same-PA pitch consumer Source');
   return freeze(s);
 };
+export const samePaPitchConsumerSourceInput=(raw:unknown):SamePaPitchConsumerSource=>pitchConsumerInput(raw,'reserved_same_pa_pitch_delivery_v1') as SamePaPitchConsumerSource;
+export const samePaObservedPitchConsumerSourceInput=(raw:unknown):SamePaObservedPitchConsumerSource=>pitchConsumerInput(raw,'reserved_same_pa_observed_pitch_delivery_v1') as SamePaObservedPitchConsumerSource;
 type RecordBase<S> = Readonly<{ source: S; lineage: SamePaExecutionLineage; viewReference: SamePaReference<'reserved_pa_execution_views'> }>;
 export type SamePaPitchConsumerRecord = RecordBase<SamePaPitchConsumerSource> & Readonly<{ kind: 'same_pa_pitch_delivery_invocation_v1';
   nominalInputHash: string; effectiveResponseHash: string; frame: SamePaNativePitchCalculation['frame'];
@@ -66,25 +76,33 @@ export type SamePaExecutedPitch = RecordBase<AcceptedSamePaPhysicalPitch> & Read
   frame: SamePaNativePitchCalculation['frame']; beforeTimeline: SamePaNativePitchCalculation['beforeTimeline'];
   initialLiveBallBinding?: SamePaInitialPitchLiveBinding;
   result: SamePaNativePitchCalculation['calculation']; consumerReferences: readonly SamePaReference<'pa_dispatch_v1_consumer_actions'>[] }>;
+export type SamePaObservedPitchConsumerRecord=RecordBase<SamePaObservedPitchConsumerSource>&Readonly<{kind:'same_pa_observed_pitch_delivery_invocation_v1';
+  nominalInputHash:string;effectiveResponseHash:string;frame:SamePaNativeObservedLaunchCalculation['frame'];
+  beforeTimeline:SamePaNativeObservedLaunchCalculation['beforeTimeline'];calculation:SamePaNativeObservedLaunchCalculation['calculation']}>;
+export type SamePaObservedLaunchedPitch=RecordBase<AcceptedSamePaObservedPhysicalPitch>&Readonly<{kind:'same_pa_first_pitch_launched_v1';progressRevision:1;
+  episodeReference:SamePaReference<'pa_dispatch_v1_episodes'>;originalActor:DurablePhysicalPlateAppearanceActor;
+  frame:SamePaNativeObservedLaunchCalculation['frame'];beforeTimeline:SamePaNativeObservedLaunchCalculation['beforeTimeline'];
+  initialLiveBallBinding:SamePaObservedInitialPitchLiveBinding;result:SamePaNativeObservedLaunchCalculation['calculation'];
+  consumerReferences:readonly SamePaReference<'pa_dispatch_v1_consumer_actions'>[]}>;
 export type SamePaConsumptionRecord = RecordBase<SamePaDerivedConsumption> & Readonly<{ kind: 'same_pa_consumed_v1';
   pitchReference: SamePaReference<'pa_dispatch_v1_pitch_actions'>; consumerReferences: readonly SamePaReference<'pa_dispatch_v1_consumer_actions'>[] }>;
 export type SamePaEpisodeAdmissionRecord = RecordBase<SamePaDerivedEpisodeAdmission> & Readonly<{ kind: 'same_pa_episode_admitted_v1';
   pitchReference: SamePaReference<'pa_dispatch_v1_pitch_actions'>; consumerReferences: readonly SamePaReference<'pa_dispatch_v1_consumer_actions'>[] }>;
-export type SamePaExecutionRecord = SamePaPitchConsumerRecord | SamePaExecutedPitch | SamePaConsumptionRecord | SamePaEpisodeAdmissionRecord;
+export type SamePaExecutionRecord = SamePaPitchConsumerRecord | SamePaExecutedPitch | SamePaObservedPitchConsumerRecord | SamePaObservedLaunchedPitch | SamePaConsumptionRecord | SamePaEpisodeAdmissionRecord;
 export const dispatchExecutionTables = Object.freeze({ invocation: 'pa_dispatch_v1_consumer_actions', pitch: 'pa_dispatch_v1_pitch_actions',
   consumption: 'pa_dispatch_v1_consumptions', admission: 'pa_dispatch_v1_episode_admissions' } as const);
 export const dispatchExecutionRow = (value: SamePaExecutionRecord): Record<string, string | number> => {
   const l = value.lineage, s = value.source;
-  const extra: Record<string, string | number> = value.kind === 'same_pa_pitch_delivery_invocation_v1' ? { right_source_id: value.source.rightReference.sourceId,
+  const extra: Record<string, string | number> = value.kind === 'same_pa_pitch_delivery_invocation_v1'||value.kind==='same_pa_observed_pitch_delivery_invocation_v1' ? { right_source_id: value.source.rightReference.sourceId,
     physical_source_id: value.source.physicalSourceReference.sourceId, player_id: value.source.member.playerId, route: value.source.route, action_ordinal: value.source.actionOrdinal }
-    : value.kind === 'same_pa_first_pitch_executed_v1' ? { right_source_id: value.source.rightReference.sourceId, episode_source_id: value.episodeReference.sourceId, progress_revision: 1 }
+    : value.kind === 'same_pa_first_pitch_executed_v1'||value.kind==='same_pa_first_pitch_launched_v1' ? { right_source_id: value.source.rightReference.sourceId, episode_source_id: value.episodeReference.sourceId, progress_revision: 1 }
       : value.kind === 'same_pa_consumed_v1' ? { right_source_id: value.source.rightReference.sourceId, pitch_source_id: value.pitchReference.sourceId }
         : { episode_source_id: value.source.episodeReference.sourceId, pitch_source_id: value.pitchReference.sourceId };
   return { source_id: s.sourceId, source_version: s.sourceVersion, career_id: l.careerId, game_id: l.gameId, play_id: l.playId,
     enrollment_source_id: l.enrollmentReference.sourceId, first_pitch_source_id: l.firstPhysicalPitchSourceId, view_source_id: value.viewReference.sourceId,
     ...extra, source_json: json(s), source_hash: hash(s), snapshot_json: json(value), snapshot_hash: hash(value) };
 };
-export const dispatchPitchHead = (pitch: SamePaExecutedPitch): Record<string, string | number> => ({
+export const dispatchPitchHead = (pitch: SamePaExecutedPitch|SamePaObservedLaunchedPitch): Record<string, string | number> => ({
   enrollment_source_id: pitch.lineage.enrollmentReference.sourceId, career_id: pitch.lineage.careerId, game_id: pitch.lineage.gameId,
   play_id: pitch.lineage.playId, first_pitch_source_id: pitch.source.sourceId, progress_revision: 1, last_source_id: pitch.source.sourceId, snapshot_hash: hash(pitch),
 });

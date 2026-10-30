@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V51-SPACING-MATRIX-CANDIDATE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T09:28:08.634+00:00",
+  "elapsed_ms": 59610,
+  "git_head": "01834d9e8361b7747083b9fbb7539c93ee662b50",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V51-SPACING-MATRIX-CANDIDATE_0ff3b8e0b4f142e395f7ff8c618bd086.log",
+  "output_sha256": "c766a9f0d5ae6a37de74b11237769346c45dc0c93cf8d83ce07c008a6eb45390",
+  "receipt_id": "MB-20261018-V51-SPACING-MATRIX-CANDIDATE_0ff3b8e0b4f142e395f7ff8c618bd086"
+}

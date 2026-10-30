@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V87-DATA-UNIT-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/BatterCourseProfileV87.test.ts",
+    "src/integration/browser/LiveSeasonCourseV87.test.ts"
+  ],
+  "observed_at": "2026-10-20T17:11:11.736+00:00",
+  "elapsed_ms": 2827,
+  "git_head": "9f6b6ed69d8682f417490d4b761914f1b4a6d6a1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V87-DATA-UNIT-FINAL_872f94a0ea9445928fe94176cd09da2d.log",
+  "output_sha256": "c0ac26f122e63b80ca53517c883554ceb9640c3121accc36e3d3ce03099cc85b",
+  "receipt_id": "MB-20261021-V87-DATA-UNIT-FINAL_872f94a0ea9445928fe94176cd09da2d"
+}

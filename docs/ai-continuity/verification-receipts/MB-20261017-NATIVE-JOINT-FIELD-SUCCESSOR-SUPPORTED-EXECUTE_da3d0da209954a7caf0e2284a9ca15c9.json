@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-NATIVE-JOINT-FIELD-SUCCESSOR-SUPPORTED-EXECUTE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-joint-field-successor-v3/readback.mjs",
+    "motion",
+    "../../outputs/verification-authored-with-bat-recovery-v1",
+    "../../outputs/verification-authored-with-bat-field-successor-v1"
+  ],
+  "observed_at": "2026-10-16T21:52:52.827+00:00",
+  "elapsed_ms": 82203,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-NATIVE-JOINT-FIELD-SUCCESSOR-SUPPORTED-EXECUTE_da3d0da209954a7caf0e2284a9ca15c9.log",
+  "output_sha256": "05d7c9374fc77ecd0bfbf58aef00d2ee01525754feaac360b1ea13df78bf6ad2",
+  "receipt_id": "MB-20261017-NATIVE-JOINT-FIELD-SUCCESSOR-SUPPORTED-EXECUTE_da3d0da209954a7caf0e2284a9ca15c9"
+}

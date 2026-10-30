@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V82-MAKER-RECOVERY-TRAITS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v77-traits-browser.mjs",
+    "../../outputs/にーくら野球メーカー_v82_削除と入力復帰版.html",
+    "docs/verification/releases/v82/traits"
+  ],
+  "observed_at": "2026-10-20T13:47:07.676+00:00",
+  "elapsed_ms": 13312,
+  "git_head": "2b3a8aafd04f0d49edc5c9f12637babc620901f6",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V82-MAKER-RECOVERY-TRAITS_d833f82d9f48490ca8bbab6e7c6cba56.log",
+  "output_sha256": "4a12db420e92c8287582561c900a84a9a82884da41e603c7aa78cdc7b0065001",
+  "receipt_id": "MB-20261020-V82-MAKER-RECOVERY-TRAITS_d833f82d9f48490ca8bbab6e7c6cba56"
+}

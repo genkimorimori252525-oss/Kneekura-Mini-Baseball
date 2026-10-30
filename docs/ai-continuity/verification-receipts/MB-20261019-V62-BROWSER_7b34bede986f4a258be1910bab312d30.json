@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V62-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v62-presentation.mjs",
+    "../../outputs/ばせぼーるlv62_TBD_vs_LAD_投手視点とリリース版.html",
+    "../../outputs/カメラワーク調整室_v62.html",
+    "../../outputs/にーくら野球メーカー_投球リリース編集版_v62.html",
+    "../../outputs/verification-v62-presentation"
+  ],
+  "observed_at": "2026-10-18T19:44:19.642+00:00",
+  "elapsed_ms": 37438,
+  "git_head": "6cab540b173526893d7d8f78f701a8087f62d0e8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V62-BROWSER_7b34bede986f4a258be1910bab312d30.log",
+  "output_sha256": "5161d6876373665c5093f53e59bf813380489dadfa4238c5d5565461ef96cf06",
+  "receipt_id": "MB-20261019-V62-BROWSER_7b34bede986f4a258be1910bab312d30"
+}

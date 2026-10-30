@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V86-FIELD-MATRIX-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-field-matrix-v86.mjs",
+    "../../outputs/にーくら野球メーカー_v86_入力確定とエラー復帰版.html",
+    "docs/verification/releases/v86/field-matrix-final"
+  ],
+  "observed_at": "2026-10-20T16:36:06.527+00:00",
+  "elapsed_ms": 23609,
+  "git_head": "58c9163a9007598d6a51d8178f38ce3b9ee14eca",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V86-FIELD-MATRIX-FINAL_81bea7a8934642c28365077339d7a27c.log",
+  "output_sha256": "e54ee8f4a8ebde20ea3d1299989db7cc678cf7b807ba63e9b6ff98812e6854cb",
+  "receipt_id": "MB-20261021-V86-FIELD-MATRIX-FINAL_81bea7a8934642c28365077339d7a27c"
+}

@@ -1,0 +1,40 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: exact end releases gaze
++ actual - expected
+
++ {
++   basis: 'PLANNED_MEASURED_SWEET_SPOT_UNTIL_FINITE_SWING_END',
++   releaseAtMs: 2079.9246527173705,
++   startTick: 6991503,
++   target: {
++     x: 0.1808033949712577,
++     y: 0.5612158678258796,
++     z: 0.1470396147124679
++   },
++   throughTick: 7226101.652717371
++ }
+- null
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v43-batter-gaze.mjs:63:72 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: {
+    target: {
+      x: 0.1808033949712577,
+      y: 0.5612158678258796,
+      z: 0.1470396147124679
+    },
+    startTick: 6991503,
+    throughTick: 7226101.652717371,
+    releaseAtMs: 2079.9246527173705,
+    basis: 'PLANNED_MEASURED_SWEET_SPOT_UNTIL_FINITE_SWING_END'
+  },
+  expected: null,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

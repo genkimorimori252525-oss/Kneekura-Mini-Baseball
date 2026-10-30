@@ -1,0 +1,18 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LivePitchAuthoringV77.test.ts (3 tests) 4ms
+ ✓ src/integration/browser/LivePitchAuthoringV78.test.ts (4 tests) 29ms
+ ✓ src/integration/browser/LivePitchHostAuthoringV77.test.ts (2 tests) 243ms
+ ✓ src/integration/browser/PitcherWorkbenchV77.test.ts (4 tests) 1520ms
+   ✓ executes seven authored pitches on both throwing sides with observed spin and break directions 1064ms
+ ✓ src/integration/browser/LivePitchExecutionV78.test.ts (4 tests) 1595ms
+   ✓ keeps omitted and fixed spin execution exactly equal to the legacy record 356ms
+   ✓ selects owned IDs rather than generating an unowned type, and rejects ambiguous explicit classification 443ms
+   ✓ uses the exact same snapshot and downward spin in Host and pitcher trial 702ms
+
+ Test Files  5 passed (5)
+      Tests  17 passed (17)
+   Start at  04:36:45
+   Duration  2.69s (transform 839ms, setup 0ms, collect 2.52s, tests 3.39s, environment 1ms, prepare 907ms)
+

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V53-AIRBORNE-RUNNER-GREEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveRunnerAdvancePolicyV1.test.ts",
+    "src/core/sim/fielding/LiveRunnerAirbornePolicyV53.test.ts",
+    "src/core/sim/running/LiveRunnerRetreatMotionV1.test.ts",
+    "src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts",
+    "src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts",
+    "src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts",
+    "src/integration/browser/PlayableMatchTagUpAppealV1.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T10:26:10.484+00:00",
+  "elapsed_ms": 15454,
+  "git_head": "ea9ca61b0971da3cc3b3ce1cfb344d4496e2ecc9",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V53-AIRBORNE-RUNNER-GREEN_47c48d6f547b42abae0bd08f3bfa701b.log",
+  "output_sha256": "aa3b0a7924eddf448b355273435abcfb7f0d4a13177ee2cca0ff75602bed2918",
+  "receipt_id": "MB-20261018-V53-AIRBORNE-RUNNER-GREEN_47c48d6f547b42abae0bd08f3bfa701b"
+}

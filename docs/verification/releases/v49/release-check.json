@@ -1,0 +1,14 @@
+{
+  "pass": true,
+  "gameSha256": "b4903f219e81c0efa77c560b7961afb8eafaa85843be90fc9460a2db9a23428a",
+  "nativeBundleSha256": "e0677928d7641513228fb78782a8afcceb5e4890fddbd99ac93c05f271da2e6c",
+  "sourceInputs": 107,
+  "regulationPitches": 320,
+  "settledLivePlays": 74,
+  "widths": [
+    1200,
+    390
+  ],
+  "unchangedV48CameraAndV47Maker": true,
+  "linksChecked": 129
+}

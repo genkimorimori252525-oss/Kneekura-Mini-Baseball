@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/PlayableMatchRulesV1.test.ts (21 tests) 8ms
+ ✓ src/core/sim/fielding/LiveFieldPlayV1.test.ts (9 tests) 581ms
+
+ Test Files  2 passed (2)
+      Tests  30 passed (30)
+   Start at  09:08:53
+   Duration  1.30s (transform 268ms, setup 0ms, collect 484ms, tests 589ms, environment 0ms, prepare 248ms)
+

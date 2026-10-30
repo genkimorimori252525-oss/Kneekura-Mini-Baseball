@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-BATTER-GAZE-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-v43.mjs",
+    "../../outputs/ばせぼーるlv43_TBD_vs_LAD_打者の打点注視版.html"
+  ],
+  "observed_at": "2026-10-18T04:23:36.214+00:00",
+  "elapsed_ms": 281,
+  "git_head": "7bc3982789bf563bb9a25a8b82f632c982c3ab84",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-BATTER-GAZE-BUILD_8d329f805e1b49e686736fd1a5990e39.log",
+  "output_sha256": "5bb7db6a24e90cdc0438ff1945c92bc6ecadaa18eb58dbbd3c0ef86e10c12e9c",
+  "receipt_id": "MB-20261018-BATTER-GAZE-BUILD_8d329f805e1b49e686736fd1a5990e39"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-RUNNER-BOUNDARY-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/running/LiveRunnerMotionV1.test.ts"
+  ],
+  "observed_at": "2026-10-20T15:32:29.510+00:00",
+  "elapsed_ms": 1250,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-RUNNER-BOUNDARY-RED_68774194798c45579c30d8bcc963b99f.log",
+  "output_sha256": "a62351a6e6ffad93eef75a68ed52039566c359ba565da39b0aab61e18c6455da",
+  "receipt_id": "MB-20261021-V84-RUNNER-BOUNDARY-RED_68774194798c45579c30d8bcc963b99f"
+}

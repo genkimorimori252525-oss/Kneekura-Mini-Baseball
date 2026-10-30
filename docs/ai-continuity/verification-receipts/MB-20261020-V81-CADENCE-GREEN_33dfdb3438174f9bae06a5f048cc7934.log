@@ -1,0 +1,92 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ tools/browser-bridge/presentation-cadence-performance-v81.test.mjs (5 tests | 5 failed) 223ms
+   × fails closed on altered or duplicate v79 experiment markers 40ms
+     → v81 experimental cadence marker differs: draw-synchronous free-pitch observation
+   × retains legacy cadence fields and exposes the exact divided full-scene periods 38ms
+     → v81 experimental cadence marker differs: draw-synchronous free-pitch observation
+   × samples the free-pitch ball only during a synchronized scene draw and respects one steady RAF draw 43ms
+     → v81 experimental cadence marker differs: draw-synchronous free-pitch observation
+   × draws contact, secure custody and visibility boundaries at the next RAF without waiting for a period 41ms
+     → v81 experimental cadence marker differs: draw-synchronous free-pitch observation
+   × keeps paused seeks on the original frame ball, including after playing and backward seeks 61ms
+     → v81 experimental cadence marker differs: draw-synchronous free-pitch observation
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tools/browser-bridge/presentation-cadence-performance-v81.test.mjs > fails closed on altered or duplicate v79 experiment markers
+Error: v81 experimental cadence marker differs: draw-synchronous free-pitch observation
+ ❯ once tools/browser-bridge/presentation-cadence-performance-v81.mjs:43:98
+     41| function once(html,marker,replacement,label,eol){
+     42|   marker=marker.replaceAll('\n',eol);replacement=replacement.replaceAl…
+     43|   const first=html.indexOf(marker);if(first<0||html.indexOf(marker,fir…
+       |                                                                                                  ^
+     44|   return html.slice(0,first)+replacement+html.slice(first+marker.lengt…
+     45| }
+ ❯ Module.applyPresentationCadencePerformanceV81 tools/browser-bridge/presentation-cadence-performance-v81.mjs:50:8
+ ❯ tools/browser-bridge/presentation-cadence-performance-v81.test.mjs:36:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  tools/browser-bridge/presentation-cadence-performance-v81.test.mjs > retains legacy cadence fields and exposes the exact divided full-scene periods
+Error: v81 experimental cadence marker differs: draw-synchronous free-pitch observation
+ ❯ once tools/browser-bridge/presentation-cadence-performance-v81.mjs:43:98
+     41| function once(html,marker,replacement,label,eol){
+     42|   marker=marker.replaceAll('\n',eol);replacement=replacement.replaceAl…
+     43|   const first=html.indexOf(marker);if(first<0||html.indexOf(marker,fir…
+       |                                                                                                  ^
+     44|   return html.slice(0,first)+replacement+html.slice(first+marker.lengt…
+     45| }
+ ❯ Module.applyPresentationCadencePerformanceV81 tools/browser-bridge/presentation-cadence-performance-v81.mjs:50:8
+ ❯ tools/browser-bridge/presentation-cadence-performance-v81.test.mjs:43:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  tools/browser-bridge/presentation-cadence-performance-v81.test.mjs > samples the free-pitch ball only during a synchronized scene draw and respects one steady RAF draw
+Error: v81 experimental cadence marker differs: draw-synchronous free-pitch observation
+ ❯ once tools/browser-bridge/presentation-cadence-performance-v81.mjs:43:98
+     41| function once(html,marker,replacement,label,eol){
+     42|   marker=marker.replaceAll('\n',eol);replacement=replacement.replaceAl…
+     43|   const first=html.indexOf(marker);if(first<0||html.indexOf(marker,fir…
+       |                                                                                                  ^
+     44|   return html.slice(0,first)+replacement+html.slice(first+marker.lengt…
+     45| }
+ ❯ Module.applyPresentationCadencePerformanceV81 tools/browser-bridge/presentation-cadence-performance-v81.mjs:50:8
+ ❯ tools/browser-bridge/presentation-cadence-performance-v81.test.mjs:47:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  tools/browser-bridge/presentation-cadence-performance-v81.test.mjs > draws contact, secure custody and visibility boundaries at the next RAF without waiting for a period
+Error: v81 experimental cadence marker differs: draw-synchronous free-pitch observation
+ ❯ once tools/browser-bridge/presentation-cadence-performance-v81.mjs:43:98
+     41| function once(html,marker,replacement,label,eol){
+     42|   marker=marker.replaceAll('\n',eol);replacement=replacement.replaceAl…
+     43|   const first=html.indexOf(marker);if(first<0||html.indexOf(marker,fir…
+       |                                                                                                  ^
+     44|   return html.slice(0,first)+replacement+html.slice(first+marker.lengt…
+     45| }
+ ❯ Module.applyPresentationCadencePerformanceV81 tools/browser-bridge/presentation-cadence-performance-v81.mjs:50:8
+ ❯ tools/browser-bridge/presentation-cadence-performance-v81.test.mjs:54:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  tools/browser-bridge/presentation-cadence-performance-v81.test.mjs > keeps paused seeks on the original frame ball, including after playing and backward seeks
+Error: v81 experimental cadence marker differs: draw-synchronous free-pitch observation
+ ❯ once tools/browser-bridge/presentation-cadence-performance-v81.mjs:43:98
+     41| function once(html,marker,replacement,label,eol){
+     42|   marker=marker.replaceAll('\n',eol);replacement=replacement.replaceAl…
+     43|   const first=html.indexOf(marker);if(first<0||html.indexOf(marker,fir…
+       |                                                                                                  ^
+     44|   return html.slice(0,first)+replacement+html.slice(first+marker.lengt…
+     45| }
+ ❯ Module.applyPresentationCadencePerformanceV81 tools/browser-bridge/presentation-cadence-performance-v81.mjs:50:8
+ ❯ tools/browser-bridge/presentation-cadence-performance-v81.test.mjs:61:44
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+ Test Files  1 failed (1)
+      Tests  5 failed (5)
+   Start at  21:53:22
+   Duration  816ms (transform 27ms, setup 0ms, collect 85ms, tests 223ms, environment 0ms, prepare 133ms)
+

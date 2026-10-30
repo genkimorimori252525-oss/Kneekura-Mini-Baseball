@@ -1,0 +1,33 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/pitch/ControlledHeldPitchV1.test.ts (10 tests) 7ms
+ ✓ src/core/sim/pitch/PitchHandHoldRenewalV1.test.ts (7 tests) 6ms
+ ❯ src/core/sim/pitch/ControlledPitchWorldV1.test.ts (7 tests | 1 failed) 43ms
+   × retains the exact original ball root and a real hand collider after an explicit successor command 7ms
+     → free baseball trajectory requires consistent original physical parameters and a bounded horizon
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/pitch/ControlledPitchWorldV1.test.ts > retains the exact original ball root and a real hand collider after an explicit successor command
+Error: free baseball trajectory requires consistent original physical parameters and a bounded horizon
+ ❯ Module.createFreeBaseballTrajectory src/core/sim/ball/FreeBaseballTrajectory.ts:52:11
+     50|     || (throughTick - initialBall.tick) / aero.ticksPerSecond > 120
+     51|     || initialBall.position.y < ground.radiusM - 1e-10) {
+     52|     throw new Error('free baseball trajectory requires consistent orig…
+       |           ^
+     53|   }
+     54|   // Both validation paths must run even when no integration step is r…
+ ❯ Module.createAeroGroundBallPhysicsProfile src/core/sim/ball/VersionedBattedBallPhysics.ts:58:3
+ ❯ Module.createSourceFreeBallKernel src/core/sim/ball/SourceFreeBallKernel.ts:59:19
+ ❯ queryWorld src/core/sim/pitch/ControlledPitchWorldV1.ts:48:16
+ ❯ Module.queryControlledPitchWorldV1 src/core/sim/pitch/ControlledPitchWorldV1.ts:30:10
+ ❯ src/core/sim/pitch/ControlledPitchWorldV1.test.ts:30:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 23 passed (24)
+   Start at  22:42:32
+   Duration  817ms (transform 345ms, setup 0ms, collect 690ms, tests 56ms, environment 0ms, prepare 423ms)
+

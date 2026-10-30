@@ -1,0 +1,276 @@
+{
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv52_TBD_vs_LAD_視点追従調整版.html",
+  "sha256": "aff78f191ba6f24958403dc51c503e73393b57d495335bc58d32dc2646f9b85b",
+  "nativeBundleSha256": "01f25940860caff6f9a92a9d8d11d876d87056ed173d8589374226f7c4eccd8f",
+  "currentSourceInputs": 108,
+  "reference": {
+    "original": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\docs\\demos\\releases\\v49\\game.html",
+    "originalSha256": "b4903f219e81c0efa77c560b7961afb8eafaa85843be90fc9460a2db9a23428a",
+    "path": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\verification-v52-camera-v1\\v49-current-core-reference.html",
+    "sha256": "e3dba163c4dc2520c87338459a8ba3bb4f94c240f985854c551c452a295dbeb9",
+    "scope": "V49_RENDERER_AND_CAMERA_WITH_CURRENT_V51_CORE_ONLY"
+  },
+  "views": [
+    {
+      "width": 1200,
+      "cases": {
+        "prep": 1540,
+        "sides": {
+          "L": {
+            "pitch": 0,
+            "side": "L",
+            "contact": 2061.726,
+            "through": 2137.154044964538
+          },
+          "R": {
+            "pitch": 1,
+            "side": "R",
+            "contact": 2010.871,
+            "through": 2079.9246527173705
+          }
+        },
+        "takes": [
+          {
+            "pitch": 2,
+            "held": 2137.977
+          },
+          {
+            "pitch": 5,
+            "held": 2139.1639999999998
+          },
+          {
+            "pitch": 7,
+            "held": 2113.058
+          },
+          {
+            "pitch": 8,
+            "held": 2064.471
+          },
+          {
+            "pitch": 10,
+            "held": 2027.212
+          },
+          {
+            "pitch": 11,
+            "held": 2031.874
+          }
+        ],
+        "field": [
+          {
+            "pitch": 0,
+            "contact": 2061.726,
+            "speed": 46.191276381010034
+          },
+          {
+            "pitch": 1,
+            "contact": 2010.871,
+            "speed": 27.739583876175512
+          },
+          {
+            "pitch": 3,
+            "contact": 1977.752,
+            "speed": 50.379189868411196
+          },
+          {
+            "pitch": 4,
+            "contact": 2083.27,
+            "speed": 40.5006278160384
+          },
+          {
+            "pitch": 6,
+            "contact": 2061.458,
+            "speed": 51.80125762298809
+          },
+          {
+            "pitch": 9,
+            "contact": 1970.888,
+            "speed": 55.77194821193394
+          }
+        ],
+        "marks": 8,
+        "count": 12
+      },
+      "coreHashes": [
+        {
+          "core": "9f1e8589d56b6a819b3abd08a064ef6f10514e68423c566dd193c46c382b4f9c",
+          "bat": "0a9cb7b4002b9dfd0de4528f5e9bad4f040ea8e96d19a8d1c1a80a40389ca009"
+        },
+        {
+          "core": "d5387e4c28d63b9dd6ce577732c559f7a0eb3c96ef0e1347c7056c0c293b9043",
+          "bat": "de4384040f3b113070e8024628e0b62c0ae6982fbc619689d63a3817df218ce1"
+        },
+        {
+          "core": "25019257c6c70085076654f20bbc92bc70c937d5c0134c77735aa7d767c0855f",
+          "bat": "85c00ede76ed2e8974e6ddb72bed80d77d485e7109bb5afcf35d05a1779c8396"
+        },
+        {
+          "core": "09790fadfe0dbef6177f347c3aa99fa12edab28270f07b151a50907d8ee2338d",
+          "bat": "b3f7642e751d913710c3c955255837c19844fbb9c8d85e7d9f58a158fef57880"
+        },
+        {
+          "core": "c6549baff5334ee525d950464faebb91889171e4dd8273283ae57a64592c774b",
+          "bat": "bd953560366a0c6a3710d5b867a75c0b7d0331c4fd215d10599c54ad64529ef0"
+        },
+        {
+          "core": "2ad90b0bcb1b387077a6269b091b84b7ad0f3d717c9254cdca1b4573f71f55eb",
+          "bat": "556010b4c15bb98028fa260b59a4618a5b72b508db2dc8e68ac25f19c161e6f8"
+        },
+        {
+          "core": "d451fcf99dc4f68ea9801273b928b8b48141d6028daf029fd006368e85944e46",
+          "bat": "e0fd9ec9bbb8d4ddbae2577896d62102d6544657909a3c4942188339a11af0e8"
+        },
+        {
+          "core": "3636062d149ec8f4e05dbc5c71b97d046e9554c626cb16c1245e1686a1e66107",
+          "bat": "5bba0368977d4b00d8b9436a661f58b4cb3ac2023a93777600ba27b15ece308b"
+        },
+        {
+          "core": "8be52a3e5931a6850116813cf76e43edd9f33112c10c8da41f413887be3c4106",
+          "bat": "4b661e59fe56d1a22a47ffb05a177cba1b0e102447d3a5480a799498e3a0579b"
+        },
+        {
+          "core": "0752cce98d2b0571d90728a44c19cdc0974daa119d2760f81efa660c0db03515",
+          "bat": "f479d42f31399697ecb0520fa15a34146378b67d3083119821264caec7f65b4a"
+        },
+        {
+          "core": "52ce987852877dd8da33328843fd49fd7c8cb7a4fafb0ad454eb10eb129e8166",
+          "bat": "70894a13b7a6073ca3c814b6b4080b61c41ca0ea55eda5785c4217d4a1a6f642"
+        },
+        {
+          "core": "bd296618195611aa15ae9af883df1224a5cbab232711cf488747d1e16e8438b6",
+          "bat": "0383b997191d73e71c1f22c1a8466d008234c23248c7a02b2a936a8eb90d0304"
+        }
+      ],
+      "batter": [
+        {
+          "side": "L",
+          "ms": 0,
+          "phase": "ready",
+          "eye": {
+            "x": 0.4,
+            "y": 1.4861,
+            "z": -0.95
+          }
+        },
+        {
+          "side": "L",
+          "ms": 2061.726,
+          "phase": "swing-aim",
+          "eye": {
+            "x": 0.4,
+            "y": 1.4861,
+            "z": -0.95
+          },
+          "mode": "swing-brace"
+        },
+        {
+          "side": "L",
+          "ms": 2136.154044964538,
+          "phase": "swing-aim",
+          "eye": {
+            "x": 0.4,
+            "y": 1.4861,
+            "z": -0.95
+          },
+          "mode": "swing-brace"
+        },
+        {
+          "side": "L",
+          "ms": 2217.154044964538,
+          "phase": "aim-release",
+          "eye": {
+            "x": 0.4,
+            "y": 1.4861,
+            "z": -0.95
+          },
+          "mode": "field-follow"
+        },
+        {
+          "side": "L",
+          "ms": 2417.154044964538,
+          "phase": "batted-tracking",
+          "eye": {
+            "x": 0.42383966388583,
+            "y": 1.4861,
+            "z": -0.9248107286105464
+          },
+          "mode": "field-follow"
+        },
+        {
+          "side": "R",
+          "ms": 0,
+          "phase": "ready",
+          "eye": {
+            "x": -0.4,
+            "y": 1.3475000000000001,
+            "z": -0.95
+          }
+        },
+        {
+          "side": "R",
+          "ms": 2010.871,
+          "phase": "swing-aim",
+          "eye": {
+            "x": -0.4,
+            "y": 1.3475000000000001,
+            "z": -0.95
+          },
+          "mode": "swing-brace"
+        },
+        {
+          "side": "R",
+          "ms": 2078.9246527173705,
+          "phase": "swing-aim",
+          "eye": {
+            "x": -0.4,
+            "y": 1.3475000000000001,
+            "z": -0.95
+          },
+          "mode": "swing-brace"
+        },
+        {
+          "side": "R",
+          "ms": 2159.9246527173705,
+          "phase": "aim-release",
+          "eye": {
+            "x": -0.4,
+            "y": 1.3475000000000001,
+            "z": -0.95
+          },
+          "mode": "field-follow"
+        },
+        {
+          "side": "R",
+          "ms": 2359.9246527173705,
+          "phase": "batted-tracking",
+          "eye": {
+            "x": -0.3576240280102026,
+            "y": 1.3475000000000001,
+            "z": -0.9089844222055338
+          },
+          "mode": "field-follow"
+        }
+      ],
+      "pitchers": [],
+      "otherCameras": []
+    }
+  ],
+  "pass": false,
+  "error": "AssertionError [ERR_ASSERTION]: positive compressed pitch response\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v52-camera.mjs:78:27",
+  "browserFaults": [
+    {
+      "label": "v49-current-core-reference",
+      "errors": [],
+      "requests": []
+    },
+    {
+      "label": "v51-Core-control",
+      "errors": [],
+      "requests": []
+    },
+    {
+      "label": "v52-1200",
+      "errors": [],
+      "requests": []
+    }
+  ]
+}

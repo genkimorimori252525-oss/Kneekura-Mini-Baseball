@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V46-AI-TESTS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts",
+    "src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts",
+    "src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts",
+    "src/core/sim/fielding/LiveFieldRoleMotionV1.test.ts",
+    "src/core/sim/fielding/LiveFieldHandlerSelectionV1.test.ts",
+    "src/core/sim/fielding/LiveFieldHandlerMotionV1.test.ts",
+    "src/core/sim/fielding/LiveRunnerAdvancePolicyV1.test.ts",
+    "src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts",
+    "src/integration/browser/LiveHiddenAiControlsV1.test.ts",
+    "src/integration/browser/LivePhysicalRosterV1.test.ts",
+    "src/integration/browser/LivePublicAbilitiesV1.test.ts"
+  ],
+  "observed_at": "2026-10-18T05:23:37.539+00:00",
+  "elapsed_ms": 31280,
+  "git_head": "6a8caf40153d76daba6a5acca34f5db12ca7f615",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V46-AI-TESTS_90be1ea64de04dfd83a8832393f63094.log",
+  "output_sha256": "2a9fd22f578f02f66a4fadee8a69e98629e634741697ae6adbf8d32193658f5a",
+  "receipt_id": "MB-20261018-V46-AI-TESTS_90be1ea64de04dfd83a8832393f63094"
+}
