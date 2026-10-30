@@ -13,8 +13,9 @@ import { resolveAndRecordAerodynamicRigidPitchAgainstBatter } from '../../core/s
 import { createBattingCommitmentSwingWindow } from '../../core/world/psychology/batting/BattingSwingWindow';
 import { NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1 } from '../../core/sim/contact/WoodBatProductionProfileV1';
 import { resolveWoodBatSpeedResponse } from '../../core/sim/contact/WoodBatSpeedResponseProfile';
-import { calculateBattingExecution, calculateBattingSpinExecutionV123, calculateBattingObservedSpinAimTrialV226 } from '../../core/world/psychology/batting/BattingCommitment';
+import { calculateBattingExecution, calculateBattingSpinExecutionV123, calculateBattingObservedSpinAimTrialV226, calculateBattingQualifiedSpinAimV233 } from '../../core/world/psychology/batting/BattingCommitment';
 import { deriveSamePaObservedSpinAimTrialV226 } from './SamePaObservedSpinAimTrialV226';
+import { deriveSamePaQualifiedSpinAimV233 } from './SamePaQualifiedSpinAimV233';
 import { readSamePaSpinContextV123 } from './SamePlateAppearanceSpinBindingV123';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
@@ -54,7 +55,7 @@ const pending = (reason: string, ids: readonly string[] = []): Pending => freeze
 const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw new Error('same-PA physical original input, cut or row differs'); };
 const required = <T>(v: T | null, message = 'same-PA physical prerequisite missing'): T => { if (v === null) throw new Error(message); return v; };
 const ownerKinds = { same_pa_physical_action_v1: 'action', same_pa_physical_right_v1: 'right', same_pa_physical_launch_v1: 'launch',
-  same_pa_physical_cut_v1: 'cut', same_pa_physical_commitment_v1: 'commitment', same_pa_physical_commitment_v123: 'commitment', same_pa_physical_observed_spin_aim_trial_v226: 'commitment', same_pa_physical_resolution_v1: 'resolution',
+  same_pa_physical_cut_v1: 'cut', same_pa_physical_commitment_v1: 'commitment', same_pa_physical_commitment_v123: 'commitment', same_pa_physical_observed_spin_aim_trial_v226: 'commitment', same_pa_physical_qualified_spin_aim_v233:'commitment', same_pa_physical_resolution_v1: 'resolution',
   same_pa_physical_field_root_v1: 'fieldRoot', same_pa_physical_field_step_v1: 'fieldStep', same_pa_physical_field_calibration_v1:'fieldCalibration' } as const;
 const kindOf = (source: Source): Kind => ownerKinds[source.capability];
 const kindForOwner = (owner: string): Kind => {
@@ -248,21 +249,28 @@ withSamePaLifecycleReadPhase(db, () => {
       if(boundary.kind!=='unresolved'&&source.throughTick>boundary.timeline.lastEventTick)throw new Error('physical cut crosses a due event');
       return freeze({...common,source,kind:'same_pa_physical_cut_v1',stage:commitment?'committed':'in_flight',evaluationTick:source.throughTick,ball:sampleAerodynamicPitchTrajectory(launch.trajectory,source.throughTick)});
     }
-    if(source.capability==='same_pa_physical_commitment_v1'||source.capability==='same_pa_physical_commitment_v123'||source.capability==='same_pa_physical_observed_spin_aim_trial_v226'){
+    if(source.capability==='same_pa_physical_commitment_v1'||source.capability==='same_pa_physical_commitment_v123'||source.capability==='same_pa_physical_observed_spin_aim_trial_v226'||source.capability==='same_pa_physical_qualified_spin_aim_v233'){
       if(action.source.battingMode!=='observer_decision'||previous.stage!=='in_flight'||commitmentInPrefix())throw new Error('physical commitment is already owned or not applicable');
       const request=(current?readCurrentSamePaBattingExecutionInputFromSqlite:readSamePaBattingExecutionInputFromSqlite)(db,source.inputReference);
       if(request.source.capability!=='owned_in_flight_same_pa_batting_execution_input_v1')throw new Error('physical adoption requires the original in-flight input Source');
       same(request.source.viewReference,source.viewReference);same(request.physicalPitchReference,source.launchReference);same(request.source.intentReference,source.intentReference);
       const right=linked('right',launch.source.rightReference) as SamePaPhysicalRight;same(request.source.postureReference,right.source.postureReference);
       const intent=readSamePaBattingIntentFromSqlite(db,source.intentReference);same(intent.lineage,launch.lineage);if(intent.originalIntent.actorSourceId!==action.actor.source.sourceId)throw new Error('physical original batting intent differs');
-      if((source.capability==='same_pa_physical_commitment_v123'||source.capability==='same_pa_physical_observed_spin_aim_trial_v226')&&intent.originalIntent.attempt==='bunt')throw new Error('physical spin commitment requires an ordinary swing intent');
+      if((source.capability==='same_pa_physical_commitment_v123'||source.capability==='same_pa_physical_observed_spin_aim_trial_v226'||source.capability==='same_pa_physical_qualified_spin_aim_v233')&&intent.originalIntent.attempt==='bunt')throw new Error('physical spin commitment requires an ordinary swing intent');
       const trial=source.capability==='same_pa_physical_observed_spin_aim_trial_v226'
         ?deriveSamePaObservedSpinAimTrialV226(db,source.trial,{actor:action.actor,modelReference:action.source.batterModelReference,input:request,
           decisionTick:b.view.cut.evaluationTick,actualFlightParameters:action.source.actualFlightParameters}):null;
+      const qualified=source.capability==='same_pa_physical_qualified_spin_aim_v233'?(()=>{
+        const before=current?readEmotionWorldRevisionFromSqlite(db,b.view.lineage.careerId):readHistoricalEmotionWorldRevisionFromSqlite(db,b.view.lineage.careerId,request.nominalRequest.currentFrame.worldRevision);
+        if(!before)throw Error('qualified spin aim v233: original World missing');same(before.head.worldRevision,request.nominalRequest.currentFrame.worldRevision);
+        return deriveSamePaQualifiedSpinAimV233(db,source.qualifiedAim,{actor:action.actor,modelReference:action.source.batterModelReference,input:request,
+          decisionTick:b.view.cut.evaluationTick,actualFlightParameters:action.source.actualFlightParameters},before.head.worldRevision);
+      })():null;
       const computed=source.capability==='same_pa_physical_commitment_v123'
         ?calculateBattingSpinExecutionV123({nominalRequest:request.nominalRequest,effectiveValues:request.effectiveValues,
           spinContext:readSamePaSpinContextV123(db,source.spinBindingV123,{actor:action.actor,modelReference:action.source.batterModelReference,decisionTick:b.view.cut.evaluationTick,
             effectiveRepertoire:request.effectiveValues.repertoire})})
+        :qualified?calculateBattingQualifiedSpinAimV233({nominalRequest:request.nominalRequest,effectiveValues:request.effectiveValues,trialContext:qualified.trialContext})
         :trial?calculateBattingObservedSpinAimTrialV226({nominalRequest:request.nominalRequest,effectiveValues:request.effectiveValues,trialContext:trial.trialContext})
         :calculateBattingExecution({nominalRequest:request.nominalRequest,effectiveValues:request.effectiveValues});if(!computed.ok)throw new Error('physical effective batting calculation invalid');
       const calculation=computed.value,commitment=calculation.commitment;if(calculation.status!=='READY'||!commitment)return pending('effective_batting_commitment_not_ready');
@@ -272,7 +280,7 @@ withSamePaLifecycleReadPhase(db, () => {
       if(commitment.decisionTick!==b.view.cut.evaluationTick||swing&&(swing.startTick<b.view.cut.evaluationTick||swing.endTick>launch.trajectory.endTick))throw new Error('physical commitment timing differs');
       const world=current?readEmotionWorldRevisionFromSqlite(db,b.view.lineage.careerId):readHistoricalEmotionWorldRevisionFromSqlite(db,b.view.lineage.careerId,request.nominalRequest.currentFrame.worldRevision);
       if(!world)return pending('actual_world_head_missing');same(world.head.worldRevision,request.nominalRequest.currentFrame.worldRevision);
-      const value:SamePaPhysicalCommitment=freeze({...common,source,kind:'same_pa_physical_commitment_v1',stage:'committed',commitment,calculation,inputSource:request.source,originalIntent:intent.originalIntent,...(trial?{trialEvidenceV226:trial.evidence}:{}),
+      const value:SamePaPhysicalCommitment=freeze({...common,source,kind:'same_pa_physical_commitment_v1',stage:'committed',commitment,calculation,inputSource:request.source,originalIntent:intent.originalIntent,...(trial?{trialEvidenceV226:trial.evidence}:{}),...(qualified?{qualifiedEvidenceV233:qualified.qualifiedEvidenceV233}:{}),
         beforeWorldRevision:world.head.worldRevision,afterWorldRevision:world.head.worldRevision+1,controlRevision:world.head.control.revision,controlHash:hash(world.head.control),
         actionKey:json(['same-pa-effective-commitment-v1',launch.lineage.enrollmentReference,source.launchReference])});
       const physical=resolve(action,launch,value);if(physical.kind!=='unresolved'&&physical.timeline.lastEventTick<value.evaluationTick)throw new Error('physical commitment cannot adopt an already elapsed outcome');return value;
@@ -417,12 +425,17 @@ export const openSqliteSamePlateAppearancePhysicalEpisodeStore=(path:string,auth
         try{same(assembly(db,own=>own.derive(source,false)),value);same(allRows(),expected);}
         finally{stagedHeads.delete(db);}
       });
+      // A qualified commitment's normal census authenticates every commitment
+      // against its World event. Until the event is appended, prove row
+      // accounting only; the full normal rederive remains mandatory after the
+      // event, before commit, and every failure rolls the transaction back.
+      const reproofBeforeWorldEvent=()=>{if(source.capability==='same_pa_physical_qualified_spin_aim_v233')proof(()=>same(allRows(),expected));else reproof();};
       if(value.kind==='same_pa_physical_launch_v1'){insert(tables.consumer,launchCompanion(value,'consumer'));reproof();}
-      insert(tables[requested],row);reproof();
+      insert(tables[requested],row);reproofBeforeWorldEvent();
       if(work(requested)){const next=headFor(value as SamePaPhysicalOperation);step(()=>{const changed=beforeHead===null?db.prepare(`INSERT INTO main.${tables.head} VALUES(${Object.keys(next).map(()=>'?').join(',')})`).run(...Object.values(next))
           :db.prepare(`UPDATE main.${tables.head} SET pitch_ordinal=?,launch_source_id=?,operation_ordinal=?,last_owner=?,last_source_id=?,last_snapshot_hash=? WHERE enrollment_source_id=? AND pitch_ordinal=? AND operation_ordinal=? AND last_source_id=? AND last_snapshot_hash=?`)
             .run(next.pitch_ordinal,next.launch_source_id,next.operation_ordinal,next.last_owner,next.last_source_id,next.last_snapshot_hash,next.enrollment_source_id,beforeHead.pitch_ordinal,beforeHead.operation_ordinal,beforeHead.last_source_id,beforeHead.last_snapshot_hash);if(changed.changes!==1)throw new Error('physical head CAS differs');},1);
-        const h=expected[names.indexOf(tables.head)],i=h.findIndex(r=>r.enrollment_source_id===next.enrollment_source_id);if(i<0)h.push(next);else h[i]=next;reproof();}
+        const h=expected[names.indexOf(tables.head)],i=h.findIndex(r=>r.enrollment_source_id===next.enrollment_source_id);if(i<0)h.push(next);else h[i]=next;reproofBeforeWorldEvent();}
       if(value.kind==='same_pa_physical_launch_v1'){insert(tables.consumption,launchCompanion(value,'consumption'));reproof();insert(tables.admission,launchCompanion(value,'admission'));reproof();}
       if(value.kind==='same_pa_physical_commitment_v1'){
         const world=proof(()=>readEmotionWorldRevisionFromSqlite(db,value.lineage.careerId));if(!world||world.head.worldRevision!==value.beforeWorldRevision||world.head.control.revision!==value.controlRevision||hash(world.head.control)!==value.controlHash)throw new Error('physical commitment World changed');

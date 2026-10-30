@@ -28,11 +28,12 @@ const same=(a:unknown,b:unknown,label:string)=>{if(!isDeepStrictEqual(a,b))throw
 /** Derive the trial only from the normal snapshot's original Owner records.
  * The binding describes old practice; the new domain is an explicit trial and
  * does not upgrade that description into proven future transfer. */
-export function deriveSamePaObservedSpinAimTrialV226(db:DatabaseSync,raw:SamePaObservedSpinAimTrialV226,basis:Readonly<{
+export type ObservedSpinAimComponentsInputV233=Pick<SamePaObservedSpinAimTrialV226,'bindingReference'|'originalEvidenceEventId'|'assessmentReference'|'transform'|'coordinateSystem'>;
+export function deriveSamePaObservedSpinAimComponentsV233(db:DatabaseSync,trial:ObservedSpinAimComponentsInputV233,basis:Readonly<{
  actor:DurablePhysicalPlateAppearanceActor;modelReference:SamePaReference<'world_player_batting_models'>;
  input:DurableSamePaBattingExecutionInput;decisionTick:number;actualFlightParameters:AerodynamicPitchTrajectoryParameters;
 }>) {
- const trial=samePaObservedSpinAimTrialInputV226(raw),{input,actor}=basis;
+ const {input,actor}=basis;
  if(input.source.capability!=='owned_in_flight_same_pa_batting_execution_input_v1')throw Error('observed spin aim trial requires in-flight input');
  const binding=readNativeSpinMotionBindingV225(db,trial.bindingReference.sourceId);if(!binding)throw Error('observed spin aim trial binding missing');
  same(spinMotionBindingReferenceV225(binding),trial.bindingReference,'binding fullref');
@@ -70,11 +71,17 @@ export function deriveSamePaObservedSpinAimTrialV226(db:DatabaseSync,raw:SamePaO
  const trialContext={selectedProfile:{profileId:currentProfile[0].profile.profileId,version:currentProfile[0].profile.version},
   pair:{anchor:original.neutralAnchor,target:original.absoluteTarget},transform:trial.transform,
   trace:{sourceId:trial.bindingReference.sourceId,observationIds:[capture.source.sourceId],cutoffTick:basis.decisionTick,coordinateSystem:trial.coordinateSystem}};
- return freeze(cloneInert({trialContext,evidence:{authority:trial.authority,domain:trial.domain,bindingReference:trial.bindingReference,masteryReference:binding.source.masteryReference,
+ return freeze(cloneInert({trialContext,evidence:{bindingReference:trial.bindingReference,masteryReference:binding.source.masteryReference,
   originalEvidenceEventId:trial.originalEvidenceEventId,assessmentReference:trial.assessmentReference,predictionReference:assessment.source.predictionReference,
   deliveryReference:prediction.source.deliveryReference,observationReference:prediction.source.observationReference,modelReference:basis.modelReference,
   observedTick:selected.observedTick,availableTick:selected.availableTick,validUntilTick:selected.validUntilTick,cutoffTick:basis.decisionTick,
   originalPlan:plan,currentGeometry:{handedness:s.handedness,centerOfMass:s.centerOfMass,strikeZone:s.strikeZone,plateZ:s.plateZ,ticksPerSecond:s.ticksPerSecond},
   domainChanged:!isDeepStrictEqual(plan.batterCenterOfMass,s.centerOfMass)||!isDeepStrictEqual(plan.strikeZone,s.strikeZone),qualifiedTransferProven:false as const,
   forecastParameters:selected.trajectory.parameters,actualFlightParameters:basis.actualFlightParameters,relativeTransferProven:false as const}}));
+}
+
+/** Preserve the explicit-trial Source and its legacy evidence exactly. */
+export function deriveSamePaObservedSpinAimTrialV226(db:DatabaseSync,raw:SamePaObservedSpinAimTrialV226,basis:Parameters<typeof deriveSamePaObservedSpinAimComponentsV233>[2]) {
+ const trial=samePaObservedSpinAimTrialInputV226(raw),result=deriveSamePaObservedSpinAimComponentsV233(db,trial,basis);
+ return freeze(cloneInert({trialContext:result.trialContext,evidence:{authority:trial.authority,domain:trial.domain,...result.evidence}}));
 }

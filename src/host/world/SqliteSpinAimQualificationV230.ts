@@ -6,7 +6,7 @@ import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { bodyCompositionTableInstalled, withBodyCompositionTransaction } from './BodyMaterializationSqliteOwnership';
 import { defensiveMetadataId as claim } from './ActualDefensiveMetadata';
-import { samePaText, samePaFields, type SamePaReference } from './SamePlateAppearanceWorkPrefix';
+import { samePaText, samePaFields, samePaReferenceValid, type SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import { readNativeSpinTrialCohortInventoryV228 } from './NativeSpinTrialCohortInventoryV228';
 import { evaluateSpinAimQualificationV228, hashSpinAimDomainValueV228, validateSpinAimQualificationSourceV228, type SpinAimQualificationSourceV228 } from './SpinAimQualificationV228';
 
@@ -42,7 +42,7 @@ const result=(saved:Snapshot,current:Snapshot):DurableSpinAimQualificationV230=>
  if(current.evaluation.status!=='HOLD'||!closureReasons.includes(current.evaluation.reason))throw Error('spin aim qualification v230: original snapshot rederivation differs');
  return freeze({snapshot:null,currentEvaluation:current.evaluation,applicable:false,snapshotReauthenticated:false});
 };
-const read=(db:DatabaseSync,id:string):DurableSpinAimQualificationV230|null=>{
+const metadata=(db:DatabaseSync,id:string):Readonly<{source:SpinAimQualificationSourceV228;saved:Snapshot}>|null=>{
  if(!samePaText(id))throw Error('spin aim qualification v230: invalid identity');if(!schema(db))return null;
  const rows=rowsFor(db,id);if(rows.length>1||rows.length===1&&rows[0].source_id!==id)throw Error('spin aim qualification v230: identity alias differs');const row=rows[0];if(!row)return null;
  const source=validateSpinAimQualificationSourceV228(JSON.parse(row.source_json));if(source.sourceId!==id||row.source_json!==json(source)||row.source_hash!==hash(source)||row.group_hash!==groupHash(source))throw Error('spin aim qualification v230: original Source differs');
@@ -52,10 +52,18 @@ const read=(db:DatabaseSync,id:string):DurableSpinAimQualificationV230|null=>{
  const evaluation=evaluateSpinAimQualificationV228(source,{...saved.closedInventory,currentWorldRevision:source.cohort.end.worldRevision});
  const expected={version:'spin_aim_qualification_snapshot_v230',source,groupHash:groupHash(source),closedInventory:saved.closedInventory,evaluation};
  if(!isDeepStrictEqual(saved,expected))throw Error('spin aim qualification v230: snapshot mirror differs');
- return result(saved,derive(db,source,false));
+ return {source,saved};
 };
+const read=(db:DatabaseSync,id:string):DurableSpinAimQualificationV230|null=>{const m=metadata(db,id);return m?result(m.saved,derive(db,m.source,false)):null};
 /** This reference identifies the saved evaluation, even when later scope checks HOLD. */
 export const spinAimQualificationReferenceV230=(value:DurableSpinAimQualificationV230):SamePaReference<'world_spin_aim_qualifications_v230'>=>{if(!value.snapshotReauthenticated||!value.snapshot)throw Error('spin aim qualification v230: snapshot unavailable');return {owner:table,sourceId:value.snapshot.source.sourceId,sourceHash:hash(value.snapshot.source),snapshotHash:hash(value.snapshot)}};
+/** Authenticates stored metadata only; it does not grant applicability. */
+export function readNativeSpinAimQualificationHeaderV233(db:DatabaseSync,reference:SamePaReference<'world_spin_aim_qualifications_v230'>):Readonly<{boundary:'METADATA_ONLY_NOT_AUTHORITY';endWorldRevision:number}> {
+ const {DatabaseSync:Native}=createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+ if(!(db instanceof Native)||!db.isTransaction||db.prepare('PRAGMA query_only').get()!.query_only!==1||!samePaReferenceValid(reference,table))throw Error('spin aim qualification v233: active query_only original snapshot and fullref required');
+ return withBodyCompositionTransaction(db,false,()=>{const m=metadata(db,reference.sourceId);if(!m||reference.sourceHash!==hash(m.source)||reference.snapshotHash!==hash(m.saved))throw Error('spin aim qualification v233: header fullref differs');
+  return freeze({boundary:'METADATA_ONLY_NOT_AUTHORITY' as const,endWorldRevision:m.source.cohort.end.worldRevision});});
+}
 export function readNativeSpinAimQualificationV230(db:DatabaseSync,id:string):DurableSpinAimQualificationV230|null{
  const {DatabaseSync:Native}=createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
  if(!(db instanceof Native)||!db.isTransaction||db.prepare('PRAGMA query_only').get()!.query_only!==1)throw Error('spin aim qualification v230: active query_only original snapshot required');

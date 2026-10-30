@@ -99,7 +99,7 @@ export const readSamePaLifecycleClaimRows = (db: Db): readonly SamePaLifecycleCl
         else if(lifecycleKinds[name]){const s=samePaLifecycleSourceInput(source,String(row.source_id));if(s.capability!==lifecycleKinds[name])return fail();}
         else if(name==='pa_lifecycle_v1_outcomes'||name==='pa_lifecycle_v1_resets'){const s=samePaLifecycleOutcomeInput(source,String(row.source_id));if(s.capability!==(name==='pa_lifecycle_v1_outcomes'?'same_pa_lifecycle_outcome_v1':'same_pa_lifecycle_reset_v1'))return fail();}
         else if(physicalKinds[name]){const s=samePaPhysicalEpisodeSourceInput(source,String(row.source_id));if(s.capability!==physicalKinds[name]
-          && !(name==='pa_physical_v1_commitments'&&(s.capability==='same_pa_physical_commitment_v123'||s.capability==='same_pa_physical_observed_spin_aim_trial_v226')))return fail();}
+          && !(name==='pa_physical_v1_commitments'&&(s.capability==='same_pa_physical_commitment_v123'||s.capability==='same_pa_physical_observed_spin_aim_trial_v226'||s.capability==='same_pa_physical_qualified_spin_aim_v233')))return fail();}
         else if(name.startsWith('pa_physical_v1_')){const role=name==='pa_physical_v1_pitch_consumers'?'consumer':name==='pa_physical_v1_consumptions'?'consumption':name==='pa_physical_v1_admissions'?'admission':null;
           if(!role||!fields(source,['sourceId','sourceVersion','capability','launchSourceReference','viewReference'])||source.capability!=='same_pa_physical_'+role+'_v1'
             ||!ref(source.viewReference,'pa_lifecycle_v1_execution_views')||!fields(source.launchSourceReference,['sourceId','sourceVersion','sourceHash'])

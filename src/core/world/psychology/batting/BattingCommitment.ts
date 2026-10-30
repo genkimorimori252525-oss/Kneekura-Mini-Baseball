@@ -131,4 +131,10 @@ export function calculateBattingObservedSpinAimTrialV226(input:unknown):EmotionR
   return {algorithm:'batting-observed-spin-aim-trial-v226' as const,nominalRequest,effectiveValues,trialContext,observedSpinAimTrialV226,...result};
  });
 }
+/** Same pure motor computation; qualification is authenticated by the Host. */
+export type BattingQualifiedSpinAimCalculationV233=Omit<BattingObservedSpinAimTrialCalculationV226,'algorithm'>&Readonly<{algorithm:'batting-qualified-spin-aim-v233'}>;
+export function calculateBattingQualifiedSpinAimV233(input:unknown):EmotionResult<BattingQualifiedSpinAimCalculationV233>{
+ const result=calculateBattingObservedSpinAimTrialV226(input);if(!result.ok)return result;
+ return {ok:true,value:{...result.value,algorithm:'batting-qualified-spin-aim-v233'}};
+}
 export { calculateBattingObservation } from './BattingObservationCalculation';

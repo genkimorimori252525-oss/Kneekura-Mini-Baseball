@@ -60,7 +60,7 @@ export function authenticatePhysicalCommitmentMembershipMetadataV232(input:Input
    ||row.previous_owner!==source.previousOperationReference.owner||row.previous_source_id!==source.previousOperationReference.sourceId
    ||row.canonical_key!==json([enrollment,rawSnapshot.pitchOrdinal,rawSnapshot.operationOrdinal])||claim.enrollmentSourceIds.length!==1||claim.enrollmentSourceIds[0]!==enrollment.sourceId)return fail();
   if(owner===commitOwner){
-   if(!['same_pa_physical_commitment_v1','same_pa_physical_commitment_v123','same_pa_physical_observed_spin_aim_trial_v226'].includes(source.capability)
+   if(!['same_pa_physical_commitment_v1','same_pa_physical_commitment_v123','same_pa_physical_observed_spin_aim_trial_v226','same_pa_physical_qualified_spin_aim_v233'].includes(source.capability)
     ||rawSnapshot.kind!=='same_pa_physical_commitment_v1'||rawSnapshot.stage!=='committed'||!nat(rawSnapshot.beforeWorldRevision)||!nat(rawSnapshot.afterWorldRevision)
     ||rawSnapshot.afterWorldRevision!==rawSnapshot.beforeWorldRevision+1||!samePaText(rawSnapshot.actionKey)||!('launchReference' in source)
     ||rawSnapshot.actionKey!==json(['same-pa-effective-commitment-v1',enrollment,source.launchReference]))return fail();

@@ -20,6 +20,7 @@ import { samePaPhysicalFieldActionInput, type SamePaPhysicalFieldAction, type Sa
 import { samePaBuntProfileBindingInput, type SamePaBuntProfileBinding } from './SamePlateAppearanceBuntProfile';
 import { samePaSpinBindingInputV123, type SamePaSpinBindingV123 } from './SamePlateAppearanceSpinBindingV123';
 import { samePaObservedSpinAimTrialInputV226, type SamePaObservedSpinAimTrialV226 } from './SamePaObservedSpinAimTrialV226';
+import { samePaQualifiedSpinAimInputV233, type SamePaQualifiedSpinAimV233 } from './SamePaQualifiedSpinAimV233';
 import { battedVenuePlayableWallPolicyInput, type AcceptedBattedVenuePlayableWallPolicy } from './BattedVenuePlayableWallPolicy';
 import type { SamePaPlayableWallPolicyBinding } from './SamePlateAppearancePlayableWallPolicy';
 import { battedVenueLegalCoveragePolicyInput, type AcceptedBattedVenueLegalCoveragePolicy, type SamePaVenueLegalCoveragePolicyBinding } from './BattedVenueLegalCoveragePolicy';
@@ -68,7 +69,8 @@ export type SamePaPhysicalCommitmentSource = OperationSource & (Readonly<{ capab
   inputReference: SamePaReference<'batting_execution_v1_inputs'>; intentReference: SamePaReference<'batting_execution_v1_intents'>;
   spinBindingV123: SamePaSpinBindingV123; buntProfileBinding?: never }> | Readonly<{ capability: 'same_pa_physical_observed_spin_aim_trial_v226';
   inputReference: SamePaReference<'batting_execution_v1_inputs'>; intentReference: SamePaReference<'batting_execution_v1_intents'>;
-  trial: SamePaObservedSpinAimTrialV226; buntProfileBinding?: never }>);
+  trial: SamePaObservedSpinAimTrialV226; buntProfileBinding?: never }> | Readonly<{ capability:'same_pa_physical_qualified_spin_aim_v233';
+  inputReference:SamePaReference<'batting_execution_v1_inputs'>;intentReference:SamePaReference<'batting_execution_v1_intents'>;qualifiedAim:SamePaQualifiedSpinAimV233;buntProfileBinding?:never }>);
 export type SamePaPhysicalResolutionSource = OperationSource & Readonly<{ capability: 'same_pa_physical_resolution_v1'; throughTick: number;
   commitmentReference: SamePaReference<'pa_physical_v1_commitments'> | null }>;
 export type SamePaPhysicalFieldRootSource = OperationSource & Readonly<{ capability: 'same_pa_physical_field_root_v1';
@@ -106,10 +108,12 @@ export type SamePaPhysicalCut = RecordBase<SamePaPhysicalCutSource> & Readonly<{
 export type SamePaPhysicalCommitment = RecordBase<SamePaPhysicalCommitmentSource> & Readonly<{ kind: 'same_pa_physical_commitment_v1'; stage: 'committed';
   commitment: BattingCommitment; calculation: import('../../core/world/psychology/batting/BattingCommitment').BattingExecutionCalculation
     | import('../../core/world/psychology/batting/BattingCommitment').BattingSpinExecutionCalculationV123
-    | import('../../core/world/psychology/batting/BattingCommitment').BattingObservedSpinAimTrialCalculationV226;
+    | import('../../core/world/psychology/batting/BattingCommitment').BattingObservedSpinAimTrialCalculationV226
+    | import('../../core/world/psychology/batting/BattingCommitment').BattingQualifiedSpinAimCalculationV233;
   inputSource: import('./NativeBattingExecutionInput').AcceptedInFlightSamePaBattingExecutionInput;
   originalIntent: import('./OriginalBattingIntent').AcceptedOriginalBattingIntent;
   trialEvidenceV226?: ReturnType<typeof import('./SamePaObservedSpinAimTrialV226').deriveSamePaObservedSpinAimTrialV226>['evidence'];
+  qualifiedEvidenceV233?: ReturnType<typeof import('./SamePaQualifiedSpinAimV233').deriveSamePaQualifiedSpinAimV233>['qualifiedEvidenceV233'];
   beforeWorldRevision: number; afterWorldRevision: number; controlRevision: number; controlHash: string; actionKey: string }>;
 export type SamePaPhysicalResolution = RecordBase<SamePaPhysicalResolutionSource> & Readonly<{ kind: 'same_pa_physical_resolution_v1'; stage: 'resolved';
   resolution: AerodynamicRigidPitchAgainstBatterResolution; contact: import('../../core/sim/contact/BatBallContact').BatBallContactResult | null }>;
@@ -177,6 +181,8 @@ export const samePaPhysicalEpisodeSourceInput = (raw: unknown, id?: string): Sam
       samePaSpinBindingInputV123(s.spinBindingV123); }
     else if (s.capability === 'same_pa_physical_observed_spin_aim_trial_v226') { if (!fields(s, [...op, 'inputReference', 'intentReference', 'trial']) || !ref(s.inputReference, 'batting_execution_v1_inputs') || !ref(s.intentReference, 'batting_execution_v1_intents')) throw new Error('invalid physical observed spin aim trial');
       samePaObservedSpinAimTrialInputV226(s.trial); }
+    else if (s.capability === 'same_pa_physical_qualified_spin_aim_v233') { if (!fields(s,[...op,'inputReference','intentReference','qualifiedAim']) || !ref(s.inputReference,'batting_execution_v1_inputs') || !ref(s.intentReference,'batting_execution_v1_intents')) throw new Error('invalid physical qualified spin aim');
+      samePaQualifiedSpinAimInputV233(s.qualifiedAim); }
     else if (s.capability === 'same_pa_physical_resolution_v1') { if (!fields(s, [...op, 'throughTick', 'commitmentReference']) || !tick(s.throughTick) || s.commitmentReference !== null && !ref(s.commitmentReference, 'pa_physical_v1_commitments')) throw new Error('invalid physical resolution'); }
     else if (s.capability === 'same_pa_physical_field_root_v1') { const f=s.fieldInputs; if (!fields(s, [...op, 'resolutionReference', 'fieldInputs', 'postureReference', 'commands', 'parameters', 'throughTick', ...('ballPhysics' in s ? ['ballPhysics'] : []), ...('parkEquipment' in s ? ['parkEquipment'] : []), ...('venuePolicy' in s ? ['venuePolicy'] : []), ...('venueLegalCoveragePolicy' in s ? ['venueLegalCoveragePolicy'] : []), ...('liveProducerProfile' in s ? ['liveProducerProfile'] : []), ...('actorProducerPolicies' in s ? ['actorProducerPolicies'] : [])]) || !tick(s.throughTick)
       || 'liveProducerProfile' in s && !['same_pa_empty_base_catch_v1', 'same_pa_stationary_occupied_catch_v1'].includes(s.liveProducerProfile!)

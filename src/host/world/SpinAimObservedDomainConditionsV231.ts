@@ -2,14 +2,14 @@ import { isDeepStrictEqual } from 'node:util';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
-import { deriveSamePaObservedSpinAimTrialV226, type SamePaObservedSpinAimTrialV226 } from './SamePaObservedSpinAimTrialV226';
+import { samePaObservedSpinAimTrialInputV226, deriveSamePaObservedSpinAimTrialV226, deriveSamePaObservedSpinAimComponentsV233, type ObservedSpinAimComponentsInputV233, type SamePaObservedSpinAimTrialV226 } from './SamePaObservedSpinAimTrialV226';
 import { readNativeSpinMotionBindingV225, spinMotionBindingReferenceV225 } from './SqliteSpinMotionBindingV225';
 import { readBattingPerceptionFromSqlite } from './SqliteBattingPerceptionStore';
 import { readSamePaLifecycleCalibrationFromSqlite, withSamePaLifecycleReadPhase } from './SamePlateAppearanceLifecycleFromSqlite';
 import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
 import { hashSpinAimDomainValueV228, type SpinAimDomainV228, type SpinAimCohortMemberV228 } from './SpinAimQualificationV228';
 import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
-type Trial=ReturnType<typeof deriveSamePaObservedSpinAimTrialV226>;
+type Trial=ReturnType<typeof deriveSamePaObservedSpinAimComponentsV233>;
 type Binding=NonNullable<ReturnType<typeof readNativeSpinMotionBindingV225>>;
 type Perception=ReturnType<typeof readBattingPerceptionFromSqlite>;
 type Calibration=ReturnType<typeof readSamePaLifecycleCalibrationFromSqlite>;
@@ -43,14 +43,22 @@ export function deriveObservedSpinAimDomainV231(input:ObservedSpinAimDomainCondi
 
 /** Use the unchanged V226 normal join before commitment; existing Owner DTOs
  * are read in the same Native snapshot, never synthesized from future results. */
-export function readObservedSpinAimDomainBeforeCommitmentV231(db:DatabaseSync,trial:SamePaObservedSpinAimTrialV226,basis:Parameters<typeof deriveSamePaObservedSpinAimTrialV226>[2]) {
+export function readObservedSpinAimDomainComponentsV233(db:DatabaseSync,trial:ObservedSpinAimComponentsInputV233,basis:Parameters<typeof deriveSamePaObservedSpinAimComponentsV233>[2]) {
  return withBattedVenueLegalReadSnapshot(db,()=>withSamePaLifecycleReadPhase(db,()=>{
   if(db.prepare('PRAGMA query_only').get()!.query_only!==1)throw Error('spin trial domain v231: query_only snapshot required');
-  const value=deriveSamePaObservedSpinAimTrialV226(db,trial,basis),e=value.evidence,binding=readNativeSpinMotionBindingV225(db,trial.bindingReference.sourceId);
+  const value=deriveSamePaObservedSpinAimComponentsV233(db,trial,basis),e=value.evidence,binding=readNativeSpinMotionBindingV225(db,trial.bindingReference.sourceId);
   if(!binding||!same(spinMotionBindingReferenceV225(binding),trial.bindingReference))throw Error('spin trial domain v231: binding differs');
   const capture=readBattingPerceptionFromSqlite(db,'observation',e.observationReference),delivery=readBattingPerceptionFromSqlite(db,'delivery',e.deliveryReference),prediction=readBattingPerceptionFromSqlite(db,'prediction',e.predictionReference);
   if(capture.kind!=='batting_observation'||capture.source.capability!=='owned_in_flight_batting_observation_v1'||delivery.kind!=='batting_observation_delivery'||delivery.source.capability!=='owned_in_flight_batting_observation_delivery_v1')throw Error('spin trial domain v231: observation owners differ');
   const captureCalibration=readSamePaLifecycleCalibrationFromSqlite(db,capture.source.calibrationReference),deliveryCalibration=readSamePaLifecycleCalibrationFromSqlite(db,delivery.source.calibrationReference);
   return deriveObservedSpinAimDomainV231({trialContext:value.trialContext,evidence:e,bindingReference:trial.bindingReference,binding,capture,delivery,prediction,captureCalibration,deliveryCalibration});
+ }));
+}
+
+/** Legacy wrapper retains the existing strict trial parser and returned domain. */
+export function readObservedSpinAimDomainBeforeCommitmentV231(db:DatabaseSync,trial:SamePaObservedSpinAimTrialV226,basis:Parameters<typeof deriveSamePaObservedSpinAimTrialV226>[2]) {
+ return withBattedVenueLegalReadSnapshot(db,()=>withSamePaLifecycleReadPhase(db,()=>{
+  if(db.prepare('PRAGMA query_only').get()!.query_only!==1)throw Error('spin trial domain v231: query_only snapshot required');
+  return readObservedSpinAimDomainComponentsV233(db,samePaObservedSpinAimTrialInputV226(trial),basis);
  }));
 }

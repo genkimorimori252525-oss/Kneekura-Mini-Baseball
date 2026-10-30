@@ -39,3 +39,5 @@ group分離、取りこぼし・未解決・miss、重複・異hash、再導出�
 V231で正常historical precommit条件とposttrial条件の全値一致を実証した。V232ではcanonicalな全commitment metadataとWorld eventの一対一所属を先に認証し、固定prefix内だけをfull再導出する。capabilityや未認証row revisionで先に除外せず、World全payload hash、career / Source ID / fullref / before-after / actionKeyを照合する。
 
 resolutionはWorld位置を持たないためcandidateであり、対応する正常commitmentとSource固定fullrefsを別の閉鎖証拠にする。新qualified consumerは、再入前に資格end<=commitment.beforeを検査し、依存するWorld位置を厳密に減らす。未確定資格の仮信用やcacheによる検証省略は行わない。新arm・実consumer・真資格成立はまだ未実証。
+
+V233では新armと因果rank / 現在適用 / precommit条件のコードを追加し、正常保存データの不足fallback・未来資格拒否と旧Core通常計算一致を実証した。実Producer採用と真正なqualified成功は未実証。新branchの保存ではWorld eventが揃った後に完全再認証する限定stagingを追加したが、実PhysicalOwnerのpositiveとpoison rollback / reopenが通るまでは採用保留。COMMIT後の検証失敗は既存Owner retireで取消不能、全失敗rollbackとは呼ばない。

@@ -55,3 +55,5 @@ SPINの追加根拠: [SPIN-ORIGINAL-MOTOR-EVIDENCE-V224.md](SPIN-ORIGINAL-MOTOR-
 計画前条件の追加根拠: [SPIN-PRECOMMIT-DOMAIN-V231.md](SPIN-PRECOMMIT-DOMAIN-V231.md)。正常な過去入力から得た条件と実行後記録の条件・来歴が全値一致。現在判断・新接触の受理は0。次は資格読取の循環を避けるmembership境界と通常consumer。
 
 所属境界の追加受入: [SPIN-CAUSAL-WORLD-MEMBERSHIP-V232.md](SPIN-CAUSAL-WORLD-MEMBERSHIP-V232.md)。World所属の先行認証後に閉範囲内だけを正常再導出し、保存1trial・条件・不足評価が全値一致。新qualified consumer / 真正な資格成立は次の未完。
+
+資格付き経路の実装と不足fallback: [SPIN-QUALIFIED-CONSUMER-EXPERIMENTAL-V233.md](SPIN-QUALIFIED-CONSUMER-EXPERIMENTAL-V233.md)。真正1件では通常fallback・未来資格拒否・旧Core全計算一致を確認。実Producer、真qualified Native受理と保存順序の実Owner検証は未完成・採用保留。正規打球処理と解放を経て独立反復を得る必要がある。
