@@ -2,6 +2,7 @@ import {parsePracticeSwingDecisionV241,resolvePracticeSwingDecisionV241,type Pra
 import {validateLiveObservedContactFrameTrialV244,type LiveObservedContactFrameTrialV244} from './LiveContactFrameMotorV244';
 import {planObservedContactFrameRegistrationV243} from '../../core/decision/batting/ObservedContactFrameRegistrationV243';
 import {forecastObservedPitchV151} from '../../core/decision/batting/ObservedPitchForecastV151';
+import {forecastObservedPitchV246,type ObservedPitchForecastPolicyV246} from '../../core/decision/batting/ObservedPitchForecastV246';
 import type { Vec3 } from '../../core/model/geometry';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { SeedRoot } from '../../core/rng/SeedRoot';
@@ -81,6 +82,7 @@ export type LivePitchInputV1=Readonly<{
   pitchWorkloadV122?:Omit<Extract<LivePitchWorkloadExecutionInputV122,{workload:unknown}>,'physics'>;
   batterBeliefV122?:Readonly<{belief:BatterBeliefV122;observerPlayerId:string;pitcherId:string}>;
   batterObservationV151?:LiveBatterObservationPolicyV151;
+  batterForecastPolicyV246?:ObservedPitchForecastPolicyV246;
   batterObservedRegionExperienceV222?:BatterObservedRegionExperiencePolicyV222;
   observedSpinTrialV236?:LiveObservedSpinTrialRequestV236|LiveObservedSpinComposeRequestV238|LiveObservedContactFrameTrialV244;
   spinMotorPracticePolicyV239?:LiveSpinMotorPracticePolicyV239;
@@ -168,6 +170,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   const executionV122=b.swingExecutionV122===undefined?undefined:validateSwingExecutionV122(b.swingExecutionV122);
   assert(input.pitchCommandObservationV155===undefined||input.pitchCommandObservationV155===true,'invalid read-only pitch command observation request');
   const observationPolicyV151=input.batterObservationV151===undefined?undefined:validateLiveBatterObservationPolicyV151(input.batterObservationV151);
+  assert(input.batterForecastPolicyV246===undefined||observationPolicyV151!==undefined,'V246 forecast requires position-only observation policy');
   const directionMotorPolicyV153=input.batterDirectionMotorV153===undefined?undefined:validateObservedDirectionMotorV153(input.batterDirectionMotorV153);
   assert(directionMotorPolicyV153===undefined||observationPolicyV151!==undefined,'direction motor requires position-only observation policy');
   assert(observationPolicyV151===undefined||observationPolicyV151.ticksPerSecond===tps,'batter observation clock differs from physics');
@@ -386,10 +389,12 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   assert(plateTime!==null&&catchPlaneTime!==null,'pitched ball did not cross the finite plate/catcher planes');
   const catcherObservationTime=Math.min(.14,plateTime*.35),observedSample=kernel.evaluateAt(catcherObservationTime),
     positionObserverV151=observationPolicyV151===undefined?undefined:createLiveBatterPositionObserverV151({policy:observationPolicyV151,
-      originTick:input.originTick,planeZ:battingSetupV94.contactPlaneZ},seconds=>{
+      originTick:input.originTick,planeZ:battingSetupV94.contactPlaneZ,...(input.batterForecastPolicyV246===undefined?{}:{forecastPolicyV246:input.batterForecastPolicyV246})},seconds=>{
       if(seconds>horizon)return null;const sample=kernel.evaluateAt(seconds).moment.ball;return {tick:sample.tick,position:sample.position};},regionPolicyV222!==undefined||spinTrialRequestV236!==undefined||spinComposeRequestV238!==undefined||contactFrameRequestV244!==undefined),
     decisionTime=positionObserverV151?(positionObserverV151.decisionTick-input.originTick)/tps:catcherObservationTime,
-    rawForecastV151=positionObserverV151?.forecastAt(positionObserverV151.decisionTick);
+    rawForecastV151=positionObserverV151?.forecastAt(positionObserverV151.decisionTick),
+    forecastResultV246=input.batterForecastPolicyV246===undefined?undefined:positionObserverV151!.forecastAtV246!(positionObserverV151!.decisionTick),
+    effectiveForecastV246=forecastResultV246?.forecast??rawForecastV151;
   assert(!(input.managerCommunicationV122&&input.swingInstructionV121),'ambiguous received and raw manager instruction');
   const managerCommunicationV122=input.managerCommunicationV122===undefined?null:resolveLiveManagerCommunicationV122({...input.managerCommunicationV122,
     seed:randomStreamsV152?.seedFor('communication','manager-communication-v122')??input.seed,
@@ -404,14 +409,14 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   const swingIntentV121=b.swingPolicyV121===undefined?null:resolveBatterApproachV121({policy:b.swingPolicyV121,mode:input.batting,
     strikes:input.pitchSituationV111?.strikes??0,draw:randomStreamsV152?.rng('batterApproach','effort').uniform()??new SeedRoot(input.seed).streamRng(0,'batting','continuous-intent-v121').nextFloat(),
     ...(receivedInstructionV122===undefined?{}:{instruction:receivedInstructionV122})});
-  const observedPredictionV122=positionObserverV151?{elapsedSeconds:rawForecastV151!.prediction?.arrivalAfterReleaseSeconds??decisionTime,
-      ball:{tick:positionObserverV151.decisionTick,position:rawForecastV151!.prediction?.position??{x:0,y:middle,z:battingSetupV94.contactPlaneZ},
-        velocity:rawForecastV151!.prediction?.estimatedVelocity??zero(),spin:zero()}}
+  const observedPredictionV122=positionObserverV151?{elapsedSeconds:effectiveForecastV246!.prediction?.arrivalAfterReleaseSeconds??decisionTime,
+      ball:{tick:positionObserverV151.decisionTick,position:effectiveForecastV246!.prediction?.position??{x:0,y:middle,z:battingSetupV94.contactPlaneZ},
+        velocity:effectiveForecastV246!.prediction?.estimatedVelocity??zero(),spin:zero()}}
       :predictFromObservation(observedSample,decisionTime,battingSetupV94.contactPlaneZ),
     priorV122=intentV122?.preparedPrediction??(preparedRecallV151?{x:preparedRecallV151.position.x,y:preparedRecallV151.position.y,
       arrivalAfterReleaseSeconds:preparedRecallV151.arrivalAfterReleaseSeconds}:null),
     requestedPriorWeightV151=intentV122?.preparedPrediction?(intentV122.priorWeight??0):preparedRecallV151?.priorWeight??0,
-    currentObservationAvailableV151=positionObserverV151===undefined||rawForecastV151?.status==='PREDICTED',
+    currentObservationAvailableV151=positionObserverV151===undefined||effectiveForecastV246?.status==='PREDICTED',
     usablePriorV151=priorV122!==null&&priorV122!==undefined&&requestedPriorWeightV151>0,
     priorWeightV122=!currentObservationAvailableV151&&usablePriorV151?1:requestedPriorWeightV151,
     prediction=priorV122&&priorWeightV122>0?{...observedPredictionV122,
@@ -436,7 +441,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   }
   const observationTick=positionObserverV151?.decisionTick??input.originTick+Math.round(decisionTime*tps),batterRecognition=recognizeZoneV87({role:'batter',profile:b.zoneRecognitionV87,position:prediction.ball.position,zone,
     seed:randomStreamsV152?.seedFor('batterPerception','zone-recognition-v87')??input.seed,
-    sourceTick:rawForecastV151?.observedThroughTick??observationTick,observationTick,planeZ:battingSetupV94.contactPlaneZ,standardDeviationMeters:judgmentStd,baselineErrorMeters:judgmentError,abilityBasis:'zoneJudgmentStdMeters'}),
+    sourceTick:effectiveForecastV246?.observedThroughTick??observationTick,observationTick,planeZ:battingSetupV94.contactPlaneZ,standardDeviationMeters:judgmentStd,baselineErrorMeters:judgmentError,abilityBasis:'zoneJudgmentStdMeters'}),
     judgmentPosition={...prediction.ball.position,...batterRecognition.position},recognitionAimOffset=batterRecognition.diagnostics.biasMeters,
     motorAimPosition=recognitionAimOffset.x===0&&recognitionAimOffset.y===0?prediction.ball.position:{...prediction.ball.position,x:prediction.ball.position.x+recognitionAimOffset.x,y:prediction.ball.position.y+recognitionAimOffset.y};
   const inChaseEnvelope=Math.abs(judgmentPosition.x)<=zone.halfWidth+b.chaseMarginMeters
@@ -449,7 +454,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   const practiceSwingDecisionV241=input.practiceSwingDecisionV241===undefined?undefined:resolvePracticeSwingDecisionV241({
     request:parsePracticeSwingDecisionV241(input.practiceSwingDecisionV241),managedOffense:true,explicitPractice:true,
     batting:input.batting,managerCommunicationPresent:input.managerCommunicationV122!==undefined,baselineOffer:swingOffered,
-    effort:swingIntentV121?.effort??null,currentForecast:rawForecastV151??null,decisionCutoffTick:observationTick});
+    effort:swingIntentV121?.effort??null,currentForecast:effectiveForecastV246??null,decisionCutoffTick:observationTick});
   if(practiceSwingDecisionV241)swingOffered=practiceSwingDecisionV241.offerAfterIntent;
   const learnedMotionClipV124=spinProfileV123===undefined?null:findLiveSpinMotionClipV124(spinProfileV123,b.bats,input.measuredClips),
     intentClipV124=learnedMotionClipV124??clip;
@@ -482,9 +487,12 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
     if(!contactFrameSnapshotV244)return 'MISSING_DELIVERED_FORECAST';
     if(!Object.is(contactFrameRequestV244.domain.plateZ,contactFrameSnapshotV244.planeZ))return 'DOMAIN_MISMATCH';
     if(contactFrameSnapshotV244.cutoffTick!==observationTick)throw Error('contact frame v244: cutoff differs');
-    const snapshot=contactFrameSnapshotV244,forecast=forecastObservedPitchV151({originTick:snapshot.originTick,ticksPerSecond:snapshot.ticksPerSecond,cutoffTick:snapshot.cutoffTick,planeZ:snapshot.planeZ,maximumAfterReleaseSeconds:snapshot.maximumAfterReleaseSeconds,observations:snapshot.observations});
+    const snapshot=contactFrameSnapshotV244,legacyForecast=forecastObservedPitchV151({originTick:snapshot.originTick,ticksPerSecond:snapshot.ticksPerSecond,cutoffTick:snapshot.cutoffTick,planeZ:snapshot.planeZ,maximumAfterReleaseSeconds:snapshot.maximumAfterReleaseSeconds,observations:snapshot.observations});
     const same=(a:unknown,b:unknown):boolean=>Object.is(a,b)||!!a&&!!b&&typeof a==='object'&&typeof b==='object'&&Array.isArray(a)===Array.isArray(b)&&Object.keys(a).length===Object.keys(b).length&&Object.keys(a).every(k=>Object.hasOwn(b,k)&&same((a as Record<string,unknown>)[k],(b as Record<string,unknown>)[k]));
-    if(!same(forecast,snapshot.forecast)||!same(forecast.usedObservationIds,snapshot.observations.map(o=>o.observationId)))throw Error('contact frame v244: frozen forecast differs');
+    if(!same(legacyForecast,snapshot.forecast)||!same(legacyForecast.usedObservationIds,snapshot.observations.map(o=>o.observationId)))throw Error('contact frame v244: frozen legacy forecast differs');
+    const snapshotV246=input.batterForecastPolicyV246===undefined?null:positionObserverV151!.snapshotAtV246!(observationTick)!;
+    if(snapshotV246){const replay=forecastObservedPitchV246({originTick:snapshotV246.originTick,ticksPerSecond:snapshotV246.ticksPerSecond,cutoffTick:snapshotV246.cutoffTick,planeZ:snapshotV246.planeZ,maximumAfterReleaseSeconds:snapshotV246.maximumAfterReleaseSeconds,observations:snapshotV246.observations},snapshotV246.policy);if(!same(replay,snapshotV246.result)||!same(snapshotV246.result,forecastResultV246))throw Error('contact frame v244: frozen V246 forecast differs');}
+    const forecast=snapshotV246?.result.forecast??legacyForecast;
     if(forecast.status!=='PREDICTED'||!forecast.prediction)return 'MISSING_DELIVERED_FORECAST';
     if(snapshot.originTick+Math.round(forecast.prediction.arrivalAfterReleaseSeconds*snapshot.ticksPerSecond)<=observationTick)return 'NO_FORWARD_CROSSING';
     return null;
@@ -526,7 +534,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
     :intentV122?(intentV122.direction.pullAngleDegrees??undefined):directionIntent?.pullAngleDegrees??b.pullAngleDegrees,
     reactiveMotorV161=input.battingDirectionRequestV149?.mode==='AUTO'&&battingDirectionV149?.direction.kind==='REACTIVE',
     directionMotorReasonV153=!swingOffered?'NO_SWING':input.batting==='bunt'?'BUNT_MOTOR':intendedPullAngleDegrees===undefined&&!reactiveMotorV161?'REACTIVE_NO_ANGLE_TARGET'
-      :!rawForecastV151?.prediction?'NO_OBSERVED_VELOCITY':spinMotionV123?'QUALIFIED_SPIN_MOTOR_OWNS_REGISTRATION':null,
+      :!effectiveForecastV246?.prediction?'NO_OBSERVED_VELOCITY':spinMotionV123?'QUALIFIED_SPIN_MOTOR_OWNS_REGISTRATION':null,
     directionMotorActiveV153=directionMotorPolicyV153!==undefined&&directionMotorReasonV153===null,
     planningSweetSpotT=directionMotorActiveV153?clamp(b.sweetSpotT??(b.batLengthM-.1524)/b.batLengthM,.65,.9):sweetSpotT,
     planningContactTime=directionMotorActiveV153?Math.max(.055,prediction.elapsedSeconds+(b.technicalTimingOffsetSeconds??0)):desiredContactTime;
@@ -598,7 +606,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
     batPhysical:RigidBatPhysicalProperties={massKg:b.batMassKg,centerOfMassT:.65,transverseMomentOfInertiaKgM2:b.batMassKg*b.batLengthM*b.batLengthM*.075,
       axialMomentOfInertiaKgM2:b.batMassKg*.025*.025/2,radiusProfile},
     ballPhysical={massKg:profile.air.aerodynamics.ballMassKg,radiusM:profile.air.aerodynamics.ballRadiusM,rotationalInertiaFactor:profile.ground.inertiaRatio};
-  const directionPredictionV153=directionMotorActiveV153?createDirectionMotorPredictionV153({rawPrediction:rawForecastV151!.prediction,
+  const directionPredictionV153=directionMotorActiveV153?createDirectionMotorPredictionV153({rawPrediction:effectiveForecastV246!.prediction,
     perceivedPosition:motorAimPosition,perceivedArrivalSeconds:prediction.elapsedSeconds,originTick:input.originTick,ticksPerSecond:tps,availableTick:observationTick}):null,
     nominalRegistrationsV153=new Map<number,ReturnType<typeof planObservedDirectionRegistrationV153>|ReturnType<typeof planObservedReactiveRegistrationV161>>(),
     nominalInputsV154=new Map<number,ObservedDirectionRegistrationInputV153|ObservedReactiveRegistrationInputV161>();
@@ -708,10 +716,12 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
           uncorrectedReference.sampleContinuous(input.originTick+seconds*tps).state,batPhysical),ballPhysical),
         uncorrectedReference.maximumGripSpeedMps+uncorrectedReference.maximumAngularSpeedRadPerSecond*b.batLengthM,prefixThroughV151):null,
       lateRawForecastV151=positionObserverV151&&!prefixContactV151&&(availableTick-input.originTick)/tps<=horizon?positionObserverV151.forecastAt(availableTick):null,
-      latePrediction=positionObserverV151?{ball:{position:lateRawForecastV151?.prediction?.position??prediction.ball.position}}
+      lateForecastResultV246=lateRawForecastV151&&input.batterForecastPolicyV246!==undefined?positionObserverV151!.forecastAtV246!(availableTick):null,
+      lateEffectiveForecast=lateForecastResultV246?.forecast??lateRawForecastV151,
+      latePrediction=positionObserverV151?{ball:{position:lateEffectiveForecast?.prediction?.position??prediction.ball.position}}
         :predictFromObservation(kernel.evaluateAt(observedTime),observedTime,battingSetupV94.contactPlaneZ),
       earlyEvidence={predictionId:'release-observation-v121',observedTick:observationTick,availableTick:observationTick,position:prediction.ball.position},
-      lateObservedTick=positionObserverV151?(lateRawForecastV151?.status==='PREDICTED'?lateRawForecastV151.observedThroughTick!:observationTick)
+      lateObservedTick=positionObserverV151?(lateEffectiveForecast?.status==='PREDICTED'?lateEffectiveForecast.observedThroughTick!:observationTick)
         :input.originTick+Math.round(observedTime*tps),
       evidence=selectPredictionAt(lateObservedTick>observationTick?[earlyEvidence,{predictionId:'late-observation-v121',observedTick:lateObservedTick,availableTick,position:latePrediction.ball.position}]:[earlyEvidence],correctionFromTick)!,
       requestedOffset=sub(evidence.position,prediction.ball.position),distance=norm(requestedOffset),
@@ -723,9 +733,9 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
     return {headroom,observedTick:lateObservedTick,availableTick,correctionFromTick,throughTick:Math.max(correctionFromTick,throughTick),selectedPredictionId:evidence.predictionId,
       contactPlaneZ:battingSetupV94.contactPlaneZ,requestedOffset,offset:applied?offset:zero(),applied,maximumCorrectionSpeedMps:budget,
       futureSourceUsed:false as const,decisionOrContactDepthForced:false as const,
-      ...(positionObserverV151?{rawForecast:lateRawForecastV151,prefixClosedBeforeObservation:prefixContactV151!==null,
+      ...(positionObserverV151?{rawForecast:lateRawForecastV151,...(lateForecastResultV246?{effectiveForecastV246:lateForecastResultV246,effectiveSnapshotV246:positionObserverV151.snapshotAtV246!(availableTick)!}:{}),prefixClosedBeforeObservation:prefixContactV151!==null,
         prefixSearchedThroughElapsedSeconds:prefixThroughV151}:{}),
-      deliveryModel:positionObserverV151?'POSITION_ONLY_DELIVERED_OBSERVATIONS_V151' as const:'LEGACY_INSTANT_SAMPLE_NO_INVENTED_MILLISECOND_GAIN' as const};
+      deliveryModel:positionObserverV151?(input.batterForecastPolicyV246===undefined?'POSITION_ONLY_DELIVERED_OBSERVATIONS_V151' as const:'POSITION_ONLY_DELIVERED_OBSERVATIONS_V246_EXPERIMENT' as const):'LEGACY_INSTANT_SAMPLE_NO_INVENTED_MILLISECOND_GAIN' as const};
   })();
   let registeredReference:ReferenceBatKinematicsInputV1=lateEvidenceV121?.applied?{...impactReference,aimCorrectionV121:{availableTick:lateEvidenceV121.correctionFromTick,
     throughTick:lateEvidenceV121.throughTick,offset:lateEvidenceV121.offset}}:impactReference;
@@ -949,6 +959,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
       ...(randomStreamsV152?{randomnessV152:{...randomStreamsV152.captureTrace(),directionTrialAlias:input.directionTrialSeedV79===undefined?'NOT_PROVIDED'
         :directionAliasV152?'DIRECTION_ONLY_ALIAS':'EXPLICIT_DOMAIN_PRECEDENCE'}}:{}),
       ...(regionPolicyV222?{batterObservedRegionExperienceV222:{recall:regionRecallV222,snapshot:positionObserverV151!.snapshotAt!(positionObserverV151!.decisionTick)!}}:{}),
+      ...(forecastResultV246?{batterObservedForecastV246:{snapshot:positionObserverV151!.snapshotAtV246!(observationTick)!,downstreamProjection:'V153_CONSTANT_ACCELERATION_AT_FORECAST_ANCHOR_NOT_CUBIC_TRAJECTORY' as const,humanCalibration:'NOT_MEASURED' as const}}:{}),
       ...(positionObserverV151?{batterObservationV151:{policy:observationPolicyV151!,decisionTick:positionObserverV151.decisionTick,
         rawForecast:rawForecastV151!,preparedRecall:preparedRecallV151,requestedPriorWeight:requestedPriorWeightV151,effectivePriorWeight:priorWeightV122,
         preparedAndObservedPrediction:prediction.ball.position,preparedAndObservedArrivalAfterReleaseSeconds:prediction.elapsedSeconds,

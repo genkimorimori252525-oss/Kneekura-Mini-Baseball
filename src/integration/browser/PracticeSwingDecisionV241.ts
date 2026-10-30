@@ -4,7 +4,7 @@ import type { forecastObservedPitchV151 } from '../../core/decision/batting/Obse
 export type PracticeSwingDecisionRequestV241 = Readonly<{
   version:'practice_swing_decision_v241';sourceId:string;scope:'EXPLICIT_PRACTICE';mode:'AUTO'|'SWING'|'TAKE';
 }>;
-type Forecast = ReturnType<typeof forecastObservedPitchV151>;
+type Forecast = Pick<ReturnType<typeof forecastObservedPitchV151>,'status'|'prediction'|'cutoffTick'|'availableAtTick'|'observedThroughTick'|'usedObservationIds'>;
 function assert(value:unknown,message:string):asserts value {if(!value)throw Error('practice swing decision v241: '+message);}
 export function parsePracticeSwingDecisionV241(raw:unknown):PracticeSwingDecisionRequestV241 {
   assert(raw!==null&&typeof raw==='object'&&!Array.isArray(raw),'invalid request');

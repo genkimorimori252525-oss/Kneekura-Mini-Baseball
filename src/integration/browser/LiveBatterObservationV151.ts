@@ -1,6 +1,7 @@
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { Vec3 } from '../../core/model/geometry';
 import { forecastObservedPitchV151, type ObservedPitchPositionV151 } from '../../core/decision/batting/ObservedPitchForecastV151';
+import {forecastObservedPitchV246,type ObservedPitchForecastPolicyV246} from '../../core/decision/batting/ObservedPitchForecastV246';
 import { validateBatterObservedMemoryPolicyV151, type BatterObservedMemoryPolicyV151 } from '../../core/decision/batting/BatterObservedMemoryV151';
 
 /** An explicit operational model, never a measured human/Native calibration. */
@@ -34,12 +35,17 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
 
 /** The physical owner exposes only a position and its canonical event tick.
  * Missing finite Source windows stop capture; no window extension is inferred. */
-export function createLiveBatterPositionObserverV151(input:Readonly<{policy:LiveBatterObservationPolicyV151;originTick:number;planeZ:number}>,
+export function createLiveBatterPositionObserverV151(input:Readonly<{policy:LiveBatterObservationPolicyV151;originTick:number;planeZ:number;forecastPolicyV246?:ObservedPitchForecastPolicyV246}>,
   positionAtSeconds:(seconds:number)=>Readonly<{tick:number;position:Vec3}>|null, captureSnapshotV222=false) {
   const p=validateLiveBatterObservationPolicyV151(input.policy),origin=input.originTick,planeZ=input.planeZ;
   assert(Number.isSafeInteger(origin)&&origin>=0&&Number.isFinite(planeZ)
     &&Number.isSafeInteger(origin+Math.ceil(p.maximumForecastAfterReleaseSeconds*p.ticksPerSecond)+p.deliveryLatencyTicks),'invalid origin or observation plane');
   const deepFreeze=<T>(value:T):T=>{if(value&&typeof value==='object'&&!Object.isFrozen(value)){Object.values(value).forEach(deepFreeze);Object.freeze(value)}return value};
+  const policyDescriptor=Object.getOwnPropertyDescriptor(input,'forecastPolicyV246');
+  assert(policyDescriptor===undefined||'value' in policyDescriptor,'V246 policy must be inert data');
+  const policyV246=policyDescriptor===undefined?undefined:deepFreeze(cloneInert(policyDescriptor.value as ObservedPitchForecastPolicyV246));
+  if(policyDescriptor!==undefined)forecastObservedPitchV246({originTick:origin,ticksPerSecond:p.ticksPerSecond,cutoffTick:origin,planeZ,maximumAfterReleaseSeconds:p.maximumForecastAfterReleaseSeconds,observations:[]},policyV246!);
+  const observationsV246=new Map<number,readonly ObservedPitchPositionV151[]>(),resultsV246=new Map<number,ReturnType<typeof forecastObservedPitchV246>>();
   const cache=new Map<number,ReturnType<typeof forecastObservedPitchV151>>(), snapshots=new Map<number,Readonly<{originTick:number;ticksPerSecond:number;cutoffTick:number;planeZ:number;maximumAfterReleaseSeconds:number;observations:readonly ObservedPitchPositionV151[];forecast:ReturnType<typeof forecastObservedPitchV151>}>>();
   function forecastAt(cutoffTick:number) {
     assert(Number.isSafeInteger(cutoffTick)&&cutoffTick>=origin,'invalid observation cutoff');
@@ -55,12 +61,18 @@ export function createLiveBatterPositionObserverV151(input:Readonly<{policy:Live
         availableTick:sampled.tick+p.deliveryLatencyTicks,position:{...sampled.position}});
       if(sampled.position.z<=planeZ)break;
     }
+    if(policyV246)observationsV246.set(cutoffTick,deepFreeze(cloneInert(observations.filter(o=>o.observedTick<=cutoffTick&&o.availableTick<=cutoffTick).sort((a,b)=>a.observedTick-b.observedTick).slice(-7))));
     const result=forecastObservedPitchV151({originTick:origin,ticksPerSecond:p.ticksPerSecond,cutoffTick,planeZ,
       maximumAfterReleaseSeconds:p.maximumForecastAfterReleaseSeconds,observations});cache.set(cutoffTick,result);
     if(captureSnapshotV222){const selected=result.usedObservationIds.map(id=>observations.find(o=>o.observationId===id)!);
       snapshots.set(cutoffTick,deepFreeze(cloneInert({originTick:origin,ticksPerSecond:p.ticksPerSecond,cutoffTick,planeZ,maximumAfterReleaseSeconds:p.maximumForecastAfterReleaseSeconds,observations:selected,forecast:result})));}
     return result;
   }
+  function forecastAtV246(cutoffTick:number) {
+    assert(policyV246,'V246 policy not supplied');forecastAt(cutoffTick);const cached=resultsV246.get(cutoffTick);if(cached)return cached;
+    const observations=observationsV246.get(cutoffTick)!;const result=deepFreeze(forecastObservedPitchV246({originTick:origin,ticksPerSecond:p.ticksPerSecond,cutoffTick,planeZ,maximumAfterReleaseSeconds:p.maximumForecastAfterReleaseSeconds,observations},policyV246));resultsV246.set(cutoffTick,result);return result;
+  }
   return Object.freeze({policy:p,decisionTick:origin+p.decisionAfterReleaseTicks,forecastAt,
-    ...(captureSnapshotV222?{snapshotAt:(cutoffTick:number)=>{forecastAt(cutoffTick);return snapshots.get(cutoffTick)}}:{})});
+    ...(captureSnapshotV222?{snapshotAt:(cutoffTick:number)=>{forecastAt(cutoffTick);return snapshots.get(cutoffTick)}}:{}),
+    ...(policyV246?{forecastAtV246,snapshotAtV246:(cutoffTick:number)=>{const result=forecastAtV246(cutoffTick);return deepFreeze({version:'live_observed_forecast_snapshot_v246' as const,originTick:origin,ticksPerSecond:p.ticksPerSecond,cutoffTick,planeZ,maximumAfterReleaseSeconds:p.maximumForecastAfterReleaseSeconds,policy:policyV246,observations:observationsV246.get(cutoffTick)!,result});}}:{})});
 }

@@ -323,3 +323,9 @@ V180読取再照合ではQ/P/D/L同時成立候補0であり軌道差0ではな�
 ### 2026-10-30 接触面を使った4技術の固定診断
 
 [CONTACT-FRAME-SPIN-V244.md](../../verification/realism-debug-20261027/CONTACT-FRAME-SPIN-V244.md)。本人1clipの固定2機会でSLICE2/2、HOOK/BACK/TOP各1/2。観測・選択・実接触・空力と全分母を保持し、未達と旧失敗は消さない。SLICEの未校正な局所成功はNative習得/Goldではない。TOPの逆方向例は予測と実接触位置差約41.9mmに加え、飛行方向の変化で回転評価軸が変わる。選択予測の接触詳細を保存し、同球の未来実値を制御へ戻さず原因を継続調査する。残る他3技術の成立、心理、キレ物理、career/Native/Gold、9回・性能・完成3HTML配送は維持する。
+
+### 2026-10-31 配達済み7点による予測実験
+
+[CAUSAL-FORECAST-PILOT-V245.md](../../verification/realism-debug-20261027/CAUSAL-FORECAST-PILOT-V245.md)。同Core・固定6投球の理想観測では、従来3点定加速度の位置誤差中央値34.815mmに対し最大7点三次QRは2.774mm。これは未校正の小標本であり、人間全般の精度を示さない。明示policy V246をHost/Liveへ接続し、旧V151/V222記憶・旧default/JSON/RNG/clockを保持。
+
+本人1clipの固定2回／Main実Worker検証はTOP 2/2、HOOK/BACK/SLICE各1/2。SLICEは従来予測で2/2だったため新予測を製品defaultに採用しない。全実record/NO_TARGET/旧失敗・旧結果を保持し、同じ物理sourceの差を分析する。予測モデルの改善を4技術の習得、Gold、キレ物理や完成3HTML配送の完了に置き換えない。

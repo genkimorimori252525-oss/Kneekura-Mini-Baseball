@@ -1,3 +1,4 @@
+import {forecastObservedPitchV246,type ObservedPitchForecastPolicyV246} from '../../core/decision/batting/ObservedPitchForecastV246';
 import {parsePracticeSwingDecisionV241} from './PracticeSwingDecisionV241';
 import { liveFielderBodyControlBoundsV105, resolveLiveFielderBodyModelV105, type LiveFielderBodyPoseV105 } from '../../core/sim/fielding/LiveFielderBodyGeometryV105';
 import { BASEBALL_SURFACES_V101 } from '../../core/sim/ball/BaseballSurfaceCalibrationV101';
@@ -73,6 +74,7 @@ export type LiveMatchInputV1 = Readonly<{seed:number;innings?:number;teams:reado
   workloadV122?:LiveMatchWorkloadConfigV122;
   batterKnowledgeV122?:readonly BatterBeliefV122[];
   batterObservationV151?:LiveBatterObservationPolicyV151;
+  batterForecastPolicyV246?:ObservedPitchForecastPolicyV246;
   batterObservedRegionExperienceV222?:BatterObservedRegionExperiencePolicyV222;
   batterDirectionMotorV153?:ObservedDirectionMotorPolicyV153;
   /** MATCH roots; per-play overrides are derived with the global pitch ordinal. */
@@ -241,7 +243,7 @@ export type LiveMatchContinuationV116=Readonly<{version:'live_match_continuation
  batterKnowledgeV122?:Readonly<{initialBinding:string;beliefs:readonly BatterBeliefV122[]}>;
  batterObservedMemoryV151?:Readonly<{policyBinding:string;memories:readonly BatterObservedMemoryV151[]}>;
  batterObservedRegionExperienceV222?:Readonly<{policyBinding:string;entries:readonly BatterObservedRegionEvidenceV222[]}>;
- randomnessBindingV152?:string;directionMotorBindingV153?:string}>;
+ randomnessBindingV152?:string;directionMotorBindingV153?:string;batterForecastBindingV246?:string}>;
 export function createLiveBaseballMatchV1(raw:LiveMatchInputV1){
  const host=createLiveBaseballMatchWorkerV116(raw);
  return Object.freeze({issuePitch:host.issuePitch,inspect:host.inspect});
@@ -250,6 +252,9 @@ export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:L
   const input=cloneMatchInputWithMeasuredCatalogV68(raw),innings=input.innings??9,tps=LIVE_MATCH_PHYSICS_V1.air.ticksPerSecond,
     matchPhysicsV101=input.park?.groundMaterialV101 ? createAeroGroundBallPhysicsProfile({...LIVE_MATCH_PHYSICS_V1,ground:{...LIVE_MATCH_PHYSICS_V1.ground,material:input.park.groundMaterialV101}}) : LIVE_MATCH_PHYSICS_V1;
   const observationPolicyV151=input.batterObservationV151===undefined?undefined:validateLiveBatterObservationPolicyV151(input.batterObservationV151);
+  assert(input.batterForecastPolicyV246===undefined||observationPolicyV151!==undefined,'V246 forecast requires position-only observation policy');
+  const forecastPolicyV246=input.batterForecastPolicyV246===undefined?undefined:forecastObservedPitchV246({originTick:0,ticksPerSecond:tps,cutoffTick:0,planeZ:0,maximumAfterReleaseSeconds:1,observations:[]},input.batterForecastPolicyV246).diagnostics.policy,
+    forecastBindingV246=forecastPolicyV246===undefined?undefined:JSON.stringify(forecastPolicyV246,Object.keys(forecastPolicyV246).sort());
   const regionPolicyV222=input.batterObservedRegionExperienceV222===undefined?undefined:validateObservedRegionPolicyV222(input.batterObservedRegionExperienceV222);
   assert(regionPolicyV222===undefined||observationPolicyV151!==undefined,'region experience requires position-only observation policy');
   const directionMotorPolicyV153=input.batterDirectionMotorV153===undefined?undefined:validateObservedDirectionMotorV153(input.batterDirectionMotorV153),
@@ -303,6 +308,7 @@ export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:L
     assert(c?.poleScopeBindingV148===poleScopeBindingV148,'same-game pole geometry, material or physical profile differs');
     assert(c?.randomnessBindingV152===randomnessBindingV152,'same-game randomness policy differs');
     assert(c?.directionMotorBindingV153===directionMotorBindingV153,'same-game direction motor policy differs');
+    assert(c?.batterForecastBindingV246===forecastBindingV246,'same-game forecast policy differs');
     assert(c?.version==='live_match_continuation_v116'&&c.seed===input.seed&&c.innings===innings
       &&integer(c.pitchCount)&&integer(c.nextTick)&&c.nextTick>=tps&&typeof c.finished==='boolean'
       &&c.match?.ruleProfileId==='npb-2026'&&integer(c.match.inning)&&c.match.inning>=1
@@ -367,6 +373,7 @@ export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:L
     ...(poleScopeBindingV148===undefined?{}:{poleScopeBindingV148}),
     ...(randomnessBindingV152===undefined?{}:{randomnessBindingV152}),
     ...(directionMotorBindingV153===undefined?{}:{directionMotorBindingV153}),
+    ...(forecastBindingV246===undefined?{}:{batterForecastBindingV246:forecastBindingV246}),
     battingOrderIndices:[...battingOrderIndices],line:cloneInert(line),...(workloadOwnerV122?{workloadV122:workloadOwnerV122.capture()}: {}),
     ...(input.batterKnowledgeV122===undefined?{}:{batterKnowledgeV122:captureKnowledgeV122()}),
     ...(observationPolicyV151===undefined?{}:{batterObservedMemoryV151:captureObservedMemoryV151()}),
@@ -443,6 +450,7 @@ export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:L
       ...(pendingBeliefV122?{batterBeliefV122:{belief:pendingBeliefV122,observerPlayerId:c.batterPlayerId,pitcherId:c.pitcherPlayerId}}:{}),
       ...(directionMotorPolicyV153===undefined?{}:{batterDirectionMotorV153:directionMotorPolicyV153}),
       ...(regionPolicyV222===undefined?{}:{batterObservedRegionExperienceV222:regionPolicyV222}),
+      ...(forecastPolicyV246===undefined?{}:{batterForecastPolicyV246:forecastPolicyV246}),
       ...(observationPolicyV151?{batterObservationV151:observationPolicyV151,batterObservedMemoryV151:{
         memory:observedMemoriesV151.get(knowledgeKeyV122)??createEmptyBatterObservedMemoryV151({observerPlayerId:c.batterPlayerId,pitcherId:c.pitcherPlayerId}),
         observerPlayerId:c.batterPlayerId,pitcherId:c.pitcherPlayerId}}:{}),
