@@ -48,6 +48,7 @@ import type { LiveBatPlaybackDescriptorV88 } from './LiveBatPlaybackV88';
 import { planLivePitchTargetV111, resolveLivePitchCommandStdV111, type LivePitchSituationV111 } from './LivePitchTargetPlanV111';
 import {validateLiveSpinControlV123,selectLiveSpinIntentV123,findLiveSpinMotionClipV124} from './LiveSpinControlV123';
 import {observeBattedBallSpinV123} from '../../core/sim/contact/BattedBallSpinObservationV123';
+import {validateLiveObservedSpinTrialRequestV236,resolveLiveObservedSpinTrialV236,type LiveObservedSpinTrialRequestV236} from './LiveObservedSpinTrialV236';
 
 export type LiveMeasuredClipV1=Readonly<{
   id:string;side:'R'|'L';source:Readonly<{sha256:string;repository?:string}>;contactTimeSeconds:number;
@@ -75,6 +76,7 @@ export type LivePitchInputV1=Readonly<{
   batterBeliefV122?:Readonly<{belief:BatterBeliefV122;observerPlayerId:string;pitcherId:string}>;
   batterObservationV151?:LiveBatterObservationPolicyV151;
   batterObservedRegionExperienceV222?:BatterObservedRegionExperiencePolicyV222;
+  observedSpinTrialV236?:LiveObservedSpinTrialRequestV236;
   batterDirectionMotorV153?:ObservedDirectionMotorPolicyV153;
   batterObservedMemoryV151?:Readonly<{memory:BatterObservedMemoryV151;observerPlayerId:string;pitcherId:string}>;
   /** Known before release. Omission preserves the original standalone target policy. */
@@ -165,7 +167,10 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   const observedMemoryV151=input.batterObservedMemoryV151===undefined?undefined:validateBatterObservedMemoryV151(input.batterObservedMemoryV151.memory);
   if(observedMemoryV151)assert(observedMemoryV151.observerPlayerId===input.batterObservedMemoryV151!.observerPlayerId
     &&observedMemoryV151.pitcherId===input.batterObservedMemoryV151!.pitcherId,'observed memory participants differ');
-  const regionPolicyV222=input.batterObservedRegionExperienceV222===undefined?undefined:validateObservedRegionPolicyV222(input.batterObservedRegionExperienceV222);
+  const regionPolicyV222=input.batterObservedRegionExperienceV222===undefined?undefined:validateObservedRegionPolicyV222(input.batterObservedRegionExperienceV222),
+    spinTrialRequestV236=input.observedSpinTrialV236===undefined?undefined:validateLiveObservedSpinTrialRequestV236(input.observedSpinTrialV236);
+  if(spinTrialRequestV236){const known=[input.batterObservedMemoryV151?.observerPlayerId,input.batterBeliefV122?.observerPlayerId].filter((v):v is string=>v!==undefined);
+    assert(known.every(id=>id===spinTrialRequestV236.subjectId),'spin trial subject differs from current batter observation');}
   assert(regionPolicyV222===undefined||observationPolicyV151!==undefined,'region experience requires position-only observation policy');
   const recallInputV151=observedMemoryV151?{atTick:input.originTick,
     draw:randomStreamsV152?.rng('batterBelief','recent-memory').uniform()??new SeedRoot(input.seed).streamRng(0,'batting','observed-prepitch-memory-v151').nextFloat(),
@@ -360,7 +365,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   const catcherObservationTime=Math.min(.14,plateTime*.35),observedSample=kernel.evaluateAt(catcherObservationTime),
     positionObserverV151=observationPolicyV151===undefined?undefined:createLiveBatterPositionObserverV151({policy:observationPolicyV151,
       originTick:input.originTick,planeZ:battingSetupV94.contactPlaneZ},seconds=>{
-      if(seconds>horizon)return null;const sample=kernel.evaluateAt(seconds).moment.ball;return {tick:sample.tick,position:sample.position};},regionPolicyV222!==undefined),
+      if(seconds>horizon)return null;const sample=kernel.evaluateAt(seconds).moment.ball;return {tick:sample.tick,position:sample.position};},regionPolicyV222!==undefined||spinTrialRequestV236!==undefined),
     decisionTime=positionObserverV151?(positionObserverV151.decisionTick-input.originTick)/tps:catcherObservationTime,
     rawForecastV151=positionObserverV151?.forecastAt(positionObserverV151.decisionTick);
   assert(!(input.managerCommunicationV122&&input.swingInstructionV121),'ambiguous received and raw manager instruction');
@@ -436,6 +441,9 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
     impactTrajectory={...arc,method:'whole-arc-target',angleDegreesByLevel:[spinMotionV123.attackAngleDegrees,spinMotionV123.attackAngleDegrees,
       spinMotionV123.attackAngleDegrees,spinMotionV123.attackAngleDegrees]};
   }
+  const observedSpinTrialV236=spinTrialRequestV236===undefined?undefined:resolveLiveObservedSpinTrialV236({request:spinTrialRequestV236,
+    snapshot:positionObserverV151?.snapshotAt?.(positionObserverV151.decisionTick)??null,clip:{id:clip.id,sourceSha256:clip.source.sha256,bats:clip.side},
+    swingOffered,battingMode:input.batting});
   // The course is chosen from the current perceived forecast. Neither a
   // future Source sample nor the eventual contact/result selects the ability.
   const predictedCourse=courseProfile===undefined?null:classifyBatterCourseV79({position:judgmentPosition,zone}),
@@ -466,7 +474,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
     timingError=courseErrorScale===1?zoneTimingError:zoneTimingError*courseErrorScale,
     courseAimError=courseErrorScale===1?zoneAimError:mul(zoneAimError,courseErrorScale),
     aimError=batterRecognition.diagnostics.uncertaintyScale===1?courseAimError:{...courseAimError,x:courseAimError.x*batterRecognition.diagnostics.uncertaintyScale,y:courseAimError.y*batterRecognition.diagnostics.uncertaintyScale},
-    desiredContactTime=Math.max(.055,prediction.elapsedSeconds+timingError+(b.technicalTimingOffsetSeconds??0)),sourceContactTick=clip.contactTimeSeconds*1e6;
+    desiredContactTime=Math.max(.055,(observedSpinTrialV236?.status==='APPLIED'?observedSpinTrialV236.contactArrivalAfterReleaseSeconds:prediction.elapsedSeconds)+timingError+(b.technicalTimingOffsetSeconds??0)),sourceContactTick=clip.contactTimeSeconds*1e6;
   let authoredEnvelopeV133=envelopeSourceV133&&input.batting!=='bunt'?scaleLiveSwingEnvelopeV133(envelopeSourceV133,heightScale,battingSetupV94.stanceOffsetZ):undefined;
   let envelopeV133=authoredEnvelopeV133&&swingOffered?authoredEnvelopeV133:undefined;
   const intendedPullAngleDegrees=battingDirectionV149?(battingDirectionV149.direction.pullAngleDegrees??undefined)
@@ -604,7 +612,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   let referenceContactTick=referenceWorldTickAtSourceV121(referenceInput,sourceContactTick);
   const referenceZero=createReferenceBatKinematicsV1(referenceInput),point=referenceZero.sampleContinuous(referenceContactTick).sweetSpot;
   const nominalSweetSpotV153=nominalReferenceV153?createReferenceBatKinematicsV1(nominalReferenceV153).sampleAtSourceTick(sourceContactTick).sweetSpot:null,
-    intendedCenterV123=nominalSweetSpotV153?add(nominalSweetSpotV153,aimError):spinMotionV123?add(add(motorAimPosition,aimError),{x:-(b.bats==='R'?1:-1)*spinMotionV123.contactOffsetMeters.pull,
+    intendedCenterV123=observedSpinTrialV236?.status==='APPLIED'?add(observedSpinTrialV236.aimedContact,aimError):nominalSweetSpotV153?add(nominalSweetSpotV153,aimError):spinMotionV123?add(add(motorAimPosition,aimError),{x:-(b.bats==='R'?1:-1)*spinMotionV123.contactOffsetMeters.pull,
     y:spinMotionV123.contactOffsetMeters.up,z:spinMotionV123.contactOffsetMeters.depth}):add(motorAimPosition,aimError);
   const translatedReference={...referenceInput,transform:{...referenceInput.transform,translation:sub(intendedCenterV123,point)}};
   let impactReference=impactTrajectory===undefined?translatedReference:withReferenceImpactTrajectoryV1(translatedReference,sourceContactTick,impactTrajectory);
@@ -622,7 +630,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
     referenceContactTick=referenceWorldTickAtSourceV121(referenceInput,sourceContactTick);
   }
   const uncorrectedReference=createReferenceBatKinematicsV1(impactReference),headroom=b.plateVision===undefined?0:lateEvidenceHeadroomV121(resolveLivePlateVisionV1(b));
-  let lateEvidenceV121=headroom===0||!swingOffered||input.batting==='bunt'?null:(()=>{
+  let lateEvidenceV121=headroom===0||!swingOffered||input.batting==='bunt'||observedSpinTrialV236?.status==='APPLIED'?null:(()=>{
     const throughTick=Math.floor(referenceContactTick),throughTime=(throughTick-input.originTick)/tps,
       observedTime=decisionTime+Math.max(0,(positionObserverV151?Math.min(prediction.elapsedSeconds,throughTime):Math.min(horizon,prediction.elapsedSeconds,throughTime))-decisionTime)*headroom/2,
       availableTick=positionObserverV151?quantizeEventTick(input.originTick,observedTime,tps):input.originTick+Math.ceil(observedTime*tps),
@@ -847,6 +855,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
         requestedTarget:{...target},selectedTarget:{...selectedTarget},commandedTarget:{...commanded},
         nominalReleaseVelocity:nominalReleaseVelocityV155!,executedReleaseVelocity:{...initial.velocity},
         inverseCompensationBasis:'INTENDED_SPIN_MEAN_AIR_EXCLUDES_UNANTICIPATED_SEAM' as const,postReleaseExecutionReaimed:false as const}}:{}),
+      ...(observedSpinTrialV236?{observedSpinTrialV236:{...observedSpinTrialV236,...(observedSpinTrialV236.status==='APPLIED'?{registration:{clipId:clip.id,sourceSha256:clip.source.sha256,plannedContactTick:observedSpinTrialV236.contactTick,executedContactTick:referenceContactTick,executedSweetSpot:reference.sampleContinuous(referenceContactTick).sweetSpot,executionError:aimError,technicalTimingOffsetSeconds:b.technicalTimingOffsetSeconds??0,motorDelaySeconds,lateReaimed:false as const}}:{})}}:{}),
       ...(swingMotorV121?{swingIntentV121,swingMotorV121}:{}),...(lateEvidenceV121?{lateEvidenceV121}:{}),...(batCapacityV121?{batCapacityV121}:{}),
       ...(spinIntentV123?{spinIntentV123,battedSpinV123:contact?observeBattedBallSpinV123({velocityMps:contact.exitVelocity,
         spinRadPerSecond:contact.exitSpin,bats:b.bats}):null}:{}),

@@ -21,7 +21,7 @@
 ## 作業順・終了単位
 
 1. **SQL比較は終了。** OLD / NEW各1回は全値と検査維持PASS、改善証拠が無いため不採用・baseline全bytes復旧。SQL-METADATA-COMPARISON-V221.md。追加の内部高速化へ広げない。
-2. **現在: Makerの利用機能へ戻した。** 方向4選択と連続打席／心理の既存Sourceを最新検証版へ統合し、未完の判断経路を小さく実装する。既存局所成功を再演せず、変更箇所と未受入だけを確認する。
+2. **現在: 実打球の守備・判定への接続と製品SPIN適用。** Maker方向4選択・連続打席／region経験の受入済み統合は再演しない。同じ実接触の正常守備処理を進めつつ、製品Liveの測定スイングへ配達済み観測からの明示SPIN試行を接続する。Native資格とLiveの運動契約を混同せず、技術名だけ選ばれて実運動が同じになる不足を閉じる。
 3. **SPINの物理経路と記録表示を別々に閉じる。** 各単位を「使えるようになったこと／新たな検証／残ること」で記録し、4技術の物理制御と分類の完成を別判定にする。
 4. **キレの不足Source解消を独立して追う。** 同じ不成立条件への再相談・再計算をせず、新たなSourceまたはモデル変更があるときだけ次の判断を行う。他機能の完了をこの枝で停止しない。
 5. **最終3HTMLと配送を閉じる。** 最終Source固定後の統合・batch・9回・性能と配布実体を検証する。全受入と配送完了前にGoalを完了扱いしない。
@@ -59,3 +59,7 @@ SPINの追加根拠: [SPIN-ORIGINAL-MOTOR-EVIDENCE-V224.md](SPIN-ORIGINAL-MOTOR-
 資格付き経路の実装と不足fallback: [SPIN-QUALIFIED-CONSUMER-EXPERIMENTAL-V233.md](SPIN-QUALIFIED-CONSUMER-EXPERIMENTAL-V233.md)。真正1件では通常fallback・未来資格拒否・旧Core全計算一致を確認。実Producer、真qualified Native受理と保存順序の実Owner検証は未完成・採用保留。正規打球処理と解放を経て独立反復を得る必要がある。
 
 同分岐の守備開始接続: [SPIN-SAME-BRANCH-FIELD-ROOT-V234.md](SPIN-SAME-BRANCH-FIELD-ROOT-V234.md)。実TOP contactから正常field root/cut12へ進み、元データ・caller・終了pinsを保持。飛行・守備判断/移動・公式判定・解放・次独立trialは未完。
+
+製品測定スイングの明示試行: [LIVE-OBSERVED-SPIN-EXPLICIT-TRIAL-V236.md](LIVE-OBSERVED-SPIN-EXPLICIT-TRIAL-V236.md)。配達済み同標本からcontact-depth/clock/XYを最終運動へ反映し、未指定の全recordと2バット標本は旧Sourceと一致。汎用Rの4明示指定で登録差/contactあり。技術名どおり回転・真正資格・本人原JSON/Maker/LiveMatch配線・全飛行/配送は未完。
+
+守備の最初の観測/判断: [SPIN-SAME-BRANCH-FIRST-DEFENDER-V235.md](SPIN-SAME-BRANCH-FIRST-DEFENDER-V235.md)。同実打球→cut15・ball検出/ball_handlerの正常Owner受理と保全PASS。一方、decision/locomotionの元clockが未記録で時間整合HOLD。65/32ticksを65/32msとみなして補正しない。9人motor/公式判定/解放/次独立trialは未完。
