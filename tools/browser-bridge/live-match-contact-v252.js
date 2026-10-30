@@ -20,9 +20,9 @@
    if(!existing){seen.set(ordinal,{playerId,playId,hasContact});lastOrdinal=ordinal;}
    return result.status;
   }
-  return Object.freeze({accept,reports:()=>[...byPlayer.values()]});
+  return Object.freeze({accept,reports:()=>[...byPlayer.values()],snapshot:()=>structuredClone({binding,acceptedCount:lastOrdinal,reports:[...byPlayer.values()]})});
  }
- let panel=null,ledger=null,players=null;
+ let panel=null,ledger=null,players=null,healthy=false;
  function showError(error){if(panel){const n=panel.querySelector('[data-contact-status]');if(n)n.textContent='打球記録を更新できません: '+String(error?.message??error);}}
  function render(core){
   const results=panel.querySelector('[data-contact-results]');results.replaceChildren();
@@ -32,9 +32,10 @@
  function reset(core,playerById){
   try{
    if(!panel){panel=document.createElement('section');panel.id='normal-match-contact-v252';panel.innerHTML='<h3>この試合の打球記録（ローカル）</h3><p>ラインドライブ参考帯は打出角10〜25°のMLB一般目安です。25°は境界です。分母はファウル・バントを含む全接触です。選手能力・傾向は未評価です。</p><p>この画面の試合だけを記録し、保存後の再開や career の認定には対応していません。</p><p data-contact-status role="status"></p><div data-contact-results></div>';document.querySelector('.manager-controls').after(panel);}
-   players=playerById;ledger=createLedger(core,{sessionId:crypto.randomUUID(),configId:crypto.randomUUID(),buildId:'normal-match-contact-v252'});panel.querySelector('[data-contact-status]').textContent='';render(core);
-  }catch(error){ledger=null;showError(error)}
+   players=playerById;ledger=createLedger(core,{sessionId:crypto.randomUUID(),configId:crypto.randomUUID(),buildId:'normal-match-contact-v252'});healthy=true;panel.querySelector('[data-contact-status]').textContent='';render(core);
+   try{root.KneekuraContactArchiveUiV253?.attach(core,panel,()=>{if(!healthy||!ledger)throw Error('現在の試合の記録に未解決のエラーがあります。');return ledger.snapshot()},()=>players)}catch(error){showError(error)}
+  }catch(error){ledger=null;healthy=false;showError(error)}
  }
- function acceptAfterHistory(core,record,beforeCount,afterCount){try{if(!ledger)throw Error('この試合の打球記録が開始されていません。');ledger.accept(record,beforeCount,afterCount);render(core)}catch(error){showError(error)}}
+ function acceptAfterHistory(core,record,beforeCount,afterCount){try{if(!ledger)throw Error('この試合の打球記録が開始されていません。');ledger.accept(record,beforeCount,afterCount);render(core)}catch(error){healthy=false;showError(error)}}
  root.KneekuraLiveMatchContactV252=Object.freeze({createLedger,reset,acceptAfterHistory});
 })(globalThis);

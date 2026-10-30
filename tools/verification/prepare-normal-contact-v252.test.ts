@@ -1,3 +1,4 @@
+import {stringifyDebugRecord,parseDebugRecord} from './live-debug-record.mjs';
 import {describe,it,expect} from 'vitest';
 import {readFileSync} from 'node:fs';import {runInNewContext,Script} from 'node:vm';
 import * as core from '../../src/integration/browser/LocalContactDescriptorReportV240';
@@ -33,4 +34,9 @@ it('shows the official roster name as text while retaining player IDs and falls 
  const ui=ctx.KneekuraLiveMatchContactV252;ui.reset(core,{a:{name:'選手 <一>'}});ui.acceptAfterHistory(core,record('a',1,15),0,1);ui.acceptAfterHistory(core,record('b',2,15),1,2);
  expect(results.children[0].textContent).toContain('選手 <一>');expect(results.children[0].textContent).not.toContain('a ／');expect(results.children[2].textContent).toContain('b ／');
  const html=readFileSync('work/match-auto-v250-ui-candidate-01/game.html','utf8'),out=transformNormalContactGameV252(html,{uiSource:source}).html;expect(out).toContain('KneekuraLiveMatchContactV252.reset(core,playerById)');
+});
+it('injects archive sources and lossless codec without altering the original game outside that seam',()=>{
+ const html=readFileSync('work/match-auto-v250-ui-candidate-01/game.html','utf8'),archiveSource=readFileSync('tools/browser-bridge/live-match-contact-archive-v253.js','utf8'),archiveUiSource=readFileSync('tools/browser-bridge/live-match-contact-archive-v253-ui.js','utf8'),codecSource='globalThis.KneekuraContactArchiveCodecV253={stringify:'+stringifyDebugRecord.toString()+',parse:'+parseDebugRecord.toString()+'};',out=transformNormalContactGameV252(html,{uiSource:source,archiveSource,archiveUiSource,codecSource});
+ expect(out.reverse()).toBe(html);expect(out.html).toContain('<script id="normal-contact-archive-v253">');for(const m of out.html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi))if(!/type\s*=\s*["']application\/json/i.test(m[1]))new Script(m[2]);
+ expect(()=>transformNormalContactGameV252(html,{uiSource:source,archiveSource})).toThrow();
 });
