@@ -122,3 +122,4 @@ export { AUTHORED_BATTER_OBSERVED_REGION_EXPERIENCE_V222 } from '../../core/deci
 
 export {declareSpinPracticeEpisodesV242} from './LiveSpinPracticeEpisodesV242';
 export {validateLiveContactFrameMotorV244,validateLiveObservedContactFrameTrialV244,resolveLiveContactFrameMotorPracticeV244} from './LiveContactFrameMotorV244';
+export {createLocalContactDescriptorReportV240,appendAcceptedContactV240,readLocalSavedContactDescriptorReportV240,withLocalContactDescriptorRuleV240,projectLocalLineDriveAngleReferenceV249} from './LocalContactDescriptorReportV240';
