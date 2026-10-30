@@ -79,3 +79,5 @@ SPINの追加根拠: [SPIN-ORIGINAL-MOTOR-EVIDENCE-V224.md](SPIN-ORIGINAL-MOTOR-
 実Browser固定2回の追加結果: バックスピン1/2、トップスピン1/2。接触・回転の実値と失敗を [CONTACT-FRAME-SPIN-V244.md](CONTACT-FRAME-SPIN-V244.md) に記録。スライスは同本人・同clipの固定2回で診断基準2/2。いずれも習得やGoal達成ではない。
 
 誤差幅を用いた固定9点の回転選択も実験したが、同じ8slotの変位・実接触・打球処理は前方式と完全一致し、追加探索が発生した。既定採用せず [ROBUST-SPIN-V248-RESULTS.md](ROBUST-SPIN-V248-RESULTS.md) に証拠を残す。
+
+新Source構成の通常HTML候補は両軍17球のMain／実Worker、方向おまかせ、打球表示・保存再読を限定検証した。詳細: [通常試合候補](RELEASE-NORMAL-CANDIDATE-V254.md)。Maker・調整室・全９回と完成配送は未完。
