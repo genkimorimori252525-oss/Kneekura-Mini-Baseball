@@ -63,3 +63,5 @@ SPINの追加根拠: [SPIN-ORIGINAL-MOTOR-EVIDENCE-V224.md](SPIN-ORIGINAL-MOTOR-
 製品測定スイングの明示試行: [LIVE-OBSERVED-SPIN-EXPLICIT-TRIAL-V236.md](LIVE-OBSERVED-SPIN-EXPLICIT-TRIAL-V236.md)。配達済み同標本からcontact-depth/clock/XYを最終運動へ反映し、未指定の全recordと2バット標本は旧Sourceと一致。汎用Rの4明示指定で登録差/contactあり。技術名どおり回転・真正資格・本人原JSON/Maker/LiveMatch配線・全飛行/配送は未完。
 
 守備の最初の観測/判断: [SPIN-SAME-BRANCH-FIRST-DEFENDER-V235.md](SPIN-SAME-BRANCH-FIRST-DEFENDER-V235.md)。同実打球→cut15・ball検出/ball_handlerの正常Owner受理と保全PASS。一方、decision/locomotionの元clockが未記録で時間整合HOLD。65/32ticksを65/32msとみなして補正しない。9人motor/公式判定/解放/次独立trialは未完。
+
+本人の試行配送: [MAKER-OBSERVED-SPIN-COMMAND-V237.md](MAKER-OBSERVED-SPIN-COMMAND-V237.md)。正常importした本人L/obp-23_5の同第2球で、無指定+固定4probeの全contact/Main実Worker全record・continuation一致。BACK/HOOKは逆方向、TOP/SLICEは要求成分正。旧全体FAILを保持して未完UIだけtail検証、30px入力を44B styleで修正し390px全340pxを実画像受入。raw試行は通常心理/方向計画を置換し得るため通常能力採用HOLD、次はnormal plan XY合成/delta0不変。4技術/資格/最終3HTMLは未完成。

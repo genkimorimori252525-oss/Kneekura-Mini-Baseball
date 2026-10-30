@@ -14,8 +14,16 @@
    <label>狙うコース<select id="comparison-location" data-help="投手が狙うコースです。制球のばらつきは残しますが、4段階とも同じばらつきで同じ球を投げます。"><option value="zone">ストライクゾーン内</option><option value="low">低め</option><option value="high">高め</option><option value="inside">内角</option><option value="outside">外角</option></select></label>
    <label>投球のばらつき番号<input id="comparison-seed" type="number" min="0" max="4294967295" step="1" value="20261019" data-help="同じ番号なら、投球・狙いのずれ・タイミングのずれを再現します。番号を変えると4段階すべての球を一緒に変更します。当たる番号を自動で探すことはしません。"></label>
    <label>打ち方の指示<select id="comparison-batting" data-help="『選手の好み』なら、その選手のミート・強振の好みを使います。選んだ指示を4段階で共通にします。"><option value="auto">選手の好みを使う</option><option value="balanced">バランス</option><option value="contact">ミート</option><option value="power">強振</option></select></label>
+   <label>打つ方向の指示<select id="comparison-direction" data-help="『おまかせ』は打者本人の方針と観測に任せます。手動の方向は狙いであり、実際の打球方向を保証しません。選手の保存方針は変更しません。"><option value="AUTO">おまかせ(打者に任せる)</option><option value="PULL">引っ張る</option><option value="CENTER">中央</option><option value="OPPOSITE">流す</option></select></label>
    <label><input id="comparison-force-swing" type="checkbox" checked data-help="比較しやすいように、振るか見送るかの判断だけを『振る』に固定します。能力・タイミングや芯のずれは残すので、空振りも起きます。選手の保存値は変更しません。">比較中は必ず振る</label>
-  </div><div class="swing-toolbar"><button id="comparison-run" class="primary" type="button">同じ球で4段階を計算</button><button id="comparison-next" type="button" data-help="ばらつき番号を1つ進め、4段階とも同じ次の球で計算します。特定の結果になる球を探したり選んだりはしません。">次の球で比べる</button><button id="comparison-export" type="button" disabled>比較条件と結果をJSON保存</button></div>
+  </div><details id="comparison-spin-trial"><summary>打球回転の明示試行（任意）</summary><p class="note">未校正の一球試行です。回転の成功や習得を保証せず、選手の保存値も変更しません。実行する場合は、この選手に保存した打ち方と数値を明示してください。</p><div class="comparison-settings" style="grid-template-columns:minmax(0,1fr)">
+   <label>試行<select id="comparison-spin-technique"><option value="">指定なし</option><option value="BACKSPIN">バックスピン</option><option value="TOPSPIN">トップスピン</option><option value="SLICE">スライス</option><option value="HOOK">フック</option></select></label>
+   <label>狙いの横差（m）<input id="comparison-spin-x" type="number" step="any" placeholder="例: 0.01"></label><label>狙いの高さ差（m）<input id="comparison-spin-y" type="number" step="any" placeholder="例: 0.01"></label>
+   <label>接触を予測する奥行き（m）<input id="comparison-spin-depth" type="number" step="any" placeholder="実行前に指定"></label></div></details><details id="comparison-random-details"><summary>ばらつきを個別に指定（任意）</summary><div class="swing-toolbar">
+   <label>おまかせ方向の抽選番号<input id="comparison-direction-seed" type="number" min="0" max="4294967295" step="1" placeholder="空欄なら共通番号から自動" data-help="本人の方針に方向の抽選がある場合、その抽選だけを変えます。投球・球の予想・振り方・打撃のずれは変えません。手動の方向指定がある場合は指定を優先します。"></label>
+   <label>打撃のずれの番号<input id="comparison-execution-seed" type="number" min="0" max="4294967295" step="1" placeholder="空欄なら共通番号から自動" data-help="投球と打者の判断を保ち、タイミング・芯のずれだけを変えて比較します。選手の保存値を変更しません。"></label>
+  </div><p class="note">空欄なら共通番号から自動で決まります。連続練習では開始時の基準番号として使い、一球ごとに別のばらつきを作ります。変更後は新しく開始してください。</p></details>
+  <div class="swing-toolbar"><button id="comparison-run" class="primary" type="button">同じ球で4段階を計算</button><button id="comparison-next" type="button" data-help="ばらつき番号を1つ進め、4段階とも同じ次の球で計算します。特定の結果になる球を探したり選んだりはしません。">次の球で比べる</button><button id="comparison-export" type="button" disabled>比較条件と結果をJSON保存</button></div>
   <p id="comparison-status" class="note" role="status">「同じ球で4段階を計算」を押してください。</p><p id="comparison-conditions" class="note"></p>
   <div class="comparison-table-wrap"><table id="comparison-results"><thead><tr><th>弾道</th><th>接触の結果</th><th>打球の初速</th><th>打ち出す角度</th><th>回転数</th><th>最初の着地まで</th></tr></thead><tbody></tbody></table></div>
   <div class="swing-toolbar"><button id="comparison-play" type="button" disabled>▶ 再生</button><button id="comparison-impact" type="button" disabled>当たる付近へ</button>
@@ -40,14 +48,35 @@
   for(const p of catalog.players.filter(p=>p.role==='P'&&p.playerId!==batter.playerId)){const o=document.createElement('option');o.value=p.playerId;o.textContent=p.teamName+' '+p.name;select.append(o);}
   if([...select.options].some(o=>o.value===prior))select.value=prior;else select.value=catalog.players.find(p=>p.role==='P'&&p.teamName!==batter.teamName)?.playerId??select.options[0]?.value;
  }
+ function randomnessFor(scope){
+  if(!['PLAY','MATCH'].includes(scope)||typeof core.validateLiveRandomnessV152!=='function')throw Error('ばらつきの用途別指定に対応する最新版を読み込んでください。');
+  const policy=clone(scope==='MATCH'?core.AUTHORED_MATCH_RANDOMNESS_V152:core.AUTHORED_PLAY_RANDOMNESS_V152),overrides={};
+  for(const [id,key]of [['comparison-direction-seed','batterDirection'],['comparison-execution-seed','batterExecution']]){
+   const text=$(id).value;if(text==='')continue;const seed=Number(text);
+   if(!Number.isSafeInteger(seed)||seed<0||seed>4294967295)throw Error('個別のばらつき番号は空欄または0〜4294967295の整数にしてください。');
+   overrides[key]=seed;
+  }
+  if(Object.keys(overrides).length)policy.overrides=overrides;return core.validateLiveRandomnessV152(policy,scope);
+ }
+ function observedSpinTrial(subjectId,physical,bats,heightMeters,clips){
+  const technique=$('comparison-spin-technique').value;if(!technique)return null;
+  const values=['comparison-spin-x','comparison-spin-y','comparison-spin-depth'].map(id=>$(id).value);
+  if(values.some(v=>v===''||!Number.isFinite(Number(v))))throw Error('回転試行の横差・高さ差・接触奥行きをすべて指定してください。');
+  const clip=typeof physical.clipId==='string'?clips.find(c=>c.id===physical.clipId&&c.side===bats):null;
+  if(!clip)throw Error('回転試行には、現在の打者に保存された左右一致の打ち方を指定してください。');
+  const setup=core.resolveLiveBattingSetupV94({...physical,heightMeters,bats});
+  return {version:'live_observed_spin_trial_v236',subjectId,technique,clip:{id:clip.id,sourceSha256:clip.source.sha256,bats},
+   domain:{plateZ:setup.contactPlaneZ,contactDepthZ:Number(values[2]),coordinateSystem:'LIVE_WORLD_METERS_V1'},delta:{x:Number(values[0]),y:Number(values[1])}};
+ }
  function buildInput(){
+  if(typeof core.validateBattingDirectionRequestV149!=='function'||!core.AUTHORED_LIVE_BATTER_OBSERVATION_V151)throw Error('方向指定と位置観測の予測に対応する最新版を読み込んでから比較してください。');
   const pending=[...$('live-roster-editor').querySelectorAll('input,select')].find(control=>control.validity.customError);
   if(pending)throw Error('選手の能力に未確定の入力があります。エラーを修正してから比較してください。');
   const roster=maker.getLiveRoster(),batterId=$('live-roster-player').value,pitcherId=$('comparison-pitcher').value,
    players=core.applyLivePhysicalRosterV1({players:catalog.players,roster}).players,batter=players.find(p=>p.playerId===batterId),pitcher=players.find(p=>p.playerId===pitcherId),
    pIdentity=catalog.players.find(p=>p.playerId===pitcherId),catcherId=catalog.players.find(p=>p.teamName===pIdentity?.teamName&&p.role==='C')?.playerId,
    catcher=players.find(p=>p.playerId===catcherId),entry=roster.entries.find(p=>p.playerId===batterId),bp=root.KneekuraIndependentTraitsV77?core.resolveLiveExecutionPhysicalV77(batter.physical,batter.traitProfile):batter.physical,pp=root.KneekuraIndependentTraitsV77?core.resolveLiveExecutionPhysicalV77(pitcher?.physical,pitcher?.traitProfile):pitcher?.physical,cp=root.KneekuraIndependentTraitsV77?core.resolveLiveExecutionPhysicalV77(catcher?.physical,catcher?.traitProfile):catcher?.physical,
-   clip=library.clips.find(c=>c.id===bp.clipId)??library.clips.find(c=>c.side===batter.bats&&c.defaultSelection!==false),seed=Number($('comparison-seed').value);
+   clip=library.clips.find(c=>c.id===bp.clipId)??library.clips.find(c=>c.side===batter.bats&&c.defaultSelection!==false),seed=Number($('comparison-seed').value),directionRequestMode=$('comparison-direction').value;
   if(!pitcher||!catcher||!clip)throw Error('投手・捕手・打ち方の設定を確認してください。');
   if(!Number.isSafeInteger(seed)||seed<0||seed>4294967295)throw Error('ばらつき番号は0〜4294967295の整数にしてください。');
   const pref=core.resolveLiveTraitPreferencesV54(batter.traitProfile),pitchPref=core.resolveLiveTraitPreferencesV54(pitcher.traitProfile),
@@ -56,7 +85,8 @@
   const batterTechnique=root.KneekuraTechnicalTraitsV75?core.resolveLiveTechnicalTraitsV75(batter.traitProfile):undefined,pitcherTechnique=root.KneekuraTechnicalTraitsV75?core.resolveLiveTechnicalTraitsV75(pitcher.traitProfile):undefined;
    if(batterTechnique)b.technicalSkills=clone(batterTechnique);
    if($('comparison-force-swing').checked)b.swingDecision={...(b.swingDecision??{threshold:.5,aggressionWeight:.5}),approach:'SWING'};
-  const pitch={originTick:1000000,seed,batter:b,pitcher:{...pp,...(pitcherTechnique?{technicalSkills:clone(pitcherTechnique)}:{}),heightMeters:pitcher.heightMeters,moundPosition:clone(core.LIVE_MATCH_MOUND_SURFACE_V1),
+  const trial=observedSpinTrial(batterId,b,batter.bats,batter.heightMeters,library.clips);
+  const pitch={...(trial?{observedSpinTrialV236:trial}:{}),originTick:1000000,seed,randomnessV152:randomnessFor('PLAY'),batterObservationV151:clone(core.AUTHORED_LIVE_BATTER_OBSERVATION_V151),batterDirectionMotorV153:clone(core.AUTHORED_OBSERVED_DIRECTION_MOTOR_V153),battingDirectionRequestV149:{version:'batting_direction_request_v149',sourceId:'maker-practice-direction-v149',mode:directionRequestMode},batter:b,pitcher:{...pp,...(pitcherTechnique?{technicalSkills:clone(pitcherTechnique)}:{}),heightMeters:pitcher.heightMeters,moundPosition:clone(core.LIVE_MATCH_MOUND_SURFACE_V1),
    ...(pitcher.throws===undefined?{}:{throws:pitcher.throws}),pitchApproach:pitchPref.pitchApproach},
    catcher:{gloveSpeedMps:cp.gloveSpeedMps,gloveReachMeters:cp.gloveReachMeters,gloveRadiusMeters:cp.gloveRadiusMeters,
     retentionCapacityJ:cp.retentionCapacityJ,captureDissipationPowerW:cp.captureDissipationPowerW,pocketRadiusMeters:.14},
@@ -64,7 +94,7 @@
     normalization:clone(clip.normalization),frames:clip.frames.map(f=>({tick:f.tick,grip:clone(f.grip),orientation:clone(f.orientation)})),defaultSelection:clip.defaultSelection}],
    batting,pitchType:$('comparison-pitch-type').value,location:$('comparison-location').value,physics:clone(core.LIVE_MATCH_PHYSICS_V1)};
   return {pitch,labels:{batterId,batterName:identity().name,pitcherId,pitcherName:pIdentity.name,clipId:clip.id,clipLabel:clip.label,
-   forceSwing:$('comparison-force-swing').checked,rosterSourceId:roster.sourceId,playerSourceId:entry.sourceId},roster};
+   directionRequestMode,forceSwing:$('comparison-force-swing').checked,rosterSourceId:roster.sourceId,playerSourceId:entry.sourceId},roster};
  }
  function ballAt(item,seconds){
   if(item.pitch.contact&&seconds>=(item.pitch.contact.tick-input.originTick)/1e6)return item.sampleFlightAtPitchElapsedSeconds(seconds);
@@ -123,7 +153,7 @@
    maxTime=Math.max(...result.cases.map(c=>(c.flightFrames.at(-1)?.tick??c.pitch.endedAtTick)-input.originTick))/1e6;
    clock=Math.max(0,Math.min(...result.cases.map(c=>(c.pitch.contact?.tick??c.pitch.diagnostics.referenceContactTick)-input.originTick))/1e6-.08);
    $('comparison-time').max=maxTime;buildGeometry();fillResults();setView({zoom:1,pan:{side:{x:0,y:0},top:{x:0,y:0}}});
-   $('comparison-conditions').textContent=context.batterName+' ／ '+context.clipLabel+' ／ 投手 '+context.pitcherName+' ／ 球速 '+format(result.cases[0].pitch.speedKmh)+' km/h ／ ばらつき番号 '+input.seed+(context.forceSwing?' ／ 振る判断だけ固定':' ／ 振る判断も選手の設定');
+   $('comparison-conditions').textContent=context.batterName+' ／ '+context.clipLabel+' ／ 投手 '+context.pitcherName+' ／ 球速 '+format(result.cases[0].pitch.speedKmh)+' km/h ／ ばらつき番号 '+input.seed+' ／ 方向 '+{AUTO:'おまかせ(打者に任せる)',PULL:'引っ張る',CENTER:'中央',OPPOSITE:'流す'}[context.directionRequestMode]+(context.forceSwing?' ／ 振る判断だけ固定':' ／ 振る判断も選手の設定');
    $('comparison-status').textContent='4段階を同じ球で計算しました。表や「強調する弾道」で表示を切り替えられます。';$('comparison-status').classList.remove('error');
    for(const id of ['comparison-export','comparison-play','comparison-impact'])$(id).disabled=false;return result;
   }catch(e){invalidate();error=String(e.message??e);$('comparison-status').textContent=error;$('comparison-status').classList.add('error');throw e;}
@@ -133,7 +163,7 @@
   $('comparison-results').tBodies[0].replaceChildren();$('comparison-details').replaceChildren();$('comparison-conditions').textContent='';$('comparison-status').textContent='条件が変わりました。「同じ球で4段階を計算」を押してください。';$('comparison-status').classList.remove('error');
   for(const id of ['comparison-export','comparison-play','comparison-impact'])$(id).disabled=true;$('comparison-run').disabled=false;$('comparison-play').textContent='▶ 再生';draw();}
  $('comparison-run').onclick=()=>run().catch(()=>{});$('comparison-next').onclick=()=>{$('comparison-seed').value=(Number($('comparison-seed').value)+1)>>>0;invalidate();run().catch(()=>{});};
- for(const id of ['comparison-pitcher','comparison-pitch-type','comparison-location','comparison-seed','comparison-batting','comparison-force-swing'])$(id).addEventListener('change',invalidate);
+ for(const id of ['comparison-pitcher','comparison-pitch-type','comparison-location','comparison-seed','comparison-batting','comparison-direction','comparison-force-swing','comparison-direction-seed','comparison-execution-seed','comparison-spin-technique','comparison-spin-x','comparison-spin-y','comparison-spin-depth'])$(id).addEventListener('change',invalidate);
  $('comparison-level').onchange=draw;$('comparison-time').oninput=()=>seek(Number($('comparison-time').value));$('comparison-zoom').oninput=()=>setView({zoom:Number($('comparison-zoom').value)});
  $('comparison-fit').onclick=()=>setView({zoom:1,pan:{side:{x:0,y:0},top:{x:0,y:0}}});
  $('comparison-impact').onclick=()=>{if(result)seek(Math.min(...result.cases.map(c=>(c.pitch.contact?.tick??c.pitch.diagnostics.referenceContactTick)-input.originTick))/1e6);};
@@ -150,6 +180,6 @@
  }
  document.addEventListener('kneekura:maker-roster-change',()=>{if(signature&&JSON.stringify(maker.getLiveRoster())===signature&&context?.batterId===$('live-roster-player').value)return;refreshPitchers();invalidate();});
  function loop(now){if(playing&&result){if(lastTime!==null)clock+=Math.min(.1,(now-lastTime)/1000)*Number($('comparison-speed').value);if(clock>=maxTime){clock=maxTime;playing=false;$('comparison-play').textContent='▶ 再生';}draw();}lastTime=now;requestAnimationFrame(loop);}
- root.KneekuraBallComparison=Object.freeze({run,seek,setView,getResult:()=>result,getInput:()=>input&&clone(input),inspect:()=>({ready:!!result,error,context:context&&clone(context),clockSeconds:clock,maxTime,playing,zoom,pan:clone(pan),invariants:result&&clone(result.invariants),metrics:result?.cases.map(c=>({level:c.level,...clone(c.metrics),call:c.pitch.call}))??[]})});
+ root.KneekuraBallComparison=Object.freeze({run,seek,setView,getObservedSpinTrial:observedSpinTrial,getRandomnessV152:randomnessFor,getResult:()=>result,getInput:()=>input&&clone(input),inspect:()=>({ready:!!result,error,context:context&&clone(context),clockSeconds:clock,maxTime,playing,zoom,pan:clone(pan),invariants:result&&clone(result.invariants),metrics:result?.cases.map(c=>({level:c.level,...clone(c.metrics),call:c.pitch.call}))??[]})});
  refreshPitchers();draw();requestAnimationFrame(loop);root.KneekuraMakerHelp?.decorate(panel);
 })(globalThis);

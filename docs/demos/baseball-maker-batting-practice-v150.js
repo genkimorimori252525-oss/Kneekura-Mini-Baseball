@@ -18,7 +18,7 @@
   resultNames={ball:'ボール',called_strike:'見逃しストライク',swinging_strike:'空振り',strikeout:'三振',walk:'四球',
    foul:'ファウル',hit_by_pitch:'死球',single:'単打',double:'二塁打',triple:'三塁打',home_run:'本塁打',ground_out:'ゴロアウト',fly_out:'フライアウト',
    foul_out:'ファウルフライアウト',ground_rule_double:'二塁の安全進塁権',field_out:'アウト',in_play:'インプレー',live_ball:'インプレー',count:'カウント継続',unsupported:'継続の判定待ち'};
- let worker=null,sequence=0,state=null,context=null,signature=null,busy=false,stale=false,rows=[],matchData=null;
+ let worker=null,sequence=0,state=null,context=null,signature=null,busy=false,stale=false,rows=[],matchData=null,practiceConfiguration=null;
  const clone=value=>root.structuredClone(value);
  function currentSignature(){return JSON.stringify({batterId:$('live-roster-player').value,pitcherId:$('comparison-pitcher').value,
   seed:$('comparison-seed').value,directionSeed:$('comparison-direction-seed').value,executionSeed:$('comparison-execution-seed').value,roster:maker.getLiveRoster()});}
@@ -49,7 +49,7 @@
  function closeWorker(client=worker){
   if(!client)return;client.native.terminate();URL.revokeObjectURL(client.url);
   for(const item of client.pending.values())item.reject(Error('練習を切り替えました。'));client.pending.clear();
-  if(client===worker){worker=null;state=null;context=null;signature=null;stale=false;rows=[];}
+  if(client===worker){worker=null;state=null;context=null;signature=null;stale=false;rows=[];practiceConfiguration=null;}
  }
  function openWorker(){
   const scripts=[...document.scripts].filter(script=>script.textContent.includes('var Knee'+'kuraBaseballWorkbench =')&&script.textContent.includes('__toCommonJS'));
@@ -92,7 +92,7 @@
  }
  async function act(action){if(busy)return;busy=true;render();try{return await action();}catch(error){$('practice-status').textContent=String(error.message??error);throw error;}finally{busy=false;render();}}
  async function start(){return act(async()=>{
-  const startingSignature=currentSignature(),setup=configuration();await replaceSession({configuration:setup.configuration});context=setup.context;
+  const startingSignature=currentSignature(),setup=configuration();await replaceSession({configuration:setup.configuration});practiceConfiguration=setup.configuration;context=setup.context;
   signature=startingSignature;stale=currentSignature()!==signature;rows=[];
   $('practice-status').textContent=stale?'開始中に設定が変わりました。新しい練習を開始してください。':'開始しました。「次の一球を進める」で投球します。';return clone(state);
  });}
@@ -100,11 +100,14 @@
   if(!state)throw Error('先に練習を開始してください。');
   if(currentSignature()!==signature){stale=true;throw Error('選手・投手・能力・ばらつき番号が変わりました。新しい練習を開始してください。');}
   $('practice-status').textContent='次の一球を計算しています。画面の再生時間を待たずに進めます。';
-  const mode=$('comparison-direction').value,request={batting:$('practice-batting').value,
-   battingDirectionRequestV149:{version:'batting_direction_request_v149',sourceId:'maker-continuous-practice-v150',mode}},answer=await send('pitch',request),record=answer.record;
+  const trial=$('comparison-spin-technique')?.value?(()=>{const batter=practiceConfiguration.players.find(p=>p.playerId===state.batterPlayerId);
+   if(!batter)throw Error('現在の打者が練習の選手設定に見つかりません。');const physical=core.resolveLiveMatchPlayerPhysicalV98(batter);
+   return root.KneekuraBallComparison.getObservedSpinTrial(batter.playerId,physical,batter.bats,batter.heightMeters,practiceConfiguration.measuredClips)})():null,
+   mode=$('comparison-direction').value,request={batting:$('practice-batting').value,
+   battingDirectionRequestV149:{version:'batting_direction_request_v149',sourceId:'maker-continuous-practice-v150',mode},...(trial?{observedSpinTrialV236:trial}:{})},answer=await send('pitch',request),record=answer.record;
   state=answer.state;rows.push({pitchCount:state.pitchCount,batterPlayerId:record.batterPlayerId,pitcherPlayerId:record.pitcherPlayerId,
    classification:record.play.classification,call:record.play.call,beforeCount:count(record.beforeMatch),afterCount:count(record.match),direction:mode,batting:request.batting,
-   battingDirectionV149:clone(record.play.diagnostics.battingDirectionV149),batterAdvanced:record.play.rules.batterAdvanced});
+   battingDirectionV149:clone(record.play.diagnostics.battingDirectionV149),...(trial?{observedSpinTrialV236:clone(trial)}:{}),batterAdvanced:record.play.rules.batterAdvanced});
   stale=currentSignature()!==signature;
   $('practice-status').textContent=stale?'計算中に設定が変わりました。新しい練習を開始してください。':state.finished?'練習試合が終了しました。':record.play.rules.batterAdvanced?'打席が終了し、次の打者へ進みました。':'カウントを引き継ぎました。';
   return {state:clone(state),record};
@@ -130,7 +133,7 @@
     &&[undefined,null,'ball','called_strike','swinging_strike'].includes(row.call)
     &&Object.hasOwn(directionNames,row.direction)&&['auto','take','balanced','contact','power'].includes(row.batting)&&typeof row.batterAdvanced==='boolean'))
    throw Error('練習の保存形式を確認してください。');
-  const startingSignature=currentSignature();await replaceSession({configuration:saved.capture.configuration,capture:saved.capture});
+  const startingSignature=currentSignature();await replaceSession({configuration:saved.capture.configuration,capture:saved.capture});practiceConfiguration=saved.capture.configuration;
   context={...saved.context,fromSavedPractice:true};rows=saved.rows;signature=startingSignature;stale=currentSignature()!==signature;
   $('practice-status').textContent=stale?'再開中に設定が変わりました。新しい練習を開始してください。':'保存したカウントと打順から再開しました。';return clone(state);
  });}

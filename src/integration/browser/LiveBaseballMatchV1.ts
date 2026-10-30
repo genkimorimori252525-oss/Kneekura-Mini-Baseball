@@ -32,7 +32,7 @@ import { IDENTITY_QUATERNION, type Quaternion } from '../../core/sim/pitching/Ba
 import { simulateLiveFieldPlayV1, deriveLiveFieldFenceGeometryV1 } from '../../core/sim/fielding/LiveFieldPlayV1';
 import type { LiveDefensiveOpportunityV1 } from '../../core/sim/fielding/LiveDefensiveOpportunityV1';
 import { reducePlayableMatchV1, type PlayableMatchRuleResultV1 } from './PlayableMatchRulesV1';
-import { simulateLivePitchV1, type LiveMeasuredClipV1 } from './LivePitchV1';
+import { simulateLivePitchV1, type LiveMeasuredClipV1, type LivePitchInputV1 } from './LivePitchV1';
 import type { LivePhysicalAbilityControlsV1 } from './LivePhysicalRosterV1';
 import type {SwingInstructionV121} from '../../core/decision/batting/BatterApproachPolicyV121';
 import type {LiveManagerCommunicationSourceV122} from './LiveManagerCommunicationV122';
@@ -82,6 +82,7 @@ export type LivePitchCommandV1 = Readonly<{batting:'auto'|'balanced'|'contact'|'
   /** Already received/understood instruction; the communication owner supplies soft acceptance. */
   swingInstructionV121?:SwingInstructionV121;
   battingDirectionRequestV149?:BattingDirectionRequestV149;
+  observedSpinTrialV236?:LivePitchInputV1['observedSpinTrialV236'];
   /** Explicit PLAY-scoped simulation intervention, not a player's knowledge. */
   randomnessV152?:LiveRandomnessV152;
   managerCommunicationV122?:LiveManagerCommunicationSourceV122;
@@ -410,12 +411,14 @@ export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:L
         pitching:{preference:pitcherPreference.pitchApproach,pitchTypeCommand,source:pitchTypeCommand==='auto'?'player_preference':'manager_command',
           overrideReason:pitchTypeCommand!=='auto'?'explicit_manager_pitch':command.managedTeam===1-c.team?'manager_auto':'unmanaged_pitcher'},
       }:null;
+    if(command.observedSpinTrialV236!==undefined)assert(managedOffense&&command.observedSpinTrialV236.subjectId===c.batterPlayerId,'spin trial subject must be the current managed batter');
     const runningInstruction=command.managedTeam===c.team?(command.baserunning??'balanced'):'balanced',
       runningMarginAdjustment=runningInstruction==='aggressive'?-.25:runningInstruction==='conservative'?.25:0;
     const pitch=simulateLivePitchV1({originTick:nextTick,seed:(input.seed+Math.imul(pitchCount+1,0x9e3779b9))>>>0,
       ...(playRandomnessV152===undefined?{}:{randomnessV152:playRandomnessV152}),
       ...(managedOffense&&command.swingInstructionV121!==undefined?{swingInstructionV121:command.swingInstructionV121}:{}),
       ...(managedOffense&&command.battingDirectionRequestV149!==undefined?{battingDirectionRequestV149:command.battingDirectionRequestV149}:{}),
+      ...(command.observedSpinTrialV236===undefined?{}:{observedSpinTrialV236:command.observedSpinTrialV236}),
       ...(managedOffense&&command.managerCommunicationV122!==undefined?{managerCommunicationV122:{source:command.managerCommunicationV122,
         scope:{sessionId:communicationScopeV122!.sessionId,matchId:communicationScopeV122!.matchId,senderId:communicationScopeV122!.managerId,receiverId:c.batterPlayerId}}}:{}),
       ...(pitchWorkloadV122?{pitchWorkloadV122}:{}),
