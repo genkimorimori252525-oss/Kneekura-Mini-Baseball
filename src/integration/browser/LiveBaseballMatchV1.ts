@@ -83,6 +83,7 @@ export type LivePitchCommandV1 = Readonly<{batting:'auto'|'balanced'|'contact'|'
   swingInstructionV121?:SwingInstructionV121;
   battingDirectionRequestV149?:BattingDirectionRequestV149;
   observedSpinTrialV236?:LivePitchInputV1['observedSpinTrialV236'];
+  spinMotorPracticePolicyV239?:LivePitchInputV1['spinMotorPracticePolicyV239'];
   /** Explicit PLAY-scoped simulation intervention, not a player's knowledge. */
   randomnessV152?:LiveRandomnessV152;
   managerCommunicationV122?:LiveManagerCommunicationSourceV122;
@@ -158,6 +159,15 @@ export const LIVE_MATCH_PHYSICS_V1:AeroGroundBallPhysicsV1=Object.freeze({kind:'
     material:BASEBALL_SURFACES_V101.grass})});
 const frozen=<T>(v:T):T=>{if(v&&typeof v==='object'&&!Object.isFrozen(v)){Object.values(v).forEach(frozen);Object.freeze(v);}return v;};
 function assert(v:unknown,m:string):asserts v{if(!v)throw new Error('live baseball match: '+m);}
+export type LiveBaseballUnresolvedV239=Readonly<{version:'live_baseball_unresolved_v239';phase:'PITCH'|'FIELD'|'RULE';code:'PITCH_NO_CALL'|'FIELD_INCOMPLETE'|'RULE_UNRESOLVED';detail:unknown}>;
+const issuedUnresolvedV239=new WeakSet<Error>();
+export function isLiveBaseballUnresolvedV239(error:unknown):error is Error&Readonly<{unresolvedV239:LiveBaseballUnresolvedV239}>{return error instanceof Error&&issuedUnresolvedV239.has(error)}
+function unresolvedV239(message:string,phase:LiveBaseballUnresolvedV239['phase'],code:LiveBaseballUnresolvedV239['code'],detail:unknown,cause?:unknown):Error {
+ const error=cause===undefined?new Error(message):new Error(message,{cause});
+ const payload=frozen({version:'live_baseball_unresolved_v239' as const,phase,code,detail:structuredClone(detail)});
+ Object.defineProperty(error,'unresolvedV239',{value:payload,enumerable:false,writable:false,configurable:false});issuedUnresolvedV239.add(error);return error;
+}
+
 /** A catalog is a bounded collection of independently inert measured clips.
  * Do not relax cloneInert's ordinary 100,000-node input boundary or copy all
  * 673 clips into every pitch. Descriptor reads reject getters before access. */
@@ -412,6 +422,7 @@ export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:L
           overrideReason:pitchTypeCommand!=='auto'?'explicit_manager_pitch':command.managedTeam===1-c.team?'manager_auto':'unmanaged_pitcher'},
       }:null;
     if(command.observedSpinTrialV236!==undefined)assert(managedOffense&&command.observedSpinTrialV236.subjectId===c.batterPlayerId,'spin trial subject must be the current managed batter');
+    if(command.spinMotorPracticePolicyV239!==undefined)assert(managedOffense&&command.spinMotorPracticePolicyV239.subjectId===c.batterPlayerId,'spin practice subject must be the current managed batter');
     const runningInstruction=command.managedTeam===c.team?(command.baserunning??'balanced'):'balanced',
       runningMarginAdjustment=runningInstruction==='aggressive'?-.25:runningInstruction==='conservative'?.25:0;
     const pitch=simulateLivePitchV1({originTick:nextTick,seed:(input.seed+Math.imul(pitchCount+1,0x9e3779b9))>>>0,
@@ -419,6 +430,7 @@ export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:L
       ...(managedOffense&&command.swingInstructionV121!==undefined?{swingInstructionV121:command.swingInstructionV121}:{}),
       ...(managedOffense&&command.battingDirectionRequestV149!==undefined?{battingDirectionRequestV149:command.battingDirectionRequestV149}:{}),
       ...(command.observedSpinTrialV236===undefined?{}:{observedSpinTrialV236:command.observedSpinTrialV236}),
+      ...(command.spinMotorPracticePolicyV239===undefined?{}:{spinMotorPracticePolicyV239:command.spinMotorPracticePolicyV239}),
       ...(managedOffense&&command.managerCommunicationV122!==undefined?{managerCommunicationV122:{source:command.managerCommunicationV122,
         scope:{sessionId:communicationScopeV122!.sessionId,matchId:communicationScopeV122!.matchId,senderId:communicationScopeV122!.managerId,receiverId:c.batterPlayerId}}}:{}),
       ...(pitchWorkloadV122?{pitchWorkloadV122}:{}),
@@ -456,16 +468,17 @@ export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:L
       const {fielders,runners:runnerSpecs}=fieldInput;
       scoringInput=fieldInput;
       field=simulateLiveFieldPlayV1(fieldInput);
-      if(!field.end.complete)throw new Error('live baseball match: physical field continuation unresolved: '+field.end.reason+' (pitch '+(pitchCount+1)+', seed '+input.seed+')',
-        {cause:{outgoingMoment,fielders,runners:runnerSpecs,outs:beforeMatch.outs,field:{bases:LIVE_MATCH_BASES_V1,...park},end:field.end,diagnostics:field.diagnostics,facts:field.facts}});
+      if(!field.end.complete){const cause={outgoingMoment,fielders,runners:runnerSpecs,outs:beforeMatch.outs,field:{bases:LIVE_MATCH_BASES_V1,...park},end:field.end,diagnostics:field.diagnostics,facts:field.facts};
+        throw unresolvedV239('live baseball match: physical field continuation unresolved: '+field.end.reason+' (pitch '+(pitchCount+1)+', seed '+input.seed+')','FIELD','FIELD_INCOMPLETE',cause,cause);}
       result=reducePlayableMatchV1({match:beforeMatch,batterRunnerId:c.batterPlayerId,regulationInnings:innings,event:{kind:'field_play',facts:{...field.ruleFacts,buntAttempt:batting==='bunt'}}});
       frames.push(...convertLiveFieldFramesV98({field,readyFrame:ready,defense:def.defense,battingTeam:c.team as 0|1,
         ticksPerSecond:tps,rules:result,sampleBatAtTick:pitch.sampleBatAtTick}));
     }else{
-      assert(pitch.call!==null,'pitch ended without physical contact or secured count call');
+      if(pitch.call===null)throw unresolvedV239('live baseball match: pitch ended without physical contact or secured count call','PITCH','PITCH_NO_CALL',{endedAtTick:pitch.endedAtTick,unsupportedReason:pitch.diagnostics.unsupportedReason,contact:pitch.contact,frames:pitch.frames,diagnostics:pitch.diagnostics});
       result=reducePlayableMatchV1({match:beforeMatch,batterRunnerId:c.batterPlayerId,regulationInnings:innings,event:{kind:'pitch_call',tick:pitch.endedAtTick,call:pitch.call}});
     }
-    assert(result.kind==='applied','rule continuation unresolved: '+(result.kind==='unresolved'?result.reason:''));
+    if(result.kind==='unresolved')throw unresolvedV239('live baseball match: rule continuation unresolved: '+result.reason,'RULE','RULE_UNRESOLVED',{result,pitch:{endedAtTick:pitch.endedAtTick,contact:pitch.contact,diagnostics:pitch.diagnostics}});
+    assert(result.kind==='applied','rule continuation unresolved: ');
     const rawForecastV151=pitch.diagnostics.batterObservationV151?.rawForecast,
       observedRegionV151=rawForecastV151?.prediction?classifyBatterCourseV79({position:rawForecastV151.prediction.position,
         zone:resolveLiveBattingSetupV94({...bp,heightMeters:batter.heightMeters,bats:batter.bats}).region}).courseId:null,

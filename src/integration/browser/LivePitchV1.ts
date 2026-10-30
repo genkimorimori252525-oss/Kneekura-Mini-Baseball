@@ -49,6 +49,7 @@ import { planLivePitchTargetV111, resolveLivePitchCommandStdV111, type LivePitch
 import {validateLiveSpinControlV123,selectLiveSpinIntentV123,findLiveSpinMotionClipV124} from './LiveSpinControlV123';
 import {observeBattedBallSpinV123} from '../../core/sim/contact/BattedBallSpinObservationV123';
 import {validateLiveObservedSpinTrialRequestV236,resolveLiveObservedSpinTrialV236,type LiveObservedSpinTrialRequestV236} from './LiveObservedSpinTrialV236';
+import {validateLiveSpinMotorPracticePolicyV239,type LiveSpinMotorPracticePolicyV239} from './LiveSpinMotorPracticeV239';
 import {validateLiveObservedSpinComposeRequestV238,resolveLiveObservedSpinComposeV238,composeLiveObservedSpinAimV238,type LiveObservedSpinComposeRequestV238} from './LiveObservedSpinComposeV238';
 
 export type LiveMeasuredClipV1=Readonly<{
@@ -78,6 +79,7 @@ export type LivePitchInputV1=Readonly<{
   batterObservationV151?:LiveBatterObservationPolicyV151;
   batterObservedRegionExperienceV222?:BatterObservedRegionExperiencePolicyV222;
   observedSpinTrialV236?:LiveObservedSpinTrialRequestV236|LiveObservedSpinComposeRequestV238;
+  spinMotorPracticePolicyV239?:LiveSpinMotorPracticePolicyV239;
   batterDirectionMotorV153?:ObservedDirectionMotorPolicyV153;
   batterObservedMemoryV151?:Readonly<{memory:BatterObservedMemoryV151;observerPlayerId:string;pitcherId:string}>;
   /** Known before release. Omission preserves the original standalone target policy. */
@@ -183,8 +185,15 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
     legacyRecallV151=observedMemoryV151&&recallInputV151?recallBatterObservedMemoryV151(observedMemoryV151,recallInputV151):null,
     regionRecallV222=regionPolicyV222&&observedMemoryV151&&recallInputV151?recallObservedRegionV222(observedMemoryV151,recallInputV151):null,
     preparedRecallV151=legacyRecallV151&&regionRecallV222?{...legacyRecallV151,position:regionRecallV222.position,arrivalAfterReleaseSeconds:regionRecallV222.arrivalAfterReleaseSeconds}:legacyRecallV151;
-  const envelopeSourceV133=b.swingEnvelopeV133===undefined?undefined:validateLiveSwingEnvelopeV133(b.swingEnvelopeV133,b.swingExecutionV122);
-  const spinProfileV123=b.spinControlV123===undefined?undefined:validateLiveSpinControlV123(b.spinControlV123);
+  const envelopeSourceV133=b.swingEnvelopeV133===undefined?undefined:validateLiveSwingEnvelopeV133(b.swingEnvelopeV133,b.swingExecutionV122),
+    spinPracticePolicyV239=input.spinMotorPracticePolicyV239===undefined?undefined:validateLiveSpinMotorPracticePolicyV239(input.spinMotorPracticePolicyV239),
+    validatedSpinProfileV123=b.spinControlV123===undefined?undefined:validateLiveSpinControlV123(b.spinControlV123),spinProfileV123=spinPracticePolicyV239?undefined:validatedSpinProfileV123;
+  if(spinPracticePolicyV239){assert(!spinTrialRequestV236,'spin practice cannot use legacy raw trial');
+    assert(b.clipId===spinPracticePolicyV239.clip.id&&b.bats===spinPracticePolicyV239.clip.bats,'spin practice fixed clip differs');
+    if(spinComposeRequestV238)assert(spinComposeRequestV238.clip.id===spinPracticePolicyV239.clip.id&&spinComposeRequestV238.clip.bats===spinPracticePolicyV239.clip.bats
+      &&spinComposeRequestV238.clip.sourceSha256===spinPracticePolicyV239.clip.sourceSha256,'spin practice trial clip differs');
+    const ids=[input.batterObservedMemoryV151?.observerPlayerId,input.batterBeliefV122?.observerPlayerId,spinSubject].filter((v):v is string=>v!==undefined);
+    assert(ids.every(id=>id===spinPracticePolicyV239.subjectId),'spin practice subject differs');}
   // Freeze the player's own delivered joint prior before any actual pitch is
   // selected. This boundary never receives an opponent PitchCall or arsenal.
   const beliefV122=input.batterBeliefV122===undefined?undefined:freezeBatterBeliefV122(input.batterBeliefV122.belief,
@@ -232,6 +241,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
     clips=input.measuredClips.filter(c=>c.side===b.bats&&(b.clipId?c.id===b.clipId:c.defaultSelection!==false));
   assert(clips.length>0,'a measured OpenBiomechanics clip for the actual batting side is required');
   let clip=clips[Math.floor(formRandom.uniform()*clips.length)];
+  if(spinPracticePolicyV239)assert(clip.id===spinPracticePolicyV239.clip.id&&clip.side===spinPracticePolicyV239.clip.bats&&clip.source.sha256===spinPracticePolicyV239.clip.sourceSha256,'spin practice clip identity differs');
   assert(clip.id.startsWith('obp-')&&clip.source.repository===openBiomechanics&&/^[a-f0-9]{64}$/.test(clip.source.sha256)
     &&Number.isFinite(clip.contactTimeSeconds)&&clip.frames.length>=2,'unsupported measured clip provenance');
   const pitchApproach=p.pitchApproach??'BALANCED',autoPitchWeights=pitchApproach==='FASTBALL'?[7,1,1,1]:pitchApproach==='BREAKING'?[1,3,3,3]:[1,1,1,1];

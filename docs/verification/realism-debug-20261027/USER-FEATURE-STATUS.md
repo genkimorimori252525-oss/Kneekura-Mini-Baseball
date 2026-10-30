@@ -67,3 +67,7 @@ SPINの追加根拠: [SPIN-ORIGINAL-MOTOR-EVIDENCE-V224.md](SPIN-ORIGINAL-MOTOR-
 本人の試行配送: [MAKER-OBSERVED-SPIN-COMMAND-V237.md](MAKER-OBSERVED-SPIN-COMMAND-V237.md)。正常importした本人L/obp-23_5の同第2球で、無指定+固定4probeの全contact/Main実Worker全record・continuation一致。BACK/HOOKは逆方向、TOP/SLICEは要求成分正。旧全体FAILを保持して未完UIだけtail検証、30px入力を44B styleで修正し390px全340pxを実画像受入。raw試行は通常心理/方向計画を置換し得るため通常能力採用HOLD、次はnormal plan XY合成/delta0不変。4技術/資格/最終3HTMLは未完成。
 
 通常planを保つ合成: [NORMAL-PLAN-SPIN-COMPOSITION-V238.md](NORMAL-PLAN-SPIN-COMPOSITION-V238.md)。本人L/実clipのnormal対zeroが全record・continuation/実pose・clock/RNG/lateと一致。4非zeroは実XY差/Z0を保持し全contact、BACK/SLICEは逆方向、TOP/HOOKは要求成分正（baselineにも成分あり、技術成功ではない）。同Chrome実Worker受入済・4技術/習得/Gold/配送未完成。次は固定motor選択→独立practice評価で、数値入力の診断だけを増やさない。
+
+固定スイング選択・記録・再開: [FIXED-MOTOR-PRACTICE-OWNER-V239.md](FIXED-MOTOR-PRACTICE-OWNER-V239.md)。本人4事前固定組を実ChromeWorker/正常Ownerで確認、全NO_TARGETも消さずBACK/SLICE未成立、TOP第2接触、HOOK初球接触後別打者で中断HOLD。局所保存replayはNative/実施歴/獲得ではない。次は明示振る意思と同本人episode反復、必要試行数を下げない。
+
+受理打球のlocal記録/参考分類: [LOCAL-CONTACT-REFERENCE-REPORT-V240.md](LOCAL-CONTACT-REFERENCE-REPORT-V240.md)。TOP/HOOK実contactを1回ずつ収集し、明示TEST_ONLY[0,45)で38.697度一致/-33.901度不一致を保存・再分類。localSaved自己申告/日数未評価/physicsNONE、通常match全producer/career/productionmodelは未完。直接tool単体testのreceipt不足はUNKNOWN保持、帳尻再演0。
