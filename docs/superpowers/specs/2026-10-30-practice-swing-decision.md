@@ -11,6 +11,7 @@ Astraは「次の成功機会を選ぶ」集約変更より、preview前に保�
 ## 新しい契約
 
 - version／sourceId／明示practice scopeと、AUTO／SWING／TAKEを持つ一球request。managed offenseかつ明示practiceでのみ使用する。
+- `scope: EXPLICIT_PRACTICE`を持つstrict parse済みrequest自体が、その一球を局所practiceとして実行する明示宣言になる。spin motor policyの有無とは独立し、通常practiceで既存spinControlを無効化するdummy policyを付けない。通常試合UIからは付与しない。caller宣言はNative認証・実施歴・獲得資格の証拠ではない。
 - Ownerはcohort開始時にnormal／trial双方へ同じmodeを固定し、command・機会fingerprint・captureへ保存する。同じ機会の結果を見てmodeを変え、新しい独立試行に数えない。
 - SWINGは意思によるoffer部分だけを置換。現在の配達済みV151予測を必要とする。旧deliveredPredictionV151はprior-onlyでもtrueなのでそのまま許可判定へ流用しない。
 - effort0、開始時刻、latency、motor実行可否、速度／acceleration／誤差／接触／空力は通常経路の制約を保つ。当たり・回転・打球方向を強制しない。

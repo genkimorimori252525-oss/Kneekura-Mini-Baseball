@@ -1,3 +1,4 @@
+import {parsePracticeSwingDecisionV241,resolvePracticeSwingDecisionV241,type PracticeSwingDecisionRequestV241} from './PracticeSwingDecisionV241';
 import type { Vec3 } from '../../core/model/geometry';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { SeedRoot } from '../../core/rng/SeedRoot';
@@ -80,6 +81,7 @@ export type LivePitchInputV1=Readonly<{
   batterObservedRegionExperienceV222?:BatterObservedRegionExperiencePolicyV222;
   observedSpinTrialV236?:LiveObservedSpinTrialRequestV236|LiveObservedSpinComposeRequestV238;
   spinMotorPracticePolicyV239?:LiveSpinMotorPracticePolicyV239;
+  practiceSwingDecisionV241?:PracticeSwingDecisionRequestV241;
   batterDirectionMotorV153?:ObservedDirectionMotorPolicyV153;
   batterObservedMemoryV151?:Readonly<{memory:BatterObservedMemoryV151;observerPlayerId:string;pitcherId:string}>;
   /** Known before release. Omission preserves the original standalone target policy. */
@@ -439,6 +441,11 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   const deliveredPredictionV151=currentObservationAvailableV151||usablePriorV151;
   let swingOffered=deliveredPredictionV151&&input.batting!=='take'&&(!swingIntentV121||swingIntentV121.effort>0)&&(b.swingDecision?b.swingDecision.approach==='SWING'
       ||b.swingDecision.approach==='AUTO'&&inChaseEnvelope&&swingScore>=b.swingDecision.threshold:inChaseEnvelope&&batterRecognition.diagnostics.targetWeight>0);
+  const practiceSwingDecisionV241=input.practiceSwingDecisionV241===undefined?undefined:resolvePracticeSwingDecisionV241({
+    request:parsePracticeSwingDecisionV241(input.practiceSwingDecisionV241),managedOffense:true,explicitPractice:true,
+    batting:input.batting,managerCommunicationPresent:input.managerCommunicationV122!==undefined,baselineOffer:swingOffered,
+    effort:swingIntentV121?.effort??null,currentForecast:rawForecastV151??null,decisionCutoffTick:observationTick});
+  if(practiceSwingDecisionV241)swingOffered=practiceSwingDecisionV241.offerAfterIntent;
   const learnedMotionClipV124=spinProfileV123===undefined?null:findLiveSpinMotionClipV124(spinProfileV123,b.bats,input.measuredClips),
     intentClipV124=learnedMotionClipV124??clip;
   const spinIntentV123=spinProfileV123===undefined?undefined:selectLiveSpinIntentV123({profile:spinProfileV123,bats:b.bats,
@@ -879,6 +886,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
         actualExecutionDelta:null,actualExecutionDeltaReason:'MATCHED_NORMAL_RUN_REQUIRED' as const,finalExecutionPosition:reference.sampleContinuous(referenceContactTick).sweetSpot,
         executedContactTick:referenceContactTick,lateCorrection:lateEvidenceV121?.offset??null,clipId:clip.id,sourceSha256:clip.source.sha256}}:{})}}:{}),
       ...(observedSpinTrialV236?{observedSpinTrialV236:{...observedSpinTrialV236,...(observedSpinTrialV236.status==='APPLIED'?{registration:{clipId:clip.id,sourceSha256:clip.source.sha256,plannedContactTick:observedSpinTrialV236.contactTick,executedContactTick:referenceContactTick,executedSweetSpot:reference.sampleContinuous(referenceContactTick).sweetSpot,executionError:aimError,technicalTimingOffsetSeconds:b.technicalTimingOffsetSeconds??0,motorDelaySeconds,lateReaimed:false as const}}:{})}}:{}),
+      ...(practiceSwingDecisionV241?{practiceSwingDecisionV241:{...practiceSwingDecisionV241,finalMotorAvailable:practiceSwingDecisionV241.offerAfterIntent?swingOffered:null}}:{}),
       ...(swingMotorV121?{swingIntentV121,swingMotorV121}:{}),...(lateEvidenceV121?{lateEvidenceV121}:{}),...(batCapacityV121?{batCapacityV121}:{}),
       ...(spinIntentV123?{spinIntentV123,battedSpinV123:contact?observeBattedBallSpinV123({velocityMps:contact.exitVelocity,
         spinRadPerSecond:contact.exitSpin,bats:b.bats}):null}:{}),

@@ -23,7 +23,7 @@ export type { LiveTraitProfileV1, LiveTraitRosterInputV1, LiveTraitDefinitionV1 
 export { compareMeasuredTrajectoriesV69 } from './MeasuredTrajectoryComparisonWorkbenchV69';
 export type { MeasuredTrajectoryComparisonInputV69, MeasuredTrajectoryFlightFrameV69 } from './MeasuredTrajectoryComparisonWorkbenchV69';
 export { LIVE_MATCH_PHYSICS_V1, LIVE_MATCH_MOUND_SURFACE_V1 } from './LiveBaseballMatchV1';
-export { createLiveBattingPracticeV150, resumeLiveBattingPracticeSpinV239 } from './LiveBattingPracticeV150';
+export { createLiveBattingPracticeV150, resumeLiveBattingPracticeSpinV239, resumeLiveBattingPracticeEpisodesV242 } from './LiveBattingPracticeV150';
 export { AUTHORED_LIVE_BATTER_OBSERVATION_V151, validateLiveBatterObservationPolicyV151 } from './LiveBatterObservationV151';
 export { AUTHORED_OBSERVED_DIRECTION_MOTOR_V153, validateObservedDirectionMotorV153 } from './LiveDirectionMotorV153';
 export type { ObservedDirectionMotorPolicyV153 } from './LiveDirectionMotorV153';
@@ -111,3 +111,5 @@ export type {ContactDescriptorReportV191} from '../traits/ContactDescriptorRepor
 export { AUTHORED_BATTER_OBSERVED_REGION_EXPERIENCE_V222 } from '../../core/decision/batting/BatterObservedRegionExperienceV222';
 
 export {createLocalContactDescriptorReportV240,appendAcceptedContactV240,readLocalSavedContactDescriptorReportV240,withLocalContactDescriptorRuleV240} from './LocalContactDescriptorReportV240';
+
+export {declareSpinPracticeEpisodesV242} from './LiveSpinPracticeEpisodesV242';

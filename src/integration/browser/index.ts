@@ -105,7 +105,7 @@ export {restoreLiveWorkloadV122,advanceLiveWorkloadV122,resolveLivePitchWorkload
 export {observeBattedBallSpinV123} from '../../core/sim/contact/BattedBallSpinObservationV123';
 export {SPIN_CONTROL_VARIANT_FAMILY_V123,SPIN_TECHNIQUES_V123} from '../../core/world/traits/SpinTechniqueV123';
 export {validateLiveSpinControlV123,selectLiveSpinIntentV123,projectLiveSpinMasteryV123} from './LiveSpinControlV123';
-export { createLiveBattingPracticeV150, resumeLiveBattingPracticeSpinV239 } from './LiveBattingPracticeV150';
+export { createLiveBattingPracticeV150, resumeLiveBattingPracticeSpinV239, resumeLiveBattingPracticeEpisodesV242 } from './LiveBattingPracticeV150';
 export { AUTHORED_LIVE_BATTER_OBSERVATION_V151, validateLiveBatterObservationPolicyV151 } from './LiveBatterObservationV151';
 export { AUTHORED_OBSERVED_DIRECTION_MOTOR_V153, validateObservedDirectionMotorV153 } from './LiveDirectionMotorV153';
 export type { ObservedDirectionMotorPolicyV153 } from './LiveDirectionMotorV153';
@@ -119,3 +119,5 @@ export {observePitchTrajectoryShapeV172} from './PitchTrajectoryShapeV172';
 export {comparePitchTimeShapeV159} from './PitchTimeShapeComparisonV159';
 
 export { AUTHORED_BATTER_OBSERVED_REGION_EXPERIENCE_V222 } from '../../core/decision/batting/BatterObservedRegionExperienceV222';
+
+export {declareSpinPracticeEpisodesV242} from './LiveSpinPracticeEpisodesV242';

@@ -1,3 +1,4 @@
+import {parsePracticeSwingDecisionV241} from './PracticeSwingDecisionV241';
 import { liveFielderBodyControlBoundsV105, resolveLiveFielderBodyModelV105, type LiveFielderBodyPoseV105 } from '../../core/sim/fielding/LiveFielderBodyGeometryV105';
 import { BASEBALL_SURFACES_V101 } from '../../core/sim/ball/BaseballSurfaceCalibrationV101';
 import {liveAthleticControlBoundsV115,validateLiveAthleticControlsV115} from '../../core/sim/LiveAthleticControlsV115';
@@ -84,6 +85,7 @@ export type LivePitchCommandV1 = Readonly<{batting:'auto'|'balanced'|'contact'|'
   battingDirectionRequestV149?:BattingDirectionRequestV149;
   observedSpinTrialV236?:LivePitchInputV1['observedSpinTrialV236'];
   spinMotorPracticePolicyV239?:LivePitchInputV1['spinMotorPracticePolicyV239'];
+  practiceSwingDecisionV241?:LivePitchInputV1['practiceSwingDecisionV241'];
   /** Explicit PLAY-scoped simulation intervention, not a player's knowledge. */
   randomnessV152?:LiveRandomnessV152;
   managerCommunicationV122?:LiveManagerCommunicationSourceV122;
@@ -423,6 +425,9 @@ export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:L
       }:null;
     if(command.observedSpinTrialV236!==undefined)assert(managedOffense&&command.observedSpinTrialV236.subjectId===c.batterPlayerId,'spin trial subject must be the current managed batter');
     if(command.spinMotorPracticePolicyV239!==undefined)assert(managedOffense&&command.spinMotorPracticePolicyV239.subjectId===c.batterPlayerId,'spin practice subject must be the current managed batter');
+    if(command.practiceSwingDecisionV241!==undefined){const decision=parsePracticeSwingDecisionV241(command.practiceSwingDecisionV241);
+      assert(managedOffense,'swing decision requires current managed offense');
+      assert(command.managerCommunicationV122===undefined&&!(decision.mode==='SWING'&&command.batting==='take'),'conflicting swing decision');}
     const runningInstruction=command.managedTeam===c.team?(command.baserunning??'balanced'):'balanced',
       runningMarginAdjustment=runningInstruction==='aggressive'?-.25:runningInstruction==='conservative'?.25:0;
     const pitch=simulateLivePitchV1({originTick:nextTick,seed:(input.seed+Math.imul(pitchCount+1,0x9e3779b9))>>>0,
@@ -431,6 +436,7 @@ export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:L
       ...(managedOffense&&command.battingDirectionRequestV149!==undefined?{battingDirectionRequestV149:command.battingDirectionRequestV149}:{}),
       ...(command.observedSpinTrialV236===undefined?{}:{observedSpinTrialV236:command.observedSpinTrialV236}),
       ...(command.spinMotorPracticePolicyV239===undefined?{}:{spinMotorPracticePolicyV239:command.spinMotorPracticePolicyV239}),
+      ...(command.practiceSwingDecisionV241===undefined?{}:{practiceSwingDecisionV241:command.practiceSwingDecisionV241}),
       ...(managedOffense&&command.managerCommunicationV122!==undefined?{managerCommunicationV122:{source:command.managerCommunicationV122,
         scope:{sessionId:communicationScopeV122!.sessionId,matchId:communicationScopeV122!.matchId,senderId:communicationScopeV122!.managerId,receiverId:c.batterPlayerId}}}:{}),
       ...(pitchWorkloadV122?{pitchWorkloadV122}:{}),

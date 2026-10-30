@@ -8,7 +8,7 @@
  const panel=document.createElement('section');panel.id='batting-practice-editor';panel.className='swing-editor ball-comparison-editor';
  panel.innerHTML=`<h3>カウントを引き継いで打撃練習</h3>
   <p class="note">選択中の打者を先頭にした練習用の打順で始め、現在の選手設定の弾道を使います。一球ごとにカウントと打順を引き継ぎます。投球は投手に任せるため、上の球種・コース指定は単球比較だけに使います。</p>
-  <div class="comparison-settings"><label>次の一球の打ち方<select id="practice-batting"><option value="auto">打者に任せる</option><option value="take">見送る</option><option value="balanced">バランス</option><option value="contact">ミート</option><option value="power">強振</option></select></label></div>
+  <div class="comparison-settings"><label>振る意思<select id="practice-swing-decision-v241"><option value="AUTO">おまかせ</option><option value="SWING">振る</option><option value="TAKE">見送る</option></select></label><label>次の一球の打ち方<select id="practice-batting"><option value="auto">打者に任せる</option><option value="take">見送る</option><option value="balanced">バランス</option><option value="contact">ミート</option><option value="power">強振</option></select></label></div>
   <p class="note">方向は上の「打つ方向の指示」を一球ごとに使います。練習開始後の選手・投手・能力・ばらつき番号の変更は、新しい練習に反映します。打席が終わると練習用打順の次の打者へ進みます。</p>
   <div class="swing-toolbar"><button id="practice-start" type="button">選んだ打者から新しく開始</button><button id="practice-next" type="button" class="primary" disabled>次の一球を進める</button><button id="practice-export" type="button" disabled>練習をJSON保存</button><button id="practice-import" type="button">保存した練習を再開</button><input id="practice-file" type="file" accept="application/json,.json" hidden></div>
   <p id="practice-status" class="note" role="status">新しく開始すると、現在の設定を練習用に固定します。</p><p id="practice-count" class="note"></p><p id="practice-context" class="note"></p>
@@ -58,12 +58,17 @@
    'function summary(){const s=practice.inspect();return {match:s.match,pitchCount:s.pitchCount,batterPlayerId:s.batterPlayerId,pitcherPlayerId:s.pitcherPlayerId,finished:s.finished,seed:s.configuration.seed,randomness:s.configuration.randomnessV152??null,'+
    'knowledgeConnected:s.batterKnowledgeV122!==undefined,knownEvidenceCount:(s.batterKnowledgeV122?.beliefs??[]).reduce((n,b)=>n+b.evidenceRefs.length,0),'+
    'observedMemoryConnected:s.batterObservedMemoryV151!==undefined,observedEvidenceCount:(s.batterObservedMemoryV151?.memories??[]).find(m=>m.observerPlayerId===s.batterPlayerId&&m.pitcherId===s.pitcherPlayerId)?.totalObservations??0,'+
-   'workloadConnected:s.workloadV122!==undefined,spinMotorPracticeV239:practice.capture().spinMotorPracticeV239??null};}\n'+
-   'self.onmessage=async event=>{const {id,kind,value}=event.data;try{let result;if(kind==="start"){practice=value.capture?.spinMotorPracticeV239?await KneekuraBaseballWorkbench.resumeLiveBattingPracticeSpinV239(value.configuration,value.capture):KneekuraBaseballWorkbench.createLiveBattingPracticeV150(value.configuration,value.capture);result=summary();}'+
+   'workloadConnected:s.workloadV122!==undefined,spinMotorPracticeV239:practice.capture().spinMotorPracticeV239??null,spinPracticeEpisodesV242:practice.capture().spinPracticeEpisodesV242??null};}\n'+
+   'self.onmessage=async event=>{const {id,kind,value}=event.data;try{let result;if(kind==="start"){practice=value.capture?.spinPracticeEpisodesV242?await KneekuraBaseballWorkbench.resumeLiveBattingPracticeEpisodesV242(value.configuration,value.capture):value.capture?.spinMotorPracticeV239?await KneekuraBaseballWorkbench.resumeLiveBattingPracticeSpinV239(value.configuration,value.capture):KneekuraBaseballWorkbench.createLiveBattingPracticeV150(value.configuration,value.capture);result=summary();}'+
    'else if(kind==="pitch"){const record=practice.issuePitch(value);result={state:summary(),record};}'+
    'else if(kind==="spin-start"){await practice.startSpinMotorPractice(value);result={state:summary()};}'+
    'else if(kind==="spin-next"){const candidate=await practice.previewSpinMotorPractice();const record=await practice.acceptSpinMotorPractice(candidate);result={state:summary(),record,entry:candidate.entry};}'+
    'else if(kind==="spin-close"){practice.closeSpinMotorPractice();result={state:summary()};}'+
+   'else if(kind==="episodes-start"){await practice.startEpisodePracticeV242(value.plan,value.normalRequest);result={state:summary()};}'+
+   'else if(kind==="episodes-next"){const candidate=await practice.previewEpisodeStepV242(),record=await practice.acceptEpisodeStepV242(candidate);result={state:summary(),record,step:candidate.step};}'+
+   'else if(kind==="episodes-advance"){practice.advanceEpisodeV242();result={state:summary()};}'+
+   'else if(kind==="episodes-close"){practice.closeEpisodePracticeV242();result={state:summary()};}'+
+
    'else if(kind==="export"){result=stringifyPractice({version:"maker_batting_practice_v150",authority:"LOCAL_DEBUG_ARTIFACT_NOT_NATIVE",build:value.build,context:value.context,rows:value.rows,capture:practice.capture()});}'+
    'else throw Error("unknown practice request");self.postMessage({id,result});}catch(error){self.postMessage({id,error:String(error.message??error)});}};';
   const url=URL.createObjectURL(new Blob([source],{type:'text/javascript'})),client={url,native:new Worker(url),pending:new Map()};
@@ -77,13 +82,14 @@
   try{nextState=await send('start',value,candidate);}catch(error){closeWorker(candidate);throw error;}
   const prior=worker;worker=candidate;closeWorker(prior);state=nextState;
  }
+ function swingDecision(){return {version:'practice_swing_decision_v241',sourceId:'maker-continuous-practice-v241',scope:'EXPLICIT_PRACTICE',mode:$('practice-swing-decision-v241').value};}
  function playerName(id){return catalog.players.find(player=>player.playerId===id)?.name??id;}
  const count=match=>match.balls+'B '+match.strikes+'S '+match.outs+'O';
  function render(){
   $('practice-start').disabled=busy;$('practice-import').disabled=busy;
-  $('practice-next').disabled=busy||!state||stale||state.finished||state.spinMotorPracticeV239?.phase==='ACTIVE';$('practice-export').disabled=busy||!state;
+  $('practice-next').disabled=busy||!state||stale||state.finished||state.spinMotorPracticeV239?.phase==='ACTIVE'||['ACTIVE','ENDED'].includes(state.spinPracticeEpisodesV242?.phase);$('practice-export').disabled=busy||!state;
   if(!state){$('practice-count').textContent='';$('practice-context').textContent='';$('practice-results').tBodies[0].replaceChildren();return;}
-  $('practice-count').textContent=state.match.inning+'回'+(state.match.half==='top'?'表':'裏')+' ／ '+count(state.match)+' ／ '+state.pitchCount+'球 ／ 次の打者 '+playerName(state.batterPlayerId)+' ／ 投手 '+playerName(state.pitcherPlayerId);
+  $('practice-count').textContent=state.match.inning+'回'+(state.match.half==='top'?'表':'裏')+' ／ '+count(state.match)+' ／ '+(state.spinPracticeEpisodesV242?state.spinPracticeEpisodesV242.globalAcceptedPitchCount+'球（現在の回 '+state.pitchCount+'球）':state.pitchCount+'球')+' ／ 次の打者 '+playerName(state.batterPlayerId)+' ／ 投手 '+playerName(state.pitcherPlayerId);
   $('practice-context').textContent=(context.fromSavedPractice?'保存時の選手・ばらつき条件で再開。現在のメーカー設定は変更していません。':'開始時の選手設定を使用。')+
    ' 投球は投手におまかせ。'+(state.observedMemoryConnected?'この打者の軌道経験 '+state.observedEvidenceCount+'件（球種は未分類）。':state.knowledgeConnected?'明示された本人知識（証拠 '+state.knownEvidenceCount+'件）。':'前球からの知識学習は未接続。')+
    (state.workloadConnected?'投球負荷を接続。':'疲労更新は未接続。')+' 練習の基準番号 '+state.seed+
@@ -107,7 +113,7 @@
   const trial=$('comparison-spin-technique')?.value?(()=>{const batter=practiceConfiguration.players.find(p=>p.playerId===state.batterPlayerId);
    if(!batter)throw Error('現在の打者が練習の選手設定に見つかりません。');const physical=core.resolveLiveMatchPlayerPhysicalV98(batter);
    return root.KneekuraBallComparison.getObservedSpinTrial(batter.playerId,physical,batter.bats,batter.heightMeters,practiceConfiguration.measuredClips)})():null,
-   mode=$('comparison-direction').value,request={batting:$('practice-batting').value,
+   mode=$('comparison-direction').value,request={batting:$('practice-batting').value,practiceSwingDecisionV241:swingDecision(),
    battingDirectionRequestV149:{version:'batting_direction_request_v149',sourceId:'maker-continuous-practice-v150',mode},...(trial?{observedSpinTrialV236:trial}:{})},answer=await send('pitch',request),record=answer.record;
   adopt(answer,request,mode,trial);
   stale=currentSignature()!==signature;
@@ -115,12 +121,12 @@
   return {state:clone(state),record};
  });}
  function adopt(answer,request,mode,trial){
-  const record=answer.record;state=answer.state;rows.push({pitchCount:state.pitchCount,batterPlayerId:record.batterPlayerId,pitcherPlayerId:record.pitcherPlayerId,
+  const record=answer.record;state=answer.state;const acceptedOrdinal=state.spinPracticeEpisodesV242?.globalAcceptedPitchCount??state.pitchCount;rows.push({pitchCount:acceptedOrdinal,batterPlayerId:record.batterPlayerId,pitcherPlayerId:record.pitcherPlayerId,
    classification:record.play.classification,call:record.play.call,beforeCount:count(record.beforeMatch),afterCount:count(record.match),direction:mode,batting:request.batting,
    battingDirectionV149:clone(record.play.diagnostics.battingDirectionV149),...(trial?{observedSpinTrialV236:clone(trial)}:{}),batterAdvanced:record.play.rules.batterAdvanced});
-  root.dispatchEvent(new CustomEvent('maker-practice-accepted-v240',{detail:{record:clone(record),pitchOrdinal:state.pitchCount}}));
+  root.dispatchEvent(new CustomEvent('maker-practice-accepted-v240',{detail:{record:clone(record),pitchOrdinal:acceptedOrdinal}}));
  }
- async function startSpinMotor(technique){return act(async()=>{
+ async function startSpinMotor(technique,episodeMode=false){return act(async()=>{
   if(!state||stale||state.finished||currentSignature()!==signature)throw Error('有効な連続練習を先に開始してください。');
   const deltas={BACKSPIN:{x:0,y:.01},TOPSPIN:{x:0,y:-.01},SLICE:{x:.01,y:0},HOOK:{x:-.01,y:0}};
   if(!Object.hasOwn(deltas,technique))throw Error('診断する技術を選んでください。');
@@ -130,7 +136,12 @@
   const setup=core.resolveLiveBattingSetupV94({...physical,heightMeters:batter.heightMeters,bats:batter.bats}),scopeId=crypto.randomUUID(),mode=$('comparison-direction').value;
   const plan={version:'live_spin_practice_plan_v239',scopeId,pitchOrdinals:[state.pitchCount+1,state.pitchCount+2],motor:{version:'live_spin_xy_motor_v239',motorId:'diagnostic-'+scopeId,motorVersion:'fixed-probe-v1',subjectId:batter.playerId,technique,clip:{id:clip.id,sourceSha256:clip.source.sha256,bats:batter.bats},domain:{plateZ:setup.contactPlaneZ,coordinateSystem:'LIVE_WORLD_METERS_V1'},delta:deltas[technique],provenance:{kind:'EXPLICIT_DIAGNOSTIC_UNCALIBRATED',sourceId:'project-fixed-xy-probe',sourceVersion:'v238',humanCalibration:'NOT_MEASURED'},trainingOpportunities:[]},
    criterion:{version:'live_spin_practice_criterion_v239',authority:'EXPLICIT_UNCALIBRATED_PROJECT',minimumIndependentTrials:2,minimumContactFraction:1,minimumSuccessFraction:1,minimumDirectionalSpin:1,minimumDirectionalImprovement:1,miss:'COUNT_FAILURE',noTarget:'COUNT_FAILURE',unresolved:'HOLD'},
-   normalRequest:{batting:$('practice-batting').value,battingDirectionRequestV149:{version:'batting_direction_request_v149',sourceId:'maker-continuous-practice-v150',mode}}};
+   normalRequest:{batting:$('practice-batting').value,practiceSwingDecisionV241:swingDecision(),battingDirectionRequestV149:{version:'batting_direction_request_v149',sourceId:'maker-continuous-practice-v150',mode}}};
+  if(episodeMode){
+   if(state.pitchCount!==0)throw Error('反復診断は新しく開始した練習で指定してください。');const seed=practiceConfiguration.seed;if(!Number.isSafeInteger(seed)||seed>=4294967295)throw Error('二つの連続 seed を固定できません。');
+   const episodePlan=core.declareSpinPracticeEpisodesV242({scopeId,motor:plan.motor,criterion:plan.criterion,episodeSeeds:[seed,seed+1]});
+   const answer=await send('episodes-start',{plan:episodePlan,normalRequest:plan.normalRequest});state=answer.state;return clone(state.spinPracticeEpisodesV242);
+  }
   const answer=await send('spin-start',plan);state=answer.state;return clone(state.spinMotorPracticeV239);
  });}
  async function nextSpinMotor(){return act(async()=>{
@@ -141,6 +152,14 @@
   return {state:clone(state),entry:clone(answer.entry),accepted:!!answer.record};
  });}
  async function closeSpinMotor(){return act(async()=>{if(!state)throw Error('練習がありません。');const answer=await send('spin-close');state=answer.state;return clone(state.spinMotorPracticeV239);});}
+ async function nextEpisode(){return act(async()=>{
+  if(!state||currentSignature()!==signature)throw Error('練習条件が変更されました。診断を終了してください。');const episode=state.spinPracticeEpisodesV242;
+  if(episode?.phase!=='ACTIVE')throw Error('episode は投球待ちではありません。');const answer=await send('episodes-next'),request=episode.normalRequest;
+  if(answer.record)adopt(answer,request,request.battingDirectionRequestV149.mode,null);else state=answer.state;
+  return {state:clone(state),step:clone(answer.step),accepted:!!answer.record};
+ });}
+ async function advanceEpisode(){return act(async()=>{const answer=await send('episodes-advance');state=answer.state;return clone(state.spinPracticeEpisodesV242);});}
+ async function closeEpisodes(){return act(async()=>{const answer=await send('episodes-close');state=answer.state;return clone(state.spinPracticeEpisodesV242);});}
  async function exportText(){return act(async()=>{
   if(!state)throw Error('保存する練習がありません。');const text=await send('export',{build,context,rows});
   const sidecar=root.KneekuraContactSessionV240?.exportSidecar();if(!sidecar)return text;
@@ -158,7 +177,7 @@
    throw Error('保存元とCoreが異なります。保存元の候補で再開してください。');
   if(!saved.capture?.configuration||!saved.context||typeof saved.context!=='object'||Array.isArray(saved.context)
    ||typeof saved.context.startingBatterId!=='string'||typeof saved.context.pitcherId!=='string'
-   ||!Array.isArray(saved.rows)||saved.rows.length!==saved.capture.continuation?.pitchCount
+   ||!Array.isArray(saved.rows)||saved.rows.length!==(saved.capture.spinPracticeEpisodesV242?.globalAcceptedPitchCount??saved.capture.continuation?.pitchCount)
    ||!saved.rows.every((row,index)=>row&&typeof row==='object'&&!Array.isArray(row)&&row.pitchCount===index+1
     &&['batterPlayerId','pitcherPlayerId','classification','beforeCount','afterCount'].every(key=>typeof row[key]==='string'&&row[key].length>0&&row[key].length<=200)
     &&[undefined,null,'ball','called_strike','swinging_strike'].includes(row.call)
@@ -178,6 +197,6 @@
  function showPanel(){panel.hidden=$('ball-comparison-editor').hidden;}
  new MutationObserver(showPanel).observe($('ball-comparison-editor'),{attributes:true,attributeFilter:['hidden']});showPanel();
  root.addEventListener('pagehide',()=>{closeWorker();render();});
- root.KneekuraBattingPractice=Object.freeze({start,next,startSpinMotor,nextSpinMotor,closeSpinMotor,exportText,restore,inspect:()=>({ready:!!state,busy,stale,state:state&&clone(state),context:context&&clone(context),rows:clone(rows),workerActive:!!worker})});
+ root.KneekuraBattingPractice=Object.freeze({start,next,startSpinMotor,nextSpinMotor,closeSpinMotor,startEpisodes:technique=>startSpinMotor(technique,true),nextEpisode,advanceEpisode,closeEpisodes,exportText,restore,inspect:()=>({ready:!!state,busy,stale,state:state&&clone(state),context:context&&clone(context),rows:clone(rows),workerActive:!!worker})});
  render();root.KneekuraMakerHelp?.decorate(panel);
 })(globalThis);
