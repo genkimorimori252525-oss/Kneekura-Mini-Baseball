@@ -17,9 +17,10 @@
    <label>打つ方向の指示<select id="comparison-direction" data-help="『おまかせ』は打者本人の方針と観測に任せます。手動の方向は狙いであり、実際の打球方向を保証しません。選手の保存方針は変更しません。"><option value="AUTO">おまかせ(打者に任せる)</option><option value="PULL">引っ張る</option><option value="CENTER">中央</option><option value="OPPOSITE">流す</option></select></label>
    <label><input id="comparison-force-swing" type="checkbox" checked data-help="比較しやすいように、振るか見送るかの判断だけを『振る』に固定します。能力・タイミングや芯のずれは残すので、空振りも起きます。選手の保存値は変更しません。">比較中は必ず振る</label>
   </div><details id="comparison-spin-trial"><summary>打球回転の明示試行（任意）</summary><p class="note">未校正の一球試行です。回転の成功や習得を保証せず、選手の保存値も変更しません。実行する場合は、この選手に保存した打ち方と数値を明示してください。</p><div class="comparison-settings" style="grid-template-columns:minmax(0,1fr)">
+   <label>計画方式<select id="comparison-spin-mode"><option value="RAW">観測位置からの試行</option><option value="COMPOSE">通常の計画にXY差を合成</option></select></label>
    <label>試行<select id="comparison-spin-technique"><option value="">指定なし</option><option value="BACKSPIN">バックスピン</option><option value="TOPSPIN">トップスピン</option><option value="SLICE">スライス</option><option value="HOOK">フック</option></select></label>
    <label>狙いの横差（m）<input id="comparison-spin-x" type="number" step="any" placeholder="例: 0.01"></label><label>狙いの高さ差（m）<input id="comparison-spin-y" type="number" step="any" placeholder="例: 0.01"></label>
-   <label>接触を予測する奥行き（m）<input id="comparison-spin-depth" type="number" step="any" placeholder="実行前に指定"></label></div></details><details id="comparison-random-details"><summary>ばらつきを個別に指定（任意）</summary><div class="swing-toolbar">
+   <label id="comparison-spin-depth-label">観測位置からの試行だけ：接触を予測する奥行き（m）<input id="comparison-spin-depth" type="number" step="any" placeholder="実行前に指定"></label></div></details><details id="comparison-random-details"><summary>ばらつきを個別に指定（任意）</summary><div class="swing-toolbar">
    <label>おまかせ方向の抽選番号<input id="comparison-direction-seed" type="number" min="0" max="4294967295" step="1" placeholder="空欄なら共通番号から自動" data-help="本人の方針に方向の抽選がある場合、その抽選だけを変えます。投球・球の予想・振り方・打撃のずれは変えません。手動の方向指定がある場合は指定を優先します。"></label>
    <label>打撃のずれの番号<input id="comparison-execution-seed" type="number" min="0" max="4294967295" step="1" placeholder="空欄なら共通番号から自動" data-help="投球と打者の判断を保ち、タイミング・芯のずれだけを変えて比較します。選手の保存値を変更しません。"></label>
   </div><p class="note">空欄なら共通番号から自動で決まります。連続練習では開始時の基準番号として使い、一球ごとに別のばらつきを作ります。変更後は新しく開始してください。</p></details>
@@ -60,13 +61,13 @@
  }
  function observedSpinTrial(subjectId,physical,bats,heightMeters,clips){
   const technique=$('comparison-spin-technique').value;if(!technique)return null;
-  const values=['comparison-spin-x','comparison-spin-y','comparison-spin-depth'].map(id=>$(id).value);
-  if(values.some(v=>v===''||!Number.isFinite(Number(v))))throw Error('回転試行の横差・高さ差・接触奥行きをすべて指定してください。');
+  const mode=$('comparison-spin-mode').value,values=(mode==='RAW'?['comparison-spin-x','comparison-spin-y','comparison-spin-depth']:['comparison-spin-x','comparison-spin-y']).map(id=>$(id).value);
+  if(!['RAW','COMPOSE'].includes(mode)||values.some(v=>v===''||!Number.isFinite(Number(v))))throw Error('回転試行の数値を確認してください。観測位置からの試行では接触奥行きも必要です。');
   const clip=typeof physical.clipId==='string'?clips.find(c=>c.id===physical.clipId&&c.side===bats):null;
   if(!clip)throw Error('回転試行には、現在の打者に保存された左右一致の打ち方を指定してください。');
   const setup=core.resolveLiveBattingSetupV94({...physical,heightMeters,bats});
-  return {version:'live_observed_spin_trial_v236',subjectId,technique,clip:{id:clip.id,sourceSha256:clip.source.sha256,bats},
-   domain:{plateZ:setup.contactPlaneZ,contactDepthZ:Number(values[2]),coordinateSystem:'LIVE_WORLD_METERS_V1'},delta:{x:Number(values[0]),y:Number(values[1])}};
+  return {version:mode==='RAW'?'live_observed_spin_trial_v236':'live_observed_spin_compose_trial_v238',subjectId,technique,clip:{id:clip.id,sourceSha256:clip.source.sha256,bats},
+   domain:{plateZ:setup.contactPlaneZ,...(mode==='RAW'?{contactDepthZ:Number(values[2])}:{}),coordinateSystem:'LIVE_WORLD_METERS_V1'},delta:{x:Number(values[0]),y:Number(values[1])}};
  }
  function buildInput(){
   if(typeof core.validateBattingDirectionRequestV149!=='function'||!core.AUTHORED_LIVE_BATTER_OBSERVATION_V151)throw Error('方向指定と位置観測の予測に対応する最新版を読み込んでから比較してください。');
@@ -162,8 +163,10 @@
  function invalidate(){generation++;playing=false;result=null;input=null;context=null;geometry=null;clock=0;error=null;
   $('comparison-results').tBodies[0].replaceChildren();$('comparison-details').replaceChildren();$('comparison-conditions').textContent='';$('comparison-status').textContent='条件が変わりました。「同じ球で4段階を計算」を押してください。';$('comparison-status').classList.remove('error');
   for(const id of ['comparison-export','comparison-play','comparison-impact'])$(id).disabled=true;$('comparison-run').disabled=false;$('comparison-play').textContent='▶ 再生';draw();}
+ const syncSpinMode=()=>{const hide=$('comparison-spin-mode').value==='COMPOSE',label=$('comparison-spin-depth-label');label.hidden=hide;label.style.display=hide?'none':'';};
+ $('comparison-spin-mode').addEventListener('change',syncSpinMode);syncSpinMode();
  $('comparison-run').onclick=()=>run().catch(()=>{});$('comparison-next').onclick=()=>{$('comparison-seed').value=(Number($('comparison-seed').value)+1)>>>0;invalidate();run().catch(()=>{});};
- for(const id of ['comparison-pitcher','comparison-pitch-type','comparison-location','comparison-seed','comparison-batting','comparison-direction','comparison-force-swing','comparison-direction-seed','comparison-execution-seed','comparison-spin-technique','comparison-spin-x','comparison-spin-y','comparison-spin-depth'])$(id).addEventListener('change',invalidate);
+ for(const id of ['comparison-pitcher','comparison-pitch-type','comparison-location','comparison-seed','comparison-batting','comparison-direction','comparison-force-swing','comparison-direction-seed','comparison-execution-seed','comparison-spin-mode','comparison-spin-technique','comparison-spin-x','comparison-spin-y','comparison-spin-depth'])$(id).addEventListener('change',invalidate);
  $('comparison-level').onchange=draw;$('comparison-time').oninput=()=>seek(Number($('comparison-time').value));$('comparison-zoom').oninput=()=>setView({zoom:Number($('comparison-zoom').value)});
  $('comparison-fit').onclick=()=>setView({zoom:1,pan:{side:{x:0,y:0},top:{x:0,y:0}}});
  $('comparison-impact').onclick=()=>{if(result)seek(Math.min(...result.cases.map(c=>(c.pitch.contact?.tick??c.pitch.diagnostics.referenceContactTick)-input.originTick))/1e6);};

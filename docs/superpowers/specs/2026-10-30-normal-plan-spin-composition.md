@@ -23,3 +23,7 @@
 非ゼロは同じ通常planからのXY制御を確認し、Z・予定時刻・誤差・制約・clipを保持する。未成立／miss／逆方向も保存。本人の実JSONは正常import／実clipで検証し、汎用fixtureを本人受入へ昇格しない。実Main／browser Worker・保存再開は同じCore／Chrome build／時間刻みで照合する。
 
 この単位が通っても明示試行の範囲であり、4技術全domain・人間校正・獲得・自然Gold・最終配送の完了にはしない。深度／時刻差分は、この合成基準が成立してから必要な仕様として別途扱う。
+
+## 実装受入追記
+
+V238の本人実browser受入651324b3643047b184ec878f5bcb275eでzeroの全record/continuation/実pose同一とnormal方向・心理・clock/RNG/late保持、非zeroの実運動差まで確認した。固定4probeは全contactだがBACK/SLICEは逆、TOP/HOOKは元から成分があるため技術成功に昇格しない。通常planへの合成基盤だけの受入で、資格・Gold・全技術を完了としない。次は同日のspin-fixed-motor-practice.mdへ引き継ぐ。

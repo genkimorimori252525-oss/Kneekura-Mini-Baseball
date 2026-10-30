@@ -65,3 +65,5 @@ SPINの追加根拠: [SPIN-ORIGINAL-MOTOR-EVIDENCE-V224.md](SPIN-ORIGINAL-MOTOR-
 守備の最初の観測/判断: [SPIN-SAME-BRANCH-FIRST-DEFENDER-V235.md](SPIN-SAME-BRANCH-FIRST-DEFENDER-V235.md)。同実打球→cut15・ball検出/ball_handlerの正常Owner受理と保全PASS。一方、decision/locomotionの元clockが未記録で時間整合HOLD。65/32ticksを65/32msとみなして補正しない。9人motor/公式判定/解放/次独立trialは未完。
 
 本人の試行配送: [MAKER-OBSERVED-SPIN-COMMAND-V237.md](MAKER-OBSERVED-SPIN-COMMAND-V237.md)。正常importした本人L/obp-23_5の同第2球で、無指定+固定4probeの全contact/Main実Worker全record・continuation一致。BACK/HOOKは逆方向、TOP/SLICEは要求成分正。旧全体FAILを保持して未完UIだけtail検証、30px入力を44B styleで修正し390px全340pxを実画像受入。raw試行は通常心理/方向計画を置換し得るため通常能力採用HOLD、次はnormal plan XY合成/delta0不変。4技術/資格/最終3HTMLは未完成。
+
+通常planを保つ合成: [NORMAL-PLAN-SPIN-COMPOSITION-V238.md](NORMAL-PLAN-SPIN-COMPOSITION-V238.md)。本人L/実clipのnormal対zeroが全record・continuation/実pose・clock/RNG/lateと一致。4非zeroは実XY差/Z0を保持し全contact、BACK/SLICEは逆方向、TOP/HOOKは要求成分正（baselineにも成分あり、技術成功ではない）。同Chrome実Worker受入済・4技術/習得/Gold/配送未完成。次は固定motor選択→独立practice評価で、数値入力の診断だけを増やさない。

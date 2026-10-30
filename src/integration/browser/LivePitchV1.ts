@@ -49,6 +49,7 @@ import { planLivePitchTargetV111, resolveLivePitchCommandStdV111, type LivePitch
 import {validateLiveSpinControlV123,selectLiveSpinIntentV123,findLiveSpinMotionClipV124} from './LiveSpinControlV123';
 import {observeBattedBallSpinV123} from '../../core/sim/contact/BattedBallSpinObservationV123';
 import {validateLiveObservedSpinTrialRequestV236,resolveLiveObservedSpinTrialV236,type LiveObservedSpinTrialRequestV236} from './LiveObservedSpinTrialV236';
+import {validateLiveObservedSpinComposeRequestV238,resolveLiveObservedSpinComposeV238,composeLiveObservedSpinAimV238,type LiveObservedSpinComposeRequestV238} from './LiveObservedSpinComposeV238';
 
 export type LiveMeasuredClipV1=Readonly<{
   id:string;side:'R'|'L';source:Readonly<{sha256:string;repository?:string}>;contactTimeSeconds:number;
@@ -76,7 +77,7 @@ export type LivePitchInputV1=Readonly<{
   batterBeliefV122?:Readonly<{belief:BatterBeliefV122;observerPlayerId:string;pitcherId:string}>;
   batterObservationV151?:LiveBatterObservationPolicyV151;
   batterObservedRegionExperienceV222?:BatterObservedRegionExperiencePolicyV222;
-  observedSpinTrialV236?:LiveObservedSpinTrialRequestV236;
+  observedSpinTrialV236?:LiveObservedSpinTrialRequestV236|LiveObservedSpinComposeRequestV238;
   batterDirectionMotorV153?:ObservedDirectionMotorPolicyV153;
   batterObservedMemoryV151?:Readonly<{memory:BatterObservedMemoryV151;observerPlayerId:string;pitcherId:string}>;
   /** Known before release. Omission preserves the original standalone target policy. */
@@ -168,9 +169,13 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   if(observedMemoryV151)assert(observedMemoryV151.observerPlayerId===input.batterObservedMemoryV151!.observerPlayerId
     &&observedMemoryV151.pitcherId===input.batterObservedMemoryV151!.pitcherId,'observed memory participants differ');
   const regionPolicyV222=input.batterObservedRegionExperienceV222===undefined?undefined:validateObservedRegionPolicyV222(input.batterObservedRegionExperienceV222),
-    spinTrialRequestV236=input.observedSpinTrialV236===undefined?undefined:validateLiveObservedSpinTrialRequestV236(input.observedSpinTrialV236);
-  if(spinTrialRequestV236){const known=[input.batterObservedMemoryV151?.observerPlayerId,input.batterBeliefV122?.observerPlayerId].filter((v):v is string=>v!==undefined);
-    assert(known.every(id=>id===spinTrialRequestV236.subjectId),'spin trial subject differs from current batter observation');}
+    rawSpinRequest=input.observedSpinTrialV236,
+    spinTrialRequestV236=rawSpinRequest?.version==='live_observed_spin_trial_v236'?validateLiveObservedSpinTrialRequestV236(rawSpinRequest):undefined,
+    spinComposeRequestV238=rawSpinRequest?.version==='live_observed_spin_compose_trial_v238'?validateLiveObservedSpinComposeRequestV238(rawSpinRequest):undefined;
+  if(rawSpinRequest!==undefined&&!spinTrialRequestV236&&!spinComposeRequestV238)throw Error('invalid observed spin trial version');
+  const spinSubject=spinTrialRequestV236?.subjectId??spinComposeRequestV238?.subjectId;
+  if(spinSubject!==undefined){const known=[input.batterObservedMemoryV151?.observerPlayerId,input.batterBeliefV122?.observerPlayerId].filter((v):v is string=>v!==undefined);
+    assert(known.every(id=>id===spinSubject),'spin trial subject differs from current batter observation');}
   assert(regionPolicyV222===undefined||observationPolicyV151!==undefined,'region experience requires position-only observation policy');
   const recallInputV151=observedMemoryV151?{atTick:input.originTick,
     draw:randomStreamsV152?.rng('batterBelief','recent-memory').uniform()??new SeedRoot(input.seed).streamRng(0,'batting','observed-prepitch-memory-v151').nextFloat(),
@@ -365,7 +370,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   const catcherObservationTime=Math.min(.14,plateTime*.35),observedSample=kernel.evaluateAt(catcherObservationTime),
     positionObserverV151=observationPolicyV151===undefined?undefined:createLiveBatterPositionObserverV151({policy:observationPolicyV151,
       originTick:input.originTick,planeZ:battingSetupV94.contactPlaneZ},seconds=>{
-      if(seconds>horizon)return null;const sample=kernel.evaluateAt(seconds).moment.ball;return {tick:sample.tick,position:sample.position};},regionPolicyV222!==undefined||spinTrialRequestV236!==undefined),
+      if(seconds>horizon)return null;const sample=kernel.evaluateAt(seconds).moment.ball;return {tick:sample.tick,position:sample.position};},regionPolicyV222!==undefined||spinTrialRequestV236!==undefined||spinComposeRequestV238!==undefined),
     decisionTime=positionObserverV151?(positionObserverV151.decisionTick-input.originTick)/tps:catcherObservationTime,
     rawForecastV151=positionObserverV151?.forecastAt(positionObserverV151.decisionTick);
   assert(!(input.managerCommunicationV122&&input.swingInstructionV121),'ambiguous received and raw manager instruction');
@@ -444,6 +449,9 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   const observedSpinTrialV236=spinTrialRequestV236===undefined?undefined:resolveLiveObservedSpinTrialV236({request:spinTrialRequestV236,
     snapshot:positionObserverV151?.snapshotAt?.(positionObserverV151.decisionTick)??null,clip:{id:clip.id,sourceSha256:clip.source.sha256,bats:clip.side},
     swingOffered,battingMode:input.batting});
+  const observedSpinComposeV238=spinComposeRequestV238===undefined?undefined:resolveLiveObservedSpinComposeV238({request:spinComposeRequestV238,
+    snapshot:positionObserverV151?.snapshotAt?.(positionObserverV151.decisionTick)??null,clip:{id:clip.id,sourceSha256:clip.source.sha256,bats:clip.side},
+    decisionTick:observationTick,swingOffered,battingMode:input.batting});
   // The course is chosen from the current perceived forecast. Neither a
   // future Source sample nor the eventual contact/result selects the ability.
   const predictedCourse=courseProfile===undefined?null:classifyBatterCourseV79({position:judgmentPosition,zone}),
@@ -612,7 +620,9 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   let referenceContactTick=referenceWorldTickAtSourceV121(referenceInput,sourceContactTick);
   const referenceZero=createReferenceBatKinematicsV1(referenceInput),point=referenceZero.sampleContinuous(referenceContactTick).sweetSpot;
   const nominalSweetSpotV153=nominalReferenceV153?createReferenceBatKinematicsV1(nominalReferenceV153).sampleAtSourceTick(sourceContactTick).sweetSpot:null,
-    intendedCenterV123=observedSpinTrialV236?.status==='APPLIED'?add(observedSpinTrialV236.aimedContact,aimError):nominalSweetSpotV153?add(nominalSweetSpotV153,aimError):spinMotionV123?add(add(motorAimPosition,aimError),{x:-(b.bats==='R'?1:-1)*spinMotionV123.contactOffsetMeters.pull,
+    composedV238=observedSpinComposeV238?.status==='APPLIED'?composeLiveObservedSpinAimV238(nominalSweetSpotV153??motorAimPosition,observedSpinComposeV238):null,
+    intendedCenterV123=composedV238&&!composedV238.normalPathRetained?(nominalSweetSpotV153?add(composedV238.center,aimError):spinMotionV123?add(add(composedV238.center,aimError),{x:-(b.bats==='R'?1:-1)*spinMotionV123.contactOffsetMeters.pull,
+    y:spinMotionV123.contactOffsetMeters.up,z:spinMotionV123.contactOffsetMeters.depth}):add(composedV238.center,aimError)):observedSpinTrialV236?.status==='APPLIED'?add(observedSpinTrialV236.aimedContact,aimError):nominalSweetSpotV153?add(nominalSweetSpotV153,aimError):spinMotionV123?add(add(motorAimPosition,aimError),{x:-(b.bats==='R'?1:-1)*spinMotionV123.contactOffsetMeters.pull,
     y:spinMotionV123.contactOffsetMeters.up,z:spinMotionV123.contactOffsetMeters.depth}):add(motorAimPosition,aimError);
   const translatedReference={...referenceInput,transform:{...referenceInput.transform,translation:sub(intendedCenterV123,point)}};
   let impactReference=impactTrajectory===undefined?translatedReference:withReferenceImpactTrajectoryV1(translatedReference,sourceContactTick,impactTrajectory);
@@ -677,7 +687,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
     }
     lateEvidenceV121={...evidence,offset:aimScaleV133===0?zero():mul(requestedOffset,aimScaleV133),applied:aimScaleV133>0};
   }
-  return {plannedStartTick,actualStartTick,motorDelaySeconds,referenceInput,referenceContactTick,lateEvidenceV121,registeredReference,reference,aimScaleV133,
+  return {plannedStartTick,actualStartTick,motorDelaySeconds,referenceInput,referenceContactTick,lateEvidenceV121,registeredReference,reference,aimScaleV133,composedV238,
     executionSaturationV153:saturationV153?{temporalScale:saturationV153.temporalScale,holdStartTick:saturationV153.holdStartTick,
       executedStartTick:actualStartTick,nominalPlaybackRate:rate,executedPlaybackRate:referenceInput.playbackRate,
       spatialErrorRetained:true as const,ballRetargeted:false as const}:null};
@@ -714,7 +724,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   }
   const finalNominalReferenceV153=nominalRegistrationAtRateV153(rate)?.reference;
   if(finalNominalReferenceV153)selectedFrames=[...finalNominalReferenceV153.frames];
-  const {plannedStartTick,motorDelaySeconds,referenceInput,referenceContactTick,lateEvidenceV121,registeredReference,reference,aimScaleV133,executionSaturationV153}=buildReferenceAtRate(rate);
+  const {plannedStartTick,motorDelaySeconds,referenceInput,referenceContactTick,lateEvidenceV121,registeredReference,reference,aimScaleV133,composedV238,executionSaturationV153}=buildReferenceAtRate(rate);
   assert(effectiveMaximumSpeedV121===undefined||reference.maximumSweetSpotSpeedMps<=effectiveMaximumSpeedV121*(1+1e-10),'adjusted reference exceeds declared motor ceiling');
   const executionBoundsV122=executionV122&&input.batting!=='bunt'?referenceAccelerationBoundsV122(reference):undefined;
   if(executionBoundsV122)assert(referenceRateScaleV122(reference,executionV122!)>=1-1e-9,'C1実行軌道が加速度上限を超えています。');
@@ -855,6 +865,9 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
         requestedTarget:{...target},selectedTarget:{...selectedTarget},commandedTarget:{...commanded},
         nominalReleaseVelocity:nominalReleaseVelocityV155!,executedReleaseVelocity:{...initial.velocity},
         inverseCompensationBasis:'INTENDED_SPIN_MEAN_AIR_EXCLUDES_UNANTICIPATED_SEAM' as const,postReleaseExecutionReaimed:false as const}}:{}),
+      ...(observedSpinComposeV238?{observedSpinComposeV238:{...observedSpinComposeV238,...(observedSpinComposeV238.status==='APPLIED'?{status:'PLANNED' as const,registration:{preErrorDelta:composedV238!.preErrorDelta,normalPathRetained:composedV238!.normalPathRetained,
+        actualExecutionDelta:null,actualExecutionDeltaReason:'MATCHED_NORMAL_RUN_REQUIRED' as const,finalExecutionPosition:reference.sampleContinuous(referenceContactTick).sweetSpot,
+        executedContactTick:referenceContactTick,lateCorrection:lateEvidenceV121?.offset??null,clipId:clip.id,sourceSha256:clip.source.sha256}}:{})}}:{}),
       ...(observedSpinTrialV236?{observedSpinTrialV236:{...observedSpinTrialV236,...(observedSpinTrialV236.status==='APPLIED'?{registration:{clipId:clip.id,sourceSha256:clip.source.sha256,plannedContactTick:observedSpinTrialV236.contactTick,executedContactTick:referenceContactTick,executedSweetSpot:reference.sampleContinuous(referenceContactTick).sweetSpot,executionError:aimError,technicalTimingOffsetSeconds:b.technicalTimingOffsetSeconds??0,motorDelaySeconds,lateReaimed:false as const}}:{})}}:{}),
       ...(swingMotorV121?{swingIntentV121,swingMotorV121}:{}),...(lateEvidenceV121?{lateEvidenceV121}:{}),...(batCapacityV121?{batCapacityV121}:{}),
       ...(spinIntentV123?{spinIntentV123,battedSpinV123:contact?observeBattedBallSpinV123({velocityMps:contact.exitVelocity,

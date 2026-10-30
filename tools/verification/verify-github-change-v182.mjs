@@ -95,6 +95,8 @@ assert(files.length>0&&files.every(path=>/^docs\/.*\.md$/.test(path)
   ||/^tools\/verification\/(?:spin-aim-causal-membership-v232\.ts|check-spin-aim-causal-membership-v232\.mjs)$/.test(path)
   ||/^src\/host\/world\/SamePaQualifiedSpinAimV233(?:\.test)?\.ts$/.test(path)
   ||/^src\/integration\/browser\/LiveObservedSpinTrialV236(?:\.test)?\.ts$/.test(path)
+  ||/^src\/integration\/browser\/LiveObservedSpinComposeV238(?:\.test)?\.ts$/.test(path)
+  ||/^tools\/browser-bridge\/(?:prepare-maker-observed-spin-v238|check-maker-observed-spin-v238)\.mjs$/.test(path)
   ||/^src\/integration\/browser\/(?:LiveBattingPracticeV150|LiveBaseballMatchObservedSpinTrialV237\.test)\.ts$/.test(path)
   ||/^tools\/browser-bridge\/(?:prepare-maker-observed-spin-v237|check-maker-observed-spin-v237(?:-tail|-readable)?)\.mjs$/.test(path)
   ||path==='docs/demos/baseball-maker-ball-comparison-v69.js'
