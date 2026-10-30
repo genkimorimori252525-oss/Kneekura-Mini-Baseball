@@ -26,6 +26,17 @@ it('derives separate seed-only host configurations from the same bound target an
  const physical=resolveLiveMatchPlayerPhysicalV98(player),plateZ=resolveLiveBattingSetupV94({...physical,heightMeters:player.heightMeters,bats:player.bats}).contactPlaneZ;
  const plan=declareSpinPracticeEpisodesV242({scopeId:'s',motor:{...motor,subjectId:player.playerId,clip:{id:clip.id,sourceSha256:clip.source.sha256,bats:'L'},domain:{plateZ,coordinateSystem:'LIVE_WORLD_METERS_V1'}},criterion:null,episodeSeeds:[5,6]});
  expect(deriveSpinEpisodeConfigurationV242(plan,0,config).seed).toBe(5);expect(deriveSpinEpisodeConfigurationV242(plan,1,config).seed).toBe(6);expect(config.seed).toBe(input.seed);
+ const {delta,...base}=plan.motor as LiveSpinMotorV239;void delta;
+ const framePlan=declareSpinPracticeEpisodesV242({scopeId:'s',motor:{...base,version:'live_contact_frame_motor_v244',policy:'FIXED_25_UNCALIBRATED_V243',thresholds:{minimumComponent:1,minimumImprovement:1}},criterion:null,episodeSeeds:[5]});
+ expect(deriveSpinEpisodeConfigurationV242(framePlan,0,config).seed).toBe(5);
+ expect(()=>deriveSpinEpisodeConfigurationV242({...framePlan,motor:{...framePlan.motor,domain:{...framePlan.motor.domain,plateZ:framePlan.motor.domain.plateZ+1}}},0,config)).toThrow(/domain/);
+ expect(()=>deriveSpinEpisodeConfigurationV242({...framePlan,motor:{...framePlan.motor,clip:{...framePlan.motor.clip,sourceSha256:'b'.repeat(64)}}},0,config)).toThrow(/clip/);
  expect(()=>deriveSpinEpisodeConfigurationV242(plan,2,config)).toThrow();
  expect(()=>deriveSpinEpisodeConfigurationV242(plan,0,{...config,players:config.players.filter(p=>p.playerId!==player.playerId)})).toThrow();
+});
+it('declares a strict V244 contact-frame motor without accepting XY fields',()=>{
+ const {delta,...base}=motor;void delta;
+ const frame={...base,version:'live_contact_frame_motor_v244' as const,policy:'FIXED_25_UNCALIBRATED_V243' as const,thresholds:{minimumComponent:1,minimumImprovement:1}};
+ const plan=declareSpinPracticeEpisodesV242({scopeId:'s',motor:frame,criterion:null,episodeSeeds:[1]});expect(plan.motor).toEqual(frame);
+ expect(()=>declareSpinPracticeEpisodesV242({scopeId:'s',motor:{...frame,delta:{x:0,y:0}} as typeof frame,criterion:null,episodeSeeds:[1]})).toThrow();
 });

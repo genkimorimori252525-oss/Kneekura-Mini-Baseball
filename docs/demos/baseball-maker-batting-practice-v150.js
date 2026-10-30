@@ -139,7 +139,8 @@
    normalRequest:{batting:$('practice-batting').value,practiceSwingDecisionV241:swingDecision(),battingDirectionRequestV149:{version:'batting_direction_request_v149',sourceId:'maker-continuous-practice-v150',mode}}};
   if(episodeMode){
    if(state.pitchCount!==0)throw Error('反復診断は新しく開始した練習で指定してください。');const seed=practiceConfiguration.seed;if(!Number.isSafeInteger(seed)||seed>=4294967295)throw Error('二つの連続 seed を固定できません。');
-   const episodePlan=core.declareSpinPracticeEpisodesV242({scopeId,motor:plan.motor,criterion:plan.criterion,episodeSeeds:[seed,seed+1]});
+   const motor=core.validateLiveContactFrameMotorV244({version:'live_contact_frame_motor_v244',motorId:'contact-frame-'+scopeId,motorVersion:'contact-frame-v1',subjectId:plan.motor.subjectId,technique,clip:plan.motor.clip,domain:plan.motor.domain,policy:'FIXED_25_UNCALIBRATED_V243',thresholds:{minimumComponent:1,minimumImprovement:1},provenance:{kind:'EXPLICIT_DIAGNOSTIC_UNCALIBRATED',sourceId:'project-predicted-contact-frame',sourceVersion:'v244',humanCalibration:'NOT_MEASURED'},trainingOpportunities:[]});
+   const episodePlan=core.declareSpinPracticeEpisodesV242({scopeId,motor,criterion:plan.criterion,episodeSeeds:[seed,seed+1]});
    const answer=await send('episodes-start',{plan:episodePlan,normalRequest:plan.normalRequest});state=answer.state;return clone(state.spinPracticeEpisodesV242);
   }
   const answer=await send('spin-start',plan);state=answer.state;return clone(state.spinMotorPracticeV239);

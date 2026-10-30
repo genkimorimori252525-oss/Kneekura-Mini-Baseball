@@ -1,4 +1,7 @@
 import {parsePracticeSwingDecisionV241,resolvePracticeSwingDecisionV241,type PracticeSwingDecisionRequestV241} from './PracticeSwingDecisionV241';
+import {validateLiveObservedContactFrameTrialV244,type LiveObservedContactFrameTrialV244} from './LiveContactFrameMotorV244';
+import {planObservedContactFrameRegistrationV243} from '../../core/decision/batting/ObservedContactFrameRegistrationV243';
+import {forecastObservedPitchV151} from '../../core/decision/batting/ObservedPitchForecastV151';
 import type { Vec3 } from '../../core/model/geometry';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { SeedRoot } from '../../core/rng/SeedRoot';
@@ -79,7 +82,7 @@ export type LivePitchInputV1=Readonly<{
   batterBeliefV122?:Readonly<{belief:BatterBeliefV122;observerPlayerId:string;pitcherId:string}>;
   batterObservationV151?:LiveBatterObservationPolicyV151;
   batterObservedRegionExperienceV222?:BatterObservedRegionExperiencePolicyV222;
-  observedSpinTrialV236?:LiveObservedSpinTrialRequestV236|LiveObservedSpinComposeRequestV238;
+  observedSpinTrialV236?:LiveObservedSpinTrialRequestV236|LiveObservedSpinComposeRequestV238|LiveObservedContactFrameTrialV244;
   spinMotorPracticePolicyV239?:LiveSpinMotorPracticePolicyV239;
   practiceSwingDecisionV241?:PracticeSwingDecisionRequestV241;
   batterDirectionMotorV153?:ObservedDirectionMotorPolicyV153;
@@ -175,9 +178,10 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   const regionPolicyV222=input.batterObservedRegionExperienceV222===undefined?undefined:validateObservedRegionPolicyV222(input.batterObservedRegionExperienceV222),
     rawSpinRequest=input.observedSpinTrialV236,
     spinTrialRequestV236=rawSpinRequest?.version==='live_observed_spin_trial_v236'?validateLiveObservedSpinTrialRequestV236(rawSpinRequest):undefined,
-    spinComposeRequestV238=rawSpinRequest?.version==='live_observed_spin_compose_trial_v238'?validateLiveObservedSpinComposeRequestV238(rawSpinRequest):undefined;
-  if(rawSpinRequest!==undefined&&!spinTrialRequestV236&&!spinComposeRequestV238)throw Error('invalid observed spin trial version');
-  const spinSubject=spinTrialRequestV236?.subjectId??spinComposeRequestV238?.subjectId;
+    spinComposeRequestV238=rawSpinRequest?.version==='live_observed_spin_compose_trial_v238'?validateLiveObservedSpinComposeRequestV238(rawSpinRequest):undefined,
+    contactFrameRequestV244=rawSpinRequest?.version==='live_observed_contact_frame_trial_v244'?validateLiveObservedContactFrameTrialV244(rawSpinRequest):undefined;
+  if(rawSpinRequest!==undefined&&!spinTrialRequestV236&&!spinComposeRequestV238&&!contactFrameRequestV244)throw Error('invalid observed spin trial version');
+  const spinSubject=spinTrialRequestV236?.subjectId??spinComposeRequestV238?.subjectId??contactFrameRequestV244?.subjectId;
   if(spinSubject!==undefined){const known=[input.batterObservedMemoryV151?.observerPlayerId,input.batterBeliefV122?.observerPlayerId].filter((v):v is string=>v!==undefined);
     assert(known.every(id=>id===spinSubject),'spin trial subject differs from current batter observation');}
   assert(regionPolicyV222===undefined||observationPolicyV151!==undefined,'region experience requires position-only observation policy');
@@ -194,6 +198,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
     assert(b.clipId===spinPracticePolicyV239.clip.id&&b.bats===spinPracticePolicyV239.clip.bats,'spin practice fixed clip differs');
     if(spinComposeRequestV238)assert(spinComposeRequestV238.clip.id===spinPracticePolicyV239.clip.id&&spinComposeRequestV238.clip.bats===spinPracticePolicyV239.clip.bats
       &&spinComposeRequestV238.clip.sourceSha256===spinPracticePolicyV239.clip.sourceSha256,'spin practice trial clip differs');
+    if(contactFrameRequestV244)assert(contactFrameRequestV244.clip.id===spinPracticePolicyV239.clip.id&&contactFrameRequestV244.clip.bats===spinPracticePolicyV239.clip.bats&&contactFrameRequestV244.clip.sourceSha256===spinPracticePolicyV239.clip.sourceSha256,'contact-frame practice clip differs');
     const ids=[input.batterObservedMemoryV151?.observerPlayerId,input.batterBeliefV122?.observerPlayerId,spinSubject].filter((v):v is string=>v!==undefined);
     assert(ids.every(id=>id===spinPracticePolicyV239.subjectId),'spin practice subject differs');}
   // Freeze the player's own delivered joint prior before any actual pitch is
@@ -382,7 +387,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   const catcherObservationTime=Math.min(.14,plateTime*.35),observedSample=kernel.evaluateAt(catcherObservationTime),
     positionObserverV151=observationPolicyV151===undefined?undefined:createLiveBatterPositionObserverV151({policy:observationPolicyV151,
       originTick:input.originTick,planeZ:battingSetupV94.contactPlaneZ},seconds=>{
-      if(seconds>horizon)return null;const sample=kernel.evaluateAt(seconds).moment.ball;return {tick:sample.tick,position:sample.position};},regionPolicyV222!==undefined||spinTrialRequestV236!==undefined||spinComposeRequestV238!==undefined),
+      if(seconds>horizon)return null;const sample=kernel.evaluateAt(seconds).moment.ball;return {tick:sample.tick,position:sample.position};},regionPolicyV222!==undefined||spinTrialRequestV236!==undefined||spinComposeRequestV238!==undefined||contactFrameRequestV244!==undefined),
     decisionTime=positionObserverV151?(positionObserverV151.decisionTick-input.originTick)/tps:catcherObservationTime,
     rawForecastV151=positionObserverV151?.forecastAt(positionObserverV151.decisionTick);
   assert(!(input.managerCommunicationV122&&input.swingInstructionV121),'ambiguous received and raw manager instruction');
@@ -469,6 +474,21 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   const observedSpinComposeV238=spinComposeRequestV238===undefined?undefined:resolveLiveObservedSpinComposeV238({request:spinComposeRequestV238,
     snapshot:positionObserverV151?.snapshotAt?.(positionObserverV151.decisionTick)??null,clip:{id:clip.id,sourceSha256:clip.source.sha256,bats:clip.side},
     decisionTick:observationTick,swingOffered,battingMode:input.batting});
+  const contactFrameSnapshotV244=contactFrameRequestV244?positionObserverV151?.snapshotAt?.(observationTick)??null:null;
+  const contactFramePreReasonV244=(()=>{
+    if(!contactFrameRequestV244)return null;
+    if(!swingOffered||input.batting==='take'||input.batting==='bunt')return 'NO_SWING';
+    if(contactFrameRequestV244.clip.id!==clip.id||contactFrameRequestV244.clip.sourceSha256!==clip.source.sha256||contactFrameRequestV244.clip.bats!==clip.side)return 'CLIP_MISMATCH';
+    if(!contactFrameSnapshotV244)return 'MISSING_DELIVERED_FORECAST';
+    if(!Object.is(contactFrameRequestV244.domain.plateZ,contactFrameSnapshotV244.planeZ))return 'DOMAIN_MISMATCH';
+    if(contactFrameSnapshotV244.cutoffTick!==observationTick)throw Error('contact frame v244: cutoff differs');
+    const snapshot=contactFrameSnapshotV244,forecast=forecastObservedPitchV151({originTick:snapshot.originTick,ticksPerSecond:snapshot.ticksPerSecond,cutoffTick:snapshot.cutoffTick,planeZ:snapshot.planeZ,maximumAfterReleaseSeconds:snapshot.maximumAfterReleaseSeconds,observations:snapshot.observations});
+    const same=(a:unknown,b:unknown):boolean=>Object.is(a,b)||!!a&&!!b&&typeof a==='object'&&typeof b==='object'&&Array.isArray(a)===Array.isArray(b)&&Object.keys(a).length===Object.keys(b).length&&Object.keys(a).every(k=>Object.hasOwn(b,k)&&same((a as Record<string,unknown>)[k],(b as Record<string,unknown>)[k]));
+    if(!same(forecast,snapshot.forecast)||!same(forecast.usedObservationIds,snapshot.observations.map(o=>o.observationId)))throw Error('contact frame v244: frozen forecast differs');
+    if(forecast.status!=='PREDICTED'||!forecast.prediction)return 'MISSING_DELIVERED_FORECAST';
+    if(snapshot.originTick+Math.round(forecast.prediction.arrivalAfterReleaseSeconds*snapshot.ticksPerSecond)<=observationTick)return 'NO_FORWARD_CROSSING';
+    return null;
+  })();
   // The course is chosen from the current perceived forecast. Neither a
   // future Source sample nor the eventual contact/result selects the ability.
   const predictedCourse=courseProfile===undefined?null:classifyBatterCourseV79({position:judgmentPosition,zone}),
@@ -620,8 +640,24 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
     nominalInputsV154.set(candidateRate,nominalInputV154);
     nominalRegistrationsV153.set(candidateRate,registration);return registration;
   };
+  const resolveContactFrameAtRateV244=(rate:number,nominalReferenceV153:ReferenceBatKinematicsInputV1|null|undefined)=>{
+    if(!contactFrameRequestV244)return null;
+    const request=contactFrameRequestV244,base={version:'live_observed_spin_contact_frame_result_v244' as const,subjectId:request.subjectId,technique:request.technique,clip:request.clip,domain:request.domain,policy:request.policy,thresholds:request.thresholds,cutoffTick:observationTick,identityAuthority:'CALLER_DECLARED_NOT_AUTHENTICATED' as const,earnedQualification:false as const,humanCalibration:'NOT_MEASURED' as const};
+    const none=(reason:string)=>({...base,status:'NO_TARGET' as const,reason,selectedDelta:null,selectedOrdinal:null,candidates:[],predictionScope:'DELIVERED_FORECAST_ONLY' as const,incidentSpin:'ZERO_OPERATIONAL_ASSUMPTION' as const});
+    if(contactFramePreReasonV244)return none(contactFramePreReasonV244);
+    const nominalInput=nominalInputsV154.get(rate);if(!nominalReferenceV153||!nominalInput)return none('NOMINAL_REGISTRATION_UNAVAILABLE');
+    const {desiredFieldAngleDegrees:_angle,...reactive}=nominalInput as ObservedDirectionRegistrationInputV153;
+    const plan=planObservedContactFrameRegistrationV243({registration:{...reactive,reference:nominalReferenceV153},cutoffTick:observationTick,bats:b.bats,technique:request.technique,thresholds:request.thresholds});
+    const compact=plan.candidates.map(candidate=>({ordinal:candidate.ordinal,delta:candidate.delta,norm:candidate.norm,component:candidate.component,improvement:candidate.improvement,status:candidate.prediction.status,reason:candidate.prediction.status==='FOUND'?null:candidate.prediction.reason,exclusionReason:candidate.exclusionReason}));
+    const selected=plan.status==='PLANNED'?plan.candidates.find(candidate=>candidate.ordinal===plan.selectedOrdinal):undefined;
+    if(plan.status==='PLANNED')assert(selected?.prediction.status==='FOUND','contact frame v244: selected prediction missing');
+    return {...base,status:plan.status,reason:plan.reason,selectedDelta:plan.status==='PLANNED'?plan.delta:null,selectedOrdinal:plan.status==='PLANNED'?plan.selectedOrdinal:null,...(selected?{selectedPrediction:selected.prediction}:{}),candidates:compact,predictionScope:'DELIVERED_FORECAST_ONLY' as const,incidentSpin:'ZERO_OPERATIONAL_ASSUMPTION' as const,...('diagnostics' in plan?{selection:plan.diagnostics}:{}),...('normalComponent' in plan?{normalComponent:plan.normalComponent}:{})};
+  };
+  let frozenContactFrameV244:ReturnType<typeof resolveContactFrameAtRateV244>|undefined,contactFramePlanningRateV244:number|null=null;
   const buildReferenceAtRate=(rate:number)=>{
   const nominalRegistrationV153=nominalRegistrationAtRateV153(rate),nominalReferenceV153=nominalRegistrationV153?.reference;
+  if(frozenContactFrameV244===undefined){frozenContactFrameV244=resolveContactFrameAtRateV244(rate,nominalReferenceV153);if(contactFrameRequestV244)contactFramePlanningRateV244=rate;}
+  const contactFrameV244=frozenContactFrameV244;
   const startOffset=desiredContactTime-referenceElapsedSecondsV121((sourceContactTick-selectedFrames[0].tick)/1e6/rate,rampSeconds),
     plannedStartTick=input.originTick+Math.max(0,Math.round(startOffset*tps));
   let actualStartTick=envelopeV133?Math.max(plannedStartTick,observationTick+Math.ceil((b.motorLatencySeconds??0)*tps)+Math.ceil(envelopeV133.preparation.durationSeconds*tps))
@@ -637,9 +673,11 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   let referenceContactTick=referenceWorldTickAtSourceV121(referenceInput,sourceContactTick);
   const referenceZero=createReferenceBatKinematicsV1(referenceInput),point=referenceZero.sampleContinuous(referenceContactTick).sweetSpot;
   const nominalSweetSpotV153=nominalReferenceV153?createReferenceBatKinematicsV1(nominalReferenceV153).sampleAtSourceTick(sourceContactTick).sweetSpot:null,
+    deltaV244=contactFrameV244?.status==='PLANNED'?contactFrameV244.selectedDelta:null,
+    nominalCenterV244=nominalSweetSpotV153&&deltaV244&&(deltaV244.x!==0||deltaV244.y!==0||deltaV244.z!==0)?{x:deltaV244.x===0?nominalSweetSpotV153.x:nominalSweetSpotV153.x+deltaV244.x,y:deltaV244.y===0?nominalSweetSpotV153.y:nominalSweetSpotV153.y+deltaV244.y,z:deltaV244.z===0?nominalSweetSpotV153.z:nominalSweetSpotV153.z+deltaV244.z}:nominalSweetSpotV153,
     composedV238=observedSpinComposeV238?.status==='APPLIED'?composeLiveObservedSpinAimV238(nominalSweetSpotV153??motorAimPosition,observedSpinComposeV238):null,
     intendedCenterV123=composedV238&&!composedV238.normalPathRetained?(nominalSweetSpotV153?add(composedV238.center,aimError):spinMotionV123?add(add(composedV238.center,aimError),{x:-(b.bats==='R'?1:-1)*spinMotionV123.contactOffsetMeters.pull,
-    y:spinMotionV123.contactOffsetMeters.up,z:spinMotionV123.contactOffsetMeters.depth}):add(composedV238.center,aimError)):observedSpinTrialV236?.status==='APPLIED'?add(observedSpinTrialV236.aimedContact,aimError):nominalSweetSpotV153?add(nominalSweetSpotV153,aimError):spinMotionV123?add(add(motorAimPosition,aimError),{x:-(b.bats==='R'?1:-1)*spinMotionV123.contactOffsetMeters.pull,
+    y:spinMotionV123.contactOffsetMeters.up,z:spinMotionV123.contactOffsetMeters.depth}):add(composedV238.center,aimError)):observedSpinTrialV236?.status==='APPLIED'?add(observedSpinTrialV236.aimedContact,aimError):nominalSweetSpotV153?add(nominalCenterV244!,aimError):spinMotionV123?add(add(motorAimPosition,aimError),{x:-(b.bats==='R'?1:-1)*spinMotionV123.contactOffsetMeters.pull,
     y:spinMotionV123.contactOffsetMeters.up,z:spinMotionV123.contactOffsetMeters.depth}):add(motorAimPosition,aimError);
   const translatedReference={...referenceInput,transform:{...referenceInput.transform,translation:sub(intendedCenterV123,point)}};
   let impactReference=impactTrajectory===undefined?translatedReference:withReferenceImpactTrajectoryV1(translatedReference,sourceContactTick,impactTrajectory);
@@ -704,7 +742,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
     }
     lateEvidenceV121={...evidence,offset:aimScaleV133===0?zero():mul(requestedOffset,aimScaleV133),applied:aimScaleV133>0};
   }
-  return {plannedStartTick,actualStartTick,motorDelaySeconds,referenceInput,referenceContactTick,lateEvidenceV121,registeredReference,reference,aimScaleV133,composedV238,
+  return {plannedStartTick,actualStartTick,motorDelaySeconds,referenceInput,referenceContactTick,lateEvidenceV121,registeredReference,reference,aimScaleV133,composedV238,contactFrameV244,
     executionSaturationV153:saturationV153?{temporalScale:saturationV153.temporalScale,holdStartTick:saturationV153.holdStartTick,
       executedStartTick:actualStartTick,nominalPlaybackRate:rate,executedPlaybackRate:referenceInput.playbackRate,
       spatialErrorRetained:true as const,ballRetargeted:false as const}:null};
@@ -741,7 +779,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   }
   const finalNominalReferenceV153=nominalRegistrationAtRateV153(rate)?.reference;
   if(finalNominalReferenceV153)selectedFrames=[...finalNominalReferenceV153.frames];
-  const {plannedStartTick,motorDelaySeconds,referenceInput,referenceContactTick,lateEvidenceV121,registeredReference,reference,aimScaleV133,composedV238,executionSaturationV153}=buildReferenceAtRate(rate);
+  const {plannedStartTick,motorDelaySeconds,referenceInput,referenceContactTick,lateEvidenceV121,registeredReference,reference,aimScaleV133,composedV238,contactFrameV244,executionSaturationV153}=buildReferenceAtRate(rate);
   assert(effectiveMaximumSpeedV121===undefined||reference.maximumSweetSpotSpeedMps<=effectiveMaximumSpeedV121*(1+1e-10),'adjusted reference exceeds declared motor ceiling');
   const executionBoundsV122=executionV122&&input.batting!=='bunt'?referenceAccelerationBoundsV122(reference):undefined;
   if(executionBoundsV122)assert(referenceRateScaleV122(reference,executionV122!)>=1-1e-9,'C1実行軌道が加速度上限を超えています。');
@@ -882,6 +920,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
         requestedTarget:{...target},selectedTarget:{...selectedTarget},commandedTarget:{...commanded},
         nominalReleaseVelocity:nominalReleaseVelocityV155!,executedReleaseVelocity:{...initial.velocity},
         inverseCompensationBasis:'INTENDED_SPIN_MEAN_AIR_EXCLUDES_UNANTICIPATED_SEAM' as const,postReleaseExecutionReaimed:false as const}}:{}),
+      ...(contactFrameV244?{observedSpinContactFrameV244:{...contactFrameV244,nominalPlanningRate:contactFramePlanningRateV244,executedPlaybackRate:referenceInput.playbackRate,predictionExecutionScope:contactFrameV244.status!=='PLANNED'?'NO_TARGET':Object.is(contactFramePlanningRateV244,referenceInput.playbackRate)?'NOMINAL_RATE_ONLY_NOT_EXECUTION_PROOF':'NOMINAL_RATE_DIFFERS_NOT_EXECUTION_PROOF'}}:{}),
       ...(observedSpinComposeV238?{observedSpinComposeV238:{...observedSpinComposeV238,...(observedSpinComposeV238.status==='APPLIED'?{status:'PLANNED' as const,registration:{preErrorDelta:composedV238!.preErrorDelta,normalPathRetained:composedV238!.normalPathRetained,
         actualExecutionDelta:null,actualExecutionDeltaReason:'MATCHED_NORMAL_RUN_REQUIRED' as const,finalExecutionPosition:reference.sampleContinuous(referenceContactTick).sweetSpot,
         executedContactTick:referenceContactTick,lateCorrection:lateEvidenceV121?.offset??null,clipId:clip.id,sourceSha256:clip.source.sha256}}:{})}}:{}),

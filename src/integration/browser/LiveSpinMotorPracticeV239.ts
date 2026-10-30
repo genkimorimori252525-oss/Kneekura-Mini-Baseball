@@ -1,3 +1,4 @@
+import { validateLiveContactFrameMotorV244,type LiveContactFrameMotorV244 } from './LiveContactFrameMotorV244';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { SPIN_TECHNIQUES_V123,type SpinTechniqueV123 } from '../../core/world/traits/SpinTechniqueV123';
 import { observeBattedBallSpinV123,type BattedSpinObservationInputV123 } from '../../core/sim/contact/BattedBallSpinObservationV123';
@@ -13,6 +14,8 @@ export type LiveSpinPracticeTrialV239=Readonly<{opportunity:LiveSpinOpportunityV
  outcome:'CONTACT'|'MISS'|'NO_TARGET'|'UNRESOLVED';normal:BattedSpinObservationInputV123|null;actual:BattedSpinObservationInputV123|null;
  direction:Readonly<{requestedDegrees:number|null;normalDegrees:number|null;actualDegrees:number|null}>}>;
 export type LiveSpinPracticeCohortV239=Readonly<{version:'live_spin_practice_cohort_v239';scopeId:string;motorId:string;motorVersion:string;motorSnapshot:LiveSpinMotorV239;opportunities:readonly LiveSpinOpportunityV239[]}>;
+export type LiveSpinPracticeTrialV244=Omit<LiveSpinPracticeTrialV239,'motorSnapshot'> & Readonly<{motorSnapshot:LiveContactFrameMotorV244}>;
+export type LiveSpinPracticeCohortV244=Omit<LiveSpinPracticeCohortV239,'version'|'motorSnapshot'> & Readonly<{version:'live_spin_practice_cohort_v244';motorSnapshot:LiveContactFrameMotorV244}>;
 const fields=(v:unknown,keys:readonly string[])=>!!v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).length===keys.length&&keys.every(k=>Object.hasOwn(v,k));
 const text=(v:unknown):v is string=>typeof v==='string'&&v.length>0&&v.length<=200&&v.trim()===v;
 const hash=(v:unknown):v is string=>typeof v==='string'&&/^[a-f0-9]{64}$/.test(v);
@@ -59,8 +62,14 @@ const directed=(s:ReturnType<typeof observeBattedBallSpinV123>,t:SpinTechniqueV1
 /** Pure evaluation of a caller-declared closed set. No Local or Native Owner is
  * authenticated here; copying a pitch cannot create another opportunity. */
 export function evaluateLiveSpinMotorPracticeV239(raw:Readonly<{motor:LiveSpinMotorV239;cohort:LiveSpinPracticeCohortV239;criterion:LiveSpinPracticeCriterionV239|null;trials:readonly LiveSpinPracticeTrialV239[]}>) {
- const x=cloneInert(raw),motor=validateLiveSpinMotorV239(x.motor),cohort=x.cohort;
- if(!fields(x,['motor','cohort','criterion','trials'])||!fields(cohort,['version','scopeId','motorId','motorVersion','motorSnapshot','opportunities'])||cohort.version!=='live_spin_practice_cohort_v239'
+ return evaluatePractice(raw,'live_spin_practice_cohort_v239',validateLiveSpinMotorV239);
+}
+export function evaluateLiveContactFrameMotorPracticeV244(raw:Readonly<{motor:LiveContactFrameMotorV244;cohort:LiveSpinPracticeCohortV244;criterion:LiveSpinPracticeCriterionV239|null;trials:readonly LiveSpinPracticeTrialV244[]}>) {
+ return evaluatePractice(raw,'live_spin_practice_cohort_v244',validateLiveContactFrameMotorV244);
+}
+function evaluatePractice<M extends LiveSpinMotorV239|LiveContactFrameMotorV244>(raw:Readonly<{motor:M;cohort:Omit<LiveSpinPracticeCohortV239,'version'|'motorSnapshot'> & Readonly<{version:string;motorSnapshot:M}>;criterion:LiveSpinPracticeCriterionV239|null;trials:readonly (Omit<LiveSpinPracticeTrialV239,'motorSnapshot'> & Readonly<{motorSnapshot:M}>)[]}>,cohortVersion:string,validate:(raw:unknown)=>M) {
+ const x=cloneInert(raw),motor=validate(x.motor),cohort=x.cohort;
+ if(!fields(x,['motor','cohort','criterion','trials'])||!fields(cohort,['version','scopeId','motorId','motorVersion','motorSnapshot','opportunities'])||cohort.version!==cohortVersion
   ||!text(cohort.scopeId)||!text(cohort.motorId)||!text(cohort.motorVersion)||!Array.isArray(cohort.opportunities)||!cohort.opportunities.every(validOpportunity)||!Array.isArray(x.trials))throw Error('live spin motor v239: invalid cohort');
  const observations:Readonly<{opportunity:LiveSpinOpportunityV239;outcome:LiveSpinPracticeTrialV239['outcome'];absoluteDirectionalPositive:boolean|null;improvedDirectional:boolean|null;normalDirectionalSpin:number|null;actualDirectionalSpin:number|null;directionalImprovement:number|null;direction:LiveSpinPracticeTrialV239['direction']}>[]=[];
  const result=(status:'HOLD'|'UNAVAILABLE'|'DIAGNOSTIC_CRITERION_MET',reason:string,contacts=0,successes=0)=>freeze({status,reason,total:cohort.opportunities.length,contacts,successes,contactFraction:cohort.opportunities.length?contacts/cohort.opportunities.length:null,successFraction:cohort.opportunities.length?successes/cohort.opportunities.length:null,observations,trials:x.trials,

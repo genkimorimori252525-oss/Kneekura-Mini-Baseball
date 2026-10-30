@@ -121,3 +121,4 @@ export {comparePitchTimeShapeV159} from './PitchTimeShapeComparisonV159';
 export { AUTHORED_BATTER_OBSERVED_REGION_EXPERIENCE_V222 } from '../../core/decision/batting/BatterObservedRegionExperienceV222';
 
 export {declareSpinPracticeEpisodesV242} from './LiveSpinPracticeEpisodesV242';
+export {validateLiveContactFrameMotorV244,validateLiveObservedContactFrameTrialV244,resolveLiveContactFrameMotorPracticeV244} from './LiveContactFrameMotorV244';

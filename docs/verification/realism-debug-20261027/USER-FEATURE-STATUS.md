@@ -73,3 +73,7 @@ SPINの追加根拠: [SPIN-ORIGINAL-MOTOR-EVIDENCE-V224.md](SPIN-ORIGINAL-MOTOR-
 受理打球のlocal記録/参考分類: [LOCAL-CONTACT-REFERENCE-REPORT-V240.md](LOCAL-CONTACT-REFERENCE-REPORT-V240.md)。TOP/HOOK実contactを1回ずつ収集し、明示TEST_ONLY[0,45)で38.697度一致/-33.901度不一致を保存・再分類。localSaved自己申告/日数未評価/physicsNONE、通常match全producer/career/productionmodelは未完。直接tool単体testのreceipt不足はUNKNOWN保持、帳尻再演0。
 
 同本人反復・意思指定の追加受入: [PRACTICE-INTENT-EPISODES-V241-V242.md](PRACTICE-INTENT-EPISODES-V241-V242.md)。SWINGと方向AUTOを別に固定し、同本人2回とも正常PA終了→次回→保存再開→通常AUTO復帰をMain/実Workerで全値比較。HOOKの物理成立は0/2として残し、反復機能の動作成功と区別した。旧未解決と完成3HTMLの未配送を維持。
+
+接触面を使う回転試行: [CONTACT-FRAME-SPIN-V244.md](CONTACT-FRAME-SPIN-V244.md)。本人HOOKは実Browserで2回中1回が要求方向の実spin、もう1回は候補なしで通常打撃。全分母で基準未達、残る3技術と物理成立を引き続き検証する。
+
+実Browser固定2回の追加結果: バックスピン1/2、トップスピン1/2。接触・回転の実値と失敗を [CONTACT-FRAME-SPIN-V244.md](CONTACT-FRAME-SPIN-V244.md) に記録。スライスは同本人・同clipの固定2回で診断基準2/2。いずれも習得やGoal達成ではない。

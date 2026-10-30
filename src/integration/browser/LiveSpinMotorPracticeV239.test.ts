@@ -58,3 +58,7 @@ it('V239 retains handed local slice and hook signs without converting the motion
   expect(result.observations[0]).toMatchObject({absoluteDirectionalPositive:true,improvedDirectional:true});expect(result.earnedQualification).toBe(false);
  }
 });
+it('V239 preserves the exact missing-criterion JSON contract',()=>{
+ const result=evaluateLiveSpinMotorPracticeV239({motor,cohort,criterion:null,trials:[]});
+ expect(JSON.stringify(result)).toBe(JSON.stringify({status:'HOLD',reason:'CRITERION_MISSING',total:2,contacts:0,successes:0,contactFraction:0,successFraction:0,observations:[],trials:[],cohortAuthority:'CALLER_DECLARED_NOT_AUTHENTICATED',identityAuthority:'CALLER_DECLARED_NOT_AUTHENTICATED',matchedNormalAuthority:'CALLER_DECLARED_NOT_AUTHENTICATED',earnedQualification:false,humanCalibration:'NOT_MEASURED'}));
+});

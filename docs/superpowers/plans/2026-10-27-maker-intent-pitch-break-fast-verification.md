@@ -319,3 +319,7 @@ V180読取再照合ではQ/P/D/L同時成立候補0であり軌道差0ではな�
 ### 2026-10-30 反復練習と意思入力の利用受入
 
 [PRACTICE-INTENT-EPISODES-V241-V242.md](../../verification/realism-debug-20261027/PRACTICE-INTENT-EPISODES-V241-V242.md)。方向とは別の意思AUTO/SWING/TAKE、同本人の正常打席終了→別episode、通算記録、保存再開・通常AUTO復帰を接続した。独立reviewで見つかった候補鮮度/入力clone/尾球scopeを修正し、43件と型検査、新Chrome実Main/Worker3fb800a6を受入。本人HOOK2回ともfair接触したが、フック成分は両方負で成功0/2。次は固定worldXYと接触面・摩擦の対応を、配達済み予測と原バット運動だけから調べる。新しい分類表示・反復機能の動作を4回転や獲得の完了へ昇格しない。全元scope、旧FAIL/TIMEOUT/UNKNOWN、キレ物理、career/Native、Gold、全9回・最終3HTML配送を保持する。
+
+### 2026-10-30 接触面を使った4技術の固定診断
+
+[CONTACT-FRAME-SPIN-V244.md](../../verification/realism-debug-20261027/CONTACT-FRAME-SPIN-V244.md)。本人1clipの固定2機会でSLICE2/2、HOOK/BACK/TOP各1/2。観測・選択・実接触・空力と全分母を保持し、未達と旧失敗は消さない。SLICEの未校正な局所成功はNative習得/Goldではない。TOPの逆方向例は予測と実接触位置差約41.9mmに加え、飛行方向の変化で回転評価軸が変わる。選択予測の接触詳細を保存し、同球の未来実値を制御へ戻さず原因を継続調査する。残る他3技術の成立、心理、キレ物理、career/Native/Gold、9回・性能・完成3HTML配送は維持する。

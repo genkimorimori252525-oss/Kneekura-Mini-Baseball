@@ -63,3 +63,41 @@ it('omits target intent for other-batter prefix and applies it on target first p
  const {configuration,plan,normalRequest}=intentFixture(1),owner=createLiveBattingPracticeV150(configuration);await owner.startEpisodePracticeV242(plan,normalRequest);
  let target=false;for(let i=0;i<20&&!target;i++){const step=await owner.previewEpisodeStepV242();if(step.step.kind==='PREFIX'){expect(step.step.normalRecord?.batterPlayerId).not.toBe(plan.motor.subjectId);expect(step.step.normalRecord?.command.practiceSwingDecisionV241).toBeUndefined();}else{expect(step.step.kind).toBe('TARGET');expect(step.step.trialRecord?.command.practiceSwingDecisionV241).toEqual(normalRequest.practiceSwingDecisionV241);target=true}await owner.acceptEpisodeStepV242(step)}expect(target).toBe(true);
 },120000);
+it('runs and replays V244 target episodes with fixed policy and no XY request',async()=>{
+ const {configuration,motor:old}=intentFixture(0),{delta,...base}=old;void delta;
+ const motor={...base,version:'live_contact_frame_motor_v244' as const,policy:'FIXED_25_UNCALIBRATED_V243' as const,thresholds:{minimumComponent:1,minimumImprovement:1}};
+ const plan=declareSpinPracticeEpisodesV242({scopeId:'frame',motor,criterion:null,episodeSeeds:[2468,2469]}),owner=createLiveBattingPracticeV150(configuration);
+ await owner.startEpisodePracticeV242(plan,{batting:'take'});
+ const first=await owner.previewEpisodeStepV242();expect(first.step.kind).toBe('TARGET');
+ expect(first.step.normalRecord?.command.observedSpinTrialV236).toBeUndefined();expect(first.step.trialRecord?.command.observedSpinTrialV236).toMatchObject({version:'live_observed_contact_frame_trial_v244',policy:motor.policy,thresholds:motor.thresholds});
+ expect(first.step.normalRecord?.command.spinMotorPracticePolicyV239).toEqual(first.step.trialRecord?.command.spinMotorPracticePolicyV239);await owner.acceptEpisodeStepV242(first);
+ for(let i=0;i<20&&owner.inspectEpisodePracticeV242().phase!=='ENDED';i++)await owner.acceptEpisodeStepV242(await owner.previewEpisodeStepV242());
+ expect(owner.inspectEpisodePracticeV242().phase).toBe('ENDED');owner.advanceEpisodeV242();expect(owner.inspect().batterPlayerId).toBe(motor.subjectId);
+ for(let i=0;i<20&&owner.inspectEpisodePracticeV242().phase!=='ENDED';i++)await owner.acceptEpisodeStepV242(await owner.previewEpisodeStepV242());
+ expect(owner.inspectEpisodePracticeV242().phase).toBe('ENDED');expect(owner.inspectEpisodePracticeV242().evaluation).toMatchObject({status:'HOLD',reason:'CRITERION_MISSING'});owner.closeEpisodePracticeV242();
+ const capture=owner.capture();expect((await resumeLiveBattingPracticeEpisodesV242(configuration,structuredClone(capture))).capture()).toEqual(capture);
+ owner.accept(owner.preview({batting:'take'}));const withTail=owner.capture();expect(withTail.spinPracticeEpisodesV242?.normalTail).toHaveLength(1);expect((await resumeLiveBattingPracticeEpisodesV242(configuration,structuredClone(withTail))).capture()).toEqual(withTail);
+},120000);
+
+it('hashes the V244 policy thresholds but ignores display identities',async()=>{
+ const {configuration,motor:old}=intentFixture(0),{delta,...base}=old;void delta;
+ const motor={...base,version:'live_contact_frame_motor_v244' as const,policy:'FIXED_25_UNCALIBRATED_V243' as const,thresholds:{minimumComponent:1,minimumImprovement:1}};
+ const start=async(m:typeof motor,scopeId:string)=>{const owner=createLiveBattingPracticeV150(configuration);await owner.startEpisodePracticeV242(declareSpinPracticeEpisodesV242({scopeId,motor:m,criterion:null,episodeSeeds:[2468]}),{batting:'take'});return owner.inspectEpisodePracticeV242().planHash};
+ expect(await start({...motor,motorId:'different'},'other')).toBe(await start(motor,'first'));
+ expect(await start({...motor,thresholds:{...motor.thresholds,minimumComponent:2}},'first')).not.toBe(await start(motor,'first'));
+},120000);
+it.runIf(savedHookFixtureAvailable)('retains V244 NO_TARGET fallback contact without counting it as a successful trial',async()=>{
+ const bytes=readFileSync(savedHookFixturePath);
+ // @ts-expect-error Existing lossless debug codec is a JavaScript verification utility.
+ const {parseDebugRecord}=await import('../../../tools/verification/live-debug-record.mjs');
+ const saved=parseDebugRecord(bytes.toString('utf8')) as {initialCapture:{configuration:LiveMatchInputV1};plan:{motor:LiveSpinMotorV239;criterion:LiveSpinPracticeCriterionV239|null;normalRequest:LiveBattingPracticeRequestV150}};
+ const {delta,...base}=saved.plan.motor;void delta;
+ const motor={...base,version:'live_contact_frame_motor_v244' as const,policy:'FIXED_25_UNCALIBRATED_V243' as const,thresholds:{minimumComponent:1e300,minimumImprovement:1e300}};
+ const criterion:LiveSpinPracticeCriterionV239={version:'live_spin_practice_criterion_v239',authority:'EXPLICIT_UNCALIBRATED_PROJECT',minimumIndependentTrials:1,minimumContactFraction:1,minimumDirectionalSpin:1,minimumDirectionalImprovement:1,minimumSuccessFraction:1,miss:'COUNT_FAILURE',noTarget:'COUNT_FAILURE',unresolved:'HOLD'};
+ const plan=declareSpinPracticeEpisodesV242({scopeId:'fallback-boundary',motor,criterion,episodeSeeds:[20261102]}),owner=createLiveBattingPracticeV150(saved.initialCapture.configuration);
+ await owner.startEpisodePracticeV242(plan,saved.plan.normalRequest);const candidate=await owner.previewEpisodeStepV242();expect(candidate.step.kind).toBe('TARGET');
+ expect((candidate.step.trialRecord?.play.diagnostics as {observedSpinContactFrameV244?:{status:string}}).observedSpinContactFrameV244?.status).toBe('NO_TARGET');expect(candidate.step.trialRecord?.play.contact).not.toBeNull();await owner.acceptEpisodeStepV242(candidate);
+ for(let i=0;i<20&&owner.inspectEpisodePracticeV242().phase!=='ENDED';i++)await owner.acceptEpisodeStepV242(await owner.previewEpisodeStepV242());
+ expect(owner.inspectEpisodePracticeV242().phase).toBe('ENDED');const evaluation=owner.inspectEpisodePracticeV242().evaluation;expect(evaluation).toMatchObject({status:'UNAVAILABLE',reason:'CRITERION_NOT_MET',total:1,contacts:0,successes:0,observations:[{outcome:'NO_TARGET'}]});
+ owner.closeEpisodePracticeV242();const capture=owner.capture();expect((await resumeLiveBattingPracticeEpisodesV242(saved.initialCapture.configuration,structuredClone(capture))).capture()).toEqual(capture);
+},180000);
