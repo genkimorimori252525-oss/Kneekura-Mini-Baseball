@@ -4,7 +4,7 @@
 
 | 要求機能 | 状態 | 現在使える範囲・根拠 | 完成までの次の具体操作 |
 | --- | --- | --- | --- |
-| メーカー打撃練習の方向指定／おまかせ | 使える（最新検証版。最終配送は未完） | 最新統合検証版で手動3方向＋おまかせ、本人方針へ復帰、roster保存値不変、連続打席・保存再開を受入。新組合せreceipt `4ff9502360504dac845f4b89cfb43864` PASS56437ms、通常Hostと実Workerの有限全record一致。`DIRECTION-PRACTICE-V149.md` / `REACTIVE-MOTOR-V161.md`、receipt `05c8b960…`。完成3HTMLへは未配送。 | この受入済み統合を作り直さず、通常試合の方向戦術・心理の未完を閉じ、最終同版配送へ組み込む。 |
+| メーカー打撃練習の方向指定／おまかせ | 使える（検証版） | 新Maker候補で本人データを通常importし、手動 PULL と AUTO の受理、打球記録と API 保存再開、新session・390pxを実Workerで確認。[メーカー候補](RELEASE-MAKER-CANDIDATE-V256.md)。 | 旧保存の新build互換、ファイル選択GUI、完成３HTMLへの統合を検証する。 |
 | 打者心理・配球履歴・独立seed・ニッチロー | 一部できている | region経験を次球へ反映。本人・元打順４seedでAUTO/REACTIVEが12球に届き、振った７球で運動を計画。通常HTML候補には新試合で選べる両軍おまかせを追加し実GUI検証。４接触はすべて左打者の流し側（初球２・５球目２）で、方向固定の有無や一般的な偏り解消は未証明。[MATCH-AUTO-DIRECTION-V250.md](MATCH-AUTO-DIRECTION-V250.md)。選好を使う未校正の明示実験では、同球として照合できた本人１例が流し側から引っ張り側へ変化したが、自然な分布の証明や既定採用ではない。[実験結果](REACTIVE-DIRECTION-EXPERIMENT-V251.md)。familyはUNKNOWN。 | GUIと本人データの統合、同投手経験・別投手隔離、独立seed全分母、family認識と方向分布を検証し、完成版に配送する。 |
 | キレ○・キレ◎・驚異の切れ味の物理3段階 | 未完成（選択・保存UIは局所利用可） | 3選択／即保存／自動試投／通常復帰／JSON再読は受入済み。元球種を変える低spin / gyro置換recipeの普遍採用は撤回。`AUTO-KIRE-RELEASE-V177.md:64` / `KIRE-BASE-PRESERVING-V180.md`。 | 同期したmaterial姿勢・角速度・相対風速と横力／PV時系列という不足Sourceを解消する。既に不成立とした同じgridやUIを再実装しない。取得できない部分は未解決のまま他機能を完成へ進める。 |
 | スライス・フック・バックスピン・トップスピン | 一部できている | BACKSPIN真正Nativeの局所採用あり。TOP選択と無指定が同運動になる不足に対し、元のtarget/anchorと配達済み観測をつなぐ新試行を実装。Native実接触1件でTOP 626.25 rad/s、既存空力Core25msへ接続 `30a0abef`。元DB・既存行・終了pins保持。`SPIN-OBSERVED-AIM-TRIAL-V226.md`。 | 保存済み結果を再生成せず、同本人の2episode/Main実Worker/全replayを受入済み。HOOKは両fair接触でも成分が負で0/2未成立のため、世界XYと接触面の対応を新たに調べ、回転制御を閉じる。4技術、3/4種保有、自然Gold、全弾道・公式終端も未完。 |

@@ -8,12 +8,13 @@
  practice.append(section);
  let current=new Map(),saved=[],session=null,rule=null;
  const results=section.querySelector('#local-contact-session-v240-results'),status=section.querySelector('#local-rule-status-v240'),file=section.querySelector('#local-rule-file-v240');
+ function displayPlayer(id){const players=root.KneekuraLiveGameRosterCatalog?.players,player=Array.isArray(players)?players.find(x=>x?.playerId===id):undefined,name=player?.name;return typeof name==='string'&&name.trim()?name+'（'+id+'）':id;}
  function render(){
   results.replaceChildren();status.textContent=rule?'基準 '+rule.reference+'（未校正・参考）':'基準 未設定';
   if(saved.length===0&&current.size===0){const line=document.createElement('p');line.textContent='打球 0件 ／ ラインドライブ参考帯 0件・割合なし ／ 基準 未評価 ／ career 日数 未評価';results.append(line);}
   for(const report of [...saved,...current.values()]){
    const line=document.createElement('p'),angles=report.contacts.map(x=>x.launchAngleDeg.toFixed(1)+'°').join('、');
-   line.textContent=(report.scope==='LOCAL_SAVED_DEBUG'?'保存された自己申告':'現在の練習')+' ／ '+report.binding.playerId+' ／ 打球 '+report.contacts.length+'件'+(angles?' ／ 打出角 '+angles:'')+(report.summary.status==='ASSESSED'?' ／ 基準 '+report.rule.reference+' ／ 該当 '+report.summary.count+'件 ／ 割合 '+(report.summary.fraction*100)+'% ／ '+(report.summary.matched?'参考基準を満たす':'参考基準未達'):' ／ 基準 未評価')+' ／ 未校正 ／ career 日数 未評価';
+   line.textContent=(report.scope==='LOCAL_SAVED_DEBUG'?'保存された自己申告（選手名は現在の登録を参照）':'現在の練習')+' ／ '+displayPlayer(report.binding.playerId)+' ／ 打球 '+report.contacts.length+'件'+(angles?' ／ 打出角 '+angles:'')+(report.summary.status==='ASSESSED'?' ／ 基準 '+report.rule.reference+' ／ 該当 '+report.summary.count+'件 ／ 割合 '+(report.summary.fraction*100)+'% ／ '+(report.summary.matched?'参考基準を満たす':'参考基準未達'):' ／ 基準 未評価')+' ／ 未校正 ／ career 日数 未評価';
    results.append(line);
    if(typeof core.projectLocalLineDriveAngleReferenceV249==='function'){
     const band=core.projectLocalLineDriveAngleReferenceV249(report),summary=document.createElement('p');
