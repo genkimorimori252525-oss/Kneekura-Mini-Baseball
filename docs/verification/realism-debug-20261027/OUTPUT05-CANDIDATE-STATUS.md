@@ -10,6 +10,6 @@
 | 4種類の打球回転 | 未完成。今回のHTML／分類試験は物理制御の証拠ではない。HOOK late-zero条件の合成検査は本人の成立を示さない。 | 判断前の真正な範囲・遅い補正・接触→回転→空力の実経路を閉じる。 |
 | 打球記録／ラインドライブ | 一部。通常候補で17球・5接触と参考帯の表示・ローカル保存再表示 `6c126d5c00e44c11a273daa305544333` PASS。メーカーPULL／AUTO各接触でも参考分類 `c75d…` PASS。能力認定や回転操作ではない。 | 対象範囲・denominator・各保存経路を最終仕様で確認。 |
 | 高速・同Core診断 | 一部。新Core先頭12消費球のMain／実Workerと旧記録がexact `a7c39aca4db6460cbe85c319bd016a06` PASS。以前の9回固定試合は両経路一致したが33–50／160スイング中157接触という現実性問題があり、原因未確定。 | 高接触率を実経路で調べ、最終候補の全試合・必要な性能と同値性を測る。 |
-| 3 HTML検証・配送 | 未完成。生成に加え通常UI `6c126…` と調整室の同期1球／同build保存再読・合成旧Core拒否 `5d2774b6e7184262bd30ebfbe0261171` PASS。メーカー3選択とfield iframeは旧run一部PASS、practice起動は残件専用 `f7229acb271f417fae41ce8c6e0bec60` PASS。旧run全体 `6d211fd1eb0b4958ab5e9dfdb2328b01` FAILは保持。 | field session・実旧保存・全試合・全対象の統合、最終buildと配送を完了する。 |
+| 3 HTML検証・配送 | 未完成。生成に加え通常UI `6c126…` と調整室の同期1球／同build保存再読・合成旧Core拒否 `5d2774b6e7184262bd30ebfbe0261171` PASS。メーカー3選択とfield iframeは旧run一部PASS、practice起動は残件専用 `f7229acb271f417fae41ce8c6e0bec60` PASS。field sessionは同build UI保存再読・合成旧/欠落/不一致identity拒否・合成旧key保護 `c6a76daa618143c599bd959749dd8663` PASS。旧run全体 `6d211fd1eb0b4958ab5e9dfdb2328b01` FAILは保持。 | field session・実旧保存・全試合・全対象の統合、最終buildと配送を完了する。 |
 
 旧未追跡投手UIの編集前bytesは保存しておらず、無関係な差分や原本復元はUNKNOWN。旧候補・本人元JSONを保護し、未確認の互換や公開可能性を捏造しない。旧FAIL・TIMEOUT・UNKNOWNを維持し、全受入と配送完了までGoalは完了しない。
