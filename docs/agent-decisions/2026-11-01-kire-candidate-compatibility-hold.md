@@ -21,3 +21,25 @@ Astra静的reviewはこの単位から着手可と判断。各分岐のfocused f
 外部投手試投gateを `docs/demos/baseball-maker-pitcher-v92.js` の未追跡WIPに実装したが、編集前bytesのbackup・SHAを取っていない。元bytesの厳密な復元可能性、無関係な差分・改行の不変はUNKNOWN。同一と証明できない旧候補を使って原本を再構築せず、記録を残す。今後の防止としてproject AGENTSに、未追跡またはdirty fileの編集前の完全bytes backup・SHA・所有記録を追加した。変更前AGENTS自体のbytesはarchivesに保全。
 
 限定fixture `e4272596ddf9460c806ac6312baadc7e`、追加境界 `58f14453835d4567a4f95d422680599a`、構文 `45116db454194b568f1faed5e47f6662` PASS。初回fixture `ee66a182e3844370b06e6d31ce105ccb` FAILは保持。Astraは静的reviewでP1/P2なしとしたが、fixtureの正常replayはstubであり、実Core／Browser／実保存の成功、再生状態すべての保全は未証明。Source SHA `930094045d0d7c35a43a4367cde87669ba34c177431015ae3b376100b0499a0d`。当該候補は未配送。
+
+## 暫定runtime抑止
+
+`LiveTraitRuntimeV77.ts` のselectionは保存・検証を保ち、profileから旧V177 requestを自動生成しない。`LivePitchV1.ts` は従来のinput優先で実効requestを選び、非nullを物理profile／乱数の前に明示拒否する。input nullはpitcher側objectを抑止。V168・他traitは別扱い。両sourceの事前bytes/SHAを `work/kire-contract-v261-01/*.before-runtime-v261-01` に保全し、変更後もCRLFを維持。
+
+実Core局所3件とV168回帰5件 `db2f7d70764049cabff2068bd195840f`、対象source型 `f5e176dd2b5d4e6a82d34a48eef86672` PASS。全体tsc `a91ab284ced949b9bea55c3108190272` FAILは他テストの未使用import・型不一致として保持。旧V177成功を期待するtestは新仕様と衝突し未更新・未実行。Astra静的review P1/P2なし、ただしphysical内旧requestの保持・拒否、Match continuation／workload不変、旧runtimeとの通常物理比較、Workbench/practice/Workerは追加検証が必要。fixtureのnull比較は変更後同士であり旧版互換の証明ではない。これは未配送の暫定抑止であり、元球種を保つキレ物理3段階は未完成。
+
+## 暫定catalog／表示の契約
+
+新runtimeだけで `breaking_ball_quality` のavailabilityを `UNAVAILABLE`（物理効果未対応）とし、選択・保存可能とは分ける。3 state／null／editor／保存のrecipeVersion IDを維持し、旧recipeが実行される・元球種を保つというcatalogの誤記を除く。両UIでは「選択保存、物理効果未対応、通常球で実行」と明示する。ほかの得能を変更せず、新しい物理3段階の完成とはしない。Astra独立静的reviewは既存 `EXECUTABLE` を残すより本契約を推奨。
+
+影響: catalog metadataに新enumを追加する。確認済みMaker選択setterはavailabilityで保存可否を判定しないが、外部consumer全域の対応はUNKNOWNであり無条件の互換成功を主張しない。旧候補・旧rosterデータは保持、新candidate側でbuild identityを更新する。局所fixtureでcatalog／projection、3 stateとnullの保存、他family不変、両UIの表示・選択を確認し、実候補のMain/Worker・Browser・幅390などは別途検証。復旧は新candidateを採用せず事前backupから対象sourceを復元する（編集前bytesが不明な既存UI WIPの旧原本復元は引き続きUNKNOWN）。
+
+## 暫定表示と再開境界の進捗
+
+catalog／共通UI／投手UIを更新し、選択は保存するがキレの物理効果を適用せず実行することを示す。availability `UNAVAILABLE` の外部consumer互換はUNKNOWN。catalog／projectionと保存往復などの局所fixture `kire-catalog-ui-v261_342ba844e6284675af48f9c852d3e842` PASS、文言 `kire-wording-v261_58379f93963346169735093be8b996d7` PASS。全体型 `kire-catalog-typecheck-v261_25d38b206cae4cd59c49c55ab232e318` FAILは担当外test診断を保持、変更前同条件比較はない。
+
+選択保存後の試投失敗では、旧trialを旧条件と明示し保持し、現在rosterと旧resultを混ぜるexportを拒否。旧result単体の保存形式は変更しない。再生後のstale解除と描画失敗後のexportボタン復元の各レビュー指摘を修正し、fixture `kire-quality-replay-v261_b6d33fcb2b214863a7d309d71abb32b4`、`kire-quality-rollback-v261_0f489e1f8d1a46d99179d731c54c572d` PASS、初回fixture失敗 `kire-quality-trial-v261_4fdb7bfe31cd42d18fe3cdac080657e1` を保持。Astra再reviewは現差分P1/P2なし。旧trialなしの場合の描画失敗、renderer復旧失敗、実UI／Browserは未検証。
+
+practice外部restoreは保存buildと現buildを判定後にWorkerを開始し、異build／不明を拒否。busy中の挙動は従来どおり入力を処理しない。fixture `a299a526802544f09d14e772051a3439`、busy追加 `c5a56b40ecc64e0f9f76e6ce00955a36` PASS。codec・Workerはstubで実same-build保存の復元は未証明。旧候補／保存は改変しない。
+
+新candidate生成では、現LivePitch全体には未採用V251が共存するため、そのままoverlayせず、固定r6 snapshotへ必要なキレ差分だけを適用する。UIの本文と各UI hash・Native/WB bytesを新たに固定し、旧builderのWorkbench hashのみ更新する手順を無条件流用しない。物理3段階、変更後candidateの統合検証・完成配送は未完。
