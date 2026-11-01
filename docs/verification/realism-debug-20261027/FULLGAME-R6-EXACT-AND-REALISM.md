@@ -26,3 +26,11 @@
 先頭12球で遅かった６球目を、５球目の保存continuationと同じ設定・commandから、同じr6とChrome 156.0.8078.76のMain Hostで１球だけ再現した。元の６球目record・continuationとlossless一致、入力および出力pin一致、receipt `1d7d76019e844332a83b02732cbddf6a` PASS、report SHA-256 `e7d67430ce1443ebb73b2a4a5bd5527b23c4fed12225c5a73f88a467d46eb405`。CDP CPU profiler付きissue時間21.102秒、runner全体47.125秒、14,364 samples。Workerや全試合の計測ではなく、計測負荷を含む。
 
 保存profileのleaf samplesでは `calculateOwnedBaseballFlightDerivativesV120` の一つのnodeが2,327 samples（16.20%）、garbage collectorが1,242（8.65%）。同名nodeは複数あり、node別値を関数全体の割合としない。保存された呼び出しstackのうち、飛行微分の2,830 samplesは `planLiveThrowActionV103` → `planLiveThrowV1` → `memoizeLiveThrowPhysicalV113` 等の経路で観測された。sample countは統計的なCPU観測で、厳密な処理時間、原因の断定、改善率ではない。今回、性能修正は行っていない。利用上限によりこのcheckerの独立モデルreviewは未実施であり、主担当が入力pin・exact条件・既存fixtureを確認した。
+
+## 先頭12球の打撃観測
+
+同一r6／Chrome 156.0.8078.76・Main Hostを使い、元記録に固定された先頭12球について、乱数traceのみのbaselineと打撃観測ありの各variantを比較した。各球で旧Main record／continuationとlossless一致、両variantのrecord／continuationおよび対象 `DeterministicRng` の累積trace一致。receipt `0aab08049339400bb51df35fd68ae1b8` PASS、104.500秒、report SHA-256 `a714fc01d0f9545e89a940eeb77209d3d99e9648cc6d099450b2110a644cb915`、24 artifacts・endpinsを照合。traceは12球時点で生成115・draw97件。旧Worker recordとは保存値を照合したもので、今回Workerを再実行した証拠ではない。旧未保存drawや他の乱数源の完全一致はUNKNOWN。
+
+12球は８見送り・４live ball接触で、この範囲に空振りはない。４接触のいずれも探索でhitし接触resolverが結果を返した。判定時刻は12球ともreleaseから0.14秒で、既存予測を取得した。予測値は接触時の実値ではなく、予測の平面と実接触深度も一致しないため、両時刻の差を到達予測誤差としては使わない。探索のgapは評価sampleの最小だけで、未評価区間の連続最短距離はUNKNOWN。12球・４接触だけでは全試合の高接触率の原因や人間の予測精度の校正を決められない。観測した値を選択や物理に戻す変更は行っていない。
+
+実行前Astra reviewはconfig／protocol／codec pinと失敗時snapshot不足を指摘し、Terra修正後の再reviewで限定実行可。修正checkerのfixture／構文検査はagent報告のPASSで、receiptは未保存。合成変換の初回FAIL `94a116c059534b448daa79f00059a997` は保持。
