@@ -19,7 +19,7 @@ const limit = Number(opt.pitches ?? 400), seed = opt.seed ?? 'playtest-1', perPi
   page.on('pageerror', e => errors.push(e.message));
   await page.goto('http://127.0.0.1:' + server.address().port);
   await page.waitForFunction(() => window.liveMatchPlayback);
-  if (opt.pitcher === 'robin') await page.selectOption('#home-pitcher-choice', 'robin');
+  if (opt.pitcher) await page.selectOption('#home-pitcher-choice', opt.pitcher);
   if (opt.stadium) await page.selectOption('#stadium-choice', opt.stadium).catch(() => {});
   await page.locator('#match-seed').fill(seed);
   await page.locator('#fixed-seed').check();

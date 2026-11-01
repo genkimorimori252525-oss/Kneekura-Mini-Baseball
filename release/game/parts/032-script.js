@@ -522,7 +522,6 @@ function rasterSphere(center,radius,color,owner){
  function viewHidesActor(actor){if(observed.liveObservation&&state.camera==='batter'&&observed.liveContinuousBatterView&&actor.id==='BAT')return true;return (state.camera==='fielder'&&actor.id===committedFieldObserver(observed)?.id)||(actor.id==='C'&&state.camera==='catcher')||(actor.id==='P'&&state.camera==='mound')||(actor.id==='BAT'&&((actor.role==='batter'&&(state.camera==='batter'||state.camera==='catcher'))||state.camera==='runner'));}
  function actor(a){
   if(viewHidesActor(a))return;
-  if(a.sourcePlayerId==='robin'&&(!document.getElementById('robin-preview-optin')?.checked||a.role!=='P'||a.player.hand!=='R'||state.camera!=='catcher'||state.appearance==='point'||a.running))return;
   const x=a.position.x,z=a.position.z,height=a.player.height,foot=project(a.position);if(!foot)return;
   let palette=spritePalette(a.player.team);let bounds,diameter,p,animationAction=null,animationFrame=null,athleticPresentationV115=null,materialSource=null;
   if(state.appearance==='point'&&!(state.camera==='mound'&&a.role==='batter')){
@@ -534,13 +533,15 @@ function rasterSphere(center,radius,color,owner){
    const illustratedBat=action==='bat'&&state.camera==='mound';
    animationAction=action;animationFrame=frame;
     let original=poseSprite(action,frame,a.player.hand,a.player.form,state.camera==='mound'&&action==='catch',illustratedBat);
-   if(a.sourcePlayerId==='robin') {const previewIndex=frame===0?0:frame===1||frame===2?1:frame===3?2:-1;if(action!=='pitch'||previewIndex<0||!robinHairPreview.sprites[previewIndex])return;original=robinHairPreview.sprites[previewIndex];palette=robinHairPreview.palettes[previewIndex];materialSource=['robin-hair-ready-candidate','robin-hair-prepare-candidate','robin-hair-release-candidate'][previewIndex];robinHairPreview.hits[previewIndex]++;}
+   if(a.sourcePlayerId==='robin'&&action==='pitch'&&state.camera==='catcher'&&a.player.hand==='R'&&!a.running&&[0,1,2,3].includes(frame)&&robinHairPreview.sprites[frame===0?0:frame===3?2:1]) {const previewIndex=frame===0?0:frame===3?2:1;original=robinHairPreview.sprites[previewIndex];palette=robinHairPreview.palettes[previewIndex];materialSource=['robin-hair-ready-candidate','robin-hair-prepare-candidate','robin-hair-release-candidate'][previewIndex];robinHairPreview.hits[previewIndex]++;}
    if(!['robin','1-b2','1-b3'].includes(a.sourcePlayerId)&&b2ReadyV1.sprites[frame]&&a.role==='P'&&a.player.team===1&&a.player.hand==='R'&&a.player.form==='over'&&state.camera==='catcher'&&action==='pitch'&&frame>=0&&frame<6&&!a.running){original=b2ReadyV1.sprites[frame];palette=b2ReadyV1.palettes[frame];materialSource='b2-overhand-v3';b2ReadyV1.hits[frame]++;}
    if(catcherTrial.sprite&&a.sourcePlayerId==='1-b4'&&a.role==='C'&&a.player.team===1&&state.camera==='mound'&&action==='catch'&&!a.running){original=catcherTrial.sprite;palette=catcherTrial.palette;catcherTrial.hits++;}
-   const sprite=action==='bat'?batterSpriteForView(original,state.camera):original;
+   const artV1=window.KneekuraArtBankV1?.pick({role:a.role,action,frame,camera:state.camera,hand:a.player.hand,form:a.player.form,team:a.player.team,running:a.running,isRobin:a.sourcePlayerId==='robin'});
+   if(artV1&&!b2ReadyV1.sprites.includes(original)){original=artV1.sprite;palette=artV1.palette;materialSource=artV1.id;}
+   const sprite=action==='bat'&&!original.artBankV1?batterSpriteForView(original,state.camera):original;
    const unit=height/(sprite.referenceHeight||44)*foot.scale*RETRO_SCALE,left=foot.x-sprite.originX*unit,top=foot.y-sprite.baseline*unit;
-   const crouchRowsV105=(b2ReadyV1.sprites.includes(original)||robinHairPreview.sprites.includes(original)||original===catcherTrial.sprite)?null:window.KneekuraFielderBodyPresentationV105.rowMap({baseline:sprite.baseline,referenceHeight:sprite.referenceHeight||44,heightMeters:height,crouchMeters:a.bodyPoseV105?.crouchMeters,retroScale:RETRO_SCALE});
-   const athleticPixelsV115=(b2ReadyV1.sprites.includes(original)||robinHairPreview.sprites.includes(original)||original===catcherTrial.sprite)?null:window.KneekuraAthleticBodyPresentationV115?.pixelMap({sprite,unit,foot,head:a.bodyPoseV105?project(a.bodyPoseV105.head):null,athletic:a.athleticV115,retroScale:RETRO_SCALE});
+   const crouchRowsV105=(original.artBankV1||b2ReadyV1.sprites.includes(original)||robinHairPreview.sprites.includes(original)||original===catcherTrial.sprite)?null:window.KneekuraFielderBodyPresentationV105.rowMap({baseline:sprite.baseline,referenceHeight:sprite.referenceHeight||44,heightMeters:height,crouchMeters:a.bodyPoseV105?.crouchMeters,retroScale:RETRO_SCALE});
+   const athleticPixelsV115=(original.artBankV1||b2ReadyV1.sprites.includes(original)||robinHairPreview.sprites.includes(original)||original===catcherTrial.sprite)?null:window.KneekuraAthleticBodyPresentationV115?.pixelMap({sprite,unit,foot,head:a.bodyPoseV105?project(a.bodyPoseV105.head):null,athletic:a.athleticV115,retroScale:RETRO_SCALE});
    athleticPresentationV115=athleticPixelsV115?.kind??'SOURCE_DEGENERATE_OR_CLIPPED_CROUCH_FALLBACK_V115';
    bounds=spriteAtGrid(sprite,unit,left,top,(u,v,index,coverage)=>paintWorldCell(u,v,foot.depth-.001,palette[index],coverage,a.id),athleticPixelsV115?null:crouchRowsV105,athleticPixelsV115);
    // Equipment changes the visible silhouette, not the player's name anchor.
@@ -549,6 +550,7 @@ function rasterSphere(center,radius,color,owner){
    if(bounds.h<gridV84.step())paintWorldCell(foot.x,foot.y-2,foot.depth-.002,palette[2],.9,a.id);
    diameter=height*RETRO_SCALE;p={depth:foot.depth,scale:foot.scale};
   }
+  if(a.role==='umpire')return;
   const nameAnchor={x:foot.x,y:bounds.y-.10*foot.scale};
   labelPositions.push({id:a.id,role:a.role,sourcePlayerId:a.sourcePlayerId,materialSource,...(a.bodyPoseV105?{bodyPoseV105:a.bodyPoseV105,crouchPresentationV105:'PNG_UPPER_TRANSLATION_LOWER_FOLD_PROXY'}:{}),...(a.athleticV115?{athleticV115:a.athleticV115,athleticPresentationV115}:{}),animationAction,animationFrame,name:a.player.name,team:a.player.team,height,worldX:x,worldZ:z,depth:p.depth,projectionScale:p.scale,diameterPx:bounds.h,bounds,nameAnchor,fontPx:cam.labelMetres*(height/1.83)*p.scale*(state.appearance==='point'?1:RETRO_SCALE)});
  }
@@ -794,6 +796,7 @@ function rasterSphere(center,radius,color,owner){
   }).map(a=>a.id):[]);
   anchors=[];labelPositions=[];sceneDepth=new Map();rasterCells=new Map();fieldMarkCells=[];ballScreen=null;batterRig=null;
   ctx.setTransform(2,0,0,2,0,0);ctx.fillStyle='#000';ctx.fillRect(0,0,600,432);
+  if(state.camera==='mound'&&state.appearance!=='point'&&window.KneekuraArtBankV1?.inspect().loaded)actor({id:'UMP',role:'umpire',sourcePlayerId:'umpire',position:{x:(observed.batter?.hand==='L'?.42:-.42),y:0,z:-1.75},running:false,player:{height:1.8,hand:'R',form:'over',name:'',team:2}});
   drawParkV81();if(observed.liveObservation){const choice=document.getElementById('stadium-choice').value;if(choice==='fukuoka')window.PlayableStadiumV1.render({park:observed.livePark,cam,project,paint:paintWorldCell,grid:gridV84,awayHit:observed.awayHit});else if(choice!=='core')window.PlayableOtherStadiumV1.render({park:observed.livePark,cam,project,paint:paintWorldCell,grid:gridV84,choice});}observed.actors.forEach(actor);drawBaseUmpireCalls();
   // Draw the source bat only when the approved B1 sprite embeds it or when
   // batOverlay is disabled. Otherwise 27.5ms high-rate layer owns the bat.

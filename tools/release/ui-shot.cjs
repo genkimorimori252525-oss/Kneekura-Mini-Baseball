@@ -20,6 +20,7 @@ const opt = Object.fromEntries(rest.map(a => a.replace(/^--/, '').split('=')));
   await page.locator('#fixed-seed').check();
   await page.click('#new-game');
   await page.selectOption('#managed-team', '0').catch(() => {});
+  if (opt.camera) await page.evaluate(m => document.querySelector(`[data-camera="${m}"]`)?.click(), opt.camera);
   if (opt.trail) await page.evaluate(m => document.querySelector(`[data-trail="${m}"]`)?.click(), opt.trail);
   let shots = 0;
   for (let n = 1; n <= Number(opt.pitches ?? 60) && shots < 3; n++) {
@@ -35,7 +36,7 @@ const opt = Object.fromEntries(rest.map(a => a.replace(/^--/, '').split('=')));
     }
     await page.waitForFunction(() => {const i = window.liveMatchPlayback.inspect(); return i.error || !i.playing;}, null, {timeout: 60000}).catch(() => {});
   }
-  console.log('shots', shots, 'errors', errors.slice(0, 3));
+  console.log('shots', shots, 'errors', errors.slice(0, 3), await page.evaluate(() => JSON.stringify(window.KneekuraArtBankV1?.inspect())));
   await browser.close();
   server.close();
 })().catch(e => {console.error(e.stack); process.exitCode = 1;});

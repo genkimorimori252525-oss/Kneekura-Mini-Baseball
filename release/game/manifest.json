@@ -131,6 +131,14 @@
 },
 {
 "kind": "shell",
+"file": "art-bank-shell.html"
+},
+{
+"kind": "js",
+"file": "art-bank-v1.js"
+},
+{
+"kind": "shell",
 "file": "033-shell.html"
 },
 {
