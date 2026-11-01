@@ -16,7 +16,7 @@
  function create({canvas,caption,legend,core,onSelect}){
   assert(canvas&&caption,'approved chart canvas and caption required');
   assert(typeof core?.createSourceBallMaterialHistoryV1==='function','original Source observer unavailable');
-  const symbols=root.KneekuraPitchSymbols,history=root.KneekuraPitchHistory,cache=new WeakMap();
+  const symbols=root.KneekuraPitchSymbols,history=root.KneekuraPitchHistory,cache=new WeakMap(),contactCache=new WeakMap();
   assert(typeof symbols?.draw==='function'&&typeof history?.select==='function','approved symbol/history helpers unavailable');
   let current=null,chartMarks=[];
   function locationObservation(record){
@@ -67,13 +67,25 @@
     planeZ:location.kind==='plate-crossing'?planeZ:null,sourceOriginTick:initial.originTick,
     direction:'ORIGINAL_SOURCE_DISPLACEMENT_MINUS_INITIAL_GRAVITY_TANGENT',interpolated:false,extrapolatedAfterContact:false})});
   }
+  const contactTick=record=>{const m=record.play.contactMoment;return m?m.ball?.tick??m.tick??null:null;};
+  function kindOf(record){const robin=record.play.diagnostics?.loosePitchV1?.sourceProvenance?.sourceId;return robin?'robin_original':record.pitchType;}
+  // A batted ball is on the chart from contact; its result arrives as a revision.
+  function contactEntry(record,index,number){
+   let value=contactCache.get(record);
+   if(!value){
+    const final=entry(record,index,number);
+    value=Object.freeze({...final,revision:0,availableAtMicros:contactTick(record),resultLabel:'打球',category:'in-play',terminal:false});
+    contactCache.set(record,value);
+   }
+   return value;
+  }
   function entry(record,index,number){
    let value=cache.get(record);
    if(!value){
     const observed=locationObservation(record),result=resultDescription(record);
-    value=Object.freeze({plateAppearanceId:appearanceId(record),pitchId:pitchId(index),number,revision:0,status:'confirmed',
+    value=Object.freeze({plateAppearanceId:appearanceId(record),pitchId:pitchId(index),number,revision:1,status:'confirmed',
      availableAtMicros:record.play.rules.endedAtTick,location:observed.location,breakVector:observed.breakVector,
-     pitchKind:record.pitchType,pitchType:record.pitchName??kinds[record.pitchType]??record.pitchType,speedKmh:Number(record.speedKmh.toFixed(1)),
+     pitchKind:kindOf(record),pitchType:record.pitchName??kinds[record.pitchType]??record.pitchType,speedKmh:Number(record.speedKmh.toFixed(1)),
      resultLabel:result.label,category:result.category,count:Object.freeze({balls:record.match.balls,strikes:record.match.strikes}),
      terminal:record.play.rules.batterAdvanced===true,evidence:observed.evidence});
     cache.set(record,value);
@@ -94,8 +106,9 @@
    // details. Future pitches and other appearances are never chart inputs.
    if(record)for(let index=0;index<records.length;index++){
     const other=records[index];if(appearanceId(other)!==pa)continue;number++;
-    if(other.play.rules.endedAtTick>atTick)continue;
-    const value=entry(other,index,number);eligible.push(value);locations.push(Object.freeze({pitchId:value.pitchId,index,...value.evidence}));
+    const contactAt=contactTick(other);
+    if(other.play.rules.endedAtTick>atTick&&!(contactAt!==null&&contactAt<=atTick))continue;
+    const value=entry(other,index,number);eligible.push(contactAt!==null&&contactAt<=atTick&&other.play.rules.endedAtTick>atTick?contactEntry(other,index,number):value);locations.push(Object.freeze({pitchId:value.pitchId,index,...value.evidence}));
    }
    const entries=history.select({plateAppearanceId:pa,atMicros:atTick,records:eligible}).entries;
    const selected=entries.find(value=>value.pitchId===selectedPitchId)??entries.at(-1)??null;
@@ -109,7 +122,7 @@
   function draw(observation){
    current=observation;
    const c=canvas,ctx=c.getContext('2d'),zone=observation.zone??{halfWidth:.2159,lowerY:observation.batterHeightMeters*.270,upperY:observation.batterHeightMeters*.535};
-   const project=p=>({x:160+p.x*290,y:286-p.y*204});
+   const scale=204,ballRadius=.0366*scale,project=p=>({x:160+p.x*scale,y:286-p.y*scale});
    ctx.setTransform(2,0,0,2,0,0);ctx.clearRect(0,0,320,304);ctx.fillStyle='#0c0e0b';ctx.fillRect(0,0,320,304);
    const a=project({x:(zone.centerX??0)-zone.halfWidth,y:zone.upperY}),b=project({x:(zone.centerX??0)+zone.halfWidth,y:zone.lowerY}),w=b.x-a.x,hh=b.y-a.y;
    ctx.fillStyle='#171c13';ctx.fillRect(a.x,a.y,w,hh);ctx.strokeStyle='#566047';ctx.lineWidth=1;
@@ -120,17 +133,17 @@
    const entries=observation.history,selected=entries.find(e=>e.pitchId===observation.selectedPitchId)||entries.at(-1),chosen=selected?.location&&project(selected.location.position);chartMarks=[];
    for(const e of [...entries.filter(e=>e!==selected),...(selected?[selected]:[])]){
     if(!e.location)continue;const p=project(e.location.position);if(p.x<18||p.x>302||p.y<20||p.y>263)continue;
-    if(e!==selected&&chosen&&Math.hypot(chosen.x-p.x,chosen.y-p.y)<27)continue;
-    const mark=symbols.draw(ctx,e,project,{radius:14,selected:e===selected,alpha:(observation.marksOpacity??1)*(e===selected?1:.7)});if(mark)chartMarks.push(mark);
+    if(e!==selected&&chosen&&Math.hypot(chosen.x-p.x,chosen.y-p.y)<ballRadius)continue;
+    const mark=symbols.draw(ctx,e,project,{radius:ballRadius,numberOutside:true,selected:e===selected,alpha:(observation.marksOpacity??1)*(e===selected?1:.7)});if(mark)chartMarks.push(mark);
    }
    if(!entries.length){ctx.fillStyle='#9da591';ctx.textAlign='center';ctx.font='12px "Kneekura JP", sans-serif';ctx.fillText('投球後に記号を表示',160,232);}
    caption.textContent=selected?selected.number+'球目 · '+selected.pitchType+(selected.location?.kind==='contact'?' · 接触位置':''): 'この打席の配球';
    c.setAttribute('aria-label',entries.length?entries.map(e=>e.number+'球目 '+e.pitchType+' '+e.resultLabel).join('、'):'この打席の投球はまだありません');
    return inspect();
   }
-  function symbolSvg(kind,angle=0,bars=0){const shape=kind==='circle'?'<circle cx="18" cy="16" r="10"/>':kind==='diamond'?'<path d="M18 5 29 16 18 27 7 16Z"/>':'<path d="M30 16 9 5 9 27Z" transform="rotate('+angle+' 18 16)"/>';return '<svg width="36" height="34" viewBox="0 0 36 34" fill="none" stroke="#dfbc61" stroke-width="1.5" aria-hidden="true">'+shape+Array.from({length:bars},(_,i)=>'<path d="M12 '+(29+i*3)+'H24"/>').join('')+'</svg>';}
+  function symbolSvg(kind,angle=0,bars=0){const shape=kind==='circle'?'<circle cx="18" cy="16" r="10"/>':kind==='ring'?'<circle cx="18" cy="16" r="10"/><circle cx="18" cy="16" r="5"/>':kind==='diamond'?'<path d="M18 5 29 16 18 27 7 16Z"/>':kind==='square'?'<rect x="9" y="7" width="18" height="18"/>':kind==='cross'?'<path d="M10 8 26 24M26 8 10 24"/>':kind==='down'?'<path d="M8 8H28L18 27Z"/>':kind==='star'?'<path d="M18 5 21 13 29 13 23 18 25 27 18 22 11 27 13 18 7 13 15 13Z"/>':kind==='kite'?'<path d="M30 16 14 8 7 16 14 24Z" transform="rotate('+angle+' 18 16)"/>':'<path d="M30 16 9 5 9 27Z" transform="rotate('+angle+' 18 16)"/>';return '<svg width="36" height="34" viewBox="0 0 36 34" fill="none" stroke="#dfbc61" stroke-width="1.5" aria-hidden="true">'+shape+Array.from({length:bars},(_,i)=>'<path d="M12 '+(29+i*3)+'H24"/>').join('')+'</svg>';}
   if(legend){
-   const legends=[['circle',0,0,'直球'],['triangle',0,0,'スライダー：横方向'],['triangle',45,0,'カーブ：斜め下方向'],['triangle',90,0,'フォーク：下方向'],['circle',0,1,'チェンジアップ'],['triangle',0,1,'カットボール'],['triangle',180,2,'ツーシーム'],['diamond',0,0,'分類・方向が未提供']];
+   const legends=[['circle',0,0,'直球'],['triangle',180,2,'シンカー・ツーシーム'],['triangle',0,1,'カットボール'],['circle',0,1,'チェンジアップ'],['down',0,1,'スプリット'],['down',0,0,'フォーク'],['square',0,0,'スクリュー'],['triangle',0,0,'スライダー'],['triangle',0,1,'スイーパー'],['triangle',0,2,'スラーブ'],['kite',45,0,'カーブ'],['kite',45,1,'ナックルカーブ'],['kite',45,2,'スローカーブ'],['cross',0,0,'ナックル'],['ring',0,0,'イーファス'],['star',0,0,'ロビンの原作球'],['diamond',0,0,'分類・方向が未提供']];
    legend.innerHTML=legends.map(([s,a,b,label])=>'<div class="legend-row">'+symbolSvg(s,a,b)+'<span>'+label+'</span></div>').join('');
   }
   canvas.onclick=event=>{

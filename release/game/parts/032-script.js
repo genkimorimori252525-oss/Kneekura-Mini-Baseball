@@ -124,18 +124,30 @@
   const kind=entry.pitchKind;
   if(kind==='fastball')return {family:'circle',bars:0,angle:0};
   if(kind==='changeup')return {family:'circle',bars:1,angle:0};
+  if(kind==='eephus')return {family:'ring',bars:0,angle:0};
+  if(kind==='knuckleball')return {family:'cross',bars:0,angle:0};
+  if(kind==='robin_original')return {family:'star',bars:0,angle:0};
+  if(kind==='forkball')return {family:'down',bars:0,angle:0};
+  if(kind==='splitter')return {family:'down',bars:1,angle:0};
+  if(kind==='screwball')return {family:'square',bars:0,angle:0};
   const base=entry.location?.position,vector=entry.breakVector;
   if(!base||!vector)return {family:'diamond',bars:0,angle:0};
   const a=project(base),b=project({x:base.x+vector.x,y:base.y+vector.y,z:base.z+(vector.z||0)});
   if(!a||!b||Math.hypot(b.x-a.x,b.y-a.y)<1e-5)return {family:'diamond',bars:0,angle:0};
-  return {family:'triangle',bars:kind==='cutter'?1:kind==='two-seam'?2:0,angle:Math.atan2(b.y-a.y,b.x-a.x)};
+  const angle=Math.atan2(b.y-a.y,b.x-a.x),curved=['curve','knuckle_curve','slow_curve'].includes(kind);
+  return {family:curved?'kite':'triangle',bars:kind==='cutter'||kind==='sweeper'||kind==='knuckle_curve'?1:kind==='two-seam'||kind==='sinker'||kind==='slurve'||kind==='slow_curve'?2:0,angle};
  }
  function path(ctx,x,y,r,s){
   ctx.beginPath();
   if(s.family==='circle')ctx.arc(x,y,r,0,Math.PI*2);
+  else if(s.family==='ring'){ctx.arc(x,y,r,0,Math.PI*2);ctx.moveTo(x+r*.5,y);ctx.arc(x,y,r*.5,0,Math.PI*2);}
+  else if(s.family==='square'){const q=r*.82;ctx.rect(x-q,y-q,q*2,q*2);}
+  else if(s.family==='cross'){const q=r*.72;ctx.moveTo(x-q,y-q);ctx.lineTo(x+q,y+q);ctx.moveTo(x+q,y-q);ctx.lineTo(x-q,y+q);}
+  else if(s.family==='down'){ctx.moveTo(x-r*.9,y-r*.7);ctx.lineTo(x+r*.9,y-r*.7);ctx.lineTo(x,y+r);ctx.closePath();}
+  else if(s.family==='star'){for(let i=0;i<10;i++){const q=i%2?r*.42:r,t=-Math.PI/2+i*Math.PI/5,xx=x+Math.cos(t)*q,yy=y+Math.sin(t)*q;i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy);}ctx.closePath();}
   else if(s.family==='diamond'){ctx.moveTo(x,y-r);ctx.lineTo(x+r,y);ctx.lineTo(x,y+r);ctx.lineTo(x-r,y);ctx.closePath();}
   else {
-   const a=s.angle,points=[[r*1.22,0],[-r*.92,-r*1.02],[-r*.92,r*1.02]];
+   const a=s.angle,points=s.family==='kite'?[[r,0],[-r*.35,-r*.7],[-r,0],[-r*.35,r*.7]]:[[r,0],[-r*.75,-r*.82],[-r*.75,r*.82]];
    points.forEach(([u,v],i)=>{const xx=x+Math.cos(a)*u-Math.sin(a)*v,yy=y+Math.sin(a)*u+Math.cos(a)*v;i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy)});ctx.closePath();
   }
  }
@@ -147,7 +159,10 @@
   path(ctx,x,y,r,s);ctx.fillStyle=options.selected?'#151710':'rgba(0,0,0,.80)';ctx.fill();
   ctx.strokeStyle=color;ctx.lineWidth=lineWidth;ctx.stroke();
   // Text is a UI annotation, like player names. World marks use the 4px lattice.
-  ctx.fillStyle=options.selected?'#ffffff':color;ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='600 '+fontPx+'px sans-serif';ctx.fillText(String(entry.number),x-(s.family==='triangle'?Math.cos(s.angle)*2*unit:0),y+unit-(s.family==='triangle'?Math.sin(s.angle)*2*unit:0));
+  // A ball-sized world mark cannot hold a readable digit; the chart and list carry the number.
+  ctx.fillStyle=options.selected?'#ffffff':color;ctx.textBaseline='middle';
+  if(options.numberOutside){ctx.textAlign='left';ctx.font='600 11px sans-serif';ctx.fillText(String(entry.number),x+r+3,y-r);}
+  else if(fontPx>=7){ctx.textAlign='center';ctx.font='600 '+fontPx+'px sans-serif';ctx.fillText(String(entry.number),x,y+unit);}
   for(let i=0;i<s.bars;i++){ctx.beginPath();ctx.moveTo(x-r*.5,y+r+(4+i*4)*unit);ctx.lineTo(x+r*.5,y+r+(4+i*4)*unit);ctx.stroke();}
   ctx.restore();return {...p,x,y,r,fontPx,lineWidth,hitRadius:r*1.4,shape:s,pitchId:entry.pitchId,number:entry.number,alpha:options.alpha??1};
  }
@@ -578,15 +593,27 @@ function rasterSphere(center,radius,color,owner){
   }
   for(const p of cells.values())if(!BallSurface.guideOccluded(p,ballCells))dot(p.x,p.y,p.corner?1.75:1.40,'#e0b541',1);
  }
+ // Line through the recorded batted-ball positions. Presentation only.
+ function battedTrail(){
+  const points=state.battedTrail;if(!points||points.length<2)return;
+  const step=gridV84.step();let last=null,carry=0;
+  for(const world of points){const p=project(world);if(!p){last=null;continue;}
+   if(last){const d=Math.hypot(p.x-last.x,p.y-last.y);
+    for(let at=step*1.5-carry;at<d;at+=step*1.5)dot(snap(last.x+(p.x-last.x)*at/d),snap(last.y+(p.y-last.y)*at/d),1.1,'#f4efd2',.78);
+    carry=(carry+d)%(step*1.5);}
+   last=p;}
+ }
  function history(){
-  historyMarks=[];if(!state.history||state.camera==='overhead')return;
+  historyMarks=[];if(!state.history||state.camera==='overhead'){if(state.camera==='overhead')battedTrail();return;}
   const selected=observed.history.find(e=>e.pitchId===state.selectedPitch)||observed.history.at(-1),last=selected?.location&&project(selected.location.position);
-  const radius=p=>.065*p.scale;
+  // World radius of a real baseball; independent of the display ball scale.
+  const radius=p=>.0366*p.scale;
   for(const e of [...observed.history.filter(e=>e!==selected),...(selected?[selected]:[])]){
    const p=e.location&&project(e.location.position);if(!p||p.x<20||p.x>580||p.y<24||p.y>405)continue;
    if(e!==selected&&last&&Math.hypot(last.x-p.x,last.y-p.y)<(radius(last)+radius(p))*1.22)continue;
    const m=Symbols.draw(ctx,e,project,{radius:radius(p),perspective:true,selected:e===selected,alpha:observed.liveObservation?(observed.livePitchMarksOpacity??1)*(e===selected?1:.85):observed.localTick>=26&&observed.localTick<38?.28:e===selected?1:.85});if(m)historyMarks.push(m);
   }
+  battedTrail();
   // Only ball cells surviving world depth are repainted above annotations.
   for(const c of rasterCells.values())if(c.owner==='ball'){ctx.fillStyle='#000';ctx.fillRect(c.x-gridV84.step()/2,c.y-gridV84.step()/2,gridV84.step(),gridV84.step());dot(c.x,c.y,LIGHT_RADIUS,c.color,1,2);}
  }

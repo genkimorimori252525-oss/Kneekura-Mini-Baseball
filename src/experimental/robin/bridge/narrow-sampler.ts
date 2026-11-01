@@ -23,7 +23,7 @@ export function createRobinPathSamplerV1(path:Path, originSeconds=0) {
     if(!Number.isFinite(seconds)||seconds<originSeconds||seconds>endSeconds) throw Error('time outside original Robin path: '+seconds+' > '+endSeconds);
     // Multiples are recognized against the same i*dt clock used to build segments.
     const isFinal=seconds===endSeconds,nearest=isFinal?segments.length:Math.round((seconds-originSeconds)/dt),atNode=nearest>=0&&nearest<=segments.length&&seconds===originSeconds+nearest*dt;
-    const left=atNode?(nearest>0?segments[nearest-1].velocity:null):segments[Math.floor((seconds-originSeconds)/dt)].velocity;
+    const left=atNode?(nearest>0?segments[nearest-1].velocity:null):segments[Math.min(segments.length-1,Math.floor((seconds-originSeconds)/dt))].velocity;
     const right=atNode?(nearest<segments.length?segments[nearest].velocity:null):left;
     const index=Math.max(0,Math.min(Math.floor((seconds-originSeconds)/dt),segments.length-1)),s=segments[index];
     const position=atNode?points[nearest]:interpolate(s.from,s.to,(seconds-s.fromSeconds)/dt);

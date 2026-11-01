@@ -5,6 +5,7 @@ import {hashYawDecisionInputV274,summarizeYawDecisionV274} from './LiveYawDecisi
 import {isAuthorizedYawPitchInputV274} from './LiveBaseballMatchV1';
 import {planObservedYawContactFrameV255} from '../../core/decision/batting/ObservedYawContactFrameV255';
 import {certifyLateObservationCutV1} from '../../experimental/robin/playability/late-observation-cut-v1';
+import {normalPitchContact} from "../../experimental/robin/bridge/normal-pitch-contact-v2";
 import {parsePracticeSwingDecisionV241,resolvePracticeSwingDecisionV241,type PracticeSwingDecisionRequestV241} from './PracticeSwingDecisionV241';
 import {validateLiveObservedRobustContactFrameTrialV248,type LiveObservedRobustContactFrameTrialV248} from './LiveRobustContactFrameMotorV248';
 import {planLiveRobustContactFrameV247} from './LiveRobustContactFrameAdapterV247';
@@ -179,7 +180,8 @@ const pendingYawEvidenceV274=new WeakMap<object,PrivateYawEvidenceV274>();
 export function takeYawDecisionEvidenceV274(raw:unknown):PrivateYawEvidenceV274|null{
  if(!isAuthorizedYawPitchInputV274(raw))return null;const key=raw as object,value=pendingYawEvidenceV274.get(key)??null;pendingYawEvidenceV274.delete(key);return value;
 }
-export function simulateLivePitchV1(raw:LivePitchInputV1){
+export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Readonly<{version:'robin_optical_test_v1';hiddenAfterSeconds:number;kernel:SourceFreeBallKernel}>){
+  if(opticalExperiment && (opticalExperiment.version!=='robin_optical_test_v1'||!Number.isFinite(opticalExperiment.hiddenAfterSeconds)||opticalExperiment.hiddenAfterSeconds<0||!raw.batterObservationV151||(opticalExperiment.kernel as unknown as {version?:string}).version!=='robin_original_linear_source_v1'))throw Error('Robin optical HOLD: invalid policy or missing observer');
   if(raw!==null&&typeof raw==='object'&&Object.hasOwn(raw,'yawDiagnosticV274')&&!isAuthorizedYawPitchInputV274(raw))throw Error('yaw diagnostic requires private paired Host');
   const input=cloneInert(raw),b=input.batter,p=input.pitcher,
     effectiveQualityV177=input.pitchQualityV177===undefined?p.pitchQualityV177:input.pitchQualityV177;
@@ -421,24 +423,26 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   const pitchWorkloadV122=input.pitchWorkloadV122===undefined?null:resolveLivePitchWorkloadExecutionV122({...input.pitchWorkloadV122,
     physics:{velocity:initial.velocity,spin:initial.spin}});
   if(pitchWorkloadV122)initial={...initial,...pitchWorkloadV122.execution.physics};
+  if(opticalExperiment){const built=(globalThis as any).__robinLateSource(commanded);(opticalExperiment as any).kernel=built.kernel;(opticalExperiment as any).hiddenAfterSeconds=built.hiddenAfterSeconds;}
   const horizon=Math.min(2.5,Math.max(.8,flightTime+.4,pitchWorkloadV122?(release.z+.85)/Math.max(.001,Math.abs(initial.velocity.z))*1.5+.2:0)),descriptor={kind:'aero_ground_continuous_source_kernel_v2' as const,
     initial:{originTick:input.originTick,elapsedSeconds:0,ball:initial},throughElapsedSeconds:horizon,profile,
-    ...(nominalMaterialOrientationV168?{materialOrientationAtStart:nominalMaterialOrientationV168}:{})},kernel=(()=>{const base=createSourceFreeBallKernel(descriptor),dv=(input as any).__normalForkDeltaV1??0;if(!dv)return base;const cut=.2,at=base.evaluateAt(cut),ball={...at.moment.ball,velocity:{...at.moment.ball.velocity,x:at.moment.ball.velocity.x+dv}},fork=createSourceFreeBallKernel({...descriptor,initial:{originTick:input.originTick,elapsedSeconds:cut,ball},...(at.materialOrientation?{materialOrientationAtStart:at.materialOrientation}:{})});
+    ...(nominalMaterialOrientationV168?{materialOrientationAtStart:nominalMaterialOrientationV168}:{})},kernel=opticalExperiment?.kernel??(()=>{const base=createSourceFreeBallKernel(descriptor),dv=(input as any).__normalForkDeltaV1??0;if(!dv)return base;const cut=.2,at=base.evaluateAt(cut),ball={...at.moment.ball,velocity:{...at.moment.ball.velocity,x:at.moment.ball.velocity.x+dv}},fork=createSourceFreeBallKernel({...descriptor,initial:{originTick:input.originTick,elapsedSeconds:cut,ball},...(at.materialOrientation?{materialOrientationAtStart:at.materialOrientation}:{})});
  const cells=[...base.cells.filter(c=>c.fromElapsedSeconds<cut).map(c=>({...c,throughElapsedSeconds:Math.min(c.throughElapsedSeconds,cut)})),...fork.cells];return {...base,cells,boundaries:[...base.boundaries.filter(q=>q.elapsedSeconds<=cut),...fork.boundaries.filter(q=>q.elapsedSeconds>cut)],evaluateAt:(t:number,side?:'incoming'|'outgoing')=>t<=cut?base.evaluateAt(t,side):fork.evaluateAt(t,side)};})(),
     plateTime=crossing(kernel,battingSetupV94.plateFrontZ),catchPlaneTime=crossing(kernel,-.85);
   assert(plateTime!==null&&catchPlaneTime!==null,'pitched ball did not cross the finite plate/catcher planes');
-  if((input as any).causalCatcherObservationV1==='fixed_release_100ms_v1'){
+  if(!opticalExperiment&&(input as any).causalCatcherObservationV1==='fixed_release_100ms_v1'){
     if(plateTime<=.1)throw Error('HOLD: causal catcher observation follows plate crossing');
     if(kernel.boundaries.some((x:any)=>x.kind==='ground'&&x.elapsedSeconds<=.1))throw Error('HOLD: causal catcher observation follows ground contact');
   }
-  const catcherObservationTime=(input as any).causalCatcherObservationV1==='fixed_release_100ms_v1'?Math.min(.1,horizon):Math.min(.14,plateTime*.35),observedSample=kernel.evaluateAt(catcherObservationTime),
+  const catcherObservationTime=opticalExperiment?.1:(input as any).causalCatcherObservationV1==='fixed_release_100ms_v1'?Math.min(.1,horizon):Math.min(.14,plateTime*.35),observedSample=(()=>{const current=kernel.evaluateAt(catcherObservationTime,'incoming');if(!opticalExperiment)return current;const previous=kernel.evaluateAt(catcherObservationTime-.04,'incoming').moment.ball.position,p=current.moment.ball.position;return {...current,moment:{...current.moment,ball:{...current.moment.ball,velocity:{x:(p.x-previous.x)/.04,y:(p.y-previous.y)/.04,z:(p.z-previous.z)/.04},spin:{x:0,y:0,z:0}}}};})(),
     positionObserverV151=observationPolicyV151===undefined?undefined:createLiveBatterPositionObserverV151({policy:observationPolicyV151,
       originTick:input.originTick,planeZ:battingSetupV94.contactPlaneZ,...(input.batterForecastPolicyV246===undefined?{}:{forecastPolicyV246:input.batterForecastPolicyV246})},seconds=>{
-      if(seconds>horizon)return null;const sample=kernel.evaluateAt(seconds).moment.ball;return {tick:sample.tick,position:sample.position};},regionPolicyV222!==undefined||spinTrialRequestV236!==undefined||spinComposeRequestV238!==undefined||anyFrameRequest!==undefined),
+      if(seconds>horizon||(opticalExperiment&&seconds>=opticalExperiment.hiddenAfterSeconds))return null;const sample=kernel.evaluateAt(seconds).moment.ball;return {tick:sample.tick,position:sample.position};},regionPolicyV222!==undefined||spinTrialRequestV236!==undefined||spinComposeRequestV238!==undefined||anyFrameRequest!==undefined),
     decisionTime=positionObserverV151?(positionObserverV151.decisionTick-input.originTick)/tps:catcherObservationTime,
     rawForecastV151=positionObserverV151?.forecastAt(positionObserverV151.decisionTick),
     forecastResultV246=input.batterForecastPolicyV246===undefined?undefined:positionObserverV151!.forecastAtV246!(positionObserverV151!.decisionTick),
     effectiveForecastV246=forecastResultV246?.forecast??rawForecastV151;
+  if(opticalExperiment&&effectiveForecastV246?.status!=='PREDICTED')throw Error('Robin optical HOLD: no observed forecast');
   assert(!(input.managerCommunicationV122&&input.swingInstructionV121),'ambiguous received and raw manager instruction');
   const managerCommunicationV122=input.managerCommunicationV122===undefined?null:resolveLiveManagerCommunicationV122({...input.managerCommunicationV122,
     seed:randomStreamsV152?.seedFor('communication','manager-communication-v122')??input.seed,
@@ -728,17 +732,18 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   const catcherForecast=createSourceFreeBallKernel({...descriptor,initial:observedSample.moment,
     ...(observedSample.materialOrientation?{materialOrientationAtStart:observedSample.materialOrientation}:{})}),
     catcherForecastTime=crossing(catcherForecast,-.85);
-  assert(catcherForecastTime!==null,'catcher forecast did not reach its finite plane');
-  const catcherPrediction={elapsedSeconds:catcherForecastTime,ball:catcherForecast.evaluateAt(catcherForecastTime).moment.ball},
-    catcherRecognition=recognizeZoneV87({role:'catcher',profile:catcher.zoneRecognitionV87,position:catcherPrediction.ball.position,zone,
+  if(catcherForecastTime===null&&!opticalExperiment) throw Error('catcher forecast did not reach its finite plane');
+  const catcherPrediction={elapsedSeconds:catcherForecastTime??catcherObservationTime,ball:catcherForecast.evaluateAt(catcherForecastTime??catcherObservationTime).moment.ball},
+    catcherRecognition=catcherForecastTime===null?{position:{x:0,y:middle,z:-.85},diagnostics:{reason:'no_capture_plane_forecast_waiting',predictionBasis:'OBSERVED_STATE_NO_FUTURE'}}:recognizeZoneV87({role:'catcher',profile:catcher.zoneRecognitionV87,position:catcherPrediction.ball.position,zone,
       seed:randomStreamsV152?.seedFor('catcherPerception','capture-recognition-v87')??input.seed,
       sourceTick:input.originTick+Math.round(catcherObservationTime*tps),observationTick:input.originTick+Math.round(catcherObservationTime*tps),
       planeZ:-.85,standardDeviationMeters:Math.min(.6,(catcher.defensiveDecisionSeconds??0)*.1),abilityBasis:'defensiveDecisionSeconds_authored_forecast_uncertainty',reason:'own_current_observed_forecast_at_capture_plane'}),
-    catcherStart=(()=>{const q={x:0,y:middle,z:-.85},m=(catcher as any).normalBodyModelV1,b=(catcher as any).normalBodyPositionV1;if(!m||!b)return q;const sh={x:b.x,y:b.y+m.shoulderHeightMeters-m.hipHeightMeters,z:b.z},v=sub(q,sh),n=norm(v),k=Math.min(1,(m.armReachMeters-1e-6)/(n||1));return add(sh,mul(v,k));})(),body=(catcher as any).normalBodyPositionV1??{x:0,y:.8,z:-1.2},reach=catcher.gloveReachMeters,
-    catcherTarget={...catcherRecognition.position,z:-.85};
+    catcherStart=(()=>{const q={x:0,y:middle,z:-.85},m=(catcher as any).normalBodyModelV1??(catcher as any).robinBodyModelV1,b=(catcher as any).normalBodyPositionV1??(catcher as any).robinBodyPositionV1;if(!m||!b)return q;const sh={x:b.x,y:b.y+m.shoulderHeightMeters-m.hipHeightMeters,z:b.z},v=sub(q,sh),n=norm(v),k=Math.min(1,(m.armReachMeters-1e-6)/(n||1));return add(sh,mul(v,k));})(),body=(catcher as any).normalBodyPositionV1??(catcher as any).robinBodyPositionV1??{x:0,y:.8,z:-1.2},reach=catcher.gloveReachMeters,
+    catcherTarget=catcherForecastTime===null?{...catcherStart}:{...catcherRecognition.position,z:-.85};
   catcherTarget.y=Math.max(catcher.gloveRadiusMeters,catcherTarget.y);
   const planarReach=Math.sqrt(reach*reach-(catcherTarget.z-body.z)**2),fromBody={x:catcherTarget.x-body.x,y:catcherTarget.y-body.y,z:0};
-  if(norm(fromBody)>planarReach){const constrained=add(body,mul(fromBody,planarReach/norm(fromBody)));catcherTarget.x=constrained.x;catcherTarget.y=constrained.y;}
+  if(catcherForecastTime!==null&&norm(fromBody)>planarReach){const constrained=add(body,mul(fromBody,planarReach/norm(fromBody)));catcherTarget.x=constrained.x;catcherTarget.y=constrained.y;}
+  if(opticalExperiment){const m=(catcher as any).robinBodyModelV1,sh={x:body.x,y:body.y+m.shoulderHeightMeters-m.hipHeightMeters,z:body.z},d=sub(catcherTarget,sh),n=norm(d),k=Math.min(1,(m.armReachMeters-1e-6)/(n||1)),q=add(sh,mul(d,k));catcherTarget.x=q.x;catcherTarget.y=q.y;catcherTarget.z=q.z;}
   if((catcher as any).normalBodyModelV1){const m=(catcher as any).normalBodyModelV1,sh={x:body.x,y:body.y+m.shoulderHeightMeters-m.hipHeightMeters,z:body.z},v=sub(catcherTarget,sh),n=norm(v),k=Math.min(1,(m.armReachMeters-1e-6)/(n||1)),q=add(sh,mul(v,k));catcherTarget.x=q.x;catcherTarget.y=q.y;catcherTarget.z=q.z;}
   const moveStart=catcherObservationTime,moveEnd=Math.max(moveStart+.025,catcherPrediction.elapsedSeconds-.025),moveDuration=moveEnd-moveStart,
     delta=sub(catcherTarget,catcherStart),distance=norm(delta),maximumGloveSpeedMps=catcher.gloveSpeedMps;
@@ -790,7 +795,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
     referenceContactTick=referenceWorldTickAtSourceV121(referenceInput,sourceContactTick);
   }
   const uncorrectedReference=createReferenceBatKinematicsV1(impactReference),headroom=b.plateVision===undefined?0:lateEvidenceHeadroomV121(resolveLivePlateVisionV1(b));
-  let lateEvidenceV121=headroom===0||!swingOffered||input.batting==='bunt'||observedSpinTrialV236?.status==='APPLIED'?null:(()=>{
+  let lateEvidenceV121=headroom===0||opticalExperiment||!swingOffered||input.batting==='bunt'||observedSpinTrialV236?.status==='APPLIED'?null:(()=>{
     const throughTick=Math.floor(referenceContactTick),throughTime=(throughTick-input.originTick)/tps,
       observedTime=decisionTime+Math.max(0,(positionObserverV151?Math.min(prediction.elapsedSeconds,throughTime):Math.min(horizon,prediction.elapsedSeconds,throughTime))-decisionTime)*headroom/2,
       availableTick=positionObserverV151?quantizeEventTick(input.originTick,observedTime,tps):input.originTick+Math.ceil(observedTime*tps),
@@ -798,7 +803,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
       prefixThroughV151=Math.min((availableTick-input.originTick)/tps,horizon),
       // The baseline and corrected bat have the same prefix before this cutoff.
       // If contact already closed that prefix, no later free-flight sample is observed.
-      prefixContactV151=positionObserverV151?firstContact(kernel,seconds=>measureRigidBatBallSurfaceSeparation(
+      prefixContactV151=positionObserverV151?(opticalExperiment?normalPitchContact:firstContact)(kernel,seconds=>measureRigidBatBallSurfaceSeparation(
         kernel.evaluateAt(seconds,'incoming').moment.ball,createRigidBatStateFromBatterSwingState(
           uncorrectedReference.sampleContinuous(input.originTick+seconds*tps).state,batPhysical),ballPhysical),
         uncorrectedReference.maximumGripSpeedMps+uncorrectedReference.maximumAngularSpeedRadPerSecond*b.batLengthM,prefixThroughV151):null,
@@ -1010,9 +1015,9 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
       :{...held,state:{...held.state,linearVelocity:zero(),angularVelocity:zero()}};
   const rigidAt=(seconds:number)=>createRigidBatStateFromBatterSwingState(batSample(seconds).state,batPhysical),
     batBound=buntMotor?.diagnostics.maximumSurfaceSpeedMps??(swingOffered&&input.batting!=='bunt'?reference.maximumGripSpeedMps+reference.maximumAngularSpeedRadPerSecond*b.batLengthM:0);
-  const catcherHit=firstContact(kernel,t=>norm(sub(kernel.evaluateAt(t,'incoming').moment.ball.position,gloveAt(t).position))-catcher.gloveRadiusMeters-ballPhysical.radiusM,
+  const catcherHit=(opticalExperiment?normalPitchContact:firstContact)(kernel,t=>norm(sub(kernel.evaluateAt(t,'incoming').moment.ball.position,gloveAt(t).position))-catcher.gloveRadiusMeters-ballPhysical.radiusM,
       maximumGloveSpeedMps,horizon),catcherAt=catcherHit?.kind==='hit'?catcherHit.at:Math.min(horizon,catchPlaneTime+.05),
-    batHit=firstContact(kernel,t=>measureRigidBatBallSurfaceSeparation(kernel.evaluateAt(t,'incoming').moment.ball,rigidAt(t),ballPhysical),batBound,catcherAt),
+    batHit=(opticalExperiment?normalPitchContact:firstContact)(kernel,t=>measureRigidBatBallSurfaceSeparation(kernel.evaluateAt(t,'incoming').moment.ball,rigidAt(t),ballPhysical),batBound,catcherAt),
     officialStrikeZoneContactV94=swingOffered?null:findSourceStrikeZoneContactV94({kernel,volume:battingSetupV94.volume,ballRadiusMeters:ballPhysical.radiusM,
       throughElapsedSeconds:batHit?.kind==='hit'?Math.min(catcherAt,batHit.at):batHit?.kind==='unresolved'?Math.min(catcherAt,batHit.from):catcherAt});
   let normalRetentionCapture:any=null;
@@ -1020,7 +1025,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
     call:'ball'|'called_strike'|'swinging_strike'|null=null,endElapsedSeconds=catcherAt,secureTick:number|null=null,unsupportedReason:string|null=null;
   if(batHit?.kind==='unresolved'){unsupportedReason='bat_contact_refinement_required';endElapsedSeconds=batHit.from;}
   else if(batHit?.kind==='hit'){
-    const at=kernel.evaluateAt(batHit.at,'incoming');contact=resolveWoodBatSpeedProfileBallContact(at.moment.ball,rigidAt(batHit.at),ballPhysical,NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1);
+    const at=kernel.evaluateAt(batHit.at,'incoming'),impactBall=(opticalExperiment?.kernel as unknown as {legacyVelocityAt?:(t:number)=>Vec3}|undefined)?.legacyVelocityAt?{...at.moment.ball,velocity:(opticalExperiment!.kernel as unknown as {legacyVelocityAt:(t:number)=>Vec3}).legacyVelocityAt(batHit.at)}:at.moment.ball;contact=resolveWoodBatSpeedProfileBallContact(impactBall,rigidAt(batHit.at),ballPhysical,NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1);
     if(contact){contactMoment=at.moment;contactOrientation=at.materialOrientation??at.orientation;endElapsedSeconds=batHit.at;}
     else {unsupportedReason='separating_or_tangent_bat_contact_requires_continuation';endElapsedSeconds=batHit.at;}
   }else if(catcherHit?.kind==='unresolved'){unsupportedReason='catcher_contact_refinement_required';endElapsedSeconds=catcherHit.from;}
@@ -1037,6 +1042,10 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
       else call=swingOffered?'swinging_strike':officialStrikeZoneContactV94?.kind==='hit'?'called_strike':'ball';
     }else unsupportedReason='catcher_retention_failed_live_ball_requires_successor';
   }else unsupportedReason='catcher_missed_live_ball_requires_successor';
+  const opticalEnd=opticalExperiment?(opticalExperiment.kernel as unknown as {sampler:{endSeconds:number}}).sampler.endSeconds:null;
+  if(opticalEnd!==null&&endElapsedSeconds>opticalEnd&&secureTick===null&&contactMoment===null){
+    endElapsedSeconds=opticalEnd;call=null;unsupportedReason='robin_source_window_exhausted_requires_successor';
+  }
   const endedAtTick=contactMoment?.ball.tick??quantizeEventTick(input.originTick,endElapsedSeconds,tps),times=new Set<number>([0,endElapsedSeconds]),
     referenceThroughTick=reference.motionThroughTickV133??referenceWorldTickAtSourceV121(registeredReference,selectedFrames.at(-1)!.tick);
   for(let i=1;i*.011<endElapsedSeconds;i++)times.add(i*.011);
@@ -1050,7 +1059,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
     const heldPosition=capturing&&catcherHit?.kind==='hit'?add(sample.moment.ball.position,sub(gloveAt(seconds).position,gloveAt(catcherHit.at).position)):sample.moment.ball.position;
     return {tick:quantizeEventTick(input.originTick,seconds,tps),elapsedSeconds:seconds,
       ball:{position:heldPosition,velocity:capturing?gloveAt(seconds).velocity:sample.moment.ball.velocity,spin:capturing?zero():sample.moment.ball.spin,
-        orientation:sample.materialOrientation??sample.orientation,visible:!owned,possessedBy:owned?'catcher':null},bat:input.originTick+seconds*tps<=referenceThroughTick?{...bat,radiusProfile}:null};
+        orientation:sample.materialOrientation??sample.orientation,visible:!owned&&(!opticalExperiment||seconds<opticalExperiment.hiddenAfterSeconds),possessedBy:owned?'catcher':null},bat:input.originTick+seconds*tps<=referenceThroughTick?{...bat,radiusProfile}:null};
   });
   const sampleBatAtTick=(atTick:number)=>{assert(Number.isFinite(atTick)&&atTick>=input.originTick,'bat observation precedes release');
     if(atTick>referenceThroughTick)return null;
@@ -1068,7 +1077,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
     })}:null;
   ;(globalThis as any).__normalLooseDynamics={endElapsedSeconds,kernel,gloveAt,rigidAt,batBound,ballPhysical,sampleBatAtTick,batOriginTick:input.originTick,batTps:tps,batThroughSeconds:(referenceThroughTick-input.originTick)/tps,batBoundCovered:!(authoredEnvelopeV133&&!buntMotor&&(!swingOffered||input.batting==='bunt')),batStationaryAllTime:!buntMotor&&!swingOffered&&!authoredEnvelopeV133,catcherHit,batHit,retention:normalRetentionCapture?.retention,retentionNormal:normalRetentionCapture?.normal,retentionGap:normalRetentionCapture?.gap};return {frames,contact,contactMoment,contactOrientation,call,endedAtTick,clipId:clip.id,pitchType,
     ...(selectedSnapshot?{pitchId:selectedSnapshot.pitchId,pitchName:selectedSnapshot.name}:{}),speedKmh:(pitchWorkloadV122?norm(initial.velocity):speed)*3.6,sampleBatAtTick,
-    diagnostics:{...((input as any).causalCatcherObservationV1==='fixed_release_100ms_v1'?{causalCatcherObservationV1:{version:'fixed_release_100ms_v1',basis:'EXPERIMENTAL_RELEASE_CLOCK_NOT_CALIBRATED'}}:{}),authority:'LOCAL_CORE_PHYSICAL_EXPERIMENT_V1' as const,nativeAdmission:false as const,sourceDescriptor:descriptor,
+    diagnostics:{...((input as any).causalCatcherObservationV1==='fixed_release_100ms_v1'?{causalCatcherObservationV1:{version:'fixed_release_100ms_v1',basis:'EXPERIMENTAL_RELEASE_CLOCK_NOT_CALIBRATED'}}:{}),experimentalGloveAtEnd:gloveAt(endElapsedSeconds),experimentalEnd:endElapsedSeconds,authority:'LOCAL_CORE_PHYSICAL_EXPERIMENT_V1' as const,nativeAdmission:false as const,sourceDescriptor:opticalExperiment?null:descriptor,...(opticalExperiment?{experimentalSourceVersion:'robin_original_linear_source_v1' as const,experimentalAuthority:'DIAGNOSTIC_ONLY_HOLD_UNPROVEN_CONTACT' as const}:{}),
       ...(yawDiagnosticV274?{[yawDiagnosticV274.version==='live_yaw_paired_diagnostic_v276'?'yawDiagnosticV276':yawDiagnosticV274.version==='live_yaw_paired_diagnostic_v275'?'yawDiagnosticV275':'yawDiagnosticV274']:{...yawDiagnosticV274,executionRate:registeredReference.playbackRate,nominalRateMatchesExecution:Object.is(yawDiagnosticV274.planningRate,registeredReference.playbackRate),referenceComparison:sameYawReferenceV274(yawDiagnosticV274.selectedReference,registeredReference)?'EXACT' as const:'DEVIATED' as const,plannedStartTick,executedStartTick:registeredReference.startTick,motorRampSeconds:registeredReference.motorRampSecondsV121??0,registeredReference,lateApplied:lateEvidenceV121?.applied??false,executionSaturationV153,drawOrder:'SELECTION_THEN_V152_EXECUTION_DRAWS' as const,authority:'NON_ADOPTING_DIAGNOSTIC_ONLY' as const}}:{}),
       battingSetupV94,strikeZoneVolumeV94:battingSetupV94.volume,strikeZone:zone,officialStrikeZoneContactV94,
       ...(input.pitchCommandObservationV155?{pitchCommandObservationV155:{version:'live_pitch_command_observation_v155' as const,

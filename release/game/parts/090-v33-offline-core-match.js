@@ -104,7 +104,13 @@
   const original=$('robin-original-choice').value;if(original&&(state.pitcherPlayerId!=='robin'||Number($('managed-team').value)!==state.team||$('batting-choice').value!=='take'))throw Error('原作球の実験はロビン投手・攻撃側の待球に限ります');
   return {batting:$('batting-choice').value,pitchType:row?.pitchType??pitchModels[selected]??selected,...(row?{pitchId:row.pitchId}:{}),...(original?{robinOriginalV1:{version:'robin_original_command_v1',sourceSha256:'27d84474f8d842a8a969b6aceb07ebac94dd92aea4267826b24fa2a31221efc8',selection:original}}:{}),
    location:$('location-choice').value,managedTeam:Number($('managed-team').value),baserunning:$('baserunning-choice').value};};
- const vecLength=value=>value?Math.hypot(value.x,value.y,value.z):0;
+   let battedTrailMode='overhead';try{const saved=localStorage.getItem('kneekura.battedTrail.v1');if(['off','overhead','all'].includes(saved))battedTrailMode=saved;}catch{}
+  function battedTrailPoints(result,frame,camera){
+   if(!result||battedTrailMode==='off'||(battedTrailMode==='overhead'&&camera!=='overhead'))return null;
+   const points=[];for(const f of result.frames){if(f.tick>frame.tick)break;if(f.ballKind==='batted'&&f.ball?.position&&f.ball.visible!==false&&!f.ball.possessedBy)points.push(f.ball.position);}
+   return points.length>1?points:null;
+  }
+const vecLength=value=>value?Math.hypot(value.x,value.y,value.z):0;
  let preparingPitchV99=false,preparingSceneV99=null;
  function stop(cancelNext=true){liveAudioV100.stop();playing=false;token++;if(preparingPitchV99){preparingPitchV99=false;if(Number.isFinite(preparingSceneV99))setSceneTime(preparingSceneV99);preparingSceneV99=null;}if(cancelNext)pauseAfterPitch=true;}
  const whiffFollowThroughControllerV88=window.KneekuraWhiffFollowThroughV88.create({core});
@@ -388,7 +394,7 @@
    phase:currentFrame.phase,history:chartObservation.history};
   cadence.sceneDraws++;cadence.lastSceneMs=sceneMs;
   const camera=cameraFor(currentFrame,actors);const chartWrap=$('pitch-chart').closest('.chart-wrap');if(chartWrap){chartWrap.hidden=camera==='overhead';chartWrap.style.display=camera==='overhead'?'none':'';}
-  rendered=visual.liveDrawWorld(world,{...options,camera,selectedPitch:chartObservation.selectedPitchId});
+  rendered=visual.liveDrawWorld(world,{...options,camera,selectedPitch:chartObservation.selectedPitchId,battedTrail:battedTrailPoints(result,currentFrame,camera)});
   $('camera-caption').textContent=cameras[camera];
   document.querySelectorAll('[data-camera]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.camera===camera)));
   document.querySelectorAll('[data-appearance]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.appearance===options.appearance)));
@@ -606,7 +612,12 @@
  document.querySelector('details.settings').after(nameDisplayPanel);
  $('name-display-scale').onchange=()=>{try{setNameDisplay({scale:Number($('name-display-scale').value)});}catch(error){syncNameDisplay();$('announcement').textContent=error.message;}};
  $('name-display-reset').onclick=()=>setNameDisplay(window.KneekuraNameDisplayControls.defaults);
- const ballDisplayPanel=document.createElement('details');ballDisplayPanel.id='ball-display-controls';ballDisplayPanel.style.padding='12px 18px';
+   const trailPanel=document.createElement('details');trailPanel.id='batted-trail-controls';trailPanel.style.padding='12px 18px';
+  trailPanel.innerHTML='<summary>打球の軌道線</summary><p>打球が通った線を映像に重ねます。試合の結果には影響しません。</p><div class="segmented" role="group" aria-label="打球の軌道線"><button data-trail="off">なし</button><button data-trail="overhead">俯瞰のみ</button><button data-trail="all">全視点</button></div>';
+  document.querySelector('details.settings').after(trailPanel);
+  function syncTrailMode(){trailPanel.querySelectorAll('[data-trail]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.trail===battedTrailMode)));}
+  trailPanel.querySelectorAll('[data-trail]').forEach(button=>{button.onclick=()=>{battedTrailMode=button.dataset.trail;try{localStorage.setItem('kneekura.battedTrail.v1',battedTrailMode);}catch{}syncTrailMode();draw();};});syncTrailMode();
+const ballDisplayPanel=document.createElement('details');ballDisplayPanel.id='ball-display-controls';ballDisplayPanel.style.padding='12px 18px';
  ballDisplayPanel.innerHTML='<summary>ボールの表示倍率</summary><p>物理の大きさは変わりません。初期値はどちらも1です。投球の描画間隔は22ms、ほかは55msです。</p><label>通常視点 <input id="ball-scale-perspective" type="number" min="0.25" max="8" step="0.05" value="1"></label><label>俯瞰 <input id="ball-scale-overhead" type="number" min="0.25" max="8" step="0.05" value="1"></label><label>俯瞰：高さの遠近感 <input id="ball-scale-overheadHeightEmphasis" type="number" min="1" max="8" step="0.1" value="2"></label><button id="ball-scale-reset">表示を初期値へ</button><p id="ball-height-model-status" aria-live="polite"></p><p>地面からの高さを、サイズ計算時だけ指定倍として投影します。2mの球は設定2で4m相当のサイズ。表示位置・物理は変えず、接地球・投球・送球・他視点は維持します。旧方式の設定は数値を変更すると新方式に切り替わります。初期2。</p>';
  document.querySelector('details.settings').after(ballDisplayPanel);
  for(const key of ['perspective','overhead','overheadHeightEmphasis'])$('ball-scale-'+key).onchange=()=>{try{setBallDisplay({[key]:Number($('ball-scale-'+key).value)});}catch(error){syncBallDisplay();$('announcement').textContent=error.message;}};
