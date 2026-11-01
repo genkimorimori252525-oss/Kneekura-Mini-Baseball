@@ -952,15 +952,6 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   const held=authoredEnvelopeV133?sampleAuthoredBatEnvelopePoseV133(authoredEnvelopeV133.preparation,b.batLengthM,sweetSpotT,input.originTick,selectedFrames[0].tick)
     :causalHeldPoseV1?sampleAuthoredBatEnvelopePoseV133(causalHeldPoseV1,b.batLengthM,sweetSpotT,input.originTick,selectedFrames[0].tick):reference.sampleContinuous(input.batting==='bunt'?referenceContactTick:input.originTick),
     buntTechnique=swingOffered&&input.batting==='bunt'?(b.technicalSkills?.bunting??0):0;
-  if((input as any).causalCatcherObservationV1==='fixed_release_100ms_v1'){
-   if(swingOffered&&input.batting!=='bunt'&&(reference.motionStartTickV133===undefined||reference.motionStartTickV133<input.originTick+Math.ceil(.1*tps)))throw Error('HOLD: bat moves before declared observation');
-   if(input.batting==='bunt'&&swingOffered)throw Error('HOLD: causal bunt prefix unavailable');
-   const actors=(globalThis as any).__lateCutBodiesV1;if(!Array.isArray(actors)||actors.length!==18)throw Error('HOLD: causal observation actors unavailable');
-   const staticBat=createRigidBatStateFromBatterSwingState(held.state,batPhysical),view={...kernel,originTick:input.originTick,ticksPerSecond:tps},colliders=[{id:'bat',gap:(q:number)=>measureRigidBatBallSurfaceSeparation(kernel.evaluateAt(q,'incoming').moment.ball,staticBat,ballPhysical),speedBoundMps:0},
-    {id:'catcher-glove',gap:(q:number)=>norm(sub(kernel.evaluateAt(q,'incoming').moment.ball.position,gloveAt(q).position))-catcher.gloveRadiusMeters-ballPhysical.radiusM,speedBoundMps:maximumGloveSpeedMps},
-    ...actors.map((a:any)=>({id:a.id,gap:(q:number)=>norm(sub(kernel.evaluateAt(q,'incoming').moment.ball.position,a.center))-a.radius-ballPhysical.radiusM,speedBoundMps:0}))];
-   const cut=certifyLateObservationCutV1({kernel:view,throughSeconds:.1,colliders});if(cut.status!=='CLEAR')throw Object.assign(new Error('HOLD: causal early observation physical cut'),{causalEarlyCutV1:cut});
-  }
   // A dedicated, bounded bunt motor, planned once from the same observed
   // state as the batter's other decisions. No future contact/ball sample or
   // extra random draw steers the bat. The fixed axis is the authored bunt
