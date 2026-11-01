@@ -14,3 +14,15 @@
 固定１試合ながら、この得点・安打数は現実性に重大な懸念がある。決定的に同じ結果を再現できたことを、打者心理・投球・接触・守備の現実性の受入に使わない。後続では保存済みrecordから各段階を分解し、原因を根拠なしに決めたり、seed・成功基準を結果に合わせて変更したりしない。原因調査中・GoalはACTIVE。
 
 初回 `bac1181afb8242d0ada1b11ab8d405d7` はWorkerが初球要求まで遅延起動するのに前もってinitを待ち、０球で timeout した FAIL。修正後の今回の結果へ置き換えず保持。旧V133９回の結果は今回へ転用していない。４回転、元球種を保つキレ物理、旧保存の新build互換、完成３HTML配送・性能受入は未完。
+
+## 時間の内訳は先頭12球だけ
+
+全試合結果には工程別時間が記録されていなかった。そこで同じr6・Chrome・保存済みcommandの先頭12球を別途計測し、Main／実Worker相互と元保存のrecord・continuationは全てexact。receipt `1d5d52abd6464721a1a9fbadf8832ee5` PASS、経過63.686秒、report SHA-256 `22a417dd902c6948187e8c4254867528f93d2386342ac106fd4236d137b92fde`、13 artifactsとendpinsを照合。Main issue合計33.611秒（最大１球21.419秒）、Worker待機合計5.634秒、page往復40.756秒はMain/Worker/符号化/転送を含む。計測範囲は重複し、計測自体の負荷も含むので単純合算せず、12球だけの値を全試合速度や改善率へ拡張しない。遅かった球の処理内容は別途調査する。
+
+計測手順の旧checker SHA `1929d3f1…` は、保存コピーのhashが一致せず元bytesを特定できなかった。旧Source全文の保全は UNKNOWN として保持し、復元・逆変換の成功を主張しない。新checkerは新hashの独立reviewと実測を行った。
+
+## 保存済み６球目のCPU観測
+
+先頭12球で遅かった６球目を、５球目の保存continuationと同じ設定・commandから、同じr6とChrome 156.0.8078.76のMain Hostで１球だけ再現した。元の６球目record・continuationとlossless一致、入力および出力pin一致、receipt `1d7d76019e844332a83b02732cbddf6a` PASS、report SHA-256 `e7d67430ce1443ebb73b2a4a5bd5527b23c4fed12225c5a73f88a467d46eb405`。CDP CPU profiler付きissue時間21.102秒、runner全体47.125秒、14,364 samples。Workerや全試合の計測ではなく、計測負荷を含む。
+
+保存profileのleaf samplesでは `calculateOwnedBaseballFlightDerivativesV120` の一つのnodeが2,327 samples（16.20%）、garbage collectorが1,242（8.65%）。同名nodeは複数あり、node別値を関数全体の割合としない。保存された呼び出しstackのうち、飛行微分の2,830 samplesは `planLiveThrowActionV103` → `planLiveThrowV1` → `memoizeLiveThrowPhysicalV113` 等の経路で観測された。sample countは統計的なCPU観測で、厳密な処理時間、原因の断定、改善率ではない。今回、性能修正は行っていない。利用上限によりこのcheckerの独立モデルreviewは未実施であり、主担当が入力pin・exact条件・既存fixtureを確認した。
