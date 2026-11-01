@@ -26,18 +26,20 @@ export type PlayableFieldFactsV1=Readonly<{
   pendingEquipmentPolicyV148?:Readonly<{firstContactTick:number;surfaceIds:readonly string[]}>;
   overFence:Readonly<{tick:number;fair:boolean;untouchedGround:boolean;cause?:'batted'|'throw';awardFrom?:Readonly<Record<string,number>>}>|null;playEnd:PlayEndFact;buntAttempt?:boolean;
 }>;
+/** Result for a batted ball the field world could not resolve. */
+export type SimpleBattedEventV1=Readonly<{kind:'simple_batted';tick:number;outcome:'foul'|'out'|'single'|'home_run'}>;
 export type LoosePitchEventV2=Readonly<{kind:'loose_pitch';tick:number;endTick:number;call:'ball'|'called_strike'|'swinging_strike';batterRuns:boolean;
   runners:readonly Readonly<{runnerId:string;base:number;retired:boolean;scored:boolean;tick:number;defenderId:string|null}>[]}>;
 export type PlayableRunnerOutV1=Readonly<{runnerId:string;tick:number;classification:CorrectOutClassification;cause:'base_control'|'runner_tag'|'fly_catch'|'pitch_count'|'tag_up_appeal';defenderId:string|null}>;
 export type PlayableMatchRuleInputV1=Readonly<{
   match:CanonicalMatchState;batterRunnerId:string;regulationInnings?:number;
-  event:Readonly<{kind:'pitch_call';tick:number;call:'ball'|'called_strike'|'swinging_strike'}>|Readonly<{kind:'field_play';facts:PlayableFieldFactsV1}>|LoosePitchEventV2;
+  event:Readonly<{kind:'pitch_call';tick:number;call:'ball'|'called_strike'|'swinging_strike'}>|Readonly<{kind:'field_play';facts:PlayableFieldFactsV1}>|LoosePitchEventV2|SimpleBattedEventV1;
 }>;
 type Classification='count'|'foul'|'walk'|'strikeout'|'live_ball'|'home_run'|'ground_rule_double'|'fly_out'|'foul_out';
 export type PlayableMatchRuleResultV1=Readonly<{kind:'unresolved';reason:string;tick:number}>|Readonly<{
   kind:'applied';match:CanonicalMatchState;batterAdvanced:boolean;halfChanged:boolean;gameOver:boolean;winner:'away'|'home'|null;
   scoredRunnerIds:readonly string[];suppressedRunnerIds:readonly string[];outcomes:readonly PlayableRunnerOutV1[];
-  endedAtTick:number;classification:Classification;
+  endedAtTick:number;classification:Classification;batterRetainsTurnV1?:boolean;
 }>;
 const names=['first','second','third'] as const;
 const tick=(n:number)=>Number.isSafeInteger(n)&&n>=0;
@@ -122,12 +124,21 @@ function reduceLoosePitch(input:PlayableMatchRuleInputV1,e:LoosePitchEventV2):Pl
   }
   return looseFinish(input,{...m,bases},true,'strikeout',homes,sorted,e);
 }
+function reduceSimpleBatted(input:PlayableMatchRuleInputV1,e:SimpleBattedEventV1):PlayableMatchRuleResultV1{
+  const m=input.match,batter=input.batterRunnerId,touch=(runnerId:string):RunnerBaseTouchFact=>({kind:'runner_base_touch',runnerId,base:4,tick:e.tick});
+  if(e.outcome==='foul')return applyCount(input,'foul',e.tick);
+  if(e.outcome==='out')return finish(input,m,true,'live_ball',[],[],[{runnerId:batter,tick:e.tick,classification:'batter_runner_before_first',cause:'fly_catch',defenderId:null}],e.tick);
+  if(e.outcome==='home_run')return finish(input,{...m,bases:{first:null,second:null,third:null}},true,'home_run',[...names.map(n=>m.bases[n]).filter((r):r is string=>r!==null),batter].map(touch),[],[],e.tick);
+  return finish(input,{...m,bases:{first:batter,second:m.bases.first,third:m.bases.second}},true,'live_ball',m.bases.third?[touch(m.bases.third)]:[],[],[],e.tick);
+}
 function looseFinish(input:PlayableMatchRuleInputV1,after:CanonicalMatchState,advanced:boolean,classification:Classification,homes:RunnerBaseTouchFact[],outs:PlayableRunnerOutV1[],e:LoosePitchEventV2){
   const room=3-input.match.outs,kept=outs.slice(0,room),third=kept.length===room?kept.at(-1)!:null;
   if(!third)return finish(input,after,advanced,classification,homes,[],kept,e.endTick);
   const batterThird=third.runnerId===input.batterRunnerId;
   const scored=batterThird?[]:homes.filter(h=>h.tick<third.tick),suppressed=homes.filter(h=>!scored.includes(h));
-  return finish(input,{...after,bases:{first:null,second:null,third:null}},true,classification,scored,suppressed,kept,third.tick>e.tick?third.tick:e.endTick);
+  // A runner made the third out mid-count: the half ends, but this batter leads off next time.
+  const result=finish(input,{...after,bases:{first:null,second:null,third:null}},true,advanced?classification:'live_ball',scored,suppressed,kept,third.tick>e.tick?third.tick:e.endTick);
+  return !advanced&&result.kind==='applied'?{...result,batterRetainsTurnV1:true}:result;
 }
 
 export function reducePlayableMatchV1(raw:PlayableMatchRuleInputV1):PlayableMatchRuleResultV1{
@@ -135,6 +146,7 @@ export function reducePlayableMatchV1(raw:PlayableMatchRuleInputV1):PlayableMatc
   validateMatch(m,batter);assert(Number.isSafeInteger(regulation)&&regulation>=1,'invalid regulation innings');
   if(input.event.kind==='pitch_call'){assert(tick(input.event.tick),'invalid pitch call tick');return applyCount(input,input.event.call,input.event.tick);}
   if(input.event.kind==='loose_pitch')return reduceLoosePitch(input,input.event);
+  if(input.event.kind==='simple_batted')return reduceSimpleBatted(input,input.event);
   const f=input.event.facts;assert(tick(f.contactTick)&&tick(f.throughTick)&&f.throughTick>=f.contactTick
     &&f.playEnd.kind==='play_end'&&tick(f.playEnd.tick)&&f.playEnd.tick>=f.contactTick&&f.playEnd.tick<=f.throughTick
     &&['fair','foul'].includes(f.territory),'invalid physical play interval or territory');

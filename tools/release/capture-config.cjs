@@ -16,6 +16,7 @@ const opt = Object.fromEntries(rest.map(a => a.replace(/^--/, '').split('=')));
   await page.goto('http://127.0.0.1:' + server.address().port);
   await page.waitForFunction(() => window.liveMatchPlayback);
   if (opt.pitcher) await page.selectOption('#home-pitcher-choice', opt.pitcher);
+  if (opt.stadium) await page.selectOption('#stadium-choice', opt.stadium);
   await page.locator('#match-seed').fill(opt.seed ?? 'capture');
   await page.locator('#fixed-seed').check();
   await page.click('#new-game');

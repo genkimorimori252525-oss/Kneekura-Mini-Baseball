@@ -39,3 +39,7 @@ it('ends the half on a third out and drops a run that scored after it',()=>{
   const r=loose(state({outs:2,bases:{first:'r1',second:null,third:'r3'}}),'ball',[runner('r3',4,{scored:true,tick:95}),runner('r1',1,{retired:true,tick:50,defenderId:'d'})]);
   expect(r.halfChanged).toBe(true);expect(r.match.score.away).toBe(0);
 });
+it('keeps the batter up next half when a runner is caught for the third out',()=>{
+  const r=loose(state({outs:2,balls:1,bases:{first:'r1',second:null,third:null}}),'called_strike',[runner('r1',1,{retired:true,defenderId:'d'})]);
+  expect(r.halfChanged).toBe(true);expect(r.batterRetainsTurnV1).toBe(true);expect(r.classification).toBe('live_ball');
+});

@@ -36,11 +36,12 @@ for (let n = 0; n < limit; n++) {
   if (r.play.diagnostics?.swingOffered) tally.swings++;
   if (r.play.contact) tally.contacts++;
   if (r.play.diagnostics?.loosePitchV1) tally.loose++;
-  const fb = r.play.diagnostics?.pitchFallbackV1?.reason;
+  const fb = r.play.diagnostics?.pitchFallbackV1?.reason ?? r.play.contact?.fieldFallbackV1;
   if (fb) tally.fallback[fb] = (tally.fallback[fb] ?? 0) + 1;
   const m = r.match;
   if (opt.loose && r.play.diagnostics?.looseDetailV2) {const l = r.play.diagnostics.looseDetailV2; console.log('LOOSE', r.play.diagnostics?.loosePitchV1?.sourceProvenance?.sourceId ?? r.pitchType, l.live ? 'glove-failed' : 'missed', JSON.stringify(l.plane));} else if (opt.loose) console.log('CAUGHT', r.play.diagnostics?.loosePitchV1?.sourceProvenance?.sourceId ?? r.pitchType);
   if (opt.verbose) console.log(n + 1, r.pitcherPlayerId, r.pitchType, r.play.call, r.play.classification, 'I' + m.inning + m.half, m.outs + 'o', m.balls + '-' + m.strikes, JSON.stringify(m.score), (Date.now() - t1) + 'ms');
+  if (r.finished && opt.lastDetail) console.log('LAST', JSON.stringify({before: r.beforeMatch, after: r.match, rules: {...r.play.rules, match: undefined}}));
   if (r.finished) {console.log('FINISHED', JSON.stringify({score: m.score, n: n + 1})); break;}
 }
 console.log('TALLY', JSON.stringify(tally), 'seconds', ((Date.now() - t0) / 1000).toFixed(1));

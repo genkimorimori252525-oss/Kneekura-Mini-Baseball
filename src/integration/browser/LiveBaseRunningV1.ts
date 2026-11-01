@@ -68,3 +68,14 @@ export function resolvePickoffV1(x:Readonly<{seed:number;pitchOrdinal:number;lea
     return {x:x.lead.x+(x.base.x-x.lead.x)*k,y:0,z:x.lead.z+(x.base.z-x.lead.z)*k};};
   return {safe:backSeconds<=arrivalSeconds,moveSeconds,arrivalSeconds,backSeconds,endSeconds:Math.max(arrivalSeconds,backSeconds)+.25,position};
 }
+
+/** Plain carry estimate for a batted ball, used only when the field world cannot finish the play. */
+export function settleBattedBallV1(x:Readonly<{ball:Readonly<{position:Vec;velocity:Vec}>;fenceRadiusMeters:number;fenceHeightMeters:number;seed:number;pitchOrdinal:number}>){
+  const {position:p,velocity:v}=x.ball,flat=Math.hypot(v.x,v.z),gravity=9.8,drag=.72,
+    air=Math.max(.3,(v.y+Math.sqrt(Math.max(0,v.y*v.y+2*gravity*p.y)))/gravity),seconds=Math.min(6,air),
+    landX=p.x+v.x*air*drag,landZ=p.z+v.z*air*drag,distance=Math.hypot(landX,landZ),fair=landZ>0&&Math.abs(landX)<=landZ,
+    draw=new SeedRoot(x.seed).streamRng(x.pitchOrdinal-1,'pitch','simple-batted-v1').nextFloat(),
+    outcome:'foul'|'out'|'single'|'home_run'=!fair?'foul':distance>x.fenceRadiusMeters+x.fenceHeightMeters?'home_run':draw<.3?'single':'out';
+  const at=(t:number):Vec=>({x:p.x+v.x*t*drag,y:Math.max(.04,p.y+v.y*t-gravity*t*t/2),z:p.z+v.z*t*drag});
+  void flat;return {outcome,seconds,at};
+}
