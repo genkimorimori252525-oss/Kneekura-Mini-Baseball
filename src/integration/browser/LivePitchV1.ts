@@ -4,6 +4,7 @@ import {planObservedYawPivotContactFrameV275} from '../../core/decision/batting/
 import {hashYawDecisionInputV274,summarizeYawDecisionV274} from './LiveYawDecisionEvidenceV274';
 import {isAuthorizedYawPitchInputV274} from './LiveBaseballMatchV1';
 import {planObservedYawContactFrameV255} from '../../core/decision/batting/ObservedYawContactFrameV255';
+import {certifyLateObservationCutV1} from '../../experimental/robin/playability/late-observation-cut-v1';
 import {parsePracticeSwingDecisionV241,resolvePracticeSwingDecisionV241,type PracticeSwingDecisionRequestV241} from './PracticeSwingDecisionV241';
 import {validateLiveObservedRobustContactFrameTrialV248,type LiveObservedRobustContactFrameTrialV248} from './LiveRobustContactFrameMotorV248';
 import {planLiveRobustContactFrameV247} from './LiveRobustContactFrameAdapterV247';
@@ -422,10 +423,15 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   if(pitchWorkloadV122)initial={...initial,...pitchWorkloadV122.execution.physics};
   const horizon=Math.min(2.5,Math.max(.8,flightTime+.4,pitchWorkloadV122?(release.z+.85)/Math.max(.001,Math.abs(initial.velocity.z))*1.5+.2:0)),descriptor={kind:'aero_ground_continuous_source_kernel_v2' as const,
     initial:{originTick:input.originTick,elapsedSeconds:0,ball:initial},throughElapsedSeconds:horizon,profile,
-    ...(nominalMaterialOrientationV168?{materialOrientationAtStart:nominalMaterialOrientationV168}:{})},kernel=createSourceFreeBallKernel(descriptor),
+    ...(nominalMaterialOrientationV168?{materialOrientationAtStart:nominalMaterialOrientationV168}:{})},kernel=(()=>{const base=createSourceFreeBallKernel(descriptor),dv=(input as any).__normalForkDeltaV1??0;if(!dv)return base;const cut=.2,at=base.evaluateAt(cut),ball={...at.moment.ball,velocity:{...at.moment.ball.velocity,x:at.moment.ball.velocity.x+dv}},fork=createSourceFreeBallKernel({...descriptor,initial:{originTick:input.originTick,elapsedSeconds:cut,ball},...(at.materialOrientation?{materialOrientationAtStart:at.materialOrientation}:{})});
+ const cells=[...base.cells.filter(c=>c.fromElapsedSeconds<cut).map(c=>({...c,throughElapsedSeconds:Math.min(c.throughElapsedSeconds,cut)})),...fork.cells];return {...base,cells,boundaries:[...base.boundaries.filter(q=>q.elapsedSeconds<=cut),...fork.boundaries.filter(q=>q.elapsedSeconds>cut)],evaluateAt:(t:number,side?:'incoming'|'outgoing')=>t<=cut?base.evaluateAt(t,side):fork.evaluateAt(t,side)};})(),
     plateTime=crossing(kernel,battingSetupV94.plateFrontZ),catchPlaneTime=crossing(kernel,-.85);
   assert(plateTime!==null&&catchPlaneTime!==null,'pitched ball did not cross the finite plate/catcher planes');
-  const catcherObservationTime=Math.min(.14,plateTime*.35),observedSample=kernel.evaluateAt(catcherObservationTime),
+  if((input as any).causalCatcherObservationV1==='fixed_release_100ms_v1'){
+    if(plateTime<=.1)throw Error('HOLD: causal catcher observation follows plate crossing');
+    if(kernel.boundaries.some((x:any)=>x.kind==='ground'&&x.elapsedSeconds<=.1))throw Error('HOLD: causal catcher observation follows ground contact');
+  }
+  const catcherObservationTime=(input as any).causalCatcherObservationV1==='fixed_release_100ms_v1'?Math.min(.1,horizon):Math.min(.14,plateTime*.35),observedSample=kernel.evaluateAt(catcherObservationTime),
     positionObserverV151=observationPolicyV151===undefined?undefined:createLiveBatterPositionObserverV151({policy:observationPolicyV151,
       originTick:input.originTick,planeZ:battingSetupV94.contactPlaneZ,...(input.batterForecastPolicyV246===undefined?{}:{forecastPolicyV246:input.batterForecastPolicyV246})},seconds=>{
       if(seconds>horizon)return null;const sample=kernel.evaluateAt(seconds).moment.ball;return {tick:sample.tick,position:sample.position};},regionPolicyV222!==undefined||spinTrialRequestV236!==undefined||spinComposeRequestV238!==undefined||anyFrameRequest!==undefined),
@@ -716,6 +722,31 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   let yawRobustFixedRecipeV276:Parameters<typeof buildLiveBatReferenceExecutionV247>[0]|undefined;
   let robustSigmaV248:Readonly<{timingSeconds:number;aim:Vec3}>|undefined;
   let robustPreReasonV248:string|null=null;
+  // A catcher's forecast must include a possible pitch bounce. This is a
+  // separate prediction from the observed state; it never replaces the
+  // released Source used by collision, spin, clock or rendering.
+  const catcherForecast=createSourceFreeBallKernel({...descriptor,initial:observedSample.moment,
+    ...(observedSample.materialOrientation?{materialOrientationAtStart:observedSample.materialOrientation}:{})}),
+    catcherForecastTime=crossing(catcherForecast,-.85);
+  assert(catcherForecastTime!==null,'catcher forecast did not reach its finite plane');
+  const catcherPrediction={elapsedSeconds:catcherForecastTime,ball:catcherForecast.evaluateAt(catcherForecastTime).moment.ball},
+    catcherRecognition=recognizeZoneV87({role:'catcher',profile:catcher.zoneRecognitionV87,position:catcherPrediction.ball.position,zone,
+      seed:randomStreamsV152?.seedFor('catcherPerception','capture-recognition-v87')??input.seed,
+      sourceTick:input.originTick+Math.round(catcherObservationTime*tps),observationTick:input.originTick+Math.round(catcherObservationTime*tps),
+      planeZ:-.85,standardDeviationMeters:Math.min(.6,(catcher.defensiveDecisionSeconds??0)*.1),abilityBasis:'defensiveDecisionSeconds_authored_forecast_uncertainty',reason:'own_current_observed_forecast_at_capture_plane'}),
+    catcherStart=(()=>{const q={x:0,y:middle,z:-.85},m=(catcher as any).normalBodyModelV1,b=(catcher as any).normalBodyPositionV1;if(!m||!b)return q;const sh={x:b.x,y:b.y+m.shoulderHeightMeters-m.hipHeightMeters,z:b.z},v=sub(q,sh),n=norm(v),k=Math.min(1,(m.armReachMeters-1e-6)/(n||1));return add(sh,mul(v,k));})(),body=(catcher as any).normalBodyPositionV1??{x:0,y:.8,z:-1.2},reach=catcher.gloveReachMeters,
+    catcherTarget={...catcherRecognition.position,z:-.85};
+  catcherTarget.y=Math.max(catcher.gloveRadiusMeters,catcherTarget.y);
+  const planarReach=Math.sqrt(reach*reach-(catcherTarget.z-body.z)**2),fromBody={x:catcherTarget.x-body.x,y:catcherTarget.y-body.y,z:0};
+  if(norm(fromBody)>planarReach){const constrained=add(body,mul(fromBody,planarReach/norm(fromBody)));catcherTarget.x=constrained.x;catcherTarget.y=constrained.y;}
+  if((catcher as any).normalBodyModelV1){const m=(catcher as any).normalBodyModelV1,sh={x:body.x,y:body.y+m.shoulderHeightMeters-m.hipHeightMeters,z:body.z},v=sub(catcherTarget,sh),n=norm(v),k=Math.min(1,(m.armReachMeters-1e-6)/(n||1)),q=add(sh,mul(v,k));catcherTarget.x=q.x;catcherTarget.y=q.y;catcherTarget.z=q.z;}
+  const moveStart=catcherObservationTime,moveEnd=Math.max(moveStart+.025,catcherPrediction.elapsedSeconds-.025),moveDuration=moveEnd-moveStart,
+    delta=sub(catcherTarget,catcherStart),distance=norm(delta),maximumGloveSpeedMps=catcher.gloveSpeedMps;
+  if(distance>maximumGloveSpeedMps*moveDuration/1.5){const limited=add(catcherStart,mul(delta,maximumGloveSpeedMps*moveDuration/1.5/distance));catcherTarget.x=limited.x;catcherTarget.y=limited.y;}
+  const finalDelta=sub(catcherTarget,catcherStart),gloveAt=(seconds:number)=>{
+    const u=clamp((seconds-moveStart)/moveDuration,0,1),smooth=u*u*(3-2*u),ds=seconds>moveStart&&seconds<moveEnd?6*u*(1-u)/moveDuration:0;
+    return {position:add(catcherStart,mul(finalDelta,smooth)),velocity:mul(finalDelta,ds)};
+  };
   const buildReferenceAtRate=(rate:number)=>{
   const nominalRegistrationV153=nominalRegistrationAtRateV153(rate),nominalReferenceV153=nominalRegistrationV153?.reference;
   if(frozenContactFrameV244===undefined){frozenContactFrameV244=resolveContactFrameAtRateV244(rate,nominalReferenceV153);if(contactFrameRequestV244)contactFramePlanningRateV244=rate;}
@@ -745,7 +776,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   let impactReference=impactTrajectory===undefined?translatedReference:withReferenceImpactTrajectoryV1(translatedReference,sourceContactTick,impactTrajectory);
   const robustExecutionV248=yawRobustFixedRecipeV276?buildLiveBatReferenceExecutionV247(yawRobustFixedRecipeV276,{timingSeconds:timingError,aim:aimError,actualSweetSpotT:sweetSpotT},{x:0,y:0,z:0}):robustPlanV248?.status==='PLANNED'&&robustRecipeV248?buildLiveBatReferenceExecutionV247(robustRecipeV248,{timingSeconds:timingError,aim:aimError,actualSweetSpotT:sweetSpotT},robustPlanV248.selected.delta):null;
   if(robustExecutionV248)impactReference=robustExecutionV248.reference;
-  const saturationV153=robustExecutionV248?{reference:robustExecutionV248.reference,temporalScale:robustExecutionV248.temporalScale,holdStartTick:robustExecutionV248.motion.motionStartTickV133??robustExecutionV248.reference.startTick}:nominalReferenceV153?limitDirectionExecutionV153(impactReference,{
+  const saturationV153=robustExecutionV248?{reference:robustExecutionV248.reference,temporalScale:robustExecutionV248.temporalScale,holdStartTick:robustExecutionV248.motion.motionStartTickV133??robustExecutionV248.reference.startTick}:(nominalReferenceV153||partialFallbackV1)?limitDirectionExecutionV153(impactReference,{
     ...(effectiveMaximumSpeedV121===undefined?{}:{maximumSweetSpotSpeedMps:effectiveMaximumSpeedV121}),
     ...(executionV122?{maximumGripAccelerationMps2:executionV122.maximumGripAccelerationMps2,
       maximumAngularAccelerationRadPerSecond2:executionV122.maximumAngularAccelerationRadPerSecond2,
@@ -771,6 +802,11 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
         kernel.evaluateAt(seconds,'incoming').moment.ball,createRigidBatStateFromBatterSwingState(
           uncorrectedReference.sampleContinuous(input.originTick+seconds*tps).state,batPhysical),ballPhysical),
         uncorrectedReference.maximumGripSpeedMps+uncorrectedReference.maximumAngularSpeedRadPerSecond*b.batLengthM,prefixThroughV151):null,
+      normalPhysicalCutV1=(input as any).partialReferenceFallbackV1==='partial_reference_fallback_v1'?(()=>{const bodies=(globalThis as any).__lateCutBodiesV1;if(!Array.isArray(bodies)||bodies.length!==18)throw Error('HOLD: normal late cut actor population unavailable');
+       const view={...kernel,originTick:input.originTick,ticksPerSecond:tps},colliders=[{id:'bat',gap:(q:number)=>measureRigidBatBallSurfaceSeparation(kernel.evaluateAt(q,'incoming').moment.ball,createRigidBatStateFromBatterSwingState(uncorrectedReference.sampleContinuous(input.originTick+q*tps).state,batPhysical),ballPhysical),speedBoundMps:uncorrectedReference.maximumGripSpeedMps+uncorrectedReference.maximumAngularSpeedRadPerSecond*b.batLengthM},
+        {id:'catcher-glove',gap:(q:number)=>norm(sub(kernel.evaluateAt(q,'incoming').moment.ball.position,gloveAt(q).position))-catcher.gloveRadiusMeters-ballPhysical.radiusM,speedBoundMps:maximumGloveSpeedMps},
+        ...bodies.map((a:any)=>({id:a.id,gap:(q:number)=>norm(sub(kernel.evaluateAt(q,'incoming').moment.ball.position,a.center))-a.radius-ballPhysical.radiusM,speedBoundMps:0}))];
+       const cut=certifyLateObservationCutV1({kernel:view,throughSeconds:prefixThroughV151,colliders});if(cut.status!=='CLEAR')throw Object.assign(new Error('HOLD: normal late observation physical cut'),{normalLateCutV1:cut});return cut;})():null,
       lateRawForecastV151=positionObserverV151&&!prefixContactV151&&(availableTick-input.originTick)/tps<=horizon?positionObserverV151.forecastAt(availableTick):null,
       lateForecastResultV246=lateRawForecastV151&&input.batterForecastPolicyV246!==undefined?positionObserverV151!.forecastAtV246!(availableTick):null,
       lateEffectiveForecast=lateForecastResultV246?.forecast??lateRawForecastV151,
@@ -813,6 +849,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
       executedStartTick:actualStartTick,nominalPlaybackRate:rate,executedPlaybackRate:referenceInput.playbackRate,
       spatialErrorRetained:true as const,ballRetargeted:false as const}:null};
   };
+  let partialFallbackV1=false;
   let envelopeRateV133:ReturnType<typeof selectLiveSwingEnvelopeRateV133>=null;
   if(envelopeV133){
     envelopeRateV133=selectLiveSwingEnvelopeRateV133(rate,candidate=>{
@@ -823,6 +860,16 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
         &&(effectiveMaximumSpeedV121===undefined||trial.maximumSweetSpotSpeedMps<=effectiveMaximumSpeedV121);}
       catch(error){if(error instanceof Error&&(/reference C1 execution:|reference bat envelope:/.test(error.message)))return false;throw error;}
     });
+    if(!envelopeRateV133&&(input as any).partialReferenceFallbackV1==='partial_reference_fallback_v1'&&directionMotorActiveV153&&!contactFrameRequestV244&&!robustRequestV248&&effectiveMaximumSpeedV121!==undefined){
+      const source=nominalInputsV154.get(rate),old=nominalRegistrationsV153.get(rate);
+      if(source&&old&&source.reference&&source.reference.executionEnvelopeV133){
+        const limits={maximumSweetSpotSpeedMps:effectiveMaximumSpeedV121,...(executionV122?{maximumGripAccelerationMps2:executionV122.maximumGripAccelerationMps2,maximumAngularAccelerationRadPerSecond2:executionV122.maximumAngularAccelerationRadPerSecond2,maximumSweetSpotAccelerationMps2:executionV122.maximumSweetSpotAccelerationMps2}:{})};
+        const bounded=limitDirectionExecutionV153(source.reference,limits);
+        if(bounded.holdStartTick<observationTick+Math.ceil((b.motorLatencySeconds??0)*tps))throw Error('HOLD: partial motion starts before permitted motor time');
+        nominalRegistrationsV153.set(rate,{...old,reference:source.reference} as any);
+        envelopeRateV133={rate,requestedRate:rate,candidates:[],method:'partial_reference_fallback_v1',globalMaximumGuaranteed:false} as any;partialFallbackV1=true;
+      }else if(!source){envelopeRateV133={rate,requestedRate:rate,candidates:[],method:'partial_reference_fallback_v1',globalMaximumGuaranteed:false} as any;partialFallbackV1=true;}
+    }
     if(!envelopeRateV133){
       const error=new Error('live pitch: 有限候補で実行可能な準備・回復を確認できません。準備・回復の時間を延ばすか、姿勢の移動量を小さくしてください。全速度での不可能判定ではありません。');
       if(directionMotorActiveV153||neutralPolicyV272!==undefined){
@@ -898,12 +945,23 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
   }
   const {plannedStartTick,motorDelaySeconds,referenceInput,referenceContactTick,lateEvidenceV121,registeredReference,reference,aimScaleV133,composedV238,contactFrameV244,executionSaturationV153}=buildReferenceAtRate(rate);
   const sameYawReferenceV274=(a:unknown,b:unknown):boolean=>Object.is(a,b)||!!a&&!!b&&typeof a==='object'&&typeof b==='object'&&Array.isArray(a)===Array.isArray(b)&&Object.keys(a).length===Object.keys(b).length&&Object.keys(a).every(k=>Object.hasOwn(b,k)&&sameYawReferenceV274((a as Record<string,unknown>)[k],(b as Record<string,unknown>)[k]));
+  if((input as any).__normalForkDeltaV1){(globalThis as any).__normalForkEvidenceV1={delta:(input as any).__normalForkDeltaV1,clipId:clip.id,decisionTime,catcherObservationTime,glovePrefix:[0,.1,.18,.2].map(q=>gloveAt(q)),observedSample:kernel.evaluateAt(decisionTime).moment.ball,lateEvidence:lateEvidenceV121,referenceStartTick:referenceInput.startTick,held:reference.sampleContinuous(input.originTick+Math.round(.19*tps)).state,batPrefix:[0,.1,.18,.2].map(q=>reference.sampleContinuous(input.originTick+Math.round(q*tps)).state),sourcePrefix:[0,.1,.18,.2].map(q=>kernel.evaluateAt(q).moment.ball),sourceAfter:kernel.evaluateAt(.25).moment.ball};}
   assert(effectiveMaximumSpeedV121===undefined||reference.maximumSweetSpotSpeedMps<=effectiveMaximumSpeedV121*(1+1e-10),'adjusted reference exceeds declared motor ceiling');
   const executionBoundsV122=executionV122&&input.batting!=='bunt'?referenceAccelerationBoundsV122(reference):undefined;
   if(executionBoundsV122)assert(referenceRateScaleV122(reference,executionV122!)>=1-1e-9,'C1実行軌道が加速度上限を超えています。');
+  const causalHeldPoseV1=(input as any).causalCatcherObservationV1==='fixed_release_100ms_v1'&&!authoredEnvelopeV133?{durationSeconds:.08,grip:{...fullFrames[0].grip,z:fullFrames[0].grip.z+battingSetupV94.stanceOffsetZ},orientation:{...fullFrames[0].orientation}}:undefined;
   const held=authoredEnvelopeV133?sampleAuthoredBatEnvelopePoseV133(authoredEnvelopeV133.preparation,b.batLengthM,sweetSpotT,input.originTick,selectedFrames[0].tick)
-    :reference.sampleContinuous(input.batting==='bunt'?referenceContactTick:input.originTick),
+    :causalHeldPoseV1?sampleAuthoredBatEnvelopePoseV133(causalHeldPoseV1,b.batLengthM,sweetSpotT,input.originTick,selectedFrames[0].tick):reference.sampleContinuous(input.batting==='bunt'?referenceContactTick:input.originTick),
     buntTechnique=swingOffered&&input.batting==='bunt'?(b.technicalSkills?.bunting??0):0;
+  if((input as any).causalCatcherObservationV1==='fixed_release_100ms_v1'){
+   if(swingOffered&&input.batting!=='bunt'&&(reference.motionStartTickV133===undefined||reference.motionStartTickV133<input.originTick+Math.ceil(.1*tps)))throw Error('HOLD: bat moves before declared observation');
+   if(input.batting==='bunt'&&swingOffered)throw Error('HOLD: causal bunt prefix unavailable');
+   const actors=(globalThis as any).__lateCutBodiesV1;if(!Array.isArray(actors)||actors.length!==18)throw Error('HOLD: causal observation actors unavailable');
+   const staticBat=createRigidBatStateFromBatterSwingState(held.state,batPhysical),view={...kernel,originTick:input.originTick,ticksPerSecond:tps},colliders=[{id:'bat',gap:(q:number)=>measureRigidBatBallSurfaceSeparation(kernel.evaluateAt(q,'incoming').moment.ball,staticBat,ballPhysical),speedBoundMps:0},
+    {id:'catcher-glove',gap:(q:number)=>norm(sub(kernel.evaluateAt(q,'incoming').moment.ball.position,gloveAt(q).position))-catcher.gloveRadiusMeters-ballPhysical.radiusM,speedBoundMps:maximumGloveSpeedMps},
+    ...actors.map((a:any)=>({id:a.id,gap:(q:number)=>norm(sub(kernel.evaluateAt(q,'incoming').moment.ball.position,a.center))-a.radius-ballPhysical.radiusM,speedBoundMps:0}))];
+   const cut=certifyLateObservationCutV1({kernel:view,throughSeconds:.1,colliders});if(cut.status!=='CLEAR')throw Object.assign(new Error('HOLD: causal early observation physical cut'),{causalEarlyCutV1:cut});
+  }
   // A dedicated, bounded bunt motor, planned once from the same observed
   // state as the batter's other decisions. No future contact/ball sample or
   // extra random draw steers the bat. The fixed axis is the authored bunt
@@ -952,35 +1010,12 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
       :{...held,state:{...held.state,linearVelocity:zero(),angularVelocity:zero()}};
   const rigidAt=(seconds:number)=>createRigidBatStateFromBatterSwingState(batSample(seconds).state,batPhysical),
     batBound=buntMotor?.diagnostics.maximumSurfaceSpeedMps??(swingOffered&&input.batting!=='bunt'?reference.maximumGripSpeedMps+reference.maximumAngularSpeedRadPerSecond*b.batLengthM:0);
-  // A catcher's forecast must include a possible pitch bounce. This is a
-  // separate prediction from the observed state; it never replaces the
-  // released Source used by collision, spin, clock or rendering.
-  const catcherForecast=createSourceFreeBallKernel({...descriptor,initial:observedSample.moment,
-    ...(observedSample.materialOrientation?{materialOrientationAtStart:observedSample.materialOrientation}:{})}),
-    catcherForecastTime=crossing(catcherForecast,-.85);
-  assert(catcherForecastTime!==null,'catcher forecast did not reach its finite plane');
-  const catcherPrediction={elapsedSeconds:catcherForecastTime,ball:catcherForecast.evaluateAt(catcherForecastTime).moment.ball},
-    catcherRecognition=recognizeZoneV87({role:'catcher',profile:catcher.zoneRecognitionV87,position:catcherPrediction.ball.position,zone,
-      seed:randomStreamsV152?.seedFor('catcherPerception','capture-recognition-v87')??input.seed,
-      sourceTick:input.originTick+Math.round(catcherObservationTime*tps),observationTick:input.originTick+Math.round(catcherObservationTime*tps),
-      planeZ:-.85,standardDeviationMeters:Math.min(.6,(catcher.defensiveDecisionSeconds??0)*.1),abilityBasis:'defensiveDecisionSeconds_authored_forecast_uncertainty',reason:'own_current_observed_forecast_at_capture_plane'}),
-    catcherStart={x:0,y:middle,z:-.85},body={x:0,y:.8,z:-1.2},reach=catcher.gloveReachMeters,
-    catcherTarget={...catcherRecognition.position,z:-.85};
-  catcherTarget.y=Math.max(catcher.gloveRadiusMeters,catcherTarget.y);
-  const planarReach=Math.sqrt(reach*reach-(catcherTarget.z-body.z)**2),fromBody={x:catcherTarget.x-body.x,y:catcherTarget.y-body.y,z:0};
-  if(norm(fromBody)>planarReach){const constrained=add(body,mul(fromBody,planarReach/norm(fromBody)));catcherTarget.x=constrained.x;catcherTarget.y=constrained.y;}
-  const moveStart=catcherObservationTime,moveEnd=Math.max(moveStart+.025,catcherPrediction.elapsedSeconds-.025),moveDuration=moveEnd-moveStart,
-    delta=sub(catcherTarget,catcherStart),distance=norm(delta),maximumGloveSpeedMps=catcher.gloveSpeedMps;
-  if(distance>maximumGloveSpeedMps*moveDuration/1.5){const limited=add(catcherStart,mul(delta,maximumGloveSpeedMps*moveDuration/1.5/distance));catcherTarget.x=limited.x;catcherTarget.y=limited.y;}
-  const finalDelta=sub(catcherTarget,catcherStart),gloveAt=(seconds:number)=>{
-    const u=clamp((seconds-moveStart)/moveDuration,0,1),smooth=u*u*(3-2*u),ds=seconds>moveStart&&seconds<moveEnd?6*u*(1-u)/moveDuration:0;
-    return {position:add(catcherStart,mul(finalDelta,smooth)),velocity:mul(finalDelta,ds)};
-  };
   const catcherHit=firstContact(kernel,t=>norm(sub(kernel.evaluateAt(t,'incoming').moment.ball.position,gloveAt(t).position))-catcher.gloveRadiusMeters-ballPhysical.radiusM,
       maximumGloveSpeedMps,horizon),catcherAt=catcherHit?.kind==='hit'?catcherHit.at:Math.min(horizon,catchPlaneTime+.05),
     batHit=firstContact(kernel,t=>measureRigidBatBallSurfaceSeparation(kernel.evaluateAt(t,'incoming').moment.ball,rigidAt(t),ballPhysical),batBound,catcherAt),
     officialStrikeZoneContactV94=swingOffered?null:findSourceStrikeZoneContactV94({kernel,volume:battingSetupV94.volume,ballRadiusMeters:ballPhysical.radiusM,
       throughElapsedSeconds:batHit?.kind==='hit'?Math.min(catcherAt,batHit.at):batHit?.kind==='unresolved'?Math.min(catcherAt,batHit.from):catcherAt});
+  let normalRetentionCapture:any=null;
   let contact:RigidBatBallContactResult|null=null,contactMoment:BallWorldMoment|null=null,contactOrientation:Quaternion|null=null,
     call:'ball'|'called_strike'|'swinging_strike'|null=null,endElapsedSeconds=catcherAt,secureTick:number|null=null,unsupportedReason:string|null=null;
   if(batHit?.kind==='unresolved'){unsupportedReason='bat_contact_refinement_required';endElapsedSeconds=batHit.from;}
@@ -995,6 +1030,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
         pocketOffsetMeters:Math.hypot(relative.x,relative.y),bodyStability:1},{ticksPerSecond:tps,ballMassKg:ballPhysical.massKg,ballRadiusMeters:ballPhysical.radiusM,
         pocketRadiusMeters:catcher.pocketRadiusMeters,centerRetentionCapacityJ:catcher.retentionCapacityJ,captureDissipationPowerW:catcher.captureDissipationPowerW,
         failedContactRestitution:.15,failedTangentialDamping:.6,failedSpinDamping:.4});
+    normalRetentionCapture={retention,normal,gap:norm(relative)-catcher.gloveRadiusMeters-ballPhysical.radiusM};
     if(retention.outcome.kind==='secured'){
       secureTick=retention.outcome.secureTick;endElapsedSeconds=(secureTick-input.originTick)/tps;
       if(!swingOffered&&officialStrikeZoneContactV94?.kind==='unresolved')unsupportedReason='strike_zone_contact_refinement_required';
@@ -1030,9 +1066,9 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
       const {intervalCertificatesV154:_failureDetail,...certificates}=candidate.certificates;
       return {...candidate,certificates};
     })}:null;
-  return {frames,contact,contactMoment,contactOrientation,call,endedAtTick,clipId:clip.id,pitchType,
+  ;(globalThis as any).__normalLooseDynamics={endElapsedSeconds,kernel,gloveAt,rigidAt,batBound,ballPhysical,sampleBatAtTick,batOriginTick:input.originTick,batTps:tps,batThroughSeconds:(referenceThroughTick-input.originTick)/tps,batBoundCovered:!(authoredEnvelopeV133&&!buntMotor&&(!swingOffered||input.batting==='bunt')),batStationaryAllTime:!buntMotor&&!swingOffered&&!authoredEnvelopeV133,catcherHit,batHit,retention:normalRetentionCapture?.retention,retentionNormal:normalRetentionCapture?.normal,retentionGap:normalRetentionCapture?.gap};return {frames,contact,contactMoment,contactOrientation,call,endedAtTick,clipId:clip.id,pitchType,
     ...(selectedSnapshot?{pitchId:selectedSnapshot.pitchId,pitchName:selectedSnapshot.name}:{}),speedKmh:(pitchWorkloadV122?norm(initial.velocity):speed)*3.6,sampleBatAtTick,
-    diagnostics:{authority:'LOCAL_CORE_PHYSICAL_EXPERIMENT_V1' as const,nativeAdmission:false as const,sourceDescriptor:descriptor,
+    diagnostics:{...((input as any).causalCatcherObservationV1==='fixed_release_100ms_v1'?{causalCatcherObservationV1:{version:'fixed_release_100ms_v1',basis:'EXPERIMENTAL_RELEASE_CLOCK_NOT_CALIBRATED'}}:{}),authority:'LOCAL_CORE_PHYSICAL_EXPERIMENT_V1' as const,nativeAdmission:false as const,sourceDescriptor:descriptor,
       ...(yawDiagnosticV274?{[yawDiagnosticV274.version==='live_yaw_paired_diagnostic_v276'?'yawDiagnosticV276':yawDiagnosticV274.version==='live_yaw_paired_diagnostic_v275'?'yawDiagnosticV275':'yawDiagnosticV274']:{...yawDiagnosticV274,executionRate:registeredReference.playbackRate,nominalRateMatchesExecution:Object.is(yawDiagnosticV274.planningRate,registeredReference.playbackRate),referenceComparison:sameYawReferenceV274(yawDiagnosticV274.selectedReference,registeredReference)?'EXACT' as const:'DEVIATED' as const,plannedStartTick,executedStartTick:registeredReference.startTick,motorRampSeconds:registeredReference.motorRampSecondsV121??0,registeredReference,lateApplied:lateEvidenceV121?.applied??false,executionSaturationV153,drawOrder:'SELECTION_THEN_V152_EXECUTION_DRAWS' as const,authority:'NON_ADOPTING_DIAGNOSTIC_ONLY' as const}}:{}),
       battingSetupV94,strikeZoneVolumeV94:battingSetupV94.volume,strikeZone:zone,officialStrikeZoneContactV94,
       ...(input.pitchCommandObservationV155?{pitchCommandObservationV155:{version:'live_pitch_command_observation_v155' as const,
@@ -1122,7 +1158,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1){
         selectionDraw,basis:'LOCAL_PREFERENCE_OVER_EXISTING_AUTO_PITCH_MENU' as const}}:{}),
       sourceBallReanchored:false as const,sourceClockTicksPerSecond:tps,obpSourceSha256:clip.source.sha256,battingSide:b.bats,
       measuredClipId:clip.id,measuredBatCoordinateRegistration:MEASURED_BAT_FIELD_REGISTRATION_V1,
-      swingOffered,sweetSpotT,playbackRate:directionMotorActiveV153?referenceInput.playbackRate:rate,referenceStartTick:referenceInput.startTick,referenceThroughTick,predictionMadeAtElapsedSeconds:decisionTime,
+      ...(partialFallbackV1?{partialFallbackV1:{version:'partial_reference_fallback_v1',offerSemantics:'EXISTING_INTENT_BASED',accelerationAuthority:executionV122?'EXPLICIT_LIMITS':'UNSPECIFIED_NOT_ASSERTED'}}:{}),swingOffered,sweetSpotT,playbackRate:directionMotorActiveV153?referenceInput.playbackRate:rate,referenceStartTick:referenceInput.startTick,referenceThroughTick,predictionMadeAtElapsedSeconds:decisionTime,
       releaseGeometry,
       individualControls:{maximumPitchSpeedMps:p.maximumPitchSpeedMps??null,throwingSide:p.throws??'R',maximumSweetSpotSpeedMps:b.maximumSweetSpotSpeedMps??null,
         targetSweetSpotSpeedMps:b.targetSweetSpotSpeedMps??null,motorLatencySeconds:b.motorLatencySeconds??null,technicalTimingOffsetSeconds:b.technicalTimingOffsetSeconds??null,

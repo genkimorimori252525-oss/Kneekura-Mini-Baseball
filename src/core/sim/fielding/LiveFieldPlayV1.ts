@@ -1,3 +1,7 @@
+import {selectOrderedContactV1} from '../../../experimental/robin/playability/ordered-contact-candidates-v1';
+import {collectRunnerContactCandidatesV1} from '../../../experimental/robin/bridge/runner-contact-candidates-v1';
+import {measureRigidBatBallSurfaceSeparation} from '../contact/RigidBatBallContact';
+import {observedLooseCueV1,gateLooseAdvanceV1} from '../../../experimental/robin/bridge/observed-loose-cue';
 import { liveFielderBodyPoseV105, sampleLiveFielderPostureV105, validateLiveFielderBodyModelV105, liveFielderReachTargetV105, liveFielderDesiredCrouchV105, liveFielderHorizontalReachV105, liveFielderPreferredBodyPointV105, liveFielderThrowOffsetV105, liveFielderRecoverySecondsV105, liveFielderPreparationPostureSecondsV105, createLiveBodyHandPreparationV105, type LiveFielderBodyModelV105, type LiveFielderBodyPoseV105, type LiveFielderPostureV105 } from './LiveFielderBodyGeometryV105';
 import { sampleLiveTransferDelayV101 } from './LiveTransferTimingV101';
 import { estimateLiveReceiverArrivalV106 } from './LiveReceiverArrivalV106';
@@ -253,6 +257,10 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
   return withLiveThrowPhysicalMemoV113(() => simulateLiveFieldPlayScopedV113(raw));
 }
 function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
+  const loose=(raw as any).loosePitchV1;
+  const batDynamics=(globalThis as any).__robinDynamics;
+  if(loose&&(!batDynamics||typeof batDynamics.rigidAt!=='function'||typeof batDynamics.sampleBatAtTick!=='function'||!Number.isFinite(batDynamics.batBound)||batDynamics.batBound<0||!Number.isFinite(batDynamics.batThroughSeconds)||!batDynamics.batBoundCovered))throw Error('HOLD: missing covered dynamic bat trajectory');
+  let batSamples=0,batFirst=Infinity,batLast=-Infinity;const coveredBatAt=(q:number)=>{if(q<0||(!batDynamics.batStationaryAllTime&&q>batDynamics.batThroughSeconds))throw Error('HOLD: bat clip range exceeded');const pose=batDynamics.sampleBatAtTick(batDynamics.batOriginTick+q*batDynamics.batTps);if(!pose&&!(batDynamics.batStationaryAllTime&&q>batDynamics.batThroughSeconds))throw Error('HOLD: bat pose unavailable');const rigid=batDynamics.rigidAt(q);if(pose&&(distance(pose.grip,rigid.pose.grip)>1e-9||distance(pose.tip,rigid.pose.tip)>1e-9))throw Error('HOLD: bat display and physical pose mismatch');if(!pose){const reference=batDynamics.rigidAt(0);if(distance(reference.pose.grip,rigid.pose.grip)>1e-9||distance(reference.pose.tip,rigid.pose.tip)>1e-9||norm(rigid.centerOfMassVelocity)>1e-9||norm(rigid.angularVelocity)>1e-9)throw Error('HOLD: held bat model mismatch');}batSamples++;batFirst=Math.min(batFirst,q);batLast=Math.max(batLast,q);return rigid;};assert(loose===undefined||loose.version==='loose_pitch_field_v1','unsupported loose pitch version');let looseImpactSeconds=loose?.initialImpactSeconds??null;const looseVisibleAt=(t:number)=>!loose||typeof loose.hiddenAfterSeconds!=='number'||t<loose.hiddenAfterSeconds||(typeof looseImpactSeconds==='number'&&t>=Math.max(loose.legacyArrivedSeconds,looseImpactSeconds));if(loose&&typeof loose.hiddenAfterSeconds==='number')assert(Number.isFinite(loose.legacyArrivedSeconds)&&loose.legacyArrivedSeconds>=loose.hiddenAfterSeconds,'invalid legacy arrival');
   const input = cloneInert(raw), start = input.ball.elapsedSeconds, originTick = input.ball.originTick,
     tps = input.physics.air.ticksPerSecond, max = start + (input.maxPlaySeconds ?? 35), frameSeconds = input.frameSeconds ?? .055;
   assert(input.recordInitialMovementV98 === undefined || input.recordInitialMovementV98 === true, 'invalid initial movement telemetry option');
@@ -267,8 +275,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
     && new Set(executionErrorsV95.map(e => e.releaseOrdinal)).size === executionErrorsV95.length, 'invalid execution perturbations V95');
   assert(input.fielders.length === 9 && new Set(input.fielders.map(f => f.playerId)).size === 9, 'nine unique defenders required');
   for (const f of input.fielders) if (f.fieldRelationshipsV99 !== undefined) validateFieldRelationshipsV99(f.fieldRelationshipsV99);
-  assert(input.runners.length >= 1 && input.runners.length <= 4 && new Set(input.runners.map(r => r.runnerId)).size === input.runners.length
-    && new Set(input.runners.map(r => r.initialBase)).size === input.runners.length && input.runners.some(r => r.initialBase === 0), 'complete unique runner population required');
+  assert(loose ? (loose.uncaughtThirdV1?input.runners.length===1&&input.runners[0].initialBase===0:input.runners.length<=3&&input.runners.every(r=>r.initialBase>0))&&new Set(input.runners.map(r=>r.runnerId)).size===input.runners.length : input.runners.length >= 1 && input.runners.length <= 4 && new Set(input.runners.map(r => r.runnerId)).size === input.runners.length && new Set(input.runners.map(r => r.initialBase)).size === input.runners.length && input.runners.some(r => r.initialBase === 0), 'complete unique runner population required');
   assert(Number.isInteger(input.outs) && input.outs >= 0 && input.outs <= 2 && Number.isFinite(max) && max > start && max - start <= 120
     && frameSeconds > 0 && Number.isFinite(frameSeconds)
     && (input.seed === undefined || Number.isSafeInteger(input.seed) && input.seed >= 0 && input.seed <= 0xffffffff), 'invalid finite play scope');
@@ -341,7 +348,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
     return facts.push({ kind, tick: tick(t), elapsedSeconds: t, ...extra });
   };
   const defenders: Fielder[] = input.fielders.map(spec => ({ spec, locomotion: createLiveLocomotionProfileV84(spec), body: { from: start, p: spec.position, velocity: spec.velocity ?? v(), acceleration: v() },
-    glove: { from: start, p: spec.bodyModelV105 ? add(spec.position, v(0, spec.bodyModelV105.shoulderHeightMeters - spec.bodyModelV105.hipHeightMeters - Math.min(spec.bodyModelV105.armReachMeters * .4, Math.max(0, spec.bodyModelV105.shoulderHeightMeters - Math.max(spec.gloveRadiusMeters,input.physics.ground.radiusM) - .02)), 0)) : spec.position, velocity: spec.velocity ?? v(), acceleration: v() },
+    glove: { from: start, p: loose ? (spec as any).looseGloveV1.position : spec.bodyModelV105 ? add(spec.position, v(0, spec.bodyModelV105.shoulderHeightMeters - spec.bodyModelV105.hipHeightMeters - Math.min(spec.bodyModelV105.armReachMeters * .4, Math.max(0, spec.bodyModelV105.shoulderHeightMeters - Math.max(spec.gloveRadiusMeters,input.physics.ground.radiusM) - .02)), 0)) : spec.position, velocity: loose ? (spec as any).looseGloveV1.velocity : spec.velocity ?? v(), acceleration: v() },
     ...(spec.bodyModelV105 ? { postureV105: { from: start, through: start, crouchFrom: 0, crouchTo: 0, yawFrom: Math.atan2(base(0).x-spec.position.x, base(0).z-spec.position.z), yawTo: Math.atan2(base(0).x-spec.position.x, base(0).z-spec.position.z) } } : {}), intent: 'hold', targetBase: null, catchEnabledAfter: start }));
   const athleticActiveV115=(f:Fielder,t:number)=>!!f.athleticV115&&t<f.athleticV115.throughSeconds;
   const poseMemoV120=new WeakMap<Fielder,{t:number;body:Curve;glove:Curve;posture:LiveFielderPostureV105;
@@ -380,13 +387,14 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   // Only the actual through-route disk exit may establish this causal link.
   // A beginLeg departure intent does not certify physical loss of protection.
   const physicalBaseDepartures = new Map<string, { base: BaseballBase; tick: number; elapsedSeconds: number }>();
-  const batter = runners.find(r => r.base === 0)!;
+  const batter = runners.find(r => r.base === 0);if(!loose)assert(batter,'missing batter runner');
   let force = createInitialForceObligationState({ first: runners.find(r => r.base === 1)?.spec.runnerId ?? null,
-    second: runners.find(r => r.base === 2)?.spec.runnerId ?? null, third: runners.find(r => r.base === 3)?.spec.runnerId ?? null }, batter.spec.runnerId);
-  let retiredCount = 0, firstGroundContactTick: number | null = null, firstTouchTick: number | null = null,
+    second: runners.find(r => r.base === 2)?.spec.runnerId ?? null, third: runners.find(r => r.base === 3)?.spec.runnerId ?? null }, (batter?.spec.runnerId??'__loose_pitch_no_runner__'));
+  if(loose&&!loose.uncaughtThirdV1)force=retireForceParticipant(force,'__loose_pitch_no_runner__');
+  let retiredCount = 0, firstGroundContactTick: number | null = loose?.priorGroundSeconds==null?null:tick(loose.priorGroundSeconds), firstTouchTick: number | null = loose?.priorTouchSeconds==null?null:tick(loose.priorTouchSeconds),
     flyCatch: LiveFieldRuleFactsV1['flyCatch'] = null, overFence: LiveFieldRuleFactsV1['overFence'] = null;
-  let firstGroundContactSeconds: number | null = null, firstFielderTouchSeconds: number | null = null;
-  let territory = 'fair' as 'fair' | 'foul', territoryFixed = false, time = start, endReason = 'scope_exhausted', dead = false;
+  let firstGroundContactSeconds: number | null = loose?.priorGroundSeconds??null, firstFielderTouchSeconds: number | null = loose?.priorTouchSeconds??null;
+  let territory = 'fair' as 'fair' | 'foul', territoryFixed = !!loose, time = start, endReason = 'scope_exhausted', dead = false;
   let kernelBuilds = 0, kernelExtensions = 0, wallKernelBuilds = 0, collisionQueries = 0, kernel: Pick<SourceFreeBallKernel, 'cells' | 'boundaries' | 'evaluateAt'>,
     orientationBasis = input.orientation ?? IDENTITY_QUATERNION;
   const materialSeamsActive = (input.physics.air.aerodynamics.seamForce?.coefficientScale ?? 0) > 0;
@@ -505,6 +513,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   const departureProofs: { kind: 'actor' | 'fence'; from: number; through: number; escapeThrough: number;
     signedGap: number; penetrationBoundMeters: number; supportingPlaneLowerGapMeters: number; actualGapAtEscapeMeters: number }[] = [];
   let reboundEscape: { fielder: Fielder; role: 'glove' | 'body'; hit: Hit; normal: Vec3; outgoing: BallWorldMoment } | null = null;
+  if(loose&&loose.initialContact){assert(['body','glove'].includes(loose.initialContact.role)&&loose.initialContact.hit&&finite(loose.initialContact.normal),'loose pitch initial contact required');const f=defenders.find(f=>f.spec.playerId===loose.initialContact.playerId);assert(f,'loose pitch contact actor missing');reboundEscape={fielder:f,role:loose.initialContact.role,hit:loose.initialContact.hit,normal:loose.initialContact.normal,outgoing:input.ball};}
   const isFair = (point: Vec3) => { const d = sub(point, base(0)); return d.z >= Math.abs(d.x); };
   const determineTerritory = (t: number, value: 'fair' | 'foul') => {
     if (!territoryFixed) emit('territory_determined', t, { reason: value });
@@ -551,7 +560,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   const sampleFrame = (t: number) => {
     const b = ballAt(t), previousSampleV98 = initialMovementV98 ? frames.at(-1)?.elapsedSeconds ?? null : null;
     frames.push({ elapsedSeconds: t, tick: tick(t), defensiveOpportunity, ball: { position: b.position, velocity: b.velocity, spin: b.spin,
-      orientation: b.orientation, phase: b.phase, visible: !dead && !possession && !pendingCatch, possessedBy: (possession ?? pendingCatch?.fielder)?.spec.playerId ?? null },
+      orientation: b.orientation, phase: b.phase, visible: !dead && !possession && !pendingCatch && (!loose||looseVisibleAt(t)), possessedBy: (possession ?? pendingCatch?.fielder)?.spec.playerId ?? null },
       fielders: defenders.map(f => ({ playerId: f.spec.playerId, position: at(f.body, t), velocity: velocityAt(f.body, t), glove: at(f.glove, t), ...(f.spec.bodyModelV105 ? { bodyPoseV105: poseV105(f, t) } : {}),
         ...(athleticActiveV115(f,t)?{athleticV115:{kind:f.athleticV115!.kind,phase:f.athleticV115!.sampleAtElapsedSeconds(t).phase,fromSeconds:f.athleticV115!.fromSeconds,throughSeconds:f.athleticV115!.throughSeconds}}:{}),intent: f.intent, targetBase: f.targetBase })),
       runners: runners.map(r => ({ runnerId: r.spec.runnerId, position: runnerAt(r, t), velocity: runnerVelocityAt(r, t),
@@ -687,6 +696,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   };
   const observedRecoveryFieldsV120=(f:Fielder,t:number)=>{const context=observedRecoveryV120(f,t);return context?{postActionV120:context}:{};};
   const observe = (t: number) => {
+    if(loose&&!looseVisibleAt(t))return;
     const b = ballAt(t), holder = possession ?? pendingCatch?.fielder;
     history.push({ t, position: b.position, velocity: b.velocity, spin: b.spin, phase: b.phase,
       actors: defenders.map(f => ({ ...roleActor(f, t), glovePosition: at(f.glove, t), gloveVelocity: velocityAt(f.glove, t),
@@ -857,9 +867,9 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
     const known=knownRunnerV118(observer,r,time);return known?add(known.position,mul(known.velocity,t-time)):r.spec.position??base(r.spec.initialBase);
   };
   const knownForceStateV118=(observer:Fielder,t:number)=>{
-    if(!individualV118)return force;
+    if(loose||!individualV118)return force;
     const state=knowledgeV118(observer,t);let result=createInitialForceObligationState({first:input.runners.find(r=>r.initialBase===1)?.runnerId??null,
-      second:input.runners.find(r=>r.initialBase===2)?.runnerId??null,third:input.runners.find(r=>r.initialBase===3)?.runnerId??null},batter.spec.runnerId);
+      second:input.runners.find(r=>r.initialBase===2)?.runnerId??null,third:input.runners.find(r=>r.initialBase===3)?.runnerId??null},(batter?.spec.runnerId??'__loose_pitch_no_runner__'));
     for(const r of state.runners){if(r.retired)result=retireForceParticipant(result,r.runnerId);
       for(const o of deriveCurrentForceObligations(result).filter(o=>o.runnerId===r.runnerId&&r.currentBase>=o.targetBase))result=satisfyForceParticipantObligation(result,o.runnerId);}
     return result;
@@ -2043,6 +2053,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
     const targetOccupiedByOther = (r: Runner, n: number) => runners.some(x => x !== r && !x.retired && !x.scored
       && (x.base === n && (!x.leg || x.leg.to <= x.base)
         || x.leg?.motion.touches.slice(x.leg.nextTouchIndex).some(b => b.base === n)));
+    const runnerObservedCueV1=(occurred:number|null,now:number)=>loose?observedLooseCueV1(occurred,now,history.map(h=>h.t)):occurred;
     const airborneAssessment = (r: Runner) => {
       if (firstGroundContactSeconds !== null || firstFielderTouchSeconds !== null || hasThrown || dead || r.spec.initialBase === 0) return undefined;
       const seen = history.slice().reverse().find(o => o.t <= t - r.spec.reactionSeconds), prediction = predictObservation(seen ?? null, t, r.spec.reactionSeconds);
@@ -2092,17 +2103,18 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       // Conservative defense estimate, using observed flight forecasts and
       // player SI. Straight-flight time is an optimistic lower bound for the
       // defense, not a fabricated catch or a fixed global throwing velocity.
-      const air = airborneAssessment(r), canConsider = firstGroundContactSeconds !== null || firstFielderTouchSeconds !== null
+      const looseGroundCue=runnerObservedCueV1(firstGroundContactSeconds,t),looseTouchCue=runnerObservedCueV1(firstFielderTouchSeconds,t),air=loose?undefined:airborneAssessment(r), canConsider = looseGroundCue !== null || looseTouchCue !== null
         || air !== undefined && air.catchMarginSeconds < -(r.spec.advanceSafetyMarginSeconds ?? .35),
-        defenderControlSeconds = r.base === 0 || forced && firstGroundContactSeconds !== null || !canConsider ? null : estimateDefenseControl(r, next);
+        defenderControlSeconds = r.base === 0 || forced && looseGroundCue !== null || !canConsider ? null : estimateDefenseControl(r, next);
       const awardTarget = overFence?.fair ? Math.min(4, (overFence.awardFrom?.[r.spec.runnerId] ?? r.spec.initialBase) + (overFence.untouchedGround ? 4 : 2)) : null;
-      const decision = decideLiveRunnerAdvanceV1({ nowSeconds: t, playStartedAtSeconds: start, currentBase: r.base as 0 | 1 | 2 | 3, outs: input.outs as 0 | 1 | 2,
+      let decision = decideLiveRunnerAdvanceV1({ nowSeconds: t, playStartedAtSeconds: loose?.pitchReleaseSeconds??start, currentBase: r.base as 0 | 1 | 2 | 3, outs: input.outs as 0 | 1 | 2,
         distanceToNextBaseMeters: distance(flat(runnerAt(r, t)), flat(base(next))), baseTouchRadiusMeters: field.baseTouchRadiusMeters ?? .28,
         targetOccupied, runner: r.spec, forced,
         awardThroughBase: awardTarget as BaseballBase | null,
-        firstGroundContactElapsedSeconds: firstGroundContactSeconds,
-        firstFielderTouchElapsedSeconds: firstFielderTouchSeconds,
+        firstGroundContactElapsedSeconds: looseGroundCue,
+        firstFielderTouchElapsedSeconds: looseTouchCue,
         defenderControlSeconds, airborneAssessment: air, policy: { safetyMarginSeconds: r.spec.advanceSafetyMarginSeconds } });
+      if(loose&&looseGroundCue===null&&looseTouchCue===null)decision={...decision,advance:false,reason:'loose_pitch_wait_for_live_ball_cue'} as any;
       if (decision.reason === 'recognizing_departure_cue' && !targetOccupied) runnerDecisionPending = true;
       const previous = runnerDecisions.slice().reverse().find(d => d.runnerId === r.spec.runnerId);
       if (!previous || previous.targetBase !== next || previous.reason !== decision.reason || decision.advance)
@@ -2126,8 +2138,8 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         || new Set(leg.motion.touches.slice(leg.nextTouchIndex).map(b => b.base)).size > 1 || leg.to >= 4
         || t < (roundingRecheckAfter.get(r.spec.runnerId) ?? -Infinity)) continue;
       const awardThrough = overFence?.fair ? Math.min(4, (overFence.awardFrom?.[r.spec.runnerId] ?? r.spec.initialBase) + (overFence.untouchedGround ? 4 : 2)) : null,
-        cue = firstGroundContactSeconds ?? firstFielderTouchSeconds;
-      const airborne = cue === null ? airborneAssessment(r) : undefined;
+        cue = loose?(runnerObservedCueV1(firstGroundContactSeconds,t)??runnerObservedCueV1(firstFielderTouchSeconds,t)):(firstGroundContactSeconds ?? firstFielderTouchSeconds);
+      const airborne = !loose&&cue === null ? airborneAssessment(r) : undefined;
       if (awardThrough === null && (dead || (cue === null ? !airborne || airborne.catchMarginSeconds >= -(r.spec.advanceSafetyMarginSeconds ?? .35)
         : t < cue + r.spec.reactionSeconds))) continue;
       const finalBase = awardThrough !== null ? awardThrough : leg.to + 1;
@@ -2187,8 +2199,10 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       r.retouchBase=r.spec.initialBase as 1|2|3;r.returnReadyAt=t+r.spec.reactionSeconds;r.scored=false;
     }
   };
+  if(loose&&typeof loose.hiddenAfterSeconds==='number'&&!looseVisibleAt(start)&&loose.opticalMemory){const m=loose.opticalMemory;assert(m.time<loose.hiddenAfterSeconds&&m.time<=start,'invalid optical memory');const actors=defenders.map(f=>{const g=m.gloves.find((q:any)=>q.playerId===f.spec.playerId);assert(g,'optical actor missing');return {...roleActor(f,start),glovePosition:g.position,gloveVelocity:g.velocity,gloveSpeedMps:f.spec.gloveSpeedMps,gloveReachMeters:f.spec.gloveReachMeters,gloveRadiusMeters:f.spec.gloveRadiusMeters,...(f.spec.bodyModelV105?{bodyModelV105:f.spec.bodyModelV105,bodyPoseV105:poseV105(f,start)}:{}),transferSeconds:f.spec.transferSeconds}});history.push({t:m.time,position:m.position,velocity:m.velocity,spin:m.spin,phase:'airborne',actors,holder:null,pending:false,readySeconds:0,transferRemainingSeconds:0,chargeElapsedSecondsV103:0,cueRevision:0,orientation:m.orientation});if(individualV118||input.defenseDecisionModeV118==='shadow')perceptionHistoryV118.push(captureLiveFieldObservationSnapshotV1({elapsedSeconds:m.time,ball:{position:m.position,velocity:m.velocity,spin:m.spin,possessedBy:null,phase:'free'},actors:actors.map(a=>({playerId:a.playerId,position:a.position,velocity:a.velocity,glovePosition:a.glovePosition,gloveVelocity:a.gloveVelocity})),runners:runners.map(r=>({runnerId:r.spec.runnerId,position:r.p,velocity:v(),currentBase:r.base,retired:r.retired,scored:r.scored})),outs:input.outs}));}
   observe(start);
   while (time < max && !terminal) {
+    if(loose&&runners.some(r=>slideMotionV115(r.leg))){endReason='loose_runner_slide_unresolved';terminal=true;break;}
     // A grounded landing impulse is applied before issuing the next motor
     // segment. Retain the ball using its pre-impact velocity, not an automatic
     // catch flag. Jump landings already use a finite absorption segment.
@@ -2213,7 +2227,24 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
     type Event = { kind: string; t: number; f?: Fielder; role?: 'glove' | 'body'; hit?: Hit; base?: BaseballBase; runner?: Runner;
       pole?: Extract<SourceFreeBallWorldQueryResultV2, { kind: 'moving' | 'resting' | 'boundary' }>; poleQueryV213?: SourceFreePoleQueryInputV148 };
     let horizon = controlThrough, event: Event | null = null;
-    const choose = (e: NonNullable<typeof event>) => { if (!event || e.t < event.t) { event = e; horizon = e.t; } };
+    const looseEvents:Event[]=[],looseCoveredCells:{from:number;through:number}[]=[];
+    const choose = (e: NonNullable<typeof event>) => { if(loose){looseEvents.push(e);return;} if (!event || e.t < event.t) { event = e; horizon = e.t; } };
+    if(loose&&runners.length){
+      const rs=runners.map(r=>({runnerId:r.spec.runnerId,at:(q:number)=>add(runnerAt(r,q),v(0,(r.spec.athleticProfileV115?.heightMeters??1.8)/2,0)),radius:.24,speedBound:r.spec.topSpeedMps}));
+      const cs:any[]=[];
+      for(const f of defenders)for(const role of ['body','glove'] as const){const curve=role==='body'?actualHipCurveV105(f):f.glove;cs.push({kind:role==='body'?'fielder_body_runner':'fielder_glove_runner',actorId:f.spec.playerId,at:(q:number)=>at(curve,q),radius:role==='body'?LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters:f.spec.gloveRadiusMeters,speedBound:maximumCurveSpeed(curve,time,horizon)});}
+      if(possession||pendingCatch){const holder=possession??pendingCatch!.fielder;cs.push({kind:'held_ball_runner',actorId:holder.spec.playerId,at:(q:number)=>ballAt(q).position,radius:input.physics.ground.radiusM,speedBound:maximumCurveSpeed(holder.glove,time,horizon)+(pendingCatch?norm(pendingCatch.offset)/Math.max(1e-12,pendingCatch.secure-pendingCatch.first):0)});}
+      const candidates=collectRunnerContactCandidatesV1({from:time,through:horizon,rounding:256*Number.EPSILON*Math.max(1,...rs.map(r=>norm(r.at(time)))),runners:rs,colliders:cs,findContact});
+      for(const candidate of candidates)choose({kind:'unresolved',t:candidate.at,hit:candidate.hit,looseRunnerCandidate:candidate} as any);
+    }
+    if(loose&&(possession||pendingCatch)&&!dead){
+      const holder=possession??pendingCatch!.fielder,
+        heldSpeed=maximumCurveSpeed(holder.glove,time,horizon)+(pendingCatch?norm(pendingCatch.offset)/Math.max(1e-12,pendingCatch.secure-pendingCatch.first):0),
+        pad=256*Number.EPSILON*Math.max(1,norm(ballAt(time).position)),
+        ext=[{name:'held_ball_batter',speed:heldSpeed,gap:(q:number)=>distance(ballAt(q).position,loose.batterBody.center)-loose.batterBody.radius-input.physics.ground.radiusM},
+          {name:'held_ball_bat',speed:heldSpeed+batDynamics.batBound,gap:(q:number)=>measureRigidBatBallSurfaceSeparation(ballAt(q),coveredBatAt(q),loose.ballPhysical)}];
+      for(const item of ext){const hit=findContact(item.gap,item.speed,pad,time,horizon);if(hit)choose({kind:'unresolved',t:hit.t,hit,heldExternal:item.name} as any);}
+    }
     if (pendingCatch && pendingCatch.secure <= horizon) choose({ kind: 'secure', t: Math.max(time, pendingCatch.secure) });
     const currentHandPreparation = handPreparation as HandPreparationState | null;
     if (currentHandPreparation && !currentHandPreparation.prepared && currentHandPreparation.curve.throughElapsedSeconds <= horizon)
@@ -2238,7 +2269,8 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       const cellStart = kernel.cells.findIndex(c => c.throughElapsedSeconds >= time);
       for (let ci = Math.max(0, cellStart); ci < kernel.cells.length; ci++) {
         const cell = kernel.cells[ci]; if (cell.fromElapsedSeconds > horizon) break;
-        const lo = Math.max(time, cell.fromElapsedSeconds), hi = Math.min(horizon, cell.throughElapsedSeconds); if (hi <= lo) continue;
+        const lo = Math.max(time, cell.fromElapsedSeconds), hi = Math.min(horizon, cell.throughElapsedSeconds, loose&&!batDynamics.batStationaryAllTime?batDynamics.batThroughSeconds:Infinity); if (hi <= lo) continue;
+        if(loose)looseCoveredCells.push({from:lo,through:hi});
         for (const f of defenders) for (const role of ['glove', 'body'] as const) {
           if (role === 'glove' && (time < f.catchEnabledAfter || releaseOpen === f)) continue;
           const c = role === 'glove' ? f.glove : actualHipCurveV105(f), radius = role === 'glove' ? f.spec.gloveRadiusMeters : LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters;
@@ -2269,6 +2301,13 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
               if (unsupported) unresolvedDetail = { kind: 'actor_contact_refinement', playerId: f.spec.playerId, role, hit };
               choose({ kind: unsupported ? 'unresolved' : role, t: hit.t, f, role, hit }); }
           }
+        }
+        if(loose){const external=[{kind:'batter_body',gap:(q:number)=>distance(evaluated(q).moment.ball.position,(loose.uncaughtThirdV1?add(runnerAt(batter!,q),v(0,.9,0)):loose.batterBody.center))-loose.batterBody.radius-input.physics.ground.radiusM},{kind:'bat',gap:(q:number)=>measureRigidBatBallSurfaceSeparation(evaluated(q).moment.ball,coveredBatAt(q),loose.ballPhysical)},...[]];for(const item of external){const hit=findContact(item.gap,cell.maximumPositionSpeedMps+(item.kind==='bat'?batDynamics.batBound:(item.kind==='batter_body'&&loose.uncaughtThirdV1?batter!.spec.topSpeedMps:((item as any).speed??0))),cell.positionRoundingBoundMeters,lo,hi);if(hit){unresolvedDetail={kind:'loose_external_contact',collider:item.kind,hit};choose({kind:'unresolved',t:hit.t,hit,externalKind:item.kind} as any);}}}
+        if(loose){
+          const contacts=collectRunnerContactCandidatesV1({from:lo,through:hi,rounding:cell.positionRoundingBoundMeters,
+            runners:runners.map(r=>({runnerId:r.spec.runnerId,at:(q:number)=>add(runnerAt(r,q),v(0,(r.spec.athleticProfileV115?.heightMeters??1.8)/2,0)),radius:.24,speedBound:r.spec.topSpeedMps})),
+            colliders:[{kind:'ball_runner',at:(q:number)=>evaluated(q).moment.ball.position,radius:input.physics.ground.radiusM,speedBound:cell.maximumPositionSpeedMps}],findContact});
+          for(const candidate of contacts)choose({kind:'unresolved',t:candidate.at,hit:candidate.hit,looseRunnerCandidate:candidate} as any);
         }
         if (!wallContact) {
         const radius = fenceRadius - input.physics.ground.radiusM;
@@ -2318,7 +2357,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
           const foot=poseV105(f,t)!.foot;
           return Math.max(distance(flat(foot),flat(base(n)))-(field.baseTouchRadiusMeters??.28),Math.abs(foot.y-base(n).y)-.02);
         },athleticActiveV115(f,time)?Math.max(speed,f.athleticV115!.maximumPointSpeedMps):speed,128*Number.EPSILON,time,horizon);
-        if (hit && !hit.ambiguous) choose({ kind: 'base', t: hit.t, f, base: n });
+        if (hit && (!hit.ambiguous||loose)) {if(hit.ambiguous)unresolvedDetail={kind:'loose_base_contact_refinement',hit};choose({ kind: hit.ambiguous?'unresolved':'base', t: hit.t, f, base: n, hit } as any);}
       }
       for (const r of runners) if (!r.retired && !r.scored && !protectedFirstOverrunV95(r)) {
         const forced = deriveCurrentForceObligations(force).some(o => o.runnerId === r.spec.runnerId);
@@ -2332,7 +2371,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         const hit = findContact(t => Math.max(runnerTagGapV115(r,t,at(f.glove,t)),
           r.base > 0 && !forced && r.retouchBase === null ? (field.baseTouchRadiusMeters ?? .28) - distance(flat(runnerTouchPointV115(r,t)), flat(base(r.base))) : -Infinity),
           maximumCurveSpeed(f.glove, time, horizon) + Math.max(r.spec.topSpeedMps,slideMotionV115(r.leg)?.slideV115.maximumBodySpeedMps??0), 128 * Number.EPSILON, time, horizon);
-        if (hit && !hit.ambiguous) choose({ kind: 'tag', t: hit.t, f, runner: r });
+        if (hit && (!hit.ambiguous||loose)) {if(hit.ambiguous)unresolvedDetail={kind:'loose_tag_contact_refinement',hit};choose({ kind: hit.ambiguous?'unresolved':'tag', t: hit.t, f, runner: r, hit } as any);}
       }
     }
     if (poleSessionV148 && !possession && !pendingCatch && !dead) {
@@ -2380,10 +2419,39 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         }
       }
     }
+    if(loose){
+      const mapped=looseEvents.map((candidate,index)=>{const hit=candidate.hit,rc=(candidate as any).looseRunnerCandidate,
+        id=rc?.id??(candidate as any).heldExternal??(candidate as any).externalKind??(candidate.kind==='unresolved'?'unknown:'+index:[candidate.kind,candidate.f?.spec.playerId??'',candidate.role??'',candidate.runner?.spec.runnerId??'',candidate.base??''].join(':')),
+        intervalMissing=(candidate.kind==='base'||candidate.kind==='tag'||candidate.kind==='fair_foul_gate'||candidate.kind==='unresolved')&&!hit,
+        from=rc?.from??hit?.from??(intervalMissing?time:candidate.t);
+        return {id:id||String(index),kind:candidate.kind,from,at:candidate.t,ambiguous:!!(rc?.ambiguous||hit?.ambiguous||intervalMissing)};});
+      // heldBat is a static substitute; no claim of full collider coverage until
+      // the actual bat trajectory and surface-speed bound are supplied.
+      let cellThrough=time;
+      for(const part of looseCoveredCells){if(part.from>cellThrough)break;if(part.through>cellThrough)cellThrough=part.through;}
+      const freeBall=!possession&&!pendingCatch&&!dead,missing:string[]=[];
+      if(freeBall&&cellThrough<controlThrough)missing.push('free_ball_source_cells');
+      if(freeBall){const b=loose.batterMotionV1,c=loose.batterBody;
+        if(!b||b.version!=='ready_static_batter_v1'||!c||!b.actorId||!b.position||!b.velocity||norm(b.velocity)!==0||distance(c.center,add(b.position,v(0,.9,0)))>1e-12||c.radius!==.24)
+          missing.push('batter_body_motion_unbound');}
+      if((possession||pendingCatch)&&!dead&&(!loose.batterMotionV1||!batDynamics.batStationaryAllTime))missing.push('held_ball_batter_or_bat_motion_unbound');
+      if(wallContact&&(!constrainedWallCurveV170||kernel!==constrainedWallCurveV170||constrainedWallCurveV170.kind!=='compliant_ground_wall_arc_source_v1'))missing.push('wall_supported_ball_collider_coverage');
+      if(poleSessionV148)missing.push('pole_candidate_coverage_not_bound');
+      const coverageDetails={from:time,through:controlThrough,freeBall,sourceCells:looseCoveredCells,sourceCellsThrough:cellThrough,
+        checked:freeBall?['ball_vs_fielder_glove_body','ball_vs_runner','ball_vs_bat_with_bound','ball_vs_fence','ground_boundaries','runner_vs_fielder_body_glove']:[ 'runner_vs_fielder_body_glove', 'held_ball_vs_batter_body', 'held_ball_vs_bat' ],
+        notEstablished:missing,batPhysicalModel:batDynamics.batStationaryAllTime?'CORE_STATIONARY_HELD':'CLIP_LIMITED'};
+      const coveredThrough=missing.length?time:(freeBall?cellThrough:controlThrough),searchThrough=controlThrough,bad=mapped.find(c=>!c.id||!c.kind||!Number.isFinite(c.from)||!Number.isFinite(c.at)||c.from<0||c.at<c.from||c.at<time),preliminary=bad?null:coveredThrough<time?{status:'HOLD' as const,reason:'INCOMPLETE_COVERAGE'}:selectOrderedContactV1({candidates:mapped,notBefore:time,coveredThrough,searchThrough}),selection=bad?{status:'HOLD' as const,reason:'INVALID_CANDIDATE',bad}:missing.length?{status:'HOLD' as const,reason:'COLLIDER_COVERAGE_MISSING',coverageDetails}:preliminary;
+      if(selection.status==='HOLD'){unresolvedDetail={kind:'loose_order_coverage_hold',selection,coveredThrough,searchThrough,coverageDetails,candidates:mapped};event={kind:'unresolved',t:time};}
+      else if(selection.status==='SELECTED'){const k=mapped.indexOf(selection.candidate);event=looseEvents[k];}
+      else event=null;
+    }
+    if(loose&&event)horizon=(event as Event).t;
     while (nextFrame < horizon) { sampleFrame(nextFrame); nextFrame = start + frames.length * frameSeconds; }
     time = horizon;
     // The explicit cast prevents TS losing mutations performed by choose().
     const e = event as Event | null;
+    if(loose&&(e as any)?.looseRunnerCandidate)unresolvedDetail={kind:'loose_runner_contact',candidate:(e as any).looseRunnerCandidate};
+    if(loose&&e&&['ground','glove','body','fence','pole'].includes(e.kind)&&looseImpactSeconds===null)looseImpactSeconds=time;
     if (e) {
       if (e.kind === 'unresolved') { endReason = 'numerical_contact_refinement_required'; terminal = true; }
       else if (e.kind === 'pole') {
@@ -2511,7 +2579,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
           baselineSeconds: effectiveTransferSeconds(possession) - custodyDelayV101, delaySeconds: custodyDelayV101, readySeconds: time + effectiveTransferSeconds(possession) });
         if (possession.spec.bodyModelV105) { const pose = poseV105(possession, time)!; bodyGeometryV105.contacts.push({ playerId: possession.spec.playerId, elapsedSeconds: time, kind: 'secure', glove: at(possession.glove,time), pose, reachMarginMeters: pose.reachMarginMeters! }); }
         emit('catch_secured', time, { playerId: possession.spec.playerId, position: at(possession.glove, time) });
-        if(c.firstTouchWasAirborne&&!flyCatch){
+        if(!loose&&c.firstTouchWasAirborne&&!flyCatch){
           if(athleticActiveV115(possession,time))airCatchV115=possession;
           else confirmAirCatchV115(possession,time);
         }
@@ -2687,7 +2755,8 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       } else if (e.kind === 'fence') {
         const b = kernel.evaluateAt(time, 'incoming').moment.ball, geometricFair = isFair(b.position),
           fair = territoryFixed ? territory === 'fair' : geometricFair, untouchedGround = !hasThrown && firstGroundContactTick === null;
-        if (b.position.y - input.physics.ground.radiusM > field.fenceHeightMeters || !fair) {
+        if (b.position.y - input.physics.ground.radiusM > field.fenceHeightMeters || (!loose&&!fair)) {
+          if(loose){dead=true;terminal=true;endReason='loose_pitch_out_of_play_unresolved';continue;}
           overFence = { tick: tick(time), fair, untouchedGround, cause: hasThrown ? 'throw' : 'batted',
             ...(hasThrown ? { awardFrom: lastThrowBases } : {}) }; determineTerritory(time, fair ? 'fair' : 'foul');
           emit('over_fence', time, { position: b.position }); dead = true;
@@ -2782,7 +2851,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   }
   return freeze({ version: 'live_field_play_v1' as const, modelBasis: LIVE_FIELD_TEST_MODEL_V1.basis, model: LIVE_FIELD_TEST_MODEL_V1,
     fieldGeometry,
-    frames, ...(recoveryFramesV115.length ? { recoveryFramesV115 } : {}), facts, ruleFacts,
+    frames, ...(recoveryFramesV115.length ? { recoveryFramesV115 } : {}), facts, ...(loose?{loosePitchV1:{version:'loose_pitch_field_v1',fieldRuleFactsAdopted:false,priorGroundSeconds:loose.priorGroundSeconds??null,priorTouchSeconds:loose.priorTouchSeconds??null},...(loose.uncaughtThirdV1?{experimentalUncaughtThirdFacts:ruleFacts}:{})}:{ruleFacts}),
     end: { elapsedSeconds: time, tick: tick(time), reason: complete && actualPoleContactsV148.length ? 'pole_legal_policy_unadopted_v148' : endReason,
       complete: complete && actualPoleContactsV148.length === 0 },
     finalRunners: runners.map(r => ({ runnerId: r.spec.runnerId, base: r.base, position: runnerAt(r, time), retired: r.retired, scored: r.scored,

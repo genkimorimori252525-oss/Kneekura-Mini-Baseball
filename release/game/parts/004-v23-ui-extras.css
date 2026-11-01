@@ -1,0 +1,11 @@
+
+.runner-presence[hidden]{display:none!important}
+.runner-presence{position:absolute;left:11px;bottom:12px;z-index:9;color:#ff7777;font-size:12px;max-width:75%;padding:5px 8px;background:rgba(0,0,0,.77);border:1px solid #7b4145;pointer-events:none}
+.ball-spin-hud[hidden]{display:none!important}
+.ball-spin-hud{position:absolute;left:12px;top:44px;z-index:8;display:flex;flex-direction:column;align-items:center;gap:3px;width:108px;padding:6px 3px;background:rgba(0,0,0,.79);border:1px solid #4e5848;box-shadow:0 2px 8px #000b;pointer-events:none;color:#e8e8d9}
+.ball-spin-hud strong{font-size:10px;font-weight:500;letter-spacing:.06em;color:#d4c990}
+.ball-spin-hud canvas{width:72px;height:72px;image-rendering:auto}
+.ball-spin-hud small{font-size:8px;white-space:nowrap;color:#aebbae}
+.seed-lock{display:flex;align-items:center;gap:5px;font-size:11px;color:#d0c7ad}
+.seed-lock input{width:15px;height:15px}
+@media(max-width:680px){.ball-spin-hud{left:7px;top:33px;transform:scale(.82);transform-origin:top left}}
