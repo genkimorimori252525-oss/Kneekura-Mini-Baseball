@@ -19,14 +19,14 @@ export function resolveLoosePitchContinuationV2(x:any){
   const hit=d?.catcherHit,retention=d?.retention,kernel=d?.kernel,live=hit?.kind==='hit'&&retention?.outcome.kind==='live-ball'&&!!retention.outcome.ball;
   const t=live?hit.at:Math.min(d.endElapsedSeconds,kernel.descriptor?.throughElapsedSeconds??d.endElapsedSeconds);
   const tps=physics.air.ticksPerSecond,originTick=kernel.originTick??kernel.descriptor.initial.originTick,eventTick=quantizeEventTick(originTick,t,tps);
-  const base={call,batterRuns,eventTick,releaseFrames:pitch.frames.filter((f:any)=>f.elapsedSeconds<=t),sourceProvenance:{kind:'normal_source_descriptor_v2'}};
+  const ballAt=kernel.evaluateAt(t,'incoming').moment.ball,base={detail:{live,hit:hit?.kind??null,retention:retention?.outcome?.kind??null,reason:retention?.outcome?.reason??null,speed:Math.hypot(ballAt.velocity.x,ballAt.velocity.y,ballAt.velocity.z),ball:ballAt.position,glove:d.gloveAt(t).position,t,plane:planeCrossing(kernel,d)},call,batterRuns,eventTick,releaseFrames:pitch.frames.filter((f:any)=>f.elapsedSeconds<=t),sourceProvenance:{kind:'normal_source_descriptor_v2'}};
   let reason:string;
   try{
     const world=runLooseWorld({pitch,input,ready,beforeMatch,team,physics,baserunning,d,t,live,batterRuns,thirdStrike,originTick,eventTick,robin:x.robin});
     if(world)return {...base,...world,scope:'LOOSE_FIELD_WORLD_V2'};
     reason='FIELD_INCOMPLETE';
   }catch(error){reason='FIELD_HOLD: '+String((error as Error).message).slice(0,160);}
-  return {...base,...simpleLooseOutcome({input,ready,beforeMatch,team,kernel,t,eventTick,batterRuns,originTick,tps,physics}),scope:'SIMPLE_LOOSE_MODEL_V1',fallbackReason:reason};
+  return {...base,...simpleLooseOutcome({input,ready,beforeMatch,team,kernel,t,eventTick,batterRuns,originTick,tps,physics,live}),scope:'SIMPLE_LOOSE_MODEL_V1',fallbackReason:reason};
 }
 
 function runLooseWorld(x:any){
@@ -57,7 +57,7 @@ function runLooseWorld(x:any){
     ...(!batterRuns&&batterStatic?{batterMotionV1:{version:'ready_static_batter_v1',actorId:batter.playerId,position:batter.position,velocity:batter.velocity}}:{}),
     batterBody:{center:{...batter.position,y:batter.position.y+.9},radius:.24},heldBat:d.rigidAt(t),ballPhysical:d.ballPhysical,
     ...(live?{initialContact:{playerId:catcher.id,role:'glove',normal:d.retentionNormal,hit:{t,from:hit0(d),gap:d.retentionGap,rounding:cell?.positionRoundingBoundMeters??1e-8,speed:(cell?.maximumPositionSpeedMps??60)+catcher.physical.gloveSpeedMps}}}:{})}} as any) as any;
-  if(!field.end.complete||field.diagnostics?.unresolvedDetail||!field.frames.at(-1)?.ball.possessedBy)return null;
+  if(!field.end.complete||field.diagnostics?.unresolvedDetail||!field.frames.at(-1)?.ball.possessedBy)throw Error('incomplete '+field.end.reason+' '+String(field.diagnostics?.unresolvedDetail?.kind??'')+' live='+live+' t='+t.toFixed(3));
   const facts=field.experimentalUncaughtThirdFacts,secured=field.facts.find((f:any)=>f.kind==='catch_secured');if(!secured)return null;
   const outcomes:LooseRunnerOutcomeV2[]=field.finalRunners.map((r:any)=>({runnerId:r.runnerId,base:r.base,retired:r.retired,scored:r.scored,
     tick:outTick(field,r,facts),defenderId:outDefender(field,r)}));
@@ -77,9 +77,9 @@ function outDefender(field:any,r:any){return field.facts.find((f:any)=>f.kind===
 /** No field world: the ball stays near the backstop side, the catcher retrieves
  * it, and each runner takes the next base only if the throw cannot beat them. */
 function simpleLooseOutcome(x:any){
-  const {input,ready,beforeMatch,team,kernel,t,eventTick,batterRuns,originTick,tps,physics}=x,def=input.teams[1-team].defense;
+  const {input,ready,beforeMatch,team,kernel,t,batterRuns,originTick,tps,physics,live}=x,def=input.teams[1-team].defense;
   const ball=kernel.evaluateAt(t,'incoming').moment.ball,speed=Math.hypot(ball.velocity.x,ball.velocity.y,ball.velocity.z);
-  const roll=Math.min(18,speed*.28),retrieve=.45+roll/6.5+.35,throwSeconds=(meters:number)=>.45+meters/32;
+  const roll=Math.min(18,speed*(live?.07:.28)),retrieve=.45+roll/6.5+.35,throwSeconds=(meters:number)=>.45+meters/32;
   const players=new Map(input.players.map((p:any)=>[p.playerId,p]));
   const runSpeed=(id:string)=>{const p:any=players.get(id);return resolveLiveMatchPlayerPhysicalV98(p).topSpeedMps};
   const baseDistance=27.43,catcherToNext=[27.43,38.8,27.43,6];
@@ -95,4 +95,11 @@ function simpleLooseOutcome(x:any){
     outcomes.push(beat>need?{runnerId:batterId,base:1,retired:false,scored:false,tick:endTick,defenderId:null}:{runnerId:batterId,base:0,retired:true,scored:false,tick:endTick,defenderId:def.C});}
   void physics;
   return {field:null,endTick,outcomes,frames:[],bodyEvents:[],facts:[]};
+}
+
+/** Where the pitch really crossed the catcher's plane, and how far the mitt was. Measurement only. */
+function planeCrossing(kernel:any,d:any){
+  for(let q=.1;q<1.6;q+=.002){let b;try{b=kernel.evaluateAt(q,'incoming').moment.ball}catch{return null}
+    if(b.position.z<=-.85){const g=d.gloveAt(q).position;return {t:q,x:b.position.x,y:b.position.y,speed:Math.hypot(b.velocity.x,b.velocity.y,b.velocity.z),gap:Math.hypot(b.position.x-g.x,b.position.y-g.y,b.position.z-g.z)};}}
+  return null;
 }

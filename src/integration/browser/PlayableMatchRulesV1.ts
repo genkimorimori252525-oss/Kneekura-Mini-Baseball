@@ -104,7 +104,7 @@ function reduceLoosePitch(input:PlayableMatchRuleInputV1,e:LoosePitchEventV2):Pl
   for(const r of running){
     if(r.retired){outs.push({runnerId:r.runnerId,tick:r.tick,classification:r.runnerId===batter?'batter_runner_before_first':'time_play',cause:'runner_tag',defenderId:r.defenderId});continue;}
     if(r.scored){homes.push({kind:'runner_base_touch',runnerId:r.runnerId,base:4,tick:r.tick});continue;}
-    if(r.runnerId!==batter||r.base>=1)place(r.runnerId,Math.max(1,r.base));
+    if(r.runnerId!==batter)place(r.runnerId,Math.max(1,r.base));
   }
   const sorted=[...outs].sort((a,b)=>a.tick-b.tick);
   if(count.kind==='continue')return looseFinish(input,{...m,...count.count,bases},false,'count',homes,sorted,e);
@@ -114,6 +114,12 @@ function reduceLoosePitch(input:PlayableMatchRuleInputV1,e:LoosePitchEventV2):Pl
     return looseFinish(input,{...m,bases:pushed.bases},true,'walk',homes,sorted,e);
   }
   if(!e.batterRuns)sorted.unshift({runnerId:batter,tick:e.tick,classification:'batter_runner_before_first',cause:'pitch_count',defenderId:null});
+  else if(e.runners.some(r=>r.runnerId===batter&&!r.retired)){
+    // A safe dropped-third batter forces runners exactly as a walk does.
+    const pushed=resolveWalkForcedAdvancement({batterRunnerId:batter,bases});
+    for(const id of pushed.scoredRunnerIds)homes.push({kind:'runner_base_touch',runnerId:id,base:4,tick:e.endTick});
+    return looseFinish(input,{...m,bases:pushed.bases},true,'strikeout',homes,sorted,e);
+  }
   return looseFinish(input,{...m,bases},true,'strikeout',homes,sorted,e);
 }
 function looseFinish(input:PlayableMatchRuleInputV1,after:CanonicalMatchState,advanced:boolean,classification:Classification,homes:RunnerBaseTouchFact[],outs:PlayableRunnerOutV1[],e:LoosePitchEventV2){

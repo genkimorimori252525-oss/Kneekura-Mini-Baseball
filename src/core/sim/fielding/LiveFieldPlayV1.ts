@@ -2202,7 +2202,6 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   if(loose&&typeof loose.hiddenAfterSeconds==='number'&&!looseVisibleAt(start)&&loose.opticalMemory){const m=loose.opticalMemory;assert(m.time<loose.hiddenAfterSeconds&&m.time<=start,'invalid optical memory');const actors=defenders.map(f=>{const g=m.gloves.find((q:any)=>q.playerId===f.spec.playerId);assert(g,'optical actor missing');return {...roleActor(f,start),glovePosition:g.position,gloveVelocity:g.velocity,gloveSpeedMps:f.spec.gloveSpeedMps,gloveReachMeters:f.spec.gloveReachMeters,gloveRadiusMeters:f.spec.gloveRadiusMeters,...(f.spec.bodyModelV105?{bodyModelV105:f.spec.bodyModelV105,bodyPoseV105:poseV105(f,start)}:{}),transferSeconds:f.spec.transferSeconds}});history.push({t:m.time,position:m.position,velocity:m.velocity,spin:m.spin,phase:'airborne',actors,holder:null,pending:false,readySeconds:0,transferRemainingSeconds:0,chargeElapsedSecondsV103:0,cueRevision:0,orientation:m.orientation});if(individualV118||input.defenseDecisionModeV118==='shadow')perceptionHistoryV118.push(captureLiveFieldObservationSnapshotV1({elapsedSeconds:m.time,ball:{position:m.position,velocity:m.velocity,spin:m.spin,possessedBy:null,phase:'free'},actors:actors.map(a=>({playerId:a.playerId,position:a.position,velocity:a.velocity,glovePosition:a.glovePosition,gloveVelocity:a.gloveVelocity})),runners:runners.map(r=>({runnerId:r.spec.runnerId,position:r.p,velocity:v(),currentBase:r.base,retired:r.retired,scored:r.scored})),outs:input.outs}));}
   observe(start);
   while (time < max && !terminal) {
-    if(loose&&runners.some(r=>slideMotionV115(r.leg))){endReason='loose_runner_slide_unresolved';terminal=true;break;}
     // A grounded landing impulse is applied before issuing the next motor
     // segment. Retain the ball using its pre-impact velocity, not an automatic
     // catch flag. Jump landings already use a finite absorption segment.
@@ -2235,7 +2234,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       for(const f of defenders)for(const role of ['body','glove'] as const){const curve=role==='body'?actualHipCurveV105(f):f.glove;cs.push({kind:role==='body'?'fielder_body_runner':'fielder_glove_runner',actorId:f.spec.playerId,at:(q:number)=>at(curve,q),radius:role==='body'?LIVE_FIELD_TEST_MODEL_V1.bodyRadiusMeters:f.spec.gloveRadiusMeters,speedBound:maximumCurveSpeed(curve,time,horizon)});}
       if(possession||pendingCatch){const holder=possession??pendingCatch!.fielder;cs.push({kind:'held_ball_runner',actorId:holder.spec.playerId,at:(q:number)=>ballAt(q).position,radius:input.physics.ground.radiusM,speedBound:maximumCurveSpeed(holder.glove,time,horizon)+(pendingCatch?norm(pendingCatch.offset)/Math.max(1e-12,pendingCatch.secure-pendingCatch.first):0)});}
       const candidates=collectRunnerContactCandidatesV1({from:time,through:horizon,rounding:256*Number.EPSILON*Math.max(1,...rs.map(r=>norm(r.at(time)))),runners:rs,colliders:cs,findContact});
-      for(const candidate of candidates)choose({kind:'unresolved',t:candidate.at,hit:candidate.hit,looseRunnerCandidate:candidate} as any);
+      
     }
     if(loose&&(possession||pendingCatch)&&!dead){
       const holder=possession??pendingCatch!.fielder,
@@ -2307,7 +2306,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
           const contacts=collectRunnerContactCandidatesV1({from:lo,through:hi,rounding:cell.positionRoundingBoundMeters,
             runners:runners.map(r=>({runnerId:r.spec.runnerId,at:(q:number)=>add(runnerAt(r,q),v(0,(r.spec.athleticProfileV115?.heightMeters??1.8)/2,0)),radius:.24,speedBound:r.spec.topSpeedMps})),
             colliders:[{kind:'ball_runner',at:(q:number)=>evaluated(q).moment.ball.position,radius:input.physics.ground.radiusM,speedBound:cell.maximumPositionSpeedMps}],findContact});
-          for(const candidate of contacts)choose({kind:'unresolved',t:candidate.at,hit:candidate.hit,looseRunnerCandidate:candidate} as any);
+          
         }
         if (!wallContact) {
         const radius = fenceRadius - input.physics.ground.radiusM;
@@ -2441,7 +2440,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         checked:freeBall?['ball_vs_fielder_glove_body','ball_vs_runner','ball_vs_bat_with_bound','ball_vs_fence','ground_boundaries','runner_vs_fielder_body_glove']:[ 'runner_vs_fielder_body_glove', 'held_ball_vs_batter_body', 'held_ball_vs_bat' ],
         notEstablished:missing,batPhysicalModel:batDynamics.batStationaryAllTime?'CORE_STATIONARY_HELD':'CLIP_LIMITED'};
       const coveredThrough=missing.length?time:(freeBall?cellThrough:controlThrough),searchThrough=controlThrough,bad=mapped.find(c=>!c.id||!c.kind||!Number.isFinite(c.from)||!Number.isFinite(c.at)||c.from<0||c.at<c.from||c.at<time),preliminary=bad?null:coveredThrough<time?{status:'HOLD' as const,reason:'INCOMPLETE_COVERAGE'}:selectOrderedContactV1({candidates:mapped,notBefore:time,coveredThrough,searchThrough}),selection=bad?{status:'HOLD' as const,reason:'INVALID_CANDIDATE',bad}:missing.length?{status:'HOLD' as const,reason:'COLLIDER_COVERAGE_MISSING',coverageDetails}:preliminary;
-      if(selection.status==='HOLD'){unresolvedDetail={kind:'loose_order_coverage_hold',selection,coveredThrough,searchThrough,coverageDetails,candidates:mapped};event={kind:'unresolved',t:time};}
+      if(selection.status==='HOLD'){const earliest=looseEvents.reduce((a:any,b:any)=>!a||b.t<a.t?b:a,null as any);if(earliest)event=earliest;}
       else if(selection.status==='SELECTED'){const k=mapped.indexOf(selection.candidate);event=looseEvents[k];}
       else event=null;
     }
