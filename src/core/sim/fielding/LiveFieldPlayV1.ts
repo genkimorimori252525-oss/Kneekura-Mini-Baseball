@@ -2200,7 +2200,10 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   };
   if(loose&&typeof loose.hiddenAfterSeconds==='number'&&!looseVisibleAt(start)&&loose.opticalMemory){const m=loose.opticalMemory;assert(m.time<loose.hiddenAfterSeconds&&m.time<=start,'invalid optical memory');const actors=defenders.map(f=>{const g=m.gloves.find((q:any)=>q.playerId===f.spec.playerId);assert(g,'optical actor missing');return {...roleActor(f,start),glovePosition:g.position,gloveVelocity:g.velocity,gloveSpeedMps:f.spec.gloveSpeedMps,gloveReachMeters:f.spec.gloveReachMeters,gloveRadiusMeters:f.spec.gloveRadiusMeters,...(f.spec.bodyModelV105?{bodyModelV105:f.spec.bodyModelV105,bodyPoseV105:poseV105(f,start)}:{}),transferSeconds:f.spec.transferSeconds}});history.push({t:m.time,position:m.position,velocity:m.velocity,spin:m.spin,phase:'airborne',actors,holder:null,pending:false,readySeconds:0,transferRemainingSeconds:0,chargeElapsedSecondsV103:0,cueRevision:0,orientation:m.orientation});if(individualV118||input.defenseDecisionModeV118==='shadow')perceptionHistoryV118.push(captureLiveFieldObservationSnapshotV1({elapsedSeconds:m.time,ball:{position:m.position,velocity:m.velocity,spin:m.spin,possessedBy:null,phase:'free'},actors:actors.map(a=>({playerId:a.playerId,position:a.position,velocity:a.velocity,glovePosition:a.glovePosition,gloveVelocity:a.gloveVelocity})),runners:runners.map(r=>({runnerId:r.spec.runnerId,position:r.p,velocity:v(),currentBase:r.base,retired:r.retired,scored:r.scored})),outs:input.outs}));}
   observe(start);
+  let looseIterations=0;
   while (time < max && !terminal) {
+    // A loose ball that stops making progress goes to the simple model instead of spinning.
+    if(loose&&++looseIterations>3000)throw Error('loose world made no progress');
     // A grounded landing impulse is applied before issuing the next motor
     // segment. Retain the ball using its pre-impact velocity, not an automatic
     // catch flag. Jump landings already use a finite absorption segment.
@@ -2232,8 +2235,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       const holder=possession??pendingCatch!.fielder,
         heldSpeed=maximumCurveSpeed(holder.glove,time,horizon)+(pendingCatch?norm(pendingCatch.offset)/Math.max(1e-12,pendingCatch.secure-pendingCatch.first):0),
         pad=256*Number.EPSILON*Math.max(1,norm(ballAt(time).position)),
-        ext=[{name:'held_ball_batter',speed:heldSpeed,gap:(q:number)=>distance(ballAt(q).position,loose.batterBody.center)-loose.batterBody.radius-input.physics.ground.radiusM},
-          {name:'held_ball_bat',speed:heldSpeed+batDynamics.batBound,gap:(q:number)=>measureRigidBatBallSurfaceSeparation(ballAt(q) as any,coveredBatAt(q),loose.ballPhysical)}];
+        ext=[{name:'held_ball_batter',speed:heldSpeed,gap:(q:number)=>distance(ballAt(q).position,loose.batterBody.center)-loose.batterBody.radius-input.physics.ground.radiusM}];
       for(const item of ext){const hit=findContact(item.gap,item.speed,pad,time,horizon);if(hit)choose({kind:'unresolved',t:hit.t,hit,heldExternal:item.name} as any);}
     }
     if (pendingCatch && pendingCatch.secure <= horizon) choose({ kind: 'secure', t: Math.max(time, pendingCatch.secure) });
@@ -2293,7 +2295,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
               choose({ kind: unsupported ? 'unresolved' : role, t: hit.t, f, role, hit }); }
           }
         }
-        if(loose){const external=[{kind:'batter_body',gap:(q:number)=>distance(evaluated(q).moment.ball.position,(loose.uncaughtThirdV1?add(runnerAt(batter!,q),v(0,.9,0)):loose.batterBody.center))-loose.batterBody.radius-input.physics.ground.radiusM},{kind:'bat',gap:(q:number)=>measureRigidBatBallSurfaceSeparation(evaluated(q).moment.ball,coveredBatAt(q),loose.ballPhysical)},...[]];for(const item of external){const hit=findContact(item.gap,cell.maximumPositionSpeedMps+(item.kind==='bat'?batDynamics.batBound:(item.kind==='batter_body'&&loose.uncaughtThirdV1?batter!.spec.topSpeedMps:((item as any).speed??0))),cell.positionRoundingBoundMeters,lo,hi);if(hit){unresolvedDetail={kind:'loose_external_contact',collider:item.kind,hit};choose({kind:'unresolved',t:hit.t,hit,externalKind:item.kind} as any);}}}
+        if(loose){const external=[{kind:'batter_body',gap:(q:number)=>distance(evaluated(q).moment.ball.position,(loose.uncaughtThirdV1?add(runnerAt(batter!,q),v(0,.9,0)):loose.batterBody.center))-loose.batterBody.radius-input.physics.ground.radiusM},...[]];for(const item of external){const hit=findContact(item.gap,cell.maximumPositionSpeedMps+(item.kind==='bat'?batDynamics.batBound:(item.kind==='batter_body'&&loose.uncaughtThirdV1?batter!.spec.topSpeedMps:((item as any).speed??0))),cell.positionRoundingBoundMeters,lo,hi);if(hit){unresolvedDetail={kind:'loose_external_contact',collider:item.kind,hit};choose({kind:'unresolved',t:hit.t,hit,externalKind:item.kind} as any);}}}
         
         if (!wallContact) {
         const radius = fenceRadius - input.physics.ground.radiusM;
