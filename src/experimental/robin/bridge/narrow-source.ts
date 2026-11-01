@@ -1,6 +1,6 @@
 import {robinGlobalSpeedBoundV1} from '../original/speed-bound';
 import {findFirstSourceContactV94,findSourceStrikeZoneContactV94,type StrikeZoneVolumeV94} from '../../../core/sim/pitching/StrikeZoneVolumeV94';
-import type {SourceFreeBallKernel} from '../../src/core/sim/ball/SourceFreeBallKernel';
+import type {SourceFreeBallKernel} from '../../../core/sim/ball/SourceFreeBallKernel';
 import {createRobinPathSamplerV1} from './narrow-sampler';
 import {quantizeEventTick} from '../../../core/sim/ExactEventTime';
 import {IDENTITY_QUATERNION} from '../../../core/sim/pitching/BaseballOrientation';

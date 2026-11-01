@@ -1,6 +1,6 @@
 import {findFirstSourceContactV94,findSourceStrikeZoneContactV94,type StrikeZoneVolumeV94} from '../../../core/sim/pitching/StrikeZoneVolumeV94';
-import type {SourceFreeBallKernel} from '../../src/core/sim/ball/SourceFreeBallKernel';
-import {createRobinLinearSourceV1} from './linear-source';import {createRobinFreeBallSuccessorShadowV1} from './free-ball-successor';
+import type {SourceFreeBallKernel} from '../../../core/sim/ball/SourceFreeBallKernel';
+import {createRobinLinearSourceV1} from '../bridge/narrow-source';import {createRobinFreeBallSuccessorShadowV1} from './free-ball-successor';
 /** Diagnostic continuity only. Source collision proofStatus forbids match authority. */
 export function createRobinCombinedShadowV1(input:Readonly<{version:'robin_combined_shadow_v1';source:ReturnType<typeof createRobinLinearSourceV1>;successor:ReturnType<typeof createRobinFreeBallSuccessorShadowV1>}>){
  if(input.version!=='robin_combined_shadow_v1'||input.successor.version!=='robin_free_ball_successor_shadow_v1'||input.successor.source!==input.source)throw Error('Robin combined HOLD: version');

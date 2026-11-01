@@ -1,4 +1,4 @@
-import { PlayerRecord } from '../model/types';
+type PlayerRecord=any;
 import { vec3 } from '../math/vec3';
 import { PitchPath } from './PitchFlightSolver';
 import { PitchTypeDef } from './pitchTypes';

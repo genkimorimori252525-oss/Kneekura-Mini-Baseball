@@ -1,7 +1,7 @@
 import {createSourceFreeBallKernel,type SourceFreeBallDescriptorV2} from '../../../core/sim/ball/SourceFreeBallKernel';
 import {validateBaseballMaterialOrientationV1} from '../../../core/sim/ball/BaseballSeamForceV1';
-import {createRobinLinearSourceV1} from './linear-source';
-import type {Quaternion} from '../../src/core/sim/pitching/BaseballOrientation';
+import {createRobinLinearSourceV1} from '../bridge/narrow-source';
+import type {Quaternion} from '../../../core/sim/pitching/BaseballOrientation';
 /** Shadow only: the caller must independently prove no earlier competing contact
  * and provide an actual terminal material orientation before any game authority. */
 export function createRobinFreeBallSuccessorShadowV1(input:Readonly<{

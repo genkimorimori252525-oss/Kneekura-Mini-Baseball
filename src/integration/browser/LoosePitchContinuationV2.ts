@@ -30,7 +30,7 @@ export function resolveLoosePitchContinuationV2(x:any){
 }
 
 function runLooseWorld(x:any){
-  const {pitch,input,ready,beforeMatch,team,physics,baserunning,d,t,live,batterRuns,originTick,eventTick,robin}=x,kernel=d.kernel,
+  const {pitch,input,ready,beforeMatch,team,physics,baserunning,d,t,live,batterRuns,eventTick,robin}=x,kernel=d.kernel,
     radius=physics.ground.radiusM,def=input.teams[1-team].defense,players=new Map(input.players.map((p:any)=>[p.playerId,p]));
   const defenders=ready.actors.filter((a:any)=>a.role!=='batter'&&a.role!=='runner').map((a:any)=>{
     const p:any=players.get(a.playerId),physical=resolveLiveMatchPlayerPhysicalV98(p),
@@ -44,14 +44,14 @@ function runLooseWorld(x:any){
   const incoming=kernel.evaluateAt(t,'incoming'),moment=live?{...incoming.moment,ball:d.retention.outcome.ball}:incoming.moment,glove=d.gloveAt(t),
     placements=Object.fromEntries(ready.actors.filter((a:any)=>a.role!=='batter'&&a.role!=='runner').map((a:any)=>[a.role,{...a.position,y:a.role==='C'?.85:.9}])),
     fieldInput=buildLiveFieldPlayInputV95({ball:moment,physics,orientation:incoming.materialOrientation??incoming.orientation??{x:0,y:0,z:0,w:1},seed:input.seed,
-      field:{bases:LIVE_MATCH_BASES_V1,...(input.park??{fenceRadiusMeters:110,fenceHeightMeters:3})},defense:def,placements,
+      field:{bases:LIVE_MATCH_BASES_V1,...(input.park??{fenceRadiusMeters:110,fenceHeightMeters:3})},defense:def,placements:placements as any,
       players:input.players.map((p:any)=>({playerId:p.playerId,heightMeters:p.heightMeters,physical:resolveLiveMatchPlayerPhysicalV98(p),...(p.traitProfile?{traitProfile:p.traitProfile}:{}),...(resolveLiveTechnicalTraitsV75(p.traitProfile)?{technicalSkills:resolveLiveTechnicalTraitsV75(p.traitProfile)}:{})})),
       batterRunnerId:batter.playerId,batterPosition:batter.position,occupiedBases:beforeMatch.bases,baserunning:baserunning??'balanced',outs:beforeMatch.outs,maxPlaySeconds:45}),
     fielders=fieldInput.fielders.map((p:any)=>{const a=defenders.find((z:any)=>z.id===p.playerId);return {...p,position:a.body,velocity:{x:0,y:0,z:0},looseGloveV1:p.playerId===catcher.id?glove:{position:a.glove,velocity:{x:0,y:0,z:0}}}});
   (globalThis as any).__robinDynamics=d;
   const cell=kernel.cells?.find((c:any)=>c.fromElapsedSeconds<=t&&c.throughElapsedSeconds>=t);
   const batterStatic=d.batStationaryAllTime&&batter.velocity&&Math.hypot(batter.velocity.x,batter.velocity.y,batter.velocity.z)===0;
-  const field=simulateLiveFieldPlayV1({...fieldInput,fielders,runners:withLeads(batterRuns?fieldInput.runners:fieldInput.runners.filter((r:any)=>r.initialBase>0),ready),loosePitchV1:{version:'loose_pitch_field_v1',
+  const field=simulateLiveFieldPlayV1({...fieldInput,fielders,runners:withLeads((batterRuns?fieldInput.runners:fieldInput.runners.filter((r:any)=>r.initialBase>0)) as any[],ready),loosePitchV1:{version:'loose_pitch_field_v1',
     ...(batterRuns?{uncaughtThirdV1:true,priorTouchSeconds:t}:{}),...(!live&&!batterRuns?{}:{priorTouchSeconds:t}),
     ...(robin?{pitchReleaseSeconds:0,hiddenAfterSeconds:robin.hiddenAfterSeconds,legacyArrivedSeconds:robin.legacyArrivedSeconds,opticalPolicy:'hidden_through_legacy_arrival_then_impact_v1'}:{}),
     ...(!batterRuns&&batterStatic?{batterMotionV1:{version:'ready_static_batter_v1',actorId:batter.playerId,position:batter.position,velocity:batter.velocity}}:{}),

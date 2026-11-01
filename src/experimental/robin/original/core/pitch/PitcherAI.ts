@@ -1,7 +1,7 @@
 import { vec3 } from '../math/vec3';
 import { FIELD } from '../geometry/FieldConstants';
 import { DeterministicRng } from '../rng/DeterministicRng';
-import { PlayerRecord } from '../model/types';
+type PlayerRecord=any;
 import {
   PitchTypeDef,
   activeSpinOf,
