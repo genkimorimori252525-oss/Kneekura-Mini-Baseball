@@ -34,3 +34,11 @@
 12球は８見送り・４live ball接触で、この範囲に空振りはない。４接触のいずれも探索でhitし接触resolverが結果を返した。判定時刻は12球ともreleaseから0.14秒で、既存予測を取得した。予測値は接触時の実値ではなく、予測の平面と実接触深度も一致しないため、両時刻の差を到達予測誤差としては使わない。探索のgapは評価sampleの最小だけで、未評価区間の連続最短距離はUNKNOWN。12球・４接触だけでは全試合の高接触率の原因や人間の予測精度の校正を決められない。観測した値を選択や物理に戻す変更は行っていない。
 
 実行前Astra reviewはconfig／protocol／codec pinと失敗時snapshot不足を指摘し、Terra修正後の再reviewで限定実行可。修正checkerのfixture／構文検査はagent報告のPASSで、receiptは未保存。合成変換の初回FAIL `94a116c059534b448daa79f00059a997` は保持。
+
+## 保存済み空振りと対照の限定観測
+
+保存477球から全3空振りをread-onlyで索引化 `6da3b544736c4ce59a5da3374ca50c12` PASS。事前に「同一打者・投手・球種・commandの前後最寄りcontact」と定めて対照を選び、前の対照がない1例は欠落のまま維持した `b981a7d082b74e71958c698da01327f9` PASS。count・疲労・実release・乱数は異なり、完全な因果対照ではない。
+
+固定3空振り＋5対照の8球を各々の保存直前continuationからMain Hostで観測なし／あり各1回再現。旧record／continuationと両variantがexact、今回計測したRNG trace相互一致 `cfedfd2d6c594f1d8259c264e32e98a8` PASS、156.297秒、report SHA `85adcc4f43ce9f6107ddf02a7a1e4e2203a3b56a6817b494077489ea88b6aef6`、41 artifacts照合。保存されていない旧RNG drawや他の乱数源はUNKNOWN。空振り3球の探索が実際に評価した標本中の最小gapはそれぞれ約2.61／0.60／4.90cm、接触深さは未確定。対照の接触深さと名目予測planeは異なるため、その差を同じ対象の予測誤差にしない。標本の最小は連続区間の最短距離ではなく、探索標本には初回接触後のincoming仮想状態が含まれ得るので、負のgapを実物体の貫通と解釈しない。母集団の接触率や高接触の原因の証明ではない。
+
+初回 `3496d248b5b140c09eaa4c16995b567b` はhelper hashの誤記でBrowser前停止、修正後 `154acc8b44dd492c818ea90f70f2900d` は利用できない `crypto.subtle.digest` でCore前停止。元FAILとpartialを保持し、後続成功へ遡って書き換えない。
