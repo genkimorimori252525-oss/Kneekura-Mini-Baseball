@@ -2,7 +2,7 @@
 
 2026-11-01 JST。本人は全打者の実接触傾向・ラインドライブ分類・表示を、回転の物理制御や技能名札と区別して完成するよう依頼し、依頼範囲内の判断で継続するよう委任した。未収集や未検証を0件や公式認定に置き換えない。
 
-V262単一subjectとV263指定roster batchは同一query-only snapshotで既存owner・鮮度・重複を検査し、V264は人物linkと接触sourceを別々に再認証する。合成Native DBの2接触は照合済みだが、本人DB・全producer・全履歴・画面は未完。新versionの出力を別途作り、既存V191/V229のデータ形式を変えない。
+以下のV262–V266の実装・fixtureは現worktreeの作業中sourceであり、この記録のpushだけでsourceを配送したことにはならない。V262単一subjectとV263指定roster batchは同一query-only snapshotで既存owner・鮮度・重複を検査し、V264は人物linkと接触sourceを別々に再認証する。合成Native DBの2接触は照合済みだが、本人DB・全producer・全履歴・画面は未完。新versionの出力を別途作り、既存V191/V229のデータ形式を変えない。
 
 V265の通常JSONは、値が壊れる場合に失敗する部分版。正当な打上角に `-0` があり得るため、これを無効なNative接触と扱ったり全出力対応と称したりしない。次の新versionは既存lossless codecの考え方を参考に、`-0` 等を失わず厳格に往復できる表現・untrusted parserを定義する。JSONを受け取っただけでNativeの真正性を付与しない。未登録／不明／nullの区別、各選手・接触source・対象roster・時点・producer範囲を維持し、回転の物理や技能に戻さない。
 
