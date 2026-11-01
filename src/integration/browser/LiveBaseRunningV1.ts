@@ -48,3 +48,23 @@ export function resolveStealV1(x:Readonly<{seed:number;pitchOrdinal:number;from:
     k=speed*pace/distance;return {x:(x.to.x-x.from.x)*k,y:0,z:(x.to.z-x.from.z)*k};};
   return {safe:runnerSeconds<=arrivalSeconds,runnerSeconds,releaseSeconds,arrivalSeconds,position,velocity};
 }
+
+/** A throw to first between pitches, more likely against a long lead. */
+export function decidePickoffV1(x:Readonly<{seed:number;pitchOrdinal:number;match:any;leadMeters:number}>){
+  const {first,second}=x.match.bases;if(!first||second)return null;
+  const rate=.05+.04*clamp((x.leadMeters-2.2)/1.8,0,1);
+  return new SeedRoot(x.seed).streamRng(x.pitchOrdinal-1,'pitch','pickoff-decision-v1').nextFloat()<rate?{runnerId:first as string}:null;
+}
+
+/** The runner dives back while the ball travels. Pitcher technique shortens the move;
+ * the first baseman's glove speed shortens the tag. */
+export function resolvePickoffV1(x:Readonly<{seed:number;pitchOrdinal:number;lead:Vec;base:Vec;pitcher:Vec;pitcherTechnique:number;throwSpeedMps:number;
+  runner:Readonly<{topSpeedMps:number;reactionSeconds:number}>;receiverGloveSpeedMps:number}>){
+  const distance=Math.hypot(x.lead.x-x.base.x,x.lead.z-x.base.z),backSeconds=x.runner.reactionSeconds+.12+distance/(x.runner.topSpeedMps*.8),
+    rng=new SeedRoot(x.seed).streamRng(x.pitchOrdinal-1,'pitch','pickoff-race-v1'),jitter=(rng.nextFloat()+rng.nextFloat()-1)*.1,
+    moveSeconds=.62-.1*x.pitcherTechnique,throwSeconds=Math.hypot(x.base.x-x.pitcher.x,x.base.z-x.pitcher.z)/(x.throwSpeedMps*.8),
+    tagSeconds=.3-.012*x.receiverGloveSpeedMps,arrivalSeconds=moveSeconds+throwSeconds+tagSeconds+jitter;
+  const position=(t:number):Vec=>{const k=t<=x.runner.reactionSeconds?0:Math.min(1,(t-x.runner.reactionSeconds)/(backSeconds-x.runner.reactionSeconds));
+    return {x:x.lead.x+(x.base.x-x.lead.x)*k,y:0,z:x.lead.z+(x.base.z-x.lead.z)*k};};
+  return {safe:backSeconds<=arrivalSeconds,moveSeconds,arrivalSeconds,backSeconds,endSeconds:Math.max(arrivalSeconds,backSeconds)+.25,position};
+}

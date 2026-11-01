@@ -31,7 +31,7 @@ for (let n = 0; n < limit; n++) {
   }
   last = host.captureContinuationV116();
   tally.pitches++;
-  for (const e of r.events) if (e.kind === 'stolen_base' || e.kind === 'caught_stealing') tally[e.kind] = (tally[e.kind] ?? 0) + 1;
+  for (const e of r.events) if (['stolen_base', 'caught_stealing', 'picked_off', 'pickoff_safe'].includes(e.kind)) tally[e.kind] = (tally[e.kind] ?? 0) + 1;
   if (r.play.diagnostics?.pitchFallbackV1) tally.simple = (tally.simple ?? 0) + 1;
   if (r.play.diagnostics?.swingOffered) tally.swings++;
   if (r.play.contact) tally.contacts++;

@@ -6,9 +6,10 @@ import {readFile, writeFile} from 'node:fs/promises';
 import path from 'node:path';
 
 const [dir, output, ...slotArgs] = process.argv.slice(2);
-if (!dir || !output) throw Error('usage: assemble-html.mjs <parts-dir> <output.html> [slot=path ...]');
-const slots = new Map(slotArgs.map(arg => {const i = arg.indexOf('='); return [arg.slice(0, i), arg.slice(i + 1)];}));
-const manifest = JSON.parse(await readFile(path.join(dir, 'manifest.json'), 'utf8'));
+if (!dir || !output) throw Error('usage: assemble-html.mjs <parts-dir> <output.html> [--manifest=name] [slot=path ...]');
+const manifestName = slotArgs.find(a => a.startsWith('--manifest='))?.slice(11) ?? 'manifest.json';
+const slots = new Map(slotArgs.filter(a => !a.startsWith('--')).map(arg => {const i = arg.indexOf('='); return [arg.slice(0, i), arg.slice(i + 1)];}));
+const manifest = JSON.parse(await readFile(path.join(dir, manifestName), 'utf8'));
 const chunks = [];
 const used = new Set();
 for (const entry of manifest.entries) {
