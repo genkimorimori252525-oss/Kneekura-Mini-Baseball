@@ -6,7 +6,7 @@ export const isTechnicalTraitV75 = (id: string): id is TechnicalSkillIdV75 => (T
 const definitions = [
   ['baserunning', '走塁', 'GRADED_DYNAMIC', 'ベース旋回の経路選択。最高走速と身体の加速度上限は変更しません。'],
   ['bunting', 'バント○ / バント職人', 'LEARNED_MASTERY_PERSISTENT', 'バント時だけ、予測した打点へバットを構え、迎球して引く動作と面・位置・時刻の再現性。'],
-  ['advanced_fielding', '守備職人 / 魔術師', 'LEARNED_MASTERY_PERSISTENT', '捕球体勢と捕球後の持ち替え。一般走力・肩力・手の速度上限は変更しません。'],
+  ['advanced_fielding', '守備職人 / 魔術師', 'LEARNED_MASTERY_PERSISTENT', '捕球体勢と捕球後の持ち替え。短い弱めの送球では、持ち替えずグラブからトスする選択肢も使います。内部の反応・判断が速い選手も使用でき、公開のリーグ表示ランクで制限しません。一般走力・肩力・手の速度上限は変更しません。'],
   ['bat_to_run_transition', '内野安打○ / ロケットスタート', 'DYNAMIC_DESCRIPTOR', '打者走者だけの打撃から初動への切り替え。塁上走者と最高走速は変更しません。'],
   ['slow_ball_charge', '高速チャージ', 'LEARNED_MASTERY_PERSISTENT', '観測した低速の接地打球へ前進して拾う動作。飛球・送球には適用しません。'],
   ['low_zone_command', '低め○ / 精密機械', 'LEARNED_MASTERY_PERSISTENT', '低めを狙った投球だけの狙い誤差。球速・回転・審判やリリース後の球は上書きしません。'],

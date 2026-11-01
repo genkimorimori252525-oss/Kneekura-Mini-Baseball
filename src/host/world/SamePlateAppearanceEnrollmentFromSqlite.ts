@@ -1,6 +1,6 @@
 import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
 import { createRequire } from 'node:module';
-import { withSamePaContinuationReadPhase } from './SamePlateAppearanceContinuationFromSqlite';
+import { assertNoMutableSamePaContinuationReadPhase, memoSamePaContinuationRead, withSamePaContinuationReadPhase } from './SamePlateAppearanceContinuationFromSqlite';
 import type { DatabaseSync } from 'node:sqlite';
 import { readPhysicalPlateAppearanceActorFromSqlite, assertPhysicalActorOpenFrame,
   actorHash as hash, actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -11,6 +11,7 @@ import { assertSamePaStorage,assertNoSamePaPlayerReservation,assertNoSamePaWorkR
 import { assertSamePaRegistrationBeforeWork } from './ActualLiveRuntimeRegistration';
 import { assertNoActualRoleWorkloadCharge,assertNoLegacyPitchWorkloadCharge } from './ActualRoleWorkloadChargeGuard';
 import { assertHistoricalSamePaWorkloadCut } from './SamePlateAppearanceHistoricalWorkloadCut';
+import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 type Db=Pick<DatabaseSync,'prepare'>;
 const deriveEnrollment = (db:Db,raw:unknown,ownSourceId?:string) => {
   assertSamePaStorage(db);const source=samePlateAppearanceEnrollmentInput(raw);
@@ -62,12 +63,37 @@ const deriveEnrollmentBasis = (db:Db,raw:unknown,ownSourceId?:string) => {
     ? withSamePaContinuationReadPhase(db, read) : read();
 };
 export const deriveSamePlateAppearanceEnrollment = (db:Db,raw:unknown,ownSourceId?:string):SamePlateAppearanceEnrollmentResult => deriveEnrollmentBasis(db,raw,ownSourceId).result;
-/** Returns the actor from this exact authentication, for private read-only
- * execution assembly. It accepts no cached actor or caller proof. */
-export const readSamePlateAppearanceEnrollmentBasis = (db:Db,sourceId:string) => {
-  const row=samePaEnrollmentRow(db,sourceId);if(!row)return null;
+const authenticateEnrollmentBasisRow = (db: Db, sourceId: string, row: NonNullable<ReturnType<typeof samePaEnrollmentRow>>) => {
   const value=authenticateSamePaRow(db,row),basis=deriveEnrollmentBasis(db,value.source,sourceId);
   if(json(value)!==json(basis.result))throw new Error('same-PA enrollment prerequisites changed');return {enrollment:freeze(value),actor:basis.actor};
+};
+/** Complete DB-only authentication in this Native snapshot. A sibling may
+ * reuse its frozen result, never a caller Actor/provider or a prior operation's
+ * admission. Raw derive and historical evidence retain independent paths. */
+export const readSamePlateAppearanceEnrollmentBasis = (db:Db,sourceId:string) => {
+  const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  const direct = () => { const row = samePaEnrollmentRow(db, sourceId); return row ? authenticateEnrollmentBasisRow(db, sourceId, row) : null; };
+  if (!(db instanceof Native)) return direct();
+  if (!db.isTransaction || db.prepare('PRAGMA query_only').get()!.query_only !== 1) {
+    assertNoMutableSamePaContinuationReadPhase(db); return direct();
+  }
+  return withSamePaContinuationReadPhase(db, () => {
+    // Preserve the same main-only namespace fence before every hit. This
+    // metadata/Actor proof does not open or replace a physical field frame.
+    const databases = db.prepare('PRAGMA database_list').all();
+    if (databases.filter(row => row.name === 'main').length !== 1
+      || databases.some(row => row.name !== 'main' && row.name !== 'temp')
+      || db.prepare("SELECT name FROM temp.sqlite_master WHERE type IN ('table','view') LIMIT 1").get()) {
+      throw new Error('enrollment basis requires main-only authority storage');
+    }
+    // Identity discovery stays fresh, including absent roots and surviving
+    // raw aliases. Null is not a completed proof and is never memoized.
+    const row = samePaEnrollmentRow(db, sourceId); if (!row) return null;
+    return memoSamePaContinuationRead(db, 'enrollment-current-basis-v128:' + json(sourceId),
+      // Own the frozen output rather than freezing a dependency reader's
+      // object that its producer may reuse in a later independent proof.
+      () => freeze(cloneInert(authenticateEnrollmentBasisRow(db, sourceId, row))));
+  });
 };
 export const readSamePlateAppearanceEnrollment = (db:Db,sourceId:string) => readSamePlateAppearanceEnrollmentBasis(db,sourceId)?.enrollment??null;
 /** Original reservation evidence after causal work, settlement or release.

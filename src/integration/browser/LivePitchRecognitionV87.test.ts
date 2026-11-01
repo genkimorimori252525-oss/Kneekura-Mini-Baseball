@@ -12,7 +12,7 @@ it('always records three causal role observations and keeps explicit neutral exe
  const input=source(),baseline=simulateLivePitchV1(input),neutral=createNeutralZoneRecognitionV87(),actual=simulateLivePitchV1({...input,batter:{...input.batter,zoneRecognitionV87:neutral},pitcher:{...input.pitcher,zoneRecognitionV87:neutral}});
  expect(actual.diagnostics.sourceDescriptor).toEqual(baseline.diagnostics.sourceDescriptor);expect(actual.frames).toEqual(baseline.frames);expect(actual.contact).toEqual(baseline.contact);
  const roles=baseline.diagnostics.courseRecognitionV87;expect(roles.batter.role).toBe('batter');expect(roles.pitcher.role).toBe('pitcher');expect(roles.catcher.role).toBe('catcher');
- expect(roles.pitcher.planeZ).toBe(.15);expect(roles.catcher.planeZ).toBe(-.85);
+ expect(roles.pitcher.planeZ).toBe(.4318);expect(roles.batter.planeZ).toBe(.15);expect(roles.catcher.planeZ).toBe(-.85);
  for(const role of Object.values(roles))expect(role.sourceTick).toBeLessThanOrEqual(role.observationTick);
 });
 it('uses the edited batter estimate for swing aim without changing the incoming Source',()=>{

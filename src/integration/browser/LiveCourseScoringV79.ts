@@ -2,9 +2,11 @@ import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
 import { createSourceFreeBallKernel,type SourceFreeBallDescriptorV2 } from '../../core/sim/ball/SourceFreeBallKernel';
 import { resolveHeightRatioStrikeZoneRegion } from '../../core/sim/pitching/RulebookStrikeZone';
+import { resolveLiveBattingSetupV94, type BattingSetupV94 } from '../../core/sim/pitching/BattingSetupV94';
 import { classifyBatterCourseV79,validateBatterCourseProfileV79,type BatterCourseProfileV79 } from './BatterCourseProfileV79';
 import { expandBatterCourseProfileV87ToV79, validateBatterCourseProfileV87, type BatterCourseProfileV87 } from './BatterCourseProfileV87';
 import type { LiveIssuedPitchV1,LivePlayerV1 } from './LiveBaseballMatchV1';
+import {validateLocalScoringV100,type LocalScoringV100} from './LiveMatchScoringV100';
 
 const fail=(s:string):never=>{throw new Error('live course scoring v79: '+s);};
 const assert=(v:unknown,s:string):void=>{if(!v)fail(s);};
@@ -15,15 +17,15 @@ export type LiveScoringFactsV79=Readonly<{outsAtStart:number;priorRunnerCount:nu
   firstDefensiveTouchTick:number|null;firstThrowTick:number|null;batterFirstTouchTick:number|null;
   batterOutBeforeFirst:boolean;otherForceOutBeforeFirst:boolean;caught:boolean;cleanFieldEvidence:boolean;fieldingFailureBeforeFirst:boolean;otherForceChoiceBeforeFirst:boolean}>;
 export type LiveScoringDecisionV79=Readonly<{status:'confirmed'|'pending'|'in_progress';ab:number|null;h:number|null;hr:number|null;reason:string}>;
-export type LiveCourseObservationV79=Readonly<{position:Readonly<{x:number;y:number}>|null;planeZ:.15;
+export type LiveCourseObservationV79=Readonly<{position:Readonly<{x:number;y:number}>|null;planeZ:.15|.4318;
   provenance:'source_plate_crossing'|'source_estimated_after_front_contact'|'missing_source';
   sourceOriginTick:number|null;crossingElapsedSeconds:number|null;
   zone?:Readonly<{centerX:number;halfWidth:number;lowerY:number;upperY:number}>;courseId?:number|null;courseIndex?:number|null;publicZoneId?:number|null}>;
 export type LivePitchSummaryV79=Readonly<{version:'live_pitch_summary_v79';scoringPolicy:'local_physical_scoring_v79_1';pitchId:string;plateAppearanceId:string;
   batterPlayerId:string;pitcherPlayerId:string;before:CanonicalMatchState;after:CanonicalMatchState;endedAtTick:number;
-  classification:string;ended:boolean;gameOver:boolean;scoring:LiveScoringDecisionV79;facts:LiveScoringFactsV79;course:LiveCourseObservationV79;
+  classification:string;ended:boolean;gameOver:boolean;scoring:LiveScoringDecisionV79;facts:LiveScoringFactsV79;course:LiveCourseObservationV79;localScoringV100?:LocalScoringV100;
   spray:Readonly<{velocity:Readonly<{x:number;y:number;z:number}>|null;directionIndex:number|null;foul:boolean;homeRun:boolean}>}>;
-export type LiveGamePlayerV79=Readonly<{playerId:string;name:string;bats:'R'|'L';heightMeters:number;courseProfile?:BatterCourseProfileV79;courseProfileV87?:BatterCourseProfileV87}>;
+export type LiveGamePlayerV79=Readonly<{playerId:string;name:string;bats:'R'|'L';heightMeters:number;courseProfile?:BatterCourseProfileV79;courseProfileV87?:BatterCourseProfileV87;battingSetupV94?:BattingSetupV94}>;
 export type LiveGameStatisticsV79=Readonly<{version:'local_course_game_v79';gameId:string;seed:number;players:readonly LiveGamePlayerV79[];
   records:readonly LivePitchSummaryV79[];finished:boolean;nativeAdmission:false}>;
 
@@ -54,6 +56,9 @@ function decision(classification:string,ended:boolean,f:LiveScoringFactsV79):Liv
     return known(1,1,0,'clean_completed_field_play_hit');
   return pending('hit_error_choice_judgment_missing');
 }
+function localDecision(s:LocalScoringV100):LiveScoringDecisionV79{
+ return {status:s.status,ab:s.ab,h:s.hits,hr:s.homeRuns,reason:s.classification};
+}
 function spray(velocity:LivePitchSummaryV79['spray']['velocity'],classification:string){
   const foul=['foul','foul_out'].includes(classification),angle=velocity?Math.atan2(velocity.x,velocity.z)*180/Math.PI:null;
   const fair=angle!==null&&!foul&&Math.hypot(velocity!.x,velocity!.z)>0&&angle>=-45-1e-10&&angle<=45+1e-10;
@@ -61,18 +66,19 @@ function spray(velocity:LivePitchSummaryV79['spray']['velocity'],classification:
   return {velocity,directionIndex,foul,homeRun:classification==='home_run'};
 }
 function observeCourse(record:LiveIssuedPitchV1):LiveCourseObservationV79{
-  const missing:LiveCourseObservationV79={position:null,planeZ:.15,provenance:'missing_source',sourceOriginTick:null,crossingElapsedSeconds:null};
+  const planeZ=(record.play.diagnostics as {battingSetupV94?:{plateFrontZ?:number}}|null)?.battingSetupV94?.plateFrontZ===.4318 ? .4318 : .15;
+  const missing:LiveCourseObservationV79={position:null,planeZ,provenance:'missing_source',sourceOriginTick:null,crossingElapsedSeconds:null};
   const descriptor=(record.play.diagnostics as {sourceDescriptor?:SourceFreeBallDescriptorV2}|null)?.sourceDescriptor;
   if(!descriptor)return missing;
   // Clone only the Source descriptor, never the Host's history or frame graph.
   const kernel=createSourceFreeBallKernel(descriptor),from=kernel.descriptor.initial.elapsedSeconds,through=kernel.descriptor.throughElapsedSeconds;
-  if(kernel.evaluateAt(from).moment.ball.position.z<.15||kernel.evaluateAt(through).moment.ball.position.z>.15)return missing;
+  if(kernel.evaluateAt(from).moment.ball.position.z<planeZ||kernel.evaluateAt(through).moment.ball.position.z>planeZ)return missing;
   let lo=from,hi=through;
   for(let i=0;i<60&&hi-lo>1e-12;i++){
-    const mid=(lo+hi)/2;if(kernel.evaluateAt(mid).moment.ball.position.z>.15)lo=mid;else hi=mid;
+    const mid=(lo+hi)/2;if(kernel.evaluateAt(mid).moment.ball.position.z>planeZ)lo=mid;else hi=mid;
   }
   const at=kernel.evaluateAt(hi).moment.ball.position,contact=record.play.contactMoment;
-  return {position:{x:at.x,y:at.y},planeZ:.15,
+  return {position:{x:at.x,y:at.y},planeZ,
     provenance:contact&&contact.elapsedSeconds<hi?'source_estimated_after_front_contact':'source_plate_crossing',
     sourceOriginTick:descriptor.initial.originTick,crossingElapsedSeconds:hi};
 }
@@ -103,7 +109,8 @@ export function summarizeLiveIssuedPitchV79(record:LiveIssuedPitchV1):LivePitchS
   return cloneInert({version:'live_pitch_summary_v79',scoringPolicy:'local_physical_scoring_v79_1',pitchId:`${record.beforeMatch.playId}:${rules.endedAtTick}`,
     plateAppearanceId:String(record.beforeMatch.playId),batterPlayerId:record.batterPlayerId,pitcherPlayerId:record.pitcherPlayerId,
     before:record.beforeMatch,after:record.match,endedAtTick:rules.endedAtTick,classification:rules.classification,ended,gameOver:rules.gameOver,
-    scoring:decision(rules.classification,ended,facts),facts,course:observeCourse(record),spray:spray(velocity,rules.classification)});
+    scoring:record.play.localScoringV100?localDecision(record.play.localScoringV100):decision(rules.classification,ended,facts),
+    ...(record.play.localScoringV100?{localScoringV100:record.play.localScoringV100}:{}),facts,course:observeCourse(record),spray:spray(velocity,rules.classification)});
 }
 function minimumThrow(field:LiveIssuedPitchV1['play']['field']){
   const throws=field?.facts.filter(f=>f.kind==='throw_release').map(f=>f.tick)??[];return throws.length?Math.min(...throws):null;
@@ -129,7 +136,7 @@ function dense(raw:unknown,max:number){
   if(Array.isArray(raw))for(let i=0;i<raw.length;i++){const d=Object.getOwnPropertyDescriptor(raw,String(i));assert(d&&d.enumerable&&'value' in d,'inert dense array required');}
 }
 function checkRecord(raw:LivePitchSummaryV79,players:ReadonlyMap<string,LiveGamePlayerV79>):LivePitchSummaryV79{
-  fields(raw,['version','scoringPolicy','pitchId','plateAppearanceId','batterPlayerId','pitcherPlayerId','before','after','endedAtTick','classification','ended','gameOver','scoring','facts','course','spray']);
+  fields(raw,['version','scoringPolicy','pitchId','plateAppearanceId','batterPlayerId','pitcherPlayerId','before','after','endedAtTick','classification','ended','gameOver','scoring','facts','course','spray'],['localScoringV100']);
   const r=cloneInert(raw);assert(r?.version==='live_pitch_summary_v79'&&r.scoringPolicy==='local_physical_scoring_v79_1'&&id(r.pitchId)&&id(r.plateAppearanceId),'invalid pitch identity');
   assert(players.has(r.batterPlayerId)&&players.has(r.pitcherPlayerId)&&r.batterPlayerId!==r.pitcherPlayerId,'unknown pitch player');
   checkState(r.before);checkState(r.after,r.gameOver);
@@ -143,15 +150,21 @@ function checkRecord(raw:LivePitchSummaryV79,players:ReadonlyMap<string,LiveGame
   assert(['bunt','hasFieldFacts','batterOutBeforeFirst','otherForceOutBeforeFirst','caught','cleanFieldEvidence','fieldingFailureBeforeFirst','otherForceChoiceBeforeFirst'].every(k=>typeof f[k as keyof typeof f]==='boolean')
     &&[f.firstDefensiveTouchTick,f.firstThrowTick,f.batterFirstTouchTick].every(nullableTick),'invalid physical scoring facts');
   assert([f.firstDefensiveTouchTick,f.firstThrowTick,f.batterFirstTouchTick].every(t=>t===null||t<=r.endedAtTick),'future scoring fact');
-  assert(same(r.scoring,decision(r.classification,r.ended,f)),'scoring evidence differs');
-  const c=r.course;assert(c&&c.planeZ===.15&&['source_plate_crossing','source_estimated_after_front_contact','missing_source'].includes(c.provenance),'invalid course provenance');
+  if(r.localScoringV100){
+    validateLocalScoringV100(r.localScoringV100);const s=r.localScoringV100,e=s.evidence;
+    assert(s.atTick===r.endedAtTick&&e.playId===r.before.playId&&e.batterRunnerId===r.batterPlayerId&&e.classification===r.classification
+      &&e.ended===r.ended&&e.outsBefore===r.before.outs&&e.bunt===f.bunt,'local scoring context differs');
+    assert(s.errors.every(c=>players.has(c.fielderId)&&c.fielderId!==r.batterPlayerId),'unknown error fielder');
+  }
+  assert(same(r.scoring,r.localScoringV100?localDecision(r.localScoringV100):decision(r.classification,r.ended,f)),'scoring evidence differs');
+  const c=r.course;assert(c&&(c.planeZ===.15||c.planeZ===.4318)&&['source_plate_crossing','source_estimated_after_front_contact','missing_source'].includes(c.provenance),'invalid course provenance');
   fields(c,['position','planeZ','provenance','sourceOriginTick','crossingElapsedSeconds'],['zone','courseId','courseIndex','publicZoneId']);
   assert(c.position===null?c.provenance==='missing_source'&&c.sourceOriginTick===null&&c.crossingElapsedSeconds===null
     :Number.isFinite(c.position.x)&&Number.isFinite(c.position.y)&&c.provenance!=='missing_source'&&count(c.sourceOriginTick)
       &&Number.isFinite(c.crossingElapsedSeconds)&&Number(c.crossingElapsedSeconds)>=0,'invalid course position');
   const v=r.spray.velocity;assert(v===null||v&&[v.x,v.y,v.z].every(Number.isFinite),'invalid outgoing velocity');
   assert(same(r.spray,spray(v,r.classification)),'spray evidence differs');
-  const p=players.get(r.batterPlayerId)!,z=resolveHeightRatioStrikeZoneRegion({plateCenterX:0,playerPhysicalProfile:{heightMeters:p.heightMeters}}),
+  const p=players.get(r.batterPlayerId)!,z=c.planeZ===.4318?resolveLiveBattingSetupV94({heightMeters:p.heightMeters,bats:p.bats,...(p.battingSetupV94===undefined?{}:{battingSetupV94:p.battingSetupV94})}).region:resolveHeightRatioStrikeZoneRegion({plateCenterX:0,playerPhysicalProfile:{heightMeters:p.heightMeters}}),
     zone={centerX:0,halfWidth:z.halfWidth,lowerY:z.lowerY,upperY:z.upperY},category=c.position?classifyBatterCourseV79({position:c.position,zone}):null;
   const course={...c,zone,courseId:category?.courseId??null,courseIndex:category?.courseIndex??null,publicZoneId:category?.publicZoneId??null};
   if(['zone','courseId','courseIndex','publicZoneId'].some(key=>Object.hasOwn(c,key)))assert(same(c,course),'course classification differs');
@@ -163,12 +176,15 @@ export function createLiveGameStatisticsV79(input:Readonly<{gameId:string;seed:n
   assert(Array.isArray(input.players)&&input.players.length>=2&&input.players.length<=100&&Array.isArray(input.records)&&input.records.length<=3000,'bounded game data required');
   const players=input.players.map(raw=>{
     // Explicit projection avoids cloning abilities, measured clips or unrelated rosters.
-    const candidate=raw as LivePlayerV1&{courseProfile?:BatterCourseProfileV79;courseProfileV87?:BatterCourseProfileV87};
+    const candidate=raw as LivePlayerV1&{courseProfile?:BatterCourseProfileV79;courseProfileV87?:BatterCourseProfileV87;battingSetupV94?:BattingSetupV94};
+    const battingSetupV94=candidate.battingSetupV94??raw.physical?.battingSetupV94;
+    if(battingSetupV94!==undefined)resolveLiveBattingSetupV94({heightMeters:raw.heightMeters,bats:raw.bats,battingSetupV94});
     const profileV87=candidate.courseProfileV87??raw.physical?.batterCourseProfileV87;
     const profile=candidate.courseProfile??(profileV87===undefined?raw.physical?.batterCourseProfileV79:expandBatterCourseProfileV87ToV79(profileV87));
     const p:LiveGamePlayerV79=cloneInert({playerId:raw.playerId,name:raw.name,bats:raw.bats,heightMeters:raw.heightMeters,
       ...(profile===undefined?{}:{courseProfile:validateBatterCourseProfileV79(profile)}),
-      ...(profileV87===undefined?{}:{courseProfileV87:validateBatterCourseProfileV87(profileV87)})});
+      ...(profileV87===undefined?{}:{courseProfileV87:validateBatterCourseProfileV87(profileV87)}),
+      ...(battingSetupV94===undefined?{}:{battingSetupV94})});
     assert(id(p.playerId)&&id(p.name)&&['R','L'].includes(p.bats)&&Number.isFinite(p.heightMeters)&&p.heightMeters>=1.1&&p.heightMeters<=2.5,'invalid game player');return p;
   });
   assert(new Set(players.map(p=>p.playerId)).size===players.length,'duplicate game player');
@@ -187,6 +203,6 @@ export function validateLiveGameStatisticsV79(raw:unknown):LiveGameStatisticsV79
   fields(raw,['finished','gameId','nativeAdmission','players','records','seed','version']);
   const r=raw as LiveGameStatisticsV79;assert(r.version==='local_course_game_v79'&&r.nativeAdmission===false,'local game version required');
   dense(r.players,100);dense(r.records,3000);
-  const players=r.players.map(p=>{fields(p,['playerId','name','bats','heightMeters'],['courseProfile','courseProfileV87']);return cloneInert(p);});
+  const players=r.players.map(p=>{fields(p,['playerId','name','bats','heightMeters'],['courseProfile','courseProfileV87','battingSetupV94']);return cloneInert(p);});
   const checked=createLiveGameStatisticsV79({...r,players});assert(same(checked,r),'imported game differs from canonical local projection');return checked;
 }

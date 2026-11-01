@@ -167,6 +167,10 @@ export const assertSamePaRegistrationBeforeWork = (db:Db,scope:Scope & Readonly<
     const schema=db.prepare('SELECT type,name FROM main.sqlite_master WHERE lower(name)=lower(?)').all(owner);
     if(!schema.length)continue;
     if(schema.length!==1||schema[0].type!=='table'||schema[0].name!==owner)fail();
+    // With no original rows there can be no indexed or JSON-mirrored claim.
+    // Read afresh on this connection/snapshot; retain every typed predicate
+    // below for occupied tables, and never cache the empty-table result.
+    if(!db.prepare(`SELECT 1 FROM main.${owner} LIMIT 1`).get())continue;
     const cols=new Set(db.prepare(`PRAGMA main.table_info(${owner})`).all().map(c=>String(c.name)));
     const clauses:string[]=[];
     if(cols.has('game_id')&&cols.has('play_id'))clauses.push('(game_id=$game AND play_id=$play)');

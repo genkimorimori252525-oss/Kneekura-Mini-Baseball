@@ -21,8 +21,8 @@ export type ContinuousPitchFixtureGameIdentity = Readonly<{
 /** Actual Native owners, explicit synthetic bodies/physics/calibration, no forced count events. */
 export const continuousPitchFixture = (databasePath?: string, bothSides = false, fixture?: Parameters<typeof officialPitchWorkloadFixture>[4], profile?: Parameters<typeof officialPitchWorkloadFixture>[5], rehabPlayerIds: readonly string[] = [],
   originalBaseCenters?: ReturnType<typeof worldSetup>['baseCenters'], originalDefenders?: ReturnType<typeof worldSetup>['defenders'],
-  initializeCalendar?: Parameters<typeof officialPitchWorkloadFixture>[7], identity?: ContinuousPitchFixtureGameIdentity) => {
-  const f = officialPitchWorkloadFixture(true, true, databasePath, bothSides, fixture, profile, rehabPlayerIds, initializeCalendar);
+  initializeCalendar?: Parameters<typeof officialPitchWorkloadFixture>[7], identity?: ContinuousPitchFixtureGameIdentity, fixtureGameDay?: number) => {
+  const f = officialPitchWorkloadFixture(true, true, databasePath, bothSides, fixture, profile, rehabPlayerIds, initializeCalendar, fixtureGameDay);
   const gameIdentity: ContinuousPitchFixtureGameIdentity = { initialWorldSourceId: identity?.initialWorldSourceId ?? 'initial-world',
     pitchSourcePrefix: identity?.pitchSourcePrefix ?? 'pitch', outingId: identity?.outingId ?? 'outing-1' };
   const setup = { sourceId: gameIdentity.initialWorldSourceId, sourceVersion: 'fixture-v1', gameId: f.gameId, fixtureEventId: f.fixtureBinding.fixtureEventId,

@@ -1,4 +1,8 @@
+import type { LiveFielderBodyControlsV105 } from '../../core/sim/fielding/LiveFielderBodyGeometryV105';
+import { liveAthleticControlBoundsV115, type LiveAthleticControlsV115 } from '../../core/sim/LiveAthleticControlsV115';
+import { liveFielderBodyControlBoundsV105, resolveLiveFielderBodyModelV105 } from '../../core/sim/fielding/LiveFielderBodyGeometryV105';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
+import { validateFieldRelationshipsV99, type FieldRelationshipV99 } from '../../core/sim/fielding/LiveReceiveTimingV99';
 import { LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1, type LivePlayerPhysicalV1, type LivePlayerV1 } from './LiveBaseballMatchV1';
 import { createWorkbenchPlayer, WORKBENCH_TICKS_PER_SECOND, type WorkbenchPlayer } from './WorkbenchPlayer';
 import { validateLiveTraitProfileV1, type LiveTraitProfileV1 } from './LiveTraitProfilesV1';
@@ -8,13 +12,36 @@ import { validatePitchRepertoireV78, type PitchRepertoireV78 } from './LivePitch
 import { validateBatterCourseProfileV79, type BatterCourseProfileV79 } from './BatterCourseProfileV79';
 import { validateBatterCourseProfileV87, type BatterCourseProfileV87 } from './BatterCourseProfileV87';
 import { validateZoneRecognitionV87, type ZoneRecognitionV87 } from './ZoneRecognitionV87';
+import { resolveLiveBattingSetupV94, validateBattingSetupV94, type BattingSetupV94 } from '../../core/sim/pitching/BattingSetupV94';
+import {validateSwingPolicyV121,type SwingPolicyV121} from '../../core/decision/batting/BatterApproachPolicyV121';
+import {evaluateBatSwingCapacityV121,type BatSwingCapacityModelV121} from './BatSwingCapacityV121';
+import {validateSwingExecutionV122,type SwingExecutionV122} from './LiveSwingExecutionV122';
+import {validateBatterApproachV122,type BatterApproachV122} from '../../core/decision/batting/BatterIntentV122';
+import {validateLiveSpinControlV123,type LiveSpinControlV123} from './LiveSpinControlV123';
+import type {ReferenceBatEnvelopeV133} from '../../core/sim/contact/ReferenceBatEnvelopeV133';
+import {validateLiveSwingEnvelopeV133} from './LiveSwingEnvelopeV133';
 
 /** Explicit numerical controls, not conversions from a trait grade or league.
  * SI/tick authoring remains local input; this adapter grants no Native authority. */
-export type LivePhysicalAbilityControlsV1 = Readonly<{
+export type LivePhysicalAbilityControlsV1 = LiveFielderBodyControlsV105 & LiveAthleticControlsV115 & Readonly<{
+  swingPolicyV121?: SwingPolicyV121;
+  batSwingCapacityV121?: BatSwingCapacityModelV121;
+  swingExecutionV122?: SwingExecutionV122;
+  swingEnvelopeV133?: ReferenceBatEnvelopeV133;
+  batterApproachV122?: BatterApproachV122;
+  spinControlV123?: LiveSpinControlV123;
+  /** Directional professional trust/coordination; not base ability or friendship. */
+  fieldRelationshipsV99?: readonly FieldRelationshipV99[];
+  /** Optional normal-pose and support-foot authoring. Omission retains the legacy stance. */
+  battingSetupV94?: BattingSetupV94;
   maximumPitchSpeedMps?: number; maximumSweetSpotSpeedMps?: number; targetSweetSpotSpeedMps?: number;
   motorLatencySeconds?: number; technicalTimingOffsetSeconds?: number; sweetSpotT?: number;
   attackAngleDegrees?: number; pullAngleDegrees?: number; badBallControl?: number; defensiveDecisionSeconds?: number;
+  /** Field-only response multiplier. Omission is neutral; runner reaction is independent. */
+  fieldingReactionScaleV98?: number;
+  transferDelayMaxSecondsV101?: number;
+  /** Additional full-effort preparation; omission uses the shared .60s V103 model. */
+  throwEffortBuildSecondsV103?: number;
   /** Optional local measured-bat adjustment; omitted values preserve old paths. */
   impactTrajectory?: ImpactTrajectorySettingsV1;
   /** Course-estimate uncertainty, independent of willingness to chase/swing. */
@@ -52,14 +79,17 @@ export type LivePhysicalRosterEntryV1 = Readonly<{
 export type LivePhysicalRosterInputV1 = Readonly<{ version: 'live_physical_roster_v1'; sourceId: string; entries: readonly LivePhysicalRosterEntryV1[] }>;
 type Projection = Readonly<{ inputPath: string; targetPath: string; conversion: string; value: unknown }>;
 type Unsupported = Readonly<{ path: string; value: unknown; reason: string }>;
+const athleticKeys = Object.keys(liveAthleticControlBoundsV115) as (keyof LiveAthleticControlsV115)[];
 const scalarKeys = ['batLengthM', 'batMassKg', 'swingRate', 'timingStdSeconds', 'aimStdMeters', 'chaseMarginMeters', 'releaseSpeedMps',
   'commandStdMeters', 'reactionSeconds', 'topSpeedMps', 'accelerationMps2', 'gloveSpeedMps', 'gloveReachMeters', 'gloveRadiusMeters',
   'retentionCapacityJ', 'captureDissipationPowerW', 'transferSeconds', 'throwSpeedMps', 'maximumPitchSpeedMps',
   'maximumSweetSpotSpeedMps', 'targetSweetSpotSpeedMps', 'motorLatencySeconds', 'technicalTimingOffsetSeconds', 'sweetSpotT',
   'attackAngleDegrees', 'pullAngleDegrees', 'badBallControl', 'defensiveDecisionSeconds', 'preContactSeconds', 'followThroughSeconds', 'contactDepthMeters', 'throwDirectionStdRadians', 'zoneJudgmentStdMeters',
   'baserunningSafetyMarginSeconds', 'fieldingPursuitCostWeight', 'baserunningTurnRadiusMeters', 'baserunningLateralAccelerationMps2', 'plateVision',
-  'pitchReleaseHeightMeters', 'pitchReleaseSideMeters', 'pitchReleaseExtensionMeters', 'minimumSpinRatio'] as const;
-const physicalKeys: readonly string[] = ['basis', ...scalarKeys, 'spinRadPerSecond', 'clipId', 'swingDecision', 'impactTrajectory', 'pitchRepertoire', 'pitchingMotion', 'pitchRepertoireV78', 'batterCourseProfileV79', 'batterCourseProfileV87', 'zoneRecognitionV87'];
+  'pitchReleaseHeightMeters', 'pitchReleaseSideMeters', 'pitchReleaseExtensionMeters', 'minimumSpinRatio', 'fieldingReactionScaleV98', 'transferDelayMaxSecondsV101', 'throwEffortBuildSecondsV103',
+  'fieldArmReachMetersV105', 'fieldShoulderHeightRatioV105', 'fieldEyeHeightRatioV105', 'fieldCrouchFractionV105',
+  'fieldPostureSpeedMpsV105', 'fieldTurnSpeedRadiansPerSecondV105', 'fieldRearReachFractionV105', ...athleticKeys] as const;
+const physicalKeys: readonly string[] = ['basis', ...scalarKeys, 'spinRadPerSecond', 'clipId', 'swingDecision', 'impactTrajectory', 'pitchRepertoire', 'pitchingMotion', 'pitchRepertoireV78', 'batterCourseProfileV79', 'batterCourseProfileV87', 'zoneRecognitionV87', 'battingSetupV94', 'fieldRelationshipsV99','swingPolicyV121','batSwingCapacityV121','swingExecutionV122','batterApproachV122','spinControlV123','swingEnvelopeV133'];
 const bounds: Partial<Record<typeof scalarKeys[number], readonly [number, number]>> = {
   batLengthM: [.2, 3], batMassKg: [.1, 5], swingRate: [.3, 3], timingStdSeconds: [0, .08], aimStdMeters: [0, .35],
   chaseMarginMeters: [0, .6], releaseSpeedMps: [15, 85], maximumPitchSpeedMps: [15, 85], commandStdMeters: [0, .6],
@@ -73,6 +103,9 @@ const bounds: Partial<Record<typeof scalarKeys[number], readonly [number, number
   plateVision: [1, 100],
   pitchReleaseHeightMeters: [.2, 3.2], pitchReleaseSideMeters: [0, 1.5], pitchReleaseExtensionMeters: [0, 3.5],
   minimumSpinRatio: [0, 1],
+  fieldingReactionScaleV98: [0, 4], transferDelayMaxSecondsV101: [0, 2], throwEffortBuildSecondsV103: [0, 5],
+  ...liveFielderBodyControlBoundsV105,
+  ...liveAthleticControlBoundsV115,
   baserunningSafetyMarginSeconds: [0, 3], fieldingPursuitCostWeight: [.25, 4],
   baserunningTurnRadiusMeters: [.5, 10], baserunningLateralAccelerationMps2: [.5, 20],
 };
@@ -111,6 +144,14 @@ function fields(value: unknown, allowed: readonly string[], required: readonly s
 function validatePhysical(raw: unknown): asserts raw is LiveRosterPhysicalV1 {
   fields(raw, physicalKeys, ['basis'], 'physical');
   assert(raw.basis === 'EXPLICIT_AUTHORED_SI_V1', 'explicit SI basis required');
+  if(Object.hasOwn(raw,'swingPolicyV121'))validateSwingPolicyV121(raw.swingPolicyV121);
+  if(Object.hasOwn(raw,'swingExecutionV122'))validateSwingExecutionV122(raw.swingExecutionV122);
+  if(Object.hasOwn(raw,'swingEnvelopeV133'))validateLiveSwingEnvelopeV133(raw.swingEnvelopeV133,raw.swingExecutionV122);
+  if(Object.hasOwn(raw,'batterApproachV122'))validateBatterApproachV122(raw.batterApproachV122);
+  if(Object.hasOwn(raw,'spinControlV123'))validateLiveSpinControlV123(raw.spinControlV123);
+  if(Object.hasOwn(raw,'batSwingCapacityV121'))evaluateBatSwingCapacityV121({maximumSweetSpotSpeedMps:Number(raw.maximumSweetSpotSpeedMps??45),
+    bat:{massKg:Number(raw.batMassKg??.9),lengthM:Number(raw.batLengthM??.84),sweetSpotT:Number(raw.sweetSpotT??.8)},model:raw.batSwingCapacityV121 as BatSwingCapacityModelV121});
+  if (Object.hasOwn(raw, 'fieldRelationshipsV99')) validateFieldRelationshipsV99(raw.fieldRelationshipsV99);
   for (const key of scalarKeys) if (Object.hasOwn(raw, key)) {
     const value = raw[key], limits = bounds[key];
     assert(typeof value === 'number' && Number.isFinite(value) && (limits ? value >= limits[0] && value <= limits[1]
@@ -127,6 +168,7 @@ function validatePhysical(raw: unknown): asserts raw is LiveRosterPhysicalV1 {
   if (Object.hasOwn(raw, 'batterCourseProfileV79')) validateBatterCourseProfileV79(raw.batterCourseProfileV79);
   if (Object.hasOwn(raw, 'batterCourseProfileV87')) validateBatterCourseProfileV87(raw.batterCourseProfileV87);
   if (Object.hasOwn(raw, 'zoneRecognitionV87')) validateZoneRecognitionV87(raw.zoneRecognitionV87);
+  if (Object.hasOwn(raw, 'battingSetupV94')) validateBattingSetupV94(raw.battingSetupV94);
   if (Object.hasOwn(raw, 'pitchRepertoire')) validatePitchRepertoireV77(raw.pitchRepertoire, raw.maximumPitchSpeedMps as number | undefined);
   assert(!(Object.hasOwn(raw, 'pitchRepertoire') && Object.hasOwn(raw, 'pitchRepertoireV78')), 'ambiguous V77 and V78 pitch ownership');
   if (Object.hasOwn(raw, 'pitchRepertoireV78')) validatePitchRepertoireV78(raw.pitchRepertoireV78, raw.maximumPitchSpeedMps as number | undefined);
@@ -136,8 +178,13 @@ function validatePhysical(raw: unknown): asserts raw is LiveRosterPhysicalV1 {
     assert(['AUTO', 'TAKE', 'SWING'].includes(raw.swingDecision.approach as string)
       && [raw.swingDecision.threshold, raw.swingDecision.aggressionWeight].every(v => typeof v === 'number' && Number.isFinite(v) && v >= decisionBounds[0] && v <= decisionBounds[1]), 'invalid explicit swing decision');
   }
-  if (raw.maximumSweetSpotSpeedMps !== undefined && raw.targetSweetSpotSpeedMps !== undefined)
-    assert((raw.targetSweetSpotSpeedMps as number) <= (raw.maximumSweetSpotSpeedMps as number), 'target swing speed exceeds declared motor ceiling');
+  if (raw.maximumSweetSpotSpeedMps !== undefined && raw.targetSweetSpotSpeedMps !== undefined){
+    const capacity=raw.batSwingCapacityV121===undefined?null:evaluateBatSwingCapacityV121({maximumSweetSpotSpeedMps:raw.maximumSweetSpotSpeedMps as number,
+      bat:{massKg:Number(raw.batMassKg??.9),lengthM:Number(raw.batLengthM??.84),sweetSpotT:Number(raw.sweetSpotT??.8)},model:raw.batSwingCapacityV121 as BatSwingCapacityModelV121}),
+      ceiling=capacity?.effectiveMaxSweetSpotSpeedMps??raw.maximumSweetSpotSpeedMps as number;
+    assert((raw.targetSweetSpotSpeedMps as number)<=ceiling,capacity?.effectiveMaxSweetSpotSpeedMps!==null&&capacity!==null
+      ?'このバットの推定上限 '+ceiling.toFixed(3)+' m/s以下へ目標芯速度を下げてください。':'target swing speed exceeds declared motor ceiling');
+  }
 }
 
 /** Preserves identity and every unsupported authored field. PROJECTED here means
@@ -167,10 +214,46 @@ export function applyLivePhysicalRosterV1(raw: unknown) {
     const entry = entries.find(e => e.playerId === player.playerId), projected: Projection[] = [], unsupported: Unsupported[] = [];
     let physical: LiveRosterPhysicalV1 = { ...(player.physical ?? LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1) }, heightMeters = player.heightMeters;
     validatePhysical(physical);
+    if(entry){
+      const {swingPolicyV121:_previousPolicy,batSwingCapacityV121:_previousCalibration,swingExecutionV122:_previousExecution,batterApproachV122:_previousApproach,spinControlV123:_previousSpin,swingEnvelopeV133:_previousEnvelope,...withoutV121}=physical;
+      physical=withoutV121;
+    }
     let sourcePlayerId: string | null = null;
     const project = (inputPath: string, targetPath: string, value: unknown, conversion = 'identity') => {
       projected.push({ inputPath, targetPath, value: cloneInert(value), conversion });
     };
+    // An imported older packet must not inherit the latest initial-roster
+    // field-only tuning from an already projected player. Ordinary omission
+    // remains byte-compatible unless there was a prior explicit multiplier.
+    if (physical.fieldingReactionScaleV98 !== undefined && entry?.physical?.fieldingReactionScaleV98 === undefined) {
+      physical = { ...physical, fieldingReactionScaleV98: 1 };
+      project('physical.fieldingReactionScaleV98', 'fieldingReactionScaleV98', 1, 'LEGACY_OMISSION_IS_NEUTRAL_V98');
+    }
+    if (physical.transferDelayMaxSecondsV101 !== undefined && entry?.physical?.transferDelayMaxSecondsV101 === undefined) {
+      physical = { ...physical, transferDelayMaxSecondsV101: 0 };
+      project('physical.transferDelayMaxSecondsV101', 'transferDelayMaxSecondsV101', 0, 'LEGACY_OMISSION_IS_ZERO_V101');
+    }
+    // Importing an older packet uses the new common model, not a previously
+    // edited player's charge value. Only the projection gains this default.
+    if (entry?.physical?.throwEffortBuildSecondsV103 === undefined) {
+      const buildSeconds = LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1.throwEffortBuildSecondsV103!;
+      physical = { ...physical, throwEffortBuildSecondsV103: buildSeconds };
+      project('physical.throwEffortBuildSecondsV103', 'throwEffortBuildSecondsV103', buildSeconds, 'LEGACY_OMISSION_USES_COMMON_MODEL_V103');
+    }
+    // Omission is a derived height-based model, never a stale previous override.
+    // Keep authoring JSON sparse and preserve the source player's legacy reach.
+    const bodyKeys = ['fieldArmReachMetersV105', 'fieldShoulderHeightRatioV105', 'fieldEyeHeightRatioV105',
+      'fieldCrouchFractionV105', 'fieldPostureSpeedMpsV105', 'fieldTurnSpeedRadiansPerSecondV105', 'fieldRearReachFractionV105'] as const;
+    for (const key of bodyKeys) if (physical[key] !== undefined && entry?.physical?.[key] === undefined) {
+      const next = { ...physical }; delete next[key]; physical = next;
+      project('physical.' + key, key, null, 'LEGACY_OMISSION_DERIVES_FROM_HEIGHT_V105');
+    }
+    // Old sparse packets derive from the current individual's SI inputs, not
+    // an override left on a previously projected player. Do not materialize defaults.
+    for (const key of athleticKeys) if (physical[key] !== undefined && entry?.physical?.[key] === undefined) {
+      const next = { ...physical }; delete next[key]; physical = next;
+      project('physical.' + key, key, null, 'LEGACY_OMISSION_DERIVES_INDIVIDUAL_ATHLETICS_V115');
+    }
     if (entry?.physical) {
       validatePhysical(entry.physical);
       physical = { ...physical, ...entry.physical };
@@ -181,6 +264,7 @@ export function applyLivePhysicalRosterV1(raw: unknown) {
       sourcePlayerId = maker.identity.playerId; heightMeters = maker.body.heightMeters;
       physical = { ...physical, batLengthM: maker.bat.lengthM, batMassKg: maker.bat.massKg, sweetSpotT: maker.bat.sweetSpotT,
         maximumSweetSpotSpeedMps: c.maximumSweetSpotSpeedMps, targetSweetSpotSpeedMps: s.speedMps,
+        ...(c.batSwingCapacityV121===undefined?{}:{batSwingCapacityV121:c.batSwingCapacityV121}),
         motorLatencySeconds: c.motorLatencyTicks / WORKBENCH_TICKS_PER_SECOND,
         technicalTimingOffsetSeconds: c.technicalTimingOffsetTicks / WORKBENCH_TICKS_PER_SECOND,
         timingStdSeconds: c.timingErrorTicks / WORKBENCH_TICKS_PER_SECOND, aimStdMeters: c.positionErrorMeters,
@@ -235,6 +319,8 @@ export function applyLivePhysicalRosterV1(raw: unknown) {
     if (traitProfile !== undefined) project('traitProfile', 'traitProfile', traitProfile,
       traitProfile.version === 'live_trait_profile_v2' ? 'INDEPENDENT_RUNTIME_TECHNIQUE_BASE_SI_UNCHANGED' : 'LOCAL_SOURCE_METADATA_NO_ADDITIONAL_EFFECT');
     assert(heightMeters >= heightBounds[0] && heightMeters <= heightBounds[1], 'unsupported physical height');
+    resolveLiveFielderBodyModelV105(heightMeters, physical.gloveReachMeters, Object.fromEntries(Object.keys(liveFielderBodyControlBoundsV105).filter(k => physical[k as keyof typeof liveFielderBodyControlBoundsV105] !== undefined).map(k => [k, physical[k as keyof typeof liveFielderBodyControlBoundsV105]])));
+    resolveLiveBattingSetupV94({ heightMeters, bats: player.bats, contactDepthMeters: physical.contactDepthMeters, battingSetupV94: physical.battingSetupV94 });
     const targetPaths = new Set(projected.map(p => p.targetPath));
     auditPlayers.push({ playerId: player.playerId, sourceId: entry?.sourceId ?? null, sourcePlayerId, projected, unsupported,
       referenceDefaultPaths: player.physical ? [] : Object.keys(LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1).filter(k => k !== 'basis' && !targetPaths.has(k)) });

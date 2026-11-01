@@ -68,9 +68,9 @@ describe('public authoring with individual SI profiles', () => {
     const before = JSON.stringify(roster);
     for (const anchor of reference.anchors) {
       const projection = projectLivePublicAbilitiesV1({ roster, reference, playerId: anchor.playerId });
-      expect(projection.abilities).toHaveLength(10);
+      expect(projection.abilities).toHaveLength(11);
       for (const ability of projection.abilities) {
-        if (ability.id !== 'maxSpeedKmh') expect(ability.value).toBe(anchor.ratings[ability.id]);
+        if (ability.id !== 'maxSpeedKmh') expect(ability.value).toBe(anchor.ratings[ability.id] ?? (ability.id === 'transfer' ? anchor.ratings.field : undefined));
         expect(editLivePublicAbilityV1({ roster, reference, playerId: anchor.playerId, abilityId: ability.id, value: ability.value }).roster).toEqual(roster);
       }
     }

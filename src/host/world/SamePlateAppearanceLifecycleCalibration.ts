@@ -6,6 +6,7 @@ import type { AcceptedSamePaLifecycleCalibration, SamePaLifecycleCalibration } f
 export type { AcceptedSamePaLifecycleCalibration, SamePaLifecycleCalibration } from './SamePlateAppearanceLifecycleCalibrationSource';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { playerBattingModelEvidenceFromSqlite } from './PlayerBattingModelEvidence';
+import { readSamePaPinnedBattingModelV124 } from './SamePaPinnedBattingModelReadV124';
 import { playerObservationModelEvidenceFromSqlite } from './SqlitePlayerObservationModelStore';
 import { playerDecisionModelEvidenceFromSqlite } from './SqlitePlayerDecisionModelStore';
 import { playerLocomotionModelEvidenceFromSqlite } from './SqlitePlayerLocomotionModelStore';
@@ -35,7 +36,7 @@ export const deriveSamePaLifecycleCalibration = (db: DatabaseSync, source: Accep
     if (current) assertCurrentPlayerPitchTimingPrefixFromSqlite(db, source.nominalReference, binding.gameDay); nominal = timing;
   } else if (source.nominalParameterReference) {
     if (binding.playerId !== actor.binding.playerId) throw new Error('lifecycle batting calibration requires original batter');
-    const owner = playerBattingModelEvidenceFromSqlite(db), model = owner.read(source.nominalReference.sourceId);
+    const owner = playerBattingModelEvidenceFromSqlite(db), model = readSamePaPinnedBattingModelV124(db, source.nominalReference);
     if (!model) throw new Error('lifecycle original batting model missing'); same(reference('world_player_batting_models', model), source.nominalReference);
     if (model.source.careerId !== binding.careerId || model.source.playerId !== binding.playerId || model.source.personLinkSourceId !== binding.personLinkSourceId
       || model.source.acceptedAtDay > binding.gameDay || model.bodyMaterialization.source.role !== 'batter') throw new Error('lifecycle batting original scope differs');

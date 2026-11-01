@@ -137,7 +137,7 @@ export const createSourceFreeBallKernel = (raw: SourceFreeBallDescriptorV2): Sou
     if (current.phase === 'airborne' && current.moment.ball.velocity.y < 0 && proposed.moment.ball.velocity.y >= 0) {
       floorHorizon = firstTrue(current.moment.elapsedSeconds, end, time => advance(current, time).moment.ball.velocity.y >= 0);
     }
-    if (current.phase === 'airborne' && advance(current, floorHorizon).moment.ball.position.y <= profile.ground.radiusM) {
+    if (current.phase === 'airborne' && (floorHorizon === end ? proposed : advance(current, floorHorizon)).moment.ball.position.y <= profile.ground.radiusM) {
       const time = firstTrue(current.moment.elapsedSeconds, floorHorizon,
         at => advance(current, at).moment.ball.position.y <= profile.ground.radiusM);
       if (time <= current.moment.elapsedSeconds) throw new Error('continuous ground boundary cannot advance source time');
@@ -165,19 +165,26 @@ export const createSourceFreeBallKernel = (raw: SourceFreeBallDescriptorV2): Sou
     return { fromElapsedSeconds: anchor.moment.elapsedSeconds, throughElapsedSeconds: next.moment.elapsedSeconds,
       maximumPositionSpeedMps, positionRoundingBoundMeters };
   }));
+  // Independent contact probes often ask for exactly the same physical
+  // instant. Reuse only this immutable kernel's frozen result, with exact
+  // double keys and a finite bound. Incoming impacts keep their own owner.
+  const exactEvaluations=new Map<number,SourceFreeBallEvaluation>();
   const evaluateAt = (elapsedSeconds: number, side: 'incoming' | 'outgoing' = 'outgoing'): SourceFreeBallEvaluation => {
     if (!Number.isFinite(elapsedSeconds) || elapsedSeconds < initial.elapsedSeconds
       || elapsedSeconds > descriptor.throughElapsedSeconds || !['incoming', 'outgoing'].includes(side)) {
       throw new Error('nonlinear free ball Source evaluation exceeds its physical horizon');
     }
     if (side === 'incoming' && groundIncoming.has(elapsedSeconds)) return freeze(groundIncoming.get(elapsedSeconds)!);
+    const cached=exactEvaluations.get(elapsedSeconds);if(cached)return cached;
     let low = 0, high = samples.length - 1;
     while (low < high) {
       const middle = Math.ceil((low + high) / 2);
       if (samples[middle].moment.elapsedSeconds <= elapsedSeconds) low = middle; else high = middle - 1;
     }
     const anchor = samples[low];
-    return anchor.moment.elapsedSeconds === elapsedSeconds ? anchor : freeze(advance(anchor, elapsedSeconds));
+    const result=anchor.moment.elapsedSeconds === elapsedSeconds ? anchor : freeze(advance(anchor, elapsedSeconds));
+    if(exactEvaluations.size===256)exactEvaluations.delete(exactEvaluations.keys().next().value!);
+    exactEvaluations.set(elapsedSeconds,result);return result;
   };
   return Object.freeze({ descriptor: freeze(descriptor), boundaries, cells, evaluateAt });
 };

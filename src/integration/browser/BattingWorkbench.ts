@@ -146,14 +146,14 @@ export function simulateBattingWorkbench(raw: BattingWorkbenchInput) {
     for (let tick = startTick; tick <= endTick; tick += 100) maximumSpeed = Math.max(maximumSpeed, speedAt(tick));
     for (const tick of [startTick, startTick + Math.round(preTicks / 2), contactTick,
       contactTick + Math.round(followTicks / 2), endTick]) maximumSpeed = Math.max(maximumSpeed, speedAt(tick));
-    if (maximumSpeed > player.capability.maximumSweetSpotSpeedMps * 1.001) throw new Error('実軌道の芯速度が選手の身体上限を超えます');
+    if (maximumSpeed > sourceValues.capability.maximumSweetSpotSpeedMps * 1.001) throw new Error('実軌道の芯速度が選手の身体上限を超えます');
   }
   // In the no-wind profile, drag dissipates speed and lift is orthogonal to
   // velocity. Gravity bounds ball speed; the admitted bat envelope plus its
   // rigid lever bounds surface speed. Search suspected intervals on the actual
   // 1us source clock, including contacts wholly between the 1ms Aero anchors.
   const relativeSpeedBound = norm(initial.velocity) + 9.81 * flightEnd / p
-    + player.capability.maximumSweetSpotSpeedMps + omega * Math.max(sweetRadius, player.bat.lengthM - sweetRadius);
+    + sourceValues.capability.maximumSweetSpotSpeedMps + omega * Math.max(sweetRadius, player.bat.lengthM - sweetRadius);
   const contactWithin = (anchor: PitchWorldState, lower: number, upper: number): number | null => {
     const at = (tick: number) => advanceAerodynamicPitchState(anchor, tick - anchor.tick, parameters);
     const separation = (tick: number) => measureRigidBatBallSurfaceSeparation(at(tick), rigidAt(shouldSwing ? tick : 0), equipment.ball);
@@ -220,7 +220,7 @@ export function simulateBattingWorkbench(raw: BattingWorkbenchInput) {
     batFrames.push({ tick, ...state.pose, sweetSpot, sweetSpotVelocity,
       body: { shoulders, elbows: hands.map((h, i) => elbow(shoulders[i], h, i)), hands, torsoCenter: { ...shoulderCenter, y: player.body.heightMeters * 0.5 } } });
   }
-  if (maximumSpeed > player.capability.maximumSweetSpotSpeedMps * 1.001) throw new Error('実軌道の芯速度が選手の身体上限を超えます');
+  if (maximumSpeed > sourceValues.capability.maximumSweetSpotSpeedMps * 1.001) throw new Error('実軌道の芯速度が選手の身体上限を超えます');
   let flightFrames: readonly FreeBaseballSample[] = [], firstLanding: Vec3 | null = null;
   if (contact) {
     const throughTick = contact.tick + Math.round(duration * p);

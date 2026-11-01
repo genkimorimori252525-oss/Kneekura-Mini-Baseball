@@ -58,12 +58,24 @@
     category=playOuts?'out':'in-play';
    }
   }else {label='判定情報なし';category='unknown';}
-  const officialHit={single:'single',double:'double',triple:'triple',home_run:'home_run'}[classification]??null;
+  const local=play.localScoringV100;
+  if(local?.status==='confirmed'){
+   const hitLabels={1:'ヒット（単打）',2:'二塁打',3:'三塁打',4:'ホームラン'};
+   if(local.hits===1){label=hitLabels[local.hitBases]??'ヒット';category='hit';if(playOuts)label+='・'+outReasons.map(o=>o.label).join('・');}
+   else if(local.classification==='fielders_choice'){label='野手選択'+(playOuts?'・'+outReasons.map(o=>o.label).join('・'):'');category='in-play';}
+   else if(local.classification==='reached_on_error'){label='失策出塁';category='in-play';}
+   else if(local.classification.startsWith('sacrifice_fly'))label='犠牲フライ';
+   else if(local.classification.startsWith('sacrifice_bunt'))label='犠牲バント';
+  }
+  if(local?.errors.length)label+='・失策 '+local.errors.length;
+  if(local&&(local.status==='pending'||!local.errorsComplete))label+='（記録判定は保留）';
+  const officialHit=local?(local.hits===1?{1:'single',2:'double',3:'triple',4:'home_run'}[local.hitBases]??null:null):{single:'single',double:'double',triple:'triple',home_run:'home_run'}[classification]??null;
   return {label,category,classification,availableAtTick:ended,playOuts,outsBefore,outsAfter,thirdOut,
    thirdOutAtTick:thirdOut?outcomes.at(-1)?.tick??null:null,
    batter:{playerId:batterId,out:!!batterOut,outAtTick:batterOut?.tick??null,baseReached,finalBase,scored:batterScored},
    outReasons,runCount:new Set(scored).size,
-   scoring:{officialHit,officialError:null,basis:officialHit?'EXPLICIT_CORE_CLASSIFICATION':'HIT_ERROR_SCORING_NOT_PROVIDED'}};
+   scoring:{officialHit,officialError:local?.errorsComplete?local.errors.length:null,
+    basis:local?'LOCAL_MATCH_SCORING_V100':officialHit?'EXPLICIT_CORE_CLASSIFICATION':'HIT_ERROR_SCORING_NOT_PROVIDED',local:local??null}};
  }
  root.KneekuraLivePlayDescription=Object.freeze({version:1,describe});
 })(typeof globalThis==='object'?globalThis:this);

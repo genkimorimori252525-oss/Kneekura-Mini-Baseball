@@ -40,3 +40,9 @@ it('declares a strict V244 contact-frame motor without accepting XY fields',()=>
  const plan=declareSpinPracticeEpisodesV242({scopeId:'s',motor:frame,criterion:null,episodeSeeds:[1]});expect(plan.motor).toEqual(frame);
  expect(()=>declareSpinPracticeEpisodesV242({scopeId:'s',motor:{...frame,delta:{x:0,y:0}} as typeof frame,criterion:null,episodeSeeds:[1]})).toThrow();
 });
+it('declares a strict V248 robust motor with independent budgets',()=>{
+ const {delta,...base}=motor;void delta;
+ const robust={...base,version:'live_robust_contact_frame_motor_v248' as const,policy:'finite_sigma_v247' as const,thresholds:{minimumComponent:1,minimumImprovement:1},maximumEvaluations:259,maximumSearchSamples:259*4096};
+ expect(declareSpinPracticeEpisodesV242({scopeId:'s',motor:robust,criterion:null,episodeSeeds:[1]}).motor).toEqual(robust);
+ expect(()=>declareSpinPracticeEpisodesV242({scopeId:'s',motor:{...robust,seed:1} as typeof robust,criterion:null,episodeSeeds:[1]})).toThrow();
+});

@@ -15,6 +15,17 @@ const scenario = () => {
       batLengthM:.84,sweetSpotT:.72,sourceTicksPerSecond:1_000_000,startTick:140_000,ticksPerSecond:1_000_000,playbackRate:1,
       transform:{rotation:{x:0,y:0,z:0,w:1},translation:{x:0,y:0,z:0},scale:1}}};
 };
+it('enforces the effective equipment ceiling on the measured reference without retiming or clamping', () => {
+  const input = scenario();
+  input.player.capability.maximumSweetSpotSpeedMps = 1.2; input.player.swing.speedMps = .5;
+  input.player.capability.batSwingCapacityV121 = { modelId: 'GENERIC_BAT_INERTIA_CALIBRATION_V121',
+    baselineBat: { ...input.player.bat }, calibration: { calibrationId: 'synthetic-only', source: 'Synthetic contract fixture',
+      inertiaExponent: .5, minimumInertiaRatio: .25, maximumInertiaRatio: 4 } };
+  input.player.bat.massKg *= 2;
+  const before = JSON.stringify(input);
+  expect(() => simulateReferenceBattingWorkbench(input)).toThrow(/上限/);
+  expect(JSON.stringify(input)).toBe(before);
+});
 it('uses the same reference state for the visible bat, actual rigid contact, and subsequent Aero/ground ball',()=>{
   const input=scenario(),result=simulateReferenceBattingWorkbench(input);
   expect(result.contact).not.toBeNull(); expect(result.flightFrames.length).toBeGreaterThan(50);

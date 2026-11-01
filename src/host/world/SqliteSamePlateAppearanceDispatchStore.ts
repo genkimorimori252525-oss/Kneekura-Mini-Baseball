@@ -3,13 +3,15 @@ import { bindSamePaInitialPlayToObservedPitchWithBatV2 } from './SamePlateAppear
 import { sqliteMetadataClaimRows } from './SqliteMetadataStatementScope';
 import { readSamePaInitialPlayFromSqlite } from './SqliteSamePlateAppearanceInitialBallStore';
 import { bindSamePaInitialPlayToPitch, bindSamePaInitialPlayToObservedPitch } from './SamePlateAppearanceInitialBallProof';
-import { battingAssessmentOwners } from './BattingAssessmentOwnership';
+import { assertSamePaAssessmentProvenanceV129 } from './SamePaAssessmentProvenanceV129';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
 import { randomUUID } from 'node:crypto';
 import { actorHash as hash, actorJson as json, actorFreeze as freeze, readPhysicalPlateAppearanceActorFromSqlite, assertPhysicalActorOpenFrame, type DurablePhysicalPlateAppearanceActor } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
-import { withSamePaContinuationReadPhase } from './SamePlateAppearanceContinuationFromSqlite';
+import { assertNoMutableSamePaContinuationReadPhase, memoSamePaContinuationRead, withSamePaContinuationReadPhase } from './SamePlateAppearanceContinuationFromSqlite';
+import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
+import { reusableBattedWorldFieldReadSnapshot } from './SqliteBattedWorldFieldStore';
 import { paDispatchSchema, assertPaDispatchStorage } from './SamePlateAppearanceDispatchStorage';
 import { samePaDispatchSourceInput, assertSamePaDispatchSourceBasis, type SamePaDispatchBase, type AcceptedSamePaFirstPitchAction, type AcceptedSamePaExecutionCalibration, type AcceptedSamePaPhysicalPitch, type AcceptedSamePaObservedPhysicalPitch } from './SamePlateAppearanceDispatchSource';
 import { deriveSamePaDispatchRoles, samePaDispatchPrerequisites, type SamePaDispatchRoleBinding, type SamePaDispatchRoute } from './SamePlateAppearanceDispatchRoles';
@@ -240,12 +242,8 @@ const createSqliteSamePlateAppearanceDispatchOwner = (path: string, authority?: 
       const common = { basis: b, role, player, person, member: role.member,
         reservedState: participant.reservedState, projectedState: participant.projectedState };
       const authenticated = <T extends { route: SamePaDispatchRoute; nominal: unknown }>(input: T) => {
-        for (const table of [...battingAssessmentOwners, 'pa_lifecycle_v1_total_assessments', 'pa_lifecycle_v1_execution_calibrations', 'pa_dispatch_v1_execution_calibrations', 'reserved_pa_total_assessments', 'actual_role_workload_assessments', 'pa_continuation_v1_total_assessments', 'pa_continuation_v1_execution_calibrations']) {
-          if (!db.prepare('SELECT 1 FROM main.sqlite_master WHERE name=?').get(table)) continue;
-          const rows = sqliteMetadataClaimRows(db, `SELECT source_id FROM main.${table} WHERE source_id=$id OR ${claim('source_json', ['sourceId'], '$id')}
-            OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')} OR ${claim('source_json', ['provenance', 'assessmentSourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'provenance', 'assessmentSourceId'], '$id')}`, source.provenance.assessmentSourceId);
-          if (rows.some(row => table !== dispatchTables.calibration || row.source_id !== source.sourceId)) throw new Error('dispatch calibration assessment provenance ownership differs');
-        }
+        assertSamePaAssessmentProvenanceV129(db, source.provenance.assessmentSourceId,
+          { table: dispatchTables.calibration, sourceId: source.sourceId }, 'dispatch calibration assessment provenance ownership differs');
         assertActive(); return { kind: 'authenticated_calibration' as const, ...common, ...input };
       };
       if (source.route === 'pitch_delivery') {
@@ -689,13 +687,38 @@ const readDispatchOriginalFromSqlite = <T>(db: DatabaseSync, body: (owner: Retur
 };
 /** Same-connection committed historical evidence. This reader grants no fresh
  * admission or sensory cut; callers still need their exact owned sampling cut. */
-export const readSamePaExecutedPitchFromSqlite = (db: DatabaseSync, raw: SamePaReference<'pa_dispatch_v1_pitch_actions'>) => {
-  const ref = cloneInert(raw); if (!samePaReferenceValid(ref, 'pa_dispatch_v1_pitch_actions')) throw new Error('invalid same-PA historical pitch reference');
+const readCommittedExecutedPitchFromSqlite = (db: DatabaseSync, ref: SamePaReference<'pa_dispatch_v1_pitch_actions'>) => {
   return readDispatchOriginalFromSqlite(db, owner => {
     const value = owner.readPitchInProof(ref.sourceId); if (!value) throw new Error('same-PA historical pitch owner missing');
     if(value.pitch.kind!=='same_pa_first_pitch_executed_v1')throw new Error('observed launch requires its own historical reader');
     if(value.consumer.kind!=='same_pa_pitch_delivery_invocation_v1')throw new Error('declared take consumer kind differs');
     same(value.reference, ref); return {...value,pitch:value.pitch,consumer:value.consumer};
+  });
+};
+export const readSamePaExecutedPitchFromSqlite = (db: DatabaseSync, raw: SamePaReference<'pa_dispatch_v1_pitch_actions'>) => {
+  const parse = () => {
+    const ref = cloneInert(raw);
+    if (!samePaReferenceValid(ref, 'pa_dispatch_v1_pitch_actions')) throw new Error('invalid same-PA historical pitch reference');
+    return ref;
+  };
+  const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  if (!(db instanceof Native) || !db.isTransaction || db.prepare('PRAGMA query_only').get()!.query_only !== 1) {
+    if (db instanceof Native) assertNoMutableSamePaContinuationReadPhase(db);
+    return readCommittedExecutedPitchFromSqlite(db, parse());
+  }
+  return withSamePaContinuationReadPhase(db, () => {
+    const ref = parse();
+    return withBattedVenueLegalReadSnapshot(db, () => {
+      // All children are frozen by readPitchInProof. Own only the export's
+      // spread wrapper, without newly freezing dependency-reader objects.
+      const read = () => Object.freeze(readCommittedExecutedPitchFromSqlite(db, ref));
+      // A failed physical metadata snapshot still permits independent fresh
+      // reads. It cannot authorize this memo; the enclosing Continuation
+      // signature/poison check remains mandatory for either branch.
+      const value = reusableBattedWorldFieldReadSnapshot(db) === null ? read()
+        : memoSamePaContinuationRead(db, 'dispatch-committed-take-v128:' + json(ref), read);
+      same(value.reference, ref); return value;
+    });
   });
 };
 export const readSamePaObservedPitchFromSqlite=(db:DatabaseSync,raw:SamePaReference<'pa_dispatch_v1_pitch_actions'>)=>{

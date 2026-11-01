@@ -17,6 +17,7 @@ export type LiveFieldRoleInputV1 = Readonly<{ actors: readonly LiveFieldRoleActo
   reservations: readonly LiveFieldRoleV1[]; previous: readonly LiveFieldRoleV1[] }>;
 type RoleTask = Omit<LiveFieldRoleV1, 'playerId'> & { deadline?: number;
   responsiblePositions?: readonly LiveFieldDefensivePositionV1[]; supportingPositions?: readonly LiveFieldDefensivePositionV1[] };
+export type LiveFieldRoleCostDiagnosticV118=Readonly<{playerId:string;task:RoleTask;cost:ReturnType<typeof liveFieldRoleCostV1>}>;
 const defensivePositions: readonly LiveFieldDefensivePositionV1[] = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF'];
 
 /** Controller geometry/costs, not player intelligence or empirical ability.
@@ -70,7 +71,7 @@ export function liveFieldRoleCostV1(actor: LiveFieldRoleActorV1,
 /** One actor per task, one task per actor. Bitmask dynamic programming is
  * O(n² 2^n), bounded to nine; it never searches permutations. Only threatened
  * bases are reserved, leaving actual throw/pickup backups and deep positions. */
-export function assignLiveFieldRolesV1(raw: LiveFieldRoleInputV1): readonly LiveFieldRoleV1[] {
+export function assignLiveFieldRolesV1(raw: LiveFieldRoleInputV1,diagnostics?:LiveFieldRoleCostDiagnosticV118[]): readonly LiveFieldRoleV1[] {
   const input = cloneInert(raw), actors = input.actors, ballPhase = input.ballPhase ?? 'free';
   if (actors.length !== 9 || new Set(actors.map(a => a.playerId)).size !== actors.length
     || actors.some(a => !a.playerId || !finite(a.position) || !finite(a.velocity) || !finite(a.homePosition)
@@ -151,6 +152,8 @@ export function assignLiveFieldRolesV1(raw: LiveFieldRoleInputV1): readonly Live
   while (tasks.length < available.length)
     tasks.push({ taskId: 'hold-slot:' + tasks.length, point: available[0].homePosition, intent: 'hold', targetBase: null });
   if (tasks.length !== available.length) throw new Error('live field tasks exceed available actors');
+  if(diagnostics)for(const actor of available)for(const task of tasks)
+    diagnostics.push({playerId:actor.playerId,task,cost:liveFieldRoleCostV1(actor,task,input.previous.find(r=>r.playerId===actor.playerId))});
   const n = available.length, size = 1 << n, costs = new Float64Array(size).fill(Infinity), parents = new Int32Array(size).fill(-1);
   costs[0] = 0;
   for (let mask = 0; mask < size; mask++) {

@@ -3,6 +3,7 @@ import type { Vec3 } from '../../model/geometry';
 import { multiplyQuaternions, normalizeQuaternion, quaternionFromAxisAngle, rotateVectorByQuaternion, type Quaternion } from '../pitching/BaseballOrientation';
 import type { BatterSwingState } from './BatBallContact';
 import type { ReferenceBatKinematicsInputV1 } from './ReferenceBatKinematicsV1';
+import type { ReferenceBatAccelerationBoundsV122 } from './ReferenceBatC1V122';
 
 /** Authored bat attack-angle controls, not ball launch-angle classes. Omitted
  * method retains local angle offsets; whole-arc-target sets an absolute contact
@@ -130,6 +131,31 @@ export function createImpactAdjustedReferenceMotionV1<T extends Motion>(input: R
     thetaSecondBound = Math.abs(angle) * (10 * Math.sqrt(3) / 3) / Math.min(before, after) ** 2,
     radius = input.batLengthM * input.transform.scale * input.sweetSpotT;
   let maximumSweetSpotSpeedMps = base.maximumSweetSpotSpeedMps, maximumGripSpeedMps = base.maximumGripSpeedMps;
+  if(input.executionInterpolationV122==='cubic-c1'){
+    const original=base as T&Partial<ReferenceBatAccelerationBoundsV122>;
+    if(![original.maximumGripAccelerationMps2,original.maximumAngularAccelerationRadPerSecond2,original.maximumSweetSpotAccelerationMps2]
+      .every(n=>typeof n==='number'&&Number.isFinite(n)&&n>=0))throw Error('missing C1 impact acceleration certificate');
+    // The same analytic rigid transform acts on the C1 base. Radius about the
+    // fixed contact pivot is bounded by base speed times the finite window.
+    // No constant-segment angular velocity assumption is made in this mode.
+    const duration=Math.max(before,after),gripDistance=norm(sub(contact.state.pose.grip,pivot))+base.maximumGripSpeedMps*duration,
+      sweetDistance=base.maximumSweetSpotSpeedMps*duration,
+      maximumGripAccelerationMps2=original.maximumGripAccelerationMps2!+2*thetaPrimeBound*base.maximumGripSpeedMps
+        +(thetaSecondBound+thetaPrimeBound**2)*gripDistance,
+      maximumSweetSpotAccelerationMps2=original.maximumSweetSpotAccelerationMps2!+2*thetaPrimeBound*base.maximumSweetSpotSpeedMps
+        +(thetaSecondBound+thetaPrimeBound**2)*sweetDistance,
+      maximumAngularAccelerationRadPerSecond2=original.maximumAngularAccelerationRadPerSecond2!
+        +thetaPrimeBound*base.maximumAngularSpeedRadPerSecond+thetaSecondBound;
+    maximumGripSpeedMps=base.maximumGripSpeedMps+thetaPrimeBound*gripDistance;
+    maximumSweetSpotSpeedMps=base.maximumSweetSpotSpeedMps+thetaPrimeBound*sweetDistance;
+    if(![maximumGripAccelerationMps2,maximumSweetSpotAccelerationMps2,maximumAngularAccelerationRadPerSecond2,
+      maximumGripSpeedMps,maximumSweetSpotSpeedMps].every(Number.isFinite))throw Error('nonfinite C1 impact derivative certificate');
+    return Object.freeze({...base,maximumGripSpeedMps,maximumSweetSpotSpeedMps,maximumSweetSpotSpeedUpperBoundMps:maximumSweetSpotSpeedMps,
+      maximumAngularSpeedRadPerSecond:base.maximumAngularSpeedRadPerSecond+thetaPrimeBound,
+      maximumGripAccelerationMps2,maximumAngularAccelerationRadPerSecond2,maximumSweetSpotAccelerationMps2,sampleContinuous,
+      sample:(tick:number)=>{base.sample(tick);return sampleContinuous(tick);},
+      sampleAtSourceTick:(tick:number,side:'incoming'|'outgoing'='outgoing')=>adjust(base.sampleAtSourceTick(tick,side))});
+  }
   for (let i = 1; i < cuts.length; i++) {
     const lo = sourceToWorld(cuts[i - 1]), hi = sourceToWorld(cuts[i]),
       count = Math.max(1, Math.ceil((cuts[i] - cuts[i - 1]) / input.sourceTicksPerSecond / .001));

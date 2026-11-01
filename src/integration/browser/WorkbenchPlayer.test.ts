@@ -15,6 +15,30 @@ const member = (playerId: string, leagueId: WorkbenchLeagueId, speed: number, er
     swing: { ...value.swing, speedMps: Math.min(value.swing.speedMps, speed) } });
 };
 
+const capacityModelV121 = () => ({ modelId: 'GENERIC_BAT_INERTIA_CALIBRATION_V121' as const,
+  baselineBat: { ...defaultWorkbenchPlayer().bat }, calibration: { calibrationId: 'synthetic-test-only',
+    source: 'Synthetic response for contract tests; not an athlete measurement', inertiaExponent: .4,
+    minimumInertiaRatio: .25, maximumInertiaRatio: 4 } });
+
+it('retains an explicit capacity reference and exports its equipment-dependent ceiling without changing legacy JSON', () => {
+  const legacy = defaultWorkbenchPlayer();
+  expect(legacy.capability).not.toHaveProperty('batSwingCapacityV121');
+  const model = capacityModelV121();
+  const player = createWorkbenchPlayer({ ...legacy, capability: { ...legacy.capability, batSwingCapacityV121: model },
+    bat: { ...legacy.bat, massKg: legacy.bat.massKg * 2 }, swing: { ...legacy.swing, speedMps: 20 } });
+  expect(player.capability).toHaveProperty('batSwingCapacityV121', model);
+  expect(exportWorkbenchPlayerSources(player).capability.maximumSweetSpotSpeedMps).toBeCloseTo(45 * 2 ** -.4);
+  expect(createWorkbenchPlayer(JSON.parse(JSON.stringify(player)))).toEqual(player);
+});
+
+it('rejects a requested speed above the equipment ceiling instead of silently clamping it', () => {
+  const legacy = defaultWorkbenchPlayer();
+  const raw = { ...legacy, capability: { ...legacy.capability, batSwingCapacityV121: capacityModelV121() },
+    bat: { ...legacy.bat, massKg: legacy.bat.massKg * 2 }, swing: { ...legacy.swing, speedMps: 40 } };
+  expect(() => createWorkbenchPlayer(raw)).toThrow(/effective bat swing capacity/);
+  expect(raw.swing.speedMps).toBe(40);
+});
+
 it('retains the measured six-inch-from-tip sweet spot instead of the old image-only 78-percent bound', () => {
   const value=draft(); value.bat.lengthM=.8636; value.bat.sweetSpotT=(.8636-.1524)/.8636;
   const player=createWorkbenchPlayer(value), pack=exportWorkbenchPlayerSources(player);

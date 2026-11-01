@@ -23,6 +23,7 @@ export type PlayableFieldFactsV1=Readonly<{
   runnerTouches:readonly RunnerBaseTouchFact[];controlledBaseContacts:readonly ControlledBaseContactFact[];
   controlledRunnerTags:readonly ControlledRunnerTagFact[];runnerDepartures:readonly RunnerBaseDepartureFact[];
   defensiveAppeals?:readonly DefensiveAppealAttemptFact[];
+  pendingEquipmentPolicyV148?:Readonly<{firstContactTick:number;surfaceIds:readonly string[]}>;
   overFence:Readonly<{tick:number;fair:boolean;untouchedGround:boolean;cause?:'batted'|'throw';awardFrom?:Readonly<Record<string,number>>}>|null;playEnd:PlayEndFact;buntAttempt?:boolean;
 }>;
 export type PlayableRunnerOutV1=Readonly<{runnerId:string;tick:number;classification:CorrectOutClassification;cause:'base_control'|'runner_tag'|'fly_catch'|'pitch_count'|'tag_up_appeal';defenderId:string|null}>;
@@ -97,6 +98,9 @@ export function reducePlayableMatchV1(raw:PlayableMatchRuleInputV1):PlayableMatc
     &&f.playEnd.kind==='play_end'&&tick(f.playEnd.tick)&&f.playEnd.tick>=f.contactTick&&f.playEnd.tick<=f.throughTick
     &&['fair','foul'].includes(f.territory),'invalid physical play interval or territory');
   const validTime=(t:number)=>tick(t)&&t>=f.contactTick&&t<=f.throughTick;
+  if(f.pendingEquipmentPolicyV148){const p=f.pendingEquipmentPolicyV148;
+    assert(validTime(p.firstContactTick)&&Array.isArray(p.surfaceIds)&&p.surfaceIds.length>0&&p.surfaceIds.every(id),'invalid pending equipment policy');
+    return unresolved('pole_legal_policy_unadopted_v148',p.firstContactTick);}
   if(f.firstGroundContactTick!==undefined&&f.firstGroundContactTick!==null)assert(validTime(f.firstGroundContactTick),'invalid ground contact tick');
   const caught=f.flyCatch?resolveFlyCatch({batterRunnerId:batter,firstTouch:{kind:'fly_ball_first_fielder_touch',fielderId:f.flyCatch.fielderId,tick:f.flyCatch.firstTouchTick},
     secureCatchTick:f.flyCatch.secureCatchTick,firstGroundContactTick:f.firstGroundContactTick??null}):null;

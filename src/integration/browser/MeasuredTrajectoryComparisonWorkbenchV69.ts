@@ -91,7 +91,7 @@ export function compareMeasuredTrajectoriesV69(raw: MeasuredTrajectoryComparison
   const first = cases[0].pitch.diagnostics;
   for (const row of cases) {
     const d = row.pitch.diagnostics;
-    for (const key of ['sourceDescriptor', 'timingErrorSeconds', 'aimErrorMeters', 'sweetSpotT', 'zoneJudgment', 'measuredClipId', 'obpSourceSha256'] as const)
+    for (const key of ['sourceDescriptor', 'timingErrorSeconds', 'aimErrorMeters', 'sweetSpotT', 'zoneJudgment', 'measuredClipId', 'obpSourceSha256', 'batterObservationV151'] as const)
       assert(JSON.stringify(d[key]) === JSON.stringify(first[key]), 'trajectory levels changed fixed input: ' + key);
   }
   return freeze({ version: 69 as const, authority: 'SHARED_LIVE_PITCH_TRAJECTORY_COMPARISON' as const, nativeAdmission: false as const,

@@ -202,9 +202,15 @@ export function coordinateLiveFielderMotionV1(input: LiveFielderAvoidanceInputV1
     clearance = policy.clearanceMeters + policy.numericalReserveMeters;
   let evaluations = 0, pairEvaluations = 0;
   const pathCaches = actors.map(() => new Map<string, Path>()), pairCaches: Map<string, Pair>[] = [];
+  // The bounded search revisits identical complete command tuples during its
+  // rescue/improvement passes. Pair entries were already reused; keep their
+  // identical aggregate as well. Counters retain the original query semantics.
+  const analysisCache=new Map<string,{pairs:Pair[];safe:boolean;risk:number;softLoss:number}>();
   const analyze = (commands: readonly LiveFielderAvoidanceMotionV1[]) => {
     evaluations++;
-    const keys = commands.map(motionKey), paths = commands.map((m, i) => {
+    const keys = commands.map(motionKey),tuple=keys.join('|'),cached=analysisCache.get(tuple);
+    if(cached)return cached;
+    const paths = commands.map((m, i) => {
       let planned = pathCaches[i].get(keys[i]);
       if (!planned) { planned = path(actors[i], m, dt); pathCaches[i].set(keys[i], planned); }
       return planned;
@@ -220,10 +226,12 @@ export function coordinateLiveFielderMotionV1(input: LiveFielderAvoidanceInputV1
       }
       pairs.push(pair); pairIndex++;
     }
-    return { pairs, safe: pairs.every(p => p.minimumStoppingGapMeters >= clearance),
+    const result={ pairs, safe: pairs.every(p => p.minimumStoppingGapMeters >= clearance),
       risk: pairs.reduce((sum, p) => sum + Math.max(0, clearance - p.minimumStoppingGapMeters) ** 2
         + 4 * Math.max(0, clearance - p.minimumStepGapMeters) ** 2, 0),
       softLoss: pairs.reduce((sum, p) => sum + p.softLossMeters ** 2, 0) };
+    if(analysisCache.size===2048)analysisCache.delete(analysisCache.keys().next().value!);
+    analysisCache.set(tuple,result);return result;
   };
   const preferenceCost = (i: number, m: LiveFielderAvoidanceMotionV1) => {
     const a = actors[i], difference = sub(m.acceleration, a.preferred.acceleration),

@@ -1,5 +1,6 @@
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
-import { REALISTIC_BASEBALL_RIGID_BODY, sampleBatRadius } from '../../core/sim/contact/RigidBatBallContact';
+import { REALISTIC_BASEBALL_RIGID_BODY } from '../../core/sim/contact/RigidBatBallContact';
+import { deriveBatSwingInertiaV121, evaluateBatSwingCapacityV121, type BatSwingCapacityModelV121 } from './BatSwingCapacityV121';
 import { EVIDENCE_BOUNDED_SWING_COURSE_PROFILE_V1 } from '../../core/sim/pitching/CourseAwareSwingKinematicsV1';
 import type { BattingSource } from '../../core/world/psychology/batting/BattingTypes';
 
@@ -10,7 +11,8 @@ export type WorkbenchPlayer = Readonly<{
   identity: Readonly<{ playerId: string; name: string; leagueId: WorkbenchLeagueId; bats: 'R' | 'L'; throws: 'R' | 'L' }>;
   body: Readonly<{ heightMeters: number; massKg: number }>;
   capability: Readonly<{ maximumSweetSpotSpeedMps: number; motorLatencyTicks: number; technicalTimingOffsetTicks: number;
-    runSpeedMps: number; throwSpeedMps: number; pitchSpeedMps: number; positionErrorMeters: number; timingErrorTicks: number }>;
+    runSpeedMps: number; throwSpeedMps: number; pitchSpeedMps: number; positionErrorMeters: number; timingErrorTicks: number;
+    batSwingCapacityV121?: BatSwingCapacityModelV121 }>;
   bat: Readonly<{ lengthM: number; massKg: number; sweetSpotT: number }>;
   swing: Readonly<{ speedMps: number; attackAngleDeg: number; pullAngleDeg: number; preContactSeconds: number;
     followThroughSeconds: number; contactDepthM: number; loadAngleDeg: number; finishAngleDeg: number; handTravelM: number }>;
@@ -70,7 +72,8 @@ export function createWorkbenchPlayer(raw: unknown): WorkbenchPlayer {
   fields(player.body, ['heightMeters', 'massKg'], 'body');
   range(player.body.heightMeters, ...inputRanges['body.heightMeters'], 'heightMeters'); range(player.body.massKg, ...inputRanges['body.massKg'], 'body.massKg');
   fields(player.capability, ['maximumSweetSpotSpeedMps', 'motorLatencyTicks', 'technicalTimingOffsetTicks', 'runSpeedMps',
-    'throwSpeedMps', 'pitchSpeedMps', 'positionErrorMeters', 'timingErrorTicks'], 'capability');
+    'throwSpeedMps', 'pitchSpeedMps', 'positionErrorMeters', 'timingErrorTicks',
+    ...(Object.hasOwn(player.capability, 'batSwingCapacityV121') ? ['batSwingCapacityV121'] : [])], 'capability');
   const c = player.capability;
   range(c.maximumSweetSpotSpeedMps, ...inputRanges['capability.maximumSweetSpotSpeedMps'], 'maximumSweetSpotSpeedMps');
   ticks(c.motorLatencyTicks, ...inputRanges['capability.motorLatencyTicks'], 'motorLatencyTicks');
@@ -86,7 +89,10 @@ export function createWorkbenchPlayer(raw: unknown): WorkbenchPlayer {
   fields(player.swing, ['speedMps', 'attackAngleDeg', 'pullAngleDeg', 'preContactSeconds', 'followThroughSeconds',
     'contactDepthM', 'loadAngleDeg', 'finishAngleDeg', 'handTravelM'], 'swing');
   const s = player.swing;
-  range(s.speedMps, inputRanges['swing.speedMps'][0], c.maximumSweetSpotSpeedMps, 'swing speed envelope');
+  const capacity = evaluateBatSwingCapacityV121({ maximumSweetSpotSpeedMps: c.maximumSweetSpotSpeedMps,
+    bat: player.bat, ...(c.batSwingCapacityV121 === undefined ? {} : { model: c.batSwingCapacityV121 }) });
+  range(s.speedMps, inputRanges['swing.speedMps'][0], capacity.effectiveMaxSweetSpotSpeedMps ?? c.maximumSweetSpotSpeedMps,
+    capacity.status === 'ESTIMATED' ? 'effective bat swing capacity (adjust target speed explicitly)' : 'swing speed envelope');
   range(s.attackAngleDeg, ...inputRanges['swing.attackAngleDeg'], 'attackAngleDeg'); range(s.pullAngleDeg, ...inputRanges['swing.pullAngleDeg'], 'pullAngleDeg');
   range(s.preContactSeconds, ...inputRanges['swing.preContactSeconds'], 'preContactSeconds'); range(s.followThroughSeconds, ...inputRanges['swing.followThroughSeconds'], 'followThroughSeconds');
   range(s.contactDepthM, ...inputRanges['swing.contactDepthM'], 'contactDepthM'); range(s.loadAngleDeg, ...inputRanges['swing.loadAngleDeg'], 'loadAngleDeg');
@@ -173,21 +179,13 @@ export function exportWorkbenchPlayerSources(raw: WorkbenchPlayer): WorkbenchPla
   const player = createWorkbenchPlayer(raw);
   // Explicit generic wooden-bat silhouette. Dimensions/density distribution are
   // authoring references, not a measurement of a named player's equipment.
-  const radiusProfile = { knots: [{ t: 0, radiusM: 0.024 }, { t: 0.04, radiusM: 0.014 },
-    { t: 0.30, radiusM: 0.018 }, { t: 0.65, radiusM: 0.030 }, { t: 0.78, radiusM: 0.033 }, { t: 1, radiusM: 0.012 }] };
-  const slices = Array.from({ length: 256 }, (_, index) => {
-    const t = (index + 0.5) / 256, radiusM = sampleBatRadius(radiusProfile, t);
-    return { t, radiusM, weight: radiusM * radiusM };
-  });
-  const total = slices.reduce((sum, slice) => sum + slice.weight, 0);
-  const centerOfMassT = slices.reduce((sum, slice) => sum + slice.t * slice.weight, 0) / total;
-  const transverseMomentOfInertiaKgM2 = slices.reduce((sum, slice) => sum + player.bat.massKg * slice.weight / total
-    * (((slice.t - centerOfMassT) * player.bat.lengthM) ** 2 + slice.radiusM ** 2 / 4 + (player.bat.lengthM / 256) ** 2 / 12), 0);
-  const axialMomentOfInertiaKgM2 = slices.reduce((sum, slice) => sum + player.bat.massKg * slice.weight / total * slice.radiusM ** 2 / 2, 0);
+  const { radiusProfile, centerOfMassT, transverseMomentOfInertiaKgM2, axialMomentOfInertiaKgM2 } = deriveBatSwingInertiaV121(player.bat);
+  const capacity = evaluateBatSwingCapacityV121({ maximumSweetSpotSpeedMps: player.capability.maximumSweetSpotSpeedMps,
+    bat: player.bat, ...(player.capability.batSwingCapacityV121 === undefined ? {} : { model: player.capability.batSwingCapacityV121 }) });
   const reference = EVIDENCE_BOUNDED_SWING_COURSE_PROFILE_V1;
   return freeze({ boundary: 'AUTHORING_VALUES_NOT_ACCEPTED_NATIVE_SOURCE' as const, ticksPerSecond: WORKBENCH_TICKS_PER_SECOND,
     capability: { motorLatencyTicks: player.capability.motorLatencyTicks, technicalTimingOffsetTicks: player.capability.technicalTimingOffsetTicks,
-      maximumSweetSpotSpeedMps: player.capability.maximumSweetSpotSpeedMps },
+      maximumSweetSpotSpeedMps: capacity.effectiveMaxSweetSpotSpeedMps ?? player.capability.maximumSweetSpotSpeedMps },
     repertoire: { repertoireId: 'workbench-authored-swing', repertoireVersion: 'workbench-player-v1', profiles: [{ minimumAggression: 0,
       profile: { ...reference, profileId: 'workbench-authored-course', version: 'workbench-player-v1',
         batLengthM: player.bat.lengthM, sweetSpotT: player.bat.sweetSpotT, centerContactDepthM: player.swing.contactDepthM,

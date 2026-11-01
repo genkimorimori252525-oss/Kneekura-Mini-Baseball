@@ -1,0 +1,17 @@
+/* Match-only skin. Maker colors and the meaning of red/blue batting-average cells stay intact. */
+#season-controls-v79,#course-debug-v87{background:var(--black);color:var(--white);border:0;border-top:1px solid var(--line);padding:0 18px}
+#season-controls-v79>summary,#course-debug-v87>summary{padding:14px 0;font-size:12px;font-weight:400;color:#c7cbbc;cursor:pointer}
+#season-controls-v79>p,#course-debug-v87>p,#season-controls-v79 label,#season-controls-v79 .course-note-v79{color:var(--muted);font-size:12px;line-height:1.65}
+#season-controls-v79 .season-report{padding-bottom:16px;min-width:0}
+#season-controls-v79 .season-report>section{min-width:0}
+#season-controls-v79 select,#season-controls-v79 input,#season-controls-v79 button,#course-debug-v87 button{background:#171a16;color:var(--white);border-color:#383d35;border-radius:3px;font-size:12px}
+#season-controls-v79 select,#season-controls-v79 input{min-width:0;padding:7px 9px}
+#season-controls-v79 option{background:#171a16;color:var(--white)}
+#season-controls-v79 input::placeholder{color:var(--muted);opacity:1}
+#season-controls-v79 button:hover:not(:disabled),#course-debug-v87 button:hover:not(:disabled){background:#25291f;border-color:#9f9c80}
+#season-controls-v79 input[type=file]::file-selector-button{font:inherit;color:var(--white);background:#171a16;border:1px solid #383d35;border-radius:3px;padding:6px 9px;margin-right:8px;cursor:pointer}
+#season-controls-v79 .error,#course-debug-v87 .error{color:var(--red)}
+#course-debug-v87 pre{background:#11130e;color:var(--white);border:1px solid var(--line);padding:12px;font-size:12px;line-height:1.6}
+#season-controls-v79 .course-spray-v87 [data-direction-boundary]{fill:#151811;stroke:#4d5546}
+#season-controls-v79 .course-spray-v87 text{fill:var(--white);stroke:var(--black)}
+@media(max-width:680px){#season-controls-v79,#course-debug-v87{padding-inline:14px}}

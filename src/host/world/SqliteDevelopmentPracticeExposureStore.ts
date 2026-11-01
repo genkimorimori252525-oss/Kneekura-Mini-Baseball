@@ -13,6 +13,7 @@ import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicy
 import { isNonPitchRepetitionEvent, nonPitchFields as fields, nonPitchId as id } from './NonPitchDevelopmentRepetition';
 import { defensiveMetadataId as claim } from './ActualDefensiveMetadata';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import {withNativeDevelopmentReadPhaseV126} from './NativeDevelopmentReadPhaseV126';
 
 type PitchFactors = Omit<DevelopmentPracticeRepetition, 'atDay' | 'fatigue' | 'healthAvailability'>;
 /** Explicit accepted coefficients; original owners supply occurrence, chronology,
@@ -46,7 +47,7 @@ const input = (raw: unknown, sourceId: string): AcceptedDevelopmentPracticeExpos
 
 /** One ordered, complete episode bundle, authenticated on the consumer's Native
  * snapshot. Different repetition owners cannot substitute for one another. */
-const derive = (db: DatabaseSync, owners: DevelopmentPracticeExposureOwners | null, source: AcceptedDevelopmentPracticeExposure) => {
+const derive = (db: DatabaseSync, owners: DevelopmentPracticeExposureOwners | null, source: AcceptedDevelopmentPracticeExposure) => withNativeDevelopmentReadPhaseV126(db,()=>{
   const episode = (owners ? readOwnedDevelopmentEpisode(owners.development, db, source.episodeId, source.episodeRevision)
     : readNativeDevelopmentEpisodeFromSqlite(db, source.episodeId, source.episodeRevision))?.episode;
   if (!episode || episode.stage !== 'CONSOLIDATED') throw new Error('practice exposure original consolidated episode is missing');
@@ -80,7 +81,7 @@ const derive = (db: DatabaseSync, owners: DevelopmentPracticeExposureOwners | nu
   const bundle = { policy: source.policy, prior: source.prior, repetitions };
   const assessment = assessDevelopmentPracticeExposure(episode, bundle);
   return freeze({ source, episode, proofs, bundle, assessment });
-};
+});
 export type DurableDevelopmentPracticeExposure = ReturnType<typeof derive>;
 type Row = { source_id: string; episode_id: string; episode_revision: number; source_json: string; snapshot_json: string; snapshot_hash: string };
 const readSaved = (db: DatabaseSync, owners: DevelopmentPracticeExposureOwners | null, sourceId: string): DurableDevelopmentPracticeExposure | null => {

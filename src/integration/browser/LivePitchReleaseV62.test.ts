@@ -4,6 +4,7 @@ import { LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1, LIVE_MATCH_MOUND_SURFACE_V1, LIVE_M
 import { resolveLivePitchReleaseV1, simulateLivePitchV1, type LiveMeasuredClipV1, type LivePitchInputV1 } from './LivePitchV1';
 import { applyLivePhysicalRosterV1 } from './LivePhysicalRosterV1';
 import { liveMatchFixture } from './LiveBaseballMatchV1.test-support';
+import { createSourceFreeBallKernel } from '../../core/sim/ball/SourceFreeBallKernel';
 const clips=JSON.parse(readFileSync(new URL('../../../docs/demos/measured-bat-motions.json',import.meta.url),'utf8')).clips as LiveMeasuredClipV1[];
 const input=():LivePitchInputV1=>({originTick:1_000_000,seed:3,
   batter:{...LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1,heightMeters:1.8,bats:'R',timingStdSeconds:0,aimStdMeters:0},
@@ -11,7 +12,8 @@ const input=():LivePitchInputV1=>({originTick:1_000_000,seed:3,
   measuredClips:clips,batting:'take',pitchType:'curve',location:'zone',physics:LIVE_MATCH_PHYSICS_V1});
 
 it('launches the physical ball on the pitcher right/left side, not a drawing-only offset',()=>{
-  const i=input(),right=simulateLivePitchV1({...i,pitcher:{...i.pitcher,throws:'R'}}),
+  const original=input(),i={...original,pitcher:{...original.pitcher,pitchRepertoire:[{pitchType:'curve' as const,
+    releaseSpeedMps:34,spinRadPerSecond:{x:-230,y:15,z:10}}]}},right=simulateLivePitchV1({...i,pitcher:{...i.pitcher,throws:'R'}}),
     left=simulateLivePitchV1({...i,pitcher:{...i.pitcher,throws:'L'}});
   for(const [result,side] of [[right,-1],[left,1]] as const){
     const source=result.diagnostics.sourceDescriptor.initial.ball;
@@ -24,7 +26,12 @@ it('launches the physical ball on the pitcher right/left side, not a drawing-onl
   }
   // Inverse command is solved again for each real release. Both pilots aim at
   // the same seeded course; the authored world spin is never silently flipped.
-  const r=right.diagnostics.zoneJudgment.observedForecastPosition,l=left.diagnostics.zoneJudgment.observedForecastPosition;
+  const courseAtCommandPlane=(result:typeof right)=>{
+    const kernel=createSourceFreeBallKernel(result.diagnostics.sourceDescriptor),plane=result.diagnostics.battingSetupV94.plateFrontZ;
+    let lo=0,hi=result.diagnostics.sourceDescriptor.throughElapsedSeconds;
+    for(let n=0;n<50;n++){const mid=(lo+hi)/2;if(kernel.evaluateAt(mid).moment.ball.position.z>plane)lo=mid;else hi=mid;}
+    return kernel.evaluateAt(hi).moment.ball.position;
+  },r=courseAtCommandPlane(right),l=courseAtCommandPlane(left);
   expect(Math.hypot(r.x-l.x,r.y-l.y,r.z-l.z)).toBeLessThan(.01);
   expect(right.diagnostics.sourceDescriptor.initial.ball.spin).toEqual(left.diagnostics.sourceDescriptor.initial.ball.spin);
   expect(right.diagnostics.sourceDescriptor.initial.ball.velocity).not.toEqual(left.diagnostics.sourceDescriptor.initial.ball.velocity);

@@ -10,9 +10,23 @@ const reference: LivePublicAbilityReferenceV1 = JSON.parse(readFileSync('docs/de
 const playerId = initial.entries[0].playerId;
 const publicValues = (roster: LiveTraitRosterInputV1) => projectLivePublicAbilitiesV1({ roster, reference, playerId }).abilities;
 const edit = (roster: LiveTraitRosterInputV1, familyId: string, stateId: string | null, scale = 1) => setLiveTraitProfileV77({ roster, playerId, familyId, stateId,
-  source: familyId === 'bad_ball_hitting' ? { badBallControl: .7, effectScale: scale } : ['pitch_approach', 'swing_mode_preference'].includes(familyId) ? {} : { effectScale: scale } }).roster;
+  source: familyId === 'breaking_ball_quality' ? { recipeVersion:'kire_release_recipe_v177' } :
+    familyId === 'bad_ball_hitting' ? { badBallControl: .7, effectScale: scale } : ['pitch_approach', 'swing_mode_preference'].includes(familyId) ? {} : { effectScale: scale } }).roster;
 
 describe('v77 independent trait execution', () => {
+  it('round-trips cautious defense as a decision preference without changing public abilities or raw physics', () => {
+    const cautious = edit(initial, 'fielding_aggression', 'CAUTIOUS'), entry = cautious.entries[0],
+      execution = resolveLiveExecutionPhysicalV77(entry.physical!, entry.traitProfile),
+      restored = JSON.parse(JSON.stringify(cautious));
+    expect(entry.physical).toEqual(initial.entries[0].physical);
+    expect(publicValues(cautious)).toEqual(publicValues(initial));
+    expect(execution.fieldingPursuitCostWeight).toBeGreaterThan(entry.physical!.fieldingPursuitCostWeight ?? 1);
+    expect(resolveLiveExecutionPhysicalV77(restored.entries[0].physical, restored.entries[0].traitProfile)).toEqual(execution);
+    const { fieldingPursuitCostWeight: _preference, ...other } = execution,
+      { fieldingPursuitCostWeight: _raw, ...rawOther } = entry.physical!;
+    expect(other).toEqual(rawOther);
+    expect(edit(cautious, 'fielding_aggression', null).entries[0].physical).toEqual(entry.physical);
+  });
   it('does not turn an old SI-derived throwing grade into independent ownership', () => {
     const legacy = setLiveTraitProfileV1({ roster: initial, playerId, familyId: 'throw_accuracy', stateId: 'A' }).roster;
     const before = JSON.stringify(legacy), migrated = migrateLiveTraitRosterV77({ roster: legacy });
@@ -28,8 +42,9 @@ describe('v77 independent trait execution', () => {
     const migrated = migrateLiveTraitRosterV77({ roster: initial }).roster, expectedPublic = publicValues(migrated);
     expect(getLiveTraitCatalogV1()).toHaveLength(7);
     expect(getLiveTraitCatalogV1({ includeTechnical: true })).toHaveLength(13);
-    expect(getLiveTraitCatalogV77()).toHaveLength(17);
-    for (const definition of getLiveTraitCatalogV77()) for (const state of [null, ...definition.states.map(s => s.stateId)]) for (const scale of [0, 1, 2]) {
+    expect(getLiveTraitCatalogV77()).toHaveLength(18);
+    for (const definition of getLiveTraitCatalogV77()) for (const state of [null, ...definition.states.map(s => s.stateId)])
+      for (const scale of definition.familyId === 'breaking_ball_quality' ? [1] : [0, 1, 2]) {
       const next = edit(migrated, definition.familyId, state, scale);
       expect(next.entries[0].physical).toEqual(migrated.entries[0].physical);
       expect(next.entries.slice(1)).toEqual(migrated.entries.slice(1));

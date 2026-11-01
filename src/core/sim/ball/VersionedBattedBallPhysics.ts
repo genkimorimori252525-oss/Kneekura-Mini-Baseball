@@ -1,6 +1,8 @@
 import { cloneInert } from '../../adjudication/OfficialWindowPolicy';
+import { prepareOwnedBaseballAerodynamicsV98 } from './BaseballAerodynamics';
+import {prepareOwnedSourceBoundsV120} from './SourceFreeBallSpeedBound';
 import { createBattedBallInitialStateFromContact, type BatBallContactResult, type BattedBallInitialState } from '../contact/BatBallContact';
-import type { AerodynamicPitchTrajectoryParameters } from '../pitching/AerodynamicPitchTrajectory';
+import {prepareOwnedAerodynamicPitchParametersV120,type AerodynamicPitchTrajectoryParameters} from '../pitching/AerodynamicPitchTrajectory';
 import type { BaseballGroundParameters } from './BaseballGroundDynamics';
 import type { BattedBallFlightEvidence } from './BattedBallFlightEvidence';
 import { createFreeBaseballTrajectory, type FreeBaseballTrajectory } from './FreeBaseballTrajectory';
@@ -58,7 +60,11 @@ export const createAeroGroundBallPhysicsProfile = (raw: unknown): AeroGroundBall
     velocity: { x: 0, y: 0, z: 0 }, spin: { x: 0, y: 0, z: 0 } };
   createFreeBaseballTrajectory({ initialBall: ball, throughTick: 0, aerodynamics: air, ground,
     ...(aero.seamForce === undefined ? {} : { orientationAtStart: IDENTITY_QUATERNION }) });
-  return freeze(p);
+  const owned = freeze(p);
+  prepareOwnedBaseballAerodynamicsV98(owned.air.aerodynamics);
+  prepareOwnedSourceBoundsV120(owned.air.aerodynamics);
+  prepareOwnedAerodynamicPitchParametersV120(owned.air);
+  return owned;
 };
 
 /** One original kernel, rooted at the source ball and integration lattice.

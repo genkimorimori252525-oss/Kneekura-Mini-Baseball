@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import {memoSamePaContinuationRead,withSamePaContinuationReadPhase} from './SamePlateAppearanceContinuationFromSqlite';
 import type { DatabaseSync } from 'node:sqlite';
 import { assertBodyCompositionNativeConnection } from './BodyMaterializationSqliteOwnership';
 import { playerPersonLinkEvidenceFromSqlite } from './SqlitePlayerPersonLinkStore';
@@ -101,9 +102,20 @@ const reader = (db: Db) => {
 };
 
 export const readNativePitchPracticeAttemptFromSqlite = (db: Db, attemptId: string, timingCeiling?: number) => {
-  native(db);
-  if (!id(attemptId) || timingCeiling !== undefined && !revision(timingCeiling)) throw new Error('invalid Native practice attempt scope');
-  return reader(db).readAttempt(db, attemptId, timingCeiling);
+  const original=()=>{
+    native(db);
+    if (!id(attemptId) || timingCeiling !== undefined && !revision(timingCeiling)) throw new Error('invalid Native practice attempt scope');
+    return reader(db).readAttempt(db, attemptId, timingCeiling);
+  };
+  const {DatabaseSync:Native}=createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  if(!(db instanceof Native)||!db.isTransaction||db.prepare('PRAGMA query_only').get()!.query_only!==1)return original();
+  return withSamePaContinuationReadPhase(db,()=>{
+    // Namespace and argument checks run before a hit. The decoder still owns
+    // every physical/source check on a miss; writable/owned paths stay fresh.
+    native(db);
+    if(!id(attemptId)||timingCeiling!==undefined&&!revision(timingCeiling))throw Error('invalid Native practice attempt scope');
+    return memoSamePaContinuationRead(db,'native-pitch-attempt-v126:'+JSON.stringify([attemptId,timingCeiling??null]),original);
+  });
 };
 
 export const readNativePitchPracticeRepetitionFromSqlite = (db: Db, eventId: string) => {

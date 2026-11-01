@@ -432,7 +432,7 @@
     panel.replaceChildren();
     const heading = document.createElement('h3'); heading.textContent = '得能'; panel.append(heading);
     if (independentTraits) {
-      const note = document.createElement('p'); note.className = 'note'; note.textContent = '得能は基礎能力と別の技術・好みです。変更しても公開能力や詳細の基礎値は変わりません。現在の試合で動く得能だけを表示しています。'; panel.append(note);
+      const note = document.createElement('p'); note.className = 'note'; note.textContent = '得能は基礎能力と別の技術・好みです。変更しても公開能力や詳細の基礎値は変わりません。物理効果が未対応の選択も保存できます。'; panel.append(note);
       if (livePhysicalRoster.entries.some(e => e.traitProfile?.version === 'live_trait_profile_v1')) {
         const button = document.createElement('button'); button.id = 'live-trait-migrate'; button.textContent = '旧得能を独立方式へ変換'; button.dataset.help = '元のJSONは変更しません。送球の変更前の基礎値は残っていないため現在値を維持し、独立送球は未設定にします。緑特は保存された元値へ戻し、技術だけを実行時に適用します。';
         button.onclick = () => { try { assertLiveRosterEdits(); importLiveRoster(core.migrateLiveTraitRosterV77({ roster: livePhysicalRoster }).roster); } catch (error) { problem(error); } }; panel.append(button);
@@ -447,7 +447,7 @@
       bad_ball_hitting: '窮屈なコースでも狙ったスイングを保つ技術です。悪球を振る積極性とは別です。',
       throw_accuracy: independentTraits ? '送球の際だけ働く技術です。基礎の送球精度や肩力は変わりません。Dは中立、Aや金は方向の誤差を抑え、FやGは誤差が増えます。' : '公開能力の送球精度と同じ値から表示します。段階は作成用の暫定尺度です。',
       inside_command: '内角を狙う投球だけで狙いの誤差を抑えます。基礎の制球・球速・回転は変えません。',
-      breaking_ball_quality: '選択は保存されます。現在の試験設定では元の球種が変わるため、キレの3段階としては未採用です。「通常」で元に戻せます。',
+      breaking_ball_quality: '選択は保存されます。キレの物理効果は未対応のため、適用せず実行します。',
       high_zone_hitting: '高い球を打つときの打撃技術です。一般のミートや選球眼は変わりません。',
       low_zone_hitting: '低い球を打つときの打撃技術です。一般のミートや選球眼は変わりません。',
       pitcher_field_reaction: '投手本人が打球を処理する際の反応技術です。他の野手や送球を受ける動作には作用しません。',

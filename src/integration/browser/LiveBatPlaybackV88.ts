@@ -3,6 +3,7 @@ import { createReferenceBatKinematicsV1, type ReferenceBatKinematicsInputV1 } fr
 import { sampleBatRadius, type BatRadiusProfile } from '../../core/sim/contact/RigidBatBallContact';
 import type { LiveMeasuredClipV1, LivePitchFrameV1 } from './LivePitchV1';
 import { registerMeasuredBatToFieldV1 } from './MeasuredBatFieldRegistrationV1';
+import {referenceWorldTickAtSourceV121} from '../../core/sim/contact/ReferenceBatMotorV121';
 
 /** Serializable observation recipe for the already registered physical motor.
  * Measured keys stay in their original library; this does not extend a play,
@@ -35,8 +36,9 @@ export function createLiveBatPlaybackV88(raw: Readonly<{ descriptor: LiveBatPlay
   } }));
   const reference = createReferenceBatKinematicsV1({ ...d.reference, frames });
   sampleBatRadius(d.radiusProfile, 0);
-  const throughTick = d.reference.startTick + (d.sourceLastTick - d.sourceFirstTick) / d.reference.sourceTicksPerSecond
-    / d.reference.playbackRate * d.reference.ticksPerSecond;
+  const throughTick = reference.motionThroughTickV133 ?? referenceWorldTickAtSourceV121({...d.reference,frames},d.sourceLastTick);
+  if (reference.motionStartTickV133 !== undefined && reference.motionStartTickV133 < d.originTick)
+    throw new Error('live bat preparation precedes release');
   if (!Number.isFinite(throughTick) || throughTick > Number.MAX_SAFE_INTEGER) throw new Error('invalid live bat playback boundary');
   const sampleAtTick = (atTick: number): LivePitchFrameV1['bat'] => {
     if (!Number.isFinite(atTick) || atTick < d.originTick) throw new Error('bat observation precedes release or has an invalid clock');

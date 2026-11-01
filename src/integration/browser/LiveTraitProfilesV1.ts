@@ -1,3 +1,4 @@
+import { markLiveAuthoringSourceV101 } from './LiveAuthoringSourceV101';
 import { getTechnicalTraitDefinitionsV75, getTechnicalTraitDefinitionsV77, isTechnicalTraitV75, resolveValidatedTechnicalProfileV75 } from './LiveTechnicalTraitsV75';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { LivePhysicalRosterInputV1 } from './LivePhysicalRosterV1';
@@ -19,7 +20,7 @@ export type LiveTraitDefinitionV1 = Readonly<{
   familyId: string; label: string; lifecycleClass: string; sourceRoute: 'SOURCE_EXECUTION' | 'PREFERENCE';
   states: readonly Readonly<{ stateId: string; label: string; color: TraitColor }>[];
   sourcePaths: readonly string[]; effectOwner: string; sourceDefinition: string;
-  editor?: 'OWNERSHIP' | 'PREFERENCE' | 'GRADE' | 'TECHNIQUE'; availability?: 'EXECUTABLE' | 'SOURCE_DERIVED'; calibrationId?: string;
+  editor?: 'OWNERSHIP' | 'PREFERENCE' | 'GRADE' | 'TECHNIQUE' | 'PITCH_QUALITY'; availability?: 'EXECUTABLE' | 'SOURCE_DERIVED' | 'UNAVAILABLE'; calibrationId?: string;
 }>;
 export type LiveTraitPhysicalSourceV54 = Readonly<{
   badBallControl?: number; throwDirectionStdRadians?: number; baserunningSafetyMarginSeconds?: number;
@@ -54,10 +55,10 @@ const legacyCatalog: readonly LiveTraitDefinitionV1[] = freeze([
     sourcePaths: ['physical.baserunningSafetyMarginSeconds'], effectOwner: 'LiveRunnerAdvancePolicyV1 safety margin',
     sourceDefinition: 'canonical09 §5.11 / §6; no speed, reaction or rounding boost' },
   { familyId: 'fielding_aggression', label: '守備積極性', lifecycleClass: 'GREEN_SLOW_PREFERENCE', sourceRoute: 'PREFERENCE',
-    states: [state('AGGRESSIVE', '積極守備'), state('BALANCED', '標準', 'neutral')],
+    states: [state('AGGRESSIVE', '積極守備'), state('BALANCED', '標準', 'neutral'), state('CAUTIOUS', '慎重守備')],
     editor: 'PREFERENCE', availability: 'EXECUTABLE', calibrationId: calibration.fieldingAggression.id,
-    sourcePaths: ['physical.fieldingPursuitCostWeight'], effectOwner: 'LiveFieldHandlerSelectionV1 feasible-candidate pursuit cost',
-    sourceDefinition: 'canonical09 §6; does not create a feasible catch or improve physical reach' },
+    sourcePaths: ['physical.fieldingPursuitCostWeight'], effectOwner: 'LiveFieldHandlerSelectionV1 pursuit preference / V106 double play / V108 first-base attempts',
+    sourceDefinition: '近くを通る際どい打球は、届く保証がなくても捕球を試みます。積極守備は挑戦を広げ、慎重守備は確実さとカバーを重視します。送球や併殺も距離と走者の到達を比べて選びます。基礎能力・球速・反応・手の届く範囲やアウト判定は変わりません。' },
   { familyId: 'pitch_approach', label: '投球傾向', lifecycleClass: 'GREEN_SLOW_PREFERENCE', sourceRoute: 'PREFERENCE',
     states: [state('FASTBALL', '速球中心'), state('BALANCED', '標準', 'neutral'), state('BREAKING', '変化球中心')],
     editor: 'PREFERENCE', availability: 'EXECUTABLE', sourcePaths: [], effectOwner: 'Host AUTO pitch selection',
@@ -76,6 +77,13 @@ export const getLiveTraitCatalogV77 = (): readonly LiveTraitDefinitionV1[] => fr
       availability: 'EXECUTABLE' as const, sourcePaths: ['traitProfile.selections.source.effectScale'],
       sourceDefinition: 'V77 independent execution technique; base SI and public abilities are unchanged. LOCAL_AUTHORING_ONLY, not empirically calibrated.' }
     : definition), ...getTechnicalTraitDefinitionsV77(),
+  { familyId:'breaking_ball_quality', label:'キレ', lifecycleClass:'LEARNED_MASTERY_PERSISTENT', sourceRoute:'SOURCE_EXECUTION',
+    states:[state('KIRE_CIRCLE','キレ○','blue'),state('KIRE_DOUBLE_CIRCLE','キレ◎','blue'),
+      state('THREATENING_DOUBLE_CIRCLE','驚異の切れ味','gold')],
+    editor:'PITCH_QUALITY', availability:'UNAVAILABLE', calibrationId:'kire_release_recipe_v177',
+    sourcePaths:['traitProfile.selections.source.recipeVersion','pitcher.pitchQualityV177'],
+    effectOwner:'No current physical effect; selection is retained for authoring',
+    sourceDefinition:'Three-state selection and recipe version are retained for authoring; physical effect is unavailable.' },
 ]);
 function assert(value: unknown, message: string): asserts value { if (!value) throw new Error('live trait profiles: ' + message); }
 const text = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value.trim() === value && value.length <= 160;
@@ -95,6 +103,11 @@ const scalarKey = (id: string): string | null => ({ bad_ball_hitting: 'badBallCo
 const sourceKeys = (id: string): readonly string[] => isTechnicalTraitV75(id) ? ['effectScale'] : virtual(id) ? [] : id === 'plate_aggression'
   ? ['swingDecision.threshold', 'swingDecision.aggressionWeight', 'swingDecision.approach'] : [scalarKey(id)!];
 function readSource(raw: unknown, id: string, independent = false): LiveTraitSourceV1 {
+  if (independent && id === 'breaking_ball_quality') {
+    const source = object(raw, ['recipeVersion'], 'pitch quality source');
+    assert(source.recipeVersion === 'kire_release_recipe_v177', 'unsupported pitch quality recipe version');
+    return source as LiveTraitSourceV1;
+  }
   if (independent && ['throw_accuracy', 'plate_aggression', 'running_aggression', 'fielding_aggression', 'bad_ball_hitting'].includes(id)) {
     const source = object(raw, id === 'bad_ball_hitting' ? ['badBallControl', 'effectScale'] : ['effectScale'], 'independent source');
     range(source.effectScale, 0, 2);
@@ -137,7 +150,8 @@ function effectiveSource(selection: Selection): LiveTraitSourceV1 {
   if (id === 'running_aggression') return { baserunningSafetyMarginSeconds: stateId === 'AGGRESSIVE'
     ? clamp(Number(source.baserunningSafetyMarginSeconds) + calibration.runningAggression.offsetSeconds, 0, 3) : source.baserunningSafetyMarginSeconds };
   if (id === 'fielding_aggression') return { fieldingPursuitCostWeight: stateId === 'AGGRESSIVE'
-    ? clamp(Number(source.fieldingPursuitCostWeight) * calibration.fieldingAggression.costMultiplier, .25, 4) : source.fieldingPursuitCostWeight };
+    ? clamp(Number(source.fieldingPursuitCostWeight) * calibration.fieldingAggression.costMultiplier, .25, 4)
+    : stateId === 'CAUTIOUS' ? clamp(Number(source.fieldingPursuitCostWeight) / calibration.fieldingAggression.costMultiplier, .25, 4) : source.fieldingPursuitCostWeight };
   if (id === 'plate_aggression') return { ...source, 'swingDecision.threshold': clamp(Number(source['swingDecision.threshold'])
     + (stateId === 'AGGRESSIVE' ? -calibration.plateAggression.thresholdOffset : stateId === 'CAUTIOUS' ? calibration.plateAggression.thresholdOffset : 0), 0, 1) };
   return {};
@@ -174,12 +188,13 @@ function currentSource(entry: Entry, id: string): LiveTraitSourceV1 | null {
   if (value === undefined && (id === 'bad_ball_hitting' || id === 'throw_accuracy')) return null;
   return readSource({ [key!]: value ?? (id === 'running_aggression' ? calibration.runningAggression.defaultSource : calibration.fieldingAggression.defaultSource) }, id);
 }
+const sourceTextV101 = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value.length <= 200 && value.trim() === value;
 function context(raw: LiveTraitRosterInputV1, playerId: string, verifySources = true) {
   const roster = cloneInert(raw);
-  assert(roster.version === 'live_physical_roster_v1' && text(roster.sourceId) && Array.isArray(roster.entries), 'invalid roster');
+  assert(roster.version === 'live_physical_roster_v1' && sourceTextV101(roster.sourceId) && Array.isArray(roster.entries), 'invalid roster');
   const ids = new Set<string>();
   for (const entry of roster.entries) {
-    assert(text(entry.playerId) && text(entry.sourceId) && !ids.has(entry.playerId), 'invalid or duplicate player source');
+    assert(sourceTextV101(entry.playerId) && sourceTextV101(entry.sourceId) && !ids.has(entry.playerId), 'invalid or duplicate player source');
     ids.add(entry.playerId);
     const source = physicalSource(entry);
     if (entry.traitProfile !== undefined) {
@@ -215,8 +230,8 @@ type MutableEntry = { sourceId: string; traitProfile?: LiveTraitProfileV1; physi
   workbenchPlayer?: { traits: { badBallControl: number } } };
 function markEdited(roster: LiveTraitRosterInputV1, entry: Entry) {
   const mutable = entry as unknown as MutableEntry, mutableRoster = roster as unknown as { sourceId: string };
-  if (!mutable.sourceId.split(':').includes('trait-edited')) mutable.sourceId += ':trait-edited';
-  if (!mutableRoster.sourceId.split(':').includes('trait-edited')) mutableRoster.sourceId += ':trait-edited';
+  mutable.sourceId = markLiveAuthoringSourceV101(mutable.sourceId, 'trait-edited');
+  mutableRoster.sourceId = markLiveAuthoringSourceV101(mutableRoster.sourceId, 'trait-edited');
   assert(text(mutable.sourceId) && text(mutableRoster.sourceId), 'source identifier exceeds the authoring limit');
 }
 function writeSource(entry: Entry, id: string, source: LiveTraitSourceV1) {
@@ -281,6 +296,10 @@ export function setLiveTraitProfileV1(input: Readonly<{ roster: LiveTraitRosterI
 }
 /** Stored preference is a local authoring input, not a learned career proof.
  * Runtime selection and accepted-command precedence stay with the Host. */
+export function isLiveCautiousFieldingV117(profile?: LiveTraitProfileV1): boolean {
+  const selection = profile === undefined ? undefined : readProfile(profile).selections.find(s => s.familyId === 'fielding_aggression');
+  return selection?.stateId === 'CAUTIOUS' && Number(selection.source.effectScale ?? 1) > 0;
+}
 export function resolveLiveTraitPreferencesV54(profile?: LiveTraitProfileV1) {
   const selections = profile === undefined ? [] : readProfile(profile).selections,
     pitch = selections.find(item => item.familyId === 'pitch_approach')?.stateId,

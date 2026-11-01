@@ -40,17 +40,20 @@ export function validatePitchingMotionV77(raw: unknown): PitchingMotionV77 {
 const factors: Record<LivePitchTypeV77, number> = { fastball: 1, slider: .91, curve: .8, changeup: .82, cutter: .95, sinker: .96, splitter: .89 };
 const axes: Record<Exclude<LivePitchTypeV77, 'fastball'>, Vec3> = { slider: { x: .25, y: -.8, z: .55 }, curve: { x: -1, y: 0, z: .1 }, changeup: { x: .65, y: .2, z: .25 },
   cutter: { x: .7, y: -.45, z: .25 }, sinker: { x: .55, y: .5, z: .2 }, splitter: { x: -.15, y: .15, z: .3 } };
-export function resolvePitcherRepertoireV77(raw: Readonly<{ releaseSpeedMps: number; spinRadPerSecond: Vec3; maximumPitchSpeedMps?: number; pitchRepertoire?: PitchRepertoireV77 }>) {
+export function resolvePitcherRepertoireV77(raw: Readonly<{ releaseSpeedMps: number; spinRadPerSecond: Vec3; maximumPitchSpeedMps?: number; pitchRepertoire?: PitchRepertoireV77 }>, throws: 'R' | 'L' = 'R') {
   const physical = cloneInert(raw);
+  assert(throws === 'R' || throws === 'L', 'invalid throwing side');
   assert(bounded(physical.releaseSpeedMps, 15, 85) && (physical.maximumPitchSpeedMps === undefined || bounded(physical.maximumPitchSpeedMps, 15, 85)), 'invalid baseline pitch speed'); spinVector(physical.spinRadPerSecond);
   const authored = physical.pitchRepertoire === undefined ? [] : validatePitchRepertoireV77(physical.pitchRepertoire, physical.maximumPitchSpeedMps);
   return freeze(LIVE_PITCH_TYPES_V77.map(pitchType => {
     const entry = authored.find(row => row.pitchType === pitchType); if (entry) return { ...entry, authored: true };
     const factor = factors[pitchType], spinMagnitude = norm(physical.spinRadPerSecond),
       scale = pitchType === 'fastball' ? 1 : spinMagnitude * (pitchType === 'changeup' ? .7 : 1) / norm(axes[pitchType]),
-      axis = pitchType === 'fastball' ? physical.spinRadPerSecond : axes[pitchType];
+      // Explicit axes are world-space data. Only generated nonfastball examples
+      // have a canonical right-handed basis to reflect for a left-handed pitcher.
+      axis = pitchType === 'fastball' ? physical.spinRadPerSecond : axes[pitchType], side = throws === 'L' ? -1 : 1;
     return { pitchType, releaseSpeedMps: Math.min(physical.releaseSpeedMps, physical.maximumPitchSpeedMps ?? Infinity) * factor,
-      spinRadPerSecond: pitchType === 'fastball' ? axis : { x: axis.x * scale, y: axis.y * scale, z: axis.z * scale }, authored: false };
+      spinRadPerSecond: pitchType === 'fastball' ? axis : { x: axis.x * scale, y: axis.y * scale * side, z: axis.z * scale * side }, authored: false };
   }));
 }
 export function pitchSpinFromControlsV77(raw: Readonly<{ spinRpm: number; breakDirectionDegrees: number; gyroFraction: number }>): Vec3 {

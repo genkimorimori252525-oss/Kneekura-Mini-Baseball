@@ -6,6 +6,7 @@ import type { AeroGroundBallPhysicsV1 } from '../ball/VersionedBattedBallPhysics
 import { sampleBaseballGroundMotionAtElapsedSeconds } from '../ball/BaseballGroundDynamics';
 import { advanceBaseballOrientation, IDENTITY_QUATERNION } from '../pitching/BaseballOrientation';
 import { quantizeEventTick } from '../ExactEventTime';
+import { queryConstrainedPoleWindowV170, type ConstrainedPoleWindowRequestV170 } from './ConstrainedPoleWindowV170';
 
 const freeze = <T>(value: T): T => { if (value && typeof value === 'object') {
   Object.values(value).forEach(freeze); Object.freeze(value);
@@ -70,7 +71,12 @@ export function createGroundWallRollingCurveV1(raw: Readonly<{ initial: BallWorl
     return freeze({ ...next, orientation: advanceBaseballOrientation(a.orientation,
       { x: (w.x + z.x) / 2, y: (w.y + z.y) / 2, z: (w.z + z.z) / 2 }, time - times[lo]) });
   };
-  return Object.freeze({ kind: 'compliant_ground_wall_arc_source_v1' as const, initial, boundaries, cells, evaluateAt,
+  const queryNoPoleContactWindowV170 = (request:ConstrainedPoleWindowRequestV170) => queryConstrainedPoleWindowV170({
+    initialElapsedSeconds:initial.elapsedSeconds,throughElapsedSeconds:p.throughElapsedSeconds,initialPosition:b.position,
+    initialVelocity:b.velocity,fenceCenter:p.fenceCenter,radialDisplacement:{x:rx,z:rz},
+    maximumSlidingAccelerationMps2:p.profile.ground.material.slidingFriction*p.profile.ground.gravityMps2,
+    ballRadiusMeters:p.profile.ground.radiusM,cells,positionAt:time=>evaluateAt(time).moment.ball.position},request);
+  return Object.freeze({ kind: 'compliant_ground_wall_arc_source_v1' as const, initial, boundaries, cells, evaluateAt,queryNoPoleContactWindowV170,
     support: Object.freeze({ signedGapMeters: gap, maximumCompressionMeters: p.maximumCompressionMeters,
       representedRadialVelocityMps: radialVelocity, radialVelocityArithmeticBoundMps: 256 * Number.EPSILON * Math.max(1, Math.hypot(b.velocity.x,b.velocity.z)),
       radialCoordinateCorrected: false, radialReactionOwnedByWall: true, groundModel: 'existing_analytic_sliding_rolling_v1' as const }) });

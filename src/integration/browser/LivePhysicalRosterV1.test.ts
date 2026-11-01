@@ -1,13 +1,33 @@
 import { expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { liveAthleticControlBoundsV115, resolveLiveAthleticProfileV115, type LiveAthleticControlsV115 } from '../../core/sim/LiveAthleticControlsV115';
 import { defaultWorkbenchPlayer } from './WorkbenchPlayer';
 import { createLiveBaseballMatchV1, LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1 } from './LiveBaseballMatchV1';
 import { liveMatchFixture } from './LiveBaseballMatchV1.test-support';
-import { applyLivePhysicalRosterV1 } from './LivePhysicalRosterV1';
+import { applyLivePhysicalRosterV1, getLiveInternalValueLimitsV82 } from './LivePhysicalRosterV1';
 import { setLiveTraitProfileV1, type LiveTraitRosterInputV1 } from './LiveTraitProfilesV1';
+import { buildPitcherWorkbenchInputV77, simulatePitcherWorkbenchV77 } from './PitcherWorkbenchV77';
 
 const players = [{ playerId: 'batter-a', name: 'Authored player', heightMeters: 1.8, bats: 'R' as const }];
 const packet = (entry: Record<string, unknown>) => ({ players, roster: { version: 'live_physical_roster_v1', sourceId: 'test-roster',
   entries: [{ playerId: 'batter-a', sourceId: 'test-authoring', ...entry }] } });
+
+it('validates V98 field-only reaction scale and neutralizes an omitted legacy value over an already upgraded player', () => {
+  const source = packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', fieldingReactionScaleV98: .8 } }),
+    changed = applyLivePhysicalRosterV1(source);
+  expect(changed.players[0].physical.fieldingReactionScaleV98).toBe(.8);
+  for (const scale of [0, 1, 4]) expect(applyLivePhysicalRosterV1(packet({ physical: {
+    basis: 'EXPLICIT_AUTHORED_SI_V1', fieldingReactionScaleV98: scale } })).players[0].physical.fieldingReactionScaleV98).toBe(scale);
+  for (const scale of [-.01, 4.01, NaN, Infinity]) expect(() => applyLivePhysicalRosterV1(packet({ physical: {
+    basis: 'EXPLICIT_AUTHORED_SI_V1', fieldingReactionScaleV98: scale } }))).toThrow();
+  const old = packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', reactionSeconds: .33 } });
+  const imported = applyLivePhysicalRosterV1({ ...old, players: changed.players });
+  expect(imported.players[0].physical.fieldingReactionScaleV98).toBe(1);
+  expect(imported.players[0].physical.reactionSeconds).toBe(.33);
+  expect(changed.players[0].physical.fieldingReactionScaleV98).toBe(.8);
+  const empty = applyLivePhysicalRosterV1({ players: changed.players, roster: { ...old.roster, entries: [] } });
+  expect(empty.players[0].physical.fieldingReactionScaleV98).toBe(1);
+});
 
 it('accepts source-consistent trait metadata, preserves it on players and executes its numerical source once', () => {
   const raw = packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', badBallControl: .73, aimStdMeters: .04 } }),
@@ -44,7 +64,7 @@ it('checks trait metadata against the final workbench source and rejects false l
   expect(JSON.stringify(owned.roster)).toBe(before);
 });
 
-it('passes ON/OFF controls from imported trait profiles to actual Host pitches without altering a taken ball', () => {
+it('passes ON/OFF controls to Host and retains take and judgment error independently of adaptive auto pitching', () => {
   const fixture = liveMatchFixture(2468), batter = fixture.teams[0].battingOrder[0],
     roster: LiveTraitRosterInputV1 = { version: 'live_physical_roster_v1', sourceId: 'actual-trait-test', entries: [
       { playerId: batter, sourceId: 'actual-technique', physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', badBallControl: .83 } }] },
@@ -55,13 +75,40 @@ it('passes ON/OFF controls from imported trait profiles to actual Host pitches w
       return createLiveBaseballMatchV1({ ...fixture, players: projected.players })
         .issuePitch({ batting: 'take', managedTeam: 0, pitchType: 'auto', location: 'auto' });
     }, a = issue(on.roster), b = issue(off.roster);
-  type Diagnostics = { individualControls: { badBallControl: number }; swingOffered: boolean; zoneJudgment: unknown };
+  type Diagnostics = { individualControls: { badBallControl: number }; swingOffered: boolean;
+    zoneJudgment: { standardDeviationMeters: number; errorMeters: unknown; stream: string; basis: string } };
   const ad = a.play.diagnostics as Diagnostics, bd = b.play.diagnostics as Diagnostics;
   expect(ad.individualControls.badBallControl).toBe(.83);
   expect(bd.individualControls.badBallControl).toBe(0);
-  expect(a.frames).toEqual(b.frames);
-  expect(ad.swingOffered).toBe(false);
-  expect(bd.zoneJudgment).toEqual(ad.zoneJudgment);
+  expect(ad.swingOffered).toBe(false); expect(bd.swingOffered).toBe(false);
+  expect(a.play.contact).toBeNull(); expect(b.play.contact).toBeNull();
+  expect(a.play.field).toBeNull(); expect(b.play.field).toBeNull();
+  // Auto pitching can respond to the opponent's raw technique. Only the
+  // judgment error distribution, not the observed ball position, is invariant.
+  expect(bd.zoneJudgment.standardDeviationMeters).toBe(ad.zoneJudgment.standardDeviationMeters);
+  expect(bd.zoneJudgment.errorMeters).toEqual(ad.zoneJudgment.errorMeters);
+  expect(bd.zoneJudgment.stream).toBe(ad.zoneJudgment.stream);
+  expect(bd.zoneJudgment.basis).toBe(ad.zoneJudgment.basis);
+});
+
+it('keeps every taken-pitch frame and judgment identical when only bad-ball control changes under a fixed command', () => {
+  const fixture = liveMatchFixture(2468), batter = fixture.teams[0].battingOrder[0],
+    roster: LiveTraitRosterInputV1 = { version: 'live_physical_roster_v1', sourceId: 'actual-trait-test', entries: [
+      { playerId: batter, sourceId: 'actual-technique', physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', badBallControl: .83 } }] },
+    on = setLiveTraitProfileV1({ roster, playerId: batter, familyId: 'bad_ball_hitting', stateId: 'LEARNED' }),
+    off = setLiveTraitProfileV1({ roster: on.roster, playerId: batter, familyId: 'bad_ball_hitting', stateId: null }),
+    issue = (packet: LiveTraitRosterInputV1) => {
+      const input = buildPitcherWorkbenchInputV77({ players: fixture.players, roster: packet,
+        pitcherId: fixture.teams[1].pitcherId, batterId: batter, catcherId: fixture.teams[1].defense.C,
+        measuredClips: fixture.measuredClips, seed: (fixture.seed + Math.imul(1, 0x9e3779b9)) >>> 0,
+        originTick: 1000000, pitchType: 'fastball', location: 'zone' });
+      return { input, pitch: simulatePitcherWorkbenchV77({ pitch: input }).pitch };
+    }, a = issue(on.roster), b = issue(off.roster);
+  expect(a.input.batter.badBallControl).toBe(.83); expect(b.input.batter.badBallControl).toBe(0);
+  expect({ ...a.input, batter: { ...a.input.batter, badBallControl: 0 } }).toEqual(b.input);
+  expect(a.pitch.diagnostics.swingOffered).toBe(false); expect(b.pitch.diagnostics.swingOffered).toBe(false);
+  expect(a.pitch.frames).toEqual(b.pitch.frames);
+  expect(a.pitch.diagnostics.zoneJudgment).toEqual(b.pitch.diagnostics.zoneJudgment);
 });
 
 it('projects optional tactical preferences without changing the physical abilities or input packet', () => {
@@ -269,4 +316,82 @@ it('preserves explicit V79 course data through roster/Host JSON and rejects inva
       physical: { ...p.physical!, batterCourseProfileV79: { ...p.physical!.batterCourseProfileV79!, effectScale } } }) })).toThrow();
   }
   expect(applyLivePhysicalRosterV1(packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1' } })).players[0].physical).not.toHaveProperty('batterCourseProfileV79');
+});
+
+
+it('V105 preserves explicit body controls and raw omissions while clearing stale overrides on legacy reimport', () => {
+  const controls = { fieldArmReachMetersV105: 1.2, fieldShoulderHeightRatioV105: .8, fieldEyeHeightRatioV105: .93,
+    fieldCrouchFractionV105: .4, fieldPostureSpeedMpsV105: 3, fieldTurnSpeedRadiansPerSecondV105: 6, fieldRearReachFractionV105: .2 },
+    raw = packet({ heightMeters: 2, physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', ...controls } }), before = JSON.stringify(raw),
+    projected = applyLivePhysicalRosterV1(raw);
+  expect(projected.players[0].heightMeters).toBe(2); expect(projected.players[0].physical).toMatchObject(controls);
+  expect(projected.players[0].physical.gloveReachMeters).toBe(1.35); expect(JSON.stringify(raw)).toBe(before);
+  const old = packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', reactionSeconds: .31 } }),
+    restored = applyLivePhysicalRosterV1({ ...old, players: projected.players });
+  for (const key of Object.keys(controls)) expect(restored.players[0].physical).not.toHaveProperty(key);
+  expect(restored.players[0].physical.reactionSeconds).toBe(.31); expect(projected.players[0].physical).toMatchObject(controls);
+  expect(JSON.stringify(old)).not.toMatch(/fieldArmReachMetersV105/);
+});
+
+it('V105 body control limits match validation and reject invalid values atomically', () => {
+  for (const key of ['fieldArmReachMetersV105', 'fieldShoulderHeightRatioV105', 'fieldEyeHeightRatioV105',
+    'fieldCrouchFractionV105', 'fieldPostureSpeedMpsV105', 'fieldTurnSpeedRadiansPerSecondV105', 'fieldRearReachFractionV105']) {
+    const limits = getLiveInternalValueLimitsV82(key)!; expect(limits).not.toBeNull();
+    for (const value of [limits.minimum, limits.maximum]) expect(applyLivePhysicalRosterV1(packet({
+      physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', [key]: value } })).players[0].physical).toHaveProperty(key, value);
+    for (const value of [limits.minimum! - .001, limits.maximum! + .001, NaN, Infinity]) {
+      const raw = packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', [key]: value } }), before = structuredClone(raw);
+      expect(() => applyLivePhysicalRosterV1(raw)).toThrow(); expect(raw).toEqual(before);
+    }
+  }
+});
+
+it('V115 preserves all optional athletic controls through sparse JSON authoring and atomic projection', () => {
+  const controls = Object.fromEntries(Object.entries(liveAthleticControlBoundsV115).map(([key, range]) => [key, (range[0] + range[1]) / 2])) as LiveAthleticControlsV115,
+    raw = packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', ...controls } }), before = JSON.stringify(raw),
+    projected = applyLivePhysicalRosterV1(JSON.parse(before));
+  expect(projected.players[0].physical).toMatchObject(controls);
+  for (const [key, value] of Object.entries(controls)) expect(projected.audit.players[0].projected).toContainEqual(
+    expect.objectContaining({ inputPath: 'physical.' + key, targetPath: key, value }));
+  expect(projected.players[0].physical.throwSpeedMps).toBe(LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1.throwSpeedMps);
+  expect(JSON.stringify(raw)).toBe(before);
+  const old = packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1' } });
+  for (const key of Object.keys(controls)) expect(applyLivePhysicalRosterV1(old).players[0].physical).not.toHaveProperty(key);
+});
+it('V115 athletic limits are shared with the motor model and reject invalid edits without partial mutation', () => {
+  for (const [key, [minimum, maximum]] of Object.entries(liveAthleticControlBoundsV115)) {
+    expect(getLiveInternalValueLimitsV82(key)).toMatchObject({ minimum, maximum, minimumInclusive: true, maximumInclusive: true });
+    for (const value of [minimum, maximum]) expect(applyLivePhysicalRosterV1(packet({
+      physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', [key]: value } })).players[0].physical).toHaveProperty(key, value);
+    for (const value of [minimum - .001, maximum + .001, NaN, Infinity]) {
+      const raw = packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', [key]: value } }), before = structuredClone(raw);
+      expect(() => applyLivePhysicalRosterV1(raw)).toThrow(); expect(raw).toEqual(before);
+    }
+  }
+});
+it('V115 legacy reimport discards stale athletic overrides and derives defaults from the individual without materializing JSON', () => {
+  const controls = Object.fromEntries(Object.entries(liveAthleticControlBoundsV115).map(([key, range]) => [key, range[1]])),
+    edited = applyLivePhysicalRosterV1(packet({ physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', ...controls } })),
+    old = packet({ heightMeters: 1.6, physical: { basis: 'EXPLICIT_AUTHORED_SI_V1', reactionSeconds: .31, accelerationMps2: 3.2, gloveSpeedMps: 7 } }),
+    before = JSON.stringify(old), restored = applyLivePhysicalRosterV1({ ...old, players: edited.players }), p = restored.players[0],
+    athletic = resolveLiveAthleticProfileV115({ heightMeters: p.heightMeters, accelerationMps2: p.physical.accelerationMps2,
+      reactionSeconds: p.physical.reactionSeconds, gloveSpeedMps: p.physical.gloveSpeedMps });
+  for (const key of Object.keys(controls)) expect(p.physical).not.toHaveProperty(key);
+  expect(athletic.jumpHeightMeters).toBe(1.6 * .18); expect(athletic.slideReachMeters).toBe(1.6 * .48);
+  expect(athletic.diveRecoverySeconds).toBe(.55 + .31 * 2 + .2 * 8 / 7);
+  expect(JSON.stringify(old)).toBe(before); expect(edited.players[0].physical).toMatchObject(controls);
+});
+it('V115 maker and AI catalog expose the same ten bounded internal controls with derived defaults', () => {
+  const catalog = JSON.parse(readFileSync(new URL('../../../docs/demos/live-game-roster-catalog-v105.json', import.meta.url), 'utf8')) as {
+    fields: { path: string; section: string; min: number; max: number; unit?: string; displayScale?: number; defaultFromAthleticV115?: string; note?: string }[] };
+  const keys = Object.keys(liveAthleticControlBoundsV115), fields = catalog.fields.filter(f => keys.includes(f.path)),
+    profile = resolveLiveAthleticProfileV115({ heightMeters: 1.6, accelerationMps2: 3.2, reactionSeconds: .31, gloveSpeedMps: 7 });
+  expect(fields).toHaveLength(10); expect(new Set(fields.map(f => f.path)).size).toBe(10);
+  for (const field of fields) {
+    const [min, max] = liveAthleticControlBoundsV115[field.path as keyof LiveAthleticControlsV115];
+    expect(field).toMatchObject({ section: 'common', min, max });
+    expect(field.defaultFromAthleticV115).toBeTruthy(); expect(profile).toHaveProperty(field.defaultFromAthleticV115!);
+    expect(field).not.toHaveProperty('default'); expect(field.note).toContain('暫定');
+    if (field.path.includes('Meters')) expect(field).toMatchObject({ unit: 'm', displayScale: .01 });
+  }
 });

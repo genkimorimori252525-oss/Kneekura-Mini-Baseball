@@ -11,6 +11,7 @@ import { sourceRk4PositionBounds } from './SourceFreeBallSpeedBound';
 import { assertBattedResponseProfiles, type BallWorldResponseInput } from './BattedBallContactResponse';
 import { respondToBallContact, type BallContactMaterial } from './BallContactResponse';
 import { resolveCatchRetention } from '../fielding/CatchRetention';
+import { createSourceFreeBallPoleV136, type SourceFreeBallPoleV136 } from './SourceFreeBallPoleV136';
 
 export type SourceFreeBallWorldQueryInputV2 = Readonly<{
   descriptor: SourceFreeBallDescriptorV2;
@@ -23,6 +24,17 @@ export type SourceFreeBallWorldQueryInputV2 = Readonly<{
   previousContacts?: readonly BallWorldCollider[];
   previousBaseContacts?: readonly BattedWorldBaseId[];
 }>;
+export type SourceFreeBallPoleWorldQueryInputV136 = Readonly<{
+  world: SourceFreeBallWorldQueryInputV2; poles: readonly SourceFreeBallPoleV136[];
+}>;
+
+/** Versioned physical query only. An actual pole contact still requires an
+ * independently owned response and legal projection before any official fact. */
+export const querySourceFreeBallWorldWithPolesV136 = (raw: SourceFreeBallPoleWorldQueryInputV136): SourceFreeBallWorldQueryResultV2 => {
+  const input=cloneInert(raw);
+  if(!fields(input,['world','poles'])||!Array.isArray(input.poles))throw Error('invalid versioned nonlinear pole query');
+  return querySourceFreeBallWorld(input.world,undefined,input.poles);
+};
 export type SourceFreeBallWorldQueryResultV2 = Readonly<{
   authority: 'SOURCE_NONLINEAR_FREE_BALL_QUERY_RESEARCH';
   kind: 'moving' | 'resting' | 'boundary';
@@ -67,7 +79,8 @@ export type SourceImpactEscapeAdvanceV3 = Readonly<{ colliderKey: string; fromEl
   signedGapAtEscapeMeters: number; signedGapAtClearWindowEndMeters: number; supportingPlaneLowerGapAtEscapeMeters: number }>;
 type PrivateImpulseEscape = Readonly<{ basisKey: string; scopeKey: string; colliderKey: string; diagnostic: SourceImpactEscapeDiagnosticV3;
   recordAdvance: (advance: SourceImpactEscapeAdvanceV3) => void }>;
-const scopeKey = (q: SourceFreeBallWorldQueryInputV2) => json([q.actors, q.surfaces, q.bases ?? null]);
+const scopeKey = (q: SourceFreeBallWorldQueryInputV2, poles?: readonly SourceFreeBallPoleV136[]) =>
+  json([q.actors, q.surfaces, q.bases ?? null, ...(poles === undefined ? [] : [poles])]);
 const basisKey = (d: SourceFreeBallDescriptorV2) => json([d.initial, d.profile,
   ...(d.materialOrientationAtStart === undefined ? [] : [d.materialOrientationAtStart])]);
 const assertImpulseMaterialOrientation = (prior: SourceFreeBallDescriptorV2, next: SourceFreeBallDescriptorV2, seconds: number) => {
@@ -80,7 +93,8 @@ const assertImpulseMaterialOrientation = (prior: SourceFreeBallDescriptorV2, nex
 /** First contact of an unimpeded free Source curve. It has no custody/response
  * capability: a caller must stop here, execute the original physical response,
  * and retain/rebase the Source curve as that response requires. */
-const querySourceFreeBallWorld = (raw: SourceFreeBallWorldQueryInputV2, proof?: PrivateImpulseEscape): SourceFreeBallWorldQueryResultV2 => {
+const querySourceFreeBallWorld = (raw: SourceFreeBallWorldQueryInputV2, proof?: PrivateImpulseEscape,
+  polesV136?:readonly SourceFreeBallPoleV136[]): SourceFreeBallWorldQueryResultV2 => {
   const input = cloneInert(raw), { descriptor, moment } = input;
   if (!fields(input, ['descriptor', 'moment', 'side', 'throughElapsedSeconds', 'actors', 'surfaces'], ['bases', 'previousContacts', 'previousBaseContacts'])
     || !moment || !finite(input.throughElapsedSeconds) || input.throughElapsedSeconds < moment.elapsedSeconds
@@ -137,6 +151,14 @@ const querySourceFreeBallWorld = (raw: SourceFreeBallWorldQueryInputV2, proof?: 
     colliders.push({ key, separation: time => distance(ballAt(time), closest(ballAt(time))) - radius, speedBound: () => 0, accelerationBoundMps2: 0,
       contact: m => { const point = closest(m.ball.position); return { kind: 'surface', surfaceId: s.surfaceId, moment: m,
         point, normal: normal(m.ball.position, point) }; } });
+  }
+  if(polesV136)for(const rawPole of polesV136){
+    const pole=createSourceFreeBallPoleV136(rawPole),key=json(['surface',pole.source.surfaceId]);
+    if(identities.has(key))throw Error('duplicate nonlinear pole surface identity');
+    identities.add(key);
+    colliders.push({key,separation:time=>{const point=ballAt(time);return distance(point,pole.closest(point))-radius;},
+      speedBound:()=>0,accelerationBoundMps2:0,
+      contact:m=>{const point=pole.closest(m.ball.position);return{kind:'surface',surfaceId:pole.source.surfaceId,moment:m,point,normal:normal(m.ball.position,point)};}});
   }
   if (input.bases !== undefined) {
     if (!fields(input.bases, baseIds)) throw new Error('invalid nonlinear base coverage');
@@ -212,7 +234,7 @@ const querySourceFreeBallWorld = (raw: SourceFreeBallWorldQueryInputV2, proof?: 
       // A real response may own a new basis. Neither a microscopic penetration
       // nor an arbitrary observation grants permission to skip a collider.
       const certified = proof && proof.colliderKey === collider.key && previous.size === 1
-        && proof.basisKey === basisKey(descriptor) && proof.scopeKey === scopeKey(input)
+        && proof.basisKey === basisKey(descriptor) && proof.scopeKey === scopeKey(input, polesV136)
         && json(moment) === json(proof.diagnostic.outgoingMoment);
       if (certified && start !== proof.diagnostic.initialSignedGapMeters) return blocked();
       if (start < 0 && !certified || input.side !== 'outgoing' || moment.elapsedSeconds !== descriptor.initial.elapsedSeconds) return blocked();
@@ -408,4 +430,226 @@ export const createSourceImpactEscapeSessionV3 = () => {
     return diagnostic;
   };
   return Object.freeze({ query, adoptImpulse, adoptBaseImpulse, diagnostics: () => freeze([...diagnostics]), advances: () => freeze([...advances]) });
+};
+
+export type SourceFreeBallPoleMaterialsV145 = readonly Readonly<{ surfaceId: string; material: BallContactMaterial }>[];
+
+/** Private finite-pole response family. All geometry is bound on the first
+ * query, and each observed impulse/departure can be adopted only once. These
+ * records are numerical capabilities, never Native, custody or legal proof. */
+export const createSourceImpactEscapeSessionV145 = () => {
+  type Observation = Readonly<{ input: SourceFreeBallWorldQueryInputV2; poles: readonly SourceFreeBallPoleV136[] }>;
+  const observations = new WeakMap<object, Observation>(), adopted = new WeakSet<object>();
+  const adoptedBoundaries = new Set<string>();
+  const proofs = new Map<string, PrivateImpulseEscape>(), usedEscapes = new Set<string>();
+  const diagnostics: SourceImpactEscapeDiagnosticV3[] = [], advances: SourceImpactEscapeAdvanceV3[] = [];
+  let boundScope: string | undefined;
+  const query = (raw: SourceFreeBallPoleWorldQueryInputV136): SourceFreeBallWorldQueryResultV2 => {
+    const input = cloneInert(raw);
+    if (!fields(input, ['world', 'poles']) || !Array.isArray(input.poles)) throw Error('invalid v145 private pole query');
+    const poles = input.poles.map(p => createSourceFreeBallPoleV136(p).source), world = input.world;
+    if (!world) throw Error('invalid v145 private pole world');
+    const scope = scopeKey(world, poles);
+    if (boundScope !== undefined && boundScope !== scope) throw Error('v145 private complete geometry scope differs');
+    const key = basisKey(world.descriptor), proof = proofs.get(key);
+    if (usedEscapes.has(key) && world.moment.elapsedSeconds === world.descriptor.initial.elapsedSeconds)
+      throw Error('v145 private escape already used');
+    if (proof) {
+      const previous = [...(world.previousContacts ?? []).map(c => c.kind === 'actor' ? json(['actor', c.playerId, c.role])
+        : json(['surface', c.surfaceId])), ...(world.previousBaseContacts ?? []).map(id => json(['base', id]))];
+      if (proof.scopeKey !== scope || world.side !== 'outgoing' || json(world.moment) !== json(proof.diagnostic.outgoingMoment)
+        || previous.length !== 1 || previous[0] !== proof.colliderKey)
+        throw Error('v145 private escape scope or original outgoing moment differs');
+    }
+    const priorAdvanceCount = advances.length, result = querySourceFreeBallWorld(world, proof, poles);
+    boundScope = scope;
+    observations.set(result, freeze({ input: world, poles }));
+    if (proof && advances.length > priorAdvanceCount) { proofs.delete(key); usedEscapes.add(key); }
+    return result;
+  };
+  type Materials = Readonly<{ kind: 'ordinary' }> | Readonly<{ kind: 'base'; values: Readonly<Record<BattedWorldBaseId, BallContactMaterial>> }>
+    | Readonly<{ kind: 'pole'; values: SourceFreeBallPoleMaterialsV145 }>;
+  const materialValid = (m: BallContactMaterial) => fields(m, ['restitution', 'tangentialDamping', 'spinDamping'])
+    && Object.values(m).every(n => finite(n) && n >= 0 && n <= 1);
+  const adopt = (observed: SourceFreeBallWorldQueryResultV2, rawResponse: BallWorldResponseInput,
+    rawBasis: SourceFreeBallDescriptorV2, rawMaterials: Materials): SourceImpactEscapeDiagnosticV3 => {
+    const record = observations.get(observed);
+    if (!record || observed.kind !== 'boundary' || observed.pendingReason || observed.contacts.length !== 1)
+      throw Error('v145 impulse requires its own sole original query witness');
+    if (adopted.has(observed)) throw Error('v145 original query witness already used');
+    const response = cloneInert(rawResponse), descriptor = cloneInert(rawBasis), materials = cloneInert(rawMaterials);
+    const c = observed.contacts[0], prior = record.input, pole = c.kind === 'surface' ? record.poles.find(p => p.surfaceId === c.surfaceId) : undefined;
+    if ((c.kind !== 'actor' && c.kind !== 'surface' && c.kind !== 'base') || !c.normal)
+      throw Error('v145 impulse requires an original nondegenerate actor, panel, base or pole contact');
+    if (materials.kind === 'pole' ? !pole : materials.kind === 'base' ? c.kind !== 'base' : c.kind === 'base' || !!pole)
+      throw Error('v145 pole/base impulse requires its dedicated material family');
+    assertBattedResponseProfiles(response);
+    if (json(response.world.actors) !== json(prior.actors) || json(response.world.surfaces) !== json(prior.surfaces)
+      || response.world.parameters.ticksPerSecond !== prior.descriptor.profile.air.ticksPerSecond
+      || response.world.parameters.integrationStepTicks !== prior.descriptor.profile.air.integrationStepTicks
+      || response.world.parameters.gravityY !== prior.descriptor.profile.air.gravityY
+      || response.world.parameters.ballRadius !== prior.descriptor.profile.ground.radiusM
+      || json(descriptor.profile) !== json(prior.descriptor.profile)
+      || descriptor.throughElapsedSeconds !== prior.descriptor.throughElapsedSeconds)
+      throw Error('v145 original response geometry/profile/Source horizon scope differs');
+    if (materials.kind === 'base' && (!prior.bases || !fields(materials.values, baseIds)
+      || baseIds.some(id => !materialValid(materials.values[id])))) throw Error('v145 original complete base material scope differs');
+    if (materials.kind === 'pole') {
+      if (!Array.isArray(materials.values) || materials.values.length !== record.poles.length
+        || new Set(materials.values.map(p => p?.surfaceId)).size !== record.poles.length
+        || materials.values.some(p => !fields(p, ['surfaceId', 'material'])
+          || !record.poles.some(known => known.surfaceId === p.surfaceId) || !materialValid(p.material)))
+        throw Error('v145 original complete pole material scope differs');
+    }
+    const colliderKey = c.kind === 'actor' ? json(['actor', c.playerId, c.role])
+      : c.kind === 'base' ? json(['base', c.baseId]) : json(['surface', c.surfaceId]);
+    const boundaryKey = json([basisKey(prior.descriptor), colliderKey, c.moment]);
+    if (adoptedBoundaries.has(boundaryKey)) throw Error('v145 original physical boundary already used');
+    const witness = observed.contactSearchWitnesses.find(w => w.colliderKey === colliderKey);
+    if (!witness || witness.witnessElapsedSeconds !== c.moment.elapsedSeconds || witness.witnessElapsedSeconds <= prior.moment.elapsedSeconds
+      || witness.witnessElapsedSeconds - witness.firstPossibleElapsedSeconds > 1e-12) throw Error('v145 impulse contact bracket is unsupported');
+    const surfaceVelocity = c.kind === 'actor' ? c.velocity : { x: 0, y: 0, z: 0 };
+    const normalSpeed = (v: Vec3) => axes.reduce((sum, axis) => sum + c.normal![axis] * (v[axis] - surfaceVelocity[axis]), 0);
+    const incomingNormalSpeedMps = normalSpeed(c.moment.ball.velocity);
+    if (!finite(incomingNormalSpeedMps) || incomingNormalSpeedMps >= 0) throw Error('v145 impulse lacks inward contact velocity');
+    let outgoingBall;
+    if (c.kind === 'actor') {
+      const profile = response.actors.find(a => a.playerId === c.playerId && a.profile.role === c.role)!.profile;
+      if (profile.role === 'glove') {
+        const pocket = { x: c.center.x + profile.pocketCenterOffset.x, y: c.center.y + profile.pocketCenterOffset.y, z: c.center.z + profile.pocketCenterOffset.z };
+        const retention = resolveCatchRetention({ contactTick: c.moment.ball.tick, ball: c.moment.ball,
+          glove: { tick: c.moment.ball.tick, position: c.center, velocity: c.velocity }, contactNormal: c.normal,
+          bodyStability: profile.bodyStability, pocketOffsetMeters: distance(c.moment.ball.position, pocket) }, profile.parameters);
+        if (retention.outcome.kind !== 'live-ball') throw Error('v145 free basis cannot adopt a secured custody candidate');
+        outgoingBall = retention.outcome.ball;
+      } else outgoingBall = respondToBallContact({ ball: c.moment.ball, normal: c.normal, surfaceVelocity, material: profile.material });
+    } else {
+      const material = materials.kind === 'base' && c.kind === 'base' ? materials.values[c.baseId]
+        : materials.kind === 'pole' && c.kind === 'surface' ? materials.values.find(p => p.surfaceId === c.surfaceId)!.material
+        : response.surfaces.find(s => c.kind === 'surface' && s.surfaceId === c.surfaceId)!.material;
+      outgoingBall = respondToBallContact({ ball: c.moment.ball, normal: c.normal, surfaceVelocity, material });
+    }
+    const outgoingMoment = { ...c.moment, ball: outgoingBall };
+    if (json(descriptor.initial) !== json(outgoingMoment)) throw Error('v145 new basis differs from original impulse/clock tuple');
+    assertImpulseMaterialOrientation(prior.descriptor, descriptor, c.moment.elapsedSeconds);
+    createSourceFreeBallKernel(descriptor);
+    const outgoingNormalSpeedMps = normalSpeed(outgoingBall.velocity);
+    if (!finite(outgoingNormalSpeedMps) || outgoingNormalSpeedMps <= 0) throw Error('v145 original impulse has no outward departure');
+    const kernel = createSourceFreeBallKernel(prior.descriptor), cell = kernel.cells.find(cell => cell.fromElapsedSeconds <= witness.witnessElapsedSeconds
+      && cell.throughElapsedSeconds >= witness.witnessElapsedSeconds);
+    if (!cell) throw Error('v145 witness lacks original Source cell bounds');
+    let otherSpeed = 0;
+    if (c.kind === 'actor') {
+      const actor = prior.actors.find(a => a.playerId === c.playerId && a.primitive.role === c.role)!, s = actor.primitive;
+      const velocity = (time: number) => {
+        const dt = (c.moment.originTick - s.startTick) / s.ticksPerSecond + time - (actor.startElapsedSeconds ?? 0);
+        return norm({ x: s.startVelocity.x + s.acceleration.x * dt, y: s.startVelocity.y + s.acceleration.y * dt, z: s.startVelocity.z + s.acceleration.z * dt });
+      };
+      otherSpeed = Math.max(velocity(witness.firstPossibleElapsedSeconds), velocity(witness.witnessElapsedSeconds));
+    }
+    const gapBoundMeters = cell.positionRoundingBoundMeters + (cell.maximumPositionSpeedMps + otherSpeed)
+      * (witness.witnessElapsedSeconds - witness.firstPossibleElapsedSeconds);
+    if (!finite(gapBoundMeters) || witness.signedGapMeters < -gapBoundMeters) throw Error('v145 witness penetration exceeds its original bracket bound');
+    const diagnostic = freeze({ colliderKey, incomingMoment: c.moment, outgoingMoment, firstPossibleElapsedSeconds: witness.firstPossibleElapsedSeconds,
+      witnessElapsedSeconds: witness.witnessElapsedSeconds, initialSignedGapMeters: witness.signedGapMeters,
+      sourcePositionRoundingBoundMeters: cell.positionRoundingBoundMeters, gapBoundMeters, incomingNormalSpeedMps, outgoingNormalSpeedMps });
+    proofs.set(basisKey(descriptor), { basisKey: basisKey(descriptor), scopeKey: scopeKey(prior, record.poles), colliderKey, diagnostic,
+      recordAdvance: advance => advances.push(advance) });
+    adopted.add(observed); adoptedBoundaries.add(boundaryKey); diagnostics.push(diagnostic);
+    return diagnostic;
+  };
+  const adoptImpulse = (observed: SourceFreeBallWorldQueryResultV2, response: BallWorldResponseInput, basis: SourceFreeBallDescriptorV2) =>
+    adopt(observed, response, basis, { kind: 'ordinary' });
+  const adoptBaseImpulse = (observed: SourceFreeBallWorldQueryResultV2, response: BallWorldResponseInput,
+    materials: Readonly<Record<BattedWorldBaseId, BallContactMaterial>>, basis: SourceFreeBallDescriptorV2) =>
+    adopt(observed, response, basis, { kind: 'base', values: materials });
+  const adoptPoleImpulse = (observed: SourceFreeBallWorldQueryResultV2, response: BallWorldResponseInput,
+    materials: SourceFreeBallPoleMaterialsV145, basis: SourceFreeBallDescriptorV2) =>
+    adopt(observed, response, basis, { kind: 'pole', values: materials });
+  return Object.freeze({ query, adoptImpulse, adoptBaseImpulse, adoptPoleImpulse,
+    diagnostics: () => freeze([...diagnostics]), advances: () => freeze([...advances]) });
+};
+
+export type SourceFreePoleSessionInputV148 = Readonly<{
+  version: 'source_free_pole_session_v148'; poles: readonly SourceFreeBallPoleV136[]; materials: SourceFreeBallPoleMaterialsV145;
+}>;
+export type SourceFreePoleQueryInputV148 = Readonly<{
+  descriptor: SourceFreeBallDescriptorV2; moment: BallWorldMoment; side: 'incoming' | 'outgoing';
+  /** The caller caps this at its actual actor/fence event and compares contact
+   * brackets. This pole-only query authenticates neither Live actors nor Native. */
+  throughElapsedSeconds: number;
+}>;
+
+/** Free-ball pole capability, independent of bat-flight or throw headers.
+ * Complete geometry/material are fixed for the session. Ground remains owned
+ * by the original Source kernel; only an observed sole pole can be reflected.
+ * The private previous collider is derived from that response, never supplied
+ * by a caller. These ephemeral numerical records grant no custody/legal fact. */
+export const createSourceFreePoleSessionV148 = (raw: SourceFreePoleSessionInputV148) => {
+  const options = cloneInert(raw);
+  if (!fields(options, ['version', 'poles', 'materials']) || options.version !== 'source_free_pole_session_v148'
+    || !Array.isArray(options.poles) || !Array.isArray(options.materials)) throw Error('invalid v148 free pole session scope');
+  const poles = freeze(options.poles.map(p => createSourceFreeBallPoleV136(p).source)), identities = new Set(poles.map(p => p.surfaceId));
+  if (identities.size !== poles.length || options.materials.length !== poles.length
+    || new Set(options.materials.map(m => m?.surfaceId)).size !== poles.length
+    || options.materials.some(m => !fields(m, ['surfaceId', 'material']) || !identities.has(m.surfaceId)
+      || !fields(m.material, ['restitution', 'tangentialDamping', 'spinDamping'])
+      || !Object.values(m.material).every(n => finite(n) && n >= 0 && n <= 1)))
+    throw Error('v148 complete original pole geometry/material membership differs');
+  const materials = new Map(freeze(options.materials).map(m => [m.surfaceId, m.material]));
+  const observations = new WeakMap<object, SourceFreePoleQueryInputV148>(), adoptedBoundaries = new Set<string>();
+  const proofs = new Map<string, Readonly<{ proof: PrivateImpulseEscape; surfaceId: string }>>(), usedEscapes = new Set<string>();
+  const diagnostics: SourceImpactEscapeDiagnosticV3[] = [], advances: SourceImpactEscapeAdvanceV3[] = [];
+  const worldInput = (input: SourceFreePoleQueryInputV148, surfaceId?: string): SourceFreeBallWorldQueryInputV2 => ({ ...input,
+    actors: [], surfaces: [], ...(surfaceId === undefined ? {} : { previousContacts: [{ kind: 'surface', surfaceId }] }) });
+  const query = (rawQuery: SourceFreePoleQueryInputV148): SourceFreeBallWorldQueryResultV2 => {
+    const input = cloneInert(rawQuery);
+    if (!fields(input, ['descriptor', 'moment', 'side', 'throughElapsedSeconds'])) throw Error('invalid v148 free pole query scope');
+    const key = basisKey(input.descriptor), record = proofs.get(key), proof = record?.proof;
+    if (usedEscapes.has(key) && input.moment.elapsedSeconds === input.descriptor.initial.elapsedSeconds)
+      throw Error('v148 private escape already used');
+    if (proof && (input.side !== 'outgoing' || json(input.moment) !== json(proof.diagnostic.outgoingMoment)))
+      throw Error('v148 private escape original outgoing moment differs');
+    const priorAdvanceCount = advances.length, result = querySourceFreeBallWorld(worldInput(input, record?.surfaceId), proof, poles);
+    observations.set(result, freeze(input));
+    if (proof && advances.length > priorAdvanceCount) { proofs.delete(key); usedEscapes.add(key); }
+    return result;
+  };
+  const adoptPoleImpulse = (observed: SourceFreeBallWorldQueryResultV2, rawBasis: SourceFreeBallDescriptorV2): SourceImpactEscapeDiagnosticV3 => {
+    const prior = observations.get(observed);
+    if (!prior || observed.kind !== 'boundary' || observed.pendingReason || observed.contacts.length !== 1
+      || observed.contacts[0].kind !== 'surface' || !observed.contacts[0].normal || !identities.has(observed.contacts[0].surfaceId))
+      throw Error('v148 pole impulse requires its own sole original pole query witness');
+    const c = observed.contacts[0], descriptor = cloneInert(rawBasis), colliderKey = json(['surface', c.surfaceId]);
+    const boundaryKey = json([basisKey(prior.descriptor), colliderKey, c.moment]);
+    if (adoptedBoundaries.has(boundaryKey)) throw Error('v148 original physical boundary already used');
+    if (json(descriptor.profile) !== json(prior.descriptor.profile) || descriptor.throughElapsedSeconds !== prior.descriptor.throughElapsedSeconds)
+      throw Error('v148 original pole profile/Source horizon differs');
+    const witness = observed.contactSearchWitnesses.find(w => w.colliderKey === colliderKey);
+    if (!witness || witness.witnessElapsedSeconds !== c.moment.elapsedSeconds || witness.witnessElapsedSeconds <= prior.moment.elapsedSeconds
+      || witness.witnessElapsedSeconds - witness.firstPossibleElapsedSeconds > 1e-12) throw Error('v148 pole impulse contact bracket is unsupported');
+    const normalSpeed = (v: Vec3) => axes.reduce((sum, axis) => sum + c.normal![axis] * v[axis], 0);
+    const incomingNormalSpeedMps = normalSpeed(c.moment.ball.velocity);
+    if (!finite(incomingNormalSpeedMps) || incomingNormalSpeedMps >= 0) throw Error('v148 pole impulse lacks inward contact velocity');
+    const ball = respondToBallContact({ ball: c.moment.ball, normal: c.normal!, surfaceVelocity: { x: 0, y: 0, z: 0 }, material: materials.get(c.surfaceId)! });
+    const outgoingMoment = { ...c.moment, ball };
+    if (json(descriptor.initial) !== json(outgoingMoment)) throw Error('v148 new basis differs from original pole impulse/clock tuple');
+    assertImpulseMaterialOrientation(prior.descriptor, descriptor, c.moment.elapsedSeconds);
+    createSourceFreeBallKernel(descriptor);
+    const outgoingNormalSpeedMps = normalSpeed(ball.velocity);
+    if (!finite(outgoingNormalSpeedMps) || outgoingNormalSpeedMps <= 0) throw Error('v148 original pole impulse has no outward departure');
+    const kernel = createSourceFreeBallKernel(prior.descriptor), cell = kernel.cells.find(cell => cell.fromElapsedSeconds <= witness.witnessElapsedSeconds
+      && cell.throughElapsedSeconds >= witness.witnessElapsedSeconds);
+    if (!cell) throw Error('v148 pole witness lacks original Source cell bounds');
+    const gapBoundMeters = cell.positionRoundingBoundMeters + cell.maximumPositionSpeedMps * (witness.witnessElapsedSeconds - witness.firstPossibleElapsedSeconds);
+    if (!finite(gapBoundMeters) || witness.signedGapMeters < -gapBoundMeters) throw Error('v148 pole penetration exceeds its original bracket bound');
+    const diagnostic = freeze({ colliderKey, incomingMoment: c.moment, outgoingMoment, firstPossibleElapsedSeconds: witness.firstPossibleElapsedSeconds,
+      witnessElapsedSeconds: witness.witnessElapsedSeconds, initialSignedGapMeters: witness.signedGapMeters,
+      sourcePositionRoundingBoundMeters: cell.positionRoundingBoundMeters, gapBoundMeters, incomingNormalSpeedMps, outgoingNormalSpeedMps });
+    proofs.set(basisKey(descriptor), { surfaceId: c.surfaceId, proof: { basisKey: basisKey(descriptor), scopeKey: scopeKey(worldInput(prior), poles),
+      colliderKey, diagnostic, recordAdvance: advance => advances.push(advance) } });
+    adoptedBoundaries.add(boundaryKey); diagnostics.push(diagnostic);
+    return diagnostic;
+  };
+  return Object.freeze({ query, adoptPoleImpulse, diagnostics: () => freeze([...diagnostics]), advances: () => freeze([...advances]) });
 };

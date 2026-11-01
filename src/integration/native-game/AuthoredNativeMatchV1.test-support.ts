@@ -11,8 +11,9 @@ import type { AcceptedReleaseGeometryBaseline } from '../../host/world/SqlitePla
 /** Explicit synthetic SI test world. Numerical declarations are the published
  * body/release/clock fixtures, not measured people, league translations or
  * production defaults. IDs are authored before any Native owner accepts them. */
-export const authoredNativeMatchFixture = (): AuthoredNativeMatchDeclarationV1 => {
+export const authoredNativeMatchFixture = (options: Readonly<{ bodyDay?: number }> = {}): AuthoredNativeMatchDeclarationV1 => {
   const ns = 'authored-native-match', careerId = ns + ':career', gameId = ns + ':game', fixtureEventId = ns + ':fixture', day = 10;
+  const bodyDay = options.bodyDay ?? day;
   const clock = (side: string): AuthoredMatchClockManifestV1 => {
     const original = authoredClockFixture();
     return { ...original, version: 'authored_match_si_clock_v1', authority: 'AUTHORED_SYNTHETIC_NOT_EMPIRICAL', units: 'SI',
@@ -50,8 +51,8 @@ export const authoredNativeMatchFixture = (): AuthoredNativeMatchDeclarationV1 =
     baseline: { bodyOriginHeightMeters: .95, maximumLegReachMeters: 1.5, maximumGloveReachMeters: 1.3, maximumTagReachMeters: 1.1 } };
   players.forEach((p, i) => {
     const scope = { careerId, playerId: p.playerId, personId: intakes[i].personId, personLinkSourceId: p.personLinkSourceId };
-    const body: AcceptedBodySource = { ...scope, sourceId: ns + ':body:' + i, sourceVersion: version, acceptedAtDay: day, physicalProfile: { heightMeters: 1.8 } };
-    const pose: AcceptedPoseSource = { ...scope, sourceId: ns + ':pose:' + i, sourceVersion: version, acceptedAtDay: day, bodyRef: ref(body), primitives: [
+    const body: AcceptedBodySource = { ...scope, sourceId: ns + ':body:' + i, sourceVersion: version, acceptedAtDay: bodyDay, physicalProfile: { heightMeters: 1.8 } };
+    const pose: AcceptedPoseSource = { ...scope, sourceId: ns + ':pose:' + i, sourceVersion: version, acceptedAtDay: bodyDay, bodyRef: ref(body), primitives: [
       { role: 'body', radius: .2, offset: { x: 0, y: 0, z: 0 } }, { role: 'glove', radius: .08, offset: { x: .3, y: .15, z: .1 } },
       { role: 'tag_hand', radius: .06, offset: { x: -.3, y: .1, z: .1 } },
       { role: 'left_foot', radius: .07, offset: { x: -.1, y: -.88, z: 0 } }, { role: 'right_foot', radius: .07, offset: { x: .1, y: -.88, z: 0 } }] };
@@ -69,6 +70,8 @@ export const authoredNativeMatchFixture = (): AuthoredNativeMatchDeclarationV1 =
   const batterMaterialization = { ...materializations[9], sourceId: ns + ':materialization:batter', role: 'batter' as const,
     fieldingModelRef: null, releaseGeometryRef: null };
   materializations.push(batterMaterialization);
+  if (options.bodyDay !== undefined && bodyDay !== day) materializations.push({ ...batterMaterialization,
+    sourceId: ns + ':materialization:batter:practice', atDay: bodyDay });
   const positions = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF'] as const;
   const centers = [{ x: 0, z: 18.44 }, { x: 0, z: -1.2 }, { x: 26, z: 28 }, { x: 12, z: 40 }, { x: -26, z: 28 },
     { x: -12, z: 40 }, { x: -42, z: 80 }, { x: 0, z: 95 }, { x: 42, z: 80 }];

@@ -8,8 +8,11 @@ import { resolvePitcherRepertoireV77, type PitchRepertoireV77 } from './LivePitc
 export const LIVE_PITCH_TYPES_V78 = ['fastball', 'sinker', 'cutter', 'changeup', 'splitter', 'forkball', 'screwball', 'curve',
   'knuckle_curve', 'slow_curve', 'slider', 'sweeper', 'slurve', 'knuckleball', 'eephus'] as const;
 export type LivePitchTypeV78 = typeof LIVE_PITCH_TYPES_V78[number];
+/** Authoring history only. Runtime physics consumes the explicit spin and seam fields. */
+export type PitchMovementHistoryV92 = Readonly<{ version: 'pitch_movement_v92'; level: number;
+  referenceSpinRadPerSecond: Vec3; referenceSeamForce?: BaseballSeamForceV1 }>;
 export type PitchPhysicalSettingsV78 = Readonly<{ releaseSpeedMps: number; spinRadPerSecond: Vec3;
-  releaseOrientation?: Quaternion; seamForce?: BaseballSeamForceV1 }>;
+  releaseOrientation?: Quaternion; seamForce?: BaseballSeamForceV1; movementV92?: PitchMovementHistoryV92 }>;
 export type PitchSnapshotV78 = PitchPhysicalSettingsV78 & Readonly<{ pitchId: string; name: string; pitchType: LivePitchTypeV78;
   source: Readonly<{ kind: 'preset' | 'original'; id: string; revision: number }> }>;
 export type PitchRepertoireV78 = Readonly<{ version: 'pitch_repertoire_v78'; pitches: readonly PitchSnapshotV78[] }>;
@@ -52,7 +55,7 @@ const validName=(v:unknown):v is string=>typeof v==='string'&&v.length>0&&v.leng
 function fields(raw:unknown,required:readonly string[],optional:readonly string[]=[]):asserts raw is Record<string,unknown>{
   assert(raw&&typeof raw==='object'&&!Array.isArray(raw)&&required.every(k=>Object.hasOwn(raw,k))&&Object.keys(raw).every(k=>required.includes(k)||optional.includes(k)),'unknown or missing fields');
 }
-const physicalRequired=['releaseSpeedMps','spinRadPerSecond'],physicalOptional=['releaseOrientation','seamForce'];
+const physicalRequired=['releaseSpeedMps','spinRadPerSecond'],physicalOptional=['releaseOrientation','seamForce','movementV92'];
 function physical(raw:Record<string,unknown>,maximumPitchSpeedMps?:number){
   assert(maximumPitchSpeedMps===undefined||bounded(maximumPitchSpeedMps,15,85),'invalid maximum pitch speed');
   assert(bounded(raw.releaseSpeedMps,5,85)&&raw.releaseSpeedMps<=(maximumPitchSpeedMps??85),'invalid V78 pitch speed or individual limit');
@@ -63,6 +66,14 @@ function physical(raw:Record<string,unknown>,maximumPitchSpeedMps?:number){
     assert(Object.values(q).every(v=>bounded(v,-1,1))&&Math.abs(Math.hypot(q.w as number,q.x as number,q.y as number,q.z as number)-1)<=1e-8,'unit material orientation required');
   }
   if(Object.hasOwn(raw,'seamForce')){const seam=validateBaseballSeamForceV1(raw.seamForce);assert(seam.coefficientScale===0||raw.releaseOrientation!==undefined,'seam force requires an explicit material orientation');}
+  if(Object.hasOwn(raw,'movementV92')){
+    const history=raw.movementV92;fields(history,['version','level','referenceSpinRadPerSecond'],['referenceSeamForce']);
+    assert(raw.pitchType!=='fastball'&&history.version==='pitch_movement_v92'&&Number.isInteger(history.level)&&bounded(history.level,0,7),'invalid movement authoring history');
+    fields(history.referenceSpinRadPerSecond,['x','y','z']);const spin=history.referenceSpinRadPerSecond;
+    assert(Object.values(spin).every(v=>typeof v==='number'&&Number.isFinite(v))&&Math.hypot(spin.x as number,spin.y as number,spin.z as number)<=1200,'invalid reference spin vector');
+    const seam=Object.hasOwn(history,'referenceSeamForce')?validateBaseballSeamForceV1(history.referenceSeamForce):undefined;
+    assert(history.level===0||Math.hypot(spin.x as number,spin.y as number,spin.z as number)>0||(seam?.coefficientScale??0)>0,'nonzero movement level requires reference spin or seam force');
+  }
 }
 function classified(raw:Record<string,unknown>){assert(validName(raw.name)&&(LIVE_PITCH_TYPES_V78 as readonly unknown[]).includes(raw.pitchType),'invalid name or pitch classification');}
 export function validatePitchSnapshotV78(raw:unknown,maximumPitchSpeedMps?:number):PitchSnapshotV78{
@@ -115,16 +126,17 @@ export function createPitchSnapshotFromPresetV78(raw:Readonly<{presetId:string;p
   return validatePitchSnapshotV78({pitchId:request.pitchId,name:preset.name,pitchType:preset.pitchType,...settings,
     releaseOrientation:orientation,seamForce:preset.seamForce,source:{kind:'preset',id:preset.presetId,revision:1}},p.maximumPitchSpeedMps);
 }
-export function migratePitchRepertoireV77ToV78(physical:PitchAuthoringPhysicalV78):PitchRepertoireV78{
+export function migratePitchRepertoireV77ToV78(physical:PitchAuthoringPhysicalV78,throws:'R'|'L'='R'):PitchRepertoireV78{
   const p=cloneInert(physical);assert(p.pitchRepertoireV78===undefined,'V78 repertoire is already authored');
-  return validatePitchRepertoireV78({version:'pitch_repertoire_v78',pitches:resolvePitcherRepertoireV77(p).map(row=>({
+  return validatePitchRepertoireV78({version:'pitch_repertoire_v78',pitches:resolvePitcherRepertoireV77(p,throws).map(row=>({
     pitchId:row.pitchType,name:catalog.types.find(t=>t.pitchType===row.pitchType)!.name,pitchType:row.pitchType,
     releaseSpeedMps:row.releaseSpeedMps,spinRadPerSecond:row.spinRadPerSecond,source:{kind:'preset',id:row.pitchType,revision:1}}))},p.maximumPitchSpeedMps);
 }
-export function resolvePitcherRepertoireV78(physical:PitchAuthoringPhysicalV78):readonly(PitchSnapshotV78&Readonly<{authored:boolean}>)[]{
+export function resolvePitcherRepertoireV78(physical:PitchAuthoringPhysicalV78,throws:'R'|'L'='R'):readonly(PitchSnapshotV78&Readonly<{authored:boolean}>)[]{
   const p=cloneInert(physical);assert(!(p.pitchRepertoire&&p.pitchRepertoireV78),'ambiguous V77 and V78 pitch ownership');
+  assert(throws==='R'||throws==='L','invalid throwing side');
   if(p.pitchRepertoireV78)return freeze(validatePitchRepertoireV78(p.pitchRepertoireV78,p.maximumPitchSpeedMps).pitches.map(row=>({...row,authored:true})));
-  const migrated=migratePitchRepertoireV77ToV78(p);return freeze(migrated.pitches.map(row=>({...row,authored:p.pitchRepertoire?.some(r=>r.pitchType===row.pitchType)??false})));
+  const migrated=migratePitchRepertoireV77ToV78(p,throws);return freeze(migrated.pitches.map(row=>({...row,authored:p.pitchRepertoire?.some(r=>r.pitchType===row.pitchType)??false})));
 }
 export function samplePitchSpinExecutionV78(raw:Readonly<{seed:number;nominalSpin:Vec3;minimumSpinRatio?:number}>){
   const request=cloneInert(raw);fields(request,['seed','nominalSpin'],['minimumSpinRatio']);

@@ -7,8 +7,27 @@ export type BaseballSeamForceV1 = Readonly<{ version: 'baseball_seam_force_v1'; 
 export const BASEBALL_SEAM_MAX_COEFFICIENT_V1 = .25;
 /** Conservative derivative bound of the dimensionless direction map on the unit sphere. */
 export const BASEBALL_SEAM_DIRECTION_LIPSCHITZ_V1 = 96;
+const seamProfileKeysV113 = ['version', 'coefficientScale'] as const;
+const materialKeysV113 = ['w', 'x', 'y', 'z'] as const;
+/** Flat finite data only. Read descriptors, never getters; unusual input keeps
+ * the original cloneInert validation/rejection path. No identity cache is used
+ * because material and authored raw profiles may change between calls. */
+function flatFiniteSeamDataV113(raw: unknown, keys: readonly string[]): Record<string, unknown> | null {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const prototype = Object.getPrototypeOf(raw);
+  if ((prototype !== Object.prototype && prototype !== null) || Reflect.ownKeys(raw).length !== keys.length) return null;
+  const value: Record<string, unknown> = {};
+  for (const key of keys) {
+    const descriptor = Object.getOwnPropertyDescriptor(raw, key);
+    if (!descriptor || !descriptor.enumerable || !('value' in descriptor)) return null;
+    const field = descriptor.value;
+    if (key === 'version' ? field !== 'baseball_seam_force_v1' : typeof field !== 'number' || !Number.isFinite(field)) return null;
+    value[key] = field;
+  }
+  return value;
+}
 export function validateBaseballSeamForceV1(raw: unknown): BaseballSeamForceV1 {
-  const value = cloneInert(raw) as BaseballSeamForceV1;
+  const value = (flatFiniteSeamDataV113(raw, seamProfileKeysV113) ?? cloneInert(raw)) as BaseballSeamForceV1;
   if (!value || typeof value !== 'object' || Array.isArray(value)
     || Object.keys(value).sort().join('|') !== 'coefficientScale|version' || value.version !== 'baseball_seam_force_v1'
     || typeof value.coefficientScale !== 'number' || !Number.isFinite(value.coefficientScale) || value.coefficientScale < 0 || value.coefficientScale > 2)
@@ -17,7 +36,7 @@ export function validateBaseballSeamForceV1(raw: unknown): BaseballSeamForceV1 {
 }
 export function validateBaseballMaterialOrientationV1(raw: unknown): Quaternion {
   if (raw === undefined) throw new Error('baseball seam force: explicit finite material orientation required');
-  const q = cloneInert(raw) as Quaternion;
+  const q = (flatFiniteSeamDataV113(raw, materialKeysV113) ?? cloneInert(raw)) as Quaternion;
   if (!q || typeof q !== 'object' || Array.isArray(q) || Object.keys(q).sort().join('|') !== 'w|x|y|z'
     || !Object.values(q).every(v => typeof v === 'number' && Number.isFinite(v)))
     throw new Error('baseball seam force: explicit finite material orientation required');

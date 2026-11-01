@@ -20,6 +20,23 @@ const motion = (level: 1 | 2 | 3 | 4 = 4, side = 1) => {
   return { input, base, adjusted: createImpactAdjustedReferenceMotionV1(adjustedInput, base), adjustedInput };
 };
 
+it('composes C1 execution acceleration bounds for local and whole-arc transforms without altering source keys',()=>{
+  const raw={...reference(),executionInterpolationV122:'cubic-c1' as const},before=JSON.stringify(raw),base=createReferenceBatKinematicsV1(raw);
+  const local=createReferenceBatKinematicsV1(withReferenceImpactTrajectoryV1(raw,200000,{...DEFAULT_IMPACT_TRAJECTORY_V1,level:4}));
+  const whole=createReferenceBatKinematicsV1(withReferenceImpactTrajectoryV1(raw,200000,{...DEFAULT_WHOLE_ARC_TRAJECTORY_V1,level:4}));
+  expect(local.maximumGripAccelerationMps2).toBeGreaterThan(base.maximumGripAccelerationMps2!);
+  expect(local.maximumAngularAccelerationRadPerSecond2).toBeGreaterThan(base.maximumAngularAccelerationRadPerSecond2!);
+  for(const key of ['maximumGripAccelerationMps2','maximumAngularAccelerationRadPerSecond2','maximumSweetSpotAccelerationMps2'] as const)
+    expect(whole[key]).toBe(base[key]);
+  for(let t=1100000.25;t<1260000;t+=317.41){const a=local.sampleContinuous(t-.1),b=local.sampleContinuous(t+.1),at=local.sampleContinuous(t);
+    expect(norm(difference(b.state.linearVelocity,a.state.linearVelocity))*5e6).toBeLessThanOrEqual(local.maximumGripAccelerationMps2!);
+    expect(norm(difference(b.state.angularVelocity,a.state.angularVelocity))*5e6).toBeLessThanOrEqual(local.maximumAngularAccelerationRadPerSecond2!);
+    expect(norm(difference(b.sweetSpotVelocity,a.sweetSpotVelocity))*5e6).toBeLessThanOrEqual(local.maximumSweetSpotAccelerationMps2!);
+    expect(norm(at.sweetSpotVelocity)).toBeLessThanOrEqual(local.maximumSweetSpotSpeedMps);
+  }
+  expect(JSON.stringify(raw)).toBe(before);
+});
+
 it('omission and zero-angle controls retain the identical legacy motion object and all samples', () => {
   const { input, base, adjusted } = motion(2);
   expect(adjusted).toBe(base); expect(createImpactAdjustedReferenceMotionV1(input, base)).toBe(base);

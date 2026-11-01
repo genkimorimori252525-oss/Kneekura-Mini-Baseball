@@ -11,6 +11,16 @@ import {
 } from './LiveLocomotionV84';
 
 const profile = createLiveLocomotionProfileV84({ topSpeedMps: 8, accelerationMps2: 5 });
+it('reuses only owned immutable SI profiles and still validates changed or external inputs',()=>{
+ const input={topSpeedMps:8,accelerationMps2:5},p=createLiveLocomotionProfileV84(input);
+ expect(createLiveLocomotionProfileV84({...input})).toBe(p);
+ input.topSpeedMps=8.000000001;expect(createLiveLocomotionProfileV84(input).topSpeedMps).toBe(input.topSpeedMps);
+ expect(p.topSpeedMps).toBe(8);expect(Object.isFrozen(p.propulsionBands[0])).toBe(true);
+ expect(()=>createLiveLocomotionProfileV84({...input,accelerationMps2:NaN})).toThrow();
+ const external={...p,propulsionBands:p.propulsionBands.map(b=>({...b}))};
+ expect(liveAccelerationDistanceV84(external,0,1)).toBe(liveAccelerationDistanceV84(p,0,1));
+ external.propulsionBands[0].accelerationMps2=0;expect(()=>liveAccelerationDistanceV84(external,0,1)).toThrow();
+});
 const checkPlan = (plan: LiveSpeedPlanV84, distance: number, initial: number, final: number) => {
   let time = 0, travelled = 0, speed = initial;
   for (const segment of plan.segments) {

@@ -1,3 +1,12 @@
+import {resolveLiveContactFrameMotorPracticeV244} from './LiveContactFrameMotorV244';
+import {commandFor} from './LivePracticeCommandV273';
+import {declareSpinPracticeEpisodesV242,deriveSpinEpisodeConfigurationV242,type LiveSpinEpisodePlanV242} from './LiveSpinPracticeEpisodesV242';
+import {resolveLiveRobustContactFrameMotorPracticeV248} from './LiveRobustContactFrameMotorV248';
+import type {LiveBattingPracticeRequestV150} from './LiveBattingPracticeV150';
+import {createSealedPracticeOwnerV256,readSealedPracticeSnapshotV256} from './LiveSealedPracticeOpportunityV256';
+import {lateEvidenceHeadroomV121} from '../../core/decision/batting/BatterApproachPolicyV121';
+import {resolveLivePlateVisionV1} from './LivePhysicalRosterV1';
+import {encodeLiveSpinPracticeProofV239,hashLiveSpinPracticeProofV239} from './LiveSpinPracticeProofV239';
 import {forecastObservedPitchV246,type ObservedPitchForecastPolicyV246} from '../../core/decision/batting/ObservedPitchForecastV246';
 import {parsePracticeSwingDecisionV241} from './PracticeSwingDecisionV241';
 import { liveFielderBodyControlBoundsV105, resolveLiveFielderBodyModelV105, type LiveFielderBodyPoseV105 } from '../../core/sim/fielding/LiveFielderBodyGeometryV105';
@@ -34,7 +43,7 @@ import { IDENTITY_QUATERNION, type Quaternion } from '../../core/sim/pitching/Ba
 import { simulateLiveFieldPlayV1, deriveLiveFieldFenceGeometryV1 } from '../../core/sim/fielding/LiveFieldPlayV1';
 import type { LiveDefensiveOpportunityV1 } from '../../core/sim/fielding/LiveDefensiveOpportunityV1';
 import { reducePlayableMatchV1, type PlayableMatchRuleResultV1 } from './PlayableMatchRulesV1';
-import { simulateLivePitchV1, type LiveMeasuredClipV1, type LivePitchInputV1 } from './LivePitchV1';
+import { simulateLivePitchV1, takeYawDecisionEvidenceV274, type LiveMeasuredClipV1, type LivePitchInputV1, type LiveNeutralReactivePolicyV272 } from './LivePitchV1';
 import type { LivePhysicalAbilityControlsV1 } from './LivePhysicalRosterV1';
 import type {SwingInstructionV121} from '../../core/decision/batting/BatterApproachPolicyV121';
 import type {LiveManagerCommunicationSourceV122} from './LiveManagerCommunicationV122';
@@ -45,6 +54,7 @@ import {appendBatterObservedEvidenceV151,createBatterObservedEvidenceV151,create
 import {validateLiveBatterObservationPolicyV151,type LiveBatterObservationPolicyV151} from './LiveBatterObservationV151';
 import {createRegionSnapshotV222,validateRegionEvidenceV222,validateObservedRegionPolicyV222,type BatterObservedRegionExperiencePolicyV222,type BatterObservedRegionEvidenceV222} from '../../core/decision/batting/BatterObservedRegionExperienceV222';
 import {validateObservedDirectionMotorV153,type ObservedDirectionMotorPolicyV153} from './LiveDirectionMotorV153';
+import {validateObservedReactiveDirectionGroupPolicyV251,type ObservedReactiveDirectionGroupPolicyV251} from '../../core/sim/contact/ObservedDirectionRegistrationV153';
 import { resolveLiveTraitPreferencesV54, validateLiveTraitProfileV1, type LiveTraitProfileV1 } from './LiveTraitProfilesV1';
 import { validateImpactTrajectorySettingsV1 } from '../../core/sim/contact/ReferenceBatImpactTrajectoryV1';
 
@@ -78,16 +88,19 @@ export type LiveMatchInputV1 = Readonly<{seed:number;innings?:number;teams:reado
   batterForecastPolicyV246?:ObservedPitchForecastPolicyV246;
   batterObservedRegionExperienceV222?:BatterObservedRegionExperiencePolicyV222;
   batterDirectionMotorV153?:ObservedDirectionMotorPolicyV153;
+  batterReactiveDirectionPolicyV251?:ObservedReactiveDirectionGroupPolicyV251;
+  batterNeutralReactivePolicyV272?:LiveNeutralReactivePolicyV272|Readonly<{version:'live_neutral_reactive_pair_policy_v273';sourceId:string}>;
   batterAutoDirectionPolicyV250?:LiveMatchAutoDirectionPolicyV250;
   /** MATCH roots; per-play overrides are derived with the global pitch ordinal. */
   randomnessV152?:LiveRandomnessV152;
   measuredClips:readonly LiveMeasuredClipV1[];park?:Readonly<{fenceRadiusMeters:number;fenceHeightMeters:number;groundMaterialV101?:BaseballGroundMaterial;
     poleEquipmentV148?:LiveFieldPlayInputV1['field']['poleEquipmentV148']}>}>;
+export type LiveYawPracticeRequestV255=Readonly<{version:'live_observed_yaw_contact_frame_trial_v255';subjectId:string;technique:'BACKSPIN'|'TOPSPIN'|'HOOK'|'SLICE';clip:Readonly<{id:string;sourceSha256:string;bats:'R'|'L'}>;domain:Readonly<{plateZ:number;coordinateSystem:'LIVE_WORLD_METERS_V1'}>;policy:'FIXED_17_YAW_UNCALIBRATED_V255';thresholds:Readonly<{minimumComponent:number;minimumImprovement:number}>}>;
 export type LivePitchCommandV1 = Readonly<{batting:'auto'|'balanced'|'contact'|'power'|'take'|'bunt';pitchType:string;pitchId?:string;location:string;managedTeam:0|1;
   /** Already received/understood instruction; the communication owner supplies soft acceptance. */
   swingInstructionV121?:SwingInstructionV121;
   battingDirectionRequestV149?:BattingDirectionRequestV149;
-  observedSpinTrialV236?:LivePitchInputV1['observedSpinTrialV236'];
+  observedSpinTrialV236?:LivePitchInputV1['observedSpinTrialV236']|LiveYawPracticeRequestV255;
   spinMotorPracticePolicyV239?:LivePitchInputV1['spinMotorPracticePolicyV239'];
   practiceSwingDecisionV241?:LivePitchInputV1['practiceSwingDecisionV241'];
   /** Explicit PLAY-scoped simulation intervention, not a player's knowledge. */
@@ -245,12 +258,27 @@ export type LiveMatchContinuationV116=Readonly<{version:'live_match_continuation
  batterKnowledgeV122?:Readonly<{initialBinding:string;beliefs:readonly BatterBeliefV122[]}>;
  batterObservedMemoryV151?:Readonly<{policyBinding:string;memories:readonly BatterObservedMemoryV151[]}>;
  batterObservedRegionExperienceV222?:Readonly<{policyBinding:string;entries:readonly BatterObservedRegionEvidenceV222[]}>;
- randomnessBindingV152?:string;directionMotorBindingV153?:string;batterForecastBindingV246?:string;batterAutoDirectionBindingV250?:string}>;
+ randomnessBindingV152?:string;directionMotorBindingV153?:string;batterForecastBindingV246?:string;batterAutoDirectionBindingV250?:string;batterReactiveDirectionBindingV251?:string;batterNeutralReactiveBindingV272?:string}>;
+const previewCapabilityV257=Symbol('private yaw practice preview');
+const pairCapabilityV273=Symbol('private paired v248 preview');
+const yawDiagnosticCapabilityV274=Symbol('private non-adopting paired yaw diagnostic');
+const yawDiagnosticCapabilityV275=Symbol('private non-adopting paired pivot yaw diagnostic');
+const yawDiagnosticCapabilityV276=Symbol('private non-adopting paired robust yaw diagnostic');
+const authorizedYawPitchInputsV274=new WeakSet<object>();
+const yawEvidenceByHostV274=new WeakMap<object,NonNullable<ReturnType<typeof takeYawDecisionEvidenceV274>>>();
+async function consumeYawEvidenceV274(host:object|undefined){const evidence=host?yawEvidenceByHostV274.get(host):undefined;if(host)yawEvidenceByHostV274.delete(host);if(!evidence)return {status:'UNKNOWN' as const,reason:'DECISION_EVIDENCE_UNAVAILABLE'};return {status:'RECORDED' as const,planningRate:evidence.planningRate,summary:evidence.summary,inputHash:await evidence.inputHash,...(evidence.plannerInputHashV276?{plannerInputHashV276:await evidence.plannerInputHashV276,plannerInputHashScopeV276:'FULL_PLANNER_ARGUMENT_V276' as const}:{})};}
+/** Identity check only; registration remains private to the paired Host. */
+export function isAuthorizedYawPitchInputV274(raw:unknown):boolean{return raw!==null&&typeof raw==='object'&&authorizedYawPitchInputsV274.has(raw)}
+const previewHostsV257=new WeakMap<object,{input:LiveMatchInputV1;host:ReturnType<typeof createLiveBaseballMatchWorkerInternalV257>}>();
+const sealedPreviewRegistryV258=new WeakMap<object,Map<string,{contract:string;facade:{preview:()=>Promise<LiveYawPracticePreviewResultV257>}}>>();
+const initializationLatchV258=new WeakMap<object,{failed:boolean;failure?:Promise<ReturnType<typeof failedYawOwnerV258>>;contract?:string}>();
+const previewControlV258=new WeakMap<object,{state:()=>('NOT_STARTED'|'IN_FLIGHT'|'COMPLETED');evidence:()=>Promise<LiveYawPracticePreviewResultV257>|undefined}>();
 export function createLiveBaseballMatchV1(raw:LiveMatchInputV1){
- const host=createLiveBaseballMatchWorkerV116(raw);
- return Object.freeze({issuePitch:host.issuePitch,inspect:host.inspect});
+ const host=createLiveBaseballMatchWorkerV116(raw),view=Object.freeze({issuePitch:host.issuePitch,inspect:host.inspect});
+ previewHostsV257.set(view,previewHostsV257.get(host)!);return view;
 }
-export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:LiveMatchContinuationV116){
+export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:LiveMatchContinuationV116){return createLiveBaseballMatchWorkerInternalV257(raw,resume,undefined)}
+function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:LiveMatchContinuationV116|undefined,capability:typeof previewCapabilityV257|typeof pairCapabilityV273|typeof yawDiagnosticCapabilityV274|typeof yawDiagnosticCapabilityV275|typeof yawDiagnosticCapabilityV276|undefined){
   const input=cloneMatchInputWithMeasuredCatalogV68(raw),innings=input.innings??9,tps=LIVE_MATCH_PHYSICS_V1.air.ticksPerSecond,
     matchPhysicsV101=input.park?.groundMaterialV101 ? createAeroGroundBallPhysicsProfile({...LIVE_MATCH_PHYSICS_V1,ground:{...LIVE_MATCH_PHYSICS_V1.ground,material:input.park.groundMaterialV101}}) : LIVE_MATCH_PHYSICS_V1;
   const observationPolicyV151=input.batterObservationV151===undefined?undefined:validateLiveBatterObservationPolicyV151(input.batterObservationV151);
@@ -267,6 +295,17 @@ export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:L
   const autoDirectionBindingV250=autoDirectionPolicyV250===undefined?undefined:JSON.stringify({version:autoDirectionPolicyV250.version,sourceId:autoDirectionPolicyV250.sourceId});
   const randomnessPolicyV152=input.randomnessV152===undefined?undefined:validateLiveRandomnessV152(input.randomnessV152,'MATCH'),
     randomnessBindingV152=randomnessPolicyV152===undefined?undefined:JSON.stringify(randomnessPolicyV152);
+  const reactivePolicyV251=input.batterReactiveDirectionPolicyV251===undefined?undefined:validateObservedReactiveDirectionGroupPolicyV251(input.batterReactiveDirectionPolicyV251),
+    reactiveBindingV251=reactivePolicyV251===undefined?undefined:JSON.stringify(reactivePolicyV251);
+  assert(reactivePolicyV251===undefined||observationPolicyV151!==undefined&&directionMotorPolicyV153!==undefined&&randomnessPolicyV152!==undefined,'reactive direction policy requires observation, motor and independent randomness');
+  const neutralPolicyV272=input.batterNeutralReactivePolicyV272;
+  if(neutralPolicyV272!==undefined)assert(neutralPolicyV272!==null&&typeof neutralPolicyV272==='object'&&!Array.isArray(neutralPolicyV272)
+    &&Object.keys(neutralPolicyV272).sort().join('|')==='sourceId|version'&&['live_neutral_reactive_policy_v272','live_neutral_reactive_pair_policy_v273'].includes(neutralPolicyV272.version)
+    &&typeof neutralPolicyV272.sourceId==='string'&&neutralPolicyV272.sourceId.length>0&&neutralPolicyV272.sourceId.length<=200
+    &&neutralPolicyV272.sourceId.trim()===neutralPolicyV272.sourceId,'invalid neutral reactive direction policy');
+  assert(neutralPolicyV272===undefined||observationPolicyV151!==undefined&&directionMotorPolicyV153!==undefined&&randomnessPolicyV152!==undefined,'neutral reactive direction policy requires observation, motor and independent randomness');
+  assert(!(neutralPolicyV272&&reactivePolicyV251),'neutral and explicit reactive direction policies cannot be combined');
+  const neutralBindingV272=neutralPolicyV272===undefined?undefined:JSON.stringify({version:neutralPolicyV272.version,sourceId:neutralPolicyV272.sourceId,seed:input.seed});
   assert(randomnessPolicyV152===undefined||input.seed>=0&&input.seed<=0xffffffff,'randomness match seed must be uint32');
   assert(observationPolicyV151===undefined||observationPolicyV151.ticksPerSecond===tps,'batter observation clock differs from physics');
   assert(Number.isSafeInteger(input.seed)&&Number.isSafeInteger(innings)&&innings>0,'invalid seed/innings');
@@ -314,6 +353,8 @@ export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:L
     assert(c?.randomnessBindingV152===randomnessBindingV152,'same-game randomness policy differs');
     assert(c?.directionMotorBindingV153===directionMotorBindingV153,'same-game direction motor policy differs');
     assert(c?.batterAutoDirectionBindingV250===autoDirectionBindingV250,'same-game auto direction policy differs');
+    assert(c?.batterReactiveDirectionBindingV251===reactiveBindingV251,'same-game reactive direction policy differs');
+    assert(c?.batterNeutralReactiveBindingV272===neutralBindingV272,'same-game neutral reactive policy differs');
     assert(c?.batterForecastBindingV246===forecastBindingV246,'same-game forecast policy differs');
     assert(c?.version==='live_match_continuation_v116'&&c.seed===input.seed&&c.innings===innings
       &&integer(c.pitchCount)&&integer(c.nextTick)&&c.nextTick>=tps&&typeof c.finished==='boolean'
@@ -380,6 +421,8 @@ export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:L
     ...(randomnessBindingV152===undefined?{}:{randomnessBindingV152}),
     ...(directionMotorBindingV153===undefined?{}:{directionMotorBindingV153}),
     ...(autoDirectionBindingV250===undefined?{}:{batterAutoDirectionBindingV250:autoDirectionBindingV250}),
+    ...(reactiveBindingV251===undefined?{}:{batterReactiveDirectionBindingV251:reactiveBindingV251}),
+    ...(neutralBindingV272===undefined?{}:{batterNeutralReactiveBindingV272:neutralBindingV272}),
     ...(forecastBindingV246===undefined?{}:{batterForecastBindingV246:forecastBindingV246}),
     battingOrderIndices:[...battingOrderIndices],line:cloneInert(line),...(workloadOwnerV122?{workloadV122:workloadOwnerV122.capture()}: {}),
     ...(input.batterKnowledgeV122===undefined?{}:{batterKnowledgeV122:captureKnowledgeV122()}),
@@ -404,6 +447,8 @@ export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:L
     ...(regionPolicyV222===undefined?{}:{batterObservedRegionExperienceV222:captureRegionV222()})});
   function issuePitch(rawCommand:LivePitchCommandV1):LiveIssuedPitchV1{
     const command=cloneInert(rawCommand);
+    const yawPractice=command.observedSpinTrialV236?.version==='live_observed_yaw_contact_frame_trial_v255'?command.observedSpinTrialV236:undefined;
+    assert(yawPractice===undefined||capability===previewCapabilityV257,'yaw trial requires private practice preview');
     assert(!finished,'game already finished');
     assert(command&&['auto','balanced','contact','power','take','bunt'].includes(command.batting)&&[0,1].includes(command.managedTeam),'invalid manager command');
     assert(command.baserunning===undefined||['conservative','balanced','aggressive'].includes(command.baserunning),'invalid manager baserunning command');
@@ -438,17 +483,19 @@ export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:L
           overrideReason:pitchTypeCommand!=='auto'?'explicit_manager_pitch':command.managedTeam===1-c.team?'manager_auto':'unmanaged_pitcher'},
       }:null;
     if(command.observedSpinTrialV236!==undefined)assert(managedOffense&&command.observedSpinTrialV236.subjectId===c.batterPlayerId,'spin trial subject must be the current managed batter');
+    assert(!(reactivePolicyV251&&command.observedSpinTrialV236?.version==='live_observed_robust_contact_frame_trial_v248'),'reactive direction policy cannot be combined with robust trial');
+    assert(!(neutralPolicyV272&&command.observedSpinTrialV236?.version==='live_observed_robust_contact_frame_trial_v248')||(neutralPolicyV272.version==='live_neutral_reactive_pair_policy_v273'&&capability===pairCapabilityV273),'neutral reactive direction policy cannot be combined with robust trial');
     if(command.spinMotorPracticePolicyV239!==undefined)assert(managedOffense&&command.spinMotorPracticePolicyV239.subjectId===c.batterPlayerId,'spin practice subject must be the current managed batter');
     if(command.practiceSwingDecisionV241!==undefined){const decision=parsePracticeSwingDecisionV241(command.practiceSwingDecisionV241);
       assert(managedOffense,'swing decision requires current managed offense');
       assert(command.managerCommunicationV122===undefined&&!(decision.mode==='SWING'&&command.batting==='take'),'conflicting swing decision');}
     const runningInstruction=command.managedTeam===c.team?(command.baserunning??'balanced'):'balanced',
       runningMarginAdjustment=runningInstruction==='aggressive'?-.25:runningInstruction==='conservative'?.25:0;
-    const pitch=simulateLivePitchV1({originTick:nextTick,seed:(input.seed+Math.imul(pitchCount+1,0x9e3779b9))>>>0,
+    const pitchInput:LivePitchInputV1={originTick:nextTick,seed:(input.seed+Math.imul(pitchCount+1,0x9e3779b9))>>>0,
       ...(playRandomnessV152===undefined?{}:{randomnessV152:playRandomnessV152}),
       ...(managedOffense&&command.swingInstructionV121!==undefined?{swingInstructionV121:command.swingInstructionV121}:{}),
       ...(managedOffense&&command.battingDirectionRequestV149!==undefined?{battingDirectionRequestV149:command.battingDirectionRequestV149}:autoDirectionPolicyV250?{battingDirectionRequestV149:{version:'batting_direction_request_v149' as const,sourceId:autoDirectionPolicyV250.sourceId,mode:'AUTO' as const}}:{}),
-      ...(command.observedSpinTrialV236===undefined?{}:{observedSpinTrialV236:command.observedSpinTrialV236}),
+      ...(command.observedSpinTrialV236===undefined||yawPractice!==undefined?{}:{observedSpinTrialV236:command.observedSpinTrialV236 as LivePitchInputV1['observedSpinTrialV236']}),
       ...(command.spinMotorPracticePolicyV239===undefined?{}:{spinMotorPracticePolicyV239:command.spinMotorPracticePolicyV239}),
       ...(command.practiceSwingDecisionV241===undefined?{}:{practiceSwingDecisionV241:command.practiceSwingDecisionV241}),
       ...(managedOffense&&command.managerCommunicationV122!==undefined?{managerCommunicationV122:{source:command.managerCommunicationV122,
@@ -456,6 +503,9 @@ export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:L
       ...(pitchWorkloadV122?{pitchWorkloadV122}:{}),
       ...(pendingBeliefV122?{batterBeliefV122:{belief:pendingBeliefV122,observerPlayerId:c.batterPlayerId,pitcherId:c.pitcherPlayerId}}:{}),
       ...(directionMotorPolicyV153===undefined?{}:{batterDirectionMotorV153:directionMotorPolicyV153}),
+      ...(capability===yawDiagnosticCapabilityV274?{yawDiagnosticV274:{version:'live_yaw_paired_diagnostic_v274' as const}}:capability===yawDiagnosticCapabilityV275?{yawDiagnosticV274:{version:'live_yaw_paired_diagnostic_v275' as const}}:capability===yawDiagnosticCapabilityV276?{yawDiagnosticV274:{version:'live_yaw_paired_diagnostic_v276' as const}}:{}),
+      ...(reactivePolicyV251===undefined?{}:{batterReactiveDirectionPolicyV251:reactivePolicyV251}),
+      ...(neutralPolicyV272===undefined||capability===pairCapabilityV273?{}:{batterNeutralReactivePolicyV272:{version:'live_neutral_reactive_policy_v272' as const,sourceId:neutralPolicyV272.sourceId}}),
       ...(regionPolicyV222===undefined?{}:{batterObservedRegionExperienceV222:regionPolicyV222}),
       ...(forecastPolicyV246===undefined?{}:{batterForecastPolicyV246:forecastPolicyV246}),
       ...(observationPolicyV151?{batterObservationV151:observationPolicyV151,batterObservedMemoryV151:{
@@ -468,7 +518,10 @@ export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:L
       catcher:{gloveSpeedMps:cp.gloveSpeedMps,gloveReachMeters:cp.gloveReachMeters,gloveRadiusMeters:cp.gloveRadiusMeters,
         retentionCapacityJ:cp.retentionCapacityJ,captureDissipationPowerW:cp.captureDissipationPowerW,pocketRadiusMeters:.14,...(cp.defensiveDecisionSeconds===undefined?{}:{defensiveDecisionSeconds:cp.defensiveDecisionSeconds}),...(cp.zoneRecognitionV87===undefined?{}:{zoneRecognitionV87:cp.zoneRecognitionV87})},
       batting,pitchType:pitchTypeCommand,...(command.managedTeam===1-c.team&&command.pitchId!==undefined?{pitchId:command.pitchId}:{}),
-      location:command.managedTeam===1-c.team?command.location:'auto',physics:matchPhysicsV101});
+      location:command.managedTeam===1-c.team?command.location:'auto',physics:matchPhysicsV101};
+    if(capability===yawDiagnosticCapabilityV274||capability===yawDiagnosticCapabilityV275||capability===yawDiagnosticCapabilityV276)authorizedYawPitchInputsV274.add(pitchInput);
+    let pitch:ReturnType<typeof simulateLivePitchV1>;
+    try{pitch=simulateLivePitchV1(pitchInput)}finally{if(capability===yawDiagnosticCapabilityV274||capability===yawDiagnosticCapabilityV275||capability===yawDiagnosticCapabilityV276){const evidence=takeYawDecisionEvidenceV274(pitchInput);if(evidence)yawEvidenceByHostV274.set(host,evidence);authorizedYawPitchInputsV274.delete(pitchInput)}}
     const frames:LiveMatchFrameV1[]=pitch.frames.map(f=>({...ready,tick:f.tick,ball:f.ball,bat:f.bat,phase:'pitch',possessedBy:f.ball.possessedBy==='catcher'?input.teams[1-c.team].defense.C:null}));
     let field:ReturnType<typeof simulateLiveFieldPlayV1>|null=null,result:PlayableMatchRuleResultV1,outgoingBallMoment:BallWorldMoment|null=null;
     let scoringInput:LiveFieldPlayInputV1|null=null;
@@ -553,6 +606,116 @@ export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:L
       ...(pitch.pitchId===undefined?{}:{pitchId:pitch.pitchId,pitchName:pitch.pitchName}),speedKmh:pitch.speedKmh,line:cloneInert(line),hits:{...hits},errors:{...errors}});
     history.push(record);return record;
   }
-  return Object.freeze({issuePitch,inspect,captureContinuationV116});
+  const host=Object.freeze({issuePitch,inspect,captureContinuationV116});
+  if(capability===undefined)previewHostsV257.set(host,{input,host});return host;
 }
 
+
+export type LiveYawPracticePreviewResultV257=Readonly<{status:'UNKNOWN';reason:'CORE_OBSERVATION_FAILED'|'HOST_BEFORE_CHANGED'|'HOST_BEFORE_UNVERIFIED'|'OWNER_INITIALIZATION_FAILED';yawMotionApplied:false;identityAuthority:'LOCAL_HOST_OBJECT_NOT_NATIVE';before:LiveMatchContinuationV116;revision:number;seed:number;request:LiveYawPracticeRequestV255;normalRecord:LiveIssuedPitchV1|null;trialRecord:LiveIssuedPitchV1|null;error:string}>|Readonly<{status:'HOLD';reason:'UNRESOLVED_LATE_POSSIBLE'|'CONFLICTING_PRACTICE_MODE';evidence:null;identityAuthority:'LOCAL_HOST_OBJECT_NOT_NATIVE';yawMotionApplied:false}>|Readonly<{status:'PROBE_ONLY';reason:'YAW_MOTION_NOT_CONNECTED';yawMotionApplied:false;identityAuthority:'LOCAL_HOST_OBJECT_NOT_NATIVE';before:LiveMatchContinuationV116;revision:number;seed:number;request:LiveYawPracticeRequestV255;normalRecord:LiveIssuedPitchV1;trialRecord:LiveIssuedPitchV1;continuationsEqual:true}>;
+/** Non-committing seam only: V255 motion is intentionally not connected. */
+/** Complete, side-effect-free comparison calculation; candidate adoption belongs to the practice owner. */
+export function calculateLiveRobustEpisodePairV273(raw:Readonly<{configuration:LiveMatchInputV1;plan:LiveSpinEpisodePlanV242;slotIndex:number;before:LiveMatchContinuationV116;normalRequest:LiveBattingPracticeRequestV150}>) {
+ const plan=cloneInert(raw.plan),declared=declareSpinPracticeEpisodesV242({scopeId:plan.scopeId,motor:plan.motor,criterion:plan.criterion,episodeSeeds:plan.episodes.map(x=>x.seed)});
+ assert(encodeLiveSpinPracticeProofV239(plan)===encodeLiveSpinPracticeProofV239(declared),'paired episode declaration differs');
+ const motor=plan.motor;assert(motor.version==='live_robust_contact_frame_motor_v248','paired episode requires robust motor');
+ const configuration=deriveSpinEpisodeConfigurationV242(plan,raw.slotIndex,raw.configuration),before=cloneInert(raw.before),request=cloneInert(raw.normalRequest);
+ assert(configuration.batterNeutralReactivePolicyV272?.version==='live_neutral_reactive_pair_policy_v273','paired policy required');
+ assert(!Object.hasOwn(request,'observedSpinTrialV236')&&!Object.hasOwn(request,'spinMotorPracticePolicyV239'),'paired normal request contains trial');
+ const selected=resolveLiveRobustContactFrameMotorPracticeV248({mode:'PRACTICE_EXPLICIT',subjectId:motor.subjectId,technique:motor.technique,clip:motor.clip,domain:motor.domain,motors:[motor]});assert(selected.status==='READY_PRACTICE','episode motor unavailable');
+ const policy={version:'live_spin_motor_practice_policy_v239' as const,subjectId:motor.subjectId,motorId:motor.motorId,motorVersion:motor.motorVersion,clip:motor.clip},offense=before.match.half==='top'?0:1,normalCommand=commandFor({...request,spinMotorPracticePolicyV239:policy},offense);
+ const normal=createLiveBaseballMatchWorkerInternalV257(configuration,before,pairCapabilityV273);assert(normal.inspect().batterPlayerId===motor.subjectId,'paired target differs');
+ let normalRecord:LiveIssuedPitchV1,normalAfter:LiveMatchContinuationV116;
+ try{normalRecord=normal.issuePitch(normalCommand);normalAfter=normal.captureContinuationV116()}catch(error){if(isLiveBaseballUnresolvedV239(error))return {kind:'NORMAL_HOLD' as const,unresolved:error.unresolvedV239};throw error}
+ try{const trialHost=createLiveBaseballMatchWorkerInternalV257(configuration,before,pairCapabilityV273);const trialRecord=trialHost.issuePitch(commandFor({...request,spinMotorPracticePolicyV239:policy,observedSpinTrialV236:selected.request},offense));return {kind:'COMPLETE' as const,normalRecord,normalAfter,trialRecord,after:trialHost.captureContinuationV116(),inspection:trialHost.inspect()}}
+ catch(error){if(isLiveBaseballUnresolvedV239(error))return {kind:'TRIAL_HOLD' as const,normalRecord,normalAfter,unresolved:error.unresolvedV239};throw Object.assign(new Error('paired trial failed',{cause:error}),{normalRecord,normalAfter})}
+}
+/** Non-adopting diagnostic pair: never returns a Host or candidate accepted by an owner. */
+async function calculateLiveYawEpisodeDiagnosticInternalV275(raw:Readonly<{configuration:LiveMatchInputV1;plan:LiveSpinEpisodePlanV242;slotIndex:number;before:LiveMatchContinuationV116;normalRequest:LiveBattingPracticeRequestV150}>,capability:typeof yawDiagnosticCapabilityV274|typeof yawDiagnosticCapabilityV275|typeof yawDiagnosticCapabilityV276) {
+ const plan=cloneInert(raw.plan),declared=declareSpinPracticeEpisodesV242({scopeId:plan.scopeId,motor:plan.motor,criterion:plan.criterion,episodeSeeds:plan.episodes.map(x=>x.seed)});
+ assert(encodeLiveSpinPracticeProofV239(plan)===encodeLiveSpinPracticeProofV239(declared),'yaw diagnostic episode declaration differs');
+ const motor=plan.motor;assert(motor.version==='live_contact_frame_motor_v244','yaw diagnostic requires V244 practice motor');
+ const configuration=deriveSpinEpisodeConfigurationV242(plan,raw.slotIndex,raw.configuration),before=cloneInert(raw.before),request=cloneInert(raw.normalRequest);
+ assert(configuration.batterNeutralReactivePolicyV272===undefined&&configuration.batterReactiveDirectionPolicyV251===undefined,'yaw diagnostic conflicts with active direction policy');
+ assert(!Object.hasOwn(request,'observedSpinTrialV236')&&!Object.hasOwn(request,'spinMotorPracticePolicyV239'),'yaw diagnostic normal request contains trial');
+ const selected=resolveLiveContactFrameMotorPracticeV244({mode:'PRACTICE_EXPLICIT',subjectId:motor.subjectId,technique:motor.technique,clip:motor.clip,domain:motor.domain,motors:[motor]});assert(selected.status==='READY_PRACTICE','yaw diagnostic motor unavailable');
+ const policy={version:'live_spin_motor_practice_policy_v239' as const,subjectId:motor.subjectId,motorId:motor.motorId,motorVersion:motor.motorVersion,clip:motor.clip},offense=before.match.half==='top'?0:1,normalCommand=commandFor({...request,spinMotorPracticePolicyV239:policy},offense);
+ const normal=createLiveBaseballMatchWorkerV116(configuration,before);assert(normal.inspect().batterPlayerId===motor.subjectId,'yaw diagnostic target differs');
+ let normalRecord:LiveIssuedPitchV1,normalAfter:LiveMatchContinuationV116;
+ try{normalRecord=normal.issuePitch(normalCommand);normalAfter=normal.captureContinuationV116()}catch(error){if(isLiveBaseballUnresolvedV239(error))return {status:'HOLD' as const,attempt:'NORMAL' as const,unresolved:error.unresolvedV239};throw error}
+ const normalAfterSha256=await hashLiveSpinPracticeProofV239(normalAfter);
+ let trialHost:ReturnType<typeof createLiveBaseballMatchWorkerInternalV257>|undefined;
+ try{trialHost=createLiveBaseballMatchWorkerInternalV257(configuration,before,capability);const trialCommand=commandFor({...request,spinMotorPracticePolicyV239:policy,observedSpinTrialV236:selected.request},offense),trialRecord=trialHost.issuePitch(trialCommand),trialAfterSha256=await hashLiveSpinPracticeProofV239(trialHost.captureContinuationV116()),decisionEvidence=await consumeYawEvidenceV274(trialHost);return {status:'OBSERVED' as const,normalRecord,normalAfterSha256,trialRecord,trialAfterSha256,decisionEvidence}}
+ catch(error){const decisionEvidence=await consumeYawEvidenceV274(trialHost);if(isLiveBaseballUnresolvedV239(error))return {status:'HOLD' as const,attempt:'TRIAL' as const,unresolved:error.unresolvedV239,normalRecord,normalAfterSha256,decisionEvidence};if(error instanceof Error&&'yawDiagnosticStatus' in error){const baselineV244Decision='baselineV244Decision' in error?error.baselineV244Decision:null;return error.yawDiagnosticStatus==='NO_TARGET'?{status:'NOT_EXECUTED' as const,reason:String(error.message),normalRecord,normalAfterSha256,baselineV244Decision,decisionEvidence}:{status:'HOLD' as const,attempt:'TRIAL' as const,reason:String(error.message),normalRecord,normalAfterSha256,baselineV244Decision,decisionEvidence};}throw Object.assign(new Error('yaw diagnostic trial failed',{cause:error}),{normalRecord,normalAfterSha256,decisionEvidence})}
+}
+export const calculateLiveYawEpisodeDiagnosticV274=(raw:Parameters<typeof calculateLiveYawEpisodeDiagnosticInternalV275>[0])=>calculateLiveYawEpisodeDiagnosticInternalV275(raw,yawDiagnosticCapabilityV274);
+export const calculateLiveYawEpisodeDiagnosticV275=(raw:Parameters<typeof calculateLiveYawEpisodeDiagnosticInternalV275>[0])=>calculateLiveYawEpisodeDiagnosticInternalV275(raw,yawDiagnosticCapabilityV275);
+export const calculateLiveYawEpisodeDiagnosticV276=(raw:Parameters<typeof calculateLiveYawEpisodeDiagnosticInternalV275>[0])=>calculateLiveYawEpisodeDiagnosticInternalV275(raw,yawDiagnosticCapabilityV276);
+export function createLiveYawPracticePreviewV257(raw:Readonly<{host:object;request:LiveYawPracticeRequestV255;command:LivePitchCommandV1}>) {
+ const found=previewHostsV257.get(raw?.host);assert(found,'yaw practice requires a local Host object');const owned=found;
+ const request=cloneInert(raw.request),command=cloneInert(raw.command),keys=(v:unknown,k:readonly string[])=>!!v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).length===k.length&&k.every(x=>Object.hasOwn(v,x));
+ assert(keys(raw,['host','request','command'])&&keys(request,['version','subjectId','technique','clip','domain','policy','thresholds'])&&request.version==='live_observed_yaw_contact_frame_trial_v255'&&typeof request.subjectId==='string'&&request.subjectId.trim()===request.subjectId&&request.subjectId.length>0&&request.subjectId.length<=200&&['BACKSPIN','TOPSPIN','HOOK','SLICE'].includes(request.technique)&&keys(request.clip,['id','sourceSha256','bats'])&&typeof request.clip.id==='string'&&request.clip.id.trim()===request.clip.id&&request.clip.id.length>0&&request.clip.id.length<=200&&/^[a-f0-9]{64}$/.test(request.clip.sourceSha256)&&['R','L'].includes(request.clip.bats)&&keys(request.domain,['plateZ','coordinateSystem'])&&Number.isFinite(request.domain.plateZ)&&request.domain.coordinateSystem==='LIVE_WORLD_METERS_V1'&&request.policy==='FIXED_17_YAW_UNCALIBRATED_V255'&&keys(request.thresholds,['minimumComponent','minimumImprovement'])&&Number.isFinite(request.thresholds.minimumComponent)&&request.thresholds.minimumComponent>0&&Number.isFinite(request.thresholds.minimumImprovement)&&request.thresholds.minimumImprovement>0,'invalid yaw practice declaration');
+ assert(!Object.hasOwn(command,'observedSpinTrialV236')&&!Object.hasOwn(command,'spinMotorPracticePolicyV239'),'yaw practice command conflict');
+ const before=owned.host.captureContinuationV116(),current=owned.host.inspect(),player=owned.input.players.find(p=>p.playerId===current.batterPlayerId);assert(player&&current.batterPlayerId===request.subjectId&&command.managedTeam===current.team,'yaw practice subject differs');
+ const physical=resolveLiveMatchPlayerPhysicalV98(player),clip=owned.input.measuredClips.find(c=>c.id===physical.clipId&&c.side===player.bats&&c.source.sha256===request.clip.sourceSha256);
+ assert(physical.clipId===request.clip.id&&player.bats===request.clip.bats&&clip,'yaw practice clip differs');const setup=resolveLiveBattingSetupV94({...physical,heightMeters:player.heightMeters,bats:player.bats});assert(Object.is(setup.contactPlaneZ,request.domain.plateZ),'yaw practice domain differs');
+ assert(owned.input.batterObservationV151!==undefined&&owned.input.batterDirectionMotorV153!==undefined,'yaw practice observation/motor missing');
+ const late=physical.plateVision!==undefined&&lateEvidenceHeadroomV121(resolveLivePlateVisionV1(physical))>0;
+ const conflicting=owned.input.batterReactiveDirectionPolicyV251!==undefined||owned.input.batterNeutralReactivePolicyV272!==undefined||physical.spinControlV123!==undefined||command.battingDirectionRequestV149!==undefined&&command.battingDirectionRequestV149.mode!=='AUTO';
+ const original=encodeLiveSpinPracticeProofV239(before),seed=(owned.input.seed+Math.imul(before.pitchCount+1,0x9e3779b9))>>>0,contract=encodeLiveSpinPracticeProofV239({request,command});
+ let registry=sealedPreviewRegistryV258.get(owned.host);if(!registry){registry=new Map();sealedPreviewRegistryV258.set(owned.host,registry)}const prior=registry.get(original);if(prior){assert(prior.contract===contract,'yaw practice opportunity conflict');return prior.facade}
+ let cached:Promise<LiveYawPracticePreviewResultV257>|undefined,sealedUnknown=false,inFlight=false,started=false;
+ const ensureCurrent=()=>assert(encodeLiveSpinPracticeProofV239(owned.host.captureContinuationV116())===original,'yaw practice Host before changed');
+ function preview():Promise<LiveYawPracticePreviewResultV257>{if(cached&&(sealedUnknown||inFlight||initializationLatchV258.get(owned.host)?.failed))return cached;if(initializationLatchV258.get(owned.host)?.failed){sealedUnknown=true;cached=Promise.resolve(frozen({status:'UNKNOWN' as const,reason:'OWNER_INITIALIZATION_FAILED' as const,yawMotionApplied:false as const,identityAuthority:'LOCAL_HOST_OBJECT_NOT_NATIVE' as const,before,revision:before.pitchCount,seed,request,normalRecord:null,trialRecord:null,error:'owner initialization failed'}));return cached}ensureCurrent();if(cached)return cached;
+  if(late||conflicting){const result=frozen({status:'HOLD' as const,reason:late?'UNRESOLVED_LATE_POSSIBLE' as const:'CONFLICTING_PRACTICE_MODE' as const,evidence:null,identityAuthority:'LOCAL_HOST_OBJECT_NOT_NATIVE' as const,yawMotionApplied:false as const});cached=Promise.resolve(result);return cached}
+  started=true;inFlight=true;cached=Promise.resolve().then(()=>{let normalRecord:LiveIssuedPitchV1|null=null,normalAfter:LiveMatchContinuationV116|null=null,trialRecord:LiveIssuedPitchV1|null=null,trialAfter:LiveMatchContinuationV116|null=null,unknownReason:'CORE_OBSERVATION_FAILED'|'HOST_BEFORE_CHANGED'|'HOST_BEFORE_UNVERIFIED'='CORE_OBSERVATION_FAILED';
+   const ensureDuring=()=>{let currentKey:string;try{currentKey=encodeLiveSpinPracticeProofV239(owned.host.captureContinuationV116())}catch(error){unknownReason='HOST_BEFORE_UNVERIFIED';throw error}if(currentKey!==original){unknownReason='HOST_BEFORE_CHANGED';throw Error('yaw practice Host before changed')}};
+   try{ensureDuring();const normalHost=createLiveBaseballMatchWorkerInternalV257(owned.input,before,previewCapabilityV257),trialHost=createLiveBaseballMatchWorkerInternalV257(owned.input,before,previewCapabilityV257);assert(encodeLiveSpinPracticeProofV239(normalHost.captureContinuationV116())===original&&encodeLiveSpinPracticeProofV239(trialHost.captureContinuationV116())===original,'yaw practice private Host before differs');normalRecord=normalHost.issuePitch(command);normalAfter=normalHost.captureContinuationV116();trialRecord=trialHost.issuePitch({...command,observedSpinTrialV236:request});trialAfter=trialHost.captureContinuationV116();assert(encodeLiveSpinPracticeProofV239(normalAfter)===encodeLiveSpinPracticeProofV239(trialAfter)&&encodeLiveSpinPracticeProofV239(normalRecord.play)===encodeLiveSpinPracticeProofV239(trialRecord.play),'yaw practice no-motion pair differs');ensureDuring();
+    return frozen({status:'PROBE_ONLY' as const,reason:'YAW_MOTION_NOT_CONNECTED' as const,yawMotionApplied:false as const,identityAuthority:'LOCAL_HOST_OBJECT_NOT_NATIVE' as const,before,revision:before.pitchCount,seed,request,normalRecord,trialRecord,continuationsEqual:true as const});
+   }catch(error){sealedUnknown=true;return frozen({status:'UNKNOWN' as const,reason:unknownReason,yawMotionApplied:false as const,identityAuthority:'LOCAL_HOST_OBJECT_NOT_NATIVE' as const,before,revision:before.pitchCount,seed,request,normalRecord,trialRecord,error:String(error instanceof Error?error.message:error)});}}).finally(()=>{inFlight=false});return cached;
+ }
+ const facade=Object.freeze({preview});previewControlV258.set(facade,{state:()=>!started?'NOT_STARTED':inFlight?'IN_FLIGHT':'COMPLETED',evidence:()=>cached});registry.set(original,{contract,facade});return facade;
+}
+
+const sealedYawOwnersV258=new WeakMap<object,Map<string,{contract:string;owner:Promise<ReturnType<typeof sealYawOwnerViewV258>|ReturnType<typeof failedYawOwnerV258>>}>>();
+function sealYawOwnerViewV258(owner:Awaited<ReturnType<typeof createSealedPracticeOwnerV256>>,before:LiveMatchContinuationV116){
+ const view={before,revision:before.pitchCount};return Object.freeze({preview:()=>owner.preview('v255-opportunity',view),inspect:owner.inspect,snapshot:owner.snapshot});
+}
+
+function failedYawOwnerV258(before:LiveMatchContinuationV116|null,request:LiveYawPracticeRequestV255|null,command:LivePitchCommandV1|null,stage:'BEFORE_OR_CLONE'|'OWNER_INITIALIZATION',control?:{state:()=>('NOT_STARTED'|'IN_FLIGHT'|'COMPLETED');evidence:()=>Promise<LiveYawPracticePreviewResultV257>|undefined}){
+ const coreState=control?.state()??'UNKNOWN',prior=control?.evidence();
+ let cause:'BEFORE_OR_CLONE_FAILED'|'CRYPTO_UNAVAILABLE'|'OWNER_INITIALIZATION_FAILED'=stage==='BEFORE_OR_CLONE'?'BEFORE_OR_CLONE_FAILED':'OWNER_INITIALIZATION_FAILED';try{if(stage==='OWNER_INITIALIZATION'&&!globalThis.crypto?.subtle)cause='CRYPTO_UNAVAILABLE'}catch{/* The failure view must not depend on a working crypto accessor. */}
+ const base=frozen({version:'sealed_yaw_initialization_failure_v258' as const,status:'UNKNOWN' as const,reason:'INITIALIZATION_FAILED' as const,cause,execution:'NOT_EXECUTED' as const,executionScope:'V258_EXECUTOR_ONLY' as const,stage,identity:'UNVERIFIED' as const,opportunityId:null,before,request,command,coreState,planned:1 as const,unresolved:1 as const,committed:0 as const,pending:0 as const});
+ let savedEvidence:Readonly<{status:'UNKNOWN'|'PROBE_ONLY'|'HOLD';normalRecord:LiveIssuedPitchV1|null;trialRecord:LiveIssuedPitchV1|null}>|null=null;
+ const snapshot=()=>frozen({...base,evidence:savedEvidence,authority:'CALLER_DECLARED_NOT_AUTHENTICATED' as const,slots:[{opportunityId:null,status:'UNKNOWN' as const}]});
+ const result=prior?prior.then(observed=>{savedEvidence=frozen(observed.status==='HOLD'?{status:'HOLD' as const,normalRecord:null,trialRecord:null}:{status:observed.status,normalRecord:observed.normalRecord,trialRecord:observed.trialRecord});return frozen({...base,evidence:savedEvidence})},()=>frozen({...base,evidence:null})):Promise.resolve(frozen({...base,evidence:null}));
+ return Object.freeze({preview:()=>result,inspect:snapshot,snapshot});
+}
+/** One local Host opportunity only. No commit authority or arbitrary executor is exposed. */
+export async function createSealedYawPracticeV258(raw:Readonly<{host:object;request:LiveYawPracticeRequestV255;command:LivePitchCommandV1;displayLabel:string}>){
+ assert(raw&&typeof raw==='object'&&Object.keys(raw).sort().join('|')==='command|displayLabel|host|request'&&typeof raw.displayLabel==='string'&&raw.displayLabel.length>0&&raw.displayLabel.length<=200&&raw.displayLabel.trim()===raw.displayLabel,'invalid sealed yaw declaration');
+ const owned=previewHostsV257.get(raw.host);assert(owned,'sealed yaw requires a local Host object');
+ let latch=initializationLatchV258.get(owned.host);if(!latch){latch={failed:false};initializationLatchV258.set(owned.host,latch)}
+ if(latch.failed&&latch.failure){if(latch.contract!==undefined)assert(encodeLiveSpinPracticeProofV239({request:raw.request,command:raw.command})===latch.contract,'sealed yaw opportunity conflict');return latch.failure}
+ let registry=sealedYawOwnersV258.get(owned.host);if(!registry){registry=new Map();sealedYawOwnersV258.set(owned.host,registry)}
+ const unavailable=registry.get('BEFORE_UNAVAILABLE');if(unavailable)return unavailable.owner;
+ let before:LiveMatchContinuationV116,anchor:string,request:LiveYawPracticeRequestV255,command:LivePitchCommandV1,contract:string,safeBefore:LiveMatchContinuationV116|null=null;
+ try{before=owned.host.captureContinuationV116();anchor=encodeLiveSpinPracticeProofV239(before);safeBefore=before;request=cloneInert(raw.request);command=cloneInert(raw.command);contract=encodeLiveSpinPracticeProofV239({request,command})}catch{latch.failed=true;const prior=sealedPreviewRegistryV258.get(owned.host),only=prior?.size===1?prior.values().next().value:undefined;const owner=Promise.resolve(failedYawOwnerV258(safeBefore,null,null,'BEFORE_OR_CLONE',only?previewControlV258.get(only.facade):undefined));latch.failure=owner;registry.set('BEFORE_UNAVAILABLE',{contract:'UNAVAILABLE',owner});return owner}
+ if(latch.failed&&latch.failure)return latch.failure;
+ const direct=createLiveYawPracticePreviewV257({host:raw.host,request,command});
+ const old=registry.get(anchor);if(old){assert(old.contract===contract,'sealed yaw opportunity conflict');return old.owner}
+ const current=owned.host.inspect(),player=owned.input.players.find(p=>p.playerId===current.batterPlayerId);assert(player,'sealed yaw subject unavailable');const physical=resolveLiveMatchPlayerPhysicalV98(player),latePossible=physical.plateVision!==undefined&&lateEvidenceHeadroomV121(resolveLivePlateVisionV1(physical))>0;
+ const promise=Promise.resolve().then(async()=>{const seed=(owned.input.seed+Math.imul(before.pitchCount+1,0x9e3779b9))>>>0;
+  const plan={version:'sealed_practice_plan_v256' as const,initialBefore:before,initialRevision:before.pitchCount,slots:[{slotId:'v255-opportunity',configuration:owned.input,before,revision:before.pitchCount,seed,policy:request,source:{authority:'LOCAL_HOST_MODULE_NOT_NATIVE' as const,clip:request.clip},normalCommand:command,trialCommand:{...command,observedSpinTrialV236:request},latePossible}]};
+  const owner=await createSealedPracticeOwnerV256(plan,async()=>{const observed=await direct.preview();
+   if(observed.status==='UNKNOWN')return {proof:{version:'sealed_practice_unknown_proof_v258' as const,planner:'UNKNOWN' as const,execution:'NOT_APPLICABLE' as const,reason:observed.reason},normalRecord:observed.normalRecord,trialRecord:observed.trialRecord,normalAfter:null,trialAfter:null};
+   if(observed.status==='HOLD')return {proof:{planner:'UNRESOLVED' as const,execution:'NOT_APPLICABLE' as const,reason:observed.reason},normalRecord:null,trialRecord:null,normalAfter:null,trialAfter:null};
+   return {proof:{planner:'UNRESOLVED' as const,execution:'NOT_APPLICABLE' as const,reason:'YAW_MOTION_NOT_CONNECTED'},normalRecord:observed.normalRecord,trialRecord:observed.trialRecord,normalAfter:null,trialAfter:null};
+  });try{if(encodeLiveSpinPracticeProofV239(owned.host.captureContinuationV116())!==anchor)owner.interrupt('v255-opportunity')}catch{owner.interrupt('v255-opportunity')}return sealYawOwnerViewV258(owner,before);
+ }).catch(()=>{latch.failed=true;latch.contract=contract;const failed=failedYawOwnerV258(before,request,command,'OWNER_INITIALIZATION',previewControlV258.get(direct));latch.failure=Promise.resolve(failed);return failed});registry.set(anchor,{contract,owner:promise});return promise;
+}
+export async function readSealedYawPracticeV258(raw:unknown){
+ if(!raw||typeof raw!=='object'||(raw as {version?:unknown}).version!=='sealed_yaw_initialization_failure_v258')return readSealedPracticeSnapshotV256(raw);
+ const x=cloneInert(raw) as ReturnType<ReturnType<typeof failedYawOwnerV258>['snapshot']>;
+ assert(Object.keys(x).sort().join('|')==='authority|before|cause|command|committed|coreState|evidence|execution|executionScope|identity|opportunityId|pending|planned|reason|request|slots|stage|status|unresolved|version'&&x.authority==='CALLER_DECLARED_NOT_AUTHENTICATED'&&x.status==='UNKNOWN'&&x.reason==='INITIALIZATION_FAILED'&&['BEFORE_OR_CLONE_FAILED','CRYPTO_UNAVAILABLE','OWNER_INITIALIZATION_FAILED'].includes(x.cause)&&x.execution==='NOT_EXECUTED'&&x.executionScope==='V258_EXECUTOR_ONLY'&&x.identity==='UNVERIFIED'&&x.opportunityId===null&&x.planned===1&&x.unresolved===1&&x.committed===0&&x.pending===0&&['BEFORE_OR_CLONE','OWNER_INITIALIZATION'].includes(x.stage)&&['NOT_STARTED','IN_FLIGHT','COMPLETED','UNKNOWN'].includes(x.coreState)&&(x.evidence===null||typeof x.evidence==='object'&&Object.keys(x.evidence).sort().join('|')==='normalRecord|status|trialRecord'&&['UNKNOWN','PROBE_ONLY','HOLD'].includes(x.evidence.status))&&Array.isArray(x.slots)&&x.slots.length===1&&Object.keys(x.slots[0]).sort().join('|')==='opportunityId|status'&&x.slots[0].opportunityId===null&&x.slots[0].status==='UNKNOWN','invalid sealed yaw failure snapshot');
+ return frozen({...x,authority:'SELF_REPORTED_NOT_AUTHENTICATED' as const});
+}

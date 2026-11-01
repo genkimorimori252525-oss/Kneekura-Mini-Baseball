@@ -37,7 +37,7 @@ function renderReason(key){
  const fake={KneekuraBattingPractice:{inspect:()=>({state:{pitchCount:1,spinPracticeEpisodesV242:episodes},stale:false})},addEventListener(){}};
  vm.runInNewContext(inputs[1].bytes.toString('utf8'),{globalThis:fake,document,queueMicrotask:fn=>fn()});const text=nodes.get('spin-practice-result-v239').children.map(n=>n.textContent).join('\n');assert(text.includes('対象なし（候補を選べませんでした）'));assert(text.includes('本人の評価球は未実施'));assert(text.includes('打席終了・次の練習待ち'));return true;
 }
-assert(renderReason('observedSpinContactFrameV244'));assert(renderReason('observedSpinComposeV238'));
+assert(renderReason('observedSpinRobustContactFrameV248'));assert(renderReason('observedSpinContactFrameV244'));assert(renderReason('observedSpinComposeV238'));
 for(const input of inputs)assert.equal(sha(await readFile(input.path)),sha(input.bytes));
 const report={pass:true,boundary:'UI_PAYLOAD_AND_RENDER_SEAMS_NOT_BROWSER_ACCEPTANCE',cases,newAndLegacyReasonRendering:true,sourcePins:inputs.map(x=>({path:x.path,sha256:sha(x.bytes)})),actualContact:false,goalComplete:false};
 await writeFile(resolve(out,'report.json'),JSON.stringify(report,null,2)+'\n',{flag:'wx'});console.log(JSON.stringify({pass:true,cases:cases.length,newAndLegacyReasonRendering:true}));

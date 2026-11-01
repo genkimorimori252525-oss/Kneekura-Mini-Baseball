@@ -149,6 +149,19 @@ export function getLiveSeasonReportV79(input:Readonly<{store:LiveSeasonStoreV79;
     inside:inside.map((t,i)=>({...finishTally(t),publicZoneId:i+1})),outside:finishTally(outside),offGrid:finishTally(offGrid),missing:finishTally(missing),totals:finishTally(totals),
     spray:{counts,ratios:counts.map(n=>total?n/total:null),homeRuns,total,fouls},policyVersion:store.policyVersion,nativeAdmission:false as const};
 }
+/** Includes continuing-PA foul errors; practices never enter game records. */
+export function getLiveSeasonFieldingV100(input:Readonly<{store:LiveSeasonStoreV79;seasonId:string;playerId:string}>){
+ const store=validateLiveSeasonStoreV79(input.store),season=store.seasons.find(s=>s.seasonId===input.seasonId);
+ assert(season&&id(input.playerId),'season/player required');
+ let errors=0,pendingPlays=0,legacyUnscoredPlays=0;
+ for(const game of season.games)for(const record of game.records){
+  const s=record.localScoringV100;
+  if(!s){if(record.facts.hasFieldFacts)legacyUnscoredPlays++;continue;}
+  errors+=s.errors.filter(e=>e.fielderId===input.playerId).length;
+  if(!s.errorsComplete)pendingPlays++;
+ }
+ return {playerId:input.playerId,errors,pendingPlays,legacyUnscoredPlays,nativeAdmission:false as const};
+}
 export function deriveLiveCourseProfileV79(input:Readonly<{store:LiveSeasonStoreV79;seasonId:string;playerId:string;profile?:BatterCourseProfileV79}>):BatterCourseProfileV79{
   const store=validateLiveSeasonStoreV79(input.store),index=store.seasons.findIndex(s=>s.seasonId===input.seasonId);assert(index>=0&&id(input.playerId),'season/player required');
   const baseline=input.profile===undefined?createNeutralBatterCourseProfileV79():validateBatterCourseProfileV79(input.profile),season=store.seasons[index],p=LIVE_COURSE_LEARNING_POLICY_V79;

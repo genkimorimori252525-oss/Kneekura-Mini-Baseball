@@ -1,14 +1,16 @@
+import { markLiveAuthoringSourceV101 } from './LiveAuthoringSourceV101';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { applyLivePhysicalRosterV1, type LivePhysicalRosterEntryV1 } from './LivePhysicalRosterV1';
 import { getLiveTraitCatalogV77, validateLiveTraitProfileV1, type LiveTraitPhysicalSourceV54, type LiveTraitProfileV1, type LiveTraitRosterInputV1, type LiveTraitSourceV1 } from './LiveTraitProfilesV1';
 import { getLiveTraitAuthoringCalibrationV54 } from './LiveTraitAuthoringCalibrationV54';
+import type { LivePitchQualityRequestV177 } from './LivePitchQualityRecipeV177';
 
 export { getLiveTraitCatalogV77 } from './LiveTraitProfilesV1';
 const calibration = getLiveTraitAuthoringCalibrationV54();
 const freeze = <T>(value: T): T => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
 function assert(value: unknown, message: string): asserts value { if (!value) throw new Error('independent live traits: ' + message); }
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
-const validText = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value.length <= 160 && value.trim() === value;
+const validText = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value.length <= 200 && value.trim() === value;
 type Entry = LivePhysicalRosterEntryV1;
 type MutableEntry = { playerId: string; sourceId: string; physical?: Record<string, unknown>; workbenchPlayer?: { traits: { badBallControl: number }; decision?: unknown }; traitProfile?: LiveTraitProfileV1 };
 type Migration = Readonly<{ playerId: string; fromVersion: string | null; toVersion: 'live_trait_profile_v2'; restoredPaths: readonly string[]; note: string }>;
@@ -25,9 +27,9 @@ function validateRoster(raw: LiveTraitRosterInputV1): LiveTraitRosterInputV1 {
 }
 function mark(roster: LiveTraitRosterInputV1, entry: Entry) {
   const mutable = entry as unknown as MutableEntry, packet = roster as unknown as { sourceId: string };
-  if (!mutable.sourceId.split(':').includes('independent-traits')) mutable.sourceId += ':independent-traits';
-  if (!packet.sourceId.split(':').includes('independent-traits')) packet.sourceId += ':independent-traits';
-  assert(validText(mutable.sourceId) && validText(packet.sourceId), 'source identifier exceeds authoring limit');
+  mutable.sourceId = markLiveAuthoringSourceV101(mutable.sourceId, 'independent-traits');
+  packet.sourceId = markLiveAuthoringSourceV101(packet.sourceId, 'independent-traits');
+  assert(validText(mutable.sourceId) && mutable.sourceId.length <= 160 && validText(packet.sourceId) && packet.sourceId.length <= 160, 'source identifier exceeds authoring limit');
 }
 function migrateEntry(roster: LiveTraitRosterInputV1, entry: Entry): Migration | null {
   if (entry.traitProfile?.version === 'live_trait_profile_v2') return null;
@@ -62,6 +64,7 @@ export function migrateLiveTraitRosterV77(input: Readonly<{ roster: LiveTraitRos
 }
 function projectedSource(entry: Entry, id: string): LiveTraitSourceV1 {
   const selection = entry.traitProfile?.selections.find(s => s.familyId === id);
+  if (id === 'breaking_ball_quality') return selection?.source ?? { recipeVersion:'kire_release_recipe_v177' };
   if (id === 'throw_accuracy') return selection?.source ?? { effectScale: 1 };
   if (id === 'bad_ball_hitting') return { badBallControl: selection?.source.badBallControl ?? owner(entry).badBallControl ?? 0,
     effectScale: selection?.source.effectScale ?? 1 };
@@ -105,14 +108,17 @@ export function setLiveTraitProfileV77(input: Readonly<{ roster: LiveTraitRoster
 type ExecutionPhysical = Readonly<{ badBallControl?: number; throwDirectionStdRadians?: number; baserunningSafetyMarginSeconds?: number;
   fieldingPursuitCostWeight?: number; swingDecision?: Readonly<{ approach: 'AUTO' | 'TAKE' | 'SWING'; threshold: number; aggressionWeight: number }> }>;
 /** One copy at the execution boundary. The returned effective values are never saved as base SI. */
-export function resolveLiveExecutionPhysicalV77<T extends ExecutionPhysical>(physical: T, profile?: LiveTraitProfileV1): T {
+export function resolveLiveExecutionPhysicalV77<T extends ExecutionPhysical>(physical: T, profile?: LiveTraitProfileV1): T & Readonly<{pitchQualityV177?:LivePitchQualityRequestV177}> {
   if (profile === undefined) return physical;
   const safe = validateLiveTraitProfileV1(profile, physical);
   if (safe.version !== 'live_trait_profile_v2') return physical;
   const patch: Record<string, unknown> = {};
   const put = (key: keyof ExecutionPhysical, value: unknown) => { if (JSON.stringify(physical[key]) !== JSON.stringify(value)) patch[key] = value; };
   for (const selection of safe.selections) {
-    const { familyId: id, stateId, source } = selection, scale = Number(source.effectScale ?? 1);
+    const { familyId: id, stateId, source } = selection;
+    // Retain the authored selection without applying the withdrawn V177 recipe.
+    if (id === 'breaking_ball_quality') continue;
+    const scale = Number(source.effectScale ?? 1);
     if (scale === 0) continue;
     if (id === 'bad_ball_hitting') { put('badBallControl', stateId === null ? 0 : Math.min(1, Number(source.badBallControl) * scale)); continue; }
     if (stateId === null) continue;
@@ -122,8 +128,9 @@ export function resolveLiveExecutionPhysicalV77<T extends ExecutionPhysical>(phy
         put('throwDirectionStdRadians', clamp(physical.throwDirectionStdRadians * 2 ** (-strength * scale), 0, .12));
     } else if (id === 'running_aggression' && stateId === 'AGGRESSIVE') {
       put('baserunningSafetyMarginSeconds', clamp((physical.baserunningSafetyMarginSeconds ?? calibration.runningAggression.defaultSource) + calibration.runningAggression.offsetSeconds * scale, 0, 3));
-    } else if (id === 'fielding_aggression' && stateId === 'AGGRESSIVE') {
-      put('fieldingPursuitCostWeight', clamp((physical.fieldingPursuitCostWeight ?? calibration.fieldingAggression.defaultSource) * calibration.fieldingAggression.costMultiplier ** scale, .25, 4));
+    } else if (id === 'fielding_aggression' && (stateId === 'AGGRESSIVE' || stateId === 'CAUTIOUS')) {
+      put('fieldingPursuitCostWeight', clamp((physical.fieldingPursuitCostWeight ?? calibration.fieldingAggression.defaultSource)
+        * calibration.fieldingAggression.costMultiplier ** (stateId === 'CAUTIOUS' ? -scale : scale), .25, 4));
     } else if (id === 'plate_aggression') {
       const current = physical.swingDecision ?? { approach: 'AUTO', threshold: calibration.plateAggression.defaultThreshold, aggressionWeight: calibration.plateAggression.defaultAggressionWeight };
       // A green preference never replaces an explicit forced take/swing.

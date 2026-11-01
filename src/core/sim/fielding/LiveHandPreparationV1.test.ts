@@ -65,6 +65,61 @@ it('handles an already prepared stationary hand without inventing a delay or mov
   expect(p.cubicBezierControls(p.fromElapsedSeconds, p.throughElapsedSeconds)).toEqual(Array(4).fill(i.targetOffset));
 });
 
+it('certifies the measured sub-ULP release offset with a representable C1 interval', () => {
+  const i: LiveHandPreparationInputV1 = { fromElapsedSeconds: 1.8740458414451133,
+    initialOffset: { x: -.35979374539842013, y: .2812447999999998, z: .16422273372595697 },
+    targetOffset: { x: -.35979374539841996, y: .2812447999999998, z: .16422273372595808 },
+    initialRelativeVelocity: { x: 0, y: 0, z: 0 }, maximumRelativeSpeedMps: 13, maximumReachMeters: .87889 };
+  const p = planned(i);
+  expect(p.throughElapsedSeconds).toBeGreaterThan(i.fromElapsedSeconds);
+  expect(p.sampleAtElapsedSeconds(i.fromElapsedSeconds).offset).toEqual(i.initialOffset);
+  expect(p.sampleAtElapsedSeconds(p.throughElapsedSeconds).offset).toEqual(i.targetOffset);
+  expect(p.diagnostics.derivativeControlSpeedBoundMps).toBeLessThanOrEqual(i.maximumRelativeSpeedMps);
+  expect(p.diagnostics.controlPointReachBoundMeters).toBeLessThanOrEqual(i.maximumReachMeters);
+  expect(p.durationSeconds).toBeLessThan(1e-12);
+});
+
+it('retains the captured RF endpoints when absolute-clock rounding shortens both finite candidates below the speed bound', () => {
+  for (const fromElapsedSeconds of [2.6549539590482167, 2.6949539590482168, 2.734953959048217, 2.774953959048217]) {
+    // Captured V117 RF hand, translated by the unchanged standing shoulder.
+    const i: LiveHandPreparationInputV1 = { fromElapsedSeconds,
+      initialOffset: { x: -.32977862454856677, y: .28281599999999996, z: -.22230452737372275 },
+      targetOffset: { x: -.3297786245485668, y: .28281599999999996, z: -.22230452737372525 },
+      initialRelativeVelocity: { x: 0, y: 0, z: 0 }, maximumRelativeSpeedMps: 13.5, maximumReachMeters: .8837999999999999 },
+      before = JSON.stringify(i), p = planned(i), c = p.cubicBezierControls(fromElapsedSeconds, p.throughElapsedSeconds);
+    expect(p.durationSeconds).toBeGreaterThanOrEqual(3 * distance(i.initialOffset, i.targetOffset) / i.maximumRelativeSpeedMps);
+    expect(p.durationSeconds).toBe(p.throughElapsedSeconds - fromElapsedSeconds);
+    expect(p.durationSeconds).toBeLessThan(1e-14);
+    expect(p.sampleAtElapsedSeconds(fromElapsedSeconds).offset).toEqual(i.initialOffset);
+    expect(p.sampleAtElapsedSeconds(p.throughElapsedSeconds).offset).toEqual(i.targetOffset);
+    expect(p.sampleAtElapsedSeconds(fromElapsedSeconds).relativeVelocity).toEqual(i.initialRelativeVelocity);
+    expect(p.sampleAtElapsedSeconds(p.throughElapsedSeconds).relativeVelocity).toEqual(i.initialRelativeVelocity);
+    expect(Math.max(...c.map(norm))).toBeLessThanOrEqual(i.maximumReachMeters);
+    expect(p.diagnostics.derivativeControlSpeedBoundMps).toBeLessThanOrEqual(i.maximumRelativeSpeedMps);
+    expect(p.diagnostics.candidateCount).toBeLessThanOrEqual(4);
+    expect(JSON.stringify(i)).toBe(before);
+  }
+});
+
+it('keeps tiny motion finite at larger clocks and still rejects intervals that cannot satisfy the original reach bounds', () => {
+  for (const fromElapsedSeconds of [2 ** 32, 2 ** 48]) {
+    for (const speed of [0, 1e-12]) {
+      const i: LiveHandPreparationInputV1 = { fromElapsedSeconds,
+        initialOffset: { x: 0, y: 0, z: 0 }, targetOffset: { x: 1e-14, y: 0, z: 0 },
+        initialRelativeVelocity: { x: speed, y: 0, z: 0 }, maximumRelativeSpeedMps: 13.5, maximumReachMeters: .8838 }, p = planned(i);
+      expect(p.throughElapsedSeconds).toBeGreaterThan(fromElapsedSeconds);
+      expect(p.sampleAtElapsedSeconds(fromElapsedSeconds).relativeVelocity).toEqual(i.initialRelativeVelocity);
+      expect(p.sampleAtElapsedSeconds(p.throughElapsedSeconds).offset).toEqual(i.targetOffset);
+      expect(p.diagnostics.derivativeControlSpeedBoundMps).toBeLessThanOrEqual(i.maximumRelativeSpeedMps);
+      expect(p.diagnostics.controlPointReachBoundMeters).toBeLessThanOrEqual(i.maximumReachMeters);
+      expect(p.diagnostics.candidateCount).toBeLessThanOrEqual(4);
+    }
+  }
+  const constrained = { ...input(), fromElapsedSeconds: 1e16, initialOffset: { x: 1.349, y: 0, z: 0 },
+    initialRelativeVelocity: { x: 1, y: 0, z: 0 }, targetOffset: { x: 1.3491, y: 0, z: 0 } };
+  expect(createLiveHandPreparationV1(constrained).kind).toBe('unreachable');
+});
+
 it('retains a feasible speed-cap initial velocity and never projects an impossible hand inward', () => {
   const i = input(), p = planned({ ...i, initialOffset: { x: 0, y: 0, z: 0 },
     initialRelativeVelocity: { x: 11, y: 0, z: 0 }, targetOffset: { x: .5, y: 0, z: 0 } });

@@ -15,6 +15,18 @@ const motion = (patch: Partial<LiveRunnerMotionInputV1> = {}): LiveRunnerMotionV
 };
 
 describe('LiveRunnerMotionV1', () => {
+  it('provides a through handoff without changing established stop or overrun timing', () => {
+    const through = motion({ terminalMode: 'through' }), stop = motion(), overrun = motion({ terminalMode: 'first-base-overrun' });
+    expect(stop.durationSeconds).toBeCloseTo(5.0063015873015875, 13);
+    expect(through.durationSeconds).toBeCloseTo(4.561857142857143, 13);
+    expect(overrun.firstBaseOverrunV95!.baseCenterElapsedSeconds).toBeCloseTo(4.561857142857143, 13);
+    expect(overrun.touches[0].elapsedSeconds).toBeCloseTo(4.526857142857143, 13);
+    for (const elapsed of [through.durationSeconds, through.durationSeconds + 1]) {
+      expect(through.sampleAtElapsedSeconds(elapsed)).toMatchObject({ position: v(27.432, 0), velocity: v(8, 0), speedMps: 8 });
+    }
+    expect(through.speedSegments.every(s => s.accelerationMps2 >= 0)).toBe(true);
+  });
+
   it('uses declining propulsion bands and stronger braking for a stop-to-stop straight leg', () => {
     const m = motion();
     expect(m.lengthMeters).toBeCloseTo(27.432, 10);

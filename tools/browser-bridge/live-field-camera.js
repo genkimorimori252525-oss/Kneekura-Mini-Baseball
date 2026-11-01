@@ -46,7 +46,13 @@
   }
   // An issued relay command may aim at a receiver away from the eventual out
   // base. Its frozen issue-time target is causal; legacy commands keep bases.
-  return command?(point(command.target)??targetBase(bases,command.base)):undefined;
+  if(!command)return undefined;
+  const goal=point(command.target)??targetBase(bases,command.base),ball=point(frame.ball?.position);
+  if(!goal||!ball)return goal??ball;
+  const tps=record.play?.diagnostics?.sourceClockTicksPerSecond??1e6,
+   sinceCatch=lastCatch?Math.max(0,(frame.tick-lastCatch.tick)/tps):Math.max(0,elapsed-command.from),
+   sinceCommand=Math.max(0,elapsed-command.from),u=Math.max(0,Math.min(1,Math.min(sinceCatch-.12,sinceCommand)/.22)),blend=u*u*(3-2*u);
+  return point({x:ball.x+(goal.x-ball.x)*blend,y:ball.y+(goal.y-ball.y)*blend,z:ball.z+(goal.z-ball.z)*blend});
  }
  /** observe({record,frame,bases,defaultObserverPlayerId?}) -> immutable display
   * observation. Pass actual Core LIVE_MATCH_BASES_V1 for bases. The caller may

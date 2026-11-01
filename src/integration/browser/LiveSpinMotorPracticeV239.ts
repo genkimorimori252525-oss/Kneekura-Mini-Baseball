@@ -1,3 +1,4 @@
+import {validateLiveRobustContactFrameMotorV248,type LiveRobustContactFrameMotorV248} from './LiveRobustContactFrameMotorV248';
 import { validateLiveContactFrameMotorV244,type LiveContactFrameMotorV244 } from './LiveContactFrameMotorV244';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { SPIN_TECHNIQUES_V123,type SpinTechniqueV123 } from '../../core/world/traits/SpinTechniqueV123';
@@ -16,6 +17,8 @@ export type LiveSpinPracticeTrialV239=Readonly<{opportunity:LiveSpinOpportunityV
 export type LiveSpinPracticeCohortV239=Readonly<{version:'live_spin_practice_cohort_v239';scopeId:string;motorId:string;motorVersion:string;motorSnapshot:LiveSpinMotorV239;opportunities:readonly LiveSpinOpportunityV239[]}>;
 export type LiveSpinPracticeTrialV244=Omit<LiveSpinPracticeTrialV239,'motorSnapshot'> & Readonly<{motorSnapshot:LiveContactFrameMotorV244}>;
 export type LiveSpinPracticeCohortV244=Omit<LiveSpinPracticeCohortV239,'version'|'motorSnapshot'> & Readonly<{version:'live_spin_practice_cohort_v244';motorSnapshot:LiveContactFrameMotorV244}>;
+export type LiveSpinPracticeTrialV248=Omit<LiveSpinPracticeTrialV239,'motorSnapshot'> & Readonly<{motorSnapshot:LiveRobustContactFrameMotorV248}>;
+export type LiveSpinPracticeCohortV248=Omit<LiveSpinPracticeCohortV239,'version'|'motorSnapshot'> & Readonly<{version:'live_spin_practice_cohort_v248';motorSnapshot:LiveRobustContactFrameMotorV248}>;
 const fields=(v:unknown,keys:readonly string[])=>!!v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).length===keys.length&&keys.every(k=>Object.hasOwn(v,k));
 const text=(v:unknown):v is string=>typeof v==='string'&&v.length>0&&v.length<=200&&v.trim()===v;
 const hash=(v:unknown):v is string=>typeof v==='string'&&/^[a-f0-9]{64}$/.test(v);
@@ -67,7 +70,10 @@ export function evaluateLiveSpinMotorPracticeV239(raw:Readonly<{motor:LiveSpinMo
 export function evaluateLiveContactFrameMotorPracticeV244(raw:Readonly<{motor:LiveContactFrameMotorV244;cohort:LiveSpinPracticeCohortV244;criterion:LiveSpinPracticeCriterionV239|null;trials:readonly LiveSpinPracticeTrialV244[]}>) {
  return evaluatePractice(raw,'live_spin_practice_cohort_v244',validateLiveContactFrameMotorV244);
 }
-function evaluatePractice<M extends LiveSpinMotorV239|LiveContactFrameMotorV244>(raw:Readonly<{motor:M;cohort:Omit<LiveSpinPracticeCohortV239,'version'|'motorSnapshot'> & Readonly<{version:string;motorSnapshot:M}>;criterion:LiveSpinPracticeCriterionV239|null;trials:readonly (Omit<LiveSpinPracticeTrialV239,'motorSnapshot'> & Readonly<{motorSnapshot:M}>)[]}>,cohortVersion:string,validate:(raw:unknown)=>M) {
+export function evaluateLiveRobustContactFrameMotorPracticeV248(raw:Readonly<{motor:LiveRobustContactFrameMotorV248;cohort:LiveSpinPracticeCohortV248;criterion:LiveSpinPracticeCriterionV239|null;trials:readonly LiveSpinPracticeTrialV248[]}>) {
+ return evaluatePractice(raw,'live_spin_practice_cohort_v248',validateLiveRobustContactFrameMotorV248);
+}
+function evaluatePractice<M extends LiveSpinMotorV239|LiveContactFrameMotorV244|LiveRobustContactFrameMotorV248>(raw:Readonly<{motor:M;cohort:Omit<LiveSpinPracticeCohortV239,'version'|'motorSnapshot'> & Readonly<{version:string;motorSnapshot:M}>;criterion:LiveSpinPracticeCriterionV239|null;trials:readonly (Omit<LiveSpinPracticeTrialV239,'motorSnapshot'> & Readonly<{motorSnapshot:M}>)[]}>,cohortVersion:string,validate:(raw:unknown)=>M) {
  const x=cloneInert(raw),motor=validate(x.motor),cohort=x.cohort;
  if(!fields(x,['motor','cohort','criterion','trials'])||!fields(cohort,['version','scopeId','motorId','motorVersion','motorSnapshot','opportunities'])||cohort.version!==cohortVersion
   ||!text(cohort.scopeId)||!text(cohort.motorId)||!text(cohort.motorVersion)||!Array.isArray(cohort.opportunities)||!cohort.opportunities.every(validOpportunity)||!Array.isArray(x.trials))throw Error('live spin motor v239: invalid cohort');

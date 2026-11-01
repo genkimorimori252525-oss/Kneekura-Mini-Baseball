@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "source": "../../outputs/ばせぼーるlv111_TBD_vs_LAD_制球とカウント配球版.html",
+    "htmlSha256": "eeded1571556cea2292e93168fdf10b2bf4860e0336d629862c5610ac49aaa90",
+    "coreSha256": "7d71db66c9dad924ad3628bdd644b965fba1c79f901c89e3cb4f0009eef6d0ab",
+    "runtime": "v24.19.0",
+    "generator": "tools/browser-bridge/probe-field-latency-v113-seam-golden.mjs",
+    "command": "<pinned Node24> tools/browser-bridge/probe-field-latency-v113-seam-golden.mjs",
+    "sourceOnly": "frozen V111 Core, no current product imports",
+    "originalDirectComparisonReceipt": "09455a",
+    "encoding": "SHA-256 of JSON.stringify traversal; each number replaced by f64: plus big-endian IEEE754 hex, preserving signed zero",
+    "randomCases": 300,
+    "signs": [
+      1,
+      -1
+    ],
+    "scales": [
+      0,
+      0.01,
+      0.5,
+      1,
+      2
+    ]
+  },
+  "physics": {
+    "kind": "aero_ground_v1",
+    "air": {
+      "ticksPerSecond": 1000000,
+      "integrationStepTicks": 5000,
+      "gravityY": -9.80665,
+      "aerodynamics": {
+        "ballMassKg": 0.145,
+        "ballRadiusM": 0.0366,
+        "airDensityKgM3": 1.225,
+        "windVelocityMps": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dragCoefficient": 0.35,
+        "coefficientProfile": {
+          "profileId": "lyu-2022-seam-averaged",
+          "version": "lyu-2022-figure-digitization-v1",
+          "referenceReynoldsNumber": 144000,
+          "spinKnots": [
+            {
+              "spinFactor": 0,
+              "dragCoefficientAtReferenceRe": 0.35,
+              "liftCoefficient": 0
+            },
+            {
+              "spinFactor": 0.05,
+              "dragCoefficientAtReferenceRe": 0.34,
+              "liftCoefficient": 0.1
+            },
+            {
+              "spinFactor": 0.1,
+              "dragCoefficientAtReferenceRe": 0.32,
+              "liftCoefficient": 0.115
+            },
+            {
+              "spinFactor": 0.15,
+              "dragCoefficientAtReferenceRe": 0.32,
+              "liftCoefficient": 0.17
+            },
+            {
+              "spinFactor": 0.2,
+              "dragCoefficientAtReferenceRe": 0.33,
+              "liftCoefficient": 0.195
+            },
+            {
+              "spinFactor": 0.25,
+              "dragCoefficientAtReferenceRe": 0.34,
+              "liftCoefficient": 0.23
+            },
+            {
+              "spinFactor": 0.3,
+              "dragCoefficientAtReferenceRe": 0.36,
+              "liftCoefficient": 0.27
+            },
+            {
+              "spinFactor": 0.35,
+              "dragCoefficientAtReferenceRe": 0.38,
+              "liftCoefficient": 0.305
+            },
+            {
+              "spinFactor": 0.4,
+              "dragCoefficientAtReferenceRe": 0.39,
+              "liftCoefficient": 0.34
+            },
+            {
+              "spinFactor": 0.45,
+              "dragCoefficientAtReferenceRe": 0.41,
+              "liftCoefficient": 0.385
+            },
+            {
+              "spinFactor": 0.5,
+              "dragCoefficientAtReferenceRe": 0.42,
+              "liftCoefficient": 0.4
+            }
+          ],
+          "reynoldsKnots": [
+            {
+              "reynoldsNumber": 75000,
+              "dragCorrectionFactorAtLowSpin": 1.352941176470588
+            },
+            {
+              "reynoldsNumber": 100000,
+              "dragCorrectionFactorAtLowSpin": 1.2941176470588234
+            },
+            {
+              "reynoldsNumber": 125000,
+              "dragCorrectionFactorAtLowSpin": 1.2352941176470587
+            },
+            {
+              "reynoldsNumber": 150000,
+              "dragCorrectionFactorAtLowSpin": 1.0588235294117645
+            },
+            {
+              "reynoldsNumber": 175000,
+              "dragCorrectionFactorAtLowSpin": 0.9411764705882353
+            },
+            {
+              "reynoldsNumber": 200000,
+              "dragCorrectionFactorAtLowSpin": 1
+            },
+            {
+              "reynoldsNumber": 250000,
+              "dragCorrectionFactorAtLowSpin": 1.0294117647058822
+            }
+          ],
+          "reynoldsCorrectionFullThroughSpinFactor": 0.05,
+          "reynoldsCorrectionZeroAtSpinFactor": 0.15
+        },
+        "airKinematicViscosityM2PerSecond": 0.000015,
+        "spinDecay": {
+          "referenceSpeedMps": 44.704,
+          "timeConstantSecondsAtReferenceSpeed": 20
+        }
+      }
+    },
+    "ground": {
+      "ticksPerSecond": 1000000,
+      "gravityMps2": 9.80665,
+      "radiusM": 0.0366,
+      "inertiaRatio": 0.378,
+      "restingVerticalSpeedMps": 0.28,
+      "material": {
+        "restitution": 0.48,
+        "slidingFriction": 0.24,
+        "rollingDecelerationMps2": 1.2,
+        "normalSpinDecayPerSecond": 0.18
+      }
+    }
+  },
+  "originalClonePropertyAllocations": 6,
+  "normalizedMaterial": {
+    "w": 0.6541431638256116,
+    "x": -0.3207507891966091,
+    "y": 0.033712266409371645,
+    "z": 0.6841630913338683
+  },
+  "changedMaterial": {
+    "w": 0.6904680639397067,
+    "x": -0.0219030909961834,
+    "y": 0.03558432558182928,
+    "z": 0.7221550131772627
+  },
+  "validatedProfile": {
+    "version": "baseball_seam_force_v1",
+    "coefficientScale": 1
+  },
+  "materialErrors": [
+    "baseball seam force: explicit finite material orientation required",
+    "baseball seam force: explicit finite material orientation required",
+    "baseball seam force: explicit finite material orientation required",
+    "official window input must not contain accessors",
+    "official window input must not contain accessors",
+    "official window input must not contain symbols",
+    "official window input must be a plain inert object",
+    "official window input must not contain cycles",
+    "baseball seam force: explicit finite material orientation required",
+    "official window input must be finite",
+    "official window input must be finite",
+    "quaternion must have finite non-zero magnitude"
+  ],
+  "profileErrors": [
+    "official window input must contain inert data only",
+    "baseball seam force: invalid version or coefficient scale",
+    "baseball seam force: invalid version or coefficient scale",
+    "official window input must not contain accessors",
+    "official window input must not contain cycles",
+    "official window input must not contain symbols",
+    "official window input must not contain accessors",
+    "official window input must be a plain inert object",
+    "baseball seam force: invalid version or coefficient scale",
+    "baseball seam force: invalid version or coefficient scale",
+    "baseball seam force: invalid version or coefficient scale",
+    "baseball seam force: invalid version or coefficient scale",
+    "official window input must be finite"
+  ],
+  "materialSha256": "19fcecdac1048945c45fe97e97412a77af36e25d98f5d658a40f3effd820d5a8",
+  "forceSha256": "3c54bde2922c6f707318cc3a321d3e7efb72ae84c22a75149f2291635cbd45bf",
+  "kernelSha256": {
+    "0": "84ab73f8e7096a333ed61423dc3071b0e2bf5e839fcacc5b95eee7f5e148ff8f",
+    "1": "d2f2be40e2923246c2d4bfe635dae17e5e03f0ee71d7c22af5aa4a678a3d8c41",
+    "2": "56fa92b2de9844615a05c3c3582cee3890e9199b4e63febe3b8fa664540d6231"
+  }
+}

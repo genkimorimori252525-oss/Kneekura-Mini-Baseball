@@ -14,11 +14,17 @@ import { deriveSamePaDispatchRoles } from './SamePlateAppearanceDispatchRoles';
 import { dispatchCalibrationValues } from './SamePlateAppearanceDispatchCalibration.test-support';
 import type { AerodynamicPitchTrajectory } from '../../core/sim/pitching/AerodynamicPitchTrajectory';
 
+type NativeBattingFixture = ReturnType<typeof battingModelStanceFixture>;
+export type NativePreEnrollmentContextV127 = Readonly<{
+  fixture: NativeBattingFixture;
+  batting: ReturnType<NativeBattingFixture['modelStore']['accept']>;
+}>;
+
 /** Source-only synthetic Native fixture. All actors, Persons, body/model inputs,
  * reserved states and accepted32 rows use their unchanged real Native owners.
  * Numerical declarations reuse the existing explicit fixture values; no mock,
  * genuine donor, model default or production fatigue calibration is involved. */
-export const directNativeDispatchFixture = (options: Parameters<typeof battingModelStanceFixture>[0] = {}, observedFlight?:AerodynamicPitchTrajectory['parameters']) => {
+export const directNativeDispatchFixture = (options: Parameters<typeof battingModelStanceFixture>[0] = {}, observedFlight?:AerodynamicPitchTrajectory['parameters'], prepareBeforeEnrollment?: (context: NativePreEnrollmentContextV127) => void, onStage: (name: string) => void = () => {}) => {
   const f = battingModelStanceFixture(options), db = f.x.f.db, track = f.x.f.track;
   try {
     const actor = f.actor, batting = f.modelStore.accept(f.source.sourceId), values = dispatchCalibrationValues();
@@ -34,6 +40,12 @@ export const directNativeDispatchFixture = (options: Parameters<typeof battingMo
       track(openSqlitePlayerWorkloadRecoveryStore(f.x.f.path, f.x.f.links, { readAcceptedBaseline: id => id === source.sourceId ? source : null,
         readAcceptedActivity: () => null })).initialize(source.sourceId);
     }
+    onStage('native-baselines-ready');
+    // Native practice must predate this PA's reservation. The callback accepts
+    // its own explicit Sources through real owners in this same DB; enrollment
+    // below still reads each participant's resulting current workload state.
+    prepareBeforeEnrollment?.({ fixture: f, batting });
+    onStage('native-practice-hook-ready');
     const fieldModels = new Map<string, any>();
     for (const b of actor.defenderBindings) {
       // Exact published PlayerFieldingModelFixtures numerical declaration.
@@ -54,6 +66,7 @@ export const directNativeDispatchFixture = (options: Parameters<typeof battingMo
       fieldModels.set(b.playerId + ':defender_decision', track(openSqlitePlayerDecisionModelStore(f.x.f.path, { readAcceptedModel: id => id === decision.sourceId ? decision : null })).accept(decision.sourceId));
       fieldModels.set(b.playerId + ':defender_locomotion', track(openSqlitePlayerLocomotionModelStore(f.x.f.path, { readAcceptedModel: id => id === locomotion.sourceId ? locomotion : null })).accept(locomotion.sourceId));
     }
+    onStage('native-field-models-ready');
     const enrollmentSource = { sourceId: 'native-enrollment', sourceVersion: 'fixture-only-v1', capability: 'reserved_same_pa_enrollment_v1' as const,
       actorReference: reference('physical_plate_appearance_actors', actor), firstPhysicalPitchSourceId: 'native-first-pitch', executionBasis: 'reserved_cumulative_actual_role_total_v1' as const,
       participantBaselineReferences: bindings.map(b => {
@@ -63,21 +76,25 @@ export const directNativeDispatchFixture = (options: Parameters<typeof battingMo
       }) };
     const enrollment = track(openSqliteSamePlateAppearanceEnrollmentStore(f.x.f.path, { readAcceptedEnrollment: () => enrollmentSource })).accept(enrollmentSource.sourceId);
     if (enrollment.kind !== 'reserved') throw new Error('real Native fixture reservation pending');
+    onStage('native-enrollment-ready');
     const sources = new Map<string, unknown>(), execution = track(openSqliteSamePlateAppearanceExecutionStore(f.x.f.path, {
       readAcceptedPrefix: id => sources.get(id), readAcceptedTotal: id => sources.get(id), readAcceptedView: id => sources.get(id) }));
     const prefixSource = { sourceId: 'native-prefix', sourceVersion: 'fixture-only-v1', capability: 'reserved_same_pa_empty_prefix_v1', enrollmentReference: reference('same_pa_enrollments', enrollment) };
     sources.set(prefixSource.sourceId, prefixSource); const prefix = execution.acceptPrefix(prefixSource.sourceId);
     if (prefix.kind !== 'empty_prefix') throw new Error('real Native fixture prefix pending');
+    onStage('native-empty-prefix-ready');
     const totals = enrollment.participants.map(p => ({ sourceId: 'native-total:' + p.binding.playerId, sourceVersion: 'fixture-only-v1', capability: 'reserved_same_pa_cumulative_total_v1',
       enrollmentReference: prefixSource.enrollmentReference, prefixReference: reference('reserved_pa_work_prefixes', prefix),
       participantReference: prefix.lineage.participantReferences.find(r => r.playerId === p.binding.playerId), effortUnits: 0,
       provenance: { assessmentSourceId: 'native-total-assessment:' + p.binding.playerId, assessmentVersion: 'fixture-only-v1', calibrationSourceId: 'explicit-empty-fixture', calibrationVersion: 'fixture-only-zero-total-v1' } }));
     totals.forEach(s => sources.set(s.sourceId, s)); const set = execution.acceptTotalSet(totals.map(s => s.sourceId));
     if (set.kind !== 'total_set') throw new Error('real Native fixture TOTAL set pending');
+    onStage('native-total-set-ready');
     const viewSource = { sourceId: 'native-view', sourceVersion: 'fixture-only-v1', capability: 'reserved_same_pa_cumulative_view_v1',
       enrollmentReference: prefixSource.enrollmentReference, prefixReference: reference('reserved_pa_work_prefixes', prefix), participantTotalReferences: set.participantTotalReferences };
     sources.set(viewSource.sourceId, viewSource); const view = execution.acceptView(viewSource.sourceId);
     if (view.kind !== 'basis_prepared') throw new Error('real Native fixture view pending');
+    onStage('native-empty-view-ready');
     const roles = deriveSamePaDispatchRoles(actor, view), base = { sourceVersion: 'fixture-only-v1', enrollmentReference: prefixSource.enrollmentReference,
       viewReference: reference('reserved_pa_execution_views', view), firstPhysicalPitchSourceId: enrollmentSource.firstPhysicalPitchSourceId };
     const nominalRef = (owner: string, table: string, id: string, value: unknown) => {
@@ -109,6 +126,7 @@ export const directNativeDispatchFixture = (options: Parameters<typeof battingMo
     const dispatch = track(openSqliteSamePlateAppearanceDispatchStore(f.x.f.path, { readAcceptedAction: id => sources.get(id), readAcceptedCalibration: id => sources.get(id) }));
     const acceptedAction = dispatch.acceptAction(action.sourceId), acceptedCalibrations = dispatch.acceptCalibrationSet(calibrations.map(s => s.sourceId));
     if (acceptedAction.kind !== 'action_prepared' || acceptedCalibrations.kind !== 'execution_calibration_set') throw new Error('real Native fixture dispatch prerequisite pending');
+    onStage('native-action-calibrations-ready');
     const pitchCalibration = acceptedCalibrations.calibrations.find(c => c.source.route === 'pitch_delivery')!;
     return { ...f, db, path: f.x.f.path, actor, view, dispatch, acceptedAction, acceptedCalibrations, pitchCalibration,
       request: { actionReference: reference('pa_dispatch_v1_action_plans', acceptedAction), calibrationReference: reference('pa_dispatch_v1_execution_calibrations', pitchCalibration) } };

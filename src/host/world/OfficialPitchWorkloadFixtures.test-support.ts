@@ -46,7 +46,8 @@ export const officialPitchWorkloadParticipationAuthority = (
 /** Explicit physical/profile fixtures; no production counts or calibration defaults. */
 export const officialPitchWorkloadFixture = (physical = true, deferPlay = false, databasePath?: string, bothSides = false,
   fixture?: Parameters<SqliteOfficialStateStore['registerOfficialFixture']>[0], profile?: OriginalFixtureRuleProfile,
-  rehabPlayerIds: readonly string[] = [], initializeCalendar?: OfficialPitchWorkloadCalendarInitializer) => {
+  rehabPlayerIds: readonly string[] = [], initializeCalendar?: OfficialPitchWorkloadCalendarInitializer, fixtureGameDay = 10) => {
+  if (!Number.isSafeInteger(fixtureGameDay) || fixtureGameDay < 0) throw new Error('invalid explicit fixture game day');
   const initial = match(profile); // Validate before opening stores or persisting the initial Match.
   // Optional private test evidence; explicit caller paths retain precedence.
   // The same Native owners use the retained file, so interrupted stages remain
@@ -76,7 +77,7 @@ export const officialPitchWorkloadFixture = (physical = true, deferPlay = false,
     memberClubIds: ['club-a', 'club-b'], regularSeasonGamesPerClub: 1,
     revisionEventIds: [], games: [{ gameId: 'game-1', homeClubId: 'club-a', awayClubId: 'club-b' }] },
     standingsPolicy: { version: 'v1', tieCreditNumerator: 1, tieCreditDenominator: 2, runDifferentialCapPerGame: 10 } });
-  const gameId = calendarFixture?.game.gameId ?? 'game-1', gameDay = calendarFixture?.game.day ?? 10,
+  const gameId = calendarFixture?.game.gameId ?? 'game-1', gameDay = calendarFixture?.game.day ?? fixtureGameDay,
     seasonId = calendarFixture?.seasonId ?? 'league-season-1';
   const homeIds = worldSetup('p2').defenders.map((defender) => defender.playerId);
   const awayIds = bothSides ? ['p-away', ...homeIds.slice(1).map((_id, index) => `away-${index + 1}`)] : [];

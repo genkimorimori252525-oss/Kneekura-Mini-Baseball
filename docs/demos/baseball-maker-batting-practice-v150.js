@@ -43,6 +43,7 @@
     frames:clip.frames.map(frame=>({tick:frame.tick,grip:clone(frame.grip),orientation:clone(frame.orientation)})),defaultSelection:clip.defaultSelection}));
   return {configuration:{seed,innings:9,teams:practiceTeams,players,measuredClips,park:{fenceRadiusMeters:110,fenceHeightMeters:3},
     batterObservationV151:clone(core.AUTHORED_LIVE_BATTER_OBSERVATION_V151),batterDirectionMotorV153:clone(core.AUTHORED_OBSERVED_DIRECTION_MOTOR_V153),randomnessV152:root.KneekuraBallComparison.getRandomnessV152('MATCH'),
+    batterNeutralReactivePolicyV272:{version:'live_neutral_reactive_pair_policy_v273',sourceId:'maker-continuous-practice-v273'},
     ...(root.KneekuraObservedRegionEnabledV222===true?{batterObservedRegionExperienceV222:clone(core.AUTHORED_BATTER_OBSERVED_REGION_EXPERIENCE_V222)}:{})},
    context:{startingBatterId:batterId,pitcherId,teamNames:practiceTeams.map(team=>team.name),fromSavedPractice:false}};
  }
@@ -166,16 +167,20 @@
   const sidecar=root.KneekuraContactSessionV240?.exportSidecar();if(!sidecar)return text;
   const saved=codec.parse(text);saved.localContactReportV240=sidecar;return codec.stringify(saved);
  });}
- async function restore(text){return act(async()=>{
-  const saved=codec.parse(text);
-  const compatibility=root.KneekuraObservedRegionCompatibilityV222,
-   exact=(a,b)=>JSON.stringify(a)===JSON.stringify(b),
-   legacyAllowed=compatibility?.version==='observed_region_compatibility_v222'&&compatibility.uiGateReady===true
-    &&exact(build,compatibility.targetBuild)&&exact(saved.build,compatibility.oldBuild)
-    &&saved.capture?.configuration&&!Object.hasOwn(saved.capture.configuration,'batterObservedRegionExperienceV222')
-    &&saved.capture?.continuation&&!Object.hasOwn(saved.capture.continuation,'batterObservedRegionExperienceV222');
-  if(saved.version!=='maker_batting_practice_v150'||saved.authority!=='LOCAL_DEBUG_ARTIFACT_NOT_NATIVE'||!exact(saved.build,build)&&!legacyAllowed)
-   throw Error('保存元とCoreが異なります。保存元の候補で再開してください。');
+ async function restore(text){
+  if(busy)return;
+  let saved;
+  try{
+   saved=codec.parse(text);
+   const validBuild=value=>value&&typeof value==='object'&&!Array.isArray(value)
+    &&Object.keys(value).sort().join('|')==='practiceUiSha256|workbenchSha256'
+    &&Object.values(value).every(hash=>typeof hash==='string'&&/^[a-f0-9]{64}$/.test(hash));
+   if(!saved||saved.version!=='maker_batting_practice_v150'||saved.authority!=='LOCAL_DEBUG_ARTIFACT_NOT_NATIVE'
+    ||!validBuild(saved.build)||!validBuild(build)||saved.build.workbenchSha256!==build.workbenchSha256
+    ||saved.build.practiceUiSha256!==build.practiceUiSha256)
+    throw Error('保存元とCoreが異なるか不明です。保存元の候補で再開してください。');
+  }catch(error){$('practice-status').textContent=String(error.message??error);throw error;}
+  return act(async()=>{
   if(!saved.capture?.configuration||!saved.context||typeof saved.context!=='object'||Array.isArray(saved.context)
    ||typeof saved.context.startingBatterId!=='string'||typeof saved.context.pitcherId!=='string'
    ||!Array.isArray(saved.rows)||saved.rows.length!==(saved.capture.spinPracticeEpisodesV242?.globalAcceptedPitchCount??saved.capture.continuation?.pitchCount)

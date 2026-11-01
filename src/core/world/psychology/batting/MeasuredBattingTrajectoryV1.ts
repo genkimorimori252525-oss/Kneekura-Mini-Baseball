@@ -5,14 +5,31 @@ import { createReferenceBatKinematicsV1, type ReferenceBatKinematicsInputV1 } fr
 import type { SwingKinematicsTrajectoryV1 } from '../../../sim/contact/SwingKinematicsV1';
 import type { SwingKinematicsCourseProfileV1 } from '../../../sim/pitching/CourseAwareSwingKinematicsV1';
 import { normalizeQuaternion, rotateVectorByQuaternion, type Quaternion } from '../../../sim/pitching/BaseballOrientation';
+import { registerMeasuredBatToFieldV1 } from '../../../sim/contact/MeasuredFieldRegistrationV137';
 
 export const MEASURED_BATTING_REPERTOIRE_V1 = 'measured_bat_axis_repertoire_v1' as const;
 export const MEASURED_BATTING_REPERTOIRE_UPRIGHT_V2 = 'measured_bat_axis_upright_repertoire_v2' as const;
+export const MEASURED_BATTING_REPERTOIRE_FIELD_UPRIGHT_V137 = 'measured_bat_field_upright_repertoire_v137' as const;
+export const MEASURED_BATTING_REPERTOIRE_CONTACT_AIM_V138 = 'measured_bat_field_contact_aim_repertoire_v138' as const;
+export type MeasuredBattingRegistrationV137='legacy_axis_v1'|'upright_yaw_v2'|'field_upright_yaw_v137'|'field_contact_aim_v138';
+export function registrationForMeasuredRepertoireV137(version:string):MeasuredBattingRegistrationV137{
+  if(version===MEASURED_BATTING_REPERTOIRE_V1)return 'legacy_axis_v1';
+  if(version===MEASURED_BATTING_REPERTOIRE_UPRIGHT_V2)return 'upright_yaw_v2';
+  if(version===MEASURED_BATTING_REPERTOIRE_CONTACT_AIM_V138)return 'field_contact_aim_v138';
+  assert(version===MEASURED_BATTING_REPERTOIRE_FIELD_UPRIGHT_V137,'unknown measured repertoire registration');
+  return 'field_upright_yaw_v137';
+}
+/** A prospective technique assessment, separate from raw measurements and the
+ * observer's ball forecast. Signs use field +X (first base) and gravity +Y. */
+export type MeasuredContactAimV138=Readonly<{
+  version:'measured_bat_contact_aim_v138'; lateralOffsetM:number; verticalOffsetM:number; maximumOffsetM:number;
+}>;
 /** Original registered metre coordinates and original source-clock keys. No
  * arbitrary caller transform, mirrored side, inferred torso or axial roll. */
 export type MeasuredBattingProfileV1 = Readonly<{
   profileId: string; handedness: 'R' | 'L'; sourceImpactTick: number; playbackRate: number;
   measured: Omit<MeasuredBatAxisReferenceInputV1, 'startTick' | 'ticksPerSecond' | 'playbackRate' | 'transform'>;
+  contactAimV138?:MeasuredContactAimV138;
 }>;
 const identity = (): Quaternion => ({x:0,y:0,z:0,w:1});
 const zero = (): Vec3 => ({x:0,y:0,z:0});
@@ -24,6 +41,13 @@ const norm = (a:Vec3):number => Math.hypot(a.x,a.y,a.z);
 const fields = (v:unknown,ks:readonly string[]):boolean => !!v && typeof v==='object' && !Array.isArray(v)
   && Object.keys(v).sort().join('|')===[...ks].sort().join('|');
 function assert(v:unknown,message:string):asserts v { if(!v)throw new Error('measured batting repertoire: '+message); }
+function assertContactAim(p:MeasuredBattingProfileV1):asserts p is MeasuredBattingProfileV1&{contactAimV138:MeasuredContactAimV138}{
+  const a=p.contactAimV138;
+  assert(fields(a,['version','lateralOffsetM','verticalOffsetM','maximumOffsetM'])&&a?.version==='measured_bat_contact_aim_v138'
+    &&[a.lateralOffsetM,a.verticalOffsetM,a.maximumOffsetM].every(Number.isFinite)
+    &&a.maximumOffsetM>0&&a.maximumOffsetM<=p.measured.batLengthM
+    &&Math.hypot(a.lateralOffsetM,a.verticalOffsetM)<=a.maximumOffsetM,'invalid or outside-assessment contact aim');
+}
 const reference = (p:MeasuredBattingProfileV1) => createMeasuredBatAxisReferenceV1({...p.measured,
   startTick:0,ticksPerSecond:p.measured.sourceTicksPerSecond,playbackRate:1,
   transform:{rotation:identity(),translation:zero(),scale:1}}).reference;
@@ -35,18 +59,21 @@ export function assertMeasuredBattingRepertoireV1(raw: Readonly<{
   sampledProfiles?:readonly MeasuredBattingProfileV1[];
 }>):void {
   const r=cloneInert(raw);
-  if(r.repertoireVersion!==MEASURED_BATTING_REPERTOIRE_V1&&r.repertoireVersion!==MEASURED_BATTING_REPERTOIRE_UPRIGHT_V2){
+  if(r.repertoireVersion!==MEASURED_BATTING_REPERTOIRE_V1&&r.repertoireVersion!==MEASURED_BATTING_REPERTOIRE_UPRIGHT_V2
+    &&r.repertoireVersion!==MEASURED_BATTING_REPERTOIRE_FIELD_UPRIGHT_V137&&r.repertoireVersion!==MEASURED_BATTING_REPERTOIRE_CONTACT_AIM_V138){
     assert(!Object.hasOwn(r,'sampledProfiles'),'sampled profiles require their own version');return;
   }
   assert(Array.isArray(r.sampledProfiles)&&r.sampledProfiles.length===r.profiles.length,'missing measured profiles');
   const ids=new Set<string>();
   for(const p of r.sampledProfiles){
-    assert(fields(p,['profileId','handedness','sourceImpactTick','playbackRate','measured'])
+    const aimed=r.repertoireVersion===MEASURED_BATTING_REPERTOIRE_CONTACT_AIM_V138;
+    assert(fields(p,['profileId','handedness','sourceImpactTick','playbackRate','measured',...(aimed?['contactAimV138']:[])])
       &&typeof p.profileId==='string'&&p.profileId.trim()===p.profileId&&!ids.has(p.profileId)
       &&(p.handedness==='R'||p.handedness==='L')&&Number.isSafeInteger(p.sourceImpactTick)
       &&Number.isFinite(p.playbackRate)&&p.playbackRate>=.01&&p.playbackRate<=20,'invalid measured profile');
     assert(fields(p.measured,['provenance','frames','batLengthM','sweetSpotFromTipM','handReferenceFromKnobM',
       'maximumHandResidualM','sourceTicksPerSecond']),'invalid measured source fields');
+    if(aimed)assertContactAim(p);
     const original=reference(p),course=r.profiles.find(x=>x.profile.profileId===p.profileId)?.profile;
     assert(course&&course.batLengthM===original.batLengthM&&course.sweetSpotT===original.sweetSpotT,
       'course and measured bat geometry differ');
@@ -79,16 +106,20 @@ function turn(from:Vec3,to:Vec3):Quaternion {
  * rigid registration moves the entire measured curve; no per-key retargeting,
  * speed matching, actual-flight input or guaranteed-contact correction exists. */
 export function planMeasuredBattingTrajectoryV1(p:MeasuredBattingProfileV1,handedness:'R'|'L',
-  intended:SwingKinematicsTrajectoryV1,registration:'legacy_axis_v1'|'upright_yaw_v2'='legacy_axis_v1'):ReferenceBatKinematicsInputV1 {
-  assert(registration==='legacy_axis_v1'||registration==='upright_yaw_v2','unknown registration');
+  intended:SwingKinematicsTrajectoryV1,registration:MeasuredBattingRegistrationV137='legacy_axis_v1'):ReferenceBatKinematicsInputV1 {
+  assert(registration==='legacy_axis_v1'||registration==='upright_yaw_v2'||registration==='field_upright_yaw_v137'
+    ||registration==='field_contact_aim_v138','unknown registration');
+  const aimed=registration==='field_contact_aim_v138',field=registration==='field_upright_yaw_v137'||aimed;
+  if(aimed)assertContactAim(p);else assert(!Object.hasOwn(p,'contactAimV138'),'contact aim requires its own registration');
   assert(p.handedness===handedness,'recorded side differs from batter side');
-  const original=reference(p),elapsed=impactElapsedTicks(p,intended.ticksPerSecond);
+  const rawReference=reference(p),original=field
+    ?{...rawReference,frames:registerMeasuredBatToFieldV1(rawReference.frames)}:rawReference,elapsed=impactElapsedTicks(p,intended.ticksPerSecond);
   const startTick=intended.contactTick-elapsed;
   assert(Number.isSafeInteger(startTick)&&startTick>=0,'measured onset precedes the world clock');
   const measured=createReferenceBatKinematicsV1(original).sample(p.sourceImpactTick-original.frames[0].tick);
   const axis=sub(measured.state.pose.tip,measured.state.pose.grip),target=intended.contact.batAxis;
   let rotation:Quaternion;
-  if(registration==='upright_yaw_v2'){
+  if(registration==='upright_yaw_v2'||field){
     // The measured capture already shares world +Y (gravity). Preserve that
     // registration and its attack plane; matching the legacy axis's vertical
     // component could overturn the entire recorded swing. A vertical axis
@@ -101,7 +132,15 @@ export function planMeasuredBattingTrajectoryV1(p:MeasuredBattingProfileV1,hande
     const yaw=Math.atan2(from.z*to.x-from.x*to.z,from.x*to.x+from.z*to.z);
     rotation={x:0,y:Math.sin(yaw/2),z:0,w:Math.cos(yaw/2)};
   }else rotation=turn(axis,target);
-  const translation=sub(intended.contact.sweetSpotPosition,rotateVectorByQuaternion(measured.sweetSpot,rotation));
+  let translation=sub(intended.contact.sweetSpotPosition,rotateVectorByQuaternion(measured.sweetSpot,rotation));
+  // One prospective whole registration, not a change to perceived ball motion
+  // or measured keys. Its coupled body must adopt this same transform and pass
+  // the original bridge/reach/foot/speed/clearance proofs before execution.
+  if(aimed){
+    const a=p.contactAimV138!;
+    translation={x:a.lateralOffsetM!==0?translation.x+a.lateralOffsetM:translation.x,
+      y:a.verticalOffsetM!==0?translation.y+a.verticalOffsetM:translation.y,z:translation.z};
+  }
   const planned={...original,startTick,ticksPerSecond:intended.ticksPerSecond,playbackRate:p.playbackRate,
     transform:{rotation,translation,scale:1}};
   createReferenceBatKinematicsV1(planned);return planned;

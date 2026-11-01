@@ -1,13 +1,16 @@
 import type { Vec3 } from '../../model/geometry';
 import type { Quaternion } from '../pitching/BaseballOrientation';
+import { assertDeepFrozenInertPhysicsV98 } from './ImmutablePhysicsParametersV98';
 import { calculateBaseballSeamCoefficientV1, validateBaseballMaterialOrientationV1, validateBaseballSeamForceV1, type BaseballSeamForceV1 } from './BaseballSeamForceV1';
 import {
   NATHAN_2026_BASEBALL_SPIN_DECAY_ESTIMATE,
+  calculateBaseballSpinDecayTimeConstantSeconds,
   validateBaseballSpinDecayParameters,
   type BaseballSpinDecayParameters,
 } from './BaseballSpinDecay';
 import {
   LYU_2022_SEAM_AVERAGED_AERO_PROFILE,
+  prepareOwnedBaseballCoefficientProfileV98,
   resolveBaseballAerodynamicCoefficients,
   validateBaseballAerodynamicCoefficientProfile,
   type BaseballAerodynamicCoefficientProfile,
@@ -101,9 +104,24 @@ const cross = (a: Vec3, b: Vec3): Vec3 => ({
 const magnitude = (value: Vec3): number =>
   Math.hypot(value.x, value.y, value.z);
 
+const ownedAerodynamicsParametersV98 = new WeakSet<BaseballAerodynamicsParameters>();
+
+/** Called only by the owning profile constructor after cloneInert and deep
+ * freeze. The descriptor check prevents shallow-frozen/getter inputs from
+ * gaining a validation exemption; dynamic state/material checks still run. */
+export function prepareOwnedBaseballAerodynamicsV98(parameters: BaseballAerodynamicsParameters): void {
+  if (ownedAerodynamicsParametersV98.has(parameters)) return;
+  assertDeepFrozenInertPhysicsV98(parameters);
+  validateParameters(parameters);
+  if (parameters.coefficientProfile !== undefined)
+    prepareOwnedBaseballCoefficientProfileV98(parameters.coefficientProfile);
+  ownedAerodynamicsParametersV98.add(parameters);
+}
+
 const validateParameters = (
   parameters: BaseballAerodynamicsParameters,
 ): void => {
+  if (ownedAerodynamicsParametersV98.has(parameters)) return;
   if (parameters.seamForce !== undefined) validateBaseballSeamForceV1(parameters.seamForce);
   if (!Number.isFinite(parameters.ballMassKg) || parameters.ballMassKg <= 0) {
     throw new Error('ballMassKg must be finite and positive');
@@ -324,3 +342,43 @@ export const calculateBaseballAerodynamics = (
     ...(seamAcceleration ? { seamAcceleration, seamCoefficientUsed: magnitude(seamCoefficient!) } : {}),
   };
 };
+
+/** Internal RK intermediate-stage projection. Only privately generated stage
+ * vectors and constructor-owned immutable parameters may use this path. The
+ * full public diagnostic calculation above remains the raw-input oracle.
+ * Keep the floating-point operation graph, including zero signs, unchanged. */
+export function calculateOwnedBaseballFlightDerivativesV120(
+  velocity:Vec3,spin:Vec3,p:BaseballAerodynamicsParameters,gravityY:number,orientation?:Quaternion,
+):Readonly<{velocity:Vec3;spin:Vec3}>{
+  if(!ownedAerodynamicsParametersV98.has(p))throw new Error('owned aerodynamic parameters required');
+  const seam=p.seamForce&&p.seamForce.coefficientScale>0?p.seamForce:undefined;
+  if(seam)validateBaseballMaterialOrientationV1(orientation);
+  const rx=velocity.x-p.windVelocityMps.x,ry=velocity.y-p.windVelocityMps.y,rz=velocity.z-p.windVelocityMps.z,
+    speed=Math.hypot(rx,ry,rz);
+  let ax=0,ay=0,az=0;
+  if(!(speed<=EPSILON||p.airDensityKgM3<=EPSILON)){
+    const inverse=1/speed,hx=rx*inverse,hy=ry*inverse,hz=rz*inverse,
+      projection=spin.x*hx+spin.y*hy+spin.z*hz,
+      sx=spin.x-hx*projection,sy=spin.y-hy*projection,sz=spin.z-hz*projection,
+      activeMagnitude=Math.hypot(sx,sy,sz),spinFactor=p.ballRadiusM*activeMagnitude/speed,
+      area=Math.PI*p.ballRadiusM*p.ballRadiusM,dynamic=0.5*p.airDensityKgM3*area*speed*speed/p.ballMassKg,
+      coefficients=p.coefficientProfile===undefined
+        ?{dragCoefficient:p.dragCoefficient,liftCoefficient:calculateBaseballLiftCoefficient(spinFactor)}
+        :resolveBaseballAerodynamicCoefficients(p.coefficientProfile,speed*(2*p.ballRadiusM)/p.airKinematicViscosityM2PerSecond!,spinFactor),
+      dragScale=-dynamic*coefficients.dragCoefficient,
+      seamCoefficient=seam?calculateBaseballSeamCoefficientV1({x:hx,y:hy,z:hz},orientation!,seam):undefined;
+    let lx=0,ly=0,lz=0;
+    if(activeMagnitude>EPSILON){
+      const cx=sy*hz-sz*hy,cy=sz*hx-sx*hz,cz=sx*hy-sy*hx,length=Math.hypot(cx,cy,cz);
+      if(length>EPSILON){const liftScale=dynamic*coefficients.liftCoefficient/length;lx=cx*liftScale;ly=cy*liftScale;lz=cz*liftScale;}
+    }
+    ax=hx*dragScale+lx;ay=hy*dragScale+ly;az=hz*dragScale+lz;
+    if(seamCoefficient){ax=ax+seamCoefficient.x*dynamic;ay=ay+seamCoefficient.y*dynamic;az=az+seamCoefficient.z*dynamic;}
+  }
+  let dx=0,dy=0,dz=0;
+  if(p.spinDecay!==undefined){
+    const tau=calculateBaseballSpinDecayTimeConstantSeconds(speed,p.spinDecay);
+    if(Number.isFinite(tau)){const rate=-1/tau;dx=spin.x*rate;dy=spin.y*rate;dz=spin.z*rate;}
+  }
+  return {velocity:{x:ax,y:ay+gravityY,z:az},spin:{x:dx,y:dy,z:dz}};
+}

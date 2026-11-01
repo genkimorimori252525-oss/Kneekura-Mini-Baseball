@@ -36,12 +36,12 @@ export const simulateReferenceBattingWorkbench = (raw: ReferenceBattingWorkbench
   if(Math.abs(reference.batLengthM-player.bat.lengthM)>1e-9||reference.sweetSpotT!==player.bat.sweetSpotT)
     throw new Error('参考バットの長さ・芯と選手の用具が一致しません');
   if(referenceInput.startTick<player.capability.motorLatencyTicks)throw new Error('参考スイング始動が選手の反応時間より早すぎます');
-  if(reference.maximumSweetSpotSpeedMps>player.capability.maximumSweetSpotSpeedMps*(1+1e-10))
+  const sourceValues=exportWorkbenchPlayerSources(player),equipment=sourceValues.equipment;
+  if(reference.maximumSweetSpotSpeedMps>sourceValues.capability.maximumSweetSpotSpeedMps*(1+1e-10))
     throw new Error('参考軌道の実速度が選手の身体上限を超えます');
   const frames=referenceInput.frames, refEnd=referenceInput.startTick
     +(frames[frames.length-1].tick-frames[0].tick)/referenceInput.sourceTicksPerSecond/referenceInput.playbackRate*p;
   if(refEnd>20*p)throw new Error('reference experiment clip exceeds twenty seconds');
-  const sourceValues=exportWorkbenchPlayerSources(player),equipment=sourceValues.equipment;
   const {initial,parameters,flightEnd}=createWorkbenchPitchTrajectory(input.pitch);
   const trajectory = {start:initial,endTick:flightEnd,parameters};
   const swing = createRigidBatSwingWindowFromSampledV1(referenceInput,equipment.batPhysical,{startTick:initial.tick,endTick:flightEnd});

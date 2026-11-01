@@ -1,14 +1,19 @@
 import type { Vec3 } from '../../model/geometry';
 import { cloneInert } from '../../adjudication/OfficialWindowPolicy';
-import { multiplyQuaternions,type Quaternion } from '../pitching/BaseballOrientation';
+import { multiplyQuaternions,normalizeQuaternion,type Quaternion } from '../pitching/BaseballOrientation';
 import { createReferenceBatKinematicsV1,type ReferenceBatKinematicsInputV1 } from './ReferenceBatKinematicsV1';
 import { validateInitialHeldBatV1,sampleInitialHeldBatV1,type InitialHeldBatV1,type InitialHeldBatBodyV1 } from './InitialHeldBatV1';
 import { createMeasuredPelvisControlV1,type MeasuredPelvisControlV1 } from './MeasuredPelvisControlV1';
 
-export type HeldToMeasuredBatControlV1=Readonly<{
-  version:'held_to_measured_bat_control_v1';initial:InitialHeldBatV1;bridgeStartTick:number;throughTick:number;
-  measured:ReferenceBatKinematicsInputV1;body:InitialHeldBatBodyV1;maximumSweetSpotSpeedMps:number;
+export type BatPreparationWaypointsV141=Readonly<{
+  version:'explicit_bat_preparation_waypoints_v141';
+  waypoints:readonly Readonly<{tick:number;grip:Vec3;orientation:Quaternion}>[];
 }>;
+export type HeldToMeasuredBatControlV1=Readonly<{
+  initial:InitialHeldBatV1;bridgeStartTick:number;throughTick:number;
+  measured:ReferenceBatKinematicsInputV1;body:InitialHeldBatBodyV1;maximumSweetSpotSpeedMps:number;
+}>&(Readonly<{version:'held_to_measured_bat_control_v1'}>
+  |Readonly<{version:'held_to_measured_bat_control_v141';preparationV141:BatPreparationWaypointsV141}>);
 export type CoupledHeldMeasuredBatBodyControlV1=Readonly<{
   version:'coupled_held_measured_bat_body_control_v1';bat:HeldToMeasuredBatControlV1;body:MeasuredPelvisControlV1;
   bodyObstacleIndex:number;footObstacleIndices:readonly [number,number];maximumLegReachM:number;
@@ -87,7 +92,9 @@ export function createCoupledHeldMeasuredBatBodyControlV1(raw:CoupledHeldMeasure
 
 function buildHeldToMeasuredBatControl(raw:HeldToMeasuredBatControlV1,moving?:MovingBody){
   const p=cloneInert(raw);
-  assert(fields(p,['version','initial','bridgeStartTick','throughTick','measured','body','maximumSweetSpotSpeedMps'])&&p.version==='held_to_measured_bat_control_v1','invalid control fields');
+  const routed=p.version==='held_to_measured_bat_control_v141';
+  assert(fields(p,['version','initial','bridgeStartTick','throughTick','measured','body','maximumSweetSpotSpeedMps',...(routed?['preparationV141']:[])])
+    &&(p.version==='held_to_measured_bat_control_v1'||routed),'invalid control fields');
   validateInitialHeldBatV1(p.initial,p.body);const measured=createReferenceBatKinematicsV1(p.measured);
   const last=p.measured.frames.at(-1)!,first=p.measured.frames[0];
   const measuredEnd=p.measured.startTick+(last.tick-first.tick)/p.measured.sourceTicksPerSecond/p.measured.playbackRate*p.measured.ticksPerSecond;
@@ -97,13 +104,37 @@ function buildHeldToMeasuredBatControl(raw:HeldToMeasuredBatControlV1,moving?:Mo
     &&Number.isFinite(p.maximumSweetSpotSpeedMps)&&p.maximumSweetSpotSpeedMps>0,'clock, original geometry, speed or finite lease differs');
   // Retire strictly BEFORE the sampled terminal hold: the incoming final
   // velocity must be handed to the next actual command, not snapped to rest.
-  const start=sampleInitialHeldBatV1(p.initial,p.bridgeStartTick),target=measured.sample(p.measured.startTick),seconds=(p.measured.startTick-p.bridgeStartTick)/1e6;
-  const grip0=vector(start.state.pose.grip),grip1=vector(target.state.pose.grip),v1=vector(target.state.linearVelocity);
-  const grips=[grip0,grip0,subtract(grip1,scaled(v1,seconds/3)),grip1];
-  const q0=quat(start.orientation);let q1=quat(target.orientation);
-  if(q0.reduce((n,x,i)=>n+x*q1[i],0)<0)q1=scaled(q1,-1);
-  const w=target.state.angularVelocity,qdot=scaled(quat(multiplyQuaternions({...w,w:0},asQuat(q1))),.5);
-  const rotations=[q0,q0,subtract(q1,scaled(qdot,seconds/3)),q1],minimumQuaternionNorm=minimumNorm(rotations);
+  const start=sampleInitialHeldBatV1(p.initial,p.bridgeStartTick),target=measured.sample(p.measured.startTick);
+  type BridgePose=Readonly<{orientation:Quaternion;state:Readonly<{pose:Readonly<{grip:Vec3}>;linearVelocity:Vec3;angularVelocity:Vec3}>}>;
+  // Every explicit waypoint is a stationary C1 preparation pose. It does not
+  // replace a measured key or authorize removal of any original obstacle.
+  if(routed){
+    assert(fields(p.preparationV141,['version','waypoints'])&&p.preparationV141.version==='explicit_bat_preparation_waypoints_v141'
+      &&Array.isArray(p.preparationV141.waypoints)&&p.preparationV141.waypoints.length>0&&p.preparationV141.waypoints.length<=4,'invalid explicit preparation');
+  }
+  const waypoints=routed?p.preparationV141.waypoints:[];
+  if(routed){
+    waypoints.forEach((w:BatPreparationWaypointsV141['waypoints'][number],i)=>assert(fields(w,['tick','grip','orientation'])&&Number.isSafeInteger(w.tick)
+      &&w.tick>(i?waypoints[i-1].tick:p.bridgeStartTick)&&w.tick<p.measured.startTick
+      &&fields(w.grip,['x','y','z'])&&Object.values(w.grip).every(v=>Number.isFinite(v)&&Math.abs(v)<=1e6)
+      &&fields(w.orientation,['x','y','z','w'])&&Object.values(w.orientation).every(Number.isFinite)
+      &&Math.abs(Math.hypot(...Object.values(w.orientation))-1)<1e-6,'invalid timed preparation pose'));
+  }
+  const makeBridge=(fromTick:number,toTick:number,from:BridgePose,to:BridgePose)=>{
+    const seconds=(toTick-fromTick)/1e6,grip0=vector(from.state.pose.grip),grip1=vector(to.state.pose.grip),v1=vector(to.state.linearVelocity);
+    const grips=[grip0,grip0,subtract(grip1,scaled(v1,seconds/3)),grip1];
+    const q0=quat(from.orientation);let q1=quat(to.orientation);
+    if(q0.reduce((n,x,i)=>n+x*q1[i],0)<0)q1=scaled(q1,-1);
+    const w=to.state.angularVelocity,qdot=scaled(quat(multiplyQuaternions({...w,w:0},asQuat(q1))),.5);
+    const rotations=[q0,q0,subtract(q1,scaled(qdot,seconds/3)),q1];
+    return {fromTick,toTick,seconds,grips,rotations,minimumQuaternionNorm:minimumNorm(rotations)};
+  };
+  const points:readonly Readonly<{tick:number;pose:BridgePose}>[]=[{tick:p.bridgeStartTick,pose:start},
+    ...waypoints.map(w=>({tick:w.tick,pose:{orientation:normalizeQuaternion(w.orientation),
+      state:{pose:{grip:w.grip},linearVelocity:{x:0,y:0,z:0},angularVelocity:{x:0,y:0,z:0}}}})),
+    {tick:p.measured.startTick,pose:target}];
+  const segments=points.slice(1).map((point,i)=>makeBridge(points[i].tick,point.tick,points[i].pose,point.pose));
+  const minimumQuaternionNorm=Math.min(...segments.map(s=>s.minimumQuaternionNorm));
   // de Casteljau subdivision preserves the exact cubic. Derivative control
   // hulls and a strictly positive quaternion norm bound certify every time,
   // rather than adding unrelated whole-interval extrema or sampling speeds.
@@ -115,21 +146,23 @@ function buildHeldToMeasuredBatControl(raw:HeldToMeasuredBatControlV1,moving?:Mo
     const [ga,gb]=split(g),[qa,qb]=split(q),a=bridgeBounds(ga,qa,duration/2,depth-1),b=bridgeBounds(gb,qb,duration/2,depth-1);
     return {point:Math.max(a.point,b.point),sweet:Math.max(a.sweet,b.sweet)};
   };
-  const bridgeSpeed=bridgeBounds(grips,rotations,seconds,6);
+  const bounds=segments.map(s=>bridgeBounds(s.grips,s.rotations,s.seconds,6));
+  const bridgeSpeed={point:Math.max(...bounds.map(s=>s.point)),sweet:Math.max(...bounds.map(s=>s.sweet))};
   const maximumPointSpeedMps=Math.max(bridgeSpeed.point,
     measured.maximumGripSpeedMps+measured.maximumAngularSpeedRadPerSecond*(p.initial.batLengthM+p.initial.maximumBatRadiusM));
   const sweetSpeedUpperBoundMps=Math.max(bridgeSpeed.sweet,measured.maximumSweetSpotSpeedMps);
   assert(Number.isFinite(maximumPointSpeedMps)&&sweetSpeedUpperBoundMps<=p.maximumSweetSpotSpeedMps,
     'bridge or measured speed bound '+sweetSpeedUpperBoundMps+' exceeds original envelope '+p.maximumSweetSpotSpeedMps);
   const bodyOrigin=vector(p.body.bodyOrigin);
-  const gripReach=Math.max(...grips.map(g=>norm(subtract(g,bodyOrigin))),...p.measured.frames.map(f=>norm(subtract(vector(measured.sampleContinuous(p.measured.startTick+(f.tick-first.tick)/p.measured.sourceTicksPerSecond/p.measured.playbackRate*1e6).state.pose.grip),bodyOrigin))));
+  const gripReach=Math.max(...segments.flatMap(s=>s.grips.map(g=>norm(subtract(g,bodyOrigin)))),...p.measured.frames.map(f=>norm(subtract(vector(measured.sampleContinuous(p.measured.startTick+(f.tick-first.tick)/p.measured.sourceTicksPerSecond/p.measured.playbackRate*1e6).state.pose.grip),bodyOrigin))));
   let handReachUpperBoundM=gripReach+p.initial.handReferenceFromKnobM;
   if(!moving)assert(handReachUpperBoundM<=p.body.maximumHandReachM,'whole control hand reach bound '+handReachUpperBoundM+' exceeds original reach '+p.body.maximumHandReachM);
   const sampleContinuous=(atTick:number)=>{
     assert(Number.isFinite(atTick)&&atTick>=p.initial.startTick&&atTick<=p.throughTick,'sample outside finite bat control');
     if(atTick<=p.bridgeStartTick)return {...sampleInitialHeldBatV1(p.initial,atTick),phase:'held' as const};
     if(atTick>=p.measured.startTick)return {...measured.sampleContinuous(atTick),phase:'measured' as const};
-    const u=(atTick-p.bridgeStartTick)/(p.measured.startTick-p.bridgeStartTick),r=curve(rotations,u),rdot=derivative(rotations,u,seconds),length=norm(r);
+    const segment=segments.find(s=>atTick<=s.toTick)!;
+    const {rotations,grips,seconds}=segment,u=(atTick-segment.fromTick)/(segment.toTick-segment.fromTick),r=curve(rotations,u),rdot=derivative(rotations,u,seconds),length=norm(r);
     const projection=r.reduce((n,x,i)=>n+x*rdot[i],0)/(length*length);
     const q=asQuat(scaled(r,1/length)),dq=asQuat(scaled(subtract(rdot,scaled(r,projection)),1/length));
     const angular=multiplyQuaternions(dq,{x:-q.x,y:-q.y,z:-q.z,w:q.w});

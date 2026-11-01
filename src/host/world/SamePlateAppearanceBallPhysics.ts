@@ -5,6 +5,8 @@ export const SAME_PA_AERO_GROUND_FIELD_ROOT_SOURCE_VERSION = 'same_pa_field_root
 export const SAME_PA_AERO_GROUND_FIELD_STEP_SOURCE_VERSION = 'same_pa_field_step_aero_ground_continuous_v2';
 export const SAME_PA_AERO_GROUND_ESCAPE_FIELD_ROOT_SOURCE_VERSION = 'same_pa_field_root_aero_ground_escape_v3';
 export const SAME_PA_AERO_GROUND_ESCAPE_FIELD_STEP_SOURCE_VERSION = 'same_pa_field_step_aero_ground_escape_v3';
+export const SAME_PA_POLE_ESCAPE_FIELD_ROOT_SOURCE_VERSION = 'same_pa_field_root_pole_escape_v145';
+export const SAME_PA_POLE_ESCAPE_FIELD_STEP_SOURCE_VERSION = 'same_pa_field_step_pole_escape_v145';
 export const SAME_PA_AERO_GROUND_INTEGER_BOUNDARY_FIELD_STEP_SOURCE_VERSION = 'same_pa_field_step_aero_ground_integer_boundary_v1';
 export const SAME_PA_AERO_GROUND_MOTOR_FIELD_STEP_SOURCE_VERSION = 'same_pa_field_step_aero_ground_motor_v1';
 export const SAME_PA_AERO_GROUND_CONTROL_FIELD_STEP_SOURCE_VERSION = 'same_pa_field_step_aero_ground_control_v1';
@@ -16,10 +18,10 @@ export const samePaSourceFieldMetadataActionV3 = (action: unknown): boolean => !
 
 /** Explicit reserved algorithm version; opaque legacy labels retain their original contract. */
 export const samePaFieldBallPhysics = (source: Readonly<{ sourceVersion: string; parameters: Required<BallFlightParameters>; ballPhysics?: AeroGroundBallPhysicsV1 }>): AeroGroundBallPhysicsV1 | undefined => {
-  if (![SAME_PA_AERO_GROUND_FIELD_ROOT_SOURCE_VERSION, SAME_PA_AERO_GROUND_ESCAPE_FIELD_ROOT_SOURCE_VERSION].includes(source.sourceVersion)) {
+  if (![SAME_PA_AERO_GROUND_FIELD_ROOT_SOURCE_VERSION, SAME_PA_AERO_GROUND_ESCAPE_FIELD_ROOT_SOURCE_VERSION, SAME_PA_POLE_ESCAPE_FIELD_ROOT_SOURCE_VERSION].includes(source.sourceVersion)) {
     if (Object.hasOwn(source, 'ballPhysics') || [SAME_PA_AERO_GROUND_FIELD_STEP_SOURCE_VERSION, SAME_PA_AERO_GROUND_ESCAPE_FIELD_STEP_SOURCE_VERSION,
       SAME_PA_AERO_GROUND_INTEGER_BOUNDARY_FIELD_STEP_SOURCE_VERSION, SAME_PA_AERO_GROUND_MOTOR_FIELD_STEP_SOURCE_VERSION,
-      SAME_PA_AERO_GROUND_ACQUISITION_FIELD_STEP_SOURCE_VERSION, SAME_PA_AERO_GROUND_CONTROL_FIELD_STEP_SOURCE_VERSION].includes(source.sourceVersion)) throw new Error('unsupported same-PA field ball physics version');
+      SAME_PA_AERO_GROUND_ACQUISITION_FIELD_STEP_SOURCE_VERSION, SAME_PA_AERO_GROUND_CONTROL_FIELD_STEP_SOURCE_VERSION, SAME_PA_POLE_ESCAPE_FIELD_STEP_SOURCE_VERSION].includes(source.sourceVersion)) throw new Error('unsupported same-PA field ball physics version');
     return undefined;
   }
   const profile = createAeroGroundBallPhysicsProfile(source.ballPhysics), p = source.parameters;
@@ -37,7 +39,14 @@ export const assertSamePaFieldBallPhysicsStep = (source: Readonly<{ sourceVersio
     if ([SAME_PA_AERO_GROUND_FIELD_ROOT_SOURCE_VERSION, SAME_PA_AERO_GROUND_FIELD_STEP_SOURCE_VERSION,
       SAME_PA_AERO_GROUND_ESCAPE_FIELD_ROOT_SOURCE_VERSION, SAME_PA_AERO_GROUND_ESCAPE_FIELD_STEP_SOURCE_VERSION,
       SAME_PA_AERO_GROUND_INTEGER_BOUNDARY_FIELD_STEP_SOURCE_VERSION, SAME_PA_AERO_GROUND_MOTOR_FIELD_STEP_SOURCE_VERSION,
-      SAME_PA_AERO_GROUND_ACQUISITION_FIELD_STEP_SOURCE_VERSION, SAME_PA_AERO_GROUND_CONTROL_FIELD_STEP_SOURCE_VERSION].includes(source.sourceVersion)) throw new Error('same-PA field ball physics step changes its root algorithm');
+      SAME_PA_AERO_GROUND_ACQUISITION_FIELD_STEP_SOURCE_VERSION, SAME_PA_AERO_GROUND_CONTROL_FIELD_STEP_SOURCE_VERSION,
+      SAME_PA_POLE_ESCAPE_FIELD_ROOT_SOURCE_VERSION, SAME_PA_POLE_ESCAPE_FIELD_STEP_SOURCE_VERSION].includes(source.sourceVersion)) throw new Error('same-PA field ball physics step changes its root algorithm');
+    return;
+  }
+  if(root.sourceVersion===SAME_PA_POLE_ESCAPE_FIELD_ROOT_SOURCE_VERSION){
+    if(source.sourceVersion!==SAME_PA_POLE_ESCAPE_FIELD_STEP_SOURCE_VERSION
+      ||previous.sourceVersion!==(previousIsRoot?root.sourceVersion:SAME_PA_POLE_ESCAPE_FIELD_STEP_SOURCE_VERSION)
+      ||Object.hasOwn(source,'action'))throw Error('same-PA pole field requires its original root and free checkpoints only');
     return;
   }
   if (source.sourceVersion === SAME_PA_AERO_GROUND_CONTROL_FIELD_STEP_SOURCE_VERSION) {

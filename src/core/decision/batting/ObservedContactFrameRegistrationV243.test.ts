@@ -19,6 +19,11 @@ it('uses existing predicted contact and retains normal source, clock and zero-sp
 it('rejects undelivered prediction without calculating any candidate',()=>{
  const {desiredFieldAngleDegrees,...registration}=normalInput;const result=planObservedContactFrameRegistrationV243({registration,cutoffTick:999999,bats:'R',technique:'HOOK',thresholds:{minimumComponent:0,minimumImprovement:0}});expect(result).toMatchObject({status:'NO_TARGET',reason:'PREDICTION_NOT_DELIVERED',reference:null,candidates:[]});
 });
+it('retains measured search count when a predicted normal contact is unresolved',()=>{
+ const {desiredFieldAngleDegrees,...registration}=normalInput;
+ const result=planObservedContactFrameRegistrationV243({registration:{...registration,prediction:{...registration.prediction,position:{x:100,y:100,z:100}}},cutoffTick:1000000,bats:'R',technique:'HOOK',thresholds:{minimumComponent:0,minimumImprovement:0}});
+ expect('failedBaseline' in result).toBe(true);if('failedBaseline' in result&&result.failedBaseline)expect(result.failedBaseline.searchEvaluations).toBeGreaterThan(0);
+});
 
 it('rejects actual-future extra fields and a predicted miss without fabricating contact',()=>{
  const {desiredFieldAngleDegrees,...registration}=normalInput,base={registration,cutoffTick:1000000,bats:'R' as const,technique:'HOOK' as const,thresholds:{minimumComponent:0,minimumImprovement:0}};

@@ -7,8 +7,12 @@ export type LiveRunnerMotionBaseV1 = Readonly<{ base: number; position: Vec2 }>;
 export type LiveRunnerMotionInputV1 = Readonly<{
   position: Vec2;
   velocity?: Vec2;
-  /** All preceding bases are committed through-bases; the last base is a stop target. */
+  /** All preceding bases are committed through-bases; the last base is normally a stop target. */
   bases: readonly LiveRunnerMotionBaseV1[];
+  /** First-base sprint, physical braking beyond the bag, then immediate return.
+   * Only a single first-base target is accepted. This is movement, not a safe/out ruling.
+   * Through keeps the final crossing velocity for a physical action handoff. */
+  terminalMode?: 'stop' | 'first-base-overrun' | 'through';
   topSpeedMps: number;
   accelerationMps2: number;
   brakingMps2?: number;
@@ -30,10 +34,18 @@ export type LiveRunnerMotionTouchV1 = Readonly<{
   /** The route really passes through this base center, after entering its touch disk. */
   centerDistanceMeters: number; centerElapsedSeconds: number;
 }>;
+export type FirstBaseOverrunMotionV95 = Readonly<{
+  base: 1; baseCenterElapsedSeconds: number;
+  brakingEndElapsedSeconds: number; returnStartElapsedSeconds: number;
+  returnTouchElapsedSeconds: number; returnEndElapsedSeconds: number;
+  stopPosition: Vec2; overrunDistanceMeters: number;
+}>;
 export type LiveRunnerMotionV1 = Readonly<{
   route: RunnerRoute; lengthMeters: number; durationSeconds: number;
   speedSegments: readonly LiveRunnerMotionSpeedSegmentV1[];
   touches: readonly LiveRunnerMotionTouchV1[];
+  /** The caller must separately apply overrun protection/advance intent rules. */
+  firstBaseOverrunV95?: FirstBaseOverrunMotionV95;
   sampleAtElapsedSeconds: (elapsedSeconds: number) => LiveRunnerMotionSampleV1;
   elapsedSecondsAtDistanceMeters: (distanceMeters: number) => number;
 }>;
@@ -146,14 +158,14 @@ function buildRoute(input: LiveRunnerMotionInputV1, radius: number, lateral: num
   return { route, centerDistances, lengthMeters: getRunnerRouteLength(route) };
 }
 
-function buildSpeedSegments(route: RunnerRoute, initialSpeed: number, profile: LiveLocomotionProfileV84) {
+function buildSpeedSegments(route: RunnerRoute, initialSpeed: number, profile: LiveLocomotionProfileV84, stopAtEnd = true) {
   const { topSpeedMps: topSpeed, brakingMps2: braking, lateralAccelerationMps2: lateral } = profile;
   const lengths = route.segments.map(segmentLength);
   const caps = route.segments.map(s => s.kind === 'line' ? topSpeed : Math.min(topSpeed, Math.sqrt(lateral * s.radiusMeters)));
   if (initialSpeed > caps[0]) return null;
   const speeds = [initialSpeed];
   for (let i = 0; i < lengths.length; i++) speeds.push(Math.min(
-    i === lengths.length - 1 ? 0 : Math.min(caps[i], caps[i + 1]),
+    i === lengths.length - 1 ? (stopAtEnd ? 0 : caps[i]) : Math.min(caps[i], caps[i + 1]),
     liveReachableSpeedV84(profile, speeds[i], lengths[i], caps[i]),
   ));
   for (let i = lengths.length - 1; i >= 0; i--) {
@@ -236,6 +248,11 @@ export function createLiveRunnerMotionV1(input: LiveRunnerMotionInputV1): LiveRu
     || ![input.topSpeedMps, input.accelerationMps2, braking, radius, lateral, touchRadius].every(n => Number.isFinite(n) && n > 0)) {
     throw new Error('live runner motion: finite positive motor and base geometry required');
   }
+  if (input.terminalMode !== undefined && input.terminalMode !== 'stop' && input.terminalMode !== 'first-base-overrun' && input.terminalMode !== 'through')
+    throw new Error('live runner motion: unknown terminal mode');
+  const overrun = input.terminalMode === 'first-base-overrun';
+  if (overrun && (input.bases.length !== 1 || input.bases[0].base !== 1))
+    throw new Error('live runner motion: overrun requires a single first base target');
   let previous = input.position;
   for (const bag of input.bases) {
     if (norm(sub(bag.position, previous)) <= EPSILON) throw new Error('live runner motion: consecutive positions must differ');
@@ -243,12 +260,56 @@ export function createLiveRunnerMotionV1(input: LiveRunnerMotionInputV1): LiveRu
   }
   const initialSpeed = input.velocity ? norm(input.velocity) : 0;
   if (initialSpeed > input.topSpeedMps) return null;
-  const geometry = buildRoute(input, radius, lateral, initialSpeed);
+  let geometry = buildRoute(input, radius, lateral, initialSpeed);
   if (!geometry) return null;
   const profile = createLiveLocomotionProfileV84({ topSpeedMps: input.topSpeedMps, accelerationMps2: input.accelerationMps2,
     brakingMps2: braking, lateralAccelerationMps2: lateral });
-  const timing = buildSpeedSegments(geometry.route, initialSpeed, profile);
+  const through = input.terminalMode === 'through';
+  let timing = buildSpeedSegments(geometry.route, initialSpeed, profile, !overrun && !through);
   if (!timing) return null;
+  let overrunDetails: Omit<FirstBaseOverrunMotionV95, 'returnTouchElapsedSeconds'> | undefined;
+  let returnTouchDistance: number | undefined;
+  if (overrun) {
+    // The outgoing speed is solved before adding any stopping requirement.
+    // Thus weak braking lengthens the real overrun rather than delaying first-base contact.
+    const sprintLength = geometry.lengthMeters, sprintDuration = timing.durationSeconds,
+      last = timing.segments[timing.segments.length - 1],
+      crossingSpeed = Math.min(input.topSpeedMps, last.startSpeedMps
+        + last.accelerationMps2 * (last.endElapsedSeconds - last.startElapsedSeconds)),
+      bag = input.bases[0].position, heading = sampleRunnerRoute(geometry.route, sprintLength).tangent,
+      stopPosition = add(bag, mul(heading, crossingSpeed * crossingSpeed / (2 * braking))),
+      overrunDistance = norm(sub(stopPosition, bag));
+    if (!(overrunDistance > 1e-12)) return null;
+    const brakePlan = buildLiveSpeedPlanV84({ profile, distanceMeters: overrunDistance,
+      initialSpeedMps: crossingSpeed, finalSpeedMps: 0, speedLimitMps: crossingSpeed }),
+      returnPlan = buildLiveSpeedPlanV84({ profile, distanceMeters: overrunDistance, initialSpeedMps: 0, finalSpeedMps: 0 });
+    if (!brakePlan || !returnPlan) return null;
+    const brakingEnd = sprintDuration + brakePlan.durationSeconds,
+      returnRoute: RunnerRoute = { segments: [{ kind: 'line', start: stopPosition, end: bag }] },
+      offsetSegments = (plan: typeof brakePlan, time: number, distance: number) => plan.segments.map(s => ({ ...s,
+        startElapsedSeconds: s.startElapsedSeconds + time, endElapsedSeconds: s.endElapsedSeconds + time,
+        startDistanceMeters: s.startDistanceMeters + distance, endDistanceMeters: s.endDistanceMeters + distance }));
+    returnTouchDistance = sprintLength + overrunDistance + firstTouchDistance(returnRoute, bag, touchRadius, overrunDistance);
+    geometry = { ...geometry, route: { segments: [...geometry.route.segments,
+      { kind: 'line', start: bag, end: stopPosition }, ...returnRoute.segments] },
+      lengthMeters: sprintLength + 2 * overrunDistance };
+    // Offsetting the local return root into the full route may round a few ULPs
+    // outward. Require the same actual in-disk witness as the initial touch;
+    // advance only the derived path distance, never enlarge the physical bag.
+    for (let attempt = 0; attempt < 12; attempt++) {
+      if (norm(sub(sampleRunnerRoute(geometry.route, returnTouchDistance).position, bag)) <= touchRadius) break;
+      returnTouchDistance = Math.min(geometry.lengthMeters,
+        returnTouchDistance + Number.EPSILON * Math.max(1, geometry.lengthMeters) * 2 ** attempt);
+    }
+    if (norm(sub(sampleRunnerRoute(geometry.route, returnTouchDistance).position, bag)) > touchRadius)
+      throw new Error('live runner motion: planned first-base return lacks a physical touch');
+    timing = { segments: [...timing.segments, ...offsetSegments(brakePlan, sprintDuration, sprintLength),
+      ...offsetSegments(returnPlan, brakingEnd, sprintLength + overrunDistance)],
+      durationSeconds: brakingEnd + returnPlan.durationSeconds };
+    overrunDetails = { base: 1, baseCenterElapsedSeconds: sprintDuration, brakingEndElapsedSeconds: brakingEnd,
+      returnStartElapsedSeconds: brakingEnd, returnEndElapsedSeconds: timing.durationSeconds,
+      stopPosition, overrunDistanceMeters: overrunDistance };
+  }
   const elapsedSecondsAtDistanceMeters = (rawDistance: number) => {
     if (!Number.isFinite(rawDistance) || rawDistance < 0 || rawDistance > geometry.lengthMeters + EPSILON)
       throw new Error('live runner motion: distance must lie on finite route');
@@ -262,10 +323,11 @@ export function createLiveRunnerMotionV1(input: LiveRunnerMotionInputV1): LiveRu
   const sampleAtElapsedSeconds = (elapsed: number): LiveRunnerMotionSampleV1 => {
     if (!Number.isFinite(elapsed)) throw new Error('live runner motion: elapsed time must be finite');
     if (elapsed <= 0) return { position: { ...input.position }, velocity: { ...(input.velocity ?? { x: 0, z: 0 }) }, speedMps: initialSpeed, distanceMeters: 0 };
-    if (elapsed >= timing.durationSeconds) return { position: { ...input.bases[input.bases.length - 1].position }, velocity: { x: 0, z: 0 }, speedMps: 0, distanceMeters: geometry.lengthMeters };
+    if (elapsed >= timing.durationSeconds && !through) return { position: { ...input.bases[input.bases.length - 1].position }, velocity: { x: 0, z: 0 }, speedMps: 0, distanceMeters: geometry.lengthMeters };
     const s = timing.segments.find(s => elapsed <= s.endElapsedSeconds) ?? timing.segments[timing.segments.length - 1];
-    const dt = Math.max(0, elapsed - s.startElapsedSeconds);
-    const distance = Math.min(geometry.lengthMeters, Math.max(0, s.startDistanceMeters + s.startSpeedMps * dt + .5 * s.accelerationMps2 * dt * dt));
+    const dt = Math.max(0, Math.min(elapsed, timing.durationSeconds) - s.startElapsedSeconds);
+    const distance = through && elapsed >= timing.durationSeconds ? geometry.lengthMeters
+      : Math.min(geometry.lengthMeters, Math.max(0, s.startDistanceMeters + s.startSpeedMps * dt + .5 * s.accelerationMps2 * dt * dt));
     const point = sampleRunnerRoute(geometry.route, distance);
     const part = geometry.route.segments[point.segmentIndex],
       cap = part.kind === 'line' ? input.topSpeedMps : Math.min(input.topSpeedMps, Math.sqrt(lateral * part.radiusMeters)),
@@ -285,7 +347,19 @@ export function createLiveRunnerMotionV1(input: LiveRunnerMotionInputV1): LiveRu
       position: sampleRunnerRoute(geometry.route, distanceMeters).position,
       centerDistanceMeters, centerElapsedSeconds: elapsedSecondsAtDistanceMeters(centerDistanceMeters) };
   });
+  const firstBaseOverrunV95 = overrunDetails === undefined ? undefined : Object.freeze({ ...overrunDetails,
+    returnTouchElapsedSeconds: elapsedSecondsAtDistanceMeters(returnTouchDistance!) });
+  // A base-disk departure ends the previous physical contact. Returning is a
+  // new contact, required by the rule-fact consumer to establish actual safety
+  // at play end; retaining only logical currentBase=1 is not a substitute.
+  // Very short overruns can remain inside the disk throughout and add no touch.
+  if (firstBaseOverrunV95 && firstBaseOverrunV95.overrunDistanceMeters > touchRadius) touches.push({
+    base: 1, distanceMeters: returnTouchDistance!, elapsedSeconds: firstBaseOverrunV95.returnTouchElapsedSeconds,
+    position: sampleRunnerRoute(geometry.route, returnTouchDistance!).position,
+    centerDistanceMeters: geometry.lengthMeters, centerElapsedSeconds: timing.durationSeconds,
+  });
   return Object.freeze({ route: geometry.route, lengthMeters: geometry.lengthMeters,
     durationSeconds: timing.durationSeconds, speedSegments: timing.segments, touches,
+    ...(firstBaseOverrunV95 === undefined ? {} : { firstBaseOverrunV95 }),
     sampleAtElapsedSeconds, elapsedSecondsAtDistanceMeters });
 }

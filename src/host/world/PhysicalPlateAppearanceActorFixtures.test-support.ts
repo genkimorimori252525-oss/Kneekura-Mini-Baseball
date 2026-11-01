@@ -13,8 +13,8 @@ export type PhysicalPlateAppearanceActorFixtureGameIdentity = ContinuousPitchFix
 
 export const physicalPlateAppearanceActorFixture = (databasePath?: string, fixture?: Parameters<typeof continuousPitchFixture>[2], profile?: Parameters<typeof continuousPitchFixture>[3], rehabPlayerIds: readonly string[] = [],
   originalBaseCenters?: Parameters<typeof continuousPitchFixture>[5], originalDefenders?: Parameters<typeof continuousPitchFixture>[6],
-  initializeCalendar?: Parameters<typeof continuousPitchFixture>[7], identity?: PhysicalPlateAppearanceActorFixtureGameIdentity) => {
-  const f = continuousPitchFixture(databasePath, true, fixture, profile, rehabPlayerIds, originalBaseCenters, originalDefenders, initializeCalendar, identity);
+  initializeCalendar?: Parameters<typeof continuousPitchFixture>[7], identity?: PhysicalPlateAppearanceActorFixtureGameIdentity, fixtureGameDay?: number) => {
+  const f = continuousPitchFixture(databasePath, true, fixture, profile, rehabPlayerIds, originalBaseCenters, originalDefenders, initializeCalendar, identity, fixtureGameDay);
   const source: AcceptedPhysicalPlateAppearanceActor = { sourceId: identity?.actorSourceId ?? 'batter-1', sourceVersion: 'fixture-v1', gameId: f.gameId, playerId: 'away-1', initialWorldSourceId: f.initial.source.sourceId };
   const accepted = new Map<string, AcceptedPhysicalPlateAppearanceActor>([[source.sourceId, source]]);
   const sources = { matches: f.official, initialWorlds: f.initialWorlds, participation: f.participation };

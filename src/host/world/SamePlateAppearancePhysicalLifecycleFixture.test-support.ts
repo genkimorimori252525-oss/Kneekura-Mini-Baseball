@@ -32,12 +32,13 @@ import { prepareSamePaInitialPlayFixture, samePaInitialPlayDefenders, type SameP
 /** Source-only synthetic ownership fixture. It performs the two earlier TAKEs
  * through the real owners, then exposes a current accepted lifecycle view.
  * No returned actor/view is manufactured or supplied to a production writer. */
-export const samePaPhysicalLifecycleFixture=(options:Readonly<{explicitBatterObservation?:AcceptedBattingObservationCalibration['values'];explicitDefenderObservation?:PlayerObservationCalibration;explicitBatterMotor?:AcceptedBattingCapability['values'];explicitDefenderLocomotion?:PlayerLocomotionCalibration;profile?:NonNullable<Parameters<typeof directNativeDispatchFixture>[0]>['profile'];originalBaseCenters?:NonNullable<Parameters<typeof directNativeDispatchFixture>[0]>['originalBaseCenters'];originalDefenders?:NonNullable<Parameters<typeof directNativeDispatchFixture>[0]>['originalDefenders'];initialPlay?:SamePaInitialPlayFixtureInputs;explicitDefenderGloveOffsets?:Readonly<Record<string,Vec3>>}>={})=>{
+export const samePaPhysicalLifecycleFixture=(options:Readonly<{explicitBatterObservation?:AcceptedBattingObservationCalibration['values'];explicitDefenderObservation?:PlayerObservationCalibration;explicitBatterMotor?:AcceptedBattingCapability['values'];explicitDefenderLocomotion?:PlayerLocomotionCalibration;profile?:NonNullable<Parameters<typeof directNativeDispatchFixture>[0]>['profile'];modelDay?:NonNullable<Parameters<typeof directNativeDispatchFixture>[0]>['modelDay'];fixtureGameDay?:number;prepareBeforeEnrollment?:Parameters<typeof directNativeDispatchFixture>[2];onFixtureStage?:Parameters<typeof directNativeDispatchFixture>[3];originalBaseCenters?:NonNullable<Parameters<typeof directNativeDispatchFixture>[0]>['originalBaseCenters'];originalDefenders?:NonNullable<Parameters<typeof directNativeDispatchFixture>[0]>['originalDefenders'];initialPlay?:SamePaInitialPlayFixtureInputs;explicitDefenderGloveOffsets?:Readonly<Record<string,Vec3>>}>={})=>{
   const originalDefenders=options.initialPlay===undefined?options.originalDefenders:samePaInitialPlayDefenders(options.originalDefenders);
-  const f=directNativeDispatchFixture({profile:options.profile,originalBaseCenters:options.originalBaseCenters,originalDefenders}),accepted=new Map<string,unknown>(),track=f.x.f.track;
+  const f=directNativeDispatchFixture({profile:options.profile,modelDay:options.modelDay,fixtureGameDay:options.fixtureGameDay,originalBaseCenters:options.originalBaseCenters,originalDefenders},undefined,options.prepareBeforeEnrollment,options.onFixtureStage),accepted=new Map<string,unknown>(),track=f.x.f.track;
   const save=<T extends {sourceId:string}>(s:T):T=>{accepted.set(s.sourceId,s);return s;};
   try{
     const original=f.acceptedAction.source,sceneBodyReferences=prepareSamePaSceneBodies(f,options.explicitDefenderGloveOffsets);
+    options.onFixtureStage?.('lifecycle-scene-bodies-ready');
     if(original.variant!=='declared_take_v1')throw new Error('legacy TAKE fixture requires a declared take');
     const genesisSource=save({sourceId:'physical-fixture:emotion-genesis',sourceVersion:'fixture-only-v1',capability:'owned_batting_emotion_genesis_v1',
       viewReference:original.viewReference,member:deriveSamePaDispatchRoles(f.actor,f.view)[0].member,policy:policy(),provenance:{assessmentSourceId:'physical-fixture:genesis-assessment',
@@ -46,6 +47,7 @@ export const samePaPhysicalLifecycleFixture=(options:Readonly<{explicitBatterObs
     const genesis=genesisOwner.acceptGenesis(genesisSource.sourceId);if(genesis.kind!=='batting_emotion_genesis')throw new Error('real original genesis pending');
     const worldOwner=track(openSqliteWorldControlStore(f.path));worldOwner.initialize({careerId:f.actor.binding.careerId,worldRevision:0,
       control:{schemaVersion:1,revision:0,controllerId:'explicit-fixture-controller',controlledClubId:null,domainIds:['BATTING'],manualDomainIds:[]}});
+    options.onFixtureStage?.('lifecycle-emotion-world-ready');
     const dispatch=track(openSqliteSamePlateAppearanceDispatchStore(f.path,{readAcceptedConsumerSet:id=>accepted.get(id),readAcceptedEpisode:id=>accepted.get(id),
       readAcceptedRight:id=>accepted.get(id),readAcceptedPhysicalPitch:id=>accepted.get(id)}));
     const base={sourceVersion:'fixture-only-v1',enrollmentReference:original.enrollmentReference,viewReference:original.viewReference,firstPhysicalPitchSourceId:original.firstPhysicalPitchSourceId};
@@ -53,17 +55,21 @@ export const samePaPhysicalLifecycleFixture=(options:Readonly<{explicitBatterObs
       participantInputs:deriveSamePaDispatchRoles(f.actor,f.view).map(role=>({member:role.member,calibrationReferences:f.acceptedCalibrations.calibrations.filter(c=>c.source.member.playerId===role.member.playerId)
         .map(c=>({route:c.source.route,calibrationReference:reference('pa_dispatch_v1_execution_calibrations',c)}))}))});
     const consumers=dispatch.acceptConsumerSet(consumersSource.sourceId);if(consumers.kind!=='consumer_set_prepared')throw new Error('real fixture consumers pending');
+    options.onFixtureStage?.('lifecycle-consumers-ready');
     const consumerSetReference=reference('pa_dispatch_v1_consumer_sets',consumers);
     const episodeSource=save({...base,sourceId:'physical-fixture:episode',capability:'same_pa_first_pitch_episode_v1',actionReference:f.request.actionReference,consumerSetReference});
     const episode=dispatch.acceptEpisode(episodeSource.sourceId);if(episode.kind!=='prospective_episode_prepared')throw new Error('real fixture episode pending');
+    options.onFixtureStage?.('lifecycle-episode-ready');
     const rightSource=save({...base,sourceId:'physical-fixture:right',capability:'same_pa_first_pitch_right_v1',actionReference:f.request.actionReference,consumerSetReference,
       episodeReference:reference('pa_dispatch_v1_episodes',episode),prefixReference:f.view.source.prefixReference});
     const right=dispatch.acceptRight(rightSource.sourceId);if(right.kind!=='immutable_right_prepared')throw new Error('real fixture right pending');
+    options.onFixtureStage?.('lifecycle-right-ready');
     const initialPlay=options.initialPlay===undefined?null:prepareSamePaInitialPlayFixture(f,accepted,sceneBodyReferences,options.initialPlay);
     save(initialPlay===null
       ?{sourceId:original.firstPhysicalPitchSourceId,sourceVersion:'fixture-only-v1',capability:'same_pa_physical_pitch_v1',actionReference:f.request.actionReference,rightReference:reference('pa_dispatch_v1_rights',right)}
       :{sourceId:original.firstPhysicalPitchSourceId,sourceVersion:'fixture-only-v1',capability:'same_pa_physical_pitch_v2',actionReference:f.request.actionReference,rightReference:reference('pa_dispatch_v1_rights',right),initialPlayReference:initialPlay.initialPlayReference});
     const first=dispatch.acceptPhysicalPitch(original.firstPhysicalPitchSourceId);if(first.kind==='pending')throw new Error('real fixture first TAKE pending');
+    options.onFixtureStage?.('lifecycle-first-take-ready');
     return {...prepareSamePaPhysicalLifecycleContinuation(f,accepted,first,sceneBodyReferences,genesis,worldOwner,options),
       ...(initialPlay===null?{}:{initialPlay})};
   }catch(e){f.close();throw e;}
@@ -90,7 +96,7 @@ export const prepareSamePaPhysicalLifecycleContinuation = <F extends SamePaPhysi
   worldOwner: ReturnType<typeof openSqliteWorldControlStore>,
   options: Readonly<{ explicitBatterObservation?: AcceptedBattingObservationCalibration['values'];
     explicitDefenderObservation?: PlayerObservationCalibration; explicitBatterMotor?: AcceptedBattingCapability['values'];
-    explicitDefenderLocomotion?: PlayerLocomotionCalibration }> = {}, label = 'physical-fixture') => {
+    explicitDefenderLocomotion?: PlayerLocomotionCalibration; onFixtureStage?: (name: string) => void }> = {}, label = 'physical-fixture') => {
   const track = f.x.f.track, original = f.acceptedAction.source;
   if(original.variant!=='declared_take_v1')throw new Error('legacy TAKE fixture requires a declared take');
   const save = <T extends { sourceId: string }>(source: T): T => { accepted.set(source.sourceId, source); return source; };
@@ -105,13 +111,15 @@ export const prepareSamePaPhysicalLifecycleContinuation = <F extends SamePaPhysi
   // The same explicit cumulative effort2 declaration used by the prior Native
   // fixture is supplied independently for every original participant at each cut.
   const efforts=Object.fromEntries(first.lineage.participantReferences.map(p=>[p.playerId,2]));
-  const anchor=prepareSamePaNonemptyFixture(f,first,label+':anchor',efforts,[]),member=anchor.basis.members.find(m=>m.playerId===f.actor.binding.playerId)!;
+  const anchor=prepareSamePaNonemptyFixture(f,first,label+':anchor',efforts,[],options.onFixtureStage),member=anchor.basis.members.find(m=>m.playerId===f.actor.binding.playerId)!;
+  options.onFixtureStage?.('lifecycle-anchor-ready');
   const next=track(openSqliteSamePlateAppearanceTakeSuccessorStore(f.path,{readAcceptedAction:id=>accepted.get(id),readAcceptedSetup:id=>accepted.get(id),readAcceptedPhysicalPitch:id=>accepted.get(id)}));
   const readyAtUs=Math.max(first.result.delivery.timeline.followThroughEndUs,anchor.view.evaluationTick);
   const secondActionSource=save({sourceId:label+':second-action',sourceVersion:'fixture-only-v1',capability:'same_pa_next_take_action_v1',viewReference:anchor.viewReference,
     previousPitchReference:reference('pa_dispatch_v1_pitch_actions',first),nominalPitch:{...original.nominalPitch,delivery:{...original.nominalPitch.delivery,readyAtUs}},
     timingReference:original.timingReference,releaseReference:original.releaseReference,pitchResponseReference:original.pitchResponseReference,batterModelReference:original.batterModelReference});
   const secondAction=next.acceptAction(secondActionSource.sourceId);if(secondAction.kind==='pending')throw new Error('real second action pending');
+  options.onFixtureStage?.('lifecycle-second-action-ready');
   const geometry={kind:'stationary_pre_pitch_scene_v1' as const,startedAtTick:secondAction.bodyCut.completedAtTick,validUntilTick:Math.min(readyAtUs+20_000_000,throughTick),ticksPerSecond:1_000_000,
     handedness:'R' as const,centerOfMass:{x:-0.78,y:1,z:-0.16},eyePosition:{x:-0.78,y:1.6,z:-0.16},observerForward:{x:0,y:0,z:1},
     attention:{target:{kind:'ball' as const},focusedSinceTick:secondAction.bodyCut.completedAtTick},bodyReadyTick:readyAtUs,latestMotorStartTick:readyAtUs,
@@ -121,15 +129,19 @@ export const prepareSamePaPhysicalLifecycleContinuation = <F extends SamePaPhysi
     member,actionReference:reference('pa_take_successor_v1_action_plans',secondAction),nextPhysicalPitchSourceId:label+':second-pitch',modelReference:original.batterModelReference,
     sceneBodyReferences,geometry,...occupiedPosture,provenance:{assessmentSourceId:label+':second-posture-assessment',assessmentVersion:'fixture-only-v1',calibrationSourceId:'existing-explicit-Core-fixture',calibrationVersion:'fixture-only-v1'}});
   const posture=perception.acceptPosture(postureSource.sourceId);if(posture.kind!=='batting_invocation_posture')throw new Error('real second posture pending');
+  options.onFixtureStage?.('lifecycle-second-posture-ready');
   const setupSource=save({sourceId:label+':second-setup',sourceVersion:'fixture-only-v1',capability:'same_pa_retained_take_setup_v1',actionReference:reference('pa_take_successor_v1_action_plans',secondAction),
     postureReference:reference('batting_observation_v1_postures',posture),nextPhysicalPitchSourceId:postureSource.nextPhysicalPitchSourceId,
     participantInputs:anchor.basis.members.map(m=>({member:m,calibrationReferences:anchor.calibrationSet.calibrations.filter(c=>c.source.member.playerId===m.playerId)
       .map(c=>({route:c.source.route,calibrationReference:reference('pa_continuation_v1_execution_calibrations',c)}))}))});
   const setup=next.acceptSetup(setupSource.sourceId);if(setup.kind==='pending')throw new Error('real second setup pending');
+  options.onFixtureStage?.('lifecycle-second-setup-ready');
   save({sourceId:postureSource.nextPhysicalPitchSourceId,sourceVersion:'fixture-only-v1',capability:'same_pa_successor_take_pitch_v1',actionReference:setupSource.actionReference,setupReference:reference('pa_take_successor_v1_setups',setup)});
   const second=next.acceptPhysicalPitch(postureSource.nextPhysicalPitchSourceId);if(second.kind==='pending')throw new Error('real second TAKE pending');
+  options.onFixtureStage?.('lifecycle-second-take-ready');
   const events:SamePaLifecycleWorkReference[]=[reference('pa_take_successor_v1_pitch_actions',second)];
   const basis=prepareSamePaLifecycleFixture(f,anchor.viewReference,[...events],label+':cut0',efforts,options.explicitBatterObservation,options.explicitDefenderObservation,options.explicitBatterMotor,options.explicitDefenderLocomotion);
+  options.onFixtureStage?.('lifecycle-first-cut-ready');
   return completeSamePaPhysicalLifecycleFromCutFixture(f, accepted,
     { first, second, anchor, basis, sceneBodyReferences, geometry, genesis, worldOwner, roles, throughTick }, options, label);
 };

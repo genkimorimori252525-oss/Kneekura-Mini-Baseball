@@ -1,12 +1,14 @@
+import {commandFor} from './LivePracticeCommandV273';
+import {resolveLiveRobustContactFrameMotorPracticeV248} from './LiveRobustContactFrameMotorV248';
 import {resolveLiveContactFrameMotorPracticeV244} from './LiveContactFrameMotorV244';
-import {parsePracticeSwingDecisionV241} from './PracticeSwingDecisionV241';
+
 import {declareSpinPracticeEpisodesV242,deriveSpinEpisodeConfigurationV242,type LiveSpinEpisodePlanV242} from './LiveSpinPracticeEpisodesV242';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { resolveLiveBattingSetupV94 } from '../../core/sim/pitching/BattingSetupV94';
 import { hashLiveSpinPracticeProofV239,encodeLiveSpinPracticeProofV239 } from './LiveSpinPracticeProofV239';
-import { validateLiveSpinMotorV239,validateLiveSpinPracticeCriterionV239,resolveLiveSpinMotorPracticeV239,evaluateLiveSpinMotorPracticeV239,evaluateLiveContactFrameMotorPracticeV244,type LiveSpinMotorV239,type LiveSpinPracticeCriterionV239,type LiveSpinPracticeCohortV239,type LiveSpinPracticeTrialV239 } from './LiveSpinMotorPracticeV239';
+import { validateLiveSpinMotorV239,validateLiveSpinPracticeCriterionV239,resolveLiveSpinMotorPracticeV239,evaluateLiveSpinMotorPracticeV239,evaluateLiveContactFrameMotorPracticeV244,evaluateLiveRobustContactFrameMotorPracticeV248,type LiveSpinMotorV239,type LiveSpinPracticeCriterionV239,type LiveSpinPracticeCohortV239,type LiveSpinPracticeTrialV239 } from './LiveSpinMotorPracticeV239';
 import {
-  cloneMatchInputWithMeasuredCatalogV68, createLiveBaseballMatchWorkerV116,resolveLiveMatchPlayerPhysicalV98,isLiveBaseballUnresolvedV239,type LiveBaseballUnresolvedV239,
+  cloneMatchInputWithMeasuredCatalogV68, createLiveBaseballMatchWorkerV116,calculateLiveRobustEpisodePairV273,calculateLiveYawEpisodeDiagnosticV274,calculateLiveYawEpisodeDiagnosticV275,calculateLiveYawEpisodeDiagnosticV276,resolveLiveMatchPlayerPhysicalV98,isLiveBaseballUnresolvedV239,type LiveBaseballUnresolvedV239,
   type LiveIssuedPitchV1, type LiveMatchContinuationV116, type LiveMatchInputV1, type LivePitchCommandV1,
 } from './LiveBaseballMatchV1';
 
@@ -34,9 +36,10 @@ export type LiveSpinPracticeSidecarV239=Readonly<{version:'live_spin_practice_si
  phase:'ACTIVE'|'CLOSED'|'INTERRUPTED';closeBoundary:Readonly<{continuation:LiveMatchContinuationV116;physicsRevision:number;sidecarRevision:number}>|null;normalTail:readonly SpinNormalTailV239[];normalTailHashAuthority:'NOT_HASHED';
  plan:LiveSpinPracticePlanV239;slots:readonly SpinSlotV239[];cohort:LiveSpinPracticeCohortV239|null;sidecarRevision:number;entries:readonly SpinEntryV239[];evaluation:ReturnType<typeof evaluateLiveSpinMotorPracticeV239>|PendingSpinEvaluationV239}>;
 export type LiveSpinPracticeCandidateV239=Readonly<{version:'live_spin_practice_candidate_v239';physicsRevision:number;sidecarRevision:number;entry:SpinEntryV239}>;
-type EpisodeStepV242=Readonly<{kind:'PREFIX'|'TARGET'|'PA_TAIL'|'HOLD';before:LiveMatchContinuationV116;after:LiveMatchContinuationV116|null;normalAfter:LiveMatchContinuationV116|null;normalRecord:LiveIssuedPitchV1|null;trialRecord:LiveIssuedPitchV1|null;hold:Readonly<{attempt:'NORMAL'|'TRIAL';unresolved:LiveBaseballUnresolvedV239}>|null;physicalFingerprint:string|null;identity:string|null}>;
+type RobustUnresolvedV248=Readonly<{version:'live_robust_contact_frame_unresolved_v248';reason:string}>;
+type EpisodeStepV242=Readonly<{pairModeV273?:Readonly<{version:'live_robust_pair_mode_v273';selection:'NEUTRAL_POLICY_SUPPRESSED_BOTH_BRANCHES'}>;kind:'PREFIX'|'TARGET'|'PA_TAIL'|'HOLD';before:LiveMatchContinuationV116;after:LiveMatchContinuationV116|null;normalAfter:LiveMatchContinuationV116|null;normalRecord:LiveIssuedPitchV1|null;trialRecord:LiveIssuedPitchV1|null;hold:Readonly<{attempt:'NORMAL'|'TRIAL';unresolved:LiveBaseballUnresolvedV239|RobustUnresolvedV248}>|null;physicalFingerprint:string|null;identity:string|null}>;
 type EpisodeSlotV242=Readonly<{index:number;seed:number;episodeId:string;initial:LiveMatchContinuationV116|null;transition:Readonly<{fromIndex:number;fromContinuation:LiveMatchContinuationV116;toInitial:LiveMatchContinuationV116}>|null;steps:readonly EpisodeStepV242[];ended:boolean}>;
-export type LiveSpinEpisodesSidecarV242=Readonly<{version:'live_spin_practice_episodes_sidecar_v242';baseConfigurationHash:string;planHash:string;plan:LiveSpinEpisodePlanV242;normalRequest:LiveBattingPracticeRequestV150;phase:'ACTIVE'|'ENDED'|'CLOSED'|'INTERRUPTED';globalRevision:number;globalAcceptedPitchCount:number;activeIndex:number;slots:readonly EpisodeSlotV242[];normalTail:readonly SpinNormalTailV239[];evaluation:ReturnType<typeof evaluateLiveSpinMotorPracticeV239>|ReturnType<typeof evaluateLiveContactFrameMotorPracticeV244>|PendingSpinEvaluationV239;earnedQualification:false;nativeQualification:false}>;
+export type LiveSpinEpisodesSidecarV242=Readonly<{version:'live_spin_practice_episodes_sidecar_v242';baseConfigurationHash:string;planHash:string;plan:LiveSpinEpisodePlanV242;normalRequest:LiveBattingPracticeRequestV150;phase:'ACTIVE'|'ENDED'|'CLOSED'|'INTERRUPTED';globalRevision:number;globalAcceptedPitchCount:number;activeIndex:number;slots:readonly EpisodeSlotV242[];normalTail:readonly SpinNormalTailV239[];evaluation:ReturnType<typeof evaluateLiveSpinMotorPracticeV239>|ReturnType<typeof evaluateLiveContactFrameMotorPracticeV244>|ReturnType<typeof evaluateLiveRobustContactFrameMotorPracticeV248>|PendingSpinEvaluationV239;earnedQualification:false;nativeQualification:false}>;
 export type LiveSpinEpisodeCandidateV242=Readonly<{version:'live_spin_episode_candidate_v242';globalRevision:number;step:EpisodeStepV242}>;
 const episodeCandidatesV242=new WeakMap<LiveSpinEpisodeCandidateV242,Readonly<{session:object;sidecar:LiveSpinEpisodesSidecarV242;inspection:HostInspection|null}>>();
 type SpinCandidateOwnerV239=Readonly<{session:object;physicsRevision:number;sidecarRevision:number;entry:SpinEntryV239;inspection:HostInspection|null}>;
@@ -75,15 +78,6 @@ function readCapture(raw:unknown):LiveBattingPracticeCaptureV150 {
     header.version === 'live_batting_practice_capture_v150' && Number.isSafeInteger(header.revision) && header.revision >= 0,
   'invalid capture');
   return { ...header, configuration:cloneMatchInputWithMeasuredCatalogV68(configuration.value) };
-}
-const requestFields = ['batting', 'swingInstructionV121', 'battingDirectionRequestV149', 'observedSpinTrialV236', 'spinMotorPracticePolicyV239', 'practiceSwingDecisionV241', 'managerCommunicationV122', 'batterEvidenceV122', 'baserunning', 'randomnessV152'];
-function commandFor(raw:LiveBattingPracticeRequestV150, offense:0|1):LivePitchCommandV1 {
-  const request = cloneInert(raw);
-  assert(request && typeof request === 'object' && !Array.isArray(request) &&
-    Object.keys(request).every(key => requestFields.includes(key)), 'offense-only request required');
-  if(request.practiceSwingDecisionV241!==undefined){const decision=parsePracticeSwingDecisionV241(request.practiceSwingDecisionV241);
-    assert(request.managerCommunicationV122===undefined&&!(decision.mode==='SWING'&&request.batting==='take'),'conflicting swing decision');}
-  return { ...request, managedTeam:offense, pitchType:'auto', location:'auto' };
 }
 
 /** A speculative worker owns each preview. Only accepting its authentic,
@@ -204,7 +198,7 @@ export function createLiveBattingPracticeV150(rawInput:LiveMatchInputV1, rawResu
     assert(sameConfiguration(plan,verified),'episode plan differs from declaration');const request=cloneInert(rawRequest);
     assert(!Object.hasOwn(request,'observedSpinTrialV236')&&!Object.hasOwn(request,'spinMotorPracticePolicyV239'),'episode normal request contains trial');commandFor(request,0);
     const nextConfiguration=deriveSpinEpisodeConfigurationV242(plan,0,configuration),host=createLiveBaseballMatchWorkerV116(nextConfiguration),initial=host.captureContinuationV116();
-    const semanticPlan={version:plan.version,motor:{version:plan.motor.version,subjectId:plan.motor.subjectId,technique:plan.motor.technique,clip:plan.motor.clip,domain:plan.motor.domain,...(plan.motor.version==='live_spin_xy_motor_v239'?{delta:plan.motor.delta}:{policy:plan.motor.policy,thresholds:plan.motor.thresholds}),trainingOpportunities:plan.motor.trainingOpportunities},criterion:plan.criterion,selection:plan.selection,start:plan.start,timeScope:plan.timeScope,memoryPrior:plan.memoryPrior,workload:plan.workload,episodes:plan.episodes};
+    const semanticPlan={version:plan.version,motor:{version:plan.motor.version,subjectId:plan.motor.subjectId,technique:plan.motor.technique,clip:plan.motor.clip,domain:plan.motor.domain,...(plan.motor.version==='live_spin_xy_motor_v239'?{delta:plan.motor.delta}:plan.motor.version==='live_contact_frame_motor_v244'?{policy:plan.motor.policy,thresholds:plan.motor.thresholds}:{policy:plan.motor.policy,thresholds:plan.motor.thresholds,maximumEvaluations:plan.motor.maximumEvaluations,maximumSearchSamples:plan.motor.maximumSearchSamples}),trainingOpportunities:plan.motor.trainingOpportunities},criterion:plan.criterion,selection:plan.selection,start:plan.start,timeScope:plan.timeScope,memoryPrior:plan.memoryPrior,workload:plan.workload,episodes:plan.episodes};
     const [baseConfigurationHash,planHash]=await Promise.all([hashLiveSpinPracticeProofV239(configuration),hashLiveSpinPracticeProofV239(semanticPlan)]);
     assert(!spin&&!episodes&&revision===0,'episode practice changed while starting');
     const slots=plan.episodes.map((e,i)=>({index:e.index,seed:e.seed,episodeId:baseConfigurationHash+':'+planHash+':'+e.index+':'+e.seed,initial:i===0?initial:null,transition:null,steps:[],ended:false}));
@@ -220,21 +214,33 @@ export function createLiveBattingPracticeV150(rawInput:LiveMatchInputV1, rawResu
     const {practiceSwingDecisionV241:targetIntent,...ordinaryRequest}=state.normalRequest;
     const normalRequest=isCurrentTarget?{...state.normalRequest,spinMotorPracticePolicyV239:policy}:ordinaryRequest;
     const normalCommand=commandFor(normalRequest,offense);let normalRecord:LiveIssuedPitchV1|null=null,trialRecord:LiveIssuedPitchV1|null=null,after:LiveMatchContinuationV116|null=null,normalAfter:LiveMatchContinuationV116|null=null,afterInspection:HostInspection|null=null,hold:EpisodeStepV242['hold']=null;
+    const pairedV273=isTarget&&motor.version==='live_robust_contact_frame_motor_v248'&&activeConfiguration.batterNeutralReactivePolicyV272?.version==='live_neutral_reactive_pair_policy_v273';
+    if(pairedV273){
+      const pair=calculateLiveRobustEpisodePairV273({configuration,plan:state.plan,slotIndex:state.activeIndex,before,normalRequest:state.normalRequest});
+      if(pair.kind==='NORMAL_HOLD')hold={attempt:'NORMAL',unresolved:pair.unresolved};
+      else {normalRecord=pair.normalRecord;normalAfter=pair.normalAfter;if(pair.kind==='TRIAL_HOLD')hold={attempt:'TRIAL',unresolved:pair.unresolved};else{trialRecord=pair.trialRecord;after=pair.after;afterInspection=pair.inspection}}
+    }else{
     try{const host=createLiveBaseballMatchWorkerV116(activeConfiguration,before);normalRecord=host.issuePitch(normalCommand);normalAfter=host.captureContinuationV116();after=normalAfter;afterInspection=host.inspect()}
     catch(error){if(!isLiveBaseballUnresolvedV239(error))throw error;hold={attempt:'NORMAL',unresolved:error.unresolvedV239}}
-    if(isTarget&&!hold){const selection=motor.version==='live_spin_xy_motor_v239'?resolveLiveSpinMotorPracticeV239({mode:'PRACTICE_EXPLICIT',subjectId:motor.subjectId,technique:motor.technique,clip:motor.clip,domain:motor.domain,motors:[motor]}):resolveLiveContactFrameMotorPracticeV244({mode:'PRACTICE_EXPLICIT',subjectId:motor.subjectId,technique:motor.technique,clip:motor.clip,domain:motor.domain,motors:[motor]});assert(selection.status==='READY_PRACTICE','episode motor unavailable');
+    if(isTarget&&!hold){const selection=motor.version==='live_spin_xy_motor_v239'?resolveLiveSpinMotorPracticeV239({mode:'PRACTICE_EXPLICIT',subjectId:motor.subjectId,technique:motor.technique,clip:motor.clip,domain:motor.domain,motors:[motor]}):motor.version==='live_contact_frame_motor_v244'?resolveLiveContactFrameMotorPracticeV244({mode:'PRACTICE_EXPLICIT',subjectId:motor.subjectId,technique:motor.technique,clip:motor.clip,domain:motor.domain,motors:[motor]}):resolveLiveRobustContactFrameMotorPracticeV248({mode:'PRACTICE_EXPLICIT',subjectId:motor.subjectId,technique:motor.technique,clip:motor.clip,domain:motor.domain,motors:[motor]});assert(selection.status==='READY_PRACTICE','episode motor unavailable');
       try{const host=createLiveBaseballMatchWorkerV116(activeConfiguration,before);trialRecord=host.issuePitch(commandFor({...normalRequest,observedSpinTrialV236:selection.request},offense));after=host.captureContinuationV116();afterInspection=host.inspect()}
       catch(error){if(!isLiveBaseballUnresolvedV239(error))throw error;hold={attempt:'TRIAL',unresolved:error.unresolvedV239};after=null;afterInspection=null}
     }
+    }
     let physicalFingerprint:string|null=null,identity:string|null=null;
     if(isTarget&&!hold){assert(normalRecord&&trialRecord,'episode pair missing');
-      const normalDiagnostics=normalRecord.play.diagnostics as {sourceDescriptor?:unknown},trialDiagnostics=trialRecord.play.diagnostics as {sourceDescriptor?:unknown;observedSpinComposeV238?:{version:string;status:string;subjectId:string;technique:string;clip:unknown;requestedDelta:unknown};observedSpinContactFrameV244?:{version:string;status:string;subjectId:string;technique:string;clip:unknown;domain:unknown;policy:unknown;thresholds:unknown;selectedDelta:unknown;reason:unknown}};
+      const normalDiagnostics=normalRecord.play.diagnostics as {sourceDescriptor?:unknown},trialDiagnostics=trialRecord.play.diagnostics as {sourceDescriptor?:unknown;observedSpinComposeV238?:{version:string;status:string;subjectId:string;technique:string;clip:unknown;requestedDelta:unknown};observedSpinContactFrameV244?:{version:string;status:string;subjectId:string;technique:string;clip:unknown;domain:unknown;policy:unknown;thresholds:unknown;selectedDelta:unknown;reason:unknown};observedSpinRobustContactFrameV248?:{version:string;status:string;subjectId:string;technique:string;clip:unknown;domain:unknown;policy:unknown;thresholds:unknown;maximumEvaluations:unknown;maximumSearchSamples:unknown;selectedDelta:unknown;reason:unknown}};
       if(motor.version==='live_spin_xy_motor_v239'){const diagnostic=trialDiagnostics.observedSpinComposeV238;
        assert(diagnostic&&diagnostic.version==='live_observed_spin_compose_result_v238'&&['NO_TARGET','PLANNED'].includes(diagnostic.status)&&diagnostic.subjectId===motor.subjectId&&diagnostic.technique===motor.technique&&sameConfiguration(diagnostic.clip,motor.clip)&&sameConfiguration(diagnostic.requestedDelta,motor.delta),'episode diagnostic differs');
-      }else{const diagnostic=trialDiagnostics.observedSpinContactFrameV244;
+      }else if(motor.version==='live_contact_frame_motor_v244'){const diagnostic=trialDiagnostics.observedSpinContactFrameV244;
        assert(diagnostic&&diagnostic.version==='live_observed_spin_contact_frame_result_v244'&&['NO_TARGET','PLANNED'].includes(diagnostic.status)&&diagnostic.subjectId===motor.subjectId&&diagnostic.technique===motor.technique&&sameConfiguration(diagnostic.clip,motor.clip)&&sameConfiguration(diagnostic.domain,motor.domain)&&diagnostic.policy===motor.policy&&sameConfiguration(diagnostic.thresholds,motor.thresholds)&&typeof diagnostic.reason==='string'&&diagnostic.reason.length>0,'episode diagnostic differs');
        const d=diagnostic.selectedDelta;assert(diagnostic.status==='NO_TARGET'?d===null:!!d&&typeof d==='object'&&Object.keys(d).sort().join('|')==='x|y|z'&&Object.values(d).every(v=>typeof v==='number'&&Number.isFinite(v)),'episode selected delta differs');
        assert(!Object.hasOwn(normalRecord.command,'observedSpinTrialV236')&&sameConfiguration(trialRecord.command.observedSpinTrialV236,{version:'live_observed_contact_frame_trial_v244',subjectId:motor.subjectId,technique:motor.technique,clip:motor.clip,domain:motor.domain,policy:motor.policy,thresholds:motor.thresholds}),'episode request differs');
+      }else{const diagnostic=trialDiagnostics.observedSpinRobustContactFrameV248;
+       assert(diagnostic&&diagnostic.version==='live_observed_spin_robust_contact_frame_result_v248'&&['NO_TARGET','PLANNED','UNRESOLVED'].includes(diagnostic.status)&&diagnostic.subjectId===motor.subjectId&&diagnostic.technique===motor.technique&&sameConfiguration(diagnostic.clip,motor.clip)&&sameConfiguration(diagnostic.domain,motor.domain)&&diagnostic.policy===motor.policy&&sameConfiguration(diagnostic.thresholds,motor.thresholds)&&diagnostic.maximumEvaluations===motor.maximumEvaluations&&diagnostic.maximumSearchSamples===motor.maximumSearchSamples&&typeof diagnostic.reason==='string'&&diagnostic.reason.length>0,'episode diagnostic differs');
+       const d=diagnostic.selectedDelta;assert(diagnostic.status!=='PLANNED'?d===null:!!d&&typeof d==='object'&&Object.keys(d).sort().join('|')==='x|y|z'&&Object.values(d).every(v=>typeof v==='number'&&Number.isFinite(v)),'episode selected delta differs');
+       assert(!Object.hasOwn(normalRecord.command,'observedSpinTrialV236')&&sameConfiguration(trialRecord.command.observedSpinTrialV236,{version:'live_observed_robust_contact_frame_trial_v248',subjectId:motor.subjectId,technique:motor.technique,clip:motor.clip,domain:motor.domain,policy:motor.policy,thresholds:motor.thresholds,maximumEvaluations:motor.maximumEvaluations,maximumSearchSamples:motor.maximumSearchSamples}),'episode request differs');
+       if(diagnostic.status==='UNRESOLVED'){hold={attempt:'TRIAL',unresolved:{version:'live_robust_contact_frame_unresolved_v248',reason:diagnostic.reason as string}};after=null;afterInspection=null;}
       }
       assert(normalRecord.batterPlayerId===motor.subjectId&&trialRecord.batterPlayerId===motor.subjectId&&normalRecord.pitcherPlayerId===trialRecord.pitcherPlayerId&&sameConfiguration(normalRecord.beforeMatch,trialRecord.beforeMatch)&&sameConfiguration(normalDiagnostics.sourceDescriptor,trialDiagnostics.sourceDescriptor),'episode pair differs');
       assert(sameConfiguration(normalRecord.command.spinMotorPracticePolicyV239,policy)&&sameConfiguration(trialRecord.command.spinMotorPracticePolicyV239,policy),'episode policies differ');
@@ -244,22 +250,44 @@ export function createLiveBattingPracticeV150(rawInput:LiveMatchInputV1, rawResu
       identity=await hashLiveSpinPracticeProofV239({baseConfigurationHash:state.baseConfigurationHash,planHash:state.planHash,index:slot.index,seed:slot.seed,before,physicalFingerprint});
     }
     assert(episodes===state&&revision===localRevision&&sameConfiguration(continuation,before),'episode preview became stale');
-    const step:EpisodeStepV242=frozen({kind:hold?'HOLD':kind,before,after:hold?null:after,normalAfter,normalRecord,trialRecord,hold,physicalFingerprint,identity}),candidate=frozen({version:'live_spin_episode_candidate_v242' as const,globalRevision:state.globalRevision,step});
+    const step:EpisodeStepV242=frozen({...(pairedV273?{pairModeV273:{version:'live_robust_pair_mode_v273' as const,selection:'NEUTRAL_POLICY_SUPPRESSED_BOTH_BRANCHES' as const}}:{}),kind:hold?'HOLD':kind,before,after:hold?null:after,normalAfter,normalRecord,trialRecord,hold,physicalFingerprint,identity}),candidate=frozen({version:'live_spin_episode_candidate_v242' as const,globalRevision:state.globalRevision,step});
     episodeCandidatesV242.set(candidate,{session,sidecar:state,inspection:afterInspection});return candidate;
+  }
+  /** Read-only, non-adopting paired diagnostic; no candidate is registered for accept. */
+  async function previewEpisodeYawDiagnosticV274(){
+    const state=episodes;assert(state?.phase==='ACTIVE','yaw diagnostic episode is not active');const slot=state.slots[state.activeIndex],before=continuation,localRevision=revision;
+    assert(slot&&!slot.ended&&slot.initial&&state.plan.motor.version==='live_contact_frame_motor_v244'&&inspection.batterPlayerId===state.plan.motor.subjectId&&!slot.steps.some(x=>x.kind==='TARGET'),'yaw diagnostic requires first V244 target opportunity');
+    const result=await calculateLiveYawEpisodeDiagnosticV274({configuration,plan:state.plan,slotIndex:state.activeIndex,before,normalRequest:state.normalRequest});
+    assert(episodes===state&&revision===localRevision&&sameConfiguration(continuation,before),'yaw diagnostic became stale');
+    return frozen({version:'live_yaw_episode_diagnostic_v274' as const,authority:'NON_ADOPTING_LOCAL_DIAGNOSTIC' as const,baseConfigurationHash:state.baseConfigurationHash,planHash:state.planHash,episodeIndex:state.activeIndex,episodeId:slot.episodeId,revision:localRevision,before,result});
+  }
+  async function previewEpisodeYawDiagnosticV275(){
+    const state=episodes;assert(state?.phase==='ACTIVE','yaw diagnostic episode is not active');const slot=state.slots[state.activeIndex],before=continuation,localRevision=revision;
+    assert(slot&&!slot.ended&&slot.initial&&state.plan.motor.version==='live_contact_frame_motor_v244'&&inspection.batterPlayerId===state.plan.motor.subjectId&&!slot.steps.some(x=>x.kind==='TARGET'),'yaw diagnostic requires first V244 target opportunity');
+    const result=await calculateLiveYawEpisodeDiagnosticV275({configuration,plan:state.plan,slotIndex:state.activeIndex,before,normalRequest:state.normalRequest});
+    assert(episodes===state&&revision===localRevision&&sameConfiguration(continuation,before),'yaw diagnostic became stale');
+    return frozen({version:'live_yaw_episode_diagnostic_v275' as const,authority:'NON_ADOPTING_LOCAL_DIAGNOSTIC' as const,baseConfigurationHash:state.baseConfigurationHash,planHash:state.planHash,episodeIndex:state.activeIndex,episodeId:slot.episodeId,revision:localRevision,before,result});
+  }
+  async function previewEpisodeYawDiagnosticV276(){
+    const state=episodes;assert(state?.phase==='ACTIVE','yaw diagnostic episode is not active');const slot=state.slots[state.activeIndex],before=continuation,localRevision=revision;
+    assert(slot&&!slot.ended&&slot.initial&&state.plan.motor.version==='live_contact_frame_motor_v244'&&inspection.batterPlayerId===state.plan.motor.subjectId&&!slot.steps.some(x=>x.kind==='TARGET'),'yaw diagnostic requires first V244 target opportunity');
+    const result=await calculateLiveYawEpisodeDiagnosticV276({configuration,plan:state.plan,slotIndex:state.activeIndex,before,normalRequest:state.normalRequest});
+    assert(episodes===state&&revision===localRevision&&sameConfiguration(continuation,before),'yaw diagnostic became stale');
+    return frozen({version:'live_yaw_episode_diagnostic_v276' as const,authority:'NON_ADOPTING_LOCAL_DIAGNOSTIC' as const,baseConfigurationHash:state.baseConfigurationHash,planHash:state.planHash,episodeIndex:state.activeIndex,episodeId:slot.episodeId,revision:localRevision,before,result});
   }
   function evaluateEpisodesV242(state:LiveSpinEpisodesSidecarV242,slots:readonly EpisodeSlotV242[]):LiveSpinEpisodesSidecarV242['evaluation'] {
     if(!slots.every(slot=>slot.ended))return {status:'HOLD',reason:'COHORT_PENDING',earnedQualification:false,humanCalibration:'NOT_MEASURED'};
     const motor=state.plan.motor,trials=slots.map(slot=>{
       const entry=slot.steps.find(x=>x.kind==='TARGET');assert(entry?.identity&&entry.physicalFingerprint&&entry.normalRecord&&entry.trialRecord,'episode target evidence missing');
-      const diagnostics=entry.trialRecord.play.diagnostics as {observedSpinComposeV238?:{status:string};observedSpinContactFrameV244?:{status:string}},diagnostic=motor.version==='live_spin_xy_motor_v239'?diagnostics.observedSpinComposeV238:diagnostics.observedSpinContactFrameV244;assert(diagnostic,'episode diagnostic missing');
-      const outcome:LiveSpinPracticeTrialV239['outcome']=diagnostic.status==='NO_TARGET'?'NO_TARGET':entry.trialRecord.play.contact===null?'MISS':'CONTACT';
+      const diagnostics=entry.trialRecord.play.diagnostics as {observedSpinComposeV238?:{status:string};observedSpinContactFrameV244?:{status:string};observedSpinRobustContactFrameV248?:{status:string}},diagnostic=motor.version==='live_spin_xy_motor_v239'?diagnostics.observedSpinComposeV238:motor.version==='live_contact_frame_motor_v244'?diagnostics.observedSpinContactFrameV244:diagnostics.observedSpinRobustContactFrameV248;assert(diagnostic,'episode diagnostic missing');
+      const outcome:LiveSpinPracticeTrialV239['outcome']=diagnostic.status==='UNRESOLVED'?'UNRESOLVED':diagnostic.status==='NO_TARGET'?'NO_TARGET':entry.trialRecord.play.contact===null?'MISS':'CONTACT';
       const spinValue=(record:LiveIssuedPitchV1)=>{if(record.play.contact===null)return null;const c=record.play.contact as {exitVelocity:{x:number;y:number;z:number};exitSpin:{x:number;y:number;z:number}};return {velocityMps:c.exitVelocity,spinRadPerSecond:c.exitSpin,bats:motor.clip.bats}};
       const direction=(record:LiveIssuedPitchV1)=>{const v=spinValue(record)?.velocityMps;return v&&Math.hypot(v.x,v.z)>0?Math.atan2(v.x,v.z)*180/Math.PI:null};
       const requested=(entry.trialRecord.play.diagnostics as {battingDirectionV149?:{direction?:{fieldAngleDegrees?:number|null}}}).battingDirectionV149?.direction?.fieldAngleDegrees??null;
       return {opportunity:{configurationBinding:entry.identity,pitchOrdinal:entry.before.pitchCount+1,pitchFingerprint:entry.physicalFingerprint},motorId:motor.motorId,motorVersion:motor.motorVersion,motorSnapshot:motor,outcome,normal:spinValue(entry.normalRecord),actual:outcome==='CONTACT'?spinValue(entry.trialRecord):null,direction:{requestedDegrees:requested,normalDegrees:direction(entry.normalRecord),actualDegrees:direction(entry.trialRecord)}};
     });
     const common={scopeId:state.plan.scopeId,motorId:motor.motorId,motorVersion:motor.motorVersion,opportunities:trials.map(x=>x.opportunity)};
-    return motor.version==='live_spin_xy_motor_v239'?evaluateLiveSpinMotorPracticeV239({motor,criterion:state.plan.criterion,cohort:{version:'live_spin_practice_cohort_v239',...common,motorSnapshot:motor},trials:trials.map(t=>({...t,motorSnapshot:motor}))}):evaluateLiveContactFrameMotorPracticeV244({motor,criterion:state.plan.criterion,cohort:{version:'live_spin_practice_cohort_v244',...common,motorSnapshot:motor},trials:trials.map(t=>({...t,motorSnapshot:motor}))});
+    return motor.version==='live_spin_xy_motor_v239'?evaluateLiveSpinMotorPracticeV239({motor,criterion:state.plan.criterion,cohort:{version:'live_spin_practice_cohort_v239',...common,motorSnapshot:motor},trials:trials.map(t=>({...t,motorSnapshot:motor}))}):motor.version==='live_contact_frame_motor_v244'?evaluateLiveContactFrameMotorPracticeV244({motor,criterion:state.plan.criterion,cohort:{version:'live_spin_practice_cohort_v244',...common,motorSnapshot:motor},trials:trials.map(t=>({...t,motorSnapshot:motor}))}):evaluateLiveRobustContactFrameMotorPracticeV248({motor,criterion:state.plan.criterion,cohort:{version:'live_spin_practice_cohort_v248',...common,motorSnapshot:motor},trials:trials.map(t=>({...t,motorSnapshot:motor}))});
   }
   async function acceptEpisodeStepV242(candidate:LiveSpinEpisodeCandidateV242):Promise<LiveIssuedPitchV1|null>{
     const owned=episodeCandidatesV242.get(candidate),state=episodes;assert(owned&&state===owned.sidecar&&owned.session===session&&candidate.globalRevision===state.globalRevision&&state.phase==='ACTIVE','episode candidate is foreign or stale');
@@ -284,7 +312,7 @@ export function createLiveBattingPracticeV150(rawInput:LiveMatchInputV1, rawResu
     const next=frozen({...state,phase:completed?'CLOSED' as const:'INTERRUPTED' as const,sidecarRevision:state.sidecarRevision+1,closeBoundary:{continuation,physicsRevision:revision,sidecarRevision:state.sidecarRevision+1}});spin=next;return next;
   }
   const issuePitch = (request:LiveBattingPracticeRequestV150) => accept(preview(request));
-  return Object.freeze({ preview, accept, issuePitch, inspect, capture, startSpinMotorPractice, previewSpinMotorPractice, acceptSpinMotorPractice, closeSpinMotorPractice,startEpisodePracticeV242,inspectEpisodePracticeV242,previewEpisodeStepV242,acceptEpisodeStepV242,advanceEpisodeV242,closeEpisodePracticeV242 });
+  return Object.freeze({ preview, accept, issuePitch, inspect, capture, startSpinMotorPractice, previewSpinMotorPractice, acceptSpinMotorPractice, closeSpinMotorPractice,startEpisodePracticeV242,inspectEpisodePracticeV242,previewEpisodeStepV242,previewEpisodeYawDiagnosticV274,previewEpisodeYawDiagnosticV275,previewEpisodeYawDiagnosticV276,acceptEpisodeStepV242,advanceEpisodeV242,closeEpisodePracticeV242 });
 }
 
 /** Replays all retained pairs before publishing a resumed owner. */

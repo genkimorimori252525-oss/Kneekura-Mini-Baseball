@@ -33,7 +33,12 @@ function finiteDerived(value: number): number {
   requireFinite(value, 'derived arithmetic');
   return value;
 }
+const ownedProfiles=new WeakSet<object>();
+const profileMemo=new Map<string,LiveLocomotionProfileV84>();
 function validateProfile(profile: LiveLocomotionProfileV84): void {
+  // Only this factory's deeply frozen products bypass repeat validation.
+  // External profiles, including shallow-frozen copies, are still inspected.
+  if(profile&&ownedProfiles.has(profile))return;
   if (!profile) throw new Error('live locomotion V84: profile required');
   requirePositive(profile.topSpeedMps, 'top speed');
   requirePositive(profile.accelerationMps2, 'acceleration');
@@ -63,17 +68,22 @@ const zero = (): Vec2 => ({ x: 0, z: 0 });
 export function createLiveLocomotionProfileV84(input: Readonly<{
   topSpeedMps: number; accelerationMps2: number; brakingMps2?: number; lateralAccelerationMps2?: number;
 }>): LiveLocomotionProfileV84 {
+  const topSpeedMps=input.topSpeedMps,accelerationMps2=input.accelerationMps2,
+    brakingMps2=input.brakingMps2??1.8*accelerationMps2,lateralAccelerationMps2=input.lateralAccelerationMps2??accelerationMps2;
+  requirePositive(topSpeedMps,'top speed');requirePositive(accelerationMps2,'acceleration');
+  requirePositive(brakingMps2,'braking');requirePositive(lateralAccelerationMps2,'lateral acceleration');
+  const key=JSON.stringify([topSpeedMps,accelerationMps2,brakingMps2,lateralAccelerationMps2]),cached=profileMemo.get(key);if(cached)return cached;
   const profile: LiveLocomotionProfileV84 = {
-    topSpeedMps: input.topSpeedMps, accelerationMps2: input.accelerationMps2,
-    brakingMps2: input.brakingMps2 ?? 1.8 * input.accelerationMps2,
-    lateralAccelerationMps2: input.lateralAccelerationMps2 ?? input.accelerationMps2,
+    topSpeedMps, accelerationMps2,brakingMps2,lateralAccelerationMps2,
     propulsionBands: [.25, .65, 1].map((factor, i) => Object.freeze({
-      throughSpeedMps: input.topSpeedMps * factor, accelerationMps2: input.accelerationMps2 * [1, .7, .35][i],
+      throughSpeedMps: topSpeedMps * factor, accelerationMps2: accelerationMps2 * [1, .7, .35][i],
     })), basis: 'AVERAGED_ALTERNATING_SUPPORT_UNCALIBRATED_V84',
   };
   validateProfile(profile);
   Object.freeze(profile.propulsionBands);
-  return Object.freeze(profile);
+  Object.freeze(profile);ownedProfiles.add(profile);
+  if(profileMemo.size===128)profileMemo.delete(profileMemo.keys().next().value!);
+  profileMemo.set(key,profile);return profile;
 }
 
 /** Available forward propulsion at this speed; the caller separately enforces

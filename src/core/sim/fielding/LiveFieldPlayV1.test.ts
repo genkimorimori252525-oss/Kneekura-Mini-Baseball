@@ -1,3 +1,4 @@
+import { resolveLiveFielderBodyModelV105 } from './LiveFielderBodyGeometryV105';
 import { expect, it } from 'vitest';
 import { deriveLiveFieldFenceGeometryV1, simulateLiveFieldPlayV1, type LiveFieldPlayInputV1 } from './LiveFieldPlayV1';
 import { REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS } from '../ball/BaseballAerodynamics';
@@ -79,7 +80,8 @@ it('derives two retirements from a received first-base force followed by the sam
   if (process.env.FIELDING_DIAG_REPORT === '1') console.log('TWO_RETIREMENTS_TRACE', JSON.stringify({
     facts: result.facts.filter(f => ['catch_secured', 'throw_release', 'controlled_base_contact', 'controlled_runner_tag', 'runner_base_touch', 'play_end'].includes(f.kind)),
     handPreparations: result.diagnostics.handPreparationProofs.map(p => ({ playerId: p.playerId, base: p.base, from: p.from, through: p.through })),
-    holderStates: result.diagnostics.aiTelemetry.holderDecisions.filter((d, i, a) => i === 0 || d.state !== a[i - 1].state || d.base !== a[i - 1].base) }));
+    holderStates: result.diagnostics.aiTelemetry.holderDecisions.filter((d, i, a) => i === 0 || d.state !== a[i - 1].state || d.base !== a[i - 1].base),
+    doublePlay: result.diagnostics.aiTelemetry.doublePlayDecisionsV106 }));
   expect(result.end.complete).toBe(true);
   expect(result.ruleFacts.controlledBaseContacts.map(f => f.base)).toEqual([1]);
   expect(result.ruleFacts.controlledRunnerTags).toMatchObject([{ runnerId: 'first-runner' }]);
@@ -133,7 +135,9 @@ it('preserves two force retirements when the second-base runner deadline favors 
   const input = liveFieldFixture(), result = simulateLiveFieldPlayV1({ ...input, outs: 0,
     ball: { ...input.ball, ball: { ...input.ball.ball, position: v(0, .2, 0), velocity: v(1, -1, 5) } },
     runners: [{ ...input.runners[0], topSpeedMps: 3 },
-      { runnerId: 'first-runner', initialBase: 1, topSpeedMps: 2, accelerationMps2: 3, reactionSeconds: .2 }] }),
+      // A quicker lead runner makes the second-base deadline meaningful and
+      // makes chasing from first slower than the two-force-out throw chain.
+      { runnerId: 'first-runner', initialBase: 1, topSpeedMps: 9, accelerationMps2: 3, reactionSeconds: .2 }] }),
     releases = result.facts.filter(f => f.kind === 'throw_release'), contacts = result.ruleFacts.controlledBaseContacts;
   expect(result.end.complete).toBe(true); expect(contacts.map(f => f.base)).toEqual([2, 1]);
   expect(releases.map(f => [f.base, f.reason])).toEqual([[2, 'force_play'], [1, 'force_play']]);
@@ -287,17 +291,35 @@ it('extends a finite free-ball cache from its original root without changing any
   }
 });
 
-it('keeps a deep retrieved ball when every force throw would arrive after the runner', () => {
+it('declines a losing first-base force throw and holds a deep retrieved ball when no further advance is visible', () => {
   const input = liveFieldFixture(), result = simulateLiveFieldPlayV1({ ...input, outs: 0,
     ball: { ...input.ball, ball: { ...input.ball.ball, position: v(0, .2, 90), velocity: v(0, -1, 0) } },
     fielders: input.fielders.map((f, i) => ({ ...f, reactionSeconds: 3, ...(i === 7 ? { position: v(0, 1, 91) } : {}) })) });
   expect(result.end).toMatchObject({ complete: true, reason: 'live_action_complete' });
-  expect(result.facts.some(f => f.kind === 'catch_secured')).toBe(true);
-  expect(result.facts.filter(f => f.kind === 'throw_release')).toEqual([]);
-  expect(result.finalRunners[0]).toMatchObject({ base: 1, retired: false });
+  const recovered = result.facts.find(f => f.kind === 'catch_secured' && f.playerId === 'fielder-7')!,
+    firstTouch = result.facts.find(f => f.kind === 'runner_base_touch' && f.base === 1)!,
+    releases = result.facts.filter(f => f.kind === 'throw_release');
+  expect(recovered).toBeDefined(); expect(firstTouch).toBeDefined();
+  expect(result.facts.filter(f => f.kind === 'throw_release' && f.base === 1)).toEqual([]);
+  expect(releases).toEqual([]);
+  for (const release of releases) {
+    expect(release.base).toBeGreaterThan(1); expect(release.elapsedSeconds).toBeGreaterThan(recovered.elapsedSeconds);
+    expect(release.reason).toBe('tag_play');
+    const received = result.facts.find(f => f.kind === 'catch_secured' && f.playerId === release.receiverPlayerId
+      && f.elapsedSeconds > release.elapsedSeconds);
+    expect(received).toBeDefined();
+    // A return is an actual hand-prepared launch followed by live reception,
+    // not an assigned receiver or a projected catch treated as possession.
+    expect(result.diagnostics.handPreparationProofs.some(p => p.playerId === release.playerId && p.base === release.base
+      && p.through <= release.elapsedSeconds)).toBe(true);
+    expect(result.frames.some(f => f.elapsedSeconds >= received!.elapsedSeconds && f.ball.possessedBy === received!.playerId)).toBe(true);
+  }
+  expect(result.ruleFacts.controlledBaseContacts.filter(f => f.base === 1 && f.tick < firstTouch.tick)).toEqual([]);
+  expect(result.finalRunners[0]).toMatchObject({ retired: false, scored: false });
+  expect(result.finalRunners[0].base).toBeLessThan(4);
 });
 
-it('rejects unready force receivers without fictional throws while the batter takes a safe extra base and declines an unsafe third', () => {
+it('does not invent ready receivers and lets a slow isolated holder cover home while the batter advances to third', () => {
   const input = liveFieldFixture(), result = simulateLiveFieldPlayV1({ ...input, outs: 0,
     ball: { ...input.ball, ball: { ...input.ball.ball, position: v(0, .2, 0), velocity: v(1, -1, 5) } },
     fielders: input.fielders.map((f, i) => ({ ...f, ...(i === 0 ? { topSpeedMps: 3 } : { reactionSeconds: 60 }),
@@ -310,7 +332,10 @@ it('rejects unready force receivers without fictional throws while the batter ta
     relayPlans: result.diagnostics.aiTelemetry.relayPlans.filter((d, i, a) => i === 0 || d.kind !== a[i - 1].kind || d.base !== a[i - 1].base),
     finalRunners: result.finalRunners }));
   expect(result.end).toMatchObject({ complete: true, reason: 'live_action_complete' });
-  expect(result.ruleFacts.runnerTouches.map(f => f.base)).toEqual([1, 2]);
+  // This deliberately extreme fixture has eight 60-second reactions and a
+  // 3 m/s holder. It is not the MLB-average reference population. The holder
+  // can protect home by carrying there; no dormant receiver can accept a throw.
+  expect(result.ruleFacts.runnerTouches.map(f => f.base)).toEqual([1, 2, 3]);
   const lastArrival = result.facts.filter(f => f.kind === 'runner_base_touch').at(-1)!;
   expect(result.end.elapsedSeconds).toBeGreaterThanOrEqual(lastArrival.elapsedSeconds);
   const lastMotion = result.diagnostics.aiTelemetry.runnerMotions.filter(m => m.runnerId === 'batter').at(-1)!;
@@ -325,15 +350,18 @@ it('rejects unready force receivers without fictional throws while the batter ta
   expect(result.ruleFacts.controlledRunnerTags).toEqual([]);
   expect(result.diagnostics.throwDecisions).toEqual([]);
   expect(result.diagnostics.aiTelemetry.relayPlans.some(d => d.base === 1 && d.kind === 'hold' && d.marginSeconds < 0)).toBe(true);
-  expect(result.diagnostics.aiTelemetry.holderDecisions.some(d => d.state === 'pursue_tag')).toBe(true);
+  expect(result.diagnostics.aiTelemetry.holderDecisions.some(d => d.state === 'hold_no_positive_margin')).toBe(true);
   // The slower holder now permits a continuous first-to-second route before
   // first contact, rather than a second departure decision after stopping.
   const throughRoute = result.diagnostics.aiTelemetry.runnerMotions.find(m => m.throughBases.join(',') === '1,2')!;
   expect(throughRoute).toBeDefined();
   expect(throughRoute.elapsedSeconds).toBeLessThan(result.facts.find(f => f.kind === 'runner_base_touch' && f.base === 1)!.elapsedSeconds);
-  expect(result.diagnostics.aiTelemetry.runnerDecisions.some(d => d.targetBase === 3 && !d.advance
-    && d.reason === 'insufficient_safety_margin')).toBe(true);
-  expect(result.finalRunners[0]).toMatchObject({ base: 2, retired: false, scored: false });
+  expect(result.facts.filter(f => f.kind === 'catch_secured').every(f => f.playerId === 'fielder-0')).toBe(true);
+  const homeCovered = result.diagnostics.aiTelemetry.holderDecisions.find(d => d.playerId === 'fielder-0'
+    && d.state === 'on_base_cover' && d.base === 4)!, thirdTouch = result.facts.find(f => f.kind === 'runner_base_touch' && f.base === 3)!;
+  expect(homeCovered).toBeDefined(); expect(homeCovered.elapsedSeconds).toBeLessThan(thirdTouch.elapsedSeconds);
+  expect(result.ruleFacts.runnerTouches.some(f => f.base === 4)).toBe(false);
+  expect(result.finalRunners[0]).toMatchObject({ base: 3, retired: false, scored: false });
 });
 
 it('cancels a prepared force command when an actual nearby body keeps the release blocked until the runner touches first', () => {
@@ -342,13 +370,98 @@ it('cancels a prepared force command when an actual nearby body keeps the releas
     fielders: input.fielders.map((f, i) => i === 8 ? { ...f, reactionSeconds: 60, position: v(.45, 1.7, 10.22) } : f) });
   expect(result.end).toMatchObject({ complete: true, reason: 'live_action_complete' });
   expect(result.facts.some(f => f.kind === 'catch_secured')).toBe(true);
-  expect(result.diagnostics.handPreparationProofs).toHaveLength(1);
-  expect(result.facts.filter(f => f.kind === 'throw_release')).toEqual([]);
-  expect(result.ruleFacts.runnerTouches.map(f => f.base)).toEqual([1]);
+  expect(result.diagnostics.handPreparationProofs.filter(p => p.base === 1)).toHaveLength(1);
+  expect(result.facts.filter(f => f.kind === 'throw_release' && f.base === 1)).toEqual([]);
+  expect(result.ruleFacts.runnerTouches.map(f => f.base)).toEqual([1, 1]);
   expect(result.diagnostics.throwDecisions.some(d => d.reason === 'force_already_satisfied')).toBe(true);
   const cancelled = result.diagnostics.throwDecisions.find(d => d.reason === 'force_already_satisfied')!,
     arrival = result.facts.find(f => f.kind === 'runner_base_touch')!;
   expect(cancelled.elapsedSeconds).toBeGreaterThanOrEqual(arrival.elapsedSeconds);
   expect(cancelled.elapsedSeconds - arrival.elapsedSeconds).toBeLessThanOrEqual(result.model.controlSeconds);
+  const returns = result.facts.filter(f => f.kind === 'throw_release');
+  // A cancelled force does not obligate a throw to an unthreatened second bag.
+  expect(returns).toEqual([]);
+  for (const release of returns) {
+    expect(release.base).toBeGreaterThan(1); expect(release.elapsedSeconds).toBeGreaterThan(cancelled.elapsedSeconds);
+    expect(release.reason).toBe('tag_play');
+    expect(result.facts.some(f => f.kind === 'catch_secured' && f.playerId === release.receiverPlayerId
+      && f.elapsedSeconds > release.elapsedSeconds)).toBe(true);
+  }
   expect(result.finalRunners[0]).toMatchObject({ base: 1, retired: false });
+});
+
+it('samples a bounded transfer delay once per secure catch, independent of display cadence', () => {
+  const base = liveFieldFixture(), input = { ...base, seed: 101, fielders: base.fielders.map(f => ({ ...f, transferDelayMaxSecondsV101: .15 })) };
+  const a = simulateLiveFieldPlayV1(input), b = simulateLiveFieldPlayV1({ ...input, frameSeconds: .1 });
+  const rows = (r: typeof a) => (r.diagnostics as unknown as { transferTimingsV101: { playerId: string; securedSeconds: number; baselineSeconds: number; delaySeconds: number; readySeconds: number }[] }).transferTimingsV101;
+  expect(rows(a)?.length).toBe(a.facts.filter(f => f.kind === 'catch_secured').length);
+  expect(rows(a)?.length).toBeGreaterThan(0);
+  expect(rows(a)).toEqual(rows(b));
+  for (const row of rows(a)) {
+    expect(row.delaySeconds).toBeGreaterThanOrEqual(0);expect(row.delaySeconds).toBeLessThanOrEqual(.15);
+    expect(row.readySeconds).toBeCloseTo(row.securedSeconds + row.baselineSeconds + row.delaySeconds, 12);
+  }
+});
+
+it('preserves zero-width legacy execution and honours realised transfer readiness on actual releases', () => {
+  const base = liveFieldFixture(), plain = simulateLiveFieldPlayV1(base), zero = simulateLiveFieldPlayV1({ ...base, fielders: base.fielders.map(f => ({ ...f, transferDelayMaxSecondsV101: 0 })) });
+  expect(zero).toEqual(plain);
+  const ground: LiveFieldPlayInputV1 = { ...base, outs: 0, seed: 101, ball: { ...base.ball, ball: { ...base.ball.ball, position: v(0, .2, 0), velocity: v(1, -1, 5) } },
+    fielders: base.fielders.map(f => ({ ...f, transferSeconds: .3, transferDelayMaxSecondsV101: .15 })),
+    runners: [{ ...base.runners[0], topSpeedMps: 3 }, { runnerId: 'first-runner', initialBase: 1, topSpeedMps: 3, accelerationMps2: 3, reactionSeconds: .2 }] };
+  const result = simulateLiveFieldPlayV1(ground), rows = result.diagnostics.transferTimingsV101!;
+  const releases = result.facts.filter(f => f.kind === 'throw_release');
+  expect(releases.length).toBeGreaterThan(0);expect(rows.some(r => r.delaySeconds > 0)).toBe(true);
+  for (const release of releases) {
+    const readiness = rows.filter(r => r.playerId === release.playerId && r.securedSeconds <= release.elapsedSeconds).at(-1)!;
+    expect(readiness).toBeDefined();expect(release.elapsedSeconds).toBeGreaterThanOrEqual(readiness.readySeconds);
+  }
+});
+
+const bodyModelFixtureV105 = (): LiveFieldPlayInputV1 => {
+  const input = liveFieldFixture();
+  return { ...input, fielders: input.fielders.map(f => { const bodyModelV105=resolveLiveFielderBodyModelV105(1.8,f.gloveReachMeters);
+    return { ...f, position:{...f.position,y:bodyModelV105.hipHeightMeters},bodyModelV105 }; }) };
+};
+it('V105 derives a legal initial glove and matching head/shoulder for short and tall authored bodies', () => {
+  for (const [height,arm] of [[1.1,.2],[2.5,.2],[1.1,4],[2.5,4]]) {
+    const fixture=bodyModelFixtureV105(), result=simulateLiveFieldPlayV1({...fixture,maxPlaySeconds:.02,fielders:fixture.fielders.map(f=>{
+      const bodyModelV105=resolveLiveFielderBodyModelV105(height,f.gloveReachMeters,{fieldArmReachMetersV105:arm});
+      return {...f,bodyModelV105,position:{...f.position,y:bodyModelV105.hipHeightMeters}};
+    })});
+    for(const f of result.frames[0].fielders){const p=f.bodyPoseV105!;expect(p.foot.y).toBe(0);expect(p.head.y).toBe(height);expect(p.reachMarginMeters).toBeGreaterThanOrEqual(0);expect(f.glove.y).toBeGreaterThanOrEqual(.1);}
+  }
+});
+it('V105 crouches for a ground ball, retains physical reach through custody and makes an actual throw', () => {
+  const input=bodyModelFixtureV105(), result=simulateLiveFieldPlayV1({...input,outs:0,
+    ball:{...input.ball,ball:{...input.ball.ball,position:v(0,.2,0),velocity:v(0,-1,8)}}});
+  expect(result.end.complete,JSON.stringify({end:result.end,detail:result.diagnostics.unresolvedDetail})).toBe(true);
+  expect(result.frames.some(f=>f.fielders.some(a=>a.bodyPoseV105!.crouchMeters>.2))).toBe(true);
+  expect(result.facts.some(f=>f.kind==='glove_contact')).toBe(true);
+  expect(result.facts.some(f=>f.kind==='throw_release')).toBe(true);
+  for(const frame of result.frames)for(const f of frame.fielders)expect(f.bodyPoseV105!.reachMarginMeters).toBeGreaterThanOrEqual(-1e-10);
+  for(const row of result.diagnostics.bodyGeometryV105!.contacts)expect(row.reachMarginMeters).toBeGreaterThanOrEqual(-1e-10);
+});
+it('V105 keeps continuous body/catch facts independent of display cadence and moves the body into actual reach', () => {
+  const input=bodyModelFixtureV105(), ground:LiveFieldPlayInputV1={...input,outs:0,
+    ball:{...input.ball,ball:{...input.ball.ball,position:v(0,.2,0),velocity:v(0,-1,8)}}},
+    a=simulateLiveFieldPlayV1({...ground,frameSeconds:.055}), b=simulateLiveFieldPlayV1({...ground,frameSeconds:.1});
+  expect(a.frames.length).not.toBe(b.frames.length);
+  expect(a.end).toEqual(b.end);expect(a.facts).toEqual(b.facts);expect(a.ruleFacts).toEqual(b.ruleFacts);
+  expect(a.diagnostics.bodyGeometryV105!.contacts).toEqual(b.diagnostics.bodyGeometryV105!.contacts);
+  const contact=a.diagnostics.bodyGeometryV105!.contacts.find(c=>c.kind==='contact')!;
+  expect(contact).toBeDefined();
+  const initial=ground.fielders.find(f=>f.playerId===contact.playerId)!;
+  expect(Math.hypot(contact.pose.foot.x-initial.position.x,contact.pose.foot.z-initial.position.z)).toBeGreaterThan(.1);
+});
+it('V105 cannot manufacture a catch while the ball stays above every anatomical reach envelope', () => {
+  const input=bodyModelFixtureV105(), result=simulateLiveFieldPlayV1({...input,maxPlaySeconds:.15,
+    ball:{...input.ball,ball:{...input.ball.ball,position:v(0,4,10),velocity:v()}}}),
+    maximumReachHeight=Math.max(...input.fielders.map(f=>{const m=f.bodyModelV105!;
+      return f.position.y-m.hipHeightMeters+m.heightMeters+m.armReachMeters+f.gloveRadiusMeters+input.physics.ground.radiusM;
+    }));
+  expect(result.frames.every(f=>f.ball.position.y>maximumReachHeight)).toBe(true);
+  expect(result.facts.filter(f=>f.kind==='glove_contact'||f.kind==='catch_secured')).toEqual([]);
+  expect(result.diagnostics.bodyGeometryV105!.contacts).toEqual([]);
+  expect(result.end).toMatchObject({complete:false,reason:'scope_exhausted'});
 });

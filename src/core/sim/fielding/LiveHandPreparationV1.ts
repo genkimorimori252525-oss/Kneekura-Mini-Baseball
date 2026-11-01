@@ -16,6 +16,13 @@ const sub = (a: Vec3, b: Vec3): Vec3 => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - 
 const mul = (p: Vec3, scale: number): Vec3 => ({ x: p.x * scale, y: p.y * scale, z: p.z * scale });
 const finiteVec = (p: Vec3) => !!p && typeof p === 'object' && [p.x, p.y, p.z].every(Number.isFinite);
 const copy = (p: Vec3): Vec3 => Object.freeze({ x: p.x, y: p.y, z: p.z });
+const clockBits = new DataView(new ArrayBuffer(8));
+/** Exact successor for a finite nonnegative absolute clock, without a tolerance. */
+const nextClock = (t: number): number => {
+  clockBits.setFloat64(0, t);
+  clockBits.setBigUint64(0, clockBits.getBigUint64(0) + 1n);
+  return clockBits.getFloat64(0);
+};
 const controls = (a: Vec3, b: Vec3, c: Vec3, d: Vec3): LiveHandPreparationBezierControlsV1 =>
   Object.freeze([copy(a), copy(b), copy(c), copy(d)]);
 const unreachable = (reason: 'INVALID_FINITE_HAND_PREPARATION_INPUT' | 'ENDPOINT_OUTSIDE_REACH'
@@ -91,13 +98,21 @@ export function createLiveHandPreparationV1(raw: LiveHandPreparationInputV1) {
 
   // All feasible real durations lie in the analytic interval above. Try only
   // four candidates, including both bounds; verification uses the duration
-  // representable by the actual absolute elapsed endpoints, without a nudge.
-  const preferred = minimumDuration > 0 ? minimumDuration * 1.0625 : Math.min(1, reach / speedLimit),
+  // representable by the actual absolute elapsed endpoints, without a tolerance.
+  // A tiny measured endpoint difference can require less than one ULP of
+  // the absolute clock. Round the candidate duration up to a representable
+  // span, then certify the same endpoints, reach and derivative controls.
+  const clockSpan = Math.max(Number.MIN_VALUE, from * Number.EPSILON),
+    preferred = minimumDuration > 0 ? Math.max(minimumDuration, clockSpan) * 1.0625 : Math.min(1, reach / speedLimit),
     midpoint = minimumDuration / 2 + maximumDuration / 2,
     candidates = [Math.min(preferred, midpoint), minimumDuration, midpoint, maximumDuration];
   let candidateCount = 0;
   for (const candidate of candidates) {
-    const through = from + candidate, duration = through - from;
+    let through = from + candidate;
+    // Nearest rounding may shorten a valid duration below the analytic speed
+    // minimum. Use the next representable endpoint, then certify it normally.
+    if (Number.isFinite(through) && through - from < minimumDuration) through = nextClock(through);
+    const duration = through - from;
     if (!Number.isFinite(candidate) || !Number.isFinite(through) || !Number.isFinite(duration) || duration <= 0) continue;
     candidateCount++;
     const fullControls = controls(a, add(a, mul(v, duration / 3)), b, b),

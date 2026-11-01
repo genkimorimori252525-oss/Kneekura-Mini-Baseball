@@ -258,4 +258,36 @@ export function planObservedReactiveRegistrationV161(raw:ObservedReactiveRegistr
     selectedPreparationTransferCostMps:selected?.preparationTransferCostMps ?? null, candidates } });
 }
 
-export {firstPredictedContact,predictedBall,certificates};
+export type ObservedReactiveDirectionGroupPolicyV251=Readonly<{version:'observed_reactive_direction_group_policy_v251';sourceId:string;weights:Readonly<{pull:number;opposite:number}>;emptyGroup:'FALLBACK_TO_V161'}>;
+type DirectionGroupCandidateV251=Readonly<{yawDegrees:number;status:Candidate['status'];fieldAngleDegrees:number|null;preparationTransferCostMps:number|null}>;
+export function validateObservedReactiveDirectionGroupPolicyV251(raw:unknown):ObservedReactiveDirectionGroupPolicyV251 {
+ const p=cloneInert(raw) as ObservedReactiveDirectionGroupPolicyV251;
+ assert(fields(p,['version','sourceId','weights','emptyGroup'])&&p.version==='observed_reactive_direction_group_policy_v251'&&typeof p.sourceId==='string'&&p.sourceId.length>0&&p.sourceId.length<=200&&p.sourceId.trim()===p.sourceId&&fields(p.weights,['pull','opposite'])&&[p.weights.pull,p.weights.opposite].every(x=>Number.isFinite(x)&&x>=0&&x<=1)&&Math.abs(p.weights.pull+p.weights.opposite-1)<=1e-12&&p.emptyGroup==='FALLBACK_TO_V161','invalid explicit reactive direction policy');
+ return frozen({version:p.version,sourceId:p.sourceId,weights:{pull:p.weights.pull,opposite:p.weights.opposite},emptyGroup:p.emptyGroup});
+}
+/** Caller declares the distribution and supplies one independent draw; no random generator or future observation is accepted. */
+export function selectObservedReactiveDirectionGroupV251(raw:Readonly<{bats:'R'|'L';policy:ObservedReactiveDirectionGroupPolicyV251;draw:number;candidates:readonly DirectionGroupCandidateV251[]}>) {
+ const input=cloneInert(raw),p=validateObservedReactiveDirectionGroupPolicyV251(input.policy);
+ assert(fields(input,['bats','policy','draw','candidates'])&&['R','L'].includes(input.bats)&&Number.isFinite(input.draw)&&input.draw>=0&&input.draw<1&&Array.isArray(input.candidates),'invalid explicit reactive direction policy');
+ assert(input.candidates.every(c=>fields(c,['yawDegrees','status','fieldAngleDegrees','preparationTransferCostMps'])&&Number.isFinite(c.yawDegrees)&&['PREDICTED_CONTACT','LIMIT_EXCEEDED','UNRESOLVED','NO_CLOSING_RESPONSE'].includes(c.status)&&(c.fieldAngleDegrees===null||Number.isFinite(c.fieldAngleDegrees))&&(c.preparationTransferCostMps===null||Number.isFinite(c.preparationTransferCostMps)&&c.preparationTransferCostMps>=0)),'invalid reactive candidate');
+ const selectedGroup=input.draw<p.weights.pull?'PULL' as const:'OPPOSITE' as const,eligible=input.candidates.filter(c=>c.status==='PREDICTED_CONTACT'&&c.fieldAngleDegrees!==null&&c.preparationTransferCostMps!==null);
+ const classify=(angle:number)=>angle===0?'CENTER' as const:angle*(input.bats==='L'?1:-1)>0?'PULL' as const:'OPPOSITE' as const;
+ const ranked=(items:readonly DirectionGroupCandidateV251[])=>items.map((candidate,index)=>({candidate,index})).sort((a,b)=>a.candidate.preparationTransferCostMps!-b.candidate.preparationTransferCostMps!||Math.abs(a.candidate.yawDegrees)-Math.abs(b.candidate.yawDegrees)||a.index-b.index);
+ const group=eligible.filter(c=>classify(c.fieldAngleDegrees!)===selectedGroup),fallback=group.length?'NONE' as const:'FALLBACK_TO_V161' as const,selected=ranked(group.length?group:eligible)[0]?.candidate??null;
+ return frozen({selectedGroup,selected,fallback,centerCount:eligible.filter(c=>classify(c.fieldAngleDegrees!)==='CENTER').length,unresolvedCount:input.candidates.filter(c=>c.status==='UNRESOLVED').length,eligibleCount:eligible.length,groupCount:group.length});
+}
+
+/** Experimental independent selector, using the exact V161 contact and certification path. */
+export function planObservedReactiveDirectionLotteryV251(raw:Readonly<{registration:ObservedReactiveRegistrationInputV161;bats:'R'|'L';policy:ObservedReactiveDirectionGroupPolicyV251;draw:number}>) {
+ const input=cloneInert(raw);assert(fields(input,['registration','bats','policy','draw']),'invalid reactive group input');validateInput(input.registration,true);
+ const registrations=registrationCandidates(input.registration,null),candidates=registrations.map(entry=>({...entry.candidate,preparationTransferCostMps:entry.preparationTransferCostMps}));
+ const selection=selectObservedReactiveDirectionGroupV251({bats:input.bats,policy:input.policy,draw:input.draw,candidates:candidates.map(c=>({yawDegrees:c.yawDegrees,status:c.status,fieldAngleDegrees:c.predictedContact?.fieldAngleDegrees??null,preparationTransferCostMps:c.preparationTransferCostMps}))});
+ const selected=selection.selected===null?null:registrations.find(r=>r.reference!==null&&r.candidate.yawDegrees===selection.selected!.yawDegrees)??null;
+ return frozen({reference:selected?.reference??null,diagnostics:{version:'observed_reactive_direction_group_result_v251' as const,status:selected?'PLANNED' as const:candidates.some(c=>c.status==='UNRESOLVED')?'UNRESOLVED' as const:'NO_FEASIBLE_CANDIDATE' as const,policy:input.policy,draw:input.draw,drawAuthority:'CALLER_DECLARED_INDEPENDENCE_NOT_AUTHENTICATED' as const,...selection,candidates,modelAssumptions:{actualWorldUsed:false as const,incidentSpin:'ZERO_OPERATIONAL_ASSUMPTION' as const,humanCalibration:'NOT_MEASURED' as const,earnedQualification:false as const}}});
+}
+
+/** Explicit read-only enumeration of the existing reactive registration set. */
+export function enumerateObservedReactiveYawV255(raw:ObservedReactiveRegistrationInputV161) {
+ const input=cloneInert(raw);validateInput(input,true);return frozen(registrationCandidates(input,null));
+}
+export {firstPredictedContact,predictedBall,certificates,SEARCH_EVALUATIONS};

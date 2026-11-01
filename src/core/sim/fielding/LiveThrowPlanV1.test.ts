@@ -54,3 +54,11 @@ it('retains held seam orientation when planning and verifying a new physical thr
   expect(JSON.stringify(raw)).toBe(before);const {materialOrientationAtRelease:_omitted,...withoutPhase}=raw;
   expect(()=>planLiveThrowV1(withoutPhase)).toThrow(/orientation|material|phase/i);
 });
+it('freshly solves an issued duration under its selected output cap without replaying a forecast ball',()=>{
+  const raw=input(40),issued=planLiveThrowV1(raw);if(issued.kind!=='planned')throw new Error(issued.reason);
+  const repeated=planLiveThrowV1({...raw,maximumThrowSpeedMps:issued.relativeReleaseSpeedMps,preferredFlightSecondsV103:issued.flightSeconds});
+  expect(repeated.kind).toBe('planned');if(repeated.kind!=='planned')throw new Error(repeated.reason);
+  expect(repeated.flightSeconds).toBe(issued.flightSeconds);expect(repeated.initialVelocity).toEqual(issued.initialVelocity);
+  expect(repeated.diagnostics.solverEvaluationCount).toBeLessThanOrEqual(100);
+  expect(()=>planLiveThrowV1({...raw,maximumThrowSpeedMps:300_000})).toThrow(/finite throw command/);
+});

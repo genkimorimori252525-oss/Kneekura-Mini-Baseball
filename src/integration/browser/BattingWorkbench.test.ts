@@ -11,6 +11,16 @@ const player = () => {
 const input = () => ({ player: player(), seed: 1234,
   pitch: { speedMps: 40, spinRpm: 2200, spinAxis: 'backspin' as const, courseX: 0, courseY: 1 }, throughSeconds: 8 });
 
+it('checks actual motor speed against the same equipment estimate exported to Native', () => {
+  const scenario = input();
+  scenario.player.capability.maximumSweetSpotSpeedMps = 30;
+  scenario.player.capability.batSwingCapacityV121 = { modelId: 'GENERIC_BAT_INERTIA_CALIBRATION_V121',
+    baselineBat: { ...scenario.player.bat }, calibration: { calibrationId: 'synthetic-only', source: 'Synthetic contract fixture',
+      inertiaExponent: .5, minimumInertiaRatio: .25, maximumInertiaRatio: 4 } };
+  scenario.player.bat.massKg *= .5; scenario.player.swing.speedMps = 35; scenario.throughSeconds = 1;
+  expect(() => simulateBattingWorkbench(scenario)).not.toThrow();
+});
+
 it('creates one body-attached rigid bat path and feeds its actual collision to Core Aero/ground physics', () => {
   const result = simulateBattingWorkbench(input());
   expect(result.contact).not.toBeNull();

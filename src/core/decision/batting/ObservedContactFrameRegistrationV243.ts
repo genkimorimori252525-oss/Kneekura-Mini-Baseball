@@ -18,7 +18,32 @@ export function composePredictedContactFrameReferenceV243(reference:ReferenceBat
  return {...reference,transform:{...reference.transform,translation:add(reference.transform.translation,delta)}};
 }
 type Input=Readonly<{registration:ObservedReactiveRegistrationInputV161;cutoffTick:number;bats:'R'|'L';technique:SpinAimTechniqueV243;thresholds:Readonly<{minimumComponent:number;minimumImprovement:number}>}>;
-type Evaluation=Readonly<{status:'FOUND';atTick:number;normal:Vec3;response:NonNullable<ReturnType<typeof resolveWoodBatSpeedProfileBallContact>>;searchEvaluations:number}>|Readonly<{status:'UNRESOLVED'|'REJECTED';reason:string}>;
+type Evaluation=Readonly<{status:'FOUND';atTick:number;normal:Vec3;response:NonNullable<ReturnType<typeof resolveWoodBatSpeedProfileBallContact>>;searchEvaluations:number}>|Readonly<{status:'UNRESOLVED'|'REJECTED';reason:string;searchEvaluations?:number;searchSamplesUnknown?:true}>;
+function createEvaluatorV243(input:Input,normalMotion:ReturnType<typeof createReferenceBatKinematicsV1>){
+ const r=input.registration,p=r.prediction;
+ const clipThrough=referenceWorldTickAtSourceV121(r.reference,r.reference.frames[r.reference.frames.length-1].tick),fixedThrough=normalMotion.motionThroughTickV133??clipThrough,fixedFrom=normalMotion.motionStartTickV133??r.reference.startTick,radius=Math.max(...r.batPhysical.radiusProfile.knots.map(k=>k.radiusM));
+ return function evaluate(reference:ReferenceBatKinematicsInputV1,delta:Vec3):Evaluation {
+  let searchEvaluations:number|undefined,searchStarted=false;
+  try{const composed=composePredictedContactFrameReferenceV243(reference,delta),motion=delta.x===0&&delta.y===0&&delta.z===0?normalMotion:createReferenceBatKinematicsV1(composed),from=motion.motionStartTickV133??reference.startTick,through=fixedThrough,certificate=certificates(motion);
+  if(from!==fixedFrom||(motion.motionThroughTickV133??clipThrough)!==fixedThrough)return {status:'UNRESOLVED',reason:'MOTION_CLOCK_CHANGED'};
+  if(input.cutoffTick>from)return {status:'UNRESOLVED',reason:'PLANNING_AFTER_MOTION_START'};
+  if(p.availableTick>from||through<from)return {status:'UNRESOLVED',reason:'PREDICTION_AFTER_MOTION_OR_CONTACT_BEFORE_START'};
+  if(p.availableTick<from&&reference.executionEnvelopeV133===undefined)return {status:'UNRESOLVED',reason:'MISSING_AUTHORED_HELD_PREFIX'};
+  for(const key of keys){const limit=r.limits?.[key],actual=certificate[key];if(limit!==undefined&&(actual===null||actual>limit))return actual===null?{status:'UNRESOLVED',reason:'MISSING_CERTIFICATE:'+key}:{status:'REJECTED',reason:'EXPLICIT_LIMIT:'+key};}
+  searchStarted=true;const contact=firstPredictedContact(r,motion,p.availableTick,through,radius);searchEvaluations=contact.evaluations;if(contact.status!=='FOUND')return {status:'UNRESOLVED',reason:contact.reason,searchEvaluations:contact.evaluations};
+  const ball=predictedBall(r,contact.atTick),bat=createRigidBatStateFromBatterSwingState(motion.sampleContinuous(contact.atTick).state,r.batPhysical),geometry=measureRigidBatBallGeometry(ball,bat,r.ballPhysical),response=resolveWoodBatSpeedProfileBallContact(ball,bat,r.ballPhysical,NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1);
+  if(!geometry.normal)return {status:'UNRESOLVED',reason:'DEGENERATE_CONTACT_NORMAL',searchEvaluations:contact.evaluations};if(!response)return {status:'REJECTED',reason:'NO_CLOSING_RESPONSE',searchEvaluations:contact.evaluations};
+  return {status:'FOUND',atTick:contact.atTick,normal:geometry.normal,response,searchEvaluations:contact.evaluations};
+  }catch(error){return {status:'UNRESOLVED',reason:'PREDICTION_EVALUATION_FAILED:'+String(error instanceof Error?error.message:error),...(searchEvaluations===undefined?searchStarted?{searchSamplesUnknown:true as const}:{}:{searchEvaluations})}}
+ }
+}
+/** Evaluate the unshifted declared reference only; no alternate target is searched. */
+export function evaluateObservedContactFrameZeroV255(raw:Input):Evaluation {
+ let input:Input;try{input=cloneInert(raw)}catch{return {status:'UNRESOLVED',reason:'INVALID_DECLARATION'}}
+ const r=input?.registration,p=r?.prediction;
+ if(!fields(input,['registration','cutoffTick','bats','technique','thresholds'])||!fields(r,['reference','contactSourceTick','prediction','batPhysical','ballPhysical'],['limits'])||!fields(p,['anchorTick','availableTick','position','velocity','acceleration'])||![p.position,p.velocity,p.acceleration].every(vec)||!Number.isSafeInteger(p.availableTick)||p.availableTick<0||!Number.isSafeInteger(input.cutoffTick)||input.cutoffTick<0||p.availableTick>input.cutoffTick||!Number.isFinite(p.anchorTick)||p.anchorTick<0||p.anchorTick>Number.MAX_SAFE_INTEGER||!Number.isFinite(r.contactSourceTick)||!['R','L'].includes(input.bats)||!['BACKSPIN','TOPSPIN','HOOK','SLICE'].includes(input.technique)||!fields(input.thresholds,['minimumComponent','minimumImprovement'])||![input.thresholds.minimumComponent,input.thresholds.minimumImprovement].every(x=>Number.isFinite(x)&&x>=0)||!r.reference||!Array.isArray(r.reference.frames)||!r.reference.frames.length||r.reference.aimCorrectionV121!==undefined||r.contactSourceTick<r.reference.frames[0].tick||r.contactSourceTick>r.reference.frames[r.reference.frames.length-1].tick||r.limits&&(!fields(r.limits,[],keys)||!Object.values(r.limits).every(x=>Number.isFinite(x)&&x>0)))return {status:'UNRESOLVED',reason:'INVALID_DECLARATION'};
+ try{const motion=createReferenceBatKinematicsV1(r.reference);return createEvaluatorV243(input,motion)(r.reference,{x:0,y:0,z:0})}catch(error){return {status:'UNRESOLVED',reason:'NORMAL_PREDICTION_EVALUATION_FAILED:'+String(error instanceof Error?error.message:error)}}
+}
 /** Stateless caller-declared prediction only; real future/contact/spin cannot be supplied. */
 export function planObservedContactFrameRegistrationV243(raw:Input){
  const assumptions={incidentSpin:'ZERO_OPERATIONAL_ASSUMPTION' as const,actualFutureUsed:false as const,calibrated:false as const,earnedQualification:false as const,fallback:'RETAIN_NORMAL_UNMODIFIED' as const,application:'TRANSLATE_MEASURED_TARGET_REGENERATE_HELD_ENVELOPE' as const};
@@ -32,21 +57,8 @@ export function planObservedContactFrameRegistrationV243(raw:Input){
  if(!r.reference.frames.length||r.contactSourceTick<r.reference.frames[0].tick||r.contactSourceTick>r.reference.frames[r.reference.frames.length-1].tick)return empty('CONTACT_SOURCE_TICK_OUTSIDE_CLIP');
  if(r.limits&&(!fields(r.limits,[],keys)||!Object.values(r.limits).every(x=>Number.isFinite(x)&&x>0)))return empty('INVALID_LIMITS');
  let normalMotion:ReturnType<typeof createReferenceBatKinematicsV1>;try{normalMotion=createReferenceBatKinematicsV1(r.reference)}catch(error){return empty('NORMAL_PREDICTION_EVALUATION_FAILED:'+String(error instanceof Error?error.message:error))}
- const clipThrough=referenceWorldTickAtSourceV121(r.reference,r.reference.frames[r.reference.frames.length-1].tick),fixedThrough=normalMotion.motionThroughTickV133??clipThrough,fixedFrom=normalMotion.motionStartTickV133??r.reference.startTick,radius=Math.max(...r.batPhysical.radiusProfile.knots.map(k=>k.radiusM));
- function evaluate(reference:ReferenceBatKinematicsInputV1,delta:Vec3):Evaluation {
-  try{const composed=composePredictedContactFrameReferenceV243(reference,delta),motion=delta.x===0&&delta.y===0&&delta.z===0?normalMotion:createReferenceBatKinematicsV1(composed),from=motion.motionStartTickV133??reference.startTick,through=fixedThrough,certificate=certificates(motion);
-  if(from!==fixedFrom||(motion.motionThroughTickV133??clipThrough)!==fixedThrough)return {status:'UNRESOLVED',reason:'MOTION_CLOCK_CHANGED'};
-  if(input.cutoffTick>from)return {status:'UNRESOLVED',reason:'PLANNING_AFTER_MOTION_START'};
-  if(p.availableTick>from||through<from)return {status:'UNRESOLVED',reason:'PREDICTION_AFTER_MOTION_OR_CONTACT_BEFORE_START'};
-  if(p.availableTick<from&&reference.executionEnvelopeV133===undefined)return {status:'UNRESOLVED',reason:'MISSING_AUTHORED_HELD_PREFIX'};
-  for(const key of keys){const limit=r.limits?.[key],actual=certificate[key];if(limit!==undefined&&(actual===null||actual>limit))return actual===null?{status:'UNRESOLVED',reason:'MISSING_CERTIFICATE:'+key}:{status:'REJECTED',reason:'EXPLICIT_LIMIT:'+key};}
-  const contact=firstPredictedContact(r,motion,p.availableTick,through,radius);if(contact.status!=='FOUND')return {status:'UNRESOLVED',reason:contact.reason};
-  const ball=predictedBall(r,contact.atTick),bat=createRigidBatStateFromBatterSwingState(motion.sampleContinuous(contact.atTick).state,r.batPhysical),geometry=measureRigidBatBallGeometry(ball,bat,r.ballPhysical),response=resolveWoodBatSpeedProfileBallContact(ball,bat,r.ballPhysical,NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1);
-  if(!geometry.normal)return {status:'UNRESOLVED',reason:'DEGENERATE_CONTACT_NORMAL'};if(!response)return {status:'REJECTED',reason:'NO_CLOSING_RESPONSE'};
-  return {status:'FOUND',atTick:contact.atTick,normal:geometry.normal,response,searchEvaluations:contact.evaluations};
-  }catch(error){return {status:'UNRESOLVED',reason:'PREDICTION_EVALUATION_FAILED:'+String(error instanceof Error?error.message:error)}}
- }
- const baseline=evaluate(r.reference,{x:0,y:0,z:0});if(baseline.status!=='FOUND')return empty('NORMAL_'+baseline.reason);
+ const evaluate=createEvaluatorV243(input,normalMotion);
+ const baseline=evaluate(r.reference,{x:0,y:0,z:0});if(baseline.status!=='FOUND')return {...empty('NORMAL_'+baseline.reason),failedBaseline:baseline};
  const frame=createPredictedContactFrameCandidatesV243({normal:baseline.normal,normalExitVelocity:baseline.response.exitVelocity,bats:input.bats,technique:input.technique});if(frame.status!=='READY')return {...empty(frame.reason),baseline};
  function component(result:Extract<Evaluation,{status:'FOUND'}>):number|null {
   const o=observeBattedBallSpinV123({velocityMps:result.response.exitVelocity,spinRadPerSecond:result.response.exitSpin,bats:input.bats});if(o.basisStatus!=='DEFINED')return null;

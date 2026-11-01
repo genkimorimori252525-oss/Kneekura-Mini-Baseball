@@ -101,3 +101,39 @@ it.runIf(savedHookFixtureAvailable)('retains V244 NO_TARGET fallback contact wit
  expect(owner.inspectEpisodePracticeV242().phase).toBe('ENDED');const evaluation=owner.inspectEpisodePracticeV242().evaluation;expect(evaluation).toMatchObject({status:'UNAVAILABLE',reason:'CRITERION_NOT_MET',total:1,contacts:0,successes:0,observations:[{outcome:'NO_TARGET'}]});
  owner.closeEpisodePracticeV242();const capture=owner.capture();expect((await resumeLiveBattingPracticeEpisodesV242(saved.initialCapture.configuration,structuredClone(capture))).capture()).toEqual(capture);
 },180000);
+it('hashes V248 budgets and thresholds independently of labels',async()=>{
+ const {configuration,motor:old}=intentFixture(0),{delta,...base}=old;void delta;
+ const motor={...base,version:'live_robust_contact_frame_motor_v248' as const,policy:'finite_sigma_v247' as const,thresholds:{minimumComponent:1,minimumImprovement:1},maximumEvaluations:259,maximumSearchSamples:259*4096};
+ const start=async(m:typeof motor,scopeId:string)=>{const owner=createLiveBattingPracticeV150(configuration);await owner.startEpisodePracticeV242(declareSpinPracticeEpisodesV242({scopeId,motor:m,criterion:null,episodeSeeds:[2468]}),{batting:'take'});return owner.inspectEpisodePracticeV242().planHash};
+ const hash=await start(motor,'first');expect(await start({...motor,motorId:'other'},'other')).toBe(hash);expect(await start({...motor,maximumEvaluations:258},'first')).not.toBe(hash);expect(await start({...motor,maximumSearchSamples:258*4096},'first')).not.toBe(hash);
+},120000);
+it('executes and replays V248 target episodes with paired practice policy',async()=>{
+ const {configuration,motor:old}=intentFixture(0),{delta,...base}=old;void delta;
+ const motor={...base,version:'live_robust_contact_frame_motor_v248' as const,policy:'finite_sigma_v247' as const,thresholds:{minimumComponent:1,minimumImprovement:1},maximumEvaluations:259,maximumSearchSamples:259*4096};
+ const owner=createLiveBattingPracticeV150(configuration),plan=declareSpinPracticeEpisodesV242({scopeId:'robust',motor,criterion:null,episodeSeeds:[2468,2469]});await owner.startEpisodePracticeV242(plan,{batting:'take'});
+ const first=await owner.previewEpisodeStepV242();expect(first.step.kind).toBe('TARGET');expect(first.step.normalRecord?.command.observedSpinTrialV236).toBeUndefined();expect(first.step.trialRecord?.command.observedSpinTrialV236).toMatchObject({version:'live_observed_robust_contact_frame_trial_v248',policy:motor.policy,maximumEvaluations:259,maximumSearchSamples:259*4096});expect(first.step.trialRecord?.command.spinMotorPracticePolicyV239).toEqual(first.step.normalRecord?.command.spinMotorPracticePolicyV239);await owner.acceptEpisodeStepV242(first);
+ for(let i=0;i<20&&owner.inspectEpisodePracticeV242().phase!=='ENDED';i++)await owner.acceptEpisodeStepV242(await owner.previewEpisodeStepV242());expect(owner.inspectEpisodePracticeV242().phase).toBe('ENDED');owner.advanceEpisodeV242();expect(owner.inspect().batterPlayerId).toBe(motor.subjectId);
+ for(let i=0;i<20&&owner.inspectEpisodePracticeV242().phase!=='ENDED';i++)await owner.acceptEpisodeStepV242(await owner.previewEpisodeStepV242());expect(owner.inspectEpisodePracticeV242().phase).toBe('ENDED');owner.closeEpisodePracticeV242();owner.accept(owner.preview({batting:'take'}));const capture=owner.capture();expect((await resumeLiveBattingPracticeEpisodesV242(configuration,structuredClone(capture))).capture()).toEqual(capture);
+},120000);
+it.runIf(savedHookFixtureAvailable)('holds the same V248 opportunity when the robust evaluation budget is insufficient',async()=>{
+ const bytes=readFileSync(savedHookFixturePath);
+ // @ts-expect-error Existing lossless debug codec is a JavaScript verification utility.
+ const {parseDebugRecord}=await import('../../../tools/verification/live-debug-record.mjs');
+ const saved=parseDebugRecord(bytes.toString('utf8')) as {initialCapture:{configuration:LiveMatchInputV1};plan:{motor:LiveSpinMotorV239;normalRequest:LiveBattingPracticeRequestV150}};
+ const {delta,...base}=saved.plan.motor;void delta;
+ const motor={...base,version:'live_robust_contact_frame_motor_v248' as const,policy:'finite_sigma_v247' as const,thresholds:{minimumComponent:1,minimumImprovement:1},maximumEvaluations:1,maximumSearchSamples:4096};
+ const configuration=saved.initialCapture.configuration,owner=createLiveBattingPracticeV150(configuration),plan=declareSpinPracticeEpisodesV242({scopeId:'held-budget',motor,criterion:null,episodeSeeds:[20261102]});await owner.startEpisodePracticeV242(plan,saved.plan.normalRequest);const before=owner.capture();
+ const candidate=await owner.previewEpisodeStepV242();expect(candidate.step.kind).toBe('HOLD');expect(candidate.step.hold?.unresolved).toMatchObject({version:'live_robust_contact_frame_unresolved_v248'});expect(candidate.step.trialRecord).not.toBeNull();expect(await owner.acceptEpisodeStepV242(candidate)).toBeNull();expect(owner.capture().continuation).toEqual(before.continuation);expect(owner.inspectEpisodePracticeV242().globalAcceptedPitchCount).toBe(0);const resumed=await resumeLiveBattingPracticeEpisodesV242(configuration,structuredClone(owner.capture()));expect(resumed.capture()).toEqual(owner.capture());
+},120000);
+it.runIf(savedHookFixtureAvailable)('retains V248 NO_TARGET contact as a failed trial and replays it',async()=>{
+ const bytes=readFileSync(savedHookFixturePath);
+ // @ts-expect-error Existing lossless debug codec is a JavaScript verification utility.
+ const {parseDebugRecord}=await import('../../../tools/verification/live-debug-record.mjs');
+ const saved=parseDebugRecord(bytes.toString('utf8')) as {initialCapture:{configuration:LiveMatchInputV1};plan:{motor:LiveSpinMotorV239;normalRequest:LiveBattingPracticeRequestV150}};
+ const {delta,...base}=saved.plan.motor;void delta;
+ const motor={...base,version:'live_robust_contact_frame_motor_v248' as const,policy:'finite_sigma_v247' as const,thresholds:{minimumComponent:1e300,minimumImprovement:1e300},maximumEvaluations:259,maximumSearchSamples:259*4096};
+ const criterion:LiveSpinPracticeCriterionV239={version:'live_spin_practice_criterion_v239',authority:'EXPLICIT_UNCALIBRATED_PROJECT',minimumIndependentTrials:1,minimumContactFraction:1,minimumDirectionalSpin:1,minimumDirectionalImprovement:1,minimumSuccessFraction:1,miss:'COUNT_FAILURE',noTarget:'COUNT_FAILURE',unresolved:'HOLD'};
+ const configuration=saved.initialCapture.configuration,owner=createLiveBattingPracticeV150(configuration),plan=declareSpinPracticeEpisodesV242({scopeId:'robust-fallback',motor,criterion,episodeSeeds:[20261102]});await owner.startEpisodePracticeV242(plan,saved.plan.normalRequest);
+ const candidate=await owner.previewEpisodeStepV242();expect(candidate.step.kind).toBe('TARGET');expect((candidate.step.trialRecord?.play.diagnostics as {observedSpinRobustContactFrameV248?:{status:string}}).observedSpinRobustContactFrameV248?.status).toBe('NO_TARGET');expect(candidate.step.trialRecord?.play.contact).not.toBeNull();await owner.acceptEpisodeStepV242(candidate);
+ for(let i=0;i<20&&owner.inspectEpisodePracticeV242().phase!=='ENDED';i++)await owner.acceptEpisodeStepV242(await owner.previewEpisodeStepV242());expect(owner.inspectEpisodePracticeV242().phase).toBe('ENDED');expect(owner.inspectEpisodePracticeV242().evaluation).toMatchObject({status:'UNAVAILABLE',reason:'CRITERION_NOT_MET',total:1,contacts:0,successes:0,observations:[{outcome:'NO_TARGET'}]});owner.closeEpisodePracticeV242();const capture=owner.capture();expect((await resumeLiveBattingPracticeEpisodesV242(configuration,structuredClone(capture))).capture()).toEqual(capture);
+},180000);

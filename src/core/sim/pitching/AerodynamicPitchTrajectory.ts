@@ -3,6 +3,8 @@ import type { PitchWorldState } from '../contact/BatBallContact';
 import { validateBaseballMaterialOrientationV1, validateBaseballSeamForceV1 } from '../ball/BaseballSeamForceV1';
 import {
   calculateBaseballAerodynamics,
+  calculateOwnedBaseballFlightDerivativesV120,
+  prepareOwnedBaseballAerodynamicsV98,
   type BaseballAerodynamicsParameters,
 } from '../ball/BaseballAerodynamics';
 import {
@@ -21,6 +23,7 @@ import {
   normalizeQuaternion,
   type Quaternion,
 } from './BaseballOrientation';
+import {assertDeepFrozenInertPhysicsV98} from '../ball/ImmutablePhysicsParametersV98';
 
 export type AerodynamicPitchTrajectoryParameters = Readonly<{
   ticksPerSecond: number;
@@ -131,6 +134,14 @@ const validateParameters = (
   }
 };
 
+const ownedTrajectoryParametersV120=new WeakSet<AerodynamicPitchTrajectoryParameters>();
+/** Registered only after Source's clone, validation and recursive freeze. */
+export function prepareOwnedAerodynamicPitchParametersV120(p:AerodynamicPitchTrajectoryParameters):void{
+  if(ownedTrajectoryParametersV120.has(p))return;
+  assertDeepFrozenInertPhysicsV98(p);validateParameters(p);
+  prepareOwnedBaseballAerodynamicsV98(p.aerodynamics);ownedTrajectoryParametersV120.add(p);
+}
+
 const validateTrajectory = (
   trajectory: AerodynamicPitchTrajectory,
 ): void => {
@@ -200,6 +211,10 @@ const spinDerivativeAt = (
   );
 };
 
+const intermediateDerivativesV120=(velocity:Vec3,spin:Vec3,p:AerodynamicPitchTrajectoryParameters,q?:Quaternion)=>
+  ownedTrajectoryParametersV120.has(p)?calculateOwnedBaseballFlightDerivativesV120(velocity,spin,p.aerodynamics,p.gravityY,q)
+    :{velocity:accelerationAt(velocity,spin,p,q),spin:spinDerivativeAt(velocity,spin,p)};
+
 const advanceAerodynamicPitchStep = (
   state: MaterialAerodynamicPitchStateV1,
   stepTicks: number,
@@ -230,17 +245,7 @@ const advanceAerodynamicPitchStep = (
   );
   const k2Position = k2VelocityInput;
   const q2 = state.materialOrientation === undefined ? undefined : advanceBaseballOrientation(state.materialOrientation, state.spin, dt / 2);
-  const k2Velocity = accelerationAt(
-    k2VelocityInput,
-    k2SpinInput,
-    parameters,
-    q2,
-  );
-  const k2Spin = spinDerivativeAt(
-    k2VelocityInput,
-    k2SpinInput,
-    parameters,
-  );
+  const k2=intermediateDerivativesV120(k2VelocityInput,k2SpinInput,parameters,q2),k2Velocity=k2.velocity,k2Spin=k2.spin;
 
   const k3VelocityInput = add(
     state.velocity,
@@ -252,17 +257,7 @@ const advanceAerodynamicPitchStep = (
   );
   const k3Position = k3VelocityInput;
   const q3 = state.materialOrientation === undefined ? undefined : advanceBaseballOrientation(state.materialOrientation, k2SpinInput, dt / 2);
-  const k3Velocity = accelerationAt(
-    k3VelocityInput,
-    k3SpinInput,
-    parameters,
-    q3,
-  );
-  const k3Spin = spinDerivativeAt(
-    k3VelocityInput,
-    k3SpinInput,
-    parameters,
-  );
+  const k3=intermediateDerivativesV120(k3VelocityInput,k3SpinInput,parameters,q3),k3Velocity=k3.velocity,k3Spin=k3.spin;
 
   const k4VelocityInput = add(
     state.velocity,
@@ -274,17 +269,7 @@ const advanceAerodynamicPitchStep = (
   );
   const k4Position = k4VelocityInput;
   const q4 = state.materialOrientation === undefined ? undefined : advanceBaseballOrientation(state.materialOrientation, k3SpinInput, dt);
-  const k4Velocity = accelerationAt(
-    k4VelocityInput,
-    k4SpinInput,
-    parameters,
-    q4,
-  );
-  const k4Spin = spinDerivativeAt(
-    k4VelocityInput,
-    k4SpinInput,
-    parameters,
-  );
+  const k4=intermediateDerivativesV120(k4VelocityInput,k4SpinInput,parameters,q4),k4Velocity=k4.velocity,k4Spin=k4.spin;
 
   return {
     tick: state.tick + stepTicks,

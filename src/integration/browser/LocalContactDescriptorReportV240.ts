@@ -1,5 +1,6 @@
 import type { LiveIssuedPitchV1 } from './LiveBaseballMatchV1';
 import { contactAngleDegV240, evaluateContactAngleRuleV240 } from '../../core/world/traits/classifiers/MeasuredContactAngleRuleV240';
+import { classifyLineDriveAngleBandV262 } from '../../core/world/traits/classifiers/LineDriveAngleBandV262';
 import type { ContactAngleRuleV240 } from '../../core/world/traits/classifiers/MeasuredContactAngleRuleV240';
 type Binding=Readonly<{sessionId:string;configId:string;buildId:string;playerId:string}>;
 type Rule=ContactAngleRuleV240 & Readonly<{reference:string}>;
@@ -54,7 +55,7 @@ export function withLocalContactDescriptorRuleV240(report:LocalContactDescriptor
 /** Descriptive angle reference for all recorded contacts; not an MLB BBE or trait classification. */
 export function projectLocalLineDriveAngleReferenceV249(report:LocalContactDescriptorReportV240) {
  const contacts=report.contacts.map(({playerId,pitchOrdinal,launchAngleDeg})=>({playerId,pitchOrdinal,launchAngleDeg,
-  label:launchAngleDeg===25?'BOUNDARY_25' as const:launchAngleDeg>=10&&launchAngleDeg<25?'LINE_DRIVE_BAND' as const:'OUTSIDE' as const}));
+  label:classifyLineDriveAngleBandV262(launchAngleDeg)}));
  const totalContacts=contacts.length,boundary25Count=contacts.filter(c=>c.label==='BOUNDARY_25').length,bandCount=contacts.filter(c=>c.label!=='OUTSIDE').length;
  return {reference:'MLB_LA_GENERAL_GUIDELINE' as const,referenceUrl:'https://www.mlb.com/glossary/statcast/launch-angle' as const,totalContacts,bandCount,boundary25Count,outsideCount:totalContacts-bandCount,fraction:totalContacts?bandCount/totalContacts:null,contacts};
 }

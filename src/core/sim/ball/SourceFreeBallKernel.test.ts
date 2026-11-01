@@ -38,6 +38,12 @@ it('keeps distinct fractional physical instants within one integer clock bucket'
   expect(a.moment.ball.velocity).not.toEqual(b.moment.ball.velocity);
   expect(a.moment.ball).toEqual(sampleAerodynamicPitchStateAtElapsedSeconds(d.initial.ball, 0.0000002, d.profile.air));
 });
+it('reuses one frozen exact evaluation without rounding the time or skipping boundary validation',()=>{
+ const k=createSourceFreeBallKernel({...descriptor(),throughElapsedSeconds:.01}),t=.0000002,a=k.evaluateAt(t);
+ expect(k.evaluateAt(t)).toBe(a);expect(Object.isFrozen(a.moment.ball.position)).toBe(true);
+ expect(k.evaluateAt(t+1e-10).moment.ball.position).not.toEqual(a.moment.ball.position);
+ expect(()=>k.evaluateAt(t,'invalid' as 'incoming')).toThrow();expect(()=>k.evaluateAt(NaN)).toThrow();
+});
 
 it('owns the continuous floor instant and incoming/outgoing states before the old integer ground impulse', () => {
   const d = descriptor();

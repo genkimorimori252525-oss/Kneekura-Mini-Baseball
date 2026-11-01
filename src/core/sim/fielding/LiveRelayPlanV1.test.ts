@@ -2,6 +2,8 @@ import { expect, it } from 'vitest';
 import { REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS } from '../ball/BaseballAerodynamics';
 import { createSourceFreeBallKernel } from '../ball/SourceFreeBallKernel';
 import { planLiveRelayV1, type LiveRelayActorV1, type LiveRelayPlanInputV1 } from './LiveRelayPlanV1';
+import { quantizeEventTick } from '../ExactEventTime';
+import { estimateLiveFieldArrivalV84 } from './LiveFieldArrivalV84';
 const v = (x = 0, y = 0, z = 0) => ({ x, y, z });
 const actor = (playerId: string, z: number, throwSpeedMps = 34): LiveRelayActorV1 => ({ playerId,
   position: v(0, 1, z), velocity: v(), homePosition: v(0, 1, z), glovePosition: v(0, 1.3, z), gloveVelocity: v(),
@@ -15,13 +17,83 @@ const input = (distance = 20): LiveRelayPlanInputV1 => ({ actors: [actor('holder
     radiusM: .0366, inertiaRatio: .378, restingVerticalSpeedMps: .2,
     material: { restitution: .48, slidingFriction: .24, rollingDecelerationMps2: .36, normalSpinDecayPerSecond: .18 } } } });
 
+const postActorV120 = (a: LiveRelayActorV1, recovery: number, endpoint = a.position): LiveRelayActorV1 => {
+  const clock = { originTick: 41, ticksPerSecond: 1e6 }, nowSeconds = 2,
+    tick = (t: number) => quantizeEventTick(clock.originTick, t, clock.ticksPerSecond);
+  return { ...a, athleticRecoverySecondsV116: 50, postActionV120: { clock, scopeId: 'relay-play', nowSeconds, nowTick: tick(nowSeconds),
+    knownAction: { readySeconds: nowSeconds + recovery, readyTick: tick(nowSeconds + recovery), position: endpoint,
+      velocity: v(), uncertaintySeconds: .1, provenance: { kind: 'observed', scopeId: 'relay-play', actorId: a.playerId,
+        sourceId: 'observation-' + a.playerId, revision: 1, observedSeconds: nowSeconds, observedTick: tick(nowSeconds), validThroughSeconds: 50 } } } };
+};
+
+it('V120 carry uses the ready endpoint and replaces the old residual rather than adding it', () => {
+  const raw = input(.29), endpoint = v(0, 1, .1), holder = postActorV120(raw.actors[0], 3, endpoint), result = planLiveRelayV1({ ...raw, actors: [holder, raw.actors[1]] });
+  expect(result.kind).toBe('carry');
+  expect(result.carrySeconds).toBe(3 + estimateLiveFieldArrivalV84({ ...holder, position: endpoint, velocity: v(), remainingReactionSeconds: 0 }, raw.target));
+  expect(planLiveRelayV1({ ...raw, actors: [holder, raw.actors[1]], runnerArrivalSeconds: 2.8 }).kind).toBe('hold');
+});
+it('V120 receiver wait precedes real flight while a later relay hop does not repay recovery', () => {
+  const raw = { ...input(90), actors: [actor('holder', 0, 16), postActorV120(actor('cutoff', 20, 38), 3), actor('receiver', 90)] },
+    result = planLiveRelayV1(raw);
+  expect(result.kind).toBe('relay'); expect(result.legs).toHaveLength(2);
+  expect(result.legs[0].receiverArrivalSeconds).toBeGreaterThanOrEqual(3);
+  expect(result.legs[0].readySeconds).toBeGreaterThanOrEqual(3);
+  expect(result.legs[1].releaseDelaySeconds).toBeLessThan(1);
+  expect(result.readySeconds).toBeLessThan(10);
+});
+it('V120 holder release waits in parallel and absent or completed action preserves the legacy route exactly', () => {
+  const raw = input(20), ordinary = planLiveRelayV1(raw), actors = raw.actors.map(a => postActorV120(a, 0));
+  expect(planLiveRelayV1({ ...raw, actors })).toEqual(ordinary);
+  const delayed = planLiveRelayV1({ ...raw, actors: [postActorV120(raw.actors[0], 3), raw.actors[1]] });
+  expect(delayed.kind).toBe('direct'); expect(delayed.legs[0].releaseDelaySeconds).toBeGreaterThanOrEqual(3);
+  expect(delayed.legs[0].releaseDelaySeconds).toBeLessThan(3.1);
+  const bad = postActorV120(raw.actors[0], 3), context = bad.postActionV120!;
+  expect(() => planLiveRelayV1({ ...raw, actors: [{ ...bad, postActionV120: { ...context,
+    knownAction: { ...context.knownAction, readyTick: 0 } } }, raw.actors[1]] })).toThrow();
+  const cutoff = postActorV120(actor('cutoff', 20, 38), 3), expired = cutoff.postActionV120!;
+  expect(() => planLiveRelayV1({ ...input(90), actors: [actor('holder', 0, 16), { ...cutoff,
+    postActionV120: { ...expired, knownAction: { ...expired.knownAction,
+      provenance: { ...expired.knownAction.provenance, validThroughSeconds: 2.1 } } } }, actor('receiver', 90)] })).toThrow(/stale action/);
+});
+
 it('prefers a feasible direct throw over an unnecessary relay and preserves immutable current-state input', () => {
   const raw = { ...input(), actors: [...input().actors, actor('spare', 10)] }, before = JSON.stringify(raw), result = planLiveRelayV1(raw);
   expect(result.kind).toBe('direct'); expect(result.legs).toHaveLength(1); expect(result.firstHop?.receiverPlayerId).toBe('receiver');
   expect(result.firstHop?.intent).toBe('base_cover'); expect(result.firstHop?.target).toEqual(raw.target);
-  expect(result.diagnostics.aerodynamicSolveCount).toBe(1);
+  // Least-force direct timing can leave a cheap relay in the bounded shortlist;
+  // the returned route still avoids an unnecessary extra throw.
+  expect(result.diagnostics.aerodynamicSolveCount).toBeLessThanOrEqual(3);
   expect(result.diagnostics).toMatchObject({ actualSourceRead: false, actualCatchGuaranteed: false, replanAfterReceiptRequired: true });
   expect(JSON.stringify(raw)).toBe(before); expect(Object.isFrozen(result.firstHop?.target)).toBe(true);
+});
+it('keeps extreme arm capacity and charges only actual bounded output after the current transfer',()=>{
+  const raw={...input(40),holderTransferRemainingSeconds:.3,actors:input(40).actors.map(a=>a.playerId==='holder'?{...a,throwSpeedMps:300_000}:a)},
+    before=JSON.stringify(raw),r=planLiveRelayV1(raw);
+  expect(r.kind).toBe('direct');const leg=r.legs[0];expect(leg.commandSpeedMps).toBeLessThanOrEqual(120);
+  expect(leg.effort).toBeLessThan(1e-7);expect(leg.chargeSeconds).toBeCloseTo(.6*leg.effort,15);
+  expect(leg.releaseDelaySeconds).toBeCloseTo(Math.max(leg.preparationSeconds,.3+leg.chargeSeconds),12);
+  expect(leg.flightSeconds).toBeGreaterThan(.05);expect(JSON.stringify(raw)).toBe(before);
+});
+it('passes a competitive deadline to each selected leg and exposes the common action selection reason',()=>{
+  const raw={...input(40),actors:input(40).actors.map(a=>a.playerId==='holder'?{...a,throwSpeedMps:44}:a)},
+    gentle=planLiveRelayV1(raw),strong=planLiveRelayV1({...raw,preferStrongestFeasibleV103:true});
+  expect(strong.kind).toBe('direct');expect(strong.legs[0].commandSpeedMps).toBeGreaterThan(.95*44);
+  expect(strong.legs[0].commandSpeedMps).toBeGreaterThan(gentle.legs[0].commandSpeedMps);
+  expect(strong.legs[0].selectionReason).toBe('STRONGEST_FEASIBLE_COMPETITIVE_THROW');expect(strong.legs[0].outputSearchLimitApplied).toBe(false);
+});
+it('retains a timely relay when greedy per-hop effort consumes the deadline needed by the next receiver',()=>{
+  for(const preferStrongestFeasibleV103 of [false,true]){
+    const raw={...input(40),actors:[{...actor('holder',0,44),throwEffortBuildSecondsV103:2},
+      {...actor('cutoff',5,44),throwEffortBuildSecondsV103:0},{...actor('receiver',40,44),throwEffortBuildSecondsV103:0}],
+      runnerArrivalSeconds:2.3,preferStrongestFeasibleV103},before=JSON.stringify(raw),result=planLiveRelayV1(raw);
+    expect(result.kind).toBe('relay');expect(result.legs.map(leg=>leg.receiverPlayerId)).toEqual(['cutoff','receiver']);
+    expect(result.readySeconds).toBeLessThan(raw.runnerArrivalSeconds);expect(result.marginSeconds).toBeGreaterThan(0);
+    expect(result.diagnostics.earliestFallbackRouteCount).toBeGreaterThan(0);
+    expect(result.diagnostics.earliestFallbackSolveCount).toBeGreaterThan(0);
+    expect(result.diagnostics.evaluatedRouteCount).toBeLessThanOrEqual(8);expect(JSON.stringify(raw)).toBe(before);
+    expect(result.legs[1].transferSeconds).toBe(.25);
+    expect(result.legs[1].readySeconds).toBeGreaterThan(result.legs[0].readySeconds+.25);
+  }
 });
 
 it('routes a weak outfield arm through a stronger actual receiver when the direct Aero command is unreachable', () => {
@@ -82,7 +154,10 @@ it('includes current movement, remaining transfer, receiver arrival and hand pre
     direct = planLiveRelayV1(raw), delayed = planLiveRelayV1({ ...raw, holderTransferRemainingSeconds: .8 }),
     unready = planLiveRelayV1({ ...raw, actors: raw.actors.map(a => a.playerId === 'receiver' ? { ...a, position: v(10, 1, 20),
       glovePosition: v(10, 1.3, 20), velocity: v(7, 0, 0) } : a) });
-  expect(delayed.readySeconds - direct.readySeconds).toBeCloseTo(.8, 10); expect(direct.legs[0].preparationSeconds).toBeGreaterThan(0);
+  expect(delayed.readySeconds-direct.readySeconds).toBeGreaterThan(0);
+  expect(delayed.readySeconds-direct.readySeconds).toBeLessThanOrEqual(.8);
+  expect(delayed.legs[0].releaseDelaySeconds).toBeGreaterThanOrEqual(.8);
+  expect(direct.legs[0].preparationSeconds).toBeGreaterThan(0);
   expect(unready.legs[0].receiverArrivalSeconds).toBeGreaterThan(direct.readySeconds);
   expect(unready.legs[0].waitingSeconds).toBeGreaterThan(0); expect(unready.readySeconds).toBeGreaterThan(direct.readySeconds);
   const moving = planLiveRelayV1({ ...raw, actors: raw.actors.map(a => a.playerId === 'holder' ? { ...a, velocity: v(0, 0, 3), gloveVelocity: v(0, 0, 3) } : a) });

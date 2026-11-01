@@ -19,6 +19,7 @@ import { playerPersonLinkEvidenceFromSqlite } from './SqlitePlayerPersonLinkStor
 import { playerWorkloadRecoveryStoreFromSqlite } from './SqlitePlayerWorkloadRecoveryStore';
 import { nonPitchFields as fields, nonPitchId as id } from './NonPitchDevelopmentRepetition';
 import { actorFreeze as freeze, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { assertMeasuredPracticeMotorV133 } from './StandaloneMeasuredPracticeV133';
 
 export type StandaloneSwingCommand = Readonly<{ issuedTick: number; bodyReadyTick: number; profileId: string; profileVersion: string;
   plan: Omit<CourseAwareSwingPlanInputV1, 'profile' | 'ticksPerSecond'> }>;
@@ -62,14 +63,19 @@ export const standalonePracticeInput = (raw: unknown, sourceId: string): Accepte
   } else if (c?.kind === 'DRY_SWING' || c?.kind === 'BATTING_CONTACT') {
     const p = c.plan;
     if (!fields(c, ['kind', 'issuedTick', 'bodyReadyTick', 'profileId', 'profileVersion', 'plan',
-      ...(c.kind === 'BATTING_CONTACT' ? ['pitchAttemptId', 'calibrationRef', 'parameters'] : [])]) || ![c.profileId, c.profileVersion].every(id)
+      ...(c.kind === 'BATTING_CONTACT' ? ['pitchAttemptId', 'calibrationRef', 'parameters',
+        ...(Object.hasOwn(c, 'spinIntentV123') ? ['spinIntentV123'] : []),
+        ...(Object.hasOwn(c, 'measuredMotorV133') ? ['measuredMotorV133'] : [])] : [])]) || ![c.profileId, c.profileVersion].every(id)
       || !standaloneTick(c.issuedTick) || c.issuedTick > s.startTick || !standaloneTick(c.bodyReadyTick) || c.bodyReadyTick > s.startTick
       || !fields(p, ['handedness', 'batterCenterOfMass', 'targetBallCenterAtPlate', 'strikeZone', 'contactTick',
         ...(p && Object.hasOwn(p, 'targetBallCenterAtContact') ? ['targetBallCenterAtContact'] : [])])
       || !['R', 'L'].includes(p.handedness) || !vector(p.batterCenterOfMass, ['x', 'y', 'z']) || !vector(p.targetBallCenterAtPlate, ['x', 'y', 'z'])
       || Object.hasOwn(p, 'targetBallCenterAtContact') && !vector(p.targetBallCenterAtContact, ['x', 'y', 'z'])
       || !fields(p.strikeZone, ['centerX', 'halfWidth', 'lowerY', 'upperY']) || !standaloneTick(p.contactTick)) throw new Error('invalid standalone dry swing command');
-    if (c.kind === 'BATTING_CONTACT') assertStandaloneContactInput(c);
+    if (c.kind === 'BATTING_CONTACT') {
+      assertStandaloneContactInput(c);
+      if (Object.hasOwn(c, 'measuredMotorV133')) assertMeasuredPracticeMotorV133(c.measuredMotorV133!);
+    }
   } else if (c?.kind === 'STATIONARY_GLOVE_RECEIVE') assertStandaloneContactInput(c);
   else throw new Error('unsupported standalone practice command');
   return freeze(s);

@@ -1,7 +1,7 @@
 import { expect,it } from 'vitest';
 import { REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS } from '../ball/BaseballAerodynamics';
 import { createSourceFreeBallKernel } from '../ball/SourceFreeBallKernel';
-import { createLiveFieldForecastV1,type LiveFieldForecastInputV1 } from './LiveFieldForecastV1';
+import { createLiveFieldForecastV1,liveUnobservedSeamPhysicsV113,type LiveFieldForecastInputV1 } from './LiveFieldForecastV1';
 const input=():LiveFieldForecastInputV1=>({observation:{tick:1234567,position:{x:0,y:1,z:0},velocity:{x:0,y:24,z:17},spin:{x:-180,y:0,z:0}},
   physics:{kind:'aero_ground_v1',air:{ticksPerSecond:1e6,integrationStepTicks:5000,gravityY:-9.81,aerodynamics:REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS},
     ground:{ticksPerSecond:1e6,gravityMps2:9.81,radiusM:.0366,inertiaRatio:.378,restingVerticalSpeedMps:.2,
@@ -32,6 +32,14 @@ it('shares one observation kernel between all nine defenders and preserves exact
   const perf=f.readPerformance();expect(perf.kernelBuildCount).toBe(1);expect(perf.queries).toBe(45);
   expect(perf.buildWallMilliseconds).toBeGreaterThanOrEqual(0);expect(perf.sampleWallMilliseconds).toBeGreaterThanOrEqual(0);
   expect(perf.maximumSampledSpeedMps).toBeGreaterThan(0);
+});
+it('reuses immutable exact queries without merging nearby times or different observed kernels',()=>{
+ const i=input(),f=createLiveFieldForecastV1(i),a=f.sampleAtElapsedSeconds(.123456789);
+ expect(f.sampleAtElapsedSeconds(.123456789)).toBe(a);
+ expect(Object.isFrozen(a.position)).toBe(true);
+ expect(f.sampleAtElapsedSeconds(.1234567891)).not.toBe(a);
+ const other=createLiveFieldForecastV1({...i,observation:{...i.observation,velocity:{...i.observation.velocity,x:1}}});
+ expect(other.sampleAtElapsedSeconds(.123456789)).not.toEqual(a);
 });
 it('keeps prediction isolated from future mutations and rejects requests beyond its finite evidence-free hypothesis',()=>{
   const i=input(),f=createLiveFieldForecastV1(i),before=f.sampleAtElapsedSeconds(2);Object.assign(i.observation.velocity,{z:-100});
@@ -64,6 +72,17 @@ it('uses explicitly observed material phase without resetting it or reading the 
     const sample=expected.evaluateAt(seconds,'outgoing');
     expect(prediction.sampleAtElapsedSeconds(seconds)).toEqual({...sample.moment.ball,orientation:sample.materialOrientation,phase:sample.phase});
   }
+});
+it('shares a detached unobserved-phase hypothesis with runners while preserving actual wind, Magnus, surface and seam inputs',()=>{
+  const base=input(),physics=structuredClone({...base.physics,air:{...base.physics.air,aerodynamics:{...base.physics.air.aerodynamics,
+    windVelocityMps:{x:2,y:.1,z:-3},seamForce:{version:'baseball_seam_force_v1' as const,coefficientScale:1}}}}),
+    before=JSON.stringify(physics),hypothesis=liveUnobservedSeamPhysicsV113(physics);
+  expect(hypothesis.air.aerodynamics.seamForce).toBeUndefined();
+  const {seamForce:_unknown,...expectedAero}=physics.air.aerodynamics;
+  expect(hypothesis).toEqual({...physics,air:{...physics.air,aerodynamics:expectedAero}});
+  expect(JSON.stringify(physics)).toBe(before);expect(physics.air.aerodynamics.seamForce.coefficientScale).toBe(1);
+  Object.assign(physics.air.aerodynamics.windVelocityMps,{x:8});expect(hypothesis.air.aerodynamics.windVelocityMps.x).toBe(2);
+  expect(liveUnobservedSeamPhysicsV113(base.physics)).toBe(base.physics);
 });
 it('measures process CPU outside the browser-neutral helper while reusing one kernel for nine defenders',()=>{
   const cpu=process.cpuUsage(),started=performance.now(),builds:number[]=[],sampleTimes:number[]=[];

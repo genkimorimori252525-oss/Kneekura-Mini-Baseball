@@ -22,7 +22,8 @@ import { readHistoricalSamePaExecutionView } from './SamePlateAppearanceHistoric
 import { assertSamePaLifecycleReservedStateFromSqlite } from './SamePlateAppearanceLifecycleFromSqlite';
 import { calculateObservedBattingMotorPlanV1 } from '../../core/world/psychology/batting/BattingMotorPlanV1';
 import { assessObservedStrikeZoneOpportunityV1 } from '../../core/world/psychology/batting/ObservedStrikeZoneOpportunityV1';
-import { calculateBattingExecution } from '../../core/world/psychology/batting/BattingCommitment';
+import { calculateBattingExecution,calculateBattingSpinExecutionV123 } from '../../core/world/psychology/batting/BattingCommitment';
+import { samePaSpinBindingInputV123,readSamePaSpinContextV123,type SamePaSpinBindingV123 } from './SamePlateAppearanceSpinBindingV123';
 import { readBattingRequest } from '../../core/world/psychology/batting/BattingValidation';
 import { readBattingEmotionExecutionFromSqlite,readCurrentBattingEmotionExecutionFromSqlite } from './SqliteBattingEmotionExecutionStore';
 import { readEmotionWorldRevisionFromSqlite,readHistoricalEmotionWorldRevisionFromSqlite } from './EmotionWorldRevisionFromSqlite';
@@ -60,8 +61,12 @@ export type ObservedInitialDecisionSource=Omit<Base,'previousOperationReference'
   repertoireCalibrationReference:SamePaReference<'pa_dispatch_v1_execution_calibrations'>;
   expectedWorld:AcceptedBattingEmotionExecution['expectedWorld'];attempt:'ordinary_swing';
 }>;
+/** Explicit opt-in; old decision Sources and operation identity stay unchanged. */
+export type ObservedInitialSpinDecisionSourceV123=Omit<ObservedInitialDecisionSource,'capability'>&Readonly<{
+  capability:'same_pa_observed_initial_decision_v123';spinBindingV123:SamePaSpinBindingV123;
+}>;
 export type ObservedInitialSource=ObservedInitialCutSource|ObservedInitialCaptureSource|ObservedInitialDeliverySource|ObservedInitialPredictionSource|ObservedInitialMotorPreparationSource
-  |ObservedInitialOpportunitySource|ObservedInitialDecisionSource;
+  |ObservedInitialOpportunitySource|ObservedInitialDecisionSource|ObservedInitialSpinDecisionSourceV123;
 const same=(a:unknown,b:unknown)=>{if(json(a)!==json(b))throw new Error('observed initial original, row or head differs');};
 function assert(v:unknown,message:string):asserts v {if(!v)throw new Error('observed initial: '+message);}
 export const observedInitialSourceInput=(raw:unknown,id?:string):ObservedInitialSource=>{
@@ -71,12 +76,15 @@ export const observedInitialSourceInput=(raw:unknown,id?:string):ObservedInitial
   if(s.capability==='same_pa_observed_initial_cut_v1'){
     assert(fields(s,[...base,'throughTick','ballPhysics'])&&Number.isSafeInteger(s.throughTick)&&s.throughTick>=0,'invalid cut Source');
     createAeroGroundBallPhysicsProfile(s.ballPhysics);
-  }else if(s.capability==='same_pa_observed_initial_decision_v1')assert(fields(s,[...base,'opportunityReference','emotionReference','decisionCalibrationReference','motorCalibrationReference','repertoireCalibrationReference','expectedWorld','attempt'])
+  }else if(s.capability==='same_pa_observed_initial_decision_v1'||s.capability==='same_pa_observed_initial_decision_v123'){
+    assert(fields(s,[...base,'opportunityReference','emotionReference','decisionCalibrationReference','motorCalibrationReference','repertoireCalibrationReference','expectedWorld','attempt',...(s.capability==='same_pa_observed_initial_decision_v123'?['spinBindingV123']:[])])
     &&s.previousOperationReference!==null&&validRef(s.opportunityReference,observedInitialOperations)&&validRef(s.emotionReference,'batting_emotion_execution_v1_executions')
     &&[s.decisionCalibrationReference,s.motorCalibrationReference,s.repertoireCalibrationReference].every(r=>validRef(r,'pa_dispatch_v1_execution_calibrations'))
     &&fields(s.expectedWorld,['careerId','worldRevision','controlRevision','controlHash'])&&text(s.expectedWorld.careerId)
     &&Number.isSafeInteger(s.expectedWorld.worldRevision)&&s.expectedWorld.worldRevision>=0&&Number.isSafeInteger(s.expectedWorld.controlRevision)&&s.expectedWorld.controlRevision>=0
     &&typeof s.expectedWorld.controlHash==='string'&&/^[a-f0-9]{64}$/.test(s.expectedWorld.controlHash)&&s.attempt==='ordinary_swing','invalid decision Source');
+    if(s.capability==='same_pa_observed_initial_decision_v123')samePaSpinBindingInputV123(s.spinBindingV123);
+  }
   else if(s.capability==='same_pa_observed_initial_opportunity_v1')assert(fields(s,[...base,'predictionReference'])&&s.previousOperationReference!==null
     &&validRef(s.predictionReference,observedInitialOperations),'invalid opportunity Source');
   else if(s.capability==='same_pa_observed_initial_motor_preparation_v1')assert(fields(s,[...base,'predictionReference','motorCalibrationReference','repertoireCalibrationReference','aggression'])
@@ -214,8 +222,8 @@ type MotorPreparation=Readonly<{kind:'observed_initial_motor_preparation_v1';sou
   scope:'motor_preparation_only';motionIssued:false;physicalEffect:'none'}>;
 type Opportunity=Readonly<{kind:'observed_initial_opportunity_v1';source:ObservedInitialOpportunitySource;lineage:Cut['lineage'];operationOrdinal:number;evaluationTick:number;
   cut:Cut;predictionReference:Ref;assessment:Extract<ReturnType<typeof assessObservedStrikeZoneOpportunityV1>,{ok:true}>['value']} >;
-type Decision=Readonly<{kind:'observed_initial_decision_v1';source:ObservedInitialDecisionSource;lineage:Cut['lineage'];operationOrdinal:number;evaluationTick:number;
-  cut:Cut;calculation:Extract<ReturnType<typeof calculateBattingExecution>,{ok:true}>['value'];
+type Decision=Readonly<{kind:'observed_initial_decision_v1';source:ObservedInitialDecisionSource|ObservedInitialSpinDecisionSourceV123;lineage:Cut['lineage'];operationOrdinal:number;evaluationTick:number;
+  cut:Cut;calculation:Extract<ReturnType<typeof calculateBattingExecution>|ReturnType<typeof calculateBattingSpinExecutionV123>,{ok:true}>['value'];
   originalIntent:ReturnType<typeof originalBattingIntentInput>;invokedRoutes:readonly ('batter_decision'|'batter_motor'|'batter_swing')[];
   motionIssued:false;physicalEffect:'none';physicalAdmission:'requires_forward_initial_physical_right'}>;
 export type ObservedInitialRecord=Cut|Capture|Delivery|Prediction|MotorPreparation|Opportunity|Decision;
@@ -246,7 +254,7 @@ const derive=(db:DatabaseSync,source:ObservedInitialSource,b:Context,previous:Ob
   if(source.capability==='same_pa_observed_initial_cut_v1')return deriveCut(source,b,ordinal,previous);
   const cut=previous?.kind==='observed_initial_cut_v1'?previous:previous?.cut;
   assert(cut&&cut.stage==='in_flight','sensory work requires its current owned cut');
-  if(source.capability==='same_pa_observed_initial_decision_v1'){
+  if(source.capability==='same_pa_observed_initial_decision_v1'||source.capability==='same_pa_observed_initial_decision_v123'){
     assert(previous?.kind==='observed_initial_opportunity_v1','decision must consume its current owned opportunity');
     same(reference(observedInitialOperations,previous),source.opportunityReference);
     const prediction=prefix.find(v=>v.source.sourceId===previous.predictionReference.sourceId);
@@ -276,7 +284,11 @@ const derive=(db:DatabaseSync,source:ObservedInitialSource,b:Context,previous:Ob
       predictions:[{predictionId:prediction.source.sourceId,observedTick:forecast.observedTick,availableTick:forecast.availableTick,validUntilTick:forecast.validUntilTick,
         trajectory:forecast.trajectory,swingScore:previous.assessment.score}]};
     const nominalRequest=readBattingRequest({currentFrame:frame,currentEmotion:emotion.acceptance.proposal.appraisal.state,acceptedExecution:emotion.acceptance,source:batting});
-    const result=calculateBattingExecution({nominalRequest,effectiveValues:{decision:decision.response.values,motor:motor.response.values,repertoire:swing.response.values}});
+    const execution={nominalRequest,effectiveValues:{decision:decision.response.values,motor:motor.response.values,repertoire:swing.response.values}};
+    const result=source.capability==='same_pa_observed_initial_decision_v123'
+      ?calculateBattingSpinExecutionV123({...execution,spinContext:readSamePaSpinContextV123(db,source.spinBindingV123,{
+        actor:b.pitch.originalActor,modelReference:b.posture.source.modelReference,decisionTick:frame.time.tick,effectiveRepertoire:swing.response.values})})
+      :calculateBattingExecution(execution);
     assert(result.ok,'decision Core rejected'+(!result.ok?': '+result.reason.path:''));
     const originalIntent=originalBattingIntentInput({version:'original_batting_intent_v1',actorSourceId:b.pitch.originalActor.source.sourceId,attempt:source.attempt});
     return freeze({kind:'observed_initial_decision_v1' as const,source,lineage:b.pitch.lineage,operationOrdinal:ordinal,evaluationTick:cut.evaluationTick,cut,

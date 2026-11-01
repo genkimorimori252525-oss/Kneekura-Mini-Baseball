@@ -1,3 +1,4 @@
+import { markLiveAuthoringSourceV101 } from './LiveAuthoringSourceV101';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { applyLivePhysicalRosterV1, resolveLivePlateVisionV1, type LivePhysicalRosterInputV1 } from './LivePhysicalRosterV1';
 import type { LivePlayerV1 } from './LiveBaseballMatchV1';
@@ -20,14 +21,18 @@ const specs: readonly Spec[] = [
   { id: 'power', label: 'パワー', section: 'batter', mode: 'group', components: [up('targetSweetSpotSpeedMps'), up('maximumSweetSpotSpeedMps')], note: '芯の目標速度と最大速度' },
   { id: 'vision', label: '選球眼', section: 'batter', mode: 'absolute', components: [down('zoneJudgmentStdMeters', 0)], note: '絶対能力1〜100。45が視点の基準。リーグ比較で変わらず、変更時はコース判断の誤差も調整。積極性は別設定' },
   { id: 'run', label: '走力', section: 'common', mode: 'group', components: [up('topSpeedMps'), up('accelerationMps2')], note: '最高速度と加速' },
-  { id: 'arm', label: '肩力', section: 'common', mode: 'group', components: [up('throwSpeedMps')], note: '実際の送球初速' },
-  { id: 'field', label: '守備力', section: 'common', mode: 'group', components: [down('reactionSeconds', .01), down('defensiveDecisionSeconds', .01), down('transferSeconds', .01)], note: '初動・状況判断・持ち替え。走力と捕球は別' },
+  { id: 'arm', label: '肩力', section: 'common', mode: 'group', components: [up('throwSpeedMps')], note: '送球で出せる出力の基準。実際の球速と力込めは距離・走者・受け手に応じて選びます' },
+  { id: 'field', label: '守備力', section: 'common', mode: 'group', components: [down('reactionSeconds', .01), down('defensiveDecisionSeconds', .01)], note: '初動・状況判断。送球動作・走力・捕球は別' },
+  { id: 'transfer', label: '送球動作', section: 'common', mode: 'group', components: [down('transferSeconds', .01)], note: '最短の持ち替えの速さ。遅れ幅・手や姿勢の準備・力込めによって実際のリリースは延びます。肩力・送球精度とは別' },
   { id: 'catching', label: '捕球', section: 'common', mode: 'group', components: [up('gloveSpeedMps'), up('retentionCapacityJ'), up('captureDissipationPowerW')], note: 'グラブの動作と衝撃の吸収・保持' },
   { id: 'throwingAccuracy', label: '送球精度', section: 'common', mode: 'group', components: [down('throwDirectionStdRadians', .0001)], note: 'リリース方向の精度' },
   { id: 'maxSpeedKmh', label: '球速', section: 'pitcher', mode: 'pitchSpeed', components: [up('maximumPitchSpeedMps'), up('releaseSpeedMps')], note: '最高初速。基準初速との比率を維持' },
   { id: 'control', label: '制球', section: 'pitcher', mode: 'group', components: [down('commandStdMeters', .001)], note: '投球の狙い位置の精度' },
 ];
 const policyId = 'individual-profile-public-authoring-v1' as const;
+// Legacy references predate the independent transfer control. Reuse their
+// authored field anchor only as a display origin; never alter the SI packet.
+const anchorRating = (ratings: Readonly<Record<string, number>>, id: string) => ratings[id] ?? (id === 'transfer' ? ratings.field : undefined);
 const pointsPerLogUnit = 100;
 const assert = (value: unknown, message: string): void => { if (!value) throw new Error('public abilities: ' + message); };
 const freeze = <T>(value: T): T => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
@@ -51,7 +56,7 @@ function context(input: Readonly<{ roster: LivePhysicalRosterInputV1; reference:
     && new Set(reference.anchors.map(a => a.playerId)).size === reference.anchors.length, 'invalid reference bindings');
   const ids = new Set(reference.players.map(p => p.playerId));
   assert(reference.anchors.every(a => ids.has(a.playerId) && a.entry.playerId === a.playerId && typeof a.leagueId === 'string' && typeof a.role === 'string'
-    && specs.filter(s => s.mode === 'group').every(s => Number.isFinite(a.ratings[s.id]) && a.ratings[s.id] >= 0 && a.ratings[s.id] <= 100)), 'invalid reference anchor');
+    && specs.filter(s => s.mode === 'group').every(s => Number.isFinite(anchorRating(a.ratings, s.id)) && anchorRating(a.ratings, s.id)! >= 0 && anchorRating(a.ratings, s.id)! <= 100)), 'invalid reference anchor');
   applyLivePhysicalRosterV1({ players: reference.players, roster: input.roster });
   assert(input.roster.entries.length === ids.size && input.roster.entries.every(e => ids.has(e.playerId)), 'complete reference roster required');
   applyLivePhysicalRosterV1({ players: reference.players, roster: { version: 'live_physical_roster_v1', sourceId: policyId, entries: reference.anchors.map(a => a.entry) } });
@@ -71,7 +76,7 @@ function abilityValue(entry: LivePhysicalRosterInputV1['entries'][number], ancho
   if (spec.mode === 'absolute') return resolveLivePlateVisionV1(physical(entry));
   if (spec.mode === 'percent') return numeric(entry, spec.components[0].path) * 100;
   if (spec.mode === 'pitchSpeed') return numeric(entry, spec.components[0].path) * 3.6;
-  return anchor.ratings[spec.id] + pointsPerLogUnit * (quality(entry, spec) - quality(anchor.entry, spec));
+  return anchorRating(anchor.ratings, spec.id)! + pointsPerLogUnit * (quality(entry, spec) - quality(anchor.entry, spec));
 }
 /** One-time legacy migration: retain each previously authored public vision,
  * including its detailed-SI edits, as an absolute grade. No league statistics,
@@ -135,8 +140,8 @@ export function editLivePublicAbilityV1(input: Readonly<{ roster: LivePhysicalRo
       selected.physical![component.path] = next;
       changes.push({ path: component.path, before: previous, after: next });
     }
-    if (!selected.sourceId.split(':').includes('public-edited')) selected.sourceId += ':public-edited';
-    copy.sourceId = input.roster.sourceId.split(':').includes('public-edited') ? input.roster.sourceId : input.roster.sourceId + ':public-edited';
+    selected.sourceId = markLiveAuthoringSourceV101(selected.sourceId, 'public-edited');
+    copy.sourceId = markLiveAuthoringSourceV101(input.roster.sourceId, 'public-edited');
   }
   const roster = copy as unknown as LivePhysicalRosterInputV1;
   // Reject the entire edit rather than clipping SI, changing unrelated values,

@@ -8,6 +8,7 @@ import { readInitialPitchHandHoldControlFromSqlite,type InitialPitchHandHoldRefe
 import { readMeasuredBattingBodyReferenceFromSqlite } from './SqliteMeasuredBattingBodyReferenceStore';
 import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { withSamePaLifecycleReadPhase } from './SamePlateAppearanceLifecycleFromSqlite';
+import { memoNativeWorkloadGuardV127 } from './NativeWorkloadGuardReadV127';
 
 export type InitialOwnedJointControlRequestV1=Readonly<{
   batter:InitialCoupledMeasuredBatControlRequestV1;pitcherHandHoldReference:InitialPitchHandHoldReference;
@@ -22,7 +23,13 @@ export function prepareInitialOwnedJointControlFromSqlite(db:DatabaseSync,raw:In
 }
 /** Historical command reconstruction confers no present execution authority. */
 export function readHistoricalInitialOwnedJointControlFromSqlite(db:DatabaseSync,raw:InitialOwnedJointControlRequestV1){
-  return jointParameters(db,raw,false);
+  // Completed DB-only historical evidence inside this immutable Native phase.
+  // The existing guard checks main-only metadata before every hit and poisons
+  // an active proof after a mutable read, even if q1 is subsequently restored.
+  // Clone before serialization so an accessor/non-inert value cannot alias a
+  // previously validated key. Current admission above remains independent.
+  const request=cloneInert(raw);
+  return memoNativeWorkloadGuardV127(db,'historical-initial-joint-control-v143:'+json(request),()=>jointParameters(db,request,false));
 }
 function jointParameters(db:DatabaseSync,raw:InitialOwnedJointControlRequestV1,current:boolean){
   const r=cloneInert(raw);assert(fields(r,['batter','pitcherHandHoldReference']),'invalid request');
