@@ -6,7 +6,16 @@
  const oldRobinSlot=data.players['1-p0'];data.players.robin={...oldRobinSlot,id:'robin',name:'ロビン',height:1.63,hand:'R',bats:'R',throws:'R'};
  const roles=['P','C','1B','2B','3B','SS','LF','CF','RF'];
  const EXPERIMENTAL_UI_POLICIES_V2={robinSource:{version:'robin_original_source_v1',sourceSha256:'27d84474f8d842a8a969b6aceb07ebac94dd92aea4267826b24fa2a31221efc8'},robinAuto:{version:'robin_original_auto_v1',sourceSha256:'27d84474f8d842a8a969b6aceb07ebac94dd92aea4267826b24fa2a31221efc8'},generalLoose:{version:'general_loose_policy_v1',implementationSha256:'7c3ce16289511e184ebe572314349c85e05b0137edb94314ff6edc36e4a760b0',partialFallback:'partial_reference_fallback_v1',catcherObservation:'fixed_release_100ms_v1',batModel:'prescribed_bat_attached_and_no_interference_v1',uncaughtThird:'uncaught_third_empty_before_two_out_v4'}}; // never enabled until actual Worker/visibility acceptance
- const park=Object.freeze({fenceRadiusMeters:110,fenceHeightMeters:3});
+ // Official center, foul-line and wall heights. The fence stays one circle: its
+ // backstop side is solved so the circle passes through both distances.
+ const parkDimensions={fukuoka:[122,100,5.84],koshien:[118,95,2.1],dodger:[120.4,100.6,2.4]};
+ function parkForStadium(){
+  const row=parkDimensions[document.getElementById('stadium-choice')?.value];
+  if(!row)return Object.freeze({fenceRadiusMeters:110,fenceHeightMeters:3});
+  const [center,line,height]=row,r2=Math.SQRT2;
+  return Object.freeze({fenceRadiusMeters:center,fenceHeightMeters:height,foulFenceRadiusMeters:line*(line-center/r2)/(center-line/r2)});
+ }
+ let park=parkForStadium();
  const teams=[0,1].map(team=>({id:data.teams[team],name:data.teamNames[team],
   battingOrder:Array.from({length:9},(_,i)=>team+'-b'+i),pitcherId:team===1?'robin':team+'-p0',
   defense:Object.fromEntries(roles.map(role=>[role,role==='P'?(team===1?'robin':team+'-p0'):team+'-b'+data.defenseMap[team][role]]))}));
@@ -482,7 +491,7 @@ const vecLength=value=>value?Math.hypot(value.x,value.y,value.z):0;
   $('result-text').textContent='Core処理を停止';$('manager-hint').textContent=error.message;console.error(error);}
  function policyAckUi(event){const label=$('worker-ack-status'),cancel=$('worker-ack-cancel');if(event.phase==='WAITING'){label.hidden=false;cancel.hidden=false;label.textContent='Workerとの接続を確認しています。';}else if(event.phase==='ACKNOWLEDGED'){label.hidden=false;cancel.hidden=true;label.textContent='Workerとの接続を確認しました。';}else if(event.phase==='FAILED'){label.hidden=false;cancel.hidden=true;label.textContent='Worker接続 HOLD: '+event.message;}else if(event.phase==='CANCELLED'){label.hidden=false;cancel.hidden=true;label.textContent='Workerの接続確認を取り消しました。';}else{label.hidden=true;cancel.hidden=true;label.textContent='';}}
  $('worker-ack-cancel').onclick=()=>{host.invalidate();issuePendingV116=null;policyAckUi({phase:'CANCELLED'});};
- function createGame(randomize=false){policyAckUi({phase:'IDLE'});
+ function createGame(randomize=false){policyAckUi({phase:'IDLE'});park=parkForStadium();
   const selectedPitcher=$('home-pitcher-choice').value;teams[1].pitcherId=selectedPitcher;teams[1].defense.P=selectedPitcher;
   season.commitCompleted();const entry=pendingRoster.entries.find(e=>e.playerId==='robin');if(!entry)throw Error('ロビンが能力データにありません');entry.physical={...entry.physical,pitchRepertoireV78:robinRepertoire};delete entry.physical.pitchRepertoire;const configured=core.applyLivePhysicalRosterV1({players:basePlayers,roster:pendingRoster});
   let seedText=$('match-seed').value;

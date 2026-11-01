@@ -14,7 +14,7 @@ const resume = opt.resume ? JSON.parse(readFileSync(opt.resume, 'utf8')) : undef
 const host = policies ? core.createExperimentalMatchHostV2(config, policies, resume) : core.createLiveBaseballMatchWorkerV116(config, resume);
 const command = {batting: 'auto', pitchType: 'auto', location: 'auto', managedTeam: 0, baserunning: 'balanced'};
 const limit = Number(opt.pitches ?? 600);
-const tally = {pitches: 0, swings: 0, contacts: 0, hits: 0, loose: 0, fallback: {}};
+const tally = {steals: true, pitches: 0, swings: 0, contacts: 0, hits: 0, loose: 0, fallback: {}};
 let last = host.captureContinuationV116();
 const t0 = Date.now();
 for (let n = 0; n < limit; n++) {
@@ -31,6 +31,8 @@ for (let n = 0; n < limit; n++) {
   }
   last = host.captureContinuationV116();
   tally.pitches++;
+  for (const e of r.events) if (e.kind === 'stolen_base' || e.kind === 'caught_stealing') tally[e.kind] = (tally[e.kind] ?? 0) + 1;
+  if (r.play.diagnostics?.pitchFallbackV1) tally.simple = (tally.simple ?? 0) + 1;
   if (r.play.diagnostics?.swingOffered) tally.swings++;
   if (r.play.contact) tally.contacts++;
   if (r.play.diagnostics?.loosePitchV1) tally.loose++;

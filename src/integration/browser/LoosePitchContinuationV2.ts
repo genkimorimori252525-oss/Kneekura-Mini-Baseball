@@ -51,7 +51,7 @@ function runLooseWorld(x:any){
   (globalThis as any).__robinDynamics=d;
   const cell=kernel.cells?.find((c:any)=>c.fromElapsedSeconds<=t&&c.throughElapsedSeconds>=t);
   const batterStatic=d.batStationaryAllTime&&batter.velocity&&Math.hypot(batter.velocity.x,batter.velocity.y,batter.velocity.z)===0;
-  const field=simulateLiveFieldPlayV1({...fieldInput,fielders,runners:batterRuns?fieldInput.runners:fieldInput.runners.filter((r:any)=>r.initialBase>0),loosePitchV1:{version:'loose_pitch_field_v1',
+  const field=simulateLiveFieldPlayV1({...fieldInput,fielders,runners:withLeads(batterRuns?fieldInput.runners:fieldInput.runners.filter((r:any)=>r.initialBase>0),ready),loosePitchV1:{version:'loose_pitch_field_v1',
     ...(batterRuns?{uncaughtThirdV1:true,priorTouchSeconds:t}:{}),...(!live&&!batterRuns?{}:{priorTouchSeconds:t}),
     ...(robin?{pitchReleaseSeconds:0,hiddenAfterSeconds:robin.hiddenAfterSeconds,legacyArrivedSeconds:robin.legacyArrivedSeconds,opticalPolicy:'hidden_through_legacy_arrival_then_impact_v1'}:{}),
     ...(!batterRuns&&batterStatic?{batterMotionV1:{version:'ready_static_batter_v1',actorId:batter.playerId,position:batter.position,velocity:batter.velocity}}:{}),
@@ -67,6 +67,7 @@ function runLooseWorld(x:any){
   return {field,endTick:field.end.tick,outcomes,frames,bodyEvents:live?[{kind:'glove_contact',tick:eventTick,elapsedSeconds:t,playerId:catcher.id,position:incoming.moment.ball.position}]:[],facts:field.facts};
 }
 const hit0=(d:any)=>d.catcherHit.from;
+function withLeads(runners:any[],ready:any){const lead=new Map(ready.actors.filter((a:any)=>a.role==='runner').map((a:any)=>[a.playerId,a.position]));return runners.map(r=>lead.has(r.runnerId)?{...r,position:lead.get(r.runnerId)}:r);}
 function outTick(field:any,r:any,facts:any){
   const touch=field.facts.filter((f:any)=>f.kind==='runner_base_touch'&&f.runnerId===r.runnerId).at(-1);
   const tag=facts?.controlledRunnerTags?.find((f:any)=>f.runnerId===r.runnerId);
