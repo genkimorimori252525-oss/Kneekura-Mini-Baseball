@@ -13,3 +13,5 @@ release/*/assets/
 release/game/parts/038-*
 release/game/parts/088-*
 release/game/parts/098-*
+release/maker/
+release/lab/

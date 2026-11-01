@@ -206,7 +206,7 @@ const vecLength=value=>value?Math.hypot(value.x,value.y,value.z):0;
    ...(actor.bodyPoseV105?{bodyPoseV105:actor.bodyPoseV105}:{}),
    ...(actor.athleticV115?{athleticV115:actor.athleticV115}:{}),
    running:vecLength(actor.velocity)>0,walking:actor.action==='bench'||currentFrame.phase==='bench',
-   presentationAction:actorAnimation?.actors[actor.playerId]?.action,presentationFrame:actorAnimation?.actors[actor.playerId]?.frame};
+   velocity:actor.velocity,presentationPose:actorAnimation?.actors[actor.playerId]?.pose,presentationAction:actorAnimation?.actors[actor.playerId]?.action,presentationFrame:actorAnimation?.actors[actor.playerId]?.frame};
  }
  function baseCameraForV83(frame,actors,fieldCameraV83=fieldCameraObservation,reactionV83=pitcherReactionView){
   if(options.camera==='catcher'&&catcherFollow)

@@ -18,10 +18,16 @@
   image.src='data:image/png;base64,'+row.data;
  }
  for(const [key,row] of Object.entries(pack))decode(key,row);
- function pick({role,action,frame,camera,hand,form,team,running,isRobin}){
-  if(running||isRobin)return null;
+ function pick({role,action,frame,camera,hand,form,team,running,isRobin,pose,away,walking}){
+  const kit=team===1?'home':'away',outfield=['LF','CF','RF'].includes(role);
   let key=null;
-  if(role==='umpire')key='umpire/ready';
+  // Sideways locomotion is rejected art: only a runner heading away from the camera gets the rear frames.
+  if(running&&action==='run'){if(away&&!isRobin)key=(walking?'walk':'run')+'/rear/'+(frame%2);}
+  else if(action==='pitch'&&role!=='P'&&frame>=3)key=isRobin?'robin/throw/'+(frame-3):'throw/'+(outfield?'out':'in')+'/'+kit+'/'+(frame-3);
+  else if(pose==='ground')key=isRobin?'robin/ground/'+frame:'ground/'+kit+'/'+frame;
+  else if(pose==='fly'&&!isRobin)key='fly/'+(outfield?'out':'in')+'/'+kit;
+  else if(isRobin){if(action==='pitch'&&(camera==='catcher'||camera==='batter'))key='robin/pitch/'+(frame===0?0:frame<3?1:2);}
+  else if(role==='umpire')key='umpire/ready';
   else if(action==='pitch'&&hand==='R'&&(camera==='catcher'||camera==='batter')&&['over','side','under'].includes(form)&&frame>=0&&frame<6)key='pitch/'+form+'/'+frame;
   else if(action==='bat'&&camera==='catcher'&&hand==='R'&&frame>=0&&frame<4)key='bat/rear/'+frame;
   else if(action==='catch'&&camera==='mound')key=team===1?'catch/home':'catch/away';

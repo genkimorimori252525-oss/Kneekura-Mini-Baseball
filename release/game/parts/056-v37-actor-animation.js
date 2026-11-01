@@ -8,6 +8,13 @@
  const runStarts=new WeakMap();
  function assert(value,message){if(!value)throw new Error('Live actor animation: '+message);}
  function pitcherFrame(tick){return tick<8?0:tick<17?1:tick<27?2:tick<30?3:tick<38?4:5;}
+ // The last moments before this fielder's own recorded catch, and the catch itself.
+ function catchPose(record,actor,frame,tps){
+  const e=record.events.find(x=>x.kind==='catch_secured'&&x.playerId===actor.playerId&&x.tick>=frame.tick-.2*tps&&x.tick-frame.tick<.5*tps);
+  if(!e||!e.position)return null;
+  const left=(e.tick-frame.tick)/tps,kind=e.position.y>1.3?'fly':'ground';
+  return {kind,frame:left>.25?0:left>.05?1:2};
+ }
  function observe({record,frame,sceneMs,preparationMs=1540,measuredClip=null}){
   assert(frame&&Number.isSafeInteger(frame.tick)&&Array.isArray(frame.actors),'actual Core frame required');
   assert(Number.isFinite(sceneMs)&&sceneMs>=0&&Number.isFinite(preparationMs)&&preparationMs>0,'finite presentation time required');
@@ -61,7 +68,7 @@
   const actors={};
   for(const actor of frame.actors){
    const moving=speed(actor.velocity)>0,isBatter=actor.playerId===(record?.batterPlayerId??frame.batterPlayerId)||!record&&actor.role==='batter';
-   let action='field',selectedFrame=0,reason='STATIONARY_FIELD_BODY';
+   let action='field',selectedFrame=0,reason='STATIONARY_FIELD_BODY',pose=null;
    const release=live&&frame.phase!=='bench'?record.events.filter(e=>e.kind==='throw_release'&&e.playerId===actor.playerId&&e.tick<=frame.tick).at(-1):null;
    const throwSeconds=release?Math.max((frame.tick-release.tick)/tps,
     (sceneMs-preparationMs)/1000-(release.tick-releaseTick)/tps):Infinity;
@@ -69,6 +76,8 @@
     action=moving?'run':'field';selectedFrame=moving?Math.floor(localTick/10)%2:0;reason='CORE_BENCH_WALK';
    }else if(throwSeconds<.77){
     action='pitch';selectedFrame=throwSeconds<.11?3:throwSeconds<.55?4:5;reason='ACTUAL_THROW_RELEASE_AND_FOLLOW';
+   }else if(live&&actor.role!=='runner'&&actor.role!=='batter'&&(pose=catchPose(record,actor,frame,tps))){
+    action='field';selectedFrame=pose.frame;reason='ACTUAL_CATCH_APPROACH';
    }else if(moving){
     action='run';selectedFrame=Math.floor(localTick/4)%2;reason='ACTUAL_ACTOR_MOTION';
    }else if(isBatter&&(!live||runStarted===null||frame.tick<runStarted)){
@@ -80,7 +89,7 @@
    }else if(actor.role==='C'&&!live){
     action='catch';reason='PITCH_RECEIVING_CATCHER';
    }
-   actors[actor.playerId]={action,frame:selectedFrame,reason};
+   actors[actor.playerId]={action,frame:selectedFrame,reason,...(pose?{pose:pose.kind}:{})};
   }
   return {pitchFrame,batFrame,actors,swingTiming};
  }
