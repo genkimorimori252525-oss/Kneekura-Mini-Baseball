@@ -1,4 +1,5 @@
 import {SeedRoot} from '../../core/rng/SeedRoot';
+import {compileLiveFenceShapeV1,type LiveFenceShapeInputV1} from '../../core/sim/fielding/LiveFenceShapeV1';
 
 type Vec=Readonly<{x:number;y:number;z:number}>;
 type BaseName='first'|'second'|'third';
@@ -80,12 +81,21 @@ export function resolvePickoffV1(x:Readonly<{seed:number;pitchOrdinal:number;lea
 }
 
 /** Plain carry estimate for a batted ball, used only when the field world cannot finish the play. */
-export function settleBattedBallV1(x:Readonly<{ball:Readonly<{position:Vec;velocity:Vec}>;fenceRadiusMeters:number;fenceHeightMeters:number;seed:number;pitchOrdinal:number}>){
+/** Manager AI: walk the batter to set up a force, late in a close game with first base open. Public facts only; authored. */
+export function decideIntentionalWalkV1(x:Readonly<{inning:number;regulationInnings:number;outs:number;firstOpen:boolean;runnerInScoringPosition:boolean;defenseLead:number;balls:number;strikes:number}>){
+  return x.firstOpen&&x.runnerInScoringPosition&&x.outs>=1&&x.inning>=x.regulationInnings-1&&Math.abs(x.defenseLead)<=1&&x.strikes===0;
+}
+/** The pitch went through the batter's body column. Colliders are not modelled, so this is the plain geometric test. */
+export function pitchHitsBatterV1(frames:readonly Readonly<{ball?:Readonly<{position:Vec}>|null}>[],batter:Vec,heightMeters:number){
+  return frames.some(f=>{const p=f.ball?.position;return !!p&&Math.abs(p.z-batter.z)<=.2&&Math.abs(p.x-batter.x)<=.22&&p.y>=.35&&p.y<=heightMeters;});
+}
+export function settleBattedBallV1(x:Readonly<{ball:Readonly<{position:Vec;velocity:Vec}>;fenceRadiusMeters:number;fenceHeightMeters:number;fenceShapeV1?:LiveFenceShapeInputV1;seed:number;pitchOrdinal:number}>){
   const {position:p,velocity:v}=x.ball,flat=Math.hypot(v.x,v.z),gravity=9.8,drag=.72,
     air=Math.max(.3,(v.y+Math.sqrt(Math.max(0,v.y*v.y+2*gravity*p.y)))/gravity),seconds=Math.min(6,air),
     landX=p.x+v.x*air*drag,landZ=p.z+v.z*air*drag,distance=Math.hypot(landX,landZ),fair=landZ>0&&Math.abs(landX)<=landZ,
     draw=new SeedRoot(x.seed).streamRng(x.pitchOrdinal-1,'pitch','simple-batted-v1').nextFloat(),
-    outcome:'foul'|'out'|'single'|'home_run'=!fair?'foul':distance>x.fenceRadiusMeters+x.fenceHeightMeters?'home_run':draw<.3?'single':'out';
+    wall=x.fenceShapeV1?compileLiveFenceShapeV1(x.fenceShapeV1,{x:0,z:0}).wallAt(Math.atan2(landX,landZ)):null,
+    outcome:'foul'|'out'|'single'|'home_run'=!fair?'foul':distance>(wall?wall.distanceMeters+wall.heightMeters:x.fenceRadiusMeters+x.fenceHeightMeters)?'home_run':draw<.3?'single':'out';
   const at=(t:number):Vec=>({x:p.x+v.x*t*drag,y:Math.max(.04,p.y+v.y*t-gravity*t*t/2),z:p.z+v.z*t*drag});
   void flat;return {outcome,seconds,at};
 }

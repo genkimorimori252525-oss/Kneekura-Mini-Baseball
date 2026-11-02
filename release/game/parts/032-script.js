@@ -346,6 +346,8 @@ function makeBroadcastRenderer(canvas,labelHost){
  let sceneDepthBase=null,rasterBase=null,stadiumLayerV2=null;
  const groundRowsV81=new Map(),rasterKeyV81=(x,y)=>gridV84.key(x,y);
  function updateProjectionV81(){projectionV81={sinYaw:Math.sin(cam.yaw),cosYaw:Math.cos(cam.yaw),sinPitch:Math.sin(cam.pitch),cosPitch:Math.cos(cam.pitch)};groundRowsV81.clear();}
+ // One string per delivered wall: a held picture must not survive a change of outline.
+ const parkShapeKeysV1=new WeakMap(),parkShapeKeyV1=g=>{const s=g?.shapeV1;if(!s)return'';let k=parkShapeKeysV1.get(s);if(!k){k=JSON.stringify(s.vertices.map(p=>[p.angleDegrees,p.distanceMeters,p.heightMeters]));parkShapeKeysV1.set(s,k);}return k;};
  const sameParkKeyV81=(a,b)=>!!a&&a.length===b.length&&a.every((value,index)=>Object.is(value,b[index]));
  function stadiumFrameV2(){
   if(!observed.liveObservation)return null;
@@ -374,7 +376,7 @@ function makeBroadcastRenderer(canvas,labelHost){
  function drawParkV81(stadium){
   if(parkReadbackFailedV81||typeof ctx.getImageData!=='function'||typeof ctx.putImageData!=='function'){park();return false;}
   const g=observed.livePark,key=[cam.eye.x,cam.eye.y,cam.eye.z,cam.yaw,cam.pitch,cam.f,cam.cx,cam.cy,
-   state.camera,state.detail,state.glow,observed.liveObservation,g?.center?.x,g?.center?.z,g?.radiusMeters,g?.heightMeters,
+   state.camera,state.detail,state.glow,observed.liveObservation,g?.center?.x,g?.center?.z,g?.radiusMeters,g?.heightMeters,parkShapeKeyV1(g),
    qualityV84(),canvas.width,canvas.height,ctx.globalCompositeOperation,ctx.filter,ctx.globalAlpha,ctx.shadowOffsetX,ctx.shadowOffsetY];
   if(parkCacheV81&&sameParkKeyV81(parkCacheV81.key,key)){
    const layer=stadium&&stadiumLayerV2?.park===parkCacheV81&&stadiumLayerV2.cells===stadium.cells&&stadiumLayerV2.awayHit===stadium.awayHit?stadiumLayerV2:null;
@@ -456,13 +458,24 @@ function wline(a,b,color,r=1,alpha=1,spacing=gridV84.step(),glow=0){
 }
 function poly(points,color,r=1,alpha=1,spacing=gridV84.step(),glow=0){for(let i=1;i<points.length;i++)wline(points[i-1],points[i],color,r,alpha,spacing,glow)}
 function worldCircle(x,z,r,color,size=1,alpha=1){const ps=[];for(let i=0;i<=96;i++){const a=i*Math.PI/48;ps.push({x:x+r*Math.cos(a),y:0,z:z+r*Math.sin(a)})}poly(ps,color,size,alpha)}
+// The real wall, looked up by angle from the plate; absent on the circular park.
+function liveFenceAtV1(t){
+ const v=observed.livePark.shapeV1.vertices,a=((t*180/Math.PI+180)%360+360)%360-180;let lo=0,hi=v.length-2;
+ while(lo<hi){const mid=Math.ceil((lo+hi)/2);if(v[mid].angleDegrees<=a)lo=mid;else hi=mid-1;}
+ const p=v[lo],q=v[lo+1],s=Math.sin(t),c=Math.cos(t),ex=q.x-p.x,ez=q.z-p.z,distance=(p.x*ez-p.z*ex)/(s*ez-c*ex),
+  u=Math.max(0,Math.min(1,((s*distance-p.x)*ex+(c*distance-p.z)*ez)/(ex*ex+ez*ez)));
+ return{distance,height:p.heightMeters+(q.heightMeters-p.heightMeters)*u};
+}
 function liveFenceDistance(t){
- const g=observed.livePark,along=g.center.x*Math.sin(t)+g.center.z*Math.cos(t);
+ const g=observed.livePark;if(g.shapeV1)return liveFenceAtV1(t).distance;
+ const along=g.center.x*Math.sin(t)+g.center.z*Math.cos(t);
  return along+Math.sqrt(along*along+g.radiusMeters*g.radiusMeters-g.center.x*g.center.x-g.center.z*g.center.z);
 }
+const liveWallShapeV1=()=>observed.liveObservation?observed.livePark.shapeV1:null;
+function liveWallHeightV1(t){return liveWallShapeV1()?liveFenceAtV1(t).height:observed.liveObservation?observed.livePark.heightMeters:3;}
 function fence(t,offset=0,y=0){const r=(observed.liveObservation?liveFenceDistance(t):100+22*Math.cos(2*t))+offset;return{x:Math.sin(t)*r,y,z:Math.cos(t)*r}}
-function arc(offset,y,color,r=1,alpha=1,spacing=gridV84.step(),glow=0){const ps=[],start=observed.liveObservation?-Math.PI:-Math.PI/4,range=observed.liveObservation?2*Math.PI:Math.PI/2;for(let i=0;i<=80;i++)ps.push(fence(start+i*range/80,offset,y));poly(ps,color,r,alpha,spacing,glow)}
-function surfaceAt(p){if(!p)return null;const{x,z}=p,theta=Math.atan2(x,Math.max(.001,z)),rad=Math.hypot(x,z),edge=observed.liveObservation?liveFenceDistance(Math.atan2(x,z)):100+22*Math.cos(2*Math.max(-Math.PI/4,Math.min(Math.PI/4,theta)));if(observed.liveObservation?Math.hypot(x-observed.livePark.center.x,z-observed.livePark.center.z)>observed.livePark.radiusMeters+3:
+function arc(offset,y,color,r=1,alpha=1,spacing=gridV84.step(),glow=0){const ps=[],start=observed.liveObservation?-Math.PI:-Math.PI/4,range=observed.liveObservation?2*Math.PI:Math.PI/2,shape=liveWallShapeV1();if(shape)for(const p of shape.vertices){const t=p.angleDegrees*Math.PI/180;ps.push(fence(t,offset,y==='wall'?p.heightMeters:y));}else for(let i=0;i<=80;i++)ps.push(fence(start+i*range/80,offset,y==='wall'?liveWallHeightV1(0):y));poly(ps,color,r,alpha,spacing,glow)}
+function surfaceAt(p){if(!p)return null;const{x,z}=p,theta=Math.atan2(x,Math.max(.001,z)),rad=Math.hypot(x,z),edge=observed.liveObservation?liveFenceDistance(Math.atan2(x,z)):100+22*Math.cos(2*Math.max(-Math.PI/4,Math.min(Math.PI/4,theta)));if(observed.liveObservation?observed.livePark.shapeV1?rad>edge+3:Math.hypot(x-observed.livePark.center.x,z-observed.livePark.center.z)>observed.livePark.radiusMeters+3:
       z< -fieldGeometry.backstopDistance||Math.abs(x)>Math.max(20,z+10)||rad>edge+3)return null;const fair=z>=0&&Math.abs(x)<=z;if(!fair)return{color:rad<3.9624?C.soil:C.turfB,alpha:rad<3.9624?.93:.62,r:1.43};if(rad>edge-3.5)return{color:C.track,alpha:.88,r:1.4};const diamond=Math.abs(x)+Math.abs(z-B)<B-3,soil=Math.hypot(x,z-18.4404)<fieldGeometry.infieldDirtRadius&&!diamond||Math.hypot(x,z-fieldGeometry.mound.z)<fieldGeometry.mound.radius||rad<3.9624;
 if(soil)return{color:C.soil,alpha:.93,r:1.43};const stripe=(Math.floor((x+z)/9)+Math.floor((z-x)/9))%2===0;return{color:stripe?C.turfA:C.turfB,alpha:.94,r:1.48}}
 function ground(){
@@ -495,7 +508,7 @@ function raisedBaseV99(points){
   for(let y=minY;y<=maxY;y+=gridV84.step())for(let x=minX;x<=maxX;x+=gridV84.step())if(inside(x,y,face.p))dot(x,y,LIGHT_RADIUS,face.color,1);}
  poly([...top,top[0]],C.chalk,LIGHT_RADIUS,1);
 }
-function park(){const wallHeight=observed.liveObservation?observed.livePark.heightMeters:3;ground();arc(0,0,C.wall,1.2,.95,gridV84.step(),1);if(state.camera!=='overhead'){arc(0,wallHeight,C.wall,1.15,.95);for(let j=0;j<=28;j++){const t=-Math.PI/4+j*Math.PI/56;wline(fence(t),fence(t,0,wallHeight),'#446747',.8,.75)}}
+function park(){ground();arc(0,0,C.wall,1.2,.95,gridV84.step(),1);if(state.camera!=='overhead'){arc(0,'wall',C.wall,1.15,.95);for(let j=0;j<=28;j++){const t=-Math.PI/4+j*Math.PI/56;wline(fence(t),fence(t,0,liveWallHeightV1(t)),'#446747',.8,.75)}}
 const left=fence(-Math.PI/4),right=fence(Math.PI/4);
 markingOwner='foul-left';wline({x:-1.1303,y:0,z:1.1303},left,C.chalk,LIGHT_RADIUS,1);
 markingOwner='foul-right';wline({x:1.1303,y:0,z:1.1303},right,C.chalk,LIGHT_RADIUS,1);markingOwner=null;

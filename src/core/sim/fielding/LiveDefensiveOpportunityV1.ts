@@ -1,4 +1,5 @@
 import type { Vec3 } from '../../model/geometry';
+import type { LiveFenceShapeV1 } from './LiveFenceShapeV1';
 
 /** Tactical evidence available now. This is never a home-run ruling. */
 export type LiveDefensiveOpportunityV1 = Readonly<{
@@ -17,6 +18,8 @@ export const LIVE_DEFENSIVE_OPPORTUNITY_POLICY_V1 = Object.freeze({
 export type LiveDefensiveOpportunityInputV1 = Readonly<{
   availableAtTick: number; observationTick: number; ballRadiusMeters: number;
   home: Vec3; fenceCenter: Vec3; fenceRadiusMeters: number; fenceHeightMeters: number;
+  /** The real wall; replaces the circle and the single height above. */
+  fenceShapeV1?: LiveFenceShapeV1;
   prediction: Readonly<{ maximumSeconds: number; firstPredictedGroundSeconds: number;
     maximumPositionSpeedMps: number; sample: (seconds: number) => Readonly<{ position: Vec3; velocity: Vec3 }> }>;
   fielders: readonly Readonly<{ position: Vec3; velocity: Vec3; topSpeedMps: number;
@@ -38,25 +41,29 @@ export function predictLiveDefensiveOpportunityV1(input: LiveDefensiveOpportunit
     || !Number.isFinite(prediction.maximumPositionSpeedMps) || prediction.maximumPositionSpeedMps <= 0) return null;
   const radius = input.fenceRadiusMeters - input.ballRadiusMeters,
     fairMargin = (p: Vec3) => p.z - input.home.z - Math.abs(p.x - input.home.x),
+    shape = input.fenceShapeV1,
+    beyond = shape ? (p: Vec3) => input.ballRadiusMeters - shape.gapAt(p) : (p: Vec3) => flatDistance(p, input.fenceCenter) - radius,
     landing = prediction.sample(ground).position,
-    carryBeyondFenceMeters = flatDistance(landing, input.fenceCenter) - radius;
+    carryBeyondFenceMeters = beyond(landing);
   if (carryBeyondFenceMeters < policy.minimumCarryBeyondFenceMeters || fairMargin(landing) < policy.minimumFairLineMarginMeters
-    || flatDistance(prediction.sample(0).position, input.fenceCenter) >= radius) return null;
+    || beyond(prediction.sample(0).position) >= 0) return null;
   // Bracket an outward crossing in this same hypothesis before first ground.
   let lo = 0, hi = 0;
   for (let h = Math.min(policy.fenceSearchStepSeconds, ground); ; h = Math.min(ground, h + policy.fenceSearchStepSeconds)) {
-    if (flatDistance(prediction.sample(h).position, input.fenceCenter) >= radius) { hi = h; break; }
+    if (beyond(prediction.sample(h).position) >= 0) { hi = h; break; }
     if (h === ground) return null;
     lo = h;
   }
   for (let i = 0; i < 32; i++) {
     const mid = (lo + hi) / 2;
-    if (flatDistance(prediction.sample(mid).position, input.fenceCenter) >= radius) hi = mid; else lo = mid;
+    if (beyond(prediction.sample(mid).position) >= 0) hi = mid; else lo = mid;
   }
-  const crossing = prediction.sample(hi), fenceClearanceMeters = crossing.position.y - input.ballRadiusMeters - input.fenceHeightMeters;
+  const crossing = prediction.sample(hi), wall = shape?.contactAt(crossing.position, crossing.velocity),
+    fenceClearanceMeters = crossing.position.y - input.ballRadiusMeters - (wall ? wall.heightMeters : input.fenceHeightMeters);
   if (fenceClearanceMeters < policy.minimumFenceClearanceMeters || fairMargin(crossing.position) < policy.minimumFairLineMarginMeters
-    || (crossing.position.x - input.fenceCenter.x) * crossing.velocity.x
-      + (crossing.position.z - input.fenceCenter.z) * crossing.velocity.z <= 0) return null;
+    || (wall ? wall.normal.x * crossing.velocity.x + wall.normal.z * crossing.velocity.z >= 0
+      : (crossing.position.x - input.fenceCenter.x) * crossing.velocity.x
+      + (crossing.position.z - input.fenceCenter.z) * crossing.velocity.z <= 0)) return null;
 
   const reachableDistance = (f: LiveDefensiveOpportunityInputV1['fielders'][number], seconds: number) => {
     // Direction changes are free in this generous upper envelope. Actual

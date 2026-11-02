@@ -5,7 +5,8 @@ export type LiveAthleticClearanceInputV1=Readonly<{scope:object;worldRevision:nu
  fromSeconds:number;throughSeconds:number;commands:readonly LiveFieldCommitmentV1[];expectedActorIds:readonly string[];
  /** A local motor-option check only. Omit for the final joint commit proof. */
  focusActorId?:string;
- fence?:Readonly<{center:Readonly<{x:number;z:number}>;radiusMeters:number}>}>;
+ /** gapAt replaces the circle with the real wall; radiusMeters is then only the frame it is measured in. */
+ fence?:Readonly<{center:Readonly<{x:number;z:number}>;radiusMeters:number;gapAt?:(p:Readonly<{x:number;z:number}>)=>number}>}>;
 export type LiveAthleticClearanceResultV1=Readonly<{kind:'safe'|'unsafe'|'unknown';reason:string;worldRevision:number;
  fromSeconds:number;throughSeconds:number;focusActorId:string|null;commandBindings:readonly string[];checkedIntervals:number;minimumCertifiedGapMeters:number|null}>;
 const mix=(a:Vec3,b:Vec3,u:number):Vec3=>({x:a.x+(b.x-a.x)*u,y:a.y+(b.y-a.y)*u,z:a.z+(b.z-a.z)*u}),
@@ -20,7 +21,7 @@ const boundsDistance=(c:Controls)=>Math.hypot(...(['x','y','z'] as const).map(ax
  const lo=Math.min(...c.map(p=>p[axis])),hi=Math.max(...c.map(p=>p[axis]));return lo>0?lo:hi<0?-hi:0;
 }));
 const certificates=new WeakMap<object,Readonly<{key:string;scope:object;commands:readonly LiveFieldCommitmentV1[]}>>();
-const binding=(q:LiveAthleticClearanceInputV1)=>JSON.stringify([q.worldRevision,[q.clock.originTick,q.clock.ticksPerSecond],q.fromSeconds,q.throughSeconds,q.focusActorId??null,q.expectedActorIds?.slice().sort(),q.fence?[q.fence.center.x,q.fence.center.z,q.fence.radiusMeters]:null]);
+const binding=(q:LiveAthleticClearanceInputV1)=>JSON.stringify([q.worldRevision,[q.clock.originTick,q.clock.ticksPerSecond],q.fromSeconds,q.throughSeconds,q.focusActorId??null,q.expectedActorIds?.slice().sort(),q.fence?[q.fence.center.x,q.fence.center.z,q.fence.radiusMeters,...(q.fence.gapAt?['shape']:[])]:null]);
 
 /** A continuous convex-hull proof over exact cubic command intervals. The
  * broad whole-body envelope may return unknown for a harmless close pass; it
@@ -66,8 +67,10 @@ export function certifyLiveAthleticClearanceV1(q:LiveAthleticClearanceInputV1):L
  };
  const fence=(c:Controls,radius:number,torso:number,depth=0):'safe'|'unsafe'|'unknown'=>{
   checkedIntervals++;if(checkedIntervals>32768)return'unknown';const f=q.fence!;
-  const radial=(p:Vec3)=>Math.hypot(p.x-f.center.x,p.z-f.center.z),rounding=8192*Number.EPSILON*Math.max(1,...c.map(norm),f.radiusMeters);
-  if(c.every(p=>radial(p)+radius+.02+rounding<=f.radiusMeters))return'safe';
+  // The real wall is not convex at its corners: a hull is only as safe as its own size allows.
+  const gapAt=f.gapAt,radial=gapAt?(p:Vec3)=>f.radiusMeters-gapAt(p):(p:Vec3)=>Math.hypot(p.x-f.center.x,p.z-f.center.z),rounding=8192*Number.EPSILON*Math.max(1,...c.map(norm),f.radiusMeters),
+   hull=gapAt?Math.max(...c.map(p=>Math.hypot(p.x-c[0].x,p.z-c[0].z))):0;
+  if(gapAt?radial(c[0])+hull+radius+.02+rounding<=f.radiusMeters:c.every(p=>radial(p)+radius+.02+rounding<=f.radiusMeters))return'safe';
   const [left,right]=split(c,.5);if([c[0],left[3],c[3]].some(p=>radial(p)+torso>f.radiusMeters+rounding))return'unsafe';
   if(c.every(p=>radial(p)+torso+rounding<=f.radiusMeters)&&[c[0],left[3],c[3]].some(p=>radial(p)+radius+.02>f.radiusMeters+rounding))return'unknown';
   if(depth>=22)return'unknown';const a=fence(left,radius,torso,depth+1),b=a==='unsafe'?'unsafe':fence(right,radius,torso,depth+1);

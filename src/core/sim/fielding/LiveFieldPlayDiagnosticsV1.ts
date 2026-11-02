@@ -4,6 +4,7 @@ import { createLiveLocomotionProfileV84, liveAccelerationDistanceV84, liveAccele
 import { quantizeEventTick } from '../ExactEventTime';
 import { createSourceFreeBallKernel } from '../ball/SourceFreeBallKernel';
 import type { BaseballBase } from '../../rules/PhysicalRuleFacts';
+import { compileLiveFenceShapeV1 } from './LiveFenceShapeV1';
 import {
   deriveLiveFieldFenceGeometryV1,
   simulateLiveFieldPlayV1,
@@ -111,7 +112,8 @@ export function diagnoseLiveFieldPlayV1(
   roleMap?: Readonly<Record<string, string>>,
 ) {
   const start = input.ball.elapsedSeconds;
-  const fence = deriveLiveFieldFenceGeometryV1(input.field);
+  const fence = deriveLiveFieldFenceGeometryV1(input.field),
+    fenceShape = input.field.fenceShapeV1 ? compileLiveFenceShapeV1(input.field.fenceShapeV1, input.field.bases.home) : null;
   const radiusM = input.physics.ground.radiusM;
   const roleOf = (playerId: string) => roleMap?.[playerId] ?? playerId;
   const isInfielder = (f: LiveFielderV1) => f.position.z > 0 && f.position.z <= 42;
@@ -142,7 +144,7 @@ export function diagnoseLiveFieldPlayV1(
     for (let dt = 0.04; dt <= oracleHorizon; dt += 0.02) {
       const t = start + dt;
       const sample = undisturbed.evaluateAt(t, 'outgoing').moment.ball;
-      const insideFence = distance(flat(sample.position), flat(fence.fenceCenter)) <= fence.fenceRadiusMeters - radiusM;
+      const insideFence = fenceShape ? fenceShape.gapAt(sample.position) >= radiusM : distance(flat(sample.position), flat(fence.fenceCenter)) <= fence.fenceRadiusMeters - radiusM;
       const heightReachable = sample.position.y <= f.position.y + f.gloveReachMeters;
       if (!insideFence || !heightReachable) continue;
       const activeTime = dt - activeDelay;

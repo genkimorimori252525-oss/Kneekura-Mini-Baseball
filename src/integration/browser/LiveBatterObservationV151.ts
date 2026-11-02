@@ -21,6 +21,8 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   contactSpeedCeilingV1?:boolean;
   /** Share of the follow-through allowance kept: late contact meets a faster bat, so 1 lets the top exit speeds run away. */
   contactSpeedCeilingShareV1?:number;
+  /** League-wide bat speed level. A slower target keeps the swing on time, where a tighter ceiling would delay it. */
+  targetSpeedScaleV1?:number;
 }>;
 export const AUTHORED_LIVE_BATTER_OBSERVATION_V151:LiveBatterObservationPolicyV151 = Object.freeze({
   version:'live_batter_observation_v151',sourceId:'authored-position-observer-v151',ticksPerSecond:1_000_000,
@@ -31,7 +33,7 @@ export const AUTHORED_LIVE_BATTER_OBSERVATION_V151:LiveBatterObservationPolicyV1
 });
 /** The match default from 2026-11-02. Values are provisional until the league calibration. */
 export const LIVE_MATCH_BATTER_OBSERVATION_V2:LiveBatterObservationPolicyV151 = Object.freeze({...AUTHORED_LIVE_BATTER_OBSERVATION_V151,
-  commitSwingSeconds:.32,contactSpeedCeilingV1:true,contactSpeedCeilingShareV1:.35,twoStrikeExpansionV1:.22,
+  commitSwingSeconds:.26,contactSpeedCeilingV1:true,targetSpeedScaleV1:.9,twoStrikeExpansionV1:.22,
   countReadinessV1:Object.freeze([[.62,.85,1],[.72,.9,1],[.72,.95,1],[.12,.85,1]].map(row=>Object.freeze(row)))});
 function assert(value:unknown,message:string):asserts value {if(!value)throw Error('live batter observation v151: '+message);}
 export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterObservationPolicyV151 {
@@ -39,6 +41,7 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
     'positionSampleIntervalTicks','deliveryLatencyTicks','maximumForecastAfterReleaseSeconds','memoryPolicy'];
   if(Object.hasOwn(p,'commitSwingSeconds')){keys.push('commitSwingSeconds');assert(Number.isFinite(p.commitSwingSeconds)&&p.commitSwingSeconds!>0&&p.commitSwingSeconds!<=1,'invalid commit swing seconds');}
   if(Object.hasOwn(p,'countReadinessV1')){keys.push('countReadinessV1');assert(Array.isArray(p.countReadinessV1)&&p.countReadinessV1.length===4&&p.countReadinessV1.every(row=>Array.isArray(row)&&row.length===3&&row.every(v=>Number.isFinite(v)&&v>=0&&v<=1)),'invalid count readiness');}
+  if(Object.hasOwn(p,'targetSpeedScaleV1')){keys.push('targetSpeedScaleV1');assert(Number.isFinite(p.targetSpeedScaleV1)&&p.targetSpeedScaleV1!>=.5&&p.targetSpeedScaleV1!<=1.5,'invalid target speed scale');}
   if(Object.hasOwn(p,'contactSpeedCeilingShareV1')){keys.push('contactSpeedCeilingShareV1');assert(Number.isFinite(p.contactSpeedCeilingShareV1)&&p.contactSpeedCeilingShareV1!>=0&&p.contactSpeedCeilingShareV1!<=1,'invalid contact speed share');}
   if(Object.hasOwn(p,'contactSpeedCeilingV1')){keys.push('contactSpeedCeilingV1');assert(typeof p.contactSpeedCeilingV1==='boolean','invalid contact speed ceiling');}
   if(Object.hasOwn(p,'twoStrikeExpansionV1')){keys.push('twoStrikeExpansionV1');assert(Number.isFinite(p.twoStrikeExpansionV1)&&p.twoStrikeExpansionV1!>=0&&p.twoStrikeExpansionV1!<=1,'invalid two strike expansion');}

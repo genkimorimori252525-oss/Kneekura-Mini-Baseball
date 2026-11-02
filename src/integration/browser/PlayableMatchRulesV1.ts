@@ -27,15 +27,16 @@ export type PlayableFieldFactsV1=Readonly<{
   overFence:Readonly<{tick:number;fair:boolean;untouchedGround:boolean;cause?:'batted'|'throw';awardFrom?:Readonly<Record<string,number>>}>|null;playEnd:PlayEndFact;buntAttempt?:boolean;
 }>;
 /** Result for a batted ball the field world could not resolve. */
+export type HitByPitchEventV1=Readonly<{kind:'hit_by_pitch';tick:number}>;
 export type SimpleBattedEventV1=Readonly<{kind:'simple_batted';tick:number;outcome:'foul'|'out'|'single'|'home_run'}>;
 export type LoosePitchEventV2=Readonly<{kind:'loose_pitch';tick:number;endTick:number;call:'ball'|'called_strike'|'swinging_strike';batterRuns:boolean;
   runners:readonly Readonly<{runnerId:string;base:number;retired:boolean;scored:boolean;tick:number;defenderId:string|null}>[]}>;
 export type PlayableRunnerOutV1=Readonly<{runnerId:string;tick:number;classification:CorrectOutClassification;cause:'base_control'|'runner_tag'|'fly_catch'|'pitch_count'|'tag_up_appeal';defenderId:string|null}>;
 export type PlayableMatchRuleInputV1=Readonly<{
   match:CanonicalMatchState;batterRunnerId:string;regulationInnings?:number;
-  event:Readonly<{kind:'pitch_call';tick:number;call:'ball'|'called_strike'|'swinging_strike'}>|Readonly<{kind:'field_play';facts:PlayableFieldFactsV1}>|LoosePitchEventV2|SimpleBattedEventV1;
+  event:Readonly<{kind:'pitch_call';tick:number;call:'ball'|'called_strike'|'swinging_strike'}>|Readonly<{kind:'field_play';facts:PlayableFieldFactsV1}>|LoosePitchEventV2|HitByPitchEventV1|SimpleBattedEventV1;
 }>;
-type Classification='count'|'foul'|'walk'|'strikeout'|'live_ball'|'home_run'|'ground_rule_double'|'fly_out'|'foul_out';
+type Classification='count'|'foul'|'walk'|'hit_by_pitch'|'strikeout'|'live_ball'|'home_run'|'ground_rule_double'|'fly_out'|'foul_out';
 export type PlayableMatchRuleResultV1=Readonly<{kind:'unresolved';reason:string;tick:number}>|Readonly<{
   kind:'applied';match:CanonicalMatchState;batterAdvanced:boolean;halfChanged:boolean;gameOver:boolean;winner:'away'|'home'|null;
   scoredRunnerIds:readonly string[];suppressedRunnerIds:readonly string[];outcomes:readonly PlayableRunnerOutV1[];
@@ -147,6 +148,8 @@ export function reducePlayableMatchV1(raw:PlayableMatchRuleInputV1):PlayableMatc
   if(input.event.kind==='pitch_call'){assert(tick(input.event.tick),'invalid pitch call tick');return applyCount(input,input.event.call,input.event.tick);}
   if(input.event.kind==='loose_pitch')return reduceLoosePitch(input,input.event);
   if(input.event.kind==='simple_batted')return reduceSimpleBatted(input,input.event);
+  if(input.event.kind==='hit_by_pitch'){const time=input.event.tick,a=resolveWalkForcedAdvancement({batterRunnerId:input.batterRunnerId,bases:input.match.bases});
+    return finish(input,{...input.match,bases:a.bases},true,'hit_by_pitch',a.scoredRunnerIds.map(runnerId=>({kind:'runner_base_touch' as const,runnerId,base:4 as const,tick:time})),[],[],time);}
   const f=input.event.facts;assert(tick(f.contactTick)&&tick(f.throughTick)&&f.throughTick>=f.contactTick
     &&f.playEnd.kind==='play_end'&&tick(f.playEnd.tick)&&f.playEnd.tick>=f.contactTick&&f.playEnd.tick<=f.throughTick
     &&['fair','foul'].includes(f.territory),'invalid physical play interval or territory');

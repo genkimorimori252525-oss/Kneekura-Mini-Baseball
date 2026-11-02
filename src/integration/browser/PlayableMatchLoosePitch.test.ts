@@ -43,3 +43,10 @@ it('keeps the batter up next half when a runner is caught for the third out',()=
   const r=loose(state({outs:2,balls:1,bases:{first:'r1',second:null,third:null}}),'called_strike',[runner('r1',1,{retired:true,defenderId:'d'})]);
   expect(r.halfChanged).toBe(true);expect(r.batterRetainsTurnV1).toBe(true);expect(r.classification).toBe('live_ball');
 });
+
+it('hit by pitch forces runners like a walk and scores as hit by pitch', () => {
+  const match = state({bases: {first: 'r1', second: 'r2', third: 'r3'}});
+  const r = reducePlayableMatchV1({match, batterRunnerId: 'b', event: {kind: 'hit_by_pitch', tick: 10}});
+  expect(r.kind).toBe('applied');
+  if (r.kind === 'applied') { expect(r.classification).toBe('hit_by_pitch'); expect(r.scoredRunnerIds).toEqual(['r3']); expect(r.match.bases).toEqual({first: 'b', second: 'r1', third: 'r2'}); }
+});

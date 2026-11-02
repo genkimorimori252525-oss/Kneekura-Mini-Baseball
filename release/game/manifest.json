@@ -368,6 +368,14 @@
 },
 {
 "kind": "shell",
+"file": "park-shapes-shell.html"
+},
+{
+"kind": "js",
+"file": "park-shapes-v1.js"
+},
+{
+"kind": "shell",
 "file": "089-shell.html"
 },
 {

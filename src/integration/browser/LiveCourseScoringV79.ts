@@ -141,7 +141,7 @@ function checkRecord(raw:LivePitchSummaryV79,players:ReadonlyMap<string,LiveGame
   assert(players.has(r.batterPlayerId)&&players.has(r.pitcherPlayerId)&&r.batterPlayerId!==r.pitcherPlayerId,'unknown pitch player');
   checkState(r.before);checkState(r.after,r.gameOver);
   assert(count(r.endedAtTick)&&typeof r.ended==='boolean'&&typeof r.gameOver==='boolean'&&(!r.gameOver||r.ended)
-    &&['count','foul','walk','strikeout','live_ball','home_run','ground_rule_double','fly_out','foul_out'].includes(r.classification)
+    &&['count','foul','walk','hit_by_pitch','strikeout','live_ball','home_run','ground_rule_double','fly_out','foul_out'].includes(r.classification)
     &&r.ended!==['count','foul'].includes(r.classification)&&r.plateAppearanceId===String(r.before.playId)
     &&r.pitchId===`${r.before.playId}:${r.endedAtTick}`&&r.after.playId===r.before.playId+(r.ended?1:0),'pitch clock/order differs');
   const f=r.facts;assert(f&&[f.outsAtStart,f.priorRunnerCount,f.runsScored].every(count)&&f.outsAtStart===r.before.outs&&f.priorRunnerCount<=3&&f.runsScored<=4

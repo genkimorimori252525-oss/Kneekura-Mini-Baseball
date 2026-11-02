@@ -29,6 +29,7 @@ import { createLiveLocomotionProfileV84, stepLiveDefenderMotionV84 } from '../lo
 import { coordinateLiveFielderMotionV1, LIVE_FIELDER_AVOIDANCE_POLICY_V1 } from './LiveFielderAvoidanceV1';
 import { resolveCatchRetention, type CatchRetentionParameters } from './CatchRetention';
 import { createGroundWallRollingCurveV1 } from './GroundWallRollingCurveV1';
+import { compileLiveFenceShapeV1, type LiveFenceShapeInputV1, type LiveFenceVertexV1 } from './LiveFenceShapeV1';
 import { createLiveFieldForecastV1, liveUnobservedSeamPhysicsV113 } from './LiveFieldForecastV1';
 import { predictLiveDefensiveOpportunityV1, LIVE_DEFENSIVE_OPPORTUNITY_POLICY_V1,
   type LiveDefensiveOpportunityV1 } from './LiveDefensiveOpportunityV1';
@@ -85,6 +86,8 @@ export type LiveRunnerV1 = Readonly<{ runnerId: string; initialBase: 0 | 1 | 2 |
   advanceSafetyMarginSeconds?: number; roundingRadiusMeters?: number; lateralAccelerationMps2?: number }>;
 export type LiveFieldGeometryV1 = Readonly<{ bases: Readonly<Record<'home' | 'first' | 'second' | 'third', Vec3>>;
   fenceRadiusMeters: number; fenceHeightMeters: number; foulFenceRadiusMeters?: number; baseTouchRadiusMeters?: number;
+  /** The real perimeter. Omitted: the single circle above, unchanged. Present: the circle fields are ignored for play. */
+  fenceShapeV1?: LiveFenceShapeInputV1;
   /** Explicit authored physical equipment; no real-park or official rule authority is inferred. */
   poleEquipmentV148?: SourceFreePoleSessionInputV148 }>;
 export type LiveFieldPlayInputV1 = Readonly<{ ball: BallWorldMoment; physics: AeroGroundBallPhysicsV1;
@@ -229,7 +232,13 @@ type Runner = { spec: LiveRunnerV1; base: number; p: Vec3; leg: Leg | null; reti
   retouchBase: 1 | 2 | 3 | null; returnReadyAt: number | null };
 type Hit = { t: number; from: number; gap: number; rounding: number; speed: number; ambiguous?: true };
 
-export function deriveLiveFieldFenceGeometryV1(field: LiveFieldGeometryV1) {
+export function deriveLiveFieldFenceGeometryV1(field: LiveFieldGeometryV1): Readonly<{ fenceCenter: Vec3; fenceRadiusMeters: number; fenceHeightMeters: number; fenceVerticesV1?: readonly LiveFenceVertexV1[] }> {
+  if (field.fenceShapeV1) {
+    // Centre and radius are then only the enclosing frame other geometry is scaled by.
+    const shape = compileLiveFenceShapeV1(field.fenceShapeV1, field.bases.home);
+    return freeze({ fenceCenter: add(field.bases.home, v()), fenceRadiusMeters: shape.maximumDistanceMeters,
+      fenceHeightMeters: shape.maximumHeightMeters, fenceVerticesV1: shape.vertices });
+  }
   const back = field.foulFenceRadiusMeters ?? 35;
   assert(finite(field.bases.home) && Number.isFinite(back) && back > 0 && Number.isFinite(field.fenceRadiusMeters)
     && field.fenceRadiusMeters > 0 && Number.isFinite(field.fenceHeightMeters) && field.fenceHeightMeters >= 0, 'finite fence geometry required');
@@ -295,9 +304,11 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
     && field.fenceRadiusMeters > 0 && field.fenceHeightMeters >= 0, 'finite field geometry required');
   // One continuous solid stadium perimeter. CF/back distances remain the
   // specified values; changing a ball's fair/foul status never moves a wall.
-  const fieldGeometry = { ...deriveLiveFieldFenceGeometryV1(field),
+  const fenceFrame = deriveLiveFieldFenceGeometryV1(field), fieldGeometry = { fenceCenter: fenceFrame.fenceCenter,
+    fenceRadiusMeters: fenceFrame.fenceRadiusMeters, fenceHeightMeters: fenceFrame.fenceHeightMeters,
     ...(poleSessionV148 ? { poleEquipmentV148: field.poleEquipmentV148! } : {}) },
-    fenceCenter = fieldGeometry.fenceCenter, fenceRadius = fieldGeometry.fenceRadiusMeters;
+    fenceCenter = fieldGeometry.fenceCenter, fenceRadius = fieldGeometry.fenceRadiusMeters,
+    fenceShapeV1 = field.fenceShapeV1 ? compileLiveFenceShapeV1(field.fenceShapeV1, field.bases.home) : null;
   for (const f of input.fielders) assert(f.playerId && finite(f.position) && (!f.velocity || finite(f.velocity)) && f.position.y > 0
     && (f.defensivePosition === undefined || ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF'].includes(f.defensivePosition))
     && [f.topSpeedMps, f.accelerationMps2, f.gloveSpeedMps, f.gloveReachMeters, f.gloveRadiusMeters, f.throwSpeedMps].every(x => Number.isFinite(x) && x > 0)
@@ -423,6 +434,8 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
     materialOrientationAtStart?: Quaternion };
   let freeScope: FreeScope | null = null;
   let wallContact: ReturnType<typeof createGroundWallRollingCurveV1>['support'] | null = null;
+  // The straight edge a supported ball is rolling on; read only while wallContact is set.
+  let wallEdgeV1: number | null = null, fenceEventsAtTimeV1 = { time: -1, count: 0 };
   let constrainedWallCurveV170: ReturnType<typeof createGroundWallRollingCurveV1> | null = null;
   const constrainedPoleWindowsV170: Extract<ReturnType<ReturnType<typeof createGroundWallRollingCurveV1>['queryNoPoleContactWindowV170']>,{kind:'clear'}>[] = [];
   const wallSupports: ReturnType<typeof createGroundWallRollingCurveV1>['support'][] = [];
@@ -1009,7 +1022,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       ...Array.from({ length: Math.floor(prediction.maximumSeconds / near.farInterceptStepSeconds) }, (_, i) => (i + 1) * near.farInterceptStepSeconds)
         .filter(h => h > near.nearInterceptThroughSeconds) ];
     const tryHorizon = (h: number) => {
-      const p = prediction.sample(h).position, insideFence = distance(flat(p), flat(fenceCenter)) <= fenceRadius - input.physics.ground.radiusM;
+      const p = prediction.sample(h).position, insideFence = ballInsideFenceV1(p);
       if (!insideFence) return null;
       const travel = travelTo(p);
       lastInFence = { point: p, eta: Math.max(h, travel) };
@@ -1053,7 +1066,17 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   // segment and its bounded emergency stop remain in the same solid stadium.
   // Convex Bezier hulls certify the complete quadratic, not just its endpoints.
   const roundBound = (p: Vec3) => 256 * Number.EPSILON * Math.max(1, norm(p), norm(fenceCenter), fenceRadius);
-  const pointInside = (p: Vec3, radius: number) => distance(flat(p), flat(fenceCenter)) + roundBound(p) <= radius;
+  // Every caller states clearance as fenceRadius-pad. For the real wall the pad
+  // is read back from that form, so each motor guard below keeps its one call.
+  const pointInside = fenceShapeV1 ? (p: Vec3, radius: number) => fenceShapeV1.gapAt(p) - roundBound(p) >= fenceRadius - radius
+    : (p: Vec3, radius: number) => distance(flat(p), flat(fenceCenter)) + roundBound(p) <= radius;
+  const ballInsideFenceV1 = (p: Vec3) => fenceShapeV1 ? fenceShapeV1.gapAt(p) >= input.physics.ground.radiusM
+    : distance(flat(p), flat(fenceCenter)) <= fenceRadius - input.physics.ground.radiusM;
+  // The stadium is not convex at its corners, so a hull with its corners inside
+  // proves nothing: the wall distance moves by at most the hull's size instead.
+  const hullInside = (a: Vec3, b: Vec3, control: Vec3, control2: Vec3, radius: number) => fenceShapeV1
+    ? fenceShapeV1.gapAt(a) - Math.max(distance(flat(a), flat(b)), distance(flat(a), flat(control)), distance(flat(a), flat(control2))) - roundBound(a) >= fenceRadius - radius
+    : pointInside(control, radius) && pointInside(control2, radius);
   const curveInside = (c: Curve, from: number, through: number, radius: number, floor: number, depth = 0): boolean => {
     if (c.stopAfter !== undefined && c.from + c.stopAfter > from && c.from + c.stopAfter < through)
       return curveInside(c, from, c.from + c.stopAfter, radius, floor, depth)
@@ -1061,7 +1084,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
     const a = at(c, from), b = at(c, through), control = add(a, mul(velocityAt(c, from), (through - from) / 3)),
       control2 = sub(b, mul(velocityAt(c, through), (through - from) / 3));
     if (!pointInside(a, radius) || !pointInside(b, radius) || a.y < floor || b.y < floor) return false;
-    if (pointInside(control, radius) && pointInside(control2, radius) && control.y >= floor && control2.y >= floor) return true;
+    if (hullInside(a, b, control, control2, radius) && control.y >= floor && control2.y >= floor) return true;
     if (depth >= 12 || from === through) return false;
     const mid = (from + through) / 2;
     return curveInside(c, from, mid, radius, floor, depth + 1) && curveInside(c, mid, through, radius, floor, depth + 1);
@@ -1102,6 +1125,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
     const speed = norm(velocityAt(c, t)); return add(at(c, t), mul(velocityAt(c, t), speed / (2 * acceleration)));
   };
   const targetInside = (p: Vec3, radius: number) => {
+    if (fenceShapeV1) return fenceShapeV1.clampInside(p, fenceRadius - radius);
     const d = flat(sub(p, fenceCenter)), length = norm(d);
     return length <= radius ? p : add(fenceCenter, add(mul(d, radius / length), v(0, p.y - fenceCenter.y, 0)));
   };
@@ -1162,7 +1186,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
     const commands=defenders.map(f=>bodyCommandV120(f,t,end,overrides?.get(f),candidate?.fielder===f?candidate.action:athleticActiveV115(f,t)?f.athleticV115:undefined));
     if(commands.some(c=>c===null))return null;
     return{scope:bodyAuthorityV120,worldRevision:bodyPlanRevisionV120,clock:{originTick,ticksPerSecond:tps},fromSeconds:t,throughSeconds:end,
-      commands:commands as LiveFieldCommitmentV1[],expectedActorIds:defenders.map(f=>f.spec.playerId),fence:{center:{x:fenceCenter.x,z:fenceCenter.z},radiusMeters:fenceRadius},
+      commands:commands as LiveFieldCommitmentV1[],expectedActorIds:defenders.map(f=>f.spec.playerId),fence:{center:{x:fenceCenter.x,z:fenceCenter.z},radiusMeters:fenceRadius,...(fenceShapeV1?{gapAt:fenceShapeV1.gapAt}:{})},
       ...(focusActorId===undefined?{}:{focusActorId})};
   };
   const respectsAirborneV120=(f:Fielder,curve:Curve,t:number,through:number)=>{
@@ -1286,7 +1310,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
           ? predictObservation(seen, t, 0) : null,
         candidate = prediction ? predictLiveDefensiveOpportunityV1({ availableAtTick: tick(t), observationTick: prediction.observationTick,
           ballRadiusMeters: input.physics.ground.radiusM, home: base(0), fenceCenter, fenceRadiusMeters: fenceRadius,
-          fenceHeightMeters: field.fenceHeightMeters, prediction,
+          fenceHeightMeters: field.fenceHeightMeters, ...(fenceShapeV1 ? { fenceShapeV1 } : {}), prediction,
           fielders: defenders.map(f => ({ position: at(f.body, t), velocity: velocityAt(f.body, t),
             topSpeedMps: f.spec.topSpeedMps, accelerationMps2: f.spec.accelerationMps2,
             gloveReachMeters: f.spec.bodyModelV105 ? f.spec.bodyModelV105.armReachMeters + Math.abs(f.spec.bodyModelV105.shoulderHeightMeters - f.spec.bodyModelV105.hipHeightMeters) : f.spec.gloveReachMeters, gloveRadiusMeters: f.spec.gloveRadiusMeters,
@@ -1920,7 +1944,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         nextPredictedBall = expected ? expected.prediction.sample(Math.min(delta, expected.prediction.maximumSeconds)) : null,
         sampledNext = nextPredictedBall?.position ?? null,
         perceivedTarget = expected
-          ? expected.intercepted || (sampledNext && distance(flat(sampledNext), flat(fenceCenter)) <= fenceRadius - input.physics.ground.radiusM)
+          ? expected.intercepted || (sampledNext && ballInsideFenceV1(sampledNext))
             ? sampledNext! : expected.point
           : at(f.body, through);
       let anticipated = localHandlerV118 || localReceiverV118 ? expected?.point ?? perceivedTarget : perceivedTarget;
@@ -2341,7 +2365,42 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         }
         if(loose){const external=[{kind:'batter_body',gap:(q:number)=>distance(evaluated(q).moment.ball.position,(loose.uncaughtThirdV1?add(runnerAt(batter!,q),v(0,.9,0)):loose.batterBody.center))-loose.batterBody.radius-input.physics.ground.radiusM},...[]];for(const item of external){const hit=findContact(item.gap,cell.maximumPositionSpeedMps+(item.kind==='bat'?batDynamics.batBound:(item.kind==='batter_body'&&loose.uncaughtThirdV1?batter!.spec.topSpeedMps:((item as any).speed??0))),cell.positionRoundingBoundMeters,lo,hi);if(hit){unresolvedDetail={kind:'loose_external_contact',collider:item.kind,hit};choose({kind:'unresolved',t:hit.t,hit,externalKind:item.kind} as any);}}}
         
-        if (!wallContact) {
+        if (fenceShapeV1) {
+          const ballRadius = input.physics.ground.radiusM, limit = Math.min(hi, horizon), positionAt = (t: number) => evaluated(t).moment.ball.position;
+          if (lo < limit) {
+            // Each wall the ball is leaving at lo proves its own departure; the
+            // others stay live, so a corner is two walls and never a blind spot.
+            const ball0 = evaluated(lo).moment.ball, planar = Math.hypot(ball0.velocity.x, ball0.velocity.z), rounding = cell.positionRoundingBoundMeters,
+              held = new Set<number>(wallContact ? [wallEdgeV1!] : []), leaving = new Set(held);
+            let clearFrom = lo;
+            for (const c of fenceShapeV1.touching(ball0.position, ballRadius + 1e-9)) {
+              if (held.has(c.edge)) continue;
+              const outward = c.normal.x * ball0.velocity.x + c.normal.z * ball0.velocity.z;
+              if (planar === 0) { leaving.add(c.edge); clearFrom = limit; continue; }
+              if (outward < (c.endpoint ? -1e-9 * planar : 0)) continue;
+              // A vertex grazed with no outward speed still recedes: distance to a point grows with the square of the run.
+              const signed = c.distanceMeters - ballRadius, grazing = c.endpoint && outward < 1e-6,
+                escape = grazing ? 1e-3 : 2 * (Math.max(0, -signed) + 1e-9 + rounding) / outward, through = Math.min(limit, lo + escape);
+              // A supported roll may simply crawl away from the wall it left; a reversal is met head-on at a later cell.
+              if (wallContact && through < limit && !(fenceShapeV1.edgeDistance(c.edge, positionAt(through)) - ballRadius > 0)) { leaving.add(c.edge); clearFrom = limit; continue; }
+              if (!(escape > 0 && Number.isFinite(escape)) || through < limit && !(fenceShapeV1.edgeDistance(c.edge, positionAt(through)) - ballRadius > 0)) {
+                unresolvedDetail = { kind: 'fence_departure', edge: c.edge, outward, escape, signed, rounding };
+                choose({ kind: 'unresolved', t: time }); continue;
+              }
+              departureProofs.push({ kind: 'fence', from: lo, through, escapeThrough: through, signedGap: signed, penetrationBoundMeters: Math.max(0, -signed),
+                supportingPlaneLowerGapMeters: signed + outward * (through - lo), actualGapAtEscapeMeters: fenceShapeV1.edgeDistance(c.edge, positionAt(through)) - ballRadius });
+              leaving.add(c.edge); clearFrom = Math.max(clearFrom, through);
+            }
+            const gapWithout = (skip: ReadonlySet<number>) => (t: number) => fenceShapeV1.gapExcluding(positionAt(t), skip) - ballRadius,
+              crossing = (clearFrom > lo ? findContact(gapWithout(leaving), cell.maximumPositionSpeedMps, rounding, lo, clearFrom) : null)
+                ?? (clearFrom < limit ? findContact(gapWithout(held), cell.maximumPositionSpeedMps, rounding, clearFrom, limit) : null);
+            if (crossing) choose({ kind: crossing.ambiguous || tick(crossing.from) !== tick(crossing.t) ? 'unresolved' : 'fence', t: crossing.t, hit: crossing });
+            if (wallContact) {
+              const edge = wallEdgeV1!, end = findContact(t => fenceShapeV1.edgeRunGap(edge, positionAt(t)), cell.maximumPositionSpeedMps, rounding, lo, limit);
+              if (end) choose({ kind: end.ambiguous || tick(end.from) !== tick(end.t) ? 'unresolved' : 'wall_edge_end', t: end.t, hit: end });
+            }
+          }
+        } else if (!wallContact) {
         const radius = fenceRadius - input.physics.ground.radiusM;
         const gap = (t: number) => radius - distance(flat(evaluated(t).moment.ball.position), flat(fenceCenter));
         let fenceFrom = lo;
@@ -2467,7 +2526,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         if(!b||b.version!=='ready_static_batter_v1'||!c||!b.actorId||!b.position||!b.velocity||norm(b.velocity)!==0||distance(c.center,add(b.position,v(0,.9,0)))>1e-12||c.radius!==.24)
           missing.push('batter_body_motion_unbound');}
       if((possession||pendingCatch)&&!dead&&(!loose.batterMotionV1||!batDynamics.batStationaryAllTime))missing.push('held_ball_batter_or_bat_motion_unbound');
-      if(wallContact&&(!constrainedWallCurveV170||kernel!==constrainedWallCurveV170||constrainedWallCurveV170.kind!=='compliant_ground_wall_arc_source_v1'))missing.push('wall_supported_ball_collider_coverage');
+      if(wallContact&&(!constrainedWallCurveV170||kernel!==constrainedWallCurveV170||constrainedWallCurveV170.kind!==(fenceShapeV1?'compliant_ground_wall_edge_source_v1':'compliant_ground_wall_arc_source_v1')))missing.push('wall_supported_ball_collider_coverage');
       if(poleSessionV148)missing.push('pole_candidate_coverage_not_bound');
       const coverageDetails={from:time,through:controlThrough,freeBall,sourceCells:looseCoveredCells,sourceCellsThrough:cellThrough,
         checked:freeBall?['ball_vs_fielder_glove_body','ball_vs_runner','ball_vs_bat_with_bound','ball_vs_fence','ground_boundaries','runner_vs_fielder_body_glove']:[ 'runner_vs_fielder_body_glove', 'held_ball_vs_batter_body', 'held_ball_vs_bat' ],
@@ -2784,17 +2843,28 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
           ...(protectionEndedByDeparture ? { protectionEndedByDeparture } : {}) });
         emit('controlled_runner_tag', time, { playerId: e.f!.spec.playerId, runnerId: r.spec.runnerId });
         if (r.retouchBase !== null) appeal(r, e.f!, time); else retire(r, time);
+      } else if (e.kind === 'wall_edge_end') {
+        // Past a reflex corner the next wall falls away: the supported roll is over.
+        const leaving = kernel.evaluateAt(time, 'incoming');
+        orientationBasis = leaving.materialOrientation ?? multiplyQuaternions(leaving.orientation, orientationBasis);
+        kernel = build({ originTick, elapsedSeconds: time, ball: leaving.moment.ball }); wallContact = null; side = 'outgoing';
       } else if (e.kind === 'fence') {
         const b = kernel.evaluateAt(time, 'incoming').moment.ball, geometricFair = isFair(b.position),
-          fair = territoryFixed ? territory === 'fair' : geometricFair, untouchedGround = !hasThrown && firstGroundContactTick === null;
-        if (b.position.y - input.physics.ground.radiusM > field.fenceHeightMeters || (!loose&&!fair)) {
+          fair = territoryFixed ? territory === 'fair' : geometricFair, untouchedGround = !hasThrown && firstGroundContactTick === null,
+          wallV1 = fenceShapeV1 ? fenceShapeV1.contactAt(b.position, b.velocity) : null;
+        if (wallV1) {
+          fenceEventsAtTimeV1 = fenceEventsAtTimeV1.time === time ? { time, count: fenceEventsAtTimeV1.count + 1 } : { time, count: 1 };
+          if (fenceEventsAtTimeV1.count > 16) { unresolvedDetail = { kind: 'fence_corner_cycle', edge: wallV1.edge }; endReason = 'numerical_contact_refinement_required'; terminal = true; continue; }
+        }
+        // A pitch behind the plate meets the backstop screen, not the seat rail that wall height describes.
+        if (b.position.y - input.physics.ground.radiusM > (wallV1 ? loose && !geometricFair ? Infinity : wallV1.heightMeters : field.fenceHeightMeters) || (!loose&&!fair)) {
           if(loose){dead=true;terminal=true;endReason='loose_pitch_out_of_play_unresolved';continue;}
           overFence = { tick: tick(time), fair, untouchedGround, cause: hasThrown ? 'throw' : 'batted',
             ...(hasThrown ? { awardFrom: lastThrowBases } : {}) }; determineTerritory(time, fair ? 'fair' : 'foul');
           emit('over_fence', time, { position: b.position }); dead = true;
           if (!fair) { terminal = true; endReason = 'foul_dead_ball'; }
         } else {
-          const normal = mul(flat(sub(fenceCenter, b.position)), 1 / distance(flat(b.position), flat(fenceCenter)));
+          const normal = wallV1 ? v(wallV1.normal.x, 0, wallV1.normal.z) : mul(flat(sub(fenceCenter, b.position)), 1 / distance(flat(b.position), flat(fenceCenter)));
           let outgoing = respondToBallContact({ ball: b, normal, surfaceVelocity: v(), material: LIVE_FIELD_TEST_MODEL_V1.wallMaterial });
           const seamContact = kernel.evaluateAt(time, 'incoming');
           orientationBasis = seamContact.materialOrientation ?? multiplyQuaternions(seamContact.orientation, orientationBasis);
@@ -2802,7 +2872,24 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
           const isGrounded = b.position.y === input.physics.ground.radiusM && b.velocity.y === 0;
           const elasticNormalEnergy = .5 * input.physics.air.aerodynamics.ballMassKg * normalVelocity ** 2;
           const remainingNormalEnergy = Math.max(0, elasticNormalEnergy - LIVE_FIELD_TEST_MODEL_V1.wallMaterial.groundNormalHysteresisLossJ);
-          if (isGrounded && remainingNormalEnergy === 0) {
+          if (wallV1 && isGrounded && remainingNormalEnergy === 0) {
+            const ballRadius = input.physics.ground.radiusM, tangent = wallV1.endpoint ? v(wallV1.normal.z, 0, -wallV1.normal.x) : v(wallV1.tangent.x, 0, wallV1.tangent.z);
+            outgoing = { ...outgoing, velocity: mul(tangent, outgoing.velocity.x * tangent.x + outgoing.velocity.z * tangent.z) };
+            // A wall that turns the roll straight into its neighbour leaves it nowhere to go: it comes to rest in the corner.
+            if (!wallV1.endpoint && fenceShapeV1!.touching(b.position, ballRadius + 1e-6).some(c => c.edge !== wallV1.edge && c.normal.x * outgoing.velocity.x + c.normal.z * outgoing.velocity.z < 0))
+              outgoing = { ...outgoing, velocity: v(), spin: v() };
+            if (wallV1.endpoint) { kernel = build({ originTick, elapsedSeconds: time, ball: outgoing }); wallContact = null; }
+            else {
+              const constrained = createGroundWallRollingCurveV1({ initial: { originTick, elapsedSeconds: time, ball: outgoing }, throughElapsedSeconds: max,
+                profile: input.physics, fenceCenter, nominalContactRadiusMeters: fenceRadius - ballRadius,
+                maximumCompressionMeters: LIVE_FIELD_TEST_MODEL_V1.wallMaterial.maximumCompressionMeters,
+                edgeV1: { tangent: wallV1.tangent, signedGapMeters: Math.min(0, wallV1.distanceMeters - ballRadius) } });
+              kernel = constrained; wallKernelBuilds++; wallContact = constrained.support; wallSupports.push(constrained.support);
+              constrainedWallCurveV170 = constrained; freeScope = null;
+              wallEdgeV1 = wallV1.edge;
+              emit('wall_support', time, { position: b.position, reason: 'normal_rebound_energy_dissipated_by_explicit_ground_wall_material' });
+            }
+          } else if (isGrounded && remainingNormalEnergy === 0) {
             const radial = flat(sub(b.position, fenceCenter)), r = norm(radial), tangent = v(radial.z / r, 0, -radial.x / r),
               speed = outgoing.velocity.x * tangent.x + outgoing.velocity.z * tangent.z;
             outgoing = { ...outgoing, velocity: mul(tangent, speed) };

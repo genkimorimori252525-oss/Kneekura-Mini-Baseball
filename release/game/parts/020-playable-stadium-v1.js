@@ -3536,6 +3536,16 @@
       const distanceMeters = along + Math.sqrt(along * along + r * r - center.x * center.x - center.z * center.z);
       return { id, angleDegrees, distanceMeters, heightMeters: height, x: s * distanceMeters, z: c * distanceMeters };
     };
+    if (park.shapeV1) {
+      // The delivered wall itself: the mesh, its clip and the fielders all use one outline.
+      const named = /* @__PURE__ */ new Map([[-180, "BACK"], [-90, "THIRD_SIDE"], [-45, "LF"], [-22.5, "LCF"], [0, "CF"], [22.5, "RCF"], [45, "RF"], [90, "FIRST_SIDE"], [180, "BACK"]]);
+      const vertices = park.shapeV1.vertices.map((p) => ({ ...p, id: named.get(p.angleDegrees) ?? "SHAPE_" + p.angleDegrees }));
+      geometry = { ...validation.geometry, kind: "editable", vertices, fencePoints: vertices.filter((p) => Math.abs(p.angleDegrees) <= 45), boundaryKey: shapeKey(park) };
+      mesh = stadiumMesh(geometry);
+      originalSurfaces = mesh.surfaces.slice();
+      originalSegments = mesh.segments.slice();
+      return;
+    }
     const ids = /* @__PURE__ */ new Map([[-180, "BACK"], [-90, "THIRD_SIDE"], [-45, "LF"], [-22.5, "LCF"], [0, "CF"], [22.5, "RCF"], [45, "RF"], [90, "FIRST_SIDE"], [180, "BACK"]]);
     const angles = [.../* @__PURE__ */ new Set([...Array.from({ length: 361 }, (_, i) => i - 180), ...ids.keys()])].sort((a, b) => a - b);
     const vertices = angles.map((a) => point(a, ids.get(a) ?? "CIRCLE_" + a));
@@ -3544,6 +3554,26 @@
     mesh = stadiumMesh(geometry);
     originalSurfaces = mesh.surfaces.slice();
     originalSegments = mesh.segments.slice();
+  }
+  var shapeKeys = /* @__PURE__ */ new WeakMap();
+  function shapeKey(park) {
+    const s = park.shapeV1;
+    if (!s) return "";
+    let k = shapeKeys.get(s);
+    if (!k) shapeKeys.set(s, k = JSON.stringify(s.vertices.map((p) => [p.angleDegrees, p.distanceMeters, p.heightMeters])));
+    return k;
+  }
+  function insideWall(park, p, margin) {
+    if (!park.shapeV1) return Math.hypot(p.x - park.center.x, p.z - park.center.z) < park.radiusMeters + margin;
+    const v = park.shapeV1.vertices, a = Math.atan2(p.x, p.z) * 180 / Math.PI;
+    let lo = 0, hi = v.length - 2;
+    while (lo < hi) {
+      const mid = Math.ceil((lo + hi) / 2);
+      if (v[mid].angleDegrees <= a) lo = mid;
+      else hi = mid - 1;
+    }
+    const q = v[lo], r = v[lo + 1], ex = r.x - q.x, ez = r.z - q.z, s = Math.sin(a * Math.PI / 180), c = Math.cos(a * Math.PI / 180);
+    return Math.hypot(p.x, p.z) < (q.x * ez - q.z * ex) / (s * ez - c * ex) + margin;
   }
   function worldXZ(x, y, d, cam) {
     const right = (x - cam.cx) * d / cam.f, up = (cam.cy - y) * d / cam.f;
@@ -3555,13 +3585,13 @@
   }
   globalThis.PlayableStadiumV1 = { cells({ park, cam, project, grid }) {
     if (!park?.center || !Number.isFinite(park.radiusMeters)) return null;
-    const nextParkKey = JSON.stringify([park.center.x, park.center.z, park.radiusMeters, park.heightMeters]);
+    const nextParkKey = JSON.stringify([park.center.x, park.center.z, park.radiusMeters, park.heightMeters, shapeKey(park)]);
     if (parkKey !== nextParkKey) {
       adapt(park);
       parkKey = nextParkKey;
       cacheKey = "";
     }
-    const key = JSON.stringify([park.center.x, park.center.z, park.radiusMeters, park.heightMeters, cam.eye.x, cam.eye.y, cam.eye.z, cam.yaw, cam.pitch, cam.f, cam.cx, cam.cy, grid.step()]);
+    const key = JSON.stringify([nextParkKey, cam.eye.x, cam.eye.y, cam.eye.z, cam.yaw, cam.pitch, cam.f, cam.cx, cam.cy, grid.step()]);
     if (key !== cacheKey) {
       mesh.surfaces = originalSurfaces.filter((s) => !/^paypay-(fence-|score-vision-|batters-eye-)/.test(s.id));
       mesh.segments = originalSegments.filter((s) => !s.id?.startsWith("paypay-fence-cap"));
@@ -3569,7 +3599,7 @@
       const report = renderStadium({ geometry, project, grid, cam, cutaway: true, crowd: { frame: 0, frames: 3, visible: true, dualFrame: true }, paint: (x, y, d, color, alpha, owner, glow, density, surfaceId, altColor, live) => {
         if (alpha <= 0) return;
         const p = worldXZ(x, y, d, cam);
-        if (Math.hypot(p.x - park.center.x, p.z - park.center.z) < park.radiusMeters) return;
+        if (insideWall(park, p, 0)) return;
         const sx = Math.round(x / step) * step, sy = Math.round(y / step) * step, k2 = sx + "," + sy, old = map.get(k2);
         if (!old || d < old.d) map.set(k2, { x: sx, y: sy, d, color, alpha, altColor, live: live ?? null });
       } });

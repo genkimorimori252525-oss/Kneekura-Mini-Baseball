@@ -6,16 +6,19 @@
  const oldRobinSlot=data.players['1-p0'];data.players.robin={...oldRobinSlot,id:'robin',name:'ロビン',height:1.63,hand:'R',bats:'R',throws:'R'};
  const roles=['P','C','1B','2B','3B','SS','LF','CF','RF'];
  const EXPERIMENTAL_UI_POLICIES_V2={robinSource:{version:'robin_original_source_v1',sourceSha256:'27d84474f8d842a8a969b6aceb07ebac94dd92aea4267826b24fa2a31221efc8'},robinAuto:{version:'robin_original_auto_v1',sourceSha256:'27d84474f8d842a8a969b6aceb07ebac94dd92aea4267826b24fa2a31221efc8'},generalLoose:{version:'general_loose_policy_v1',implementationSha256:'7c3ce16289511e184ebe572314349c85e05b0137edb94314ff6edc36e4a760b0',partialFallback:'partial_reference_fallback_v1',catcherObservation:'fixed_release_100ms_v1',batModel:'prescribed_bat_attached_and_no_interference_v1',uncaughtThird:'uncaught_third_empty_before_two_out_v4'}}; // never enabled until actual Worker/visibility acceptance
- // Center, foul-line and wall heights from tools/ballpark-studio/model.mjs. The
- // fence stays one circle: its backstop side is solved so the circle passes
- // through both distances. Niikura's 142/94.5 needs a negative backstop, so its
- // row is the least-squares circle holding the studio's 8.2m backstop.
+ // Each park plays on its real wall: fenceShapeV1 from park-shapes-v1.js, written
+ // from tools/ballpark-studio/model.mjs by tools/release/export-park-shapes.mjs.
+ // These rows are only the circle a Core without that wall would fall back on:
+ // center, foul line and one height, its backstop side solved through both
+ // distances. Niikura's real 142/94.5 needs a negative backstop, so its row is the
+ // least-squares circle holding the studio's 8.2m backstop. The core key has no
+ // row and no shape, and keeps the plain 110m circle.
  const parkDimensions={fukuoka:[122,100,4.2],tambov:[128,105,1.3],niikura:[136.5,101.7,3],koshien:[118,95,3],dodger:[120.396,100.584,2.4384]};
  function parkForStadium(){
-  const row=parkDimensions[document.getElementById('stadium-choice')?.value];
+  const choice=document.getElementById('stadium-choice')?.value,row=parkDimensions[choice],shape=window.KneekuraParkShapesV1?.[choice];
   if(!row)return Object.freeze({fenceRadiusMeters:110,fenceHeightMeters:3});
   const [center,line,height]=row,r2=Math.SQRT2;
-  return Object.freeze({fenceRadiusMeters:center,fenceHeightMeters:height,foulFenceRadiusMeters:line*(line-center/r2)/(center-line/r2),...(window.KneekuraNativeMatchCore?.LIVE_MATCH_GRASS_V2?{groundMaterialV101:window.KneekuraNativeMatchCore.LIVE_MATCH_GRASS_V2}:{})});
+  return Object.freeze({fenceRadiusMeters:center,fenceHeightMeters:height,foulFenceRadiusMeters:line*(line-center/r2)/(center-line/r2),...(shape?{fenceShapeV1:shape}:{}),...(window.KneekuraNativeMatchCore?.LIVE_MATCH_GRASS_V2?{groundMaterialV101:window.KneekuraNativeMatchCore.LIVE_MATCH_GRASS_V2}:{})});
  }
  let park=parkForStadium();
  const teams=[0,1].map(team=>({id:data.teams[team],name:data.teamNames[team],
@@ -423,7 +426,7 @@ const vecLength=value=>value?Math.hypot(value.x,value.y,value.z):0;
   const thisHost=host,thisGame=gameToken,work=(async()=>{
   if(host.inspect().finished)return null;
   lastFailure=null;lastFailureDetails=null;
-  const before=host.inspect(),beforeLine=before.line,beforeFrame=before.frame,result=await thisHost.issuePitch(command());
+  const before=host.inspect(),beforeLine=before.line,beforeFrame=before.frame,result=await thisHost.issuePitch(command());if(result?.play?.intentionalWalkV1&&$('location-choice').value==='intentional')$('location-choice').value='auto';
   if(thisGame!==gameToken||host!==thisHost||!result)return null;
   if(!result.frames.length)throw new Error('Core returned no live observations');
   const batterRunStartedAtTick=result.frames.find(frame=>frame.actors.some(actor=>actor.playerId===result.batterPlayerId&&

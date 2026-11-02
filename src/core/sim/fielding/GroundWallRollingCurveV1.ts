@@ -18,10 +18,12 @@ const freeze = <T>(value: T): T => { if (value && typeof value === 'object') {
  * is transported around that arc; three-dimensional pad deformation is not a
  * measured model. Observations do not restart either integration lattice. */
 export function createGroundWallRollingCurveV1(raw: Readonly<{ initial: BallWorldMoment; throughElapsedSeconds: number;
-  profile: AeroGroundBallPhysicsV1; fenceCenter: Vec3; nominalContactRadiusMeters: number; maximumCompressionMeters: number }>) {
+  profile: AeroGroundBallPhysicsV1; fenceCenter: Vec3; nominalContactRadiusMeters: number; maximumCompressionMeters: number;
+  /** A straight wall: the same ground coordinate along a unit edge, no arc to transport it round. */
+  edgeV1?: Readonly<{ tangent: Readonly<{ x: number; z: number }>; signedGapMeters: number }> }>) {
   const p = freeze(cloneInert(raw)), initial = p.initial, b = initial.ball, tps = p.profile.ground.ticksPerSecond;
-  const rx = b.position.x - p.fenceCenter.x, rz = b.position.z - p.fenceCenter.z, radius = Math.hypot(rx, rz);
-  const gap = p.nominalContactRadiusMeters - radius, tangent = { x: rz / radius, y: 0, z: -rx / radius };
+  const edge = p.edgeV1, rx = edge ? -edge.tangent.z : b.position.x - p.fenceCenter.x, rz = edge ? edge.tangent.x : b.position.z - p.fenceCenter.z, radius = Math.hypot(rx, rz);
+  const gap = edge ? edge.signedGapMeters : p.nominalContactRadiusMeters - radius, tangent = { x: rz / radius, y: 0, z: -rx / radius };
   const radialVelocity = (rx * b.velocity.x + rz * b.velocity.z) / radius;
   if (!(radius > 0 && Number.isFinite(radius) && gap <= 0 && gap >= -p.maximumCompressionMeters
     && p.maximumCompressionMeters >= 0 && p.maximumCompressionMeters < p.profile.ground.radiusM
@@ -38,12 +40,13 @@ export function createGroundWallRollingCurveV1(raw: Readonly<{ initial: BallWorl
   const stateAt = (time: number) => {
     const ground = sampleBaseballGroundMotionAtElapsedSeconds(b, time - initial.elapsedSeconds, p.profile.ground);
     const dx = ground.ball.position.x - b.position.x, dz = ground.ball.position.z - b.position.z;
-    const angle = (dx * tangent.x + dz * tangent.z) / radius, radial = rotate({ x: rx, y: 0, z: rz }, angle);
+    const along = dx * tangent.x + dz * tangent.z, angle = edge ? 0 : along / radius, radial = rotate({ x: rx, y: 0, z: rz }, angle);
     const speed = ground.ball.velocity.x * tangent.x + ground.ball.velocity.z * tangent.z;
     const velocity = rotate({ x: tangent.x * speed, y: 0, z: tangent.z * speed }, angle);
     return { phase: ground.phase, moment: { originTick: initial.originTick, elapsedSeconds: time,
       ball: { ...ground.ball, tick: quantizeEventTick(initial.originTick, time, tps),
-        position: { x: p.fenceCenter.x + radial.x, y: b.position.y, z: p.fenceCenter.z + radial.z }, velocity,
+        position: edge ? { x: b.position.x + tangent.x * along, y: b.position.y, z: b.position.z + tangent.z * along }
+          : { x: p.fenceCenter.x + radial.x, y: b.position.y, z: p.fenceCenter.z + radial.z }, velocity,
         spin: rotate(ground.ball.spin, angle) } } };
   };
   const knots = new Set<number>([initial.elapsedSeconds, p.throughElapsedSeconds, ...boundaries.map(x => x.elapsedSeconds)]);
@@ -76,7 +79,7 @@ export function createGroundWallRollingCurveV1(raw: Readonly<{ initial: BallWorl
     initialVelocity:b.velocity,fenceCenter:p.fenceCenter,radialDisplacement:{x:rx,z:rz},
     maximumSlidingAccelerationMps2:p.profile.ground.material.slidingFriction*p.profile.ground.gravityMps2,
     ballRadiusMeters:p.profile.ground.radiusM,cells,positionAt:time=>evaluateAt(time).moment.ball.position},request);
-  return Object.freeze({ kind: 'compliant_ground_wall_arc_source_v1' as const, initial, boundaries, cells, evaluateAt,queryNoPoleContactWindowV170,
+  return Object.freeze({ kind: (edge ? 'compliant_ground_wall_edge_source_v1' : 'compliant_ground_wall_arc_source_v1') as 'compliant_ground_wall_edge_source_v1' | 'compliant_ground_wall_arc_source_v1', initial, boundaries, cells, evaluateAt,queryNoPoleContactWindowV170,
     support: Object.freeze({ signedGapMeters: gap, maximumCompressionMeters: p.maximumCompressionMeters,
       representedRadialVelocityMps: radialVelocity, radialVelocityArithmeticBoundMps: 256 * Number.EPSILON * Math.max(1, Math.hypot(b.velocity.x,b.velocity.z)),
       radialCoordinateCorrected: false, radialReactionOwnedByWall: true, groundModel: 'existing_analytic_sliding_rolling_v1' as const }) });

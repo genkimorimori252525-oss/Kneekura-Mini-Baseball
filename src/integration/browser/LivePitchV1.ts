@@ -112,6 +112,7 @@ export type LivePitchInputV1=Readonly<{
   /** Known before release. Omission preserves the original standalone target policy. */
   pitchSituationV111?:LivePitchSituationV111;
   emotionInfluenceV1?:Readonly<{swingDecisionShiftTicks:number;swingAggressionDelta:number}>;
+  intentionalBallV1?:boolean;
   batter:LivePhysicalAbilityControlsV1 & Readonly<{heightMeters:number;bats:'R'|'L';batLengthM:number;batMassKg:number;swingRate:number;
     timingStdSeconds:number;aimStdMeters:number;chaseMarginMeters:number;clipId?:string;technicalSkills?:TechnicalSkillControlsV75}>;
   pitcher:Readonly<{releaseSpeedMps:number;spinRadPerSecond:Vec3;commandStdMeters:number;maximumPitchSpeedMps?:number;throws?:'R'|'L';
@@ -356,6 +357,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   assert(['zone','low','outside','inside','high'].includes(location),'unsupported target location');
   const batterSide=b.bats==='R'?-1:1,target={x:(targetRandom.uniform()-.5)*.32,y:middle+(targetRandom.uniform()-.5)*(zone.upperY-zone.lowerY)*.7,z:battingSetupV94.plateFrontZ};
   if(location==='outside')target.x=-batterSide*(.25+targetRandom.uniform()*.25);
+  if(input.intentionalBallV1)target.x=-batterSide*1.1;
   if(location==='inside')target.x=batterSide*(.19+targetRandom.uniform()*.2);
   if(location==='low')target.y=zone.lowerY-.06-targetRandom.uniform()*.16;
   if(location==='high')target.y=zone.upperY+.06+targetRandom.uniform()*.16;
@@ -642,7 +644,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     probeVelocity=probe.sampleAtSourceTick(sourceContactTick,'outgoing').sweetSpotVelocity,
     adjustedProbe=impactTrajectory===undefined?probe:createReferenceBatKinematicsV1(withReferenceImpactTrajectoryV1(probeInput,sourceContactTick,impactTrajectory));
   let rate=b.swingRate*controlFactor;
-  if(b.targetSweetSpotSpeedMps!==undefined){assert(norm(probeVelocity)>1e-9,'measured reference has no finite contact speed');rate*=b.targetSweetSpotSpeedMps/norm(probeVelocity);}
+  if(b.targetSweetSpotSpeedMps!==undefined){assert(norm(probeVelocity)>1e-9,'measured reference has no finite contact speed');rate*=b.targetSweetSpotSpeedMps*(observationPolicyV151?.targetSpeedScaleV1??1)/norm(probeVelocity);}
   const batCapacityV121=b.batSwingCapacityV121===undefined?null:evaluateBatSwingCapacityV121({maximumSweetSpotSpeedMps:b.maximumSweetSpotSpeedMps??45,
     bat:{lengthM:b.batLengthM,massKg:b.batMassKg,sweetSpotT:b.sweetSpotT??(b.batLengthM-.1524)/b.batLengthM},model:b.batSwingCapacityV121}),
     // With the policy set, the ceiling is a speed at the ball: the motion's own bound

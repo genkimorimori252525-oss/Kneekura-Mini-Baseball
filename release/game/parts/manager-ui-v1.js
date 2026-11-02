@@ -547,6 +547,105 @@
     applyEmotions();
   }
 
+  /* ---------- Face photos: the owner's pictures stand in for the portrait slots ----------
+     Only the players named here get a photo; the pictures live in the git-ignored release assets and are
+     referenced by id only. Display only: reads the public record (batterPlayerId, pitcherPlayerId,
+     play.localScoringV100.classification, play.call, play.intentionalWalkV1) and writes nothing to the Core.
+     An event photo is shown from the moment the pitch result is official until the next pitch begins
+     (FACE_EVENT_HOLD), except the intentional-walk photo, which lasts the whole plate appearance. */
+  const FACE_URL = id => 'data:image/webp;base64,' + id;
+  const FACES = {
+    'ロビン': { base: FACE_URL('@@ASSET:fa8be43dd80eea2c1870cc9a@@') },
+    'ライポア': { base: FACE_URL('@@ASSET:fa3a44f9c5630706a347da57@@') },
+    'ペイン酒井': { base: FACE_URL('@@ASSET:4e7eabe248e1e43c6b6f86ab@@') },
+    'ニッチロー': { base: FACE_URL('@@ASSET:025f391d743ba935d515b4ab@@') },
+    'ロッツォ': { base: FACE_URL('@@ASSET:4b0d74f5242d20a286708c93@@'), lookedK: FACE_URL('@@ASSET:1d31339da2be184b954803bc@@') },
+    'ちんすけ': { base: FACE_URL('@@ASSET:73da0b61a5c01f0a56d9a01b@@'), lookedK: FACE_URL('@@ASSET:d1b691269b8ad7ea7d6e58ea@@') },
+    'ティカオ': { base: FACE_URL('@@ASSET:dc46247adb2426dc306d63eb@@'), walk: FACE_URL('@@ASSET:81a3458479258fb0738700c4@@'), bad: FACE_URL('@@ASSET:8025535ee24115ca6dd6251e@@') }
+  };
+  const SLOT_ROLE = { '#batter-portrait': 'batter', '#pitcher-portrait': 'pitcher' };
+  const facePlain = {};
+
+  function recordClass(record) {
+    const play = (record && record.play) || {}, score = play.localScoringV100 || {};
+    return score.classification || play.classification || '';
+  }
+  /* The record whose result is on screen and final; null while a pitch is being prepared or in flight. */
+  function officialRecord(view) {
+    const record = view.lastResult;
+    if (!record) return null;
+    const frame = view.currentFrame, end = record.play && record.play.rules && record.play.rules.endedAtTick;
+    if (frame && Number.isFinite(end) && !(frame.tick >= end)) return null;
+    return record;
+  }
+  /* Records up to and including the official one, never the pitch in flight. */
+  function settledHistory(view, official) {
+    const all = (view.host && view.host.history) || [];
+    if (!view.lastResult) return all;
+    const at = all.indexOf(view.lastResult);
+    return at < 0 ? all : all.slice(0, official ? at + 1 : at);
+  }
+  /* Was the batter just ahead of this player in the order walked intentionally? */
+  function aheadWasIntentionallyWalked(history, id) {
+    const team = PLAYERS[id] && PLAYERS[id].team;
+    let i = history.length - 1;
+    while (i >= 0 && history[i].batterPlayerId === id) i -= 1;
+    for (; i >= 0; i--) {
+      const who = history[i].batterPlayerId;
+      if (who === id || (PLAYERS[who] && PLAYERS[who].team !== team)) continue;
+      for (let j = i; j >= 0 && history[j].batterPlayerId === who; j--) {
+        if (history[j].play && history[j].play.intentionalWalkV1 === true) return true;
+      }
+      return false;
+    }
+    return false;
+  }
+  /* Which photo of this player for the slot's role: a key of FACES[name], or null when he has none. */
+  function faceVariant(name, role, view) {
+    const set = FACES[name], id = NAME_TO_ID[name];
+    if (!set) return null;
+    const official = officialRecord(view), cls = recordClass(official), play = (official && official.play) || {};
+    const asBatter = !!official && official.batterPlayerId === id, asPitcher = !!official && official.pitcherPlayerId === id;
+    if (set.lookedK && role === 'batter' && asBatter && cls === 'strikeout' && play.call === 'called_strike') return 'lookedK';
+    if (set.bad && ((asBatter && cls === 'strikeout') || (asPitcher && cls === 'home_run'))) return 'bad';
+    if (set.walk) {
+      if ((asPitcher && (cls === 'walk' || cls === 'hit_by_pitch')) || (asBatter && cls === 'hit_by_pitch')) return 'walk';
+      if (role === 'batter' && id && aheadWasIntentionallyWalked(settledHistory(view, !!official), id)) return 'walk';
+    }
+    return 'base';
+  }
+  function paintFace(selector, key, url, name) {
+    const slot = $(selector);
+    if (!slot || slot.dataset.face === key) return;
+    if (!(selector in facePlain)) facePlain[selector] = { html: slot.innerHTML, label: slot.getAttribute('aria-label') };
+    slot.dataset.face = key;
+    if (url) {
+      slot.innerHTML = '<img alt="" draggable="false" src="' + url + '">';
+      slot.setAttribute('aria-label', name + 'の顔写真');
+    } else {
+      slot.innerHTML = facePlain[selector].html;
+      slot.setAttribute('aria-label', facePlain[selector].label);
+    }
+  }
+  function updateFaces() {
+    const playback = window.liveMatchPlayback;
+    let view = { host: null, lastResult: null, currentFrame: null };
+    try { if (playback && typeof playback.inspect === 'function') view = playback.inspect() || view; } catch (error) { /* keep plain portraits */ }
+    Object.keys(SLOT_ROLE).forEach(selector => {
+      const role = SLOT_ROLE[selector], name = ($('#' + role + '-name').textContent || '').replace(/\s+/g, '');
+      let variant = null;
+      try { variant = faceVariant(name, role, view); } catch (error) { variant = null; }
+      const set = FACES[name];
+      paintFace(selector, variant ? name + '|' + variant : '', variant ? (set[variant] || set.base) : null, name);
+      $$('.tactic .plate.portrait').forEach(plate => {
+        if (plate.dataset.emotionSlot !== selector || plate.dataset.face === $(selector).dataset.face) return;
+        plate.innerHTML = $(selector).innerHTML;
+        plate.dataset.face = $(selector).dataset.face || '';
+      });
+    });
+  }
+  setInterval(() => { if (!document.hidden) updateFaces(); }, 200);
+
   /* ---------- Screen mode: manager layout or the plain watching layout ---------- */
   function buildModeSwitch() {
     const grid = $('.settings-grid');

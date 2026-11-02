@@ -17,6 +17,9 @@ const limit = Number(opt.pitches ?? 400), seed = opt.seed ?? 'playtest-1', perPi
   const page = await browser.newPage();
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
+  const crashed = reason => {console.log('CRASH', reason); process.exit(3);};
+  page.on('crash', () => crashed('page'));
+  browser.on('disconnected', () => crashed('browser'));
   await page.goto('http://127.0.0.1:' + server.address().port);
   await page.waitForFunction(() => window.liveMatchPlayback);
   if (opt.pitcher) await page.selectOption('#home-pitcher-choice', opt.pitcher);
@@ -28,7 +31,7 @@ const limit = Number(opt.pitches ?? 400), seed = opt.seed ?? 'playtest-1', perPi
   const log = [];
   for (let n = 1; n <= limit; n++) {
     const started = Date.now();
-    await page.click('#next-pitch').catch(() => {});
+    await page.click('#next-pitch', {timeout: perPitch}).catch(() => {});
     try {
       await page.waitForFunction(x => {const i = window.liveMatchPlayback.inspect(); return i.error || i.host.pitchCount >= x || i.host.finished;}, n, {timeout: perPitch});
     } catch {

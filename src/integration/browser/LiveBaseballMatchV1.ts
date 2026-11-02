@@ -3,7 +3,7 @@ import {resolveLiveContactFrameMotorPracticeV244} from './LiveContactFrameMotorV
 import {lateCutBodiesV1} from '../../experimental/robin/playability/late-cut-bodies-v1';
 import {simulateRobinBridgeV1} from '../../experimental/robin/bridge/match-legacy-rng-seam';
 import {resolveLoosePitchContinuationV2} from './LoosePitchContinuationV2';
-import {decidePickoffV1,decideStealV1,leadMetersV1,leadPositionV1,resolvePickoffV1,resolveStealV1,settleBattedBallV1} from './LiveBaseRunningV1';
+import {decideIntentionalWalkV1,decidePickoffV1,decideStealV1,leadMetersV1,pitchHitsBatterV1,leadPositionV1,resolvePickoffV1,resolveStealV1,settleBattedBallV1} from './LiveBaseRunningV1';
 import {commandFor} from './LivePracticeCommandV273';
 import {declareSpinPracticeEpisodesV242,deriveSpinEpisodeConfigurationV242,type LiveSpinEpisodePlanV242} from './LiveSpinPracticeEpisodesV242';
 import {resolveLiveRobustContactFrameMotorPracticeV248} from './LiveRobustContactFrameMotorV248';
@@ -92,6 +92,7 @@ export type LiveMatchInputV1 = Readonly<{seed:number;innings?:number;teams:reado
   batterKnowledgeV122?:readonly BatterBeliefV122[];
   batterObservationV151?:LiveBatterObservationPolicyV151;
   emotionPolicyV1?:LiveEmotionPolicyV1;
+  managerTacticsV1?:boolean;
   skipFieldPlayV1?:boolean;
   batterForecastPolicyV246?:ObservedPitchForecastPolicyV246;
   batterObservedRegionExperienceV222?:BatterObservedRegionExperiencePolicyV222;
@@ -103,7 +104,7 @@ export type LiveMatchInputV1 = Readonly<{seed:number;innings?:number;teams:reado
   batterTechniqueV1?:BatterTechniquePolicyV1;
   /** MATCH roots; per-play overrides are derived with the global pitch ordinal. */
   randomnessV152?:LiveRandomnessV152;
-  measuredClips:readonly LiveMeasuredClipV1[];park?:Readonly<{fenceRadiusMeters:number;fenceHeightMeters:number;foulFenceRadiusMeters?:number;groundMaterialV101?:BaseballGroundMaterial;
+  measuredClips:readonly LiveMeasuredClipV1[];park?:Readonly<{fenceRadiusMeters:number;fenceHeightMeters:number;foulFenceRadiusMeters?:number;fenceShapeV1?:LiveFieldPlayInputV1['field']['fenceShapeV1'];groundMaterialV101?:BaseballGroundMaterial;
     poleEquipmentV148?:LiveFieldPlayInputV1['field']['poleEquipmentV148']}>}>;
 export type LiveYawPracticeRequestV255=Readonly<{version:'live_observed_yaw_contact_frame_trial_v255';subjectId:string;technique:'BACKSPIN'|'TOPSPIN'|'HOOK'|'SLICE';clip:Readonly<{id:string;sourceSha256:string;bats:'R'|'L'}>;domain:Readonly<{plateZ:number;coordinateSystem:'LIVE_WORLD_METERS_V1'}>;policy:'FIXED_17_YAW_UNCALIBRATED_V255';thresholds:Readonly<{minimumComponent:number;minimumImprovement:number}>}>;
 export type LivePitchCommandV1 = Readonly<{batting:'auto'|'balanced'|'contact'|'power'|'take'|'bunt';pitchType:string;pitchId?:string;location:string;managedTeam:0|1;
@@ -353,6 +354,7 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
     value&&typeof value==='object'&&!Array.isArray(value)?Object.fromEntries(Object.entries(value).sort(([a],[b])=>a<b?-1:a>b?1:0)):value):undefined;
   const fence=deriveLiveFieldFenceGeometryV1({bases:LIVE_MATCH_BASES_V1,...park}),fenceGeometry=frozen({
     center:{x:fence.fenceCenter.x,z:fence.fenceCenter.z},radiusMeters:fence.fenceRadiusMeters,heightMeters:fence.fenceHeightMeters,
+    ...(fence.fenceVerticesV1?{shapeV1:{vertices:fence.fenceVerticesV1}}:{}),
     ...(park.poleEquipmentV148?.poles.length?{poleEquipmentV148:park.poleEquipmentV148}:{})});
   let match:CanonicalMatchState={ruleProfileId:asRuleProfileId('npb-2026'),inning:1,half:'top',outs:0,balls:0,strikes:0,
     bases:{first:null,second:null,third:null},score:{away:0,home:0},playId:0};
@@ -493,7 +495,9 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
     const batterTechnique=resolveLiveTechnicalTraitsV75(batter.traitProfile),pitcherTechnique=resolveLiveTechnicalTraitsV75(pitcher.traitProfile);
     const batterPreference=resolveLiveTraitPreferencesV54(batter.traitProfile),pitcherPreference=resolveLiveTraitPreferencesV54(pitcher.traitProfile),
       managedOffense=command.managedTeam===c.team,personalBatting=({POWER:'power',BALANCED:'balanced',CONTACT:'contact'} as const)[batterPreference.swingMode],
-      batting=managedOffense&&command.batting!=='auto'?command.batting:personalBatting,
+      defenseLeadV1=c.team===0?beforeMatch.score.home-beforeMatch.score.away:beforeMatch.score.away-beforeMatch.score.home,
+      intentionalWalkV1=input.managerTacticsV1!==undefined&&(command.managedTeam===1-c.team?command.location==='intentional':decideIntentionalWalkV1({inning:beforeMatch.inning,regulationInnings:innings,outs:beforeMatch.outs,firstOpen:beforeMatch.bases.first===null,runnerInScoringPosition:beforeMatch.bases.second!==null||beforeMatch.bases.third!==null,defenseLead:defenseLeadV1,balls:beforeMatch.balls,strikes:beforeMatch.strikes})),
+      batting=intentionalWalkV1?'take':managedOffense&&command.batting!=='auto'?command.batting:personalBatting,
       pitchTypeCommand=command.managedTeam===1-c.team?command.pitchType:'auto',
       traitPreferences=command.batting==='auto'||batterPreference.swingMode!=='BALANCED'||pitcherPreference.pitchApproach!=='BALANCED'?{
         batting:{preference:batterPreference.swingMode,resolvedCommand:batting,source:managedOffense&&command.batting!=='auto'?'manager_command':'player_preference',
@@ -540,7 +544,7 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
       catcher:{...((command as any).robinSelection?{robinBodyModelV1:robinBodyModel,robinBodyPositionV1:{...robinReadyCatcher.position,y:robinReadyCatcher.position.y+robinBodyModel!.hipHeightMeters}}:{}),gloveSpeedMps:cp.gloveSpeedMps,gloveReachMeters:cp.gloveReachMeters,gloveRadiusMeters:cp.gloveRadiusMeters,
         retentionCapacityJ:cp.retentionCapacityJ,captureDissipationPowerW:cp.captureDissipationPowerW,pocketRadiusMeters:.14,...(cp.defensiveDecisionSeconds===undefined?{}:{defensiveDecisionSeconds:cp.defensiveDecisionSeconds}),...(cp.zoneRecognitionV87===undefined?{}:{zoneRecognitionV87:cp.zoneRecognitionV87})},
       batting,pitchType:pitchTypeCommand,...(command.managedTeam===1-c.team&&command.pitchId!==undefined?{pitchId:command.pitchId}:{}),
-      location:command.managedTeam===1-c.team?command.location:'auto',physics:matchPhysicsV101};
+      location:intentionalWalkV1?'outside':command.managedTeam===1-c.team?command.location:'auto',...(intentionalWalkV1?{intentionalBallV1:true}:{}),physics:matchPhysicsV101};
     if(capability===yawDiagnosticCapabilityV274||capability===yawDiagnosticCapabilityV275||capability===yawDiagnosticCapabilityV276)authorizedYawPitchInputsV274.add(pitchInput);
     let pitch:ReturnType<typeof simulateLivePitchV1>;
     try{pitch=((input as any).partialReferenceFallbackV1?((globalThis as any).__lateCutBodiesV1=lateCutBodiesV1(ready,input.players,matchPhysicsV101.ground.radiusM),((command as any).robinSelection?simulateRobinBridgeV1(pitchInput,(command as any).robinSelection):simulateLivePitchV1(pitchInput))):((command as any).robinSelection?simulateRobinBridgeV1(pitchInput,(command as any).robinSelection):simulateLivePitchV1(pitchInput)))}finally{if(capability===yawDiagnosticCapabilityV274||capability===yawDiagnosticCapabilityV275||capability===yawDiagnosticCapabilityV276){const evidence=takeYawDecisionEvidenceV274(pitchInput);if(evidence)yawEvidenceByHostV274.set(host,evidence);authorizedYawPitchInputsV274.delete(pitchInput)}}
@@ -614,7 +618,7 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
       if(fieldFailure===null)scoringInput=fieldWithLeads;
       else{
         // The world could not finish this play: settle it from the exit state so the game goes on.
-        const simple=settleBattedBallV1({ball:outgoingMoment.ball,fenceRadiusMeters:park.fenceRadiusMeters,fenceHeightMeters:park.fenceHeightMeters,seed:input.seed,pitchOrdinal:pitchCount+1});
+        const simple=settleBattedBallV1({ball:outgoingMoment.ball,fenceRadiusMeters:park.fenceRadiusMeters,fenceHeightMeters:park.fenceHeightMeters,...(park.fenceShapeV1?{fenceShapeV1:park.fenceShapeV1}:{}),seed:input.seed,pitchOrdinal:pitchCount+1});
         field=null;fieldFallbackReason=fieldFailure;
         const contactTick=outgoingMoment.ball.tick,endTick=contactTick+Math.round(simple.seconds*tps);
         result=reducePlayableMatchV1({match:beforeMatch,batterRunnerId:c.batterPlayerId,regulationInnings:innings,event:{kind:'simple_batted',tick:endTick,outcome:simple.outcome}});
@@ -625,7 +629,8 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
         ticksPerSecond:tps,rules:result!,sampleBatAtTick:pitch.sampleBatAtTick}));
     }else{
       if(pitch.call===null)throw unresolvedV239('live baseball match: pitch ended without physical contact or secured count call','PITCH','PITCH_NO_CALL',{endedAtTick:pitch.endedAtTick,unsupportedReason:pitch.diagnostics.unsupportedReason,contact:pitch.contact,frames:pitch.frames,diagnostics:pitch.diagnostics});
-      result=reducePlayableMatchV1({match:beforeMatch,batterRunnerId:c.batterPlayerId,regulationInnings:innings,event:pickoffRun?{kind:'loose_pitch',tick:pitch.endedAtTick,endTick:pickoffEndTick,call:pitch.call!,batterRuns:false,runners:(['first','second','third'] as const).flatMap((name,i)=>{const id=beforeMatch.bases[name];if(!id)return [];const out=id===pickoffIntent!.runnerId&&!pickoffRun!.safe;return [{runnerId:id,base:i+1,retired:out,scored:false,tick:pickoffEndTick,defenderId:out?input.teams[1-c.team].defense['1B']:null}];})}:stealRun?{kind:'loose_pitch',tick:pitch.endedAtTick,endTick:stealEndTick,call:pitch.call,batterRuns:false,runners:(['first','second','third'] as const).flatMap((name,i)=>{const id=beforeMatch.bases[name];if(!id)return [];const going=id===stealIntent!.runnerId;return [{runnerId:id,base:going&&stealRun!.safe?i+2:i+1,retired:going&&!stealRun!.safe,scored:false,tick:stealEndTick,defenderId:going?input.teams[1-c.team].defense[stealIntent!.target==='second'?'2B':'3B']:null}];})}:looseAdmission?{kind:'loose_pitch',tick:looseAdmission.eventTick,endTick:looseAdmission.endTick,call:pitch.call,batterRuns:looseAdmission.batterRuns,runners:looseAdmission.outcomes}:{kind:'pitch_call',tick:pitch.endedAtTick,call:pitch.call}});
+      const hitByPitchV1=input.managerTacticsV1!==undefined&&!pickoffRun&&pitch.call==='ball'&&!pitch.diagnostics.swingOffered&&pitchHitsBatterV1(pitch.frames,ready.actors.find(a=>a.playerId===c.batterPlayerId)!.position,batter.heightMeters);
+      result=reducePlayableMatchV1({match:beforeMatch,batterRunnerId:c.batterPlayerId,regulationInnings:innings,event:hitByPitchV1?{kind:'hit_by_pitch',tick:pitch.endedAtTick}:pickoffRun?{kind:'loose_pitch',tick:pitch.endedAtTick,endTick:pickoffEndTick,call:pitch.call!,batterRuns:false,runners:(['first','second','third'] as const).flatMap((name,i)=>{const id=beforeMatch.bases[name];if(!id)return [];const out=id===pickoffIntent!.runnerId&&!pickoffRun!.safe;return [{runnerId:id,base:i+1,retired:out,scored:false,tick:pickoffEndTick,defenderId:out?input.teams[1-c.team].defense['1B']:null}];})}:stealRun?{kind:'loose_pitch',tick:pitch.endedAtTick,endTick:stealEndTick,call:pitch.call,batterRuns:false,runners:(['first','second','third'] as const).flatMap((name,i)=>{const id=beforeMatch.bases[name];if(!id)return [];const going=id===stealIntent!.runnerId;return [{runnerId:id,base:going&&stealRun!.safe?i+2:i+1,retired:going&&!stealRun!.safe,scored:false,tick:stealEndTick,defenderId:going?input.teams[1-c.team].defense[stealIntent!.target==='second'?'2B':'3B']:null}];})}:looseAdmission?{kind:'loose_pitch',tick:looseAdmission.eventTick,endTick:looseAdmission.endTick,call:pitch.call,batterRuns:looseAdmission.batterRuns,runners:looseAdmission.outcomes}:{kind:'pitch_call',tick:pitch.endedAtTick,call:pitch.call}});
     }
     if(result.kind==='unresolved')throw unresolvedV239('live baseball match: rule continuation unresolved: '+result.reason,'RULE','RULE_UNRESOLVED',{result,pitch:{endedAtTick:pitch.endedAtTick,contact:pitch.contact,diagnostics:pitch.diagnostics}});
     assert(result.kind==='applied','rule continuation unresolved: ');
@@ -676,7 +681,7 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
     nextTick=Math.max(result.endedAtTick,acceptedFrames.at(-1)!.tick)+2*tps;
     const record:LiveIssuedPitchV1=frozen({beforeMatch,match:cloneInert(match),frames:acceptedFrames,
       events:[...stealEvents,...(looseAdmission?[...looseAdmission.bodyEvents,...looseAdmission.facts]:field?.facts??[]),...result.outcomes.map(o=>({kind:'runner_out',...o})),{kind:'pitch_adjudicated',tick:result.endedAtTick,classification:result.classification}],
-      command:cloneInert(command),play:{classification:result.classification,call:pitch.call,contact:fieldFallbackReason?{...pitch.contact,fieldFallbackV1:fieldFallbackReason} as typeof pitch.contact:pitch.contact,
+      command:cloneInert(command),play:{...(intentionalWalkV1&&result.classification==='walk'?{intentionalWalkV1:true}:{}),classification:result.classification,call:pitch.call,contact:fieldFallbackReason?{...pitch.contact,fieldFallbackV1:fieldFallbackReason} as typeof pitch.contact:pitch.contact,
         contactMoment:pitch.contactMoment,contactOrientation:pitch.contactOrientation,outgoingBallMoment,field,rules:result,localScoringV100,
         diagnostics:{...pitch.diagnostics,...(batterEvidenceReceptionV122?{batterEvidenceReceptionV122}:{}),
           ...(observationPolicyV151?{batterObservedMemoryUpdateV151:{status:nextObservedMemoryV151?'ACCEPTED_UNCLASSIFIED_OBSERVATION':'NO_DELIVERED_FORECAST_AT_CLOSURE',
