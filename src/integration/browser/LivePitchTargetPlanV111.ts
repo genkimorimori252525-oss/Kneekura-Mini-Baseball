@@ -11,6 +11,8 @@ type Position=Readonly<{x:number;y:number}>;
 type CommandInput=Readonly<{position:Position;zone:BatterCourseZoneV79;bats:'R'|'L';commandStdMeters:number;technicalSkills?:TechnicalSkillControlsV75;throws?:'R'|'L'}>;
 export type LivePitchTargetPlanInputV111=Readonly<{
  zone:BatterCourseZoneV79;ballRadiusMeters:number;seed:number;situation:LivePitchSituationV111;
+ /** The manager's pitch order. The plan still reads the count, but only inside this part of the plate. */
+ preferredLocationV1?:'zone'|'inside'|'outside'|'low'|'high';
  pitcher:Readonly<{commandStdMeters:number;technicalSkills?:TechnicalSkillControlsV75;zoneRecognitionV87?:ZoneRecognitionV87;throws?:'R'|'L'}>;
  catcher?:Readonly<{zoneRecognitionV87?:ZoneRecognitionV87}>;
  batter:Readonly<{bats:'R'|'L';heightMeters?:number;maximumSweetSpotSpeedMps?:number;targetSweetSpotSpeedMps?:number;
@@ -160,7 +162,15 @@ export function planLivePitchTargetV111(raw:LivePitchTargetPlanInputV111){
   addCandidate(cx+zone.halfWidth*radius*Math.cos(angle*Math.PI/4),cy+halfHeight*radius*Math.sin(angle*Math.PI/4));
  for(let column=0;column<9;column++)for(let row=0;row<7;row++)
   addCandidate(cx-zone.halfWidth+(column-1.5)*zone.halfWidth*2/5,zone.lowerY+(row-.5)*(zone.upperY-zone.lowerY)/5);
- const preferenceFallback=candidates.every(c=>c.weight===0),eligible=candidates.filter(c=>preferenceFallback||c.weight>0),
+ const orderSide=batter.bats==='R'?-1:1,inOrder=(c:Candidate)=>{const {x,y}=c.position,dx=x-cx,dy=y-cy;
+  switch(input.preferredLocationV1){
+   case 'low':return dy<-halfHeight*.3&&dy>=-halfHeight*1.1&&Math.abs(dx)<=zone.halfWidth;
+   case 'high':return dy>halfHeight*.3&&dy<=halfHeight*1.1&&Math.abs(dx)<=zone.halfWidth;
+   case 'inside':return dx*orderSide>zone.halfWidth*.3&&dx*orderSide<=zone.halfWidth*1.1&&Math.abs(dy)<=halfHeight;
+   case 'outside':return dx*orderSide<-zone.halfWidth*.3&&dx*orderSide>=-zone.halfWidth*1.1&&Math.abs(dy)<=halfHeight;
+   case 'zone':return Math.abs(dx)<=zone.halfWidth*.6&&Math.abs(dy)<=halfHeight*.6;
+   default:return true;}
+ },ordered=candidates.filter(inOrder),preferenceFallback=ordered.every(c=>c.weight===0),eligible=ordered.filter(c=>preferenceFallback||c.weight>0),
   maximumWeight=Math.max(...eligible.map(c=>c.weight)),maximumEligibleStrikeProbability=Math.max(...eligible.map(c=>c.pStrike)),
   challengeProbabilityFloor=.45*maximumEligibleStrikeProbability;
  for(const c of eligible)c.preferenceCost=preferenceFallback?0:Math.min(.10,.008*Math.log(maximumWeight/c.weight));

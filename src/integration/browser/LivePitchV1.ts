@@ -364,8 +364,10 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   if(location==='high')target.y=zone.upperY+.06+targetRandom.uniform()*.16;
   // Consume the legacy targeting draws first. The independent planning stream
   // must not shift the actual command/spin/swing error samples.
-  const pitchTargetPlanV111=input.location==='auto'&&input.pitchSituationV111!==undefined?planLivePitchTargetV111({
+  const orderedLocationV1=observationPolicyV151?.pitchOrderPlanV1&&input.location!=='auto'&&!input.intentionalBallV1?input.location as 'zone'|'inside'|'outside'|'low'|'high':undefined,
+    pitchTargetPlanV111=(input.location==='auto'||orderedLocationV1)&&input.pitchSituationV111!==undefined?planLivePitchTargetV111({
     zone,ballRadiusMeters:profile.ground.radiusM,pitcher:p,catcher,batter:b,situation:input.pitchSituationV111,
+    ...(orderedLocationV1?{preferredLocationV1:orderedLocationV1}:{}),
     seed:randomStreamsV152?.seedFor('pitchTarget','target-plan-v111')??input.seed}):null;
   if(pitchTargetPlanV111){Object.assign(target,pitchTargetPlanV111.position);location=pitchTargetPlanV111.location;}
   const {lowZoneTechnique,lowZoneTechniqueActive,lowZoneCommandStd,insideTechnique,insideTargetWeight,effectiveCommandStd}=

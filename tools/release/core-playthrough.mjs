@@ -21,7 +21,7 @@ if (opt.decision) for (const player of config.players) if (/-b\d$/.test(player.p
 const policies = config.experimentalMatchPoliciesV2;
 const resume = opt.resume ? JSON.parse(readFileSync(opt.resume, 'utf8')) : undefined;
 const host = policies ? core.createExperimentalMatchHostV2(config, policies, resume) : core.createLiveBaseballMatchWorkerV116(config, resume);
-const command = {batting: 'auto', pitchType: 'auto', location: 'auto', managedTeam: 0, baserunning: 'balanced'};
+const command = {batting: 'auto', pitchType: 'auto', location: opt.location ?? 'auto', managedTeam: 0, baserunning: 'balanced'};
 const limit = Number(opt.pitches ?? 600);
 const tally = {steals: true, pitches: 0, swings: 0, contacts: 0, hits: 0, loose: 0, fallback: {}};
 let last = host.captureContinuationV116();
