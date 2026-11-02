@@ -492,3 +492,75 @@ body[data-mode="manager"] .manager-grid > label:first-child { width: 160px; }
 .player-portrait[data-emotion] { position: relative; }
 .player-portrait[data-emotion]::after { right: 2px; bottom: 2px; }
 .tactic .plate.portrait[data-emotion]::after { right: 2px; bottom: 2px; }
+
+/* Match flow: the match holds at each plate appearance, stops are counted, a card plays a short effect. */
+.run-row { display: flex; align-items: center; gap: 8px; padding: 0 12px 6px; }
+.run-stops { display: flex; flex: none; align-items: center; gap: 5px; font-size: 11px; color: #d4c990; white-space: nowrap; }
+.run-stops .pips { display: flex; gap: 2px; }
+.run-stops .pips i { display: block; width: 7px; height: 7px; background: #20261c; border: 1px solid #4d5546; }
+.run-stops .pips i.on { background: var(--gold); border-color: var(--gold); }
+.run-stops b { font-weight: 600; font-variant-numeric: tabular-nums; color: var(--white); }
+.run-state { flex: 1 1 auto; min-width: 0; font-size: 11px; line-height: 14px; color: var(--muted); }
+.run-row[data-notice="1"] .run-state { color: var(--gold); }
+.run-btn {
+  flex: none;
+  min-height: 32px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #18170d;
+  background: var(--gold);
+  border-color: var(--gold);
+}
+.run-btn:hover { color: #18170d; background: #edc85a; border-color: #edc85a; }
+.run-row[data-run="running"] .run-btn { color: var(--white); background: #2a1816; border-color: var(--red); }
+.run-row[data-run="running"] .run-btn:hover { background: #3a201d; }
+.run-row[data-run="over"], .run-row[data-run="fast"] .run-btn { display: none; }
+.hand-deck[data-state="orders"] .run-row { display: none; }
+.hand-deck[data-run="held"] { border-top-color: var(--gold); }
+body[data-run="1"] #next-pitch, body[data-run="1"] #previous-pitch { opacity: .4; }
+
+/* Default card effect (replaceable through window.playManagerCardFx): the card name over the picture, about 0.5 s. */
+.card-fx {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 24px;
+  background: rgba(8, 10, 7, .88);
+  border: 2px solid var(--gold);
+  pointer-events: none;
+  animation: card-fx-pop .5s ease-out both;
+}
+.card-fx[data-deck="pitcher"] { border-color: var(--blue); }
+.card-fx b { font-size: 22px; font-weight: 700; color: var(--gold); }
+.card-fx[data-deck="pitcher"] b { color: var(--blue); }
+.card-fx span { font-size: 11px; color: #d4d6c6; }
+@keyframes card-fx-pop {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(.8); }
+  25% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+  80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.02); }
+}
+.card-row[data-fx] .tactic[aria-pressed="true"] { animation: card-fx-lift .5s ease-out; }
+.card-row[data-fx] .tactic:not([aria-pressed="true"]) { opacity: .45; }
+@keyframes card-fx-lift {
+  0% { transform: translateY(-6px); }
+  40% { transform: translateY(-14px); }
+  100% { transform: translateY(-6px); }
+}
+@media (max-width: 680px) {
+  .run-row { gap: 6px; padding: 0 10px 5px; }
+  .run-state { font-size: 10px; line-height: 12px; }
+  .run-btn { min-height: 30px; padding: 3px 9px; font-size: 11px; }
+  .card-fx b { font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-fx, .card-row[data-fx] .tactic[aria-pressed="true"] { animation: none; }
+  .card-fx { transform: translate(-50%, -50%); }
+}

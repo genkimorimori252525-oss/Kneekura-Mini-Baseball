@@ -27,6 +27,8 @@ export type LiveRelayPlanInputV1 = Readonly<{
   holderTransferRemainingSeconds: number; physics: AeroGroundBallPhysicsV1;
   throwHandOffset: Readonly<{ forwardMeters: number; heightAboveHipMeters: number }>;
   maximumIntermediateReceivers?: 0 | 1 | 2; minimumMarginSeconds?: number; excludedRelayPlayerIds?: readonly string[];
+  /** Keep the best route even when it loses the race, for a throw made anyway. Omission keeps 'hold' without legs. */
+  keepLateRouteV1?: true;
   materialOrientationAtRelease?: Quaternion;
   holderChargeElapsedSecondsV103?: number;
   preferStrongestFeasibleV103?: boolean;
@@ -67,7 +69,7 @@ const flatDistance = (a: Vec3, b: Vec3) => Math.hypot(a.x - b.x, a.z - b.z);
 const finite = (p: Vec3) => !!p && [p.x, p.y, p.z].every(Number.isFinite);
 const freeze = <T>(value: T): T => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
 const allowedInputKeys = ['actors', 'holderPlayerId', 'receiverPlayerId', 'finalBase', 'runnerId', 'target', 'runnerArrivalSeconds',
-  'holderTransferRemainingSeconds', 'physics', 'throwHandOffset', 'maximumIntermediateReceivers', 'minimumMarginSeconds', 'excludedRelayPlayerIds', 'materialOrientationAtRelease','holderChargeElapsedSecondsV103','preferStrongestFeasibleV103','holderReleaseBodyVelocityV110'];
+  'holderTransferRemainingSeconds', 'physics', 'throwHandOffset', 'maximumIntermediateReceivers', 'minimumMarginSeconds', 'excludedRelayPlayerIds', 'keepLateRouteV1', 'materialOrientationAtRelease','holderChargeElapsedSecondsV103','preferStrongestFeasibleV103','holderReleaseBodyVelocityV110'];
 
 /** Routes an intended throw using only present actor state and an explicit
  * runner estimate. Intermediate receivers are actual actors at their current
@@ -274,7 +276,7 @@ export function planLiveRelayV1(raw: LiveRelayPlanInputV1,compareReadyReceiverTo
     readySeconds = carryPreferred ? carrySeconds : best!.readySeconds,
     costSeconds = carryPreferred ? carrySeconds : best!.costSeconds,
     marginSeconds = input.runnerArrivalSeconds - costSeconds - minimumMargin,
-    legs = !carryPreferred && marginSeconds > 0 ? best!.legs : [], first = legs[0],
+    legs = !carryPreferred && marginSeconds > 0 ? best!.legs : input.keepLateRouteV1 && best ? best.legs : [], first = legs[0],
     kind = marginSeconds <= 0 ? 'hold' : carryPreferred ? 'carry' : legs.length === 1 ? 'direct' : 'relay';
   return freeze({ kind, finalBase: input.finalBase, runnerId: input.runnerId, readySeconds, marginSeconds, costSeconds, carrySeconds, directSeconds,
     firstHop: first ? { receiverPlayerId: first.receiverPlayerId, target: first.target, receiverPoint: first.receiverPoint, intent: first.intent } : null,

@@ -47,7 +47,7 @@ interface RandomSource {
 }
 
 /** ゲームへそのまま渡す、JSON互換の数値プリセット。 */
-export const ROBIN_PITCH_SPECS: readonly RobinPitchSpec[] = [
+const AUTHORED_ROBIN_PITCH_SPECS: readonly RobinPitchSpec[] = [
   { id: 'robin_2', name: 'ロビン Type 2・直球', trajectory: 'straight', speedKmh: 210 },
   { id: 'robin_3', name: 'ロビン Type 3・上下変化', trajectory: 'wave_vertical', speedKmh: 165, movementAmplitudeM: 0.236, movementCycles: 2.5 },
   { id: 'robin_3_slow', name: 'ロビン Type 3・上下変化 100', trajectory: 'wave_vertical', speedKmh: 100, movementAmplitudeM: 0.236, movementCycles: 2.5 },
@@ -60,6 +60,18 @@ export const ROBIN_PITCH_SPECS: readonly RobinPitchSpec[] = [
   { id: 'robin_6', name: 'ロビン Type 6・消える球 4.3m', trajectory: 'invisible', speedKmh: 170, hideDistanceFromBatterM: 4.3 },
   { id: 'robin_6_original', name: 'ロビン Type 6・消える球 原作', trajectory: 'invisible', speedKmh: 170, hideDistanceFromBatterM: 9.02 },
 ] as const;
+
+/** 原作の最速210km/hを本人指定の180km/hへ。球種間の比率は原作のまま保つ。 */
+const ROBIN_SPEED_SCALE = 180 / 210;
+const scaled = (kmh: number): number => kmh * ROBIN_SPEED_SCALE;
+const scaledRange = (range: readonly [number, number]): readonly [number, number] => [scaled(range[0]), scaled(range[1])];
+export const ROBIN_PITCH_SPECS: readonly RobinPitchSpec[] = AUTHORED_ROBIN_PITCH_SPECS.map((spec) => ({
+  ...spec,
+  ...(spec.speedKmh === undefined ? {} : { speedKmh: scaled(spec.speedKmh) }),
+  ...(spec.baseSpeedRangeKmh === undefined ? {} : { baseSpeedRangeKmh: scaledRange(spec.baseSpeedRangeKmh) }),
+  ...(spec.speedBoostRangeKmh === undefined ? {} : { speedBoostRangeKmh: scaledRange(spec.speedBoostRangeKmh) }),
+  ...(spec.acceleratesToKmh === undefined ? {} : { acceleratesToKmh: scaled(spec.acceleratesToKmh) }),
+}));
 
 const ROBIN_SPEC_BY_ID = new Map<RobinPitchId, RobinPitchSpec>(
   ROBIN_PITCH_SPECS.map((spec) => [spec.id, spec])

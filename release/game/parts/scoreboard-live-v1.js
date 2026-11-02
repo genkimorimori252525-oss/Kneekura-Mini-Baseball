@@ -30,7 +30,8 @@
     const official = !!record && !!frame && frame.tick >= record.play.rules.endedAtTick;
     const match = view.observedMatch || (record ? (official ? record.match : record.beforeMatch) : host.match);
     const line = record ? (official ? record.line : record.beforeLine) : host.line;
-    const index = record ? history.indexOf(record) : history.length - 1;
+    /* The displayed record is a copy of the host's, so its place in the history is the selected pitch's index. */
+    const index = record ? (Number.isInteger(view.selectedPitch) ? view.selectedPitch : history.indexOf(record)) : history.length - 1;
     const counted = record ? (official ? record : history[index - 1]) : history[history.length - 1];
     const hits = (counted && counted.hits) || zero, errors = (counted && counted.errors) || zero;
     const startFrame = record && record.beforeFrame ? record.beforeFrame : host.frame;

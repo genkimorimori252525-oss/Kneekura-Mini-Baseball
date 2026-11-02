@@ -35,6 +35,7 @@ import { predictLiveDefensiveOpportunityV1, LIVE_DEFENSIVE_OPPORTUNITY_POLICY_V1
   type LiveDefensiveOpportunityV1 } from './LiveDefensiveOpportunityV1';
 import { resolveGroundedActorContactResponseV1 } from './GroundedActorContactResponseV1';
 import { planLiveThrowV1 } from './LiveThrowPlanV1';
+import { decideLiveCloseThrowV1,liveCloseThrowToleranceV1,LIVE_CLOSE_THROW_CALIBRATION_V1,validateLiveFieldThrowPolicyV1,type LiveFieldThrowPolicyV1 } from './LiveCloseThrowV1';
 import { planLiveThrowActionV103,LIVE_THROW_EFFORT_POLICY_V103 } from './LiveThrowActionV103';
 import { liveFielderTurnSpeedV110 } from './LiveFielderBodyGeometryV105';
 import { planLiveTransferActionV110,resolveLiveGloveTossCapabilityV110,liveGloveTossOffsetV110 } from './LiveGloveTossV110';
@@ -102,6 +103,8 @@ export type LiveFieldPlayInputV1 = Readonly<{ ball: BallWorldMoment; physics: Ae
   /** Internal transition/research setting. Never an authored player ability. */
   defenseDecisionModeV118?: 'legacy'|'shadow'|'individual';
   recordDecisionTraceV118?: true;
+  /** Close throws are attempted and a far holder returns the ball; omission keeps positive-margin throws only. */
+  fieldThrowPolicyV1?: LiveFieldThrowPolicyV1;
   /** Opt-in runner tactics, authored and UNMEASURED; omitted keeps legacy decisions. Enables: two-out go-on-contact held for the
    * whole contact leg, line-drive freeze under two outs, halfway on a shallow catchable fly. `context` also lets risk follow outs,
    * inning and score (facts a runner knows). */
@@ -279,6 +282,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   assert(input.recordInitialMovementV98 === undefined || input.recordInitialMovementV98 === true, 'invalid initial movement telemetry option');
   assert(input.defenseDecisionModeV118===undefined||['legacy','shadow','individual'].includes(input.defenseDecisionModeV118),'invalid defense decision mode');
   assert(input.recordDecisionTraceV118===undefined||input.recordDecisionTraceV118===true,'invalid decision trace option');
+  const fieldThrowPolicyV1=input.fieldThrowPolicyV1===undefined?undefined:validateLiveFieldThrowPolicyV1(input.fieldThrowPolicyV1);
   const individualV118=input.defenseDecisionModeV118==='individual',
     decisionTraceV118=createLiveFieldDecisionTraceV1({enabled:!!input.recordDecisionTraceV118,originTick,ticksPerSecond:tps,seed:input.seed??0});
   const executionErrorsV95 = input.executionPerturbationsV95?.throwErrors ?? [];
@@ -521,7 +525,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   let side: 'incoming' | 'outgoing' = 'incoming', possession: Fielder | null = null,
     pendingCatch: { fielder: Fielder; first: number; secure: number; firstTouchWasAirborne: boolean; offset: Vec3; spin: Vec3;
       initialPosition: Vec3; initialGlove: Vec3 } | null = null,
-    throwTarget: { receiver: Fielder; throwerPlayerId: string; base: BaseballBase; runnerId: string; forced: boolean; appeal: boolean; routineReturn?: boolean;
+    throwTarget: { receiver: Fielder; throwerPlayerId: string; base: BaseballBase; runnerId: string; forced: boolean; appeal: boolean; routineReturn?: boolean; returnThrowV1?: boolean;
       point: Vec3; receiverPoint: Vec3; issuedFrom: Vec3; intent: 'relay' | 'base_cover'; effort: ThrowEffortCommandV103;
       releasedAt?: number; releasedFrom?: Vec3; handPreparationRetriesV110?:number; outputRefreshedV110?:boolean; tossReviewAfterV118?:number } | null = null,
     releaseAt: number | null = null, custodySince = Infinity;
@@ -1520,6 +1524,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
             // catch's running momentum as a free boost at the later release.
             holderReleaseBodyVelocityV110:v(),
             preferStrongestFeasibleV103: !o.containment, physics: commandComparisonPhysicsV113,
+            ...(fieldThrowPolicyV1?{keepLateRouteV1:true as const}:{}),
             excludedRelayPlayerIds: [...(relayVisited.get(r.spec.runnerId + ':' + o.targetBase) ?? [])],
             throwHandOffset: { forwardMeters: LIVE_FIELD_TEST_MODEL_V1.throwHand.forwardMeters,
               heightAboveHipMeters: LIVE_FIELD_TEST_MODEL_V1.throwHand.heightAboveHipMeters } },individualV118);
@@ -1548,7 +1553,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
             throwEffortBuildSecondsV103: possession!.spec.throwEffortBuildSecondsV103 ?? LIVE_THROW_EFFORT_POLICY_V103.defaultBuildSeconds,
             receiverReadySeconds: receiverArriveSeconds,
             ...(!o.containment ? { deadlineSeconds: Math.max(0, runnerSeconds - (receiver.spec.gloveRadiusMeters + input.physics.ground.radiusM) / receiver.spec.gloveSpeedMps),
-              preferStrongestFeasibleV103: true } : {}) },ownRecoveryWaitV120>0?{...transferActorV110(possession!,t),position:ownReleaseBodyV120,
+              preferStrongestFeasibleV103: true } : fieldThrowPolicyV1 ? { deadlineSeconds: Math.max(2.5, runnerSeconds) } : {}) },ownRecoveryWaitV120>0?{...transferActorV110(possession!,t),position:ownReleaseBodyV120,
                 glovePosition:add(ownReleaseBodyV120,sub(at(possession!.glove,t),at(possession!.body,t)))}:transferActorV110(possession!,t),2,preparation.kind==='planned',individualV118);
           if(directAction.kind==='planned'&&ownRecoveryWaitV120>directAction.releaseDelaySeconds){
             const controlSeconds=Math.max(ownRecoveryWaitV120+directAction.flightSeconds,receiverArriveSeconds),
@@ -1633,7 +1638,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       // double-play attempt above may instead risk both runners becoming safe.
       const positive = (doublePlay.selected?candidates.find(c=>c.runnerId===doublePlay.selected!.firstRunnerId&&c.base===doublePlay.selected!.firstBase):null)
           ?? candidates.find(candidate => !candidate.containment && candidate.margin > 0);
-      const routineFirst = positive ? undefined : candidates.find(c => {
+      const routineFirst = positive||fieldThrowPolicyV1 ? undefined : candidates.find(c => {
         if(c.base!==1||!c.forced||c.appeal||c.containment||c.carryPreferred||c.margin>0||!Number.isFinite(c.receivingSeconds)
           ||runners.some(r=>r.spec.runnerId!==c.runnerId&&knownRunnerActiveV118(r,t)))return false;
         const opportunityId=originTick+':'+custodySince+':'+possession!.spec.playerId,
@@ -1646,8 +1651,36 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
             distanceMeters:race.distanceMeters,capacityMps:race.capacityMps,runnerSpeedMps:race.runnerSpeedMps,
             runnerSeconds:race.runnerSeconds,receivingSeconds:race.receivingSeconds,decision});
         return decision.attempt;
-      }), pick = positive ?? routineFirst
-          ?? candidates.filter(candidate => candidate.containment && candidate.margin > 0).sort((a, b) => a.base - b.base || b.margin - a.margin)[0];
+      }), throwableV1 = (c: typeof candidates[number]) => !!c.relayPlan?.firstHop || c.directAction?.kind === 'planned',
+        // Holding back on a close play takes judgment. Everyone else lets it go.
+        closeAttemptV1 = positive || !fieldThrowPolicyV1 ? undefined : candidates.filter(c => !c.containment && !c.carryPreferred && throwableV1(c))
+          .sort((a, b) => b.margin - a.margin).find(c => {
+            const opportunityId = originTick + ':' + custodySince + ':' + possession!.spec.playerId + ':' + c.runnerId + ':' + c.base, cognition = possession!.spec.fieldingCognition;
+            return decideLiveCloseThrowV1({ seed: fieldRandomSeedV152('close-throw-v1:' + opportunityId) >>> 0, opportunityId, marginSeconds: c.margin,
+              decisionSeconds: cognition?.decisionSeconds ?? 0, pursuitCostWeight: cognition?.pursuitCostWeight ?? 1, ...(cognition?.cautious ? { cautious: true } : {}) }).attempt;
+          }),
+        pickBeforeReturnV1 = positive ?? routineFirst ?? closeAttemptV1
+          ?? candidates.filter(candidate => candidate.containment && candidate.margin > 0).sort((a, b) => a.base - b.base || b.margin - a.margin)[0],
+        returnPickV1 = pickBeforeReturnV1 ? undefined : (() => {
+          // No out to make: a far holder still gets the ball back in, ahead of the lead runner still in play.
+          if (!fieldThrowPolicyV1 || !individualV118) return undefined;
+          const from = flat(at(possession!.body, t));
+          if (Math.min(...([1, 2, 3, 4] as const).map(n => distance(from, flat(base(n))))) <= LIVE_CLOSE_THROW_CALIBRATION_V1.returnDistanceMeters) return undefined;
+          // A caught fly has already retired the batter, whatever the holder has yet to see of him.
+          const seen = knowledgeV118(possession!, t).runners.filter(r => !r.retired && !r.scored && !(flyCatch && runners.find(x => x.spec.runnerId === r.runnerId)!.spec.initialBase === 0));
+          if (!seen.length) return undefined;
+          let lead = 0, leadRunnerId = seen[0].runnerId, anyMoving = false;
+          for (const s of seen) {
+            const runner = runners.find(r => r.spec.runnerId === s.runnerId)!, moving = knownRunnerMovingV118(runner, t, possession!), standing = moving ? Math.min(4, s.currentBase + 1) : s.currentBase;
+            anyMoving ||= moving;
+            if (standing < 4 && standing >= lead) { lead = standing; leadRunnerId = s.runnerId; }
+          }
+          // With everyone stopped the ball only has to come in, to the nearer bag in front of the holder.
+          const targetBase = (anyMoving ? Math.max(2, lead + 1) : distance(from, flat(base(2))) <= distance(from, flat(base(3))) ? 2 : 3) as BaseballBase;
+          if (rejectedThrows.has(leadRunnerId + ':' + targetBase)) return undefined;
+          const candidate = evaluateCandidate({ runnerId: leadRunnerId, targetBase, forced: false, appeal: false, containment: true });
+          return throwableV1(candidate) ? { ...candidate, carryPreferred: false } : undefined;
+        })(), pick = pickBeforeReturnV1 ?? returnPickV1;
       if(individualV118&&input.recordDecisionTraceV118)decisionTraceV118.record(t,possession.spec.playerId,{basis:'individual_perception',
         observationSeconds:knowledgeV118(possession,t).observationElapsedSeconds,event:'holder_candidates',
         candidates:candidates.map(c=>({runnerId:c.runnerId,base:c.base,receiverPlayerId:c.receiver.spec.playerId,marginSeconds:c.margin,
@@ -1697,11 +1730,11 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
             observationSeconds:knowledgeV118(possession,t).observationElapsedSeconds},undefined,'execution');
           holderTask = { point: at(possession.body, t), intent: 'hold', base: null };
           throwTarget = { receiver: hop ? defenders.find(f => f.spec.playerId === hop.receiverPlayerId)! : pick.receiver, throwerPlayerId: possession.spec.playerId,
-            routineReturn: pick === routineFirst && !positive,
+            routineReturn: pick === routineFirst && !positive || pick === returnPickV1, ...(pick === returnPickV1 ? { returnThrowV1: true } : {}),
             base: pick.base, runnerId: pick.runnerId, forced: pick.forced, appeal: pick.appeal, point: hop?.target ?? add(pick.target, v(0, pick.receiver.spec.position.y, 0)),
             receiverPoint: hop?.receiverPoint ?? pick.target, issuedFrom: at(possession.glove, t), intent: hop?.intent ?? 'base_cover', effort: command };
           releaseAt = Math.max(through, command.readyAt);
-          holderDecisions.push({ elapsedSeconds: t, playerId: possession.spec.playerId, state: pick === routineFirst && !positive ? 'prepare_first_base_attempt' : pick.containment ? 'prepare_containment_throw' : 'prepare_throw', base: pick.base,
+          holderDecisions.push({ elapsedSeconds: t, playerId: possession.spec.playerId, state: pick === routineFirst && !positive ? 'prepare_first_base_attempt' : pick === returnPickV1 ? 'prepare_return_throw' : pick === closeAttemptV1 ? 'prepare_close_throw' : pick.containment ? 'prepare_containment_throw' : 'prepare_throw', base: pick.base,
             margin: pick.margin, carrySeconds: pick.carrySeconds, receivingSeconds: pick.receivingSeconds,
             receiverPlayerId: pick.receiver.spec.playerId,
             receiverDistanceToBaseMeters: distance(flat(at(pick.receiver.body, t)), flat(pick.target)) });
@@ -2242,6 +2275,10 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   };
   const appeal = (r: Runner, f: Fielder, t: number) => {
     const origin = r.retouchBase!;
+    // A runner who took a lead left the bag before the ball was hit, so no departure was ever observed.
+    if (fieldThrowPolicyV1 && flyCatch && r.spec.position && distance(flat(r.spec.position), flat(base(origin))) > (field.baseTouchRadiusMeters ?? .28)
+      && !runnerDepartures.some(d => d.runnerId === r.spec.runnerId && d.base === origin && d.tick < flyCatch!.firstTouchTick))
+      runnerDepartures.push({ kind: 'runner_base_departure', runnerId: r.spec.runnerId, base: origin, tick: tick(start) });
     defensiveAppeals.push({ kind: 'defensive_appeal_attempt', defenderId: f.spec.playerId, runnerId: r.spec.runnerId,
       base: origin, reason: 'tag_up_early_departure', tick: tick(t) });
     if (!flyCatch || !runnerDepartures.some(d => d.runnerId === r.spec.runnerId && d.base === origin && d.tick < flyCatch!.firstTouchTick)) {
@@ -2686,6 +2723,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
           if(individualV118&&input.recordDecisionTraceV118)decisionTraceV118.record(time,f.spec.playerId,{event:'throw_cancelled',
             commandId:target.effort.commandIdV118,reason,flightSeconds,observationSeconds:knowledgeV118(f,time).observationElapsedSeconds},undefined,'execution');
           for (const o of obligations) rejectedThrows.add(o.runnerId + ':' + o.targetBase);
+          if (target.returnThrowV1) rejectedThrows.add(target.runnerId + ':' + target.base);
           throwDecisions.push({ elapsedSeconds: time, base: target.base, reason, ...(flightSeconds === undefined ? {} : { flightSeconds }) });
           throwEffortCancellationsV103.push({ playerId: f.spec.playerId, from: time, commandFrom: target.effort.from, reason });
           runnerCueRevisionV95++; runnerCueAtV95 = time;
@@ -2699,7 +2737,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
             &&!!routineRunner&&!knownRunnerMovingV118(routineRunner,time,f)
             :routineRunner && !routineRunner.retired && !routineRunner.scored && routineRunner.base === 1
             && !advancingPast(routineRunner, 1, time) && (!routineRunner.leg || routineRunner.leg.to === 1);
-        if (!obligations.length && !routineStillValid) { reject('force_already_satisfied'); continue; }
+        if (!obligations.length && !routineStillValid && !target.returnThrowV1) { reject('force_already_satisfied'); continue; }
         const radial = sub(position, at(actualHipCurveV105(f), time));
         const preparation = handPreparation as HandPreparationState | null,
           preparationReady = preparation?.fielder === f && preparation.base === target.base && preparation.prepared,
@@ -2730,7 +2768,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
               target:q,spin,physics:input.physics,remainingTransferSeconds:0,handPreparationSeconds:0,
               chargeElapsedSeconds:Math.max(0,time-target.effort.chargeFrom),throwEffortBuildSecondsV103:target.effort.fullChargeSeconds,
               receiverReadySeconds:receiverEtaToBag,
-              ...(obligations.length?{deadlineSeconds:Math.max(0,Math.min(runnerSeconds-(target.receiver.spec.gloveRadiusMeters+input.physics.ground.radiusM)/target.receiver.spec.gloveSpeedMps,
+              ...(obligations.length||target.returnThrowV1?{deadlineSeconds:Math.max(0,Math.min(obligations.length?runnerSeconds-(target.receiver.spec.gloveRadiusMeters+input.physics.ground.radiusM)/target.receiver.spec.gloveSpeedMps:Infinity,
                 target.effort.plannedControlAtSeconds-time)-LIVE_FIELD_TEST_MODEL_V1.controlSeconds),
                 preferStrongestFeasibleV103:target.effort.reason==='STRONGEST_FEASIBLE_COMPETITIVE_THROW'}:{}),
               ...(materialSeamsActive?{materialOrientationAtRelease:ballAt(time).orientation}:{})});
@@ -2750,7 +2788,13 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
           const r = runners.find(r => r.spec.runnerId === o.runnerId)!;
           return runnerArrivalSeconds(r, target.base, time);
         }));
-        if (!target.routineReturn && runnerTime <= planned.flightSeconds) { reject('aero_throw_arrives_after_runner', planned.flightSeconds); continue; }
+        // Nothing is urgent on a return: let the receiver reach the bag instead of throwing to an empty one.
+        if (target.returnThrowV1 && receiverEtaToBag > planned.flightSeconds && time < custodySince + LIVE_CLOSE_THROW_CALIBRATION_V1.returnWaitSeconds - 1) {
+          releaseAt = controlThrough; if (releaseAt === time) releaseAt += LIVE_FIELD_TEST_MODEL_V1.controlSeconds; continue; }
+        // Once the arm is coming through, a close race is still a throw. Only a sharp read pulls it back.
+        const lateThrowAcceptedV1 = !!fieldThrowPolicyV1 && runnerTime - planned.flightSeconds >= -liveCloseThrowToleranceV1({ decisionSeconds: f.spec.fieldingCognition?.decisionSeconds ?? 0,
+          pursuitCostWeight: f.spec.fieldingCognition?.pursuitCostWeight ?? 1, ...(f.spec.fieldingCognition?.cautious ? { cautious: true } : {}) });
+        if (!target.routineReturn && runnerTime <= planned.flightSeconds && !lateThrowAcceptedV1) { reject('aero_throw_arrives_after_runner', planned.flightSeconds); continue; }
         const relation = f.spec.fieldRelationshipsV99?.find(r => r.toPlayerId === target.receiver.spec.playerId),
           trust = relation?.trust ?? 50, coordination = relation?.coordination ?? 50,
           receiveOpportunityV152=originTick+':'+custodySince+':'+f.spec.playerId+':'+target.receiver.spec.playerId+':'+target.base,
@@ -2777,7 +2821,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         throwDecisions.push({ elapsedSeconds: time, base: target.base, reason: 'positive_margin_physical_throw', flightSeconds: planned.flightSeconds });
         kernel = build({ originTick, elapsedSeconds: time, ball: { tick: tick(time), position, velocity, spin } }); wallContact = null;
         emit('throw_release', time, { playerId: f.spec.playerId, base: target.base, position, runnerId: target.runnerId,
-          reason: target.routineReturn && !obligations.some(o=>o.forced) ? 'routine_return' : target.intent === 'relay' ? 'relay_play' : obligations.some(o => o.appeal) ? 'appeal_play' : obligations.some(o => o.forced) ? 'force_play' : 'tag_play',
+          reason: target.returnThrowV1 ? 'return_throw' : target.routineReturn && !obligations.some(o=>o.forced) ? 'routine_return' : target.intent === 'relay' ? 'relay_play' : obligations.some(o => o.appeal) ? 'appeal_play' : obligations.some(o => o.forced) ? 'force_play' : 'tag_play',
           receiverPlayerId: target.receiver.spec.playerId, target: q });
         if(individualV118&&input.recordDecisionTraceV118)decisionTraceV118.record(time,f.spec.playerId,{event:'actual_throw_release',
           commandId:target.effort.commandIdV118,factIndex:facts.length-1,receiverPlayerId:target.receiver.spec.playerId,
@@ -2920,7 +2964,8 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
     const awardedFence = overFence;
     if (awardedFence?.fair && !awardedFence.untouchedGround && retiredSlidesCompleteV115 && runners.every(r => r.retired || !r.leg && r.base >= Math.min(4, (awardedFence.awardFrom?.[r.spec.runnerId] ?? r.spec.initialBase) + 2))) { endReason = 'ground_rule_award_completed'; terminal = true; }
     if (!dead && possession && runnersComplete && !runnerDecisionPending && time - custodySince >= Math.max(.6, effectiveTransferSeconds(possession))
-      && (releaseAt === null || legacyOutTargetsV117().length === 0)) { endReason = 'live_action_complete'; terminal = true; }
+      && (releaseAt === null || legacyOutTargetsV117().length === 0)
+      && !((throwTarget as { returnThrowV1?: boolean } | null)?.returnThrowV1 && releaseAt !== null && time < custodySince + LIVE_CLOSE_THROW_CALIBRATION_V1.returnWaitSeconds)) { endReason = 'live_action_complete'; terminal = true; }
     if (time === horizon && !e && horizon === max) break;
   }
   sampleFrame(time);

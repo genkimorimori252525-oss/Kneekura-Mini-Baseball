@@ -94,7 +94,8 @@ export function collectLiveErrorCandidatesV100(field:Field,end:number,toTick:(s:
    stop=secured?.tick??next,cancel=field.diagnostics.aiTelemetry.throwTargetCancellations.some(c=>c.releasedAt!==null&&toTick(c.releasedAt)===f.tick&&toTick(c.elapsedSeconds)<=end),
    loose=facts.some(c=>c.tick>f.tick&&c.tick<stop&&['ground_contact','over_fence'].includes(c.kind)),
    direction=field.diagnostics.throwDirectionCommands[i]?.actual;
-  if((cancel||loose)&&direction&&(direction.yawRadians!==0||direction.pitchRadians!==0)){
+  // A return bounces in on purpose. It only becomes a misplay if the receiver then fails it.
+  if((cancel||loose)&&f.reason!=='return_throw'&&direction&&(direction.yawRadians!==0||direction.pitchRadians!==0)){
    // A failed receipt of an already errant throw belongs to the thrower.
    e.candidates=e.candidates.filter(c=>!(c.kind==='receiving'&&c.tick>f.tick&&c.tick<stop));
    const candidate:LocalScoringCandidateV100={id:`throw:${i}:${f.tick}`,tick:f.tick,fielderId:f.playerId!,kind:'throwing',

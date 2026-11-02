@@ -46,7 +46,7 @@ import {resolveBattingDirectionRequestV149,type BattingDirectionRequestV149} fro
 import {planNeutralReactiveDirectionV272} from '../../core/decision/batting/NeutralReactivePlannerV272';
 import {recallBatterObservedMemoryV151,validateBatterObservedMemoryV151,type BatterObservedMemoryV151} from '../../core/decision/batting/BatterObservedMemoryV151';
 import {recallObservedRegionV222,validateObservedRegionPolicyV222,type BatterObservedRegionExperiencePolicyV222} from '../../core/decision/batting/BatterObservedRegionExperienceV222';
-import {createLiveBatterPositionObserverV151,validateLiveBatterObservationPolicyV151,type LiveBatterObservationPolicyV151} from './LiveBatterObservationV151';
+import {convertBatterAccuracyV1,createLiveBatterPositionObserverV151,validateLiveBatterObservationPolicyV151,type LiveBatterObservationPolicyV151} from './LiveBatterObservationV151';
 import {validateObservedDirectionMotorV153,createDirectionMotorPredictionV153,limitDirectionExecutionV153,type ObservedDirectionMotorPolicyV153} from './LiveDirectionMotorV153';
 import {planObservedDirectionRegistrationV153,planObservedReactiveRegistrationV161,planObservedReactiveDirectionLotteryV251,validateObservedReactiveDirectionGroupPolicyV251,type ObservedReactiveDirectionGroupPolicyV251,type ObservedDirectionRegistrationInputV153,
   type ObservedReactiveRegistrationInputV161} from '../../core/sim/contact/ObservedDirectionRegistrationV153';
@@ -210,6 +210,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   const executionV122=b.swingExecutionV122===undefined?undefined:validateSwingExecutionV122(b.swingExecutionV122);
   assert(input.pitchCommandObservationV155===undefined||input.pitchCommandObservationV155===true,'invalid read-only pitch command observation request');
   const observationPolicyV151=input.batterObservationV151===undefined?undefined:validateLiveBatterObservationPolicyV151(input.batterObservationV151);
+  if(observationPolicyV151?.accuracyConversionV1)Object.assign(b,convertBatterAccuracyV1(b,observationPolicyV151.accuracyConversionV1));
   assert(input.batterForecastPolicyV246===undefined||observationPolicyV151!==undefined,'V246 forecast requires position-only observation policy');
   const directionMotorPolicyV153=input.batterDirectionMotorV153===undefined?undefined:validateObservedDirectionMotorV153(input.batterDirectionMotorV153);
   assert(directionMotorPolicyV153===undefined||observationPolicyV151!==undefined,'direction motor requires position-only observation policy');

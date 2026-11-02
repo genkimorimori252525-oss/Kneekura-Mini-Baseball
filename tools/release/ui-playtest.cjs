@@ -17,7 +17,8 @@ const limit = Number(opt.pitches ?? 400), seed = opt.seed ?? 'playtest-1', perPi
   const page = await browser.newPage();
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
-  const crashed = reason => {console.log('CRASH', reason); process.exit(3);};
+  let closing = false;
+  const crashed = reason => {if (closing) return; console.log('CRASH', reason); process.exit(3);};
   page.on('crash', () => crashed('page'));
   browser.on('disconnected', () => crashed('browser'));
   await page.goto('http://127.0.0.1:' + server.address().port);
@@ -50,6 +51,7 @@ const limit = Number(opt.pitches ?? 400), seed = opt.seed ?? 'playtest-1', perPi
     if (v.error || v.finished) break;
   }
   console.log('RESULT', JSON.stringify({pitches: log.length, last: log.at(-1), errors: errors.slice(0, 5)}));
+  closing = true;
   await browser.close();
   server.close();
 })().catch(e => {console.error(e.stack); process.exitCode = 1;});

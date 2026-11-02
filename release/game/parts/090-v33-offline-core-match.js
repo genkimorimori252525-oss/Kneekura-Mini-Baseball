@@ -23,14 +23,14 @@
  let park=parkForStadium();
  const teams=[0,1].map(team=>({id:data.teams[team],name:data.teamNames[team],
   battingOrder:Array.from({length:9},(_,i)=>team+'-b'+i),pitcherId:team===1?'robin':team+'-p0',
-  defense:Object.fromEntries(roles.map(role=>[role,role==='P'?(team===1?'robin':team+'-p0'):team+'-b'+data.defenseMap[team][role]]))}));
+  defense:Object.fromEntries(roles.map(role=>[role,role==='P'?(team===1?'robin':team+'-p0'):team+'-b'+data.defenseMap[team][role]]))}));window.KneekuraActiveTeamsV1=teams;
  // Identity/presentation data alone comes from the old HTML. Ratings and league
  // labels are deliberately not converted into physical capability or outcomes.
  const basePlayers=Object.values(data.players).map(player=>({playerId:player.id,name:player.name,
   heightMeters:player.height,bats:player.hand,throws:player.throws??'R'}));
  const defaultRoster=JSON.parse($('v40-physical-roster').textContent),rosterCatalog=JSON.parse($('v40-roster-catalog').textContent),publicReference=JSON.parse($('v61-public-ability-reference').textContent);
- const robinPhysical={...core.LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1,releaseSpeedMps:210/3.6,maximumPitchSpeedMps:85};
- const robinPitchTypes=['fastball','slider','curve','forkball','changeup','sinker'];let robinRepertoire=core.validatePitchRepertoireV78({version:'pitch_repertoire_v78',pitches:robinPitchTypes.map(type=>core.createPitchSnapshotFromPresetV78({presetId:type,pitchId:type==='fastball'?'robin-type2':'robin-'+type,physical:robinPhysical,throws:'R'}))},85);
+ const robinPhysical={...core.LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1,releaseSpeedMps:50,maximumPitchSpeedMps:50};
+ const robinPitchTypes=['fastball','slider','curve','forkball','changeup','sinker'];let robinRepertoire=core.validatePitchRepertoireV78({version:'pitch_repertoire_v78',pitches:robinPitchTypes.map(type=>core.createPitchSnapshotFromPresetV78({presetId:type,pitchId:type==='fastball'?'robin-type2':'robin-'+type,physical:robinPhysical,throws:'R'}))},50);
  const robinEntry=structuredClone(defaultRoster.entries.find(e=>e.playerId==='1-p0'));defaultRoster.entries.push(robinEntry);Object.assign(robinEntry,{playerId:'robin',sourceId:'robin-reference-si-v1',heightMeters:1.63,physical:{...robinPhysical,pitchRepertoireV78:robinRepertoire}});delete robinEntry.traitProfile;
  const robinCatalog=rosterCatalog.players.find(e=>e.playerId==='1-p0');if(robinCatalog)rosterCatalog.players.push({...robinCatalog,playerId:'robin',name:'ロビン',heightMeters:1.63,bats:'R',throws:'R'});
  let players=basePlayers,playerById=Object.fromEntries(Object.values(data.players).map(player=>[player.id,player])),
@@ -117,7 +117,7 @@
   if(selected.startsWith('v78:')&&!row)throw Error('選択した球は現在の投手に登録されていません');
   const original=$('robin-original-choice').value;if(original&&(state.pitcherPlayerId!=='robin'||Number($('managed-team').value)!==state.team||$('batting-choice').value!=='take'))throw Error('原作球の実験はロビン投手・攻撃側の待球に限ります');
   return {batting:$('batting-choice').value,pitchType:row?.pitchType??pitchModels[selected]??selected,...(row?{pitchId:row.pitchId}:{}),...(original?{robinOriginalV1:{version:'robin_original_command_v1',sourceSha256:'27d84474f8d842a8a969b6aceb07ebac94dd92aea4267826b24fa2a31221efc8',selection:original}}:{}),
-   location:$('location-choice').value,managedTeam:Number($('managed-team').value),baserunning:$('baserunning-choice').value};};
+   ...($('direction-choice').value==='AUTO'?{}:{battingDirectionRequestV149:{version:'batting_direction_request_v149',sourceId:'manager-card-v1',mode:$('direction-choice').value}}),location:$('location-choice').value,managedTeam:Number($('managed-team').value),baserunning:$('baserunning-choice').value};};
    let battedTrailMode='overhead';try{const saved=localStorage.getItem('kneekura.battedTrail.v1');if(['off','overhead','all'].includes(saved))battedTrailMode=saved;}catch{}
   function battedTrailPoints(result,frame,camera){
    if(!result||battedTrailMode==='off'||(battedTrailMode==='overhead'&&camera!=='overhead'))return null;
@@ -139,7 +139,7 @@ const vecLength=value=>value?Math.hypot(value.x,value.y,value.z):0;
  }
  function catcherFlight(result){
   const first=result?.frames.find(frame=>frame.ballKind==='batted');
-  return first?{first,delaySeconds:Math.max(1,Math.min(2,70/Math.max(1,vecLength(first.ball?.velocity))))}:null;
+  return first?{first,delaySeconds:.3}:null;// C2: overhead starts 0.3 s after contact (was 1-2 s)
  }
  function sceneTiming(result){
   const first=result.frames[0].tick,last=result.frames.at(-1).tick,physicalMs=(last-first)/1000;
@@ -366,10 +366,10 @@ const vecLength=value=>value?Math.hypot(value.x,value.y,value.z):0;
    flyingPitch=result&&sceneStage()==='physical'&&currentFrame.phase==='pitch'&&currentFrame.ballKind==='pitch'
     &&currentFrame.ball&&currentFrame.ball.visible!==false&&!currentFrame.possessedBy;
   pitchMarksOpacity=(releasing||flyingPitch)? .06:1;
-  chartObservation=Object.freeze({...chart.observe({records,pitchIndex:selected,atTick:currentFrame.tick,batterHeightMeters:batter.height,battingSetupV94:result?.play.diagnostics.battingSetupV94??window.KneekuraBattingSetupViewV94.resolveBatter(batter),selectedPitchId:selectedMark}),marksOpacity:pitchMarksOpacity});
+  chartObservation=Object.freeze({...chart.observe({records,pitchIndex:preparingPitchV99&&records[selected]?.play.rules.batterAdvanced?-1:selected,atTick:currentFrame.tick,batterHeightMeters:batter.height,battingSetupV94:result?.play.diagnostics.battingSetupV94??window.KneekuraBattingSetupViewV94.resolveBatter(batter),selectedPitchId:selectedMark}),marksOpacity:pitchMarksOpacity});
   const ball=currentFrame.ball&&currentFrame.ball.visible!==false&&!currentFrame.possessedBy?{...currentFrame.ball,
    sourceObservation:true,ballKind:currentFrame.ballKind}:null;
-  let displayBall=(playing||continuousPitchObservationV81)&&currentFrame.ballKind==='pitch'&&pitchBallActive?pitchBallSample:ball;
+  let displayBall=(playing||continuousPitchObservationV81)&&currentFrame.ballKind==='pitch'&&pitchBallActive&&pitchBallSample?pitchBallSample:ball;
   whiffFollowThroughV88=whiffFollowThroughControllerV88.observe({record:result,frame:currentFrame,sceneMs,preparationMs:timing.preparationMs,
    measuredClip:measured.clips.find(clip=>clip.id===result?.play.diagnostics.measuredClipId),bodyBatFrame:actorAnimation.batFrame});
   const batSourceV88=whiffFollowThroughV88?whiffFollowThroughV88.bat:currentFrame.bat;
@@ -396,7 +396,7 @@ const vecLength=value=>value?Math.hypot(value.x,value.y,value.z):0;
   const world={liveOriginalVisualV1:(()=>{const p=result?.play?.diagnostics?.loosePitchV1?.sourceProvenance,id=p?.selection??p?.sourceId;return result?.pitcherPlayerId==='robin'&&currentFrame.ballKind==='pitch'&&p&&typeof id==='string'?{pitchId:id}:null})(),liveBaseUmpireCalls:window.KneekuraBaseUmpireCallsV1.observe(result,currentFrame.tick),liveUmpireArtV1:window.KneekuraArtBankV1?.umpireArt({record:result,frame:currentFrame,preparing:sceneStage()==='preparation',ordinal:selected,sceneMs,preparationMs:timing.preparationMs}),liveObservation:true,awayHit:!!(result && result.beforeMatch.half==='top' && result.play.localScoringV100?.status==='confirmed' && result.play.localScoringV100.hits===1 && currentFrame.tick>=result.play.localScoringV100.atTick),liveBattingSetupV94:result?.play.diagnostics.battingSetupV94??window.KneekuraBattingSetupViewV94.resolveBatter(batter),livePark:state.fenceGeometry,liveBattedObservation:currentFrame.ballKind==='batted'||currentFrame.ballKind==='throw',
    liveFieldObserverPlayerId:homeRunWatchV83?.observerPlayerId??fieldCameraObservation?.observerPlayerId??currentFrame.fieldObserverPlayerId??null,
     liveFieldGazeV99:result?.play.field&&currentFrame.ballKind!=='pitch'&&(options.camera==='fielder'||options.camera==='mound')?window.KneekuraLiveFieldGazeV99.observe({record:result,frame:currentFrame,bases:core.LIVE_MATCH_BASES_V1,defaultObserverPlayerId:fieldCameraObservation?.observerPlayerId??currentFrame.fieldObserverPlayerId,eyeHeightMeters:(actors.find(a=>a.sourcePlayerId===(fieldCameraObservation?.observerPlayerId??currentFrame.fieldObserverPlayerId))?.player.height??1.79)*.92}):null,
-    liveFieldCameraTarget:homeRunWatchV83?.target??fieldCameraObservation?.target??null,liveCatcherCameraTarget:catcherFollow?.target??null,
+    liveFieldCameraTarget:homeRunWatchV83?.target??fieldCameraObservation?.target??null,liveCatcherCameraTarget:catcherFollow?.target??(options.camera==='catcher'?window.KneekuraLiveFieldCamera.catcherBaseGlance({record:result,frame:currentFrame,bases:core.LIVE_MATCH_BASES_V1})?.target:null)??null,
    liveBatterCameraTarget:batterGaze?.target??null,
     livePitcherBodyHeadView:pitcherBodyHeadView,liveDefensiveOpportunity:currentFrame.defensiveOpportunity,livePitcherReactionView:pitcherReactionView,liveContinuousBatterView:continuousBatterView,liveTakenPitchGaze:takenPitchGaze,livePitchMarksOpacity:pitchMarksOpacity,tick:currentFrame.tick,localTick,batter,pitcher,actors,ball:displayBall,bat,
    liveBallExactFrameTick:!!ball&&displayBall===ball,liveRunnerDirection:currentFrame.actors.find(actor=>actor.playerId===batterId)?.velocity??null,
@@ -407,9 +407,14 @@ const vecLength=value=>value?Math.hypot(value.x,value.y,value.z):0;
    ballKind:currentFrame.ballKind,benchReturn:currentFrame.phase==='bench',officialKnown:!!currentFrame.homeRunConfirmed||!!result&&currentFrame.tick>=result.play.rules.endedAtTick,
    phase:currentFrame.phase,history:chartObservation.history};
   cadence.sceneDraws++;cadence.lastSceneMs=sceneMs;
-  const camera=cameraFor(currentFrame,actors);const chartWrap=$('pitch-chart').closest('.chart-wrap');if(chartWrap){chartWrap.hidden=camera==='overhead';chartWrap.style.display=camera==='overhead'?'none':'';}
+  const camera=cameraFor(currentFrame,actors);// C3: the pitch chart stays in every view
+  const fielderEyesV1=camera==='fielder'?world.liveFieldObserverPlayerId:null;
+  window.KneekuraLiveBroadcastView.before({camera,playing,sceneMs,record:result,observer:fielderEyesV1});
+  const drawStartedV1=performance.now();
   rendered=visual.liveDrawWorld(world,{...options,camera,selectedPitch:chartObservation.selectedPitchId,battedTrail:battedTrailPoints(result,currentFrame,camera)});
+  if(playing)window.KneekuraPresentationControlsV84.noteDraw(performance.now()-drawStartedV1);
   $('camera-caption').textContent=cameras[camera];
+  window.KneekuraLiveBroadcastView.after({camera,labels:cameras,observerName:actors.find(a=>a.sourcePlayerId===fielderEyesV1)?.player.name??null,contactReached:!!contact&&sceneStage()!=='preparation'&&currentFrame.tick>=contact.tick});
   document.querySelectorAll('[data-camera]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.camera===camera)));
   document.querySelectorAll('[data-appearance]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.appearance===options.appearance)));
   const runners=actors.filter(actor=>actor.role==='runner');$('runner-presence').hidden=camera==='overhead'||!runners.length;
@@ -462,6 +467,7 @@ const vecLength=value=>value?Math.hypot(value.x,value.y,value.z):0;
      if(selected<records.length-1){selected++;setSceneTime(0);skipAtMs=null;selectedMark=null;animate();}
      else {const nextToken=token,nextGame=gameToken;preparingSceneV99=sceneMs;preparingPitchV99=true;sceneMs=0;frameIndex=0;draw();
       requestAnimationFrame(()=>requestAnimationFrame(async()=>{if(nextToken!==token||nextGame!==gameToken||!preparingPitchV99)return;
+       const heldV1=window.KneekuraManagerGateV1?.holdBeforePitch?.();if(heldV1){await heldV1;if(nextToken!==token||nextGame!==gameToken||!preparingPitchV99)return;pauseAfterPitch=false;}
        preparingPitchV99=false;preparingSceneV99=null;try{const result=await issue();if(result&&nextToken===token&&nextGame===gameToken&&!pauseAfterPitch&&!fast)animate();else draw();}catch(error){backgroundFailureV116(error);}}));}
 
     }else draw();return;
@@ -494,10 +500,10 @@ const vecLength=value=>value?Math.hypot(value.x,value.y,value.z):0;
  function fail(error){lastFailure=error.message;lastFailureDetails={name:error.name,message:error.message,stack:error.stack,cause:error.cause??null};
   stop();fast=false;pauseAfterPitch=true;$('announcement').textContent='Core処理を停止: '+error.message;
   $('result-text').textContent='Core処理を停止';$('manager-hint').textContent=error.message;console.error(error);}
- function policyAckUi(event){const label=$('worker-ack-status'),cancel=$('worker-ack-cancel');if(event.phase==='WAITING'){label.hidden=false;cancel.hidden=false;label.textContent='Workerとの接続を確認しています。';}else if(event.phase==='ACKNOWLEDGED'){label.hidden=false;cancel.hidden=true;label.textContent='Workerとの接続を確認しました。';}else if(event.phase==='FAILED'){label.hidden=false;cancel.hidden=true;label.textContent='Worker接続 HOLD: '+event.message;}else if(event.phase==='CANCELLED'){label.hidden=false;cancel.hidden=true;label.textContent='Workerの接続確認を取り消しました。';}else{label.hidden=true;cancel.hidden=true;label.textContent='';}}
+ function policyAckUi(event){const label=$('worker-ack-status'),cancel=$('worker-ack-cancel');if(event.phase==='WAITING'){label.hidden=false;cancel.hidden=false;label.textContent='試合を準備しています。';}else if(event.phase==='ACKNOWLEDGED'){label.hidden=true;cancel.hidden=true;label.textContent='';}else if(event.phase==='FAILED'){label.hidden=false;cancel.hidden=true;label.textContent='試合の準備に失敗しました: '+event.message;}else if(event.phase==='CANCELLED'){label.hidden=false;cancel.hidden=true;label.textContent='試合の準備を取り消しました。';}else{label.hidden=true;cancel.hidden=true;label.textContent='';}}
  $('worker-ack-cancel').onclick=()=>{host.invalidate();issuePendingV116=null;policyAckUi({phase:'CANCELLED'});};
  function createGame(randomize=false){policyAckUi({phase:'IDLE'});park=parkForStadium();
-  const selectedPitcher=$('home-pitcher-choice').value;teams[1].pitcherId=selectedPitcher;teams[1].defense.P=selectedPitcher;
+  const selectedPitcher=$('home-pitcher-choice').value;teams[1].pitcherId=selectedPitcher;teams[1].defense.P=selectedPitcher;for(const team of [0,1]){const lineup=window.KneekuraPregameLineupV1?.team(team);if(lineup){teams[team].battingOrder=lineup.battingOrder;Object.assign(teams[team].defense,lineup.defense);}}
   season.commitCompleted();const entry=pendingRoster.entries.find(e=>e.playerId==='robin');if(!entry)throw Error('ロビンが能力データにありません');entry.physical={...entry.physical,pitchRepertoireV78:robinRepertoire};delete entry.physical.pitchRepertoire;const configured=core.applyLivePhysicalRosterV1({players:basePlayers,roster:pendingRoster});
   let seedText=$('match-seed').value;
   if(randomize&&!$('fixed-seed').checked){const random=new Uint32Array(1);crypto.getRandomValues(random);seedText='TBD-LAD-'+random[0];}

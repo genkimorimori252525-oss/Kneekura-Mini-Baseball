@@ -23,6 +23,9 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   contactSpeedCeilingShareV1?:number;
   /** League-wide bat speed level. A slower target keeps the swing on time, where a tighter ceiling would delay it. */
   targetSpeedScaleV1?:number;
+  /** Keeps a rating's meaning while the league changes: [timing anchor, aim anchor, exponent]. Errors above
+   * the anchor shrink toward it, so a level change moves this conversion and never the authored players. */
+  accuracyConversionV1?:readonly number[];
 }>;
 export const AUTHORED_LIVE_BATTER_OBSERVATION_V151:LiveBatterObservationPolicyV151 = Object.freeze({
   version:'live_batter_observation_v151',sourceId:'authored-position-observer-v151',ticksPerSecond:1_000_000,
@@ -33,9 +36,13 @@ export const AUTHORED_LIVE_BATTER_OBSERVATION_V151:LiveBatterObservationPolicyV1
 });
 /** The match default from 2026-11-02. Values are provisional until the league calibration. */
 export const LIVE_MATCH_BATTER_OBSERVATION_V2:LiveBatterObservationPolicyV151 = Object.freeze({...AUTHORED_LIVE_BATTER_OBSERVATION_V151,
-  commitSwingSeconds:.26,contactSpeedCeilingV1:true,targetSpeedScaleV1:.9,twoStrikeExpansionV1:.22,
+  commitSwingSeconds:.26,contactSpeedCeilingV1:true,targetSpeedScaleV1:.9,twoStrikeExpansionV1:.22,accuracyConversionV1:Object.freeze([.0045,.008,.45]),
   countReadinessV1:Object.freeze([[.62,.85,1],[.72,.9,1],[.72,.95,1],[.12,.85,1]].map(row=>Object.freeze(row)))});
 function assert(value:unknown,message:string):asserts value {if(!value)throw Error('live batter observation v151: '+message);}
+export function convertBatterAccuracyV1(b:Readonly<{timingStdSeconds:number;aimStdMeters:number}>,conversion:readonly number[]){
+  const [timingAnchor,aimAnchor,exponent]=conversion as [number,number,number],shrink=(value:number,anchor:number)=>value<=anchor?value:anchor*(value/anchor)**exponent;
+  return {timingStdSeconds:shrink(b.timingStdSeconds,timingAnchor),aimStdMeters:shrink(b.aimStdMeters,aimAnchor)};
+}
 export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterObservationPolicyV151 {
   const p=cloneInert(raw) as LiveBatterObservationPolicyV151,keys=['version','sourceId','ticksPerSecond','decisionAfterReleaseTicks',
     'positionSampleIntervalTicks','deliveryLatencyTicks','maximumForecastAfterReleaseSeconds','memoryPolicy'];
@@ -43,6 +50,7 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'countReadinessV1')){keys.push('countReadinessV1');assert(Array.isArray(p.countReadinessV1)&&p.countReadinessV1.length===4&&p.countReadinessV1.every(row=>Array.isArray(row)&&row.length===3&&row.every(v=>Number.isFinite(v)&&v>=0&&v<=1)),'invalid count readiness');}
   if(Object.hasOwn(p,'targetSpeedScaleV1')){keys.push('targetSpeedScaleV1');assert(Number.isFinite(p.targetSpeedScaleV1)&&p.targetSpeedScaleV1!>=.5&&p.targetSpeedScaleV1!<=1.5,'invalid target speed scale');}
   if(Object.hasOwn(p,'contactSpeedCeilingShareV1')){keys.push('contactSpeedCeilingShareV1');assert(Number.isFinite(p.contactSpeedCeilingShareV1)&&p.contactSpeedCeilingShareV1!>=0&&p.contactSpeedCeilingShareV1!<=1,'invalid contact speed share');}
+  if(Object.hasOwn(p,'accuracyConversionV1')){keys.push('accuracyConversionV1');assert(Array.isArray(p.accuracyConversionV1)&&p.accuracyConversionV1.length===3&&p.accuracyConversionV1.every(v=>Number.isFinite(v)&&v>0&&v<=1),'invalid accuracy conversion');}
   if(Object.hasOwn(p,'contactSpeedCeilingV1')){keys.push('contactSpeedCeilingV1');assert(typeof p.contactSpeedCeilingV1==='boolean','invalid contact speed ceiling');}
   if(Object.hasOwn(p,'twoStrikeExpansionV1')){keys.push('twoStrikeExpansionV1');assert(Number.isFinite(p.twoStrikeExpansionV1)&&p.twoStrikeExpansionV1!>=0&&p.twoStrikeExpansionV1!<=1,'invalid two strike expansion');}
   assert(p&&typeof p==='object'&&!Array.isArray(p)&&Object.keys(p).length===keys.length&&keys.every(key=>Object.hasOwn(p,key))

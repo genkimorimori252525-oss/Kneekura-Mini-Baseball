@@ -2,7 +2,10 @@
    Display and input only: it reads the Core record through window.liveMatchPlayback.inspect() and
    writes the existing instruction controls (#batting-choice, #pitch-choice, #location-choice,
    #baserunning-choice). Nothing is sent to the Core except what those controls already send.
-   Parts of the design that have no data or no function yet are not drawn. */
+   Parts of the design that have no data or no function yet are not drawn.
+   Match flow (manager mode only): the match holds at the first pitch of every plate appearance until the
+   manager taps a card or goes on; a card lasts one plate appearance; at most STOPS_PER_GAME stops per game
+   (a stop before the plate appearance's first pitch is free); the card effect is playManagerCardFx(cardId). */
 (function () {
   'use strict';
   const $ = (selector, root) => (root || document).querySelector(selector);
@@ -16,14 +19,17 @@
   const safe = text => String(text).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
   /* ---------- Live match access (read only) ---------- */
-  function live() {
+  function readView() {
     const playback = window.liveMatchPlayback;
     if (!playback || typeof playback.inspect !== 'function') return null;
-    try {
-      const view = playback.inspect();
-      const history = view.host && view.host.history ? view.host.history : [];
-      return { host: view.host, history, shown: view.lastResult || history[history.length - 1] || null, selectedRecord: view.lastResult || null };
-    } catch (error) { return null; }
+    try { return playback.inspect() || null; } catch (error) { return null; }
+  }
+  /* settled = the records whose result is already on screen; the pitch being prepared or in flight is left out. */
+  function live(given) {
+    const view = given || readView();
+    if (!view || !view.host) return null;
+    const history = view.host.history || [];
+    return { host: view.host, history, settled: settledHistory(view, !!officialRecord(view)), shown: view.lastResult || history[history.length - 1] || null, selectedRecord: view.lastResult || null, view };
   }
 
   const managedTeam = () => Number($('#managed-team').value);
@@ -96,24 +102,30 @@
   const outerCol = hand => (hand === 'L' ? 0 : 2);
 
   /* Cards exist only where an instruction control exists: ctl = [select id, option value]. */
+  const arrowIcon = deg => '<svg viewBox="0 0 20 20" shape-rendering="crispEdges" aria-hidden="true"><g fill="currentColor" transform="rotate(' + deg + ' 10 10)">'
+    + '<rect x="9" y="4" width="2" height="13"/><rect x="7" y="6" width="6" height="2"/><rect x="5" y="8" width="10" height="2"/></g></svg>';
   const DECK = {
     batter: [
       { id: 'auto', name: 'おまかせ', note: '打者の判断に任せます。', portrait: '#batter-portrait', ctl: ['batting-choice', 'auto'] },
       { id: 'bunt', name: '送り<br>バント', note: '走者を次の塁へ進めます。', ctl: ['batting-choice', 'bunt'], needs: s => (s.first || s.second) && s.outs < 2, icon: () => { const c = fan(); c.block(8, 16, 2, 1, GOLD); arrow(c, 13, 15, 10, 12, CREAM); return c.svg(); } },
-      { id: 'safety', name: 'セーフティ<br>バント', note: '打者が生きることを狙うバントです。', ctl: ['batting-choice', 'bunt'], needs: s => !((s.first || s.second) && s.outs < 2), icon: () => { const c = fan(); c.block(7, 16, 2, 1, GOLD); arrow(c, 10, 18, 13, 15, CREAM); return c.svg(); } }
+      { id: 'safety', name: 'セーフティ<br>バント', note: '打者が生きることを狙うバントです。', ctl: ['batting-choice', 'bunt'], needs: s => !((s.first || s.second) && s.outs < 2), icon: () => { const c = fan(); c.block(7, 16, 2, 1, GOLD); arrow(c, 10, 18, 13, 15, CREAM); return c.svg(); } },
+      { id: 'center', name: 'センター<br>返し', note: '打球を中堅方向へ狙います。', ctl: ['direction-choice', 'CENTER'], icon: () => arrowIcon(0) },
+      { id: 'pull', name: '引っ張り', note: '打球を引っ張る方向へ狙います。', ctl: ['direction-choice', 'PULL'], icon: h => arrowIcon(h === 'L' ? 45 : -45) },
+      { id: 'oppo', name: '流し打ち', note: '打球を反対方向へ狙います。', ctl: ['direction-choice', 'OPPOSITE'], icon: h => arrowIcon(h === 'L' ? -45 : 45) }
     ],
     pitcher: [
       { id: 'auto', name: 'コース<br>おまかせ', note: '捕手の配球に任せます。', portrait: '#pitcher-portrait', ctl: ['location-choice', 'auto'] },
       { id: 'inside', name: '内角中心', note: '打者の内側を攻めます。', ctl: ['location-choice', 'inside'], icon: h => zone((r, col) => col === innerCol(h)).svg() },
       { id: 'outside', name: '外角中心', note: '打者の外側を攻めます。', ctl: ['location-choice', 'outside'], icon: h => zone((r, col) => col === outerCol(h)).svg() },
       { id: 'strike', name: 'ストライク<br>をとれ', note: 'ゾーンに投げ、四球を避けます。', ctl: ['location-choice', 'zone'], icon: () => zone(() => true).svg() },
-      { id: 'low', name: '低め中心', note: '低めへ集めて長打を防ぎます。', ctl: ['location-choice', 'low'], icon: () => zone(r => r === 2).svg() }
+      { id: 'low', name: '低め中心', note: '低めへ集めて長打を防ぎます。', ctl: ['location-choice', 'low'], icon: () => zone(r => r === 2).svg() },
+      { id: 'walk', name: '敬遠', note: '打者を歩かせます。', ctl: ['location-choice', 'intentional'], icon: () => zone(() => false).svg() }
     ]
   };
 
   /* Detail orders: one row per existing control, options read from the control itself. */
   const DETAIL = {
-    batter: [['打者', [['振り方', 'batting-choice']]], ['走者', [['走塁', 'baserunning-choice']]]],
+    batter: [['打者', [['振り方', 'batting-choice'], ['打つ方向', 'direction-choice']]], ['走者', [['走塁', 'baserunning-choice']]]],
     pitcher: [['投手', [['球種', 'pitch-choice'], ['コース', 'location-choice']]]]
   };
   const selectOf = id => document.getElementById(id);
@@ -171,17 +183,15 @@
     hand.innerHTML = '<div class="hand-head"><div class="hand-title"><strong></strong><span></span></div>' +
       '<button type="button" class="open-detail-orders" aria-expanded="false" data-count="0">詳細指示</button>' +
       '<button type="button" class="hand-toggle" aria-expanded="true">しまう</button></div>' +
+      '<div class="run-row" data-run="idle"><span class="run-stops" role="img"><span class="run-stops-label">ストップ</span><span class="pips" aria-hidden="true"><i></i><i></i><i></i></span><b></b></span>' +
+      '<span class="run-state" role="status"></span><button type="button" class="run-btn primary"></button></div>' +
       '<div class="card-row"></div><div class="orders-panel" role="region" aria-label="詳細指示"></div>';
     $('.broadcast').after(hand);
     hand.addEventListener('click', event => {
       const button = event.target.closest('.tactic');
-      if (!button) return;
-      const card = DECK[button.dataset.deck].find(c => c.id === button.dataset.id);
-      state.hint = card.id;
-      state.pick[button.dataset.deck] = card.id;
-      setControl(card.ctl[0], card.ctl[1]);
-      renderHand();
+      if (button) playCard(DECK[button.dataset.deck].find(c => c.id === button.dataset.id));
     });
+    $('.run-btn').addEventListener('click', onRunButton);
     $('.hand-toggle').addEventListener('click', () => tuck(hand.dataset.state === 'open'));
     $('.open-detail-orders').addEventListener('click', () => (hand.dataset.state === 'orders' ? closeOrders() : openOrders()));
     $('.orders-panel').addEventListener('click', onOrdersClick);
@@ -223,7 +233,7 @@
         return '<div class="field-row"><span>' + label + '</span><div class="segments" role="group" aria-label="' + label + '">' +
           optionsOf(id).map(([value, text]) => '<button type="button" data-ctl="' + id + '" data-value="' + safe(value) + '" aria-pressed="' + (current === value) + '">' + safe(text) + '</button>').join('') +
           '</div></div>';
-      }).join('') + '</div><div class="orders-foot"><span class="orders-note">次の未生成の一球から有効</span>' +
+      }).join('') + '</div><div class="orders-foot"><span class="orders-note">次の一球から有効。打席が終わるとおまかせに戻ります（走塁を除く）</span>' +
       '<button type="button" class="primary apply-orders">閉じる</button></div>';
   }
 
@@ -317,13 +327,19 @@
     return { bat, pit, plates, pitches };
   }
 
-  const slotRole = (team, index) => Object.keys(DATA.defenseMap[team]).find(role => DATA.defenseMap[team][role] === index) || 'DH';
+  const activeTeam = team => globalThis.KneekuraActiveTeamsV1?.[team];
+  const slotRole = (team, index) => {
+    const defense = activeTeam(team)?.defense, id = team + '-b' + index;
+    if (defense) return Object.keys(defense).find(role => defense[role] === id) || 'DH';
+    return Object.keys(DATA.defenseMap[team]).find(role => DATA.defenseMap[team][role] === index) || 'DH';
+  };
   function lineupFor(team) {
     const rows = [];
-    for (let i = 0; i < 9; i++) {
-      const player = PLAYERS[team + '-b' + i];
-      if (player) rows.push({ id: team + '-b' + i, name: player.name, bats: player.bats, pos: slotRole(team, i), order: i + 1 });
-    }
+    const order = activeTeam(team)?.battingOrder ?? Array.from({ length: 9 }, (_, i) => team + '-b' + i);
+    order.forEach((id, i) => {
+      const player = PLAYERS[id];
+      if (player) rows.push({ id, name: player.name, bats: player.bats, pos: slotRole(team, Number(id.split('-b')[1])), order: i + 1 });
+    });
     const pitcherId = team === 1 && selectOf('home-pitcher-choice') ? selectOf('home-pitcher-choice').value : team + '-p0';
     const pitcher = PLAYERS[pitcherId] || PLAYERS[team + '-p0'];
     if (pitcher) rows.push({ id: pitcherId, name: pitcher.name, bats: pitcher.throws, pos: 'P', order: '' });
@@ -333,7 +349,7 @@
 
   function renderTab(name) {
     state.detailTab = name;
-    const body = $('#detail-sheet .sheet-body'), snap = live(), stats = analyze(snap ? snap.history : []);
+    const body = $('#detail-sheet .sheet-body'), snap = live(), stats = analyze(snap ? snap.settled : []);
     const teamTitle = team => '<h3 class="team-title" data-team="' + TEAMS[team] + '">' + TEAMS[team] + '</h3>';
     const inningName = (inning, half) => inning + '回' + (half === 'top' ? '表' : '裏');
     if (name === 'log') {
@@ -391,10 +407,10 @@
 
   function renderPlayerStats(snap) {
     const pitcherBox = $('.pitcher-card .player-stats'), batterBox = $('.batter-card .player-stats');
-    if (!snap || !snap.history.length) { pitcherBox.innerHTML = ''; batterBox.innerHTML = ''; return; }
-    const stats = analyze(snap.history), shown = snap.shown || {};
-    const batterId = shown.batterPlayerId || snap.host.batterPlayerId, pitcherId = shown.pitcherPlayerId || snap.host.pitcherPlayerId;
-    const b = stats.bat.get(batterId), p = stats.pit.get(pitcherId);
+    if (!snap) { pitcherBox.innerHTML = ''; batterBox.innerHTML = ''; return; }
+    const stats = analyze(snap.settled), shown = snap.selectedRecord || snap.host;
+    const batterId = shown.batterPlayerId, pitcherId = shown.pitcherPlayerId;
+    const b = stats.bat.get(batterId) || { pa: 0, ab: 0, h: 0, hr: 0, bb: 0, k: 0, results: [] }, p = stats.pit.get(pitcherId) || { pitches: 0, outs: 0, h: 0, k: 0, bb: 0, r: 0 };
     batterBox.innerHTML = b ? '<dl class="stat-line">' + statList([['今', b.ab + '打数' + b.h + '安打']]) + '</dl>' +
       '<div class="stat-split"><dl class="stat-line">' + statList([['本', b.hr], ['四', b.bb], ['振', b.k]]) + '</dl>' +
       '<ol class="game-results" aria-label="この試合の打席結果">' + b.results.slice(-3).map((result, i, all) => '<li><b>' + (b.results.length - all.length + i + 1) + '</b>' + safe(result) + '</li>').join('') + '</ol></div>' : '';
@@ -578,11 +594,12 @@
     if (frame && Number.isFinite(end) && !(frame.tick >= end)) return null;
     return record;
   }
-  /* Records up to and including the official one, never the pitch in flight. */
+  /* Records up to and including the official one, never the pitch in flight. The displayed record is a copy of
+     the host's, so it is found by its index (selectedPitch), not by identity. */
   function settledHistory(view, official) {
     const all = (view.host && view.host.history) || [];
     if (!view.lastResult) return all;
-    const at = all.indexOf(view.lastResult);
+    const at = Number.isInteger(view.selectedPitch) ? view.selectedPitch : all.indexOf(view.lastResult);
     return at < 0 ? all : all.slice(0, official ? at + 1 : at);
   }
   /* Was the batter just ahead of this player in the order walked intentionally? */
@@ -627,10 +644,8 @@
       slot.setAttribute('aria-label', facePlain[selector].label);
     }
   }
-  function updateFaces() {
-    const playback = window.liveMatchPlayback;
-    let view = { host: null, lastResult: null, currentFrame: null };
-    try { if (playback && typeof playback.inspect === 'function') view = playback.inspect() || view; } catch (error) { /* keep plain portraits */ }
+  function updateFaces(given) {
+    const view = given || { host: null, lastResult: null, currentFrame: null };
     Object.keys(SLOT_ROLE).forEach(selector => {
       const role = SLOT_ROLE[selector], name = ($('#' + role + '-name').textContent || '').replace(/\s+/g, '');
       let variant = null;
@@ -644,7 +659,13 @@
       });
     });
   }
-  setInterval(() => { if (!document.hidden) updateFaces(); }, 200);
+  /* One look at the match every 200 ms feeds the faces, the stats and the match flow. */
+  setInterval(() => {
+    if (document.hidden) return;
+    const view = readView();
+    updateFaces(view);
+    syncFlow(view);
+  }, 200);
 
   /* ---------- Screen mode: manager layout or the plain watching layout ---------- */
   function buildModeSwitch() {
@@ -661,9 +682,257 @@
       $$('[data-ui-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.uiMode === mode)));
       try { localStorage.setItem('kneekura.uiMode.v1', mode); } catch (error) { /* ignore */ }
       if (mode === 'manager') schedule(true);
+      else if (flow.held) release();
     };
     field.addEventListener('click', event => { const b = event.target.closest('[data-ui-mode]'); if (b) apply(b.dataset.uiMode); });
     apply(mode);
+  }
+
+  /* ---------- Match flow: hold at each plate appearance, stops, card effect ---------- */
+  const STOPS_PER_GAME = 3, FX_MS = 500, FX_LIMIT_MS = 4000, RUN_GRACE_MS = 6000, NOTICE_MS = 3200;
+  const PLATE_ORDERS = ['batting-choice', 'direction-choice', 'pitch-choice', 'location-choice'];
+  const flow = { stopsLeft: STOPS_PER_GAME, held: null, run: false, busyAt: 0, fxToken: 0, fxBusy: false, queued: false, lastPitchCount: 0, statKey: '', notice: '', noticeAt: 0, mode: '', shown: '' };
+  const managerOn = () => document.body.dataset.mode === 'manager';
+  const endsPlate = record => !!(record && record.play && record.play.rules && record.play.rules.batterAdvanced);
+  const sceneEnded = view => !!view.presentation && view.presentation.durationMs > 0 && view.presentation.elapsedMs >= view.presentation.durationMs;
+  const swallow = event => { event.stopImmediatePropagation(); event.preventDefault(); };
+
+  function say(text) {
+    flow.notice = text;
+    flow.noticeAt = performance.now();
+    flow.shown = '';
+    renderRun(readView());
+  }
+
+  /* Pitches of the current plate appearance that have left the pitcher's hand. A pitch still being prepared has not. */
+  function pitchesThrown(view) {
+    const history = (view.host && view.host.history) || [], record = view.lastResult;
+    if (!record) {
+      let n = 0;
+      for (let i = history.length - 1; i >= 0 && !endsPlate(history[i]); i--) n += 1;
+      return n;
+    }
+    /* Between two pitches the screen still shows the last one, at time 0 of its preparation: it is complete. */
+    const preparing = !!view.presentation && view.presentation.stage === 'preparation', between = preparing && view.presentation.elapsedMs === 0;
+    if (between && endsPlate(record)) return 0;
+    let n = !preparing || between ? 1 : 0;
+    for (let i = (Number.isInteger(view.selectedPitch) ? view.selectedPitch : history.length - 1) - 1; i >= 0 && !endsPlate(history[i]); i--) n += 1;
+    return n;
+  }
+  /* The pitch on screen is the last of this plate appearance: the match stops by itself right after it. */
+  function lastPitchFlying(view) {
+    return !!view.lastResult && endsPlate(view.lastResult) && !(view.presentation && view.presentation.stage === 'preparation');
+  }
+
+  /* A card holds for one plate appearance. Set silently: the Core reads the controls again at the next pitch, and a
+     change event would also pause the match. */
+  function resetPlateOrders() {
+    PLATE_ORDERS.forEach(id => {
+      const select = selectOf(id);
+      if (select && select.options.length && select.value !== select.options[0].value) select.value = select.options[0].value;
+    });
+    state.pick = {};
+    state.hint = null;
+    schedule(true);
+  }
+
+  function newGameFlow() {
+    flow.stopsLeft = STOPS_PER_GAME;
+    flow.held = null;
+    flow.run = false;
+    flow.queued = false;
+    flow.fxToken += 1;
+    flow.notice = '';
+    flow.shown = '';
+  }
+
+  /* Called by the match just before it generates a pitch: a promise holds the match, null lets it go on. */
+  function holdBeforePitch() {
+    try {
+      if (!managerOn()) return null;
+      const view = readView();
+      if (!view || !view.host || view.host.finished) return null;
+      const history = view.host.history || [];
+      if (!endsPlate(history[history.length - 1])) return null;
+      resetPlateOrders();
+      flow.run = false;
+      return new Promise(resolve => { flow.held = resolve; schedule(true); });
+    } catch (error) { return null; }
+  }
+  function release() {
+    const go = flow.held;
+    flow.held = null;
+    flow.run = true;
+    flow.busyAt = performance.now();
+    if (go) go();
+    schedule(true);
+  }
+  /* Go on from wherever the match is stopped. */
+  function proceed() {
+    if (flow.held) { release(); return; }
+    if (flow.run || !managerOn()) return;
+    if ($('.hand-deck').dataset.state === 'orders') closeOrders();
+    $('#play').click();
+  }
+
+  /* The play button is the stop button while the match runs. A stop costs one of the game's stops, unless this
+     plate appearance has not had a pitch yet. It is refused when none is left. */
+  $('#play').addEventListener('click', event => {
+    if (!managerOn()) return;
+    const view = readView();
+    if (!view || !view.host) return;
+    if (flow.held) { flow.fxToken += 1; swallow(event); release(); return; }
+    const over = view.host.finished || view.fast;
+    if (!over && (view.playing || view.preparingPitchV99 || flow.run)) {
+      if (lastPitchFlying(view)) { swallow(event); say('この打席が終わると、次の打席の前で自動で止まります。'); return; }
+      const free = pitchesThrown(view) === 0;
+      if (!free && flow.stopsLeft <= 0) { swallow(event); say('ストップを使い切りました。この打席はこのまま進みます。'); return; }
+      if (!free) flow.stopsLeft -= 1;
+      flow.run = false;
+      flow.queued = false;
+      flow.notice = '';
+      return;
+    }
+    if (!over) {
+      /* The match ignores the play button while a pitch is being generated; go on by itself once it is ready. */
+      if (view.generationV116 && view.generationV116.pending && !view.playing && !view.preparingPitchV99) {
+        swallow(event);
+        flow.queued = true;
+        flow.run = true;
+        flow.busyAt = performance.now();
+        return;
+      }
+      if (view.lastResult && endsPlate(view.lastResult) && sceneEnded(view)) resetPlateOrders();
+      flow.run = true;
+      flow.busyAt = performance.now();
+    }
+  }, true);
+  /* Stepping and jumping are stops too, so they wait until the manager has stopped. */
+  ['next-pitch', 'previous-pitch'].forEach(id => $('#' + id).addEventListener('click', event => {
+    if (!managerOn()) return;
+    if (flow.run && !flow.held) { swallow(event); say('先にストップしてください。'); return; }
+    const view = readView();
+    const history = (view && view.host && view.host.history) || [];
+    if (id === 'next-pitch' && endsPlate(history[history.length - 1]) && (!view.lastResult || view.selectedPitch === history.length - 1)) resetPlateOrders();
+  }, true));
+  $('#finish-game').addEventListener('click', () => {
+    const view = readView();
+    if (!managerOn() || !view || view.fast) return;
+    resetPlateOrders();
+    flow.held = null;
+    flow.run = false;
+  }, true);
+  $('#new-game').addEventListener('click', newGameFlow, true);
+
+  /* ---------- Card effect: playManagerCardFx(cardId, context) returns a promise that settles when it is over ----------
+     The default is a short banner over the picture. Replace window.playManagerCardFx to change it; the match waits
+     for the promise (at most FX_LIMIT_MS), then goes on. context = { deck, cardId, name, note, button, stage, ms }. */
+  function defaultCardFx(cardId, context) {
+    return new Promise(resolve => {
+      const stage = (context && context.stage) || $('.broadcast');
+      const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const fx = document.createElement('div');
+      fx.className = 'card-fx';
+      fx.dataset.card = cardId;
+      fx.dataset.deck = (context && context.deck) || '';
+      const name = document.createElement('b'), note = document.createElement('span');
+      name.textContent = (context && context.name) || '';
+      note.textContent = (context && context.note) || '';
+      fx.append(name, note);
+      stage.append(fx);
+      setTimeout(() => { fx.remove(); resolve(); }, reduce ? 150 : FX_MS);
+    });
+  }
+  if (typeof globalThis.playManagerCardFx !== 'function') globalThis.playManagerCardFx = defaultCardFx;
+
+  function runCardFx(card, deck) {
+    const row = $('.card-row');
+    row.dataset.fx = card.id;
+    const context = { deck, cardId: card.id, name: card.name.replace('<br>', ''), note: card.note, button: $('.tactic[data-id="' + card.id + '"]', row), stage: $('.broadcast'), ms: FX_MS };
+    let timer = 0;
+    const limit = new Promise(resolve => { timer = setTimeout(resolve, FX_LIMIT_MS); });
+    const effect = new Promise(resolve => resolve(globalThis.playManagerCardFx(card.id, context)));
+    return Promise.race([effect, limit]).catch(() => {}).then(() => { clearTimeout(timer); delete row.dataset.fx; });
+  }
+  /* Tapping a card chooses it, plays its effect, then lets the match go on. */
+  function playCard(card) {
+    if (!card || flow.fxBusy || flow.run) return;
+    const deck = $('.tactic[data-id="' + card.id + '"]').dataset.deck, token = ++flow.fxToken;
+    state.hint = card.id;
+    state.pick[deck] = card.id;
+    if (deck === 'batter') { setControl('batting-choice', 'auto'); setControl('direction-choice', 'AUTO'); }
+    setControl(card.ctl[0], card.ctl[1]);
+    renderHand();
+    flow.fxBusy = true;
+    runCardFx(card, deck).then(() => {
+      flow.fxBusy = false;
+      if (token === flow.fxToken) proceed();
+    });
+  }
+  function onRunButton() {
+    const mode = $('.run-row').dataset.run;
+    if (mode === 'running') $('#play').click();
+    else if (mode === 'idle' || mode === 'stopped' || mode === 'held') { flow.fxToken += 1; proceed(); }
+  }
+
+  /* Where the match is: idle (not started), running, held (waiting at the first pitch of a plate appearance),
+     stopped (by the manager), fast (calculating the rest) or over. */
+  function renderRun(view) {
+    const hand = $('.hand-deck'), row = $('.run-row');
+    if (!hand || !row || !managerOn()) return;
+    const mode = finished() ? 'over' : view && view.fast ? 'fast' : flow.held ? 'held' : flow.run ? 'running' : !view || !view.host || view.host.pitchCount === 0 ? 'idle' : 'stopped';
+    if (mode !== flow.mode) {
+      flow.mode = mode;
+      hand.dataset.run = mode;
+      document.body.dataset.run = mode === 'running' ? '1' : '';
+      if (mode === 'running' && hand.dataset.state === 'orders') closeOrders();
+      tuck(mode === 'running');
+      ['pa-select', 'inning-select', 'restart', 'managed-team'].forEach(id => { const node = $('#' + id); if (node) node.disabled = mode === 'running'; });
+      schedule(true);
+    }
+    const thrown = mode === 'running' && view ? pitchesThrown(view) : 0, auto = mode === 'running' && !!view && lastPitchFlying(view);
+    const blocked = mode === 'running' && (auto || (thrown > 0 && flow.stopsLeft <= 0));
+    let text = { idle: '試合前です。カードを選ぶか、このまま始めます。', held: '打席の頭で停止中。カードを選ぶと試合が進みます。', stopped: 'ストップ中。カードを変えられます。', fast: 'Coreで残りを計算中です。', over: '' }[mode] || '';
+    if (mode === 'running') text = auto ? '結果が出ると、次の打席の前で自動で止まります。' : blocked ? 'ストップを使い切りました。この打席は止められません。' : thrown === 0 ? '試合進行中。いまのストップは数えません。' : '試合進行中';
+    const noticed = !!flow.notice && performance.now() - flow.noticeAt < NOTICE_MS;
+    if (noticed) text = flow.notice;
+    const label = { idle: '試合を進める', held: 'このまま進める', stopped: '再開', running: 'ストップ' }[mode] || '';
+    const key = [mode, flow.stopsLeft, blocked, text, label].join('|');
+    if (key === flow.shown) return;
+    flow.shown = key;
+    row.dataset.run = mode;
+    row.dataset.notice = noticed ? '1' : '';
+    $('.run-state', row).textContent = text;
+    $('.run-stops b', row).textContent = flow.stopsLeft + '/' + STOPS_PER_GAME;
+    $('.run-stops', row).setAttribute('aria-label', 'ストップ残り' + flow.stopsLeft + '回');
+    $$('.pips i', row).forEach((pip, i) => pip.classList.toggle('on', i < flow.stopsLeft));
+    const button = $('.run-btn', row);
+    button.textContent = label;
+    button.disabled = !label || blocked;
+    $('.open-detail-orders').disabled = mode === 'running';
+    $('.hand-toggle').hidden = mode === 'running';
+  }
+
+  function syncFlow(view) {
+    if (!view || !view.host) return;
+    const now = performance.now(), count = view.host.pitchCount;
+    if (count < flow.lastPitchCount) newGameFlow();
+    flow.lastPitchCount = count;
+    const busy = !!(view.playing || view.preparingPitchV99), generating = !!(view.generationV116 && view.generationV116.pending);
+    if (flow.held && !view.preparingPitchV99) flow.held = null;
+    if (flow.queued && !generating) {
+      flow.queued = false;
+      flow.run = false;
+      $('#play').click();
+    }
+    if (busy && !flow.held) { flow.run = true; flow.busyAt = now; }
+    else if (flow.run && generating) flow.busyAt = now;
+    if (view.host.finished || view.fast || view.error) flow.run = false;
+    else if (flow.run && !busy && now - flow.busyAt > RUN_GRACE_MS) flow.run = false;
+    /* The records the stats are built from change when a result becomes official, not only when a pitch is made. */
+    const key = count + '|' + view.selectedPitch + '|' + !!officialRecord(view);
+    if (key !== flow.statKey) { flow.statKey = key; schedule(true); }
+    renderRun(view);
   }
 
   /* ---------- Refresh: only when what is on screen changed ---------- */
@@ -671,7 +940,7 @@
   function signature() {
     return [$('#match-progress').textContent, $('#inning-label').textContent, $('#pitch-number').textContent, $('#result-text').textContent,
       $('#bso').textContent, $$('#bases .on').map(b => b.dataset.base).join(''), $('#batter-name').textContent, $('#pitcher-name').textContent,
-      $('#managed-team').value, ['batting-choice', 'pitch-choice', 'location-choice', 'baserunning-choice'].map(id => selectOf(id).value).join('/'),
+      $('#managed-team').value, ['batting-choice', 'direction-choice', 'pitch-choice', 'location-choice', 'baserunning-choice'].map(id => selectOf(id).value).join('/'),
       selectOf('pitch-choice').options.length].join('|');
   }
   function refresh(force) {
@@ -700,11 +969,6 @@
   buildModeSwitch();
   schedule(true);
 
-  /* The hand lowers while the match runs and returns when it stops. */
-  new MutationObserver(() => {
-    if (document.body.dataset.mode !== 'manager') return;
-    tuck($('#play').getAttribute('aria-pressed') === 'true');
-  }).observe($('#play'), { attributes: true, attributeFilter: ['aria-pressed'] });
   addEventListener('resize', () => { if ($('.hand-deck').dataset.state === 'orders') sizeOrders(); });
 
   const watch = [$('.play-status'), $('#phase'), $('#match-progress'), $('#inning-label')];
@@ -713,10 +977,15 @@
   observer.observe($('#bases'), { attributes: true, attributeFilter: ['class'], subtree: true });
   new MutationObserver(() => applyEmotions())
     .observe($('#actor-labels'), { childList: true, characterData: true, subtree: true });
-  ['managed-team', 'batting-choice', 'pitch-choice', 'location-choice', 'baserunning-choice', 'home-pitcher-choice'].forEach(id => {
+  ['managed-team', 'batting-choice', 'direction-choice', 'pitch-choice', 'location-choice', 'baserunning-choice', 'home-pitcher-choice'].forEach(id => {
     const select = selectOf(id);
     if (select) select.addEventListener('change', () => schedule(true));
   });
 
-  globalThis.KneekuraManagerUiV1 = Object.freeze({ refresh: () => refresh(true), emotions: () => [...emotionById.entries()], analyze: () => analyze((live() || { history: [] }).history) });
+  /* The match asks this before it generates the first pitch of each plate appearance (parts/090). */
+  globalThis.KneekuraManagerGateV1 = Object.freeze({ holdBeforePitch });
+  globalThis.KneekuraManagerUiV1 = Object.freeze({
+    refresh: () => refresh(true), emotions: () => [...emotionById.entries()], analyze: () => analyze((live() || { history: [] }).history),
+    defaultCardFx, flow: () => ({ mode: flow.mode, held: !!flow.held, run: flow.run, stopsLeft: flow.stopsLeft })
+  });
 })();

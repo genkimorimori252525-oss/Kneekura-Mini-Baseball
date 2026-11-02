@@ -9,6 +9,22 @@ const clamp=(v:number,lo:number,hi:number)=>Math.min(hi,Math.max(lo,v));
 export const DELIVERY_SECONDS=1.1;
 /** Resolved from a runner's traits. Missing fields keep every old value exact. */
 export type LiveRunnerTraitsV1=Readonly<{stealSkillV1?:number;stealPreferenceV1?:number}>;
+/** Opt-in. Omission keeps the speed-only lead and the old pickoff race exact. */
+export type LiveRunnerLeadPolicyV1=Readonly<{version:'live_runner_lead_policy_v1';sourceId:string}>;
+export const LIVE_RUNNER_LEAD_POLICY_V1:LiveRunnerLeadPolicyV1=Object.freeze({version:'live_runner_lead_policy_v1',sourceId:'runner-lead-v1-authored'});
+/** Opt-in. Omission keeps the catcher's old instant exchange exact. */
+export type LiveCatcherThrowPolicyV1=Readonly<{version:'live_catcher_throw_policy_v1';sourceId:string}>;
+export const LIVE_CATCHER_THROW_POLICY_V1:LiveCatcherThrowPolicyV1=Object.freeze({version:'live_catcher_throw_policy_v1',sourceId:'catcher-throw-v1-authored'});
+/** Authored model of how far a runner dares to go, anchored to real leads of 2 to 5 meters. */
+export const LIVE_RUNNER_LEAD_CALIBRATION_V1=Object.freeze({returnReachMeters:1.9,returnTurnSeconds:.12,defaultSafetySeconds:.35,
+  /** Only part of the running margin reaches the lead: it is the risk he accepts, not the whole gap. */leadSafetyBaseSeconds:.15,leadSafetyShare:.55,
+  managerAggressiveSafetySeconds:.1,managerConservativeSafetySeconds:.6,stealSkillMeters:.4,deliveryMetersPerSecond:.6,
+  pickoffMoveSeconds:.62,pickoffTechniqueSeconds:.1,lefthandedMoveSeconds:.08,pickoffThrowEffort:.8,pickoffTagSeconds:.17,pickoffJitterSeconds:.4,
+  baseScale:Object.freeze({first:1,second:1.2,third:.85}),minimumMeters:1.2,maximumMeters:6});
+/** Mitt to release. .32 of 送球動作 reads about .69 s and .74 about .94 s, the range of real exchanges. */
+export const LIVE_CATCHER_THROW_CALIBRATION_V1=Object.freeze({exchangeBaseSeconds:.5,exchangePerTransfer:.6,steppedForwardMeters:.9,flightSpeedShare:.9,tagSeconds:.08,jitterShare:.5});
+export type LiveLeadRunnerV1=Readonly<{topSpeedMps:number;accelerationMps2:number;reactionSeconds:number;baserunningSafetyMarginSeconds?:number}&LiveRunnerTraitsV1>;
+export type LiveLeadPitcherV1=Readonly<{throwSpeedMps:number;throws?:'R'|'L';pickoffTechniqueV1?:number;deliverySecondsV1?:number}>;
 
 /** Running ability from foot speed. Uncalibrated game model: lead and steal choices only. */
 export const runnerAbilityV1=(topSpeedMps:number)=>clamp((topSpeedMps-7.2)/2.1,0,1);
@@ -17,6 +33,27 @@ export const runnerAbilityV1=(topSpeedMps:number)=>clamp((topSpeedMps-7.2)/2.1,0
 export function leadMetersV1(runner:number|Readonly<{topSpeedMps:number}&LiveRunnerTraitsV1>,instruction:Instruction){
   const spec=typeof runner==='number'?{topSpeedMps:runner}:runner;
   return (2.2+1.8*runnerAbilityV1(spec.topSpeedMps)+.4*(spec.stealSkillV1??0))*(instruction==='aggressive'?1.15:instruction==='conservative'?.75:1);
+}
+/** The pitcher's move, before the ball leaves his hand. */
+const pickoffMoveSecondsV1=(technique:number,throws:'R'|'L'|undefined)=>{const c=LIVE_RUNNER_LEAD_CALIBRATION_V1;
+  return c.pickoffMoveSeconds-c.pickoffTechniqueSeconds*technique-(throws==='L'?c.lefthandedMoveSeconds:0);};
+/** Time to get a hand on the bag from a lead: turn, run from a stop, dive the last stretch. */
+export function runnerReturnSecondsV1(leadMeters:number,runner:Pick<LiveLeadRunnerV1,'topSpeedMps'|'accelerationMps2'|'reactionSeconds'>){
+  const c=LIVE_RUNNER_LEAD_CALIBRATION_V1,run=Math.max(0,leadMeters-c.returnReachMeters),rise=runner.topSpeedMps/runner.accelerationMps2,riseMeters=runner.topSpeedMps*rise/2;
+  return runner.reactionSeconds+c.returnTurnSeconds+(run<=riseMeters?Math.sqrt(2*run/runner.accelerationMps2):rise+(run-riseMeters)/runner.topSpeedMps);
+}
+/** The lead he can get back from when the pitcher throws over, less the risk he refuses. His own
+ * margin (積極走塁 lowers it) applies unless the manager has said otherwise, as with every green trait. */
+export function runnerLeadMetersV1(x:Readonly<{runner:LiveLeadRunnerV1;pitcher:LiveLeadPitcherV1;base:BaseName;instruction:Instruction;pitcherToFirstMeters:number}>){
+  const c=LIVE_RUNNER_LEAD_CALIBRATION_V1,{runner,pitcher}=x,
+    own=x.instruction==='aggressive'?c.managerAggressiveSafetySeconds:x.instruction==='conservative'?c.managerConservativeSafetySeconds:runner.baserunningSafetyMarginSeconds??c.defaultSafetySeconds,
+    safety=c.leadSafetyBaseSeconds+c.leadSafetyShare*own,
+    pickoff=pickoffMoveSecondsV1(pitcher.pickoffTechniqueV1??0,pitcher.throws)+x.pitcherToFirstMeters/(pitcher.throwSpeedMps*c.pickoffThrowEffort)+c.pickoffTagSeconds,
+    available=Math.max(0,pickoff-safety-runner.reactionSeconds-c.returnTurnSeconds),rise=runner.topSpeedMps/runner.accelerationMps2,
+    run=available<=rise?.5*runner.accelerationMps2*available**2:runner.topSpeedMps*rise/2+(available-rise)*runner.topSpeedMps,
+    // A quick delivery shortens what a long lead buys; a slow one invites it.
+    held=c.deliveryMetersPerSecond*((pitcher.deliverySecondsV1??DELIVERY_SECONDS)-DELIVERY_SECONDS);
+  return clamp((c.returnReachMeters+run+held+c.stealSkillMeters*(runner.stealSkillV1??0))*c.baseScale[x.base],c.minimumMeters,c.maximumMeters);
 }
 export function leadPositionV1(bases:Readonly<Record<string,Vec>>,name:BaseName,meters:number):Vec{
   const from=bases[name],to=bases[NEXT[name]]!,d=Math.hypot(to.x-from.x,to.z-from.z),k=meters/d;
@@ -40,7 +77,8 @@ export function decideStealV1(x:Readonly<{seed:number;pitchOrdinal:number;match:
 /** Race between the runner, moving from the pitcher's release, and the catcher's throw. */
 export function resolveStealV1(x:Readonly<{seed:number;pitchOrdinal:number;from:Vec;to:Vec;catcher:Vec;catchSeconds:number;
   runner:Readonly<{topSpeedMps:number;accelerationMps2:number;reactionSeconds:number}&LiveRunnerTraitsV1>;transferSeconds:number;throwSpeedMps:number;
-  /** クイック: first move to release. Omission keeps the common delivery. */deliverySeconds?:number}>){
+  /** クイック: first move to release. Omission keeps the common delivery. */deliverySeconds?:number;
+  /** Mitt to release from 送球動作, and the throw from a step forward. Omission keeps the instant exchange. */catcherThrowV1?:true}>){
   const {runner}=x,distance=Math.hypot(x.to.x-x.from.x,x.to.z-x.from.z),rise=runner.topSpeedMps/runner.accelerationMps2,
     // 盗塁 reads the pitcher sooner. Top speed and acceleration stay the runner's own.
     reaction=Math.max(0,runner.reactionSeconds-.06*(runner.stealSkillV1??0)),
@@ -48,15 +86,18 @@ export function resolveStealV1(x:Readonly<{seed:number;pitchOrdinal:number;from:
     // The runner breaks on the pitcher's first move, about a second before release. The
     // record starts at release, so the whole run is replayed in the remaining time.
     runnerSeconds=fullSeconds-(x.deliverySeconds??DELIVERY_SECONDS),pace=fullSeconds/runnerSeconds,
-    throwDistance=Math.hypot(x.to.x-x.catcher.x,x.to.z-x.catcher.z),throwSeconds=throwDistance/(x.throwSpeedMps*.92),
+    c=LIVE_CATCHER_THROW_CALIBRATION_V1,paced=x.catcherThrowV1===true,
+    throwDistance=Math.hypot(x.to.x-x.catcher.x,x.to.z-(x.catcher.z+(paced?c.steppedForwardMeters:0))),throwSeconds=throwDistance/(x.throwSpeedMps*(paced?c.flightSpeedShare:.92)),
     rng=new SeedRoot(x.seed).streamRng(x.pitchOrdinal-1,'pitch','steal-race-v1'),jitter=(rng.nextFloat()+rng.nextFloat()-1)*.12,
-    releaseSeconds=x.catchSeconds+x.transferSeconds,arrivalSeconds=releaseSeconds+throwSeconds+.08+jitter;
+    // A hurried exchange and an ordinary one differ on the same throw, so part of the jitter belongs to the hands.
+    exchangeSeconds=paced?c.exchangeBaseSeconds+c.exchangePerTransfer*x.transferSeconds+jitter*c.jitterShare:x.transferSeconds,
+    releaseSeconds=x.catchSeconds+exchangeSeconds,arrivalSeconds=paced?releaseSeconds+throwSeconds+c.tagSeconds+jitter*(1-c.jitterShare):releaseSeconds+throwSeconds+.08+jitter;
   const position=(seconds:number):Vec=>{const t=seconds*pace,moved=t<=reaction?0:Math.min(distance,t<reaction+rise
     ?.5*runner.accelerationMps2*(t-reaction)**2:(t-reaction-rise/2)*runner.topSpeedMps),k=moved/distance;
     return {x:x.from.x+(x.to.x-x.from.x)*k,y:0,z:x.from.z+(x.to.z-x.from.z)*k};};
   const velocity=(seconds:number):Vec=>{const t=seconds*pace,speed=t<=reaction||t>=fullSeconds?0:Math.min(runner.topSpeedMps,(t-reaction)*runner.accelerationMps2),
     k=speed*pace/distance;return {x:(x.to.x-x.from.x)*k,y:0,z:(x.to.z-x.from.z)*k};};
-  return {safe:runnerSeconds<=arrivalSeconds,runnerSeconds,releaseSeconds,arrivalSeconds,position,velocity};
+  return {safe:runnerSeconds<=arrivalSeconds,runnerSeconds,releaseSeconds,arrivalSeconds,exchangeSeconds,throwSeconds,position,velocity};
 }
 
 /** A throw to first between pitches, more likely against a long lead. かく乱 draws the
@@ -70,10 +111,12 @@ export function decidePickoffV1(x:Readonly<{seed:number;pitchOrdinal:number;matc
 /** The runner dives back while the ball travels. Pitcher technique shortens the move;
  * the first baseman's glove speed shortens the tag. */
 export function resolvePickoffV1(x:Readonly<{seed:number;pitchOrdinal:number;lead:Vec;base:Vec;pitcher:Vec;pitcherTechnique:number;throwSpeedMps:number;
-  runner:Readonly<{topSpeedMps:number;reactionSeconds:number}>;receiverGloveSpeedMps:number}>){
-  const distance=Math.hypot(x.lead.x-x.base.x,x.lead.z-x.base.z),backSeconds=x.runner.reactionSeconds+.12+distance/(x.runner.topSpeedMps*.8),
-    rng=new SeedRoot(x.seed).streamRng(x.pitchOrdinal-1,'pitch','pickoff-race-v1'),jitter=(rng.nextFloat()+rng.nextFloat()-1)*.1,
-    moveSeconds=.62-.1*x.pitcherTechnique,throwSeconds=Math.hypot(x.base.x-x.pitcher.x,x.base.z-x.pitcher.z)/(x.throwSpeedMps*.8),
+  runner:Readonly<{topSpeedMps:number;reactionSeconds:number;accelerationMps2?:number}>;receiverGloveSpeedMps:number;
+  /** Return run from a stop, and the wider read on the move. Omission keeps the old race exact. */leadRaceV1?:Readonly<{throws?:'R'|'L'}>}>){
+  const distance=Math.hypot(x.lead.x-x.base.x,x.lead.z-x.base.z),lead=x.leadRaceV1,
+    backSeconds=lead?runnerReturnSecondsV1(distance,{topSpeedMps:x.runner.topSpeedMps,reactionSeconds:x.runner.reactionSeconds,accelerationMps2:x.runner.accelerationMps2!}):x.runner.reactionSeconds+.12+distance/(x.runner.topSpeedMps*.8),
+    rng=new SeedRoot(x.seed).streamRng(x.pitchOrdinal-1,'pitch','pickoff-race-v1'),jitter=(rng.nextFloat()+rng.nextFloat()-1)*(lead?LIVE_RUNNER_LEAD_CALIBRATION_V1.pickoffJitterSeconds:.1),
+    moveSeconds=lead?pickoffMoveSecondsV1(x.pitcherTechnique,lead.throws):.62-.1*x.pitcherTechnique,throwSeconds=Math.hypot(x.base.x-x.pitcher.x,x.base.z-x.pitcher.z)/(x.throwSpeedMps*.8),
     tagSeconds=.3-.012*x.receiverGloveSpeedMps,arrivalSeconds=moveSeconds+throwSeconds+tagSeconds+jitter;
   const position=(t:number):Vec=>{const k=t<=x.runner.reactionSeconds?0:Math.min(1,(t-x.runner.reactionSeconds)/(backSeconds-x.runner.reactionSeconds));
     return {x:x.lead.x+(x.base.x-x.lead.x)*k,y:0,z:x.lead.z+(x.base.z-x.lead.z)*k};};

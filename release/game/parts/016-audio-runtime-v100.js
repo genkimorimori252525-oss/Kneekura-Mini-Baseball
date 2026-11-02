@@ -36,6 +36,18 @@
    if(f.kind==='catch_secured')add(f.tick,groundSeen&&!throwSeen?'catchGround':'catch');
    if(f.kind==='wall_support')add(f.tick,'fence');
   }
+  // A steal throw and a pickoff are extra pitch-phase frames that the field facts above do not describe.
+  // Each throw gets its release sound, and the catch sound where the ball arrives at the base.
+  {let flying=false,arrived=false,lastThrow=null;
+   for(const f of record.frames??[]){
+    if(f.phase!=='pitch')continue;
+    if(f.ballKind==='throw'){
+     if(!flying){add(f.tick,'throw');flying=true;arrived=false;}
+     if(!arrived&&(f.ball?.possessedBy||f.ball?.visible===false)){add(f.tick,'catch');arrived=true;}
+     lastThrow=f.tick;
+    }else if(flying){if(!arrived)add(lastThrow,'catch');flying=false;}
+   }
+   if(flying&&!arrived)add(lastThrow,'catch');}
   if(!contact){const secured=d.catcherSecureTick??record.frames?.find(f=>f.ball?.possessedBy===record.pitcherPlayerId)?.tick;
    if(Number.isFinite(secured))add(secured,'mitt');
    else {const caught=record.frames?.find(f=>f.possessedBy&&f.phase==='pitch'&&f.possessedBy!==record.pitcherPlayerId);if(caught)add(caught.tick,'mitt');}

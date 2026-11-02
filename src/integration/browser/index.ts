@@ -128,3 +128,5 @@ export {createExperimentalMatchHostV1,readMatchContinuationV1} from './Experimen
 export {createExperimentalMatchHostV2,readMatchContinuationV2} from './ExperimentalMatchHostV2';
 export { LIVE_EMOTION_POLICY_V1, createLiveEmotionTrackerV1 } from './LiveEmotionV1';
 export { LIVE_BATTER_TECHNIQUE_POLICY_V1 } from '../../core/decision/batting/BatterContactTechniqueV1';
+export { LIVE_RUNNER_LEAD_POLICY_V1, LIVE_CATCHER_THROW_POLICY_V1 } from './LiveBaseRunningV1';
+export { LIVE_FIELD_THROW_POLICY_V1 } from '../../core/sim/fielding/LiveCloseThrowV1';
