@@ -35,6 +35,7 @@ import { predictLiveDefensiveOpportunityV1, LIVE_DEFENSIVE_OPPORTUNITY_POLICY_V1
   type LiveDefensiveOpportunityV1 } from './LiveDefensiveOpportunityV1';
 import { resolveGroundedActorContactResponseV1 } from './GroundedActorContactResponseV1';
 import { planLiveThrowV1 } from './LiveThrowPlanV1';
+import { LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
 import { decideLiveCloseThrowV1,liveCloseThrowToleranceV1,LIVE_CLOSE_THROW_CALIBRATION_V1,validateLiveFieldThrowPolicyV1,type LiveFieldThrowPolicyV1 } from './LiveCloseThrowV1';
 import { planLiveThrowActionV103,LIVE_THROW_EFFORT_POLICY_V103 } from './LiveThrowActionV103';
 import { liveFielderTurnSpeedV110 } from './LiveFielderBodyGeometryV105';
@@ -105,6 +106,8 @@ export type LiveFieldPlayInputV1 = Readonly<{ ball: BallWorldMoment; physics: Ae
   recordDecisionTraceV118?: true;
   /** Close throws are attempted and a far holder returns the ball; omission keeps positive-margin throws only. */
   fieldThrowPolicyV1?: LiveFieldThrowPolicyV1;
+  /** Fielders break from a ready position, reach low balls and crouch late; omission keeps the old motion exact. */
+  fieldRangePolicyV1?: LiveFieldRangePolicyV1;
   /** Opt-in runner tactics, authored and UNMEASURED; omitted keeps legacy decisions. Enables: two-out go-on-contact held for the
    * whole contact leg, line-drive freeze under two outs, halfway on a shallow catchable fly. `context` also lets risk follow outs,
    * inning and score (facts a runner knows). */
@@ -284,7 +287,9 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   const batDynamics=(globalThis as any).__robinDynamics;
   if(loose&&(!batDynamics||typeof batDynamics.rigidAt!=='function'||typeof batDynamics.sampleBatAtTick!=='function'||!Number.isFinite(batDynamics.batBound)||batDynamics.batBound<0||!Number.isFinite(batDynamics.batThroughSeconds)||!batDynamics.batBoundCovered))throw Error('HOLD: missing covered dynamic bat trajectory');
   assert(loose===undefined||loose.version==='loose_pitch_field_v1','unsupported loose pitch version');let looseImpactSeconds=loose?.initialImpactSeconds??null;const looseVisibleAt=(t:number)=>!loose||typeof loose.hiddenAfterSeconds!=='number'||t<loose.hiddenAfterSeconds||(typeof looseImpactSeconds==='number'&&t>=Math.max(loose.legacyArrivedSeconds,looseImpactSeconds));if(loose&&typeof loose.hiddenAfterSeconds==='number')assert(Number.isFinite(loose.legacyArrivedSeconds)&&loose.legacyArrivedSeconds>=loose.hiddenAfterSeconds,'invalid legacy arrival');
-  const input = cloneInert(raw), start = input.ball.elapsedSeconds, originTick = input.ball.originTick,
+  const cloned = cloneInert(raw), fieldRangePolicyV1 = cloned.fieldRangePolicyV1 === undefined ? undefined : validateLiveFieldRangePolicyV1(cloned.fieldRangePolicyV1),
+    input = fieldRangePolicyV1 ? { ...cloned, fielders: cloned.fielders.map(f => (cloned as { loosePitchV1?: unknown }).loosePitchV1 ? { ...liveFieldRangeSpecV1(f), bodyModelV105: f.bodyModelV105 } : liveFieldAirReadV1(liveFieldRangeSpecV1(f), cloned.ball.ball.velocity)), runners: cloned.runners.map(liveFieldRunnerRangeSpecV1) } : cloned, start = input.ball.elapsedSeconds, originTick = input.ball.originTick,
+    fielderBagV1 = fieldRangePolicyV1 ? LIVE_FIELD_RANGE_CALIBRATION_V1.fielderBagReachMeters : input.field.baseTouchRadiusMeters ?? .28,
     tps = input.physics.air.ticksPerSecond, max = start + (input.maxPlaySeconds ?? 35), frameSeconds = input.frameSeconds ?? .055;
   assert(input.recordInitialMovementV98 === undefined || input.recordInitialMovementV98 === true, 'invalid initial movement telemetry option');
   assert(input.defenseDecisionModeV118===undefined||['legacy','shadow','individual'].includes(input.defenseDecisionModeV118),'invalid defense decision mode');
@@ -659,6 +664,16 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       durationSeconds: motion.durationSeconds, lengthMeters: motion.lengthMeters, route: motion.route });
     if (r.base > 0 && !physicalBaseDepartures.has(r.spec.runnerId))
       scheduleDeparture(r.leg, r.base as BaseballBase, 0, motion.touches[0]?.centerElapsedSeconds ?? motion.durationSeconds);
+    markLeadDepartureV1(r, t);
+  };
+  /** A runner off his bag on a lead has already left it, so no bag crossing will ever record it. The rules need
+   * that departure once he goes for the next base or is tagged where he stands; a lead he walks back from needs none. */
+  const markLeadDepartureV1 = (r: Runner, t: number) => {
+    if (!fieldRangePolicyV1 || r.base <= 0 || r.base > 3 || physicalBaseDepartures.has(r.spec.runnerId) || r.leg?.departure
+      || distance(flat(runnerAt(r, t)), flat(base(r.base))) <= (field.baseTouchRadiusMeters ?? .28)) return;
+    physicalBaseDepartures.set(r.spec.runnerId, { base: r.base as BaseballBase, tick: tick(t), elapsedSeconds: t });
+    runnerDepartures.push({ kind: 'runner_base_departure', runnerId: r.spec.runnerId, base: r.base as BaseballBase, tick: tick(t) });
+    emit('runner_base_departure', t, { runnerId: r.spec.runnerId, base: r.base as BaseballBase });
   };
   // Partway down the line and wait. The motion has no base touch: it ends in a plain runner stop, never a base fact.
   const beginHalfwayV1 = (r: Runner, n: BaseballBase, fraction: number, t: number) => {
@@ -673,6 +688,19 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
     runnerMotions.push({ elapsedSeconds: t, runnerId: r.spec.runnerId, throughBases: [], position: p, velocity: runnerVelocityAt(r, t),
       durationSeconds: motion.durationSeconds, lengthMeters: motion.lengthMeters, route: motion.route });
     if (r.base > 0 && !physicalBaseDepartures.has(r.spec.runnerId)) scheduleDeparture(r.leg, r.base as BaseballBase, 0, motion.durationSeconds);
+  };
+  /** A read of a catch sends a leading runner back to touch his bag, so he can tag up. No base has been left for good. */
+  const beginBackToBagV1 = (r: Runner, t: number) => {
+    const p = runnerAt(r, t), b = base(r.base);
+    if (distance(flat(p), flat(b)) <= (field.baseTouchRadiusMeters ?? .28)) return false;
+    const raw = createLiveRunnerMotionV1({ position: p, velocity: runnerVelocityAt(r, t), bases: [{ base: r.base as BaseballBase, position: b }],
+      topSpeedMps: r.spec.topSpeedMps, accelerationMps2: r.spec.accelerationMps2, roundingRadiusMeters: r.spec.roundingRadiusMeters ?? 4.5,
+      lateralAccelerationMps2: r.spec.lateralAccelerationMps2 ?? 1.5 * r.spec.accelerationMps2, baseTouchRadiusMeters: field.baseTouchRadiusMeters ?? .28 });
+    if (!raw) return false;
+    r.leg = { from: t, to: r.base as BaseballBase, motion: raw, nextTouchIndex: 0, height: p.y, departure: null };
+    runnerMotions.push({ elapsedSeconds: t, runnerId: r.spec.runnerId, throughBases: raw.touches.map(b => b.base), position: p, velocity: runnerVelocityAt(r, t),
+      durationSeconds: raw.durationSeconds, lengthMeters: raw.lengthMeters, route: raw.route });
+    return true;
   };
   // Immediate return after touching first is protected; choosing a new leg to
   // second replaces this motion and ends the exception. This is not a tag fact.
@@ -1233,6 +1261,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         const point=prediction.prediction.sample(h).position,s=action.sampleAtElapsedSeconds(t+h),delta=sub(point,s.pose.shoulder),
           gap=liveFielderReachMarginV105(m,s.pose.shoulder,s.pose.forward,point);
         if(kind==='jump'&&point.y<m.shoulderHeightMeters+m.armReachMeters*.8||kind==='dive'&&point.y>m.shoulderHeightMeters*.8)continue;
+        if(fieldRangePolicyV1&&kind==='dive'&&norm(flat(prediction.prediction.sample(h).velocity))<LIVE_FIELD_RANGE_CALIBRATION_V1.diveMinimumBallSpeedMps)continue;
         if(gap<.04*Math.max(1,caution)||norm(delta)>m.armReachMeters*.95)continue;
         // Preserve the complete landing corridor, including a reachable reserve
         // for teammates. Reject before takeoff rather than brake in the air.
@@ -1379,8 +1408,8 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         .map(o => {
           const r = runners.find(x => x.spec.runnerId === o.runnerId)!, b = base(o.targetBase),
             runnerSec = runnerArrivalSeconds(r, o.targetBase, t),
-            holderSec = knownArrivalV120(handler,handler,t,b,field.baseTouchRadiusMeters??.28),
-            otherSec = Math.min(...defenders.filter(f => f !== handler).map(f => individualV118?knownArrivalV120(handler,f,t,b,field.baseTouchRadiusMeters??.28):liveFieldArrivalSecondsV1(knownActorV118(handler,f,t), b, field.baseTouchRadiusMeters ?? .28))),
+            holderSec = knownArrivalV120(handler,handler,t,b,fielderBagV1),
+            otherSec = Math.min(...defenders.filter(f => f !== handler).map(f => individualV118?knownArrivalV120(handler,f,t,b,fielderBagV1):liveFieldArrivalSecondsV1(knownActorV118(handler,f,t), b, fielderBagV1))),
             dist = distance(flat(at(handler.body, t)), flat(b));
           return { base: o.targetBase, point: b, dist, holderSec, otherSec, runnerSec };
         })
@@ -1408,7 +1437,9 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       for(const f of defenders){
         const seen=knowledgeV118(f,t),predicted=forecasts.find(x=>x.f===f)?.predicted,
           attempt=predicted?.attempt&&predicted.attempt.eta+predicted.attempt.latenessSeconds<predicted.eta?predicted.attempt:null,
-          pickup=predicted?{point:attempt?.point??predicted.point,eta:attempt?.eta??predicted.eta,
+          // A throw on its way to someone else is left alone: he gets out of its line, he does not cut it off.
+          throwForOtherV1=!!fieldRangePolicyV1&&seen.ball?.phase==='throw'&&!!throwTarget&&throwTarget.receiver!==f,
+          pickup=predicted&&!throwForOtherV1?{point:attempt?.point??predicted.point,eta:attempt?.eta??predicted.eta,
             intercepted:attempt?false:predicted.intercepted,latenessSeconds:attempt?.latenessSeconds}:null,
           targets=outTargets(f,t),knownThreats=targets.map(o=>({base:o.targetBase,arrivalSeconds:runnerArrivalSeconds(runners.find(r=>r.spec.runnerId===o.runnerId)!,o.targetBase,t,f)})),
           pickupWindows:LivePursuitWindowV1[]=pickup?[{family:'direct',...pickup,arrivalSeconds:Math.max(0,pickup.eta+(pickup.latenessSeconds??0))}]:[];
@@ -1432,6 +1463,12 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
             ball:seen.ball?.position??null,ballVelocity:seen.ball?.velocity??v(),possessionPlayerId:seen.ball?.possessedBy??null,
             pickup,pickupWindowsV120:pickupWindows,threats:knownThreats,received:adviceV118(f,t),previous:previousRoles.find(r=>r.playerId===f.spec.playerId),
             cautious:f.spec.fieldingCognition?.cautious,
+            ...(fieldRangePolicyV1?{coverAllowedV1:(b:BaseballBase,arrival:number)=>{
+              const holder=seen.ball?.possessedBy??null,point=predicted?.point,chaser=holder||!point?null:defenders.filter(d=>!['LF','CF','RF'].includes(d.spec.defensivePosition??''))
+                .map(d=>({d,eta:liveFieldArrivalSecondsV1(knownActorV118(f,d,t),point)})).sort((p,q)=>p.eta-q.eta)[0].d,
+                duty=liveFieldCoverOrderV1(b,seen.ball?.position.x??0).map(p=>defenders.find(d=>d.spec.defensivePosition===p)).find(d=>d&&d.spec.playerId!==holder&&d!==chaser);
+              return !duty||duty===f||arrival+LIVE_FIELD_RANGE_CALIBRATION_V1.coverOverrideSeconds<liveFieldArrivalSecondsV1(knownActorV118(f,duty,t),base(b));
+            }}:{}),
             ...((f===possession||f===pendingCatch?.fielder)?{ownTask:{playerId:f.spec.playerId,taskId:'holder',point:holderTask.point,intent:holderTask.intent,targetBase:holderTask.base}}:{})});
         roles.push(result.role);
         if(individualV118)lastIndividualDecisionV118.set(f.spec.playerId,{playerId:f.spec.playerId,tick:tick(t),
@@ -1480,7 +1517,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
     // Select the intended receiver while transfer/recovery are still running.
     // This announces a target, never permission to release an unready hand.
     if (possession && !pendingCatch && releaseAt === null) {
-      const arrive = (f: Fielder, target: Vec3) => knownArrivalV120(possession!,f,t,target,field.baseTouchRadiusMeters??.28),
+      const arrive = (f: Fielder, target: Vec3) => knownArrivalV120(possession!,f,t,target,fielderBagV1),
         relayActorsV120=individualV118?defenders.map(f=>knownRelayActorV118(possession!,f,t)):null,
         recoveringKnowledgeV120=relayActorsV120?.some(a=>!!a.postActionV120),
         ownPostActionV120=knownPostActionV120(possession,possession,t),
@@ -1507,7 +1544,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
           // toward that bag or prepare an unnecessary second throw.
           carrySeconds = o.forced || o.appeal || o.containment ? arrive(possession!, target)
             : knownArrivalV120(possession!,possession!,t,knownRunnerAtV118(r,t),tagReachV105(possession!,r,t)),
-          receiverArriveSeconds = knownArrivalV120(possession!,receiver,t,target,field.baseTouchRadiusMeters??.28,'receiver'),
+          receiverArriveSeconds = knownArrivalV120(possession!,receiver,t,target,fielderBagV1,'receiver'),
           holderDist = distance(flat(at(possession!.body, t)), flat(target)),
           chargeElapsedSeconds = custodyChargeFromV103 === null ? 0 : Math.max(0, t - Math.max(custodyChargeFromV103,custodySince+effectiveTransferSeconds(possession!))),
           remainingTransferSeconds = Math.max(0,custodySince+effectiveTransferSeconds(possession!)-t);
@@ -1574,7 +1611,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         // must still be tagged. Include the receiving player's own transfer
         // and pursuit rather than comparing receipt against the holder's tag.
         const tagAfterReceipt = !o.forced && !o.appeal && !o.containment && Number.isFinite(receivingSeconds)
-          ? forecastTransferSecondsV101(receiver) + liveFieldArrivalSecondsV1({ ...knownActorV118(possession!,receiver,t),
+          ? fieldRangePolicyV1 ? LIVE_FIELD_RANGE_CALIBRATION_V1.tagSwipeSeconds : forecastTransferSecondsV101(receiver) + liveFieldArrivalSecondsV1({ ...knownActorV118(possession!,receiver,t),
             position: v(target.x, receiver.spec.position.y, target.z), velocity: v(), remainingReactionSeconds: 0 },
           knownRunnerAtV118(r, t + receivingSeconds + forecastTransferSecondsV101(receiver)), tagReachV105(receiver, r, t)) : 0,
           receivingRetirementSeconds = receivingSeconds + tagAfterReceipt;
@@ -1698,7 +1735,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         const here = distance(flat(at(possession.body, t)), flat(pick.target));
         if (!pick.forced && !pick.appeal && !pick.containment && (here <= tagReachV105(possession,runners.find(r=>r.spec.runnerId===pick.runnerId)!,t) + .5 || pick.carryPreferred)) {
           holderTask = { point: knownRunnerAtV118(runners.find(r => r.spec.runnerId === pick.runnerId)!, t), intent: 'tag', base: null };
-        } else if (here <= (field.baseTouchRadiusMeters ?? .28)) {
+        } else if (here <= fielderBagV1) {
           holderTask = { point: pick.target, intent: 'base_cover', base: pick.base };
           holderDecisions.push({ elapsedSeconds: t, playerId: possession.spec.playerId, state: 'on_base_cover', base: pick.base,
             margin: pick.margin, carrySeconds: pick.carrySeconds, receivingSeconds: pick.receivingSeconds, receiverDistanceToBaseMeters: here });
@@ -1957,9 +1994,9 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       if (f.spec.bodyModelV105&&!athleticActiveV115(f,t)) {
         const m = f.spec.bodyModelV105, old = sampleLiveFielderPostureV105(f.postureV105!, t), expected = forecasts.find(x => x.f === f)?.predicted,
           point = f === possession ? throwTarget?.point ?? base(outTargets()[0]?.targetBase ?? 1) : expected?.point ?? target.point,
-          near = distance(flat(point),flat(at(body,t))) <= m.armReachMeters + f.spec.topSpeedMps*(m.maximumCrouchMeters/m.postureSpeedMps+.15),
+          near = fieldRangePolicyV1&&localHandlerV118&&expected?liveFieldCrouchDueV1(m,expected.eta,expected.intercepted||norm(flat(expected.prediction.sample(0).velocity))<LIVE_FIELD_RANGE_CALIBRATION_V1.diveMinimumBallSpeedMps):distance(flat(point),flat(at(body,t))) <= m.armReachMeters + f.spec.topSpeedMps*(m.maximumCrouchMeters/m.postureSpeedMps+.15),
           crouchDesired = pendingCatch?.fielder === f ? old.crouchMeters : (!possession||individualV118) && active && near && (localHandlerV118 || localReceiverV118)
-            ? liveFielderDesiredCrouchV105(m,at(body,t),point) : 0,
+            ? fieldRangePolicyV1&&localHandlerV118&&point.y<=.3?m.maximumCrouchMeters:liveFielderDesiredCrouchV105(m,at(body,t),point) : 0,
           desiredYaw = f === possession || near && (localHandlerV118 || localReceiverV118)
             ? Math.atan2(point.x-at(body,t).x,point.z-at(body,t).z)
             : norm(flat(vel)) > .3 ? Math.atan2(vel.x,vel.z) : old.yaw,
@@ -2027,7 +2064,10 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         : defensiveOpportunity&&!individualV118 ? at(f.body, through)
         : (f === possession || f === pendingCatch?.fielder) ? add(at(f.body, through), heldOffset)
         : localHandlerV118 || localReceiverV118 ? reachableTarget : at(f.body, through), at(f.body, through));
-      const desired = f.spec.bodyModelV105 ? liveFielderReachTargetV105(f.spec.bodyModelV105, poseV105(f, through)!.shoulder, poseV105(f, through)!.forward, add(at(f.body, through), relative))
+      const reachPoint = add(at(f.body, through), relative),
+        lowGloveV1 = !!fieldRangePolicyV1 && !!f.spec.bodyModelV105 && localHandlerV118 && f !== possession && f !== pendingCatch?.fielder && !tagRunner,
+        desired = f.spec.bodyModelV105 ? liveFielderReachTargetV105(f.spec.bodyModelV105, poseV105(f, through)!.shoulder, poseV105(f, through)!.forward,
+          lowGloveV1 ? liveFieldLowGloveTargetV1(f.spec.bodyModelV105.armReachMeters, poseV105(f, through)!.shoulder, reachPoint) : reachPoint)
         : add(at(f.body, through), mul(relative, Math.min(1, f.spec.gloveReachMeters / Math.max(norm(relative), 1e-30)))),
         limited = targetInside(v(desired.x, Math.max(gloveRadius, desired.y), desired.z), fenceRadius - gloveRadius - .02),
         wantedOffset = sub(limited, at(f.body, through)), targetOffset = f.spec.bodyModelV105 ? wantedOffset : mul(wantedOffset, Math.min(1, f.spec.gloveReachMeters / Math.max(norm(wantedOffset), 1e-30))),
@@ -2213,13 +2253,16 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
           readyAtElapsedSeconds: null, runnerTravelSeconds: 0, runnerArrivalSeconds: null, raceMarginSeconds: null });
         beginHalfwayV1(r, next as BaseballBase, halfwayV1.fraction, t); continue;
       }
+      if (fieldRangePolicyV1 && r.base > 0 && air !== undefined && input.outs + retiredCount < 2 && !looseGroundCue && !looseTouchCue
+        && air.catchMarginSeconds >= -marginV1(r, next, false) && beginBackToBagV1(r, t)) continue;
+      const taggedV1 = !!fieldRangePolicyV1 && !!flyCatch && r.base === r.spec.initialBase && r.base > 0 && !!tagUpAtFirstTouch.get(r.spec.runnerId);
       let decision = decideLiveRunnerAdvanceV1({ nowSeconds: t, playStartedAtSeconds: loose?.pitchReleaseSeconds??start, currentBase: r.base as 0 | 1 | 2 | 3, outs: input.outs as 0 | 1 | 2,
         distanceToNextBaseMeters: distance(flat(runnerAt(r, t)), flat(base(next))), baseTouchRadiusMeters: field.baseTouchRadiusMeters ?? .28,
-        targetOccupied, runner: r.spec, forced,
+        targetOccupied, runner: taggedV1 ? { ...r.spec, reactionSeconds: LIVE_FIELD_RANGE_CALIBRATION_V1.tagUpReactionSeconds } : r.spec, forced,
         awardThroughBase: awardTarget as BaseballBase | null,
         firstGroundContactElapsedSeconds: looseGroundCue,
         firstFielderTouchElapsedSeconds: looseTouchCue,
-        defenderControlSeconds, airborneAssessment: air, policy: { safetyMarginSeconds: marginV1(r, next, forced) },
+        defenderControlSeconds: taggedV1 && next === 4 && defenderControlSeconds !== null ? defenderControlSeconds + LIVE_FIELD_RANGE_CALIBRATION_V1.tagUpLongThrowAllowanceSeconds : defenderControlSeconds, airborneAssessment: air, policy: { safetyMarginSeconds: taggedV1 ? next === 4 ? LIVE_FIELD_RANGE_CALIBRATION_V1.tagUpHomeMarginSeconds : LIVE_FIELD_RANGE_CALIBRATION_V1.tagUpBaseMarginSeconds : marginV1(r, next, forced) },
         ...(tacticsV1 ? { tacticsV1: { contactLeg: r.base === r.spec.initialBase } } : {}) });
       if(loose&&looseGroundCue===null&&looseTouchCue===null)decision={...decision,advance:false,reason:'loose_pitch_wait_for_live_ball_cue'} as any;
       if (decision.reason === 'recognizing_departure_cue' && !targetOccupied) runnerDecisionPending = true;
@@ -2488,7 +2531,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         const relevant = legacyOutTargetsV117().some(o => (o.forced || o.appeal) && o.targetBase === n);
         if (!relevant) continue;
         const hit = findContact(t => {
-          if(!athleticActiveV115(f,t))return distance(flat(at(f.body,t)),flat(base(n)))-(field.baseTouchRadiusMeters??.28);
+          if(!athleticActiveV115(f,t))return distance(flat(at(f.body,t)),flat(base(n)))-fielderBagV1;
           const foot=poseV105(f,t)!.foot;
           return Math.max(distance(flat(foot),flat(base(n)))-(field.baseTouchRadiusMeters??.28),Math.abs(foot.y-base(n).y)-.02);
         },athleticActiveV115(f,time)?Math.max(speed,f.athleticV115!.maximumPointSpeedMps):speed,128*Number.EPSILON,time,horizon);
@@ -2890,6 +2933,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
             && norm(radial) > (field.baseTouchRadiusMeters ?? .28) && radial.x * velocity.x + radial.z * velocity.z > 0
             && runnerTagGapV115(r,time,at(e.f!.glove,time)) <= 0
             ? { base: departure.base, tick: departure.tick } : undefined;
+        markLeadDepartureV1(r, start);
         controlledRunnerTags.push({ kind: 'controlled_runner_tag', defenderId: e.f!.spec.playerId, runnerId: r.spec.runnerId, tick: tick(time),
           ...(protectionEndedByDeparture ? { protectionEndedByDeparture } : {}) });
         emit('controlled_runner_tag', time, { playerId: e.f!.spec.playerId, runnerId: r.spec.runnerId });

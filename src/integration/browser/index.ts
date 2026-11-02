@@ -87,7 +87,7 @@ export { AVERAGE_FIELD_REFERENCE_V95, AVERAGE_FIELD_PROFILE_V95, AVERAGE_FIELD_C
 
 export { markLiveAuthoringSourceV101 } from './LiveAuthoringSourceV101';
 
-export { BASEBALL_SURFACES_V101, LIVE_MATCH_GRASS_V2 } from '../../core/sim/ball/BaseballSurfaceCalibrationV101';
+export { BASEBALL_SURFACES_V101, LIVE_MATCH_GRASS_V2, LIVE_MATCH_GRASS_V3 } from '../../core/sim/ball/BaseballSurfaceCalibrationV101';
 
 export { liveFielderBodyControlBoundsV105, resolveLiveFielderBodyModelV105 } from '../../core/sim/fielding/LiveFielderBodyGeometryV105';
 export type { LiveFielderBodyControlsV105, LiveFielderBodyModelV105, LiveFielderBodyPoseV105 } from '../../core/sim/fielding/LiveFielderBodyGeometryV105';
@@ -130,3 +130,4 @@ export { LIVE_EMOTION_POLICY_V1, createLiveEmotionTrackerV1 } from './LiveEmotio
 export { LIVE_BATTER_TECHNIQUE_POLICY_V1 } from '../../core/decision/batting/BatterContactTechniqueV1';
 export { LIVE_RUNNER_LEAD_POLICY_V1, LIVE_CATCHER_THROW_POLICY_V1 } from './LiveBaseRunningV1';
 export { LIVE_FIELD_THROW_POLICY_V1 } from '../../core/sim/fielding/LiveCloseThrowV1';
+export { LIVE_FIELD_RANGE_POLICY_V1, liveFieldPlacementV1 } from '../../core/sim/fielding/LiveFieldRangeV1';

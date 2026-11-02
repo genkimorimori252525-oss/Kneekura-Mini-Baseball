@@ -11,7 +11,9 @@ export type LiveFieldDecisionContextV1=Readonly<{elapsedSeconds:number;observati
  pickup:Readonly<{point:Vec3;eta:number;intercepted:boolean;latenessSeconds?:number}>|null;
  pickupWindowsV120?:readonly LivePursuitWindowV1[];
  threats:readonly Readonly<{base:BaseballBase;arrivalSeconds:number}>[];received:readonly LiveFieldAdviceV1[];
- previous?:LiveFieldRoleV1;cautious?:boolean;ownTask?:LiveFieldRoleV1}>;
+ previous?:LiveFieldRoleV1;cautious?:boolean;ownTask?:LiveFieldRoleV1;
+ /** Present: a bag is one man's job, and a player only offers to cover where this allows it. */
+ coverAllowedV1?:(base:BaseballBase,arrivalSeconds:number)=>boolean}>;
 export type LiveFieldDecisionCandidateV1=Readonly<{role:LiveFieldRoleV1;intent:DefensiveIntent;cost:number;arrivalSeconds:number;
  opportunityCost:number;competitionCost:number;switchCost:number;reason:string}>;
 const distance=(a:Vec3,b:Vec3)=>Math.hypot(a.x-b.x,a.z-b.z);
@@ -94,7 +96,7 @@ export function evaluateLiveFieldDecisionV1(input:LiveFieldDecisionContextV1){
    const point=input.bases[threat.base],role=own('cover:'+threat.base,'base_cover',point,threat.base),
     arrival=liveFieldArrivalSecondsV1(self,point),late=Math.max(0,arrival-threat.arrivalSeconds),
     prior=self.defensivePosition==='C'&&threat.base!==4?.8:0;
-   add(role,3.5-Math.min(1,late*.3)-prior,3,'observed_runner_threat',arrival);
+   if(!input.coverAllowedV1||input.coverAllowedV1(threat.base,arrival))add(role,3.5-Math.min(1,late*.3)-prior,3,'observed_runner_threat',arrival);
   }
   const primary=input.threats.slice().sort((a,b)=>a.arrivalSeconds-b.arrivalSeconds)[0],
    from=input.possessionPlayerId?others.find(a=>a.playerId===input.possessionPlayerId)?.position??input.ball:input.ball,

@@ -18,7 +18,7 @@
   const choice=document.getElementById('stadium-choice')?.value,row=parkDimensions[choice],shape=window.KneekuraParkShapesV1?.[choice];
   if(!row)return Object.freeze({fenceRadiusMeters:110,fenceHeightMeters:3});
   const [center,line,height]=row,r2=Math.SQRT2;
-  return Object.freeze({fenceRadiusMeters:center,fenceHeightMeters:height,foulFenceRadiusMeters:line*(line-center/r2)/(center-line/r2),...(shape?{fenceShapeV1:shape}:{}),...(window.KneekuraNativeMatchCore?.LIVE_MATCH_GRASS_V2?{groundMaterialV101:window.KneekuraNativeMatchCore.LIVE_MATCH_GRASS_V2}:{})});
+  return Object.freeze({fenceRadiusMeters:center,fenceHeightMeters:height,foulFenceRadiusMeters:line*(line-center/r2)/(center-line/r2),...(shape?{fenceShapeV1:shape}:{}),...(window.KneekuraNativeMatchCore?.LIVE_MATCH_GRASS_V3?{groundMaterialV101:window.KneekuraNativeMatchCore.LIVE_MATCH_GRASS_V3}:{})});
  }
  let park=parkForStadium();
  const teams=[0,1].map(team=>({id:data.teams[team],name:data.teamNames[team],
