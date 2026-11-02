@@ -1,3 +1,4 @@
+import {HOME_TEAMS} from './homerun-theme.mjs';
 import {defaultScoreboard,validateScoreboard} from './scoreboard.mjs';
 import {scoreboardCapabilities} from './scoreboard-field.mjs';
 import {validateEffects} from './stadium-effects.mjs';
@@ -11,7 +12,8 @@ export function validateArchitecture(a,error){
  const fields=(o,keys,path)=>{if(!o||typeof o!=='object'||Array.isArray(o)){error(path,'オブジェクトを指定してください');return false;}
   for(const k of Object.keys(o))if(!keys.includes(k))error(path+'.'+k,'この建築項目は編集できません');return true;},
   number=(v,min,max,path)=>{if(typeof v!=='number'||!Number.isFinite(v)||v<min||v>max)error(path,`${min}〜${max}の数値を入力してください`);};
- if(!fields(a,['version','style','capacity','tiers','colors','roof','logo','surfaceDetail','crowd','details','scoreboard','atmosphere','effects'],'architecture'))return;
+ if(!fields(a,['version','style','capacity','tiers','colors','roof','logo','surfaceDetail','crowd','details','scoreboard','atmosphere','effects','homeTeam'],'architecture'))return;
+ if(a.homeTeam!==undefined&&!Object.hasOwn(HOME_TEAMS,a.homeTeam))error('architecture.homeTeam','対応していないホームチームです');
  if(a.effects!==undefined)validateEffects(a.effects,error);
  if(a.version!==1)error('architecture.version','対応していない建築設定の版です');
  if(!['russian_dome','dodger_stadium','koshien','niikura_dome','fukuoka_dome'].includes(a.style))error('architecture.style','対応していない建築形式です');

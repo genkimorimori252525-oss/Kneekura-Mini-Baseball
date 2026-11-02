@@ -28,7 +28,7 @@ export function referenceDesign() {return {schema:SCHEMA,name:'現行球場',mod
   foul:{firstSideMeters:circleAt(Math.PI/2),thirdSideMeters:circleAt(-Math.PI/2),backstopMeters:35,heightMeters:3},trackWidthMeters:3.5};}
 export function symmetricDesign() {const d=referenceDesign();d.name='左右対称の寸法例';d.mode='editable';d.ruleset='mlb_new_2026';
   d.fencePoints.forEach((p,i)=>p.distanceMeters=[100,116,122,116,100][i]);return d;}
-export function russianDomeDesign(){const d=symmetricDesign();d.name='赤・青・金の開閉式ドーム';d.architecture=russianArchitecture();
+export function russianDomeDesign(){const d=symmetricDesign();d.name='赤・青・金の開閉式ドーム';d.architecture={...russianArchitecture(),homeTeam:'TBD'};
  d.foul={firstSideMeters:18.288,thirdSideMeters:18.288,backstopMeters:26,heightMeters:3};
  d.fencePoints=Array.from({length:17},(_,i)=>{const angleDegrees=-45+i*5.625,a=ANCHORS.find(a=>a.angleDegrees===angleDegrees);
   return {id:a?.id??'CURVE_'+i,angleDegrees,distanceMeters:105+23*Math.cos(rad(angleDegrees*2)),heightMeters:1.3};});

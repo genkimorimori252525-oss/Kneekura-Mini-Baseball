@@ -183,7 +183,13 @@ export function renderStadium({geometry:g,project,paint,grid,cam,cutaway=false,c
     const key=bx+','+by;if(!depthBins.has(key))depthBins.set(key,[]);depthBins.get(key).push({a,b,c,area,surfaceId});
    }}
    if(x0>x1||y0>y1)return;triangles++;
-   for(let y=y0;y<=y1+1e-8;y+=step/density)for(let x=x0;x<=x1+1e-8;x+=step/density){const u=edge(b,c,x,y)/area,v=edge(c,a,x,y)/area,w=1-u-v;
+   for(let y=y0;y<=y1+1e-8;y+=step/density){let left=Infinity,right=-Infinity;
+    // A row's span only skips cells outside it; the exact test below still decides each cell.
+    for(const [p,q] of [[a,b],[b,c],[c,a]]){if(y<Math.min(p.y,q.y)-.01||y>Math.max(p.y,q.y)+.01)continue;
+     if(Math.abs(q.y-p.y)<.01){left=Math.min(left,p.x,q.x);right=Math.max(right,p.x,q.x);continue;}
+     const t=Math.min(1,Math.max(0,(y-p.y)/(q.y-p.y))),at=p.x+(q.x-p.x)*t;left=Math.min(left,at);right=Math.max(right,at);}
+    if(left===Infinity)continue;left-=.01;right+=.01;
+    for(let x=x0;x<=x1+1e-8;x+=step/density){if(x<left)continue;if(x>right)break;const u=edge(b,c,x,y)/area,v=edge(c,a,x,y)/area,w=1-u-v;
     if(u>=-1e-8&&v>=-1e-8&&w>=-1e-8){const d=1/(u/a.depth+v/b.depth+w/c.depth);
      if(density>1){let hidden=false;for(const t of depthBins.get(Math.floor(x/binSize)+','+Math.floor(y/binSize))??[]){
       if(t.surfaceId===surfaceId)continue;
@@ -220,7 +226,7 @@ export function renderStadium({geometry:g,project,paint,grid,cam,cutaway=false,c
       }
       emit(x,y,d,sample.color,sample.logoGlow??0,density,surfaceId,sample.alpha??1);
      }else emit(x,y,d,color,0,1,surfaceId);
-    }}
+    }}}
   },
   dot=(p,color,id=null)=>{lightPoint=p;const q=project(p);if(q&&q.x>=step&&q.x<=600-step&&q.y>=step&&q.y<=432-step)emit(q.x,q.y,q.depth-.025,color,0,1,id);},
   line=(p,q,color,density=1,alpha=1,surfaceId=null)=>{lightPoint=mix(p,q,.5);const dp=depth(p),dq=depth(q);if(dp<.121&&dq<.121)return;

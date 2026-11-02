@@ -15,3 +15,6 @@ release/game/parts/088-*
 release/game/parts/098-*
 release/maker/
 release/lab/
+
+# Team music stays local: this repository is public.
+tools/ballpark-studio/assets/homerun/
