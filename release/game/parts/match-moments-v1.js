@@ -3,13 +3,13 @@
    - which fielder wears the error balloon (M7; 032-script.js draws it)
    - how the crowd reacts (V7; 032-script.js swaps the held stadium pictures)
    - the stadium brightness setting (V2)
-   - the short effect of each manager card (K1): window.playManagerCardFx(cardId, context) returns a promise */
+   - the short effect of each manager card (K1), on the card's own picture: window.playManagerCardFx(cardId, context) returns a promise */
 (function () {
   'use strict';
   const DATA = JSON.parse(document.getElementById('match-data').textContent);
   const NAMES = Object.assign({ robin: 'ロビン' }, Object.fromEntries(Object.values(DATA.players).map(p => [p.id, p.name])));
   const BASES = { first: '一塁', second: '二塁', third: '三塁' }, NEXT = { first: '二塁', second: '三塁', third: '本塁' };
-  const LOOK_MS = 80, CAPTION_MS = 3200, BALLOON_MS = 1800, POSE_MS = 130, POSES = [1, 0, 2, 0];
+  const LOOK_MS = 80, CAPTION_MS = 3200, BALLOON_MS = 1800, POSE_MS = 87, POSES = [1, 0, 2, 0];
   const REACTION_MS = { homeRun: 5200, run: 3000, hit: 2000, out: 1300 };
   const reduceMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -132,72 +132,6 @@
     grid.append(field);
   }
 
-  /* ---------- Card effects: dots on the game's own 4px lattice over the picture ---------- */
-  const FX_MS = 650, W = 600, H = 432, CELL = 4, DOT = 1.45;
-  const GOLD = '#d9b65a', WHITE = '#f4f1e4', BLUE = '#7fb0e8', DIM = '#55705a', RED = '#d8574a';
-  const HOME = [300, 396], FIRST = [420, 300], SECOND = [300, 204], THIRD = [180, 300];
-  const CELLS = 3, ZONE = 40, ZX = W / 2 - ZONE * 1.5, ZY = H / 2 - ZONE * 1.5 + 16;
-  const ease = t => 1 - (1 - t) * (1 - t), clamp01 = t => Math.max(0, Math.min(1, t));
-  const mix = (a, b, t) => a + (b - a) * t;
-  const bezier = (p, q, lift, t) => [mix(p[0], q[0], t), mix(p[1], q[1], t) - 4 * lift * t * (1 - t)];
-
-  function painter(c) {
-    const dot = (x, y, color, alpha = 1, size = DOT) => {
-      c.globalAlpha = alpha;
-      c.fillStyle = color;
-      c.beginPath();
-      c.arc(Math.round(x / CELL) * CELL, Math.round(y / CELL) * CELL, size, 0, Math.PI * 2);
-      c.fill();
-    };
-    const line = (p, q, color, alpha) => {
-      const n = Math.ceil(Math.hypot(q[0] - p[0], q[1] - p[1]) / CELL);
-      for (let i = 0; i <= n; i += 2) dot(mix(p[0], q[0], i / n), mix(p[1], q[1], i / n), color, alpha);
-    };
-    return {
-      dot, line,
-      diamond(alpha) {
-        line(HOME, [50, 146], DIM, alpha);
-        line(HOME, [550, 146], DIM, alpha);
-        [[FIRST, SECOND], [SECOND, THIRD], [THIRD, HOME], [HOME, FIRST]].forEach(([p, q]) => line(p, q, WHITE, alpha * .7));
-        for (let a = -.78; a <= .78; a += .035) dot(300 + 352 * Math.sin(a), 396 - 352 * Math.cos(a), DIM, alpha);
-      },
-      flight(p, q, lift, t, color = GOLD) {
-        const n = 26, head = ease(clamp01(t));
-        for (let i = 0; i <= n; i++) {
-          const u = i / n * head, at = bezier(p, q, lift, u);
-          dot(at[0], at[1], color, .25 + .75 * (i / n));
-        }
-        const at = bezier(p, q, lift, head);
-        dot(at[0], at[1], WHITE, 1, 3);
-      },
-      burst(at, t, color = GOLD) {
-        if (t <= 0) return;
-        for (let i = 0; i < 12; i++) {
-          const a = i * Math.PI / 6, r = 6 + 28 * ease(t);
-          dot(at[0] + r * Math.cos(a), at[1] + r * Math.sin(a), color, 1 - t);
-        }
-      },
-      runner(p, q, t, color = BLUE) {
-        const u = ease(clamp01(t));
-        for (let i = 0; i <= 10; i++) dot(mix(p[0], q[0], u * i / 10), mix(p[1], q[1], u * i / 10), color, .2 + .08 * i);
-        dot(mix(p[0], q[0], u), mix(p[1], q[1], u), WHITE, 1, 3.2);
-      },
-      zone(lit, flash) {
-        for (let row = 0; row < CELLS; row++) for (let col = 0; col < CELLS; col++) {
-          const on = lit(row, col);
-          for (let y = 0; y < ZONE; y += CELL) for (let x = 0; x < ZONE; x += CELL) {
-            if (x > 0 && y > 0 && x < ZONE - CELL && y < ZONE - CELL) { if (on) dot(ZX + col * ZONE + x, ZY + row * ZONE + y, GOLD, .28 + .5 * flash); continue; }
-            dot(ZX + col * ZONE + x, ZY + row * ZONE + y, on ? GOLD : DIM, on ? .9 : .55);
-          }
-        }
-      },
-      pitch(row, col, t, color = WHITE) {
-        const to = [ZX + (col + .5) * ZONE, ZY + (row + .5) * ZONE], u = ease(clamp01(t));
-        dot(mix(300, to[0], u), mix(60, to[1], u), color, 1, 1.5 + 2.5 * u);
-      }
-    };
-  }
-
   function batterHand() {
     try {
       const view = window.liveMatchPlayback.inspect(), frame = view.currentFrame || (view.host && view.host.frame);
@@ -206,57 +140,86 @@
     } catch (error) { /* a right-handed picture is fine */ }
     return 'R';
   }
-  /* Every card of the approved deck, by id. A card without its own picture falls back to the plain flash. */
+  /* ---------- Card effects: the picture on the card itself moves, on the card's own 20 x 20 lattice ---------- */
+  const FX_MS = 650, FX_HOLD_MS = 110, SIDE = 20;
+  const clamp01 = t => Math.max(0, Math.min(1, t)), ease = t => 1 - (1 - t) * (1 - t);
+  const along = (p, q, t) => [Math.round(p[0] + (q[0] - p[0]) * t), Math.round(p[1] + (q[1] - p[1]) * t)];
+  const HOME = [10, 18], THIRD = [7, 15], FIRST = [13, 15], SECOND = [10, 12];
+
+  function drawer(c, art) {
+    const ball = (at, color = art.CREAM, size = 2) => c.block(at[0] - (size >> 1), at[1] - (size >> 1), size, size, color);
+    return {
+      c, ball,
+      /* A line that grows from p to q with the ball at its head. */
+      run(p, q, t, color = art.GOLD, step = 0) {
+        const u = ease(clamp01(t)), at = along(p, q, u);
+        if (u > 0) { c.line(p[0], p[1], at[0], at[1], color, step); ball(at); }
+      },
+      /* The same through several points. */
+      path(points, t) {
+        const n = points.length - 1, u = ease(clamp01(t)) * n, i = Math.min(n - 1, Math.floor(u));
+        for (let k = 0; k < i; k++) c.line(points[k][0], points[k][1], points[k + 1][0], points[k + 1][1], art.GOLD);
+        const at = along(points[i], points[i + 1], u - i);
+        c.line(points[i][0], points[i][1], at[0], at[1], art.GOLD);
+        ball(at);
+      },
+      /* The ball comes in from the mound and grows as it reaches the zone. */
+      pitch(to, t, color = art.CREAM) {
+        const u = clamp01(t);
+        if (u > 0) ball(along([10, 2], to, ease(u)), color, 1 + Math.round(2 * u));
+      }
+    };
+  }
+  /* Each scene builds the card's picture for time t. Portrait cards (auto) keep their photo and only the frame runs. */
   const BATTER_FX = {
-    auto: (p, t) => { p.diamond(.8); p.burst(HOME, t); },
-    center: (p, t) => { p.diamond(.8); p.flight(HOME, [300, 72], 120, t / .85); p.burst([300, 72], (t - .8) / .2); },
-    pull: (p, t, h) => { const to = h === 'L' ? [508, 128] : [92, 128]; p.diamond(.8); p.flight(HOME, to, 110, t / .85); p.burst(to, (t - .8) / .2); },
-    oppo: (p, t, h) => { const to = h === 'L' ? [92, 128] : [508, 128]; p.diamond(.8); p.flight(HOME, to, 110, t / .85); p.burst(to, (t - .8) / .2); },
-    ground: (p, t, h) => { const to = h === 'L' ? [372, 236] : [228, 236], u = clamp01(t / .9); p.diamond(.8); for (let i = 0; i < 3; i++) p.flight(i ? bezier(HOME, to, 0, i / 3) : HOME, bezier(HOME, to, 0, (i + 1) / 3), 10, u * 3 - i); },
-    sacfly: (p, t) => { p.diamond(.8); p.flight(HOME, [300, 60], 150, t / .6); if (t > .6) p.runner(THIRD, HOME, (t - .6) / .4); },
-    hitrun: (p, t, h) => { const to = h === 'L' ? [150, 190] : [450, 190]; p.diamond(.8); p.runner(FIRST, SECOND, t); p.flight(HOME, to, 26, (t - .25) / .7); },
-    bunt: (p, t) => { p.diamond(.8); p.flight(HOME, [352, 340], 8, t / .8); p.runner(FIRST, SECOND, t); },
-    squeeze: (p, t) => { p.diamond(.8); p.runner(THIRD, HOME, t); p.flight(HOME, [248, 340], 8, (t - .35) / .6); },
-    safety: (p, t, h) => { const to = h === 'L' ? [240, 336] : [360, 336]; p.diamond(.8); p.flight(HOME, to, 8, t / .7); p.runner(HOME, FIRST, (t - .2) / .8); },
-    steal: (p, t) => { p.diamond(.8); p.runner(FIRST, SECOND, t); p.burst(SECOND, (t - .8) / .2, BLUE); }
+    center: (art, t) => { const p = drawer(art.fan(), art); p.run(HOME, [10, 5], t); return p.c; },
+    pull: (art, t, h) => { const p = drawer(art.fan(), art); p.run(HOME, [art.pullX(h), 7], t); return p.c; },
+    oppo: (art, t, h) => { const p = drawer(art.fan(), art); p.run(HOME, [art.oppoX(h), 7], t); return p.c; },
+    ground: (art, t, h) => { const p = drawer(art.fan(), art), s = h === 'L' ? 1 : -1; p.path([[10, 17], [10 + s, 13], [10 + 2 * s, 15], [10 + 3 * s, 11], [10 + 4 * s, 13], [10 + 5 * s, 9]], t); return p.c; },
+    sacfly: (art, t) => { const p = drawer(art.fan(), art); p.run([10, 17], [10, 3], t / .6, art.GOLD, 2); if (t > .6) p.run(THIRD, [9, 17], (t - .6) / .4, art.CREAM); return p.c; },
+    hitrun: (art, t, h) => { const p = drawer(art.fan(), art); p.run(FIRST, SECOND, t / .45, art.CREAM); if (t > .3) p.run(HOME, [art.oppoX(h), 8], (t - .3) / .7); return p.c; },
+    bunt: (art, t) => { const p = drawer(art.fan(), art); p.c.block(8, 16, 2, 1, art.GOLD); p.run(FIRST, SECOND, t, art.CREAM); return p.c; },
+    squeeze: (art, t) => { const p = drawer(art.fan(), art); p.c.block(11, 16, 2, 1, art.GOLD); p.run(THIRD, [9, 17], t, art.CREAM); return p.c; },
+    safety: (art, t) => { const p = drawer(art.fan(), art); p.c.block(7, 16, 2, 1, art.GOLD); p.run([10, 18], FIRST, t, art.CREAM); return p.c; },
+    steal: (art, t) => { const p = drawer(art.fan(), art); p.run(FIRST, SECOND, t, art.CREAM); return p.c; }
   };
+  const lightUp = (art, lit, t) => art.zone((r, col) => t > (r + col) * .08 && lit(r, col));
   const PITCHER_FX = {
-    auto: (p, t) => { p.zone(() => false, 0); p.pitch(1, 1, t / .9); },
-    inside: (p, t, h) => { const c = h === 'L' ? 2 : 0; p.zone((r, col) => col === c, t); p.pitch(1, c, t / .9); },
-    outside: (p, t, h) => { const c = h === 'L' ? 0 : 2; p.zone((r, col) => col === c, t); p.pitch(1, c, t / .9); },
-    strike: (p, t) => { p.zone(() => true, t); p.pitch(1, 1, t / .9); },
-    low: (p, t) => { p.zone(r => r === 2, t); p.pitch(2, 1, t / .9); },
-    edge: (p, t, h) => { const c = h === 'L' ? 0 : 2; p.zone((r, col) => r === 2 && col === c || r === 1 && col === c, t); p.pitch(2.3, c + (c ? .3 : -.3), t / .9); },
-    contact: (p, t) => { p.zone(r => r === 2, t); p.pitch(2, 1, t / .6); if (t > .6) p.flight([300, 300], [230, 396], 6, (t - .6) / .4); },
-    tempo: (p, t) => { p.zone((r, col) => r === 1 && col === 1, t); p.pitch(0, 1, t / .7, BLUE); p.pitch(2, 1, (t - .45) / .25); },
-    walk: (p, t, h) => { const c = h === 'L' ? -1 : 3; p.zone(() => false, 0); for (let i = 0; i < 4; i++) p.pitch(i * .9, c, (t - i * .2) / .25, RED); },
-    waste: (p, t, h) => { const c = h === 'L' ? -1 : 3; p.zone(() => false, 0); p.pitch(0, c, t / .9, RED); }
+    inside: (art, t, h) => { const col = h === 'L' ? 2 : 0, p = drawer(lightUp(art, (r, c) => c === col, t), art); p.pitch([5 + col * 4 + 1, 10], (t - .35) / .65); return p.c; },
+    outside: (art, t, h) => { const col = h === 'L' ? 0 : 2, p = drawer(lightUp(art, (r, c) => c === col, t), art); p.pitch([5 + col * 4 + 1, 10], (t - .35) / .65); return p.c; },
+    strike: (art, t) => { const p = drawer(lightUp(art, () => true, t), art); p.pitch([10, 10], (t - .35) / .65); return p.c; },
+    low: (art, t) => { const p = drawer(lightUp(art, r => r === 2, t), art); p.pitch([10, 14], (t - .35) / .65); return p.c; },
+    edge: (art, t) => { const p = drawer(lightUp(art, (r, c) => r !== 1 || c !== 1, t), art); p.pitch([14, 14], (t - .35) / .65); return p.c; },
+    contact: (art, t) => { const p = drawer(art.zone(r => r === 2), art); p.pitch([10, 14], t / .6); if (t > .6) p.run([4, 18], [15, 18], (t - .6) / .4, art.GOLD, 2); return p.c; },
+    tempo: (art, t) => { const p = drawer(art.canvas(), art); p.run([2, 6], [17, 6], t / .4); p.run([2, 14], [9, 14], (t - .3) / .7, art.COOL, 2); return p.c; },
+    walk: (art, t) => { const p = drawer(art.zone(() => false, art.GOLD), art); [4, 9, 14].forEach((y, i) => { if (t > .15 + i * .28) p.c.block(18, y, 2, 2, art.GOLD); }); return p.c; },
+    waste: (art, t) => { const p = drawer(art.zone(() => false, art.GOLD), art); p.pitch([18, 2], t / .9, art.GOLD); return p.c; }
   };
+  /* The photo stays; a gold mark runs once round the frame. */
+  function frameRun(art, t) {
+    const c = art.canvas(), around = n => (n < 19 ? [n, 0] : n < 38 ? [19, n - 19] : n < 57 ? [57 - n, 19] : [0, 76 - n]);
+    const head = Math.floor(ease(t) * 76);
+    for (let n = Math.max(0, head - 22); n <= head; n++) { const at = around(n % 76); c.put(at[0], at[1], art.GOLD); }
+    return c;
+  }
 
   function playCardFx(cardId, context) {
     return new Promise(resolve => {
-      const stage = (context && context.stage) || document.querySelector('.broadcast'), deck = context && context.deck;
-      const scene = (deck === 'pitcher' ? PITCHER_FX : BATTER_FX)[cardId] || (deck === 'pitcher' ? PITCHER_FX.auto : BATTER_FX.auto);
-      const page = document.createElement('canvas'), label = document.createElement('b');
-      page.className = 'card-fx-field';
-      page.width = W * 2;
-      page.height = H * 2;
-      label.className = 'card-fx-name';
-      label.dataset.deck = deck || '';
-      label.textContent = (context && context.name) || '';
-      stage.append(page, label);
-      const c = page.getContext('2d'), paint = painter(c), hand = batterHand(), still = reduceMotion(), started = performance.now();
-      c.setTransform(2, 0, 0, 2, 0, 0);
-      const finish = () => { page.remove(); label.remove(); resolve(); };
+      const button = context && context.button, plate = button && button.querySelector('.plate'), art = globalThis.KneekuraCardArtV1;
+      if (!plate || !art) { resolve(); return; }
+      const scene = ((context.deck === 'pitcher' ? PITCHER_FX : BATTER_FX)[cardId]) || null;
+      const page = document.createElement('canvas');
+      page.className = 'card-fx-plate';
+      page.dataset.over = scene ? 'picture' : 'photo';
+      page.width = page.height = SIDE;
+      plate.append(page);
+      const c = page.getContext('2d'), hand = batterHand(), still = reduceMotion(), started = performance.now();
+      const finish = () => { page.remove(); resolve(); };
       const frame = now => {
         const t = still ? 1 : clamp01((now - started) / FX_MS);
-        c.clearRect(0, 0, W, H);
-        c.globalAlpha = .72;
-        c.fillStyle = '#000';
-        c.fillRect(0, 0, W, H);
-        scene(paint, t, hand);
-        c.globalAlpha = 1;
-        if (t >= 1) setTimeout(finish, still ? 150 : 110);
+        c.clearRect(0, 0, SIDE, SIDE);
+        (scene ? scene(art, t, hand) : frameRun(art, t)).paint(c);
+        if (t >= 1) setTimeout(finish, still ? 150 : FX_HOLD_MS);
         else requestAnimationFrame(frame);
       };
       frame(started);
@@ -268,5 +231,5 @@
   if (broadcast) broadcast.append(captionBox);
   buildBrightness();
 
-  globalThis.KneekuraMatchMomentsV1 = Object.freeze({ crowdMood, errorFielders, stadiumBrightness: () => brightness, cards: { batter: Object.keys(BATTER_FX), pitcher: Object.keys(PITCHER_FX) }, inspect: () => ({ mood, balloons: balloons.slice(), caption: captionBox.hidden ? null : captionBox.textContent }) });
+  globalThis.KneekuraMatchMomentsV1 = Object.freeze({ crowdMood, errorFielders, stadiumBrightness: () => brightness, cards: { batter: ['auto', ...Object.keys(BATTER_FX)], pitcher: ['auto', ...Object.keys(PITCHER_FX)] }, inspect: () => ({ mood, balloons: balloons.slice(), caption: captionBox.hidden ? null : captionBox.textContent }) });
 })();

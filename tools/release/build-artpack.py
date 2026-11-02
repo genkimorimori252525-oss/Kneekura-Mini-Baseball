@@ -32,10 +32,11 @@ entries = {e["id"]: e for e in catalog["entries"]}
 # Share of standing height each delivery frame fills. Every frame of a sheet was once stretched to the first frame's
 # height, which made the stride frames half as tall again; these come from the head circle measured on each frame
 # (a B2 head is 19 cm on a 1.8 m figure) and are capped at standing height, because over/0 and over/1 are drawn long.
-PITCH_RATIO = {"over": (1, 1, .72, .76, .72, .75), "side": (1, 1, .97, .77, .77, .83), "under": (.85, .88, .95, .64, .85, .82)}
+PITCH_RATIO = {"over": (1, 1, .72, .76, .72, .75), "side": (1, 1, .97, .77, .77, .83), "under": (.85, .88, .95, .64, .85, .82),
+               "montage": (1.15, .84, .77, .9, .68, .84)}
 # bank key -> (catalog id, kit, standing-height ratio of this pose)
 wanted = {}
-for form, family in (("over", "b2-overhand-v3"), ("side", "b2-sidearm-v1"), ("under", "b2-underarm-v1")):
+for form, family in (("over", "b2-overhand-v3"), ("side", "b2-sidearm-v1"), ("under", "b2-underarm-v1"), ("montage", "b2-pitch-montage-form-v1")):
     for i in range(6):
         wanted[f"pitch/{form}/{i}"] = (f"{family}:{i + 1}", "original", PITCH_RATIO[form][i])
 for i, key in enumerate(["ready", "load", "impact-middle", "follow-middle"]):
@@ -53,6 +54,7 @@ for kit in ("home", "away"):
         wanted[f"throw/out/{kit}/{i}"] = (f"b2-outfield-throw-v1:{i + 1}", kit, .9)
     wanted[f"fly/in/{kit}"] = ("b2-fly-infield-outfield-v1:infield-fly", kit, .95)
     wanted[f"fly/out/{kit}"] = ("b2-fly-infield-outfield-v1:outfield-fly", kit, 1.05)
+    wanted[f"liner/{kit}"] = ("b2-pitcher-line-v1:pitcher-liner", kit, 1.02)
 
 # ---- adopted art the bank did not carry yet. Ratio None = derive from the sheet's standing height
 # (FAMILY_S below): the pose's crop height in sheet pixels divided by one standing figure on that sheet. ----
@@ -130,6 +132,11 @@ ROBIN_RATIO = {"robin/pitch/0": 1, "robin/pitch/1": .93, "robin/pitch/2": .96, "
                "robin/ground/2": .72, "robin/throw/0": 1, "robin/throw/1": .98, "robin/throw/2": .95}
 for key in robin_files:
     wanted[key] = (robin_files[key]["id"], None, ROBIN_RATIO[key])
+# The adopted pickoffs of her 69; the later hair revision of these nine is still a candidate.
+robin_pickoff = {f"robin/pickoff/{b}/{i - 1}": f"pickoff/{b}/{i - 1}/home" for b in (1, 2, 3) for i in (1, 2, 3)}
+robin_files.update({key: next(f for f in robin["frames"] if f["sourceId"] == f"b2-pickoff-v1:{generic[8]}-{int(generic[10]) + 1}") for key, generic in robin_pickoff.items()})
+for key, generic in robin_pickoff.items():
+    wanted[key] = (robin_files[key]["id"], None, None)
 
 # ---- dedicated sets: one named player only ----
 CATALOG_REF = re.compile(r"^(?P<family>.+?-v\d+)_(?P<name>.+?)_[0-9a-f]{6}__(?P<kit>[a-z]+)__(?P<skin>[a-z-]+)\.png$")
@@ -206,7 +213,10 @@ def crop_of(path):
     """Crop to the alpha box. 96 is the runtime's own cut; a few pictures carry a haze of part-transparent pixels (the
     owner-adopted beard follow-through does) and there the figure is solid from 224 up, so the haze is dropped.
     Only this packed copy changes; the PNG on disk is never touched."""
-    image = Image.open(path).convert("RGBA")
+    return crop_of_image(Image.open(path).convert("RGBA"))
+
+
+def crop_of_image(image):
     hist = image.getchannel("A").histogram()
     if sum(hist[224:]) and sum(hist[96:224]) > .09 * sum(hist[224:]):
         image.putalpha(image.getchannel("A").point(lambda a: a if a >= 224 else 0))
@@ -253,6 +263,8 @@ for family, spec in FAMILY_S.items():
 
 
 def ratio_of(key):
+    if key in robin_pickoff:
+        return ratio_of(robin_pickoff[key])
     entry_id, kit, ratio = wanted[key]
     if ratio is None and family_of(key) is not None:
         path, sheet_scale = variant_path(entry_id, kit)
@@ -262,7 +274,7 @@ def ratio_of(key):
 
 # Where the world position sits on the picture. The crop's middle moves with an arm or a bat, so a motion would jump
 # sideways between frames: planted poses stand on the lowest foot, moving ones on their mass, flat ones on the crop.
-ANCHOR_FOOT = ("pitch/", "pickoff/", "bat/", "catch/", "catchx/", "umpire/", "ground/", "throw/", "fly/", "backhand/", "robin/pitch", "robin/ground", "robin/throw")
+ANCHOR_FOOT = ("pitch/", "pickoff/", "liner/", "bat/", "catch/", "catchx/", "umpire/", "ground/", "throw/", "fly/", "backhand/", "robin/pitch", "robin/pickoff", "robin/ground", "robin/throw")
 ANCHOR_BODY = ("run/", "walk/", "look/", "robin/run")
 
 
@@ -330,6 +342,32 @@ for i, name in enumerate(("stance", "load", "swing", "follow")):
              {"note": "UNRESOLVED in the owner's index; connected only so the swing is not a silhouette"} if status == "UNRESOLVED" else None)
 path, status = lotso_special["home-run"]
 dedicate("lotso", "bat/hr/0", path, status, 1.02, "purple-beard:home-run")
+# ---- the adopted right-handed batting form, for everyone without a set of their own ----
+# Each ratio sets the head to the size it has in the rear frames (the crop holds the raised bat). Frames 3 and 4 come from the height sheets,
+# which hold high, middle and low side by side; the reference copy of frame 3 cuts the bat at the picture's edge.
+FRONT_RATIO = (1.13, 1.14, .81, 1.15)
+HEIGHT_SHEETS = (("b2-form-01-height-v1:frame-3-heights", ((851, 1377), (230, 747), (1462, 1993))),
+                 ("b2-form-01-height-v1:frame-4-heights", ((621, 1129), (66, 577), (1200, 1711))))
+for i in (0, 1):
+    entry_id = f"b2-form-01-reference:frame-{i + 1}"
+    path, _ = variant_path(entry_id, "original")
+    store(f"bat/mound/{i}", entry_id, path, "ADOPTED", crop_of(path), FRONT_RATIO[i], f"bat/mound/{i}")
+for offset, (entry_id, parts) in enumerate(HEIGHT_SHEETS):
+    i = offset + 2
+    path, _ = variant_path(entry_id, "original")
+    sheet = Image.open(path).convert("RGBA")
+    crops = [crop_of_image(sheet.crop((x0, 0, x1, sheet.height))) for x0, x1 in parts]
+    for crop, suffix in zip(crops, ("", "-high", "-low")):
+        ratio = FRONT_RATIO[i] * crop.height / crops[0].height
+        store(f"bat/mound/{i}{suffix}", entry_id, path, "ADOPTED", crop, ratio, f"bat/mound/{i}{suffix}", {"part": suffix or "-middle"})
+# Rear impact and follow at the other heights, on the same sheet scale as the middle ones.
+for i, pose in ((2, "impact"), (3, "follow")):
+    middle = crop_of(variant_path(f"b2-form-01-direct-rear-v1:{pose}-middle", "original")[0]).height
+    for height in ("high", "low"):
+        entry_id = f"b2-form-01-direct-rear-v1:{pose}-{height}"
+        path, _ = variant_path(entry_id, "original")
+        crop = crop_of(path)
+        store(f"bat/rear/{i}-{height}", entry_id, path, "ADOPTED", crop, .92 * crop.height / middle, f"bat/rear/{i}-{height}")
 # Art for a player facing the camera or carrying a glove: front and rear only, never the rejected side views.
 LOCO = os.path.join(gen, "locomotion-four-directions-v1", "sprites")
 FORWARD = os.path.join(gen, "b2-forward-run-v1", "sprites")

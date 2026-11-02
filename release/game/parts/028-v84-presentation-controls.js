@@ -1,6 +1,6 @@
 (function installPresentationControlsV84(root){
  'use strict';
- let settings=Object.freeze({frequencyScale:2,qualityScale:1.2});
+ let settings=Object.freeze({frequencyScale:3,qualityScale:1.2});
  const ranges=new Map();
  const baseSceneMs=55/3;
  // V1: what looks coarse is the size of one dot on the screen. A phone shows a dot of about 2.2 CSS px

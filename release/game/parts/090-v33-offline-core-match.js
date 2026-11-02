@@ -56,7 +56,7 @@
  let takenPitchGaze=null;
  let pitchMarksOpacity=1,catcherFollow=null,resultDisplay=null,batterGaze=null;
  const pitchSource=window.KneekuraPitchBallCadence.create(core);
- const cadence={sceneMs:55,pitchBallMs:22,sceneDraws:0,pitchBallSamples:0,pitchBallPaints:0,nonPitchFastPaints:0,lastSceneMs:null,lastPitchBallMs:null,
+ const cadence={sceneMs:55/1.5,pitchBallMs:22/1.5,sceneDraws:0,pitchBallSamples:0,pitchBallPaints:0,nonPitchFastPaints:0,lastSceneMs:null,lastPitchBallMs:null,
   get effectiveSceneMs(){return window.KneekuraPresentationControlsV84.intervalMs();},get effectiveFreePitchMs(){return window.KneekuraPresentationControlsV84.intervalMs({kind:'pitch',free:true});},get effectiveBattedMs(){return window.KneekuraPresentationControlsV84.intervalMs({kind:'batted',free:true});},ballOnlyPainting:false,boundaryRedraws:0};
  let lastCadenceBoundaryV81=null,continuousPitchObservationV81=false;
  function cadenceBoundaryV81(){
@@ -165,6 +165,36 @@ const vecLength=value=>value?Math.hypot(value.x,value.y,value.z):0;
   while(lowerV81<upperV81){const middleV81=Math.floor((lowerV81+upperV81)/2);
    if(result.frames[middleV81].tick<=tick)lowerV81=middleV81+1;else upperV81=middleV81;}
   frameIndex=Math.max(0,lowerV81-1);
+ }
+ // The Core keeps a frame every 55ms after the pitch. The picture steps 1.5 times as often: between two frames the
+ // ball, bat and bodies are read at the same point of the gap. frame.tick stays the Core's, so every rule reads as before.
+ const presentedStepTicksV1=55000/1.5,presentedGapTicksV1=55000,
+  lerpV1=(a,b,u)=>a+(b-a)*u,
+  lerpPointV1=(a,b,u)=>({...a,x:lerpV1(a.x,b.x,u),y:lerpV1(a.y,b.y,u),z:lerpV1(a.z,b.z,u)}),
+  hermiteV1=(p,q,v,w,u,seconds)=>{const u2=u*u,u3=u2*u;return (2*u3-3*u2+1)*p+(u3-2*u2+u)*seconds*v+(3*u2-2*u3)*q+(u3-u2)*seconds*w;};
+ function presentedBallV1(a,b,u,seconds){
+  if(!a||!b||a.visible===false||b.visible===false||a.possessedBy||b.possessedBy||a.custody!==b.custody||a.phase!==b.phase)return a;
+  const position=a.phase==='airborne'&&a.velocity&&b.velocity
+   ?{x:hermiteV1(a.position.x,b.position.x,a.velocity.x,b.velocity.x,u,seconds),y:hermiteV1(a.position.y,b.position.y,a.velocity.y,b.velocity.y,u,seconds),z:hermiteV1(a.position.z,b.position.z,a.velocity.z,b.velocity.z,u,seconds)}
+   :lerpPointV1(a.position,b.position,u);
+  return {...a,position};
+ }
+ function presentedActorV1(a,b,u){
+  if(!b||Math.hypot(b.position.x-a.position.x,b.position.z-a.position.z)>1.5)return a;
+  const pose=a.bodyPoseV105,next=b.bodyPoseV105,moved=pose&&next?{...pose}:null;
+  if(moved)for(const key of ['foot','hip','shoulder','head','eye'])if(pose[key]&&next[key])moved[key]=lerpPointV1(pose[key],next[key],u);
+  return {...a,position:lerpPointV1(a.position,b.position,u),...(moved?{bodyPoseV105:moved}:{})};
+ }
+ function presentedFrameV1(result,index){
+  const tick=sceneTiming(result).first+Math.max(0,sceneMs-timing.preparationMs)*1000,first=result.frames[0].tick,
+   sample=first+Math.floor((tick-first)/presentedStepTicksV1+1e-6)*presentedStepTicksV1;
+  // The step can fall just before this frame: then the gap that holds it is the one before.
+  const at=sample<result.frames[index].tick&&index>0?index-1:index,a=result.frames[at],b=result.frames[at+1];
+  if(!b||b.tick-a.tick!==presentedGapTicksV1||sample<=a.tick||a.phase!==b.phase||a.ballKind!==b.ballKind||a.possessedBy!==b.possessedBy)return result.frames[index];
+  const u=(sample-a.tick)/presentedGapTicksV1,others=new Map(b.actors.map(actor=>[actor.playerId,actor]));
+  return {...a,ball:presentedBallV1(a.ball,b.ball,u,presentedGapTicksV1/1e6),
+   bat:a.bat&&b.bat?{...a.bat,grip:lerpPointV1(a.bat.grip,b.bat.grip,u),tip:lerpPointV1(a.bat.tip,b.bat.tip,u)}:a.bat,
+   actors:a.actors.map(actor=>presentedActorV1(actor,others.get(actor.playerId),u))};
  }
  function sceneEnded(){const result=activeResult();return !!result&&sceneMs>=sceneTiming(result).durationMs;}
  function sceneStage(){
@@ -350,7 +380,7 @@ const vecLength=value=>value?Math.hypot(value.x,value.y,value.z):0;
  window.KneekuraAudioV100.installControls(document.querySelector('.settings')?.parentElement??document.body);
  function draw(){
   syncPitchMenuV78();const result=activeResult(),state=host.inspect();
-  currentFrame=result?(sceneStage()==='preparation'?result.beforeFrame:result.frames[frameIndex]):state.frame;
+  currentFrame=result?(sceneStage()==='preparation'?result.beforeFrame:presentedFrameV1(result,frameIndex)):state.frame;
   refreshPitchBall(performance.now());lastCadenceBoundaryV81=cadenceBoundaryV81();
   const batterId=result?.batterPlayerId??state.batterPlayerId,pitcherId=result?.pitcherPlayerId??state.pitcherPlayerId;
   const battingSide=result?.play.diagnostics.battingSide??playerById[batterId].hand;

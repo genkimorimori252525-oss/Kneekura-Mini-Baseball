@@ -3310,17 +3310,50 @@
     while (!next.done) next = steps.next();
     return next.value;
   }
+  // Depth of the stands from a low camera: each deck is lit at its front and falls into shadow toward the back, rows show
+  // as dark risers that close up with height, and far seats lose light. Only the match bundle does this; the studio is unchanged.
+  var STAND_ROWS = 11, STAND_FRONT = 1.4, STAND_BACK = 0.62, STAND_RISER = 0.7, STAND_HAZE = 0.2;
+  function standSpans(m) {
+    if (m.standSpans) return m.standSpans;
+    const spans = /* @__PURE__ */ new Map();
+    for (const s of m.surfaces) {
+      if (!s.crowdTile) continue;
+      const tier = s.crowdTile.tier ?? 0, span = spans.get(tier) ?? [Infinity, -Infinity];
+      for (const p of s.points) {
+        span[0] = Math.min(span[0], p.y);
+        span[1] = Math.max(span[1], p.y);
+      }
+      spans.set(tier, span);
+    }
+    return m.standSpans = spans;
+  }
+  function lit(hex5, k2) {
+    const n = parseInt(hex5.slice(1), 16);
+    return "#" + HEX_BYTE[Math.min(255, (n >> 16) * k2 | 0)] + HEX_BYTE[Math.min(255, (n >> 8 & 255) * k2 | 0)] + HEX_BYTE[Math.min(255, (n & 255) * k2 | 0)];
+  }
+  function standLight(level, distance) {
+    if (!Number.isFinite(level)) return 1;
+    const up = Math.max(0, Math.min(1, level)), row = up * STAND_ROWS % 1, haze = Math.max(0, Math.min(1, (distance - 70) / 140));
+    return (STAND_FRONT - (STAND_FRONT - STAND_BACK) * up ** 1.4) * (row < 0.26 ? STAND_RISER : 1) * (1 - STAND_HAZE * haze);
+  }
   function* renderStadiumSteps({ geometry: g, project, paint, grid, cam, cutaway = false, crowd = { frame: 0, frames: 3, visible: true }, onEffectOcclusion = null, moving = false }) {
     const m = stadiumMesh(g);
     if (!m) return null;
     const appearance = g.architecture.crowd ?? DEFAULT_CROWD_APPEARANCE, palettes = koshienFanPalettes(g.architecture), palette = palettes.home, atlas = crowd.visible && appearance.attendance !== "empty" ? crowdAtlas(palette, appearance, g.architecture.style === "niikura_dome", g.architecture.style === "fukuoka_dome" ? "mixed-yellow" : null) : null, visitorAtlas = atlas && palettes.visitor ? crowdAtlas(palettes.visitor, appearance) : null;
     const metricCrowd = ["niikura_dome", "fukuoka_dome"].includes(g.architecture.style), step = grid.step(), sinYaw = Math.sin(cam.yaw), cosYaw = Math.cos(cam.yaw), sinPitch = Math.sin(cam.pitch), cosPitch = Math.cos(cam.pitch), depth = (p) => -sinPitch * (p.y - cam.eye.y) + cosPitch * (sinYaw * (p.x - cam.eye.x) + cosYaw * (p.z - cam.eye.z)), omit = (roof, ps) => roof && cutaway && cam.eye.y > 20 && ps.reduce((n, p) => n + p.z, 0) / ps.length < 35;
     const depthBins = /* @__PURE__ */ new Map(), fineJobs = [], logoProfiles = [], binSize = 24;
-    let lightPoint = null;
+    let lightPoint = null, standShade = 1;
+    const spans = standSpans(m);
     let cells2 = 0, triangles = 0, omitted = 0, crowdCells = 0, ledCells = 0, glowEnergy = 0, fineCells = 0, emblemCells = 0, fineGeometryOccluded = 0;
     const spatial = spatialLight(g, m), shadeCrowdDiffuse = (c) => spatial ? spatial.color(c, lightPoint, false) : c, lighting = spatial ? { ...g.architecture.effects.lighting, enabled: spatial.on } : g.architecture.effects?.lighting, lightOverride = !!spatial || !neutralLighting(lighting);
     const emit = (x, y, d, color, glow = 0, density = 1, surfaceId = null, alpha = 1, prelit = false, altColor = null, resample = null, fan = null, waveAt = null) => {
       if (Number.isFinite(d) && d >= 0.121) {
+        if (standShade !== 1 && glow === 0) {
+          const light = standShade, wave = waveAt;
+          color = lit(color, light);
+          if (altColor) altColor = lit(altColor, light);
+          if (wave) waveAt = (frame) => lit(wave(frame), light);
+        }
         if (lightOverride && surfaceId?.includes("lamp")) {
           const on = lighting.enabled && lighting.brightness > 0;
           color = on ? shade2(lighting.color, Math.min(1, Math.sqrt(lighting.brightness))) : "#27332d";
@@ -3397,6 +3430,7 @@
               continue;
             }
             const tu = d * (u * a.u / a.depth + v * b.u / b.depth + w * c.u / c.depth), tv = d * (u * a.v / a.depth + v * b.v / b.depth + w * c.v / c.depth);
+            standShade = standLight(d * (u * a.level / a.depth + v * b.level / b.depth + w * c.level / c.depth), d);
             if (metricCrowd) {
               const s = sampleMetricCrowdTile(atlas, tu, tv, tile.id, crowd.frame, crowd.frames, appearance.size, crowdFootprint(d, tu, tv), g.architecture.style === "fukuoka_dome" ? palette[tile.id % 2] : tile.seatTint ?? color, shadeCrowdDiffuse);
               const point = lightPoint, footprint = crowdFootprint(d, tu, tv), tint = g.architecture.style === "fukuoka_dome" ? palette[tile.id % 2] : tile.seatTint ?? color;
@@ -3417,6 +3451,7 @@
               glowEnergy += s.glow;
               if (s.kind === "led") ledCells++;
             }
+            standShade = 1;
           } else if (material) {
             const tu = d * (u * a.u / a.depth + v * b.u / b.depth + w * c.u / c.depth), tv = d * (u * a.v / a.depth + v * b.v / b.depth + w * c.v / c.depth);
             if (density === 1) {
@@ -3503,9 +3538,9 @@
         omitted++;
         continue;
       }
-      const material = s.material ?? ((s.detailDensity ?? 1) > 1 ? "crowd-refine" : null), metricUV = s.crowdTile && atlas && metricCrowd ? crowdSurfaceUV(s.points) : null, source = s.crowdTile && atlas || material ? s.points.map((p, i) => ({ ...p, u: metricUV?.[i].u ?? p.u ?? [0, 1, 1, 0][i], v: metricUV?.[i].v ?? p.v ?? [0, 0, 1, 1][i] })) : s.points, ps = clip(source).map((p) => {
+      const material = s.material ?? ((s.detailDensity ?? 1) > 1 ? "crowd-refine" : null), metricUV = s.crowdTile && atlas && metricCrowd ? crowdSurfaceUV(s.points) : null, span = s.crowdTile && spans.get(s.crowdTile.tier ?? 0), source = s.crowdTile && atlas || material ? s.points.map((p, i) => ({ ...p, u: metricUV?.[i].u ?? p.u ?? [0, 1, 1, 0][i], v: metricUV?.[i].v ?? p.v ?? [0, 0, 1, 1][i], level: span ? (p.y - span[0]) / Math.max(0.01, span[1] - span[0]) : void 0 })) : s.points, ps = clip(source).map((p) => {
         const q = project(p);
-        return q ? { ...q, u: p.u, v: p.v } : null;
+        return q ? { ...q, u: p.u, v: p.v, level: p.level } : null;
       });
       const profile = material === "wolf" || material?.startsWith("scoreboard") || material?.startsWith("dodger:") || material?.startsWith("koshien:") || material?.startsWith("niikura:") || material?.startsWith("paypay:") || material === "crowd-refine" ? projectedMaterialDetail(ps, material.startsWith("dodger:landscape:") ? 2 : material === "crowd-refine" ? s.detailDensity : g.architecture.details?.factor ?? 6, step) : null;
       if (profile && s.points.some((p) => p.u !== void 0)) {
@@ -3665,7 +3700,7 @@
       const sx = Math.round(x / step) * step, sy = Math.round(y / step) * step, k2 = sx + "," + sy, old = map.get(k2);
       if (old && d >= old.d) return;
       if (insideWall(park, worldXZ(x, y, d, cam), 0.15)) return;
-      map.set(k2, { x: sx, y: sy, d, color, alpha, live: live ?? null, fan: fan === "home" && worldXZ(x, y, d, cam).x < -8 && worldXZ(x, y, d, cam).z > 40 ? "visitor" : fan, wave });
+      map.set(k2, { x: sx, y: sy, d, color, alpha, live: live ?? null, fan: selected !== "tambov" && fan === "home" && worldXZ(x, y, d, cam).x < -8 && worldXZ(x, y, d, cam).z > 40 ? "visitor" : fan, wave });
     } }) };
   }
   function commitRun(run, report, key) {

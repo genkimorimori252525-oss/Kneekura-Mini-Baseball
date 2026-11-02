@@ -67,6 +67,7 @@
           if (e <= dx) { error += dx; y += sy; }
         }
       },
+      paint(ctx) { dots.forEach((color, key) => { const [x, y] = key.split(','); ctx.fillStyle = color; ctx.fillRect(+x, +y, 1, 1); }); },
       svg() {
         let out = '<svg viewBox="0 0 20 20" shape-rendering="crispEdges" aria-hidden="true">';
         dots.forEach((color, key) => {
@@ -98,20 +99,22 @@
     }
     return c;
   }
+  /* The card pictures, for the effect that moves them (match-moments-v1.js). */
+  globalThis.KneekuraCardArtV1 = Object.freeze({ canvas, fan, zone, arrow, GOLD, CREAM, COOL, pullX: h => pullX(h), oppoX: h => oppoX(h) });
   const innerCol = hand => (hand === 'L' ? 2 : 0);
   const outerCol = hand => (hand === 'L' ? 0 : 2);
 
   /* Cards exist only where an instruction control exists: ctl = [select id, option value]. */
-  const arrowIcon = deg => '<svg viewBox="0 0 20 20" shape-rendering="crispEdges" aria-hidden="true"><g fill="currentColor" transform="rotate(' + deg + ' 10 10)">'
-    + '<rect x="9" y="4" width="2" height="13"/><rect x="7" y="6" width="6" height="2"/><rect x="5" y="8" width="10" height="2"/></g></svg>';
+  const pullX = hand => (hand === 'L' ? 17 : 3);
+  const oppoX = hand => (hand === 'L' ? 3 : 17);
   const DECK = {
     batter: [
       { id: 'auto', name: 'おまかせ', note: '打者の判断に任せます。', portrait: '#batter-portrait', ctl: ['batting-choice', 'auto'] },
       { id: 'bunt', name: '送り<br>バント', note: '走者を次の塁へ進めます。', ctl: ['batting-choice', 'bunt'], needs: s => (s.first || s.second) && s.outs < 2, icon: () => { const c = fan(); c.block(8, 16, 2, 1, GOLD); arrow(c, 13, 15, 10, 12, CREAM); return c.svg(); } },
       { id: 'safety', name: 'セーフティ<br>バント', note: '打者が生きることを狙うバントです。', ctl: ['batting-choice', 'bunt'], needs: s => !((s.first || s.second) && s.outs < 2), icon: () => { const c = fan(); c.block(7, 16, 2, 1, GOLD); arrow(c, 10, 18, 13, 15, CREAM); return c.svg(); } },
-      { id: 'center', name: 'センター<br>返し', note: '打球を中堅方向へ狙います。', ctl: ['direction-choice', 'CENTER'], icon: () => arrowIcon(0) },
-      { id: 'pull', name: '引っ張り', note: '打球を引っ張る方向へ狙います。', ctl: ['direction-choice', 'PULL'], icon: h => arrowIcon(h === 'L' ? 45 : -45) },
-      { id: 'oppo', name: '流し打ち', note: '打球を反対方向へ狙います。', ctl: ['direction-choice', 'OPPOSITE'], icon: h => arrowIcon(h === 'L' ? -45 : 45) }
+      { id: 'center', name: 'センター<br>返し', note: '中堅方向へ打ち返します。', ctl: ['direction-choice', 'CENTER'], icon: () => { const c = fan(); arrow(c, 10, 18, 10, 5, GOLD); return c.svg(); } },
+      { id: 'pull', name: '引っ張り', note: '引っ張り方向へ強く打ちます。', ctl: ['direction-choice', 'PULL'], icon: h => { const c = fan(); arrow(c, 10, 18, pullX(h), 7, GOLD); return c.svg(); } },
+      { id: 'oppo', name: '流し打ち', note: '逆方向へ打ちます。', ctl: ['direction-choice', 'OPPOSITE'], icon: h => { const c = fan(); arrow(c, 10, 18, oppoX(h), 7, GOLD); return c.svg(); } }
     ],
     pitcher: [
       { id: 'auto', name: 'コース<br>おまかせ', note: '捕手の配球に任せます。', portrait: '#pitcher-portrait', ctl: ['location-choice', 'auto'] },
@@ -119,7 +122,7 @@
       { id: 'outside', name: '外角中心', note: '打者の外側を攻めます。', ctl: ['location-choice', 'outside'], icon: h => zone((r, col) => col === outerCol(h)).svg() },
       { id: 'strike', name: 'ストライク<br>をとれ', note: 'ゾーンに投げ、四球を避けます。', ctl: ['location-choice', 'zone'], icon: () => zone(() => true).svg() },
       { id: 'low', name: '低め中心', note: '低めへ集めて長打を防ぎます。', ctl: ['location-choice', 'low'], icon: () => zone(r => r === 2).svg() },
-      { id: 'walk', name: '敬遠', note: '打者を歩かせます。', ctl: ['location-choice', 'intentional'], icon: () => zone(() => false).svg() }
+      { id: 'walk', name: '敬遠', note: '勝負を避けて歩かせます。', ctl: ['location-choice', 'intentional'], icon: () => { const c = zone(() => false, GOLD); [4, 9, 14].forEach(y => c.block(18, y, 2, 2, GOLD)); return c.svg(); } }
     ]
   };
 

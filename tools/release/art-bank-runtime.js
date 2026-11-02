@@ -67,6 +67,11 @@
   plateCache.set(record,info);return info;
  }
  const plateTick=record=>plateInfo(record)?.tick??null;
+ const swingCache=new WeakMap();
+ function swingHeight(record){
+  if(!swingCache.has(record))swingCache.set(record,record.frames?.find(x=>x.ballKind==='batted'&&x.ball?.position)?.ball.position.y??plateInfo(record)?.y);
+  return swingCache.get(record);
+ }
  // The record's frames stop when the ball is dead; the picture goes on. Presentation time past the last frame is read
  // from the scene clock the same way the whiff follow-through does (release tick + elapsed scene seconds).
  function presentTick(record,frame,sceneMs,preparationMs){
@@ -110,6 +115,9 @@
    // Certain home run: held bat, then released bat, once the ball has plainly left (the owner's two-frame order).
    const contact=play.contactMoment?.ball?.tick;
    if(play.classification==='home_run'&&Number.isSafeInteger(contact)&&tick>=contact+.45*tps)art.hr=tick<contact+1.0*tps?0:1;
+   // The adopted swing has a high, a middle and a low picture: split the strike zone into thirds at the ball's height.
+   const y=swingHeight(record),h=Number.isFinite(batterHeight)?batterHeight:1.8;
+   if(Number.isFinite(y))art.swing=y>h*.445?'-high':y<h*.36?'-low':'';
   }
   return art;
  }
@@ -127,6 +135,7 @@
   if(record.play?.rules?.halfChanged&&tick>=(record.play.rules.endedAtTick??Infinity))return {pose:'time'};
   return {pose:'ready'};
  }
+ const swingSuffix=(frame,art)=>frame>=2&&art.swing?art.swing:'';
  function pick({role,action,frame,camera,hand,form,team,running,isRobin,pose,away,walking,who,art,athletic,motion,sx}){
   const kit=team===1?'home':'away',outfield=['LF','CF','RF'].includes(role);
   let key=null,found=null,mirror=false;
@@ -172,17 +181,19 @@
    // A reach to the glove side (screen-left, where the drawn glove is) is the backhand; the art is not mirrored.
    if(!isRobin&&backhand&&frame>=1)key='backhand/'+backhand+'/'+kit;
   }
+  else if(pose==='fly'&&role==='P'&&!isRobin)key='liner/'+kit;
   else if(pose==='fly'&&!isRobin)key='fly/'+(outfield?'out':'in')+'/'+kit;
+  else if(role==='P'&&art.pickoff&&camera!=='mound')key=isRobin?'robin/pickoff/'+art.pickoff.base+'/'+art.pickoff.frame:'pickoff/'+art.pickoff.base+'/'+art.pickoff.frame+'/'+kit;
   else if(isRobin){if(action==='pitch')key='robin/pitch/'+(frame===0?0:frame<3?1:2);}
-  else if(role==='P'&&art.pickoff&&camera!=='mound')key='pickoff/'+art.pickoff.base+'/'+art.pickoff.frame+'/'+kit;
-  else if(action==='pitch'&&hand==='R'&&['over','side','under'].includes(form)&&frame>=0&&frame<6)key='pitch/'+form+'/'+frame;
-  else if(action==='bat'&&camera==='mound'&&who&&art.hr!==undefined&&art.hr!==null)key='bat/hr/'+art.hr;
-  else if(action==='bat'&&camera==='mound'&&who&&frame>=0&&frame<4&&!art.look&&bank.has(who+'/bat/mound/'+frame))key='bat/mound/'+frame;
+  else if(action==='pitch'&&hand==='R'&&['over','side','under','montage'].includes(form)&&frame>=0&&frame<6)key='pitch/'+form+'/'+frame;
+  // ロッツォ has one home-run picture, so it holds through the second beat.
+  else if(action==='bat'&&camera==='mound'&&who&&art.hr!==undefined&&art.hr!==null)key='bat/hr/'+(bank.has(who+'/bat/hr/'+art.hr)?art.hr:0);
+  else if(action==='bat'&&camera==='mound'&&frame>=0&&frame<4&&!art.look&&(who?bank.has(who+'/bat/mound/'+frame):hand==='R'))key='bat/mound/'+frame+(who?'':swingSuffix(frame,art));
   else if(action==='bat'&&art.look&&(hand==='R'||who)){
    const rear=camera!=='mound';
    key='look/'+(art.look==='up'?'look-up':art.look==='bent'?'bent-forward':'photo')+'-'+(rear?'rear':'front');
   }
-  else if(action==='bat'&&camera!=='mound'&&hand==='R'&&frame>=0&&frame<4)key='bat/rear/'+frame;
+  else if(action==='bat'&&camera!=='mound'&&hand==='R'&&frame>=0&&frame<4)key='bat/rear/'+frame+swingSuffix(frame,art);
   else if(action==='catch'&&camera!=='mound')key=team===1?'catch/home':'catch/away';
   else if(action==='catch'){
    const name=catcherName(art.catcher),knee=!!art.knee;

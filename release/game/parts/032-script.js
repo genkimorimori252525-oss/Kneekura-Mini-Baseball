@@ -1067,7 +1067,7 @@ try{const a=localStorage.getItem('kneekura.presentation.actorAppearance.v1');if(
 const broadcast=makeBroadcastRenderer($('field'),$('actor-labels'));
 let frame=null,lastUiKey='',lastPaId='',lastHistoryLength=-1,chartMarks=[],lastReal=0,accumulator=0,playTimer=null;
 let ballAnimation=null,lastBallSampleAt=-Infinity,lastBatSampleAt=-Infinity;
-const PITCH_BALL_SAMPLE_MS=27.5/1.2, BATTED_BALL_SAMPLE_MS=27.5, BAT_SAMPLE_MS=27.5;
+const PITCH_BALL_SAMPLE_MS=27.5/1.2/1.5, BATTED_BALL_SAMPLE_MS=27.5/1.5, BAT_SAMPLE_MS=27.5/1.5;
 let foulSkipAt=null;
 
 function animatedBall(now){
