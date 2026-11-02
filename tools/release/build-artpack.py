@@ -3,9 +3,10 @@
 Keeps originals untouched: each chosen PNG is cropped to its alpha box and scaled
 for the game. usage: build-artpack.py <drawing-root> <parts-dir> [gallery.png] [sources.json]
 
-Three kinds of sprite are packed:
+Four kinds of sprite are packed:
  * generic B2 art, every one marked ADOPTED in accepted-art-v2/catalog.json;
  * Robin's own frames (robin-defense-v1);
+ * front and glove locomotion (locomotion-four-directions-v1, b2-forward-run-v1), never the rejected side views;
  * dedicated sets that exactly one named player may use: the afro set (ちんすけ,
    b2-afro-regenerated-v1) and the purple-beard set (ロッツォ, purple-beard-planned).
    They are keyed "<who>/<generic key>" and are looked up by the runtime only for that
@@ -19,7 +20,7 @@ import os
 import re
 import sys
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageOps
 
 root, game = sys.argv[1], sys.argv[2]
 gallery_path = sys.argv[3] if len(sys.argv) > 3 else None
@@ -28,11 +29,15 @@ gen = os.path.join(root, "generated_images")
 art = os.path.join(gen, "accepted-art-v2")
 catalog = json.load(open(os.path.join(art, "catalog.json"), encoding="utf-8"))
 entries = {e["id"]: e for e in catalog["entries"]}
+# Share of standing height each delivery frame fills. Every frame of a sheet was once stretched to the first frame's
+# height, which made the stride frames half as tall again; these come from the head circle measured on each frame
+# (a B2 head is 19 cm on a 1.8 m figure) and are capped at standing height, because over/0 and over/1 are drawn long.
+PITCH_RATIO = {"over": (1, 1, .72, .76, .72, .75), "side": (1, 1, .97, .77, .77, .83), "under": (.85, .88, .95, .64, .85, .82)}
 # bank key -> (catalog id, kit, standing-height ratio of this pose)
 wanted = {}
 for form, family in (("over", "b2-overhand-v3"), ("side", "b2-sidearm-v1"), ("under", "b2-underarm-v1")):
     for i in range(6):
-        wanted[f"pitch/{form}/{i}"] = (f"{family}:{i + 1}", "original", None)
+        wanted[f"pitch/{form}/{i}"] = (f"{family}:{i + 1}", "original", PITCH_RATIO[form][i])
 for i, key in enumerate(["ready", "load", "impact-middle", "follow-middle"]):
     wanted[f"bat/rear/{i}"] = (f"b2-form-01-direct-rear-v1:{key}", "original", .92)
 wanted["catch/home"] = ("b2-catcher-ready-v1:both-knees-up", "home", .62)
@@ -43,10 +48,10 @@ for gait, family in (("run", "b2-runner-direct-rear-v1"), ("walk", "b2-walk-dire
         wanted[f"{gait}/rear/{i}"] = (f"{family}:{i + 1}", "original", .98)
 for kit in ("home", "away"):
     for i in range(3):
-        wanted[f"ground/{kit}/{i}"] = (f"b2-field-ground-v1:{i + 1}", kit, .6)
+        wanted[f"ground/{kit}/{i}"] = (f"b2-field-ground-v1:{i + 1}", kit, (.78, .7, .78)[i])
         wanted[f"throw/in/{kit}/{i}"] = (f"b2-infield-throw-v1:{i + 1}", kit, .9)
         wanted[f"throw/out/{kit}/{i}"] = (f"b2-outfield-throw-v1:{i + 1}", kit, .9)
-    wanted[f"fly/in/{kit}"] = ("b2-fly-infield-outfield-v1:infield-fly", kit, 1.05)
+    wanted[f"fly/in/{kit}"] = ("b2-fly-infield-outfield-v1:infield-fly", kit, .95)
     wanted[f"fly/out/{kit}"] = ("b2-fly-infield-outfield-v1:outfield-fly", kit, 1.05)
 
 # ---- adopted art the bank did not carry yet. Ratio None = derive from the sheet's standing height
@@ -101,9 +106,11 @@ for n in ("lateral-high", "retreat-diagonal", "vertical-reach", "compact-jump", 
 # (head and limb proportions) and checked on the gallery. A pose's ratio = crop height / S.
 FAMILY_S = {
     "catcher": "from:catch/home", "umpire": "from:umpire/ready",
-    "slide": 1500, "dive": 1250, "dive-dejected": 1600, "backhand": 1200, "jump": 1150,
-    "look": 840, "look-photo": 920, "pickoff": 740,
+    "slide": 1500, "dive": 1100, "dive-dejected": 1500, "backhand": 1200, "jump": 1150,
+    "look": 1000, "look-photo": 1080, "pickoff": 740,
 }
+# A pose drawn at another scale than the rest of its sheet: multiply its ratio. Measured by head circle and body area.
+POSE_SCALE = {"catchx/extreme-": 1.15, "catchx/ball-left/": 1.13, "backhand/2/": 1.3, "jump/compact-jump": .78, "jump/front-jump": .85}
 FAMILY_OF = (("catchx/", "catcher"), ("umpire/", "umpire"), ("slide/", "slide"), ("dive/forward-dejected", "dive-dejected"),
              ("dive/lateral-dejected", "dive-dejected"), ("dive/", "dive"), ("backhand/", "backhand"), ("jump/", "jump"),
              ("look/photo", "look-photo"), ("look/", "look"), ("pickoff/", "pickoff"))
@@ -119,8 +126,10 @@ robin_pose = {"b2-sidearm-v1:1": "robin/pitch/0", "b2-sidearm-v1:3": "robin/pitc
               "b2-infield-throw-v1:1": "robin/throw/0", "b2-infield-throw-v1:2": "robin/throw/1", "b2-infield-throw-v1:3": "robin/throw/2",
               "b2-field-ground-v1:1": "robin/ground/0", "b2-field-ground-v1:2": "robin/ground/1", "b2-field-ground-v1:3": "robin/ground/2"}
 robin_files = {robin_pose[f["sourceId"]]: f for f in robin["frames"] if f["sourceId"] in robin_pose}
+ROBIN_RATIO = {"robin/pitch/0": 1, "robin/pitch/1": .93, "robin/pitch/2": .96, "robin/ground/0": .71, "robin/ground/1": .66,
+               "robin/ground/2": .72, "robin/throw/0": 1, "robin/throw/1": .98, "robin/throw/2": .95}
 for key in robin_files:
-    wanted[key] = (robin_files[key]["id"], None, 1)
+    wanted[key] = (robin_files[key]["id"], None, ROBIN_RATIO[key])
 
 # ---- dedicated sets: one named player only ----
 CATALOG_REF = re.compile(r"^(?P<family>.+?-v\d+)_(?P<name>.+?)_[0-9a-f]{6}__(?P<kit>[a-z]+)__(?P<skin>[a-z-]+)\.png$")
@@ -204,9 +213,27 @@ def crop_of(path):
     return image.crop(image.getchannel("A").point(lambda a: 255 if a > 24 else 0).getbbox())
 
 
+def clean(small):
+    """Every packed pixel is either solid or gone, and no enclosed gap lets the stadium show through the body.
+    The runtime cuts at alpha 96, so that is the edge here too."""
+    alpha = small.getchannel("A").point(lambda a: 255 if a >= 96 else 0)
+    sealed = alpha.filter(ImageFilter.MaxFilter(3)).filter(ImageFilter.MinFilter(3))
+    outside = ImageOps.expand(sealed, 1, 0)
+    ImageDraw.floodfill(outside, (0, 0), 128)
+    inside = outside.crop((1, 1, outside.width - 1, outside.height - 1)).point(lambda a: 0 if a == 128 else 255)
+    gaps = ImageChops.subtract(inside, alpha)
+    # A gap wider than a few pixels is real daylight, between an arm and the body, and stays open.
+    gaps = ImageChops.subtract(gaps, gaps.filter(ImageFilter.MinFilter(5)).filter(ImageFilter.MaxFilter(7)))
+    rgb = small.convert("RGB")
+    filler = rgb.filter(ImageFilter.MedianFilter(5))
+    rgb.paste(filler, (0, 0), gaps)
+    rgb.putalpha(ImageChops.lighter(alpha, gaps))
+    return rgb
+
+
 def encode(crop):
     scale = MAX_SIDE / max(crop.size)
-    small = crop.resize((max(1, round(crop.width * scale)), max(1, round(crop.height * scale))), Image.LANCZOS)
+    small = clean(crop.resize((max(1, round(crop.width * scale)), max(1, round(crop.height * scale))), Image.LANCZOS))
     buffer = io.BytesIO()
     small.quantize(colors=48, method=Image.Quantize.FASTOCTREE, dither=Image.Dither.NONE).save(buffer, "PNG", optimize=True)
     data = base64.b64encode(buffer.getvalue())
@@ -227,17 +254,35 @@ for family, spec in FAMILY_S.items():
 
 def ratio_of(key):
     entry_id, kit, ratio = wanted[key]
-    if ratio is not None or family_of(key) is None:   # pitch frames carry no ratio: they share their first frame's height
-        return ratio
-    path, sheet_scale = variant_path(entry_id, kit)
-    return crop_of(path).height / sheet_scale / family_S[family_of(key)]
+    if ratio is None and family_of(key) is not None:
+        path, sheet_scale = variant_path(entry_id, kit)
+        ratio = crop_of(path).height / sheet_scale / family_S[family_of(key)]
+    return ratio * next((v for prefix, v in POSE_SCALE.items() if key.startswith(prefix)), 1)
+
+
+# Where the world position sits on the picture. The crop's middle moves with an arm or a bat, so a motion would jump
+# sideways between frames: planted poses stand on the lowest foot, moving ones on their mass, flat ones on the crop.
+ANCHOR_FOOT = ("pitch/", "pickoff/", "bat/", "catch/", "catchx/", "umpire/", "ground/", "throw/", "fly/", "backhand/", "robin/pitch", "robin/ground", "robin/throw")
+ANCHOR_BODY = ("run/", "walk/", "look/", "robin/run")
+
+
+def anchor_x(name, small, height):
+    key = name.split("/", 1)[1] if name.startswith(("lotso/", "chinsuke/")) else name
+    alpha = small.getchannel("A")
+    if key.startswith(ANCHOR_FOOT):
+        band = alpha.crop((0, max(0, small.height - max(2, round(height * .06))), small.width, small.height)).getbbox()
+        return round((band[0] + band[2]) / 2, 1)
+    if key.startswith(ANCHOR_BODY):
+        columns = alpha.resize((small.width, 1), Image.BOX).getdata()
+        return round(sum((x + .5) * v for x, v in enumerate(columns)) / max(1, sum(columns)), 1)
+    return round(small.width / 2, 1)
 
 
 def store(name, entry_id, path, status, crop, ratio_value, group, extra=None):
     scale, small, asset, size = encode(crop)
     # Frames of one motion share the height of its first, standing frame.
     family_height.setdefault(group, crop.height / (ratio_value or 1) * scale)
-    out[name] = {"id": entry_id, "asset": asset, "referenceHeight": round(family_height[group], 2), "small": small, "bytes": size}
+    out[name] = {"id": entry_id, "asset": asset, "referenceHeight": round(family_height[group], 2), "footX": anchor_x(name, small, family_height[group]), "small": small, "bytes": size}
     sources[name] = {"catalogId": entry_id, "file": os.path.relpath(path, root).replace("\\", "/"), "status": status,
                      "ratio": round(ratio_value, 4) if ratio_value else None, **(extra or {})}
     print(name, small.size, size)
@@ -249,7 +294,7 @@ for key, (entry_id, kit, ratio) in wanted.items():
     else:
         path, _ = variant_path(entry_id, kit)
         status = "ADOPTED"
-    group = key.rsplit("/", 1)[0] if key.startswith(("pitch/", "robin/pitch", "run/", "walk/")) else key
+    group = key.rsplit("/", 1)[0] if key.startswith(("run/", "walk/")) else key
     store(key, entry_id, path, status, crop_of(path), ratio_of(key), group)
 
 # ---- dedicated frames ----
@@ -278,20 +323,38 @@ for i, name in enumerate(("stance", "load", "swing", "follow")):
 for i, (path, status) in enumerate(afro_hr):
     dedicate("chinsuke", f"bat/hr/{i}", path, status, crop_of(path).height / (STANDING_PER_HEAD * AFRO_HEAD["home-run"]), f"owner-afro-batting:home-run:{i + 1}")
 # Beard set: crop height / standing height per pose (bat above the head, lunge, arms up), checked on the gallery.
-LOTSO_BAT = {"stance": .88, "load": .90, "swing": 1.18, "follow": .86}
+LOTSO_BAT = {"stance": .88, "load": .92, "swing": .88, "follow": .96}
 for i, name in enumerate(("stance", "load", "swing", "follow")):
     path, status = lotso_special[name]
     dedicate("lotso", f"bat/mound/{i}", path, status, LOTSO_BAT[name], "purple-beard:" + name,
              {"note": "UNRESOLVED in the owner's index; connected only so the swing is not a silhouette"} if status == "UNRESOLVED" else None)
 path, status = lotso_special["home-run"]
-dedicate("lotso", "bat/hr/0", path, status, .82, "purple-beard:home-run")
+dedicate("lotso", "bat/hr/0", path, status, 1.02, "purple-beard:home-run")
+# Art for a player facing the camera or carrying a glove: front and rear only, never the rejected side views.
+LOCO = os.path.join(gen, "locomotion-four-directions-v1", "sprites")
+FORWARD = os.path.join(gen, "b2-forward-run-v1", "sprites")
+for gait, base, gear, view in (("run", FORWARD, "bare", "front"), ("run", FORWARD, "glove", "front"), ("run", FORWARD, "glove", "rear"), ("walk", LOCO, "bare", "front")):
+    for frame, phase in enumerate("AB"):
+        source_id = f"{gait}:{gear}:{view}:{phase}"
+        name = f"{gait}/{'glove-' if gear == 'glove' else ''}{view}/{frame}"
+        path = os.path.join(base, f"b2_{gait}_{gear}_{view}_{phase}.png")
+        store(name, source_id, path, "OWNER_UNREJECTED", crop_of(path), .98, name.rsplit("/", 1)[0])
+        if gear == "bare" and "b2:" + source_id in afro_by_catalog:   # the DH never carries a glove
+            dedicate("chinsuke", name, *afro_by_catalog["b2:" + source_id], .98, "b2:" + source_id)
+        beard = lotso_special.get(f"loco-{gait}-{gear}-{view}-{phase}")
+        if beard:
+            dedicate("lotso", name, *beard, .98, "purple-beard:" + source_id)
+for view in ("front", "rear"):
+    for frame, phase in enumerate("AB"):
+        path = os.path.join(LOCO, f"robin_run_glove_{view}_{phase}.png")
+        store(f"robin/run/{view}/{frame}", f"robin:run:glove:{view}:{phase}", path, "ROBIN_OWN", crop_of(path), .98, f"robin/run/{view}")
 # Walking to base: the beard set's bare rear walk (the direct-rear walk redraw is UNRESOLVED).
 for i, name in enumerate(("loco-walk-bare-rear-A", "loco-walk-bare-rear-B")):
     if lotso_special[name][1] in ("CANDIDATE", "OWNER_ADOPTED"):
         dedicate("lotso", f"walk/rear/{i}", lotso_special[name][0], lotso_special[name][1], .98, "purple-beard:" + name)
 
 body = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "art-bank-runtime.js"), encoding="utf-8").read()
-pack_js = ",".join(f'{json.dumps(k)}:{{id:{json.dumps(v["id"])},referenceHeight:{v["referenceHeight"]},data:"@@ASSET:{v["asset"]}@@"}}' for k, v in out.items())
+pack_js = ",".join(f'{json.dumps(k)}:{{id:{json.dumps(v["id"])},referenceHeight:{v["referenceHeight"]},footX:{v["footX"]},data:"@@ASSET:{v["asset"]}@@"}}' for k, v in out.items())
 with open(os.path.join(game, "parts", "art-bank-v1.js"), "w", encoding="utf-8", newline="") as f:
     f.write(body.replace("/*ART_PACK*/", pack_js))
 manifest = json.load(open(os.path.join(game, "manifest.json")))
@@ -316,6 +379,6 @@ if gallery_path:
         x, y = (n % cols) * cell_w, (n // cols) * cell_h
         draw.line((x, y + cell_h - 20, x + cell_w, y + cell_h - 20), fill=(30, 50, 30))
         draw.line((x + 4, y + cell_h - 20 - PPM * 1.8, x + 4, y + cell_h - 20), fill=(255, 255, 0))
-        sheet.paste(im, (x + 10 + max(0, (cell_w - 20 - im.width) // 2), y + cell_h - 20 - im.height), im)
+        sheet.paste(im, (x + cell_w // 2 - round(row["footX"] * s), y + cell_h - 20 - im.height), im)
         draw.text((x + 8, y + 2), key[:34], fill=(255, 255, 255))
     sheet.save(gallery_path)

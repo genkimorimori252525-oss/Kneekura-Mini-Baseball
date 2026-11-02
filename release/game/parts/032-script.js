@@ -599,13 +599,12 @@ function rasterSphere(center,radius,color,owner){
     motionV1=screenStepV1>1?{x:(aheadV1.x-foot.x)/screenStepV1,depth:(foot.y-aheadV1.y)/screenStepV1}:{x:0,depth:0},
     artV1=bankV1?.pick({role:a.role,action,frame,camera:state.camera,hand:a.player.hand,form:a.player.form,team:a.player.team,running:a.running,isRobin:a.sourcePlayerId==='robin',pose:a.presentationPose,away:awayV1,walking:a.walking,
      who:bankV1.whoIs(a.sourcePlayerId,a.player.name),art:a.role==='umpire'?{umpire:observed.liveUmpireArtV1}:a.presentationArt,athletic:a.athleticV115,motion:motionV1,sx:sideV1&&sideV1.x<foot.x?-1:1});
-   if(artV1&&!b2ReadyV1.sprites.includes(original)){original=artV1.sprite;palette=artV1.palette;materialSource=artV1.id;}
+   if(artV1){original=artV1.sprite;palette=artV1.palette;materialSource=artV1.id;}
    const sprite=action==='bat'&&!original.artBankV1?batterSpriteForView(original,state.camera):original;
    const unit=height/(sprite.referenceHeight||44)*foot.scale*RETRO_SCALE,left=foot.x-sprite.originX*unit,top=foot.y-sprite.baseline*unit;
-   const crouchRowsV105=(original.artBankV1||b2ReadyV1.sprites.includes(original)||robinHairPreview.sprites.includes(original)||original===catcherTrial.sprite)?null:window.KneekuraFielderBodyPresentationV105.rowMap({baseline:sprite.baseline,referenceHeight:sprite.referenceHeight||44,heightMeters:height,crouchMeters:a.bodyPoseV105?.crouchMeters,retroScale:RETRO_SCALE});
-   const athleticPixelsV115=(original.artBankV1||b2ReadyV1.sprites.includes(original)||robinHairPreview.sprites.includes(original)||original===catcherTrial.sprite)?null:window.KneekuraAthleticBodyPresentationV115?.pixelMap({sprite,unit,foot,head:a.bodyPoseV105?project(a.bodyPoseV105.head):null,athletic:a.athleticV115,retroScale:RETRO_SCALE});
-   athleticPresentationV115=athleticPixelsV115?.kind??'SOURCE_DEGENERATE_OR_CLIPPED_CROUCH_FALLBACK_V115';
-   bounds=spriteAtGrid(sprite,unit,left,top,(u,v,index,coverage)=>paintWorldCell(u,v,foot.depth-.001,palette[index],coverage,a.id),athleticPixelsV115?null:crouchRowsV105,athleticPixelsV115);
+   // The body is never stretched or folded to fake a motion: a drawn frame or the sprite as it is.
+   athleticPresentationV115='DRAWN_FRAME_V1';
+   bounds=spriteAtGrid(sprite,unit,left,top,(u,v,index,coverage)=>{if(coverage>=.6||unit*sprite.referenceHeight<48)paintWorldCell(u,v,foot.depth-.001,palette[index],1,a.id);});
    // Equipment changes the visible silhouette, not the player's name anchor.
    if(illustratedBat){const body=batterSpriteForView(poseSprite('bat',frame,a.player.hand,a.player.form),state.camera);bounds={x:left+body.minX*unit,y:top+body.minY*unit,w:(body.maxX-body.minX+1)*unit,h:(body.maxY-body.minY+1)*unit};}
    if(action==='bat')batterRig={sourceId:sprite.sourceId,sourceFrame:sprite.sourceFrame,sourceSha256:sprite.sourceSha256,derivation:sprite.derivation,hand:a.player.hand,viewMirrorX:!!sprite.viewMirrorX,includesIllustratedBat:!!sprite.includesIllustratedBat,deformed:false};
@@ -872,7 +871,7 @@ function rasterSphere(center,radius,color,owner){
   }).map(a=>a.id):[]);
   anchors=[];labelPositions=[];sceneDepth=new Map();sceneDepthBase=null;rasterBase=null;rasterCells=new Map();fieldMarkCells=[];ballScreen=null;batterRig=null;
   ctx.setTransform(2,0,0,2,0,0);ctx.fillStyle='#000';ctx.fillRect(0,0,600,432);
-  if(state.camera==='mound'&&state.appearance!=='point'&&window.KneekuraArtBankV1?.inspect().loaded)actor({id:'UMP',role:'umpire',sourcePlayerId:'umpire',position:{x:(observed.batter?.hand==='L'?.42:-.42),y:0,z:-1.75},running:false,player:{height:1.8,hand:'R',form:'over',name:'',team:2}});
+  if(state.camera==='mound'&&state.appearance!=='point'&&window.KneekuraArtBankV1?.inspect().loaded)actor({id:'UMP',role:'umpire',sourcePlayerId:'umpire',position:{x:0,y:0,z:-1.75},running:false,player:{height:1.8,hand:'R',form:'over',name:'',team:2}});
   const stadium=stadiumFrameV2();paintStadiumV2(stadium,drawParkV81(stadium));paintScoreboardV1(stadium);observed.actors.forEach(actor);drawBaseUmpireCalls();drawErrorBalloonV1();
   // Draw the source bat only when the approved B1 sprite embeds it or when
   // batOverlay is disabled. Otherwise 27.5ms high-rate layer owns the bat.
