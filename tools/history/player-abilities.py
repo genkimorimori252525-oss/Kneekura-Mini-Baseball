@@ -13,6 +13,8 @@ STRIKEOUT_TIMING = [(.075, .0045), (.098, .006), (.165, .008), (.30, .011), (.36
 # Walk rate to plate vision, from the swing threshold grid and visionSelectivityV1.
 WALK_VISION = [(.06, 32), (.085, 70), (.12, 100)]
 REFERENCE_STRIKEOUT, REFERENCE_WALK = .198, .079
+# Aimed bat speed of an average NPB hitter. 28 to 30 m/s brackets the 2020s home run rate of 2.0%.
+REFERENCE_SWING_SPEED = 29
 PRIOR_PA = 100
 
 
@@ -52,7 +54,7 @@ for r in rows:
     k_rel = regressed(me['SO'], pa, k_lg) / max(.01, k_lg) * REFERENCE_STRIKEOUT
     bb_rel = regressed(me['BB'], pa, bb_lg) / max(.01, bb_lg) * REFERENCE_WALK
     timing = interpolate(STRIKEOUT_TIMING, k_rel)
-    target = max(27, min(46, 32 * (max(.02, iso) / iso_lg) ** .25))
+    target = max(25, min(46, REFERENCE_SWING_SPEED * (max(.02, iso) / iso_lg) ** .25))
     steals = (me['SB'] + me['CS']) / pa / max(.001, (lg['SB'] + lg['CS']) / lg['PA'])
     fly = (me['HR'] + me['SF']) / max(1, me['AB'] - me['SO'])
     fly_lg = (lg['HR'] + lg['SF']) / (lg['AB'] - lg['SO'])
