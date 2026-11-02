@@ -1,5 +1,5 @@
-/* Adopted art for the broadcast renderer. A pose with no adopted picture (left-handed pitching and batting)
- * returns null and the existing silhouette stays.
+/* Adopted art for the broadcast renderer. A pose with no adopted picture returns null and the existing silhouette stays.
+ * Left-handed batting and pitching are the right-handed art mirrored (the owner's decision, 2026-11-03).
  * Exclusive sets: keys "chinsuke/..." and "lotso/..." are reachable only through whoIs(), which needs
  * both the roster id and the roster name of that one player; every other actor gets generic art or nothing. */
 (function(root){
@@ -25,7 +25,7 @@
   image.src='data:image/png;base64,'+row.data;
  }
  for(const [key,row] of Object.entries(pack))decode(key,row);
- // Mirror image about the foot anchor. Used only for art with no glove or bat hand to swap (runner slides).
+ // Mirror image about the foot anchor.
  function flip(found){
   if(flipped.has(found))return flipped.get(found);
   const s=found.sprite,size=s.size,pixels=new Uint16Array(s.pixels.length);
@@ -138,7 +138,7 @@
  const swingSuffix=(frame,art)=>frame>=2&&art.swing?art.swing:'';
  function pick({role,action,frame,camera,hand,form,team,running,isRobin,pose,away,walking,who,art,athletic,motion,sx}){
   const kit=team===1?'home':'away',outfield=['LF','CF','RF'].includes(role);
-  let key=null,found=null,mirror=false;
+  let key=null,found=null,mirror=false,handed=false;
   art=art||{};motion=motion||{x:0,depth:0};sx=sx||1;
   if(art.catcher)art={...art,catcher:{...art.catcher,sx}};
   const reach=art.backhandDx===undefined?0:art.backhandDx*sx,backhand=reach<-.7?'1':reach<-.4?'2':null;
@@ -183,17 +183,21 @@
   }
   else if(pose==='fly'&&role==='P'&&!isRobin)key='liner/'+kit;
   else if(pose==='fly'&&!isRobin)key='fly/'+(outfield?'out':'in')+'/'+kit;
-  else if(role==='P'&&art.pickoff&&camera!=='mound')key=isRobin?'robin/pickoff/'+art.pickoff.base+'/'+art.pickoff.frame:'pickoff/'+art.pickoff.base+'/'+art.pickoff.frame+'/'+kit;
+  else if(role==='P'&&art.pickoff&&camera!=='mound'){
+   // A left-hander's throw to first is the mirror of a right-hander's throw to third.
+   const base=hand==='L'&&!isRobin?4-art.pickoff.base:art.pickoff.base;
+   key=isRobin?'robin/pickoff/'+base+'/'+art.pickoff.frame:'pickoff/'+base+'/'+art.pickoff.frame+'/'+kit;handed=!isRobin;
+  }
   else if(isRobin){if(action==='pitch')key='robin/pitch/'+(frame===0?0:frame<3?1:2);}
-  else if(action==='pitch'&&hand==='R'&&['over','side','under','montage'].includes(form)&&frame>=0&&frame<6)key='pitch/'+form+'/'+frame;
+  else if(action==='pitch'&&['over','side','under','montage'].includes(form)&&frame>=0&&frame<6){key='pitch/'+form+'/'+frame;handed=true;}
   // ロッツォ has one home-run picture, so it holds through the second beat.
   else if(action==='bat'&&camera==='mound'&&who&&art.hr!==undefined&&art.hr!==null)key='bat/hr/'+(bank.has(who+'/bat/hr/'+art.hr)?art.hr:0);
-  else if(action==='bat'&&camera==='mound'&&frame>=0&&frame<4&&!art.look&&(who?bank.has(who+'/bat/mound/'+frame):hand==='R'))key='bat/mound/'+frame+(who?'':swingSuffix(frame,art));
-  else if(action==='bat'&&art.look&&(hand==='R'||who)){
+  else if(action==='bat'&&camera==='mound'&&frame>=0&&frame<4&&!art.look&&(!who||bank.has(who+'/bat/mound/'+frame))){key='bat/mound/'+frame+(who?'':swingSuffix(frame,art));handed=true;}
+  else if(action==='bat'&&art.look){
    const rear=camera!=='mound';
-   key='look/'+(art.look==='up'?'look-up':art.look==='bent'?'bent-forward':'photo')+'-'+(rear?'rear':'front');
+   key='look/'+(art.look==='up'?'look-up':art.look==='bent'?'bent-forward':'photo')+'-'+(rear?'rear':'front');handed=true;
   }
-  else if(action==='bat'&&camera!=='mound'&&hand==='R'&&frame>=0&&frame<4)key='bat/rear/'+frame+swingSuffix(frame,art);
+  else if(action==='bat'&&camera!=='mound'&&frame>=0&&frame<4){key='bat/rear/'+frame+swingSuffix(frame,art);handed=true;}
   else if(action==='catch'&&camera!=='mound')key=team===1?'catch/home':'catch/away';
   else if(action==='catch'){
    const name=catcherName(art.catcher),knee=!!art.knee;
@@ -207,8 +211,11 @@
    else key=isRobin?'robin/ground/0':'ground/'+kit+'/0';
   }
   if(athletic)lastAthletic={kind:athletic.kind,phase:athletic.phase,motion,key,isRobin};
-  if(!found&&key){found=(who?bank.get(who+'/'+key):null)||bank.get(key);}
+  const own=!found&&key&&who?bank.get(who+'/'+key):null;
+  if(!found&&key)found=own||bank.get(key);
   if(!found)return null;
+  // ちんすけ's own set is drawn left-handed already.
+  if(handed&&hand==='L'&&!own)mirror=true;
   hits[found.key]=(hits[found.key]??0)+1;
   return mirror?flip(found):found;
  }
