@@ -14,6 +14,10 @@ if (opt.seed !== undefined) config.seed = Number(opt.seed) >>> 0;
 if (opt.batters) for (const player of config.players) if (/-b\d$/.test(player.playerId))
   for (const pair of opt.batters.split(',')) {const [key, value] = pair.split(':'); player.physical[key] = Number(value);}
 if (opt.skipField) config.skipFieldPlayV1 = true;
+// --observe=key:value and --decision=key:value set the batter observation policy and every batter's swing decision.
+if (opt.observe) for (const pair of opt.observe.split(',')) {const [key, value] = pair.split(':'); config.batterObservationV151[key] = Number(value);}
+if (opt.decision) for (const player of config.players) if (/-b\d$/.test(player.playerId) && player.physical.swingDecision)
+  for (const pair of opt.decision.split(',')) {const [key, value] = pair.split(':'); player.physical.swingDecision = {...player.physical.swingDecision, [key]: Number(value)};}
 const policies = config.experimentalMatchPoliciesV2;
 const resume = opt.resume ? JSON.parse(readFileSync(opt.resume, 'utf8')) : undefined;
 const host = policies ? core.createExperimentalMatchHostV2(config, policies, resume) : core.createLiveBaseballMatchWorkerV116(config, resume);

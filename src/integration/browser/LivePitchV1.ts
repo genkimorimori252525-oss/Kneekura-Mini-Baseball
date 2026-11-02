@@ -511,8 +511,9 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   const deliveredPredictionV151=currentObservationAvailableV151||usablePriorV151;
   const countBallsV1=input.pitchSituationV111?.balls??0,countStrikesV1=input.pitchSituationV111?.strikes??0,
     expansionV1=(countStrikesV1===2?observationPolicyV151?.twoStrikeExpansionV1??0:0)+(input.emotionInfluenceV1?.swingAggressionDelta??0);
+  const visionThresholdShiftV1=observationPolicyV151?.visionSelectivityV1!==undefined?(resolveLivePlateVisionV1(b)-70)*observationPolicyV151.visionSelectivityV1:0;
   let swingOffered=deliveredPredictionV151&&input.batting!=='take'&&(!swingIntentV121||swingIntentV121.effort>0)&&(b.swingDecision?b.swingDecision.approach==='SWING'
-      ||b.swingDecision.approach==='AUTO'&&inChaseEnvelope&&swingScore>=b.swingDecision.threshold-expansionV1:inChaseEnvelope&&batterRecognition.diagnostics.targetWeight>0);
+      ||b.swingDecision.approach==='AUTO'&&inChaseEnvelope&&swingScore>=b.swingDecision.threshold+visionThresholdShiftV1-expansionV1:inChaseEnvelope&&batterRecognition.diagnostics.targetWeight>0);
   const countReadinessV1=observationPolicyV151?.countReadinessV1?.[countBallsV1]?.[countStrikesV1];
   if(swingOffered&&countReadinessV1!==undefined&&b.swingDecision?.approach!=='SWING'&&
     new SeedRoot(randomStreamsV152?.seedFor('batterPerception','count-readiness-v1')??input.seed).streamRng(0,'batting','count-readiness-v1').nextFloat()>=countReadinessV1)swingOffered=false;
