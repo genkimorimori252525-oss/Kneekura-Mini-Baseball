@@ -4,11 +4,20 @@
 (function(root){
  'use strict';
  const cache=new WeakMap();
+ // Home-run themes belong to the park's home team and play only for its own
+ // home runs there. tools/ballpark-studio/homerun-theme.mjs holds the same rule.
+ const homeThemes=Object.freeze({tambov:Object.freeze({early:'hrTbdEarly',late:'hrTbdLate',walkoff:'hrTbdWalkoff'})});
+ function homeTheme(record){
+  const theme=homeThemes[root.document?.getElementById('stadium-choice')?.value],before=record.beforeMatch;
+  if(!theme||before?.half!=='bottom')return null;
+  const key=record.finished?theme.walkoff:before.inning<=6?theme.early:theme.late;
+  return root.KneekuraAudioPackV100?.[key]?key:null;
+ }
  function events(record){
   if(!record)return [];if(cache.has(record))return cache.get(record);
   const play=record.play??{},rules=play.rules??{},d=play.diagnostics??{},tps=d.sourceClockTicksPerSecond??1e6,
    contact=play.contactMoment,origin=contact?.originTick??record.frames?.[0]?.tick??0,rows=[],id=record.beforeMatch?.playId??0,
-   add=(tick,key,group='sfx',priority=1)=>{if(Number.isFinite(tick))rows.push(Object.freeze({id:`${id}:${tick}:${key}`,tick,key,group,priority}));},
+   add=(tick,key,group='sfx',priority=1)=>{if(Number.isFinite(tick))rows.push(Object.freeze({id:`${id}:${tick}:${key}`,play:id,tick,key,group,priority}));},
    first=record.frames?.[0]?.tick;
   if(record.beforeMatch?.playId===0&&record.beforeMatch?.balls===0&&record.beforeMatch?.strikes===0)add(first+1,'start','crowd',2);
   if(record.frames?.some(f=>f.ballKind==='pitch'))add(first+1,'throw');
@@ -33,7 +42,7 @@
   }
   const fence=play.field?.ruleFacts?.overFence;
   const hr=play.classification==='home_run'&&fence?.fair&&fence.untouchedGround&&fence.cause!=='throw';
-  if(hr)add(fence.tick,'homerun','crowd',5);
+  if(hr){add(fence.tick,'homerun','crowd',5);const theme=homeTheme(record);if(theme)add(fence.tick,theme,'music',5);}
   else if(rules.scoredRunnerIds?.length){add(rules.endedAtTick,'score');add(rules.endedAtTick,'hit2','crowd',3);}
   else if(play.localScoringV100?.hits===1&&!strong)add(play.localScoringV100.atTick,'hit1','crowd',2);
   else if(play.classification==='hit_by_pitch')add(rules.endedAtTick,'hbp','crowd',2);
@@ -44,12 +53,15 @@
  function owner(){
   try{if(root.parent!==root&&root.parent.KneekuraAudioV100)return root.parent.KneekuraAudioV100.owner();}catch{}
   if(root.__kneekuraAudioOwnerV100)return root.__kneekuraAudioOwnerV100;
-  let context=null,epoch=0,activeCrowd=null,error='',settings={master:.65,sfx:.8,crowd:.45,mute:false},lastOwner=null;
+  let context=null,epoch=0,activeCrowd=null,error='',settings={master:.65,sfx:.8,crowd:.45,music:.7,mute:false},lastOwner=null;
   const decoded=new Map(),loading=new Map(),voices=new Set(),trace=[],ownerEpochs=new WeakMap(),listeners=new Set();
   const notify=()=>{for(const callback of listeners)try{callback();}catch{}};
   try{const saved=JSON.parse(root.localStorage?.getItem('kneekura-audio-v100')??'null');if(saved)for(const k of Object.keys(settings))if(typeof saved[k]===typeof settings[k]&&(k==='mute'||Number.isFinite(saved[k])&&saved[k]>=0&&saved[k]<=1))settings[k]=saved[k];}catch{}
-  const stop=sourceOwner=>{if(sourceOwner&&typeof sourceOwner==='object')ownerEpochs.set(sourceOwner,(ownerEpochs.get(sourceOwner)??0)+1);else epoch++;
-   for(const v of voices)if(!sourceOwner||v.owner===sourceOwner){try{v.source.stop();}catch{}voices.delete(v);if(activeCrowd===v)activeCrowd=null;}};
+  const stop=(sourceOwner,keepMusic=false)=>{if(sourceOwner&&typeof sourceOwner==='object')ownerEpochs.set(sourceOwner,(ownerEpochs.get(sourceOwner)??0)+1);else epoch++;
+   for(const v of voices)if((!sourceOwner||v.owner===sourceOwner)&&!(keepMusic&&v.group==='music')){try{v.source.stop();}catch{}voices.delete(v);if(activeCrowd===v)activeCrowd=null;}};
+  // A theme outlives its own play, then gives way when the next pitch is thrown.
+  const fadeMusic=(play,seconds=1.2)=>{for(const v of voices)if(v.group==='music'&&v.play!==play&&!v.fading){v.fading=true;const t=context.currentTime;
+   v.gain.gain.setValueAtTime(v.gain.gain.value,t);v.gain.gain.linearRampToValueAtTime(0,t+seconds);try{v.source.stop(t+seconds);}catch{}}};
   function bank(){return root.KneekuraAudioPackV100??{};}
   async function unlock(){
    try{const C=root.AudioContext??root.webkitAudioContext;if(!C)throw Error('このブラウザーは音声再生に対応していません');
@@ -71,10 +83,11 @@
    if(!context||context.state!=='running'||settings.mute||!settings.master)return;
    if(lastOwner!==sourceOwner){stop();lastOwner=sourceOwner;}
    const generation=epoch,ownerGeneration=typeof sourceOwner==='object'?ownerEpochs.get(sourceOwner)??0:0,requested=context.currentTime;
-   try{const buffer=await load(event.key);if(epoch!==generation||typeof sourceOwner==='object'&&(ownerEpochs.get(sourceOwner)??0)!==ownerGeneration||context.currentTime-requested>.18||settings.mute)return;
+   try{const buffer=await load(event.key);if(epoch!==generation||typeof sourceOwner==='object'&&(ownerEpochs.get(sourceOwner)??0)!==ownerGeneration||event.group!=='music'&&context.currentTime-requested>.18||settings.mute)return;
+    if(event.key==='throw')fadeMusic(event.play);
     if(event.group==='crowd'&&activeCrowd){if(activeCrowd.priority>event.priority)return;try{activeCrowd.source.stop();}catch{}voices.delete(activeCrowd);activeCrowd=null;}
-    const effects=[...voices].filter(v=>v.group!=='crowd');if(event.group!=='crowd'&&effects.length>=8){const oldest=effects[0];oldest.source.stop();voices.delete(oldest);}
-    const source=context.createBufferSource(),gain=context.createGain(),voice={source,gain,owner:sourceOwner,group:event.group,priority:event.priority};source.buffer=buffer;source.loop=false;
+    const effects=[...voices].filter(v=>v.group==='sfx');if(event.group==='sfx'&&effects.length>=8){const oldest=effects[0];oldest.source.stop();voices.delete(oldest);}
+    const source=context.createBufferSource(),gain=context.createGain(),voice={source,gain,owner:sourceOwner,group:event.group,priority:event.priority,play:event.play};source.buffer=buffer;source.loop=false;
     gain.gain.value=settings.master*settings[event.group];source.connect(gain);gain.connect(context.destination);voices.add(voice);if(event.group==='crowd')activeCrowd=voice;
     source.onended=()=>{voices.delete(voice);if(activeCrowd===voice)activeCrowd=null;source.disconnect();gain.disconnect();};source.start();
     trace.push({id:event.id,key:event.key,tick:event.tick,time:context.currentTime});if(trace.length>256)trace.shift();
@@ -92,7 +105,7 @@
  function policy(){try{return root.parent?.KneekuraAudioPolicyV100??root.KneekuraAudioPolicyV100??{};}catch{return root.KneekuraAudioPolicyV100??{};}}
  function create(){let record=null,cursor=null,playingBefore=false,preparedRecord=null;const token={},audio=owner();
   return Object.freeze({observe(next){const {tick,playing,speed=1}=next,changed=next.record!==record,back=cursor!==null&&tick<cursor;
-    if(changed||back){audio.stop(token);record=next.record;cursor=Number.isFinite(tick)&&record&&tick<=record.frames?.[0]?.tick?tick-1:tick;}
+    if(changed||back){audio.stop(token,!back);record=next.record;cursor=Number.isFinite(tick)&&record&&tick<=record.frames?.[0]?.tick?tick-1:tick;}
     // Preparation may inspect already generated event keys, never emit their
     // sound. It avoids first-use crowd decode lag during the physical scene.
     if(record&&preparedRecord!==record&&audio.prepare(events(record).filter(e=>e.group!=='crowd'||policy().crowd!==false).map(e=>e.key)))preparedRecord=record;
@@ -106,7 +119,7 @@
   const summary=root.document.createElement('summary');summary.textContent=policy().crowd===false?'効果音（メーカーでは歓声なし）':'音声・歓声';panel.append(summary);
   const unlock=root.document.createElement('button');unlock.textContent='音声を有効にする';unlock.type='button';panel.append(unlock);
   const settings=host.inspect().settings;
-  for(const [key,label]of [['master','全体'],['sfx','効果音'],...(policy().crowd===false?[]:[['crowd','歓声']])]){const row=root.document.createElement('label');row.style.cssText='display:inline-flex;align-items:center;gap:8px;margin:8px';row.append(label);
+  for(const [key,label]of [['master','全体'],['sfx','効果音'],...(policy().crowd===false?[]:[['crowd','歓声'],['music','本塁打曲']])]){const row=root.document.createElement('label');row.style.cssText='display:inline-flex;align-items:center;gap:8px;margin:8px';row.append(label);
    const input=root.document.createElement('input');input.type='range';input.min='0';input.max='100';input.value=String(settings[key]*100);input.setAttribute('aria-label',label+'音量');input.oninput=()=>host.configure({[key]:Number(input.value)/100});row.append(input);panel.append(row);}
   const muteLabel=root.document.createElement('label'),mute=root.document.createElement('input');mute.type='checkbox';mute.checked=settings.mute;mute.onchange=()=>host.configure({mute:mute.checked});muteLabel.append(mute,' 消音');panel.append(muteLabel);
   const status=root.document.createElement('p');status.setAttribute('role','status');status.textContent='効果音・歓声は単発再生。停止・移動した時刻の音はまとめて再生しません。';panel.append(status);

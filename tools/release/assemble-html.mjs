@@ -13,13 +13,9 @@ const manifest = JSON.parse(await readFile(path.join(dir, manifestName), 'utf8')
 const chunks = [];
 const used = new Set();
 for (const entry of manifest.entries) {
-  if (entry.slot) {
-    if (!slots.has(entry.slot)) throw Error('missing slot ' + entry.slot);
-    used.add(entry.slot);
-    chunks.push(await readFile(slots.get(entry.slot)));
-    continue;
-  }
-  let text = (await readFile(path.join(dir, 'parts', entry.file))).toString('latin1');
+  if (entry.slot && !slots.has(entry.slot)) throw Error('missing slot ' + entry.slot);
+  if (entry.slot) used.add(entry.slot);
+  let text = (await readFile(entry.slot ? slots.get(entry.slot) : path.join(dir, 'parts', entry.file))).toString('latin1');
   const refs = [...new Set(text.match(/@@ASSET:[0-9a-f]{24}@@/g) ?? [])];
   for (const ref of refs) {
     const bytes = await readFile(path.join(dir, 'assets', ref.slice(8, 32) + '.b64'));
@@ -29,5 +25,6 @@ for (const entry of manifest.entries) {
 }
 for (const slot of slots.keys()) if (!used.has(slot)) throw Error('unused slot ' + slot);
 const html = Buffer.concat(chunks);
+if (html.includes('@@ASSET:')) throw Error('unresolved asset placeholder in ' + output);
 await writeFile(output, html);
 console.log(JSON.stringify({bytes: html.length, sha256: createHash('sha256').update(html).digest('hex'), matchesSource: createHash('sha256').update(html).digest('hex') === manifest.sourceSha256}));

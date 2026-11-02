@@ -1,6 +1,7 @@
 // Plays whole games on the bundled Core without the UI and reports every stop.
 // usage: node core-playthrough.mjs <native.js> <config.json> [--seed=N] [--pitches=N] [--resume=file] [--save=file]
-import {readFileSync, writeFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {appendFileSync, readFileSync, writeFileSync} from 'node:fs';
 
 const [nativePath, configPath, ...rest] = process.argv.slice(2);
 const opt = Object.fromEntries(rest.map(a => a.replace(/^--/, '').split('=')));
@@ -16,7 +17,28 @@ const command = {batting: 'auto', pitchType: 'auto', location: 'auto', managedTe
 const limit = Number(opt.pitches ?? 600);
 const tally = {steals: true, pitches: 0, swings: 0, contacts: 0, hits: 0, loose: 0, fallback: {}};
 let last = host.captureContinuationV116();
+// Where the ball really passed, not where the batter thought it would.
+const crossingAt = (frames, z) => {
+  for (let i = 1; i < frames.length; i++) {
+    const a = frames[i - 1].ball?.position, c = frames[i].ball?.position;
+    if (a && c && a.z !== c.z && (a.z - z) * (c.z - z) <= 0) {const u = (z - a.z) / (c.z - a.z); return {x: a.x + (c.x - a.x) * u, y: a.y + (c.y - a.y) * u};}
+  }
+  return null;
+};
+// --records=file appends one line per pitch for core-stats.mjs.
+const pitchRecord = (r, seed) => {
+  const p = r.play, d = p.diagnostics ?? {}, s = p.localScoringV100, b = r.beforeMatch, zone = d.strikeZone, v = p.contact?.exitVelocity;
+  const plane = d.zoneJudgment?.observedForecastPosition?.z ?? .15, at = p.contact?.ballCenter ?? crossingAt(r.frames, plane), t = d.batterTechniqueV1;
+  return {seed, inning: b.inning, half: b.half, outs: b.outs, balls: b.balls, strikes: b.strikes, batter: r.batterPlayerId, pitcher: r.pitcherPlayerId, pitch: r.pitchType, kmh: r.speedKmh,
+    play: p.classification, scoring: s?.classification ?? null, call: p.call, swing: !!d.swingOffered, foulOrContact: !!p.contact,
+    x: at?.x ?? null, y: at?.y ?? null, zone: zone ? {half: zone.halfWidth, low: zone.lowerY, high: zone.upperY} : null,
+    technique: t?.technique ?? null, techniquePlan: t?.planStatus ?? null, techniqueReason: t?.planReason ?? t?.selectionReason ?? null, exitSpin: t?.battedSpin ?? null,
+    timing: d.timingErrorSeconds ?? null, exit: v ? {kmh: Math.hypot(v.x, v.y, v.z) * 3.6, launch: Math.atan2(v.y, Math.hypot(v.x, v.z)) * 180 / Math.PI, spray: Math.atan2(v.x, v.z) * 180 / Math.PI} : null,
+    hitBases: s?.hitBases ?? null, homeRuns: s?.homeRuns ?? null, runs: r.match.score.away + r.match.score.home - b.score.away - b.score.home, finished: r.finished};
+};
 const t0 = Date.now();
+// --hash=1 fingerprints every pitch record, to prove a speed change kept results identical.
+const hash = opt.hash ? createHash('sha256') : null;
 for (let n = 0; n < limit; n++) {
   const t1 = Date.now();
   let r;
@@ -30,9 +52,13 @@ for (let n = 0; n < limit; n++) {
     break;
   }
   last = host.captureContinuationV116();
+  hash?.update(JSON.stringify(r));
+  if (opt.records) appendFileSync(opt.records, JSON.stringify(pitchRecord(r, config.seed)) + String.fromCharCode(10));
   tally.pitches++;
   for (const e of r.events) if (['stolen_base', 'caught_stealing', 'picked_off', 'pickoff_safe'].includes(e.kind)) tally[e.kind] = (tally[e.kind] ?? 0) + 1;
   if (r.play.diagnostics?.pitchFallbackV1) tally.simple = (tally.simple ?? 0) + 1;
+  const tried = r.play.diagnostics?.batterTechniqueV1;
+  if (tried?.technique) {const row = (tally.technique ??= {})[tried.technique] ??= {tried: 0, planned: 0, fellBack: 0}; row.tried++; row[tried.planStatus === 'PLANNED' ? 'planned' : 'fellBack']++;}
   if (r.play.diagnostics?.swingOffered) tally.swings++;
   if (r.play.contact) tally.contacts++;
   if (r.play.diagnostics?.loosePitchV1) tally.loose++;
@@ -44,4 +70,5 @@ for (let n = 0; n < limit; n++) {
   if (r.finished && opt.lastDetail) console.log('LAST', JSON.stringify({before: r.beforeMatch, after: r.match, rules: {...r.play.rules, match: undefined}}));
   if (r.finished) {console.log('FINISHED', JSON.stringify({score: m.score, n: n + 1})); break;}
 }
+if (hash) console.log('HASH', hash.update(JSON.stringify(last)).digest('hex'));
 console.log('TALLY', JSON.stringify(tally), 'seconds', ((Date.now() - t0) / 1000).toFixed(1));

@@ -45,12 +45,19 @@ export function limitDirectionExecutionV153(input:ReferenceBatKinematicsInputV1,
   if(temporalScale>=1)return {reference:input,temporalScale:1,holdStartTick};
   if(!envelope||!Number.isFinite(temporalScale)||temporalScale<=0)throw Error('observed direction motor v153: no finite constrained execution');
   temporalScale*=1-1e-8; // Leave room for the outward integer start-tick rounding.
-  const startTick=Math.ceil(holdStartTick+(input.startTick-holdStartTick)/temporalScale),
-    reference:ReferenceBatKinematicsInputV1={...input,startTick,playbackRate:input.playbackRate*temporalScale,
-      ...(input.motorRampSecondsV121===undefined?{}:{motorRampSecondsV121:input.motorRampSecondsV121/temporalScale}),
-      executionEnvelopeV133:{...envelope,preparation:{...envelope.preparation,durationSeconds:(startTick-holdStartTick)/input.ticksPerSecond},
-        recovery:{...envelope.recovery,durationSeconds:envelope.recovery.durationSeconds/temporalScale}}},
-    constrained=createReferenceBatKinematicsV1(reference);
+  const build=()=>{
+    const startTick=Math.ceil(holdStartTick+(input.startTick-holdStartTick)/temporalScale),
+      next:ReferenceBatKinematicsInputV1={...input,startTick,playbackRate:input.playbackRate*temporalScale,
+        ...(input.motorRampSecondsV121===undefined?{}:{motorRampSecondsV121:input.motorRampSecondsV121/temporalScale}),
+        executionEnvelopeV133:{...envelope,preparation:{...envelope.preparation,durationSeconds:(startTick-holdStartTick)/input.ticksPerSecond},
+          recovery:{...envelope.recovery,durationSeconds:envelope.recovery.durationSeconds/temporalScale}}};
+    return {reference:next,constrained:createReferenceBatKinematicsV1(next)};
+  };
+  let {reference,constrained}=build();
+  // The fixed preparation does not scale with the swing, so one step can fall just short.
+  for(let retry=0;retry<8&&limits.maximumSweetSpotSpeedMps!==undefined&&constrained.maximumSweetSpotSpeedMps>limits.maximumSweetSpotSpeedMps;retry++){
+    temporalScale*=limits.maximumSweetSpotSpeedMps/constrained.maximumSweetSpotSpeedMps*(1-1e-6);({reference,constrained}=build());
+  }
   if(limits.maximumSweetSpotSpeedMps!==undefined&&constrained.maximumSweetSpotSpeedMps>limits.maximumSweetSpotSpeedMps)
     throw Error('observed direction motor v153: rounded execution exceeds speed limit');
   for(const key of ['maximumGripAccelerationMps2','maximumAngularAccelerationRadPerSecond2','maximumSweetSpotAccelerationMps2'] as const)

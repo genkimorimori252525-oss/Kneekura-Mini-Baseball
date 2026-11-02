@@ -6,14 +6,16 @@
  const oldRobinSlot=data.players['1-p0'];data.players.robin={...oldRobinSlot,id:'robin',name:'ロビン',height:1.63,hand:'R',bats:'R',throws:'R'};
  const roles=['P','C','1B','2B','3B','SS','LF','CF','RF'];
  const EXPERIMENTAL_UI_POLICIES_V2={robinSource:{version:'robin_original_source_v1',sourceSha256:'27d84474f8d842a8a969b6aceb07ebac94dd92aea4267826b24fa2a31221efc8'},robinAuto:{version:'robin_original_auto_v1',sourceSha256:'27d84474f8d842a8a969b6aceb07ebac94dd92aea4267826b24fa2a31221efc8'},generalLoose:{version:'general_loose_policy_v1',implementationSha256:'7c3ce16289511e184ebe572314349c85e05b0137edb94314ff6edc36e4a760b0',partialFallback:'partial_reference_fallback_v1',catcherObservation:'fixed_release_100ms_v1',batModel:'prescribed_bat_attached_and_no_interference_v1',uncaughtThird:'uncaught_third_empty_before_two_out_v4'}}; // never enabled until actual Worker/visibility acceptance
- // Official center, foul-line and wall heights. The fence stays one circle: its
- // backstop side is solved so the circle passes through both distances.
- const parkDimensions={fukuoka:[122,100,5.84],koshien:[118,95,2.1],dodger:[120.4,100.6,2.4]};
+ // Center, foul-line and wall heights from tools/ballpark-studio/model.mjs. The
+ // fence stays one circle: its backstop side is solved so the circle passes
+ // through both distances. Niikura's 142/94.5 needs a negative backstop, so its
+ // row is the least-squares circle holding the studio's 8.2m backstop.
+ const parkDimensions={fukuoka:[122,100,4.2],tambov:[128,105,1.3],niikura:[136.5,101.7,3],koshien:[118,95,3],dodger:[120.396,100.584,2.4384]};
  function parkForStadium(){
   const row=parkDimensions[document.getElementById('stadium-choice')?.value];
   if(!row)return Object.freeze({fenceRadiusMeters:110,fenceHeightMeters:3});
   const [center,line,height]=row,r2=Math.SQRT2;
-  return Object.freeze({fenceRadiusMeters:center,fenceHeightMeters:height,foulFenceRadiusMeters:line*(line-center/r2)/(center-line/r2)});
+  return Object.freeze({fenceRadiusMeters:center,fenceHeightMeters:height,foulFenceRadiusMeters:line*(line-center/r2)/(center-line/r2),...(window.KneekuraNativeMatchCore?.LIVE_MATCH_GRASS_V2?{groundMaterialV101:window.KneekuraNativeMatchCore.LIVE_MATCH_GRASS_V2}:{})});
  }
  let park=parkForStadium();
  const teams=[0,1].map(team=>({id:data.teams[team],name:data.teamNames[team],
@@ -215,7 +217,7 @@ const vecLength=value=>value?Math.hypot(value.x,value.y,value.z):0;
    ...(actor.bodyPoseV105?{bodyPoseV105:actor.bodyPoseV105}:{}),
    ...(actor.athleticV115?{athleticV115:actor.athleticV115}:{}),
    running:vecLength(actor.velocity)>0,walking:actor.action==='bench'||currentFrame.phase==='bench',
-   velocity:actor.velocity,presentationPose:actorAnimation?.actors[actor.playerId]?.pose,presentationAction:actorAnimation?.actors[actor.playerId]?.action,presentationFrame:actorAnimation?.actors[actor.playerId]?.frame};
+   velocity:actor.velocity,presentationArt:window.KneekuraArtBankV1?.actorArt({record:activeResult(),frame:currentFrame,actor,anim:actorAnimation?.actors[actor.playerId],ordinal:selected,batterHeight:playerById[batterId]?.height,sceneMs,preparationMs:timing.preparationMs}),presentationPose:actorAnimation?.actors[actor.playerId]?.pose,presentationAction:actorAnimation?.actors[actor.playerId]?.action,presentationFrame:actorAnimation?.actors[actor.playerId]?.frame};
  }
  function baseCameraForV83(frame,actors,fieldCameraV83=fieldCameraObservation,reactionV83=pitcherReactionView){
   if(options.camera==='catcher'&&catcherFollow)
@@ -388,7 +390,7 @@ const vecLength=value=>value?Math.hypot(value.x,value.y,value.z):0;
   takenPitchGaze=window.KneekuraLiveTakenPitchGaze.observe({record:result,frame:currentFrame,sceneMs,preparationMs:timing.preparationMs});
   catcherFollow=observeCatcher(result,currentFrame);
   batterGaze=window.KneekuraLiveBatterGaze.observe({record:result,frame:currentFrame,sceneMs,preparationMs:timing.preparationMs});
-  const world={liveOriginalVisualV1:(()=>{const p=result?.play?.diagnostics?.loosePitchV1?.sourceProvenance,id=p?.selection??p?.sourceId;return result?.pitcherPlayerId==='robin'&&currentFrame.ballKind==='pitch'&&p&&typeof id==='string'?{pitchId:id}:null})(),liveBaseUmpireCalls:window.KneekuraBaseUmpireCallsV1.observe(result,currentFrame.tick),liveObservation:true,awayHit:!!(result && result.beforeMatch.half==='top' && result.play.localScoringV100?.status==='confirmed' && result.play.localScoringV100.hits===1 && currentFrame.tick>=result.play.localScoringV100.atTick),liveBattingSetupV94:result?.play.diagnostics.battingSetupV94??window.KneekuraBattingSetupViewV94.resolveBatter(batter),livePark:state.fenceGeometry,liveBattedObservation:currentFrame.ballKind==='batted'||currentFrame.ballKind==='throw',
+  const world={liveOriginalVisualV1:(()=>{const p=result?.play?.diagnostics?.loosePitchV1?.sourceProvenance,id=p?.selection??p?.sourceId;return result?.pitcherPlayerId==='robin'&&currentFrame.ballKind==='pitch'&&p&&typeof id==='string'?{pitchId:id}:null})(),liveBaseUmpireCalls:window.KneekuraBaseUmpireCallsV1.observe(result,currentFrame.tick),liveUmpireArtV1:window.KneekuraArtBankV1?.umpireArt({record:result,frame:currentFrame,preparing:sceneStage()==='preparation',ordinal:selected,sceneMs,preparationMs:timing.preparationMs}),liveObservation:true,awayHit:!!(result && result.beforeMatch.half==='top' && result.play.localScoringV100?.status==='confirmed' && result.play.localScoringV100.hits===1 && currentFrame.tick>=result.play.localScoringV100.atTick),liveBattingSetupV94:result?.play.diagnostics.battingSetupV94??window.KneekuraBattingSetupViewV94.resolveBatter(batter),livePark:state.fenceGeometry,liveBattedObservation:currentFrame.ballKind==='batted'||currentFrame.ballKind==='throw',
    liveFieldObserverPlayerId:homeRunWatchV83?.observerPlayerId??fieldCameraObservation?.observerPlayerId??currentFrame.fieldObserverPlayerId??null,
     liveFieldGazeV99:result?.play.field&&currentFrame.ballKind!=='pitch'&&(options.camera==='fielder'||options.camera==='mound')?window.KneekuraLiveFieldGazeV99.observe({record:result,frame:currentFrame,bases:core.LIVE_MATCH_BASES_V1,defaultObserverPlayerId:fieldCameraObservation?.observerPlayerId??currentFrame.fieldObserverPlayerId,eyeHeightMeters:(actors.find(a=>a.sourcePlayerId===(fieldCameraObservation?.observerPlayerId??currentFrame.fieldObserverPlayerId))?.player.height??1.79)*.92}):null,
     liveFieldCameraTarget:homeRunWatchV83?.target??fieldCameraObservation?.target??null,liveCatcherCameraTarget:catcherFollow?.target??null,

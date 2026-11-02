@@ -9,6 +9,18 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   version:'live_batter_observation_v151';sourceId:string;ticksPerSecond:number;
   decisionAfterReleaseTicks:number;positionSampleIntervalTicks:number;deliveryLatencyTicks:number;
   maximumForecastAfterReleaseSeconds:number;memoryPolicy:BatterObservedMemoryPolicyV151;
+  /** Omitted: decide at the fixed tick. Present: keep watching until the swing
+   * must start, so a slower pitch gives a later and better look. */
+  commitSwingSeconds?:number;
+  /** Share of swings a batter keeps by count, [balls][strikes]. A hitter takes
+   * hittable strikes early in a count, then protects the plate with two strikes. */
+  countReadinessV1?:readonly (readonly number[])[];
+  /** How far outside the zone a batter will expand with two strikes, as swing score. */
+  twoStrikeExpansionV1?:number;
+  /** Reads the player's speed ceiling at contact instead of over the whole motion. */
+  contactSpeedCeilingV1?:boolean;
+  /** Share of the follow-through allowance kept: late contact meets a faster bat, so 1 lets the top exit speeds run away. */
+  contactSpeedCeilingShareV1?:number;
 }>;
 export const AUTHORED_LIVE_BATTER_OBSERVATION_V151:LiveBatterObservationPolicyV151 = Object.freeze({
   version:'live_batter_observation_v151',sourceId:'authored-position-observer-v151',ticksPerSecond:1_000_000,
@@ -17,10 +29,19 @@ export const AUTHORED_LIVE_BATTER_OBSERVATION_V151:LiveBatterObservationPolicyV1
   memoryPolicy:Object.freeze({version:'batter_observed_memory_policy_v151',sourceId:'authored-recent-forecast-memory-v151',
     maximumEntriesPerPair:3,unprofiledPriorWeight:.25}),
 });
+/** The match default from 2026-11-02. Values are provisional until the league calibration. */
+export const LIVE_MATCH_BATTER_OBSERVATION_V2:LiveBatterObservationPolicyV151 = Object.freeze({...AUTHORED_LIVE_BATTER_OBSERVATION_V151,
+  commitSwingSeconds:.32,contactSpeedCeilingV1:true,contactSpeedCeilingShareV1:.35,twoStrikeExpansionV1:.22,
+  countReadinessV1:Object.freeze([[.62,.85,1],[.72,.9,1],[.72,.95,1],[.12,.85,1]].map(row=>Object.freeze(row)))});
 function assert(value:unknown,message:string):asserts value {if(!value)throw Error('live batter observation v151: '+message);}
 export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterObservationPolicyV151 {
   const p=cloneInert(raw) as LiveBatterObservationPolicyV151,keys=['version','sourceId','ticksPerSecond','decisionAfterReleaseTicks',
     'positionSampleIntervalTicks','deliveryLatencyTicks','maximumForecastAfterReleaseSeconds','memoryPolicy'];
+  if(Object.hasOwn(p,'commitSwingSeconds')){keys.push('commitSwingSeconds');assert(Number.isFinite(p.commitSwingSeconds)&&p.commitSwingSeconds!>0&&p.commitSwingSeconds!<=1,'invalid commit swing seconds');}
+  if(Object.hasOwn(p,'countReadinessV1')){keys.push('countReadinessV1');assert(Array.isArray(p.countReadinessV1)&&p.countReadinessV1.length===4&&p.countReadinessV1.every(row=>Array.isArray(row)&&row.length===3&&row.every(v=>Number.isFinite(v)&&v>=0&&v<=1)),'invalid count readiness');}
+  if(Object.hasOwn(p,'contactSpeedCeilingShareV1')){keys.push('contactSpeedCeilingShareV1');assert(Number.isFinite(p.contactSpeedCeilingShareV1)&&p.contactSpeedCeilingShareV1!>=0&&p.contactSpeedCeilingShareV1!<=1,'invalid contact speed share');}
+  if(Object.hasOwn(p,'contactSpeedCeilingV1')){keys.push('contactSpeedCeilingV1');assert(typeof p.contactSpeedCeilingV1==='boolean','invalid contact speed ceiling');}
+  if(Object.hasOwn(p,'twoStrikeExpansionV1')){keys.push('twoStrikeExpansionV1');assert(Number.isFinite(p.twoStrikeExpansionV1)&&p.twoStrikeExpansionV1!>=0&&p.twoStrikeExpansionV1!<=1,'invalid two strike expansion');}
   assert(p&&typeof p==='object'&&!Array.isArray(p)&&Object.keys(p).length===keys.length&&keys.every(key=>Object.hasOwn(p,key))
     &&p.version==='live_batter_observation_v151'&&typeof p.sourceId==='string'&&p.sourceId.trim()===p.sourceId&&p.sourceId.length>0&&p.sourceId.length<=150,
   'invalid explicit position observation policy');
@@ -35,7 +56,7 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
 
 /** The physical owner exposes only a position and its canonical event tick.
  * Missing finite Source windows stop capture; no window extension is inferred. */
-export function createLiveBatterPositionObserverV151(input:Readonly<{policy:LiveBatterObservationPolicyV151;originTick:number;planeZ:number;forecastPolicyV246?:ObservedPitchForecastPolicyV246}>,
+export function createLiveBatterPositionObserverV151(input:Readonly<{policy:LiveBatterObservationPolicyV151;originTick:number;planeZ:number;forecastPolicyV246?:ObservedPitchForecastPolicyV246;motorLatencySeconds?:number}>,
   positionAtSeconds:(seconds:number)=>Readonly<{tick:number;position:Vec3}>|null, captureSnapshotV222=false) {
   const p=validateLiveBatterObservationPolicyV151(input.policy),origin=input.originTick,planeZ=input.planeZ;
   assert(Number.isSafeInteger(origin)&&origin>=0&&Number.isFinite(planeZ)
@@ -72,7 +93,21 @@ export function createLiveBatterPositionObserverV151(input:Readonly<{policy:Live
     assert(policyV246,'V246 policy not supplied');forecastAt(cutoffTick);const cached=resultsV246.get(cutoffTick);if(cached)return cached;
     const observations=observationsV246.get(cutoffTick)!;const result=deepFreeze(forecastObservedPitchV246({originTick:origin,ticksPerSecond:p.ticksPerSecond,cutoffTick,planeZ,maximumAfterReleaseSeconds:p.maximumForecastAfterReleaseSeconds,observations},policyV246));resultsV246.set(cutoffTick,result);return result;
   }
-  return Object.freeze({policy:p,decisionTick:origin+p.decisionAfterReleaseTicks,forecastAt,
+  /** Each step reads only what was observed by that tick, so the commitment
+   * time comes from the batter's own forecast and never from the true arrival. */
+  function commitTick() {
+    let tick=origin+p.decisionAfterReleaseTicks;
+    if(p.commitSwingSeconds===undefined)return tick;
+    const lead=p.commitSwingSeconds+(input.motorLatencySeconds??0);
+    for(;;){
+      const seen=forecastAt(tick).prediction;
+      if(!seen||(tick-origin)/p.ticksPerSecond+lead>=seen.arrivalAfterReleaseSeconds)return tick;
+      const next=tick+p.positionSampleIntervalTicks;
+      if(next-origin>p.maximumForecastAfterReleaseSeconds*p.ticksPerSecond||forecastAt(next).status!=='PREDICTED')return tick;
+      tick=next;
+    }
+  }
+  return Object.freeze({policy:p,decisionTick:commitTick(),forecastAt,
     ...(captureSnapshotV222?{snapshotAt:(cutoffTick:number)=>{forecastAt(cutoffTick);return snapshots.get(cutoffTick)}}:{}),
     ...(policyV246?{forecastAtV246,snapshotAtV246:(cutoffTick:number)=>{const result=forecastAtV246(cutoffTick);return deepFreeze({version:'live_observed_forecast_snapshot_v246' as const,originTick:origin,ticksPerSecond:p.ticksPerSecond,cutoffTick,planeZ,maximumAfterReleaseSeconds:p.maximumForecastAfterReleaseSeconds,policy:policyV246,observations:observationsV246.get(cutoffTick)!,result});}}:{})});
 }

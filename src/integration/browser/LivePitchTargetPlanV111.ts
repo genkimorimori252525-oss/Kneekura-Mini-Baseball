@@ -8,10 +8,10 @@ import {validateZoneRecognitionV87,type ZoneRecognitionV87} from './ZoneRecognit
 export type LivePitchSituationV111=Readonly<{balls:number;strikes:number;outs:number;
  occupiedBases:Readonly<{first:boolean;second:boolean;third:boolean}>}>;
 type Position=Readonly<{x:number;y:number}>;
-type CommandInput=Readonly<{position:Position;zone:BatterCourseZoneV79;bats:'R'|'L';commandStdMeters:number;technicalSkills?:TechnicalSkillControlsV75}>;
+type CommandInput=Readonly<{position:Position;zone:BatterCourseZoneV79;bats:'R'|'L';commandStdMeters:number;technicalSkills?:TechnicalSkillControlsV75;throws?:'R'|'L'}>;
 export type LivePitchTargetPlanInputV111=Readonly<{
  zone:BatterCourseZoneV79;ballRadiusMeters:number;seed:number;situation:LivePitchSituationV111;
- pitcher:Readonly<{commandStdMeters:number;technicalSkills?:TechnicalSkillControlsV75;zoneRecognitionV87?:ZoneRecognitionV87}>;
+ pitcher:Readonly<{commandStdMeters:number;technicalSkills?:TechnicalSkillControlsV75;zoneRecognitionV87?:ZoneRecognitionV87;throws?:'R'|'L'}>;
  catcher?:Readonly<{zoneRecognitionV87?:ZoneRecognitionV87}>;
  batter:Readonly<{bats:'R'|'L';heightMeters?:number;maximumSweetSpotSpeedMps?:number;targetSweetSpotSpeedMps?:number;
   aimStdMeters:number;timingStdSeconds:number;chaseMarginMeters:number;plateVision?:number;zoneJudgmentStdMeters?:number;badBallControl?:number;
@@ -48,10 +48,26 @@ export function resolveLivePitchCommandStdV111(input:CommandInput){
   lowZoneCommandStd=lowZoneTechniqueActive?commandStdMeters/(1+.6*lowZoneTechnique):commandStdMeters,
   insideTechnique=technicalSkills?.inside_command??0,
   insideTargetWeight=insideTechnique>0?techniqueBlend((target.x*batterSide/zone.halfWidth-.45)/.55):0,
-  effectiveCommandStd=insideTargetWeight>0?lowZoneCommandStd/(1+.6*insideTechnique*insideTargetWeight):lowZoneCommandStd;
+  techniqueCommandStd=insideTargetWeight>0?lowZoneCommandStd/(1+.6*insideTechnique*insideTargetWeight):lowZoneCommandStd,
+  // Both act only on the command error of that condition. Omitted skills leave the value exact.
+  platoon=input.bats==='L'?technicalSkills?.pitch_platoon_left??0:0,
+  diagonal=(technicalSkills?.diagonal_command??0)*(input.throws===undefined?0:techniqueBlend((target.x*(input.throws==='L'?-1:1)/zone.halfWidth-.2)/.6)),
+  connectedScale=platoon===0&&diagonal===0?1:(platoon<0?1-.6*platoon:1/(1+.6*platoon))/(1+.6*diagonal),
+  effectiveCommandStd=connectedScale===1?techniqueCommandStd:techniqueCommandStd*connectedScale;
  return {lowZoneTechnique,lowZoneTechniqueActive,lowZoneCommandStd,insideTechnique,insideTargetWeight,effectiveCommandStd};
 }
 function techniqueBlend(u:number){const t=clamp(u,0,1);return t*t*(3-2*t);}
+/** A large miss leans in a known direction: 一発 toward the middle, 逃げ球 away from it,
+ * 抜け球 up and to the arm side. No draw is added, so every later sample stays in place. */
+export function shapeLiveCommandMissV1(error:Position,input:Readonly<{target:Position;zone:BatterCourseZoneV79;commandStdMeters:number;throws?:'R'|'L';technicalSkills?:TechnicalSkillControlsV75}>):Position{
+ const danger=input.technicalSkills?.dangerous_miss??0,release=input.technicalSkills?.release_miss_pattern??0;
+ if(danger===0&&release===0||input.commandStdMeters<=0)return error;
+ const std=input.commandStdMeters,miss=techniqueBlend((Math.hypot(error.x,error.y)/std-1.25)/.75);
+ if(miss===0)return error;
+ const toX=(input.zone.centerX??0)-input.target.x,toY=(input.zone.lowerY+input.zone.upperY)/2-input.target.y,length=Math.hypot(toX,toY)||1,
+  lean=-danger*miss*std*.75,side=input.throws==='L'?1:-1,slip=release*miss*std*.5;
+ return {x:error.x+toX/length*lean+side*slip,y:error.y+toY/length*lean+slip};
+}
 
 /** Normal CDF approximation (absolute error < 8e-8). This models uncertainty,
  * and never samples the actual later command error or changes the live Source. */
@@ -95,10 +111,14 @@ export function planLivePitchTargetV111(raw:LivePitchTargetPlanInputV111){
  const course=batter.batterCourseProfileV87===undefined?undefined:validateBatterCourseProfileV87(batter.batterCourseProfileV87),
   occupied=situation.occupiedBases,runnerCost=.10*Number(occupied.first)+.16*Number(occupied.second)+.20*Number(occupied.third),
   forcedRun=Number(occupied.first&&occupied.second&&occupied.third),
-  walkCost=forcedRun+(.34+.13*Number(occupied.first)+.08*Number(occupied.second)+.04*Number(occupied.third))*(1-.20*situation.outs),
+  // 四球: nibbling is a choice about how much a walk is feared, never a worse command.
+  walkProne=pitcher.technicalSkills?.walk_prone_approach??0,earlyApproach=pitcher.technicalSkills?.early_count_approach??0,
+  walkCost=(forcedRun+(.34+.13*Number(occupied.first)+.08*Number(occupied.second)+.04*Number(occupied.third))*(1-.20*situation.outs))*(walkProne===0?1:1/(1+.5*walkProne)),
   precision=1/(1+batter.aimStdMeters*20+batter.timingStdSeconds*30),
   motorSpeed=batter.targetSweetSpotSpeedMps??batter.maximumSweetSpotSpeedMps??32,
   batterThreat=clamp((motorSpeed/34)**2*(.7+.6*precision),.05,6),
+  // 対強打者: more care in choosing where to throw to a hitter who can really hurt; the pitch itself is unchanged.
+  strongBatterCare=1+.25*(pitcher.technicalSkills?.pitch_strong_batter_response??0)*clamp(batterThreat-1,0,1),
   threshold=batter.swingDecision?.threshold??.5,aggression=batter.swingDecision?.aggressionWeight??.5,
   zoneSwing=batter.swingDecision?.approach==='TAKE'?0:batter.swingDecision?.approach==='SWING'?1:clamp(.80+(.5-threshold)*.3+(aggression-.5)*.2,.3,.98),
   chaseSwing=batter.swingDecision?.approach==='TAKE'?0:batter.swingDecision?.approach==='SWING'?1:clamp(.32+(.5-threshold)*.5+(aggression-.5)*.3+(batter.zoneJudgmentStdMeters??0)*.5,.05,.9),
@@ -111,7 +131,7 @@ export function planLivePitchTargetV111(raw:LivePitchTargetPlanInputV111){
   if(classification.courseIndex===null)return;
   const courseIndex=classification.courseIndex,pc=pitcher.zoneRecognitionV87?.pitcher?.cells[courseIndex]??neutral,
    cc=input.catcher?.zoneRecognitionV87?.catcher?.cells[courseIndex]??neutral,
-   {effectiveCommandStd}=resolveLivePitchCommandStdV111({position,zone,bats:batter.bats,commandStdMeters:pitcher.commandStdMeters,technicalSkills:pitcher.technicalSkills}),
+   {effectiveCommandStd}=resolveLivePitchCommandStdV111({position,zone,bats:batter.bats,commandStdMeters:pitcher.commandStdMeters,technicalSkills:pitcher.technicalSkills,throws:pitcher.throws}),
    std=effectiveCommandStd*pc.uncertaintyScale,mean={x:x+pc.biasXM,y:y+pc.biasYM},r=input.ballRadiusMeters,
    pStrike=rectangle(mean,std,cx-zone.halfWidth-r,cx+zone.halfWidth+r,zone.lowerY-r,zone.upperY+r),
    pHeart=Math.min(pStrike,rectangle(mean,std,cx-zone.halfWidth*.48,cx+zone.halfWidth*.48,cy-halfHeight*.48,cy+halfHeight*.48)),
@@ -126,7 +146,7 @@ export function planLivePitchTargetV111(raw:LivePitchTargetPlanInputV111){
    consistency=course?1/clamp(1-1.25*(course.referenceAverages[publicCourse.courseIndex]-.25)*course.effectScale,.75,1.25):1,
    verticalTechnique=y<cy?(batter.technicalSkills?.low_zone_hitting??0):(batter.technicalSkills?.high_zone_hitting??0),
    damage=batterThreat*consistency*(1+.06*verticalTechnique)*(1+runnerCost)*(1-.10*situation.outs),
-   contactCost=(contactH*.34+contactE*.25+contactC*.12)*damage*(1-foulShare),
+   contactCost=(contactH*.34+contactE*.25+contactC*.12)*damage*(1-foulShare)*strongBatterCare,
    captureRiskCost=Math.min(.12,.012*(Math.hypot(cc.biasXM,cc.biasYM)/.15)**2+.004*Math.max(0,cc.uncertaintyScale-1)),
    batterSide=batter.bats==='R'?-1:1,
    location=y<zone.lowerY?'low':y>zone.upperY?'high':x<cx-zone.halfWidth||x>cx+zone.halfWidth
@@ -151,7 +171,9 @@ export function planLivePitchTargetV111(raw:LivePitchTargetPlanInputV111){
   if(balls===3&&c.pStrike<challengeProbabilityFloor)return Infinity;
   const nextBall=balls===3?walkCost:values[balls+1][strikes],nextStrike=strikes===2?0:values[balls][strikes+1],
    selfLoop=strikes===2?c.events.foul:0;
-  return (c.contactCost+c.captureRiskCost+c.preferenceCost+.001+c.events.ball*nextBall
+  // ボール先行/ストライク先行: a preference over the first pitches only; an explicit location skips this plan.
+  const approach=earlyApproach!==0&&balls+strikes<=1?earlyApproach*.06*(1-c.pStrike):0;
+  return (c.contactCost+c.captureRiskCost+c.preferenceCost+.001+approach+c.events.ball*nextBall
    +(c.events.strike+(strikes<2?c.events.foul:0))*nextStrike)/(1-selfLoop);
  });
  // Every nonterminal transition increases balls or strikes; only a two-strike

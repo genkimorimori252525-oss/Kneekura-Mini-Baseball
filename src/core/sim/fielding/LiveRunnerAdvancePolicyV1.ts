@@ -8,6 +8,13 @@ export const LIVE_RUNNER_ADVANCE_POLICY_V1 = Object.freeze({
   recognitionSeconds: 0,
 });
 
+/** Authored tactical shape, UNMEASURED: no real-game calibration. Used only when `tacticsV1` is passed. */
+export const LIVE_RUNNER_TACTICS_POLICY_V1 = Object.freeze({
+  lineDriveReadSeconds: .25, lineDriveMarginScale: 2,
+  halfwayMaxLandingDepthMeters: 60, halfwayMaxCatchMarginSeconds: .8, halfwayLongHangSeconds: 1.2, halfwayShortHangSeconds: .6,
+  halfwayLongFraction: .5, halfwayShortFraction: .3,
+});
+
 export type LiveRunnerAdvanceInputV1 = Readonly<{
   nowSeconds: number;
   playStartedAtSeconds: number;
@@ -28,14 +35,19 @@ export type LiveRunnerAdvanceInputV1 = Readonly<{
   defenderControlSeconds: number | null;
   /** Perceived pre-ground interception margin from an already observed ball.
    * Positive favours a catch; negative favours a hit. This is not a result. */
-  airborneAssessment?: Readonly<{ observedAtSeconds: number; catchMarginSeconds: number }>;
+  airborneAssessment?: Readonly<{ observedAtSeconds: number; catchMarginSeconds: number;
+    /** Observed flat and hard launch. Only read when `tacticsV1` is passed. */
+    lineDrive?: boolean }>;
+  /** Opt-in runner tactics. Omitted keeps the legacy decision. `contactLeg` is true while the runner has not yet
+   * left his origin base; with two outs that leg is a go-on-contact for the whole play, not only before first contact. */
+  tacticsV1?: Readonly<{ contactLeg: boolean }>;
   policy?: Readonly<{ safetyMarginSeconds?: number; recognitionSeconds?: number }>;
 }>;
 
 export type LiveRunnerAdvanceReasonV1 = 'target_occupied' | 'awaiting_legal_departure'
   | 'recognizing_departure_cue' | 'batter_advance' | 'award_advance' | 'forced_advance' | 'two_out_advance'
   | 'no_defense_forecast' | 'insufficient_safety_margin' | 'safe_race_advance'
-  | 'airborne_catch_risk_hold' | 'airborne_hit_read_advance';
+  | 'airborne_catch_risk_hold' | 'airborne_hit_read_advance' | 'line_drive_freeze_hold' | 'halfway_wait';
 
 export type LiveRunnerAdvanceDecisionV1 = Readonly<{
   advance: boolean;
@@ -100,7 +112,8 @@ export function decideLiveRunnerAdvanceV1(input: LiveRunnerAdvanceInputV1): Live
     input.runner.topSpeedMps, input.runner.accelerationMps2, input.baseTouchRadiusMeters ?? 0),
     award = input.awardThroughBase !== undefined && input.awardThroughBase !== null && input.awardThroughBase > input.currentBase,
     batter = input.currentBase === 0,
-    twoOuts = input.outs === 2 && input.firstGroundContactElapsedSeconds === null && input.firstFielderTouchElapsedSeconds === null,
+    twoOuts = input.outs === 2 && (input.tacticsV1 !== undefined ? input.tacticsV1.contactLeg
+      : input.firstGroundContactElapsedSeconds === null && input.firstFielderTouchElapsedSeconds === null),
     groundedForce = input.forced && input.firstGroundContactElapsedSeconds !== null,
     available = cues.filter((cue): cue is number => cue !== null),
     airborne = available.length === 0 && input.airborneAssessment !== undefined,
@@ -124,7 +137,30 @@ export function decideLiveRunnerAdvanceV1(input: LiveRunnerAdvanceInputV1): Live
   if (batter) return result(true, 'batter_advance');
   if (twoOuts) return result(true, 'two_out_advance');
   if (groundedForce) return result(true, 'forced_advance');
+  if (airborne && input.tacticsV1 !== undefined && input.airborneAssessment!.lineDrive) {
+    const T = LIVE_RUNNER_TACTICS_POLICY_V1;
+    if (input.nowSeconds < input.airborneAssessment!.observedAtSeconds + T.lineDriveReadSeconds
+      || input.airborneAssessment!.catchMarginSeconds >= -safetyMargin * T.lineDriveMarginScale) return result(false, 'line_drive_freeze_hold');
+  }
   if (airborne && input.airborneAssessment!.catchMarginSeconds >= -safetyMargin) return result(false, 'airborne_catch_risk_hold');
   if (raceMarginSeconds === null) return result(false, 'no_defense_forecast');
   return raceMarginSeconds > safetyMargin ? result(true, airborne ? 'airborne_hit_read_advance' : 'safe_race_advance') : result(false, 'insufficient_safety_margin');
+}
+
+export type LiveRunnerHalfwayInputV1 = Readonly<{
+  outs: 0 | 1 | 2; currentBase: 0 | 1 | 2 | 3; atOrigin: boolean; hasGroundOrFielderCue: boolean; safetyMarginSeconds: number;
+  /** Observed ball read only: no result. Landing depth is the predicted ground point from home plate. */
+  airborne?: Readonly<{ catchMarginSeconds: number; lineDrive?: boolean; landingDepthMeters?: number; hangSeconds?: number }>;
+}>;
+
+/** Under two outs, a non-tag runner on a catchable shallow fly goes partway and waits: retreat on a catch,
+ * go on a drop. Deep flies stay a tag-up; liners freeze; a sure catch holds the bag. Pure, no random draws. */
+export function decideLiveRunnerHalfwayV1(input: LiveRunnerHalfwayInputV1): Readonly<{ halfway: boolean; fraction: number }> {
+  const T = LIVE_RUNNER_TACTICS_POLICY_V1, a = input.airborne, none = Object.freeze({ halfway: false, fraction: 0 });
+  if (input.outs >= 2 || input.currentBase < 1 || input.currentBase > 2 || !input.atOrigin || input.hasGroundOrFielderCue || !a || a.lineDrive
+    || a.landingDepthMeters === undefined || !Number.isFinite(a.landingDepthMeters) || a.landingDepthMeters >= T.halfwayMaxLandingDepthMeters
+    || a.hangSeconds === undefined || !Number.isFinite(a.hangSeconds)
+    || a.catchMarginSeconds < -input.safetyMarginSeconds || a.catchMarginSeconds > T.halfwayMaxCatchMarginSeconds) return none;
+  return a.hangSeconds >= T.halfwayLongHangSeconds ? Object.freeze({ halfway: true, fraction: T.halfwayLongFraction })
+    : a.hangSeconds >= T.halfwayShortHangSeconds ? Object.freeze({ halfway: true, fraction: T.halfwayShortFraction }) : none;
 }

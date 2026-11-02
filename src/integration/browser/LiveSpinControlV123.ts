@@ -102,3 +102,5 @@ export function selectLiveSpinIntentV123(raw:LiveSpinIntentInputV123){
  return result('APPLIED',t);
 }
 export type LiveSpinIntentV123=ReturnType<typeof selectLiveSpinIntentV123>;
+/** For a match, where an undecidable intent means a normal swing rather than a stopped game. */
+export function selectLiveSpinIntentOrNoneV123(raw:LiveSpinIntentInputV123):LiveSpinIntentV123|null{try{return selectLiveSpinIntentV123(raw);}catch{return null;}}

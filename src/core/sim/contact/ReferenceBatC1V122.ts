@@ -61,44 +61,70 @@ const accelerationBound = (c:Cubic,seconds:number) => {
   const d=derivativeControls(c,seconds);return Math.max(...d.slice(1).map((v,i)=>norm(scale(sub(v,d[i]),2/seconds))));
 };
 
+type Frames = ReferenceBatKinematicsInputV1['frames'];
+type UnitBounds = Readonly<{gripSpeed:number;gripAcceleration:number;angularSpeed:number;angularAcceleration:number}>;
+type ClipAnalysis = Readonly<{frames:Frames;sourceTicksPerSecond:number;finiteEnvelope:boolean;positions:readonly Coordinates[];rotations:readonly Coordinates[];
+  segments:readonly Readonly<{grip:Cubic;orientation:Cubic;seconds:number;minimumNorm:number;bounds:UnitBounds}>[]}>;
+/** The clip's curves and proofs do not depend on the world transform or the
+ * playback rate, and one swing search asks for them hundreds of times. A hit
+ * compares every frame value, so it can only return what a fresh run would. */
+const clipAnalyses=new Map<string,ClipAnalysis[]>(),CLIP_ANALYSIS_LIMIT=512;
+const sameVector=(a:Vec3,b:Vec3)=>Object.is(a.x,b.x)&&Object.is(a.y,b.y)&&Object.is(a.z,b.z);
+const sameFrames=(a:Frames,b:Frames)=>a.length===b.length&&a.every((f,i)=>{
+  const g=b[i],p=f.orientation,q=g.orientation;
+  return Object.is(f.tick,g.tick)&&sameVector(f.grip,g.grip)&&Object.is(p.x,q.x)&&Object.is(p.y,q.y)&&Object.is(p.z,q.z)&&Object.is(p.w,q.w);
+});
+function analyzeClip(frames:Frames,sourceTicksPerSecond:number,finiteEnvelope:boolean):ClipAnalysis {
+  const head=frames[0],tail=frames.at(-1)!,key=[frames.length,sourceTicksPerSecond,finiteEnvelope,head.tick,tail.tick,head.grip.x,head.grip.y,head.grip.z,tail.grip.x,tail.grip.y,tail.grip.z,tail.orientation.w].join('|');
+  const bucket=clipAnalyses.get(key)??[],hit=bucket.find(c=>c.sourceTicksPerSecond===sourceTicksPerSecond&&c.finiteEnvelope===finiteEnvelope&&sameFrames(c.frames,frames));
+  if(hit)return hit;
+  const ticks=frames.map(f=>f.tick),positions=frames.map(f=>vector(f.grip)),rotations:number[][]=[];
+  frames.forEach(f=>{
+    let q=quaternion(normalizeQuaternion(f.orientation));
+    if(rotations.length&&dot(q,rotations.at(-1)!)<0)q=scale(q,-1);
+    rotations.push(q);
+  });
+  const positionTangents=positions.map((_,i)=>tangent(positions,ticks,sourceTicksPerSecond,i,finiteEnvelope));
+  const rotationTangents=rotations.map((q,i)=>{
+    const d=tangent(rotations,ticks,sourceTicksPerSecond,i,finiteEnvelope);return sub(d,scale(q,dot(q,d)));
+  });
+  const segments=frames.slice(1).map((_,i)=>{
+    const seconds=(ticks[i+1]-ticks[i])/sourceTicksPerSecond;assert(Number.isFinite(seconds)&&seconds>0,'invalid finite interval');
+    const grip=controls(positions[i],positions[i+1],positionTangents[i],positionTangents[i+1],seconds);
+    const orientation=controls(rotations[i],rotations[i+1],rotationTangents[i],rotationTangents[i+1],seconds);
+    const minimumNorm=certifyReferenceQuaternionCubicV122(orientation);
+    // Same polynomial derivative hull/norm inequalities as PostImpact. The
+    // subdivision changes only certificates, never the execution curve.
+    const bound=(g:Cubic,q:Cubic,duration:number,depth:number):UnitBounds=>{
+      if(depth){const [ga,gb]=split(g),[qa,qb]=split(q),a=bound(ga,qa,duration/2,depth-1),b=bound(gb,qb,duration/2,depth-1);
+        return {gripSpeed:Math.max(a.gripSpeed,b.gripSpeed),gripAcceleration:Math.max(a.gripAcceleration,b.gripAcceleration),
+          angularSpeed:Math.max(a.angularSpeed,b.angularSpeed),angularAcceleration:Math.max(a.angularAcceleration,b.angularAcceleration)};}
+      const n=certifyReferenceQuaternionCubicV122(q),d=Math.max(...derivativeControls(q,duration).map(norm)),dd=accelerationBound(q,duration);
+      return {gripSpeed:Math.max(...derivativeControls(g,duration).map(norm)),gripAcceleration:accelerationBound(g,duration),
+        angularSpeed:2*d/n,angularAcceleration:2*dd/n+6*d*d/(n*n)};
+    };
+    return {grip,orientation,seconds,minimumNorm,bounds:bound(grip,orientation,seconds,3)};
+  });
+  if(clipAnalyses.size>=CLIP_ANALYSIS_LIMIT)clipAnalyses.clear();
+  const analysis=Object.freeze({frames,sourceTicksPerSecond,finiteEnvelope,positions,rotations,segments});
+  clipAnalyses.set(key,[...(clipAnalyses.get(key)??[]),analysis]);
+  return analysis;
+}
+
 /** Author-declared execution interpolation, NOT a measured continuous
  * reconstruction. The caller validated the immutable source input. Positions
  * use shared central Hermite tangents, hemisphere-aligned quaternion cubics use
  * shared tangent-space derivatives, and endpoints join stationary holds in C1.
  * This supplies mathematical bounds, never an athlete's ability or authority. */
 export function createReferenceBatC1V122(input: ReferenceBatKinematicsInputV1) {
-  const frames=input.frames,first=frames[0],last=frames.at(-1)!,ticks=frames.map(f=>f.tick);
-  const positions=frames.map(f=>vector(f.grip)),rotations:number[][]=[];
-  frames.forEach(f=>{
-    let q=quaternion(normalizeQuaternion(f.orientation));
-    if(rotations.length&&dot(q,rotations.at(-1)!)<0)q=scale(q,-1);
-    rotations.push(q);
-  });
+  const frames=input.frames,first=frames[0],last=frames.at(-1)!;
   const finiteEnvelope=Object.hasOwn(input,'executionEnvelopeV133');
-  const positionTangents=positions.map((_,i)=>tangent(positions,ticks,input.sourceTicksPerSecond,i,finiteEnvelope));
-  const rotationTangents=rotations.map((q,i)=>{
-    const d=tangent(rotations,ticks,input.sourceTicksPerSecond,i,finiteEnvelope);return sub(d,scale(q,dot(q,d)));
-  });
+  const clip=analyzeClip(frames,input.sourceTicksPerSecond,finiteEnvelope),positions=clip.positions,rotations=clip.rotations;
   const rotation=normalizeQuaternion(input.transform.rotation),length=input.batLengthM*input.transform.scale,radius=length*input.sweetSpotT;
-  const segments=frames.slice(1).map((_,i)=>{
-    const seconds=(ticks[i+1]-ticks[i])/input.sourceTicksPerSecond;assert(Number.isFinite(seconds)&&seconds>0,'invalid finite interval');
-    const grip=controls(positions[i],positions[i+1],positionTangents[i],positionTangents[i+1],seconds);
-    const orientation=controls(rotations[i],rotations[i+1],rotationTangents[i],rotationTangents[i+1],seconds);
-    const minimumNorm=certifyReferenceQuaternionCubicV122(orientation);
-    // Same polynomial derivative hull/norm inequalities as PostImpact. The
-    // subdivision changes only certificates, never the execution curve.
-    const bound=(g:Cubic,q:Cubic,duration:number,depth:number):{gripSpeed:number;gripAcceleration:number;angularSpeed:number;angularAcceleration:number}=>{
-      if(depth){const [ga,gb]=split(g),[qa,qb]=split(q),a=bound(ga,qa,duration/2,depth-1),b=bound(gb,qb,duration/2,depth-1);
-        return {gripSpeed:Math.max(a.gripSpeed,b.gripSpeed),gripAcceleration:Math.max(a.gripAcceleration,b.gripAcceleration),
-          angularSpeed:Math.max(a.angularSpeed,b.angularSpeed),angularAcceleration:Math.max(a.angularAcceleration,b.angularAcceleration)};}
-      const n=certifyReferenceQuaternionCubicV122(q),d=Math.max(...derivativeControls(q,duration).map(norm)),dd=accelerationBound(q,duration);
-      return {gripSpeed:Math.max(...derivativeControls(g,duration).map(norm))*input.transform.scale*input.playbackRate,
-        gripAcceleration:accelerationBound(g,duration)*input.transform.scale*input.playbackRate**2,
-        angularSpeed:2*d/n*input.playbackRate,
-        angularAcceleration:(2*dd/n+6*d*d/(n*n))*input.playbackRate**2};
-    };
-    return {grip,orientation,seconds,minimumNorm,bounds:bound(grip,orientation,seconds,3)};
-  });
+  // Positive scaling preserves which subdivision held each maximum.
+  const segments=clip.segments.map(s=>({...s,bounds:{gripSpeed:s.bounds.gripSpeed*input.transform.scale*input.playbackRate,
+    gripAcceleration:s.bounds.gripAcceleration*input.transform.scale*input.playbackRate**2,
+    angularSpeed:s.bounds.angularSpeed*input.playbackRate,angularAcceleration:s.bounds.angularAcceleration*input.playbackRate**2}}));
   const maximumGripSpeedMps=Math.max(...segments.map(s=>s.bounds.gripSpeed));
   const maximumAngularSpeedRadPerSecond=Math.max(...segments.map(s=>s.bounds.angularSpeed));
   const maximumGripAccelerationMps2=Math.max(...segments.map(s=>s.bounds.gripAcceleration));

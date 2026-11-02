@@ -157,3 +157,31 @@ export const deriveRunnerAdvanceRiskPolicy = (
     minimumAdvanceSafetyMarginTicks,
   };
 };
+
+/** Authored live-path risk shape, UNMEASURED: no real-game calibration. Ticks are 1e-6 s here so the
+ * existing tick policy is reused unchanged; the runner's own margin is the base. */
+export const LIVE_RUNNER_RISK_V1 = Object.freeze({
+  ticksPerSecond: 1_000_000, twoOutAdjustmentTicks: -50_000, lateTrailingAdjustmentTicks: -100_000,
+  lateLeadingAdjustmentTicks: 100_000, thirdBaseOutPenaltyTicks: 150_000, minimumMarginTicks: 50_000, maximumMarginTicks: 1_000_000,
+});
+
+/** Only facts a runner knows: outs, inning, score and the base he is thinking of taking. */
+export type LiveRunnerRiskFactsV1 = Readonly<{
+  baseMarginSeconds: number; outs: 0 | 1 | 2; inning: number; regulationInnings: number;
+  battingRuns: number; defendingRuns: number; targetBase: 1 | 2 | 3 | 4; forced: boolean;
+}>;
+
+/** Elective advance margin in seconds. More aggressive with two outs and when trailing late, more careful when
+ * leading late, and never the first or third out of an inning at third base unless forced. */
+export const deriveLiveRunnerSafetyMarginSecondsV1 = (facts: LiveRunnerRiskFactsV1): number => {
+  const L = LIVE_RUNNER_RISK_V1, baseTicks = Math.round(facts.baseMarginSeconds * L.ticksPerSecond);
+  const policy = deriveRunnerAdvanceRiskPolicy({
+    ruleProfileId: 'live-runner-risk-v1' as CanonicalMatchState['ruleProfileId'], inning: facts.inning, half: 'top', outs: facts.outs, balls: 0, strikes: 0,
+    bases: { first: null, second: null, third: null }, score: { away: facts.battingRuns, home: facts.defendingRuns }, playId: 0,
+  }, { regulationInnings: facts.regulationInnings, calibration: {
+    baseAdvanceSafetyMarginTicks: baseTicks, twoOutAdjustmentTicks: L.twoOutAdjustmentTicks,
+    lateTrailingAdjustmentTicks: L.lateTrailingAdjustmentTicks, lateLeadingAdjustmentTicks: L.lateLeadingAdjustmentTicks,
+    minimumAdvanceSafetyMarginTicks: Math.min(baseTicks, L.minimumMarginTicks), maximumAdvanceSafetyMarginTicks: Math.max(baseTicks, L.maximumMarginTicks) } });
+  const penalty = facts.targetBase === 3 && !facts.forced && facts.outs !== 1 ? L.thirdBaseOutPenaltyTicks : 0;
+  return (policy.minimumAdvanceSafetyMarginTicks + penalty) / L.ticksPerSecond;
+};

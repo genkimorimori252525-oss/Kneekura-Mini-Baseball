@@ -3280,6 +3280,28 @@
     cache8.set(g, mesh2);
     return mesh2;
   }
+  // Live scoreboard (display only). Cells that sampled a scoreboard material keep a closure that
+  // re-samples that material from liveGeometry, so the board can change without rebuilding the stadium.
+  var liveGeometry = null;
+  var liveBoard = null, liveBase = null, liveBoardKey = "";
+  var BOARD_MATERIAL = /^(scoreboard|paypay:vision|niikura:main-scoreboard|koshien:score|dodger:score)/;
+  function sampleBoardLive(g, material, u, v, profile) {
+    if (material.startsWith("paypay:")) return samplePaypayMaterial(material, u, v, profile, g);
+    if (material.startsWith("niikura:")) return sampleNiikuraMaterial(material, u, v, profile, g);
+    if (material.startsWith("koshien:")) return sampleKoshienMaterial(material, u, v, profile, g);
+    if (material.startsWith("dodger:")) return sampleDodgerMaterial(material, u, v, profile, g);
+    return sampleScoreboard(g, material, u, v, profile);
+  }
+  function liveGeometryFor(base) {
+    if (!liveBoard || !base) return null;
+    const key = JSON.stringify(liveBoard);
+    if (liveBase !== base || liveBoardKey !== key) {
+      liveGeometry = { ...base, architecture: { ...base.architecture, scoreboard: { ...(base.architecture.scoreboard ?? {}), ...liveBoard } } };
+      liveBase = base;
+      liveBoardKey = key;
+    }
+    return liveGeometry;
+  }
   function renderStadium({ geometry: g, project, paint, grid, cam, cutaway = false, crowd = { frame: 0, frames: 3, visible: true }, onEffectOcclusion = null }) {
     const m = stadiumMesh(g);
     if (!m) return null;
@@ -3289,7 +3311,7 @@
     let lightPoint = null;
     let cells2 = 0, triangles = 0, omitted = 0, crowdCells = 0, ledCells = 0, glowEnergy = 0, fineCells = 0, emblemCells = 0, fineGeometryOccluded = 0;
     const spatial = spatialLight(g, m), shadeCrowdDiffuse = (c) => spatial ? spatial.color(c, lightPoint, false) : c, lighting = spatial ? { ...g.architecture.effects.lighting, enabled: spatial.on } : g.architecture.effects?.lighting, lightOverride = !!spatial || !neutralLighting(lighting);
-    const emit = (x, y, d, color, glow = 0, density = 1, surfaceId = null, alpha = 1, prelit = false) => {
+    const emit = (x, y, d, color, glow = 0, density = 1, surfaceId = null, alpha = 1, prelit = false, altColor = null, resample = null) => {
       if (Number.isFinite(d) && d >= 0.121) {
         if (lightOverride && surfaceId?.includes("lamp")) {
           const on = lighting.enabled && lighting.brightness > 0;
@@ -3297,7 +3319,7 @@
           glow = on ? Math.sqrt(lighting.brightness) * 5 : 0;
         }
         if (spatial && !prelit) color = spatial.color(color, lightPoint, /score|clock|lamp/.test(surfaceId ?? "") || glow > 0);
-        paint(x, y, d, color, alpha, "ballpark", glow, density, surfaceId);
+        paint(x, y, d, color, alpha, "ballpark", glow, density, surfaceId, altColor, resample ? ((point) => () => { const s = resample(); if (!s) return null; return { color: spatial && !prelit ? spatial.color(s.color, point, /score|clock|lamp/.test(surfaceId ?? "") || glow > 0) : s.color, alpha: s.alpha ?? 1 }; })(lightPoint) : null);
         cells2++;
         if (density > 1) fineCells++;
       }
@@ -3323,7 +3345,25 @@
       }
       if (x0 > x1 || y0 > y1) return;
       triangles++;
-      for (let y = y0; y <= y1 + 1e-8; y += step / density) for (let x = x0; x <= x1 + 1e-8; x += step / density) {
+      for (let y = y0; y <= y1 + 1e-8; y += step / density) {
+        let left = Infinity, right = -Infinity;
+        for (const [p, q] of [[a, b], [b, c], [c, a]]) {
+          if (y < Math.min(p.y, q.y) - 0.01 || y > Math.max(p.y, q.y) + 0.01) continue;
+          if (Math.abs(q.y - p.y) < 0.01) {
+            left = Math.min(left, p.x, q.x);
+            right = Math.max(right, p.x, q.x);
+            continue;
+          }
+          const t = Math.min(1, Math.max(0, (y - p.y) / (q.y - p.y))), at = p.x + (q.x - p.x) * t;
+          left = Math.min(left, at);
+          right = Math.max(right, at);
+        }
+        if (left === Infinity) continue;
+        left -= 0.01;
+        right += 0.01;
+        for (let x = x0; x <= x1 + 1e-8; x += step / density) {
+          if (x < left) continue;
+          if (x > right) break;
         const u = edge(b, c, x, y) / area, v = edge(c, a, x, y) / area, w = 1 - u - v;
         if (u >= -1e-8 && v >= -1e-8 && w >= -1e-8) {
           const d = 1 / (u / a.depth + v / b.depth + w / c.depth);
@@ -3367,7 +3407,8 @@
               emit(x, y, d, color, 0, 1, surfaceId, 0);
               continue;
             }
-            let sample = { color };
+            const baseSample = { color };
+            let sample = baseSample;
             if (material === "net-average") sample = { color: "#14261d", alpha: 0.05 };
             else if (material === "crowd-refine") {
             } else if (material === "wolf" && cam.eye.z < sMaterialZ) {
@@ -3390,9 +3431,10 @@
               if (Math.abs(tv - vBrace) < 0.065) sample = { color: shade2(g.architecture.colors.gold, 1.16) };
               else if (Math.min(du, dv) < 0.045) sample = { color: shade2(g.architecture.colors.gold, 0.78) };
             }
-            emit(x, y, d, sample.color, sample.logoGlow ?? 0, density, surfaceId, sample.alpha ?? 1);
+            emit(x, y, d, sample.color, sample.logoGlow ?? 0, density, surfaceId, sample.alpha ?? 1, false, null, sample !== baseSample && BOARD_MATERIAL.test(material) ? () => sampleBoardLive(liveGeometry ?? g, material, tu, tv, lodProfile) : null);
           } else emit(x, y, d, color, 0, 1, surfaceId);
         }
+      }
       }
     }, dot = (p, color, id = null) => {
       lightPoint = p;
@@ -3564,8 +3606,8 @@
       z: cam.eye.z - Math.sin(cam.yaw) * right + Math.cos(cam.yaw) * forward
     };
   }
-  globalThis.PlayableOtherStadiumV1 = { render({ park, cam, project, paint, grid, choice }) {
-    if (!park?.center || !Number.isFinite(park.radiusMeters)) return;
+  globalThis.PlayableOtherStadiumV1 = { cells({ park, cam, project, grid, choice }) {
+    if (!park?.center || !Number.isFinite(park.radiusMeters)) return null;
     const nextParkKey = JSON.stringify([park.center.x, park.center.z, park.radiusMeters, park.heightMeters]);
     if (parkKey !== nextParkKey || selected !== choice) {
       adapt(park, choice);
@@ -3578,18 +3620,35 @@
       mesh.surfaces = originalSurfaces.filter((s) => !(/^(dodger-wall-|koshien-fence-|niikura-wall-)/.test(s.id) || choice === "tambov" && /^surface-\d+$/.test(s.id) && Number(s.id.slice(8)) < geometry.vertices.length - 1));
       mesh.segments = originalSegments.filter((s) => !s.id?.startsWith("niikura-wall-cap"));
       const map = /* @__PURE__ */ new Map(), step = grid.step();
-      const report = renderStadium({ geometry, project, grid, cam, cutaway: true, crowd: { frame: 0, frames: 3, visible: true }, paint: (x, y, d, color, alpha, owner, glow, density) => {
+      const report = renderStadium({ geometry, project, grid, cam, cutaway: true, crowd: { frame: 0, frames: 3, visible: true }, paint: (x, y, d, color, alpha, owner, glow, density, surfaceId, altColor, live) => {
         if (alpha <= 0) return;
         const p = worldXZ(x, y, d, cam);
         if (Math.hypot(p.x - park.center.x, p.z - park.center.z) < park.radiusMeters + 0.15) return;
         const sx = Math.round(x / step) * step, sy = Math.round(y / step) * step, k2 = sx + "," + sy, old = map.get(k2);
-        if (!old || d < old.d) map.set(k2, { x: sx, y: sy, d, color, alpha });
+        if (!old || d < old.d) map.set(k2, { x: sx, y: sy, d, color, alpha, live: live ?? null });
       } });
       cells = [...map.values()];
       cacheKey = key;
       globalThis.PlayableOtherStadiumV1.report = { surfaces: mesh.surfaces.length, totalSurfaces: originalSurfaces.length, segments: mesh.segments.length, totalSegments: originalSegments.length, cells: cells.length, render: report, key };
     }
-    for (const c of cells) paint(c.x, c.y, c.d, c.color, c.alpha, "ballpark");
-  } };
+    return cells;
+  }, render(input) {
+    const list = this.cells(input);
+    if (!list) return;
+    for (const c of list) input.paint(c.x, c.y, c.d, c.color, c.alpha, "ballpark");
+  }
+  , setScoreboard(board) { liveBoard = board; }
+  , scoreboardCells(input) {
+    const list = this.cells(input);
+    if (!list || !liveBoard || !liveGeometryFor(geometry)) return [];
+    const out = [];
+    for (const c of list) {
+      if (!c.live) continue;
+      const s = c.live();
+      if (s) out.push({ x: c.x, y: c.y, color: s.color, alpha: s.alpha });
+    }
+    return out;
+  }
+  };
 })();
 

@@ -1,19 +1,31 @@
 """Builds the game art bank from the accepted-art catalog.
 
 Keeps originals untouched: each chosen PNG is cropped to its alpha box and scaled
-for the game. usage: build-artpack.py <drawing-root> <parts-dir>
+for the game. usage: build-artpack.py <drawing-root> <parts-dir> [gallery.png] [sources.json]
+
+Three kinds of sprite are packed:
+ * generic B2 art, every one marked ADOPTED in accepted-art-v2/catalog.json;
+ * Robin's own frames (robin-defense-v1);
+ * dedicated sets that exactly one named player may use: the afro set (ちんすけ,
+   b2-afro-regenerated-v1) and the purple-beard set (ロッツォ, purple-beard-planned).
+   They are keyed "<who>/<generic key>" and are looked up by the runtime only for that
+   player; nobody else can reach them.
 """
 import base64
 import hashlib
 import io
 import json
 import os
+import re
 import sys
 
-from PIL import Image
+from PIL import Image, ImageDraw
 
 root, game = sys.argv[1], sys.argv[2]
-art = os.path.join(root, "generated_images", "accepted-art-v2")
+gallery_path = sys.argv[3] if len(sys.argv) > 3 else None
+sources_path = sys.argv[4] if len(sys.argv) > 4 else None
+gen = os.path.join(root, "generated_images")
+art = os.path.join(gen, "accepted-art-v2")
 catalog = json.load(open(os.path.join(art, "catalog.json"), encoding="utf-8"))
 entries = {e["id"]: e for e in catalog["entries"]}
 # bank key -> (catalog id, kit, standing-height ratio of this pose)
@@ -36,26 +48,163 @@ for kit in ("home", "away"):
         wanted[f"throw/out/{kit}/{i}"] = (f"b2-outfield-throw-v1:{i + 1}", kit, .9)
     wanted[f"fly/in/{kit}"] = ("b2-fly-infield-outfield-v1:infield-fly", kit, 1.05)
     wanted[f"fly/out/{kit}"] = ("b2-fly-infield-outfield-v1:outfield-fly", kit, 1.05)
+
+# ---- adopted art the bank did not carry yet. Ratio None = derive from the sheet's standing height
+# (FAMILY_S below): the pose's crop height in sheet pixels divided by one standing figure on that sheet. ----
+for kit in ("home", "away"):
+    # Catcher: where the ball arrives (art-bank-runtime.js catcherKey names them).
+    wanted[f"catchx/one-knee/{kit}"] = ("b2-catcher-ready-v1:one-knee-down", kit, None)
+    for n in ("left", "right", "high", "low"):
+        wanted[f"catchx/zone-{n}/{kit}"] = (f"b2-catcher-zone-v1:mitt-{n}", kit, None)
+        wanted[f"catchx/kzone-{n}/{kit}"] = (f"b2-catcher-one-knee-positions-v1:zone-{n}", kit, None)
+    for n in ("left", "right", "high", "low-kneeling"):
+        wanted[f"catchx/ball-{n}/{kit}"] = (f"b2-catcher-ball-v1:ball-{n}", kit, None)
+    for n in ("left", "right", "high"):
+        wanted[f"catchx/kball-{n}/{kit}"] = (f"b2-catcher-one-knee-positions-v1:ball-{n}", kit, None)
+    for n in ("low", "middle", "high"):
+        wanted[f"catchx/extreme-{n}/{kit}"] = (f"b2-catcher-extreme-v1:extreme-{n}", kit, None)
+    # Diving, backhand and the pitcher's pickoff.
+    for n in ("horizontal-dive", "low-forward-dive", "lateral-slide"):
+        wanted[f"dive/{n}/{kit}"] = (f"b2-diving-reach-v1:{n}", kit, None)
+    for n in ("forward", "lateral"):
+        wanted[f"dive/{n}-dejected/{kit}"] = (f"b2-diving-dejection-v1:{n}-dejected", kit, None)
+    for n in ("1", "2"):
+        wanted[f"backhand/{n}/{kit}"] = (f"b2-field-backhand-v1:{n}", kit, None)
+    for b in (1, 2, 3):
+        for i in (1, 2, 3):
+            wanted[f"pickoff/{b}/{i - 1}/{kit}"] = (f"b2-pickoff-v1:{b}-{i}", kit, None)
+# Plate umpire: the count shown between pitches, the call after it, the strikeout signals, the tag-out.
+wanted["umpire/time"] = ("umpire:time", "original", None)
+wanted["umpire/play-ball"] = ("umpire:play-ball", "original", None)
+for b in range(4):
+    for s in range(3):
+        wanted[f"umpire/count/{b}-{s}"] = (f"umpire:count:B{b}-S{s}", "original", None)
+for n in ("diagonal-up", "knee-lift", "side-punch", "arms-spread", "overhead-twist"):
+    wanted[f"umpire/strikeout/{n}"] = (f"b2-plate-umpire-strikeout-v1:{n}", "original", None)
+wanted["umpire/home-tag-out"] = ("b2-umpire-field-calls-v1:home-tag-out", "original", None)
+for n in ("safe", "out", "foul", "fair-front", "fair-rear"):
+    wanted[f"umpire/base-{n}"] = (f"b2-umpire-field-calls-v1:base-{n}", "original", None)
+# Runner slides and the batter's reactions after a looking strikeout.
+wanted["slide/feet"] = ("b2-runner-slide-v1:feet-first-slide", "original", None)
+wanted["slide/head"] = ("b2-runner-head-slide-v1:head-first-slide", "original", None)
+wanted["slide/dejected"] = ("b2-runner-head-slide-dejection-v1:head-first-dejected", "original", None)
+for n in ("look-up-front", "look-up-rear", "bent-forward-front", "bent-forward-rear"):
+    wanted[f"look/{n}"] = (f"b2-looking-strikeout-v1:{n}", "original", None)
+for n in ("front", "rear"):
+    wanted[f"look/photo-{n}"] = (f"b2-looking-strikeout-photo-v1:{n}", "original", None)
+# Jumping catches by situation (one drawing sheet, no team kit).
+for n in ("lateral-high", "retreat-diagonal", "vertical-reach", "compact-jump", "front-jump"):
+    wanted[f"jump/{n}"] = (f"b2-jump-catch-situations-v1:{n}", "original", None)
+
+# Standing height S of one figure on each drawing sheet, in the sheet's own pixels. No two sheets share a scale,
+# so each family states its own: derived from a pose that already has a ratio, or read off the sheet by eye
+# (head and limb proportions) and checked on the gallery. A pose's ratio = crop height / S.
+FAMILY_S = {
+    "catcher": "from:catch/home", "umpire": "from:umpire/ready",
+    "slide": 1500, "dive": 1250, "dive-dejected": 1600, "backhand": 1200, "jump": 1150,
+    "look": 840, "look-photo": 920, "pickoff": 740,
+}
+FAMILY_OF = (("catchx/", "catcher"), ("umpire/", "umpire"), ("slide/", "slide"), ("dive/forward-dejected", "dive-dejected"),
+             ("dive/lateral-dejected", "dive-dejected"), ("dive/", "dive"), ("backhand/", "backhand"), ("jump/", "jump"),
+             ("look/photo", "look-photo"), ("look/", "look"), ("pickoff/", "pickoff"))
+
+
+def family_of(key):
+    return next((family for prefix, family in FAMILY_OF if key.startswith(prefix)), None)
+
+
 # Robin's own frames, addressed by the B2 pose each one redraws.
-robin = json.load(open(os.path.join(root, "generated_images", "robin-defense-v1", "manifest.json"), encoding="utf-8"))
+robin = json.load(open(os.path.join(gen, "robin-defense-v1", "manifest.json"), encoding="utf-8"))
 robin_pose = {"b2-sidearm-v1:1": "robin/pitch/0", "b2-sidearm-v1:3": "robin/pitch/1", "b2-sidearm-v1:4": "robin/pitch/2",
               "b2-infield-throw-v1:1": "robin/throw/0", "b2-infield-throw-v1:2": "robin/throw/1", "b2-infield-throw-v1:3": "robin/throw/2",
               "b2-field-ground-v1:1": "robin/ground/0", "b2-field-ground-v1:2": "robin/ground/1", "b2-field-ground-v1:3": "robin/ground/2"}
 robin_files = {robin_pose[f["sourceId"]]: f for f in robin["frames"] if f["sourceId"] in robin_pose}
-
-MAX_SIDE = 256
-out, family_height, assets = {}, {}, {}
 for key in robin_files:
     wanted[key] = (robin_files[key]["id"], None, 1)
-for key, (entry_id, kit, ratio) in wanted.items():
-    if key.startswith("robin/"):
-        image = Image.open(os.path.join(root, "generated_images", "robin-defense-v1", robin_files[key]["file"])).convert("RGBA")
-    else:
-        entry = entries[entry_id]
-        variant = next(v for v in entry["variants"] if v.get("kit") == kit and v.get("skin", "original") == "original")
-        image = Image.open(os.path.join(art, variant["file"])).convert("RGBA")
-    box = image.getchannel("A").point(lambda a: 255 if a > 24 else 0).getbbox()
-    crop = image.crop(box)
+
+# ---- dedicated sets: one named player only ----
+CATALOG_REF = re.compile(r"^(?P<family>.+?-v\d+)_(?P<name>.+?)_[0-9a-f]{6}__(?P<kit>[a-z]+)__(?P<skin>[a-z-]+)\.png$")
+
+
+def lotso_overrides():
+    """catalog id -> (png, status) from purple-beard-planned. Each entry redraws one B2 catalog image (its 'reference');
+    `current` selects the picture the owner's index calls current (short sleeves for offence, long for defence)."""
+    base = os.path.join(gen, "purple-beard-planned")
+    index = json.load(open(os.path.join(base, "motions-index.json"), encoding="utf-8"))
+    by_catalog, special = {}, {}
+    for e in index["entries"]:
+        outs, cur = e["outputs"], e.get("current")
+        if not outs or not isinstance(cur, int) or cur >= len(outs):
+            continue
+        out_row = outs[cur]
+        path, status = os.path.join(base, out_row["file"]), out_row["status"]
+        if path.endswith("follow-owner-adopted-beard.png"):
+            path = path.replace("follow-owner-adopted-beard.png", "follow-owner-adopted-beard-clean-v1.png")
+        # The owner reviewed every Lotso picture in the bank on 2026-11-02 (follow-photo-revision/owner-review-2026-11-02.json).
+        special[e["id"]] = (path, "OWNER_ADOPTED")
+        m = CATALOG_REF.match(os.path.basename(e.get("reference", "")))
+        if m and status in ("CANDIDATE", "OWNER_ADOPTED"):
+            by_catalog[f'{m["family"]}:{m["name"]}'] = (path, "OWNER_ADOPTED")
+    return by_catalog, special
+
+
+def afro_overrides():
+    """catalog id -> (png, status) from b2-afro-regenerated-v1: the last usable output of each catalog entry."""
+    base = os.path.join(gen, "b2-afro-regenerated-v1")
+    by_catalog = {}
+    for group in ("bat_pitch_move", "catcher_base", "field_reaction"):
+        index = json.load(open(os.path.join(base, group, "index.json"), encoding="utf-8"))
+        for e in index["entries"]:
+            good = [o for o in (e.get("outputs") or []) if o.get("status") in ("CANDIDATE", "OWNER_ADOPTED")]
+            if good:
+                by_catalog[e["id"]] = (os.path.join(base, group, good[-1]["file"]), good[-1]["status"])
+    return by_catalog
+
+
+lotso_by_catalog, lotso_special = lotso_overrides()
+afro_by_catalog = afro_overrides()
+afro_dir = os.path.join(gen, "b2-afro-regenerated-v1", "batting")
+afro_batting = {e["id"].split(":")[1]: (os.path.join(afro_dir, e["file"]), "OWNER_ADOPTED")
+                for e in json.load(open(os.path.join(afro_dir, "owner-adoption-2026-10-28.json"), encoding="utf-8"))["entries"]}
+# Certainty home run: the owner's order is held bat, then released bat (home-run-sequence.json).
+afro_hr = [(os.path.join(afro_dir, f["file"]), "OWNER_ADOPTED")
+           for f in sorted(json.load(open(os.path.join(afro_dir, "home-run-sequence.json"), encoding="utf-8"))["frames"], key=lambda f: f["order"])]
+
+# What each exclusive player does in the game, as key prefixes (roster position decides it).
+DEDICATED_ROLES = {
+    "chinsuke": ("bat/", "run/", "walk/", "slide/", "look/"),                                   # DH: bats and runs
+    "lotso": ("bat/", "run/", "walk/", "slide/", "look/", "ground/", "throw/in/", "fly/in/", "dive/", "jump/", "backhand/"),  # 3B
+}
+
+MAX_SIDE = 256
+out, family_height, family_S, sources = {}, {}, {}, {}
+
+
+# ball-left is a cut-out of a larger sheet, not a plain shrink: matched by eye to the other catcher poses.
+SHEET_SCALE = {"b2-catcher-ball-v1:ball-left": .55}
+
+
+def variant_path(entry_id, kit):
+    entry = entries[entry_id]
+    variant = next(v for v in entry["variants"] if v.get("kit") == kit and v.get("skin", "original") == "original")
+    rect = (entry.get("originalArt") or {}).get("rect")
+    sheet_scale = variant["width"] / rect[2] if rect else 1.0   # a catalog file is sometimes a shrunk copy of its sheet
+    sheet_scale = SHEET_SCALE.get(entry_id, sheet_scale)
+    return os.path.join(art, variant["file"]), sheet_scale
+
+
+def crop_of(path):
+    """Crop to the alpha box. 96 is the runtime's own cut; a few pictures carry a haze of part-transparent pixels (the
+    owner-adopted beard follow-through does) and there the figure is solid from 224 up, so the haze is dropped.
+    Only this packed copy changes; the PNG on disk is never touched."""
+    image = Image.open(path).convert("RGBA")
+    hist = image.getchannel("A").histogram()
+    if sum(hist[224:]) and sum(hist[96:224]) > .09 * sum(hist[224:]):
+        image.putalpha(image.getchannel("A").point(lambda a: a if a >= 224 else 0))
+    return image.crop(image.getchannel("A").point(lambda a: 255 if a > 24 else 0).getbbox())
+
+
+def encode(crop):
     scale = MAX_SIDE / max(crop.size)
     small = crop.resize((max(1, round(crop.width * scale)), max(1, round(crop.height * scale))), Image.LANCZOS)
     buffer = io.BytesIO()
@@ -64,16 +213,87 @@ for key, (entry_id, kit, ratio) in wanted.items():
     name = hashlib.sha256(data).hexdigest()[:24]
     with open(os.path.join(game, "assets", name + ".b64"), "wb") as f:
         f.write(data)
+    return scale, small, name, len(data)
+
+
+for family, spec in FAMILY_S.items():
+    if isinstance(spec, str):
+        entry_id, kit, ratio = wanted[spec[5:]]
+        path, sheet_scale = variant_path(entry_id, kit)
+        family_S[family] = crop_of(path).height / sheet_scale / ratio
+    else:
+        family_S[family] = spec
+
+
+def ratio_of(key):
+    entry_id, kit, ratio = wanted[key]
+    if ratio is not None or family_of(key) is None:   # pitch frames carry no ratio: they share their first frame's height
+        return ratio
+    path, sheet_scale = variant_path(entry_id, kit)
+    return crop_of(path).height / sheet_scale / family_S[family_of(key)]
+
+
+def store(name, entry_id, path, status, crop, ratio_value, group, extra=None):
+    scale, small, asset, size = encode(crop)
     # Frames of one motion share the height of its first, standing frame.
+    family_height.setdefault(group, crop.height / (ratio_value or 1) * scale)
+    out[name] = {"id": entry_id, "asset": asset, "referenceHeight": round(family_height[group], 2), "small": small, "bytes": size}
+    sources[name] = {"catalogId": entry_id, "file": os.path.relpath(path, root).replace("\\", "/"), "status": status,
+                     "ratio": round(ratio_value, 4) if ratio_value else None, **(extra or {})}
+    print(name, small.size, size)
+
+
+for key, (entry_id, kit, ratio) in wanted.items():
+    if key.startswith("robin/"):
+        path, status = os.path.join(gen, "robin-defense-v1", robin_files[key]["file"]), "ROBIN_OWN"
+    else:
+        path, _ = variant_path(entry_id, kit)
+        status = "ADOPTED"
     group = key.rsplit("/", 1)[0] if key.startswith(("pitch/", "robin/pitch", "run/", "walk/")) else key
-    raw_height = crop.height / (ratio or 1)
-    family_height.setdefault(group, raw_height * scale)
-    out[key] = {"id": entry_id, "asset": name, "referenceHeight": round(family_height[group], 2)}
-    print(key, small.size, len(data))
+    store(key, entry_id, path, status, crop_of(path), ratio_of(key), group)
+
+# ---- dedicated frames ----
+# A dedicated frame replaces the generic one in the same slot and is drawn at the same height as it (same ratio),
+# so an exclusive player keeps the proportions the slot was tuned for.
+def dedicate(who, key, path, status, ratio_value, entry_id, extra=None):
+    group = f"{who}/" + (key.rsplit("/", 1)[0] if key.startswith(("run/", "walk/")) else key)
+    store(f"{who}/{key}", entry_id, path, status, crop_of(path), ratio_value, group, extra)
+
+
+for who, table in (("lotso", lotso_by_catalog), ("chinsuke", afro_by_catalog)):
+    for key, (entry_id, kit, ratio) in wanted.items():
+        if key.startswith("robin/") or kit == "away" or not key.startswith(DEDICATED_ROLES[who]):
+            continue
+        if entry_id in table:
+            dedicate(who, key, table[entry_id][0], table[entry_id][1], ratio_of(key), entry_id)
+
+# Batting seen from the pitcher's side replaces a B1 silhouette, so each frame states its own standing height.
+# Afro: the head (hair mass) width, measured once per frame in source pixels, is the same size in every frame,
+# and the upright part of the stance gives standing height = 4.27 head widths.
+AFRO_HEAD = {"stance": 328, "load": 368, "swing": 364, "follow": 308, "home-run": 348}
+STANDING_PER_HEAD = 4.27
+for i, name in enumerate(("stance", "load", "swing", "follow")):
+    path, status = afro_batting[name]
+    dedicate("chinsuke", f"bat/mound/{i}", path, status, crop_of(path).height / (STANDING_PER_HEAD * AFRO_HEAD[name]), "owner-afro-batting:" + name)
+for i, (path, status) in enumerate(afro_hr):
+    dedicate("chinsuke", f"bat/hr/{i}", path, status, crop_of(path).height / (STANDING_PER_HEAD * AFRO_HEAD["home-run"]), f"owner-afro-batting:home-run:{i + 1}")
+# Beard set: crop height / standing height per pose (bat above the head, lunge, arms up), checked on the gallery.
+LOTSO_BAT = {"stance": .88, "load": .90, "swing": 1.18, "follow": .86}
+for i, name in enumerate(("stance", "load", "swing", "follow")):
+    path, status = lotso_special[name]
+    dedicate("lotso", f"bat/mound/{i}", path, status, LOTSO_BAT[name], "purple-beard:" + name,
+             {"note": "UNRESOLVED in the owner's index; connected only so the swing is not a silhouette"} if status == "UNRESOLVED" else None)
+path, status = lotso_special["home-run"]
+dedicate("lotso", "bat/hr/0", path, status, .82, "purple-beard:home-run")
+# Walking to base: the beard set's bare rear walk (the direct-rear walk redraw is UNRESOLVED).
+for i, name in enumerate(("loco-walk-bare-rear-A", "loco-walk-bare-rear-B")):
+    if lotso_special[name][1] in ("CANDIDATE", "OWNER_ADOPTED"):
+        dedicate("lotso", f"walk/rear/{i}", lotso_special[name][0], lotso_special[name][1], .98, "purple-beard:" + name)
+
 body = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "art-bank-runtime.js"), encoding="utf-8").read()
-pack = ",".join(f'{json.dumps(k)}:{{id:{json.dumps(v["id"])},referenceHeight:{v["referenceHeight"]},data:"@@ASSET:{v["asset"]}@@"}}' for k, v in out.items())
+pack_js = ",".join(f'{json.dumps(k)}:{{id:{json.dumps(v["id"])},referenceHeight:{v["referenceHeight"]},data:"@@ASSET:{v["asset"]}@@"}}' for k, v in out.items())
 with open(os.path.join(game, "parts", "art-bank-v1.js"), "w", encoding="utf-8", newline="") as f:
-    f.write(body.replace("/*ART_PACK*/", pack))
+    f.write(body.replace("/*ART_PACK*/", pack_js))
 manifest = json.load(open(os.path.join(game, "manifest.json")))
 names = [e["file"] for e in manifest["entries"]]
 if "art-bank-v1.js" not in names:
@@ -82,4 +302,20 @@ if "art-bank-v1.js" not in names:
         f.write('</script>\n<script id="art-bank-v1">')
     manifest["entries"][i + 1:i + 1] = [{"kind": "shell", "file": "art-bank-shell.html"}, {"kind": "js", "file": "art-bank-v1.js"}]
     json.dump(manifest, open(os.path.join(game, "manifest.json"), "w"), indent=0)
-print("sprites", len(out))
+print("sprites", len(out), "bytes", sum(v["bytes"] for v in out.values()))
+if sources_path:
+    json.dump({"sprites": sources, "familyStandingHeight": family_S}, open(sources_path, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+if gallery_path:
+    # Every sprite at the size the game draws a 1.8 m player: a quick check that poses keep their proportions.
+    PPM, cell_w, cell_h, cols = 110, 250, 280, 8
+    sheet = Image.new("RGB", (cols * cell_w, ((len(out) + cols - 1) // cols) * cell_h), (60, 90, 60))
+    draw = ImageDraw.Draw(sheet)
+    for n, (key, row) in enumerate(out.items()):
+        s = PPM * 1.8 / row["referenceHeight"]
+        im = row["small"].resize((max(1, round(row["small"].width * s)), max(1, round(row["small"].height * s))), Image.NEAREST)
+        x, y = (n % cols) * cell_w, (n // cols) * cell_h
+        draw.line((x, y + cell_h - 20, x + cell_w, y + cell_h - 20), fill=(30, 50, 30))
+        draw.line((x + 4, y + cell_h - 20 - PPM * 1.8, x + 4, y + cell_h - 20), fill=(255, 255, 0))
+        sheet.paste(im, (x + 10 + max(0, (cell_w - 20 - im.width) // 2), y + cell_h - 20 - im.height), im)
+        draw.text((x + 8, y + 2), key[:34], fill=(255, 255, 255))
+    sheet.save(gallery_path)

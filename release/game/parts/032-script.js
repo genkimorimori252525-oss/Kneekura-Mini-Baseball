@@ -342,21 +342,48 @@ function makeBroadcastRenderer(canvas,labelHost){
  let runnerNearBodyIds=new Set();
  /* V81_BROADCAST_PERFORMANCE */
  let projectionV81=null,parkCacheV81=null,parkCandidateV81=null,parkReadbackFailedV81=false;
+ // Base layers of a held camera: the frame's own maps hold only what moves.
+ let sceneDepthBase=null,rasterBase=null,stadiumLayerV2=null;
  const groundRowsV81=new Map(),rasterKeyV81=(x,y)=>gridV84.key(x,y);
  function updateProjectionV81(){projectionV81={sinYaw:Math.sin(cam.yaw),cosYaw:Math.cos(cam.yaw),sinPitch:Math.sin(cam.pitch),cosPitch:Math.cos(cam.pitch)};groundRowsV81.clear();}
  const sameParkKeyV81=(a,b)=>!!a&&a.length===b.length&&a.every((value,index)=>Object.is(value,b[index]));
- function drawParkV81(){
-  if(parkReadbackFailedV81||typeof ctx.getImageData!=='function'||typeof ctx.putImageData!=='function'){park();return;}
+ function stadiumFrameV2(){
+  if(!observed.liveObservation)return null;
+  const choice=document.getElementById('stadium-choice').value;if(choice==='core')return null;
+  const api=choice==='fukuoka'?window.PlayableStadiumV1:window.PlayableOtherStadiumV1,
+   args={park:observed.livePark,cam,project,paint:paintWorldCell,grid:gridV84,awayHit:observed.awayHit,choice},cells=api.cells(args);
+  return cells&&{api,args,cells,awayHit:!!observed.awayHit};
+ }
+ function paintStadiumV2(stadium,parkHeld){
+  if(!stadium||rasterBase)return;
+  if(!parkHeld){stadium.api.render(stadium.args);return;}
+  const moving=rasterCells;rasterCells=new Map();stadium.api.render(stadium.args);
+  try{for(const cell of rasterCells.values())flushCell(cell);
+   const depth=new Map(sceneDepthBase);for(const [key,value] of sceneDepth)depth.set(key,value);
+   stadiumLayerV2={park:parkCacheV81,cells:stadium.cells,awayHit:stadium.awayHit,image:ctx.getImageData(0,0,canvas.width,canvas.height),depth,raster:rasterCells};
+   sceneDepthBase=depth;sceneDepth=new Map();rasterBase=rasterCells;rasterCells=moving;
+  }catch{parkReadbackFailedV81=true;parkCacheV81=null;stadiumLayerV2=null;for(const [key,cell] of moving)rasterCells.set(key,cell);}
+  Object.assign(ctx,parkCacheV81?.context??{});
+ }
+ // Live scoreboard: only the board's own cells are drawn again over the held stadium image.
+ function paintScoreboardV1(stadium){
+  if(!stadium||typeof stadium.api.scoreboardCells!=='function')return;
+  const board=window.KneekuraLiveScoreboardV1?.board();if(!board)return;
+  try{stadium.api.setScoreboard(board);for(const c of stadium.api.scoreboardCells(stadium.args))flushCell({x:c.x,y:c.y,color:c.color,alpha:c.alpha,owner:'ballpark'});}catch{}
+ }
+ function drawParkV81(stadium){
+  if(parkReadbackFailedV81||typeof ctx.getImageData!=='function'||typeof ctx.putImageData!=='function'){park();return false;}
   const g=observed.livePark,key=[cam.eye.x,cam.eye.y,cam.eye.z,cam.yaw,cam.pitch,cam.f,cam.cx,cam.cy,
    state.camera,state.detail,state.glow,observed.liveObservation,g?.center?.x,g?.center?.z,g?.radiusMeters,g?.heightMeters,
    qualityV84(),canvas.width,canvas.height,ctx.globalCompositeOperation,ctx.filter,ctx.globalAlpha,ctx.shadowOffsetX,ctx.shadowOffsetY];
   if(parkCacheV81&&sameParkKeyV81(parkCacheV81.key,key)){
-   try{ctx.putImageData(parkCacheV81.image,0,0);}
-   catch{parkReadbackFailedV81=true;parkCacheV81=null;park();return;}
+   const layer=stadium&&stadiumLayerV2?.park===parkCacheV81&&stadiumLayerV2.cells===stadium.cells&&stadiumLayerV2.awayHit===stadium.awayHit?stadiumLayerV2:null;
+   try{ctx.putImageData((layer??parkCacheV81).image,0,0);}
+   catch{parkReadbackFailedV81=true;parkCacheV81=null;park();return false;}
    // Cached depth and mark snapshots never become the actors' mutable storage.
-   sceneDepth=new Map(parkCacheV81.depth);fieldMarkCells=parkCacheV81.marks.map(cell=>({...cell}));
-   anchors=parkCacheV81.anchors.map(point=>[...point]);groundCells=parkCacheV81.groundCells;markingOwner=parkCacheV81.markingOwner;
-   Object.assign(ctx,parkCacheV81.context);parkCandidateV81=key;return;
+   sceneDepth=new Map();sceneDepthBase=(layer??parkCacheV81).depth;rasterBase=layer?.raster??null;fieldMarkCells=parkCacheV81.marks.slice();
+   anchors=parkCacheV81.anchors.slice();groundCells=parkCacheV81.groundCells;markingOwner=parkCacheV81.markingOwner;
+   Object.assign(ctx,parkCacheV81.context);parkCandidateV81=key;return true;
   }
   park();
   // One image at most. A moving camera does not add a readback every frame.
@@ -367,6 +394,7 @@ function makeBroadcastRenderer(canvas,labelHost){
    catch{parkReadbackFailedV81=true;parkCacheV81=null;}
   }
   parkCandidateV81=key;
+  return false;
  }
  function camera(){return cam;}
  const rectXZ=(x0,z0,x1,z1)=>[{x:x0,z:z0},{x:x1,z:z0},{x:x1,z:z1},{x:x0,z:z1}];
@@ -486,7 +514,7 @@ worldCircle(0,fieldGeometry.mound.z,fieldGeometry.mound.radius,C.soil,1,.86);
 function paintWorldCell(x,y,depth,color,alpha,owner){
  if(runnerNearBodyIds.has(owner))return;
  x=snap(x);y=snap(y);if(x<gridV84.step()||x>(600-gridV84.step())||y<gridV84.step()||y>(432-gridV84.step())||depth<.12)return;
- const key=rasterKeyV81(x,y),previous=sceneDepth.get(key);
+ const key=rasterKeyV81(x,y),previous=sceneDepth.get(key)??sceneDepthBase?.get(key);
  if(previous!==undefined&&depth>previous+.001)return;
  sceneDepth.set(key,depth);rasterCells.set(key,{x,y,r:LIGHT_RADIUS,color,alpha:owner==='ball'?1:owner==='bat'?Math.max(.85,alpha):alpha,owner,depth});
 }
@@ -537,7 +565,10 @@ function rasterSphere(center,radius,color,owner){
    if(!['robin','1-b2','1-b3'].includes(a.sourcePlayerId)&&b2ReadyV1.sprites[frame]&&a.role==='P'&&a.player.team===1&&a.player.hand==='R'&&a.player.form==='over'&&state.camera==='catcher'&&action==='pitch'&&frame>=0&&frame<6&&!a.running){original=b2ReadyV1.sprites[frame];palette=b2ReadyV1.palettes[frame];materialSource='b2-overhand-v3';b2ReadyV1.hits[frame]++;}
    if(catcherTrial.sprite&&a.sourcePlayerId==='1-b4'&&a.role==='C'&&a.player.team===1&&state.camera==='mound'&&action==='catch'&&!a.running){original=catcherTrial.sprite;palette=catcherTrial.palette;catcherTrial.hits++;}
    const aheadV1=a.running&&a.velocity?project({x:x+a.velocity.x*.3,y:0,z:z+a.velocity.z*.3}):null,awayV1=!!aheadV1&&aheadV1.y<foot.y-1&&Math.abs(aheadV1.x-foot.x)<(foot.y-aheadV1.y)*.7;
-   const artV1=window.KneekuraArtBankV1?.pick({role:a.role,action,frame,camera:state.camera,hand:a.player.hand,form:a.player.form,team:a.player.team,running:a.running,isRobin:a.sourcePlayerId==='robin',pose:a.presentationPose,away:awayV1,walking:a.walking});
+   const bankV1=window.KneekuraArtBankV1,screenStepV1=aheadV1?Math.hypot(aheadV1.x-foot.x,aheadV1.y-foot.y):0,sideV1=project({x:x+1,y:0,z}),
+    motionV1=screenStepV1>1?{x:(aheadV1.x-foot.x)/screenStepV1,depth:(foot.y-aheadV1.y)/screenStepV1}:{x:0,depth:0},
+    artV1=bankV1?.pick({role:a.role,action,frame,camera:state.camera,hand:a.player.hand,form:a.player.form,team:a.player.team,running:a.running,isRobin:a.sourcePlayerId==='robin',pose:a.presentationPose,away:awayV1,walking:a.walking,
+     who:bankV1.whoIs(a.sourcePlayerId,a.player.name),art:a.role==='umpire'?{umpire:observed.liveUmpireArtV1}:a.presentationArt,athletic:a.athleticV115,motion:motionV1,sx:sideV1&&sideV1.x<foot.x?-1:1});
    if(artV1&&!b2ReadyV1.sprites.includes(original)){original=artV1.sprite;palette=artV1.palette;materialSource=artV1.id;}
    const sprite=action==='bat'&&!original.artBankV1?batterSpriteForView(original,state.camera):original;
    const unit=height/(sprite.referenceHeight||44)*foot.scale*RETRO_SCALE,left=foot.x-sprite.originX*unit,top=foot.y-sprite.baseline*unit;
@@ -569,10 +600,13 @@ function rasterSphere(center,radius,color,owner){
   const length=Math.hypot(bat.tip.x-bat.grip.x,bat.tip.y-bat.grip.y,bat.tip.z-bat.grip.z),steps=Math.ceil(length/.016);
   for(let i=0;i<=steps;i++){const t=i/steps,p={};for(const k of['x','y','z'])p[k]=bat.grip[k]+(bat.tip[k]-bat.grip[k])*t;rasterSphere(p,batReferenceRadius(t),t<.22?'#cba66d':'#f4d891','bat');}
  }
+ function flushCell(cell){
+  ctx.fillStyle='#000';ctx.globalAlpha=1;ctx.fillRect(cell.x-gridV84.step()/2,cell.y-gridV84.step()/2,gridV84.step(),gridV84.step());dot(cell.x,cell.y,LIGHT_RADIUS,cell.color,cell.alpha,cell.owner==='ball'?2:0);
+ }
  function flushWorld(){
   actorCells=[];const counts={};
   for(const cell of rasterCells.values()){
-   ctx.fillStyle='#000';ctx.globalAlpha=1;ctx.fillRect(cell.x-gridV84.step()/2,cell.y-gridV84.step()/2,gridV84.step(),gridV84.step());dot(cell.x,cell.y,LIGHT_RADIUS,cell.color,cell.alpha,cell.owner==='ball'?2:0);
+   flushCell(cell);
    if(!['ball','bat'].includes(cell.owner)){actorCells.push(cell);counts[cell.owner]=(counts[cell.owner]||0)+1;}
   }
   // Outfielders are tiny from this distance but still need identifiable labels.
@@ -795,10 +829,10 @@ function rasterSphere(center,radius,color,owner){
    return Number.isFinite(height)&&height>0&&dy>=-.10&&dy<=height+.10
     &&Math.hypot(a.position.x-cam.eye.x,a.position.z-cam.eye.z)<.90*height;
   }).map(a=>a.id):[]);
-  anchors=[];labelPositions=[];sceneDepth=new Map();rasterCells=new Map();fieldMarkCells=[];ballScreen=null;batterRig=null;
+  anchors=[];labelPositions=[];sceneDepth=new Map();sceneDepthBase=null;rasterBase=null;rasterCells=new Map();fieldMarkCells=[];ballScreen=null;batterRig=null;
   ctx.setTransform(2,0,0,2,0,0);ctx.fillStyle='#000';ctx.fillRect(0,0,600,432);
   if(state.camera==='mound'&&state.appearance!=='point'&&window.KneekuraArtBankV1?.inspect().loaded)actor({id:'UMP',role:'umpire',sourcePlayerId:'umpire',position:{x:(observed.batter?.hand==='L'?.42:-.42),y:0,z:-1.75},running:false,player:{height:1.8,hand:'R',form:'over',name:'',team:2}});
-  drawParkV81();if(observed.liveObservation){const choice=document.getElementById('stadium-choice').value;if(choice==='fukuoka')window.PlayableStadiumV1.render({park:observed.livePark,cam,project,paint:paintWorldCell,grid:gridV84,awayHit:observed.awayHit});else if(choice!=='core')window.PlayableOtherStadiumV1.render({park:observed.livePark,cam,project,paint:paintWorldCell,grid:gridV84,choice});}observed.actors.forEach(actor);drawBaseUmpireCalls();
+  const stadium=stadiumFrameV2();paintStadiumV2(stadium,drawParkV81(stadium));paintScoreboardV1(stadium);observed.actors.forEach(actor);drawBaseUmpireCalls();
   // Draw the source bat only when the approved B1 sprite embeds it or when
   // batOverlay is disabled. Otherwise 27.5ms high-rate layer owns the bat.
   if(!settings.batOverlay||(state.camera==='mound'&&state.appearance==='retro'))drawBat();
@@ -827,7 +861,7 @@ function paintBatOverlay(bat,overlay){
    const t=i/countSteps,point=segment(bat.grip,bat.tip,t),pr=project(point);
    if(!pr||pr.x<gridV84.step()||pr.x>(600-gridV84.step())||pr.y<gridV84.step()||pr.y>(432-gridV84.step()))continue;
    const cx=gridV84.snap(pr.x),cy=gridV84.snap(pr.y);
-   const blocker=rasterCells.get(rasterKeyV81(cx,cy));
+   const key=rasterKeyV81(cx,cy),blocker=rasterCells.get(key)??rasterBase?.get(key);
    if(blocker&&blocker.owner!=='bat'&&blocker.owner!=='ball'&&blocker.depth<pr.depth-.06)continue;
    const thickness=Math.max(1,Math.min(8,Math.ceil(displayBatRadius(t)*pr.scale/gridV84.step())));
    for(let ox=-thickness+1;ox<thickness;ox++)for(let oy=-thickness+1;oy<thickness;oy++){
@@ -898,7 +932,7 @@ function paintBatOverlay(bat,overlay){
   }
   c.save();c.globalAlpha=visibilityMarker?1:Math.min(1,Math.sqrt(displayD));
   const exact=sceneProof===observed&&sceneProof?.liveBallExactFrameTick===true&&sceneProof.ball===ball&&!viewOverride,owners=exact?new Set(observed.actors.map(a=>a.id)):null;let hidden=0;
-  for(const cell of cells){const hit=exact?sphereHit(cell.x,cell.y,ball.position,.0366):null,blocker=exact?rasterCells.get(rasterKeyV81(snap(cell.x),snap(cell.y))):null;
+  for(const cell of cells){const hit=exact?sphereHit(cell.x,cell.y,ball.position,.0366):null,key=rasterKeyV81(snap(cell.x),snap(cell.y)),blocker=exact?rasterCells.get(key)??rasterBase?.get(key):null;
    const occluded=window.PlayableBallDepthV1.hidePhysicalBallCell({sceneToken:exact?observed:null,ballToken:exact?sceneProof:null,sceneCamera:cam,ballCamera:viewOverride??cam,sceneTick:observed?.tick,ballTick:sceneProof?.tick,viewOverride,rayDepth:hit?.depth,blocker,actorOwners:owners});
    if(occluded){hidden++;continue;}c.fillStyle=cell.color;c.beginPath();c.arc(cell.x,cell.y,cell.radius,0,2*Math.PI);c.fill();}
   window.PlayableBallDepthV1.last={exact,total:cells.length,hidden,tick:observed?.tick,camera:state.camera};

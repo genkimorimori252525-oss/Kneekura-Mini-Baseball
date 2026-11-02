@@ -8,3 +8,6 @@ export const BASEBALL_SURFACES_V101: Readonly<Record<'grass' | 'dirt' | 'legacy'
   dirt: Object.freeze({ restitution: .48, slidingFriction: .24, rollingDecelerationMps2: .65, normalSpinDecayPerSecond: .18 }),
   legacy: Object.freeze({ restitution: .48, slidingFriction: .24, rollingDecelerationMps2: .36, normalSpinDecayPerSecond: .18 }),
 });
+
+/** Match grass from 2026-11-02: a grounder bleeds speed on bounce and roll. Provisional until the league calibration. */
+export const LIVE_MATCH_GRASS_V2: BaseballGroundMaterial = Object.freeze({ restitution: .42, slidingFriction: .45, rollingDecelerationMps2: 5, normalSpinDecayPerSecond: .18 });

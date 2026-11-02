@@ -2,6 +2,7 @@ import { expect, it } from 'vitest';
 import { createLiveRunnerMotionV1 } from '../running/LiveRunnerMotionV1';
 import {
   decideLiveRunnerAdvanceV1,
+  decideLiveRunnerHalfwayV1,
   estimateLiveRunnerLegSecondsV1,
   type LiveRunnerAdvanceInputV1,
 } from './LiveRunnerAdvancePolicyV1';
@@ -124,4 +125,49 @@ it('rejects invalid SI, policy, clocks and future facts instead of manufacturing
     { firstFielderTouchElapsedSeconds: -.1 }, { policy: { safetyMarginSeconds: -1 } },
     { policy: { recognitionSeconds: Infinity } }, { runner: { ...raw.runner, accelerationMps2: 0 } },
   ]) expect(() => decideLiveRunnerAdvanceV1({ ...raw, ...patch })).toThrow(/live runner advance/);
+});
+
+it('keeps the two-out go-on-contact for the whole contact leg, not only before first ground contact', () => {
+  const raw = { ...fixture(), outs: 2 as const, defenderControlSeconds: 1, forced: false }, tactics = { contactLeg: true };
+  expect(decideLiveRunnerAdvanceV1(raw)).toMatchObject({ advance: false, reason: 'insufficient_safety_margin' });
+  expect(decideLiveRunnerAdvanceV1({ ...raw, tacticsV1: tactics })).toMatchObject({ advance: true, reason: 'two_out_advance', readyAtElapsedSeconds: 0.2 });
+  // Ground contact and a first fielder touch both occurred; the go still holds.
+  expect(decideLiveRunnerAdvanceV1({ ...raw, tacticsV1: tactics, firstFielderTouchElapsedSeconds: 2 }).reason).toBe('two_out_advance');
+  expect(decideLiveRunnerAdvanceV1({ ...raw, tacticsV1: tactics, nowSeconds: 0.1, firstGroundContactElapsedSeconds: .05 })).toMatchObject({ advance: false, reason: 'recognizing_departure_cue' });
+  expect(decideLiveRunnerAdvanceV1({ ...raw, tacticsV1: tactics, targetOccupied: true })).toMatchObject({ advance: false, reason: 'target_occupied' });
+  // Later legs are elective again, and fewer than two outs never gets the unconditional go.
+  expect(decideLiveRunnerAdvanceV1({ ...raw, tacticsV1: { contactLeg: false } }).reason).toBe('insufficient_safety_margin');
+  expect(decideLiveRunnerAdvanceV1({ ...raw, outs: 1, tacticsV1: tactics }).reason).toBe('insufficient_safety_margin');
+});
+
+it('freezes a runner under two outs on a line drive until the read clears twice the safety margin', () => {
+  const raw = { ...fixture(), outs: 1 as const, firstGroundContactElapsedSeconds: null, defenderControlSeconds: 8,
+    airborneAssessment: { observedAtSeconds: 0, catchMarginSeconds: -.5, lineDrive: true } }, tactics = { contactLeg: true };
+  // An ordinary fly with the same read goes; the legacy path never looks at lineDrive.
+  expect(decideLiveRunnerAdvanceV1({ ...raw, airborneAssessment: { ...raw.airborneAssessment, lineDrive: false }, tacticsV1: tactics }))
+    .toMatchObject({ advance: true, reason: 'airborne_hit_read_advance' });
+  expect(decideLiveRunnerAdvanceV1(raw)).toMatchObject({ advance: true, reason: 'airborne_hit_read_advance' });
+  expect(decideLiveRunnerAdvanceV1({ ...raw, tacticsV1: tactics })).toMatchObject({ advance: false, reason: 'line_drive_freeze_hold' });
+  expect(decideLiveRunnerAdvanceV1({ ...raw, tacticsV1: tactics, airborneAssessment: { ...raw.airborneAssessment, catchMarginSeconds: -.8 } }))
+    .toMatchObject({ advance: true, reason: 'airborne_hit_read_advance' });
+  // The read itself takes time even when the margin is already clear.
+  expect(decideLiveRunnerAdvanceV1({ ...raw, tacticsV1: tactics, nowSeconds: 0.3, airborneAssessment: { observedAtSeconds: 0.2, catchMarginSeconds: -.8, lineDrive: true } }))
+    .toMatchObject({ advance: false, reason: 'line_drive_freeze_hold' });
+  // With two outs on the contact leg the go precedes the liner read.
+  expect(decideLiveRunnerAdvanceV1({ ...raw, outs: 2, tacticsV1: tactics }).reason).toBe('two_out_advance');
+});
+
+it('goes halfway only for a shallow catchable fly under two outs, then goes on a drop', () => {
+  const base = { outs: 0 as const, currentBase: 1 as const, atOrigin: true, hasGroundOrFielderCue: false, safetyMarginSeconds: .35,
+    airborne: { catchMarginSeconds: .2, lineDrive: false, landingDepthMeters: 45, hangSeconds: 2 } };
+  expect(decideLiveRunnerHalfwayV1(base)).toEqual({ halfway: true, fraction: .5 });
+  expect(decideLiveRunnerHalfwayV1({ ...base, airborne: { ...base.airborne, hangSeconds: .8 } })).toEqual({ halfway: true, fraction: .3 });
+  for (const patch of [{ outs: 2 as const }, { currentBase: 3 as const }, { atOrigin: false }, { hasGroundOrFielderCue: true },
+    { airborne: { ...base.airborne, lineDrive: true } }, { airborne: { ...base.airborne, landingDepthMeters: 80 } },
+    { airborne: { ...base.airborne, catchMarginSeconds: -.5 } }, { airborne: { ...base.airborne, catchMarginSeconds: 1.5 } },
+    { airborne: { ...base.airborne, hangSeconds: .3 } }, { airborne: undefined }])
+    expect(decideLiveRunnerHalfwayV1({ ...base, ...patch }).halfway).toBe(false);
+  // Standing partway after the wait, a ground contact releases the normal race read.
+  const standing = { ...fixture(), outs: 1 as const, currentBase: 1 as const, distanceToNextBaseMeters: 14, firstGroundContactElapsedSeconds: 2.5, nowSeconds: 3, defenderControlSeconds: 8 };
+  expect(decideLiveRunnerAdvanceV1({ ...standing, tacticsV1: { contactLeg: true } })).toMatchObject({ advance: true, reason: 'safe_race_advance' });
 });

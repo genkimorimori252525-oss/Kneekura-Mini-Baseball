@@ -416,6 +416,46 @@
 },
 {
 "kind": "shell",
+"file": "scoreboard-live-shell.html"
+},
+{
+"kind": "js",
+"file": "scoreboard-live-v1.js"
+},
+{
+"kind": "shell",
+"file": "manager-ui-shell-a.html"
+},
+{
+"kind": "css",
+"file": "manager-ui-v1.css"
+},
+{
+"kind": "shell",
+"file": "manager-ui-shell-b.html"
+},
+{
+"kind": "js",
+"file": "manager-ui-v1.js"
+},
+{
+"kind": "shell",
+"file": "pregame-ui-shell-a.html"
+},
+{
+"kind": "css",
+"file": "pregame-ui-v1.css"
+},
+{
+"kind": "shell",
+"file": "pregame-ui-shell-b.html"
+},
+{
+"kind": "js",
+"file": "pregame-ui-v1.js"
+},
+{
+"kind": "shell",
 "file": "101-shell.html"
 }
 ]

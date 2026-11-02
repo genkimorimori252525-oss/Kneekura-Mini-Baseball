@@ -200,3 +200,64 @@ it('allows a physical tag of a forced runner still standing on the old base befo
   expect(departure(result, thirdRunnerId)).toBeUndefined();
   expect(result.finalRunners.find(r => r.runnerId === thirdRunnerId)).toMatchObject({ retired: true, position: raw.field.bases.third });
 });
+
+// Opt-in runner tactics (runnerTacticsV1): authored, unmeasured shapes. Legacy runs omit the input.
+const tacticsReasons = (result: ReturnType<typeof simulateLiveFieldPlayV1>) =>
+  result.diagnostics.aiTelemetry.runnerDecisions.filter(d => d.runnerId === runnerId);
+const goesAt = (result: ReturnType<typeof simulateLiveFieldPlayV1>) =>
+  result.diagnostics.aiTelemetry.runnerMotions.find(m => m.runnerId === runnerId && m.throughBases.includes(3))?.elapsedSeconds;
+
+it('two outs: a hard grounder cannot lapse the go-on-contact into a margin check', () => {
+  const raw = fixture(), input: LiveFieldPlayInputV1 = { ...raw, outs: 2,
+    ball: { ...raw.ball, ball: { ...raw.ball.ball, position: v(0, .5, 0), velocity: v(-4, -1, 38), spin: v() } },
+    runners: raw.runners.map(r => r.runnerId === runnerId ? { ...r, reactionSeconds: .3 } : r),
+    fielders: raw.fielders.map(f => ({ ...f, throwSpeedMps: 35, gloveSpeedMps: 11 })) };
+  const legacy = simulateLiveFieldPlayV1(input), tactical = simulateLiveFieldPlayV1({ ...input, runnerTacticsV1: {} });
+  expect(legacy.ruleFacts.firstGroundContactTick!).toBeLessThan(.3 * 1e6);
+  expect(tacticsReasons(legacy).some(d => d.reason === 'two_out_advance')).toBe(false);
+  expect(goesAt(legacy)).toBeUndefined();
+  expect(tacticsReasons(tactical).find(d => d.advance)).toMatchObject({ reason: 'two_out_advance', targetBase: 3 });
+  expect(goesAt(tactical)).toBeCloseTo(.3, 1);
+});
+
+it('under two outs: a runner goes partway on a shallow catchable fly and retreats on the catch', () => {
+  const raw = fixture(), plain: LiveFieldPlayInputV1 = { ...raw, outs: 0,
+    ball: { ...raw.ball, ball: { ...raw.ball.ball, position: v(0, 1, 0), velocity: v(2, 19, 22), spin: v() } } };
+  const legacy = simulateLiveFieldPlayV1(plain), result = simulateLiveFieldPlayV1({ ...plain, runnerTacticsV1: {} }), caught = result.ruleFacts.flyCatch!;
+  expect(tacticsReasons(legacy).some(d => d.reason === 'halfway_wait')).toBe(false);
+  expect(tacticsReasons(result).filter(d => d.reason === 'halfway_wait')).toHaveLength(1);
+  const halfway = result.diagnostics.aiTelemetry.runnerMotions.find(m => m.runnerId === runnerId)!;
+  expect(halfway.throughBases).toEqual([]);
+  expect(halfway.elapsedSeconds).toBeLessThan(caught.firstTouchTick / 1e6);
+  // The halfway wait never fabricates a base touch; the only early touch is the retreat to the origin bag after the catch.
+  const touches = result.ruleFacts.runnerTouches.filter(t => t.runnerId === runnerId);
+  expect(touches[0]).toMatchObject({ base: 2 });
+  expect(touches[0].tick).toBeGreaterThan(caught.firstTouchTick);
+  expect(result.ruleFacts.runnerDepartures.some(d => d.runnerId === runnerId && d.base === 2 && d.tick < caught.firstTouchTick)).toBe(true);
+  expect(result.finalRunners.find(r => r.runnerId === runnerId)!.retired).toBe(false);
+});
+
+it('under two outs: a line drive freezes the runner until the read, where a fly would not', () => {
+  const raw = fixture(), input: LiveFieldPlayInputV1 = { ...raw, outs: 1, maxPlaySeconds: 3,
+    ball: { ...raw.ball, ball: { ...raw.ball.ball, position: v(0, 1, 0), velocity: v(-4, 8, 40), spin: v() } } };
+  const legacy = simulateLiveFieldPlayV1(input), tactical = simulateLiveFieldPlayV1({ ...input, runnerTacticsV1: {} });
+  expect(goesAt(legacy)).toBeLessThan(.5);
+  expect(tacticsReasons(tactical).some(d => d.reason === 'line_drive_freeze_hold')).toBe(true);
+  expect(goesAt(tactical) ?? Infinity).toBeGreaterThan(goesAt(legacy)! + .25);
+});
+
+it('risk follows inning and score, and the third base penalty is applied to a non-forced runner', () => {
+  const raw = fixture(), input: LiveFieldPlayInputV1 = { ...raw, maxPlaySeconds: 2,
+      ball: { ...raw.ball, ball: { ...raw.ball.ball, position: v(0, .2, 60), velocity: v(0, -1, 10), spin: v() } },
+      fielders: raw.fielders.map(f => ({ ...f, throwSpeedMps: 24 })) },
+    withMargin = (advanceSafetyMarginSeconds: number, runnerTacticsV1?: LiveFieldPlayInputV1['runnerTacticsV1']): LiveFieldPlayInputV1 => ({ ...input,
+      ...(runnerTacticsV1 ? { runnerTacticsV1 } : {}), runners: input.runners.map(r => r.runnerId === runnerId ? { ...r, advanceSafetyMarginSeconds } : r) }),
+    ctx = (inning: number, battingRuns: number, defendingRuns: number) => ({ context: { inning, regulationInnings: 9, battingRuns, defendingRuns } }),
+    probe = tacticsReasons(simulateLiveFieldPlayV1(withMargin(0))).find(d => d.advance)!, own = probe.raceMarginSeconds! - .1;
+  expect(probe.reason).toBe('safe_race_advance');
+  const goes = (r: ReturnType<typeof simulateLiveFieldPlayV1>) => tacticsReasons(r).some(d => d.advance);
+  expect(goes(simulateLiveFieldPlayV1(withMargin(own)))).toBe(true);
+  expect(goes(simulateLiveFieldPlayV1(withMargin(own, ctx(3, 2, 2))))).toBe(false);
+  expect(goes(simulateLiveFieldPlayV1(withMargin(own, ctx(9, 1, 2))))).toBe(true);
+  expect(goes(simulateLiveFieldPlayV1(withMargin(own, ctx(9, 4, 2))))).toBe(false);
+});

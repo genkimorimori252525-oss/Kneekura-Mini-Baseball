@@ -41,7 +41,8 @@ import { createLiveHandPreparationV1 } from './LiveHandPreparationV1';
 import { assignLiveFieldRolesV1, liveFieldArrivalSecondsV1 as uncachedFieldArrivalV120, LIVE_FIELD_ROLE_POLICY_V1,
   type LiveFieldRoleV1, type LiveFieldRoleActorV1,type LiveFieldRoleCostDiagnosticV118 } from './LiveFieldRoleAssignmentV1';
 import { applyLiveThrowDirectionV1 } from './LiveThrowDirectionV1';
-import { decideLiveRunnerAdvanceV1, estimateLiveRunnerLegSecondsV1 } from './LiveRunnerAdvancePolicyV1';
+import { decideLiveRunnerAdvanceV1, decideLiveRunnerHalfwayV1, estimateLiveRunnerLegSecondsV1, LIVE_RUNNER_TACTICS_POLICY_V1 } from './LiveRunnerAdvancePolicyV1';
+import { deriveLiveRunnerSafetyMarginSecondsV1 } from '../running/RunnerRiskPolicy';
 import { selectLiveFieldHandlerV1 } from './LiveFieldHandlerSelectionV1';
 import {createLiveFieldDecisionTraceV1} from './LiveFieldDecisionTraceV1';
 import {captureLiveFieldObservationSnapshotV1,buildLiveFieldPerceivedStateV1,type LiveFieldObservationSnapshotV1} from './LiveFieldPerceptionV1';
@@ -97,7 +98,11 @@ export type LiveFieldPlayInputV1 = Readonly<{ ball: BallWorldMoment; physics: Ae
   recordInitialMovementV98?: true;
   /** Internal transition/research setting. Never an authored player ability. */
   defenseDecisionModeV118?: 'legacy'|'shadow'|'individual';
-  recordDecisionTraceV118?: true }>;
+  recordDecisionTraceV118?: true;
+  /** Opt-in runner tactics, authored and UNMEASURED; omitted keeps legacy decisions. Enables: two-out go-on-contact held for the
+   * whole contact leg, line-drive freeze under two outs, halfway on a shallow catchable fly. `context` also lets risk follow outs,
+   * inning and score (facts a runner knows). */
+  runnerTacticsV1?: Readonly<{ context?: Readonly<{ inning: number; regulationInnings: number; battingRuns: number; defendingRuns: number }> }> }>;
 export type LiveFieldRuleFactsV1 = Readonly<{ contactTick: number; throughTick: number; territory: 'fair' | 'foul';
   firstGroundContactTick: number | null; flyCatch: Readonly<{ fielderId: string; firstTouchTick: number; secureCatchTick: number }> | null;
   runnerTouches: readonly RunnerBaseTouchFact[]; controlledBaseContacts: readonly ControlledBaseContactFact[];
@@ -218,7 +223,7 @@ type NearFieldAttemptV113 = { point: Vec3; eta: number; arrivalSeconds: number; 
 type HandPreparationState = { fielder: Fielder; base: BaseballBase;
   curve: Extract<ReturnType<typeof createLiveHandPreparationV1>, { kind: 'planned' }>; prepared: boolean };
 type Leg = { from: number; to: BaseballBase; motion: LiveRunnerMotionV1; nextTouchIndex: number; height: number;
-  departure: { base: BaseballBase; elapsedSeconds: number } | null; returning?: boolean };
+  departure: { base: BaseballBase; elapsedSeconds: number } | null; returning?: boolean; halfway?: true };
 type Runner = { spec: LiveRunnerV1; base: number; p: Vec3; leg: Leg | null; retired: boolean; scored: boolean;
   retiredSlideV115?:Leg;
   retouchBase: 1 | 2 | 3 | null; returnReadyAt: number | null };
@@ -313,6 +318,8 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       && (f.fieldingCognition.pursuitCostWeight === undefined || Number.isFinite(f.fieldingCognition.pursuitCostWeight)
         && f.fieldingCognition.pursuitCostWeight >= .25 && f.fieldingCognition.pursuitCostWeight <= 4)
       && Number.isFinite(f.reactionSeconds + f.fieldingCognition.decisionSeconds)), 'explicit fielder SI required');
+  { const c = input.runnerTacticsV1?.context; assert(!c || Number.isSafeInteger(c.inning) && c.inning >= 1 && Number.isSafeInteger(c.regulationInnings) && c.regulationInnings >= 1
+    && Number.isFinite(c.battingRuns) && Number.isFinite(c.defendingRuns), 'runner tactics context required finite inning and score'); }
   for (const r of input.runners) assert(r.runnerId && [0, 1, 2, 3].includes(r.initialBase)
     && [r.topSpeedMps, r.accelerationMps2].every(x => Number.isFinite(x) && x > 0)
     && Number.isFinite(r.reactionSeconds) && r.reactionSeconds >= 0 && (!r.position || finite(r.position))
@@ -380,6 +387,13 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   const runners: Runner[] = input.runners.map(spec => ({ spec, base: spec.initialBase, p: spec.position ?? base(spec.initialBase), leg: null,
     retired: false, scored: false, retouchBase: null, returnReadyAt: null }));
   const tagUpAtFirstTouch = new Map<string, boolean>();
+  const tacticsV1 = input.runnerTacticsV1 !== undefined;
+  // Elective margin. Without tactics context this is exactly the runner's own margin.
+  const marginV1 = (r: Runner, targetBase: number, forced: boolean): number => {
+    const own = r.spec.advanceSafetyMarginSeconds ?? .35, c = input.runnerTacticsV1?.context;
+    return !c || targetBase < 1 || targetBase > 4 ? own : deriveLiveRunnerSafetyMarginSecondsV1({ baseMarginSeconds: own, outs: Math.min(2, input.outs + retiredCount) as 0 | 1 | 2,
+      inning: c.inning, regulationInnings: c.regulationInnings, battingRuns: c.battingRuns, defendingRuns: c.defendingRuns, targetBase: targetBase as 1 | 2 | 3 | 4, forced });
+  };
   const runnerReadBias = new Map(runners.map(r => [r.spec.runnerId,
     (2 * runnerRandomDrawV152('runner-flight-read-v53:' + r.spec.initialBase) - 1)
       * r.spec.reactionSeconds]));
@@ -621,6 +635,20 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       durationSeconds: motion.durationSeconds, lengthMeters: motion.lengthMeters, route: motion.route });
     if (r.base > 0 && !physicalBaseDepartures.has(r.spec.runnerId))
       scheduleDeparture(r.leg, r.base as BaseballBase, 0, motion.touches[0]?.centerElapsedSeconds ?? motion.durationSeconds);
+  };
+  // Partway down the line and wait. The motion has no base touch: it ends in a plain runner stop, never a base fact.
+  const beginHalfwayV1 = (r: Runner, n: BaseballBase, fraction: number, t: number) => {
+    const p = runnerAt(r, t), b = base(n), target = v(p.x + (b.x - p.x) * fraction, p.y, p.z + (b.z - p.z) * fraction);
+    if (distance(flat(p), flat(target)) <= (field.baseTouchRadiusMeters ?? .28)) return;
+    const raw = createLiveRunnerMotionV1({ position: p, velocity: runnerVelocityAt(r, t), bases: [{ base: n, position: target }],
+      topSpeedMps: r.spec.topSpeedMps, accelerationMps2: r.spec.accelerationMps2, roundingRadiusMeters: r.spec.roundingRadiusMeters ?? 4.5,
+      lateralAccelerationMps2: r.spec.lateralAccelerationMps2 ?? 1.5 * r.spec.accelerationMps2, baseTouchRadiusMeters: field.baseTouchRadiusMeters ?? .28 });
+    if (!raw) return;
+    const motion: LiveRunnerMotionV1 = Object.freeze({ ...raw, touches: [] });
+    r.leg = { from: t, to: r.base as BaseballBase, motion, nextTouchIndex: 0, height: p.y, departure: null, halfway: true };
+    runnerMotions.push({ elapsedSeconds: t, runnerId: r.spec.runnerId, throughBases: [], position: p, velocity: runnerVelocityAt(r, t),
+      durationSeconds: motion.durationSeconds, lengthMeters: motion.lengthMeters, route: motion.route });
+    if (r.base > 0 && !physicalBaseDepartures.has(r.spec.runnerId)) scheduleDeparture(r.leg, r.base as BaseballBase, 0, motion.durationSeconds);
   };
   // Immediate return after touching first is protected; choosing a new leg to
   // second replaces this motion and ends the exception. This is not a tag fact.
@@ -2058,6 +2086,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       const seen = history.slice().reverse().find(o => o.t <= t - r.spec.reactionSeconds), prediction = predictObservation(seen ?? null, t, r.spec.reactionSeconds);
       if (!seen || !prediction || seen.phase !== 'airborne') return undefined;
       let catchMarginSeconds = -LIVE_FIELD_TEST_MODEL_V1.sensorPrediction.horizonSeconds;
+      const launch = tacticsV1 ? history.find(o => o.phase === 'airborne' && o.t <= t - r.spec.reactionSeconds) : undefined;
       // Only propagate this already observed ball. Actual future kernel
       // boundaries/catches and final hit classifications never enter the read.
       const beforeGround = Math.min(prediction.maximumSeconds, prediction.firstPredictedGroundSeconds);
@@ -2072,7 +2101,13 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
               f.spec.bodyModelV105 ? roleActor(f,t).remainingReactionSeconds + Math.abs(liveFielderDesiredCrouchV105(f.spec.bodyModelV105, at(f.body, t), point) - poseV105(f, t)!.crouchMeters) / f.spec.bodyModelV105.postureSpeedMps : 0));
         }
       }
-      return { observedAtSeconds: seen.t, catchMarginSeconds: catchMarginSeconds + runnerReadBias.get(r.spec.runnerId)! };
+      if (!tacticsV1) return { observedAtSeconds: seen.t, catchMarginSeconds: catchMarginSeconds + runnerReadBias.get(r.spec.runnerId)! };
+      // Observed first-flight read, authored and UNMEASURED: flat and hard and low is a line drive.
+      const horizontal = Math.hypot(launch!.velocity.x, launch!.velocity.z), elevation = Math.atan2(launch!.velocity.y, horizontal) * 180 / Math.PI,
+        lineDrive = Math.hypot(horizontal, launch!.velocity.y) >= 25 && elevation >= -15 && elevation <= 20 && launch!.position.y <= 8,
+        landing = Number.isFinite(beforeGround) ? prediction.sample(beforeGround).position : null;
+      return { observedAtSeconds: seen.t, catchMarginSeconds: catchMarginSeconds + runnerReadBias.get(r.spec.runnerId)!, lineDrive,
+        hangSeconds: beforeGround, landingDepthMeters: landing ? distance(flat(landing), flat(base(0))) : undefined };
     };
     for (const r of runners.slice().sort((a, b) => b.base - a.base)) {
       if (slideCommittedV115(r,t)) continue;
@@ -2103,16 +2138,25 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       // player SI. Straight-flight time is an optimistic lower bound for the
       // defense, not a fabricated catch or a fixed global throwing velocity.
       const looseGroundCue=runnerObservedCueV1(firstGroundContactSeconds,t),looseTouchCue=runnerObservedCueV1(firstFielderTouchSeconds,t),air=loose?undefined:airborneAssessment(r), canConsider = looseGroundCue !== null || looseTouchCue !== null
-        || air !== undefined && air.catchMarginSeconds < -(r.spec.advanceSafetyMarginSeconds ?? .35),
+        || air !== undefined && air.catchMarginSeconds < -(marginV1(r, next, forced) * (tacticsV1 && (air as any).lineDrive ? LIVE_RUNNER_TACTICS_POLICY_V1.lineDriveMarginScale : 1)),
         defenderControlSeconds = r.base === 0 || forced && looseGroundCue !== null || !canConsider ? null : estimateDefenseControl(r, next);
       const awardTarget = overFence?.fair ? Math.min(4, (overFence.awardFrom?.[r.spec.runnerId] ?? r.spec.initialBase) + (overFence.untouchedGround ? 4 : 2)) : null;
+      const halfwayV1 = tacticsV1 && !targetOccupied && next < 4 && air !== undefined && !looseGroundCue && !looseTouchCue
+        ? decideLiveRunnerHalfwayV1({ outs: Math.min(2, input.outs + retiredCount) as 0 | 1 | 2, currentBase: r.base as 0 | 1 | 2 | 3, atOrigin: distance(flat(runnerAt(r, t)), flat(base(r.base))) <= (field.baseTouchRadiusMeters ?? .28) + 1,
+          hasGroundOrFielderCue: false, safetyMarginSeconds: marginV1(r, next, forced), airborne: air as any }) : null;
+      if (halfwayV1?.halfway) {
+        runnerDecisions.push({ elapsedSeconds: t, runnerId: r.spec.runnerId, targetBase: next, defenderControlSeconds: null, advance: false, reason: 'halfway_wait',
+          readyAtElapsedSeconds: null, runnerTravelSeconds: 0, runnerArrivalSeconds: null, raceMarginSeconds: null });
+        beginHalfwayV1(r, next as BaseballBase, halfwayV1.fraction, t); continue;
+      }
       let decision = decideLiveRunnerAdvanceV1({ nowSeconds: t, playStartedAtSeconds: loose?.pitchReleaseSeconds??start, currentBase: r.base as 0 | 1 | 2 | 3, outs: input.outs as 0 | 1 | 2,
         distanceToNextBaseMeters: distance(flat(runnerAt(r, t)), flat(base(next))), baseTouchRadiusMeters: field.baseTouchRadiusMeters ?? .28,
         targetOccupied, runner: r.spec, forced,
         awardThroughBase: awardTarget as BaseballBase | null,
         firstGroundContactElapsedSeconds: looseGroundCue,
         firstFielderTouchElapsedSeconds: looseTouchCue,
-        defenderControlSeconds, airborneAssessment: air, policy: { safetyMarginSeconds: r.spec.advanceSafetyMarginSeconds } });
+        defenderControlSeconds, airborneAssessment: air, policy: { safetyMarginSeconds: marginV1(r, next, forced) },
+        ...(tacticsV1 ? { tacticsV1: { contactLeg: r.base === r.spec.initialBase } } : {}) });
       if(loose&&looseGroundCue===null&&looseTouchCue===null)decision={...decision,advance:false,reason:'loose_pitch_wait_for_live_ball_cue'} as any;
       if (decision.reason === 'recognizing_departure_cue' && !targetOccupied) runnerDecisionPending = true;
       const previous = runnerDecisions.slice().reverse().find(d => d.runnerId === r.spec.runnerId);
@@ -2131,7 +2175,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
             topSpeedMps: r.spec.topSpeedMps, accelerationMps2: r.spec.accelerationMps2,
             roundingRadiusMeters: r.spec.roundingRadiusMeters ?? 4.5, lateralAccelerationMps2: r.spec.lateralAccelerationMps2 ?? 1.5 * r.spec.accelerationMps2,
             ...(r.spec.technicalSkills === undefined ? {} : { technicalSkills: r.spec.technicalSkills }), baseTouchRadiusMeters: field.baseTouchRadiusMeters ?? .28 });
-        if (next && defense! - next.touches[0].elapsedSeconds > (r.spec.advanceSafetyMarginSeconds ?? .35)) { beginLeg(r, 2, t, defense); continue; }
+        if (next && defense! - next.touches[0].elapsedSeconds > marginV1(r, 2, false)) { beginLeg(r, 2, t, defense); continue; }
       }
       if (!leg || leg.returning || r.retouchBase !== null || r.retired || r.scored || leg.departure !== null && leg.nextTouchIndex > 0 || leg.nextTouchIndex >= leg.motion.touches.length
         || new Set(leg.motion.touches.slice(leg.nextTouchIndex).map(b => b.base)).size > 1 || leg.to >= 4
@@ -2139,14 +2183,14 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       const awardThrough = overFence?.fair ? Math.min(4, (overFence.awardFrom?.[r.spec.runnerId] ?? r.spec.initialBase) + (overFence.untouchedGround ? 4 : 2)) : null,
         cue = loose?(runnerObservedCueV1(firstGroundContactSeconds,t)??runnerObservedCueV1(firstFielderTouchSeconds,t)):(firstGroundContactSeconds ?? firstFielderTouchSeconds);
       const airborne = !loose&&cue === null ? airborneAssessment(r) : undefined;
-      if (awardThrough === null && (dead || (cue === null ? !airborne || airborne.catchMarginSeconds >= -(r.spec.advanceSafetyMarginSeconds ?? .35)
+      if (awardThrough === null && (dead || (cue === null ? !airborne || airborne.catchMarginSeconds >= -marginV1(r, leg.to + 1, false)
         : t < cue + r.spec.reactionSeconds))) continue;
       const finalBase = awardThrough !== null ? awardThrough : leg.to + 1;
       if (finalBase <= leg.to || Array.from({ length: finalBase - leg.to + 1 }, (_, i) => leg.to + i).some(n => targetOccupiedByOther(r, n))) continue;
       roundingRecheckAfter.set(r.spec.runnerId, t + .12);
       const defense = estimateDefenseControl(r, finalBase);
       if (awardThrough === null && (defense === null || distance(flat(runnerAt(r, t)), flat(base(finalBase))) / r.spec.topSpeedMps
-        + (r.spec.advanceSafetyMarginSeconds ?? .35) >= defense)) continue;
+        + marginV1(r, finalBase, false) >= defense)) continue;
       const position = runnerAt(r, t), velocity = runnerVelocityAt(r, t), motion = createLiveRunnerMotionV1({ position, velocity,
         bases: Array.from({ length: finalBase - leg.to + 1 }, (_, i) => ({ base: leg.to + i, position: base(leg.to + i) })),
         topSpeedMps: r.spec.topSpeedMps, accelerationMps2: r.spec.accelerationMps2,
@@ -2154,7 +2198,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         ...(r.spec.technicalSkills === undefined ? {} : { technicalSkills: r.spec.technicalSkills }),
         lateralAccelerationMps2: r.spec.lateralAccelerationMps2 ?? 1.5 * r.spec.accelerationMps2,
         baseTouchRadiusMeters: field.baseTouchRadiusMeters ?? .28 });
-      if (!motion || awardThrough === null && defense! - motion.touches[motion.touches.length - 1].elapsedSeconds <= (r.spec.advanceSafetyMarginSeconds ?? .35)) continue;
+      if (!motion || awardThrough === null && defense! - motion.touches[motion.touches.length - 1].elapsedSeconds <= marginV1(r, finalBase, false)) continue;
       r.leg = { from: t, to: leg.to, motion, nextTouchIndex: 0, height: position.y, departure: null };
       if (leg.departure !== null) scheduleDeparture(r.leg, leg.departure.base, 0, motion.touches[0]?.centerElapsedSeconds ?? motion.durationSeconds);
       runnerMotions.push({ elapsedSeconds: t, runnerId: r.spec.runnerId, throughBases: motion.touches.map(b => b.base), position, velocity,

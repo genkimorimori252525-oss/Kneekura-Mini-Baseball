@@ -24,7 +24,7 @@ export { compareMeasuredTrajectoriesV69 } from './MeasuredTrajectoryComparisonWo
 export type { MeasuredTrajectoryComparisonInputV69, MeasuredTrajectoryFlightFrameV69 } from './MeasuredTrajectoryComparisonWorkbenchV69';
 export { LIVE_MATCH_PHYSICS_V1, LIVE_MATCH_MOUND_SURFACE_V1 } from './LiveBaseballMatchV1';
 export { createLiveBattingPracticeV150, resumeLiveBattingPracticeSpinV239, resumeLiveBattingPracticeEpisodesV242 } from './LiveBattingPracticeV150';
-export { AUTHORED_LIVE_BATTER_OBSERVATION_V151, validateLiveBatterObservationPolicyV151 } from './LiveBatterObservationV151';
+export { AUTHORED_LIVE_BATTER_OBSERVATION_V151,LIVE_MATCH_BATTER_OBSERVATION_V2, validateLiveBatterObservationPolicyV151 } from './LiveBatterObservationV151';
 export { AUTHORED_OBSERVED_DIRECTION_MOTOR_V153, validateObservedDirectionMotorV153 } from './LiveDirectionMotorV153';
 export type { ObservedDirectionMotorPolicyV153 } from './LiveDirectionMotorV153';
 export { AUTHORED_MATCH_RANDOMNESS_V152, AUTHORED_PLAY_RANDOMNESS_V152, LIVE_RANDOM_DOMAINS_V152,
@@ -36,7 +36,7 @@ export type { LiveBattingPracticeRequestV150, LiveBattingPracticeCandidateV150, 
 export { resolveLiveTechnicalTraitsV75 } from './LiveTraitProfilesV1';
 export { TECHNICAL_TRAIT_CALIBRATION_V75 } from './LiveTechnicalTraitsV75';
 
-export { getLiveTraitCatalogV77, projectLiveTraitProfilesV77, setLiveTraitProfileV77, migrateLiveTraitRosterV77, resolveLiveExecutionPhysicalV77 } from './LiveTraitRuntimeV77';
+export { getLiveTraitCatalogV77, getLiveTraitCatalogConnectedV1, projectLiveTraitProfilesV77, setLiveTraitProfileV77, migrateLiveTraitRosterV77, resolveLiveExecutionPhysicalV77 } from './LiveTraitRuntimeV77';
 export { LIVE_PITCH_TYPES_V77, validatePitchRepertoireV77, validatePitchingMotionV77, resolvePitcherRepertoireV77, pitchSpinFromControlsV77, pitchSpinToControlsV77 } from './LivePitchAuthoringV77';
 export type { PitchRepertoireV77, PitchRepertoireEntryV77, PitchingMotionV77 } from './LivePitchAuthoringV77';
 export { buildPitcherWorkbenchInputV77, simulatePitcherWorkbenchV77 } from './PitcherWorkbenchV77';
@@ -87,7 +87,7 @@ export { AVERAGE_FIELD_REFERENCE_V95, AVERAGE_FIELD_PROFILE_V95, AVERAGE_FIELD_C
 
 export { markLiveAuthoringSourceV101 } from './LiveAuthoringSourceV101';
 
-export { BASEBALL_SURFACES_V101 } from '../../core/sim/ball/BaseballSurfaceCalibrationV101';
+export { BASEBALL_SURFACES_V101, LIVE_MATCH_GRASS_V2 } from '../../core/sim/ball/BaseballSurfaceCalibrationV101';
 
 export { liveFielderBodyControlBoundsV105, resolveLiveFielderBodyModelV105 } from '../../core/sim/fielding/LiveFielderBodyGeometryV105';
 export type { LiveFielderBodyControlsV105, LiveFielderBodyModelV105, LiveFielderBodyPoseV105 } from '../../core/sim/fielding/LiveFielderBodyGeometryV105';
@@ -114,3 +114,5 @@ export {createLocalContactDescriptorReportV240,appendAcceptedContactV240,readLoc
 
 export {declareSpinPracticeEpisodesV242} from './LiveSpinPracticeEpisodesV242';
 export {validateLiveContactFrameMotorV244,validateLiveObservedContactFrameTrialV244,resolveLiveContactFrameMotorPracticeV244} from './LiveContactFrameMotorV244';
+export { LIVE_EMOTION_POLICY_V1, createLiveEmotionTrackerV1 } from './LiveEmotionV1';
+export { LIVE_BATTER_TECHNIQUE_POLICY_V1 } from '../../core/decision/batting/BatterContactTechniqueV1';

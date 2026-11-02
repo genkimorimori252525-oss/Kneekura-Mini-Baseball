@@ -6,6 +6,7 @@ import type {
   CanonicalMatchState,
 } from '../../model/CanonicalMatchState';
 import {
+  deriveLiveRunnerSafetyMarginSecondsV1,
   deriveRunnerAdvanceRiskPolicy,
 } from './RunnerRiskPolicy';
 
@@ -101,5 +102,29 @@ describe('RunnerRiskPolicy', () => {
 
     expect(result.minimumAdvanceSafetyMarginTicks)
       .toBe(0);
+  });
+});
+
+describe('deriveLiveRunnerSafetyMarginSecondsV1', () => {
+  const facts = { baseMarginSeconds: .35, outs: 1 as const, inning: 3, regulationInnings: 9, battingRuns: 2, defendingRuns: 2, targetBase: 2 as const, forced: false };
+  it('is the runner own margin in a neutral state', () => {
+    expect(deriveLiveRunnerSafetyMarginSecondsV1(facts)).toBeCloseTo(.35, 9);
+  });
+  it('is more aggressive with two outs and when trailing late, more careful when leading late', () => {
+    expect(deriveLiveRunnerSafetyMarginSecondsV1({ ...facts, outs: 2 })).toBeCloseTo(.30, 9);
+    expect(deriveLiveRunnerSafetyMarginSecondsV1({ ...facts, inning: 9, battingRuns: 1 })).toBeCloseTo(.25, 9);
+    expect(deriveLiveRunnerSafetyMarginSecondsV1({ ...facts, inning: 9, battingRuns: 4 })).toBeCloseTo(.45, 9);
+    expect(deriveLiveRunnerSafetyMarginSecondsV1({ ...facts, inning: 8, battingRuns: 1 })).toBeCloseTo(.35, 9);
+  });
+  it('does not make the first or third out at third unless forced', () => {
+    for (const outs of [0, 2] as const) {
+      expect(deriveLiveRunnerSafetyMarginSecondsV1({ ...facts, outs, targetBase: 3 })).toBeGreaterThan(deriveLiveRunnerSafetyMarginSecondsV1({ ...facts, outs, targetBase: 2 }));
+      expect(deriveLiveRunnerSafetyMarginSecondsV1({ ...facts, outs, targetBase: 3, forced: true })).toBeCloseTo(deriveLiveRunnerSafetyMarginSecondsV1({ ...facts, outs, targetBase: 2 }), 9);
+    }
+    expect(deriveLiveRunnerSafetyMarginSecondsV1({ ...facts, targetBase: 3 })).toBeCloseTo(.35, 9);
+  });
+  it('stays inside bounds and never goes below the smaller of the own margin and the floor', () => {
+    expect(deriveLiveRunnerSafetyMarginSecondsV1({ ...facts, baseMarginSeconds: .06, outs: 2, inning: 9, battingRuns: 0, defendingRuns: 3 })).toBeCloseTo(.05, 9);
+    expect(deriveLiveRunnerSafetyMarginSecondsV1({ ...facts, baseMarginSeconds: 0 })).toBe(0);
   });
 });

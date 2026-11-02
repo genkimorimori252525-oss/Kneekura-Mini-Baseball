@@ -1,11 +1,11 @@
 import { markLiveAuthoringSourceV101 } from './LiveAuthoringSourceV101';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { applyLivePhysicalRosterV1, type LivePhysicalRosterEntryV1 } from './LivePhysicalRosterV1';
-import { getLiveTraitCatalogV77, validateLiveTraitProfileV1, type LiveTraitPhysicalSourceV54, type LiveTraitProfileV1, type LiveTraitRosterInputV1, type LiveTraitSourceV1 } from './LiveTraitProfilesV1';
+import { getLiveTraitCatalogConnectedV1, isLiveConnectedTraitV1, resolveLivePhysicalTraitFieldsV1, validateLiveTraitProfileV1, type LiveTraitPhysicalFieldsV1, type LiveTraitPhysicalSourceV54, type LiveTraitProfileV1, type LiveTraitRosterInputV1, type LiveTraitSourceV1 } from './LiveTraitProfilesV1';
 import { getLiveTraitAuthoringCalibrationV54 } from './LiveTraitAuthoringCalibrationV54';
 import type { LivePitchQualityRequestV177 } from './LivePitchQualityRecipeV177';
 
-export { getLiveTraitCatalogV77 } from './LiveTraitProfilesV1';
+export { getLiveTraitCatalogV77, getLiveTraitCatalogConnectedV1 } from './LiveTraitProfilesV1';
 const calibration = getLiveTraitAuthoringCalibrationV54();
 const freeze = <T>(value: T): T => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
 function assert(value: unknown, message: string): asserts value { if (!value) throw new Error('independent live traits: ' + message); }
@@ -77,7 +77,7 @@ export function projectLiveTraitProfilesV77(input: Readonly<{ roster: LiveTraitR
   assert(entry, 'unknown player');
   return freeze({ boundary: 'LOCAL_TRAIT_AUTHORING_ONLY' as const, nativeMasteryAuthenticated: false as const, catalogVersion: 77,
     calibrationVersion: 77, calibrationAuthority: 'LOCAL_AUTHORING_ONLY', profileVersion: entry.traitProfile?.version ?? null,
-    traits: getLiveTraitCatalogV77().map(definition => {
+    traits: getLiveTraitCatalogConnectedV1().map(definition => {
       const selection = entry.traitProfile?.selections.find(s => s.familyId === definition.familyId), source = projectedSource(entry, definition.familyId),
         owned = selection ? selection.stateId !== null : null, stateId = selection?.stateId ?? null, state = definition.states.find(s => s.stateId === stateId);
       return { familyId: definition.familyId, label: definition.label, status: owned === null ? 'UNASSESSED' as const : owned ? 'OWNED' as const : 'ABSENT' as const,
@@ -88,15 +88,17 @@ export function projectLiveTraitProfilesV77(input: Readonly<{ roster: LiveTraitR
 }
 export function setLiveTraitProfileV77(input: Readonly<{ roster: LiveTraitRosterInputV1; playerId: string; familyId: string; stateId: string | null; source?: LiveTraitSourceV1 }>) {
   const request = cloneInert(input), roster = validateRoster(request.roster), entry = roster.entries.find(e => e.playerId === request.playerId),
-    definition = getLiveTraitCatalogV77().find(d => d.familyId === request.familyId);
+    definition = getLiveTraitCatalogConnectedV1().find(d => d.familyId === request.familyId);
   assert(entry && definition && (request.stateId === null || definition.states.some(s => s.stateId === request.stateId)), 'unknown player, family or state');
   const migration = migrateEntry(roster, entry), previous = entry.traitProfile!.selections.find(s => s.familyId === request.familyId),
     retained = projectedSource(entry, request.familyId), source = request.source === undefined ? retained : request.familyId === 'bad_ball_hitting'
       ? { ...retained, ...request.source } : request.source;
   const selection = { familyId: request.familyId, stateId: request.stateId, source };
-  const candidate = { version: 'live_trait_profile_v2' as const, selections: [...entry.traitProfile!.selections.filter(s => s.familyId !== request.familyId), selection] };
+  // A connected family has no base SI to retain, so OFF leaves no selection behind.
+  const kept = request.stateId === null && isLiveConnectedTraitV1(request.familyId) ? null : selection;
+  const candidate = { version: 'live_trait_profile_v2' as const, selections: [...entry.traitProfile!.selections.filter(s => s.familyId !== request.familyId), ...(kept ? [kept] : [])] };
   const profile = validateLiveTraitProfileV1(candidate, owner(entry));
-  const changed = JSON.stringify(previous ?? null) !== JSON.stringify(selection), changes: { path: string; before: unknown; after: unknown }[] = [];
+  const changed = JSON.stringify(previous ?? null) !== JSON.stringify(kept), changes: { path: string; before: unknown; after: unknown }[] = [];
   if (changed) {
     (entry as unknown as MutableEntry).traitProfile = profile; mark(roster, entry);
     changes.push({ path: 'traitProfile.selections.' + request.familyId, before: previous ?? null, after: selection });
@@ -108,7 +110,7 @@ export function setLiveTraitProfileV77(input: Readonly<{ roster: LiveTraitRoster
 type ExecutionPhysical = Readonly<{ badBallControl?: number; throwDirectionStdRadians?: number; baserunningSafetyMarginSeconds?: number;
   fieldingPursuitCostWeight?: number; swingDecision?: Readonly<{ approach: 'AUTO' | 'TAKE' | 'SWING'; threshold: number; aggressionWeight: number }> }>;
 /** One copy at the execution boundary. The returned effective values are never saved as base SI. */
-export function resolveLiveExecutionPhysicalV77<T extends ExecutionPhysical>(physical: T, profile?: LiveTraitProfileV1): T & Readonly<{pitchQualityV177?:LivePitchQualityRequestV177}> {
+export function resolveLiveExecutionPhysicalV77<T extends ExecutionPhysical>(physical: T, profile?: LiveTraitProfileV1): T & LiveTraitPhysicalFieldsV1 & Readonly<{pitchQualityV177?:LivePitchQualityRequestV177}> {
   if (profile === undefined) return physical;
   const safe = validateLiveTraitProfileV1(profile, physical);
   if (safe.version !== 'live_trait_profile_v2') return physical;
@@ -139,5 +141,6 @@ export function resolveLiveExecutionPhysicalV77<T extends ExecutionPhysical>(phy
       if (offset !== 0) put('swingDecision', { ...current, threshold: clamp(current.threshold + offset, 0, 1) });
     }
   }
+  Object.assign(patch, resolveLivePhysicalTraitFieldsV1(safe));
   return Object.keys(patch).length ? { ...physical, ...patch } : physical;
 }
