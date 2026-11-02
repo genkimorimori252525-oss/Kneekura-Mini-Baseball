@@ -343,7 +343,7 @@ body:not([data-mode="manager"]) .hand-deck { display: none; }
 .player-row .order { color: var(--muted); font-variant-numeric: tabular-nums; text-align: center; }
 .player-row .side { width: 4px; height: 20px; background: #e59691; }
 .player-row .side[data-hand="L"] { background: var(--blue); }
-.player-row .side[data-hand="S"] { background: var(--green); }
+.player-row .side[data-hand="S"] { background: #b48ae6; }
 .player-row .who { overflow-wrap: anywhere; }
 .player-row .who small { display: block; font-size: 10px; color: var(--muted); }
 .player-row .tag { font-size: 10px; color: var(--gold); white-space: nowrap; }

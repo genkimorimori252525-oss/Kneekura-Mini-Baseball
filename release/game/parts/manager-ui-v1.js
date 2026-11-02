@@ -363,7 +363,7 @@
     } else if (name === 'order') {
       body.innerHTML = '<div class="order-table">' + [0, 1].map(team => '<div>' + teamTitle(team) + lineupFor(team).map(p => (
         '<div class="player-row" style="cursor:default"><span class="order">' + p.order + '</span><span>' + POS[p.pos] + '</span><span class="side" data-hand="' + handHint(p.bats) + '"></span><span class="who">' + safe(p.name) + '</span><span></span></div>'
-      )).join('') + '</div>').join('') + '</div><p class="box-note">線の色は右打・右投が赤、左が青、両打が緑です。</p>';
+      )).join('') + '</div>').join('') + '</div><p class="box-note">線の色は右打・右投が赤、左が青、両打が紫です。</p>';
     }
     $$('.detail-tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
   }

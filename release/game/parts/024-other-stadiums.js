@@ -1747,8 +1747,9 @@
   // work/stadium-selector-all-20261101/studio/crowd-tiles.mjs
   var CROWD_TILE = Object.freeze({ width: 16, height: 12, frameCount: 3, variantCount: 8, occupancy: 1, individualWorldObjects: 0 });
   var cache5 = /* @__PURE__ */ new Map();
-  var rgb2 = (hex5) => hex5.slice(1).match(/../g).map((v) => parseInt(v, 16));
-  var hex2 = (values) => "#" + values.map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0")).join("");
+  var rgb2 = (hex5) => [parseInt(hex5.slice(1, 3), 16), parseInt(hex5.slice(3, 5), 16), parseInt(hex5.slice(5, 7), 16)];
+  var HEX_BYTE = Array.from({ length: 256 }, (_, v) => v.toString(16).padStart(2, "0"));
+  var hex2 = (values) => "#" + HEX_BYTE[Math.max(0, Math.min(255, Math.round(values[0])))] + HEX_BYTE[Math.max(0, Math.min(255, Math.round(values[1])))] + HEX_BYTE[Math.max(0, Math.min(255, Math.round(values[2])))];
   var shade = (c, k2) => hex2(rgb2(c).map((v) => v * k2));
   var seed = (n) => (Math.imul(n + 1, 2654435761) ^ n >>> 4) >>> 0;
   function crowdAtlas(colors, appearance, packed = false, wardrobe = null) {
@@ -3284,7 +3285,7 @@
   // re-samples that material from liveGeometry, so the board can change without rebuilding the stadium.
   var liveGeometry = null;
   var liveBoard = null, liveBase = null, liveBoardKey = "";
-  var MOVING_DENSITY = 1.0001, REST_DELAY_MS = 160, REST_SLICE_MS = 5, REST_GAP_MS = 11;
+  var MOVING_DENSITY = 1.0001, MOVING_CROWD_DENSITY = 3, REST_DELAY_MS = 160, REST_SLICE_MS = 5, REST_GAP_MS = 11;
   var BOARD_MATERIAL = /^(scoreboard|paypay:vision|niikura:main-scoreboard|koshien:score|dodger:score)/;
   function sampleBoardLive(g, material, u, v, profile) {
     if (material.startsWith("paypay:")) return samplePaypayMaterial(material, u, v, profile, g);
@@ -3341,7 +3342,7 @@
     }, raster = (a, b, c, color, tile = null, material = null, surfaceId = null, density = 1, sMaterialZ = Infinity, lodProfile = null) => {
       const edge = (p, q, x, y) => (q.x - p.x) * (y - p.y) - (q.y - p.y) * (x - p.x), area = edge(a, b, c.x, c.y);
       if (!Number.isFinite(area) || Math.abs(area) < 1e-3) return;
-      const crowdFootprint = metricCrowd && tile ? perspectiveUvFootprint(a, b, c, step / density) : null;
+      const crowdFootprint = metricCrowd && tile ? perspectiveUvFootprint(a, b, c, step / (moving ? MOVING_CROWD_DENSITY : density)) : null;
       const x0 = Math.max(step, grid.ceil(Math.min(a.x, b.x, c.x) * density) / density), x1 = Math.min(600 - step, grid.floor(Math.max(a.x, b.x, c.x) * density) / density), y0 = Math.max(step, grid.ceil(Math.min(a.y, b.y, c.y) * density) / density), y1 = Math.min(432 - step, grid.floor(Math.max(a.y, b.y, c.y) * density) / density);
       if (density === 1) {
         for (let by = Math.floor(Math.max(0, Math.min(a.y, b.y, c.y)) / binSize); by <= Math.floor(Math.min(432, Math.max(a.y, b.y, c.y)) / binSize); by++) for (let bx = Math.floor(Math.max(0, Math.min(a.x, b.x, c.x)) / binSize); bx <= Math.floor(Math.min(600, Math.max(a.x, b.x, c.x)) / binSize); bx++) {

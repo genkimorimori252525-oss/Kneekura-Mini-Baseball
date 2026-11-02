@@ -49,6 +49,9 @@
     for (const error of (local && local.errors) || []) list.push({ tick: error.tick, fielderId: error.fielderId });
     const reaction = reactionFor(record);
     if (reaction && Number.isFinite(reaction.tick)) list.push({ tick: reaction.tick, reaction });
+    /* The frames can stop just short of a fact's tick, so each moment waits for the last frame at or before it. */
+    const ticks = (record.frames || []).map(frame => frame.tick);
+    for (const moment of list) moment.tick = ticks.reduce((best, tick) => (tick <= moment.tick && tick > best ? tick : best), ticks.length ? Math.min(moment.tick, ticks[0]) : moment.tick);
     momentsOf.set(record, list);
     return list;
   }

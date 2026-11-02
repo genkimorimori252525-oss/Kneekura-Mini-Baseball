@@ -386,7 +386,7 @@ function makeBroadcastRenderer(canvas,labelHost){
  }
  // Live scoreboard: only the board's own cells are drawn again over the held stadium image.
  function paintScoreboardV1(stadium){
-  if(!stadium||typeof stadium.api.scoreboardCells!=='function')return;
+  if(!stadium||fastV2?.on||typeof stadium.api.scoreboardCells!=='function')return;
   const board=window.KneekuraLiveScoreboardV1?.board();if(!board)return;
   try{stadium.api.setScoreboard(board);for(const c of stadium.api.scoreboardCells(stadium.args))flushCell({x:c.x,y:c.y,color:c.color,alpha:c.alpha,owner:'ballpark'});}catch{}
  }
@@ -404,6 +404,7 @@ function makeBroadcastRenderer(canvas,labelHost){
    anchors=parkCacheV81.anchors.slice();groundCells=parkCacheV81.groundCells;markingOwner=parkCacheV81.markingOwner;
    Object.assign(ctx,parkCacheV81.context);parkCandidateV81=key;return true;
   }
+  if(!sameParkKeyV81(parkCandidateV81,key))beginFastV2();
   park();
   // One image at most. A moving camera does not add a readback every frame.
   if(sameParkKeyV81(parkCandidateV81,key)){
@@ -459,7 +460,7 @@ function groundAt(u,v){
    dirZ=-projectionV81.sinYaw*side+projectionV81.cosYaw*row.ahead,
    point={x:c.eye.x+row.t*dirX,z:c.eye.z+row.t*dirZ};row.points.set(u,point);return point;
  }
-function dot(x,y,r,color,alpha=1,glow=0){x=snap(x);y=snap(y);if(!Number.isFinite(x)||!Number.isFinite(y)||x<0||x>600||y<0||y>432)return;anchors.push([x,y]);if(markingOwner)fieldMarkCells.push({x,y,owner:markingOwner});ctx.globalAlpha=alpha;ctx.fillStyle=color;ctx.shadowColor=color;ctx.shadowBlur=glow*state.glow;ctx.beginPath();ctx.arc(x,y,r/qualityV84(),0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.globalAlpha=1}
+function dot(x,y,r,color,alpha=1,glow=0){x=snap(x);y=snap(y);if(!Number.isFinite(x)||!Number.isFinite(y)||x<0||x>600||y<0||y>432)return;anchors.push([x,y]);if(markingOwner)fieldMarkCells.push({x,y,owner:markingOwner});if(fastV2?.on){fastDotV2(x,y,r,color,alpha);return;}ctx.globalAlpha=alpha;ctx.fillStyle=color;ctx.shadowColor=color;ctx.shadowBlur=glow*state.glow;ctx.beginPath();ctx.arc(x,y,r/qualityV84(),0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.globalAlpha=1}
 function line(a,b,color,r=1,alpha=1,spacing=gridV84.step(),glow=0){if(!a||!b)return;const distance=Math.hypot(a.x-b.x,a.y-b.y);if(distance>2500)return;const n=Math.max(1,Math.ceil(distance/spacing)),seen=new Set();for(let i=0;i<=n;i++){const x=snap(a.x+(b.x-a.x)*i/n),y=snap(a.y+(b.y-a.y)*i/n),k=x+','+y;if(!seen.has(k)){dot(x,y,r,color,alpha,glow);seen.add(k)}}}
 function wline(a,b,color,r=1,alpha=1,spacing=gridV84.step(),glow=0){
  const c=camera(),depth=p=>-projectionV81.sinPitch*((p.y||0)-c.eye.y)+projectionV81.cosPitch*(projectionV81.sinYaw*(p.x-c.eye.x)+projectionV81.cosYaw*(p.z-c.eye.z));
@@ -632,12 +633,46 @@ function rasterSphere(center,radius,color,owner){
  function flushCell(cell){
   ctx.fillStyle='#000';ctx.globalAlpha=1;ctx.fillRect(cell.x-gridV84.step()/2,cell.y-gridV84.step()/2,gridV84.step(),gridV84.step());dot(cell.x,cell.y,LIGHT_RADIUS,cell.color,cell.alpha,cell.owner==='ball'?2:0);
  }
+ // While the camera moves, ground and stands go straight into pixels: their tens of thousands of canvas circles
+ // cost more than computing them. A resting camera draws the exact picture and keeps it.
+ const inkV2=new Map();let fastV2=null,fastDrawnV2=false;
+ function inkOfV2(color){
+  let ink=inkV2.get(color);if(ink)return ink;
+  const rgb=color.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+  ink=rgb?rgb.slice(1).map(Number):[1,3,5].map(i=>parseInt(color.slice(i,i+2),16));
+  if(inkV2.size>=4096)inkV2.clear();inkV2.set(color,ink);return ink;
+ }
+ function beginFastV2(){
+  const W=canvas.width,H=canvas.height;
+  if(fastV2?.image.width!==W||fastV2?.image.height!==H)fastV2={image:new ImageData(W,H)};
+  new Uint32Array(fastV2.image.data.buffer).fill(0xff000000);fastV2.on=true;
+ }
+ function fastDotV2(x,y,r,color,alpha){
+  const W=canvas.width,H=canvas.height,scale=W/600,px=fastV2.image.data,ink=inkOfV2(color),cx=x*scale,cy=y*scale,R=r/qualityV84()*scale,edge=R+.38,
+   y1=Math.min(H,Math.ceil(cy+edge)),x0=Math.max(0,Math.floor(cx-edge)),x1=Math.min(W,Math.ceil(cx+edge));
+  for(let py=Math.max(0,Math.floor(cy-edge));py<y1;py++){
+   const dy=py+.5-cy;let i=(py*W+x0)*4;
+   for(let px_=x0;px_<x1;px_++,i+=4){
+    const dx=px_+.5-cx,cover=edge-Math.sqrt(dx*dx+dy*dy);if(cover<=0)continue;
+    const k=(cover>=1?1:cover)*alpha;px[i]+=(ink[0]-px[i])*k;px[i+1]+=(ink[1]-px[i+1])*k;px[i+2]+=(ink[2]-px[i+2])*k;
+   }
+  }
+ }
+ function fastClearV2(x,y){
+  const W=canvas.width,H=canvas.height,scale=W/600,half=gridV84.step()/2*scale,px=fastV2.image.data,x0=Math.max(0,Math.round((x*scale)-half)),x1=Math.min(W,Math.round((x*scale)+half)),y1=Math.min(H,Math.round((y*scale)+half));
+  for(let py=Math.max(0,Math.round((y*scale)-half));py<y1;py++){let i=(py*W+x0)*4;for(let px_=x0;px_<x1;px_++,i+=4)px[i]=px[i+1]=px[i+2]=0;}
+ }
  function flushWorld(){
   actorCells=[];const counts={};
+  if(fastV2?.on){
+   for(const cell of rasterCells.values())if(cell.owner==='ballpark'){fastClearV2(cell.x,cell.y);fastDotV2(cell.x,cell.y,LIGHT_RADIUS,cell.color,cell.alpha);}
+   fastV2.on=false;fastDrawnV2=true;ctx.putImageData(fastV2.image,0,0);
+  }
   for(const cell of rasterCells.values()){
-   flushCell(cell);
+   if(!(fastDrawnV2&&cell.owner==='ballpark'))flushCell(cell);
    if(!['ball','bat'].includes(cell.owner)){actorCells.push(cell);counts[cell.owner]=(counts[cell.owner]||0)+1;}
   }
+  fastDrawnV2=false;
   // Outfielders are tiny from this distance but still need identifiable labels.
   labelPositions=labelPositions.filter(p=>counts[p.id]>0 || runnerNearBodyIds.has(p.id) ||
     ((['LF','CF','RF'].includes(p.id)||p.role==='runner')&&p.nameAnchor.x>=0&&p.nameAnchor.x<=600&&p.nameAnchor.y>=0&&p.nameAnchor.y<=432));
@@ -847,6 +882,7 @@ function rasterSphere(center,radius,color,owner){
      paintWorldCell(x,y,foot.depth-.001,`rgb(${baseUmpirePixels[i]},${baseUmpirePixels[i+1]},${baseUmpirePixels[i+2]})`,a/255,'base-umpire-'+call.base);
     }
   }
+ }
  // An error shows as a small balloon on the same lattice as the sprites, above the fielder's face.
  const errorBalloonV1=['.#####.','#WWRWW#','#WWRWW#','#WWRWW#','#WWWWW#','#WWRWW#','.#####.','...#...'],errorInkV1={'#':'#20242c',W:'#f7f4e8',R:'#d8342a'};
  function drawErrorBalloonV1(){
@@ -857,7 +893,6 @@ function rasterSphere(center,radius,color,owner){
    const left=who.bounds.x+who.bounds.w/2-3.5*step,top=who.bounds.y-(errorBalloonV1.length+.5)*step;
    errorBalloonV1.forEach((row,v)=>[...row].forEach((ink,u)=>{if(ink!=='.')paintWorldCell(left+u*step,top+v*step,.125,errorInkV1[ink],1,'error-balloon');}));
   }
- }
  }
  function draw(input,settings){
   observed=input;state={detail:true,glow:.2,...settings};cam=chooseCamera();cam.f*=settings.zoom||1;updateProjectionV81();
@@ -878,8 +913,8 @@ function rasterSphere(center,radius,color,owner){
   if(!settings.batOverlay||(state.camera==='mound'&&state.appearance==='retro'))drawBat();
   ballRender=!settings.ballOverlay&&observed.ball?BallSurface.rasterize({center:observed.ball.position,radius:.0366,orientation:observed.ball.orientation,project,ray:viewRay,width:600,height:432}):null;
   if(ballRender){for(const p of ballRender.cells)paintWorldCell(p.x,p.y,p.depth,p.color,1,'ball');ballScreen=ballRender;}
-  renderedV2=true;
   flushWorld();guides();history();labels();
+  renderedV2=true;
   canvas.setAttribute('aria-label',({umpire:'球審視点',catcher:'捕手目線',batter:'打者目線',runner:'走者目線',mound:'投手目線',overhead:'俯瞰',fielder:'守備目線'}[state.camera])+'の試合映像。'+observed.phase);
  }
 function paintBatOverlay(bat,overlay){
@@ -913,8 +948,8 @@ function paintBatOverlay(bat,overlay){
   }
   for(const cell of cells.values()){c.fillStyle=cell.color;c.fillRect(cell.x-gridV84.step()/2,cell.y-gridV84.step()/2,gridV84.step(),gridV84.step());count++;}
   return count;
- const BALL_MIN_ALPHA=.85,BALL_HALO_ALPHA=.62;
  }
+ const BALL_MIN_ALPHA=.85,BALL_HALO_ALPHA=.62;
  function ballVisibleFromCamera(){return !observed?.custody;}
  // Optical diameter is deliberately *not* physical collision radius. The
  // strictly increasing curve has NO hard minimum / no flat size plateau:
