@@ -126,7 +126,7 @@
   }
 const vecLength=value=>value?Math.hypot(value.x,value.y,value.z):0;
  let preparingPitchV99=false,preparingSceneV99=null;
- function stop(cancelNext=true){liveAudioV100.stop();playing=false;token++;if(preparingPitchV99){preparingPitchV99=false;if(Number.isFinite(preparingSceneV99))setSceneTime(preparingSceneV99);preparingSceneV99=null;}if(cancelNext)pauseAfterPitch=true;}
+ function stop(cancelNext=true,between=!cancelNext){liveAudioV100.stop(between);playing=false;token++;if(preparingPitchV99){preparingPitchV99=false;if(Number.isFinite(preparingSceneV99))setSceneTime(preparingSceneV99);preparingSceneV99=null;}if(cancelNext)pauseAfterPitch=true;}
  const whiffFollowThroughControllerV88=window.KneekuraWhiffFollowThroughV88.create({core});
  let whiffFollowThroughV88=null;
  const homeRunWatchControllerV83=window.KneekuraHomeRunWatchV83.create();
@@ -450,7 +450,7 @@ const vecLength=value=>value?Math.hypot(value.x,value.y,value.z):0;
   const runners=actors.filter(actor=>actor.role==='runner');$('runner-presence').hidden=camera==='overhead'||!runners.length;
   if(runners.length)$('runner-presence').textContent='走者 '+runners.map(actor=>actor.player.name).join(' ・ ');
   syncUi(result,sceneEnded(),currentFrame);
-  liveAudioV100.observe({record:result,tick:currentFrame.tick,playing:playing&&!fast&&sceneStage()!=='preparation'});
+  liveAudioV100.observe({record:result,tick:currentFrame.tick,playing:playing&&!fast&&sceneStage()!=='preparation',quiet:fast});
   if(state.finished&&selected===records.length-1&&sceneEnded())season.playbackEnded();
   if(lastFailure){$('result-text').textContent='Core処理を停止';$('manager-hint').textContent=lastFailure;}
  }
@@ -553,7 +553,7 @@ const vecLength=value=>value?Math.hypot(value.x,value.y,value.z):0;
  }
  visual.seek(0);
  $('play').onclick=()=>{play().catch(backgroundFailureV116);};
- $('next-pitch').onclick=async()=>{try{const thisGame=gameToken;stop();pauseAfterPitch=true;if(selected<records.length-1){selected++;setSceneTime(0);skipAtMs=null;selectedMark=null;}else await issue();if(thisGame===gameToken)draw();}catch(error){backgroundFailureV116(error);}};
+ $('next-pitch').onclick=async()=>{try{const thisGame=gameToken;stop(true,true);pauseAfterPitch=true;if(selected<records.length-1){selected++;setSceneTime(0);skipAtMs=null;selectedMark=null;}else await issue();if(thisGame===gameToken)draw();}catch(error){backgroundFailureV116(error);}};
  $('previous-pitch').onclick=()=>{if(records.length)selectPitch(selected-1,false);};
  $('restart').onclick=()=>{if(records.length)selectPitch(0,false);else draw();};
  $('new-game').onclick=()=>{try{createGame(true);}catch(error){fail(error);}};
@@ -561,7 +561,7 @@ const vecLength=value=>value?Math.hypot(value.x,value.y,value.z):0;
  $('finish-game').onclick=finish;
  $('pa-select').onchange=event=>selectPitch(Number(event.target.value),false);
  $('inning-select').onchange=event=>{const index=records.findIndex(record=>record.beforeMatch.inning+'-'+record.beforeMatch.half===event.target.value);if(index>=0)selectPitch(index,false);};
- $('speed').onchange=()=>{if(playing){const requestedPause=pauseAfterPitch;stop();pauseAfterPitch=requestedPause;animate();}};
+ $('speed').onchange=()=>{if(playing){const requestedPause=pauseAfterPitch;stop(true,true);pauseAfterPitch=requestedPause;animate();}};
  for(const id of ['batting-choice','pitch-choice','location-choice','managed-team','baserunning-choice'])$(id).addEventListener('change',()=>{
   host.invalidate(command());issuePendingV116=null;pauseAfterPitch=true;$('manager-hint').textContent=playing?'指示変更を予約。この球の終了後に一時停止':'次の未生成球へ指示を適用します';
  });

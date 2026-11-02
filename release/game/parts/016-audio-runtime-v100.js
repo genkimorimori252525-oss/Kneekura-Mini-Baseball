@@ -58,10 +58,14 @@
   else if(rules.scoredRunnerIds?.length){add(rules.endedAtTick,'score');add(rules.endedAtTick,'hit2','crowd',3);}
   else if(play.localScoringV100?.hits===1&&!strong)add(play.localScoringV100.atTick,'hit1','crowd',2);
   else if(play.classification==='hit_by_pitch')add(rules.endedAtTick,'hbp','crowd',2);
+  else if(['walk','strikeout'].includes(play.classification))add(rules.endedAtTick,'hit1','crowd',2);
   else if(rules.outcomes?.length||['called_strike','swinging_strike'].includes(play.call))add(rules.endedAtTick,'clap','crowd',1);
   if(record.finished)add(rules.endedAtTick,'end','crowd',6);
   const out=Object.freeze(rows.sort((a,b)=>a.tick-b.tick||b.priority-a.priority));cache.set(record,out);return out;
  }
+ // The crowd under the whole game: one looped wave in two voices, hard left and hard right, at slightly different
+ // pitches, so the two never repeat together. Frames and rates are the source's own; reactions play on top in their own slot.
+ const BED=Object.freeze({sampleRate:14004,loopStart:160,loopEnd:8592,gain:.140625,voices:Object.freeze([Object.freeze({rate:.841481045600393,pan:1}),Object.freeze({rate:.891643850107123,pan:-1})])});
  function owner(){
   try{if(root.parent!==root&&root.parent.KneekuraAudioV100)return root.parent.KneekuraAudioV100.owner();}catch{}
   if(root.__kneekuraAudioOwnerV100)return root.__kneekuraAudioOwnerV100;
@@ -69,8 +73,33 @@
   const decoded=new Map(),loading=new Map(),voices=new Set(),trace=[],ownerEpochs=new WeakMap(),listeners=new Set();
   const notify=()=>{for(const callback of listeners)try{callback();}catch{}};
   try{const saved=JSON.parse(root.localStorage?.getItem('kneekura-audio-v100')??'null');if(saved)for(const k of Object.keys(settings))if(typeof saved[k]===typeof settings[k]&&(k==='mute'||Number.isFinite(saved[k])&&saved[k]>=0&&saved[k]<=1))settings[k]=saved[k];}catch{}
+  let bed=null,bedBuffer=null,bedGeneration=0;
+  const bedLevel=()=>settings.mute?0:settings.master*settings.crowd*BED.gain;
+  // The native 14,004 Hz samples: decodeAudioData would resample them and move the loop points.
+  async function bedSamples(){
+   if(bedBuffer)return bedBuffer;
+   const binary=root.atob(bank().crowdBed.base64),bytes=new Uint8Array(binary.length);for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+   const view=new DataView(bytes.buffer);
+   for(let p=12;p+8<=bytes.length;){const size=view.getUint32(p+4,true);
+    if(String.fromCharCode(...bytes.subarray(p,p+4))==='data'){const b=context.createBuffer(1,size/2,BED.sampleRate),a=b.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=view.getInt16(p+8+i*2,true)/32768;return bedBuffer=b;}
+    p+=8+size+(size&1);}
+   throw Error('通常歓声の音源を読めません');
+  }
+  function stopBed(fadeSeconds=0){bedGeneration++;if(!bed)return;const t=context.currentTime,playing=bed;bed=null;
+   for(const v of playing){v.gain.gain.setValueAtTime(v.gain.gain.value,t);if(fadeSeconds)v.gain.gain.linearRampToValueAtTime(0,t+fadeSeconds);try{v.source.stop(t+fadeSeconds);}catch{}}}
+  async function startBed(){
+   if(bed||!context||context.state!=='running'||!bank().crowdBed||!bedLevel())return;
+   const generation=++bedGeneration;
+   try{const buffer=await bedSamples();if(generation!==bedGeneration||bed||!bedLevel())return;
+    const at=context.currentTime+.01;
+    bed=BED.voices.map(voice=>{const source=context.createBufferSource(),gain=context.createGain(),pan=context.createStereoPanner();
+     source.buffer=buffer;source.loop=true;source.loopStart=BED.loopStart/BED.sampleRate;source.loopEnd=BED.loopEnd/BED.sampleRate;source.playbackRate.value=voice.rate;
+     gain.gain.value=bedLevel();pan.pan.value=voice.pan;source.connect(gain);gain.connect(pan);pan.connect(context.destination);
+     source.onended=()=>{source.disconnect();gain.disconnect();pan.disconnect();};source.start(at);return {source,gain};});
+   }catch(e){error='通常歓声を再生できません：'+e.message;notify();}
+  }
   const stop=(sourceOwner,keepMusic=false)=>{if(sourceOwner&&typeof sourceOwner==='object')ownerEpochs.set(sourceOwner,(ownerEpochs.get(sourceOwner)??0)+1);else epoch++;
-   for(const v of voices)if((!sourceOwner||v.owner===sourceOwner)&&!(keepMusic&&v.group==='music')){try{v.source.stop();}catch{}voices.delete(v);if(activeCrowd===v)activeCrowd=null;}};
+   for(const v of voices)if((!sourceOwner||v.owner===sourceOwner)&&!(keepMusic&&v.group!=='sfx')){try{v.source.stop();}catch{}voices.delete(v);if(activeCrowd===v)activeCrowd=null;}};
   // A theme outlives its own play, then gives way when the next pitch is thrown.
   const fadeMusic=(play,seconds=1.2)=>{for(const v of voices)if(v.group==='music'&&v.play!==play&&!v.fading){v.fading=true;const t=context.currentTime;
    v.gain.gain.setValueAtTime(v.gain.gain.value,t);v.gain.gain.linearRampToValueAtTime(0,t+seconds);try{v.source.stop(t+seconds);}catch{}}};
@@ -97,11 +126,11 @@
    const generation=epoch,ownerGeneration=typeof sourceOwner==='object'?ownerEpochs.get(sourceOwner)??0:0,requested=context.currentTime;
    try{const buffer=await load(event.key);if(epoch!==generation||typeof sourceOwner==='object'&&(ownerEpochs.get(sourceOwner)??0)!==ownerGeneration||event.group!=='music'&&context.currentTime-requested>.18||settings.mute)return;
     if(event.key==='throw')fadeMusic(event.play);
-    if(event.group==='crowd'&&activeCrowd){if(activeCrowd.priority>event.priority)return;try{activeCrowd.source.stop();}catch{}voices.delete(activeCrowd);activeCrowd=null;}
+    if(event.group==='crowd'&&activeCrowd){if(activeCrowd.play===event.play&&activeCrowd.priority>event.priority)return;try{activeCrowd.source.stop();}catch{}voices.delete(activeCrowd);activeCrowd=null;}
     const effects=[...voices].filter(v=>v.group==='sfx');if(event.group==='sfx'&&effects.length>=8){const oldest=effects[0];oldest.source.stop();voices.delete(oldest);}
     const source=context.createBufferSource(),gain=context.createGain(),voice={source,gain,owner:sourceOwner,group:event.group,priority:event.priority,play:event.play};source.buffer=buffer;source.loop=false;
     gain.gain.value=settings.master*settings[event.group];source.connect(gain);gain.connect(context.destination);voices.add(voice);if(event.group==='crowd')activeCrowd=voice;
-    source.onended=()=>{voices.delete(voice);if(activeCrowd===voice)activeCrowd=null;source.disconnect();gain.disconnect();};source.start();
+    source.onended=()=>{const finished=voices.delete(voice);if(activeCrowd===voice)activeCrowd=null;source.disconnect();gain.disconnect();if(event.key==='end'&&finished)stopBed(2);};source.start();
     trace.push({id:event.id,key:event.key,tick:event.tick,time:context.currentTime});if(trace.length>256)trace.shift();
    }catch(e){error='音源を再生できません：'+e.message;notify();}
   }
@@ -109,22 +138,25 @@
    for(const key of new Set(keys))if(bank()[key])load(key).catch(e=>{error='音源を準備できません：'+e.message;notify();});return true;
   }
   function configure(patch){for(const [k,v]of Object.entries(patch)){if(!Object.hasOwn(settings,k)||typeof v!==typeof settings[k]||k!=='mute'&&(!Number.isFinite(v)||v<0||v>1))throw Error('音量は0〜100%で設定してください');settings[k]=v;}
-   stop();try{root.localStorage?.setItem('kneekura-audio-v100',JSON.stringify(settings));}catch{}return {...settings};}
-  root.addEventListener?.('pagehide',()=>stop());root.document?.addEventListener('visibilitychange',()=>{if(root.document.hidden)stop();});
-  const api=Object.freeze({unlock,load,prepare,sound,stop,configure,subscribe(callback){listeners.add(callback);return()=>listeners.delete(callback);},owner:()=>api,inspect:()=>({settings:{...settings},state:context?.state??'locked',decoded:decoded.size,loading:loading.size,voices:voices.size,error,trace:[...trace]})});
+   stop();if(bed){if(bedLevel())for(const v of bed)v.gain.gain.value=bedLevel();else stopBed();}
+   try{root.localStorage?.setItem('kneekura-audio-v100',JSON.stringify(settings));}catch{}return {...settings};}
+  root.addEventListener?.('pagehide',()=>{stop();stopBed();});root.document?.addEventListener('visibilitychange',()=>{if(root.document.hidden){stop();stopBed();}});
+  const api=Object.freeze({unlock,load,prepare,sound,stop,startBed,stopBed,configure,subscribe(callback){listeners.add(callback);return()=>listeners.delete(callback);},owner:()=>api,inspect:()=>({settings:{...settings},state:context?.state??'locked',decoded:decoded.size,loading:loading.size,voices:voices.size,bedVoices:bed?.length??0,crowdReactionPlay:activeCrowd?.play??null,error,trace:[...trace]})});
   root.__kneekuraAudioOwnerV100=api;return api;
  }
  function policy(){try{return root.parent?.KneekuraAudioPolicyV100??root.KneekuraAudioPolicyV100??{};}catch{return root.KneekuraAudioPolicyV100??{};}}
  function create(){let record=null,cursor=null,playingBefore=false,preparedRecord=null;const token={},audio=owner();
-  return Object.freeze({observe(next){const {tick,playing,speed=1}=next,changed=next.record!==record,back=cursor!==null&&tick<cursor;
+  return Object.freeze({observe(next){const {tick,playing,speed=1,quiet=false}=next,changed=next.record!==record,back=cursor!==null&&tick<cursor;
     if(changed||back){audio.stop(token,!back);record=next.record;cursor=Number.isFinite(tick)&&record&&tick<=record.frames?.[0]?.tick?tick-1:tick;}
     // Preparation may inspect already generated event keys, never emit their
     // sound. It avoids first-use crowd decode lag during the physical scene.
     if(record&&preparedRecord!==record&&audio.prepare(events(record).filter(e=>e.group!=='crowd'||policy().crowd!==false).map(e=>e.key)))preparedRecord=record;
-    if(!record||!playing||speed>1.25||!Number.isFinite(tick)){if(playingBefore)audio.stop(token);cursor=tick;playingBefore=false;return;}
+    if(quiet)audio.stopBed();
+    if(!record||!playing||speed>1.25||!Number.isFinite(tick)){if(playingBefore)audio.stop(token,true);cursor=tick;playingBefore=false;return;}
+    if(policy().crowd!==false&&!record.finished)audio.startBed();
     if(cursor!==null&&tick-cursor<=500_000){for(const e of events(record))if(e.tick>cursor&&e.tick<=tick&&(e.group!=='crowd'||policy().crowd!==false))audio.sound(e,token);}
     cursor=tick;playingBefore=true;
-   },stop(){playingBefore=false;audio.stop(token);},inspect:()=>({cursor,playing:playingBefore,...audio.inspect()})});
+   },stop(between=false){playingBefore=false;audio.stop(token,between);if(!between)audio.stopBed();},inspect:()=>({cursor,playing:playingBefore,...audio.inspect()})});
  }
  function installControls(container){if(!container||container.querySelector('[data-audio-v100]'))return;const host=owner(),panel=root.document.createElement('details');panel.dataset.audioV100='';
   panel.style.padding='12px 18px';
@@ -134,7 +166,7 @@
   for(const [key,label]of [['master','全体'],['sfx','効果音'],...(policy().crowd===false?[]:[['crowd','歓声'],['music','本塁打曲']])]){const row=root.document.createElement('label');row.style.cssText='display:inline-flex;align-items:center;gap:8px;margin:8px';row.append(label);
    const input=root.document.createElement('input');input.type='range';input.min='0';input.max='100';input.value=String(settings[key]*100);input.setAttribute('aria-label',label+'音量');input.oninput=()=>host.configure({[key]:Number(input.value)/100});row.append(input);panel.append(row);}
   const muteLabel=root.document.createElement('label'),mute=root.document.createElement('input');mute.type='checkbox';mute.checked=settings.mute;mute.onchange=()=>host.configure({mute:mute.checked});muteLabel.append(mute,' 消音');panel.append(muteLabel);
-  const status=root.document.createElement('p');status.setAttribute('role','status');status.textContent='効果音・歓声は単発再生。停止・移動した時刻の音はまとめて再生しません。';panel.append(status);
+  const status=root.document.createElement('p');status.setAttribute('role','status');status.textContent='通常歓声は試合中に流れ続け、反応の歓声と効果音は単発で重なります。停止・移動した時刻の音はまとめて再生しません。';panel.append(status);
   const refresh=()=>{const s=host.inspect();status.textContent=s.error||(s.state==='running'?'音声は有効です。試合・練習を再生すると鳴ります。':'最初の操作で音声を有効にします。停止・移動した時刻の音はまとめて再生しません。');status.style.color=s.error?'#c94b42':'';};
   const unsubscribe=host.subscribe(refresh);root.addEventListener?.('pagehide',unsubscribe,{once:true});refresh();
   unlock.onclick=async()=>{await host.unlock();refresh();};container.append(panel);
