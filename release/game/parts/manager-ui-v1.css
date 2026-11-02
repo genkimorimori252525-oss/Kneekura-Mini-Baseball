@@ -564,3 +564,33 @@ body[data-run="1"] #next-pitch, body[data-run="1"] #previous-pitch { opacity: .4
   .card-fx, .card-row[data-fx] .tactic[aria-pressed="true"] { animation: none; }
   .card-fx { transform: translate(-50%, -50%); }
 }
+
+/* Card scope ("この打席" / "このイニング"), the kept-card mark and the one-plate mark, and the card-mode setting. */
+.scope-row { display: flex; align-items: center; gap: 6px; padding: 0 12px 4px; }
+.scope-label { margin-right: 2px; font-size: 11px; color: var(--muted); white-space: nowrap; }
+.scope-row button { min-height: 28px; padding: 2px 10px; font-size: 12px; white-space: nowrap; }
+.scope-row button[data-scope="inning"][aria-pressed="true"] { color: #18170d; background: var(--gold); border-color: var(--gold); }
+.hand-deck[data-state="tucked"] .scope-row, .hand-deck[data-state="orders"] .scope-row,
+.hand-deck[data-run="over"] .scope-row, .hand-deck[data-run="fast"] .scope-row { display: none; }
+.tactic .tag {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  z-index: 1;
+  padding: 0 3px;
+  font-size: 9px;
+  line-height: 13px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.tactic .tag.kept { color: #18170d; background: var(--gold); font-weight: 700; }
+.tactic .tag.once { color: #c8c3a0; background: rgba(8, 10, 7, .82); border: 1px solid #6a6548; line-height: 11px; }
+.tactic[data-hold="false"] { border-style: dashed; }
+.tactic[data-kept="true"] { border-color: var(--gold); }
+.card-mode-note { margin: 6px 0 0; font-size: 11px; color: var(--muted); }
+body:not([data-mode="manager"]) .card-mode-field { display: none; }
+@media (max-width: 680px) {
+  .scope-row { padding: 0 10px 3px; gap: 4px; }
+  .scope-row button { min-height: 26px; padding: 2px 8px; font-size: 11px; }
+  .tactic .tag { font-size: 8px; top: 3px; left: 3px; }
+}

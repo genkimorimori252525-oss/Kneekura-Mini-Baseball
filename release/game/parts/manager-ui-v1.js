@@ -5,7 +5,10 @@
    Parts of the design that have no data or no function yet are not drawn.
    Match flow (manager mode only): the match holds at the first pitch of every plate appearance until the
    manager taps a card or goes on; a card lasts one plate appearance; at most STOPS_PER_GAME stops per game
-   (a stop before the plate appearance's first pitch is free); the card effect is playManagerCardFx(cardId). */
+   (a stop before the plate appearance's first pitch is free); the card effect is playManagerCardFx(cardId).
+   A card with hold:true can be kept for the rest of the half inning (scope "このイニング"): the match then does
+   not stop between its plate appearances. Settings: "カードの出し方" = stop at every plate appearance, or only
+   when the manager stops. */
 (function () {
   'use strict';
   const $ = (selector, root) => (root || document).querySelector(selector);
@@ -104,25 +107,26 @@
   const innerCol = hand => (hand === 'L' ? 2 : 0);
   const outerCol = hand => (hand === 'L' ? 0 : 2);
 
-  /* Cards exist only where an instruction control exists: ctl = [select id, option value]. */
+  /* Cards exist only where an instruction control exists: ctl = [select id, option value].
+     hold: true = the card can be kept for the rest of the half inning; false = it works for one plate appearance only. */
   const pullX = hand => (hand === 'L' ? 17 : 3);
   const oppoX = hand => (hand === 'L' ? 3 : 17);
   const DECK = {
     batter: [
-      { id: 'auto', name: 'おまかせ', note: '打者の判断に任せます。', portrait: '#batter-portrait', ctl: ['batting-choice', 'auto'] },
-      { id: 'bunt', name: '送り<br>バント', note: '走者を次の塁へ進めます。', ctl: ['batting-choice', 'bunt'], needs: s => (s.first || s.second) && s.outs < 2, icon: () => { const c = fan(); c.block(8, 16, 2, 1, GOLD); arrow(c, 13, 15, 10, 12, CREAM); return c.svg(); } },
-      { id: 'safety', name: 'セーフティ<br>バント', note: '打者が生きることを狙うバントです。', ctl: ['batting-choice', 'bunt'], needs: s => !((s.first || s.second) && s.outs < 2), icon: () => { const c = fan(); c.block(7, 16, 2, 1, GOLD); arrow(c, 10, 18, 13, 15, CREAM); return c.svg(); } },
-      { id: 'center', name: 'センター<br>返し', note: '中堅方向へ打ち返します。', ctl: ['direction-choice', 'CENTER'], icon: () => { const c = fan(); arrow(c, 10, 18, 10, 5, GOLD); return c.svg(); } },
-      { id: 'pull', name: '引っ張り', note: '引っ張り方向へ強く打ちます。', ctl: ['direction-choice', 'PULL'], icon: h => { const c = fan(); arrow(c, 10, 18, pullX(h), 7, GOLD); return c.svg(); } },
-      { id: 'oppo', name: '流し打ち', note: '逆方向へ打ちます。', ctl: ['direction-choice', 'OPPOSITE'], icon: h => { const c = fan(); arrow(c, 10, 18, oppoX(h), 7, GOLD); return c.svg(); } }
+      { id: 'auto', hold: true, name: 'おまかせ', note: '打者の判断に任せます。', portrait: '#batter-portrait', ctl: ['batting-choice', 'auto'] },
+      { id: 'bunt', hold: false, name: '送り<br>バント', note: '走者を次の塁へ進めます。', ctl: ['batting-choice', 'bunt'], needs: s => (s.first || s.second) && s.outs < 2, icon: () => { const c = fan(); c.block(8, 16, 2, 1, GOLD); arrow(c, 13, 15, 10, 12, CREAM); return c.svg(); } },
+      { id: 'safety', hold: false, name: 'セーフティ<br>バント', note: '打者が生きることを狙うバントです。', ctl: ['batting-choice', 'bunt'], needs: s => !((s.first || s.second) && s.outs < 2), icon: () => { const c = fan(); c.block(7, 16, 2, 1, GOLD); arrow(c, 10, 18, 13, 15, CREAM); return c.svg(); } },
+      { id: 'center', hold: true, name: 'センター<br>返し', note: '中堅方向へ打ち返します。', ctl: ['direction-choice', 'CENTER'], icon: () => { const c = fan(); arrow(c, 10, 18, 10, 5, GOLD); return c.svg(); } },
+      { id: 'pull', hold: true, name: '引っ張り', note: '引っ張り方向へ強く打ちます。', ctl: ['direction-choice', 'PULL'], icon: h => { const c = fan(); arrow(c, 10, 18, pullX(h), 7, GOLD); return c.svg(); } },
+      { id: 'oppo', hold: true, name: '流し打ち', note: '逆方向へ打ちます。', ctl: ['direction-choice', 'OPPOSITE'], icon: h => { const c = fan(); arrow(c, 10, 18, oppoX(h), 7, GOLD); return c.svg(); } }
     ],
     pitcher: [
-      { id: 'auto', name: 'コース<br>おまかせ', note: '捕手の配球に任せます。', portrait: '#pitcher-portrait', ctl: ['location-choice', 'auto'] },
-      { id: 'inside', name: '内角中心', note: '打者の内側を攻めます。', ctl: ['location-choice', 'inside'], icon: h => zone((r, col) => col === innerCol(h)).svg() },
-      { id: 'outside', name: '外角中心', note: '打者の外側を攻めます。', ctl: ['location-choice', 'outside'], icon: h => zone((r, col) => col === outerCol(h)).svg() },
-      { id: 'strike', name: 'ストライク<br>をとれ', note: 'ゾーンに投げ、四球を避けます。', ctl: ['location-choice', 'zone'], icon: () => zone(() => true).svg() },
-      { id: 'low', name: '低め中心', note: '低めへ集めて長打を防ぎます。', ctl: ['location-choice', 'low'], icon: () => zone(r => r === 2).svg() },
-      { id: 'walk', name: '敬遠', note: '勝負を避けて歩かせます。', ctl: ['location-choice', 'intentional'], icon: () => { const c = zone(() => false, GOLD); [4, 9, 14].forEach(y => c.block(18, y, 2, 2, GOLD)); return c.svg(); } }
+      { id: 'auto', hold: true, name: 'コース<br>おまかせ', note: '捕手の配球に任せます。', portrait: '#pitcher-portrait', ctl: ['location-choice', 'auto'] },
+      { id: 'inside', hold: true, name: '内角中心', note: '打者の内側を攻めます。', ctl: ['location-choice', 'inside'], icon: h => zone((r, col) => col === innerCol(h)).svg() },
+      { id: 'outside', hold: true, name: '外角中心', note: '打者の外側を攻めます。', ctl: ['location-choice', 'outside'], icon: h => zone((r, col) => col === outerCol(h)).svg() },
+      { id: 'strike', hold: true, name: 'ストライク<br>をとれ', note: 'ゾーンに投げ、四球を避けます。', ctl: ['location-choice', 'zone'], icon: () => zone(() => true).svg() },
+      { id: 'low', hold: true, name: '低め中心', note: '低めへ集めて長打を防ぎます。', ctl: ['location-choice', 'low'], icon: () => zone(r => r === 2).svg() },
+      { id: 'walk', hold: false, name: '敬遠', note: '勝負を避けて歩かせます。', ctl: ['location-choice', 'intentional'], icon: () => { const c = zone(() => false, GOLD); [4, 9, 14].forEach(y => c.block(18, y, 2, 2, GOLD)); return c.svg(); } }
     ]
   };
 
@@ -155,8 +159,11 @@
     const cards = over ? [] : DECK[deck].filter(card => !card.needs || card.needs(s));
     const active = cards.filter(controlOn);
     const chosen = active.find(c => c.id === state.pick[deck]) || active[0] || null;
+    const kept = flow.sustain && flow.sustain.deck === deck ? flow.sustain.id : null;
     row.innerHTML = cards.map(card => (
-      '<button type="button" class="tactic" data-deck="' + deck + '" data-id="' + card.id + '" aria-pressed="' + (card === chosen) + '">' +
+      '<button type="button" class="tactic" data-deck="' + deck + '" data-id="' + card.id + '" data-hold="' + card.hold + '" aria-pressed="' + (card === chosen) + '"' +
+      (card.id === kept ? ' data-kept="true"' : '') + '>' +
+      (card.id === kept ? '<span class="tag kept">持続中</span>' : card.hold ? '' : '<span class="tag once">1打席</span>') +
       cardPlate(card, s) + '<span class="name">' + card.name + '</span></button>'
     )).join('');
     let picked = chosen ? chosen.name.replace('<br>', '') : null;
@@ -168,7 +175,8 @@
     title.innerHTML = over ? '試合終了' : '<em>' + safe(picked) + '</em> ' + (deck === 'batter' ? safe(s.batter) : '対 ' + safe(s.batter));
     const hint = cards.find(c => c.id === state.hint) || chosen;
     const orders = $('.hand-deck').dataset.state === 'orders';
-    $('.hand-title span').textContent = over ? '' : orders ? '作戦カードより優先します。' : hint ? hint.note : '詳細指示で選んだ内容を使います。';
+    $('.hand-title span').textContent = over ? '' : orders ? '作戦カードより優先します。' : hint ? hint.note + (hint.id === kept ? ' このイニングは続きます。' : !hint.hold ? ' 1打席だけ効きます。' : '') : '詳細指示で選んだ内容を使います。';
+    renderScope();
     $('.open-detail-orders').dataset.count = ordersChanged(deck);
     $('.open-detail-orders').hidden = !DETAIL[deck].length;
     applyEmotions();
@@ -188,8 +196,16 @@
       '<button type="button" class="hand-toggle" aria-expanded="true">しまう</button></div>' +
       '<div class="run-row" data-run="idle"><span class="run-stops" role="img"><span class="run-stops-label">ストップ</span><span class="pips" aria-hidden="true"><i></i><i></i><i></i></span><b></b></span>' +
       '<span class="run-state" role="status"></span><button type="button" class="run-btn primary"></button></div>' +
+      '<div class="scope-row" role="group" aria-label="カードの効く期間"><span class="scope-label">効く期間</span>' +
+      '<button type="button" data-scope="plate" aria-pressed="true">この打席</button><button type="button" data-scope="inning" aria-pressed="false">このイニング</button></div>' +
       '<div class="card-row"></div><div class="orders-panel" role="region" aria-label="詳細指示"></div>';
     $('.broadcast').after(hand);
+    $('.scope-row').addEventListener('click', event => {
+      const button = event.target.closest('[data-scope]');
+      if (!button || flow.fxBusy) return;
+      flow.scope = button.dataset.scope;
+      renderScope();
+    });
     hand.addEventListener('click', event => {
       const button = event.target.closest('.tactic');
       if (button) playCard(DECK[button.dataset.deck].find(c => c.id === button.dataset.id));
@@ -677,6 +693,21 @@
     const field = document.createElement('fieldset');
     field.innerHTML = '<legend>画面</legend><div class="appearance-buttons"><button type="button" data-ui-mode="manager" aria-pressed="true">監督モード</button><button type="button" data-ui-mode="watch" aria-pressed="false">観戦（従来の指示欄）</button></div>';
     grid.prepend(field);
+    const cards = document.createElement('fieldset');
+    cards.className = 'card-mode-field';
+    cards.innerHTML = '<legend>カードの出し方</legend><div class="appearance-buttons"><button type="button" data-card-mode="each" aria-pressed="true">毎打席止める</button><button type="button" data-card-mode="manual" aria-pressed="false">変更時だけ止める</button></div>' +
+      '<p class="card-mode-note">変更時だけ止める：カードを出さずに進み、ストップを押したときだけ手札を開きます。監督モードのみ。</p>';
+    field.after(cards);
+    try { if (localStorage.getItem(CARD_MODE_KEY) === 'manual') flow.cardMode = 'manual'; } catch (error) { /* storage may be unavailable */ }
+    const applyCardMode = next => {
+      flow.cardMode = next;
+      $$('[data-card-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.cardMode === next)));
+      try { localStorage.setItem(CARD_MODE_KEY, next); } catch (error) { /* ignore */ }
+      if (next === 'manual' && flow.held) release();
+      flow.shown = '';
+    };
+    cards.addEventListener('click', event => { const b = event.target.closest('[data-card-mode]'); if (b) applyCardMode(b.dataset.cardMode); });
+    applyCardMode(flow.cardMode);
     let mode = 'manager';
     try { if (localStorage.getItem('kneekura.uiMode.v1') === 'watch') mode = 'watch'; } catch (error) { /* storage may be unavailable */ }
     const apply = next => {
@@ -694,7 +725,10 @@
   /* ---------- Match flow: hold at each plate appearance, stops, card effect ---------- */
   const STOPS_PER_GAME = 3, FX_MS = 500, FX_LIMIT_MS = 4000, RUN_GRACE_MS = 6000, NOTICE_MS = 3200;
   const PLATE_ORDERS = ['batting-choice', 'direction-choice', 'pitch-choice', 'location-choice'];
-  const flow = { stopsLeft: STOPS_PER_GAME, held: null, run: false, busyAt: 0, fxToken: 0, fxBusy: false, queued: false, lastPitchCount: 0, statKey: '', notice: '', noticeAt: 0, mode: '', shown: '' };
+  /* scope: how long the next card lasts. sustain: the card kept for the half inning ({deck, id, key}).
+     once: a one-plate card was chosen under "このイニング". gapStop: stop at the next gap between plate appearances. */
+  const CARD_MODE_KEY = 'kneekura.cardMode.v1';
+  const flow = { scope: 'plate', sustain: null, once: false, gapStop: false, cardMode: 'each', stopsLeft: STOPS_PER_GAME, held: null, run: false, busyAt: 0, fxToken: 0, fxBusy: false, queued: false, lastPitchCount: 0, statKey: '', notice: '', noticeAt: 0, mode: '', shown: '' };
   const managerOn = () => document.body.dataset.mode === 'manager';
   const endsPlate = record => !!(record && record.play && record.play.rules && record.play.rules.batterAdvanced);
   const sceneEnded = view => !!view.presentation && view.presentation.durationMs > 0 && view.presentation.elapsedMs >= view.presentation.durationMs;
@@ -739,7 +773,43 @@
     schedule(true);
   }
 
+  const setQuiet = (id, value) => { const select = selectOf(id); if (select && select.value !== value) select.value = value; };
+  /* A batter card owns both swing controls: choosing one clears the other. */
+  function applyCard(card, deck, quiet) {
+    const set = quiet ? setQuiet : setControl;
+    if (deck === 'batter') { set('batting-choice', 'auto'); set('direction-choice', 'AUTO'); }
+    set(card.ctl[0], card.ctl[1]);
+  }
+  /* The half inning the next pitch belongs to. */
+  function halfKey(view) {
+    const match = view && view.host && view.host.match;
+    return match ? match.inning + '-' + match.half : $('#inning-label').textContent;
+  }
+  /* A plate appearance is over: the plate cards go back to default. A card kept for the half inning comes back, unless the
+     half inning changed (then the keep ends and the scope is "この打席" again). A one-plate card chosen under
+     "このイニング" ends the scope too. */
+  function endPlateOrders(view, dropKept) {
+    resetPlateOrders();
+    if (flow.once) { flow.once = false; flow.scope = 'plate'; }
+    const kept = flow.sustain;
+    if (kept && (dropKept || kept.key !== halfKey(view))) { flow.sustain = null; flow.scope = 'plate'; }
+    else if (kept) {
+      const card = DECK[kept.deck].find(c => c.id === kept.id);
+      if (card) { applyCard(card, kept.deck, true); state.pick[kept.deck] = kept.id; state.hint = kept.id; }
+    }
+    renderScope();
+  }
+  function renderScope() {
+    $$('.scope-row [data-scope]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.scope === flow.scope)));
+  }
+  /* Will the match stop before the next plate appearance by itself? */
+  const willHold = view => flow.gapStop || (flow.cardMode === 'each' && !(flow.sustain && flow.sustain.key === halfKey(view)));
+
   function newGameFlow() {
+    flow.scope = 'plate';
+    flow.sustain = null;
+    flow.once = false;
+    flow.gapStop = false;
     flow.stopsLeft = STOPS_PER_GAME;
     flow.held = null;
     flow.run = false;
@@ -757,7 +827,10 @@
       if (!view || !view.host || view.host.finished) return null;
       const history = view.host.history || [];
       if (!endsPlate(history[history.length - 1])) return null;
-      resetPlateOrders();
+      endPlateOrders(view);
+      const hold = willHold(view);
+      flow.gapStop = false;
+      if (!hold) return null;
       flow.run = false;
       return new Promise(resolve => { flow.held = resolve; schedule(true); });
     } catch (error) { return null; }
@@ -787,12 +860,18 @@
     if (flow.held) { flow.fxToken += 1; swallow(event); release(); return; }
     const over = view.host.finished || view.fast;
     if (!over && (view.playing || view.preparingPitchV99 || flow.run)) {
-      if (lastPitchFlying(view)) { swallow(event); say('この打席が終わると、次の打席の前で自動で止まります。'); return; }
+      if (lastPitchFlying(view)) {
+        swallow(event);
+        if (willHold(view)) say('この打席が終わると、次の打席の前で自動で止まります。');
+        else { flow.gapStop = true; say('この打席が終わったら止まります。ストップには数えません。'); }
+        return;
+      }
       const free = pitchesThrown(view) === 0;
       if (!free && flow.stopsLeft <= 0) { swallow(event); say('ストップを使い切りました。この打席はこのまま進みます。'); return; }
       if (!free) flow.stopsLeft -= 1;
       flow.run = false;
       flow.queued = false;
+      flow.gapStop = false;
       flow.notice = '';
       return;
     }
@@ -805,7 +884,7 @@
         flow.busyAt = performance.now();
         return;
       }
-      if (view.lastResult && endsPlate(view.lastResult) && sceneEnded(view)) resetPlateOrders();
+      if (view.lastResult && endsPlate(view.lastResult) && sceneEnded(view)) endPlateOrders(view);
       flow.run = true;
       flow.busyAt = performance.now();
     }
@@ -816,16 +895,17 @@
     if (flow.run && !flow.held) { swallow(event); say('先にストップしてください。'); return; }
     const view = readView();
     const history = (view && view.host && view.host.history) || [];
-    if (id === 'next-pitch' && endsPlate(history[history.length - 1]) && (!view.lastResult || view.selectedPitch === history.length - 1)) resetPlateOrders();
+    if (id === 'next-pitch' && endsPlate(history[history.length - 1]) && (!view.lastResult || view.selectedPitch === history.length - 1)) endPlateOrders(view);
   }, true));
   $('#finish-game').addEventListener('click', () => {
     const view = readView();
     if (!managerOn() || !view || view.fast) return;
-    resetPlateOrders();
+    endPlateOrders(view, true);
     flow.held = null;
     flow.run = false;
   }, true);
   $('#new-game').addEventListener('click', newGameFlow, true);
+  $('#managed-team').addEventListener('change', () => { flow.sustain = null; flow.once = false; flow.scope = 'plate'; schedule(true); });
 
   /* ---------- Card effect: playManagerCardFx(cardId, context) returns a promise that settles when it is over ----------
      The default is a short banner over the picture. Replace window.playManagerCardFx to change it; the match waits
@@ -863,8 +943,11 @@
     const deck = $('.tactic[data-id="' + card.id + '"]').dataset.deck, token = ++flow.fxToken;
     state.hint = card.id;
     state.pick[deck] = card.id;
-    if (deck === 'batter') { setControl('batting-choice', 'auto'); setControl('direction-choice', 'AUTO'); }
-    setControl(card.ctl[0], card.ctl[1]);
+    applyCard(card, deck, false);
+    if (flow.scope === 'inning') {
+      if (card.hold) { flow.sustain = { deck, id: card.id, key: halfKey(readView()) }; flow.once = false; }
+      else flow.once = true;
+    }
     renderHand();
     flow.fxBusy = true;
     runCardFx(card, deck).then(() => {
@@ -894,13 +977,14 @@
       schedule(true);
     }
     const thrown = mode === 'running' && view ? pitchesThrown(view) : 0, auto = mode === 'running' && !!view && lastPitchFlying(view);
-    const blocked = mode === 'running' && (auto || (thrown > 0 && flow.stopsLeft <= 0));
+    const blocked = mode === 'running' && ((auto && !!view && willHold(view)) || (auto && flow.gapStop) || (!auto && thrown > 0 && flow.stopsLeft <= 0));
     let text = { idle: '試合前です。カードを選ぶか、このまま始めます。', held: '打席の頭で停止中。カードを選ぶと試合が進みます。', stopped: 'ストップ中。カードを変えられます。', fast: 'Coreで残りを計算中です。', over: '' }[mode] || '';
-    if (mode === 'running') text = auto ? '結果が出ると、次の打席の前で自動で止まります。' : blocked ? 'ストップを使い切りました。この打席は止められません。' : thrown === 0 ? '試合進行中。いまのストップは数えません。' : '試合進行中';
+    const hold = auto && !!view && willHold(view), queuedStop = auto && !hold && flow.gapStop;
+    if (mode === 'running') text = hold ? '結果が出ると、次の打席の前で自動で止まります。' : queuedStop ? '結果が出たら止まります。ストップには数えません。' : auto ? '試合進行中。いまストップすると打席の終わりで止まります（数えません）。' : blocked ? 'ストップを使い切りました。この打席は止められません。' : thrown === 0 ? '試合進行中。いまのストップは数えません。' : '試合進行中';
     const noticed = !!flow.notice && performance.now() - flow.noticeAt < NOTICE_MS;
     if (noticed) text = flow.notice;
     const label = { idle: '試合を進める', held: 'このまま進める', stopped: '再開', running: 'ストップ' }[mode] || '';
-    const key = [mode, flow.stopsLeft, blocked, text, label].join('|');
+    const key = [mode, flow.stopsLeft, blocked, text, label, flow.cardMode].join('|');
     if (key === flow.shown) return;
     flow.shown = key;
     row.dataset.run = mode;
@@ -989,6 +1073,6 @@
   globalThis.KneekuraManagerGateV1 = Object.freeze({ holdBeforePitch });
   globalThis.KneekuraManagerUiV1 = Object.freeze({
     refresh: () => refresh(true), emotions: () => [...emotionById.entries()], analyze: () => analyze((live() || { history: [] }).history),
-    defaultCardFx, flow: () => ({ mode: flow.mode, held: !!flow.held, run: flow.run, stopsLeft: flow.stopsLeft })
+    defaultCardFx, flow: () => ({ mode: flow.mode, held: !!flow.held, run: flow.run, stopsLeft: flow.stopsLeft, scope: flow.scope, cardMode: flow.cardMode, kept: flow.sustain ? flow.sustain.id : null, once: flow.once, gapStop: flow.gapStop })
   });
 })();
