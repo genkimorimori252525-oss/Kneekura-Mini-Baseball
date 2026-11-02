@@ -3284,6 +3284,7 @@
   // re-samples that material from liveGeometry, so the board can change without rebuilding the stadium.
   var liveGeometry = null;
   var liveBoard = null, liveBase = null, liveBoardKey = "";
+  var MOVING_DENSITY = 1.0001, REST_DELAY_MS = 160, REST_SLICE_MS = 5, REST_GAP_MS = 11;
   var BOARD_MATERIAL = /^(scoreboard|paypay:vision|niikura:main-scoreboard|koshien:score|dodger:score)/;
   function sampleBoardLive(g, material, u, v, profile) {
     if (material.startsWith("paypay:")) return samplePaypayMaterial(material, u, v, profile, g);
@@ -3302,7 +3303,13 @@
     }
     return liveGeometry;
   }
-  function renderStadium({ geometry: g, project, paint, grid, cam, cutaway = false, crowd = { frame: 0, frames: 3, visible: true }, onEffectOcclusion = null }) {
+  function renderStadium(input) {
+    const steps = renderStadiumSteps(input);
+    let next = steps.next();
+    while (!next.done) next = steps.next();
+    return next.value;
+  }
+  function* renderStadiumSteps({ geometry: g, project, paint, grid, cam, cutaway = false, crowd = { frame: 0, frames: 3, visible: true }, onEffectOcclusion = null, moving = false }) {
     const m = stadiumMesh(g);
     if (!m) return null;
     const appearance = g.architecture.crowd ?? DEFAULT_CROWD_APPEARANCE, palettes = koshienFanPalettes(g.architecture), palette = palettes.home, atlas = crowd.visible && appearance.attendance !== "empty" ? crowdAtlas(palette, appearance, g.architecture.style === "niikura_dome", g.architecture.style === "fukuoka_dome" ? "mixed-yellow" : null) : null, visitorAtlas = atlas && palettes.visitor ? crowdAtlas(palettes.visitor, appearance) : null;
@@ -3311,7 +3318,7 @@
     let lightPoint = null;
     let cells2 = 0, triangles = 0, omitted = 0, crowdCells = 0, ledCells = 0, glowEnergy = 0, fineCells = 0, emblemCells = 0, fineGeometryOccluded = 0;
     const spatial = spatialLight(g, m), shadeCrowdDiffuse = (c) => spatial ? spatial.color(c, lightPoint, false) : c, lighting = spatial ? { ...g.architecture.effects.lighting, enabled: spatial.on } : g.architecture.effects?.lighting, lightOverride = !!spatial || !neutralLighting(lighting);
-    const emit = (x, y, d, color, glow = 0, density = 1, surfaceId = null, alpha = 1, prelit = false, altColor = null, resample = null) => {
+    const emit = (x, y, d, color, glow = 0, density = 1, surfaceId = null, alpha = 1, prelit = false, altColor = null, resample = null, fan = null, waveAt = null) => {
       if (Number.isFinite(d) && d >= 0.121) {
         if (lightOverride && surfaceId?.includes("lamp")) {
           const on = lighting.enabled && lighting.brightness > 0;
@@ -3319,7 +3326,7 @@
           glow = on ? Math.sqrt(lighting.brightness) * 5 : 0;
         }
         if (spatial && !prelit) color = spatial.color(color, lightPoint, /score|clock|lamp/.test(surfaceId ?? "") || glow > 0);
-        paint(x, y, d, color, alpha, "ballpark", glow, density, surfaceId, altColor, resample ? ((point) => () => { const s = resample(); if (!s) return null; return { color: spatial && !prelit ? spatial.color(s.color, point, /score|clock|lamp/.test(surfaceId ?? "") || glow > 0) : s.color, alpha: s.alpha ?? 1 }; })(lightPoint) : null);
+        paint(x, y, d, color, alpha, "ballpark", glow, density, surfaceId, altColor, resample ? ((point) => () => { const s = resample(); if (!s) return null; return { color: spatial && !prelit ? spatial.color(s.color, point, /score|clock|lamp/.test(surfaceId ?? "") || glow > 0) : s.color, alpha: s.alpha ?? 1 }; })(lightPoint) : null, fan, waveAt && (spatial && !prelit ? ((point) => (frame) => spatial.color(waveAt(frame), point, glow > 0))(lightPoint) : waveAt));
         cells2++;
         if (density > 1) fineCells++;
       }
@@ -3345,6 +3352,7 @@
       }
       if (x0 > x1 || y0 > y1) return;
       triangles++;
+      if (density === 1 && material && !(tile && atlas && material !== "crowd-refine")) return;
       for (let y = y0; y <= y1 + 1e-8; y += step / density) {
         let left = Infinity, right = -Infinity;
         for (const [p, q] of [[a, b], [b, c], [c, a]]) {
@@ -3390,13 +3398,20 @@
             const tu = d * (u * a.u / a.depth + v * b.u / b.depth + w * c.u / c.depth), tv = d * (u * a.v / a.depth + v * b.v / b.depth + w * c.v / c.depth);
             if (metricCrowd) {
               const s = sampleMetricCrowdTile(atlas, tu, tv, tile.id, crowd.frame, crowd.frames, appearance.size, crowdFootprint(d, tu, tv), g.architecture.style === "fukuoka_dome" ? palette[tile.id % 2] : tile.seatTint ?? color, shadeCrowdDiffuse);
-              emit(x, y, d, s.color, s.glow, density, "crowd-" + surfaceId, 1, true);
+              const point = lightPoint, footprint = crowdFootprint(d, tu, tv), tint = g.architecture.style === "fukuoka_dome" ? palette[tile.id % 2] : tile.seatTint ?? color;
+              emit(x, y, d, s.color, s.glow, density, "crowd-" + surfaceId, 1, true, null, null, "home", moving ? null : (frame) => {
+                lightPoint = point;
+                return sampleMetricCrowdTile(atlas, tu, tv, tile.id, frame, crowd.frames, appearance.size, footprint, tint, shadeCrowdDiffuse).color;
+              });
               crowdCells++;
               glowEnergy += s.glow;
               if (s.glow > 0) ledCells++;
             } else {
               const s = sampleCrowdTile(tile.fanZone === "visitor" ? visitorAtlas : atlas, tu, tv, tile.id, crowd.frame, crowd.frames, appearance.size);
-              emit(x, y, d, tile.seatTint && s.kind !== "led" ? seatCrowdColor(s.color, tile.seatTint) : s.color, s.glow, density, "crowd-" + surfaceId);
+              emit(x, y, d, tile.seatTint && s.kind !== "led" ? seatCrowdColor(s.color, tile.seatTint) : s.color, s.glow, density, "crowd-" + surfaceId, 1, false, null, null, tile.fanZone === "visitor" ? "visitor" : "home", moving ? null : (frame) => {
+                const w = sampleCrowdTile(tile.fanZone === "visitor" ? visitorAtlas : atlas, tu, tv, tile.id, frame, crowd.frames, appearance.size);
+                return tile.seatTint && w.kind !== "led" ? seatCrowdColor(w.color, tile.seatTint) : w.color;
+              });
               crowdCells++;
               glowEnergy += s.glow;
               if (s.kind === "led") ledCells++;
@@ -3477,7 +3492,9 @@
         emit(x, y, d, color, 0, density, surfaceId ?? (density > 1 ? "dodger-detail-line" : null), alpha);
       }
     };
+    let surfaceCount = 0;
     for (const original of m.surfaces) {
+      if ((++surfaceCount & 63) === 0) yield;
       if ((g.architecture.effects?.environment?.flags || g.architecture.effects?.environment?.wind) && original.material?.startsWith("koshien:flag-")) continue;
       const center = original.points.reduce((a, p) => ({ x: a.x + p.x / original.points.length, y: a.y + p.y / original.points.length, z: a.z + p.z / original.points.length }), { x: 0, y: 0, z: 0 }), s = original;
       lightPoint = center;
@@ -3498,16 +3515,18 @@
       if (profile && s.material === "wolf") logoProfiles.push({ id: s.id, ...profile });
       for (let i = 1; i < ps.length - 1; i++) if (ps[0] && ps[i] && ps[i + 1]) {
         raster(ps[0], ps[i], ps[i + 1], s.color, s.crowdTile, material, s.id, 1, s.points[0].z);
-        if (material) fineJobs.push([ps[0], ps[i], ps[i + 1], s.color, s.crowdTile, material, s.id, profile ? profile.density : 2, s.points[0].z, profile, center]);
+        if (material) fineJobs.push([ps[0], ps[i], ps[i + 1], s.color, s.crowdTile, material, s.id, moving ? MOVING_DENSITY : profile ? profile.density : 2, s.points[0].z, profile, center]);
       }
     }
-    for (const job of fineJobs) {
+    for (let i = 0; i < fineJobs.length; i++) {
+      const job = fineJobs[i];
       lightPoint = job.pop();
       raster(...job);
+      if ((i & 31) === 31) yield;
     }
     for (const s of m.segments) {
       if (omit(s.roof, [s.p, s.q])) continue;
-      line(s.p, s.q, s.color, s.detailDensity ?? 1, s.alpha ?? 1, s.id ?? null);
+      line(s.p, s.q, s.color, moving ? Math.min(s.detailDensity ?? 1, MOVING_DENSITY) : s.detailDensity ?? 1, s.alpha ?? 1, s.id ?? null);
     }
     if (lightOverride && g.architecture.style === "russian_dome") for (let i = 0; i < 8; i++) {
       const t = (i + 0.5) * Math.PI / 4;
@@ -3636,6 +3655,52 @@
       z: cam.eye.z - Math.sin(cam.yaw) * right + Math.cos(cam.yaw) * forward
     };
   }
+  function renderRun(park, cam, project, grid, moving) {
+    mesh.surfaces = originalSurfaces.filter((s) => !(/^(dodger-wall-|koshien-fence-|niikura-wall-)/.test(s.id) || selected === "tambov" && /^surface-\d+$/.test(s.id) && Number(s.id.slice(8)) < geometry.vertices.length - 1));
+    mesh.segments = originalSegments.filter((s) => !s.id?.startsWith("niikura-wall-cap"));
+    const map = /* @__PURE__ */ new Map(), step = grid.step();
+    return { map, steps: renderStadiumSteps({ geometry, project, grid, cam, cutaway: true, moving, crowd: { frame: 0, frames: 3, visible: true }, paint: (x, y, d, color, alpha, owner, glow, density, surfaceId, altColor, live, fan, wave) => {
+      if (alpha <= 0) return;
+      const sx = Math.round(x / step) * step, sy = Math.round(y / step) * step, k2 = sx + "," + sy, old = map.get(k2);
+      if (old && d >= old.d) return;
+      if (insideWall(park, worldXZ(x, y, d, cam), 0.15)) return;
+      map.set(k2, { x: sx, y: sy, d, color, alpha, live: live ?? null, fan: fan === "home" && worldXZ(x, y, d, cam).x < -8 && worldXZ(x, y, d, cam).z > 40 ? "visitor" : fan, wave });
+    } }) };
+  }
+  function commitRun(run, report, key) {
+    cells = [...run.map.values()];
+    cacheKey = key;
+    globalThis.PlayableOtherStadiumV1.report = { surfaces: mesh.surfaces.length, totalSurfaces: originalSurfaces.length, segments: mesh.segments.length, totalSegments: originalSegments.length, cells: cells.length, render: report, key };
+  }
+  // The camera rested: finish the full picture a few milliseconds at a time, then tell the renderer.
+  var resting = null;
+  function cancelRest() {
+    if (resting) clearTimeout(resting.timer);
+    resting = null;
+  }
+  function rest(key, park, cam, grid) {
+    const eye = { ...cam.eye }, sinYaw = Math.sin(cam.yaw), cosYaw = Math.cos(cam.yaw), sinPitch = Math.sin(cam.pitch), cosPitch = Math.cos(cam.pitch), f = cam.f, cx = cam.cx, cy = cam.cy;
+    const project = (p) => {
+      const dx = p.x - eye.x, dy = (p.y || 0) - eye.y, dz = p.z - eye.z, side = cosYaw * dx - sinYaw * dz, ahead = sinYaw * dx + cosYaw * dz, up = cosPitch * dy + sinPitch * ahead, depth = -sinPitch * dy + cosPitch * ahead;
+      return depth < 0.12 ? null : { x: cx + f * side / depth, y: cy - f * up / depth, scale: f / depth, depth };
+    };
+    const job = resting = { key, run: null, timer: 0, advance(budget) {
+      if (resting !== job || cacheKey !== key) return;
+      job.run ??= renderRun(park, { ...cam, eye }, project, grid, false);
+      const until = performance.now() + budget;
+      for (let next = job.run.steps.next(); ; next = job.run.steps.next()) {
+        if (next.done) {
+          commitRun(job.run, next.value, key);
+          resting = null;
+          globalThis.dispatchEvent?.(new Event("kneekura:stadium-settled"));
+          return;
+        }
+        if (performance.now() >= until) break;
+      }
+      job.timer = setTimeout(() => job.advance(REST_SLICE_MS), REST_GAP_MS);
+    } };
+    job.timer = setTimeout(() => job.advance(REST_SLICE_MS), REST_DELAY_MS);
+  }
   globalThis.PlayableOtherStadiumV1 = { cells({ park, cam, project, grid, choice }) {
     if (!park?.center || !Number.isFinite(park.radiusMeters)) return null;
     const nextParkKey = JSON.stringify([park.center.x, park.center.z, park.radiusMeters, park.heightMeters, shapeKey(park)]);
@@ -3647,22 +3712,15 @@
     }
     const key = JSON.stringify([nextParkKey, cam.eye.x, cam.eye.y, cam.eye.z, cam.yaw, cam.pitch, cam.f, cam.cx, cam.cy, grid.step()]);
     if (key !== cacheKey) {
-      mesh.surfaces = originalSurfaces.filter((s) => !(/^(dodger-wall-|koshien-fence-|niikura-wall-)/.test(s.id) || choice === "tambov" && /^surface-\d+$/.test(s.id) && Number(s.id.slice(8)) < geometry.vertices.length - 1));
-      mesh.segments = originalSegments.filter((s) => !s.id?.startsWith("niikura-wall-cap"));
-      const map = /* @__PURE__ */ new Map(), step = grid.step();
-      const report = renderStadium({ geometry, project, grid, cam, cutaway: true, crowd: { frame: 0, frames: 3, visible: true }, paint: (x, y, d, color, alpha, owner, glow, density, surfaceId, altColor, live) => {
-        if (alpha <= 0) return;
-        const p = worldXZ(x, y, d, cam);
-        if (insideWall(park, p, 0.15)) return;
-        const sx = Math.round(x / step) * step, sy = Math.round(y / step) * step, k2 = sx + "," + sy, old = map.get(k2);
-        if (!old || d < old.d) map.set(k2, { x: sx, y: sy, d, color, alpha, live: live ?? null });
-      } });
-      cells = [...map.values()];
-      cacheKey = key;
-      globalThis.PlayableOtherStadiumV1.report = { surfaces: mesh.surfaces.length, totalSurfaces: originalSurfaces.length, segments: mesh.segments.length, totalSegments: originalSegments.length, cells: cells.length, render: report, key };
+      cancelRest();
+      const run = renderRun(park, cam, project, grid, true);
+      let next = run.steps.next();
+      while (!next.done) next = run.steps.next();
+      commitRun(run, next.value, key);
+      rest(key, park, cam, grid);
     }
     return cells;
-  }, render(input) {
+  }, settle() { resting?.advance(Infinity); }, render(input) {
     const list = this.cells(input);
     if (!list) return;
     for (const c of list) input.paint(c.x, c.y, c.d, c.color, c.alpha, "ballpark");

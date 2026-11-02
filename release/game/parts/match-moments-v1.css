@@ -1,0 +1,52 @@
+/* Steal and pickoff caption: one line at the top of the picture, the same panel as the card banner. */
+.match-caption {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  z-index: 4;
+  transform: translateX(-50%);
+  max-width: calc(100% - 24px);
+  padding: 6px 14px;
+  background: rgba(8, 10, 7, .88);
+  border-left: 3px solid var(--gold);
+  color: var(--white);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+.match-caption[data-kind="out"] { border-left-color: #d8574a; }
+.match-caption[hidden] { display: none; }
+
+/* Card effect: dots over the picture, the match waits for it. */
+.card-fx-field {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.card-fx-name {
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  z-index: 5;
+  color: var(--gold);
+  font-size: 20px;
+  font-weight: 700;
+  pointer-events: none;
+}
+.card-fx-name[data-deck="pitcher"] { color: var(--blue); }
+
+.stadium-brightness { display: flex; align-items: center; gap: 10px; }
+.stadium-brightness input { flex: 1; min-width: 0; }
+.stadium-brightness output { min-width: 3.2em; text-align: right; color: var(--muted); }
+
+@media (max-width: 680px) {
+  .match-caption { font-size: 12px; padding: 4px 10px; }
+  .card-fx-name { font-size: 16px; }
+}

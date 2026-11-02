@@ -343,7 +343,9 @@ function makeBroadcastRenderer(canvas,labelHost){
  /* V81_BROADCAST_PERFORMANCE */
  let projectionV81=null,parkCacheV81=null,parkCandidateV81=null,parkReadbackFailedV81=false;
  // Base layers of a held camera: the frame's own maps hold only what moves.
- let sceneDepthBase=null,rasterBase=null,stadiumLayerV2=null;
+ let sceneDepthBase=null,rasterBase=null,stadiumLayerV2=null,renderedV2=false;
+ // The stadium finished its full picture after the camera rested: a paused view takes it too.
+ addEventListener('kneekura:stadium-settled',()=>{if(renderedV2)draw(observed,state);});
  const groundRowsV81=new Map(),rasterKeyV81=(x,y)=>gridV84.key(x,y);
  function updateProjectionV81(){projectionV81={sinYaw:Math.sin(cam.yaw),cosYaw:Math.cos(cam.yaw),sinPitch:Math.sin(cam.pitch),cosPitch:Math.cos(cam.pitch)};groundRowsV81.clear();}
  // One string per delivered wall: a held picture must not survive a change of outline.
@@ -353,8 +355,9 @@ function makeBroadcastRenderer(canvas,labelHost){
   if(!observed.liveObservation)return null;
   const choice=document.getElementById('stadium-choice').value;if(choice==='core')return null;
   const api=choice==='fukuoka'?window.PlayableStadiumV1:window.PlayableOtherStadiumV1,
-   args={park:observed.livePark,cam,project,paint:paintWorldCell,grid:gridV84,awayHit:observed.awayHit,choice},cells=api.cells(args);
-  return cells&&{api,args,cells,awayHit:!!observed.awayHit};
+   brightness=window.KneekuraMatchMomentsV1?.stadiumBrightness()??1,
+   args={park:observed.livePark,cam,project,paint:brightness<1?(x,y,d,color,alpha,owner)=>paintWorldCell(x,y,d,color,alpha*brightness,owner):paintWorldCell,grid:gridV84,awayHit:observed.awayHit,choice},cells=api.cells(args);
+  return cells&&{api,args,cells,awayHit:!!observed.awayHit,brightness};
  }
  function paintStadiumV2(stadium,parkHeld){
   if(!stadium||rasterBase)return;
@@ -362,10 +365,24 @@ function makeBroadcastRenderer(canvas,labelHost){
   const moving=rasterCells;rasterCells=new Map();stadium.api.render(stadium.args);
   try{for(const cell of rasterCells.values())flushCell(cell);
    const depth=new Map(sceneDepthBase);for(const [key,value] of sceneDepth)depth.set(key,value);
-   stadiumLayerV2={park:parkCacheV81,cells:stadium.cells,awayHit:stadium.awayHit,image:ctx.getImageData(0,0,canvas.width,canvas.height),depth,raster:rasterCells};
+   stadiumLayerV2={park:parkCacheV81,cells:stadium.cells,awayHit:stadium.awayHit,brightness:stadium.brightness,image:ctx.getImageData(0,0,canvas.width,canvas.height),depth,raster:rasterCells,crowd:new Map()};
    sceneDepthBase=depth;sceneDepth=new Map();rasterBase=rasterCells;rasterCells=moving;
   }catch{parkReadbackFailedV81=true;parkCacheV81=null;stadiumLayerV2=null;for(const [key,cell] of moving)rasterCells.set(key,cell);}
   Object.assign(ctx,parkCacheV81?.context??{});
+ }
+ // Reacting crowd: a held stadium keeps one picture per pose, made once by redrawing only the seats that change.
+ function crowdImageV2(layer){
+  const mood=window.KneekuraMatchMomentsV1?.crowdMood();if(!mood||!mood.frame)return layer.image;
+  const key=mood.fan+mood.frame;let image=layer.crowd.get(key);if(image)return image;
+  const page=new OffscreenCanvas(canvas.width,canvas.height),c=page.getContext('2d',{willReadFrequently:true}),step=gridV84.step(),r=LIGHT_RADIUS/qualityV84();
+  c.putImageData(layer.image,0,0);c.setTransform(ctx.getTransform());
+  for(const cell of layer.cells){
+   if(!cell.wave||mood.fan!==cell.fan)continue;
+   const color=cell.wave(mood.frame);if(color===cell.color)continue;
+   c.globalAlpha=1;c.fillStyle='#000';c.fillRect(cell.x-step/2,cell.y-step/2,step,step);
+   c.globalAlpha=cell.alpha*layer.brightness;c.fillStyle=color;c.beginPath();c.arc(cell.x,cell.y,r,0,Math.PI*2);c.fill();
+  }
+  image=c.getImageData(0,0,canvas.width,canvas.height);layer.crowd.set(key,image);return image;
  }
  // Live scoreboard: only the board's own cells are drawn again over the held stadium image.
  function paintScoreboardV1(stadium){
@@ -379,8 +396,8 @@ function makeBroadcastRenderer(canvas,labelHost){
    state.camera,state.detail,state.glow,observed.liveObservation,g?.center?.x,g?.center?.z,g?.radiusMeters,g?.heightMeters,parkShapeKeyV1(g),
    qualityV84(),canvas.width,canvas.height,ctx.globalCompositeOperation,ctx.filter,ctx.globalAlpha,ctx.shadowOffsetX,ctx.shadowOffsetY];
   if(parkCacheV81&&sameParkKeyV81(parkCacheV81.key,key)){
-   const layer=stadium&&stadiumLayerV2?.park===parkCacheV81&&stadiumLayerV2.cells===stadium.cells&&stadiumLayerV2.awayHit===stadium.awayHit?stadiumLayerV2:null;
-   try{ctx.putImageData((layer??parkCacheV81).image,0,0);}
+   const layer=stadium&&stadiumLayerV2?.park===parkCacheV81&&stadiumLayerV2.cells===stadium.cells&&stadiumLayerV2.awayHit===stadium.awayHit&&stadiumLayerV2.brightness===stadium.brightness?stadiumLayerV2:null;
+   try{ctx.putImageData(layer?crowdImageV2(layer):parkCacheV81.image,0,0);}
    catch{parkReadbackFailedV81=true;parkCacheV81=null;park();return false;}
    // Cached depth and mark snapshots never become the actors' mutable storage.
    sceneDepth=new Map();sceneDepthBase=(layer??parkCacheV81).depth;rasterBase=layer?.raster??null;fieldMarkCells=parkCacheV81.marks.slice();
@@ -831,6 +848,17 @@ function rasterSphere(center,radius,color,owner){
      paintWorldCell(x,y,foot.depth-.001,`rgb(${baseUmpirePixels[i]},${baseUmpirePixels[i+1]},${baseUmpirePixels[i+2]})`,a/255,'base-umpire-'+call.base);
     }
   }
+ // An error shows as a small balloon on the same lattice as the sprites, above the fielder's face.
+ const errorBalloonV1=['.#####.','#WWRWW#','#WWRWW#','#WWRWW#','#WWWWW#','#WWRWW#','.#####.','...#...'],errorInkV1={'#':'#20242c',W:'#f7f4e8',R:'#d8342a'};
+ function drawErrorBalloonV1(){
+  if(!observed.liveObservation)return;
+  const step=gridV84.step(),ids=window.KneekuraMatchMomentsV1?.errorFielders(observed)??[];
+  for(const id of ids){
+   const who=labelPositions.find(p=>p.sourcePlayerId===id||p.id===id);if(!who)continue;
+   const left=who.bounds.x+who.bounds.w/2-3.5*step,top=who.bounds.y-(errorBalloonV1.length+.5)*step;
+   errorBalloonV1.forEach((row,v)=>[...row].forEach((ink,u)=>{if(ink!=='.')paintWorldCell(left+u*step,top+v*step,.125,errorInkV1[ink],1,'error-balloon');}));
+  }
+ }
  }
  function draw(input,settings){
   observed=input;state={detail:true,glow:.2,...settings};cam=chooseCamera();cam.f*=settings.zoom||1;updateProjectionV81();
@@ -845,12 +873,13 @@ function rasterSphere(center,radius,color,owner){
   anchors=[];labelPositions=[];sceneDepth=new Map();sceneDepthBase=null;rasterBase=null;rasterCells=new Map();fieldMarkCells=[];ballScreen=null;batterRig=null;
   ctx.setTransform(2,0,0,2,0,0);ctx.fillStyle='#000';ctx.fillRect(0,0,600,432);
   if(state.camera==='mound'&&state.appearance!=='point'&&window.KneekuraArtBankV1?.inspect().loaded)actor({id:'UMP',role:'umpire',sourcePlayerId:'umpire',position:{x:(observed.batter?.hand==='L'?.42:-.42),y:0,z:-1.75},running:false,player:{height:1.8,hand:'R',form:'over',name:'',team:2}});
-  const stadium=stadiumFrameV2();paintStadiumV2(stadium,drawParkV81(stadium));paintScoreboardV1(stadium);observed.actors.forEach(actor);drawBaseUmpireCalls();
+  const stadium=stadiumFrameV2();paintStadiumV2(stadium,drawParkV81(stadium));paintScoreboardV1(stadium);observed.actors.forEach(actor);drawBaseUmpireCalls();drawErrorBalloonV1();
   // Draw the source bat only when the approved B1 sprite embeds it or when
   // batOverlay is disabled. Otherwise 27.5ms high-rate layer owns the bat.
   if(!settings.batOverlay||(state.camera==='mound'&&state.appearance==='retro'))drawBat();
   ballRender=!settings.ballOverlay&&observed.ball?BallSurface.rasterize({center:observed.ball.position,radius:.0366,orientation:observed.ball.orientation,project,ray:viewRay,width:600,height:432}):null;
   if(ballRender){for(const p of ballRender.cells)paintWorldCell(p.x,p.y,p.depth,p.color,1,'ball');ballScreen=ballRender;}
+  renderedV2=true;
   flushWorld();guides();history();labels();
   canvas.setAttribute('aria-label',({umpire:'球審視点',catcher:'捕手目線',batter:'打者目線',runner:'走者目線',mound:'投手目線',overhead:'俯瞰',fielder:'守備目線'}[state.camera])+'の試合映像。'+observed.phase);
  }
@@ -885,6 +914,7 @@ function paintBatOverlay(bat,overlay){
   }
   for(const cell of cells.values()){c.fillStyle=cell.color;c.fillRect(cell.x-gridV84.step()/2,cell.y-gridV84.step()/2,gridV84.step(),gridV84.step());count++;}
   return count;
+ const BALL_MIN_ALPHA=.85,BALL_HALO_ALPHA=.62;
  }
  function ballVisibleFromCamera(){return !observed?.custody;}
  // Optical diameter is deliberately *not* physical collision radius. The
@@ -943,11 +973,19 @@ function paintBatOverlay(bat,overlay){
     cells.push({x,y,radius:LIGHT_RADIUS/qualityV84(),color:surface.sample(normal).color});
    }
   }
-  c.save();c.globalAlpha=visibilityMarker?1:Math.min(1,Math.sqrt(displayD));
-  const exact=sceneProof===observed&&sceneProof?.liveBallExactFrameTick===true&&sceneProof.ball===ball&&!viewOverride,owners=exact?new Set(observed.actors.map(a=>a.id)):null;let hidden=0;
+  c.save();c.globalAlpha=visibilityMarker?1:Math.max(BALL_MIN_ALPHA,Math.min(1,Math.sqrt(displayD)));
+  const exact=sceneProof===observed&&sceneProof?.liveBallExactFrameTick===true&&sceneProof.ball===ball&&!viewOverride,owners=exact?new Set(observed.actors.map(a=>a.id)):null,shown=[];let hidden=0;
   for(const cell of cells){const hit=exact?sphereHit(cell.x,cell.y,ball.position,.0366):null,key=rasterKeyV81(snap(cell.x),snap(cell.y)),blocker=exact?rasterCells.get(key)??rasterBase?.get(key):null;
    const occluded=window.PlayableBallDepthV1.hidePhysicalBallCell({sceneToken:exact?observed:null,ballToken:exact?sceneProof:null,sceneCamera:cam,ballCamera:viewOverride??cam,sceneTick:observed?.tick,ballTick:sceneProof?.tick,viewOverride,rayDepth:hit?.depth,blocker,actorOwners:owners});
-   if(occluded){hidden++;continue;}c.fillStyle=cell.color;c.beginPath();c.arc(cell.x,cell.y,cell.radius,0,2*Math.PI);c.fill();}
+   if(occluded){hidden++;continue;}shown.push(cell);}
+  // The ball keeps its size. One lattice cell of shade around it parts it from a busy stand.
+  const step=gridV84.step(),ballAlpha=c.globalAlpha,lit=new Set(shown.map(cell=>rasterKeyV81(snap(cell.x),snap(cell.y)))),shade=new Map();
+  for(const cell of shown)for(const dy of[-step,0,step])for(const dx of[-step,0,step]){
+   const x=snap(cell.x)+dx,y=snap(cell.y)+dy,key=rasterKeyV81(x,y);if(lit.has(key)||shade.has(key))continue;
+   const front=exact?rasterCells.get(key)??rasterBase?.get(key):null;if(!front||front.owner==='ballpark'||front.depth>=point.depth)shade.set(key,{x,y});
+  }
+  c.globalAlpha=BALL_HALO_ALPHA;c.fillStyle='#000';for(const{x,y}of shade.values())c.fillRect(x-step/2,y-step/2,step,step);
+  c.globalAlpha=ballAlpha;for(const cell of shown){c.fillStyle=cell.color;c.beginPath();c.arc(cell.x,cell.y,cell.radius,0,2*Math.PI);c.fill();}
   window.PlayableBallDepthV1.last={exact,total:cells.length,hidden,tick:observed?.tick,camera:state.camera};
   c.restore();if(visualDraw&&surface.orientation&&cells.length>hidden){try{pv.commit(visualDraw,surface.orientation)}catch(e){pv.status('表示状態 HOLD: '+e.message)}}ballDotDisplay={camera:ballCamera,observedHeightMeters:ball.position.y,overheadHeightEmphasis:window.KneekuraBallDisplayControls.inspect().overheadHeightEmphasis,heightMultiplier,heightModel:heightSettings.overheadHeightModel,virtualHeightMeters:heightSizing.virtualHeightMeters??null,virtualProjectionRatio:heightSizing.virtualProjectionRatio??null,heightClamped:heightSizing.clamped??false,baseDisplayDiameterPx,groundProjectedDiameterPx,groundDisplayDiameterPx,physicalHeightRatio:heightSizing.physicalHeightRatio,displayScale,unscaledDisplayDiameterPx,ballKind:kind,projectedDiameterPx:realD,opticalDiameterPx:opticalD,visibilityMarker,displayDiameterPx:displayD,
    style:'4px-dot-grid',orientationStatus:surface.status,cells};return cells.length;

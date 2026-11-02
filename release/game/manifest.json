@@ -464,6 +464,22 @@
 },
 {
 "kind": "shell",
+"file": "match-moments-shell-a.html"
+},
+{
+"kind": "css",
+"file": "match-moments-v1.css"
+},
+{
+"kind": "shell",
+"file": "match-moments-shell-b.html"
+},
+{
+"kind": "js",
+"file": "match-moments-v1.js"
+},
+{
+"kind": "shell",
 "file": "101-shell.html"
 }
 ]
