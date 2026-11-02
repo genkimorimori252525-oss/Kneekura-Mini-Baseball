@@ -10,6 +10,10 @@ globalThis.self = globalThis;
 const core = globalThis.__core;
 const config = JSON.parse(readFileSync(configPath, 'utf8'));
 if (opt.seed !== undefined) config.seed = Number(opt.seed) >>> 0;
+// --batters=key:value,key:value sets those values on every position player, for ability response curves.
+if (opt.batters) for (const player of config.players) if (/-b\d$/.test(player.playerId))
+  for (const pair of opt.batters.split(',')) {const [key, value] = pair.split(':'); player.physical[key] = Number(value);}
+if (opt.skipField) config.skipFieldPlayV1 = true;
 const policies = config.experimentalMatchPoliciesV2;
 const resume = opt.resume ? JSON.parse(readFileSync(opt.resume, 'utf8')) : undefined;
 const host = policies ? core.createExperimentalMatchHostV2(config, policies, resume) : core.createLiveBaseballMatchWorkerV116(config, resume);

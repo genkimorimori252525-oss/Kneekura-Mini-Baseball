@@ -46,7 +46,7 @@ import {resolveBattingDirectionRequestV149,type BattingDirectionRequestV149} fro
 import {planNeutralReactiveDirectionV272} from '../../core/decision/batting/NeutralReactivePlannerV272';
 import {recallBatterObservedMemoryV151,validateBatterObservedMemoryV151,type BatterObservedMemoryV151} from '../../core/decision/batting/BatterObservedMemoryV151';
 import {recallObservedRegionV222,validateObservedRegionPolicyV222,type BatterObservedRegionExperiencePolicyV222} from '../../core/decision/batting/BatterObservedRegionExperienceV222';
-import {convertBatterAccuracyV1,createLiveBatterPositionObserverV151,validateLiveBatterObservationPolicyV151,type LiveBatterObservationPolicyV151} from './LiveBatterObservationV151';
+import {meetLateLookV1,createLiveBatterPositionObserverV151,validateLiveBatterObservationPolicyV151,type LiveBatterObservationPolicyV151} from './LiveBatterObservationV151';
 import {validateObservedDirectionMotorV153,createDirectionMotorPredictionV153,limitDirectionExecutionV153,type ObservedDirectionMotorPolicyV153} from './LiveDirectionMotorV153';
 import {planObservedDirectionRegistrationV153,planObservedReactiveRegistrationV161,planObservedReactiveDirectionLotteryV251,validateObservedReactiveDirectionGroupPolicyV251,type ObservedReactiveDirectionGroupPolicyV251,type ObservedDirectionRegistrationInputV153,
   type ObservedReactiveRegistrationInputV161} from '../../core/sim/contact/ObservedDirectionRegistrationV153';
@@ -210,7 +210,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   const executionV122=b.swingExecutionV122===undefined?undefined:validateSwingExecutionV122(b.swingExecutionV122);
   assert(input.pitchCommandObservationV155===undefined||input.pitchCommandObservationV155===true,'invalid read-only pitch command observation request');
   const observationPolicyV151=input.batterObservationV151===undefined?undefined:validateLiveBatterObservationPolicyV151(input.batterObservationV151);
-  if(observationPolicyV151?.accuracyConversionV1)Object.assign(b,convertBatterAccuracyV1(b,observationPolicyV151.accuracyConversionV1));
+  const lateHeadroomV1=()=>b.plateVision===undefined?0:Math.max(lateEvidenceHeadroomV121(resolveLivePlateVisionV1(b)),observationPolicyV151?.meetLateLookV1?meetLateLookV1(b.timingStdSeconds,observationPolicyV151.meetLateLookV1):0);
   assert(input.batterForecastPolicyV246===undefined||observationPolicyV151!==undefined,'V246 forecast requires position-only observation policy');
   const directionMotorPolicyV153=input.batterDirectionMotorV153===undefined?undefined:validateObservedDirectionMotorV153(input.batterDirectionMotorV153);
   assert(directionMotorPolicyV153===undefined||observationPolicyV151!==undefined,'direction motor requires position-only observation policy');
@@ -650,7 +650,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     bat:{lengthM:b.batLengthM,massKg:b.batMassKg,sweetSpotT:b.sweetSpotT??(b.batLengthM-.1524)/b.batLengthM},model:b.batSwingCapacityV121}),
     // With the policy set, the ceiling is a speed at the ball: the motion's own bound
     // also covers the follow-through, which runs faster than contact.
-    contactCeilingV121=batCapacityV121?.effectiveMaxSweetSpotSpeedMps??b.maximumSweetSpotSpeedMps,
+    contactCeilingV121=(()=>{const ceiling=batCapacityV121?.effectiveMaxSweetSpotSpeedMps??b.maximumSweetSpotSpeedMps,room=observationPolicyV151?.swingSpeedRoomV1;return ceiling!==undefined&&room!==undefined&&b.targetSweetSpotSpeedMps!==undefined?Math.max(ceiling,b.targetSweetSpotSpeedMps*room):ceiling;})(),
     effectiveMaximumSpeedV121=contactCeilingV121===undefined||!observationPolicyV151?.contactSpeedCeilingV1?contactCeilingV121:contactCeilingV121*Math.max(1,adjustedProbe.maximumSweetSpotSpeedMps/norm(probeVelocity))**(observationPolicyV151.contactSpeedCeilingShareV1??1);
   if(batCapacityV121&&b.targetSweetSpotSpeedMps!==undefined){const check=validateBatSwingCapacityTargetV121(batCapacityV121,b.targetSweetSpotSpeedMps);
     assert(check.valid,'希望芯速度がこのバットの推定上限を超えています。'+String(check.proposedTargetSweetSpotSpeedMps)+' m/s以下へ調整してください。');}
@@ -835,7 +835,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     actualStartTick=referenceInput.startTick;motorDelaySeconds=(actualStartTick-plannedStartTick)/tps;
     referenceContactTick=referenceWorldTickAtSourceV121(referenceInput,sourceContactTick);
   }
-  const uncorrectedReference=createReferenceBatKinematicsV1(impactReference),headroom=b.plateVision===undefined?0:lateEvidenceHeadroomV121(resolveLivePlateVisionV1(b));
+  const uncorrectedReference=createReferenceBatKinematicsV1(impactReference),headroom=lateHeadroomV1();
   let lateEvidenceV121=headroom===0||opticalExperiment||!swingOffered||input.batting==='bunt'||observedSpinTrialV236?.status==='APPLIED'?null:(()=>{
     const throughTick=Math.floor(referenceContactTick),throughTime=(throughTick-input.originTick)/tps,
       observedTime=decisionTime+Math.max(0,(positionObserverV151?Math.min(prediction.elapsedSeconds,throughTime):Math.min(horizon,prediction.elapsedSeconds,throughTime))-decisionTime)*headroom/2,
@@ -949,7 +949,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     const isRobustV276=input.yawDiagnosticV274.version==='live_yaw_paired_diagnostic_v276';
     const robustContextV276={originTick:input.originTick,decisionTick:observationTick,decisionTimeSeconds:decisionTime,nominalArrivalSeconds:prediction.elapsedSeconds,technicalTimingOffsetSeconds:b.technicalTimingOffsetSeconds??0,latencySeconds:b.motorLatencySeconds,startMode:envelopeV133?'ENVELOPE' as const:'MOTOR' as const,contactSourceTick:sourceContactTick,rampSeconds,limits:source.limits??{},...(impactTrajectory===undefined?{}:{impactTrajectory})};
     const timingSigmaV276=b.timingStdSeconds*(swingIntentV121?1:input.batting==='contact'?.72:input.batting==='power'?1.15:1)*zoneHitErrorScale*courseErrorScale,aimSigmaV276=aimScale*zoneHitErrorScale*courseErrorScale,recognitionV276=batterRecognition.diagnostics.uncertaintyScale;
-    const robustInputV276=isRobustV276?{decision:decisionInput,context:robustContextV276,sigma:{timingSeconds:timingSigmaV276,aim:{x:aimSigmaV276*recognitionV276,y:aimSigmaV276*recognitionV276,z:aimScale*.3*zoneHitErrorScale*courseErrorScale}},latePossible:b.plateVision!==undefined&&lateEvidenceHeadroomV121(resolveLivePlateVisionV1(b))>0,maximumEvaluations:250,maximumSearchSamples:250*YAW_ROBUST_SEARCH_EVALUATIONS}:undefined;
+    const robustInputV276=isRobustV276?{decision:decisionInput,context:robustContextV276,sigma:{timingSeconds:timingSigmaV276,aim:{x:aimSigmaV276*recognitionV276,y:aimSigmaV276*recognitionV276,z:aimScale*.3*zoneHitErrorScale*courseErrorScale}},latePossible:lateHeadroomV1()>0,maximumEvaluations:250,maximumSearchSamples:250*YAW_ROBUST_SEARCH_EVALUATIONS}:undefined;
     const plannerInputHashV276=robustInputV276?hashYawDecisionInputV274(robustInputV276):undefined;
     if(plannerInputHashV276)pendingYawEvidenceV274.set(raw,{planningRate:rate,summary:{status:'UNKNOWN',reason:'PLANNER_NOT_COMPLETED',candidates:[]},inputHash:proof,plannerInputHashV276});
     const planned=robustInputV276?planLiveYawRobustV276(robustInputV276):input.yawDiagnosticV274.version==='live_yaw_paired_diagnostic_v275'?planObservedYawPivotContactFrameV275(decisionInput):planObservedYawContactFrameV255(decisionInput);
@@ -1060,7 +1060,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     call:'ball'|'called_strike'|'swinging_strike'|null=null,endElapsedSeconds=catcherAt,secureTick:number|null=null,unsupportedReason:string|null=null;
   if(batHit?.kind==='unresolved'){unsupportedReason='bat_contact_refinement_required';endElapsedSeconds=batHit.from;}
   else if(batHit?.kind==='hit'){
-    const at=kernel.evaluateAt(batHit.at,'incoming'),impactBall=(opticalExperiment?.kernel as unknown as {legacyVelocityAt?:(t:number)=>Vec3}|undefined)?.legacyVelocityAt?{...at.moment.ball,velocity:(opticalExperiment!.kernel as unknown as {legacyVelocityAt:(t:number)=>Vec3}).legacyVelocityAt(batHit.at)}:at.moment.ball;contact=resolveWoodBatSpeedProfileBallContact(impactBall,rigidAt(batHit.at),ballPhysical,NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1);
+    const at=kernel.evaluateAt(batHit.at,'incoming'),impactBall=(opticalExperiment?.kernel as unknown as {legacyVelocityAt?:(t:number)=>Vec3}|undefined)?.legacyVelocityAt?{...at.moment.ball,velocity:(opticalExperiment!.kernel as unknown as {legacyVelocityAt:(t:number)=>Vec3}).legacyVelocityAt(batHit.at)}:at.moment.ball;const impactBat=rigidAt(batHit.at),impactSweetSpeed=norm(batSample(batHit.at).sweetSpotVelocity),impactLimit=observationPolicyV151?.impactSpeedLimitV1!==undefined&&b.targetSweetSpotSpeedMps!==undefined?b.targetSweetSpotSpeedMps*(observationPolicyV151.targetSpeedScaleV1??1)*observationPolicyV151.impactSpeedLimitV1:Infinity,impactScale=impactSweetSpeed>impactLimit?impactLimit/impactSweetSpeed:1;contact=resolveWoodBatSpeedProfileBallContact(impactBall,impactScale===1?impactBat:{...impactBat,centerOfMassVelocity:mul(impactBat.centerOfMassVelocity,impactScale),angularVelocity:mul(impactBat.angularVelocity,impactScale)},ballPhysical,NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1);
     if(contact){contactMoment=at.moment;contactOrientation=at.materialOrientation??at.orientation;endElapsedSeconds=batHit.at;}
     else {unsupportedReason='separating_or_tangent_bat_contact_requires_continuation';endElapsedSeconds=batHit.at;}
   }else if(catcherHit?.kind==='unresolved'){unsupportedReason='catcher_contact_refinement_required';endElapsedSeconds=catcherHit.from;}
