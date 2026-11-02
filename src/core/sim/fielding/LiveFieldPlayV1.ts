@@ -249,10 +249,16 @@ export function deriveLiveFieldFenceGeometryV1(field: LiveFieldGeometryV1): Read
     fenceRadiusMeters: (field.fenceRadiusMeters + back) / 2, fenceHeightMeters: field.fenceHeightMeters });
 }
 
+// A glove trailing a runner keeps the gap near zero, which defeats the speed bound. Past this
+// many intervals a loose-ball search reports an ambiguity, which the play already has to handle.
+const LOOSE_SEARCH_BUDGET = 3000;
+let contactSearchBudget = Infinity, contactSearchesLeft = Infinity;
 /** Bounded continuous search, independent of render frames. A real overlap
  * witness is mandatory; an unresolved graze stops the play without a result. */
 function firstContact(gap: (t: number) => number, speed: number, rounding: number, lo: number, hi: number, depth = 0, maximumPencilSeconds = 1e-6): Hit | null {
+  if (depth === 0) contactSearchesLeft = contactSearchBudget;
   const a = gap(lo), b = gap(hi);
+  if (--contactSearchesLeft < 0) return { t: hi, from: lo, gap: b, rounding, speed, ambiguous: true };
   if (a <= 0) return { t: lo, from: lo, gap: a, rounding, speed };
   if (Math.min(a, b) > speed * (hi - lo) + rounding) return null;
   if (hi - lo <= 1e-13 || depth >= 48 || (hi + lo) / 2 === lo || (hi + lo) / 2 === hi)
@@ -274,6 +280,7 @@ export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
 }
 function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   const loose=(raw as any).loosePitchV1;
+  contactSearchBudget = loose ? LOOSE_SEARCH_BUDGET : Infinity;
   const batDynamics=(globalThis as any).__robinDynamics;
   if(loose&&(!batDynamics||typeof batDynamics.rigidAt!=='function'||typeof batDynamics.sampleBatAtTick!=='function'||!Number.isFinite(batDynamics.batBound)||batDynamics.batBound<0||!Number.isFinite(batDynamics.batThroughSeconds)||!batDynamics.batBoundCovered))throw Error('HOLD: missing covered dynamic bat trajectory');
   assert(loose===undefined||loose.version==='loose_pitch_field_v1','unsupported loose pitch version');let looseImpactSeconds=loose?.initialImpactSeconds??null;const looseVisibleAt=(t:number)=>!loose||typeof loose.hiddenAfterSeconds!=='number'||t<loose.hiddenAfterSeconds||(typeof looseImpactSeconds==='number'&&t>=Math.max(loose.legacyArrivedSeconds,looseImpactSeconds));if(loose&&typeof loose.hiddenAfterSeconds==='number')assert(Number.isFinite(loose.legacyArrivedSeconds)&&loose.legacyArrivedSeconds>=loose.hiddenAfterSeconds,'invalid legacy arrival');

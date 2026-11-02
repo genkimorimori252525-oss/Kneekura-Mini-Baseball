@@ -61,16 +61,13 @@ const AUTHORED_ROBIN_PITCH_SPECS: readonly RobinPitchSpec[] = [
   { id: 'robin_6_original', name: 'ロビン Type 6・消える球 原作', trajectory: 'invisible', speedKmh: 170, hideDistanceFromBatterM: 9.02 },
 ] as const;
 
-/** 原作の最速210km/hを本人指定の180km/hへ。球種間の比率は原作のまま保つ。 */
-const ROBIN_SPEED_SCALE = 180 / 210;
-const scaled = (kmh: number): number => kmh * ROBIN_SPEED_SCALE;
-const scaledRange = (range: readonly [number, number]): readonly [number, number] => [scaled(range[0]), scaled(range[1])];
+/** 原作の最速210km/hを本人指定の180km/hへ。100km/h以下の遅い球は原作のまま残す。
+ * 飛行時間の上限があるので、遅い球まで縮めると軌道が組めなくなる。 */
+const robinTopSpeed = (kmh: number): number => (kmh <= 100 ? kmh : 100 + (kmh - 100) * 80 / 110);
 export const ROBIN_PITCH_SPECS: readonly RobinPitchSpec[] = AUTHORED_ROBIN_PITCH_SPECS.map((spec) => ({
   ...spec,
-  ...(spec.speedKmh === undefined ? {} : { speedKmh: scaled(spec.speedKmh) }),
-  ...(spec.baseSpeedRangeKmh === undefined ? {} : { baseSpeedRangeKmh: scaledRange(spec.baseSpeedRangeKmh) }),
-  ...(spec.speedBoostRangeKmh === undefined ? {} : { speedBoostRangeKmh: scaledRange(spec.speedBoostRangeKmh) }),
-  ...(spec.acceleratesToKmh === undefined ? {} : { acceleratesToKmh: scaled(spec.acceleratesToKmh) }),
+  ...(spec.speedKmh === undefined ? {} : { speedKmh: robinTopSpeed(spec.speedKmh) }),
+  ...(spec.acceleratesToKmh === undefined ? {} : { acceleratesToKmh: robinTopSpeed(spec.acceleratesToKmh) }),
 }));
 
 const ROBIN_SPEC_BY_ID = new Map<RobinPitchId, RobinPitchSpec>(
@@ -108,8 +105,8 @@ export function sampleRobinPitch(id: RobinPitchId, rng: RandomSource): RobinPitc
     : 0;
   return {
     id,
-    initialSpeedKmh: base + robinBoost,
-    acceleratedSpeedKmh: spec.acceleratesToKmh ?? base + robinBoost,
+    initialSpeedKmh: robinTopSpeed(base + robinBoost),
+    acceleratedSpeedKmh: spec.acceleratesToKmh ?? robinTopSpeed(base + robinBoost),
     angleDeg: 179 + 2 * rng.nextFloat(),
     zigzagPhase: 8 * rng.nextFloat(),
   };
