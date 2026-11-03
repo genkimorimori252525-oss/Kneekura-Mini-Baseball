@@ -102,9 +102,10 @@ export function validateLiveFieldRangePolicyV1(policy:LiveFieldRangePolicyV1){
 }
 /** Every estimate reads the same spec as the motor, so plans and motion cannot disagree. */
 export function liveFieldRangeSpecV1<T extends Readonly<{accelerationMps2:number;defensivePosition?:string;throwEffortBuildSecondsV103?:number;bodyModelV105?:LiveFielderBodyModelV105}>>(spec:T,
-  /** fieldKinematicsV1: the Statcast-fitted outfield break. Omission keeps the authored one. */kinematics?:LiveFieldKinematicsPolicyV1):T{
+  /** fieldKinematicsV1: the Statcast-fitted outfield break. Omission keeps the authored one. */kinematics?:LiveFieldKinematicsPolicyV1,
+  /** outfieldBreakV1: the break refitted to outfielders' own legs. Omission keeps fieldKinematicsV1's. */outfieldBreak?:LiveOutfieldBreakPolicyV1):T{
   const c=LIVE_FIELD_RANGE_CALIBRATION_V1,m=spec.bodyModelV105,outfield=['LF','CF','RF'].includes(spec.defensivePosition??'');
-  return {...spec,accelerationMps2:spec.accelerationMps2*(outfield?kinematics?LIVE_FIELD_KINEMATICS_CALIBRATION_V1.readOutfieldAccelerationScale:c.readOutfieldAccelerationScale:c.readyAccelerationScale),
+  return {...spec,accelerationMps2:spec.accelerationMps2*(outfield?kinematics?outfieldBreak?LIVE_OUTFIELD_BREAK_CALIBRATION_V1.readOutfieldAccelerationScale:LIVE_FIELD_KINEMATICS_CALIBRATION_V1.readOutfieldAccelerationScale:c.readOutfieldAccelerationScale:c.readyAccelerationScale),
     ...(spec.throwEffortBuildSecondsV103===undefined?{}:{throwEffortBuildSecondsV103:spec.throwEffortBuildSecondsV103*c.throwBuildScale}),
     ...(m?{bodyModelV105:{...m,armReachMeters:m.armReachMeters*c.lowBallArmScale,maximumCrouchMeters:m.heightMeters*c.lowBallCrouchFraction}}:{})};
 }
@@ -139,6 +140,19 @@ export const LIVE_LOCOMOTION_START_CALIBRATION_V1=Object.freeze({shape:Object.fr
 export function validateLiveLocomotionStartPolicyV1(policy:LiveLocomotionStartPolicyV1){
   if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_locomotion_start_policy_v1'
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid locomotion start policy');
+  return policy;
+}
+/** Opt-in, needs fieldKinematicsV1. Omission keeps its outfield break scale (1.3). */
+export type LiveOutfieldBreakPolicyV1=Readonly<{version:'live_outfield_break_policy_v1';sourceId:string}>;
+export const LIVE_OUTFIELD_BREAK_POLICY_V1:LiveOutfieldBreakPolicyV1=Object.freeze({version:'live_outfield_break_policy_v1',sourceId:'outfield-break-v1-statcast'});
+/** fieldKinematicsV1 fitted the outfield break to the 2025 mean jump (33.9 ft in 3 s) with every fielder at the league mean
+ * sprint, 27.3 ft/s. Outfielders run faster than that (left 27.8, center 28.7, right 27.8 ft/s, and a quicker start), so on
+ * their own legs the same scale gives them 35.3-36.2 ft. Refitted 2026-11-04 to those legs and the starting shape of
+ * locomotionStartV1: 34.1 ft in 3 s and 84 ft by 4.75 s with the reach, against 33.9 and 85. */
+export const LIVE_OUTFIELD_BREAK_CALIBRATION_V1=Object.freeze({readOutfieldAccelerationScale:1.18});
+export function validateLiveOutfieldBreakPolicyV1(policy:LiveOutfieldBreakPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_outfield_break_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid outfield break policy');
   return policy;
 }
 export function liveFieldAirReadV1<T extends Readonly<{reactionSeconds:number}>>(spec:T,ballVelocity:Vec3):T{
