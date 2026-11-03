@@ -277,7 +277,8 @@ ANCHOR_BODY = ("run/", "walk/", "look/", "robin/run")
 
 
 def anchor_x(name, small, height):
-    key = name.split("/", 1)[1] if name.startswith(("lotso/", "chinsuke/")) else name
+    # A player's own set and the Dragons' kits sit in the same slots as the generic art.
+    key = re.sub(r"^(lotso/|chinsuke/|tbd/(home|away)/(\d-[bp]\d/)?)", "", name)
     alpha = small.getchannel("A")
     if key.startswith(ANCHOR_FOOT):
         band = alpha.crop((0, max(0, small.height - max(2, round(height * .06))), small.width, small.height)).getbbox()
@@ -399,6 +400,24 @@ for who, path, faces, pivot, hands, bat in (("chinsuke", afro_batting["swing"][0
     scale = MAX_SIDE / max(box[2] - box[0], box[3] - box[1])
     out[f"{who}/bat/mound/2"]["bend"] = bend_rig(box, scale, (hands[0] * w, hands[1] * h), (pivot[0] * w, pivot[1] * h), .48 * h, .84 * h, faces,
                                                 (bat[0] * w, bat[1] * h, bat[2] * w, bat[3] * h))
+# ---- the Tambov Dragons' home and away uniforms ----
+# Rendered by tools/release/render-tbd-kits.cjs with the owner's uniform compositor (tbd-uniform-integration in the
+# drawing folder) onto the same catalog poses the generic slots use. The home kit is owner-adopted (2026-10-29); the
+# owner asked for both kits in the match on 2026-11-04. A pose that shows the back has one picture per player.
+KITS = os.path.join(game, "assets", "tbd-kits")
+if os.path.isdir(KITS):
+    kit_sources = json.load(open(os.path.join(KITS, "sources.json"), encoding="utf-8"))
+    rendered = {s["id"]: s["back"] for s in kit_sources["sources"]}
+    for key, (entry_id, kit, ratio) in list(wanted.items()):
+        if kit != "home" or entry_id not in rendered:
+            continue
+        for tbd in ("home", "away"):
+            base = f"{tbd}__{re.sub(r'[:/]', '_', entry_id)}"
+            for player in ([None] + kit_sources["players"] if rendered[entry_id] else [None]):
+                path = os.path.join(KITS, base + (f"__{player}" if player else "") + ".png")
+                name = f"tbd/{tbd}/" + (f"{player}/" if player else "") + key
+                store(name, entry_id, path, "OWNER_ADOPTED_HOME_2026-10-29_BOTH_IN_MATCH_2026-11-04", crop_of(path), ratio_of(key), name, {"kit": tbd})
+
 # Art for a player facing the camera or carrying a glove: front and rear only, never the rejected side views.
 LOCO = os.path.join(gen, "locomotion-four-directions-v1", "sprites")
 FORWARD = os.path.join(gen, "b2-forward-run-v1", "sprites")

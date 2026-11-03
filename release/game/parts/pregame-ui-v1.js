@@ -49,8 +49,14 @@
     seed: control('match-seed').value,
     fixed: control('fixed-seed').checked,
     swap: 'order',
-    selected: null
+    selected: null,
+    kit: null
   };
+  /* The Dragons' uniform: chosen before the match; until then home at their own park, away elsewhere. The Dodgers wear
+     the other one. The art bank reads it through KneekuraUniformV1. */
+  const kitFor = () => pre.kit || (pre.park === 'tambov' ? 'home' : 'away');
+  let matchKit = kitFor();
+  globalThis.KneekuraUniformV1 = Object.freeze({ tbd: () => matchKit, lad: () => (matchKit === 'home' ? 'away' : 'home') });
 
   function parkFacts(park) {
     const rows = [];
@@ -152,6 +158,7 @@
     $$('.pg-command button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.command === String(pre.team))));
     $$('.park').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.park === pre.park)));
     $$('[data-innings]').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.innings) === pre.innings)));
+    $$('[data-kit]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.kit === kitFor())));
     renderPark();
     renderLineup();
     summary();
@@ -179,6 +186,7 @@
     control('inning-limit').value = String(pre.innings);
     control('match-seed').value = pre.seed;
     control('fixed-seed').checked = pre.fixed;
+    matchKit = kitFor();
     const mode = $(pre.team ? '[data-ui-mode="manager"]' : '[data-ui-mode="watch"]');
     if (mode) mode.click();
     if (pre.team) setControl('managed-team', pre.team === 'LAD' ? '0' : '1');
@@ -202,6 +210,8 @@
       '</div><div class="park-detail"></div></div><div class="pg-section"><h2>スタメン</h2><div class="lineup-body"></div></div>' +
       '<div class="pg-section"><h2>試合の長さ</h2><div class="pg-length"><div class="segments" role="group" aria-label="試合の長さ">' +
       [...control('inning-limit').options].map(o => '<button type="button" data-innings="' + safe(o.value) + '">' + safe(o.textContent.trim()) + '</button>').join('') + '</div></div>' +
+      '<h2>' + DATA.teams[1] + 'のユニフォーム</h2><div class="pg-length"><div class="segments" role="group" aria-label="ユニフォーム">' +
+      '<button type="button" data-kit="home">ホーム（黄）</button><button type="button" data-kit="away">アウェー（紺）</button></div></div>' +
       '<details class="pg-more"><summary>乱数の設定</summary><div class="pg-more-fields"><label>シード <input type="text" class="pg-seed" maxlength="32" spellcheck="false"></label>' +
       '<label><input type="checkbox" class="pg-fixed"> 同じシードで再現</label></div></details></div>' +
       '<div class="pg-start"><p></p><button type="button" class="pg-go">試合開始</button></div>';
@@ -215,6 +225,7 @@
       if (button.dataset.command) { pre.team = button.dataset.command === 'null' ? null : button.dataset.command; pre.selected = null; }
       else if (button.dataset.park) pre.park = button.dataset.park;
       else if (button.dataset.innings) pre.innings = Number(button.dataset.innings);
+      else if (button.dataset.kit) pre.kit = button.dataset.kit;
       else if (button.dataset.pitcher) { pre.pitcher = button.dataset.pitcher; pre.selected = null; }
       else if (button.dataset.swap) { pre.swap = button.dataset.swap; pre.selected = null; }
       else if (button.dataset.slot !== undefined) pickRow(button.dataset.slot === 'P' ? 'P' : Number(button.dataset.slot));

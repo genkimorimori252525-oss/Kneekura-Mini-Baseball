@@ -186,8 +186,9 @@
   if(record.play?.rules?.halfChanged&&tick>=(record.play.rules.endedAtTick??Infinity))return {pose:'time'};
   return {pose:'ready'};
  }
- function pick({role,action,frame,camera,hand,form,team,running,isRobin,pose,away,walking,who,art,athletic,motion,sx}){
-  const kit=team===1?'home':'away',outfield=['LF','CF','RF'].includes(role);
+ function pick({role,action,frame,camera,hand,form,team,running,isRobin,pose,away,walking,who,art,athletic,motion,sx,player}){
+  // Each team's uniform for this match (pregame-ui-v1.js): the Dragons' own kits, the Dodgers in the other one.
+  const uniform=root.KneekuraUniformV1,tbdKit=uniform?.tbd?.()??'home',kit=team===1?'home':(uniform?.lad?.()??'away'),outfield=['LF','CF','RF'].includes(role);
   let key=null,found=null,mirror=false,handed=false,behind=false;
   art=art||{};motion=motion||{x:0,depth:0};sx=sx||1;
   if(art.catcher)art={...art,catcher:{...art.catcher,sx}};
@@ -267,7 +268,10 @@
   }
   if(athletic)lastAthletic={kind:athletic.kind,phase:athletic.phase,motion,key,isRobin};
   const own=!found&&key&&who?bank.get(who+'/'+key):null;
-  if(!found&&key)found=own||bank.get(key);
+  // A Dragon wears the chosen Dragons kit (with his own name and number where the back shows), drawn by the owner's
+  // uniform compositor; a player with a set of his own keeps it.
+  const dragons=!found&&!own&&key&&team===1?bank.get('tbd/'+tbdKit+'/'+player+'/'+key)||bank.get('tbd/'+tbdKit+'/'+key):null;
+  if(!found&&key)found=own||dragons||bank.get(key);
   if(!found)return null;
   // ちんすけ's own set and the batless body are drawn left-handed, every other picture right-handed.
   if(handed&&(hand==='L')!==(own?who==='chinsuke':key.startsWith('body/')))mirror=true;

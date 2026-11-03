@@ -599,7 +599,7 @@ function rasterSphere(center,radius,color,owner){
    const bankV1=window.KneekuraArtBankV1,screenStepV1=aheadV1?Math.hypot(aheadV1.x-foot.x,aheadV1.y-foot.y):0,sideV1=project({x:x+1,y:0,z}),
     motionV1=screenStepV1>1?{x:(aheadV1.x-foot.x)/screenStepV1,depth:(foot.y-aheadV1.y)/screenStepV1}:{x:0,depth:0},
     artV1=bankV1?.pick({role:a.role,action,frame,camera:state.camera,hand:a.player.hand,form:a.player.form,team:a.player.team,running:a.running,isRobin:a.sourcePlayerId==='robin',pose:a.presentationPose,away:awayV1,walking:a.walking,
-     who:bankV1.whoIs(a.sourcePlayerId,a.player.name),art:a.role==='umpire'?{umpire:observed.liveUmpireArtV1}:a.presentationArt,athletic:a.athleticV115,motion:motionV1,sx:sideV1&&sideV1.x<foot.x?-1:1});
+     who:bankV1.whoIs(a.sourcePlayerId,a.player.name),player:a.sourcePlayerId,art:a.role==='umpire'?{umpire:observed.liveUmpireArtV1}:a.presentationArt,athletic:a.athleticV115,motion:motionV1,sx:sideV1&&sideV1.x<foot.x?-1:1});
    if(artV1){original=artV1.sprite;palette=artV1.palette;materialSource=artV1.id;}
    let sprite=action==='bat'&&!original.artBankV1?batterSpriteForView(original,state.camera):original;
    const unit=height/(sprite.referenceHeight||44)*foot.scale*RETRO_SCALE,left=foot.x-sprite.originX*unit,top=foot.y-sprite.baseline*unit;
