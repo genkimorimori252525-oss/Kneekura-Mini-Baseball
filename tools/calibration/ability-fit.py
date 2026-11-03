@@ -1,5 +1,6 @@
 # Ability <-> stat response surfaces from random-ability leagues, and the inverse for a real player.
-# fit:    python -I ability-fit.py fit <abilities.json> "<records glob with {league}>" <table.json> <surface.json>
+# fit:    python -I ability-fit.py fit <abilities.json> "<records glob with {league}>" <table.json> <surface.json> [--role=pitcher]
+#         the ability keys come from abilities.json; --role=pitcher groups plate appearances by pitcher instead of batter.
 #         records for league i are found by replacing {league} with i (e.g. K:/kbm-work/rec/g-rand{league}-*.jsonl).
 # invert: python -I ability-fit.py invert <surface.json> <targets.json> <out.json>
 #         targets.json: {"<id>": {"pa": 600, "k": .2, "bb": .08, "iso": .15, "babip": .3, "hr": .03}}
@@ -42,7 +43,7 @@ def solve(a, b):
     return [m[i][n] / m[i][i] if abs(m[i][i]) > 1e-12 else 0 for i in range(n)]
 
 
-def batter_stats(files, predict):
+def batter_stats(files, predict, role='batter'):
     acc = {}
     for f in files:
         for line in open(f):
@@ -50,7 +51,7 @@ def batter_stats(files, predict):
             s = r.get('scoring')
             if not s or s == 'plate_appearance_continues' or s == 'unresolved' and not r.get('exit'):
                 continue
-            a = acc.setdefault(r['batter'], dict(pa=0, k=0, bb=0, hbp=0, hits=0.0, bases=0.0, hr=0.0, bip=0.0))
+            a = acc.setdefault(r[role], dict(pa=0, k=0, bb=0, hbp=0, hits=0.0, bases=0.0, hr=0.0, bip=0.0))
             a['pa'] += 1
             if s == 'strikeout': a['k'] += 1
             elif s == 'walk': a['bb'] += 1
@@ -71,12 +72,14 @@ def batter_stats(files, predict):
     return out
 
 
-def fit(abil_path, pattern, table_path, out_path):
+def fit(abil_path, pattern, table_path, out_path, role='batter'):
+    global KEYS
     abilities = json.load(open(abil_path))
+    KEYS = list(next(iter(next(iter(abilities.values())).values())).keys())
     predict = ot.predictor(json.load(open(table_path)))
     rows = []
     for league, players in abilities.items():
-        stats = batter_stats(glob.glob(pattern.replace('{league}', str(league))), predict)
+        stats = batter_stats(glob.glob(pattern.replace('{league}', str(league))), predict, role)
         for pid, st in stats.items():
             if pid in players:
                 rows.append(([players[pid][k] for k in KEYS], st))
@@ -139,6 +142,7 @@ def invert(surface_path, targets_path, out_path):
 
 if __name__ == '__main__':
     if sys.argv[1] == 'fit':
-        fit(*sys.argv[2:6])
+        role = next((a.split('=', 1)[1] for a in sys.argv if a.startswith('--role=')), 'batter')
+        fit(*[a for a in sys.argv[2:] if not a.startswith('--')][:4], role=role)
     else:
         invert(*sys.argv[2:5])

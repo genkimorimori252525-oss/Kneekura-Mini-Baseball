@@ -657,7 +657,11 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       ...(executionV122||directionMotorActiveV153?{executionInterpolationV122:'cubic-c1' as const}:{}),
       ...(envelopeV133?{executionEnvelopeV133:envelopeV133}:{}),
       transform:{rotation:IDENTITY_QUATERNION,translation:zero(),scale:1}},probe=createReferenceBatKinematicsV1(probeInput),
-    probeVelocity=probe.sampleAtSourceTick(sourceContactTick,'outgoing').sweetSpotVelocity,
+    // contactLeadAlignV1: aim the attack angle where bat and ball first touch, about a millisecond before the clip's
+    // contact time, and from the approaching swing; 'outgoing' at the clip contact carries the recorded slowdown.
+    contactLeadV1=observationPolicyV151?.contactLeadAlignV1,
+    probeVelocity=contactLeadV1===undefined?probe.sampleAtSourceTick(sourceContactTick,'outgoing').sweetSpotVelocity
+      :probe.sampleAtSourceTick(sourceContactTick-contactLeadV1*1e6,'incoming').sweetSpotVelocity,
     adjustedProbe=impactTrajectory===undefined?probe:createReferenceBatKinematicsV1(withReferenceImpactTrajectoryV1(probeInput,sourceContactTick,impactTrajectory));
   let rate=b.swingRate*controlFactor;
   if(b.targetSweetSpotSpeedMps!==undefined){assert(norm(probeVelocity)>1e-9,'measured reference has no finite contact speed');rate*=b.targetSweetSpotSpeedMps*(observationPolicyV151?.targetSpeedScaleV1??1)/norm(probeVelocity);}

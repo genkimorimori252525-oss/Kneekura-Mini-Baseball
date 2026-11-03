@@ -36,6 +36,9 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
    * otherwise the bat goes where he saw it. Overrides priorPlacementShareV1. A blend on every swing made too many
    * half-missed balls for the strikeouts it produced. */
   priorFooledChanceV1?:number;
+  /** Seconds of clip time before the clip's contact at which the attack angle is aimed, taken from the approaching
+   * swing. Bat and ball touch about 6.8 cm (some 1 ms) before their centres meet, while the swing is still turning up. */
+  contactLeadAlignV1?:number;
   /** Least room above the aimed speed, as a multiple of it. A swing aimed at its own ceiling has no speed left for the late adjustment. */
   swingSpeedRoomV1?:number;
   /** Swing threshold change per plate vision point around 70, so a good eye lays off more pitches. */
@@ -75,6 +78,7 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'swingSpeedRoomV1')){keys.push('swingSpeedRoomV1');assert(Number.isFinite(p.swingSpeedRoomV1)&&p.swingSpeedRoomV1!>=1&&p.swingSpeedRoomV1!<=2,'invalid swing speed room');}
   if(Object.hasOwn(p,'visionSelectivityV1')){keys.push('visionSelectivityV1');assert(Number.isFinite(p.visionSelectivityV1)&&p.visionSelectivityV1!>=0&&p.visionSelectivityV1!<=.02,'invalid vision selectivity');}
   if(Object.hasOwn(p,'pitchOrderPlanV1')){keys.push('pitchOrderPlanV1');assert(typeof p.pitchOrderPlanV1==='boolean','invalid pitch order plan');}
+  if(Object.hasOwn(p,'contactLeadAlignV1')){keys.push('contactLeadAlignV1');assert(Number.isFinite(p.contactLeadAlignV1)&&p.contactLeadAlignV1!>=0&&p.contactLeadAlignV1!<=.02,'invalid contact lead');}
   if(Object.hasOwn(p,'priorFooledChanceV1')){keys.push('priorFooledChanceV1');assert(Number.isFinite(p.priorFooledChanceV1)&&p.priorFooledChanceV1!>=0&&p.priorFooledChanceV1!<=1,'invalid prior fooled chance');}
   if(Object.hasOwn(p,'priorPlacementShareV1')){keys.push('priorPlacementShareV1');assert(Number.isFinite(p.priorPlacementShareV1)&&p.priorPlacementShareV1!>=0&&p.priorPlacementShareV1!<=1,'invalid prior placement share');}
   if(Object.hasOwn(p,'lateLookByMeetOnlyV1')){keys.push('lateLookByMeetOnlyV1');assert(typeof p.lateLookByMeetOnlyV1==='boolean','invalid late look source');}
