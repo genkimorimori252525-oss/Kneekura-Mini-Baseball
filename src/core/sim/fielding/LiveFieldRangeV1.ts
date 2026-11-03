@@ -47,9 +47,11 @@ export type LiveFieldRunValuePolicyV1=Readonly<{version:'live_field_run_value_po
 export const LIVE_FIELD_RUN_VALUE_POLICY_V1:LiveFieldRunValuePolicyV1=Object.freeze({version:'live_field_run_value_policy_v1',sourceId:'field-run-value-v1-authored'});
 /** The holder takes the out that leaves the batting side the fewest runs to come, each play weighted by his chance of
  * winning its race. spreadSeconds: the scatter of throws, catches and tags around a forecast margin, authored.
- * table: runs to the end of the half by outs and occupied bags, PROVISIONAL until measured in the league. */
-export const LIVE_FIELD_RUN_VALUE_CALIBRATION_V1=Object.freeze({spreadSeconds:.15,table:Object.freeze({sourceId:'PROVISIONAL',values:Object.freeze([
-  Object.freeze([.481,.859,1.1,1.437,1.35,1.784,1.964,2.292]),Object.freeze([.254,.509,.664,.884,.95,1.13,1.376,1.541]),Object.freeze([.098,.224,.319,.429,.353,.478,.58,.752])])})});
+ * table: runs to the end of the half by outs and occupied bags (first + 2*second + 4*third). NPB 2015-2017 by DELTA,
+ * as cited on ja.wikipedia.org/wiki/Linear_Weights. It is the real league the sim aims at; replace it with the sim's
+ * own measurement once the league is calibrated. */
+export const LIVE_FIELD_RUN_VALUE_CALIBRATION_V1=Object.freeze({spreadSeconds:.15,table:Object.freeze({sourceId:'npb-2015-2017-delta',values:Object.freeze([
+  Object.freeze([.436,.787,1.019,1.378,1.221,1.591,1.849,2.13]),Object.freeze([.239,.483,.667,.884,.873,1.127,1.313,1.506]),Object.freeze([.091,.212,.315,.421,.345,.482,.526,.713])])})});
 export function validateLiveFieldRunValuePolicyV1(policy:LiveFieldRunValuePolicyV1){
   if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_run_value_policy_v1'
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field run value policy');
