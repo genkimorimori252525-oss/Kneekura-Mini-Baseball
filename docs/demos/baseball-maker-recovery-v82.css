@@ -1,0 +1,28 @@
+/* Recovery controls do not alter the renderer, physics or source artwork. */
+.maker-recovery-panel-v82, .maker-recovery-population-v82 {
+  min-width: 0;
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid #b9d2c5;
+  border-radius: 8px;
+  background: #f3faf6;
+  overflow-wrap: anywhere;
+}
+.maker-recovery-panel-v82 h3 { margin-top: 0; }
+.maker-recovery-panel-v82 ul { padding-left: 20px; }
+.maker-recovery-panel-v82 li { margin: 8px 0; }
+.maker-recovery-panel-v82 li button { margin: 4px 0; }
+.maker-recovery-actions-v82, .maker-recovery-population-v82 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.maker-recovery-population-v82 label { flex-basis: 100%; }
+.maker-recovery-population-v82 select { width: 100%; min-width: 0; }
+.maker-recovery-note-v82 { margin: 5px 0; font-size: .82rem; color: #435d51; overflow-wrap: anywhere; }
+.maker-recovery-field-error-v82 { margin: 5px 0; color: #a12d36; white-space: pre-line; overflow-wrap: anywhere; }
+#maker-recovery-proposal-v82 { margin-top: 12px; border-top: 1px solid #b9d2c5; padding-top: 8px; }
+#maker-recovery-proposal-v82 button { margin: 4px 6px 4px 0; }
+#maker-error-details-v82 pre { white-space: pre-wrap; overflow-wrap: anywhere; max-width: 100%; }
+.maker-recovery-panel-v82 button, .maker-recovery-population-v82 button,
+.maker-recovery-actions-v82 button, #maker-workbench-discard-v82 { white-space: normal; max-width: 100%; }

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V54-TRAIT-ADAPTER-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveTraitProfilesV1.test.ts",
+    "src/integration/browser/LiveTraitAuthoringCalibrationV54.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T16:02:32.190+00:00",
+  "elapsed_ms": 3250,
+  "git_head": "3cdfee5c0c1211d6a892c87b073a4bdf6fb1e3dd",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V54-TRAIT-ADAPTER-RED_bf5d99baedc244aeb4b21342e585e1e6.log",
+  "output_sha256": "c91dc01be80115b260f5009a41c16c149694aa1e42d6441476d36b2d3a338f22",
+  "receipt_id": "MB-20261019-V54-TRAIT-ADAPTER-RED_bf5d99baedc244aeb4b21342e585e1e6"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-LOCOMOTION-CORE-GREEN",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/locomotion/LiveLocomotionV84.test.ts"
+  ],
+  "observed_at": "2026-10-20T15:17:47.549+00:00",
+  "elapsed_ms": 1187,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-LOCOMOTION-CORE-GREEN_6208b1d1fdb5420ba9b93926904e6633.log",
+  "output_sha256": "caf8303617247c8ead3830f4687a14e8e00b1ba77ec59a461003295321e6091a",
+  "receipt_id": "MB-20261021-V84-LOCOMOTION-CORE-GREEN_6208b1d1fdb5420ba9b93926904e6633"
+}

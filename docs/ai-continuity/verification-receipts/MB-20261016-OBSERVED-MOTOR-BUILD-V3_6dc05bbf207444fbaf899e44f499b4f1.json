@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OBSERVED-MOTOR-BUILD-V3",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/native-game/build-measured-model-readback.mjs",
+    "../native-observed-motor-preparation-v3",
+    "observed_motor_preparation"
+  ],
+  "observed_at": "2026-10-16T11:07:09.227+00:00",
+  "elapsed_ms": 827,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OBSERVED-MOTOR-BUILD-V3_6dc05bbf207444fbaf899e44f499b4f1.log",
+  "output_sha256": "85cb499a0f3604e898bc20efe3578f1e64c13f98f556fd411fe2cc399df9352f",
+  "receipt_id": "MB-20261016-OBSERVED-MOTOR-BUILD-V3_6dc05bbf207444fbaf899e44f499b4f1"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-HR-WATCH",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-home-run-watch-v83.mjs",
+    "../../outputs/ばせぼーるlv84_TBD_vs_LAD_描画と接地移動版.html",
+    "docs/verification/releases/v84/hr-watch"
+  ],
+  "observed_at": "2026-10-20T15:44:48.645+00:00",
+  "elapsed_ms": 40858,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-HR-WATCH_bab737b8dd7c41b0b1282620ab839509.log",
+  "output_sha256": "7a324393a1ce9e239d8b2d01e6b37fc54fc8f008ebab0115ad3c9abfc2da0f37",
+  "receipt_id": "MB-20261021-V84-HR-WATCH_bab737b8dd7c41b0b1282620ab839509"
+}

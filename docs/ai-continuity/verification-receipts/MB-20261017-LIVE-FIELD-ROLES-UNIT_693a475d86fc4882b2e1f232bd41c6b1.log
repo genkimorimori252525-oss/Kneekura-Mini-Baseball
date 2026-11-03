@@ -1,0 +1,115 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts (7 tests | 1 failed) 18ms
+   × is invariant under renaming and mirrored geometry without position-name or league exceptions 9ms
+     → expected [ { intent: 'intercept', …(2) }, …(8) ] to deeply equal [ { intent: 'intercept', …(2) }, …(8) ]
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts > is invariant under renaming and mirrored geometry without position-name or league exceptions
+AssertionError: expected [ { intent: 'intercept', …(2) }, …(8) ] to deeply equal [ { intent: 'intercept', …(2) }, …(8) ]
+
+- Expected
++ Received
+
+  Array [
+    Object {
+      "base": null,
+      "intent": "intercept",
+      "point": Object {
+        "x": -0,
+        "y": 0,
+        "z": 15,
+      },
+    },
+    Object {
+      "base": 1,
+      "intent": "base_cover",
+      "point": Object {
+        "x": -20,
+        "y": 0,
+        "z": 20,
+      },
+    },
+    Object {
+      "base": 2,
+      "intent": "base_cover",
+      "point": Object {
+        "x": -0,
+        "y": 0,
+        "z": 40,
+      },
+    },
+    Object {
+      "base": null,
+      "intent": "hold",
+      "point": Object {
+        "x": -20,
+        "y": 1,
+        "z": 38,
+      },
+    },
+    Object {
+      "base": null,
+      "intent": "backup",
+      "point": Object {
+-       "x": -0,
++       "x": 0,
+        "y": 0,
+        "z": 21,
+      },
+    },
+    Object {
+      "base": null,
+      "intent": "backup",
+      "point": Object {
+        "x": -28.94427190999916,
+        "y": 0,
+        "z": 24.47213595499958,
+      },
+    },
+    Object {
+      "base": null,
+      "intent": "hold",
+      "point": Object {
+        "x": 40,
+        "y": 1,
+        "z": 70,
+      },
+    },
+    Object {
+      "base": null,
+      "intent": "hold",
+      "point": Object {
+        "x": -0,
+        "y": 1,
+        "z": 80,
+      },
+    },
+    Object {
+      "base": null,
+      "intent": "hold",
+      "point": Object {
+        "x": -40,
+        "y": 1,
+        "z": 70,
+      },
+    },
+  ]
+
+ ❯ src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts:64:6
+     62|     reservations: raw.reservations.map(r => ({ ...r, playerId: rename(…
+     63|   expect(b.map(r => ({ intent: r.intent, base: r.targetBase, point: r.…
+     64|     .toEqual(a.map(r => ({ intent: r.intent, base: r.targetBase, point…
+       |      ^
+     65| });
+     66| it('rejects duplicate reservations rather than silently assigning two …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  12:06:46
+   Duration  641ms (transform 130ms, setup 0ms, collect 170ms, tests 18ms, environment 0ms, prepare 128ms)
+

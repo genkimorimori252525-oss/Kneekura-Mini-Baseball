@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-ALL-SAVED-RECORDS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/verify-live-match-population.mjs",
+    "../../work/live-game-audit-v6",
+    "../../outputs/verification-authored-with-bat-v33-population-final-v2",
+    "101",
+    "0"
+  ],
+  "observed_at": "2026-10-17T01:35:01.863+00:00",
+  "elapsed_ms": 4907,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-ALL-SAVED-RECORDS_eb183cf02de94fb4878b054f171437d5.log",
+  "output_sha256": "97f7616f5f506e2e5eafd255e4d0e18ee476663bcb3ca5262bb6e4b0fe89d12b",
+  "receipt_id": "MB-20261017-LIVE-ALL-SAVED-RECORDS_eb183cf02de94fb4878b054f171437d5"
+}

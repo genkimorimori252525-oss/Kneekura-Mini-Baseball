@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-TYPECHECK",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-14T20:29:22.059+00:00",
+  "elapsed_ms": 24281,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-TYPECHECK_2cc20205aca04ccdb31f44eb84094f90.log",
+  "output_sha256": "fe07565fc4e0ce6c80eec3d834de5dc564a0738653cdcdb3142645443bdcf354",
+  "receipt_id": "MB-20261015-TYPECHECK_2cc20205aca04ccdb31f44eb84094f90"
+}

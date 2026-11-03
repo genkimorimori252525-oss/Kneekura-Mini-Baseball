@@ -1,0 +1,192 @@
+{
+  "sameTimeSceneCaptures": 144,
+  "labCaptures": 60,
+  "makerCaptures": 64,
+  "comparison": "Sequential artifact runs in this Chrome session; finite samples, not a real-device or statistically controlled benchmark.",
+  "timingMediansMs": [
+    {
+      "width": 1200,
+      "camera": "catcher",
+      "baseline": {
+        "drawSamplesMs": 12.2,
+        "sameTimeDrawSamplesMs": 10.95
+      },
+      "v81": {
+        "drawSamplesMs": 2.75,
+        "sameTimeDrawSamplesMs": 2.5
+      }
+    },
+    {
+      "width": 1200,
+      "camera": "batter",
+      "baseline": {
+        "drawSamplesMs": 12.5,
+        "sameTimeDrawSamplesMs": 12.6
+      },
+      "v81": {
+        "drawSamplesMs": 11.2,
+        "sameTimeDrawSamplesMs": 2.95
+      }
+    },
+    {
+      "width": 1200,
+      "camera": "runner",
+      "baseline": {
+        "drawSamplesMs": 10.35,
+        "sameTimeDrawSamplesMs": 10.2
+      },
+      "v81": {
+        "drawSamplesMs": 2.75,
+        "sameTimeDrawSamplesMs": 2.4
+      }
+    },
+    {
+      "width": 1200,
+      "camera": "mound",
+      "baseline": {
+        "drawSamplesMs": 10.65,
+        "sameTimeDrawSamplesMs": 10.15
+      },
+      "v81": {
+        "drawSamplesMs": 10.1,
+        "sameTimeDrawSamplesMs": 3.4
+      }
+    },
+    {
+      "width": 1200,
+      "camera": "overhead",
+      "baseline": {
+        "drawSamplesMs": 11.5,
+        "sameTimeDrawSamplesMs": 12.7
+      },
+      "v81": {
+        "drawSamplesMs": 2.1,
+        "sameTimeDrawSamplesMs": 2.1
+      }
+    },
+    {
+      "width": 1200,
+      "camera": "fielder",
+      "baseline": {
+        "drawSamplesMs": 11.15,
+        "sameTimeDrawSamplesMs": 10.95
+      },
+      "v81": {
+        "drawSamplesMs": 9.1,
+        "sameTimeDrawSamplesMs": 3.1
+      }
+    },
+    {
+      "width": 390,
+      "camera": "catcher",
+      "baseline": {
+        "drawSamplesMs": 13.5,
+        "sameTimeDrawSamplesMs": 10.8
+      },
+      "v81": {
+        "drawSamplesMs": 2.45,
+        "sameTimeDrawSamplesMs": 2.4
+      }
+    },
+    {
+      "width": 390,
+      "camera": "batter",
+      "baseline": {
+        "drawSamplesMs": 12.8,
+        "sameTimeDrawSamplesMs": 12.75
+      },
+      "v81": {
+        "drawSamplesMs": 11.9,
+        "sameTimeDrawSamplesMs": 3.0
+      }
+    },
+    {
+      "width": 390,
+      "camera": "runner",
+      "baseline": {
+        "drawSamplesMs": 10.55,
+        "sameTimeDrawSamplesMs": 10.25
+      },
+      "v81": {
+        "drawSamplesMs": 3.0,
+        "sameTimeDrawSamplesMs": 2.55
+      }
+    },
+    {
+      "width": 390,
+      "camera": "mound",
+      "baseline": {
+        "drawSamplesMs": 10.9,
+        "sameTimeDrawSamplesMs": 10.5
+      },
+      "v81": {
+        "drawSamplesMs": 10.0,
+        "sameTimeDrawSamplesMs": 3.1
+      }
+    },
+    {
+      "width": 390,
+      "camera": "overhead",
+      "baseline": {
+        "drawSamplesMs": 11.75,
+        "sameTimeDrawSamplesMs": 12.7
+      },
+      "v81": {
+        "drawSamplesMs": 2.1,
+        "sameTimeDrawSamplesMs": 2.1
+      }
+    },
+    {
+      "width": 390,
+      "camera": "fielder",
+      "baseline": {
+        "drawSamplesMs": 11.05,
+        "sameTimeDrawSamplesMs": 10.45
+      },
+      "v81": {
+        "drawSamplesMs": 9.05,
+        "sameTimeDrawSamplesMs": 3.15
+      }
+    }
+  ],
+  "actualRafSubmissions": [
+    {
+      "version": "baseline",
+      "measures": [
+        {
+          "phase": "preparation",
+          "submittedFps": 19.179699026345766,
+          "fullSceneDraws": 13,
+          "ballOnlyRafs": 0,
+          "elapsedMs": 677.7999999970198
+        },
+        {
+          "phase": "freePitch",
+          "submittedFps": 20.304568527918782,
+          "fullSceneDraws": 6,
+          "ballOnlyRafs": 6,
+          "elapsedMs": 295.5
+        }
+      ]
+    },
+    {
+      "version": "v81",
+      "measures": [
+        {
+          "phase": "preparation",
+          "submittedFps": 56.248099726615436,
+          "fullSceneDraws": 37,
+          "ballOnlyRafs": 0,
+          "elapsedMs": 657.7999999970198
+        },
+        {
+          "phase": "freePitch",
+          "submittedFps": 44.72843450479233,
+          "fullSceneDraws": 14,
+          "ballOnlyRafs": 0,
+          "elapsedMs": 313
+        }
+      ]
+    }
+  ]
+}

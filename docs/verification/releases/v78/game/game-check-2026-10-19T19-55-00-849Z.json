@@ -1,0 +1,35 @@
+{
+  "pass": false,
+  "phase": "authored-roster",
+  "startedAt": "2026-10-19T19:55:00.849Z",
+  "faults": [
+    {
+      "label": "page-0",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "page-1",
+      "errors": [],
+      "external": []
+    }
+  ],
+  "checks": [],
+  "scope": "Real offline normal/lab HTML, V77 six-pitch exactness, authored pitch JSON and history, one nine-inning game, lab 1200/390 settings and same-roster session replay.",
+  "hashesAtStart": {
+    "normal": "4e62b08bfdcbb5cee1bb82e17549e222ba68785a8c99565a1c608f438ebf7575",
+    "lab": "32c2416724170c65dcd3d0aec735625a8b6d658a03020e9c2552b69a768a5990",
+    "normalMetadata": "523ed1e53eb3cd87a3e4e18302a8597350fc015cd2b2650fd236b2964c951bc7",
+    "labMetadata": "f98917a346868aa9279bc31a79a1095b1b6cb02dbf1af9c7f8d6fdb9ba7bd2e6",
+    "pins": "69cda696281340fd7b3e4586669ad5ba215b1016b71b5052ccf686c05a8153bf"
+  },
+  "coreSha256": "69ca27ecf6d167b59a4ca7dd87e5d3a5f27d04cce456c4f002788ce40d1912c0",
+  "sourceInputCount": 122,
+  "baseline": {
+    "records": 6,
+    "historySha256": "db7103e17aedbd95de83236d610a410f91fce638b3e4817a59edda2e3021010d",
+    "exact": true
+  },
+  "authored": [],
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'qa-original'\n- 'qa-fast'\n      ^\n\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v78-game.mjs:52:10"
+}

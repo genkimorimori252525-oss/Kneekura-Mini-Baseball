@@ -107,6 +107,30 @@ it('starts a fresh traversal for every independent derive, even within the same 
     expect([state.fields, state.executions]).toEqual([2, 4]);
   } finally { x.close(); }
 });
+it('reuses exact execution ownership metadata only inside an unchanged guarded snapshot', () => {
+  const x = fixture(); let metadataReads = 0;
+  const prepare = x.db.prepare.bind(x.db);
+  const spy = vi.spyOn(x.db, 'prepare').mockImplementation(sql => {
+    if (sql === 'SELECT json_valid(?) AS valid') metadataReads++;
+    return prepare(sql);
+  });
+  try {
+    x.db.exec('BEGIN');
+    withBattedWorldPhysicalReadTraversal(x.db, () => {
+      state.consume!(x.db, false);
+      const first = metadataReads;
+      expect(first).toBeGreaterThan(0);
+      state.consume!(x.db, false);
+      expect(metadataReads).toBe(first);
+    });
+    const firstSnapshot = metadataReads;
+    withBattedWorldPhysicalReadTraversal(x.db, () => state.consume!(x.db, false));
+    expect(metadataReads).toBeGreaterThan(firstSnapshot);
+    x.db.exec('COMMIT; BEGIN');
+    x.db.prepare("UPDATE batted_world_field_executions SET source_json='{}' WHERE source_id='two'").run();
+    expect(() => withBattedWorldPhysicalReadTraversal(x.db, () => state.consume!(x.db, false))).toThrow(/metadata/);
+  } finally { spy.mockRestore(); x.close(); }
+});
 it('does not retain results for plain owner reads or for an operation without an active transaction', () => {
   const x = fixture(); try {
     // The existing nontransactional root deliberately reads the physical prefix a third time.

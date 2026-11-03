@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-TSC",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "node",
+    "node_modules/typescript/lib/tsc.js",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-19T19:50:05.347+00:00",
+  "elapsed_ms": 22391,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-TSC_d94cf78dcecf49f0b23806f8f13d9c02.log",
+  "output_sha256": "4d8860734d59d273e4726d0942c07698a15119c9ecf1816dc0e358b4a9cdc346",
+  "receipt_id": "MB-20261020-V78-TSC_d94cf78dcecf49f0b23806f8f13d9c02"
+}

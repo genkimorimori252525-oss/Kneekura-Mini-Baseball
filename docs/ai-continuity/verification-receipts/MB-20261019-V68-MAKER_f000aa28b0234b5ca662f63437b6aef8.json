@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V68-MAKER",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-v68.mjs",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/にーくら野球メーカー_v68.html",
+    "docs/verification/releases/v68/maker"
+  ],
+  "observed_at": "2026-10-19T10:55:19.294+00:00",
+  "elapsed_ms": 35077,
+  "git_head": "652aa75ccb24df723c2d413e5dc37e7395dc8679",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V68-MAKER_f000aa28b0234b5ca662f63437b6aef8.log",
+  "output_sha256": "60f8e7524288491e8eb3b5250e9d644848c388cbf4a132027da26cda0964d7cb",
+  "receipt_id": "MB-20261019-V68-MAKER_f000aa28b0234b5ca662f63437b6aef8"
+}

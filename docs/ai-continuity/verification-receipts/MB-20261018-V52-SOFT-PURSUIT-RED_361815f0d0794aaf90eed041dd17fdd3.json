@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V52-SOFT-PURSUIT-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-soft-pitch-batter-view.mjs",
+    "tools/browser-bridge/live-batter-braking-view.js"
+  ],
+  "observed_at": "2026-10-18T09:52:28.912+00:00",
+  "elapsed_ms": 45,
+  "git_head": "f5be0639f0a8ffbecfa08ec403b8025733e34e35",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V52-SOFT-PURSUIT-RED_361815f0d0794aaf90eed041dd17fdd3.log",
+  "output_sha256": "0fbfc965758c00f48f895c931911cdf08348dafedc1f5681397a9d72c6ca3297",
+  "receipt_id": "MB-20261018-V52-SOFT-PURSUIT-RED_361815f0d0794aaf90eed041dd17fdd3"
+}

@@ -1,0 +1,99 @@
+# SPIN-03: ラインドライブ表示の接続不足
+
+最新入口（2026-10-29 V192）: 3producer→正式calendar→永続観測Source→既存分類/投影→smallreport→通常Native collect/export→Maker保存観測の純表示まで接続済み。真正Native2試合/2日の試験model READY/ABSENT、実表示名変更のNative最初の接地・Chrome Workbench801flight frame不変、modelなし通常command→未評価表示を実証した。production校正・現在career時計・全population/identity・最終同版配送は未完。下段V189–192と対応結果文書を入口にし、以下の旧「未接続」は各当時の記録として保持する。
+
+2026-10-28 JST / `MB-20261027-REALISM-DEBUG-PLAN` Task5。kire_recipe_leaf_v177による狭域read-only調査。新Source実行・テスト・全77項目再監査は0。物理逆流の具体的欠陥は見つからず、実eventから表示までの接続と現版対照が不足している。
+
+## 確認できた境界
+
+- `SourceTraitFamilies.ts:9` のline_driveはRECOGNITION_REQUIRED/DYNAMIC_DESCRIPTOR/BATTING_CONTACT。
+- `MeasuredTraitStatistics.ts:7–11` はexitVelocityの打上角分布からLINE_DRIVEを観測し、`MeasuredTraitClassifier.ts:9–37`→`SourceTraitProjection.ts:7–38` は認識・投影だけを行う。effect/exitSpinを生成せず、projection自体に表示名もない。
+- 現production検索ではclassifier/projectionのconsumerは同traits配下に限られ、Live/Native/Makerの実event→自動認識/表示joinを確認できない。LiveTraitProfilesV1にline_driveはなく、既存V77 setterへの混入はunknown familyで拒否される。
+- V177 RuntimeV77の追加はbreaking_ball_qualityのみ。実物理はLivePitchV1のselectLiveSpinIntentV123→運動候補、resolveWoodBatSpeedProfileBallContact→RigidBatBallContactのstate.ballSpin、LiveBaseballMatchV1のoutgoingへの一回採用という経路で、descriptor/nameを読む枝は確認されなかった。
+
+既存MeasuredContact.testのeffect不在、MeasuredTraitIntegrity.testの測定/clear/stale、LiveSpinExecutionV123.testの実vector一回採用/通常RNG同値は別の限定証拠。E1/E2の当時snapshotや名称/リーグ不変029b95eeを、line_drive名だけを変えた現版全record/全球道のPASSへ転用しない。
+
+## 次の一件
+
+真正のBATTING_CONTACT記録のproducer/ID/時点/認識条件を確認し、測定→純粋な表示joinを最小の境界で接続する。その表示名だけが異なる同seed/同physicalのactual API全record対照を一度行う。不存在のLive profile fieldを足して「label-only」と呼ばず、結果補正や新しい技能Sourceも生成しない。SPIN-03はNOT CONNECTED/現版実証UNKNOWNを維持し、この文書を実装完了の証拠にしない。
+
+## producer/Ownerの限定追加調査
+
+ContactObservationはscope(careerId/playerId)、episodeId、eventId、time(season/day/sequence)、exitVelocityMpsを要求する。classification requestは評価時点/source/model/observationsを持つ。sourceはBATTING_CONTACT owner、subjectId/sourceKey/revision/snapshotId/timeを持ち、scope一致・event<=source<=評価・eventIdと日内sequenceの一意性を要求する。dayはcareer通算日。frameや飛行horizon延長を別episode/打球として増殖させない。
+
+既存Nativeの正規producer候補は次の2つ。
+
+- PhysicalPitchEvidenceFromSqliteのreadOriginalPhysicalPitchPrefixFromSqlite/readPhysicalPitchProgressFromSqlite。元Source/row hash/snapshot/revisionを照合した採用済みpitchのBatBallContactと、frame.batterActor.binding(careerId/playerId/gameDay/competitionEditionId/fixtureEventId)を結合できる。actor無しは本人を認証できず対象外。SqliteBattedBallFlightStoreの元pending接触/actor照合が参考となる。
+- EpisodeFromSqliteのreadSamePaPhysicalOperationFromSqlite。committed headとsourceHash/snapshotHashを検証し、SamePA resolutionの元BatBallContact、lineage/physicalPitchReference/pitchOrdinal、event.tick/sequenceを参照できる。既存NonPitchRepetitionEvidenceFromSqliteのcontact照合を参考にするが、learning/workload/閉鎖条件による選別を全接触populationへ持ち込まない。
+
+通常ブラウザーHostのcontact/outgoingは実測だがcareer/day/durable eventIdがなく、Native資格を代替しない。standalone練習は既存Native eventId/episodeId/proofHashを持つ別populationで、試合全接触/意図技能の認定へ混ぜない。
+
+classifier/投影の閾値は明示model/policyが必須。fixtureの角度10–30/割合.6/3episode/2日/10日window/age1はsynthetic-onlyで、production校正には使わない。投影はsource snapshot全内容とmodel/versionの一致、追加認識episode/日数も検査する。
+
+現時点でBATTING_CONTACT集計snapshot owner、episode正式mapping、日内global sequence、season対応、production認識model、表示consumerは未接続。PA内で再開するtimeline.sequenceを日内globalへ直用しない。既存Native calendar/time/model ownerを次に狭く調査し、既存Ownerがあれば再利用する。不存在なら時系列や閾値を推測してREADYにせず、未認識の純粋測定と認識の境界を設計する。
+
+最小adapter候補は新host/world/MeasuredBattingContactEvidenceFromSqlite.ts相当のread-only変換、UI候補はbaseball-maker-ui-v94のrenderLiveTraitsの別descriptor表示。classifier/projectionの物理変更やLiveTraitProfile setter/resolveLiveExecutionPhysicalへのline_drive追加は不要。NativeDBの実在件数/複数日充足は未確認で、真正認識のPASSを主張しない。
+
+## V182で接続した最初の境界
+
+NativeMeasuredBattingContactV182.tsの新read-only APIを実装し、SamePAの正規resolution/launchから当該投球の実contact/actor/Source/元scopeを返す入口を接続した。専用3test f58f4f66/全型ad49f2a5、保存Native fixtureの私的コピーでOwner成功2読取・原vector等差0・再読非消費・改変ref拒否519919ed PASS21000ms。Source791入力/元DB/コピーpin一致。詳細 NATIVE-MEASURED-CONTACT-V182.md。
+
+この境界は生の認証済み接触を渡すだけで、旧記述のcareer暦/集計Source/model/表示consumerの未接続は維持する。次は元PhysicalPitch直接経路も同じ測定populationの入口へ加え、原PA/本人/投球/eventのidentityを揃える。Nativeの成功と正式calendar/自然cohortを混同しない。
+
+## V183の直接経路と残るInitialJoint
+
+NativeMeasuredOriginalPitchContactV183.tsでOriginal PhysicalPitch側も接続した。NoContact/不正ref等3件e9eb5373、新ordinary_swing接触1件だけe928c35c、compiled bunt Sourceの正規2読取/改変ref拒否/Source821入力pin3fa9dbe3 PASS2110ms。最終型5575fd77。詳細NATIVE-ORIGINAL-CONTACT-V183.md。
+
+V144の正例は別のpa_initial_joint_v1_executionsであり、まだこの測定入口へ接続されていない。次のreaderはSqliteInitialJointPhysicalExecutionStore.tsのreadInitialJointPhysicalExecutionFromSqlite。calculation.result.kind=bat_contactの原contact/momentとtimelineの原event、lineage.actorReferenceから原actorを同snapshotで照合する。既存採用済みSourceへ戻り準備/acceptは行わない。暦/集計/model/表示の未接続は引き続き維持する。
+
+## V184で接続した第三の入口
+
+NativeMeasuredInitialJointContactV184.tsで採用済みInitialJointも接続した。4test542fe5a1/全型24489a2c、保存Native2読取ed2b2b3a PASS34375ms。原値差0、sub-tick保持、Source802入力/DB等pin一致。archiveとの差19はキー順だけとして保持する。詳細NATIVE-INITIAL-JOINT-CONTACT-V184.md。
+
+3producerの取得とpopulationの完成は異なる。次は既存causal lineageで同一接触/累積timelineを解決するraw集約入口を実装する。Macroの無接触とInitialJointの実接触は表現経路が異なり得るため、一方のnullを全経路の不存在へ拡張しない。ownerの任意優先順、PA内sequence→career日内時刻、fixture閾値→production modelの補完は行わない。暦/集計snapshot/model/純粋表示joinと現版の名札不変対照は未完。
+
+## V185: raw取得から実測値まで
+
+明示ref collectionを追加し、正規3getterへの同snapshot分岐、本人scope、ref重複除外、原速度/回転/打上角を接続した。7mock test1f2dd126/全型16ecbfcf、InitialJoint重複ref新入力のNative collector2read ee5f4e52 PASS45217ms/Source804入力・DB等pin一致。詳細NATIVE-CONTACT-COLLECTION-V185.md。
+
+contactsは一意参照数であり、独立打球population数ではない。異なるowner/refはraw evidenceとして保持し、chronology未解決/classificationなしを明示する。全件population/正式時刻binding/production model/表示joinは未完。次は既存正式season/fixture参照に基づくbindingの一件を具体化し、未確認のcalendar/modelを補わず認識までの入力契約を確定する。
+
+## V186: 正式な起点を保存し、原測定の日付へ接続
+
+国内生成時の正式seasonDayOneを別immutable Sourceへ保存し、原generator/accepted cycle/base全値/hashで再認証する。V185測定へDomestic/Nationalの正規calendarを同snapshotで結合し、ISO日付と、証拠がある時だけcareer日を返す。origin Native11件38d9339b/日付4件cd1cd5f6/adapter13mock fadaa3a4/全型330f8ada、実production再開stage新1件d1c7b237 PASS7219ms。全league試験のworker異常eacde5f5はFAILのまま保持し小stageへ切替えた。
+
+新consumerの保存Original legacy境界8cfb9204 PASS1155ms/2read原record・Source814入力/DB等pin一致。originがない旧接触へ日付を補完せず、UNAVAILABLE/date&careerDay nullを確認した。真正contact＋正式calendar正例joinは未実証。次はfresh宣言を正式生成日程へ合わせ、初期化後に同原baseへcycle/archive/originを登録してから実接触を作る小fixtureを検討する。既存固定一試合を正式生成Sourceと偽装しない。日内観測順/独立打球population/集計snapshot/model/純表示joinは未完。NATIVE-CONTACT-CALENDAR-V186.md。
+
+## V187: 正式calendarとの真正Native結合正例
+
+原経路のoptional Nativecalendar初期化からactor/実bunt接触を作り、正式Core生成game/day11とNative origin/selectionを同snapshotで結合した。新Native1件05368026 PASS7671ms、全型aa1f74fb、実Node b9546b09 PASS1625ms/2read全record・原vectors・Source858入力/DB pin一致。ISO2032-02-29/seasonDay11/careerDay425を独立期待値へ照合。旧一試合へ起点を偽装せず、production/既定物理不変。NATIVE-FORMAL-CONTACT-CALENDAR-V187.md。
+
+これでOriginal一接触のpositive joinは実証済み。次はNative受理済みfullrefの永続observation receiptと同日受理sequenceを持つBATTING_CONTACT集計Sourceへ接続する。TraitTime.sequenceはsame-day observationsの順であり、global物理tickを作る必要はない。独立接触identity/全population coverage/model/認識/表示joinは未完で、date正例を完成へ昇格しない。
+
+## V188: 永続観測receiptとBATTING_CONTACT Source
+
+3producerの正規inventoryから自動captureし、原Native ref/calendarを再認証したreceiptと日内受理順を保存、BATTING_CONTACT snapshot/ContactObservationへ接続した。元vectorsは正規再読し6float64 bitHashで保持。Native/doubleの限定TDDとreview修正、最終型f4a253fe、実Node a05e30a5 PASS1795ms/capture2 retry1 snapshot3/原41tableと全schema・Source860入力/DBpin不変。NATIVE-CONTACT-OBSERVATION-V188.md。
+
+coverageは登録済み範囲またはcapture時点の3対応producerで、世界全population/自然cohort/production model/認識/表示を完成にしない。次はこの真正Source/observationsを既存classifier/projectionへ接続し、明示model/policyと不足時の扱いを確定する。fixture閾値のproduction転用や物理へのlabel逆流は行わない。
+
+## V189–190: 既存分類・投影とNative複数日の接続
+
+V189でborrowed q1 readerと最新inventory照合を加え、同Native snapshotから既存classifier/projectionへ接続した。Native1contactがINSUFFICIENT_EVIDENCE/assessment null/UNASSESSEDとなることを最終e60aeb72 PASS1811msで確認。長期8000観測の全体clone制限を修正し、影響2件960972aaと最終型1a0a3c0b PASS。詳細NATIVE-CONTACT-TRAIT-PROJECTION-V189.md。
+
+V190で同DB・別の正式Core game/day10/11の実contactを取得し、2receipt/別2PA・career日424/425を既存分類へ接続した。Native91a2ff9f/型a2a9130f、実Node61717ce1 PASS1875ms/870Sourceと全DBfiles pin一致。明示synthetic modelに対して実角度0°/0°からfraction0・READY/ABSENTへ解決した。production校正や通常AI/完了試合を証明せず、原Source/6float64/時刻の表現境界を保つ。詳細NATIVE-TWO-DAY-CONTACT-V190.md。
+
+次は純表示consumerと名札変更だけの実飛行対照。live trait ability setterや物理Coreへline_driveを追加せず、model不在・証拠不足・対象scope違いは理由付き未評価として扱う。Nativeとstandalone練習は別populationのまま保持する。
+
+## V191: 保存観測の純表示と名称だけの対照
+
+small reportのcreate/read/名称変更を接続し、新36unit782b59d3・型9eb100a0 PASS。Native分類→実report→名称変更→normal Original/current continuous flightの全契約record対照8416c0e5 PASS2063ms/872Source pin。検索horizon2秒のAPIだが保存stateは初期/最初の接地（.554638秒）で、全飛行終端を証明しない。
+
+Makerには編集・練習から独立した保存試合の観測欄、JSON読込/閉じるを追加した。別career同playerIdの名前誤joinを新RED3e91000cで再現して修正。Chrome.49最終2deeb706 PASS14391ms/1200・390px、実Core Workbenchの接触と192bat/59pitch/801flight frame・state/Sourceが名称変更/再実行後も全field同値。モデル未設定/未集計を未評価として扱い、常時校正前の参考表示を保持する。NATIVE-CONTACT-DISPLAY-V191.md。
+
+通常Native report生成入口はfixture試験modelから独立させる必要がある。共有barrel/builder/ignored UIの先行未公開差分は取り込まず、実装Sourceの最終同期・同版配送を未完保持する。全population/同PA identity/production校正/現在時計・回転技術をこの表示証拠だけで完了しない。
+
+## V192: fixtureに依存しない通常Native tool
+
+通常collect/exportを追加。player/personの正規Sourceとrosterから対象を認証し、未知scopeをemptyへ変えない。OSreadonly exportと観測metadata collectionを別操作とし、model/policyの数値既定なしでV189/V191を呼ぶ。新19Native31fdddf7・14CLIc59715bc・明示tools型a04cc1df PASS。最終9child process b1082003 PASS10188ms、通常runtime827Sourceのload/終了pinと全childSHA・元41table/既存catalog不変を確認した。通常生成no-model report→Maker5307d42b PASS14485ms、未評価/対象分離/既存physical不変を確認。NATIVE-CONTACT-REPORT-CLI-V192.md。
+
+通常report生成の未接続は解消した。production校正・現在時計・同PA identity/全populationと全Goalの他残件は維持し、fixture値を既定化しない。

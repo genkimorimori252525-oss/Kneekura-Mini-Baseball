@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-BAT-OBSERVATION-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/world/psychology/batting/BattingExecutionCalculation.test.ts",
+    "src/core/sim/contact/InitialHeldBatV1.test.ts",
+    "src/core/sim/perception/Occlusion.test.ts",
+    "src/core/world/psychology/batting/MeasuredBattingCommitment.test.ts"
+  ],
+  "observed_at": "2026-10-16T12:03:45.568+00:00",
+  "elapsed_ms": 3437,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-BAT-OBSERVATION-REGRESSION_c7ed57ae6d9d4417b08092a388834ecd.log",
+  "output_sha256": "7d49d78cdd99a682e2892f564d379cbda901828b309324ccf5e5c240319a5326",
+  "receipt_id": "MB-20261016-INITIAL-BAT-OBSERVATION-REGRESSION_c7ed57ae6d9d4417b08092a388834ecd"
+}

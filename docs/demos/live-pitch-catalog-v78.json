@@ -1,0 +1,668 @@
+{
+  "version": "pitch_catalog_v78",
+  "types": [
+    {
+      "pitchType": "fastball",
+      "name": "フォーシーム",
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA"
+    },
+    {
+      "pitchType": "sinker",
+      "name": "シンカー",
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA"
+    },
+    {
+      "pitchType": "cutter",
+      "name": "カットボール",
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA"
+    },
+    {
+      "pitchType": "changeup",
+      "name": "チェンジアップ",
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA"
+    },
+    {
+      "pitchType": "splitter",
+      "name": "スプリット",
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA"
+    },
+    {
+      "pitchType": "forkball",
+      "name": "フォーク",
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA"
+    },
+    {
+      "pitchType": "screwball",
+      "name": "スクリューボール",
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA"
+    },
+    {
+      "pitchType": "curve",
+      "name": "カーブ",
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA"
+    },
+    {
+      "pitchType": "knuckle_curve",
+      "name": "ナックルカーブ",
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA"
+    },
+    {
+      "pitchType": "slow_curve",
+      "name": "スローカーブ",
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA"
+    },
+    {
+      "pitchType": "slider",
+      "name": "スライダー",
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA"
+    },
+    {
+      "pitchType": "sweeper",
+      "name": "スイーパー",
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA"
+    },
+    {
+      "pitchType": "slurve",
+      "name": "スラーブ",
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA"
+    },
+    {
+      "pitchType": "knuckleball",
+      "name": "ナックル",
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA"
+    },
+    {
+      "pitchType": "eephus",
+      "name": "イーファス",
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA"
+    }
+  ],
+  "presets": [
+    {
+      "presetId": "fastball",
+      "name": "フォーシーム",
+      "pitchType": "fastball",
+      "speedFactor": 1,
+      "spinScale": 1,
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    },
+    {
+      "presetId": "sinker",
+      "name": "シンカー",
+      "pitchType": "sinker",
+      "speedFactor": 0.96,
+      "spinScale": 1,
+      "spinAxis": {
+        "x": 0.55,
+        "y": 0.5,
+        "z": 0.2
+      },
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 0.9238795325112867,
+        "x": 0,
+        "y": 0,
+        "z": 0.3826834323650898
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    },
+    {
+      "presetId": "cutter",
+      "name": "カットボール",
+      "pitchType": "cutter",
+      "speedFactor": 0.95,
+      "spinScale": 1,
+      "spinAxis": {
+        "x": 0.7,
+        "y": -0.45,
+        "z": 0.25
+      },
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    },
+    {
+      "presetId": "changeup",
+      "name": "チェンジアップ",
+      "pitchType": "changeup",
+      "speedFactor": 0.82,
+      "spinScale": 0.7,
+      "spinAxis": {
+        "x": 0.65,
+        "y": 0.2,
+        "z": 0.25
+      },
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    },
+    {
+      "presetId": "splitter",
+      "name": "スプリット",
+      "pitchType": "splitter",
+      "speedFactor": 0.89,
+      "spinScale": 1,
+      "spinAxis": {
+        "x": -0.15,
+        "y": 0.15,
+        "z": 0.3
+      },
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    },
+    {
+      "presetId": "forkball",
+      "name": "フォーク",
+      "pitchType": "forkball",
+      "speedFactor": 0.85,
+      "spinScale": 0.45,
+      "spinAxis": {
+        "x": -0.1,
+        "y": 0.1,
+        "z": 0.3
+      },
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    },
+    {
+      "presetId": "screwball",
+      "name": "スクリューボール",
+      "pitchType": "screwball",
+      "speedFactor": 0.8,
+      "spinScale": 1,
+      "spinAxis": {
+        "x": 0.1,
+        "y": 0.8,
+        "z": 0.2
+      },
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    },
+    {
+      "presetId": "curve",
+      "name": "カーブ",
+      "pitchType": "curve",
+      "speedFactor": 0.8,
+      "spinScale": 1,
+      "spinAxis": {
+        "x": -1,
+        "y": 0,
+        "z": 0.1
+      },
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    },
+    {
+      "presetId": "knuckle_curve",
+      "name": "ナックルカーブ",
+      "pitchType": "knuckle_curve",
+      "speedFactor": 0.82,
+      "spinScale": 1,
+      "spinAxis": {
+        "x": -1,
+        "y": -0.15,
+        "z": 0.1
+      },
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    },
+    {
+      "presetId": "slow_curve",
+      "name": "スローカーブ",
+      "pitchType": "slow_curve",
+      "speedFactor": 0.65,
+      "spinScale": 0.8,
+      "spinAxis": {
+        "x": -1,
+        "y": 0,
+        "z": 0.1
+      },
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    },
+    {
+      "presetId": "slider",
+      "name": "スライダー",
+      "pitchType": "slider",
+      "speedFactor": 0.91,
+      "spinScale": 1,
+      "spinAxis": {
+        "x": 0.25,
+        "y": -0.8,
+        "z": 0.55
+      },
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    },
+    {
+      "presetId": "sweeper",
+      "name": "スイーパー",
+      "pitchType": "sweeper",
+      "speedFactor": 0.86,
+      "spinScale": 1,
+      "spinAxis": {
+        "x": 0.1,
+        "y": -1,
+        "z": 0.15
+      },
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    },
+    {
+      "presetId": "slurve",
+      "name": "スラーブ",
+      "pitchType": "slurve",
+      "speedFactor": 0.83,
+      "spinScale": 1,
+      "spinAxis": {
+        "x": -0.6,
+        "y": -0.8,
+        "z": 0.15
+      },
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    },
+    {
+      "presetId": "knuckleball",
+      "name": "ナックル",
+      "pitchType": "knuckleball",
+      "speedFactor": 0.68,
+      "spinScale": 0.02,
+      "spinAxis": {
+        "x": 1,
+        "y": 0,
+        "z": 0
+      },
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    },
+    {
+      "presetId": "eephus",
+      "name": "イーファス",
+      "pitchType": "eephus",
+      "speedFactor": 0.35,
+      "spinScale": 0.15,
+      "spinAxis": {
+        "x": -1,
+        "y": 0,
+        "z": 0
+      },
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    },
+    {
+      "presetId": "two_seam",
+      "name": "ツーシーム",
+      "pitchType": "sinker",
+      "speedFactor": 0.96,
+      "spinScale": 1,
+      "spinAxis": {
+        "x": 0.55,
+        "y": 0.5,
+        "z": 0.2
+      },
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 0.9238795325112867,
+        "x": 0,
+        "y": 0,
+        "z": 0.3826834323650898
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    },
+    {
+      "presetId": "shuto",
+      "name": "シュート",
+      "pitchType": "sinker",
+      "speedFactor": 0.96,
+      "spinScale": 1,
+      "spinAxis": {
+        "x": 0.55,
+        "y": 0.5,
+        "z": 0.2
+      },
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 0.9238795325112867,
+        "x": 0,
+        "y": 0,
+        "z": 0.3826834323650898
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    },
+    {
+      "presetId": "sff",
+      "name": "SFF",
+      "pitchType": "splitter",
+      "speedFactor": 0.89,
+      "spinScale": 1,
+      "spinAxis": {
+        "x": -0.15,
+        "y": 0.15,
+        "z": 0.3
+      },
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    },
+    {
+      "presetId": "circle_change",
+      "name": "サークルチェンジ",
+      "pitchType": "changeup",
+      "speedFactor": 0.82,
+      "spinScale": 0.7,
+      "spinAxis": {
+        "x": 0.65,
+        "y": 0.2,
+        "z": 0.25
+      },
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    },
+    {
+      "presetId": "split_change",
+      "name": "スプリットチェンジ",
+      "pitchType": "splitter",
+      "speedFactor": 0.89,
+      "spinScale": 1,
+      "spinAxis": {
+        "x": -0.15,
+        "y": 0.15,
+        "z": 0.3
+      },
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    },
+    {
+      "presetId": "vertical_slider",
+      "name": "縦スライダー",
+      "pitchType": "slider",
+      "speedFactor": 0.91,
+      "spinScale": 1,
+      "spinAxis": {
+        "x": -0.8,
+        "y": -0.3,
+        "z": 0.25
+      },
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    },
+    {
+      "presetId": "gyro_slider",
+      "name": "ジャイロスライダー",
+      "pitchType": "slider",
+      "speedFactor": 0.91,
+      "spinScale": 1,
+      "spinAxis": {
+        "x": 0.1,
+        "y": -0.15,
+        "z": 1
+      },
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    },
+    {
+      "presetId": "hard_slider",
+      "name": "高速スライダー",
+      "pitchType": "slider",
+      "speedFactor": 0.96,
+      "spinScale": 1,
+      "spinAxis": {
+        "x": 0.25,
+        "y": -0.8,
+        "z": 0.55
+      },
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    },
+    {
+      "presetId": "vertical_curve",
+      "name": "縦カーブ",
+      "pitchType": "curve",
+      "speedFactor": 0.8,
+      "spinScale": 1,
+      "spinAxis": {
+        "x": -1,
+        "y": 0,
+        "z": 0
+      },
+      "sourceUrl": "https://www.mlb.com/glossary/pitch-types",
+      "scope": "AUTHORED_QUASI_STEADY_SEAM_EXAMPLE_NOT_MEASURED_PLAYER_DATA",
+      "releaseOrientation": {
+        "w": 1,
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "seamForce": {
+        "version": "baseball_seam_force_v1",
+        "coefficientScale": 1
+      }
+    }
+  ]
+}

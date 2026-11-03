@@ -1,0 +1,447 @@
+{
+  "pass": true,
+  "file": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v87_コース打率と認識AI版.html",
+  "artifactSha256": "3c451f61881b3b44d8f76eb00c47779bb54c7f97fdcd8ee3b8d0134f4ec5d8e3",
+  "cases": [
+    {
+      "width": 1200,
+      "regions": 13,
+      "previewCommitCancel": true,
+      "proportionalDirection": true,
+      "readOnlyComparisons": true,
+      "roleRecognitionSaved": true,
+      "gridShape": {
+        "width": 478,
+        "height": 478,
+        "borderColor": "rgb(21, 62, 102)",
+        "borderStyle": "solid",
+        "ids": [
+          16,
+          26,
+          36,
+          46,
+          56,
+          66,
+          76,
+          86,
+          96,
+          15,
+          25,
+          35,
+          45,
+          55,
+          65,
+          75,
+          85,
+          95,
+          14,
+          24,
+          34,
+          44,
+          54,
+          64,
+          74,
+          84,
+          94,
+          13,
+          23,
+          33,
+          43,
+          53,
+          63,
+          73,
+          83,
+          93,
+          12,
+          22,
+          32,
+          42,
+          52,
+          62,
+          72,
+          82,
+          92,
+          11,
+          21,
+          31,
+          41,
+          51,
+          61,
+          71,
+          81,
+          91,
+          10,
+          20,
+          30,
+          40,
+          50,
+          60,
+          70,
+          80,
+          90
+        ],
+        "central": [
+          {
+            "id": 35,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 45,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 55,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 65,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 75,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 34,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 44,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 54,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 64,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 74,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 33,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 43,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 53,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 63,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 73,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 32,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 42,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 52,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 62,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 72,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 31,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 41,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 51,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 61,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 71,
+            "color": "rgb(235, 55, 43)"
+          }
+        ],
+        "lineStyle": "dotted",
+        "columns": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9"
+        ],
+        "rows": [
+          "6",
+          "5",
+          "4",
+          "3",
+          "2",
+          "1",
+          "0"
+        ],
+        "strike": {
+          "left": 0.22453582635983263,
+          "top": 0.14582243723849372,
+          "right": 0.22453582635983263,
+          "bottom": 0.14582243723849372,
+          "color": "rgb(235, 55, 43)"
+        }
+      },
+      "allRolesAndBounds": true,
+      "legacyOriginalRestored": true,
+      "practiceHistoryAdaptation": true,
+      "zeroAbMissing": true,
+      "mlbExactReference": true
+    },
+    {
+      "width": 390,
+      "regions": 13,
+      "previewCommitCancel": true,
+      "proportionalDirection": true,
+      "readOnlyComparisons": true,
+      "roleRecognitionSaved": true,
+      "gridShape": {
+        "width": 290,
+        "height": 290,
+        "borderColor": "rgb(21, 62, 102)",
+        "borderStyle": "solid",
+        "ids": [
+          16,
+          26,
+          36,
+          46,
+          56,
+          66,
+          76,
+          86,
+          96,
+          15,
+          25,
+          35,
+          45,
+          55,
+          65,
+          75,
+          85,
+          95,
+          14,
+          24,
+          34,
+          44,
+          54,
+          64,
+          74,
+          84,
+          94,
+          13,
+          23,
+          33,
+          43,
+          53,
+          63,
+          73,
+          83,
+          93,
+          12,
+          22,
+          32,
+          42,
+          52,
+          62,
+          72,
+          82,
+          92,
+          11,
+          21,
+          31,
+          41,
+          51,
+          61,
+          71,
+          81,
+          91,
+          10,
+          20,
+          30,
+          40,
+          50,
+          60,
+          70,
+          80,
+          90
+        ],
+        "central": [
+          {
+            "id": 35,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 45,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 55,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 65,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 75,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 34,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 44,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 54,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 64,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 74,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 33,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 43,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 53,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 63,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 73,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 32,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 42,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 52,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 62,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 72,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 31,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 41,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 51,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 61,
+            "color": "rgb(235, 55, 43)"
+          },
+          {
+            "id": 71,
+            "color": "rgb(235, 55, 43)"
+          }
+        ],
+        "lineStyle": "dotted",
+        "columns": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9"
+        ],
+        "rows": [
+          "6",
+          "5",
+          "4",
+          "3",
+          "2",
+          "1",
+          "0"
+        ],
+        "strike": {
+          "left": 0.2260237068965517,
+          "top": 0.14773706896551725,
+          "right": 0.2260237068965517,
+          "bottom": 0.14773706896551725,
+          "color": "rgb(235, 55, 43)"
+        }
+      },
+      "allRolesAndBounds": true,
+      "legacyOriginalRestored": true,
+      "practiceHistoryAdaptation": true,
+      "zeroAbMissing": true,
+      "mlbExactReference": true
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "errors": [],
+      "external": []
+    }
+  ]
+}

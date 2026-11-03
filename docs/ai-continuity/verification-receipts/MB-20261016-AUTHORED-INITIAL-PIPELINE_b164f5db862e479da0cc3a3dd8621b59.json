@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-AUTHORED-INITIAL-PIPELINE",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "../native-authored-initial-cut-v2/readback.mjs",
+    "../../outputs/verification-authored-initial-pitch-v4",
+    "../../outputs/verification-authored-initial-pipeline-v1"
+  ],
+  "observed_at": "2026-10-16T00:13:31.673+00:00",
+  "elapsed_ms": 2297,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-AUTHORED-INITIAL-PIPELINE_b164f5db862e479da0cc3a3dd8621b59.log",
+  "output_sha256": "f0cd10cadd78783fd3791a8d3e21a5e75e3fd8812b2c02c8ad74c41d5580af86",
+  "receipt_id": "MB-20261016-AUTHORED-INITIAL-PIPELINE_b164f5db862e479da0cc3a3dd8621b59"
+}

@@ -1,0 +1,13 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LivePitchExecutionV78.test.ts (5 tests) 16890ms
+   ✓ selects owned IDs rather than generating an unowned type, and rejects ambiguous explicit classification 2097ms
+   ✓ uses the exact same snapshot and downward spin in Host and pitcher trial 2368ms
+   ✓ executes every classified preset and variant with explicit material physics on both throwing sides 12054ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  04:50:46
+   Duration  17.99s (transform 482ms, setup 0ms, collect 683ms, tests 16.89s, environment 0ms, prepare 122ms)
+

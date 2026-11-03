@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-CONTINUOUS-NINE-GREEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/SourceDefensiveControlV1.test.ts",
+    "src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts",
+    "src/core/sim/ball/SourceBattedFieldAcquisitionV1.test.ts",
+    "src/core/sim/ball/SourceBattedFieldMotionV3.test.ts",
+    "src/core/sim/fielding/DefenderMotion.test.ts"
+  ],
+  "observed_at": "2026-10-15T20:29:54.554+00:00",
+  "elapsed_ms": 9625,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-CONTINUOUS-NINE-GREEN_265c5a9ab84349f3b0459921ca136361.log",
+  "output_sha256": "ca45fc3e3e2ba742234944e2fcc598bfd96f3284bd40cd95f249a284a21fdef7",
+  "receipt_id": "MB-20261016-CONTINUOUS-NINE-GREEN_265c5a9ab84349f3b0459921ca136361"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-BATTER-GAZE-BROWSER",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v43-batter-gaze.mjs",
+    "../../outputs/ばせぼーるlv43_TBD_vs_LAD_打者の打点注視版.html",
+    "../../outputs/verification-v43-batter-gaze-v2"
+  ],
+  "observed_at": "2026-10-18T04:22:05.881+00:00",
+  "elapsed_ms": 49375,
+  "git_head": "7bc3982789bf563bb9a25a8b82f632c982c3ab84",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-BATTER-GAZE-BROWSER_d8cbb9474d09411d92cdcd08094685eb.log",
+  "output_sha256": "5078f8579bf6b4426eec773e943d63b40c39751f92820d35c2114218336ef2ad",
+  "receipt_id": "MB-20261018-BATTER-GAZE-BROWSER_d8cbb9474d09411d92cdcd08094685eb"
+}

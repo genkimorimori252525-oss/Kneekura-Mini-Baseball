@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/BatterCourseProfileV79.test.ts (5 tests) 11ms
+ ✓ src/integration/browser/BatterCourseProfileV87.test.ts (4 tests) 9ms
+ ✓ src/integration/browser/LiveSeasonCourseV87.test.ts (4 tests) 86ms
+ ✓ src/integration/browser/LivePhysicalRosterV1.test.ts (29 tests) 1251ms
+ ✓ src/integration/browser/LiveSeasonV79.test.ts (9 tests) 1334ms
+   ✓ roundtrips and aggregates a 162-game season beyond a global inert clone budget 1022ms
+
+[CCG TIMEOUT]

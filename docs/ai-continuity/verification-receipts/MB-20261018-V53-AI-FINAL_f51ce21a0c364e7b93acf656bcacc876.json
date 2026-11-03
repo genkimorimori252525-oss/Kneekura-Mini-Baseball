@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V53-AI-FINAL",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v53-ai.mjs"
+  ],
+  "observed_at": "2026-10-18T10:34:07.965+00:00",
+  "elapsed_ms": 69141,
+  "git_head": "ea9ca61b0971da3cc3b3ce1cfb344d4496e2ecc9",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V53-AI-FINAL_f51ce21a0c364e7b93acf656bcacc876.log",
+  "output_sha256": "131dc6a98f5e0af89111b8fe995e5ac4c36fc98030de3511ac34f576e2ba9b35",
+  "receipt_id": "MB-20261018-V53-AI-FINAL_f51ce21a0c364e7b93acf656bcacc876"
+}

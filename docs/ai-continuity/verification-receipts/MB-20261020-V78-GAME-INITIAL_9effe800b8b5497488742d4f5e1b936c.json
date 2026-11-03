@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-GAME-INITIAL",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v78-game.mjs"
+  ],
+  "observed_at": "2026-10-19T19:55:11.978+00:00",
+  "elapsed_ms": 11343,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-GAME-INITIAL_9effe800b8b5497488742d4f5e1b936c.log",
+  "output_sha256": "15df7c592470c285c1246050f0c51068e01536e7120c3790db4d2cbf96d783a9",
+  "receipt_id": "MB-20261020-V78-GAME-INITIAL_9effe800b8b5497488742d4f5e1b936c"
+}

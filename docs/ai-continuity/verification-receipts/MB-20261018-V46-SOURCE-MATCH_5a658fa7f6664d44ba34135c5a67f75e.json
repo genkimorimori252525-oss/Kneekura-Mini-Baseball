@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V46-SOURCE-MATCH",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "-c",
+    "import hashlib,json,pathlib,sys\nroot=pathlib.Path.cwd()\nsha=lambda path:hashlib.sha256(path.read_bytes()).hexdigest()\nmanifest_path=root/'dist/native-match-core-browser.js.inputs.json'\nmanifest=json.loads(manifest_path.read_text(encoding='utf-8'))\nhtml=root/'../../outputs/ばせぼーるlv46_TBD_vs_LAD_走塁と守備AI改善版.html'\nmetadata=json.loads(pathlib.Path(str(html)+'.build.json').read_text(encoding='utf-8'))\nmismatches=[path for path,expected in manifest['inputs'].items() if sha(root/path)!=expected]\nbundle_sha=sha(root/'dist/native-match-core-browser.js')\nchecks={'inputCount':len(manifest['inputs']),'sourceMismatches':mismatches,'bundleEntryMatches':bundle_sha==manifest['entrySha256'],'htmlBundleMatches':bundle_sha==metadata['nativeBundleSha256'],'htmlManifestMatches':sha(manifest_path)==metadata['bundleInputManifestSha256'],'htmlFileMatches':sha(html)==metadata['sha256'],'rosterMatches':sha(root/'docs/demos/live-game-roster-v2.json')==metadata['physicalRosterSha256'],'catalogMatches':sha(root/'docs/demos/live-game-roster-catalog-v2.json')==metadata['physicalCatalogSha256'],'bundleSha256':bundle_sha,'manifestSha256':sha(manifest_path)}\nprint(json.dumps(checks,ensure_ascii=False,indent=2))\nsys.exit(0 if checks['inputCount']==105 and not mismatches and all(checks[key] for key in ['bundleEntryMatches','htmlBundleMatches','htmlManifestMatches','htmlFileMatches','rosterMatches','catalogMatches']) else 1)"
+  ],
+  "observed_at": "2026-10-18T05:32:40.918+00:00",
+  "elapsed_ms": 108,
+  "git_head": "6a8caf40153d76daba6a5acca34f5db12ca7f615",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V46-SOURCE-MATCH_5a658fa7f6664d44ba34135c5a67f75e.log",
+  "output_sha256": "1b2ffe7997c6bf02da72458118dba90d06ccc96c0b01259a232e2e0ba07a6d80",
+  "receipt_id": "MB-20261018-V46-SOURCE-MATCH_5a658fa7f6664d44ba34135c5a67f75e"
+}

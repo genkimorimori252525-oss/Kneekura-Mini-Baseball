@@ -1,0 +1,23 @@
+# 最初の守備観測までの有限初期制御
+
+2026-10-30 JST / MB-20261027-REALISM-DEBUG-PLAN。
+
+対象はV234で受理した実TOP打球の同分岐。本人の「確認待ちを増やさず依頼範囲内で実装・検証を続ける」「通常試合と同じCoreで実経路を検証する」指示に基づく通常の実装判断であり、Goalや受入条件の変更ではない。
+
+## 判断と理由
+
+V234のstationary controlは接触時点だけの新しい初期命令として受理した。継続AI判断や守備成功の証拠ではない。この証拠を黙って延長せず、`INITIAL_HOLD_UNTIL_FIRST_SENSORY_CUT`という新しい明示・未校正のモデルを宣言し、最初の観測に必要な短い正の時間だけ同じ初期命令を保持する。
+
+候補は正常contact tickから1MHz clockの1,000 ticks（1ms）。正常な全actor primitiveとpostureのcoverage内であることを確認する。窓が短ければ実際の上限内へ縮め、正の窓がなければその不足を保持する。通常field stepが先に物理境界を返した場合は実返却tickを採用し、未解決境界を飛び越えない。reactionや移動の開始時刻を1msに固定する意味ではない。
+
+新しい正常viewに、旧viewの正常未投影calibrationとnominal modelから既存APIでclockを投影する。同viewの一意制約を解除したり既存calibrationを上書きしたりしない。その後の視野・prioritiesも新しい明示modelとして記録できるが、測定済み・校正済み・以前の採用Sourceとは呼ばない。観測者は正常memberから事前に固定し、真ballや未来結果によるnearest選択を使わない。
+
+Rootの初期命令制約を「正規の最初の反応まで1ms保持することも禁止」と解釈すると、新viewへの正常投影ができず永久停止する。一方、V212のbody coverage終端まで約8.7秒stationaryを継続する代案は、判断前の人工terminalを作る可能性があるため採用しない。
+
+## 影響・検証・復旧
+
+新しい検証entry・test・driverだけを担当範囲とし、production API／保存schema／既存Sourceは変更しない。新control Sourceと正常step・観測・判断・可能な移動を同分岐で認証する。元DB非open、原files・既存行／rowid／catalog／head、許可appendとCAS、caller、終了pinを検査する。既存contact・練習を再生成せず、別branchのrefや結果を移植しない。
+
+実行前はSource固定と独立レビューを行う。実際の判断がholdや遅い反応でもそのまま保存し、成功用の結果補正を加えない。実行は所有コピーに限定し、失敗したコピーとreceiptを保持する。元DBへ適用しないため復旧は元状態の再使用で行える。
+
+Solの限定コード調査で既存normal field step・clock projection・観測・判断APIによる経路を確認した。Terraは実装担当。真正受理は次の実検証まで未確認であり、この判断記録だけで完了にしない。

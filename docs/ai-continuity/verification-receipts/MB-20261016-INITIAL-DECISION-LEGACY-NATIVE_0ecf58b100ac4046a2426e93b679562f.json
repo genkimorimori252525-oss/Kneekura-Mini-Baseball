@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-DECISION-LEGACY-NATIVE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/SamePlateAppearanceBattingInvocationIntegration.test.ts",
+    "--maxWorkers",
+    "1",
+    "--minWorkers",
+    "1"
+  ],
+  "observed_at": "2026-10-16T11:41:48.080+00:00",
+  "elapsed_ms": 467905,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-DECISION-LEGACY-NATIVE_0ecf58b100ac4046a2426e93b679562f.log",
+  "output_sha256": "b3d4cb1f73a825a24c93d67d9eba76e1f96aa5dbb6c1877bf0c11c43533b3990",
+  "receipt_id": "MB-20261016-INITIAL-DECISION-LEGACY-NATIVE_0ecf58b100ac4046a2426e93b679562f"
+}

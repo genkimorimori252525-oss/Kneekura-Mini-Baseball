@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-CONTROLLED-PITCH-WORLD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/pitch/ControlledPitchWorldV1.test.ts",
+    "src/core/sim/pitch/ControlledHeldPitchV1.test.ts",
+    "src/core/sim/ball/SourceFreeBallSpeedBound.test.ts",
+    "src/core/sim/ball/SourceFreeBallWorldQuery.test.ts",
+    "--maxWorkers=1",
+    "--minWorkers=1"
+  ],
+  "observed_at": "2026-10-15T23:36:51.311+00:00",
+  "elapsed_ms": 1671,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-CONTROLLED-PITCH-WORLD_43e5b8622cb5426fa0322ea851e9dafb.log",
+  "output_sha256": "19c6126326994ff6270d816647d98684bf0b2a3fca01aa222fc74a5cb185ede2",
+  "receipt_id": "MB-20261016-CONTROLLED-PITCH-WORLD_43e5b8622cb5426fa0322ea851e9dafb"
+}

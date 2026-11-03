@@ -1,0 +1,13 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/native-game/AuthoredMatchClockV1.test.ts (18 tests) 952ms
+   ✓ AC09 registers all nine declared nominal models through their real Native owners and rereads without author callbacks 902ms
+ ✓ src/integration/native-game/AuthoredNativeMatchV1.test.ts (3 tests) 4313ms
+   ✓ creates two real Native SI model cohorts, official initial World and nineteen bodies without legacy fixtures or owner mocks 4260ms
+
+ Test Files  2 passed (2)
+      Tests  21 passed (21)
+   Start at  06:20:43
+   Duration  16.31s (transform 8.39s, setup 0ms, collect 23.17s, tests 5.27s, environment 0ms, prepare 273ms)
+

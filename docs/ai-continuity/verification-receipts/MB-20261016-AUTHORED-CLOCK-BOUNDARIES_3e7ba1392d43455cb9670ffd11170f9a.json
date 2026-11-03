@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-AUTHORED-CLOCK-BOUNDARIES",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/native-game/AuthoredMatchClockV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T19:21:54.798+00:00",
+  "elapsed_ms": 7765,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-AUTHORED-CLOCK-BOUNDARIES_3e7ba1392d43455cb9670ffd11170f9a.log",
+  "output_sha256": "64ff81344408e1be8e16c20f4c29f16f4267cddfc303193b54d8453d7338cd19",
+  "receipt_id": "MB-20261016-AUTHORED-CLOCK-BOUNDARIES_3e7ba1392d43455cb9670ffd11170f9a"
+}

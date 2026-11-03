@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V87-RECOGNITION-TARGET-FINAL3",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/ZoneRecognitionV87.test.ts",
+    "src/integration/browser/LivePitchRecognitionV87.test.ts",
+    "src/integration/browser/LivePitchCourseV79.test.ts",
+    "src/integration/browser/LivePitchAbilitiesV1.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-20T17:16:05.030+00:00",
+  "elapsed_ms": 4219,
+  "git_head": "9f6b6ed69d8682f417490d4b761914f1b4a6d6a1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V87-RECOGNITION-TARGET-FINAL3_5b0e00fe237240b9afb85298b9605818.log",
+  "output_sha256": "d295da0144d52f99b6fa6ca5349c2def0f14db7acf44e9fa5aafa5386bf945ff",
+  "receipt_id": "MB-20261021-V87-RECOGNITION-TARGET-FINAL3_5b0e00fe237240b9afb85298b9605818"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V86-TRAITS-FINAL2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v77-traits-browser.mjs",
+    "../../outputs/にーくら野球メーカー_v86_入力確定とエラー復帰版.html",
+    "docs/verification/releases/v86/traits-final2"
+  ],
+  "observed_at": "2026-10-20T16:40:44.480+00:00",
+  "elapsed_ms": 14827,
+  "git_head": "58c9163a9007598d6a51d8178f38ce3b9ee14eca",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V86-TRAITS-FINAL2_6f6a44279c934ac4855880a64e4ef92c.log",
+  "output_sha256": "4a12db420e92c8287582561c900a84a9a82884da41e603c7aa78cdc7b0065001",
+  "receipt_id": "MB-20261021-V86-TRAITS-FINAL2_6f6a44279c934ac4855880a64e4ef92c"
+}

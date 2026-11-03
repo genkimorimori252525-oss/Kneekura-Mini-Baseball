@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V86-UNIT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/browser-bridge/maker-guides-v85.test.mjs",
+    "tools/browser-bridge/pitcher-comparison-v86.test.mjs"
+  ],
+  "observed_at": "2026-10-20T16:41:09.667+00:00",
+  "elapsed_ms": 968,
+  "git_head": "58c9163a9007598d6a51d8178f38ce3b9ee14eca",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V86-UNIT_0e4641ab35644768bd86ed2ece3f38f7.log",
+  "output_sha256": "34312d3039e9efa2c7409debd29fa31d19991fff5b5e1f097f5df74f5626a08a",
+  "receipt_id": "MB-20261021-V86-UNIT_0e4641ab35644768bd86ed2ece3f38f7"
+}

@@ -1,0 +1,12 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/SamePlateAppearanceFieldRuleEvidence.test.ts (17 tests) 472ms
+ ✓ src/core/sim/ball/SourceBattedFieldMotion.test.ts (3 tests) 107ms
+ ✓ src/host/world/FrozenLiveOwnerDomainsV3.test.ts (2 tests) 125ms
+
+ Test Files  3 passed (3)
+      Tests  22 passed (22)
+   Start at  07:39:56
+   Duration  9.14s (transform 5.04s, setup 0ms, collect 7.76s, tests 704ms, environment 0ms, prepare 213ms)
+

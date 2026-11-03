@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-JOINT-SUCCESSOR-SUPPORTED-FINAL-TSC",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-16T21:54:44.428+00:00",
+  "elapsed_ms": 21641,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-JOINT-SUCCESSOR-SUPPORTED-FINAL-TSC_b8ecf28221de4e1f8e0dc51bd1c35e00.log",
+  "output_sha256": "29fb7e0f45b74de26bb1e58b7ca26240f91ded75ed76e04be8e9eba9c0c3fba6",
+  "receipt_id": "MB-20261017-JOINT-SUCCESSOR-SUPPORTED-FINAL-TSC_b8ecf28221de4e1f8e0dc51bd1c35e00"
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V86-PACKAGE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "tools/browser-bridge/package-maker-v86.py"
+  ],
+  "observed_at": "2026-10-20T16:42:43.898+00:00",
+  "elapsed_ms": 1766,
+  "git_head": "58c9163a9007598d6a51d8178f38ce3b9ee14eca",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V86-PACKAGE_95085285fcaa435394551178f424aad0.log",
+  "output_sha256": "7e953864aa68e2c5389ef9b35a65d3549ecfbe86cb2da7eb34d97c21ee54b3e2",
+  "receipt_id": "MB-20261021-V86-PACKAGE_95085285fcaa435394551178f424aad0"
+}

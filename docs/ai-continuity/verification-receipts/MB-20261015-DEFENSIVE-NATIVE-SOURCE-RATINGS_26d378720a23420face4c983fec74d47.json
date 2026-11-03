@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-DEFENSIVE-NATIVE-SOURCE-RATINGS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "npx.cmd",
+    "vitest",
+    "run",
+    "src/host/world/DefensiveCandidateCalculationV1.test.ts",
+    "src/host/world/SamePlateAppearanceDefensiveCandidateSourceV1.test.ts",
+    "src/host/world/DefensiveExecutionCalculation.test.ts"
+  ],
+  "observed_at": "2026-10-14T22:21:38.007+00:00",
+  "elapsed_ms": 9202,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-DEFENSIVE-NATIVE-SOURCE-RATINGS_26d378720a23420face4c983fec74d47.log",
+  "output_sha256": "b086019c767c891ff68c189027675714d8a7350fd599308db2378b3a21b82658",
+  "receipt_id": "MB-20261015-DEFENSIVE-NATIVE-SOURCE-RATINGS_26d378720a23420face4c983fec74d47"
+}

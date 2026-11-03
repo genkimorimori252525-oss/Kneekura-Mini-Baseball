@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V61-CADENCE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v56-cadence.mjs",
+    "../../outputs/ばせぼーるlv61_TBD_vs_LAD_見逃し同期と選球眼版.html",
+    "../../outputs/カメラワーク調整室_v61.html",
+    "../../outputs/verification-v61-cadence"
+  ],
+  "observed_at": "2026-10-18T19:20:06.265+00:00",
+  "elapsed_ms": 8219,
+  "git_head": "a384dfdfac341d3180abc7f750c9825bf137289e",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V61-CADENCE_e62ae2e031f042bdbe7e5374c434b08c.log",
+  "output_sha256": "9fcfa22731e3a0996310ce3a288d2dd137ca78326fc9b8c0d026d5e1288d5272",
+  "receipt_id": "MB-20261019-V61-CADENCE_e62ae2e031f042bdbe7e5374c434b08c"
+}

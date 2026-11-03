@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OBSERVATION-CLOCK-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "npx.cmd",
+    "vitest",
+    "run",
+    "src/core/sim/perception/ObservationClockProjectionV1.test.ts",
+    "src/host/world/SamePlateAppearanceObservationClockProjectionV1.test.ts",
+    "src/host/world/SamePlateAppearanceLifecycleSource.test.ts",
+    "src/host/world/SamePlateAppearanceBallPhysics.test.ts",
+    "src/host/world/SamePlateAppearanceSourceFieldV3.test.ts",
+    "src/host/world/SamePlateAppearancePhysicalFieldActions.test.ts"
+  ],
+  "observed_at": "2026-10-15T17:43:33.772+00:00",
+  "elapsed_ms": 14546,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OBSERVATION-CLOCK-FINAL_28504b61c9154942a426ed6e2dc816af.log",
+  "output_sha256": "defd90851a6a238caee59acf16c3c79e78d845c3128b8bf9c1caea6ab992dbd9",
+  "receipt_id": "MB-20261016-OBSERVATION-CLOCK-FINAL_28504b61c9154942a426ed6e2dc816af"
+}

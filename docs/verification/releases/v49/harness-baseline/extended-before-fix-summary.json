@@ -1,0 +1,36 @@
+{
+  "receipt": "docs\\ai-continuity\\verification-receipts\\MB-20261018-V49-HARNESS-MATRIX_bb62e2d32e95494ba99ff534c5aa1eb1.json",
+  "status": "FAIL_EXPECTED_PRODUCT_BUG_REPRODUCED",
+  "testsPassed": 12,
+  "testsFailed": 2,
+  "tiers": {
+    "low": {
+      "totalOuts": 13,
+      "infieldGrounderOuts": 9,
+      "infieldGrounderCount": 13,
+      "anomalyCounts": {
+        "RUNNER_BASE_TOUCH_LATE": 15
+      },
+      "totalAnomalies": 15
+    },
+    "default": {
+      "totalOuts": 19,
+      "infieldGrounderOuts": 13,
+      "infieldGrounderCount": 13,
+      "anomalyCounts": {
+        "RUNNER_BASE_TOUCH_LATE": 7
+      },
+      "totalAnomalies": 7
+    },
+    "high": {
+      "totalOuts": 21,
+      "infieldGrounderOuts": 15,
+      "infieldGrounderCount": 13,
+      "anomalyCounts": {
+        "RUNNER_BASE_TOUCH_LATE": 4
+      },
+      "totalAnomalies": 4
+    }
+  },
+  "finding": "Observed runner inside declared baseTouchRadiusMeters before official center touch; up to 0.3263 seconds in default scenarios. No existing matrix assertion was weakened."
+}

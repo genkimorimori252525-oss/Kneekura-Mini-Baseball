@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SAMPLED-SHARED-CORE-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/pitching/SampledRigidBatSwingV1.test.ts",
+    "src/core/sim/pitching/AerodynamicRigidBatSwingingPitchPhysicalResult.test.ts",
+    "src/core/sim/pitching/AerodynamicRigidBatSwingingPitchPhysicalResultV1.test.ts",
+    "src/core/sim/pitching/AerodynamicRigidPitchAgainstBatter.test.ts",
+    "src/core/sim/contact/ReferenceBatKinematicsV1.test.ts",
+    "src/integration/browser/MeasuredBatAxisReferenceV1.test.ts",
+    "src/integration/browser/ReferenceBattingWorkbench.test.ts",
+    "src/integration/browser/BattingWorkbench.test.ts"
+  ],
+  "observed_at": "2026-10-15T21:44:41.383+00:00",
+  "elapsed_ms": 10875,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SAMPLED-SHARED-CORE-REGRESSION_30d9955514ea4334811852ac64e2e162.log",
+  "output_sha256": "47b79b82010e417e8dc2e1bb21c4e5f83439b58b10b8a9c1eba43a531aa436e5",
+  "receipt_id": "MB-20261016-SAMPLED-SHARED-CORE-REGRESSION_30d9955514ea4334811852ac64e2e162"
+}

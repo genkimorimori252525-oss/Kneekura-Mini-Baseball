@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V79-BUILD-GAME-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-v79.mjs"
+  ],
+  "observed_at": "2026-10-20T00:30:17.185+00:00",
+  "elapsed_ms": 889,
+  "git_head": "98819b9ab5c8e4bdd7ddfc7d644d484df08ab55d",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V79-BUILD-GAME-FINAL_0b6794d0e1cd48fe9a34aedadd7485a1.log",
+  "output_sha256": "169dd69e984e1524626a746597c2068ddae01b1befb7e87a06a111cf49ba5bba",
+  "receipt_id": "MB-20261020-V79-BUILD-GAME-FINAL_0b6794d0e1cd48fe9a34aedadd7485a1"
+}

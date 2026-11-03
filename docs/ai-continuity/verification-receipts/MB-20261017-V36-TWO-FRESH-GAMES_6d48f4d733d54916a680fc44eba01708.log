@@ -1,0 +1,3 @@
+{"shard":"shard-02","passed":true,"games":1,"seconds":59.584}
+{"shard":"shard-01","passed":true,"games":1,"seconds":66.768}
+{"kind":"local-core-match-population-v1","success":true,"targetGames":2,"workers":2,"bundleSha256":"d8b5507c0184162babd7da8694cf284404ca08460e96fb7e5bc462540bc750fc","elapsedSeconds":66.768,"total":{"games":2,"pitches":363,"contacts":237,"throws":79,"catches":260,"groundContacts":569,"homeRuns":20,"walks":4,"strikeouts":0,"multiOutPlays":6,"runs":49,"maximumInning":9,"maximumPitchMs":1195},"uniqueSeeds":2,"shards":[{"name":"shard-01","passed":true,"games":1},{"name":"shard-02","passed":true,"games":1}],"nativeAuthentication":false}

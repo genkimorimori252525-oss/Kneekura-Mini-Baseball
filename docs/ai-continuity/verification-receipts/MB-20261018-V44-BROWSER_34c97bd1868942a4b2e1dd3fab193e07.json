@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V44-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v44-taken-gaze.mjs",
+    "../../outputs/ばせぼーるlv44_TBD_vs_LAD_見送り視線修正版.html",
+    "../../outputs/verification-v44-taken-gaze-v1"
+  ],
+  "observed_at": "2026-10-18T04:31:06.827+00:00",
+  "elapsed_ms": 17952,
+  "git_head": "7bc3982789bf563bb9a25a8b82f632c982c3ab84",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V44-BROWSER_34c97bd1868942a4b2e1dd3fab193e07.log",
+  "output_sha256": "f6c1f2472345b060740e507d4eb636e8019082f4ffdbd9ec5f8a738f5d7567a7",
+  "receipt_id": "MB-20261018-V44-BROWSER_34c97bd1868942a4b2e1dd3fab193e07"
+}

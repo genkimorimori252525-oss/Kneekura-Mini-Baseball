@@ -1,0 +1,14 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/ball/SourceBattedFieldAcquisitionV1.test.ts (6 tests) 183ms
+ ✓ src/core/sim/ball/BattedWorldScheduledFieldAcquisition.test.ts (28 tests) 234ms
+ ✓ src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts (13 tests) 600ms
+ ✓ src/core/sim/ball/SourceFieldIntegerBoundaryV1.test.ts (7 tests) 623ms
+   ✓ executes a real sub-tick ground wait through the original kernel without rebasing ball or actors 335ms
+
+ Test Files  4 passed (4)
+      Tests  54 passed (54)
+   Start at  03:38:34
+   Duration  1.46s (transform 607ms, setup 0ms, collect 1.49s, tests 1.64s, environment 1ms, prepare 644ms)
+

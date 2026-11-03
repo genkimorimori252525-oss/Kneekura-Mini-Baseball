@@ -1,0 +1,20 @@
+{
+  "pass": false,
+  "widths": [
+    {
+      "width": 1200,
+      "fieldCount": 47,
+      "controls": 49,
+      "delayMs": 1000,
+      "outputPreserved": true,
+      "sourceValuesPreserved": true,
+      "existingChangeHandlerPreserved": true,
+      "noDuplicateIcons": true,
+      "mutationRebuild": true,
+      "keyboardAndClick": true,
+      "clamped": true
+    }
+  ],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\nfalse !== true\n\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/v68-maker-help-fixture-check.mjs:19:41"
+}

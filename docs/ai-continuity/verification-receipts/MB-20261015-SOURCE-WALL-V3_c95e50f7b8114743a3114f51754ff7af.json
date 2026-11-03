@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-SOURCE-WALL-V3",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/SourceImpactEscapeV3.test.ts",
+    "src/core/sim/ball/SourceFreeBallWorldQuery.test.ts",
+    "src/core/sim/ball/SourceBattedWorldContacts.test.ts",
+    "src/host/world/SqliteBattedWorldContinuationV3Store.test.ts",
+    "src/host/world/VersionedBattedBallFlightSource.test.ts",
+    "--maxWorkers=1",
+    "--minWorkers=1"
+  ],
+  "observed_at": "2026-10-14T22:07:30.033+00:00",
+  "elapsed_ms": 57577,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-SOURCE-WALL-V3_c95e50f7b8114743a3114f51754ff7af.log",
+  "output_sha256": "3029bb59da6a851dd1363104bdd552d40a41e79a023ca731d1f9b7f0cfb11391",
+  "receipt_id": "MB-20261015-SOURCE-WALL-V3_c95e50f7b8114743a3114f51754ff7af"
+}

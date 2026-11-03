@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-CONTINUOUS-FIRST-WORLD-COMPAT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/OriginalContactLegacyBytes.test.ts",
+    "src/host/world/OriginalContactRunnerKinematics.test.ts",
+    "src/host/world/OriginalContactKinematicsReader.test.ts",
+    "--maxWorkers=1",
+    "--minWorkers=1"
+  ],
+  "observed_at": "2026-10-14T21:30:30.951+00:00",
+  "elapsed_ms": 10593,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-CONTINUOUS-FIRST-WORLD-COMPAT_6615b056073d42459d456573c3482f9e.log",
+  "output_sha256": "9ee2d2a29b66f12b90c904908dcfb9edea5780a68738ec5443bcde679dd90d51",
+  "receipt_id": "MB-20261015-CONTINUOUS-FIRST-WORLD-COMPAT_6615b056073d42459d456573c3482f9e"
+}

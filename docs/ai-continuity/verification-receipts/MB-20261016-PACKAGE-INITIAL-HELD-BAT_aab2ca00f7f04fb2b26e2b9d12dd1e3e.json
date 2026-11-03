@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-PACKAGE-INITIAL-HELD-BAT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../package-delivery.py"
+  ],
+  "observed_at": "2026-10-16T13:00:43.464+00:00",
+  "elapsed_ms": 80125,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-PACKAGE-INITIAL-HELD-BAT_aab2ca00f7f04fb2b26e2b9d12dd1e3e.log",
+  "output_sha256": "2a239da3a2f626ef6d8e3a2abb1a8056a8457c011fa9758b59dbff9eb7753605",
+  "receipt_id": "MB-20261016-PACKAGE-INITIAL-HELD-BAT_aab2ca00f7f04fb2b26e2b9d12dd1e3e"
+}

@@ -3,6 +3,10 @@ import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { BallFlightParameters } from '../../core/sim/ball/BallFlight';
 import { createBattedBallFlightEvidence, type BattedBallFlightEvidence } from '../../core/sim/ball/BattedBallFlightEvidence';
+import { assertLegacyBallPhysicsConsumer, AERO_GROUND_BATTED_FLIGHT_SOURCE_VERSION, createAeroGroundBallPhysicsProfile,
+  CONTINUOUS_AERO_GROUND_BATTED_FLIGHT_SOURCE_VERSION, createAeroGroundBattedBallFlightEvidence,
+  type AeroGroundBallPhysicsV1 } from '../../core/sim/ball/VersionedBattedBallPhysics';
+import { createContinuousBattedBallFlightEvidence } from '../../core/sim/ball/SourceFreeBallKernel';
 import { createFairTerritoryWedge, type FairTerritoryWedge } from '../../core/sim/ball/FairTerritoryGeometry';
 import { classifyFirstGroundContactTerritory, type FirstGroundContactTerritory } from '../../core/sim/ball/FirstGroundContactTerritory';
 import { DEFAULT_CONTACT_PARAMETERS } from '../../core/sim/contact/BatBallContact';
@@ -17,7 +21,7 @@ export type AcceptedBattedBallFlight = Readonly<{
   sourceId: string; sourceVersion: string; physicalPitchSourceId: string; previousFlightSourceId: string | null;
   searchDurationTicks: number;
   execution: Readonly<{ venueId: string; availableAtDay: number; field: FairTerritoryWedge;
-    ballFlightParameters: Required<BallFlightParameters> }>;
+    ballFlightParameters: Required<BallFlightParameters>; ballPhysics?: AeroGroundBallPhysicsV1 }>;
 }>;
 export type DurableBattedBallFlight = Readonly<{
   source: AcceptedBattedBallFlight; revision: number; physicalPitch: DurablePhysicalPitch;
@@ -37,10 +41,11 @@ const fields = (v: unknown, names: readonly string[]): v is object => v !== null
   && Object.keys(v).sort().join('|') === [...names].sort().join('|');
 const input = (raw: AcceptedBattedBallFlight, sourceId: string): AcceptedBattedBallFlight => {
   const s = cloneInert(raw), p = s?.execution?.ballFlightParameters;
+  const versioned = [AERO_GROUND_BATTED_FLIGHT_SOURCE_VERSION, CONTINUOUS_AERO_GROUND_BATTED_FLIGHT_SOURCE_VERSION].includes(s?.sourceVersion);
   if (!fields(s, ['sourceId', 'sourceVersion', 'physicalPitchSourceId', 'previousFlightSourceId', 'searchDurationTicks', 'execution'])
     || s.sourceId !== sourceId || ![s.sourceId, s.sourceVersion, s.physicalPitchSourceId].every(id)
     || s.previousFlightSourceId !== null && (!id(s.previousFlightSourceId) || s.previousFlightSourceId === sourceId)
-    || !integer(s.searchDurationTicks) || !fields(s.execution, ['venueId', 'availableAtDay', 'field', 'ballFlightParameters'])
+    || !integer(s.searchDurationTicks) || !fields(s.execution, ['venueId', 'availableAtDay', 'field', 'ballFlightParameters', ...(versioned ? ['ballPhysics'] : [])])
     || !id(s.execution.venueId) || !integer(s.execution.availableAtDay)
     || !fields(p, ['ticksPerSecond', 'gravityY', 'ballRadius', 'groundRestitution', 'groundFriction', 'groundRollingDecelerationMps2', 'integrationStepTicks', 'restingVerticalSpeed'])
     || Object.values(p).some((v) => typeof v !== 'number' || !Number.isFinite(v))
@@ -51,7 +56,20 @@ const input = (raw: AcceptedBattedBallFlight, sourceId: string): AcceptedBattedB
     || ![s.execution.field.homePlate, s.execution.field.firstBaseLineUnit, s.execution.field.thirdBaseLineUnit].every((v) => fields(v, ['x', 'z']))) {
     throw new Error('invalid accepted batted flight Source or physical parameters');
   }
+  if (versioned) {
+    const profile = createAeroGroundBallPhysicsProfile(s.execution.ballPhysics);
+    if (profile.air.ticksPerSecond !== p.ticksPerSecond || profile.air.integrationStepTicks !== p.integrationStepTicks
+      || profile.air.gravityY !== p.gravityY || profile.ground.radiusM !== p.ballRadius) {
+      throw new Error('versioned ball physics source clock, lattice, gravity or geometry differs');
+    }
+  }
   createFairTerritoryWedge(s.execution.field); return s;
+};
+
+/** Until a consumer owns the same nonlinear Source kernel it cannot silently
+ * interpret this accepted flight with the original gravity-only polynomial. */
+export const assertLegacyBattedBallFlightConsumer = (source: AcceptedBattedBallFlight, consumer: string): void => {
+  assertLegacyBallPhysicsConsumer(source.sourceVersion, source.execution.ballPhysics, consumer);
 };
 
 export const battedBallFlightEvidenceFromSqlite = (db: Pick<import('node:sqlite').DatabaseSync, 'prepare'>) => {
@@ -79,9 +97,14 @@ export const battedBallFlightEvidenceFromSqlite = (db: Pick<import('node:sqlite'
       || s.execution.availableAtDay > physicalPitch.frame.batterActor.binding.gameDay) throw new Error('batted flight actual fixture/day differs');
     if (s.previousFlightSourceId === null ? parent !== null : !parent || parent.source.sourceId !== s.previousFlightSourceId
       || parent.source.physicalPitchSourceId !== s.physicalPitchSourceId || json(parent.source.execution) !== json(s.execution)
+      || s.execution.ballPhysics !== undefined && parent.source.sourceVersion !== s.sourceVersion
       || s.searchDurationTicks <= parent.source.searchDurationTicks) throw new Error('batted flight previous Source, execution or horizon differs');
-    const flight = createBattedBallFlightEvidence({ contact: contact.payload.contact, searchDurationTicks: s.searchDurationTicks,
-      parameters: s.execution.ballFlightParameters });
+    const flight = s.sourceVersion === CONTINUOUS_AERO_GROUND_BATTED_FLIGHT_SOURCE_VERSION
+      ? createContinuousBattedBallFlightEvidence(contact.payload.contact, s.searchDurationTicks, s.execution.ballPhysics!)
+      : s.sourceVersion === AERO_GROUND_BATTED_FLIGHT_SOURCE_VERSION
+      ? createAeroGroundBattedBallFlightEvidence(contact.payload.contact, s.searchDurationTicks, s.execution.ballPhysics!)
+      : createBattedBallFlightEvidence({ contact: contact.payload.contact, searchDurationTicks: s.searchDurationTicks,
+        parameters: s.execution.ballFlightParameters });
     const rows = own.originalPitchRows ?? captureOriginalPhysicalPitchRows(db, s.physicalPitchSourceId);
     return freeze({ source: s, revision: (parent?.revision ?? 0) + 1, physicalPitch,
       originalPitchRows: { actions: rows.actions, head: rows.head }, flight,

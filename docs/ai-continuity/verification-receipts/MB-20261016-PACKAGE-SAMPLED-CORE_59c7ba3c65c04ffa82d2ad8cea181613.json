@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-PACKAGE-SAMPLED-CORE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../package-delivery.py"
+  ],
+  "observed_at": "2026-10-15T21:51:58.539+00:00",
+  "elapsed_ms": 24062,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-PACKAGE-SAMPLED-CORE_59c7ba3c65c04ffa82d2ad8cea181613.log",
+  "output_sha256": "b2faa9ee2a9f24abcd39b226d39a597c3621e5caa290441dac2c4d8b66fcddf0",
+  "receipt_id": "MB-20261016-PACKAGE-SAMPLED-CORE_59c7ba3c65c04ffa82d2ad8cea181613"
+}

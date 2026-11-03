@@ -1,0 +1,38 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/native-game/AuthoredNativeMatchV1.test.ts (3 tests) 3555ms
+   ✓ creates two real Native SI model cohorts, official initial World and nineteen bodies without legacy fixtures or owner mocks 3510ms
+ ✓ src/integration/native-game/AuthoredMeasuredBattingModelV1.test.ts (1 test) 3788ms
+   ✓ stores measured repertoire on the new Native genesis Person/body and rereads without any author callbacks 3787ms
+ ✓ src/integration/native-game/AuthoredNativeReservationV1.test.ts (2 tests) 16054ms
+   ✓ reserves actual ten-person first-PA workload on the fresh eighteen-player Native world without manufacturing pitch history 10153ms
+   ✓ rejects foreign membership and missing baselines before installing workload or reservation storage 5901ms
+ ✓ src/host/world/SamePlateAppearanceEnrollmentWal.test.ts (9 tests) 31593ms
+   ✓ SP-W01 writer-local AFTER INSERT baseline mutation rolls back the whole new namespace 4789ms
+   ✓ SP-W01 writer-local AFTER INSERT root mutation rolls back the whole new namespace 4660ms
+   ✓ SP-W01 writer-local AFTER INSERT member mutation rolls back the whole new namespace 4906ms
+   ✓ SP-W01 writer-local AFTER INSERT right mutation rolls back the whole new namespace 7413ms
+   ✓ SP-W02 separate WAL writer advances an accepted baseline between preflight and acquisition 405ms
+   ✓ SP-W02 actual forced COMMIT retires and reports uncertainty without pretending rollback 626ms
+   ✓ SP-W02 rollback failure retires the private owner 638ms
+   ✓ SP-W02 post-COMMIT mutation fails durable accounting and retires without repair 3776ms
+   ✓ SP-W02 clean close/reopen uses a query-only Native snapshot and no authority callbacks 4379ms
+ ✓ src/host/world/SamePlateAppearanceEnrollment.test.ts (30 tests | 1 skipped) 46600ms
+   ✓ SP-E01 small Native workload prerequisites reach the reservation owner (actor mocked) 410ms
+   ✓ SP-E01 acceptance atomically freezes ten baselines and one blocked slot without physical or workload writes 4135ms
+   ✓ SP-E02 absent actual new batter baseline is pending and never substitutes the prior batter 424ms
+   ✓ SP-E05 exact retry and authority-free reopen reproduce the archive; aliases reject 5062ms
+   ✓ SP-E06 delete member cannot unlock a root participant; disjoint scopes remain unreserved 3923ms
+   ✓ SP-E06 move member cannot unlock a root participant; disjoint scopes remain unreserved 3913ms
+   ✓ SP-G04 fabricated first slot ready never admits physical work 3944ms
+   ✓ SP-G04 fabricated first slot consumer never admits physical work 4042ms
+   ✓ SP-G04 fabricated first slot resume never admits physical work 4042ms
+   ✓ SP-E06 second PA sharing participants rejects atomically and a disjoint second PA reserves independently 8828ms
+   ✓ SP-E05 immutable enrollment retains the original accepted baseline provenance as well as state 4360ms
+
+ Test Files  5 passed (5)
+      Tests  44 passed | 1 skipped (45)
+   Start at  07:18:16
+   Duration  56.57s (transform 9.07s, setup 0ms, collect 48.36s, tests 101.59s, environment 1ms, prepare 797ms)
+

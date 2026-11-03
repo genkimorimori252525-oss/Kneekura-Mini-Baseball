@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V72-REVIEW-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-maker.mjs",
+    "../../outputs/にーくら野球メーカー_v72_弾道と大画面の連動版.html",
+    "--executable-traits",
+    "--measured-library",
+    "--ball-comparison",
+    "--batter-comparison",
+    "--bat-orbit",
+    "--player-swing-preview",
+    "--roster=docs/demos/live-game-roster-v62.json",
+    "--catalog=docs/demos/live-game-roster-catalog-v62.json"
+  ],
+  "observed_at": "2026-10-19T13:39:27.601+00:00",
+  "elapsed_ms": 2421,
+  "git_head": "83054b92313883722565305630c067aea23f3e99",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V72-REVIEW-BUILD_68c8e2f194cb45278ecf983e8e8220d6.log",
+  "output_sha256": "af61d5dda5e0929cdcdda52cd88cc4dca1ebbbc90e7d443ba300660c24d0530d",
+  "receipt_id": "MB-20261019-V72-REVIEW-BUILD_68c8e2f194cb45278ecf983e8e8220d6"
+}

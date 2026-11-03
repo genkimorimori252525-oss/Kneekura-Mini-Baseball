@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-UPRIGHT-MEASURED-REGISTRATION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/world/psychology/batting/MeasuredBattingCommitment.test.ts",
+    "src/core/world/psychology/batting/BattingMotorPlanV1.test.ts",
+    "src/core/sim/contact/HeldToMeasuredBatControlV1.test.ts"
+  ],
+  "observed_at": "2026-10-16T12:43:59.056+00:00",
+  "elapsed_ms": 3141,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-UPRIGHT-MEASURED-REGISTRATION_3074bb9deee14e6aa59920635777f1f9.log",
+  "output_sha256": "68b12e9d34afc532d7f8ed468bc9b16a4e87429ef79b841f437d36d6ed1a855f",
+  "receipt_id": "MB-20261016-UPRIGHT-MEASURED-REGISTRATION_3074bb9deee14e6aa59920635777f1f9"
+}

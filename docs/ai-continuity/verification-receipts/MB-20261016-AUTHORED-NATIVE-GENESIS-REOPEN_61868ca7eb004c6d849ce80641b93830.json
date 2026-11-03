@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-AUTHORED-NATIVE-GENESIS-REOPEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/native-game/AuthoredNativeMatchV1.test.ts",
+    "src/integration/native-game/AuthoredMatchClockV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T21:14:49.688+00:00",
+  "elapsed_ms": 18092,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-AUTHORED-NATIVE-GENESIS-REOPEN_61868ca7eb004c6d849ce80641b93830.log",
+  "output_sha256": "c733a5977a18f1a66a88756c8c46ab03f9d220526991eb6fb7380a9b9d3357ba",
+  "receipt_id": "MB-20261016-AUTHORED-NATIVE-GENESIS-REOPEN_61868ca7eb004c6d849ce80641b93830"
+}

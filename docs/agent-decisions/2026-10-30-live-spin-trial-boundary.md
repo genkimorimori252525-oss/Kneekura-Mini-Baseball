@@ -1,0 +1,25 @@
+# 製品の測定スイングへの明示SPIN試行
+
+2026-10-30 JST / MB-20261027-REALISM-DEBUG-PLAN。本人が求める4技術の物理制御を製品経路まで完成するための通常の実装判断。全Goal・獲得・校正・配送の受入条件は変更しない。
+
+## 確認した差と判断
+
+SQLiteで検証しているV226のcourse-aware motorと、製品LivePitchV1の測定clip motorは別の契約である。前者の完全な空力trajectoryを要求するAPIへ、V151の配達済み位置からの予測DTOを代入しない。Native資格fullrefの転記だけで、異なるLive motorへ資格を移転しない。fixtureのprepareCommitmentも製品Producerとは呼ばない。
+
+Astraへ今回の適用境界一点だけを相談し、Live全体をNativeへ置換する案ではなく、既存repertoire選択／motor適用直前に明示試行専用の薄いadapterを追加する案を採る。既存Ownerを利用し、earned適用は正規authorityとLiveへの転用証拠が揃うまで閉じる。既存LOCAL_AUTHORING_ONLYとNative獲得証拠は分ける。
+
+対象は新LiveObservedSpinTrialV236.ts／testとLivePitchV1.tsの関係最小箇所。optionalの明示requestだけで有効にし、未指定の旧計算・keys・RNG drawは保つ。原JSON・本人保存方針を上書きしない。LivePitch編集前のworktree全bytesとGit親を別保存する。V235守備gateのSource pinにLivePitchが含まれないことを担当が確認した。
+
+## 入力と不変条件
+
+明示requestはversion、subject、技術、clip id／SHA／左右、座標系とplate／contact-depthの平面、前向きXY deltaを持つ。これらは未校正のlocal trial宣言であり、Native資格ではない。normal入力で本人を照合できない部分はCALLER_DECLARED_NOT_AUTHENTICATEDとし、自己申告のearned値から適用しない。
+
+同じV151観測集合／cutoffを凍結し、配達済みの最大3標本から二平面crossingを計画する。時刻・座標・前進・有効窓とclip identityを選択から実行まで保持する。観測不足／域外／対象clip違いはNO_TARGET、不正な型・破損した値は拒否する。未来contactや実球trajectoryから成功用の入力を逆算しない。
+
+最終的に実行される測定clip登録へplanを反映し、既存誤差・速度・latency・正常剛体接触・空力を共用する。特にnominalReferenceV153によって宣言spin offsetが消える旧不足を再発させない。二平面crossingを診断に載せただけで適用済みとは扱わない。技術名は運動選択だけに使い、exitSpin・飛距離等の結果へ補正を加えない。
+
+## 検証・復旧・残件
+
+同一seed／基準入力／観測集合のNO_TARGETと4技術を製品simulateLivePitchV1から比較し、最終運動の差と実接触／空力への到達を記録する。同じ運動、miss、域外は未成立として残す。成立しても明示試行の範囲であり、人間校正・獲得・自然Gold・4技術全domain・UI配送とは別判定。
+
+旧未指定の計算・keys・draw不変と関連型検査を行う。既存Sourceは全bytes baselineから差分を戻せるようにする。過去のTOPと無指定が同運動という失敗を保持する。新依存・新Owner・保存schemaの一括変更は行わない。実装と実証結果は別途記録し、この判断記録だけで利用可能化とは判定しない。

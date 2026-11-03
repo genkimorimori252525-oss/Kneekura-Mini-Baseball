@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/InitialJointWorkloadProjection.test.ts (5 tests) 36ms
+ ✓ src/host/world/InitialJointPhysicalSourceInput.test.ts (10 tests) 3ms
+
+ Test Files  2 passed (2)
+      Tests  15 passed (15)
+   Start at  00:11:39
+   Duration  12.03s (transform 7.17s, setup 0ms, collect 11.56s, tests 39ms, environment 0ms, prepare 127ms)
+

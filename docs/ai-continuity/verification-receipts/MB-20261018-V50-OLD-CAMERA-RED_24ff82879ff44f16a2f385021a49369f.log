@@ -1,0 +1,24 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
+  {
+    x: -0.4,
++   y: 1.3860000000000001,
+-   y: 1.386,
+    z: -0.95
+  }
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v27-batter-view.mjs:15:9 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: { x: -0.4, y: 1.3860000000000001, z: -0.95 },
+  expected: { x: -0.4, y: 1.386, z: -0.95 },
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

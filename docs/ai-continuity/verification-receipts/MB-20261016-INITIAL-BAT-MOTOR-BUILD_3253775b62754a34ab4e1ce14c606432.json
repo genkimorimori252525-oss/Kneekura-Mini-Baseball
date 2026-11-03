@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-BAT-MOTOR-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/native-game/build-measured-model-readback.mjs",
+    "../native-with-bat-motor-v1",
+    "observed_motor_preparation"
+  ],
+  "observed_at": "2026-10-16T12:25:05.684+00:00",
+  "elapsed_ms": 828,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-BAT-MOTOR-BUILD_3253775b62754a34ab4e1ce14c606432.log",
+  "output_sha256": "7ce7b82d32a822e28711ee7fb08092d5c2910883b96b9a973f65abf6fac0c07f",
+  "receipt_id": "MB-20261016-INITIAL-BAT-MOTOR-BUILD_3253775b62754a34ab4e1ce14c606432"
+}

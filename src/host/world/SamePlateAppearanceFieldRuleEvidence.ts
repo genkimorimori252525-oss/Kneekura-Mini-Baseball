@@ -12,6 +12,7 @@ import { actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppeara
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import type { SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep } from './SamePlateAppearancePhysicalEpisode';
 import { samePaPlayableWallEvidence } from './SamePlateAppearancePlayableWallPolicy';
+import { SAME_PA_AERO_GROUND_FIELD_ROOT_SOURCE_VERSION, SAME_PA_AERO_GROUND_ESCAPE_FIELD_ROOT_SOURCE_VERSION } from './SamePlateAppearanceBallPhysics';
 type Field = SamePaPhysicalFieldRoot | SamePaPhysicalFieldStep;
 type Input = Readonly<{ fields: readonly Field[]; batterRunnerId: string; defenderIds: readonly string[]; outsAtStart: number;
   occupiedRunnerIds?: readonly string[] }>;
@@ -22,6 +23,9 @@ const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw new Er
  * authenticates their ownership. No motor, runner route or physical end is created. */
 export const deriveSamePaFieldRuleEvidence = (raw: Input) => {
   const input = cloneInert(raw), root = input.fields[0], runnerIds = input.occupiedRunnerIds ?? [];
+  if (root?.kind === 'same_pa_physical_field_root_v1' && ([SAME_PA_AERO_GROUND_FIELD_ROOT_SOURCE_VERSION, SAME_PA_AERO_GROUND_ESCAPE_FIELD_ROOT_SOURCE_VERSION].includes(root.source.sourceVersion)
+    || Object.hasOwn(root.source, 'ballPhysics') || Object.hasOwn(root.response.world, 'sourceCurve')))
+    throw new Error('unsupported same-PA Aero/ground field-rule evidence');
   if (!root || root.kind !== 'same_pa_physical_field_root_v1' || root.field.motion.carrierPlayerId !== null
     || !Array.isArray(input.defenderIds) || !Array.isArray(runnerIds) || runnerIds.length > 3
     || new Set([input.batterRunnerId, ...input.defenderIds, ...runnerIds]).size !== input.defenderIds.length + runnerIds.length + 1)

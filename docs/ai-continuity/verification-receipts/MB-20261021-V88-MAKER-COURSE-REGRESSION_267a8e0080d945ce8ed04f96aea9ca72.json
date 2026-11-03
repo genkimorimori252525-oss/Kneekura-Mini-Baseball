@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V88-MAKER-COURSE-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-course-authoring-v87.mjs",
+    "../../outputs/にーくら野球メーカー_v88_空振りとHR見送り版.html",
+    "docs/verification/releases/v88/course-regression"
+  ],
+  "observed_at": "2026-10-20T17:48:25.451+00:00",
+  "elapsed_ms": 18983,
+  "git_head": "6a7b3500d315de70a46f70d697aa032b18b37cb1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V88-MAKER-COURSE-REGRESSION_267a8e0080d945ce8ed04f96aea9ca72.log",
+  "output_sha256": "1c84c9f107fbf5f1aad7d56dc6ea5e5cdf1e5959993290f1788c9287f6d41af9",
+  "receipt_id": "MB-20261021-V88-MAKER-COURSE-REGRESSION_267a8e0080d945ce8ed04f96aea9ca72"
+}

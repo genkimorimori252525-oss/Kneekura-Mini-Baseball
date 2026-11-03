@@ -6,6 +6,8 @@ import { quantizeEventTick } from '../ExactEventTime';
 import type { DefenderPhysicalPrimitiveRole } from '../fielding/DefenderPhysicalPrimitive';
 import type { BallFlightParameters } from './BallFlight';
 import type { BattedWorldActorPrimitive, BattedWorldSurface } from './BattedBallWorldContacts';
+import type { SourceFreeBallDescriptorV2 } from './SourceFreeBallKernel';
+import { querySourceFreeBallWorldV2 } from './SourceFreeBallWorldQuery';
 import { findBallWorldBaseBoundary, findPiecewiseBallWorldBaseBoundary, findExactBallWorldBaseBoundaryCandidatesV1, type BallWorldBaseBoundaryContact, type BallWorldBaseBoundaryInput } from './BallWorldBaseBoundary';
 
 export type BallWorldMoment = Readonly<{ originTick: number; elapsedSeconds: number; ball: BattedBallInitialState }>;
@@ -21,10 +23,12 @@ export type BallWorldBoundaryContact = Readonly<{ kind: 'ground'; moment: BallWo
 export type BallWorldContinuationInput = Readonly<{
   moment: BallWorldMoment; throughTick: number; parameters: BallFlightParameters;
   actors: readonly BallWorldMotionActor[]; surfaces: readonly BattedWorldSurface[]; previousContacts: readonly BallWorldCollider[];
+  sourceCurve?: SourceFreeBallDescriptorV2;
+  sourceSide?: 'incoming' | 'outgoing';
 }>;
-export type BallWorldContinuation = Readonly<{ kind: 'boundary'; moment: BallWorldMoment; phase: 'airborne' | 'rolling' | 'resting';
+export type BallWorldContinuation = Readonly<{ kind: 'boundary'; moment: BallWorldMoment; phase: 'airborne' | 'sliding' | 'rolling' | 'resting';
   contacts: readonly BallWorldBoundaryContact[]; pendingReason?: 'persistent_contact' }>
-  | Readonly<{ kind: 'moving' | 'resting'; moment: BallWorldMoment; phase: 'airborne' | 'rolling' | 'resting'; throughTick: number }>;
+  | Readonly<{ kind: 'moving' | 'resting'; moment: BallWorldMoment; phase: 'airborne' | 'sliding' | 'rolling' | 'resting'; throughTick: number }>;
 export type AcceleratedBallWorldMotionInput = Omit<BallWorldContinuationInput, 'throughTick'> & Readonly<{
   acceleration: Vec3; throughElapsedSeconds: number;
 }>;
@@ -35,7 +39,7 @@ type BaseScope = Pick<BallWorldBaseBoundaryInput, 'bases' | 'previousBaseContact
 export type BallWorldFieldBoundaryContact = BallWorldBoundaryContact | BallWorldBaseBoundaryContact;
 export type BallWorldFieldContinuationInput = BallWorldContinuationInput & BaseScope;
 export type BallWorldFieldContinuation = Exclude<BallWorldContinuation, { kind: 'boundary' }>
-  | Readonly<{ kind: 'boundary'; moment: BallWorldMoment; phase: 'airborne' | 'rolling' | 'resting';
+  | Readonly<{ kind: 'boundary'; moment: BallWorldMoment; phase: 'airborne' | 'sliding' | 'rolling' | 'resting';
     contacts: readonly BallWorldFieldBoundaryContact[]; pendingReason?: 'persistent_contact' }>;
 export type AcceleratedBallWorldFieldMotionInput = AcceleratedBallWorldMotionInput & BaseScope;
 /** Additive exact free-motion horizon; it does not impose an acceleration or a joint. */
@@ -327,7 +331,21 @@ const deriveWorldSegment = (raw: BallWorldContinuationInput,
 };
 
 /** Free ball motion retains its existing gravity/rolling behavior. */
-export const deriveBallWorldContinuation = (raw: BallWorldContinuationInput): BallWorldContinuation => deriveWorldSegment(raw) as BallWorldContinuation;
+export const deriveBallWorldContinuation = (raw: BallWorldContinuationInput): BallWorldContinuation => {
+  if (!Object.hasOwn(raw, 'sourceCurve')) return deriveWorldSegment(raw) as BallWorldContinuation;
+  const input = cloneInert(raw), { moment, parameters: p, sourceCurve } = input;
+  if (sourceCurve === undefined) return deriveWorldSegment(input) as BallWorldContinuation;
+  if (!tick(input.throughTick) || input.throughTick < moment.ball.tick || !sourceCurve
+    || p.ticksPerSecond !== sourceCurve.profile.air.ticksPerSecond || p.integrationStepTicks !== sourceCurve.profile.air.integrationStepTicks
+    || p.gravityY !== sourceCurve.profile.air.gravityY || p.ballRadius !== sourceCurve.profile.ground.radiusM) throw new Error('nonlinear continuation Source clock differs');
+  const throughElapsedSeconds = Math.max(moment.elapsedSeconds, (input.throughTick - moment.originTick) / p.ticksPerSecond);
+  const result = querySourceFreeBallWorldV2({ descriptor: sourceCurve, moment, side: 'outgoing', throughElapsedSeconds,
+    actors: input.actors, surfaces: input.surfaces, previousContacts: input.previousContacts });
+  if (result.kind === 'unresolved') throw new Error('nonlinear World continuation requires numerical refinement');
+  return result.kind === 'boundary' ? freeze({ kind: 'boundary', moment: result.moment, phase: result.phase,
+    contacts: result.contacts as readonly BallWorldBoundaryContact[], ...(result.pendingReason ? { pendingReason: result.pendingReason } : {}) })
+    : freeze({ kind: result.kind, moment: result.moment, phase: result.phase, throughTick: input.throughTick });
+};
 
 /** Explicit physical constraints share the same actor/panel/ground geometry, without a free-flight phase label. */
 export const deriveAcceleratedBallWorldMotion = (raw: AcceleratedBallWorldMotionInput): AcceleratedBallWorldMotion => {
@@ -342,13 +360,33 @@ export const deriveAcceleratedBallWorldMotion = (raw: AcceleratedBallWorldMotion
 
 const fieldScope = <T extends BallWorldFieldContinuationInput | AcceleratedBallWorldFieldMotionInput>(raw: T, accelerated: boolean): T => {
   const input = cloneInert(raw), names = ['moment', 'parameters', 'actors', 'surfaces', 'previousContacts', 'bases', 'previousBaseContacts',
-    ...(accelerated ? ['acceleration', 'throughElapsedSeconds'] : ['throughTick'])];
+    ...(accelerated ? ['acceleration', 'throughElapsedSeconds'] : ['throughTick']),
+    ...(!accelerated && Object.hasOwn(input, 'sourceCurve') ? ['sourceCurve'] : []),
+    ...(!accelerated && Object.hasOwn(input, 'sourceSide') ? ['sourceSide'] : [])];
   if (!input || Object.keys(input).sort().join('|') !== names.sort().join('|')) throw new Error('invalid actual ball field motion scope');
   return input;
+};
+const deriveSourceFieldContinuation = (input: BallWorldFieldContinuationInput, throughElapsedSeconds: number): BallWorldFieldContinuation => {
+  const { sourceCurve, parameters: p, moment } = input;
+  if (!sourceCurve || !tick(input.throughTick) || input.throughTick < moment.ball.tick
+    || !unit(p.groundRestitution) || !unit(p.groundFriction) || !finite(p.groundRollingDecelerationMps2) || p.groundRollingDecelerationMps2 < 0
+    || !finite(p.restingVerticalSpeed) || p.restingVerticalSpeed < 0 || !Array.isArray(input.previousContacts)
+    || !['incoming', 'outgoing'].includes(input.sourceSide ?? 'outgoing')
+    || p.ticksPerSecond !== sourceCurve.profile.air.ticksPerSecond || p.integrationStepTicks !== sourceCurve.profile.air.integrationStepTicks
+    || p.gravityY !== sourceCurve.profile.air.gravityY || p.ballRadius !== sourceCurve.profile.ground.radiusM) throw new Error('nonlinear field Source clock differs');
+  const result = querySourceFreeBallWorldV2({ descriptor: sourceCurve, moment, side: input.sourceSide ?? 'outgoing', throughElapsedSeconds,
+    actors: input.actors, surfaces: input.surfaces, previousContacts: input.previousContacts, bases: input.bases, previousBaseContacts: input.previousBaseContacts });
+  if (result.kind === 'unresolved') throw new Error('nonlinear field Source requires numerical refinement');
+  return result.kind === 'boundary' ? freeze({ kind: 'boundary', moment: result.moment, phase: result.phase, contacts: result.contacts,
+    ...(result.pendingReason ? { pendingReason: result.pendingReason } : {}) })
+    : freeze({ kind: result.kind, moment: result.moment, phase: result.phase, throughTick: input.throughTick });
 };
 /** Additive causal field physics; old archived continuation uses its original implementation. */
 export const deriveBallWorldFieldContinuation = (raw: BallWorldFieldContinuationInput): BallWorldFieldContinuation => {
   const input = fieldScope(raw, false);
+  if (Object.hasOwn(input, 'sourceCurve')) return deriveSourceFieldContinuation(input,
+    Math.max(input.moment.elapsedSeconds, (input.throughTick - input.moment.originTick) / input.parameters.ticksPerSecond));
+  if (Object.hasOwn(input, 'sourceSide')) throw new Error('nonlinear field Source side requires its descriptor');
   return deriveWorldSegment(input, undefined, { bases: input.bases, previousBaseContacts: input.previousBaseContacts });
 };
 export const deriveAcceleratedBallWorldFieldMotion = (raw: AcceleratedBallWorldFieldMotionInput): AcceleratedBallWorldFieldMotion => {
@@ -398,11 +436,14 @@ export const deriveGloveConstrainedBallWorldFieldMotion = (raw: AcceleratedBallW
  * A query result is physical evidence only, never a generation or play-end certificate. */
 export const deriveExactBallWorldFieldContinuationV1 = (raw: ExactBallWorldFieldContinuationInputV1): BallWorldFieldContinuation => {
   const input = cloneInert(raw);
-  const names = ['moment', 'parameters', 'actors', 'surfaces', 'previousContacts', 'bases', 'previousBaseContacts', 'throughElapsedSeconds'];
+  const names = ['moment', 'parameters', 'actors', 'surfaces', 'previousContacts', 'bases', 'previousBaseContacts', 'throughElapsedSeconds',
+    ...(Object.hasOwn(input, 'sourceCurve') ? ['sourceCurve'] : []), ...(Object.hasOwn(input, 'sourceSide') ? ['sourceSide'] : [])];
   if (!input || Object.keys(input).sort().join('|') !== names.sort().join('|') || !input.moment || !input.parameters) {
     throw new Error('invalid exact ball field motion scope');
   }
   const throughTick = quantizeEventTick(input.moment.originTick, input.throughElapsedSeconds, input.parameters.ticksPerSecond);
+  if (Object.hasOwn(input, 'sourceCurve')) return deriveSourceFieldContinuation({ ...input, throughTick }, input.throughElapsedSeconds);
+  if (Object.hasOwn(input, 'sourceSide')) throw new Error('nonlinear field Source side requires its descriptor');
   return deriveWorldSegment({ ...input, throughTick }, undefined,
     { bases: input.bases, previousBaseContacts: input.previousBaseContacts }, undefined, input.throughElapsedSeconds);
 };

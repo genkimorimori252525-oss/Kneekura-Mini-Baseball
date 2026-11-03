@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-MAKER-ARTIFACT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../verify-maker-delivery.mjs"
+  ],
+  "observed_at": "2026-10-14T21:29:03.916+00:00",
+  "elapsed_ms": 812,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-MAKER-ARTIFACT_8e3fd1f0a27247bfb9f72bceede17527.log",
+  "output_sha256": "3e6307def981ac1d3bafd943e33c14d40ee492366a7f21ce78fcb30610adbab7",
+  "receipt_id": "MB-20261015-MAKER-ARTIFACT_8e3fd1f0a27247bfb9f72bceede17527"
+}

@@ -1,0 +1,18 @@
+# V184: 初球joint executionの認証済み接触取得
+
+2026-10-28 JST / MB-20261027-REALISM-DEBUG-PLAN Task5 SPIN-03。NativeMeasuredInitialJointContactV184.tsを追加し、採用済みpa_initial_joint_v1_executionsと元launch/actor fullrefを同じNative read snapshotで認証する。元beforeTimeline以後のcanonical contact、rigid contact、連続時刻momentをdetached/frozenで保持する。非接触はnull、接触event/本人の不足や不整合は拒否する。物理・UI・DB schemaは変更しない。
+
+## 検証
+
+- f7bf17d18d3b44ae871ae6dfea5d317aは4件中3失敗のRED。実装後542fe5a184f044f989f8c4f779eaef7a PASS6671ms/4test。全型24489a2c5b844f1695f8fa3894a38751 PASS24484ms。独立read-only reviewで具体的な欠陥は見つからなかった。
+- 保存済みV144 fixtureの既知execution/actorだけを私的コピーで選択した準備e49eef21cc394d6592b5408c4005392e PASS93ms。raw row/hashの確認であり、この準備自体にはNative認証を与えない。新prepare/acceptや旧V144全工程は実行しなかった。
+- 初回Native probe 2a35e83b6556441eaf8c92fe3b69c62b FAIL3906ms/API成功0。harnessのauthorizerが、既存genesis readerの未実行INSERT文のprepareまで拒否したため。Sourceを変えず、query_only・caller authorizer保持・total_changes/schema/file不変の条件へ具体化した。詳細は判断記録2026-10-28-initial-joint-contact-measurement-v184.md。旧FAILを保持する。
+- 新出力だけの再開ed2b2b3afe234104b208ffbef67e3bcf PASS34375ms。正規API成功2読取の全recordが既存debug codecで厳密一致。原canonical/rigid contact、actor/Source/lineage/scope、momentの値差0、sub-tick保持、全階層freeze/detach、入力detach、caller tx/query_only/authorizer、total_changes不変、改変ref1件拒否を確認した。Source802入力のload/終了SHA、元準備DB・新私的コピーの全files、bundle/harness pinも一致した。
+
+保存archiveと正規readerの比較ではobject_key_orderだけ19差を記録した。値・identity・momentの差は0だが、archive全体のbit一致は主張しない。時刻を整数tickへ丸めず、originTick/elapsedSecondsと元event.tickをそれぞれ保持する。
+
+## 完了境界と次の接続
+
+これでSamePA/V182、Original PhysicalPitch/V183、InitialJoint/V184の3producerから認証済み原接触を取得できる。Native fixtureの成功は正常AI/習得技能/正式calendar/自然cohortの証明ではない。私的DB/raw report/bundleは公開しない。
+
+次は既存causal lineageで同一投球・同一接触の重複と累積timelineを解決し、raw測定を集約する。異なるowner表現やhorizon/revisionを独立打球として数えず、未確認の時刻や認識閾値を補完しない。career暦、BATTING_CONTACT snapshot/model、純粋表示joinと全goalは未完。

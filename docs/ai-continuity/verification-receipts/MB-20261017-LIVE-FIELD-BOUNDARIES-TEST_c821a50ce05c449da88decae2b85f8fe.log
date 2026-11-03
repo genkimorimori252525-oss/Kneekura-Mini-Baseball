@@ -1,0 +1,39 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/PlayableMatchRulesV1.test.ts (21 tests) 8ms
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts (9 tests | 1 failed) 650ms
+   × runs only the actual two-base award after a fair ground bounce clears the continuous fence 106ms
+     → expected { …(4) } to match object { complete: true, …(1) }
+(2 matching properties omitted from actual)
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayV1.test.ts > runs only the actual two-base award after a fair ground bounce clears the continuous fence
+AssertionError: expected { …(4) } to match object { complete: true, …(1) }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  Object {
+    "complete": true,
+-   "reason": "ground_rule_award_completed",
++   "reason": "live_action_complete",
+  }
+
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts:104:22
+    102|     fielders: input.fielders.map((f, i) => ({ ...f, position: v(i % 2 …
+    103|     ball: { ...input.ball, ball: { ...input.ball.ball, position: v(0, …
+    104|   expect(result.end).toMatchObject({ complete: true, reason: 'ground_r…
+       |                      ^
+    105|   expect(result.ruleFacts.overFence).toMatchObject({ fair: true, untou…
+    106|   expect(result.ruleFacts.firstGroundContactTick).toBeLessThan(result.…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 29 passed (30)
+   Start at  09:08:13
+   Duration  1.37s (transform 300ms, setup 0ms, collect 511ms, tests 659ms, environment 0ms, prepare 252ms)
+

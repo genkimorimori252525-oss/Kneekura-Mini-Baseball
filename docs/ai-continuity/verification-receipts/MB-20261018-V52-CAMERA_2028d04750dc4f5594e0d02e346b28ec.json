@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V52-CAMERA",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v52-camera.mjs",
+    "../../outputs/ばせぼーるlv52_TBD_vs_LAD_視点追従調整版.html",
+    "../../outputs/verification-v52-camera-v1"
+  ],
+  "observed_at": "2026-10-18T09:56:02.516+00:00",
+  "elapsed_ms": 14531,
+  "git_head": "f5be0639f0a8ffbecfa08ec403b8025733e34e35",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V52-CAMERA_2028d04750dc4f5594e0d02e346b28ec.log",
+  "output_sha256": "b8ab1d3967bd6b10a6ddc8a60d4390ae4c41ed57df2a0ebc03021363017f293d",
+  "receipt_id": "MB-20261018-V52-CAMERA_2028d04750dc4f5594e0d02e346b28ec"
+}

@@ -1,0 +1,33 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts (9 tests | 1 failed) 329ms
+   × rejects an unresolved original root even when the replay contains no actions 7ms
+     → expected [Function] to throw an error
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts > rejects an unresolved original root even when the replay contains no actions
+AssertionError: expected [Function] to throw an error
+
+- Expected: 
+null
+
++ Received: 
+undefined
+
+ ❯ src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts:106:83
+    104| it('rejects an unresolved original root even when the replay contains …
+    105|   const x = fixture(); x.actors[0].primitive.startCenter = x.cursor.mo…
+    106|   expect(() => deriveSourceBattedFieldMotorMotionV1({ initial: x, acti…
+       |                                                                                   ^
+    107| });
+    108| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  03:06:58
+   Duration  1.20s (transform 291ms, setup 0ms, collect 424ms, tests 329ms, environment 0ms, prepare 142ms)
+

@@ -5,6 +5,7 @@ import { assertFoulTerminalPriorActivation } from './FoulTerminalCompletionAnces
 import type { ActualLiveReadinessReference } from './ActualLivePlayReadiness';
 import { readActualLivePhysicalActivation, assertActualLivePhysicalActivationCurrent } from './ActualLivePhysicalActivation';
 import { createHash } from 'node:crypto';
+import { canonicalActorJsonV130 } from './CanonicalActorJsonV130';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
@@ -32,8 +33,7 @@ export type DurablePhysicalPlateAppearanceActor = Readonly<{
 }>;
 type ActorRow = { source_id: string; source_version: string; game_id: string; play_id: number; player_id: string;
   source_json: string; source_hash: string; snapshot_json: string; snapshot_hash: string };
-export const actorJson = (v: unknown): string => JSON.stringify(cloneInert(v), (_key, item: unknown) => item !== null && typeof item === 'object' && !Array.isArray(item)
-  ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)) : item);
+export const actorJson = canonicalActorJsonV130;
 export const actorHash = (v: unknown): string => createHash('sha256').update(actorJson(v)).digest('hex');
 export const actorFreeze = <T>(v: T): T => { if (v && typeof v === 'object') { Object.values(v).forEach(actorFreeze); Object.freeze(v); } return v; };
 const id = (v: unknown): v is string => typeof v === 'string' && v.length > 0 && v === v.trim();

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V32-EXECUTED-FIELD-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-v32.mjs",
+    "../../outputs/verification-authored-with-bat-field-successor-v1/execution.json",
+    "../../outputs/ばせぼーるlv32_正式Core後続動作観測版.html"
+  ],
+  "observed_at": "2026-10-16T21:59:09.882+00:00",
+  "elapsed_ms": 172,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V32-EXECUTED-FIELD-BUILD_91d2167a5c30406c96198baa809269c6.log",
+  "output_sha256": "3720792e645f8d14d13fb73a95b6edc799ee1e4e6b1a1576e6c63965b365a776",
+  "receipt_id": "MB-20261017-V32-EXECUTED-FIELD-BUILD_91d2167a5c30406c96198baa809269c6"
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OBSERVED-INITIAL-REGRESSION",
+  "result": "FAIL",
+  "exit_code": 124,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/SamePlateAppearanceDispatchSource.test.ts",
+    "src/host/world/SamePlateAppearanceDispatchOwner.test.ts",
+    "src/host/world/SamePlateAppearanceDispatchExecution.test.ts",
+    "src/host/world/SamePlateAppearanceObservedInitialCalculation.test.ts",
+    "src/host/world/SamePlateAppearancePhysicalEpisode.test.ts",
+    "src/host/world/SamePlateAppearanceInitialBall.test.ts",
+    "src/host/world/SamePlateAppearanceInitialBallDispatch.test.ts",
+    "src/host/world/InFlightBattingFixtureTiming.test.ts"
+  ],
+  "observed_at": "2026-10-15T22:34:07.135+00:00",
+  "elapsed_ms": 180046,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OBSERVED-INITIAL-REGRESSION_d5e3e262eba04d6c8cdac21f1386baff.log",
+  "output_sha256": "f2b90f51e66444202c7373bc2eb51e16af6158bea28356f549ecc9f56aaf03d0",
+  "receipt_id": "MB-20261016-OBSERVED-INITIAL-REGRESSION_d5e3e262eba04d6c8cdac21f1386baff"
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-FIELD-C1-CARRY-RECEIVER-FOCUSED",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts",
+    "src/core/sim/fielding/LiveHandPreparationV1.test.ts",
+    "src/core/sim/fielding/LiveThrowPlanV1.test.ts",
+    "src/core/sim/fielding/GroundedActorContactResponseV1.test.ts",
+    "src/core/sim/fielding/LiveFieldForecastV1.test.ts",
+    "src/core/sim/fielding/GroundWallRollingCurveV1.test.ts",
+    "src/integration/browser/PlayableMatchRulesV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T00:59:53.404+00:00",
+  "elapsed_ms": 5609,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-FIELD-C1-CARRY-RECEIVER-FOCUSED_aa14051ba0914a25b19f2822f543febf.log",
+  "output_sha256": "811d567974e1623da4795984017e8edf4144318b09e7b3aa0bac22b340a23d27",
+  "receipt_id": "MB-20261017-FIELD-C1-CARRY-RECEIVER-FOCUSED_aa14051ba0914a25b19f2822f543febf"
+}

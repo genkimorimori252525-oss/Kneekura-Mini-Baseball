@@ -1,0 +1,54 @@
+/* Steal and pickoff caption: one line at the top of the picture, the same panel as the card banner. */
+.match-caption {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  z-index: 4;
+  transform: translateX(-50%);
+  max-width: calc(100% - 24px);
+  padding: 6px 14px;
+  background: rgba(8, 10, 7, .88);
+  border-left: 3px solid var(--gold);
+  color: var(--white);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+.match-caption[data-kind="out"] { border-left-color: #d8574a; }
+.match-caption[hidden] { display: none; }
+
+/* Card effect: the picture on the card moves. It lies exactly over the card's own 20 x 20 picture. */
+.tactic .plate { position: relative; }
+.card-fx-plate {
+  position: absolute;
+  inset: 3px;
+  width: calc(100% - 6px);
+  height: calc(100% - 6px);
+  background: inherit;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+.card-fx-plate[data-over="photo"] { inset: 0; width: 100%; height: 100%; background: none; }
+/* The chosen card glows in its deck colour while its picture plays, and jolts once when the play lands. */
+.tactic[data-fx-glow] { box-shadow: 0 0 0 1px var(--gold), 0 0 14px rgba(224, 181, 65, .55); }
+.tactic[data-fx-glow="pitcher"] { box-shadow: 0 0 0 1px var(--blue), 0 0 14px rgba(127, 166, 196, .6); }
+.tactic[data-fx-land] .plate { animation: card-fx-land .22s ease-out; }
+@keyframes card-fx-land {
+  0% { transform: translate(0, 0) scale(1.06); }
+  35% { transform: translate(-1px, 1px) scale(1.03); }
+  70% { transform: translate(1px, 0) scale(1.01); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) { .tactic[data-fx-land] .plate { animation: none; } }
+
+.stadium-brightness { display: flex; align-items: center; gap: 10px; }
+.stadium-brightness input { flex: 1; min-width: 0; }
+.stadium-brightness output { min-width: 3.2em; text-align: right; color: var(--muted); }
+
+@media (max-width: 680px) {
+  .match-caption { font-size: 12px; padding: 4px 10px; }
+}

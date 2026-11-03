@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V59-BROWSER",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v59-impact-gaze.mjs",
+    "../../outputs/ばせぼーるlv59_TBD_vs_LAD_打点注視と微動安定版.html",
+    "../../outputs/カメラワーク調整室_v59.html",
+    "../../outputs/verification-v59-impact"
+  ],
+  "observed_at": "2026-10-18T18:35:06.898+00:00",
+  "elapsed_ms": 16281,
+  "git_head": "4fa32b2c6342e5b5a81aae27ec60885067a6b217",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V59-BROWSER_1d93ed88b907494d8d9d2329b82e3c21.log",
+  "output_sha256": "4e8cd629e8417944ad8267369b2a8de2740674154be31c3eeccb942a8e5cc5d1",
+  "receipt_id": "MB-20261019-V59-BROWSER_1d93ed88b907494d8d9d2329b82e3c21"
+}

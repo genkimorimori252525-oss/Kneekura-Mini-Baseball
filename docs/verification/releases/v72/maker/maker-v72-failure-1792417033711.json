@@ -1,0 +1,26 @@
+{
+  "pass": false,
+  "phase": "startup-1200",
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v72_弾道と大画面の連動版.html",
+  "views": [
+    {
+      "width": 1200,
+      "levels": [],
+      "player": {
+        "playerId": "0-b1",
+        "clipId": "obp-103_1"
+      }
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    }
+  ],
+  "scope": "v72 actual bat-tab trajectory authoring, shared measured rigid-bat geometry and clock, saved player JSON, untouched other players, session-only orbit and legacy research compatibility",
+  "sha256": "6c7639976b1f7e4069269ae865950588e70004b3c2f9aab07e07466d41279b44",
+  "coreSha256": "ee7451940934e39c69cec0419badbc644c17768210e139ab50e0862e69f63223",
+  "error": "page.evaluate: Error: live pitch: adjusted reference exceeds declared motor ceiling\n    at assert2 (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/%E3%81%AB%E3%83%BC%E3%81%8F%E3%82%89%E9%87%8E%E7%90%83%E3%83%A1%E3%83%BC%E3%82%AB%E3%83%BC_v72_%E5%BC%BE%E9%81%93%E3%81%A8%E5%A4%A7%E7%94%BB%E9%9D%A2%E3%81%AE%E9%80%A3%E5%8B%95%E7%89%88.html:4554:19)\n    at simulateLivePitchV1 (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/%E3%81%AB%E3%83%BC%E3%81%8F%E3%82%89%E9%87%8E%E7%90%83%E3%83%A1%E3%83%BC%E3%82%AB%E3%83%BC_v72_%E5%BC%BE%E9%81%93%E3%81%A8%E5%A4%A7%E7%94%BB%E9%9D%A2%E3%81%AE%E9%80%A3%E5%8B%95%E7%89%88.html:4804:5)\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/%E3%81%AB%E3%83%BC%E3%81%8F%E3%82%89%E9%87%8E%E7%90%83%E3%83%A1%E3%83%BC%E3%82%AB%E3%83%BC_v72_%E5%BC%BE%E9%81%93%E3%81%A8%E5%A4%A7%E7%94%BB%E9%9D%A2%E3%81%AE%E9%80%A3%E5%8B%95%E7%89%88.html:5923:21\n    at Array.map (<anonymous>)\n    at Object.compareMeasuredTrajectoriesV69 (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/%E3%81%AB%E3%83%BC%E3%81%8F%E3%82%89%E9%87%8E%E7%90%83%E3%83%A1%E3%83%BC%E3%82%AB%E3%83%BC_v72_%E5%BC%BE%E9%81%93%E3%81%A8%E5%A4%A7%E7%94%BB%E9%9D%A2%E3%81%AE%E9%80%A3%E5%8B%95%E7%89%88.html:5922:147)\n    at Object.run (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/%E3%81%AB%E3%83%BC%E3%81%8F%E3%82%89%E9%87%8E%E7%90%83%E3%83%A1%E3%83%BC%E3%82%AB%E3%83%BC_v72_%E5%BC%BE%E9%81%93%E3%81%A8%E5%A4%A7%E7%94%BB%E9%9D%A2%E3%81%AE%E9%80%A3%E5%8B%95%E7%89%88.html:7749:26)\n    at async <anonymous>:337:30\n    at C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\tools\\browser-bridge\\check-maker-v72.mjs:36:78"
+}

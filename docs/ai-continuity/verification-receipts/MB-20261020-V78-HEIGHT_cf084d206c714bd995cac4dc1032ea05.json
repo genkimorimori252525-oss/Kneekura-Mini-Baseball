@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-HEIGHT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v78-height-projection.mjs"
+  ],
+  "observed_at": "2026-10-19T19:29:59.134+00:00",
+  "elapsed_ms": 62,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-HEIGHT_cf084d206c714bd995cac4dc1032ea05.log",
+  "output_sha256": "e667153be61a89f527f4027ee6b5b9968b3338c567f1c4be1820eac0326139a9",
+  "receipt_id": "MB-20261020-V78-HEIGHT_cf084d206c714bd995cac4dc1032ea05"
+}

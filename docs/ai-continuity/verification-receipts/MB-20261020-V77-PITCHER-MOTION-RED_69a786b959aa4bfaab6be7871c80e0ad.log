@@ -1,0 +1,26 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: authored zero head movement must be used by the ordinary renderer
++ actual - expected
+
+  {
++   x: -0.02,
++   y: -0.1,
++   z: -0.41999999999999993
+-   x: 0,
+-   y: 0,
+-   z: 0
+  }
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-pitcher-motion-v77.mjs:10:8 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: { x: -0.02, y: -0.1, z: -0.41999999999999993 },
+  expected: { x: 0, y: 0, z: 0 },
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

@@ -1,6 +1,8 @@
 import { cloneInert } from '../adjudication/OfficialWindowPolicy';
 import type { BallWorldBaseBoundaryContact } from '../sim/ball/BallWorldBaseBoundary';
 import type { BallWorldMoment } from '../sim/ball/BallWorldContinuation';
+import type { Vec3 } from '../model/geometry';
+import {createSourceFreeBallPoleV136,type SourceFreeBallPoleV136} from '../sim/ball/SourceFreeBallPoleV136';
 import { battedWorldBaseSurfaceId } from '../sim/ball/BattedWorldFieldMotion';
 import { classifyBallAgainstFairTerritory } from '../sim/ball/FairTerritoryGeometry';
 import { deriveBallWorldBattedRuleEvidence, type BallWorldBattedRuleEvidenceInput } from './BallWorldBattedRuleEvidence';
@@ -17,6 +19,24 @@ export type BallWorldFieldTerritory = Readonly<{ kind: 'resolved'; territory: 'f
   basis: 'base_contact' | 'fielder_touch' | 'ground' | 'base_gate' | 'settling'; moment: BallWorldMoment; baseId?: 'first' | 'third' }>
   | Readonly<{ kind: 'unresolved'; reason: 'fair_foul_pending' | 'catch_pending' | 'simultaneous_contact'
     | 'surface_policy_pending' | 'non_defender_contact' | 'physical_contact_pending' | 'base_policy_pending' }>;
+export type AdoptedFairPolePolicyV145=Readonly<{
+  version:'adopted_fair_pole_policy_v145';sourceId:string;sourceVersion:string;
+  ruleProfileId:string;rulesRevision:string;fairPoleSurfaceIds:readonly string[];
+}>;
+export type BallWorldPoleBoundaryContactV145=Readonly<{
+  kind:'pole';surfaceId:string;moment:BallWorldMoment;point:Vec3;normal:Vec3|null;continuing?:true;
+}>;
+export type BallWorldPoleTerritoryInputV145=Readonly<{
+  field:BallWorldFieldTerritoryInput;poles:readonly SourceFreeBallPoleV136[];
+  poleContacts:readonly BallWorldPoleBoundaryContactV145[];policy:AdoptedFairPolePolicyV145;
+}>;
+export type BallWorldPoleFieldTerritoryV145=BallWorldFieldTerritory|Readonly<{
+  kind:'resolved';territory:'fair';basis:'pole_contact';surfaceId:string;moment:BallWorldMoment;
+}>;
+type PoleContextV145=Readonly<{
+  models:ReadonlyMap<string,ReturnType<typeof createSourceFreeBallPoleV136>>;
+  contacts:readonly BallWorldPoleBoundaryContactV145[];adopted:ReadonlySet<string>;
+}>;
 const ids = ['home', 'first', 'second', 'third'] as const;
 const fields = (v: unknown, names: readonly string[]) => !!v && typeof v === 'object' && !Array.isArray(v)
   && Object.keys(v).sort().join('|') === [...names].sort().join('|');
@@ -29,7 +49,31 @@ const baseId = (surfaceId: string) => ids.find((id) => battedWorldBaseSurfaceId(
 const freeze = <T>(v: T): T => { if (v && typeof v === 'object') { Object.values(v).forEach(freeze); Object.freeze(v); } return v; };
 
 /** Territory only. Native must own the complete physical prefix and its original base geometry; this never closes a play or grants possession. */
-export const deriveBallWorldFieldTerritory = (raw: BallWorldFieldTerritoryInput): BallWorldFieldTerritory => {
+export const deriveBallWorldFieldTerritory = (raw: BallWorldFieldTerritoryInput): BallWorldFieldTerritory => deriveFieldTerritory(raw);
+
+/** An explicit adopted policy, not an inferred NPB rule or real park measure.
+ * Native must authenticate this complete geometry/policy against its original
+ * physical cut. A fair pole decision alone grants neither HR nor possession. */
+export const deriveBallWorldFieldTerritoryWithPolesV145=(raw:BallWorldPoleTerritoryInputV145):BallWorldPoleFieldTerritoryV145=>{
+  const p=cloneInert(raw),text=(v:string)=>typeof v==='string'&&v.length>0&&v===v.trim();
+  if(!fields(p,['field','poles','poleContacts','policy'])||!Array.isArray(p.poles)||!Array.isArray(p.poleContacts)
+    ||!fields(p.policy,['version','sourceId','sourceVersion','ruleProfileId','rulesRevision','fairPoleSurfaceIds'])
+    ||p.policy.version!=='adopted_fair_pole_policy_v145'
+    ||![p.policy.sourceId,p.policy.sourceVersion,p.policy.ruleProfileId,p.policy.rulesRevision].every(text)
+    ||!Array.isArray(p.policy.fairPoleSurfaceIds)||!p.policy.fairPoleSurfaceIds.length
+    ||p.policy.fairPoleSurfaceIds.some(id=>!text(id))||new Set(p.policy.fairPoleSurfaceIds).size!==p.policy.fairPoleSurfaceIds.length)
+    throw Error('invalid explicit adopted pole territory policy');
+  const models=new Map<string,ReturnType<typeof createSourceFreeBallPoleV136>>();
+  for(const source of p.poles){const pole=createSourceFreeBallPoleV136(source),id=pole.source.surfaceId;
+    if(models.has(id)||baseId(id))throw Error('duplicate or reserved pole identity');models.set(id,pole);
+  }
+  if(p.policy.fairPoleSurfaceIds.some(id=>!models.has(id)))throw Error('adopted pole geometry missing');
+  return deriveFieldTerritory(p.field,{models,contacts:p.poleContacts,adopted:new Set(p.policy.fairPoleSurfaceIds)});
+};
+
+function deriveFieldTerritory(raw:BallWorldFieldTerritoryInput):BallWorldFieldTerritory;
+function deriveFieldTerritory(raw:BallWorldFieldTerritoryInput,poles:PoleContextV145):BallWorldPoleFieldTerritoryV145;
+function deriveFieldTerritory(raw:BallWorldFieldTerritoryInput,poles?:PoleContextV145):BallWorldPoleFieldTerritoryV145{
   const input = cloneInert(raw);
   if (!fields(input, ['evidence', 'baseContacts', ...(input.groundSegments === undefined ? [] : ['groundSegments'])])
     || !Array.isArray(input.baseContacts) || input.groundSegments !== undefined && !Array.isArray(input.groundSegments)) throw new Error('invalid actual field territory scope');
@@ -57,19 +101,43 @@ export const deriveBallWorldFieldTerritory = (raw: BallWorldFieldTerritoryInput)
       }
     }
   }
+  if(poles){
+    const seenPoles=new Set<string>();
+    for(const contact of poles.contacts){
+      const model=poles.models.get(contact.surfaceId),key=JSON.stringify([contact.surfaceId,contact.moment?.elapsedSeconds]);
+      if(!fields(contact,['kind','surfaceId','moment','point','normal',...(contact.continuing===undefined?[]:['continuing'])])
+        ||contact.kind!=='pole'||!model||!vector(contact.point)||contact.normal!==null&&!vector(contact.normal)
+        ||contact.continuing!==undefined&&contact.continuing!==true||seenPoles.has(key)
+        ||!evidence.contacts.some(frame=>sameMoment(contact.moment,frame.moment)
+          &&frame.contacts.some(c=>c.kind==='surface'&&c.surfaceId===contact.surfaceId)))throw Error('actual pole contact lacks its own physical frame');
+      const center=contact.moment.ball.position,point=model.closest(center),dx=center.x-point.x,dy=center.y-point.y,dz=center.z-point.z,
+        distance=Math.hypot(dx,dy,dz);
+      if(point.x!==contact.point.x||point.y!==contact.point.y||point.z!==contact.point.z||distance>evidence.ballRadiusMeters
+        ||contact.normal!==null&&(distance===0||contact.normal.x!==dx/distance||contact.normal.y!==dy/distance||contact.normal.z!==dz/distance))
+        throw Error('actual pole geometry, contact point or normal differs');
+      seenPoles.add(key);
+    }
+    for(const frame of evidence.contacts)for(const contact of frame.contacts)
+      if(contact.kind==='surface'&&poles.models.has(contact.surfaceId)
+        &&!poles.contacts.some(p=>p.surfaceId===contact.surfaceId&&sameMoment(p.moment,frame.moment)))throw Error('actual pole contact provenance incomplete');
+  }
   const pending = evidence.contacts.flatMap((frame) => {
     const contact = frame.contacts[0], base = contact.kind === 'surface' ? baseId(contact.surfaceId) : undefined;
     const ownBase = base ? input.baseContacts.find((c) => c.baseId === base && sameMoment(c.moment, frame.moment))! : null;
+    const pole=contact.kind==='surface'?poles?.contacts.find(p=>p.surfaceId===contact.surfaceId&&sameMoment(p.moment,frame.moment)):undefined;
     const reason = frame.contacts.length !== 1 ? 'simultaneous_contact' as const
       : ownBase?.normal === null || ownBase?.continuing ? 'physical_contact_pending' as const
         : base === 'second' ? 'base_policy_pending' as const
-          : contact.kind === 'surface' && !base ? 'surface_policy_pending' as const
+          : pole?.normal===null||pole?.continuing?'physical_contact_pending' as const
+          : contact.kind === 'surface' && !base && !(pole&&poles!.adopted.has(contact.surfaceId)) ? 'surface_policy_pending' as const
             : contact.kind === 'actor' && !evidence.defenderIds.includes(contact.playerId) ? 'non_defender_contact' as const : null;
     return reason ? [{ moment: frame.moment, reason }] : [];
   });
-  const candidates: Extract<BallWorldFieldTerritory, { kind: 'resolved' }>[] = input.baseContacts
+  const candidates: Extract<BallWorldPoleFieldTerritoryV145, { kind: 'resolved' }>[] = input.baseContacts
     .filter((c) => c.baseId === 'first' || c.baseId === 'third').map((c) => ({ kind: 'resolved', territory: 'fair',
       basis: 'base_contact', baseId: c.baseId as 'first' | 'third', moment: c.moment }));
+  for(const contact of poles?.contacts??[])if(poles!.adopted.has(contact.surfaceId)&&contact.normal!==null&&!contact.continuing)
+    candidates.push({kind:'resolved',territory:'fair',basis:'pole_contact',surfaceId:contact.surfaceId,moment:contact.moment});
   const fielderFrame = evidence.contacts.find((frame) => frame.contacts.some((c) => c.kind === 'actor' && evidence.defenderIds.includes(c.playerId)));
   const fielder = fielderFrame?.contacts.find((c) => c.kind === 'actor' && evidence.defenderIds.includes(c.playerId));
   if (fielder?.kind === 'actor' && fielderFrame) {
@@ -79,7 +147,9 @@ export const deriveBallWorldFieldTerritory = (raw: BallWorldFieldTerritoryInput)
     candidates.push({ kind: 'resolved', territory: territory.territory, basis: 'fielder_touch', moment });
   }
   const filtered = { ...evidence, contacts: evidence.contacts.map((frame) => ({ ...frame,
-    contacts: frame.contacts.filter((c) => c.kind !== 'surface' || !baseId(c.surfaceId)) })).filter((frame) => frame.contacts.length) };
+    // Known bases/poles already have complete candidate/pending evidence above.
+    // All original frames were validated before this rule-specific projection.
+    contacts: frame.contacts.filter((c) => c.kind !== 'surface' || !baseId(c.surfaceId)&&!poles?.models.has(c.surfaceId)) })).filter((frame) => frame.contacts.length) };
   const chronology = deriveBallWorldBattedRuleChronology(filtered);
   if (chronology.ballEvidence.kind === 'grounded' && chronology.ballDecisionMoment) {
     candidates.push({ kind: 'resolved', territory: chronology.ballEvidence.territory, basis: 'ground', moment: chronology.ballDecisionMoment });
@@ -119,4 +189,4 @@ export const deriveBallWorldFieldTerritory = (raw: BallWorldFieldTerritoryInput)
   if (blocked) return freeze({ kind: 'unresolved', reason: blocked.reason });
   if (decisive) return freeze(decisive);
   return freeze({ kind: 'unresolved', reason: chronology.ballEvidence.kind === 'unresolved' ? chronology.ballEvidence.reason : 'fair_foul_pending' });
-};
+}

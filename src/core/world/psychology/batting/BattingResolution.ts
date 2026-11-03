@@ -2,7 +2,7 @@ import type { EmotionResult } from '../EmotionTypes';
 import { attempt, fail, integer, list, obj, same, text } from '../EmotionValidation';
 import { cloneExecutionData, readFrame, safeTickSum } from '../execution/ExecutionValidation';
 import { resolveAndRecordAerodynamicRigidPitchAgainstBatter } from '../../../sim/pitching/AerodynamicRigidPitchAgainstBatter';
-import { createRigidBatSwingWindowFromKinematicsV1 } from '../../../sim/pitching/AerodynamicRigidBatSwingingPitchPhysicalResult';
+import { createBattingCommitmentSwingWindow } from './BattingSwingWindow';
 import { NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1 } from '../../../sim/contact/WoodBatProductionProfileV1';
 import { resolveWoodBatSpeedResponse } from '../../../sim/contact/WoodBatSpeedResponseProfile';
 import type { CanonicalPlateAppearanceTimeline } from '../../../sim/plateAppearance/CanonicalPlateAppearanceTimeline';
@@ -61,7 +61,7 @@ export function resolveBattingExecution(input:unknown):EmotionResult<BattingPhys
   const computed=coreCall('batting.physical.resolution',()=>commitment.action==='TAKE'
    ?resolveAndRecordAerodynamicRigidPitchAgainstBatter(timeline,{action:{kind:'take'},trajectory:actualTrajectory,
      plateZ:s.plateZ,strikeZone:s.strikeZone,ballRadiusMeters:s.ball.radiusM})
-   :resolveAndRecordAerodynamicRigidPitchAgainstBatter(timeline,{action:{kind:'swing',swing:createRigidBatSwingWindowFromKinematicsV1(commitment.trajectory!,s.batPhysical)},
+   :resolveAndRecordAerodynamicRigidPitchAgainstBatter(timeline,{action:{kind:'swing',swing:createBattingCommitmentSwingWindow(commitment,s.batPhysical)},
      trajectory:actualTrajectory,ball:s.ball,parameterResolver:kinematics=>resolveWoodBatSpeedResponse(NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1,kinematics.normalApproachSpeedMps)}));
   const resolution=omitAbsentCoreFields(computed);
   if(resolution.kind!=='unresolved' && resolution.timeline.lastEventTick<motorTick)fail('INCONSISTENT_STATE','batting.physical.backdatedResult');

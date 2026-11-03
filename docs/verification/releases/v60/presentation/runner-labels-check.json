@@ -1,0 +1,165 @@
+{
+  "pass": true,
+  "normalSha256": "c4f50e430fbf04d2c1ef355d59fc8584583337221ffe03b43786cc40bd3c086f",
+  "workbenchSha256": "661f38fef6b56e92a2eb571674e340c39af349441bb838ce10f2168f85b94e26",
+  "views": [
+    {
+      "width": 1200,
+      "ms": 2561.726,
+      "labels": [
+        {
+          "id": "P",
+          "role": "P",
+          "color": "rgb(244, 244, 237)",
+          "z": 1,
+          "name": "ティカオ"
+        },
+        {
+          "id": "C",
+          "role": "C",
+          "color": "rgb(244, 244, 237)",
+          "z": 1,
+          "name": "ナッパ"
+        },
+        {
+          "id": "1B",
+          "role": "1B",
+          "color": "rgb(244, 244, 237)",
+          "z": 1,
+          "name": "李将軍"
+        },
+        {
+          "id": "2B",
+          "role": "2B",
+          "color": "rgb(244, 244, 237)",
+          "z": 1,
+          "name": "メルセデス"
+        },
+        {
+          "id": "3B",
+          "role": "3B",
+          "color": "rgb(244, 244, 237)",
+          "z": 1,
+          "name": "ロッツォ"
+        },
+        {
+          "id": "SS",
+          "role": "SS",
+          "color": "rgb(244, 244, 237)",
+          "z": 1,
+          "name": "ライポア"
+        },
+        {
+          "id": "LF",
+          "role": "LF",
+          "color": "rgb(244, 244, 237)",
+          "z": 1,
+          "name": "FANZAWA"
+        },
+        {
+          "id": "CF",
+          "role": "CF",
+          "color": "rgb(244, 244, 237)",
+          "z": 1,
+          "name": "ペイン酒井"
+        },
+        {
+          "id": "RF",
+          "role": "RF",
+          "color": "rgb(244, 244, 237)",
+          "z": 1,
+          "name": "ニッチロー"
+        },
+        {
+          "id": "BAT",
+          "role": "runner",
+          "color": "rgb(255, 119, 119)",
+          "z": 3,
+          "name": "大谷翔平"
+        }
+      ],
+      "sourceBefore": "5210c98384c92cd6deb2cdcd294bc4f3ed36a5fcdbdb6e7cf6e99e68699cdf75",
+      "sourceAfter": "5210c98384c92cd6deb2cdcd294bc4f3ed36a5fcdbdb6e7cf6e99e68699cdf75",
+      "sourceTick": 2016726
+    },
+    {
+      "width": 390,
+      "ms": 2561.726,
+      "labels": [
+        {
+          "id": "P",
+          "role": "P",
+          "color": "rgb(244, 244, 237)",
+          "z": 1,
+          "name": "ティカオ"
+        },
+        {
+          "id": "C",
+          "role": "C",
+          "color": "rgb(244, 244, 237)",
+          "z": 1,
+          "name": "ナッパ"
+        },
+        {
+          "id": "1B",
+          "role": "1B",
+          "color": "rgb(244, 244, 237)",
+          "z": 1,
+          "name": "李将軍"
+        },
+        {
+          "id": "2B",
+          "role": "2B",
+          "color": "rgb(244, 244, 237)",
+          "z": 1,
+          "name": "メルセデス"
+        },
+        {
+          "id": "3B",
+          "role": "3B",
+          "color": "rgb(244, 244, 237)",
+          "z": 1,
+          "name": "ロッツォ"
+        },
+        {
+          "id": "SS",
+          "role": "SS",
+          "color": "rgb(244, 244, 237)",
+          "z": 1,
+          "name": "ライポア"
+        },
+        {
+          "id": "LF",
+          "role": "LF",
+          "color": "rgb(244, 244, 237)",
+          "z": 1,
+          "name": "FANZAWA"
+        },
+        {
+          "id": "CF",
+          "role": "CF",
+          "color": "rgb(244, 244, 237)",
+          "z": 1,
+          "name": "ペイン酒井"
+        },
+        {
+          "id": "RF",
+          "role": "RF",
+          "color": "rgb(244, 244, 237)",
+          "z": 1,
+          "name": "ニッチロー"
+        },
+        {
+          "id": "BAT",
+          "role": "runner",
+          "color": "rgb(255, 119, 119)",
+          "z": 3,
+          "name": "大谷翔平"
+        }
+      ],
+      "sourceBefore": "5210c98384c92cd6deb2cdcd294bc4f3ed36a5fcdbdb6e7cf6e99e68699cdf75",
+      "sourceAfter": "5210c98384c92cd6deb2cdcd294bc4f3ed36a5fcdbdb6e7cf6e99e68699cdf75",
+      "sourceTick": 2016726
+    }
+  ]
+}

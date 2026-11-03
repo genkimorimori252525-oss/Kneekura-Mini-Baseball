@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-FIELD-V6-ADDITIONAL-RAW-FOUR",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../live-field-raw-replay-batch.mjs",
+    "../../outputs/verification-authored-with-bat-v33-population-final-v1/shard-02/failed-2.json",
+    "../../outputs/verification-authored-with-bat-v33-population-final-v1/shard-04/failed-2.json",
+    "../../outputs/verification-authored-with-bat-v33-population-final-v1/shard-05/failed-3.json",
+    "../../outputs/verification-authored-with-bat-v33-population-final-v1/shard-12/failed-2.json"
+  ],
+  "observed_at": "2026-10-17T01:09:16.924+00:00",
+  "elapsed_ms": 2391,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-FIELD-V6-ADDITIONAL-RAW-FOUR_3c609b664c6043f399c650bec58337ab.log",
+  "output_sha256": "06df3ba8764af6eeaeb8e7e675dee7b64c900c2b19ff1ce19e0c35eaebbcc38e",
+  "receipt_id": "MB-20261017-FIELD-V6-ADDITIONAL-RAW-FOUR_3c609b664c6043f399c650bec58337ab"
+}

@@ -1,0 +1,30 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/ball/SourceBattedFieldMotionV3.test.ts (3 tests) 194ms
+ ✓ src/core/sim/ball/SourceBattedFieldAcquisitionV1.test.ts (6 tests) 199ms
+ ✓ src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts (13 tests) 614ms
+ ❯ src/core/sim/ball/SourceDefensiveControlV1.test.ts (11 tests | 1 failed) 8058ms
+   ✓ yields bounded work without renewing decisions and resumes the same control/ball state 3736ms
+   × stops all bodies at the actual fractional ground contact and resumes the original ball through its bounce 3399ms
+     → expected -0.4612214466849494 to be greater than 0
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/ball/SourceDefensiveControlV1.test.ts > stops all bodies at the actual fractional ground contact and resumes the original ball through its bounce
+AssertionError: expected -0.4612214466849494 to be greater than 0
+ ❯ src/core/sim/ball/SourceDefensiveControlV1.test.ts:133:59
+    131|   expect(after.status).toBe('review_due'); expect(after.field.motion.w…
+    132|   expect(after.field.motion.cursor?.sourceCurve?.initial).toEqual(inpu…
+    133|   expect(after.field.motion.world.moment.ball.velocity.y).toBeGreaterT…
+       |                                                           ^
+    134| });
+    135| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 32 passed (33)
+   Start at  05:28:18
+   Duration  8.90s (transform 519ms, setup 0ms, collect 1.40s, tests 9.06s, environment 1ms, prepare 663ms)
+

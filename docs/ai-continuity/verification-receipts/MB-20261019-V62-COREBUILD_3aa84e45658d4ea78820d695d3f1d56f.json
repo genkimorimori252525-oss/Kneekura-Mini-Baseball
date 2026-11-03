@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V62-COREBUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-native.mjs"
+  ],
+  "observed_at": "2026-10-18T19:39:53.514+00:00",
+  "elapsed_ms": 328,
+  "git_head": "6cab540b173526893d7d8f78f701a8087f62d0e8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V62-COREBUILD_3aa84e45658d4ea78820d695d3f1d56f.log",
+  "output_sha256": "2edaadb2df60aa904b0a585c540d46f6ab5912f68abadaaefba72b6f705bd8c3",
+  "receipt_id": "MB-20261019-V62-COREBUILD_3aa84e45658d4ea78820d695d3f1d56f"
+}

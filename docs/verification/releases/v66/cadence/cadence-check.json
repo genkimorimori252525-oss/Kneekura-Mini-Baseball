@@ -1,0 +1,572 @@
+{
+  "pass": true,
+  "normalSha256": "e6ff4a3924872ecbe3b0a5044cf102a5ac02ac45cb63cd771f122f3f04f34a3d",
+  "workbenchSha256": "fbe3038d617f557e1b679dd5a67d67edb737f64fc88634455f30bbdb261aab79",
+  "sourceCoreSha256": "865078dc9881ce5c37754dbe2c7b502f586206f3ada972cfe2d3368207720c00",
+  "sourceInputs": 114,
+  "actual": {
+    "sceneDraws": 16,
+    "pitchBallSamples": 36,
+    "pitchBallPaints": 27,
+    "nonPitchFastPaints": 0,
+    "wallMs": 831.5,
+    "interpretation": "native device sample; strict deadline ratio is proven by the separate mock 60 Hz test"
+  },
+  "mockmetrics": {
+    "normal": {
+      "sceneDraws": 18,
+      "pitchBallSamples": 45,
+      "pitchBallPaints": 29,
+      "nonPitchFastPaints": 0,
+      "frames": 60,
+      "wallMs": 1000,
+      "physicalElapsedMs": 275
+    },
+    "normalNonPitch": {
+      "sceneDraws": 4,
+      "pitchBallSamples": 0,
+      "pitchBallPaints": 0,
+      "nonPitchFastPaints": 0
+    },
+    "lab": {
+      "sceneDraws": 18,
+      "pitchBallSamples": 45,
+      "pitchBallPaints": 62,
+      "nonPitchFastPaints": 0,
+      "frames": 60,
+      "wallMs": 1000
+    },
+    "labNonPitch": {
+      "sceneDraws": 4,
+      "pitchBallSamples": 0,
+      "pitchBallPaints": 0,
+      "nonPitchFastPaints": 0
+    }
+  },
+  "loop": [
+    {
+      "at": 1790,
+      "start": 1790,
+      "end": 1890,
+      "A": {
+        "actual": {
+          "camera": "batter",
+          "observedHeightMeters": 1.5146819723762948,
+          "overheadHeightEmphasis": 1,
+          "heightMultiplier": 1,
+          "baseDisplayDiameterPx": 7.668269986562713,
+          "groundProjectedDiameterPx": 3.052515405910146,
+          "groundDisplayDiameterPx": 7.668269986562713,
+          "physicalHeightRatio": 1,
+          "displayScale": 1,
+          "unscaledDisplayDiameterPx": 7.668269986562713,
+          "ballKind": "pitch",
+          "projectedDiameterPx": 3.052515405910146,
+          "opticalDiameterPx": 7.668269986562713,
+          "visibilityMarker": false,
+          "displayDiameterPx": 7.668269986562713,
+          "style": "4px-dot-grid",
+          "orientationStatus": "observed-orientation",
+          "cells": [
+            {
+              "x": 300,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 76,
+              "radius": 1.45,
+              "color": "#e8eceb"
+            }
+          ]
+        },
+        "expected": {
+          "camera": "batter",
+          "observedHeightMeters": 1.5146819723762948,
+          "overheadHeightEmphasis": 1,
+          "heightMultiplier": 1,
+          "baseDisplayDiameterPx": 7.668269986562713,
+          "groundProjectedDiameterPx": 3.052515405910146,
+          "groundDisplayDiameterPx": 7.668269986562713,
+          "physicalHeightRatio": 1,
+          "displayScale": 1,
+          "unscaledDisplayDiameterPx": 7.668269986562713,
+          "ballKind": "pitch",
+          "projectedDiameterPx": 3.052515405910146,
+          "opticalDiameterPx": 7.668269986562713,
+          "visibilityMarker": false,
+          "displayDiameterPx": 7.668269986562713,
+          "style": "4px-dot-grid",
+          "orientationStatus": "observed-orientation",
+          "cells": [
+            {
+              "x": 300,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 76,
+              "radius": 1.45,
+              "color": "#e8eceb"
+            }
+          ]
+        },
+        "actualLayer": "01497c6c702c202e8393b90e2d083b168eadb6904fe1328812bb83662d012590",
+        "expectedLayer": "01497c6c702c202e8393b90e2d083b168eadb6904fe1328812bb83662d012590"
+      },
+      "B": {
+        "actual": {
+          "camera": "batter",
+          "observedHeightMeters": 1.5146819723762948,
+          "overheadHeightEmphasis": 1,
+          "heightMultiplier": 1,
+          "baseDisplayDiameterPx": 7.668269986562713,
+          "groundProjectedDiameterPx": 3.052515405910146,
+          "groundDisplayDiameterPx": 7.668269986562713,
+          "physicalHeightRatio": 1,
+          "displayScale": 1,
+          "unscaledDisplayDiameterPx": 7.668269986562713,
+          "ballKind": "pitch",
+          "projectedDiameterPx": 3.052515405910146,
+          "opticalDiameterPx": 7.668269986562713,
+          "visibilityMarker": false,
+          "displayDiameterPx": 7.668269986562713,
+          "style": "4px-dot-grid",
+          "orientationStatus": "observed-orientation",
+          "cells": [
+            {
+              "x": 300,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 76,
+              "radius": 1.45,
+              "color": "#e8eceb"
+            }
+          ]
+        },
+        "expected": {
+          "camera": "batter",
+          "observedHeightMeters": 1.5146819723762948,
+          "overheadHeightEmphasis": 1,
+          "heightMultiplier": 1,
+          "baseDisplayDiameterPx": 7.668269986562713,
+          "groundProjectedDiameterPx": 3.052515405910146,
+          "groundDisplayDiameterPx": 7.668269986562713,
+          "physicalHeightRatio": 1,
+          "displayScale": 1,
+          "unscaledDisplayDiameterPx": 7.668269986562713,
+          "ballKind": "pitch",
+          "projectedDiameterPx": 3.052515405910146,
+          "opticalDiameterPx": 7.668269986562713,
+          "visibilityMarker": false,
+          "displayDiameterPx": 7.668269986562713,
+          "style": "4px-dot-grid",
+          "orientationStatus": "observed-orientation",
+          "cells": [
+            {
+              "x": 300,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 76,
+              "radius": 1.45,
+              "color": "#e8eceb"
+            }
+          ]
+        },
+        "actualLayer": "01497c6c702c202e8393b90e2d083b168eadb6904fe1328812bb83662d012590",
+        "expectedLayer": "01497c6c702c202e8393b90e2d083b168eadb6904fe1328812bb83662d012590"
+      }
+    },
+    {
+      "at": 1790,
+      "start": 1790,
+      "end": 1890,
+      "A": {
+        "actual": {
+          "camera": "batter",
+          "observedHeightMeters": 1.5146819723762948,
+          "overheadHeightEmphasis": 1,
+          "heightMultiplier": 1,
+          "baseDisplayDiameterPx": 7.668269986562713,
+          "groundProjectedDiameterPx": 3.052515405910146,
+          "groundDisplayDiameterPx": 7.668269986562713,
+          "physicalHeightRatio": 1,
+          "displayScale": 1,
+          "unscaledDisplayDiameterPx": 7.668269986562713,
+          "ballKind": "pitch",
+          "projectedDiameterPx": 3.052515405910146,
+          "opticalDiameterPx": 7.668269986562713,
+          "visibilityMarker": false,
+          "displayDiameterPx": 7.668269986562713,
+          "style": "4px-dot-grid",
+          "orientationStatus": "observed-orientation",
+          "cells": [
+            {
+              "x": 300,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 76,
+              "radius": 1.45,
+              "color": "#e8eceb"
+            }
+          ]
+        },
+        "expected": {
+          "camera": "batter",
+          "observedHeightMeters": 1.5146819723762948,
+          "overheadHeightEmphasis": 1,
+          "heightMultiplier": 1,
+          "baseDisplayDiameterPx": 7.668269986562713,
+          "groundProjectedDiameterPx": 3.052515405910146,
+          "groundDisplayDiameterPx": 7.668269986562713,
+          "physicalHeightRatio": 1,
+          "displayScale": 1,
+          "unscaledDisplayDiameterPx": 7.668269986562713,
+          "ballKind": "pitch",
+          "projectedDiameterPx": 3.052515405910146,
+          "opticalDiameterPx": 7.668269986562713,
+          "visibilityMarker": false,
+          "displayDiameterPx": 7.668269986562713,
+          "style": "4px-dot-grid",
+          "orientationStatus": "observed-orientation",
+          "cells": [
+            {
+              "x": 300,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 76,
+              "radius": 1.45,
+              "color": "#e8eceb"
+            }
+          ]
+        },
+        "actualLayer": "5690783d22e17fd28138c54b4877e9b923bbf91f3516e146a0f2898345c6b2ce",
+        "expectedLayer": "5690783d22e17fd28138c54b4877e9b923bbf91f3516e146a0f2898345c6b2ce"
+      },
+      "B": {
+        "actual": {
+          "camera": "batter",
+          "observedHeightMeters": 1.5146819723762948,
+          "overheadHeightEmphasis": 1,
+          "heightMultiplier": 1,
+          "baseDisplayDiameterPx": 7.668269986562713,
+          "groundProjectedDiameterPx": 3.052515405910146,
+          "groundDisplayDiameterPx": 7.668269986562713,
+          "physicalHeightRatio": 1,
+          "displayScale": 1,
+          "unscaledDisplayDiameterPx": 7.668269986562713,
+          "ballKind": "pitch",
+          "projectedDiameterPx": 3.052515405910146,
+          "opticalDiameterPx": 7.668269986562713,
+          "visibilityMarker": false,
+          "displayDiameterPx": 7.668269986562713,
+          "style": "4px-dot-grid",
+          "orientationStatus": "observed-orientation",
+          "cells": [
+            {
+              "x": 300,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 76,
+              "radius": 1.45,
+              "color": "#e8eceb"
+            }
+          ]
+        },
+        "expected": {
+          "camera": "batter",
+          "observedHeightMeters": 1.5146819723762948,
+          "overheadHeightEmphasis": 1,
+          "heightMultiplier": 1,
+          "baseDisplayDiameterPx": 7.668269986562713,
+          "groundProjectedDiameterPx": 3.052515405910146,
+          "groundDisplayDiameterPx": 7.668269986562713,
+          "physicalHeightRatio": 1,
+          "displayScale": 1,
+          "unscaledDisplayDiameterPx": 7.668269986562713,
+          "ballKind": "pitch",
+          "projectedDiameterPx": 3.052515405910146,
+          "opticalDiameterPx": 7.668269986562713,
+          "visibilityMarker": false,
+          "displayDiameterPx": 7.668269986562713,
+          "style": "4px-dot-grid",
+          "orientationStatus": "observed-orientation",
+          "cells": [
+            {
+              "x": 300,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 76,
+              "radius": 1.45,
+              "color": "#e8eceb"
+            }
+          ]
+        },
+        "actualLayer": "5690783d22e17fd28138c54b4877e9b923bbf91f3516e146a0f2898345c6b2ce",
+        "expectedLayer": "5690783d22e17fd28138c54b4877e9b923bbf91f3516e146a0f2898345c6b2ce"
+      }
+    },
+    {
+      "at": 1790,
+      "start": 1790,
+      "end": 1890,
+      "A": {
+        "actual": {
+          "camera": "batter",
+          "observedHeightMeters": 1.5146819723762948,
+          "overheadHeightEmphasis": 1,
+          "heightMultiplier": 1,
+          "baseDisplayDiameterPx": 7.668269986562713,
+          "groundProjectedDiameterPx": 3.052515405910146,
+          "groundDisplayDiameterPx": 7.668269986562713,
+          "physicalHeightRatio": 1,
+          "displayScale": 1,
+          "unscaledDisplayDiameterPx": 7.668269986562713,
+          "ballKind": "pitch",
+          "projectedDiameterPx": 3.052515405910146,
+          "opticalDiameterPx": 7.668269986562713,
+          "visibilityMarker": false,
+          "displayDiameterPx": 7.668269986562713,
+          "style": "4px-dot-grid",
+          "orientationStatus": "observed-orientation",
+          "cells": [
+            {
+              "x": 300,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 76,
+              "radius": 1.45,
+              "color": "#e8eceb"
+            }
+          ]
+        },
+        "expected": {
+          "camera": "batter",
+          "observedHeightMeters": 1.5146819723762948,
+          "overheadHeightEmphasis": 1,
+          "heightMultiplier": 1,
+          "baseDisplayDiameterPx": 7.668269986562713,
+          "groundProjectedDiameterPx": 3.052515405910146,
+          "groundDisplayDiameterPx": 7.668269986562713,
+          "physicalHeightRatio": 1,
+          "displayScale": 1,
+          "unscaledDisplayDiameterPx": 7.668269986562713,
+          "ballKind": "pitch",
+          "projectedDiameterPx": 3.052515405910146,
+          "opticalDiameterPx": 7.668269986562713,
+          "visibilityMarker": false,
+          "displayDiameterPx": 7.668269986562713,
+          "style": "4px-dot-grid",
+          "orientationStatus": "observed-orientation",
+          "cells": [
+            {
+              "x": 300,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 76,
+              "radius": 1.45,
+              "color": "#e8eceb"
+            }
+          ]
+        },
+        "actualLayer": "5690783d22e17fd28138c54b4877e9b923bbf91f3516e146a0f2898345c6b2ce",
+        "expectedLayer": "5690783d22e17fd28138c54b4877e9b923bbf91f3516e146a0f2898345c6b2ce"
+      },
+      "B": {
+        "actual": {
+          "camera": "batter",
+          "observedHeightMeters": 1.5146819723762948,
+          "overheadHeightEmphasis": 1,
+          "heightMultiplier": 1,
+          "baseDisplayDiameterPx": 7.668269986562713,
+          "groundProjectedDiameterPx": 3.052515405910146,
+          "groundDisplayDiameterPx": 7.668269986562713,
+          "physicalHeightRatio": 1,
+          "displayScale": 1,
+          "unscaledDisplayDiameterPx": 7.668269986562713,
+          "ballKind": "pitch",
+          "projectedDiameterPx": 3.052515405910146,
+          "opticalDiameterPx": 7.668269986562713,
+          "visibilityMarker": false,
+          "displayDiameterPx": 7.668269986562713,
+          "style": "4px-dot-grid",
+          "orientationStatus": "observed-orientation",
+          "cells": [
+            {
+              "x": 300,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 76,
+              "radius": 1.45,
+              "color": "#e8eceb"
+            }
+          ]
+        },
+        "expected": {
+          "camera": "batter",
+          "observedHeightMeters": 1.5146819723762948,
+          "overheadHeightEmphasis": 1,
+          "heightMultiplier": 1,
+          "baseDisplayDiameterPx": 7.668269986562713,
+          "groundProjectedDiameterPx": 3.052515405910146,
+          "groundDisplayDiameterPx": 7.668269986562713,
+          "physicalHeightRatio": 1,
+          "displayScale": 1,
+          "unscaledDisplayDiameterPx": 7.668269986562713,
+          "ballKind": "pitch",
+          "projectedDiameterPx": 3.052515405910146,
+          "opticalDiameterPx": 7.668269986562713,
+          "visibilityMarker": false,
+          "displayDiameterPx": 7.668269986562713,
+          "style": "4px-dot-grid",
+          "orientationStatus": "observed-orientation",
+          "cells": [
+            {
+              "x": 300,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 72,
+              "radius": 1.45,
+              "color": "#fffdf7"
+            },
+            {
+              "x": 304,
+              "y": 76,
+              "radius": 1.45,
+              "color": "#e8eceb"
+            }
+          ]
+        },
+        "actualLayer": "5690783d22e17fd28138c54b4877e9b923bbf91f3516e146a0f2898345c6b2ce",
+        "expectedLayer": "5690783d22e17fd28138c54b4877e9b923bbf91f3516e146a0f2898345c6b2ce"
+      }
+    }
+  ],
+  "faults": [
+    {
+      "label": "normal-mock-60Hz",
+      "errors": [],
+      "requests": []
+    },
+    {
+      "label": "lab-mock-60Hz",
+      "errors": [],
+      "requests": []
+    },
+    {
+      "label": "normal-native-rAF",
+      "errors": [],
+      "requests": []
+    }
+  ]
+}

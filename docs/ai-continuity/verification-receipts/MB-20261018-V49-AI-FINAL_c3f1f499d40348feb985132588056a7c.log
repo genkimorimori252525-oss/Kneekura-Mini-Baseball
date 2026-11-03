@@ -1,0 +1,276 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/rules/ForceObligationSatisfaction.test.ts (5 tests) 4ms
+ ✓ src/core/rules/ForceObligation.test.ts (6 tests) 6ms
+ ✓ src/core/sim/running/RunnerRoute.test.ts (5 tests) 4ms
+ ✓ src/core/rules/ForceObligationTransition.test.ts (3 tests) 4ms
+ ✓ src/core/sim/fielding/LiveFieldHandlerSelectionV1.test.ts (7 tests) 5ms
+ ✓ src/core/sim/fielding/LiveRunnerAdvancePolicyV1.test.ts (13 tests) 7ms
+ ✓ src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts (2 tests) 5ms
+ ✓ src/core/rules/TagUpCompliance.test.ts (6 tests) 3ms
+ ✓ src/core/rules/ForceObligationVerticalSlice.test.ts (2 tests) 4ms
+ ✓ src/core/sim/running/RunnerMotion.test.ts (16 tests) 7ms
+ ✓ src/core/sim/running/LiveRunnerMotionV1.test.ts (11 tests) 56ms
+ ✓ src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts (20 tests) 43ms
+ ✓ src/integration/browser/PlayableRunnerCausalityV49.test.ts (8 tests) 6ms
+ ✓ src/integration/browser/PlayableMatchRulesV1.test.ts (21 tests) 11ms
+ ✓ src/integration/browser/LiveHiddenAiControlsV1.test.ts (3 tests) 272ms
+ ✓ src/integration/browser/LivePhysicalRosterV1.test.ts (22 tests) 988ms
+stdout | src/core/sim/fielding/LiveFieldResponsibilitiesV49.test.ts > retains a catcher at home during a deep left-field catch and avoids a three-defender pileup at the catch point
+{"fixture":"deep-left-with-explicit-positions","firstCatch":{"kind":"catch_secured","tick":3240342,"elapsedSeconds":3.2403417374868595,"playerId":"position-LF","position":{"x":-38.55404573281061,"y":1.7780119939367296,"z":60.173489740258965}},"handlers":[{"elapsedSeconds":0,"handlerId":"position-LF","source":"forecast_best"}],"maximumShortstopZ":36,"maximumCatcherTravelMeters":0,"bodiesWithinFourMetersAtCatch":["position-LF"]}
+
+ ✓ src/core/sim/fielding/LiveFieldResponsibilitiesV49.test.ts (2 tests) 1692ms
+   ✓ keeps the normal first baseman covering an infield throw while the catcher retains home responsibility 615ms
+   ✓ retains a catcher at home during a deep left-field catch and avoids a three-defender pileup at the catch point 1076ms
+ ✓ src/integration/browser/LivePublicAbilitiesV1.test.ts (13 tests) 2032ms
+   ✓ public authoring with individual SI profiles > projects all 20 profiles without changing the packet and exact no-op edits preserve all bytes 1762ms
+ ✓ src/integration/browser/LiveBaseballPositionsV49.test.ts (1 test) 2278ms
+   ✓ passes the actual defensive lineup positions to the physical field controller 2277ms
+ ✓ src/core/sim/fielding/LiveRelayPlanV1.test.ts (8 tests) 3628ms
+   ✓ supports two actual intermediate receivers without duplicate actors or throw cycles 1358ms
+   ✓ bounds search work and caches Aero edges while using no position names or future world state 1401ms
+ ✓ src/core/sim/fielding/LiveFieldHandlerMotionV1.test.ts (2 tests) 3817ms
+   ✓ assigns the easier incoming outfield route when a high fly also permits a long infield chase 2789ms
+   ✓ allows an infielder to go back on a blooper that it can intercept before an outfielder 1028ms
+ ✓ src/core/sim/fielding/LiveFieldRoleMotionV1.test.ts (5 tests) 4831ms
+   ✓ executes unique receiver coverage through a real throw while spare outfielders retain deep coverage 724ms
+   ✓ keeps actual positions and velocities continuous through role changes without candidate jumps 569ms
+   ✓ keeps zero-error actual physics exact and launches a reproducible physical miss for nonzero angular error 3365ms
+ ✓ src/core/sim/fielding/LiveFieldRelayMotionV1.test.ts (3 tests) 9163ms
+   ✓ makes two actual throws with a secured relay, a new transfer and actual final base control 3756ms
+   ✓ uses a faster actual direct throw when the same holder has sufficient arm speed 1393ms
+   ✓ executes two intermediate receipts as three separate actual throws and custody intervals 4012ms
+ ✓ src/core/sim/fielding/LiveFieldRunnerRoundingV1.test.ts (6 tests) 10323ms
+   ✓ actual live runner rounding > commits a safe ordinary extra base and physically runs through third without stopping 3197ms
+   ✓ actual live runner rounding > runs a home run through all four actual bags in order and stops at home 963ms
+   ✓ actual live runner rounding > records each through-bag departure exactly once at the physical bag-disk exit 838ms
+   ✓ actual live runner rounding > keeps a runner stopped at third when the following advance is unsafe 1895ms
+   ✓ actual live runner rounding > changes actual turning path and speed when the hidden radius and lateral ability change 2484ms
+   ✓ actual live runner rounding > keeps all occupied-base runners physically separated during a home-run award 946ms
+stdout | src/core/sim/fielding/LiveFieldPlayV1.test.ts > derives two retirements from a received first-base force followed by the same defender carrying the ball to a runner tag
+TWO_RETIREMENTS_TRACE {"facts":[{"kind":"catch_secured","tick":1547746,"elapsedSeconds":1.4477454433861747,"playerId":"fielder-0","position":{"x":0.9304078975083644,"y":0.2585489786538636,"z":4.607713667225056}},{"kind":"throw_release","tick":2414306,"elapsedSeconds":2.314305413416955,"playerId":"fielder-0","base":1,"position":{"x":1.786084808521793,"y":1.7,"z":2.1268483843100388},"runnerId":"batter","reason":"force_play","receiverPlayerId":"fielder-2","target":{"x":19.39,"y":1,"z":19.39}},{"kind":"catch_secured","tick":3396175,"elapsedSeconds":3.296174101288317,"playerId":"fielder-2","position":{"x":19.16691851726393,"y":1.0719880836510522,"z":18.996381988462986}},{"kind":"controlled_base_contact","tick":3396175,"elapsedSeconds":3.296174101288317,"playerId":"fielder-2","base":1},{"kind":"controlled_runner_tag","tick":6608670,"elapsedSeconds":6.50866949822773,"playerId":"fielder-2","runnerId":"first-runner"},{"kind":"play_end","tick":6648670,"elapsedSeconds":6.5486694982277305,"reason":"live_action_complete"}],"handPreparations":[{"playerId":"fielder-0","base":1,"from":1.70497877671952,"through":2.314305413416955}],"holderStates":[{"elapsedSeconds":1.4649787767195197,"playerId":"fielder-0","state":"waiting_transfer","base":1,"receiverDistanceToBaseMeters":23.289776423318298},{"elapsedSeconds":1.70497877671952,"playerId":"fielder-0","state":"prepare_throw","base":1,"margin":6.52964435923087,"carrySeconds":5.2757120264061195,"receivingSeconds":1.6147033005742046,"receiverPlayerId":"fielder-2","receiverDistanceToBaseMeters":0.01092972695241488},{"elapsedSeconds":3.296174101288317,"playerId":"fielder-2","state":"waiting_transfer","base":null},{"elapsedSeconds":6.50866949822773,"playerId":"fielder-2","state":"hold_no_positive_margin","base":null}]}
+
+stdout | src/core/sim/fielding/LiveFieldPlayV1.test.ts > rejects unready force receivers without fictional throws while the batter takes a safe extra base and declines an unsafe third
+UNREADY_RECEIVER_TRACE {"facts":[{"kind":"catch_secured","tick":1547746,"elapsedSeconds":1.4477454433861747,"playerId":"fielder-0","position":{"x":0.9304078975083644,"y":0.2585489786538636,"z":4.607713667225056}},{"kind":"runner_base_touch","tick":5036493,"elapsedSeconds":4.936492900188278,"runnerId":"batter","base":1,"position":{"x":19.192010101267908,"y":0,"z":19.192010101267908}},{"kind":"runner_base_touch","tick":10064194,"elapsedSeconds":9.964193021990067,"runnerId":"batter","base":2,"position":{"x":0.19798989873209294,"y":0,"z":38.58201010126791}},{"kind":"play_end","tick":10438858,"elapsedSeconds":10.338857032603578,"reason":"live_action_complete"}],"decisions":[{"elapsedSeconds":0.123456789,"runnerId":"batter","targetBase":1,"defenderControlSeconds":5.226790828120064,"advance":false,"reason":"recognizing_departure_cue","readyAtElapsedSeconds":0.223456789,"runnerTravelSeconds":4.693036111188159,"runnerArrivalSeconds":4.793036111188159,"raceMarginSeconds":0.43375471693190537},{"elapsedSeconds":0.243456789,"runnerId":"batter","targetBase":1,"defenderControlSeconds":5.024993630461213,"advance":true,"reason":"batter_advance","readyAtElapsedSeconds":0.223456789,"runnerTravelSeconds":4.693036111188159,"runnerArrivalSeconds":4.693036111188159,"raceMarginSeconds":0.33195751927305395},{"elapsedSeconds":5.271156910801789,"runnerId":"batter","targetBase":2,"defenderControlSeconds":5.312349304341087,"advance":true,"reason":"safe_race_advance","readyAtElapsedSeconds":0.3307434100266947,"runnerTravelSeconds":4.693036111188159,"runnerArrivalSeconds":4.693036111188159,"raceMarginSeconds":0.6193131931529274},{"elapsedSeconds":10.298857032603578,"runnerId":"batter","targetBase":3,"defenderControlSeconds":0.7374841484498108,"advance":false,"reason":"insufficient_safety_margin","readyAtElapsedSeconds":0.3307434100266947,"runnerTravelSeconds":4.693036111188159,"runnerArrivalSeconds":4.693036111188159,"raceMarginSeconds":-3.9555519627383484}],"motions":[{"elapsedSeconds":0.243456789,"throughBases":[1],"durationSeconds":5.027700121801789},{"elapsedSeconds":5.271156910801789,"throughBases":[2],"durationSeconds":5.027700121801789}],"holderStates":[{"elapsedSeconds":1.4649787767195197,"playerId":"fielder-0","state":"waiting_transfer","base":1,"receiverDistanceToBaseMeters":23.289776423318298},{"elapsedSeconds":1.70497877671952,"playerId":"fielder-0","state":"pursue_tag","base":1,"margin":-2.0441979029373614,"carrySeconds":5.2757120264061195,"receivingSeconds":null},{"elapsedSeconds":4.936492900188278,"playerId":"fielder-0","state":"pursue_tag","base":null},{"elapsedSeconds":5.271156910801789,"playerId":"fielder-0","state":"hold_no_positive_margin","base":null},{"elapsedSeconds":9.231156910801765,"playerId":"fielder-0","state":"pursue_tag","base":2,"margin":-0.024400260370156857,"carrySeconds":0.7574363715584583,"receivingSeconds":null},{"elapsedSeconds":9.964193021990067,"playerId":"fielder-0","state":"pursue_tag","base":null},{"elapsedSeconds":10.298857032603578,"playerId":"fielder-0","state":"hold_no_positive_margin","base":null}],"relayPlans":[{"elapsedSeconds":1.70497877671952,"playerId":"fielder-0","runnerId":"batter","base":1,"kind":"hold","receivers":[],"readySeconds":5.2757120264061195,"marginSeconds":-2.0441979029373614,"aerodynamicSolveCount":1},{"elapsedSeconds":5.311156910801789,"playerId":"fielder-0","runnerId":"batter","base":2,"kind":"hold","receivers":[],"readySeconds":5.44365472116671,"marginSeconds":-0.7906186099784325,"aerodynamicSolveCount":0}],"finalRunners":[{"runnerId":"batter","base":2,"position":{"x":0,"y":0,"z":38.78},"retired":false,"scored":false}]}
+
+ ✓ src/core/sim/fielding/LiveFieldPlayV1.test.ts (20 tests) 13112ms
+   ✓ runs the complete actual base path after a fair over-fence flight instead of teleporting runners 1400ms
+   ✓ derives two retirements from a received first-base force followed by the same defender carrying the ball to a runner tag 770ms
+   ✓ preserves two force retirements when the second-base runner deadline favors the second-to-first throw chain 994ms
+   ✓ continues a true wall rebound through its signed-gap certificate and retrieves the ball 1134ms
+   ✓ publishes fair territory only at its actual determination boundary 383ms
+   ✓ catches an ordinary high center-field fly using a causal aero-ground forecast 1531ms
+   ✓ fields a straight infield grounder and makes a real throw to first before the batter arrives 328ms
+   ✓ keeps bodies, independent gloves and a possessed ball inside the physical fence through pickup and release 2517ms
+   ✓ finishes the pinned fast grounder after causal interception without an invented result 802ms
+   ✓ extends a finite free-ball cache from its original root without changing any sampled physics 1086ms
+   ✓ keeps a deep retrieved ball when every force throw would arrive after the runner 681ms
+   ✓ rejects unready force receivers without fictional throws while the batter takes a safe extra base and declines an unsafe third 358ms
+ ✓ src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts (5 tests) 13676ms
+   ✓ satisfies first-base force on the same physical bag-contact geometry as the defense 565ms
+   ✓ still retires a runner when actual controlled first-base contact wins the physical race 712ms
+   ✓ keeps physical runner retirements equal to rule-interpreted outs in both race orders 926ms
+   ✓ reconsiders a newly vacated advance reservation after a live retirement before closing the play 10619ms
+   ✓ adjudicates the actual normal-game tag enabled by a witnessed through-base departure 853ms
+ ✓ src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts (12 tests) 18855ms
+   ✓ physically advances second to third on a deep caught fly against a weak arm 3108ms
+   ✓ physically advances while a distant ground ball cannot be retrieved before the runner arrives 584ms
+   ✓ starts a legal tag-up after first touch and reaction, before a later secure catch 2184ms
+   ✓ uses the hidden safety margin in the actual runner decision 3584ms
+   ✓ waits for the runner reaction after the actual first touch and keeps that decision alive 1887ms
+   ✓ runs on contact with two outs and stops on the actual secured third-out fly 1243ms
+   ✓ throws home after the force dissolves and retires the runner by a physically held tag (3 m/s) 2071ms
+   ✓ throws home after the force dissolves and retires the runner by a physically held tag (4 m/s) 1996ms
+   ✓ commits a safe next advance through third instead of closing the held-ball play 1539ms
+   ✓ allows a physical tag of a forced runner still standing on the old base before reacting 375ms
+stdout | src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > audits the full 20-scenario canonical fielding matrix
+
+================ CANONICAL 20-SCENARIO DIAGNOSTIC REPORT (DEFAULT TIER) ================
+=== [P_comebacker (infield_grounder)] territory=fair outs=1 firstBounceZ=3.5m firstCatch=P ===
+  Oracle: infieldReachable=true earliestInfielder=P@+0.84s earliestAny=P@+0.84s
+  Approaches: P(minDist=1.18m, gloveGap=0.13m@+0.83s, spd=3.0->3.0m/s), C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s)
+  HolderDecision @+1.31s: state=prepare_throw base=1 margin=2.53s recvSec=0.94s carrySec=3.22s
+  Throw -> Base 1: def-P -> def-1B play=force rel=+1.77s outcome=glove_secured sec=+2.40s runner=n/a distToBag=0.14m minGloveGap=0.495m@+2.37s minBodyGap=0.936m cancelAt=n/a baseTouched=true
+  [OK] No anomalies detected.
+
+=== [3B_routine (infield_grounder)] territory=fair outs=1 firstBounceZ=3.3m firstCatch=3B ===
+  Oracle: infieldReachable=true earliestInfielder=3B@+1.60s earliestAny=3B@+1.60s
+  Approaches: C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s), 3B(minDist=1.15m, gloveGap=-0.00m@+1.60s, spd=7.0->7.0m/s)
+  HolderDecision @+2.07s: state=prepare_throw base=1 margin=1.06s recvSec=1.64s carrySec=6.23s
+  Throw -> Base 1: def-3B -> def-1B play=force rel=+2.34s outcome=glove_secured sec=+3.73s runner=n/a distToBag=0.02m minGloveGap=0.837m@+3.69s minBodyGap=1.359m cancelAt=n/a baseTouched=true
+  [OK] No anomalies detected.
+
+=== [56_hole_grounder (infield_grounder)] territory=fair outs=1 firstBounceZ=4.3m firstCatch=SS ===
+  Oracle: infieldReachable=true earliestInfielder=SS@+1.42s earliestAny=SS@+1.42s
+  Approaches: C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s), SS(minDist=0.90m, gloveGap=-0.05m@+1.43s, spd=5.7->5.7m/s)
+  HolderDecision @+1.91s: state=prepare_throw base=1 margin=1.33s recvSec=1.54s carrySec=5.69s
+  Throw -> Base 1: def-SS -> def-1B play=force rel=+2.17s outcome=glove_secured sec=+3.47s runner=n/a distToBag=0.02m minGloveGap=1.222m@+3.41s minBodyGap=1.680m cancelAt=n/a baseTouched=true
+  [OK] No anomalies detected.
+
+=== [SS_routine (infield_grounder)] territory=fair outs=1 firstBounceZ=4.0m firstCatch=SS ===
+  Oracle: infieldReachable=true earliestInfielder=SS@+1.46s earliestAny=SS@+1.46s
+  Approaches: C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s), SS(minDist=1.55m, gloveGap=0.49m@+1.43s, spd=5.9->5.9m/s)
+  HolderDecision @+1.94s: state=prepare_throw base=1 margin=1.62s recvSec=1.23s carrySec=4.59s
+  Throw -> Base 1: def-SS -> def-1B play=force rel=+2.20s outcome=glove_secured sec=+3.17s runner=n/a distToBag=0.07m minGloveGap=0.355m@+3.14s minBodyGap=0.814m cancelAt=n/a baseTouched=true
+  [OK] No anomalies detected.
+
+=== [SS_up_middle (infield_grounder)] territory=fair outs=0 firstBounceZ=4.3m firstCatch=CF ===
+  Oracle: infieldReachable=false earliestInfielder=none earliestAny=CF@+3.74s
+  Approaches: P(minDist=3.10m, gloveGap=3.07m@+0.77s, spd=2.8->2.8m/s), C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s), SS(minDist=2.19m, gloveGap=2.21m@+1.87s, spd=8.0->8.0m/s), CF(minDist=0.98m, gloveGap=-0.04m@+3.74s, spd=8.0->8.0m/s)
+  HolderDecision @+4.22s: state=pursue_tag base=1 margin=-7.51s recvSec=Infinitys carrySec=8.07s
+  [OK] No anomalies detected.
+
+=== [2B_routine (infield_grounder)] territory=fair outs=1 firstBounceZ=4.0m firstCatch=2B ===
+  Oracle: infieldReachable=true earliestInfielder=2B@+1.44s earliestAny=2B@+1.44s
+  Approaches: C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s), 2B(minDist=1.29m, gloveGap=0.11m@+1.43s, spd=6.1->6.1m/s)
+  HolderDecision @+1.91s: state=prepare_throw base=1 margin=2.18s recvSec=0.69s carrySec=3.10s
+  Throw -> Base 1: def-2B -> def-1B play=force rel=+2.14s outcome=glove_secured sec=+2.60s runner=n/a distToBag=0.27m minGloveGap=1.627m@+2.53s minBodyGap=2.068m cancelAt=n/a baseTouched=true
+  [OK] No anomalies detected.
+
+=== [34_hole_grounder (infield_grounder)] territory=fair outs=1 firstBounceZ=4.0m firstCatch=2B ===
+  Oracle: infieldReachable=true earliestInfielder=2B@+1.48s earliestAny=2B@+1.48s
+  Approaches: C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s), 2B(minDist=1.01m, gloveGap=-0.10m@+1.49s, spd=5.9->5.9m/s)
+  HolderDecision @+1.95s: state=prepare_throw base=1 margin=2.26s recvSec=0.57s carrySec=1.71s
+  Throw -> Base 1: def-2B -> def-1B play=force rel=+2.16s outcome=glove_secured sec=+2.51s runner=n/a distToBag=0.30m minGloveGap=0.256m@+2.48s minBodyGap=0.840m cancelAt=n/a baseTouched=true
+  [OK] No anomalies detected.
+
+=== [1B_routine (infield_grounder)] territory=fair outs=1 firstBounceZ=3.2m firstCatch=1B ===
+  Oracle: infieldReachable=true earliestInfielder=1B@+1.46s earliestAny=1B@+1.46s
+  Approaches: C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s), 1B(minDist=0.87m, gloveGap=-0.12m@+1.49s, spd=5.9->5.9m/s)
+  HolderDecision @+1.95s: state=prepare_throw base=1 margin=1.57s recvSec=1.26s carrySec=2.67s
+  Throw -> Base 1: def-1B -> def-2B play=force rel=+3.44s outcome=glove_secured sec=+3.71s runner=n/a distToBag=0.16m minGloveGap=0.076m@+3.69s minBodyGap=0.439m cancelAt=n/a baseTouched=true
+  [OK] No anomalies detected.
+
+=== [slow_roller_3B (slow_roller)] territory=fair outs=1 firstBounceZ=2.1m firstCatch=P ===
+  Oracle: infieldReachable=true earliestInfielder=P@+2.12s earliestAny=P@+2.12s
+  Approaches: P(minDist=1.31m, gloveGap=0.26m@+2.09s, spd=8.0->8.0m/s), C(minDist=1.80m, gloveGap=1.74m@+0.00s, spd=0.0->0.0m/s)
+  HolderDecision @+2.60s: state=prepare_throw base=1 margin=0.67s recvSec=1.52s carrySec=6.18s
+  Throw -> Base 1: def-P -> def-1B play=force rel=+2.88s outcome=glove_secured sec=+4.19s runner=n/a distToBag=0.02m minGloveGap=1.169m@+4.13s minBodyGap=1.677m cancelAt=n/a baseTouched=true
+  [OK] No anomalies detected.
+
+=== [slow_roller_2B (slow_roller)] territory=fair outs=1 firstBounceZ=2.4m firstCatch=P ===
+  Oracle: infieldReachable=true earliestInfielder=P@+1.84s earliestAny=P@+1.84s
+  Approaches: P(minDist=1.26m, gloveGap=0.23m@+1.81s, spd=8.0->8.0m/s), C(minDist=1.80m, gloveGap=1.74m@+0.00s, spd=0.0->0.0m/s)
+  HolderDecision @+2.32s: state=prepare_throw base=1 margin=1.89s recvSec=0.58s carrySec=1.93s
+  Throw -> Base 1: def-P -> def-1B play=force rel=+2.59s outcome=glove_secured sec=+2.86s runner=n/a distToBag=0.19m minGloveGap=0.963m@+2.81s minBodyGap=1.334m cancelAt=n/a baseTouched=true
+  [OK] No anomalies detected.
+
+=== [DP_643_grounder (double_play)] territory=fair outs=2 firstBounceZ=4.0m firstCatch=SS ===
+  Oracle: infieldReachable=true earliestInfielder=SS@+1.44s earliestAny=SS@+1.44s
+  Approaches: C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s), SS(minDist=1.17m, gloveGap=0.09m@+1.43s, spd=5.7->5.7m/s)
+  HolderDecision @+1.91s: state=prepare_throw base=2 margin=2.31s recvSec=0.74s carrySec=2.57s
+  Throw -> Base 2: def-SS -> def-2B play=force rel=+2.80s outcome=glove_secured sec=+3.15s runner=n/a distToBag=0.18m minGloveGap=1.344m@+3.08s minBodyGap=1.886m cancelAt=n/a baseTouched=true
+  Throw -> Base 1: def-2B -> def-1B play=force rel=+3.82s outcome=glove_secured sec=+4.74s runner=n/a distToBag=0.02m minGloveGap=1.287m@+4.67s minBodyGap=1.721m cancelAt=n/a baseTouched=true
+  [OK] No anomalies detected.
+
+=== [DP_463_grounder (double_play)] territory=fair outs=2 firstBounceZ=4.0m firstCatch=2B ===
+  Oracle: infieldReachable=true earliestInfielder=2B@+1.42s earliestAny=2B@+1.42s
+  Approaches: C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s), 2B(minDist=0.90m, gloveGap=-0.06m@+1.43s, spd=5.9->5.9m/s)
+  HolderDecision @+1.90s: state=prepare_throw base=2 margin=2.27s recvSec=0.78s carrySec=2.70s
+  Throw -> Base 2: def-2B -> def-SS play=force rel=+2.88s outcome=glove_secured sec=+3.23s runner=n/a distToBag=0.17m minGloveGap=0.601m@+3.19s minBodyGap=1.056m cancelAt=n/a baseTouched=true
+  Throw -> Base 1: def-SS -> def-1B play=force rel=+3.90s outcome=glove_secured sec=+4.82s runner=n/a distToBag=0.01m minGloveGap=0.398m@+4.79s minBodyGap=0.883m cancelAt=n/a baseTouched=true
+  [OK] No anomalies detected.
+
+=== [force_3B_grounder (double_play)] territory=fair outs=0 firstBounceZ=3.3m firstCatch=LF ===
+  Oracle: infieldReachable=false earliestInfielder=none earliestAny=LF@+3.48s
+  Approaches: C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s), LF(minDist=1.04m, gloveGap=0.12m@+3.46s, spd=8.0->8.0m/s)
+  HolderDecision @+3.95s: state=pursue_tag base=3 margin=-4.06s recvSec=Infinitys carrySec=5.07s
+  [OK] No anomalies detected.
+
+=== [routine_CF_fly (outfield_fly)] territory=fair outs=1 firstBounceZ=105.9m firstCatch=CF ===
+  Oracle: infieldReachable=false earliestInfielder=none earliestAny=CF@+5.16s
+  Approaches: P(minDist=0.61m, gloveGap=10.69m@+0.66s, spd=2.2->2.2m/s), C(minDist=1.80m, gloveGap=1.65m@+0.00s, spd=0.0->0.0m/s), CF(minDist=0.41m, gloveGap=0.56m@+5.12s, spd=8.0->0.3m/s)
+  HolderDecision @+5.60s: state=hold_no_positive_margin base=none margin=n/as recvSec=n/as carrySec=n/as
+  [OK] No anomalies detected.
+
+=== [routine_LF_fly (outfield_fly)] territory=fair outs=1 firstBounceZ=73.9m firstCatch=LF ===
+  Oracle: infieldReachable=false earliestInfielder=none earliestAny=LF@+4.40s
+  Approaches: C(minDist=1.80m, gloveGap=1.65m@+0.00s, spd=0.0->0.0m/s), LF(minDist=0.38m, gloveGap=-0.07m@+4.40s, spd=4.0->2.8m/s)
+  HolderDecision @+4.85s: state=hold_no_positive_margin base=none margin=n/as recvSec=n/as carrySec=n/as
+  [OK] No anomalies detected.
+
+=== [routine_RF_fly (outfield_fly)] territory=fair outs=1 firstBounceZ=73.9m firstCatch=RF ===
+  Oracle: infieldReachable=false earliestInfielder=none earliestAny=RF@+4.40s
+  Approaches: C(minDist=1.80m, gloveGap=1.65m@+0.00s, spd=0.0->0.0m/s), RF(minDist=0.49m, gloveGap=-0.07m@+4.40s, spd=4.1->2.9m/s)
+  HolderDecision @+4.85s: state=hold_no_positive_margin base=none margin=n/as recvSec=n/as carrySec=n/as
+  [OK] No anomalies detected.
+
+=== [shallow_CF_liner (outfield_fly)] territory=fair outs=0 firstBounceZ=69.8m firstCatch=CF ===
+  Oracle: infieldReachable=false earliestInfielder=none earliestAny=CF@+3.16s
+  Approaches: P(minDist=0.84m, gloveGap=6.05m@+0.66s, spd=2.2->2.2m/s), C(minDist=1.80m, gloveGap=1.65m@+0.00s, spd=0.0->0.0m/s), CF(minDist=1.73m, gloveGap=0.33m@+3.19s, spd=8.0->4.9m/s)
+  HolderDecision @+3.70s: state=pursue_tag base=1 margin=-6.26s recvSec=Infinitys carrySec=7.35s
+  [OK] No anomalies detected.
+
+=== [fast_grounder_CF_wall (wall_or_gap)] territory=fair outs=0 firstBounceZ=9.2m firstCatch=LF ===
+  Oracle: infieldReachable=false earliestInfielder=none earliestAny=LF@+2.06s
+  Approaches: C(minDist=1.80m, gloveGap=1.71m@+0.00s, spd=0.0->0.0m/s), LF(minDist=0.34m, gloveGap=0.12m@+2.37s, spd=8.0->6.8m/s), CF(minDist=35.48m, gloveGap=34.62m@+2.37s, spd=8.0->7.9m/s)
+  HolderDecision @+2.87s: state=pursue_tag base=1 margin=-7.90s recvSec=Infinitys carrySec=9.57s
+  [OK] No anomalies detected.
+
+=== [gap_liner_LCF (wall_or_gap)] territory=fair outs=1 firstBounceZ=93.8m firstCatch=LF ===
+  Oracle: infieldReachable=false earliestInfielder=none earliestAny=LF@+3.28s
+  Approaches: C(minDist=1.80m, gloveGap=1.65m@+0.00s, spd=0.0->0.0m/s), SS(minDist=0.96m, gloveGap=9.44m@+1.04s, spd=0.0->0.0m/s), LF(minDist=0.74m, gloveGap=0.10m@+3.30s, spd=8.0->4.5m/s)
+  HolderDecision @+3.76s: state=hold_no_positive_margin base=none margin=n/as recvSec=n/as carrySec=n/as
+  [OK] No anomalies detected.
+
+=== [one_hop_RF_wall (wall_or_gap)] territory=fair outs=1 firstBounceZ=68.9m firstCatch=RF ===
+  Oracle: infieldReachable=false earliestInfielder=none earliestAny=RF@+2.88s
+  Approaches: C(minDist=1.80m, gloveGap=1.65m@+0.00s, spd=0.0->0.0m/s), RF(minDist=0.53m, gloveGap=0.34m@+2.86s, spd=7.4->2.4m/s)
+  HolderDecision @+3.33s: state=hold_no_positive_margin base=none margin=n/as recvSec=n/as carrySec=n/as
+  [OK] No anomalies detected.
+
+================ TIER SUMMARY ================
+{
+  "low": {
+    "totalOuts": 13,
+    "infieldGrounderOuts": 9,
+    "infieldGrounderCount": 13,
+    "anomalyCounts": {},
+    "totalAnomalies": 0
+  },
+  "default": {
+    "totalOuts": 18,
+    "infieldGrounderOuts": 13,
+    "infieldGrounderCount": 13,
+    "anomalyCounts": {},
+    "totalAnomalies": 0
+  },
+  "high": {
+    "totalOuts": 20,
+    "infieldGrounderOuts": 15,
+    "infieldGrounderCount": 13,
+    "anomalyCounts": {},
+    "totalAnomalies": 0
+  }
+}
+
+ ✓ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts (18 tests) 50673ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects a completed live play whose final observed runner is still advancing 905ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects a completed live play with a free ball at the final observation 701ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects duplicate base cover assignments without treating nearby different tasks as duplicate coverage 654ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects retirement supported only by bag control after a legal first-base touch (offset=-0.01) 498ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects retirement supported only by bag control after a legal first-base touch (offset=0) 493ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects an observed bag-volume arrival that precedes the official touch fact 531ms
+   ✓ LiveFieldPlayDiagnosticsV1 > accepts an explicit controlled tag after first-base arrival as retirement evidence 455ms
+   ✓ LiveFieldPlayDiagnosticsV1 > reports sampled travel by actor and task without declaring long movement irrational 464ms
+   ✓ LiveFieldPlayDiagnosticsV1 > recognizes an actual relay receipt away from the final bag without reporting a missing force-base touch 2564ms
+   ✓ LiveFieldPlayDiagnosticsV1 > recognizes an actual nonforce throw and catcher tag without requiring a bag contact 1422ms
+   ✓ LiveFieldPlayDiagnosticsV1 > distinguishes post-pass ball recovery from cancellation based on a stale pre-release observation 2071ms
+   ✓ LiveFieldPlayDiagnosticsV1 > retains missing-bag detection for a force throw (release reason=force_play) 379ms
+   ✓ LiveFieldPlayDiagnosticsV1 > retains missing-bag detection for a force throw (release reason=undefined) 347ms
+   ✓ LiveFieldPlayDiagnosticsV1 > accepts an explicitly evaluated losing hold while still reporting a contradictory positive throw opportunity 408ms
+   ✓ LiveFieldPlayDiagnosticsV1 > captures structured AI telemetry, kinematic oracle, and anomaly classifications without altering simulation facts 666ms
+   ✓ LiveFieldPlayDiagnosticsV1 > audits the full 20-scenario canonical fielding matrix 30881ms
+   ✓ LiveFieldPlayDiagnosticsV1 > demonstrates monotonic physical fielding progression across low, default, and high ability tiers 7231ms
+ ✓ src/integration/browser/LiveBaseballMatchV1.test.ts (5 tests) 71207ms
+   ✓ does not pre-generate an initial pitch, and freezes observations independently of later issues 722ms
+   ✓ copies each current analytic runner velocity into its Host actor frame 1864ms
+   ✓ plays a mixed physical game through regulation without a replay frontier or old engine result 66029ms
+   ✓ does not derive SI or alter results from presentation names or league labels 2318ms
+
+ Test Files  29 passed (29)
+      Tests  250 passed (250)
+   Start at  17:29:59
+   Duration  73.23s (transform 6.07s, setup 0ms, collect 20.57s, tests 206.71s, environment 5ms, prepare 11.03s)
+

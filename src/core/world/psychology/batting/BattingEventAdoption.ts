@@ -2,7 +2,7 @@ import type {
   CanonicalPlateAppearanceEvent,
   CanonicalPlateAppearanceTimeline,
 } from '../../../sim/plateAppearance/CanonicalPlateAppearanceTimeline';
-import { createRigidBatSwingWindowFromKinematicsV1 } from '../../../sim/pitching/AerodynamicRigidBatSwingingPitchPhysicalResult';
+import { createBattingCommitmentSwingWindow } from './BattingSwingWindow';
 import {
   resolveAndRecordAerodynamicRigidPitchAgainstBatter,
   type AerodynamicRigidPitchAgainstBatterResolution,
@@ -117,8 +117,8 @@ const recomputeResolution = (
     : resolveAndRecordAerodynamicRigidPitchAgainstBatter(timeline, {
         action: {
           kind: 'swing',
-          swing: createRigidBatSwingWindowFromKinematicsV1(
-            commitment.trajectory!,
+          swing: createBattingCommitmentSwingWindow(
+            commitment,
             source.batPhysical,
           ),
         },

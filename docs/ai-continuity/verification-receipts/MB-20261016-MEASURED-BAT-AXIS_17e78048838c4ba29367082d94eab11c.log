@@ -1,0 +1,16 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/MeasuredBatAxisReferenceV1.test.ts (5 tests) 7ms
+ ✓ src/integration/browser/WorkbenchPlayer.test.ts (18 tests) 18ms
+ ✓ src/core/sim/contact/ReferenceBatKinematicsV1.test.ts (8 tests) 214ms
+ ✓ src/integration/browser/ReferenceBattingWorkbench.test.ts (4 tests) 1875ms
+   ✓ uses the same reference state for the visible bat, actual rigid contact, and subsequent Aero/ground ball 745ms
+   ✓ keeps geometric misses and declared input trajectories unchanged 315ms
+   ✓ keeps league labels outside actual impulse and makes unmodelled body/recoil explicit 812ms
+
+ Test Files  4 passed (4)
+      Tests  35 passed (35)
+   Start at  02:14:26
+   Duration  2.72s (transform 473ms, setup 0ms, collect 1.05s, tests 2.11s, environment 1ms, prepare 664ms)
+

@@ -1,0 +1,8 @@
+docs/verification/releases/v53/staging-initial-whitespace.txt:2: trailing whitespace.
+++HTML SHA256: `1113fc83ad2fb0dee470dc3152ec9430da650c65098fed503c61e674fbf7e7d1`  
+docs/verification/releases/v53/staging-initial-whitespace.txt:4: trailing whitespace.
+++Maker SHA256: `48e60a46ae57f8b1b4735cbb69d68569b2164537587ee3e56bf4459d4da5c26e`  
+docs/verification/releases/v53/staging-whitespace.txt:2: trailing whitespace.
+++HTML SHA256: `1113fc83ad2fb0dee470dc3152ec9430da650c65098fed503c61e674fbf7e7d1`  
+docs/verification/releases/v53/staging-whitespace.txt:4: trailing whitespace.
+++Maker SHA256: `48e60a46ae57f8b1b4735cbb69d68569b2164537587ee3e56bf4459d4da5c26e`  

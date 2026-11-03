@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V77-TRAIT-ROSTER-GREEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveTraitRuntimeV77.test.ts",
+    "src/integration/browser/LivePitchRosterV77.test.ts",
+    "src/integration/browser/LiveTraitProfilesV1.test.ts",
+    "src/integration/browser/LiveTechnicalTraitsV75.test.ts",
+    "src/integration/browser/LivePhysicalRosterV1.test.ts",
+    "src/integration/browser/LivePublicAbilitiesV1.test.ts"
+  ],
+  "observed_at": "2026-10-19T18:54:33.417+00:00",
+  "elapsed_ms": 3610,
+  "git_head": "76c564765f6a6d15fd1a2740a201080e3c534bfe",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V77-TRAIT-ROSTER-GREEN_0ba4a860bd8a401381681f1eebbacd0f.log",
+  "output_sha256": "ca5dcab87ad554dfddbdb7954e4fc1a978e0c52a55777ebd409ab5e5fe2487da",
+  "receipt_id": "MB-20261020-V77-TRAIT-ROSTER-GREEN_0ba4a860bd8a401381681f1eebbacd0f"
+}

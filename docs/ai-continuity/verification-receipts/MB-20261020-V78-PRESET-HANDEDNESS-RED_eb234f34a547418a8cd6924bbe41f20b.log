@@ -1,0 +1,29 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/LivePitchAuthoringV78.test.ts (5 tests | 1 failed) 21ms
+   × v78 distinct pitch identity, immutable library and physical execution > mirrors only newly generated left-handed examples, including their material force and physical path 3ms
+     → pitch authoring v78: unknown or missing fields
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LivePitchAuthoringV78.test.ts > v78 distinct pitch identity, immutable library and physical execution > mirrors only newly generated left-handed examples, including their material force and physical path
+Error: pitch authoring v78: unknown or missing fields
+ ❯ assert src/integration/browser/LivePitchAuthoringV78.ts:48:78
+     46|     ...(presetId==='hard_slider'?{speedFactor:.96}:{}),...(presetId===…
+     47| export const getLivePitchCatalogV78 = () => catalog;
+     48| function assert(value:unknown,message:string):asserts value {if(!value…
+       |                                                                              ^
+     49| const bounded=(v:unknown,min:number,max:number):v is number=>typeof v=…
+     50| const validId=(v:unknown):v is string=>typeof v==='string'&&/^[a-zA-Z0…
+ ❯ fields src/integration/browser/LivePitchAuthoringV78.ts:53:3
+ ❯ Module.createPitchSnapshotFromPresetV78 src/integration/browser/LivePitchAuthoringV78.ts:102:33
+ ❯ src/integration/browser/LivePitchAuthoringV78.test.ts:41:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  04:47:56
+   Duration  1.10s (transform 468ms, setup 0ms, collect 665ms, tests 21ms, environment 0ms, prepare 122ms)
+

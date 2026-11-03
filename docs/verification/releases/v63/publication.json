@@ -1,0 +1,75 @@
+{
+  "pass": true,
+  "sourceCommit": "6641efb80c3b3203d6d0b4d44ad00d139823772a",
+  "remoteHead": "6641efb80c3b3203d6d0b4d44ad00d139823772a",
+  "pullRequest": {
+    "headRefName": "jolly/tbd-lad-native-browser-core-2026-10-14",
+    "headRefOid": "6641efb80c3b3203d6d0b4d44ad00d139823772a",
+    "isDraft": true,
+    "state": "OPEN",
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380"
+  },
+  "rawFiles": [
+    {
+      "path": "docs/demos/releases/v63/game.html",
+      "sha256": "0cb5d9ae43aab96e4edf389136b15fc5cb28fb7d855ebf1d4f43bcdcde93542a",
+      "bytes": 3660785
+    },
+    {
+      "path": "docs/demos/releases/v63/camera-workbench.html",
+      "sha256": "7cafbf6efa634a96884fc6deb0e1db115a147033c5f9bac41185092fb0139356",
+      "bytes": 3951053
+    },
+    {
+      "path": "docs/demos/releases/v63/SHA256.json",
+      "sha256": "6a5a76f41317841d4cc993d4d4ef505e2dc1c17d613fa2f0217cb846aab83660",
+      "bytes": 490
+    },
+    {
+      "path": "docs/demos/releases/v63/game.html.build.json",
+      "sha256": "2addfbf570dde10cb5e92552b6185091d4d0ed1abc6d24e4ed2f514d3f39db50",
+      "bytes": 3732
+    },
+    {
+      "path": "docs/demos/releases/v63/camera-workbench.html.build.json",
+      "sha256": "5f03c0a63fafe39971e4fd69d031566875a10a5301b8f59ef10ce3fe766f35e0",
+      "bytes": 3736
+    },
+    {
+      "path": "docs/demos/releases/v63/game.html.bundle-inputs.json",
+      "sha256": "bf8154f3be49abd30dea35fb55a3520898a7ee43dd0172fab82ede3ded14f7ad",
+      "bytes": 14005
+    },
+    {
+      "path": "docs/demos/releases/v63/README.md",
+      "sha256": "cc864ae947bbf046a6cc33a9923c2e5f0e1dbfd934393c0439971af0195fe6b7",
+      "bytes": 1930
+    },
+    {
+      "path": "docs/reports/2026-10-19-v63-batter-head-coupling.md",
+      "sha256": "4773d98e2330ab99cdd9b844064316bb57392a13fb4a6fcecbe2f02286bd32b2",
+      "bytes": 6099
+    },
+    {
+      "path": "docs/handoffs/LATEST.md",
+      "sha256": "40cc4b4fd4149d4d60ac501d204112f11862cb60839c63bbba46869a7ef6a651",
+      "bytes": 17719
+    },
+    {
+      "path": "tools/browser-bridge/live-camera-tuning-batter-view-v63.js",
+      "sha256": "2f6f7ad31ebbe29f67f28ba44867eb919c5c05416cb86a025821a4e7a93b8cf0",
+      "bytes": 35480
+    },
+    {
+      "path": "tools/browser-bridge/camera-workbench-v63.js",
+      "sha256": "af73dae47943f58b015483fe6c3ee106da518b2808a0d67b6bc4f3dcf313c531",
+      "bytes": 37656
+    },
+    {
+      "path": "docs/verification/releases/v63/release-check.json",
+      "sha256": "22616408016642ad7ce52bfef9b7b867d2ea59e46261b41ca7b21ac7425c90a4",
+      "bytes": 697
+    }
+  ],
+  "mainMerged": false
+}

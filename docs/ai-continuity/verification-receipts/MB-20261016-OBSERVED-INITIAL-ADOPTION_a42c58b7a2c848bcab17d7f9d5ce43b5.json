@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OBSERVED-INITIAL-ADOPTION",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/SamePlateAppearanceObservedAdoption.test.ts",
+    "--maxWorkers=1",
+    "--minWorkers=1"
+  ],
+  "observed_at": "2026-10-15T23:07:42.743+00:00",
+  "elapsed_ms": 34875,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OBSERVED-INITIAL-ADOPTION_a42c58b7a2c848bcab17d7f9d5ce43b5.log",
+  "output_sha256": "803acaf09916fefb74f747ffc05c200c64678bdc5029c2c2c6274561eb82dd7b",
+  "receipt_id": "MB-20261016-OBSERVED-INITIAL-ADOPTION_a42c58b7a2c848bcab17d7f9d5ce43b5"
+}

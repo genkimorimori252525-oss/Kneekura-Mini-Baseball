@@ -2,10 +2,11 @@ import type { BattedWorldAcquisition } from '../../core/sim/ball/BattedWorldAcqu
 import { afterEach, expect, it } from 'vitest';
 import { contactFixture } from './StandalonePracticeContact.test-support';
 import { openSqliteStandalonePracticeStore, type AcceptedStandalonePracticeAssessment } from './SqliteStandalonePracticeStore';
-import { executeStandalonePracticeMotion, type AcceptedStandalonePractice } from './StandalonePracticeMotion';
+import { executeStandalonePracticeMotion, standalonePracticeInput, type AcceptedStandalonePractice } from './StandalonePracticeMotion';
 import type { StandaloneGloveReceiveCommand, StandaloneBattingContactCommand } from './StandalonePracticeContact';
 import { planCourseAwareSwingKinematicsV1 } from '../../core/sim/pitching/CourseAwareSwingKinematicsV1';
 import { readNativeDevelopmentEpisodeFromSqlite } from './NativeDevelopmentEpisodeFromSqlite';
+import * as practiceApiV123 from './SqliteStandalonePracticeStore';
 
 const cleanup: (() => void)[] = [];
 afterEach(() => { while (cleanup.length) cleanup.pop()!(); });
@@ -100,7 +101,7 @@ it('receives an actually released practice pitch, adopts uninterrupted capture a
   finally { f.db.exec('ROLLBACK'); }
 });
 
-it('executes an original model bat against the consumed release, preserving actual contact and outgoing free-ball state', async () => {
+it.each([false, true])('executes an original model bat against the consumed release, preserving actual contact and outgoing free-ball state (spin intent %s)', async intentional => {
   const f = await contactFixture(cleanup), release = f.pitch.plannedDelivery.release;
   const profile = f.batting.repertoire.values.profiles[0].profile;
   const plan = { handedness: 'R' as const, batterCenterOfMass: { x: release.position.x - 0.8, y: 0.95, z: 0 },
@@ -110,10 +111,13 @@ it('executes an original model bat against the consumed release, preserving actu
   plan.contactTick = release.releaseAtUs + Math.round((release.position.z - depth) / -release.velocity.z * 1_000_000);
   const trajectory = planCourseAwareSwingKinematicsV1({ ...plan, ticksPerSecond: 1_000_000, profile }).trajectory;
   const command: StandaloneBattingContactCommand = { kind: 'BATTING_CONTACT', pitchAttemptId: f.pitch.attemptId,
+    ...(intentional ? { spinIntentV123: { technique: 'BACKSPIN' as const, decidedTick: 0 } } : {}),
     calibrationRef: { sourceId: 'explicit-actual-flight', sourceVersion: 'v1' }, issuedTick: 0, bodyReadyTick: 0,
     profileId: profile.profileId, profileVersion: profile.version, plan, parameters: { ticksPerSecond: 1_000_000, integrationStepTicks: 2000,
       gravityY: 0, aerodynamics: { ballMassKg: 0.145, ballRadiusM: 0.0366, airDensityKgM3: 0, windVelocityMps: { x: 0, y: 0, z: 0 }, dragCoefficient: 0 } } };
   const source = sourceFor(f, command, trajectory.startTick, trajectory.endTick), { owner, assess } = open(f, source);
+  if (intentional) expect(() => standalonePracticeInput({ ...source, command: { ...command,
+    spinIntentV123: { technique: 'BACKSPIN', decidedTick: 1 } } }, source.sourceId)).toThrow('future');
   owner.begin(source.sourceId);
   expect(() => owner.advance(source.sourceId, 0, source.endTick)).toThrow('release has not been consumed');
   const pitch = f.owner.advance(f.pitch.attemptId, 0, f.pitch.plannedDelivery.timeline.followThroughEndUs); f.assess(pitch); f.owner.settle(pitch.attemptId);
@@ -126,5 +130,21 @@ it('executes an original model bat against the consumed release, preserving actu
   expect(execution.ball!.tick).toBe(execution.contact!.tick);
   assess(); const settled = owner.settle(source.sourceId);
   expect(settled.kind).toBe('complete'); expect(owner.settle(source.sourceId)).toEqual(settled);
+  if (settled.kind !== 'complete') throw new Error('actual batting practice not settled');
   expect(f.sources.workload.readHead('career-a', 'p1')).toMatchObject({ revision: 1, fatigue: 0.4 });
+  const read = practiceApiV123.readNativeStandaloneBattingContactV123;
+  expect(read).toBeTypeOf('function');
+  expect(() => read(f.db, settled.activity.sourceEventId)).toThrow('Native snapshot');
+  f.db.exec('BEGIN');
+  try {
+    const proof = read(f.db, settled.activity.sourceEventId);
+    expect(proof).toMatchObject({ careerId: 'career-a', playerId: 'p1', episodeId: 'episode',
+      sourceRef: { sourceId: source.sourceId, sourceVersion: source.sourceVersion },
+      contact: execution.contact, ball: execution.ball });
+    expect(proof.observation).toMatchObject({ velocityMps: execution.contact!.exitVelocity, spinRadPerSecond: execution.contact!.exitSpin });
+    expect(Object.isFrozen(proof.contact)).toBe(true);
+    expect(proof.spinIntentV123).toEqual(intentional ? { technique: 'BACKSPIN', decidedTick: 0 } : null);
+    expect(read(f.db, settled.activity.sourceEventId)).toEqual(proof);
+    expect(() => read(f.db, 'standalone-practice:missing')).toThrow();
+  } finally { f.db.exec('ROLLBACK'); }
 });

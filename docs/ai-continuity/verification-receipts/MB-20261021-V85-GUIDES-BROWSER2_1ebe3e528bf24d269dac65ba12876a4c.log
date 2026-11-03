@@ -1,0 +1,18 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+'gyro' !== 'seams'
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-maker-guides-v85.mjs:54:62 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'gyro',
+  expected: 'seams',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

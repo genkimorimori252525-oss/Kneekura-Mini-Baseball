@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V77-TRAIT-BASE-CANDIDATE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveTraitRuntimeV77.test.ts",
+    "src/integration/browser/LiveTraitProfilesV1.test.ts",
+    "src/integration/browser/LiveTechnicalTraitsV75.test.ts"
+  ],
+  "observed_at": "2026-10-19T18:53:50.366+00:00",
+  "elapsed_ms": 3202,
+  "git_head": "76c564765f6a6d15fd1a2740a201080e3c534bfe",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V77-TRAIT-BASE-CANDIDATE_c573059b34744ad9998a2fbb2dc04bde.log",
+  "output_sha256": "0c3799bd5b1c48c5a2476a6973fc0eb5a42a1455e0eb329b3501ded356064603",
+  "receipt_id": "MB-20261020-V77-TRAIT-BASE-CANDIDATE_c573059b34744ad9998a2fbb2dc04bde"
+}

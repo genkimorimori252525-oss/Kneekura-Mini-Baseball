@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OBSERVATION-CLOCK-OWNER-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "npx.cmd",
+    "vitest",
+    "run",
+    "src/host/world/SamePlateAppearanceObservationClockProjectionV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T17:32:54.154+00:00",
+  "elapsed_ms": 7436,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OBSERVATION-CLOCK-OWNER-RED_3ca06c319ee846ae81522c5375fce7ae.log",
+  "output_sha256": "a5c837fe9b7d06a31acc6aef749f42abd7b3bf1376657660e7d2f6fae28d8585",
+  "receipt_id": "MB-20261016-OBSERVATION-CLOCK-OWNER-RED_3ca06c319ee846ae81522c5375fce7ae"
+}

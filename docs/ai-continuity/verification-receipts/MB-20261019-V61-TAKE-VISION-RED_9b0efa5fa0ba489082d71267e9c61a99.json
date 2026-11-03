@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V61-TAKE-VISION-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-camera-take-vision-v61.mjs",
+    "tools/browser-bridge/live-camera-tuning-batter-view-v60.js"
+  ],
+  "observed_at": "2026-10-18T19:14:33.314+00:00",
+  "elapsed_ms": 62,
+  "git_head": "a384dfdfac341d3180abc7f750c9825bf137289e",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V61-TAKE-VISION-RED_9b0efa5fa0ba489082d71267e9c61a99.log",
+  "output_sha256": "091f8c7b35d3a046ffb30396ed19360474a66987cfd2d7a96e5329b96d204a11",
+  "receipt_id": "MB-20261019-V61-TAKE-VISION-RED_9b0efa5fa0ba489082d71267e9c61a99"
+}

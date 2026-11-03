@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-DECISION-PROJECTION-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/world/psychology/batting/ObservedStrikeZoneOpportunityV1.test.ts"
+  ],
+  "observed_at": "2026-10-16T11:34:44.630+00:00",
+  "elapsed_ms": 1406,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-DECISION-PROJECTION-REGRESSION_97ae2b43080d4932aaef86d2470c4735.log",
+  "output_sha256": "f1ea6c02b8bbae123fa8b95566442b4be72435cc8c189ee9e19566ea01471180",
+  "receipt_id": "MB-20261016-INITIAL-DECISION-PROJECTION-REGRESSION_97ae2b43080d4932aaef86d2470c4735"
+}

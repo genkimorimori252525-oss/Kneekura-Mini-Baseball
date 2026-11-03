@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\check-v81-staging.py", line 15, in <module>
+    assert sha(index(path))==sha(Path(path).read_bytes())==expected,path
+AssertionError: src/core/adjudication/OfficialWindowPolicy.ts

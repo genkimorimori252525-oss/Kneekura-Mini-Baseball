@@ -1,0 +1,19 @@
+{
+  "status": "PASS_CAMERA_OPPOSITE_SIDE_REPRODUCED",
+  "comparison": {
+    "L": {
+      "sourceBodyX": -0.85,
+      "oldEyeX": 0.4,
+      "candidateEyeX": -0.4,
+      "visibleCorners": 2
+    },
+    "R": {
+      "sourceBodyX": 0.85,
+      "oldEyeX": -0.4,
+      "candidateEyeX": 0.4,
+      "visibleCorners": 4
+    }
+  },
+  "sourceFramesUnchanged": true,
+  "evidence": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\verification-v35-batter-camera-side-v1"
+}

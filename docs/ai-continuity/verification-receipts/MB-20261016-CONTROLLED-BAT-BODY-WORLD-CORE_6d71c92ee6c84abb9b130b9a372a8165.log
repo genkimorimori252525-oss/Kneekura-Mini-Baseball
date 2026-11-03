@@ -1,0 +1,84 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/pitch/ControlledBatBodyPitchWorldV1.test.ts (9 tests | 4 failed) 37ms
+   × resolves a real tapered-bat impulse against the exact same Source ball and retains all other colliders 15ms
+     → controlled pitch world: free Source differs from release or finite control
+   × uses the moving body sphere instead of leaving its old stationary collider in the world 5ms
+     → controlled pitch world: free Source differs from release or finite control
+   × preserves a nonzero initial palm attachment rather than snapping the hand onto the reference point 4ms
+     → controlled pitch world: free Source differs from release or finite control
+   × does not skip an earlier unrelated actor to manufacture a bat hit 3ms
+     → controlled pitch world: free Source differs from release or finite control
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/pitch/ControlledBatBodyPitchWorldV1.test.ts > resolves a real tapered-bat impulse against the exact same Source ball and retains all other colliders
+Error: controlled pitch world: free Source differs from release or finite control
+ ❯ assert src/core/sim/pitch/ControlledPitchWorldV1.ts:22:66
+     20| const json=(v:unknown)=>JSON.stringify(v);
+     21| const freeze=<T>(v:T):T=>{if(v&&typeof v==='object'){Object.values(v).…
+     22| function assert(v:unknown,message:string):asserts v {if(!v)throw new E…
+       |                                                                  ^
+     23| 
+     24| /** Current controlled release -> original free-ball Source. Every que…
+ ❯ queryWorld src/core/sim/pitch/ControlledPitchWorldV1.ts:40:3
+ ❯ Module.queryControlledPitchWorldWithHoldRenewalV1 src/core/sim/pitch/ControlledPitchWorldV1.ts:34:10
+ ❯ Module.queryControlledBatBodyPitchWorldV1 src/core/sim/pitch/ControlledBatBodyPitchWorldV1.ts:98:15
+ ❯ src/core/sim/pitch/ControlledBatBodyPitchWorldV1.test.ts:7:71
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/core/sim/pitch/ControlledBatBodyPitchWorldV1.test.ts > uses the moving body sphere instead of leaving its old stationary collider in the world
+Error: controlled pitch world: free Source differs from release or finite control
+ ❯ assert src/core/sim/pitch/ControlledPitchWorldV1.ts:22:66
+     20| const json=(v:unknown)=>JSON.stringify(v);
+     21| const freeze=<T>(v:T):T=>{if(v&&typeof v==='object'){Object.values(v).…
+     22| function assert(v:unknown,message:string):asserts v {if(!v)throw new E…
+       |                                                                  ^
+     23| 
+     24| /** Current controlled release -> original free-ball Source. Every que…
+ ❯ queryWorld src/core/sim/pitch/ControlledPitchWorldV1.ts:40:3
+ ❯ Module.queryControlledPitchWorldWithHoldRenewalV1 src/core/sim/pitch/ControlledPitchWorldV1.ts:34:10
+ ❯ Module.queryControlledBatBodyPitchWorldV1 src/core/sim/pitch/ControlledBatBodyPitchWorldV1.ts:98:15
+ ❯ src/core/sim/pitch/ControlledBatBodyPitchWorldV1.test.ts:18:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/core/sim/pitch/ControlledBatBodyPitchWorldV1.test.ts > preserves a nonzero initial palm attachment rather than snapping the hand onto the reference point
+Error: controlled pitch world: free Source differs from release or finite control
+ ❯ assert src/core/sim/pitch/ControlledPitchWorldV1.ts:22:66
+     20| const json=(v:unknown)=>JSON.stringify(v);
+     21| const freeze=<T>(v:T):T=>{if(v&&typeof v==='object'){Object.values(v).…
+     22| function assert(v:unknown,message:string):asserts v {if(!v)throw new E…
+       |                                                                  ^
+     23| 
+     24| /** Current controlled release -> original free-ball Source. Every que…
+ ❯ queryWorld src/core/sim/pitch/ControlledPitchWorldV1.ts:40:3
+ ❯ Module.queryControlledPitchWorldWithHoldRenewalV1 src/core/sim/pitch/ControlledPitchWorldV1.ts:34:10
+ ❯ Module.queryControlledBatBodyPitchWorldV1 src/core/sim/pitch/ControlledBatBodyPitchWorldV1.ts:98:15
+ ❯ src/core/sim/pitch/ControlledBatBodyPitchWorldV1.test.ts:26:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/core/sim/pitch/ControlledBatBodyPitchWorldV1.test.ts > does not skip an earlier unrelated actor to manufacture a bat hit
+Error: controlled pitch world: free Source differs from release or finite control
+ ❯ assert src/core/sim/pitch/ControlledPitchWorldV1.ts:22:66
+     20| const json=(v:unknown)=>JSON.stringify(v);
+     21| const freeze=<T>(v:T):T=>{if(v&&typeof v==='object'){Object.values(v).…
+     22| function assert(v:unknown,message:string):asserts v {if(!v)throw new E…
+       |                                                                  ^
+     23| 
+     24| /** Current controlled release -> original free-ball Source. Every que…
+ ❯ queryWorld src/core/sim/pitch/ControlledPitchWorldV1.ts:40:3
+ ❯ Module.queryControlledPitchWorldWithHoldRenewalV1 src/core/sim/pitch/ControlledPitchWorldV1.ts:34:10
+ ❯ Module.queryControlledBatBodyPitchWorldV1 src/core/sim/pitch/ControlledBatBodyPitchWorldV1.ts:98:15
+ ❯ src/core/sim/pitch/ControlledBatBodyPitchWorldV1.test.ts:35:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 5 passed (9)
+   Start at  23:31:59
+   Duration  847ms (transform 259ms, setup 0ms, collect 390ms, tests 37ms, environment 0ms, prepare 119ms)
+

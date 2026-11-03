@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-RUNTIME-FREEZE-V5",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/build-live-match-audit.mjs",
+    "../../work/live-game-audit-v5"
+  ],
+  "observed_at": "2026-10-17T01:01:37.088+00:00",
+  "elapsed_ms": 202,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-RUNTIME-FREEZE-V5_3622b75dfb9c43a19f7b2e5792a4bc11.log",
+  "output_sha256": "7ea020763d56fe3923ce70b94a74eee01a1ae418066835838e8522522db37c20",
+  "receipt_id": "MB-20261017-LIVE-RUNTIME-FREEZE-V5_3622b75dfb9c43a19f7b2e5792a4bc11"
+}

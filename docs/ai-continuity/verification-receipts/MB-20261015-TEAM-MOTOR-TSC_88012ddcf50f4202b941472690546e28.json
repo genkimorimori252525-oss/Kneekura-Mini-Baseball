@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-TEAM-MOTOR-TSC",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--pretty",
+    "false"
+  ],
+  "observed_at": "2026-10-14T22:39:45.583+00:00",
+  "elapsed_ms": 32343,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-TEAM-MOTOR-TSC_88012ddcf50f4202b941472690546e28.log",
+  "output_sha256": "ee3ae6b6f52698153f03fba66f13fdde5707c49468b47a5679ea9ea06406e986",
+  "receipt_id": "MB-20261015-TEAM-MOTOR-TSC_88012ddcf50f4202b941472690546e28"
+}

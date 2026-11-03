@@ -1,0 +1,32 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/host/world/SamePlateAppearanceFieldRuleEvidence.test.ts (17 tests | 1 failed) 713ms
+   × refuses the unconnected versioned Aero/ground rule projection, including a dropped profile or descriptor 19ms
+     → expected [Function] to throw error including 'unsupported same-PA Aero/ground field…' but got 'official window input must contain in…'
+ ✓ src/core/sim/ball/SourceBattedFieldMotion.test.ts (3 tests) 178ms
+ ✓ src/host/world/FrozenLiveOwnerDomainsV3.test.ts (2 tests) 201ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/host/world/SamePlateAppearanceFieldRuleEvidence.test.ts > refuses the unconnected versioned Aero/ground rule projection, including a dropped profile or descriptor
+AssertionError: expected [Function] to throw error including 'unsupported same-PA Aero/ground field…' but got 'official window input must contain in…'
+
+Expected: "unsupported same-PA Aero/ground field-rule evidence"
+Received: "official window input must contain inert data only"
+
+ ❯ src/host/world/SamePlateAppearanceFieldRuleEvidence.test.ts:59:81
+     57|     { ...h.root, source: { ...h.root.source, ballPhysics: undefined } …
+     58|     { ...h.root, response: { ...h.root.response, world: { ...h.root.re…
+     59|     expect(() => deriveSamePaFieldRuleEvidence({ ...h.scope, fields: […
+       |                                                                                 ^
+     60|   }
+     61| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 21 passed (22)
+   Start at  07:38:55
+   Duration  11.38s (transform 6.05s, setup 0ms, collect 9.26s, tests 1.09s, environment 1ms, prepare 379ms)
+

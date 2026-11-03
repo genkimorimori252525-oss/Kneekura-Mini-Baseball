@@ -1,0 +1,47 @@
+{
+  "pass": true,
+  "phase": "complete",
+  "faults": [
+    {
+      "label": "frozen67",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "normal68-1200",
+      "errors": [],
+      "external": []
+    }
+  ],
+  "views": [],
+  "normalSha256": "734b7af9d50eb1acdf2be1da769502ce2fc529e14032c3b3c736f692008a108d",
+  "workbenchSha256": "1c3b965b02d95a547e422ed4727362ddf27eb85061b0887e84c607ddc09a76c0",
+  "baseline": {
+    "records": 6,
+    "sourceSha256": "db7103e17aedbd95de83236d610a410f91fce638b3e4817a59edda2e3021010d"
+  },
+  "catalog": {
+    "trials": 673,
+    "automaticChoices": [
+      "obp-123_6",
+      "obp-190_7",
+      "obp-103_5",
+      "obp-185_5",
+      "obp-254_3",
+      "obp-42_5",
+      "obp-51_3",
+      "obp-313_7",
+      "obp-353_2",
+      "obp-273_4",
+      "obp-56_1",
+      "obp-358_7"
+    ],
+    "expandedChoices": 661
+  },
+  "defaultPrefix": {
+    "actualRecords": 6,
+    "sourceBatRulesExact": true,
+    "initialRosterSame": true,
+    "presentationSame": true
+  }
+}

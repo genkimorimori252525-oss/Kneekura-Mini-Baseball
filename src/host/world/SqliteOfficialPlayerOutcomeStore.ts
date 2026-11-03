@@ -4,6 +4,8 @@ import { readOfficialPitchingRunOriginal } from './OfficialPitchingRunEvidenceFr
 import { officialPitchingRunJudgments } from './OfficialPitchingRunJudgments';
 import { aggregateOfficialPlayerScoring } from '../../core/world/competition/OfficialPlayerScoringStatistics';
 import { deriveOfficialPlayerScoringFromSqlite } from './OfficialPlayerScoringEvidenceFromSqlite';
+import { aggregateSignatureContextEvidenceV123 } from '../../core/world/competition/SignatureContextEvidenceV123';
+import { deriveOfficialPlayerContextEvidenceV123 } from './OfficialPlayerContextEvidenceV123';
 import { createRequire } from 'node:module';
 import { aggregateOfficialPlayerOutcomes, type OfficialPlayerOutcomeStatisticsScope } from '../../core/world/competition/OfficialPlayerOutcomeStatistics';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -207,6 +209,14 @@ export const openSqliteOfficialPlayerOutcomeStore = (path: string,
         const value = decode(rows[0]);
         history(value.careerId, value.competitionEditionId);
         return value;
+      });
+    },
+    aggregateContextEvidenceV123(scope: OfficialPlayerOutcomeStatisticsScope) {
+      aggregateSignatureContextEvidenceV123([], scope);
+      return tx.read(() => {
+        const originals = history(scope.careerId, scope.competitionEditionId);
+        return freeze({ ...aggregateSignatureContextEvidenceV123(originals.map(outcome => deriveOfficialPlayerContextEvidenceV123(db, outcome)), scope),
+          editionHistory: { revision: originals.length, historyHash: hash(originals) } });
       });
     },
     aggregate(scope: OfficialPlayerOutcomeStatisticsScope) {

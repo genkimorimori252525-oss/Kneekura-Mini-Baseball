@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-MEASURED-SWEET-SPOT-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/WorkbenchPlayer.test.ts"
+  ],
+  "observed_at": "2026-10-15T17:14:25.352+00:00",
+  "elapsed_ms": 1139,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-MEASURED-SWEET-SPOT-RED_18a0208e547444e3a4941c56f7815f14.log",
+  "output_sha256": "24719e60d79cb9ee6665624590e209f1298b7bb2a7e145a53a63a5a87284d316",
+  "receipt_id": "MB-20261016-MEASURED-SWEET-SPOT-RED_18a0208e547444e3a4941c56f7815f14"
+}

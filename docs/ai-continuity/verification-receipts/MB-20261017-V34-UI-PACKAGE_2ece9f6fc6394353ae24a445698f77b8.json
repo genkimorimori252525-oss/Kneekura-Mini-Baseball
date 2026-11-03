@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V34-UI-PACKAGE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../package-v34-ui.py"
+  ],
+  "observed_at": "2026-10-17T02:04:14.305+00:00",
+  "elapsed_ms": 687,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V34-UI-PACKAGE_2ece9f6fc6394353ae24a445698f77b8.log",
+  "output_sha256": "cd1215c770cb0c4eec9c0ea8851f9b6792a8a4f3d9882c41140908aed8d23322",
+  "receipt_id": "MB-20261017-V34-UI-PACKAGE_2ece9f6fc6394353ae24a445698f77b8"
+}

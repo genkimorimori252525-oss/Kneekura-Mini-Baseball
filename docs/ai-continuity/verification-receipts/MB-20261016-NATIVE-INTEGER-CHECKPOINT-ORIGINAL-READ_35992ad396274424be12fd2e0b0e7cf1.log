@@ -1,0 +1,2 @@
+{"stage":"prepare","status":"START","pid":46644,"databasePath":"C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\native-source-integer-checkpoint-v1\\run\\integer-checkpoint.sqlite","manifestPath":"C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\native-source-integer-checkpoint-v1\\manifest.json"}
+{"stage":"prepare","status":"PASS_ORIGINAL_OWNER_CLOSED_CURRENT_PREFIX_READ","pid":46644,"elapsedMilliseconds":41819,"proofPath":"C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\native-source-integer-checkpoint-v1\\run\\prepare.json"}

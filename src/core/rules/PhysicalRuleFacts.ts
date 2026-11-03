@@ -19,6 +19,9 @@ export type ControlledRunnerTagFact = Readonly<{
   defenderId: string;
   runnerId: string;
   tick: number;
+  /** A causal protection exit, observed before enabling an already-overlapping
+   * glove tag at the same occurrence tick. This is not a general tie breaker. */
+  protectionEndedByDeparture?: Readonly<{ base: BaseballBase; tick: number }>;
 }>;
 
 export type PlayEndReason = 'live_action_complete' | 'dead_ball';

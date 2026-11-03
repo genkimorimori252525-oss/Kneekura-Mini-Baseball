@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V51-SPACING-MOTOR-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldAvoidanceV51.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T09:24:23.144+00:00",
+  "elapsed_ms": 985,
+  "git_head": "01834d9e8361b7747083b9fbb7539c93ee662b50",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V51-SPACING-MOTOR-RED_c3cfaa2508e74be89dab452cf1e5f260.log",
+  "output_sha256": "613224452ecacbd5fae060504be9b9efca0be479316da943e3fa93cc59dc3ea3",
+  "receipt_id": "MB-20261018-V51-SPACING-MOTOR-RED_c3cfaa2508e74be89dab452cf1e5f260"
+}

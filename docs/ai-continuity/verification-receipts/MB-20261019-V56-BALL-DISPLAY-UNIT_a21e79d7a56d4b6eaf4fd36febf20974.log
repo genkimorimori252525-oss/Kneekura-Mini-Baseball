@@ -1,0 +1,1 @@
+{"pass":true,"scope":"display diameter multipliers only; no ball physics or frame-rate controls","checks":["defaults/pure normalize","partial merge/immutable snapshots","cross-realm/null-prototype","all camera mappings","strict primitive ranges/keys/descriptors/symbols","atomic rejection without getter execution","no Source inputs"],"invalidCases":23}

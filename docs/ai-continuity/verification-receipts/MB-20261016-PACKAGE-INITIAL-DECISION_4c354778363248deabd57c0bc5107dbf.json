@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-PACKAGE-INITIAL-DECISION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../package-delivery.py"
+  ],
+  "observed_at": "2026-10-16T11:48:24.618+00:00",
+  "elapsed_ms": 61516,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-PACKAGE-INITIAL-DECISION_4c354778363248deabd57c0bc5107dbf.log",
+  "output_sha256": "bc3cd3be0d7a656eac98f1743508f5b2c9ca31428b19996e65b47cedf5c8f602",
+  "receipt_id": "MB-20261016-PACKAGE-INITIAL-DECISION_4c354778363248deabd57c0bc5107dbf"
+}

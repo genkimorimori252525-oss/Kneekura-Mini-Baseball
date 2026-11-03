@@ -1,0 +1,18 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+'打球を追う' !== 'ホームラン'
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v36-results.mjs:58:58 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: '打球を追う',
+  expected: 'ホームラン',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

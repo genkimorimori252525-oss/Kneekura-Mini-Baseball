@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-MOTOR-TYPECHECK-FINAL",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "npx.cmd",
+    "tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-15T18:07:56.046+00:00",
+  "elapsed_ms": 24296,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-MOTOR-TYPECHECK-FINAL_aca11efa66ae4d45a4648bd357e77948.log",
+  "output_sha256": "698b80512097db01ce4d3f9a280fbbeaf64996fbca9aab3cbb20cf36ba280cb3",
+  "receipt_id": "MB-20261016-SOURCE-MOTOR-TYPECHECK-FINAL_aca11efa66ae4d45a4648bd357e77948"
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V73-CORE-TEST",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/contact/ReferenceBatImpactTrajectoryV1.test.ts",
+    "src/core/sim/contact/ReferenceBatKinematicsV1.test.ts",
+    "src/integration/browser/LiveImpactTrajectoryV1.test.ts",
+    "src/integration/browser/ReferenceBattingWorkbench.test.ts",
+    "src/integration/browser/MeasuredTrajectoryComparisonWorkbenchV69.test.ts"
+  ],
+  "observed_at": "2026-10-19T14:03:34.337+00:00",
+  "elapsed_ms": 66453,
+  "git_head": "2b0146abc0792e9f12b376983e7cf267a30d8a82",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V73-CORE-TEST_48638f74fc2a4ea2af687c9eb4570c6e.log",
+  "output_sha256": "563b26e0405fa5e99f717790961773c6da9d704397ec8bcf0a2db385a8bbe30e",
+  "receipt_id": "MB-20261019-V73-CORE-TEST_48638f74fc2a4ea2af687c9eb4570c6e"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-MOTOR-CAPTURE-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T18:30:41.771+00:00",
+  "elapsed_ms": 1764,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-MOTOR-CAPTURE-RED_7df982a3826a4564b66d76a579ac3f22.log",
+  "output_sha256": "75e192ee2a4682ece49301014e2011818c17bae438b6129733a5871648860cdc",
+  "receipt_id": "MB-20261016-SOURCE-MOTOR-CAPTURE-RED_7df982a3826a4564b66d76a579ac3f22"
+}

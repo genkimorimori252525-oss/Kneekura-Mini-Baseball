@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OWNED-JOINT-WORLD-QUERY-NATIVE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-owned-joint-world-query-v1/readback.mjs",
+    "../../outputs/verification-authored-with-bat-owned-hand-v1",
+    "../../outputs/verification-authored-with-bat-world-query-v1"
+  ],
+  "observed_at": "2026-10-16T14:37:27.747+00:00",
+  "elapsed_ms": 13296,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OWNED-JOINT-WORLD-QUERY-NATIVE_b95d17e89efe4b539ccb3200587366e3.log",
+  "output_sha256": "a305d4a3670c8a21f0530c9b93471490d727b79513bfc390acc7d1a974d650aa",
+  "receipt_id": "MB-20261016-OWNED-JOINT-WORLD-QUERY-NATIVE_b95d17e89efe4b539ccb3200587366e3"
+}

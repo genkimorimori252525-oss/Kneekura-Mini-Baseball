@@ -1,0 +1,71 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/host/world/SamePlateAppearanceTeamMotorSelectionV1.test.ts (3 tests | 3 failed) 21ms
+   × preserves legacy selections and admits one complete owned team with an unchanged-body due wait 12ms
+     → expected undefined to deeply equal [ 'p0', 'p1', 'p2', 'p3', 'p4', …(4) ]
+   × rejects a team subset, mixed old decisions, duplicate members and a different team 4ms
+     → expected [Function] to throw an error
+   × rejects superseding perception, decisions, team, motor, catch, throw or a physical boundary 3ms
+     → expected [Function] to throw an error
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/host/world/SamePlateAppearanceTeamMotorSelectionV1.test.ts > preserves legacy selections and admits one complete owned team with an unchanged-body due wait
+AssertionError: expected undefined to deeply equal [ 'p0', 'p1', 'p2', 'p3', 'p4', …(4) ]
+
+- Expected: 
+Array [
+  "p0",
+  "p1",
+  "p2",
+  "p3",
+  "p4",
+  "p5",
+  "p6",
+  "p7",
+  "p8",
+]
+
++ Received: 
+undefined
+
+ ❯ src/host/world/SamePlateAppearanceTeamMotorSelectionV1.test.ts:31:106
+     29|   expect(originalTeamMotorSelectionsV1(h.rows.slice(0, 18) as any, [{ …
+     30|   h.append(undefined, undefined, 0.001);
+     31|   expect(originalTeamMotorSelectionsV1(h.rows as any, h.selections as …
+       |                                                                                                          ^
+     32| });
+     33| it('rejects a team subset, mixed old decisions, duplicate members and …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/host/world/SamePlateAppearanceTeamMotorSelectionV1.test.ts > rejects a team subset, mixed old decisions, duplicate members and a different team
+AssertionError: expected [Function] to throw an error
+ ❯ src/host/world/SamePlateAppearanceTeamMotorSelectionV1.test.ts:39:127
+     37|     (h: ReturnType<typeof fixture>) => { h.selections[0] = h.selection…
+     38|     (h: ReturnType<typeof fixture>) => { h.actors[0].actionResult.team…
+     39|   ]) { const h = fixture(); mutate(h); expect(() => originalTeamMotorS…
+       |                                                                                                                               ^
+     40| });
+     41| it('rejects superseding perception, decisions, team, motor, catch, thr…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/host/world/SamePlateAppearanceTeamMotorSelectionV1.test.ts > rejects superseding perception, decisions, team, motor, catch, throw or a physical boundary
+AssertionError: expected [Function] to throw an error
+ ❯ src/host/world/SamePlateAppearanceTeamMotorSelectionV1.test.ts:44:92
+     42|   for (const kind of ['defender_observation_v1', 'defender_decision_v1…
+     43|     const h = fixture(); h.append(kind, { kind, playerId: 'p0', plan: …
+     44|     expect(() => originalTeamMotorSelectionsV1(h.rows as any, h.select…
+       |                                                                                            ^
+     45|   }
+     46|   for (const mutate of [
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  07:36:39
+   Duration  9.25s (transform 5.67s, setup 0ms, collect 8.57s, tests 21ms, environment 0ms, prepare 200ms)
+

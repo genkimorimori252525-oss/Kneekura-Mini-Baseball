@@ -1,0 +1,12 @@
+AssertionError [ERR_ASSERTION]: pitch 0: swing head coupling carries into established runner/field gaze: 0.005186483002427377 rad
+pitch 1: swing head coupling carries into established runner/field gaze: 0.003020409140672907 rad
+pitch 3: swing head coupling carries into established runner/field gaze: 0.006106153310442289 rad
+pitch 4: swing head coupling carries into established runner/field gaze: 0.0063756963979506864 rad
+pitch 5: swing head coupling carries into established runner/field gaze: 0.02881249033963474 rad
+pitch 12: swing head coupling carries into established runner/field gaze: 0.00418695648483164 rad
+pitch 13: swing head coupling carries into established runner/field gaze: 0.0061491282662281994 rad
+pitch 14: swing head coupling carries into established runner/field gaze: 0.006144386281224937 rad
+
+8 !== 0
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v66-swing-running.mjs:84:9

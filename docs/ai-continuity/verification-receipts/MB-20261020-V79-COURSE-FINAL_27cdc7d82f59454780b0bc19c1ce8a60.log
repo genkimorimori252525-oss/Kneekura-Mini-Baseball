@@ -1,0 +1,15 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/BatterCourseProfileV79.test.ts (5 tests) 8ms
+ ✓ src/integration/browser/BatterCourseWorkbenchV79.test.ts (3 tests) 717ms
+   ✓ counts actual R-handed trial contact directions, preserving every paired pitch Source and input 314ms
+ ✓ src/integration/browser/LivePhysicalRosterV1.test.ts (29 tests) 1010ms
+ ✓ src/integration/browser/LivePitchV1.test.ts (13 tests) 1284ms
+ ✓ src/integration/browser/LivePitchCourseV79.test.ts (13 tests) 1688ms
+
+ Test Files  5 passed (5)
+      Tests  63 passed (63)
+   Start at  09:15:14
+   Duration  2.62s (transform 814ms, setup 0ms, collect 2.27s, tests 4.71s, environment 1ms, prepare 793ms)
+

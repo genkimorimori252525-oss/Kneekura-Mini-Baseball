@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V68-GAME-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v68-game.mjs"
+  ],
+  "observed_at": "2026-10-19T10:57:29.046+00:00",
+  "elapsed_ms": 132313,
+  "git_head": "652aa75ccb24df723c2d413e5dc37e7395dc8679",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V68-GAME-BROWSER_2529c4f15a5e48ae894311a6c4718bb6.log",
+  "output_sha256": "1abc2f162614d348d592db51a680288587297065b1f1c1b6b4d50b4349bff4e0",
+  "receipt_id": "MB-20261019-V68-GAME-BROWSER_2529c4f15a5e48ae894311a6c4718bb6"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-FIELD-ROLES-UNIT-V2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T03:07:03.182+00:00",
+  "elapsed_ms": 1141,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-FIELD-ROLES-UNIT-V2_d51037cd2b334f42b7a1fb9475e233a6.log",
+  "output_sha256": "7d7aa324a6431c2d6dbb125f3929e402d7e04b2fdd0495021af5b61660298682",
+  "receipt_id": "MB-20261017-LIVE-FIELD-ROLES-UNIT-V2_d51037cd2b334f42b7a1fb9475e233a6"
+}

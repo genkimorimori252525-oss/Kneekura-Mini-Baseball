@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-FIELD-V3-CORE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/SourceBattedFieldMotionV3.test.ts",
+    "src/core/sim/ball/SourceBaseImpulseV3.test.ts",
+    "src/core/sim/ball/SourceImpactEscapeV3.test.ts",
+    "src/core/sim/ball/SourceBattedFieldMotion.test.ts",
+    "src/core/sim/ball/SourceBattedWorldContacts.test.ts",
+    "src/core/sim/ball/SourceFreeBallWorldQuery.test.ts",
+    "--maxWorkers=1",
+    "--minWorkers=1"
+  ],
+  "observed_at": "2026-10-15T16:07:04.146+00:00",
+  "elapsed_ms": 3906,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-FIELD-V3-CORE_1937e10b2d714a80b28778167ed106ed.log",
+  "output_sha256": "d2c538ac0908581b3f956d173c97367effbc6e1ce0dc6a8aad2149691b32bd29",
+  "receipt_id": "MB-20261016-SOURCE-FIELD-V3-CORE_1937e10b2d714a80b28778167ed106ed"
+}

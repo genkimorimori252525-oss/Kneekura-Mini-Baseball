@@ -1,0 +1,477 @@
+{
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\カメラワーク調整室_v55.html",
+  "views": [
+    {
+      "width": 390,
+      "defaults": {
+        "A": {
+          "enabled": false,
+          "aimLiftMeters": 0.3,
+          "swingMaxDownRadians": 0.3,
+          "hitFollowDelayMs": 100,
+          "aimReleaseMs": 100
+        },
+        "B": {
+          "enabled": true,
+          "aimLiftMeters": 0.3,
+          "swingMaxDownRadians": 0.3,
+          "hitFollowDelayMs": 100,
+          "aimReleaseMs": 100
+        }
+      },
+      "seed": "TBD-LAD-2025",
+      "initialCommands": {
+        "managed-team": "1",
+        "batting-choice": "auto",
+        "baserunning-choice": "balanced",
+        "pitch-choice": "auto",
+        "location-choice": "auto"
+      },
+      "legacy": [],
+      "cameras": [],
+      "downloads": [],
+      "layout": {
+        "client": 390,
+        "scroll": 390,
+        "views": [
+          {
+            "x": 21,
+            "y": 476,
+            "width": 348,
+            "height": 251.109375
+          },
+          {
+            "x": 21,
+            "y": 1199.296875,
+            "width": 348,
+            "height": 251.109375
+          }
+        ]
+      },
+      "cases": {
+        "count": 12,
+        "prep": 1540,
+        "sides": {
+          "L": {
+            "pitch": 0,
+            "side": "L",
+            "contact": 2061.726,
+            "through": 2137.154044964538
+          },
+          "R": {
+            "pitch": 1,
+            "side": "R",
+            "contact": 2010.871,
+            "through": 2079.9246527173705
+          }
+        },
+        "takes": [
+          {
+            "pitch": 2,
+            "held": 2137.977
+          },
+          {
+            "pitch": 5,
+            "held": 2139.1639999999998
+          },
+          {
+            "pitch": 7,
+            "held": 2113.058
+          },
+          {
+            "pitch": 8,
+            "held": 2064.471
+          },
+          {
+            "pitch": 10,
+            "held": 2027.212
+          },
+          {
+            "pitch": 11,
+            "held": 2031.874
+          }
+        ],
+        "field": [
+          {
+            "pitch": 0,
+            "contact": 2061.726
+          },
+          {
+            "pitch": 1,
+            "contact": 2010.871
+          },
+          {
+            "pitch": 3,
+            "contact": 1977.752
+          },
+          {
+            "pitch": 4,
+            "contact": 2083.27
+          },
+          {
+            "pitch": 6,
+            "contact": 2061.458
+          },
+          {
+            "pitch": 9,
+            "contact": 1970.888
+          }
+        ]
+      },
+      "initialHashes": [
+        {
+          "core": "a2ca3037ab6616e4f80aca9bfe17e481a09e6d943dcbecc366177537cd22d75a",
+          "bat": "0a9cb7b4002b9dfd0de4528f5e9bad4f040ea8e96d19a8d1c1a80a40389ca009"
+        },
+        {
+          "core": "4fa463e2ca5c264f8ca6ba0f12d9caf0cf2c9d209b9ae82ad9d5b67f7c47f395",
+          "bat": "de4384040f3b113070e8024628e0b62c0ae6982fbc619689d63a3817df218ce1"
+        },
+        {
+          "core": "a71e6965c08a20839a7b05cf6d5c9ca139552d39307449b7bc161059e281c523",
+          "bat": "85c00ede76ed2e8974e6ddb72bed80d77d485e7109bb5afcf35d05a1779c8396"
+        },
+        {
+          "core": "54ba8a2758c9da45dc7b8ec2a7bda2f2b9429054e58a9dbb7f481623b7f85c10",
+          "bat": "b3f7642e751d913710c3c955255837c19844fbb9c8d85e7d9f58a158fef57880"
+        },
+        {
+          "core": "7aa819a5f92f1c770258594197c28df97244cc6395349796a007c71c43586005",
+          "bat": "bd953560366a0c6a3710d5b867a75c0b7d0331c4fd215d10599c54ad64529ef0"
+        },
+        {
+          "core": "7369a50b7a90b3dd33f427213202fce72c0baa86eb1aad23e8cdf5f233fb7839",
+          "bat": "556010b4c15bb98028fa260b59a4618a5b72b508db2dc8e68ac25f19c161e6f8"
+        },
+        {
+          "core": "e9e723808dc05a5204daa354cd3ef41429d675e4c9dc1a7b636b0fc8f5bacd44",
+          "bat": "e0fd9ec9bbb8d4ddbae2577896d62102d6544657909a3c4942188339a11af0e8"
+        },
+        {
+          "core": "2d1858f6680e132cf7ed7c6e5b655597983337cfefa43044a796eef186e6de18",
+          "bat": "5bba0368977d4b00d8b9436a661f58b4cb3ac2023a93777600ba27b15ece308b"
+        },
+        {
+          "core": "0d83ef9e4b69ce3fc95250593da79b5de6312c2b43a65ee30a708e771b3135e1",
+          "bat": "4b661e59fe56d1a22a47ffb05a177cba1b0e102447d3a5480a799498e3a0579b"
+        },
+        {
+          "core": "df7ae3d0e27cfbc209776e55033070c12e54379cc273fd608d7fa785d6127f4d",
+          "bat": "f479d42f31399697ecb0520fa15a34146378b67d3083119821264caec7f65b4a"
+        },
+        {
+          "core": "91e85d496c0e94d4598053111b94e13dd8062b5cb220f82516c484f7bb7af115",
+          "bat": "70894a13b7a6073ca3c814b6b4080b61c41ca0ea55eda5785c4217d4a1a6f642"
+        },
+        {
+          "core": "1597cbb6dc1b65c0b355965fb2451fdaa6a3b8ad3d7fb8407522dea925e9a953",
+          "bat": "0383b997191d73e71c1f22c1a8466d008234c23248c7a02b2a936a8eb90d0304"
+        }
+      ]
+    }
+  ],
+  "browserFaults": [
+    {
+      "width": 390,
+      "errors": [],
+      "externalRequests": []
+    }
+  ],
+  "phase": "generate-and-legacy-390",
+  "pass": false,
+  "sha256": "ad40f7832a1621b09cd5efa3804d6cbfa6ef2534c73242ec6e6a9e0a41e05016",
+  "nativeBundleSha256": "4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279",
+  "sourceInputCount": 113,
+  "metadata": {
+    "presentationVersion": 55,
+    "sourceGamePath": "docs/demos/releases/v54/game.html",
+    "sourceGameSha256": "80c68e3ddb5c961ab6f18b325c6f267f883cd02d27381dfa10a9334bf8afae9f",
+    "sourceCoreSha256": "4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279",
+    "sourceInputCount": 113,
+    "cameraHelperSha256": "ec88797284d39c2c00a4cfe799c4527178a7df6ffbbb710ada3cd8d5d93f8950",
+    "workbenchDriverSha256": "841483361ecd3de89c4ec3eabcaa5b06d89e7fc97f23a2fb29a53a3cb684f171",
+    "workbenchTemplateSha256": "533fe5fba34938c606a4f8cc5dd09ef22f03f96cef0da394988fcccc69dcecf7",
+    "worldAuthority": "UNCHANGED_V54_OFFLINE_HOST_SHARED_CORE",
+    "displayGridPixels": 4,
+    "ordinaryCadenceMs": 55,
+    "readOnlyCamera": true,
+    "kind": "CAMERA_WORKBENCH",
+    "sha256": "ad40f7832a1621b09cd5efa3804d6cbfa6ef2534c73242ec6e6a9e0a41e05016"
+  },
+  "normalGame": {
+    "path": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv55_TBD_vs_LAD_打球追尾調整版.html",
+    "sha256": "02644793d8c6e41b66d5330fe37cc0ce8d2fa7756ad6bc139b045fbef38d3b17"
+  },
+  "injectedFailure": {
+    "result": {
+      "resolved": false,
+      "error": "Core: live pitch: unsupported physical pitch type"
+    },
+    "state": {
+      "version": 1,
+      "ready": true,
+      "busy": false,
+      "playing": false,
+      "speed": 1,
+      "mode": "loop",
+      "camera": "batter",
+      "sceneMs": 0,
+      "durationMs": 3729.434,
+      "selectedPitch": 0,
+      "generatedPitches": 1,
+      "finished": false,
+      "loopStartMs": 0,
+      "loopEndMs": null,
+      "A": null,
+      "B": null,
+      "settings": {
+        "A": {
+          "enabled": false,
+          "aimLiftMeters": 0.3,
+          "swingMaxDownRadians": 0.3,
+          "hitFollowDelayMs": 100,
+          "aimReleaseMs": 100
+        },
+        "B": {
+          "enabled": true,
+          "aimLiftMeters": 0.3,
+          "swingMaxDownRadians": 0.3,
+          "hitFollowDelayMs": 100,
+          "aimReleaseMs": 100
+        }
+      },
+      "seed": "V55-EXPECTED-CORE-FAILURE",
+      "uiCommands": [
+        {
+          "managed-team": "1",
+          "batting-choice": "auto",
+          "baserunning-choice": "balanced",
+          "pitch-choice": "auto",
+          "location-choice": "auto"
+        }
+      ],
+      "error": "live pitch: unsupported physical pitch type",
+      "source": {
+        "presentationVersion": 55,
+        "sourceGamePath": "docs/demos/releases/v54/game.html",
+        "sourceGameSha256": "80c68e3ddb5c961ab6f18b325c6f267f883cd02d27381dfa10a9334bf8afae9f",
+        "sourceCoreSha256": "4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279",
+        "sourceInputCount": 113,
+        "cameraHelperSha256": "ec88797284d39c2c00a4cfe799c4527178a7df6ffbbb710ada3cd8d5d93f8950",
+        "workbenchDriverSha256": "841483361ecd3de89c4ec3eabcaa5b06d89e7fc97f23a2fb29a53a3cb684f171",
+        "workbenchTemplateSha256": "533fe5fba34938c606a4f8cc5dd09ef22f03f96cef0da394988fcccc69dcecf7",
+        "worldAuthority": "UNCHANGED_V54_OFFLINE_HOST_SHARED_CORE",
+        "displayGridPixels": 4,
+        "ordinaryCadenceMs": 55,
+        "readOnlyCamera": true
+      }
+    },
+    "exportError": "Core: live pitch: unsupported physical pitch type",
+    "dropdown": {
+      "options": 1,
+      "value": "0"
+    },
+    "cleared": true,
+    "faults": {
+      "errors": [],
+      "externalRequests": []
+    }
+  },
+  "error": "AssertionError [ERR_ASSERTION]: A equals original v52 observer\n+ actual - expected\n... Skipped lines\n\n  {\n    aimWeight: 0,\n    eye: {\n      x: 0.4,\n      y: 1.4861,\n...\n    pitch: 0.08,\n+   regulation: null,\n-   regulation: undefined,\n    yaw: -0.020615635625603763\n  }\n\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-camera-workbench-v55.mjs:60:99",
+  "failureState": {
+    "version": 1,
+    "ready": true,
+    "busy": false,
+    "playing": false,
+    "speed": 1,
+    "mode": "loop",
+    "camera": "batter",
+    "sceneMs": 0,
+    "durationMs": 7024.563,
+    "selectedPitch": 0,
+    "generatedPitches": 12,
+    "finished": false,
+    "loopStartMs": 0,
+    "loopEndMs": null,
+    "A": {
+      "sceneMs": 0,
+      "tick": 1000000,
+      "camera": "batter",
+      "eye": {
+        "x": 0.4,
+        "y": 1.4861,
+        "z": -0.95
+      },
+      "yaw": -0.020615635625603763,
+      "pitch": 0.08,
+      "phase": "ready",
+      "aimWeight": 0,
+      "regulation": null,
+      "tuning": {
+        "settings": {
+          "enabled": false,
+          "aimLiftMeters": 0.3,
+          "swingMaxDownRadians": 0.3,
+          "hitFollowDelayMs": 100,
+          "aimReleaseMs": 100
+        },
+        "hitObservedAtSeconds": null,
+        "firstBattedTick": null,
+        "aimReleaseAtSeconds": null,
+        "plannedAimThroughSeconds": null,
+        "aimTarget": null,
+        "downwardTargetLimited": false
+      },
+      "ball": null
+    },
+    "B": {
+      "sceneMs": 0,
+      "tick": 1000000,
+      "camera": "batter",
+      "eye": {
+        "x": 0.4,
+        "y": 1.4861,
+        "z": -0.95
+      },
+      "yaw": -0.020615635625603763,
+      "pitch": 0.08,
+      "phase": "ready",
+      "aimWeight": 0,
+      "regulation": null,
+      "tuning": {
+        "settings": {
+          "enabled": true,
+          "aimLiftMeters": 0.3,
+          "swingMaxDownRadians": 0.3,
+          "hitFollowDelayMs": 100,
+          "aimReleaseMs": 100
+        },
+        "hitObservedAtSeconds": null,
+        "firstBattedTick": null,
+        "aimReleaseAtSeconds": null,
+        "plannedAimThroughSeconds": null,
+        "aimTarget": null,
+        "downwardTargetLimited": false
+      },
+      "ball": null
+    },
+    "settings": {
+      "A": {
+        "enabled": false,
+        "aimLiftMeters": 0.3,
+        "swingMaxDownRadians": 0.3,
+        "hitFollowDelayMs": 100,
+        "aimReleaseMs": 100
+      },
+      "B": {
+        "enabled": true,
+        "aimLiftMeters": 0.3,
+        "swingMaxDownRadians": 0.3,
+        "hitFollowDelayMs": 100,
+        "aimReleaseMs": 100
+      }
+    },
+    "seed": "TBD-LAD-2025",
+    "uiCommands": [
+      {
+        "managed-team": "1",
+        "batting-choice": "auto",
+        "baserunning-choice": "balanced",
+        "pitch-choice": "auto",
+        "location-choice": "auto"
+      },
+      {
+        "managed-team": "1",
+        "batting-choice": "auto",
+        "baserunning-choice": "balanced",
+        "pitch-choice": "auto",
+        "location-choice": "auto"
+      },
+      {
+        "managed-team": "1",
+        "batting-choice": "auto",
+        "baserunning-choice": "balanced",
+        "pitch-choice": "auto",
+        "location-choice": "auto"
+      },
+      {
+        "managed-team": "1",
+        "batting-choice": "auto",
+        "baserunning-choice": "balanced",
+        "pitch-choice": "auto",
+        "location-choice": "auto"
+      },
+      {
+        "managed-team": "1",
+        "batting-choice": "auto",
+        "baserunning-choice": "balanced",
+        "pitch-choice": "auto",
+        "location-choice": "auto"
+      },
+      {
+        "managed-team": "1",
+        "batting-choice": "auto",
+        "baserunning-choice": "balanced",
+        "pitch-choice": "auto",
+        "location-choice": "auto"
+      },
+      {
+        "managed-team": "1",
+        "batting-choice": "auto",
+        "baserunning-choice": "balanced",
+        "pitch-choice": "auto",
+        "location-choice": "auto"
+      },
+      {
+        "managed-team": "1",
+        "batting-choice": "auto",
+        "baserunning-choice": "balanced",
+        "pitch-choice": "auto",
+        "location-choice": "auto"
+      },
+      {
+        "managed-team": "1",
+        "batting-choice": "auto",
+        "baserunning-choice": "balanced",
+        "pitch-choice": "auto",
+        "location-choice": "auto"
+      },
+      {
+        "managed-team": "1",
+        "batting-choice": "auto",
+        "baserunning-choice": "balanced",
+        "pitch-choice": "auto",
+        "location-choice": "auto"
+      },
+      {
+        "managed-team": "1",
+        "batting-choice": "auto",
+        "baserunning-choice": "balanced",
+        "pitch-choice": "auto",
+        "location-choice": "auto"
+      },
+      {
+        "managed-team": "1",
+        "batting-choice": "auto",
+        "baserunning-choice": "balanced",
+        "pitch-choice": "auto",
+        "location-choice": "auto"
+      }
+    ],
+    "error": null,
+    "source": {
+      "presentationVersion": 55,
+      "sourceGamePath": "docs/demos/releases/v54/game.html",
+      "sourceGameSha256": "80c68e3ddb5c961ab6f18b325c6f267f883cd02d27381dfa10a9334bf8afae9f",
+      "sourceCoreSha256": "4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279",
+      "sourceInputCount": 113,
+      "cameraHelperSha256": "ec88797284d39c2c00a4cfe799c4527178a7df6ffbbb710ada3cd8d5d93f8950",
+      "workbenchDriverSha256": "841483361ecd3de89c4ec3eabcaa5b06d89e7fc97f23a2fb29a53a3cb684f171",
+      "workbenchTemplateSha256": "533fe5fba34938c606a4f8cc5dd09ef22f03f96cef0da394988fcccc69dcecf7",
+      "worldAuthority": "UNCHANGED_V54_OFFLINE_HOST_SHARED_CORE",
+      "displayGridPixels": 4,
+      "ordinaryCadenceMs": 55,
+      "readOnlyCamera": true
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V53-CAMERAS-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v53-camera.mjs",
+    "../../outputs/ばせぼーるlv53_TBD_vs_LAD_飛球走塁と得能版.html",
+    "../../outputs/verification-v53-cameras-final"
+  ],
+  "observed_at": "2026-10-18T10:36:54.693+00:00",
+  "elapsed_ms": 28343,
+  "git_head": "ea9ca61b0971da3cc3b3ce1cfb344d4496e2ecc9",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V53-CAMERAS-FINAL_132391e4de1649a2b1239a9c5d74f1c5.log",
+  "output_sha256": "d5e1eb4de238c910ce652629c523959a5ebcda8666a76546f74967561897e4c5",
+  "receipt_id": "MB-20261018-V53-CAMERAS-FINAL_132391e4de1649a2b1239a9c5d74f1c5"
+}

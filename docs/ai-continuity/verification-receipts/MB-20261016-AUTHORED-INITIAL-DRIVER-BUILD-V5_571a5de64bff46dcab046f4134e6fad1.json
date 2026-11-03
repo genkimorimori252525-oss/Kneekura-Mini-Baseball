@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-AUTHORED-INITIAL-DRIVER-BUILD-V5",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/native-game/build-measured-model-readback.mjs",
+    "../native-authored-initial-pitch-v5",
+    "authored_initial_native"
+  ],
+  "observed_at": "2026-10-16T00:10:12.454+00:00",
+  "elapsed_ms": 889,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-AUTHORED-INITIAL-DRIVER-BUILD-V5_571a5de64bff46dcab046f4134e6fad1.log",
+  "output_sha256": "4558660731dc64e6e28e93f73fdc71e8738f349d74cb8added018a02f9255922",
+  "receipt_id": "MB-20261016-AUTHORED-INITIAL-DRIVER-BUILD-V5_571a5de64bff46dcab046f4134e6fad1"
+}

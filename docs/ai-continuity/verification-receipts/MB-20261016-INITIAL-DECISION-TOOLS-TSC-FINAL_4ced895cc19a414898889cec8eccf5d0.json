@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-DECISION-TOOLS-TSC-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--skipLibCheck",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "Bundler",
+    "--strict",
+    "--esModuleInterop",
+    "--types",
+    "node",
+    "tools/verification/native-game/observed-initial-decision-native.ts",
+    "tools/verification/native-game/observed-cut-readback.ts"
+  ],
+  "observed_at": "2026-10-16T11:41:08.529+00:00",
+  "elapsed_ms": 9360,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-DECISION-TOOLS-TSC-FINAL_4ced895cc19a414898889cec8eccf5d0.log",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "receipt_id": "MB-20261016-INITIAL-DECISION-TOOLS-TSC-FINAL_4ced895cc19a414898889cec8eccf5d0"
+}

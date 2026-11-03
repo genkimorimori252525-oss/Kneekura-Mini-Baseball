@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V79-SEASON-CORE-GREEN",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveCourseScoringV79.test.ts",
+    "src/integration/browser/LiveSeasonV79.test.ts"
+  ],
+  "observed_at": "2026-10-20T00:15:47.365+00:00",
+  "elapsed_ms": 95313,
+  "git_head": "98819b9ab5c8e4bdd7ddfc7d644d484df08ab55d",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V79-SEASON-CORE-GREEN_df20fbe1e572468eaa4fb902baf29a2d.log",
+  "output_sha256": "1306e47de730eccba6ef841de29e210012be93e0457955eb4e8832bbf345cb72",
+  "receipt_id": "MB-20261020-V79-SEASON-CORE-GREEN_df20fbe1e572468eaa4fb902baf29a2d"
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V61-CORE-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-native.mjs"
+  ],
+  "observed_at": "2026-10-18T19:13:20.888+00:00",
+  "elapsed_ms": 360,
+  "git_head": "a384dfdfac341d3180abc7f750c9825bf137289e",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V61-CORE-BUILD_5bbc7e04a7194a31a18240a150ca35ca.log",
+  "output_sha256": "8ea40c32d2cc2f5d08c318fce42b553cd6faf01b72e9eab87b16f9494880932d",
+  "receipt_id": "MB-20261019-V61-CORE-BUILD_5bbc7e04a7194a31a18240a150ca35ca"
+}

@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LiveTraitAuthoringCalibrationV54.test.ts (2 tests) 3ms
+ ✓ src/integration/browser/LiveTraitProfilesV1.test.ts (14 tests) 20ms
+
+ Test Files  2 passed (2)
+      Tests  16 passed (16)
+   Start at  01:05:46
+   Duration  774ms (transform 202ms, setup 0ms, collect 274ms, tests 22ms, environment 0ms, prepare 270ms)
+

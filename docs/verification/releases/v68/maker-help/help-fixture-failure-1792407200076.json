@@ -1,0 +1,23 @@
+{
+  "pass": false,
+  "helpSha256": "952b778d350e9f8749129380d0eae3e923dac515cffd3b1fc5dc47ee61d96546",
+  "cssSha256": "2253a9670f34c1442b033511f710bd65038fbe516352ee9ba14d07262241e673",
+  "widths": [
+    {
+      "width": 1200,
+      "fieldCount": 47,
+      "controls": 49,
+      "delayMs": 1000,
+      "outputPreserved": true,
+      "sourceValuesPreserved": true,
+      "existingChangeHandlerPreserved": true,
+      "noDuplicateIcons": true,
+      "mutationRebuild": true,
+      "keyboardAndClick": true,
+      "clamped": true
+    }
+  ],
+  "errors": [],
+  "nested495OptionsHeading": true,
+  "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#nested-select').locator('..').locator('..').locator('.maker-help-button').last()\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" aria-expanded=\"false\" aria-label=\"この選手の打ち方の説明\" class=\"maker-help-button\" aria-controls=\"maker-help-tooltip-v68\">?</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div role=\"tooltip\" class=\"maker-help-tooltip\" id=\"maker-help-tooltip-v68\">当てる付近の角度↵上にすると当てる付近だけ上向きになります。元のフォームと時刻は残します。</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div role=\"tooltip\" class=\"maker-help-tooltip\" id=\"maker-help-tooltip-v68\">当てる付近の角度↵上にすると当てる付近だけ上向きになります。元のフォームと時刻は残します。</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    58 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div role=\"tooltip\" class=\"maker-help-tooltip\" id=\"maker-help-tooltip-v68\">当てる付近の角度↵上にすると当てる付近だけ上向きになります。元のフォームと時刻は残します。</div> intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n    at C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\v68-maker-help-fixture-check.mjs:33:708"
+}

@@ -1,0 +1,441 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/host/world/OriginalContactRunnerKinematics.test.ts (15 tests | 15 failed) 25ms
+   × connects exactly eleven original identities to a bounded executed contact prefix without inventing field execution 10ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × reconstructs original runner root and all five relative parts at the actual executed horizon, with prospectively owned source identities 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × rejects person instead of presenting a fabricated prefix or kinematics 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × rejects extra_actor instead of presenting a fabricated prefix or kinematics 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × rejects missing_role instead of presenting a fabricated prefix or kinematics 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × rejects wrong_owner instead of presenting a fabricated prefix or kinematics 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × rejects controller instead of presenting a fabricated prefix or kinematics 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × rejects root instead of presenting a fabricated prefix or kinematics 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × rejects runner_part instead of presenting a fabricated prefix or kinematics 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × rejects defender_part instead of presenting a fabricated prefix or kinematics 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × rejects batter_part instead of presenting a fabricated prefix or kinematics 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × rejects future_horizon instead of presenting a fabricated prefix or kinematics 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × rejects caller_state instead of presenting a fabricated prefix or kinematics 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × does not expose the declared future coverage as executed kinematics or allow arbitrary caller sampling 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × preserves a nonzero canonical runner root below primitive cleanup tolerance instead of silently rebasing it 2ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+ ❯ src/host/world/OriginalContactKinematicsReader.test.ts (15 tests | 15 failed) 86ms
+   × reads only the owned original-contact endpoint through the existing read-only SQLite adapter, without a field owner or mutation 70ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × rejects wrong_pitch rather than exposing unexecuted or different player state 2ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × rejects future_time rather than exposing unexecuted or different player state 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × rejects current_mode rather than exposing unexecuted or different player state 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × rejects extra_field rather than exposing unexecuted or different player state 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × rejects unknown_player rather than exposing unexecuted or different player state 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × rejects unknown_contact rather than exposing unexecuted or different player state 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × authenticates actual snapshot evidence on every read 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × authenticates actual source evidence on every read 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × authenticates actual head evidence on every read 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × authenticates actual person evidence on every read 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × authenticates current metadata but does not interpret future payloads beyond the selected original contact 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × rejects future game ownership metadata without interpreting future payloads 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × rejects future parent ownership metadata without interpreting future payloads 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × rejects future duplicate_source ownership metadata without interpreting future payloads 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+ ❯ src/host/world/OriginalContactLegacyBytes.test.ts (3 tests | 3 failed) 12ms
+   × preserves complete legacy ten-player snapshot bytes for zero input 9ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × preserves complete legacy ten-player snapshot bytes for rich input 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × preserves complete legacy ten-player snapshot bytes for cleanup input 1ms
+     → [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 33 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/host/world/OriginalContactKinematicsReader.test.ts > reads only the owned original-contact endpoint through the existing read-only SQLite adapter, without a field owner or mutation
+Error: [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("./SqliteBattedBallFlightStore"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ Module.battedWorldFlightSourceCurve src/host/world/BattedWorldSourceCurve.ts:10:5
+      8| export const battedWorldFlightSourceCurve = (flight: DurableBattedBall…
+      9|   if (flight.source.sourceVersion !== CONTINUOUS_AERO_GROUND_BATTED_FL…
+     10|     assertLegacyBattedBallFlightConsumer(flight.source, 'first_world_c…
+       |     ^
+     11|     return undefined;
+     12|   }
+ ❯ Object.derive src/host/world/SqliteBattedWorldContactStore.ts:82:25
+ ❯ fixture src/host/world/OriginalContactKinematicsReader.test.ts:14:60
+ ❯ src/host/world/OriginalContactKinematicsReader.test.ts:25:120
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/33]⎯
+
+ FAIL  src/host/world/OriginalContactKinematicsReader.test.ts > rejects wrong_pitch rather than exposing unexecuted or different player state
+ FAIL  src/host/world/OriginalContactKinematicsReader.test.ts > rejects future_time rather than exposing unexecuted or different player state
+ FAIL  src/host/world/OriginalContactKinematicsReader.test.ts > rejects current_mode rather than exposing unexecuted or different player state
+ FAIL  src/host/world/OriginalContactKinematicsReader.test.ts > rejects extra_field rather than exposing unexecuted or different player state
+ FAIL  src/host/world/OriginalContactKinematicsReader.test.ts > rejects unknown_player rather than exposing unexecuted or different player state
+ FAIL  src/host/world/OriginalContactKinematicsReader.test.ts > rejects unknown_contact rather than exposing unexecuted or different player state
+Error: [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("./SqliteBattedBallFlightStore"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ Module.battedWorldFlightSourceCurve src/host/world/BattedWorldSourceCurve.ts:10:5
+      8| export const battedWorldFlightSourceCurve = (flight: DurableBattedBall…
+      9|   if (flight.source.sourceVersion !== CONTINUOUS_AERO_GROUND_BATTED_FL…
+     10|     assertLegacyBattedBallFlightConsumer(flight.source, 'first_world_c…
+       |     ^
+     11|     return undefined;
+     12|   }
+ ❯ Object.derive src/host/world/SqliteBattedWorldContactStore.ts:82:25
+ ❯ fixture src/host/world/OriginalContactKinematicsReader.test.ts:14:60
+ ❯ src/host/world/OriginalContactKinematicsReader.test.ts:41:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/33]⎯
+
+ FAIL  src/host/world/OriginalContactKinematicsReader.test.ts > authenticates actual snapshot evidence on every read
+ FAIL  src/host/world/OriginalContactKinematicsReader.test.ts > authenticates actual source evidence on every read
+ FAIL  src/host/world/OriginalContactKinematicsReader.test.ts > authenticates actual head evidence on every read
+ FAIL  src/host/world/OriginalContactKinematicsReader.test.ts > authenticates actual person evidence on every read
+Error: [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("./SqliteBattedBallFlightStore"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ Module.battedWorldFlightSourceCurve src/host/world/BattedWorldSourceCurve.ts:10:5
+      8| export const battedWorldFlightSourceCurve = (flight: DurableBattedBall…
+      9|   if (flight.source.sourceVersion !== CONTINUOUS_AERO_GROUND_BATTED_FL…
+     10|     assertLegacyBattedBallFlightConsumer(flight.source, 'first_world_c…
+       |     ^
+     11|     return undefined;
+     12|   }
+ ❯ Object.derive src/host/world/SqliteBattedWorldContactStore.ts:82:25
+ ❯ fixture src/host/world/OriginalContactKinematicsReader.test.ts:14:60
+ ❯ src/host/world/OriginalContactKinematicsReader.test.ts:54:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/33]⎯
+
+ FAIL  src/host/world/OriginalContactKinematicsReader.test.ts > authenticates current metadata but does not interpret future payloads beyond the selected original contact
+Error: [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("./SqliteBattedBallFlightStore"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ Module.battedWorldFlightSourceCurve src/host/world/BattedWorldSourceCurve.ts:10:5
+      8| export const battedWorldFlightSourceCurve = (flight: DurableBattedBall…
+      9|   if (flight.source.sourceVersion !== CONTINUOUS_AERO_GROUND_BATTED_FL…
+     10|     assertLegacyBattedBallFlightConsumer(flight.source, 'first_world_c…
+       |     ^
+     11|     return undefined;
+     12|   }
+ ❯ Object.derive src/host/world/SqliteBattedWorldContactStore.ts:82:25
+ ❯ fixture src/host/world/OriginalContactKinematicsReader.test.ts:14:60
+ ❯ src/host/world/OriginalContactKinematicsReader.test.ts:72:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/33]⎯
+
+ FAIL  src/host/world/OriginalContactKinematicsReader.test.ts > rejects future game ownership metadata without interpreting future payloads
+ FAIL  src/host/world/OriginalContactKinematicsReader.test.ts > rejects future parent ownership metadata without interpreting future payloads
+ FAIL  src/host/world/OriginalContactKinematicsReader.test.ts > rejects future duplicate_source ownership metadata without interpreting future payloads
+Error: [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("./SqliteBattedBallFlightStore"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ Module.battedWorldFlightSourceCurve src/host/world/BattedWorldSourceCurve.ts:10:5
+      8| export const battedWorldFlightSourceCurve = (flight: DurableBattedBall…
+      9|   if (flight.source.sourceVersion !== CONTINUOUS_AERO_GROUND_BATTED_FL…
+     10|     assertLegacyBattedBallFlightConsumer(flight.source, 'first_world_c…
+       |     ^
+     11|     return undefined;
+     12|   }
+ ❯ Object.derive src/host/world/SqliteBattedWorldContactStore.ts:82:25
+ ❯ fixture src/host/world/OriginalContactKinematicsReader.test.ts:14:60
+ ❯ src/host/world/OriginalContactKinematicsReader.test.ts:84:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/33]⎯
+
+ FAIL  src/host/world/OriginalContactLegacyBytes.test.ts > preserves complete legacy ten-player snapshot bytes for zero input
+ FAIL  src/host/world/OriginalContactLegacyBytes.test.ts > preserves complete legacy ten-player snapshot bytes for rich input
+ FAIL  src/host/world/OriginalContactLegacyBytes.test.ts > preserves complete legacy ten-player snapshot bytes for cleanup input
+Error: [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("./SqliteBattedBallFlightStore"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ Module.battedWorldFlightSourceCurve src/host/world/BattedWorldSourceCurve.ts:10:5
+      8| export const battedWorldFlightSourceCurve = (flight: DurableBattedBall…
+      9|   if (flight.source.sourceVersion !== CONTINUOUS_AERO_GROUND_BATTED_FL…
+     10|     assertLegacyBattedBallFlightConsumer(flight.source, 'first_world_c…
+       |     ^
+     11|     return undefined;
+     12|   }
+ ❯ Object.derive src/host/world/SqliteBattedWorldContactStore.ts:82:25
+ ❯ src/host/world/OriginalContactLegacyBytes.test.ts:24:62
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/33]⎯
+
+ FAIL  src/host/world/OriginalContactRunnerKinematics.test.ts > connects exactly eleven original identities to a bounded executed contact prefix without inventing field execution
+Error: [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("./SqliteBattedBallFlightStore"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ Module.battedWorldFlightSourceCurve src/host/world/BattedWorldSourceCurve.ts:10:5
+      8| export const battedWorldFlightSourceCurve = (flight: DurableBattedBall…
+      9|   if (flight.source.sourceVersion !== CONTINUOUS_AERO_GROUND_BATTED_FL…
+     10|     assertLegacyBattedBallFlightConsumer(flight.source, 'first_world_c…
+       |     ^
+     11|     return undefined;
+     12|   }
+ ❯ Object.derive src/host/world/SqliteBattedWorldContactStore.ts:82:25
+ ❯ Object.contact src/host/world/OriginalContactRunnerKinematics.test.ts:10:76
+ ❯ src/host/world/OriginalContactRunnerKinematics.test.ts:15:23
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/33]⎯
+
+ FAIL  src/host/world/OriginalContactRunnerKinematics.test.ts > reconstructs original runner root and all five relative parts at the actual executed horizon, with prospectively owned source identities
+Error: [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("./SqliteBattedBallFlightStore"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ Module.battedWorldFlightSourceCurve src/host/world/BattedWorldSourceCurve.ts:10:5
+      8| export const battedWorldFlightSourceCurve = (flight: DurableBattedBall…
+      9|   if (flight.source.sourceVersion !== CONTINUOUS_AERO_GROUND_BATTED_FL…
+     10|     assertLegacyBattedBallFlightConsumer(flight.source, 'first_world_c…
+       |     ^
+     11|     return undefined;
+     12|   }
+ ❯ Object.derive src/host/world/SqliteBattedWorldContactStore.ts:82:25
+ ❯ Object.contact src/host/world/OriginalContactRunnerKinematics.test.ts:10:76
+ ❯ src/host/world/OriginalContactRunnerKinematics.test.ts:31:23
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/33]⎯
+
+ FAIL  src/host/world/OriginalContactRunnerKinematics.test.ts > rejects person instead of presenting a fabricated prefix or kinematics
+ FAIL  src/host/world/OriginalContactRunnerKinematics.test.ts > rejects extra_actor instead of presenting a fabricated prefix or kinematics
+ FAIL  src/host/world/OriginalContactRunnerKinematics.test.ts > rejects missing_role instead of presenting a fabricated prefix or kinematics
+ FAIL  src/host/world/OriginalContactRunnerKinematics.test.ts > rejects wrong_owner instead of presenting a fabricated prefix or kinematics
+ FAIL  src/host/world/OriginalContactRunnerKinematics.test.ts > rejects controller instead of presenting a fabricated prefix or kinematics
+ FAIL  src/host/world/OriginalContactRunnerKinematics.test.ts > rejects root instead of presenting a fabricated prefix or kinematics
+ FAIL  src/host/world/OriginalContactRunnerKinematics.test.ts > rejects runner_part instead of presenting a fabricated prefix or kinematics
+ FAIL  src/host/world/OriginalContactRunnerKinematics.test.ts > rejects defender_part instead of presenting a fabricated prefix or kinematics
+ FAIL  src/host/world/OriginalContactRunnerKinematics.test.ts > rejects batter_part instead of presenting a fabricated prefix or kinematics
+ FAIL  src/host/world/OriginalContactRunnerKinematics.test.ts > rejects future_horizon instead of presenting a fabricated prefix or kinematics
+ FAIL  src/host/world/OriginalContactRunnerKinematics.test.ts > rejects caller_state instead of presenting a fabricated prefix or kinematics
+Error: [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("./SqliteBattedBallFlightStore"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ Module.battedWorldFlightSourceCurve src/host/world/BattedWorldSourceCurve.ts:10:5
+      8| export const battedWorldFlightSourceCurve = (flight: DurableBattedBall…
+      9|   if (flight.source.sourceVersion !== CONTINUOUS_AERO_GROUND_BATTED_FL…
+     10|     assertLegacyBattedBallFlightConsumer(flight.source, 'first_world_c…
+       |     ^
+     11|     return undefined;
+     12|   }
+ ❯ Object.derive src/host/world/SqliteBattedWorldContactStore.ts:82:25
+ ❯ Object.contact src/host/world/OriginalContactRunnerKinematics.test.ts:10:76
+ ❯ src/host/world/OriginalContactRunnerKinematics.test.ts:59:39
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/33]⎯
+
+ FAIL  src/host/world/OriginalContactRunnerKinematics.test.ts > does not expose the declared future coverage as executed kinematics or allow arbitrary caller sampling
+Error: [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("./SqliteBattedBallFlightStore"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ Module.battedWorldFlightSourceCurve src/host/world/BattedWorldSourceCurve.ts:10:5
+      8| export const battedWorldFlightSourceCurve = (flight: DurableBattedBall…
+      9|   if (flight.source.sourceVersion !== CONTINUOUS_AERO_GROUND_BATTED_FL…
+     10|     assertLegacyBattedBallFlightConsumer(flight.source, 'first_world_c…
+       |     ^
+     11|     return undefined;
+     12|   }
+ ❯ Object.derive src/host/world/SqliteBattedWorldContactStore.ts:82:25
+ ❯ Object.contact src/host/world/OriginalContactRunnerKinematics.test.ts:10:76
+ ❯ src/host/world/OriginalContactRunnerKinematics.test.ts:79:23
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/33]⎯
+
+ FAIL  src/host/world/OriginalContactRunnerKinematics.test.ts > preserves a nonzero canonical runner root below primitive cleanup tolerance instead of silently rebasing it
+Error: [vitest] No "assertLegacyBattedBallFlightConsumer" export is defined on the "./SqliteBattedBallFlightStore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi.mock(import("./SqliteBattedBallFlightStore"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+ ❯ Module.battedWorldFlightSourceCurve src/host/world/BattedWorldSourceCurve.ts:10:5
+      8| export const battedWorldFlightSourceCurve = (flight: DurableBattedBall…
+      9|   if (flight.source.sourceVersion !== CONTINUOUS_AERO_GROUND_BATTED_FL…
+     10|     assertLegacyBattedBallFlightConsumer(flight.source, 'first_world_c…
+       |     ^
+     11|     return undefined;
+     12|   }
+ ❯ Object.derive src/host/world/SqliteBattedWorldContactStore.ts:82:25
+ ❯ src/host/world/OriginalContactRunnerKinematics.test.ts:102:64
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/33]⎯
+
+ Test Files  3 failed (3)
+      Tests  33 failed (33)
+   Start at  06:27:30
+   Duration  10.33s (transform 4.18s, setup 0ms, collect 9.45s, tests 123ms, environment 0ms, prepare 253ms)
+

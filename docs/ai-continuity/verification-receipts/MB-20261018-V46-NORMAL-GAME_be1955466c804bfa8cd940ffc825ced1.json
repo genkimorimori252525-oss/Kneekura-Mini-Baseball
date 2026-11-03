@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V46-NORMAL-GAME",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v46-game.mjs",
+    "../../outputs/ばせぼーるlv46_TBD_vs_LAD_走塁と守備AI改善版.html",
+    "../../outputs/verification-v46-game-v1"
+  ],
+  "observed_at": "2026-10-18T05:25:38.903+00:00",
+  "elapsed_ms": 64358,
+  "git_head": "6a8caf40153d76daba6a5acca34f5db12ca7f615",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V46-NORMAL-GAME_be1955466c804bfa8cd940ffc825ced1.log",
+  "output_sha256": "431823b39ee9a3a36a3d8418c9b48cd4473c26ad5ac79665a0730d1b7677b765",
+  "receipt_id": "MB-20261018-V46-NORMAL-GAME_be1955466c804bfa8cd940ffc825ced1"
+}

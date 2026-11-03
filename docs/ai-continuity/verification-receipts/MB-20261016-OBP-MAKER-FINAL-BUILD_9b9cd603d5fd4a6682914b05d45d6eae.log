@@ -1,0 +1,40 @@
+▲ [WARNING] "youkaishomecoming:yukari" is not a valid value for the "type" field [package.json]
+
+    ../../../../../../package.json:1:8:
+      1 │ {"type":"youkaishomecoming:yukari","texture":"touhou_little_maid:te...
+        ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The "type" field must be set to either "commonjs" or "module".
+
+{
+  "output": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_実測スイング版.html",
+  "bytes": 4215475,
+  "sha256": "cbaa0c99e8da2bf89dcadb84e414f5658ba010d9ed9282900f552b1afc01a4ae",
+  "coreSha256": "b0a66dd722d887ca0a3328f66d616446658106c7c5b8ae48ac8c45f8645f6590",
+  "uiSha256": "e0d3ea616cfec4280ed908ca7c53762912ffc9bdf2984bd688c24ecd4e031b4c",
+  "templateSha256": "8385e1bc91380eba3b4c632accee21ea880aacb08ac5ebc6727fdd3ce3d03598",
+  "referenceSha256": "72b615a28cd99b4a91c6e52cb02ee35f4ff97850c3bfe71ca73d0e609ba480ef",
+  "referenceClips": 12,
+  "batSpriteModuleSha256": "aa675212434b677b1fe8fb245d438f49f4afcef9022cecc2d512fd7cd32c35d9",
+  "batSpriteManifestSha256": "29f76d56ef02f56f4eda9b6b626df8e1b5ce98acbaa957b6534bbdcf2cff4dcc",
+  "batSprites": [
+    {
+      "file": "bat-78cm.png",
+      "nominalLengthM": 0.78,
+      "sha256": "41a9920ce99d43fcf4f18ff1121c30063ff6f02ed076d3a0032934d92910e430"
+    },
+    {
+      "file": "bat-84cm.png",
+      "nominalLengthM": 0.84,
+      "sha256": "c2902280e948c71afd5d346a18fffb587eccae868b1e9f7adf2009112ded2d4e"
+    },
+    {
+      "file": "bat-90cm.png",
+      "nominalLengthM": 0.9,
+      "sha256": "1e69c292727402112a6506c88e796d725db93bb28a1eb5d763bcaeff77ae5bd9"
+    }
+  ],
+  "batSpriteAuthority": "GENERATED_RENDER_SPRITES_NOT_MEASURED_BAT_GEOMETRY",
+  "selfContained": true,
+  "authority": "Shared Core samples; separate OpenBiomechanics measured-axis research replay"
+}

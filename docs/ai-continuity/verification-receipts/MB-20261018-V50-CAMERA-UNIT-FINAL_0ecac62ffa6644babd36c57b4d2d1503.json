@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V50-CAMERA-UNIT-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v27-batter-view.mjs"
+  ],
+  "observed_at": "2026-10-18T08:50:54.280+00:00",
+  "elapsed_ms": 61,
+  "git_head": "60ad5092b27a3eb9401cc4281de708150862c15e",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V50-CAMERA-UNIT-FINAL_0ecac62ffa6644babd36c57b4d2d1503.log",
+  "output_sha256": "4694653875241279e39464edf9d8e43b85e7472610ba19faa6ff5cfec70f2491",
+  "receipt_id": "MB-20261018-V50-CAMERA-UNIT-FINAL_0ecac62ffa6644babd36c57b4d2d1503"
+}

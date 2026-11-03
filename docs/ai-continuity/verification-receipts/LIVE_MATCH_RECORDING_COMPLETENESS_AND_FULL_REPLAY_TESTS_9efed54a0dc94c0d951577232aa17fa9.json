@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "LIVE_MATCH_RECORDING_COMPLETENESS_AND_FULL_REPLAY_TESTS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/verification/LiveMatchRecordingV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T01:00:30.236+00:00",
+  "elapsed_ms": 1062,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/LIVE_MATCH_RECORDING_COMPLETENESS_AND_FULL_REPLAY_TESTS_9efed54a0dc94c0d951577232aa17fa9.log",
+  "output_sha256": "d704bc989e5c92a605099d3497eb54a754456d6877e87ef0465915c5d141d899",
+  "receipt_id": "LIVE_MATCH_RECORDING_COMPLETENESS_AND_FULL_REPLAY_TESTS_9efed54a0dc94c0d951577232aa17fa9"
+}

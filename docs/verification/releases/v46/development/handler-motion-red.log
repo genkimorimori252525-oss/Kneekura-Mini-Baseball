@@ -1,0 +1,34 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/fielding/LiveFieldHandlerMotionV1.test.ts (2 tests | 1 failed) 2237ms
+   × assigns the easier incoming outfield route when a high fly also permits a long infield chase 1766ms
+     → expected undefined to be 'def-LF' // Object.is equality
+   ✓ allows an infielder to go back on a blooper that it can intercept before an outfielder 470ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldHandlerMotionV1.test.ts > assigns the easier incoming outfield route when a high fly also permits a long infield chase
+AssertionError: expected undefined to be 'def-LF' // Object.is equality
+
+- Expected: 
+"def-LF"
+
++ Received: 
+undefined
+
+ ❯ src/core/sim/fielding/LiveFieldHandlerMotionV1.test.ts:14:48
+     12|   const input = fixture({ x: -4, y: 28, z: 18 }), result = simulateLiv…
+     13|   expect(result.diagnostics.aiTelemetry.roleTransitions[0].handlerId).…
+     14|   expect(result.ruleFacts.flyCatch?.fielderId).toBe('def-LF');
+       |                                                ^
+     15|   expect(result.ruleFacts.firstGroundContactTick).toBeNull();
+     16|   expect(result.end).toMatchObject({ complete: true, reason: 'third_ou…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  14:19:07
+   Duration  3.36s (transform 286ms, setup 0ms, collect 410ms, tests 2.24s, environment 0ms, prepare 212ms)
+

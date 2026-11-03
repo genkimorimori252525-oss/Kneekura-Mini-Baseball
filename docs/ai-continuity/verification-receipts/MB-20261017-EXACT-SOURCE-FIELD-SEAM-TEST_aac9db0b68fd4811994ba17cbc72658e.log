@@ -1,0 +1,29 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/ball/BattedWorldMotion.test.ts (17 tests) 12ms
+ ❯ src/core/sim/ball/SourceBallWorldMotionV1.test.ts (7 tests | 1 failed) 315ms
+   × stops at the real first actor and carries physical restitution and material phase into the next Source 48ms
+     → v3 impulse contact bracket is unsupported
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/ball/SourceBallWorldMotionV1.test.ts > stops at the real first actor and carries physical restitution and material phase into the next Source
+Error: v3 impulse contact bracket is unsupported
+ ❯ Object.adoptImpulse src/core/sim/ball/SourceFreeBallWorldQuery.ts:311:93
+    309|     if (!witness || witness.witnessElapsedSeconds !== observed.moment.…
+    310|       || witness.witnessElapsedSeconds <= prior.moment.elapsedSeconds
+    311|       || witness.witnessElapsedSeconds - witness.firstPossibleElapsedS…
+       |                                                                                             ^
+    312|     const surfaceVelocity = c.kind === 'actor' ? c.velocity : { x: 0, …
+    313|     const normalSpeed = (v: Vec3) => axes.reduce((sum, axis) => sum + …
+ ❯ Object.advance src/core/sim/ball/SourceBallWorldMotionV1.ts:136:20
+ ❯ src/core/sim/ball/SourceBallWorldMotionV1.test.ts:83:51
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 23 passed (24)
+   Start at  06:07:24
+   Duration  2.05s (transform 1.00s, setup 0ms, collect 1.35s, tests 327ms, environment 0ms, prepare 1.13s)
+

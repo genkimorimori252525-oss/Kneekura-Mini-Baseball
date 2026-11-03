@@ -1,0 +1,9 @@
+▲ [WARNING] "youkaishomecoming:yukari" is not a valid value for the "type" field [package.json]
+
+    ../../../../../../package.json:1:8:
+      1 │ {"type":"youkaishomecoming:yukari","texture":"touhou_little_maid:te...
+        ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The "type" field must be set to either "commonjs" or "module".
+
+{"outfile":"dist/native-match-core-browser.js","bytes":868350,"sha256":"69ca27ecf6d167b59a4ca7dd87e5d3a5f27d04cce456c4f002788ce40d1912c0","inputCount":122,"inputManifestSha256":"69cda696281340fd7b3e4586669ad5ba215b1016b71b5052ccf686c05a8153bf","exports":["createNativeSinglePaSession","issueNativeCommandPitch","observeNativePitch","createNativeAerodynamicSession","observeNativeAerodynamicPitch","createReferenceAerodynamicPhysicalSource","observeNativeFreeBallContinuation","createSourceBallMaterialHistoryV1","createSourceBallMaterialHistoryFromContinuationV3","createExecutedFieldWorldObserverV1","createLiveBaseballMatchV1"]}

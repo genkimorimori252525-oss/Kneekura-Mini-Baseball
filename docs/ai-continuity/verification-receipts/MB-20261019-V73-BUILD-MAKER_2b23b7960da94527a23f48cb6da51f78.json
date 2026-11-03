@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V73-BUILD-MAKER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-maker.mjs",
+    "../../outputs/にーくら野球メーカー_v73_スイング分類と全体角度版.html",
+    "--executable-traits",
+    "--measured-library",
+    "--ball-comparison",
+    "--batter-comparison",
+    "--bat-orbit",
+    "--player-swing-preview",
+    "--whole-arc",
+    "--match-renderer=../../outputs/ばせぼーるlv73_TBD_vs_LAD_全体スイング角度版.html",
+    "--roster=docs/demos/live-game-roster-v62.json",
+    "--catalog=docs/demos/live-game-roster-catalog-v62.json"
+  ],
+  "observed_at": "2026-10-19T14:09:02.268+00:00",
+  "elapsed_ms": 2343,
+  "git_head": "2b0146abc0792e9f12b376983e7cf267a30d8a82",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V73-BUILD-MAKER_2b23b7960da94527a23f48cb6da51f78.log",
+  "output_sha256": "10525b6624d4577bffd76128899c08223834bc1ee6fe23a3c7226e09deecf909",
+  "receipt_id": "MB-20261019-V73-BUILD-MAKER_2b23b7960da94527a23f48cb6da51f78"
+}

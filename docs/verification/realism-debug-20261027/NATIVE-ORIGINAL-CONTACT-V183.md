@@ -1,0 +1,22 @@
+# V183: Original PhysicalPitchの認証済み接触取得
+
+2026-10-28 JST / MB-20261027-REALISM-DEBUG-PLAN Task5 SPIN-03。NativeMeasuredOriginalPitchContactV183.tsを追加し、既存Original prefixの正規Ownerと入力refのhashを同じNative read snapshotで照合する。端点のbeforeTimeline以後だけから接触を選び、原contact/actor/Source/game-play-event scope/progressRevisionをdetached/frozenで返す。正規無接触はnull、接触時の原actor欠落は拒否。progressRevisionをSamePA pitchOrdinalへ変換せず、TraitTime/model/名札を作らない。
+
+## 検証
+
+- 0db2fb39は3test/2失敗のRED（actor欠落/不正ref）。実装後e9eb5373d2ba4cb8bc3bbe09c0b1dacf PASS12703ms、pure境界2件と本物Original NoContact1件。pure入力はNative authorityではない。
+- 正常接触の回帰OC183-N02を既存ordinary_swing fixtureで追加し、e928c35cb7f84f9a9ee08ee9e13a4cb2 PASS7312ms、新1件/旧3件skip。原vector/actor/ref/progress1、2読取の厳密一致、全階層freeze/全object detach、原rows/heads/query_only/total_changes不変を確認した。成功済み3件を反復していない。
+- 新しいcompiled Node受入は既存fixtureのbunt Source1件。3fa9dbe31969498782e8825d65a2d323 PASS2110ms、正規API2読取/改変ref1拒否、原members一致、既存debug codecの全record/key順/数値を含む2読取一致、caller tx/query_only/authorizer、input detach/freeze、元fixture DB/私的コピー/bundle/Source821入力の終了pin一致。新setup架構・旧V182再実行は0。
+- 新正例testのreadonly入力型だけで375dbd78の型FAILを記録した。入力refをmutableな推論型へ修正し、型消去後JSはbyte exact、Native再実行0。最終全型5575fd77240f4d8e8187c3b2765fea7e PASS25094ms。それ以前のSource段階の型3f5a5f06 PASS26422msも当時範囲として保持。
+
+ordinary_swing/buntの接触は既存の明示的な配置fixtureであり、正常AIの未来情報利用、技能習得、正式calendar、自然cohortの証明ではない。私的DB/生payloadはnative-original-contact-v183-01/へ保存し外部公開しない。
+
+## 検証機構の再利用
+
+native-measurement-probe-support-v183.mjsへcopy/pin/compile/end-checkだけを切り出した。ec8a7975のmodule欠落REDを保持し、4a6af1952e4643d9934ca8567c83731f PASS375ms/人工byte fixture12件。WAL不存在/厳密0B、非空WAL/journal拒否、Source改変検出等を検査する。このhelperはSQLiteをopenせず、Native認証を与えない。旧202行のV182 probeを変更・複製せず、新caseの検証は共通処理を呼ぶ。
+
+## 次の入口
+
+保存資料の限定検索では適格なOriginal contact fullrefが未発見だったため、上記の既存fixtureを再利用した。V144の接触はpa_initial_joint_v1_executions所有で、Original PhysicalPitchの正例へ誤用しなかった。このInitialJointも全打者の観測には必要な別producerとして残る。
+
+次はreadInitialJointPhysicalExecutionFromSqliteと同snapshotの原actor読取を使う第三の入口を接続する。既存V144の採用済みexecutionから原contact/event/bindingへ戻り、phase準備/acceptを反復しない。暦/日内順序/BATTING_CONTACT集計Source/production model/表示joinと全goalは未完。

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-BAT-NATIVE-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/native-game/build-measured-model-readback.mjs",
+    "../native-authored-initial-with-bat-v1",
+    "authored_initial_native"
+  ],
+  "observed_at": "2026-10-16T12:03:43.263+00:00",
+  "elapsed_ms": 1125,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-BAT-NATIVE-BUILD_9b0df2d42d9a466d8d4a1a6a2ff31a65.log",
+  "output_sha256": "13fe5075bc8056627dfafd02a770b0a6c1be91cdd13318e8511719cdb66053a5",
+  "receipt_id": "MB-20261016-INITIAL-BAT-NATIVE-BUILD_9b0df2d42d9a466d8d4a1a6a2ff31a65"
+}

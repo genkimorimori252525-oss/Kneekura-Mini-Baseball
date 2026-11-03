@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V47-HOST-VELOCITY",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveBaseballMatchV1.test.ts",
+    "-t",
+    "copies each current analytic runner velocity"
+  ],
+  "observed_at": "2026-10-18T07:25:31.983+00:00",
+  "elapsed_ms": 4422,
+  "git_head": "61a3afc1d7262e5d787358869d096df55ff8f2ac",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V47-HOST-VELOCITY_1fb38a7a915945c0b2a1d57874f7fd25.log",
+  "output_sha256": "feaa4c7cc4132ad30e399bc1485e7de1d47ebc87e1037f74fc2c30d3333404e7",
+  "receipt_id": "MB-20261018-V47-HOST-VELOCITY_1fb38a7a915945c0b2a1d57874f7fd25"
+}

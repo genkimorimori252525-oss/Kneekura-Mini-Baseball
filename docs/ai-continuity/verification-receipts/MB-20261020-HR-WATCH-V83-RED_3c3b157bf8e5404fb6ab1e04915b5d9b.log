@@ -1,0 +1,132 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ tools/browser-bridge/home-run-watch-v83.test.mjs (8 tests | 8 failed) 11ms
+   × holds the previously admitted defender camera for exactly 1750 presentation milliseconds 5ms
+     → ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\home-run-watch-v83.js'
+   × reverse seeks and interleaved records do not retain a stale camera or countdown 1ms
+     → ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\home-run-watch-v83.js'
+   × uses the declared Source clock, including one tick per second, for start and duration 1ms
+     → ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\home-run-watch-v83.js'
+   × does not read payloads after the admitted crossing prefix or reveal a future confirmation 1ms
+     → ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\home-run-watch-v83.js'
+   × requires an actual past defender view and preserves the existing decisive-HR mound view 1ms
+     → ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\home-run-watch-v83.js'
+   × continues the hold into a bench frame without a duplicated homeRunConfirmed flag 1ms
+     → ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\home-run-watch-v83.js'
+   × changes only a copied dead HR ball visibility and never mutates canonical rows 1ms
+     → ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\home-run-watch-v83.js'
+   × does not affect other selected cameras, non-HR outcomes, caught balls, or invalid fence evidence 1ms
+     → ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\home-run-watch-v83.js'
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tools/browser-bridge/home-run-watch-v83.test.mjs > holds the previously admitted defender camera for exactly 1750 presentation milliseconds
+Error: ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\home-run-watch-v83.js'
+ ❯ api tools/browser-bridge/home-run-watch-v83.test.mjs:7:19
+      5| function api() {
+      6|   const context = vm.createContext({});
+      7|   vm.runInContext(readFileSync(new URL('./home-run-watch-v83.js', impo…
+       |                   ^
+      8|   return context.KneekuraHomeRunWatchV83;
+      9| }
+ ❯ tools/browser-bridge/home-run-watch-v83.test.mjs:44:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  tools/browser-bridge/home-run-watch-v83.test.mjs > reverse seeks and interleaved records do not retain a stale camera or countdown
+Error: ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\home-run-watch-v83.js'
+ ❯ api tools/browser-bridge/home-run-watch-v83.test.mjs:7:19
+      5| function api() {
+      6|   const context = vm.createContext({});
+      7|   vm.runInContext(readFileSync(new URL('./home-run-watch-v83.js', impo…
+       |                   ^
+      8|   return context.KneekuraHomeRunWatchV83;
+      9| }
+ ❯ tools/browser-bridge/home-run-watch-v83.test.mjs:59:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  tools/browser-bridge/home-run-watch-v83.test.mjs > uses the declared Source clock, including one tick per second, for start and duration
+Error: ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\home-run-watch-v83.js'
+ ❯ api tools/browser-bridge/home-run-watch-v83.test.mjs:7:19
+      5| function api() {
+      6|   const context = vm.createContext({});
+      7|   vm.runInContext(readFileSync(new URL('./home-run-watch-v83.js', impo…
+       |                   ^
+      8|   return context.KneekuraHomeRunWatchV83;
+      9| }
+ ❯ tools/browser-bridge/home-run-watch-v83.test.mjs:72:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  tools/browser-bridge/home-run-watch-v83.test.mjs > does not read payloads after the admitted crossing prefix or reveal a future confirmation
+Error: ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\home-run-watch-v83.js'
+ ❯ api tools/browser-bridge/home-run-watch-v83.test.mjs:7:19
+      5| function api() {
+      6|   const context = vm.createContext({});
+      7|   vm.runInContext(readFileSync(new URL('./home-run-watch-v83.js', impo…
+       |                   ^
+      8|   return context.KneekuraHomeRunWatchV83;
+      9| }
+ ❯ tools/browser-bridge/home-run-watch-v83.test.mjs:82:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  tools/browser-bridge/home-run-watch-v83.test.mjs > requires an actual past defender view and preserves the existing decisive-HR mound view
+Error: ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\home-run-watch-v83.js'
+ ❯ api tools/browser-bridge/home-run-watch-v83.test.mjs:7:19
+      5| function api() {
+      6|   const context = vm.createContext({});
+      7|   vm.runInContext(readFileSync(new URL('./home-run-watch-v83.js', impo…
+       |                   ^
+      8|   return context.KneekuraHomeRunWatchV83;
+      9| }
+ ❯ tools/browser-bridge/home-run-watch-v83.test.mjs:94:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  tools/browser-bridge/home-run-watch-v83.test.mjs > continues the hold into a bench frame without a duplicated homeRunConfirmed flag
+Error: ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\home-run-watch-v83.js'
+ ❯ api tools/browser-bridge/home-run-watch-v83.test.mjs:7:19
+      5| function api() {
+      6|   const context = vm.createContext({});
+      7|   vm.runInContext(readFileSync(new URL('./home-run-watch-v83.js', impo…
+       |                   ^
+      8|   return context.KneekuraHomeRunWatchV83;
+      9| }
+ ❯ tools/browser-bridge/home-run-watch-v83.test.mjs:104:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  tools/browser-bridge/home-run-watch-v83.test.mjs > changes only a copied dead HR ball visibility and never mutates canonical rows
+Error: ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\home-run-watch-v83.js'
+ ❯ api tools/browser-bridge/home-run-watch-v83.test.mjs:7:19
+      5| function api() {
+      6|   const context = vm.createContext({});
+      7|   vm.runInContext(readFileSync(new URL('./home-run-watch-v83.js', impo…
+       |                   ^
+      8|   return context.KneekuraHomeRunWatchV83;
+      9| }
+ ❯ tools/browser-bridge/home-run-watch-v83.test.mjs:114:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+ FAIL  tools/browser-bridge/home-run-watch-v83.test.mjs > does not affect other selected cameras, non-HR outcomes, caught balls, or invalid fence evidence
+Error: ENOENT: no such file or directory, open 'C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\home-run-watch-v83.js'
+ ❯ api tools/browser-bridge/home-run-watch-v83.test.mjs:7:19
+      5| function api() {
+      6|   const context = vm.createContext({});
+      7|   vm.runInContext(readFileSync(new URL('./home-run-watch-v83.js', impo…
+       |                   ^
+      8|   return context.KneekuraHomeRunWatchV83;
+      9| }
+ ❯ tools/browser-bridge/home-run-watch-v83.test.mjs:131:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+
+ Test Files  1 failed (1)
+      Tests  8 failed (8)
+   Start at  23:15:25
+   Duration  642ms (transform 32ms, setup 0ms, collect 30ms, tests 11ms, environment 0ms, prepare 173ms)
+

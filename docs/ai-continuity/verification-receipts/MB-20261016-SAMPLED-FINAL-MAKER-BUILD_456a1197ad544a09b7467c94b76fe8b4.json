@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SAMPLED-FINAL-MAKER-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-maker.mjs",
+    "../../outputs/にーくら野球メーカー_実測スイング版.html"
+  ],
+  "observed_at": "2026-10-15T21:48:28.593+00:00",
+  "elapsed_ms": 172,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SAMPLED-FINAL-MAKER-BUILD_456a1197ad544a09b7467c94b76fe8b4.log",
+  "output_sha256": "cd6c0892a4bb5a706172839aa9c92f7549cbd589a7e55595d51c0f9a6fd1bfe5",
+  "receipt_id": "MB-20261016-SAMPLED-FINAL-MAKER-BUILD_456a1197ad544a09b7467c94b76fe8b4"
+}

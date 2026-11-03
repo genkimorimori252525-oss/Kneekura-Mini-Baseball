@@ -1,0 +1,13 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/perception/Occlusion.test.ts (9 tests) 4ms
+ ✓ src/core/sim/contact/InitialHeldBatV1.test.ts (7 tests) 5ms
+ ✓ src/core/world/psychology/batting/BattingExecutionCalculation.test.ts (12 tests) 219ms
+ ✓ src/core/world/psychology/batting/MeasuredBattingCommitment.test.ts (22 tests) 1614ms
+
+ Test Files  4 passed (4)
+      Tests  50 passed (50)
+   Start at  21:03:42
+   Duration  2.88s (transform 874ms, setup 0ms, collect 1.72s, tests 1.84s, environment 1ms, prepare 741ms)
+

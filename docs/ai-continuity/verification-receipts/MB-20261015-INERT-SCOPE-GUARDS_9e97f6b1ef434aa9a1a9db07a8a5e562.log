@@ -1,0 +1,108 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/ActualFirstBasePhysicalReadTraversal.test.ts (25 tests) 1076ms
+ ✓ src/host/world/OwnedScheduledMotionDependencyEncoding.test.ts (16 tests) 1201ms
+   ✓ retains long per-record snapshot budgets without introducing an aggregate cache limit 337ms
+   ✓ caches a per-record validated large whole-history snapshot without a generic aggregate bypass 445ms
+ ✓ src/host/world/ActualLiveScoringAdmission.test.ts (95 tests) 167476ms
+   ✓ adds only accepted base_hit scoring to immutable actual closure and ten-role readiness 2474ms
+   ✓ adds only accepted reached_on_error scoring to immutable actual closure and ten-role readiness 2482ms
+   ✓ does not accept a missing scorer dependency or fabricate a fair OUT category 2159ms
+   ✓ does not accept a fair_out scorer dependency or fabricate a fair OUT category 1931ms
+   ✓ rejects game substitution before accepting a scorer Source 1886ms
+   ✓ rejects closure_hash substitution before accepting a scorer Source 1886ms
+   ✓ rejects ruling substitution before accepting a scorer Source 1826ms
+   ✓ rejects record_tick substitution before accepting a scorer Source 1776ms
+   ✓ rejects fair_event substitution before accepting a scorer Source 1895ms
+   ✓ rejects batter substitution before accepting a scorer Source 1836ms
+   ✓ rejects fielder substitution before accepting a scorer Source 1960ms
+   ✓ rejects choice substitution before accepting a scorer Source 1888ms
+   ✓ rejects source_alias substitution before accepting a scorer Source 1761ms
+   ✓ rejects an outcome-neutral stale review revision before scorer acceptance 1821ms
+   ✓ rejects an outcome-neutral stale review headSourceId before scorer acceptance 1937ms
+   ✓ rejects an outcome-neutral stale review headHash before scorer acceptance 1824ms
+   ✓ accepts the exact reviewed closure basis without replacing its original call 1967ms
+   ✓ reserves one immutable scorer Source per closure and rejects changed accepted input 1813ms
+   ✓ witnesses the actual source INSERT before local corruption rolls back 1769ms
+   ✓ witnesses the actual scoring INSERT before local corruption rolls back 1836ms
+   ✓ recovers scoring_insert after all connections close without duplicating separate effects 2280ms
+   ✓ recovers completion_checkpoint after all connections close without duplicating separate effects 2104ms
+   ✓ rejects escaped duplicate Source identity in source_json without trusting cached scope 1724ms
+   ✓ rejects escaped duplicate Source identity in proposal_json without trusting cached scope 1766ms
+   ✓ rejects a rival raw closure claim hidden behind different SQL scope 1703ms
+   ✓ rejects a rival raw application claim hidden behind different SQL scope 1838ms
+   ✓ rejects a rival raw play claim hidden behind different SQL scope 1785ms
+   ✓ rejects a rival raw scoring_application claim hidden behind different SQL scope 1726ms
+   ✓ reauthenticates a committed peer WAL change between preflight and BEGIN IMMEDIATE 1694ms
+   ✓ rejects accepted callback changes inside enqueue and keeps historical reads callback-free 1902ms
+   ✓ witnesses source INSERT before a local raw scorer archive mutation rolls back 1694ms
+   ✓ witnesses scoring INSERT before a local raw scorer archive mutation rolls back 1728ms
+   ✓ feeds accepted base_hit into existing contiguous line-score history exactly once 1851ms
+   ✓ feeds accepted reached_on_error into existing contiguous line-score history exactly once 1728ms
+   ✓ keeps missing prior scoring and incomplete game history explicit in the existing line-score consumer 1656ms
+   ✓ rejects 'raw' 'staging' 'activation' 'applicationId' ownership hidden in a rival raw receipt 1607ms
+   ✓ rejects 'raw' 'staging' 'activation' 'closureId' ownership hidden in a rival raw receipt 1603ms
+   ✓ rejects 'raw' 'staging' 'result' 'applicationId' ownership hidden in a rival raw receipt 1621ms
+   ✓ rejects 'raw' 'staging' 'result' 'closureId' ownership hidden in a rival raw receipt 1759ms
+   ✓ rejects 'raw' 'closure_proposal' 'activation' 'applicationId' ownership hidden in a rival raw receipt 1619ms
+   ✓ rejects 'raw' 'closure_proposal' 'activation' 'closureId' ownership hidden in a rival raw receipt 1644ms
+   ✓ rejects 'raw' 'closure_proposal' 'result' 'applicationId' ownership hidden in a rival raw receipt 1603ms
+   ✓ rejects 'raw' 'closure_proposal' 'result' 'closureId' ownership hidden in a rival raw receipt 1591ms
+   ✓ rejects 'raw' 'closure_result' 'activation' 'applicationId' ownership hidden in a rival raw receipt 1602ms
+   ✓ rejects 'raw' 'closure_result' 'activation' 'closureId' ownership hidden in a rival raw receipt 1664ms
+   ✓ rejects 'raw' 'closure_result' 'result' 'applicationId' ownership hidden in a rival raw receipt 1746ms
+   ✓ rejects 'raw' 'closure_result' 'result' 'closureId' ownership hidden in a rival raw receipt 1611ms
+   ✓ rejects 'raw' 'application' 'activation' 'applicationId' ownership hidden in a rival raw receipt 1586ms
+   ✓ rejects 'raw' 'application' 'activation' 'closureId' ownership hidden in a rival raw receipt 1611ms
+   ✓ rejects 'raw' 'application' 'result' 'applicationId' ownership hidden in a rival raw receipt 1679ms
+   ✓ rejects 'raw' 'application' 'result' 'closureId' ownership hidden in a rival raw receipt 1593ms
+   ✓ rejects 'escaped_duplicate' 'staging' 'activation' 'applicationId' ownership hidden in a rival raw receipt 1750ms
+   ✓ rejects 'escaped_duplicate' 'staging' 'activation' 'closureId' ownership hidden in a rival raw receipt 1705ms
+   ✓ rejects 'escaped_duplicate' 'staging' 'result' 'applicationId' ownership hidden in a rival raw receipt 1607ms
+   ✓ rejects 'escaped_duplicate' 'staging' 'result' 'closureId' ownership hidden in a rival raw receipt 1578ms
+   ✓ rejects 'escaped_duplicate' 'closure_proposal' 'activation' 'applicationId' ownership hidden in a rival raw receipt 1626ms
+   ✓ rejects 'escaped_duplicate' 'closure_proposal' 'activation' 'closureId' ownership hidden in a rival raw receipt 1618ms
+   ✓ rejects 'escaped_duplicate' 'closure_proposal' 'result' 'applicationId' ownership hidden in a rival raw receipt 1592ms
+   ✓ rejects 'escaped_duplicate' 'closure_proposal' 'result' 'closureId' ownership hidden in a rival raw receipt 1754ms
+   ✓ rejects 'escaped_duplicate' 'closure_result' 'activation' 'applicationId' ownership hidden in a rival raw receipt 1615ms
+   ✓ rejects 'escaped_duplicate' 'closure_result' 'activation' 'closureId' ownership hidden in a rival raw receipt 1614ms
+   ✓ rejects 'escaped_duplicate' 'closure_result' 'result' 'applicationId' ownership hidden in a rival raw receipt 1728ms
+   ✓ rejects 'escaped_duplicate' 'closure_result' 'result' 'closureId' ownership hidden in a rival raw receipt 1613ms
+   ✓ rejects 'escaped_duplicate' 'application' 'activation' 'applicationId' ownership hidden in a rival raw receipt 1602ms
+   ✓ rejects 'escaped_duplicate' 'application' 'activation' 'closureId' ownership hidden in a rival raw receipt 1764ms
+   ✓ rejects 'escaped_duplicate' 'application' 'result' 'applicationId' ownership hidden in a rival raw receipt 1638ms
+   ✓ rejects 'escaped_duplicate' 'application' 'result' 'closureId' ownership hidden in a rival raw receipt 1584ms
+   ✓ rejects 'raw' 'staging' 'activation' 'previousPlayId' scope hidden in a rival raw receipt 1621ms
+   ✓ rejects 'raw' 'staging' 'result' 'gameId' scope hidden in a rival raw receipt 1692ms
+   ✓ rejects 'raw' 'closure_proposal' 'receipt' 'previousPlayId' scope hidden in a rival raw receipt 1546ms
+   ✓ rejects 'raw' 'closure_proposal' 'activation' 'previousPlayId' scope hidden in a rival raw receipt 1580ms
+   ✓ rejects 'raw' 'closure_proposal' 'result' 'gameId' scope hidden in a rival raw receipt 1620ms
+   ✓ rejects 'raw' 'closure_result' 'receipt' 'previousPlayId' scope hidden in a rival raw receipt 1623ms
+   ✓ rejects 'raw' 'closure_result' 'activation' 'previousPlayId' scope hidden in a rival raw receipt 1573ms
+   ✓ rejects 'raw' 'closure_result' 'result' 'gameId' scope hidden in a rival raw receipt 1611ms
+   ✓ rejects 'raw' 'application' 'receipt' 'previousPlayId' scope hidden in a rival raw receipt 1594ms
+   ✓ rejects 'raw' 'application' 'activation' 'previousPlayId' scope hidden in a rival raw receipt 1553ms
+   ✓ rejects 'raw' 'application' 'result' 'gameId' scope hidden in a rival raw receipt 3165ms
+   ✓ rejects 'escaped_duplicate' 'staging' 'activation' 'previousPlayId' scope hidden in a rival raw receipt 1870ms
+   ✓ rejects 'escaped_duplicate' 'staging' 'result' 'gameId' scope hidden in a rival raw receipt 1738ms
+   ✓ rejects 'escaped_duplicate' 'closure_proposal' 'receipt' 'previousPlayId' scope hidden in a rival raw receipt 1696ms
+   ✓ rejects 'escaped_duplicate' 'closure_proposal' 'activation' 'previousPlayId' scope hidden in a rival raw receipt 1841ms
+   ✓ rejects 'escaped_duplicate' 'closure_proposal' 'result' 'gameId' scope hidden in a rival raw receipt 2185ms
+   ✓ rejects 'escaped_duplicate' 'closure_result' 'receipt' 'previousPlayId' scope hidden in a rival raw receipt 2729ms
+   ✓ rejects 'escaped_duplicate' 'closure_result' 'activation' 'previousPlayId' scope hidden in a rival raw receipt 2146ms
+   ✓ rejects 'escaped_duplicate' 'closure_result' 'result' 'gameId' scope hidden in a rival raw receipt 2292ms
+   ✓ rejects 'escaped_duplicate' 'application' 'receipt' 'previousPlayId' scope hidden in a rival raw receipt 1789ms
+   ✓ rejects 'escaped_duplicate' 'application' 'activation' 'previousPlayId' scope hidden in a rival raw receipt 1559ms
+   ✓ rejects 'escaped_duplicate' 'application' 'result' 'gameId' scope hidden in a rival raw receipt 1641ms
+   ✓ keeps unrelated later-play staging metadata outside the original game and play ownership pair 1719ms
+   ✓ keeps unrelated later-play closure_proposal metadata outside the original game and play ownership pair 1600ms
+   ✓ keeps unrelated later-play closure_result metadata outside the original game and play ownership pair 1576ms
+   ✓ keeps unrelated later-play application metadata outside the original game and play ownership pair 1586ms
+   ✓ persists explicit versioned RBI and hit awards without changing legacy closure bytes 1792ms
+
+ Test Files  3 passed (3)
+      Tests  136 passed (136)
+   Start at  05:32:43
+   Duration  174.70s (transform 7.42s, setup 0ms, collect 19.02s, tests 169.75s, environment 0ms, prepare 446ms)
+

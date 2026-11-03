@@ -1,0 +1,4 @@
+src/integration/browser/LivePublicAbilitiesV1.test.ts(12,81): error TS2352: Conversion of type '(Pick<LivePlayerPhysicalV1, "basis"> & Partial<LiveRosterPhysicalV1>) | undefined' to type 'Record<string, number>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'Pick<LivePlayerPhysicalV1, "basis"> & Partial<LiveRosterPhysicalV1>' is not comparable to type 'Record<string, number>'.
+    Property 'basis' is incompatible with index signature.
+      Type 'string' is not comparable to type 'number'.

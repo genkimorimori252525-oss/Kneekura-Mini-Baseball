@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V64-CADENCE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v56-cadence.mjs",
+    "../../outputs/ばせぼーるlv64_TBD_vs_LAD_俯瞰の高さ表示調整版.html",
+    "../../outputs/カメラワーク調整室_v64.html",
+    "../../outputs/verification-v64-cadence"
+  ],
+  "observed_at": "2026-10-18T20:14:07.241+00:00",
+  "elapsed_ms": 7984,
+  "git_head": "c74aad0a415db1fc4048db36392e8827c525684b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V64-CADENCE_6093109f1c184f029a227790ebcfabd2.log",
+  "output_sha256": "f605b67ea01a1418866867096366b800afaf5d4e506ab58a7e7a64e22897de2b",
+  "receipt_id": "MB-20261019-V64-CADENCE_6093109f1c184f029a227790ebcfabd2"
+}

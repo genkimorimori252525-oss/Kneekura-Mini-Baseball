@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V36-TWO-FRESH-GAMES",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/run-live-match-population.mjs",
+    "../../work/v36-field-registration-audit-v1",
+    "../../outputs/verification-v36-registered-two-games",
+    "2",
+    "2"
+  ],
+  "observed_at": "2026-10-17T02:36:53.511+00:00",
+  "elapsed_ms": 66859,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V36-TWO-FRESH-GAMES_6d48f4d733d54916a680fc44eba01708.log",
+  "output_sha256": "8ebfd8c05ad78f5bfa433e712a622ff7280208c9f002dbee02d82ae3952914ef",
+  "receipt_id": "MB-20261017-V36-TWO-FRESH-GAMES_6d48f4d733d54916a680fc44eba01708"
+}

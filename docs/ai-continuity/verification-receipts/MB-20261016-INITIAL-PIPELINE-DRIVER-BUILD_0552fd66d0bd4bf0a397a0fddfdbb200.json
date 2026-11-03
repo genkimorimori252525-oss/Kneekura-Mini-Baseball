@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-PIPELINE-DRIVER-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/native-game/build-measured-model-readback.mjs",
+    "../native-observed-initial-cut-v3",
+    "observed_cut_native"
+  ],
+  "observed_at": "2026-10-15T23:47:15.452+00:00",
+  "elapsed_ms": 812,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-PIPELINE-DRIVER-BUILD_0552fd66d0bd4bf0a397a0fddfdbb200.log",
+  "output_sha256": "7449bdc84837df1524d041331ceddec51a492459daf98518b2be92390aa55422",
+  "receipt_id": "MB-20261016-INITIAL-PIPELINE-DRIVER-BUILD_0552fd66d0bd4bf0a397a0fddfdbb200"
+}

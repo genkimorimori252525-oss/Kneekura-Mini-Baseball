@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-NATIVE-RECOVERED-FIELD-SEAM-REACH-GUARD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-recovered-field-root-v3/readback.mjs",
+    "../../outputs/verification-authored-with-bat-recovery-v1",
+    "../../outputs/verification-authored-with-bat-recovered-field-root-v3"
+  ],
+  "observed_at": "2026-10-16T21:16:17.656+00:00",
+  "elapsed_ms": 26655,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-NATIVE-RECOVERED-FIELD-SEAM-REACH-GUARD_03e8264e349042568c2afe044186678c.log",
+  "output_sha256": "68728b9229cf908e7534405c5217af30e5e46881244bdd716cf810bae1c1df35",
+  "receipt_id": "MB-20261017-NATIVE-RECOVERED-FIELD-SEAM-REACH-GUARD_03e8264e349042568c2afe044186678c"
+}

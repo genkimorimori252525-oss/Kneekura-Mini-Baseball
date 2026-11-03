@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V50-TAKE-DRIFT-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v27-batter-view.mjs",
+    "--baseline"
+  ],
+  "observed_at": "2026-10-18T08:48:44.640+00:00",
+  "elapsed_ms": 47,
+  "git_head": "60ad5092b27a3eb9401cc4281de708150862c15e",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V50-TAKE-DRIFT-RED_aaee791d41fb4372aa6b3c416a11d872.log",
+  "output_sha256": "334e5404a647337b1e6115d9b2bfbc0157a053ae886edaac80983d9f08708962",
+  "receipt_id": "MB-20261018-V50-TAKE-DRIFT-RED_aaee791d41fb4372aa6b3c416a11d872"
+}

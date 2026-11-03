@@ -1,0 +1,16 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/world/psychology/batting/ObservedStrikeZoneOpportunityV1.test.ts (4 tests) 45ms
+ ✓ src/core/world/psychology/batting/BattingCommitment.test.ts (23 tests) 221ms
+ ✓ src/core/world/psychology/batting/BattingMotorPlanV1.test.ts (5 tests) 242ms
+ ✓ src/core/world/psychology/batting/MeasuredBattingCommitment.test.ts (22 tests) 2114ms
+ ✓ src/host/world/NativeBattingEmotionExecution.test.ts (3 tests) 20ms
+ ✓ src/host/world/NativeBattingEmotion.test.ts (3 tests) 12360ms
+   ✓ EG01 explicit policy owns exactly one initial emotion state and exact retries survive ordinary reopen 12229ms
+
+ Test Files  6 passed (6)
+      Tests  60 passed (60)
+   Start at  20:25:47
+   Duration  21.88s (transform 8.29s, setup 0ms, collect 20.96s, tests 15.00s, environment 1ms, prepare 3.74s)
+

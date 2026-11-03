@@ -1,0 +1,47 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LivePitchAuthoringV77.test.ts (3 tests) 5ms
+ ✓ src/integration/browser/LivePitchAuthoringV78.test.ts (4 tests) 34ms
+ ✓ src/integration/browser/LivePitchRosterV77.test.ts (3 tests) 26ms
+ ✓ src/integration/browser/LivePitchHostAuthoringV77.test.ts (2 tests) 343ms
+   ✓ uses the same repertoire, handed release, technique and physical Source in Host and pitcher workbench 305ms
+stdout | src/core/sim/fielding/LiveThrowPlanV1.test.ts > remains deterministic and reports performance outside the issued command
+{"benchmark":"70M_AERO_THROW_COMMAND","wallMilliseconds":129.24019999999996,"candidateCount":4,"solverEvaluationCount":19,"shootingIntegrationStepUpperBound":10047,"verificationKernelBuilds":1,"timingBasis":"MONOTONIC_WALL_CLOCK_NOT_PROCESS_CPU","processCpuUserMilliseconds":125,"processCpuSystemMilliseconds":16}
+
+ ✓ src/core/sim/fielding/LiveThrowPlanV1.test.ts (7 tests) 867ms
+   ✓ remains deterministic and reports performance outside the issued command 454ms
+ ✓ src/integration/browser/LivePhysicalRosterV1.test.ts (28 tests) 1208ms
+stdout | src/core/sim/fielding/LiveFieldForecastV1.test.ts > measures process CPU outside the browser-neutral helper while reusing one kernel for nine defenders
+{"benchmark":"EXPLICIT_20_OBSERVATIONS_9_DEFENDERS_8_SECOND_HYPOTHESES","hypotheses":20,"sharedQueries":1440,"wallMilliseconds":1110.349,"processCpuUserMilliseconds":1031,"processCpuSystemMilliseconds":297,"meanBuildWallMilliseconds":55.24799499999997,"mean72SamplesWallMilliseconds":0.05628499999990026}
+
+ ✓ src/core/sim/fielding/LiveFieldForecastV1.test.ts (7 tests) 1503ms
+   ✓ measures process CPU outside the browser-neutral helper while reusing one kernel for nine defenders 1111ms
+ ✓ src/integration/browser/LivePublicAbilitiesV1.test.ts (27 tests) 1680ms
+   ✓ public authoring with individual SI profiles > projects all 20 profiles without changing the packet and exact no-op edits preserve all bytes 1197ms
+ ✓ src/integration/browser/PitcherWorkbenchV77.test.ts (4 tests) 2039ms
+   ✓ observes the same live pitch and compares a zero-spin ball with the identical initial velocity 302ms
+   ✓ executes seven authored pitches on both throwing sides with observed spin and break directions 1411ms
+ ✓ src/integration/browser/LiveTraitRuntimeV77.test.ts (8 tests) 2592ms
+   ✓ v77 independent trait execution > keeps base SI and every public ability unchanged for all independently authored states and scales 2457ms
+ ✓ src/core/sim/fielding/LiveRelayPlanV1.test.ts (9 tests) 3309ms
+   ✓ supports two actual intermediate receivers without duplicate actors or throw cycles 984ms
+   ✓ carries predicted seam phase through relay hypotheses while requiring a new plan after actual receipt 928ms
+   ✓ bounds search work and caches Aero edges while using no position names or future world state 865ms
+ ✓ src/core/sim/fielding/LiveFieldTechniquesV75.test.ts (7 tests) 3916ms
+   ✓ keeps fly events, frames and diagnostics exactly unchanged for all zero controls 316ms
+   ✓ keeps ground events, frames and diagnostics exactly unchanged for all zero controls 1178ms
+   ✓ shortens only the batter initial departure, preserving baserunner recognition and run speed 858ms
+   ✓ uses actual capture posture and one shortened transfer without exceeding physical hand speed 753ms
+   ✓ changes real approach movement only after observing a slow grounded ball and leaves a fly exact 784ms
+ ✓ src/integration/browser/LivePitchExecutionV78.test.ts (5 tests) 17081ms
+   ✓ keeps omitted and fixed spin execution exactly equal to the legacy record 502ms
+   ✓ selects owned IDs rather than generating an unowned type, and rejects ambiguous explicit classification 2796ms
+   ✓ uses the exact same snapshot and downward spin in Host and pitcher trial 2414ms
+   ✓ executes every classified preset and variant with explicit material physics on both throwing sides 11241ms
+
+ Test Files  13 passed (13)
+      Tests  114 passed (114)
+   Start at  04:46:52
+   Duration  18.42s (transform 2.14s, setup 0ms, collect 8.00s, tests 34.60s, environment 2ms, prepare 3.52s)
+

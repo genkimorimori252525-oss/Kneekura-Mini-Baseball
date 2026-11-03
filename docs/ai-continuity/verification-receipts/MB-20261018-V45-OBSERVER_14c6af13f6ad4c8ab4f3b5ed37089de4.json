@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V45-OBSERVER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-continuous-batter-view.mjs"
+  ],
+  "observed_at": "2026-10-18T05:02:10.574+00:00",
+  "elapsed_ms": 125,
+  "git_head": "058110f3eb8fe19170f0601177c439048b7b2f2c",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V45-OBSERVER_14c6af13f6ad4c8ab4f3b5ed37089de4.log",
+  "output_sha256": "64fa961b01b0be7bb118c5a8005b0fb24c6a2076dbbb8e706b8c134bd32bed10",
+  "receipt_id": "MB-20261018-V45-OBSERVER_14c6af13f6ad4c8ab4f3b5ed37089de4"
+}

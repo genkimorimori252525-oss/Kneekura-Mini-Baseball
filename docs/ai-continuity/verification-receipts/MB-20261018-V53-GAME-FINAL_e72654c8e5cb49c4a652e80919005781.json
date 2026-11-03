@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V53-GAME-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v53-game.mjs",
+    "../../outputs/ばせぼーるlv53_TBD_vs_LAD_飛球走塁と得能版.html",
+    "../../outputs/verification-v53-game-final"
+  ],
+  "observed_at": "2026-10-18T10:36:48.994+00:00",
+  "elapsed_ms": 111765,
+  "git_head": "ea9ca61b0971da3cc3b3ce1cfb344d4496e2ecc9",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V53-GAME-FINAL_e72654c8e5cb49c4a652e80919005781.log",
+  "output_sha256": "f953be1fefa2491e4703d85e2f0ac081b3d4cb41f0e0a225c422842465d47174",
+  "receipt_id": "MB-20261018-V53-GAME-FINAL_e72654c8e5cb49c4a652e80919005781"
+}

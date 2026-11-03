@@ -1,5 +1,6 @@
 import { assertNonPitchLearningEvent } from './SqliteNonPitchRepetitionStore';
 import { createRequire } from 'node:module';
+import {withNativeDevelopmentReadPhaseV126} from './NativeDevelopmentReadPhaseV126';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { appendDevelopmentLearningEvent,
@@ -230,9 +231,12 @@ export const openSqliteDevelopmentInitiationStore = (
       episode: current });
   };
   const readSnapshot = <T>(work: () => T): T => {
-    if (db.isTransaction) return work();
+    // Re-evaluate this owner's providers/guards on every call. Only nested
+    // archive-only Native proofs share the lifetime of this one read section.
+    const proof = () => withNativeDevelopmentReadPhaseV126(db, work);
+    if (db.isTransaction) return proof();
     db.exec('BEGIN');
-    try { const result = work(); db.exec('COMMIT'); return result; }
+    try { const result = proof(); db.exec('COMMIT'); return result; }
     catch (error) { db.exec('ROLLBACK'); throw error; }
   };
   const read = (episodeId: string) => readSnapshot(() => readCurrent(episodeId));

@@ -1,0 +1,91 @@
+▲ [WARNING] "youkaishomecoming:yukari" is not a valid value for the "type" field [package.json]
+
+    ../../../../../../package.json:1:8:
+      1 │ {"type":"youkaishomecoming:yukari","texture":"touhou_little_maid:te...
+        ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The "type" field must be set to either "commonjs" or "module".
+
+{"outfile":"dist/native-match-core-browser.js","bytes":762543,"sha256":"4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279","inputCount":113,"inputManifestSha256":"62202ba2aed7ea79ed69f6a93cddec3a09f3a6d61cda586fd9ee7adbdadb0982","exports":["createNativeSinglePaSession","issueNativeCommandPitch","observeNativePitch","createNativeAerodynamicSession","observeNativeAerodynamicPitch","createReferenceAerodynamicPhysicalSource","observeNativeFreeBallContinuation","createSourceBallMaterialHistoryV1","createSourceBallMaterialHistoryFromContinuationV3","createExecutedFieldWorldObserverV1","createLiveBaseballMatchV1"]}
+▲ [WARNING] "youkaishomecoming:yukari" is not a valid value for the "type" field [package.json]
+
+    ../../../../../../package.json:1:8:
+      1 │ {"type":"youkaishomecoming:yukari","texture":"touhou_little_maid:te...
+        ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The "type" field must be set to either "commonjs" or "module".
+
+{
+  "output": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_得能接続版.html",
+  "bytes": 4448182,
+  "sha256": "f1443bb1c7699ce88249fd4f6f293ec6cd2fd705767b9e1ff04db24e0c62bbd9",
+  "coreSha256": "59ad6ea177fefd1b082ba0acb0ba369100015c0f157d719e6d4279ef32ff4487",
+  "uiSha256": "4f58b5c19b97fe1b810704c86f27fcb8b202c1bc6f307db2c6cccec2927f412f",
+  "bundleInputCount": 79,
+  "bundleInputManifestSha256": "eebd6dc1c826d21f7280f96fd03c4306542e24ebafe62762574491ac6339b881",
+  "templateSha256": "f1fc9b5ca539488da44622d35e481ce5c44777171a0661e5dc2c27365aa32e5c",
+  "referenceSha256": "72b615a28cd99b4a91c6e52cb02ee35f4ff97850c3bfe71ca73d0e609ba480ef",
+  "referenceClips": 12,
+  "liveRosterSha256": "3e46fe67e1c94939d1e919cdb2353313ccfbc7680463ca726331afd983c54255",
+  "liveRosterCatalogSha256": "0bba85275a656789ffc08f97d43aaf58f396a7360274da3aaedc726ba6e0ecb1",
+  "gamePlayers": 20,
+  "publicAbilities": true,
+  "traitProfiles": true,
+  "executableTraits": true,
+  "traitCatalogFamilies": 119,
+  "traitAvailabilitySha256": "2e4841fcac50d573e9d6dbca95d042f49f54bd192950799c36ef162187e0220f",
+  "liveRosterPath": "docs/demos/live-game-roster-v3.json",
+  "liveRosterCatalogPath": "docs/demos/live-game-roster-catalog-v4.json",
+  "publicReferenceSha256": "b448f82f81620085b1f4923609cec23f69db4c639da76b6b1f877abb22622e4e",
+  "batSpriteModuleSha256": "aa675212434b677b1fe8fb245d438f49f4afcef9022cecc2d512fd7cd32c35d9",
+  "batSpriteManifestSha256": "29f76d56ef02f56f4eda9b6b626df8e1b5ce98acbaa957b6534bbdcf2cff4dcc",
+  "batSprites": [
+    {
+      "file": "bat-78cm.png",
+      "nominalLengthM": 0.78,
+      "sha256": "41a9920ce99d43fcf4f18ff1121c30063ff6f02ed076d3a0032934d92910e430"
+    },
+    {
+      "file": "bat-84cm.png",
+      "nominalLengthM": 0.84,
+      "sha256": "c2902280e948c71afd5d346a18fffb587eccae868b1e9f7adf2009112ded2d4e"
+    },
+    {
+      "file": "bat-90cm.png",
+      "nominalLengthM": 0.9,
+      "sha256": "1e69c292727402112a6506c88e796d725db93bb28a1eb5d763bcaeff77ae5bd9"
+    }
+  ],
+  "batSpriteAuthority": "GENERATED_RENDER_SPRITES_NOT_MEASURED_BAT_GEOMETRY",
+  "selfContained": true,
+  "authority": "Shared Core samples; separate OpenBiomechanics measured-axis research replay"
+}
+{
+  "output": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv54_TBD_vs_LAD_得能と個人采配接続版.html",
+  "sha256": "80c68e3ddb5c961ab6f18b325c6f267f883cd02d27381dfa10a9334bf8afae9f",
+  "presentationVersion": 54,
+  "continuousViewSha256": "0027d0afc49e7350257cb8c9695fbbbd36709ae1cddd34f29a5c24a9e4df8559",
+  "pitcherReactionViewSha256": "f8610ca6d3d553b8070708d00d3e6a1b98c195b66e93487f6ac88460f1b876d2",
+  "baselineSha256": "c613574b377afd19060d89100c1bd7c1fa693efd42361c77ed7ab21943670f1f",
+  "nativeBundleSha256": "4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279",
+  "runtimeSha256": "3e7c04cd81c7256300e4580eef939573f115ee4e6a03565740f74e7f80d350c5",
+  "takenGazeHelperSha256": "321f2839fad7bddfb299d8b74c9d8c4ae3fe3fdb23fde46b0f76f2cb426ea7b1",
+  "batterGazeHelperSha256": "769ebb95d9356a8c8515aac108e0e7dcd6cff966ab22785324f406a79d885158",
+  "chartHelperSha256": "ba18541a442e783ba46d556c76c5495e2cbeabbbb84287c22cc652093d4f1e1a",
+  "fieldCameraHelperSha256": "9285506f18fc8eac050f8e33ee5dd9f4c36b5e7e588b7dc56c603a949b381edd",
+  "actorAnimationHelperSha256": "131aae500c7bf92f5f462070a5719cee4207ee4098faa92b3acbcc1240e0ecc9",
+  "playDescriptionHelperSha256": "54ba2f7a0965f51dd681a22cbcef6b1fe63692554e96a8e5350526e98e9fe9bd",
+  "physicalRosterSha256": "3e46fe67e1c94939d1e919cdb2353313ccfbc7680463ca726331afd983c54255",
+  "physicalCatalogSha256": "0bba85275a656789ffc08f97d43aaf58f396a7360274da3aaedc726ba6e0ecb1",
+  "bundleInputManifestSha256": "62202ba2aed7ea79ed69f6a93cddec3a09f3a6d61cda586fd9ee7adbdadb0982",
+  "bundleInputCount": 113,
+  "approvedPngMasksSha256": "51005451401727fb84c31be9ae63712c8a815bdd0a7edbde7606af36a69a0944",
+  "approvedFontSha256": "6bd1592ef0d1a47ecd13bf7ef81ac361a12c29239f31d43bec1c3f54f6023aeb",
+  "primaryCanvas": "v54 seven executable or source-derived trait families, explicit auto manager arbitration; retained v53 airborne running and v52 cameras; retained v52 cameras; shared Core observations; single continuous embodied batter view with delayed predictive tracking and bounded angular motion; provisional visual uncertainty policy",
+  "nativeSqliteAdmission": false,
+  "legacyResultFallback": false,
+  "ordinaryCadenceMs": 55,
+  "displayGridPixels": 4,
+  "measuredReferenceSha256": "72b615a28cd99b4a91c6e52cb02ee35f4ff97850c3bfe71ca73d0e609ba480ef",
+  "measuredReferenceAuthority": "OPENBIOMECHANICS_MEASURED_BAT_AXIS_RESEARCH"
+}

@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`PLV-02 preserves the prior 1/45/74/75 observed/intent/physical records > 1 1`] = `"f908fd2de17d0b34aa10f902fbdac9ebce8c154728ea75fac45f021cc535cd4a"`;
+
+exports[`PLV-02 preserves the prior 1/45/74/75 observed/intent/physical records > 45 1`] = `"f908fd2de17d0b34aa10f902fbdac9ebce8c154728ea75fac45f021cc535cd4a"`;
+
+exports[`PLV-02 preserves the prior 1/45/74/75 observed/intent/physical records > 74 1`] = `"f908fd2de17d0b34aa10f902fbdac9ebce8c154728ea75fac45f021cc535cd4a"`;
+
+exports[`PLV-02 preserves the prior 1/45/74/75 observed/intent/physical records > 75 1`] = `"f908fd2de17d0b34aa10f902fbdac9ebce8c154728ea75fac45f021cc535cd4a"`;

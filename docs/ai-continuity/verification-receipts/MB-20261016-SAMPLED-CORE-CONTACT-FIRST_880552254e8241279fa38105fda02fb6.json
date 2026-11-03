@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SAMPLED-CORE-CONTACT-FIRST",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/pitching/SampledRigidBatSwingV1.test.ts",
+    "src/core/sim/pitching/AerodynamicRigidPitchAgainstBatter.test.ts",
+    "src/integration/browser/MeasuredBatAxisReferenceV1.test.ts",
+    "src/integration/browser/ReferenceBattingWorkbench.test.ts"
+  ],
+  "observed_at": "2026-10-15T21:42:08.118+00:00",
+  "elapsed_ms": 2750,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SAMPLED-CORE-CONTACT-FIRST_880552254e8241279fa38105fda02fb6.log",
+  "output_sha256": "cd1a348d9b86c627fd3d9b6f899fdb9f40924cde3d5b4f4ef07e8e053e2620ac",
+  "receipt_id": "MB-20261016-SAMPLED-CORE-CONTACT-FIRST_880552254e8241279fa38105fda02fb6"
+}

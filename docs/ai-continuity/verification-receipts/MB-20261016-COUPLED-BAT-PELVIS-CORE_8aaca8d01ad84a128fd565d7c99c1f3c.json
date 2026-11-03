@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-COUPLED-BAT-PELVIS-CORE",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/contact/MeasuredPelvisControlV1.test.ts",
+    "src/core/sim/contact/HeldToMeasuredBatControlV1.test.ts"
+  ],
+  "observed_at": "2026-10-16T13:12:56.835+00:00",
+  "elapsed_ms": 1077,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-COUPLED-BAT-PELVIS-CORE_8aaca8d01ad84a128fd565d7c99c1f3c.log",
+  "output_sha256": "a43091acefd56735a757e44edbb1d9d412474c28bce5dd0351714116ae7e2fdc",
+  "receipt_id": "MB-20261016-COUPLED-BAT-PELVIS-CORE_8aaca8d01ad84a128fd565d7c99c1f3c"
+}

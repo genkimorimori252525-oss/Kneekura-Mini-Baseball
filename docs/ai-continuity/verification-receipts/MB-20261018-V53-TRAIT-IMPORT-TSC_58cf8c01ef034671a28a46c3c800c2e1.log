@@ -1,0 +1,6 @@
+src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts(4,1): error TS6133: 'estimateLiveRunnerLegSecondsV1' is declared but its value is never read.
+src/integration/browser/LivePhysicalRosterV1.test.ts(58,10): error TS18046: 'a.play.diagnostics' is of type 'unknown'.
+src/integration/browser/LivePhysicalRosterV1.test.ts(59,10): error TS18046: 'b.play.diagnostics' is of type 'unknown'.
+src/integration/browser/LivePhysicalRosterV1.test.ts(61,10): error TS18046: 'a.play.diagnostics' is of type 'unknown'.
+src/integration/browser/LivePhysicalRosterV1.test.ts(62,10): error TS18046: 'b.play.diagnostics' is of type 'unknown'.
+src/integration/browser/LivePhysicalRosterV1.test.ts(62,51): error TS18046: 'a.play.diagnostics' is of type 'unknown'.

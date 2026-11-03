@@ -1,0 +1,10 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LivePitchV1.test.ts (11 tests) 719ms
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  09:09:21
+   Duration  1.53s (transform 224ms, setup 0ms, collect 342ms, tests 719ms, environment 0ms, prepare 134ms)
+

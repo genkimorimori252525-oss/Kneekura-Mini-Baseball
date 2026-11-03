@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-ZERO-OBSERVATION-DECISION-INDEPENDENT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-with-bat-decision-reader-v1/readback.mjs",
+    "../../outputs/verification-authored-with-bat-zero-observation-decision-v1/match.sqlite",
+    "../../outputs/verification-authored-with-bat-zero-observation-decision-v1/expected.json",
+    "../../outputs/verification-authored-with-bat-zero-observation-decision-v1/independent-readback.json",
+    "../../outputs/verification-authored-with-bat-zero-observation-v1/manifest.json"
+  ],
+  "observed_at": "2026-10-16T12:41:38.546+00:00",
+  "elapsed_ms": 22421,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-ZERO-OBSERVATION-DECISION-INDEPENDENT_c8d01cbbbfd54e739b471dca3d4ee03b.log",
+  "output_sha256": "62abfa50bce7a1bfd943d25a04094e074bab14b94f861f814bc7d2642c0fa6f0",
+  "receipt_id": "MB-20261016-ZERO-OBSERVATION-DECISION-INDEPENDENT_c8d01cbbbfd54e739b471dca3d4ee03b"
+}

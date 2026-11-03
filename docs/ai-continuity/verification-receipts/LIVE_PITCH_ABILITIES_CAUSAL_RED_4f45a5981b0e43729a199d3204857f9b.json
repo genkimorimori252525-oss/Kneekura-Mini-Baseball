@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "LIVE_PITCH_ABILITIES_CAUSAL_RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePitchAbilitiesV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T03:11:43.497+00:00",
+  "elapsed_ms": 1828,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/LIVE_PITCH_ABILITIES_CAUSAL_RED_4f45a5981b0e43729a199d3204857f9b.log",
+  "output_sha256": "214eefe5a36928a7a0e812c2a0c9bb2532554042ec2bb07524aa5f138d4fa07c",
+  "receipt_id": "LIVE_PITCH_ABILITIES_CAUSAL_RED_4f45a5981b0e43729a199d3204857f9b"
+}

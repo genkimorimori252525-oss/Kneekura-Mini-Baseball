@@ -1,0 +1,20 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: air factor 1.000001 changes a low ball at y=0.0732
++ actual - expected
+
++ 1.6666675000000004
+- 1.25
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v76-ball-sizing.mjs:15:9 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 1.6666675000000004,
+  expected: 1.25,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/ball/SourceBallSeamContinuationV78.test.ts (3 tests) 1304ms
+   ✓ carries seam phase through actual wall/ground response and preserves future observations under extra checkpoints 1145ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  04:44:19
+   Duration  2.15s (transform 294ms, setup 0ms, collect 415ms, tests 1.30s, environment 0ms, prepare 127ms)
+

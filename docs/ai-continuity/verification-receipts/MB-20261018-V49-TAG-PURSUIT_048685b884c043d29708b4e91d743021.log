@@ -1,0 +1,28 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/PlayableRunnerCausalityV49.test.ts (3 tests) 4ms
+ ✓ src/integration/browser/LiveBaseballPositionsV49.test.ts (1 test) 1228ms
+   ✓ passes the actual defensive lineup positions to the physical field controller 1227ms
+ ✓ src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts (4 tests) 8547ms
+   ✓ satisfies first-base force on the same physical bag-contact geometry as the defense 301ms
+   ✓ still retires a runner when actual controlled first-base contact wins the physical race 368ms
+   ✓ keeps physical runner retirements equal to rule-interpreted outs in both race orders 505ms
+   ✓ reconsiders a newly vacated advance reservation after a live retirement before closing the play 7372ms
+ ✓ src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts (12 tests) 13595ms
+   ✓ physically advances second to third on a deep caught fly against a weak arm 1737ms
+   ✓ physically advances while a distant ground ball cannot be retrieved before the runner arrives 328ms
+   ✓ starts a legal tag-up after first touch and reaction, before a later secure catch 1501ms
+   ✓ uses the hidden safety margin in the actual runner decision 2369ms
+   ✓ waits for the runner reaction after the actual first touch and keeps that decision alive 1377ms
+   ✓ runs on contact with two outs and stops on the actual secured third-out fly 949ms
+   ✓ throws home after the force dissolves and retires the runner by a physically held tag (3 m/s) 1770ms
+   ✓ throws home after the force dissolves and retires the runner by a physically held tag (4 m/s) 1715ms
+   ✓ commits a safe next advance through third instead of closing the held-ball play 1299ms
+   ✓ allows a physical tag of a forced runner still standing on the old base before reacting 325ms
+
+ Test Files  4 passed (4)
+      Tests  20 passed (20)
+   Start at  17:22:46
+   Duration  14.62s (transform 724ms, setup 0ms, collect 1.92s, tests 23.37s, environment 1ms, prepare 624ms)
+

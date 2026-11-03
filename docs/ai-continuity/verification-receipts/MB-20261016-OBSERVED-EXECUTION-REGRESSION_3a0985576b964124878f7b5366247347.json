@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OBSERVED-EXECUTION-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/SamePlateAppearanceDispatchExecution.test.ts",
+    "--maxWorkers=1",
+    "--minWorkers=1"
+  ],
+  "observed_at": "2026-10-15T22:43:54.677+00:00",
+  "elapsed_ms": 264452,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OBSERVED-EXECUTION-REGRESSION_3a0985576b964124878f7b5366247347.log",
+  "output_sha256": "8cd87f02e57dc002ad8b4423ca07038194549866138a1c2e59bf91f003ff3298",
+  "receipt_id": "MB-20261016-OBSERVED-EXECUTION-REGRESSION_3a0985576b964124878f7b5366247347"
+}

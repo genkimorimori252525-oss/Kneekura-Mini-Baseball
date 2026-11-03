@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-16-MIXED-PROBE",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/verification/run-live-match-population.mjs",
+    "../../work/live-game-audit-v4",
+    "../../outputs/verification-authored-with-bat-v33-population-probe-v1",
+    "16",
+    "16"
+  ],
+  "observed_at": "2026-10-17T00:47:21.228+00:00",
+  "elapsed_ms": 151218,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-16-MIXED-PROBE_47259465d72f4dc48f231d5ac203dadf.log",
+  "output_sha256": "8a510529825265f13b5f89b9573bd9b7e7b32604fd94d937812b1a7926218ff7",
+  "receipt_id": "MB-20261017-LIVE-16-MIXED-PROBE_47259465d72f4dc48f231d5ac203dadf"
+}

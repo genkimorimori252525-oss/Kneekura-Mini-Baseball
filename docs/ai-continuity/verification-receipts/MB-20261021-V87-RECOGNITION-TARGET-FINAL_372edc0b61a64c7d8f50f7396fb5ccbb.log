@@ -1,0 +1,13 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/ZoneRecognitionV87.test.ts (3 tests) 14ms
+ ✓ src/integration/browser/LivePitchRecognitionV87.test.ts (6 tests) 1046ms
+ ✓ src/integration/browser/LivePitchCourseV79.test.ts (13 tests) 2261ms
+   ✓ isolates paired-trial direction draws from the pitch Source, perception and motor error streams 364ms
+
+ Test Files  3 passed (3)
+      Tests  22 passed (22)
+   Start at  02:12:05
+   Duration  3.55s (transform 973ms, setup 0ms, collect 1.80s, tests 3.32s, environment 1ms, prepare 581ms)
+

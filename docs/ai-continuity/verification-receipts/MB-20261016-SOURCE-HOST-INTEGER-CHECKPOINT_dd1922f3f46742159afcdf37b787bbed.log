@@ -1,0 +1,37 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/SamePlateAppearanceBallPhysics.test.ts (4 tests) 19ms
+ ✓ src/host/world/SamePlateAppearanceSourceFieldV3.test.ts (6 tests) 1211ms
+   ✓ inserts all five metadata kinds at the exact post-impulse cut without adding a physical horizon 505ms
+ ❯ src/host/world/SamePlateAppearanceSourceIntegerCheckpointV1.test.ts (5 tests | 1 failed) 10948ms
+   ✓ branches from the full original v3 metadata prefix and executes same-tick positive physical time on its original Source 1339ms
+   ✓ routes the dedicated action through the owner calculation without relaxing the ordinary stale-step guard 1293ms
+   ✓ retains the new branch for later metadata/free steps and rejects returning to the old version 3898ms
+   × rejects exact-zero waits, different ticks, marker/result injection, unsupported motor/custody and legacy roots 1362ms
+     → expected [Function] to throw error including 'positive physical wait' but got 'invalid actual field motion checkpoin…'
+   ✓ rejects forged prefix refs, metadata, Source side/state, actors and saved checkpoint diagnostics 3055ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/host/world/SamePlateAppearanceSourceIntegerCheckpointV1.test.ts > rejects exact-zero waits, different ticks, marker/result injection, unsupported motor/custody and legacy roots
+AssertionError: expected [Function] to throw error including 'positive physical wait' but got 'invalid actual field motion checkpoin…'
+
+Expected: "positive physical wait"
+Received: "invalid actual field motion checkpoint interval"
+
+ ❯ src/host/world/SamePlateAppearanceSourceIntegerCheckpointV1.test.ts:109:101
+    107|   const h = fixture(), source = h.source(h.previous);
+    108|   for (const tick of [source.throughTick - 1, source.throughTick + 1])…
+    109|   expect(() => checkpoint({ ...h, previous: h.root, history: [h.root],…
+       |                                                                                                     ^
+    110|   expect(() => checkpoint({ ...h, source: { ...source, action: { kind:…
+    111|   for (const kind of ['defender_motion_v1', 'capture_checkpoint_v1', '…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 14 passed (15)
+   Start at  03:17:20
+   Duration  17.94s (transform 7.74s, setup 0ms, collect 19.63s, tests 12.18s, environment 0ms, prepare 417ms)
+

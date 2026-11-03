@@ -1,0 +1,13 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/ball/SourceFreeBallKernel.test.ts (6 tests) 189ms
+ ✓ src/core/sim/ball/SourceBallMaterialHistoryV1.test.ts (6 tests) 229ms
+ ✓ src/core/sim/ball/SourceBallMaterialHistoryFromContinuationV3.test.ts (7 tests) 1419ms
+   ✓ rejects forged history, phases, profiles, clocks, certificates, extra custody fields and absent original Sources 655ms
+
+ Test Files  3 passed (3)
+      Tests  19 passed (19)
+   Start at  01:24:19
+   Duration  2.41s (transform 512ms, setup 0ms, collect 1.06s, tests 1.84s, environment 0ms, prepare 436ms)
+

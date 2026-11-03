@@ -1,0 +1,1 @@
+src/host/world/InitialJointWorkloadProjection.ts(26,166): error TS18046: 'p.effortUnits' is of type 'unknown'.

@@ -6,6 +6,7 @@ import { sqliteJsonMetadataProjection as projection, sqliteJsonMetadataMatches a
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { type DefensiveIntentCandidate } from '../../core/sim/fielding/DefensiveDecision';
 import { calculateDefensiveExecution } from './DefensiveExecutionCalculation';
+import { deriveSamePaDefensiveSupportGeometry, samePaSupportIntentTarget, type SamePaDefensiveSupportGeometry } from './SamePlateAppearanceDefensiveSupportGeometry';
 import type { Vec2 } from '../../core/model/geometry';
 import { actualObservationId as id, type ActualObservationMoment } from './ActualFieldObservation';
 import { actualDefensiveBoundary, actualDefensiveContextFromSqlite, defensiveFields as fields, defensiveTick, type DefensiveDb } from './ActualDefensiveContext';
@@ -19,6 +20,7 @@ import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldEx
 export type AcceptedActualDefensiveDecision = Readonly<{
   sourceId: string; sourceVersion: string; physicalPitchSourceId: string; playerId: string; observationSourceId: string;
   decisionModelSourceId: string; planSourceId: string; previousDecisionSourceId: string | null;
+  supportGeometry?: Omit<SamePaDefensiveSupportGeometry, 'teammateMotionReference'>;
 }>;
 export type ActualDefensiveDecisionReceipt = Readonly<{
   originDecisionSourceId: string; originObservationSourceId: string;
@@ -28,6 +30,7 @@ export type ActualDefensiveDecisionReceipt = Readonly<{
   evidence: Readonly<{ captureAt: ActualObservationMoment; confidence: number }> | null;
   scheduling: Readonly<{ startedAtTick: number; decisionDelayTicks: number; decisionTick: number; firstStepDelayTicks: number; movementStartTick: number }>;
   lifecycle: Readonly<{ status: 'pending_decision' | 'pending_first_step' | 'issued'; issuedAt: ActualObservationMoment | null; issuedBySourceId: string | null }>;
+  supportGeometry?: ReturnType<typeof deriveSamePaDefensiveSupportGeometry>;
 }>;
 export type DurableActualDefensiveDecision = Readonly<{ source: AcceptedActualDefensiveDecision; revision: number;
   history: readonly AcceptedActualDefensiveDecision[]; observationHash: string; decisionModelHash: string; planHash: string;
@@ -39,7 +42,9 @@ type Row = { source_id: string; source_version: string; physical_pitch_source_id
 type Head = { physical_pitch_source_id: string; player_id: string; source_id: string; revision: number };
 const input = (raw: AcceptedActualDefensiveDecision, sourceId?: string): AcceptedActualDefensiveDecision => {
   const s = cloneInert(raw);
-  if (!fields(s, ['sourceId', 'sourceVersion', 'physicalPitchSourceId', 'playerId', 'observationSourceId', 'decisionModelSourceId', 'planSourceId', 'previousDecisionSourceId'])
+  if (!fields(s, ['sourceId', 'sourceVersion', 'physicalPitchSourceId', 'playerId', 'observationSourceId', 'decisionModelSourceId', 'planSourceId', 'previousDecisionSourceId', ...('supportGeometry' in s ? ['supportGeometry'] : [])])
+    || 'supportGeometry' in s && (!fields(s.supportGeometry, ['kind', 'base'])
+      || s.supportGeometry?.kind !== 'perceived_ball_support_geometry_v1' || ![1, 2, 3, 4].includes(s.supportGeometry.base))
     || sourceId !== undefined && s.sourceId !== sourceId || ![s.sourceId, s.sourceVersion, s.physicalPitchSourceId, s.playerId, s.observationSourceId, s.decisionModelSourceId, s.planSourceId].every(id)
     || s.previousDecisionSourceId !== null && (!id(s.previousDecisionSourceId) || s.previousDecisionSourceId === s.sourceId)) {
     throw new Error('invalid accepted actual defensive decision Source');
@@ -69,6 +74,7 @@ export const actualDefensiveDecisionEvidenceFromSqlite = (db: DefensiveDb) => {
     if (previous) {
       const p = previous.receipt;
       if (previous.source.decisionModelSourceId !== source.decisionModelSourceId || previous.source.planSourceId !== source.planSourceId
+        || json(previous.source.supportGeometry ?? null) !== json(source.supportGeometry ?? null)
         || previous.source.physicalPitchSourceId !== source.physicalPitchSourceId || previous.source.playerId !== source.playerId
         || previous.decisionModelHash !== hash(c.model) || previous.planHash !== hash(c.plan)
         || !c.observation.history.some(s => s.sourceId === previous.source.observationSourceId)
@@ -80,19 +86,21 @@ export const actualDefensiveDecisionEvidenceFromSqlite = (db: DefensiveDb) => {
     } else {
       const calibration = c.model.source.calibration, perceived = c.observation.receipt.perceived;
       if (perceived.communications.length || perceived.knownContext !== null) throw new Error('actual defensive semantic context/cues are not owned');
+      const supportGeometry = source.supportGeometry ? deriveSamePaDefensiveSupportGeometry(source.supportGeometry, c.observation.receipt, c.geometry, null, source.playerId) : null;
       const calculated = calculateDefensiveExecution({ decision: { perceivedWorld: perceived, self: { playerId: source.playerId },
-        prePlayPlan: c.plan.source.priorities, perceivedCues: [] }, startedAtTick: actualDefensiveBoundary(at, c.ticksPerSecond), ratings: c.fieldingModel.source.ratings }, calibration);
+        prePlayPlan: c.plan.source.priorities, perceivedCues: supportGeometry?.cues ?? [] }, startedAtTick: actualDefensiveBoundary(at, c.ticksPerSecond), ratings: c.fieldingModel.source.ratings }, calibration);
       const chosen = calculated.selected;
-      if (chosen.intent.kind !== 'ball_handler' && chosen.intent.kind !== 'hold') throw new Error('unsupported actual defensive intent');
+      if (!supportGeometry && chosen.intent.kind !== 'ball_handler' && chosen.intent.kind !== 'hold') throw new Error('unsupported actual defensive intent');
       const ball = chosen.intent.kind === 'ball_handler' ? c.observation.receipt.samples.ball : null;
       if (ball && (ball.at.originTick !== at.originTick || ball.at.elapsedSeconds > at.elapsedSeconds)) throw new Error('actual defensive ball evidence is from the future');
       receipt = { originDecisionSourceId: source.sourceId, originObservationSourceId: source.observationSourceId, self: c.self,
         availability: at, observedThrough: at, ticksPerSecond: c.ticksPerSecond,
         selected: { ...chosen, evidenceKinds: chosen.evidenceKinds.map(k => k === 'pre_play_plan' ? 'accepted_contextual_priorities' : k) },
-        target: chosen.intent.kind === 'ball_handler' ? { x: perceived.ball!.estimate.position.x, z: perceived.ball!.estimate.position.z } : null,
+        target: supportGeometry ? samePaSupportIntentTarget(chosen.intent, supportGeometry, c.observation.receipt)
+          : chosen.intent.kind === 'ball_handler' ? { x: perceived.ball!.estimate.position.x, z: perceived.ball!.estimate.position.z } : null,
         evidence: ball ? { captureAt: ball.at, confidence: perceived.ball!.confidence } : null,
         scheduling: calculated.scheduling,
-        lifecycle: { status: 'pending_decision', issuedAt: null, issuedBySourceId: null } };
+        lifecycle: { status: 'pending_decision', issuedAt: null, issuedBySourceId: null }, ...(supportGeometry ? { supportGeometry } : {}) };
     }
     const reached = (tick: number) => {
       if (!defensiveTick(tick)) throw new Error('actual defensive deadline overflow');

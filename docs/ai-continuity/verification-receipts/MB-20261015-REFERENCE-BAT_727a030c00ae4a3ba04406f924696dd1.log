@@ -1,0 +1,12 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/adjudication/OfficialWindowPolicy.test.ts (6 tests) 7ms
+ ✓ src/core/adjudication/InertCloneValidationScope.test.ts (11 tests) 81ms
+ ✓ src/core/sim/contact/ReferenceBatKinematicsV1.test.ts (7 tests) 214ms
+
+ Test Files  3 passed (3)
+      Tests  24 passed (24)
+   Start at  05:28:58
+   Duration  956ms (transform 281ms, setup 0ms, collect 586ms, tests 303ms, environment 0ms, prepare 471ms)
+

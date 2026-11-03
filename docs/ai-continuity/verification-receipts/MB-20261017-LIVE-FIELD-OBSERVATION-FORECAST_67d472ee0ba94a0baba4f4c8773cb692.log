@@ -1,0 +1,10 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/LiveFieldForecastV1.test.ts (4 tests) 193ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  09:24:50
+   Duration  898ms (transform 167ms, setup 0ms, collect 237ms, tests 193ms, environment 0ms, prepare 133ms)
+

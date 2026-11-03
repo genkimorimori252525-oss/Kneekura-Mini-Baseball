@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-REPRODUCIBLE-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "tools/browser-bridge/check-reproduce-v81.py"
+  ],
+  "observed_at": "2026-10-20T13:09:47.374+00:00",
+  "elapsed_ms": 5593,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-REPRODUCIBLE-BUILD_5e2a7d872a4648de85a88aea4bb09708.log",
+  "output_sha256": "2e8ceaf45b3e27ef366602321e3250a4ede0745e15de20d25fdcaa102681fa4b",
+  "receipt_id": "MB-20261020-V81-REPRODUCIBLE-BUILD_5e2a7d872a4648de85a88aea4bb09708"
+}

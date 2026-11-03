@@ -1,0 +1,46 @@
+# v63 v59基準のスイングと、頭の身体連動
+
+## 変更
+
+前回の原因監査で、v61の共通投球追従への能力連動がスイング取得の姿勢へも伝播していたことを確認した。人間が今回、記録だけでなく「v59のスイングを残し、見逃しを改善」をデフォルトへ反映するよう明示したため、視線制御の範囲を分けた。
+
+初期状態は、判断前の全投球とSWING取得をv59の基準追従・旧判断SIへ戻す。TAKEの判断が自分に利用可能となった後だけ、32msで絶対選球眼による追従へ移行し、現在投球へ同期する。捕球後の向きは保持する。将来のSWING/TAKE結果を使って判断前から異なるカメラを選ばない。選球眼1〜100の保存値とリーグ非依存は維持する。
+
+さらに、止まりすぎる頭へ小さなスイング連動を追加した。現在までに観測した実測剛体バットの `tip−grip` 軸から、cross/dotによる観測間の最小回転を積算する。垂直付近の方位急変を避け、世界Y回転をyaw、カメラ右方向の回転を弱くpitchへ結合する。左右の実測軌道はすでに世界座標にあるため、左打者へ追加反転を行わない。バット自体を注視せず、ランダムな揺れも足さない。
+
+連動は実スイング開始から40msで立ち上げ、安定開始時のoffsetを基準差し引きする。バットが表示終了しても観測済みの回転を保持し、急に0へ戻さない。インパクトで角速度を強制0にする処理を連動有効時は外し、同じ頭状態の角度・速度の制限内で応答する。打球追尾への解放は、その時点の実頭姿勢を起点にする。Sourceのバット・打球・身体・裁定は変えない。
+
+これは実測された頭・首・上体の運動ではない。実測バット軌道を入力にした、調整可能な小さな表示モデルである。
+
+| 調整項目 | 新初期値 | 比較方法 |
+|---|---:|---|
+| スイング前の追従にも選球眼を反映 | OFF | ONでv61の共通能力連動 |
+| バットに伴う頭の動き | .025 | 0で連動なし、最大.08 |
+| 安定中に許す角度 | .04rad、約2.3° | 旧値.025rad |
+| 安定中の最大角速度 | .35rad/s、約20°/s | 旧値.18rad/s |
+
+調整室Aは初期状態から「v59スイング基準」、Bは上記の新設定。通常HTMLにもBと同じ初期値を反映した。旧設定JSON／sessionは新しい2項目の省略時に旧能力連動ON／身体連動0を補完し、読み込んだ既存設定を保持する。新初期値へ戻すボタンを用意した。同じv62 Coreのsessionは再現可能。古い異なるCoreの世界を同一試合と偽らない。
+
+## 検証
+
+- COUPLING-UNIT：実18球中8スイング、左右と早め／遅めカーブ。連動0＋旧角度／速度で、全実個人値と非default判断SIでもv59の眼位置／向きが厳密一致。旧能力連動ON＋連動0ではv61と一致。判断前の選択フラグ非依存、未来のbat／衝突／結果payload不読、seek／rewindの決定性、Source不変を検証した。
+- インパクトから振り終わりの実動は最大約1.08°。連動なしとの差はスイング全体で最大約2.61°。TAKE／バントは連動係数を変えても同値。
+- 最終UNIT `3fde99e1` PASS9.483秒。上記に加え、新初期値の実2見逃し×選球眼1／45／100で捕球後250／700msの向きが厳密固定、TAKE判断後の追従率／許容角が.13/.04、.26/.02、.70/0、modelとtuning一致を確認。静止バット対照では回転積算と頭offsetが全て0。以前の限定PASS receiptも保持する。
+- ブラウザではPC1200px／モバイル390px、同一6球の物理・全バットがv62と厳密一致。実選球眼88でも新初期SWINGの基準追従.26、連動／能力チェック変更による実姿勢変化、旧JSON移行、新旧sessionと設定の保存・再読、横overflow・例外・外部通信0を確認した。
+- 画質4px、投球22ms／他55ms、loopは既存cadence検査を実行した。Native114入力、Core `865078dc9881ce5c37754dbe2c7b502f586206f3ada972cfe2d3368207720c00` はv62とbyte同一。
+
+[単体記録](../verification/releases/v63/swing-coupling/coupling-check.json)、[ブラウザ記録](../verification/releases/v63/presentation/presentation-check.json)、[配布照合](../verification/releases/v63/release-check.json)。実コマンドと原logは `docs/ai-continuity/verification-receipts/MB-20261019-V63-*`。
+
+新たな9回完走・100試合・型検査を実施したとは主張しない。世界Coreはv62の通常HTML320球9回検証時と同じで、今回はJSカメラの構文・実姿勢・JSON・描画周期を対象にした。
+
+## 変更ファイルと残件
+
+新helper `live-camera-tuning-batter-view-v63.js`、調整室のv63 driver／template、生成・配布・検証スクリプト、凍結HTML、記録のみ。新しい能力値・依存・設定／lock／secret／DBは追加変更していない。共通メーカーはv62を継続する。
+
+頭部係数と許容角は未実測校正で、最終的な好みは調整室で変更可能。元全計画・統計校正・100試合・Native連続世界／裁定・得能等の残件、原FAIL/UNKNOWNとCharter未承認HOLD、ユーザーのAGENTS変更を保持する。main未マージ。
+
+最終記録：BUILD-FINAL `4c23dc65` PASS.202秒、BROWSER `4c3d974d` PASS47.063秒、CADENCE-FINAL `69e7d115` PASS8.436秒、PACKAGE `b18f885c` PASS1.406秒。Aの初期v59設定とresetの全値一致も検査した。通常SHA `0cb5d9ae43aab96e4edf389136b15fc5cb28fb7d855ebf1d4f43bcdcde93542a`、調整室SHA `7cafbf6efa634a96884fc6deb0e1db115a147033c5f9bac41185092fb0139356`。最初のcheckpoint evidence引数が未展開wildcardだった記録は保持し、正しい実receiptパスで再checkpointした。最終auditは原Charter承認不足のみHOLDであり、承認を捏造していない。
+
+## GitHub保存
+
+製品コミット `6641efb80c3b3203d6d0b4d44ad00d139823772a` を既存ブランチ／Draft PR380へ保存。STAGING `b5b90a20` と追加記録の最終照合で61ファイルのGit blobと試験済みraw byteが一致、credential pattern0、非log whitespace PASS、AGENTS除外。PUBLICATION `0dcf5631` PASS2.828秒でremote／PR head一致、Draft OPEN、公開raw12ファイルのbyte一致を確認。[公開証拠](../verification/releases/v63/publication.json)。後続コミットは記録だけを閉じ、製品byteとmainは変更しない。

@@ -1,0 +1,72 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LivePitchAuthoringV78.test.ts (4 tests) 22ms
+ ❯ src/integration/browser/LivePitchExecutionV78.test.ts (5 tests | 3 failed) 555ms
+   ✓ keeps omitted and fixed spin execution exactly equal to the legacy record 302ms
+   × selects owned IDs rather than generating an unowned type, and rejects ambiguous explicit classification 58ms
+     → baseball seam force: explicit finite material orientation required
+   × uses the exact same snapshot and downward spin in Host and pitcher trial 60ms
+     → baseball seam force: explicit finite material orientation required
+   × executes every classified preset and variant with explicit material physics on both throwing sides 44ms
+     → baseball seam force: explicit finite material orientation required
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LivePitchExecutionV78.test.ts > selects owned IDs rather than generating an unowned type, and rejects ambiguous explicit classification
+Error: baseball seam force: explicit finite material orientation required
+ ❯ Module.validateBaseballMaterialOrientationV1 src/core/sim/ball/BaseballSeamForceV1.ts:22:11
+     20|   if (!q || typeof q !== 'object' || Array.isArray(q) || Object.keys(q…
+     21|     || !Object.values(q).every(v => typeof v === 'number' && Number.is…
+     22|     throw new Error('baseball seam force: explicit finite material ori…
+       |           ^
+     23|   return normalizeQuaternion(q);
+     24| }
+ ❯ Module.sampleAerodynamicPitchStateAtElapsedSeconds src/core/sim/pitching/AerodynamicPitchTrajectory.ts:376:60
+ ❯ advance src/core/sim/ball/SourceFreeBallKernel.ts:78:37
+ ❯ Module.createSourceFreeBallKernel src/core/sim/ball/SourceFreeBallKernel.ts:131:22
+ ❯ Module.simulateLivePitchV1 src/integration/browser/LivePitchV1.ts:223:123
+ ❯ src/integration/browser/LivePitchExecutionV78.test.ts:33:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/integration/browser/LivePitchExecutionV78.test.ts > uses the exact same snapshot and downward spin in Host and pitcher trial
+Error: baseball seam force: explicit finite material orientation required
+ ❯ Module.validateBaseballMaterialOrientationV1 src/core/sim/ball/BaseballSeamForceV1.ts:22:11
+     20|   if (!q || typeof q !== 'object' || Array.isArray(q) || Object.keys(q…
+     21|     || !Object.values(q).every(v => typeof v === 'number' && Number.is…
+     22|     throw new Error('baseball seam force: explicit finite material ori…
+       |           ^
+     23|   return normalizeQuaternion(q);
+     24| }
+ ❯ Module.sampleAerodynamicPitchStateAtElapsedSeconds src/core/sim/pitching/AerodynamicPitchTrajectory.ts:376:60
+ ❯ advance src/core/sim/ball/SourceFreeBallKernel.ts:78:37
+ ❯ Module.createSourceFreeBallKernel src/core/sim/ball/SourceFreeBallKernel.ts:131:22
+ ❯ Module.simulateLivePitchV1 src/integration/browser/LivePitchV1.ts:223:123
+ ❯ Object.issuePitch src/integration/browser/LiveBaseballMatchV1.ts:201:17
+ ❯ src/integration/browser/LivePitchExecutionV78.test.ts:43:72
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/integration/browser/LivePitchExecutionV78.test.ts > executes every classified preset and variant with explicit material physics on both throwing sides
+Error: baseball seam force: explicit finite material orientation required
+ ❯ Module.validateBaseballMaterialOrientationV1 src/core/sim/ball/BaseballSeamForceV1.ts:22:11
+     20|   if (!q || typeof q !== 'object' || Array.isArray(q) || Object.keys(q…
+     21|     || !Object.values(q).every(v => typeof v === 'number' && Number.is…
+     22|     throw new Error('baseball seam force: explicit finite material ori…
+       |           ^
+     23|   return normalizeQuaternion(q);
+     24| }
+ ❯ Module.sampleAerodynamicPitchStateAtElapsedSeconds src/core/sim/pitching/AerodynamicPitchTrajectory.ts:376:60
+ ❯ advance src/core/sim/ball/SourceFreeBallKernel.ts:78:37
+ ❯ Module.createSourceFreeBallKernel src/core/sim/ball/SourceFreeBallKernel.ts:131:22
+ ❯ Module.simulateLivePitchV1 src/integration/browser/LivePitchV1.ts:223:123
+ ❯ src/integration/browser/LivePitchExecutionV78.test.ts:52:29
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  3 failed | 6 passed (9)
+   Start at  04:38:33
+   Duration  1.58s (transform 545ms, setup 0ms, collect 1.12s, tests 577ms, environment 0ms, prepare 270ms)
+

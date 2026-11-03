@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V77-TRAIT-BASE-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveTraitRuntimeV77.test.ts"
+  ],
+  "observed_at": "2026-10-19T18:52:10.768+00:00",
+  "elapsed_ms": 967,
+  "git_head": "76c564765f6a6d15fd1a2740a201080e3c534bfe",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V77-TRAIT-BASE-RED_605e5b9172804cecae7e0b3887fda199.log",
+  "output_sha256": "49a8cf75e0ae6b017e0063bce0e2d6ffb9d85e3a2316d62bc2906f27b25a4bf5",
+  "receipt_id": "MB-20261020-V77-TRAIT-BASE-RED_605e5b9172804cecae7e0b3887fda199"
+}

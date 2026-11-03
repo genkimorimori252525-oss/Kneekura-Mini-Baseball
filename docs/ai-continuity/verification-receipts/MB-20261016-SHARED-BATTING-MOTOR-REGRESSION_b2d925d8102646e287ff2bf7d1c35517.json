@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SHARED-BATTING-MOTOR-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/world/psychology/batting/BattingCommitment.test.ts",
+    "src/core/world/psychology/batting/MeasuredBattingCommitment.test.ts"
+  ],
+  "observed_at": "2026-10-16T11:03:50.757+00:00",
+  "elapsed_ms": 3233,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SHARED-BATTING-MOTOR-REGRESSION_b2d925d8102646e287ff2bf7d1c35517.log",
+  "output_sha256": "4c3898636cf5955b530d583466ad2a6f498ba2b418a350c65b8258d177ecd05e",
+  "receipt_id": "MB-20261016-SHARED-BATTING-MOTOR-REGRESSION_b2d925d8102646e287ff2bf7d1c35517"
+}

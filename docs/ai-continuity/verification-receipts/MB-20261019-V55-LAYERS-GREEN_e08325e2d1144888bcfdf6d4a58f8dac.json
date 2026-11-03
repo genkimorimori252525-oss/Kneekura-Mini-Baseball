@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V55-LAYERS-GREEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-camera-workbench-layers-v55.mjs",
+    "../../outputs/カメラワーク調整室_v55_1.html",
+    "../../outputs/verification-v55-layers-green",
+    "green"
+  ],
+  "observed_at": "2026-10-18T17:15:26.479+00:00",
+  "elapsed_ms": 50422,
+  "git_head": "e269b85174a18ed1d28f18efd1e1e47377d32a6c",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V55-LAYERS-GREEN_e08325e2d1144888bcfdf6d4a58f8dac.log",
+  "output_sha256": "a0f2db0b720a4e66163169db794638e2d980f09305edbaa0b93a9dface4eafd5",
+  "receipt_id": "MB-20261019-V55-LAYERS-GREEN_e08325e2d1144888bcfdf6d4a58f8dac"
+}

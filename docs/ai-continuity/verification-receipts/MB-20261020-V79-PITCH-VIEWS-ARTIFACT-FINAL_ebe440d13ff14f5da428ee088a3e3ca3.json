@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V79-PITCH-VIEWS-ARTIFACT-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-pitcher-views-browser-v79.mjs",
+    "../../outputs/にーくら野球メーカー_v79_63コースとシーズン成績版.html",
+    "docs/verification/releases/v79/pitch-views-final"
+  ],
+  "observed_at": "2026-10-20T00:31:07.893+00:00",
+  "elapsed_ms": 19796,
+  "git_head": "98819b9ab5c8e4bdd7ddfc7d644d484df08ab55d",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V79-PITCH-VIEWS-ARTIFACT-FINAL_ebe440d13ff14f5da428ee088a3e3ca3.log",
+  "output_sha256": "02ab21914205f86a295de045cb221570bdbfa3deeb902bff800c8d6fc4e2a9e5",
+  "receipt_id": "MB-20261020-V79-PITCH-VIEWS-ARTIFACT-FINAL_ebe440d13ff14f5da428ee088a3e3ca3"
+}

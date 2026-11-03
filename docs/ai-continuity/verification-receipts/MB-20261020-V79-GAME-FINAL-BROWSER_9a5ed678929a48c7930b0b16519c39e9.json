@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V79-GAME-FINAL-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v79-game.mjs",
+    "docs/verification/releases/v79/game-final"
+  ],
+  "observed_at": "2026-10-20T00:33:23.200+00:00",
+  "elapsed_ms": 182500,
+  "git_head": "98819b9ab5c8e4bdd7ddfc7d644d484df08ab55d",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V79-GAME-FINAL-BROWSER_9a5ed678929a48c7930b0b16519c39e9.log",
+  "output_sha256": "06c3befc96628dd74a56811f976e9a494ef5023a3cbec223113873beed490f88",
+  "receipt_id": "MB-20261020-V79-GAME-FINAL-BROWSER_9a5ed678929a48c7930b0b16519c39e9"
+}

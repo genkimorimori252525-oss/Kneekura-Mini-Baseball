@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-PINNED-PITCH9-WALL-SUPPORT-REPLAY",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../live-field-probe.mjs",
+    "[[0,0,0]]",
+    "cause",
+    "../../outputs/verification-authored-with-bat-v33-game-probe-v2/failed-1.json"
+  ],
+  "observed_at": "2026-10-17T00:18:10.093+00:00",
+  "elapsed_ms": 452,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-PINNED-PITCH9-WALL-SUPPORT-REPLAY_87b39a47ea0f417ca70979e7d9fb1afa.log",
+  "output_sha256": "ec8f0970bb3cd0560cebd393ca5c8e1cd3bca3dd7bb416835c5c35a004103f40",
+  "receipt_id": "MB-20261017-PINNED-PITCH9-WALL-SUPPORT-REPLAY_87b39a47ea0f417ca70979e7d9fb1afa"
+}

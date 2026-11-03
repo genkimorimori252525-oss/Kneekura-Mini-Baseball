@@ -1,0 +1,87 @@
+{
+  "pass": false,
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv84_TBD_vs_LAD_描画と接地移動版.html",
+  "artifactSha256": "61081f447439f61abe257c902dfc68cc2b37b873e6a31468d3399c7fa8a1551f",
+  "coreSha256": "25e63cacda71af84463299ce4031d3ee55549619eeaae89e6db0b210030ac99b",
+  "baselinePath": null,
+  "historyAlgorithm": "SHA256_JSON_RECORD_DIGEST_LIST_V81",
+  "startedAt": "2026-10-20T15:26:57.598Z",
+  "environment": {
+    "browser": "Chrome headless",
+    "viewport": {
+      "width": 1200,
+      "height": 860
+    },
+    "deviceScaleFactor": 1,
+    "actualMobileDevice": false
+  },
+  "scope": "Whole canonical history JSON is hashed inside the browser per record and then as an ordered digest list. No physics fields are dropped from a record. UI clocks and random local game IDs are outside Host history. Node helper timing is separate from this application timing.",
+  "scenarios": [
+    {
+      "id": "default-nine",
+      "seedText": "TBD-LAD-2025",
+      "innings": 9,
+      "start": {
+        "newGameMs": 311.29999999701977,
+        "closeError": "進行中の試合があります。完走するか、新しい単独試合へ切り替えてから成績帳を読み込んでください。",
+        "replaceError": "進行中の試合があります。完走するか、新しい単独試合へ切り替えてから成績帳を読み込んでください。",
+        "active": {
+          "gameId": "game-5be20ac2-4d03-417e-a58e-d192d056930b",
+          "seasonId": "default-nine",
+          "finished": false,
+          "saved": false,
+          "pitches": 0
+        },
+        "rosterSha256": "3c7f36e6eff3afac96de341475ee7209f75f7436290de7fd63183123ecd0d084"
+      },
+      "progress": [
+        {
+          "pitches": 8,
+          "finished": false,
+          "inning": 1,
+          "half": "top",
+          "batchMs": 4546.0999999940395,
+          "elapsedMs": 4550
+        },
+        {
+          "pitches": 16,
+          "finished": false,
+          "inning": 1,
+          "half": "top",
+          "batchMs": 2832.4000000059605,
+          "elapsedMs": 7389
+        },
+        {
+          "pitches": 24,
+          "finished": false,
+          "inning": 1,
+          "half": "top",
+          "batchMs": 371.20000000298023,
+          "elapsedMs": 7765
+        }
+      ]
+    }
+  ],
+  "faults": {
+    "errors": [],
+    "external": []
+  },
+  "coldReadyWallMs": 2712,
+  "coldHeap": {
+    "usedJSHeapSize": 257061208,
+    "totalJSHeapSize": 304677160,
+    "jsHeapSizeLimit": 4395630592
+  },
+  "defaultSeedText": "TBD-LAD-2025",
+  "warmNewGameMs": [
+    340.29999999701977,
+    347.09999999403954,
+    314.40000000596046
+  ],
+  "warmHeap": {
+    "usedJSHeapSize": 131202869,
+    "totalJSHeapSize": 223742457,
+    "jsHeapSizeLimit": 4395630592
+  },
+  "error": "page.evaluate: Error: live locomotion V84: speed exceeds top speed\n    at eval (eval at evaluate (:311:30), <anonymous>:6:56)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\tools\\browser-bridge\\check-full-history-performance-v81.mjs:57:31"
+}

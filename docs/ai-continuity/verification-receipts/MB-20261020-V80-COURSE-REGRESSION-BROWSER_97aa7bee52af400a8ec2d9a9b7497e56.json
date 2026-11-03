@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V80-COURSE-REGRESSION-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-course-v79.mjs",
+    "../../outputs/にーくら野球メーカー_v80_球種の方向別メニュー版.html",
+    "docs/verification/releases/v80/course-regression",
+    "docs/verification/releases/v79/game-final/finished-local-game.json"
+  ],
+  "observed_at": "2026-10-20T12:26:51.582+00:00",
+  "elapsed_ms": 17250,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V80-COURSE-REGRESSION-BROWSER_97aa7bee52af400a8ec2d9a9b7497e56.log",
+  "output_sha256": "bb9872a9de0f2a8ce1ad98b87ec6b0988ea93b5f0fe7445d6616a6c1ae341f1e",
+  "receipt_id": "MB-20261020-V80-COURSE-REGRESSION-BROWSER_97aa7bee52af400a8ec2d9a9b7497e56"
+}

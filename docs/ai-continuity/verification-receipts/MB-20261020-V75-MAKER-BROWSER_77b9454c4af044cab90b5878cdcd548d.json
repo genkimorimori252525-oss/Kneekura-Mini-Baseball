@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V75-MAKER-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-v75.mjs"
+  ],
+  "observed_at": "2026-10-19T18:06:23.809+00:00",
+  "elapsed_ms": 33655,
+  "git_head": "4acba0c3f3d502f778107ca134c0352d0f5e3572",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V75-MAKER-BROWSER_77b9454c4af044cab90b5878cdcd548d.log",
+  "output_sha256": "ae5484ba937f2869f7ead9683127cca488f22e7873bfc775d828fb141f1ee753",
+  "receipt_id": "MB-20261020-V75-MAKER-BROWSER_77b9454c4af044cab90b5878cdcd548d"
+}

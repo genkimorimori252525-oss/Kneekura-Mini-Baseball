@@ -1,0 +1,1230 @@
+{
+  "pass": true,
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv83_TBD_vs_LAD_HR見送り延長版.html",
+  "sha256": "de87fdc68cf91cb4a4d2454e9336e67cfbb646b8a6786759c113c1a619ef345a",
+  "coreSha256": "a25f2da5d941219a3038e9c27ac0a49cc4cdd79ac0e50d0203a5603e1264e4bd",
+  "cases": [
+    {
+      "width": 1200,
+      "pitch": 38,
+      "start": 6391.804999999999,
+      "tried": [
+        {
+          "pitch": 38,
+          "camera": "fielder",
+          "watch": {
+            "active": true,
+            "camera": "fielder",
+            "observerPlayerId": "0-b8",
+            "target": {
+              "x": 22.24946848893972,
+              "y": 11.123700201648047,
+              "z": 107.7643131388579
+            },
+            "displayBall": {
+              "position": {
+                "x": 22.24946848893972,
+                "y": 11.123700201648047,
+                "z": 107.7643131388579
+              },
+              "velocity": {
+                "x": 5.831616067693013,
+                "y": -13.696852685927887,
+                "z": 16.789499952223437
+              },
+              "spin": {
+                "x": -198.23253211517098,
+                "y": 102.46683963699431,
+                "z": -22.0370298037054
+              },
+              "orientation": {
+                "w": 0.32008309237613636,
+                "x": -0.8571825420497605,
+                "y": 0.23922206682131916,
+                "z": -0.32489645477563545
+              },
+              "phase": "dead",
+              "visible": true,
+              "possessedBy": null
+            },
+            "crossingTick": 186753052,
+            "startAtMs": 6391.804999999999,
+            "untilMs": 8141.804999999999,
+            "holdMs": 1750,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+          },
+          "classification": "home_run"
+        }
+      ],
+      "observations": [
+        {
+          "offset": -100,
+          "camera": "fielder",
+          "watch": null,
+          "eye": {
+            "x": 20.956521625090346,
+            "y": 1.7020000000000002,
+            "z": 105.5877990577851
+          },
+          "tick": 186602663,
+          "elapsed": 6291.804999999999,
+          "generated": 39,
+          "ballVisible": {
+            "camera": "fielder",
+            "observedHeightMeters": 13.991038438139396,
+            "overheadHeightEmphasis": 2,
+            "heightMultiplier": 1,
+            "heightModel": "VIRTUAL_HEIGHT_V1",
+            "virtualHeightMeters": null,
+            "virtualProjectionRatio": null,
+            "heightClamped": false,
+            "baseDisplayDiameterPx": 2.129930047882908,
+            "groundProjectedDiameterPx": 3.132250070416041,
+            "groundDisplayDiameterPx": 2.129930047882908,
+            "physicalHeightRatio": 1,
+            "displayScale": 1,
+            "unscaledDisplayDiameterPx": 2.129930047882908,
+            "ballKind": "batted",
+            "projectedDiameterPx": 3.132250070416041,
+            "opticalDiameterPx": 2.129930047882908,
+            "visibilityMarker": false,
+            "displayDiameterPx": 2.129930047882908,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 196,
+                "radius": 1.064965023941454,
+                "color": "#fffdf7"
+              }
+            ]
+          },
+          "headline": "打球を追う"
+        },
+        {
+          "offset": 0,
+          "camera": "fielder",
+          "watch": null,
+          "eye": {
+            "x": 21.252896931751312,
+            "y": 1.7020000000000002,
+            "z": 105.80443940356302
+          },
+          "tick": 186712663,
+          "elapsed": 6391.804999999999,
+          "generated": 39,
+          "ballVisible": {
+            "camera": "fielder",
+            "observedHeightMeters": 12.59404985726759,
+            "overheadHeightEmphasis": 2,
+            "heightMultiplier": 1,
+            "heightModel": "VIRTUAL_HEIGHT_V1",
+            "virtualHeightMeters": null,
+            "virtualProjectionRatio": null,
+            "heightClamped": false,
+            "baseDisplayDiameterPx": 2.420667082145947,
+            "groundProjectedDiameterPx": 3.559804532567569,
+            "groundDisplayDiameterPx": 2.420667082145947,
+            "physicalHeightRatio": 1,
+            "displayScale": 1,
+            "unscaledDisplayDiameterPx": 2.420667082145947,
+            "ballKind": "batted",
+            "projectedDiameterPx": 3.559804532567569,
+            "opticalDiameterPx": 2.420667082145947,
+            "visibilityMarker": false,
+            "displayDiameterPx": 2.420667082145947,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 196,
+                "radius": 1.2103335410729734,
+                "color": "#fffdf7"
+              }
+            ]
+          },
+          "headline": "打球を追う"
+        },
+        {
+          "offset": 100,
+          "camera": "fielder",
+          "watch": {
+            "active": true,
+            "camera": "fielder",
+            "observerPlayerId": "0-b8",
+            "target": {
+              "x": 22.24946848893972,
+              "y": 11.123700201648047,
+              "z": 107.7643131388579
+            },
+            "displayBall": {
+              "position": {
+                "x": 22.24946848893972,
+                "y": 11.123700201648047,
+                "z": 107.7643131388579
+              },
+              "velocity": {
+                "x": 5.831616067693013,
+                "y": -13.696852685927887,
+                "z": 16.789499952223437
+              },
+              "spin": {
+                "x": -198.23253211517098,
+                "y": 102.46683963699431,
+                "z": -22.0370298037054
+              },
+              "orientation": {
+                "w": 0.32008309237613636,
+                "x": -0.8571825420497605,
+                "y": 0.23922206682131916,
+                "z": -0.32489645477563545
+              },
+              "phase": "dead",
+              "visible": true,
+              "possessedBy": null
+            },
+            "crossingTick": 186753052,
+            "startAtMs": 6391.804999999999,
+            "untilMs": 8141.804999999999,
+            "holdMs": 1750,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+          },
+          "eye": {
+            "x": 21.493591698994244,
+            "y": 1.7020000000000002,
+            "z": 105.98037915438073
+          },
+          "tick": 186822663,
+          "elapsed": 6491.804999999999,
+          "generated": 39,
+          "ballVisible": {
+            "camera": "fielder",
+            "observedHeightMeters": 11.123700201648047,
+            "overheadHeightEmphasis": 2,
+            "heightMultiplier": 1,
+            "heightModel": "VIRTUAL_HEIGHT_V1",
+            "virtualHeightMeters": null,
+            "virtualProjectionRatio": null,
+            "heightClamped": false,
+            "baseDisplayDiameterPx": 2.7426657078438907,
+            "groundProjectedDiameterPx": 4.033331923299839,
+            "groundDisplayDiameterPx": 2.7426657078438907,
+            "physicalHeightRatio": 1,
+            "displayScale": 1,
+            "unscaledDisplayDiameterPx": 2.7426657078438907,
+            "ballKind": "batted",
+            "projectedDiameterPx": 4.033331923299839,
+            "opticalDiameterPx": 2.7426657078438907,
+            "visibilityMarker": false,
+            "displayDiameterPx": 2.7426657078438907,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 196,
+                "radius": 1.3713328539219454,
+                "color": "#fffdf7"
+              }
+            ]
+          },
+          "headline": "ホームラン"
+        },
+        {
+          "offset": 1000,
+          "camera": "fielder",
+          "watch": {
+            "active": true,
+            "camera": "fielder",
+            "observerPlayerId": "0-b8",
+            "target": {
+              "x": 27.13230772052482,
+              "y": 1.345907766116372,
+              "z": 121.08944010116146
+            },
+            "displayBall": {
+              "position": {
+                "x": 27.13230772052482,
+                "y": 1.345907766116372,
+                "z": 121.08944010116146
+              },
+              "velocity": {
+                "x": 4.492978715908876,
+                "y": 6.471741238552674,
+                "z": 9.895358198922429
+              },
+              "spin": {
+                "x": 248.7941682668316,
+                "y": 100.3255899651379,
+                "z": -116.6206392207824
+              },
+              "orientation": {
+                "w": -0.6496028333754488,
+                "x": 0.4403769971293686,
+                "y": -0.5937732565502455,
+                "z": 0.17753191002077662
+              },
+              "phase": "dead",
+              "visible": true,
+              "possessedBy": null
+            },
+            "crossingTick": 186753052,
+            "startAtMs": 6391.804999999999,
+            "untilMs": 8141.804999999999,
+            "holdMs": 1750,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+          },
+          "eye": {
+            "x": 21.901152688419124,
+            "y": 1.7020000000000002,
+            "z": 106.27829248147047
+          },
+          "tick": 187702663,
+          "elapsed": 7391.804999999999,
+          "generated": 39,
+          "ballVisible": {
+            "camera": "fielder",
+            "observedHeightMeters": 1.345907766116372,
+            "overheadHeightEmphasis": 2,
+            "heightMultiplier": 1,
+            "heightModel": "VIRTUAL_HEIGHT_V1",
+            "virtualHeightMeters": null,
+            "virtualProjectionRatio": null,
+            "heightClamped": false,
+            "baseDisplayDiameterPx": 1.6790701799239618,
+            "groundProjectedDiameterPx": 2.4692208528293556,
+            "groundDisplayDiameterPx": 1.6790701799239618,
+            "physicalHeightRatio": 1,
+            "displayScale": 1,
+            "unscaledDisplayDiameterPx": 1.6790701799239618,
+            "ballKind": "batted",
+            "projectedDiameterPx": 2.4692208528293556,
+            "opticalDiameterPx": 1.6790701799239618,
+            "visibilityMarker": false,
+            "displayDiameterPx": 1.6790701799239618,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 196,
+                "radius": 0.8395350899619809,
+                "color": "#fffdf7"
+              }
+            ]
+          },
+          "headline": "ホームラン"
+        },
+        {
+          "offset": 1499,
+          "camera": "fielder",
+          "watch": {
+            "active": true,
+            "camera": "fielder",
+            "observerPlayerId": "0-b8",
+            "target": {
+              "x": 29.36197559320736,
+              "y": 3.1924760072809715,
+              "z": 125.90741547550287
+            },
+            "displayBall": {
+              "position": {
+                "x": 29.36197559320736,
+                "y": 3.1924760072809715,
+                "z": 125.90741547550287
+              },
+              "velocity": {
+                "x": 4.499614583559315,
+                "y": 1.0474228836178183,
+                "z": 9.55239071381761
+              },
+              "spin": {
+                "x": 247.2223457645427,
+                "y": 99.69175670063194,
+                "z": -115.88385770280918
+              },
+              "orientation": {
+                "w": 0.6371273789232977,
+                "x": -0.5076859572890281,
+                "y": 0.5388030204836796,
+                "z": -0.21451101816810073
+              },
+              "phase": "dead",
+              "visible": true,
+              "possessedBy": null
+            },
+            "crossingTick": 186753052,
+            "startAtMs": 6391.804999999999,
+            "untilMs": 8141.804999999999,
+            "holdMs": 1750,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+          },
+          "eye": {
+            "x": 21.901152688419124,
+            "y": 1.7020000000000002,
+            "z": 106.27829248147047
+          },
+          "tick": 188197663,
+          "elapsed": 7890.804999999999,
+          "generated": 39,
+          "ballVisible": {
+            "camera": "fielder",
+            "observedHeightMeters": 3.1924760072809715,
+            "overheadHeightEmphasis": 2,
+            "heightMultiplier": 1,
+            "heightModel": "VIRTUAL_HEIGHT_V1",
+            "virtualHeightMeters": null,
+            "virtualProjectionRatio": null,
+            "heightClamped": false,
+            "baseDisplayDiameterPx": 1.253146750695024,
+            "groundProjectedDiameterPx": 1.8428628686691528,
+            "groundDisplayDiameterPx": 1.253146750695024,
+            "physicalHeightRatio": 1,
+            "displayScale": 1,
+            "unscaledDisplayDiameterPx": 1.253146750695024,
+            "ballKind": "batted",
+            "projectedDiameterPx": 1.8428628686691528,
+            "opticalDiameterPx": 1.253146750695024,
+            "visibilityMarker": false,
+            "displayDiameterPx": 1.253146750695024,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 196,
+                "radius": 0.626573375347512,
+                "color": "#fffdf7"
+              }
+            ]
+          },
+          "headline": "ホームラン"
+        },
+        {
+          "offset": 1749,
+          "camera": "fielder",
+          "watch": {
+            "active": true,
+            "camera": "fielder",
+            "observerPlayerId": "0-b8",
+            "target": {
+              "x": 30.595324092731545,
+              "y": 3.081626874618896,
+              "z": 128.50205635127892
+            },
+            "displayBall": {
+              "position": {
+                "x": 30.595324092731545,
+                "y": 3.081626874618896,
+                "z": 128.50205635127892
+              },
+              "velocity": {
+                "x": 4.466151868741725,
+                "y": -1.8421087668899598,
+                "z": 9.310667481419694
+              },
+              "spin": {
+                "x": 246.42612825425945,
+                "y": 99.37068409665488,
+                "z": -115.51063595225584
+              },
+              "orientation": {
+                "w": -0.24613858168208977,
+                "x": 0.8511121374453382,
+                "y": 0.16847192974383413,
+                "z": 0.4320198340228668
+              },
+              "phase": "dead",
+              "visible": true,
+              "possessedBy": null
+            },
+            "crossingTick": 186753052,
+            "startAtMs": 6391.804999999999,
+            "untilMs": 8141.804999999999,
+            "holdMs": 1750,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+          },
+          "eye": {
+            "x": 21.901152688419124,
+            "y": 1.7020000000000002,
+            "z": 106.27829248147047
+          },
+          "tick": 188472663,
+          "elapsed": 8140.804999999999,
+          "generated": 39,
+          "ballVisible": {
+            "camera": "fielder",
+            "observedHeightMeters": 3.081626874618896,
+            "overheadHeightEmphasis": 2,
+            "heightMultiplier": 1,
+            "heightModel": "VIRTUAL_HEIGHT_V1",
+            "virtualHeightMeters": null,
+            "virtualProjectionRatio": null,
+            "heightClamped": false,
+            "baseDisplayDiameterPx": 1.103647622760235,
+            "groundProjectedDiameterPx": 1.623011209941522,
+            "groundDisplayDiameterPx": 1.103647622760235,
+            "physicalHeightRatio": 1,
+            "displayScale": 1,
+            "unscaledDisplayDiameterPx": 1.103647622760235,
+            "ballKind": "batted",
+            "projectedDiameterPx": 1.623011209941522,
+            "opticalDiameterPx": 1.103647622760235,
+            "visibilityMarker": false,
+            "displayDiameterPx": 1.103647622760235,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 196,
+                "radius": 0.5518238113801175,
+                "color": "#fffdf7"
+              }
+            ]
+          },
+          "headline": "ホームラン"
+        },
+        {
+          "offset": 1750,
+          "camera": "overhead",
+          "watch": null,
+          "eye": {
+            "x": 0,
+            "y": 100,
+            "z": -35
+          },
+          "tick": 188472663,
+          "elapsed": 8141.804999999999,
+          "generated": 39,
+          "ballVisible": null,
+          "headline": "ホームラン"
+        },
+        {
+          "offset": 2000,
+          "camera": "overhead",
+          "watch": null,
+          "eye": {
+            "x": 0,
+            "y": 100,
+            "z": -35
+          },
+          "tick": 188747663,
+          "elapsed": 8391.805,
+          "generated": 39,
+          "ballVisible": null,
+          "headline": "ホームラン"
+        },
+        {
+          "offset": 500,
+          "camera": "fielder",
+          "watch": {
+            "active": true,
+            "camera": "fielder",
+            "observerPlayerId": "0-b8",
+            "target": {
+              "x": 24.492503648867306,
+              "y": 5.416031432114091,
+              "z": 114.14856429227558
+            },
+            "displayBall": {
+              "position": {
+                "x": 24.492503648867306,
+                "y": 5.416031432114091,
+                "z": 114.14856429227558
+              },
+              "velocity": {
+                "x": 5.8157358502893945,
+                "y": -15.932000930392906,
+                "z": 16.3915568095744
+              },
+              "spin": {
+                "x": -196.27887468051708,
+                "y": 101.4569897353344,
+                "z": -21.819846445079463
+              },
+              "orientation": {
+                "w": 0.9352175649314999,
+                "x": -0.09310061249442972,
+                "y": 0.17205976089228542,
+                "z": -0.2951200109759548
+              },
+              "phase": "dead",
+              "visible": true,
+              "possessedBy": null
+            },
+            "crossingTick": 186753052,
+            "startAtMs": 6391.804999999999,
+            "untilMs": 8141.804999999999,
+            "holdMs": 1750,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+          },
+          "eye": {
+            "x": 21.897539136427522,
+            "y": 1.7020000000000002,
+            "z": 106.27565109693083
+          },
+          "tick": 187207663,
+          "elapsed": 6891.804999999999,
+          "generated": 39,
+          "ballVisible": {
+            "camera": "fielder",
+            "observedHeightMeters": 5.416031432114091,
+            "overheadHeightEmphasis": 2,
+            "heightMultiplier": 1,
+            "heightModel": "VIRTUAL_HEIGHT_V1",
+            "virtualHeightMeters": null,
+            "virtualProjectionRatio": null,
+            "heightClamped": false,
+            "baseDisplayDiameterPx": 2.904296191043113,
+            "groundProjectedDiameterPx": 4.271023810357518,
+            "groundDisplayDiameterPx": 2.904296191043113,
+            "physicalHeightRatio": 1,
+            "displayScale": 1,
+            "unscaledDisplayDiameterPx": 2.904296191043113,
+            "ballKind": "batted",
+            "projectedDiameterPx": 4.271023810357518,
+            "opticalDiameterPx": 2.904296191043113,
+            "visibilityMarker": false,
+            "displayDiameterPx": 2.904296191043113,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 196,
+                "radius": 1.4521480955215564,
+                "color": "#fffdf7"
+              }
+            ]
+          },
+          "headline": "ホームラン"
+        }
+      ],
+      "ordinary": {
+        "index": 0,
+        "watch": null
+      },
+      "historySha256": "6742c78037f682756ecf0e2466e4a3557f7fadaf57173b8d6d7f44f0203aa130"
+    },
+    {
+      "width": 390,
+      "pitch": 38,
+      "start": 6391.804999999999,
+      "tried": [
+        {
+          "pitch": 38,
+          "camera": "fielder",
+          "watch": {
+            "active": true,
+            "camera": "fielder",
+            "observerPlayerId": "0-b8",
+            "target": {
+              "x": 22.24946848893972,
+              "y": 11.123700201648047,
+              "z": 107.7643131388579
+            },
+            "displayBall": {
+              "position": {
+                "x": 22.24946848893972,
+                "y": 11.123700201648047,
+                "z": 107.7643131388579
+              },
+              "velocity": {
+                "x": 5.831616067693013,
+                "y": -13.696852685927887,
+                "z": 16.789499952223437
+              },
+              "spin": {
+                "x": -198.23253211517098,
+                "y": 102.46683963699431,
+                "z": -22.0370298037054
+              },
+              "orientation": {
+                "w": 0.32008309237613636,
+                "x": -0.8571825420497605,
+                "y": 0.23922206682131916,
+                "z": -0.32489645477563545
+              },
+              "phase": "dead",
+              "visible": true,
+              "possessedBy": null
+            },
+            "crossingTick": 186753052,
+            "startAtMs": 6391.804999999999,
+            "untilMs": 8141.804999999999,
+            "holdMs": 1750,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+          },
+          "classification": "home_run"
+        }
+      ],
+      "observations": [
+        {
+          "offset": -100,
+          "camera": "fielder",
+          "watch": null,
+          "eye": {
+            "x": 20.956521625090346,
+            "y": 1.7020000000000002,
+            "z": 105.5877990577851
+          },
+          "tick": 186602663,
+          "elapsed": 6291.804999999999,
+          "generated": 39,
+          "ballVisible": {
+            "camera": "fielder",
+            "observedHeightMeters": 13.991038438139396,
+            "overheadHeightEmphasis": 2,
+            "heightMultiplier": 1,
+            "heightModel": "VIRTUAL_HEIGHT_V1",
+            "virtualHeightMeters": null,
+            "virtualProjectionRatio": null,
+            "heightClamped": false,
+            "baseDisplayDiameterPx": 2.129930047882908,
+            "groundProjectedDiameterPx": 3.132250070416041,
+            "groundDisplayDiameterPx": 2.129930047882908,
+            "physicalHeightRatio": 1,
+            "displayScale": 1,
+            "unscaledDisplayDiameterPx": 2.129930047882908,
+            "ballKind": "batted",
+            "projectedDiameterPx": 3.132250070416041,
+            "opticalDiameterPx": 2.129930047882908,
+            "visibilityMarker": false,
+            "displayDiameterPx": 2.129930047882908,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 196,
+                "radius": 1.064965023941454,
+                "color": "#fffdf7"
+              }
+            ]
+          },
+          "headline": "打球を追う"
+        },
+        {
+          "offset": 0,
+          "camera": "fielder",
+          "watch": null,
+          "eye": {
+            "x": 21.252896931751312,
+            "y": 1.7020000000000002,
+            "z": 105.80443940356302
+          },
+          "tick": 186712663,
+          "elapsed": 6391.804999999999,
+          "generated": 39,
+          "ballVisible": {
+            "camera": "fielder",
+            "observedHeightMeters": 12.59404985726759,
+            "overheadHeightEmphasis": 2,
+            "heightMultiplier": 1,
+            "heightModel": "VIRTUAL_HEIGHT_V1",
+            "virtualHeightMeters": null,
+            "virtualProjectionRatio": null,
+            "heightClamped": false,
+            "baseDisplayDiameterPx": 2.420667082145947,
+            "groundProjectedDiameterPx": 3.559804532567569,
+            "groundDisplayDiameterPx": 2.420667082145947,
+            "physicalHeightRatio": 1,
+            "displayScale": 1,
+            "unscaledDisplayDiameterPx": 2.420667082145947,
+            "ballKind": "batted",
+            "projectedDiameterPx": 3.559804532567569,
+            "opticalDiameterPx": 2.420667082145947,
+            "visibilityMarker": false,
+            "displayDiameterPx": 2.420667082145947,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 196,
+                "radius": 1.2103335410729734,
+                "color": "#fffdf7"
+              }
+            ]
+          },
+          "headline": "打球を追う"
+        },
+        {
+          "offset": 100,
+          "camera": "fielder",
+          "watch": {
+            "active": true,
+            "camera": "fielder",
+            "observerPlayerId": "0-b8",
+            "target": {
+              "x": 22.24946848893972,
+              "y": 11.123700201648047,
+              "z": 107.7643131388579
+            },
+            "displayBall": {
+              "position": {
+                "x": 22.24946848893972,
+                "y": 11.123700201648047,
+                "z": 107.7643131388579
+              },
+              "velocity": {
+                "x": 5.831616067693013,
+                "y": -13.696852685927887,
+                "z": 16.789499952223437
+              },
+              "spin": {
+                "x": -198.23253211517098,
+                "y": 102.46683963699431,
+                "z": -22.0370298037054
+              },
+              "orientation": {
+                "w": 0.32008309237613636,
+                "x": -0.8571825420497605,
+                "y": 0.23922206682131916,
+                "z": -0.32489645477563545
+              },
+              "phase": "dead",
+              "visible": true,
+              "possessedBy": null
+            },
+            "crossingTick": 186753052,
+            "startAtMs": 6391.804999999999,
+            "untilMs": 8141.804999999999,
+            "holdMs": 1750,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+          },
+          "eye": {
+            "x": 21.493591698994244,
+            "y": 1.7020000000000002,
+            "z": 105.98037915438073
+          },
+          "tick": 186822663,
+          "elapsed": 6491.804999999999,
+          "generated": 39,
+          "ballVisible": {
+            "camera": "fielder",
+            "observedHeightMeters": 11.123700201648047,
+            "overheadHeightEmphasis": 2,
+            "heightMultiplier": 1,
+            "heightModel": "VIRTUAL_HEIGHT_V1",
+            "virtualHeightMeters": null,
+            "virtualProjectionRatio": null,
+            "heightClamped": false,
+            "baseDisplayDiameterPx": 2.7426657078438907,
+            "groundProjectedDiameterPx": 4.033331923299839,
+            "groundDisplayDiameterPx": 2.7426657078438907,
+            "physicalHeightRatio": 1,
+            "displayScale": 1,
+            "unscaledDisplayDiameterPx": 2.7426657078438907,
+            "ballKind": "batted",
+            "projectedDiameterPx": 4.033331923299839,
+            "opticalDiameterPx": 2.7426657078438907,
+            "visibilityMarker": false,
+            "displayDiameterPx": 2.7426657078438907,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 196,
+                "radius": 1.3713328539219454,
+                "color": "#fffdf7"
+              }
+            ]
+          },
+          "headline": "ホームラン"
+        },
+        {
+          "offset": 1000,
+          "camera": "fielder",
+          "watch": {
+            "active": true,
+            "camera": "fielder",
+            "observerPlayerId": "0-b8",
+            "target": {
+              "x": 27.13230772052482,
+              "y": 1.345907766116372,
+              "z": 121.08944010116146
+            },
+            "displayBall": {
+              "position": {
+                "x": 27.13230772052482,
+                "y": 1.345907766116372,
+                "z": 121.08944010116146
+              },
+              "velocity": {
+                "x": 4.492978715908876,
+                "y": 6.471741238552674,
+                "z": 9.895358198922429
+              },
+              "spin": {
+                "x": 248.7941682668316,
+                "y": 100.3255899651379,
+                "z": -116.6206392207824
+              },
+              "orientation": {
+                "w": -0.6496028333754488,
+                "x": 0.4403769971293686,
+                "y": -0.5937732565502455,
+                "z": 0.17753191002077662
+              },
+              "phase": "dead",
+              "visible": true,
+              "possessedBy": null
+            },
+            "crossingTick": 186753052,
+            "startAtMs": 6391.804999999999,
+            "untilMs": 8141.804999999999,
+            "holdMs": 1750,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+          },
+          "eye": {
+            "x": 21.901152688419124,
+            "y": 1.7020000000000002,
+            "z": 106.27829248147047
+          },
+          "tick": 187702663,
+          "elapsed": 7391.804999999999,
+          "generated": 39,
+          "ballVisible": {
+            "camera": "fielder",
+            "observedHeightMeters": 1.345907766116372,
+            "overheadHeightEmphasis": 2,
+            "heightMultiplier": 1,
+            "heightModel": "VIRTUAL_HEIGHT_V1",
+            "virtualHeightMeters": null,
+            "virtualProjectionRatio": null,
+            "heightClamped": false,
+            "baseDisplayDiameterPx": 1.6790701799239618,
+            "groundProjectedDiameterPx": 2.4692208528293556,
+            "groundDisplayDiameterPx": 1.6790701799239618,
+            "physicalHeightRatio": 1,
+            "displayScale": 1,
+            "unscaledDisplayDiameterPx": 1.6790701799239618,
+            "ballKind": "batted",
+            "projectedDiameterPx": 2.4692208528293556,
+            "opticalDiameterPx": 1.6790701799239618,
+            "visibilityMarker": false,
+            "displayDiameterPx": 1.6790701799239618,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 196,
+                "radius": 0.8395350899619809,
+                "color": "#fffdf7"
+              }
+            ]
+          },
+          "headline": "ホームラン"
+        },
+        {
+          "offset": 1499,
+          "camera": "fielder",
+          "watch": {
+            "active": true,
+            "camera": "fielder",
+            "observerPlayerId": "0-b8",
+            "target": {
+              "x": 29.36197559320736,
+              "y": 3.1924760072809715,
+              "z": 125.90741547550287
+            },
+            "displayBall": {
+              "position": {
+                "x": 29.36197559320736,
+                "y": 3.1924760072809715,
+                "z": 125.90741547550287
+              },
+              "velocity": {
+                "x": 4.499614583559315,
+                "y": 1.0474228836178183,
+                "z": 9.55239071381761
+              },
+              "spin": {
+                "x": 247.2223457645427,
+                "y": 99.69175670063194,
+                "z": -115.88385770280918
+              },
+              "orientation": {
+                "w": 0.6371273789232977,
+                "x": -0.5076859572890281,
+                "y": 0.5388030204836796,
+                "z": -0.21451101816810073
+              },
+              "phase": "dead",
+              "visible": true,
+              "possessedBy": null
+            },
+            "crossingTick": 186753052,
+            "startAtMs": 6391.804999999999,
+            "untilMs": 8141.804999999999,
+            "holdMs": 1750,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+          },
+          "eye": {
+            "x": 21.901152688419124,
+            "y": 1.7020000000000002,
+            "z": 106.27829248147047
+          },
+          "tick": 188197663,
+          "elapsed": 7890.804999999999,
+          "generated": 39,
+          "ballVisible": {
+            "camera": "fielder",
+            "observedHeightMeters": 3.1924760072809715,
+            "overheadHeightEmphasis": 2,
+            "heightMultiplier": 1,
+            "heightModel": "VIRTUAL_HEIGHT_V1",
+            "virtualHeightMeters": null,
+            "virtualProjectionRatio": null,
+            "heightClamped": false,
+            "baseDisplayDiameterPx": 1.253146750695024,
+            "groundProjectedDiameterPx": 1.8428628686691528,
+            "groundDisplayDiameterPx": 1.253146750695024,
+            "physicalHeightRatio": 1,
+            "displayScale": 1,
+            "unscaledDisplayDiameterPx": 1.253146750695024,
+            "ballKind": "batted",
+            "projectedDiameterPx": 1.8428628686691528,
+            "opticalDiameterPx": 1.253146750695024,
+            "visibilityMarker": false,
+            "displayDiameterPx": 1.253146750695024,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 196,
+                "radius": 0.626573375347512,
+                "color": "#fffdf7"
+              }
+            ]
+          },
+          "headline": "ホームラン"
+        },
+        {
+          "offset": 1749,
+          "camera": "fielder",
+          "watch": {
+            "active": true,
+            "camera": "fielder",
+            "observerPlayerId": "0-b8",
+            "target": {
+              "x": 30.595324092731545,
+              "y": 3.081626874618896,
+              "z": 128.50205635127892
+            },
+            "displayBall": {
+              "position": {
+                "x": 30.595324092731545,
+                "y": 3.081626874618896,
+                "z": 128.50205635127892
+              },
+              "velocity": {
+                "x": 4.466151868741725,
+                "y": -1.8421087668899598,
+                "z": 9.310667481419694
+              },
+              "spin": {
+                "x": 246.42612825425945,
+                "y": 99.37068409665488,
+                "z": -115.51063595225584
+              },
+              "orientation": {
+                "w": -0.24613858168208977,
+                "x": 0.8511121374453382,
+                "y": 0.16847192974383413,
+                "z": 0.4320198340228668
+              },
+              "phase": "dead",
+              "visible": true,
+              "possessedBy": null
+            },
+            "crossingTick": 186753052,
+            "startAtMs": 6391.804999999999,
+            "untilMs": 8141.804999999999,
+            "holdMs": 1750,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+          },
+          "eye": {
+            "x": 21.901152688419124,
+            "y": 1.7020000000000002,
+            "z": 106.27829248147047
+          },
+          "tick": 188472663,
+          "elapsed": 8140.804999999999,
+          "generated": 39,
+          "ballVisible": {
+            "camera": "fielder",
+            "observedHeightMeters": 3.081626874618896,
+            "overheadHeightEmphasis": 2,
+            "heightMultiplier": 1,
+            "heightModel": "VIRTUAL_HEIGHT_V1",
+            "virtualHeightMeters": null,
+            "virtualProjectionRatio": null,
+            "heightClamped": false,
+            "baseDisplayDiameterPx": 1.103647622760235,
+            "groundProjectedDiameterPx": 1.623011209941522,
+            "groundDisplayDiameterPx": 1.103647622760235,
+            "physicalHeightRatio": 1,
+            "displayScale": 1,
+            "unscaledDisplayDiameterPx": 1.103647622760235,
+            "ballKind": "batted",
+            "projectedDiameterPx": 1.623011209941522,
+            "opticalDiameterPx": 1.103647622760235,
+            "visibilityMarker": false,
+            "displayDiameterPx": 1.103647622760235,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 196,
+                "radius": 0.5518238113801175,
+                "color": "#fffdf7"
+              }
+            ]
+          },
+          "headline": "ホームラン"
+        },
+        {
+          "offset": 1750,
+          "camera": "overhead",
+          "watch": null,
+          "eye": {
+            "x": 0,
+            "y": 100,
+            "z": -35
+          },
+          "tick": 188472663,
+          "elapsed": 8141.804999999999,
+          "generated": 39,
+          "ballVisible": null,
+          "headline": "ホームラン"
+        },
+        {
+          "offset": 2000,
+          "camera": "overhead",
+          "watch": null,
+          "eye": {
+            "x": 0,
+            "y": 100,
+            "z": -35
+          },
+          "tick": 188747663,
+          "elapsed": 8391.805,
+          "generated": 39,
+          "ballVisible": null,
+          "headline": "ホームラン"
+        },
+        {
+          "offset": 500,
+          "camera": "fielder",
+          "watch": {
+            "active": true,
+            "camera": "fielder",
+            "observerPlayerId": "0-b8",
+            "target": {
+              "x": 24.492503648867306,
+              "y": 5.416031432114091,
+              "z": 114.14856429227558
+            },
+            "displayBall": {
+              "position": {
+                "x": 24.492503648867306,
+                "y": 5.416031432114091,
+                "z": 114.14856429227558
+              },
+              "velocity": {
+                "x": 5.8157358502893945,
+                "y": -15.932000930392906,
+                "z": 16.3915568095744
+              },
+              "spin": {
+                "x": -196.27887468051708,
+                "y": 101.4569897353344,
+                "z": -21.819846445079463
+              },
+              "orientation": {
+                "w": 0.9352175649314999,
+                "x": -0.09310061249442972,
+                "y": 0.17205976089228542,
+                "z": -0.2951200109759548
+              },
+              "phase": "dead",
+              "visible": true,
+              "possessedBy": null
+            },
+            "crossingTick": 186753052,
+            "startAtMs": 6391.804999999999,
+            "untilMs": 8141.804999999999,
+            "holdMs": 1750,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+          },
+          "eye": {
+            "x": 21.897539136427522,
+            "y": 1.7020000000000002,
+            "z": 106.27565109693083
+          },
+          "tick": 187207663,
+          "elapsed": 6891.804999999999,
+          "generated": 39,
+          "ballVisible": {
+            "camera": "fielder",
+            "observedHeightMeters": 5.416031432114091,
+            "overheadHeightEmphasis": 2,
+            "heightMultiplier": 1,
+            "heightModel": "VIRTUAL_HEIGHT_V1",
+            "virtualHeightMeters": null,
+            "virtualProjectionRatio": null,
+            "heightClamped": false,
+            "baseDisplayDiameterPx": 2.904296191043113,
+            "groundProjectedDiameterPx": 4.271023810357518,
+            "groundDisplayDiameterPx": 2.904296191043113,
+            "physicalHeightRatio": 1,
+            "displayScale": 1,
+            "unscaledDisplayDiameterPx": 2.904296191043113,
+            "ballKind": "batted",
+            "projectedDiameterPx": 4.271023810357518,
+            "opticalDiameterPx": 2.904296191043113,
+            "visibilityMarker": false,
+            "displayDiameterPx": 2.904296191043113,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 196,
+                "radius": 1.4521480955215564,
+                "color": "#fffdf7"
+              }
+            ]
+          },
+          "headline": "ホームラン"
+        }
+      ],
+      "ordinary": {
+        "index": 0,
+        "watch": null
+      },
+      "historySha256": "6742c78037f682756ecf0e2466e4a3557f7fadaf57173b8d6d7f44f0203aa130"
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "errors": [],
+      "external": []
+    }
+  ]
+}

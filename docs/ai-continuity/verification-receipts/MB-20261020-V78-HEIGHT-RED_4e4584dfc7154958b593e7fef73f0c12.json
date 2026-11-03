@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-HEIGHT-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v78-height-projection.mjs",
+    "tools/browser-bridge/live-ball-display-controls-v76.js"
+  ],
+  "observed_at": "2026-10-19T19:29:42.082+00:00",
+  "elapsed_ms": 46,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-HEIGHT-RED_4e4584dfc7154958b593e7fef73f0c12.log",
+  "output_sha256": "14eddec591cc961bbbca1cd46c7f80132ef4af3ebf509a6fb1dd243fe7afed5b",
+  "receipt_id": "MB-20261020-V78-HEIGHT-RED_4e4584dfc7154958b593e7fef73f0c12"
+}

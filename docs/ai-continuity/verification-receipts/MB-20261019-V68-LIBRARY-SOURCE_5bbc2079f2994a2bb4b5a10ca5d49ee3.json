@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V68-LIBRARY-SOURCE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "tools/browser-bridge/check-measured-bat-library-source.py",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/参考データ/openbiomechanics"
+  ],
+  "observed_at": "2026-10-19T10:37:39.232+00:00",
+  "elapsed_ms": 8764,
+  "git_head": "652aa75ccb24df723c2d413e5dc37e7395dc8679",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V68-LIBRARY-SOURCE_5bbc2079f2994a2bb4b5a10ca5d49ee3.log",
+  "output_sha256": "e1cc64497fd9ea4a85dca770926cfb467e158b3527aa55ed671a6abf1f37fbeb",
+  "receipt_id": "MB-20261019-V68-LIBRARY-SOURCE_5bbc2079f2994a2bb4b5a10ca5d49ee3"
+}

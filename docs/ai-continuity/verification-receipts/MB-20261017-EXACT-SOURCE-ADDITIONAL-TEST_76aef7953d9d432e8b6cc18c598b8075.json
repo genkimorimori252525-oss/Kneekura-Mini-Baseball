@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-EXACT-SOURCE-ADDITIONAL-TEST",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/SourceBallWorldMotionV1.additional.test.ts"
+  ],
+  "observed_at": "2026-10-16T21:12:02.094+00:00",
+  "elapsed_ms": 1468,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-EXACT-SOURCE-ADDITIONAL-TEST_76aef7953d9d432e8b6cc18c598b8075.log",
+  "output_sha256": "8c460fea3adad7f590096ed138d40a5281362377ca75e40b8430a6ce40c12d90",
+  "receipt_id": "MB-20261017-EXACT-SOURCE-ADDITIONAL-TEST_76aef7953d9d432e8b6cc18c598b8075"
+}

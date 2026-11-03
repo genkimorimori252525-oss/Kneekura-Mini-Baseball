@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V57-CADENCE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v56-cadence.mjs",
+    "../../outputs/ばせぼーるlv57_TBD_vs_LAD_スイング時の頭固定版.html",
+    "../../outputs/カメラワーク調整室_v57.html",
+    "../../outputs/verification-v57-cadence"
+  ],
+  "observed_at": "2026-10-18T18:13:12.532+00:00",
+  "elapsed_ms": 8889,
+  "git_head": "ff242d680d0e1af05a767d08d62a1fb0b4af3331",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V57-CADENCE_17dbd2a302a44abaae5dafbc20f9de7f.log",
+  "output_sha256": "fc1f514654459633a15fbad0758e0495cf6e65959ce7f93f4ab5d23bad3cb118",
+  "receipt_id": "MB-20261019-V57-CADENCE_17dbd2a302a44abaae5dafbc20f9de7f"
+}

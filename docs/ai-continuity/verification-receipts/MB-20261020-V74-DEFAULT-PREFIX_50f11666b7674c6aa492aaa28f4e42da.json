@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V74-DEFAULT-PREFIX",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v74-default-prefix.mjs"
+  ],
+  "observed_at": "2026-10-19T15:04:04.207+00:00",
+  "elapsed_ms": 46,
+  "git_head": "6eb26f350b78639ed4d240bbb957ef25a150ef30",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V74-DEFAULT-PREFIX_50f11666b7674c6aa492aaa28f4e42da.log",
+  "output_sha256": "9e04c32037b58d0d8a5289ed90554860817002502c3d434cc12d276ae553a896",
+  "receipt_id": "MB-20261020-V74-DEFAULT-PREFIX_50f11666b7674c6aa492aaa28f4e42da"
+}

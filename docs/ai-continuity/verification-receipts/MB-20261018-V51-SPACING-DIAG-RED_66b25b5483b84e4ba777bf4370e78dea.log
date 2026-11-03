@@ -1,0 +1,82 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts (22 tests | 4 failed | 18 skipped) 1164ms
+   × LiveFieldPlayDiagnosticsV1 > detects an observed pair of overlapping fielder bodies with both tasks and distance 368ms
+     → expected [] to deep equally contain ObjectContaining{…}
+   × LiveFieldPlayDiagnosticsV1 > accepts legal close coordination at a body-center distance of 0.48m 277ms
+     → Cannot read properties of undefined (reading 'minimumObservedDistanceMeters')
+   × LiveFieldPlayDiagnosticsV1 > accepts legal close coordination at a body-center distance of 0.481m 262ms
+     → Cannot read properties of undefined (reading 'minimumObservedDistanceMeters')
+   × LiveFieldPlayDiagnosticsV1 > uses the declared body radius and observes three nearby fielders without inventing a cluster violation 256ms
+     → expected undefined to match object { …(2) }
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > detects an observed pair of overlapping fielder bodies with both tasks and distance
+AssertionError: expected [] to deep equally contain ObjectContaining{…}
+
+- Expected: 
+ObjectContaining {
+  "distanceMeters": 0.479,
+  "elapsedSeconds": 5.551286218931616,
+  "kind": "FIELDER_BODY_OVERLAP",
+  "otherPlayerId": "def-C",
+  "otherPlayerIntent": "base_cover",
+  "playerId": "def-P",
+  "playerIntent": "backup",
+}
+
++ Received: 
+Array []
+
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:48:28
+     46|         intent: i === 0 ? 'backup' as const : 'base_cover' as const } …
+     47|       broken = { ...result, frames: [{ ...last, fielders }] }, diag = …
+     48|     expect(diag.anomalies).toContainEqual(expect.objectContaining({ ki…
+       |                            ^
+     49|       elapsedSeconds: last.elapsedSeconds, playerId: fielders[0].playe…
+     50|       distanceMeters: .479, playerIntent: 'backup', otherPlayerIntent:…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > accepts legal close coordination at a body-center distance of 0.48m
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > accepts legal close coordination at a body-center distance of 0.481m
+TypeError: Cannot read properties of undefined (reading 'minimumObservedDistanceMeters')
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:59:33
+     57|       diag = diagnoseLiveFieldPlayV1(input, { ...result, frames: [{ ..…
+     58|     expect(diag.anomalies.filter(a => a.kind === 'FIELDER_BODY_OVERLAP…
+     59|     expect(diag.fieldingSpacing.minimumObservedDistanceMeters).toBe(se…
+       |                                 ^
+     60|   });
+     61| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > uses the declared body radius and observes three nearby fielders without inventing a cluster violation
+AssertionError: expected undefined to match object { …(2) }
+
+- Expected: 
+Object {
+  "maximumActorsWithinTwoMeters": 3,
+  "observedTripleClusterFrameCount": 1,
+}
+
++ Received: 
+undefined
+
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:67:34
+     65|       fielders = last.fielders.map((f, i) => i < 3 ? { ...f, position:…
+     66|       clustered = { ...result, frames: [{ ...last, fielders }] }, diag…
+     67|     expect(diag.fieldingSpacing).toMatchObject({ observedTripleCluster…
+       |                                  ^
+     68|     expect(diag.anomalies.filter(a => a.kind === 'FIELDER_BODY_OVERLAP…
+     69|     const largerBodies = diagnoseLiveFieldPlayV1(input, { ...clustered…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 18 skipped (22)
+   Start at  18:22:29
+   Duration  2.01s (transform 286ms, setup 0ms, collect 407ms, tests 1.16s, environment 0ms, prepare 120ms)
+

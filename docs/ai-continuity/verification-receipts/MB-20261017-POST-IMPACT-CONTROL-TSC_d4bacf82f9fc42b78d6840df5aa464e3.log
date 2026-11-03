@@ -1,0 +1,3 @@
+src/core/sim/contact/PostImpactBatBodyControlV1.test.ts(30,27): error TS2540: Cannot assign to 'x' because it is a read-only property.
+src/core/sim/contact/PostImpactBatBodyControlV1.test.ts(30,52): error TS2540: Cannot assign to 'y' because it is a read-only property.
+src/core/sim/contact/PostImpactBatBodyControlV1.test.ts(30,76): error TS2540: Cannot assign to 'z' because it is a read-only property.

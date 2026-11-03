@@ -1,0 +1,3 @@
+src/core/sim/pitch/PostImpactBatBodyWorldV1.test.ts(25,37): error TS2339: Property 'push' does not exist on type 'readonly BallWorldMotionActor[]'.
+src/core/sim/pitch/PostImpactBatBodyWorldV1.test.ts(26,52): error TS2551: Property 'splice' does not exist on type 'readonly Readonly<{ center: Readonly<{ x: number; y: number; z: number; }>; radiusM: number; }>[]'. Did you mean 'slice'?
+src/core/sim/pitch/PostImpactBatBodyWorldV1.test.ts(27,43): error TS2339: Property 'push' does not exist on type 'readonly Readonly<{ center: Readonly<{ x: number; y: number; z: number; }>; radiusM: number; }>[]'.

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-MAKER-TRAITS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v77-traits-browser.mjs",
+    "../../outputs/にーくら野球メーカー_v84_描画と接地移動版.html",
+    "docs/verification/releases/v84/maker-traits"
+  ],
+  "observed_at": "2026-10-20T15:31:37.536+00:00",
+  "elapsed_ms": 14609,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-MAKER-TRAITS_b6995bc087984ed1adc1aaea1e4bc84f.log",
+  "output_sha256": "4a12db420e92c8287582561c900a84a9a82884da41e603c7aa78cdc7b0065001",
+  "receipt_id": "MB-20261021-V84-MAKER-TRAITS_b6995bc087984ed1adc1aaea1e4bc84f"
+}

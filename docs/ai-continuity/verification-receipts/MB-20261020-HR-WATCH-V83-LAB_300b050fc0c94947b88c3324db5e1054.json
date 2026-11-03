@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-HR-WATCH-V83-LAB",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-lab-performance-v81.mjs",
+    "../../outputs/カメラワーク調整室_v83_HR見送り.html",
+    "docs/verification/releases/v83-hr-watch/lab",
+    "docs/verification/releases/v81/lab-final/report.json"
+  ],
+  "observed_at": "2026-10-20T14:25:15.844+00:00",
+  "elapsed_ms": 17547,
+  "git_head": "040c8ef685e97010e617be478e56d6cc54d8f099",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-HR-WATCH-V83-LAB_300b050fc0c94947b88c3324db5e1054.log",
+  "output_sha256": "d33d94bb5a1cf9bdb094dc2862917b1a6166dc664945be5092b0ebba459ed823",
+  "receipt_id": "MB-20261020-HR-WATCH-V83-LAB_300b050fc0c94947b88c3324db5e1054"
+}

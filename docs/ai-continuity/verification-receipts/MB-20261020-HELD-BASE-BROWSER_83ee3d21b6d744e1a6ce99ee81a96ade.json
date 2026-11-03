@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-HELD-BASE-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/audit-held-base-control.mjs"
+  ],
+  "observed_at": "2026-10-19T18:36:35.705+00:00",
+  "elapsed_ms": 29188,
+  "git_head": "f06e74e3df35fd2c3b30cd5f6c8ba8a9eadbb36b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-HELD-BASE-BROWSER_83ee3d21b6d744e1a6ce99ee81a96ade.log",
+  "output_sha256": "f49f159842cb287b4949874da04ff648983036cd591b4bd169f7eb68c9cbcc01",
+  "receipt_id": "MB-20261020-HELD-BASE-BROWSER_83ee3d21b6d744e1a6ce99ee81a96ade"
+}

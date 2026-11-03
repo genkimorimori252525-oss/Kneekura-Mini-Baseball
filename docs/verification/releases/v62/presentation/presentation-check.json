@@ -1,0 +1,3371 @@
+{
+  "pass": true,
+  "phase": "complete",
+  "views": [
+    {
+      "width": 1200,
+      "defaultRelease": [
+        {
+          "playerId": "1-p0",
+          "throws": "R",
+          "height": 1.84,
+          "position": {
+            "x": -0.46,
+            "y": 1.8364,
+            "z": 16.900000000000002
+          },
+          "expected": {
+            "x": -0.46,
+            "y": 1.8364,
+            "z": 16.900000000000002
+          }
+        }
+      ],
+      "neutral": {
+        "camera": "mound",
+        "eye": {
+          "x": 0,
+          "y": 1.9468,
+          "z": 18.44
+        },
+        "yaw": -3.141592653589793,
+        "pitch": 0.0496770993425061,
+        "zone": [
+          {
+            "x": 318.86327257908704,
+            "y": 192.4282588665466,
+            "scale": 87.37041491008434,
+            "depth": 18.31283509007724
+          },
+          {
+            "x": 281.1367274209126,
+            "y": 192.4282588665466,
+            "scale": 87.37041491008434,
+            "depth": 18.31283509007724
+          },
+          {
+            "x": 281.16285146145606,
+            "y": 236.996328493337,
+            "scale": 87.24941425911871,
+            "depth": 18.338231993721138
+          },
+          {
+            "x": 318.83714853854354,
+            "y": 236.996328493337,
+            "scale": 87.24941425911871,
+            "depth": 18.338231993721138
+          }
+        ],
+        "zonePlane": 0.15,
+        "body": {
+          "settings": {
+            "enabled": true,
+            "scale": 1
+          },
+          "phase": "delivery",
+          "baseEye": {
+            "x": 0,
+            "y": 1.9468,
+            "z": 18.44
+          },
+          "eye": {
+            "x": 0,
+            "y": 1.9468,
+            "z": 18.44
+          },
+          "offset": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "releaseProgress": 0,
+          "throwingHand": "R",
+          "moundSurfacePosition": {
+            "x": 0,
+            "y": 0.254,
+            "z": 18.44
+          },
+          "model": {
+            "basis": "AUTHORED_HEAD_JOINT_ON_EXISTING_DELIVERY_CLOCK",
+            "empiricallyCalibrated": false,
+            "sourcePhysicsChanged": false,
+            "eyeHeightRatio": 0.92,
+            "moundRadiusMeters": 2.74,
+            "followThroughMs": 1050
+          }
+        },
+        "reaction": {
+          "phase": "ready",
+          "trackingAllowed": false,
+          "handoffAllowed": false,
+          "trackingProgress": 0,
+          "trackingBlend": 0,
+          "delaySeconds": null,
+          "contactSpeedMps": null,
+          "contactTick": null,
+          "contactAtMs": null,
+          "trackingAtMs": null,
+          "handoffAtMs": null,
+          "observedContactSampleTick": null,
+          "atTick": 1000000,
+          "view": null,
+          "model": {
+            "basis": "CAUSAL_CONTACT_EXIT_SPEED_PITCHER_GAZE_DELAY_V1",
+            "minimumDelaySeconds": 0.1,
+            "maximumDelaySeconds": 0.25,
+            "speedScaleMeters": 7,
+            "blendMs": 180,
+            "empiricallyCalibrated": false,
+            "sourcePhysicsChanged": false,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+          }
+        },
+        "batter": {
+          "eye": {
+            "x": 0.4,
+            "y": 1.4861,
+            "z": -0.95
+          },
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "f": 400,
+          "cx": 300,
+          "cy": 110,
+          "labelMetres": 0.55,
+          "phase": "ready",
+          "aimWeight": 0,
+          "surprise": 0,
+          "trackingErrorRadians": 0,
+          "model": {
+            "sensorDelaySeconds": 0.075,
+            "angularSpeedLimitRadPerSecond": 2.5,
+            "angularAccelerationLimitRadPerSecond2": 20,
+            "abilityBasis": "ABSOLUTE_PLATE_VISION_1_100_AND_EXISTING_MEET_PURSUIT",
+            "pitchTrackingGain": 0.7905,
+            "pitchTrackingDeadbandRadians": 0.013,
+            "contactQuality": 0.6571428571428573,
+            "visionQuality": 0.6428571428571428,
+            "absolutePlateVision": 88,
+            "pitchTracking": {
+              "gain": 0.604,
+              "deadbandRadians": 0.004363636363636363,
+              "absolutePlateVision": 88,
+              "baselinePlateVision": 45
+            },
+            "impactStabilization": {
+              "basis": "REGISTERED_EXPECTED_IMPACT",
+              "offsetMs": 0,
+              "angleConeRadians": 0.025,
+              "speedLimitRadPerSecond": 0.18
+            }
+          },
+          "tuning": {
+            "settings": {
+              "enabled": true,
+              "aimLiftMeters": 0.3,
+              "swingMaxDownRadians": 0.2,
+              "hitFollowDelayMs": 300,
+              "aimReleaseMs": 70,
+              "pitchTrackingGain": 0.26,
+              "pitchTrackingDeadbandRadians": 0.02,
+              "impactStabilizeOffsetMs": 0,
+              "impactMaxMotionRadians": 0.025,
+              "impactMaxSpeedRadPerSecond": 0.18
+            },
+            "hitObservedAtSeconds": null,
+            "firstBattedTick": null,
+            "aimReleaseAtSeconds": null,
+            "plannedAimThroughSeconds": null,
+            "aimTarget": null,
+            "downwardTargetLimited": false,
+            "pitchTracking": {
+              "rawErrorRadians": null,
+              "headTargetErrorRadians": null,
+              "gain": 0.604,
+              "deadbandRadians": 0.004363636363636363,
+              "absolutePlateVision": 88,
+              "baselinePlateVision": 45,
+              "configuredGain": 0.26,
+              "configuredDeadbandRadians": 0.02,
+              "anchorYaw": -0.020615635625603763,
+              "anchorPitch": 0.08,
+              "applied": false
+            }
+          }
+        },
+        "sceneMs": 0,
+        "pitcher": {
+          "playerId": "1-p0",
+          "role": "P",
+          "team": 1,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 18.44
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "player": {
+          "playerId": "1-p0",
+          "name": "ティカオ",
+          "heightMeters": 1.84,
+          "bats": "R",
+          "throws": "R",
+          "physical": {
+            "basis": "EXPLICIT_AUTHORED_SI_V1",
+            "batLengthM": 0.84,
+            "batMassKg": 0.88,
+            "swingRate": 1,
+            "timingStdSeconds": 0.013,
+            "aimStdMeters": 0.026,
+            "chaseMarginMeters": 0.12,
+            "releaseSpeedMps": 41.2,
+            "spinRadPerSecond": {
+              "x": 245,
+              "y": 12,
+              "z": 8
+            },
+            "commandStdMeters": 0.065,
+            "reactionSeconds": 0.2,
+            "topSpeedMps": 7.8,
+            "accelerationMps2": 5,
+            "gloveSpeedMps": 10.8,
+            "gloveReachMeters": 1.35,
+            "gloveRadiusMeters": 0.11,
+            "retentionCapacityJ": 160,
+            "captureDissipationPowerW": 3000,
+            "transferSeconds": 0.44,
+            "throwSpeedMps": 40,
+            "maximumPitchSpeedMps": 41.94444444444444,
+            "maximumSweetSpotSpeedMps": 34,
+            "targetSweetSpotSpeedMps": 28,
+            "motorLatencySeconds": 0.08,
+            "technicalTimingOffsetSeconds": 0,
+            "sweetSpotT": 0.825,
+            "attackAngleDegrees": 10,
+            "pullAngleDegrees": 0,
+            "badBallControl": 0.82,
+            "defensiveDecisionSeconds": 0.08,
+            "preContactSeconds": 0.16,
+            "followThroughSeconds": 0.32,
+            "contactDepthMeters": 0.15,
+            "throwDirectionStdRadians": 0.004,
+            "swingDecision": {
+              "approach": "AUTO",
+              "threshold": 0.5,
+              "aggressionWeight": 0.5
+            },
+            "zoneJudgmentStdMeters": 0.025,
+            "plateVision": 52,
+            "pitchReleaseHeightMeters": 1.5824,
+            "pitchReleaseSideMeters": 0.46,
+            "pitchReleaseExtensionMeters": 1.54
+          },
+          "traitProfile": {
+            "version": "live_trait_profile_v1",
+            "selections": [
+              {
+                "familyId": "bad_ball_hitting",
+                "stateId": "LEARNED",
+                "source": {
+                  "badBallControl": 0.82
+                }
+              }
+            ]
+          }
+        },
+        "frameTick": 1000000,
+        "ball": {
+          "position": {
+            "x": 0,
+            "y": 1.8,
+            "z": 16.4
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "spin": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "orientation": {
+            "w": 1,
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "visible": false
+        },
+        "error": null
+      },
+      "motion": [
+        {
+          "camera": "mound",
+          "eye": {
+            "x": -0.05,
+            "y": 1.9318000000000002,
+            "z": 18.34
+          },
+          "yaw": 3.1388663789919895,
+          "pitch": 0.04913145671766011,
+          "zone": [
+            {
+              "x": 318.9320336217496,
+              "y": 192.42598657823086,
+              "scale": 87.85563620301248,
+              "depth": 18.211694424507936
+            },
+            {
+              "x": 280.99733774032245,
+              "y": 192.42088007772932,
+              "scale": 87.84996443381554,
+              "depth": 18.212870207880492
+            },
+            {
+              "x": 281.02350905869736,
+              "y": 237.2351402041151,
+              "scale": 87.72897352438382,
+              "depth": 18.237988383111404
+            },
+            {
+              "x": 318.90595789522735,
+              "y": 237.2431289843817,
+              "scale": 87.73462968100644,
+              "depth": 18.236812599738847
+            }
+          ],
+          "zonePlane": 0.15,
+          "body": {
+            "settings": {
+              "enabled": true,
+              "scale": 1
+            },
+            "phase": "delivery",
+            "baseEye": {
+              "x": 0,
+              "y": 1.9468,
+              "z": 18.44
+            },
+            "eye": {
+              "x": -0.05,
+              "y": 1.9318000000000002,
+              "z": 18.34
+            },
+            "offset": {
+              "x": -0.05,
+              "y": -0.015,
+              "z": -0.1
+            },
+            "releaseProgress": 0.72,
+            "throwingHand": "R",
+            "moundSurfacePosition": {
+              "x": 0,
+              "y": 0.254,
+              "z": 18.44
+            },
+            "model": {
+              "basis": "AUTHORED_HEAD_JOINT_ON_EXISTING_DELIVERY_CLOCK",
+              "empiricallyCalibrated": false,
+              "sourcePhysicsChanged": false,
+              "eyeHeightRatio": 0.92,
+              "moundRadiusMeters": 2.74,
+              "followThroughMs": 1050
+            }
+          },
+          "reaction": {
+            "phase": "ready",
+            "trackingAllowed": false,
+            "handoffAllowed": false,
+            "trackingProgress": 0,
+            "trackingBlend": 0,
+            "delaySeconds": null,
+            "contactSpeedMps": null,
+            "contactTick": null,
+            "contactAtMs": null,
+            "trackingAtMs": null,
+            "handoffAtMs": null,
+            "observedContactSampleTick": null,
+            "atTick": 1000000,
+            "view": null,
+            "model": {
+              "basis": "CAUSAL_CONTACT_EXIT_SPEED_PITCHER_GAZE_DELAY_V1",
+              "minimumDelaySeconds": 0.1,
+              "maximumDelaySeconds": 0.25,
+              "speedScaleMeters": 7,
+              "blendMs": 180,
+              "empiricallyCalibrated": false,
+              "sourcePhysicsChanged": false,
+              "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+            }
+          },
+          "batter": {
+            "eye": {
+              "x": 0.4,
+              "y": 1.4861,
+              "z": -0.95
+            },
+            "yaw": -0.020615635625603763,
+            "pitch": 0.08,
+            "f": 400,
+            "cx": 300,
+            "cy": 110,
+            "labelMetres": 0.55,
+            "phase": "ready",
+            "aimWeight": 0,
+            "surprise": 0,
+            "trackingErrorRadians": 0,
+            "model": {
+              "sensorDelaySeconds": 0.075,
+              "angularSpeedLimitRadPerSecond": 2.5,
+              "angularAccelerationLimitRadPerSecond2": 20,
+              "abilityBasis": "ABSOLUTE_PLATE_VISION_1_100_AND_EXISTING_MEET_PURSUIT",
+              "pitchTrackingGain": 0.7905,
+              "pitchTrackingDeadbandRadians": 0.013,
+              "contactQuality": 0.6571428571428573,
+              "visionQuality": 0.6428571428571428,
+              "absolutePlateVision": 88,
+              "pitchTracking": {
+                "gain": 0.604,
+                "deadbandRadians": 0.004363636363636363,
+                "absolutePlateVision": 88,
+                "baselinePlateVision": 45
+              },
+              "impactStabilization": {
+                "basis": "REGISTERED_EXPECTED_IMPACT",
+                "offsetMs": 0,
+                "angleConeRadians": 0.025,
+                "speedLimitRadPerSecond": 0.18
+              }
+            },
+            "tuning": {
+              "settings": {
+                "enabled": true,
+                "aimLiftMeters": 0.3,
+                "swingMaxDownRadians": 0.2,
+                "hitFollowDelayMs": 300,
+                "aimReleaseMs": 70,
+                "pitchTrackingGain": 0.26,
+                "pitchTrackingDeadbandRadians": 0.02,
+                "impactStabilizeOffsetMs": 0,
+                "impactMaxMotionRadians": 0.025,
+                "impactMaxSpeedRadPerSecond": 0.18
+              },
+              "hitObservedAtSeconds": null,
+              "firstBattedTick": null,
+              "aimReleaseAtSeconds": null,
+              "plannedAimThroughSeconds": null,
+              "aimTarget": null,
+              "downwardTargetLimited": false,
+              "pitchTracking": {
+                "rawErrorRadians": null,
+                "headTargetErrorRadians": null,
+                "gain": 0.604,
+                "deadbandRadians": 0.004363636363636363,
+                "absolutePlateVision": 88,
+                "baselinePlateVision": 45,
+                "configuredGain": 0.26,
+                "configuredDeadbandRadians": 0.02,
+                "anchorYaw": -0.020615635625603763,
+                "anchorPitch": 0.08,
+                "applied": false
+              }
+            }
+          },
+          "sceneMs": 1108.8,
+          "pitcher": {
+            "playerId": "1-p0",
+            "role": "P",
+            "team": 1,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 18.44
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "player": {
+            "playerId": "1-p0",
+            "name": "ティカオ",
+            "heightMeters": 1.84,
+            "bats": "R",
+            "throws": "R",
+            "physical": {
+              "basis": "EXPLICIT_AUTHORED_SI_V1",
+              "batLengthM": 0.84,
+              "batMassKg": 0.88,
+              "swingRate": 1,
+              "timingStdSeconds": 0.013,
+              "aimStdMeters": 0.026,
+              "chaseMarginMeters": 0.12,
+              "releaseSpeedMps": 41.2,
+              "spinRadPerSecond": {
+                "x": 245,
+                "y": 12,
+                "z": 8
+              },
+              "commandStdMeters": 0.065,
+              "reactionSeconds": 0.2,
+              "topSpeedMps": 7.8,
+              "accelerationMps2": 5,
+              "gloveSpeedMps": 10.8,
+              "gloveReachMeters": 1.35,
+              "gloveRadiusMeters": 0.11,
+              "retentionCapacityJ": 160,
+              "captureDissipationPowerW": 3000,
+              "transferSeconds": 0.44,
+              "throwSpeedMps": 40,
+              "maximumPitchSpeedMps": 41.94444444444444,
+              "maximumSweetSpotSpeedMps": 34,
+              "targetSweetSpotSpeedMps": 28,
+              "motorLatencySeconds": 0.08,
+              "technicalTimingOffsetSeconds": 0,
+              "sweetSpotT": 0.825,
+              "attackAngleDegrees": 10,
+              "pullAngleDegrees": 0,
+              "badBallControl": 0.82,
+              "defensiveDecisionSeconds": 0.08,
+              "preContactSeconds": 0.16,
+              "followThroughSeconds": 0.32,
+              "contactDepthMeters": 0.15,
+              "throwDirectionStdRadians": 0.004,
+              "swingDecision": {
+                "approach": "AUTO",
+                "threshold": 0.5,
+                "aggressionWeight": 0.5
+              },
+              "zoneJudgmentStdMeters": 0.025,
+              "plateVision": 52,
+              "pitchReleaseHeightMeters": 1.5824,
+              "pitchReleaseSideMeters": 0.46,
+              "pitchReleaseExtensionMeters": 1.54
+            },
+            "traitProfile": {
+              "version": "live_trait_profile_v1",
+              "selections": [
+                {
+                  "familyId": "bad_ball_hitting",
+                  "stateId": "LEARNED",
+                  "source": {
+                    "badBallControl": 0.82
+                  }
+                }
+              ]
+            }
+          },
+          "frameTick": 1000000,
+          "ball": {
+            "position": {
+              "x": 0,
+              "y": 1.8,
+              "z": 16.4
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": 1,
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "visible": false
+          },
+          "error": null
+        },
+        {
+          "camera": "mound",
+          "eye": {
+            "x": 0,
+            "y": 1.9468,
+            "z": 18.44
+          },
+          "yaw": -3.141592653589793,
+          "pitch": 0.0496770993425061,
+          "zone": [
+            {
+              "x": 318.86327257908704,
+              "y": 192.4282588665466,
+              "scale": 87.37041491008434,
+              "depth": 18.31283509007724
+            },
+            {
+              "x": 281.1367274209126,
+              "y": 192.4282588665466,
+              "scale": 87.37041491008434,
+              "depth": 18.31283509007724
+            },
+            {
+              "x": 281.16285146145606,
+              "y": 236.996328493337,
+              "scale": 87.24941425911871,
+              "depth": 18.338231993721138
+            },
+            {
+              "x": 318.83714853854354,
+              "y": 236.996328493337,
+              "scale": 87.24941425911871,
+              "depth": 18.338231993721138
+            }
+          ],
+          "zonePlane": 0.15,
+          "body": {
+            "settings": {
+              "enabled": false,
+              "scale": 1
+            },
+            "phase": "delivery",
+            "baseEye": {
+              "x": 0,
+              "y": 1.9468,
+              "z": 18.44
+            },
+            "eye": {
+              "x": 0,
+              "y": 1.9468,
+              "z": 18.44
+            },
+            "offset": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "releaseProgress": 0.72,
+            "throwingHand": "R",
+            "moundSurfacePosition": {
+              "x": 0,
+              "y": 0.254,
+              "z": 18.44
+            },
+            "model": {
+              "basis": "AUTHORED_HEAD_JOINT_ON_EXISTING_DELIVERY_CLOCK",
+              "empiricallyCalibrated": false,
+              "sourcePhysicsChanged": false,
+              "eyeHeightRatio": 0.92,
+              "moundRadiusMeters": 2.74,
+              "followThroughMs": 1050
+            }
+          },
+          "reaction": {
+            "phase": "ready",
+            "trackingAllowed": false,
+            "handoffAllowed": false,
+            "trackingProgress": 0,
+            "trackingBlend": 0,
+            "delaySeconds": null,
+            "contactSpeedMps": null,
+            "contactTick": null,
+            "contactAtMs": null,
+            "trackingAtMs": null,
+            "handoffAtMs": null,
+            "observedContactSampleTick": null,
+            "atTick": 1000000,
+            "view": null,
+            "model": {
+              "basis": "CAUSAL_CONTACT_EXIT_SPEED_PITCHER_GAZE_DELAY_V1",
+              "minimumDelaySeconds": 0.1,
+              "maximumDelaySeconds": 0.25,
+              "speedScaleMeters": 7,
+              "blendMs": 180,
+              "empiricallyCalibrated": false,
+              "sourcePhysicsChanged": false,
+              "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+            }
+          },
+          "batter": {
+            "eye": {
+              "x": 0.4,
+              "y": 1.4861,
+              "z": -0.95
+            },
+            "yaw": -0.020615635625603763,
+            "pitch": 0.08,
+            "f": 400,
+            "cx": 300,
+            "cy": 110,
+            "labelMetres": 0.55,
+            "phase": "ready",
+            "aimWeight": 0,
+            "surprise": 0,
+            "trackingErrorRadians": 0,
+            "model": {
+              "sensorDelaySeconds": 0.075,
+              "angularSpeedLimitRadPerSecond": 2.5,
+              "angularAccelerationLimitRadPerSecond2": 20,
+              "abilityBasis": "ABSOLUTE_PLATE_VISION_1_100_AND_EXISTING_MEET_PURSUIT",
+              "pitchTrackingGain": 0.7905,
+              "pitchTrackingDeadbandRadians": 0.013,
+              "contactQuality": 0.6571428571428573,
+              "visionQuality": 0.6428571428571428,
+              "absolutePlateVision": 88,
+              "pitchTracking": {
+                "gain": 0.604,
+                "deadbandRadians": 0.004363636363636363,
+                "absolutePlateVision": 88,
+                "baselinePlateVision": 45
+              },
+              "impactStabilization": {
+                "basis": "REGISTERED_EXPECTED_IMPACT",
+                "offsetMs": 0,
+                "angleConeRadians": 0.025,
+                "speedLimitRadPerSecond": 0.18
+              }
+            },
+            "tuning": {
+              "settings": {
+                "enabled": true,
+                "aimLiftMeters": 0.3,
+                "swingMaxDownRadians": 0.2,
+                "hitFollowDelayMs": 300,
+                "aimReleaseMs": 70,
+                "pitchTrackingGain": 0.26,
+                "pitchTrackingDeadbandRadians": 0.02,
+                "impactStabilizeOffsetMs": 0,
+                "impactMaxMotionRadians": 0.025,
+                "impactMaxSpeedRadPerSecond": 0.18
+              },
+              "hitObservedAtSeconds": null,
+              "firstBattedTick": null,
+              "aimReleaseAtSeconds": null,
+              "plannedAimThroughSeconds": null,
+              "aimTarget": null,
+              "downwardTargetLimited": false,
+              "pitchTracking": {
+                "rawErrorRadians": null,
+                "headTargetErrorRadians": null,
+                "gain": 0.604,
+                "deadbandRadians": 0.004363636363636363,
+                "absolutePlateVision": 88,
+                "baselinePlateVision": 45,
+                "configuredGain": 0.26,
+                "configuredDeadbandRadians": 0.02,
+                "anchorYaw": -0.020615635625603763,
+                "anchorPitch": 0.08,
+                "applied": false
+              }
+            }
+          },
+          "sceneMs": 1108.8,
+          "pitcher": {
+            "playerId": "1-p0",
+            "role": "P",
+            "team": 1,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 18.44
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "player": {
+            "playerId": "1-p0",
+            "name": "ティカオ",
+            "heightMeters": 1.84,
+            "bats": "R",
+            "throws": "R",
+            "physical": {
+              "basis": "EXPLICIT_AUTHORED_SI_V1",
+              "batLengthM": 0.84,
+              "batMassKg": 0.88,
+              "swingRate": 1,
+              "timingStdSeconds": 0.013,
+              "aimStdMeters": 0.026,
+              "chaseMarginMeters": 0.12,
+              "releaseSpeedMps": 41.2,
+              "spinRadPerSecond": {
+                "x": 245,
+                "y": 12,
+                "z": 8
+              },
+              "commandStdMeters": 0.065,
+              "reactionSeconds": 0.2,
+              "topSpeedMps": 7.8,
+              "accelerationMps2": 5,
+              "gloveSpeedMps": 10.8,
+              "gloveReachMeters": 1.35,
+              "gloveRadiusMeters": 0.11,
+              "retentionCapacityJ": 160,
+              "captureDissipationPowerW": 3000,
+              "transferSeconds": 0.44,
+              "throwSpeedMps": 40,
+              "maximumPitchSpeedMps": 41.94444444444444,
+              "maximumSweetSpotSpeedMps": 34,
+              "targetSweetSpotSpeedMps": 28,
+              "motorLatencySeconds": 0.08,
+              "technicalTimingOffsetSeconds": 0,
+              "sweetSpotT": 0.825,
+              "attackAngleDegrees": 10,
+              "pullAngleDegrees": 0,
+              "badBallControl": 0.82,
+              "defensiveDecisionSeconds": 0.08,
+              "preContactSeconds": 0.16,
+              "followThroughSeconds": 0.32,
+              "contactDepthMeters": 0.15,
+              "throwDirectionStdRadians": 0.004,
+              "swingDecision": {
+                "approach": "AUTO",
+                "threshold": 0.5,
+                "aggressionWeight": 0.5
+              },
+              "zoneJudgmentStdMeters": 0.025,
+              "plateVision": 52,
+              "pitchReleaseHeightMeters": 1.5824,
+              "pitchReleaseSideMeters": 0.46,
+              "pitchReleaseExtensionMeters": 1.54
+            },
+            "traitProfile": {
+              "version": "live_trait_profile_v1",
+              "selections": [
+                {
+                  "familyId": "bad_ball_hitting",
+                  "stateId": "LEARNED",
+                  "source": {
+                    "badBallControl": 0.82
+                  }
+                }
+              ]
+            }
+          },
+          "frameTick": 1000000,
+          "ball": {
+            "position": {
+              "x": 0,
+              "y": 1.8,
+              "z": 16.4
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": 1,
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "visible": false
+          },
+          "error": null
+        },
+        {
+          "camera": "mound",
+          "eye": {
+            "x": 0,
+            "y": 1.9468,
+            "z": 18.44
+          },
+          "yaw": -3.141592653589793,
+          "pitch": 0.0496770993425061,
+          "zone": [
+            {
+              "x": 318.86327257908704,
+              "y": 192.4282588665466,
+              "scale": 87.37041491008434,
+              "depth": 18.31283509007724
+            },
+            {
+              "x": 281.1367274209126,
+              "y": 192.4282588665466,
+              "scale": 87.37041491008434,
+              "depth": 18.31283509007724
+            },
+            {
+              "x": 281.16285146145606,
+              "y": 236.996328493337,
+              "scale": 87.24941425911871,
+              "depth": 18.338231993721138
+            },
+            {
+              "x": 318.83714853854354,
+              "y": 236.996328493337,
+              "scale": 87.24941425911871,
+              "depth": 18.338231993721138
+            }
+          ],
+          "zonePlane": 0.15,
+          "body": {
+            "settings": {
+              "enabled": true,
+              "scale": 0
+            },
+            "phase": "delivery",
+            "baseEye": {
+              "x": 0,
+              "y": 1.9468,
+              "z": 18.44
+            },
+            "eye": {
+              "x": 0,
+              "y": 1.9468,
+              "z": 18.44
+            },
+            "offset": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "releaseProgress": 0.72,
+            "throwingHand": "R",
+            "moundSurfacePosition": {
+              "x": 0,
+              "y": 0.254,
+              "z": 18.44
+            },
+            "model": {
+              "basis": "AUTHORED_HEAD_JOINT_ON_EXISTING_DELIVERY_CLOCK",
+              "empiricallyCalibrated": false,
+              "sourcePhysicsChanged": false,
+              "eyeHeightRatio": 0.92,
+              "moundRadiusMeters": 2.74,
+              "followThroughMs": 1050
+            }
+          },
+          "reaction": {
+            "phase": "ready",
+            "trackingAllowed": false,
+            "handoffAllowed": false,
+            "trackingProgress": 0,
+            "trackingBlend": 0,
+            "delaySeconds": null,
+            "contactSpeedMps": null,
+            "contactTick": null,
+            "contactAtMs": null,
+            "trackingAtMs": null,
+            "handoffAtMs": null,
+            "observedContactSampleTick": null,
+            "atTick": 1000000,
+            "view": null,
+            "model": {
+              "basis": "CAUSAL_CONTACT_EXIT_SPEED_PITCHER_GAZE_DELAY_V1",
+              "minimumDelaySeconds": 0.1,
+              "maximumDelaySeconds": 0.25,
+              "speedScaleMeters": 7,
+              "blendMs": 180,
+              "empiricallyCalibrated": false,
+              "sourcePhysicsChanged": false,
+              "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+            }
+          },
+          "batter": {
+            "eye": {
+              "x": 0.4,
+              "y": 1.4861,
+              "z": -0.95
+            },
+            "yaw": -0.020615635625603763,
+            "pitch": 0.08,
+            "f": 400,
+            "cx": 300,
+            "cy": 110,
+            "labelMetres": 0.55,
+            "phase": "ready",
+            "aimWeight": 0,
+            "surprise": 0,
+            "trackingErrorRadians": 0,
+            "model": {
+              "sensorDelaySeconds": 0.075,
+              "angularSpeedLimitRadPerSecond": 2.5,
+              "angularAccelerationLimitRadPerSecond2": 20,
+              "abilityBasis": "ABSOLUTE_PLATE_VISION_1_100_AND_EXISTING_MEET_PURSUIT",
+              "pitchTrackingGain": 0.7905,
+              "pitchTrackingDeadbandRadians": 0.013,
+              "contactQuality": 0.6571428571428573,
+              "visionQuality": 0.6428571428571428,
+              "absolutePlateVision": 88,
+              "pitchTracking": {
+                "gain": 0.604,
+                "deadbandRadians": 0.004363636363636363,
+                "absolutePlateVision": 88,
+                "baselinePlateVision": 45
+              },
+              "impactStabilization": {
+                "basis": "REGISTERED_EXPECTED_IMPACT",
+                "offsetMs": 0,
+                "angleConeRadians": 0.025,
+                "speedLimitRadPerSecond": 0.18
+              }
+            },
+            "tuning": {
+              "settings": {
+                "enabled": true,
+                "aimLiftMeters": 0.3,
+                "swingMaxDownRadians": 0.2,
+                "hitFollowDelayMs": 300,
+                "aimReleaseMs": 70,
+                "pitchTrackingGain": 0.26,
+                "pitchTrackingDeadbandRadians": 0.02,
+                "impactStabilizeOffsetMs": 0,
+                "impactMaxMotionRadians": 0.025,
+                "impactMaxSpeedRadPerSecond": 0.18
+              },
+              "hitObservedAtSeconds": null,
+              "firstBattedTick": null,
+              "aimReleaseAtSeconds": null,
+              "plannedAimThroughSeconds": null,
+              "aimTarget": null,
+              "downwardTargetLimited": false,
+              "pitchTracking": {
+                "rawErrorRadians": null,
+                "headTargetErrorRadians": null,
+                "gain": 0.604,
+                "deadbandRadians": 0.004363636363636363,
+                "absolutePlateVision": 88,
+                "baselinePlateVision": 45,
+                "configuredGain": 0.26,
+                "configuredDeadbandRadians": 0.02,
+                "anchorYaw": -0.020615635625603763,
+                "anchorPitch": 0.08,
+                "applied": false
+              }
+            }
+          },
+          "sceneMs": 1108.8,
+          "pitcher": {
+            "playerId": "1-p0",
+            "role": "P",
+            "team": 1,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 18.44
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "player": {
+            "playerId": "1-p0",
+            "name": "ティカオ",
+            "heightMeters": 1.84,
+            "bats": "R",
+            "throws": "R",
+            "physical": {
+              "basis": "EXPLICIT_AUTHORED_SI_V1",
+              "batLengthM": 0.84,
+              "batMassKg": 0.88,
+              "swingRate": 1,
+              "timingStdSeconds": 0.013,
+              "aimStdMeters": 0.026,
+              "chaseMarginMeters": 0.12,
+              "releaseSpeedMps": 41.2,
+              "spinRadPerSecond": {
+                "x": 245,
+                "y": 12,
+                "z": 8
+              },
+              "commandStdMeters": 0.065,
+              "reactionSeconds": 0.2,
+              "topSpeedMps": 7.8,
+              "accelerationMps2": 5,
+              "gloveSpeedMps": 10.8,
+              "gloveReachMeters": 1.35,
+              "gloveRadiusMeters": 0.11,
+              "retentionCapacityJ": 160,
+              "captureDissipationPowerW": 3000,
+              "transferSeconds": 0.44,
+              "throwSpeedMps": 40,
+              "maximumPitchSpeedMps": 41.94444444444444,
+              "maximumSweetSpotSpeedMps": 34,
+              "targetSweetSpotSpeedMps": 28,
+              "motorLatencySeconds": 0.08,
+              "technicalTimingOffsetSeconds": 0,
+              "sweetSpotT": 0.825,
+              "attackAngleDegrees": 10,
+              "pullAngleDegrees": 0,
+              "badBallControl": 0.82,
+              "defensiveDecisionSeconds": 0.08,
+              "preContactSeconds": 0.16,
+              "followThroughSeconds": 0.32,
+              "contactDepthMeters": 0.15,
+              "throwDirectionStdRadians": 0.004,
+              "swingDecision": {
+                "approach": "AUTO",
+                "threshold": 0.5,
+                "aggressionWeight": 0.5
+              },
+              "zoneJudgmentStdMeters": 0.025,
+              "plateVision": 52,
+              "pitchReleaseHeightMeters": 1.5824,
+              "pitchReleaseSideMeters": 0.46,
+              "pitchReleaseExtensionMeters": 1.54
+            },
+            "traitProfile": {
+              "version": "live_trait_profile_v1",
+              "selections": [
+                {
+                  "familyId": "bad_ball_hitting",
+                  "stateId": "LEARNED",
+                  "source": {
+                    "badBallControl": 0.82
+                  }
+                }
+              ]
+            }
+          },
+          "frameTick": 1000000,
+          "ball": {
+            "position": {
+              "x": 0,
+              "y": 1.8,
+              "z": 16.4
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": 1,
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "visible": false
+          },
+          "error": null
+        },
+        {
+          "camera": "mound",
+          "eye": {
+            "x": -0.1,
+            "y": 1.9168,
+            "z": 18.240000000000002
+          },
+          "yaw": 3.136110252377774,
+          "pitch": 0.048579439081710404,
+          "zone": [
+            {
+              "x": 319.00087783344736,
+              "y": 192.42356656278844,
+              "scale": 88.34560455957947,
+              "depth": 18.1106916181775
+            },
+            {
+              "x": 280.8563184408979,
+              "y": 192.41335670812043,
+              "scale": 88.33407183738203,
+              "depth": 18.11305611435538
+            },
+            {
+              "x": 280.8825318489787,
+              "y": 237.47616269923668,
+              "scale": 88.21311615467474,
+              "depth": 18.13789229704261
+            },
+            {
+              "x": 318.9748565740569,
+              "y": 237.49223382576187,
+              "scale": 88.22461731296892,
+              "depth": 18.135527800864736
+            }
+          ],
+          "zonePlane": 0.15,
+          "body": {
+            "settings": {
+              "enabled": true,
+              "scale": 2
+            },
+            "phase": "delivery",
+            "baseEye": {
+              "x": 0,
+              "y": 1.9468,
+              "z": 18.44
+            },
+            "eye": {
+              "x": -0.1,
+              "y": 1.9168,
+              "z": 18.240000000000002
+            },
+            "offset": {
+              "x": -0.1,
+              "y": -0.03,
+              "z": -0.2
+            },
+            "releaseProgress": 0.72,
+            "throwingHand": "R",
+            "moundSurfacePosition": {
+              "x": 0,
+              "y": 0.254,
+              "z": 18.44
+            },
+            "model": {
+              "basis": "AUTHORED_HEAD_JOINT_ON_EXISTING_DELIVERY_CLOCK",
+              "empiricallyCalibrated": false,
+              "sourcePhysicsChanged": false,
+              "eyeHeightRatio": 0.92,
+              "moundRadiusMeters": 2.74,
+              "followThroughMs": 1050
+            }
+          },
+          "reaction": {
+            "phase": "ready",
+            "trackingAllowed": false,
+            "handoffAllowed": false,
+            "trackingProgress": 0,
+            "trackingBlend": 0,
+            "delaySeconds": null,
+            "contactSpeedMps": null,
+            "contactTick": null,
+            "contactAtMs": null,
+            "trackingAtMs": null,
+            "handoffAtMs": null,
+            "observedContactSampleTick": null,
+            "atTick": 1000000,
+            "view": null,
+            "model": {
+              "basis": "CAUSAL_CONTACT_EXIT_SPEED_PITCHER_GAZE_DELAY_V1",
+              "minimumDelaySeconds": 0.1,
+              "maximumDelaySeconds": 0.25,
+              "speedScaleMeters": 7,
+              "blendMs": 180,
+              "empiricallyCalibrated": false,
+              "sourcePhysicsChanged": false,
+              "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+            }
+          },
+          "batter": {
+            "eye": {
+              "x": 0.4,
+              "y": 1.4861,
+              "z": -0.95
+            },
+            "yaw": -0.020615635625603763,
+            "pitch": 0.08,
+            "f": 400,
+            "cx": 300,
+            "cy": 110,
+            "labelMetres": 0.55,
+            "phase": "ready",
+            "aimWeight": 0,
+            "surprise": 0,
+            "trackingErrorRadians": 0,
+            "model": {
+              "sensorDelaySeconds": 0.075,
+              "angularSpeedLimitRadPerSecond": 2.5,
+              "angularAccelerationLimitRadPerSecond2": 20,
+              "abilityBasis": "ABSOLUTE_PLATE_VISION_1_100_AND_EXISTING_MEET_PURSUIT",
+              "pitchTrackingGain": 0.7905,
+              "pitchTrackingDeadbandRadians": 0.013,
+              "contactQuality": 0.6571428571428573,
+              "visionQuality": 0.6428571428571428,
+              "absolutePlateVision": 88,
+              "pitchTracking": {
+                "gain": 0.604,
+                "deadbandRadians": 0.004363636363636363,
+                "absolutePlateVision": 88,
+                "baselinePlateVision": 45
+              },
+              "impactStabilization": {
+                "basis": "REGISTERED_EXPECTED_IMPACT",
+                "offsetMs": 0,
+                "angleConeRadians": 0.025,
+                "speedLimitRadPerSecond": 0.18
+              }
+            },
+            "tuning": {
+              "settings": {
+                "enabled": true,
+                "aimLiftMeters": 0.3,
+                "swingMaxDownRadians": 0.2,
+                "hitFollowDelayMs": 300,
+                "aimReleaseMs": 70,
+                "pitchTrackingGain": 0.26,
+                "pitchTrackingDeadbandRadians": 0.02,
+                "impactStabilizeOffsetMs": 0,
+                "impactMaxMotionRadians": 0.025,
+                "impactMaxSpeedRadPerSecond": 0.18
+              },
+              "hitObservedAtSeconds": null,
+              "firstBattedTick": null,
+              "aimReleaseAtSeconds": null,
+              "plannedAimThroughSeconds": null,
+              "aimTarget": null,
+              "downwardTargetLimited": false,
+              "pitchTracking": {
+                "rawErrorRadians": null,
+                "headTargetErrorRadians": null,
+                "gain": 0.604,
+                "deadbandRadians": 0.004363636363636363,
+                "absolutePlateVision": 88,
+                "baselinePlateVision": 45,
+                "configuredGain": 0.26,
+                "configuredDeadbandRadians": 0.02,
+                "anchorYaw": -0.020615635625603763,
+                "anchorPitch": 0.08,
+                "applied": false
+              }
+            }
+          },
+          "sceneMs": 1108.8,
+          "pitcher": {
+            "playerId": "1-p0",
+            "role": "P",
+            "team": 1,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 18.44
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "player": {
+            "playerId": "1-p0",
+            "name": "ティカオ",
+            "heightMeters": 1.84,
+            "bats": "R",
+            "throws": "R",
+            "physical": {
+              "basis": "EXPLICIT_AUTHORED_SI_V1",
+              "batLengthM": 0.84,
+              "batMassKg": 0.88,
+              "swingRate": 1,
+              "timingStdSeconds": 0.013,
+              "aimStdMeters": 0.026,
+              "chaseMarginMeters": 0.12,
+              "releaseSpeedMps": 41.2,
+              "spinRadPerSecond": {
+                "x": 245,
+                "y": 12,
+                "z": 8
+              },
+              "commandStdMeters": 0.065,
+              "reactionSeconds": 0.2,
+              "topSpeedMps": 7.8,
+              "accelerationMps2": 5,
+              "gloveSpeedMps": 10.8,
+              "gloveReachMeters": 1.35,
+              "gloveRadiusMeters": 0.11,
+              "retentionCapacityJ": 160,
+              "captureDissipationPowerW": 3000,
+              "transferSeconds": 0.44,
+              "throwSpeedMps": 40,
+              "maximumPitchSpeedMps": 41.94444444444444,
+              "maximumSweetSpotSpeedMps": 34,
+              "targetSweetSpotSpeedMps": 28,
+              "motorLatencySeconds": 0.08,
+              "technicalTimingOffsetSeconds": 0,
+              "sweetSpotT": 0.825,
+              "attackAngleDegrees": 10,
+              "pullAngleDegrees": 0,
+              "badBallControl": 0.82,
+              "defensiveDecisionSeconds": 0.08,
+              "preContactSeconds": 0.16,
+              "followThroughSeconds": 0.32,
+              "contactDepthMeters": 0.15,
+              "throwDirectionStdRadians": 0.004,
+              "swingDecision": {
+                "approach": "AUTO",
+                "threshold": 0.5,
+                "aggressionWeight": 0.5
+              },
+              "zoneJudgmentStdMeters": 0.025,
+              "plateVision": 52,
+              "pitchReleaseHeightMeters": 1.5824,
+              "pitchReleaseSideMeters": 0.46,
+              "pitchReleaseExtensionMeters": 1.54
+            },
+            "traitProfile": {
+              "version": "live_trait_profile_v1",
+              "selections": [
+                {
+                  "familyId": "bad_ball_hitting",
+                  "stateId": "LEARNED",
+                  "source": {
+                    "badBallControl": 0.82
+                  }
+                }
+              ]
+            }
+          },
+          "frameTick": 1000000,
+          "ball": {
+            "position": {
+              "x": 0,
+              "y": 1.8,
+              "z": 16.4
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": 1,
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "visible": false
+          },
+          "error": null
+        }
+      ],
+      "continuity": [
+        {
+          "boundary": 693,
+          "phaseBefore": "delivery",
+          "phaseAt": "delivery",
+          "phaseAfter": "delivery"
+        },
+        {
+          "boundary": 1108.8,
+          "phaseBefore": "delivery",
+          "phaseAt": "delivery",
+          "phaseAfter": "delivery"
+        },
+        {
+          "boundary": 1540,
+          "phaseBefore": "delivery",
+          "phaseAt": "release-follow",
+          "phaseAfter": "release-follow"
+        },
+        {
+          "boundary": 1720,
+          "phaseBefore": "release-follow",
+          "phaseAt": "recovery",
+          "phaseAfter": "recovery"
+        },
+        {
+          "boundary": 2090,
+          "phaseBefore": "recovery",
+          "phaseAt": "recovery",
+          "phaseAfter": "recovery"
+        },
+        {
+          "boundary": 2590,
+          "phaseBefore": "recovery",
+          "phaseAt": "rest",
+          "phaseAfter": "rest"
+        }
+      ],
+      "labels": [
+        {
+          "camera": "batter",
+          "names": 6,
+          "zone": 4
+        },
+        {
+          "camera": "catcher",
+          "names": 6,
+          "zone": 4
+        },
+        {
+          "camera": "mound",
+          "names": 1,
+          "zone": 4
+        },
+        {
+          "camera": "runner",
+          "names": 6,
+          "zone": 4
+        },
+        {
+          "camera": "overhead",
+          "names": 9,
+          "zone": 0
+        }
+      ],
+      "contacts": [
+        {
+          "pitch": 0,
+          "delay": 0.15255650924555653,
+          "cue": null
+        },
+        {
+          "pitch": 1,
+          "delay": 0.25,
+          "cue": null
+        },
+        {
+          "pitch": 3,
+          "delay": 0.13762635648177338,
+          "cue": null
+        },
+        {
+          "pitch": 4,
+          "delay": 0.1713661254051354,
+          "cue": null
+        }
+      ],
+      "ordinary": {
+        "pitch": 0,
+        "rows": [
+          {
+            "sceneMs": 3547.04,
+            "camera": "fielder"
+          }
+        ]
+      },
+      "handedRelease": [
+        {
+          "playerId": "1-p0",
+          "throws": "R",
+          "height": 1.84,
+          "position": {
+            "x": -0.46,
+            "y": 1.8364,
+            "z": 16.900000000000002
+          },
+          "expected": {
+            "x": -0.46,
+            "y": 1.8364,
+            "z": 16.900000000000002
+          }
+        },
+        {
+          "playerId": "0-p0",
+          "throws": "L",
+          "height": 1.93,
+          "position": {
+            "x": 0.4825,
+            "y": 1.9138,
+            "z": 16.900000000000002
+          },
+          "expected": {
+            "x": 0.4825,
+            "y": 1.9138,
+            "z": 16.900000000000002
+          }
+        }
+      ],
+      "deep": {
+        "seed": "V62-CUE-QA",
+        "batSpeedMps": 75,
+        "attackAngleDegrees": 20,
+        "sceneMs": 2246.4010000000003,
+        "camera": "mound",
+        "cue": {
+          "kind": "none-decisive-over-fence",
+          "availableAtTick": 1671391,
+          "observationTick": 1471391,
+          "predictedCarryMeters": 130.1173007375132,
+          "carryBeyondFenceMeters": 20.729781013230934,
+          "fenceClearanceMeters": 2.533840217099791,
+          "predictedFenceSeconds": 1.3228327645338147,
+          "captureFeasibility": "CONSERVATIVE_REACH_ENVELOPE_EXCLUDED",
+          "forecastBasis": "EXPLICIT_SENSOR_PREDICTION_MODEL"
+        },
+        "sourceFirstPosition": {
+          "x": -0.46,
+          "y": 1.8364,
+          "z": 16.900000000000002
+        },
+        "syntheticFrames": false
+      },
+      "releaseFields": [
+        {
+          "path": "pitchReleaseHeightMeters",
+          "value": 1.55
+        },
+        {
+          "path": "pitchReleaseSideMeters",
+          "value": 0.65
+        },
+        {
+          "path": "pitchReleaseExtensionMeters",
+          "value": 1.9
+        }
+      ],
+      "editedRelease": {
+        "playerId": "1-p0",
+        "throws": "R",
+        "height": 1.84,
+        "position": {
+          "x": -0.65,
+          "y": 1.804,
+          "z": 16.540000000000003
+        },
+        "expected": {
+          "x": -0.65,
+          "y": 1.804,
+          "z": 16.540000000000003
+        }
+      },
+      "lab": {
+        "body": {
+          "settings": {
+            "enabled": true,
+            "scale": 0.5
+          },
+          "phase": "delivery",
+          "baseEye": {
+            "x": 0,
+            "y": 1.9468,
+            "z": 18.44
+          },
+          "eye": {
+            "x": -0.025,
+            "y": 1.9393,
+            "z": 18.39
+          },
+          "offset": {
+            "x": -0.025,
+            "y": -0.0075,
+            "z": -0.05
+          },
+          "releaseProgress": 0.72,
+          "throwingHand": "R",
+          "moundSurfacePosition": {
+            "x": 0,
+            "y": 0.254,
+            "z": 18.44
+          },
+          "model": {
+            "basis": "AUTHORED_HEAD_JOINT_ON_EXISTING_DELIVERY_CLOCK",
+            "empiricallyCalibrated": false,
+            "sourcePhysicsChanged": false,
+            "eyeHeightRatio": 0.92,
+            "moundRadiusMeters": 2.74,
+            "followThroughMs": 1050
+          }
+        },
+        "settingsRoundTrip": true,
+        "sessionRoundTrip": true
+      }
+    },
+    {
+      "width": 390,
+      "defaultRelease": [
+        {
+          "playerId": "1-p0",
+          "throws": "R",
+          "height": 1.84,
+          "position": {
+            "x": -0.46,
+            "y": 1.8364,
+            "z": 16.900000000000002
+          },
+          "expected": {
+            "x": -0.46,
+            "y": 1.8364,
+            "z": 16.900000000000002
+          }
+        }
+      ],
+      "neutral": {
+        "camera": "mound",
+        "eye": {
+          "x": 0,
+          "y": 1.9468,
+          "z": 18.44
+        },
+        "yaw": -3.141592653589793,
+        "pitch": 0.0496770993425061,
+        "zone": [
+          {
+            "x": 318.86327257908704,
+            "y": 192.4282588665466,
+            "scale": 87.37041491008434,
+            "depth": 18.31283509007724
+          },
+          {
+            "x": 281.1367274209126,
+            "y": 192.4282588665466,
+            "scale": 87.37041491008434,
+            "depth": 18.31283509007724
+          },
+          {
+            "x": 281.16285146145606,
+            "y": 236.996328493337,
+            "scale": 87.24941425911871,
+            "depth": 18.338231993721138
+          },
+          {
+            "x": 318.83714853854354,
+            "y": 236.996328493337,
+            "scale": 87.24941425911871,
+            "depth": 18.338231993721138
+          }
+        ],
+        "zonePlane": 0.15,
+        "body": {
+          "settings": {
+            "enabled": true,
+            "scale": 1
+          },
+          "phase": "delivery",
+          "baseEye": {
+            "x": 0,
+            "y": 1.9468,
+            "z": 18.44
+          },
+          "eye": {
+            "x": 0,
+            "y": 1.9468,
+            "z": 18.44
+          },
+          "offset": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "releaseProgress": 0,
+          "throwingHand": "R",
+          "moundSurfacePosition": {
+            "x": 0,
+            "y": 0.254,
+            "z": 18.44
+          },
+          "model": {
+            "basis": "AUTHORED_HEAD_JOINT_ON_EXISTING_DELIVERY_CLOCK",
+            "empiricallyCalibrated": false,
+            "sourcePhysicsChanged": false,
+            "eyeHeightRatio": 0.92,
+            "moundRadiusMeters": 2.74,
+            "followThroughMs": 1050
+          }
+        },
+        "reaction": {
+          "phase": "ready",
+          "trackingAllowed": false,
+          "handoffAllowed": false,
+          "trackingProgress": 0,
+          "trackingBlend": 0,
+          "delaySeconds": null,
+          "contactSpeedMps": null,
+          "contactTick": null,
+          "contactAtMs": null,
+          "trackingAtMs": null,
+          "handoffAtMs": null,
+          "observedContactSampleTick": null,
+          "atTick": 1000000,
+          "view": null,
+          "model": {
+            "basis": "CAUSAL_CONTACT_EXIT_SPEED_PITCHER_GAZE_DELAY_V1",
+            "minimumDelaySeconds": 0.1,
+            "maximumDelaySeconds": 0.25,
+            "speedScaleMeters": 7,
+            "blendMs": 180,
+            "empiricallyCalibrated": false,
+            "sourcePhysicsChanged": false,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+          }
+        },
+        "batter": {
+          "eye": {
+            "x": 0.4,
+            "y": 1.4861,
+            "z": -0.95
+          },
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "f": 400,
+          "cx": 300,
+          "cy": 110,
+          "labelMetres": 0.55,
+          "phase": "ready",
+          "aimWeight": 0,
+          "surprise": 0,
+          "trackingErrorRadians": 0,
+          "model": {
+            "sensorDelaySeconds": 0.075,
+            "angularSpeedLimitRadPerSecond": 2.5,
+            "angularAccelerationLimitRadPerSecond2": 20,
+            "abilityBasis": "ABSOLUTE_PLATE_VISION_1_100_AND_EXISTING_MEET_PURSUIT",
+            "pitchTrackingGain": 0.7905,
+            "pitchTrackingDeadbandRadians": 0.013,
+            "contactQuality": 0.6571428571428573,
+            "visionQuality": 0.6428571428571428,
+            "absolutePlateVision": 88,
+            "pitchTracking": {
+              "gain": 0.604,
+              "deadbandRadians": 0.004363636363636363,
+              "absolutePlateVision": 88,
+              "baselinePlateVision": 45
+            },
+            "impactStabilization": {
+              "basis": "REGISTERED_EXPECTED_IMPACT",
+              "offsetMs": 0,
+              "angleConeRadians": 0.025,
+              "speedLimitRadPerSecond": 0.18
+            }
+          },
+          "tuning": {
+            "settings": {
+              "enabled": true,
+              "aimLiftMeters": 0.3,
+              "swingMaxDownRadians": 0.2,
+              "hitFollowDelayMs": 300,
+              "aimReleaseMs": 70,
+              "pitchTrackingGain": 0.26,
+              "pitchTrackingDeadbandRadians": 0.02,
+              "impactStabilizeOffsetMs": 0,
+              "impactMaxMotionRadians": 0.025,
+              "impactMaxSpeedRadPerSecond": 0.18
+            },
+            "hitObservedAtSeconds": null,
+            "firstBattedTick": null,
+            "aimReleaseAtSeconds": null,
+            "plannedAimThroughSeconds": null,
+            "aimTarget": null,
+            "downwardTargetLimited": false,
+            "pitchTracking": {
+              "rawErrorRadians": null,
+              "headTargetErrorRadians": null,
+              "gain": 0.604,
+              "deadbandRadians": 0.004363636363636363,
+              "absolutePlateVision": 88,
+              "baselinePlateVision": 45,
+              "configuredGain": 0.26,
+              "configuredDeadbandRadians": 0.02,
+              "anchorYaw": -0.020615635625603763,
+              "anchorPitch": 0.08,
+              "applied": false
+            }
+          }
+        },
+        "sceneMs": 0,
+        "pitcher": {
+          "playerId": "1-p0",
+          "role": "P",
+          "team": 1,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 18.44
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "player": {
+          "playerId": "1-p0",
+          "name": "ティカオ",
+          "heightMeters": 1.84,
+          "bats": "R",
+          "throws": "R",
+          "physical": {
+            "basis": "EXPLICIT_AUTHORED_SI_V1",
+            "batLengthM": 0.84,
+            "batMassKg": 0.88,
+            "swingRate": 1,
+            "timingStdSeconds": 0.013,
+            "aimStdMeters": 0.026,
+            "chaseMarginMeters": 0.12,
+            "releaseSpeedMps": 41.2,
+            "spinRadPerSecond": {
+              "x": 245,
+              "y": 12,
+              "z": 8
+            },
+            "commandStdMeters": 0.065,
+            "reactionSeconds": 0.2,
+            "topSpeedMps": 7.8,
+            "accelerationMps2": 5,
+            "gloveSpeedMps": 10.8,
+            "gloveReachMeters": 1.35,
+            "gloveRadiusMeters": 0.11,
+            "retentionCapacityJ": 160,
+            "captureDissipationPowerW": 3000,
+            "transferSeconds": 0.44,
+            "throwSpeedMps": 40,
+            "maximumPitchSpeedMps": 41.94444444444444,
+            "maximumSweetSpotSpeedMps": 34,
+            "targetSweetSpotSpeedMps": 28,
+            "motorLatencySeconds": 0.08,
+            "technicalTimingOffsetSeconds": 0,
+            "sweetSpotT": 0.825,
+            "attackAngleDegrees": 10,
+            "pullAngleDegrees": 0,
+            "badBallControl": 0.82,
+            "defensiveDecisionSeconds": 0.08,
+            "preContactSeconds": 0.16,
+            "followThroughSeconds": 0.32,
+            "contactDepthMeters": 0.15,
+            "throwDirectionStdRadians": 0.004,
+            "swingDecision": {
+              "approach": "AUTO",
+              "threshold": 0.5,
+              "aggressionWeight": 0.5
+            },
+            "zoneJudgmentStdMeters": 0.025,
+            "plateVision": 52,
+            "pitchReleaseHeightMeters": 1.5824,
+            "pitchReleaseSideMeters": 0.46,
+            "pitchReleaseExtensionMeters": 1.54
+          },
+          "traitProfile": {
+            "version": "live_trait_profile_v1",
+            "selections": [
+              {
+                "familyId": "bad_ball_hitting",
+                "stateId": "LEARNED",
+                "source": {
+                  "badBallControl": 0.82
+                }
+              }
+            ]
+          }
+        },
+        "frameTick": 1000000,
+        "ball": {
+          "position": {
+            "x": 0,
+            "y": 1.8,
+            "z": 16.4
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "spin": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "orientation": {
+            "w": 1,
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "visible": false
+        },
+        "error": null
+      },
+      "motion": [
+        {
+          "camera": "mound",
+          "eye": {
+            "x": -0.05,
+            "y": 1.9318000000000002,
+            "z": 18.34
+          },
+          "yaw": 3.1388663789919895,
+          "pitch": 0.04913145671766011,
+          "zone": [
+            {
+              "x": 318.9320336217496,
+              "y": 192.42598657823086,
+              "scale": 87.85563620301248,
+              "depth": 18.211694424507936
+            },
+            {
+              "x": 280.99733774032245,
+              "y": 192.42088007772932,
+              "scale": 87.84996443381554,
+              "depth": 18.212870207880492
+            },
+            {
+              "x": 281.02350905869736,
+              "y": 237.2351402041151,
+              "scale": 87.72897352438382,
+              "depth": 18.237988383111404
+            },
+            {
+              "x": 318.90595789522735,
+              "y": 237.2431289843817,
+              "scale": 87.73462968100644,
+              "depth": 18.236812599738847
+            }
+          ],
+          "zonePlane": 0.15,
+          "body": {
+            "settings": {
+              "enabled": true,
+              "scale": 1
+            },
+            "phase": "delivery",
+            "baseEye": {
+              "x": 0,
+              "y": 1.9468,
+              "z": 18.44
+            },
+            "eye": {
+              "x": -0.05,
+              "y": 1.9318000000000002,
+              "z": 18.34
+            },
+            "offset": {
+              "x": -0.05,
+              "y": -0.015,
+              "z": -0.1
+            },
+            "releaseProgress": 0.72,
+            "throwingHand": "R",
+            "moundSurfacePosition": {
+              "x": 0,
+              "y": 0.254,
+              "z": 18.44
+            },
+            "model": {
+              "basis": "AUTHORED_HEAD_JOINT_ON_EXISTING_DELIVERY_CLOCK",
+              "empiricallyCalibrated": false,
+              "sourcePhysicsChanged": false,
+              "eyeHeightRatio": 0.92,
+              "moundRadiusMeters": 2.74,
+              "followThroughMs": 1050
+            }
+          },
+          "reaction": {
+            "phase": "ready",
+            "trackingAllowed": false,
+            "handoffAllowed": false,
+            "trackingProgress": 0,
+            "trackingBlend": 0,
+            "delaySeconds": null,
+            "contactSpeedMps": null,
+            "contactTick": null,
+            "contactAtMs": null,
+            "trackingAtMs": null,
+            "handoffAtMs": null,
+            "observedContactSampleTick": null,
+            "atTick": 1000000,
+            "view": null,
+            "model": {
+              "basis": "CAUSAL_CONTACT_EXIT_SPEED_PITCHER_GAZE_DELAY_V1",
+              "minimumDelaySeconds": 0.1,
+              "maximumDelaySeconds": 0.25,
+              "speedScaleMeters": 7,
+              "blendMs": 180,
+              "empiricallyCalibrated": false,
+              "sourcePhysicsChanged": false,
+              "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+            }
+          },
+          "batter": {
+            "eye": {
+              "x": 0.4,
+              "y": 1.4861,
+              "z": -0.95
+            },
+            "yaw": -0.020615635625603763,
+            "pitch": 0.08,
+            "f": 400,
+            "cx": 300,
+            "cy": 110,
+            "labelMetres": 0.55,
+            "phase": "ready",
+            "aimWeight": 0,
+            "surprise": 0,
+            "trackingErrorRadians": 0,
+            "model": {
+              "sensorDelaySeconds": 0.075,
+              "angularSpeedLimitRadPerSecond": 2.5,
+              "angularAccelerationLimitRadPerSecond2": 20,
+              "abilityBasis": "ABSOLUTE_PLATE_VISION_1_100_AND_EXISTING_MEET_PURSUIT",
+              "pitchTrackingGain": 0.7905,
+              "pitchTrackingDeadbandRadians": 0.013,
+              "contactQuality": 0.6571428571428573,
+              "visionQuality": 0.6428571428571428,
+              "absolutePlateVision": 88,
+              "pitchTracking": {
+                "gain": 0.604,
+                "deadbandRadians": 0.004363636363636363,
+                "absolutePlateVision": 88,
+                "baselinePlateVision": 45
+              },
+              "impactStabilization": {
+                "basis": "REGISTERED_EXPECTED_IMPACT",
+                "offsetMs": 0,
+                "angleConeRadians": 0.025,
+                "speedLimitRadPerSecond": 0.18
+              }
+            },
+            "tuning": {
+              "settings": {
+                "enabled": true,
+                "aimLiftMeters": 0.3,
+                "swingMaxDownRadians": 0.2,
+                "hitFollowDelayMs": 300,
+                "aimReleaseMs": 70,
+                "pitchTrackingGain": 0.26,
+                "pitchTrackingDeadbandRadians": 0.02,
+                "impactStabilizeOffsetMs": 0,
+                "impactMaxMotionRadians": 0.025,
+                "impactMaxSpeedRadPerSecond": 0.18
+              },
+              "hitObservedAtSeconds": null,
+              "firstBattedTick": null,
+              "aimReleaseAtSeconds": null,
+              "plannedAimThroughSeconds": null,
+              "aimTarget": null,
+              "downwardTargetLimited": false,
+              "pitchTracking": {
+                "rawErrorRadians": null,
+                "headTargetErrorRadians": null,
+                "gain": 0.604,
+                "deadbandRadians": 0.004363636363636363,
+                "absolutePlateVision": 88,
+                "baselinePlateVision": 45,
+                "configuredGain": 0.26,
+                "configuredDeadbandRadians": 0.02,
+                "anchorYaw": -0.020615635625603763,
+                "anchorPitch": 0.08,
+                "applied": false
+              }
+            }
+          },
+          "sceneMs": 1108.8,
+          "pitcher": {
+            "playerId": "1-p0",
+            "role": "P",
+            "team": 1,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 18.44
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "player": {
+            "playerId": "1-p0",
+            "name": "ティカオ",
+            "heightMeters": 1.84,
+            "bats": "R",
+            "throws": "R",
+            "physical": {
+              "basis": "EXPLICIT_AUTHORED_SI_V1",
+              "batLengthM": 0.84,
+              "batMassKg": 0.88,
+              "swingRate": 1,
+              "timingStdSeconds": 0.013,
+              "aimStdMeters": 0.026,
+              "chaseMarginMeters": 0.12,
+              "releaseSpeedMps": 41.2,
+              "spinRadPerSecond": {
+                "x": 245,
+                "y": 12,
+                "z": 8
+              },
+              "commandStdMeters": 0.065,
+              "reactionSeconds": 0.2,
+              "topSpeedMps": 7.8,
+              "accelerationMps2": 5,
+              "gloveSpeedMps": 10.8,
+              "gloveReachMeters": 1.35,
+              "gloveRadiusMeters": 0.11,
+              "retentionCapacityJ": 160,
+              "captureDissipationPowerW": 3000,
+              "transferSeconds": 0.44,
+              "throwSpeedMps": 40,
+              "maximumPitchSpeedMps": 41.94444444444444,
+              "maximumSweetSpotSpeedMps": 34,
+              "targetSweetSpotSpeedMps": 28,
+              "motorLatencySeconds": 0.08,
+              "technicalTimingOffsetSeconds": 0,
+              "sweetSpotT": 0.825,
+              "attackAngleDegrees": 10,
+              "pullAngleDegrees": 0,
+              "badBallControl": 0.82,
+              "defensiveDecisionSeconds": 0.08,
+              "preContactSeconds": 0.16,
+              "followThroughSeconds": 0.32,
+              "contactDepthMeters": 0.15,
+              "throwDirectionStdRadians": 0.004,
+              "swingDecision": {
+                "approach": "AUTO",
+                "threshold": 0.5,
+                "aggressionWeight": 0.5
+              },
+              "zoneJudgmentStdMeters": 0.025,
+              "plateVision": 52,
+              "pitchReleaseHeightMeters": 1.5824,
+              "pitchReleaseSideMeters": 0.46,
+              "pitchReleaseExtensionMeters": 1.54
+            },
+            "traitProfile": {
+              "version": "live_trait_profile_v1",
+              "selections": [
+                {
+                  "familyId": "bad_ball_hitting",
+                  "stateId": "LEARNED",
+                  "source": {
+                    "badBallControl": 0.82
+                  }
+                }
+              ]
+            }
+          },
+          "frameTick": 1000000,
+          "ball": {
+            "position": {
+              "x": 0,
+              "y": 1.8,
+              "z": 16.4
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": 1,
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "visible": false
+          },
+          "error": null
+        },
+        {
+          "camera": "mound",
+          "eye": {
+            "x": 0,
+            "y": 1.9468,
+            "z": 18.44
+          },
+          "yaw": -3.141592653589793,
+          "pitch": 0.0496770993425061,
+          "zone": [
+            {
+              "x": 318.86327257908704,
+              "y": 192.4282588665466,
+              "scale": 87.37041491008434,
+              "depth": 18.31283509007724
+            },
+            {
+              "x": 281.1367274209126,
+              "y": 192.4282588665466,
+              "scale": 87.37041491008434,
+              "depth": 18.31283509007724
+            },
+            {
+              "x": 281.16285146145606,
+              "y": 236.996328493337,
+              "scale": 87.24941425911871,
+              "depth": 18.338231993721138
+            },
+            {
+              "x": 318.83714853854354,
+              "y": 236.996328493337,
+              "scale": 87.24941425911871,
+              "depth": 18.338231993721138
+            }
+          ],
+          "zonePlane": 0.15,
+          "body": {
+            "settings": {
+              "enabled": false,
+              "scale": 1
+            },
+            "phase": "delivery",
+            "baseEye": {
+              "x": 0,
+              "y": 1.9468,
+              "z": 18.44
+            },
+            "eye": {
+              "x": 0,
+              "y": 1.9468,
+              "z": 18.44
+            },
+            "offset": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "releaseProgress": 0.72,
+            "throwingHand": "R",
+            "moundSurfacePosition": {
+              "x": 0,
+              "y": 0.254,
+              "z": 18.44
+            },
+            "model": {
+              "basis": "AUTHORED_HEAD_JOINT_ON_EXISTING_DELIVERY_CLOCK",
+              "empiricallyCalibrated": false,
+              "sourcePhysicsChanged": false,
+              "eyeHeightRatio": 0.92,
+              "moundRadiusMeters": 2.74,
+              "followThroughMs": 1050
+            }
+          },
+          "reaction": {
+            "phase": "ready",
+            "trackingAllowed": false,
+            "handoffAllowed": false,
+            "trackingProgress": 0,
+            "trackingBlend": 0,
+            "delaySeconds": null,
+            "contactSpeedMps": null,
+            "contactTick": null,
+            "contactAtMs": null,
+            "trackingAtMs": null,
+            "handoffAtMs": null,
+            "observedContactSampleTick": null,
+            "atTick": 1000000,
+            "view": null,
+            "model": {
+              "basis": "CAUSAL_CONTACT_EXIT_SPEED_PITCHER_GAZE_DELAY_V1",
+              "minimumDelaySeconds": 0.1,
+              "maximumDelaySeconds": 0.25,
+              "speedScaleMeters": 7,
+              "blendMs": 180,
+              "empiricallyCalibrated": false,
+              "sourcePhysicsChanged": false,
+              "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+            }
+          },
+          "batter": {
+            "eye": {
+              "x": 0.4,
+              "y": 1.4861,
+              "z": -0.95
+            },
+            "yaw": -0.020615635625603763,
+            "pitch": 0.08,
+            "f": 400,
+            "cx": 300,
+            "cy": 110,
+            "labelMetres": 0.55,
+            "phase": "ready",
+            "aimWeight": 0,
+            "surprise": 0,
+            "trackingErrorRadians": 0,
+            "model": {
+              "sensorDelaySeconds": 0.075,
+              "angularSpeedLimitRadPerSecond": 2.5,
+              "angularAccelerationLimitRadPerSecond2": 20,
+              "abilityBasis": "ABSOLUTE_PLATE_VISION_1_100_AND_EXISTING_MEET_PURSUIT",
+              "pitchTrackingGain": 0.7905,
+              "pitchTrackingDeadbandRadians": 0.013,
+              "contactQuality": 0.6571428571428573,
+              "visionQuality": 0.6428571428571428,
+              "absolutePlateVision": 88,
+              "pitchTracking": {
+                "gain": 0.604,
+                "deadbandRadians": 0.004363636363636363,
+                "absolutePlateVision": 88,
+                "baselinePlateVision": 45
+              },
+              "impactStabilization": {
+                "basis": "REGISTERED_EXPECTED_IMPACT",
+                "offsetMs": 0,
+                "angleConeRadians": 0.025,
+                "speedLimitRadPerSecond": 0.18
+              }
+            },
+            "tuning": {
+              "settings": {
+                "enabled": true,
+                "aimLiftMeters": 0.3,
+                "swingMaxDownRadians": 0.2,
+                "hitFollowDelayMs": 300,
+                "aimReleaseMs": 70,
+                "pitchTrackingGain": 0.26,
+                "pitchTrackingDeadbandRadians": 0.02,
+                "impactStabilizeOffsetMs": 0,
+                "impactMaxMotionRadians": 0.025,
+                "impactMaxSpeedRadPerSecond": 0.18
+              },
+              "hitObservedAtSeconds": null,
+              "firstBattedTick": null,
+              "aimReleaseAtSeconds": null,
+              "plannedAimThroughSeconds": null,
+              "aimTarget": null,
+              "downwardTargetLimited": false,
+              "pitchTracking": {
+                "rawErrorRadians": null,
+                "headTargetErrorRadians": null,
+                "gain": 0.604,
+                "deadbandRadians": 0.004363636363636363,
+                "absolutePlateVision": 88,
+                "baselinePlateVision": 45,
+                "configuredGain": 0.26,
+                "configuredDeadbandRadians": 0.02,
+                "anchorYaw": -0.020615635625603763,
+                "anchorPitch": 0.08,
+                "applied": false
+              }
+            }
+          },
+          "sceneMs": 1108.8,
+          "pitcher": {
+            "playerId": "1-p0",
+            "role": "P",
+            "team": 1,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 18.44
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "player": {
+            "playerId": "1-p0",
+            "name": "ティカオ",
+            "heightMeters": 1.84,
+            "bats": "R",
+            "throws": "R",
+            "physical": {
+              "basis": "EXPLICIT_AUTHORED_SI_V1",
+              "batLengthM": 0.84,
+              "batMassKg": 0.88,
+              "swingRate": 1,
+              "timingStdSeconds": 0.013,
+              "aimStdMeters": 0.026,
+              "chaseMarginMeters": 0.12,
+              "releaseSpeedMps": 41.2,
+              "spinRadPerSecond": {
+                "x": 245,
+                "y": 12,
+                "z": 8
+              },
+              "commandStdMeters": 0.065,
+              "reactionSeconds": 0.2,
+              "topSpeedMps": 7.8,
+              "accelerationMps2": 5,
+              "gloveSpeedMps": 10.8,
+              "gloveReachMeters": 1.35,
+              "gloveRadiusMeters": 0.11,
+              "retentionCapacityJ": 160,
+              "captureDissipationPowerW": 3000,
+              "transferSeconds": 0.44,
+              "throwSpeedMps": 40,
+              "maximumPitchSpeedMps": 41.94444444444444,
+              "maximumSweetSpotSpeedMps": 34,
+              "targetSweetSpotSpeedMps": 28,
+              "motorLatencySeconds": 0.08,
+              "technicalTimingOffsetSeconds": 0,
+              "sweetSpotT": 0.825,
+              "attackAngleDegrees": 10,
+              "pullAngleDegrees": 0,
+              "badBallControl": 0.82,
+              "defensiveDecisionSeconds": 0.08,
+              "preContactSeconds": 0.16,
+              "followThroughSeconds": 0.32,
+              "contactDepthMeters": 0.15,
+              "throwDirectionStdRadians": 0.004,
+              "swingDecision": {
+                "approach": "AUTO",
+                "threshold": 0.5,
+                "aggressionWeight": 0.5
+              },
+              "zoneJudgmentStdMeters": 0.025,
+              "plateVision": 52,
+              "pitchReleaseHeightMeters": 1.5824,
+              "pitchReleaseSideMeters": 0.46,
+              "pitchReleaseExtensionMeters": 1.54
+            },
+            "traitProfile": {
+              "version": "live_trait_profile_v1",
+              "selections": [
+                {
+                  "familyId": "bad_ball_hitting",
+                  "stateId": "LEARNED",
+                  "source": {
+                    "badBallControl": 0.82
+                  }
+                }
+              ]
+            }
+          },
+          "frameTick": 1000000,
+          "ball": {
+            "position": {
+              "x": 0,
+              "y": 1.8,
+              "z": 16.4
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": 1,
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "visible": false
+          },
+          "error": null
+        },
+        {
+          "camera": "mound",
+          "eye": {
+            "x": 0,
+            "y": 1.9468,
+            "z": 18.44
+          },
+          "yaw": -3.141592653589793,
+          "pitch": 0.0496770993425061,
+          "zone": [
+            {
+              "x": 318.86327257908704,
+              "y": 192.4282588665466,
+              "scale": 87.37041491008434,
+              "depth": 18.31283509007724
+            },
+            {
+              "x": 281.1367274209126,
+              "y": 192.4282588665466,
+              "scale": 87.37041491008434,
+              "depth": 18.31283509007724
+            },
+            {
+              "x": 281.16285146145606,
+              "y": 236.996328493337,
+              "scale": 87.24941425911871,
+              "depth": 18.338231993721138
+            },
+            {
+              "x": 318.83714853854354,
+              "y": 236.996328493337,
+              "scale": 87.24941425911871,
+              "depth": 18.338231993721138
+            }
+          ],
+          "zonePlane": 0.15,
+          "body": {
+            "settings": {
+              "enabled": true,
+              "scale": 0
+            },
+            "phase": "delivery",
+            "baseEye": {
+              "x": 0,
+              "y": 1.9468,
+              "z": 18.44
+            },
+            "eye": {
+              "x": 0,
+              "y": 1.9468,
+              "z": 18.44
+            },
+            "offset": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "releaseProgress": 0.72,
+            "throwingHand": "R",
+            "moundSurfacePosition": {
+              "x": 0,
+              "y": 0.254,
+              "z": 18.44
+            },
+            "model": {
+              "basis": "AUTHORED_HEAD_JOINT_ON_EXISTING_DELIVERY_CLOCK",
+              "empiricallyCalibrated": false,
+              "sourcePhysicsChanged": false,
+              "eyeHeightRatio": 0.92,
+              "moundRadiusMeters": 2.74,
+              "followThroughMs": 1050
+            }
+          },
+          "reaction": {
+            "phase": "ready",
+            "trackingAllowed": false,
+            "handoffAllowed": false,
+            "trackingProgress": 0,
+            "trackingBlend": 0,
+            "delaySeconds": null,
+            "contactSpeedMps": null,
+            "contactTick": null,
+            "contactAtMs": null,
+            "trackingAtMs": null,
+            "handoffAtMs": null,
+            "observedContactSampleTick": null,
+            "atTick": 1000000,
+            "view": null,
+            "model": {
+              "basis": "CAUSAL_CONTACT_EXIT_SPEED_PITCHER_GAZE_DELAY_V1",
+              "minimumDelaySeconds": 0.1,
+              "maximumDelaySeconds": 0.25,
+              "speedScaleMeters": 7,
+              "blendMs": 180,
+              "empiricallyCalibrated": false,
+              "sourcePhysicsChanged": false,
+              "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+            }
+          },
+          "batter": {
+            "eye": {
+              "x": 0.4,
+              "y": 1.4861,
+              "z": -0.95
+            },
+            "yaw": -0.020615635625603763,
+            "pitch": 0.08,
+            "f": 400,
+            "cx": 300,
+            "cy": 110,
+            "labelMetres": 0.55,
+            "phase": "ready",
+            "aimWeight": 0,
+            "surprise": 0,
+            "trackingErrorRadians": 0,
+            "model": {
+              "sensorDelaySeconds": 0.075,
+              "angularSpeedLimitRadPerSecond": 2.5,
+              "angularAccelerationLimitRadPerSecond2": 20,
+              "abilityBasis": "ABSOLUTE_PLATE_VISION_1_100_AND_EXISTING_MEET_PURSUIT",
+              "pitchTrackingGain": 0.7905,
+              "pitchTrackingDeadbandRadians": 0.013,
+              "contactQuality": 0.6571428571428573,
+              "visionQuality": 0.6428571428571428,
+              "absolutePlateVision": 88,
+              "pitchTracking": {
+                "gain": 0.604,
+                "deadbandRadians": 0.004363636363636363,
+                "absolutePlateVision": 88,
+                "baselinePlateVision": 45
+              },
+              "impactStabilization": {
+                "basis": "REGISTERED_EXPECTED_IMPACT",
+                "offsetMs": 0,
+                "angleConeRadians": 0.025,
+                "speedLimitRadPerSecond": 0.18
+              }
+            },
+            "tuning": {
+              "settings": {
+                "enabled": true,
+                "aimLiftMeters": 0.3,
+                "swingMaxDownRadians": 0.2,
+                "hitFollowDelayMs": 300,
+                "aimReleaseMs": 70,
+                "pitchTrackingGain": 0.26,
+                "pitchTrackingDeadbandRadians": 0.02,
+                "impactStabilizeOffsetMs": 0,
+                "impactMaxMotionRadians": 0.025,
+                "impactMaxSpeedRadPerSecond": 0.18
+              },
+              "hitObservedAtSeconds": null,
+              "firstBattedTick": null,
+              "aimReleaseAtSeconds": null,
+              "plannedAimThroughSeconds": null,
+              "aimTarget": null,
+              "downwardTargetLimited": false,
+              "pitchTracking": {
+                "rawErrorRadians": null,
+                "headTargetErrorRadians": null,
+                "gain": 0.604,
+                "deadbandRadians": 0.004363636363636363,
+                "absolutePlateVision": 88,
+                "baselinePlateVision": 45,
+                "configuredGain": 0.26,
+                "configuredDeadbandRadians": 0.02,
+                "anchorYaw": -0.020615635625603763,
+                "anchorPitch": 0.08,
+                "applied": false
+              }
+            }
+          },
+          "sceneMs": 1108.8,
+          "pitcher": {
+            "playerId": "1-p0",
+            "role": "P",
+            "team": 1,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 18.44
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "player": {
+            "playerId": "1-p0",
+            "name": "ティカオ",
+            "heightMeters": 1.84,
+            "bats": "R",
+            "throws": "R",
+            "physical": {
+              "basis": "EXPLICIT_AUTHORED_SI_V1",
+              "batLengthM": 0.84,
+              "batMassKg": 0.88,
+              "swingRate": 1,
+              "timingStdSeconds": 0.013,
+              "aimStdMeters": 0.026,
+              "chaseMarginMeters": 0.12,
+              "releaseSpeedMps": 41.2,
+              "spinRadPerSecond": {
+                "x": 245,
+                "y": 12,
+                "z": 8
+              },
+              "commandStdMeters": 0.065,
+              "reactionSeconds": 0.2,
+              "topSpeedMps": 7.8,
+              "accelerationMps2": 5,
+              "gloveSpeedMps": 10.8,
+              "gloveReachMeters": 1.35,
+              "gloveRadiusMeters": 0.11,
+              "retentionCapacityJ": 160,
+              "captureDissipationPowerW": 3000,
+              "transferSeconds": 0.44,
+              "throwSpeedMps": 40,
+              "maximumPitchSpeedMps": 41.94444444444444,
+              "maximumSweetSpotSpeedMps": 34,
+              "targetSweetSpotSpeedMps": 28,
+              "motorLatencySeconds": 0.08,
+              "technicalTimingOffsetSeconds": 0,
+              "sweetSpotT": 0.825,
+              "attackAngleDegrees": 10,
+              "pullAngleDegrees": 0,
+              "badBallControl": 0.82,
+              "defensiveDecisionSeconds": 0.08,
+              "preContactSeconds": 0.16,
+              "followThroughSeconds": 0.32,
+              "contactDepthMeters": 0.15,
+              "throwDirectionStdRadians": 0.004,
+              "swingDecision": {
+                "approach": "AUTO",
+                "threshold": 0.5,
+                "aggressionWeight": 0.5
+              },
+              "zoneJudgmentStdMeters": 0.025,
+              "plateVision": 52,
+              "pitchReleaseHeightMeters": 1.5824,
+              "pitchReleaseSideMeters": 0.46,
+              "pitchReleaseExtensionMeters": 1.54
+            },
+            "traitProfile": {
+              "version": "live_trait_profile_v1",
+              "selections": [
+                {
+                  "familyId": "bad_ball_hitting",
+                  "stateId": "LEARNED",
+                  "source": {
+                    "badBallControl": 0.82
+                  }
+                }
+              ]
+            }
+          },
+          "frameTick": 1000000,
+          "ball": {
+            "position": {
+              "x": 0,
+              "y": 1.8,
+              "z": 16.4
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": 1,
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "visible": false
+          },
+          "error": null
+        },
+        {
+          "camera": "mound",
+          "eye": {
+            "x": -0.1,
+            "y": 1.9168,
+            "z": 18.240000000000002
+          },
+          "yaw": 3.136110252377774,
+          "pitch": 0.048579439081710404,
+          "zone": [
+            {
+              "x": 319.00087783344736,
+              "y": 192.42356656278844,
+              "scale": 88.34560455957947,
+              "depth": 18.1106916181775
+            },
+            {
+              "x": 280.8563184408979,
+              "y": 192.41335670812043,
+              "scale": 88.33407183738203,
+              "depth": 18.11305611435538
+            },
+            {
+              "x": 280.8825318489787,
+              "y": 237.47616269923668,
+              "scale": 88.21311615467474,
+              "depth": 18.13789229704261
+            },
+            {
+              "x": 318.9748565740569,
+              "y": 237.49223382576187,
+              "scale": 88.22461731296892,
+              "depth": 18.135527800864736
+            }
+          ],
+          "zonePlane": 0.15,
+          "body": {
+            "settings": {
+              "enabled": true,
+              "scale": 2
+            },
+            "phase": "delivery",
+            "baseEye": {
+              "x": 0,
+              "y": 1.9468,
+              "z": 18.44
+            },
+            "eye": {
+              "x": -0.1,
+              "y": 1.9168,
+              "z": 18.240000000000002
+            },
+            "offset": {
+              "x": -0.1,
+              "y": -0.03,
+              "z": -0.2
+            },
+            "releaseProgress": 0.72,
+            "throwingHand": "R",
+            "moundSurfacePosition": {
+              "x": 0,
+              "y": 0.254,
+              "z": 18.44
+            },
+            "model": {
+              "basis": "AUTHORED_HEAD_JOINT_ON_EXISTING_DELIVERY_CLOCK",
+              "empiricallyCalibrated": false,
+              "sourcePhysicsChanged": false,
+              "eyeHeightRatio": 0.92,
+              "moundRadiusMeters": 2.74,
+              "followThroughMs": 1050
+            }
+          },
+          "reaction": {
+            "phase": "ready",
+            "trackingAllowed": false,
+            "handoffAllowed": false,
+            "trackingProgress": 0,
+            "trackingBlend": 0,
+            "delaySeconds": null,
+            "contactSpeedMps": null,
+            "contactTick": null,
+            "contactAtMs": null,
+            "trackingAtMs": null,
+            "handoffAtMs": null,
+            "observedContactSampleTick": null,
+            "atTick": 1000000,
+            "view": null,
+            "model": {
+              "basis": "CAUSAL_CONTACT_EXIT_SPEED_PITCHER_GAZE_DELAY_V1",
+              "minimumDelaySeconds": 0.1,
+              "maximumDelaySeconds": 0.25,
+              "speedScaleMeters": 7,
+              "blendMs": 180,
+              "empiricallyCalibrated": false,
+              "sourcePhysicsChanged": false,
+              "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+            }
+          },
+          "batter": {
+            "eye": {
+              "x": 0.4,
+              "y": 1.4861,
+              "z": -0.95
+            },
+            "yaw": -0.020615635625603763,
+            "pitch": 0.08,
+            "f": 400,
+            "cx": 300,
+            "cy": 110,
+            "labelMetres": 0.55,
+            "phase": "ready",
+            "aimWeight": 0,
+            "surprise": 0,
+            "trackingErrorRadians": 0,
+            "model": {
+              "sensorDelaySeconds": 0.075,
+              "angularSpeedLimitRadPerSecond": 2.5,
+              "angularAccelerationLimitRadPerSecond2": 20,
+              "abilityBasis": "ABSOLUTE_PLATE_VISION_1_100_AND_EXISTING_MEET_PURSUIT",
+              "pitchTrackingGain": 0.7905,
+              "pitchTrackingDeadbandRadians": 0.013,
+              "contactQuality": 0.6571428571428573,
+              "visionQuality": 0.6428571428571428,
+              "absolutePlateVision": 88,
+              "pitchTracking": {
+                "gain": 0.604,
+                "deadbandRadians": 0.004363636363636363,
+                "absolutePlateVision": 88,
+                "baselinePlateVision": 45
+              },
+              "impactStabilization": {
+                "basis": "REGISTERED_EXPECTED_IMPACT",
+                "offsetMs": 0,
+                "angleConeRadians": 0.025,
+                "speedLimitRadPerSecond": 0.18
+              }
+            },
+            "tuning": {
+              "settings": {
+                "enabled": true,
+                "aimLiftMeters": 0.3,
+                "swingMaxDownRadians": 0.2,
+                "hitFollowDelayMs": 300,
+                "aimReleaseMs": 70,
+                "pitchTrackingGain": 0.26,
+                "pitchTrackingDeadbandRadians": 0.02,
+                "impactStabilizeOffsetMs": 0,
+                "impactMaxMotionRadians": 0.025,
+                "impactMaxSpeedRadPerSecond": 0.18
+              },
+              "hitObservedAtSeconds": null,
+              "firstBattedTick": null,
+              "aimReleaseAtSeconds": null,
+              "plannedAimThroughSeconds": null,
+              "aimTarget": null,
+              "downwardTargetLimited": false,
+              "pitchTracking": {
+                "rawErrorRadians": null,
+                "headTargetErrorRadians": null,
+                "gain": 0.604,
+                "deadbandRadians": 0.004363636363636363,
+                "absolutePlateVision": 88,
+                "baselinePlateVision": 45,
+                "configuredGain": 0.26,
+                "configuredDeadbandRadians": 0.02,
+                "anchorYaw": -0.020615635625603763,
+                "anchorPitch": 0.08,
+                "applied": false
+              }
+            }
+          },
+          "sceneMs": 1108.8,
+          "pitcher": {
+            "playerId": "1-p0",
+            "role": "P",
+            "team": 1,
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 18.44
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "player": {
+            "playerId": "1-p0",
+            "name": "ティカオ",
+            "heightMeters": 1.84,
+            "bats": "R",
+            "throws": "R",
+            "physical": {
+              "basis": "EXPLICIT_AUTHORED_SI_V1",
+              "batLengthM": 0.84,
+              "batMassKg": 0.88,
+              "swingRate": 1,
+              "timingStdSeconds": 0.013,
+              "aimStdMeters": 0.026,
+              "chaseMarginMeters": 0.12,
+              "releaseSpeedMps": 41.2,
+              "spinRadPerSecond": {
+                "x": 245,
+                "y": 12,
+                "z": 8
+              },
+              "commandStdMeters": 0.065,
+              "reactionSeconds": 0.2,
+              "topSpeedMps": 7.8,
+              "accelerationMps2": 5,
+              "gloveSpeedMps": 10.8,
+              "gloveReachMeters": 1.35,
+              "gloveRadiusMeters": 0.11,
+              "retentionCapacityJ": 160,
+              "captureDissipationPowerW": 3000,
+              "transferSeconds": 0.44,
+              "throwSpeedMps": 40,
+              "maximumPitchSpeedMps": 41.94444444444444,
+              "maximumSweetSpotSpeedMps": 34,
+              "targetSweetSpotSpeedMps": 28,
+              "motorLatencySeconds": 0.08,
+              "technicalTimingOffsetSeconds": 0,
+              "sweetSpotT": 0.825,
+              "attackAngleDegrees": 10,
+              "pullAngleDegrees": 0,
+              "badBallControl": 0.82,
+              "defensiveDecisionSeconds": 0.08,
+              "preContactSeconds": 0.16,
+              "followThroughSeconds": 0.32,
+              "contactDepthMeters": 0.15,
+              "throwDirectionStdRadians": 0.004,
+              "swingDecision": {
+                "approach": "AUTO",
+                "threshold": 0.5,
+                "aggressionWeight": 0.5
+              },
+              "zoneJudgmentStdMeters": 0.025,
+              "plateVision": 52,
+              "pitchReleaseHeightMeters": 1.5824,
+              "pitchReleaseSideMeters": 0.46,
+              "pitchReleaseExtensionMeters": 1.54
+            },
+            "traitProfile": {
+              "version": "live_trait_profile_v1",
+              "selections": [
+                {
+                  "familyId": "bad_ball_hitting",
+                  "stateId": "LEARNED",
+                  "source": {
+                    "badBallControl": 0.82
+                  }
+                }
+              ]
+            }
+          },
+          "frameTick": 1000000,
+          "ball": {
+            "position": {
+              "x": 0,
+              "y": 1.8,
+              "z": 16.4
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": 1,
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "visible": false
+          },
+          "error": null
+        }
+      ],
+      "continuity": [
+        {
+          "boundary": 693,
+          "phaseBefore": "delivery",
+          "phaseAt": "delivery",
+          "phaseAfter": "delivery"
+        },
+        {
+          "boundary": 1108.8,
+          "phaseBefore": "delivery",
+          "phaseAt": "delivery",
+          "phaseAfter": "delivery"
+        },
+        {
+          "boundary": 1540,
+          "phaseBefore": "delivery",
+          "phaseAt": "release-follow",
+          "phaseAfter": "release-follow"
+        },
+        {
+          "boundary": 1720,
+          "phaseBefore": "release-follow",
+          "phaseAt": "recovery",
+          "phaseAfter": "recovery"
+        },
+        {
+          "boundary": 2090,
+          "phaseBefore": "recovery",
+          "phaseAt": "recovery",
+          "phaseAfter": "recovery"
+        },
+        {
+          "boundary": 2590,
+          "phaseBefore": "recovery",
+          "phaseAt": "rest",
+          "phaseAfter": "rest"
+        }
+      ],
+      "labels": [
+        {
+          "camera": "batter",
+          "names": 6,
+          "zone": 4
+        },
+        {
+          "camera": "catcher",
+          "names": 6,
+          "zone": 4
+        },
+        {
+          "camera": "mound",
+          "names": 1,
+          "zone": 4
+        },
+        {
+          "camera": "runner",
+          "names": 6,
+          "zone": 4
+        },
+        {
+          "camera": "overhead",
+          "names": 9,
+          "zone": 0
+        }
+      ],
+      "contacts": [
+        {
+          "pitch": 0,
+          "delay": 0.15255650924555653,
+          "cue": null
+        },
+        {
+          "pitch": 1,
+          "delay": 0.25,
+          "cue": null
+        },
+        {
+          "pitch": 3,
+          "delay": 0.13762635648177338,
+          "cue": null
+        },
+        {
+          "pitch": 4,
+          "delay": 0.1713661254051354,
+          "cue": null
+        }
+      ],
+      "ordinary": {
+        "pitch": 0,
+        "rows": [
+          {
+            "sceneMs": 3547.04,
+            "camera": "fielder"
+          }
+        ]
+      },
+      "handedRelease": [
+        {
+          "playerId": "1-p0",
+          "throws": "R",
+          "height": 1.84,
+          "position": {
+            "x": -0.46,
+            "y": 1.8364,
+            "z": 16.900000000000002
+          },
+          "expected": {
+            "x": -0.46,
+            "y": 1.8364,
+            "z": 16.900000000000002
+          }
+        },
+        {
+          "playerId": "0-p0",
+          "throws": "L",
+          "height": 1.93,
+          "position": {
+            "x": 0.4825,
+            "y": 1.9138,
+            "z": 16.900000000000002
+          },
+          "expected": {
+            "x": 0.4825,
+            "y": 1.9138,
+            "z": 16.900000000000002
+          }
+        }
+      ],
+      "deep": {
+        "seed": "V62-CUE-QA",
+        "batSpeedMps": 75,
+        "attackAngleDegrees": 20,
+        "sceneMs": 2246.4010000000003,
+        "camera": "mound",
+        "cue": {
+          "kind": "none-decisive-over-fence",
+          "availableAtTick": 1671391,
+          "observationTick": 1471391,
+          "predictedCarryMeters": 130.1173007375132,
+          "carryBeyondFenceMeters": 20.729781013230934,
+          "fenceClearanceMeters": 2.533840217099791,
+          "predictedFenceSeconds": 1.3228327645338147,
+          "captureFeasibility": "CONSERVATIVE_REACH_ENVELOPE_EXCLUDED",
+          "forecastBasis": "EXPLICIT_SENSOR_PREDICTION_MODEL"
+        },
+        "sourceFirstPosition": {
+          "x": -0.46,
+          "y": 1.8364,
+          "z": 16.900000000000002
+        },
+        "syntheticFrames": false
+      },
+      "releaseFields": [
+        {
+          "path": "pitchReleaseHeightMeters",
+          "value": 1.55
+        },
+        {
+          "path": "pitchReleaseSideMeters",
+          "value": 0.65
+        },
+        {
+          "path": "pitchReleaseExtensionMeters",
+          "value": 1.9
+        }
+      ],
+      "editedRelease": {
+        "playerId": "1-p0",
+        "throws": "R",
+        "height": 1.84,
+        "position": {
+          "x": -0.65,
+          "y": 1.804,
+          "z": 16.540000000000003
+        },
+        "expected": {
+          "x": -0.65,
+          "y": 1.804,
+          "z": 16.540000000000003
+        }
+      },
+      "lab": {
+        "body": {
+          "settings": {
+            "enabled": true,
+            "scale": 0.5
+          },
+          "phase": "delivery",
+          "baseEye": {
+            "x": 0,
+            "y": 1.9468,
+            "z": 18.44
+          },
+          "eye": {
+            "x": -0.025,
+            "y": 1.9393,
+            "z": 18.39
+          },
+          "offset": {
+            "x": -0.025,
+            "y": -0.0075,
+            "z": -0.05
+          },
+          "releaseProgress": 0.72,
+          "throwingHand": "R",
+          "moundSurfacePosition": {
+            "x": 0,
+            "y": 0.254,
+            "z": 18.44
+          },
+          "model": {
+            "basis": "AUTHORED_HEAD_JOINT_ON_EXISTING_DELIVERY_CLOCK",
+            "empiricallyCalibrated": false,
+            "sourcePhysicsChanged": false,
+            "eyeHeightRatio": 0.92,
+            "moundRadiusMeters": 2.74,
+            "followThroughMs": 1050
+          }
+        },
+        "settingsRoundTrip": true,
+        "sessionRoundTrip": true
+      }
+    }
+  ],
+  "faults": [
+    {
+      "label": "normal-1200",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "maker-1200",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "lab-1200",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "normal-390",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "maker-390",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "lab-390",
+      "errors": [],
+      "external": []
+    }
+  ],
+  "normalSha256": "e035ca5fa575ee3528c3f029353419a4a92fe0d2e94e96417494a083cf02a8fc",
+  "workbenchSha256": "c29e0cc042a7956877e7fdb3bc32c53a7fe39d41ad10fb0ccf108465307cdd73",
+  "makerSha256": "a99bb8b947001fcf780a3c9f615e1a759b8a5ae300d0a87c57467fab5d087dac",
+  "sourceCoreSha256": "865078dc9881ce5c37754dbe2c7b502f586206f3ada972cfe2d3368207720c00",
+  "sourceInputs": 114
+}

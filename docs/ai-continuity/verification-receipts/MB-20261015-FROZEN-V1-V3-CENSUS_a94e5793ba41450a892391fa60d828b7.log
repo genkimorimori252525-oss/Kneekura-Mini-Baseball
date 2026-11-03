@@ -1,0 +1,54 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts (46 tests) 1822ms
+ ✓ src/host/world/SamePlateAppearanceHistoricalInitialActor.test.ts (1 test) 14365ms
+   ✓ HI09 real initial actor ancestry replays its reserved view after current match and physical descendants move 14365ms
+ ❯ src/host/world/FrozenLiveOwnerDomainsV3.test.ts (2 tests | 2 failed) 140ms
+   × retains exact frozen-v1 census bytes independently of v3 tables or their future work 73ms
+     → expected [Function] to throw error including 'before every original physical work' but got 'same-PA enrollment must precede every…'
+   × detects raw v3 pitch claims when cached scope columns point at another pitch 67ms
+     → expected [Function] to throw an error
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/host/world/FrozenLiveOwnerDomainsV3.test.ts > retains exact frozen-v1 census bytes independently of v3 tables or their future work
+AssertionError: expected [Function] to throw error including 'before every original physical work' but got 'same-PA enrollment must precede every…'
+
+Expected: "before every original physical work"
+Received: "same-PA enrollment must precede every original physical work/pitch claim"
+
+ ❯ src/host/world/FrozenLiveOwnerDomainsV3.test.ts:25:96
+     23|     expect(digest()).toBe(frozenV1Digest);
+     24|     expect(() => assertActualLiveRegistrationBeforeWork(db, scope)).to…
+     25|     expect(() => assertSamePaRegistrationBeforeWork(db, { ...scope, ac…
+       |                                                                                                ^
+     26|     expect(digest()).toBe(frozenV1Digest);
+     27|   } finally { db.close(); }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/host/world/FrozenLiveOwnerDomainsV3.test.ts > detects raw v3 pitch claims when cached scope columns point at another pitch
+AssertionError: expected [Function] to throw an error
+
+- Expected: 
+null
+
++ Received: 
+undefined
+
+ ❯ src/host/world/FrozenLiveOwnerDomainsV3.test.ts:37:96
+     35|     db.prepare('INSERT INTO batted_world_continuations_v3 VALUES (?,?,…
+     36|     expect(() => assertActualLiveRegistrationBeforeWork(db, scope)).to…
+     37|     expect(() => assertSamePaRegistrationBeforeWork(db, { ...scope, ac…
+       |                                                                                                ^
+     38|     expect(digest()).toBe(frozenV1Digest);
+     39|   } finally { db.close(); }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  2 failed | 47 passed (49)
+   Start at  07:16:03
+   Duration  25.42s (transform 4.46s, setup 0ms, collect 8.40s, tests 16.33s, environment 0ms, prepare 230ms)
+

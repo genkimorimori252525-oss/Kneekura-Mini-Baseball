@@ -11,14 +11,14 @@ import { readPlayerReleaseGeometryPrefixFromSqlite } from './SqlitePlayerRelease
 import { readPitchFatiguePolicyFromSqlite } from './SqlitePitchFatiguePolicyStore';
 import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 import type { DurablePhysicalPlateAppearanceActor } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
-import type { AcceptedSamePaFirstPitchAction } from './SamePlateAppearanceDispatchSource';
+import type { AcceptedSamePaFirstPitchAction, SamePaNominalTakePitch } from './SamePlateAppearanceDispatchSource';
 import type { SamePaExecutionView } from './SamePlateAppearanceExecutionView';
 
 /** Bounded source consistency only: the existing Core delivery/TAKE math checks
  * LAN's two TAKEs and third pitch against a separately declared finite hold.
  * It accepts no pitch, posture, workload, contact, field or official result. */
 export const checkSamePaOccupiedPhysicalTiming = (input: CanonicalPitchDeliveryInput,
-  nominal: AcceptedSamePaFirstPitchAction['nominalPitch'], firstFatigue: number, laterFatigue: number,
+  nominal: SamePaNominalTakePitch, firstFatigue: number, laterFatigue: number,
   policy: PitchFatigueExecutionPolicy, gameDay: number, holdThroughTick: number) => {
   let ready = input.readyAtUs;
   const takes = [firstFatigue, laterFatigue].map((fatigue, pitchIndex) => {
@@ -46,6 +46,7 @@ export const checkSamePaOccupiedPhysicalTiming = (input: CanonicalPitchDeliveryI
 
 export const checkSamePaOccupiedPhysicalTimingFromSqlite = (db: DatabaseSync, actor: DurablePhysicalPlateAppearanceActor,
   original: AcceptedSamePaFirstPitchAction, view: SamePaExecutionView, holdThroughTick: number) => withSqliteReadTransaction(db, () => {
+  if(original.variant!=='declared_take_v1')throw new Error('occupied TAKE timing fixture requires a declared take');
   const pitcher = view.participants.find(p => p.playerId === original.pitcherPlayerId);
   if (!pitcher) throw new Error('occupied fixture original pitcher state missing');
   if (pitcher.activity.kind !== 'MATCH') throw new Error('occupied fixture requires the original MATCH workload activity');

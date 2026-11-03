@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-MATERIAL-HISTORY",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "npx.cmd",
+    "vitest",
+    "run",
+    "src/core/sim/ball/SourceBallMaterialHistoryV1.test.ts",
+    "src/core/sim/ball/SourceFreeBallKernel.test.ts",
+    "src/core/sim/pitching/BaseballOrientation.test.ts"
+  ],
+  "observed_at": "2026-10-15T16:01:24.796+00:00",
+  "elapsed_ms": 2031,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-MATERIAL-HISTORY_8f077495129a4c408a3df2d9cfe7777a.log",
+  "output_sha256": "48b2337a4ab6f9fdd7726a1a6358b101660885fc9b0385f9c828b7b97ffcb29e",
+  "receipt_id": "MB-20261016-MATERIAL-HISTORY_8f077495129a4c408a3df2d9cfe7777a"
+}

@@ -1,17 +1,17 @@
+import { planBattingMotorV1, type BattingMotorPlanInputV1 } from './BattingMotorPlanV1';
+import { calculateObservedSpinAimTrialV226, type ObservedSpinAimTrialInputV226 } from './ObservedSpinAimTrialV226';
+import { calculateObservedSpinMotorPlanV123, readSpinMotorContextV123, type SpinMotorContextV123, type SpinMotorPlanV123 } from './SpinMotorPlanV123';
 import type { EmotionResult } from '../EmotionTypes';
-import { attempt, integer, obj, fail } from '../EmotionValidation';
+import { attempt, integer, obj, fail, text } from '../EmotionValidation';
 import { cloneExecutionData } from '../execution/ExecutionValidation';
-import { planAerodynamicCourseAwareSwingV1 } from '../../../sim/pitching/AerodynamicCourseAwareSwingV1';
-import { shiftSwingKinematicsTrajectoryV1 } from '../../../sim/contact/SwingKinematicsV1';
-import type { BattingCommitment, BattingExecutionProposal, BattingExecutionRequest, BattingSource } from './BattingTypes';
-import { coreCall, readBattingRequest, readBattingDecisionValues, readBattingRepertoireValues, numberValue } from './BattingValidation';
-import { resolveMotorStart, selectPredictionAt } from './BattingTiming';
-import { assertSwingSpeedEnvelope } from './BattingSpeedEnvelope';
+import type { BattingCommitment, BattingExecutionProposal, BattingExecutionRequest, BattingSource, BattingRepertoireValues } from './BattingTypes';
+import { readBattingRequest, readBattingDecisionValues, readBattingRepertoireValues, numberValue } from './BattingValidation';
+import { selectPredictionAt } from './BattingTiming';
 
 export type BattingExecutionValues = Readonly<{
  decision: BattingSource['decisionModel'];
  motor: Pick<BattingSource,'motorLatencyTicks'|'technicalTimingOffsetTicks'|'maximumSweetSpotSpeedMps'>;
- repertoire: Pick<BattingSource,'repertoireId'|'repertoireVersion'|'profiles'>;
+ repertoire: BattingRepertoireValues;
 }>;
 export type BattingExecutionCalculationInput = Readonly<{ nominalRequest: BattingExecutionRequest; effectiveValues: BattingExecutionValues }>;
 export type BattingExecutionCalculation = BattingExecutionCalculationInput & Readonly<{
@@ -20,7 +20,8 @@ export type BattingExecutionCalculation = BattingExecutionCalculationInput & Rea
 }>;
 function nominalValues(s:BattingSource):BattingExecutionValues {
  return {decision:s.decisionModel,motor:{motorLatencyTicks:s.motorLatencyTicks,technicalTimingOffsetTicks:s.technicalTimingOffsetTicks,
-  maximumSweetSpotSpeedMps:s.maximumSweetSpotSpeedMps},repertoire:{repertoireId:s.repertoireId,repertoireVersion:s.repertoireVersion,profiles:s.profiles}};
+  maximumSweetSpotSpeedMps:s.maximumSweetSpotSpeedMps},repertoire:{repertoireId:s.repertoireId,repertoireVersion:s.repertoireVersion,profiles:s.profiles,
+   ...(Object.hasOwn(s,'sampledProfiles')?{sampledProfiles:s.sampledProfiles}:{})}};
 }
 function readValues(raw:unknown):BattingExecutionValues {
  const p='batting.effectiveValues',v=obj(raw,['decision','motor','repertoire'],p);
@@ -38,7 +39,12 @@ function readValues(raw:unknown):BattingExecutionValues {
 }
 /** Commit using observer predictions only; actual pitch geometry cannot enter this calculation.
  * Effective values are separate arguments: never an altered v1 Source or owner claim. */
-function calculate(request:BattingExecutionRequest,values:BattingExecutionValues):Pick<BattingExecutionProposal,'scheduledTick'|'status'|'commitment'> {
+type TrialResultV226 = Extract<ReturnType<typeof calculateObservedSpinAimTrialV226>, {ok:true}>['value'];
+type TrialContextV226 = Omit<ObservedSpinAimTrialInputV226,'version'|'base'>;
+type TrialResolverV226 = (input:BattingMotorPlanInputV1)=>ReturnType<typeof calculateObservedSpinAimTrialV226>;
+function calculate(request:BattingExecutionRequest,values:BattingExecutionValues,spinContext?:SpinMotorContextV123,trialResolver?:TrialResolverV226):
+ Pick<BattingExecutionProposal,'scheduledTick'|'status'|'commitment'> & Readonly<{spinMotorPlanV123?:SpinMotorPlanV123;observedSpinAimTrialV226?:TrialResultV226['trace']}> {
+  if(spinContext&&trialResolver)fail('INVALID_INPUT','batting.ambiguousSpinTrial');
   const s=request.source,accepted=request.acceptedExecution.proposal;
   const scheduled=accepted.inputs.swingDecision,now=request.currentFrame.time.tick;
   const shell={scheduledTick:scheduled.tick};
@@ -54,19 +60,18 @@ function calculate(request:BattingExecutionRequest,values:BattingExecutionValues
    adjustedSwingScore:score,profileId:null,profileVersion:null,preferredStartTick:null,motorStartTick:null,motorDelayTicks:0,
    technicalTimingOffsetTicks:values.motor.technicalTimingOffsetTicks,trajectory:null};
   if(!shouldSwing)return {...shell,status:'READY',commitment:base};
-  const profile=values.repertoire.profiles.filter(x=>x.minimumAggression<=accepted.inputs.swingAggression).at(-1)!.profile;
-  const planned=coreCall('batting.plan',()=>planAerodynamicCourseAwareSwingV1({predictedTrajectory:prediction!.trajectory,
-   plateZ:s.plateZ,strikeZone:s.strikeZone,handedness:s.handedness,batterCenterOfMass:s.centerOfMass,physical:s.batPhysical,profile}));
-  if(planned===null)return {...shell,status:'UNRESOLVED_PREDICTION',commitment:null};
-  const preferred=coreCall('batting.technicalTiming',()=>shiftSwingKinematicsTrajectoryV1(planned.swingPlan.trajectory,values.motor.technicalTimingOffsetTicks));
-  const motorStartTick=resolveMotorStart(preferred.startTick,now,s.bodyReadyTick,values.motor.motorLatencyTicks);
-  if(motorStartTick>s.latestMotorStartTick)return {...shell,status:'MOTOR_WINDOW_MISSED',commitment:null};
-  const motorDelayTicks=motorStartTick-preferred.startTick;
-  const trajectory=coreCall('batting.motorTiming',()=>shiftSwingKinematicsTrajectoryV1(preferred,motorDelayTicks));
-  assertSwingSpeedEnvelope(trajectory,values.motor.maximumSweetSpotSpeedMps);
-  cloneExecutionData(trajectory,'batting.trajectory');
-  return {...shell,status:'READY',commitment:{...base,profileId:profile.profileId,profileVersion:profile.version,
-   preferredStartTick:preferred.startTick,motorStartTick,motorDelayTicks,trajectory}};
+  const motorInput={decisionTick:now,aggression:accepted.inputs.swingAggression,geometry:{handedness:s.handedness,
+   centerOfMass:s.centerOfMass,batPhysical:s.batPhysical,plateZ:s.plateZ,strikeZone:s.strikeZone,
+   bodyReadyTick:s.bodyReadyTick,latestMotorStartTick:s.latestMotorStartTick},
+   motor:values.motor,repertoire:values.repertoire,forecast:{observedTick:prediction!.observedTick,
+    availableTick:prediction!.availableTick,validUntilTick:prediction!.validUntilTick,trajectory:prediction!.trajectory}};
+  const spin=spinContext?calculateObservedSpinMotorPlanV123({...spinContext,base:motorInput}):null;
+  if(spin&&!spin.ok)fail(spin.reason.code,spin.reason.path);
+  const trial=trialResolver?trialResolver(motorInput):null;if(trial&&!trial.ok)fail(trial.reason.code,trial.reason.path);
+  const trace=spin?.ok?{spinMotorPlanV123:spin.value}:trial?.ok?{observedSpinAimTrialV226:trial.value.trace}:{},
+    plan=spin?.ok?spin.value.plan:trial?.ok?trial.value.plan:planBattingMotorV1(motorInput);
+  if(plan.status!=='READY')return {...shell,...trace,status:plan.status,commitment:null};
+  return {...shell,...trace,status:'READY',commitment:{...base,...plan.motion}};
  }
 
 /** Legacy shape, validation and results remain unchanged. */
@@ -83,5 +88,53 @@ export function calculateBattingExecution(input:unknown):EmotionResult<BattingEx
   const nominalRequest=readBattingRequest(raw.nominalRequest),effectiveValues=readValues(raw.effectiveValues);
   return {algorithm:'batting-execution-calculation-v1' as const,nominalRequest,effectiveValues,...calculate(nominalRequest,effectiveValues)};
  });
+}
+export type BattingSpinExecutionCalculationV123=BattingExecutionCalculationInput&Readonly<{
+ algorithm:'batting-spin-execution-calculation-v123';spinContext:SpinMotorContextV123;spinMotorPlanV123:SpinMotorPlanV123|null;
+ scheduledTick:number;status:BattingExecutionProposal['status'];commitment:BattingCommitment|null;
+}>;
+/** Explicit opt-in calculation only. The original v1 Source stays byte-exact.
+ * Native adoption must bind the fixed skill/model references and recompute this
+ * same calculation at commit/replay; this result alone grants no authority. */
+export function calculateBattingSpinExecutionV123(input:unknown):EmotionResult<BattingSpinExecutionCalculationV123>{
+ return attempt(()=>{
+  const p='batting.spinCalculationV123',raw=obj(cloneExecutionData(input,p),['nominalRequest','effectiveValues','spinContext'],p);
+  const nominalRequest=readBattingRequest(raw.nominalRequest),effectiveValues=readValues(raw.effectiveValues),
+   spinContext=readSpinMotorContextV123(raw.spinContext,nominalRequest.currentFrame.time.tick,effectiveValues.repertoire.profiles.length),
+   {spinMotorPlanV123=null,...result}=calculate(nominalRequest,effectiveValues,spinContext);
+  return {algorithm:'batting-spin-execution-calculation-v123' as const,nominalRequest,effectiveValues,spinContext,spinMotorPlanV123,...result};
+ });
+}
+export type BattingObservedSpinAimTrialCalculationV226=BattingExecutionCalculationInput&Readonly<{
+ algorithm:'batting-observed-spin-aim-trial-v226';trialContext:TrialContextV226;observedSpinAimTrialV226:TrialResultV226['trace']|null;
+ scheduledTick:number;status:BattingExecutionProposal['status'];commitment:BattingCommitment|null;
+}>;
+/** Explicit uncalibrated trial. It cannot grant a qualification or change a
+ * TAKE decision; the normal score/decision path remains the sole SWING owner. */
+export function calculateBattingObservedSpinAimTrialV226(input:unknown):EmotionResult<BattingObservedSpinAimTrialCalculationV226>{
+ return attempt(()=>{
+  const p='batting.spinAimCalculationV226',raw=obj(cloneExecutionData(input,p),['nominalRequest','effectiveValues','trialContext'],p),
+   nominalRequest=readBattingRequest(raw.nominalRequest),effectiveValues=readValues(raw.effectiveValues),
+   trial=obj(raw.trialContext,['selectedProfile','pair','transform','trace'],p+'.trialContext'),
+   profile=obj(trial.selectedProfile,['profileId','version'],p+'.profile'),pair=obj(trial.pair,['anchor','target'],p+'.pair'),
+   trace=obj(trial.trace,['sourceId','observationIds','cutoffTick','coordinateSystem'],p+'.trace');
+  text(profile.profileId,p+'.profileId');text(profile.version,p+'.profileVersion');text(trace.sourceId,p+'.sourceId');
+  const anchor=obj(pair.anchor,['x','y','z'],p+'.anchor'),target=obj(pair.target,['x','y','z'],p+'.target');
+  for(const point of [anchor,target])for(const key of ['x','y','z'])numberValue(point[key],p+'.'+key);
+  if(anchor.z!==target.z||trial.transform!=='PLATE_XY_TRANSLATION_V1'||trace.coordinateSystem!=='NATIVE_RBOX_METERS_V1'
+   ||!Array.isArray(trace.observationIds)||trace.observationIds.length<1||trace.observationIds.length>3
+   ||trace.observationIds.some(id=>typeof id!=='string'||!id.length||id!==id.trim())||new Set(trace.observationIds).size!==trace.observationIds.length
+   ||integer(trace.cutoffTick,p+'.cutoffTick')>nominalRequest.currentFrame.time.tick)fail('INVALID_INPUT',p+'.trialContext');
+  const trialContext=trial as unknown as TrialContextV226,
+   {observedSpinAimTrialV226=null,...result}=calculate(nominalRequest,effectiveValues,undefined,
+    base=>calculateObservedSpinAimTrialV226({version:'observed_spin_aim_trial_v226',base,...trialContext}));
+  return {algorithm:'batting-observed-spin-aim-trial-v226' as const,nominalRequest,effectiveValues,trialContext,observedSpinAimTrialV226,...result};
+ });
+}
+/** Same pure motor computation; qualification is authenticated by the Host. */
+export type BattingQualifiedSpinAimCalculationV233=Omit<BattingObservedSpinAimTrialCalculationV226,'algorithm'>&Readonly<{algorithm:'batting-qualified-spin-aim-v233'}>;
+export function calculateBattingQualifiedSpinAimV233(input:unknown):EmotionResult<BattingQualifiedSpinAimCalculationV233>{
+ const result=calculateBattingObservedSpinAimTrialV226(input);if(!result.ok)return result;
+ return {ok:true,value:{...result.value,algorithm:'batting-qualified-spin-aim-v233'}};
 }
 export { calculateBattingObservation } from './BattingObservationCalculation';

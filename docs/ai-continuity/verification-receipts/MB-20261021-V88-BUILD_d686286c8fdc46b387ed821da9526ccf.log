@@ -1,0 +1,11 @@
+▲ [WARNING] "youkaishomecoming:yukari" is not a valid value for the "type" field [package.json]
+
+    ../../../../../../package.json:1:8:
+      1 │ {"type":"youkaishomecoming:yukari","texture":"touhou_little_maid:te...
+        ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The "type" field must be set to either "commonjs" or "module".
+
+{"outfile":"dist/native-match-core-browser.js","bytes":955226,"sha256":"f27760e65100b6f1d998008dc521ff996b2a76d1d04b9dd2aeec523779bfe29b","inputCount":132,"inputManifestSha256":"be169ffdada5942b9f1ebe31ba59e539f483490d16d68c5692e8c8bcd8ec00b2","exports":["createNativeSinglePaSession","issueNativeCommandPitch","observeNativePitch","createNativeAerodynamicSession","observeNativeAerodynamicPitch","createReferenceAerodynamicPhysicalSource","observeNativeFreeBallContinuation","createSourceBallMaterialHistoryV1","createSourceBallMaterialHistoryFromContinuationV3","createExecutedFieldWorldObserverV1","createLiveBaseballMatchV1"]}
+{"path":"C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv88_TBD_vs_LAD_空振りとHR見送り版.html","sha256":"37aed54222332dbc823b7dee82cd030789b7eb62f4a56de75633e1d4825723c2"}
+{"path":"C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\カメラワーク調整室_v88_空振りとHR見送り.html","sha256":"dd8ac8670b5332bd1acfa11e4d5c9853d42aec8ebae8754382c8a4da002f97ee"}

@@ -1,0 +1,25 @@
+{
+  "pass": false,
+  "phase": "independent-roster",
+  "faults": [
+    {
+      "label": "v76",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "v77-normal",
+      "errors": [],
+      "external": []
+    }
+  ],
+  "normalSha256": "58319352d3fd31465c0ada0dd48a60ebcc9431c9aba86783e48523b591248c21",
+  "workbenchSha256": "97fea36b4c560e29724c311b7cbdf6162063adf1f7a887b23d91beedab4962ad",
+  "coreSha256": "6f7f9343b3a242a7f1e107413ff9b0a94663dc56e530290080db00cc98c7be31",
+  "baseline": {
+    "records": 6,
+    "sourceSha256": "db7103e17aedbd95de83236d610a410f91fce638b3e4817a59edda2e3021010d",
+    "exact": true
+  },
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n'true' !== 'false'\n\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v77-game.mjs:47:9"
+}

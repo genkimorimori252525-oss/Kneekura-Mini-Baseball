@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V60-NAMES-UNIT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-name-presentation-v60.mjs"
+  ],
+  "observed_at": "2026-10-18T18:54:39.253+00:00",
+  "elapsed_ms": 94,
+  "git_head": "2cf8d9a7ad3f8ba8f981f4067d64be90f6eeb170",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V60-NAMES-UNIT_4e413f1e0c7e4051ad8091b84d90d187.log",
+  "output_sha256": "a32c631d0d40f5942c53dfea673086705f930d5bdb1cbef860e9528460d8d109",
+  "receipt_id": "MB-20261019-V60-NAMES-UNIT_4e413f1e0c7e4051ad8091b84d90d187"
+}

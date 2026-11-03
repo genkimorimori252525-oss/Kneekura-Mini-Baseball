@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-FIELD-V6-ALL-RAW-REGRESSIONS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../live-field-raw-replay-batch.mjs",
+    "../../outputs/verification-v33-live-browser-full-v3/failure-1200.json",
+    "../../outputs/verification-v33-live-browser-full-v2/failure-1200.json",
+    "../../outputs/verification-authored-with-bat-v33-population-final-v1",
+    "../../outputs/verification-authored-with-bat-v33-population-probe-v1"
+  ],
+  "observed_at": "2026-10-17T01:07:52.397+00:00",
+  "elapsed_ms": 10968,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-FIELD-V6-ALL-RAW-REGRESSIONS_089639d89e8d40f2a2815c50ae18df9a.log",
+  "output_sha256": "5611b65176f062db5eb16623d2bbeeb0c54ad961e892120723e7f1fd978ba07c",
+  "receipt_id": "MB-20261017-FIELD-V6-ALL-RAW-REGRESSIONS_089639d89e8d40f2a2815c50ae18df9a"
+}

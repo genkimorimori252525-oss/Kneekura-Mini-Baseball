@@ -1,0 +1,10 @@
+{
+  "title": "[example] UI state resets when returning to a tab",
+  "reproduction": "1. Start the app in a clean local test environment.\n2. Select tab B.\n3. Switch to tab A and back to B.",
+  "expected": "Tab B retains its selection.",
+  "actual": "Tab B reverts to the default selection.",
+  "verification": "Sample only — replace with an actual test name and its observed result.",
+  "environment": "Development branch and version (no private paths or credentials).",
+  "severity": "medium",
+  "verified": false
+}

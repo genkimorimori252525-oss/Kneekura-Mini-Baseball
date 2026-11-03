@@ -1,0 +1,20 @@
+{
+  "pass": false,
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v79_63コースとシーズン成績版.html",
+  "sha256": "9d829759416573cb41cd8120931d4ac2a5bf437ae7d6413a0cedaa3f79476783",
+  "scope": "v79 maker course/direction authoring, season practice/close/JSON, shared trial and 1200/390 browser UI. No full-match calibration claim.",
+  "physicalGameSource": {
+    "path": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\docs\\verification\\releases\\v79\\game\\finished-local-game.json",
+    "sha256": "1102de18d87d02a91c7710aab65deb982911d342d6a8be645349b0049492bf7e"
+  },
+  "views": [],
+  "progress": [],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    }
+  ],
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\nfalse !== true\n\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-maker-course-v79.mjs:24:300"
+}

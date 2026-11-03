@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-TEAM-MOTOR-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/SamePlateAppearanceTeamMotorSelectionV1.test.ts"
+  ],
+  "observed_at": "2026-10-14T22:36:48.781+00:00",
+  "elapsed_ms": 9796,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-TEAM-MOTOR-RED_33f4eb63b4ee406c8a836d6017585f54.log",
+  "output_sha256": "8102c07352b3e36ac8e3b8261d277afd6431d161f933f69ff792df43ae1c6d77",
+  "receipt_id": "MB-20261015-TEAM-MOTOR-RED_33f4eb63b4ee406c8a836d6017585f54"
+}

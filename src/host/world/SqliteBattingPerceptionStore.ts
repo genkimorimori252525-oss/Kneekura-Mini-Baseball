@@ -178,7 +178,7 @@ const assembly = (db: DatabaseSync, fresh: boolean) => {
       if ([...b.actor.world.runners, ...b.actor.world.defenders].some(d => d.velocity.x !== 0 || d.velocity.z !== 0)) return pending('owned_moving_body_cut_required');
       const originals = readSamePaOriginalParticipants(db, b.actor), holds = readSamePaOccupiedRunnerHolds(db, b.actor,
         lineage.enrollmentReference, source.occupiedRunnerHoldReferences, g.startedAtTick, g.validUntilTick);
-      if (action.kind === 'action_prepared') same(source.occupiedRunnerHoldReferences, action.source.occupiedRunnerHoldReferences);
+      if (action.kind === 'action_prepared') same(source.occupiedRunnerHoldReferences??null, action.source.occupiedRunnerHoldReferences??null);
       const expected = originals.filter(p => p.role !== 'batter').map(p => p.binding.playerId).sort(); same(source.sceneBodyReferences.map(r => r.playerId).sort(), expected);
       const bodies = playerBodyCapabilityMaterializationEvidenceFromSqlite(db), sceneBodies = source.sceneBodyReferences.map(pin => {
         const body = bodies.read(pin.bodyReference.sourceId); if (!body) return null; same(reference(pin.bodyReference.owner, body), pin.bodyReference);

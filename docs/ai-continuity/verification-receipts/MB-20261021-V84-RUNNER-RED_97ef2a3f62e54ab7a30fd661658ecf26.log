@@ -1,0 +1,83 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/running/LiveRunnerRetreatMotionV1.test.ts (4 tests | 2 failed) 12ms
+   × brakes actual outward momentum before reversing and physically retouches origin 8ms
+     → expected 4.5 to be close to 3.3, received difference is 1.2000000000000002, but expected 5e-13
+   × preserves continuous position and velocity at the stopping join, within configured speed and longitudinal braking limits 1ms
+     → expected 5.406900024207477e-7 to be less than 1e-10
+ ❯ src/core/sim/running/LiveRunnerMotionV1.test.ts (12 tests | 3 failed) 66ms
+   × LiveRunnerMotionV1 > uses declining propulsion bands and stronger braking for a stop-to-stop straight leg 7ms
+     → expected 5.029 to be close to 5.0063015873015875, received difference is 0.02269841269841244, but expected 5e-11
+   × LiveRunnerMotionV1 > uses authored radius/lateral ability to cap turning without changing run acceleration 3ms
+     → expected [ +0, 5, 3.5, 1.75, -9 ] to include -5
+   × LiveRunnerMotionV1 > keeps short triangular stop legs and arbitrary moving headings continuous 1ms
+     → expected 0.894427190999916 to be close to 0.7927836538722185, received difference is 0.10164353712769747, but expected 5e-11
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/running/LiveRunnerMotionV1.test.ts > LiveRunnerMotionV1 > uses declining propulsion bands and stronger braking for a stop-to-stop straight leg
+AssertionError: expected 5.029 to be close to 5.0063015873015875, received difference is 0.02269841269841244, but expected 5e-11
+ ❯ src/core/sim/running/LiveRunnerMotionV1.test.ts:24:31
+     22|     const accelerationDistance = 2 ** 2 / 10 + (5.2 ** 2 - 2 ** 2) / 7…
+     23|     const accelerationTime = 2 / 5 + 3.2 / 3.5 + 2.8 / 1.75;
+     24|     expect(m.durationSeconds).toBeCloseTo(accelerationTime + (27.432 -…
+       |                               ^
+     25|     expect(m.sampleAtElapsedSeconds(.5).position.x).toBeCloseTo(.6175,…
+     26|     expect(m.sampleAtElapsedSeconds(.5).speedMps).toBeCloseTo(2.35, 12…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  src/core/sim/running/LiveRunnerMotionV1.test.ts > LiveRunnerMotionV1 > uses authored radius/lateral ability to cap turning without changing run acceleration
+AssertionError: expected [ +0, 5, 3.5, 1.75, -9 ] to include -5
+ ❯ src/core/sim/running/LiveRunnerMotionV1.test.ts:104:37
+    102|     expect(wide.sampleAtElapsedSeconds(wide.touches[0].centerElapsedSe…
+    103|     for (const m of [tight, wide]) for (const s of m.speedSegments)
+    104|       expect([0, 5, 3.5, 1.75, -9]).toContain(s.accelerationMps2);
+       |                                     ^
+    105|   });
+    106| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  src/core/sim/running/LiveRunnerMotionV1.test.ts > LiveRunnerMotionV1 > keeps short triangular stop legs and arbitrary moving headings continuous
+AssertionError: expected 0.894427190999916 to be close to 0.7927836538722185, received difference is 0.10164353712769747, but expected 5e-11
+ ❯ src/core/sim/running/LiveRunnerMotionV1.test.ts:110:35
+    108|     const short = motion({ bases: [{ base: 1, position: v(1, 0) }] });
+    109|     const peak = Math.sqrt((1 - .4 + 4 / 7) / (1 / 7 + 1 / 18));
+    110|     expect(short.durationSeconds).toBeCloseTo(.4 + (peak - 2) / 3.5 + …
+       |                                   ^
+    111|     const m = motion({ velocity: v(3, 1) });
+    112|     const first = m.sampleAtElapsedSeconds(1e-7);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  src/core/sim/running/LiveRunnerRetreatMotionV1.test.ts > brakes actual outward momentum before reversing and physically retouches origin
+AssertionError: expected 4.5 to be close to 3.3, received difference is 1.2000000000000002, but expected 5e-13
+ ❯ src/core/sim/running/LiveRunnerRetreatMotionV1.test.ts:8:56
+      6|     bases, originBase: 1, lastTouchedBase: 1, topSpeedMps: 8, accelera…
+      7|   expect(motion.sampleAtElapsedSeconds(0)).toMatchObject({ position: {…
+      8|   expect(motion.sampleAtElapsedSeconds(.3).velocity.x).toBeCloseTo(3.3…
+       |                                                        ^
+      9|   expect(motion.sampleAtElapsedSeconds(2 / 3).velocity.x).toBe(0);
+     10|   expect(motion.sampleAtElapsedSeconds(.8).velocity.x).toBeLessThan(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  src/core/sim/running/LiveRunnerRetreatMotionV1.test.ts > preserves continuous position and velocity at the stopping join, within configured speed and longitudinal braking limits
+AssertionError: expected 5.406900024207477e-7 to be less than 1e-10
+ ❯ src/core/sim/running/LiveRunnerRetreatMotionV1.test.ts:30:98
+     28|     bases, originBase: 1, lastTouchedBase: 1, topSpeedMps: 8, accelera…
+     29|     before = motion.sampleAtElapsedSeconds(join - 1e-7), after = motio…
+     30|   expect(Math.hypot(before.position.x - after.position.x, before.posit…
+       |                                                                                                  ^
+     31|   expect(Math.hypot(before.velocity.x - after.velocity.x, before.veloc…
+     32|   for (let t = 0; t < motion.durationSeconds; t += .017) expect(motion…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+ Test Files  2 failed (2)
+      Tests  5 failed | 11 passed (16)
+   Start at  00:14:08
+   Duration  1.21s (transform 972ms, setup 0ms, collect 1.03s, tests 78ms, environment 0ms, prepare 389ms)
+

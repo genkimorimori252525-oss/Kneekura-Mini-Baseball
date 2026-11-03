@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V63-CADENCE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v56-cadence.mjs",
+    "../../outputs/ばせぼーるlv63_TBD_vs_LAD_打者の身体連動版.html",
+    "../../outputs/カメラワーク調整室_v63.html",
+    "../../outputs/verification-v63-cadence"
+  ],
+  "observed_at": "2026-10-18T20:00:25.220+00:00",
+  "elapsed_ms": 9250,
+  "git_head": "ff8b757a14029ff36934c1103bf8fe8837829a77",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V63-CADENCE_34e968da70b84165a17bc8365bccc092.log",
+  "output_sha256": "4b277a1d3999fe20ee4064ed010baad9cfb4b2cd8520d4294bb5b00a49aa7387",
+  "receipt_id": "MB-20261019-V63-CADENCE_34e968da70b84165a17bc8365bccc092"
+}

@@ -1,0 +1,1 @@
+{"pass":false,"phase":"pixel-clock-1200","error":"AssertionError [ERR_ASSERTION]: visible batter canvas must equal the ordinary-game layer copy\n+ actual - expected\n\n+ '79e7c1c4305edae82ef03f59d18a661b2c28297ae3c31b9132c3e5cc90f1803d'\n- '55afe8a9d156ca08b5165be4ba4016887a2da9a63009f81694d24865171cf253'\n"}

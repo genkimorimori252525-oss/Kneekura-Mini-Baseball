@@ -1,0 +1,115 @@
+import { expect, it } from 'vitest';
+import { createSourceFreeBallKernel } from '../../core/sim/ball/SourceFreeBallKernel';
+import { forecastObservedPitchV151, type ObservedPitchPositionV151 } from '../../core/decision/batting/ObservedPitchForecastV151';
+import { LIVE_MATCH_PHYSICS_V1 } from './LiveBaseballMatchV1';
+import { AUTHORED_LIVE_BATTER_OBSERVATION_V151, createLiveBatterPositionObserverV151,
+  validateLiveBatterObservationPolicyV151, type LiveBatterObservationPolicyV151 } from './LiveBatterObservationV151';
+
+const originTick = 1000000, policy = ():LiveBatterObservationPolicyV151 => ({ ...AUTHORED_LIVE_BATTER_OBSERVATION_V151,
+  sourceId:'position-boundary-test', memoryPolicy:{ ...AUTHORED_LIVE_BATTER_OBSERVATION_V151.memoryPolicy } });
+const source = (throughElapsedSeconds = .8, speed = -40) => createSourceFreeBallKernel({ kind:'aero_ground_continuous_source_kernel_v2',
+  initial:{ originTick, elapsedSeconds:0, ball:{ tick:originTick, position:{ x:0, y:1.8, z:17 },
+    velocity:{ x:.2, y:-.5, z:speed }, spin:{ x:-200, y:10, z:0 } } }, throughElapsedSeconds, profile:LIVE_MATCH_PHYSICS_V1 });
+const position = (kernel:ReturnType<typeof source>, seconds:number) => {
+  const sample = kernel.evaluateAt(seconds).moment.ball;return { tick:sample.tick, position:sample.position };
+};
+
+it('owns the release plane and clocks independently of caller changes and its cutoff cache', () => {
+  const kernel = source(), input = { policy:policy(), originTick, planeZ:0 },
+    observer = createLiveBatterPositionObserverV151(input, seconds => position(kernel, seconds)),
+    first = observer.forecastAt(1140000);
+  input.planeZ = 20;input.originTick = 7;input.policy = { ...policy(), decisionAfterReleaseTicks:1 };
+  const after = observer.forecastAt(1160000), unchanged = createLiveBatterPositionObserverV151({ policy:policy(), originTick, planeZ:0 },
+    seconds => position(kernel, seconds)).forecastAt(1160000);
+  expect(observer.decisionTick).toBe(1140000);
+  expect(observer.forecastAt(1140000)).toBe(first);
+  expect(after).toEqual(unchanged);
+  expect(after.prediction!.position.z).toBe(0);
+});
+
+it('requests only position times through cutoff minus positive delivery latency and excludes undelivered samples', () => {
+  const kernel = source(), p = { ...policy(), deliveryLatencyTicks:30000 }, calls:number[] = [], cutoffTick = 1140000,
+    observer = createLiveBatterPositionObserverV151({ policy:p, originTick, planeZ:0 }, seconds => { calls.push(seconds);return position(kernel, seconds); }),
+    result = observer.forecastAt(cutoffTick);
+  expect(observer.decisionTick).toBe(originTick + p.decisionAfterReleaseTicks);
+  expect(calls).toEqual([.02, .04, .06, .08, .1]);
+  expect(calls.every(seconds => seconds <= (cutoffTick - originTick - p.deliveryLatencyTicks) / p.ticksPerSecond)).toBe(true);
+  expect(result.status).toBe('PREDICTED');
+  expect(result.usedObservationIds).toEqual([1060000, 1080000, 1100000].map(tick => p.sourceId + ':' + tick));
+  expect(result.availableAtTick).toBe(1130000);
+  expect(result.humanCalibration).toBe('NOT_MEASURED');
+});
+
+it('honors a real Source canonical ceil tick one later than requested without delivering it one tick early', () => {
+  const kernel = source(), p = { ...policy(), deliveryLatencyTicks:10000 }, calls:number[] = [],
+    observer = createLiveBatterPositionObserverV151({ policy:p, originTick, planeZ:0 }, seconds => {
+      calls.push(seconds);
+      // The physical owner's sub-tick sample is real; its authoritative event tick is ceil, not the requested offset.
+      return position(kernel, seconds + .25 / p.ticksPerSecond);
+    }), before = observer.forecastAt(1070000);
+  expect(calls).toEqual([.02, .04, .06]);
+  expect(position(kernel, .06000025).tick).toBe(1060001);
+  expect(before.usedObservationIds).toEqual([1020001, 1040001].map(tick => p.sourceId + ':' + tick));
+  expect(before.observedThroughTick).toBe(1040001);
+  expect(before.availableAtTick).toBe(1050001);
+  const delivered = observer.forecastAt(1070001);
+  expect(delivered.usedObservationIds).toEqual([1020001, 1040001, 1060001].map(tick => p.sourceId + ':' + tick));
+  expect(delivered.availableAtTick).toBe(1070001);
+});
+
+it('stops at a finite Source window null and forecasts only its already retained positions', () => {
+  const kernel = source(.055), p = policy(), calls:number[] = [],
+    observer = createLiveBatterPositionObserverV151({ policy:p, originTick, planeZ:0 }, seconds => {
+      calls.push(seconds);return seconds > kernel.descriptor.throughElapsedSeconds ? null : position(kernel, seconds);
+    }), cutoffTick = 1140000, result = observer.forecastAt(cutoffTick), observations:ObservedPitchPositionV151[] = [.02, .04].map(seconds => {
+      const sample = position(kernel, seconds);return { observationId:p.sourceId + ':' + sample.tick,
+        observedTick:sample.tick, availableTick:sample.tick, position:sample.position };
+    });
+  expect(calls).toEqual([.02, .04, .06]);
+  expect(kernel.descriptor.throughElapsedSeconds).toBe(.055);
+  expect(result).toEqual(forecastObservedPitchV151({ originTick, ticksPerSecond:p.ticksPerSecond, cutoffTick, planeZ:0,
+    maximumAfterReleaseSeconds:p.maximumForecastAfterReleaseSeconds, observations }));
+  expect(result.usedObservationIds).toHaveLength(2);
+  expect(result.status).toBe('PREDICTED');
+});
+
+it('reuses an identical cutoff without new Source reads and is invariant to different future suffix positions', () => {
+  const original = source(), different = source(.8, -15), p = { ...policy(), deliveryLatencyTicks:30000 }, cutoffTick = 1140000,
+    calls:number[] = [], observer = createLiveBatterPositionObserverV151({ policy:p, originTick, planeZ:0 }, seconds => {
+      calls.push(seconds);return position(original, seconds);
+    }), alternate = createLiveBatterPositionObserverV151({ policy:p, originTick, planeZ:0 }, seconds =>
+      position(seconds <= .11 ? original : different, seconds)), first = observer.forecastAt(cutoffTick), reads = calls.length;
+  expect(position(original, .2)).not.toEqual(position(different, .2));
+  expect(observer.forecastAt(cutoffTick)).toBe(first);
+  expect(calls).toHaveLength(reads);
+  expect(alternate.forecastAt(cutoffTick)).toEqual(first);
+  expect(Object.isFrozen(first.prediction!.position)).toBe(true);
+});
+
+it('enforces explicit policy clocks, the 512-position budget and exact position-only fields', () => {
+  const valid = policy();
+  for (const candidate of [{ ...valid, ticksPerSecond:0 }, { ...valid, ticksPerSecond:1.5 }, { ...valid, decisionAfterReleaseTicks:0 },
+    { ...valid, decisionAfterReleaseTicks:2500001 }, { ...valid, positionSampleIntervalTicks:0 }, { ...valid, positionSampleIntervalTicks:1 },
+    { ...valid, positionSampleIntervalTicks:.5 }, { ...valid, deliveryLatencyTicks:-1 }, { ...valid, deliveryLatencyTicks:.5 },
+    { ...valid, maximumForecastAfterReleaseSeconds:0 }, { ...valid, maximumForecastAfterReleaseSeconds:2.6 },
+    { ...valid, ticksPerSecond:NaN }, { ...valid, sourceId:'' }, { ...valid, pitchType:'fastball' },
+    { ...valid, velocity:{ x:0, y:0, z:-40 } }, { ...valid, spin:{ x:0, y:0, z:0 } }, { ...valid, futurePlateTime:.4 },
+    { ...valid, memoryPolicy:{ ...valid.memoryPolicy, privatePitchCall:'curve' } }]) expect(() => validateLiveBatterObservationPolicyV151(candidate)).toThrow();
+  expect(validateLiveBatterObservationPolicyV151({ ...valid, ticksPerSecond:512, decisionAfterReleaseTicks:1,
+    positionSampleIntervalTicks:1, maximumForecastAfterReleaseSeconds:1 }).ticksPerSecond).toBe(512);
+  expect(() => validateLiveBatterObservationPolicyV151({ ...valid, ticksPerSecond:513, decisionAfterReleaseTicks:1,
+    positionSampleIntervalTicks:1, maximumForecastAfterReleaseSeconds:1 })).toThrow();
+});
+
+it('rejects unsafe origin/cutoff clocks and policy accessors without asking the Source for data', () => {
+  let calls = 0, reads = 0;
+  const callback = () => { calls++;return null; }, valid = policy(), accessor = { ...valid };
+  Object.defineProperty(accessor, 'ticksPerSecond', { enumerable:true, get(){ reads++;return 1000000; } });
+  expect(() => validateLiveBatterObservationPolicyV151(accessor)).toThrow();
+  expect(reads).toBe(0);
+  for (const input of [{ policy:valid, originTick:-1, planeZ:0 }, { policy:valid, originTick:Number.MAX_SAFE_INTEGER, planeZ:0 },
+    { policy:valid, originTick, planeZ:NaN }]) expect(() => createLiveBatterPositionObserverV151(input, callback)).toThrow();
+  const observer = createLiveBatterPositionObserverV151({ policy:valid, originTick, planeZ:0 }, callback);
+  for (const cutoff of [originTick - 1, originTick + .5, Infinity]) expect(() => observer.forecastAt(cutoff)).toThrow();
+  expect(calls).toBe(0);
+});

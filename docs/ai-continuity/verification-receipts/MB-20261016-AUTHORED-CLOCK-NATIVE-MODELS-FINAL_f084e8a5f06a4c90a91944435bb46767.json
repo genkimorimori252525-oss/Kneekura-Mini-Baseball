@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-AUTHORED-CLOCK-NATIVE-MODELS-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/native-game/AuthoredMatchClockV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T19:26:49.678+00:00",
+  "elapsed_ms": 8562,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-AUTHORED-CLOCK-NATIVE-MODELS-FINAL_f084e8a5f06a4c90a91944435bb46767.log",
+  "output_sha256": "5b2aa2eeb2e0f1349b50cede72de8060473cbe47fd7896a87050a3a49ad6abd4",
+  "receipt_id": "MB-20261016-AUTHORED-CLOCK-NATIVE-MODELS-FINAL_f084e8a5f06a4c90a91944435bb46767"
+}

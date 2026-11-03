@@ -1,0 +1,8 @@
+{
+  "pass": true,
+  "stagedPaths": 330,
+  "sourceInputs": 134,
+  "allStagedBytesEqualWorkingCopy": true,
+  "allReleaseHashesMatchIndex": true,
+  "userAgentsAndSettingsExcluded": true
+}

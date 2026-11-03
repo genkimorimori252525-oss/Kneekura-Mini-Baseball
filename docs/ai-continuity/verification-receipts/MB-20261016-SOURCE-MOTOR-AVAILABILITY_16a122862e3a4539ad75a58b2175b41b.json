@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-MOTOR-AVAILABILITY",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "npx.cmd",
+    "vitest",
+    "run",
+    "src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T18:06:44.982+00:00",
+  "elapsed_ms": 2500,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-MOTOR-AVAILABILITY_16a122862e3a4539ad75a58b2175b41b.log",
+  "output_sha256": "1edd26bb7a370c6b8b513f5e91532ed6650d774f9dcb641ec9c18157def8be18",
+  "receipt_id": "MB-20261016-SOURCE-MOTOR-AVAILABILITY_16a122862e3a4539ad75a58b2175b41b"
+}

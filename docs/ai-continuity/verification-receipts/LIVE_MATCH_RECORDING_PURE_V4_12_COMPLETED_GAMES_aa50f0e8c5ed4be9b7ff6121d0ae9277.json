@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "LIVE_MATCH_RECORDING_PURE_V4_12_COMPLETED_GAMES",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "--input-type=module",
+    "-e",
+    "import {spawnSync} from \"node:child_process\";import {mkdirSync,copyFileSync,readdirSync,readFileSync,writeFileSync} from \"node:fs\";import {resolve} from \"node:path\";const source=resolve(\"../../outputs/verification-live-match-recordings-pure-v1\"),directory=resolve(\"../../outputs/verification-live-match-recordings-pure-v2\"),reports=[];mkdirSync(directory,{recursive:false});copyFileSync(resolve(source,\"verify.mjs\"),resolve(directory,\"verify.mjs\"));const inputs=JSON.parse(readFileSync(resolve(source,\"copied-inputs.json\"),\"utf8\"));writeFileSync(resolve(directory,\"copied-inputs.json\"),JSON.stringify(inputs,null,2));for(const shard of new Set(inputs.inputs.map(i=>i.shard))){mkdirSync(resolve(directory,shard));for(const {file} of inputs.inputs.filter(i=>i.shard===shard))copyFileSync(resolve(source,shard,file),resolve(directory,shard,file));const result=spawnSync(process.execPath,[resolve(directory,\"verify.mjs\"),resolve(directory,shard),\"0\"],{encoding:\"utf8\",windowsHide:true});if(result.stdout)process.stdout.write(result.stdout);if(result.stderr)process.stderr.write(result.stderr);if(result.status!==0)process.exit(result.status??1);reports.push(JSON.parse(readFileSync(resolve(directory,shard,\"saved-record-verification.json\"),\"utf8\")));}const summary={scope:\"The 12 completed original v4 saved games; incomplete/failed shards remain original evidence and are excluded from this limited check. New rules/identity/completeness verifier only; zero physical re-execution because field source changed\",verifiedGames:reports.reduce((s,r)=>s+r.verifiedGames,0),pitches:reports.reduce((s,r)=>s+r.totalPitches,0),tamperChecks:reports.reduce((s,r)=>s+r.tamperChecks,0),replayedGames:0,nativeAuthentication:false,reports};writeFileSync(resolve(directory,\"summary.json\"),JSON.stringify(summary,null,2),{flag:\"wx\"});console.log(JSON.stringify({...summary,reports:reports.length}));"
+  ],
+  "observed_at": "2026-10-17T01:02:36.845+00:00",
+  "elapsed_ms": 5125,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/LIVE_MATCH_RECORDING_PURE_V4_12_COMPLETED_GAMES_aa50f0e8c5ed4be9b7ff6121d0ae9277.log",
+  "output_sha256": "bba20d800426a93ada7ebccbb917cfc7a7450602f31e0c24dd55ee6693b47039",
+  "receipt_id": "LIVE_MATCH_RECORDING_PURE_V4_12_COMPLETED_GAMES_aa50f0e8c5ed4be9b7ff6121d0ae9277"
+}

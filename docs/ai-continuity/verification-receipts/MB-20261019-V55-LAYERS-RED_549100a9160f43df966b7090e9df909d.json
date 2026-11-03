@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V55-LAYERS-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-camera-workbench-layers-v55.mjs",
+    "../../outputs/v55-layers-old.html",
+    "../../outputs/verification-v55-layers-red",
+    "red"
+  ],
+  "observed_at": "2026-10-18T17:12:13.786+00:00",
+  "elapsed_ms": 41250,
+  "git_head": "e269b85174a18ed1d28f18efd1e1e47377d32a6c",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V55-LAYERS-RED_549100a9160f43df966b7090e9df909d.log",
+  "output_sha256": "bac9f1c30c106e4b7bc7f9ec48c2f966f17f9369b6bd8f56c6962575c6726546",
+  "receipt_id": "MB-20261019-V55-LAYERS-RED_549100a9160f43df966b7090e9df909d"
+}

@@ -1,0 +1,25 @@
+# V153 主観予測からの方向運動登録
+
+2026-10-27 / root / MB-20261027-REALISM-DEBUG-PLAN。本人が依頼したTask3の範囲。前工程V152は限定PASS、全goal/step-007はACTIVE。
+
+現経路は狙う打球角を予定キーのバット芯速度角へ直接置換し、その軸を予測球中心へ重ねる。予定キー以前の表面接触のnormalは別になる。保存済DIRECTION-MOTOR-NEXT.mdの監査を使用し、衝突solverの欠陥と断定しない。
+
+新しい任意policyをLive/Hostへ追加する。V151配達済み位置からのp/v/a予測と本人の意図、自己clip/装備/既存制限だけで名目バット登録を選ぶ。一定加速度の局所予測と未知spin=0は未校正の明示仮定。priorを混ぜた到達時刻へraw推定の微分を運び、そのperceived位置をanchorにする。raw速度がないprior-onlyでは計画を作らず未適用理由を残す。実velocity/spin/profile/未来Source/cell境界を渡さない。
+
+候補は有限yawの登録。球半径とtaperを含む表面配置後、主観予測だけの最初の接触と既存木材応答を評価する。未解決/応答null/制限違反を成功へ変えず、目標残差を保存する。CENTERの角度目標とREACTIVEの目標なしを区別。spin技能の接触offset/attackを保持し、技能結果や法的権限を新しく与えない。
+
+名目sweetSpot/時刻/frame window/rate/準備回復を実行誤差から分け、名目候補決定後にtiming/aim/sweetSpotの誤差を一度適用する。実kernel prefix/lateを含む既存buildReferenceAtRateを候補採点へ流用しない。実行後の有限速度/加速度/準備回復のgateと正史の接触/木材応答/空力は保持する。未適用や不能を暗黙成功・結果角補正へ変えない。
+
+policy省略は旧経路。Makerの新しい別名候補だけ明示採用し、本人JSON/原clip/原PNG/共有dist/V133/旧候補を保持する。通常Hostのcaptureへcanonical bindingを保存し、別policyで再開しない。UI外観は変更しない。
+
+独立レビューで、既存envelope無しreferenceのstart前holdが観測後の登録transformに依存する反例を発見。V153を単にそのreferenceへ接続すると過去poseを書き換える。明示envelopeがないV153適用球だけ、自己clipの登録済みraw first/last poseと既知stanceを固定境界とし、prep0.08s/recovery0.12sのC1 bridgeを補う。時間は未校正の運用値で個人の実測ではない。元JSONへ保存せず、候補の最終全時系列の速度certificateと既存の明示加速度上限を検査する。上限未設定時の計算された加速度boundを人体能力の測定値へ昇格しない。本人の明示envelopeを優先する。方向/観測/実行誤差が異なってもdecisionまでの物理poseが同じという回帰を追加する。
+
+pure予測のanchorは到達時刻の微分基準で、利用可能時刻ではない。負dt側も含めた区間速度上限を計算し、別のavailableTickから待機prefixを含めて接触探索する。運動開始より前に予測上の接触がある反例を後のfree-flight接触で採点してはいけない。実Sourceのcell/接触をこの検査へ流用しない。
+
+V121振り始め加速併用fixtureは全17rate×17yawが速度上限50m/sを超えた。無加工診断83903743では要求rateの予定接触が予測到達より0.11295秒遅く、envelope全体の上限85.11〜99.70m/s（envelope除去の基礎referenceは50）。最低rateでは25秒以上遅れており、低速化で解決する条件ではない。nominal候補ごとに、到達−decision−latency−prepの時間から既存clock integralのphaseを計算し、そのwindowに収まる測定keysを選ぶ。元全keys/JSON/SHAは保持し、切り詰めは当該運動の実行windowだけ。local impact windowは維持する。最終に選んだframesを実行側へ渡す。2.5秒等の本人観測policyの予測horizonを超える名目接触は拒否する。上限や誤差を見て都合のよいseed/結果へ替えない。
+
+その修正後c0b3930eで8/10 PASS、実行誤差seed0の2件がactual速度上限を超えた。名目planを誤差に合わせて選び直さず、誤差適用後・late観測前の自己運動に機械的時間制限を適用する。既知hold開始を固定し、空間path/誤差位置/Source窓は保持、速度・3加速度のcertificateからscaleを計算し、世界時間の準備/ramp/回復を伸ばす。整数startは外向きに丸め再certificate。実球/予測/接触結果はこのscaleへ入力しない。実行は遅れ得るが追い付きの再照準・再加速を加えない。診断に要求planと実行scale/rate/時刻を分ける。独立レビューでもこの条件のactuator saturationは未来誤差相殺ではないことを確認。helper RED032a82d0→3PASS5218042c、統合は実測してから判定する。
+
+検証: pure幾何/鏡像/限界/未解決、統合で誤差だけ変えた名目plan不変、TAKE/BUNT/REACTIVE/観測不足、Host再開/旧省略入力、本人原JSONの固定seed対比較と同Chrome実Worker。Source/成果物pinと全FAILを保存する。復旧は新policy省略/旧候補の利用。通常判断の記録方針に従い進める。Source未commit/push/merge/deploy。
+
+分類/人的校正/通常戦術、キレ、SPIN/SIGN基盤と旧V122/V148残件、性能B/9回/全新版配送は継続し、SIGN自動認定/命名のペナント延期も保持する。

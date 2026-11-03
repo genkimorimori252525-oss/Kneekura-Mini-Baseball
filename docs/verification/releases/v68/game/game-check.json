@@ -1,0 +1,129 @@
+{
+  "pass": true,
+  "phase": "complete",
+  "faults": [
+    {
+      "label": "frozen67",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "normal68-1200",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "normal68-390",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "lab68",
+      "errors": [],
+      "external": []
+    }
+  ],
+  "views": [
+    {
+      "width": 390,
+      "normalReady": true,
+      "actualPitch": true,
+      "noOverflow": true
+    },
+    {
+      "width": 1200,
+      "normalReady": true,
+      "labReady": true
+    },
+    {
+      "width": 390,
+      "labReady": true,
+      "noOverflow": true
+    }
+  ],
+  "normalSha256": "8b709ab3c69fc8bdc5f9980a8b66912e0b9b86f73c67970cc1bf9b37cfa6ccbc",
+  "workbenchSha256": "e9f607f49d101f37e7dc7cb107e5e2f54798f9e3077d1c2e1d54c6dabb591c5e",
+  "baseline": {
+    "records": 6,
+    "sourceSha256": "db7103e17aedbd95de83236d610a410f91fce638b3e4817a59edda2e3021010d"
+  },
+  "catalog": {
+    "trials": 673,
+    "automaticChoices": [
+      "obp-123_6",
+      "obp-190_7",
+      "obp-103_5",
+      "obp-185_5",
+      "obp-254_3",
+      "obp-42_5",
+      "obp-51_3",
+      "obp-313_7",
+      "obp-353_2",
+      "obp-273_4",
+      "obp-56_1",
+      "obp-358_7"
+    ],
+    "expandedChoices": 661
+  },
+  "imports": [
+    {
+      "name": "unknown",
+      "error": "true",
+      "message": "live baseball match: unknown measured clip or wrong batting side for 0-b0",
+      "atomic": true
+    },
+    {
+      "name": "wrong-handed",
+      "error": "true",
+      "message": "live baseball match: unknown measured clip or wrong batting side for 0-b0",
+      "atomic": true
+    },
+    {
+      "name": "window",
+      "error": "true",
+      "message": "live baseball match: impact adjustment window exceeds measured form for 0-b0",
+      "atomic": true
+    }
+  ],
+  "newForm": {
+    "playerId": "0-b0",
+    "clipId": "obp-111_1",
+    "side": "L",
+    "level": 3,
+    "sourceSha256": "c28ef2b224258e6310fedde15c78a78843d3856cffe1d3bf7389afebb7fe8a05",
+    "classification": "live_ball",
+    "actualPhysicalPitch": true
+  },
+  "regulation": {
+    "error": null,
+    "finished": true,
+    "fast": true,
+    "pitches": 320,
+    "match": {
+      "ruleProfileId": "npb-2026",
+      "inning": 9,
+      "half": "top",
+      "outs": 3,
+      "balls": 0,
+      "strikes": 0,
+      "bases": {
+        "first": null,
+        "second": null,
+        "third": null
+      },
+      "score": {
+        "away": 18,
+        "home": 34
+      },
+      "playId": 128
+    },
+    "elapsedMs": 78558,
+    "contacts": 127,
+    "sourceSha256": "6d8ec017b4a0f275ddc3046c564ce8500470acb9b46ea442272c25565de6ce8f"
+  },
+  "sessions": {
+    "oldCoreRejected": "再現sessionのschema／Coreが一致しません。v68では実測フォームと弾道の接続が変わったため、旧版の同一試合としては再現できません",
+    "currentRoundTrip": true,
+    "oldRejectionAtomic": true
+  }
+}

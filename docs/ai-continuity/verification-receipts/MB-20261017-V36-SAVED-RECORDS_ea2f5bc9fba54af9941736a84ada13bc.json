@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V36-SAVED-RECORDS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/verify-live-match-population.mjs",
+    "../../work/v36-field-registration-audit-v1",
+    "../../outputs/verification-v36-registered-two-games",
+    "2",
+    "0"
+  ],
+  "observed_at": "2026-10-17T02:37:02.593+00:00",
+  "elapsed_ms": 452,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V36-SAVED-RECORDS_ea2f5bc9fba54af9941736a84ada13bc.log",
+  "output_sha256": "ad300b7d4a055482a7a544b6c2406fa54c3adffb5b1917d76dd8926c4ffd2afa",
+  "receipt_id": "MB-20261017-V36-SAVED-RECORDS_ea2f5bc9fba54af9941736a84ada13bc"
+}

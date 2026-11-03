@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OBSERVED-MOTOR-CHECKPOINT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../preserve-observed-motor.py"
+  ],
+  "observed_at": "2026-10-16T11:15:02.767+00:00",
+  "elapsed_ms": 406,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OBSERVED-MOTOR-CHECKPOINT_2fa881509d304252976ede95884ebf80.log",
+  "output_sha256": "1b949951445726d38b7cd9f7421ef447060ce49c6bf60444d9a476711d9dec67",
+  "receipt_id": "MB-20261016-OBSERVED-MOTOR-CHECKPOINT_2fa881509d304252976ede95884ebf80"
+}

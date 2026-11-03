@@ -1,0 +1,13 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+page.evaluate: TypeError: Cannot read properties of undefined (reading 'pitches')
+    at eval (eval at evaluate (:311:30), <anonymous>:3:95)
+    at UtilityScript.evaluate (<anonymous>:313:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+    at C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\check-maker-pitcher-v78.mjs:58:29 {
+  log: []
+}
+
+Node.js v26.1.0

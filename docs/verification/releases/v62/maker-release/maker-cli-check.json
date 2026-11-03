@@ -1,0 +1,39 @@
+{
+  "pass": true,
+  "legacyDefaults": {
+    "roster": "docs/demos/live-game-roster-v3.json",
+    "catalog": "docs/demos/live-game-roster-catalog-v4.json"
+  },
+  "overrideSources": {
+    "roster": "docs/demos/live-game-roster-v62.json",
+    "catalog": "docs/demos/live-game-roster-catalog-v62.json"
+  },
+  "checks": [
+    {
+      "args": [
+        "--roster="
+      ],
+      "rejected": true
+    },
+    {
+      "args": [
+        "--catalog="
+      ],
+      "rejected": true
+    },
+    {
+      "args": [
+        "--roster=a",
+        "--roster=b"
+      ],
+      "rejected": true
+    },
+    {
+      "args": [
+        "--catalog=a",
+        "--catalog=b"
+      ],
+      "rejected": true
+    }
+  ]
+}

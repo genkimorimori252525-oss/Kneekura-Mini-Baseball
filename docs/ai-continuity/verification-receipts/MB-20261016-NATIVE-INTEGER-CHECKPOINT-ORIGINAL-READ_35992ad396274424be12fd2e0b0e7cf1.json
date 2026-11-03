@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-NATIVE-INTEGER-CHECKPOINT-ORIGINAL-READ",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-source-integer-checkpoint-v1/entry.mjs",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-source-integer-checkpoint-v1/manifest.json",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-source-integer-checkpoint-v1/run",
+    "prepare"
+  ],
+  "observed_at": "2026-10-15T18:24:40.419+00:00",
+  "elapsed_ms": 42015,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-NATIVE-INTEGER-CHECKPOINT-ORIGINAL-READ_35992ad396274424be12fd2e0b0e7cf1.log",
+  "output_sha256": "1ee9b9c26194c4981d9f4d274de660109af8863ec35ddf7b7fbc18e9fe358252",
+  "receipt_id": "MB-20261016-NATIVE-INTEGER-CHECKPOINT-ORIGINAL-READ_35992ad396274424be12fd2e0b0e7cf1"
+}

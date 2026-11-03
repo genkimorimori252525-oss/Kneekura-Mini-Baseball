@@ -6,6 +6,7 @@ import type { DatabaseSync } from 'node:sqlite';
 import { samePaId as id, samePlateAppearanceEnrollmentInput as input, type ReservedSamePlateAppearanceEnrollment } from './SamePlateAppearanceEnrollment';
 import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { sqliteJsonMetadataNodes as nodes, type SqliteJsonMetadataPath as Path } from './SqliteOwnershipMetadata';
+import { memoNativeWorkloadGuardV127 } from './NativeWorkloadGuardReadV127';
 export type SamePaDb = Pick<DatabaseSync,'prepare'>;
 export type SamePaScope = Readonly<{gameId:string;playId:number;physicalPitchSourceId?:string}>;
 export const samePaSchema = Object.freeze({
@@ -127,7 +128,7 @@ export const assertNoSamePaPlayerReservation = (db:SamePaDb,scope:Readonly<{care
   const members=db.prepare(`SELECT m.enrollment_source_id FROM main.same_pa_participant_reservations m WHERE (m.career_id=$career OR ${claim('m.member_json',['careerId'],'$career')}) AND (m.player_id=$player OR ${claim('m.member_json',['playerId'],'$player')}) AND ${ownSourceId===undefined?'1':`NOT (${memberRoot('$own')})`}`).all({...q.params,...own});
   if(members.some(row=>!samePaPlayerClaimCanProceed(db,String(row.enrollment_source_id),scope)))fail('orphan member blocks new global Player workload');
 });
-export const assertNoSamePaWorkReservation = (db:SamePaDb,scope:SamePaScope,ownSourceId?:string):void => {
+const inspectNoSamePaWorkReservation = (db:SamePaDb,scope:SamePaScope,ownSourceId?:string):void => {
   assertNoReservedPaWorkClaim(db,scope,ownSourceId);
   if(!assertSamePaStorage(db))return;const q=scopeClaim(scope);
   const actorTable=installed(db,'physical_plate_appearance_actors');
@@ -139,6 +140,10 @@ export const assertNoSamePaWorkReservation = (db:SamePaDb,scope:SamePaScope,ownS
   if(rows.some(r=>r.source_id!==ownSourceId))fail('blocks causal work until an execution basis exists');
   if(db.prepare(`SELECT 1 FROM main.same_pa_successor_rights s WHERE (((s.game_id=$game OR ${claim('s.slot_json',['gameId'],'$game')}) AND (s.play_id=$play OR ${claim('s.slot_json',['playId'],'$play',true)})) OR s.first_pitch_source_id=$pitch OR ${claim('s.slot_json',['physicalPitchSourceId'],'$pitch')}) AND ${ownSourceId===undefined?'1':`NOT (${slotRoot('$own')})`}`).get({...q.params,...(ownSourceId===undefined?{}:{own:ownSourceId})}))fail('orphan first-pitch slot blocks causal work');
 };
+
+export const assertNoSamePaWorkReservation = (db: SamePaDb, scope: SamePaScope, ownSourceId?: string): void =>
+  memoNativeWorkloadGuardV127(db, 'reservation:' + json([scope.gameId, scope.playId, scope.physicalPitchSourceId ?? null, ownSourceId ?? null]),
+    () => inspectNoSamePaWorkReservation(db, scope, ownSourceId));
 
 /** A runtime Source has a pitch reference before its PA can be reconstructed. */
 export const assertNoSamePaOriginalPitchReservation = (db:SamePaDb,physicalPitchSourceId:string):void => {

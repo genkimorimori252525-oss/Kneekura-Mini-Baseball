@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-FAIR-PERFORMANCE-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-performance-scenes-v81.mjs",
+    "../../outputs/ばせぼーるlv81_TBD_vs_LAD_無劣化性能改善版.html",
+    "docs/verification/releases/v81/fair-final",
+    "docs/verification/releases/v81/fair-base/report.json"
+  ],
+  "observed_at": "2026-10-20T13:04:39.941+00:00",
+  "elapsed_ms": 19655,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-FAIR-PERFORMANCE-FINAL_f223d2230c6d441a819acf84a8ba8cb0.log",
+  "output_sha256": "96962ec7ee81a58afefebe0f8ff4ac21d889c0a322bf64e1fecc58d92a04c055",
+  "receipt_id": "MB-20261020-V81-FAIR-PERFORMANCE-FINAL_f223d2230c6d441a819acf84a8ba8cb0"
+}

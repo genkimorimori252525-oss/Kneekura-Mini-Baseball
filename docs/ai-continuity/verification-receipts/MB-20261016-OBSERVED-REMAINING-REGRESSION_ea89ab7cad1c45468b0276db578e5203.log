@@ -1,0 +1,17 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/SamePlateAppearanceDispatchSource.test.ts (9 tests) 29ms
+ ✓ src/host/world/SamePlateAppearanceInitialBall.test.ts (11 tests) 35ms
+ ✓ src/host/world/SamePlateAppearancePhysicalEpisode.test.ts (6 tests) 11ms
+ ✓ src/host/world/SamePlateAppearanceInitialBallDispatch.test.ts (1 test) 26572ms
+   ✓ executes and replays the existing canonical pitch consumer with its separate initial Play binding 26572ms
+ ✓ src/host/world/SamePlateAppearanceObservedInitialCalculation.test.ts (1 test) 36053ms
+   ✓ prepares an observer-owned first pitch from genuine reserved Native models/calibrations with no count or physical admission 36052ms
+ ✓ src/host/world/InFlightBattingFixtureTiming.test.ts (2 tests) 4ms
+
+ Test Files  6 passed (6)
+      Tests  30 passed (30)
+   Start at  07:44:50
+   Duration  51.66s (transform 9.14s, setup 0ms, collect 28.90s, tests 62.70s, environment 1ms, prepare 362ms)
+

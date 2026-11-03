@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-SEAM-CONTINUATION-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "./node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/SourceBallSeamContinuationV78.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-19T19:43:40.169+00:00",
+  "elapsed_ms": 1250,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-SEAM-CONTINUATION-RED_881b0b581edf48e08632afa77ff804a8.log",
+  "output_sha256": "7ff83512435baf14bda34e70636957d06512e539c7d42eaf2156c67f9599c396",
+  "receipt_id": "MB-20261020-V78-SEAM-CONTINUATION-RED_881b0b581edf48e08632afa77ff804a8"
+}

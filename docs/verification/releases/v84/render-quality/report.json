@@ -1,0 +1,1137 @@
+{
+  "pass": true,
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv84_TBD_vs_LAD_描画と接地移動版.html",
+  "artifactSha256": "61081f447439f61abe257c902dfc68cc2b37b873e6a31468d3399c7fa8a1551f",
+  "baselineSha256": "de87fdc68cf91cb4a4d2454e9336e67cfbb646b8a6786759c113c1a619ef345a",
+  "fixtureSha256": "a11ad8e2abdfc6443a5957da3b41b7989d3198f97d8525d6f3d6485a56dfb334",
+  "isolatedFixtureCoreSha256": "e2f60073a56a9adf144965fbe9cbbf483b85c75ed2458b7ece6a22b6a5133158",
+  "scope": "RGBA equivalence at quality 1 uses only the old v83 Core and identical history. The final v84 movement Core is tested separately for read-only observation. Simulated viewport/DPR; no real-device FPS claim.",
+  "cases": [
+    {
+      "width": 1200,
+      "dpr": 1,
+      "qualityOneExact": true,
+      "rgbaScenes": 60,
+      "historySha256": "3ead8d2f4cc4c3f44ab94016802787d9566c27409df94cdaf28d8cc6faeff493"
+    },
+    {
+      "width": 1200,
+      "dpr": 2,
+      "qualityOneExact": true,
+      "rgbaScenes": 60,
+      "historySha256": "3ead8d2f4cc4c3f44ab94016802787d9566c27409df94cdaf28d8cc6faeff493"
+    },
+    {
+      "width": 390,
+      "dpr": 1,
+      "qualityOneExact": true,
+      "rgbaScenes": 60,
+      "historySha256": "3ead8d2f4cc4c3f44ab94016802787d9566c27409df94cdaf28d8cc6faeff493"
+    },
+    {
+      "width": 390,
+      "dpr": 2,
+      "qualityOneExact": true,
+      "rgbaScenes": 60,
+      "historySha256": "3ead8d2f4cc4c3f44ab94016802787d9566c27409df94cdaf28d8cc6faeff493"
+    },
+    {
+      "width": 1200,
+      "dpr": 1,
+      "finalV84": true,
+      "historySha256": "b9dfa4a40cad52ee1e80614af756324d5c4a2a6c207108d6ed7e291316dc53f7",
+      "controls": {
+        "frequencyScale": 2,
+        "qualityScale": 1.2,
+        "baseSceneMs": 18.333333333333332,
+        "sceneMs": 9.166666666666666,
+        "pitchMs": 3.6666666666666665,
+        "battedMs": 4.583333333333333,
+        "gridStep": 3.3333333333333335,
+        "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+        "rafLimited": true
+      },
+      "rows": [
+        {
+          "q": 1.2,
+          "gridStep": 3.3333333333333335,
+          "groundCells": null,
+          "hashes": {
+            "field": "35fc85c6b6b7963ee03b8fb0175d077e43217d98d815667c44810ef6051af9a8",
+            "bat-overlay": "5b4660f0cdce6201dcd992fa6f97262d85b9bf50ca67c46d29408cf654c75e19",
+            "ball-overlay": "0067a62d129b26766061e64da1842508a7a3d970915c817517036ccfd11ef9ec"
+          },
+          "ball": {
+            "projected": 0.32225349055574315,
+            "optical": 0.32225349055574315,
+            "display": 1.25
+          }
+        },
+        {
+          "q": 1,
+          "gridStep": 4,
+          "groundCells": null,
+          "hashes": {
+            "field": "561f555e3bc9096bc30cb503c646ad0c36bcd1d2a9c92824e4f69941c7762aa0",
+            "bat-overlay": "5ecf97e8970e381b7cac9595b3e476335f1e3908eef8921da76e29810070cd07",
+            "ball-overlay": "0067a62d129b26766061e64da1842508a7a3d970915c817517036ccfd11ef9ec"
+          },
+          "ball": {
+            "projected": 0.32225349055574315,
+            "optical": 0.32225349055574315,
+            "display": 1.25
+          }
+        },
+        {
+          "q": 1.2,
+          "gridStep": 3.3333333333333335,
+          "groundCells": null,
+          "hashes": {
+            "field": "35fc85c6b6b7963ee03b8fb0175d077e43217d98d815667c44810ef6051af9a8",
+            "bat-overlay": "5b4660f0cdce6201dcd992fa6f97262d85b9bf50ca67c46d29408cf654c75e19",
+            "ball-overlay": "0067a62d129b26766061e64da1842508a7a3d970915c817517036ccfd11ef9ec"
+          },
+          "ball": {
+            "projected": 0.32225349055574315,
+            "optical": 0.32225349055574315,
+            "display": 1.25
+          }
+        }
+      ],
+      "boundaries": [
+        {
+          "pitch": 0,
+          "ms": 2062.0199999999995,
+          "tick": 1517000,
+          "phase": "pitch",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 2062.0299999999997,
+          "tick": 1517000,
+          "phase": "pitch",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 2062.04,
+          "tick": 1522030,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 2062.0199999999995,
+          "tick": 1517000,
+          "phase": "pitch",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 3107.0199999999995,
+          "tick": 2512030,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 3107.0299999999997,
+          "tick": 2567030,
+          "phase": "held",
+          "custody": "1-b1",
+          "renderedCustody": "1-b1"
+        },
+        {
+          "pitch": 0,
+          "ms": 3107.04,
+          "tick": 2567030,
+          "phase": "held",
+          "custody": "1-b1",
+          "renderedCustody": "1-b1"
+        },
+        {
+          "pitch": 0,
+          "ms": 3107.0199999999995,
+          "tick": 2512030,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 4317.0199999999995,
+          "tick": 3722030,
+          "phase": "held",
+          "custody": "1-b1",
+          "renderedCustody": "1-b1"
+        },
+        {
+          "pitch": 0,
+          "ms": 4317.03,
+          "tick": 3722030,
+          "phase": "held",
+          "custody": "1-b1",
+          "renderedCustody": "1-b1"
+        },
+        {
+          "pitch": 0,
+          "ms": 4317.04,
+          "tick": 3777030,
+          "phase": "throw",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 4317.0199999999995,
+          "tick": 3722030,
+          "phase": "held",
+          "custody": "1-b1",
+          "renderedCustody": "1-b1"
+        },
+        {
+          "pitch": 0,
+          "ms": 4757.0199999999995,
+          "tick": 4162030,
+          "phase": "throw",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 4757.03,
+          "tick": 4217030,
+          "phase": "held",
+          "custody": "1-b7",
+          "renderedCustody": "1-b7"
+        },
+        {
+          "pitch": 0,
+          "ms": 4757.04,
+          "tick": 4217030,
+          "phase": "held",
+          "custody": "1-b7",
+          "renderedCustody": "1-b7"
+        },
+        {
+          "pitch": 0,
+          "ms": 4757.0199999999995,
+          "tick": 4162030,
+          "phase": "throw",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 2011.241,
+          "tick": 7382606,
+          "phase": "pitch",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 2011.251,
+          "tick": 7391857,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 2011.261,
+          "tick": 7391857,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 2011.241,
+          "tick": 7382606,
+          "phase": "pitch",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 5696.241,
+          "tick": 11021857,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 5696.251,
+          "tick": 11076857,
+          "phase": "held",
+          "custody": "1-b6",
+          "renderedCustody": "1-b6"
+        },
+        {
+          "pitch": 1,
+          "ms": 5696.261,
+          "tick": 11076857,
+          "phase": "held",
+          "custody": "1-b6",
+          "renderedCustody": "1-b6"
+        },
+        {
+          "pitch": 1,
+          "ms": 5696.241,
+          "tick": 11021857,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        }
+      ],
+      "overflow": false
+    },
+    {
+      "width": 1200,
+      "dpr": 2,
+      "finalV84": true,
+      "historySha256": "b9dfa4a40cad52ee1e80614af756324d5c4a2a6c207108d6ed7e291316dc53f7",
+      "controls": {
+        "frequencyScale": 2,
+        "qualityScale": 1.2,
+        "baseSceneMs": 18.333333333333332,
+        "sceneMs": 9.166666666666666,
+        "pitchMs": 3.6666666666666665,
+        "battedMs": 4.583333333333333,
+        "gridStep": 3.3333333333333335,
+        "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+        "rafLimited": true
+      },
+      "rows": [
+        {
+          "q": 1.2,
+          "gridStep": 3.3333333333333335,
+          "groundCells": null,
+          "hashes": {
+            "field": "35fc85c6b6b7963ee03b8fb0175d077e43217d98d815667c44810ef6051af9a8",
+            "bat-overlay": "5b4660f0cdce6201dcd992fa6f97262d85b9bf50ca67c46d29408cf654c75e19",
+            "ball-overlay": "0067a62d129b26766061e64da1842508a7a3d970915c817517036ccfd11ef9ec"
+          },
+          "ball": {
+            "projected": 0.32225349055574315,
+            "optical": 0.32225349055574315,
+            "display": 1.25
+          }
+        },
+        {
+          "q": 1,
+          "gridStep": 4,
+          "groundCells": null,
+          "hashes": {
+            "field": "561f555e3bc9096bc30cb503c646ad0c36bcd1d2a9c92824e4f69941c7762aa0",
+            "bat-overlay": "5ecf97e8970e381b7cac9595b3e476335f1e3908eef8921da76e29810070cd07",
+            "ball-overlay": "0067a62d129b26766061e64da1842508a7a3d970915c817517036ccfd11ef9ec"
+          },
+          "ball": {
+            "projected": 0.32225349055574315,
+            "optical": 0.32225349055574315,
+            "display": 1.25
+          }
+        },
+        {
+          "q": 1.2,
+          "gridStep": 3.3333333333333335,
+          "groundCells": null,
+          "hashes": {
+            "field": "35fc85c6b6b7963ee03b8fb0175d077e43217d98d815667c44810ef6051af9a8",
+            "bat-overlay": "5b4660f0cdce6201dcd992fa6f97262d85b9bf50ca67c46d29408cf654c75e19",
+            "ball-overlay": "0067a62d129b26766061e64da1842508a7a3d970915c817517036ccfd11ef9ec"
+          },
+          "ball": {
+            "projected": 0.32225349055574315,
+            "optical": 0.32225349055574315,
+            "display": 1.25
+          }
+        }
+      ],
+      "boundaries": [
+        {
+          "pitch": 0,
+          "ms": 2062.0199999999995,
+          "tick": 1517000,
+          "phase": "pitch",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 2062.0299999999997,
+          "tick": 1517000,
+          "phase": "pitch",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 2062.04,
+          "tick": 1522030,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 2062.0199999999995,
+          "tick": 1517000,
+          "phase": "pitch",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 3107.0199999999995,
+          "tick": 2512030,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 3107.0299999999997,
+          "tick": 2567030,
+          "phase": "held",
+          "custody": "1-b1",
+          "renderedCustody": "1-b1"
+        },
+        {
+          "pitch": 0,
+          "ms": 3107.04,
+          "tick": 2567030,
+          "phase": "held",
+          "custody": "1-b1",
+          "renderedCustody": "1-b1"
+        },
+        {
+          "pitch": 0,
+          "ms": 3107.0199999999995,
+          "tick": 2512030,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 4317.0199999999995,
+          "tick": 3722030,
+          "phase": "held",
+          "custody": "1-b1",
+          "renderedCustody": "1-b1"
+        },
+        {
+          "pitch": 0,
+          "ms": 4317.03,
+          "tick": 3722030,
+          "phase": "held",
+          "custody": "1-b1",
+          "renderedCustody": "1-b1"
+        },
+        {
+          "pitch": 0,
+          "ms": 4317.04,
+          "tick": 3777030,
+          "phase": "throw",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 4317.0199999999995,
+          "tick": 3722030,
+          "phase": "held",
+          "custody": "1-b1",
+          "renderedCustody": "1-b1"
+        },
+        {
+          "pitch": 0,
+          "ms": 4757.0199999999995,
+          "tick": 4162030,
+          "phase": "throw",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 4757.03,
+          "tick": 4217030,
+          "phase": "held",
+          "custody": "1-b7",
+          "renderedCustody": "1-b7"
+        },
+        {
+          "pitch": 0,
+          "ms": 4757.04,
+          "tick": 4217030,
+          "phase": "held",
+          "custody": "1-b7",
+          "renderedCustody": "1-b7"
+        },
+        {
+          "pitch": 0,
+          "ms": 4757.0199999999995,
+          "tick": 4162030,
+          "phase": "throw",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 2011.241,
+          "tick": 7382606,
+          "phase": "pitch",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 2011.251,
+          "tick": 7391857,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 2011.261,
+          "tick": 7391857,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 2011.241,
+          "tick": 7382606,
+          "phase": "pitch",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 5696.241,
+          "tick": 11021857,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 5696.251,
+          "tick": 11076857,
+          "phase": "held",
+          "custody": "1-b6",
+          "renderedCustody": "1-b6"
+        },
+        {
+          "pitch": 1,
+          "ms": 5696.261,
+          "tick": 11076857,
+          "phase": "held",
+          "custody": "1-b6",
+          "renderedCustody": "1-b6"
+        },
+        {
+          "pitch": 1,
+          "ms": 5696.241,
+          "tick": 11021857,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        }
+      ],
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "dpr": 1,
+      "finalV84": true,
+      "historySha256": "b9dfa4a40cad52ee1e80614af756324d5c4a2a6c207108d6ed7e291316dc53f7",
+      "controls": {
+        "frequencyScale": 2,
+        "qualityScale": 1.2,
+        "baseSceneMs": 18.333333333333332,
+        "sceneMs": 9.166666666666666,
+        "pitchMs": 3.6666666666666665,
+        "battedMs": 4.583333333333333,
+        "gridStep": 3.3333333333333335,
+        "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+        "rafLimited": true
+      },
+      "rows": [
+        {
+          "q": 1.2,
+          "gridStep": 3.3333333333333335,
+          "groundCells": null,
+          "hashes": {
+            "field": "35fc85c6b6b7963ee03b8fb0175d077e43217d98d815667c44810ef6051af9a8",
+            "bat-overlay": "5b4660f0cdce6201dcd992fa6f97262d85b9bf50ca67c46d29408cf654c75e19",
+            "ball-overlay": "0067a62d129b26766061e64da1842508a7a3d970915c817517036ccfd11ef9ec"
+          },
+          "ball": {
+            "projected": 0.32225349055574315,
+            "optical": 0.32225349055574315,
+            "display": 1.25
+          }
+        },
+        {
+          "q": 1,
+          "gridStep": 4,
+          "groundCells": null,
+          "hashes": {
+            "field": "561f555e3bc9096bc30cb503c646ad0c36bcd1d2a9c92824e4f69941c7762aa0",
+            "bat-overlay": "5ecf97e8970e381b7cac9595b3e476335f1e3908eef8921da76e29810070cd07",
+            "ball-overlay": "0067a62d129b26766061e64da1842508a7a3d970915c817517036ccfd11ef9ec"
+          },
+          "ball": {
+            "projected": 0.32225349055574315,
+            "optical": 0.32225349055574315,
+            "display": 1.25
+          }
+        },
+        {
+          "q": 1.2,
+          "gridStep": 3.3333333333333335,
+          "groundCells": null,
+          "hashes": {
+            "field": "35fc85c6b6b7963ee03b8fb0175d077e43217d98d815667c44810ef6051af9a8",
+            "bat-overlay": "5b4660f0cdce6201dcd992fa6f97262d85b9bf50ca67c46d29408cf654c75e19",
+            "ball-overlay": "0067a62d129b26766061e64da1842508a7a3d970915c817517036ccfd11ef9ec"
+          },
+          "ball": {
+            "projected": 0.32225349055574315,
+            "optical": 0.32225349055574315,
+            "display": 1.25
+          }
+        }
+      ],
+      "boundaries": [
+        {
+          "pitch": 0,
+          "ms": 2062.0199999999995,
+          "tick": 1517000,
+          "phase": "pitch",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 2062.0299999999997,
+          "tick": 1517000,
+          "phase": "pitch",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 2062.04,
+          "tick": 1522030,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 2062.0199999999995,
+          "tick": 1517000,
+          "phase": "pitch",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 3107.0199999999995,
+          "tick": 2512030,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 3107.0299999999997,
+          "tick": 2567030,
+          "phase": "held",
+          "custody": "1-b1",
+          "renderedCustody": "1-b1"
+        },
+        {
+          "pitch": 0,
+          "ms": 3107.04,
+          "tick": 2567030,
+          "phase": "held",
+          "custody": "1-b1",
+          "renderedCustody": "1-b1"
+        },
+        {
+          "pitch": 0,
+          "ms": 3107.0199999999995,
+          "tick": 2512030,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 4317.0199999999995,
+          "tick": 3722030,
+          "phase": "held",
+          "custody": "1-b1",
+          "renderedCustody": "1-b1"
+        },
+        {
+          "pitch": 0,
+          "ms": 4317.03,
+          "tick": 3722030,
+          "phase": "held",
+          "custody": "1-b1",
+          "renderedCustody": "1-b1"
+        },
+        {
+          "pitch": 0,
+          "ms": 4317.04,
+          "tick": 3777030,
+          "phase": "throw",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 4317.0199999999995,
+          "tick": 3722030,
+          "phase": "held",
+          "custody": "1-b1",
+          "renderedCustody": "1-b1"
+        },
+        {
+          "pitch": 0,
+          "ms": 4757.0199999999995,
+          "tick": 4162030,
+          "phase": "throw",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 4757.03,
+          "tick": 4217030,
+          "phase": "held",
+          "custody": "1-b7",
+          "renderedCustody": "1-b7"
+        },
+        {
+          "pitch": 0,
+          "ms": 4757.04,
+          "tick": 4217030,
+          "phase": "held",
+          "custody": "1-b7",
+          "renderedCustody": "1-b7"
+        },
+        {
+          "pitch": 0,
+          "ms": 4757.0199999999995,
+          "tick": 4162030,
+          "phase": "throw",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 2011.241,
+          "tick": 7382606,
+          "phase": "pitch",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 2011.251,
+          "tick": 7391857,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 2011.261,
+          "tick": 7391857,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 2011.241,
+          "tick": 7382606,
+          "phase": "pitch",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 5696.241,
+          "tick": 11021857,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 5696.251,
+          "tick": 11076857,
+          "phase": "held",
+          "custody": "1-b6",
+          "renderedCustody": "1-b6"
+        },
+        {
+          "pitch": 1,
+          "ms": 5696.261,
+          "tick": 11076857,
+          "phase": "held",
+          "custody": "1-b6",
+          "renderedCustody": "1-b6"
+        },
+        {
+          "pitch": 1,
+          "ms": 5696.241,
+          "tick": 11021857,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        }
+      ],
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "dpr": 2,
+      "finalV84": true,
+      "historySha256": "b9dfa4a40cad52ee1e80614af756324d5c4a2a6c207108d6ed7e291316dc53f7",
+      "controls": {
+        "frequencyScale": 2,
+        "qualityScale": 1.2,
+        "baseSceneMs": 18.333333333333332,
+        "sceneMs": 9.166666666666666,
+        "pitchMs": 3.6666666666666665,
+        "battedMs": 4.583333333333333,
+        "gridStep": 3.3333333333333335,
+        "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+        "rafLimited": true
+      },
+      "rows": [
+        {
+          "q": 1.2,
+          "gridStep": 3.3333333333333335,
+          "groundCells": null,
+          "hashes": {
+            "field": "35fc85c6b6b7963ee03b8fb0175d077e43217d98d815667c44810ef6051af9a8",
+            "bat-overlay": "5b4660f0cdce6201dcd992fa6f97262d85b9bf50ca67c46d29408cf654c75e19",
+            "ball-overlay": "0067a62d129b26766061e64da1842508a7a3d970915c817517036ccfd11ef9ec"
+          },
+          "ball": {
+            "projected": 0.32225349055574315,
+            "optical": 0.32225349055574315,
+            "display": 1.25
+          }
+        },
+        {
+          "q": 1,
+          "gridStep": 4,
+          "groundCells": null,
+          "hashes": {
+            "field": "561f555e3bc9096bc30cb503c646ad0c36bcd1d2a9c92824e4f69941c7762aa0",
+            "bat-overlay": "5ecf97e8970e381b7cac9595b3e476335f1e3908eef8921da76e29810070cd07",
+            "ball-overlay": "0067a62d129b26766061e64da1842508a7a3d970915c817517036ccfd11ef9ec"
+          },
+          "ball": {
+            "projected": 0.32225349055574315,
+            "optical": 0.32225349055574315,
+            "display": 1.25
+          }
+        },
+        {
+          "q": 1.2,
+          "gridStep": 3.3333333333333335,
+          "groundCells": null,
+          "hashes": {
+            "field": "35fc85c6b6b7963ee03b8fb0175d077e43217d98d815667c44810ef6051af9a8",
+            "bat-overlay": "5b4660f0cdce6201dcd992fa6f97262d85b9bf50ca67c46d29408cf654c75e19",
+            "ball-overlay": "0067a62d129b26766061e64da1842508a7a3d970915c817517036ccfd11ef9ec"
+          },
+          "ball": {
+            "projected": 0.32225349055574315,
+            "optical": 0.32225349055574315,
+            "display": 1.25
+          }
+        }
+      ],
+      "boundaries": [
+        {
+          "pitch": 0,
+          "ms": 2062.0199999999995,
+          "tick": 1517000,
+          "phase": "pitch",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 2062.0299999999997,
+          "tick": 1517000,
+          "phase": "pitch",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 2062.04,
+          "tick": 1522030,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 2062.0199999999995,
+          "tick": 1517000,
+          "phase": "pitch",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 3107.0199999999995,
+          "tick": 2512030,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 3107.0299999999997,
+          "tick": 2567030,
+          "phase": "held",
+          "custody": "1-b1",
+          "renderedCustody": "1-b1"
+        },
+        {
+          "pitch": 0,
+          "ms": 3107.04,
+          "tick": 2567030,
+          "phase": "held",
+          "custody": "1-b1",
+          "renderedCustody": "1-b1"
+        },
+        {
+          "pitch": 0,
+          "ms": 3107.0199999999995,
+          "tick": 2512030,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 4317.0199999999995,
+          "tick": 3722030,
+          "phase": "held",
+          "custody": "1-b1",
+          "renderedCustody": "1-b1"
+        },
+        {
+          "pitch": 0,
+          "ms": 4317.03,
+          "tick": 3722030,
+          "phase": "held",
+          "custody": "1-b1",
+          "renderedCustody": "1-b1"
+        },
+        {
+          "pitch": 0,
+          "ms": 4317.04,
+          "tick": 3777030,
+          "phase": "throw",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 4317.0199999999995,
+          "tick": 3722030,
+          "phase": "held",
+          "custody": "1-b1",
+          "renderedCustody": "1-b1"
+        },
+        {
+          "pitch": 0,
+          "ms": 4757.0199999999995,
+          "tick": 4162030,
+          "phase": "throw",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 0,
+          "ms": 4757.03,
+          "tick": 4217030,
+          "phase": "held",
+          "custody": "1-b7",
+          "renderedCustody": "1-b7"
+        },
+        {
+          "pitch": 0,
+          "ms": 4757.04,
+          "tick": 4217030,
+          "phase": "held",
+          "custody": "1-b7",
+          "renderedCustody": "1-b7"
+        },
+        {
+          "pitch": 0,
+          "ms": 4757.0199999999995,
+          "tick": 4162030,
+          "phase": "throw",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 2011.241,
+          "tick": 7382606,
+          "phase": "pitch",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 2011.251,
+          "tick": 7391857,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 2011.261,
+          "tick": 7391857,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 2011.241,
+          "tick": 7382606,
+          "phase": "pitch",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 5696.241,
+          "tick": 11021857,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        },
+        {
+          "pitch": 1,
+          "ms": 5696.251,
+          "tick": 11076857,
+          "phase": "held",
+          "custody": "1-b6",
+          "renderedCustody": "1-b6"
+        },
+        {
+          "pitch": 1,
+          "ms": 5696.261,
+          "tick": 11076857,
+          "phase": "held",
+          "custody": "1-b6",
+          "renderedCustody": "1-b6"
+        },
+        {
+          "pitch": 1,
+          "ms": 5696.241,
+          "tick": 11021857,
+          "phase": "batted",
+          "custody": null,
+          "renderedCustody": null
+        }
+      ],
+      "overflow": false
+    }
+  ],
+  "faults": [
+    {
+      "label": "old-1200-1",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "fixture-1200-1",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "old-1200-2",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "fixture-1200-2",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "old-390-1",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "fixture-390-1",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "old-390-2",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "fixture-390-2",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "final-1200-1",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "final-1200-2",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "final-390-1",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "final-390-2",
+      "errors": [],
+      "external": []
+    }
+  ]
+}

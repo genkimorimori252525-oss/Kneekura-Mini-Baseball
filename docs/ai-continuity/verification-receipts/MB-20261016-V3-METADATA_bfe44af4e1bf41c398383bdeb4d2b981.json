@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-V3-METADATA",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "npx.cmd",
+    "vitest",
+    "run",
+    "src/host/world/SamePlateAppearanceBallPhysics.test.ts",
+    "src/host/world/SamePlateAppearanceSourceFieldV3.test.ts",
+    "src/host/world/SamePlateAppearancePhysicalFieldActions.test.ts",
+    "src/core/sim/ball/SourceBattedFieldMotionV3.test.ts",
+    "src/host/world/SamePlateAppearanceDefensiveCandidateSourceV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T16:58:58.293+00:00",
+  "elapsed_ms": 10891,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-V3-METADATA_bfe44af4e1bf41c398383bdeb4d2b981.log",
+  "output_sha256": "f34e92f75f83ff3d7b2366cccf80ce615221eb647f396f0c167cf67b46a01848",
+  "receipt_id": "MB-20261016-V3-METADATA_bfe44af4e1bf41c398383bdeb4d2b981"
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-RENDERER-COEFFICIENTS",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "--test",
+    "tools/browser-bridge/broadcast-renderer-performance-v81.test.mjs"
+  ],
+  "observed_at": "2026-10-20T12:43:20.382+00:00",
+  "elapsed_ms": 358,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-RENDERER-COEFFICIENTS_88d30fbc37a041059598f05539b09678.log",
+  "output_sha256": "2838a78041d0075447503facb136c71d274fe9ed910f9ff394266d0a66462163",
+  "receipt_id": "MB-20261020-V81-RENDERER-COEFFICIENTS_88d30fbc37a041059598f05539b09678"
+}

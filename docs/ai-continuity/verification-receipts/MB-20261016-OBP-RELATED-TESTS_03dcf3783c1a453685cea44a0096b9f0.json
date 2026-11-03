@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OBP-RELATED-TESTS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/MeasuredBatAxisReferenceV1.test.ts",
+    "src/integration/browser/ReferenceBattingWorkbench.test.ts",
+    "src/integration/browser/BattingWorkbench.test.ts",
+    "src/integration/browser/WorkbenchPlayer.test.ts",
+    "src/core/sim/contact/ReferenceBatKinematicsV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T18:11:16.107+00:00",
+  "elapsed_ms": 10952,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OBP-RELATED-TESTS_03dcf3783c1a453685cea44a0096b9f0.log",
+  "output_sha256": "53ce514eb0e7433336f1d4350d5463cd7559e8fc571decdc7603166ecf57ea2c",
+  "receipt_id": "MB-20261016-OBP-RELATED-TESTS_03dcf3783c1a453685cea44a0096b9f0"
+}

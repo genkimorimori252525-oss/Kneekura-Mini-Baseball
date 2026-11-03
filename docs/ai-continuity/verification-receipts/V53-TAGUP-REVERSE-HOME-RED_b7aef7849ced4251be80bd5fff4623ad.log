@@ -1,0 +1,79 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/PlayableMatchTagUpAppealV1.test.ts (26 tests | 3 failed) 15ms
+   × removes a prior home crossing when the early runner physically returns to the original third base 5ms
+     → expected [ 'r3' ] to deeply equal []
+   × restores second-base occupancy after an early scoring runner physically retouches third then second in reverse 1ms
+     → expected [ 'r2' ] to deeply equal []
+   × uses the new legal home occurrence instead of the canceled crossing for a third out at 40 1ms
+     → expected 1 to be +0 // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/PlayableMatchTagUpAppealV1.test.ts > removes a prior home crossing when the early runner physically returns to the original third base
+AssertionError: expected [ 'r3' ] to deeply equal []
+
+- Expected
++ Received
+
+- Array []
++ Array [
++   "r3",
++ ]
+
+ ❯ src/integration/browser/PlayableMatchTagUpAppealV1.test.ts:108:29
+    106|   const r=applied(live(field({runnerDepartures:[leave('r3',3,5),leave(…
+    107|     state({bases:{first:null,second:null,third:'r3'}})));
+    108|   expect(r.scoredRunnerIds).toEqual([]);expect(r.match.score.away).toB…
+       |                             ^
+    109| });
+    110| it('restores second-base occupancy after an early scoring runner physi…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/integration/browser/PlayableMatchTagUpAppealV1.test.ts > restores second-base occupancy after an early scoring runner physically retouches third then second in reverse
+AssertionError: expected [ 'r2' ] to deeply equal []
+
+- Expected
++ Received
+
+- Array []
++ Array [
++   "r2",
++ ]
+
+ ❯ src/integration/browser/PlayableMatchTagUpAppealV1.test.ts:113:29
+    111|   const r=applied(live(field({runnerDepartures:[leave('r2',2,5),leave(…
+    112|     runnerTouches:[touch('r2',3,10),touch('r2',4,15),touch('r2',3,30),…
+    113|   expect(r.scoredRunnerIds).toEqual([]);expect(r.match.score.away).toB…
+       |                             ^
+    114| });
+    115| it.each([{thirdOutTick:40,runs:0},{thirdOutTick:70,runs:1}])('uses the…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/integration/browser/PlayableMatchTagUpAppealV1.test.ts > uses the new legal home occurrence instead of the canceled crossing for a third out at 40
+AssertionError: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ src/integration/browser/PlayableMatchTagUpAppealV1.test.ts:119:30
+    117|     runnerTouches:[touch('r3',4,10),touch('r3',3,30),touch('r3',4,60),…
+    118|     controlledRunnerTags:[{kind:'controlled_runner_tag',defenderId:'ss…
+    119|   expect(r.match.score.away).toBe(runs);expect(r.scoredRunnerIds).toEq…
+       |                              ^
+    120| });
+    121| it('suppresses a following runner score on a third-out appeal against …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 23 passed (26)
+   Start at  19:27:32
+   Duration  628ms (transform 132ms, setup 0ms, collect 179ms, tests 15ms, environment 0ms, prepare 125ms)
+

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-VITEST-ENTRY-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/browser-bridge/broadcast-renderer-performance-v81.test.mjs",
+    "tools/browser-bridge/presentation-ui-performance-v81.test.mjs",
+    "tools/browser-bridge/presentation-cadence-performance-v81.test.mjs",
+    "tools/browser-bridge/whole-scene-adapters-v81.test.mjs"
+  ],
+  "observed_at": "2026-10-20T13:08:34.973+00:00",
+  "elapsed_ms": 3078,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-VITEST-ENTRY-FINAL_1af3ab2ad8444c269132125c36eeb9df.log",
+  "output_sha256": "b0c16fca1a7f6ce9886449e88865d2a59aaf95d93330643b11bedcc0e95ef1f0",
+  "receipt_id": "MB-20261020-V81-VITEST-ENTRY-FINAL_1af3ab2ad8444c269132125c36eeb9df"
+}

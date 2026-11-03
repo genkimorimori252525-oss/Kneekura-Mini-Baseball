@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-COUPLED-PELVIS-CURRENT-NATIVE-STUDY",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-coupled-pelvis-study-v3/readback.mjs",
+    "../../outputs/verification-authored-with-bat-upright-velocity-decision-v1",
+    "../../outputs/verification-authored-with-bat-upright-velocity-prefix-control-v1",
+    "../../outputs/verification-authored-with-bat-coupled-pelvis-v3"
+  ],
+  "observed_at": "2026-10-16T13:20:26.026+00:00",
+  "elapsed_ms": 5109,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-COUPLED-PELVIS-CURRENT-NATIVE-STUDY_b588196a551043e79c930c3f427fb9f9.log",
+  "output_sha256": "addae2832585a48b9146a79d05f70e1f83a05c446a0f0c14f21d788ca24b17f8",
+  "receipt_id": "MB-20261016-COUPLED-PELVIS-CURRENT-NATIVE-STUDY_b588196a551043e79c930c3f427fb9f9"
+}

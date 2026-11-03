@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-JOINT-EXECUTION-CORE-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/pitch/ControlledBatBodyPitchWorldV1.test.ts",
+    "src/host/world/InitialJointPhysicalSourceInput.test.ts"
+  ],
+  "observed_at": "2026-10-16T14:50:51.884+00:00",
+  "elapsed_ms": 14250,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-JOINT-EXECUTION-CORE-REGRESSION_198076eefd104d91921666f60df2382c.log",
+  "output_sha256": "3818d2ad3e6d472f503913acd2d81b76fd0ab195bdd0069f599eef2c0c6ece64",
+  "receipt_id": "MB-20261016-JOINT-EXECUTION-CORE-REGRESSION_198076eefd104d91921666f60df2382c"
+}

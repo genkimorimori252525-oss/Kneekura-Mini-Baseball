@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-TAKEN-GAZE-HELPER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-live-taken-pitch-gaze.mjs"
+  ],
+  "observed_at": "2026-10-18T04:29:44.581+00:00",
+  "elapsed_ms": 47,
+  "git_head": "7bc3982789bf563bb9a25a8b82f632c982c3ab84",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-TAKEN-GAZE-HELPER_b215eadfc07146a8bf5ca108339cf8d7.log",
+  "output_sha256": "572fa06498cdcffa6d354eec28a8352dc357a54c0a99c261b092ae522d301d50",
+  "receipt_id": "MB-20261018-TAKEN-GAZE-HELPER_b215eadfc07146a8bf5ca108339cf8d7"
+}

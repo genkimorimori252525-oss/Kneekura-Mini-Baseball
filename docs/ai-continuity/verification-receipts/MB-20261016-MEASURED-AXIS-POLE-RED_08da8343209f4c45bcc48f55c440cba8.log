@@ -1,0 +1,26 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/MeasuredBatAxisReferenceV1.test.ts (6 tests | 1 failed) 10ms
+   × keeps measured keys near the initially downward axis without snapping them to vertical 4ms
+     → expected -1.3234889800848443e-23 to be close to 6.999999999999999e-8, received difference is 7e-8, but expected 5e-13
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/MeasuredBatAxisReferenceV1.test.ts > keeps measured keys near the initially downward axis without snapping them to vertical
+AssertionError: expected -1.3234889800848443e-23 to be close to 6.999999999999999e-8, received difference is 7e-8, but expected 5e-13
+ ❯ src/integration/browser/MeasuredBatAxisReferenceV1.test.ts:75:30
+     73|   source.frames[0].sweetSpot={x:epsilon*.7,y:y*.7,z:0};
+     74|   const sample=createReferenceBatKinematicsV1(createMeasuredBatAxisRef…
+     75|   expect(sample.sweetSpot.x).toBeCloseTo(source.frames[0].sweetSpot.x,…
+       |                              ^
+     76| });
+     77| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  02:32:59
+   Duration  609ms (transform 133ms, setup 0ms, collect 181ms, tests 10ms, environment 0ms, prepare 128ms)
+

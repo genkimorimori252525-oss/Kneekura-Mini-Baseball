@@ -1,0 +1,7 @@
+{"elapsedMs":20015,"phase":"generating","scenario":"default-nine","pitches":48}
+{"elapsedMs":40022,"phase":"generating","scenario":"default-nine","pitches":120}
+{"elapsedMs":60033,"phase":"generating","scenario":"default-nine","pitches":176}
+{"elapsedMs":80044,"phase":"generating","scenario":"default-nine","pitches":256}
+{"elapsedMs":100046,"phase":"generating","scenario":"default-nine","pitches":304}
+{"elapsedMs":120056,"phase":"generating","scenario":"alternate-three","pitches":72}
+{"pass":true,"artifactSha256":"4b5089187fd868317b2c0a7b4399e56f4ee057231962b687a56a5d6cfb8d2340","coldReadyWallMs":1630,"warmNewGameMs":[549.1999999880791,490.70000000298023,532.7000000029802],"scenarios":[{"id":"default-nine","records":320,"historySha256":"520b70c46d65552fb329cab93d275cf70d571029b3b3987069e58a3220524146"},{"id":"alternate-three","records":82,"historySha256":"19e4add75301d0f1a6fd2bb970a48515abc8885a3a7727c373daf54e95b8b3f9"}],"report":"C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\docs\\verification\\releases\\v81\\full-history-v79-baseline-r2\\report.json"}

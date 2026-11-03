@@ -1,0 +1,12 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/WorkbenchPlayer.test.ts (19 tests) 21ms
+ ✓ src/integration/browser/LivePublicAbilitiesV1.test.ts (27 tests) 1281ms
+   ✓ public authoring with individual SI profiles > projects all 20 profiles without changing the packet and exact no-op edits preserve all bytes 830ms
+
+ Test Files  2 passed (2)
+      Tests  46 passed (46)
+   Start at  00:00:13
+   Duration  2.50s (transform 642ms, setup 0ms, collect 1.08s, tests 1.30s, environment 0ms, prepare 309ms)
+

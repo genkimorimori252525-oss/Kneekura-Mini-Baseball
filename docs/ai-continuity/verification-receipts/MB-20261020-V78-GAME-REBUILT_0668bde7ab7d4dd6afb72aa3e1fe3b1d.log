@@ -1,0 +1,15 @@
+{"phase":"authored-roster","elapsedMs":10455}
+node:internal/process/promises:332
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+page.waitForEvent: Timeout 120000ms exceeded while waiting for event "download"
+=========================== logs ===========================
+waiting for event "download"
+============================================================
+    at C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\check-v78-game.mjs:56:29 {
+  log: [],
+  name: 'TimeoutError'
+}
+
+Node.js v26.1.0

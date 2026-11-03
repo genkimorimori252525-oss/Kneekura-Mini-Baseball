@@ -1,0 +1,41 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/MeasuredBatFieldRegistrationV1.test.ts (21 tests | 4 failed) 445ms
+   × aims inside on the correct side for R 4ms
+     → official window input must contain inert data only
+   × aims outside on the correct side for R 1ms
+     → official window input must contain inert data only
+   × aims inside on the correct side for L 0ms
+     → official window input must contain inert data only
+   × aims outside on the correct side for L 0ms
+     → official window input must contain inert data only
+ ✓ src/integration/browser/LivePitchV1.test.ts (11 tests) 735ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/MeasuredBatFieldRegistrationV1.test.ts > aims inside on the correct side for R
+ FAIL  src/integration/browser/MeasuredBatFieldRegistrationV1.test.ts > aims outside on the correct side for R
+ FAIL  src/integration/browser/MeasuredBatFieldRegistrationV1.test.ts > aims inside on the correct side for L
+ FAIL  src/integration/browser/MeasuredBatFieldRegistrationV1.test.ts > aims outside on the correct side for L
+Error: official window input must contain inert data only
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:42:42
+     40|       return value;
+     41|     }
+     42|     if (typeof value !== 'object') throw new Error('official window in…
+       |                                          ^
+     43|     if (ancestors.has(value)) throw new Error('official window input m…
+     44|     ancestors.add(value);
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:62:16
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:62:16
+ ❯ Module.cloneInert src/core/adjudication/OfficialWindowPolicy.ts:68:10
+ ❯ Module.simulateLivePitchV1 src/integration/browser/LivePitchV1.ts:81:15
+ ❯ src/integration/browser/MeasuredBatFieldRegistrationV1.test.ts:71:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  4 failed | 28 passed (32)
+   Start at  11:28:40
+   Duration  1.57s (transform 462ms, setup 0ms, collect 878ms, tests 1.18s, environment 0ms, prepare 292ms)
+

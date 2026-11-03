@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-NODE22-READ-COMPARE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../compare-cal19-existing-runtime.mjs"
+  ],
+  "observed_at": "2026-10-15T16:22:48.347+00:00",
+  "elapsed_ms": 49343,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-NODE22-READ-COMPARE_567ebaef793847dbb54fe44801b4968f.log",
+  "output_sha256": "e8e6301b78cf1fcf0ebd1b15f4ca848753279f0a450b9d8aff6e00b3e687ac27",
+  "receipt_id": "MB-20261016-NODE22-READ-COMPARE_567ebaef793847dbb54fe44801b4968f"
+}

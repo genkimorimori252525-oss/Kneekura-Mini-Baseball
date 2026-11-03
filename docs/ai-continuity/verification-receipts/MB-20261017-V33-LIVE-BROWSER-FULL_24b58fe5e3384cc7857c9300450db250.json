@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V33-LIVE-BROWSER-FULL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v33.mjs",
+    "../../outputs/ばせぼーるlv33_TBD_vs_LAD_Core試合版.html",
+    "../../outputs/verification-v33-live-browser-full-v4"
+  ],
+  "observed_at": "2026-10-17T01:12:03.348+00:00",
+  "elapsed_ms": 156312,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V33-LIVE-BROWSER-FULL_24b58fe5e3384cc7857c9300450db250.log",
+  "output_sha256": "44edaeebd76fd9f20f6c896995b88fc220b8a684d903a4122b681238251cc66e",
+  "receipt_id": "MB-20261017-V33-LIVE-BROWSER-FULL_24b58fe5e3384cc7857c9300450db250"
+}

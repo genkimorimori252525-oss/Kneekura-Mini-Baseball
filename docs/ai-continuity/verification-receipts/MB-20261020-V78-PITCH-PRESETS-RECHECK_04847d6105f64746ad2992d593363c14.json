@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-PITCH-PRESETS-RECHECK",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePitchAuthoringV78.test.ts",
+    "src/integration/browser/LivePitchExecutionV78.test.ts"
+  ],
+  "observed_at": "2026-10-19T19:39:51.675+00:00",
+  "elapsed_ms": 12688,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-PITCH-PRESETS-RECHECK_04847d6105f64746ad2992d593363c14.log",
+  "output_sha256": "1132998fa07727020107660cfbf713a0f8f2405d62332dc783303b196f480ba6",
+  "receipt_id": "MB-20261020-V78-PITCH-PRESETS-RECHECK_04847d6105f64746ad2992d593363c14"
+}

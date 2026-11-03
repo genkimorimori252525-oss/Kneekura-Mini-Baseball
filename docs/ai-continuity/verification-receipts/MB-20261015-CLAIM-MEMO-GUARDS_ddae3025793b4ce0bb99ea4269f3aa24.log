@@ -1,0 +1,19 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/SamePlateAppearanceLifecycleSource.test.ts (7 tests) 14ms
+ ✓ src/host/world/SamePlateAppearanceMetadataCompilation.test.ts (3 tests) 26ms
+ ✓ src/host/world/SamePlateAppearanceDispatchClaimGuard.test.ts (5 tests) 33ms
+ ✓ src/host/world/SamePlateAppearanceLifecycleOwner.test.ts (6 tests) 16631ms
+   ✓ LO01 Native lifecycle applies all ten explicit cumulative totals to reserved BEFORE and preserves fatigue at zero 3043ms
+   ✓ LO02 canonical prefix/view aliases reject and mixed TOTAL sets cannot be repaired 2980ms
+   ✓ LO03 duplicate accepted assessment authority rejects before the first TOTAL effect 2480ms
+   ✓ LO04 current complete coverage rejects an additional typed-discovered work claim while historical view remains readable 2812ms
+   ✓ LO05 completed assessment ownership stays within its original source, assessment and mutation epoch 2624ms
+   ✓ LO06 reuses complete raw direction proofs only for the exact reference inside one immutable phase 2692ms
+
+ Test Files  4 passed (4)
+      Tests  21 passed (21)
+   Start at  07:15:13
+   Duration  24.00s (transform 4.95s, setup 0ms, collect 26.58s, tests 16.70s, environment 1ms, prepare 929ms)
+

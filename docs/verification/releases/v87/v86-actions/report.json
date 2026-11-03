@@ -1,0 +1,34 @@
+{
+  "pass": true,
+  "sha256": "6c8c945bad08aeb4508e880901828d7d3ad8be4c73ada0ecda15b2369854365f",
+  "cases": [
+    {
+      "width": 1200,
+      "libraryDiscard": true,
+      "librarySaveRecovery": true,
+      "seedRecovery": true,
+      "independentCourseGroups": true,
+      "courseNumericRecovery": true
+    },
+    {
+      "width": 390,
+      "libraryDiscard": true,
+      "librarySaveRecovery": true,
+      "seedRecovery": true,
+      "independentCourseGroups": true,
+      "courseNumericRecovery": true
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "errors": [],
+      "external": []
+    }
+  ]
+}

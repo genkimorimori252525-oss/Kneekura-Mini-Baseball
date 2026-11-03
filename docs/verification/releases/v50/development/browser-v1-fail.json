@@ -1,0 +1,159 @@
+{
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv50_TBD_vs_LAD_lv27打者カメラ復元版.html",
+  "sha256": "f3a5ddb9cbf2f8160ef4203367de10702b20205d81fef3cfc25ef57792d8f512",
+  "baseline": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\docs\\demos\\releases\\v49\\game.html",
+  "baselineSha256": "b4903f219e81c0efa77c560b7961afb8eafaa85843be90fc9460a2db9a23428a",
+  "views": [
+    {
+      "width": 1200,
+      "cases": {
+        "sides": {
+          "L": {
+            "pitch": 0,
+            "side": "L",
+            "start": 1903.847,
+            "contact": 2061.726,
+            "end": 2137.154044964538,
+            "target": {
+              "x": 0.03578825305988244,
+              "y": 0.9116094796833444,
+              "z": 0.14093098540235566
+            }
+          },
+          "R": {
+            "pitch": 1,
+            "side": "R",
+            "start": 1845.326,
+            "contact": 2010.871,
+            "end": 2079.9246527173705,
+            "target": {
+              "x": 0.1808033949712577,
+              "y": 0.5612158678258796,
+              "z": 0.1470396147124679
+            }
+          }
+        },
+        "takes": [
+          {
+            "pitch": 2,
+            "side": "L",
+            "held": 2137.977,
+            "glance": 2068
+          },
+          {
+            "pitch": 5,
+            "side": "R",
+            "held": 2139.1639999999998,
+            "glance": 2068
+          },
+          {
+            "pitch": 7,
+            "side": "R",
+            "held": 2113.058,
+            "glance": 2035
+          },
+          {
+            "pitch": 8,
+            "side": "R",
+            "held": 2064.471,
+            "glance": 1991
+          },
+          {
+            "pitch": 10,
+            "side": "L",
+            "held": 2027.212,
+            "glance": 1958
+          },
+          {
+            "pitch": 11,
+            "side": "L",
+            "held": 2031.874,
+            "glance": 1958
+          }
+        ],
+        "preparationMs": 1540
+      },
+      "swings": [],
+      "takes": [],
+      "otherCameras": [],
+      "coreHashes": [
+        {
+          "core": "846706f5fae3f8e7ea3dc8a49714c0ea4cafd8f6de3608b55c16f90d2ea618d6",
+          "batEndpoints": "0a9cb7b4002b9dfd0de4528f5e9bad4f040ea8e96d19a8d1c1a80a40389ca009",
+          "batFrames": 51
+        },
+        {
+          "core": "fc3fe0e588fb93b731e2e3dfc7eef06a842bf05d390fabd03821583b24012442",
+          "batEndpoints": "de4384040f3b113070e8024628e0b62c0ae6982fbc619689d63a3817df218ce1",
+          "batFrames": 46
+        },
+        {
+          "core": "25019257c6c70085076654f20bbc92bc70c937d5c0134c77735aa7d767c0855f",
+          "batEndpoints": "85c00ede76ed2e8974e6ddb72bed80d77d485e7109bb5afcf35d05a1779c8396",
+          "batFrames": 57
+        },
+        {
+          "core": "20c8a18c67c014999735d821a3601f8c2c586d6e2204ebe5859b799f14c9ad76",
+          "batEndpoints": "b3f7642e751d913710c3c955255837c19844fbb9c8d85e7d9f58a158fef57880",
+          "batFrames": 43
+        },
+        {
+          "core": "f1f815e80954cd3501daf31514f165280b7041fd71480ac239aec3ea253b7462",
+          "batEndpoints": "bd953560366a0c6a3710d5b867a75c0b7d0331c4fd215d10599c54ad64529ef0",
+          "batFrames": 53
+        },
+        {
+          "core": "2ad90b0bcb1b387077a6269b091b84b7ad0f3d717c9254cdca1b4573f71f55eb",
+          "batEndpoints": "556010b4c15bb98028fa260b59a4618a5b72b508db2dc8e68ac25f19c161e6f8",
+          "batFrames": 57
+        },
+        {
+          "core": "2d48b1e54eb0169def1c84a3c42ac1381f68ee63013f09613993e6b75a30faa2",
+          "batEndpoints": "e0fd9ec9bbb8d4ddbae2577896d62102d6544657909a3c4942188339a11af0e8",
+          "batFrames": 51
+        },
+        {
+          "core": "3636062d149ec8f4e05dbc5c71b97d046e9554c626cb16c1245e1686a1e66107",
+          "batEndpoints": "5bba0368977d4b00d8b9436a661f58b4cb3ac2023a93777600ba27b15ece308b",
+          "batFrames": 55
+        },
+        {
+          "core": "8be52a3e5931a6850116813cf76e43edd9f33112c10c8da41f413887be3c4106",
+          "batEndpoints": "4b661e59fe56d1a22a47ffb05a177cba1b0e102447d3a5480a799498e3a0579b",
+          "batFrames": 50
+        },
+        {
+          "core": "e33fe62649d4cbfe0d61c461e920c23ee46af8bb96bafed5552cf505e9aadd88",
+          "batEndpoints": "f479d42f31399697ecb0520fa15a34146378b67d3083119821264caec7f65b4a",
+          "batFrames": 43
+        },
+        {
+          "core": "52ce987852877dd8da33328843fd49fd7c8cb7a4fafb0ad454eb10eb129e8166",
+          "batEndpoints": "70894a13b7a6073ca3c814b6b4080b61c41ca0ea55eda5785c4217d4a1a6f642",
+          "batFrames": 45
+        },
+        {
+          "core": "bd296618195611aa15ae9af883df1224a5cbab232711cf488747d1e16e8438b6",
+          "batEndpoints": "0383b997191d73e71c1f22c1a8466d008234c23248c7a02b2a936a8eb90d0304",
+          "batFrames": 47
+        }
+      ]
+    }
+  ],
+  "nativeBundleSha256": "e0677928d7641513228fb78782a8afcceb5e4890fddbd99ac93c05f271da2e6c",
+  "currentSourceInputs": 107,
+  "pass": false,
+  "error": "AssertionError [ERR_ASSERTION]: existing v49 field tracking resumes exactly\n+ actual - expected\n\n  {\n    camera: 'batter',\n    eye: {\n      x: 2.9071198364713964,\n      y: 1.4861,\n      z: 1.6990525314956155\n    },\n+   pitch: 0.04222711622602826,\n-   pitch: 0.04222711622602827,\n    yaw: 0.2553621874219225\n  }\n\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v50-batter-view.mjs:127:32",
+  "browserFaults": [
+    {
+      "label": "v49",
+      "errors": [],
+      "requests": []
+    },
+    {
+      "label": "v50-1200",
+      "errors": [],
+      "requests": []
+    }
+  ]
+}

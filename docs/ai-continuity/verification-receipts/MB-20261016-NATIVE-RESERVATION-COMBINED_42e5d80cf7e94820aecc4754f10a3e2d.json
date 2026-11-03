@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-NATIVE-RESERVATION-COMBINED",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/native-game/AuthoredNativeReservationV1.test.ts",
+    "src/integration/native-game/AuthoredMeasuredBattingModelV1.test.ts",
+    "src/integration/native-game/AuthoredNativeMatchV1.test.ts",
+    "src/host/world/SamePlateAppearanceEnrollment.test.ts",
+    "src/host/world/SamePlateAppearanceEnrollmentWal.test.ts"
+  ],
+  "observed_at": "2026-10-15T22:19:12.789+00:00",
+  "elapsed_ms": 56984,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-NATIVE-RESERVATION-COMBINED_42e5d80cf7e94820aecc4754f10a3e2d.log",
+  "output_sha256": "7c5435503ae8975534be1014b2f194398a75d684a415eb8f8c5eef3762092a09",
+  "receipt_id": "MB-20261016-NATIVE-RESERVATION-COMBINED_42e5d80cf7e94820aecc4754f10a3e2d"
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V51-AVOIDANCE-GREEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFielderAvoidanceV1.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T09:29:42.084+00:00",
+  "elapsed_ms": 922,
+  "git_head": "01834d9e8361b7747083b9fbb7539c93ee662b50",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V51-AVOIDANCE-GREEN_f47f390f1dd04b6b91a6c3eb65038f54.log",
+  "output_sha256": "5265aea2873b4d04fc2e0f81baed988b8aa2529dd0d027677861c5a579bf7c8a",
+  "receipt_id": "MB-20261018-V51-AVOIDANCE-GREEN_f47f390f1dd04b6b91a6c3eb65038f54"
+}

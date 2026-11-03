@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>にーくら カメラワーク調整室 v81</title>
+<style>
+:root{color-scheme:dark;font:14px/1.5 system-ui,sans-serif;background:#13171b;color:#e9edf0}*{box-sizing:border-box}body{margin:0}header,main{max-width:1440px;margin:auto;padding:14px 18px}header{border-bottom:1px solid #39434b}h1{font-size:21px;margin:0 0 6px}h2{font-size:16px;margin:0 0 9px}p{margin:5px 0}button,input,select{font:inherit;min-height:34px;max-width:100%;color:inherit;background:#20282f;border:1px solid #667783;border-radius:4px;padding:4px 8px}button{cursor:pointer}button:hover{background:#354450}button:disabled{opacity:.45;cursor:default}input[type=range]{padding:0;min-height:24px;width:100%}input[type=checkbox]{min-height:0;width:16px;height:16px;vertical-align:middle}label{display:grid;gap:4px}fieldset{border:1px solid #46545f;border-radius:5px;padding:12px;margin:0;min-width:0}legend{padding:0 6px}output,.mono{font-family:ui-monospace,monospace}output{font-variant-numeric:tabular-nums}small,.muted{color:#afbdc8}.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.commands{display:grid;grid-template-columns:repeat(5,minmax(100px,1fr));gap:9px}.panel{border:1px solid #46545f;background:#1a2026;border-radius:6px;padding:12px;margin-bottom:12px}.view{min-width:0}figure{margin:0}figcaption{display:flex;justify-content:space-between;gap:8px;margin-bottom:7px}.view canvas{width:100%;height:auto;display:block;background:#070a07;image-rendering:pixelated;border:1px solid #46545f}.metrics{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace;min-height:66px;margin:7px 0 0}.settings{margin-top:12px}.controls{display:grid;grid-template-columns:minmax(0,1fr) 135px;gap:4px 10px;margin:10px 0}.controls label{grid-column:1}.controls output{grid-column:2;text-align:right;align-self:center}.controls input[type=range]{grid-column:1/-1}.status{white-space:pre-wrap;overflow-wrap:anywhere}.error{color:#ffb3a9}#timeline{width:100%}#markers{margin:7px 0}#markers button{font-size:12px;min-height:28px}#pitch-list{width:100%}#angle-plot{width:100%;height:180px;background:#11171d}details summary{cursor:pointer}details[open] summary{margin-bottom:10px}iframe{position:fixed;left:-20000px;top:0;width:900px;height:1000px;border:0;pointer-events:none}.file{display:inline-block}.file input{width:210px}.instructions{max-width:1000px}a{color:#8dcaff}kbd{border:1px solid #667783;border-radius:3px;padding:0 4px}.busy{color:#f2ce80}#settings-json{width:100%;height:140px;font:12px/1.4 ui-monospace,monospace;background:#11171d;color:#e9edf0}
+@media(max-width:680px){header,main{padding:10px}.grid{grid-template-columns:1fr}.commands{grid-template-columns:repeat(2,minmax(0,1fr))}.panel{padding:10px}.file input{width:180px}h1{font-size:18px}}
+.camera-screen{position:relative}.camera-screen canvas[id^="pitch-view"]{position:absolute;inset:0;background:transparent;pointer-events:none;border-color:transparent}
+</style>
+<header>
+ <h1>カメラワーク調整室 <small>v81</small></h1>
+ <p>同じ試合・同じ時刻を、設定AとBのカメラで比較します。</p>
+ <p id="status" class="status" role="status">試合Coreを読み込んでいます…</p>
+<p class="muted">安定開始は予定インパクトからの差で調整（−は早め、＋は遅め）。実際の開始は打者の意思決定からスイング終端の範囲。許容角度／角速度を0にすると完全固定。スイング前の視線はv59を基準にし、身体連動を加えています。</p><p class="muted">初期値では、振る球の視線はv59基準です。チェックでスイング前にも選球眼を反映できます。見逃す判断の後は選球眼45が基準で、最大0.70／許容角0.00まで変わります。下の映像に実効値を表示します。</p></header>
+<main>
+ <section class="panel">
+  <div class="row">
+   <button id="next-pitch" disabled>次の一球</button><button id="play" disabled>再生</button><button id="pause" disabled>停止</button>
+   <button id="step-back" disabled>−55ms</button><button id="step-forward" disabled>＋55ms</button>
+   <label>速度<select id="speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+   <label>再生範囲<select id="play-mode"><option value="loop">この区間をループ</option><option value="pause">この球で停止</option><option value="match">次の球へ進む</option></select></label>
+   <label>視点<select id="camera-choice"><option value="batter">打者</option><option value="runner">走者</option><option value="mound">投手／守備</option><option value="catcher">捕手</option><option value="overhead">俯瞰</option></select></label>
+  </div>
+  <p id="match-status" class="mono">未投球</p>
+  <select id="pitch-list" aria-label="記録した球を選ぶ"></select>
+  <input id="timeline" type="range" min="0" max="1" step="1" value="0" aria-label="再生時刻（ms）">
+  <div class="row"><output id="time-label">0 / 0 ms</output><button id="loop-start">ここを区間の始点に</button><button id="loop-end">ここを区間の終点に</button><button id="loop-clear">全区間へ戻す</button><output id="loop-label"></output></div>
+  <div class="row"><button id="curve-early">早めに振ったカーブの記録</button><button id="curve-late">遅めに振ったカーブの記録</button><small>記録済みのカーブから、打者予測への早め／遅めの誤差を選択。該当しない場合は球種をカーブにして追加生成。</small></div>
+  <div id="markers" class="row" aria-label="プレー内の時刻"></div>
+ </section>
+ <section class="grid" aria-label="同じ試合のカメラ比較">
+  <div class="view panel" data-side="A"><figure><figcaption><strong>A <span id="label-A">v59スイング基準</span></strong><span id="phase-A"></span></figcaption><div class="camera-screen"><canvas id="view-A" width="600" height="432" aria-label="設定Aの試合映像"></canvas><canvas id="pitch-view-A" width="600" height="432" aria-hidden="true"></canvas></div></figure><pre id="metrics-A" class="metrics"></pre><fieldset class="settings" id="settings-A"><legend>設定A</legend></fieldset></div>
+  <div class="view panel" data-side="B"><figure><figcaption><strong>B <span id="label-B">調整設定</span></strong><span id="phase-B"></span></figcaption><div class="camera-screen"><canvas id="view-B" width="600" height="432" aria-label="設定Bの試合映像"></canvas><canvas id="pitch-view-B" width="600" height="432" aria-hidden="true"></canvas></div></figure><pre id="metrics-B" class="metrics"></pre><fieldset class="settings" id="settings-B"><legend>設定B</legend></fieldset></div>
+ </section>
+ <section class="panel">
+  <div class="row"><label><span><input id="lab-pitcher-head-enabled" type="checkbox" checked>投手の身体・頭に伴うカメラ移動</span></label><label>動きの倍率<input id="lab-pitcher-head-scale" type="number" min="0" max="2" step="0.05" value="1"></label><small>マウンド上の投手の目から、既存投球動作に同期。実測骨格ではなく調整可能な仮モデルです。</small></div>
+  <div class="row"><label>通常視点の球倍率<input id="lab-ball-scale-perspective" type="number" min="0.25" max="8" step="0.05" value="1"></label><label>俯瞰の球倍率<input id="lab-ball-scale-overhead" type="number" min="0.25" max="8" step="0.05" value="1"></label><label>俯瞰：高さの遠近感<input id="lab-ball-scale-overheadHeightEmphasis" type="number" min="1" max="8" step="0.1" value="2"></label><button id="lab-ball-scale-reset">球の表示を初期値へ</button><small id="lab-ball-height-model-status">新方式：仮想高度の投影</small><small>地面からの高さを、直径の計算時だけ指定倍として投影します。2mの球は設定2で4m相当のサイズ。中心位置・物理は変えず、接地球と他視点は維持します。旧方式の設定は数値を変更すると新方式へ切り替わります。初期2。</small></div>
+  <div class="row"><label>選手名のサイズ<input id="lab-name-scale" type="number" min="0.5" max="2.5" step="0.05" value="1"></label><button id="lab-name-reset">名前サイズを1に戻す</button><small>全視点で名前を重ね、走者名を優先。球は文字・枠の手前へ描画。</small></div>
+  <div class="row"><button id="copy-a-b">A → B</button><button id="copy-b-a">B → A</button><button id="reset-baseline">Aをv59スイング基準へ</button><button id="reset-default">Bを改善初期値へ</button><label><span><input id="guides" type="checkbox">打者の視線ガイド</span></label><button id="measure">この球の角度推移を計測</button></div>
+  <canvas id="angle-plot" width="1000" height="180" aria-label="AとBの下向き角度の比較"></canvas>
+  <p id="measure-status" class="muted">青=A、黄=B。下向きを正、上向きを負の角度で表示します。設定変更後は再計測してください。</p>
+ </section>
+ <details class="panel" open><summary>試合の再現条件・次球への指示</summary>
+  <div class="commands" id="commands"></div>
+  <div class="row" style="margin-top:10px"><label>seed<input id="seed" maxlength="128" value="TBD-LAD-LIVE"></label><label>回数<select id="innings"><option>1</option><option>3</option><option>5</option><option selected>9</option></select></label><button id="new-game">この条件で新しい試合</button><button id="generate">12球生成</button><button id="finish-game">規定終了まで生成</button><button id="cancel-generation" disabled>生成を停止</button></div>
+  <p class="muted">指示は未生成の球から反映されます。「新しい試合」は現在の球履歴を置き換えます。規定終了までの生成中も停止できます。</p>
+ </details>
+ <details class="panel"><summary>調整値・再現セッションの保存</summary>
+  <div class="row"><button id="save-settings">調整JSONを保存</button><label class="file">調整JSONを読む<input id="load-settings" type="file" accept=".json,application/json"></label><button id="save-session">再現セッションを保存</button><label class="file">再現セッションを読む<input id="load-session" type="file" accept=".json,application/json"></label></div>
+  <p class="muted">調整JSONはA/Bのカメラ設定、球・名前の表示倍率、投手の身体移動。再現セッションはseed・各球の指示・表示位置を含み、同じCoreで試合を再生成します。再現セッションはv81と同じCoreのものだけ読み込めます。以前の調整JSONは以前の視線設定へ補完して読み込み、「Bを改善初期値へ」で新しい初期値に戻せます。画面の調整値はこのブラウザにも自動保存します。</p>
+  <label>現在の調整JSON<textarea id="settings-json" readonly></textarea></label><button id="copy-json">JSONをコピー</button>
+ </details>
+ <details class="panel instructions"><summary>調整方法・開発用の入口</summary>
+  <p>1.「12球生成」から左右打者・低い球・打球のあるプレーを選びます。2. 打点付近へ移動しループ区間を指定します。3. A/Bを比べ、注視点の高さと打球への移行を調整します。</p>
+  <p>振ると決めた後は、今の球の高さではなく登録された予測打点へ視線を寄せます。予定インパクト付近では、実際のバットの回転に沿って頭もわずかに動きます。バットそのものを注視せず、打点を見ながら小さな身体連動を許します。打球やミットをそのまま追い続けず、スイング終端と打球認識後の待機が済んだあと既存の打球追尾へ戻ります。</p>
+  <p>「狙い目から上へ」と「下向きの上限」は再び有効です。画像Bの初期値0.30m／0.20rad／300ms／70ms／0.26／0.02radを継承します。初期値の許容角は約2.3°、最大角速度は約20°/秒です。「バットに伴う頭の動き」で強さを変え、0で連動を止めます。ランダムな揺れは加えません。身体連動は実測バットを入力とする仮の表示モデルです。基準は将来の衝突結果ではなく、打者自身の登録済み予定打点です。</p>
+  <p>映像の画質は従来どおり4px格子です。全レイヤーを同じ表示時刻で更新します。通常は約18.3ms、投球中は約7.3msを目標とし、画面の更新周期が上限です。実際の頻度は画面の更新周期と端末性能に依存します。サイズ倍率の初期値は1です。両画面は1つのCoreとバット観測を共有し、カメラだけを交換します。フィールド・バット・ボールの3レイヤーを通常試合と同じ順で描きます。ガイド・角度グラフは調整室専用です。</p>
+  <p class="mono" id="source-info"></p>
+  <p>編集元: <code>camera-workbench-v81.html</code> / <code>camera-workbench-v81.js</code> / <code>live-camera-tuning-batter-view-v66.js</code>。検査用API: <code>window.KneekuraCameraLab</code>。</p>
+ </details>
+</main>
+<iframe id="match-engine" title="同一試合のCoreと描画エンジン" tabindex="-1" aria-hidden="true"></iframe>
+<script id="camera-workbench-source" type="application/json">__V73_METADATA__</script>
+<script>
+const CAMERA_LAB_GAME_HTML=__V73_EMBEDDED_GAME__;
+__V73_WORKBENCH_DRIVER__
+</script>
+</html>

@@ -1,0 +1,19 @@
+{
+  "pass": true,
+  "gameSha256": "80c68e3ddb5c961ab6f18b325c6f267f883cd02d27381dfa10a9334bf8afae9f",
+  "makerSha256": "f1443bb1c7699ce88249fd4f6f293ec6cd2fd705767b9e1ff04db24e0c62bbd9",
+  "nativeBundleSha256": "4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279",
+  "sourceInputs": 113,
+  "makerSourceInputs": 79,
+  "preservedV52Cameras": true,
+  "preservedV53RulesAndRunning": true,
+  "checkedLinks": 14,
+  "allTraitsConnected": false,
+  "allApprovedExecutableFamiliesConnected": true,
+  "executableFamilies": 7,
+  "availabilityFamilies": 119,
+  "unimplementedOrOutOfScope": 112,
+  "pendingTraitScope": null,
+  "statisticsCalibrated": false,
+  "nativeSqliteAdmission": false
+}

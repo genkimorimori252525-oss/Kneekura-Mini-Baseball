@@ -1,0 +1,10 @@
+{
+  "pass": true,
+  "makerSha256": "8f2a0c7a9b16c232ff9b3716b77dbb6b9845825f7490763a56c476c9b61b8879",
+  "coreUnchanged": true,
+  "inheritedUiAndRenderersUnchanged": true,
+  "sourcePins": 93,
+  "priorV79FrozenFilesUnchanged": true,
+  "scope": "UI_ONLY_PITCH_MENU_15_TYPES_24_PRESETS",
+  "publication": "LOCAL_ONLY"
+}

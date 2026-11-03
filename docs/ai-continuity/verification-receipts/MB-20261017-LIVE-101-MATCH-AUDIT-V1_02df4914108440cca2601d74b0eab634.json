@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-101-MATCH-AUDIT-V1",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/verification/run-live-match-population.mjs",
+    "../../work/live-game-audit-v5",
+    "../../outputs/verification-authored-with-bat-v33-population-final-v1",
+    "101",
+    "16"
+  ],
+  "observed_at": "2026-10-17T01:06:35.689+00:00",
+  "elapsed_ms": 278516,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-101-MATCH-AUDIT-V1_02df4914108440cca2601d74b0eab634.log",
+  "output_sha256": "47a58c9305826738a099ad965d5501ca93dd8f7ca230c264fa6e6c7f858c48cf",
+  "receipt_id": "MB-20261017-LIVE-101-MATCH-AUDIT-V1_02df4914108440cca2601d74b0eab634"
+}

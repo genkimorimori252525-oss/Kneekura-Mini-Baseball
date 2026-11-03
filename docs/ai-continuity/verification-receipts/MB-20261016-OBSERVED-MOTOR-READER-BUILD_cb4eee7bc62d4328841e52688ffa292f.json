@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OBSERVED-MOTOR-READER-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/native-game/build-measured-model-readback.mjs",
+    "../native-observed-motor-reader-v1",
+    "observed_cut_readback"
+  ],
+  "observed_at": "2026-10-16T11:05:24.390+00:00",
+  "elapsed_ms": 1000,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OBSERVED-MOTOR-READER-BUILD_cb4eee7bc62d4328841e52688ffa292f.log",
+  "output_sha256": "b4209e9759303cb996be69f122a89eb35b98dde9711f45c5da77d821a773e6ae",
+  "receipt_id": "MB-20261016-OBSERVED-MOTOR-READER-BUILD_cb4eee7bc62d4328841e52688ffa292f"
+}

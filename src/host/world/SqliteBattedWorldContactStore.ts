@@ -10,6 +10,8 @@ import { projectDefenderBodyKinematicsSegment, sampleDefenderBodyKinematicsSegme
 import { composeDefenderPhysicalPrimitiveSegment, type DefenderPhysicalPrimitiveRole } from '../../core/sim/fielding/DefenderPhysicalPrimitive';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { battedBallFlightEvidenceFromSqlite, type DurableBattedBallFlight, type SqliteBattedBallFlightStore } from './SqliteBattedBallFlightStore';
+import { battedWorldFlightSourceCurve, CONTINUOUS_AERO_GROUND_BATTED_WORLD_SOURCE_VERSION } from './BattedWorldSourceCurve';
+import { recordBattedBallFirstGroundContact } from '../../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 import { readOfficialActorPersonLink } from './SqliteOfficialInitialWorldStore';
 import type { OfficialParticipantBinding } from './SqliteOfficialParticipationStore';
 import { deriveAndRecordFirstGroundContactEvidence } from '../../core/sim/plateAppearance/BattedBallTimelinePhysicalAdapter';
@@ -77,6 +79,10 @@ export const battedWorldContactEvidenceFromSqlite = (db: Pick<import('node:sqlit
     materializations.assertModel(m);
     const flight = ownFlights.read(s.flightSourceId);
     if (!flight) throw new Error('actual batted World flight is missing');
+    const sourceCurve = battedWorldFlightSourceCurve(flight);
+    if ((sourceCurve !== undefined) !== (s.sourceVersion === CONTINUOUS_AERO_GROUND_BATTED_WORLD_SOURCE_VERSION)) {
+      throw new Error('batted World contact Source version differs from its flight kernel');
+    }
     const { frame } = flight.physicalPitch, batter = frame.batterActor!, world = frame.world, at = flight.flight.contact.tick;
     const throughTick = at + flight.source.searchDurationTicks, tps = flight.source.execution.ballFlightParameters.ticksPerSecond;
     const ownedRunner = s.kind === 'owned_runner_contact_v1' ? frame.prePitchRunner : undefined;
@@ -145,13 +151,22 @@ export const battedWorldContactEvidenceFromSqlite = (db: Pick<import('node:sqlit
           startOffset: p.offset, offsetVelocity: motion.offsetVelocity, offsetAcceleration: motion.offsetAcceleration }) });
       }
     }
-    const result = deriveFirstBattedWorldContact({ flight: flight.flight, parameters: flight.source.execution.ballFlightParameters, throughTick, actors, surfaces: m.surfaces });
+    const result = deriveFirstBattedWorldContact({ flight: flight.flight, parameters: flight.source.execution.ballFlightParameters,
+      throughTick, actors, surfaces: m.surfaces, ...(sourceCurve ? { sourceCurve } : {}) });
     let timeline = flight.physicalPitch.result.pitch.resolution.timeline;
     if (result.kind === 'contact' && result.contacts.length === 1 && result.contacts[0].kind === 'ground') {
+      if (sourceCurve) {
+        const territory = flight.projectedGroundTerritory;
+        if (!territory || territory.tick !== result.tick || json(result.ball) !== json(flight.flight.firstGroundContact?.state)) {
+          throw new Error('nonlinear World first ground timeline differs');
+        }
+        timeline = recordBattedBallFirstGroundContact(timeline, territory);
+      } else {
       const ground = deriveAndRecordFirstGroundContactEvidence({ timeline, field: flight.source.execution.field,
         searchDurationTicks: result.tick - at, ballFlightParameters: flight.source.execution.ballFlightParameters });
       if (ground.kind !== 'recorded' || ground.territory.tick !== result.tick) throw new Error('batted World first ground timeline differs');
       timeline = ground.timeline;
+      }
     }
     return freeze({ source: s, revision: (parent?.revision ?? 0) + 1, model: m, modelActorEvidence, flight, actors, result, timeline });
   };

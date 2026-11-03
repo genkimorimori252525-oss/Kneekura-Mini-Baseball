@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V62-CADENCE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v56-cadence.mjs",
+    "../../outputs/ばせぼーるlv62_TBD_vs_LAD_投手視点とリリース版.html",
+    "../../outputs/カメラワーク調整室_v62.html",
+    "../../outputs/verification-v62-cadence"
+  ],
+  "observed_at": "2026-10-18T19:41:15.033+00:00",
+  "elapsed_ms": 10375,
+  "git_head": "6cab540b173526893d7d8f78f701a8087f62d0e8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V62-CADENCE_c70decaaf7934e5d84bddef5895599e9.log",
+  "output_sha256": "868ca518dd58be62697387c50ab5294952f7d1f03a3509ef83b1e74af25884bc",
+  "receipt_id": "MB-20261019-V62-CADENCE_c70decaaf7934e5d84bddef5895599e9"
+}

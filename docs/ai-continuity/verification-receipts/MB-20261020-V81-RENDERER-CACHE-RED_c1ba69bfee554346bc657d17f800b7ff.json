@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-RENDERER-CACHE-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "--test",
+    "tools/browser-bridge/broadcast-renderer-performance-v81.test.mjs"
+  ],
+  "observed_at": "2026-10-20T12:45:19.310+00:00",
+  "elapsed_ms": 1561,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-RENDERER-CACHE-RED_c1ba69bfee554346bc657d17f800b7ff.log",
+  "output_sha256": "4a674608d4a4270f442afb2ab85cd29b0e7feb0372e86feacf90bfcd4259964d",
+  "receipt_id": "MB-20261020-V81-RENDERER-CACHE-RED_c1ba69bfee554346bc657d17f800b7ff"
+}

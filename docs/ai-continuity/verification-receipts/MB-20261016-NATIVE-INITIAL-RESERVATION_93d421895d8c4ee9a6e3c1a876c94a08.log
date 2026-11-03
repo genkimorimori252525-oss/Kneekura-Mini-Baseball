@@ -1,0 +1,12 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/native-game/AuthoredNativeReservationV1.test.ts (2 tests) 18501ms
+   ✓ reserves actual ten-person first-PA workload on the fresh eighteen-player Native world without manufacturing pitch history 13658ms
+   ✓ rejects foreign membership and missing baselines before installing workload or reservation storage 4842ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  07:15:04
+   Duration  32.36s (transform 9.69s, setup 0ms, collect 13.38s, tests 18.50s, environment 0ms, prepare 128ms)
+

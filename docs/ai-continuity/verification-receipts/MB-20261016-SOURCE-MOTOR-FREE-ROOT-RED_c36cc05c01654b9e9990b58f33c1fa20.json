@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-MOTOR-FREE-ROOT-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "npx.cmd",
+    "vitest",
+    "run",
+    "src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T18:06:59.684+00:00",
+  "elapsed_ms": 2561,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-MOTOR-FREE-ROOT-RED_c36cc05c01654b9e9990b58f33c1fa20.log",
+  "output_sha256": "7be68432fc3a7a610a2fb63a5634fb1d22164edea60df2deff733bd77417e0b8",
+  "receipt_id": "MB-20261016-SOURCE-MOTOR-FREE-ROOT-RED_c36cc05c01654b9e9990b58f33c1fa20"
+}

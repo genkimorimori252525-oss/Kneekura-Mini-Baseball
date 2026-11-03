@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-REFERENCE-CONTACT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/ReferenceBattingWorkbench.test.ts",
+    "src/integration/browser/BattingWorkbench.test.ts",
+    "src/core/sim/contact/ReferenceBatKinematicsV1.test.ts",
+    "src/integration/browser/WorkbenchPlayer.test.ts"
+  ],
+  "observed_at": "2026-10-14T20:56:59.472+00:00",
+  "elapsed_ms": 9718,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-REFERENCE-CONTACT_4f4ede92dd4240428074f90079987323.log",
+  "output_sha256": "dca2778c4de8024de462ea750e4fbd33e0e48dc7c9542c370c8efbd27c9ae5a4",
+  "receipt_id": "MB-20261015-REFERENCE-CONTACT_4f4ede92dd4240428074f90079987323"
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-CONTROL-HOST-RED",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/SamePlateAppearanceSourceControlV1.test.ts",
+    "src/core/sim/ball/SourceDefensiveControlV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T20:46:25.702+00:00",
+  "elapsed_ms": 43375,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-CONTROL-HOST-RED_9b0314625f8f405fbe07012883de4d93.log",
+  "output_sha256": "95113873719c82ef2d3252ed6bad9e58a82604da9d7b46f79ad7768caff386d5",
+  "receipt_id": "MB-20261016-CONTROL-HOST-RED_9b0314625f8f405fbe07012883de4d93"
+}

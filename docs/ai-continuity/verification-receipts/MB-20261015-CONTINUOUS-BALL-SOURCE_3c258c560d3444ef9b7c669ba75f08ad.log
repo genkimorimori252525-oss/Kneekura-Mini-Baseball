@@ -1,0 +1,33 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/VersionedBattedBallFlightSource.test.ts (4 tests) 1721ms
+   ✓ accepts explicit physics from original Native contact, replays after reopen, and refuses the legacy World consumer 658ms
+   ✓ admits continuous v2 only as its own frozen kernel version and replays original contact/floor states after reopen 601ms
+ ✓ src/host/world/SqliteBattedWorldContactStore.test.ts (13 tests) 6316ms
+   ✓ executes the actual ten Player/Person actors from original World and swing, then reopens without caller contact or rule results 817ms
+   ✓ does not append a forecast ground event when an actual surface is contacted earlier 566ms
+   ✓ rejects missing_actor rather than silently replacing actual geometry or scope 418ms
+   ✓ rejects wrong_person rather than silently replacing actual geometry or scope 472ms
+   ✓ rejects pitcher_body rather than silently replacing actual geometry or scope 389ms
+   ✓ rejects missing_primitive rather than silently replacing actual geometry or scope 388ms
+   ✓ rejects wrong_venue rather than silently replacing actual geometry or scope 387ms
+   ✓ rejects future_day rather than silently replacing actual geometry or scope 401ms
+   ✓ rejects caller_result rather than silently replacing actual geometry or scope 370ms
+   ✓ extends only an airborne original prefix with unchanged model and commands 784ms
+   ✓ freezes the actual full registered game roster without executing reserve actors or losing their Person evidence 532ms
+   ✓ rejects invalid reserve roster_revision before freezing original model evidence 390ms
+   ✓ rejects invalid reserve future_person before freezing original model evidence 401ms
+ ✓ src/core/sim/ball/SourceFreeBallKernel.test.ts (6 tests) 136ms
+ ✓ src/core/sim/ball/FreeBaseballTrajectory.test.ts (7 tests) 106ms
+ ✓ src/core/sim/ball/VersionedBattedBallPhysics.test.ts (6 tests) 133ms
+ ✓ src/host/world/SqliteBattedBallFlightStore.test.ts (6 tests) 1503ms
+   ✓ continues actual Native bat contact flight after offline reopen without turning a predicted ground into a ruling 476ms
+   ✓ requires the actual previous flight, unchanged physical execution and a longer search horizon 309ms
+ ✓ src/core/sim/ball/BaseballGroundDynamics.test.ts (7 tests) 5ms
+
+ Test Files  7 passed (7)
+      Tests  49 passed (49)
+   Start at  05:31:20
+   Duration  20.23s (transform 4.07s, setup 0ms, collect 8.92s, tests 9.92s, environment 1ms, prepare 456ms)
+

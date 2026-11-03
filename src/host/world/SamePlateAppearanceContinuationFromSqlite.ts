@@ -2,7 +2,7 @@ import { sqliteMetadataClaimRows, withSqliteMetadataStatementScope } from './Sql
 import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
 import { readSamePaSuccessorWorkClaimRows } from './SamePlateAppearanceContinuationClaimGuard';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
-import { battingAssessmentOwners } from './BattingAssessmentOwnership';
+import { assertSamePaAssessmentProvenanceV129 } from './SamePaAssessmentProvenanceV129';
 import { createRequire } from 'node:module';
 import { randomUUID } from 'node:crypto';
 import type { DatabaseSync } from 'node:sqlite';
@@ -74,9 +74,18 @@ const readSignature = (db: DatabaseSync) => json({ transaction: db.isTransaction
   changes: db.prepare('SELECT total_changes() n').get()!.n, main: db.prepare('PRAGMA main.schema_version').get()!.schema_version,
   temp: db.prepare('PRAGMA temp.schema_version').get()!.schema_version, user: db.prepare('PRAGMA main.user_version').get()!.user_version });
 const invalidate = (phase: ReadPhase) => { phase.failed = true; phase.records.clear(); phase.pitches.clear(); phase.emptyViews.clear(); phase.shared.clear(); phase.active.clear(); };
+/** A mutable adapter path may be legitimate outside a proof. Inside an active
+ * immutable proof it must expire that proof, even if q1 is later restored. */
+export const assertNoMutableSamePaContinuationReadPhase = (db: DatabaseSync): void => {
+  const phase = phases.get(db);
+  if (phase) { invalidate(phase); throw new Error('same-PA continuation phase expired by mutable read'); }
+};
 const immutable = <T>(db: DatabaseSync, body: () => T): T => {
   const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
-  if (!(db instanceof Native) || !db.isTransaction || db.prepare('PRAGMA query_only').get()!.query_only !== 1) throw new Error('same-PA continuation requires Native query-only ownership');
+  if (!(db instanceof Native) || !db.isTransaction || db.prepare('PRAGMA query_only').get()!.query_only !== 1) {
+    const active = phases.get(db); if (active) invalidate(active);
+    throw new Error('same-PA continuation requires Native query-only ownership');
+  }
   const active = phases.get(db);
   if (active) {
     try { if (active.failed) throw new Error('same-PA continuation phase expired'); same(readSignature(db), active.signature);
@@ -139,12 +148,9 @@ const assemble = <T>(db: DatabaseSync, current: boolean, body: (read: (kind: Sam
   };
   const assessmentOwnership = (source: Extract<SamePaContinuationSource, { provenance: unknown }>) =>
     memoSamePaContinuationRead(db, 'continuation-assessment:' + json([tables[samePaContinuationKind(source)], source.sourceId, source.provenance.assessmentSourceId]), () => {
-      for (const table of [...battingAssessmentOwners, 'pa_lifecycle_v1_total_assessments', 'pa_lifecycle_v1_execution_calibrations', 'pa_continuation_v1_total_assessments', 'pa_continuation_v1_execution_calibrations', 'reserved_pa_total_assessments', 'actual_role_workload_assessments', 'pa_dispatch_v1_execution_calibrations']) {
-        if (!db.prepare('SELECT 1 FROM main.sqlite_master WHERE name=?').get(table)) continue;
-        const rows = sqliteMetadataClaimRows(db, `SELECT source_id FROM main.${table} WHERE source_id=$id OR ${claim('source_json', ['sourceId'], '$id')}
-          OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')} OR ${claim('source_json', ['provenance', 'assessmentSourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'provenance', 'assessmentSourceId'], '$id')}`, source.provenance.assessmentSourceId);
-        if (rows.some(row => table !== (source.capability === 'same_pa_nonempty_cumulative_total_v1' ? tables.total : tables.calibration) || row.source_id !== source.sourceId)) throw new Error('same-PA continuation assessment identity belongs to other work');
-      }
+      assertSamePaAssessmentProvenanceV129(db, source.provenance.assessmentSourceId,
+        { table: source.capability === 'same_pa_nonempty_cumulative_total_v1' ? tables.total : tables.calibration, sourceId: source.sourceId },
+        'same-PA continuation assessment identity belongs to other work');
     });
   const derive = (source: SamePaContinuationSource): SamePaContinuationRecord => {
     if (source.capability === 'same_pa_completed_take_prefix_v1') {

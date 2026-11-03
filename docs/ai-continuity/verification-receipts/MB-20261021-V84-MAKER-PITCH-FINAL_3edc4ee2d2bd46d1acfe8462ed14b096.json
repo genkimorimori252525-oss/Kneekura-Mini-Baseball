@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-MAKER-PITCH-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-pitch-recovery-v82.mjs",
+    "../../outputs/にーくら野球メーカー_v84_描画と接地移動版.html",
+    "docs/verification/releases/v84/maker-pitch-final"
+  ],
+  "observed_at": "2026-10-20T15:44:06.062+00:00",
+  "elapsed_ms": 26452,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-MAKER-PITCH-FINAL_3edc4ee2d2bd46d1acfe8462ed14b096.log",
+  "output_sha256": "7aa7f11a6db4f3f79c2c5f1aa3c31021b8ab4fb9c84ff7a0f3cda8cb8dd62b66",
+  "receipt_id": "MB-20261021-V84-MAKER-PITCH-FINAL_3edc4ee2d2bd46d1acfe8462ed14b096"
+}

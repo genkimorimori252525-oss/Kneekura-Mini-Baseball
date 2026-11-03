@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-RECOVERY-NATIVE-COLD-V2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-owned-joint-recovery-v3/readback.mjs",
+    "readback",
+    "../../outputs/verification-authored-with-bat-workload-v1",
+    "../../outputs/verification-authored-with-bat-recovery-v1"
+  ],
+  "observed_at": "2026-10-16T16:06:30.615+00:00",
+  "elapsed_ms": 45687,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-RECOVERY-NATIVE-COLD-V2_7f0b505dc0ea4c0483f0ec3437c7a6e6.log",
+  "output_sha256": "b4720107fd76e2ab3c196b966ac306fdf10aa97be2f87bb5889a36ba665d03bf",
+  "receipt_id": "MB-20261017-RECOVERY-NATIVE-COLD-V2_7f0b505dc0ea4c0483f0ec3437c7a6e6"
+}

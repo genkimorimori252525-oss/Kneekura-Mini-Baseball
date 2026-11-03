@@ -1,0 +1,49 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ tools/browser-bridge/course-charts-v87.test.mjs (2 tests | 2 failed) 803ms
+   × 13-region map preserves missing values and routes keyboard selection to its region 237ms
+     → expected false to be true // Object.is equality
+   × direction fill area changes with ratio while the five direction boundaries stay fixed 171ms
+     → expected [] to have a length of 5 but got +0
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tools/browser-bridge/course-charts-v87.test.mjs > 13-region map preserves missing values and routes keyboard selection to its region
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tools/browser-bridge/course-charts-v87.test.mjs:18:30
+     16|     colors:[...document.querySelectorAll('[data-zone-id] path')].map(n…
+     17|   });
+     18|   expect(observed.available).toBe(true);expect(observed.ids).toEqual([…
+       |                              ^
+     19|   expect(observed.values.slice(0,3)).toEqual(['.330','.180','—']);expe…
+     20|   await page.locator('[data-zone-id="12"]').focus();await page.keyboar…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tools/browser-bridge/course-charts-v87.test.mjs > direction fill area changes with ratio while the five direction boundaries stay fixed
+AssertionError: expected [] to have a length of 5 but got +0
+
+- Expected
++ Received
+
+- 5
++ 0
+
+ ❯ tools/browser-bridge/course-charts-v87.test.mjs:27:29
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  02:04:22
+   Duration  1.78s (transform 35ms, setup 0ms, collect 297ms, tests 803ms, environment 0ms, prepare 211ms)
+

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-RECOVERY-CUMULATIVE-WORKLOAD-SHARED-UNIT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/InitialJointRecoveryWorkloadProjection.test.ts",
+    "src/host/world/InitialJointWorkloadProjection.test.ts",
+    "src/host/world/InitialJointRecoveryCommand.test.ts"
+  ],
+  "observed_at": "2026-10-16T21:39:20.312+00:00",
+  "elapsed_ms": 11233,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-RECOVERY-CUMULATIVE-WORKLOAD-SHARED-UNIT_7a86fa7aa1aa496fba1793e2e8906c11.log",
+  "output_sha256": "b419c8af3ed21cbb3db6c8a9a913fc56c04e8e103e1689a4291b141e194f30f1",
+  "receipt_id": "MB-20261017-RECOVERY-CUMULATIVE-WORKLOAD-SHARED-UNIT_7a86fa7aa1aa496fba1793e2e8906c11"
+}

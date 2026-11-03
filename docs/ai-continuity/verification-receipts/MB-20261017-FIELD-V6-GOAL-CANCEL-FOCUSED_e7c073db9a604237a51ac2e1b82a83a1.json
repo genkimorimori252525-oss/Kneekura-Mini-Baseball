@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-FIELD-V6-GOAL-CANCEL-FOCUSED",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts",
+    "src/core/sim/fielding/LiveHandPreparationV1.test.ts",
+    "src/core/sim/fielding/LiveThrowPlanV1.test.ts",
+    "src/core/sim/fielding/GroundedActorContactResponseV1.test.ts",
+    "src/core/sim/fielding/LiveFieldForecastV1.test.ts",
+    "src/core/sim/fielding/GroundWallRollingCurveV1.test.ts",
+    "src/integration/browser/PlayableMatchRulesV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T01:07:13.183+00:00",
+  "elapsed_ms": 5500,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-FIELD-V6-GOAL-CANCEL-FOCUSED_e7c073db9a604237a51ac2e1b82a83a1.log",
+  "output_sha256": "780184620606eb4986f68c97849c75bac2ef91392dc8e6847d6d8c75375cf16e",
+  "receipt_id": "MB-20261017-FIELD-V6-GOAL-CANCEL-FOCUSED_e7c073db9a604237a51ac2e1b82a83a1"
+}

@@ -1,0 +1,52 @@
+import { it, expect } from 'vitest';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { createHash } from 'node:crypto';
+import { buildCanonicalFieldingPlayInputV1, CANONICAL_FIELDING_SCENARIOS_V1, type AbilityTierV1 } from '../src/core/sim/fielding/LiveFieldPlayDiagnosticsV1';
+import { simulateLiveFieldPlayV1, type LiveFieldFrameV1 } from '../src/core/sim/fielding/LiveFieldPlayV1';
+
+const evidence = resolve('../../outputs/verification-v51-baseline');
+const distance = (a: { x:number;z:number },b:{x:number;z:number}) => Math.hypot(a.x-b.x,a.z-b.z);
+function pairMetric(frames: readonly LiveFieldFrameV1[], a:string,b:string) {
+  let min=Infinity, minLinear=Infinity, closest:any=null, inside48Seconds=0, inside1Seconds=0;
+  for(let k=0;k<frames.length;k++){
+    const f=frames[k], p=f.fielders.find(x=>x.playerId===a)!,q=f.fielders.find(x=>x.playerId===b)!,d=distance(p.position,q.position);
+    if(d<min){min=d;closest={elapsedSeconds:f.elapsedSeconds,distanceMeters:d,ball:f.ball,p,q,frameIndex:k};}
+    if(k){
+      const before=frames[k-1],pp=before.fielders.find(x=>x.playerId===a)!,qq=before.fielders.find(x=>x.playerId===b)!,dt=f.elapsedSeconds-before.elapsedSeconds,
+        x=pp.position.x-qq.position.x,z=pp.position.z-qq.position.z,dx=p.position.x-q.position.x-x,dz=p.position.z-q.position.z-z,
+        u=Math.max(0,Math.min(1,-(x*dx+z*dz)/(dx*dx+dz*dz||1)));
+      minLinear=Math.min(minLinear,Math.hypot(x+u*dx,z+u*dz));
+      // Right endpoint occupancy; this is explicitly sampled, not exact CCD.
+      if(d<.48)inside48Seconds+=dt;if(d<1)inside1Seconds+=dt;
+    }
+  }
+  return {a,b,minimumSampledMeters:min,minimumChordInterpolatedMeters:minLinear,inside48SampledSeconds:inside48Seconds,inside1SampledSeconds:inside1Seconds,closest};
+}
+it('records current actual canonical spacing without imposing a new oracle',()=>{
+  mkdirSync(evidence,{recursive:true});
+  const sourceNames=['src/core/sim/fielding/LiveFieldPlayV1.ts','src/core/sim/fielding/LiveFieldRoleAssignmentV1.ts','src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.ts'];
+  const sources=Object.fromEntries(sourceNames.map(p=>[p,createHash('sha256').update(readFileSync(p)).digest('hex')]));
+  const all:any[]=[],details:any[]=[];
+  for(const tier of ['low','default','high'] as AbilityTierV1[])for(const scenario of CANONICAL_FIELDING_SCENARIOS_V1){
+    const {input,roleMap}=buildCanonicalFieldingPlayInputV1(scenario,tier),result=simulateLiveFieldPlayV1(input),pairs:any[]=[];
+    for(let a=0;a<input.fielders.length;a++)for(let b=a+1;b<input.fielders.length;b++)pairs.push(pairMetric(result.frames,input.fielders[a].playerId,input.fielders[b].playerId));
+    pairs.sort((a,b)=>a.minimumSampledMeters-b.minimumSampledMeters);
+    const triples=result.frames.flatMap(f=>f.fielders.map(p=>({elapsedSeconds:f.elapsedSeconds,anchor:p.playerId,actors:f.fielders.filter(q=>distance(p.position,q.position)<2).map(q=>({playerId:q.playerId,intent:q.intent,position:q.position,velocity:q.velocity}))}))).filter(t=>t.actors.length>=3);
+    const summary={tier,id:scenario.id,end:result.end,minimum:pairs[0],overlappingPairs:pairs.filter(p=>p.minimumSampledMeters<.48),underOneMeterPairs:pairs.filter(p=>p.minimumSampledMeters<1),tripleClusterSamples:triples.length,firstTriple:triples[0]??null};
+    all.push(summary);
+    if(summary.overlappingPairs.length)details.push({tier,id:scenario.id,input,roleMap,result,pairs});
+  }
+  const normal=JSON.parse(readFileSync('docs/verification/releases/v49/game/normal-game-records.json','utf8'));
+  const normalFinal=normal.records.filter((r:any)=>r.fieldFinalFrame).map((r:any)=>{
+    const pairs:any[]=[];for(let a=0;a<9;a++)for(let b=a+1;b<9;b++){
+      const p=r.fieldFinalFrame.fielders[a],q=r.fieldFinalFrame.fielders[b];pairs.push({a:p.playerId,b:q.playerId,distanceMeters:distance(p.position,q.position),p,q});
+    }pairs.sort((a,b)=>a.distanceMeters-b.distanceMeters);return{index:r.index,description:r.description,minimum:pairs[0],overlapping:pairs.filter(p=>p.distanceMeters<.48)};
+  });
+  writeFileSync(resolve(evidence,'canonical-spacing-summary.json'),JSON.stringify({basis:'observed Source frames; chord interpolation is not exact continuous collision detection',sources,scenarios:all},null,2)+'\n');
+  writeFileSync(resolve(evidence,'normal-game-final-spacing.json'),JSON.stringify({basis:'v49 saved final frames only; in-play historical spacing unavailable',plays:normalFinal},null,2)+'\n');
+  details.sort((a,b)=>a.pairs[0].minimumSampledMeters-b.pairs[0].minimumSampledMeters);
+  for(const d of details.slice(0,3))writeFileSync(resolve(evidence,`${d.tier}-${d.id}.json`),JSON.stringify(d,null,2)+'\n');
+  console.log(JSON.stringify({sources,scenarios:all.length,overlapScenarios:all.filter(x=>x.overlappingPairs.length).length,minimumThree:details.slice(0,3).map(d=>({tier:d.tier,id:d.id,minimum:d.pairs[0]})),normalFinalOverlapPlays:normalFinal.filter((x:any)=>x.overlapping.length).length}));
+  expect(all.length).toBe(60);
+},180000);

@@ -1,0 +1,61 @@
+{
+  "pass": true,
+  "scope": "Read-only audit of ordinary HTML: possession, physical carry, controlled base contact and rule out. No product changes.",
+  "cases": [
+    {
+      "version": 73,
+      "htmlSha256": "38d1d09cca6471642a22d0d27d87bbfd5c71b7235c338ac572966d1aa8faa04d",
+      "coreSha256": "82aa947e35cff51a2705b98a0f205a203503a4a43ff967f26786f3d9813750cd",
+      "pitches": 48,
+      "controls": [],
+      "carries": [],
+      "host": {
+        "ruleProfileId": "npb-2026",
+        "inning": 1,
+        "half": "bottom",
+        "outs": 2,
+        "balls": 2,
+        "strikes": 1,
+        "bases": {
+          "first": null,
+          "second": null,
+          "third": null
+        },
+        "score": {
+          "away": 4,
+          "home": 6
+        },
+        "playId": 18
+      },
+      "errors": []
+    },
+    {
+      "version": 76,
+      "htmlSha256": "b21d25b7811fba44f8e5d09cbedb39099cc9454d9ebf0366c0ed9799fb66efcd",
+      "coreSha256": "eed87f92656f5f6e1ac2664e009960c95077288033d474f91ecc2195c3dbc1a5",
+      "pitches": 48,
+      "controls": [],
+      "carries": [],
+      "host": {
+        "ruleProfileId": "npb-2026",
+        "inning": 1,
+        "half": "bottom",
+        "outs": 2,
+        "balls": 2,
+        "strikes": 1,
+        "bases": {
+          "first": null,
+          "second": null,
+          "third": null
+        },
+        "score": {
+          "away": 4,
+          "home": 6
+        },
+        "playId": 18
+      },
+      "errors": []
+    }
+  ],
+  "ordinaryCarryObserved": false
+}

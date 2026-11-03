@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-RECOVERY-NATIVE-TOOLS-TYPES",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--strict",
+    "--skipLibCheck",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "bundler",
+    "--target",
+    "ES2022",
+    "--types",
+    "node",
+    "tools/verification/native-game/owned-joint-recovery-native.ts",
+    "tools/verification/native-game/post-impact-joint-world-native.ts"
+  ],
+  "observed_at": "2026-10-16T15:56:57.361+00:00",
+  "elapsed_ms": 15437,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-RECOVERY-NATIVE-TOOLS-TYPES_544b5d18f51c4a469078eb6a8cd4621a.log",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "receipt_id": "MB-20261017-RECOVERY-NATIVE-TOOLS-TYPES_544b5d18f51c4a469078eb6a8cd4621a"
+}

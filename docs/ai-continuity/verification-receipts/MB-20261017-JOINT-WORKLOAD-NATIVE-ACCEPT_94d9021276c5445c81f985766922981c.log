@@ -1,0 +1,1922 @@
+ADOPT_ACTUAL_NONEMPTY_CUMULATIVE_WORK
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+... Skipped lines
+
+  [
++   [Object: null prototype] {
+-   {
+      name: 'applications',
+      sql: 'CREATE TABLE applications (\n' +
+        '        application_id TEXT PRIMARY KEY,\n' +
+        '        match_id TEXT NOT NULL REFERENCES matches(match_id),\n' +
+        '        closure_id TEXT NOT NULL,\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'batting_emotion_execution_v1_executions',
+      sql: 'CREATE TABLE batting_emotion_execution_v1_executions(source_id TEXT PRIMARY KEY,execution_id TEXT NOT NULL UNIQUE,career_id TEXT NOT NULL,game_id TEXT NOT NULL,player_id TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,genesis_source_id TEXT NOT NULL,emotion_revision INTEGER NOT NULL CHECK(emotion_revision>=1),world_revision INTEGER NOT NULL CHECK(world_revision>=1),state_hash TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(career_id,game_id,player_id,emotion_revision),UNIQUE(career_id,world_revision))',
+      tbl_name: 'batting_emotion_execution_v1_executions',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'batting_emotion_execution_v1_heads',
+      sql: 'CREATE TABLE batting_emotion_execution_v1_heads(career_id TEXT NOT NULL,game_id TEXT NOT NULL,player_id TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,genesis_source_id TEXT NOT NULL,genesis_source_hash TEXT NOT NULL,genesis_snapshot_hash TEXT NOT NULL,emotion_revision INTEGER NOT NULL CHECK(emotion_revision>=1),first_source_id TEXT NOT NULL,last_source_id TEXT NOT NULL,last_snapshot_hash TEXT NOT NULL,state_hash TEXT NOT NULL,PRIMARY KEY(career_id,game_id,player_id))',
+      tbl_name: 'batting_emotion_execution_v1_heads',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'batting_emotion_v1_geneses',
+      sql: 'CREATE TABLE batting_emotion_v1_geneses(source_id TEXT PRIMARY KEY,career_id TEXT NOT NULL,game_id TEXT NOT NULL,player_id TEXT NOT NULL,view_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(career_id,game_id,player_id))',
+      tbl_name: 'batting_emotion_v1_geneses',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'batting_initial_equipment_v1_sources',
+      sql: 'CREATE TABLE batting_initial_equipment_v1_sources(source_id TEXT PRIMARY KEY,enrollment_source_id TEXT NOT NULL,setup_source_id TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)',
+      tbl_name: 'batting_initial_equipment_v1_sources',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'batting_measured_body_v1_sources',
+      sql: 'CREATE TABLE batting_measured_body_v1_sources(source_id TEXT PRIMARY KEY,initial_bat_source_id TEXT NOT NULL UNIQUE,profile_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)',
+      tbl_name: 'batting_measured_body_v1_sources',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'batting_observation_v1_deliveries',
+      sql: 'CREATE TABLE batting_observation_v1_deliveries(source_id TEXT PRIMARY KEY,view_source_id TEXT NOT NULL,player_id TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,canonical_key TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)',
+      tbl_name: 'batting_observation_v1_deliveries',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'batting_observation_v1_invocation_heads',
+      sql: 'CREATE TABLE batting_observation_v1_invocation_heads(owner TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,player_id TEXT NOT NULL,revision INTEGER NOT NULL CHECK(revision>=1),first_source_id TEXT NOT NULL,last_source_id TEXT NOT NULL,last_snapshot_hash TEXT NOT NULL,PRIMARY KEY(owner,enrollment_source_id,physical_pitch_source_id,player_id))',
+      tbl_name: 'batting_observation_v1_invocation_heads',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'batting_observation_v1_observations',
+      sql: 'CREATE TABLE batting_observation_v1_observations(source_id TEXT PRIMARY KEY,view_source_id TEXT NOT NULL,player_id TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,canonical_key TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)',
+      tbl_name: 'batting_observation_v1_observations',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'batting_observation_v1_postures',
+      sql: 'CREATE TABLE batting_observation_v1_postures(source_id TEXT PRIMARY KEY,view_source_id TEXT NOT NULL,player_id TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,canonical_key TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)',
+      tbl_name: 'batting_observation_v1_postures',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'batting_prediction_v1_predictions',
+      sql: 'CREATE TABLE batting_prediction_v1_predictions(source_id TEXT PRIMARY KEY,view_source_id TEXT NOT NULL,player_id TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,canonical_key TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)',
+      tbl_name: 'batting_prediction_v1_predictions',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'batting_score_v1_assessments',
+      sql: 'CREATE TABLE batting_score_v1_assessments(source_id TEXT PRIMARY KEY,view_source_id TEXT NOT NULL,player_id TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,canonical_key TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)',
+      tbl_name: 'batting_score_v1_assessments',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'matches',
+      sql: 'CREATE TABLE matches (\n' +
+        '        match_id TEXT PRIMARY KEY,\n' +
+        '        durable_revision INTEGER NOT NULL,\n' +
+        '        state_json TEXT NOT NULL,\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'official_fixtures',
+      sql: 'CREATE TABLE official_fixtures (\n' +
+        '        game_id TEXT PRIMARY KEY,\n' +
+        '        venue_id TEXT NOT NULL,\n' +
+        '        fixture_event_id TEXT NOT NULL UNIQUE,\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'official_initial_world_sources',
+      sql: 'CREATE TABLE official_initial_world_sources (\n' +
+        '    source_id TEXT PRIMARY KEY, game_id TEXT NOT NULL UNIQUE, source_json TEXT NOT NULL, snapshot_json TEXT NOT NULL,\n' +
+        '    source_hash TEXT NOT NULL, snapshot_hash TEXT NOT NULL\n' +
+        '  )',
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'official_participant_bindings',
+      sql: 'CREATE TABLE official_participant_bindings (\n' +
+        '      game_id TEXT NOT NULL, player_id TEXT NOT NULL, binding_json TEXT NOT NULL,\n' +
+        '      PRIMARY KEY(game_id, player_id)\n' +
+        '    )',
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'official_participation_receipts',
+      sql: 'CREATE TABLE official_participation_receipts (\n' +
+        '      receipt_id TEXT PRIMARY KEY, game_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '      receipt_json TEXT NOT NULL, UNIQUE(game_id, player_id),\n' +
+        '      FOREIGN KEY(game_id, player_id) REFERENCES official_participant_bindings(game_id, player_id)\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'pa_dispatch_v1_action_plans',
+      sql: 'CREATE TABLE pa_dispatch_v1_action_plans(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,first_pitch_source_id))',
+      tbl_name: 'pa_dispatch_v1_action_plans',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'pa_dispatch_v1_consumer_actions',
+      sql: 'CREATE TABLE pa_dispatch_v1_consumer_actions(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,right_source_id TEXT NOT NULL,physical_source_id TEXT NOT NULL,player_id TEXT NOT NULL,route TEXT NOT NULL,action_ordinal INTEGER NOT NULL CHECK(action_ordinal>=0),source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(right_source_id,player_id,route,action_ordinal))',
+      tbl_name: 'pa_dispatch_v1_consumer_actions',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'pa_dispatch_v1_consumer_sets',
+      sql: 'CREATE TABLE pa_dispatch_v1_consumer_sets(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,view_source_id))',
+      tbl_name: 'pa_dispatch_v1_consumer_sets',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'pa_dispatch_v1_consumptions',
+      sql: 'CREATE TABLE pa_dispatch_v1_consumptions(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,right_source_id TEXT NOT NULL,pitch_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(right_source_id),UNIQUE(pitch_source_id))',
+      tbl_name: 'pa_dispatch_v1_consumptions',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'pa_dispatch_v1_episode_admissions',
+      sql: 'CREATE TABLE pa_dispatch_v1_episode_admissions(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,episode_source_id TEXT NOT NULL,pitch_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(episode_source_id),UNIQUE(pitch_source_id))',
+      tbl_name: 'pa_dispatch_v1_episode_admissions',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'pa_dispatch_v1_episodes',
+      sql: 'CREATE TABLE pa_dispatch_v1_episodes(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,first_pitch_source_id))',
+      tbl_name: 'pa_dispatch_v1_episodes',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'pa_dispatch_v1_execution_calibrations',
+      sql: 'CREATE TABLE pa_dispatch_v1_execution_calibrations(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,player_id TEXT NOT NULL,route TEXT NOT NULL,nominal_parameter_identity TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(view_source_id,player_id,route,nominal_parameter_identity))',
+      tbl_name: 'pa_dispatch_v1_execution_calibrations',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'pa_dispatch_v1_pitch_actions',
+      sql: 'CREATE TABLE pa_dispatch_v1_pitch_actions(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,right_source_id TEXT NOT NULL,episode_source_id TEXT NOT NULL,progress_revision INTEGER NOT NULL CHECK(progress_revision=1),source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,progress_revision),UNIQUE(right_source_id))',
+      tbl_name: 'pa_dispatch_v1_pitch_actions',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'pa_dispatch_v1_pitch_heads',
+      sql: 'CREATE TABLE pa_dispatch_v1_pitch_heads(enrollment_source_id TEXT PRIMARY KEY,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,first_pitch_source_id TEXT NOT NULL,progress_revision INTEGER NOT NULL CHECK(progress_revision=1),last_source_id TEXT NOT NULL,snapshot_hash TEXT NOT NULL)',
+      tbl_name: 'pa_dispatch_v1_pitch_heads',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'pa_dispatch_v1_rights',
+      sql: 'CREATE TABLE pa_dispatch_v1_rights(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,episode_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,first_pitch_source_id))',
+      tbl_name: 'pa_dispatch_v1_rights',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'pa_initial_ball_v1_plays',
+      sql: 'CREATE TABLE pa_initial_ball_v1_plays(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,actor_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id))',
+      tbl_name: 'pa_initial_ball_v1_plays',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'pa_initial_ball_v1_setups',
+      sql: 'CREATE TABLE pa_initial_ball_v1_setups(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,actor_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id))',
+      tbl_name: 'pa_initial_ball_v1_setups',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'pa_initial_joint_v1_executions',
+      sql: 'CREATE TABLE pa_initial_joint_v1_executions(source_id TEXT PRIMARY KEY,launch_source_id TEXT NOT NULL UNIQUE,enrollment_source_id TEXT NOT NULL,right_source_id TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)',
+      tbl_name: 'pa_initial_joint_v1_executions',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'pa_initial_joint_v1_rights',
+      sql: 'CREATE TABLE pa_initial_joint_v1_rights(source_id TEXT PRIMARY KEY,launch_source_id TEXT NOT NULL UNIQUE,enrollment_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)',
+      tbl_name: 'pa_initial_joint_v1_rights',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'pa_observed_initial_v1_heads',
+      sql: 'CREATE TABLE pa_observed_initial_v1_heads(enrollment_source_id TEXT PRIMARY KEY,launch_source_id TEXT NOT NULL,operation_ordinal INTEGER NOT NULL,last_source_id TEXT NOT NULL,snapshot_hash TEXT NOT NULL)',
+      tbl_name: 'pa_observed_initial_v1_heads',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'pa_observed_initial_v1_operations',
+      sql: 'CREATE TABLE pa_observed_initial_v1_operations(source_id TEXT PRIMARY KEY,enrollment_source_id TEXT NOT NULL,launch_source_id TEXT NOT NULL,operation_ordinal INTEGER NOT NULL CHECK(operation_ordinal>0),evaluation_tick INTEGER NOT NULL,previous_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,operation_ordinal))',
+      tbl_name: 'pa_observed_initial_v1_operations',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'pa_pitch_hand_hold_v1_sources',
+      sql: 'CREATE TABLE pa_pitch_hand_hold_v1_sources(source_id TEXT PRIMARY KEY,launch_source_id TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)',
+      tbl_name: 'pa_pitch_hand_hold_v1_sources',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'physical_plate_appearance_actor_games',
+      sql: 'CREATE TABLE physical_plate_appearance_actor_games (game_id TEXT PRIMARY KEY,first_source_id TEXT NOT NULL)',
+      tbl_name: 'physical_plate_appearance_actor_games',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'physical_plate_appearance_actors',
+      sql: 'CREATE TABLE physical_plate_appearance_actors (source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,\n' +
+        '      game_id TEXT NOT NULL,play_id INTEGER NOT NULL,player_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,\n' +
+        '      snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(game_id,play_id))',
+      tbl_name: 'physical_plate_appearance_actors',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'reserved_pa_execution_views',
+      sql: 'CREATE TABLE reserved_pa_execution_views(source_id TEXT PRIMARY KEY,enrollment_source_id TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,actor_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,prefix_source_id TEXT NOT NULL,assessment_set_hash TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,prefix_source_id,assessment_set_hash))',
+      tbl_name: 'reserved_pa_execution_views',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'reserved_pa_total_assessments',
+      sql: 'CREATE TABLE reserved_pa_total_assessments(source_id TEXT PRIMARY KEY,enrollment_source_id TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,actor_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,prefix_source_id TEXT NOT NULL,player_id TEXT NOT NULL,baseline_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,prefix_source_id,player_id))',
+      tbl_name: 'reserved_pa_total_assessments',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'reserved_pa_work_prefixes',
+      sql: 'CREATE TABLE reserved_pa_work_prefixes(source_id TEXT PRIMARY KEY,enrollment_source_id TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,actor_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,physical_revision INTEGER NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,physical_revision))',
+      tbl_name: 'reserved_pa_work_prefixes',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'same_pa_enrollments',
+      sql: 'CREATE TABLE same_pa_enrollments(source_id TEXT PRIMARY KEY,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,actor_source_id TEXT NOT NULL UNIQUE,first_pitch_source_id TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(game_id,play_id))',
+      tbl_name: 'same_pa_enrollments',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'same_pa_participant_reservations',
+      sql: 'CREATE TABLE same_pa_participant_reservations(enrollment_source_id TEXT NOT NULL,career_id TEXT NOT NULL,player_id TEXT NOT NULL,baseline_source_id TEXT NOT NULL,revision INTEGER NOT NULL,state_hash TEXT NOT NULL,member_json TEXT NOT NULL,PRIMARY KEY(enrollment_source_id,player_id),UNIQUE(career_id,player_id))',
+      tbl_name: 'same_pa_participant_reservations',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'same_pa_successor_rights',
+      sql: 'CREATE TABLE same_pa_successor_rights(enrollment_source_id TEXT PRIMARY KEY,first_pitch_source_id TEXT NOT NULL UNIQUE,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,state TEXT NOT NULL,predecessor_resume_source_id TEXT,consuming_source_id TEXT,slot_json TEXT NOT NULL,UNIQUE(game_id,play_id))',
+      tbl_name: 'same_pa_successor_rights',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_batted_body_materializations',
+      sql: 'CREATE TABLE world_batted_body_materializations (\n' +
+        '        source_id TEXT PRIMARY KEY,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL\n' +
+        '      )',
+      tbl_name: 'world_batted_body_materializations',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_club_checkpoints',
+      sql: 'CREATE TABLE world_club_checkpoints (\n' +
+        '    career_id TEXT NOT NULL, club_id TEXT NOT NULL,\n' +
+        '    revision INTEGER NOT NULL CHECK(revision >= 0),\n' +
+        '    state_json TEXT NOT NULL,\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_club_event_journal',
+      sql: 'CREATE TABLE world_club_event_journal (\n' +
+        '    career_id TEXT NOT NULL, club_id TEXT NOT NULL,\n' +
+        '    after_revision INTEGER NOT NULL CHECK(after_revision > 0),\n' +
+        '    event_id TEXT NOT NULL, event_json TEXT NOT NULL,\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_club_heads',
+      sql: 'CREATE TABLE world_club_heads (\n' +
+        '    career_id TEXT NOT NULL, club_id TEXT NOT NULL,\n' +
+        '    revision INTEGER NOT NULL, state_json TEXT NOT NULL,\n' +
+        '    PRIMARY KEY (career_id, club_id)\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_control_heads',
+      sql: 'CREATE TABLE world_control_heads (\n' +
+        '    career_id TEXT PRIMARY KEY,\n' +
+        '    world_revision INTEGER NOT NULL,\n' +
+        '    control_revision INTEGER NOT NULL,\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_decision_revision_events',
+      sql: 'CREATE TABLE world_decision_revision_events (\n' +
+        '    career_id TEXT NOT NULL,\n' +
+        '    world_revision INTEGER NOT NULL,\n' +
+        '    source_kind TEXT NOT NULL,\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_pitch_fatigue_policies',
+      sql: 'CREATE TABLE world_pitch_fatigue_policies (\n' +
+        '    source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, policy_id TEXT NOT NULL, version TEXT NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, policy_json TEXT NOT NULL, source_hash TEXT NOT NULL\n' +
+        '  )',
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_pitch_timing_baselines',
+      sql: 'CREATE TABLE world_pitch_timing_baselines (\n' +
+        '    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL,\n' +
+        '    player_id TEXT NOT NULL, source_json TEXT NOT NULL,\n' +
+        '    initial_json TEXT NOT NULL, UNIQUE(career_id, player_id)\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_pitch_timing_heads',
+      sql: 'CREATE TABLE world_pitch_timing_heads (\n' +
+        '    career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    revision INTEGER NOT NULL CHECK(revision >= 0),\n' +
+        '    state_json TEXT NOT NULL, PRIMARY KEY(career_id, player_id)\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_pitch_timing_updates',
+      sql: 'CREATE TABLE world_pitch_timing_updates (\n' +
+        '    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL,\n' +
+        '    player_id TEXT NOT NULL,\n' +
+        '    before_revision INTEGER NOT NULL CHECK(before_revision >= 0),\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_player_batting_models',
+      sql: 'CREATE TABLE world_player_batting_models (\n' +
+        '        source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,player_id TEXT NOT NULL,person_id TEXT NOT NULL,\n' +
+        '        person_link_source_id TEXT NOT NULL,accepted_at_day INTEGER NOT NULL,\n' +
+        '        source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_player_body_materializations',
+      sql: 'CREATE TABLE world_player_body_materializations (\n' +
+        '        source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,player_id TEXT NOT NULL,person_id TEXT NOT NULL,\n' +
+        '        person_link_source_id TEXT NOT NULL,at_day INTEGER NOT NULL,role TEXT NOT NULL,\n' +
+        '        source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_player_decision_model_rebindings',
+      sql: 'CREATE TABLE world_player_decision_model_rebindings (\n' +
+        '    source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL, fielding_model_source_id TEXT NOT NULL, accepted_at_day INTEGER NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, source_hash TEXT NOT NULL, snapshot_json TEXT NOT NULL, snapshot_hash TEXT NOT NULL,\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_player_decision_models',
+      sql: 'CREATE TABLE world_player_decision_models (\n' +
+        '    source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL, fielding_model_source_id TEXT NOT NULL, accepted_at_day INTEGER NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, source_hash TEXT NOT NULL, snapshot_json TEXT NOT NULL, snapshot_hash TEXT NOT NULL,\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_player_fielding_model_developments',
+      sql: 'CREATE TABLE world_player_fielding_model_developments (source_id TEXT PRIMARY KEY,career_id TEXT NOT NULL,player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL,accepted_at_day INTEGER NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,\n' +
+        '    snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(career_id,player_id,accepted_at_day))',
+      tbl_name: 'world_player_fielding_model_developments',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_player_fielding_models',
+      sql: 'CREATE TABLE world_player_fielding_models (source_id TEXT PRIMARY KEY,career_id TEXT NOT NULL,player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL,accepted_at_day INTEGER NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,\n' +
+        '    snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(career_id,player_id))',
+      tbl_name: 'world_player_fielding_models',
+      type: 'table'
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_player_locomotion_model_developments',
+      sql: 'CREATE TABLE world_player_locomotion_model_developments (\n' +
+        '    source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, capability TEXT NOT NULL, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL, fielding_model_source_id TEXT NOT NULL, accepted_at_day INTEGER NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, source_hash TEXT NOT NULL, snapshot_json TEXT NOT NULL, snapshot_hash TEXT NOT NULL,\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_player_locomotion_models',
+      sql: 'CREATE TABLE world_player_locomotion_models (\n' +
+        '    source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, capability TEXT NOT NULL, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL, fielding_model_source_id TEXT NOT NULL, accepted_at_day INTEGER NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, source_hash TEXT NOT NULL, snapshot_json TEXT NOT NULL, snapshot_hash TEXT NOT NULL,\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_player_observation_model_rebindings',
+      sql: 'CREATE TABLE world_player_observation_model_rebindings (\n' +
+        '    source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL, fielding_model_source_id TEXT NOT NULL, accepted_at_day INTEGER NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, source_hash TEXT NOT NULL, snapshot_json TEXT NOT NULL, snapshot_hash TEXT NOT NULL,\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_player_observation_models',
+      sql: 'CREATE TABLE world_player_observation_models (\n' +
+        '    source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL, fielding_model_source_id TEXT NOT NULL, accepted_at_day INTEGER NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, source_hash TEXT NOT NULL, snapshot_json TEXT NOT NULL, snapshot_hash TEXT NOT NULL,\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_player_person_links',
+      sql: 'CREATE TABLE world_player_person_links (\n' +
+        '    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL,\n' +
+        '    player_id TEXT NOT NULL, person_id TEXT NOT NULL,\n' +
+        '    roster_revision INTEGER NOT NULL CHECK(roster_revision >= 0),\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_player_release_baselines',
+      sql: 'CREATE TABLE world_player_release_baselines (\n' +
+        '    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL,\n' +
+        '    player_id TEXT NOT NULL, source_json TEXT NOT NULL,\n' +
+        '    UNIQUE(career_id, player_id)\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_player_release_changes',
+      sql: 'CREATE TABLE world_player_release_changes (\n' +
+        '    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL,\n' +
+        '    player_id TEXT NOT NULL, revision INTEGER NOT NULL CHECK(revision > 0),\n' +
+        '    source_json TEXT NOT NULL,\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_player_release_heads',
+      sql: 'CREATE TABLE world_player_release_heads (\n' +
+        '    career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    revision INTEGER NOT NULL CHECK(revision >= 0),\n' +
+        '    state_json TEXT NOT NULL, PRIMARY KEY(career_id, player_id)\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_player_workload_activities',
+      sql: 'CREATE TABLE world_player_workload_activities (\n' +
+        '    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    before_revision INTEGER NOT NULL CHECK(before_revision >= 0), after_revision INTEGER NOT NULL CHECK(after_revision > before_revision),\n' +
+        '    source_json TEXT NOT NULL, before_json TEXT NOT NULL, after_json TEXT NOT NULL,\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_player_workload_baselines',
+      sql: 'CREATE TABLE world_player_workload_baselines (\n' +
+        '    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, initial_json TEXT NOT NULL, UNIQUE(career_id, player_id)\n' +
+        '  )',
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_player_workload_heads',
+      sql: 'CREATE TABLE world_player_workload_heads (\n' +
+        '    career_id TEXT NOT NULL, player_id TEXT NOT NULL, revision INTEGER NOT NULL CHECK(revision >= 0),\n' +
+        '    state_json TEXT NOT NULL, PRIMARY KEY(career_id, player_id)\n' +
+        '  )',
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_player_workload_policies',
+      sql: 'CREATE TABLE world_player_workload_policies (\n' +
+        '    career_id TEXT NOT NULL, policy_id TEXT NOT NULL, version TEXT NOT NULL, policy_json TEXT NOT NULL,\n' +
+        '    PRIMARY KEY(career_id, policy_id, version)\n' +
+        '  )',
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_roster_executions',
+      sql: 'CREATE TABLE world_roster_executions (\n' +
+        '    execution_id TEXT PRIMARY KEY,\n' +
+        '    career_id TEXT NOT NULL, club_id TEXT NOT NULL,\n' +
+        '    decision_id TEXT NOT NULL, roster_revision INTEGER NOT NULL,\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_roster_heads',
+      sql: 'CREATE TABLE world_roster_heads (\n' +
+        '    career_id TEXT PRIMARY KEY,\n' +
+        '    revision INTEGER NOT NULL, roster_json TEXT NOT NULL,\n' +
+        '    CHECK (revision >= 0)\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_roster_mood_heads',
+      sql: 'CREATE TABLE world_roster_mood_heads (\n' +
+        '    career_id TEXT NOT NULL, club_id TEXT NOT NULL,\n' +
+        '    mood_revision INTEGER, mood_json TEXT,\n' +
+        '    PRIMARY KEY (career_id, club_id),\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_roster_opportunities',
+      sql: 'CREATE TABLE world_roster_opportunities (\n' +
+        '    career_id TEXT NOT NULL, club_id TEXT NOT NULL,\n' +
+        '    decision_id TEXT NOT NULL, issued_json TEXT NOT NULL,\n' +
+        '    PRIMARY KEY (career_id, club_id, decision_id)\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_season_heads',
+      sql: 'CREATE TABLE world_season_heads (\n' +
+        '    career_id TEXT NOT NULL, season_id TEXT NOT NULL, league_id TEXT NOT NULL,\n' +
+        '    revision INTEGER NOT NULL, schedule_json TEXT NOT NULL,\n' +
+        '    policy_json TEXT NOT NULL, results_json TEXT NOT NULL,\n' +
+...
+    },
++   [Object: null prototype] {
+-   {
+      name: 'world_settlement_applications',
+      sql: 'CREATE TABLE world_settlement_applications (\n' +
+        '    application_id TEXT PRIMARY KEY,\n' +
+        '    career_id TEXT NOT NULL, season_id TEXT NOT NULL,\n' +
+        '    club_id TEXT NOT NULL, game_id TEXT NOT NULL,\n' +
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-owned-joint-workload-v2/readback.mjs:82492:7
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:636:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: [
+    [Object: null prototype] {
+      type: 'table',
+      name: 'applications',
+      tbl_name: 'applications',
+      sql: 'CREATE TABLE applications (\n' +
+        '        application_id TEXT PRIMARY KEY,\n' +
+        '        match_id TEXT NOT NULL REFERENCES matches(match_id),\n' +
+        '        closure_id TEXT NOT NULL,\n' +
+        '        request_hash TEXT NOT NULL,\n' +
+        '        result_json TEXT NOT NULL,\n' +
+        '        UNIQUE(match_id, closure_id)\n' +
+        '      )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'batting_emotion_execution_v1_executions',
+      tbl_name: 'batting_emotion_execution_v1_executions',
+      sql: 'CREATE TABLE batting_emotion_execution_v1_executions(source_id TEXT PRIMARY KEY,execution_id TEXT NOT NULL UNIQUE,career_id TEXT NOT NULL,game_id TEXT NOT NULL,player_id TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,genesis_source_id TEXT NOT NULL,emotion_revision INTEGER NOT NULL CHECK(emotion_revision>=1),world_revision INTEGER NOT NULL CHECK(world_revision>=1),state_hash TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(career_id,game_id,player_id,emotion_revision),UNIQUE(career_id,world_revision))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'batting_emotion_execution_v1_heads',
+      tbl_name: 'batting_emotion_execution_v1_heads',
+      sql: 'CREATE TABLE batting_emotion_execution_v1_heads(career_id TEXT NOT NULL,game_id TEXT NOT NULL,player_id TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,genesis_source_id TEXT NOT NULL,genesis_source_hash TEXT NOT NULL,genesis_snapshot_hash TEXT NOT NULL,emotion_revision INTEGER NOT NULL CHECK(emotion_revision>=1),first_source_id TEXT NOT NULL,last_source_id TEXT NOT NULL,last_snapshot_hash TEXT NOT NULL,state_hash TEXT NOT NULL,PRIMARY KEY(career_id,game_id,player_id))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'batting_emotion_v1_geneses',
+      tbl_name: 'batting_emotion_v1_geneses',
+      sql: 'CREATE TABLE batting_emotion_v1_geneses(source_id TEXT PRIMARY KEY,career_id TEXT NOT NULL,game_id TEXT NOT NULL,player_id TEXT NOT NULL,view_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(career_id,game_id,player_id))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'batting_initial_equipment_v1_sources',
+      tbl_name: 'batting_initial_equipment_v1_sources',
+      sql: 'CREATE TABLE batting_initial_equipment_v1_sources(source_id TEXT PRIMARY KEY,enrollment_source_id TEXT NOT NULL,setup_source_id TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'batting_measured_body_v1_sources',
+      tbl_name: 'batting_measured_body_v1_sources',
+      sql: 'CREATE TABLE batting_measured_body_v1_sources(source_id TEXT PRIMARY KEY,initial_bat_source_id TEXT NOT NULL UNIQUE,profile_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'batting_observation_v1_deliveries',
+      tbl_name: 'batting_observation_v1_deliveries',
+      sql: 'CREATE TABLE batting_observation_v1_deliveries(source_id TEXT PRIMARY KEY,view_source_id TEXT NOT NULL,player_id TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,canonical_key TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'batting_observation_v1_invocation_heads',
+      tbl_name: 'batting_observation_v1_invocation_heads',
+      sql: 'CREATE TABLE batting_observation_v1_invocation_heads(owner TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,player_id TEXT NOT NULL,revision INTEGER NOT NULL CHECK(revision>=1),first_source_id TEXT NOT NULL,last_source_id TEXT NOT NULL,last_snapshot_hash TEXT NOT NULL,PRIMARY KEY(owner,enrollment_source_id,physical_pitch_source_id,player_id))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'batting_observation_v1_observations',
+      tbl_name: 'batting_observation_v1_observations',
+      sql: 'CREATE TABLE batting_observation_v1_observations(source_id TEXT PRIMARY KEY,view_source_id TEXT NOT NULL,player_id TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,canonical_key TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'batting_observation_v1_postures',
+      tbl_name: 'batting_observation_v1_postures',
+      sql: 'CREATE TABLE batting_observation_v1_postures(source_id TEXT PRIMARY KEY,view_source_id TEXT NOT NULL,player_id TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,canonical_key TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'batting_prediction_v1_predictions',
+      tbl_name: 'batting_prediction_v1_predictions',
+      sql: 'CREATE TABLE batting_prediction_v1_predictions(source_id TEXT PRIMARY KEY,view_source_id TEXT NOT NULL,player_id TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,canonical_key TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'batting_score_v1_assessments',
+      tbl_name: 'batting_score_v1_assessments',
+      sql: 'CREATE TABLE batting_score_v1_assessments(source_id TEXT PRIMARY KEY,view_source_id TEXT NOT NULL,player_id TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,canonical_key TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'matches',
+      tbl_name: 'matches',
+      sql: 'CREATE TABLE matches (\n' +
+        '        match_id TEXT PRIMARY KEY,\n' +
+        '        durable_revision INTEGER NOT NULL,\n' +
+        '        state_json TEXT NOT NULL,\n' +
+        '        activation_json TEXT\n' +
+        '      )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'official_fixtures',
+      tbl_name: 'official_fixtures',
+      sql: 'CREATE TABLE official_fixtures (\n' +
+        '        game_id TEXT PRIMARY KEY,\n' +
+        '        venue_id TEXT NOT NULL,\n' +
+        '        fixture_event_id TEXT NOT NULL UNIQUE,\n' +
+        '        fixture_revision INTEGER NOT NULL CHECK(fixture_revision >= 0)\n' +
+        '      )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'official_initial_world_sources',
+      tbl_name: 'official_initial_world_sources',
+      sql: 'CREATE TABLE official_initial_world_sources (\n' +
+        '    source_id TEXT PRIMARY KEY, game_id TEXT NOT NULL UNIQUE, source_json TEXT NOT NULL, snapshot_json TEXT NOT NULL,\n' +
+        '    source_hash TEXT NOT NULL, snapshot_hash TEXT NOT NULL\n' +
+        '  )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'official_participant_bindings',
+      tbl_name: 'official_participant_bindings',
+      sql: 'CREATE TABLE official_participant_bindings (\n' +
+        '      game_id TEXT NOT NULL, player_id TEXT NOT NULL, binding_json TEXT NOT NULL,\n' +
+        '      PRIMARY KEY(game_id, player_id)\n' +
+        '    )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'official_participation_receipts',
+      tbl_name: 'official_participation_receipts',
+      sql: 'CREATE TABLE official_participation_receipts (\n' +
+        '      receipt_id TEXT PRIMARY KEY, game_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '      receipt_json TEXT NOT NULL, UNIQUE(game_id, player_id),\n' +
+        '      FOREIGN KEY(game_id, player_id) REFERENCES official_participant_bindings(game_id, player_id)\n' +
+        '    )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'pa_dispatch_v1_action_plans',
+      tbl_name: 'pa_dispatch_v1_action_plans',
+      sql: 'CREATE TABLE pa_dispatch_v1_action_plans(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,first_pitch_source_id))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'pa_dispatch_v1_consumer_actions',
+      tbl_name: 'pa_dispatch_v1_consumer_actions',
+      sql: 'CREATE TABLE pa_dispatch_v1_consumer_actions(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,right_source_id TEXT NOT NULL,physical_source_id TEXT NOT NULL,player_id TEXT NOT NULL,route TEXT NOT NULL,action_ordinal INTEGER NOT NULL CHECK(action_ordinal>=0),source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(right_source_id,player_id,route,action_ordinal))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'pa_dispatch_v1_consumer_sets',
+      tbl_name: 'pa_dispatch_v1_consumer_sets',
+      sql: 'CREATE TABLE pa_dispatch_v1_consumer_sets(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,view_source_id))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'pa_dispatch_v1_consumptions',
+      tbl_name: 'pa_dispatch_v1_consumptions',
+      sql: 'CREATE TABLE pa_dispatch_v1_consumptions(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,right_source_id TEXT NOT NULL,pitch_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(right_source_id),UNIQUE(pitch_source_id))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'pa_dispatch_v1_episode_admissions',
+      tbl_name: 'pa_dispatch_v1_episode_admissions',
+      sql: 'CREATE TABLE pa_dispatch_v1_episode_admissions(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,episode_source_id TEXT NOT NULL,pitch_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(episode_source_id),UNIQUE(pitch_source_id))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'pa_dispatch_v1_episodes',
+      tbl_name: 'pa_dispatch_v1_episodes',
+      sql: 'CREATE TABLE pa_dispatch_v1_episodes(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,first_pitch_source_id))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'pa_dispatch_v1_execution_calibrations',
+      tbl_name: 'pa_dispatch_v1_execution_calibrations',
+      sql: 'CREATE TABLE pa_dispatch_v1_execution_calibrations(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,player_id TEXT NOT NULL,route TEXT NOT NULL,nominal_parameter_identity TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(view_source_id,player_id,route,nominal_parameter_identity))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'pa_dispatch_v1_pitch_actions',
+      tbl_name: 'pa_dispatch_v1_pitch_actions',
+      sql: 'CREATE TABLE pa_dispatch_v1_pitch_actions(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,right_source_id TEXT NOT NULL,episode_source_id TEXT NOT NULL,progress_revision INTEGER NOT NULL CHECK(progress_revision=1),source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,progress_revision),UNIQUE(right_source_id))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'pa_dispatch_v1_pitch_heads',
+      tbl_name: 'pa_dispatch_v1_pitch_heads',
+      sql: 'CREATE TABLE pa_dispatch_v1_pitch_heads(enrollment_source_id TEXT PRIMARY KEY,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,first_pitch_source_id TEXT NOT NULL,progress_revision INTEGER NOT NULL CHECK(progress_revision=1),last_source_id TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'pa_dispatch_v1_rights',
+      tbl_name: 'pa_dispatch_v1_rights',
+      sql: 'CREATE TABLE pa_dispatch_v1_rights(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,episode_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,first_pitch_source_id))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'pa_initial_ball_v1_plays',
+      tbl_name: 'pa_initial_ball_v1_plays',
+      sql: 'CREATE TABLE pa_initial_ball_v1_plays(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,actor_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'pa_initial_ball_v1_setups',
+      tbl_name: 'pa_initial_ball_v1_setups',
+      sql: 'CREATE TABLE pa_initial_ball_v1_setups(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,actor_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'pa_initial_joint_v1_executions',
+      tbl_name: 'pa_initial_joint_v1_executions',
+      sql: 'CREATE TABLE pa_initial_joint_v1_executions(source_id TEXT PRIMARY KEY,launch_source_id TEXT NOT NULL UNIQUE,enrollment_source_id TEXT NOT NULL,right_source_id TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'pa_initial_joint_v1_rights',
+      tbl_name: 'pa_initial_joint_v1_rights',
+      sql: 'CREATE TABLE pa_initial_joint_v1_rights(source_id TEXT PRIMARY KEY,launch_source_id TEXT NOT NULL UNIQUE,enrollment_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'pa_observed_initial_v1_heads',
+      tbl_name: 'pa_observed_initial_v1_heads',
+      sql: 'CREATE TABLE pa_observed_initial_v1_heads(enrollment_source_id TEXT PRIMARY KEY,launch_source_id TEXT NOT NULL,operation_ordinal INTEGER NOT NULL,last_source_id TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'pa_observed_initial_v1_operations',
+      tbl_name: 'pa_observed_initial_v1_operations',
+      sql: 'CREATE TABLE pa_observed_initial_v1_operations(source_id TEXT PRIMARY KEY,enrollment_source_id TEXT NOT NULL,launch_source_id TEXT NOT NULL,operation_ordinal INTEGER NOT NULL CHECK(operation_ordinal>0),evaluation_tick INTEGER NOT NULL,previous_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,operation_ordinal))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'pa_pitch_hand_hold_v1_sources',
+      tbl_name: 'pa_pitch_hand_hold_v1_sources',
+      sql: 'CREATE TABLE pa_pitch_hand_hold_v1_sources(source_id TEXT PRIMARY KEY,launch_source_id TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'physical_plate_appearance_actor_games',
+      tbl_name: 'physical_plate_appearance_actor_games',
+      sql: 'CREATE TABLE physical_plate_appearance_actor_games (game_id TEXT PRIMARY KEY,first_source_id TEXT NOT NULL)'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'physical_plate_appearance_actors',
+      tbl_name: 'physical_plate_appearance_actors',
+      sql: 'CREATE TABLE physical_plate_appearance_actors (source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,\n' +
+        '      game_id TEXT NOT NULL,play_id INTEGER NOT NULL,player_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,\n' +
+        '      snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(game_id,play_id))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'reserved_pa_execution_views',
+      tbl_name: 'reserved_pa_execution_views',
+      sql: 'CREATE TABLE reserved_pa_execution_views(source_id TEXT PRIMARY KEY,enrollment_source_id TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,actor_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,prefix_source_id TEXT NOT NULL,assessment_set_hash TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,prefix_source_id,assessment_set_hash))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'reserved_pa_total_assessments',
+      tbl_name: 'reserved_pa_total_assessments',
+      sql: 'CREATE TABLE reserved_pa_total_assessments(source_id TEXT PRIMARY KEY,enrollment_source_id TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,actor_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,prefix_source_id TEXT NOT NULL,player_id TEXT NOT NULL,baseline_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,prefix_source_id,player_id))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'reserved_pa_work_prefixes',
+      tbl_name: 'reserved_pa_work_prefixes',
+      sql: 'CREATE TABLE reserved_pa_work_prefixes(source_id TEXT PRIMARY KEY,enrollment_source_id TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,actor_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,physical_revision INTEGER NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,physical_revision))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'same_pa_enrollments',
+      tbl_name: 'same_pa_enrollments',
+      sql: 'CREATE TABLE same_pa_enrollments(source_id TEXT PRIMARY KEY,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,actor_source_id TEXT NOT NULL UNIQUE,first_pitch_source_id TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(game_id,play_id))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'same_pa_participant_reservations',
+      tbl_name: 'same_pa_participant_reservations',
+      sql: 'CREATE TABLE same_pa_participant_reservations(enrollment_source_id TEXT NOT NULL,career_id TEXT NOT NULL,player_id TEXT NOT NULL,baseline_source_id TEXT NOT NULL,revision INTEGER NOT NULL,state_hash TEXT NOT NULL,member_json TEXT NOT NULL,PRIMARY KEY(enrollment_source_id,player_id),UNIQUE(career_id,player_id))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'same_pa_successor_rights',
+      tbl_name: 'same_pa_successor_rights',
+      sql: 'CREATE TABLE same_pa_successor_rights(enrollment_source_id TEXT PRIMARY KEY,first_pitch_source_id TEXT NOT NULL UNIQUE,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,state TEXT NOT NULL,predecessor_resume_source_id TEXT,consuming_source_id TEXT,slot_json TEXT NOT NULL,UNIQUE(game_id,play_id))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_batted_body_materializations',
+      tbl_name: 'world_batted_body_materializations',
+      sql: 'CREATE TABLE world_batted_body_materializations (\n' +
+        '        source_id TEXT PRIMARY KEY,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL\n' +
+        '      )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_club_checkpoints',
+      tbl_name: 'world_club_checkpoints',
+      sql: 'CREATE TABLE world_club_checkpoints (\n' +
+        '    career_id TEXT NOT NULL, club_id TEXT NOT NULL,\n' +
+        '    revision INTEGER NOT NULL CHECK(revision >= 0),\n' +
+        '    state_json TEXT NOT NULL,\n' +
+        '    PRIMARY KEY(career_id, club_id)\n' +
+        '  )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_club_event_journal',
+      tbl_name: 'world_club_event_journal',
+      sql: 'CREATE TABLE world_club_event_journal (\n' +
+        '    career_id TEXT NOT NULL, club_id TEXT NOT NULL,\n' +
+        '    after_revision INTEGER NOT NULL CHECK(after_revision > 0),\n' +
+        '    event_id TEXT NOT NULL, event_json TEXT NOT NULL,\n' +
+        '    PRIMARY KEY(career_id, club_id, after_revision),\n' +
+        '    UNIQUE(career_id, club_id, event_id),\n' +
+        '    FOREIGN KEY(career_id, club_id)\n' +
+        '      REFERENCES world_club_checkpoints(career_id, club_id)\n' +
+        '  )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_club_heads',
+      tbl_name: 'world_club_heads',
+      sql: 'CREATE TABLE world_club_heads (\n' +
+        '    career_id TEXT NOT NULL, club_id TEXT NOT NULL,\n' +
+        '    revision INTEGER NOT NULL, state_json TEXT NOT NULL,\n' +
+        '    PRIMARY KEY (career_id, club_id)\n' +
+        '  )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_control_heads',
+      tbl_name: 'world_control_heads',
+      sql: 'CREATE TABLE world_control_heads (\n' +
+        '    career_id TEXT PRIMARY KEY,\n' +
+        '    world_revision INTEGER NOT NULL,\n' +
+        '    control_revision INTEGER NOT NULL,\n' +
+        '    control_json TEXT NOT NULL,\n' +
+        '    CHECK (world_revision >= 0),\n' +
+        '    CHECK (control_revision >= 0)\n' +
+        '  )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_decision_revision_events',
+      tbl_name: 'world_decision_revision_events',
+      sql: 'CREATE TABLE world_decision_revision_events (\n' +
+        '    career_id TEXT NOT NULL,\n' +
+        '    world_revision INTEGER NOT NULL,\n' +
+        '    source_kind TEXT NOT NULL,\n' +
+        '    source_event_id TEXT NOT NULL,\n' +
+        '    event_json TEXT NOT NULL,\n' +
+        '    PRIMARY KEY (career_id, world_revision),\n' +
+        '    UNIQUE (career_id, source_event_id)\n' +
+        '  )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_pitch_fatigue_policies',
+      tbl_name: 'world_pitch_fatigue_policies',
+      sql: 'CREATE TABLE world_pitch_fatigue_policies (\n' +
+        '    source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, policy_id TEXT NOT NULL, version TEXT NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, policy_json TEXT NOT NULL, source_hash TEXT NOT NULL\n' +
+        '  )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_pitch_timing_baselines',
+      tbl_name: 'world_pitch_timing_baselines',
+      sql: 'CREATE TABLE world_pitch_timing_baselines (\n' +
+        '    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL,\n' +
+        '    player_id TEXT NOT NULL, source_json TEXT NOT NULL,\n' +
+        '    initial_json TEXT NOT NULL, UNIQUE(career_id, player_id)\n' +
+        '  )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_pitch_timing_heads',
+      tbl_name: 'world_pitch_timing_heads',
+      sql: 'CREATE TABLE world_pitch_timing_heads (\n' +
+        '    career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    revision INTEGER NOT NULL CHECK(revision >= 0),\n' +
+        '    state_json TEXT NOT NULL, PRIMARY KEY(career_id, player_id)\n' +
+        '  )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_pitch_timing_updates',
+      tbl_name: 'world_pitch_timing_updates',
+      sql: 'CREATE TABLE world_pitch_timing_updates (\n' +
+        '    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL,\n' +
+        '    player_id TEXT NOT NULL,\n' +
+        '    before_revision INTEGER NOT NULL CHECK(before_revision >= 0),\n' +
+        '    after_revision INTEGER NOT NULL CHECK(after_revision > before_revision),\n' +
+        '    source_json TEXT NOT NULL, state_json TEXT NOT NULL,\n' +
+        '    UNIQUE(career_id, player_id, after_revision),\n' +
+        '    UNIQUE(career_id, player_id, source_id)\n' +
+        '  )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_player_batting_models',
+      tbl_name: 'world_player_batting_models',
+      sql: 'CREATE TABLE world_player_batting_models (\n' +
+        '        source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,player_id TEXT NOT NULL,person_id TEXT NOT NULL,\n' +
+        '        person_link_source_id TEXT NOT NULL,accepted_at_day INTEGER NOT NULL,\n' +
+        '        source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,\n' +
+        '        UNIQUE(career_id,player_id,accepted_at_day)\n' +
+        '      )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_player_body_materializations',
+      tbl_name: 'world_player_body_materializations',
+      sql: 'CREATE TABLE world_player_body_materializations (\n' +
+        '        source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,player_id TEXT NOT NULL,person_id TEXT NOT NULL,\n' +
+        '        person_link_source_id TEXT NOT NULL,at_day INTEGER NOT NULL,role TEXT NOT NULL,\n' +
+        '        source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL\n' +
+        '      )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_player_decision_model_rebindings',
+      tbl_name: 'world_player_decision_model_rebindings',
+      sql: 'CREATE TABLE world_player_decision_model_rebindings (\n' +
+        '    source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL, fielding_model_source_id TEXT NOT NULL, accepted_at_day INTEGER NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, source_hash TEXT NOT NULL, snapshot_json TEXT NOT NULL, snapshot_hash TEXT NOT NULL,\n' +
+        '    UNIQUE(career_id,player_id,accepted_at_day))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_player_decision_models',
+      tbl_name: 'world_player_decision_models',
+      sql: 'CREATE TABLE world_player_decision_models (\n' +
+        '    source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL, fielding_model_source_id TEXT NOT NULL, accepted_at_day INTEGER NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, source_hash TEXT NOT NULL, snapshot_json TEXT NOT NULL, snapshot_hash TEXT NOT NULL,\n' +
+        '    UNIQUE(career_id,player_id))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_player_fielding_model_developments',
+      tbl_name: 'world_player_fielding_model_developments',
+      sql: 'CREATE TABLE world_player_fielding_model_developments (source_id TEXT PRIMARY KEY,career_id TEXT NOT NULL,player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL,accepted_at_day INTEGER NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,\n' +
+        '    snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(career_id,player_id,accepted_at_day))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_player_fielding_models',
+      tbl_name: 'world_player_fielding_models',
+      sql: 'CREATE TABLE world_player_fielding_models (source_id TEXT PRIMARY KEY,career_id TEXT NOT NULL,player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL,accepted_at_day INTEGER NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,\n' +
+        '    snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(career_id,player_id))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_player_locomotion_model_developments',
+      tbl_name: 'world_player_locomotion_model_developments',
+      sql: 'CREATE TABLE world_player_locomotion_model_developments (\n' +
+        '    source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, capability TEXT NOT NULL, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL, fielding_model_source_id TEXT NOT NULL, accepted_at_day INTEGER NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, source_hash TEXT NOT NULL, snapshot_json TEXT NOT NULL, snapshot_hash TEXT NOT NULL,\n' +
+        '    UNIQUE(career_id,player_id,accepted_at_day))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_player_locomotion_models',
+      tbl_name: 'world_player_locomotion_models',
+      sql: 'CREATE TABLE world_player_locomotion_models (\n' +
+        '    source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, capability TEXT NOT NULL, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL, fielding_model_source_id TEXT NOT NULL, accepted_at_day INTEGER NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, source_hash TEXT NOT NULL, snapshot_json TEXT NOT NULL, snapshot_hash TEXT NOT NULL,\n' +
+        '    UNIQUE(career_id,player_id))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_player_observation_model_rebindings',
+      tbl_name: 'world_player_observation_model_rebindings',
+      sql: 'CREATE TABLE world_player_observation_model_rebindings (\n' +
+        '    source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL, fielding_model_source_id TEXT NOT NULL, accepted_at_day INTEGER NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, source_hash TEXT NOT NULL, snapshot_json TEXT NOT NULL, snapshot_hash TEXT NOT NULL,\n' +
+        '    UNIQUE(career_id,player_id,accepted_at_day))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_player_observation_models',
+      tbl_name: 'world_player_observation_models',
+      sql: 'CREATE TABLE world_player_observation_models (\n' +
+        '    source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL, fielding_model_source_id TEXT NOT NULL, accepted_at_day INTEGER NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, source_hash TEXT NOT NULL, snapshot_json TEXT NOT NULL, snapshot_hash TEXT NOT NULL,\n' +
+        '    UNIQUE(career_id,player_id))'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_player_person_links',
+      tbl_name: 'world_player_person_links',
+      sql: 'CREATE TABLE world_player_person_links (\n' +
+        '    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL,\n' +
+        '    player_id TEXT NOT NULL, person_id TEXT NOT NULL,\n' +
+        '    roster_revision INTEGER NOT NULL CHECK(roster_revision >= 0),\n' +
+        '    accepted_at_day INTEGER NOT NULL CHECK(accepted_at_day >= 0),\n' +
+        '    source_json TEXT NOT NULL,\n' +
+        '    UNIQUE(career_id, player_id), UNIQUE(career_id, person_id)\n' +
+        '  )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_player_release_baselines',
+      tbl_name: 'world_player_release_baselines',
+      sql: 'CREATE TABLE world_player_release_baselines (\n' +
+        '    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL,\n' +
+        '    player_id TEXT NOT NULL, source_json TEXT NOT NULL,\n' +
+        '    UNIQUE(career_id, player_id)\n' +
+        '  )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_player_release_changes',
+      tbl_name: 'world_player_release_changes',
+      sql: 'CREATE TABLE world_player_release_changes (\n' +
+        '    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL,\n' +
+        '    player_id TEXT NOT NULL, revision INTEGER NOT NULL CHECK(revision > 0),\n' +
+        '    source_json TEXT NOT NULL,\n' +
+        '    UNIQUE(career_id, player_id, revision)\n' +
+        '  )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_player_release_heads',
+      tbl_name: 'world_player_release_heads',
+      sql: 'CREATE TABLE world_player_release_heads (\n' +
+        '    career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    revision INTEGER NOT NULL CHECK(revision >= 0),\n' +
+        '    state_json TEXT NOT NULL, PRIMARY KEY(career_id, player_id)\n' +
+        '  )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_player_workload_activities',
+      tbl_name: 'world_player_workload_activities',
+      sql: 'CREATE TABLE world_player_workload_activities (\n' +
+        '    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    before_revision INTEGER NOT NULL CHECK(before_revision >= 0), after_revision INTEGER NOT NULL CHECK(after_revision > before_revision),\n' +
+        '    source_json TEXT NOT NULL, before_json TEXT NOT NULL, after_json TEXT NOT NULL,\n' +
+        '    UNIQUE(career_id, player_id, after_revision)\n' +
+        '  )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_player_workload_baselines',
+      tbl_name: 'world_player_workload_baselines',
+      sql: 'CREATE TABLE world_player_workload_baselines (\n' +
+        '    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, initial_json TEXT NOT NULL, UNIQUE(career_id, player_id)\n' +
+        '  )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_player_workload_heads',
+      tbl_name: 'world_player_workload_heads',
+      sql: 'CREATE TABLE world_player_workload_heads (\n' +
+        '    career_id TEXT NOT NULL, player_id TEXT NOT NULL, revision INTEGER NOT NULL CHECK(revision >= 0),\n' +
+        '    state_json TEXT NOT NULL, PRIMARY KEY(career_id, player_id)\n' +
+        '  )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_player_workload_policies',
+      tbl_name: 'world_player_workload_policies',
+      sql: 'CREATE TABLE world_player_workload_policies (\n' +
+        '    career_id TEXT NOT NULL, policy_id TEXT NOT NULL, version TEXT NOT NULL, policy_json TEXT NOT NULL,\n' +
+        '    PRIMARY KEY(career_id, policy_id, version)\n' +
+        '  )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_roster_executions',
+      tbl_name: 'world_roster_executions',
+      sql: 'CREATE TABLE world_roster_executions (\n' +
+        '    execution_id TEXT PRIMARY KEY,\n' +
+        '    career_id TEXT NOT NULL, club_id TEXT NOT NULL,\n' +
+        '    decision_id TEXT NOT NULL, roster_revision INTEGER NOT NULL,\n' +
+        '    mood_revision INTEGER, request_json TEXT NOT NULL,\n' +
+        '    input_json TEXT NOT NULL, result_json TEXT NOT NULL,\n' +
+        '    UNIQUE (career_id, club_id, decision_id)\n' +
+        '  )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_roster_heads',
+      tbl_name: 'world_roster_heads',
+      sql: 'CREATE TABLE world_roster_heads (\n' +
+        '    career_id TEXT PRIMARY KEY,\n' +
+        '    revision INTEGER NOT NULL, roster_json TEXT NOT NULL,\n' +
+        '    CHECK (revision >= 0)\n' +
+        '  )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_roster_mood_heads',
+      tbl_name: 'world_roster_mood_heads',
+      sql: 'CREATE TABLE world_roster_mood_heads (\n' +
+        '    career_id TEXT NOT NULL, club_id TEXT NOT NULL,\n' +
+        '    mood_revision INTEGER, mood_json TEXT,\n' +
+        '    PRIMARY KEY (career_id, club_id),\n' +
+        '    CHECK ((mood_revision IS NULL) = (mood_json IS NULL))\n' +
+        '  )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_roster_opportunities',
+      tbl_name: 'world_roster_opportunities',
+      sql: 'CREATE TABLE world_roster_opportunities (\n' +
+        '    career_id TEXT NOT NULL, club_id TEXT NOT NULL,\n' +
+        '    decision_id TEXT NOT NULL, issued_json TEXT NOT NULL,\n' +
+        '    PRIMARY KEY (career_id, club_id, decision_id)\n' +
+        '  )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_season_heads',
+      tbl_name: 'world_season_heads',
+      sql: 'CREATE TABLE world_season_heads (\n' +
+        '    career_id TEXT NOT NULL, season_id TEXT NOT NULL, league_id TEXT NOT NULL,\n' +
+        '    revision INTEGER NOT NULL, schedule_json TEXT NOT NULL,\n' +
+        '    policy_json TEXT NOT NULL, results_json TEXT NOT NULL,\n' +
+        '    standings_json TEXT NOT NULL,\n' +
+        '    PRIMARY KEY (career_id, season_id)\n' +
+        '  )'
+    },
+    [Object: null prototype] {
+      type: 'table',
+      name: 'world_settlement_applications',
+      tbl_name: 'world_settlement_applications',
+      sql: 'CREATE TABLE world_settlement_applications (\n' +
+        '    application_id TEXT PRIMARY KEY,\n' +
+        '    career_id TEXT NOT NULL, season_id TEXT NOT NULL,\n' +
+        '    club_id TEXT NOT NULL, game_id TEXT NOT NULL,\n' +
+        '    season_revision INTEGER NOT NULL, club_revision INTEGER NOT NULL,\n' +
+        '    request_json TEXT NOT NULL, settlement_json TEXT NOT NULL,\n' +
+        '    UNIQUE (career_id, season_id, game_id)\n' +
+        '  )'
+    }
+  ],
+  expected: [
+    {
+      type: 'table',
+      name: 'applications',
+      tbl_name: 'applications',
+      sql: 'CREATE TABLE applications (\n' +
+        '        application_id TEXT PRIMARY KEY,\n' +
+        '        match_id TEXT NOT NULL REFERENCES matches(match_id),\n' +
+        '        closure_id TEXT NOT NULL,\n' +
+        '        request_hash TEXT NOT NULL,\n' +
+        '        result_json TEXT NOT NULL,\n' +
+        '        UNIQUE(match_id, closure_id)\n' +
+        '      )'
+    },
+    {
+      type: 'table',
+      name: 'batting_emotion_execution_v1_executions',
+      tbl_name: 'batting_emotion_execution_v1_executions',
+      sql: 'CREATE TABLE batting_emotion_execution_v1_executions(source_id TEXT PRIMARY KEY,execution_id TEXT NOT NULL UNIQUE,career_id TEXT NOT NULL,game_id TEXT NOT NULL,player_id TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,genesis_source_id TEXT NOT NULL,emotion_revision INTEGER NOT NULL CHECK(emotion_revision>=1),world_revision INTEGER NOT NULL CHECK(world_revision>=1),state_hash TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(career_id,game_id,player_id,emotion_revision),UNIQUE(career_id,world_revision))'
+    },
+    {
+      type: 'table',
+      name: 'batting_emotion_execution_v1_heads',
+      tbl_name: 'batting_emotion_execution_v1_heads',
+      sql: 'CREATE TABLE batting_emotion_execution_v1_heads(career_id TEXT NOT NULL,game_id TEXT NOT NULL,player_id TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,genesis_source_id TEXT NOT NULL,genesis_source_hash TEXT NOT NULL,genesis_snapshot_hash TEXT NOT NULL,emotion_revision INTEGER NOT NULL CHECK(emotion_revision>=1),first_source_id TEXT NOT NULL,last_source_id TEXT NOT NULL,last_snapshot_hash TEXT NOT NULL,state_hash TEXT NOT NULL,PRIMARY KEY(career_id,game_id,player_id))'
+    },
+    {
+      type: 'table',
+      name: 'batting_emotion_v1_geneses',
+      tbl_name: 'batting_emotion_v1_geneses',
+      sql: 'CREATE TABLE batting_emotion_v1_geneses(source_id TEXT PRIMARY KEY,career_id TEXT NOT NULL,game_id TEXT NOT NULL,player_id TEXT NOT NULL,view_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(career_id,game_id,player_id))'
+    },
+    {
+      type: 'table',
+      name: 'batting_initial_equipment_v1_sources',
+      tbl_name: 'batting_initial_equipment_v1_sources',
+      sql: 'CREATE TABLE batting_initial_equipment_v1_sources(source_id TEXT PRIMARY KEY,enrollment_source_id TEXT NOT NULL,setup_source_id TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    {
+      type: 'table',
+      name: 'batting_measured_body_v1_sources',
+      tbl_name: 'batting_measured_body_v1_sources',
+      sql: 'CREATE TABLE batting_measured_body_v1_sources(source_id TEXT PRIMARY KEY,initial_bat_source_id TEXT NOT NULL UNIQUE,profile_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    {
+      type: 'table',
+      name: 'batting_observation_v1_deliveries',
+      tbl_name: 'batting_observation_v1_deliveries',
+      sql: 'CREATE TABLE batting_observation_v1_deliveries(source_id TEXT PRIMARY KEY,view_source_id TEXT NOT NULL,player_id TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,canonical_key TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    {
+      type: 'table',
+      name: 'batting_observation_v1_invocation_heads',
+      tbl_name: 'batting_observation_v1_invocation_heads',
+      sql: 'CREATE TABLE batting_observation_v1_invocation_heads(owner TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,player_id TEXT NOT NULL,revision INTEGER NOT NULL CHECK(revision>=1),first_source_id TEXT NOT NULL,last_source_id TEXT NOT NULL,last_snapshot_hash TEXT NOT NULL,PRIMARY KEY(owner,enrollment_source_id,physical_pitch_source_id,player_id))'
+    },
+    {
+      type: 'table',
+      name: 'batting_observation_v1_observations',
+      tbl_name: 'batting_observation_v1_observations',
+      sql: 'CREATE TABLE batting_observation_v1_observations(source_id TEXT PRIMARY KEY,view_source_id TEXT NOT NULL,player_id TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,canonical_key TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    {
+      type: 'table',
+      name: 'batting_observation_v1_postures',
+      tbl_name: 'batting_observation_v1_postures',
+      sql: 'CREATE TABLE batting_observation_v1_postures(source_id TEXT PRIMARY KEY,view_source_id TEXT NOT NULL,player_id TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,canonical_key TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    {
+      type: 'table',
+      name: 'batting_prediction_v1_predictions',
+      tbl_name: 'batting_prediction_v1_predictions',
+      sql: 'CREATE TABLE batting_prediction_v1_predictions(source_id TEXT PRIMARY KEY,view_source_id TEXT NOT NULL,player_id TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,canonical_key TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    {
+      type: 'table',
+      name: 'batting_score_v1_assessments',
+      tbl_name: 'batting_score_v1_assessments',
+      sql: 'CREATE TABLE batting_score_v1_assessments(source_id TEXT PRIMARY KEY,view_source_id TEXT NOT NULL,player_id TEXT NOT NULL,enrollment_source_id TEXT NOT NULL,physical_pitch_source_id TEXT NOT NULL,canonical_key TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    {
+      type: 'table',
+      name: 'matches',
+      tbl_name: 'matches',
+      sql: 'CREATE TABLE matches (\n' +
+        '        match_id TEXT PRIMARY KEY,\n' +
+        '        durable_revision INTEGER NOT NULL,\n' +
+        '        state_json TEXT NOT NULL,\n' +
+        '        activation_json TEXT\n' +
+        '      )'
+    },
+    {
+      type: 'table',
+      name: 'official_fixtures',
+      tbl_name: 'official_fixtures',
+      sql: 'CREATE TABLE official_fixtures (\n' +
+        '        game_id TEXT PRIMARY KEY,\n' +
+        '        venue_id TEXT NOT NULL,\n' +
+        '        fixture_event_id TEXT NOT NULL UNIQUE,\n' +
+        '        fixture_revision INTEGER NOT NULL CHECK(fixture_revision >= 0)\n' +
+        '      )'
+    },
+    {
+      type: 'table',
+      name: 'official_initial_world_sources',
+      tbl_name: 'official_initial_world_sources',
+      sql: 'CREATE TABLE official_initial_world_sources (\n' +
+        '    source_id TEXT PRIMARY KEY, game_id TEXT NOT NULL UNIQUE, source_json TEXT NOT NULL, snapshot_json TEXT NOT NULL,\n' +
+        '    source_hash TEXT NOT NULL, snapshot_hash TEXT NOT NULL\n' +
+        '  )'
+    },
+    {
+      type: 'table',
+      name: 'official_participant_bindings',
+      tbl_name: 'official_participant_bindings',
+      sql: 'CREATE TABLE official_participant_bindings (\n' +
+        '      game_id TEXT NOT NULL, player_id TEXT NOT NULL, binding_json TEXT NOT NULL,\n' +
+        '      PRIMARY KEY(game_id, player_id)\n' +
+        '    )'
+    },
+    {
+      type: 'table',
+      name: 'official_participation_receipts',
+      tbl_name: 'official_participation_receipts',
+      sql: 'CREATE TABLE official_participation_receipts (\n' +
+        '      receipt_id TEXT PRIMARY KEY, game_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '      receipt_json TEXT NOT NULL, UNIQUE(game_id, player_id),\n' +
+        '      FOREIGN KEY(game_id, player_id) REFERENCES official_participant_bindings(game_id, player_id)\n' +
+        '    )'
+    },
+    {
+      type: 'table',
+      name: 'pa_dispatch_v1_action_plans',
+      tbl_name: 'pa_dispatch_v1_action_plans',
+      sql: 'CREATE TABLE pa_dispatch_v1_action_plans(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,first_pitch_source_id))'
+    },
+    {
+      type: 'table',
+      name: 'pa_dispatch_v1_consumer_actions',
+      tbl_name: 'pa_dispatch_v1_consumer_actions',
+      sql: 'CREATE TABLE pa_dispatch_v1_consumer_actions(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,right_source_id TEXT NOT NULL,physical_source_id TEXT NOT NULL,player_id TEXT NOT NULL,route TEXT NOT NULL,action_ordinal INTEGER NOT NULL CHECK(action_ordinal>=0),source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(right_source_id,player_id,route,action_ordinal))'
+    },
+    {
+      type: 'table',
+      name: 'pa_dispatch_v1_consumer_sets',
+      tbl_name: 'pa_dispatch_v1_consumer_sets',
+      sql: 'CREATE TABLE pa_dispatch_v1_consumer_sets(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,view_source_id))'
+    },
+    {
+      type: 'table',
+      name: 'pa_dispatch_v1_consumptions',
+      tbl_name: 'pa_dispatch_v1_consumptions',
+      sql: 'CREATE TABLE pa_dispatch_v1_consumptions(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,right_source_id TEXT NOT NULL,pitch_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(right_source_id),UNIQUE(pitch_source_id))'
+    },
+    {
+      type: 'table',
+      name: 'pa_dispatch_v1_episode_admissions',
+      tbl_name: 'pa_dispatch_v1_episode_admissions',
+      sql: 'CREATE TABLE pa_dispatch_v1_episode_admissions(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,episode_source_id TEXT NOT NULL,pitch_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(episode_source_id),UNIQUE(pitch_source_id))'
+    },
+    {
+      type: 'table',
+      name: 'pa_dispatch_v1_episodes',
+      tbl_name: 'pa_dispatch_v1_episodes',
+      sql: 'CREATE TABLE pa_dispatch_v1_episodes(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,first_pitch_source_id))'
+    },
+    {
+      type: 'table',
+      name: 'pa_dispatch_v1_execution_calibrations',
+      tbl_name: 'pa_dispatch_v1_execution_calibrations',
+      sql: 'CREATE TABLE pa_dispatch_v1_execution_calibrations(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,player_id TEXT NOT NULL,route TEXT NOT NULL,nominal_parameter_identity TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(view_source_id,player_id,route,nominal_parameter_identity))'
+    },
+    {
+      type: 'table',
+      name: 'pa_dispatch_v1_pitch_actions',
+      tbl_name: 'pa_dispatch_v1_pitch_actions',
+      sql: 'CREATE TABLE pa_dispatch_v1_pitch_actions(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,right_source_id TEXT NOT NULL,episode_source_id TEXT NOT NULL,progress_revision INTEGER NOT NULL CHECK(progress_revision=1),source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,progress_revision),UNIQUE(right_source_id))'
+    },
+    {
+      type: 'table',
+      name: 'pa_dispatch_v1_pitch_heads',
+      tbl_name: 'pa_dispatch_v1_pitch_heads',
+      sql: 'CREATE TABLE pa_dispatch_v1_pitch_heads(enrollment_source_id TEXT PRIMARY KEY,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,first_pitch_source_id TEXT NOT NULL,progress_revision INTEGER NOT NULL CHECK(progress_revision=1),last_source_id TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    {
+      type: 'table',
+      name: 'pa_dispatch_v1_rights',
+      tbl_name: 'pa_dispatch_v1_rights',
+      sql: 'CREATE TABLE pa_dispatch_v1_rights(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,episode_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,first_pitch_source_id))'
+    },
+    {
+      type: 'table',
+      name: 'pa_initial_ball_v1_plays',
+      tbl_name: 'pa_initial_ball_v1_plays',
+      sql: 'CREATE TABLE pa_initial_ball_v1_plays(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,actor_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id))'
+    },
+    {
+      type: 'table',
+      name: 'pa_initial_ball_v1_setups',
+      tbl_name: 'pa_initial_ball_v1_setups',
+      sql: 'CREATE TABLE pa_initial_ball_v1_setups(source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,enrollment_source_id TEXT NOT NULL,actor_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,view_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id))'
+    },
+    {
+      type: 'table',
+      name: 'pa_initial_joint_v1_executions',
+      tbl_name: 'pa_initial_joint_v1_executions',
+      sql: 'CREATE TABLE pa_initial_joint_v1_executions(source_id TEXT PRIMARY KEY,launch_source_id TEXT NOT NULL UNIQUE,enrollment_source_id TEXT NOT NULL,right_source_id TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    {
+      type: 'table',
+      name: 'pa_initial_joint_v1_rights',
+      tbl_name: 'pa_initial_joint_v1_rights',
+      sql: 'CREATE TABLE pa_initial_joint_v1_rights(source_id TEXT PRIMARY KEY,launch_source_id TEXT NOT NULL UNIQUE,enrollment_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    {
+      type: 'table',
+      name: 'pa_observed_initial_v1_heads',
+      tbl_name: 'pa_observed_initial_v1_heads',
+      sql: 'CREATE TABLE pa_observed_initial_v1_heads(enrollment_source_id TEXT PRIMARY KEY,launch_source_id TEXT NOT NULL,operation_ordinal INTEGER NOT NULL,last_source_id TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    {
+      type: 'table',
+      name: 'pa_observed_initial_v1_operations',
+      tbl_name: 'pa_observed_initial_v1_operations',
+      sql: 'CREATE TABLE pa_observed_initial_v1_operations(source_id TEXT PRIMARY KEY,enrollment_source_id TEXT NOT NULL,launch_source_id TEXT NOT NULL,operation_ordinal INTEGER NOT NULL CHECK(operation_ordinal>0),evaluation_tick INTEGER NOT NULL,previous_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,operation_ordinal))'
+    },
+    {
+      type: 'table',
+      name: 'pa_pitch_hand_hold_v1_sources',
+      tbl_name: 'pa_pitch_hand_hold_v1_sources',
+      sql: 'CREATE TABLE pa_pitch_hand_hold_v1_sources(source_id TEXT PRIMARY KEY,launch_source_id TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL)'
+    },
+    {
+      type: 'table',
+      name: 'physical_plate_appearance_actor_games',
+      tbl_name: 'physical_plate_appearance_actor_games',
+      sql: 'CREATE TABLE physical_plate_appearance_actor_games (game_id TEXT PRIMARY KEY,first_source_id TEXT NOT NULL)'
+    },
+    {
+      type: 'table',
+      name: 'physical_plate_appearance_actors',
+      tbl_name: 'physical_plate_appearance_actors',
+      sql: 'CREATE TABLE physical_plate_appearance_actors (source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,\n' +
+        '      game_id TEXT NOT NULL,play_id INTEGER NOT NULL,player_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,\n' +
+        '      snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(game_id,play_id))'
+    },
+    {
+      type: 'table',
+      name: 'reserved_pa_execution_views',
+      tbl_name: 'reserved_pa_execution_views',
+      sql: 'CREATE TABLE reserved_pa_execution_views(source_id TEXT PRIMARY KEY,enrollment_source_id TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,actor_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,prefix_source_id TEXT NOT NULL,assessment_set_hash TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,prefix_source_id,assessment_set_hash))'
+    },
+    {
+      type: 'table',
+      name: 'reserved_pa_total_assessments',
+      tbl_name: 'reserved_pa_total_assessments',
+      sql: 'CREATE TABLE reserved_pa_total_assessments(source_id TEXT PRIMARY KEY,enrollment_source_id TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,actor_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,prefix_source_id TEXT NOT NULL,player_id TEXT NOT NULL,baseline_source_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,prefix_source_id,player_id))'
+    },
+    {
+      type: 'table',
+      name: 'reserved_pa_work_prefixes',
+      tbl_name: 'reserved_pa_work_prefixes',
+      sql: 'CREATE TABLE reserved_pa_work_prefixes(source_id TEXT PRIMARY KEY,enrollment_source_id TEXT NOT NULL,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,actor_source_id TEXT NOT NULL,first_pitch_source_id TEXT NOT NULL,physical_revision INTEGER NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(enrollment_source_id,physical_revision))'
+    },
+    {
+      type: 'table',
+      name: 'same_pa_enrollments',
+      tbl_name: 'same_pa_enrollments',
+      sql: 'CREATE TABLE same_pa_enrollments(source_id TEXT PRIMARY KEY,career_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,actor_source_id TEXT NOT NULL UNIQUE,first_pitch_source_id TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(game_id,play_id))'
+    },
+    {
+      type: 'table',
+      name: 'same_pa_participant_reservations',
+      tbl_name: 'same_pa_participant_reservations',
+      sql: 'CREATE TABLE same_pa_participant_reservations(enrollment_source_id TEXT NOT NULL,career_id TEXT NOT NULL,player_id TEXT NOT NULL,baseline_source_id TEXT NOT NULL,revision INTEGER NOT NULL,state_hash TEXT NOT NULL,member_json TEXT NOT NULL,PRIMARY KEY(enrollment_source_id,player_id),UNIQUE(career_id,player_id))'
+    },
+    {
+      type: 'table',
+      name: 'same_pa_successor_rights',
+      tbl_name: 'same_pa_successor_rights',
+      sql: 'CREATE TABLE same_pa_successor_rights(enrollment_source_id TEXT PRIMARY KEY,first_pitch_source_id TEXT NOT NULL UNIQUE,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,state TEXT NOT NULL,predecessor_resume_source_id TEXT,consuming_source_id TEXT,slot_json TEXT NOT NULL,UNIQUE(game_id,play_id))'
+    },
+    {
+      type: 'table',
+      name: 'world_batted_body_materializations',
+      tbl_name: 'world_batted_body_materializations',
+      sql: 'CREATE TABLE world_batted_body_materializations (\n' +
+        '        source_id TEXT PRIMARY KEY,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL\n' +
+        '      )'
+    },
+    {
+      type: 'table',
+      name: 'world_club_checkpoints',
+      tbl_name: 'world_club_checkpoints',
+      sql: 'CREATE TABLE world_club_checkpoints (\n' +
+        '    career_id TEXT NOT NULL, club_id TEXT NOT NULL,\n' +
+        '    revision INTEGER NOT NULL CHECK(revision >= 0),\n' +
+        '    state_json TEXT NOT NULL,\n' +
+        '    PRIMARY KEY(career_id, club_id)\n' +
+        '  )'
+    },
+    {
+      type: 'table',
+      name: 'world_club_event_journal',
+      tbl_name: 'world_club_event_journal',
+      sql: 'CREATE TABLE world_club_event_journal (\n' +
+        '    career_id TEXT NOT NULL, club_id TEXT NOT NULL,\n' +
+        '    after_revision INTEGER NOT NULL CHECK(after_revision > 0),\n' +
+        '    event_id TEXT NOT NULL, event_json TEXT NOT NULL,\n' +
+        '    PRIMARY KEY(career_id, club_id, after_revision),\n' +
+        '    UNIQUE(career_id, club_id, event_id),\n' +
+        '    FOREIGN KEY(career_id, club_id)\n' +
+        '      REFERENCES world_club_checkpoints(career_id, club_id)\n' +
+        '  )'
+    },
+    {
+      type: 'table',
+      name: 'world_club_heads',
+      tbl_name: 'world_club_heads',
+      sql: 'CREATE TABLE world_club_heads (\n' +
+        '    career_id TEXT NOT NULL, club_id TEXT NOT NULL,\n' +
+        '    revision INTEGER NOT NULL, state_json TEXT NOT NULL,\n' +
+        '    PRIMARY KEY (career_id, club_id)\n' +
+        '  )'
+    },
+    {
+      type: 'table',
+      name: 'world_control_heads',
+      tbl_name: 'world_control_heads',
+      sql: 'CREATE TABLE world_control_heads (\n' +
+        '    career_id TEXT PRIMARY KEY,\n' +
+        '    world_revision INTEGER NOT NULL,\n' +
+        '    control_revision INTEGER NOT NULL,\n' +
+        '    control_json TEXT NOT NULL,\n' +
+        '    CHECK (world_revision >= 0),\n' +
+        '    CHECK (control_revision >= 0)\n' +
+        '  )'
+    },
+    {
+      type: 'table',
+      name: 'world_decision_revision_events',
+      tbl_name: 'world_decision_revision_events',
+      sql: 'CREATE TABLE world_decision_revision_events (\n' +
+        '    career_id TEXT NOT NULL,\n' +
+        '    world_revision INTEGER NOT NULL,\n' +
+        '    source_kind TEXT NOT NULL,\n' +
+        '    source_event_id TEXT NOT NULL,\n' +
+        '    event_json TEXT NOT NULL,\n' +
+        '    PRIMARY KEY (career_id, world_revision),\n' +
+        '    UNIQUE (career_id, source_event_id)\n' +
+        '  )'
+    },
+    {
+      type: 'table',
+      name: 'world_pitch_fatigue_policies',
+      tbl_name: 'world_pitch_fatigue_policies',
+      sql: 'CREATE TABLE world_pitch_fatigue_policies (\n' +
+        '    source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, policy_id TEXT NOT NULL, version TEXT NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, policy_json TEXT NOT NULL, source_hash TEXT NOT NULL\n' +
+        '  )'
+    },
+    {
+      type: 'table',
+      name: 'world_pitch_timing_baselines',
+      tbl_name: 'world_pitch_timing_baselines',
+      sql: 'CREATE TABLE world_pitch_timing_baselines (\n' +
+        '    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL,\n' +
+        '    player_id TEXT NOT NULL, source_json TEXT NOT NULL,\n' +
+        '    initial_json TEXT NOT NULL, UNIQUE(career_id, player_id)\n' +
+        '  )'
+    },
+    {
+      type: 'table',
+      name: 'world_pitch_timing_heads',
+      tbl_name: 'world_pitch_timing_heads',
+      sql: 'CREATE TABLE world_pitch_timing_heads (\n' +
+        '    career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    revision INTEGER NOT NULL CHECK(revision >= 0),\n' +
+        '    state_json TEXT NOT NULL, PRIMARY KEY(career_id, player_id)\n' +
+        '  )'
+    },
+    {
+      type: 'table',
+      name: 'world_pitch_timing_updates',
+      tbl_name: 'world_pitch_timing_updates',
+      sql: 'CREATE TABLE world_pitch_timing_updates (\n' +
+        '    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL,\n' +
+        '    player_id TEXT NOT NULL,\n' +
+        '    before_revision INTEGER NOT NULL CHECK(before_revision >= 0),\n' +
+        '    after_revision INTEGER NOT NULL CHECK(after_revision > before_revision),\n' +
+        '    source_json TEXT NOT NULL, state_json TEXT NOT NULL,\n' +
+        '    UNIQUE(career_id, player_id, after_revision),\n' +
+        '    UNIQUE(career_id, player_id, source_id)\n' +
+        '  )'
+    },
+    {
+      type: 'table',
+      name: 'world_player_batting_models',
+      tbl_name: 'world_player_batting_models',
+      sql: 'CREATE TABLE world_player_batting_models (\n' +
+        '        source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,player_id TEXT NOT NULL,person_id TEXT NOT NULL,\n' +
+        '        person_link_source_id TEXT NOT NULL,accepted_at_day INTEGER NOT NULL,\n' +
+        '        source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,\n' +
+        '        UNIQUE(career_id,player_id,accepted_at_day)\n' +
+        '      )'
+    },
+    {
+      type: 'table',
+      name: 'world_player_body_materializations',
+      tbl_name: 'world_player_body_materializations',
+      sql: 'CREATE TABLE world_player_body_materializations (\n' +
+        '        source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,career_id TEXT NOT NULL,player_id TEXT NOT NULL,person_id TEXT NOT NULL,\n' +
+        '        person_link_source_id TEXT NOT NULL,at_day INTEGER NOT NULL,role TEXT NOT NULL,\n' +
+        '        source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL\n' +
+        '      )'
+    },
+    {
+      type: 'table',
+      name: 'world_player_decision_model_rebindings',
+      tbl_name: 'world_player_decision_model_rebindings',
+      sql: 'CREATE TABLE world_player_decision_model_rebindings (\n' +
+        '    source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL, fielding_model_source_id TEXT NOT NULL, accepted_at_day INTEGER NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, source_hash TEXT NOT NULL, snapshot_json TEXT NOT NULL, snapshot_hash TEXT NOT NULL,\n' +
+        '    UNIQUE(career_id,player_id,accepted_at_day))'
+    },
+    {
+      type: 'table',
+      name: 'world_player_decision_models',
+      tbl_name: 'world_player_decision_models',
+      sql: 'CREATE TABLE world_player_decision_models (\n' +
+        '    source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL, fielding_model_source_id TEXT NOT NULL, accepted_at_day INTEGER NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, source_hash TEXT NOT NULL, snapshot_json TEXT NOT NULL, snapshot_hash TEXT NOT NULL,\n' +
+        '    UNIQUE(career_id,player_id))'
+    },
+    {
+      type: 'table',
+      name: 'world_player_fielding_model_developments',
+      tbl_name: 'world_player_fielding_model_developments',
+      sql: 'CREATE TABLE world_player_fielding_model_developments (source_id TEXT PRIMARY KEY,career_id TEXT NOT NULL,player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL,accepted_at_day INTEGER NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,\n' +
+        '    snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(career_id,player_id,accepted_at_day))'
+    },
+    {
+      type: 'table',
+      name: 'world_player_fielding_models',
+      tbl_name: 'world_player_fielding_models',
+      sql: 'CREATE TABLE world_player_fielding_models (source_id TEXT PRIMARY KEY,career_id TEXT NOT NULL,player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL,accepted_at_day INTEGER NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,\n' +
+        '    snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(career_id,player_id))'
+    },
+    {
+      type: 'table',
+      name: 'world_player_locomotion_model_developments',
+      tbl_name: 'world_player_locomotion_model_developments',
+      sql: 'CREATE TABLE world_player_locomotion_model_developments (\n' +
+        '    source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, capability TEXT NOT NULL, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL, fielding_model_source_id TEXT NOT NULL, accepted_at_day INTEGER NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, source_hash TEXT NOT NULL, snapshot_json TEXT NOT NULL, snapshot_hash TEXT NOT NULL,\n' +
+        '    UNIQUE(career_id,player_id,accepted_at_day))'
+    },
+    {
+      type: 'table',
+      name: 'world_player_locomotion_models',
+      tbl_name: 'world_player_locomotion_models',
+      sql: 'CREATE TABLE world_player_locomotion_models (\n' +
+        '    source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, capability TEXT NOT NULL, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL, fielding_model_source_id TEXT NOT NULL, accepted_at_day INTEGER NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, source_hash TEXT NOT NULL, snapshot_json TEXT NOT NULL, snapshot_hash TEXT NOT NULL,\n' +
+        '    UNIQUE(career_id,player_id))'
+    },
+    {
+      type: 'table',
+      name: 'world_player_observation_model_rebindings',
+      tbl_name: 'world_player_observation_model_rebindings',
+      sql: 'CREATE TABLE world_player_observation_model_rebindings (\n' +
+        '    source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL, fielding_model_source_id TEXT NOT NULL, accepted_at_day INTEGER NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, source_hash TEXT NOT NULL, snapshot_json TEXT NOT NULL, snapshot_hash TEXT NOT NULL,\n' +
+        '    UNIQUE(career_id,player_id,accepted_at_day))'
+    },
+    {
+      type: 'table',
+      name: 'world_player_observation_models',
+      tbl_name: 'world_player_observation_models',
+      sql: 'CREATE TABLE world_player_observation_models (\n' +
+        '    source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    person_link_source_id TEXT NOT NULL, fielding_model_source_id TEXT NOT NULL, accepted_at_day INTEGER NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, source_hash TEXT NOT NULL, snapshot_json TEXT NOT NULL, snapshot_hash TEXT NOT NULL,\n' +
+        '    UNIQUE(career_id,player_id))'
+    },
+    {
+      type: 'table',
+      name: 'world_player_person_links',
+      tbl_name: 'world_player_person_links',
+      sql: 'CREATE TABLE world_player_person_links (\n' +
+        '    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL,\n' +
+        '    player_id TEXT NOT NULL, person_id TEXT NOT NULL,\n' +
+        '    roster_revision INTEGER NOT NULL CHECK(roster_revision >= 0),\n' +
+        '    accepted_at_day INTEGER NOT NULL CHECK(accepted_at_day >= 0),\n' +
+        '    source_json TEXT NOT NULL,\n' +
+        '    UNIQUE(career_id, player_id), UNIQUE(career_id, person_id)\n' +
+        '  )'
+    },
+    {
+      type: 'table',
+      name: 'world_player_release_baselines',
+      tbl_name: 'world_player_release_baselines',
+      sql: 'CREATE TABLE world_player_release_baselines (\n' +
+        '    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL,\n' +
+        '    player_id TEXT NOT NULL, source_json TEXT NOT NULL,\n' +
+        '    UNIQUE(career_id, player_id)\n' +
+        '  )'
+    },
+    {
+      type: 'table',
+      name: 'world_player_release_changes',
+      tbl_name: 'world_player_release_changes',
+      sql: 'CREATE TABLE world_player_release_changes (\n' +
+        '    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL,\n' +
+        '    player_id TEXT NOT NULL, revision INTEGER NOT NULL CHECK(revision > 0),\n' +
+        '    source_json TEXT NOT NULL,\n' +
+        '    UNIQUE(career_id, player_id, revision)\n' +
+        '  )'
+    },
+    {
+      type: 'table',
+      name: 'world_player_release_heads',
+      tbl_name: 'world_player_release_heads',
+      sql: 'CREATE TABLE world_player_release_heads (\n' +
+        '    career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    revision INTEGER NOT NULL CHECK(revision >= 0),\n' +
+        '    state_json TEXT NOT NULL, PRIMARY KEY(career_id, player_id)\n' +
+        '  )'
+    },
+    {
+      type: 'table',
+      name: 'world_player_workload_activities',
+      tbl_name: 'world_player_workload_activities',
+      sql: 'CREATE TABLE world_player_workload_activities (\n' +
+        '    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    before_revision INTEGER NOT NULL CHECK(before_revision >= 0), after_revision INTEGER NOT NULL CHECK(after_revision > before_revision),\n' +
+        '    source_json TEXT NOT NULL, before_json TEXT NOT NULL, after_json TEXT NOT NULL,\n' +
+        '    UNIQUE(career_id, player_id, after_revision)\n' +
+        '  )'
+    },
+    {
+      type: 'table',
+      name: 'world_player_workload_baselines',
+      tbl_name: 'world_player_workload_baselines',
+      sql: 'CREATE TABLE world_player_workload_baselines (\n' +
+        '    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL, player_id TEXT NOT NULL,\n' +
+        '    source_json TEXT NOT NULL, initial_json TEXT NOT NULL, UNIQUE(career_id, player_id)\n' +
+        '  )'
+    },
+    {
+      type: 'table',
+      name: 'world_player_workload_heads',
+      tbl_name: 'world_player_workload_heads',
+      sql: 'CREATE TABLE world_player_workload_heads (\n' +
+        '    career_id TEXT NOT NULL, player_id TEXT NOT NULL, revision INTEGER NOT NULL CHECK(revision >= 0),\n' +
+        '    state_json TEXT NOT NULL, PRIMARY KEY(career_id, player_id)\n' +
+        '  )'
+    },
+    {
+      type: 'table',
+      name: 'world_player_workload_policies',
+      tbl_name: 'world_player_workload_policies',
+      sql: 'CREATE TABLE world_player_workload_policies (\n' +
+        '    career_id TEXT NOT NULL, policy_id TEXT NOT NULL, version TEXT NOT NULL, policy_json TEXT NOT NULL,\n' +
+        '    PRIMARY KEY(career_id, policy_id, version)\n' +
+        '  )'
+    },
+    {
+      type: 'table',
+      name: 'world_roster_executions',
+      tbl_name: 'world_roster_executions',
+      sql: 'CREATE TABLE world_roster_executions (\n' +
+        '    execution_id TEXT PRIMARY KEY,\n' +
+        '    career_id TEXT NOT NULL, club_id TEXT NOT NULL,\n' +
+        '    decision_id TEXT NOT NULL, roster_revision INTEGER NOT NULL,\n' +
+        '    mood_revision INTEGER, request_json TEXT NOT NULL,\n' +
+        '    input_json TEXT NOT NULL, result_json TEXT NOT NULL,\n' +
+        '    UNIQUE (career_id, club_id, decision_id)\n' +
+        '  )'
+    },
+    {
+      type: 'table',
+      name: 'world_roster_heads',
+      tbl_name: 'world_roster_heads',
+      sql: 'CREATE TABLE world_roster_heads (\n' +
+        '    career_id TEXT PRIMARY KEY,\n' +
+        '    revision INTEGER NOT NULL, roster_json TEXT NOT NULL,\n' +
+        '    CHECK (revision >= 0)\n' +
+        '  )'
+    },
+    {
+      type: 'table',
+      name: 'world_roster_mood_heads',
+      tbl_name: 'world_roster_mood_heads',
+      sql: 'CREATE TABLE world_roster_mood_heads (\n' +
+        '    career_id TEXT NOT NULL, club_id TEXT NOT NULL,\n' +
+        '    mood_revision INTEGER, mood_json TEXT,\n' +
+        '    PRIMARY KEY (career_id, club_id),\n' +
+        '    CHECK ((mood_revision IS NULL) = (mood_json IS NULL))\n' +
+        '  )'
+    },
+    {
+      type: 'table',
+      name: 'world_roster_opportunities',
+      tbl_name: 'world_roster_opportunities',
+      sql: 'CREATE TABLE world_roster_opportunities (\n' +
+        '    career_id TEXT NOT NULL, club_id TEXT NOT NULL,\n' +
+        '    decision_id TEXT NOT NULL, issued_json TEXT NOT NULL,\n' +
+        '    PRIMARY KEY (career_id, club_id, decision_id)\n' +
+        '  )'
+    },
+    {
+      type: 'table',
+      name: 'world_season_heads',
+      tbl_name: 'world_season_heads',
+      sql: 'CREATE TABLE world_season_heads (\n' +
+        '    career_id TEXT NOT NULL, season_id TEXT NOT NULL, league_id TEXT NOT NULL,\n' +
+        '    revision INTEGER NOT NULL, schedule_json TEXT NOT NULL,\n' +
+        '    policy_json TEXT NOT NULL, results_json TEXT NOT NULL,\n' +
+        '    standings_json TEXT NOT NULL,\n' +
+        '    PRIMARY KEY (career_id, season_id)\n' +
+        '  )'
+    },
+    {
+      type: 'table',
+      name: 'world_settlement_applications',
+      tbl_name: 'world_settlement_applications',
+      sql: 'CREATE TABLE world_settlement_applications (\n' +
+        '    application_id TEXT PRIMARY KEY,\n' +
+        '    career_id TEXT NOT NULL, season_id TEXT NOT NULL,\n' +
+        '    club_id TEXT NOT NULL, game_id TEXT NOT NULL,\n' +
+        '    season_revision INTEGER NOT NULL, club_revision INTEGER NOT NULL,\n' +
+        '    request_json TEXT NOT NULL, settlement_json TEXT NOT NULL,\n' +
+        '    UNIQUE (career_id, season_id, game_id)\n' +
+        '  )'
+    }
+  ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

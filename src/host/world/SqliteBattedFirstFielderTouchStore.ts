@@ -1,5 +1,6 @@
 import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
-import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
+import { assertLegacyBallPhysicsConsumer } from '../../core/sim/ball/VersionedBattedBallPhysics';
+import { battedWorldConsumerSourceCurve, CONTINUOUS_AERO_GROUND_TOUCH_SOURCE_VERSION } from './BattedWorldSourceCurve';
 import { assertOwnedRunnerFieldRoot, type OwnedRunnerFieldRootCapability } from './OwnedRunnerFieldRoot';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
@@ -33,15 +34,17 @@ export const battedFirstFielderTouchEvidenceFromSqlite = (db: Pick<import('node:
   const derive = (s: AcceptedBattedFirstFielderTouch): DurableBattedFirstFielderTouch => {
     const worldContact = own.read(s.worldContactSourceId);
     if (!worldContact) throw new Error('original batted World contact is missing');
+    let sourceCurve;
     if (s.kind === 'owned_runner_field_root_v1') {
       input(s, s.sourceId);
       assertOwnedRunnerFieldRoot(worldContact, s.prePitchRunnerSourceId);
-    } else assertSupportedBattedWorldConsumer(worldContact, 'first_fielder_touch');
+      assertLegacyBallPhysicsConsumer(worldContact.flight.source.sourceVersion, worldContact.flight.source.execution.ballPhysics, 'versioned_owned_runner_first_fielder_touch');
+    } else sourceCurve = battedWorldConsumerSourceCurve(worldContact, 'first_fielder_touch', s.sourceVersion, CONTINUOUS_AERO_GROUND_TOUCH_SOURCE_VERSION);
     const frame = worldContact.flight.physicalPitch.frame;
     const result = deriveAndRecordBattedWorldFirstFielderTouch({ timeline: worldContact.timeline,
       world: { flight: worldContact.flight.flight, parameters: worldContact.flight.source.execution.ballFlightParameters,
         throughTick: worldContact.flight.flight.contact.tick + worldContact.flight.source.searchDurationTicks,
-        actors: worldContact.actors, surfaces: worldContact.model.surfaces },
+        actors: worldContact.actors, surfaces: worldContact.model.surfaces, ...(sourceCurve ? { sourceCurve } : {}) },
       defenderIds: frame.batterActor!.defenderBindings.map((b) => b.playerId),
       field: worldContact.flight.source.execution.field });
     return freeze({ source: s, worldContact, result });

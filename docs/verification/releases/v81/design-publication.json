@@ -1,0 +1,16 @@
+{
+  "pass": true,
+  "branch": "jolly/core-foundation-plan-2026-09-17",
+  "previousHead": "34fc25416fce227388207890835056ae505a7be2",
+  "designCommit": "a71c017d085bb6213a1facfc6eee6aba17723d78",
+  "implementationCommit": "1f2155fd4c7241ca627dca53d288f28478c94654",
+  "documentsOnly": true,
+  "remoteDocumentsSha256": {
+    "docs/performance/PERFORMANCE-STANDARD.md": "64f464571af3e98237999c2f8ef251c801fd92b9a0e4d92d59970ebd28681bda",
+    "docs/performance/2026-10-20-v81-lossless-results.md": "554b6ac6abc91e0c66774118309457b5d2c0ab8b1c875d3c738ffc97b67ce583",
+    "docs/performance/2026-10-20-v81-measured-clip-cache.md": "df2430b09a309a0b51cacbfe5db8939cb151622077b1a0f561a65633d2698b0a",
+    "docs/AI-INDEX.md": "464d2b826fb667f13381b6494b459aaeb11918edc624117a2dc3bbab5380cee2",
+    "docs/PLAN-REGISTER.md": "0870508b93b749414888c8e17755d4b3570bfbca26a50a8cab5db08f32a23d13",
+    "docs/superpowers/plans/2026-10-20-zero-degradation-mobile-desktop-performance.md": "b1f922499a466f4f5fbc425264c76ca27a90c2d89f06ad7092becb6b7f2385ae"
+  }
+}

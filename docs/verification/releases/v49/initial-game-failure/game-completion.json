@@ -1,0 +1,30 @@
+{
+  "error": "live baseball match: rule continuation unresolved: simultaneous_tag_arrival_or_departure",
+  "errorDetails": {
+    "name": "Error",
+    "message": "live baseball match: rule continuation unresolved: simultaneous_tag_arrival_or_departure",
+    "stack": "Error: live baseball match: rule continuation unresolved: simultaneous_tag_arrival_or_departure\n    at assert12 (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/%E3%81%B0%E3%81%9B%E3%81%BC%E3%83%BC%E3%82%8Blv49_TBD_vs_LAD_%E5%AE%88%E5%82%99%E8%B2%AC%E4%BB%BB%E3%81%A8%E8%B5%B0%E5%A1%81%E8%A3%81%E5%AE%9A%E4%BF%AE%E6%AD%A3%E7%89%88.html:14980:20)\n    at Object.issuePitch (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/%E3%81%B0%E3%81%9B%E3%81%BC%E3%83%BC%E3%82%8Blv49_TBD_vs_LAD_%E5%AE%88%E5%82%99%E8%B2%AC%E4%BB%BB%E3%81%A8%E8%B5%B0%E5%A1%81%E8%A3%81%E5%AE%9A%E4%BF%AE%E6%AD%A3%E7%89%88.html:15243:7)\n    at issue (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/%E3%81%B0%E3%81%9B%E3%81%BC%E3%83%BC%E3%82%8Blv49_TBD_vs_LAD_%E5%AE%88%E5%82%99%E8%B2%AC%E4%BB%BB%E3%81%A8%E8%B5%B0%E5%A1%81%E8%A3%81%E5%AE%9A%E4%BF%AE%E6%AD%A3%E7%89%88.html:16993:91)\n    at Object.finish (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/%E3%81%B0%E3%81%9B%E3%81%BC%E3%83%BC%E3%82%8Blv49_TBD_vs_LAD_%E5%AE%88%E5%82%99%E8%B2%AC%E4%BB%BB%E3%81%A8%E8%B5%B0%E5%A1%81%E8%A3%81%E5%AE%9A%E4%BF%AE%E6%AD%A3%E7%89%88.html:17033:67)\n    at async eval (eval at evaluate (:311:30), <anonymous>:3:9)\n    at async <anonymous>:337:30",
+    "cause": null
+  },
+  "finished": false,
+  "match": {
+    "ruleProfileId": "npb-2026",
+    "inning": 1,
+    "half": "bottom",
+    "outs": 0,
+    "balls": 3,
+    "strikes": 1,
+    "bases": {
+      "first": "1-b1",
+      "second": "1-b0",
+      "third": null
+    },
+    "score": {
+      "away": 1,
+      "home": 0
+    },
+    "playId": 8
+  },
+  "pitches": 25,
+  "fallback": false
+}

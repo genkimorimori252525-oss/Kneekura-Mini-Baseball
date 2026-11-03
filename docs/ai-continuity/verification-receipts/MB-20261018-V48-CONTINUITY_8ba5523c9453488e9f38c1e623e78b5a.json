@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V48-CONTINUITY",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-continuous-batter-view.mjs",
+    "tools/browser-bridge/live-batter-braking-view.js"
+  ],
+  "observed_at": "2026-10-18T07:52:47.981+00:00",
+  "elapsed_ms": 157,
+  "git_head": "16f0ef5a6b1b1f077424c6a54ce0d76ee9a49d88",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V48-CONTINUITY_8ba5523c9453488e9f38c1e623e78b5a.log",
+  "output_sha256": "64fa961b01b0be7bb118c5a8005b0fb24c6a2076dbbb8e706b8c134bd32bed10",
+  "receipt_id": "MB-20261018-V48-CONTINUITY_8ba5523c9453488e9f38c1e623e78b5a"
+}

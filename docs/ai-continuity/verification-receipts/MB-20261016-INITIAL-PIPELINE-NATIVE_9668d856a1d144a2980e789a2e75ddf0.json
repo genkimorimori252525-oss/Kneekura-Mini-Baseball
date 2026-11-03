@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-PIPELINE-NATIVE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-observed-initial-cut-v3/readback.mjs",
+    "../../outputs/verification-observed-initial-adoption-v3",
+    "../../outputs/verification-observed-initial-cut-v3"
+  ],
+  "observed_at": "2026-10-15T23:48:26.758+00:00",
+  "elapsed_ms": 43718,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-PIPELINE-NATIVE_9668d856a1d144a2980e789a2e75ddf0.log",
+  "output_sha256": "fdf311e1b5dd0587f260f1f2e1ad06701321b5864bad7b19a204d253d8f8798f",
+  "receipt_id": "MB-20261016-INITIAL-PIPELINE-NATIVE_9668d856a1d144a2980e789a2e75ddf0"
+}

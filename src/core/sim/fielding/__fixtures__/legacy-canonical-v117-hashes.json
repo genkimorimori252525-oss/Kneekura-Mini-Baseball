@@ -1,0 +1,146 @@
+{
+  "basis": "FROZEN_V117_SOURCE_SAME_INPUT_LEGACY_FACTS_NOT_OUT_QUOTA",
+  "sourceCoreSha256": "e46816c49fb954e6dbaa74aba6a8ed38e64a2d76b46655b31b0730547220d331",
+  "scenarios": {
+    "P_comebacker": {
+      "frames": "8e28ab6b7bc92091a5be2ff8ab622775e72197effd491497f39831cdc6e76e7c",
+      "facts": "0a7a73ea2d3a794fd75223dff7069e7db19a13330f47cbc2fe079912d659db74",
+      "ruleFacts": "ffe642b0104fa23678c2b0a4b002fc7222baed4f7c22ee7a755a93944c18a807",
+      "end": "744df2dbb55ce4f75a823273e53f1391b94a1a9ead7eed240a9965b9e79a12bc",
+      "finalRunners": "dd835cd5d8eb4c768f7f6fdf6bfcba3e42ebfb4e3c925fa337e442c4b971ef82"
+    },
+    "3B_routine": {
+      "frames": "115fe89bf6b4d625a972c4acc11ae8f85abe7c2f8af70897721502bb4dbcada5",
+      "facts": "fe4d70c1f2e9cb57630358054b6344835ed1c1e033003abf9d993da7dd820f44",
+      "ruleFacts": "eda60c38bbf5faeb30160fde45a7dae1750c7cf544523d335d2b00246cb9a8dd",
+      "end": "2568f560a6c123d92304253f60d021f177881acb268a15497792e4feb1d9a140",
+      "finalRunners": "5970df0a5636109b6d7d583aa18a51fbf0bd48cde8dbe2563d4a5d429599aa35"
+    },
+    "56_hole_grounder": {
+      "frames": "d22890fed982da75e9410b44d94783c5938b53d4d6bff20a01adee04cedeb63a",
+      "facts": "118245afa2dac3ca175938a3b4c1d75aa99d166985d8091f27e337f68ac55b61",
+      "ruleFacts": "f44a3c32f81dfe0df86862221873a72169ba8e8bcce655e9d5fe3d8098f0450d",
+      "end": "bef970846a7559ba01f30f174332075dbdc13aece4d2f8466dadf1d754594303",
+      "finalRunners": "2bd3ece147c209e2c6e1fae93ed879dd34f91715fa0f8691a0c58fdc2ea90eb1"
+    },
+    "SS_routine": {
+      "frames": "a2edf280bebb630bd16f6e7d31316feabaa589c9d9504c60bba0261cfd21e36d",
+      "facts": "15eb3d1c155c5a6937523dccfcd103f53e1deffdd5a6c1493fc89fe6f6b7c746",
+      "ruleFacts": "cadbbecdabdf469e4c306ff7c4a9f5fd2ee779922a7730efa20c25be44e4bd80",
+      "end": "3257d55526b60146d2a8799e1400d7e46c3fcb72bdd5587f6171dada549f4400",
+      "finalRunners": "cef2b45c181054d549a2f58d0cad4399860f387fb8c0da0400a37db05bcc7175"
+    },
+    "SS_up_middle": {
+      "frames": "e55a2e89ad8b5e4d7518b1e75d9506eaafc2d709a239658e4a636a9684e908b5",
+      "facts": "23703665d92ffd2c3cc6534b67d4fb0c6c0295aa470e1a1cb436e3b28c9dfeb9",
+      "ruleFacts": "3d2a74b12384f1ce59c8d96f73754c42b1bc58783237c025166d757c7fcaa477",
+      "end": "2568f560a6c123d92304253f60d021f177881acb268a15497792e4feb1d9a140",
+      "finalRunners": "5970df0a5636109b6d7d583aa18a51fbf0bd48cde8dbe2563d4a5d429599aa35"
+    },
+    "2B_routine": {
+      "frames": "89169f4b3cd38b47b7db5092fbb9cfe8aea2f9f9d71ec8b1d3bf406795b4214d",
+      "facts": "4faafe4a5701182fd3d299cd5aba3c3ed6ab6d0dcd764a1a5bd25a54f1a41469",
+      "ruleFacts": "ad989676e0d8f7fe5df924273a7710d36689705828b66c966663e689057db806",
+      "end": "7ba386758ba0960ccf6ded60f29c08522ee4531a0993d15cbd3b91a4fb170350",
+      "finalRunners": "3fdaedd3b759d6608d8f8f6055a728d56e872e6acdab2c6bf8d95606a399f3f4"
+    },
+    "34_hole_grounder": {
+      "frames": "0ac74cdb25119cd2adeaf42fc4ff501ee2d172b8759409e7dce988105045c0bc",
+      "facts": "a2aaed88b77ba80e214a81b3460ed680fcc6ad601980966d8ae932ab5354b1f5",
+      "ruleFacts": "54064f55b888885f6ef36bfe0bc332c3607d18646b095f87a5c16bda2167a9b3",
+      "end": "07a5e33a3ad0cd83d7ed488c9db8b62fcd3e83968384fe6685c20bbec24b86c1",
+      "finalRunners": "6016951f75e8b6da690a6626383ede2f72f199e00440a220ae3a7eb2d2c081a0"
+    },
+    "1B_routine": {
+      "frames": "de628e935d9f96002c2b17e63a6d871fdf428918af91abde0d6a7b86c805c103",
+      "facts": "e1cc8bf6148e91d63e09863f8305906633574f56dc41227685e3a55f24304a00",
+      "ruleFacts": "57f6fcc85854538f5d03ef29749d8e8c79bc8c3d5e72ef918b7de70cff54a146",
+      "end": "2568f560a6c123d92304253f60d021f177881acb268a15497792e4feb1d9a140",
+      "finalRunners": "5970df0a5636109b6d7d583aa18a51fbf0bd48cde8dbe2563d4a5d429599aa35"
+    },
+    "slow_roller_3B": {
+      "frames": "fd92d30c7e50291bba8135d302f059975b53a16bafb78651de082d604175037d",
+      "facts": "5a5d0b93d48284283572ce44fb8233974e70aed4f13f87667a08267fa88f6e83",
+      "ruleFacts": "d57778faccb14c38f19d7d37646acf71ff034f3c982bb529ca5baecea4514fdc",
+      "end": "627264ac3282a33fd1409668fa2eb80ecc3f4eaf5e84e6013d56197fbee3bb16",
+      "finalRunners": "0683be0b88274ba9c1391b193401b58af3b3923b95c14b21be1cebc3489640c8"
+    },
+    "slow_roller_2B": {
+      "frames": "a885283591f7968a9c1b24e57d35514ef361dd2ed436161f8fbffcdb7a1896ab",
+      "facts": "2a842929cdbcad49bde225d2b1d7a19965eb731317ee649c4ab8c57ce420dcb0",
+      "ruleFacts": "5091b4b3094ffa0e40c480fcaecebc561cafc4f9f9d5ee9c2f4b9a511acefb51",
+      "end": "b59650804e5df77fea43649fea9fc67fe1e99ca6e49d5b6da87a39dfb9a73f3f",
+      "finalRunners": "ee6f23f8ddf174ee02a628c1d0d905bdaa46b678ef06b98d4c8e7b543e6b6215"
+    },
+    "DP_643_grounder": {
+      "frames": "53a6455fbd152a70973cec1aefbab0bfba60e1d2a9aec744bfebf17a1278ff81",
+      "facts": "8291fef229c286e378f4ba057d549c3b3a4747640fabe980fb743cc7d5c1a7a6",
+      "ruleFacts": "2b288fefa7027a1bac1fa2c4057ec83068695bdd7a4d0b3168698bbe8ab82825",
+      "end": "91dc38e503249a94f9ebc6902492bdd0714aa54887d3c1a208e4e58ed8442be1",
+      "finalRunners": "bb5c827bce863fc0da8c8986aad4b3f92758311c7f803fe8ea540c318d7435d6"
+    },
+    "DP_463_grounder": {
+      "frames": "722f0131c3c0e87e46cb849ed849a7eda1cf656e6cf3b486435e86156f9d526f",
+      "facts": "4cce3e6385871a0f5d9e3c93f36f6111385a28e17f8f2b3d7c4dfa545edf95fd",
+      "ruleFacts": "8faade9b76edfd1a9a54b52fa309d168cc2322236ba19cd7a136c67f6f9b9474",
+      "end": "91dc38e503249a94f9ebc6902492bdd0714aa54887d3c1a208e4e58ed8442be1",
+      "finalRunners": "6b316ec560497721d039c75461eee1fb0fdfecee88d3942a179367cc890c6568"
+    },
+    "force_3B_grounder": {
+      "frames": "129de17f4c9635d031fac8af3ec98a01b7166a75b22b4b17dacd138d594e782d",
+      "facts": "bbdeba27710f327eca116eb85ab9cef9a9d0ffeb8f4972e37c2193cbc2ec3b8b",
+      "ruleFacts": "177357b044250f296138510fcd2606b907d67d29af6d013eef39a7127cf45bb7",
+      "end": "8bd29e0c775ad42cd792c46e2c7da2575a0c087717f48927f62b2ebf3eac03e9",
+      "finalRunners": "6fcfaca5c8501560e582b6f1ba0feab0f14bb04ca7316d9b0b737d49ff2c6b3f"
+    },
+    "routine_CF_fly": {
+      "frames": "9dd9507c4cb542435a95e13a63483f83c291787590ee2cc588daf368603069b4",
+      "facts": "31b1ca218c1299f49306920a021621ccd07b24f293da3e72c5a2929eb74ddfa7",
+      "ruleFacts": "3e6a6fc6ad4980d35f135ac6000a3eba29190dcdc0b1c9ee0611b8d41f2bf51c",
+      "end": "169f1e4412de0c4ff5125844a461d1508109eba14b404a7fd7af01a2e0e6a995",
+      "finalRunners": "8af7b6f9aa5ae140455b1ec001407409586645ba950e1981348d1d56b50dc056"
+    },
+    "routine_LF_fly": {
+      "frames": "5fbb552e2145e116817277263177afe0eb15af580482489be416e573f2b28e7d",
+      "facts": "a6c781260f8e1760c7efe4eef83162b1a32c73fc9753a3dd0acb9f3bb2d5aa83",
+      "ruleFacts": "6af5ef752d57bac29a0a4b7f2b1d0c8d875e67f607f9994b7e386e6c23662c68",
+      "end": "00c75d607b94170a7645b7f2c44d691ec8fdd8e30e36d639bdd40c3e0b13df78",
+      "finalRunners": "6535e685c889aa8ce75cbe82c253dbd9d75b894173d34b38f53789400c0829af"
+    },
+    "routine_RF_fly": {
+      "frames": "4fffaaf2e450986abf07be364c2e99946931cff7be1c8a31039134fa2b4d3360",
+      "facts": "d7a1d8b27647c8a120ad181a2111757fff1876d5296c84781dfa113a85036538",
+      "ruleFacts": "62fc18c1929a5a7ab7b52afa72a63df83f810037ee05714450caae190e5bb527",
+      "end": "5acccb9a4cfcf20b1d1ae9e3f91859a8ccb9e35c32e25c3ede6f5a7abb269895",
+      "finalRunners": "9925e91edaa9198dbc4babcd8ec1ccf24aca8386c29d42891a6ab3b02c7a357b"
+    },
+    "shallow_CF_liner": {
+      "frames": "b4ae2bd6f0063703bda0318a0e5045df9cfb7ded448834618143228434db0420",
+      "facts": "558596cd07ab9970b9891c0ee46e0387eac4278c7449de8bca60f131b18a7234",
+      "ruleFacts": "c0863c41db986f0a6f4b0c0ee64a41f5fef8973dfa93d9d160854af81832d3d5",
+      "end": "2568f560a6c123d92304253f60d021f177881acb268a15497792e4feb1d9a140",
+      "finalRunners": "5970df0a5636109b6d7d583aa18a51fbf0bd48cde8dbe2563d4a5d429599aa35"
+    },
+    "fast_grounder_CF_wall": {
+      "frames": "31c6205cd2e3b54f852544195415006f04c0e165bb141540cdcb41fb7b484570",
+      "facts": "d81b8028f486d636215eb93b90ba66fa3047196dbbe689cd31c298ae2a2a1c99",
+      "ruleFacts": "479846110c02f74101c77a818f555741d62746ac6b7e537c8d10e43d41f72a75",
+      "end": "2568f560a6c123d92304253f60d021f177881acb268a15497792e4feb1d9a140",
+      "finalRunners": "5970df0a5636109b6d7d583aa18a51fbf0bd48cde8dbe2563d4a5d429599aa35"
+    },
+    "gap_liner_LCF": {
+      "frames": "51dd73d69f78b3b042df5204cc9d8213a1491d709dac50d5e65d82275d694b0e",
+      "facts": "cad5464b5f7a5198fde2900b781d8a567453135c65b8df125d357a9e6767dc22",
+      "ruleFacts": "a030e01f498fec84293ef6885fa645e1baaddb0b852d329dbed2efead928ca3c",
+      "end": "2568f560a6c123d92304253f60d021f177881acb268a15497792e4feb1d9a140",
+      "finalRunners": "5970df0a5636109b6d7d583aa18a51fbf0bd48cde8dbe2563d4a5d429599aa35"
+    },
+    "one_hop_RF_wall": {
+      "frames": "81ff3f34094767eabb9323ffe0d6e1e7960d837d7fdfeb219568cf076e2028be",
+      "facts": "3e89b74bb58a28803ea5f0adff780185e92ee069c252553c6e279ebe21f4b002",
+      "ruleFacts": "a34b7c07e91ba78037c9b70918ba16407cae29c2c6fc827898d3287f5741735a",
+      "end": "99a0d888869f419ff7bf2a7b3ce7436dba70e86c483407d43803be840f4d9dee",
+      "finalRunners": "de37ad90dc19d6b571f9906b9a3be2e5c2024d9fff06cc927945f11f323358fe"
+    }
+  }
+}

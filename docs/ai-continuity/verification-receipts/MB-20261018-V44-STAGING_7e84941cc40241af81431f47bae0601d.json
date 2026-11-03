@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V44-STAGING",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "work/stage-v44-snapshot.py"
+  ],
+  "observed_at": "2026-10-18T04:37:32.291+00:00",
+  "elapsed_ms": 3530,
+  "git_head": "7bc3982789bf563bb9a25a8b82f632c982c3ab84",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V44-STAGING_7e84941cc40241af81431f47bae0601d.log",
+  "output_sha256": "9f4eba30d23126a0217711c9025b06d5e4609e56a0dc3d60954ba5307b900748",
+  "receipt_id": "MB-20261018-V44-STAGING_7e84941cc40241af81431f47bae0601d"
+}

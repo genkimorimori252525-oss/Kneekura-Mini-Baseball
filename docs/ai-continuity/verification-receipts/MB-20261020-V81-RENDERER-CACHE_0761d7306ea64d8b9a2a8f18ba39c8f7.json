@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-RENDERER-CACHE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "--test",
+    "tools/browser-bridge/broadcast-renderer-performance-v81.test.mjs"
+  ],
+  "observed_at": "2026-10-20T12:46:11.906+00:00",
+  "elapsed_ms": 1062,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-RENDERER-CACHE_0761d7306ea64d8b9a2a8f18ba39c8f7.log",
+  "output_sha256": "12c9facf1f598b781f37bf0a310ae4fd4c76efe2398b9166f4c88404de3827fe",
+  "receipt_id": "MB-20261020-V81-RENDERER-CACHE_0761d7306ea64d8b9a2a8f18ba39c8f7"
+}

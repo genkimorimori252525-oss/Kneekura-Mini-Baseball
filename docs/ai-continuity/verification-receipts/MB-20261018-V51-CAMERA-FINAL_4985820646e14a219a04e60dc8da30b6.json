@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V51-CAMERA-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v51-camera.mjs",
+    "../../outputs/ばせぼーるlv51_TBD_vs_LAD_野手の回避と間隔改善版.html",
+    "../../outputs/verification-v51-camera-final"
+  ],
+  "observed_at": "2026-10-18T09:41:59.628+00:00",
+  "elapsed_ms": 29172,
+  "git_head": "01834d9e8361b7747083b9fbb7539c93ee662b50",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V51-CAMERA-FINAL_4985820646e14a219a04e60dc8da30b6.log",
+  "output_sha256": "65cfa3cae6fac0891e3af1df20072ace7fd8c8cc3c1585eadf86db44a433c872",
+  "receipt_id": "MB-20261018-V51-CAMERA-FINAL_4985820646e14a219a04e60dc8da30b6"
+}

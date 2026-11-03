@@ -1,0 +1,29 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/LiveBaseballMatchV1.test.ts (4 tests | 1 failed) 8174ms
+   × plays a mixed physical game through regulation without a replay frontier or old engine result 6698ms
+     → live baseball match: physical field continuation unresolved: numerical_contact_refinement_required (pitch 67, seed 2468)
+   ✓ does not derive SI or alter results from presentation names or league labels 1069ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LiveBaseballMatchV1.test.ts > plays a mixed physical game through regulation without a replay frontier or old engine result
+Error: live baseball match: physical field continuation unresolved: numerical_contact_refinement_required (pitch 67, seed 2468)
+ ❯ assert src/integration/browser/LiveBaseballMatchV1.ts:61:59
+     59|     material:Object.freeze({restitution:.48,slidingFriction:.24,rollin…
+     60| const frozen=<T>(v:T):T=>{if(v&&typeof v==='object'&&!Object.isFrozen(…
+     61| function assert(v:unknown,m:string):asserts v{if(!v)throw new Error('l…
+       |                                                           ^
+     62| function physical(player:LivePlayerV1):LivePlayerPhysicalV1{
+     63|   const p=player.physical??LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1;
+ ❯ Object.issuePitch src/integration/browser/LiveBaseballMatchV1.ts:134:7
+ ❯ src/integration/browser/LiveBaseballMatchV1.test.ts:14:89
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  08:59:14
+   Duration  9.01s (transform 266ms, setup 0ms, collect 385ms, tests 8.17s, environment 0ms, prepare 136ms)
+

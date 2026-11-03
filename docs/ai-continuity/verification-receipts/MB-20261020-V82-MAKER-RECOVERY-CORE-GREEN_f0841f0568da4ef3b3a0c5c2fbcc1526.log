@@ -1,0 +1,16 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LivePhysicalRosterV1.test.ts (29 tests) 2689ms
+   ✓ passes ON/OFF controls from imported trait profiles to actual Host pitches without altering a taken ball 496ms
+   ✓ passes absolute vision through JSON/roster/Host without adding a physical pitch or batting bonus 342ms
+ ✓ src/integration/browser/LivePublicAbilitiesV1.test.ts (27 tests) 3336ms
+   ✓ public authoring with individual SI profiles > projects all 20 profiles without changing the packet and exact no-op edits preserve all bytes 2364ms
+ ✓ src/integration/browser/WorkbenchPlayer.test.ts (19 tests) 62ms
+ ✓ src/integration/browser/MakerValueRecoveryV82.test.ts (10 tests) 44ms
+
+ Test Files  4 passed (4)
+      Tests  85 passed (85)
+   Start at  22:37:22
+   Duration  13.91s (transform 2.86s, setup 0ms, collect 5.16s, tests 6.13s, environment 1ms, prepare 1.01s)
+

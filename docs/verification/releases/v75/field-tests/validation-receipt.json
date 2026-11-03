@@ -1,0 +1,39 @@
+{
+  "evidenceKind": "Observed completed vitest process; original tool output retained in session",
+  "command": [
+    "node_modules/.bin/vitest.cmd",
+    "run",
+    "src/core/sim/fielding/LiveFieldTechniquesV75.test.ts",
+    "src/core/sim/fielding/LiveRunnerAdvancePolicyV1.test.ts",
+    "src/core/sim/running/LiveRunnerMotionV1.test.ts",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts",
+    "src/core/sim/fielding/LiveFieldRunnerRoundingV1.test.ts",
+    "src/core/sim/fielding/LiveHandPreparationV1.test.ts"
+  ],
+  "cwd": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball",
+  "startedAtLocal": "2026-10-20 03:01:24 Asia/Tokyo",
+  "testFilesPassed": 6,
+  "testFilesFailed": 0,
+  "testsPassed": 62,
+  "testsFailed": 0,
+  "durationSeconds": 10.62,
+  "exitCode": 0,
+  "toolChunks": [
+    "ee93dc",
+    "e9724b"
+  ],
+  "focusedStrictTypecheckReceipt": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\outputs\\maker-v75-field-techniques\\typecheck-receipt.json",
+  "diffCheckReceipt": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\outputs\\maker-v75-field-techniques\\diff-check-receipt.json",
+  "changedFiles": [
+    "src/core/sim/fielding/LiveFieldPlayV1.ts",
+    "src/core/sim/fielding/LiveRunnerAdvancePolicyV1.ts",
+    "src/core/sim/running/LiveRunnerMotionV1.ts",
+    "src/core/sim/fielding/LiveFieldTechniquesV75.test.ts"
+  ],
+  "firstFocusedTestRun": {
+    "toolChunk": "f9a447",
+    "testsPassed": 6,
+    "testsFailed": 1,
+    "failure": "Test compared independent sampler function identities; corrected to compare exact serialized motion data. No production fix was required."
+  }
+}

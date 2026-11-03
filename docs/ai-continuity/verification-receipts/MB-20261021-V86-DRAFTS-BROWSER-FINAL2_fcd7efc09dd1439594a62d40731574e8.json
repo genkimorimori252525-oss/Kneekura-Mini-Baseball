@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V86-DRAFTS-BROWSER-FINAL2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-drafts-v86.mjs",
+    "../../outputs/にーくら野球メーカー_v86_入力確定とエラー復帰版.html",
+    "docs/verification/releases/v86/drafts-browser-final2"
+  ],
+  "observed_at": "2026-10-20T16:41:04.985+00:00",
+  "elapsed_ms": 99514,
+  "git_head": "58c9163a9007598d6a51d8178f38ce3b9ee14eca",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V86-DRAFTS-BROWSER-FINAL2_fcd7efc09dd1439594a62d40731574e8.log",
+  "output_sha256": "63fa3e9b958cec9bcb4a00600936c9739a8a5d20c8395ae7343fbefb85364282",
+  "receipt_id": "MB-20261021-V86-DRAFTS-BROWSER-FINAL2_fcd7efc09dd1439594a62d40731574e8"
+}

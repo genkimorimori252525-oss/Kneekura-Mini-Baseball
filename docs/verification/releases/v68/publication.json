@@ -1,0 +1,95 @@
+{
+  "pass": true,
+  "sourceCommit": "2fdc2a6f61cc8a6e499998d9a34530cc38f33cdf",
+  "remoteHead": "2fdc2a6f61cc8a6e499998d9a34530cc38f33cdf",
+  "pullRequest": {
+    "headRefName": "jolly/tbd-lad-native-browser-core-2026-10-14",
+    "headRefOid": "2fdc2a6f61cc8a6e499998d9a34530cc38f33cdf",
+    "isDraft": true,
+    "state": "OPEN",
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380"
+  },
+  "rawFiles": [
+    {
+      "path": "docs/demos/releases/v68/game.html",
+      "sha256": "8b709ab3c69fc8bdc5f9980a8b66912e0b9b86f73c67970cc1bf9b37cfa6ccbc",
+      "bytes": 32180667
+    },
+    {
+      "path": "docs/demos/releases/v68/camera-workbench.html",
+      "sha256": "e9f607f49d101f37e7dc7cb107e5e2f54798f9e3077d1c2e1d54c6dabb591c5e",
+      "bytes": 32398544
+    },
+    {
+      "path": "docs/demos/releases/v68/maker.html",
+      "sha256": "ed10241a66c31b90a177adc17b7a59150b7c92a60150594b6dddc7cb934ab949",
+      "bytes": 33127833
+    },
+    {
+      "path": "docs/demos/releases/v68/SHA256.json",
+      "sha256": "91ac25cbcbc1d2272af46bb9612cd595125831b9681406b598e5b150b6b9cbf2",
+      "bytes": 874
+    },
+    {
+      "path": "docs/demos/releases/v68/game.html.build.json",
+      "sha256": "db1281419c63f748f528d1e02f4946b76649c73bca397b501fc45ddb743401b7",
+      "bytes": 5476
+    },
+    {
+      "path": "docs/demos/releases/v68/camera-workbench.html.build.json",
+      "sha256": "95182b11757b1dce0620033ca874434930048ff89dcbcf51161f6ad846f49c78",
+      "bytes": 5480
+    },
+    {
+      "path": "docs/demos/releases/v68/maker.html.build.json",
+      "sha256": "fd83e7be981ae28f6098bad94b48e2d2d2529435e198ccc8fbd0966b40a6ffc6",
+      "bytes": 2722
+    },
+    {
+      "path": "docs/demos/releases/v68/game.html.bundle-inputs.json",
+      "sha256": "13550223093171f1431eec1499b3c23709016580aa3d97e4860be5577d8a2955",
+      "bytes": 14135
+    },
+    {
+      "path": "docs/demos/releases/v68/maker.html.bundle-inputs.json",
+      "sha256": "845ca436601be158d52f9a3586ec3d64885f9bcd13deb71f0618053108a255d7",
+      "bytes": 9866
+    },
+    {
+      "path": "docs/demos/releases/v68/README.md",
+      "sha256": "23e5649f97d7a29dd9b731012ca52a611185c6af4db748685ef4a673b733d7a3",
+      "bytes": 2945
+    },
+    {
+      "path": "docs/reports/2026-10-19-v68-measured-form-trajectory-maker.md",
+      "sha256": "8b8fa05d6e636022548c9017ae772e4eebbeec925b4a3eec765c205de9ea2146",
+      "bytes": 6029
+    },
+    {
+      "path": "docs/handoffs/LATEST.md",
+      "sha256": "3cb71cfb2f0f52457d2e9a940bfc8d75843dd788c3bd14a1b53a452e01b39d77",
+      "bytes": 21981
+    },
+    {
+      "path": "docs/demos/baseball-maker-swing-v68.js",
+      "sha256": "7fd0c92346c539da0c948da5278f60c1287f40363f1bd657d443dccee0ef6405",
+      "bytes": 16685
+    },
+    {
+      "path": "tools/browser-bridge/camera-workbench-v68.js",
+      "sha256": "ed99c20c78aebe7e4c70e2921d4097fcd5c4709284366c02cc863e4b07b91daa",
+      "bytes": 37746
+    },
+    {
+      "path": "docs/demos/measured-bat-library-v1.json",
+      "sha256": "b53a8d687f663a5578315120445de1407fb82efec594cde27cc313c1ea5b106a",
+      "bytes": 29835543
+    },
+    {
+      "path": "docs/verification/releases/v68/release-check.json",
+      "sha256": "bc6b78882750cc953b0d7d01222e90068874bc289045e8b457bfefd500b9209c",
+      "bytes": 539
+    }
+  ],
+  "mainMerged": false
+}

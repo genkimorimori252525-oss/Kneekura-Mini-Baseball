@@ -1,0 +1,1 @@
+src/core/sim/fielding/FiniteFieldActorClearanceV1.test.ts(97,114): error TS2339: Property 'signedGroundGapMeters' does not exist on type 'Readonly<unknown>'.

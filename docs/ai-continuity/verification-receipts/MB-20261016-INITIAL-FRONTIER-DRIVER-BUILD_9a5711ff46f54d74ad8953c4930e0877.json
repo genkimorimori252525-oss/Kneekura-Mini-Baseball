@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-FRONTIER-DRIVER-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/native-game/build-measured-model-readback.mjs",
+    "../native-observed-initial-cut-v4",
+    "observed_cut_native"
+  ],
+  "observed_at": "2026-10-15T23:49:47.885+00:00",
+  "elapsed_ms": 843,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-FRONTIER-DRIVER-BUILD_9a5711ff46f54d74ad8953c4930e0877.log",
+  "output_sha256": "e168c051af561c283122a13cb53597921e10a661147c51190cac59786f6b6679",
+  "receipt_id": "MB-20261016-INITIAL-FRONTIER-DRIVER-BUILD_9a5711ff46f54d74ad8953c4930e0877"
+}

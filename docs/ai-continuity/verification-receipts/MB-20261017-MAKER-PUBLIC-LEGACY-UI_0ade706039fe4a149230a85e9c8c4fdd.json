@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-MAKER-PUBLIC-LEGACY-UI",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-live-roster.mjs",
+    "../../work/maker-public-legacy-compat.html",
+    "../../outputs/verification-maker-public-legacy-compat"
+  ],
+  "observed_at": "2026-10-17T03:54:01.214+00:00",
+  "elapsed_ms": 5983,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-MAKER-PUBLIC-LEGACY-UI_0ade706039fe4a149230a85e9c8c4fdd.log",
+  "output_sha256": "7827b03e9ff9e52788e038095b8debd7f09fb5988c3554488ca36d153a452932",
+  "receipt_id": "MB-20261017-MAKER-PUBLIC-LEGACY-UI_0ade706039fe4a149230a85e9c8c4fdd"
+}

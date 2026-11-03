@@ -1,0 +1,10 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts (6 tests) 200ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  03:05:48
+   Duration  1.02s (transform 270ms, setup 0ms, collect 396ms, tests 200ms, environment 0ms, prepare 131ms)
+

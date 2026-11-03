@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V37-REGRESSION-V36",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v37-animations.mjs",
+    "../../outputs/ばせぼーるlv36_TBD_vs_LAD_結果表示タイミング修正版.html",
+    "../../outputs/verification-v37-regression-v36"
+  ],
+  "observed_at": "2026-10-17T02:50:48.588+00:00",
+  "elapsed_ms": 1000,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V37-REGRESSION-V36_fb6ffe021a014ff8be4e47424ffdae3e.log",
+  "output_sha256": "6202bdee89d0190d510910fe0502b5738d927c033109c180b34c57fc087adb86",
+  "receipt_id": "MB-20261017-V37-REGRESSION-V36_fb6ffe021a014ff8be4e47424ffdae3e"
+}

@@ -1,0 +1,24 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LivePitchReleaseV62.test.ts (5 tests) 315ms
+ ✓ src/integration/browser/LivePitchV1.test.ts (13 tests) 1351ms
+ ✓ src/integration/browser/LivePitchAbilitiesV1.test.ts (11 tests) 1429ms
+ ✓ src/integration/browser/LivePitchTechnicalSkillsV75.test.ts (5 tests) 1578ms
+   ✓ keeps omitted and zero techniques exactly on the legacy prefix, including static bunt geometry and random draws 471ms
+   ✓ improves only bunt errors, obeys the declared motor ceiling and leaves takes and other swings unchanged 545ms
+ ✓ src/integration/browser/LiveTraitPreferenceExecutionV54.test.ts (14 tests) 18233ms
+   ✓ keeps omitted, neutral and BALANCED preferences exactly equivalent under old commands 499ms
+   ✓ executes personal POWER/CONTACT through the existing real bat motor for R 334ms
+   ✓ executes personal POWER/CONTACT through the existing real bat motor for L 309ms
+   ✓ lets explicit bunt override a personal swing preference 1002ms
+   ✓ uses the new current batter after the inning changes and keeps an inactive player preference out of earlier Sources 1301ms
+   ✓ lets every explicit manager pitch override both pitcher preferences in the Host 1192ms
+   ✓ keeps BALANCED auto and every explicit pitch exactly equal, including RNG-dependent Source and controls 1932ms
+   ✓ changes only auto pitch selection weights, with the same downstream draw stream when a type is unchanged 10839ms
+
+ Test Files  5 passed (5)
+      Tests  48 passed (48)
+   Start at  03:01:50
+   Duration  19.31s (transform 823ms, setup 0ms, collect 2.73s, tests 22.91s, environment 1ms, prepare 826ms)
+

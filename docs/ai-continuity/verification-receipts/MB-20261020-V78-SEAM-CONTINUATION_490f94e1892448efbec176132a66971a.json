@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-SEAM-CONTINUATION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "./node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/SourceBallSeamContinuationV78.test.ts",
+    "src/core/sim/ball/SourceBallMaterialHistoryV1.test.ts",
+    "src/core/sim/ball/SourceBallMaterialHistoryFromContinuationV3.test.ts",
+    "src/core/sim/ball/BattedWorldContinuation.test.ts",
+    "src/core/sim/ball/SourceFreeBallWorldQuery.test.ts",
+    "src/core/sim/ball/SourceImpactEscapeV3.test.ts",
+    "src/core/sim/ball/SourceBaseImpulseV3.test.ts",
+    "src/core/sim/ball/SourceBattedFieldMotionV3.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-19T19:45:00.172+00:00",
+  "elapsed_ms": 3000,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-SEAM-CONTINUATION_490f94e1892448efbec176132a66971a.log",
+  "output_sha256": "10c37c179379a63801e6c6ceac63efa86ffcded3c8371dfaec7938ae5eed3789",
+  "receipt_id": "MB-20261020-V78-SEAM-CONTINUATION_490f94e1892448efbec176132a66971a"
+}

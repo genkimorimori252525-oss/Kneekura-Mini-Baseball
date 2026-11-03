@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-MEASURED-COMMITMENT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/world/psychology/batting/MeasuredBattingCommitment.test.ts",
+    "src/core/world/psychology/batting/BattingCommitment.test.ts",
+    "src/core/world/psychology/batting/BattingResolution.test.ts"
+  ],
+  "observed_at": "2026-10-15T22:02:55.988+00:00",
+  "elapsed_ms": 2514,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-MEASURED-COMMITMENT_f2abd0c2cec640f19d4e737bb3afc5ba.log",
+  "output_sha256": "08f9e216c7ed25900f4738202130c6e831328d3523628b3c345d41744e1c51a7",
+  "receipt_id": "MB-20261016-MEASURED-COMMITMENT_f2abd0c2cec640f19d4e737bb3afc5ba"
+}

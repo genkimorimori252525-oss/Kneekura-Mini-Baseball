@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-SOURCE-FIELD-SEAM-TSC",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-16T21:09:33.595+00:00",
+  "elapsed_ms": 28655,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-SOURCE-FIELD-SEAM-TSC_e75dd908b6cf4eb1bccc138e755c0c17.log",
+  "output_sha256": "7bd9aa6f6060f16790763f5661fa61260b3b4d5625ebec329e50b2ce35a1b8bc",
+  "receipt_id": "MB-20261017-SOURCE-FIELD-SEAM-TSC_e75dd908b6cf4eb1bccc138e755c0c17"
+}

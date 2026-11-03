@@ -1,0 +1,25 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/presentation/mini/OpticalBaseballGlyph.test.ts (3 tests) 5ms
+ ✓ src/core/sim/ball/BaseballGroundDynamics.test.ts (7 tests) 6ms
+ ✓ src/integration/native-game/TeamCoverageExecutionGate.test.ts (6 tests) 16ms
+ ✓ src/core/sim/fielding/GeneralDefensivePlaySearch.test.ts (13 tests) 88ms
+ ✓ src/core/rules/ForceDoublePlayVerticalSlice.test.ts (1 test) 6ms
+ ✓ src/presentation/mini/NativeSpinOrientationObserver.test.ts (12 tests) 49ms
+ ✓ src/core/sim/fielding/GeneralTeamTacticalCoordinator.test.ts (14 tests) 143ms
+ ✓ src/core/rules/P1RuleAcceptanceMatrix.test.ts (6 tests) 8ms
+ ✓ src/integration/browser/NativePitchObserverAdapter.test.ts (6 tests) 15ms
+ ✓ src/integration/browser/NativeSinglePaSession.test.ts (3 tests) 16ms
+ ✓ src/core/sim/ball/FreeBaseballTrajectory.test.ts (7 tests) 185ms
+ ✓ src/integration/browser/NativeAerodynamicSession.test.ts (10 tests) 77ms
+ ✓ src/integration/browser/NativeFreeBallObservation.test.ts (2 tests) 110ms
+ ✓ src/integration/browser/NativeAerodynamicObserver.test.ts (13 tests) 137ms
+ ✓ src/integration/browser/NativeImmutableReplayLedger.test.ts (14 tests) 395ms
+ ✓ src/integration/browser/NativeAerodynamicReferenceFixture.test.ts (7 tests) 517ms
+
+ Test Files  16 passed (16)
+      Tests  124 passed (124)
+   Start at  03:08:05
+   Duration  1.79s (transform 3.02s, setup 0ms, collect 6.56s, tests 1.77s, environment 4ms, prepare 5.03s)
+

@@ -1,0 +1,4300 @@
+{
+  "normal": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv56_TBD_vs_LAD_投球描画と追従調整版.html",
+  "workbench": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\カメラワーク調整室_v56.html",
+  "pass": true,
+  "phase": "paused-layers-390",
+  "views": [
+    {
+      "width": 1200,
+      "normal": {
+        "ball": [
+          {
+            "camera": "batter",
+            "scene": {
+              "pitch": 0,
+              "ms": 1804.01
+            },
+            "base": {
+              "camera": "batter",
+              "displayScale": 1,
+              "unscaledDisplayDiameterPx": 7.873189098358242,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 3.210145472560356,
+              "opticalDiameterPx": 7.873189098358242,
+              "visibilityMarker": false,
+              "displayDiameterPx": 7.873189098358242,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 296,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 300,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 296,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 300,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                }
+              ]
+            },
+            "scaled": {
+              "camera": "batter",
+              "displayScale": 2.5,
+              "unscaledDisplayDiameterPx": 7.873189098358242,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 3.210145472560356,
+              "opticalDiameterPx": 7.873189098358242,
+              "visibilityMarker": false,
+              "displayDiameterPx": 19.682972745895604,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 292,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 296,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 300,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 292,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 296,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#dd5459"
+                },
+                {
+                  "x": 300,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 292,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 296,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 300,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 292,
+                  "y": 80,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 296,
+                  "y": 80,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 300,
+                  "y": 80,
+                  "radius": 1.45,
+                  "color": "#dd5459"
+                },
+                {
+                  "x": 304,
+                  "y": 80,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                }
+              ]
+            }
+          },
+          {
+            "camera": "catcher",
+            "scene": {
+              "pitch": 0,
+              "ms": 1804.01
+            },
+            "base": {
+              "camera": "catcher",
+              "displayScale": 1,
+              "unscaledDisplayDiameterPx": 8.254527008347997,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 3.5034823162273336,
+              "opticalDiameterPx": 8.254527008347997,
+              "visibilityMarker": false,
+              "displayDiameterPx": 8.254527008347997,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 304,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 308,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 308,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                }
+              ]
+            },
+            "scaled": {
+              "camera": "catcher",
+              "displayScale": 2.5,
+              "unscaledDisplayDiameterPx": 8.254527008347997,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 3.5034823162273336,
+              "opticalDiameterPx": 8.254527008347997,
+              "visibilityMarker": false,
+              "displayDiameterPx": 20.636317520869994,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 308,
+                  "y": 60,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 300,
+                  "y": 64,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 64,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 308,
+                  "y": 64,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 312,
+                  "y": 64,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 300,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 308,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 312,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 316,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 300,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 308,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#dd5459"
+                },
+                {
+                  "x": 312,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 316,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 300,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 304,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 308,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 312,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 308,
+                  "y": 80,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                }
+              ]
+            }
+          },
+          {
+            "camera": "mound",
+            "scene": {
+              "pitch": 0,
+              "ms": 1804.01
+            },
+            "base": {
+              "camera": "mound",
+              "displayScale": 1,
+              "unscaledDisplayDiameterPx": 11.445131782244362,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 11.445131782244362,
+              "opticalDiameterPx": 11.445131782244362,
+              "visibilityMarker": false,
+              "displayDiameterPx": 11.445131782244362,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 276,
+                  "y": 148,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 272,
+                  "y": 152,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 276,
+                  "y": 152,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 280,
+                  "y": 152,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 272,
+                  "y": 156,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 276,
+                  "y": 156,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 280,
+                  "y": 156,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                }
+              ]
+            },
+            "scaled": {
+              "camera": "mound",
+              "displayScale": 2.5,
+              "unscaledDisplayDiameterPx": 11.445131782244362,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 11.445131782244362,
+              "opticalDiameterPx": 11.445131782244362,
+              "visibilityMarker": false,
+              "displayDiameterPx": 28.612829455610903,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 272,
+                  "y": 140,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 276,
+                  "y": 140,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 280,
+                  "y": 140,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 268,
+                  "y": 144,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 272,
+                  "y": 144,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 276,
+                  "y": 144,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 280,
+                  "y": 144,
+                  "radius": 1.45,
+                  "color": "#dd5459"
+                },
+                {
+                  "x": 284,
+                  "y": 144,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 264,
+                  "y": 148,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 268,
+                  "y": 148,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 272,
+                  "y": 148,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 276,
+                  "y": 148,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 280,
+                  "y": 148,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 284,
+                  "y": 148,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 288,
+                  "y": 148,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 264,
+                  "y": 152,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 268,
+                  "y": 152,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 272,
+                  "y": 152,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 276,
+                  "y": 152,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 280,
+                  "y": 152,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 284,
+                  "y": 152,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 288,
+                  "y": 152,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 264,
+                  "y": 156,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 268,
+                  "y": 156,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 272,
+                  "y": 156,
+                  "radius": 1.45,
+                  "color": "#dd5459"
+                },
+                {
+                  "x": 276,
+                  "y": 156,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 280,
+                  "y": 156,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 284,
+                  "y": 156,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 288,
+                  "y": 156,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 264,
+                  "y": 160,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 268,
+                  "y": 160,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 272,
+                  "y": 160,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 276,
+                  "y": 160,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 280,
+                  "y": 160,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 284,
+                  "y": 160,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 268,
+                  "y": 164,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 272,
+                  "y": 164,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 276,
+                  "y": 164,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 280,
+                  "y": 164,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 284,
+                  "y": 164,
+                  "radius": 1.45,
+                  "color": "#dd5459"
+                }
+              ]
+            }
+          },
+          {
+            "camera": "runner",
+            "scene": {
+              "pitch": 0,
+              "ms": 1804.01
+            },
+            "base": {
+              "camera": "runner",
+              "displayScale": 1,
+              "unscaledDisplayDiameterPx": 3.7444586291981152,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 3.7444586291981152,
+              "opticalDiameterPx": 3.7444586291981152,
+              "visibilityMarker": false,
+              "displayDiameterPx": 3.7444586291981152,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 272,
+                  "y": 184,
+                  "radius": 1.8722293145990576,
+                  "color": "#fffdf7"
+                }
+              ]
+            },
+            "scaled": {
+              "camera": "runner",
+              "displayScale": 2.5,
+              "unscaledDisplayDiameterPx": 3.7444586291981152,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 3.7444586291981152,
+              "opticalDiameterPx": 3.7444586291981152,
+              "visibilityMarker": false,
+              "displayDiameterPx": 9.361146572995288,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 272,
+                  "y": 180,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 276,
+                  "y": 180,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 272,
+                  "y": 184,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 276,
+                  "y": 184,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 272,
+                  "y": 188,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                }
+              ]
+            }
+          },
+          {
+            "camera": "overhead",
+            "scene": {
+              "pitch": 0,
+              "ms": 1804.01
+            },
+            "base": {
+              "camera": "overhead",
+              "displayScale": 1,
+              "unscaledDisplayDiameterPx": 1.25,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 0.3341006337463919,
+              "opticalDiameterPx": 0.3341006337463919,
+              "visibilityMarker": true,
+              "displayDiameterPx": 1.25,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 300,
+                  "y": 364,
+                  "radius": 0.625,
+                  "color": "#fffdf7"
+                }
+              ]
+            },
+            "scaled": {
+              "camera": "overhead",
+              "displayScale": 0.75,
+              "unscaledDisplayDiameterPx": 1.25,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 0.3341006337463919,
+              "opticalDiameterPx": 0.3341006337463919,
+              "visibilityMarker": true,
+              "displayDiameterPx": 0.9375,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 300,
+                  "y": 364,
+                  "radius": 0.46875,
+                  "color": "#fffdf7"
+                }
+              ]
+            }
+          }
+        ],
+        "zone": [
+          {
+            "camera": "catcher",
+            "plane": 0.15,
+            "height": 1.93,
+            "points": [
+              {
+                "x": -0.2159,
+                "y": 1.03255,
+                "z": 0.15
+              },
+              {
+                "x": 0.2159,
+                "y": 1.03255,
+                "z": 0.15
+              },
+              {
+                "x": 0.2159,
+                "y": 0.5211,
+                "z": 0.15
+              },
+              {
+                "x": -0.2159,
+                "y": 0.5211,
+                "z": 0.15
+              }
+            ],
+            "actual": [
+              {
+                "x": 217.37810070900858,
+                "y": 95.10313721599076,
+                "scale": 382.6859624409051,
+                "depth": 1.1497678075086055
+              },
+              {
+                "x": 382.62189929099145,
+                "y": 95.10313721599076,
+                "scale": 382.6859624409051,
+                "depth": 1.1497678075086055
+              },
+              {
+                "x": 381.96564230775414,
+                "y": 289.312464019055,
+                "scale": 379.6463284286898,
+                "depth": 1.1589734103872589
+              },
+              {
+                "x": 218.03435769224586,
+                "y": 289.312464019055,
+                "scale": 379.6463284286898,
+                "depth": 1.1589734103872589
+              }
+            ],
+            "expected": [
+              {
+                "x": 217.37810070900858,
+                "y": 95.10313721599076,
+                "scale": 382.6859624409051,
+                "depth": 1.1497678075086055
+              },
+              {
+                "x": 382.62189929099145,
+                "y": 95.10313721599076,
+                "scale": 382.6859624409051,
+                "depth": 1.1497678075086055
+              },
+              {
+                "x": 381.96564230775414,
+                "y": 289.312464019055,
+                "scale": 379.6463284286898,
+                "depth": 1.1589734103872589
+              },
+              {
+                "x": 218.03435769224586,
+                "y": 289.312464019055,
+                "scale": 379.6463284286898,
+                "depth": 1.1589734103872589
+              }
+            ],
+            "chartHidden": false,
+            "chartDisplay": "block"
+          },
+          {
+            "camera": "batter",
+            "plane": 0.15,
+            "height": 1.93,
+            "points": [
+              {
+                "x": -0.2159,
+                "y": 1.03255,
+                "z": 0.15
+              },
+              {
+                "x": 0.2159,
+                "y": 1.03255,
+                "z": 0.15
+              },
+              {
+                "x": 0.2159,
+                "y": 0.5211,
+                "z": 0.15
+              },
+              {
+                "x": -0.2159,
+                "y": 0.5211,
+                "z": 0.15
+              }
+            ],
+            "actual": [
+              {
+                "x": 92.83286653240702,
+                "y": 236.8645532346944,
+                "scale": 349.29926297284084,
+                "depth": 1.1451498540124354
+              },
+              {
+                "x": 243.18805378181955,
+                "y": 238.10559724356085,
+                "scale": 352.02680080909863,
+                "depth": 1.1362771217436847
+              },
+              {
+                "x": 245.16064852460985,
+                "y": 406.8944511919421,
+                "scale": 339.80390997676346,
+                "depth": 1.177149491974218
+              },
+              {
+                "x": 99.97220305208356,
+                "y": 404.43345204964294,
+                "scale": 337.2618082728742,
+                "depth": 1.186022224242969
+              }
+            ],
+            "expected": [
+              {
+                "x": 92.83286653240702,
+                "y": 236.8645532346944,
+                "scale": 349.29926297284084,
+                "depth": 1.1451498540124354
+              },
+              {
+                "x": 243.18805378181955,
+                "y": 238.10559724356085,
+                "scale": 352.02680080909863,
+                "depth": 1.1362771217436847
+              },
+              {
+                "x": 245.16064852460985,
+                "y": 406.8944511919421,
+                "scale": 339.80390997676346,
+                "depth": 1.177149491974218
+              },
+              {
+                "x": 99.97220305208356,
+                "y": 404.43345204964294,
+                "scale": 337.2618082728742,
+                "depth": 1.186022224242969
+              }
+            ],
+            "chartHidden": false,
+            "chartDisplay": "block"
+          },
+          {
+            "camera": "mound",
+            "plane": 0.15,
+            "height": 1.93,
+            "points": [
+              {
+                "x": -0.2159,
+                "y": 1.03255,
+                "z": 0.15
+              },
+              {
+                "x": 0.2159,
+                "y": 1.03255,
+                "z": 0.15
+              },
+              {
+                "x": 0.2159,
+                "y": 0.5211,
+                "z": 0.15
+              },
+              {
+                "x": -0.2159,
+                "y": 0.5211,
+                "z": 0.15
+              }
+            ],
+            "actual": [
+              {
+                "x": 318.87452960194804,
+                "y": 192.2482543845902,
+                "scale": 87.42255489554536,
+                "depth": 18.301913069364304
+              },
+              {
+                "x": 281.12547039805156,
+                "y": 192.2482543845902,
+                "scale": 87.42255489554536,
+                "depth": 18.301913069364304
+              },
+              {
+                "x": 281.1443976832866,
+                "y": 236.88660795278534,
+                "scale": 87.33488798848151,
+                "depth": 18.320284560404108
+              },
+              {
+                "x": 318.855602316713,
+                "y": 236.88660795278534,
+                "scale": 87.33488798848151,
+                "depth": 18.320284560404108
+              }
+            ],
+            "expected": [
+              {
+                "x": 318.87452960194804,
+                "y": 192.2482543845902,
+                "scale": 87.42255489554536,
+                "depth": 18.301913069364304
+              },
+              {
+                "x": 281.12547039805156,
+                "y": 192.2482543845902,
+                "scale": 87.42255489554536,
+                "depth": 18.301913069364304
+              },
+              {
+                "x": 281.1443976832866,
+                "y": 236.88660795278534,
+                "scale": 87.33488798848151,
+                "depth": 18.320284560404108
+              },
+              {
+                "x": 318.855602316713,
+                "y": 236.88660795278534,
+                "scale": 87.33488798848151,
+                "depth": 18.320284560404108
+              }
+            ],
+            "chartHidden": false,
+            "chartDisplay": "block"
+          },
+          {
+            "camera": "overhead",
+            "plane": 0.15,
+            "height": 1.93,
+            "points": [
+              {
+                "x": -0.2159,
+                "y": 1.03255,
+                "z": 0.15
+              },
+              {
+                "x": 0.2159,
+                "y": 1.03255,
+                "z": 0.15
+              },
+              {
+                "x": 0.2159,
+                "y": 0.5211,
+                "z": 0.15
+              },
+              {
+                "x": -0.2159,
+                "y": 0.5211,
+                "z": 0.15
+              }
+            ],
+            "actual": [],
+            "expected": [
+              {
+                "x": 298.96637569184117,
+                "y": 402.6410431685525,
+                "scale": 4.787514164700396,
+                "depth": 98.17203329975165
+              },
+              {
+                "x": 301.03362430815883,
+                "y": 402.6410431685525,
+                "scale": 4.787514164700396,
+                "depth": 98.17203329975165
+              },
+              {
+                "x": 301.0295375590501,
+                "y": 403.5142764486333,
+                "scale": 4.768585266559013,
+                "depth": 98.56172716381973
+              },
+              {
+                "x": 298.9704624409499,
+                "y": 403.5142764486333,
+                "scale": 4.768585266559013,
+                "depth": 98.56172716381973
+              }
+            ],
+            "chartHidden": true,
+            "chartDisplay": "none"
+          }
+        ],
+        "held": [
+          {
+            "camera": "batter",
+            "possessedBy": "1-b1",
+            "dot": null,
+            "alpha": false
+          },
+          {
+            "camera": "catcher",
+            "possessedBy": "1-b1",
+            "dot": null,
+            "alpha": false
+          },
+          {
+            "camera": "mound",
+            "possessedBy": "1-b1",
+            "dot": null,
+            "alpha": false
+          },
+          {
+            "camera": "runner",
+            "possessedBy": "1-b1",
+            "dot": null,
+            "alpha": false
+          },
+          {
+            "camera": "overhead",
+            "possessedBy": "1-b1",
+            "dot": null,
+            "alpha": false
+          }
+        ],
+        "invalid": [
+          {
+            "error": "ball display: setting outside 0.25..8: perspective",
+            "preserved": true
+          },
+          {
+            "error": "ball display: setting outside 0.25..8: overhead",
+            "preserved": true
+          },
+          {
+            "error": "ball display: setting outside 0.25..8: perspective",
+            "preserved": true
+          },
+          {
+            "error": "ball display: unknown setting unknown",
+            "preserved": true
+          }
+        ]
+      },
+      "lab": {
+        "layers": [
+          {
+            "camera": "batter",
+            "scene": {
+              "pitch": 0,
+              "ms": 2061.7360000000003
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 1521726,
+                "sceneMs": 2061.7360000000003,
+                "snapshotTick": 1521726,
+                "actual": "587b89ef3bd33e8bec277219749fe6fcdc29d9c2e0c6a5fe7f9adc38fa77b111",
+                "expected": "587b89ef3bd33e8bec277219749fe6fcdc29d9c2e0c6a5fe7f9adc38fa77b111",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 1521726,
+                "sceneMs": 2061.7360000000003,
+                "snapshotTick": 1521726,
+                "actual": "c77a558f2606842603ce8601e6b6045611e2a7ff9102966864772f7ffdc99571",
+                "expected": "c77a558f2606842603ce8601e6b6045611e2a7ff9102966864772f7ffdc99571",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "batter",
+            "scene": {
+              "pitch": 1,
+              "ms": 2010.881
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 7185434,
+                "sceneMs": 2010.881,
+                "snapshotTick": 7185434,
+                "actual": "da2832253d1c07e8bf336df4ee07070fae74b5269dcb716609baca4c3462fd42",
+                "expected": "da2832253d1c07e8bf336df4ee07070fae74b5269dcb716609baca4c3462fd42",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 7185434,
+                "sceneMs": 2010.881,
+                "snapshotTick": 7185434,
+                "actual": "1a82dc2a31596042313dbc694ff28f3a69084876f0ecb496f446247370b514ef",
+                "expected": "1a82dc2a31596042313dbc694ff28f3a69084876f0ecb496f446247370b514ef",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "batter",
+            "scene": {
+              "pitch": 0,
+              "ms": 3106.7360000000003
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 2566726,
+                "sceneMs": 3106.7360000000003,
+                "snapshotTick": 2566726,
+                "actual": "006cf641367fa0ac562f2d3517871d2a61ecabf88970c5f9e44e01cecf816a01",
+                "expected": "006cf641367fa0ac562f2d3517871d2a61ecabf88970c5f9e44e01cecf816a01",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 2566726,
+                "sceneMs": 3106.7360000000003,
+                "snapshotTick": 2566726,
+                "actual": "fbfce196ddeafdeffd438df03749b0d877269c72f4baeb9549871662f8a086bd",
+                "expected": "fbfce196ddeafdeffd438df03749b0d877269c72f4baeb9549871662f8a086bd",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "catcher",
+            "scene": {
+              "pitch": 0,
+              "ms": 2061.7360000000003
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 1521726,
+                "sceneMs": 2061.7360000000003,
+                "snapshotTick": 1521726,
+                "actual": "2f3eaea7b0be94da36c88eadce81a7c5fb03224129459682a8a0353447bb6365",
+                "expected": "2f3eaea7b0be94da36c88eadce81a7c5fb03224129459682a8a0353447bb6365",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 1521726,
+                "sceneMs": 2061.7360000000003,
+                "snapshotTick": 1521726,
+                "actual": "2f3eaea7b0be94da36c88eadce81a7c5fb03224129459682a8a0353447bb6365",
+                "expected": "2f3eaea7b0be94da36c88eadce81a7c5fb03224129459682a8a0353447bb6365",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "catcher",
+            "scene": {
+              "pitch": 1,
+              "ms": 2010.881
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 7185434,
+                "sceneMs": 2010.881,
+                "snapshotTick": 7185434,
+                "actual": "cecf0768a929880905d721e6ed1124ff35d295a623f6549052674941a3483ccf",
+                "expected": "cecf0768a929880905d721e6ed1124ff35d295a623f6549052674941a3483ccf",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 7185434,
+                "sceneMs": 2010.881,
+                "snapshotTick": 7185434,
+                "actual": "cecf0768a929880905d721e6ed1124ff35d295a623f6549052674941a3483ccf",
+                "expected": "cecf0768a929880905d721e6ed1124ff35d295a623f6549052674941a3483ccf",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "catcher",
+            "scene": {
+              "pitch": 0,
+              "ms": 3106.7360000000003
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 2566726,
+                "sceneMs": 3106.7360000000003,
+                "snapshotTick": 2566726,
+                "actual": "c2deb65b37d35c67d0f7656f31f3ce57e5230db63a25cb1a49bf89da928cffb8",
+                "expected": "c2deb65b37d35c67d0f7656f31f3ce57e5230db63a25cb1a49bf89da928cffb8",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 2566726,
+                "sceneMs": 3106.7360000000003,
+                "snapshotTick": 2566726,
+                "actual": "c2deb65b37d35c67d0f7656f31f3ce57e5230db63a25cb1a49bf89da928cffb8",
+                "expected": "c2deb65b37d35c67d0f7656f31f3ce57e5230db63a25cb1a49bf89da928cffb8",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "mound",
+            "scene": {
+              "pitch": 0,
+              "ms": 2061.7360000000003
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 1521726,
+                "sceneMs": 2061.7360000000003,
+                "snapshotTick": 1521726,
+                "actual": "f663e069db8aa3c443e26b9116f830c7d8e55db0002e81daa3c0ef98e6229d3a",
+                "expected": "f663e069db8aa3c443e26b9116f830c7d8e55db0002e81daa3c0ef98e6229d3a",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 1521726,
+                "sceneMs": 2061.7360000000003,
+                "snapshotTick": 1521726,
+                "actual": "f663e069db8aa3c443e26b9116f830c7d8e55db0002e81daa3c0ef98e6229d3a",
+                "expected": "f663e069db8aa3c443e26b9116f830c7d8e55db0002e81daa3c0ef98e6229d3a",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "mound",
+            "scene": {
+              "pitch": 1,
+              "ms": 2010.881
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 7185434,
+                "sceneMs": 2010.881,
+                "snapshotTick": 7185434,
+                "actual": "ca4d17de5105096e03dca4249b1a820272e6b462abe2eb3933ee3796a75117bf",
+                "expected": "ca4d17de5105096e03dca4249b1a820272e6b462abe2eb3933ee3796a75117bf",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 7185434,
+                "sceneMs": 2010.881,
+                "snapshotTick": 7185434,
+                "actual": "ca4d17de5105096e03dca4249b1a820272e6b462abe2eb3933ee3796a75117bf",
+                "expected": "ca4d17de5105096e03dca4249b1a820272e6b462abe2eb3933ee3796a75117bf",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "mound",
+            "scene": {
+              "pitch": 0,
+              "ms": 3106.7360000000003
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 2566726,
+                "sceneMs": 3106.7360000000003,
+                "snapshotTick": 2566726,
+                "actual": "745787aeae08f1fc4268f5f177e39b41bbfabc854059cbb2f05428f415278f2c",
+                "expected": "745787aeae08f1fc4268f5f177e39b41bbfabc854059cbb2f05428f415278f2c",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 2566726,
+                "sceneMs": 3106.7360000000003,
+                "snapshotTick": 2566726,
+                "actual": "745787aeae08f1fc4268f5f177e39b41bbfabc854059cbb2f05428f415278f2c",
+                "expected": "745787aeae08f1fc4268f5f177e39b41bbfabc854059cbb2f05428f415278f2c",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "runner",
+            "scene": {
+              "pitch": 0,
+              "ms": 2061.7360000000003
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 1521726,
+                "sceneMs": 2061.7360000000003,
+                "snapshotTick": 1521726,
+                "actual": "d46b085083a59985dec69e61d14d9dfa6e87749dec5b8f9aff465bc735d30f98",
+                "expected": "d46b085083a59985dec69e61d14d9dfa6e87749dec5b8f9aff465bc735d30f98",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 1521726,
+                "sceneMs": 2061.7360000000003,
+                "snapshotTick": 1521726,
+                "actual": "d46b085083a59985dec69e61d14d9dfa6e87749dec5b8f9aff465bc735d30f98",
+                "expected": "d46b085083a59985dec69e61d14d9dfa6e87749dec5b8f9aff465bc735d30f98",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "runner",
+            "scene": {
+              "pitch": 1,
+              "ms": 2010.881
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 7185434,
+                "sceneMs": 2010.881,
+                "snapshotTick": 7185434,
+                "actual": "a1f1da7551ff7490399c901331e548c9f0e79dc99539d128a2d9bd891e546aec",
+                "expected": "a1f1da7551ff7490399c901331e548c9f0e79dc99539d128a2d9bd891e546aec",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 7185434,
+                "sceneMs": 2010.881,
+                "snapshotTick": 7185434,
+                "actual": "a1f1da7551ff7490399c901331e548c9f0e79dc99539d128a2d9bd891e546aec",
+                "expected": "a1f1da7551ff7490399c901331e548c9f0e79dc99539d128a2d9bd891e546aec",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "runner",
+            "scene": {
+              "pitch": 0,
+              "ms": 3106.7360000000003
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 2566726,
+                "sceneMs": 3106.7360000000003,
+                "snapshotTick": 2566726,
+                "actual": "df337e94fdb623957259552d45bfc06564533e21e1cc0a321bdc2a8b835e6e31",
+                "expected": "df337e94fdb623957259552d45bfc06564533e21e1cc0a321bdc2a8b835e6e31",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 2566726,
+                "sceneMs": 3106.7360000000003,
+                "snapshotTick": 2566726,
+                "actual": "df337e94fdb623957259552d45bfc06564533e21e1cc0a321bdc2a8b835e6e31",
+                "expected": "df337e94fdb623957259552d45bfc06564533e21e1cc0a321bdc2a8b835e6e31",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "overhead",
+            "scene": {
+              "pitch": 0,
+              "ms": 2061.7360000000003
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 1521726,
+                "sceneMs": 2061.7360000000003,
+                "snapshotTick": 1521726,
+                "actual": "b8c55209f3b5787def7dc43ad4de16e66161192f7af45e47296ca3e0189be444",
+                "expected": "b8c55209f3b5787def7dc43ad4de16e66161192f7af45e47296ca3e0189be444",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 1521726,
+                "sceneMs": 2061.7360000000003,
+                "snapshotTick": 1521726,
+                "actual": "b8c55209f3b5787def7dc43ad4de16e66161192f7af45e47296ca3e0189be444",
+                "expected": "b8c55209f3b5787def7dc43ad4de16e66161192f7af45e47296ca3e0189be444",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "overhead",
+            "scene": {
+              "pitch": 1,
+              "ms": 2010.881
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 7185434,
+                "sceneMs": 2010.881,
+                "snapshotTick": 7185434,
+                "actual": "bdca9bd86bad580f0820b97484347b91f55432288fbcc9bf8295a24e3bfea91b",
+                "expected": "bdca9bd86bad580f0820b97484347b91f55432288fbcc9bf8295a24e3bfea91b",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 7185434,
+                "sceneMs": 2010.881,
+                "snapshotTick": 7185434,
+                "actual": "bdca9bd86bad580f0820b97484347b91f55432288fbcc9bf8295a24e3bfea91b",
+                "expected": "bdca9bd86bad580f0820b97484347b91f55432288fbcc9bf8295a24e3bfea91b",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "overhead",
+            "scene": {
+              "pitch": 0,
+              "ms": 3106.7360000000003
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 2566726,
+                "sceneMs": 3106.7360000000003,
+                "snapshotTick": 2566726,
+                "actual": "976d116fdff94d906ab58b9d7c2387111f22f95548564307e28592a06c7d7c25",
+                "expected": "976d116fdff94d906ab58b9d7c2387111f22f95548564307e28592a06c7d7c25",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 2566726,
+                "sceneMs": 3106.7360000000003,
+                "snapshotTick": 2566726,
+                "actual": "976d116fdff94d906ab58b9d7c2387111f22f95548564307e28592a06c7d7c25",
+                "expected": "976d116fdff94d906ab58b9d7c2387111f22f95548564307e28592a06c7d7c25",
+                "fastTransparent": true
+              }
+            ]
+          }
+        ],
+        "tracking": [
+          {
+            "side": "A",
+            "ms": 1620,
+            "rawErrorRadians": 0.10868019533031352,
+            "headTargetErrorRadians": 0.10868019533031352,
+            "gain": 1,
+            "deadbandRadians": 0,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "B",
+            "ms": 1620,
+            "rawErrorRadians": 0.10868019533031352,
+            "headTargetErrorRadians": 0.013302029299547028,
+            "gain": 0.15,
+            "deadbandRadians": 0.02,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "A",
+            "ms": 1660,
+            "rawErrorRadians": 0.1109996968942695,
+            "headTargetErrorRadians": 0.1109996968942695,
+            "gain": 1,
+            "deadbandRadians": 0,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "B",
+            "ms": 1660,
+            "rawErrorRadians": 0.1109996968942695,
+            "headTargetErrorRadians": 0.013649954534140423,
+            "gain": 0.15,
+            "deadbandRadians": 0.02,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "A",
+            "ms": 1700,
+            "rawErrorRadians": 0.11325893244634413,
+            "headTargetErrorRadians": 0.11325893244634413,
+            "gain": 1,
+            "deadbandRadians": 0,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "B",
+            "ms": 1700,
+            "rawErrorRadians": 0.11325893244634413,
+            "headTargetErrorRadians": 0.01398883986695162,
+            "gain": 0.15,
+            "deadbandRadians": 0.02,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "A",
+            "ms": 1740,
+            "rawErrorRadians": 0.11403078344143262,
+            "headTargetErrorRadians": 0.11403078344143262,
+            "gain": 1,
+            "deadbandRadians": 0,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "B",
+            "ms": 1740,
+            "rawErrorRadians": 0.11403078344143262,
+            "headTargetErrorRadians": 0.014104617516214892,
+            "gain": 0.15,
+            "deadbandRadians": 0.02,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "A",
+            "ms": 1780,
+            "rawErrorRadians": 0.11277637881728668,
+            "headTargetErrorRadians": 0.11277637881728668,
+            "gain": 1,
+            "deadbandRadians": 0,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "B",
+            "ms": 1780,
+            "rawErrorRadians": 0.11277637881728668,
+            "headTargetErrorRadians": 0.013916456822593001,
+            "gain": 0.15,
+            "deadbandRadians": 0.02,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "A",
+            "ms": 1820,
+            "rawErrorRadians": 0.1086754419771055,
+            "headTargetErrorRadians": 0.1086754419771055,
+            "gain": 1,
+            "deadbandRadians": 0,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "B",
+            "ms": 1820,
+            "rawErrorRadians": 0.1086754419771055,
+            "headTargetErrorRadians": 0.013301316296565825,
+            "gain": 0.15,
+            "deadbandRadians": 0.02,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "A",
+            "ms": 1860,
+            "rawErrorRadians": 0.10046580614920976,
+            "headTargetErrorRadians": 0.10046580614920976,
+            "gain": 1,
+            "deadbandRadians": 0,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "B",
+            "ms": 1860,
+            "rawErrorRadians": 0.10046580614920976,
+            "headTargetErrorRadians": 0.012069870922381463,
+            "gain": 0.15,
+            "deadbandRadians": 0.02,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "A",
+            "ms": 1900,
+            "rawErrorRadians": 0.08589343431318879,
+            "headTargetErrorRadians": 0.08589343431318879,
+            "gain": 1,
+            "deadbandRadians": 0,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "B",
+            "ms": 1900,
+            "rawErrorRadians": 0.08589343431318879,
+            "headTargetErrorRadians": 0.009884015146978316,
+            "gain": 0.15,
+            "deadbandRadians": 0.02,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "A",
+            "ms": 1940,
+            "rawErrorRadians": 0.06087397686142625,
+            "headTargetErrorRadians": 0.06087397686142625,
+            "gain": 1,
+            "deadbandRadians": 0,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "B",
+            "ms": 1940,
+            "rawErrorRadians": 0.06087397686142625,
+            "headTargetErrorRadians": 0.006131096529213938,
+            "gain": 0.15,
+            "deadbandRadians": 0.02,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          }
+        ],
+        "ball": [
+          {
+            "camera": "catcher",
+            "A": {
+              "camera": "catcher",
+              "displayScale": 2.2,
+              "unscaledDisplayDiameterPx": 8.254527008347997,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 3.5034823162273336,
+              "opticalDiameterPx": 8.254527008347997,
+              "visibilityMarker": false,
+              "displayDiameterPx": 18.159959418365595,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 304,
+                  "y": 64,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 308,
+                  "y": 64,
+                  "radius": 1.45,
+                  "color": "#dd5459"
+                },
+                {
+                  "x": 312,
+                  "y": 64,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 300,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 308,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 312,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 316,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 300,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 308,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#dd5459"
+                },
+                {
+                  "x": 312,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 316,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 308,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 312,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                }
+              ]
+            },
+            "B": {
+              "camera": "catcher",
+              "displayScale": 2.2,
+              "unscaledDisplayDiameterPx": 8.254527008347997,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 3.5034823162273336,
+              "opticalDiameterPx": 8.254527008347997,
+              "visibilityMarker": false,
+              "displayDiameterPx": 18.159959418365595,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 304,
+                  "y": 64,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 308,
+                  "y": 64,
+                  "radius": 1.45,
+                  "color": "#dd5459"
+                },
+                {
+                  "x": 312,
+                  "y": 64,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 300,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 308,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 312,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 316,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 300,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 308,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#dd5459"
+                },
+                {
+                  "x": 312,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 316,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 308,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 312,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                }
+              ]
+            }
+          },
+          {
+            "camera": "overhead",
+            "A": {
+              "camera": "overhead",
+              "displayScale": 3,
+              "unscaledDisplayDiameterPx": 1.25,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 0.3341006337463919,
+              "opticalDiameterPx": 0.3341006337463919,
+              "visibilityMarker": true,
+              "displayDiameterPx": 3.75,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 300,
+                  "y": 364,
+                  "radius": 1.875,
+                  "color": "#fffdf7"
+                }
+              ]
+            },
+            "B": {
+              "camera": "overhead",
+              "displayScale": 3,
+              "unscaledDisplayDiameterPx": 1.25,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 0.3341006337463919,
+              "opticalDiameterPx": 0.3341006337463919,
+              "visibilityMarker": true,
+              "displayDiameterPx": 3.75,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 300,
+                  "y": 364,
+                  "radius": 1.875,
+                  "color": "#fffdf7"
+                }
+              ]
+            }
+          }
+        ],
+        "settingsPersistence": {
+          "textarea": {
+            "schema": "kneekura_camera_tuning_v1",
+            "sourceGameSha256": "80c68e3ddb5c961ab6f18b325c6f267f883cd02d27381dfa10a9334bf8afae9f",
+            "settings": {
+              "A": {
+                "enabled": false,
+                "aimLiftMeters": 0.3,
+                "swingMaxDownRadians": 0.3,
+                "hitFollowDelayMs": 100,
+                "aimReleaseMs": 100,
+                "pitchTrackingGain": 1,
+                "pitchTrackingDeadbandRadians": 0
+              },
+              "B": {
+                "enabled": true,
+                "aimLiftMeters": 0.3,
+                "swingMaxDownRadians": 0.3,
+                "hitFollowDelayMs": 100,
+                "aimReleaseMs": 100,
+                "pitchTrackingGain": 0.15,
+                "pitchTrackingDeadbandRadians": 0.02
+              }
+            },
+            "ballDisplay": {
+              "perspective": 2.2,
+              "overhead": 3
+            }
+          },
+          "storage": {
+            "schema": "kneekura_camera_tuning_v1",
+            "sourceGameSha256": "80c68e3ddb5c961ab6f18b325c6f267f883cd02d27381dfa10a9334bf8afae9f",
+            "settings": {
+              "A": {
+                "enabled": false,
+                "aimLiftMeters": 0.3,
+                "swingMaxDownRadians": 0.3,
+                "hitFollowDelayMs": 100,
+                "aimReleaseMs": 100,
+                "pitchTrackingGain": 1,
+                "pitchTrackingDeadbandRadians": 0
+              },
+              "B": {
+                "enabled": true,
+                "aimLiftMeters": 0.3,
+                "swingMaxDownRadians": 0.3,
+                "hitFollowDelayMs": 100,
+                "aimReleaseMs": 100,
+                "pitchTrackingGain": 0.15,
+                "pitchTrackingDeadbandRadians": 0.02
+              }
+            },
+            "ballDisplay": {
+              "perspective": 2.2,
+              "overhead": 3
+            }
+          }
+        },
+        "invalid": [
+          {
+            "kind": "settings",
+            "error": "ball display: setting outside 0.25..8: perspective",
+            "preserved": true
+          },
+          {
+            "kind": "settings",
+            "error": "camera tuning: out of range pitchTrackingGain",
+            "preserved": true
+          },
+          {
+            "kind": "session",
+            "error": "ball display: setting outside 0.25..8: overhead",
+            "preserved": true
+          },
+          {
+            "kind": "session",
+            "error": "camera tuning: out of range pitchTrackingDeadbandRadians",
+            "preserved": true
+          }
+        ]
+      }
+    },
+    {
+      "width": 390,
+      "normal": {
+        "ball": [
+          {
+            "camera": "batter",
+            "scene": {
+              "pitch": 0,
+              "ms": 1804.01
+            },
+            "base": {
+              "camera": "batter",
+              "displayScale": 1,
+              "unscaledDisplayDiameterPx": 7.873189098358242,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 3.210145472560356,
+              "opticalDiameterPx": 7.873189098358242,
+              "visibilityMarker": false,
+              "displayDiameterPx": 7.873189098358242,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 296,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 300,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 296,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 300,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                }
+              ]
+            },
+            "scaled": {
+              "camera": "batter",
+              "displayScale": 2.5,
+              "unscaledDisplayDiameterPx": 7.873189098358242,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 3.210145472560356,
+              "opticalDiameterPx": 7.873189098358242,
+              "visibilityMarker": false,
+              "displayDiameterPx": 19.682972745895604,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 292,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 296,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 300,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 292,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 296,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#dd5459"
+                },
+                {
+                  "x": 300,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 292,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 296,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 300,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 292,
+                  "y": 80,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 296,
+                  "y": 80,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 300,
+                  "y": 80,
+                  "radius": 1.45,
+                  "color": "#dd5459"
+                },
+                {
+                  "x": 304,
+                  "y": 80,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                }
+              ]
+            }
+          },
+          {
+            "camera": "catcher",
+            "scene": {
+              "pitch": 0,
+              "ms": 1804.01
+            },
+            "base": {
+              "camera": "catcher",
+              "displayScale": 1,
+              "unscaledDisplayDiameterPx": 8.254527008347997,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 3.5034823162273336,
+              "opticalDiameterPx": 8.254527008347997,
+              "visibilityMarker": false,
+              "displayDiameterPx": 8.254527008347997,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 304,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 308,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 308,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                }
+              ]
+            },
+            "scaled": {
+              "camera": "catcher",
+              "displayScale": 2.5,
+              "unscaledDisplayDiameterPx": 8.254527008347997,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 3.5034823162273336,
+              "opticalDiameterPx": 8.254527008347997,
+              "visibilityMarker": false,
+              "displayDiameterPx": 20.636317520869994,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 308,
+                  "y": 60,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 300,
+                  "y": 64,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 64,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 308,
+                  "y": 64,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 312,
+                  "y": 64,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 300,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 308,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 312,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 316,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 300,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 308,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#dd5459"
+                },
+                {
+                  "x": 312,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 316,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 300,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 304,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 308,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 312,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 308,
+                  "y": 80,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                }
+              ]
+            }
+          },
+          {
+            "camera": "mound",
+            "scene": {
+              "pitch": 0,
+              "ms": 1804.01
+            },
+            "base": {
+              "camera": "mound",
+              "displayScale": 1,
+              "unscaledDisplayDiameterPx": 11.445131782244362,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 11.445131782244362,
+              "opticalDiameterPx": 11.445131782244362,
+              "visibilityMarker": false,
+              "displayDiameterPx": 11.445131782244362,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 276,
+                  "y": 148,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 272,
+                  "y": 152,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 276,
+                  "y": 152,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 280,
+                  "y": 152,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 272,
+                  "y": 156,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 276,
+                  "y": 156,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 280,
+                  "y": 156,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                }
+              ]
+            },
+            "scaled": {
+              "camera": "mound",
+              "displayScale": 2.5,
+              "unscaledDisplayDiameterPx": 11.445131782244362,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 11.445131782244362,
+              "opticalDiameterPx": 11.445131782244362,
+              "visibilityMarker": false,
+              "displayDiameterPx": 28.612829455610903,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 272,
+                  "y": 140,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 276,
+                  "y": 140,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 280,
+                  "y": 140,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 268,
+                  "y": 144,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 272,
+                  "y": 144,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 276,
+                  "y": 144,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 280,
+                  "y": 144,
+                  "radius": 1.45,
+                  "color": "#dd5459"
+                },
+                {
+                  "x": 284,
+                  "y": 144,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 264,
+                  "y": 148,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 268,
+                  "y": 148,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 272,
+                  "y": 148,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 276,
+                  "y": 148,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 280,
+                  "y": 148,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 284,
+                  "y": 148,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 288,
+                  "y": 148,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 264,
+                  "y": 152,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 268,
+                  "y": 152,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 272,
+                  "y": 152,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 276,
+                  "y": 152,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 280,
+                  "y": 152,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 284,
+                  "y": 152,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 288,
+                  "y": 152,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 264,
+                  "y": 156,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 268,
+                  "y": 156,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 272,
+                  "y": 156,
+                  "radius": 1.45,
+                  "color": "#dd5459"
+                },
+                {
+                  "x": 276,
+                  "y": 156,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 280,
+                  "y": 156,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 284,
+                  "y": 156,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 288,
+                  "y": 156,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 264,
+                  "y": 160,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 268,
+                  "y": 160,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 272,
+                  "y": 160,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 276,
+                  "y": 160,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 280,
+                  "y": 160,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 284,
+                  "y": 160,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 268,
+                  "y": 164,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 272,
+                  "y": 164,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 276,
+                  "y": 164,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 280,
+                  "y": 164,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 284,
+                  "y": 164,
+                  "radius": 1.45,
+                  "color": "#dd5459"
+                }
+              ]
+            }
+          },
+          {
+            "camera": "runner",
+            "scene": {
+              "pitch": 0,
+              "ms": 1804.01
+            },
+            "base": {
+              "camera": "runner",
+              "displayScale": 1,
+              "unscaledDisplayDiameterPx": 3.7444586291981152,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 3.7444586291981152,
+              "opticalDiameterPx": 3.7444586291981152,
+              "visibilityMarker": false,
+              "displayDiameterPx": 3.7444586291981152,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 272,
+                  "y": 184,
+                  "radius": 1.8722293145990576,
+                  "color": "#fffdf7"
+                }
+              ]
+            },
+            "scaled": {
+              "camera": "runner",
+              "displayScale": 2.5,
+              "unscaledDisplayDiameterPx": 3.7444586291981152,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 3.7444586291981152,
+              "opticalDiameterPx": 3.7444586291981152,
+              "visibilityMarker": false,
+              "displayDiameterPx": 9.361146572995288,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 272,
+                  "y": 180,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 276,
+                  "y": 180,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 272,
+                  "y": 184,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 276,
+                  "y": 184,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 272,
+                  "y": 188,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                }
+              ]
+            }
+          },
+          {
+            "camera": "overhead",
+            "scene": {
+              "pitch": 0,
+              "ms": 1804.01
+            },
+            "base": {
+              "camera": "overhead",
+              "displayScale": 1,
+              "unscaledDisplayDiameterPx": 1.25,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 0.3341006337463919,
+              "opticalDiameterPx": 0.3341006337463919,
+              "visibilityMarker": true,
+              "displayDiameterPx": 1.25,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 300,
+                  "y": 364,
+                  "radius": 0.625,
+                  "color": "#fffdf7"
+                }
+              ]
+            },
+            "scaled": {
+              "camera": "overhead",
+              "displayScale": 0.75,
+              "unscaledDisplayDiameterPx": 1.25,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 0.3341006337463919,
+              "opticalDiameterPx": 0.3341006337463919,
+              "visibilityMarker": true,
+              "displayDiameterPx": 0.9375,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 300,
+                  "y": 364,
+                  "radius": 0.46875,
+                  "color": "#fffdf7"
+                }
+              ]
+            }
+          }
+        ],
+        "zone": [
+          {
+            "camera": "catcher",
+            "plane": 0.15,
+            "height": 1.93,
+            "points": [
+              {
+                "x": -0.2159,
+                "y": 1.03255,
+                "z": 0.15
+              },
+              {
+                "x": 0.2159,
+                "y": 1.03255,
+                "z": 0.15
+              },
+              {
+                "x": 0.2159,
+                "y": 0.5211,
+                "z": 0.15
+              },
+              {
+                "x": -0.2159,
+                "y": 0.5211,
+                "z": 0.15
+              }
+            ],
+            "actual": [
+              {
+                "x": 217.37810070900858,
+                "y": 95.10313721599076,
+                "scale": 382.6859624409051,
+                "depth": 1.1497678075086055
+              },
+              {
+                "x": 382.62189929099145,
+                "y": 95.10313721599076,
+                "scale": 382.6859624409051,
+                "depth": 1.1497678075086055
+              },
+              {
+                "x": 381.96564230775414,
+                "y": 289.312464019055,
+                "scale": 379.6463284286898,
+                "depth": 1.1589734103872589
+              },
+              {
+                "x": 218.03435769224586,
+                "y": 289.312464019055,
+                "scale": 379.6463284286898,
+                "depth": 1.1589734103872589
+              }
+            ],
+            "expected": [
+              {
+                "x": 217.37810070900858,
+                "y": 95.10313721599076,
+                "scale": 382.6859624409051,
+                "depth": 1.1497678075086055
+              },
+              {
+                "x": 382.62189929099145,
+                "y": 95.10313721599076,
+                "scale": 382.6859624409051,
+                "depth": 1.1497678075086055
+              },
+              {
+                "x": 381.96564230775414,
+                "y": 289.312464019055,
+                "scale": 379.6463284286898,
+                "depth": 1.1589734103872589
+              },
+              {
+                "x": 218.03435769224586,
+                "y": 289.312464019055,
+                "scale": 379.6463284286898,
+                "depth": 1.1589734103872589
+              }
+            ],
+            "chartHidden": false,
+            "chartDisplay": "block"
+          },
+          {
+            "camera": "batter",
+            "plane": 0.15,
+            "height": 1.93,
+            "points": [
+              {
+                "x": -0.2159,
+                "y": 1.03255,
+                "z": 0.15
+              },
+              {
+                "x": 0.2159,
+                "y": 1.03255,
+                "z": 0.15
+              },
+              {
+                "x": 0.2159,
+                "y": 0.5211,
+                "z": 0.15
+              },
+              {
+                "x": -0.2159,
+                "y": 0.5211,
+                "z": 0.15
+              }
+            ],
+            "actual": [
+              {
+                "x": 92.83286653240702,
+                "y": 236.8645532346944,
+                "scale": 349.29926297284084,
+                "depth": 1.1451498540124354
+              },
+              {
+                "x": 243.18805378181955,
+                "y": 238.10559724356085,
+                "scale": 352.02680080909863,
+                "depth": 1.1362771217436847
+              },
+              {
+                "x": 245.16064852460985,
+                "y": 406.8944511919421,
+                "scale": 339.80390997676346,
+                "depth": 1.177149491974218
+              },
+              {
+                "x": 99.97220305208356,
+                "y": 404.43345204964294,
+                "scale": 337.2618082728742,
+                "depth": 1.186022224242969
+              }
+            ],
+            "expected": [
+              {
+                "x": 92.83286653240702,
+                "y": 236.8645532346944,
+                "scale": 349.29926297284084,
+                "depth": 1.1451498540124354
+              },
+              {
+                "x": 243.18805378181955,
+                "y": 238.10559724356085,
+                "scale": 352.02680080909863,
+                "depth": 1.1362771217436847
+              },
+              {
+                "x": 245.16064852460985,
+                "y": 406.8944511919421,
+                "scale": 339.80390997676346,
+                "depth": 1.177149491974218
+              },
+              {
+                "x": 99.97220305208356,
+                "y": 404.43345204964294,
+                "scale": 337.2618082728742,
+                "depth": 1.186022224242969
+              }
+            ],
+            "chartHidden": false,
+            "chartDisplay": "block"
+          },
+          {
+            "camera": "mound",
+            "plane": 0.15,
+            "height": 1.93,
+            "points": [
+              {
+                "x": -0.2159,
+                "y": 1.03255,
+                "z": 0.15
+              },
+              {
+                "x": 0.2159,
+                "y": 1.03255,
+                "z": 0.15
+              },
+              {
+                "x": 0.2159,
+                "y": 0.5211,
+                "z": 0.15
+              },
+              {
+                "x": -0.2159,
+                "y": 0.5211,
+                "z": 0.15
+              }
+            ],
+            "actual": [
+              {
+                "x": 318.87452960194804,
+                "y": 192.2482543845902,
+                "scale": 87.42255489554536,
+                "depth": 18.301913069364304
+              },
+              {
+                "x": 281.12547039805156,
+                "y": 192.2482543845902,
+                "scale": 87.42255489554536,
+                "depth": 18.301913069364304
+              },
+              {
+                "x": 281.1443976832866,
+                "y": 236.88660795278534,
+                "scale": 87.33488798848151,
+                "depth": 18.320284560404108
+              },
+              {
+                "x": 318.855602316713,
+                "y": 236.88660795278534,
+                "scale": 87.33488798848151,
+                "depth": 18.320284560404108
+              }
+            ],
+            "expected": [
+              {
+                "x": 318.87452960194804,
+                "y": 192.2482543845902,
+                "scale": 87.42255489554536,
+                "depth": 18.301913069364304
+              },
+              {
+                "x": 281.12547039805156,
+                "y": 192.2482543845902,
+                "scale": 87.42255489554536,
+                "depth": 18.301913069364304
+              },
+              {
+                "x": 281.1443976832866,
+                "y": 236.88660795278534,
+                "scale": 87.33488798848151,
+                "depth": 18.320284560404108
+              },
+              {
+                "x": 318.855602316713,
+                "y": 236.88660795278534,
+                "scale": 87.33488798848151,
+                "depth": 18.320284560404108
+              }
+            ],
+            "chartHidden": false,
+            "chartDisplay": "block"
+          },
+          {
+            "camera": "overhead",
+            "plane": 0.15,
+            "height": 1.93,
+            "points": [
+              {
+                "x": -0.2159,
+                "y": 1.03255,
+                "z": 0.15
+              },
+              {
+                "x": 0.2159,
+                "y": 1.03255,
+                "z": 0.15
+              },
+              {
+                "x": 0.2159,
+                "y": 0.5211,
+                "z": 0.15
+              },
+              {
+                "x": -0.2159,
+                "y": 0.5211,
+                "z": 0.15
+              }
+            ],
+            "actual": [],
+            "expected": [
+              {
+                "x": 298.96637569184117,
+                "y": 402.6410431685525,
+                "scale": 4.787514164700396,
+                "depth": 98.17203329975165
+              },
+              {
+                "x": 301.03362430815883,
+                "y": 402.6410431685525,
+                "scale": 4.787514164700396,
+                "depth": 98.17203329975165
+              },
+              {
+                "x": 301.0295375590501,
+                "y": 403.5142764486333,
+                "scale": 4.768585266559013,
+                "depth": 98.56172716381973
+              },
+              {
+                "x": 298.9704624409499,
+                "y": 403.5142764486333,
+                "scale": 4.768585266559013,
+                "depth": 98.56172716381973
+              }
+            ],
+            "chartHidden": true,
+            "chartDisplay": "none"
+          }
+        ],
+        "held": [
+          {
+            "camera": "batter",
+            "possessedBy": "1-b1",
+            "dot": null,
+            "alpha": false
+          },
+          {
+            "camera": "catcher",
+            "possessedBy": "1-b1",
+            "dot": null,
+            "alpha": false
+          },
+          {
+            "camera": "mound",
+            "possessedBy": "1-b1",
+            "dot": null,
+            "alpha": false
+          },
+          {
+            "camera": "runner",
+            "possessedBy": "1-b1",
+            "dot": null,
+            "alpha": false
+          },
+          {
+            "camera": "overhead",
+            "possessedBy": "1-b1",
+            "dot": null,
+            "alpha": false
+          }
+        ],
+        "invalid": [
+          {
+            "error": "ball display: setting outside 0.25..8: perspective",
+            "preserved": true
+          },
+          {
+            "error": "ball display: setting outside 0.25..8: overhead",
+            "preserved": true
+          },
+          {
+            "error": "ball display: setting outside 0.25..8: perspective",
+            "preserved": true
+          },
+          {
+            "error": "ball display: unknown setting unknown",
+            "preserved": true
+          }
+        ]
+      },
+      "lab": {
+        "layers": [
+          {
+            "camera": "batter",
+            "scene": {
+              "pitch": 0,
+              "ms": 2061.7360000000003
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 1521726,
+                "sceneMs": 2061.7360000000003,
+                "snapshotTick": 1521726,
+                "actual": "587b89ef3bd33e8bec277219749fe6fcdc29d9c2e0c6a5fe7f9adc38fa77b111",
+                "expected": "587b89ef3bd33e8bec277219749fe6fcdc29d9c2e0c6a5fe7f9adc38fa77b111",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 1521726,
+                "sceneMs": 2061.7360000000003,
+                "snapshotTick": 1521726,
+                "actual": "c77a558f2606842603ce8601e6b6045611e2a7ff9102966864772f7ffdc99571",
+                "expected": "c77a558f2606842603ce8601e6b6045611e2a7ff9102966864772f7ffdc99571",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "batter",
+            "scene": {
+              "pitch": 1,
+              "ms": 2010.881
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 7185434,
+                "sceneMs": 2010.881,
+                "snapshotTick": 7185434,
+                "actual": "da2832253d1c07e8bf336df4ee07070fae74b5269dcb716609baca4c3462fd42",
+                "expected": "da2832253d1c07e8bf336df4ee07070fae74b5269dcb716609baca4c3462fd42",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 7185434,
+                "sceneMs": 2010.881,
+                "snapshotTick": 7185434,
+                "actual": "1a82dc2a31596042313dbc694ff28f3a69084876f0ecb496f446247370b514ef",
+                "expected": "1a82dc2a31596042313dbc694ff28f3a69084876f0ecb496f446247370b514ef",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "batter",
+            "scene": {
+              "pitch": 0,
+              "ms": 3106.7360000000003
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 2566726,
+                "sceneMs": 3106.7360000000003,
+                "snapshotTick": 2566726,
+                "actual": "006cf641367fa0ac562f2d3517871d2a61ecabf88970c5f9e44e01cecf816a01",
+                "expected": "006cf641367fa0ac562f2d3517871d2a61ecabf88970c5f9e44e01cecf816a01",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 2566726,
+                "sceneMs": 3106.7360000000003,
+                "snapshotTick": 2566726,
+                "actual": "fbfce196ddeafdeffd438df03749b0d877269c72f4baeb9549871662f8a086bd",
+                "expected": "fbfce196ddeafdeffd438df03749b0d877269c72f4baeb9549871662f8a086bd",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "catcher",
+            "scene": {
+              "pitch": 0,
+              "ms": 2061.7360000000003
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 1521726,
+                "sceneMs": 2061.7360000000003,
+                "snapshotTick": 1521726,
+                "actual": "2f3eaea7b0be94da36c88eadce81a7c5fb03224129459682a8a0353447bb6365",
+                "expected": "2f3eaea7b0be94da36c88eadce81a7c5fb03224129459682a8a0353447bb6365",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 1521726,
+                "sceneMs": 2061.7360000000003,
+                "snapshotTick": 1521726,
+                "actual": "2f3eaea7b0be94da36c88eadce81a7c5fb03224129459682a8a0353447bb6365",
+                "expected": "2f3eaea7b0be94da36c88eadce81a7c5fb03224129459682a8a0353447bb6365",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "catcher",
+            "scene": {
+              "pitch": 1,
+              "ms": 2010.881
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 7185434,
+                "sceneMs": 2010.881,
+                "snapshotTick": 7185434,
+                "actual": "cecf0768a929880905d721e6ed1124ff35d295a623f6549052674941a3483ccf",
+                "expected": "cecf0768a929880905d721e6ed1124ff35d295a623f6549052674941a3483ccf",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 7185434,
+                "sceneMs": 2010.881,
+                "snapshotTick": 7185434,
+                "actual": "cecf0768a929880905d721e6ed1124ff35d295a623f6549052674941a3483ccf",
+                "expected": "cecf0768a929880905d721e6ed1124ff35d295a623f6549052674941a3483ccf",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "catcher",
+            "scene": {
+              "pitch": 0,
+              "ms": 3106.7360000000003
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 2566726,
+                "sceneMs": 3106.7360000000003,
+                "snapshotTick": 2566726,
+                "actual": "c2deb65b37d35c67d0f7656f31f3ce57e5230db63a25cb1a49bf89da928cffb8",
+                "expected": "c2deb65b37d35c67d0f7656f31f3ce57e5230db63a25cb1a49bf89da928cffb8",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 2566726,
+                "sceneMs": 3106.7360000000003,
+                "snapshotTick": 2566726,
+                "actual": "c2deb65b37d35c67d0f7656f31f3ce57e5230db63a25cb1a49bf89da928cffb8",
+                "expected": "c2deb65b37d35c67d0f7656f31f3ce57e5230db63a25cb1a49bf89da928cffb8",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "mound",
+            "scene": {
+              "pitch": 0,
+              "ms": 2061.7360000000003
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 1521726,
+                "sceneMs": 2061.7360000000003,
+                "snapshotTick": 1521726,
+                "actual": "f663e069db8aa3c443e26b9116f830c7d8e55db0002e81daa3c0ef98e6229d3a",
+                "expected": "f663e069db8aa3c443e26b9116f830c7d8e55db0002e81daa3c0ef98e6229d3a",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 1521726,
+                "sceneMs": 2061.7360000000003,
+                "snapshotTick": 1521726,
+                "actual": "f663e069db8aa3c443e26b9116f830c7d8e55db0002e81daa3c0ef98e6229d3a",
+                "expected": "f663e069db8aa3c443e26b9116f830c7d8e55db0002e81daa3c0ef98e6229d3a",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "mound",
+            "scene": {
+              "pitch": 1,
+              "ms": 2010.881
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 7185434,
+                "sceneMs": 2010.881,
+                "snapshotTick": 7185434,
+                "actual": "ca4d17de5105096e03dca4249b1a820272e6b462abe2eb3933ee3796a75117bf",
+                "expected": "ca4d17de5105096e03dca4249b1a820272e6b462abe2eb3933ee3796a75117bf",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 7185434,
+                "sceneMs": 2010.881,
+                "snapshotTick": 7185434,
+                "actual": "ca4d17de5105096e03dca4249b1a820272e6b462abe2eb3933ee3796a75117bf",
+                "expected": "ca4d17de5105096e03dca4249b1a820272e6b462abe2eb3933ee3796a75117bf",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "mound",
+            "scene": {
+              "pitch": 0,
+              "ms": 3106.7360000000003
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 2566726,
+                "sceneMs": 3106.7360000000003,
+                "snapshotTick": 2566726,
+                "actual": "745787aeae08f1fc4268f5f177e39b41bbfabc854059cbb2f05428f415278f2c",
+                "expected": "745787aeae08f1fc4268f5f177e39b41bbfabc854059cbb2f05428f415278f2c",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 2566726,
+                "sceneMs": 3106.7360000000003,
+                "snapshotTick": 2566726,
+                "actual": "745787aeae08f1fc4268f5f177e39b41bbfabc854059cbb2f05428f415278f2c",
+                "expected": "745787aeae08f1fc4268f5f177e39b41bbfabc854059cbb2f05428f415278f2c",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "runner",
+            "scene": {
+              "pitch": 0,
+              "ms": 2061.7360000000003
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 1521726,
+                "sceneMs": 2061.7360000000003,
+                "snapshotTick": 1521726,
+                "actual": "d46b085083a59985dec69e61d14d9dfa6e87749dec5b8f9aff465bc735d30f98",
+                "expected": "d46b085083a59985dec69e61d14d9dfa6e87749dec5b8f9aff465bc735d30f98",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 1521726,
+                "sceneMs": 2061.7360000000003,
+                "snapshotTick": 1521726,
+                "actual": "d46b085083a59985dec69e61d14d9dfa6e87749dec5b8f9aff465bc735d30f98",
+                "expected": "d46b085083a59985dec69e61d14d9dfa6e87749dec5b8f9aff465bc735d30f98",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "runner",
+            "scene": {
+              "pitch": 1,
+              "ms": 2010.881
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 7185434,
+                "sceneMs": 2010.881,
+                "snapshotTick": 7185434,
+                "actual": "a1f1da7551ff7490399c901331e548c9f0e79dc99539d128a2d9bd891e546aec",
+                "expected": "a1f1da7551ff7490399c901331e548c9f0e79dc99539d128a2d9bd891e546aec",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 7185434,
+                "sceneMs": 2010.881,
+                "snapshotTick": 7185434,
+                "actual": "a1f1da7551ff7490399c901331e548c9f0e79dc99539d128a2d9bd891e546aec",
+                "expected": "a1f1da7551ff7490399c901331e548c9f0e79dc99539d128a2d9bd891e546aec",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "runner",
+            "scene": {
+              "pitch": 0,
+              "ms": 3106.7360000000003
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 2566726,
+                "sceneMs": 3106.7360000000003,
+                "snapshotTick": 2566726,
+                "actual": "df337e94fdb623957259552d45bfc06564533e21e1cc0a321bdc2a8b835e6e31",
+                "expected": "df337e94fdb623957259552d45bfc06564533e21e1cc0a321bdc2a8b835e6e31",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 2566726,
+                "sceneMs": 3106.7360000000003,
+                "snapshotTick": 2566726,
+                "actual": "df337e94fdb623957259552d45bfc06564533e21e1cc0a321bdc2a8b835e6e31",
+                "expected": "df337e94fdb623957259552d45bfc06564533e21e1cc0a321bdc2a8b835e6e31",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "overhead",
+            "scene": {
+              "pitch": 0,
+              "ms": 2061.7360000000003
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 1521726,
+                "sceneMs": 2061.7360000000003,
+                "snapshotTick": 1521726,
+                "actual": "b8c55209f3b5787def7dc43ad4de16e66161192f7af45e47296ca3e0189be444",
+                "expected": "b8c55209f3b5787def7dc43ad4de16e66161192f7af45e47296ca3e0189be444",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 1521726,
+                "sceneMs": 2061.7360000000003,
+                "snapshotTick": 1521726,
+                "actual": "b8c55209f3b5787def7dc43ad4de16e66161192f7af45e47296ca3e0189be444",
+                "expected": "b8c55209f3b5787def7dc43ad4de16e66161192f7af45e47296ca3e0189be444",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "overhead",
+            "scene": {
+              "pitch": 1,
+              "ms": 2010.881
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 7185434,
+                "sceneMs": 2010.881,
+                "snapshotTick": 7185434,
+                "actual": "bdca9bd86bad580f0820b97484347b91f55432288fbcc9bf8295a24e3bfea91b",
+                "expected": "bdca9bd86bad580f0820b97484347b91f55432288fbcc9bf8295a24e3bfea91b",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 7185434,
+                "sceneMs": 2010.881,
+                "snapshotTick": 7185434,
+                "actual": "bdca9bd86bad580f0820b97484347b91f55432288fbcc9bf8295a24e3bfea91b",
+                "expected": "bdca9bd86bad580f0820b97484347b91f55432288fbcc9bf8295a24e3bfea91b",
+                "fastTransparent": true
+              }
+            ]
+          },
+          {
+            "camera": "overhead",
+            "scene": {
+              "pitch": 0,
+              "ms": 3106.7360000000003
+            },
+            "playing": false,
+            "sides": [
+              {
+                "side": "A",
+                "tick": 2566726,
+                "sceneMs": 3106.7360000000003,
+                "snapshotTick": 2566726,
+                "actual": "976d116fdff94d906ab58b9d7c2387111f22f95548564307e28592a06c7d7c25",
+                "expected": "976d116fdff94d906ab58b9d7c2387111f22f95548564307e28592a06c7d7c25",
+                "fastTransparent": true
+              },
+              {
+                "side": "B",
+                "tick": 2566726,
+                "sceneMs": 3106.7360000000003,
+                "snapshotTick": 2566726,
+                "actual": "976d116fdff94d906ab58b9d7c2387111f22f95548564307e28592a06c7d7c25",
+                "expected": "976d116fdff94d906ab58b9d7c2387111f22f95548564307e28592a06c7d7c25",
+                "fastTransparent": true
+              }
+            ]
+          }
+        ],
+        "tracking": [
+          {
+            "side": "A",
+            "ms": 1620,
+            "rawErrorRadians": 0.10868019533031352,
+            "headTargetErrorRadians": 0.10868019533031352,
+            "gain": 1,
+            "deadbandRadians": 0,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "B",
+            "ms": 1620,
+            "rawErrorRadians": 0.10868019533031352,
+            "headTargetErrorRadians": 0.013302029299547028,
+            "gain": 0.15,
+            "deadbandRadians": 0.02,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "A",
+            "ms": 1660,
+            "rawErrorRadians": 0.1109996968942695,
+            "headTargetErrorRadians": 0.1109996968942695,
+            "gain": 1,
+            "deadbandRadians": 0,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "B",
+            "ms": 1660,
+            "rawErrorRadians": 0.1109996968942695,
+            "headTargetErrorRadians": 0.013649954534140423,
+            "gain": 0.15,
+            "deadbandRadians": 0.02,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "A",
+            "ms": 1700,
+            "rawErrorRadians": 0.11325893244634413,
+            "headTargetErrorRadians": 0.11325893244634413,
+            "gain": 1,
+            "deadbandRadians": 0,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "B",
+            "ms": 1700,
+            "rawErrorRadians": 0.11325893244634413,
+            "headTargetErrorRadians": 0.01398883986695162,
+            "gain": 0.15,
+            "deadbandRadians": 0.02,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "A",
+            "ms": 1740,
+            "rawErrorRadians": 0.11403078344143262,
+            "headTargetErrorRadians": 0.11403078344143262,
+            "gain": 1,
+            "deadbandRadians": 0,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "B",
+            "ms": 1740,
+            "rawErrorRadians": 0.11403078344143262,
+            "headTargetErrorRadians": 0.014104617516214892,
+            "gain": 0.15,
+            "deadbandRadians": 0.02,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "A",
+            "ms": 1780,
+            "rawErrorRadians": 0.11277637881728668,
+            "headTargetErrorRadians": 0.11277637881728668,
+            "gain": 1,
+            "deadbandRadians": 0,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "B",
+            "ms": 1780,
+            "rawErrorRadians": 0.11277637881728668,
+            "headTargetErrorRadians": 0.013916456822593001,
+            "gain": 0.15,
+            "deadbandRadians": 0.02,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "A",
+            "ms": 1820,
+            "rawErrorRadians": 0.1086754419771055,
+            "headTargetErrorRadians": 0.1086754419771055,
+            "gain": 1,
+            "deadbandRadians": 0,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "B",
+            "ms": 1820,
+            "rawErrorRadians": 0.1086754419771055,
+            "headTargetErrorRadians": 0.013301316296565825,
+            "gain": 0.15,
+            "deadbandRadians": 0.02,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "A",
+            "ms": 1860,
+            "rawErrorRadians": 0.10046580614920976,
+            "headTargetErrorRadians": 0.10046580614920976,
+            "gain": 1,
+            "deadbandRadians": 0,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "B",
+            "ms": 1860,
+            "rawErrorRadians": 0.10046580614920976,
+            "headTargetErrorRadians": 0.012069870922381463,
+            "gain": 0.15,
+            "deadbandRadians": 0.02,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "A",
+            "ms": 1900,
+            "rawErrorRadians": 0.08589343431318879,
+            "headTargetErrorRadians": 0.08589343431318879,
+            "gain": 1,
+            "deadbandRadians": 0,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "B",
+            "ms": 1900,
+            "rawErrorRadians": 0.08589343431318879,
+            "headTargetErrorRadians": 0.009884015146978316,
+            "gain": 0.15,
+            "deadbandRadians": 0.02,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "A",
+            "ms": 1940,
+            "rawErrorRadians": 0.06087397686142625,
+            "headTargetErrorRadians": 0.06087397686142625,
+            "gain": 1,
+            "deadbandRadians": 0,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          },
+          {
+            "side": "B",
+            "ms": 1940,
+            "rawErrorRadians": 0.06087397686142625,
+            "headTargetErrorRadians": 0.006131096529213938,
+            "gain": 0.15,
+            "deadbandRadians": 0.02,
+            "anchorYaw": -0.020615635625603763,
+            "anchorPitch": 0.08,
+            "applied": true
+          }
+        ],
+        "ball": [
+          {
+            "camera": "catcher",
+            "A": {
+              "camera": "catcher",
+              "displayScale": 2.2,
+              "unscaledDisplayDiameterPx": 8.254527008347997,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 3.5034823162273336,
+              "opticalDiameterPx": 8.254527008347997,
+              "visibilityMarker": false,
+              "displayDiameterPx": 18.159959418365595,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 304,
+                  "y": 64,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 308,
+                  "y": 64,
+                  "radius": 1.45,
+                  "color": "#dd5459"
+                },
+                {
+                  "x": 312,
+                  "y": 64,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 300,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 308,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 312,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 316,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 300,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 308,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#dd5459"
+                },
+                {
+                  "x": 312,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 316,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 308,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 312,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                }
+              ]
+            },
+            "B": {
+              "camera": "catcher",
+              "displayScale": 2.2,
+              "unscaledDisplayDiameterPx": 8.254527008347997,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 3.5034823162273336,
+              "opticalDiameterPx": 8.254527008347997,
+              "visibilityMarker": false,
+              "displayDiameterPx": 18.159959418365595,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 304,
+                  "y": 64,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 308,
+                  "y": 64,
+                  "radius": 1.45,
+                  "color": "#dd5459"
+                },
+                {
+                  "x": 312,
+                  "y": 64,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 300,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 308,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 312,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 316,
+                  "y": 68,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 300,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 308,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#dd5459"
+                },
+                {
+                  "x": 312,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 316,
+                  "y": 72,
+                  "radius": 1.45,
+                  "color": "#fffdf7"
+                },
+                {
+                  "x": 304,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 308,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                },
+                {
+                  "x": 312,
+                  "y": 76,
+                  "radius": 1.45,
+                  "color": "#e8eceb"
+                }
+              ]
+            }
+          },
+          {
+            "camera": "overhead",
+            "A": {
+              "camera": "overhead",
+              "displayScale": 3,
+              "unscaledDisplayDiameterPx": 1.25,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 0.3341006337463919,
+              "opticalDiameterPx": 0.3341006337463919,
+              "visibilityMarker": true,
+              "displayDiameterPx": 3.75,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 300,
+                  "y": 364,
+                  "radius": 1.875,
+                  "color": "#fffdf7"
+                }
+              ]
+            },
+            "B": {
+              "camera": "overhead",
+              "displayScale": 3,
+              "unscaledDisplayDiameterPx": 1.25,
+              "ballKind": "pitch",
+              "projectedDiameterPx": 0.3341006337463919,
+              "opticalDiameterPx": 0.3341006337463919,
+              "visibilityMarker": true,
+              "displayDiameterPx": 3.75,
+              "style": "4px-dot-grid",
+              "orientationStatus": "observed-orientation",
+              "cells": [
+                {
+                  "x": 300,
+                  "y": 364,
+                  "radius": 1.875,
+                  "color": "#fffdf7"
+                }
+              ]
+            }
+          }
+        ],
+        "settingsPersistence": {
+          "textarea": {
+            "schema": "kneekura_camera_tuning_v1",
+            "sourceGameSha256": "80c68e3ddb5c961ab6f18b325c6f267f883cd02d27381dfa10a9334bf8afae9f",
+            "settings": {
+              "A": {
+                "enabled": false,
+                "aimLiftMeters": 0.3,
+                "swingMaxDownRadians": 0.3,
+                "hitFollowDelayMs": 100,
+                "aimReleaseMs": 100,
+                "pitchTrackingGain": 1,
+                "pitchTrackingDeadbandRadians": 0
+              },
+              "B": {
+                "enabled": true,
+                "aimLiftMeters": 0.3,
+                "swingMaxDownRadians": 0.3,
+                "hitFollowDelayMs": 100,
+                "aimReleaseMs": 100,
+                "pitchTrackingGain": 0.15,
+                "pitchTrackingDeadbandRadians": 0.02
+              }
+            },
+            "ballDisplay": {
+              "perspective": 2.2,
+              "overhead": 3
+            }
+          },
+          "storage": {
+            "schema": "kneekura_camera_tuning_v1",
+            "sourceGameSha256": "80c68e3ddb5c961ab6f18b325c6f267f883cd02d27381dfa10a9334bf8afae9f",
+            "settings": {
+              "A": {
+                "enabled": false,
+                "aimLiftMeters": 0.3,
+                "swingMaxDownRadians": 0.3,
+                "hitFollowDelayMs": 100,
+                "aimReleaseMs": 100,
+                "pitchTrackingGain": 1,
+                "pitchTrackingDeadbandRadians": 0
+              },
+              "B": {
+                "enabled": true,
+                "aimLiftMeters": 0.3,
+                "swingMaxDownRadians": 0.3,
+                "hitFollowDelayMs": 100,
+                "aimReleaseMs": 100,
+                "pitchTrackingGain": 0.15,
+                "pitchTrackingDeadbandRadians": 0.02
+              }
+            },
+            "ballDisplay": {
+              "perspective": 2.2,
+              "overhead": 3
+            }
+          }
+        },
+        "invalid": [
+          {
+            "kind": "settings",
+            "error": "ball display: setting outside 0.25..8: perspective",
+            "preserved": true
+          },
+          {
+            "kind": "settings",
+            "error": "camera tuning: out of range pitchTrackingGain",
+            "preserved": true
+          },
+          {
+            "kind": "session",
+            "error": "ball display: setting outside 0.25..8: overhead",
+            "preserved": true
+          },
+          {
+            "kind": "session",
+            "error": "camera tuning: out of range pitchTrackingDeadbandRadians",
+            "preserved": true
+          }
+        ]
+      }
+    }
+  ],
+  "browserArgs": [
+    "--disable-accelerated-2d-canvas"
+  ],
+  "normalSha256": "331f5f9a3bafb78ba2ae5009ba25fb795eeb08d5f42c85db3844c2d186ec32c5",
+  "workbenchSha256": "90e955f8fb1fa6432de563c7a44afab2b1e4ec644ec973c76cd395a0edcbebea",
+  "coreSha256": "4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279",
+  "sourceInputs": 113,
+  "coreZone": {
+    "width": 0.4318,
+    "bottom": 0.27,
+    "top": 0.535,
+    "planeZ": 0.15
+  },
+  "faults": [
+    {
+      "label": "frozen-v55",
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "label": "normal-1200",
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "label": "lab-1200",
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "label": "normal-390",
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "label": "lab-390",
+      "errors": [],
+      "externalRequests": []
+    }
+  ],
+  "canonical": {
+    "path": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\docs\\demos\\releases\\v55\\game.html",
+    "sha256": "02644793d8c6e41b66d5330fe37cc0ce8d2fa7756ad6bc139b045fbef38d3b17",
+    "hashes": [
+      {
+        "core": "a2ca3037ab6616e4f80aca9bfe17e481a09e6d943dcbecc366177537cd22d75a",
+        "bat": "0a9cb7b4002b9dfd0de4528f5e9bad4f040ea8e96d19a8d1c1a80a40389ca009"
+      },
+      {
+        "core": "4fa463e2ca5c264f8ca6ba0f12d9caf0cf2c9d209b9ae82ad9d5b67f7c47f395",
+        "bat": "de4384040f3b113070e8024628e0b62c0ae6982fbc619689d63a3817df218ce1"
+      },
+      {
+        "core": "a71e6965c08a20839a7b05cf6d5c9ca139552d39307449b7bc161059e281c523",
+        "bat": "85c00ede76ed2e8974e6ddb72bed80d77d485e7109bb5afcf35d05a1779c8396"
+      },
+      {
+        "core": "54ba8a2758c9da45dc7b8ec2a7bda2f2b9429054e58a9dbb7f481623b7f85c10",
+        "bat": "b3f7642e751d913710c3c955255837c19844fbb9c8d85e7d9f58a158fef57880"
+      },
+      {
+        "core": "7aa819a5f92f1c770258594197c28df97244cc6395349796a007c71c43586005",
+        "bat": "bd953560366a0c6a3710d5b867a75c0b7d0331c4fd215d10599c54ad64529ef0"
+      },
+      {
+        "core": "7369a50b7a90b3dd33f427213202fce72c0baa86eb1aad23e8cdf5f233fb7839",
+        "bat": "556010b4c15bb98028fa260b59a4618a5b72b508db2dc8e68ac25f19c161e6f8"
+      },
+      {
+        "core": "e9e723808dc05a5204daa354cd3ef41429d675e4c9dc1a7b636b0fc8f5bacd44",
+        "bat": "e0fd9ec9bbb8d4ddbae2577896d62102d6544657909a3c4942188339a11af0e8"
+      },
+      {
+        "core": "2d1858f6680e132cf7ed7c6e5b655597983337cfefa43044a796eef186e6de18",
+        "bat": "5bba0368977d4b00d8b9436a661f58b4cb3ac2023a93777600ba27b15ece308b"
+      },
+      {
+        "core": "0d83ef9e4b69ce3fc95250593da79b5de6312c2b43a65ee30a708e771b3135e1",
+        "bat": "4b661e59fe56d1a22a47ffb05a177cba1b0e102447d3a5480a799498e3a0579b"
+      },
+      {
+        "core": "df7ae3d0e27cfbc209776e55033070c12e54379cc273fd608d7fa785d6127f4d",
+        "bat": "f479d42f31399697ecb0520fa15a34146378b67d3083119821264caec7f65b4a"
+      },
+      {
+        "core": "91e85d496c0e94d4598053111b94e13dd8062b5cb220f82516c484f7bb7af115",
+        "bat": "70894a13b7a6073ca3c814b6b4080b61c41ca0ea55eda5785c4217d4a1a6f642"
+      },
+      {
+        "core": "1597cbb6dc1b65c0b355965fb2451fdaa6a3b8ad3d7fb8407522dea925e9a953",
+        "bat": "0383b997191d73e71c1f22c1a8466d008234c23248c7a02b2a936a8eb90d0304"
+      }
+    ]
+  }
+}

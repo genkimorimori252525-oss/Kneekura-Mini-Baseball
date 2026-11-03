@@ -1,0 +1,66 @@
+{
+  "pass": true,
+  "sourceCommit": "4c10521884cbc029cb7c0498353141a493ea4d35",
+  "verifiedRemoteHead": "4c10521884cbc029cb7c0498353141a493ea4d35",
+  "branch": "jolly/tbd-lad-native-browser-core-2026-10-14",
+  "pullRequest": {
+    "headRefOid": "4c10521884cbc029cb7c0498353141a493ea4d35",
+    "isDraft": true,
+    "state": "OPEN",
+    "title": "fix: physical relay chains and continuous base turns (v47)",
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380"
+  },
+  "rawFiles": {
+    "docs/history/INCIDENTS.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/4c10521884cbc029cb7c0498353141a493ea4d35/docs/history/INCIDENTS.md",
+      "bytes": 20834,
+      "sha256": "9011d782ff398af455ecf628f212f8db132e8a6c6a767e52c94e26f3c662a991"
+    },
+    "docs/handoffs/LATEST.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/4c10521884cbc029cb7c0498353141a493ea4d35/docs/handoffs/LATEST.md",
+      "bytes": 3802,
+      "sha256": "c2478959f95535464bc0ffb0cafe27ffa6d499b51a6f367833d270740086b97c"
+    },
+    "src/core/sim/fielding/LiveFieldPlayV1.ts": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/4c10521884cbc029cb7c0498353141a493ea4d35/src/core/sim/fielding/LiveFieldPlayV1.ts",
+      "bytes": 106827,
+      "sha256": "d8c8af0ddf6fc1e9798d46c91e1cbd53ce21c698ecec888d55fb260490413f62"
+    },
+    "src/core/sim/fielding/LiveRelayPlanV1.ts": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/4c10521884cbc029cb7c0498353141a493ea4d35/src/core/sim/fielding/LiveRelayPlanV1.ts",
+      "bytes": 16176,
+      "sha256": "c53689a081480d2e769f7f8a169821911bac58f950c308a4079f1290d06852e7"
+    },
+    "src/core/sim/running/LiveRunnerMotionV1.ts": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/4c10521884cbc029cb7c0498353141a493ea4d35/src/core/sim/running/LiveRunnerMotionV1.ts",
+      "bytes": 16764,
+      "sha256": "7118fbf6a1ad4796f1bee6db71db3e91dcdb5f305291754737653eb549a449a8"
+    },
+    "docs/reports/2026-10-18-v47-relay-rounding.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/4c10521884cbc029cb7c0498353141a493ea4d35/docs/reports/2026-10-18-v47-relay-rounding.md",
+      "bytes": 15678,
+      "sha256": "1343191869bc8638d49f38b384a115f7f76238a8e0d44069da89a97b67a28b92"
+    },
+    "docs/demos/releases/v47/game.html": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/4c10521884cbc029cb7c0498353141a493ea4d35/docs/demos/releases/v47/game.html",
+      "bytes": 3465975,
+      "sha256": "81cdc7c402f2a8461ef07cac8d6d541cf304208fe97f23ba9bc02915ba880747"
+    },
+    "docs/demos/releases/v47/SHA256.json": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/4c10521884cbc029cb7c0498353141a493ea4d35/docs/demos/releases/v47/SHA256.json",
+      "bytes": 831,
+      "sha256": "6166c2a9ed09d83a48c62da03afcc715f93e86801159e9c2423061f4ac9a3e14"
+    },
+    "docs/demos/releases/v47/maker.html": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/4c10521884cbc029cb7c0498353141a493ea4d35/docs/demos/releases/v47/maker.html",
+      "bytes": 4340866,
+      "sha256": "7848228105d598f75c8e1eeb347c2ecbb6f3b749c9b1ea5433f2dcdfc97abd8c"
+    },
+    "docs/demos/releases/v47/tested-core-inputs.zip": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/4c10521884cbc029cb7c0498353141a493ea4d35/docs/demos/releases/v47/tested-core-inputs.zip",
+      "bytes": 450453,
+      "sha256": "37ada83340aa4121ce2b7f21801ab0971e5c2844ad56f450f90a9b667a888148"
+    }
+  },
+  "scope": "actual current raw bytes and remote branch/Draft PR; no main merge"
+}

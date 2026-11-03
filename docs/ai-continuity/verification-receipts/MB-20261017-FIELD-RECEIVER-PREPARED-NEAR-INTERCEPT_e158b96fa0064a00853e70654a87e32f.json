@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-FIELD-RECEIVER-PREPARED-NEAR-INTERCEPT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts",
+    "src/core/sim/fielding/GroundedActorContactResponseV1.test.ts",
+    "src/core/sim/fielding/LiveThrowPlanV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T00:53:07.902+00:00",
+  "elapsed_ms": 5030,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-FIELD-RECEIVER-PREPARED-NEAR-INTERCEPT_e158b96fa0064a00853e70654a87e32f.log",
+  "output_sha256": "392f3844ed34e8f68004524128396d92525faacbb98edc9bf986eec201c07009",
+  "receipt_id": "MB-20261017-FIELD-RECEIVER-PREPARED-NEAR-INTERCEPT_e158b96fa0064a00853e70654a87e32f"
+}

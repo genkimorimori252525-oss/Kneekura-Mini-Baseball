@@ -1,0 +1,86 @@
+{
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_投球リリース編集版_v62.html",
+  "views": [
+    {
+      "width": 1200,
+      "coverage": [
+        "0-b0",
+        "0-b1",
+        "0-b2",
+        "0-b3",
+        "0-b4",
+        "0-b5",
+        "0-b6",
+        "0-b7",
+        "0-b8",
+        "0-p0",
+        "1-b0",
+        "1-b1",
+        "1-b2",
+        "1-b3",
+        "1-b4",
+        "1-b5",
+        "1-b6",
+        "1-b7",
+        "1-b8",
+        "1-p0"
+      ],
+      "edits": {
+        "pitchReleaseHeightMeters": 1.234567,
+        "pitchReleaseSideMeters": 0.654321,
+        "pitchReleaseExtensionMeters": 1.876543
+      },
+      "realDownloadAndReload": true,
+      "invalidImportAtomic": {
+        "message": "live physical roster: unsupported physical range: pitchReleaseHeightMeters",
+        "unchanged": true
+      },
+      "pageErrors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "coverage": [
+        "0-b0",
+        "0-b1",
+        "0-b2",
+        "0-b3",
+        "0-b4",
+        "0-b5",
+        "0-b6",
+        "0-b7",
+        "0-b8",
+        "0-p0",
+        "1-b0",
+        "1-b1",
+        "1-b2",
+        "1-b3",
+        "1-b4",
+        "1-b5",
+        "1-b6",
+        "1-b7",
+        "1-b8",
+        "1-p0"
+      ],
+      "edits": {
+        "pitchReleaseHeightMeters": 1.234567,
+        "pitchReleaseSideMeters": 0.654321,
+        "pitchReleaseExtensionMeters": 1.876543
+      },
+      "realDownloadAndReload": true,
+      "invalidImportAtomic": {
+        "message": "live physical roster: unsupported physical range: pitchReleaseHeightMeters",
+        "unchanged": true
+      },
+      "pageErrors": [],
+      "external": []
+    }
+  ],
+  "scope": "Maker inputs, physical roster validation and real JSON downloads/reload; match execution is separately verified",
+  "sha256": "a99bb8b947001fcf780a3c9f615e1a759b8a5ae300d0a87c57467fab5d087dac",
+  "manifest": {
+    "inputs": 80,
+    "sourceHashesMatch": true
+  },
+  "pass": true
+}

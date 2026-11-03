@@ -1,0 +1,39 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/ball/SourceBattedFieldAcquisitionV1.test.ts (6 tests) 198ms
+ ✓ src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts (13 tests) 652ms
+ ✓ src/host/world/SamePlateAppearanceBallPhysics.test.ts (4 tests) 14ms
+ ✓ src/host/world/SamePlateAppearanceObservationClockProjectionV1.test.ts (5 tests) 73ms
+ ✓ src/host/world/SamePlateAppearanceTeamMotorSelectionV1.test.ts (5 tests) 242ms
+ ✓ src/host/world/SamePlateAppearanceSourceFieldV3.test.ts (6 tests) 907ms
+   ✓ inserts all five metadata kinds at the exact post-impulse cut without adding a physical horizon 358ms
+ ✓ src/host/world/SamePlateAppearancePhysicalFieldActions.test.ts (14 tests) 3901ms
+   ✓ FS02 all nine original defenders execute including cover after a genuinely moved and locally perceived handler 707ms
+   ✓ FT01 team actor selections drive nine real motor calculations using the team choice, preserving the original body curves 2430ms
+ ✓ src/host/world/SamePlateAppearanceSourceIntegerCheckpointV1.test.ts (8 tests) 11732ms
+   ✓ branches from the full original v3 metadata prefix and executes same-tick positive physical time on its original Source 1079ms
+   ✓ routes the dedicated action through the owner calculation without relaxing the ordinary stale-step guard 850ms
+   ✓ retains the new branch for later metadata/free steps and rejects returning to the old version 2540ms
+   ✓ rejects exact-zero waits, different ticks, marker/result injection, unsupported motor/custody and legacy roots 929ms
+   ✓ rejects forged prefix refs, metadata, Source side/state, actors and saved checkpoint diagnostics 2097ms
+   ✓ retains an earlier real impulse as a physical boundary, then rederives its private escape before another wait 1201ms
+   ✓ accepts a bounded 50-primitive nine-defender metadata collection while each original record keeps the inert size limit 2310ms
+   ✓ rejects active envelopes/records, exotic prototypes, sparse or excessive histories and oversized individual records 725ms
+ ✓ src/host/world/SamePlateAppearanceSourceMotorFieldV1.test.ts (5 tests) 20961ms
+   ✓ connects complete owned team selections through real rated motor and Source replay, retaining all six roles and ball spin 3249ms
+   ✓ preserves the real Source glove candidate as a terminal field without granting custody or allowing later free work 2848ms
+   ✓ keeps per-record inert limits and rejects active, exotic, oversized or sparse replay envelopes 2995ms
+   ✓ replays later free/metadata history and rejects mutated original motors/evidence or returning to integer/old versions 7740ms
+   ✓ rejects legacy/subset/stale team selections and future first-step or invalid body calibration before any Source movement 4129ms
+ ✓ src/host/world/SamePlateAppearanceSourceAcquisitionFieldV1.test.ts (4 tests) 41182ms
+   ✓ reads the real terminal motor prefix without a fake future Source and keeps caller replacement state closed 4958ms
+   ✓ dispatches actual candidate through absorption and recorded fence while retaining timeline and Source evidence 11854ms
+   ✓ rederives atomic capture identically and rejects changed candidate refs, clocks, progress and legacy transitions 12801ms
+   ✓ retains a real competing wall as interrupted and never promotes it to possession 11568ms
+
+ Test Files  10 passed (10)
+      Tests  70 passed (70)
+   Start at  03:53:37
+   Duration  46.92s (transform 7.71s, setup 0ms, collect 42.31s, tests 79.86s, environment 2ms, prepare 2.35s)
+

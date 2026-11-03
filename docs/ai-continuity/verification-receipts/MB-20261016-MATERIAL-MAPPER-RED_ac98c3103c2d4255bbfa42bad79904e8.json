@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-MATERIAL-MAPPER-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "npx.cmd",
+    "vitest",
+    "run",
+    "src/core/sim/ball/SourceBallMaterialHistoryFromContinuationV3.test.ts"
+  ],
+  "observed_at": "2026-10-15T16:20:33.087+00:00",
+  "elapsed_ms": 2188,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-MATERIAL-MAPPER-RED_ac98c3103c2d4255bbfa42bad79904e8.log",
+  "output_sha256": "fbca9e3d8c1d03dbeadaa677b1f78675f1cf551a31e33d01dfae546726a9a80f",
+  "receipt_id": "MB-20261016-MATERIAL-MAPPER-RED_ac98c3103c2d4255bbfa42bad79904e8"
+}

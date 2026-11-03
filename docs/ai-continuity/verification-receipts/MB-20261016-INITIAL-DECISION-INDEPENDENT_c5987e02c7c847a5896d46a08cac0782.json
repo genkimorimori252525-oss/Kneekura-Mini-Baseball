@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-DECISION-INDEPENDENT",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "../native-observed-initial-decision-reader-v1/readback.mjs",
+    "../../outputs/verification-observed-initial-decision-v2/match.sqlite",
+    "../../outputs/verification-observed-initial-decision-v2/expected.json",
+    "../../outputs/verification-observed-initial-decision-v2/independent-readback.json",
+    "../../outputs/verification-authored-initial-pitch-physical-v2/manifest.json"
+  ],
+  "observed_at": "2026-10-16T11:32:32.735+00:00",
+  "elapsed_ms": 45952,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-DECISION-INDEPENDENT_c5987e02c7c847a5896d46a08cac0782.log",
+  "output_sha256": "ef77905ffab35c7952440081eb4eb83ce36366dfd03d3d5499715d9d8a5edb34",
+  "receipt_id": "MB-20261016-INITIAL-DECISION-INDEPENDENT_c5987e02c7c847a5896d46a08cac0782"
+}

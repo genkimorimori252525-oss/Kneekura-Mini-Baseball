@@ -1,0 +1,10 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/FiniteFieldActorClearanceV1.test.ts (8 tests) 7ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  06:44:25
+   Duration  596ms (transform 134ms, setup 0ms, collect 172ms, tests 7ms, environment 0ms, prepare 132ms)
+

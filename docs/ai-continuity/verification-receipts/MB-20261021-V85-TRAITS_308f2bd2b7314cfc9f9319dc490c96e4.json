@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V85-TRAITS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v77-traits-browser.mjs",
+    "../../outputs/にーくら野球メーカー_v85_設定解説と比較切替版.html",
+    "docs/verification/releases/v85/traits"
+  ],
+  "observed_at": "2026-10-20T16:14:36.689+00:00",
+  "elapsed_ms": 17186,
+  "git_head": "a0ca8087caddc79322ad91ba37bc14e7555c62ed",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V85-TRAITS_308f2bd2b7314cfc9f9319dc490c96e4.log",
+  "output_sha256": "4a12db420e92c8287582561c900a84a9a82884da41e603c7aa78cdc7b0065001",
+  "receipt_id": "MB-20261021-V85-TRAITS_308f2bd2b7314cfc9f9319dc490c96e4"
+}

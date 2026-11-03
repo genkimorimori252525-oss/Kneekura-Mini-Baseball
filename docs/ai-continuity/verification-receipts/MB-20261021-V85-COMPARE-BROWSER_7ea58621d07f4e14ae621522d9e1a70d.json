@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V85-COMPARE-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-pitch-comparison-v85.mjs"
+  ],
+  "observed_at": "2026-10-20T16:08:15.119+00:00",
+  "elapsed_ms": 28250,
+  "git_head": "a0ca8087caddc79322ad91ba37bc14e7555c62ed",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V85-COMPARE-BROWSER_7ea58621d07f4e14ae621522d9e1a70d.log",
+  "output_sha256": "41af421bcc4aeb13cf21028b348eeb13417cb10bac03b57cab512c6b1ccea7a6",
+  "receipt_id": "MB-20261021-V85-COMPARE-BROWSER_7ea58621d07f4e14ae621522d9e1a70d"
+}

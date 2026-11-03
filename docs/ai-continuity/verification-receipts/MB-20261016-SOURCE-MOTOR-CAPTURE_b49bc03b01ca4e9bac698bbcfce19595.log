@@ -1,0 +1,31 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/ball/SourceBattedFieldMotionV3.test.ts (3 tests) 187ms
+ ✓ src/core/sim/ball/BattedWorldScheduledFieldAcquisition.test.ts (28 tests) 222ms
+ ❯ src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts (12 tests | 1 failed) 583ms
+   × ends at an actual moving glove candidate without granting possession or advancing a free cursor past contact 12ms
+     → nonlinear free ball Source evaluation exceeds its physical horizon
+ ✓ src/core/sim/ball/SourceFieldIntegerBoundaryV1.test.ts (7 tests) 627ms
+   ✓ executes a real sub-tick ground wait through the original kernel without rebasing ball or actors 334ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts > ends at an actual moving glove candidate without granting possession or advancing a free cursor past contact
+Error: nonlinear free ball Source evaluation exceeds its physical horizon
+ ❯ Object.evaluateAt src/core/sim/ball/SourceFreeBallKernel.ts:152:13
+    150|     if (!Number.isFinite(elapsedSeconds) || elapsedSeconds < initial.e…
+    151|       || elapsedSeconds > descriptor.throughElapsedSeconds || !['incom…
+    152|       throw new Error('nonlinear free ball Source evaluation exceeds i…
+       |             ^
+    153|     }
+    154|     if (side === 'incoming' && groundIncoming.has(elapsedSeconds)) ret…
+ ❯ src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts:134:82
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 49 passed (50)
+   Start at  03:31:00
+   Duration  1.43s (transform 535ms, setup 0ms, collect 1.46s, tests 1.62s, environment 1ms, prepare 621ms)
+

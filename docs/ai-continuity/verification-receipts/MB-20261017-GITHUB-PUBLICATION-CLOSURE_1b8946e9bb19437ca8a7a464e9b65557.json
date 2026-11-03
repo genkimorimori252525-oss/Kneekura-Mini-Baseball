@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-GITHUB-PUBLICATION-CLOSURE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../../work/github-publication-check/verify-publication-closure.py",
+    "b7076eb2652bd3f2f2a22cc5aa4b406c78f52c61"
+  ],
+  "observed_at": "2026-10-17T04:12:52.792+00:00",
+  "elapsed_ms": 1483,
+  "git_head": "b7076eb2652bd3f2f2a22cc5aa4b406c78f52c61",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-GITHUB-PUBLICATION-CLOSURE_1b8946e9bb19437ca8a7a464e9b65557.log",
+  "output_sha256": "20c3ee88ac654554d7b39cf234d934d1079f06cb6150a6426f40340e8e9fbf95",
+  "receipt_id": "MB-20261017-GITHUB-PUBLICATION-CLOSURE_1b8946e9bb19437ca8a7a464e9b65557"
+}

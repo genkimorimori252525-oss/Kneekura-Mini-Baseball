@@ -74,6 +74,25 @@ it('LC01 exposes original prefix coverage, role curves and pending capture witho
   expect(result).not.toHaveProperty('liveAppeals');
   expect(result).not.toHaveProperty('completion'); expect(result).not.toHaveProperty('physicalEnd'); expect(result).not.toHaveProperty('officialResult');
 });
+it('keeps new defensive metadata from replacing the physical checkpoint or consuming an original decision', () => {
+  for(const kind of ['defender_candidate_set_v1','defender_team_selection_v1','defender_actor_selection_v1'] as const){
+    const h=setup(), seen=h.observation(h.root,'seen'), chosen=h.decision(seen,'chosen',seen);
+    // These inert records test census classification only. The Native owner
+    // separately authenticates and regenerates the full candidate/team data.
+    const metadata=h.step(chosen,'metadata',{kind,movementAdmission:false} as never,{kind} as never);
+    const before=h.census([h.root,seen,chosen]),after=h.census([h.root,seen,chosen,metadata]);
+    expect(after.pendingPhysical).toEqual(before.pendingPhysical);
+    expect(after.defenderDecisions).toEqual(before.defenderDecisions);
+    expect(after.participantCurves).toEqual(before.participantCurves);
+    for(const tampered of [
+      {...metadata,evaluationTick:metadata.evaluationTick+1},
+      {...metadata,timeline:{...metadata.timeline,lastEventTick:metadata.timeline.lastEventTick+1}},
+      {...metadata,field:{...metadata.field,motion:{...metadata.field.motion,world:{...metadata.field.motion.world,
+        moment:{...metadata.field.motion.world.moment,elapsedSeconds:metadata.field.motion.world.moment.elapsedSeconds+.001}}}}},
+      {...metadata,actionResult:{...metadata.actionResult,movementAdmission:true}},
+    ])expect(()=>h.census([h.root,seen,chosen,tampered as SamePaPhysicalFieldStep])).toThrow();
+  }
+});
 it('LC02 refresh work is observer-specific and elapsed time alone does not consume it', () => {
   const h = setup(), seen = h.observation(h.root, 'seen'), other = h.observation(seen, 'other', 'receiver');
   const later = h.capture(other, 0.01), result = h.census([h.root, seen, other, later]);

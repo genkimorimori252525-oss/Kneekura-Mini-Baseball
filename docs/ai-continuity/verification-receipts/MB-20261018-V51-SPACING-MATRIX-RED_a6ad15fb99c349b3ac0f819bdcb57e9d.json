@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V51-SPACING-MATRIX-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "work/v51-baseline-matrix.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T09:25:05.326+00:00",
+  "elapsed_ms": 1467,
+  "git_head": "01834d9e8361b7747083b9fbb7539c93ee662b50",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V51-SPACING-MATRIX-RED_a6ad15fb99c349b3ac0f819bdcb57e9d.log",
+  "output_sha256": "208230a37903a0dc3d06c25c21c6264e0f18546130f901d7138b1ef417e9331d",
+  "receipt_id": "MB-20261018-V51-SPACING-MATRIX-RED_a6ad15fb99c349b3ac0f819bdcb57e9d"
+}

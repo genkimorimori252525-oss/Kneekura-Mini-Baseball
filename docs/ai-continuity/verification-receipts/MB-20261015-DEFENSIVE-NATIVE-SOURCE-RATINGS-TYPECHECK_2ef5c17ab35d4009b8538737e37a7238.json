@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-DEFENSIVE-NATIVE-SOURCE-RATINGS-TYPECHECK",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "npx.cmd",
+    "tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-14T22:23:32.532+00:00",
+  "elapsed_ms": 28546,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-DEFENSIVE-NATIVE-SOURCE-RATINGS-TYPECHECK_2ef5c17ab35d4009b8538737e37a7238.log",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "receipt_id": "MB-20261015-DEFENSIVE-NATIVE-SOURCE-RATINGS-TYPECHECK_2ef5c17ab35d4009b8538737e37a7238"
+}

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-FINITE-BAT-CONTROL-FINAL-TYPES",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--skipLibCheck",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "Bundler",
+    "--strict",
+    "--esModuleInterop",
+    "--types",
+    "node",
+    "tools/verification/native-game/initial-bat-control-preparation-native.ts",
+    "src/core/sim/contact/HeldToMeasuredBatControlV1.test.ts"
+  ],
+  "observed_at": "2026-10-16T12:58:59.127+00:00",
+  "elapsed_ms": 7703,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-FINITE-BAT-CONTROL-FINAL-TYPES_c37ee0f151be4b18afbde3d4ff780df2.log",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "receipt_id": "MB-20261016-FINITE-BAT-CONTROL-FINAL-TYPES_c37ee0f151be4b18afbde3d4ff780df2"
+}

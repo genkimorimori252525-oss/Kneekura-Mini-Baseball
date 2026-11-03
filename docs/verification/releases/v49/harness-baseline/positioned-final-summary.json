@@ -1,0 +1,47 @@
+{
+  "receipt": "docs\\ai-continuity\\verification-receipts\\MB-20261018-V49-HARNESS-POSITIONS-FINAL_5862c73352a14dc1adcbe87fd32bd465.json",
+  "status": "PASS",
+  "testsPassed": 18,
+  "testsFailed": 0,
+  "scenarios": 20,
+  "tiers": {
+    "low": {
+      "totalOuts": 13,
+      "infieldGrounderOuts": 9,
+      "infieldGrounderCount": 13,
+      "anomalyCounts": {},
+      "totalAnomalies": 0
+    },
+    "default": {
+      "totalOuts": 18,
+      "infieldGrounderOuts": 13,
+      "infieldGrounderCount": 13,
+      "anomalyCounts": {},
+      "totalAnomalies": 0
+    },
+    "high": {
+      "totalOuts": 20,
+      "infieldGrounderOuts": 15,
+      "infieldGrounderCount": 13,
+      "anomalyCounts": {},
+      "totalAnomalies": 0
+    }
+  },
+  "positionsExplicit": [
+    "P",
+    "C",
+    "1B",
+    "2B",
+    "3B",
+    "SS",
+    "LF",
+    "CF",
+    "RF"
+  ],
+  "anomalyKinds": 14,
+  "sourceFileSha256": {
+    "src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.ts": "49ee9b1c15e2b888755d13f36297418263d7368e5f3756085ad02627d0b2bd58",
+    "src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts": "93a332e027103c24e3157890d5e922ed88ac3967762676b59ba8a4aefdad8b33"
+  },
+  "caveat": "Targeted diagnostic verification; final publication/full match/complete-rules audit belongs to root integration."
+}

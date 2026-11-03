@@ -1,0 +1,22 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: normal 1200/0 phase
++ actual - expected
+
++ 'swing-aim'
+- 'swing-impact-stabilize'
+         ^
+
+    at impactCase (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v59-impact-gaze.mjs:20:82)
+    at async file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v59-impact-gaze.mjs:29:631 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'swing-aim',
+  expected: 'swing-impact-stabilize',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

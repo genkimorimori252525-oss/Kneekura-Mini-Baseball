@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V53-PUBLIC-TRAIT-GREEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePublicAbilitiesV1.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T10:11:07.385+00:00",
+  "elapsed_ms": 2235,
+  "git_head": "ea9ca61b0971da3cc3b3ce1cfb344d4496e2ecc9",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V53-PUBLIC-TRAIT-GREEN_7bdbf430e74743819d141e102540afc0.log",
+  "output_sha256": "388a771d675a78e504bdefe95b9c373480ebdf92b1f50284174f09e9f3a5a39f",
+  "receipt_id": "MB-20261018-V53-PUBLIC-TRAIT-GREEN_7bdbf430e74743819d141e102540afc0"
+}

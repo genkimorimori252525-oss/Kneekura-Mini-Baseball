@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\docs\verification\releases\v48\check-publication.py", line 16, in <module>
+    assert remote == commit, (remote, commit)
+AssertionError: ('505bf94b439202210cff9d7e45750799f8bf0118', '505bf94176740930a7689f43f5bcbb6089aaab79')

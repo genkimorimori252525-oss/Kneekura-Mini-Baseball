@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V77-PITCHER-MOTION-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-pitcher-motion-v77.mjs",
+    "tools/browser-bridge/live-pitcher-body-head-view-v62.js"
+  ],
+  "observed_at": "2026-10-19T18:57:49.143+00:00",
+  "elapsed_ms": 45,
+  "git_head": "76c564765f6a6d15fd1a2740a201080e3c534bfe",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V77-PITCHER-MOTION-RED_69a786b959aa4bfaab6be7871c80e0ad.log",
+  "output_sha256": "436dfe0dfba1b77b58c7aeb6601f999198ae24fdfcb241c95be778ff8c0bec00",
+  "receipt_id": "MB-20261020-V77-PITCHER-MOTION-RED_69a786b959aa4bfaab6be7871c80e0ad"
+}

@@ -1,0 +1,7 @@
+{
+  "pass": true,
+  "makerSha256": "5c4ab2836fff35957f4480afb48e7d0a6096879184fccb6b997e635dbb582edf",
+  "sourcePins": 104,
+  "stagedFilesAtCheck": 145,
+  "scope": "All maker source contract hashes match exact staged Git blobs; unrelated user files excluded; CRLF-aware whitespace check."
+}

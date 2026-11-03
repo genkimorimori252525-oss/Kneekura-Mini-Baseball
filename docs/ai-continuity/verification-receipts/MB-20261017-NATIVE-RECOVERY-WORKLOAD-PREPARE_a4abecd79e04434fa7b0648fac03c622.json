@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-NATIVE-RECOVERY-WORKLOAD-PREPARE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-joint-field-successor-v1/readback.mjs",
+    "prepare",
+    "../../outputs/verification-authored-with-bat-recovery-v1",
+    "../../outputs/verification-authored-with-bat-field-successor-v1"
+  ],
+  "observed_at": "2026-10-16T21:43:35.991+00:00",
+  "elapsed_ms": 33562,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-NATIVE-RECOVERY-WORKLOAD-PREPARE_a4abecd79e04434fa7b0648fac03c622.log",
+  "output_sha256": "1f065c6336cb3e78f049d322c4604d95e5b172f808631f93c1359d991ba2e8e7",
+  "receipt_id": "MB-20261017-NATIVE-RECOVERY-WORKLOAD-PREPARE_a4abecd79e04434fa7b0648fac03c622"
+}

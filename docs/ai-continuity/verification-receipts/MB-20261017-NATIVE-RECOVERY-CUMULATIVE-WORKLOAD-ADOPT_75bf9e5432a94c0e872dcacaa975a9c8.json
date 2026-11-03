@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-NATIVE-RECOVERY-CUMULATIVE-WORKLOAD-ADOPT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-joint-field-successor-v2/readback.mjs",
+    "workload",
+    "../../outputs/verification-authored-with-bat-recovery-v1",
+    "../../outputs/verification-authored-with-bat-field-successor-v1"
+  ],
+  "observed_at": "2026-10-16T21:46:04.210+00:00",
+  "elapsed_ms": 80452,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-NATIVE-RECOVERY-CUMULATIVE-WORKLOAD-ADOPT_75bf9e5432a94c0e872dcacaa975a9c8.log",
+  "output_sha256": "dbc9b0d1aa69aff6436dab4c781eb08c45dc6fea7fa9aca60af18314bedbfeb3",
+  "receipt_id": "MB-20261017-NATIVE-RECOVERY-CUMULATIVE-WORKLOAD-ADOPT_75bf9e5432a94c0e872dcacaa975a9c8"
+}

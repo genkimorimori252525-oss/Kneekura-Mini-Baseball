@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-AUTHORED-DRIVER-TYPES-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--skipLibCheck",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "Bundler",
+    "--strict",
+    "--esModuleInterop",
+    "--types",
+    "node",
+    "tools/verification/native-game/authored-initial-pitch-native.ts",
+    "tools/verification/native-game/observed-cut-native.ts",
+    "tools/verification/native-game/observed-cut-readback.ts"
+  ],
+  "observed_at": "2026-10-16T00:22:06.542+00:00",
+  "elapsed_ms": 15281,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-AUTHORED-DRIVER-TYPES-FINAL_df04d47e8dec4ba2b3156ec41f96ee5d.log",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "receipt_id": "MB-20261016-AUTHORED-DRIVER-TYPES-FINAL_df04d47e8dec4ba2b3156ec41f96ee5d"
+}

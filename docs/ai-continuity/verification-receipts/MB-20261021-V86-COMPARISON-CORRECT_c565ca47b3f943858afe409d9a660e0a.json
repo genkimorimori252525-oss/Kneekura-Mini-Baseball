@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V86-COMPARISON-CORRECT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-pitch-comparison-v86.mjs",
+    "../../outputs/にーくら野球メーカー_v86_入力確定とエラー復帰版.html",
+    "docs/verification/releases/v86/comparison-final2"
+  ],
+  "observed_at": "2026-10-20T16:41:24.564+00:00",
+  "elapsed_ms": 25967,
+  "git_head": "58c9163a9007598d6a51d8178f38ce3b9ee14eca",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V86-COMPARISON-CORRECT_c565ca47b3f943858afe409d9a660e0a.log",
+  "output_sha256": "29ca1d635127df1a87eabdeb9f0159648ff21aea9609eae08be63a3b2fccbc3f",
+  "receipt_id": "MB-20261021-V86-COMPARISON-CORRECT_c565ca47b3f943858afe409d9a660e0a"
+}

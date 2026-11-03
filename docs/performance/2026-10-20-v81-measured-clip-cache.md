@@ -1,0 +1,13 @@
+# v81 測定clip検証cacheの境界
+
+`MeasuredClipValidationCacheV81.ts` はHost作成時の全測定catalogを扱う内部部品であり、公開API・JSON形式・全673件のID・順序・既定選択を変更しない。測定原本decoderと各打席の物理処理は従来どおり検証する。
+
+初回は全clipを従来と同じ `cloneInert` とprovenance／時刻／件数の検証へ通す。元catalog全体が、全到達ノードでnonextensibleかつaccessorなしのfrozen data descriptorであり、内部cloneと一致すると証明できた場合だけ、内部cloneをdeepfreezeして再利用する。外部オブジェクトをfreezeしない。mutable／部分freezeは通常の独立clone経路を使う。
+
+cacheは元catalogのWeakMap identityと、検証上限・許可repositoryの全primitive引数をkeyにする。選手・左右・明示clip・impact windowの検証はHost側に残り、毎回適用する。cacheはclipの部分集合を作らず、全catalogの順序を保持する。
+
+warm hitも元グラフの全descriptor・prototype・nonextensibility・property順を再確認する。ブラウザ標準APIではProxyを識別できず、frozen Proxyも後からrevocationやthrowing trapを起こせるため、初回の `isFrozen` だけでO(1)再利用する設計にはしない。不正なtrapは伝播し、property順が変わった場合は通常cloneへ戻す。確認済みimmutable graphの共有ノードは内部cloneの同値性を確認して取り扱う。
+
+性能上減らすのは、同じimmutable catalogの再clone・意味検証・内部freezeと、それに伴うオブジェクト確保である。全グラフ走査は残る。初回には証明用走査と内部cloneの保持が増えるため、速度・heapの優劣は実測対象とし、ブラウザ起動・実機FPS改善をこの部品の単体結果だけから主張しない。
+
+検証対象はmutable／partial freeze／getter／sparse／重複／非finite／clock／policy変更／revoked Proxy／throwing descriptor trap／property順／共有ノード、実673件・92,201標本・既定12件順、および既存設定省略時の同seed mutable／cold／warm Host全history一致である。試験の実行結果はmachine receiptを正本とし、本書をPASS証明にはしない。

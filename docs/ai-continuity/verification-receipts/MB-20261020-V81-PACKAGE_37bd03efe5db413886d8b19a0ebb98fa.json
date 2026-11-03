@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-PACKAGE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "tools/browser-bridge/package-v81.py"
+  ],
+  "observed_at": "2026-10-20T13:04:36.074+00:00",
+  "elapsed_ms": 5531,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-PACKAGE_37bd03efe5db413886d8b19a0ebb98fa.log",
+  "output_sha256": "bf340ee54a21613022a5fb7efca05c2f5388a1d4aad0a61ed65b90b6655d201d",
+  "receipt_id": "MB-20261020-V81-PACKAGE_37bd03efe5db413886d8b19a0ebb98fa"
+}

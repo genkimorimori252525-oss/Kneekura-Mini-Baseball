@@ -1,0 +1,10 @@
+{"phase":"normal-nine-inning-game","pitches":29,"inning":1,"half":"bottom","score":{"away":1,"home":4}}
+{"phase":"normal-nine-inning-game","pitches":56,"inning":2,"half":"bottom","score":{"away":1,"home":5}}
+{"phase":"normal-nine-inning-game","pitches":83,"inning":3,"half":"bottom","score":{"away":2,"home":7}}
+{"phase":"normal-nine-inning-game","pitches":104,"inning":4,"half":"top","score":{"away":2,"home":11}}
+{"phase":"normal-nine-inning-game","pitches":121,"inning":4,"half":"bottom","score":{"away":4,"home":12}}
+{"phase":"normal-nine-inning-game","pitches":154,"inning":5,"half":"bottom","score":{"away":6,"home":14}}
+{"phase":"normal-nine-inning-game","pitches":180,"inning":6,"half":"top","score":{"away":6,"home":15}}
+{"phase":"normal-nine-inning-game","pitches":198,"inning":7,"half":"top","score":{"away":6,"home":17}}
+{"phase":"normal-nine-inning-game","pitches":234,"inning":8,"half":"bottom","score":{"away":6,"home":17}}
+{"status":"PASS","mode":"normal-nine-inning-game","sourceInputs":105,"viewports":[1200,390],"completedPitches":251}

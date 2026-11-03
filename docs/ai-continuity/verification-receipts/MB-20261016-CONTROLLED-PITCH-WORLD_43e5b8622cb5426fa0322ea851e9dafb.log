@@ -1,0 +1,13 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/ball/SourceFreeBallWorldQuery.test.ts (11 tests) 115ms
+ ✓ src/core/sim/pitch/ControlledPitchWorldV1.test.ts (6 tests) 37ms
+ ✓ src/core/sim/pitch/ControlledHeldPitchV1.test.ts (10 tests) 6ms
+ ✓ src/core/sim/ball/SourceFreeBallSpeedBound.test.ts (2 tests) 13ms
+
+ Test Files  4 passed (4)
+      Tests  29 passed (29)
+   Start at  08:36:49
+   Duration  1.29s (transform 216ms, setup 0ms, collect 410ms, tests 170ms, environment 0ms, prepare 230ms)
+

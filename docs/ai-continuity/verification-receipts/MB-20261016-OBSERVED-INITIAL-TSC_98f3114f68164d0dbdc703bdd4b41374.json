@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OBSERVED-INITIAL-TSC",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-15T22:30:16.512+00:00",
+  "elapsed_ms": 45187,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OBSERVED-INITIAL-TSC_98f3114f68164d0dbdc703bdd4b41374.log",
+  "output_sha256": "94ff62a2bf2f8d1d489d4669bfe25e371839b3f4fcf15608c7726c37389a512f",
+  "receipt_id": "MB-20261016-OBSERVED-INITIAL-TSC_98f3114f68164d0dbdc703bdd4b41374"
+}

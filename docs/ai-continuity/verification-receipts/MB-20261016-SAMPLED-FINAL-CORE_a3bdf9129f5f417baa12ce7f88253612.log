@@ -1,0 +1,31 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/MeasuredBatAxisReferenceV1.test.ts (6 tests) 7ms
+ ✓ src/core/sim/pitching/AerodynamicRigidPitchAgainstBatter.test.ts (3 tests) 11ms
+ ✓ src/integration/browser/NativeAerodynamicSession.test.ts (10 tests) 54ms
+ ✓ src/core/sim/contact/ReferenceBatKinematicsV1.test.ts (8 tests) 232ms
+ ✓ src/integration/browser/NativeAerodynamicObserver.test.ts (13 tests) 101ms
+ ✓ src/core/sim/pitching/SampledRigidBatSwingV1.test.ts (14 tests) 224ms
+ ✓ src/integration/browser/NativeImmutableReplayLedger.test.ts (14 tests) 379ms
+ ✓ src/integration/browser/ReferenceBattingWorkbench.test.ts (4 tests) 1888ms
+   ✓ uses the same reference state for the visible bat, actual rigid contact, and subsequent Aero/ground ball 857ms
+   ✓ keeps geometric misses and declared input trajectories unchanged 318ms
+   ✓ keeps league labels outside actual impulse and makes unmodelled body/recoil explicit 711ms
+ ✓ src/integration/browser/BattingWorkbench.test.ts (11 tests) 9483ms
+   ✓ creates one body-attached rigid bat path and feeds its actual collision to Core Aero/ground physics 565ms
+   ✓ changing actual bat speed changes impulse and batted-ball velocity rather than a hit probability 877ms
+   ✓ a late motor cannot retroactively meet the pitch, and a take creates no contact 744ms
+   ✓ replays the same physical inputs and preserves league labels as display-only context 2103ms
+   ✓ keeps both actual arm bone lengths on the near-folded regression path 723ms
+   ✓ mirrors the body and contact for right/left hitters at a constrained course 1333ms
+   ✓ detects contact that starts and ends between the old 1ms sample endpoints 500ms
+   ✓ audits the actual motor speed independently of the 4ms drawing frames 611ms
+   ✓ keeps the same pitched ball when only authored contact depth changes 1358ms
+   ✓ does not make a visible held bat transparent when the hitter takes 665ms
+
+ Test Files  9 passed (9)
+      Tests  83 passed (83)
+   Start at  06:48:18
+   Duration  10.41s (transform 1.10s, setup 0ms, collect 3.08s, tests 12.38s, environment 1ms, prepare 1.92s)
+

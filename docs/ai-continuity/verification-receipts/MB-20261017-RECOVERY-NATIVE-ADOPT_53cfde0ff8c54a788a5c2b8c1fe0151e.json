@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-RECOVERY-NATIVE-ADOPT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-owned-joint-recovery-v1/readback.mjs",
+    "accept",
+    "../../outputs/verification-authored-with-bat-workload-v1",
+    "../../outputs/verification-authored-with-bat-recovery-v1"
+  ],
+  "observed_at": "2026-10-16T15:59:07.261+00:00",
+  "elapsed_ms": 145328,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-RECOVERY-NATIVE-ADOPT_53cfde0ff8c54a788a5c2b8c1fe0151e.log",
+  "output_sha256": "89707aa6067236f113d6d53efe90eb2cdef816674c6ebdaa2805e943961b1c3e",
+  "receipt_id": "MB-20261017-RECOVERY-NATIVE-ADOPT_53cfde0ff8c54a788a5c2b8c1fe0151e"
+}

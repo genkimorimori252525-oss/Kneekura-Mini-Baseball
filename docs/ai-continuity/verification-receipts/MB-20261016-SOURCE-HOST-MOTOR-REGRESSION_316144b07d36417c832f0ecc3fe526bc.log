@@ -1,0 +1,31 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts (13 tests) 665ms
+ ✓ src/host/world/SamePlateAppearanceBallPhysics.test.ts (4 tests) 15ms
+ ✓ src/host/world/SamePlateAppearanceObservationClockProjectionV1.test.ts (5 tests) 60ms
+ ✓ src/host/world/SamePlateAppearanceTeamMotorSelectionV1.test.ts (5 tests) 239ms
+ ✓ src/host/world/SamePlateAppearanceSourceFieldV3.test.ts (6 tests) 876ms
+   ✓ inserts all five metadata kinds at the exact post-impulse cut without adding a physical horizon 356ms
+ ✓ src/host/world/SamePlateAppearancePhysicalFieldActions.test.ts (14 tests) 3697ms
+   ✓ FS02 all nine original defenders execute including cover after a genuinely moved and locally perceived handler 661ms
+   ✓ FT01 team actor selections drive nine real motor calculations using the team choice, preserving the original body curves 2286ms
+ ✓ src/host/world/SamePlateAppearanceSourceIntegerCheckpointV1.test.ts (6 tests) 8386ms
+   ✓ branches from the full original v3 metadata prefix and executes same-tick positive physical time on its original Source 995ms
+   ✓ routes the dedicated action through the owner calculation without relaxing the ordinary stale-step guard 816ms
+   ✓ retains the new branch for later metadata/free steps and rejects returning to the old version 2375ms
+   ✓ rejects exact-zero waits, different ticks, marker/result injection, unsupported motor/custody and legacy roots 908ms
+   ✓ rejects forged prefix refs, metadata, Source side/state, actors and saved checkpoint diagnostics 2147ms
+   ✓ retains an earlier real impulse as a physical boundary, then rederives its private escape before another wait 1145ms
+ ✓ src/host/world/SamePlateAppearanceSourceMotorFieldV1.test.ts (5 tests) 19950ms
+   ✓ connects complete owned team selections through real rated motor and Source replay, retaining all six roles and ball spin 2971ms
+   ✓ preserves the real Source glove candidate as a terminal field without granting custody or allowing later free work 2773ms
+   ✓ keeps per-record inert limits and rejects active, exotic, oversized or sparse replay envelopes 2939ms
+   ✓ replays later free/metadata history and rejects mutated original motors/evidence or returning to integer/old versions 7336ms
+   ✓ rejects legacy/subset/stale team selections and future first-step or invalid body calibration before any Source movement 3931ms
+
+ Test Files  8 passed (8)
+      Tests  58 passed (58)
+   Start at  03:39:47
+   Duration  25.67s (transform 7.41s, setup 0ms, collect 36.69s, tests 33.89s, environment 1ms, prepare 1.69s)
+

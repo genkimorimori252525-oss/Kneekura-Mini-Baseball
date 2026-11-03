@@ -1,0 +1,18 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ tools/browser-bridge/presentation-ui-performance-v81.test.mjs (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tools/browser-bridge/presentation-ui-performance-v81.test.mjs [ tools/browser-bridge/presentation-ui-performance-v81.test.mjs ]
+Error: Failed to load url ./presentation-ui-performance-v81.mjs (resolved id: ./presentation-ui-performance-v81.mjs) in C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/presentation-ui-performance-v81.test.mjs. Does the file exist?
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:51969:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  21:44:34
+   Duration  656ms (transform 36ms, setup 0ms, collect 0ms, tests 0ms, environment 0ms, prepare 200ms)
+

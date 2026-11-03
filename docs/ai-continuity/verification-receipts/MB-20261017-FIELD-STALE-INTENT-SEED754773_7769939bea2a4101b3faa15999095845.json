@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-FIELD-STALE-INTENT-SEED754773",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../live-field-departure-diagnostic.mjs",
+    "../../outputs/verification-authored-with-bat-v33-population-final-v1/shard-16/failed-1.json",
+    "compact"
+  ],
+  "observed_at": "2026-10-17T01:05:28.508+00:00",
+  "elapsed_ms": 1469,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-FIELD-STALE-INTENT-SEED754773_7769939bea2a4101b3faa15999095845.log",
+  "output_sha256": "0d0abdb0fcb003f66fb0440edc315dc9afe4b61077643ccf27f24cf6307c58bf",
+  "receipt_id": "MB-20261017-FIELD-STALE-INTENT-SEED754773_7769939bea2a4101b3faa15999095845"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-TEAM-MOTOR-GUARD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/SamePlateAppearanceTeamMotorSelectionV1.test.ts"
+  ],
+  "observed_at": "2026-10-14T22:37:52.640+00:00",
+  "elapsed_ms": 9108,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-TEAM-MOTOR-GUARD_ae6666daed37458e83b7af5d728d90b3.log",
+  "output_sha256": "cf797704aeee5e2d52796bdacf554e2d02c2ef67e7602d013f21cff2cba62725",
+  "receipt_id": "MB-20261015-TEAM-MOTOR-GUARD_ae6666daed37458e83b7af5d728d90b3"
+}

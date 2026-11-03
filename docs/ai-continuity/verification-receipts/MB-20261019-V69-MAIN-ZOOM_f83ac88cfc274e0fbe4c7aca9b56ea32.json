@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V69-MAIN-ZOOM",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-zoom-v69.mjs"
+  ],
+  "observed_at": "2026-10-19T11:46:50.639+00:00",
+  "elapsed_ms": 328,
+  "git_head": "936cd23907b8e078e179aa03e041420a3339932b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V69-MAIN-ZOOM_f83ac88cfc274e0fbe4c7aca9b56ea32.log",
+  "output_sha256": "502d8d8e9a898c71075852da13e81419cce7a6b429e5326314058adef102554e",
+  "receipt_id": "MB-20261019-V69-MAIN-ZOOM_f83ac88cfc274e0fbe4c7aca9b56ea32"
+}

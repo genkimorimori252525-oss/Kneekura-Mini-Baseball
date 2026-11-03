@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V41-NORMAL-HTML-NINE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v41-game.mjs",
+    "../../outputs/ばせぼーるlv41_TBD_vs_LAD_公開能力メーカー連携版.html",
+    "../../outputs/verification-v41-game-v1"
+  ],
+  "observed_at": "2026-10-17T03:55:01.485+00:00",
+  "elapsed_ms": 159359,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V41-NORMAL-HTML-NINE_1bb612298c2448f3add16ce019e7afd7.log",
+  "output_sha256": "ecb7ee3bb1ff8b2b31ea653bd91c2b6d26cdb813bcec11837c6c1a2c85630fa1",
+  "receipt_id": "MB-20261017-V41-NORMAL-HTML-NINE_1bb612298c2448f3add16ce019e7afd7"
+}

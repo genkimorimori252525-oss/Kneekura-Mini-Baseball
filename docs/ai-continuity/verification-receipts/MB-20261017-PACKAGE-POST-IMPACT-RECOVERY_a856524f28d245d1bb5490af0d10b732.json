@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-PACKAGE-POST-IMPACT-RECOVERY",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../package-delivery.py"
+  ],
+  "observed_at": "2026-10-16T16:21:11.447+00:00",
+  "elapsed_ms": 60500,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-PACKAGE-POST-IMPACT-RECOVERY_a856524f28d245d1bb5490af0d10b732.log",
+  "output_sha256": "b1c1533873a6ff18609242fce40cbc81d810289d8677ba05099de3939c3549ee",
+  "receipt_id": "MB-20261017-PACKAGE-POST-IMPACT-RECOVERY_a856524f28d245d1bb5490af0d10b732"
+}

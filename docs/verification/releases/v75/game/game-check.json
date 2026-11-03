@@ -1,0 +1,276 @@
+{
+  "pass": true,
+  "phase": "complete",
+  "normal": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv75_TBD_vs_LAD_技術得能接続版.html",
+  "lab": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\カメラワーク調整室_v75.html",
+  "faults": [
+    {
+      "label": "frozen-v74",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "normal-v75",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "lab-v75",
+      "errors": [],
+      "external": []
+    }
+  ],
+  "cases": [
+    {
+      "name": "zero",
+      "records": 6,
+      "sourceBatRulesExact": true,
+      "packetPreserved": true
+    },
+    {
+      "name": "off",
+      "records": 6,
+      "sourceBatRulesExact": true,
+      "packetPreserved": true
+    },
+    {
+      "name": "unknown-family",
+      "error": "true",
+      "message": "live trait profiles: unknown or duplicate trait family",
+      "atomic": true
+    },
+    {
+      "name": "unknown-state",
+      "error": "true",
+      "message": "live trait profiles: unsupported family state",
+      "atomic": true
+    },
+    {
+      "name": "invalid-strength",
+      "error": "true",
+      "message": "live trait profiles: invalid technical source",
+      "atomic": true
+    }
+  ],
+  "scope": "Frozen v74 exact six-pitch regression, zero/off technique regression, real six-technique roster import and pitch execution, one full regulation game, normal/lab PC and mobile-width browser checks.",
+  "normalSha256": "2482dbaa0ae61d91ec50d8dedac1a391c031498c89b26b970fc370d23ae2b365",
+  "workbenchSha256": "8a6b1d004f8d95d55b31424a4fc0d0182c2c62ea88f279a76dd05965505cc822",
+  "coreSha256": "eed87f92656f5f6e1ac2664e009960c95077288033d474f91ecc2195c3dbc1a5",
+  "baseline": {
+    "actualRecords": 6,
+    "sourceBatRuleSha256": "db7103e17aedbd95de83236d610a410f91fce638b3e4817a59edda2e3021010d"
+  },
+  "defaultPrefix": {
+    "records": 6,
+    "sourceBatRulesExact": true,
+    "initialRosterSame": true,
+    "presentationSame": true
+  },
+  "catalog": [
+    {
+      "familyId": "bad_ball_hitting",
+      "states": [
+        "LEARNED"
+      ]
+    },
+    {
+      "familyId": "throw_accuracy",
+      "states": [
+        "G",
+        "F",
+        "E",
+        "D",
+        "C",
+        "B",
+        "A",
+        "GOLD"
+      ]
+    },
+    {
+      "familyId": "plate_aggression",
+      "states": [
+        "AGGRESSIVE",
+        "BALANCED",
+        "CAUTIOUS"
+      ]
+    },
+    {
+      "familyId": "running_aggression",
+      "states": [
+        "AGGRESSIVE",
+        "BALANCED"
+      ]
+    },
+    {
+      "familyId": "fielding_aggression",
+      "states": [
+        "AGGRESSIVE",
+        "BALANCED"
+      ]
+    },
+    {
+      "familyId": "pitch_approach",
+      "states": [
+        "FASTBALL",
+        "BALANCED",
+        "BREAKING"
+      ]
+    },
+    {
+      "familyId": "swing_mode_preference",
+      "states": [
+        "POWER",
+        "BALANCED",
+        "CONTACT"
+      ]
+    },
+    {
+      "familyId": "baserunning",
+      "states": [
+        "G",
+        "F",
+        "E",
+        "D",
+        "C",
+        "B",
+        "A",
+        "GOLD"
+      ]
+    },
+    {
+      "familyId": "bunting",
+      "states": [
+        "LEARNED",
+        "MASTERED"
+      ]
+    },
+    {
+      "familyId": "advanced_fielding",
+      "states": [
+        "LEARNED",
+        "MASTERED"
+      ]
+    },
+    {
+      "familyId": "bat_to_run_transition",
+      "states": [
+        "LEARNED",
+        "MASTERED"
+      ]
+    },
+    {
+      "familyId": "slow_ball_charge",
+      "states": [
+        "LEARNED"
+      ]
+    },
+    {
+      "familyId": "low_zone_command",
+      "states": [
+        "LEARNED",
+        "MASTERED"
+      ]
+    }
+  ],
+  "json": {
+    "players": 20,
+    "technicalSelections": 120,
+    "packetPreserved": true,
+    "saveRoundTrip": true,
+    "filename": "にーくら試合用20選手能力.json"
+  },
+  "bunt": {
+    "batter": "0-b0",
+    "classification": "live_ball",
+    "motor": {
+      "calibrationId": "bounded-observed-bunt-motor-v75",
+      "strength": 1,
+      "observedAtElapsedSeconds": 0.14,
+      "moveStartSeconds": 0.22000000000000003,
+      "arrivalSeconds": 0.4980478454342737,
+      "maximumSpeedMps": 4,
+      "maximumSurfaceSpeedMps": 3.1447752048587794,
+      "desiredTargetSweetSpot": {
+        "x": 0.05289506450764353,
+        "y": 0.9127488702526101,
+        "z": 0.1448177059442038
+      },
+      "reachableTargetSweetSpot": {
+        "x": 0.05289506450764353,
+        "y": 0.9127488702526101,
+        "z": 0.1448177059442038
+      },
+      "axis": {
+        "x": -0.989910542388357,
+        "y": -0.00577416007827371,
+        "z": -0.14157604721060504
+      },
+      "positionErrorScale": 0.5714285714285714,
+      "timingErrorScale": 0.5714285714285714,
+      "absorbStartSeconds": 0.4630478454342737,
+      "absorbSeconds": 0.16,
+      "absorbMeters": 0.12,
+      "predictionBasis": "ONE_OBSERVED_STATE_FORECAST_NO_FUTURE_CONTACT",
+      "postContactResultOverride": false
+    },
+    "movingBats": 49,
+    "actualContact": true
+  },
+  "lowCommand": {
+    "pitcher": "1-p0",
+    "diagnostics": {
+      "calibrationId": "low-target-command-v75",
+      "strength": 1,
+      "target": {
+        "x": -0.04158295638859272,
+        "y": 0.3265416890755296,
+        "z": 0.15
+      },
+      "commanded": {
+        "x": 0.034196143906980433,
+        "y": 0.2914380473568938,
+        "z": 0.15
+      },
+      "baselineStandardDeviationMeters": 0.065,
+      "effectiveStandardDeviationMeters": 0.040625,
+      "targetRegion": "LOWER_THIRD_OR_BELOW",
+      "releaseVelocityOnly": true
+    },
+    "actualPhysicalPitch": true
+  },
+  "regulation": {
+    "error": null,
+    "errorDetails": null,
+    "finished": true,
+    "fast": false,
+    "pitches": 254,
+    "match": {
+      "ruleProfileId": "npb-2026",
+      "inning": 9,
+      "half": "top",
+      "outs": 3,
+      "balls": 0,
+      "strikes": 0,
+      "bases": {
+        "first": null,
+        "second": null,
+        "third": null
+      },
+      "score": {
+        "away": 9,
+        "home": 26
+      },
+      "playId": 99
+    },
+    "elapsedMs": 62874,
+    "records": {
+      "count": 254,
+      "contacts": 95,
+      "fieldPlays": 95,
+      "allFieldsComplete": true,
+      "lowCommandPitches": 101,
+      "technicalFieldInputs": 0,
+      "sourceBatRuleSha256": "80ef56d049785324e3d9435e3bd574e99b88ce98d54c07ef0ae74b8ab9c0a57c"
+    }
+  }
+}

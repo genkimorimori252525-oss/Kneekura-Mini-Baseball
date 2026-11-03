@@ -1,0 +1,25 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/ball/BaseballGroundDynamics.test.ts (7 tests) 7ms
+ ✓ src/core/sim/ball/FreeBaseballTrajectory.test.ts (7 tests) 131ms
+ ✓ src/integration/browser/WorkbenchPlayer.test.ts (16 tests) 27ms
+ ✓ src/integration/browser/NativeFreeBallObservation.test.ts (2 tests) 85ms
+ ✓ src/integration/browser/NativeAerodynamicReferenceFixture.test.ts (8 tests) 819ms
+   ✓ uses explicit measured aerodynamic coefficient and spin-decay inputs on the actual pitch 362ms
+ ✓ src/integration/browser/BattingWorkbench.test.ts (7 tests) 7736ms
+   ✓ creates one body-attached rigid bat path and feeds its actual collision to Core Aero/ground physics 600ms
+   ✓ changing actual bat speed changes impulse and batted-ball velocity rather than a hit probability 970ms
+   ✓ a late motor cannot retroactively meet the pitch, and a take creates no contact 954ms
+   ✓ replays the same physical inputs and preserves league labels as display-only context 2227ms
+   ✓ rejects an impossible near-folded fast path and keeps both arm bone lengths on valid paths 1477ms
+   ✓ mirrors the body and contact for right/left hitters at a constrained course 1505ms
+ ✓ src/host/world/SamePlateAppearanceDefensiveSupportGeometry.test.ts (3 tests) 10ms
+ ✓ src/host/world/SamePlateAppearancePhysicalFieldActions.test.ts (13 tests) 1602ms
+   ✓ FS02 all nine original defenders execute including cover after a genuinely moved and locally perceived handler 628ms
+
+ Test Files  8 passed (8)
+      Tests  63 passed (63)
+   Start at  03:42:17
+   Duration  10.63s (transform 9.73s, setup 0ms, collect 19.33s, tests 10.42s, environment 1ms, prepare 1.73s)
+

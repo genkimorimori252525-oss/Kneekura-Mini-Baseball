@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V53-TRAIT-IMPORT-TSC",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--pretty",
+    "false"
+  ],
+  "observed_at": "2026-10-18T10:20:09.561+00:00",
+  "elapsed_ms": 21687,
+  "git_head": "ea9ca61b0971da3cc3b3ce1cfb344d4496e2ecc9",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V53-TRAIT-IMPORT-TSC_58cf8c01ef034671a28a46c3c800c2e1.log",
+  "output_sha256": "393278817116f3a445f0871f70b9ee48595f11dd76928b194c1427ea4c2c2bb6",
+  "receipt_id": "MB-20261018-V53-TRAIT-IMPORT-TSC_58cf8c01ef034671a28a46c3c800c2e1"
+}

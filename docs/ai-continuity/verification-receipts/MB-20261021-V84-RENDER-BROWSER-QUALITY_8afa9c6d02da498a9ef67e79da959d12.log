@@ -1,0 +1,8 @@
+{"phase":"quality-one","width":1200,"dpr":1,"scenes":60}
+{"phase":"quality-one","width":1200,"dpr":2,"scenes":60}
+{"phase":"quality-one","width":390,"dpr":1,"scenes":60}
+{"phase":"quality-one","width":390,"dpr":2,"scenes":60}
+{"phase":"final-quality","width":1200,"dpr":1,"boundaries":24}
+{"phase":"final-quality","width":1200,"dpr":2,"boundaries":24}
+{"phase":"final-quality","width":390,"dpr":1,"boundaries":24}
+{"phase":"final-quality","width":390,"dpr":2,"boundaries":24}

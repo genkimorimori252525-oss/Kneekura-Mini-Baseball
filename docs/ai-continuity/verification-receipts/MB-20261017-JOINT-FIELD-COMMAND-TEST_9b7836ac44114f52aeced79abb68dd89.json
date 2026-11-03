@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-JOINT-FIELD-COMMAND-TEST",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/JointFieldSuccessorCommand.test.ts"
+  ],
+  "observed_at": "2026-10-16T21:39:59.067+00:00",
+  "elapsed_ms": 9985,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-JOINT-FIELD-COMMAND-TEST_9b7836ac44114f52aeced79abb68dd89.log",
+  "output_sha256": "2390298e2255679c7477cc7dc6124087aee16a0be3dd1abbd81cab3e61686836",
+  "receipt_id": "MB-20261017-JOINT-FIELD-COMMAND-TEST_9b7836ac44114f52aeced79abb68dd89"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V87-DATA-SEASON-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveSeasonCourseV87.test.ts"
+  ],
+  "observed_at": "2026-10-20T17:06:25.263+00:00",
+  "elapsed_ms": 2296,
+  "git_head": "9f6b6ed69d8682f417490d4b761914f1b4a6d6a1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V87-DATA-SEASON-RED_f447cdcf3c2c4c158777e0414f01909a.log",
+  "output_sha256": "25bf1baa47adbde2cd8763ae0a92c153a9b615e3f8fd87d608691dd7c44d0ad2",
+  "receipt_id": "MB-20261021-V87-DATA-SEASON-RED_f447cdcf3c2c4c158777e0414f01909a"
+}

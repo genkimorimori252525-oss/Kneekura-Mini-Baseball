@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V82-MAKER-RECOVERY-CORE-GREEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/MakerValueRecoveryV82.test.ts",
+    "src/integration/browser/WorkbenchPlayer.test.ts",
+    "src/integration/browser/LivePhysicalRosterV1.test.ts",
+    "src/integration/browser/LivePublicAbilitiesV1.test.ts",
+    "--maxWorkers",
+    "1",
+    "--minWorkers",
+    "1"
+  ],
+  "observed_at": "2026-10-20T13:37:36.205+00:00",
+  "elapsed_ms": 14452,
+  "git_head": "2b3a8aafd04f0d49edc5c9f12637babc620901f6",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V82-MAKER-RECOVERY-CORE-GREEN_f0841f0568da4ef3b3a0c5c2fbcc1526.log",
+  "output_sha256": "e1ce2075cc7a6073c8e4c3d4c3162ef146ed5237a5ea471149131ecc4c68c0de",
+  "receipt_id": "MB-20261020-V82-MAKER-RECOVERY-CORE-GREEN_f0841f0568da4ef3b3a0c5c2fbcc1526"
+}

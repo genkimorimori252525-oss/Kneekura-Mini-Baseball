@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-UPRIGHT-BAT-NATIVE-CONTROL",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "../native-initial-bat-control-upright-v1/readback.mjs",
+    "../../outputs/verification-authored-with-bat-upright-decision-v1",
+    "../../outputs/verification-authored-with-bat-upright-control-v1"
+  ],
+  "observed_at": "2026-10-16T12:49:20.369+00:00",
+  "elapsed_ms": 4407,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-UPRIGHT-BAT-NATIVE-CONTROL_a50d12427b7248e69e7df88cc495dd91.log",
+  "output_sha256": "5cf0d08e64aae000153aa35ac0e5e5ff9511b34803c2854974d59050bbd26316",
+  "receipt_id": "MB-20261016-UPRIGHT-BAT-NATIVE-CONTROL_a50d12427b7248e69e7df88cc495dd91"
+}

@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/native-game/AuthoredNativeMatchV1.test.ts (3 tests) 4076ms
+   ✓ creates two real Native SI model cohorts, official initial World and nineteen bodies without legacy fixtures or owner mocks 4023ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  06:17:47
+   Duration  16.24s (transform 8.22s, setup 0ms, collect 11.76s, tests 4.08s, environment 0ms, prepare 117ms)
+

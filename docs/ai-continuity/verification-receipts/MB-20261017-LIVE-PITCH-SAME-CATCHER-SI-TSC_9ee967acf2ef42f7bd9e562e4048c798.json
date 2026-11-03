@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-PITCH-SAME-CATCHER-SI-TSC",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--strict",
+    "--noUnusedLocals",
+    "--noUnusedParameters",
+    "--skipLibCheck",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "bundler",
+    "--types",
+    "node,vitest/globals",
+    "src/integration/browser/LivePitchV1.ts",
+    "src/integration/browser/LivePitchV1.test.ts",
+    "tools/verification/live-pitch-audit.ts"
+  ],
+  "observed_at": "2026-10-17T00:09:22.591+00:00",
+  "elapsed_ms": 1733,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-PITCH-SAME-CATCHER-SI-TSC_9ee967acf2ef42f7bd9e562e4048c798.log",
+  "output_sha256": "679b476f63b79144fde4f4e2b397fa7a7d4f028ff1e64ae68a8c57dc3c046af1",
+  "receipt_id": "MB-20261017-LIVE-PITCH-SAME-CATCHER-SI-TSC_9ee967acf2ef42f7bd9e562e4048c798"
+}

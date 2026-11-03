@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V85-UNIT-FINAL-CORRECT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/browser-bridge/maker-guides-v85.test.mjs",
+    "tools/browser-bridge/pitcher-comparison-v85.test.mjs"
+  ],
+  "observed_at": "2026-10-20T16:16:18.936+00:00",
+  "elapsed_ms": 1108,
+  "git_head": "a0ca8087caddc79322ad91ba37bc14e7555c62ed",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V85-UNIT-FINAL-CORRECT_7d894128c09946cd87dd2302f66fda8b.log",
+  "output_sha256": "2baf1c73f2c9a26d79b4c06f3e0b6b6cf5e98831306b30e16299e0ec2fdb8f7f",
+  "receipt_id": "MB-20261021-V85-UNIT-FINAL-CORRECT_7d894128c09946cd87dd2302f66fda8b"
+}

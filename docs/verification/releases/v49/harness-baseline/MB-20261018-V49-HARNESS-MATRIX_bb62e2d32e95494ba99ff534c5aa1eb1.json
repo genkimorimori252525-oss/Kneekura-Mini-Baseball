@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V49-HARNESS-MATRIX",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T08:06:12.431+00:00",
+  "elapsed_ms": 33468,
+  "git_head": "d54aa62aec6ce643f216dbaedfbaba2f36b31e3b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V49-HARNESS-MATRIX_bb62e2d32e95494ba99ff534c5aa1eb1.log",
+  "output_sha256": "72725a08fcd3fd47a452de9d1d612d9687573c5e3abb705dba8224748d17af08",
+  "receipt_id": "MB-20261018-V49-HARNESS-MATRIX_bb62e2d32e95494ba99ff534c5aa1eb1"
+}

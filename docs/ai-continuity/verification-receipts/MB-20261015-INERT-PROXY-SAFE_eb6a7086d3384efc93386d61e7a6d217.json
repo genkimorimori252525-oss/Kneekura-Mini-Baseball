@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-INERT-PROXY-SAFE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/adjudication/InertCloneValidationScope.test.ts",
+    "src/core/adjudication/OfficialWindowPolicy.test.ts",
+    "src/host/world/ActualFirstBasePhysicalReadTraversal.test.ts",
+    "src/host/world/OwnedScheduledMotionDependencyEncoding.test.ts",
+    "src/core/sim/contact/ReferenceBatKinematicsV1.test.ts"
+  ],
+  "observed_at": "2026-10-14T20:39:45.882+00:00",
+  "elapsed_ms": 10358,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-INERT-PROXY-SAFE_eb6a7086d3384efc93386d61e7a6d217.log",
+  "output_sha256": "12cf2f2abffd89c92aff67fe331afb4c82f2ab141f06c2c730c7f3f3642f5fd1",
+  "receipt_id": "MB-20261015-INERT-PROXY-SAFE_eb6a7086d3384efc93386d61e7a6d217"
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-JOINT-WORKLOAD-NATIVE-ACCEPT",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "../native-owned-joint-workload-v2/readback.mjs",
+    "accept",
+    "../../outputs/verification-authored-with-bat-physical-execution-v1",
+    "../../outputs/verification-authored-with-bat-workload-v1"
+  ],
+  "observed_at": "2026-10-16T15:17:01.365+00:00",
+  "elapsed_ms": 142953,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-JOINT-WORKLOAD-NATIVE-ACCEPT_94d9021276c5445c81f985766922981c.log",
+  "output_sha256": "456ca59e4699eee1d0bd2b29427da298a4505d602b2838fb118a0ac792996309",
+  "receipt_id": "MB-20261017-JOINT-WORKLOAD-NATIVE-ACCEPT_94d9021276c5445c81f985766922981c"
+}

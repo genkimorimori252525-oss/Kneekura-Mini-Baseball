@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/MeasuredClipValidationCacheV81.test.ts (7 tests) 51149ms
+   ✓ keeps omitted-feature same-seed complete Host history identical for mutable, cold and warm catalogs 51092ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  21:44:37
+   Duration  52.72s (transform 629ms, setup 0ms, collect 927ms, tests 51.15s, environment 0ms, prepare 201ms)
+

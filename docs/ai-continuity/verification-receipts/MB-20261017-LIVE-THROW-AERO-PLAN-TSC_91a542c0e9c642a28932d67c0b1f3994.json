@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-THROW-AERO-PLAN-TSC",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--strict",
+    "--noUnusedLocals",
+    "--noUnusedParameters",
+    "--skipLibCheck",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "bundler",
+    "--types",
+    "node,vitest/globals",
+    "src/core/sim/fielding/LiveThrowPlanV1.ts",
+    "src/core/sim/fielding/LiveThrowPlanV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T00:49:47.707+00:00",
+  "elapsed_ms": 1639,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-THROW-AERO-PLAN-TSC_91a542c0e9c642a28932d67c0b1f3994.log",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "receipt_id": "MB-20261017-LIVE-THROW-AERO-PLAN-TSC_91a542c0e9c642a28932d67c0b1f3994"
+}

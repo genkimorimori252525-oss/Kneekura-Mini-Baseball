@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V79-MAKER-FINAL2-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-course-v79.mjs",
+    "../../outputs/にーくら野球メーカー_v79_63コースとシーズン成績版.html",
+    "docs/verification/releases/v79/course-maker-final2",
+    "docs/verification/releases/v79/game/finished-local-game.json"
+  ],
+  "observed_at": "2026-10-20T00:31:08.510+00:00",
+  "elapsed_ms": 22218,
+  "git_head": "98819b9ab5c8e4bdd7ddfc7d644d484df08ab55d",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V79-MAKER-FINAL2-BROWSER_6ed93fdbafe8490085c309eab00a6129.log",
+  "output_sha256": "5f3bd2618e3fb573ae16644817b16660fea5e1444ae1ba37fc355ac86d3ed22d",
+  "receipt_id": "MB-20261020-V79-MAKER-FINAL2-BROWSER_6ed93fdbafe8490085c309eab00a6129"
+}

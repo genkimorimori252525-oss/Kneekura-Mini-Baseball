@@ -3,6 +3,10 @@ import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { samePaOccupiedRunnerHoldReferencesValid } from './SamePlateAppearanceOccupiedRunnerHold';
 import type { WorkloadBoundPlayerPitchRequest } from './WorkloadBoundPlayerPitchRuntime';
 import type { TakePitchAgainstBatterInput } from '../../core/sim/pitching/PitchAgainstBatter';
+import type { AerodynamicPitchTrajectory } from '../../core/sim/pitching/AerodynamicPitchTrajectory';
+import { readFlight } from '../../core/world/psychology/batting/BattingValidation';
+import type { ControlledHeldPitchV1 } from '../../core/sim/pitch/ControlledHeldPitchV1';
+import type { InitialBatEquipmentReference } from './SqliteInitialBatEquipmentStore';
 import { createPlayerObservationCalibration, type PlayerObservationCalibration } from '../../core/sim/perception/PlayerObservationCalibration';
 import { createPlayerDecisionCalibration, type PlayerDecisionCalibration } from '../../core/sim/fielding/PlayerDecisionCalibration';
 import { createPlayerLocomotionCalibration, type PlayerLocomotionCalibration } from '../../core/sim/fielding/PlayerLocomotionCalibration';
@@ -18,16 +22,22 @@ export type SamePaReleaseReference = SamePaReference<'world_player_release_basel
 export type SamePaDispatchBase = Readonly<{ sourceId: string; sourceVersion: string;
   enrollmentReference: SamePaReference<'same_pa_enrollments'>; viewReference: SamePaReference<'reserved_pa_execution_views'>;
   firstPhysicalPitchSourceId: string }>;
-export type AcceptedSamePaFirstPitchAction = SamePaDispatchBase & Readonly<{
-  capability: 'same_pa_first_pitch_action_v1'; variant: 'declared_take_v1'; pitcherPlayerId: string; batterPlayerId: string;
-  nominalPitch: Readonly<{ delivery: Pick<WorkloadBoundPlayerPitchRequest['delivery'],
+export type SamePaNominalTakePitch = Readonly<{ delivery: Pick<WorkloadBoundPlayerPitchRequest['delivery'],
     'matchSeed' | 'moundReference' | 'outingId' | 'readyAtUs' | 'timingIntent' | 'physics'>;
     flight: WorkloadBoundPlayerPitchRequest['flight']; batter: Omit<TakePitchAgainstBatterInput, 'trajectory'> }>;
+export type SamePaNominalObservedPitch = Readonly<{ delivery: SamePaNominalTakePitch['delivery'];
+  flight: Readonly<{durationUs:number}>; batter: Omit<SamePaNominalTakePitch['batter'],'action'> }>;
+type FirstPitchActionBase = SamePaDispatchBase & Readonly<{
+  capability: 'same_pa_first_pitch_action_v1'; pitcherPlayerId: string; batterPlayerId: string;
   timingReference: SamePaTimingReference; releaseReference: SamePaReleaseReference;
   pitchResponseReference: SamePaReference<'world_pitch_fatigue_policies'>; batterModelReference: SamePaReference<'world_player_batting_models'>;
-  geometryReference: Readonly<{ kind: 'action_source_take_geometry_v1' }>;
   occupiedRunnerHoldReferences?: readonly SamePaReference<'world_same_pa_occupied_runner_holds'>[];
 }>;
+export type AcceptedSamePaFirstPitchAction = FirstPitchActionBase & (
+  Readonly<{variant:'declared_take_v1';nominalPitch:SamePaNominalTakePitch;geometryReference:Readonly<{kind:'action_source_take_geometry_v1'}>}>
+  | Readonly<{variant:'observer_decision_v1';nominalPitch:SamePaNominalObservedPitch;
+      geometryReference:Readonly<{kind:'action_source_batting_geometry_v1'}>;actualFlightParameters:AerodynamicPitchTrajectory['parameters']}>
+);
 type ExecutionValues = {
   batter_observation: AcceptedBattingObservationCalibration['values']; batter_decision: AcceptedBattingDecisionModel['values'];
   batter_motor: AcceptedBattingCapability['values']; batter_swing: AcceptedBattingRepertoire['values'];
@@ -61,6 +71,12 @@ type AcceptedSamePaPhysicalPitchV1 = Readonly<{ sourceId: string; sourceVersion:
   rightReference: SamePaReference<'pa_dispatch_v1_rights'>; actionReference: SamePaReference<'pa_dispatch_v1_action_plans'> }>;
 export type AcceptedSamePaPhysicalPitch = AcceptedSamePaPhysicalPitchV1 | (Omit<AcceptedSamePaPhysicalPitchV1, 'capability'> & Readonly<{
   capability: 'same_pa_physical_pitch_v2'; initialPlayReference: SamePaInitialPlayReference }>);
+type AcceptedSamePaObservedPhysicalPitchV1 = Omit<AcceptedSamePaPhysicalPitchV1,'capability'> & Readonly<{
+  capability:'same_pa_observed_physical_pitch_v1';initialPlayReference:SamePaInitialPlayReference;custodyMotion:ControlledHeldPitchV1;
+}>;
+export type AcceptedSamePaObservedPhysicalPitch = AcceptedSamePaObservedPhysicalPitchV1 | (Omit<AcceptedSamePaObservedPhysicalPitchV1,'capability'> & Readonly<{
+  capability:'same_pa_observed_physical_pitch_with_bat_v2';initialBatReference:InitialBatEquipmentReference;
+}>);
 /** A prospective physical Source reference deliberately has no result hash. */
 export type SamePaPhysicalSourceReference = Readonly<{ sourceId: string; sourceVersion: string; sourceHash: string }>;
 export type SamePaDerivedConsumption = Readonly<{ sourceId: string; sourceVersion: string; capability: 'same_pa_consumption_v1';
@@ -70,7 +86,7 @@ export type SamePaDerivedEpisodeAdmission = Omit<SamePaDerivedConsumption, 'capa
 /** Consumer-action operation payloads are deliberately unexposed until each
  * concrete adapter has its exact Core input union. There is no generic bag. */
 export type SamePaDispatchSource = AcceptedSamePaFirstPitchAction | AcceptedSamePaExecutionCalibration | AcceptedSamePaConsumerSet
-  | AcceptedSamePaFirstPitchEpisode | AcceptedSamePaFirstPitchRight | AcceptedSamePaPhysicalPitch | SamePaDerivedConsumption | SamePaDerivedEpisodeAdmission;
+  | AcceptedSamePaFirstPitchEpisode | AcceptedSamePaFirstPitchRight | AcceptedSamePaPhysicalPitch | AcceptedSamePaObservedPhysicalPitch | SamePaDerivedConsumption | SamePaDerivedEpisodeAdmission;
 
 const baseFields = ['sourceId', 'sourceVersion', 'capability', 'enrollmentReference', 'viewReference', 'firstPhysicalPitchSourceId'];
 const fail = (): never => { throw new Error('invalid same-PA dispatch Source'); };
@@ -83,15 +99,24 @@ const baseValid = (s: SamePaDispatchBase, extra: readonly string[]) => fields(s,
   && referenceValid(s.enrollmentReference, 'same_pa_enrollments') && referenceValid(s.viewReference, 'reserved_pa_execution_views') && text(s.firstPhysicalPitchSourceId);
 const actionValid = (s: AcceptedSamePaFirstPitchAction): boolean => {
   if (!baseValid(s, ['variant', 'pitcherPlayerId', 'batterPlayerId', 'nominalPitch', 'timingReference', 'releaseReference',
-    'pitchResponseReference', 'batterModelReference', 'geometryReference', ...('occupiedRunnerHoldReferences' in s ? ['occupiedRunnerHoldReferences'] : [])]) || s.variant !== 'declared_take_v1'
+    'pitchResponseReference', 'batterModelReference', 'geometryReference', ...(s.variant==='observer_decision_v1'?['actualFlightParameters']:[]),
+    ...('occupiedRunnerHoldReferences' in s ? ['occupiedRunnerHoldReferences'] : [])])
     || 'occupiedRunnerHoldReferences' in s && !samePaOccupiedRunnerHoldReferencesValid(s.occupiedRunnerHoldReferences)
     || !text(s.pitcherPlayerId) || !text(s.batterPlayerId) || s.pitcherPlayerId === s.batterPlayerId
     || !timingRef(s.timingReference) || !releaseRef(s.releaseReference) || !referenceValid(s.pitchResponseReference, 'world_pitch_fatigue_policies')
     || !referenceValid(s.batterModelReference, 'world_player_batting_models') || !fields(s.geometryReference, ['kind'])
-    || s.geometryReference.kind !== 'action_source_take_geometry_v1' || !fields(s.nominalPitch, ['delivery', 'flight', 'batter'])) return false;
-  return nominalTakeValid(s.nominalPitch);
+    || !fields(s.nominalPitch, ['delivery', 'flight', 'batter'])) return false;
+  if(s.variant==='declared_take_v1')return s.geometryReference.kind==='action_source_take_geometry_v1'&&nominalTakeValid(s.nominalPitch);
+  if(s.variant!=='observer_decision_v1'||s.geometryReference.kind!=='action_source_batting_geometry_v1'
+    ||!fields(s.nominalPitch.flight,['durationUs'])||!fields(s.nominalPitch.batter,['plateZ','strikeZone','ballRadiusMeters']))return false;
+  const p=s.nominalPitch;
+  if(!nominalPitchValid(p,true))return false;
+  const d=p.delivery;
+  readFlight({start:{tick:0,position:d.moundReference,velocity:d.physics.velocity,spin:d.physics.spin},
+    endTick:p.flight.durationUs,parameters:s.actualFlightParameters},1_000_000,'dispatch.observedFlight');
+  return true;
 };
-const nominalTakeValid = (pitch: AcceptedSamePaFirstPitchAction['nominalPitch']): boolean => {
+const nominalPitchValid = (pitch: SamePaNominalTakePitch|SamePaNominalObservedPitch,observed:boolean): boolean => {
   if (!fields(pitch, ['delivery', 'flight', 'batter'])) return false;
   const { delivery: d, flight: f, batter: b } = pitch;
   if (!fields(d, ['matchSeed', 'moundReference', 'outingId', 'readyAtUs', 'timingIntent', 'physics'])
@@ -99,14 +124,17 @@ const nominalTakeValid = (pitch: AcceptedSamePaFirstPitchAction['nominalPitch'])
     || !fields(d.timingIntent, ['deliveryMode', 'cadenceIntent'])
     || !['NORMAL', 'QUICK'].includes(d.timingIntent.deliveryMode) || !['STANDARD', 'DELIBERATE'].includes(d.timingIntent.cadenceIntent)
     || !fields(d.physics, ['velocity', 'spin']) || !vector(d.physics.velocity) || !vector(d.physics.spin)
-    || !fields(f, ['durationUs', 'acceleration']) || !integer(f.durationUs) || f.durationUs === 0 || !vector(f.acceleration)
-    || !fields(b, ['action', 'plateZ', 'strikeZone', 'ballRadiusMeters']) || !fields(b.action, ['kind']) || b.action.kind !== 'take'
+    || !fields(f, observed?['durationUs']:['durationUs','acceleration']) || !integer(f.durationUs) || f.durationUs === 0
+    || !observed&&(!('acceleration'in f)||!vector(f.acceleration))
+    || !fields(b, observed?['plateZ','strikeZone','ballRadiusMeters']:['action','plateZ','strikeZone','ballRadiusMeters'])
+    || !observed&&(!('action'in b)||!fields(b.action,['kind'])||b.action.kind!=='take')
     || !Number.isFinite(b.plateZ) || !positive(b.ballRadiusMeters) || !fields(b.strikeZone, ['centerX', 'halfWidth', 'lowerY', 'upperY'])) return false;
   const z = b.strikeZone;
   return [z.centerX, z.lowerY, z.upperY].every(Number.isFinite) && positive(z.halfWidth) && z.upperY > z.lowerY;
 };
-export const samePaNominalTakeInput = (raw: unknown): AcceptedSamePaFirstPitchAction['nominalPitch'] => {
-  const pitch = cloneInert(raw) as AcceptedSamePaFirstPitchAction['nominalPitch'];
+const nominalTakeValid = (pitch:SamePaNominalTakePitch):boolean => nominalPitchValid(pitch,false);
+export const samePaNominalTakeInput = (raw: unknown): SamePaNominalTakePitch => {
+  const pitch = cloneInert(raw) as SamePaNominalTakePitch;
   if (!nominalTakeValid(pitch)) throw new Error('invalid explicit same-PA nominal TAKE input'); return freeze(pitch);
 };
 
@@ -163,6 +191,13 @@ export const samePaDispatchSourceInput = (raw: unknown, sourceId?: string): Same
       valid = fields(s, ['sourceId', 'sourceVersion', 'capability', 'rightReference', 'actionReference', 'initialPlayReference'])
         && referenceValid(s.rightReference, 'pa_dispatch_v1_rights') && referenceValid(s.actionReference, 'pa_dispatch_v1_action_plans')
         && referenceValid(s.initialPlayReference, 'pa_initial_ball_v1_plays'); break;
+    case 'same_pa_observed_physical_pitch_v1':case 'same_pa_observed_physical_pitch_with_bat_v2':
+      valid=fields(s,['sourceId','sourceVersion','capability','rightReference','actionReference','initialPlayReference','custodyMotion',...(s.capability==='same_pa_observed_physical_pitch_with_bat_v2'?['initialBatReference']:[])])
+        &&referenceValid(s.rightReference,'pa_dispatch_v1_rights')&&referenceValid(s.actionReference,'pa_dispatch_v1_action_plans')
+        &&referenceValid(s.initialPlayReference,'pa_initial_ball_v1_plays')
+        &&(s.capability==='same_pa_observed_physical_pitch_v1'||referenceValid(s.initialBatReference,'batting_initial_equipment_v1_sources'))
+        &&fields(s.custodyMotion,['version','ticksPerSecond','initialOrientation','held','followThrough'])
+        &&s.custodyMotion.version==='controlled_held_pitch_v1';break;
     case 'same_pa_physical_pitch_v1':
       valid = fields(s, ['sourceId', 'sourceVersion', 'capability', 'rightReference', 'actionReference'])
         && referenceValid(s.rightReference, 'pa_dispatch_v1_rights') && referenceValid(s.actionReference, 'pa_dispatch_v1_action_plans'); break;

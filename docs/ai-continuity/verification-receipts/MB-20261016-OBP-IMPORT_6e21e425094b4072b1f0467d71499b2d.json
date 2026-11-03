@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OBP-IMPORT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/import-openbiomechanics-bats.mjs",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/参考データ/openbiomechanics"
+  ],
+  "observed_at": "2026-10-15T18:03:06.738+00:00",
+  "elapsed_ms": 1500,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OBP-IMPORT_6e21e425094b4072b1f0467d71499b2d.log",
+  "output_sha256": "c00009352c5e3b02f2bcb6888a4bcf48ed3cf348e60eb3c083e76a19fd1feb9b",
+  "receipt_id": "MB-20261016-OBP-IMPORT_6e21e425094b4072b1f0467d71499b2d"
+}

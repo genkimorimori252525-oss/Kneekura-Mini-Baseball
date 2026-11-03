@@ -1,0 +1,14 @@
+{
+  "LICENSE-CODE.md": "425055d90434fc55c0a875b11d6ece7e21c7c9beec08b9085fdefb142d28ea37",
+  "LICENSE-DATA.md": "19b1e9bedd22c36f02cdccd67b7c4dd561e2379f96b540006ad0c6dc9c49cc50",
+  "game.html": "1113fc83ad2fb0dee470dc3152ec9430da650c65098fed503c61e674fbf7e7d1",
+  "game.html.build.json": "287f505ab4e233e355339cefe852cc795fcc29c06b300654807dc076c02e84ae",
+  "game.html.bundle-inputs.json": "01f9d17b56e076c521f5d6bda2f0f00de049d25aa2cce904a4f43bde123ac1aa",
+  "license.txt": "ee9629b3b44a172ba11c7d4c74a31d0ac2b46d7ed09d811ad742f4fd09cb76a6",
+  "live-game-roster-catalog-v3.json": "87b837dd35450f2fce8bbf5b5bfa7bbb16ad7880ff15b6da3d2d13579ceba40e",
+  "live-game-roster-v3.json": "3e46fe67e1c94939d1e919cdb2353313ccfbc7680463ca726331afd983c54255",
+  "maker.html": "48e60a46ae57f8b1b4735cbb69d68569b2164537587ee3e56bf4459d4da5c26e",
+  "maker.html.build.json": "36851b7da8b33ba78bceb57d40a9c2bd4d143535061a514749b35c42ee1bc005",
+  "maker.html.bundle-inputs.json": "a8bb39e8059f9d9c1faa5664ccbd3c3e38e9827890b65923f47af36718d9ffe3",
+  "tested-core-inputs.zip": "c46c6685bb08f5213a783cb2c007eedf8c0a207a4dd0aa9071de0927cc821949"
+}

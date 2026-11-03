@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-PUSH",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "git",
+    "push",
+    "origin",
+    "HEAD:jolly/tbd-lad-native-browser-core-2026-10-14"
+  ],
+  "observed_at": "2026-10-20T13:17:26.156+00:00",
+  "elapsed_ms": 42312,
+  "git_head": "1f2155fd4c7241ca627dca53d288f28478c94654",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-PUSH_d431e195249d4a14a954c146777dea56.log",
+  "output_sha256": "daef8e0d778a2f85949115ce29519a99596ad431b1cbd7a945cb19e29ab99d82",
+  "receipt_id": "MB-20261020-V81-PUSH_d431e195249d4a14a954c146777dea56"
+}

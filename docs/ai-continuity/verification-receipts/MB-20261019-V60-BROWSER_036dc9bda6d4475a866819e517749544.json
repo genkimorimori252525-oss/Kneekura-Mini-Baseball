@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V60-BROWSER",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v60-presentation.mjs",
+    "../../outputs/ばせぼーるlv60_TBD_vs_LAD_視線と名前調整版.html",
+    "../../outputs/カメラワーク調整室_v60.html",
+    "../../outputs/verification-v60-presentation"
+  ],
+  "observed_at": "2026-10-18T18:59:17.413+00:00",
+  "elapsed_ms": 41311,
+  "git_head": "2cf8d9a7ad3f8ba8f981f4067d64be90f6eeb170",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V60-BROWSER_036dc9bda6d4475a866819e517749544.log",
+  "output_sha256": "169f6eafe362defd5ce7706f8f46c1efa50eca2dbaa22c2f7ca69504fc8b2f91",
+  "receipt_id": "MB-20261019-V60-BROWSER_036dc9bda6d4475a866819e517749544"
+}

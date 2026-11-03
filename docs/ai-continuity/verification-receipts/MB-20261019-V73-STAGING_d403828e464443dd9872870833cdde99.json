@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V73-STAGING",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "tools/browser-bridge/check-v73-staging.py"
+  ],
+  "observed_at": "2026-10-19T14:13:55.547+00:00",
+  "elapsed_ms": 3390,
+  "git_head": "2b0146abc0792e9f12b376983e7cf267a30d8a82",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V73-STAGING_d403828e464443dd9872870833cdde99.log",
+  "output_sha256": "13ad42f5e00005ae2463c9a00530e01a4b20837d649c853750f67dc4d934c2ec",
+  "receipt_id": "MB-20261019-V73-STAGING_d403828e464443dd9872870833cdde99"
+}

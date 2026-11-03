@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V51-SUBULP-BRAKE-GREEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFielderAvoidanceV1.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T09:38:54.221+00:00",
+  "elapsed_ms": 906,
+  "git_head": "01834d9e8361b7747083b9fbb7539c93ee662b50",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V51-SUBULP-BRAKE-GREEN_706fa2ba0d064e2e92607e2f737287f6.log",
+  "output_sha256": "93fac264d3454c48e02aa910585c44f2cefaa9fe47b3c184ee84c672479a8afb",
+  "receipt_id": "MB-20261018-V51-SUBULP-BRAKE-GREEN_706fa2ba0d064e2e92607e2f737287f6"
+}

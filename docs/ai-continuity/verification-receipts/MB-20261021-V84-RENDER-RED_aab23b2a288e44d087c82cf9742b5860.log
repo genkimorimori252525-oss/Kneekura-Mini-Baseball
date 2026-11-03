@@ -1,0 +1,20 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ tools/browser-bridge/presentation-quality-v84.test.mjs (0 test)
+ ✓ tools/browser-bridge/presentation-controls-v84.test.mjs (4 tests) 659ms
+   ✓ quality lattice uses integer cell indices, has no repeated-addition drift or depth collisions 409ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tools/browser-bridge/presentation-quality-v84.test.mjs [ tools/browser-bridge/presentation-quality-v84.test.mjs ]
+Error: Failed to load url ./presentation-render-controls-v84.mjs (resolved id: ./presentation-render-controls-v84.mjs) in C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/presentation-quality-v84.test.mjs. Does the file exist?
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:51969:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  4 passed (4)
+   Start at  00:18:10
+   Duration  1.39s (transform 64ms, setup 0ms, collect 48ms, tests 659ms, environment 0ms, prepare 420ms)
+

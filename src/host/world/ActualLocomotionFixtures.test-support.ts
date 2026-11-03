@@ -14,6 +14,7 @@ import { openSqliteActualLocomotionStore, type AcceptedActualLocomotion } from '
 /** Synthetic values only. The real confirmation fence supplies an exact actual boundary
  * with original coverage; no decision is sampled before that fence in this fixture. */
 export const actualLocomotionFixture = (options?: Readonly<{ hold?: boolean; calibration?: ReturnType<typeof playerLocomotionCalibrationFixture>;
+  supportRole?: 'relay' | 'backup' | 'deep_coverage';
   ratings?: { acceleration: number; routeEfficiency: number } }>) => {
   const x = battedWorldFieldExecutionFixture(join(mkdtempSync(join(tmpdir(), 'actual-locomotion-')), 'state.sqlite'), 'candidate', world => {
     const source = world.sources.get(world.source.sourceId)!;
@@ -43,11 +44,13 @@ export const actualLocomotionFixture = (options?: Readonly<{ hold?: boolean; cal
   const planSource = { sourceId: 'locomotion-priorities', sourceVersion: 'synthetic-v1', provenance: 'accepted_at_actual_observation' as const,
     physicalPitchSourceId: observation.source.physicalPitchSourceId, careerId: b.careerId, playerId: 'p2', personLinkSourceId: b.personLinkSourceId,
     gameDay: b.gameDay, fieldingModelSourceId: fielding.source.sourceId, observationSourceId: observation.source.sourceId,
-    priorities: { ballPursuitPriority: 1, baseCoverPriorities: [], relayPriority: 0, backupPriority: 0, deepCoveragePriority: 0, holdPriority: 0 } };
+    priorities: { ballPursuitPriority: options?.supportRole ? 0 : 1, baseCoverPriorities: [], relayPriority: options?.supportRole === 'relay' ? 1 : 0,
+      backupPriority: options?.supportRole === 'backup' ? 1 : 0, deepCoveragePriority: options?.supportRole === 'deep_coverage' ? 1 : 0, holdPriority: 0 } };
   x.f.track(openSqliteActualDefensivePlanStore(x.f.path, { readAcceptedPlan: () => planSource })).accept(planSource.sourceId);
   const decisionSource = { sourceId: 'locomotion-decision', sourceVersion: 'synthetic-v1', physicalPitchSourceId: observation.source.physicalPitchSourceId,
     playerId: 'p2', observationSourceId: observation.source.sourceId, decisionModelSourceId: decisionModel.source.sourceId,
-    planSourceId: planSource.sourceId, previousDecisionSourceId: null };
+    planSourceId: planSource.sourceId, previousDecisionSourceId: null,
+    ...(options?.supportRole ? { supportGeometry: { kind: 'perceived_ball_support_geometry_v1' as const, base: 1 as const } } : {}) };
   const decisions = x.f.track(openSqliteActualDefensiveDecisionStore(x.f.path, { readAcceptedDecision: () => decisionSource }));
   const decision = decisions.accept(decisionSource.sourceId);
   const modelSource = { sourceId: 'actual-locomotion-model', sourceVersion: 'synthetic-v1', capability: 'defender_locomotion_v1' as const,

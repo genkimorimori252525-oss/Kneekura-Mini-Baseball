@@ -1,0 +1,12 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/SamePlateAppearanceDefensiveCandidateSourceV1.test.ts (3 tests) 4ms
+ ✓ src/host/world/DefensiveExecutionCalculation.test.ts (4 tests) 5ms
+ ✓ src/host/world/DefensiveCandidateCalculationV1.test.ts (8 tests) 264ms
+
+ Test Files  3 passed (3)
+      Tests  15 passed (15)
+   Start at  07:22:14
+   Duration  7.71s (transform 4.57s, setup 0ms, collect 20.56s, tests 273ms, environment 0ms, prepare 639ms)
+

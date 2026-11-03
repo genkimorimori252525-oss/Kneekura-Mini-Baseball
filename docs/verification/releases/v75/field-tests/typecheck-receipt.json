@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--project",
+    "outputs\\maker-v75-field-techniques\\tsconfig.json"
+  ],
+  "exitCode": 0,
+  "rawOutput": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\outputs\\maker-v75-field-techniques\\typecheck-output.txt"
+}

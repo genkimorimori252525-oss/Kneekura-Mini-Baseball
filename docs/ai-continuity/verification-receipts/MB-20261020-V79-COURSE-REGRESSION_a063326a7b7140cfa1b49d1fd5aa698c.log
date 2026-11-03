@@ -1,0 +1,32 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LivePitchHostAuthoringV77.test.ts (2 tests) 264ms
+ ✓ src/integration/browser/LivePitchAbilitiesV1.test.ts (11 tests) 1473ms
+ ✓ src/integration/browser/LivePitchTechnicalSkillsV75.test.ts (5 tests) 1695ms
+   ✓ keeps omitted and zero techniques exactly on the legacy prefix, including static bunt geometry and random draws 497ms
+   ✓ improves only bunt errors, obeys the declared motor ceiling and leaves takes and other swings unchanged 582ms
+ ✓ src/integration/browser/LivePitchTechnicalSkillsV77.test.ts (6 tests) 1837ms
+   ✓ keeps off and zero controls byte-exact, including takes and bunt execution 512ms
+   ✓ changes high swing errors and actual bat execution, retaining the physical incoming ball 424ms
+   ✓ changes low swing errors and actual bat execution, retaining the physical incoming ball 418ms
+ ✓ src/integration/browser/LiveTraitRuntimeV77.test.ts (8 tests) 2479ms
+   ✓ v77 independent trait execution > keeps base SI and every public ability unchanged for all independently authored states and scales 2303ms
+ ✓ src/integration/browser/LivePitchExecutionV78.test.ts (6 tests) 27433ms
+   ✓ keeps omitted and fixed spin execution exactly equal to the legacy record 402ms
+   ✓ does not compensate material seam force in the nominal inverse command solve 368ms
+   ✓ selects owned IDs rather than generating an unowned type, and rejects ambiguous explicit classification 2895ms
+   ✓ uses the exact same snapshot and downward spin in Host and pitcher trial 4603ms
+   ✓ executes every classified preset and variant with explicit material physics on both throwing sides 19048ms
+ ✓ src/integration/browser/LiveBaseballMatchV1.test.ts (5 tests) 106661ms
+   ✓ does not pre-generate an initial pitch, and freezes observations independently of later issues 631ms
+   ✓ copies each current analytic runner velocity into its Host actor frame 648ms
+   ✓ plays a mixed physical game through regulation without a replay frontier or old engine result 100637ms
+   ✓ does not derive SI or alter results from presentation names or league labels 4146ms
+   ✓ rejects malformed physical rosters and mutating a frozen result 599ms
+
+ Test Files  7 passed (7)
+      Tests  43 passed (43)
+   Start at  09:12:44
+   Duration  107.74s (transform 937ms, setup 0ms, collect 3.86s, tests 141.84s, environment 1ms, prepare 1.26s)
+

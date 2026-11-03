@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-FULL-HISTORY-V79-BASELINE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-full-history-performance-v81.mjs",
+    "docs/demos/releases/v79/game.html",
+    "docs/verification/releases/v81/full-history-v79-baseline-r2"
+  ],
+  "observed_at": "2026-10-20T12:59:26.895+00:00",
+  "elapsed_ms": 124483,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-FULL-HISTORY-V79-BASELINE_9b8d9657b7f14f07a3614886954ef47e.log",
+  "output_sha256": "7aad7f96134387f9469ebbef0f71d356d1d6babd34a618c37c2edea091b4c52c",
+  "receipt_id": "MB-20261020-V81-FULL-HISTORY-V79-BASELINE_9b8d9657b7f14f07a3614886954ef47e"
+}

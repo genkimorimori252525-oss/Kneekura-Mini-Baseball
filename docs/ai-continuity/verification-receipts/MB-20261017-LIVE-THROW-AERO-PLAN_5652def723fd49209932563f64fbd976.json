@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-THROW-AERO-PLAN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveThrowPlanV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T00:48:35.494+00:00",
+  "elapsed_ms": 1469,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-THROW-AERO-PLAN_5652def723fd49209932563f64fbd976.log",
+  "output_sha256": "9788db9c1776a8b4f4d77691bf90550d8cbaca7872a9f5c387a71ab6ea232c31",
+  "receipt_id": "MB-20261017-LIVE-THROW-AERO-PLAN_5652def723fd49209932563f64fbd976"
+}

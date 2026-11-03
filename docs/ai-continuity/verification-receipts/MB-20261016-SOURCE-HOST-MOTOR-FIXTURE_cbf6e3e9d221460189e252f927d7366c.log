@@ -1,0 +1,39 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/host/world/SamePlateAppearanceSourceMotorFieldV1.test.ts (3 tests | 2 failed) 5806ms
+   × connects complete owned team selections through real rated motor and Source replay, retaining all six roles and ball spin 1052ms
+     → official window input exceeds size limits
+   × replays later free/metadata history and rejects mutated original motors/evidence or returning to integer/old versions 997ms
+     → official window input exceeds size limits
+   ✓ rejects legacy/subset/stale team selections and future first-step or invalid body calibration before any Source movement 3756ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/host/world/SamePlateAppearanceSourceMotorFieldV1.test.ts > connects complete owned team selections through real rated motor and Source replay, retaining all six roles and ball spin
+ FAIL  src/host/world/SamePlateAppearanceSourceMotorFieldV1.test.ts > replays later free/metadata history and rejects mutated original motors/evidence or returning to integer/old versions
+Error: official window input exceeds size limits
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:36:46
+     34|   const visit = (value: unknown, depth: number): unknown => {
+     35|     nodes += 1;
+     36|     if (nodes > 100_000 || depth > 64) throw new Error('official windo…
+       |                                              ^
+     37|     if (value === null || typeof value === 'string' || typeof value ==…
+     38|     if (typeof value === 'number') {
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:62:16
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:62:16
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:62:16
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:62:16
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:62:16
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:62:16
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:62:16
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:62:16
+ ❯ visit src/core/adjudication/OfficialWindowPolicy.ts:62:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  03:33:27
+   Duration  12.12s (transform 3.69s, setup 0ms, collect 5.87s, tests 5.81s, environment 0ms, prepare 132ms)
+

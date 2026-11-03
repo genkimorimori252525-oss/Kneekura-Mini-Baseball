@@ -1,0 +1,30 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/locomotion/LiveLocomotionV84.test.ts (22 tests | 1 failed) 72ms
+   × averaged alternating-support live locomotion V84 > keeps a rounded derived peak above both accepted endpoint speeds 8ms
+     → live locomotion V84: acceleration speeds must be ordered
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/locomotion/LiveLocomotionV84.test.ts > averaged alternating-support live locomotion V84 > keeps a rounded derived peak above both accepted endpoint speeds
+Error: live locomotion V84: acceleration speeds must be ordered
+ ❯ increasingSpeeds src/core/sim/locomotion/LiveLocomotionV84.ts:100:24
+     98| function increasingSpeeds(profile: LiveLocomotionProfileV84, from: num…
+     99|   validateProfile(profile); validateSpeed(profile, from); validateSpee…
+    100|   if (to < from) throw new Error('live locomotion V84: acceleration sp…
+       |                        ^
+    101| }
+    102| const speedChangeDistance = (from: number, to: number, acceleration: n…
+ ❯ liveAccelerationDistanceV84 src/core/sim/locomotion/LiveLocomotionV84.ts:106:3
+ ❯ distanceAtPeak src/core/sim/locomotion/LiveLocomotionV84.ts:143:54
+ ❯ Module.buildLiveSpeedPlanV84 src/core/sim/locomotion/LiveLocomotionV84.ts:163:46
+ ❯ src/core/sim/locomotion/LiveLocomotionV84.test.ts:98:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 21 passed (22)
+   Start at  00:37:09
+   Duration  792ms (transform 102ms, setup 0ms, collect 104ms, tests 72ms, environment 0ms, prepare 197ms)
+

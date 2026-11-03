@@ -1,0 +1,48 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/ball/SourceBattedFieldAcquisitionV1.test.ts (6 tests) 222ms
+ ✓ src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts (13 tests) 677ms
+ ✓ src/host/world/SamePlateAppearanceTeamMotorSelectionV1.test.ts (5 tests) 365ms
+ ✓ src/host/world/SamePlateAppearanceSourceFieldV3.test.ts (6 tests) 1241ms
+   ✓ inserts all five metadata kinds at the exact post-impulse cut without adding a physical horizon 502ms
+ ✓ src/host/world/SamePlateAppearanceActorProducerCompletion.test.ts (14 tests) 1318ms
+ ✓ src/host/world/SamePlateAppearanceLiveWorkCensus.test.ts (20 tests) 1796ms
+   ✓ keeps new defensive metadata from replacing the physical checkpoint or consuming an original decision 469ms
+ ✓ src/core/sim/ball/SourceDefensiveControlV1.test.ts (14 tests) 9549ms
+   ✓ uses each player acceleration and control cadence independently while retaining the same ball 306ms
+   ✓ yields bounded work without renewing decisions and resumes the same control/ball state 4567ms
+   ✓ stops all bodies at the actual fractional ground contact and resumes the original ball through its bounce 3359ms
+ ✓ src/host/world/SamePlateAppearanceSourceIntegerCheckpointV1.test.ts (8 tests) 17255ms
+   ✓ branches from the full original v3 metadata prefix and executes same-tick positive physical time on its original Source 1428ms
+   ✓ routes the dedicated action through the owner calculation without relaxing the ordinary stale-step guard 1244ms
+   ✓ retains the new branch for later metadata/free steps and rejects returning to the old version 3685ms
+   ✓ rejects exact-zero waits, different ticks, marker/result injection, unsupported motor/custody and legacy roots 1446ms
+   ✓ rejects forged prefix refs, metadata, Source side/state, actors and saved checkpoint diagnostics 3150ms
+   ✓ retains an earlier real impulse as a physical boundary, then rederives its private escape before another wait 1807ms
+   ✓ accepts a bounded 50-primitive nine-defender metadata collection while each original record keeps the inert size limit 3452ms
+   ✓ rejects active envelopes/records, exotic prototypes, sparse or excessive histories and oversized individual records 1042ms
+ ✓ src/host/world/SamePlateAppearanceSourceControlV1.test.ts (6 tests) 31193ms
+   ✓ derives nine plans from original models/decisions and executes beyond a single control step 3891ms
+   ✓ replays stored control checkpoints and matches an uninterrupted span without issuing the team again 11618ms
+   ✓ enforces the original observation deadline and rejects old version, subset, changed model and lineage 5603ms
+   ✓ rejects stored plan or reference mutation rather than restoring a caller cursor or plan 5455ms
+   ✓ stops at actual moving-glove contact and keeps finite control coverage without granting custody 3748ms
+   ✓ derives attended/peripheral deadlines from actual sample times and rejects clock mismatches 877ms
+ ✓ src/host/world/SamePlateAppearanceSourceMotorFieldV1.test.ts (5 tests) 31403ms
+   ✓ connects complete owned team selections through real rated motor and Source replay, retaining all six roles and ball spin 4467ms
+   ✓ preserves the real Source glove candidate as a terminal field without granting custody or allowing later free work 4310ms
+   ✓ keeps per-record inert limits and rejects active, exotic, oversized or sparse replay envelopes 4361ms
+   ✓ replays later free/metadata history and rejects mutated original motors/evidence or returning to integer/old versions 12018ms
+   ✓ rejects legacy/subset/stale team selections and future first-step or invalid body calibration before any Source movement 6246ms
+ ✓ src/host/world/SamePlateAppearanceSourceAcquisitionFieldV1.test.ts (4 tests) 73112ms
+   ✓ reads the real terminal motor prefix without a fake future Source and keeps caller replacement state closed 7015ms
+   ✓ dispatches actual candidate through absorption and recorded fence while retaining timeline and Source evidence 18078ms
+   ✓ rederives atomic capture identically and rejects changed candidate refs, clocks, progress and legacy transitions 23735ms
+   ✓ retains a real competing wall as interrupted and never promotes it to possession 24283ms
+
+ Test Files  11 passed (11)
+      Tests  101 passed (101)
+   Start at  05:49:50
+   Duration  81.22s (transform 11.52s, setup 0ms, collect 61.68s, tests 168.13s, environment 2ms, prepare 2.69s)
+

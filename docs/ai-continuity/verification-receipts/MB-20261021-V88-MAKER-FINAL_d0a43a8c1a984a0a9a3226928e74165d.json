@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V88-MAKER-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-maker-release-v88.mjs"
+  ],
+  "observed_at": "2026-10-20T17:47:22.995+00:00",
+  "elapsed_ms": 2750,
+  "git_head": "6a7b3500d315de70a46f70d697aa032b18b37cb1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V88-MAKER-FINAL_d0a43a8c1a984a0a9a3226928e74165d.log",
+  "output_sha256": "13c41c3568ecec171884556d8bf9c99fa9ca4eca40494794b65175ed3de84fb9",
+  "receipt_id": "MB-20261021-V88-MAKER-FINAL_d0a43a8c1a984a0a9a3226928e74165d"
+}

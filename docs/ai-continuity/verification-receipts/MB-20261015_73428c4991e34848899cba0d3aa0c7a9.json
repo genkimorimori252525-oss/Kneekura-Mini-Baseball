@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/BaseballGroundDynamics.test.ts",
+    "src/core/sim/ball/FreeBaseballTrajectory.test.ts",
+    "src/integration/browser/NativeFreeBallObservation.test.ts",
+    "src/integration/browser/NativeAerodynamicReferenceFixture.test.ts",
+    "src/integration/browser/WorkbenchPlayer.test.ts",
+    "src/integration/browser/BattingWorkbench.test.ts",
+    "src/host/world/SamePlateAppearanceDefensiveSupportGeometry.test.ts",
+    "src/host/world/SamePlateAppearancePhysicalFieldActions.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-14T18:42:28.416+00:00",
+  "elapsed_ms": 11125,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015_73428c4991e34848899cba0d3aa0c7a9.log",
+  "output_sha256": "23a271fa2cff1c493fc4eccf84afac313f356e884dfc5b5074562920e56bb70b",
+  "receipt_id": "MB-20261015_73428c4991e34848899cba0d3aa0c7a9"
+}

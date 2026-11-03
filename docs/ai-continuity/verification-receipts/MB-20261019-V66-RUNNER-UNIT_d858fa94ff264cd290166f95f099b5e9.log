@@ -1,0 +1,5 @@
+AssertionError [ERR_ASSERTION]: pitch 1: composed gaze exceeds 2.5 rad/s: 2.500533114316953
+
+1 !== 0
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v66-swing-running.mjs:84:9

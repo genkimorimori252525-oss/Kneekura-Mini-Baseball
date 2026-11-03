@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V61-VISION-MIGRATION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/prepare-v61-vision-roster.mjs"
+  ],
+  "observed_at": "2026-10-18T19:15:19.504+00:00",
+  "elapsed_ms": 94,
+  "git_head": "a384dfdfac341d3180abc7f750c9825bf137289e",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V61-VISION-MIGRATION_f1b58d8aff624f18b3aed59f382b6d36.log",
+  "output_sha256": "255d555bce9d1ceb0105393924c9578800ad22615e8b479ca7e764685d313491",
+  "receipt_id": "MB-20261019-V61-VISION-MIGRATION_f1b58d8aff624f18b3aed59f382b6d36"
+}

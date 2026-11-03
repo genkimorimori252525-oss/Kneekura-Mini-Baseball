@@ -10,7 +10,7 @@ export type ActualLivePlayWriteScope = Readonly<{ gameId: string; playId: number
 export type ActualLivePlayWriteFence = Readonly<{ scope: ActualLivePlayWriteScope }>;
 export const actualLiveAdmissionOwners = ['physical_plate_appearance_actors', 'physical_pitch_progress_actions',
   'batted_ball_flights', 'batted_world_contacts', 'batted_first_fielder_touches', 'batted_contact_responses',
-  'batted_post_response_flights', 'batted_world_continuations', 'batted_world_acquisitions', 'batted_world_motions',
+  'batted_post_response_flights', 'batted_world_continuations', 'batted_world_continuations_v3', 'batted_world_acquisitions', 'batted_world_motions',
   'batted_world_executions', 'batted_world_field_actions', 'batted_world_field_executions', 'actual_field_observations',
   'actual_defensive_plans', 'actual_defensive_decisions', 'actual_locomotion_receipts', 'actual_live_rule_consumptions', 'actual_runner_public_knowledge',
   'actual_first_base_umpire_setups', 'actual_first_base_umpire_observations', 'actual_first_base_umpire_calls',

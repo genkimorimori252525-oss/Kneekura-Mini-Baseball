@@ -1,0 +1,28 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/contact/HeldToMeasuredBatControlV1.test.ts (11 tests | 1 failed) 13ms
+   × certifies local speed bounds without adding extrema attained at different bridge times 4ms
+     → held to measured bat: bridge or measured speed bound 21.683312151025227 exceeds original envelope 20
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/contact/HeldToMeasuredBatControlV1.test.ts > certifies local speed bounds without adding extrema attained at different bridge times
+Error: held to measured bat: bridge or measured speed bound 21.683312151025227 exceeds original envelope 20
+ ❯ assert src/core/sim/contact/HeldToMeasuredBatControlV1.ts:12:66
+     10| }>;
+     11| const fields=(v:unknown,keys:readonly string[])=>!!v&&typeof v==='obje…
+     12| function assert(v:unknown,message:string):asserts v {if(!v)throw new E…
+       |                                                                  ^
+     13| const norm=(v:readonly number[])=>Math.hypot(...v),mix=(a:readonly num…
+     14| const subtract=(a:readonly number[],b:readonly number[])=>a.map((n,i)=…
+ ❯ Module.createHeldToMeasuredBatControlV1 src/core/sim/contact/HeldToMeasuredBatControlV1.ts:71:3
+ ❯ src/core/sim/contact/HeldToMeasuredBatControlV1.test.ts:43:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  21:40:41
+   Duration  601ms (transform 130ms, setup 0ms, collect 177ms, tests 13ms, environment 0ms, prepare 132ms)
+

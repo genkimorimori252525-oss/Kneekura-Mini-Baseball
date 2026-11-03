@@ -1,0 +1,13 @@
+{
+  "pass": true,
+  "stagedFiles": 110,
+  "sourceGitBlobsMatched": 116,
+  "frozenGitBlobsMatched": 4,
+  "userFilesSettingsSecretsLockfilesExcluded": true,
+  "legacyNativeMotorUnchanged": true,
+  "whitespaceChecked": true,
+  "byteSensitiveExclusions": [
+    "Original command logs",
+    "Canonical embedded HTML"
+  ]
+}

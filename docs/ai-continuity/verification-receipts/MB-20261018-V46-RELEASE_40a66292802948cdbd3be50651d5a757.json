@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V46-RELEASE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "tools/browser-bridge/check-v46-snapshot.py"
+  ],
+  "observed_at": "2026-10-18T05:33:59.928+00:00",
+  "elapsed_ms": 266,
+  "git_head": "6a8caf40153d76daba6a5acca34f5db12ca7f615",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V46-RELEASE_40a66292802948cdbd3be50651d5a757.log",
+  "output_sha256": "3c21af69e833794cfa4ad358a463aafd51c264548fdbe53d45fecd73df851b2e",
+  "receipt_id": "MB-20261018-V46-RELEASE_40a66292802948cdbd3be50651d5a757"
+}

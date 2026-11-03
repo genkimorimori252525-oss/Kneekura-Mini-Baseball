@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-LOCAL-BAT-SPEED-REGRESSION-BEFORE",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/contact/HeldToMeasuredBatControlV1.test.ts"
+  ],
+  "observed_at": "2026-10-16T12:40:42.177+00:00",
+  "elapsed_ms": 1000,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-LOCAL-BAT-SPEED-REGRESSION-BEFORE_897890fe5bb842928a2ed75f7ccdf841.log",
+  "output_sha256": "22d9ebccf12800b3a8c18a76bf35f75a1058d548527348032fc5bdfada954d29",
+  "receipt_id": "MB-20261016-LOCAL-BAT-SPEED-REGRESSION-BEFORE_897890fe5bb842928a2ed75f7ccdf841"
+}

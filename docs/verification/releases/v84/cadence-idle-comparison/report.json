@@ -1,0 +1,4037 @@
+{
+  "pass": true,
+  "baseline": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\docs\\demos\\releases\\v83\\game.html",
+  "next": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv84_TBD_vs_LAD_描画と接地移動版.html",
+  "baselineSha256": "de87fdc68cf91cb4a4d2454e9336e67cfbb646b8a6786759c113c1a619ef345a",
+  "nextSha256": "b68c954154e7ce4b3af9f9d493329bc213fb7752789394cd11d74250dba2fb1a",
+  "scope": "One sequential controlled browser run: v83 then v84 quality 1 then v84 quality 1.2, at the same viewport/camera/seed/windows. Windows headless Chrome, 2D acceleration disabled. Saved Core tick counts, whole-scene Canvas submissions and Presentation scene times are distinct measures. No real-device, display scanout or twofold-achieved-FPS claim.",
+  "cases": [
+    {
+      "label": "v83",
+      "configuration": {
+        "sceneMs": 55,
+        "pitchBallMs": 22,
+        "sceneDraws": 143,
+        "pitchBallSamples": 21,
+        "pitchBallPaints": 0,
+        "nonPitchFastPaints": 0,
+        "lastSceneMs": 1758.6999999970194,
+        "lastPitchBallMs": 1758.6999999970194,
+        "effectiveSceneMs": 18.333333333333332,
+        "effectiveFreePitchMs": 7.333333333333333,
+        "ballOnlyPainting": false,
+        "boundaryRedraws": 0
+      },
+      "rows": [
+        {
+          "camera": "mound",
+          "phase": "preparation",
+          "requestedWindowMs": 900,
+          "elapsedMs": 931.5999999940395,
+          "stopDrawMs": 26.5,
+          "wholeSceneRafSubmissions": 32,
+          "submittedFps": 34.349506226067774,
+          "distinctSavedCoreTicks": 1,
+          "distinctPresentationTimes": 32,
+          "ballOnlyRafs": 0,
+          "synchronizedLayers": true,
+          "continuousPitchSamples": 0,
+          "allDrawCallDelta": 34,
+          "rafGapMedianMs": 30.299999999999727,
+          "rafGapP95Ms": 30.59999999999991,
+          "frames": [
+            {
+              "time": 3113.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 207.39999999701968,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3149.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 243.79999999701977,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3173.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 268.19999999701986,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3204,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 298.29999999701977,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3234.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 328.69999999701986,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3264.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 358.9999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3294.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 389.19999999701986,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3319.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 413.3999999970197,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3349.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 443.79999999701977,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3379.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 474.09999999701995,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3410.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 504.3999999970197,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3434.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 528.6999999970199,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3464.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 558.8999999970197,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3488.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 583.09999999702,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3519.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 613.6999999970199,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3543.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 637.6999999970199,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3573.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 667.9999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3604,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 698.2999999970198,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3628.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 722.59999999702,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3658.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 752.7999999970198,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3688.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 783.09999999702,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3719.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 813.3999999970197,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3749.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 843.6999999970199,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3773.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 867.8999999970197,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3803.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 898.1999999970199,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3834.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 928.4999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3864.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 958.8999999970197,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3894.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 989.1999999970199,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3925.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1019.3999999970197,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3949.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1043.6999999970199,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3979.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1074.09999999702,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4010,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1104.2999999970198,
+                "tick": 1000000
+              }
+            }
+          ]
+        },
+        {
+          "camera": "mound",
+          "phase": "freePitch",
+          "requestedWindowMs": 220,
+          "elapsedMs": 266.40000000596046,
+          "stopDrawMs": 28.5,
+          "wholeSceneRafSubmissions": 8,
+          "submittedFps": 30.030030029358134,
+          "distinctSavedCoreTicks": 8,
+          "distinctPresentationTimes": 8,
+          "ballOnlyRafs": 0,
+          "synchronizedLayers": true,
+          "continuousPitchSamples": 9,
+          "allDrawCallDelta": 10,
+          "rafGapMedianMs": 30.300000000000182,
+          "rafGapP95Ms": 36.5,
+          "frames": [
+            {
+              "time": 4240.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1575.09999999702,
+                "tick": 1033000
+              }
+            },
+            {
+              "time": 4276.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1611.59999999702,
+                "tick": 1066000
+              }
+            },
+            {
+              "time": 4307,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1641.7999999970198,
+                "tick": 1099000
+              }
+            },
+            {
+              "time": 4331.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1665.8999999970201,
+                "tick": 1121000
+              }
+            },
+            {
+              "time": 4361.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1696.2999999970198,
+                "tick": 1154000
+              }
+            },
+            {
+              "time": 4397.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1732.59999999702,
+                "tick": 1187000
+              }
+            },
+            {
+              "time": 4428.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1762.8999999970201,
+                "tick": 1220000
+              }
+            },
+            {
+              "time": 4458.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1793.1999999970194,
+                "tick": 1253000
+              }
+            }
+          ]
+        },
+        {
+          "camera": "batter",
+          "phase": "preparation",
+          "requestedWindowMs": 900,
+          "elapsedMs": 907.6000000089407,
+          "stopDrawMs": 3,
+          "wholeSceneRafSubmissions": 49,
+          "submittedFps": 53.9885412070486,
+          "distinctSavedCoreTicks": 1,
+          "distinctPresentationTimes": 49,
+          "ballOnlyRafs": 0,
+          "synchronizedLayers": true,
+          "continuousPitchSamples": 0,
+          "allDrawCallDelta": 51,
+          "rafGapMedianMs": 18.199999999999818,
+          "rafGapP95Ms": 18.400000000000546,
+          "frames": [
+            {
+              "time": 4652.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 205.0000000029804,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4676.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 229.20000000298023,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4694.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 247.40000000298005,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4712.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 265.60000000297987,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4731.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 283.8000000029806,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4749.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 301.90000000298005,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4767.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 320.10000000297987,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4785.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 338.20000000298023,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4803.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 356.5000000029804,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4822,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 374.70000000298023,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4840.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 392.90000000298005,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4858.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 411.10000000297987,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4876.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 429.20000000298023,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4894.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 447.40000000298005,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4913.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 465.8000000029806,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4931,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 483.70000000298023,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4949.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 501.90000000298005,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4967.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 520.1000000029799,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4985.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 538.3000000029806,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5003.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 556.5000000029804,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5021.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 574.6000000029799,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5040.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 592.8000000029806,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5058.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 611.0000000029804,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5076.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 629.2000000029802,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5094.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 647.3000000029806,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5113,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 665.7000000029802,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5131,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 683.7000000029802,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5149.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 701.90000000298,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5167.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 720.1000000029799,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5185.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 738.3000000029806,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5203.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 756.40000000298,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5221.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 774.5000000029804,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5240.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 792.8000000029806,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5258.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 810.90000000298,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5276.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 829.1000000029799,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5294.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 847.3000000029806,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5312.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 865.6000000029799,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5331,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 883.7000000029802,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5349.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 901.8000000029806,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5373.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 926.1000000029799,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5391.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 944.3000000029806,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5409.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 962.40000000298,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5427.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 980.6000000029799,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5446.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 998.8000000029806,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5464.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1017.1000000029799,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5482.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1035.3000000029806,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5500.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1053.40000000298,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5518.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1071.5000000029804,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5537,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1089.7000000029802,
+                "tick": 1000000
+              }
+            }
+          ]
+        },
+        {
+          "camera": "batter",
+          "phase": "freePitch",
+          "requestedWindowMs": 220,
+          "elapsedMs": 240.20000000298023,
+          "stopDrawMs": 32.3999999910593,
+          "wholeSceneRafSubmissions": 11,
+          "submittedFps": 45.79517069052256,
+          "distinctSavedCoreTicks": 9,
+          "distinctPresentationTimes": 11,
+          "ballOnlyRafs": 0,
+          "synchronizedLayers": true,
+          "continuousPitchSamples": 12,
+          "allDrawCallDelta": 13,
+          "rafGapMedianMs": 12.199999999999818,
+          "rafGapP95Ms": 36.400000000000546,
+          "frames": [
+            {
+              "time": 5597.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1564.9999999970196,
+                "tick": 1022000
+              }
+            },
+            {
+              "time": 5609.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1576.9999999970196,
+                "tick": 1033000
+              }
+            },
+            {
+              "time": 5615.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1583.09999999702,
+                "tick": 1033000
+              }
+            },
+            {
+              "time": 5627.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1595.09999999702,
+                "tick": 1055000
+              }
+            },
+            {
+              "time": 5640,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1607.2999999970198,
+                "tick": 1066000
+              }
+            },
+            {
+              "time": 5646,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1613.2999999970198,
+                "tick": 1066000
+              }
+            },
+            {
+              "time": 5658.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1625.4999999970196,
+                "tick": 1077000
+              }
+            },
+            {
+              "time": 5694.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1661.8999999970201,
+                "tick": 1121000
+              }
+            },
+            {
+              "time": 5724.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1692.09999999702,
+                "tick": 1143000
+              }
+            },
+            {
+              "time": 5761.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1728.4999999970196,
+                "tick": 1187000
+              }
+            },
+            {
+              "time": 5791.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1758.6999999970194,
+                "tick": 1209000
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "v84-quality-1",
+      "configuration": {
+        "frequencyScale": 2,
+        "qualityScale": 1,
+        "baseSceneMs": 18.333333333333332,
+        "sceneMs": 9.166666666666666,
+        "pitchMs": 3.6666666666666665,
+        "battedMs": 4.583333333333333,
+        "gridStep": 4,
+        "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+        "rafLimited": true
+      },
+      "rows": [
+        {
+          "camera": "mound",
+          "phase": "preparation",
+          "requestedWindowMs": 900,
+          "elapsedMs": 925.8000000119209,
+          "stopDrawMs": 29.599999994039536,
+          "wholeSceneRafSubmissions": 30,
+          "submittedFps": 32.40440699893466,
+          "distinctSavedCoreTicks": 1,
+          "distinctPresentationTimes": 30,
+          "ballOnlyRafs": 0,
+          "synchronizedLayers": true,
+          "continuousPitchSamples": 0,
+          "allDrawCallDelta": 32,
+          "rafGapMedianMs": 30.300000000000182,
+          "rafGapP95Ms": 36.40000000000009,
+          "frames": [
+            {
+              "time": 3416.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 207.39999999701968,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3446.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 237.59999999701995,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3470.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 262.09999999701995,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3501,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 292.29999999701977,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3537.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 328.69999999701986,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3561.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 352.8999999970197,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3585.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 376.9999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3616.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 407.3999999970197,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3646.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 437.69999999701986,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3676.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 467.9999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3707,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 498.29999999701977,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3737.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 528.4999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3773.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 565.09999999702,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3798,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 589.2999999970198,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3834.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 625.59999999702,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3870.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 661.9999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3900.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 692.1999999970199,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3931.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 722.3999999970197,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3961.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 752.8999999970197,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3985.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 777.09999999702,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4022.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 813.3999999970197,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4052.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 843.6999999970199,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4088.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 880.09999999702,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4113,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 904.2999999970198,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4143.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 934.59999999702,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4173.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 964.9999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4210,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1001.2999999970198,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4240.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1031.4999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4270.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1061.7999999970198,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4300.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1092.09999999702,
+                "tick": 1000000
+              }
+            }
+          ]
+        },
+        {
+          "camera": "mound",
+          "phase": "freePitch",
+          "requestedWindowMs": 220,
+          "elapsedMs": 236.5,
+          "stopDrawMs": 28.200000002980232,
+          "wholeSceneRafSubmissions": 7,
+          "submittedFps": 29.59830866807611,
+          "distinctSavedCoreTicks": 7,
+          "distinctPresentationTimes": 7,
+          "ballOnlyRafs": 0,
+          "synchronizedLayers": true,
+          "continuousPitchSamples": 8,
+          "allDrawCallDelta": 9,
+          "rafGapMedianMs": 30.399999999999636,
+          "rafGapP95Ms": 36.400000000000546,
+          "frames": [
+            {
+              "time": 4561.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1573.30000000596,
+                "tick": 1033000
+              }
+            },
+            {
+              "time": 4597.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1609.7000000059606,
+                "tick": 1066000
+              }
+            },
+            {
+              "time": 4628.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1640.0000000059608,
+                "tick": 1099000
+              }
+            },
+            {
+              "time": 4658.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1670.4000000059605,
+                "tick": 1121000
+              }
+            },
+            {
+              "time": 4688.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1700.7000000059606,
+                "tick": 1154000
+              }
+            },
+            {
+              "time": 4718.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1730.80000000596,
+                "tick": 1187000
+              }
+            },
+            {
+              "time": 4749.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1761.2000000059606,
+                "tick": 1220000
+              }
+            }
+          ]
+        },
+        {
+          "camera": "batter",
+          "phase": "preparation",
+          "requestedWindowMs": 900,
+          "elapsedMs": 907.5,
+          "stopDrawMs": 3.5999999940395355,
+          "wholeSceneRafSubmissions": 95,
+          "submittedFps": 104.6831955922865,
+          "distinctSavedCoreTicks": 1,
+          "distinctPresentationTimes": 95,
+          "ballOnlyRafs": 0,
+          "synchronizedLayers": true,
+          "continuousPitchSamples": 0,
+          "allDrawCallDelta": 97,
+          "rafGapMedianMs": 12.099999999999454,
+          "rafGapP95Ms": 12.200000000000728,
+          "frames": [
+            {
+              "time": 4943.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 206.69999999999982,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4955.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 218.69999999999982,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4967.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 230.89999999999964,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4973.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 236.89999999999964,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4985.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 249.10000000000036,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4991.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 255.10000000000036,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5003.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 267.3000000000002,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5009.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 273.3000000000002,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5021.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 285.39999999999964,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5034.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 297.6999999999998,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5046.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 309.6999999999998,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5058.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 321.8000000000002,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5064.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 327.8000000000002,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5076.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 339.89999999999964,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5082.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 346,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5094.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 358.1999999999998,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5106.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 370.3000000000002,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5112.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 376.3000000000002,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5124.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 388.39999999999964,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5130.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 394.39999999999964,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5143.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 406.60000000000036,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5149.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 412.6999999999998,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5161.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 424.8000000000002,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5173.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 436.89999999999964,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5185.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 449,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5191.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 455.10000000000036,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5203.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 467.1999999999998,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5209.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 473.1999999999998,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5222,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 485.5,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5227.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 491.39999999999964,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5240.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 503.60000000000036,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5246.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 509.6999999999998,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5258.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 521.8000000000002,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5264.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 527.8000000000002,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5276.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 539.8999999999996,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5282.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 546,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5294.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 558.1000000000004,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5306.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 570.3000000000002,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5312.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 576.3000000000002,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5324.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 588.3999999999996,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5331,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 594.5,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5343,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 606.5,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5349.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 612.6999999999998,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5361.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 624.8000000000002,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5367.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 630.8000000000002,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5379.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 643,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5385.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 649,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5397.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 661.1000000000004,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5403.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 667.1999999999998,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5415.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 679.3000000000002,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5428,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 691.5,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5434,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 697.5,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5446.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 709.6000000000004,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5452.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 715.6999999999998,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5464.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 727.8000000000002,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5470.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 734,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5482.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 746,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5494.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 758.1000000000004,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5506.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 770.1999999999998,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5512.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 776.1999999999998,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5525,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 788.5,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5531,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 794.5,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5543.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 806.6000000000004,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5549.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 812.6000000000004,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5561.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 824.8000000000002,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5567.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 830.6999999999998,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5579.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 842.8999999999996,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5585.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 848.8999999999996,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5597.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 861.1000000000004,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5603.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 867.1000000000004,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5615.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 879.1999999999998,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5621.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 885.3000000000002,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5634,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 897.5,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5640,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 903.5,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5652.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 915.6000000000004,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5664.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 927.8000000000002,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5670.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 933.8000000000002,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5682.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 946,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5688.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 951.8999999999996,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5700.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 964.1000000000004,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5706.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 970.3000000000002,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5718.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 982.3999999999996,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5724.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 988.3999999999996,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5737.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1000.6000000000004,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5743.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1006.6000000000004,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5755.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1018.6999999999998,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5761.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1024.6999999999998,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5773.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1036.8000000000002,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5779.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1042.8999999999996,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5791.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1055,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5797.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1061.1000000000004,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5809.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1073.1999999999998,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5815.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1079.1999999999998,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5827.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1091.3999999999996,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5833.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1097.3999999999996,
+                "tick": 1000000
+              }
+            }
+          ]
+        },
+        {
+          "camera": "batter",
+          "phase": "freePitch",
+          "requestedWindowMs": 220,
+          "elapsedMs": 291.09999999403954,
+          "stopDrawMs": 33.20000000298023,
+          "wholeSceneRafSubmissions": 12,
+          "submittedFps": 41.22294744158608,
+          "distinctSavedCoreTicks": 11,
+          "distinctPresentationTimes": 12,
+          "ballOnlyRafs": 0,
+          "synchronizedLayers": true,
+          "continuousPitchSamples": 13,
+          "allDrawCallDelta": 14,
+          "rafGapMedianMs": 12.100000000000364,
+          "rafGapP95Ms": 42.29999999999927,
+          "frames": [
+            {
+              "time": 5894.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1564.0999999940395,
+                "tick": 1022000
+              }
+            },
+            {
+              "time": 5906.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1576.19999999404,
+                "tick": 1033000
+              }
+            },
+            {
+              "time": 5912.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1582.2999999940394,
+                "tick": 1033000
+              }
+            },
+            {
+              "time": 5924.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1594.3999999940397,
+                "tick": 1044000
+              }
+            },
+            {
+              "time": 5930.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1600.4999999940392,
+                "tick": 1055000
+              }
+            },
+            {
+              "time": 5942.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1612.4999999940392,
+                "tick": 1066000
+              }
+            },
+            {
+              "time": 5949.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1618.69999999404,
+                "tick": 1077000
+              }
+            },
+            {
+              "time": 5991.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1660.9999999940392,
+                "tick": 1110000
+              }
+            },
+            {
+              "time": 6027.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1697.4999999940392,
+                "tick": 1154000
+              }
+            },
+            {
+              "time": 6064.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1733.7999999940394,
+                "tick": 1187000
+              }
+            },
+            {
+              "time": 6100.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1770.0999999940395,
+                "tick": 1220000
+              }
+            },
+            {
+              "time": 6137,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1806.5999999940395,
+                "tick": 1264000
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "v84-quality-1.2",
+      "configuration": {
+        "frequencyScale": 2,
+        "qualityScale": 1.2,
+        "baseSceneMs": 18.333333333333332,
+        "sceneMs": 9.166666666666666,
+        "pitchMs": 3.6666666666666665,
+        "battedMs": 4.583333333333333,
+        "gridStep": 3.3333333333333335,
+        "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+        "rafLimited": true
+      },
+      "rows": [
+        {
+          "camera": "mound",
+          "phase": "preparation",
+          "requestedWindowMs": 900,
+          "elapsedMs": 912.0999999940395,
+          "stopDrawMs": 34.1000000089407,
+          "wholeSceneRafSubmissions": 23,
+          "submittedFps": 25.216533275025,
+          "distinctSavedCoreTicks": 1,
+          "distinctPresentationTimes": 23,
+          "ballOnlyRafs": 0,
+          "synchronizedLayers": true,
+          "continuousPitchSamples": 0,
+          "allDrawCallDelta": 25,
+          "rafGapMedianMs": 36.5,
+          "rafGapP95Ms": 42.5,
+          "frames": [
+            {
+              "time": 3540.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 204.89999999701968,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3577,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 241.29999999701977,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3613.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 277.59999999701995,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3649.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 313.8999999970197,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3685.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 350.19999999701986,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3722.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 386.4999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3764.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 428.8999999970197,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3801.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 465.3999999970197,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3843.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 507.79999999701977,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3885.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 550.1999999970199,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3922.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 586.6999999970199,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3964.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 628.8999999970197,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4007.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 671.3999999970197,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4043.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 707.6999999970199,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4085.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 750.09999999702,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4122.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 786.59999999702,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4164.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 828.8999999970201,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4200.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 865.1999999970194,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4243.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 907.59999999702,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4285.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 950.09999999702,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4322.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 986.3999999970201,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4364.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1028.7999999970198,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 4400.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1065.1999999970194,
+                "tick": 1000000
+              }
+            }
+          ]
+        },
+        {
+          "camera": "mound",
+          "phase": "freePitch",
+          "requestedWindowMs": 220,
+          "elapsedMs": 243.70000000298023,
+          "stopDrawMs": 39.79999999701977,
+          "wholeSceneRafSubmissions": 5,
+          "submittedFps": 20.517029133930464,
+          "distinctSavedCoreTicks": 5,
+          "distinctPresentationTimes": 5,
+          "ballOnlyRafs": 0,
+          "synchronizedLayers": true,
+          "continuousPitchSamples": 6,
+          "allDrawCallDelta": 7,
+          "rafGapMedianMs": 42.5,
+          "rafGapP95Ms": 48.5,
+          "frames": [
+            {
+              "time": 4734.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1580.0999999910591,
+                "tick": 1033000
+              }
+            },
+            {
+              "time": 4776.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1622.4999999910597,
+                "tick": 1077000
+              }
+            },
+            {
+              "time": 4819.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1664.9999999910597,
+                "tick": 1121000
+              }
+            },
+            {
+              "time": 4861.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1707.299999991059,
+                "tick": 1165000
+              }
+            },
+            {
+              "time": 4909.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1755.799999991059,
+                "tick": 1209000
+              }
+            }
+          ]
+        },
+        {
+          "camera": "batter",
+          "phase": "preparation",
+          "requestedWindowMs": 900,
+          "elapsedMs": 908.5,
+          "stopDrawMs": 5.9000000059604645,
+          "wholeSceneRafSubmissions": 92,
+          "submittedFps": 101.26582278481013,
+          "distinctSavedCoreTicks": 1,
+          "distinctPresentationTimes": 92,
+          "ballOnlyRafs": 0,
+          "synchronizedLayers": true,
+          "continuousPitchSamples": 0,
+          "allDrawCallDelta": 94,
+          "rafGapMedianMs": 12.099999999999454,
+          "rafGapP95Ms": 12.200000000000728,
+          "frames": [
+            {
+              "time": 5200.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 206.09999999701995,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5212.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 218.1999999970194,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5225,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 230.29999999701977,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5231.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 236.39999999702013,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5243.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 248.4999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5255.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 260.59999999701995,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5267.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 272.6999999970194,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5279.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 284.89999999702013,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5285.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 290.9999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5297.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 302.9999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5309.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 315.09999999701995,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5315.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 321.1999999970194,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5328.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 333.39999999702013,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5340.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 345.4999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5352.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 357.59999999701995,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5358.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 363.6999999970194,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5370.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 375.79999999701977,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5382.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 387.89999999702013,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5388.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 393.89999999702013,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5400.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 406.09999999701995,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5412.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 418.1999999970194,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5425,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 430.29999999701977,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5431.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 436.39999999702013,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5443.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 448.4999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5455.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 460.59999999701995,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5461.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 466.6999999970194,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5473.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 478.79999999701977,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5479.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 484.79999999701977,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5491.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 497.09999999701995,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5497.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 502.9999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5509.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 515.09999999702,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5522,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 527.2999999970198,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5534.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 539.3999999970201,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5540.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 545.3999999970201,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5552.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 557.4999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5558.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 563.6999999970194,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5570.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 575.6999999970194,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5582.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 587.8999999970201,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5594.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 599.9999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5600.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 605.9999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5612.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 618.1999999970194,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5618.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 624.1999999970194,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5631,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 636.2999999970198,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5643.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 648.4999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5655.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 660.59999999702,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5661.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 666.6999999970194,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5673.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 678.6999999970194,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5679.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 684.7999999970198,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5691.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 696.8999999970201,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5697.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 702.8999999970201,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5709.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 715.09999999702,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5716,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 721.2999999970198,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5728,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 733.2999999970198,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5734.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 739.3999999970201,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5746.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 751.3999999970201,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5752.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 757.59999999702,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5764.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 769.59999999702,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5770.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 775.59999999702,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5782.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 787.8999999970201,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5788.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 793.8999999970201,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5800.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 805.8999999970201,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5806.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 811.9999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5818.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 824.1999999970194,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5825,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 830.2999999970198,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5837,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 842.2999999970198,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5843.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 848.3999999970201,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5855.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 860.4999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5861.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 866.6999999970194,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5873.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 878.6999999970194,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5879.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 884.7999999970198,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5891.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 896.8999999970201,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5897.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 902.8999999970201,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5909.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 915.09999999702,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5921.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 927.1999999970194,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5927.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 933.1999999970194,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5940.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 945.3999999970201,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5946.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 951.3999999970201,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5958.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 963.4999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5970.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 975.59999999702,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5976.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 981.6999999970194,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5988.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 993.9999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 5994.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 999.8999999970201,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 6006.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1011.9999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 6018.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1024.1999999970194,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 6031,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1036.2999999970198,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 6037.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1042.3999999970201,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 6049.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1054.4999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 6055.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1060.4999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 6067.3,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1072.59999999702,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 6073.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1078.7999999970198,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 6085.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1090.8999999970201,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 6091.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1096.8999999970201,
+                "tick": 1000000
+              }
+            }
+          ]
+        },
+        {
+          "camera": "batter",
+          "phase": "freePitch",
+          "requestedWindowMs": 220,
+          "elapsedMs": 243.79999999701977,
+          "stopDrawMs": 38.79999999701977,
+          "wholeSceneRafSubmissions": 9,
+          "submittedFps": 36.91550451234625,
+          "distinctSavedCoreTicks": 9,
+          "distinctPresentationTimes": 9,
+          "ballOnlyRafs": 0,
+          "synchronizedLayers": true,
+          "continuousPitchSamples": 10,
+          "allDrawCallDelta": 11,
+          "rafGapMedianMs": 12.200000000000728,
+          "rafGapP95Ms": 48.400000000000546,
+          "frames": [
+            {
+              "time": 6158.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1566.4999999970196,
+                "tick": 1022000
+              }
+            },
+            {
+              "time": 6170.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1578.6999999970194,
+                "tick": 1033000
+              }
+            },
+            {
+              "time": 6182.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1590.6999999970194,
+                "tick": 1044000
+              }
+            },
+            {
+              "time": 6194.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1602.8999999970201,
+                "tick": 1055000
+              }
+            },
+            {
+              "time": 6200.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1608.9999999970196,
+                "tick": 1066000
+              }
+            },
+            {
+              "time": 6212.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1621.09999999702,
+                "tick": 1077000
+              }
+            },
+            {
+              "time": 6261.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1669.4999999970196,
+                "tick": 1121000
+              }
+            },
+            {
+              "time": 6303.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1711.9999999970196,
+                "tick": 1165000
+              }
+            },
+            {
+              "time": 6352.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1760.3999999970201,
+                "tick": 1220000
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "faults": [
+    {
+      "label": "v83",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "v84-quality-1",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "v84-quality-1.2",
+      "errors": [],
+      "external": []
+    }
+  ],
+  "browserVersion": "155.0.8059.85"
+}

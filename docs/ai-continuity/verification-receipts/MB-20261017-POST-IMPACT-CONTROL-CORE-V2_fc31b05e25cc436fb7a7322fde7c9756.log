@@ -1,0 +1,10 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/contact/PostImpactBatBodyControlV1.test.ts (4 tests) 116ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  00:35:15
+   Duration  675ms (transform 241ms, setup 0ms, collect 353ms, tests 116ms, environment 0ms, prepare 69ms)
+

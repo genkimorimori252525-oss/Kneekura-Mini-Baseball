@@ -1,0 +1,25 @@
+{
+  "error": null,
+  "errorDetails": null,
+  "finished": true,
+  "match": {
+    "ruleProfileId": "npb-2026",
+    "inning": 9,
+    "half": "top",
+    "outs": 3,
+    "balls": 0,
+    "strikes": 0,
+    "bases": {
+      "first": null,
+      "second": null,
+      "third": null
+    },
+    "score": {
+      "away": 6,
+      "home": 18
+    },
+    "playId": 95
+  },
+  "pitches": 251,
+  "fallback": false
+}

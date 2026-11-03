@@ -1,0 +1,38 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/fielding/LiveFieldArrivalV84.test.ts (0 test)
+ ❯ src/core/sim/fielding/LiveFielderAvoidanceV1.test.ts (24 tests | 1 failed) 60ms
+   × accepts live planting strength independently of propulsion and retains continuous stopping reserve 7ms
+     → live fielder avoidance: preferred motor violates speed, acceleration or stopping constraints
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldArrivalV84.test.ts [ src/core/sim/fielding/LiveFieldArrivalV84.test.ts ]
+Error: Failed to load url ./LiveFieldArrivalV84 (resolved id: ./LiveFieldArrivalV84) in C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/src/core/sim/fielding/LiveFieldArrivalV84.test.ts. Does the file exist?
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:51969:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFielderAvoidanceV1.test.ts > accepts live planting strength independently of propulsion and retains continuous stopping reserve
+Error: live fielder avoidance: preferred motor violates speed, acceleration or stopping constraints
+ ❯ assert src/core/sim/fielding/LiveFielderAvoidanceV1.ts:31:25
+     29| const policy = LIVE_FIELDER_AVOIDANCE_POLICY_V1;
+     30| function assert(condition: unknown, message: string): asserts conditio…
+     31|   if (!condition) throw new Error('live fielder avoidance: ' + message…
+       |                         ^
+     32| }
+     33| const motionKey = (m: LiveFielderAvoidanceMotionV1) => [m.acceleration…
+ ❯ Module.coordinateLiveFielderMotionV1 src/core/sim/fielding/LiveFielderAvoidanceV1.ts:180:5
+ ❯ coordinate src/core/sim/fielding/LiveFielderAvoidanceV1.test.ts:13:3
+ ❯ src/core/sim/fielding/LiveFielderAvoidanceV1.test.ts:18:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  2 failed (2)
+      Tests  1 failed | 23 passed (24)
+   Start at  00:19:16
+   Duration  833ms (transform 197ms, setup 0ms, collect 152ms, tests 60ms, environment 0ms, prepare 391ms)
+

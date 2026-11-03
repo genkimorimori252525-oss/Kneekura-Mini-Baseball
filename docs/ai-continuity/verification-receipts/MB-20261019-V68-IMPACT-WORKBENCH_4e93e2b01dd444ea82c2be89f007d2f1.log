@@ -1,0 +1,13 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/ReferenceBattingWorkbench.test.ts (6 tests) 2505ms
+   ✓ uses the same reference state for the visible bat, actual rigid contact, and subsequent Aero/ground ball 700ms
+   ✓ keeps league labels outside actual impulse and makes unmodelled body/recoil explicit 677ms
+   ✓ shares one adjusted reference between optional maker settings, collision, and every visible bat sample 833ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  19:40:06
+   Duration  3.23s (transform 207ms, setup 0ms, collect 291ms, tests 2.50s, environment 0ms, prepare 133ms)
+

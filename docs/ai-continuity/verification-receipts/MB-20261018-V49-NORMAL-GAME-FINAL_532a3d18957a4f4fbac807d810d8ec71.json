@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V49-NORMAL-GAME-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v49-game.mjs",
+    "../../outputs/ばせぼーるlv49_TBD_vs_LAD_守備責任と走塁裁定修正版.html",
+    "../../outputs/verification-v49-game-final"
+  ],
+  "observed_at": "2026-10-18T08:32:06.132+00:00",
+  "elapsed_ms": 101406,
+  "git_head": "d54aa62aec6ce643f216dbaedfbaba2f36b31e3b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V49-NORMAL-GAME-FINAL_532a3d18957a4f4fbac807d810d8ec71.log",
+  "output_sha256": "1484df935066ad2102f24953cb6cf5852a7563f4368e68ff677aa676b2438067",
+  "receipt_id": "MB-20261018-V49-NORMAL-GAME-FINAL_532a3d18957a4f4fbac807d810d8ec71"
+}

@@ -1,3 +1,5 @@
+import { assertDeepFrozenInertPhysicsV98 } from './ImmutablePhysicsParametersV98';
+
 export type BaseballAerodynamicSpinKnot = Readonly<{
   spinFactor: number;
   dragCoefficientAtReferenceRe: number;
@@ -20,6 +22,30 @@ export type BaseballAerodynamicCoefficientProfile = Readonly<{
   reynoldsCorrectionFullThroughSpinFactor: number;
   reynoldsCorrectionZeroAtSpinFactor: number;
 }>;
+
+type CompiledCoefficientProfileV98 = Readonly<{
+  spinXs: readonly number[];
+  dragYs: readonly number[];
+  liftYs: readonly number[];
+  reynoldsXs: readonly number[];
+  reynoldsYs: readonly number[];
+}>;
+const ownedCoefficientProfilesV98 = new WeakMap<BaseballAerodynamicCoefficientProfile, CompiledCoefficientProfileV98>();
+
+/** Internal constructor seam; not a raw/public-input validation shortcut. Only
+ * clone-owned, validated and deeply frozen inert profiles may be registered. */
+export function prepareOwnedBaseballCoefficientProfileV98(profile: BaseballAerodynamicCoefficientProfile): void {
+  if (ownedCoefficientProfilesV98.has(profile)) return;
+  assertDeepFrozenInertPhysicsV98(profile);
+  validateBaseballAerodynamicCoefficientProfile(profile);
+  ownedCoefficientProfilesV98.set(profile, {
+    spinXs: Object.freeze(profile.spinKnots.map(knot => knot.spinFactor)),
+    dragYs: Object.freeze(profile.spinKnots.map(knot => knot.dragCoefficientAtReferenceRe)),
+    liftYs: Object.freeze(profile.spinKnots.map(knot => knot.liftCoefficient)),
+    reynoldsXs: Object.freeze(profile.reynoldsKnots.map(knot => knot.reynoldsNumber)),
+    reynoldsYs: Object.freeze(profile.reynoldsKnots.map(knot => knot.dragCorrectionFactorAtLowSpin)),
+  });
+}
 
 const lerp = (
   a: number,
@@ -49,6 +75,7 @@ const validateAscending = (
 export const validateBaseballAerodynamicCoefficientProfile = (
   profile: BaseballAerodynamicCoefficientProfile,
 ): void => {
+  if (ownedCoefficientProfilesV98.has(profile)) return;
   if (
     profile.profileId.length === 0
     || profile.version.length === 0
@@ -207,6 +234,27 @@ export const resolveBaseballAerodynamicCoefficients = (
     );
   }
 
+  const compiled = ownedCoefficientProfilesV98.get(profile);
+  if(compiled){
+    // Both coefficients use the same immutable spin grid. Locate that exact
+    // interval and divide once; retain the original lerp arithmetic/order.
+    const xs=compiled.spinXs,drag=compiled.dragYs,lift=compiled.liftYs,last=xs.length-1;
+    let baseDrag:number,liftCoefficient:number;
+    if(spinFactor<=xs[0]!){baseDrag=drag[0]!;liftCoefficient=lift[0]!;}
+    else if(spinFactor>=xs[last]!){baseDrag=drag[last]!;liftCoefficient=lift[last]!;}
+    else{
+      let i=1;while(i<xs.length&&spinFactor>xs[i]!)i++;
+      const t=(spinFactor-xs[i-1]!)/(xs[i]!-xs[i-1]!);
+      baseDrag=lerp(drag[i-1]!,drag[i]!,t);liftCoefficient=lerp(lift[i-1]!,lift[i]!,t);
+    }
+    const full=profile.reynoldsCorrectionFullThroughSpinFactor,zero=profile.reynoldsCorrectionZeroAtSpinFactor,
+      blend=spinFactor<=full?1:spinFactor>=zero?0:(zero-spinFactor)/(zero-full),
+      // A validated finite correction multiplied by zero contributes exactly
+      // zero. Keep dynamic input validation above and the raw profile path
+      // below; no tolerance bucket or new coefficient is introduced.
+      correction=blend===0?1:interpolate(reynoldsNumber,compiled.reynoldsXs,compiled.reynoldsYs);
+    return{dragCoefficient:baseDrag*(1+blend*(correction-1)),liftCoefficient:spinFactor<=0?0:liftCoefficient};
+  }
   const spinXs = profile.spinKnots.map(
     (knot) => knot.spinFactor,
   );

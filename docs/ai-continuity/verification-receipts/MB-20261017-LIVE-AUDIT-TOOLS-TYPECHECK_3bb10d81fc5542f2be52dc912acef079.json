@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-AUDIT-TOOLS-TYPECHECK",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "bundler",
+    "--strict",
+    "--noUnusedLocals",
+    "--noUnusedParameters",
+    "--skipLibCheck",
+    "--types",
+    "node,vitest/globals",
+    "tools/verification/live-match-audit.ts",
+    "tools/verification/verify-live-match-recordings.ts"
+  ],
+  "observed_at": "2026-10-17T00:33:46.331+00:00",
+  "elapsed_ms": 1577,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-AUDIT-TOOLS-TYPECHECK_3bb10d81fc5542f2be52dc912acef079.log",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "receipt_id": "MB-20261017-LIVE-AUDIT-TOOLS-TYPECHECK_3bb10d81fc5542f2be52dc912acef079"
+}

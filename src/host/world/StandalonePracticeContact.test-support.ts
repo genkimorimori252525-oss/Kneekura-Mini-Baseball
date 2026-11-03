@@ -1,5 +1,5 @@
 import { expect } from 'vitest';
-import { practiceFixture } from './PitchPracticeAttempt.test-support';
+import { practiceFixture, type PracticeFixtureHooks } from './PitchPracticeAttempt.test-support';
 import { openSqlitePlayerBodyCapabilityMaterializationStore } from './SqlitePlayerBodyCapabilityMaterializationStore';
 import { openSqlitePlayerBattingModelStore } from './SqlitePlayerBattingModelStore';
 import type { AcceptedBodySource, AcceptedPoseSource, AcceptedReachSource, BodyMaterializationRequest, BodySourceRef } from './PlayerBodyCapabilityMaterialization';
@@ -15,8 +15,8 @@ import { openSqlitePlayerReleaseGeometryStore } from './SqlitePlayerReleaseGeome
 import { openSqlitePlayerWorkloadRecoveryStore } from './SqlitePlayerWorkloadRecoveryStore';
 
 const ref = (source: BodySourceRef): BodySourceRef => ({ sourceId: source.sourceId, sourceVersion: source.sourceVersion });
-export const contactFixture = async (cleanup: (() => void)[]) => {
-  const f = await practiceFixture(cleanup, { additionalPlayerIds: ['feeder'] });
+export const contactFixture = async (cleanup: (() => void)[], options: Pick<PracticeFixtureHooks, 'managerBeliefCandidates'> = {}) => {
+  const f = await practiceFixture(cleanup, { additionalPlayerIds: ['feeder'], ...options });
   const person = f.sources.personLinks.readLink('intake-p1')!;
   const scope = { careerId: person.careerId, playerId: person.playerId, personId: person.personId, personLinkSourceId: person.sourceId };
   const common = { ...scope, acceptedAtDay: 12, sourceVersion: 'explicit-test-v1' };

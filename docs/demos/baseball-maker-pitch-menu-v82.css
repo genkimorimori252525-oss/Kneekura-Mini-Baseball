@@ -1,0 +1,11 @@
+/* Direction browsing is local to the existing pitcher controls. */
+#pitcher-owned-heading-v80{margin:14px 0 8px;font-size:14px;color:#244f34}#pitcher-owned-heading-v80 span{font-size:12px;font-weight:400;color:#52685a}
+.pitcher-menu-v80{margin:18px 0 12px;border-top:1px solid #d1e0d6;padding-top:14px}.pitcher-menu-v80 h4{font-size:14px;color:#244f34;margin:0 0 8px}
+.pitcher-direction-tabs-v80{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0}.pitcher-direction-tabs-v80 button{flex:1 1 44%;min-height:38px;padding:6px;font-size:12px;white-space:normal;line-height:1.4}
+.pitcher-direction-tabs-v80 button[aria-selected=true]{color:#164b2d;background:#e3f2e8;border:2px solid #286644;font-weight:700}.pitcher-direction-tabs-v80 button:focus-visible{outline:3px solid #d7ae3a;outline-offset:2px}
+.pitcher-candidate-list-v80{display:grid;grid-template-columns:1fr;gap:7px;max-height:390px;overflow-y:auto;overscroll-behavior:contain;padding:2px}
+.pitcher-candidate-v80{border:1px solid #cfdfd5;border-radius:8px;background:#f9fcfa;grid-template-columns:36px minmax(0,1fr);gap:5px;padding:8px}.pitcher-candidate-v80 svg{width:32px;height:32px}
+.pitcher-candidate-v80 strong{font-size:13px}.pitcher-candidate-v80>button{grid-column:1/-1;justify-self:end;min-height:34px;padding:4px 12px;font-size:12px;line-height:1.4}
+#pitcher-menu-status-v80{overflow-wrap:anywhere;white-space:pre-line}
+.pitcher-owned-actions-v82{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}.pitcher-owned-actions-v82>p{flex-basis:100%;margin:0;overflow-wrap:anywhere;line-height:1.5}.pitcher-owned-actions-v82>button{flex:1 1 130px;min-height:40px;padding:7px 9px;font-size:12px;white-space:normal;line-height:1.4}.pitcher-owned-actions-v82>button:focus-visible{outline:3px solid #d7ae3a;outline-offset:2px}.pitcher-owned-actions-v82>button:disabled{opacity:.55;cursor:default}#pitcher-remove-v82{color:#8b302d;border-color:#b47b77}#pitcher-selected-label-v82{font-weight:700;color:#244f34}
+@media(max-width:650px){.pitcher-candidate-list-v80{grid-template-columns:repeat(2,minmax(0,1fr));max-height:420px}.pitcher-direction-tabs-v80 button{flex-basis:27%;min-height:42px}.pitcher-candidate-v80{grid-template-columns:30px minmax(0,1fr);min-width:0}.pitcher-candidate-v80 strong{font-size:12px}}

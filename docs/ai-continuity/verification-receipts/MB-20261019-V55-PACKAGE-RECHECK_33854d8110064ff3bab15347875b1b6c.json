@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V55-PACKAGE-RECHECK",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "docs/verification/releases/v55/repair-checker-archive.py"
+  ],
+  "observed_at": "2026-10-18T16:50:58.230+00:00",
+  "elapsed_ms": 343,
+  "git_head": "d75f45df3b5f015893f9ad9a95edb2abbcfb282e",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V55-PACKAGE-RECHECK_33854d8110064ff3bab15347875b1b6c.log",
+  "output_sha256": "7049a7f9459f78030526d5439c29a8589a1f3858e956d2be1f46ec411190f401",
+  "receipt_id": "MB-20261019-V55-PACKAGE-RECHECK_33854d8110064ff3bab15347875b1b6c"
+}
