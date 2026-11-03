@@ -92,7 +92,8 @@ def fit(abil_path, pattern, table_path, out_path):
         pred = [sum(c * v for c, v in zip(coef[stat], tt)) for tt in t]
         resid = [(rows[n][1][stat] - pred[n]) for n in range(len(t))]
         # Residual against what pure sampling noise allows, so a surface that fits as well as chance shows about 1.
-        noise = [max(1e-6, rows[n][1][stat] * (1 - rows[n][1][stat]) / rows[n][1]['pa']) for n in range(len(t))] if stat != 'iso' else [max(1e-6, .25 / rows[n][1]['pa']) for n in range(len(t))]
+        # Sampling variance from the fitted rate, so a hitter with no walks in a short sample is not taken as exact.
+        noise = [max(1e-6, min(max(pred[n], .002), .998) * (1 - min(max(pred[n], .002), .998)) / rows[n][1]['pa']) for n in range(len(t))] if stat != 'iso' else [max(1e-6, .25 / rows[n][1]['pa']) for n in range(len(t))]
         print(stat, 'batters', len(rows), 'RMS z', round(math.sqrt(sum(r * r / v for r, v in zip(resid, noise)) / len(resid)), 2))
     json.dump({'keys': KEYS, 'mean': mean, 'sd': sd, 'coef': coef}, open(out_path, 'w'), indent=1)
 
@@ -108,6 +109,9 @@ def invert(surface_path, targets_path, out_path):
     targets = json.load(open(targets_path))
     lo = [m - 2 * s for m, s in zip(surface['mean'], surface['sd'])]
     hi = [m + 2 * s for m, s in zip(surface['mean'], surface['sd'])]
+    # Vision is the Core's absolute 1-100 value; the group abilities have no upper cap but stay inside the fitted range.
+    if 'vision' in surface['keys']:
+        i = surface['keys'].index('vision'); lo[i], hi[i] = max(1, lo[i]), min(100, hi[i])
     out = {}
     for pid, t in targets.items():
         # Regress toward the league mean by plate appearances, then fit by coordinate search.
