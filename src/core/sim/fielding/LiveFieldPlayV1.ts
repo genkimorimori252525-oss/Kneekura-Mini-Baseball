@@ -36,7 +36,7 @@ import { predictLiveDefensiveOpportunityV1, LIVE_DEFENSIVE_OPPORTUNITY_POLICY_V1
   type LiveDefensiveOpportunityV1 } from './LiveDefensiveOpportunityV1';
 import { resolveGroundedActorContactResponseV1 } from './GroundedActorContactResponseV1';
 import { planLiveThrowV1 } from './LiveThrowPlanV1';
-import { LIVE_RUNNER_THROW_READ_CALIBRATION_V1,validateLiveRunnerThrowReadPolicyV1,type LiveRunnerThrowReadPolicyV1,LIVE_RUNNER_TURN_CALIBRATION_V1,validateLiveRunnerTurnPolicyV1,type LiveRunnerTurnPolicyV1,LIVE_FIELD_COVER_CALIBRATION_V1,validateLiveFieldCoverPolicyV1,type LiveFieldCoverPolicyV1,LIVE_FIELD_RUN_VALUE_CALIBRATION_V1,validateLiveFieldRunValuePolicyV1,type LiveFieldRunValuePolicyV1,validateLiveFieldKinematicsPolicyV1,type LiveFieldKinematicsPolicyV1,LIVE_LOCOMOTION_START_CALIBRATION_V1,validateLiveLocomotionStartPolicyV1,type LiveLocomotionStartPolicyV1,validateLiveOutfieldBreakPolicyV1,type LiveOutfieldBreakPolicyV1,LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
+import { LIVE_RUNNER_THROW_READ_CALIBRATION_V1,validateLiveRunnerThrowReadPolicyV1,type LiveRunnerThrowReadPolicyV1,LIVE_RUNNER_TURN_CALIBRATION_V1,validateLiveRunnerTurnPolicyV1,type LiveRunnerTurnPolicyV1,LIVE_FIELD_COVER_CALIBRATION_V1,validateLiveFieldCoverPolicyV1,type LiveFieldCoverPolicyV1,LIVE_FIELD_RUN_VALUE_CALIBRATION_V1,validateLiveFieldRunValuePolicyV1,type LiveFieldRunValuePolicyV1,validateLiveFieldKinematicsPolicyV1,type LiveFieldKinematicsPolicyV1,LIVE_LOCOMOTION_START_CALIBRATION_V1,validateLiveLocomotionStartPolicyV1,type LiveLocomotionStartPolicyV1,validateLiveOutfieldBreakPolicyV1,type LiveOutfieldBreakPolicyV1,validateLiveForcedRunPolicyV1,type LiveForcedRunPolicyV1,LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
 import { decideLiveCloseThrowV1,liveCloseThrowToleranceV1,LIVE_CLOSE_THROW_CALIBRATION_V1,validateLiveFieldThrowPolicyV1,type LiveFieldThrowPolicyV1 } from './LiveCloseThrowV1';
 import { planLiveThrowActionV103,LIVE_THROW_EFFORT_POLICY_V103 } from './LiveThrowActionV103';
 import { liveFielderTurnSpeedV110 } from './LiveFielderBodyGeometryV105';
@@ -123,6 +123,8 @@ export type LiveFieldPlayInputV1 = Readonly<{ ball: BallWorldMoment; physics: Ae
   locomotionStartPolicyV1?: LiveLocomotionStartPolicyV1;
   /** The outfield break refitted to outfielders' own legs; omission keeps fieldKinematicsPolicyV1's. Needs it. */
   outfieldBreakPolicyV1?: LiveOutfieldBreakPolicyV1;
+  /** A forced runner, the batter first, does not wait for a forced man ahead to leave the bag; omission keeps every runner waiting. */
+  forcedRunPolicyV1?: LiveForcedRunPolicyV1;
   /** Opt-in runner tactics, authored and UNMEASURED; omitted keeps legacy decisions. Enables: two-out go-on-contact held for the
    * whole contact leg, line-drive freeze under two outs, halfway on a shallow catchable fly. `context` also lets risk follow outs,
    * inning and score (facts a runner knows). */
@@ -318,6 +320,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   const fieldThrowPolicyV1=input.fieldThrowPolicyV1===undefined?undefined:validateLiveFieldThrowPolicyV1(input.fieldThrowPolicyV1);
   const runnerThrowReadV1=input.runnerThrowReadPolicyV1===undefined?undefined:validateLiveRunnerThrowReadPolicyV1(input.runnerThrowReadPolicyV1);
   const runnerTurnV1=input.runnerTurnPolicyV1===undefined?undefined:validateLiveRunnerTurnPolicyV1(input.runnerTurnPolicyV1);
+  const forcedRunV1=input.forcedRunPolicyV1===undefined?undefined:validateLiveForcedRunPolicyV1(input.forcedRunPolicyV1);
   const fieldCoverV1=input.fieldCoverPolicyV1===undefined?undefined:validateLiveFieldCoverPolicyV1(input.fieldCoverPolicyV1);
   const fieldRunValueV1=input.fieldRunValuePolicyV1===undefined?undefined:validateLiveFieldRunValuePolicyV1(input.fieldRunValuePolicyV1);
   const individualV118=input.defenseDecisionModeV118==='individual',
@@ -2369,7 +2372,11 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       const forced = deriveCurrentForceObligations(force).some(o => o.runnerId === r.spec.runnerId);
       const next = r.base + 1;
       if (next > 4) continue;
-      const targetOccupied = targetOccupiedByOther(r, next);
+      // forcedRunV1: a bag held only by men who are forced off it is no reason to wait.
+      const forcedNow = forcedRunV1 ? deriveCurrentForceObligations(force) : null,
+        targetOccupied = targetOccupiedByOther(r, next) && !(forcedNow && forced && runners.every(x => x === r || x.retired || x.scored
+          || !(x.base === next && (!x.leg || x.leg.to <= x.base) || x.leg?.motion.touches.slice(x.leg.nextTouchIndex).some(b => b.base === next))
+          || forcedNow.some(o => o.runnerId === x.spec.runnerId)));
       // Conservative defense estimate, using observed flight forecasts and
       // player SI. Straight-flight time is an optimistic lower bound for the
       // defense, not a fabricated catch or a fixed global throwing velocity.

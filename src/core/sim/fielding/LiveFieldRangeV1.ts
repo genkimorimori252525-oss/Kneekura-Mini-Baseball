@@ -34,6 +34,17 @@ export function liveFieldCoverOrderV1(base:1|2|3|4,ballX:number):readonly string
   if(base===3)return ['3B','SS','P'];
   return ['C','P'];
 }
+/** Opt-in. Omission keeps every runner, the batter too, waiting until the man on the bag ahead has left it. */
+export type LiveForcedRunPolicyV1=Readonly<{version:'live_forced_run_policy_v1';sourceId:string}>;
+export const LIVE_FORCED_RUN_POLICY_V1:LiveForcedRunPolicyV1=Object.freeze({version:'live_forced_run_policy_v1',sourceId:'forced-run-v1-rule'});
+/** A forced runner may run to a bag that is still taken when the man on it is forced as well: that man has to give it up, so
+ * the bag ahead is not a reason to wait. The batter is always forced, so he runs the moment he has hit the ball, whoever is on
+ * first. A man who may choose to stay (a liner that can still be caught) still makes his own choice, and nobody passes anybody. */
+export function validateLiveForcedRunPolicyV1(policy:LiveForcedRunPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_forced_run_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid forced run policy');
+  return policy;
+}
 /** Opt-in. Omission keeps the runner's old read of a ball in flight. */
 export type LiveRunnerThrowReadPolicyV1=Readonly<{version:'live_runner_throw_read_policy_v1';sourceId:string}>;
 export const LIVE_RUNNER_THROW_READ_POLICY_V1:LiveRunnerThrowReadPolicyV1=Object.freeze({version:'live_runner_throw_read_policy_v1',sourceId:'runner-throw-read-v1-authored'});
