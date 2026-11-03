@@ -223,13 +223,17 @@ const advanceAerodynamicPitchStep = (
   const dt = stepTicks / parameters.ticksPerSecond;
 
   const k1Position = state.velocity;
-  const k1Velocity = accelerationAt(
+  // Owned parameters take the same operation graph as k2..k4 (no diagnostic objects).
+  const k1 = ownedTrajectoryParametersV120.has(parameters)
+    ? calculateOwnedBaseballFlightDerivativesV120(state.velocity, state.spin, parameters.aerodynamics, parameters.gravityY, state.materialOrientation)
+    : undefined;
+  const k1Velocity = k1 !== undefined ? k1.velocity : accelerationAt(
     state.velocity,
     state.spin,
     parameters,
     state.materialOrientation,
   );
-  const k1Spin = spinDerivativeAt(
+  const k1Spin = k1 !== undefined ? k1.spin : spinDerivativeAt(
     state.velocity,
     state.spin,
     parameters,

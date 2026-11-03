@@ -58,9 +58,13 @@ export const cloneInert = <T>(input: T): T => {
       if (!descriptor || !descriptor.enumerable || !('value' in descriptor)) {
         throw new Error('official window input must not contain accessors');
       }
-      Object.defineProperty(result, key, {
-        value: visit(descriptor.value, depth + 1), enumerable: true, writable: true, configurable: true,
-      });
+      // Plain assignment creates the same enumerable/writable/configurable data
+      // property as defineProperty and is much faster; '__proto__' must stay an own key.
+      if (key === '__proto__') {
+        Object.defineProperty(result, key, {
+          value: visit(descriptor.value, depth + 1), enumerable: true, writable: true, configurable: true,
+        });
+      } else (result as Record<string, unknown>)[key] = visit(descriptor.value, depth + 1);
     }
     ancestors.delete(value);
     return result;
