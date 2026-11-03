@@ -42,6 +42,26 @@ export const LIVE_RUNNER_THROW_READ_CALIBRATION_V1=Object.freeze({relayArmShare:
   /** The defense forecast is a perfect line. A long throw bounces and has to be gathered, more the further it comes. */longThrowFromMeters:30,longThrowSecondsPerMeter:.008,
   /** Sending a runner home: an even race is enough, and with two out a little less. */homeMarginSeconds:.05,homeMarginTwoOutSeconds:0,
   /** The walking lead a runner has taken by the time the ball is hit, toward the next bag. Nobody holds second. */secondaryLeadMeters:Object.freeze({1:.5,2:1.5,3:.8})});
+/** Opt-in. Omission keeps the fixed cover order (1B, P, 2B for first and so on) and its .6 s override exact. */
+export type LiveFieldCoverPolicyV1=Readonly<{version:'live_field_cover_policy_v1';sourceId:string}>;
+export const LIVE_FIELD_COVER_POLICY_V1:LiveFieldCoverPolicyV1=Object.freeze({version:'live_field_cover_policy_v1',sourceId:'field-cover-v1-authored'});
+/** No position owns a bag. Whoever this fielder sees reaching the ball first is taking it, and of everyone else the bag
+ * goes to whoever he sees getting there first. Speed, depth and where each man already is decide it, not his position.
+ * tieSeconds: two men this close both start for the bag; the existing duplicate-cover cost sorts them out. */
+export const LIVE_FIELD_COVER_CALIBRATION_V1=Object.freeze({tieSeconds:.1});
+/** The man taking the ball and the man taking the bag, from arrival times as one fielder sees them. Ties go by id. */
+export function liveFieldCoverDutyV1(x:Readonly<{holder:string|null;candidates:readonly Readonly<{playerId:string;ballSeconds:number|null;baseSeconds:number}>[]}>){
+  const first=<T extends {playerId:string}>(xs:readonly T[],key:(c:T)=>number)=>xs.slice().sort((p,q)=>key(p)-key(q)||p.playerId.localeCompare(q.playerId))[0];
+  const chasers=x.holder===null?x.candidates.filter(c=>c.ballSeconds!==null):[],
+    chaser=chasers.length?first(chasers,c=>c.ballSeconds!).playerId:null,
+    rest=x.candidates.filter(c=>c.playerId!==x.holder&&c.playerId!==chaser),duty=rest.length?first(rest,c=>c.baseSeconds):null;
+  return {chaser,duty:duty?.playerId??null,dutySeconds:duty?.baseSeconds??null};
+}
+export function validateLiveFieldCoverPolicyV1(policy:LiveFieldCoverPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_cover_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field cover policy');
+  return policy;
+}
 /** Opt-in. Omission keeps every leg braking into its bag and the old stop-and-look exact. */
 export type LiveRunnerTurnPolicyV1=Readonly<{version:'live_runner_turn_policy_v1';sourceId:string}>;
 export const LIVE_RUNNER_TURN_POLICY_V1:LiveRunnerTurnPolicyV1=Object.freeze({version:'live_runner_turn_policy_v1',sourceId:'runner-turn-v1-authored'});
