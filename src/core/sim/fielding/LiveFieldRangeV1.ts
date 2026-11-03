@@ -48,8 +48,12 @@ export const LIVE_RUNNER_TURN_POLICY_V1:LiveRunnerTurnPolicyV1=Object.freeze({ve
 /** Authored. Once the ball is through the infield a runner takes his bag at speed, bent toward the next one,
  * and makes his call where he can still pull up on the bag, instead of braking into it and starting over from rest.
  * ballDepthMeters: from home, beyond the middle infielders' usual depth (about 44 m).
- * lookAheadSeconds: the next look comes this much later, so the last moment to pull up is judged one look ahead. */
-export const LIVE_RUNNER_TURN_CALIBRATION_V1=Object.freeze({ballDepthMeters:46,lookAheadSeconds:.12});
+ * lookAheadSeconds: the next look comes this much later, so the last moment to pull up is judged one look ahead.
+ * bendRadians: the call is made before the bend around the bag. A smaller arc only lines his heading up.
+ * looseBallAllowanceSeconds: added to the perfect-pickup defense forecast while no fielder holds the ball yet.
+ * 2026-11-03, same batted balls replayed: .6 and 1.2 sent runners home into throws that a held runner later beat
+ * by going on the throw to the infield (runs 16 -> 16 and 15, outs 1 -> 2 and 4 over 31 balls). Kept at 0. */
+export const LIVE_RUNNER_TURN_CALIBRATION_V1=Object.freeze({ballDepthMeters:46,lookAheadSeconds:.12,bendRadians:.35,looseBallAllowanceSeconds:0});
 export function validateLiveRunnerTurnPolicyV1(policy:LiveRunnerTurnPolicyV1){
   if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_runner_turn_policy_v1'
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid runner turn policy');

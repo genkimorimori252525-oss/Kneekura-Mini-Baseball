@@ -518,6 +518,8 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   const runnerMotions: { elapsedSeconds: number; runnerId: string; throughBases: number[]; position: Vec3; velocity: Vec3;
     terminalMode?: 'first-base-overrun'; durationSeconds: number; lengthMeters: number; route: LiveRunnerMotionV1['route'] }[] = [];
   const roundingRecheckAfter = new Map<string, number>();
+  /** runnerTurnV1: runner:bag pairs he has already pulled up on, so he does not bend toward the next bag again. */
+  const turnPulledUpV1 = new Set<string>();
   const runnerDefenseMemoV95 = createLiveDefenseControlMemoV95(64);
   const runnerObservationsV95: { runnerId: string; elapsedSeconds: number; observedAtSeconds: number; reactionSeconds: number;
     targetBase: number; cueRevision: number; route: string | null; controlSeconds: number | null; aerodynamicSolves: number; cacheHit: boolean }[] = [];
@@ -2324,6 +2326,15 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       runnerMotions.push({ elapsedSeconds: t, runnerId: r.spec.runnerId, throughBases: motion.touches.map(b => b.base), position, velocity,
         durationSeconds: motion.durationSeconds, lengthMeters: motion.lengthMeters, route: motion.route });
     };
+    /** Route length before the bend around a bag: the run on which a pull-up still lands him on it. A replanned route
+     * opens with a small arc that only lines his heading up, so only a real change of direction counts. */
+    const turnBendStartV1 = (motion: LiveRunnerMotionV1) => {
+      let length = 0;
+      for (const part of motion.route.segments) {
+        if (part.kind === 'arc' && Math.abs(part.sweepRadians) > LIVE_RUNNER_TURN_CALIBRATION_V1.bendRadians) return length;
+        length += part.kind === 'arc' ? part.radiusMeters * Math.abs(part.sweepRadians) : Math.hypot(part.end.x - part.start.x, part.end.z - part.start.z); }
+      return length;
+    };
     /** True when this look handled the runner. A pull-up is only ever chosen while braking onto the bag is still possible. */
     const runnerTurnStepV1 = (r: Runner, leg: Leg): boolean => {
       if (leg.returning || leg.halfway || r.retouchBase !== null || r.retired || r.scored || slideMotionV115(leg) || dead || overFence || flyCatch) return false;
@@ -2334,24 +2345,30 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       if (leg.turnV1) {
         const nextTouch = ahead.find(b => b.base === n + 1);
         if (!nextTouch) { delete leg.turnV1; return false; }
-        const look = t + c.lookAheadSeconds, local = look - leg.from,
-          canStillStop = local < ahead[0].elapsedSeconds && !!turnMotorV1(r, (p => v(p.x, leg.height, p.z))(leg.motion.sampleAtElapsedSeconds(local).position),
-            (u => v(u.x, 0, u.z))(leg.motion.sampleAtElapsedSeconds(local).velocity), [n]);
+        // The call is made on the straight: once he is into the bend around the bag, pulling up would loop him off it.
+        const look = t + c.lookAheadSeconds, local = look - leg.from, ahead1 = leg.motion.sampleAtElapsedSeconds(local),
+          canStillStop = local < ahead[0].elapsedSeconds && ahead1.distanceMeters < turnBendStartV1(leg.motion)
+            && !!turnMotorV1(r, v(ahead1.position.x, leg.height, ahead1.position.z), v(ahead1.velocity.x, 0, ahead1.velocity.z), [n]);
         if (canStillStop) return true;
-        const defense = estimateDefenseControl(r, n + 1), arrival = leg.from + nextTouch.elapsedSeconds - t;
+        // The defense forecast is a perfect pickup and throw. While the ball is still loose he reads the fielder still
+        // having to gather it and set his feet, as a coach waving him on does.
+        const seen = runnerObservationV95(r, t), forecast = estimateDefenseControl(r, n + 1),
+          defense = forecast === null ? null : forecast + (seen && !seen.holder ? c.looseBallAllowanceSeconds : 0),
+          arrival = leg.from + nextTouch.elapsedSeconds - t;
         if (!targetOccupiedByOther(r, n + 1) && defense !== null && defense - arrival > marginV1(r, n + 1, false)) { delete leg.turnV1; return true; }
         const stop = turnMotorV1(r, runnerAt(r, t), runnerVelocityAt(r, t), [n]);
+        turnPulledUpV1.add(r.spec.runnerId + ':' + n);
         if (stop) replaceLegV1(r, leg, stop, undefined); else delete leg.turnV1;
         return true;
       }
-      if (r.base < 1 || n < 2 || n >= 4 || ahead.some(b => b.base !== n) || targetOccupiedByOther(r, n + 1)) return false;
+      if (r.base < 1 || n < 2 || n >= 4 || ahead.some(b => b.base !== n) || targetOccupiedByOther(r, n + 1) || turnPulledUpV1.has(r.spec.runnerId + ':' + n)) return false;
       const cue = loose ? (runnerObservedCueV1(firstGroundContactSeconds, t) ?? runnerObservedCueV1(firstFielderTouchSeconds, t)) : (firstGroundContactSeconds ?? firstFielderTouchSeconds);
       if (cue === null || t < cue + r.spec.reactionSeconds) return false;
       const seen = runnerObservationV95(r, t), held = seen?.holder ? seen.actors.find(a => a.playerId === seen.holder) : undefined;
       if (!seen || distance(flat(held ? held.glovePosition : seen.position), flat(base(0))) < c.ballDepthMeters) return false;
       const motion = turnMotorV1(r, runnerAt(r, t), runnerVelocityAt(r, t), [n, n + 1]);
       if (!motion || !(c.lookAheadSeconds < motion.touches[0].elapsedSeconds)) return false;
-      const p = motion.sampleAtElapsedSeconds(c.lookAheadSeconds), stillStoppable = turnMotorV1(r, v(p.position.x, runnerAt(r, t).y, p.position.z), v(p.velocity.x, 0, p.velocity.z), [n]);
+      const p = motion.sampleAtElapsedSeconds(c.lookAheadSeconds), stillStoppable = p.distanceMeters < turnBendStartV1(motion) && turnMotorV1(r, v(p.position.x, runnerAt(r, t).y, p.position.z), v(p.velocity.x, 0, p.velocity.z), [n]);
       if (!stillStoppable) return false;
       replaceLegV1(r, leg, motion, { base: n as BaseballBase });
       return true;
