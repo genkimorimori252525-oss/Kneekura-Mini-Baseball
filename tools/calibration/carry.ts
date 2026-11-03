@@ -27,3 +27,11 @@ for (const [mph, rpm] of [[95, 2300], [85, 2400]]) {
   console.log(`pitch ${mph} mph ${rpm}rpm -> ${end.toFixed(1)} mph at the plate front (${((1 - end / mph) * 100).toFixed(1)}% lost)`);
 }
 console.log('MLB average home run: about 103.5 mph, 28 deg, 400 ft ->', carryFeet(103.5, 28, 2200).toFixed(0), 'ft here');
+// Induced vertical break of a fastball: drop without spin minus drop with spin at the front of the plate.
+// Statcast four-seamers near 95 mph and 2300 rpm (about 90% active spin) average roughly 15-16 inches.
+const dropAt = (mph: number, rpm: number) => {
+  const v = mph * MPH, w = rpm * Math.PI / 30;
+  const flight = createVersionedFreeBallTrajectory({ tick: 0, position: { x: 0, y: 1.8, z: 16.8 }, velocity: { x: 0, y: -0.02 * v, z: -v }, spin: { x: w, y: 0, z: 0 } }, 1 * TPS, LIVE_MATCH_PHYSICS_V1);
+  return flight.samples.find(s => s.ball.position.z <= 0.43)!.ball.position.y;
+};
+for (const rpm of [2300 * 0.9, 2300]) console.log(`fastball 95 mph ${rpm.toFixed(0)} rpm: induced vertical break ${((dropAt(95, rpm) - dropAt(95, 0)) * 39.37).toFixed(1)} in`);
