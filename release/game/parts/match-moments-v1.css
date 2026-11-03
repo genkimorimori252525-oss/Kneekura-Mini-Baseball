@@ -33,6 +33,17 @@
   pointer-events: none;
 }
 .card-fx-plate[data-over="photo"] { inset: 0; width: 100%; height: 100%; background: none; }
+/* The chosen card glows in its deck colour while its picture plays, and jolts once when the play lands. */
+.tactic[data-fx-glow] { box-shadow: 0 0 0 1px var(--gold), 0 0 14px rgba(224, 181, 65, .55); }
+.tactic[data-fx-glow="pitcher"] { box-shadow: 0 0 0 1px var(--blue), 0 0 14px rgba(127, 166, 196, .6); }
+.tactic[data-fx-land] .plate { animation: card-fx-land .22s ease-out; }
+@keyframes card-fx-land {
+  0% { transform: translate(0, 0) scale(1.06); }
+  35% { transform: translate(-1px, 1px) scale(1.03); }
+  70% { transform: translate(1px, 0) scale(1.01); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) { .tactic[data-fx-land] .plate { animation: none; } }
 
 .stadium-brightness { display: flex; align-items: center; gap: 10px; }
 .stadium-brightness input { flex: 1; min-width: 0; }

@@ -138,7 +138,7 @@
  const swingSuffix=(frame,art)=>frame>=2&&art.swing?art.swing:'';
  function pick({role,action,frame,camera,hand,form,team,running,isRobin,pose,away,walking,who,art,athletic,motion,sx}){
   const kit=team===1?'home':'away',outfield=['LF','CF','RF'].includes(role);
-  let key=null,found=null,mirror=false,handed=false;
+  let key=null,found=null,mirror=false,handed=false,behind=false;
   art=art||{};motion=motion||{x:0,depth:0};sx=sx||1;
   if(art.catcher)art={...art,catcher:{...art.catcher,sx}};
   const reach=art.backhandDx===undefined?0:art.backhandDx*sx,backhand=reach<-.7?'1':reach<-.4?'2':null;
@@ -192,12 +192,14 @@
   else if(action==='pitch'&&['over','side','under','montage'].includes(form)&&frame>=0&&frame<6){key='pitch/'+form+'/'+frame;handed=true;}
   // ロッツォ has one home-run picture, so it holds through the second beat.
   else if(action==='bat'&&camera==='mound'&&who&&art.hr!==undefined&&art.hr!==null)key='bat/hr/'+(bank.has(who+'/bat/hr/'+art.hr)?art.hr:0);
-  else if(action==='bat'&&camera==='mound'&&frame>=0&&frame<4&&!art.look&&(!who||bank.has(who+'/bat/mound/'+frame))){key='bat/mound/'+frame+(who?'':swingSuffix(frame,art));handed=true;}
+  // Batting is drawn from the pitcher's side. A camera behind the plate sees the batter from the other side, so the same
+  // picture is mirrored there (sx>0: world +x is screen right). The direct-rear art is a view from the batter's back,
+  // which no plate camera has, so it is not used.
+  else if(action==='bat'&&frame>=0&&frame<4&&!art.look&&(!who||bank.has(who+'/bat/mound/'+frame))){key='bat/mound/'+frame+(who?'':swingSuffix(frame,art));handed=true;behind=sx>0;}
   else if(action==='bat'&&art.look){
    const rear=camera!=='mound';
    key='look/'+(art.look==='up'?'look-up':art.look==='bent'?'bent-forward':'photo')+'-'+(rear?'rear':'front');handed=true;
   }
-  else if(action==='bat'&&camera!=='mound'&&frame>=0&&frame<4){key='bat/rear/'+frame+swingSuffix(frame,art);handed=true;}
   else if(action==='catch'&&camera!=='mound')key=team===1?'catch/home':'catch/away';
   else if(action==='catch'){
    const name=catcherName(art.catcher),knee=!!art.knee;
@@ -214,8 +216,9 @@
   const own=!found&&key&&who?bank.get(who+'/'+key):null;
   if(!found&&key)found=own||bank.get(key);
   if(!found)return null;
-  // ちんすけ's own set is drawn left-handed already.
-  if(handed&&hand==='L'&&!own)mirror=true;
+  // ちんすけ's own set is drawn left-handed, every other picture right-handed.
+  if(handed&&(hand==='L')!==(!!own&&who==='chinsuke'))mirror=true;
+  if(behind)mirror=!mirror;
   hits[found.key]=(hits[found.key]??0)+1;
   return mirror?flip(found):found;
  }

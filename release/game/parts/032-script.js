@@ -608,7 +608,7 @@ function rasterSphere(center,radius,color,owner){
    bounds=spriteAtGrid(sprite,unit,left,top,(u,v,index,coverage)=>{if(coverage>=.6||unit*sprite.referenceHeight<48)paintWorldCell(u,v,foot.depth-.001,palette[index],1,a.id);});
    // Equipment changes the visible silhouette, not the player's name anchor.
    if(illustratedBat){const body=batterSpriteForView(poseSprite('bat',frame,a.player.hand,a.player.form),state.camera);bounds={x:left+body.minX*unit,y:top+body.minY*unit,w:(body.maxX-body.minX+1)*unit,h:(body.maxY-body.minY+1)*unit};}
-   if(action==='bat')batterRig={sourceId:sprite.sourceId,sourceFrame:sprite.sourceFrame,sourceSha256:sprite.sourceSha256,derivation:sprite.derivation,hand:a.player.hand,viewMirrorX:!!sprite.viewMirrorX,includesIllustratedBat:!!sprite.includesIllustratedBat,deformed:false};
+   if(action==='bat')batterRig={drawnBat:!!original.artBankV1,sourceId:sprite.sourceId,sourceFrame:sprite.sourceFrame,sourceSha256:sprite.sourceSha256,derivation:sprite.derivation,hand:a.player.hand,viewMirrorX:!!sprite.viewMirrorX,includesIllustratedBat:!!sprite.includesIllustratedBat,deformed:false};
    if(bounds.h<gridV84.step())paintWorldCell(foot.x,foot.y-2,foot.depth-.002,palette[2],.9,a.id);
    diameter=height*RETRO_SCALE;p={depth:foot.depth,scale:foot.scale};
   }
@@ -626,7 +626,7 @@ function rasterSphere(center,radius,color,owner){
   batScreen=[];const bat=observed.bat;if(!bat)return;const a=project(bat.grip),b=project(bat.tip);if(a&&b)batScreen=[a,b];
   // Keep observed geometry available. Mound B1 paints only its four-frame
   // illustrated bat; it cannot move or replace the underlying observation.
-  if(state.camera==='mound')return;
+  if(state.camera==='mound'||batterRig?.drawnBat)return;
   const length=Math.hypot(bat.tip.x-bat.grip.x,bat.tip.y-bat.grip.y,bat.tip.z-bat.grip.z),steps=Math.ceil(length/.016);
   for(let i=0;i<=steps;i++){const t=i/steps,p={};for(const k of['x','y','z'])p[k]=bat.grip[k]+(bat.tip[k]-bat.grip[k])*t;rasterSphere(p,batReferenceRadius(t),t<.22?'#cba66d':'#f4d891','bat');}
  }
@@ -905,7 +905,7 @@ function rasterSphere(center,radius,color,owner){
     &&Math.hypot(a.position.x-cam.eye.x,a.position.z-cam.eye.z)<.90*height;
   }).map(a=>a.id):[]);
   anchors=[];labelPositions=[];sceneDepth=new Map();sceneDepthBase=null;rasterBase=null;rasterCells=new Map();fieldMarkCells=[];ballScreen=null;batterRig=null;
-  ctx.setTransform(2,0,0,2,0,0);ctx.fillStyle='#000';ctx.fillRect(0,0,600,432);
+  ctx.setTransform(canvas.width/600,0,0,canvas.width/600,0,0);ctx.fillStyle='#000';ctx.fillRect(0,0,600,432);
   if(state.camera==='mound'&&state.appearance!=='point'&&window.KneekuraArtBankV1?.inspect().loaded)actor({id:'UMP',role:'umpire',sourcePlayerId:'umpire',position:{x:0,y:0,z:-1.75},running:false,player:{height:1.8,hand:'R',form:'over',name:'',team:2}});
   const stadium=stadiumFrameV2();paintStadiumV2(stadium,drawParkV81(stadium));paintScoreboardV1(stadium);observed.actors.forEach(actor);drawBaseUmpireCalls();drawErrorBalloonV1();
   // Draw the source bat only when the approved B1 sprite embeds it or when
@@ -918,7 +918,9 @@ function rasterSphere(center,radius,color,owner){
   canvas.setAttribute('aria-label',({umpire:'球審視点',catcher:'捕手目線',batter:'打者目線',runner:'走者目線',mound:'投手目線',overhead:'俯瞰',fielder:'守備目線'}[state.camera])+'の試合映像。'+observed.phase);
  }
 function paintBatOverlay(bat,overlay){
-  const c=overlay.getContext('2d');c.setTransform(2,0,0,2,0,0);c.clearRect(0,0,600,432);
+  const c=overlay.getContext('2d');c.setTransform(overlay.width/600,0,0,overlay.width/600,0,0);c.clearRect(0,0,600,432);
+  // An adopted batting picture carries its own bat: the real bat would be a second one.
+  if(batterRig?.drawnBat)return 0;
   // The original four B1 illustrated pitcher-view frames remain pristine.
   // Avoid double-painting a new procedural bat over that fixed artwork.
   if(state?.camera==='mound')return 0;
@@ -968,7 +970,7 @@ function paintBatOverlay(bat,overlay){
   return depth<.12?null:{x:c.cx+c.f*side/depth,y:c.cy-c.f*up/depth,scale:c.f/depth,depth};
  }
  function paintBallOverlay(ball,overlay,viewOverride=null,sceneProof=null){
-  const c=overlay.getContext('2d');c.setTransform(2,0,0,2,0,0);c.clearRect(0,0,600,432);ballDotDisplay=null;
+  const c=overlay.getContext('2d');c.setTransform(overlay.width/600,0,0,overlay.width/600,0,0);c.clearRect(0,0,600,432);ballDotDisplay=null;
   if(!ball||ball.visible===false||ball.custody||ball.possessedBy||(!ball.nativeObservation&&!ball.sourceObservation&&!ballVisibleFromCamera()))return 0;
   const ballCam=viewOverride??cam,ballCamera=viewOverride?.camera??state.camera;
   const point=viewOverride?projectBallView(ball.position,ballCam):project(ball.position);if(!point||point.x<0||point.y<0||point.x>=600||point.y>=432)return 0;
