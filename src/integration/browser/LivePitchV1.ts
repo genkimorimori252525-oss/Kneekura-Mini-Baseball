@@ -482,11 +482,12 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     currentObservationAvailableV151=positionObserverV151===undefined||effectiveForecastV246?.status==='PREDICTED',
     usablePriorV151=priorV122!==null&&priorV122!==undefined&&requestedPriorWeightV151>0,
     priorWeightV122=!currentObservationAvailableV151&&usablePriorV151?1:requestedPriorWeightV151,
+    placementPriorWeightV1=observationPolicyV151?.priorPlacementShareV1===undefined||!currentObservationAvailableV151?priorWeightV122:priorWeightV122*observationPolicyV151.priorPlacementShareV1,
     prediction=priorV122&&priorWeightV122>0?{...observedPredictionV122,
       elapsedSeconds:Math.max(decisionTime,observedPredictionV122.elapsedSeconds*(1-priorWeightV122)+priorV122.arrivalAfterReleaseSeconds*priorWeightV122),
       ball:{...observedPredictionV122.ball,position:{...observedPredictionV122.ball.position,
-        x:observedPredictionV122.ball.position.x*(1-priorWeightV122)+priorV122.x*priorWeightV122,
-        y:observedPredictionV122.ball.position.y*(1-priorWeightV122)+priorV122.y*priorWeightV122}}}:observedPredictionV122,
+        x:observedPredictionV122.ball.position.x*(1-placementPriorWeightV1)+priorV122.x*placementPriorWeightV1,
+        y:observedPredictionV122.ball.position.y*(1-placementPriorWeightV1)+priorV122.y*placementPriorWeightV1}}}:observedPredictionV122,
     controlFactor=swingIntentV121?1:input.batting==='power'?1.08:input.batting==='contact'?.92:1;
   let baselineTimingError=yawDeferExecutionV274?0:timingRandom.normal()*b.timingStdSeconds*(swingIntentV121?1:input.batting==='contact'?.72:input.batting==='power'?1.15:1);
   const awkwardness=Math.max(0,Math.abs(prediction.ball.position.x)/.2159-1,(.55-prediction.ball.position.y)/.5,(prediction.ball.position.y-1.5)/.5),

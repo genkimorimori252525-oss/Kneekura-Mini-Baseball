@@ -43,7 +43,16 @@ const pitchRecord = (r, seed) => {
     technique: t?.technique ?? null, techniquePlan: t?.planStatus ?? null, techniqueReason: t?.planReason ?? t?.selectionReason ?? null, exitSpin: t?.battedSpin ?? null,
     timing: d.timingErrorSeconds ?? null, exit: v ? {kmh: Math.hypot(v.x, v.y, v.z) * 3.6, launch: Math.atan2(v.y, Math.hypot(v.x, v.z)) * 180 / Math.PI, spray: Math.atan2(v.x, v.z) * 180 / Math.PI} : null,
     hitBases: s?.hitBases ?? null, homeRuns: s?.homeRuns ?? null, runs: r.match.score.away + r.match.score.home - b.score.away - b.score.home, finished: r.finished,
-    basesBefore: occupied(b.bases), basesAfter: occupied(r.match.bases), outsAfter: r.match.outs, halfAfter: r.match.half};
+    basesBefore: occupied(b.bases), basesAfter: occupied(r.match.bases), outsAfter: r.match.outs, halfAfter: r.match.half, spin: battedSpin(p.contact, r.batterPlayerId)};
+};
+// Batted-ball spin in rpm: back (+) or top (-), and side, read in the batter's frame.
+const bats = new Map(config.players.map(player => [player.playerId, player.bats]));
+const battedSpin = (contact, batter) => {
+  if (!contact?.exitVelocity || !contact.exitSpin || !core.observeBattedBallSpinV123) return null;
+  try {
+    const o = core.observeBattedBallSpinV123({velocityMps: contact.exitVelocity, spinRadPerSecond: contact.exitSpin, bats: bats.get(batter) ?? 'R'});
+    return o.basisStatus === 'DEFINED' ? {back: Math.round(o.backspinSignedRadPerSecond * 30 / Math.PI), side: Math.round(o.rightCurvingSpinRadPerSecond * 30 / Math.PI)} : null;
+  } catch {return null;}
 };
 // Occupied bases as "13" for first and third, "" when empty.
 const occupied = bases => bases ? ['first', 'second', 'third'].map((k, i) => bases[k] ? i + 1 : '').join('') : null;
