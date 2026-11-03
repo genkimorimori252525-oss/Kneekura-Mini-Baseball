@@ -42,6 +42,19 @@ export const LIVE_RUNNER_THROW_READ_CALIBRATION_V1=Object.freeze({relayArmShare:
   /** The defense forecast is a perfect line. A long throw bounces and has to be gathered, more the further it comes. */longThrowFromMeters:30,longThrowSecondsPerMeter:.008,
   /** Sending a runner home: an even race is enough, and with two out a little less. */homeMarginSeconds:.05,homeMarginTwoOutSeconds:0,
   /** The walking lead a runner has taken by the time the ball is hit, toward the next bag. Nobody holds second. */secondaryLeadMeters:Object.freeze({1:.5,2:1.5,3:.8})});
+/** Opt-in. Omission keeps every leg braking into its bag and the old stop-and-look exact. */
+export type LiveRunnerTurnPolicyV1=Readonly<{version:'live_runner_turn_policy_v1';sourceId:string}>;
+export const LIVE_RUNNER_TURN_POLICY_V1:LiveRunnerTurnPolicyV1=Object.freeze({version:'live_runner_turn_policy_v1',sourceId:'runner-turn-v1-authored'});
+/** Authored. Once the ball is through the infield a runner takes his bag at speed, bent toward the next one,
+ * and makes his call where he can still pull up on the bag, instead of braking into it and starting over from rest.
+ * ballDepthMeters: from home, beyond the middle infielders' usual depth (about 44 m).
+ * lookAheadSeconds: the next look comes this much later, so the last moment to pull up is judged one look ahead. */
+export const LIVE_RUNNER_TURN_CALIBRATION_V1=Object.freeze({ballDepthMeters:46,lookAheadSeconds:.12});
+export function validateLiveRunnerTurnPolicyV1(policy:LiveRunnerTurnPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_runner_turn_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid runner turn policy');
+  return policy;
+}
 export function validateLiveRunnerThrowReadPolicyV1(policy:LiveRunnerThrowReadPolicyV1){
   if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_runner_throw_read_policy_v1'
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid runner throw read policy');

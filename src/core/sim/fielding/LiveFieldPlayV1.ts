@@ -35,7 +35,7 @@ import { predictLiveDefensiveOpportunityV1, LIVE_DEFENSIVE_OPPORTUNITY_POLICY_V1
   type LiveDefensiveOpportunityV1 } from './LiveDefensiveOpportunityV1';
 import { resolveGroundedActorContactResponseV1 } from './GroundedActorContactResponseV1';
 import { planLiveThrowV1 } from './LiveThrowPlanV1';
-import { LIVE_RUNNER_THROW_READ_CALIBRATION_V1,validateLiveRunnerThrowReadPolicyV1,type LiveRunnerThrowReadPolicyV1,LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
+import { LIVE_RUNNER_THROW_READ_CALIBRATION_V1,validateLiveRunnerThrowReadPolicyV1,type LiveRunnerThrowReadPolicyV1,LIVE_RUNNER_TURN_CALIBRATION_V1,validateLiveRunnerTurnPolicyV1,type LiveRunnerTurnPolicyV1,LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
 import { decideLiveCloseThrowV1,liveCloseThrowToleranceV1,LIVE_CLOSE_THROW_CALIBRATION_V1,validateLiveFieldThrowPolicyV1,type LiveFieldThrowPolicyV1 } from './LiveCloseThrowV1';
 import { planLiveThrowActionV103,LIVE_THROW_EFFORT_POLICY_V103 } from './LiveThrowActionV103';
 import { liveFielderTurnSpeedV110 } from './LiveFielderBodyGeometryV105';
@@ -110,6 +110,8 @@ export type LiveFieldPlayInputV1 = Readonly<{ ball: BallWorldMoment; physics: Ae
   fieldRangePolicyV1?: LiveFieldRangePolicyV1;
   /** A runner reads a throw to a cutoff as the cutoff's throw on; omission keeps the old read exact. */
   runnerThrowReadPolicyV1?: LiveRunnerThrowReadPolicyV1;
+  /** A runner takes his bag at speed once the ball is through the infield and decides where he can still pull up; omission keeps every leg braking into its bag. */
+  runnerTurnPolicyV1?: LiveRunnerTurnPolicyV1;
   /** Opt-in runner tactics, authored and UNMEASURED; omitted keeps legacy decisions. Enables: two-out go-on-contact held for the
    * whole contact leg, line-drive freeze under two outs, halfway on a shallow catchable fly. `context` also lets risk follow outs,
    * inning and score (facts a runner knows). */
@@ -234,7 +236,8 @@ type NearFieldAttemptV113 = { point: Vec3; eta: number; arrivalSeconds: number; 
 type HandPreparationState = { fielder: Fielder; base: BaseballBase;
   curve: Extract<ReturnType<typeof createLiveHandPreparationV1>, { kind: 'planned' }>; prepared: boolean };
 type Leg = { from: number; to: BaseballBase; motion: LiveRunnerMotionV1; nextTouchIndex: number; height: number;
-  departure: { base: BaseballBase; elapsedSeconds: number } | null; returning?: boolean; halfway?: true };
+  departure: { base: BaseballBase; elapsedSeconds: number } | null; returning?: boolean; halfway?: true;
+  /** runnerTurnV1: taking `base` at speed toward the next bag, still free to pull up on it. */turnV1?: { base: BaseballBase } };
 type Runner = { spec: LiveRunnerV1; base: number; p: Vec3; leg: Leg | null; retired: boolean; scored: boolean;
   retiredSlideV115?:Leg;
   retouchBase: 1 | 2 | 3 | null; returnReadyAt: number | null };
@@ -298,6 +301,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   assert(input.recordDecisionTraceV118===undefined||input.recordDecisionTraceV118===true,'invalid decision trace option');
   const fieldThrowPolicyV1=input.fieldThrowPolicyV1===undefined?undefined:validateLiveFieldThrowPolicyV1(input.fieldThrowPolicyV1);
   const runnerThrowReadV1=input.runnerThrowReadPolicyV1===undefined?undefined:validateLiveRunnerThrowReadPolicyV1(input.runnerThrowReadPolicyV1);
+  const runnerTurnV1=input.runnerTurnPolicyV1===undefined?undefined:validateLiveRunnerTurnPolicyV1(input.runnerTurnPolicyV1);
   const individualV118=input.defenseDecisionModeV118==='individual',
     decisionTraceV118=createLiveFieldDecisionTraceV1({enabled:!!input.recordDecisionTraceV118,originTick,ticksPerSecond:tps,seed:input.seed??0});
   const executionErrorsV95 = input.executionPerturbationsV95?.throwErrors ?? [];
@@ -2305,9 +2309,57 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         runnerDecisions.push({ elapsedSeconds: t, runnerId: r.spec.runnerId, targetBase: next, defenderControlSeconds, ...decision });
       if (decision.advance && !(r.base === 0 && flyCatch) && !(dead && awardTarget === null)) beginLeg(r, next as BaseballBase, t, defenderControlSeconds);
     }
+    // runnerTurnV1: once the ball is through the infield, a runner takes his bag at speed bent toward the next one and
+    // makes his call at the last look from which he can still pull up on it. Every estimate is the same one a stop uses.
+    const turnMotorV1 = (r: Runner, position: Vec3, velocity: Vec3, bags: readonly number[]) => createLiveRunnerMotionV1({ position, velocity,
+      bases: bags.map(b => ({ base: b, position: base(b) })), topSpeedMps: r.spec.topSpeedMps, accelerationMps2: r.spec.accelerationMps2,
+      roundingRadiusMeters: r.spec.roundingRadiusMeters ?? 4.5,
+      ...(r.spec.technicalSkills === undefined ? {} : { technicalSkills: r.spec.technicalSkills }),
+      lateralAccelerationMps2: r.spec.lateralAccelerationMps2 ?? 1.5 * r.spec.accelerationMps2,
+      baseTouchRadiusMeters: field.baseTouchRadiusMeters ?? .28 });
+    const replaceLegV1 = (r: Runner, leg: Leg, motion: LiveRunnerMotionV1, turn: Leg['turnV1']) => {
+      const position = runnerAt(r, t), velocity = runnerVelocityAt(r, t);
+      r.leg = { from: t, to: leg.to, motion, nextTouchIndex: 0, height: position.y, departure: null, ...(turn ? { turnV1: turn } : {}) };
+      if (leg.departure !== null) scheduleDeparture(r.leg, leg.departure.base, 0, motion.touches[0]?.centerElapsedSeconds ?? motion.durationSeconds);
+      runnerMotions.push({ elapsedSeconds: t, runnerId: r.spec.runnerId, throughBases: motion.touches.map(b => b.base), position, velocity,
+        durationSeconds: motion.durationSeconds, lengthMeters: motion.lengthMeters, route: motion.route });
+    };
+    /** True when this look handled the runner. A pull-up is only ever chosen while braking onto the bag is still possible. */
+    const runnerTurnStepV1 = (r: Runner, leg: Leg): boolean => {
+      if (leg.returning || leg.halfway || r.retouchBase !== null || r.retired || r.scored || slideMotionV115(leg) || dead || overFence || flyCatch) return false;
+      const ahead = leg.motion.touches.slice(leg.nextTouchIndex);
+      if (!ahead.length) return false;
+      const n = ahead[0].base, c = LIVE_RUNNER_TURN_CALIBRATION_V1;
+      if (leg.turnV1 && leg.turnV1.base !== n) delete leg.turnV1; // He went on past the bag: the call was to go.
+      if (leg.turnV1) {
+        const nextTouch = ahead.find(b => b.base === n + 1);
+        if (!nextTouch) { delete leg.turnV1; return false; }
+        const look = t + c.lookAheadSeconds, local = look - leg.from,
+          canStillStop = local < ahead[0].elapsedSeconds && !!turnMotorV1(r, (p => v(p.x, leg.height, p.z))(leg.motion.sampleAtElapsedSeconds(local).position),
+            (u => v(u.x, 0, u.z))(leg.motion.sampleAtElapsedSeconds(local).velocity), [n]);
+        if (canStillStop) return true;
+        const defense = estimateDefenseControl(r, n + 1), arrival = leg.from + nextTouch.elapsedSeconds - t;
+        if (!targetOccupiedByOther(r, n + 1) && defense !== null && defense - arrival > marginV1(r, n + 1, false)) { delete leg.turnV1; return true; }
+        const stop = turnMotorV1(r, runnerAt(r, t), runnerVelocityAt(r, t), [n]);
+        if (stop) replaceLegV1(r, leg, stop, undefined); else delete leg.turnV1;
+        return true;
+      }
+      if (r.base < 1 || n < 2 || n >= 4 || ahead.some(b => b.base !== n) || targetOccupiedByOther(r, n + 1)) return false;
+      const cue = loose ? (runnerObservedCueV1(firstGroundContactSeconds, t) ?? runnerObservedCueV1(firstFielderTouchSeconds, t)) : (firstGroundContactSeconds ?? firstFielderTouchSeconds);
+      if (cue === null || t < cue + r.spec.reactionSeconds) return false;
+      const seen = runnerObservationV95(r, t), held = seen?.holder ? seen.actors.find(a => a.playerId === seen.holder) : undefined;
+      if (!seen || distance(flat(held ? held.glovePosition : seen.position), flat(base(0))) < c.ballDepthMeters) return false;
+      const motion = turnMotorV1(r, runnerAt(r, t), runnerVelocityAt(r, t), [n, n + 1]);
+      if (!motion || !(c.lookAheadSeconds < motion.touches[0].elapsedSeconds)) return false;
+      const p = motion.sampleAtElapsedSeconds(c.lookAheadSeconds), stillStoppable = turnMotorV1(r, v(p.position.x, runnerAt(r, t).y, p.position.z), v(p.velocity.x, 0, p.velocity.z), [n]);
+      if (!stillStoppable) return false;
+      replaceLegV1(r, leg, motion, { base: n as BaseballBase });
+      return true;
+    };
     for (const r of runners.slice().sort((a, b) => b.base - a.base)) {
       const leg = r.leg;
       if (slideCommittedV115(r,t)) continue;
+      if (runnerTurnV1 && leg && runnerTurnStepV1(r, leg)) continue;
       if (protectedFirstOverrunV95(r) && r.retouchBase === null && !dead
         && t >= (roundingRecheckAfter.get(r.spec.runnerId) ?? -Infinity) && !targetOccupiedByOther(r, 2)) {
         roundingRecheckAfter.set(r.spec.runnerId, t + .12);
