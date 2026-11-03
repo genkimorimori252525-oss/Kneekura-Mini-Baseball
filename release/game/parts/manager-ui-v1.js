@@ -596,6 +596,7 @@
     'ニッチロー': { base: FACE_URL('@@ASSET:025f391d743ba935d515b4ab@@') },
     'ロッツォ': { base: FACE_URL('@@ASSET:4b0d74f5242d20a286708c93@@'), lookedK: FACE_URL('@@ASSET:1d31339da2be184b954803bc@@') },
     'ちんすけ': { base: FACE_URL('@@ASSET:73da0b61a5c01f0a56d9a01b@@'), lookedK: FACE_URL('@@ASSET:d1b691269b8ad7ea7d6e58ea@@') },
+    '李将軍': { base: FACE_URL('@@ASSET:49629792eaf09fc05c5b71ec@@'), good: FACE_URL('@@ASSET:41b0ce3f5de6830268928e2a@@') },
     'ティカオ': { base: FACE_URL('@@ASSET:dc46247adb2426dc306d63eb@@'), walk: FACE_URL('@@ASSET:81a3458479258fb0738700c4@@'), bad: FACE_URL('@@ASSET:8025535ee24115ca6dd6251e@@') }
   };
   const SLOT_ROLE = { '#batter-portrait': 'batter', '#pitcher-portrait': 'pitcher' };
@@ -644,6 +645,7 @@
     const asBatter = !!official && official.batterPlayerId === id, asPitcher = !!official && official.pitcherPlayerId === id;
     if (set.lookedK && role === 'batter' && asBatter && cls === 'strikeout' && play.call === 'called_strike') return 'lookedK';
     if (set.bad && ((asBatter && cls === 'strikeout') || (asPitcher && cls === 'home_run'))) return 'bad';
+    if (set.good && asBatter && (cls === 'walk' || cls === 'home_run' || (play.localScoringV100 && play.localScoringV100.hits === 1))) return 'good';
     if (set.walk) {
       if ((asPitcher && (cls === 'walk' || cls === 'hit_by_pitch')) || (asBatter && cls === 'hit_by_pitch')) return 'walk';
       if (role === 'batter' && id && aheadWasIntentionallyWalked(settledHistory(view, !!official), id)) return 'walk';

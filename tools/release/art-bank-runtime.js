@@ -6,8 +6,9 @@
  'use strict';
  const pack={/*ART_PACK*/},bank=new Map(),hits={},flipped=new Map();
  let lastAthletic=null;
- // The owner's explicit instruction: the afro art is ちんすけ's alone, the purple-beard art is ロッツォ's alone.
- const EXCLUSIVE={'1-b2':{name:'ちんすけ',who:'chinsuke'},'1-b3':{name:'ロッツォ',who:'lotso'}};
+ // The owner's explicit instructions: the afro art is ちんすけ's, and from 2026-11-03 李将軍's too; the purple-beard art is
+ // ロッツォ's alone.
+ const EXCLUSIVE={'1-b2':{name:'ちんすけ',who:'chinsuke'},'1-b7':{name:'李将軍',who:'chinsuke'},'1-b3':{name:'ロッツォ',who:'lotso'}};
  function whoIs(id,name){const e=EXCLUSIVE[id];return e&&e.name===name?e.who:null;}
  function decode(key,row){
   const image=new Image();
