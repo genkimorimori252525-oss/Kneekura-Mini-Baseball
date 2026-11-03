@@ -128,6 +128,9 @@ export type LiveMatchInputV1 = Readonly<{seed:number;innings?:number;teams:reado
   fieldKinematicsV1?:LiveFieldKinematicsPolicyV1;
   /** Runners and fielders start on the Statcast-fitted speed bands (first 5 ft .55 s). Omission keeps the authored bands. Needs fieldRangeV1 and fieldKinematicsV1. */
   locomotionStartV1?:LiveLocomotionStartPolicyV1;
+  /** Calibration only: the next ball off the bat leaves with this velocity and spin instead, so the defense can be measured on
+   * real batted balls apart from the batting. Omission keeps the struck ball. */
+  battedBallReplaceV1?:Readonly<{velocity:Vec3;spin:Vec3}>;
   /** MATCH roots; per-play overrides are derived with the global pitch ordinal. */
   randomnessV152?:LiveRandomnessV152;
   measuredClips:readonly LiveMeasuredClipV1[];park?:Readonly<{fenceRadiusMeters:number;fenceHeightMeters:number;foulFenceRadiusMeters?:number;fenceShapeV1?:LiveFieldPlayInputV1['field']['fenceShapeV1'];groundMaterialV101?:BaseballGroundMaterial;
@@ -374,6 +377,7 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
   if(input.fieldCoverV1!==undefined)validateLiveFieldCoverPolicyV1(input.fieldCoverV1);
   if(input.fieldRunValueV1!==undefined)validateLiveFieldRunValuePolicyV1(input.fieldRunValueV1);
   if(input.fieldKinematicsV1!==undefined)validateLiveFieldKinematicsPolicyV1(input.fieldKinematicsV1);
+  if(input.battedBallReplaceV1!==undefined&&![input.battedBallReplaceV1.velocity,input.battedBallReplaceV1.spin].every(v=>v&&[v.x,v.y,v.z].every(Number.isFinite)))throw Error('battedBallReplaceV1 needs finite velocity and spin');
   if(input.locomotionStartV1!==undefined){validateLiveLocomotionStartPolicyV1(input.locomotionStartV1);if(!input.fieldRangeV1||!input.fieldKinematicsV1)throw Error('locomotionStartV1 needs fieldRangeV1 and fieldKinematicsV1');}
   const placementsV1:Readonly<Record<LivePositionV1,Vec3>>=input.fieldRangeV1?Object.fromEntries((Object.keys(placements) as LivePositionV1[]).map(role=>[role,liveFieldPlacementV1(role,placements[role])])) as Record<LivePositionV1,Vec3>:placements;
   assert(players.size===input.players.length&&input.players.every(p=>p.playerId&&p.name&&Number.isFinite(p.heightMeters)&&p.heightMeters>0&&['R','L'].includes(p.bats)
@@ -655,7 +659,8 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
     let scoringInput:LiveFieldPlayInputV1|null=null,fieldFallbackReason:string|null=null;
     if(pitch.contact&&pitch.contactMoment){
       const def=input.teams[1-c.team];
-      const outgoingMoment={...pitch.contactMoment,ball:{...pitch.contactMoment.ball,velocity:pitch.contact.exitVelocity,spin:pitch.contact.exitSpin}};
+      const replaced=input.battedBallReplaceV1,
+        outgoingMoment={...pitch.contactMoment,ball:{...pitch.contactMoment.ball,velocity:replaced?replaced.velocity:pitch.contact.exitVelocity,spin:replaced?replaced.spin:pitch.contact.exitSpin}};
       outgoingBallMoment=outgoingMoment;
       const fieldInput=buildLiveFieldPlayInputV95({ball:outgoingMoment,orientation:pitch.contactOrientation??IDENTITY_QUATERNION,
         physics:pitch.diagnostics.sourceDescriptor?.profile.air.aerodynamics.seamForce===undefined?matchPhysicsV101:pitch.diagnostics.sourceDescriptor.profile,
