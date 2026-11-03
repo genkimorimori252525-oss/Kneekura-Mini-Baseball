@@ -28,3 +28,12 @@
 - Baseball Savant: Catch Probability、Outfielder Jump、Arm Strength、Sprint Speed、Outs Above Average。
 - PLOS ONE「The Complete Defensive Strategy」（2026-10）。SABR Analytics 2025 の外野手の走路の発表。Baseball Positive の Ball → Base → Back-up。
 - 期待失点: NPB 2015-2017（DELTA、ja.wikipedia の Linear Weights）、MLB（FanGraphs RE24）。
+
+## NPB 水準の最初の推定（2026-11-03、標本5〜8人、信頼度は低い）
+NPB から MLB に移った野手の Statcast（2015〜2026）から。選手別の値は公開 repo に置かない（非公開 repo の調査メモにある）。
+- 脚: NPB の平均的な正選手は MLB 平均より約 0.5ft/s 遅い（0.3〜0.8、約2%）。本塁→一塁で 0.05〜0.10秒。
+- 肩: 同じ守備位置で 2〜4mph 弱い（3〜4%）。弱いことの確度は高いが、幅は不確か。
+- 外野の初動: 1〜2ft 少ない（33.9ft の 3〜6%）。移籍1年目の差は数年で縮んだ例があり、球場と打者への慣れも含む。NPB のゴールデングラブ級の外野手は、MLB 平均程度の守備範囲だった。
+- 内野: NPB のゴールデングラブ級の内野手が MLB の平均程度、ときに守備位置を一段下げた（遊撃→二塁など）。遊撃・三塁で年 -5〜-10 OAA 程度。
+- 偏り: 移籍するのは NPB で最も打てる選手で、脚と肩は平均より少し上、守備の評判で選ばれた外野手もいる。NPB 全体の差は上の値より大きい可能性がある。
+- NPB は 2025年3月から Hawk-Eye で計測しているが、リーグ平均（脚・守備位置ごとの肩・本塁→一塁）は公開されていない。公開されたら置き換える。
