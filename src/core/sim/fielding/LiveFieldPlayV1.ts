@@ -31,6 +31,7 @@ import { coordinateLiveFielderMotionV1, LIVE_FIELDER_AVOIDANCE_POLICY_V1 } from 
 import { resolveCatchRetention, type CatchRetentionParameters } from './CatchRetention';
 import { createGroundWallRollingCurveV1 } from './GroundWallRollingCurveV1';
 import { compileLiveFenceShapeV1, type LiveFenceShapeInputV1, type LiveFenceVertexV1 } from './LiveFenceShapeV1';
+import { ExactScalarMemoV1 } from './ExactScalarMemoV1';
 import { createLiveFieldForecastV1, liveUnobservedSeamPhysicsV113 } from './LiveFieldForecastV1';
 import { predictLiveDefensiveOpportunityV1, LIVE_DEFENSIVE_OPPORTUNITY_POLICY_V1,
   type LiveDefensiveOpportunityV1 } from './LiveDefensiveOpportunityV1';
@@ -387,17 +388,18 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
     controlledBaseContacts: ControlledBaseContactFact[] = [], controlledRunnerTags: ControlledRunnerTagFact[] = [], runnerDepartures: RunnerBaseDepartureFact[] = [],
     defensiveAppeals: DefensiveAppealAttemptFact[] = [];
   const tick = (t: number) => quantizeEventTick(originTick, t, tps);
-  const arrivalMemoV120=new Map<string,number>();
+  const arrivalMemoV120=new ExactScalarMemoV1(13,2048);
   const liveFieldArrivalSecondsV1=(actor:Parameters<typeof uncachedFieldArrivalV120>[0],target:Vec3,radius=.28)=>{
-    const values=[actor.position.x,actor.position.y,actor.position.z,actor.velocity.x,actor.velocity.y,actor.velocity.z,
-      actor.topSpeedMps,actor.accelerationMps2,actor.remainingReactionSeconds,target.x,target.y,target.z,radius];
+    const m=arrivalMemoV120,p=actor.position,v=actor.velocity,x0=p.x,x1=p.y,x2=p.z,x3=v.x,x4=v.y,x5=v.z,x6=actor.topSpeedMps,x7=actor.accelerationMps2,
+      x8=actor.remainingReactionSeconds,x9=target.x,x10=target.y,x11=target.z;
     // Invalid or overflowing values still go through the original validator.
     // All scalar motor inputs are part of this exact, per-play key.
-    if(!values.every(Number.isFinite))return uncachedFieldArrivalV120(actor,target,radius);
-    const key=values.map(n=>Object.is(n,-0)?'-0':n).join(','),cached=arrivalMemoV120.get(key);if(cached!==undefined)return cached;
+    if(!(Number.isFinite(x0)&&Number.isFinite(x1)&&Number.isFinite(x2)&&Number.isFinite(x3)&&Number.isFinite(x4)&&Number.isFinite(x5)&&Number.isFinite(x6)
+      &&Number.isFinite(x7)&&Number.isFinite(x8)&&Number.isFinite(x9)&&Number.isFinite(x10)&&Number.isFinite(x11)&&Number.isFinite(radius)))return uncachedFieldArrivalV120(actor,target,radius);
+    m.set(0,x0);m.set(1,x1);m.set(2,x2);m.set(3,x3);m.set(4,x4);m.set(5,x5);m.set(6,x6);m.set(7,x7);m.set(8,x8);m.set(9,x9);m.set(10,x10);m.set(11,x11);m.set(12,radius);
+    const cached=m.find();if(cached!==undefined)return cached;
     const value=uncachedFieldArrivalV120(actor,target,radius);
-    if(arrivalMemoV120.size===2048)arrivalMemoV120.delete(arrivalMemoV120.keys().next().value!);
-    arrivalMemoV120.set(key,value);return value;
+    m.put(value);return value;
   };
   const findContact = (gap: (t: number) => number, speed: number, rounding: number, lo: number, hi: number) => firstContact(gap, speed, rounding, lo, hi, 0, 1 / tps);
   let runnerCueRevisionV95 = 0, runnerCueAtV95 = start;
