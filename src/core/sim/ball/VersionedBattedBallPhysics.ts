@@ -32,7 +32,14 @@ const freeze = <T>(value: T): T => {
 
 /** Explicit authored physics, never inferred from a desired baseball result.
  * Validation is fresh and descriptor-safe even for a frozen caller object. */
+const ownedProfiles = new WeakSet<object>();
+/** True only for a profile this module already validated, cloned and deep-froze. */
+export const isOwnedAeroGroundBallPhysicsProfile = (value: unknown): boolean =>
+  typeof value === 'object' && value !== null && ownedProfiles.has(value);
 export const createAeroGroundBallPhysicsProfile = (raw: unknown): AeroGroundBallPhysicsV1 => {
+  // An owned profile is already a validated, deeply frozen, inert copy; a fresh
+  // clone would be value-identical, so reuse it instead of re-validating.
+  if (isOwnedAeroGroundBallPhysicsProfile(raw)) return raw as AeroGroundBallPhysicsV1;
   const p = cloneInert(raw) as AeroGroundBallPhysicsV1;
   const air = p?.air, aero = air?.aerodynamics, ground = p?.ground, coefficients = aero?.coefficientProfile;
   if (!fields(p, ['kind', 'air', 'ground']) || p.kind !== 'aero_ground_v1'
@@ -64,6 +71,7 @@ export const createAeroGroundBallPhysicsProfile = (raw: unknown): AeroGroundBall
   prepareOwnedBaseballAerodynamicsV98(owned.air.aerodynamics);
   prepareOwnedSourceBoundsV120(owned.air.aerodynamics);
   prepareOwnedAerodynamicPitchParametersV120(owned.air);
+  ownedProfiles.add(owned);
   return owned;
 };
 

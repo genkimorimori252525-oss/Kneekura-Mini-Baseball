@@ -8,7 +8,7 @@ import type { BallWorldMoment } from './BallWorldContinuation';
 import { resolveBaseballGroundImpact, sampleBaseballGroundMotionAtElapsedSeconds } from './BaseballGroundDynamics';
 import type { BattedBallFlightEvidence } from './BattedBallFlightEvidence';
 import type { FreeBaseballSample } from './FreeBaseballTrajectory';
-import { createAeroGroundBallPhysicsProfile, type AeroGroundBallPhysicsV1 } from './VersionedBattedBallPhysics';
+import { createAeroGroundBallPhysicsProfile, isOwnedAeroGroundBallPhysicsProfile, type AeroGroundBallPhysicsV1 } from './VersionedBattedBallPhysics';
 import { boundSourceRk4PositionSpeed } from './SourceFreeBallSpeedBound';
 
 export type SourceFreeBallDescriptorV2 = Readonly<{
@@ -52,7 +52,12 @@ const freeze = <T>(value: T): T => {
  * observations neither restart it nor interpolate a rendering frame. No field
  * collider, custody, rule or accepted Source authority is granted here. */
 export const createSourceFreeBallKernel = (raw: SourceFreeBallDescriptorV2): SourceFreeBallKernel => {
-  const descriptor = cloneInert(raw), initial = descriptor?.initial, ball = initial?.ball;
+  // An owned profile is validated, inert and deeply frozen: share it rather than
+  // cloning, re-validating and re-freezing an identical copy for every kernel.
+  const ownedProfile = raw && typeof raw === 'object' && Object.getPrototypeOf(raw) === Object.prototype
+    && isOwnedAeroGroundBallPhysicsProfile(raw.profile) ? raw.profile : undefined;
+  const descriptor = ownedProfile === undefined ? cloneInert(raw) : Object.assign(cloneInert({ ...raw, profile: null }), { profile: ownedProfile }),
+    initial = descriptor?.initial, ball = initial?.ball;
   if (!fields(descriptor, ['kind', 'initial', 'throughElapsedSeconds', 'profile'], ['materialOrientationAtStart'])
     || descriptor.kind !== 'aero_ground_continuous_source_kernel_v2'
     || !fields(initial, ['originTick', 'elapsedSeconds', 'ball'])
@@ -186,7 +191,8 @@ export const createSourceFreeBallKernel = (raw: SourceFreeBallDescriptorV2): Sou
     if(exactEvaluations.size===256)exactEvaluations.delete(exactEvaluations.keys().next().value!);
     exactEvaluations.set(elapsedSeconds,result);return result;
   };
-  return Object.freeze({ descriptor: freeze(descriptor), boundaries, cells, evaluateAt });
+  return Object.freeze({ descriptor: ownedProfile === undefined ? freeze(descriptor)
+    : (Object.values(descriptor).forEach(v => { if (v !== ownedProfile) freeze(v); }), Object.freeze(descriptor)), boundaries, cells, evaluateAt });
 };
 
 export const createContinuousBattedBallFlightEvidence = (contact: BatBallContactResult, searchDurationTicks: number,
