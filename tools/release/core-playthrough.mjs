@@ -14,8 +14,8 @@ if (opt.seed !== undefined) config.seed = Number(opt.seed) >>> 0;
 if (opt.batters) for (const player of config.players) if (/-b\d$/.test(player.playerId))
   for (const pair of opt.batters.split(',')) {const [key, value] = pair.split(':'); player.physical[key] = Number(value);}
 if (opt.skipField) config.skipFieldPlayV1 = true;
-// --observe=key:value and --decision=key:value set the batter observation policy and every batter's swing decision.
-if (opt.observe) for (const pair of opt.observe.split(',')) {const [key, value] = pair.split(':'); config.batterObservationV151[key] = value === 'true' ? true : value === 'false' ? false : Number(value);}
+// --observe=key:value (a_b for a list) and --decision=key:value set the batter observation policy and every batter's swing decision.
+if (opt.observe) for (const pair of opt.observe.split(',')) {const [key, value] = pair.split(':'); config.batterObservationV151[key] = value === 'true' ? true : value === 'false' ? false : value.includes('_') ? value.split('_').map(Number) : Number(value);}
 if (opt.decision) for (const player of config.players) if (/-b\d$/.test(player.playerId) && player.physical.swingDecision)
   for (const pair of opt.decision.split(',')) {const [key, value] = pair.split(':'); player.physical.swingDecision = {...player.physical.swingDecision, [key]: Number(value)};}
 const policies = config.experimentalMatchPoliciesV2;

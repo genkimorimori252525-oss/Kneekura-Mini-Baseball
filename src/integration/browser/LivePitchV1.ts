@@ -482,12 +482,16 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     currentObservationAvailableV151=positionObserverV151===undefined||effectiveForecastV246?.status==='PREDICTED',
     usablePriorV151=priorV122!==null&&priorV122!==undefined&&requestedPriorWeightV151>0,
     priorWeightV122=!currentObservationAvailableV151&&usablePriorV151?1:requestedPriorWeightV151,
-    placementPriorWeightV1=observationPolicyV151?.priorPlacementShareV1===undefined||!currentObservationAvailableV151?priorWeightV122:priorWeightV122*observationPolicyV151.priorPlacementShareV1,
     prediction=priorV122&&priorWeightV122>0?{...observedPredictionV122,
       elapsedSeconds:Math.max(decisionTime,observedPredictionV122.elapsedSeconds*(1-priorWeightV122)+priorV122.arrivalAfterReleaseSeconds*priorWeightV122),
       ball:{...observedPredictionV122.ball,position:{...observedPredictionV122.ball.position,
-        x:observedPredictionV122.ball.position.x*(1-placementPriorWeightV1)+priorV122.x*placementPriorWeightV1,
-        y:observedPredictionV122.ball.position.y*(1-placementPriorWeightV1)+priorV122.y*placementPriorWeightV1}}}:observedPredictionV122,
+        x:observedPredictionV122.ball.position.x*(1-priorWeightV122)+priorV122.x*priorWeightV122,
+        y:observedPredictionV122.ball.position.y*(1-priorWeightV122)+priorV122.y*priorWeightV122}}}:observedPredictionV122,
+    // The swing decision keeps the remembered pitch (a hitter can still be fooled into chasing); the bat goes where it was seen.
+    placementPriorWeightV1=observationPolicyV151?.priorPlacementShareV1===undefined||!currentObservationAvailableV151?priorWeightV122:priorWeightV122*observationPolicyV151.priorPlacementShareV1,
+    placementPositionV1=placementPriorWeightV1===priorWeightV122||!priorV122?prediction.ball.position:{...observedPredictionV122.ball.position,
+      x:observedPredictionV122.ball.position.x*(1-placementPriorWeightV1)+priorV122.x*placementPriorWeightV1,
+      y:observedPredictionV122.ball.position.y*(1-placementPriorWeightV1)+priorV122.y*placementPriorWeightV1},
     controlFactor=swingIntentV121?1:input.batting==='power'?1.08:input.batting==='contact'?.92:1;
   let baselineTimingError=yawDeferExecutionV274?0:timingRandom.normal()*b.timingStdSeconds*(swingIntentV121?1:input.batting==='contact'?.72:input.batting==='power'?1.15:1);
   const awkwardness=Math.max(0,Math.abs(prediction.ball.position.x)/.2159-1,(.55-prediction.ball.position.y)/.5,(prediction.ball.position.y-1.5)/.5),
@@ -508,7 +512,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     seed:randomStreamsV152?.seedFor('batterPerception','zone-recognition-v87')??input.seed,
     sourceTick:effectiveForecastV246?.observedThroughTick??observationTick,observationTick,planeZ:battingSetupV94.contactPlaneZ,standardDeviationMeters:judgmentStd,baselineErrorMeters:judgmentError,abilityBasis:'zoneJudgmentStdMeters'}),
     judgmentPosition={...prediction.ball.position,...batterRecognition.position},recognitionAimOffset=batterRecognition.diagnostics.biasMeters,
-    motorAimPosition=recognitionAimOffset.x===0&&recognitionAimOffset.y===0?prediction.ball.position:{...prediction.ball.position,x:prediction.ball.position.x+recognitionAimOffset.x,y:prediction.ball.position.y+recognitionAimOffset.y};
+    motorAimPosition=recognitionAimOffset.x===0&&recognitionAimOffset.y===0?placementPositionV1:{...placementPositionV1,x:placementPositionV1.x+recognitionAimOffset.x,y:placementPositionV1.y+recognitionAimOffset.y};
   const inChaseEnvelope=Math.abs(judgmentPosition.x)<=zone.halfWidth+b.chaseMarginMeters
     &&judgmentPosition.y>=zone.lowerY-b.chaseMarginMeters&&judgmentPosition.y<=zone.upperY+b.chaseMarginMeters,
     zoneMargin=Math.min(zone.halfWidth-Math.abs(judgmentPosition.x),judgmentPosition.y-zone.lowerY,zone.upperY-judgmentPosition.y),
@@ -857,13 +861,13 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       lateRawForecastV151=positionObserverV151&&!prefixContactV151&&(availableTick-input.originTick)/tps<=horizon?positionObserverV151.forecastAt(availableTick):null,
       lateForecastResultV246=lateRawForecastV151&&input.batterForecastPolicyV246!==undefined?positionObserverV151!.forecastAtV246!(availableTick):null,
       lateEffectiveForecast=lateForecastResultV246?.forecast??lateRawForecastV151,
-      latePrediction=positionObserverV151?{ball:{position:lateEffectiveForecast?.prediction?.position??prediction.ball.position}}
+      latePrediction=positionObserverV151?{ball:{position:lateEffectiveForecast?.prediction?.position??placementPositionV1}}
         :predictFromObservation(kernel.evaluateAt(observedTime),observedTime,battingSetupV94.contactPlaneZ),
-      earlyEvidence={predictionId:'release-observation-v121',observedTick:observationTick,availableTick:observationTick,position:prediction.ball.position},
+      earlyEvidence={predictionId:'release-observation-v121',observedTick:observationTick,availableTick:observationTick,position:placementPositionV1},
       lateObservedTick=positionObserverV151?(lateEffectiveForecast?.status==='PREDICTED'?lateEffectiveForecast.observedThroughTick!:observationTick)
         :input.originTick+Math.round(observedTime*tps),
       evidence=selectPredictionAt(lateObservedTick>observationTick?[earlyEvidence,{predictionId:'late-observation-v121',observedTick:lateObservedTick,availableTick,position:latePrediction.ball.position}]:[earlyEvidence],correctionFromTick)!,
-      requestedOffset=sub(evidence.position,prediction.ball.position),distance=norm(requestedOffset),
+      requestedOffset=sub(evidence.position,placementPositionV1),distance=norm(requestedOffset),
       budget=effectiveMaximumSpeedV121===undefined?0:Math.max(0,Math.min(uncorrectedReference.maximumGripSpeedMps,effectiveMaximumSpeedV121-uncorrectedReference.maximumSweetSpotSpeedMps))*(swingIntentV121?.controlPriority??1),
       accelerationBudget=executionV122?Math.max(0,Math.min(executionV122.maximumGripAccelerationMps2-referenceAccelerationBoundsV122(uncorrectedReference).maximumGripAccelerationMps2,
         executionV122.maximumSweetSpotAccelerationMps2-referenceAccelerationBoundsV122(uncorrectedReference).maximumSweetSpotAccelerationMps2)):Infinity,
