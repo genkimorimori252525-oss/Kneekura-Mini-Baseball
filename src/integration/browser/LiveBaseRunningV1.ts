@@ -1,6 +1,6 @@
 import {SeedRoot} from '../../core/rng/SeedRoot';
 import {compileLiveFenceShapeV1,type LiveFenceShapeInputV1} from '../../core/sim/fielding/LiveFenceShapeV1';
-import {LIVE_FIELD_RANGE_CALIBRATION_V1} from '../../core/sim/fielding/LiveFieldRangeV1';
+import {liveFieldRunnerAccelerationScaleV1,type LiveFieldKinematicsPolicyV1} from '../../core/sim/fielding/LiveFieldRangeV1';
 
 type Vec=Readonly<{x:number;y:number;z:number}>;
 type BaseName='first'|'second'|'third';
@@ -90,11 +90,12 @@ export function resolveStealV1(x:Readonly<{seed:number;pitchOrdinal:number;from:
   runner:Readonly<{topSpeedMps:number;accelerationMps2:number;reactionSeconds:number}&LiveRunnerTraitsV1>;transferSeconds:number;throwSpeedMps:number;
   /** クイック: first move to release. Omission keeps the common delivery. */deliverySeconds?:number;
   /** Mitt to release from 送球動作, and the throw from a step forward. Omission keeps the instant exchange. */catcherThrowV1?:true;
-  /** A shuffle, a running start, a slide and a variable jump and tag. Omission keeps the old race exact. */stealRaceV1?:true}>){
+  /** A shuffle, a running start, a slide and a variable jump and tag. Omission keeps the old race exact. */stealRaceV1?:true;
+  /** The same runner start as in the field play. Omission keeps the authored one. */kinematicsV1?:LiveFieldKinematicsPolicyV1}>){
   const race=x.stealRaceV1===true?LIVE_STEAL_RACE_CALIBRATION_V1:null,line=Math.hypot(x.to.x-x.from.x,x.to.z-x.from.z),
     secondary=race?race.secondaryLeadMeters[Math.hypot(x.to.x,x.to.z-38.79)<1?'first':'second']:0,
     from=race?{x:x.from.x+(x.to.x-x.from.x)*secondary/line,y:x.from.y,z:x.from.z+(x.to.z-x.from.z)*secondary/line}:x.from,
-    runner=race?{...x.runner,accelerationMps2:x.runner.accelerationMps2*LIVE_FIELD_RANGE_CALIBRATION_V1.runnerAccelerationScale}:x.runner,
+    runner=race?{...x.runner,accelerationMps2:x.runner.accelerationMps2*liveFieldRunnerAccelerationScaleV1(x.kinematicsV1)}:x.runner,
     distance=race?line-secondary-race.slideReachMeters:line,rise=runner.topSpeedMps/runner.accelerationMps2,
     // 盗塁 reads the pitcher sooner. Top speed and acceleration stay the runner's own.
     raceRng=race?new SeedRoot(x.seed).streamRng(x.pitchOrdinal-1,'pitch','steal-jump-v1'):null,

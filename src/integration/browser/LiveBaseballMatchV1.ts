@@ -5,7 +5,7 @@ import {simulateRobinBridgeV1} from '../../experimental/robin/bridge/match-legac
 import {resolveLoosePitchContinuationV2} from './LoosePitchContinuationV2';
 import {decideIntentionalWalkV1,decidePickoffV1,decideStealV1,leadMetersV1,LIVE_CATCHER_THROW_CALIBRATION_V1,pitchHitsBatterV1,leadPositionV1,resolvePickoffV1,resolveStealV1,runnerLeadMetersV1,settleBattedBallV1,type LiveCatcherThrowPolicyV1,type LiveStealRacePolicyV1,type LiveHitByPitchPolicyV1,type LiveRunnerLeadPolicyV1} from './LiveBaseRunningV1';
 import {validateLiveFieldThrowPolicyV1,type LiveFieldThrowPolicyV1} from '../../core/sim/fielding/LiveCloseThrowV1';
-import {liveFieldPlacementV1,validateLiveFieldRangePolicyV1,validateLiveRunnerThrowReadPolicyV1,validateLiveRunnerTurnPolicyV1,validateLiveFieldCoverPolicyV1,validateLiveFieldRunValuePolicyV1,type LiveFieldCoverPolicyV1,type LiveFieldRunValuePolicyV1,type LiveFieldRangePolicyV1,type LiveRunnerThrowReadPolicyV1,type LiveRunnerTurnPolicyV1} from '../../core/sim/fielding/LiveFieldRangeV1';
+import {liveFieldPlacementV1,validateLiveFieldRangePolicyV1,validateLiveRunnerThrowReadPolicyV1,validateLiveRunnerTurnPolicyV1,validateLiveFieldCoverPolicyV1,validateLiveFieldRunValuePolicyV1,validateLiveFieldKinematicsPolicyV1,type LiveFieldCoverPolicyV1,type LiveFieldRunValuePolicyV1,type LiveFieldKinematicsPolicyV1,type LiveFieldRangePolicyV1,type LiveRunnerThrowReadPolicyV1,type LiveRunnerTurnPolicyV1} from '../../core/sim/fielding/LiveFieldRangeV1';
 import {commandFor} from './LivePracticeCommandV273';
 import {declareSpinPracticeEpisodesV242,deriveSpinEpisodeConfigurationV242,type LiveSpinEpisodePlanV242} from './LiveSpinPracticeEpisodesV242';
 import {resolveLiveRobustContactFrameMotorPracticeV248} from './LiveRobustContactFrameMotorV248';
@@ -124,6 +124,8 @@ export type LiveMatchInputV1 = Readonly<{seed:number;innings?:number;teams:reado
   fieldCoverV1?:LiveFieldCoverPolicyV1;
   /** Omission keeps the out with the largest margin. Present: the out that leaves the fewest runs to come, weighted by its chance. */
   fieldRunValueV1?:LiveFieldRunValuePolicyV1;
+  /** Omission keeps the authored outfield break and runner start. Present: both fitted to Statcast. Needs fieldRangeV1. */
+  fieldKinematicsV1?:LiveFieldKinematicsPolicyV1;
   /** MATCH roots; per-play overrides are derived with the global pitch ordinal. */
   randomnessV152?:LiveRandomnessV152;
   measuredClips:readonly LiveMeasuredClipV1[];park?:Readonly<{fenceRadiusMeters:number;fenceHeightMeters:number;foulFenceRadiusMeters?:number;fenceShapeV1?:LiveFieldPlayInputV1['field']['fenceShapeV1'];groundMaterialV101?:BaseballGroundMaterial;
@@ -369,6 +371,7 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
   if(input.runnerTurnV1!==undefined)validateLiveRunnerTurnPolicyV1(input.runnerTurnV1);
   if(input.fieldCoverV1!==undefined)validateLiveFieldCoverPolicyV1(input.fieldCoverV1);
   if(input.fieldRunValueV1!==undefined)validateLiveFieldRunValuePolicyV1(input.fieldRunValueV1);
+  if(input.fieldKinematicsV1!==undefined)validateLiveFieldKinematicsPolicyV1(input.fieldKinematicsV1);
   const placementsV1:Readonly<Record<LivePositionV1,Vec3>>=input.fieldRangeV1?Object.fromEntries((Object.keys(placements) as LivePositionV1[]).map(role=>[role,liveFieldPlacementV1(role,placements[role])])) as Record<LivePositionV1,Vec3>:placements;
   assert(players.size===input.players.length&&input.players.every(p=>p.playerId&&p.name&&Number.isFinite(p.heightMeters)&&p.heightMeters>0&&['R','L'].includes(p.bats)
     &&(p.throws===undefined||['R','L'].includes(p.throws))),'unique physical players required');
@@ -607,7 +610,7 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
     if(stealIntent&&pitch.call!==null&&!pitch.contact&&!looseAdmission&&!lastPitchOut&&!forcedByWalk){
       const catcherPosition=ready.actors.find(a=>a.playerId===input.teams[1-c.team].defense.C)!.position,from=ready.actors.find(a=>a.playerId===stealIntent.runnerId)!.position,sp=physical(players.get(stealIntent.runnerId)!),
         catcherSkillV1=resolveLiveTechnicalTraitsV75(players.get(input.teams[1-c.team].defense.C)!.traitProfile)?.advanced_fielding??0;
-      stealRun=resolveStealV1({seed:input.seed,pitchOrdinal:pitchCount+1,from,to:LIVE_MATCH_BASES_V1[stealIntent.target],catcher:catcherPosition,catchSeconds:(pitch.endedAtTick-nextTick)/tps,runner:sp,transferSeconds:input.catcherThrowV1&&catcherSkillV1>0?cp.transferSeconds*(1-.08*catcherSkillV1):cp.transferSeconds,throwSpeedMps:cp.throwSpeedMps,...(pp.deliverySecondsV1===undefined?{}:{deliverySeconds:pp.deliverySecondsV1}),...(input.catcherThrowV1?{catcherThrowV1:true as const}:{}),...(input.stealRaceV1?{stealRaceV1:true as const}:{})});}
+      stealRun=resolveStealV1({seed:input.seed,pitchOrdinal:pitchCount+1,from,to:LIVE_MATCH_BASES_V1[stealIntent.target],catcher:catcherPosition,catchSeconds:(pitch.endedAtTick-nextTick)/tps,runner:sp,transferSeconds:input.catcherThrowV1&&catcherSkillV1>0?cp.transferSeconds*(1-.08*catcherSkillV1):cp.transferSeconds,throwSpeedMps:cp.throwSpeedMps,...(pp.deliverySecondsV1===undefined?{}:{deliverySeconds:pp.deliverySecondsV1}),...(input.catcherThrowV1?{catcherThrowV1:true as const}:{}),...(input.stealRaceV1?{stealRaceV1:true as const}:{}),...(input.fieldKinematicsV1?{kinematicsV1:input.fieldKinematicsV1}:{})});}
     // The catcher comes up and steps toward the bag while the ball goes from mitt to hand.
     const stealCatchSeconds=(pitch.endedAtTick-nextTick)/tps,catcherExchangeV1=(seconds:number)=>!stealRun||!input.catcherThrowV1?0:Math.min(1,Math.max(0,(seconds-stealCatchSeconds)/Math.max(.01,stealRun.exchangeSeconds))),
       catcherStepV1=(seconds:number)=>{const u=catcherExchangeV1(seconds);return LIVE_CATCHER_THROW_CALIBRATION_V1.steppedForwardMeters*u*u*(3-2*u);};
@@ -662,7 +665,7 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
         batterRunnerId:c.batterPlayerId,batterPosition:ready.actors.find(a=>a.playerId===c.batterPlayerId)!.position,
         occupiedBases:beforeMatch.bases,baserunning:runningInstruction,outs:beforeMatch.outs,maxPlaySeconds:45});
       const leadBy=new Map(ready.actors.filter(a=>a.role==='runner').map(a=>[a.playerId,a.position]));
-      const runnerSpecs=fieldInput.runners.map(r=>leadBy.has(r.runnerId)?{...r,position:leadBy.get(r.runnerId)!}:r),fieldWithLeads={...fieldInput,...(input.fieldThrowV1?{fieldThrowPolicyV1:input.fieldThrowV1}:{}),...(input.fieldRangeV1?{fieldRangePolicyV1:input.fieldRangeV1}:{}),...(input.runnerThrowReadV1?{runnerThrowReadPolicyV1:input.runnerThrowReadV1}:{}),...(input.runnerTurnV1?{runnerTurnPolicyV1:input.runnerTurnV1}:{}),...(input.fieldCoverV1?{fieldCoverPolicyV1:input.fieldCoverV1}:{}),...(input.fieldRunValueV1?{fieldRunValuePolicyV1:input.fieldRunValueV1}:{}),runners:runnerSpecs,runnerTacticsV1:{context:{inning:beforeMatch.inning,regulationInnings:innings,battingRuns:beforeMatch.score[beforeMatch.half==='top'?'away':'home'],defendingRuns:beforeMatch.score[beforeMatch.half==='top'?'home':'away']}}};
+      const runnerSpecs=fieldInput.runners.map(r=>leadBy.has(r.runnerId)?{...r,position:leadBy.get(r.runnerId)!}:r),fieldWithLeads={...fieldInput,...(input.fieldThrowV1?{fieldThrowPolicyV1:input.fieldThrowV1}:{}),...(input.fieldRangeV1?{fieldRangePolicyV1:input.fieldRangeV1}:{}),...(input.runnerThrowReadV1?{runnerThrowReadPolicyV1:input.runnerThrowReadV1}:{}),...(input.runnerTurnV1?{runnerTurnPolicyV1:input.runnerTurnV1}:{}),...(input.fieldCoverV1?{fieldCoverPolicyV1:input.fieldCoverV1}:{}),...(input.fieldRunValueV1?{fieldRunValuePolicyV1:input.fieldRunValueV1}:{}),...(input.fieldKinematicsV1?{fieldKinematicsPolicyV1:input.fieldKinematicsV1}:{}),runners:runnerSpecs,runnerTacticsV1:{context:{inning:beforeMatch.inning,regulationInnings:innings,battingRuns:beforeMatch.score[beforeMatch.half==='top'?'away':'home'],defendingRuns:beforeMatch.score[beforeMatch.half==='top'?'home':'away']}}};
       // Calibration of the plate appearance alone: the fielding world is skipped, and hits stop being meaningful.
       let fieldFailure:string|null=input.skipFieldPlayV1?'SKIPPED_FOR_PLATE_SAMPLING':null;
       if(fieldFailure===null)try{field=simulateLiveFieldPlayV1(fieldWithLeads);

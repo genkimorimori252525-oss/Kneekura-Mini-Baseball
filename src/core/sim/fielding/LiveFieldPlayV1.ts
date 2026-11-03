@@ -36,7 +36,7 @@ import { predictLiveDefensiveOpportunityV1, LIVE_DEFENSIVE_OPPORTUNITY_POLICY_V1
   type LiveDefensiveOpportunityV1 } from './LiveDefensiveOpportunityV1';
 import { resolveGroundedActorContactResponseV1 } from './GroundedActorContactResponseV1';
 import { planLiveThrowV1 } from './LiveThrowPlanV1';
-import { LIVE_RUNNER_THROW_READ_CALIBRATION_V1,validateLiveRunnerThrowReadPolicyV1,type LiveRunnerThrowReadPolicyV1,LIVE_RUNNER_TURN_CALIBRATION_V1,validateLiveRunnerTurnPolicyV1,type LiveRunnerTurnPolicyV1,LIVE_FIELD_COVER_CALIBRATION_V1,liveFieldCoverDutyV1,validateLiveFieldCoverPolicyV1,type LiveFieldCoverPolicyV1,LIVE_FIELD_RUN_VALUE_CALIBRATION_V1,validateLiveFieldRunValuePolicyV1,type LiveFieldRunValuePolicyV1,LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
+import { LIVE_RUNNER_THROW_READ_CALIBRATION_V1,validateLiveRunnerThrowReadPolicyV1,type LiveRunnerThrowReadPolicyV1,LIVE_RUNNER_TURN_CALIBRATION_V1,validateLiveRunnerTurnPolicyV1,type LiveRunnerTurnPolicyV1,LIVE_FIELD_COVER_CALIBRATION_V1,liveFieldCoverDutyV1,validateLiveFieldCoverPolicyV1,type LiveFieldCoverPolicyV1,LIVE_FIELD_RUN_VALUE_CALIBRATION_V1,validateLiveFieldRunValuePolicyV1,type LiveFieldRunValuePolicyV1,validateLiveFieldKinematicsPolicyV1,type LiveFieldKinematicsPolicyV1,LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
 import { decideLiveCloseThrowV1,liveCloseThrowToleranceV1,LIVE_CLOSE_THROW_CALIBRATION_V1,validateLiveFieldThrowPolicyV1,type LiveFieldThrowPolicyV1 } from './LiveCloseThrowV1';
 import { planLiveThrowActionV103,LIVE_THROW_EFFORT_POLICY_V103 } from './LiveThrowActionV103';
 import { liveFielderTurnSpeedV110 } from './LiveFielderBodyGeometryV105';
@@ -117,6 +117,8 @@ export type LiveFieldPlayInputV1 = Readonly<{ ball: BallWorldMoment; physics: Ae
   fieldCoverPolicyV1?: LiveFieldCoverPolicyV1;
   /** The holder takes the out worth the most runs, weighted by its chance; omission keeps the largest margin. Needs individual decisions. */
   fieldRunValuePolicyV1?: LiveFieldRunValuePolicyV1;
+  /** The Statcast-fitted outfield break and runner start; omission keeps the authored ones. Needs fieldRangePolicyV1. */
+  fieldKinematicsPolicyV1?: LiveFieldKinematicsPolicyV1;
   /** Opt-in runner tactics, authored and UNMEASURED; omitted keeps legacy decisions. Enables: two-out go-on-contact held for the
    * whole contact leg, line-drive freeze under two outs, halfway on a shallow catchable fly. `context` also lets risk follow outs,
    * inning and score (facts a runner knows). */
@@ -298,7 +300,8 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   if(loose&&(!batDynamics||typeof batDynamics.rigidAt!=='function'||typeof batDynamics.sampleBatAtTick!=='function'||!Number.isFinite(batDynamics.batBound)||batDynamics.batBound<0||!Number.isFinite(batDynamics.batThroughSeconds)||!batDynamics.batBoundCovered))throw Error('HOLD: missing covered dynamic bat trajectory');
   assert(loose===undefined||loose.version==='loose_pitch_field_v1','unsupported loose pitch version');let looseImpactSeconds=loose?.initialImpactSeconds??null;const looseVisibleAt=(t:number)=>!loose||typeof loose.hiddenAfterSeconds!=='number'||t<loose.hiddenAfterSeconds||(typeof looseImpactSeconds==='number'&&t>=Math.max(loose.legacyArrivedSeconds,looseImpactSeconds));if(loose&&typeof loose.hiddenAfterSeconds==='number')assert(Number.isFinite(loose.legacyArrivedSeconds)&&loose.legacyArrivedSeconds>=loose.hiddenAfterSeconds,'invalid legacy arrival');
   const cloned = cloneInert(raw), fieldRangePolicyV1 = cloned.fieldRangePolicyV1 === undefined ? undefined : validateLiveFieldRangePolicyV1(cloned.fieldRangePolicyV1),
-    input = fieldRangePolicyV1 ? { ...cloned, fielders: cloned.fielders.map(f => (cloned as { loosePitchV1?: unknown }).loosePitchV1 ? { ...liveFieldRangeSpecV1(f), bodyModelV105: f.bodyModelV105 } : liveFieldAirReadV1(liveFieldRangeSpecV1(f), cloned.ball.ball.velocity)), runners: cloned.runners.map(liveFieldRunnerRangeSpecV1) } : cloned, start = input.ball.elapsedSeconds, originTick = input.ball.originTick,
+    kinematicsV1 = cloned.fieldKinematicsPolicyV1 === undefined ? undefined : validateLiveFieldKinematicsPolicyV1(cloned.fieldKinematicsPolicyV1),
+    input = fieldRangePolicyV1 ? { ...cloned, fielders: cloned.fielders.map(f => (cloned as { loosePitchV1?: unknown }).loosePitchV1 ? { ...liveFieldRangeSpecV1(f, kinematicsV1), bodyModelV105: f.bodyModelV105 } : liveFieldAirReadV1(liveFieldRangeSpecV1(f, kinematicsV1), cloned.ball.ball.velocity)), runners: cloned.runners.map(r => liveFieldRunnerRangeSpecV1(r, kinematicsV1)) } : cloned, start = input.ball.elapsedSeconds, originTick = input.ball.originTick,
     fielderBagV1 = fieldRangePolicyV1 ? LIVE_FIELD_RANGE_CALIBRATION_V1.fielderBagReachMeters : input.field.baseTouchRadiusMeters ?? .28,
     tps = input.physics.air.ticksPerSecond, max = start + (input.maxPlaySeconds ?? 35), frameSeconds = input.frameSeconds ?? .055;
   assert(input.recordInitialMovementV98 === undefined || input.recordInitialMovementV98 === true, 'invalid initial movement telemetry option');

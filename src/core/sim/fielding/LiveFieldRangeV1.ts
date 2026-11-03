@@ -114,13 +114,30 @@ export function validateLiveFieldRangePolicyV1(policy:LiveFieldRangePolicyV1){
   return policy;
 }
 /** Every estimate reads the same spec as the motor, so plans and motion cannot disagree. */
-export function liveFieldRangeSpecV1<T extends Readonly<{accelerationMps2:number;defensivePosition?:string;throwEffortBuildSecondsV103?:number;bodyModelV105?:LiveFielderBodyModelV105}>>(spec:T):T{
+export function liveFieldRangeSpecV1<T extends Readonly<{accelerationMps2:number;defensivePosition?:string;throwEffortBuildSecondsV103?:number;bodyModelV105?:LiveFielderBodyModelV105}>>(spec:T,
+  /** fieldKinematicsV1: the Statcast-fitted outfield break. Omission keeps the authored one. */kinematics?:LiveFieldKinematicsPolicyV1):T{
   const c=LIVE_FIELD_RANGE_CALIBRATION_V1,m=spec.bodyModelV105,outfield=['LF','CF','RF'].includes(spec.defensivePosition??'');
-  return {...spec,accelerationMps2:spec.accelerationMps2*(outfield?c.readOutfieldAccelerationScale:c.readyAccelerationScale),
+  return {...spec,accelerationMps2:spec.accelerationMps2*(outfield?kinematics?LIVE_FIELD_KINEMATICS_CALIBRATION_V1.readOutfieldAccelerationScale:c.readOutfieldAccelerationScale:c.readyAccelerationScale),
     ...(spec.throwEffortBuildSecondsV103===undefined?{}:{throwEffortBuildSecondsV103:spec.throwEffortBuildSecondsV103*c.throwBuildScale}),
     ...(m?{bodyModelV105:{...m,armReachMeters:m.armReachMeters*c.lowBallArmScale,maximumCrouchMeters:m.heightMeters*c.lowBallCrouchFraction}}:{})};
 }
-export const liveFieldRunnerRangeSpecV1=<T extends Readonly<{accelerationMps2:number}>>(spec:T):T=>({...spec,accelerationMps2:spec.accelerationMps2*LIVE_FIELD_RANGE_CALIBRATION_V1.runnerAccelerationScale});
+export const liveFieldRunnerAccelerationScaleV1=(kinematics?:LiveFieldKinematicsPolicyV1)=>kinematics?LIVE_FIELD_KINEMATICS_CALIBRATION_V1.runnerAccelerationScale:LIVE_FIELD_RANGE_CALIBRATION_V1.runnerAccelerationScale;
+export const liveFieldRunnerRangeSpecV1=<T extends Readonly<{accelerationMps2:number}>>(spec:T,kinematics?:LiveFieldKinematicsPolicyV1):T=>({...spec,accelerationMps2:spec.accelerationMps2*liveFieldRunnerAccelerationScaleV1(kinematics)});
+/** Opt-in, needs fieldRangeV1. Omission keeps the authored outfield break (x1.1) and runner start (x1.4). */
+export type LiveFieldKinematicsPolicyV1=Readonly<{version:'live_field_kinematics_policy_v1';sourceId:string}>;
+export const LIVE_FIELD_KINEMATICS_POLICY_V1:LiveFieldKinematicsPolicyV1=Object.freeze({version:'live_field_kinematics_policy_v1',sourceId:'field-kinematics-v1-statcast'});
+/** Fitted 2026-11-03 to MLB Statcast with the shared speed bands and a 27.3 ft/s top speed (the 2025 mean).
+ * runnerAccelerationScale: least squares on the 2025 90 ft running splits (5 ft .55 s ... 90 ft 4.03 s, from first movement),
+ * rms .05 s; the first 5 ft stay .09 s slow because the bands start too gently.
+ * readOutfieldAccelerationScale: with the .3 s air read kept, 33.9 ft toward the ball 3 s after release (the 2025 mean jump)
+ * and 85 ft by 4.75 s with a 1 m reach (the 55% catch-probability band), taking release to contact as .42 s.
+ * The read and the scale trade off one for one in these two targets; the read was left as it was. */
+export const LIVE_FIELD_KINEMATICS_CALIBRATION_V1=Object.freeze({readOutfieldAccelerationScale:1.3,runnerAccelerationScale:1.54});
+export function validateLiveFieldKinematicsPolicyV1(policy:LiveFieldKinematicsPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_kinematics_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field kinematics policy');
+  return policy;
+}
 export function liveFieldAirReadV1<T extends Readonly<{reactionSeconds:number}>>(spec:T,ballVelocity:Vec3):T{
   const c=LIVE_FIELD_RANGE_CALIBRATION_V1,launch=Math.atan2(ballVelocity.y,Math.hypot(ballVelocity.x,ballVelocity.z))*180/Math.PI;
   return launch>=c.airBallLaunchDegrees?{...spec,reactionSeconds:spec.reactionSeconds+c.airReadSeconds}:spec;
