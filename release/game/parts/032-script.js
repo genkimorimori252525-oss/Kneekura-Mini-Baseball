@@ -601,8 +601,12 @@ function rasterSphere(center,radius,color,owner){
     artV1=bankV1?.pick({role:a.role,action,frame,camera:state.camera,hand:a.player.hand,form:a.player.form,team:a.player.team,running:a.running,isRobin:a.sourcePlayerId==='robin',pose:a.presentationPose,away:awayV1,walking:a.walking,
      who:bankV1.whoIs(a.sourcePlayerId,a.player.name),art:a.role==='umpire'?{umpire:observed.liveUmpireArtV1}:a.presentationArt,athletic:a.athleticV115,motion:motionV1,sx:sideV1&&sideV1.x<foot.x?-1:1});
    if(artV1){original=artV1.sprite;palette=artV1.palette;materialSource=artV1.id;}
-   const sprite=action==='bat'&&!original.artBankV1?batterSpriteForView(original,state.camera):original;
+   let sprite=action==='bat'&&!original.artBankV1?batterSpriteForView(original,state.camera):original;
    const unit=height/(sprite.referenceHeight||44)*foot.scale*RETRO_SCALE,left=foot.x-sprite.originX*unit,top=foot.y-sprite.baseline*unit;
+   // The batter aims the swing at the ball (art-bank-runtime.js bend): a little at the load, fully at impact, partly kept
+   // through the follow-through. The feet stay; the Core's bat is then put in the bent hands.
+   const aimV1=a.presentationArt?.aim,aimShareV1=[0,.35,1,.6][frame]??0;
+   if(action==='bat'&&artV1&&sprite.bend&&aimV1&&aimShareV1){const bent=bankV1.bend(artV1,aimV1.lift*aimShareV1,aimV1.reach*aimShareV1);if(bent)sprite=bent.found.sprite;}
    // The body is never stretched or folded to fake a motion: a drawn frame or the sprite as it is.
    athleticPresentationV115='DRAWN_FRAME_V1';
    bounds=spriteAtGrid(sprite,unit,left,top,(u,v,index,coverage)=>{if(coverage>=.6||unit*sprite.referenceHeight<48)paintWorldCell(u,v,foot.depth-.001,palette[index],1,a.id);});

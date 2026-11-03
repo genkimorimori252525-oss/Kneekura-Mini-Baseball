@@ -16,7 +16,6 @@ import base64
 import hashlib
 import io
 import json
-import math
 import os
 import re
 import sys
@@ -341,12 +340,18 @@ for i, name in enumerate(("stance", "load", "swing", "follow")):
              {"note": "UNRESOLVED in the owner's index; connected only so the swing is not a silhouette"} if status == "UNRESOLVED" else None)
 path, status = lotso_special["home-run"]
 dedicate("lotso", "bat/hr/0", path, status, 1.02, "purple-beard:home-run")
-# ---- batting for everyone without a set of their own: the body without a bat, and the Core's real bat in its hands ----
-# The owner approved this on 2026-11-03 after seeing the probe. The sheet holds four frames, two by two, drawn as a
-# left-handed batter seen from the pitcher; body-repair-guide-v2.json gives each frame's foot and the point where the
-# real bat's grip belongs, in the frame's own pixels. Nothing is redrawn: the cells are cut out of the sheet as they are.
+# ---- batting for everyone without a set of their own: the body without a bat, holding the Core's real bat ----
+# The owner approved the probe on 2026-11-03 (output/b2-form-01-motion-probe). Frames 1-3 are the batless sheet, two by
+# two; the follow-through is the normal one, arms high, that the owner asked for. The registration below is the probe's
+# own (body.cjs: box, foot, grip, hip line, torso core), in the source pictures' pixels. The pictures are drawn as a
+# left-handed batter seen from the pitcher. Nothing is redrawn: each frame is cut out as it is.
 PROBE = os.path.join(root, "output", "b2-form-01-motion-probe")
-BODY_RATIO = (.80, .80, .82, .86)
+BODY_FRAMES = (
+    ("b2-form01-body-only-v2.png", (0, 0, 602, 653), (387.704, 226.860), 339, (240, 262, 315, 339), 517),
+    ("b2-form01-body-only-v2.png", (602, 0, 1204, 653), (950.723, 262.636), 336, (835, 270, 910, 336), 517),
+    ("b2-form01-body-only-v2.png", (0, 653, 602, 1306), (362.337, 917.077), 994, (240, 860, 305, 994), 517),
+    ("b2-form01-normal-follow-body-v1.png", (0, 0, 1075, 1463), (442, 461), 820, (620, 550, 760, 815), 1167),
+)
 
 
 def crop_box(image):
@@ -358,121 +363,42 @@ def crop_box(image):
     return alpha.point(lambda a: 255 if a > 24 else 0).getbbox()
 
 
-body_sheet = Image.open(os.path.join(PROBE, "b2-form01-body-only-v2.png")).convert("RGBA")
-cell_w, cell_h = body_sheet.width // 2, body_sheet.height // 2
-for guide in json.load(open(os.path.join(PROBE, "body-repair-guide-v2.json"), encoding="utf-8")):
-    i = guide["cell"]
-    cell = body_sheet.crop(((i % 2) * cell_w, (i // 2) * cell_h, (i % 2 + 1) * cell_w, (i // 2 + 1) * cell_h))
-    box = crop_box(cell)
-    crop = crop_of_image(cell)
+def bend_rig(box, scale, grip, pivot, top, bottom, faces=1, bat=None):
+    """How the runtime may bend this picture so its hands reach the Core's grip, in the packed picture's pixels: the
+    hands, the hip it turns about, the band where the turn fades from all (above top) to nothing (below bottom), and which
+    way the batter faces on the picture (1: screen right). A drawn bat (its box) turns rigidly with the hands."""
+    to = lambda x, y: (round((x - box[0]) * scale, 1), round((y - box[1]) * scale, 1))
+    rig = {"grip": to(*grip), "pivot": to(*pivot), "top": to(0, top)[1], "bottom": to(0, bottom)[1], "faces": faces}
+    if bat:
+        rig["bat"] = (*to(bat[0], bat[1]), *to(bat[2], bat[3]))
+    return rig
+
+
+for i, (file, region, grip, hip, torso, standing) in enumerate(BODY_FRAMES):
+    picture = Image.open(os.path.join(PROBE, file)).convert("RGBA").crop(region)
+    box = crop_box(picture)
+    crop = crop_of_image(picture)
     name = f"body/mound/{i}"
-    store(name, f"b2-form01-body-only-v2:{i}", os.path.join(PROBE, "b2-form01-body-only-v2.png"), "OWNER_ADOPTED_2026-11-03", crop, BODY_RATIO[i], name)
+    store(name, f"{file}:{i}", os.path.join(PROBE, file), "OWNER_ADOPTED_2026-11-03", crop, crop.height / standing, name)
     scale = MAX_SIDE / max(crop.size)
-    out[name]["grip"] = (round((guide["grip"][0] - box[0]) * scale, 1), round((guide["grip"][1] - box[1]) * scale, 1))
+    local = (grip[0] - region[0], grip[1] - region[1])
+    hip_y, foot_y = hip - region[1], box[3]
+    out[name]["grip"] = (round((local[0] - box[0]) * scale, 1), round((local[1] - box[1]) * scale, 1))
+    out[name]["bend"] = bend_rig(box, scale, local, ((torso[0] + torso[2]) / 2 - region[0], hip_y),
+                                 hip_y - .14 * (foot_y - box[1]), hip_y + .6 * (foot_y - hip_y))
 
-# ---- the upper body bends to where the ball is: high, middle or low, inside, middle or outside ----
-# The owner's probe (output/b2-defense-motion-probe/afro-redraw/height/height.js), approved 2026-11-03 for ちんすけ and
-# for ロッツォ: the frame at impact bends about the hip. Above the hip the body turns by up to the request's angle,
-# fading to nothing at the knees; the drawn bat is lifted out and turned rigidly with the hands. The legs never move.
-# Values are in the probe's pixels on its 1236 x 1272 picture and scale with each picture.
-ARC_NX, ARC_NY, ARC_REACH, ARC_LIFT = 36, 36, 40 / 1236, 160 / 1272
-ARC_SETS = {
-    # who: (picture, standing height in its pixels, faces screen right, hip pivot, bat box, bat anchor), as fractions
-    "chinsuke": (afro_batting["swing"][0], STANDING_PER_HEAD * AFRO_HEAD["swing"], True, (.33, .54), (.64, .44, 1, .80), (.64, .56)),
-    "lotso": (lotso_special["swing"][0], None, False, (.65, .52), (0, .39, .44, .57), (.44, .45)),
-}
-
-
-def arc_weight(y, h):
-    t = max(0.0, min(1.0, (y / h - .48) / .36))
-    return 1 - t * t * (3 - 2 * t)
-
-
-def arc_picture(image, pivot, bat_box, anchor, reach, lift):
-    """image faces screen right. Returns the bent picture on a padded canvas (padding = pad on every side)."""
-    w, h = image.size
-    pad = round(max(w, h) * .25)
-    px, py = pivot[0] * w, pivot[1] * h
-    angle = math.atan2(lift, w * .35)
-    bat_rect = (round(bat_box[0] * w), round(bat_box[1] * h), round(bat_box[2] * w), round(bat_box[3] * h))
-    body = image.copy()
-    body.paste((0, 0, 0, 0), bat_rect)
-
-    def forward(x, y):
-        k = arc_weight(y, h)
-        t = angle * k
-        c, s = math.cos(t), math.sin(t)
-        dx, dy = x - px, y - py
-        return px + c * dx - s * dy + reach * k, py + s * dx + c * dy
-
-    out = Image.new("RGBA", (w + 2 * pad, h + 2 * pad), (0, 0, 0, 0))
-    src, dst = body.load(), out.load()
-    grid = [[(x * w / ARC_NX, y * h / ARC_NY) for x in range(ARC_NX + 1)] for y in range(ARC_NY + 1)]
-    moved = [[forward(*p) for p in row] for row in grid]
-    for gy in range(ARC_NY):
-        for gx in range(ARC_NX):
-            for tri in (((gy, gx), (gy, gx + 1), (gy + 1, gx + 1)), ((gy, gx), (gy + 1, gx + 1), (gy + 1, gx))):
-                a, b, c = (moved[j][i] for j, i in tri)
-                sa, sb, sc = (grid[j][i] for j, i in tri)
-                den = (b[1] - c[1]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[1] - c[1])
-                if abs(den) < 1e-9:
-                    continue
-                x0, x1 = int(math.floor(min(a[0], b[0], c[0]))), int(math.ceil(max(a[0], b[0], c[0])))
-                y0, y1 = int(math.floor(min(a[1], b[1], c[1]))), int(math.ceil(max(a[1], b[1], c[1])))
-                for y in range(y0, y1 + 1):
-                    for x in range(x0, x1 + 1):
-                        u = ((b[1] - c[1]) * (x + .5 - c[0]) + (c[0] - b[0]) * (y + .5 - c[1])) / den
-                        v = ((c[1] - a[1]) * (x + .5 - c[0]) + (a[0] - c[0]) * (y + .5 - c[1])) / den
-                        q = 1 - u - v
-                        if u < -1e-6 or v < -1e-6 or q < -1e-6:
-                            continue
-                        sx, sy = int(u * sa[0] + v * sb[0] + q * sc[0]), int(u * sa[1] + v * sb[1] + q * sc[1])
-                        if 0 <= sx < w and 0 <= sy < h and 0 <= x + pad < out.width and 0 <= y + pad < out.height:
-                            pixel = src[sx, sy]
-                            if pixel[3]:
-                                dst[x + pad, y + pad] = pixel
-    # The bat turns with the hands as one piece.
-    ax, ay = anchor[0] * w, anchor[1] * h
-    qx, qy = forward(ax, ay)
-    turn = angle * arc_weight(ay, h)
-    c, s = math.cos(turn), math.sin(turn)
-    whole = image.load()
-    corners = [(bat_rect[0], bat_rect[1]), (bat_rect[2], bat_rect[1]), (bat_rect[2], bat_rect[3]), (bat_rect[0], bat_rect[3])]
-    placed = [(qx + c * (x - ax) - s * (y - ay), qy + s * (x - ax) + c * (y - ay)) for x, y in corners]
-    for y in range(int(min(p[1] for p in placed)) - 1, int(max(p[1] for p in placed)) + 2):
-        for x in range(int(min(p[0] for p in placed)) - 1, int(max(p[0] for p in placed)) + 2):
-            dx, dy = x + .5 - qx, y + .5 - qy
-            sx, sy = int(ax + c * dx + s * dy), int(ay - s * dx + c * dy)
-            if bat_rect[0] <= sx < bat_rect[2] and bat_rect[1] <= sy < bat_rect[3] and 0 <= x + pad < out.width and 0 <= y + pad < out.height:
-                pixel = whole[sx, sy]
-                if pixel[3]:
-                    dst[x + pad, y + pad] = pixel
-    return out
-
-
-ARC_WORK_SIDE = 520   # bend at this size: the bank keeps at most 256 pixels a side, so nothing finer survives
-for who, (path, standing, faces_right, pivot, bat_box, anchor) in ARC_SETS.items():
-    source = Image.open(path).convert("RGBA")
-    base_crop = crop_of(path)
-    if standing is None:
-        standing = base_crop.height / LOTSO_BAT["swing"]
-    shrink = ARC_WORK_SIDE / max(source.size)
-    work = source.resize((round(source.width * shrink), round(source.height * shrink)), Image.NEAREST)
-    if not faces_right:
-        work = ImageOps.mirror(work)
-        pivot, anchor = (1 - pivot[0], pivot[1]), (1 - anchor[0], anchor[1])
-        bat_box = (1 - bat_box[2], bat_box[1], 1 - bat_box[0], bat_box[3])
-    for height, lift in (("-high", -1), ("", 0), ("-low", 1)):
-        for course, reach in (("-in", -1), ("", 0), ("-out", 1)):
-            if not lift and not reach:
-                continue
-            bent = arc_picture(work, pivot, bat_box, anchor, reach * ARC_REACH * work.width, lift * ARC_LIFT * work.height)
-            if not faces_right:
-                bent = ImageOps.mirror(bent)
-            crop = crop_of_image(bent)
-            name = f"bat/mound/2{height}{course}"
-            store(f"{who}/{name}", f"arc:{who}:{height or '-middle'}{course or '-middle'}", path, "OWNER_ADOPTED_2026-11-03", crop,
-                  crop.height / shrink / standing, f"{who}/{name}", {"arc": {"lift": lift, "reach": reach}})
+# ---- ちんすけ and ロッツォ bend at impact toward the ball ----
+# The owner's probe (output/b2-defense-motion-probe/afro-redraw/height/height.js), approved 2026-11-03 for both: the
+# impact frame turns about the hip, fully above the waist and fading out by the knees; the legs never move. Their own
+# pictures carry a drawn bat, which turns with the body. Points are fractions of each source picture.
+for who, path, faces, pivot, hands, bat in (("chinsuke", afro_batting["swing"][0], 1, (.33, .54), (.62, .55), (.64, .44, 1, .80)),
+                                                   ("lotso", lotso_special["swing"][0], -1, (.65, .52), (.47, .45), (0, .39, .44, .57))):
+    picture = Image.open(path).convert("RGBA")
+    w, h = picture.size
+    box = crop_box(picture)
+    scale = MAX_SIDE / max(box[2] - box[0], box[3] - box[1])
+    out[f"{who}/bat/mound/2"]["bend"] = bend_rig(box, scale, (hands[0] * w, hands[1] * h), (pivot[0] * w, pivot[1] * h), .48 * h, .84 * h, faces,
+                                                (bat[0] * w, bat[1] * h, bat[2] * w, bat[3] * h))
 # Art for a player facing the camera or carrying a glove: front and rear only, never the rejected side views.
 LOCO = os.path.join(gen, "locomotion-four-directions-v1", "sprites")
 FORWARD = os.path.join(gen, "b2-forward-run-v1", "sprites")
@@ -497,7 +423,7 @@ for i, name in enumerate(("loco-walk-bare-rear-A", "loco-walk-bare-rear-B")):
         dedicate("lotso", f"walk/rear/{i}", lotso_special[name][0], lotso_special[name][1], .98, "purple-beard:" + name)
 
 body = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "art-bank-runtime.js"), encoding="utf-8").read()
-pack_js = ",".join(f'{json.dumps(k)}:{{id:{json.dumps(v["id"])},referenceHeight:{v["referenceHeight"]},footX:{v["footX"]},data:"@@ASSET:{v["asset"]}@@"' + (f',grip:{json.dumps(v["grip"])}' if "grip" in v else '') + '}' for k, v in out.items())
+pack_js = ",".join(f'{json.dumps(k)}:{{id:{json.dumps(v["id"])},referenceHeight:{v["referenceHeight"]},footX:{v["footX"]},data:"@@ASSET:{v["asset"]}@@"' + (f',grip:{json.dumps(v["grip"])}' if "grip" in v else '') + (f',bend:{json.dumps(v["bend"])}' if "bend" in v else '') + '}' for k, v in out.items())
 with open(os.path.join(game, "parts", "art-bank-v1.js"), "w", encoding="utf-8", newline="") as f:
     f.write(body.replace("/*ART_PACK*/", pack_js))
 manifest = json.load(open(os.path.join(game, "manifest.json")))

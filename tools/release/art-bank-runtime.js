@@ -22,7 +22,9 @@
     pixels[n]=index;const x=n%size,y=Math.floor(n/size);if(x<minX)minX=x;if(x>maxX)maxX=x;if(y<minY)minY=y;if(y>maxY)maxY=y;}
    bank.set(key,{sprite:{pixels,size,originX:anchor,baseline:size-1,referenceHeight:row.referenceHeight,minX,minY,maxX,maxY,artBankV1:row.id,
     // Where the real bat's grip belongs on a body drawn without one.
-    ...(row.grip?{gripX:x0+row.grip[0],gripY:y0+row.grip[1]}:{})},palette:colors,id:row.id,key});
+    ...(row.grip?{gripX:x0+row.grip[0],gripY:y0+row.grip[1]}:{}),
+    ...(row.bend?{bend:{gripX:x0+row.bend.grip[0],gripY:y0+row.bend.grip[1],pivotX:x0+row.bend.pivot[0],pivotY:y0+row.bend.pivot[1],top:y0+row.bend.top,bottom:y0+row.bend.bottom,faces:row.bend.faces??1,
+     ...(row.bend.bat?{bat:[x0+row.bend.bat[0],y0+row.bend.bat[1],x0+row.bend.bat[2],y0+row.bend.bat[3]]}:{})}}:{})},palette:colors,id:row.id,key});
   };
   image.src='data:image/png;base64,'+row.data;
  }
@@ -32,8 +34,52 @@
   if(flipped.has(found))return flipped.get(found);
   const s=found.sprite,size=s.size,pixels=new Uint16Array(s.pixels.length);
   for(let y=0;y<size;y++)for(let x=0;x<size;x++)pixels[y*size+x]=s.pixels[y*size+size-1-x];
-  const copy={...found,sprite:{...s,pixels,originX:size-s.originX,minX:size-1-s.maxX,maxX:size-1-s.minX,viewMirrorX:true,...(s.gripX!==undefined?{gripX:size-s.gripX}:{})}};
+  const copy={...found,sprite:{...s,pixels,originX:size-s.originX,minX:size-1-s.maxX,maxX:size-1-s.minX,viewMirrorX:true,...(s.gripX!==undefined?{gripX:size-s.gripX}:{}),
+   ...(s.bend?{bend:{...s.bend,gripX:size-s.bend.gripX,pivotX:size-s.bend.pivotX,...(s.bend.bat?{bat:[size-s.bend.bat[2],s.bend.bat[1],size-s.bend.bat[0],s.bend.bat[3]]}:{})}}:{})}};
   flipped.set(found,copy);return copy;
+ }
+ /* The batter aims the swing: the upper body turns up or down to the ball's height and leans toward or away from the
+  * plate with its side, about the hip, fully above the waist and fading out by the knees. The legs stay. lift and reach
+  * run from -1 to 1 (high to low, inside to outside); the Core's bat is then put in the bent hands. Bends are kept per
+  * picture in small steps. BEND_TURN and BEND_LEAN are the owner-approved probe's extremes (about 20 degrees, 40 px). */
+ const BEND_TURN=.35,BEND_LEAN=.06,bends=new WeakMap(),smooth=t=>{t=t<0?0:t>1?1:t;return t*t*(3-2*t);};
+ function bend(found,lift,reach){
+  const s=found?.sprite,b=s?.bend;if(!b||!Number.isFinite(lift)||!Number.isFinite(reach))return null;
+  // A picture that faces screen left turns the other way for the same aim.
+  const faces=(b.faces??1)*(s.viewMirrorX?-1:1),
+   turn=Math.round(Math.max(-1,Math.min(1,lift))*BEND_TURN*faces/.02)*.02,lean=Math.round(Math.max(-1,Math.min(1,reach))*BEND_LEAN*s.size*faces);
+  let cache=bends.get(found);if(!cache){cache=new Map();bends.set(found,cache);}
+  const key=turn+':'+lean;let made=cache.get(key);
+  if(!made){
+   const size=s.size,from=s.pixels,pixels=new Uint16Array(from.length),weight=y=>1-smooth((y-b.top)/(b.bottom-b.top)),
+    inBat=(x,y)=>!!b.bat&&x>=b.bat[0]&&x<b.bat[2]&&y>=b.bat[1]&&y<b.bat[3],
+    forward=(x,y)=>{const w=weight(y),t=turn*w,c=Math.cos(t),n=Math.sin(t),dx=x-b.pivotX,dy=y-b.pivotY;return [b.pivotX+c*dx-n*dy+lean*w,b.pivotY+n*dx+c*dy];};
+   let minX=size,minY=size,maxX=0,maxY=0;
+   // Only around the figure: the turn moves nothing farther than a quarter of the picture.
+   const reach=Math.ceil(size/4),x0=Math.max(0,s.minX-reach),x1=Math.min(size,s.maxX+reach+1),y0=Math.max(0,s.minY-reach),y1=Math.min(size,s.maxY+reach+1);
+   for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){
+    // Where this pixel came from: the turn depends on the source height, so walk back a few times.
+    let px=x+.5,py=y+.5;
+    for(let k=0;k<4;k++){const w=weight(py),t=-turn*w,c=Math.cos(t),n=Math.sin(t),dx=x+.5-lean*w-b.pivotX,dy=y+.5-b.pivotY;px=b.pivotX+c*dx-n*dy;py=b.pivotY+n*dx+c*dy;}
+    const sx=Math.floor(px),sy=Math.floor(py);if(sx<0||sy<0||sx>=size||sy>=size||inBat(sx,sy))continue;
+    const v=from[sy*size+sx];if(!v)continue;
+    pixels[y*size+x]=v;
+   }
+   // A drawn bat is one rigid piece: it turns with the hands instead of bending with the body.
+   if(b.bat){
+    const held=forward(b.gripX,b.gripY),t=-turn*weight(b.gripY),c=Math.cos(t),n=Math.sin(t);
+    for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){
+     const dx=x+.5-held[0],dy=y+.5-held[1],sx=Math.floor(b.gripX+c*dx-n*dy),sy=Math.floor(b.gripY+n*dx+c*dy);
+     if(sx<0||sy<0||sx>=size||sy>=size||!inBat(sx,sy))continue;
+     const v=from[sy*size+sx];if(v)pixels[y*size+x]=v;
+    }
+   }
+   for(let i=0;i<pixels.length;i++)if(pixels[i]){const x=i%size,y=(i-x)/size;if(x<minX)minX=x;if(x>maxX)maxX=x;if(y<minY)minY=y;if(y>maxY)maxY=y;}
+   const hand=s.gripX!==undefined?forward(s.gripX,s.gripY):null;
+   made={...found,sprite:{...s,pixels,minX,minY,maxX,maxY,...(hand?{gripX:hand[0],gripY:hand[1]}:{}),bent:{turn,lean}}};
+   if(cache.size>48)cache.delete(cache.keys().next().value);cache.set(key,made);
+  }
+  return {found:made};
  }
  // A slot is the generic key; an exclusive player's own frame for the same slot wins when it exists.
  function slot(who,key){return (who&&bank.get(who+'/'+key))||bank.get(key);}
@@ -69,11 +115,14 @@
   plateCache.set(record,info);return info;
  }
  const plateTick=record=>plateInfo(record)?.tick??null;
- const swingCache=new WeakMap();
- function swingSide(record){return record.frames?.find(x=>x.ballKind==='batted'&&x.ball?.position)?.ball.position.x??plateInfo(record)?.x;}
- function swingHeight(record){
-  if(!swingCache.has(record))swingCache.set(record,record.frames?.find(x=>x.ballKind==='batted'&&x.ball?.position)?.ball.position.y??plateInfo(record)?.y);
-  return swingCache.get(record);
+ // The swing's aim: the ball where the bat met it, or where it crossed the plate. lift -1 is the top of the zone, 1 the
+ // bottom; reach -1 is the inside edge, 1 the outside edge. The zone is the batter's own (.27 to .535 of height).
+ const aims=new WeakMap();
+ function aimOf(record,batterHeight){
+  if(aims.has(record))return aims.get(record);
+  const ball=record.frames?.find(x=>x.ballKind==='batted'&&x.ball?.position)?.ball.position??plateInfo(record),h=Number.isFinite(batterHeight)?batterHeight:1.8;
+  const side=record.play?.diagnostics?.battingSide==='L'?1:-1,aim=ball&&Number.isFinite(ball.y)?{lift:(h*.4025-ball.y)/(h*.1325),reach:-ball.x*side/.25}:null;
+  aims.set(record,aim);return aim;
  }
  // The record's frames stop when the ball is dead; the picture goes on. Presentation time past the last frame is read
  // from the scene clock the same way the whiff follow-through does (release tick + elapsed scene seconds).
@@ -112,18 +161,13 @@
    if(c&&actor.position)art.backhandDx=c.position.x-actor.position.x;
   }
   if(anim?.action==='bat'&&record.batterPlayerId===actor.playerId){
+   art.aim=aimOf(record,batterHeight);
    const crossed=plateTick(record),play=record.play??{};
    // Looking at strike three: the batter's reaction starts when the umpire's call does.
    if(play.call==='called_strike'&&play.classification==='strikeout'&&crossed!=null&&tick>=crossed+.25*tps)art.look=['up','bent','photo'][(ordinal??0)%3];
    // Certain home run: held bat, then released bat, once the ball has plainly left (the owner's two-frame order).
    const contact=play.contactMoment?.ball?.tick;
    if(play.classification==='home_run'&&Number.isSafeInteger(contact)&&tick>=contact+.45*tps)art.hr=tick<contact+1.0*tps?0:1;
-   // The adopted swing has a high, a middle and a low picture: split the strike zone into thirds at the ball's height.
-   const y=swingHeight(record),h=Number.isFinite(batterHeight)?batterHeight:1.8;
-   if(Number.isFinite(y))art.swing=y>h*.445?'-high':y<h*.36?'-low':'';
-   // Inside or outside: the ball's side of the plate, measured toward the batter (thirds of the zone width).
-   const x=swingSide(record),toward=record.play?.diagnostics?.battingSide==='L'?x:-x;
-   if(Number.isFinite(toward))art.course=toward>.083?'-in':toward<-.083?'-out':'';
   }
   return art;
  }
@@ -203,8 +247,7 @@
   // Everyone else is the body drawn without a bat; the Core's bat is put in its hands. ちんすけ and ロッツォ bend at the
   // impact toward the ball's height and side.
   else if(action==='bat'&&frame>=0&&frame<4&&!art.look&&(!who||bank.has(who+'/bat/mound/'+frame))){
-   const bent=who&&frame===2?(art.swing??'')+(art.course??''):'';
-   key=who?'bat/mound/'+frame+(bent&&bank.has(who+'/bat/mound/2'+bent)?bent:''):'body/mound/'+frame;handed=true;behind=sx>0;}
+   key=who?'bat/mound/'+frame:'body/mound/'+frame;handed=true;behind=sx>0;}
   else if(action==='bat'&&art.look){
    const rear=camera!=='mound';
    key='look/'+(art.look==='up'?'look-up':art.look==='bent'?'bent-forward':'photo')+'-'+(rear?'rear':'front');handed=true;
@@ -231,5 +274,5 @@
   hits[found.key]=(hits[found.key]??0)+1;
   return mirror?flip(found):found;
  }
- root.KneekuraArtBankV1=Object.freeze({pick,whoIs,actorArt,umpireArt,inspect:()=>({loaded:bank.size,total:Object.keys(pack).length,hits:{...hits},lastAthletic})});
+ root.KneekuraArtBankV1=Object.freeze({pick,bend,whoIs,actorArt,umpireArt,inspect:()=>({loaded:bank.size,total:Object.keys(pack).length,hits:{...hits},lastAthletic})});
 })(globalThis);
