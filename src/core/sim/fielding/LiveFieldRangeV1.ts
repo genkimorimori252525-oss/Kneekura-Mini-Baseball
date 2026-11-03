@@ -42,6 +42,19 @@ export const LIVE_RUNNER_THROW_READ_CALIBRATION_V1=Object.freeze({relayArmShare:
   /** The defense forecast is a perfect line. A long throw bounces and has to be gathered, more the further it comes. */longThrowFromMeters:30,longThrowSecondsPerMeter:.008,
   /** Sending a runner home: an even race is enough, and with two out a little less. */homeMarginSeconds:.05,homeMarginTwoOutSeconds:0,
   /** The walking lead a runner has taken by the time the ball is hit, toward the next bag. Nobody holds second. */secondaryLeadMeters:Object.freeze({1:.5,2:1.5,3:.8})});
+/** Opt-in. Omission keeps the out with the largest margin, and any double play that passes its timing test. */
+export type LiveFieldRunValuePolicyV1=Readonly<{version:'live_field_run_value_policy_v1';sourceId:string}>;
+export const LIVE_FIELD_RUN_VALUE_POLICY_V1:LiveFieldRunValuePolicyV1=Object.freeze({version:'live_field_run_value_policy_v1',sourceId:'field-run-value-v1-authored'});
+/** The holder takes the out that leaves the batting side the fewest runs to come, each play weighted by his chance of
+ * winning its race. spreadSeconds: the scatter of throws, catches and tags around a forecast margin, authored.
+ * table: runs to the end of the half by outs and occupied bags, PROVISIONAL until measured in the league. */
+export const LIVE_FIELD_RUN_VALUE_CALIBRATION_V1=Object.freeze({spreadSeconds:.15,table:Object.freeze({sourceId:'PROVISIONAL',values:Object.freeze([
+  Object.freeze([.481,.859,1.1,1.437,1.35,1.784,1.964,2.292]),Object.freeze([.254,.509,.664,.884,.95,1.13,1.376,1.541]),Object.freeze([.098,.224,.319,.429,.353,.478,.58,.752])])})});
+export function validateLiveFieldRunValuePolicyV1(policy:LiveFieldRunValuePolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_run_value_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field run value policy');
+  return policy;
+}
 /** Opt-in. Omission keeps the fixed cover order (1B, P, 2B for first and so on) and its .6 s override exact. */
 export type LiveFieldCoverPolicyV1=Readonly<{version:'live_field_cover_policy_v1';sourceId:string}>;
 export const LIVE_FIELD_COVER_POLICY_V1:LiveFieldCoverPolicyV1=Object.freeze({version:'live_field_cover_policy_v1',sourceId:'field-cover-v1-authored'});

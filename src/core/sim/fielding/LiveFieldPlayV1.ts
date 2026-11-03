@@ -8,6 +8,7 @@ import {estimateLivePostActionArrivalV1,createLiveObservedPostActionV1,type Live
 import {estimateLiveObservedRecoveryV120} from './LiveObservedRecoveryV120';
 import type {LivePursuitWindowV1} from './LiveFieldPursuitV1';
 import { decideLiveDoublePlayV106, type LiveDoublePlayRouteV106 } from './LiveDoublePlayDecisionV106';
+import { liveExpectedRunsV1, liveRaceWinProbabilityV1 } from './LiveRunValueV1';
 import { decideLiveFirstBaseAttemptV108 } from './LiveFirstBaseAttemptV108';
 import { withLiveThrowPhysicalMemoV113, getLiveThrowPhysicalMemoStatsV113 } from './LiveThrowPhysicalMemoV113';
 import {createLiveFielderAthleticV115,type LiveFielderAthleticPlanV115} from './LiveFielderAthleticV115';
@@ -35,7 +36,7 @@ import { predictLiveDefensiveOpportunityV1, LIVE_DEFENSIVE_OPPORTUNITY_POLICY_V1
   type LiveDefensiveOpportunityV1 } from './LiveDefensiveOpportunityV1';
 import { resolveGroundedActorContactResponseV1 } from './GroundedActorContactResponseV1';
 import { planLiveThrowV1 } from './LiveThrowPlanV1';
-import { LIVE_RUNNER_THROW_READ_CALIBRATION_V1,validateLiveRunnerThrowReadPolicyV1,type LiveRunnerThrowReadPolicyV1,LIVE_RUNNER_TURN_CALIBRATION_V1,validateLiveRunnerTurnPolicyV1,type LiveRunnerTurnPolicyV1,LIVE_FIELD_COVER_CALIBRATION_V1,liveFieldCoverDutyV1,validateLiveFieldCoverPolicyV1,type LiveFieldCoverPolicyV1,LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
+import { LIVE_RUNNER_THROW_READ_CALIBRATION_V1,validateLiveRunnerThrowReadPolicyV1,type LiveRunnerThrowReadPolicyV1,LIVE_RUNNER_TURN_CALIBRATION_V1,validateLiveRunnerTurnPolicyV1,type LiveRunnerTurnPolicyV1,LIVE_FIELD_COVER_CALIBRATION_V1,liveFieldCoverDutyV1,validateLiveFieldCoverPolicyV1,type LiveFieldCoverPolicyV1,LIVE_FIELD_RUN_VALUE_CALIBRATION_V1,validateLiveFieldRunValuePolicyV1,type LiveFieldRunValuePolicyV1,LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
 import { decideLiveCloseThrowV1,liveCloseThrowToleranceV1,LIVE_CLOSE_THROW_CALIBRATION_V1,validateLiveFieldThrowPolicyV1,type LiveFieldThrowPolicyV1 } from './LiveCloseThrowV1';
 import { planLiveThrowActionV103,LIVE_THROW_EFFORT_POLICY_V103 } from './LiveThrowActionV103';
 import { liveFielderTurnSpeedV110 } from './LiveFielderBodyGeometryV105';
@@ -114,6 +115,8 @@ export type LiveFieldPlayInputV1 = Readonly<{ ball: BallWorldMoment; physics: Ae
   runnerTurnPolicyV1?: LiveRunnerTurnPolicyV1;
   /** Bags go to whoever reaches them first among those not taking the ball; omission keeps the fixed cover order. Needs fieldRangePolicyV1. */
   fieldCoverPolicyV1?: LiveFieldCoverPolicyV1;
+  /** The holder takes the out worth the most runs, weighted by its chance; omission keeps the largest margin. Needs individual decisions. */
+  fieldRunValuePolicyV1?: LiveFieldRunValuePolicyV1;
   /** Opt-in runner tactics, authored and UNMEASURED; omitted keeps legacy decisions. Enables: two-out go-on-contact held for the
    * whole contact leg, line-drive freeze under two outs, halfway on a shallow catchable fly. `context` also lets risk follow outs,
    * inning and score (facts a runner knows). */
@@ -305,6 +308,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   const runnerThrowReadV1=input.runnerThrowReadPolicyV1===undefined?undefined:validateLiveRunnerThrowReadPolicyV1(input.runnerThrowReadPolicyV1);
   const runnerTurnV1=input.runnerTurnPolicyV1===undefined?undefined:validateLiveRunnerTurnPolicyV1(input.runnerTurnPolicyV1);
   const fieldCoverV1=input.fieldCoverPolicyV1===undefined?undefined:validateLiveFieldCoverPolicyV1(input.fieldCoverPolicyV1);
+  const fieldRunValueV1=input.fieldRunValuePolicyV1===undefined?undefined:validateLiveFieldRunValuePolicyV1(input.fieldRunValuePolicyV1);
   const individualV118=input.defenseDecisionModeV118==='individual',
     decisionTraceV118=createLiveFieldDecisionTraceV1({enabled:!!input.recordDecisionTraceV118,originTick,ticksPerSecond:tps,seed:input.seed??0});
   const executionErrorsV95 = input.executionPerturbationsV95?.throwErrors ?? [];
@@ -1712,7 +1716,37 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       if(doublePlayRoutes.length)doublePlayDecisionsV106.push({elapsedSeconds:t,playerId:possession.spec.playerId,routes:doublePlayRoutes,decision:doublePlay});
       // A single-out plan needs a defensible opportunity. An optimistic close
       // double-play attempt above may instead risk both runners becoming safe.
-      const positive = (doublePlay.selected?candidates.find(c=>c.runnerId===doublePlay.selected!.firstRunnerId&&c.base===doublePlay.selected!.firstBase):null)
+      // fieldRunValueV1: among the outs he can make, the one that leaves the fewest runs to come. Where each runner ends up
+      // is read from what the holder sees: a runner going is taken to make his next bag, one standing stays.
+      const runValuePickV1 = fieldRunValueV1 && individualV118 ? (() => {
+        const C = LIVE_FIELD_RUN_VALUE_CALIBRATION_V1, seen = knowledgeV118(possession!, t).runners,
+          win = (margin: number) => liveRaceWinProbabilityV1(margin, C.spreadSeconds),
+          project = (retired: readonly string[], safe: Readonly<{ runnerId: string; base: number }> | null) => {
+            const bases: [boolean, boolean, boolean] = [false, false, false];
+            let runs = 0; const outs = input.outs + seen.filter(s => s.retired).length + retired.length;
+            for (const s of seen) {
+              if (s.retired || s.scored || retired.includes(s.runnerId)) continue;
+              const runner = runners.find(r => r.spec.runnerId === s.runnerId)!,
+                end = safe?.runnerId === s.runnerId ? safe.base : knownRunnerMovingV118(runner, t, possession!) ? Math.min(4, s.currentBase + 1) : s.currentBase;
+              if (end >= 4) runs++; else bases[Math.max(1, end) - 1] = true;
+            }
+            return { runs: outs >= 3 ? 0 : runs, state: { bases, outs: Math.min(3, outs) } };
+          },
+          singles = candidates.filter(c => !c.containment && c.margin > 0).map(c => ({ c, p: win(c.margin),
+            runs: (p: number) => liveExpectedRunsV1(C.table, [{ probability: p, outcome: project([c.runnerId], null) },
+              { probability: 1 - p, outcome: project([], { runnerId: c.runnerId, base: c.base }) }]) })).map(x => ({ c: x.c, value: x.runs(x.p) })),
+          doubles = doublePlayRoutes.filter(d => d.firstMarginSeconds > 0).map(d => {
+            const p1 = win(d.firstMarginSeconds), p2 = win(d.secondMarginSeconds);
+            return { c: candidates.find(c => c.runnerId === d.firstRunnerId && c.base === d.firstBase), value: liveExpectedRunsV1(C.table, [
+              { probability: p1 * p2, outcome: project([d.firstRunnerId, d.secondRunnerId], null) },
+              { probability: p1 * (1 - p2), outcome: project([d.firstRunnerId], { runnerId: d.secondRunnerId, base: d.secondBase }) },
+              { probability: 1 - p1, outcome: project([], { runnerId: d.firstRunnerId, base: d.firstBase }) }]) };
+          }).filter(x => x.c),
+          best = [...singles, ...doubles].sort((a, b) => a.value - b.value || b.c!.base - a.c!.base)[0];
+        return best ? best.c! : null;
+      })() : undefined;
+      const positive = runValuePickV1 !== undefined ? runValuePickV1 ?? undefined
+        : (doublePlay.selected?candidates.find(c=>c.runnerId===doublePlay.selected!.firstRunnerId&&c.base===doublePlay.selected!.firstBase):null)
           ?? candidates.find(candidate => !candidate.containment && candidate.margin > 0);
       const routineFirst = positive||fieldThrowPolicyV1 ? undefined : candidates.find(c => {
         if(c.base!==1||!c.forced||c.appeal||c.containment||c.carryPreferred||c.margin>0||!Number.isFinite(c.receivingSeconds)
