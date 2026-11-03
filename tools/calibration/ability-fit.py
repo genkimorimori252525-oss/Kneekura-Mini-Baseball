@@ -1,0 +1,140 @@
+# Ability <-> stat response surfaces from random-ability leagues, and the inverse for a real player.
+# fit:    python -I ability-fit.py fit <abilities.json> "<records glob with {league}>" <table.json> <surface.json>
+#         records for league i are found by replacing {league} with i (e.g. K:/kbm-work/rec/g-rand{league}-*.jsonl).
+# invert: python -I ability-fit.py invert <surface.json> <targets.json> <out.json>
+#         targets.json: {"<id>": {"pa": 600, "k": .2, "bb": .08, "iso": .15, "babip": .3, "hr": .03}}
+# The surface is a full quadratic in the abilities (standardised), fitted by least squares weighted by plate appearances.
+import glob
+import importlib.util
+import json
+import math
+import os
+import sys
+
+here = os.path.dirname(os.path.abspath(__file__))
+spec = importlib.util.spec_from_file_location('ot', os.path.join(here, 'outcome-table.py'))
+ot = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(ot)
+KEYS = ['contact', 'power', 'vision', 'run', 'attackAngleDegrees']
+STATS = ['k', 'bb', 'iso', 'babip', 'hr']
+
+
+def terms(x):
+    out = [1.0] + list(x)
+    for i in range(len(x)):
+        for j in range(i, len(x)):
+            out.append(x[i] * x[j])
+    return out
+
+
+def solve(a, b):
+    n = len(b)
+    m = [row[:] + [b[i]] for i, row in enumerate(a)]
+    for c in range(n):
+        p = max(range(c, n), key=lambda r: abs(m[r][c]))
+        m[c], m[p] = m[p], m[c]
+        if abs(m[c][c]) < 1e-12:
+            continue
+        for r in range(n):
+            if r != c:
+                f = m[r][c] / m[c][c]
+                m[r] = [x - f * y for x, y in zip(m[r], m[c])]
+    return [m[i][n] / m[i][i] if abs(m[i][i]) > 1e-12 else 0 for i in range(n)]
+
+
+def batter_stats(files, predict):
+    acc = {}
+    for f in files:
+        for line in open(f):
+            r = json.loads(line)
+            s = r.get('scoring')
+            if not s or s == 'plate_appearance_continues' or s == 'unresolved' and not r.get('exit'):
+                continue
+            a = acc.setdefault(r['batter'], dict(pa=0, k=0, bb=0, hbp=0, hits=0.0, bases=0.0, hr=0.0, bip=0.0))
+            a['pa'] += 1
+            if s == 'strikeout': a['k'] += 1
+            elif s == 'walk': a['bb'] += 1
+            elif s == 'hit_by_pitch': a['hbp'] += 1
+            elif r.get('exit'):
+                if abs(r['exit']['spray']) > 45:
+                    a['bip'] += 1
+                    continue
+                p = predict(*ot.key(r))
+                a['hits'] += 1 - p[0]; a['bases'] += sum(i * p[i] for i in range(5)); a['hr'] += p[4]; a['bip'] += 1
+    out = {}
+    for pid, a in acc.items():
+        ab = a['pa'] - a['bb'] - a['hbp']
+        if a['pa'] < 10 or ab <= 0:
+            continue
+        out[pid] = dict(pa=a['pa'], k=a['k'] / a['pa'], bb=a['bb'] / a['pa'], iso=(a['bases'] - a['hits']) / ab,
+                        babip=(a['hits'] - a['hr']) / max(1, a['bip'] - a['hr']), hr=a['hr'] / a['pa'])
+    return out
+
+
+def fit(abil_path, pattern, table_path, out_path):
+    abilities = json.load(open(abil_path))
+    predict = ot.predictor(json.load(open(table_path)))
+    rows = []
+    for league, players in abilities.items():
+        stats = batter_stats(glob.glob(pattern.replace('{league}', str(league))), predict)
+        for pid, st in stats.items():
+            if pid in players:
+                rows.append(([players[pid][k] for k in KEYS], st))
+    mean = [sum(r[0][i] for r in rows) / len(rows) for i in range(len(KEYS))]
+    sd = [math.sqrt(sum((r[0][i] - mean[i]) ** 2 for r in rows) / len(rows)) or 1 for i in range(len(KEYS))]
+    coef = {}
+    for stat in STATS:
+        t = [terms([(x - m) / s for x, m, s in zip(r[0], mean, sd)]) for r in rows]
+        w = [r[1]['pa'] for r in rows]
+        a = [[sum(w[n] * t[n][i] * t[n][j] for n in range(len(t))) for j in range(len(t[0]))] for i in range(len(t[0]))]
+        b = [sum(w[n] * t[n][i] * rows[n][1][stat] for n in range(len(t))) for i in range(len(t[0]))]
+        coef[stat] = solve(a, b)
+        pred = [sum(c * v for c, v in zip(coef[stat], tt)) for tt in t]
+        resid = [(rows[n][1][stat] - pred[n]) for n in range(len(t))]
+        # Residual against what pure sampling noise allows, so a surface that fits as well as chance shows about 1.
+        noise = [max(1e-6, rows[n][1][stat] * (1 - rows[n][1][stat]) / rows[n][1]['pa']) for n in range(len(t))] if stat != 'iso' else [max(1e-6, .25 / rows[n][1]['pa']) for n in range(len(t))]
+        print(stat, 'batters', len(rows), 'RMS z', round(math.sqrt(sum(r * r / v for r, v in zip(resid, noise)) / len(resid)), 2))
+    json.dump({'keys': KEYS, 'mean': mean, 'sd': sd, 'coef': coef}, open(out_path, 'w'), indent=1)
+
+
+def evaluate(surface, x):
+    z = [(v - m) / s for v, m, s in zip(x, surface['mean'], surface['sd'])]
+    t = terms(z)
+    return {stat: sum(c * v for c, v in zip(surface['coef'][stat], t)) for stat in STATS}
+
+
+def invert(surface_path, targets_path, out_path):
+    surface = json.load(open(surface_path))
+    targets = json.load(open(targets_path))
+    lo = [m - 2 * s for m, s in zip(surface['mean'], surface['sd'])]
+    hi = [m + 2 * s for m, s in zip(surface['mean'], surface['sd'])]
+    out = {}
+    for pid, t in targets.items():
+        # Regress toward the league mean by plate appearances, then fit by coordinate search.
+        def loss(x):
+            p = evaluate(surface, x)
+            return sum(((p[s] - t[s]) / max(.005, math.sqrt(max(t[s], .01) * (1 - min(t[s], .99)) / max(t.get('pa', 400), 50)))) ** 2 for s in STATS if s in t) \
+                + sum(((v - m) / s) ** 2 for v, m, s in zip(x, surface['mean'], surface['sd'])) * 0.05
+        x = list(surface['mean'])
+        step = [s for s in surface['sd']]
+        for _ in range(60):
+            improved = False
+            for i in range(len(x)):
+                for d in (step[i], -step[i]):
+                    y = x[:]; y[i] = min(hi[i], max(lo[i], y[i] + d))
+                    if loss(y) < loss(x):
+                        x = y; improved = True
+            if not improved:
+                step = [s / 2 for s in step]
+                if max(step) < 0.05:
+                    break
+        out[pid] = {'abilities': dict(zip(surface['keys'], [round(v, 1) for v in x])), 'predicted': {k: round(v, 4) for k, v in evaluate(surface, x).items()}, 'target': t}
+    json.dump(out, open(out_path, 'w'), ensure_ascii=False, indent=1)
+    print('players', len(out))
+
+
+if __name__ == '__main__':
+    if sys.argv[1] == 'fit':
+        fit(*sys.argv[2:6])
+    else:
+        invert(*sys.argv[2:5])
