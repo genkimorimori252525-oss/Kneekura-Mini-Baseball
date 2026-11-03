@@ -33,6 +33,20 @@ export function liveFieldCoverOrderV1(base:1|2|3|4,ballX:number):readonly string
   if(base===3)return ['3B','SS','P'];
   return ['C','P'];
 }
+/** Opt-in. Omission keeps the runner's old read of a ball in flight. */
+export type LiveRunnerThrowReadPolicyV1=Readonly<{version:'live_runner_throw_read_policy_v1';sourceId:string}>;
+export const LIVE_RUNNER_THROW_READ_POLICY_V1:LiveRunnerThrowReadPolicyV1=Object.freeze({version:'live_runner_throw_read_policy_v1',sourceId:'runner-throw-read-v1-authored'});
+/** A runner who watches a throw go to a cutoff counts on that man catching it and throwing on, at a share of his arm. */
+export const LIVE_RUNNER_THROW_READ_CALIBRATION_V1=Object.freeze({relayArmShare:.85,relayCatchSeconds:.1,
+  /** His read of the defense does not jump on one odd look: he goes by the middle of his last few. */memorySeconds:.3,
+  /** The defense forecast is a perfect line. A long throw bounces and has to be gathered, more the further it comes. */longThrowFromMeters:30,longThrowSecondsPerMeter:.008,
+  /** Sending a runner home: an even race is enough, and with two out a little less. */homeMarginSeconds:.05,homeMarginTwoOutSeconds:0,
+  /** The walking lead a runner has taken by the time the ball is hit, toward the next bag. Nobody holds second. */secondaryLeadMeters:Object.freeze({1:.5,2:1.5,3:.8})});
+export function validateLiveRunnerThrowReadPolicyV1(policy:LiveRunnerThrowReadPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_runner_throw_read_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid runner throw read policy');
+  return policy;
+}
 export function validateLiveFieldRangePolicyV1(policy:LiveFieldRangePolicyV1){
   if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_range_policy_v1'
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field range policy');

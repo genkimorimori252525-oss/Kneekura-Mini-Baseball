@@ -65,7 +65,7 @@ if (mode === 'capture') {
       else {
         const result = reduce({match: cap.before, batterRunnerId: cap.batterRunnerId, regulationInnings: cap.innings, event: {kind: 'field_play', facts: {...field.ruleFacts, buntAttempt: cap.bunt}}});
         if (result.kind === 'unresolved') rec.fail = 'RULE ' + result.reason;
-        else {const s = score({before: cap.before, batterRunnerId: cap.batterRunnerId, bunt: cap.bunt, input, field, rules: result, regulationInnings: cap.innings}); Object.assign(rec, {scoring: s.classification, hitBases: s.hitBases, errors: s.errors.length, sym: detectFieldSymptoms({field, input, outsBefore: cap.before.outs})});}
+        else {const s = score({before: cap.before, batterRunnerId: cap.batterRunnerId, bunt: cap.bunt, input, field, rules: result, regulationInnings: cap.innings}); Object.assign(rec, {scoring: s.classification, hitBases: s.hitBases, errors: s.errors.length, retired: field.finalRunners.filter(r => r.retired).map(r => ({from: r.runnerId === cap.batterRunnerId ? 0 : input.runners.find(x => x.runnerId === r.runnerId)?.initialBase, at: r.base})), sym: detectFieldSymptoms({field, input, outsBefore: cap.before.outs})});}
       }
     } catch (e) {rec.fail = 'ERROR ' + String(e.message).slice(0, 120);}
     appendFileSync(out, JSON.stringify(rec) + NL);

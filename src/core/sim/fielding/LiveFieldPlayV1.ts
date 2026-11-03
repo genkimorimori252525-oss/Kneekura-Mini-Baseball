@@ -35,7 +35,7 @@ import { predictLiveDefensiveOpportunityV1, LIVE_DEFENSIVE_OPPORTUNITY_POLICY_V1
   type LiveDefensiveOpportunityV1 } from './LiveDefensiveOpportunityV1';
 import { resolveGroundedActorContactResponseV1 } from './GroundedActorContactResponseV1';
 import { planLiveThrowV1 } from './LiveThrowPlanV1';
-import { LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
+import { LIVE_RUNNER_THROW_READ_CALIBRATION_V1,validateLiveRunnerThrowReadPolicyV1,type LiveRunnerThrowReadPolicyV1,LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
 import { decideLiveCloseThrowV1,liveCloseThrowToleranceV1,LIVE_CLOSE_THROW_CALIBRATION_V1,validateLiveFieldThrowPolicyV1,type LiveFieldThrowPolicyV1 } from './LiveCloseThrowV1';
 import { planLiveThrowActionV103,LIVE_THROW_EFFORT_POLICY_V103 } from './LiveThrowActionV103';
 import { liveFielderTurnSpeedV110 } from './LiveFielderBodyGeometryV105';
@@ -108,6 +108,8 @@ export type LiveFieldPlayInputV1 = Readonly<{ ball: BallWorldMoment; physics: Ae
   fieldThrowPolicyV1?: LiveFieldThrowPolicyV1;
   /** Fielders break from a ready position, reach low balls and crouch late; omission keeps the old motion exact. */
   fieldRangePolicyV1?: LiveFieldRangePolicyV1;
+  /** A runner reads a throw to a cutoff as the cutoff's throw on; omission keeps the old read exact. */
+  runnerThrowReadPolicyV1?: LiveRunnerThrowReadPolicyV1;
   /** Opt-in runner tactics, authored and UNMEASURED; omitted keeps legacy decisions. Enables: two-out go-on-contact held for the
    * whole contact leg, line-drive freeze under two outs, halfway on a shallow catchable fly. `context` also lets risk follow outs,
    * inning and score (facts a runner knows). */
@@ -295,6 +297,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   assert(input.defenseDecisionModeV118===undefined||['legacy','shadow','individual'].includes(input.defenseDecisionModeV118),'invalid defense decision mode');
   assert(input.recordDecisionTraceV118===undefined||input.recordDecisionTraceV118===true,'invalid decision trace option');
   const fieldThrowPolicyV1=input.fieldThrowPolicyV1===undefined?undefined:validateLiveFieldThrowPolicyV1(input.fieldThrowPolicyV1);
+  const runnerThrowReadV1=input.runnerThrowReadPolicyV1===undefined?undefined:validateLiveRunnerThrowReadPolicyV1(input.runnerThrowReadPolicyV1);
   const individualV118=input.defenseDecisionModeV118==='individual',
     decisionTraceV118=createLiveFieldDecisionTraceV1({enabled:!!input.recordDecisionTraceV118,originTick,ticksPerSecond:tps,seed:input.seed??0});
   const executionErrorsV95 = input.executionPerturbationsV95?.throwErrors ?? [];
@@ -411,12 +414,25 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
     const observer=possession??f,seen=knownRunnerV118(observer,r,t),height=(r.spec.athleticProfileV115?.heightMeters??1.8)*.35;
     return Math.max(0,liveFielderHorizontalReachV105(f.spec.bodyModelV105,knownActorV118(observer,f,t).position,(seen?.position.y??0)+height));
   };
-  const runners: Runner[] = input.runners.map(spec => ({ spec, base: spec.initialBase, p: spec.position ?? base(spec.initialBase), leg: null,
+  const secondaryLeadV1 = (spec: LiveFieldPlayInputV1['runners'][number]): Vec3 => {
+    const from = spec.position ?? base(spec.initialBase);
+    if (!runnerThrowReadV1 || loose || spec.initialBase < 1 || spec.initialBase > 3) return from;
+    const to = base(spec.initialBase + 1), d = distance(flat(from), flat(to)), m = LIVE_RUNNER_THROW_READ_CALIBRATION_V1.secondaryLeadMeters[spec.initialBase as 1 | 2 | 3];
+    return d > m ? v(from.x + (to.x - from.x) * m / d, from.y, from.z + (to.z - from.z) * m / d) : from;
+  };
+  const runners: Runner[] = input.runners.map(spec => ({ spec, base: spec.initialBase, p: secondaryLeadV1(spec), leg: null,
     retired: false, scored: false, retouchBase: null, returnReadyAt: null }));
   const tagUpAtFirstTouch = new Map<string, boolean>();
   const tacticsV1 = input.runnerTacticsV1 !== undefined;
   // Elective margin. Without tactics context this is exactly the runner's own margin.
   const marginV1 = (r: Runner, targetBase: number, forced: boolean): number => {
+    const read = marginBeforeHomeV1(r, targetBase, forced);
+    if (!runnerThrowReadV1 || targetBase !== 4) return read;
+    // A run is worth a close race: the coach sends him on an even chance, and on less with two out.
+    const c = LIVE_RUNNER_THROW_READ_CALIBRATION_V1;
+    return Math.min(read, Math.min(2, input.outs + retiredCount) >= 2 ? c.homeMarginTwoOutSeconds : c.homeMarginSeconds);
+  };
+  const marginBeforeHomeV1 = (r: Runner, targetBase: number, forced: boolean): number => {
     const own = r.spec.advanceSafetyMarginSeconds ?? .35, c = input.runnerTacticsV1?.context;
     return !c || targetBase < 1 || targetBase > 4 ? own : deriveLiveRunnerSafetyMarginSecondsV1({ baseMarginSeconds: own, outs: Math.min(2, input.outs + retiredCount) as 0 | 1 | 2,
       inning: c.inning, regulationInnings: c.regulationInnings, battingRuns: c.battingRuns, defendingRuns: c.defendingRuns, targetBase: targetBase as 1 | 2 | 3 | 4, forced });
@@ -427,6 +443,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   // Only the actual through-route disk exit may establish this causal link.
   // A beginLeg departure intent does not certify physical loss of protection.
   const physicalBaseDepartures = new Map<string, { base: BaseballBase; tick: number; elapsedSeconds: number }>();
+  const runnerDefenseReadsV1 = new Map<string, { t: number; at: number }[]>();
   const batter = runners.find(r => r.base === 0);if(!loose)assert(batter,'missing batter runner');
   let force = createInitialForceObligationState({ first: runners.find(r => r.base === 1)?.spec.runnerId ?? null,
     second: runners.find(r => r.base === 2)?.spec.runnerId ?? null, third: runners.find(r => r.base === 3)?.spec.runnerId ?? null }, (batter?.spec.runnerId??'__loose_pitch_no_runner__'));
@@ -2164,6 +2181,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
     runnerDecisionPending = runners.some(r => !r.retired && !r.scored && t < runnerCueAtV95 + r.spec.reactionSeconds);
     lastRunnerEvaluationSeconds = t;
     const defenseControlCache = new Map<string, number | null>();
+    // Absolute control times, so a remembered read stays put while the clock runs.
     const estimateDefenseControl = (r: Runner, n: number): number | null => {
       const observer = runnerObservationV95(r, t);
       if (!observer) return null;
@@ -2178,7 +2196,23 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         reactionSeconds: r.spec.reactionSeconds, targetBase: n, cueRevision: observer.cueRevision, route: estimate.route,
         controlSeconds: estimate.controlSeconds, aerodynamicSolves: estimate.diagnostics.aerodynamicSolveCount,
         cacheHit: estimate.diagnostics.cacheHit });
-      const result = estimate.controlSeconds;
+      let result = estimate.controlSeconds;
+      // The ball on its way to a fielder is that fielder's ball: he catches it and throws on to this bag.
+      if (runnerThrowReadV1 && throwTarget) {
+        const c = LIVE_RUNNER_THROW_READ_CALIBRATION_V1, receiver = throwTarget.receiver,
+          inbound = Math.max(0, throwTarget.effort.plannedArrivalAtSeconds - t) + c.relayCatchSeconds
+            + (distance(flat(throwTarget.receiverPoint), flat(base(n))) <= (field.baseTouchRadiusMeters ?? .28) + 1 ? 0
+              : forecastTransferSecondsV101(receiver) + distance(flat(throwTarget.receiverPoint), flat(base(n))) / (receiver.spec.throwSpeedMps * c.relayArmShare));
+        result = result === null ? inbound : Math.min(result, inbound);
+      }
+      if (runnerThrowReadV1 && result !== null) {
+        const c = LIVE_RUNNER_THROW_READ_CALIBRATION_V1, from = possession ? at(possession.body, t) : ballAt(t)?.position;
+        if (from) result += Math.max(0, distance(flat(from), flat(base(n))) - c.longThrowFromMeters) * c.longThrowSecondsPerMeter;
+        const seen = (runnerDefenseReadsV1.get(key) ?? []).filter(e => e.t >= t - LIVE_RUNNER_THROW_READ_CALIBRATION_V1.memorySeconds && e.t < t);
+        seen.push({ t, at: t + result }); runnerDefenseReadsV1.set(key, seen);
+        const sorted = seen.map(e => e.at).sort((a, b) => a - b);
+        result = Math.max(0, sorted[(sorted.length - 1) >> 1] - t);
+      }
       defenseControlCache.set(key, result); return result;
     };
     const targetOccupiedByOther = (r: Runner, n: number) => runners.some(x => x !== r && !x.retired && !x.scored

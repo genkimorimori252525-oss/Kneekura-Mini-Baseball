@@ -51,7 +51,7 @@ function runLooseWorld(x:any){
   (globalThis as any).__robinDynamics=d;
   const cell=kernel.cells?.find((c:any)=>c.fromElapsedSeconds<=t&&c.throughElapsedSeconds>=t);
   const batterStatic=d.batStationaryAllTime&&batter.velocity&&Math.hypot(batter.velocity.x,batter.velocity.y,batter.velocity.z)===0;
-  const field=simulateLiveFieldPlayV1({...fieldInput,...(input.fieldThrowV1?{fieldThrowPolicyV1:input.fieldThrowV1}:{}),...(input.fieldRangeV1?{fieldRangePolicyV1:input.fieldRangeV1}:{}),fielders,runners:withLeads((batterRuns?fieldInput.runners:fieldInput.runners.filter((r:any)=>r.initialBase>0)) as any[],ready),loosePitchV1:{version:'loose_pitch_field_v1',
+  const field=simulateLiveFieldPlayV1({...fieldInput,...(input.fieldThrowV1?{fieldThrowPolicyV1:input.fieldThrowV1}:{}),...(input.fieldRangeV1?{fieldRangePolicyV1:input.fieldRangeV1}:{}),...(input.runnerThrowReadV1?{runnerThrowReadPolicyV1:input.runnerThrowReadV1}:{}),fielders,runners:withLeads((batterRuns?fieldInput.runners:fieldInput.runners.filter((r:any)=>r.initialBase>0)) as any[],ready),loosePitchV1:{version:'loose_pitch_field_v1',
     ...(batterRuns?{uncaughtThirdV1:true,priorTouchSeconds:t}:{}),...(!live&&!batterRuns?{}:{priorTouchSeconds:t}),
     ...(robin?{pitchReleaseSeconds:0,hiddenAfterSeconds:robin.hiddenAfterSeconds,legacyArrivedSeconds:robin.legacyArrivedSeconds,opticalPolicy:'hidden_through_legacy_arrival_then_impact_v1'}:{}),
     ...(!batterRuns&&batterStatic?{batterMotionV1:{version:'ready_static_batter_v1',actorId:batter.playerId,position:batter.position,velocity:batter.velocity}}:{}),

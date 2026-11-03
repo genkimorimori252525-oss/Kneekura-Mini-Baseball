@@ -1,5 +1,6 @@
 import {SeedRoot} from '../../core/rng/SeedRoot';
 import {compileLiveFenceShapeV1,type LiveFenceShapeInputV1} from '../../core/sim/fielding/LiveFenceShapeV1';
+import {LIVE_FIELD_RANGE_CALIBRATION_V1} from '../../core/sim/fielding/LiveFieldRangeV1';
 
 type Vec=Readonly<{x:number;y:number;z:number}>;
 type BaseName='first'|'second'|'third';
@@ -23,6 +24,16 @@ export const LIVE_RUNNER_LEAD_CALIBRATION_V1=Object.freeze({returnReachMeters:1.
   baseScale:Object.freeze({first:1,second:1.2,third:.85}),minimumMeters:1.2,maximumMeters:6});
 /** Mitt to release. .32 of 送球動作 reads about .69 s and .74 about .94 s, the range of real exchanges. */
 export const LIVE_CATCHER_THROW_CALIBRATION_V1=Object.freeze({exchangeBaseSeconds:.5,exchangePerTransfer:.6,steppedForwardMeters:.9,flightSpeedShare:.9,tagSeconds:.08,jitterShare:.5});
+/** Opt-in. Omission keeps the old steal race exact. */
+export type LiveStealRacePolicyV1=Readonly<{version:'live_steal_race_policy_v1';sourceId:string}>;
+export const LIVE_STEAL_RACE_POLICY_V1:LiveStealRacePolicyV1=Object.freeze({version:'live_steal_race_policy_v1',sourceId:'steal-race-v1-authored'});
+/** Authored, read against real steals: a runner reaches second about 3.4 s after the pitcher's first move.
+ * The old race started him from rest at his primary lead, ran him to the center of the bag and let almost
+ * nothing vary, so a standard runner lost every race by about .4 s.
+ * secondaryLeadMeters: the shuffle he has taken by the time he breaks. Nobody holds a runner on second, so his is longer.
+ * slideReachMeters: a slide puts a hand or foot on the bag about a body length before the hips get there.
+ * jumpJitterSeconds, tagJitterSeconds: a good or bad jump, and a throw off the bag that has to be swept back. */
+export const LIVE_STEAL_RACE_CALIBRATION_V1=Object.freeze({secondaryLeadMeters:Object.freeze({first:.4,second:1.5}),slideReachMeters:.9,jumpJitterSeconds:.2,tagBaseSeconds:.12,tagJitterSeconds:.25});
 export type LiveLeadRunnerV1=Readonly<{topSpeedMps:number;accelerationMps2:number;reactionSeconds:number;baserunningSafetyMarginSeconds?:number}&LiveRunnerTraitsV1>;
 export type LiveLeadPitcherV1=Readonly<{throwSpeedMps:number;throws?:'R'|'L';pickoffTechniqueV1?:number;deliverySecondsV1?:number}>;
 
@@ -78,10 +89,17 @@ export function decideStealV1(x:Readonly<{seed:number;pitchOrdinal:number;match:
 export function resolveStealV1(x:Readonly<{seed:number;pitchOrdinal:number;from:Vec;to:Vec;catcher:Vec;catchSeconds:number;
   runner:Readonly<{topSpeedMps:number;accelerationMps2:number;reactionSeconds:number}&LiveRunnerTraitsV1>;transferSeconds:number;throwSpeedMps:number;
   /** クイック: first move to release. Omission keeps the common delivery. */deliverySeconds?:number;
-  /** Mitt to release from 送球動作, and the throw from a step forward. Omission keeps the instant exchange. */catcherThrowV1?:true}>){
-  const {runner}=x,distance=Math.hypot(x.to.x-x.from.x,x.to.z-x.from.z),rise=runner.topSpeedMps/runner.accelerationMps2,
+  /** Mitt to release from 送球動作, and the throw from a step forward. Omission keeps the instant exchange. */catcherThrowV1?:true;
+  /** A shuffle, a running start, a slide and a variable jump and tag. Omission keeps the old race exact. */stealRaceV1?:true}>){
+  const race=x.stealRaceV1===true?LIVE_STEAL_RACE_CALIBRATION_V1:null,line=Math.hypot(x.to.x-x.from.x,x.to.z-x.from.z),
+    secondary=race?race.secondaryLeadMeters[Math.hypot(x.to.x,x.to.z-38.79)<1?'first':'second']:0,
+    from=race?{x:x.from.x+(x.to.x-x.from.x)*secondary/line,y:x.from.y,z:x.from.z+(x.to.z-x.from.z)*secondary/line}:x.from,
+    runner=race?{...x.runner,accelerationMps2:x.runner.accelerationMps2*LIVE_FIELD_RANGE_CALIBRATION_V1.runnerAccelerationScale}:x.runner,
+    distance=race?line-secondary-race.slideReachMeters:line,rise=runner.topSpeedMps/runner.accelerationMps2,
     // 盗塁 reads the pitcher sooner. Top speed and acceleration stay the runner's own.
-    reaction=Math.max(0,runner.reactionSeconds-.06*(runner.stealSkillV1??0)),
+    raceRng=race?new SeedRoot(x.seed).streamRng(x.pitchOrdinal-1,'pitch','steal-jump-v1'):null,
+    jump=race?(raceRng!.nextFloat()+raceRng!.nextFloat()-1)*race.jumpJitterSeconds:0,
+    reaction=Math.max(0,runner.reactionSeconds-.06*(runner.stealSkillV1??0)+jump),
     fullSeconds=reaction+rise/2+distance/runner.topSpeedMps,
     // The runner breaks on the pitcher's first move, about a second before release. The
     // record starts at release, so the whole run is replayed in the remaining time.
@@ -92,12 +110,15 @@ export function resolveStealV1(x:Readonly<{seed:number;pitchOrdinal:number;from:
     // A hurried exchange and an ordinary one differ on the same throw, so part of the jitter belongs to the hands.
     exchangeSeconds=paced?c.exchangeBaseSeconds+c.exchangePerTransfer*x.transferSeconds+jitter*c.jitterShare:x.transferSeconds,
     releaseSeconds=x.catchSeconds+exchangeSeconds,arrivalSeconds=paced?releaseSeconds+throwSeconds+c.tagSeconds+jitter*(1-c.jitterShare):releaseSeconds+throwSeconds+.08+jitter;
+  const tagSeconds=race?race.tagBaseSeconds-c.tagSeconds+Math.abs(raceRng!.nextFloat()+raceRng!.nextFloat()-1)*race.tagJitterSeconds:0,
+    raceArrivalSeconds=arrivalSeconds+tagSeconds;
   const position=(seconds:number):Vec=>{const t=seconds*pace,moved=t<=reaction?0:Math.min(distance,t<reaction+rise
     ?.5*runner.accelerationMps2*(t-reaction)**2:(t-reaction-rise/2)*runner.topSpeedMps),k=moved/distance;
-    return {x:x.from.x+(x.to.x-x.from.x)*k,y:0,z:x.from.z+(x.to.z-x.from.z)*k};};
+    if(!race)return {x:x.from.x+(x.to.x-x.from.x)*k,y:0,z:x.from.z+(x.to.z-x.from.z)*k};
+    const u=k*distance/Math.hypot(x.to.x-from.x,x.to.z-from.z);return {x:from.x+(x.to.x-from.x)*u,y:0,z:from.z+(x.to.z-from.z)*u};};
   const velocity=(seconds:number):Vec=>{const t=seconds*pace,speed=t<=reaction||t>=fullSeconds?0:Math.min(runner.topSpeedMps,(t-reaction)*runner.accelerationMps2),
-    k=speed*pace/distance;return {x:(x.to.x-x.from.x)*k,y:0,z:(x.to.z-x.from.z)*k};};
-  return {safe:runnerSeconds<=arrivalSeconds,runnerSeconds,releaseSeconds,arrivalSeconds,exchangeSeconds,throwSeconds,position,velocity};
+    k=speed*pace/(race?Math.hypot(x.to.x-from.x,x.to.z-from.z):distance);return {x:(x.to.x-from.x)*k,y:0,z:(x.to.z-from.z)*k};};
+  return {safe:runnerSeconds<=raceArrivalSeconds,runnerSeconds,releaseSeconds,arrivalSeconds:raceArrivalSeconds,exchangeSeconds,throwSeconds,position,velocity};
 }
 
 /** A throw to first between pitches, more likely against a long lead. かく乱 draws the
@@ -128,9 +149,26 @@ export function resolvePickoffV1(x:Readonly<{seed:number;pitchOrdinal:number;lea
 export function decideIntentionalWalkV1(x:Readonly<{inning:number;regulationInnings:number;outs:number;firstOpen:boolean;runnerInScoringPosition:boolean;defenseLead:number;balls:number;strikes:number}>){
   return x.firstOpen&&x.runnerInScoringPosition&&x.outs>=1&&x.inning>=x.regulationInnings-1&&Math.abs(x.defenseLead)<=1&&x.strikes===0;
 }
+/** Opt-in. Omission keeps the old square body column exact. */
+export type LiveHitByPitchPolicyV1=Readonly<{version:'live_hit_by_pitch_policy_v1';sourceId:string}>;
+export const LIVE_HIT_BY_PITCH_POLICY_V1:LiveHitByPitchPolicyV1=Object.freeze({version:'live_hit_by_pitch_policy_v1',sourceId:'hit-by-pitch-v1-authored'});
+/** A batter stands side-on: his chest is thin toward the plate and his shoulders are wide along the pitch.
+ * He also gives ground on a ball coming at him, more the longer he has to see it. Authored, read against real
+ * stances (front of the body about .7 m from the plate's center) and a hit-by-pitch rate near .3% of pitches. */
+export const LIVE_HIT_BY_PITCH_CALIBRATION_V1=Object.freeze({halfThicknessMeters:.14,ballRadiusMeters:.0366,
+  dodgeAfterSeconds:.3,dodgeMetersPerSecond:.3,maximumDodgeMeters:.05});
 /** The pitch went through the batter's body column. Colliders are not modelled, so this is the plain geometric test. */
-export function pitchHitsBatterV1(frames:readonly Readonly<{ball?:Readonly<{position:Vec}>|null}>[],batter:Vec,heightMeters:number){
-  return frames.some(f=>{const p=f.ball?.position;return !!p&&Math.abs(p.z-batter.z)<=.2&&Math.abs(p.x-batter.x)<=.22&&p.y>=.35&&p.y<=heightMeters;});
+export function pitchHitsBatterV1(frames:readonly Readonly<{tick?:number;ball?:Readonly<{position:Vec}>|null}>[],batter:Vec,heightMeters:number,
+  /** Side-on body and a dodge. Omission keeps the old column exact. */sideOnV1?:Readonly<{ticksPerSecond:number}>){
+  if(!sideOnV1)return frames.some(f=>{const p=f.ball?.position;return !!p&&Math.abs(p.z-batter.z)<=.2&&Math.abs(p.x-batter.x)<=.22&&p.y>=.35&&p.y<=heightMeters;});
+  const c=LIVE_HIT_BY_PITCH_CALIBRATION_V1,start=frames.find(f=>f.ball&&f.tick!==undefined)?.tick;
+  // A pitch covers more than the body's width between two frames, so test where it crosses the body's plane.
+  for(let i=1;i<frames.length;i++){const a=frames[i-1],b=frames[i],p=a.ball?.position,q=b.ball?.position;
+    if(!p||!q||start===undefined||a.tick===undefined||b.tick===undefined||p.z===q.z||(p.z-batter.z)*(q.z-batter.z)>0)continue;
+    const u=(batter.z-p.z)/(q.z-p.z),x=p.x+(q.x-p.x)*u,y=p.y+(q.y-p.y)*u,seen=(a.tick+(b.tick-a.tick)*u-start)/sideOnV1.ticksPerSecond,
+      dodge=Math.min(c.maximumDodgeMeters,Math.max(0,(seen-c.dodgeAfterSeconds)*c.dodgeMetersPerSecond)),center=batter.x+(Math.sign(batter.x)||1)*dodge;
+    return Math.abs(x-center)<=c.halfThicknessMeters+c.ballRadiusMeters&&y>=.35&&y<=heightMeters;}
+  return false;
 }
 export function settleBattedBallV1(x:Readonly<{ball:Readonly<{position:Vec;velocity:Vec}>;fenceRadiusMeters:number;fenceHeightMeters:number;fenceShapeV1?:LiveFenceShapeInputV1;seed:number;pitchOrdinal:number}>){
   const {position:p,velocity:v}=x.ball,flat=Math.hypot(v.x,v.z),gravity=9.8,drag=.72,
