@@ -20,7 +20,9 @@
    for(let n=0;n<pixels.length;n++){const k=n*4;if(bytes[k+3]<96)continue;const id=(bytes[k]&248)<<16|(bytes[k+1]&248)<<8|bytes[k+2]&248;
     let index=lut.get(id);if(index===undefined){index=colors.length;lut.set(id,index);colors.push('rgb('+bytes[k]+','+bytes[k+1]+','+bytes[k+2]+')');}
     pixels[n]=index;const x=n%size,y=Math.floor(n/size);if(x<minX)minX=x;if(x>maxX)maxX=x;if(y<minY)minY=y;if(y>maxY)maxY=y;}
-   bank.set(key,{sprite:{pixels,size,originX:anchor,baseline:size-1,referenceHeight:row.referenceHeight,minX,minY,maxX,maxY,artBankV1:row.id},palette:colors,id:row.id,key});
+   bank.set(key,{sprite:{pixels,size,originX:anchor,baseline:size-1,referenceHeight:row.referenceHeight,minX,minY,maxX,maxY,artBankV1:row.id,
+    // Where the real bat's grip belongs on a body drawn without one.
+    ...(row.grip?{gripX:x0+row.grip[0],gripY:y0+row.grip[1]}:{})},palette:colors,id:row.id,key});
   };
   image.src='data:image/png;base64,'+row.data;
  }
@@ -30,7 +32,7 @@
   if(flipped.has(found))return flipped.get(found);
   const s=found.sprite,size=s.size,pixels=new Uint16Array(s.pixels.length);
   for(let y=0;y<size;y++)for(let x=0;x<size;x++)pixels[y*size+x]=s.pixels[y*size+size-1-x];
-  const copy={...found,sprite:{...s,pixels,originX:size-s.originX,minX:size-1-s.maxX,maxX:size-1-s.minX,viewMirrorX:true}};
+  const copy={...found,sprite:{...s,pixels,originX:size-s.originX,minX:size-1-s.maxX,maxX:size-1-s.minX,viewMirrorX:true,...(s.gripX!==undefined?{gripX:size-s.gripX}:{})}};
   flipped.set(found,copy);return copy;
  }
  // A slot is the generic key; an exclusive player's own frame for the same slot wins when it exists.
@@ -68,6 +70,7 @@
  }
  const plateTick=record=>plateInfo(record)?.tick??null;
  const swingCache=new WeakMap();
+ function swingSide(record){return record.frames?.find(x=>x.ballKind==='batted'&&x.ball?.position)?.ball.position.x??plateInfo(record)?.x;}
  function swingHeight(record){
   if(!swingCache.has(record))swingCache.set(record,record.frames?.find(x=>x.ballKind==='batted'&&x.ball?.position)?.ball.position.y??plateInfo(record)?.y);
   return swingCache.get(record);
@@ -118,6 +121,9 @@
    // The adopted swing has a high, a middle and a low picture: split the strike zone into thirds at the ball's height.
    const y=swingHeight(record),h=Number.isFinite(batterHeight)?batterHeight:1.8;
    if(Number.isFinite(y))art.swing=y>h*.445?'-high':y<h*.36?'-low':'';
+   // Inside or outside: the ball's side of the plate, measured toward the batter (thirds of the zone width).
+   const x=swingSide(record),toward=record.play?.diagnostics?.battingSide==='L'?x:-x;
+   if(Number.isFinite(toward))art.course=toward>.083?'-in':toward<-.083?'-out':'';
   }
   return art;
  }
@@ -135,7 +141,6 @@
   if(record.play?.rules?.halfChanged&&tick>=(record.play.rules.endedAtTick??Infinity))return {pose:'time'};
   return {pose:'ready'};
  }
- const swingSuffix=(frame,art)=>frame>=2&&art.swing?art.swing:'';
  function pick({role,action,frame,camera,hand,form,team,running,isRobin,pose,away,walking,who,art,athletic,motion,sx}){
   const kit=team===1?'home':'away',outfield=['LF','CF','RF'].includes(role);
   let key=null,found=null,mirror=false,handed=false,behind=false;
@@ -195,7 +200,11 @@
   // Batting is drawn from the pitcher's side. A camera behind the plate sees the batter from the other side, so the same
   // picture is mirrored there (sx>0: world +x is screen right). The direct-rear art is a view from the batter's back,
   // which no plate camera has, so it is not used.
-  else if(action==='bat'&&frame>=0&&frame<4&&!art.look&&(!who||bank.has(who+'/bat/mound/'+frame))){key='bat/mound/'+frame+(who?'':swingSuffix(frame,art));handed=true;behind=sx>0;}
+  // Everyone else is the body drawn without a bat; the Core's bat is put in its hands. ちんすけ and ロッツォ bend at the
+  // impact toward the ball's height and side.
+  else if(action==='bat'&&frame>=0&&frame<4&&!art.look&&(!who||bank.has(who+'/bat/mound/'+frame))){
+   const bent=who&&frame===2?(art.swing??'')+(art.course??''):'';
+   key=who?'bat/mound/'+frame+(bent&&bank.has(who+'/bat/mound/2'+bent)?bent:''):'body/mound/'+frame;handed=true;behind=sx>0;}
   else if(action==='bat'&&art.look){
    const rear=camera!=='mound';
    key='look/'+(art.look==='up'?'look-up':art.look==='bent'?'bent-forward':'photo')+'-'+(rear?'rear':'front');handed=true;
@@ -216,8 +225,8 @@
   const own=!found&&key&&who?bank.get(who+'/'+key):null;
   if(!found&&key)found=own||bank.get(key);
   if(!found)return null;
-  // ちんすけ's own set is drawn left-handed, every other picture right-handed.
-  if(handed&&(hand==='L')!==(!!own&&who==='chinsuke'))mirror=true;
+  // ちんすけ's own set and the batless body are drawn left-handed, every other picture right-handed.
+  if(handed&&(hand==='L')!==(own?who==='chinsuke':key.startsWith('body/')))mirror=true;
   if(behind)mirror=!mirror;
   hits[found.key]=(hits[found.key]??0)+1;
   return mirror?flip(found):found;

@@ -608,7 +608,7 @@ function rasterSphere(center,radius,color,owner){
    bounds=spriteAtGrid(sprite,unit,left,top,(u,v,index,coverage)=>{if(coverage>=.6||unit*sprite.referenceHeight<48)paintWorldCell(u,v,foot.depth-.001,palette[index],1,a.id);});
    // Equipment changes the visible silhouette, not the player's name anchor.
    if(illustratedBat){const body=batterSpriteForView(poseSprite('bat',frame,a.player.hand,a.player.form),state.camera);bounds={x:left+body.minX*unit,y:top+body.minY*unit,w:(body.maxX-body.minX+1)*unit,h:(body.maxY-body.minY+1)*unit};}
-   if(action==='bat')batterRig={drawnBat:!!original.artBankV1,sourceId:sprite.sourceId,sourceFrame:sprite.sourceFrame,sourceSha256:sprite.sourceSha256,derivation:sprite.derivation,hand:a.player.hand,viewMirrorX:!!sprite.viewMirrorX,includesIllustratedBat:!!sprite.includesIllustratedBat,deformed:false};
+   if(action==='bat')batterRig={drawnBat:!!sprite.artBankV1&&sprite.gripX===undefined,grip:sprite.gripX===undefined?null:{x:left+sprite.gripX*unit,y:top+sprite.gripY*unit},sourceId:sprite.sourceId,sourceFrame:sprite.sourceFrame,sourceSha256:sprite.sourceSha256,derivation:sprite.derivation,hand:a.player.hand,viewMirrorX:!!sprite.viewMirrorX,includesIllustratedBat:!!sprite.includesIllustratedBat,deformed:false};
    if(bounds.h<gridV84.step())paintWorldCell(foot.x,foot.y-2,foot.depth-.002,palette[2],.9,a.id);
    diameter=height*RETRO_SCALE;p={depth:foot.depth,scale:foot.scale};
   }
@@ -923,8 +923,11 @@ function paintBatOverlay(bat,overlay){
   if(batterRig?.drawnBat)return 0;
   // The original four B1 illustrated pitcher-view frames remain pristine.
   // Avoid double-painting a new procedural bat over that fixed artwork.
-  if(state?.camera==='mound')return 0;
+  if(state?.camera==='mound'&&!batterRig?.grip)return 0;
   if(!bat)return 0;
+  // A body drawn without a bat holds the Core's bat: the bat keeps its own angle and length and moves so that its grip
+  // sits in the drawn hands.
+  const held=batterRig?.grip&&project(bat.grip),shift=held?{x:batterRig.grip.x-held.x,y:batterRig.grip.y-held.y}:{x:0,y:0};
   let count=0;const cells=new Map();
   const displayBatRadius=t=>{
    const knots=bat.sourceObservation?bat.radiusProfile?.knots:null;
@@ -936,7 +939,7 @@ function paintBatOverlay(bat,overlay){
   const countSteps=Math.max(8,Math.min(160,Math.ceil(3*Math.hypot(
     bat.tip.x-bat.grip.x,bat.tip.y-bat.grip.y,bat.tip.z-bat.grip.z)/.035)));
   for(let i=0;i<=countSteps;i++){
-   const t=i/countSteps,point=segment(bat.grip,bat.tip,t),pr=project(point);
+   const t=i/countSteps,point=segment(bat.grip,bat.tip,t),seen=project(point),pr=seen&&{...seen,x:seen.x+shift.x,y:seen.y+shift.y};
    if(!pr||pr.x<gridV84.step()||pr.x>(600-gridV84.step())||pr.y<gridV84.step()||pr.y>(432-gridV84.step()))continue;
    const cx=gridV84.snap(pr.x),cy=gridV84.snap(pr.y);
    const key=rasterKeyV81(cx,cy),blocker=rasterCells.get(key)??rasterBase?.get(key);
