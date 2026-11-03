@@ -895,7 +895,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   const communicationV118=createLiveFieldCoordinationV2({clock:{originTick,ticksPerSecond:tps},maximumMessages:256}),
     knowledgeCacheV118=new Map<string,{at:number;value:ReturnType<typeof buildLiveFieldPerceivedStateV1>}>(),
     announcementV118=new Map<string,{at:number;key:string;revision:number}>(),
-    lastIndividualDecisionV118=new Map<string,{playerId:string;tick:number;observationSeconds:number|null;basis:'individual_perception';decision:ReturnType<typeof evaluateLiveFieldDecisionV1>}>(),
+    coverPlansV1=new Map<string,ReturnType<typeof assignLiveFieldCoverV1>>(),lastIndividualDecisionV118=new Map<string,{playerId:string;tick:number;observationSeconds:number|null;basis:'individual_perception';decision:ReturnType<typeof evaluateLiveFieldDecisionV1>}>(),
     retouchBeliefsV118=new Map<string,LiveRetouchBeliefV118>();
   const knowledgeV118=(f:Fielder,t:number)=>{
     const old=knowledgeCacheV118.get(f.spec.playerId);if(old?.at===t)return old.value;
@@ -1526,23 +1526,27 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
                 // As this fielder sees it: who goes for the ball and who takes each bag, together, by the runs it saves.
                 // Every chance comes from each man's own forecast, read the same way by everyone.
                 const plan=coverPlanV1??=(()=>{
-                  // Whoever he knows is already on his way to a bag keeps it unless another man beats him by more than it costs to change:
-                  // his own last role, and the others' from their calls.
-                  const heard=adviceV118(f,t),own=previousRoles.find(r=>r.playerId===f.spec.playerId),
-                    onIt=(d:Fielder,g:BaseballBase)=>d===f?own?.intent==='base_cover'&&own.targetBase===g
-                      :heard.some(m=>m.sourceId===d.spec.playerId&&m.role.intent==='base_cover'&&m.role.targetBase===g);
+                  // He keeps the bag he is already going to unless another man beats him by more than it costs to change, and turns
+                  // back for the ball that much later. Only his own last role counts: read from the others' delayed calls, two men
+                  // each leave the bag to the other and nobody covers. Two men going is sorted out by the duplicate-cover cost.
+                  const own=previousRoles.find(r=>r.playerId===f.spec.playerId),
+                    onIt=(d:Fielder,g:BaseballBase)=>d===f&&own?.intent==='base_cover'&&own.targetBase===g;
+                  const turn=(d:Fielder)=>knownThreats.some(k=>onIt(d,k.base))?LIVE_FIELD_ROLE_POLICY_V1.switchCostSeconds:0;
                   const C=LIVE_FIELD_COVER_CALIBRATION_V1,win=liveRaceWinProbabilityV1,holderId=seen.ball?.possessedBy??null,
                     bags=[...new Set(knownThreats.map(k=>k.base))].map(g=>({base:g,point:base(g),runnerSeconds:Math.min(...knownThreats.filter(k=>k.base===g).map(k=>k.arrivalSeconds))}));
+                  const kept=coverPlansV1.get(f.spec.playerId);
                   return assignLiveFieldCoverV1({holder:holderId,spreadSeconds:C.spreadSeconds,chancePool:C.chancePool,coverChoices:C.coverChoices,win,bags,
+                    ...(kept?{previous:kept,keepRuns:C.keepRuns}:{}),
                     runs:outsAt=>coverRunsV1(f,t,targets,outsAt),
                     candidates:defenders.map(d=>{const x=forecasts.find(y=>y.f===d)?.predicted,known=knownActorV118(f,d,t),
                       take=d.spec.playerId===holderId?{fieldSeconds:0,fieldPoint:known.position}:x?.intercepted?{fieldSeconds:x.eta,fieldPoint:x.point}
                         :x?.attempt?{fieldSeconds:x.attempt.eta,fieldPoint:x.attempt.point}:{fieldSeconds:null,fieldPoint:null};
                       return {playerId:d.spec.playerId,...take,exchangeSeconds:d.spec.transferSeconds,throwSpeedMps:d.spec.throwSpeedMps,
-                        ballChance:!x?0:x.intercepted?win(x.marginSecondsV1??0,C.spreadSeconds):x.attempt?win(-x.attempt.latenessSeconds,C.spreadSeconds):0,
+                        ballChance:!x?0:x.intercepted?win((x.marginSecondsV1??0)-turn(d),C.spreadSeconds):x.attempt?win(-x.attempt.latenessSeconds-turn(d),C.spreadSeconds):0,
                         baseSeconds:Object.fromEntries(bags.map(g=>[g.base,liveFieldArrivalSecondsV1(known,base(g.base))
-                          +(!onIt(d,g.base)&&defenders.some(e=>e!==d&&onIt(e,g.base))?LIVE_FIELD_ROLE_POLICY_V1.switchCostSeconds:0)])) as Partial<Record<BaseballBase,number>>};})});
+                          -(onIt(d,g.base)?LIVE_FIELD_ROLE_POLICY_V1.switchCostSeconds:0)])) as Partial<Record<BaseballBase,number>>};})});
                 })();
+                coverPlansV1.set(f.spec.playerId,plan);
                 return plan.cover.some(c=>c.base===b&&c.playerId===f.spec.playerId);
               }
               const holder=seen.ball?.possessedBy??null,point=predicted?.point,chaser=holder||!point?null:defenders.filter(d=>!['LF','CF','RF'].includes(d.spec.defensivePosition??''))

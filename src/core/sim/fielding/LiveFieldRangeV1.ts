@@ -67,7 +67,9 @@ export const LIVE_FIELD_COVER_POLICY_V1:LiveFieldCoverPolicyV1=Object.freeze({ve
  * chancePool: how many of the best chances at the ball are tried as chasers. coverChoices: how many of the quickest free men per bag.
  * lookAheadSeconds: a man in time for the ball is judged by his best margin on its way, so these later points of its path
  * are tried after the first one he can reach; a ball hit at him gets more certain the longer it comes. */
-export const LIVE_FIELD_COVER_CALIBRATION_V1=Object.freeze({spreadSeconds:.15,chancePool:4,coverChoices:3,lookAheadSeconds:Object.freeze([.2,.4,.6])});
+/* keepRuns: how much more a new plan must save before a fielder drops the one under way. Authored, about the run value
+ * of the quarter second a change of mind costs one man in a close race. */
+export const LIVE_FIELD_COVER_CALIBRATION_V1=Object.freeze({spreadSeconds:.15,chancePool:4,coverChoices:3,keepRuns:.03,lookAheadSeconds:Object.freeze([.2,.4,.6])});
 export function validateLiveFieldCoverPolicyV1(policy:LiveFieldCoverPolicyV1){
   if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_cover_policy_v1'
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field cover policy');

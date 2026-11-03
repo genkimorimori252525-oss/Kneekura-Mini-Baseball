@@ -179,15 +179,20 @@ export function assignLiveFieldRolesV1(raw: LiveFieldRoleInputV1,diagnostics?:Li
 
 /** fieldCoverV1: who goes for the ball and who takes each bag, chosen together as one fielder sees it. No position owns a bag
  * or the ball. The choice keeps the batting side's expected runs lowest:
- *   P(somebody going fields the ball) x (runs saved by the best play the covers then allow),
+ *   sum over the men going, in the order they reach the ball, of P(he is the one who fields it) x (runs saved by the best play
+ *   the covers then allow him),
  * the best play being an out at one bag or a double play, as the holder would choose it by run value. A play at a bag is a
- * race: the out comes when both the throw and the man covering are there, against the runner. The throw leaves from where the
- * likeliest man going takes the ball, after his exchange; a double play adds the pivot man's exchange and throw. So a man late
+ * race: the out comes when both the throw and the man covering are there, against the runner. The throw leaves from where that
+ * man takes the ball, after his exchange; a double play adds the pivot man's exchange and throw. So the outfielder who gets
+ * every ball that goes through adds the plays he can make from out there, and the covers still serve the infielder first. So a man late
  * to second costs the double play, and a man still in the race for the ball costs the chance he would have added. Chances
  * come from forecast margins with the same race model the holder uses to pick an out. Ability moves all of it.
  * chancePool: at most this many of the best chances are tried as chasers, every subset of them.
  * coverChoices: for each bag only this many of the quickest free men are tried.
- * Ties go to the quicker covers, then to fewer chasers, then by id. Pure arithmetic, nothing is reserved here. */
+ * Ties go to the quicker covers, then to fewer chasers, then by id. Pure arithmetic, nothing is reserved here.
+ * previous: the plan this fielder followed a moment ago. It is kept, re-scored on what he sees now, unless the best plan
+ * saves keepRuns more: two plans worth nearly the same would otherwise trade places at every look as a chance wavers,
+ * and the men going to a bag and coming back would never get there. */
 export type LiveFieldCoverCandidateV1 = Readonly<{ playerId: string; ballChance: number;
   /** When he would have the ball (seconds from now) and where; null when he has no chance at it. The holder: 0 and where he is. */
   fieldSeconds: number | null; fieldPoint: Vec3 | null; exchangeSeconds: number; throwSpeedMps: number;
@@ -197,7 +202,8 @@ export function assignLiveFieldCoverV1(x: Readonly<{ holder: string | null; spre
   candidates: readonly LiveFieldCoverCandidateV1[]; bags: readonly LiveFieldCoverBagV1[];
   /** Runs the batting side expects from here with outs made at these bags and every other runner making his bag. */
   runs: (outsAt: readonly BaseballBase[]) => number;
-  win: (marginSeconds: number, spreadSeconds: number) => number }>) {
+  win: (marginSeconds: number, spreadSeconds: number) => number;
+  previous?: Readonly<{ chasers: readonly string[]; cover: readonly Readonly<{ base: BaseballBase; playerId: string }>[] }>; keepRuns?: number }>) {
   if (!Number.isFinite(x.spreadSeconds) || x.spreadSeconds <= 0 || !Number.isInteger(x.chancePool) || x.chancePool < 0
     || !Number.isInteger(x.coverChoices) || x.coverChoices < 1
     || x.candidates.some(c => !c.playerId || !Number.isFinite(c.ballChance) || c.ballChance < 0 || c.ballChance > 1
@@ -239,13 +245,17 @@ export function assignLiveFieldCoverV1(x: Readonly<{ holder: string | null; spre
     if (i >= 0 && a[i] > z[i]) chosen.best = cand;
   };
   for (let set = holder ? 0 : pool.length ? 1 : 0; set < 1 << pool.length; set++) {
-    const chasers = pool.filter((_, i) => set & (1 << i)), chance = holder ? 1 : 1 - chasers.reduce((m, c) => m * (1 - c.ballChance), 1),
-      origin = holder ?? chasers[0] ?? null, free = rest.filter(c => !chasers.includes(c)),
+    const chasers = pool.filter((_, i) => set & (1 << i)).sort((p, q) => p.fieldSeconds! - q.fieldSeconds! || p.playerId.localeCompare(q.playerId)),
+      // Who fields it: the first man there when he can, the next when he cannot, and so on.
+      firsts = holder ? [{ c: holder, w: 1 }] : chasers.map((c, k) => ({ c, w: c.ballChance * chasers.slice(0, k).reduce((m, d) => m * (1 - d.ballChance), 1) })),
+      chance = firsts.reduce((s, f) => s + f.w, 0),
+      free = rest.filter(c => !chasers.includes(c)),
       options = x.bags.map(b => free.filter(c => Number.isFinite(seconds(c, b))).sort((p, q) => seconds(p, b) - seconds(q, b) || p.playerId.localeCompare(q.playerId)).slice(0, x.coverChoices));
     const walk = (i: number, taken: (LiveFieldCoverCandidateV1 | null)[]) => {
       if (i === x.bags.length) {
-        const g = origin ? gain(origin, taken) : 0, covers = taken.flatMap((c, k) => c ? [{ base: x.bags[k].base, playerId: c.playerId, seconds: seconds(c, x.bags[k]) }] : []);
-        consider({ chasers: chasers.map(c => c.playerId), chance, covers, gain: g, value: chance * g, time: covers.reduce((s, c) => s + c.seconds, 0) - 1e3 * covers.length });
+        const value = firsts.reduce((s, f) => s + f.w * gain(f.c, taken), 0), g = chance > 0 ? value / chance : 0,
+          covers = taken.flatMap((c, k) => c ? [{ base: x.bags[k].base, playerId: c.playerId, seconds: seconds(c, x.bags[k]) }] : []);
+        consider({ chasers: chasers.map(c => c.playerId), chance, covers, gain: g, value, time: covers.reduce((s, c) => s + c.seconds, 0) - 1e3 * covers.length });
         return;
       }
       let any = false;
@@ -253,6 +263,22 @@ export function assignLiveFieldCoverV1(x: Readonly<{ holder: string | null; spre
       if (!any) walk(i + 1, [...taken, null]);
     };
     walk(0, []);
+  }
+  // The plan already under way, scored now, unless the new one is clearly better.
+  if (x.previous && chosen.best && x.holder === null) {
+    const chasers = rest.filter(c => x.previous!.chasers.includes(c.playerId) && c.ballChance > 0 && c.fieldSeconds !== null)
+      .sort((p, q) => q.ballChance - p.ballChance || p.playerId.localeCompare(q.playerId)),
+      taken = x.bags.map(b => { const id = x.previous!.cover.find(c => c.base === b.base)?.playerId,
+        c = id === undefined ? undefined : rest.find(r => r.playerId === id && !chasers.includes(r));
+        return c && Number.isFinite(seconds(c, b)) ? c : null; });
+    if (chasers.length) {
+      const ordered = chasers.slice().sort((p, q) => p.fieldSeconds! - q.fieldSeconds! || p.playerId.localeCompare(q.playerId)),
+        firsts = ordered.map((c, k) => ({ c, w: c.ballChance * ordered.slice(0, k).reduce((m, d) => m * (1 - d.ballChance), 1) })),
+        chance = firsts.reduce((s, f) => s + f.w, 0), value = firsts.reduce((s, f) => s + f.w * gain(f.c, taken), 0),
+        covers = taken.flatMap((c, k) => c ? [{ base: x.bags[k].base, playerId: c.playerId, seconds: seconds(c, x.bags[k]) }] : []);
+      if (chosen.best.value <= value + (x.keepRuns ?? 0))
+        chosen.best = { chasers: ordered.map(c => c.playerId), chance, covers, gain: chance > 0 ? value / chance : 0, value, time: covers.reduce((s, c) => s + c.seconds, 0) };
+    }
   }
   const b = chosen.best;
   return Object.freeze({ chasers: Object.freeze((b?.chasers ?? []).slice().sort()), ballChance: b?.chance ?? 0, runsSaved: b?.value ?? 0,

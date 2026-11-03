@@ -48,6 +48,14 @@ describe('field cover V1', () => {
     expect(p.runsSaved).toBeGreaterThan(.97 * (runs([]) - runs([1, 2])) - .01);
   });
 
+  it('keeps the pivot on second for the infielder when the outfielder behind him gets every ball that goes through', () => {
+    const p = plan(null, [c('3B', .5, [1.0, -14, 30], { 2: 3.2, 1: 4.4 }), c('LF', 1, [3.0, -30, 60], { 2: 7, 1: 9 }),
+      c('2B', 0, null, { 2: 1.9, 1: 2.4 }), c('SS', 0, null, { 2: 2.4, 1: 3.6 }), c('1B', 0, null, { 2: 2.9, 1: 1.2 }), c('P', 0, null, { 2: 3.0, 1: 2.3 })]);
+    expect(p.chasers).toEqual(['3B', 'LF']);
+    expect(coverOf(p, 2)).toBe('2B');
+    expect(coverOf(p, 1)).toBe('1B');
+  });
+
   it('follows ability: a third man quick enough to the bag frees the second baseman to stay after the ball', () => {
     const one = [{ base: 2 as const, point: B[2], runnerSeconds: 3.6 }];
     const slow = plan(null, [c('SS', .6, [1.2, -8, 42], { 2: 1.9 }), c('2B', .3, [1.4, 4, 44], { 2: 1.8 }), c('3B', 0, null, { 2: 3.9 })], one),
