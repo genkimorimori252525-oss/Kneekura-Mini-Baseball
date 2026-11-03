@@ -1,5 +1,6 @@
 import type { Vec3 } from '../../model/geometry';
 import type { LiveFielderBodyModelV105 } from './LiveFielderBodyGeometryV105';
+import type { LivePropulsionShapeV84 } from '../locomotion/LiveLocomotionV84';
 
 /** Opt-in defense policy. Omission keeps the old alignment and motion exact. */
 export type LiveFieldRangePolicyV1=Readonly<{version:'live_field_range_policy_v1';sourceId:string}>;
@@ -60,27 +61,13 @@ export function validateLiveFieldRunValuePolicyV1(policy:LiveFieldRunValuePolicy
 /** Opt-in. Omission keeps the fixed cover order (1B, P, 2B for first and so on) and its .6 s override exact. */
 export type LiveFieldCoverPolicyV1=Readonly<{version:'live_field_cover_policy_v1';sourceId:string}>;
 export const LIVE_FIELD_COVER_POLICY_V1:LiveFieldCoverPolicyV1=Object.freeze({version:'live_field_cover_policy_v1',sourceId:'field-cover-v1-authored'});
-/** No position owns a bag. Whoever this fielder sees reaching the ball first is taking it, and of everyone else the bag
- * goes to whoever he sees getting there first. Speed, depth and where each man already is decide it, not his position.
- * tieSeconds: two men this close both start for the bag; the existing duplicate-cover cost sorts them out. */
-export const LIVE_FIELD_COVER_CALIBRATION_V1=Object.freeze({tieSeconds:.1,
-  /** A second man is still going for the ball when he can take it this soon after the first. Authored. */chaseWindowSeconds:.4});
-/** Who goes for the ball and who takes the bag, as one fielder sees it. The first fielder who can take the ball in time sets
- * the moment. Everyone with a shot at it before then (a stab or a dive as it goes by) and everyone who can take it in time
- * within chaseWindowSeconds of that moment is going for the ball. The bag goes to whoever else reaches it first. So the man
- * with nothing better to do covers, whatever his position: on a ball in the hole the shortstop and third baseman go and the
- * second baseman covers; up the middle the nearer man goes and the other covers; to the right side the pitcher covers first.
- * A man the ball has gone past has no shot left and is free to cover. With the ball held nobody chases. Ties go by id. */
-export function liveFieldCoverDutyV1(x:Readonly<{holder:string|null;chaseWindowSeconds:number;
-  candidates:readonly Readonly<{playerId:string;inTimeSeconds:number|null;shotSeconds:number|null;baseSeconds:number}>[]}>){
-  const rest=x.candidates.filter(c=>c.playerId!==x.holder).slice().sort((p,q)=>p.playerId.localeCompare(q.playerId)),
-    inTime=rest.filter(c=>c.inTimeSeconds!==null&&Number.isFinite(c.inTimeSeconds)),
-    moment=x.holder!==null||!inTime.length?null:Math.min(...inTime.map(c=>c.inTimeSeconds!)),
-    chasers=moment===null?[]:rest.filter(c=>c.shotSeconds!==null&&c.shotSeconds<=moment||c.inTimeSeconds!==null&&c.inTimeSeconds<=moment+x.chaseWindowSeconds).map(c=>c.playerId),
-    free=rest.filter(c=>!chasers.includes(c.playerId)),
-    duty=free.reduce<typeof free[number]|null>((m,c)=>!m||c.baseSeconds<m.baseSeconds?c:m,null);
-  return {chasers,duty:duty?.playerId??null,dutySeconds:duty?.baseSeconds??null};
-}
+/** No position owns a bag or the ball. Each fielder chooses, as he sees it, who goes for the ball and who takes each bag
+ * together, by the runs it saves (assignLiveFieldCoverV1). Authored except where noted.
+ * spreadSeconds: the scatter around a forecast margin, the same as fieldRunValueV1's race model.
+ * chancePool: how many of the best chances at the ball are tried as chasers. coverChoices: how many of the quickest free men per bag.
+ * lookAheadSeconds: a man in time for the ball is judged by his best margin on its way, so these later points of its path
+ * are tried after the first one he can reach; a ball hit at him gets more certain the longer it comes. */
+export const LIVE_FIELD_COVER_CALIBRATION_V1=Object.freeze({spreadSeconds:.15,chancePool:4,coverChoices:3,lookAheadSeconds:Object.freeze([.2,.4,.6])});
 export function validateLiveFieldCoverPolicyV1(policy:LiveFieldCoverPolicyV1){
   if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_cover_policy_v1'
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field cover policy');
@@ -136,6 +123,22 @@ export const LIVE_FIELD_KINEMATICS_CALIBRATION_V1=Object.freeze({readOutfieldAcc
 export function validateLiveFieldKinematicsPolicyV1(policy:LiveFieldKinematicsPolicyV1){
   if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_kinematics_policy_v1'
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field kinematics policy');
+  return policy;
+}
+/** Opt-in, needs fieldRangeV1 and fieldKinematicsV1. Omission keeps the authored speed bands (25%/65% of top speed at 1/.7/.35). */
+export type LiveLocomotionStartPolicyV1=Readonly<{version:'live_locomotion_start_policy_v1';sourceId:string}>;
+export const LIVE_LOCOMOTION_START_POLICY_V1:LiveLocomotionStartPolicyV1=Object.freeze({version:'live_locomotion_start_policy_v1',sourceId:'locomotion-start-v1-statcast'});
+/** The shape of the first steps, the same for every runner and fielder. Fitted 2026-11-03 to the 2025 Statcast 90 ft running
+ * splits (430 regulars, 5 ft .55 s, 10 ft .87, 30 ft 1.80, 90 ft 4.03, from first movement) with a 27.4 ft/s top speed and the
+ * fieldKinematicsV1 runner scale (1.54) left as it is, so braking and turning, which are read from the same ability, do not
+ * change. The authored bands leave the first 5 ft at .64 s; these reach .55 s and hold the rest (rms .006 s over 18 splits).
+ * Each position's mean splits fit the same shape within .009 s, with only the scale moving (catchers .96 to center fielders 1.04).
+ * Under it the infield ten yards (1.75 s at the ready scale) and the outfield jump (34.5 ft in 3 s) stay as they were;
+ * a fielder is only quicker over his first metre or so (1.04 m to 1.39 m in the first half second at the ready scale). */
+export const LIVE_LOCOMOTION_START_CALIBRATION_V1=Object.freeze({shape:Object.freeze({through:Object.freeze([.45,.75,1] as const),share:Object.freeze([1.393,.348,.209] as const)}) as LivePropulsionShapeV84});
+export function validateLiveLocomotionStartPolicyV1(policy:LiveLocomotionStartPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_locomotion_start_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid locomotion start policy');
   return policy;
 }
 export function liveFieldAirReadV1<T extends Readonly<{reactionSeconds:number}>>(spec:T,ballVelocity:Vec3):T{

@@ -30,7 +30,9 @@ const norm = (a: Vec3) => Math.hypot(a.x, a.z);
 const braking = (a: LiveFielderAvoidanceActorV1) => a.locomotionProfile?.brakingMps2 ?? a.accelerationMps2;
 function accelerationBudget(a: LiveFielderAvoidanceActorV1, acceleration: Vec3): number {
   const profile = a.locomotionProfile, speed = norm(a.velocity);
-  if (!profile || speed === 0) return norm(acceleration) / a.accelerationMps2;
+  if (!profile) return norm(acceleration) / a.accelerationMps2;
+  // From rest the first band is the budget; under the authored bands it is the ability itself.
+  if (speed === 0) return norm(acceleration) / livePropulsionAccelerationV84(profile, 0);
   const along = dot(acceleration, a.velocity) / speed,
     sideways = (acceleration.x * a.velocity.z - acceleration.z * a.velocity.x) / speed,
     propulsion = livePropulsionAccelerationV84(profile, Math.min(speed, profile.topSpeedMps));

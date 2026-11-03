@@ -8,7 +8,7 @@ import {estimateLivePostActionArrivalV1,createLiveObservedPostActionV1,type Live
 import {estimateLiveObservedRecoveryV120} from './LiveObservedRecoveryV120';
 import type {LivePursuitWindowV1} from './LiveFieldPursuitV1';
 import { decideLiveDoublePlayV106, type LiveDoublePlayRouteV106 } from './LiveDoublePlayDecisionV106';
-import { liveExpectedRunsV1, liveRaceWinProbabilityV1 } from './LiveRunValueV1';
+import { liveExpectedRunsV1, liveOutcomeRunsV1, liveRaceWinProbabilityV1 } from './LiveRunValueV1';
 import { decideLiveFirstBaseAttemptV108 } from './LiveFirstBaseAttemptV108';
 import { withLiveThrowPhysicalMemoV113, getLiveThrowPhysicalMemoStatsV113 } from './LiveThrowPhysicalMemoV113';
 import {createLiveFielderAthleticV115,type LiveFielderAthleticPlanV115} from './LiveFielderAthleticV115';
@@ -26,7 +26,7 @@ import { respondToBallContact } from '../ball/BallContactResponse';
 import { sourceRk4PositionBounds } from '../ball/SourceFreeBallSpeedBound';
 import { quantizeEventTick } from '../ExactEventTime';
 import { IDENTITY_QUATERNION, advanceBaseballOrientation, multiplyQuaternions, type Quaternion } from '../pitching/BaseballOrientation';
-import { createLiveLocomotionProfileV84, stepLiveDefenderMotionV84 } from '../locomotion/LiveLocomotionV84';
+import { createLiveLocomotionProfileV84, stepLiveDefenderMotionV84, withLivePropulsionShapeV84 } from '../locomotion/LiveLocomotionV84';
 import { coordinateLiveFielderMotionV1, LIVE_FIELDER_AVOIDANCE_POLICY_V1 } from './LiveFielderAvoidanceV1';
 import { resolveCatchRetention, type CatchRetentionParameters } from './CatchRetention';
 import { createGroundWallRollingCurveV1 } from './GroundWallRollingCurveV1';
@@ -36,13 +36,13 @@ import { predictLiveDefensiveOpportunityV1, LIVE_DEFENSIVE_OPPORTUNITY_POLICY_V1
   type LiveDefensiveOpportunityV1 } from './LiveDefensiveOpportunityV1';
 import { resolveGroundedActorContactResponseV1 } from './GroundedActorContactResponseV1';
 import { planLiveThrowV1 } from './LiveThrowPlanV1';
-import { LIVE_RUNNER_THROW_READ_CALIBRATION_V1,validateLiveRunnerThrowReadPolicyV1,type LiveRunnerThrowReadPolicyV1,LIVE_RUNNER_TURN_CALIBRATION_V1,validateLiveRunnerTurnPolicyV1,type LiveRunnerTurnPolicyV1,LIVE_FIELD_COVER_CALIBRATION_V1,liveFieldCoverDutyV1,validateLiveFieldCoverPolicyV1,type LiveFieldCoverPolicyV1,LIVE_FIELD_RUN_VALUE_CALIBRATION_V1,validateLiveFieldRunValuePolicyV1,type LiveFieldRunValuePolicyV1,validateLiveFieldKinematicsPolicyV1,type LiveFieldKinematicsPolicyV1,LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
+import { LIVE_RUNNER_THROW_READ_CALIBRATION_V1,validateLiveRunnerThrowReadPolicyV1,type LiveRunnerThrowReadPolicyV1,LIVE_RUNNER_TURN_CALIBRATION_V1,validateLiveRunnerTurnPolicyV1,type LiveRunnerTurnPolicyV1,LIVE_FIELD_COVER_CALIBRATION_V1,validateLiveFieldCoverPolicyV1,type LiveFieldCoverPolicyV1,LIVE_FIELD_RUN_VALUE_CALIBRATION_V1,validateLiveFieldRunValuePolicyV1,type LiveFieldRunValuePolicyV1,validateLiveFieldKinematicsPolicyV1,type LiveFieldKinematicsPolicyV1,LIVE_LOCOMOTION_START_CALIBRATION_V1,validateLiveLocomotionStartPolicyV1,type LiveLocomotionStartPolicyV1,LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
 import { decideLiveCloseThrowV1,liveCloseThrowToleranceV1,LIVE_CLOSE_THROW_CALIBRATION_V1,validateLiveFieldThrowPolicyV1,type LiveFieldThrowPolicyV1 } from './LiveCloseThrowV1';
 import { planLiveThrowActionV103,LIVE_THROW_EFFORT_POLICY_V103 } from './LiveThrowActionV103';
 import { liveFielderTurnSpeedV110 } from './LiveFielderBodyGeometryV105';
 import { planLiveTransferActionV110,resolveLiveGloveTossCapabilityV110,liveGloveTossOffsetV110 } from './LiveGloveTossV110';
 import { createLiveHandPreparationV1 } from './LiveHandPreparationV1';
-import { assignLiveFieldRolesV1, liveFieldArrivalSecondsV1 as uncachedFieldArrivalV120, LIVE_FIELD_ROLE_POLICY_V1,
+import { assignLiveFieldRolesV1, assignLiveFieldCoverV1, liveFieldArrivalSecondsV1 as uncachedFieldArrivalV120, LIVE_FIELD_ROLE_POLICY_V1,
   type LiveFieldRoleV1, type LiveFieldRoleActorV1,type LiveFieldRoleCostDiagnosticV118 } from './LiveFieldRoleAssignmentV1';
 import { applyLiveThrowDirectionV1 } from './LiveThrowDirectionV1';
 import { decideLiveRunnerAdvanceV1, decideLiveRunnerHalfwayV1, estimateLiveRunnerLegSecondsV1, LIVE_RUNNER_TACTICS_POLICY_V1 } from './LiveRunnerAdvancePolicyV1';
@@ -113,12 +113,14 @@ export type LiveFieldPlayInputV1 = Readonly<{ ball: BallWorldMoment; physics: Ae
   runnerThrowReadPolicyV1?: LiveRunnerThrowReadPolicyV1;
   /** A runner takes his bag at speed once the ball is through the infield and decides where he can still pull up; omission keeps every leg braking into its bag. */
   runnerTurnPolicyV1?: LiveRunnerTurnPolicyV1;
-  /** Bags go to whoever reaches them first among those not taking the ball; omission keeps the fixed cover order. Needs fieldRangePolicyV1. */
+  /** Who goes for the ball and who takes each bag are chosen together by the runs they save; omission keeps the fixed cover order. Needs fieldRangePolicyV1. */
   fieldCoverPolicyV1?: LiveFieldCoverPolicyV1;
   /** The holder takes the out worth the most runs, weighted by its chance; omission keeps the largest margin. Needs individual decisions. */
   fieldRunValuePolicyV1?: LiveFieldRunValuePolicyV1;
   /** The Statcast-fitted outfield break and runner start; omission keeps the authored ones. Needs fieldRangePolicyV1. */
   fieldKinematicsPolicyV1?: LiveFieldKinematicsPolicyV1;
+  /** Every runner and fielder in the play starts on the Statcast-fitted speed bands; omission keeps the authored bands. Needs fieldRangePolicyV1 and fieldKinematicsPolicyV1. */
+  locomotionStartPolicyV1?: LiveLocomotionStartPolicyV1;
   /** Opt-in runner tactics, authored and UNMEASURED; omitted keeps legacy decisions. Enables: two-out go-on-contact held for the
    * whole contact leg, line-drive freeze under two outs, halfway on a shallow catchable fly. `context` also lets risk follow outs,
    * inning and score (facts a runner knows). */
@@ -291,7 +293,10 @@ function firstContact(gap: (t: number) => number, speed: number, rounding: numbe
 }
 
 export function simulateLiveFieldPlayV1(raw: LiveFieldPlayInputV1) {
-  return withLiveThrowPhysicalMemoV113(() => simulateLiveFieldPlayScopedV113(raw));
+  const start = raw.locomotionStartPolicyV1 === undefined ? undefined : validateLiveLocomotionStartPolicyV1(raw.locomotionStartPolicyV1);
+  assert(!start || raw.fieldRangePolicyV1 !== undefined && raw.fieldKinematicsPolicyV1 !== undefined, 'locomotion start policy needs field range and kinematics policies');
+  return withLivePropulsionShapeV84(start ? LIVE_LOCOMOTION_START_CALIBRATION_V1.shape : undefined,
+    () => withLiveThrowPhysicalMemoV113(() => simulateLiveFieldPlayScopedV113(raw)));
 }
 function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   const loose=(raw as any).loosePitchV1;
@@ -993,6 +998,15 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
     return liveFieldArrivalSecondsV1({playerId:r.spec.runnerId,position:known.position,velocity:known.velocity,homePosition:base(r.spec.initialBase),
       topSpeedMps:r.spec.topSpeedMps,accelerationMps2:r.spec.accelerationMps2,throwSpeedMps:1,remainingReactionSeconds:0},base(n),field.baseTouchRadiusMeters??.28);
   };
+  // fieldCoverV1: the runs the batting side expects from here with outs made at these bags, as this fielder sees the runners.
+  // Those going are taken to make their next bag and the rest to stay; the table is fieldRunValueV1's, read as data either way.
+  const coverRunsV1=(observer:Fielder,t:number,targets:readonly Readonly<{runnerId:string;targetBase:BaseballBase}>[],outsAt:readonly BaseballBase[])=>{
+    const seen=knowledgeV118(observer,t).runners,retired=targets.filter(o=>outsAt.includes(o.targetBase)).map(o=>o.runnerId),
+      made=input.outs+seen.filter(s=>s.retired).length+retired.length,bases:[boolean,boolean,boolean]=[false,false,false];let runs=0;
+    for(const s of seen){if(s.retired||s.scored||retired.includes(s.runnerId))continue;
+      const end=targets.find(o=>o.runnerId===s.runnerId)?.targetBase??s.currentBase;if(end>=4)runs++;else if(end>=1)bases[end-1]=true;}
+    return liveOutcomeRunsV1(LIVE_FIELD_RUN_VALUE_CALIBRATION_V1.table,{runs:made>=3?0:runs,state:{bases,outs:Math.min(3,made)}});
+  };
   const outTargets=(observer=possession??pendingCatch?.fielder,t=time)=>{
     if(!individualV118||!observer)return legacyOutTargetsV117();
     const state=knowledgeV118(observer,t),appeals=(retouchBeliefsV118.get(observer.spec.playerId)?.required??[])
@@ -1131,8 +1145,15 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       prevH = h;
     }
     if (!best.intercepted && lastInFence) best = { point: lastInFence.point, eta: lastInFence.eta, prediction, intercepted: false };
+    // fieldCoverV1: a man in time is judged by his best margin on the ball's way, not by the first point he can just reach.
+    const found = best, marginSecondsV1 = fieldCoverV1 && found.intercepted ? Math.max(0, ...LIVE_FIELD_COVER_CALIBRATION_V1.lookAheadSeconds.map(k => {
+      const h = found.eta + k; if (h > prediction.maximumSeconds) return 0;
+      const p = prediction.sample(h).position;
+      if (!ballInsideFenceV1(p) || (f.spec.bodyModelV105 ? horizontalReachAt(p.y) < 0 : p.y > f.spec.position.y + f.spec.gloveReachMeters)) return 0;
+      return h - travelTo(p);
+    })) : undefined;
     // tryHorizon assigns this value; TypeScript does not narrow callback writes.
-    return { ...best, attempt: attempt as NearFieldAttemptV113 | null };
+    return { ...best, attempt: attempt as NearFieldAttemptV113 | null, ...(marginSecondsV1 === undefined ? {} : { marginSecondsV1 }) };
   };
   // Commands, rather than positions, are constrained. Every admitted motor
   // segment and its bounded emergency stop remain in the same solid stadium.
@@ -1490,6 +1511,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
             pickupWindows.push({family,point,eta,arrivalSeconds:Math.max(arrivalSeconds,wait+posture),intercepted:reach>=0&&late<=0,latenessSeconds:Math.max(0,late)});
           }
         }
+        let coverPlanV1:ReturnType<typeof assignLiveFieldCoverV1>|undefined;
         const
           result=evaluateLiveFieldDecisionV1({elapsedSeconds:t,observationSeconds:seen.observationElapsedSeconds,
             self:roleActor(f,t),others:defenders.filter(a=>a!==f).map(a=>knownActorV118(f,a,t)),bases:{1:base(1),2:base(2),3:base(3),4:base(4)},
@@ -1498,14 +1520,27 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
             cautious:f.spec.fieldingCognition?.cautious,
             ...(fieldRangePolicyV1?{coverAllowedV1:(b:BaseballBase,arrival:number)=>{
               if(fieldCoverV1){
-                // As this fielder sees it: the first man to the ball takes it, and the bag is for the first of the rest.
-                // Who is going for the ball comes from each man's own forecast: when he can take it in time, and when a
-                // stab or dive gives him a shot as it goes by. Every fielder reads the same forecasts.
-                const cover=liveFieldCoverDutyV1({holder:seen.ball?.possessedBy??null,chaseWindowSeconds:LIVE_FIELD_COVER_CALIBRATION_V1.chaseWindowSeconds,
-                  candidates:defenders.map(d=>{const pickup=forecasts.find(x=>x.f===d)?.predicted;
-                    return {playerId:d.spec.playerId,inTimeSeconds:pickup?.intercepted?pickup.eta:null,shotSeconds:pickup?.attempt?pickup.attempt.eta:null,
-                      baseSeconds:liveFieldArrivalSecondsV1(knownActorV118(f,d,t),base(b))};})});
-                return cover.duty===null||cover.duty===f.spec.playerId||arrival<=cover.dutySeconds!+LIVE_FIELD_COVER_CALIBRATION_V1.tieSeconds;
+                // As this fielder sees it: who goes for the ball and who takes each bag, together, by the runs it saves.
+                // Every chance comes from each man's own forecast, read the same way by everyone.
+                const plan=coverPlanV1??=(()=>{
+                  // Whoever he knows is already on his way to a bag keeps it unless another man beats him by more than it costs to change:
+                  // his own last role, and the others' from their calls.
+                  const heard=adviceV118(f,t),own=previousRoles.find(r=>r.playerId===f.spec.playerId),
+                    onIt=(d:Fielder,g:BaseballBase)=>d===f?own?.intent==='base_cover'&&own.targetBase===g
+                      :heard.some(m=>m.sourceId===d.spec.playerId&&m.role.intent==='base_cover'&&m.role.targetBase===g);
+                  const C=LIVE_FIELD_COVER_CALIBRATION_V1,win=liveRaceWinProbabilityV1,holderId=seen.ball?.possessedBy??null,
+                    bags=[...new Set(knownThreats.map(k=>k.base))].map(g=>({base:g,point:base(g),runnerSeconds:Math.min(...knownThreats.filter(k=>k.base===g).map(k=>k.arrivalSeconds))}));
+                  return assignLiveFieldCoverV1({holder:holderId,spreadSeconds:C.spreadSeconds,chancePool:C.chancePool,coverChoices:C.coverChoices,win,bags,
+                    runs:outsAt=>coverRunsV1(f,t,targets,outsAt),
+                    candidates:defenders.map(d=>{const x=forecasts.find(y=>y.f===d)?.predicted,known=knownActorV118(f,d,t),
+                      take=d.spec.playerId===holderId?{fieldSeconds:0,fieldPoint:known.position}:x?.intercepted?{fieldSeconds:x.eta,fieldPoint:x.point}
+                        :x?.attempt?{fieldSeconds:x.attempt.eta,fieldPoint:x.attempt.point}:{fieldSeconds:null,fieldPoint:null};
+                      return {playerId:d.spec.playerId,...take,exchangeSeconds:d.spec.transferSeconds,throwSpeedMps:d.spec.throwSpeedMps,
+                        ballChance:!x?0:x.intercepted?win(x.marginSecondsV1??0,C.spreadSeconds):x.attempt?win(-x.attempt.latenessSeconds,C.spreadSeconds):0,
+                        baseSeconds:Object.fromEntries(bags.map(g=>[g.base,liveFieldArrivalSecondsV1(known,base(g.base))
+                          +(!onIt(d,g.base)&&defenders.some(e=>e!==d&&onIt(e,g.base))?LIVE_FIELD_ROLE_POLICY_V1.switchCostSeconds:0)])) as Partial<Record<BaseballBase,number>>};})});
+                })();
+                return plan.cover.some(c=>c.base===b&&c.playerId===f.spec.playerId);
               }
               const holder=seen.ball?.possessedBy??null,point=predicted?.point,chaser=holder||!point?null:defenders.filter(d=>!['LF','CF','RF'].includes(d.spec.defensivePosition??''))
                 .map(d=>({d,eta:liveFieldArrivalSecondsV1(knownActorV118(f,d,t),point)})).sort((p,q)=>p.eta-q.eta)[0].d,
