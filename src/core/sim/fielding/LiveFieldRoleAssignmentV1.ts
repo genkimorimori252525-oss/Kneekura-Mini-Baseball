@@ -229,12 +229,14 @@ export function assignLiveFieldCoverV1(x: Readonly<{ holder: string | null; spre
         best = Math.max(best, p1 * p2 * savedBy([b.base, b2.base]) + p1 * (1 - p2) * savedBy([b.base])); }); });
     return best;
   };
-  let best: { chasers: string[]; chance: number; covers: Cover[]; gain: number; value: number; time: number } | null = null;
-  const consider = (cand: NonNullable<typeof best>) => {
-    if (!best) { best = cand; return; }
+  type Choice = { chasers: string[]; chance: number; covers: Cover[]; gain: number; value: number; time: number };
+  const chosen: { best: Choice | null } = { best: null };
+  const consider = (cand: Choice) => {
+    const best = chosen.best;
+    if (!best) { chosen.best = cand; return; }
     const a = [cand.value, cand.gain, -cand.time, -cand.chasers.length], z = [best.value, best.gain, -best.time, -best.chasers.length],
       i = a.findIndex((v, k) => Math.abs(v - z[k]) > 1e-12);
-    if (i >= 0 && a[i] > z[i]) best = cand;
+    if (i >= 0 && a[i] > z[i]) chosen.best = cand;
   };
   for (let set = holder ? 0 : pool.length ? 1 : 0; set < 1 << pool.length; set++) {
     const chasers = pool.filter((_, i) => set & (1 << i)), chance = holder ? 1 : 1 - chasers.reduce((m, c) => m * (1 - c.ballChance), 1),
@@ -252,7 +254,7 @@ export function assignLiveFieldCoverV1(x: Readonly<{ holder: string | null; spre
     };
     walk(0, []);
   }
-  const b = best as NonNullable<typeof best> | null;
+  const b = chosen.best;
   return Object.freeze({ chasers: Object.freeze((b?.chasers ?? []).slice().sort()), ballChance: b?.chance ?? 0, runsSaved: b?.value ?? 0,
-    cover: Object.freeze((b?.covers ?? []).slice().sort((p, q) => p.base - q.base)) });
+    cover: Object.freeze((b?.covers ?? []).slice().sort((p: Cover, q: Cover) => p.base - q.base)) });
 }
