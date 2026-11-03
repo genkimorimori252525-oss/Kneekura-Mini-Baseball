@@ -63,14 +63,23 @@ export const LIVE_FIELD_COVER_POLICY_V1:LiveFieldCoverPolicyV1=Object.freeze({ve
 /** No position owns a bag. Whoever this fielder sees reaching the ball first is taking it, and of everyone else the bag
  * goes to whoever he sees getting there first. Speed, depth and where each man already is decide it, not his position.
  * tieSeconds: two men this close both start for the bag; the existing duplicate-cover cost sorts them out. */
-export const LIVE_FIELD_COVER_CALIBRATION_V1=Object.freeze({tieSeconds:.1});
-/** The man taking the ball and the man taking the bag, from arrival times as one fielder sees them. Ties go by id. */
-export function liveFieldCoverDutyV1(x:Readonly<{holder:string|null;candidates:readonly Readonly<{playerId:string;ballSeconds:number|null;baseSeconds:number}>[]}>){
-  const first=<T extends {playerId:string}>(xs:readonly T[],key:(c:T)=>number)=>xs.slice().sort((p,q)=>key(p)-key(q)||p.playerId.localeCompare(q.playerId))[0];
-  const chasers=x.holder===null?x.candidates.filter(c=>c.ballSeconds!==null):[],
-    chaser=chasers.length?first(chasers,c=>c.ballSeconds!).playerId:null,
-    rest=x.candidates.filter(c=>c.playerId!==x.holder&&c.playerId!==chaser),duty=rest.length?first(rest,c=>c.baseSeconds):null;
-  return {chaser,duty:duty?.playerId??null,dutySeconds:duty?.baseSeconds??null};
+export const LIVE_FIELD_COVER_CALIBRATION_V1=Object.freeze({tieSeconds:.1,
+  /** A second man is still going for the ball when he can take it this soon after the first. Authored. */chaseWindowSeconds:.4});
+/** Who goes for the ball and who takes the bag, as one fielder sees it. The first fielder who can take the ball in time sets
+ * the moment. Everyone with a shot at it before then (a stab or a dive as it goes by) and everyone who can take it in time
+ * within chaseWindowSeconds of that moment is going for the ball. The bag goes to whoever else reaches it first. So the man
+ * with nothing better to do covers, whatever his position: on a ball in the hole the shortstop and third baseman go and the
+ * second baseman covers; up the middle the nearer man goes and the other covers; to the right side the pitcher covers first.
+ * A man the ball has gone past has no shot left and is free to cover. With the ball held nobody chases. Ties go by id. */
+export function liveFieldCoverDutyV1(x:Readonly<{holder:string|null;chaseWindowSeconds:number;
+  candidates:readonly Readonly<{playerId:string;inTimeSeconds:number|null;shotSeconds:number|null;baseSeconds:number}>[]}>){
+  const rest=x.candidates.filter(c=>c.playerId!==x.holder).slice().sort((p,q)=>p.playerId.localeCompare(q.playerId)),
+    inTime=rest.filter(c=>c.inTimeSeconds!==null&&Number.isFinite(c.inTimeSeconds)),
+    moment=x.holder!==null||!inTime.length?null:Math.min(...inTime.map(c=>c.inTimeSeconds!)),
+    chasers=moment===null?[]:rest.filter(c=>c.shotSeconds!==null&&c.shotSeconds<=moment||c.inTimeSeconds!==null&&c.inTimeSeconds<=moment+x.chaseWindowSeconds).map(c=>c.playerId),
+    free=rest.filter(c=>!chasers.includes(c.playerId)),
+    duty=free.reduce<typeof free[number]|null>((m,c)=>!m||c.baseSeconds<m.baseSeconds?c:m,null);
+  return {chasers,duty:duty?.playerId??null,dutySeconds:duty?.baseSeconds??null};
 }
 export function validateLiveFieldCoverPolicyV1(policy:LiveFieldCoverPolicyV1){
   if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_cover_policy_v1'

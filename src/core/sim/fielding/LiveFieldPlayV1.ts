@@ -1496,8 +1496,12 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
             ...(fieldRangePolicyV1?{coverAllowedV1:(b:BaseballBase,arrival:number)=>{
               if(fieldCoverV1){
                 // As this fielder sees it: the first man to the ball takes it, and the bag is for the first of the rest.
-                const point=predicted?.point,cover=liveFieldCoverDutyV1({holder:seen.ball?.possessedBy??null,candidates:defenders.map(d=>{const actor=knownActorV118(f,d,t);
-                  return {playerId:d.spec.playerId,ballSeconds:point?liveFieldArrivalSecondsV1(actor,point):null,baseSeconds:liveFieldArrivalSecondsV1(actor,base(b))};})});
+                // Who is going for the ball comes from each man's own forecast: when he can take it in time, and when a
+                // stab or dive gives him a shot as it goes by. Every fielder reads the same forecasts.
+                const cover=liveFieldCoverDutyV1({holder:seen.ball?.possessedBy??null,chaseWindowSeconds:LIVE_FIELD_COVER_CALIBRATION_V1.chaseWindowSeconds,
+                  candidates:defenders.map(d=>{const pickup=forecasts.find(x=>x.f===d)?.predicted;
+                    return {playerId:d.spec.playerId,inTimeSeconds:pickup?.intercepted?pickup.eta:null,shotSeconds:pickup?.attempt?pickup.attempt.eta:null,
+                      baseSeconds:liveFieldArrivalSecondsV1(knownActorV118(f,d,t),base(b))};})});
                 return cover.duty===null||cover.duty===f.spec.playerId||arrival<=cover.dutySeconds!+LIVE_FIELD_COVER_CALIBRATION_V1.tieSeconds;
               }
               const holder=seen.ball?.possessedBy??null,point=predicted?.point,chaser=holder||!point?null:defenders.filter(d=>!['LF','CF','RF'].includes(d.spec.defensivePosition??''))
