@@ -1,7 +1,11 @@
 // Plays whole games on the bundled Core without the UI and reports every stop.
 // usage: node core-playthrough.mjs <native.js> <config.json> [--seed=N] [--pitches=N] [--resume=file] [--save=file]
+// --checkpoint=file [--every=N]: every N pitches (25) the game so far is saved there: the continuation, the pitch count,
+// the length of the records file and the tally. --from=file goes on from such a checkpoint, cutting the records file back
+// to the length it had then, so a game the guard stopped part way ends with the same records as one played straight through.
+// The checkpoint is rewritten as finished when the game ends. Omitting both keeps the old run exactly.
 import {createHash} from 'node:crypto';
-import {appendFileSync, readFileSync, writeFileSync} from 'node:fs';
+import {appendFileSync, existsSync, readFileSync, renameSync, statSync, truncateSync, writeFileSync} from 'node:fs';
 
 const [nativePath, configPath, ...rest] = process.argv.slice(2);
 const opt = Object.fromEntries(rest.map(a => a.replace(/^--/, '').split('=')));
@@ -19,11 +23,22 @@ if (opt.observe) for (const pair of opt.observe.split(',')) {const [key, value] 
 if (opt.decision) for (const player of config.players) if (/-b\d$/.test(player.playerId) && player.physical.swingDecision)
   for (const pair of opt.decision.split(',')) {const [key, value] = pair.split(':'); player.physical.swingDecision = {...player.physical.swingDecision, [key]: Number(value)};}
 const policies = config.experimentalMatchPoliciesV2;
-const resume = opt.resume ? JSON.parse(readFileSync(opt.resume, 'utf8')) : undefined;
+const from = opt.from ? JSON.parse(readFileSync(opt.from, 'utf8')) : null;
+if (from && (from.version !== 'core_playthrough_checkpoint_v1' || from.seed !== config.seed || from.finished)) throw Error('checkpoint is not an unfinished game of this seed: ' + opt.from);
+if (from && opt.records) truncateSync(opt.records, from.recordsBytes);
+const resume = from ? from.continuation : opt.resume ? JSON.parse(readFileSync(opt.resume, 'utf8')) : undefined;
 const host = policies ? core.createExperimentalMatchHostV2(config, policies, resume) : core.createLiveBaseballMatchWorkerV116(config, resume);
 const command = {batting: 'auto', pitchType: 'auto', location: opt.location ?? 'auto', managedTeam: 0, baserunning: 'balanced'};
 const limit = Number(opt.pitches ?? 600);
-const tally = {steals: true, pitches: 0, swings: 0, contacts: 0, hits: 0, loose: 0, fallback: {}};
+const tally = from ? from.tally : {steals: true, pitches: 0, swings: 0, contacts: 0, hits: 0, loose: 0, fallback: {}};
+const every = Number(opt.every ?? 25);
+const checkpoint = (pitches, finished) => {
+  if (!opt.checkpoint) return;
+  const next = opt.checkpoint + '.next';
+  writeFileSync(next, JSON.stringify({version: 'core_playthrough_checkpoint_v1', seed: config.seed, pitches, finished,
+    recordsBytes: opt.records && existsSync(opt.records) ? statSync(opt.records).size : 0, tally, continuation: finished ? null : last}));
+  renameSync(next, opt.checkpoint);
+};
 let last = host.captureContinuationV116();
 // Where the ball really passed, not where the batter thought it would.
 const crossingAt = (frames, z) => {
@@ -59,7 +74,7 @@ const occupied = bases => bases ? ['first', 'second', 'third'].map((k, i) => bas
 const t0 = Date.now();
 // --hash=1 fingerprints every pitch record, to prove a speed change kept results identical.
 const hash = opt.hash ? createHash('sha256') : null;
-for (let n = 0; n < limit; n++) {
+for (let n = from ? from.pitches : 0; n < limit; n++) {
   const t1 = Date.now();
   let r;
   try {
@@ -88,7 +103,10 @@ for (let n = 0; n < limit; n++) {
   if (opt.loose && r.play.diagnostics?.looseDetailV2) {const l = r.play.diagnostics.looseDetailV2; console.log('LOOSE', r.play.diagnostics?.loosePitchV1?.sourceProvenance?.sourceId ?? r.pitchType, l.live ? 'glove-failed' : 'missed', JSON.stringify(l.plane));} else if (opt.loose) console.log('CAUGHT', r.play.diagnostics?.loosePitchV1?.sourceProvenance?.sourceId ?? r.pitchType);
   if (opt.verbose) console.log(n + 1, r.pitcherPlayerId, r.pitchType, r.play.call, r.play.classification, 'I' + m.inning + m.half, m.outs + 'o', m.balls + '-' + m.strikes, JSON.stringify(m.score), (Date.now() - t1) + 'ms');
   if (r.finished && opt.lastDetail) console.log('LAST', JSON.stringify({before: r.beforeMatch, after: r.match, rules: {...r.play.rules, match: undefined}}));
-  if (r.finished) {console.log('FINISHED', JSON.stringify({score: m.score, n: n + 1})); break;}
+  if (r.finished) {console.log('FINISHED', JSON.stringify({score: m.score, n: n + 1})); checkpoint(n + 1, true); break;}
+  if ((n + 1) % every === 0) checkpoint(n + 1, false);
 }
+// The state the game ended in, comparable between a straight run and one resumed from a checkpoint.
+if (opt.checkpoint || opt.from) console.log('FINAL', createHash('sha256').update(JSON.stringify(last)).digest('hex'));
 if (hash) console.log('HASH', hash.update(JSON.stringify(last)).digest('hex'));
 console.log('TALLY', JSON.stringify(tally), 'seconds', ((Date.now() - t0) / 1000).toFixed(1));

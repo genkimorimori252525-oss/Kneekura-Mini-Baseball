@@ -7,7 +7,17 @@ export type LiveLocomotionProfileV84 = Readonly<{
   lateralAccelerationMps2: number;
   propulsionBands: readonly Readonly<{ throughSpeedMps: number; accelerationMps2: number }>[];
   basis: 'AVERAGED_ALTERNATING_SUPPORT_UNCALIBRATED_V84';
+  /** Present only when a caller supplied a shape other than the authored one. */
+  propulsionShape?: LivePropulsionShapeV84;
 }>;
+/** Where each of the three bands ends, as a share of top speed (the last is 1), and its share of the acceleration ability. */
+export type LivePropulsionShapeV84 = Readonly<{ through: readonly [number, number, 1]; share: readonly [number, number, number] }>;
+const AUTHORED_SHAPE: LivePropulsionShapeV84 = Object.freeze({ through: Object.freeze([.25, .65, 1] as const), share: Object.freeze([1, .7, .35] as const) });
+function validateShape(shape: LivePropulsionShapeV84): void {
+  if (!shape || !Array.isArray(shape.through) || !Array.isArray(shape.share) || shape.through.length !== 3 || shape.share.length !== 3
+    || shape.through[2] !== 1 || !(shape.through[0] > 0 && shape.through[0] < shape.through[1] && shape.through[1] < 1)
+    || shape.share.some(x => !Number.isFinite(x) || x <= 0)) throw new Error('live locomotion V84: invalid propulsion shape');
+}
 export type LiveSpeedSegmentV84 = Readonly<{
   startElapsedSeconds: number; endElapsedSeconds: number;
   startDistanceMeters: number; endDistanceMeters: number;
@@ -33,6 +43,13 @@ function finiteDerived(value: number): number {
   requireFinite(value, 'derived arithmetic');
   return value;
 }
+/** The shape every profile made inside one field play takes, so its plans and its motion read the same bands. */
+let scopedShape: LivePropulsionShapeV84 | undefined;
+export function withLivePropulsionShapeV84<T>(shape: LivePropulsionShapeV84 | undefined, run: () => T): T {
+  if (shape !== undefined) validateShape(shape);
+  const previous = scopedShape; scopedShape = shape;
+  try { return run(); } finally { scopedShape = previous; }
+}
 const ownedProfiles=new WeakSet<object>();
 const profileMemo=new Map<string,LiveLocomotionProfileV84>();
 function validateProfile(profile: LiveLocomotionProfileV84): void {
@@ -44,11 +61,13 @@ function validateProfile(profile: LiveLocomotionProfileV84): void {
   requirePositive(profile.accelerationMps2, 'acceleration');
   requirePositive(profile.brakingMps2, 'braking');
   requirePositive(profile.lateralAccelerationMps2, 'lateral acceleration');
+  const shape = profile.propulsionShape ?? AUTHORED_SHAPE;
+  if (profile.propulsionShape !== undefined) validateShape(profile.propulsionShape);
   if (profile.basis !== 'AVERAGED_ALTERNATING_SUPPORT_UNCALIBRATED_V84'
     || !Array.isArray(profile.propulsionBands) || profile.propulsionBands.length !== 3
     || profile.propulsionBands.some((band, i) => !band
-      || band.throughSpeedMps !== profile.topSpeedMps * [.25, .65, 1][i]
-      || band.accelerationMps2 !== profile.accelerationMps2 * [1, .7, .35][i]
+      || band.throughSpeedMps !== profile.topSpeedMps * shape.through[i]
+      || band.accelerationMps2 !== profile.accelerationMps2 * shape.share[i]
       || !Number.isFinite(band.throughSpeedMps) || band.throughSpeedMps <= 0
       || !Number.isFinite(band.accelerationMps2) || band.accelerationMps2 <= 0)) {
     throw new Error('live locomotion V84: invalid propulsion profile');
@@ -67,17 +86,20 @@ const zero = (): Vec2 => ({ x: 0, z: 0 });
  * The original SI abilities remain the propulsion ceiling and speed limit. */
 export function createLiveLocomotionProfileV84(input: Readonly<{
   topSpeedMps: number; accelerationMps2: number; brakingMps2?: number; lateralAccelerationMps2?: number;
+  /** Omission keeps the authored bands exact. */propulsionShapeV1?: LivePropulsionShapeV84;
 }>): LiveLocomotionProfileV84 {
   const topSpeedMps=input.topSpeedMps,accelerationMps2=input.accelerationMps2,
     brakingMps2=input.brakingMps2??1.8*accelerationMps2,lateralAccelerationMps2=input.lateralAccelerationMps2??accelerationMps2;
   requirePositive(topSpeedMps,'top speed');requirePositive(accelerationMps2,'acceleration');
   requirePositive(brakingMps2,'braking');requirePositive(lateralAccelerationMps2,'lateral acceleration');
-  const key=JSON.stringify([topSpeedMps,accelerationMps2,brakingMps2,lateralAccelerationMps2]),cached=profileMemo.get(key);if(cached)return cached;
+  const custom=input.propulsionShapeV1??scopedShape;if(custom!==undefined)validateShape(custom);const shape=custom??AUTHORED_SHAPE;
+  const key=JSON.stringify(custom===undefined?[topSpeedMps,accelerationMps2,brakingMps2,lateralAccelerationMps2]:[topSpeedMps,accelerationMps2,brakingMps2,lateralAccelerationMps2,custom.through,custom.share]),cached=profileMemo.get(key);if(cached)return cached;
   const profile: LiveLocomotionProfileV84 = {
     topSpeedMps, accelerationMps2,brakingMps2,lateralAccelerationMps2,
-    propulsionBands: [.25, .65, 1].map((factor, i) => Object.freeze({
-      throughSpeedMps: topSpeedMps * factor, accelerationMps2: accelerationMps2 * [1, .7, .35][i],
+    propulsionBands: shape.through.map((factor, i) => Object.freeze({
+      throughSpeedMps: topSpeedMps * factor, accelerationMps2: accelerationMps2 * shape.share[i],
     })), basis: 'AVERAGED_ALTERNATING_SUPPORT_UNCALIBRATED_V84',
+    ...(custom===undefined?{}:{propulsionShape:Object.freeze({through:Object.freeze([...custom.through]) as unknown as LivePropulsionShapeV84['through'],share:Object.freeze([...custom.share]) as unknown as LivePropulsionShapeV84['share']})}),
   };
   validateProfile(profile);
   Object.freeze(profile.propulsionBands);
