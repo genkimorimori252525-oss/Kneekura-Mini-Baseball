@@ -116,6 +116,9 @@ export type LiveMatchInputV1 = Readonly<{seed:number;innings?:number;teams:reado
   fieldThrowV1?:LiveFieldThrowPolicyV1;
   /** Omission keeps the old alignment and fielder motion exact. Present: real infield depth, a ready first step and low-ball reach. */
   fieldRangeV1?:LiveFieldRangePolicyV1;
+  /** Omission keeps one drag for pitches and batted balls. Present: drag on the batted ball after contact is scaled.
+   * 1.2 brings carry within 2.5% of Statcast 2024 medians (95-110 mph, 20-35 deg); pitches keep the validated drag. */
+  battedBallAeroV1?:Readonly<{dragScale:number}>;
   /** Omission keeps the runner's old read. Present: a throw to a cutoff counts as that cutoff's throw on. */
   runnerThrowReadV1?:LiveRunnerThrowReadPolicyV1;
   /** Omission keeps every leg braking into its bag. Present: a runner takes his bag at speed once the ball is through the infield. */
@@ -367,6 +370,11 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
   assert(input.hitByPitchV1===undefined||input.hitByPitchV1?.version==='live_hit_by_pitch_policy_v1','invalid hit by pitch policy');
   if(input.fieldThrowV1!==undefined)validateLiveFieldThrowPolicyV1(input.fieldThrowV1);
   if(input.fieldRangeV1!==undefined)validateLiveFieldRangePolicyV1(input.fieldRangeV1);
+  assert(input.battedBallAeroV1===undefined||Object.keys(input.battedBallAeroV1).join()==='dragScale'&&Number.isFinite(input.battedBallAeroV1.dragScale)
+    &&input.battedBallAeroV1.dragScale>=.5&&input.battedBallAeroV1.dragScale<=2,'invalid batted ball aero');
+  const battedPhysicsV1=input.battedBallAeroV1===undefined?matchPhysicsV101:(()=>{const air=matchPhysicsV101.air,aero=air.aerodynamics,k=input.battedBallAeroV1!.dragScale,profile=aero.coefficientProfile;
+    return createAeroGroundBallPhysicsProfile({...matchPhysicsV101,air:{...air,aerodynamics:{...aero,dragCoefficient:aero.dragCoefficient*k,
+      ...(profile?{coefficientProfile:{...profile,profileId:profile.profileId+'-batted-drag-x'+k,spinKnots:profile.spinKnots.map(knot=>({...knot,dragCoefficientAtReferenceRe:knot.dragCoefficientAtReferenceRe*k}))}}:{})}}});})();
   if(input.runnerThrowReadV1!==undefined)validateLiveRunnerThrowReadPolicyV1(input.runnerThrowReadV1);
   if(input.runnerTurnV1!==undefined)validateLiveRunnerTurnPolicyV1(input.runnerTurnV1);
   if(input.fieldCoverV1!==undefined)validateLiveFieldCoverPolicyV1(input.fieldCoverV1);
@@ -655,7 +663,7 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
       const outgoingMoment={...pitch.contactMoment,ball:{...pitch.contactMoment.ball,velocity:pitch.contact.exitVelocity,spin:pitch.contact.exitSpin}};
       outgoingBallMoment=outgoingMoment;
       const fieldInput=buildLiveFieldPlayInputV95({ball:outgoingMoment,orientation:pitch.contactOrientation??IDENTITY_QUATERNION,
-        physics:pitch.diagnostics.sourceDescriptor?.profile.air.aerodynamics.seamForce===undefined?matchPhysicsV101:pitch.diagnostics.sourceDescriptor.profile,
+        physics:pitch.diagnostics.sourceDescriptor?.profile.air.aerodynamics.seamForce===undefined?battedPhysicsV1:pitch.diagnostics.sourceDescriptor.profile,
         seed:(input.seed+Math.imul(pitchCount+1,0x9e3779b9))>>>0,
         ...(playRandomnessV152===undefined?{}:{randomnessV152:playRandomnessV152}),
         field:{bases:LIVE_MATCH_BASES_V1,...park},defense:def.defense,placements:placementsV1,
