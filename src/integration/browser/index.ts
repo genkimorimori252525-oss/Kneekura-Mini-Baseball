@@ -21,7 +21,7 @@ export { createSourceBallMaterialHistoryFromContinuationV3 } from '../../core/si
 export type { SourceBallMaterialHistoryFromContinuationV3Input } from '../../core/sim/ball/SourceBallMaterialHistoryFromContinuationV3';
 export { createExecutedFieldWorldObserverV1 } from './ExecutedFieldWorldObservationV1';
 export type { ExecutedFieldWorldRecordingV1 } from './ExecutedFieldWorldObservationV1';
-export { createLiveBaseballMatchV1, LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1, LIVE_MATCH_BASES_V1 } from './LiveBaseballMatchV1';
+export { createLiveBaseballMatchV1, LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1, LIVE_MATCH_BASES_V1, LIVE_BATTED_BALL_AERO_V1 } from './LiveBaseballMatchV1';
 export type { LiveMatchInputV1, LiveMatchFrameV1, LivePlayerPhysicalV1, LiveIssuedPitchV1 } from './LiveBaseballMatchV1';
 export { applyLivePhysicalRosterV1, resolveLivePlateVisionV1 } from './LivePhysicalRosterV1';
 export { liveAthleticControlBoundsV115, validateLiveAthleticControlsV115, resolveLiveAthleticProfileV115 } from '../../core/sim/LiveAthleticControlsV115';
