@@ -15,7 +15,7 @@ if (opt.batters) for (const player of config.players) if (/-b\d$/.test(player.pl
   for (const pair of opt.batters.split(',')) {const [key, value] = pair.split(':'); player.physical[key] = Number(value);}
 if (opt.skipField) config.skipFieldPlayV1 = true;
 // --observe=key:value and --decision=key:value set the batter observation policy and every batter's swing decision.
-if (opt.observe) for (const pair of opt.observe.split(',')) {const [key, value] = pair.split(':'); config.batterObservationV151[key] = Number(value);}
+if (opt.observe) for (const pair of opt.observe.split(',')) {const [key, value] = pair.split(':'); config.batterObservationV151[key] = value === 'true' ? true : value === 'false' ? false : Number(value);}
 if (opt.decision) for (const player of config.players) if (/-b\d$/.test(player.playerId) && player.physical.swingDecision)
   for (const pair of opt.decision.split(',')) {const [key, value] = pair.split(':'); player.physical.swingDecision = {...player.physical.swingDecision, [key]: Number(value)};}
 const policies = config.experimentalMatchPoliciesV2;
@@ -42,8 +42,11 @@ const pitchRecord = (r, seed) => {
     x: at?.x ?? null, y: at?.y ?? null, zone: zone ? {half: zone.halfWidth, low: zone.lowerY, high: zone.upperY} : null,
     technique: t?.technique ?? null, techniquePlan: t?.planStatus ?? null, techniqueReason: t?.planReason ?? t?.selectionReason ?? null, exitSpin: t?.battedSpin ?? null,
     timing: d.timingErrorSeconds ?? null, exit: v ? {kmh: Math.hypot(v.x, v.y, v.z) * 3.6, launch: Math.atan2(v.y, Math.hypot(v.x, v.z)) * 180 / Math.PI, spray: Math.atan2(v.x, v.z) * 180 / Math.PI} : null,
-    hitBases: s?.hitBases ?? null, homeRuns: s?.homeRuns ?? null, runs: r.match.score.away + r.match.score.home - b.score.away - b.score.home, finished: r.finished};
+    hitBases: s?.hitBases ?? null, homeRuns: s?.homeRuns ?? null, runs: r.match.score.away + r.match.score.home - b.score.away - b.score.home, finished: r.finished,
+    basesBefore: occupied(b.bases), basesAfter: occupied(r.match.bases), outsAfter: r.match.outs, halfAfter: r.match.half};
 };
+// Occupied bases as "13" for first and third, "" when empty.
+const occupied = bases => bases ? ['first', 'second', 'third'].map((k, i) => bases[k] ? i + 1 : '').join('') : null;
 const t0 = Date.now();
 // --hash=1 fingerprints every pitch record, to prove a speed change kept results identical.
 const hash = opt.hash ? createHash('sha256') : null;

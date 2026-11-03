@@ -210,7 +210,9 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   const executionV122=b.swingExecutionV122===undefined?undefined:validateSwingExecutionV122(b.swingExecutionV122);
   assert(input.pitchCommandObservationV155===undefined||input.pitchCommandObservationV155===true,'invalid read-only pitch command observation request');
   const observationPolicyV151=input.batterObservationV151===undefined?undefined:validateLiveBatterObservationPolicyV151(input.batterObservationV151);
-  const lateHeadroomV1=()=>b.plateVision===undefined?0:Math.max(lateEvidenceHeadroomV121(resolveLivePlateVisionV1(b)),observationPolicyV151?.meetLateLookV1?meetLateLookV1(b.timingStdSeconds,observationPolicyV151.meetLateLookV1):0);
+  const meetLookV1=()=>observationPolicyV151?.meetLateLookV1?meetLateLookV1(b.timingStdSeconds,observationPolicyV151.meetLateLookV1):0,
+    lateHeadroomV1=()=>b.plateVision===undefined?0:observationPolicyV151?.lateLookByMeetOnlyV1&&observationPolicyV151.meetLateLookV1?meetLookV1()
+      :Math.max(lateEvidenceHeadroomV121(resolveLivePlateVisionV1(b)),meetLookV1());
   assert(input.batterForecastPolicyV246===undefined||observationPolicyV151!==undefined,'V246 forecast requires position-only observation policy');
   const directionMotorPolicyV153=input.batterDirectionMotorV153===undefined?undefined:validateObservedDirectionMotorV153(input.batterDirectionMotorV153);
   assert(directionMotorPolicyV153===undefined||observationPolicyV151!==undefined,'direction motor requires position-only observation policy');

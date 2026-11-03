@@ -26,6 +26,9 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   /** Late bat adjustment earned by contact skill: [best timing, worst timing, look at best, look at worst].
    * Plate vision alone used to grant it, which left every hitter under 75 vision with no adjustment at all. */
   meetLateLookV1?:readonly number[];
+  /** The late adjustment comes from contact skill alone. Taking the larger of vision and contact let a good eye
+   * rescue any swing, so strikeouts stopped rising with timing error. Vision still judges balls and strikes. */
+  lateLookByMeetOnlyV1?:boolean;
   /** Least room above the aimed speed, as a multiple of it. A swing aimed at its own ceiling has no speed left for the late adjustment. */
   swingSpeedRoomV1?:number;
   /** Swing threshold change per plate vision point around 70, so a good eye lays off more pitches. */
@@ -64,6 +67,7 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'swingSpeedRoomV1')){keys.push('swingSpeedRoomV1');assert(Number.isFinite(p.swingSpeedRoomV1)&&p.swingSpeedRoomV1!>=1&&p.swingSpeedRoomV1!<=2,'invalid swing speed room');}
   if(Object.hasOwn(p,'visionSelectivityV1')){keys.push('visionSelectivityV1');assert(Number.isFinite(p.visionSelectivityV1)&&p.visionSelectivityV1!>=0&&p.visionSelectivityV1!<=.02,'invalid vision selectivity');}
   if(Object.hasOwn(p,'pitchOrderPlanV1')){keys.push('pitchOrderPlanV1');assert(typeof p.pitchOrderPlanV1==='boolean','invalid pitch order plan');}
+  if(Object.hasOwn(p,'lateLookByMeetOnlyV1')){keys.push('lateLookByMeetOnlyV1');assert(typeof p.lateLookByMeetOnlyV1==='boolean','invalid late look source');}
   if(Object.hasOwn(p,'contactSpeedCeilingV1')){keys.push('contactSpeedCeilingV1');assert(typeof p.contactSpeedCeilingV1==='boolean','invalid contact speed ceiling');}
   if(Object.hasOwn(p,'twoStrikeExpansionV1')){keys.push('twoStrikeExpansionV1');assert(Number.isFinite(p.twoStrikeExpansionV1)&&p.twoStrikeExpansionV1!>=0&&p.twoStrikeExpansionV1!<=1,'invalid two strike expansion');}
   assert(p&&typeof p==='object'&&!Array.isArray(p)&&Object.keys(p).length===keys.length&&keys.every(key=>Object.hasOwn(p,key))

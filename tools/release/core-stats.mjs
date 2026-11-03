@@ -51,5 +51,5 @@ if (by === 'technique') {
 } else if (!by) console.log(JSON.stringify(summarize(rows), null, 1));
 else for (const [k, v] of Object.entries(Object.groupBy(rows, r => r[by])).sort((a, b) => b[1].length - a[1].length)) {
   const s = summarize(v);
-  console.log(k.padEnd(10), JSON.stringify({n: s.pitches, pa: s.pa, swing: s.swingPct, oSwing: s.oSwing, contact: s.contactPct, k: s.kPct, bb: s.bbPct, avg: s.avg, slg: s.slg, ev: s.exitKmh, la: s.launch}));
+  console.log(k.padEnd(10), JSON.stringify({n: s.pitches, pa: s.pa, swing: s.swingPct, oSwing: s.oSwing, contact: s.contactPct, k: s.kPct, bb: s.bbPct, avg: s.avg, slg: s.slg, hr: s.hrPct, babip: s.babip, ev: s.exitKmh, la: s.launch, gb: s.groundPct, fb: s.flyPct}));
 }
