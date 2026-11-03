@@ -41,11 +41,12 @@ import type {LiveFieldPlayInputV1} from '../../core/sim/fielding/LiveFieldPlayV1
 import {createSourceFreePoleSessionV148} from '../../core/sim/ball/SourceFreeBallWorldQuery';
 import { resolveLiveBattingSetupV94 } from '../../core/sim/pitching/BattingSetupV94';
 import type { Vec3 } from '../../core/model/geometry';
+import { SeedRoot } from '../../core/rng/SeedRoot';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
 import { asRuleProfileId } from '../../core/model/RuleProfileRef';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS } from '../../core/sim/ball/BaseballAerodynamics';
-import { createAeroGroundBallPhysicsProfile, type AeroGroundBallPhysicsV1 } from '../../core/sim/ball/VersionedBattedBallPhysics';
+import { createAeroGroundBallPhysicsProfile, createVersionedFreeBallTrajectory, type AeroGroundBallPhysicsV1 } from '../../core/sim/ball/VersionedBattedBallPhysics';
 import type { BallWorldMoment } from '../../core/sim/ball/BallWorldContinuation';
 import { IDENTITY_QUATERNION, type Quaternion } from '../../core/sim/pitching/BaseballOrientation';
 import { simulateLiveFieldPlayV1, deriveLiveFieldFenceGeometryV1 } from '../../core/sim/fielding/LiveFieldPlayV1';
@@ -218,6 +219,25 @@ const placements:Readonly<Record<LivePositionV1,Vec3>>={P:{x:0,y:.9,z:18.44},C:{
   '2B':{x:13,y:.9,z:36},'3B':{x:-23,y:.9,z:25},SS:{x:-13,y:.9,z:36},LF:{x:-46,y:.9,z:76},CF:{x:0,y:.9,z:91},RF:{x:46,y:.9,z:76}};
 /** Rubber top; actor/collider anchors remain independent of mound elevation. */
 export const LIVE_MATCH_MOUND_SURFACE_V1=Object.freeze({x:placements.P.x,y:.254,z:placements.P.z});
+/** Plate sampling (skipFieldPlayV1) only: fair or foul and home run from the real flight, spin curve included,
+ * with no fielders. Caught foul flies follow the rates of full games. */
+function settleSkippedBattedBallV1(x:Readonly<{ball:Readonly<{tick:number;position:Vec3;velocity:Vec3;spin:Vec3}>;physics:AeroGroundBallPhysicsV1;
+  fenceRadiusMeters:number;fenceHeightMeters:number;seed:number;pitchOrdinal:number}>){
+  const tps=x.physics.air.ticksPerSecond,flight=createVersionedFreeBallTrajectory({tick:0,position:x.ball.position,velocity:x.ball.velocity,spin:x.ball.spin},8*tps,x.physics);
+  const radius=(p:Vec3)=>Math.hypot(p.x,p.z),samples=flight.samples;
+  const over=samples.find(f=>f.phase==='airborne'&&radius(f.ball.position)>=x.fenceRadiusMeters);
+  // A ball in the air is judged where it first comes down; a ground ball where it passes first-base distance or stops.
+  const lifted=x.ball.velocity.y>Math.hypot(x.ball.velocity.x,x.ball.velocity.z)*Math.tan(10*Math.PI/180),landing=flight.groundContacts[0]?.incoming;
+  const judged=lifted&&landing?{tick:landing.tick,ball:landing}:samples.find(f=>radius(f.ball.position)>=27.432)??samples.at(-1)!,at=judged.ball.position;
+  const fair=at.z>0&&Math.abs(at.x)<=at.z;
+  const draw=new SeedRoot(x.seed).streamRng(x.pitchOrdinal-1,'pitch','simple-batted-v1').nextFloat();
+  // Foul flies caught in full games (MLB standard league, 1,926 fouls): 39% above 60 degrees, 9% at 40-60, 1% at 20-40.
+  const v=x.ball.velocity,launch=Math.atan2(v.y,Math.hypot(v.x,v.z))*180/Math.PI,caught=launch>=60?.39:launch>=40?.09:launch>=20?.01:0,
+    caughtDraw=caught>0&&!fair?new SeedRoot(x.seed).streamRng(x.pitchOrdinal-1,'pitch','skip-foul-out-v1').nextFloat():1;
+  const outcome:'foul'|'out'|'single'|'home_run'=!fair?(caughtDraw<caught?'out':'foul'):over&&over.ball.position.y>x.fenceHeightMeters?'home_run':draw<.3?'single':'out';
+  const seconds=Math.min(6,Math.max(.3,(judged.tick-samples[0]!.tick)/tps));
+  return {outcome,seconds,at:(t:number):Vec3=>{const target=samples[0]!.tick+t*tps;return (samples.find(f=>f.tick>=target)??samples.at(-1)!).ball.position;}};
+}
 /** The match default for battedBallAeroV1 (2026-11-04): carry within 2.5% of Statcast 2024 medians. */
 export const LIVE_BATTED_BALL_AERO_V1=Object.freeze({dragScale:1.2});
 export const LIVE_MATCH_PHYSICS_V1:AeroGroundBallPhysicsV1=Object.freeze({kind:'aero_ground_v1',
@@ -686,7 +706,8 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
       if(fieldFailure===null)scoringInput=fieldWithLeads;
       else{
         // The world could not finish this play: settle it from the exit state so the game goes on.
-        const simple=settleBattedBallV1({ball:outgoingMoment.ball,fenceRadiusMeters:park.fenceRadiusMeters,fenceHeightMeters:park.fenceHeightMeters,...(park.fenceShapeV1?{fenceShapeV1:park.fenceShapeV1}:{}),seed:input.seed,pitchOrdinal:pitchCount+1});
+        const simple=input.skipFieldPlayV1&&!park.fenceShapeV1?settleSkippedBattedBallV1({ball:outgoingMoment.ball,physics:battedPhysicsV1,fenceRadiusMeters:park.fenceRadiusMeters,fenceHeightMeters:park.fenceHeightMeters,seed:input.seed,pitchOrdinal:pitchCount+1})
+          :settleBattedBallV1({ball:outgoingMoment.ball,fenceRadiusMeters:park.fenceRadiusMeters,fenceHeightMeters:park.fenceHeightMeters,...(park.fenceShapeV1?{fenceShapeV1:park.fenceShapeV1}:{}),seed:input.seed,pitchOrdinal:pitchCount+1});
         field=null;fieldFallbackReason=fieldFailure;
         const contactTick=outgoingMoment.ball.tick,endTick=contactTick+Math.round(simple.seconds*tps);
         result=reducePlayableMatchV1({match:beforeMatch,batterRunnerId:c.batterPlayerId,regulationInnings:innings,event:{kind:'simple_batted',tick:endTick,outcome:simple.outcome}});
