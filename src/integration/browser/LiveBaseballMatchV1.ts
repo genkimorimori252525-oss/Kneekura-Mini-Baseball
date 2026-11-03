@@ -5,7 +5,7 @@ import {simulateRobinBridgeV1} from '../../experimental/robin/bridge/match-legac
 import {resolveLoosePitchContinuationV2} from './LoosePitchContinuationV2';
 import {decideIntentionalWalkV1,decidePickoffV1,decideStealV1,leadMetersV1,LIVE_CATCHER_THROW_CALIBRATION_V1,pitchHitsBatterV1,leadPositionV1,resolvePickoffV1,resolveStealV1,runnerLeadMetersV1,settleBattedBallV1,type LiveCatcherThrowPolicyV1,type LiveStealRacePolicyV1,type LiveHitByPitchPolicyV1,type LiveRunnerLeadPolicyV1} from './LiveBaseRunningV1';
 import {validateLiveFieldThrowPolicyV1,type LiveFieldThrowPolicyV1} from '../../core/sim/fielding/LiveCloseThrowV1';
-import {liveFieldPlacementV1,validateLiveFieldRangePolicyV1,validateLiveRunnerThrowReadPolicyV1,validateLiveRunnerTurnPolicyV1,validateLiveFieldCoverPolicyV1,validateLiveFieldRunValuePolicyV1,validateLiveFieldKinematicsPolicyV1,validateLiveLocomotionStartPolicyV1,type LiveLocomotionStartPolicyV1,type LiveFieldCoverPolicyV1,type LiveFieldRunValuePolicyV1,type LiveFieldKinematicsPolicyV1,type LiveFieldRangePolicyV1,type LiveRunnerThrowReadPolicyV1,type LiveRunnerTurnPolicyV1} from '../../core/sim/fielding/LiveFieldRangeV1';
+import {liveFieldPlacementV1,validateLiveFieldRangePolicyV1,validateLiveRunnerThrowReadPolicyV1,validateLiveRunnerTurnPolicyV1,validateLiveFieldCoverPolicyV1,validateLiveFieldRunValuePolicyV1,validateLiveFieldKinematicsPolicyV1,validateLiveLocomotionStartPolicyV1,type LiveLocomotionStartPolicyV1,validateLiveFieldAlignmentPolicyV1,type LiveFieldAlignmentPolicyV1,type LiveFieldCoverPolicyV1,type LiveFieldRunValuePolicyV1,type LiveFieldKinematicsPolicyV1,type LiveFieldRangePolicyV1,type LiveRunnerThrowReadPolicyV1,type LiveRunnerTurnPolicyV1} from '../../core/sim/fielding/LiveFieldRangeV1';
 import {commandFor} from './LivePracticeCommandV273';
 import {declareSpinPracticeEpisodesV242,deriveSpinEpisodeConfigurationV242,type LiveSpinEpisodePlanV242} from './LiveSpinPracticeEpisodesV242';
 import {resolveLiveRobustContactFrameMotorPracticeV248} from './LiveRobustContactFrameMotorV248';
@@ -131,6 +131,8 @@ export type LiveMatchInputV1 = Readonly<{seed:number;innings?:number;teams:reado
   /** Calibration only: the next ball off the bat leaves with this velocity and spin instead, so the defense can be measured on
    * real batted balls apart from the batting. Omission keeps the struck ball. */
   battedBallReplaceV1?:Readonly<{velocity:Vec3;spin:Vec3}>;
+  /** Fielders start where the 2025 league's did (Statcast). Omission keeps the authored spots. Needs fieldRangeV1. */
+  fieldAlignmentV1?:LiveFieldAlignmentPolicyV1;
   /** MATCH roots; per-play overrides are derived with the global pitch ordinal. */
   randomnessV152?:LiveRandomnessV152;
   measuredClips:readonly LiveMeasuredClipV1[];park?:Readonly<{fenceRadiusMeters:number;fenceHeightMeters:number;foulFenceRadiusMeters?:number;fenceShapeV1?:LiveFieldPlayInputV1['field']['fenceShapeV1'];groundMaterialV101?:BaseballGroundMaterial;
@@ -377,9 +379,10 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
   if(input.fieldCoverV1!==undefined)validateLiveFieldCoverPolicyV1(input.fieldCoverV1);
   if(input.fieldRunValueV1!==undefined)validateLiveFieldRunValuePolicyV1(input.fieldRunValueV1);
   if(input.fieldKinematicsV1!==undefined)validateLiveFieldKinematicsPolicyV1(input.fieldKinematicsV1);
+  if(input.fieldAlignmentV1!==undefined){validateLiveFieldAlignmentPolicyV1(input.fieldAlignmentV1);if(!input.fieldRangeV1)throw Error('fieldAlignmentV1 needs fieldRangeV1');}
   if(input.battedBallReplaceV1!==undefined&&![input.battedBallReplaceV1.velocity,input.battedBallReplaceV1.spin].every(v=>v&&[v.x,v.y,v.z].every(Number.isFinite)))throw Error('battedBallReplaceV1 needs finite velocity and spin');
   if(input.locomotionStartV1!==undefined){validateLiveLocomotionStartPolicyV1(input.locomotionStartV1);if(!input.fieldRangeV1||!input.fieldKinematicsV1)throw Error('locomotionStartV1 needs fieldRangeV1 and fieldKinematicsV1');}
-  const placementsV1:Readonly<Record<LivePositionV1,Vec3>>=input.fieldRangeV1?Object.fromEntries((Object.keys(placements) as LivePositionV1[]).map(role=>[role,liveFieldPlacementV1(role,placements[role])])) as Record<LivePositionV1,Vec3>:placements;
+  const placementsV1:Readonly<Record<LivePositionV1,Vec3>>=input.fieldRangeV1?Object.fromEntries((Object.keys(placements) as LivePositionV1[]).map(role=>[role,liveFieldPlacementV1(role,placements[role],input.fieldAlignmentV1)])) as Record<LivePositionV1,Vec3>:placements;
   assert(players.size===input.players.length&&input.players.every(p=>p.playerId&&p.name&&Number.isFinite(p.heightMeters)&&p.heightMeters>0&&['R','L'].includes(p.bats)
     &&(p.throws===undefined||['R','L'].includes(p.throws))),'unique physical players required');
   input.players.forEach(p=>{const source=physical(p);if(p.traitProfile!==undefined)validateLiveTraitProfileV1(p.traitProfile,source);});

@@ -158,7 +158,21 @@ export function liveFieldLowGloveTargetV1(armReachMeters:number,shoulder:Vec3,ta
   const scale=Math.min(1,Math.sqrt(arm*arm-dy*dy)/flat);
   return {x:shoulder.x+dx*scale,y:target.y,z:shoulder.z+dz*scale};
 }
-export const liveFieldPlacementV1=(role:string,fallback:Vec3):Vec3=>{
-  const p=(LIVE_FIELD_RANGE_PLACEMENTS_V1 as Record<string,{x:number;z:number}>)[role];
+/** Opt-in, needs fieldRangeV1. Omission keeps the authored spots (the infield above, the old outfield). */
+export type LiveFieldAlignmentPolicyV1=Readonly<{version:'live_field_alignment_policy_v1';sourceId:string}>;
+export const LIVE_FIELD_ALIGNMENT_POLICY_V1:LiveFieldAlignmentPolicyV1=Object.freeze({version:'live_field_alignment_policy_v1',sourceId:'field-alignment-v1-statcast-2025'});
+/** Where the league's fielders start, 2025 Statcast (Savant position_data, every fielder with 100 or more pitches at the
+ * position, weighted by pitches), in metres from home with +x toward first. The infield already sat within a metre of these.
+ * The authored outfield stood 7 m shallow in center and 4 degrees toward the lines in the corners. One spot for every batter
+ * and every park; a placement that answers the batter and the park is the next step. */
+export const LIVE_FIELD_ALIGNMENT_V1=Object.freeze({'1B':Object.freeze({x:19.3,z:27.8}),'2B':Object.freeze({x:9.5,z:44}),'3B':Object.freeze({x:-19.1,z:31.1}),
+  SS:Object.freeze({x:-9.3,z:43.9}),LF:Object.freeze({x:-41.3,z:80.7}),CF:Object.freeze({x:.3,z:98.1}),RF:Object.freeze({x:41.2,z:79.9})});
+export function validateLiveFieldAlignmentPolicyV1(policy:LiveFieldAlignmentPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_alignment_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field alignment policy');
+  return policy;
+}
+export const liveFieldPlacementV1=(role:string,fallback:Vec3,alignment?:LiveFieldAlignmentPolicyV1):Vec3=>{
+  const p=((alignment?LIVE_FIELD_ALIGNMENT_V1:LIVE_FIELD_RANGE_PLACEMENTS_V1) as Record<string,{x:number;z:number}>)[role];
   return p?{x:p.x,y:fallback.y,z:p.z}:fallback;
 };
