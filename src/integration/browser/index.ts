@@ -21,7 +21,7 @@ export { createSourceBallMaterialHistoryFromContinuationV3 } from '../../core/si
 export type { SourceBallMaterialHistoryFromContinuationV3Input } from '../../core/sim/ball/SourceBallMaterialHistoryFromContinuationV3';
 export { createExecutedFieldWorldObserverV1 } from './ExecutedFieldWorldObservationV1';
 export type { ExecutedFieldWorldRecordingV1 } from './ExecutedFieldWorldObservationV1';
-export { createLiveBaseballMatchV1, LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1, LIVE_MATCH_BASES_V1, LIVE_BATTED_BALL_AERO_V1 } from './LiveBaseballMatchV1';
+export { createLiveBaseballMatchV1, LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1, LIVE_MATCH_BASES_V1, LIVE_BATTED_BALL_AERO_V1, LIVE_FIELD_SHADE_CALIBRATION_V1 } from './LiveBaseballMatchV1';
 export type { LiveMatchInputV1, LiveMatchFrameV1, LivePlayerPhysicalV1, LiveIssuedPitchV1 } from './LiveBaseballMatchV1';
 export { applyLivePhysicalRosterV1, resolveLivePlateVisionV1 } from './LivePhysicalRosterV1';
 export { liveAthleticControlBoundsV115, validateLiveAthleticControlsV115, resolveLiveAthleticProfileV115 } from '../../core/sim/LiveAthleticControlsV115';
@@ -130,4 +130,4 @@ export { LIVE_EMOTION_POLICY_V1, createLiveEmotionTrackerV1 } from './LiveEmotio
 export { LIVE_BATTER_TECHNIQUE_POLICY_V1 } from '../../core/decision/batting/BatterContactTechniqueV1';
 export { LIVE_RUNNER_LEAD_POLICY_V1, LIVE_CATCHER_THROW_POLICY_V1, LIVE_STEAL_RACE_POLICY_V1, LIVE_HIT_BY_PITCH_POLICY_V1 } from './LiveBaseRunningV1';
 export { LIVE_FIELD_THROW_POLICY_V1 } from '../../core/sim/fielding/LiveCloseThrowV1';
-export { LIVE_FIELD_RANGE_POLICY_V1, LIVE_RUNNER_THROW_READ_POLICY_V1, LIVE_RUNNER_TURN_POLICY_V1, LIVE_FIELD_COVER_POLICY_V1, LIVE_FIELD_RUN_VALUE_POLICY_V1, LIVE_FIELD_KINEMATICS_POLICY_V1, LIVE_LOCOMOTION_START_POLICY_V1, LIVE_FIELD_ALIGNMENT_POLICY_V1, LIVE_OUTFIELD_BREAK_POLICY_V1, liveFieldPlacementV1 } from '../../core/sim/fielding/LiveFieldRangeV1';
+export { LIVE_FIELD_RANGE_POLICY_V1, LIVE_RUNNER_THROW_READ_POLICY_V1, LIVE_RUNNER_TURN_POLICY_V1, LIVE_FIELD_COVER_POLICY_V1, LIVE_FIELD_RUN_VALUE_POLICY_V1, LIVE_FIELD_KINEMATICS_POLICY_V1, LIVE_LOCOMOTION_START_POLICY_V1, LIVE_FIELD_ALIGNMENT_POLICY_V1, LIVE_OUTFIELD_BREAK_POLICY_V1, LIVE_FORCED_RUN_POLICY_V1, LIVE_RUNNER_SAFE_LEAD_POLICY_V1, LIVE_TOSS_RECEIVE_POLICY_V1, liveFieldPlacementV1 } from '../../core/sim/fielding/LiveFieldRangeV1';

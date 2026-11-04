@@ -34,6 +34,44 @@ export function liveFieldCoverOrderV1(base:1|2|3|4,ballX:number):readonly string
   if(base===3)return ['3B','SS','P'];
   return ['C','P'];
 }
+/** Opt-in. Omission keeps the authored halfway on shallow flies only, and a runner on first holding his bag on a deep ball or a liner. */
+export type LiveRunnerSafeLeadPolicyV1=Readonly<{version:'live_runner_safe_lead_policy_v1';sourceId:string}>;
+export const LIVE_RUNNER_SAFE_LEAD_POLICY_V1:LiveRunnerSafeLeadPolicyV1=Object.freeze({version:'live_runner_safe_lead_policy_v1',sourceId:'runner-safe-lead-v1'});
+/** A runner on first with fewer than two out, on a ball in the air that may be caught, goes as far toward second as he can and
+ * still get back before a catch and the throw to first: his reaction, the turn, and the run back against the time to the catch,
+ * the catcher's exchange and his throw. Tagging up from first gains little, so on a deep ball or a liner he is that much nearer
+ * when it drops. turnSeconds: stopping and turning back, authored.
+ * minimumLandingDepthMeters: only balls to the outfield. A shallow ball is caught well before it would land, so the time to the
+ * landing overstates the time he has; there the authored halfway still decides (2026-11-04: on all balls the lead doubled
+ * runners off on pop-ups, 2 to 7 extra outs over 120 chances). */
+export const LIVE_RUNNER_SAFE_LEAD_CALIBRATION_V1=Object.freeze({turnSeconds:.3,maximumShare:.8,minimumLandingDepthMeters:60});
+export function validateLiveRunnerSafeLeadPolicyV1(policy:LiveRunnerSafeLeadPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_runner_safe_lead_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid runner safe lead policy');
+  return policy;
+}
+/** Opt-in. Omission readies a receiver's glove for a glove toss as if it came from a throwing hand. */
+export type LiveTossReceivePolicyV1=Readonly<{version:'live_toss_receive_policy_v1';sourceId:string}>;
+export const LIVE_TOSS_RECEIVE_POLICY_V1:LiveTossReceivePolicyV1=Object.freeze({version:'live_toss_receive_policy_v1',sourceId:'toss-receive-v1-physics'});
+/** A receiver waits with his glove on the line the ball will come in along. A throw leaves from the hand, at least a hand's
+ * height above the hip; a glove toss leaves from the glove, wherever the glove holds the ball. Readying for a hand throw held
+ * the glove 0.3 m over a flick that left from 1.2 m, and a pitcher 1.4 m away let it under (2026-11-04, a shaded MLB grounder). */
+export function validateLiveTossReceivePolicyV1(policy:LiveTossReceivePolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_toss_receive_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid toss receive policy');
+  return policy;
+}
+/** Opt-in. Omission keeps every runner, the batter too, waiting until the man on the bag ahead has left it. */
+export type LiveForcedRunPolicyV1=Readonly<{version:'live_forced_run_policy_v1';sourceId:string}>;
+export const LIVE_FORCED_RUN_POLICY_V1:LiveForcedRunPolicyV1=Object.freeze({version:'live_forced_run_policy_v1',sourceId:'forced-run-v1-rule'});
+/** A forced runner may run to a bag that is still taken when the man on it is forced as well: that man has to give it up, so
+ * the bag ahead is not a reason to wait. The batter is always forced, so he runs the moment he has hit the ball, whoever is on
+ * first. A man who may choose to stay (a liner that can still be caught) still makes his own choice, and nobody passes anybody. */
+export function validateLiveForcedRunPolicyV1(policy:LiveForcedRunPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_forced_run_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid forced run policy');
+  return policy;
+}
 /** Opt-in. Omission keeps the runner's old read of a ball in flight. */
 export type LiveRunnerThrowReadPolicyV1=Readonly<{version:'live_runner_throw_read_policy_v1';sourceId:string}>;
 export const LIVE_RUNNER_THROW_READ_POLICY_V1:LiveRunnerThrowReadPolicyV1=Object.freeze({version:'live_runner_throw_read_policy_v1',sourceId:'runner-throw-read-v1-authored'});
@@ -67,7 +105,9 @@ export const LIVE_FIELD_COVER_POLICY_V1:LiveFieldCoverPolicyV1=Object.freeze({ve
  * chancePool: how many of the best chances at the ball are tried as chasers. coverChoices: how many of the quickest free men per bag.
  * lookAheadSeconds: a man in time for the ball is judged by his best margin on its way, so these later points of its path
  * are tried after the first one he can reach; a ball hit at him gets more certain the longer it comes. */
-export const LIVE_FIELD_COVER_CALIBRATION_V1=Object.freeze({spreadSeconds:.15,chancePool:4,coverChoices:3,lookAheadSeconds:Object.freeze([.2,.4,.6])});
+/* keepRuns: how much more a new plan must save before a fielder drops the one under way. Authored, about the run value
+ * of the quarter second a change of mind costs one man in a close race. */
+export const LIVE_FIELD_COVER_CALIBRATION_V1=Object.freeze({spreadSeconds:.15,chancePool:4,coverChoices:3,keepRuns:.03,lookAheadSeconds:Object.freeze([.2,.4,.6])});
 export function validateLiveFieldCoverPolicyV1(policy:LiveFieldCoverPolicyV1){
   if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_cover_policy_v1'
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field cover policy');
