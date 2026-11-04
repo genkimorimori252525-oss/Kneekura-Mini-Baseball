@@ -47,9 +47,15 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   viewTimeTimingV1?:number;
   /** The same power law on the aim spread (0..6): a shorter view blurs where the ball will cross as well as when. */
   viewTimeAimV1?:number;
-  /** Power on (view at 40 m/s / this pitch's view) applied to priorFooledChanceV1 (0..6), the view being the flight less the commit
-   * time and motor latency. Two thirds of misses come from fooled swings, so a shorter look at a faster pitch must fool more often. */
+  /** Power on (look at a 0.44 s arrival / this look) applied to priorFooledChanceV1 (0..6), the look being the expected (remembered)
+   * arrival less the commit time and motor latency. Two thirds of misses come from fooled swings, so a faster arm must fool more often,
+   * and an off-speed pitch thrown after fastballs is met with the fastball's short look. */
   fooledViewPowerV1?:number;
+  /** Expected arrival in seconds at which fooledViewPowerV1 leaves priorFooledChanceV1 unchanged (0.3..0.7, 0.44 when absent). */
+  fooledViewReferenceV1?:number;
+  /** [ball-strike judgment spread in metres at vision 70, vision points per factor e]: the spread follows the 1-100 vision
+   * directly. With the maker's 100 points per e, a 100 eye walked barely more than a 70 one. */
+  visionJudgmentV1?:readonly number[];
   /** Share of the remembered pitch kept in where the bat goes (0..1); the arrival time keeps the full prior.
    * Blending a quarter of the last pitches into the height made hitters top low pitches and pop up high ones. */
   priorPlacementShareV1?:number;
@@ -80,10 +86,13 @@ export const AUTHORED_LIVE_BATTER_OBSERVATION_V151:LiveBatterObservationPolicyV1
 /** The match default. 2026-11-04: MLB candidate 4 of the standard league: the late-contact bat held at its contact speed, the
  * barrel's ringing, the swing aimed 1 cm under the ball with a tighter up-down aim, and a quarter of swings fooled to where the
  * hitter expected the pitch (instead of blending the remembered pitch into every swing). Strikeouts, walks, average, launch
- * mix and bases per ball in play of MLB 2024; extra bases about four fifths of MLB's. */
+ * mix and bases per ball in play of MLB 2024; extra bases about four fifths of MLB's.
+ * Candidate 5 (2026-11-04): the fooled chance grows with a shorter look at the expected pitch (strikeouts +8.8 points from 140 to
+ * 162 km/h), and the impact speed may reach 1.05 of the aimed speed (late contacts no longer carry the clip's slowdown); against
+ * 153 km/h standard pitchers, K .206, BB .077, AVG .245, ISO .147, HR .028. */
 export const LIVE_MATCH_BATTER_OBSERVATION_V2:LiveBatterObservationPolicyV151 = Object.freeze({...AUTHORED_LIVE_BATTER_OBSERVATION_V151,
-  commitSwingSeconds:.26,contactSpeedCeilingV1:true,impactSpeedLimitV1:1,twoStrikeExpansionV1:.22,meetLateLookV1:Object.freeze([.0045,.014,.85,.3]),swingSpeedRoomV1:1.16,visionSelectivityV1:.004,pitchOrderPlanV1:true,
-  lateLookByMeetOnlyV1:true,priorPlacementShareV1:.45,postContactHoldV1:true,barrelVibrationLossV1:Object.freeze([.1,.145,.35]),undercutAimV1:.01,aimVerticalScaleV1:.6,priorFooledChanceV1:.25,
+  commitSwingSeconds:.26,contactSpeedCeilingV1:true,impactSpeedLimitV1:1.05,twoStrikeExpansionV1:.22,meetLateLookV1:Object.freeze([.0045,.014,.85,.3]),swingSpeedRoomV1:1.16,visionSelectivityV1:.004,pitchOrderPlanV1:true,
+  lateLookByMeetOnlyV1:true,priorPlacementShareV1:.45,postContactHoldV1:true,barrelVibrationLossV1:Object.freeze([.1,.145,.35]),undercutAimV1:.01,aimVerticalScaleV1:.6,priorFooledChanceV1:.25,fooledViewPowerV1:1,fooledViewReferenceV1:.49,
   countReadinessV1:Object.freeze([[.62,.85,1],[.72,.9,1],[.72,.95,1],[.12,.85,1]].map(row=>Object.freeze(row)))});
 function assert(value:unknown,message:string):asserts value {if(!value)throw Error('live batter observation v151: '+message);}
 export function meetLateLookV1(timingStdSeconds:number,look:readonly number[]){
@@ -107,6 +116,8 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'priorPlacementShareV1')){keys.push('priorPlacementShareV1');assert(Number.isFinite(p.priorPlacementShareV1)&&p.priorPlacementShareV1!>=0&&p.priorPlacementShareV1!<=1,'invalid prior placement share');}
   if(Object.hasOwn(p,'lateLookByMeetOnlyV1')){keys.push('lateLookByMeetOnlyV1');assert(typeof p.lateLookByMeetOnlyV1==='boolean','invalid late look source');}
   if(Object.hasOwn(p,'barrelVibrationLossV1')){keys.push('barrelVibrationLossV1');assert(Array.isArray(p.barrelVibrationLossV1)&&(p.barrelVibrationLossV1.length===2||p.barrelVibrationLossV1.length===3)&&p.barrelVibrationLossV1.every((v:unknown,i:number)=>typeof v==='number'&&(i<2?v>=.01&&v<=1:v>=0&&v<1)),'invalid barrel vibration loss');}
+  if(Object.hasOwn(p,'visionJudgmentV1')){keys.push('visionJudgmentV1');assert(Array.isArray(p.visionJudgmentV1)&&p.visionJudgmentV1.length===2&&p.visionJudgmentV1[0]>0&&p.visionJudgmentV1[0]<=.2&&p.visionJudgmentV1[1]>=5&&p.visionJudgmentV1[1]<=500,'invalid vision judgment');}
+  if(Object.hasOwn(p,'fooledViewReferenceV1')){keys.push('fooledViewReferenceV1');assert(typeof p.fooledViewReferenceV1==='number'&&p.fooledViewReferenceV1>=.3&&p.fooledViewReferenceV1<=.7,'invalid fooled view reference');}
   if(Object.hasOwn(p,'fooledViewPowerV1')){keys.push('fooledViewPowerV1');assert(typeof p.fooledViewPowerV1==='number'&&p.fooledViewPowerV1>=0&&p.fooledViewPowerV1<=6,'invalid fooled view power');}
   if(Object.hasOwn(p,'viewTimeAimV1')){keys.push('viewTimeAimV1');assert(typeof p.viewTimeAimV1==='number'&&p.viewTimeAimV1>=0&&p.viewTimeAimV1<=6,'invalid view time aim');}
   if(Object.hasOwn(p,'viewTimeTimingV1')){keys.push('viewTimeTimingV1');assert(typeof p.viewTimeTimingV1==='number'&&p.viewTimeTimingV1>=0&&p.viewTimeTimingV1<=6,'invalid view time timing');}

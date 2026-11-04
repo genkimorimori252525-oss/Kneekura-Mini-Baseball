@@ -496,11 +496,12 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
         y:observedPredictionV122.ball.position.y*(1-priorWeightV122)+priorV122.y*priorWeightV122}}}:observedPredictionV122,
     // The swing decision keeps the remembered pitch (a hitter can still be fooled into chasing); the bat goes where it was seen.
     // Fooled or not, per swing: a fooled hitter puts the bat where he expected the pitch, otherwise where he saw it.
-    // fooledViewPowerV1: a hitter leans on his expectation as much as his look is short, so the fooled chance grows as
-    // (view at 40 m/s / this pitch's view) to the given power; the view is the flight less the commit time and motor latency.
+    // fooledViewPowerV1: a hitter leans on his expectation as much as his look is short. He times the swing for the pitch he
+    // expects, so the look he gets is the expected arrival less the commit time and motor latency, whatever comes: a changeup
+    // after fastballs gives the fastball's short look. The fooled chance grows as (the look at fooledViewReferenceV1, 0.44 s by default, / this look)^power.
     fooledChanceV1=observationPolicyV151?.priorFooledChanceV1===undefined||observationPolicyV151.fooledViewPowerV1===undefined?observationPolicyV151?.priorFooledChanceV1
-      :(()=>{const lead=(observationPolicyV151.commitSwingSeconds??.26)+(b.motorLatencySeconds??0);
-        return Math.min(.95,observationPolicyV151.priorFooledChanceV1!*(Math.max(.05,(release.z-commanded.z)/40-lead)/Math.max(.05,flightGuess-lead))**observationPolicyV151.fooledViewPowerV1!);})(),
+      :(()=>{const lead=(observationPolicyV151.commitSwingSeconds??.26)+(b.motorLatencySeconds??0),expected=priorV122?.arrivalAfterReleaseSeconds??flightGuess;
+        return Math.min(.95,observationPolicyV151.priorFooledChanceV1!*(Math.max(.05,(observationPolicyV151.fooledViewReferenceV1??.44)-lead)/Math.max(.05,expected-lead))**observationPolicyV151.fooledViewPowerV1!);})(),
     fooledV1=fooledChanceV1!==undefined&&currentObservationAvailableV151&&!!priorV122&&priorWeightV122>0
       &&(randomStreamsV152?.rng('batterBelief','fooled-placement').uniform()??new SeedRoot(input.seed).streamRng(0,'batting','fooled-placement-v1').nextFloat())<fooledChanceV1,
     placementPriorWeightV1=fooledChanceV1!==undefined&&currentObservationAvailableV151?(fooledV1?1:0)
@@ -516,7 +517,10 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   let baselineAimError=yawDeferExecutionV274?zero():{x:aimRandom.normal()*aimScale,y:aimRandom.normal()*aimScale*(observationPolicyV151?.aimVerticalScaleV1??1),z:aimRandom.normal()*aimScale*.3},
     sweetSpotT=clamp((b.sweetSpotT??(b.batLengthM-.1524)/b.batLengthM)+(yawDeferExecutionV274?0:(sweetSpotRandom.uniform()-.5)*.025),.65,.9);
   const heightScale=b.heightMeters/1.8;
-  const judgmentStd=b.zoneJudgmentStdMeters??0,judgmentError={x:0,y:0};
+  // visionJudgmentV1 [std at vision 70, points per factor e]: the ball-strike judgment spread comes from the 1-100 vision itself,
+  // so each point counts for more than the maker's stored spread gives (100 points per e left a 100 eye barely better than 70).
+  const visionJudgmentV1=observationPolicyV151?.visionJudgmentV1,
+    judgmentStd=visionJudgmentV1?visionJudgmentV1[0]!*Math.exp(-(resolveLivePlateVisionV1(b)-70)/visionJudgmentV1[1]!):b.zoneJudgmentStdMeters??0,judgmentError={x:0,y:0};
   if(judgmentStd!==0){
     // An isolated recognition stream does not consume clip, pitch-command,
     // timing or aim draws. No identity/league enters this numerical model.
