@@ -585,13 +585,16 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
             .map(row=>({id:row.pitchType as string,pitch:row as Readonly<{releaseSpeedMps:number;spinRadPerSecond:Vec3}>,prior:1})),
         actualId=selectedSnapshot?selectedSnapshot.pitchId:pitchType,
         t1=(effectiveForecastV246.observedThroughTick!-input.originTick)/tps,plane=battingSetupV94.contactPlaneZ,
-        seenBall=kernel.evaluateAt(t1,'incoming').moment.ball,[degrees,ms]=recognitionPolicyV2 as readonly [number,number],
+        seenBall=kernel.evaluateAt(t1,'incoming').moment.ball,[degrees,ms,spinDegrees]=recognitionPolicyV2 as readonly [number,number,number?],
         weighed=candidates.map(c=>{
           const start={...initial,velocity:mul(initial.velocity,c.pitch.releaseSpeedMps*.99/norm(initial.velocity)),spin:c.pitch.spinRadPerSecond},
             at=sampleAerodynamicPitchStateAtElapsedSeconds(start,t1,inverseAir),
             turnDegrees=Math.acos(clamp(dot(at.velocity,seenBall.velocity)/(norm(at.velocity)*norm(seenBall.velocity)),-1,1))*180/Math.PI,
-            lagMs=Math.abs((seenBall.position.z-at.position.z)/at.velocity.z)*1000;
-          return {...c,start,at,turnDegrees,lagMs,weight:c.prior*Math.exp(-.5*((turnDegrees/degrees)**2+(lagMs/ms)**2))};
+            lagMs=Math.abs((seenBall.position.z-at.position.z)/at.velocity.z)*1000,
+            // The seams' turn: the angle between this pitch's spin axis and the one in flight (both as released).
+            axisDegrees=spinDegrees===undefined?0:norm(c.pitch.spinRadPerSecond)*norm(initial.spin)===0?180
+              :Math.acos(clamp(dot(c.pitch.spinRadPerSecond,initial.spin)/(norm(c.pitch.spinRadPerSecond)*norm(initial.spin)),-1,1))*180/Math.PI;
+          return {...c,start,at,turnDegrees,lagMs,weight:c.prior*Math.exp(-.5*((turnDegrees/degrees)**2+(lagMs/ms)**2+(spinDegrees===undefined?0:(axisDegrees/spinDegrees)**2)))};
         }),
         total=weighed.reduce((n,c)=>n+c.weight,0),
         draw=randomStreamsV152?.rng('batterBelief','pitch-recognition-v2').uniform()??new SeedRoot(input.seed).streamRng(0,'batting','pitch-recognition-v2').nextFloat();
