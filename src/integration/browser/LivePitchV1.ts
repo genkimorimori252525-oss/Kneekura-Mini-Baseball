@@ -462,6 +462,29 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     rawForecastV151=positionObserverV151?.forecastAt(positionObserverV151.decisionTick),
     forecastResultV246=input.batterForecastPolicyV246===undefined?undefined:positionObserverV151!.forecastAtV246!(positionObserverV151!.decisionTick),
     effectiveForecastV246=forecastResultV246?.forecast??rawForecastV151;
+  // accelerationPriorWeightV1 (weight of the observed acceleration, 0..1): from a short look the hitter reads where the ball is
+  // and how it moves, but bends its path by what he expects, the pitcher's fastball. The fastball is flown from the same release
+  // and direction; past the last look the forecast takes w of the seen bend and 1-w of the fastball's. No force is invented: a
+  // breaking ball that shares the fastball's tunnel misses the forecast by half the difference in bend times the time squared.
+  const accelerationWeightV1=observationPolicyV151?.accelerationPriorWeightV1,
+    perceivedBendV1=accelerationWeightV1===undefined||accelerationWeightV1===1||effectiveForecastV246?.status!=='PREDICTED'||!effectiveForecastV246.prediction
+      ||effectiveForecastV246.observedThroughTick===null?null:(()=>{
+      const owned=p.pitchRepertoireV78===undefined?null:validatePitchRepertoireV78(p.pitchRepertoireV78,p.maximumPitchSpeedMps).pitches,
+        fast=owned?owned.find(row=>row.pitchType==='fastball')??owned.find(row=>['sinker','cutter'].includes(row.pitchType))??null
+          :resolvePitcherRepertoireV77(p,p.throws??'R').find(row=>row.pitchType==='fastball')??null;
+      if(!fast)return null;
+      const t1=(effectiveForecastV246.observedThroughTick!-input.originTick)/tps,t2=effectiveForecastV246.prediction!.arrivalAfterReleaseSeconds,dt=t2-t1;
+      if(!(dt>.005))return null;
+      const start={...initial,velocity:mul(initial.velocity,fast.releaseSpeedMps*.99/norm(initial.velocity)),spin:fast.spinRadPerSecond},
+        s1=sampleAerodynamicPitchStateAtElapsedSeconds(start,t1,inverseAir),s2=sampleAerodynamicPitchStateAtElapsedSeconds(start,t2,inverseAir),
+        seen=effectiveForecastV246.prediction!.estimatedAcceleration,
+        expectedX=2*(s2.position.x-s1.position.x-s1.velocity.x*dt)/(dt*dt),expectedY=2*(s2.position.y-s1.position.y-s1.velocity.y*dt)/(dt*dt),
+        k=.5*(1-accelerationWeightV1)*dt*dt;
+      return {x:k*(expectedX-seen.x),y:k*(expectedY-seen.y)};
+    })(),
+    perceivedForecastV1=perceivedBendV1===null?effectiveForecastV246:{...effectiveForecastV246!,prediction:{...effectiveForecastV246!.prediction!,
+      position:{...effectiveForecastV246!.prediction!.position,x:effectiveForecastV246!.prediction!.position.x+perceivedBendV1.x,
+        y:effectiveForecastV246!.prediction!.position.y+perceivedBendV1.y}}};
   if(opticalExperiment&&effectiveForecastV246?.status!=='PREDICTED')throw Error('Robin optical HOLD: no observed forecast');
   assert(!(input.managerCommunicationV122&&input.swingInstructionV121),'ambiguous received and raw manager instruction');
   const managerCommunicationV122=input.managerCommunicationV122===undefined?null:resolveLiveManagerCommunicationV122({...input.managerCommunicationV122,
@@ -480,7 +503,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   const yawDeferExecutionV274=input.yawDiagnosticV274!==undefined;
   if(yawDeferExecutionV274&&!randomStreamsV152)throw Object.assign(new Error('yaw diagnostic: INDEPENDENT_RANDOMNESS_REQUIRED'),{yawDiagnosticStatus:'HOLD'});
   const observedPredictionV122=positionObserverV151?{elapsedSeconds:effectiveForecastV246!.prediction?.arrivalAfterReleaseSeconds??decisionTime,
-      ball:{tick:positionObserverV151.decisionTick,position:effectiveForecastV246!.prediction?.position??{x:0,y:middle,z:battingSetupV94.contactPlaneZ},
+      ball:{tick:positionObserverV151.decisionTick,position:perceivedForecastV1!.prediction?.position??{x:0,y:middle,z:battingSetupV94.contactPlaneZ},
         velocity:effectiveForecastV246!.prediction?.estimatedVelocity??zero(),spin:zero()}}
       :predictFromObservation(observedSample,decisionTime,battingSetupV94.contactPlaneZ),
     priorV122=intentV122?.preparedPrediction??(preparedRecallV151?{x:preparedRecallV151.position.x,y:preparedRecallV151.position.y,

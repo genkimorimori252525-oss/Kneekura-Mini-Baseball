@@ -56,6 +56,9 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   /** [ball-strike judgment spread in metres at vision 70, vision points per factor e]: the spread follows the 1-100 vision
    * directly. With the maker's 100 points per e, a 100 eye walked barely more than a 70 one. */
   visionJudgmentV1?:readonly number[];
+  /** Weight of the observed acceleration in the forecast at the swing decision (0..1); the rest is the pitcher's fastball bend,
+   * flown from the same release. 1 or absent: the full observed bend (exact forecast). */
+  accelerationPriorWeightV1?:number;
   /** Share of the remembered pitch kept in where the bat goes (0..1); the arrival time keeps the full prior.
    * Blending a quarter of the last pitches into the height made hitters top low pitches and pop up high ones. */
   priorPlacementShareV1?:number;
@@ -116,6 +119,7 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'priorPlacementShareV1')){keys.push('priorPlacementShareV1');assert(Number.isFinite(p.priorPlacementShareV1)&&p.priorPlacementShareV1!>=0&&p.priorPlacementShareV1!<=1,'invalid prior placement share');}
   if(Object.hasOwn(p,'lateLookByMeetOnlyV1')){keys.push('lateLookByMeetOnlyV1');assert(typeof p.lateLookByMeetOnlyV1==='boolean','invalid late look source');}
   if(Object.hasOwn(p,'barrelVibrationLossV1')){keys.push('barrelVibrationLossV1');assert(Array.isArray(p.barrelVibrationLossV1)&&(p.barrelVibrationLossV1.length===2||p.barrelVibrationLossV1.length===3)&&p.barrelVibrationLossV1.every((v:unknown,i:number)=>typeof v==='number'&&(i<2?v>=.01&&v<=1:v>=0&&v<1)),'invalid barrel vibration loss');}
+  if(Object.hasOwn(p,'accelerationPriorWeightV1')){keys.push('accelerationPriorWeightV1');assert(typeof p.accelerationPriorWeightV1==='number'&&p.accelerationPriorWeightV1>=0&&p.accelerationPriorWeightV1<=1,'invalid acceleration prior weight');}
   if(Object.hasOwn(p,'visionJudgmentV1')){keys.push('visionJudgmentV1');assert(Array.isArray(p.visionJudgmentV1)&&p.visionJudgmentV1.length===2&&p.visionJudgmentV1[0]>0&&p.visionJudgmentV1[0]<=.2&&p.visionJudgmentV1[1]>=5&&p.visionJudgmentV1[1]<=500,'invalid vision judgment');}
   if(Object.hasOwn(p,'fooledViewReferenceV1')){keys.push('fooledViewReferenceV1');assert(typeof p.fooledViewReferenceV1==='number'&&p.fooledViewReferenceV1>=.3&&p.fooledViewReferenceV1<=.7,'invalid fooled view reference');}
   if(Object.hasOwn(p,'fooledViewPowerV1')){keys.push('fooledViewPowerV1');assert(typeof p.fooledViewPowerV1==='number'&&p.fooledViewPowerV1>=0&&p.fooledViewPowerV1<=6,'invalid fooled view power');}
