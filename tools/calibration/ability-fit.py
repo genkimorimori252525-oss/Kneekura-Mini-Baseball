@@ -114,7 +114,7 @@ def fit(abil_path, pattern, table_path, out_path, role='batter'):
         w = [r[1]['pa'] for r in rows]
         a = [[sum(w[n] * t[n][i] * t[n][j] for n in range(len(t))) for j in range(len(t[0]))] for i in range(len(t[0]))]
         # --log fits log(stat + .01) for ISO and home runs, which grow about as a product of the abilities.
-        f, g = (lambda y: math.log(y + .01), lambda y: math.exp(y) - .01) if stat in LOG_STATS else (lambda y: y, lambda y: y)
+        f, g = (lambda y: math.log(max(y, 0) + .01), lambda y: math.exp(y) - .01) if stat in LOG_STATS else (lambda y: y, lambda y: y)
         b = [sum(w[n] * t[n][i] * f(rows[n][1][stat]) for n in range(len(t))) for i in range(len(t[0]))]
         coef[stat] = solve(a, b)
         pred = [g(sum(c * v for c, v in zip(coef[stat], tt))) for tt in t]
