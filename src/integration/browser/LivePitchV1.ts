@@ -1052,7 +1052,10 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       budget=effectiveMaximumSpeedV121===undefined?0:Math.max(0,Math.min(uncorrectedReference.maximumGripSpeedMps,effectiveMaximumSpeedV121-uncorrectedReference.maximumSweetSpotSpeedMps))*(swingIntentV121?.controlPriority??1),
       accelerationBudget=executionV122?Math.max(0,Math.min(executionV122.maximumGripAccelerationMps2-referenceAccelerationBoundsV122(uncorrectedReference).maximumGripAccelerationMps2,
         executionV122.maximumSweetSpotAccelerationMps2-referenceAccelerationBoundsV122(uncorrectedReference).maximumSweetSpotAccelerationMps2)):Infinity,
-      scale=duration>0&&distance>1e-9?Math.min(headroom,budget*duration/(1.5*distance),executionV122?executionV122.maximumCorrectionMeters/distance:Infinity,accelerationBudget*duration*duration/(6*distance)):0,
+      // lateLookAccelerationV1 (m/s^2): the late correction is bounded by the extra hand acceleration over the time left,
+      // |offset| <= a T^2/6, instead of a fixed share of the gap; a small miss closes fully, a far one only partly (2026-11-05).
+      lateAccelerationV1=observationPolicyV151?.lateLookAccelerationV1,
+      scale=duration>0&&distance>1e-9?Math.min(lateAccelerationV1===undefined?headroom:Math.min(1,lateAccelerationV1*duration*duration/(6*distance)),budget*duration/(1.5*distance),executionV122?executionV122.maximumCorrectionMeters/distance:Infinity,accelerationBudget*duration*duration/(6*distance)):0,
       offset=mul(requestedOffset,scale),applied=scale>0&&norm(offset)<=3;
     return {headroom,observedTick:lateObservedTick,availableTick,correctionFromTick,throughTick:Math.max(correctionFromTick,throughTick),selectedPredictionId:evidence.predictionId,
       contactPlaneZ:battingSetupV94.contactPlaneZ,requestedOffset,offset:applied?offset:zero(),applied,maximumCorrectionSpeedMps:budget,
