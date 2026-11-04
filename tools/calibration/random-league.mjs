@@ -4,11 +4,14 @@
 // Writes <out-dir>/league-<i>.json and <out-dir>/abilities.json ({league: {playerId: {contact, power, vision, run, attackAngleDegrees}}}).
 // --pitchers leaves the batters as they are and draws the two starting pitchers' speed and control instead.
 // --undercut also draws each batter's undercutAimMeters (-0.01..0.035 m), recorded in abilities.json as 'undercut'.
+// --write=lo:hi writes only leagues lo..hi-1 (every league is still drawn, so abilities.json and the draws stay the same):
+// a disk too small for every league at once can make them a batch at a time.
 import {mkdirSync, readFileSync, writeFileSync} from 'node:fs';
 import {loadCore, makeRoster} from '../maker/kbm-maker.mjs';
 
 const args = process.argv.slice(2).filter(a => !a.startsWith('--')), pitchers = process.argv.includes('--pitchers');
 const undercutRange = process.argv.includes('--undercut') ? [-.01, .035] : null;
+const [writeLo, writeHi] = (process.argv.find(a => a.startsWith('--write='))?.slice(8) ?? '0:Infinity').split(':').map(Number);
 const [nativePath, basePath, outDir, leagues = '10', seedText = '1'] = args;
 const core = loadCore(nativePath), base = JSON.parse(readFileSync(basePath, 'utf8'));
 let state = Number(seedText) >>> 0 || 1;
@@ -43,10 +46,11 @@ for (let league = 0; league < Number(leagues); league++) {
     spec.players[playerId] = {abilities: a, attackAngleDegrees, ...(undercut === undefined ? {} : {physical: {undercutAimMeters: undercut}})};
     drawn[playerId] = {...a, attackAngleDegrees, ...(undercut === undefined ? {} : {undercut})};
   }
+  abilities[league] = drawn;
+  if (league < writeLo || league >= writeHi) continue;
   const made = makeRoster(core, base, spec), byId = new Map(made.roster.entries.map(e => [e.playerId, e]));
   const out = {...base, players: made.players.map(p => ({...p, physical: byId.get(p.playerId).physical}))};
   writeFileSync(`${outDir}/league-${league}.json`, JSON.stringify(out));
-  abilities[league] = drawn;
 }
 writeFileSync(`${outDir}/abilities.json`, JSON.stringify(abilities, null, 1));
 console.log('leagues', leagues, pitchers ? 'pitchers' : 'batters', Object.keys(abilities[0]).length);
