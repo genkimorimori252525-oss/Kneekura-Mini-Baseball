@@ -648,7 +648,10 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
         return Math.min(.95,observationPolicyV151.priorFooledChanceV1!*(Math.max(.05,(observationPolicyV151.fooledViewReferenceV1??.44)-lead)/Math.max(.05,expected-lead))**observationPolicyV151.fooledViewPowerV1!);})(),
     fooledV1=fooledChanceV1!==undefined&&currentObservationAvailableV151&&!!priorV122&&priorWeightV122>0
       &&(randomStreamsV152?.rng('batterBelief','fooled-placement').uniform()??new SeedRoot(input.seed).streamRng(0,'batting','fooled-placement-v1').nextFloat())<fooledChanceV1,
-    placementPriorWeightV1=recognitionUsedV1?0:fooledChanceV1!==undefined&&currentObservationAvailableV151?(fooledV1&&!recognitionPolicyV1&&!recognitionPolicyV2?1:0)
+    // With pitch recognition the bat went where the ball was seen, while the swing was decided on the belief blended toward
+    // the remembered pitch; a far ball that only looked like a strike through that blend was still hit. placementJudgedV1
+    // places the bat on the deciding belief, the swing path being set when the swing is committed (2026-11-05).
+    placementPriorWeightV1=recognitionUsedV1?priorWeightV122*(observationPolicyV151?.placementJudgedV1??0):fooledChanceV1!==undefined&&currentObservationAvailableV151?(fooledV1&&!recognitionPolicyV1&&!recognitionPolicyV2?1:0)
       :observationPolicyV151?.priorPlacementShareV1===undefined||!currentObservationAvailableV151?priorWeightV122:priorWeightV122*observationPolicyV151.priorPlacementShareV1,
     placementPositionV1=placementPriorWeightV1===priorWeightV122||!priorV122?prediction.ball.position:{...observedPredictionV122.ball.position,
       x:observedPredictionV122.ball.position.x*(1-placementPriorWeightV1)+priorV122.x*placementPriorWeightV1,
