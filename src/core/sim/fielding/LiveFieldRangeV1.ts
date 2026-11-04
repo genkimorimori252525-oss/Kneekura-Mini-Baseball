@@ -61,6 +61,18 @@ export function validateLiveTossReceivePolicyV1(policy:LiveTossReceivePolicyV1){
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid toss receive policy');
   return policy;
 }
+/** Opt-in. Omission crouches for a ball only once it is judged reachable. */
+export type LiveFieldAttemptCrouchPolicyV1=Readonly<{version:'live_field_attempt_crouch_policy_v1';sourceId:string}>;
+export const LIVE_FIELD_ATTEMPT_CROUCH_POLICY_V1:LiveFieldAttemptCrouchPolicyV1=Object.freeze({version:'live_field_attempt_crouch_policy_v1',sourceId:'attempt-crouch-v1-physics'});
+/** A fielder who is going for a close ball gets down for it as early as for a sure one. Reachable needed the crouch to be in
+ * time, and the crouch waited for reachable: a shortstop squarely in the path of a 70 mph roller stayed upright, his glove
+ * held at 1.3 m, and the ball went between his feet (2026-11-04, a shaded MLB grounder). The glove already treated such an
+ * attempt as a ground catch; this lets the body follow it. */
+export function validateLiveFieldAttemptCrouchPolicyV1(policy:LiveFieldAttemptCrouchPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_attempt_crouch_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field attempt crouch policy');
+  return policy;
+}
 /** Opt-in. Omission keeps every runner, the batter too, waiting until the man on the bag ahead has left it. */
 export type LiveForcedRunPolicyV1=Readonly<{version:'live_forced_run_policy_v1';sourceId:string}>;
 export const LIVE_FORCED_RUN_POLICY_V1:LiveForcedRunPolicyV1=Object.freeze({version:'live_forced_run_policy_v1',sourceId:'forced-run-v1-rule'});
