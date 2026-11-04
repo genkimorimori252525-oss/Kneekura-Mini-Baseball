@@ -34,6 +34,19 @@ export function liveFieldCoverOrderV1(base:1|2|3|4,ballX:number):readonly string
   if(base===3)return ['3B','SS','P'];
   return ['C','P'];
 }
+/** Opt-in. Omission keeps the authored halfway on shallow flies only, and a runner on first holding his bag on a deep ball or a liner. */
+export type LiveRunnerSafeLeadPolicyV1=Readonly<{version:'live_runner_safe_lead_policy_v1';sourceId:string}>;
+export const LIVE_RUNNER_SAFE_LEAD_POLICY_V1:LiveRunnerSafeLeadPolicyV1=Object.freeze({version:'live_runner_safe_lead_policy_v1',sourceId:'runner-safe-lead-v1'});
+/** A runner on first with fewer than two out, on a ball in the air that may be caught, goes as far toward second as he can and
+ * still get back before a catch and the throw to first: his reaction, the turn, and the run back against the time to the catch,
+ * the catcher's exchange and his throw. Tagging up from first gains little, so on a deep ball or a liner he is that much nearer
+ * when it drops. turnSeconds: stopping and turning back, authored. */
+export const LIVE_RUNNER_SAFE_LEAD_CALIBRATION_V1=Object.freeze({turnSeconds:.3,maximumShare:.8});
+export function validateLiveRunnerSafeLeadPolicyV1(policy:LiveRunnerSafeLeadPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_runner_safe_lead_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid runner safe lead policy');
+  return policy;
+}
 /** Opt-in. Omission keeps every runner, the batter too, waiting until the man on the bag ahead has left it. */
 export type LiveForcedRunPolicyV1=Readonly<{version:'live_forced_run_policy_v1';sourceId:string}>;
 export const LIVE_FORCED_RUN_POLICY_V1:LiveForcedRunPolicyV1=Object.freeze({version:'live_forced_run_policy_v1',sourceId:'forced-run-v1-rule'});

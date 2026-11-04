@@ -36,7 +36,7 @@ import { predictLiveDefensiveOpportunityV1, LIVE_DEFENSIVE_OPPORTUNITY_POLICY_V1
   type LiveDefensiveOpportunityV1 } from './LiveDefensiveOpportunityV1';
 import { resolveGroundedActorContactResponseV1 } from './GroundedActorContactResponseV1';
 import { planLiveThrowV1 } from './LiveThrowPlanV1';
-import { LIVE_RUNNER_THROW_READ_CALIBRATION_V1,validateLiveRunnerThrowReadPolicyV1,type LiveRunnerThrowReadPolicyV1,LIVE_RUNNER_TURN_CALIBRATION_V1,validateLiveRunnerTurnPolicyV1,type LiveRunnerTurnPolicyV1,LIVE_FIELD_COVER_CALIBRATION_V1,validateLiveFieldCoverPolicyV1,type LiveFieldCoverPolicyV1,LIVE_FIELD_RUN_VALUE_CALIBRATION_V1,validateLiveFieldRunValuePolicyV1,type LiveFieldRunValuePolicyV1,validateLiveFieldKinematicsPolicyV1,type LiveFieldKinematicsPolicyV1,LIVE_LOCOMOTION_START_CALIBRATION_V1,validateLiveLocomotionStartPolicyV1,type LiveLocomotionStartPolicyV1,validateLiveOutfieldBreakPolicyV1,type LiveOutfieldBreakPolicyV1,validateLiveForcedRunPolicyV1,type LiveForcedRunPolicyV1,LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
+import { LIVE_RUNNER_THROW_READ_CALIBRATION_V1,validateLiveRunnerThrowReadPolicyV1,type LiveRunnerThrowReadPolicyV1,LIVE_RUNNER_TURN_CALIBRATION_V1,validateLiveRunnerTurnPolicyV1,type LiveRunnerTurnPolicyV1,LIVE_FIELD_COVER_CALIBRATION_V1,validateLiveFieldCoverPolicyV1,type LiveFieldCoverPolicyV1,LIVE_FIELD_RUN_VALUE_CALIBRATION_V1,validateLiveFieldRunValuePolicyV1,type LiveFieldRunValuePolicyV1,validateLiveFieldKinematicsPolicyV1,type LiveFieldKinematicsPolicyV1,LIVE_LOCOMOTION_START_CALIBRATION_V1,validateLiveLocomotionStartPolicyV1,type LiveLocomotionStartPolicyV1,validateLiveOutfieldBreakPolicyV1,type LiveOutfieldBreakPolicyV1,validateLiveForcedRunPolicyV1,type LiveForcedRunPolicyV1,LIVE_RUNNER_SAFE_LEAD_CALIBRATION_V1,validateLiveRunnerSafeLeadPolicyV1,type LiveRunnerSafeLeadPolicyV1,LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
 import { decideLiveCloseThrowV1,liveCloseThrowToleranceV1,LIVE_CLOSE_THROW_CALIBRATION_V1,validateLiveFieldThrowPolicyV1,type LiveFieldThrowPolicyV1 } from './LiveCloseThrowV1';
 import { planLiveThrowActionV103,LIVE_THROW_EFFORT_POLICY_V103 } from './LiveThrowActionV103';
 import { liveFielderTurnSpeedV110 } from './LiveFielderBodyGeometryV105';
@@ -125,6 +125,8 @@ export type LiveFieldPlayInputV1 = Readonly<{ ball: BallWorldMoment; physics: Ae
   outfieldBreakPolicyV1?: LiveOutfieldBreakPolicyV1;
   /** A forced runner, the batter first, does not wait for a forced man ahead to leave the bag; omission keeps every runner waiting. */
   forcedRunPolicyV1?: LiveForcedRunPolicyV1;
+  /** A runner on first goes as far as he can still get back from on a ball in the air; omission keeps the authored halfway. */
+  runnerSafeLeadPolicyV1?: LiveRunnerSafeLeadPolicyV1;
   /** Opt-in runner tactics, authored and UNMEASURED; omitted keeps legacy decisions. Enables: two-out go-on-contact held for the
    * whole contact leg, line-drive freeze under two outs, halfway on a shallow catchable fly. `context` also lets risk follow outs,
    * inning and score (facts a runner knows). */
@@ -320,6 +322,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   const fieldThrowPolicyV1=input.fieldThrowPolicyV1===undefined?undefined:validateLiveFieldThrowPolicyV1(input.fieldThrowPolicyV1);
   const runnerThrowReadV1=input.runnerThrowReadPolicyV1===undefined?undefined:validateLiveRunnerThrowReadPolicyV1(input.runnerThrowReadPolicyV1);
   const runnerTurnV1=input.runnerTurnPolicyV1===undefined?undefined:validateLiveRunnerTurnPolicyV1(input.runnerTurnPolicyV1);
+  const safeLeadV1=input.runnerSafeLeadPolicyV1===undefined?undefined:validateLiveRunnerSafeLeadPolicyV1(input.runnerSafeLeadPolicyV1);
   const forcedRunV1=input.forcedRunPolicyV1===undefined?undefined:validateLiveForcedRunPolicyV1(input.forcedRunPolicyV1);
   const fieldCoverV1=input.fieldCoverPolicyV1===undefined?undefined:validateLiveFieldCoverPolicyV1(input.fieldCoverPolicyV1);
   const fieldRunValueV1=input.fieldRunValuePolicyV1===undefined?undefined:validateLiveFieldRunValuePolicyV1(input.fieldRunValuePolicyV1);
@@ -2346,7 +2349,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         lineDrive = Math.hypot(horizontal, launch!.velocity.y) >= 25 && elevation >= -15 && elevation <= 20 && launch!.position.y <= 8,
         landing = Number.isFinite(beforeGround) ? prediction.sample(beforeGround).position : null;
       return { observedAtSeconds: seen.t, catchMarginSeconds: catchMarginSeconds + runnerReadBias.get(r.spec.runnerId)!, lineDrive,
-        hangSeconds: beforeGround, landingDepthMeters: landing ? distance(flat(landing), flat(base(0))) : undefined };
+        hangSeconds: beforeGround, landingDepthMeters: landing ? distance(flat(landing), flat(base(0))) : undefined, ...(safeLeadV1 && landing ? { landingPointV1: landing } : {}) };
     };
     for (const r of runners.slice().sort((a, b) => b.base - a.base)) {
       if (slideCommittedV115(r,t)) continue;
@@ -2387,6 +2390,27 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       const halfwayV1 = tacticsV1 && !targetOccupied && next < 4 && air !== undefined && !looseGroundCue && !looseTouchCue
         ? decideLiveRunnerHalfwayV1({ outs: Math.min(2, input.outs + retiredCount) as 0 | 1 | 2, currentBase: r.base as 0 | 1 | 2 | 3, atOrigin: distance(flat(runnerAt(r, t)), flat(base(r.base))) <= (field.baseTouchRadiusMeters ?? .28) + 1,
           hasGroundOrFielderCue: false, safetyMarginSeconds: marginV1(r, next, forced), airborne: air as any }) : null;
+      // runnerSafeLeadV1: as far as he can still get back from before a catch and the throw to first.
+      const safeLeadShareV1 = (() => {
+        const a = air as any;
+        if (!safeLeadV1 || !tacticsV1 || r.base !== 1 || !a?.landingPointV1 || !Number.isFinite(a.hangSeconds) || input.outs + retiredCount >= 2
+          || looseGroundCue || looseTouchCue || distance(flat(runnerAt(r, t)), flat(base(1))) > (field.baseTouchRadiusMeters ?? .28) + 1
+          || a.catchMarginSeconds < -marginV1(r, next, forced)) return null;
+        const C = LIVE_RUNNER_SAFE_LEAD_CALIBRATION_V1, landing: Vec3 = a.landingPointV1, leg = distance(flat(base(1)), flat(base(2))),
+          catcher = defenders.reduce((m, f) => distance(flat(at(f.body, t)), flat(landing)) < distance(flat(at(m.body, t)), flat(landing)) ? f : m),
+          budget = a.hangSeconds + catcher.spec.transferSeconds + distance(flat(landing), flat(base(1))) / catcher.spec.throwSpeedMps
+            - marginV1(r, next, false) - r.spec.reactionSeconds - C.turnSeconds,
+          back = (d: number) => estimateLiveRunnerLegSecondsV1(d, r.spec.topSpeedMps, r.spec.accelerationMps2);
+        if (budget <= 0) return null;
+        let lo = 0, hi = leg * C.maximumShare;
+        if (back(hi) <= budget) lo = hi; else for (let i = 0; i < 20; i++) { const m = (lo + hi) / 2; if (back(m) <= budget) lo = m; else hi = m; }
+        return lo / leg > .05 ? lo / leg : null;
+      })();
+      if (safeLeadShareV1 !== null && !(halfwayV1?.halfway && halfwayV1.fraction >= safeLeadShareV1)) {
+        runnerDecisions.push({ elapsedSeconds: t, runnerId: r.spec.runnerId, targetBase: next, defenderControlSeconds: null, advance: false, reason: 'halfway_wait',
+          readyAtElapsedSeconds: null, runnerTravelSeconds: 0, runnerArrivalSeconds: null, raceMarginSeconds: null });
+        beginHalfwayV1(r, next as BaseballBase, safeLeadShareV1, t); continue;
+      }
       if (halfwayV1?.halfway) {
         runnerDecisions.push({ elapsedSeconds: t, runnerId: r.spec.runnerId, targetBase: next, defenderControlSeconds: null, advance: false, reason: 'halfway_wait',
           readyAtElapsedSeconds: null, runnerTravelSeconds: 0, runnerArrivalSeconds: null, raceMarginSeconds: null });
