@@ -1259,8 +1259,10 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     if(contact&&vibrationV1){
       // A wooden bat rings when struck away from its sweet spot and the ball keeps less of the bounce: the normal
       // restitution halves at the given distance toward the tip or the handle. The rigid bat alone loses nothing there.
+      // An optional fourth value is the shape's exponent: 2 (the default) is a bell with a flat top around the sweet spot,
+      // 1 falls off at once, which matched the spread of Statcast exit speeds (2026-11-05, K:/kbm-work/evroot).
       const pose=impactBatScaled.pose,axis=sub(pose.tip,pose.grip),length=norm(axis),along=dot(sub(contact.batSurfacePoint,pose.grip),axis)/length,
-        offset=along-(b.sweetSpotT??(b.batLengthM-.1524)/b.batLengthM)*length,half=offset>0?vibrationV1[0]!:vibrationV1[1]!,keep=Math.max(vibrationV1[2]??0,.5**((offset/half)**2));
+        offset=along-(b.sweetSpotT??(b.batLengthM-.1524)/b.batLengthM)*length,half=offset>0?vibrationV1[0]!:vibrationV1[1]!,keep=Math.max(vibrationV1[2]??0,.5**(Math.abs(offset/half)**(vibrationV1[3]??2)));
       if(keep<1)contact=resolveWoodBatSpeedProfileBallContact(impactBall,impactBatScaled,ballPhysical,{...NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1,
         normalRestitutionKnots:NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1.normalRestitutionKnots.map(k=>({...k,normalRestitution:k.normalRestitution*keep}))});
     }
