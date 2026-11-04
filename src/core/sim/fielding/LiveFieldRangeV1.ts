@@ -110,6 +110,18 @@ export function validateLiveRunnerLooseBallReadPolicyV1(policy:LiveRunnerLooseBa
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid runner loose ball read policy');
   return policy;
 }
+/** Opt-in. Omission runs the line-drive read from the runner's latest look at the ball. */
+export type LiveRunnerLineDriveReadPolicyV1=Readonly<{version:'live_runner_line_drive_read_policy_v1';sourceId:string}>;
+export const LIVE_RUNNER_LINE_DRIVE_READ_POLICY_V1:LiveRunnerLineDriveReadPolicyV1=Object.freeze({version:'live_runner_line_drive_read_policy_v1',sourceId:'line-drive-read-v1-first-sight'});
+/** A runner freezes on a liner for a short read from when he first saw it in the air, then goes on what he sees. Run from
+ * his latest look, the read never ended: that look always trails now by his reaction (.18-.2 s), less than the .25 s read,
+ * so he stood until the ball came down even when no fielder could reach it. A runner on second stood 2.4 s on a liner the
+ * center fielder got to at 6.1 s, his read of the catch at -1.8 to -4.0 s all the while (2026-11-05, an MLB single). */
+export function validateLiveRunnerLineDriveReadPolicyV1(policy:LiveRunnerLineDriveReadPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_runner_line_drive_read_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid runner line drive read policy');
+  return policy;
+}
 /** Opt-in. Omission keeps every runner, the batter too, waiting until the man on the bag ahead has left it. */
 export type LiveForcedRunPolicyV1=Readonly<{version:'live_forced_run_policy_v1';sourceId:string}>;
 export const LIVE_FORCED_RUN_POLICY_V1:LiveForcedRunPolicyV1=Object.freeze({version:'live_forced_run_policy_v1',sourceId:'forced-run-v1-rule'});
