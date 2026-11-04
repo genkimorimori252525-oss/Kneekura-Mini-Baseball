@@ -387,6 +387,13 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       baselineErrorMeters:shapeLiveCommandMissV1({x:commandRandom.normal()*effectiveCommandStd,y:commandRandom.normal()*effectiveCommandStd},{target:pitcherRequest.position,zone,commandStdMeters:effectiveCommandStd,...(p.throws===undefined?{}:{throws:p.throws}),...(p.technicalSkills===undefined?{}:{technicalSkills:p.technicalSkills})}),abilityBasis:'commandStdMeters_and_command_techniques',reason:pitcherRequest.reason}),
     commanded={...selectedTarget,...pitcherRecognition.position};
   const releaseGeometry=resolveLivePitchReleaseV1(p),release=releaseGeometry.position,flightGuess=(release.z-commanded.z)/speed;
+  // viewTimeTimingV1: the hitter sees the ball only until he commits, so a faster pitch leaves less of the flight to time it by;
+  // the timing spread grows as (view at 40 m/s / this view) to the given power. The view is the flight less the commit time.
+  const viewTimingScaleV1=observationPolicyV151?.viewTimeTimingV1===undefined?1:(()=>{const commit=observationPolicyV151.commitSwingSeconds??.26;
+    return (Math.max(.05,(release.z-commanded.z)/40-commit)/Math.max(.05,flightGuess-commit))**observationPolicyV151.viewTimeTimingV1!;})();
+  // viewTimeAimV1: the same shorter view also blurs where the ball will cross, so the aim spread grows by its own power.
+  const viewAimScaleV1=observationPolicyV151?.viewTimeAimV1===undefined?1:(()=>{const commit=observationPolicyV151.commitSwingSeconds??.26;
+    return (Math.max(.05,(release.z-commanded.z)/40-commit)/Math.max(.05,flightGuess-commit))**observationPolicyV151.viewTimeAimV1!;})();
   let vx=(commanded.x-release.x)/flightGuess,vy=(commanded.y-release.y-profile.air.gravityY*flightGuess*flightGuess/2)/flightGuess,
     vz=-Math.sqrt(Math.max(speed*speed-vx*vx-vy*vy,speed*speed*.5)),flightTime=flightGuess;
   let initial={tick:input.originTick,position:release,velocity:{x:vx,y:vy,z:vz},spin};
@@ -489,7 +496,11 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
         y:observedPredictionV122.ball.position.y*(1-priorWeightV122)+priorV122.y*priorWeightV122}}}:observedPredictionV122,
     // The swing decision keeps the remembered pitch (a hitter can still be fooled into chasing); the bat goes where it was seen.
     // Fooled or not, per swing: a fooled hitter puts the bat where he expected the pitch, otherwise where he saw it.
-    fooledChanceV1=observationPolicyV151?.priorFooledChanceV1,
+    // fooledViewPowerV1: a hitter leans on his expectation as much as his look is short, so the fooled chance grows as
+    // (view at 40 m/s / this pitch's view) to the given power; the view is the flight less the commit time and motor latency.
+    fooledChanceV1=observationPolicyV151?.priorFooledChanceV1===undefined||observationPolicyV151.fooledViewPowerV1===undefined?observationPolicyV151?.priorFooledChanceV1
+      :(()=>{const lead=(observationPolicyV151.commitSwingSeconds??.26)+(b.motorLatencySeconds??0);
+        return Math.min(.95,observationPolicyV151.priorFooledChanceV1!*(Math.max(.05,(release.z-commanded.z)/40-lead)/Math.max(.05,flightGuess-lead))**observationPolicyV151.fooledViewPowerV1!);})(),
     fooledV1=fooledChanceV1!==undefined&&currentObservationAvailableV151&&!!priorV122&&priorWeightV122>0
       &&(randomStreamsV152?.rng('batterBelief','fooled-placement').uniform()??new SeedRoot(input.seed).streamRng(0,'batting','fooled-placement-v1').nextFloat())<fooledChanceV1,
     placementPriorWeightV1=fooledChanceV1!==undefined&&currentObservationAvailableV151?(fooledV1?1:0)
@@ -498,10 +509,10 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       x:observedPredictionV122.ball.position.x*(1-placementPriorWeightV1)+priorV122.x*placementPriorWeightV1,
       y:observedPredictionV122.ball.position.y*(1-placementPriorWeightV1)+priorV122.y*placementPriorWeightV1},
     controlFactor=swingIntentV121?1:input.batting==='power'?1.08:input.batting==='contact'?.92:1;
-  let baselineTimingError=yawDeferExecutionV274?0:timingRandom.normal()*b.timingStdSeconds*(swingIntentV121?1:input.batting==='contact'?.72:input.batting==='power'?1.15:1);
+  let baselineTimingError=yawDeferExecutionV274?0:timingRandom.normal()*b.timingStdSeconds*viewTimingScaleV1*(swingIntentV121?1:input.batting==='contact'?.72:input.batting==='power'?1.15:1);
   const awkwardness=Math.max(0,Math.abs(prediction.ball.position.x)/.2159-1,(.55-prediction.ball.position.y)/.5,(prediction.ball.position.y-1.5)/.5),
     awkwardErrorFactor=b.badBallControl===undefined?1:1+awkwardness*(1-b.badBallControl),
-    aimScale=b.aimStdMeters*(swingIntentV121?1:input.batting==='contact'?.7:input.batting==='power'?1.1:1)*awkwardErrorFactor;
+    aimScale=b.aimStdMeters*(swingIntentV121?1:input.batting==='contact'?.7:input.batting==='power'?1.1:1)*awkwardErrorFactor*viewAimScaleV1;
   let baselineAimError=yawDeferExecutionV274?zero():{x:aimRandom.normal()*aimScale,y:aimRandom.normal()*aimScale*(observationPolicyV151?.aimVerticalScaleV1??1),z:aimRandom.normal()*aimScale*.3},
     sweetSpotT=clamp((b.sweetSpotT??(b.batLengthM-.1524)/b.batLengthM)+(yawDeferExecutionV274?0:(sweetSpotRandom.uniform()-.5)*.025),.65,.9);
   const heightScale=b.heightMeters/1.8;
@@ -980,7 +991,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     yawDiagnosticV274={version:input.yawDiagnosticV274.version,planningRate:rate,selectedYawDegrees:planned.selectedYawDegrees,selectedIndex,cutoffTick:observationTick,selectedReference:planned.reference,baselineV161Diagnostics:normal.diagnostics,baselineV244Decision,translationMode:isRobustV276?'YAW_ROBUST_NINE_SCENARIOS':input.yawDiagnosticV274.version==='live_yaw_paired_diagnostic_v275'?'YAW_WITH_NOMINAL_CENTER_COMPENSATION':'YAW_ONLY_NO_TRANSLATION',...(isRobustV276?{robustEvidence:{version:'finite_nine_scenarios_v276',probability:false,wholeArc:'UNKNOWN',lateZero:'UNKNOWN',scenarioSummary:'scenarioSummary'in planned?planned.scenarioSummary.map(row=>({yawDegrees:row.candidate.yawDegrees,scenarios:row.values.map(v=>({status:v.status,...('reason'in v?{reason:v.reason}:{}),...('meets'in v?{meets:v.meets}:{})}))})):[]}}:{})};
     finalNominalReferenceV153=planned.reference;nominalRegistrationsV153.set(rate,{...normal,reference:planned.reference});
     // The choice is sealed before any execution-error draw; V152 streams keep the original per-key draws.
-    baselineTimingError=timingRandom.normal()*b.timingStdSeconds*(swingIntentV121?1:input.batting==='contact'?.72:input.batting==='power'?1.15:1);
+    baselineTimingError=timingRandom.normal()*b.timingStdSeconds*viewTimingScaleV1*(swingIntentV121?1:input.batting==='contact'?.72:input.batting==='power'?1.15:1);
     baselineAimError={x:aimRandom.normal()*aimScale,y:aimRandom.normal()*aimScale*(observationPolicyV151?.aimVerticalScaleV1??1),z:aimRandom.normal()*aimScale*.3};
     sweetSpotT=clamp((b.sweetSpotT??(b.batLengthM-.1524)/b.batLengthM)+(sweetSpotRandom.uniform()-.5)*.025,.65,.9);
     zoneTimingError=zoneHitStrength>0?baselineTimingError*zoneHitErrorScale:baselineTimingError;zoneAimError=zoneHitStrength>0?mul(baselineAimError,zoneHitErrorScale):baselineAimError;

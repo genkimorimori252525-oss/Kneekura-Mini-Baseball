@@ -42,6 +42,14 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   /** Scale on the up-down part of the swing's aim error (0..2). Every swing missing by the same spread spread the launch angles
    * wider than MLB's; a tighter aim with the fooled swings of priorFooledChanceV1 keeps the misses. */
   aimVerticalScaleV1?:number;
+  /** Power on (view of the flight at 40 m/s / this pitch's view) applied to the timing spread (0..6), the view being the flight
+   * less the commit time. A fixed spread in seconds left a 162 km/h fastball barely harder to time than a 140 km/h one. */
+  viewTimeTimingV1?:number;
+  /** The same power law on the aim spread (0..6): a shorter view blurs where the ball will cross as well as when. */
+  viewTimeAimV1?:number;
+  /** Power on (view at 40 m/s / this pitch's view) applied to priorFooledChanceV1 (0..6), the view being the flight less the commit
+   * time and motor latency. Two thirds of misses come from fooled swings, so a shorter look at a faster pitch must fool more often. */
+  fooledViewPowerV1?:number;
   /** Share of the remembered pitch kept in where the bat goes (0..1); the arrival time keeps the full prior.
    * Blending a quarter of the last pitches into the height made hitters top low pitches and pop up high ones. */
   priorPlacementShareV1?:number;
@@ -99,6 +107,9 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'priorPlacementShareV1')){keys.push('priorPlacementShareV1');assert(Number.isFinite(p.priorPlacementShareV1)&&p.priorPlacementShareV1!>=0&&p.priorPlacementShareV1!<=1,'invalid prior placement share');}
   if(Object.hasOwn(p,'lateLookByMeetOnlyV1')){keys.push('lateLookByMeetOnlyV1');assert(typeof p.lateLookByMeetOnlyV1==='boolean','invalid late look source');}
   if(Object.hasOwn(p,'barrelVibrationLossV1')){keys.push('barrelVibrationLossV1');assert(Array.isArray(p.barrelVibrationLossV1)&&(p.barrelVibrationLossV1.length===2||p.barrelVibrationLossV1.length===3)&&p.barrelVibrationLossV1.every((v:unknown,i:number)=>typeof v==='number'&&(i<2?v>=.01&&v<=1:v>=0&&v<1)),'invalid barrel vibration loss');}
+  if(Object.hasOwn(p,'fooledViewPowerV1')){keys.push('fooledViewPowerV1');assert(typeof p.fooledViewPowerV1==='number'&&p.fooledViewPowerV1>=0&&p.fooledViewPowerV1<=6,'invalid fooled view power');}
+  if(Object.hasOwn(p,'viewTimeAimV1')){keys.push('viewTimeAimV1');assert(typeof p.viewTimeAimV1==='number'&&p.viewTimeAimV1>=0&&p.viewTimeAimV1<=6,'invalid view time aim');}
+  if(Object.hasOwn(p,'viewTimeTimingV1')){keys.push('viewTimeTimingV1');assert(typeof p.viewTimeTimingV1==='number'&&p.viewTimeTimingV1>=0&&p.viewTimeTimingV1<=6,'invalid view time timing');}
   if(Object.hasOwn(p,'aimVerticalScaleV1')){keys.push('aimVerticalScaleV1');assert(typeof p.aimVerticalScaleV1==='number'&&p.aimVerticalScaleV1>=0&&p.aimVerticalScaleV1<=2,'invalid vertical aim scale');}
   if(Object.hasOwn(p,'undercutAimV1')){keys.push('undercutAimV1');assert(typeof p.undercutAimV1==='number'&&p.undercutAimV1>=0&&p.undercutAimV1<=.05,'invalid undercut aim');}
   if(Object.hasOwn(p,'postContactHoldV1')){keys.push('postContactHoldV1');assert(typeof p.postContactHoldV1==='boolean','invalid post-contact hold');}

@@ -3,8 +3,10 @@
 #         the ability keys come from abilities.json; --role=pitcher groups plate appearances by pitcher instead of batter.
 #         records for league i are found by replacing {league} with i (e.g. K:/kbm-work/rec/g-rand{league}-*.jsonl).
 # invert: python -I ability-fit.py invert <surface.json> <targets.json> <out.json>
-#         targets.json: {"<id>": {"pa": 600, "k": .2, "bb": .08, "iso": .15, "babip": .3, "hr": .03}}
-# The surface is a full quadratic in the abilities (standardised), fitted by least squares weighted by plate appearances.
+#         targets.json: {"<id>": {"pa": 600, "k": .2, "bb": .08, "iso": .15, "babip": .3, "hr": .03, "fixed": {"run": 92}}}
+# The surface is a full quadratic in the abilities (standardised), fitted by least squares weighted by plate appearances;
+# --degree=3 adds the cubic terms, for leagues drawn wide enough that a quadratic bends too little;
+# --bats adds the batting side as an ability 'left' (0/1), which real players keep fixed.
 import glob
 import importlib.util
 import json
@@ -20,11 +22,19 @@ KEYS = ['contact', 'power', 'vision', 'run', 'attackAngleDegrees']
 STATS = ['k', 'bb', 'iso', 'babip', 'hr']
 
 
-def terms(x):
+DEGREE = 2
+BATS = False
+
+
+def terms(x, degree=None):
+    degree = degree or DEGREE
     out = [1.0] + list(x)
     for i in range(len(x)):
         for j in range(i, len(x)):
             out.append(x[i] * x[j])
+            if degree >= 3:
+                for k in range(j, len(x)):
+                    out.append(x[i] * x[j] * x[k])
     return out
 
 
@@ -76,6 +86,16 @@ def fit(abil_path, pattern, table_path, out_path, role='batter'):
     global KEYS
     abilities = json.load(open(abil_path))
     KEYS = list(next(iter(next(iter(abilities.values())).values())).keys())
+    if BATS:
+        # Batting side as a 0/1 ability ('left'), read from the league configs next to abilities.json: the game's left- and
+        # right-handed swings differ, and a real player keeps his own side.
+        folder = os.path.dirname(os.path.abspath(abil_path))
+        for league, players in abilities.items():
+            cfg = json.load(open(os.path.join(folder, f'league-{league}.json'), encoding='utf8'))
+            side = {p['playerId']: p.get('bats') for p in cfg['players']}
+            for pid in players:
+                players[pid] = {**players[pid], 'left': 1.0 if side.get(pid) == 'L' else 0.0}
+        KEYS = KEYS + ['left']
     predict = ot.predictor(json.load(open(table_path)))
     rows = []
     for league, players in abilities.items():
@@ -98,20 +118,23 @@ def fit(abil_path, pattern, table_path, out_path, role='batter'):
         # Sampling variance from the fitted rate, so a hitter with no walks in a short sample is not taken as exact.
         noise = [max(1e-6, min(max(pred[n], .002), .998) * (1 - min(max(pred[n], .002), .998)) / rows[n][1]['pa']) for n in range(len(t))] if stat != 'iso' else [max(1e-6, .25 / rows[n][1]['pa']) for n in range(len(t))]
         print(stat, 'batters', len(rows), 'RMS z', round(math.sqrt(sum(r * r / v for r, v in zip(resid, noise)) / len(resid)), 2))
-    json.dump({'keys': KEYS, 'mean': mean, 'sd': sd, 'coef': coef}, open(out_path, 'w'), indent=1)
+    lo = [min(r[0][i] for r in rows) for i in range(len(KEYS))]
+    hi = [max(r[0][i] for r in rows) for i in range(len(KEYS))]
+    json.dump({'keys': KEYS, 'mean': mean, 'sd': sd, 'coef': coef, 'degree': DEGREE, 'lo': lo, 'hi': hi}, open(out_path, 'w'), indent=1)
 
 
 def evaluate(surface, x):
     z = [(v - m) / s for v, m, s in zip(x, surface['mean'], surface['sd'])]
-    t = terms(z)
+    t = terms(z, surface.get('degree', 2))
     return {stat: sum(c * v for c, v in zip(surface['coef'][stat], t)) for stat in STATS}
 
 
 def invert(surface_path, targets_path, out_path):
     surface = json.load(open(surface_path))
     targets = json.load(open(targets_path))
-    lo = [m - 2 * s for m, s in zip(surface['mean'], surface['sd'])]
-    hi = [m + 2 * s for m, s in zip(surface['mean'], surface['sd'])]
+    # Search only where the leagues put players: past the drawn range the fitted surface is extrapolation.
+    lo = surface.get('lo') or [m - 2 * s for m, s in zip(surface['mean'], surface['sd'])]
+    hi = surface.get('hi') or [m + 2 * s for m, s in zip(surface['mean'], surface['sd'])]
     # Vision is the Core's absolute 1-100 value; the group abilities have no upper cap but stay inside the fitted range.
     if 'vision' in surface['keys']:
         i = surface['keys'].index('vision'); lo[i], hi[i] = max(1, lo[i]), min(100, hi[i])
@@ -122,11 +145,15 @@ def invert(surface_path, targets_path, out_path):
             p = evaluate(surface, x)
             return sum(((p[s] - t[s]) / max(.005, math.sqrt(max(t[s], .01) * (1 - min(t[s], .99)) / max(t.get('pa', 400), 50)))) ** 2 for s in STATS if s in t) \
                 + sum(((v - m) / s) ** 2 for v, m, s in zip(x, surface['mean'], surface['sd'])) * 0.05
-        x = list(surface['mean'])
+        # Abilities measured directly (run from sprint speed) stay fixed; the search moves the rest.
+        fixed = {surface['keys'].index(k): v for k, v in t.get('fixed', {}).items()}
+        x = [fixed.get(i, m) for i, m in enumerate(surface['mean'])]
         step = [s for s in surface['sd']]
         for _ in range(60):
             improved = False
             for i in range(len(x)):
+                if i in fixed:
+                    continue
                 for d in (step[i], -step[i]):
                     y = x[:]; y[i] = min(hi[i], max(lo[i], y[i] + d))
                     if loss(y) < loss(x):
@@ -143,6 +170,8 @@ def invert(surface_path, targets_path, out_path):
 if __name__ == '__main__':
     if sys.argv[1] == 'fit':
         role = next((a.split('=', 1)[1] for a in sys.argv if a.startswith('--role=')), 'batter')
+        DEGREE = int(next((a.split('=', 1)[1] for a in sys.argv if a.startswith('--degree=')), '2'))
+        BATS = '--bats' in sys.argv
         fit(*[a for a in sys.argv[2:] if not a.startswith('--')][:4], role=role)
     else:
         invert(*sys.argv[2:5])

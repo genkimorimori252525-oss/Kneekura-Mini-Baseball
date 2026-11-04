@@ -11,9 +11,10 @@ const [nativePath, basePath, outDir, leagues = '10', seedText = '1'] = args;
 const core = loadCore(nativePath), base = JSON.parse(readFileSync(basePath, 'utf8'));
 let state = Number(seedText) >>> 0 || 1;
 const uniform = () => {state = (state * 1664525 + 1013904223) >>> 0; return state / 2 ** 32;};
-// Ranges cover real hitters on this scale; power 60-100 is about 25-35 m/s, the real spread of bat speed.
-const RANGE = {contact: [55, 110], power: [60, 100], vision: [30, 100], run: [60, 105]};
-const ANGLE = [4, 26];
+// Ranges cover real hitters on this scale; power 60-100 is about 25-35 m/s, the real spread of bat speed. Widened 2026-11-04:
+// inverted MLB 2024 hitters sat on the old edges (contact 55/110, angle 4), where the fitted surface had no data.
+const RANGE = {contact: [40, 130], power: [55, 112], vision: [15, 100], run: [50, 115]};
+const ANGLE = [-2, 28];
 // Pitchers: top speed 138-165 km/h covers the MLB spread of fastball velocity; control on the shared scale.
 const PITCH = {maxSpeedKmh: [138, 165], control: [55, 110]};
 mkdirSync(outDir, {recursive: true});
