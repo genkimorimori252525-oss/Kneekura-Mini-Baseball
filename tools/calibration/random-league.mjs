@@ -26,7 +26,13 @@ for (let league = 0; league < Number(leagues); league++) {
   const pick = ([lo, hi]) => Math.round((lo + (hi - lo) * uniform()) * 10) / 10;
   if (pitchers) for (const team of base.teams) {
     const a = {maxSpeedKmh: pick(PITCH.maxSpeedKmh), control: pick(PITCH.control)};
-    spec.players[team.pitcherId] = {abilities: a};
+    // A pitcher with his own pitches (pitchRepertoireV78) throws every one of them at the new top speed's ratio, spin kept;
+    // otherwise his pitches would stay above a lowered top speed and the maker would refuse them.
+    const physical = base.players.find(p => p.playerId === team.pitcherId)?.physical, owned = physical?.pitchRepertoireV78;
+    const ratio = owned ? a.maxSpeedKmh / 3.6 / physical.maximumPitchSpeedMps : 1;
+    spec.players[team.pitcherId] = {abilities: a, ...(owned ? {physical: {maximumPitchSpeedMps: a.maxSpeedKmh / 3.6,
+      releaseSpeedMps: physical.releaseSpeedMps * ratio,
+      pitchRepertoireV78: {...owned, pitches: owned.pitches.map(row => ({...row, releaseSpeedMps: row.releaseSpeedMps * ratio}))}}} : {})};
     drawn[team.pitcherId] = a;
   }
   if (!pitchers) for (const team of base.teams) for (const playerId of team.battingOrder) {

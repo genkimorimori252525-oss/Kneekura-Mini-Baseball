@@ -443,6 +443,13 @@ KBM史料部の投手×年×球種の表（非公開 repo `data/mini-baseball/pi
 - 本命（重み .25・placementJudged .8・[0.45, 6.5]）: 距離ごとの当たりは、ゾーン内 .72〜.75、外 0〜6cm .62〜.68、6〜12cm .54〜.61、12〜20cm .38〜.44（MLB .83・.71・.59・.38）。遠い球への落ち方は MLB に近づいた。残りはゾーン内の当たり（.74 対 .83）で、読み違えを .13 まで減らしても下がらないので、正しく読めた球が引き寄せで外れている分。球種で見ると、ゾーンに入る球が多い速球系に出る（速球 .340・シンカー .289・カッター .313、MLB .219・.136・.234）。カウント別のゾーン率は崩れない（加重 RMS .037）。
 - 次: ゾーン内の当たりは、較正担当が遅れて見て直す分（late look）の側で調べる（2026-11-05 合意）。それが入ったら、尺度を合わせ直す（読み違えを増やして三振を保つ向き）。
 
+### 投手の面の段取り（未完5の下準備、2026-11-05）
+
+- `random-league.mjs --pitchers` は、最高球速を下げると球種の一覧（`pitchRepertoireV78`）の速球が上限を超え、maker が弾いていた。一覧を持つ投手は、引いた最高球速と元の最高球速の比で全球種の初速を掛け（回転はそのまま、`usageWeightV1`・`zoneRateV1`・`usageByCountV1` も保つ）、同じ最高球速と一緒に physical へ書くようにした。一覧の無い投手は今までどおり。制球は maker の物差しどおり（84 で σ .20、105 で .162、58 で .26）。
+- `tools/pitching/pitcher-surface.sh`: 乱数リーグを作り（最高球速 138〜165km/h・制球 55〜110）、各リーグを守備抜きで数試合（games.sh、RESUME=1 で続きから）、`ability-fit.py fit --role=pitcher` を Statcast の打球表で当てはめる。打者と観測の方針は EXTRA で渡す。
+- 通しの試し（3リーグ×2試合、6試合で53秒）で動く。本番の 60リーグ×8試合は約70分の見込み。打者の late look が入って見抜きの尺度を合わせ直してから回す（面を二度作らないため）。
+- 回し方（今の組の場合）: `NATIVE=<native.js> BASE=cfg-p2i-0.4（標準の一覧入りのリーグ設定） TABLE=<table-statcast24.json> OUT=<dir> LEAGUES=60 GAMES=8 EXTRA="--skipField=1 --batters=attackAngleDegrees:16 --observe=pitchRecognitionV2:0.45_6.5,commitSwingSeconds:0.18,decisionAfterReleaseTicks:80000,undercutAimV1:0.01,barrelVibrationLossV1:0.1_0.145_0.35_1,impactSpeedLimitV1:1.1,placementJudgedV1:0.8" tools/pitching/pitcher-surface.sh`。その後 `real-pitcher-spec.py` で MLB 2024 の投手を逆算する（球速は p95 で固定、制球を四球から）。
+
 ## 未了
 
 - 実測との照合（依頼文の5）: KBM史料部の投手×年×球種の表（非公開 repo `data/mini-baseball/pitch-tracking/`）はまだ無い。球種の値は仮説のまま。照合する項目は、変化量（pfx に区間を合わせる）、ジャイロの向き（回転から予想される変化と観測された変化の差）、リリースと本塁の位置の組（トンネル）。
