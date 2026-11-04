@@ -72,3 +72,9 @@
 - KMB ピッチング部（worktree work/mini-baseball-pitching、branch kbm-pitching）が受け持つ: キレと投球の物理、見抜きの仕組み（LivePitchV1 の bendForecastV1〜recognitionV1 の塊と LiveBatterObservationV151 の該当の検査）、球種の割合の重み、Statcast→V78 の球種の一覧、投手の逆算。較正担当はこの塊に触らない。
 - 較正担当: 打者の能力値（MLB 2024 の207人、補正）、打球の速さの真ん中が強すぎる問題（向きと角度の組み合わせ）、年代の環境。
 - 取り込み: 守備較正部（612a73a6）とピッチング部（2feacdf6）を作業 branch に。守備抜きのハッシュは前後で一致、関係テスト62件通過。守備の既定を含む標準リーグは cfg-mlbstd18。未コミットのほかの担当の変更は K:/kbm-work/backup-dirty-20261104 に SHA-256 と共に保全し、無傷を確認。
+
+## 本人の判断待ち（2026-11-05 夜、本人の就寝中にたまったもの）
+1. ピッチング部の既定の候補: 投げる場所（`pitchTargetPlanV2` .01・`pitchZoneLeanV2` .4・`statcast-to-v78.ts --zone --count` の標準の一覧）。標準リーグで三振 .218・四球 .086、カウント別ゾーン率の RMS .035（kbm-pitching 6d603391、未取り込み）。
+2. 揚力係数の形（ピッチング部の所見、d3eec8b9）: 試合の係数（Lyu 2022）は Nathan の式より、S .10〜.20 で 15〜27% 低く、S .40〜.50 で高い。回転効率の実測と変化の逆算が片寄るのは、これが原因と見られる（仮説）。係数を変えるのは物理の変更になる。
+3. 打球の速さの形（cbee3d3a、`barrelVibrationLossV1` の指数1＋`impactSpeedLimitV1` 1.10）: 打者の既定と面の作り直しと一緒に既定にする予定。
+4. 守備の既定の候補（守備部の引き継ぎ文書）: coverSeenV1・relayStepV1・looseBallReadV1。
