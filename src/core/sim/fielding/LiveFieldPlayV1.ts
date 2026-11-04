@@ -36,7 +36,7 @@ import { predictLiveDefensiveOpportunityV1, LIVE_DEFENSIVE_OPPORTUNITY_POLICY_V1
   type LiveDefensiveOpportunityV1 } from './LiveDefensiveOpportunityV1';
 import { resolveGroundedActorContactResponseV1 } from './GroundedActorContactResponseV1';
 import { planLiveThrowV1 } from './LiveThrowPlanV1';
-import { LIVE_RUNNER_THROW_READ_CALIBRATION_V1,validateLiveRunnerThrowReadPolicyV1,type LiveRunnerThrowReadPolicyV1,LIVE_RUNNER_TURN_CALIBRATION_V1,validateLiveRunnerTurnPolicyV1,type LiveRunnerTurnPolicyV1,LIVE_FIELD_COVER_CALIBRATION_V1,validateLiveFieldCoverPolicyV1,type LiveFieldCoverPolicyV1,LIVE_FIELD_RUN_VALUE_CALIBRATION_V1,validateLiveFieldRunValuePolicyV1,type LiveFieldRunValuePolicyV1,validateLiveFieldKinematicsPolicyV1,type LiveFieldKinematicsPolicyV1,LIVE_LOCOMOTION_START_CALIBRATION_V1,validateLiveLocomotionStartPolicyV1,type LiveLocomotionStartPolicyV1,validateLiveOutfieldBreakPolicyV1,type LiveOutfieldBreakPolicyV1,validateLiveForcedRunPolicyV1,type LiveForcedRunPolicyV1,validateLiveTossReceivePolicyV1,type LiveTossReceivePolicyV1,validateLiveFieldAttemptCrouchPolicyV1,type LiveFieldAttemptCrouchPolicyV1,validateLiveFieldCoverSeenPolicyV1,type LiveFieldCoverSeenPolicyV1,LIVE_RUNNER_SAFE_LEAD_CALIBRATION_V1,validateLiveRunnerSafeLeadPolicyV1,type LiveRunnerSafeLeadPolicyV1,LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
+import { LIVE_RUNNER_THROW_READ_CALIBRATION_V1,validateLiveRunnerThrowReadPolicyV1,type LiveRunnerThrowReadPolicyV1,LIVE_RUNNER_TURN_CALIBRATION_V1,validateLiveRunnerTurnPolicyV1,type LiveRunnerTurnPolicyV1,LIVE_FIELD_COVER_CALIBRATION_V1,validateLiveFieldCoverPolicyV1,type LiveFieldCoverPolicyV1,LIVE_FIELD_RUN_VALUE_CALIBRATION_V1,validateLiveFieldRunValuePolicyV1,type LiveFieldRunValuePolicyV1,validateLiveFieldKinematicsPolicyV1,type LiveFieldKinematicsPolicyV1,LIVE_LOCOMOTION_START_CALIBRATION_V1,validateLiveLocomotionStartPolicyV1,type LiveLocomotionStartPolicyV1,validateLiveOutfieldBreakPolicyV1,type LiveOutfieldBreakPolicyV1,validateLiveForcedRunPolicyV1,type LiveForcedRunPolicyV1,validateLiveTossReceivePolicyV1,type LiveTossReceivePolicyV1,validateLiveFieldAttemptCrouchPolicyV1,type LiveFieldAttemptCrouchPolicyV1,validateLiveFieldCoverSeenPolicyV1,type LiveFieldCoverSeenPolicyV1,validateLiveRelayStepPolicyV1,type LiveRelayStepPolicyV1,LIVE_RUNNER_SAFE_LEAD_CALIBRATION_V1,validateLiveRunnerSafeLeadPolicyV1,type LiveRunnerSafeLeadPolicyV1,LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
 import { decideLiveCloseThrowV1,liveCloseThrowToleranceV1,LIVE_CLOSE_THROW_CALIBRATION_V1,validateLiveFieldThrowPolicyV1,type LiveFieldThrowPolicyV1 } from './LiveCloseThrowV1';
 import { planLiveThrowActionV103,LIVE_THROW_EFFORT_POLICY_V103 } from './LiveThrowActionV103';
 import { liveFielderTurnSpeedV110 } from './LiveFielderBodyGeometryV105';
@@ -131,6 +131,8 @@ export type LiveFieldPlayInputV1 = Readonly<{ ball: BallWorldMoment; physics: Ae
   attemptCrouchPolicyV1?: LiveFieldAttemptCrouchPolicyV1;
   /** With fieldCoverPolicyV1: the cover plan gives no bag to a man seen going for the ball; omission counts on him for one. */
   coverSeenPolicyV1?: LiveFieldCoverSeenPolicyV1;
+  /** Each catch a relay adds must save a control step; omission picks routes on time and direction risk alone. */
+  relayStepPolicyV1?: LiveRelayStepPolicyV1;
   /** A runner on first goes as far as he can still get back from on a ball in the air; omission keeps the authored halfway. */
   runnerSafeLeadPolicyV1?: LiveRunnerSafeLeadPolicyV1;
   /** Opt-in runner tactics, authored and UNMEASURED; omitted keeps legacy decisions. Enables: two-out go-on-contact held for the
@@ -334,6 +336,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   const attemptCrouchV1=input.attemptCrouchPolicyV1===undefined?undefined:validateLiveFieldAttemptCrouchPolicyV1(input.attemptCrouchPolicyV1);
   const coverSeenV1=input.coverSeenPolicyV1===undefined?undefined:validateLiveFieldCoverSeenPolicyV1(input.coverSeenPolicyV1);
   if(coverSeenV1&&!input.fieldCoverPolicyV1)throw Error('coverSeenPolicyV1 needs fieldCoverPolicyV1');
+  const relayStepV1=input.relayStepPolicyV1===undefined?undefined:validateLiveRelayStepPolicyV1(input.relayStepPolicyV1);
   const fieldCoverV1=input.fieldCoverPolicyV1===undefined?undefined:validateLiveFieldCoverPolicyV1(input.fieldCoverPolicyV1);
   const fieldRunValueV1=input.fieldRunValuePolicyV1===undefined?undefined:validateLiveFieldRunValuePolicyV1(input.fieldRunValuePolicyV1);
   const individualV118=input.defenseDecisionModeV118==='individual',
@@ -1674,6 +1677,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
             holderReleaseBodyVelocityV110:v(),
             preferStrongestFeasibleV103: !o.containment, physics: commandComparisonPhysicsV113,
             ...(fieldThrowPolicyV1?{keepLateRouteV1:true as const}:{}),
+            ...(relayStepV1?{relayStepSecondsV1:LIVE_FIELD_TEST_MODEL_V1.controlSeconds}:{}),
             excludedRelayPlayerIds: [...(relayVisited.get(r.spec.runnerId + ':' + o.targetBase) ?? [])],
             throwHandOffset: { forwardMeters: LIVE_FIELD_TEST_MODEL_V1.throwHand.forwardMeters,
               heightAboveHipMeters: LIVE_FIELD_TEST_MODEL_V1.throwHand.heightAboveHipMeters } },individualV118);

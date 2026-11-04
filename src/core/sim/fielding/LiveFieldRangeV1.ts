@@ -85,6 +85,18 @@ export function validateLiveFieldCoverSeenPolicyV1(policy:LiveFieldCoverSeenPoli
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field cover seen policy');
   return policy;
 }
+/** Opt-in. Omission lets a relay route win on ready time and direction risk alone. */
+export type LiveRelayStepPolicyV1=Readonly<{version:'live_relay_step_policy_v1';sourceId:string}>;
+export const LIVE_RELAY_STEP_POLICY_V1:LiveRelayStepPolicyV1=Object.freeze({version:'live_relay_step_policy_v1',sourceId:'relay-step-v1-control'});
+/** Each catch a relay adds must make the throw ready at least one control step (the fielders' own decision step) sooner, or
+ * the route with fewer catches is kept: a gain under one step cannot be told from none, and every catch can be dropped. A
+ * second baseman fed the first baseman 1.7 m away on the way to a pitcher still running to the bag; both routes waited on the
+ * pitcher and were ready at 2.163 s, and the first baseman dropped it (2026-11-05, an MLB grounder). */
+export function validateLiveRelayStepPolicyV1(policy:LiveRelayStepPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_relay_step_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid relay step policy');
+  return policy;
+}
 /** Opt-in. Omission keeps every runner, the batter too, waiting until the man on the bag ahead has left it. */
 export type LiveForcedRunPolicyV1=Readonly<{version:'live_forced_run_policy_v1';sourceId:string}>;
 export const LIVE_FORCED_RUN_POLICY_V1:LiveForcedRunPolicyV1=Object.freeze({version:'live_forced_run_policy_v1',sourceId:'forced-run-v1-rule'});
