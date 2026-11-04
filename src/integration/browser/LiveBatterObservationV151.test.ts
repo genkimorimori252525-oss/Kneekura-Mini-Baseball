@@ -114,12 +114,13 @@ it('rejects unsafe origin/cutoff clocks and policy accessors without asking the 
   expect(calls).toBe(0);
 });
 
-it('checks the contact physics switches: post-contact hold, barrel ringing and undercut aim', () => {
+it('checks the contact physics switches: post-contact hold, barrel ringing, undercut and vertical aim', () => {
   const valid = policy();
   for (const candidate of [{ ...valid, postContactHoldV1:1 }, { ...valid, barrelVibrationLossV1:[.1] }, { ...valid, barrelVibrationLossV1:[.1, .145, .35, 0] },
     { ...valid, barrelVibrationLossV1:[0, .145] }, { ...valid, barrelVibrationLossV1:[.1, 2] }, { ...valid, barrelVibrationLossV1:[.1, .145, 1] },
-    { ...valid, undercutAimV1:-.01 }, { ...valid, undercutAimV1:.06 }, { ...valid, undercutAimV1:'0.02' }]) expect(() => validateLiveBatterObservationPolicyV151(candidate)).toThrow();
-  const accepted = validateLiveBatterObservationPolicyV151({ ...valid, postContactHoldV1:true, barrelVibrationLossV1:[.1, .145, .35], undercutAimV1:.02 });
-  expect([accepted.postContactHoldV1, accepted.barrelVibrationLossV1, accepted.undercutAimV1]).toEqual([true, [.1, .145, .35], .02]);
+    { ...valid, undercutAimV1:-.01 }, { ...valid, undercutAimV1:.06 }, { ...valid, undercutAimV1:'0.02' },
+    { ...valid, aimVerticalScaleV1:-.1 }, { ...valid, aimVerticalScaleV1:2.5 }]) expect(() => validateLiveBatterObservationPolicyV151(candidate)).toThrow();
+  const accepted = validateLiveBatterObservationPolicyV151({ ...valid, postContactHoldV1:true, barrelVibrationLossV1:[.1, .145, .35], undercutAimV1:.02, aimVerticalScaleV1:.6 });
+  expect([accepted.postContactHoldV1, accepted.barrelVibrationLossV1, accepted.undercutAimV1, accepted.aimVerticalScaleV1]).toEqual([true, [.1, .145, .35], .02, .6]);
   expect(validateLiveBatterObservationPolicyV151({ ...valid, barrelVibrationLossV1:[.1, .145] }).barrelVibrationLossV1).toEqual([.1, .145]);
 });

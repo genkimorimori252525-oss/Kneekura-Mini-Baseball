@@ -247,8 +247,9 @@ function settleSkippedBattedBallV1(x:Readonly<{ball:Readonly<{tick:number;positi
   const seconds=Math.min(6,Math.max(.3,(judged.tick-samples[0]!.tick)/tps));
   return {outcome,seconds,at:(t:number):Vec3=>{const target=samples[0]!.tick+t*tps;return (samples.find(f=>f.tick>=target)??samples.at(-1)!).ball.position;}};
 }
-/** The match default for battedBallAeroV1 (2026-11-04): carry within 2.5% of Statcast 2024 medians. */
-export const LIVE_BATTED_BALL_AERO_V1=Object.freeze({dragScale:1.2});
+/** The match default for battedBallAeroV1. 2026-11-04: 1.1 with the contact switches of LIVE_MATCH_BATTER_OBSERVATION_V2 (backspun
+ * line drives), whose own balls then carry within a few percent of Statcast 2024 medians; 1.2 offset topspun liners that flew too far. */
+export const LIVE_BATTED_BALL_AERO_V1=Object.freeze({dragScale:1.1});
 export const LIVE_MATCH_PHYSICS_V1:AeroGroundBallPhysicsV1=Object.freeze({kind:'aero_ground_v1',
   air:Object.freeze({ticksPerSecond:1_000_000,integrationStepTicks:5000,gravityY:-9.80665,aerodynamics:REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS}),
   ground:Object.freeze({ticksPerSecond:1_000_000,gravityMps2:9.80665,radiusM:.0366,inertiaRatio:.378,restingVerticalSpeedMps:.28,

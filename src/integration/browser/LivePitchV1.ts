@@ -502,7 +502,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   const awkwardness=Math.max(0,Math.abs(prediction.ball.position.x)/.2159-1,(.55-prediction.ball.position.y)/.5,(prediction.ball.position.y-1.5)/.5),
     awkwardErrorFactor=b.badBallControl===undefined?1:1+awkwardness*(1-b.badBallControl),
     aimScale=b.aimStdMeters*(swingIntentV121?1:input.batting==='contact'?.7:input.batting==='power'?1.1:1)*awkwardErrorFactor;
-  let baselineAimError=yawDeferExecutionV274?zero():{x:aimRandom.normal()*aimScale,y:aimRandom.normal()*aimScale,z:aimRandom.normal()*aimScale*.3},
+  let baselineAimError=yawDeferExecutionV274?zero():{x:aimRandom.normal()*aimScale,y:aimRandom.normal()*aimScale*(observationPolicyV151?.aimVerticalScaleV1??1),z:aimRandom.normal()*aimScale*.3},
     sweetSpotT=clamp((b.sweetSpotT??(b.batLengthM-.1524)/b.batLengthM)+(yawDeferExecutionV274?0:(sweetSpotRandom.uniform()-.5)*.025),.65,.9);
   const heightScale=b.heightMeters/1.8;
   const judgmentStd=b.zoneJudgmentStdMeters??0,judgmentError={x:0,y:0};
@@ -981,7 +981,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     finalNominalReferenceV153=planned.reference;nominalRegistrationsV153.set(rate,{...normal,reference:planned.reference});
     // The choice is sealed before any execution-error draw; V152 streams keep the original per-key draws.
     baselineTimingError=timingRandom.normal()*b.timingStdSeconds*(swingIntentV121?1:input.batting==='contact'?.72:input.batting==='power'?1.15:1);
-    baselineAimError={x:aimRandom.normal()*aimScale,y:aimRandom.normal()*aimScale,z:aimRandom.normal()*aimScale*.3};
+    baselineAimError={x:aimRandom.normal()*aimScale,y:aimRandom.normal()*aimScale*(observationPolicyV151?.aimVerticalScaleV1??1),z:aimRandom.normal()*aimScale*.3};
     sweetSpotT=clamp((b.sweetSpotT??(b.batLengthM-.1524)/b.batLengthM)+(sweetSpotRandom.uniform()-.5)*.025,.65,.9);
     zoneTimingError=zoneHitStrength>0?baselineTimingError*zoneHitErrorScale:baselineTimingError;zoneAimError=zoneHitStrength>0?mul(baselineAimError,zoneHitErrorScale):baselineAimError;
     timingError=courseErrorScale===1?zoneTimingError:zoneTimingError*courseErrorScale;courseAimError=courseErrorScale===1?zoneAimError:mul(zoneAimError,courseErrorScale);

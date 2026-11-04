@@ -39,6 +39,9 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   /** Metres the swing aims the sweet spot below the ball's centre (0..0.05). Hitters who lift the ball meet it under centre,
    * which gives line drives their backspin; aimed at the centre, a rising bat tops them. */
   undercutAimV1?:number;
+  /** Scale on the up-down part of the swing's aim error (0..2). Every swing missing by the same spread spread the launch angles
+   * wider than MLB's; a tighter aim with the fooled swings of priorFooledChanceV1 keeps the misses. */
+  aimVerticalScaleV1?:number;
   /** Share of the remembered pitch kept in where the bat goes (0..1); the arrival time keeps the full prior.
    * Blending a quarter of the last pitches into the height made hitters top low pitches and pop up high ones. */
   priorPlacementShareV1?:number;
@@ -66,10 +69,13 @@ export const AUTHORED_LIVE_BATTER_OBSERVATION_V151:LiveBatterObservationPolicyV1
   memoryPolicy:Object.freeze({version:'batter_observed_memory_policy_v151',sourceId:'authored-recent-forecast-memory-v151',
     maximumEntriesPerPair:3,unprofiledPriorWeight:.25}),
 });
-/** The match default. 2026-11-04: MLB candidate 2 of the standard league (rates within MLB 2024 ranges). */
+/** The match default. 2026-11-04: MLB candidate 4 of the standard league: the late-contact bat held at its contact speed, the
+ * barrel's ringing, the swing aimed 1 cm under the ball with a tighter up-down aim, and a quarter of swings fooled to where the
+ * hitter expected the pitch (instead of blending the remembered pitch into every swing). Strikeouts, walks, average, launch
+ * mix and bases per ball in play of MLB 2024; extra bases about four fifths of MLB's. */
 export const LIVE_MATCH_BATTER_OBSERVATION_V2:LiveBatterObservationPolicyV151 = Object.freeze({...AUTHORED_LIVE_BATTER_OBSERVATION_V151,
   commitSwingSeconds:.26,contactSpeedCeilingV1:true,impactSpeedLimitV1:1,twoStrikeExpansionV1:.22,meetLateLookV1:Object.freeze([.0045,.014,.85,.3]),swingSpeedRoomV1:1.16,visionSelectivityV1:.004,pitchOrderPlanV1:true,
-  lateLookByMeetOnlyV1:true,priorPlacementShareV1:.45,
+  lateLookByMeetOnlyV1:true,priorPlacementShareV1:.45,postContactHoldV1:true,barrelVibrationLossV1:Object.freeze([.1,.145,.35]),undercutAimV1:.01,aimVerticalScaleV1:.6,priorFooledChanceV1:.25,
   countReadinessV1:Object.freeze([[.62,.85,1],[.72,.9,1],[.72,.95,1],[.12,.85,1]].map(row=>Object.freeze(row)))});
 function assert(value:unknown,message:string):asserts value {if(!value)throw Error('live batter observation v151: '+message);}
 export function meetLateLookV1(timingStdSeconds:number,look:readonly number[]){
@@ -93,6 +99,7 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'priorPlacementShareV1')){keys.push('priorPlacementShareV1');assert(Number.isFinite(p.priorPlacementShareV1)&&p.priorPlacementShareV1!>=0&&p.priorPlacementShareV1!<=1,'invalid prior placement share');}
   if(Object.hasOwn(p,'lateLookByMeetOnlyV1')){keys.push('lateLookByMeetOnlyV1');assert(typeof p.lateLookByMeetOnlyV1==='boolean','invalid late look source');}
   if(Object.hasOwn(p,'barrelVibrationLossV1')){keys.push('barrelVibrationLossV1');assert(Array.isArray(p.barrelVibrationLossV1)&&(p.barrelVibrationLossV1.length===2||p.barrelVibrationLossV1.length===3)&&p.barrelVibrationLossV1.every((v:unknown,i:number)=>typeof v==='number'&&(i<2?v>=.01&&v<=1:v>=0&&v<1)),'invalid barrel vibration loss');}
+  if(Object.hasOwn(p,'aimVerticalScaleV1')){keys.push('aimVerticalScaleV1');assert(typeof p.aimVerticalScaleV1==='number'&&p.aimVerticalScaleV1>=0&&p.aimVerticalScaleV1<=2,'invalid vertical aim scale');}
   if(Object.hasOwn(p,'undercutAimV1')){keys.push('undercutAimV1');assert(typeof p.undercutAimV1==='number'&&p.undercutAimV1>=0&&p.undercutAimV1<=.05,'invalid undercut aim');}
   if(Object.hasOwn(p,'postContactHoldV1')){keys.push('postContactHoldV1');assert(typeof p.postContactHoldV1==='boolean','invalid post-contact hold');}
   if(Object.hasOwn(p,'contactSpeedCeilingV1')){keys.push('contactSpeedCeilingV1');assert(typeof p.contactSpeedCeilingV1==='boolean','invalid contact speed ceiling');}
