@@ -97,6 +97,19 @@ export function validateLiveRelayStepPolicyV1(policy:LiveRelayStepPolicyV1){
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid relay step policy');
   return policy;
 }
+/** Opt-in. Omission holds a runner whenever no fielder is forecast to get the ball. */
+export type LiveRunnerLooseBallReadPolicyV1=Readonly<{version:'live_runner_loose_ball_read_policy_v1';sourceId:string}>;
+export const LIVE_RUNNER_LOOSE_BALL_READ_POLICY_V1:LiveRunnerLooseBallReadPolicyV1=Object.freeze({version:'live_runner_loose_ball_read_policy_v1',sourceId:'loose-ball-read-v1-observed'});
+/** No fielder forecast to get the ball means the ball is loose, not that the race is unknown. The runner takes, from what he
+ * last saw, the soonest the defense could have it on the bag: the nearest man running to where the ball was, less the time
+ * since, then his exchange and a throw from there. A ball rolling to a fielder would have given that fielder a forecast.
+ * A runner on second, ready to go at 2.79 s after a liner fell in the left-field corner, stood until 4.41 s for want of a
+ * forecast and stopped at third (2026-11-05, an MLB single). */
+export function validateLiveRunnerLooseBallReadPolicyV1(policy:LiveRunnerLooseBallReadPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_runner_loose_ball_read_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid runner loose ball read policy');
+  return policy;
+}
 /** Opt-in. Omission keeps every runner, the batter too, waiting until the man on the bag ahead has left it. */
 export type LiveForcedRunPolicyV1=Readonly<{version:'live_forced_run_policy_v1';sourceId:string}>;
 export const LIVE_FORCED_RUN_POLICY_V1:LiveForcedRunPolicyV1=Object.freeze({version:'live_forced_run_policy_v1',sourceId:'forced-run-v1-rule'});
