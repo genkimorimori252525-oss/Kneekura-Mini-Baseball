@@ -466,25 +466,26 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   // and how it moves, but bends its path by what he expects, the pitcher's fastball. The fastball is flown from the same release
   // and direction; past the last look the forecast takes w of the seen bend and 1-w of the fastball's. No force is invented: a
   // breaking ball that shares the fastball's tunnel misses the forecast by half the difference in bend times the time squared.
-  const accelerationWeightV1=observationPolicyV151?.accelerationPriorWeightV1,
-    perceivedBendV1=accelerationWeightV1===undefined||accelerationWeightV1===1||effectiveForecastV246?.status!=='PREDICTED'||!effectiveForecastV246.prediction
-      ||effectiveForecastV246.observedThroughTick===null?null:(()=>{
-      const owned=p.pitchRepertoireV78===undefined?null:validatePitchRepertoireV78(p.pitchRepertoireV78,p.maximumPitchSpeedMps).pitches,
-        fast=owned?owned.find(row=>row.pitchType==='fastball')??owned.find(row=>['sinker','cutter'].includes(row.pitchType))??null
-          :resolvePitcherRepertoireV77(p,p.throws??'R').find(row=>row.pitchType==='fastball')??null;
-      if(!fast)return null;
-      const t1=(effectiveForecastV246.observedThroughTick!-input.originTick)/tps,t2=effectiveForecastV246.prediction!.arrivalAfterReleaseSeconds,dt=t2-t1;
-      if(!(dt>.005))return null;
-      const start={...initial,velocity:mul(initial.velocity,fast.releaseSpeedMps*.99/norm(initial.velocity)),spin:fast.spinRadPerSecond},
+  // accelerationViewTimeV1 (seconds) instead makes w = look / (look + it), the look being the time from release to the last
+  // sample, so the later look after the swing starts trusts the seen bend more and a longer flight reveals more of it.
+  const accelerationWeightV1=observationPolicyV151?.accelerationPriorWeightV1,accelerationViewTimeV1=observationPolicyV151?.accelerationViewTimeV1,
+    fastBendPitchV1=accelerationWeightV1===undefined&&accelerationViewTimeV1===undefined?null:(()=>{
+      const owned=p.pitchRepertoireV78===undefined?null:validatePitchRepertoireV78(p.pitchRepertoireV78,p.maximumPitchSpeedMps).pitches;
+      return owned?owned.find(row=>row.pitchType==='fastball')??owned.find(row=>['sinker','cutter'].includes(row.pitchType))??null
+        :resolvePitcherRepertoireV77(p,p.throws??'R').find(row=>row.pitchType==='fastball')??null;})(),
+    bendForecastV1=<F extends Readonly<{status:string;observedThroughTick:number|null;prediction:Readonly<{position:Vec3;arrivalAfterReleaseSeconds:number;estimatedAcceleration:Vec3}>|null}>|null|undefined>(forecast:F):F=>{
+      if(!fastBendPitchV1||forecast?.status!=='PREDICTED'||!forecast.prediction||forecast.observedThroughTick===null)return forecast;
+      const t1=(forecast.observedThroughTick-input.originTick)/tps,t2=forecast.prediction.arrivalAfterReleaseSeconds,dt=t2-t1,
+        weight=accelerationViewTimeV1!==undefined?t1/(t1+accelerationViewTimeV1):accelerationWeightV1!;
+      if(!(dt>.005)||weight>=1)return forecast;
+      const start={...initial,velocity:mul(initial.velocity,fastBendPitchV1.releaseSpeedMps*.99/norm(initial.velocity)),spin:fastBendPitchV1.spinRadPerSecond},
         s1=sampleAerodynamicPitchStateAtElapsedSeconds(start,t1,inverseAir),s2=sampleAerodynamicPitchStateAtElapsedSeconds(start,t2,inverseAir),
-        seen=effectiveForecastV246.prediction!.estimatedAcceleration,
-        expectedX=2*(s2.position.x-s1.position.x-s1.velocity.x*dt)/(dt*dt),expectedY=2*(s2.position.y-s1.position.y-s1.velocity.y*dt)/(dt*dt),
-        k=.5*(1-accelerationWeightV1)*dt*dt;
-      return {x:k*(expectedX-seen.x),y:k*(expectedY-seen.y)};
-    })(),
-    perceivedForecastV1=perceivedBendV1===null?effectiveForecastV246:{...effectiveForecastV246!,prediction:{...effectiveForecastV246!.prediction!,
-      position:{...effectiveForecastV246!.prediction!.position,x:effectiveForecastV246!.prediction!.position.x+perceivedBendV1.x,
-        y:effectiveForecastV246!.prediction!.position.y+perceivedBendV1.y}}};
+        seen=forecast.prediction.estimatedAcceleration,k=.5*(1-weight)*dt*dt,
+        expectedX=2*(s2.position.x-s1.position.x-s1.velocity.x*dt)/(dt*dt),expectedY=2*(s2.position.y-s1.position.y-s1.velocity.y*dt)/(dt*dt);
+      return {...forecast,prediction:{...forecast.prediction,position:{...forecast.prediction.position,
+        x:forecast.prediction.position.x+k*(expectedX-seen.x),y:forecast.prediction.position.y+k*(expectedY-seen.y)}}} as F;
+    },
+    perceivedForecastV1=bendForecastV1(effectiveForecastV246);
   if(opticalExperiment&&effectiveForecastV246?.status!=='PREDICTED')throw Error('Robin optical HOLD: no observed forecast');
   assert(!(input.managerCommunicationV122&&input.swingInstructionV121),'ambiguous received and raw manager instruction');
   const managerCommunicationV122=input.managerCommunicationV122===undefined?null:resolveLiveManagerCommunicationV122({...input.managerCommunicationV122,
@@ -909,7 +910,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
         uncorrectedReference.maximumGripSpeedMps+uncorrectedReference.maximumAngularSpeedRadPerSecond*b.batLengthM,prefixThroughV151):null,
       lateRawForecastV151=positionObserverV151&&!prefixContactV151&&(availableTick-input.originTick)/tps<=horizon?positionObserverV151.forecastAt(availableTick):null,
       lateForecastResultV246=lateRawForecastV151&&input.batterForecastPolicyV246!==undefined?positionObserverV151!.forecastAtV246!(availableTick):null,
-      lateEffectiveForecast=lateForecastResultV246?.forecast??lateRawForecastV151,
+      lateEffectiveForecast=bendForecastV1(lateForecastResultV246?.forecast??lateRawForecastV151),
       latePrediction=positionObserverV151?{ball:{position:lateEffectiveForecast?.prediction?.position??placementPositionV1}}
         :predictFromObservation(kernel.evaluateAt(observedTime),observedTime,battingSetupV94.contactPlaneZ),
       earlyEvidence={predictionId:'release-observation-v121',observedTick:observationTick,availableTick:observationTick,position:placementPositionV1},
