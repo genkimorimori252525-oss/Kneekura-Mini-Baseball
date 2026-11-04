@@ -8,7 +8,7 @@ import {resolveLiveBattingSetupV94} from '../../src/core/sim/pitching/BattingSet
 const [cfgPath, patch, seedsArg] = process.argv.slice(2);
 const cfg = JSON.parse(readFileSync(cfgPath, 'utf8'));
 const pitcher = {...cfg.players.find((x: any) => x.playerId === '1-p0').physical, ...(patch ? JSON.parse(patch) : {})};
-const seeds = Number(seedsArg ?? 40), v2 = process.env.V2 ? {targetPlanV2: Number(process.env.V2), ...(process.env.PT ? {pitchTypeV2: process.env.PT} : {})} : {};
+const seeds = Number(seedsArg ?? 40), v2 = process.env.V2 ? {targetPlanV2: Number(process.env.V2), ...(process.env.PT ? {pitchTypeV2: process.env.PT} : {}), ...(process.env.LEAN ? {zoneLeanV2: Number(process.env.LEAN)} : {})} : {};
 const rows: string[] = [];
 const all = {n: 0, zone: 0, p: 0, w: 0, wp: 0};
 const share: Record<string, number> = {'0-0': 1125, '0-1': 583, '0-2': 299, '1-0': 432, '1-1': 466, '1-2': 420, '2-0': 139, '2-1': 224, '2-2': 338, '3-0': 53, '3-1': 101, '3-2': 208};

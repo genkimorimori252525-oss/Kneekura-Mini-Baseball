@@ -18,6 +18,9 @@ export type LivePitchTargetPlanInputV111=Readonly<{
  targetPlanV2?:number;
  /** The pitch about to be thrown: V2 then forecasts by its family (fastballs, breaking balls, offspeed). */
  pitchTypeV2?:string;
+ /** With V2: runs taken off this pitch's cost per unit of its chance to land in the zone (negative: kept out of it). Only the
+  * pitch at hand leans; the counts ahead are valued on the plain forecast. */
+ zoneLeanV2?:number;
  pitcher:Readonly<{commandStdMeters:number;technicalSkills?:TechnicalSkillControlsV75;zoneRecognitionV87?:ZoneRecognitionV87;throws?:'R'|'L'}>;
  catcher?:Readonly<{zoneRecognitionV87?:ZoneRecognitionV87}>;
  batter:Readonly<{bats:'R'|'L';heightMeters?:number;maximumSweetSpotSpeedMps?:number;targetSweetSpotSpeedMps?:number;
@@ -125,6 +128,7 @@ export function planLivePitchTargetV111(raw:LivePitchTargetPlanInputV111){
  assert(Number.isSafeInteger(input.seed)&&bounded(input.seed,0,0xffffffff),'invalid seed');
  assert(bounded(pitcher.commandStdMeters,0,.6),'invalid command standard deviation');
  assert(input.targetPlanV2===undefined||bounded(input.targetPlanV2,.0005,.5),'invalid target plan v2 temperature');
+ assert(input.zoneLeanV2===undefined||input.targetPlanV2!==undefined&&bounded(input.zoneLeanV2,-1,1),'invalid target plan v2 zone lean');
  assert(['R','L'].includes(batter.bats)&&bounded(batter.aimStdMeters,0,.35)&&bounded(batter.timingStdSeconds,0,.08)
   &&bounded(batter.chaseMarginMeters,0,.6),'invalid batter raw controls');
  for(const [key,lo,hi]of [['maximumSweetSpotSpeedMps',.1,90],['targetSweetSpotSpeedMps',.1,90],['zoneJudgmentStdMeters',0,.6],
@@ -216,7 +220,7 @@ export function planLivePitchTargetV111(raw:LivePitchTargetPlanInputV111){
   challengeProbabilityFloor=.45*maximumEligibleStrikeProbability;
  for(const c of eligible)c.preferenceCost=preferenceFallback?0:Math.min(.10,.008*Math.log(maximumWeight/c.weight));
  const temperature=input.targetPlanV2,planWalkCost=temperature===undefined?walkCost:walkCost*V2_WALK_SCALE,
-  values=Array.from({length:4},()=>[0,0,0]),costs=(balls:number,strikes:number)=>eligible.map(c=>{
+  values=Array.from({length:4},()=>[0,0,0]),costs=(balls:number,strikes:number,lean=0)=>eligible.map(c=>{
   // Ordinary auto pitching does not decide an intentional walk. Keep every
   // three-ball DP state within a feasible contest set, relative to this
   // pitcher's actual forecast and the authored role-weight exclusions.
@@ -226,13 +230,13 @@ export function planLivePitchTargetV111(raw:LivePitchTargetPlanInputV111){
    selfLoop=strikes===2?events.foul:0;
   // ボール先行/ストライク先行: a preference over the first pitches only; an explicit location skips this plan.
   const approach=earlyApproach!==0&&balls+strikes<=1?earlyApproach*.06*(1-c.pStrike):0;
-  return ((v2?.contactCost??c.contactCost)+c.captureRiskCost+c.preferenceCost+.001+approach+events.ball*nextBall
+  return ((v2?.contactCost??c.contactCost)+c.captureRiskCost+c.preferenceCost+.001+approach-lean*c.pStrike+events.ball*nextBall
    +(events.strike+(strikes<2?events.foul:0))*nextStrike)/(1-selfLoop);
  });
  // Every nonterminal transition increases balls or strikes; only a two-strike
  // foul loops. Divide out that loop rather than running unbounded iteration.
  for(let balls=3;balls>=0;balls--)for(let strikes=2;strikes>=0;strikes--)values[balls][strikes]=Math.min(...costs(balls,strikes));
- const currentCosts=costs(situation.balls,situation.strikes),minimumCost=Math.min(...currentCosts),
+ const currentCosts=costs(situation.balls,situation.strikes,input.zoneLeanV2??0),minimumCost=Math.min(...currentCosts),
   tolerance=situation.balls===3?.002:.006,near=eligible.map((c,index)=>({c,index,cost:currentCosts[index]})).filter(c=>c.cost<=minimumCost+tolerance),
   rng=new SeedRoot(input.seed).streamRng(0,'pitch','target-plan-v111'),
   // V2 draws the one same number, on weights falling with the cost above the best; a three-ball spot below the floor weighs nothing.

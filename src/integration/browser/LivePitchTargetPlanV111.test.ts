@@ -166,3 +166,11 @@ it('pitchTargetPlanV2: forecasts the MLB hitter by count and draws on cost weigh
  expect(()=>planLivePitchTargetV111({...source(),targetPlanV2:0})).toThrow(/target plan v2/);
  expect(()=>planLivePitchTargetV111({...source(),targetPlanV2:.6})).toThrow(/target plan v2/);
 });
+
+it('pitchTargetPlanV2 zone lean: a positive lean keeps the pitch in the zone more, a negative one out; it needs V2',()=>{
+ const mean=(zoneLeanV2:number)=>{let p=0;for(let seed=0;seed<40;seed++)
+  p+=planLivePitchTargetV111({...count(1,1),seed,targetPlanV2:.01,zoneLeanV2}).diagnostics.pStrike;return p/40;};
+ expect(mean(.05)).toBeGreaterThan(mean(0)+.03);
+ expect(mean(-.05)).toBeLessThan(mean(0)-.03);
+ expect(()=>planLivePitchTargetV111({...source(),zoneLeanV2:.05})).toThrow(/zone lean/);
+});
