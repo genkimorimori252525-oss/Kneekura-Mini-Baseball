@@ -73,6 +73,18 @@ export function validateLiveFieldAttemptCrouchPolicyV1(policy:LiveFieldAttemptCr
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field attempt crouch policy');
   return policy;
 }
+/** Opt-in, with fieldCoverV1. Omission lets the cover plan send a man to a bag while he is seen going for the ball. */
+export type LiveFieldCoverSeenPolicyV1=Readonly<{version:'live_field_cover_seen_policy_v1';sourceId:string}>;
+export const LIVE_FIELD_COVER_SEEN_POLICY_V1:LiveFieldCoverSeenPolicyV1=Object.freeze({version:'live_field_cover_seen_policy_v1',sourceId:'cover-seen-v1-plan'});
+/** The cover plan does not count on a man it can see going for the ball, himself included, to take a bag: the bag goes to the
+ * next man there. On a grounder the second baseman took, every man's plan sent the first baseman to first; he had already gone
+ * for the ball, the pitcher was not given the bag, and nobody covered it (2026-11-04). Holding the first baseman to the plan
+ * instead kept men off balls that were theirs (MLB grounders .263 to .326), so it is the plan that follows the men. */
+export function validateLiveFieldCoverSeenPolicyV1(policy:LiveFieldCoverSeenPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_cover_seen_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field cover seen policy');
+  return policy;
+}
 /** Opt-in. Omission keeps every runner, the batter too, waiting until the man on the bag ahead has left it. */
 export type LiveForcedRunPolicyV1=Readonly<{version:'live_forced_run_policy_v1';sourceId:string}>;
 export const LIVE_FORCED_RUN_POLICY_V1:LiveForcedRunPolicyV1=Object.freeze({version:'live_forced_run_policy_v1',sourceId:'forced-run-v1-rule'});
