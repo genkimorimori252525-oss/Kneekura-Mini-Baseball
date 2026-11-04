@@ -52,3 +52,4 @@
 - 条件4 カバーの揺れ: 直った（433b3d46）。fieldCoverV1 は成績を崩さず決め打ちを外せる。
 - 条件5 崩さない: 219ae66f（以後の追加 fieldAlignmentV1・outfieldBreakV1・forcedRunV1・fieldShadeV1・battedBallReplaceV1・カバーの直しを全部含む）で、省略時の --hash=1 が e4c367af と一致（cfg-std 0e3a9e34…、守備位置ごとの体 9b5609b1…、seed 301、450球）。
 - 既定の候補（本人に聞く）: fieldCoverV1、runnerTurnV1、outfieldBreakV1（守備位置ごとの体と一緒に）。
+- 2026-11-04 12:55 寄せ（一塁手固定、674球、seed 941 は3GB でメモリ不足により途中で停止、そこまでの分は使用）: 4°が最も近い（ゴロ 左 .295／MLB .253、センター .264／.271、右 .316／.200）。右方向だけ残る。左打者では一塁手が塁を離れられないので、一二塁間は二塁手が埋める仮説で、左打者のときだけ二塁手を余分に回す secondBaseLeftyExtraDegrees を足し、内野4°の上で 0・6・10° を測り中。
