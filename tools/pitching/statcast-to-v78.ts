@@ -104,11 +104,11 @@ mkdirSync(outDir, { recursive: true });
 const rows = readCsv(csvPath).filter(r => TYPES[r.pitch_type]);
 const angleGap = (a: number, b: number) => ((a - b + 540) % 360) - 180;
 
-function pitchFrom(r: { throws: 'R' | 'L'; type: string; mph: number; rpm: number; hIn: number; vIn: number; release: V; axis: number }, id: string, source: string) {
+function pitchFrom(r: { throws: 'R' | 'L'; type: string; mph: number; rpm: number; hIn: number; vIn: number; release: V; axis: number }, id: string, source: string, usage: number) {
   const fit = fitStatcastPitch(r), [pitchType, name] = TYPES[r.type];
   return { fit, pitch: { pitchId: id, name, pitchType, releaseSpeedMps: r.mph * MPH / .99,
     spinRadPerSecond: { x: +fit.spin.x.toFixed(4), y: +fit.spin.y.toFixed(4), z: +fit.spin.z.toFixed(4) },
-    source: { kind: 'original' as const, id: source, revision: 1 } },
+    usageWeightV1: +usage.toFixed(2), source: { kind: 'original' as const, id: source, revision: 1 } },
     report: { type: r.type, mph: r.mph, rpm: r.rpm, statcastIn: { arm: r.hIn, up: r.vIn }, matchIn: { arm: +fit.movementIn.arm.toFixed(2), up: +fit.movementIn.up.toFixed(2) },
       residualIn: +fit.residualIn.toFixed(2), activeShare: +fit.active.toFixed(3), clamped: fit.clamped,
       statcastAxis: r.axis, impliedAxis: +fit.impliedAxis.toFixed(1), axisGapDeg: Number.isFinite(r.axis) ? +angleGap(r.axis, fit.impliedAxis).toFixed(1) : null } };
@@ -135,7 +135,7 @@ if (opt.standard) {
     const r = { throws, type, mph: mean(list, 'speed_avg'), rpm: mean(list, 'spin_rpm'), hIn: mean(list, 'hmov_in'), vIn: mean(list, 'vmov_in'), axis: meanAxis(list),
       release: releaseOf(throws, mean(list, 'rel_side_ft'), mean(list, 'rel_height_ft'), mean(list, 'extension_ft')) };
     // One release per pitcher in the match: fit at the league release so the pitches share it.
-    const made = pitchFrom({ ...r, release: leagueRelease }, `mlb${year}-avg-${throws}-${type}`, `statcast-mlb${year}-avg-${type}`);
+    const made = pitchFrom({ ...r, release: leagueRelease }, `mlb${year}-avg-${throws}-${type}`, `statcast-mlb${year}-avg-${type}`, share * 100);
     pitches.push(made.pitch); usage[`mlb${year}-avg-${throws}-${type}`] = +(share * 100).toFixed(2);
     report.push({ ...made.report, sharePct: +(share * 100).toFixed(2), whiffPctSavant: +mean(list, 'whiff_pct_savant').toFixed(1), rows: list.length });
   }
@@ -151,7 +151,7 @@ if (opt.standard) {
   const throws = list[0].throws as 'R' | 'L', w = (k: string) => list.reduce((s, r) => s + num(r, k) * num(r, 'pitches'), 0) / list.reduce((s, r) => s + num(r, 'pitches'), 0);
   const release = releaseOf(throws, w('rel_side_ft'), w('rel_height_ft'), w('extension_ft')), pitches: unknown[] = [], report: unknown[] = [], usage: Record<string, number> = {};
   for (const r of list) { const ri = rowInput(r, throws); if (!usable(ri)) continue;
-    const id = `p${opt.pitcher}-${opt.year}-${r.pitch_type}`, made = pitchFrom({ ...ri, release }, id, `statcast-${opt.pitcher}-${opt.year}-${r.pitch_type}`);
+    const id = `p${opt.pitcher}-${opt.year}-${r.pitch_type}`, made = pitchFrom({ ...ri, release }, id, `statcast-${opt.pitcher}-${opt.year}-${r.pitch_type}`, Math.max(0, num(r, 'usage_pct') || 0));
     pitches.push(made.pitch); usage[id] = num(r, 'usage_pct'); report.push({ ...made.report, whiffPctSavant: num(r, 'whiff_pct_savant'), speedP95: num(r, 'speed_p95') }); }
   const repertoire = { version: 'pitch_repertoire_v78', pitches }; validatePitchRepertoireV78(repertoire);
   const out = { pitcher: opt.pitcher, year: opt.year, pitchRepertoireV78: repertoire, usagePct: usage, physical: physicalOf(release, throws), report };
@@ -159,7 +159,7 @@ if (opt.standard) {
 } else if (opt.check) {
   // Every 100+ pitch row of the year, each at its own release: residual and clamp counts per type, axis gap means.
   const pool = rows.filter(r => r.year === opt.check && r.sample === 'pitches>=100'), byType: Record<string, { n: number; res: number[]; clamped: number; gaps: number[]; active: number[] }> = {};
-  for (const r of pool) { const ri = rowInput(r, r.throws as 'R' | 'L'); if (!usable(ri)) continue; const made = pitchFrom(ri, 'check', 'check'), t = (byType[ri.type] ??= { n: 0, res: [], clamped: 0, gaps: [], active: [] });
+  for (const r of pool) { const ri = rowInput(r, r.throws as 'R' | 'L'); if (!usable(ri)) continue; const made = pitchFrom(ri, 'check', 'check', 1), t = (byType[ri.type] ??= { n: 0, res: [], clamped: 0, gaps: [], active: [] });
     t.n++; t.res.push(made.report.residualIn); if (made.report.clamped) t.clamped++; if (made.report.axisGapDeg !== null) t.gaps.push(made.report.axisGapDeg); t.active.push(made.report.activeShare); }
   const q = (a: number[], p: number) => { const s = [...a].sort((x, y) => x - y); return s.length ? +s[Math.min(s.length - 1, Math.floor(p * s.length))].toFixed(2) : null; };
   const table = Object.entries(byType).map(([type, t]) => ({ type, rows: t.n, residualP50: q(t.res, .5), residualP90: q(t.res, .9), within1in: +(t.res.filter(x => x <= 1).length / t.n).toFixed(3),

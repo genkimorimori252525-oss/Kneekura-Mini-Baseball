@@ -12,7 +12,10 @@ export type LivePitchTypeV78 = typeof LIVE_PITCH_TYPES_V78[number];
 export type PitchMovementHistoryV92 = Readonly<{ version: 'pitch_movement_v92'; level: number;
   referenceSpinRadPerSecond: Vec3; referenceSeamForce?: BaseballSeamForceV1 }>;
 export type PitchPhysicalSettingsV78 = Readonly<{ releaseSpeedMps: number; spinRadPerSecond: Vec3;
-  releaseOrientation?: Quaternion; seamForce?: BaseballSeamForceV1; movementV92?: PitchMovementHistoryV92 }>;
+  releaseOrientation?: Quaternion; seamForce?: BaseballSeamForceV1; movementV92?: PitchMovementHistoryV92;
+  /** How often the pitcher throws it when he picks his own pitch (any non-negative scale, e.g. Statcast usage %).
+   * A repertoire gives it on every pitch or on none; omitted, every pitch weighs 1 as before. */
+  usageWeightV1?: number }>;
 export type PitchSnapshotV78 = PitchPhysicalSettingsV78 & Readonly<{ pitchId: string; name: string; pitchType: LivePitchTypeV78;
   source: Readonly<{ kind: 'preset' | 'original'; id: string; revision: number }> }>;
 export type PitchRepertoireV78 = Readonly<{ version: 'pitch_repertoire_v78'; pitches: readonly PitchSnapshotV78[] }>;
@@ -55,7 +58,7 @@ const validName=(v:unknown):v is string=>typeof v==='string'&&v.length>0&&v.leng
 function fields(raw:unknown,required:readonly string[],optional:readonly string[]=[]):asserts raw is Record<string,unknown>{
   assert(raw&&typeof raw==='object'&&!Array.isArray(raw)&&required.every(k=>Object.hasOwn(raw,k))&&Object.keys(raw).every(k=>required.includes(k)||optional.includes(k)),'unknown or missing fields');
 }
-const physicalRequired=['releaseSpeedMps','spinRadPerSecond'],physicalOptional=['releaseOrientation','seamForce','movementV92'];
+const physicalRequired=['releaseSpeedMps','spinRadPerSecond'],physicalOptional=['releaseOrientation','seamForce','movementV92','usageWeightV1'];
 function physical(raw:Record<string,unknown>,maximumPitchSpeedMps?:number){
   assert(maximumPitchSpeedMps===undefined||bounded(maximumPitchSpeedMps,15,85),'invalid maximum pitch speed');
   assert(bounded(raw.releaseSpeedMps,5,85)&&raw.releaseSpeedMps<=(maximumPitchSpeedMps??85),'invalid V78 pitch speed or individual limit');
@@ -66,6 +69,7 @@ function physical(raw:Record<string,unknown>,maximumPitchSpeedMps?:number){
     assert(Object.values(q).every(v=>bounded(v,-1,1))&&Math.abs(Math.hypot(q.w as number,q.x as number,q.y as number,q.z as number)-1)<=1e-8,'unit material orientation required');
   }
   if(Object.hasOwn(raw,'seamForce')){const seam=validateBaseballSeamForceV1(raw.seamForce);assert(seam.coefficientScale===0||raw.releaseOrientation!==undefined,'seam force requires an explicit material orientation');}
+  assert(!Object.hasOwn(raw,'usageWeightV1')||bounded(raw.usageWeightV1,0,1000),'invalid pitch usage weight');
   if(Object.hasOwn(raw,'movementV92')){
     const history=raw.movementV92;fields(history,['version','level','referenceSpinRadPerSecond'],['referenceSeamForce']);
     assert(raw.pitchType!=='fastball'&&history.version==='pitch_movement_v92'&&Number.isInteger(history.level)&&bounded(history.level,0,7),'invalid movement authoring history');
@@ -87,6 +91,8 @@ export function validatePitchSnapshotV78(raw:unknown,maximumPitchSpeedMps?:numbe
 export function validatePitchRepertoireV78(raw:unknown,maximumPitchSpeedMps?:number):PitchRepertoireV78{
   const value=cloneInert(raw);fields(value,['version','pitches']);assert(value.version==='pitch_repertoire_v78'&&Array.isArray(value.pitches)&&value.pitches.length>=1&&value.pitches.length<=32,'one to 32 owned pitches required');
   const seen=new Set<string>();for(const row of value.pitches){const pitch=validatePitchSnapshotV78(row,maximumPitchSpeedMps);assert(!seen.has(pitch.pitchId),'duplicate stable pitch ID');seen.add(pitch.pitchId);}
+  const weighted=(value.pitches as Record<string,unknown>[]).filter(row=>Object.hasOwn(row,'usageWeightV1'));
+  assert(weighted.length===0||weighted.length===value.pitches.length&&weighted.some(row=>(row.usageWeightV1 as number)>0),'usage weights go on every pitch, at least one positive');
   return freeze(value as unknown as PitchRepertoireV78);
 }
 export function validatePitchLibraryV78(raw:unknown):PitchLibraryV78{

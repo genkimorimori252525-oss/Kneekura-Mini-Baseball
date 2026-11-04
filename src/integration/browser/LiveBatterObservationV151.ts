@@ -65,6 +65,11 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   /** [chance, degrees, ms]: the hitter fails to tell the pitch from his expected fastball with chance x exp(-hypot(heading
    * turn/degrees, arrival delay/ms)) and then reads it as that fastball (its bend and arrival); replaces the fooled draw. */
   pitchRecognitionV1?:readonly number[];
+  /** [degrees, ms]: at the swing decision the hitter weighs every pitch the pitcher owns by how often he throws it times
+   * exp(-d^2/2), d = hypot(heading turn/degrees, lag at the same depth/ms) against that pitch released the same way, and reads
+   * the one drawn from those weights: his own pitch is read as it flies, another as that pitch (its bend and arrival).
+   * Only what is visible by then is used. Takes the place of pitchRecognitionV1 when both are given. */
+  pitchRecognitionV2?:readonly number[];
   /** Share of the remembered pitch kept in where the bat goes (0..1); the arrival time keeps the full prior.
    * Blending a quarter of the last pitches into the height made hitters top low pitches and pop up high ones. */
   priorPlacementShareV1?:number;
@@ -129,6 +134,7 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'lateLookByMeetOnlyV1')){keys.push('lateLookByMeetOnlyV1');assert(typeof p.lateLookByMeetOnlyV1==='boolean','invalid late look source');}
   if(Object.hasOwn(p,'barrelVibrationLossV1')){keys.push('barrelVibrationLossV1');assert(Array.isArray(p.barrelVibrationLossV1)&&(p.barrelVibrationLossV1.length===2||p.barrelVibrationLossV1.length===3)&&p.barrelVibrationLossV1.every((v:unknown,i:number)=>typeof v==='number'&&(i<2?v>=.01&&v<=1:v>=0&&v<1)),'invalid barrel vibration loss');}
   if(Object.hasOwn(p,'pitchRecognitionV1')){keys.push('pitchRecognitionV1');assert(Array.isArray(p.pitchRecognitionV1)&&p.pitchRecognitionV1.length===3&&p.pitchRecognitionV1[0]>=0&&p.pitchRecognitionV1[0]<=1&&p.pitchRecognitionV1[1]>0&&p.pitchRecognitionV1[1]<=30&&p.pitchRecognitionV1[2]>0&&p.pitchRecognitionV1[2]<=300,'invalid pitch recognition');}
+  if(Object.hasOwn(p,'pitchRecognitionV2')){keys.push('pitchRecognitionV2');assert(Array.isArray(p.pitchRecognitionV2)&&p.pitchRecognitionV2.length===2&&p.pitchRecognitionV2[0]>0&&p.pitchRecognitionV2[0]<=30&&p.pitchRecognitionV2[1]>0&&p.pitchRecognitionV2[1]<=500,'invalid pitch recognition v2');}
   if(Object.hasOwn(p,'accelerationViewTimeV1')){keys.push('accelerationViewTimeV1');assert(typeof p.accelerationViewTimeV1==='number'&&p.accelerationViewTimeV1>=.01&&p.accelerationViewTimeV1<=2,'invalid acceleration view time');}
   if(Object.hasOwn(p,'accelerationPriorWeightV1')){keys.push('accelerationPriorWeightV1');assert(typeof p.accelerationPriorWeightV1==='number'&&p.accelerationPriorWeightV1>=0&&p.accelerationPriorWeightV1<=1,'invalid acceleration prior weight');}
   if(Object.hasOwn(p,'visionJudgmentV1')){keys.push('visionJudgmentV1');assert(Array.isArray(p.visionJudgmentV1)&&p.visionJudgmentV1.length===2&&p.visionJudgmentV1[0]>0&&p.visionJudgmentV1[0]<=.2&&p.visionJudgmentV1[1]>=5&&p.visionJudgmentV1[1]<=500,'invalid vision judgment');}
