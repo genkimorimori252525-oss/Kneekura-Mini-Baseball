@@ -226,6 +226,10 @@ export function buildLivePostPlayFramesV115(input:Readonly<{
 const positions:readonly LivePositionV1[]=['P','C','1B','2B','3B','SS','LF','CF','RF'];
 const zero=():Vec3=>({x:0,y:0,z:0});
 const baseSide=27.432/Math.sqrt(2);
+/** Measured on 2025 MLB grounders replayed from the batter's side (2026-11-04): infield 4 degrees, outfield 0, and the second
+ * baseman 6 more against a left-handed batter put the left, centre and right grounder hit rates within about 1.5 standard
+ * errors of MLB; without it centre was .18 low and the right side .17 high. */
+export const LIVE_FIELD_SHADE_CALIBRATION_V1=Object.freeze({infieldPullDegrees:4,outfieldPullDegrees:0,secondBaseLeftyExtraDegrees:6});
 /** fieldShadeV1: the middle infielders, the third baseman and the outfielders turned about home toward the pull side, their
  * distance from home kept. The first baseman stays where the bag needs him, and the pitcher and catcher stay. */
 function shadedPlacementsV1(base:Readonly<Record<LivePositionV1,Vec3>>,shade:Readonly<{infieldPullDegrees:number;outfieldPullDegrees:number;secondBaseLeftyExtraDegrees?:number}>,bats:'R'|'L'){
@@ -534,8 +538,10 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
   };
   const readyFrame=():LiveMatchFrameV1=>{
     const c=current(),def=input.teams[1-c.team],batter=players.get(c.batterPlayerId)!;
+    // The fielders stand where they will start the play from, so a shade does not jump them at contact.
+    const standing=input.fieldShadeV1?shadedPlacementsV1(placementsV1,input.fieldShadeV1,batter.bats):placementsV1;
     return frozen({tick:nextTick,ball:{position:{x:0,y:1.8,z:16.4},velocity:zero(),spin:zero(),orientation:IDENTITY_QUATERNION,visible:false},bat:null,
-      actors:[...positions.map(role=>({playerId:def.defense[role],role,team:1-c.team,position:{...placementsV1[role],y:0},velocity:zero()})),
+      actors:[...positions.map(role=>({playerId:def.defense[role],role,team:1-c.team,position:{...standing[role],y:0},velocity:zero()})),
         {playerId:c.batterPlayerId,role:'batter' as const,team:c.team,position:resolveLiveBattingSetupV94({heightMeters:batter.heightMeters,bats:batter.bats,...batter.physical}).bodyPosition,velocity:zero()},
         ...(['first','second','third'] as const).flatMap(name=>match.bases[name]?[{playerId:match.bases[name]!,role:'runner' as const,team:c.team,
           position:leadPositionV1(LIVE_MATCH_BASES_V1,name,leadOf(name,c.pitcherPlayerId)),velocity:zero()}]:[])],
