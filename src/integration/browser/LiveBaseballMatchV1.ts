@@ -139,7 +139,8 @@ export type LiveMatchInputV1 = Readonly<{seed:number;innings?:number;teams:reado
   forcedRunV1?:LiveForcedRunPolicyV1;
   /** Calibration: the fielders start turned about home toward the batter's pull side by these angles, so the defense meets
    * each side's batted balls where the league stands for them. Omission keeps one alignment for every batter. */
-  fieldShadeV1?:Readonly<{infieldPullDegrees:number;outfieldPullDegrees:number}>;
+  fieldShadeV1?:Readonly<{infieldPullDegrees:number;outfieldPullDegrees:number;
+    /** Against a left-handed batter the first baseman holds near his bag, so the second baseman turns this much further to fill the hole. */secondBaseLeftyExtraDegrees?:number}>;
   /** MATCH roots; per-play overrides are derived with the global pitch ordinal. */
   randomnessV152?:LiveRandomnessV152;
   measuredClips:readonly LiveMeasuredClipV1[];park?:Readonly<{fenceRadiusMeters:number;fenceHeightMeters:number;foulFenceRadiusMeters?:number;fenceShapeV1?:LiveFieldPlayInputV1['field']['fenceShapeV1'];groundMaterialV101?:BaseballGroundMaterial;
@@ -225,9 +226,9 @@ const zero=():Vec3=>({x:0,y:0,z:0});
 const baseSide=27.432/Math.sqrt(2);
 /** fieldShadeV1: the middle infielders, the third baseman and the outfielders turned about home toward the pull side, their
  * distance from home kept. The first baseman stays where the bag needs him, and the pitcher and catcher stay. */
-function shadedPlacementsV1(base:Readonly<Record<LivePositionV1,Vec3>>,shade:Readonly<{infieldPullDegrees:number;outfieldPullDegrees:number}>,bats:'R'|'L'){
+function shadedPlacementsV1(base:Readonly<Record<LivePositionV1,Vec3>>,shade:Readonly<{infieldPullDegrees:number;outfieldPullDegrees:number;secondBaseLeftyExtraDegrees?:number}>,bats:'R'|'L'){
   const turn=(p:Vec3,deg:number)=>{const a=(bats==='R'?-deg:deg)*Math.PI/180,c=Math.cos(a),s=Math.sin(a);return {x:p.x*c+p.z*s,y:p.y,z:-p.x*s+p.z*c};};
-  return Object.fromEntries((Object.keys(base) as LivePositionV1[]).map(role=>[role,['2B','3B','SS'].includes(role)?turn(base[role],shade.infieldPullDegrees)
+  return Object.fromEntries((Object.keys(base) as LivePositionV1[]).map(role=>[role,role==='2B'?turn(base[role],shade.infieldPullDegrees+(bats==='L'?shade.secondBaseLeftyExtraDegrees??0:0)):['3B','SS'].includes(role)?turn(base[role],shade.infieldPullDegrees)
     :['LF','CF','RF'].includes(role)?turn(base[role],shade.outfieldPullDegrees):base[role]])) as Record<LivePositionV1,Vec3>;
 }
 export const LIVE_MATCH_BASES_V1=Object.freeze({home:Object.freeze(zero()),first:Object.freeze({x:baseSide,y:0,z:baseSide}),
@@ -394,8 +395,8 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
   if(input.fieldRunValueV1!==undefined)validateLiveFieldRunValuePolicyV1(input.fieldRunValueV1);
   if(input.fieldKinematicsV1!==undefined)validateLiveFieldKinematicsPolicyV1(input.fieldKinematicsV1);
   if(input.forcedRunV1!==undefined)validateLiveForcedRunPolicyV1(input.forcedRunV1);
-  if(input.fieldShadeV1!==undefined&&!(Object.keys(input.fieldShadeV1).sort().join()==='infieldPullDegrees,outfieldPullDegrees'
-    &&[input.fieldShadeV1.infieldPullDegrees,input.fieldShadeV1.outfieldPullDegrees].every(d=>Number.isFinite(d)&&Math.abs(d)<=20)))throw Error('invalid fieldShadeV1');
+  if(input.fieldShadeV1!==undefined&&!(['infieldPullDegrees,outfieldPullDegrees','infieldPullDegrees,outfieldPullDegrees,secondBaseLeftyExtraDegrees'].includes(Object.keys(input.fieldShadeV1).sort().join())
+    &&[input.fieldShadeV1.infieldPullDegrees,input.fieldShadeV1.outfieldPullDegrees,input.fieldShadeV1.secondBaseLeftyExtraDegrees??0].every(d=>Number.isFinite(d)&&Math.abs(d)<=20)))throw Error('invalid fieldShadeV1');
   if(input.outfieldBreakV1!==undefined){validateLiveOutfieldBreakPolicyV1(input.outfieldBreakV1);if(!input.fieldKinematicsV1)throw Error('outfieldBreakV1 needs fieldKinematicsV1');}
   if(input.fieldAlignmentV1!==undefined){validateLiveFieldAlignmentPolicyV1(input.fieldAlignmentV1);if(!input.fieldRangeV1)throw Error('fieldAlignmentV1 needs fieldRangeV1');}
   if(input.battedBallReplaceV1!==undefined&&![input.battedBallReplaceV1.velocity,input.battedBallReplaceV1.spin].every(v=>v&&[v.x,v.y,v.z].every(Number.isFinite)))throw Error('battedBallReplaceV1 needs finite velocity and spin');
