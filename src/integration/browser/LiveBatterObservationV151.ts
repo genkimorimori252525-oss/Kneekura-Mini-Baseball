@@ -29,6 +29,16 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   /** The late adjustment comes from contact skill alone. Taking the larger of vision and contact let a good eye
    * rescue any swing, so strikeouts stopped rising with timing error. Vision still judges balls and strikes. */
   lateLookByMeetOnlyV1?:boolean;
+  // A late contact keeps the bat velocity of the clip's own contact moment: past it the measured motion carries the
+  // real swing's slowdown from its own ball.
+  postContactHoldV1?:boolean;
+  /** Metres from the sweet spot, [toward the tip, toward the handle], at which a wooden bat's ringing halves the
+   * normal restitution, and optionally the least share kept (Nathan 2000 levels off near a third toward the handle).
+   * The rigid bat keeps the same bounce along the whole barrel. */
+  barrelVibrationLossV1?:readonly number[];
+  /** Metres the swing aims the sweet spot below the ball's centre (0..0.05). Hitters who lift the ball meet it under centre,
+   * which gives line drives their backspin; aimed at the centre, a rising bat tops them. */
+  undercutAimV1?:number;
   /** Share of the remembered pitch kept in where the bat goes (0..1); the arrival time keeps the full prior.
    * Blending a quarter of the last pitches into the height made hitters top low pitches and pop up high ones. */
   priorPlacementShareV1?:number;
@@ -82,6 +92,9 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'priorFooledChanceV1')){keys.push('priorFooledChanceV1');assert(Number.isFinite(p.priorFooledChanceV1)&&p.priorFooledChanceV1!>=0&&p.priorFooledChanceV1!<=1,'invalid prior fooled chance');}
   if(Object.hasOwn(p,'priorPlacementShareV1')){keys.push('priorPlacementShareV1');assert(Number.isFinite(p.priorPlacementShareV1)&&p.priorPlacementShareV1!>=0&&p.priorPlacementShareV1!<=1,'invalid prior placement share');}
   if(Object.hasOwn(p,'lateLookByMeetOnlyV1')){keys.push('lateLookByMeetOnlyV1');assert(typeof p.lateLookByMeetOnlyV1==='boolean','invalid late look source');}
+  if(Object.hasOwn(p,'barrelVibrationLossV1')){keys.push('barrelVibrationLossV1');assert(Array.isArray(p.barrelVibrationLossV1)&&(p.barrelVibrationLossV1.length===2||p.barrelVibrationLossV1.length===3)&&p.barrelVibrationLossV1.every((v:unknown,i:number)=>typeof v==='number'&&(i<2?v>=.01&&v<=1:v>=0&&v<1)),'invalid barrel vibration loss');}
+  if(Object.hasOwn(p,'undercutAimV1')){keys.push('undercutAimV1');assert(typeof p.undercutAimV1==='number'&&p.undercutAimV1>=0&&p.undercutAimV1<=.05,'invalid undercut aim');}
+  if(Object.hasOwn(p,'postContactHoldV1')){keys.push('postContactHoldV1');assert(typeof p.postContactHoldV1==='boolean','invalid post-contact hold');}
   if(Object.hasOwn(p,'contactSpeedCeilingV1')){keys.push('contactSpeedCeilingV1');assert(typeof p.contactSpeedCeilingV1==='boolean','invalid contact speed ceiling');}
   if(Object.hasOwn(p,'twoStrikeExpansionV1')){keys.push('twoStrikeExpansionV1');assert(Number.isFinite(p.twoStrikeExpansionV1)&&p.twoStrikeExpansionV1!>=0&&p.twoStrikeExpansionV1!<=1,'invalid two strike expansion');}
   assert(p&&typeof p==='object'&&!Array.isArray(p)&&Object.keys(p).length===keys.length&&keys.every(key=>Object.hasOwn(p,key))

@@ -21,7 +21,7 @@ import { createSourceFreeBallKernel,type SourceFreeBallKernel } from '../../core
 import { createAeroGroundBallPhysicsProfile,type AeroGroundBallPhysicsV1 } from '../../core/sim/ball/VersionedBattedBallPhysics';
 import type { BallWorldMoment } from '../../core/sim/ball/BallWorldContinuation';
 import { sampleAerodynamicPitchStateAtElapsedSeconds } from '../../core/sim/pitching/AerodynamicPitchTrajectory';
-import { IDENTITY_QUATERNION, normalizeQuaternion, quaternionFromAxisAngle, type Quaternion } from '../../core/sim/pitching/BaseballOrientation';
+import { IDENTITY_QUATERNION, multiplyQuaternions, normalizeQuaternion, quaternionFromAxisAngle, rotateVectorByQuaternion, type Quaternion } from '../../core/sim/pitching/BaseballOrientation';
 import { createReferenceBatKinematicsV1,type ReferenceBatKinematicsInputV1 } from '../../core/sim/contact/ReferenceBatKinematicsV1';
 import { sampleAuthoredBatEnvelopePoseV133, type ReferenceBatEnvelopeV133 } from '../../core/sim/contact/ReferenceBatEnvelopeV133';
 import { validateImpactTrajectorySettingsV1, withReferenceImpactTrajectoryV1, DEFAULT_WHOLE_ARC_TRAJECTORY_V1 } from '../../core/sim/contact/ReferenceBatImpactTrajectoryV1';
@@ -517,7 +517,9 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     seed:randomStreamsV152?.seedFor('batterPerception','zone-recognition-v87')??input.seed,
     sourceTick:effectiveForecastV246?.observedThroughTick??observationTick,observationTick,planeZ:battingSetupV94.contactPlaneZ,standardDeviationMeters:judgmentStd,baselineErrorMeters:judgmentError,abilityBasis:'zoneJudgmentStdMeters'}),
     judgmentPosition={...prediction.ball.position,...batterRecognition.position},recognitionAimOffset=batterRecognition.diagnostics.biasMeters,
-    motorAimPosition=recognitionAimOffset.x===0&&recognitionAimOffset.y===0?placementPositionV1:{...placementPositionV1,x:placementPositionV1.x+recognitionAimOffset.x,y:placementPositionV1.y+recognitionAimOffset.y};
+    // undercutAimV1: a swing aims the sweet spot this far under the ball's centre, as hitters who lift the ball do.
+    undercutV1=input.batting==='bunt'?0:observationPolicyV151?.undercutAimV1??0,
+    motorAimPosition=recognitionAimOffset.x===0&&recognitionAimOffset.y===0&&undercutV1===0?placementPositionV1:{...placementPositionV1,x:placementPositionV1.x+recognitionAimOffset.x,y:placementPositionV1.y+recognitionAimOffset.y-undercutV1};
   const inChaseEnvelope=Math.abs(judgmentPosition.x)<=zone.halfWidth+b.chaseMarginMeters
     &&judgmentPosition.y>=zone.lowerY-b.chaseMarginMeters&&judgmentPosition.y<=zone.upperY+b.chaseMarginMeters,
     zoneMargin=Math.min(zone.halfWidth-Math.abs(judgmentPosition.x),judgmentPosition.y-zone.lowerY,zone.upperY-judgmentPosition.y),
@@ -1079,7 +1081,22 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     call:'ball'|'called_strike'|'swinging_strike'|null=null,endElapsedSeconds=catcherAt,secureTick:number|null=null,unsupportedReason:string|null=null;
   if(batHit?.kind==='unresolved'){unsupportedReason='bat_contact_refinement_required';endElapsedSeconds=batHit.from;}
   else if(batHit?.kind==='hit'){
-    const at=kernel.evaluateAt(batHit.at,'incoming'),impactBall=(opticalExperiment?.kernel as unknown as {legacyVelocityAt?:(t:number)=>Vec3}|undefined)?.legacyVelocityAt?{...at.moment.ball,velocity:(opticalExperiment!.kernel as unknown as {legacyVelocityAt:(t:number)=>Vec3}).legacyVelocityAt(batHit.at)}:at.moment.ball;const impactBat=rigidAt(batHit.at),impactSweetSpeed=norm(batSample(batHit.at).sweetSpotVelocity),impactLimit=observationPolicyV151?.impactSpeedLimitV1!==undefined&&b.targetSweetSpotSpeedMps!==undefined?b.targetSweetSpotSpeedMps*(observationPolicyV151.targetSpeedScaleV1??1)*observationPolicyV151.impactSpeedLimitV1:Infinity,impactScale=impactSweetSpeed>impactLimit?impactLimit/impactSweetSpeed:1;contact=resolveWoodBatSpeedProfileBallContact(impactBall,impactScale===1?impactBat:{...impactBat,centerOfMassVelocity:mul(impactBat.centerOfMassVelocity,impactScale),angularVelocity:mul(impactBat.angularVelocity,impactScale)},ballPhysical,NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1);
+    const at=kernel.evaluateAt(batHit.at,'incoming'),impactBall=(opticalExperiment?.kernel as unknown as {legacyVelocityAt?:(t:number)=>Vec3}|undefined)?.legacyVelocityAt?{...at.moment.ball,velocity:(opticalExperiment!.kernel as unknown as {legacyVelocityAt:(t:number)=>Vec3}).legacyVelocityAt(batHit.at)}:at.moment.ball;const impactSample=batSample(batHit.at),heldV1=observationPolicyV151?.postContactHoldV1&&swingOffered&&input.batting!=='bunt'&&!buntMotor&&impactSample.sourceTick>sourceContactTick?(()=>{
+      // Carry the clip's contact-moment velocities into the late pose, in the bat's own frame.
+      const at=reference.sampleAtSourceTick(sourceContactTick,'incoming'),turn=multiplyQuaternions(impactSample.orientation,{w:at.orientation.w,x:-at.orientation.x,y:-at.orientation.y,z:-at.orientation.z}),
+        linearVelocity=rotateVectorByQuaternion(at.state.linearVelocity,turn),angularVelocity=rotateVectorByQuaternion(at.state.angularVelocity,turn);
+      return {state:{...impactSample.state,linearVelocity,angularVelocity},sweetSpotVelocity:add(linearVelocity,cross(angularVelocity,sub(impactSample.sweetSpot,impactSample.state.pose.grip)))};})():null,
+      impactBat=heldV1?createRigidBatStateFromBatterSwingState(heldV1.state,batPhysical):rigidAt(batHit.at),impactSweetSpeed=norm((heldV1??impactSample).sweetSpotVelocity),impactLimit=observationPolicyV151?.impactSpeedLimitV1!==undefined&&b.targetSweetSpotSpeedMps!==undefined?b.targetSweetSpotSpeedMps*(observationPolicyV151.targetSpeedScaleV1??1)*observationPolicyV151.impactSpeedLimitV1:Infinity,impactScale=impactSweetSpeed>impactLimit?impactLimit/impactSweetSpeed:1;const impactBatScaled=impactScale===1?impactBat:{...impactBat,centerOfMassVelocity:mul(impactBat.centerOfMassVelocity,impactScale),angularVelocity:mul(impactBat.angularVelocity,impactScale)};
+    contact=resolveWoodBatSpeedProfileBallContact(impactBall,impactBatScaled,ballPhysical,NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1);
+    const vibrationV1=observationPolicyV151?.barrelVibrationLossV1;
+    if(contact&&vibrationV1){
+      // A wooden bat rings when struck away from its sweet spot and the ball keeps less of the bounce: the normal
+      // restitution halves at the given distance toward the tip or the handle. The rigid bat alone loses nothing there.
+      const pose=impactBatScaled.pose,axis=sub(pose.tip,pose.grip),length=norm(axis),along=dot(sub(contact.batSurfacePoint,pose.grip),axis)/length,
+        offset=along-(b.sweetSpotT??(b.batLengthM-.1524)/b.batLengthM)*length,half=offset>0?vibrationV1[0]!:vibrationV1[1]!,keep=Math.max(vibrationV1[2]??0,.5**((offset/half)**2));
+      if(keep<1)contact=resolveWoodBatSpeedProfileBallContact(impactBall,impactBatScaled,ballPhysical,{...NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1,
+        normalRestitutionKnots:NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1.normalRestitutionKnots.map(k=>({...k,normalRestitution:k.normalRestitution*keep}))});
+    }
     if(contact){contactMoment=at.moment;contactOrientation=at.materialOrientation??at.orientation;endElapsedSeconds=batHit.at;}
     else {unsupportedReason='separating_or_tangent_bat_contact_requires_continuation';endElapsedSeconds=batHit.at;}
   }else if(catcherHit?.kind==='unresolved'){unsupportedReason='catcher_contact_refinement_required';endElapsedSeconds=catcherHit.from;}
