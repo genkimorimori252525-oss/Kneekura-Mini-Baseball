@@ -11,7 +11,8 @@
 // Fit: spin rate is Statcast's. The break direction and the active (non-gyro) share of the spin are solved so that the
 // ball flown in LIVE_MATCH_PHYSICS_V1.air (no seam force) breaks by Statcast's horizontal and induced vertical inches.
 // Movement is taken over the whole flight from release to the front of the plate against a no-spin ball with the same
-// release velocity, as in tools/calibration/carry.ts (whether Statcast's own window is the same is to be confirmed).
+// release velocity, as in tools/calibration/carry.ts. Statcast's pfx is close to that: on 2024-06-01, half the induced
+// acceleration at 50 ft times the squared flight time gives 1.02-1.08 of pfx_z from release and 0.87-0.92 from 50 ft.
 // Gyro handedness is a hypothesis: for a right-hander, glove-side pitches spin clockwise seen from the pitcher (axis
 // toward the plate), arm-side pitches the other way; mirrored for a left-hander. KBM_GYRO_FLIP=1 flips it. The fit
 // keeps the movement either way; the active share moves by 5-10 points.
@@ -32,13 +33,13 @@ const TYPES: Record<string, [string, string]> = { FF: ['fastball', 'フォーシ
 const GLOVE_SIDE = new Set(['FC', 'SL', 'ST', 'SV', 'CU', 'KC', 'CS']);
 
 type Row = Record<string, string>;
-function readCsv(path: string): Row[] {
+export function readCsv(path: string): Row[] {
   const [head, ...lines] = readFileSync(path, 'utf8').trim().split(/\r?\n/), keys = head.split(',');
   return lines.map(line => { const cells: string[] = []; let cur = '', q = false;
     for (const ch of line) { if (ch === '"') q = !q; else if (ch === ',' && !q) { cells.push(cur); cur = ''; } else cur += ch; }
     cells.push(cur); return Object.fromEntries(keys.map((k, i) => [k, cells[i] ?? ''])); });
 }
-const num = (r: Row, k: string) => r[k] === '' || r[k] === undefined ? NaN : Number(r[k]);
+export const num = (r: Row, k: string) => r[k] === '' || r[k] === undefined ? NaN : Number(r[k]);
 
 /** Release in match coordinates: height above the mound surface, side toward the arm, extension off the rubber. */
 const releaseOf = (throws: 'R' | 'L', sideFt: number, heightFt: number, extFt: number): V =>
@@ -127,10 +128,10 @@ function pitchFrom(r: { throws: 'R' | 'L'; type: string; mph: number; rpm: numbe
       residualIn: +fit.residualIn.toFixed(2), activeShare: +fit.active.toFixed(3), clamped: fit.clamped,
       statcastAxis: r.axis, impliedAxis: +fit.impliedAxis.toFixed(1), axisGapDeg: Number.isFinite(r.axis) ? +angleGap(r.axis, fit.impliedAxis).toFixed(1) : null } };
 }
-const rowInput = (r: Row, throws: 'R' | 'L') => ({ throws, type: r.pitch_type, mph: num(r, 'speed_avg'), rpm: num(r, 'spin_rpm'),
+export const rowInput = (r: Row, throws: 'R' | 'L') => ({ throws, type: r.pitch_type, mph: num(r, 'speed_avg'), rpm: num(r, 'spin_rpm'),
   hIn: num(r, 'hmov_in'), vIn: num(r, 'vmov_in'), axis: num(r, 'spin_axis_norm_deg'),
   release: releaseOf(throws, num(r, 'rel_side_ft'), num(r, 'rel_height_ft'), num(r, 'extension_ft')) });
-const usable = (r: ReturnType<typeof rowInput>) => [r.mph, r.rpm, r.hIn, r.vIn, r.release.x, r.release.y, r.release.z].every(Number.isFinite) && r.rpm > 300;
+export const usable = (r: ReturnType<typeof rowInput>) => [r.mph, r.rpm, r.hIn, r.vIn, r.release.x, r.release.y, r.release.z].every(Number.isFinite) && r.rpm > 300;
 const physicalOf = (release: V, throws: 'R' | 'L') => ({ pitchReleaseHeightMeters: +(release.y - MOUND_Y).toFixed(4),
   pitchReleaseSideMeters: +Math.abs(release.x).toFixed(4), pitchReleaseExtensionMeters: +(RUBBER_Z - release.z).toFixed(4), throws });
 
