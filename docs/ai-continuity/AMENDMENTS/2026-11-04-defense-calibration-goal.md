@@ -50,5 +50,5 @@
 - 条件2 打球の処理: 打球の種類ごとには合った（試合の回転を借りて 安打率 .296／MLB .292、ライナー .629／.635、フライ .095／.113、本塁打 .048／.047）。方向の偏り（センターのゴロ不足、一二塁間・三遊間の抜けすぎ）が残る。打球の物理（衝突・回転・空力）は打撃担当が直し中。
 - 条件3 走塁: 単打で二塁走者の生還 .41〜.47（MLB .60）、二塁打が MLB の 66〜75%。runnerTurnV1 で少し改善。forcedRunV1 は効果なし。ライナーでの様子見（途中まで出る）が無いのが次の候補。
 - 条件4 カバーの揺れ: 直った（433b3d46）。fieldCoverV1 は成績を崩さず決め打ちを外せる。
-- 条件5 崩さない: 省略時のハッシュ一致を確認した版は e4c367af まで。以後の追加（fieldAlignmentV1・outfieldBreakV1・forcedRunV1・fieldShadeV1・battedBallReplaceV1・カバーの直し）も任意入力で、省略時の経路は変えていない（ハッシュ未確認）。
+- 条件5 崩さない: 219ae66f（以後の追加 fieldAlignmentV1・outfieldBreakV1・forcedRunV1・fieldShadeV1・battedBallReplaceV1・カバーの直しを全部含む）で、省略時の --hash=1 が e4c367af と一致（cfg-std 0e3a9e34…、守備位置ごとの体 9b5609b1…、seed 301、450球）。
 - 既定の候補（本人に聞く）: fieldCoverV1、runnerTurnV1、outfieldBreakV1（守備位置ごとの体と一緒に）。
