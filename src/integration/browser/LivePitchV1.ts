@@ -375,6 +375,38 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     ...(orderedLocationV1?{preferredLocationV1:orderedLocationV1}:{}),
     seed:randomStreamsV152?.seedFor('pitchTarget','target-plan-v111')??input.seed}):null;
   if(pitchTargetPlanV111){Object.assign(target,pitchTargetPlanV111.position);location=pitchTargetPlanV111.location;}
+  // zoneRateV1 on the pitch (the share of these pitches whose centre crosses the zone): the plan keeps its in-or-out choice
+  // for the count, leaned so the pitch reaches that share against the plan's own mean of one half. A pitch moved out leaves
+  // the zone the way it breaks from the fastball (the fastball itself the way its spin lifts it), 3-16 cm past the edge; one
+  // moved in comes to 3 cm inside the edge. Its own draws; omitted, nothing changes.
+  const zoneIntentV1=selectedSnapshot?.zoneRateV1===undefined||input.intentionalBallV1?null:(()=>{
+    const rate=selectedSnapshot.zoneRateV1,base=.5,rng=randomStreamsV152?.rng('pitchTarget','zone-intent-v1'),
+      root=rng?null:new SeedRoot(input.seed).streamRng(0,'batting','zone-intent-v1'),draw=()=>rng?rng.uniform():root!.nextFloat(),
+      planned={x:target.x,y:target.y},wasIn=Math.abs(target.x)<=zone.halfWidth&&target.y>=zone.lowerY&&target.y<=zone.upperY,u=draw(),margin=draw(),
+      wantIn=wasIn?u<Math.min(1,rate/base):u<Math.max(0,(rate-base)/(1-base));
+    if(wantIn===wasIn)return {rate,planned,moved:false as const,wantIn};
+    if(wantIn){target.x=clamp(target.x,-zone.halfWidth+.03,zone.halfWidth-.03);target.y=clamp(target.y,zone.lowerY+.03,zone.upperY-.03);location='zone';
+      return {rate,planned,moved:true as const,wantIn,direction:null};}
+    // Break direction at the plate: this pitch against the fastball (or a spinless ball for the fastball), both sent the same way.
+    const owned=p.pitchRepertoireV78===undefined?[]:validatePitchRepertoireV78(p.pitchRepertoireV78,p.maximumPitchSpeedMps).pitches,
+      fast=owned.find(row=>row.pitchType==='fastball')??owned.find(row=>['sinker','cutter'].includes(row.pitchType)),
+      release=resolveLivePitchReleaseV1(p).position,{seamForce:_zoneSeams,...zoneAero}=profile.air.aerodynamics,
+      zoneAir=profile.air.aerodynamics.seamForce===undefined?profile.air:{...profile.air,aerodynamics:zoneAero},
+      plateOf=(speed:number,spin:Vec3)=>{const guess=(release.z-target.z)/speed,
+        velocity={x:(target.x-release.x)/guess,y:(target.y-release.y-profile.air.gravityY*guess*guess/2)/guess,z:-speed};
+        let t=guess,at=sampleAerodynamicPitchStateAtElapsedSeconds({tick:input.originTick,position:release,velocity,spin},t,zoneAir);
+        for(let i=0;i<3;i++){t+=(target.z-at.position.z)/at.velocity.z;at=sampleAerodynamicPitchStateAtElapsedSeconds({tick:input.originTick,position:release,velocity,spin},t,zoneAir);}
+        return at.position;},
+      own=plateOf(selectedSnapshot.releaseSpeedMps,selectedSnapshot.spinRadPerSecond),
+      other=fast&&fast.pitchId!==selectedSnapshot.pitchId?plateOf(fast.releaseSpeedMps,fast.spinRadPerSecond):plateOf(selectedSnapshot.releaseSpeedMps,{x:0,y:0,z:0}),
+      dx=own.x-other.x,dy=own.y-other.y,length=Math.hypot(dx,dy),ux=length>1e-6?dx/length:0,uy=length>1e-6?dy/length:-1;
+    const sx=clamp(target.x,-zone.halfWidth,zone.halfWidth),sy=clamp(target.y,zone.lowerY,zone.upperY),
+      reach=Math.min(ux>0?(zone.halfWidth-sx)/ux:ux<0?(-zone.halfWidth-sx)/ux:Infinity,uy>0?(zone.upperY-sy)/uy:uy<0?(zone.lowerY-sy)/uy:Infinity),
+      past=.03+.13*margin;
+    target.x=sx+(reach+past)*ux;target.y=sy+(reach+past)*uy;
+    location=target.y<zone.lowerY?'low':target.y>zone.upperY?'high':target.x*batterSide>0?'inside':'outside';
+    return {rate,planned,moved:true as const,wantIn,direction:{x:ux,y:uy}};
+  })();
   // pitchTunnelV1 (0..1): a breaking ball thrown for a chase (low or outside) starts like a strike fastball. The look point is
   // the zone spot whose fastball path, shared to 7.25 m short of the plate, leaves this pitch closest to the planned spot; the
   // target moves that share of the way to where the tunnelled pitch ends. No draw is taken; spin, speed and air are unchanged.
@@ -1340,6 +1372,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       ...(pitchWorkloadV122?{pitchWorkloadV122:{...pitchWorkloadV122,nominalPlanRetained:true as const,timingApplication:'NOT_CONNECTED_RELEASE_ANCHORED_BROWSER_HOST' as const}}:{}),
       ...(pitchTargetPlanV111?{pitchTargetPlanV111:pitchTargetPlanV111.diagnostics}:{}),
       ...(pitchTunnelPlanV1?{pitchTunnelPlanV1}:{}),
+      ...(zoneIntentV1?{zoneIntentV1}:{}),
       ...(recognitionV2?{pitchRecognitionV2:{recognized:recognitionV2.recognized,readId:recognitionV2.readId,actualId:recognitionV2.actualId,posterior:recognitionV2.posterior}}:{}),
       ...(batPlaybackV88===undefined?{}:{batPlaybackV88}),
       courseRecognitionV87:{batter:{...batterRecognition.diagnostics,requestedPosition:prediction.ball.position,selectedPosition:motorAimPosition,requestedCourseId:batterRecognition.diagnostics.predictedCourseId,selectedCourseId:batterRecognition.diagnostics.courseId,reason:!deliveredPredictionV151?'no_delivered_prediction_holding_pose':input.batting==='take'||b.swingDecision?.approach==='TAKE'?'manual_take_retained':b.swingDecision?.approach==='SWING'?'forced_swing_retained':'perceived_course_swing_and_aim'},

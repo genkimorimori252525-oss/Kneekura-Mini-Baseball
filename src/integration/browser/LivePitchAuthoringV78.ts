@@ -15,7 +15,9 @@ export type PitchPhysicalSettingsV78 = Readonly<{ releaseSpeedMps: number; spinR
   releaseOrientation?: Quaternion; seamForce?: BaseballSeamForceV1; movementV92?: PitchMovementHistoryV92;
   /** How often the pitcher throws it when he picks his own pitch (any non-negative scale, e.g. Statcast usage %).
    * A repertoire gives it on every pitch or on none; omitted, every pitch weighs 1 as before. */
-  usageWeightV1?: number }>;
+  usageWeightV1?: number;
+  /** Share of these pitches whose centre crosses the strike zone (Statcast zone 1-9 rate, 0..1). Omitted, the plan alone. */
+  zoneRateV1?: number }>;
 export type PitchSnapshotV78 = PitchPhysicalSettingsV78 & Readonly<{ pitchId: string; name: string; pitchType: LivePitchTypeV78;
   source: Readonly<{ kind: 'preset' | 'original'; id: string; revision: number }> }>;
 export type PitchRepertoireV78 = Readonly<{ version: 'pitch_repertoire_v78'; pitches: readonly PitchSnapshotV78[] }>;
@@ -58,7 +60,7 @@ const validName=(v:unknown):v is string=>typeof v==='string'&&v.length>0&&v.leng
 function fields(raw:unknown,required:readonly string[],optional:readonly string[]=[]):asserts raw is Record<string,unknown>{
   assert(raw&&typeof raw==='object'&&!Array.isArray(raw)&&required.every(k=>Object.hasOwn(raw,k))&&Object.keys(raw).every(k=>required.includes(k)||optional.includes(k)),'unknown or missing fields');
 }
-const physicalRequired=['releaseSpeedMps','spinRadPerSecond'],physicalOptional=['releaseOrientation','seamForce','movementV92','usageWeightV1'];
+const physicalRequired=['releaseSpeedMps','spinRadPerSecond'],physicalOptional=['releaseOrientation','seamForce','movementV92','usageWeightV1','zoneRateV1'];
 function physical(raw:Record<string,unknown>,maximumPitchSpeedMps?:number){
   assert(maximumPitchSpeedMps===undefined||bounded(maximumPitchSpeedMps,15,85),'invalid maximum pitch speed');
   assert(bounded(raw.releaseSpeedMps,5,85)&&raw.releaseSpeedMps<=(maximumPitchSpeedMps??85),'invalid V78 pitch speed or individual limit');
@@ -70,6 +72,7 @@ function physical(raw:Record<string,unknown>,maximumPitchSpeedMps?:number){
   }
   if(Object.hasOwn(raw,'seamForce')){const seam=validateBaseballSeamForceV1(raw.seamForce);assert(seam.coefficientScale===0||raw.releaseOrientation!==undefined,'seam force requires an explicit material orientation');}
   assert(!Object.hasOwn(raw,'usageWeightV1')||bounded(raw.usageWeightV1,0,1000),'invalid pitch usage weight');
+  assert(!Object.hasOwn(raw,'zoneRateV1')||bounded(raw.zoneRateV1,0,1),'invalid pitch zone rate');
   if(Object.hasOwn(raw,'movementV92')){
     const history=raw.movementV92;fields(history,['version','level','referenceSpinRadPerSecond'],['referenceSeamForce']);
     assert(raw.pitchType!=='fastball'&&history.version==='pitch_movement_v92'&&Number.isInteger(history.level)&&bounded(history.level,0,7),'invalid movement authoring history');
