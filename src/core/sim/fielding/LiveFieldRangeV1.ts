@@ -50,6 +50,17 @@ export function validateLiveRunnerSafeLeadPolicyV1(policy:LiveRunnerSafeLeadPoli
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid runner safe lead policy');
   return policy;
 }
+/** Opt-in. Omission readies a receiver's glove for a glove toss as if it came from a throwing hand. */
+export type LiveTossReceivePolicyV1=Readonly<{version:'live_toss_receive_policy_v1';sourceId:string}>;
+export const LIVE_TOSS_RECEIVE_POLICY_V1:LiveTossReceivePolicyV1=Object.freeze({version:'live_toss_receive_policy_v1',sourceId:'toss-receive-v1-physics'});
+/** A receiver waits with his glove on the line the ball will come in along. A throw leaves from the hand, at least a hand's
+ * height above the hip; a glove toss leaves from the glove, wherever the glove holds the ball. Readying for a hand throw held
+ * the glove 0.3 m over a flick that left from 1.2 m, and a pitcher 1.4 m away let it under (2026-11-04, a shaded MLB grounder). */
+export function validateLiveTossReceivePolicyV1(policy:LiveTossReceivePolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_toss_receive_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid toss receive policy');
+  return policy;
+}
 /** Opt-in. Omission keeps every runner, the batter too, waiting until the man on the bag ahead has left it. */
 export type LiveForcedRunPolicyV1=Readonly<{version:'live_forced_run_policy_v1';sourceId:string}>;
 export const LIVE_FORCED_RUN_POLICY_V1:LiveForcedRunPolicyV1=Object.freeze({version:'live_forced_run_policy_v1',sourceId:'forced-run-v1-rule'});
