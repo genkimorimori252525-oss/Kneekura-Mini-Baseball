@@ -73,6 +73,9 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   /** Standard deviation of the hitter's relative error in the ball's speed at the swing decision (0..0.3). Reading it faster
    * than it is, he expects it sooner and higher (it has less time to drop), slower the other way; one error moves both. */
   speedPerceptionV1?:number;
+  /** The pitch target plan's choice temperature in runs (0.0005..0.5). Given, the plan forecasts the MLB hitter (swing by count,
+   * contact, fouls and run value by region, a walk at its wOBA weight) and draws a spot on exp(-(cost - best) / temperature). */
+  pitchTargetPlanV2?:number;
   /** Share of the remembered pitch kept in where the bat goes (0..1); the arrival time keeps the full prior.
    * Blending a quarter of the last pitches into the height made hitters top low pitches and pop up high ones. */
   priorPlacementShareV1?:number;
@@ -138,6 +141,7 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'barrelVibrationLossV1')){keys.push('barrelVibrationLossV1');assert(Array.isArray(p.barrelVibrationLossV1)&&(p.barrelVibrationLossV1.length===2||p.barrelVibrationLossV1.length===3)&&p.barrelVibrationLossV1.every((v:unknown,i:number)=>typeof v==='number'&&(i<2?v>=.01&&v<=1:v>=0&&v<1)),'invalid barrel vibration loss');}
   if(Object.hasOwn(p,'pitchRecognitionV1')){keys.push('pitchRecognitionV1');assert(Array.isArray(p.pitchRecognitionV1)&&p.pitchRecognitionV1.length===3&&p.pitchRecognitionV1[0]>=0&&p.pitchRecognitionV1[0]<=1&&p.pitchRecognitionV1[1]>0&&p.pitchRecognitionV1[1]<=30&&p.pitchRecognitionV1[2]>0&&p.pitchRecognitionV1[2]<=300,'invalid pitch recognition');}
   if(Object.hasOwn(p,'pitchRecognitionV2')){keys.push('pitchRecognitionV2');assert(Array.isArray(p.pitchRecognitionV2)&&p.pitchRecognitionV2.length===2&&p.pitchRecognitionV2[0]>0&&p.pitchRecognitionV2[0]<=30&&p.pitchRecognitionV2[1]>0&&p.pitchRecognitionV2[1]<=500,'invalid pitch recognition v2');}
+  if(Object.hasOwn(p,'pitchTargetPlanV2')){keys.push('pitchTargetPlanV2');assert(typeof p.pitchTargetPlanV2==='number'&&p.pitchTargetPlanV2>=.0005&&p.pitchTargetPlanV2<=.5,'invalid pitch target plan v2');}
   if(Object.hasOwn(p,'speedPerceptionV1')){keys.push('speedPerceptionV1');assert(typeof p.speedPerceptionV1==='number'&&p.speedPerceptionV1>=0&&p.speedPerceptionV1<=.3,'invalid speed perception');}
   if(Object.hasOwn(p,'accelerationViewTimeV1')){keys.push('accelerationViewTimeV1');assert(typeof p.accelerationViewTimeV1==='number'&&p.accelerationViewTimeV1>=.01&&p.accelerationViewTimeV1<=2,'invalid acceleration view time');}
   if(Object.hasOwn(p,'accelerationPriorWeightV1')){keys.push('accelerationPriorWeightV1');assert(typeof p.accelerationPriorWeightV1==='number'&&p.accelerationPriorWeightV1>=0&&p.accelerationPriorWeightV1<=1,'invalid acceleration prior weight');}
