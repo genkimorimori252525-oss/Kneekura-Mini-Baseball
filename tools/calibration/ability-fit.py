@@ -19,11 +19,12 @@ spec = importlib.util.spec_from_file_location('ot', os.path.join(here, 'outcome-
 ot = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(ot)
 KEYS = ['contact', 'power', 'vision', 'run', 'attackAngleDegrees']
-STATS = ['k', 'bb', 'iso', 'babip', 'hr']
+STATS = ['k', 'bb', 'iso', 'babip', 'hr', 'gb', 'fb']   # gb, fb: shares of balls in play under 10 and at 25-50 degrees
 
 
 DEGREE = 2
 BATS = False
+LOG_STATS = set()
 
 
 def terms(x, degree=None):
@@ -61,7 +62,7 @@ def batter_stats(files, predict, role='batter'):
             s = r.get('scoring')
             if not s or s == 'plate_appearance_continues' or s == 'unresolved' and not r.get('exit'):
                 continue
-            a = acc.setdefault(r[role], dict(pa=0, k=0, bb=0, hbp=0, hits=0.0, bases=0.0, hr=0.0, bip=0.0))
+            a = acc.setdefault(r[role], dict(pa=0, k=0, bb=0, hbp=0, hits=0.0, bases=0.0, hr=0.0, bip=0.0, gb=0, fb=0, air=0))
             a['pa'] += 1
             if s == 'strikeout': a['k'] += 1
             elif s == 'walk': a['bb'] += 1
@@ -70,6 +71,7 @@ def batter_stats(files, predict, role='batter'):
                 if abs(r['exit']['spray']) > 45:
                     a['bip'] += 1
                     continue
+                la = r['exit']['launch']; a['air'] += 1; a['gb'] += la < 10; a['fb'] += 25 <= la < 50
                 p = predict(*ot.key(r))
                 a['hits'] += 1 - p[0]; a['bases'] += sum(i * p[i] for i in range(5)); a['hr'] += p[4]; a['bip'] += 1
     out = {}
@@ -78,7 +80,8 @@ def batter_stats(files, predict, role='batter'):
         if a['pa'] < 10 or ab <= 0:
             continue
         out[pid] = dict(pa=a['pa'], k=a['k'] / a['pa'], bb=a['bb'] / a['pa'], iso=(a['bases'] - a['hits']) / ab,
-                        babip=(a['hits'] - a['hr']) / max(1, a['bip'] - a['hr']), hr=a['hr'] / a['pa'])
+                        babip=(a['hits'] - a['hr']) / max(1, a['bip'] - a['hr']), hr=a['hr'] / a['pa'],
+                        gb=a['gb'] / max(1, a['air']), fb=a['fb'] / max(1, a['air']))
     return out
 
 
@@ -110,23 +113,27 @@ def fit(abil_path, pattern, table_path, out_path, role='batter'):
         t = [terms([(x - m) / s for x, m, s in zip(r[0], mean, sd)]) for r in rows]
         w = [r[1]['pa'] for r in rows]
         a = [[sum(w[n] * t[n][i] * t[n][j] for n in range(len(t))) for j in range(len(t[0]))] for i in range(len(t[0]))]
-        b = [sum(w[n] * t[n][i] * rows[n][1][stat] for n in range(len(t))) for i in range(len(t[0]))]
+        # --log fits log(stat + .01) for ISO and home runs, which grow about as a product of the abilities.
+        f, g = (lambda y: math.log(y + .01), lambda y: math.exp(y) - .01) if stat in LOG_STATS else (lambda y: y, lambda y: y)
+        b = [sum(w[n] * t[n][i] * f(rows[n][1][stat]) for n in range(len(t))) for i in range(len(t[0]))]
         coef[stat] = solve(a, b)
-        pred = [sum(c * v for c, v in zip(coef[stat], tt)) for tt in t]
+        pred = [g(sum(c * v for c, v in zip(coef[stat], tt))) for tt in t]
         resid = [(rows[n][1][stat] - pred[n]) for n in range(len(t))]
         # Residual against what pure sampling noise allows, so a surface that fits as well as chance shows about 1.
-        # Sampling variance from the fitted rate, so a hitter with no walks in a short sample is not taken as exact.
-        noise = [max(1e-6, min(max(pred[n], .002), .998) * (1 - min(max(pred[n], .002), .998)) / rows[n][1]['pa']) for n in range(len(t))] if stat != 'iso' else [max(1e-6, .25 / rows[n][1]['pa']) for n in range(len(t))]
+        # Sampling variance from the fitted rate, so a hitter with no walks in a short sample is not taken as exact. ISO's per-PA
+        # variance grows with power (extra bases of 1-3 per hit): about .1 + 1.6 ISO (.35 at the MLB ISO of .156).
+        noise = [max(1e-6, min(max(pred[n], .002), .998) * (1 - min(max(pred[n], .002), .998)) / rows[n][1]['pa']) for n in range(len(t))] if stat != 'iso' else [max(1e-6, (.1 + 1.6 * max(pred[n], 0)) / rows[n][1]['pa']) for n in range(len(t))]
         print(stat, 'batters', len(rows), 'RMS z', round(math.sqrt(sum(r * r / v for r, v in zip(resid, noise)) / len(resid)), 2))
     lo = [min(r[0][i] for r in rows) for i in range(len(KEYS))]
     hi = [max(r[0][i] for r in rows) for i in range(len(KEYS))]
-    json.dump({'keys': KEYS, 'mean': mean, 'sd': sd, 'coef': coef, 'degree': DEGREE, 'lo': lo, 'hi': hi}, open(out_path, 'w'), indent=1)
+    json.dump({'keys': KEYS, 'mean': mean, 'sd': sd, 'coef': coef, 'degree': DEGREE, 'lo': lo, 'hi': hi, 'log': sorted(LOG_STATS)}, open(out_path, 'w'), indent=1)
 
 
 def evaluate(surface, x):
     z = [(v - m) / s for v, m, s in zip(x, surface['mean'], surface['sd'])]
     t = terms(z, surface.get('degree', 2))
-    return {stat: sum(c * v for c, v in zip(surface['coef'][stat], t)) for stat in STATS}
+    logs = set(surface.get('log', []))
+    return {stat: (math.exp(y) - .01 if stat in logs else y) for stat, y in ((stat, sum(c * v for c, v in zip(coef, t))) for stat, coef in surface['coef'].items())}
 
 
 def invert(surface_path, targets_path, out_path):
@@ -141,10 +148,14 @@ def invert(surface_path, targets_path, out_path):
     out = {}
     for pid, t in targets.items():
         # Regress toward the league mean by plate appearances, then fit by coordinate search.
+        # A measured ability can also be a prior ("prior": {"power": [centre, sd]}): the search stays near the measurement and
+        # leaves it only as far as the stats demand, so what the game's physics lacks is covered without dropping the measurement.
+        prior = [(surface['keys'].index(k), c, d) for k, (c, d) in t.get('prior', {}).items()]
         def loss(x):
             p = evaluate(surface, x)
             return sum(((p[s] - t[s]) / max(.005, math.sqrt(max(t[s], .01) * (1 - min(t[s], .99)) / max(t.get('pa', 400), 50)))) ** 2 for s in STATS if s in t) \
-                + sum(((v - m) / s) ** 2 for v, m, s in zip(x, surface['mean'], surface['sd'])) * 0.05
+                + sum(((v - m) / s) ** 2 for v, m, s in zip(x, surface['mean'], surface['sd'])) * 0.05 \
+                + sum(((x[i] - c) / d) ** 2 for i, c, d in prior)
         # Abilities measured directly (run from sprint speed) stay fixed; the search moves the rest.
         fixed = {surface['keys'].index(k): v for k, v in t.get('fixed', {}).items()}
         x = [fixed.get(i, m) for i, m in enumerate(surface['mean'])]
@@ -162,7 +173,7 @@ def invert(surface_path, targets_path, out_path):
                 step = [s / 2 for s in step]
                 if max(step) < 0.05:
                     break
-        out[pid] = {'abilities': dict(zip(surface['keys'], [round(v, 1) for v in x])), 'predicted': {k: round(v, 4) for k, v in evaluate(surface, x).items()}, 'target': t}
+        out[pid] = {'abilities': dict(zip(surface['keys'], [round(v, 4) for v in x])), 'predicted': {k: round(v, 4) for k, v in evaluate(surface, x).items()}, 'target': t}
     json.dump(out, open(out_path, 'w'), ensure_ascii=False, indent=1)
     print('players', len(out))
 
@@ -172,6 +183,7 @@ if __name__ == '__main__':
         role = next((a.split('=', 1)[1] for a in sys.argv if a.startswith('--role=')), 'batter')
         DEGREE = int(next((a.split('=', 1)[1] for a in sys.argv if a.startswith('--degree=')), '2'))
         BATS = '--bats' in sys.argv
+        LOG_STATS = {'iso', 'hr'} if '--log' in sys.argv else set()
         fit(*[a for a in sys.argv[2:] if not a.startswith('--')][:4], role=role)
     else:
         invert(*sys.argv[2:5])

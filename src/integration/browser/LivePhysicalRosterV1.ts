@@ -37,6 +37,9 @@ export type LivePhysicalAbilityControlsV1 = LiveFielderBodyControlsV105 & LiveAt
   maximumPitchSpeedMps?: number; maximumSweetSpotSpeedMps?: number; targetSweetSpotSpeedMps?: number;
   motorLatencySeconds?: number; technicalTimingOffsetSeconds?: number; sweetSpotT?: number;
   attackAngleDegrees?: number; pullAngleDegrees?: number; badBallControl?: number; defensiveDecisionSeconds?: number;
+  /** Metres the swing aims the sweet spot under the ball's centre, the hitter's own lift apart from his bat path; omitted,
+   * the match's undercutAimV1 applies. */
+  undercutAimMeters?: number;
   /** Field-only response multiplier. Omission is neutral; runner reaction is independent. */
   fieldingReactionScaleV98?: number;
   transferDelayMaxSecondsV101?: number;
@@ -84,7 +87,7 @@ const scalarKeys = ['batLengthM', 'batMassKg', 'swingRate', 'timingStdSeconds', 
   'commandStdMeters', 'reactionSeconds', 'topSpeedMps', 'accelerationMps2', 'gloveSpeedMps', 'gloveReachMeters', 'gloveRadiusMeters',
   'retentionCapacityJ', 'captureDissipationPowerW', 'transferSeconds', 'throwSpeedMps', 'maximumPitchSpeedMps',
   'maximumSweetSpotSpeedMps', 'targetSweetSpotSpeedMps', 'motorLatencySeconds', 'technicalTimingOffsetSeconds', 'sweetSpotT',
-  'attackAngleDegrees', 'pullAngleDegrees', 'badBallControl', 'defensiveDecisionSeconds', 'preContactSeconds', 'followThroughSeconds', 'contactDepthMeters', 'throwDirectionStdRadians', 'zoneJudgmentStdMeters',
+  'attackAngleDegrees', 'undercutAimMeters', 'pullAngleDegrees', 'badBallControl', 'defensiveDecisionSeconds', 'preContactSeconds', 'followThroughSeconds', 'contactDepthMeters', 'throwDirectionStdRadians', 'zoneJudgmentStdMeters',
   'baserunningSafetyMarginSeconds', 'fieldingPursuitCostWeight', 'baserunningTurnRadiusMeters', 'baserunningLateralAccelerationMps2', 'plateVision',
   'pitchReleaseHeightMeters', 'pitchReleaseSideMeters', 'pitchReleaseExtensionMeters', 'minimumSpinRatio', 'fieldingReactionScaleV98', 'transferDelayMaxSecondsV101', 'throwEffortBuildSecondsV103',
   'fieldArmReachMetersV105', 'fieldShoulderHeightRatioV105', 'fieldEyeHeightRatioV105', 'fieldCrouchFractionV105',
@@ -96,7 +99,7 @@ const bounds: Partial<Record<typeof scalarKeys[number], readonly [number, number
   gloveSpeedMps: [.1, 40], gloveReachMeters: [.4, 3], gloveRadiusMeters: [.03, .3], retentionCapacityJ: [1, 2000],
   captureDissipationPowerW: [10, 1e6], maximumSweetSpotSpeedMps: [.1, 90], targetSweetSpotSpeedMps: [.1, 90],
   motorLatencySeconds: [0, 2], technicalTimingOffsetSeconds: [-.5, .5], sweetSpotT: [.65, .9],
-  attackAngleDegrees: [-80, 80], pullAngleDegrees: [-80, 80], badBallControl: [0, 1],
+  attackAngleDegrees: [-80, 80], undercutAimMeters: [-.05, .08], pullAngleDegrees: [-80, 80], badBallControl: [0, 1],
   preContactSeconds: [.005, 2], followThroughSeconds: [.005, 2], contactDepthMeters: [.001, 2],
   throwDirectionStdRadians: [0, .12],
   zoneJudgmentStdMeters: [0, .6],

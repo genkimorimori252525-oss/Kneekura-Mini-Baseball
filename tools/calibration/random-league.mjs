@@ -3,10 +3,12 @@
 // usage: node tools/calibration/random-league.mjs <native.js> <base-config.json> <out-dir> <leagues> [seed] [--pitchers]
 // Writes <out-dir>/league-<i>.json and <out-dir>/abilities.json ({league: {playerId: {contact, power, vision, run, attackAngleDegrees}}}).
 // --pitchers leaves the batters as they are and draws the two starting pitchers' speed and control instead.
+// --undercut also draws each batter's undercutAimMeters (-0.01..0.035 m), recorded in abilities.json as 'undercut'.
 import {mkdirSync, readFileSync, writeFileSync} from 'node:fs';
 import {loadCore, makeRoster} from '../maker/kbm-maker.mjs';
 
 const args = process.argv.slice(2).filter(a => !a.startsWith('--')), pitchers = process.argv.includes('--pitchers');
+const undercutRange = process.argv.includes('--undercut') ? [-.01, .035] : null;
 const [nativePath, basePath, outDir, leagues = '10', seedText = '1'] = args;
 const core = loadCore(nativePath), base = JSON.parse(readFileSync(basePath, 'utf8'));
 let state = Number(seedText) >>> 0 || 1;
@@ -30,8 +32,10 @@ for (let league = 0; league < Number(leagues); league++) {
   if (!pitchers) for (const team of base.teams) for (const playerId of team.battingOrder) {
     const a = {contact: pick(RANGE.contact), power: pick(RANGE.power), vision: pick(RANGE.vision), run: pick(RANGE.run)};
     const attackAngleDegrees = pick(ANGLE);
-    spec.players[playerId] = {abilities: a, attackAngleDegrees};
-    drawn[playerId] = {...a, attackAngleDegrees};
+    // --undercut also draws each hitter's own aim under the ball (metres), his lift apart from the bat path.
+    const undercut = undercutRange ? Math.round((undercutRange[0] + (undercutRange[1] - undercutRange[0]) * uniform()) * 10000) / 10000 : undefined;
+    spec.players[playerId] = {abilities: a, attackAngleDegrees, ...(undercut === undefined ? {} : {physical: {undercutAimMeters: undercut}})};
+    drawn[playerId] = {...a, attackAngleDegrees, ...(undercut === undefined ? {} : {undercut})};
   }
   const made = makeRoster(core, base, spec), byId = new Map(made.roster.entries.map(e => [e.playerId, e]));
   const out = {...base, players: made.players.map(p => ({...p, physical: byId.get(p.playerId).physical}))};

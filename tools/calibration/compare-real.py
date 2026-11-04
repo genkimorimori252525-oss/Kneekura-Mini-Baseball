@@ -15,7 +15,7 @@ sys.argv, args = ['x'], sys.argv[1:]
 spec.loader.exec_module(af)
 truth = json.load(open(args[0], encoding='utf8'))
 sim = af.batter_stats(glob.glob(args[2]), af.ot.predictor(json.load(open(args[1]))))
-keys = ['k', 'bb', 'iso', 'babip', 'hr']
+keys = [k for k in ['k', 'bb', 'iso', 'babip', 'hr', 'gb', 'fb'] if all(k in t for t in truth.values())]
 print('name'.ljust(18), 'PA ', '  '.join(f'{k:>13}' for k in keys), ' (real/sim)')
 for slot, t in truth.items():
     s = sim.get(slot)
