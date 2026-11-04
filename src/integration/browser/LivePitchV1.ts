@@ -558,7 +558,22 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
         posterior:weighed.map(c=>({id:c.id,share:c.weight/total,turnDegrees:c.turnDegrees,lagMs:c.lagMs}))};
     })(),
     recognitionUsedV1=recognitionV2??recognitionV1,
-    perceivedForecastV1=recognitionUsedV1&&!recognitionUsedV1.recognized?bendForecastV1(effectiveForecastV246,0,recognitionUsedV1.readPitch):bendForecastV1(effectiveForecastV246);
+    readForecastV1=recognitionUsedV1&&!recognitionUsedV1.recognized?bendForecastV1(effectiveForecastV246,0,recognitionUsedV1.readPitch):bendForecastV1(effectiveForecastV246),
+    readArrivalV1=recognitionUsedV1&&!recognitionUsedV1.recognized?recognitionUsedV1.fastArrival:effectiveForecastV246?.prediction?.arrivalAfterReleaseSeconds,
+    // speedPerceptionV1 (sd of the relative speed error): one misread speed moves the expected arrival and, along the read path,
+    // the height and side there together, so a ball read faster than it is comes later and lower than the bat (and the reverse).
+    speedErrorV1=observationPolicyV151?.speedPerceptionV1===undefined||readArrivalV1===undefined||!readForecastV1?.prediction
+      ||readForecastV1.observedThroughTick===null?null:(()=>{
+      const r=randomStreamsV152?.rng('batterBelief','speed-perception-v1'),root=r?null:new SeedRoot(input.seed).streamRng(0,'batting','speed-perception-v1'),
+        u1=Math.max(1e-12,r?r.uniform():root!.nextFloat()),u2=r?r.uniform():root!.nextFloat(),
+        error=observationPolicyV151!.speedPerceptionV1!*Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2),
+        t1=(readForecastV1.observedThroughTick-input.originTick)/tps,remaining=readArrivalV1-t1,shift=remaining/(1+clamp(error,-.5,.5))-remaining;
+      return {error,shiftSeconds:shift};
+    })(),
+    perceivedForecastV1=speedErrorV1===null?readForecastV1:{...readForecastV1!,prediction:{...readForecastV1!.prediction!,position:{...readForecastV1!.prediction!.position,
+      x:readForecastV1!.prediction!.position.x+readForecastV1!.prediction!.estimatedVelocity.x*speedErrorV1.shiftSeconds,
+      y:readForecastV1!.prediction!.position.y+readForecastV1!.prediction!.estimatedVelocity.y*speedErrorV1.shiftSeconds}}},
+    perceivedArrivalV1=readArrivalV1===undefined?undefined:readArrivalV1+(speedErrorV1?.shiftSeconds??0);
   if(opticalExperiment&&effectiveForecastV246?.status!=='PREDICTED')throw Error('Robin optical HOLD: no observed forecast');
   assert(!(input.managerCommunicationV122&&input.swingInstructionV121),'ambiguous received and raw manager instruction');
   const managerCommunicationV122=input.managerCommunicationV122===undefined?null:resolveLiveManagerCommunicationV122({...input.managerCommunicationV122,
@@ -576,7 +591,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     ...(receivedInstructionV122===undefined?{}:{instruction:receivedInstructionV122})});
   const yawDeferExecutionV274=input.yawDiagnosticV274!==undefined;
   if(yawDeferExecutionV274&&!randomStreamsV152)throw Object.assign(new Error('yaw diagnostic: INDEPENDENT_RANDOMNESS_REQUIRED'),{yawDiagnosticStatus:'HOLD'});
-  const observedPredictionV122=positionObserverV151?{elapsedSeconds:recognitionUsedV1&&!recognitionUsedV1.recognized?recognitionUsedV1.fastArrival:effectiveForecastV246!.prediction?.arrivalAfterReleaseSeconds??decisionTime,
+  const observedPredictionV122=positionObserverV151?{elapsedSeconds:speedErrorV1?perceivedArrivalV1!:recognitionUsedV1&&!recognitionUsedV1.recognized?recognitionUsedV1.fastArrival:effectiveForecastV246!.prediction?.arrivalAfterReleaseSeconds??decisionTime,
       ball:{tick:positionObserverV151.decisionTick,position:perceivedForecastV1!.prediction?.position??{x:0,y:middle,z:battingSetupV94.contactPlaneZ},
         velocity:effectiveForecastV246!.prediction?.estimatedVelocity??zero(),spin:zero()}}
       :predictFromObservation(observedSample,decisionTime,battingSetupV94.contactPlaneZ),

@@ -74,6 +74,9 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
    * the one drawn from those weights: his own pitch is read as it flies, another as that pitch (its bend and arrival).
    * Only what is visible by then is used. Takes the place of pitchRecognitionV1 when both are given. */
   pitchRecognitionV2?:readonly number[];
+  /** Standard deviation of the hitter's relative error in the ball's speed at the swing decision (0..0.3). Reading it faster
+   * than it is, he expects it sooner and higher (it has less time to drop), slower the other way; one error moves both. */
+  speedPerceptionV1?:number;
   /** Share of the remembered pitch kept in where the bat goes (0..1); the arrival time keeps the full prior.
    * Blending a quarter of the last pitches into the height made hitters top low pitches and pop up high ones. */
   priorPlacementShareV1?:number;
@@ -141,6 +144,7 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'timingTailV1')){keys.push('timingTailV1');assert(Array.isArray(p.timingTailV1)&&p.timingTailV1.length===2&&p.timingTailV1[0]>=0&&p.timingTailV1[0]<=.5&&p.timingTailV1[1]>=1&&p.timingTailV1[1]<=10,'invalid timing tail');}
   if(Object.hasOwn(p,'pitchRecognitionV1')){keys.push('pitchRecognitionV1');assert(Array.isArray(p.pitchRecognitionV1)&&p.pitchRecognitionV1.length===3&&p.pitchRecognitionV1[0]>=0&&p.pitchRecognitionV1[0]<=1&&p.pitchRecognitionV1[1]>0&&p.pitchRecognitionV1[1]<=30&&p.pitchRecognitionV1[2]>0&&p.pitchRecognitionV1[2]<=300,'invalid pitch recognition');}
   if(Object.hasOwn(p,'pitchRecognitionV2')){keys.push('pitchRecognitionV2');assert(Array.isArray(p.pitchRecognitionV2)&&p.pitchRecognitionV2.length===2&&p.pitchRecognitionV2[0]>0&&p.pitchRecognitionV2[0]<=30&&p.pitchRecognitionV2[1]>0&&p.pitchRecognitionV2[1]<=500,'invalid pitch recognition v2');}
+  if(Object.hasOwn(p,'speedPerceptionV1')){keys.push('speedPerceptionV1');assert(typeof p.speedPerceptionV1==='number'&&p.speedPerceptionV1>=0&&p.speedPerceptionV1<=.3,'invalid speed perception');}
   if(Object.hasOwn(p,'accelerationViewTimeV1')){keys.push('accelerationViewTimeV1');assert(typeof p.accelerationViewTimeV1==='number'&&p.accelerationViewTimeV1>=.01&&p.accelerationViewTimeV1<=2,'invalid acceleration view time');}
   if(Object.hasOwn(p,'accelerationPriorWeightV1')){keys.push('accelerationPriorWeightV1');assert(typeof p.accelerationPriorWeightV1==='number'&&p.accelerationPriorWeightV1>=0&&p.accelerationPriorWeightV1<=1,'invalid acceleration prior weight');}
   if(Object.hasOwn(p,'visionJudgmentV1')){keys.push('visionJudgmentV1');assert(Array.isArray(p.visionJudgmentV1)&&p.visionJudgmentV1.length===2&&p.visionJudgmentV1[0]>0&&p.visionJudgmentV1[0]<=.2&&p.visionJudgmentV1[1]>=5&&p.visionJudgmentV1[1]<=500,'invalid vision judgment');}
