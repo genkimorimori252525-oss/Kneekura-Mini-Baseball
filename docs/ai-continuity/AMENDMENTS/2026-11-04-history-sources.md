@@ -43,6 +43,13 @@
 - 走力: sprint speed 2015〜。それ以前は盗塁・盗塁死・三塁打・併殺で代える。
 - 守備: 位置は Lahman・OOTP の試合ごとの出場記録（NPB は 1936〜の試合単位、90万行）。肩・範囲は OAA（2016〜）、arm strength（2020〜）、それ以前は刺殺・補殺・失策・併殺をリーグ平均と比べる。NPB の守備の相対指数は OOTP が成績から計算した値で、実測ではない。
 
+## 球場の寸法と走力の表（2026-11-04 追記。表本体は非公開 repo の `data/mini-baseball/parks/` と `research/`）
+- **MLB 球場**（球団×年×球場、1871〜2025、3311行）: 左翼線・左中間・中堅・右中間・右翼線ほかの距離（ft）、壁の高さ、標高（ft）、路面、屋根。Seamheads の寸法を Lahman の球団・球場IDに結ぶ。寸法があるのは 3261行。**三辺の寸法が空なのは 1910年より前だけ**（1870年代の8割、1880年代の7割、1890年代の3割弱、1900年代の1割弱）。2025年の33行は Seamheads が 2024 までなので**寸法は空欄のまま**（埋めていない）。他に、寸法が無い年が 17行（1880〜90年代の一部と臨時開催）。
+- **NPB 球場**（球団×年、1936〜2025、1031行、55の球場名）: OOTP の寸法（ft）。**球場名ごとに1組で、年によって変わらない**。改名の前後で値が違う球場だけが改装を表す。標高は元データに無く**空欄**。
+- **KBO 球場**: 年ごとの履歴は**入手できなかった**。現行の11球場の寸法だけ（英語版 Wikipedia の infobox、m、2次情報）。
+- **走力の実測**: Statcast の sprint speed（2015〜2025、選手×年、6104行、走った回数つき）を Lahman の playerID に全件結合。年平均は 26.8〜27.3 ft/s。
+- 較正への使い方: 球場は `lahman_teamID`＋`year` で引く。左中間が空でも左翼パワーアレー・左中間と中堅の間が入っている年が多い。走力は回数の少ない選手（10〜30回）のばらつきを大きく見る（**仮説**）。
+
 ## 利用条件（守ること）
 - Lahman: CC BY-SA 3.0、出典表示。Chadwick Register: ODC-By。Retrosheet: 自由に使えるが、「The information used here was obtained free of charge from and is copyrighted by Retrosheet. Interested parties may contact Retrosheet at www.retrosheet.org.」を目立つ形で表示。
 - Seamheads の球場データ: 個人の研究用のみ。再配布禁止。データ本体はどの repo にも置かない。
@@ -52,5 +59,5 @@
 
 ## 次の一手
 1. 本人: Kaggle（`mattop` の KBO 打撃・投球データ、CC0）を `K:/kbm-work/kbo/` へ。2022〜2025年の入手先を決める。
-2. 史料部: Statcast のゾーン集計の完了確認、2008〜2014年の追加、Retrosheet から走者状況と左右別、NPB の OOTP ID と Chadwick `key_npb` の突き合わせ。
+2. 史料部: Statcast と PITCHf/x のゾーン集計は **2008〜2025 年が完了**（非公開側の `K:/kbm-work/` に置く。2008〜14年は打球速度なし）。残りは Retrosheet から走者状況と左右別、NPB の OOTP ID と Chadwick `key_npb` の突き合わせ、NPB の標高、KBO の旧球場と年ごとの本拠地。
 3. 較正担当: 換算（計画 §3）の入力として使う。
