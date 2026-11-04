@@ -216,6 +216,34 @@ for (const tau of [.15, .3]) for (const c of cases) {
   viewTime.push(row);
 }
 console.table(viewTime);
-writeFileSync(outDir + '/summary.json', JSON.stringify({ physics: 'LIVE_MATCH_PHYSICS_V1.air', release, target, rows, ideal, tunnels, blend, viewTime }, null, 1));
+
+// How far each pitch is from looking like a fastball at the batter's decision (0.14 s after release, and 0.25 s before the
+// pitch's own arrival), for a "did he read the pitch" chance. Three fastballs from the same release:
+//  match  - aimed so it passes the pitch's decision-time point at the same depth (the best-matching fastball: what is left
+//           is the tube width before that depth and the direction of travel there; any aim of the pitch gives the same);
+//  sameDir- the calibration desk's expected fastball (same release direction, 0.99 of the fastball speed), at the same time;
+//  target - the fastball thrown to the same target, at the same depth.
+// Visual angles are seen from an eye at (0, 1.5, 0) near the plate.
+const crossTP = (pos: (t: number) => V, z: number) => { let lo = 0, hi = 1.2; for (let i = 0; i < 50; i++) { const m = (lo + hi) / 2; if (pos(m).z > z) lo = m; else hi = m; } return (lo + hi) / 2; };
+const velAt = (pos: (t: number) => V, t: number) => sc(sub(pos(t + DT), pos(t - DT)), 1 / (2 * DT));
+const angDeg = (a: V, b: V) => Math.acos(Math.min(1, dot(a, b) / len(a) / len(b))) * 180 / Math.PI;
+const arcmin = (gap: number, z: number) => gap / Math.hypot(z, .5) * 180 / Math.PI * 60, readCues: Record<string, unknown>[] = [];
+for (const c of cases.filter(c => !c.id.includes('+'))) {
+  const T = crossTP(c.pos, PLATE);
+  for (const [when, t] of [['0.14s', FIRST], ['arrival-0.25s', T - .25]] as const) {
+    const p = c.pos(t), v = velAt(c.pos, t), zt = p.z;
+    const mv = aim(94 * MPH, ffw, air.aerodynamics, p, undefined, zt), mPath = fly(release, mv, ffw, air.aerodynamics), mt = crossT(mPath, zt);
+    let tube = 0; for (let z = release.z - .5; z > zt; z -= .25) tube = Math.max(tube, len(sub(c.pos(crossTP(c.pos, z)), at(mPath, crossT(mPath, z)))));
+    const sd = fly(release, sc(c.v0, 94 * MPH * .99 / len(c.v0)), ffw, air.aerodynamics), sdp = at(sd, t);
+    const tp = at(ffPath, crossT(ffPath, zt));
+    readCues.push({ id: c.id, mode: c.mode, when, t: +t.toFixed(3), depthM: +zt.toFixed(2),
+      matchTubeIn: +(tube / IN).toFixed(2), matchTubeArcmin: +arcmin(tube, zt).toFixed(1), matchDirDeg: +angDeg(v, velAt(t2 => at(mPath, t2), mt)).toFixed(2),
+      matchTimeGapMs: +((t - mt) * 1000).toFixed(0),
+      sameDirGapIn: +(Math.hypot(p.x - sdp.x, p.y - sdp.y) / IN).toFixed(1), sameDirDirDeg: +angDeg(v, velAt(t2 => at(sd, t2), t)).toFixed(2),
+      targetGapIn: +(Math.hypot(p.x - tp.x, p.y - tp.y) / IN).toFixed(1) });
+  }
+}
+console.table(readCues);
+writeFileSync(outDir + '/summary.json', JSON.stringify({ physics: 'LIVE_MATCH_PHYSICS_V1.air', release, target, rows, ideal, tunnels, blend, viewTime, readCues }, null, 1));
 writeFileSync(outDir + '/series.json', JSON.stringify(series));
 console.log('wrote', outDir);
