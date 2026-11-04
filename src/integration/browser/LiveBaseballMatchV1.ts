@@ -223,10 +223,11 @@ export function buildLivePostPlayFramesV115(input:Readonly<{
 const positions:readonly LivePositionV1[]=['P','C','1B','2B','3B','SS','LF','CF','RF'];
 const zero=():Vec3=>({x:0,y:0,z:0});
 const baseSide=27.432/Math.sqrt(2);
-/** fieldShadeV1: each fielder turned about home toward the pull side, his distance from home kept. Pitcher and catcher stay. */
+/** fieldShadeV1: the middle infielders, the third baseman and the outfielders turned about home toward the pull side, their
+ * distance from home kept. The first baseman stays where the bag needs him, and the pitcher and catcher stay. */
 function shadedPlacementsV1(base:Readonly<Record<LivePositionV1,Vec3>>,shade:Readonly<{infieldPullDegrees:number;outfieldPullDegrees:number}>,bats:'R'|'L'){
   const turn=(p:Vec3,deg:number)=>{const a=(bats==='R'?-deg:deg)*Math.PI/180,c=Math.cos(a),s=Math.sin(a);return {x:p.x*c+p.z*s,y:p.y,z:-p.x*s+p.z*c};};
-  return Object.fromEntries((Object.keys(base) as LivePositionV1[]).map(role=>[role,['1B','2B','3B','SS'].includes(role)?turn(base[role],shade.infieldPullDegrees)
+  return Object.fromEntries((Object.keys(base) as LivePositionV1[]).map(role=>[role,['2B','3B','SS'].includes(role)?turn(base[role],shade.infieldPullDegrees)
     :['LF','CF','RF'].includes(role)?turn(base[role],shade.outfieldPullDegrees):base[role]])) as Record<LivePositionV1,Vec3>;
 }
 export const LIVE_MATCH_BASES_V1=Object.freeze({home:Object.freeze(zero()),first:Object.freeze({x:baseSide,y:0,z:baseSide}),
