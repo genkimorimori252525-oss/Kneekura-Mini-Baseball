@@ -2395,7 +2395,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         const a = air as any;
         if (!safeLeadV1 || !tacticsV1 || r.base !== 1 || !a?.landingPointV1 || !Number.isFinite(a.hangSeconds) || input.outs + retiredCount >= 2
           || looseGroundCue || looseTouchCue || distance(flat(runnerAt(r, t)), flat(base(1))) > (field.baseTouchRadiusMeters ?? .28) + 1
-          || a.catchMarginSeconds < -marginV1(r, next, forced)) return null;
+          || a.catchMarginSeconds < -marginV1(r, next, forced) || !(a.landingDepthMeters >= LIVE_RUNNER_SAFE_LEAD_CALIBRATION_V1.minimumLandingDepthMeters)) return null;
         const C = LIVE_RUNNER_SAFE_LEAD_CALIBRATION_V1, landing: Vec3 = a.landingPointV1, leg = distance(flat(base(1)), flat(base(2))),
           catcher = defenders.reduce((m, f) => distance(flat(at(f.body, t)), flat(landing)) < distance(flat(at(m.body, t)), flat(landing)) ? f : m),
           budget = a.hangSeconds + catcher.spec.transferSeconds + distance(flat(landing), flat(base(1))) / catcher.spec.throwSpeedMps

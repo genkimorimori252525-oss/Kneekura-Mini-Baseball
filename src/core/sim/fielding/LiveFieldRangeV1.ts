@@ -40,8 +40,11 @@ export const LIVE_RUNNER_SAFE_LEAD_POLICY_V1:LiveRunnerSafeLeadPolicyV1=Object.f
 /** A runner on first with fewer than two out, on a ball in the air that may be caught, goes as far toward second as he can and
  * still get back before a catch and the throw to first: his reaction, the turn, and the run back against the time to the catch,
  * the catcher's exchange and his throw. Tagging up from first gains little, so on a deep ball or a liner he is that much nearer
- * when it drops. turnSeconds: stopping and turning back, authored. */
-export const LIVE_RUNNER_SAFE_LEAD_CALIBRATION_V1=Object.freeze({turnSeconds:.3,maximumShare:.8});
+ * when it drops. turnSeconds: stopping and turning back, authored.
+ * minimumLandingDepthMeters: only balls to the outfield. A shallow ball is caught well before it would land, so the time to the
+ * landing overstates the time he has; there the authored halfway still decides (2026-11-04: on all balls the lead doubled
+ * runners off on pop-ups, 2 to 7 extra outs over 120 chances). */
+export const LIVE_RUNNER_SAFE_LEAD_CALIBRATION_V1=Object.freeze({turnSeconds:.3,maximumShare:.8,minimumLandingDepthMeters:60});
 export function validateLiveRunnerSafeLeadPolicyV1(policy:LiveRunnerSafeLeadPolicyV1){
   if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_runner_safe_lead_policy_v1'
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid runner safe lead policy');
