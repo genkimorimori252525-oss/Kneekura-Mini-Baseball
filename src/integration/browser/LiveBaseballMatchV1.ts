@@ -17,7 +17,7 @@ import {encodeLiveSpinPracticeProofV239,hashLiveSpinPracticeProofV239} from './L
 import {forecastObservedPitchV246,type ObservedPitchForecastPolicyV246} from '../../core/decision/batting/ObservedPitchForecastV246';
 import {parsePracticeSwingDecisionV241} from './PracticeSwingDecisionV241';
 import { liveFielderBodyControlBoundsV105, resolveLiveFielderBodyModelV105, type LiveFielderBodyPoseV105 } from '../../core/sim/fielding/LiveFielderBodyGeometryV105';
-import { BASEBALL_SURFACES_V101 } from '../../core/sim/ball/BaseballSurfaceCalibrationV101';
+import { BASEBALL_SURFACES_V101, MLB_INFIELD_DIRT_ARC_V1 } from '../../core/sim/ball/BaseballSurfaceCalibrationV101';
 import {createLiveEmotionTrackerV1,type LiveEmotionOutcomeV1,type LiveEmotionPolicyV1} from './LiveEmotionV1';
 import {liveAthleticControlBoundsV115,validateLiveAthleticControlsV115} from '../../core/sim/LiveAthleticControlsV115';
 import { LIVE_THROW_EFFORT_POLICY_V103 } from '../../core/sim/fielding/LiveThrowActionV103';
@@ -171,6 +171,8 @@ export type LiveMatchInputV1 = Readonly<{seed:number;innings?:number;teams:reado
   /** MATCH roots; per-play overrides are derived with the global pitch ordinal. */
   randomnessV152?:LiveRandomnessV152;
   measuredClips:readonly LiveMeasuredClipV1[];park?:Readonly<{fenceRadiusMeters:number;fenceHeightMeters:number;foulFenceRadiusMeters?:number;fenceShapeV1?:LiveFieldPlayInputV1['field']['fenceShapeV1'];groundMaterialV101?:BaseballGroundMaterial;
+    /** The floor beyond the infield dirt arc (MLB_INFIELD_DIRT_ARC_V1); inside it stays groundMaterialV101. Omission: one floor. */
+    grassMaterialV1?:BaseballGroundMaterial;
     poleEquipmentV148?:LiveFieldPlayInputV1['field']['poleEquipmentV148']}>}>;
 /** Every key a match input may carry. A key outside it used to be ignored without a word, so a config written for a newer
  * branch ran as if the input were absent (cfg-def6's battedBallAeroV1 on the defense branch); now the match refuses it.
@@ -410,7 +412,9 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
   const unknownInputKeysV1=raw&&typeof raw==='object'?Object.keys(raw).filter(k=>!LIVE_MATCH_INPUT_KEY_SET_V1.has(k)):[];
   assert(unknownInputKeysV1.length===0,'unknown match input '+unknownInputKeysV1.join(', '));
   const input=cloneMatchInputWithMeasuredCatalogV68(raw),innings=input.innings??9,tps=LIVE_MATCH_PHYSICS_V1.air.ticksPerSecond,
-    groundPhysicsV101=input.park?.groundMaterialV101 ? createAeroGroundBallPhysicsProfile({...LIVE_MATCH_PHYSICS_V1,ground:{...LIVE_MATCH_PHYSICS_V1.ground,material:input.park.groundMaterialV101}}) : LIVE_MATCH_PHYSICS_V1,
+    groundPhysicsV101=input.park?.grassMaterialV1 ? createAeroGroundBallPhysicsProfile({...LIVE_MATCH_PHYSICS_V1,ground:{...LIVE_MATCH_PHYSICS_V1.ground,
+      material:input.park.groundMaterialV101??LIVE_MATCH_PHYSICS_V1.ground.material,grassBeyondV1:{...MLB_INFIELD_DIRT_ARC_V1,material:input.park.grassMaterialV1}}})
+      : input.park?.groundMaterialV101 ? createAeroGroundBallPhysicsProfile({...LIVE_MATCH_PHYSICS_V1,ground:{...LIVE_MATCH_PHYSICS_V1.ground,material:input.park.groundMaterialV101}}) : LIVE_MATCH_PHYSICS_V1,
     // liftCurveV1 swaps the lift of the one match air, so the pitch, the batter's forecast of it and the batted ball share it.
     matchPhysicsV101=input.liftCurveV1===undefined?groundPhysicsV101:(assert(Object.hasOwn(LIFT_CURVES_V1,input.liftCurveV1),'invalid lift curve'),withLiftCurveV1(groundPhysicsV101,input.liftCurveV1));
   const observationPolicyV151=input.batterObservationV151===undefined?undefined:validateLiveBatterObservationPolicyV151(input.batterObservationV151);

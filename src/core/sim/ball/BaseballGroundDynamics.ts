@@ -10,6 +10,15 @@ export type BaseballGroundMaterial = Readonly<{
   normalSpinDecayPerSecond: number;
 }>;
 
+/** A second floor outside a circle on the ground, such as the grass beyond the infield dirt arc. Inside the circle (and on
+ * it) the floor is `material`. */
+export type BaseballGroundRegionV1 = Readonly<{
+  centerX: number;
+  centerZ: number;
+  radiusM: number;
+  material: BaseballGroundMaterial;
+}>;
+
 export type BaseballGroundParameters = Readonly<{
   radiusM: number;
   /** I / (mass * radius^2); 0.4 describes a uniform solid sphere. */
@@ -18,6 +27,8 @@ export type BaseballGroundParameters = Readonly<{
   ticksPerSecond: number;
   restingVerticalSpeedMps: number;
   material: BaseballGroundMaterial;
+  /** Omitted, the whole floor is `material`. */
+  grassBeyondV1?: BaseballGroundRegionV1;
 }>;
 
 export type BaseballGroundMotion = Readonly<{
@@ -37,13 +48,31 @@ function validate(ball: BattedBallInitialState, p: BaseballGroundParameters): vo
     || ![ball.position, ball.velocity, ball.spin].every(v => v && Object.values(v).every(Number.isFinite))) {
     throw new Error('ground dynamics requires a finite physical ball and source clock');
   }
-  if (!p || !p.material || !Number.isSafeInteger(p.ticksPerSecond) || p.ticksPerSecond <= 0
+  const g = p?.grassBeyondV1;
+  if (!p || !materialValid(p.material) || !Number.isSafeInteger(p.ticksPerSecond) || p.ticksPerSecond <= 0
     || ![p.radiusM, p.inertiaRatio, p.gravityMps2].every(v => Number.isFinite(v) && v > 0)
-    || ![p.restingVerticalSpeedMps, p.material.slidingFriction, p.material.rollingDecelerationMps2,
-      p.material.normalSpinDecayPerSecond].every(v => Number.isFinite(v) && v >= 0)
-    || !Number.isFinite(p.material.restitution) || p.material.restitution < 0 || p.material.restitution > 1) {
+    || !Number.isFinite(p.restingVerticalSpeedMps) || p.restingVerticalSpeedMps < 0
+    || g !== undefined && (!g || !materialValid(g.material) || ![g.centerX, g.centerZ].every(Number.isFinite)
+      || !Number.isFinite(g.radiusM) || g.radiusM <= 0)) {
     throw new Error('invalid ground dynamics physical parameters');
   }
+}
+
+function materialValid(m: BaseballGroundMaterial | undefined): boolean {
+  return !!m && [m.slidingFriction, m.rollingDecelerationMps2, m.normalSpinDecayPerSecond].every(v => Number.isFinite(v) && v >= 0)
+    && Number.isFinite(m.restitution) && m.restitution >= 0 && m.restitution <= 1;
+}
+
+/** The floor under a ball at (x, z). */
+function materialAt(p: BaseballGroundParameters, x: number, z: number): BaseballGroundMaterial {
+  const g = p.grassBeyondV1;
+  return g && Math.hypot(x - g.centerX, z - g.centerZ) > g.radiusM ? g.material : p.material;
+}
+
+/** The greatest horizontal deceleration any floor of p can give a ball on it (sliding or rolling). */
+export function maximumBaseballGroundDecelerationMps2(p: BaseballGroundParameters): number {
+  const one = (m: BaseballGroundMaterial) => Math.max(m.slidingFriction * p.gravityMps2, m.rollingDecelerationMps2);
+  return p.grassBeyondV1 ? Math.max(one(p.material), one(p.grassBeyondV1.material)) : one(p.material);
 }
 
 /** Horizontal velocity of the bottom surface point: v + omega cross (0,-R,0). */
@@ -61,12 +90,13 @@ export function resolveBaseballGroundImpact(
   if (Math.abs(ball.position.y - p.radiusM) > EPSILON || ball.velocity.y > 0) {
     throw new Error('ground impact requires an actual incoming floor contact');
   }
-  const normalImpulsePerMass = -(1 + p.material.restitution) * ball.velocity.y;
+  const material = materialAt(p, ball.position.x, ball.position.z);
+  const normalImpulsePerMass = -(1 + material.restitution) * ball.velocity.y;
   const relative = slip(ball, p.radiusM), speed = Math.hypot(relative.x, relative.z);
-  const impulse = Math.min(speed / (1 + 1 / p.inertiaRatio), p.material.slidingFriction * normalImpulsePerMass);
+  const impulse = Math.min(speed / (1 + 1 / p.inertiaRatio), material.slidingFriction * normalImpulsePerMass);
   const dx = speed <= EPSILON ? 0 : -relative.x / speed * impulse;
   const dz = speed <= EPSILON ? 0 : -relative.z / speed * impulse;
-  const rebound = -p.material.restitution * ball.velocity.y;
+  const rebound = -material.restitution * ball.velocity.y;
   const result = {
     ...ball, position: { ...ball.position, y: p.radiusM },
     velocity: { x: ball.velocity.x + dx, y: rebound < p.restingVerticalSpeedMps ? 0 : rebound, z: ball.velocity.z + dz },
@@ -111,6 +141,57 @@ function advanceBaseballGroundMotionSeconds(
   throughTick: number,
   p: BaseballGroundParameters,
 ): BaseballGroundMotion {
+  if (!p.grassBeyondV1) return advanceOnOneFloor(initial, duration, throughTick, p, p.material);
+  const segments = floorSegments(initial, p);
+  let k = segments.length - 1;
+  while (k > 0 && segments[k]!.fromSeconds > duration) k--;
+  const segment = segments[k]!, last = advanceOnOneFloor(segment.ball, duration - segment.fromSeconds, throughTick, p, segment.material);
+  return { ...last, transitions: [...segments.slice(0, k).flatMap(s => s.transitions),
+    ...last.transitions.map(t => ({ ...t, elapsedSeconds: t.elapsedSeconds + segment.fromSeconds }))] };
+}
+
+type FloorSegment = Readonly<{
+  fromSeconds: number; ball: BattedBallInitialState; material: BaseballGroundMaterial;
+  /** Transitions inside this segment, measured from the motion's start; only kept for segments that end. */
+  transitions: BaseballGroundMotion['transitions'];
+}>;
+const floorSegmentCache = new WeakMap<BaseballGroundParameters, WeakMap<BattedBallInitialState, readonly FloorSegment[]>>();
+
+/** The motion from `initial` cut where the ball passes from one floor to the other, each piece on one floor. Callers
+ * sample the same start many times, so the cuts are found once per start: the first change of floor before the ball would
+ * rest on its floor, by 64 even looks and then halving, and the piece after it starts just inside the new floor. */
+function floorSegments(initial: BattedBallInitialState, p: BaseballGroundParameters): readonly FloorSegment[] {
+  let byStart = floorSegmentCache.get(p);
+  if (!byStart) { byStart = new WeakMap(); floorSegmentCache.set(p, byStart); }
+  const cached = byStart.get(initial);
+  if (cached) return cached;
+  const segments: FloorSegment[] = [];
+  let ball = initial, fromSeconds = 0;
+  for (let piece = 0; piece < 8; piece++) {
+    const material = materialAt(p, ball.position.x, ball.position.z), at = (t: number) => advanceOnOneFloor(ball, t, ball.tick, p, material);
+    const end = at(60), stop = end.transitions.find(t => t.kind === 'rolling_stopped')?.elapsedSeconds ?? (end.phase === 'resting' ? 0 : 60);
+    const same = (t: number) => { const b = at(t).ball; return materialAt(p, b.position.x, b.position.z) === material; };
+    let lo = 0, hi = -1;
+    for (let i = 1; i <= 64 && stop > 0; i++) { const t = stop * i / 64; if (!same(t)) { hi = t; break; } lo = t; }
+    if (hi < 0) { segments.push({ fromSeconds, ball, material, transitions: [] }); break; }
+    for (let i = 0; i < 60; i++) { const mid: number = (lo + hi) / 2; if (mid === lo || mid === hi) break; if (same(mid)) lo = mid; else hi = mid; }
+    const crossing = at(hi);
+    segments.push({ fromSeconds, ball, material, transitions: crossing.transitions.map(t => ({ ...t, elapsedSeconds: t.elapsedSeconds + fromSeconds })) });
+    ball = crossing.ball; fromSeconds += hi;
+  }
+  if (segments.at(-1)!.ball !== ball)
+    segments.push({ fromSeconds, ball, material: materialAt(p, ball.position.x, ball.position.z), transitions: [] });
+  byStart.set(initial, segments);
+  return segments;
+}
+
+function advanceOnOneFloor(
+  initial: BattedBallInitialState,
+  duration: number,
+  throughTick: number,
+  p: BaseballGroundParameters,
+  material: BaseballGroundMaterial,
+): BaseballGroundMotion {
   if (Math.abs(initial.position.y - p.radiusM) > EPSILON || initial.velocity.y !== 0) {
     throw new Error('ground motion requires a ball resting on the actual floor');
   }
@@ -120,7 +201,7 @@ function advanceBaseballGroundMotionSeconds(
   let wx = initial.spin.x, wz = initial.spin.z;
   const transitions: BaseballGroundMotion['transitions'][number][] = [];
   const relative = slip(initial, p.radiusM), slipSpeed = Math.hypot(relative.x, relative.z);
-  const friction = p.material.slidingFriction * p.gravityMps2;
+  const friction = material.slidingFriction * p.gravityMps2;
   let rolling = slipSpeed <= EPSILON;
   if (!rolling) {
     const untilRolling = friction === 0 ? Infinity : slipSpeed / (friction * (1 + 1 / p.inertiaRatio));
@@ -139,7 +220,7 @@ function advanceBaseballGroundMotionSeconds(
   }
   let phase: BaseballGroundMotion['phase'] = rolling ? 'rolling' : 'sliding';
   if (rolling) {
-    const speed = Math.hypot(vx, vz), deceleration = p.material.rollingDecelerationMps2;
+    const speed = Math.hypot(vx, vz), deceleration = material.rollingDecelerationMps2;
     const stopSeconds = speed === 0 ? 0 : deceleration === 0 ? Infinity : speed / deceleration;
     const dt = Math.min(remaining, stopSeconds);
     const distance = speed * dt - 0.5 * deceleration * dt * dt;
@@ -158,7 +239,7 @@ function advanceBaseballGroundMotionSeconds(
   const result: BattedBallInitialState = {
     tick: throughTick, position: { x, y: p.radiusM, z },
     velocity: { x: vx, y: 0, z: vz },
-    spin: { x: wx, y: initial.spin.y * Math.exp(-p.material.normalSpinDecayPerSecond * duration), z: wz },
+    spin: { x: wx, y: initial.spin.y * Math.exp(-material.normalSpinDecayPerSecond * duration), z: wz },
   };
   validate(result, p);
   return { ball: result, phase, transitions };
