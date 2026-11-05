@@ -22,6 +22,12 @@ it('keeps an infielder on a ball that has not got past him, and everyone on plai
   expect(evaluateLiveFieldDecisionV1(plain).role.intent).toBe('intercept');
 });
 
+it('keeps a ball going across an infielder his until it has gone by him',()=>{
+  const across={...context(58),self:actor('2b',8,44,'2B'),ball:v(-2,.04,46),ballVelocity:v(12,0,4),received:[call]};
+  expect(evaluateLiveFieldDecisionV1(across).role.intent).toBe('intercept');
+  expect(evaluateLiveFieldDecisionV1({...across,ball:v(12,.04,48)}).role.intent).not.toBe('intercept');
+});
+
 it('lets an outfielder go for a ball past the shortstop that the shortstop would reach first',()=>{
   const cf={...context(58),self:actor('cf',0,91,'CF'),others:[actor('ss',-8,44,'SS')],pickup:{point:v(0,.04,58),eta:2.6,intercepted:true}};
   expect(evaluateLiveFieldDecisionV1(cf).role.intent).toBe('intercept');

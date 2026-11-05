@@ -14,7 +14,8 @@ export type LiveFieldDecisionContextV1=Readonly<{elapsedSeconds:number;observati
  previous?:LiveFieldRoleV1;cautious?:boolean;ownTask?:LiveFieldRoleV1;
  /** Present: a bag is one man's job, and a player only offers to cover where this allows it. */
  coverAllowedV1?:(base:BaseballBase,arrivalSeconds:number)=>boolean;
- /** Present: a ball on the ground that has got past an infielder (it is now farther from home than he is) is the outfielder's.
+ /** Present: a ball on the ground that has got past an infielder (it is going away from him, or has stopped beyond him on its
+  * line from home) is the outfielder's.
   * The outfielder does not count that infielder as competing for it, and the infielder, once he has heard an outfielder call
   * for it, does not go for it himself. */
  outfieldRightOfWayV1?:true}>;
@@ -33,8 +34,12 @@ export function evaluateLiveFieldDecisionV1(input:LiveFieldDecisionContextV1){
   own=(taskId:string,intent:LiveFieldRoleV1['intent'],point:Vec3,targetBase:BaseballBase|null=null):LiveFieldRoleV1=>({playerId:self.playerId,taskId,intent,point:{...point},targetBase}),
   hold=own('hold:'+self.playerId,'hold',self.homePosition),pursuit=self.pursuitCostWeight??1,
   outfielders=new Set(['LF','CF','RF']),isOutfielder=(a:LiveFieldRoleActorV1)=>outfielders.has(a.defensivePosition??''),
-  past=(a:LiveFieldRoleActorV1)=>!!input.outfieldRightOfWayV1&&!!input.ball&&!!a.defensivePosition&&!isOutfielder(a)
-   &&distance(input.ball,input.bases[4])>distance(a.position,input.bases[4]),
+  past=(a:LiveFieldRoleActorV1)=>{
+   const b=input.ball,v=input.ballVelocity,home=input.bases[4];
+   if(!input.outfieldRightOfWayV1||!b||!a.defensivePosition||isOutfielder(a))return false;
+   const moving=Math.hypot(v.x,v.z)>1e-6,dx=moving?v.x:b.x-home.x,dz=moving?v.z:b.z-home.z;
+   return (b.x-a.position.x)*dx+(b.z-a.position.z)*dz>0;
+  },
   yields=()=>past(self)&&input.received.some(m=>m.role.intent==='intercept'&&m.trust>0
     &&isOutfielder(others.find(a=>a.playerId===m.sourceId)??self));
  let pursuitTrace:ReturnType<typeof buildLivePursuitOptionsV1>|undefined;
