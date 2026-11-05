@@ -99,5 +99,7 @@
 - 取り込み（2026-11-05 朝）: de7224f9（kbm-pitching）と f28cd6e7（守備 branch、bc6a1c6e まで）。
   - 衝突なし。ほかの担当の未 commit のファイル9つは、SHA-256 で無傷を確かめた（K:/kbm-work/backup-dirty-20261105）。
   - 守備抜きの cfg-mlbstd17 は 276e48a1 で一致。夜の組の全文は、一時ビルドと同じ 5a01feb4。
-  - 守備の cfg-std 0e3a9e34 と cfg-pos-kin 9b5609b1 は一致。cfg-def6 だけが 65b8b449→e3f177da に変わり、原因は守備部が調べている。
+  - 守備の cfg-std 0e3a9e34 と cfg-pos-kin 9b5609b1 は一致。cfg-def6 だけが 65b8b449→e3f177da に変わった。
+    - 原因（守備部が確かめた）: cfg-def6 は battedBallAeroV1 {dragScale:1.1} を明示している。守備 branch は 01e6d224 から分かれていて、この入力（20d2a08d 以降）を持たず、黙って無視していた。65b8b449 は、その無視した状態のハッシュ。統合 branch では e3f177da が正しい基準よ。
+    - 影響: 守備部のこれまでの再生の測定は、打球の空気抵抗1.1が効いていない古い物理で回していた。守備部は、統合 branch を守備 branch に取り込んでから測り直す。
   - 関係テスト5ファイル59件は通過。push はしていない。
