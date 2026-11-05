@@ -1,14 +1,15 @@
 # Implementation Plan Register — status, owners and dependencies
 
-> **Updated:** 2026-10-26 (SWG, bat-mass/MAX-speed, PLV-75+, SPIN-GOLD v2, and SIGN-NAME future plans registered; 2026-10-16 CATCH/BAT/DIR statuses unchanged). **This is a discoverability index, not implementation authorization or a new canonical specification.** Each linked document's internal Status and the later explicitly approved canonical design take precedence.
+> **Updated:** 2026-11-05 (LEAD catcher style addendum registered). The 2026-10-26 SWG, bat-mass/MAX-speed, PLV-75+, SPIN-GOLD v2 and SIGN-NAME additions remain as recorded; original 2026-10-16 CATCH/BAT/DIR statuses are unchanged. **This is a discoverability index, not implementation authorization or a new canonical specification.** Each linked document's internal Status and later explicitly approved canonical design take precedence.
 >
 > **Caution:** The user mentioned **four** plans in this conversation, but this GitHub branch currently contains **three newly written 2026-10-16 implementation plans**. The “flow / in-game form” discussion has **not** been approved as a fourth implementation plan. It has its own [discovery note](notes/2026-10-16-in-game-form-discussion.md) so an AI will not silently omit or implement it.
 
-## Current 2026-10-16 baseball decision/action plans
+## 2026-10-16 baseball decision/action plans + 2026-11-05 CATCH extension
 
 | ID | Link | Status | Dependencies / how to use |
 | --- | --- | --- | --- |
 | **CATCH** | [Catcher Game Intelligence v1](superpowers/plans/2026-10-16-catcher-game-intelligence-system.md) | **IMPLEMENTATION PLAN / PROPOSED / NOT IMPLEMENTED** | Generic pitch choice, manager instruction, seven distinct cognition domains, `CATCHER_LED`/`PITCHER_LED`, pitch-cadence separation; **CATCH-01..25**. The batter-belief portion is refined by BAT, not independently duplicated. |
+| **LEAD** | [Catcher lead style personalities — 8タイプ](superpowers/plans/2026-11-05-catcher-lead-style-personalities.md) | **USER-APPROVED DIRECTION / IMPLEMENTATION PLAN / NOT IMPLEMENTED** | **CATCHの追補**。狡猾／得意球／ゴリ押し／弱点狙い／慎重／強気／緩急自在／観察眼。既存Slow Preferenceの短いUI投影、能力Gradeと独立。新しいAIや能力Buffを作らない。**LEAD-01..18（未実行）**。 |
 | **BAT** | [Batter Anticipation, Intent & Adaptive Swing v1](superpowers/plans/2026-10-16-batter-anticipation-intent-adaptive-swing.md) | **USER-APPROVED DIRECTION / IMPLEMENTATION PLAN / NOT IMPLEMENTED** | Subjective pitch family × region probabilities, 反応型 vs 狙い球型, TAKE/SWING decision times, temporal/spatial in-swing correction, existing ミート/パワー/選球眼/悪球打ち source, continuous physical swing; **BAT-01..29**. Owns the single planned BatterPitchBelief with CATCH and includes DIR as supplementary scope. |
 | **DIR** | [Batter Directional Intent & Causal Spray v1](superpowers/plans/2026-10-16-batter-directional-intent-and-spray.md) | **USER-APPROVED DIRECTION / IMPLEMENTATION PLAN / NOT IMPLEMENTED** | `PULL / CENTER / OPPOSITE / REACTIVE`, intent-only zero frequencies, existing Pull/流し/広角 technical skills, world and handed spray coordinates, contact-output direction; **DIR-01..26**. **Extends BAT's existing policy and swing, does not create a duplicate engine.** |
 
@@ -26,7 +27,7 @@
 
 | **SIGN-NAME** | [Emergent eponymous signature traits and career history](superpowers/plans/2026-10-26-emergent-named-signature-traits-career-history.md) | **USER-APPROVED FUTURE DESIGN / IMPLEMENTATION PLAN / NOT IMPLEMENTED** | Ultra-rare player-name traits recognized **during active careers**, synthesizing independent skill/ability/behavior evidence, de-duplicated underlying Trait sources, and rigorously verified situational styles (e.g. bases-empty approach) without magic output buffs. Per-save dynamic world history, later teaching/legacy, strong rarity/calibration and no roll/quota. **SIGN-01..38**; complements **09/20/51/52/53**, not a Canonical overwrite or new Match Core. |
 
-**Unified acceptance:** The three plans are interconnected, not three independently working products. Taken together their specified regression set is **CATCH-01..25 + BAT-01..29 + DIR-01..26 = 80 named acceptance cases**, subject to actual live-Core availability. Checking boxes in Markdown does not prove tests passed.
+**Unified acceptance:** The three plans are interconnected, not three independently working products. Taken together their specified regression set is **CATCH-01..25 + BAT-01..29 + DIR-01..26 = 80 named acceptance cases**, subject to actual live-Core availability. Checking boxes in Markdown does not prove tests passed. **LEAD-01..18** are separate proposed addendum checks, *not* part of the original 80 and *not run*.
 
 ### Cross-cutting quality department — **newly created; not a fourth Match Core implementation plan**
 
