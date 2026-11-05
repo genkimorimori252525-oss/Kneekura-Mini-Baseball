@@ -149,9 +149,11 @@ export function validateLiveRunnerFoulFlyHoldPolicyV1(policy:LiveRunnerFoulFlyHo
 }
 export type LiveFieldOutfieldRightOfWayPolicyV1=Readonly<{version:'live_field_outfield_right_of_way_policy_v1';sourceId:string}>;
 export const LIVE_FIELD_OUTFIELD_RIGHT_OF_WAY_POLICY_V1:LiveFieldOutfieldRightOfWayPolicyV1=Object.freeze({version:'live_field_outfield_right_of_way_policy_v1',sourceId:'outfield-right-of-way-v1'});
-/** A ball on the ground out on the outfield grass (beyond the infield dirt arc) is the outfielder's: he does not count an
- * infielder as competing for it, and an infielder who has heard an outfielder call for it takes a bag, the relay or a backup
- * instead. A ball still in the air is left to whoever can make the catch. With the outfield grass at a rolling deceleration of 20, the second baseman and shortstop ran out to 53-63 m and
+/** A ball on the ground that has got past an infielder (to be fielded farther from home than he started) is the outfielder's:
+ * the outfielder does not count that infielder as competing for it, and the infielder, once he has heard an outfielder call
+ * for it, takes a bag, the relay or a backup instead. A ball still in the air is left to whoever can make the catch. The dirt
+ * arc was the first boundary tried: in the hole it lies nearer home than the shortstop plays, and infielders then fielded
+ * .136 of the ground-ball hits against .301 in MLB. With the outfield grass at a rolling deceleration of 20, the second baseman and shortstop ran out to 53-63 m and
  * first touched .676 of the ground-ball hits, against .272 of the same balls hit to the infield in MLB 2025. */
 export function validateLiveFieldOutfieldRightOfWayPolicyV1(policy:LiveFieldOutfieldRightOfWayPolicyV1){
   if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_outfield_right_of_way_policy_v1'

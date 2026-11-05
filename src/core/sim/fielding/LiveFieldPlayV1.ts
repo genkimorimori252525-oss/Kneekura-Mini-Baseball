@@ -1,6 +1,5 @@
 import {selectOrderedContactV1} from '../../../experimental/robin/playability/ordered-contact-candidates-v1';
 
-import { MLB_INFIELD_DIRT_ARC_V1 } from '../ball/BaseballSurfaceCalibrationV101';
 import {observedLooseCueV1} from '../../../experimental/robin/bridge/observed-loose-cue';
 import { liveFielderBodyPoseV105, sampleLiveFielderPostureV105, validateLiveFielderBodyModelV105, liveFielderReachTargetV105, liveFielderDesiredCrouchV105, liveFielderHorizontalReachV105, liveFielderPreferredBodyPointV105, liveFielderThrowOffsetV105, liveFielderRecoverySecondsV105, liveFielderPreparationPostureSecondsV105, createLiveBodyHandPreparationV105, type LiveFielderBodyModelV105, type LiveFielderBodyPoseV105, type LiveFielderPostureV105 } from './LiveFielderBodyGeometryV105';
 import { sampleLiveTransferDelayV101 } from './LiveTransferTimingV101';
@@ -142,7 +141,7 @@ export type LiveFieldPlayInputV1 = Readonly<{ ball: BallWorldMoment; physics: Ae
   sureCatchHoldPolicyV1?: LiveRunnerSureCatchHoldPolicyV1;
   /** A runner who sees the ball coming down in foul ground does not go on a read that it will drop; omission lets him. */
   foulFlyHoldPolicyV1?: LiveRunnerFoulFlyHoldPolicyV1;
-  /** A ball on the ground out on the outfield grass is the outfielder's once he calls for it; omission lets the first man there take it. */
+  /** A ball on the ground that has got past an infielder is the outfielder's once he calls for it; omission lets the first man there take it. */
   outfieldRightOfWayPolicyV1?: LiveFieldOutfieldRightOfWayPolicyV1;
   /** A runner on first goes as far as he can still get back from on a ball in the air; omission keeps the authored halfway. */
   runnerSafeLeadPolicyV1?: LiveRunnerSafeLeadPolicyV1;
@@ -1587,7 +1586,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
             cautious:f.spec.fieldingCognition?.cautious,
             // outfieldRightOfWayV1: once he has seen the ball on the ground; a ball in the air is still an out to whoever can make it.
             ...(outfieldRightOfWayV1&&firstGroundContactSeconds!==null&&seen.observationElapsedSeconds!==null&&firstGroundContactSeconds<=seen.observationElapsedSeconds
-              ?{outfieldRightOfWayV1:MLB_INFIELD_DIRT_ARC_V1}:{}),
+              ?{outfieldRightOfWayV1:true as const}:{}),
             ...(fieldRangePolicyV1?{coverAllowedV1:(b:BaseballBase,arrival:number)=>{
               if(fieldCoverV1){
                 const plan=coverPlanV1??=coverPlanOfV1();

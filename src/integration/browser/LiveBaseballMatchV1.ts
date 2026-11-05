@@ -160,7 +160,7 @@ export type LiveMatchInputV1 = Readonly<{seed:number;innings?:number;teams:reado
   sureCatchHoldV1?:LiveRunnerSureCatchHoldPolicyV1;
   /** A runner who sees the ball coming down in foul ground does not go on a read that it will drop. Omission lets him. */
   foulFlyHoldV1?:LiveRunnerFoulFlyHoldPolicyV1;
-  /** A ball on the ground out on the outfield grass is the outfielder's once he calls for it. Omission lets the first man there take it. */
+  /** A ball on the ground that has got past an infielder is the outfielder's once he calls for it. Omission lets the first man there take it. */
   outfieldRightOfWayV1?:LiveFieldOutfieldRightOfWayPolicyV1;
   /** A batted-ball play starts each runner on first or second at his lead at the release (Savant). Omission keeps the pre-pitch lead. */
   secondaryLeadV1?:LiveRunnerSecondaryLeadPolicyV1;
