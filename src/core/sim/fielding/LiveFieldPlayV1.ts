@@ -2472,6 +2472,8 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         defenderControlSeconds: taggedV1 && next === 4 && defenderControlSeconds !== null ? defenderControlSeconds + LIVE_FIELD_RANGE_CALIBRATION_V1.tagUpLongThrowAllowanceSeconds : defenderControlSeconds, airborneAssessment: air, policy: { safetyMarginSeconds: taggedV1 ? next === 4 ? LIVE_FIELD_RANGE_CALIBRATION_V1.tagUpHomeMarginSeconds : LIVE_FIELD_RANGE_CALIBRATION_V1.tagUpBaseMarginSeconds : marginV1(r, next, forced) },
         ...(tacticsV1 ? { tacticsV1: { contactLeg: r.base === r.spec.initialBase } } : {}) });
       if(loose&&looseGroundCue===null&&looseTouchCue===null)decision={...decision,advance:false,reason:'loose_pitch_wait_for_live_ball_cue'} as any;
+      // sureCatchHoldV1: nor does a late forecast that the fielder will miss send him; he goes when the ball is down or touched.
+      if (sureCatchSeenV1.has(r.spec.runnerId) && decision.reason === 'airborne_hit_read_advance') decision = { ...decision, advance: false, reason: 'airborne_catch_risk_hold' };
       if (decision.reason === 'recognizing_departure_cue' && !targetOccupied) runnerDecisionPending = true;
       const previous = runnerDecisions.slice().reverse().find(d => d.runnerId === r.spec.runnerId);
       if (!previous || previous.targetBase !== next || previous.reason !== decision.reason || decision.advance)

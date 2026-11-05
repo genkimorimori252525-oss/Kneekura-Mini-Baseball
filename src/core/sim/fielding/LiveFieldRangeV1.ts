@@ -128,7 +128,9 @@ export const LIVE_RUNNER_SURE_CATCH_HOLD_POLICY_V1:LiveRunnerSureCatchHoldPolicy
 /** A runner who has read a sure catch on this flight stays at his bag. His read of the catch is the time the best fielder has
  * to spare before the ball comes down, so with a fielder camped under a pop-up it falls with the hang itself, into the halfway
  * band in the last .8 s of every high fly; he walked off and was doubled off. In 396 replayed MLB balls, 6 of 36 caught balls
- * with a runner on and less than two out ended in a double play, against 54 of 1,627 in MLB 2025 (3 of 329 pop-ups). */
+ * with a runner on and less than two out ended in a double play, against 54 of 1,627 in MLB 2025 (3 of 329 pop-ups).
+ * A late forecast that the fielder will miss does not send him either: on a high foul pop-up the forecast can swing that way
+ * while the fielder still makes the catch. He goes when the ball is down or touched. */
 export function validateLiveRunnerSureCatchHoldPolicyV1(policy:LiveRunnerSureCatchHoldPolicyV1){
   if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_runner_sure_catch_hold_policy_v1'
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid runner sure catch hold policy');
