@@ -37,7 +37,7 @@ import { predictLiveDefensiveOpportunityV1, LIVE_DEFENSIVE_OPPORTUNITY_POLICY_V1
   type LiveDefensiveOpportunityV1 } from './LiveDefensiveOpportunityV1';
 import { resolveGroundedActorContactResponseV1 } from './GroundedActorContactResponseV1';
 import { planLiveThrowV1 } from './LiveThrowPlanV1';
-import { LIVE_RUNNER_THROW_READ_CALIBRATION_V1,validateLiveRunnerThrowReadPolicyV1,type LiveRunnerThrowReadPolicyV1,LIVE_RUNNER_TURN_CALIBRATION_V1,validateLiveRunnerTurnPolicyV1,type LiveRunnerTurnPolicyV1,LIVE_FIELD_COVER_CALIBRATION_V1,validateLiveFieldCoverPolicyV1,type LiveFieldCoverPolicyV1,LIVE_FIELD_RUN_VALUE_CALIBRATION_V1,validateLiveFieldRunValuePolicyV1,type LiveFieldRunValuePolicyV1,validateLiveFieldKinematicsPolicyV1,type LiveFieldKinematicsPolicyV1,LIVE_LOCOMOTION_START_CALIBRATION_V1,validateLiveLocomotionStartPolicyV1,type LiveLocomotionStartPolicyV1,validateLiveOutfieldBreakPolicyV1,type LiveOutfieldBreakPolicyV1,validateLiveForcedRunPolicyV1,type LiveForcedRunPolicyV1,validateLiveTossReceivePolicyV1,type LiveTossReceivePolicyV1,validateLiveFieldAttemptCrouchPolicyV1,type LiveFieldAttemptCrouchPolicyV1,validateLiveFieldCoverSeenPolicyV1,type LiveFieldCoverSeenPolicyV1,validateLiveRelayStepPolicyV1,type LiveRelayStepPolicyV1,validateLiveRunnerLooseBallReadPolicyV1,type LiveRunnerLooseBallReadPolicyV1,validateLiveRunnerLineDriveReadPolicyV1,type LiveRunnerLineDriveReadPolicyV1,validateLiveRunnerSureCatchHoldPolicyV1,type LiveRunnerSureCatchHoldPolicyV1,LIVE_RUNNER_SAFE_LEAD_CALIBRATION_V1,validateLiveRunnerSafeLeadPolicyV1,type LiveRunnerSafeLeadPolicyV1,LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
+import { LIVE_RUNNER_THROW_READ_CALIBRATION_V1,validateLiveRunnerThrowReadPolicyV1,type LiveRunnerThrowReadPolicyV1,LIVE_RUNNER_TURN_CALIBRATION_V1,validateLiveRunnerTurnPolicyV1,type LiveRunnerTurnPolicyV1,LIVE_FIELD_COVER_CALIBRATION_V1,validateLiveFieldCoverPolicyV1,type LiveFieldCoverPolicyV1,LIVE_FIELD_RUN_VALUE_CALIBRATION_V1,validateLiveFieldRunValuePolicyV1,type LiveFieldRunValuePolicyV1,validateLiveFieldKinematicsPolicyV1,type LiveFieldKinematicsPolicyV1,LIVE_LOCOMOTION_START_CALIBRATION_V1,validateLiveLocomotionStartPolicyV1,type LiveLocomotionStartPolicyV1,validateLiveOutfieldBreakPolicyV1,type LiveOutfieldBreakPolicyV1,validateLiveForcedRunPolicyV1,type LiveForcedRunPolicyV1,validateLiveTossReceivePolicyV1,type LiveTossReceivePolicyV1,validateLiveFieldAttemptCrouchPolicyV1,type LiveFieldAttemptCrouchPolicyV1,validateLiveFieldCoverSeenPolicyV1,type LiveFieldCoverSeenPolicyV1,validateLiveRelayStepPolicyV1,type LiveRelayStepPolicyV1,validateLiveRunnerLooseBallReadPolicyV1,type LiveRunnerLooseBallReadPolicyV1,validateLiveRunnerLineDriveReadPolicyV1,type LiveRunnerLineDriveReadPolicyV1,validateLiveRunnerSureCatchHoldPolicyV1,type LiveRunnerSureCatchHoldPolicyV1,validateLiveRunnerFoulFlyHoldPolicyV1,type LiveRunnerFoulFlyHoldPolicyV1,LIVE_RUNNER_SAFE_LEAD_CALIBRATION_V1,validateLiveRunnerSafeLeadPolicyV1,type LiveRunnerSafeLeadPolicyV1,LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
 import { decideLiveCloseThrowV1,liveCloseThrowToleranceV1,LIVE_CLOSE_THROW_CALIBRATION_V1,validateLiveFieldThrowPolicyV1,type LiveFieldThrowPolicyV1 } from './LiveCloseThrowV1';
 import { planLiveThrowActionV103,LIVE_THROW_EFFORT_POLICY_V103 } from './LiveThrowActionV103';
 import { liveFielderTurnSpeedV110 } from './LiveFielderBodyGeometryV105';
@@ -139,6 +139,8 @@ export type LiveFieldPlayInputV1 = Readonly<{ ball: BallWorldMoment; physics: Ae
   /** A runner's line-drive read runs from when he first saw the ball in the air; omission runs it from his latest look. */
   lineDriveReadPolicyV1?: LiveRunnerLineDriveReadPolicyV1;
   sureCatchHoldPolicyV1?: LiveRunnerSureCatchHoldPolicyV1;
+  /** A runner who sees the ball coming down in foul ground does not go on a read that it will drop; omission lets him. */
+  foulFlyHoldPolicyV1?: LiveRunnerFoulFlyHoldPolicyV1;
   /** A runner on first goes as far as he can still get back from on a ball in the air; omission keeps the authored halfway. */
   runnerSafeLeadPolicyV1?: LiveRunnerSafeLeadPolicyV1;
   /** Opt-in runner tactics, authored and UNMEASURED; omitted keeps legacy decisions. Enables: two-out go-on-contact held for the
@@ -346,6 +348,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   const looseBallReadV1=input.looseBallReadPolicyV1===undefined?undefined:validateLiveRunnerLooseBallReadPolicyV1(input.looseBallReadPolicyV1);
   const lineDriveReadV1=input.lineDriveReadPolicyV1===undefined?undefined:validateLiveRunnerLineDriveReadPolicyV1(input.lineDriveReadPolicyV1);
   const sureCatchHoldV1=input.sureCatchHoldPolicyV1===undefined?undefined:validateLiveRunnerSureCatchHoldPolicyV1(input.sureCatchHoldPolicyV1);
+  const foulFlyHoldV1=input.foulFlyHoldPolicyV1===undefined?undefined:validateLiveRunnerFoulFlyHoldPolicyV1(input.foulFlyHoldPolicyV1);
   // sureCatchHoldV1: runners who have read a sure catch on this flight.
   const sureCatchSeenV1=new Set<string>();
   const fieldCoverV1=input.fieldCoverPolicyV1===undefined?undefined:validateLiveFieldCoverPolicyV1(input.fieldCoverPolicyV1);
@@ -2381,7 +2384,8 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         landing = Number.isFinite(beforeGround) ? prediction.sample(beforeGround).position : null;
       return { observedAtSeconds: seen.t, catchMarginSeconds: catchMarginSeconds + runnerReadBias.get(r.spec.runnerId)!, lineDrive,
         ...(lineDriveReadV1 && launch ? { firstSeenAtSeconds: launch.t } : {}),
-        hangSeconds: beforeGround, landingDepthMeters: landing ? distance(flat(landing), flat(base(0))) : undefined, ...(safeLeadV1 && landing ? { landingPointV1: landing } : {}) };
+        hangSeconds: beforeGround, landingDepthMeters: landing ? distance(flat(landing), flat(base(0))) : undefined, ...(safeLeadV1 && landing ? { landingPointV1: landing } : {}),
+        ...(foulFlyHoldV1 && landing && !isFair(landing) ? { foulLandingV1: true } : {}) };
     };
     for (const r of runners.slice().sort((a, b) => b.base - a.base)) {
       if (slideCommittedV115(r,t)) continue;
@@ -2474,6 +2478,8 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       if(loose&&looseGroundCue===null&&looseTouchCue===null)decision={...decision,advance:false,reason:'loose_pitch_wait_for_live_ball_cue'} as any;
       // sureCatchHoldV1: nor does a late forecast that the fielder will miss send him; he goes when the ball is down or touched.
       if (sureCatchSeenV1.has(r.spec.runnerId) && decision.reason === 'airborne_hit_read_advance') decision = { ...decision, advance: false, reason: 'airborne_catch_risk_hold' };
+      // foulFlyHoldV1: a ball coming down foul gains him nothing if it drops.
+      if ((air as any)?.foulLandingV1 && decision.reason === 'airborne_hit_read_advance') decision = { ...decision, advance: false, reason: 'airborne_catch_risk_hold' };
       if (decision.reason === 'recognizing_departure_cue' && !targetOccupied) runnerDecisionPending = true;
       const previous = runnerDecisions.slice().reverse().find(d => d.runnerId === r.spec.runnerId);
       if (!previous || previous.targetBase !== next || previous.reason !== decision.reason || decision.advance)
