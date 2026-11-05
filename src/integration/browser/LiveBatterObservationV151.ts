@@ -77,6 +77,13 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   /** The pitch target plan's choice temperature in runs (0.0005..0.5). Given, the plan forecasts the MLB hitter (swing by count,
    * contact, fouls and run value by region, a walk at its wOBA weight) and draws a spot on exp(-(cost - best) / temperature). */
   pitchTargetPlanV2?:number;
+  /** [start, per pitch seen, cap] of the hitter's familiarity with this pitcher (0..1). The pitches he pictures spin as
+   * that share of the pitcher's own and the rest of the league's pitch of the same type (leagueReferencePitchesV1, by the
+   * pitcher's hand); the share grows with the pitches of this pitcher he has seen. Recognition, the read path and the
+   * expected arrival all use the pictured pitch, so a pitch unlike the league's fools him until he knows it. */
+  pitchFamiliarityV1?:readonly number[];
+  /** The league's pitch of each type as a hitter expects it: spin (rad/s, as released), for right- and left-handed pitchers. */
+  leagueReferencePitchesV1?:Readonly<{R:readonly Readonly<{pitchType:string;spinRadPerSecond:Vec3}>[];L:readonly Readonly<{pitchType:string;spinRadPerSecond:Vec3}>[]}>;
   /** With pitchTargetPlanV2: runs per unit of a pitch's zoneRateV1 above the pitcher's own mean that lean its target toward
    * the zone (0..5). The pitch's zone rate then works through the plan instead of moving the planned target. */
   pitchZoneLeanV2?:number;
@@ -146,6 +153,12 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'pitchRecognitionV1')){keys.push('pitchRecognitionV1');assert(Array.isArray(p.pitchRecognitionV1)&&p.pitchRecognitionV1.length===3&&p.pitchRecognitionV1[0]>=0&&p.pitchRecognitionV1[0]<=1&&p.pitchRecognitionV1[1]>0&&p.pitchRecognitionV1[1]<=30&&p.pitchRecognitionV1[2]>0&&p.pitchRecognitionV1[2]<=300,'invalid pitch recognition');}
   if(Object.hasOwn(p,'pitchRecognitionV2')){keys.push('pitchRecognitionV2');assert(Array.isArray(p.pitchRecognitionV2)&&(p.pitchRecognitionV2.length===2||p.pitchRecognitionV2.length===3)&&p.pitchRecognitionV2[0]>0&&p.pitchRecognitionV2[0]<=30&&p.pitchRecognitionV2[1]>0&&p.pitchRecognitionV2[1]<=500
     &&(p.pitchRecognitionV2.length===2||p.pitchRecognitionV2[2]>0&&p.pitchRecognitionV2[2]<=360),'invalid pitch recognition v2');}
+  if(Object.hasOwn(p,'pitchFamiliarityV1')){keys.push('pitchFamiliarityV1');assert(Array.isArray(p.pitchFamiliarityV1)&&p.pitchFamiliarityV1.length===3
+    &&p.pitchFamiliarityV1.every((v:unknown)=>typeof v==='number'&&v>=0&&v<=1)&&Object.hasOwn(p,'leagueReferencePitchesV1'),'invalid pitch familiarity');}
+  if(Object.hasOwn(p,'leagueReferencePitchesV1')){keys.push('leagueReferencePitchesV1');const r=p.leagueReferencePitchesV1 as Record<string,unknown>;
+    assert(r&&typeof r==='object'&&['R','L'].every(h=>Array.isArray(r[h])&&(r[h] as unknown[]).every(e=>{const x=e as {pitchType?:unknown;spinRadPerSecond?:Record<string,unknown>};
+      return typeof x?.pitchType==='string'&&x.spinRadPerSecond!==undefined&&['x','y','z'].every(k=>typeof x.spinRadPerSecond![k]==='number'&&Number.isFinite(x.spinRadPerSecond![k] as number));})),
+      'invalid league reference pitches');}
   if(Object.hasOwn(p,'pitchZoneLeanV2')){keys.push('pitchZoneLeanV2');assert(typeof p.pitchZoneLeanV2==='number'&&p.pitchZoneLeanV2>=0&&p.pitchZoneLeanV2<=5,'invalid pitch zone lean v2');}
   if(Object.hasOwn(p,'pitchTargetPlanV2')){keys.push('pitchTargetPlanV2');assert(typeof p.pitchTargetPlanV2==='number'&&p.pitchTargetPlanV2>=.0005&&p.pitchTargetPlanV2<=.5,'invalid pitch target plan v2');}
   if(Object.hasOwn(p,'speedPerceptionV1')){keys.push('speedPerceptionV1');assert(typeof p.speedPerceptionV1==='number'&&p.speedPerceptionV1>=0&&p.speedPerceptionV1<=.3,'invalid speed perception');}
