@@ -1,5 +1,6 @@
 import {selectOrderedContactV1} from '../../../experimental/robin/playability/ordered-contact-candidates-v1';
 
+import { MLB_INFIELD_DIRT_ARC_V1 } from '../ball/BaseballSurfaceCalibrationV101';
 import {observedLooseCueV1} from '../../../experimental/robin/bridge/observed-loose-cue';
 import { liveFielderBodyPoseV105, sampleLiveFielderPostureV105, validateLiveFielderBodyModelV105, liveFielderReachTargetV105, liveFielderDesiredCrouchV105, liveFielderHorizontalReachV105, liveFielderPreferredBodyPointV105, liveFielderThrowOffsetV105, liveFielderRecoverySecondsV105, liveFielderPreparationPostureSecondsV105, createLiveBodyHandPreparationV105, type LiveFielderBodyModelV105, type LiveFielderBodyPoseV105, type LiveFielderPostureV105 } from './LiveFielderBodyGeometryV105';
 import { sampleLiveTransferDelayV101 } from './LiveTransferTimingV101';
@@ -1586,7 +1587,8 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
             cautious:f.spec.fieldingCognition?.cautious,
             // outfieldRightOfWayV1: once he has seen the ball on the ground; a ball in the air is still an out to whoever can make it.
             ...(outfieldRightOfWayV1&&firstGroundContactSeconds!==null&&seen.observationElapsedSeconds!==null&&firstGroundContactSeconds<=seen.observationElapsedSeconds
-              ?{outfieldRightOfWayV1:true as const}:{}),
+              ?{outfieldRightOfWayV1:{arc:MLB_INFIELD_DIRT_ARC_V1,
+                reachMeters:Object.fromEntries(defenders.map(d=>[d.spec.playerId,Math.max(0,horizontalReachV105(d,t,input.physics.ground.radiusM))]))}}:{}),
             ...(fieldRangePolicyV1?{coverAllowedV1:(b:BaseballBase,arrival:number)=>{
               if(fieldCoverV1){
                 const plan=coverPlanV1??=coverPlanOfV1();

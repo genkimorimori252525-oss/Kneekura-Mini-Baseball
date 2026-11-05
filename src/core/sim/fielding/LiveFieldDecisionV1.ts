@@ -14,11 +14,12 @@ export type LiveFieldDecisionContextV1=Readonly<{elapsedSeconds:number;observati
  previous?:LiveFieldRoleV1;cautious?:boolean;ownTask?:LiveFieldRoleV1;
  /** Present: a bag is one man's job, and a player only offers to cover where this allows it. */
  coverAllowedV1?:(base:BaseballBase,arrivalSeconds:number)=>boolean;
- /** Present: a ball on the ground that has got past an infielder (it is going away from him, or has stopped beyond him on its
-  * line from home) is the outfielder's.
+ /** Present: a ball on the ground that has got past an infielder (it is out on the grass beyond the dirt arc, out of his reach,
+  * and going away from him or stopped beyond him on its line from home) is the outfielder's. reachMeters is how far each man
+  * can reach for a ball on the ground.
   * The outfielder does not count that infielder as competing for it, and the infielder, once he has heard an outfielder call
   * for it, does not go for it himself. */
- outfieldRightOfWayV1?:true}>;
+ outfieldRightOfWayV1?:Readonly<{reachMeters:Readonly<Record<string,number>>;arc:Readonly<{centerX:number;centerZ:number;radiusM:number}>}>}>;
 export type LiveFieldDecisionCandidateV1=Readonly<{role:LiveFieldRoleV1;intent:DefensiveIntent;cost:number;arrivalSeconds:number;
  opportunityCost:number;competitionCost:number;switchCost:number;reason:string}>;
 const distance=(a:Vec3,b:Vec3)=>Math.hypot(a.x-b.x,a.z-b.z);
@@ -36,7 +37,9 @@ export function evaluateLiveFieldDecisionV1(input:LiveFieldDecisionContextV1){
   outfielders=new Set(['LF','CF','RF']),isOutfielder=(a:LiveFieldRoleActorV1)=>outfielders.has(a.defensivePosition??''),
   past=(a:LiveFieldRoleActorV1)=>{
    const b=input.ball,v=input.ballVelocity,home=input.bases[4];
-   if(!input.outfieldRightOfWayV1||!b||!a.defensivePosition||isOutfielder(a))return false;
+   const w=input.outfieldRightOfWayV1;
+   if(!w||!b||!a.defensivePosition||isOutfielder(a)||Math.hypot(b.x-w.arc.centerX,b.z-w.arc.centerZ)<=w.arc.radiusM)return false;
+   if(distance(b,a.position)<=(w.reachMeters[a.playerId]??0))return false;
    const moving=Math.hypot(v.x,v.z)>1e-6,dx=moving?v.x:b.x-home.x,dz=moving?v.z:b.z-home.z;
    return (b.x-a.position.x)*dx+(b.z-a.position.z)*dz>0;
   },
