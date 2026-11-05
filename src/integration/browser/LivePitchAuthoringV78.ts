@@ -20,7 +20,10 @@ export type PitchPhysicalSettingsV78 = Readonly<{ releaseSpeedMps: number; spinR
   zoneRateV1?: number;
   /** usageWeightV1 scaled in each count, 0-0 0-1 0-2 1-0 ... 3-2 (12 values, 0..50; e.g. the share in that count over the
    * share overall). On every pitch or on none, with usageWeightV1; every count keeps a positive pitch. Omitted, as before. */
-  usageByCountV1?: readonly number[] }>;
+  usageByCountV1?: readonly number[];
+  /** Where the pitcher centres this pitch, [toward his arm side in metres, above the zone's middle in zone half-heights] (e.g.
+   * the Statcast mean location of the pitch); under pitchAimCenterV2 the target plan's chosen spot is moved by it. Omitted, no move. */
+  aimCenterV1?: readonly number[] }>;
 export type PitchSnapshotV78 = PitchPhysicalSettingsV78 & Readonly<{ pitchId: string; name: string; pitchType: LivePitchTypeV78;
   source: Readonly<{ kind: 'preset' | 'original'; id: string; revision: number }> }>;
 export type PitchRepertoireV78 = Readonly<{ version: 'pitch_repertoire_v78'; pitches: readonly PitchSnapshotV78[] }>;
@@ -63,7 +66,7 @@ const validName=(v:unknown):v is string=>typeof v==='string'&&v.length>0&&v.leng
 function fields(raw:unknown,required:readonly string[],optional:readonly string[]=[]):asserts raw is Record<string,unknown>{
   assert(raw&&typeof raw==='object'&&!Array.isArray(raw)&&required.every(k=>Object.hasOwn(raw,k))&&Object.keys(raw).every(k=>required.includes(k)||optional.includes(k)),'unknown or missing fields');
 }
-const physicalRequired=['releaseSpeedMps','spinRadPerSecond'],physicalOptional=['releaseOrientation','seamForce','movementV92','usageWeightV1','zoneRateV1','usageByCountV1'];
+const physicalRequired=['releaseSpeedMps','spinRadPerSecond'],physicalOptional=['releaseOrientation','seamForce','movementV92','usageWeightV1','zoneRateV1','usageByCountV1','aimCenterV1'];
 function physical(raw:Record<string,unknown>,maximumPitchSpeedMps?:number){
   assert(maximumPitchSpeedMps===undefined||bounded(maximumPitchSpeedMps,15,85),'invalid maximum pitch speed');
   assert(bounded(raw.releaseSpeedMps,5,85)&&raw.releaseSpeedMps<=(maximumPitchSpeedMps??85),'invalid V78 pitch speed or individual limit');
@@ -76,6 +79,7 @@ function physical(raw:Record<string,unknown>,maximumPitchSpeedMps?:number){
   if(Object.hasOwn(raw,'seamForce')){const seam=validateBaseballSeamForceV1(raw.seamForce);assert(seam.coefficientScale===0||raw.releaseOrientation!==undefined,'seam force requires an explicit material orientation');}
   assert(!Object.hasOwn(raw,'usageWeightV1')||bounded(raw.usageWeightV1,0,1000),'invalid pitch usage weight');
   assert(!Object.hasOwn(raw,'zoneRateV1')||bounded(raw.zoneRateV1,0,1),'invalid pitch zone rate');
+  assert(!Object.hasOwn(raw,'aimCenterV1')||Array.isArray(raw.aimCenterV1)&&raw.aimCenterV1.length===2&&bounded(raw.aimCenterV1[0],-.6,.6)&&bounded(raw.aimCenterV1[1],-3,3),'invalid pitch aim centre');
   assert(!Object.hasOwn(raw,'usageByCountV1')||Array.isArray(raw.usageByCountV1)&&raw.usageByCountV1.length===12&&raw.usageByCountV1.every(v=>bounded(v,0,50)),'invalid pitch usage by count');
   if(Object.hasOwn(raw,'movementV92')){
     const history=raw.movementV92;fields(history,['version','level','referenceSpinRadPerSecond'],['referenceSeamForce']);

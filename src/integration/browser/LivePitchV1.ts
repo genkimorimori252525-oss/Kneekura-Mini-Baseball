@@ -386,7 +386,9 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     zone,ballRadiusMeters:profile.ground.radiusM,pitcher:p,catcher,batter:b,situation:input.pitchSituationV111,
     ...(orderedLocationV1?{preferredLocationV1:orderedLocationV1}:{}),
     ...(observationPolicyV151?.pitchTargetPlanV2===undefined?{}:{targetPlanV2:observationPolicyV151.pitchTargetPlanV2,pitchTypeV2:pitchType,
-      ...(zoneLeanV2===null?{}:{zoneLeanV2})}),
+      ...(zoneLeanV2===null?{}:{zoneLeanV2}),...(observationPolicyV151.pitchMissDirectionV2===undefined?{}:{missDirectionV2:observationPolicyV151.pitchMissDirectionV2}),
+      ...(observationPolicyV151.pitchAimCenterV2===undefined||selectedSnapshot?.aimCenterV1===undefined?{}
+        :{aimCenterV2:{arm:observationPolicyV151.pitchAimCenterV2*selectedSnapshot.aimCenterV1[0]!,up:observationPolicyV151.pitchAimCenterV2*selectedSnapshot.aimCenterV1[1]!}})}),
     seed:randomStreamsV152?.seedFor('pitchTarget','target-plan-v111')??input.seed}):null;
   if(pitchTargetPlanV111){Object.assign(target,pitchTargetPlanV111.position);location=pitchTargetPlanV111.location;}
   // zoneRateV1 on the pitch (the share of these pitches whose centre crosses the zone): the plan keeps its in-or-out choice

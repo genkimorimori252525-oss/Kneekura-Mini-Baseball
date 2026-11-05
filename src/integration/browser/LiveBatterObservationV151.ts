@@ -98,6 +98,11 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   /** With pitchTargetPlanV2: runs per unit of a pitch's zoneRateV1 above the pitcher's own mean that lean its target toward
    * the zone (0..5). The pitch's zone rate then works through the plan instead of moving the planned target. */
   pitchZoneLeanV2?:number;
+  /** With pitchTargetPlanV2: the share (0..1) of the plan's out-of-zone forecast taken by the side the ball misses on (up, down,
+   * arm side, glove side) and its band, from MLB rows by pitch family and count, instead of by band alone (2026-11-05). */
+  pitchMissDirectionV2?:number;
+  /** With pitchTargetPlanV2: the share (0..2) of each pitch's aimCenterV1 that moves the plan's chosen spot (2026-11-05). */
+  pitchAimCenterV2?:number;
   /** Share of the remembered pitch kept in where the bat goes (0..1); the arrival time keeps the full prior.
    * Blending a quarter of the last pitches into the height made hitters top low pitches and pop up high ones. */
   priorPlacementShareV1?:number;
@@ -189,6 +194,8 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
     assert(r&&typeof r==='object'&&['R','L'].every(h=>Array.isArray(r[h])&&(r[h] as unknown[]).every(e=>{const x=e as {pitchType?:unknown;spinRadPerSecond?:Record<string,unknown>};
       return typeof x?.pitchType==='string'&&x.spinRadPerSecond!==undefined&&['x','y','z'].every(k=>typeof x.spinRadPerSecond![k]==='number'&&Number.isFinite(x.spinRadPerSecond![k] as number));})),
       'invalid league reference pitches');}
+  if(Object.hasOwn(p,'pitchAimCenterV2')){keys.push('pitchAimCenterV2');assert(typeof p.pitchAimCenterV2==='number'&&p.pitchAimCenterV2>=0&&p.pitchAimCenterV2<=2&&Object.hasOwn(p,'pitchTargetPlanV2'),'invalid pitch aim centre v2');}
+  if(Object.hasOwn(p,'pitchMissDirectionV2')){keys.push('pitchMissDirectionV2');assert(typeof p.pitchMissDirectionV2==='number'&&p.pitchMissDirectionV2>=0&&p.pitchMissDirectionV2<=1&&Object.hasOwn(p,'pitchTargetPlanV2'),'invalid pitch miss direction v2');}
   if(Object.hasOwn(p,'pitchZoneLeanV2')){keys.push('pitchZoneLeanV2');assert(typeof p.pitchZoneLeanV2==='number'&&p.pitchZoneLeanV2>=0&&p.pitchZoneLeanV2<=5,'invalid pitch zone lean v2');}
   if(Object.hasOwn(p,'pitchTargetPlanV2')){keys.push('pitchTargetPlanV2');assert(typeof p.pitchTargetPlanV2==='number'&&p.pitchTargetPlanV2>=.0005&&p.pitchTargetPlanV2<=.5,'invalid pitch target plan v2');}
   if(Object.hasOwn(p,'speedPerceptionV1')){keys.push('speedPerceptionV1');assert(typeof p.speedPerceptionV1==='number'&&p.speedPerceptionV1>=0&&p.speedPerceptionV1<=.3,'invalid speed perception');}

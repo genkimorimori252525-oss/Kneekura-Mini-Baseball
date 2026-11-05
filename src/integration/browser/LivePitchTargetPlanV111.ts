@@ -4,6 +4,7 @@ import {validateTechnicalSkillControlsV75,type TechnicalSkillControlsV75} from '
 import {classifyBatterCourseV79,type BatterCourseZoneV79} from './BatterCourseProfileV79';
 import {classifyPublicCourseV87,validateBatterCourseProfileV87,type BatterCourseProfileV87} from './BatterCourseProfileV87';
 import {validateZoneRecognitionV87,type ZoneRecognitionV87} from './ZoneRecognitionV87';
+import {V2_MISS_DIRECTION} from './LivePitchMissDirectionV2';
 
 export type LivePitchSituationV111=Readonly<{balls:number;strikes:number;outs:number;
  occupiedBases:Readonly<{first:boolean;second:boolean;third:boolean}>}>;
@@ -21,6 +22,13 @@ export type LivePitchTargetPlanInputV111=Readonly<{
  /** With V2: runs taken off this pitch's cost per unit of its chance to land in the zone (negative: kept out of it). Only the
   * pitch at hand leans; the counts ahead are valued on the plain forecast. */
  zoneLeanV2?:number;
+ /** With V2: the share (0..1) of the forecast off the heart taken by side (up, down, the pitcher's arm side, his glove side): the
+  * zone's edge by its nearest side and the misses by side and band, from MLB rows by family, count, side and band, instead of
+  * the edge and the bands alone; the rest stays on those rows. */
+ missDirectionV2?:number;
+ /** With V2: this pitch's own centre, toward the pitcher's arm side (m) and above the zone's middle (zone half-heights): the chosen
+  * spot is moved by it after the choice (a slider is thrown low and to the glove side wherever the count puts it). Omitted, no move. */
+ aimCenterV2?:Readonly<{arm:number;up:number}>;
  pitcher:Readonly<{commandStdMeters:number;technicalSkills?:TechnicalSkillControlsV75;zoneRecognitionV87?:ZoneRecognitionV87;throws?:'R'|'L'}>;
  catcher?:Readonly<{zoneRecognitionV87?:ZoneRecognitionV87}>;
  batter:Readonly<{bats:'R'|'L';heightMeters?:number;maximumSweetSpotSpeedMps?:number;targetSweetSpotSpeedMps?:number;
@@ -51,7 +59,10 @@ const V2_BANDS=[.06,.12,.20,.30,.45],V2_FAR=[.218,.218,.218,.218],
  },
  V2_FAMILY:Readonly<Record<string,'FB'|'BR'|'OFF'>>={fastball:'FB',sinker:'FB',cutter:'FB',slider:'BR',sweeper:'BR',curve:'BR',
   knuckle_curve:'BR',slurve:'BR',slow_curve:'BR',changeup:'OFF',splitter:'OFF',forkball:'OFF',screwball:'OFF',knuckleball:'OFF',eephus:'OFF'},
- V2_WALK_SCALE=(.69/1.24)/.34;
+ V2_WALK_SCALE=(.69/1.24)/.34,
+ // 12-point Gauss-Hermite nodes and weights for a standard normal, for the miss by side and band (missDirectionV2).
+ V2_GH_NODES=[-5.5009,-4.27183,-3.22371,-2.25946,-1.34038,-.4444,.4444,1.34038,2.25946,3.22371,4.27183,5.5009],
+ V2_GH_WEIGHTS=[1.49993e-7,4.83718e-5,.00220338,.0291167,.146967,.321664,.321664,.146967,.0291167,.00220338,4.83718e-5,1.49993e-7];
 const clamp=(v:number,lo:number,hi:number)=>Math.max(lo,Math.min(hi,v));
 const bounded=(v:unknown,lo:number,hi:number):v is number=>typeof v==='number'&&Number.isFinite(v)&&v>=lo&&v<=hi;
 function assert(v:unknown,message:string):asserts v{if(!v)throw Error('pitch target v111: '+message);}
@@ -110,6 +121,21 @@ function normalCdf(z:number):number{
 function intervalProbability(lo:number,hi:number,mean:number,std:number){
  return std===0?(mean>=lo&&mean<=hi?1:0):clamp(normalCdf((hi-mean)/std)-normalCdf((lo-mean)/std),0,1);
 }
+/** The plan's landing mass by side (0 up, 1 down, 2 arm, 3 glove), 28 cells on a Gauss-Hermite grid around the aim: out of the
+ * ball-widened zone, side * 6 + band (<6, <12, <20, <30, <45 cm, more) on the side it is furthest out on, scaled to the analytic
+ * out-of-zone share; in it but outside the heart box, 24 + the side of the nearest edge, scaled to the analytic edge share. The
+ * arm side is the third-base side for a right-hander (catcher's view x < 0). */
+function missCellsV2(mean:Position,std:number,box:Readonly<{cx:number;cy:number;half:number;halfHeight:number;lower:number;upper:number;r:number}>,
+ throws:'R'|'L',outShare:number,edgeShare:number){
+ const cells=new Array<number>(28).fill(0);let out=0,edge=0;
+ V2_GH_NODES.forEach((u,i)=>V2_GH_NODES.forEach((v,j)=>{
+  const x=mean.x+std*u,y=mean.y+std*v,sideGap=Math.abs(x-box.cx)-(box.half+box.r),up=y-(box.upper+box.r),down=(box.lower-box.r)-y,far=Math.max(sideGap,up,down),
+   w=V2_GH_WEIGHTS[i]*V2_GH_WEIGHTS[j],armSide=(x-box.cx<0)===(throws==='R');
+  if(far>0){cells[(far===up?0:far===down?1:armSide?2:3)*6+V2_BANDS.filter(m=>far>=m).length]+=w;out+=w;return;}
+  if(Math.abs(x-box.cx)<box.half*.48&&Math.abs(y-box.cy)<box.halfHeight*.48)return;
+  cells[24+(far===up?0:far===down?1:armSide?2:3)]+=w;edge+=w;}));
+ return cells.map((c,k)=>k<24?(out>0?c/out*outShare:0):(edge>0?c/edge*edgeShare:0));
+}
 function rectangle(mean:Position,std:number,left:number,right:number,bottom:number,top:number){
  return intervalProbability(left,right,mean.x,std)*intervalProbability(bottom,top,mean.y,std);
 }
@@ -129,6 +155,8 @@ export function planLivePitchTargetV111(raw:LivePitchTargetPlanInputV111){
  assert(bounded(pitcher.commandStdMeters,0,.6),'invalid command standard deviation');
  assert(input.targetPlanV2===undefined||bounded(input.targetPlanV2,.0005,.5),'invalid target plan v2 temperature');
  assert(input.zoneLeanV2===undefined||input.targetPlanV2!==undefined&&bounded(input.zoneLeanV2,-1,1),'invalid target plan v2 zone lean');
+ assert(input.missDirectionV2===undefined||input.targetPlanV2!==undefined&&bounded(input.missDirectionV2,0,1),'invalid target plan v2 miss direction');
+ assert(input.aimCenterV2===undefined||input.targetPlanV2!==undefined&&bounded(input.aimCenterV2.arm,-1,1)&&bounded(input.aimCenterV2.up,-5,5),'invalid target plan v2 aim centre');
  assert(['R','L'].includes(batter.bats)&&bounded(batter.aimStdMeters,0,.35)&&bounded(batter.timingStdSeconds,0,.08)
   &&bounded(batter.chaseMarginMeters,0,.6),'invalid batter raw controls');
  for(const [key,lo,hi]of [['maximumSweetSpotSpeedMps',.1,90],['targetSweetSpotSpeedMps',.1,90],['zoneJudgmentStdMeters',0,.6],
@@ -186,11 +214,15 @@ export function planLivePitchTargetV111(raw:LivePitchTargetPlanInputV111){
      share=[pHeart,pStrike-pHeart,...within.slice(1).map((p,i)=>Math.max(0,p-within[i]))],
      fixed=batter.swingDecision?.approach==='TAKE'?0:batter.swingDecision?.approach==='SWING'?1:null,
      scale=share.map((_,i)=>i<2?zoneSwing/.80:chaseSwing/.3325),contactScale=heartContact/.859;
-    const hitter=V2_HITTER[V2_FAMILY[input.pitchTypeV2??'']??'ALL'];
-    return hitter.swing.map(row=>{
+    const family=V2_FAMILY[input.pitchTypeV2??'']??'ALL',hitter=V2_HITTER[family],
+     sideShare=input.missDirectionV2??0,side=sideShare>0?V2_MISS_DIRECTION[family]:null,
+     cells=side?missCellsV2(mean,std,{cx,cy,half:zone.halfWidth,halfHeight,lower:zone.lowerY,upper:zone.upperY,r},pitcher.throws??'R',1-pStrike,pStrike-pHeart):null;
+    return hitter.swing.map((row,k)=>{
      let whiff=0,called=0,ball=0,foul=0,inPlay=0,runs=0;
-     share.forEach((q,i)=>{const s=fixed??clamp(row[i]*scale[i],0,.98),hit=q*s*clamp(hitter.contact[i]*contactScale,0,.98);
-      whiff+=q*s-hit;if(i<2)called+=q*(1-s);else ball+=q*(1-s);foul+=hit*hitter.foul[i];inPlay+=hit*(1-hitter.foul[i]);runs+=hit*(1-hitter.foul[i])*hitter.runs[i];});
+     const add=(q:number,s:number,contactRate:number,foulRate:number,value:number,inZone:boolean)=>{const hit=q*s*clamp(contactRate*contactScale,0,.98);
+      whiff+=q*s-hit;if(inZone)called+=q*(1-s);else ball+=q*(1-s);foul+=hit*foulRate;inPlay+=hit*(1-foulRate);runs+=hit*(1-foulRate)*value;};
+     share.forEach((q,i)=>add(i===0?q:q*(1-sideShare),fixed??clamp(row[i]*scale[i],0,.98),hitter.contact[i],hitter.foul[i],hitter.runs[i],i<2));
+     if(side&&cells)cells.forEach((q,c)=>{if(q>0)add(q*sideShare,fixed??clamp(side.swing[k]![c]!*scale[c<24?2:1]!,0,.98),side.contact[c]!,side.foul[c]!,side.runs[c]!,c>=24);});
      return {events:{ball,strike:whiff+called,foul,inPlay},contactCost:runs*damage*strongBatterCare};
     });
    })(),
@@ -245,7 +277,10 @@ export function planLivePitchTargetV111(raw:LivePitchTargetPlanInputV111){
    if(index<0)index=softWeights.length-1-[...softWeights].reverse().findIndex(w=>w>0);return {c:eligible[index],index,cost:currentCosts[index]};})()
    :near[Math.min(near.length-1,Math.floor(rng.nextFloat()*near.length))],c=selected.c,
   groupV2=c.v2?.[situation.balls*3+situation.strikes];
- return freeze({position:c.position,location:c.location,diagnostics:{
+ // aimCenterV2: the pitch's own centre moves the chosen spot after the choice (the arm side is x < 0 for a right-hander,
+ // catcher's view); the forecast above is the plain one, so pStrike and the events below are the unmoved spot's.
+ const aimed=input.aimCenterV2===undefined?c.position:{x:c.position.x+(pitcher.throws==='L'?1:-1)*input.aimCenterV2.arm,y:c.position.y+input.aimCenterV2.up*halfHeight};
+ return freeze({position:aimed,location:c.location,diagnostics:{
   version:'live_pitch_target_plan_v111' as const,model:'UNCALIBRATED_GAUSSIAN_COUNT_COST_DP' as const,modelCalibrated:false as const,futureSourceUsed:false as const,
   situation,count:{balls:situation.balls,strikes:situation.strikes},cost:selected.cost,minimumCost,walkCost:planWalkCost,batterThreat,
   pStrike:c.pStrike,pBall:1-c.pStrike,pHeart:c.pHeart,events:groupV2?.events??c.events,contactCost:groupV2?.contactCost??c.contactCost,captureRiskCost:c.captureRiskCost,
