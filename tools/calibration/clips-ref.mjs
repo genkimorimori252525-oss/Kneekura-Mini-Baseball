@@ -32,6 +32,7 @@ if (process.argv[1]?.replace(/\\/g, '/').endsWith('tools/calibration/clips-ref.m
   for (const path of process.argv.slice(2)) {
     const config = JSON.parse(readFileSync(path, 'utf8'));
     if (typeof config.measuredClips === 'string') {console.log('already shared', path); continue;}
+    if (config.measuredClips === undefined) {console.log('no clips, left', path); continue;}
     // The round trip must give back the same clips before the config loses them.
     const before = JSON.stringify(config.measuredClips), shared = shareMeasuredClips(config);
     if (JSON.stringify(resolveMeasuredClips(JSON.parse(JSON.stringify(shared))).measuredClips) !== before) throw Error('round trip differs: ' + path);
