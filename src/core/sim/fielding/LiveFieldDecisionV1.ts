@@ -14,9 +14,9 @@ export type LiveFieldDecisionContextV1=Readonly<{elapsedSeconds:number;observati
  previous?:LiveFieldRoleV1;cautious?:boolean;ownTask?:LiveFieldRoleV1;
  /** Present: a bag is one man's job, and a player only offers to cover where this allows it. */
  coverAllowedV1?:(base:BaseballBase,arrivalSeconds:number)=>boolean;
- /** Present: a ball on the ground that has got past an infielder (to be fielded farther from home than he started) is the
-  * outfielder's. The outfielder does not count that infielder as competing for it, and the infielder, once he has heard an
-  * outfielder call for it, does not go for it himself. */
+ /** Present: a ball on the ground that has got past an infielder (it is now farther from home than he is) is the outfielder's.
+  * The outfielder does not count that infielder as competing for it, and the infielder, once he has heard an outfielder call
+  * for it, does not go for it himself. */
  outfieldRightOfWayV1?:true}>;
 export type LiveFieldDecisionCandidateV1=Readonly<{role:LiveFieldRoleV1;intent:DefensiveIntent;cost:number;arrivalSeconds:number;
  opportunityCost:number;competitionCost:number;switchCost:number;reason:string}>;
@@ -33,9 +33,9 @@ export function evaluateLiveFieldDecisionV1(input:LiveFieldDecisionContextV1){
   own=(taskId:string,intent:LiveFieldRoleV1['intent'],point:Vec3,targetBase:BaseballBase|null=null):LiveFieldRoleV1=>({playerId:self.playerId,taskId,intent,point:{...point},targetBase}),
   hold=own('hold:'+self.playerId,'hold',self.homePosition),pursuit=self.pursuitCostWeight??1,
   outfielders=new Set(['LF','CF','RF']),isOutfielder=(a:LiveFieldRoleActorV1)=>outfielders.has(a.defensivePosition??''),
-  past=(a:LiveFieldRoleActorV1,point:Vec3)=>!!input.outfieldRightOfWayV1&&!!a.defensivePosition&&!isOutfielder(a)
-   &&distance(point,input.bases[4])>distance(a.homePosition,input.bases[4]),
-  yields=(point:Vec3)=>past(self,point)&&input.received.some(m=>m.role.intent==='intercept'&&m.trust>0
+  past=(a:LiveFieldRoleActorV1)=>!!input.outfieldRightOfWayV1&&!!input.ball&&!!a.defensivePosition&&!isOutfielder(a)
+   &&distance(input.ball,input.bases[4])>distance(a.position,input.bases[4]),
+  yields=()=>past(self)&&input.received.some(m=>m.role.intent==='intercept'&&m.trust>0
     &&isOutfielder(others.find(a=>a.playerId===m.sourceId)??self));
  let pursuitTrace:ReturnType<typeof buildLivePursuitOptionsV1>|undefined;
  // A cover declaration is evidence of overlapping work, not a guaranteed
@@ -74,9 +74,9 @@ export function evaluateLiveFieldDecisionV1(input:LiveFieldDecisionContextV1){
   return cost;
  };
  const add=(role:LiveFieldRoleV1,benefit:number,competitionScale:number,reason:string,arrival=liveFieldArrivalSecondsV1(self,role.point))=>{
-  if(role.intent==='intercept'&&yields(role.point))return;
+  if(role.intent==='intercept'&&yields())return;
   const priority=role.intent==='intercept'&&isOutfielder(self);
-  const competitor=Math.min(...others.filter(a=>a.playerId!==input.possessionPlayerId&&!(priority&&past(a,role.point))).map(a=>{
+  const competitor=Math.min(...others.filter(a=>a.playerId!==input.possessionPlayerId&&!(priority&&past(a))).map(a=>{
     const claim=input.received.find(m=>m.sourceId===a.playerId&&m.role.intent==='intercept');
     return claim&&role.intent!=='intercept'?Infinity:liveFieldArrivalSecondsV1(a,role.point);
   })),competitionCost=Math.max(0,arrival-competitor-.15)*competitionScale+redundantCoverCost(role,arrival),
