@@ -33,6 +33,9 @@ export type LiveRelayPlanInputV1 = Readonly<{
   holderChargeElapsedSecondsV103?: number;
   preferStrongestFeasibleV103?: boolean;
   holderReleaseBodyVelocityV110?:Vec3;
+  /** Each catch a route adds must make it ready this much sooner, or the route with fewer catches is kept. Omission compares
+   * ready time and direction risk alone, so a relay man standing on the line could be added for nothing. */
+  relayStepSecondsV1?:number;
 }>;
 export type LiveRelayLegV1 = Readonly<{
   throwerPlayerId: string; receiverPlayerId: string; target: Vec3; receiverPoint: Vec3;
@@ -69,7 +72,7 @@ const flatDistance = (a: Vec3, b: Vec3) => Math.hypot(a.x - b.x, a.z - b.z);
 const finite = (p: Vec3) => !!p && [p.x, p.y, p.z].every(Number.isFinite);
 const freeze = <T>(value: T): T => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
 const allowedInputKeys = ['actors', 'holderPlayerId', 'receiverPlayerId', 'finalBase', 'runnerId', 'target', 'runnerArrivalSeconds',
-  'holderTransferRemainingSeconds', 'physics', 'throwHandOffset', 'maximumIntermediateReceivers', 'minimumMarginSeconds', 'excludedRelayPlayerIds', 'keepLateRouteV1', 'materialOrientationAtRelease','holderChargeElapsedSecondsV103','preferStrongestFeasibleV103','holderReleaseBodyVelocityV110'];
+  'holderTransferRemainingSeconds', 'physics', 'throwHandOffset', 'maximumIntermediateReceivers', 'minimumMarginSeconds', 'excludedRelayPlayerIds', 'keepLateRouteV1', 'materialOrientationAtRelease','holderChargeElapsedSecondsV103','preferStrongestFeasibleV103','relayStepSecondsV1','holderReleaseBodyVelocityV110'];
 
 /** Routes an intended throw using only present actor state and an explicit
  * runner estimate. Intermediate receivers are actual actors at their current
@@ -89,6 +92,7 @@ export function planLiveRelayV1(raw: LiveRelayPlanInputV1,compareReadyReceiverTo
     || !Number.isFinite(input.holderChargeElapsedSecondsV103??0)||(input.holderChargeElapsedSecondsV103??0)<0
     || input.preferStrongestFeasibleV103!==undefined&&typeof input.preferStrongestFeasibleV103!=='boolean'
     || input.holderReleaseBodyVelocityV110!==undefined&&!finite(input.holderReleaseBodyVelocityV110)
+    || input.relayStepSecondsV1!==undefined&&!(input.relayStepSecondsV1>=0&&input.relayStepSecondsV1<1)
     || ![0, 1, 2].includes(maximumIntermediateReceivers)
     || input.excludedRelayPlayerIds !== undefined && (!Array.isArray(input.excludedRelayPlayerIds)
       || input.excludedRelayPlayerIds.some(id => typeof id !== 'string' || !id))
@@ -267,7 +271,9 @@ export function planLiveRelayV1(raw: LiveRelayPlanInputV1,compareReadyReceiverTo
     }
     if(!timed)continue;
     if(route.length===2)directSeconds=timed.readySeconds;
-    if(!best||timed.costSeconds<best.costSeconds)best=timed;
+    // relayStepSecondsV1: an added catch has to buy its own time, or it is a chance to drop the ball for nothing.
+    const step=input.relayStepSecondsV1??0;
+    if(!best||timed.costSeconds+step*timed.legs.length<best.costSeconds+step*best.legs.length)best=timed;
   }
   const carrySeconds = holder.postActionV120 ? estimateLivePostActionArrivalV1({ ...holder.postActionV120, actorId: holder.playerId,
     actor: { ...holder, remainingReactionSeconds: 0 }, target: input.target, arrivalMode: 'first_entry', radiusMeters: policy.baseTouchRadiusMeters }).remainingSeconds

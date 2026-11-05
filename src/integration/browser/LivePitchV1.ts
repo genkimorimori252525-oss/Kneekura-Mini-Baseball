@@ -653,9 +653,19 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       ball:{tick:positionObserverV151.decisionTick,position:perceivedForecastV1!.prediction?.position??{x:0,y:middle,z:battingSetupV94.contactPlaneZ},
         velocity:effectiveForecastV246!.prediction?.estimatedVelocity??zero(),spin:zero()}}
       :predictFromObservation(observedSample,decisionTime,battingSetupV94.contactPlaneZ),
-    priorV122=intentV122?.preparedPrediction??(preparedRecallV151?{x:preparedRecallV151.position.x,y:preparedRecallV151.position.y,
+    // priorExpectationV1 [weight, k]: instead of one remembered pitch drawn at random, the batter expects the mean of what he
+    // has seen from this pitcher, shrunk toward the middle of the zone while he has seen little (n/(n+k)), and leans on that
+    // expectation less as he sees more (weight k/(n+k)): a pitcher's tendencies are learned over the game (2026-11-05).
+    expectedRecallV1=observationPolicyV151?.priorExpectationV1&&observedMemoryV151&&!intentV122?.preparedPrediction?(()=>{
+      const [weight,k]=observationPolicyV151.priorExpectationV1!,seen=observedMemoryV151.entries.filter(entry=>entry.availableTick<=input.originTick),
+        n=seen.length,share=n/(n+k),mean=(read:(entry:typeof seen[number])=>number)=>seen.reduce((sum,entry)=>sum+read(entry),0)/Math.max(1,n);
+      return {x:share*mean(entry=>entry.position.x),y:share*mean(entry=>entry.position.y)+(1-share)*middle,
+        arrivalAfterReleaseSeconds:n?mean(entry=>entry.arrivalAfterReleaseSeconds):flightGuess,weight:weight*k/(n+k)};
+    })():null,
+    priorV122=intentV122?.preparedPrediction??(expectedRecallV1?{x:expectedRecallV1.x,y:expectedRecallV1.y,arrivalAfterReleaseSeconds:expectedRecallV1.arrivalAfterReleaseSeconds}
+      :preparedRecallV151?{x:preparedRecallV151.position.x,y:preparedRecallV151.position.y,
       arrivalAfterReleaseSeconds:preparedRecallV151.arrivalAfterReleaseSeconds}:null),
-    requestedPriorWeightV151=intentV122?.preparedPrediction?(intentV122.priorWeight??0):preparedRecallV151?.priorWeight??0,
+    requestedPriorWeightV151=intentV122?.preparedPrediction?(intentV122.priorWeight??0):expectedRecallV1?expectedRecallV1.weight:preparedRecallV151?.priorWeight??0,
     currentObservationAvailableV151=positionObserverV151===undefined||effectiveForecastV246?.status==='PREDICTED',
     usablePriorV151=priorV122!==null&&priorV122!==undefined&&requestedPriorWeightV151>0,
     priorWeightV122=!currentObservationAvailableV151&&usablePriorV151?1:requestedPriorWeightV151,
@@ -674,17 +684,28 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
         return Math.min(.95,observationPolicyV151.priorFooledChanceV1!*(Math.max(.05,(observationPolicyV151.fooledViewReferenceV1??.44)-lead)/Math.max(.05,expected-lead))**observationPolicyV151.fooledViewPowerV1!);})(),
     fooledV1=fooledChanceV1!==undefined&&currentObservationAvailableV151&&!!priorV122&&priorWeightV122>0
       &&(randomStreamsV152?.rng('batterBelief','fooled-placement').uniform()??new SeedRoot(input.seed).streamRng(0,'batting','fooled-placement-v1').nextFloat())<fooledChanceV1,
-    placementPriorWeightV1=recognitionUsedV1?0:fooledChanceV1!==undefined&&currentObservationAvailableV151?(fooledV1&&!recognitionPolicyV1&&!recognitionPolicyV2?1:0)
+    // With pitch recognition the bat went where the ball was seen, while the swing was decided on the belief blended toward
+    // the remembered pitch; a far ball that only looked like a strike through that blend was still hit. placementJudgedV1
+    // places the bat on the deciding belief, the swing path being set when the swing is committed (2026-11-05).
+    placementPriorWeightV1=recognitionUsedV1?priorWeightV122*(observationPolicyV151?.placementJudgedV1??0):fooledChanceV1!==undefined&&currentObservationAvailableV151?(fooledV1&&!recognitionPolicyV1&&!recognitionPolicyV2?1:0)
       :observationPolicyV151?.priorPlacementShareV1===undefined||!currentObservationAvailableV151?priorWeightV122:priorWeightV122*observationPolicyV151.priorPlacementShareV1,
     placementPositionV1=placementPriorWeightV1===priorWeightV122||!priorV122?prediction.ball.position:{...observedPredictionV122.ball.position,
       x:observedPredictionV122.ball.position.x*(1-placementPriorWeightV1)+priorV122.x*placementPriorWeightV1,
       y:observedPredictionV122.ball.position.y*(1-placementPriorWeightV1)+priorV122.y*placementPriorWeightV1},
     controlFactor=swingIntentV121?1:input.batting==='power'?1.08:input.batting==='contact'?.92:1;
-  let baselineTimingError=yawDeferExecutionV274?0:timingRandom.normal()*b.timingStdSeconds*viewTimingScaleV1*(swingIntentV121?1:input.batting==='contact'?.72:input.batting==='power'?1.15:1);
+  // aimTailV1 [share, scale]: a share of swings misjudges the height by scale times the usual up-down spread (swinging under a
+  // high fastball), drawn on its own stream and only when the policy is set.
+  const aimTailV1=observationPolicyV151?.aimTailV1,aimTailScaleV1=aimTailV1===undefined?1
+    :(randomStreamsV152?.rng('batterExecution','aim-tail').uniform()??new SeedRoot(input.seed).streamRng(0,'batting','aim-tail-v1').nextFloat())<aimTailV1[0]!?aimTailV1[1]!:1;
+  // timingTailV1 [share, scale]: a share of swings misjudge the timing by scale times the usual spread (a heavy tail), so a
+  // pitch read right can still be swung through; drawn on its own stream and only when the policy is set.
+  const timingTailV1=observationPolicyV151?.timingTailV1,timingTailScaleV1=timingTailV1===undefined?1
+    :(randomStreamsV152?.rng('batterExecution','timing-tail').uniform()??new SeedRoot(input.seed).streamRng(0,'batting','timing-tail-v1').nextFloat())<timingTailV1[0]!?timingTailV1[1]!:1;
+  let baselineTimingError=yawDeferExecutionV274?0:timingRandom.normal()*b.timingStdSeconds*viewTimingScaleV1*timingTailScaleV1*(swingIntentV121?1:input.batting==='contact'?.72:input.batting==='power'?1.15:1);
   const awkwardness=Math.max(0,Math.abs(prediction.ball.position.x)/.2159-1,(.55-prediction.ball.position.y)/.5,(prediction.ball.position.y-1.5)/.5),
     awkwardErrorFactor=b.badBallControl===undefined?1:1+awkwardness*(1-b.badBallControl),
     aimScale=b.aimStdMeters*(swingIntentV121?1:input.batting==='contact'?.7:input.batting==='power'?1.1:1)*awkwardErrorFactor*viewAimScaleV1;
-  let baselineAimError=yawDeferExecutionV274?zero():{x:aimRandom.normal()*aimScale,y:aimRandom.normal()*aimScale*(observationPolicyV151?.aimVerticalScaleV1??1),z:aimRandom.normal()*aimScale*.3},
+  let baselineAimError=yawDeferExecutionV274?zero():{x:aimRandom.normal()*aimScale,y:aimRandom.normal()*aimScale*(observationPolicyV151?.aimVerticalScaleV1??1)*aimTailScaleV1,z:aimRandom.normal()*aimScale*.3},
     sweetSpotT=clamp((b.sweetSpotT??(b.batLengthM-.1524)/b.batLengthM)+(yawDeferExecutionV274?0:(sweetSpotRandom.uniform()-.5)*.025),.65,.9);
   const heightScale=b.heightMeters/1.8;
   // visionJudgmentV1 [std at vision 70, points per factor e]: the ball-strike judgment spread comes from the 1-100 vision itself,
@@ -1067,7 +1088,10 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       budget=effectiveMaximumSpeedV121===undefined?0:Math.max(0,Math.min(uncorrectedReference.maximumGripSpeedMps,effectiveMaximumSpeedV121-uncorrectedReference.maximumSweetSpotSpeedMps))*(swingIntentV121?.controlPriority??1),
       accelerationBudget=executionV122?Math.max(0,Math.min(executionV122.maximumGripAccelerationMps2-referenceAccelerationBoundsV122(uncorrectedReference).maximumGripAccelerationMps2,
         executionV122.maximumSweetSpotAccelerationMps2-referenceAccelerationBoundsV122(uncorrectedReference).maximumSweetSpotAccelerationMps2)):Infinity,
-      scale=duration>0&&distance>1e-9?Math.min(headroom,budget*duration/(1.5*distance),executionV122?executionV122.maximumCorrectionMeters/distance:Infinity,accelerationBudget*duration*duration/(6*distance)):0,
+      // lateLookAccelerationV1 (m/s^2): the late correction is bounded by the extra hand acceleration over the time left,
+      // |offset| <= a T^2/6, instead of a fixed share of the gap; a small miss closes fully, a far one only partly (2026-11-05).
+      lateAccelerationV1=observationPolicyV151?.lateLookAccelerationV1,
+      scale=duration>0&&distance>1e-9?Math.min(lateAccelerationV1===undefined?headroom:Math.min(1,lateAccelerationV1*duration*duration/(6*distance)),budget*duration/(1.5*distance),executionV122?executionV122.maximumCorrectionMeters/distance:Infinity,accelerationBudget*duration*duration/(6*distance)):0,
       offset=mul(requestedOffset,scale),applied=scale>0&&norm(offset)<=3;
     return {headroom,observedTick:lateObservedTick,availableTick,correctionFromTick,throughTick:Math.max(correctionFromTick,throughTick),selectedPredictionId:evidence.predictionId,
       contactPlaneZ:battingSetupV94.contactPlaneZ,requestedOffset,offset:applied?offset:zero(),applied,maximumCorrectionSpeedMps:budget,
@@ -1165,8 +1189,8 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     yawDiagnosticV274={version:input.yawDiagnosticV274.version,planningRate:rate,selectedYawDegrees:planned.selectedYawDegrees,selectedIndex,cutoffTick:observationTick,selectedReference:planned.reference,baselineV161Diagnostics:normal.diagnostics,baselineV244Decision,translationMode:isRobustV276?'YAW_ROBUST_NINE_SCENARIOS':input.yawDiagnosticV274.version==='live_yaw_paired_diagnostic_v275'?'YAW_WITH_NOMINAL_CENTER_COMPENSATION':'YAW_ONLY_NO_TRANSLATION',...(isRobustV276?{robustEvidence:{version:'finite_nine_scenarios_v276',probability:false,wholeArc:'UNKNOWN',lateZero:'UNKNOWN',scenarioSummary:'scenarioSummary'in planned?planned.scenarioSummary.map(row=>({yawDegrees:row.candidate.yawDegrees,scenarios:row.values.map(v=>({status:v.status,...('reason'in v?{reason:v.reason}:{}),...('meets'in v?{meets:v.meets}:{})}))})):[]}}:{})};
     finalNominalReferenceV153=planned.reference;nominalRegistrationsV153.set(rate,{...normal,reference:planned.reference});
     // The choice is sealed before any execution-error draw; V152 streams keep the original per-key draws.
-    baselineTimingError=timingRandom.normal()*b.timingStdSeconds*viewTimingScaleV1*(swingIntentV121?1:input.batting==='contact'?.72:input.batting==='power'?1.15:1);
-    baselineAimError={x:aimRandom.normal()*aimScale,y:aimRandom.normal()*aimScale*(observationPolicyV151?.aimVerticalScaleV1??1),z:aimRandom.normal()*aimScale*.3};
+    baselineTimingError=timingRandom.normal()*b.timingStdSeconds*viewTimingScaleV1*timingTailScaleV1*(swingIntentV121?1:input.batting==='contact'?.72:input.batting==='power'?1.15:1);
+    baselineAimError={x:aimRandom.normal()*aimScale,y:aimRandom.normal()*aimScale*(observationPolicyV151?.aimVerticalScaleV1??1)*aimTailScaleV1,z:aimRandom.normal()*aimScale*.3};
     sweetSpotT=clamp((b.sweetSpotT??(b.batLengthM-.1524)/b.batLengthM)+(sweetSpotRandom.uniform()-.5)*.025,.65,.9);
     zoneTimingError=zoneHitStrength>0?baselineTimingError*zoneHitErrorScale:baselineTimingError;zoneAimError=zoneHitStrength>0?mul(baselineAimError,zoneHitErrorScale):baselineAimError;
     timingError=courseErrorScale===1?zoneTimingError:zoneTimingError*courseErrorScale;courseAimError=courseErrorScale===1?zoneAimError:mul(zoneAimError,courseErrorScale);
@@ -1277,8 +1301,10 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     if(contact&&vibrationV1){
       // A wooden bat rings when struck away from its sweet spot and the ball keeps less of the bounce: the normal
       // restitution halves at the given distance toward the tip or the handle. The rigid bat alone loses nothing there.
+      // An optional fourth value is the shape's exponent: 2 (the default) is a bell with a flat top around the sweet spot,
+      // 1 falls off at once, which matched the spread of Statcast exit speeds (2026-11-05, K:/kbm-work/evroot).
       const pose=impactBatScaled.pose,axis=sub(pose.tip,pose.grip),length=norm(axis),along=dot(sub(contact.batSurfacePoint,pose.grip),axis)/length,
-        offset=along-(b.sweetSpotT??(b.batLengthM-.1524)/b.batLengthM)*length,half=offset>0?vibrationV1[0]!:vibrationV1[1]!,keep=Math.max(vibrationV1[2]??0,.5**((offset/half)**2));
+        offset=along-(b.sweetSpotT??(b.batLengthM-.1524)/b.batLengthM)*length,half=offset>0?vibrationV1[0]!:vibrationV1[1]!,keep=Math.max(vibrationV1[2]??0,.5**(Math.abs(offset/half)**(vibrationV1[3]??2)));
       if(keep<1)contact=resolveWoodBatSpeedProfileBallContact(impactBall,impactBatScaled,ballPhysical,{...NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1,
         normalRestitutionKnots:NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1.normalRestitutionKnots.map(k=>({...k,normalRestitution:k.normalRestitution*keep}))});
     }

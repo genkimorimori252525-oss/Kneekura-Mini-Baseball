@@ -61,6 +61,67 @@ export function validateLiveTossReceivePolicyV1(policy:LiveTossReceivePolicyV1){
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid toss receive policy');
   return policy;
 }
+/** Opt-in. Omission crouches for a ball only once it is judged reachable. */
+export type LiveFieldAttemptCrouchPolicyV1=Readonly<{version:'live_field_attempt_crouch_policy_v1';sourceId:string}>;
+export const LIVE_FIELD_ATTEMPT_CROUCH_POLICY_V1:LiveFieldAttemptCrouchPolicyV1=Object.freeze({version:'live_field_attempt_crouch_policy_v1',sourceId:'attempt-crouch-v1-physics'});
+/** A fielder who is going for a close ball gets down for it as early as for a sure one. Reachable needed the crouch to be in
+ * time, and the crouch waited for reachable: a shortstop squarely in the path of a 70 mph roller stayed upright, his glove
+ * held at 1.3 m, and the ball went between his feet (2026-11-04, a shaded MLB grounder). The glove already treated such an
+ * attempt as a ground catch; this lets the body follow it. */
+export function validateLiveFieldAttemptCrouchPolicyV1(policy:LiveFieldAttemptCrouchPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_attempt_crouch_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field attempt crouch policy');
+  return policy;
+}
+/** Opt-in, with fieldCoverV1. Omission lets the cover plan send a man to a bag while he is seen going for the ball. */
+export type LiveFieldCoverSeenPolicyV1=Readonly<{version:'live_field_cover_seen_policy_v1';sourceId:string}>;
+export const LIVE_FIELD_COVER_SEEN_POLICY_V1:LiveFieldCoverSeenPolicyV1=Object.freeze({version:'live_field_cover_seen_policy_v1',sourceId:'cover-seen-v1-plan'});
+/** The cover plan does not count on a man it can see going for the ball, himself included, to take a bag: the bag goes to the
+ * next man there. On a grounder the second baseman took, every man's plan sent the first baseman to first; he had already gone
+ * for the ball, the pitcher was not given the bag, and nobody covered it (2026-11-04). Holding the first baseman to the plan
+ * instead kept men off balls that were theirs (MLB grounders .263 to .326), so it is the plan that follows the men. */
+export function validateLiveFieldCoverSeenPolicyV1(policy:LiveFieldCoverSeenPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_cover_seen_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field cover seen policy');
+  return policy;
+}
+/** Opt-in. Omission lets a relay route win on ready time and direction risk alone. */
+export type LiveRelayStepPolicyV1=Readonly<{version:'live_relay_step_policy_v1';sourceId:string}>;
+export const LIVE_RELAY_STEP_POLICY_V1:LiveRelayStepPolicyV1=Object.freeze({version:'live_relay_step_policy_v1',sourceId:'relay-step-v1-control'});
+/** Each catch a relay adds must make the throw ready at least one control step (the fielders' own decision step) sooner, or
+ * the route with fewer catches is kept: a gain under one step cannot be told from none, and every catch can be dropped. A
+ * second baseman fed the first baseman 1.7 m away on the way to a pitcher still running to the bag; both routes waited on the
+ * pitcher and were ready at 2.163 s, and the first baseman dropped it (2026-11-05, an MLB grounder). */
+export function validateLiveRelayStepPolicyV1(policy:LiveRelayStepPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_relay_step_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid relay step policy');
+  return policy;
+}
+/** Opt-in. Omission holds a runner whenever no fielder is forecast to get the ball. */
+export type LiveRunnerLooseBallReadPolicyV1=Readonly<{version:'live_runner_loose_ball_read_policy_v1';sourceId:string}>;
+export const LIVE_RUNNER_LOOSE_BALL_READ_POLICY_V1:LiveRunnerLooseBallReadPolicyV1=Object.freeze({version:'live_runner_loose_ball_read_policy_v1',sourceId:'loose-ball-read-v1-observed'});
+/** No fielder forecast to get the ball means the ball is loose, not that the race is unknown. The runner takes, from what he
+ * last saw, the soonest the defense could have it on the bag: the nearest man running to where the ball was, less the time
+ * since, then his exchange and a throw from there. A ball rolling to a fielder would have given that fielder a forecast.
+ * A runner on second, ready to go at 2.79 s after a liner fell in the left-field corner, stood until 4.41 s for want of a
+ * forecast and stopped at third (2026-11-05, an MLB single). */
+export function validateLiveRunnerLooseBallReadPolicyV1(policy:LiveRunnerLooseBallReadPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_runner_loose_ball_read_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid runner loose ball read policy');
+  return policy;
+}
+/** Opt-in. Omission runs the line-drive read from the runner's latest look at the ball. */
+export type LiveRunnerLineDriveReadPolicyV1=Readonly<{version:'live_runner_line_drive_read_policy_v1';sourceId:string}>;
+export const LIVE_RUNNER_LINE_DRIVE_READ_POLICY_V1:LiveRunnerLineDriveReadPolicyV1=Object.freeze({version:'live_runner_line_drive_read_policy_v1',sourceId:'line-drive-read-v1-first-sight'});
+/** A runner freezes on a liner for a short read from when he first saw it in the air, then goes on what he sees. Run from
+ * his latest look, the read never ended: that look always trails now by his reaction (.18-.2 s), less than the .25 s read,
+ * so he stood until the ball came down even when no fielder could reach it. A runner on second stood 2.4 s on a liner the
+ * center fielder got to at 6.1 s, his read of the catch at -1.8 to -4.0 s all the while (2026-11-05, an MLB single). */
+export function validateLiveRunnerLineDriveReadPolicyV1(policy:LiveRunnerLineDriveReadPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_runner_line_drive_read_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid runner line drive read policy');
+  return policy;
+}
 /** Opt-in. Omission keeps every runner, the batter too, waiting until the man on the bag ahead has left it. */
 export type LiveForcedRunPolicyV1=Readonly<{version:'live_forced_run_policy_v1';sourceId:string}>;
 export const LIVE_FORCED_RUN_POLICY_V1:LiveForcedRunPolicyV1=Object.freeze({version:'live_forced_run_policy_v1',sourceId:'forced-run-v1-rule'});
