@@ -17,6 +17,9 @@ if (opt.seed !== undefined) config.seed = Number(opt.seed) >>> 0;
 // --batters=key:value,key:value sets those values on every position player, for ability response curves.
 if (opt.batters) for (const player of config.players) if (/-b\d$/.test(player.playerId))
   for (const pair of opt.batters.split(',')) {const [key, value] = pair.split(':'); player.physical[key] = Number(value);}
+// --pitchers=key:value,key:value sets those values on every pitcher (player ids ending -p<n>), e.g. pitchTunnelV1:1.
+if (opt.pitchers) for (const player of config.players) if (/-p\d+$/.test(player.playerId))
+  for (const pair of opt.pitchers.split(',')) {const [key, value] = pair.split(':'); player.physical[key] = Number(value);}
 if (opt.skipField) config.skipFieldPlayV1 = true;
 // --observe=key:value (a_b for a list) and --decision=key:value set the batter observation policy and every batter's swing decision.
 if (opt.observe) for (const pair of opt.observe.split(',')) {const [key, value] = pair.split(':'); config.batterObservationV151[key] = value === 'true' ? true : value === 'false' ? false : value.includes('_') ? value.split('_').map(Number) : Number(value);}
