@@ -546,9 +546,10 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       return owned?owned.find(row=>row.pitchType==='fastball')??owned.find(row=>['sinker','cutter'].includes(row.pitchType))??null
         :resolvePitcherRepertoireV77(p,p.throws??'R').find(row=>row.pitchType==='fastball')??null;})(),
     bendForecastV1=<F extends Readonly<{status:string;observedThroughTick:number|null;prediction:Readonly<{position:Vec3;arrivalAfterReleaseSeconds:number;estimatedAcceleration:Vec3}>|null}>|null|undefined>(forecast:F,weightOverride?:number,
-      expectedPitch:Readonly<{releaseSpeedMps:number;spinRadPerSecond:Vec3}>|null=fastBendPitchV1):F=>{
+      expectedPitch:Readonly<{releaseSpeedMps:number;spinRadPerSecond:Vec3}>|null=fastBendPitchV1,lookSeconds?:number):F=>{
       if(!expectedPitch||forecast?.status!=='PREDICTED'||!forecast.prediction||forecast.observedThroughTick===null)return forecast;
-      const t1=(forecast.observedThroughTick-input.originTick)/tps,t2=forecast.prediction.arrivalAfterReleaseSeconds,dt=t2-t1,
+      // lookSeconds: the bend he expects is laid from then, not from the end of his look (the late break he did not take in).
+      const t1=Math.min((forecast.observedThroughTick-input.originTick)/tps,lookSeconds??Infinity),t2=forecast.prediction.arrivalAfterReleaseSeconds,dt=t2-t1,
         weight=weightOverride!==undefined?weightOverride:accelerationViewTimeV1!==undefined?t1/(t1+accelerationViewTimeV1):accelerationWeightV1??1;
       if(!(dt>.005)||weight>=1)return forecast;
       const start={...initial,velocity:mul(initial.velocity,expectedPitch.releaseSpeedMps*.99/norm(initial.velocity)),spin:expectedPitch.spinRadPerSecond},
@@ -632,7 +633,9 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     recognitionUsedV1=recognitionV2??recognitionV1,
     // With familiarity, even the pitch read right is expected to bend and arrive as he pictures it.
     readsPicturedV1=!!recognitionUsedV1&&(!recognitionUsedV1.recognized||recognitionV2?.familiarShare!=null||recognitionV2?.blended===true),
-    readForecastV1=readsPicturedV1?bendForecastV1(effectiveForecastV246,0,recognitionUsedV1!.readPitch):bendForecastV1(effectiveForecastV246),
+    // misreadLookSecondsV1: a misread hitter lays the read pitch's bend from this time after release, not from the end of his look.
+    readForecastV1=readsPicturedV1?bendForecastV1(effectiveForecastV246,0,recognitionUsedV1!.readPitch,
+      recognitionUsedV1!.recognized?undefined:observationPolicyV151?.misreadLookSecondsV1):bendForecastV1(effectiveForecastV246),
     // misreadTimingKeepV1: on a misread only this share of the read pitch's arrival gap is kept (the hitter retimes the swing to
     // the ball's speed on the way), the misread place stays whole (2026-11-05).
     timingKeepV1=observationPolicyV151?.misreadTimingKeepV1,seenArrivalV1=effectiveForecastV246?.prediction?.arrivalAfterReleaseSeconds,
