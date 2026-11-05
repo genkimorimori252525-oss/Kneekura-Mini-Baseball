@@ -69,6 +69,7 @@ import {selectBatterContactTechniqueV1,validateBatterTechniquePolicyV1,type Batt
 import {observeBattedBallSpinV123} from '../../core/sim/contact/BattedBallSpinObservationV123';
 import {validateLiveObservedSpinTrialRequestV236,resolveLiveObservedSpinTrialV236,type LiveObservedSpinTrialRequestV236} from './LiveObservedSpinTrialV236';
 import {validateLiveSpinMotorPracticePolicyV239,type LiveSpinMotorPracticePolicyV239} from './LiveSpinMotorPracticeV239';
+import {preContactSweetSpotSpeedV1} from './PreContactSpeedV1';
 import {validateLiveObservedSpinComposeRequestV238,resolveLiveObservedSpinComposeV238,composeLiveObservedSpinAimV238,type LiveObservedSpinComposeRequestV238} from './LiveObservedSpinComposeV238';
 
 export type LiveMeasuredClipV1=Readonly<{
@@ -1328,7 +1329,13 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       const at=reference.sampleAtSourceTick(sourceContactTick,'incoming'),turn=multiplyQuaternions(impactSample.orientation,{w:at.orientation.w,x:-at.orientation.x,y:-at.orientation.y,z:-at.orientation.z}),
         linearVelocity=rotateVectorByQuaternion(at.state.linearVelocity,turn),angularVelocity=rotateVectorByQuaternion(at.state.angularVelocity,turn);
       return {state:{...impactSample.state,linearVelocity,angularVelocity},sweetSpotVelocity:add(linearVelocity,cross(angularVelocity,sub(impactSample.sweetSpot,impactSample.state.pose.grip)))};})():null,
-      impactBat=heldV1?createRigidBatStateFromBatterSwingState(heldV1.state,batPhysical):rigidAt(batHit.at),impactSweetSpeed=norm((heldV1??impactSample).sweetSpotVelocity),impactLimit=observationPolicyV151?.impactSpeedLimitV1!==undefined&&b.targetSweetSpotSpeedMps!==undefined?b.targetSweetSpotSpeedMps*(observationPolicyV151.targetSpeedScaleV1??1)*observationPolicyV151.impactSpeedLimitV1:Infinity,impactScale=impactSweetSpeed>impactLimit?impactLimit/impactSweetSpeed:1;const impactBatScaled=impactScale===1?impactBat:{...impactBat,centerOfMassVelocity:mul(impactBat.centerOfMassVelocity,impactScale),angularVelocity:mul(impactBat.angularVelocity,impactScale)};
+      // preContactSpeedLossV1: met before the clip's contact pose (late swing, deep contact), the bat keeps the clip's pose and
+      // direction but not its pre-impact sample speed, which runs ahead of the contact speed; see PreContactSpeedV1.
+      preV1=observationPolicyV151?.preContactSpeedLossV1!==undefined&&swingOffered&&input.batting!=='bunt'&&!buntMotor&&!heldV1&&impactSample.sourceTick<sourceContactTick?(()=>{
+        const want=preContactSweetSpotSpeedV1(norm(reference.sampleAtSourceTick(sourceContactTick,'incoming').sweetSpotVelocity),(sourceContactTick-impactSample.sourceTick)/1e6/rate,observationPolicyV151.preContactSpeedLossV1),
+          k=want/norm(impactSample.sweetSpotVelocity);
+        return {state:{...impactSample.state,linearVelocity:mul(impactSample.state.linearVelocity,k),angularVelocity:mul(impactSample.state.angularVelocity,k)},sweetSpotVelocity:mul(impactSample.sweetSpotVelocity,k)};})():null,
+      impactBat=heldV1?createRigidBatStateFromBatterSwingState(heldV1.state,batPhysical):preV1?createRigidBatStateFromBatterSwingState(preV1.state,batPhysical):rigidAt(batHit.at),impactSweetSpeed=norm((heldV1??preV1??impactSample).sweetSpotVelocity),impactLimit=observationPolicyV151?.impactSpeedLimitV1!==undefined&&b.targetSweetSpotSpeedMps!==undefined?b.targetSweetSpotSpeedMps*(observationPolicyV151.targetSpeedScaleV1??1)*observationPolicyV151.impactSpeedLimitV1:Infinity,impactScale=impactSweetSpeed>impactLimit?impactLimit/impactSweetSpeed:1;const impactBatScaled=impactScale===1?impactBat:{...impactBat,centerOfMassVelocity:mul(impactBat.centerOfMassVelocity,impactScale),angularVelocity:mul(impactBat.angularVelocity,impactScale)};
     contact=resolveWoodBatSpeedProfileBallContact(impactBall,impactBatScaled,ballPhysical,NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1);
     const vibrationV1=observationPolicyV151?.barrelVibrationLossV1;
     if(contact&&vibrationV1){

@@ -120,6 +120,8 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   priorExpectationV1?:readonly number[];
   /** Late-look correction bounded by this extra hand acceleration (m/s^2) over the time left, instead of the meet share of the gap. */
   lateLookAccelerationV1?:number;
+  /** Share of the contact-moment sweet-spot speed lost per ms of swing still to go when the ball is met before the clip's contact (0..0.05; absent = clip sample speed). */
+  preContactSpeedLossV1?:number;
   /** Share (0-1) of the zone-judgment error that also moves the bat's aim; the late look then corrects it as it does a misread. */
   judgmentAimShareV1?:number;
   /** Chance per swing that the hitter is fooled and puts the bat where he expected the pitch (the remembered one);
@@ -187,6 +189,7 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'pitchOrderPlanV1')){keys.push('pitchOrderPlanV1');assert(typeof p.pitchOrderPlanV1==='boolean','invalid pitch order plan');}
   if(Object.hasOwn(p,'contactLeadAlignV1')){keys.push('contactLeadAlignV1');assert(Number.isFinite(p.contactLeadAlignV1)&&p.contactLeadAlignV1!>=0&&p.contactLeadAlignV1!<=.02,'invalid contact lead');}
   if(Object.hasOwn(p,'priorFooledChanceV1')){keys.push('priorFooledChanceV1');assert(Number.isFinite(p.priorFooledChanceV1)&&p.priorFooledChanceV1!>=0&&p.priorFooledChanceV1!<=1,'invalid prior fooled chance');}
+  if(Object.hasOwn(p,'preContactSpeedLossV1')){keys.push('preContactSpeedLossV1');assert(Number.isFinite(p.preContactSpeedLossV1)&&p.preContactSpeedLossV1!>=0&&p.preContactSpeedLossV1!<=.05,'invalid pre-contact speed loss');}
   if(Object.hasOwn(p,'lateLookAccelerationV1')){keys.push('lateLookAccelerationV1');assert(Number.isFinite(p.lateLookAccelerationV1)&&p.lateLookAccelerationV1!>=1&&p.lateLookAccelerationV1!<=300,'invalid late look acceleration');}
   if(Object.hasOwn(p,'priorExpectationV1')){keys.push('priorExpectationV1');assert(Array.isArray(p.priorExpectationV1)&&p.priorExpectationV1.length===2&&p.priorExpectationV1[0]>=0&&p.priorExpectationV1[0]<=1&&p.priorExpectationV1[1]>0&&p.priorExpectationV1[1]<=200,'invalid prior expectation');}
   if(Object.hasOwn(p,'judgmentAimShareV1')){keys.push('judgmentAimShareV1');assert(Number.isFinite(p.judgmentAimShareV1)&&p.judgmentAimShareV1!>=0&&p.judgmentAimShareV1!<=1,'invalid judgment aim share');}
