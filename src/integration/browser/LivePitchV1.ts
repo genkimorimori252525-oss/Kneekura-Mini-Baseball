@@ -725,7 +725,10 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     judgmentPosition={...prediction.ball.position,...batterRecognition.position},recognitionAimOffset=batterRecognition.diagnostics.biasMeters,
     // undercutAimV1: a swing aims the sweet spot this far under the ball's centre, as hitters who lift the ball do.
     undercutV1=input.batting==='bunt'?0:b.undercutAimMeters??observationPolicyV151?.undercutAimV1??0,
-    motorAimPosition=recognitionAimOffset.x===0&&recognitionAimOffset.y===0&&undercutV1===0?placementPositionV1:{...placementPositionV1,x:placementPositionV1.x+recognitionAimOffset.x,y:placementPositionV1.y+recognitionAimOffset.y-undercutV1};
+    // judgmentAimShareV1: the misjudged location that decided the swing also moves the bat; the late look corrects it like a misread.
+    judgmentAimShareV1=observationPolicyV151?.judgmentAimShareV1,judgmentAimV1={x:judgmentError.x*(judgmentAimShareV1??0),y:judgmentError.y*(judgmentAimShareV1??0)},
+    motorAimPosition=recognitionAimOffset.x===0&&recognitionAimOffset.y===0&&undercutV1===0&&judgmentAimV1.x===0&&judgmentAimV1.y===0?placementPositionV1
+      :{...placementPositionV1,x:placementPositionV1.x+recognitionAimOffset.x+judgmentAimV1.x,y:placementPositionV1.y+recognitionAimOffset.y-undercutV1+judgmentAimV1.y};
   const inChaseEnvelope=Math.abs(judgmentPosition.x)<=zone.halfWidth+b.chaseMarginMeters
     &&judgmentPosition.y>=zone.lowerY-b.chaseMarginMeters&&judgmentPosition.y<=zone.upperY+b.chaseMarginMeters,
     zoneMargin=Math.min(zone.halfWidth-Math.abs(judgmentPosition.x),judgmentPosition.y-zone.lowerY,zone.upperY-judgmentPosition.y),
@@ -1091,7 +1094,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       lateObservedTick=positionObserverV151?(lateEffectiveForecast?.status==='PREDICTED'?lateEffectiveForecast.observedThroughTick!:observationTick)
         :input.originTick+Math.round(observedTime*tps),
       evidence=selectPredictionAt(lateObservedTick>observationTick?[earlyEvidence,{predictionId:'late-observation-v121',observedTick:lateObservedTick,availableTick,position:latePrediction.ball.position}]:[earlyEvidence],correctionFromTick)!,
-      requestedOffset=sub(evidence.position,placementPositionV1),distance=norm(requestedOffset),
+      requestedOffset=judgmentAimV1.x===0&&judgmentAimV1.y===0?sub(evidence.position,placementPositionV1):sub(evidence.position,{...placementPositionV1,x:placementPositionV1.x+judgmentAimV1.x,y:placementPositionV1.y+judgmentAimV1.y}),distance=norm(requestedOffset),
       budget=effectiveMaximumSpeedV121===undefined?0:Math.max(0,Math.min(uncorrectedReference.maximumGripSpeedMps,effectiveMaximumSpeedV121-uncorrectedReference.maximumSweetSpotSpeedMps))*(swingIntentV121?.controlPriority??1),
       accelerationBudget=executionV122?Math.max(0,Math.min(executionV122.maximumGripAccelerationMps2-referenceAccelerationBoundsV122(uncorrectedReference).maximumGripAccelerationMps2,
         executionV122.maximumSweetSpotAccelerationMps2-referenceAccelerationBoundsV122(uncorrectedReference).maximumSweetSpotAccelerationMps2)):Infinity,

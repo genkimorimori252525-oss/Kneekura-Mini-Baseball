@@ -102,6 +102,8 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   priorExpectationV1?:readonly number[];
   /** Late-look correction bounded by this extra hand acceleration (m/s^2) over the time left, instead of the meet share of the gap. */
   lateLookAccelerationV1?:number;
+  /** Share (0-1) of the zone-judgment error that also moves the bat's aim; the late look then corrects it as it does a misread. */
+  judgmentAimShareV1?:number;
   /** Chance per swing that the hitter is fooled and puts the bat where he expected the pitch (the remembered one);
    * otherwise the bat goes where he saw it. Overrides priorPlacementShareV1. A blend on every swing made too many
    * half-missed balls for the strikeouts it produced. */
@@ -161,6 +163,7 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'priorFooledChanceV1')){keys.push('priorFooledChanceV1');assert(Number.isFinite(p.priorFooledChanceV1)&&p.priorFooledChanceV1!>=0&&p.priorFooledChanceV1!<=1,'invalid prior fooled chance');}
   if(Object.hasOwn(p,'lateLookAccelerationV1')){keys.push('lateLookAccelerationV1');assert(Number.isFinite(p.lateLookAccelerationV1)&&p.lateLookAccelerationV1!>=1&&p.lateLookAccelerationV1!<=300,'invalid late look acceleration');}
   if(Object.hasOwn(p,'priorExpectationV1')){keys.push('priorExpectationV1');assert(Array.isArray(p.priorExpectationV1)&&p.priorExpectationV1.length===2&&p.priorExpectationV1[0]>=0&&p.priorExpectationV1[0]<=1&&p.priorExpectationV1[1]>0&&p.priorExpectationV1[1]<=200,'invalid prior expectation');}
+  if(Object.hasOwn(p,'judgmentAimShareV1')){keys.push('judgmentAimShareV1');assert(Number.isFinite(p.judgmentAimShareV1)&&p.judgmentAimShareV1!>=0&&p.judgmentAimShareV1!<=1,'invalid judgment aim share');}
   if(Object.hasOwn(p,'swingDecisionNoiseV1')){keys.push('swingDecisionNoiseV1');assert(Number.isFinite(p.swingDecisionNoiseV1)&&p.swingDecisionNoiseV1!>=.01&&p.swingDecisionNoiseV1!<=2,'invalid swing decision noise');}
   if(Object.hasOwn(p,'placementJudgedV1')){keys.push('placementJudgedV1');assert(Number.isFinite(p.placementJudgedV1)&&p.placementJudgedV1!>=0&&p.placementJudgedV1!<=1,'invalid judged placement');}
   if(Object.hasOwn(p,'priorPlacementShareV1')){keys.push('priorPlacementShareV1');assert(Number.isFinite(p.priorPlacementShareV1)&&p.priorPlacementShareV1!>=0&&p.priorPlacementShareV1!<=1,'invalid prior placement share');}
