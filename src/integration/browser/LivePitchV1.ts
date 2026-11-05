@@ -734,8 +734,15 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   const countBallsV1=input.pitchSituationV111?.balls??0,countStrikesV1=input.pitchSituationV111?.strikes??0,
     expansionV1=(countStrikesV1===2?observationPolicyV151?.twoStrikeExpansionV1??0:0)+(input.emotionInfluenceV1?.swingAggressionDelta??0);
   const visionThresholdShiftV1=observationPolicyV151?.visionSelectivityV1!==undefined?(resolveLivePlateVisionV1(b)-70)*observationPolicyV151.visionSelectivityV1:0;
+  // swingDecisionNoiseV1 (score units): the cut-off is not sharp. The batter swings with chance Phi((score - cut-off) / noise), so a
+  // pitch in the heart is sometimes taken and one just off the edge sometimes chased, rising steadily from waste to heart as
+  // MLB's swing rates do (2026-11-05, K:/kbm-work/countswing). Omitted, the cut-off is sharp as before.
+  const swingNoiseV1=observationPolicyV151?.swingDecisionNoiseV1,swingCutoffV1=b.swingDecision?b.swingDecision.threshold+visionThresholdShiftV1-expansionV1:0,
+    swingPassV1=swingNoiseV1===undefined?swingScore>=swingCutoffV1:(()=>{const z=(swingScore-swingCutoffV1)/swingNoiseV1,t=1/(1+.2316419*Math.abs(z)),
+      tail=.3989423*Math.exp(-z*z/2)*t*(.3193815+t*(-.3565638+t*(1.781478+t*(-1.821256+t*1.330274)))),chance=z>=0?1-tail:tail;
+      return (randomStreamsV152?.rng('batterPerception','swing-cutoff-v1').uniform()??new SeedRoot(input.seed).streamRng(0,'batting','swing-cutoff-v1').nextFloat())<chance;})();
   let swingOffered=deliveredPredictionV151&&input.batting!=='take'&&(!swingIntentV121||swingIntentV121.effort>0)&&(b.swingDecision?b.swingDecision.approach==='SWING'
-      ||b.swingDecision.approach==='AUTO'&&inChaseEnvelope&&swingScore>=b.swingDecision.threshold+visionThresholdShiftV1-expansionV1:inChaseEnvelope&&batterRecognition.diagnostics.targetWeight>0);
+      ||b.swingDecision.approach==='AUTO'&&inChaseEnvelope&&swingPassV1:inChaseEnvelope&&batterRecognition.diagnostics.targetWeight>0);
   const countReadinessV1=observationPolicyV151?.countReadinessV1?.[countBallsV1]?.[countStrikesV1];
   if(swingOffered&&countReadinessV1!==undefined&&b.swingDecision?.approach!=='SWING'&&
     new SeedRoot(randomStreamsV152?.seedFor('batterPerception','count-readiness-v1')??input.seed).streamRng(0,'batting','count-readiness-v1').nextFloat()>=countReadinessV1)swingOffered=false;
