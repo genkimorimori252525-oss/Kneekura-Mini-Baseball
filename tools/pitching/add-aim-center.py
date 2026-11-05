@@ -11,6 +11,8 @@ for r in csv.DictReader(open(sys.argv[1], encoding='utf8')):
     t = mlb[r['pitch_type']]; t[0] += int(r['n']); t[1] += float(r['arm']) * .3048; t[2] += float(r['up'])
 match = json.load(open(sys.argv[2], encoding='utf8'))
 cfg = json.load(open(sys.argv[3], encoding='utf8')); done = collections.Counter()
+if isinstance(cfg.get('measuredClips'), (list, dict)):   # write copies from a shared base (tools/calibration/clips-ref.mjs)
+    sys.exit('the measured clips are inline; share them first: node tools/calibration/clips-ref.mjs ' + sys.argv[3])
 for p in cfg['players']:
     rep = p.get('physical', {}).get('pitchRepertoireV78')
     if not rep: continue
