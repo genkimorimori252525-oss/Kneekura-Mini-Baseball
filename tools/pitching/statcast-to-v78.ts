@@ -22,10 +22,12 @@ import { LIVE_MATCH_PHYSICS_V1 } from '../../src/integration/browser/LiveBasebal
 import { sampleAerodynamicPitchStateAtElapsedSeconds } from '../../src/core/sim/pitching/AerodynamicPitchTrajectory';
 import { aimPitchThroughPointV1 } from '../../src/integration/browser/PitchTunnelAimV1';
 import { validatePitchRepertoireV78 } from '../../src/integration/browser/LivePitchAuthoringV78';
+import { physicsWithLift, type LiftName } from './lift-profiles';
 
 type V = { x: number; y: number; z: number };
 const MPH = .44704, FT = .3048, IN = .0254, RPM = Math.PI / 30, PLATE = .4318, MOUND_Y = .254, RUBBER_Z = 18.44;
-const air = LIVE_MATCH_PHYSICS_V1.air, target = { x: 0, y: .75, z: PLATE };
+// KBM_LIFT=sawicki|nathan2017 fits under another lift curve (tools/pitching/lift-profiles.ts), for comparison only.
+const air = physicsWithLift((process.env.KBM_LIFT ?? 'lyu') as LiftName).air, target = { x: 0, y: .75, z: PLATE };
 const TYPES: Record<string, [string, string]> = { FF: ['fastball', 'フォーシーム'], SI: ['sinker', 'シンカー'], FT: ['sinker', 'ツーシーム'],
   FC: ['cutter', 'カッター'], SL: ['slider', 'スライダー'], ST: ['sweeper', 'スイーパー'], SV: ['slurve', 'スラーブ'], CU: ['curve', 'カーブ'],
   KC: ['knuckle_curve', 'ナックルカーブ'], CS: ['slow_curve', 'スローカーブ'], CH: ['changeup', 'チェンジアップ'], FS: ['splitter', 'スプリット'],

@@ -47,6 +47,7 @@ import { asRuleProfileId } from '../../core/model/RuleProfileRef';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS } from '../../core/sim/ball/BaseballAerodynamics';
 import { createAeroGroundBallPhysicsProfile, createVersionedFreeBallTrajectory, type AeroGroundBallPhysicsV1 } from '../../core/sim/ball/VersionedBattedBallPhysics';
+import { LIFT_CURVES_V1, withLiftCurveV1, type LiftCurveV1 } from '../../core/sim/ball/LiftCurveV1';
 import type { BallWorldMoment } from '../../core/sim/ball/BallWorldContinuation';
 import { IDENTITY_QUATERNION, type Quaternion } from '../../core/sim/pitching/BaseballOrientation';
 import { simulateLiveFieldPlayV1, deriveLiveFieldFenceGeometryV1 } from '../../core/sim/fielding/LiveFieldPlayV1';
@@ -120,6 +121,8 @@ export type LiveMatchInputV1 = Readonly<{seed:number;innings?:number;teams:reado
   /** Omission keeps one drag for pitches and batted balls. Present: drag on the batted ball after contact is scaled.
    * 1.2 brings carry within 2.5% of Statcast 2024 medians (95-110 mph, 20-35 deg); pitches keep the validated drag. */
   battedBallAeroV1?:Readonly<{dragScale:number}>;
+  /** liftCurveV1: the lift curve of the match air for pitches and batted balls alike ('nathan2017'); omitted, Lyu (2022). */
+  liftCurveV1?:LiftCurveV1;
   /** Omission keeps the runner's old read. Present: a throw to a cutoff counts as that cutoff's throw on. */
   runnerThrowReadV1?:LiveRunnerThrowReadPolicyV1;
   /** Omission keeps every leg braking into its bag. Present: a runner takes his bag at speed once the ball is through the infield. */
@@ -403,7 +406,9 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
   const unknownInputKeysV1=raw&&typeof raw==='object'?Object.keys(raw).filter(k=>!LIVE_MATCH_INPUT_KEY_SET_V1.has(k)):[];
   assert(unknownInputKeysV1.length===0,'unknown match input '+unknownInputKeysV1.join(', '));
   const input=cloneMatchInputWithMeasuredCatalogV68(raw),innings=input.innings??9,tps=LIVE_MATCH_PHYSICS_V1.air.ticksPerSecond,
-    matchPhysicsV101=input.park?.groundMaterialV101 ? createAeroGroundBallPhysicsProfile({...LIVE_MATCH_PHYSICS_V1,ground:{...LIVE_MATCH_PHYSICS_V1.ground,material:input.park.groundMaterialV101}}) : LIVE_MATCH_PHYSICS_V1;
+    groundPhysicsV101=input.park?.groundMaterialV101 ? createAeroGroundBallPhysicsProfile({...LIVE_MATCH_PHYSICS_V1,ground:{...LIVE_MATCH_PHYSICS_V1.ground,material:input.park.groundMaterialV101}}) : LIVE_MATCH_PHYSICS_V1,
+    // liftCurveV1 swaps the lift of the one match air, so the pitch, the batter's forecast of it and the batted ball share it.
+    matchPhysicsV101=input.liftCurveV1===undefined?groundPhysicsV101:(assert(Object.hasOwn(LIFT_CURVES_V1,input.liftCurveV1),'invalid lift curve'),withLiftCurveV1(groundPhysicsV101,input.liftCurveV1));
   const observationPolicyV151=input.batterObservationV151===undefined?undefined:validateLiveBatterObservationPolicyV151(input.batterObservationV151);
   assert(input.batterForecastPolicyV246===undefined||observationPolicyV151!==undefined,'V246 forecast requires position-only observation policy');
   const forecastPolicyV246=input.batterForecastPolicyV246===undefined?undefined:forecastObservedPitchV246({originTick:0,ticksPerSecond:tps,cutoffTick:0,planeZ:0,maximumAfterReleaseSeconds:1,observations:[]},input.batterForecastPolicyV246).diagnostics.policy,
