@@ -610,16 +610,28 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       if(!(total>0))return null;
       let read=weighed[weighed.length-1],cumulative=0;
       for(const c of weighed){cumulative+=c.weight;if(draw*total<cumulative){read=c;break;}}
-      let readArrival=t1+(plane-read.at.position.z)/read.at.velocity.z;
-      for(let i=0;i<3;i++){const at=sampleAerodynamicPitchStateAtElapsedSeconds(read.start,readArrival,inverseAir);readArrival+=(plane-at.position.z)/at.velocity.z;}
       // readFromSeenV1: take back this share of the lag the read pitch already had at the end of the look (seen ball vs its own place).
-      const fromSeen=observationPolicyV151?.readFromSeenV1;if(fromSeen!==undefined&&read.at.velocity.z!==0)readArrival+=fromSeen*(read.at.position.z-seenBall.position.z)/read.at.velocity.z;
-      return {recognized:read.id===actualId,fastArrival:readArrival,readPitch:read.pitch,readId:read.id,actualId,familiarShare,
+      const fromSeen=observationPolicyV151?.readFromSeenV1,arrivalOf=(c:typeof read)=>{
+        let arrival=t1+(plane-c.at.position.z)/c.at.velocity.z;
+        for(let i=0;i<3;i++){const at=sampleAerodynamicPitchStateAtElapsedSeconds(c.start,arrival,inverseAir);arrival+=(plane-at.position.z)/at.velocity.z;}
+        return fromSeen!==undefined&&c.at.velocity.z!==0?arrival+fromSeen*(c.at.position.z-seenBall.position.z)/c.at.velocity.z:arrival;};
+      // readBlendV1: the hitter's expectation is this share of the way from the drawn pitch to the mean over his candidates, each
+      // weighed by how much it looks like the ball so far (its speed, spin and arrival), instead of the drawn pitch alone.
+      const blend=observationPolicyV151?.readBlendV1,drawnArrival=arrivalOf(read);
+      if(blend!==undefined){
+        const mix=(a:number,b:number)=>a+(b-a)*blend,mean=(f:(c:typeof read)=>number)=>weighed.reduce((n,c)=>n+c.weight*f(c),0)/total,
+          spin=(axis:'x'|'y'|'z')=>mix(read.pitch.spinRadPerSecond[axis],mean(c=>c.pitch.spinRadPerSecond[axis]));
+        return {recognized:read.id===actualId,fastArrival:mix(drawnArrival,mean(arrivalOf)),
+          readPitch:{...read.pitch,releaseSpeedMps:mix(read.pitch.releaseSpeedMps,mean(c=>c.pitch.releaseSpeedMps)),spinRadPerSecond:{x:spin('x'),y:spin('y'),z:spin('z')}},
+          readId:read.id,actualId,familiarShare,blended:true as const,posterior:weighed.map(c=>({id:c.id,share:c.weight/total,turnDegrees:c.turnDegrees,lagMs:c.lagMs}))};
+      }
+      const readArrival=drawnArrival;
+      return {recognized:read.id===actualId,fastArrival:readArrival,readPitch:read.pitch,readId:read.id,actualId,familiarShare,blended:false as const,
         posterior:weighed.map(c=>({id:c.id,share:c.weight/total,turnDegrees:c.turnDegrees,lagMs:c.lagMs}))};
     })(),
     recognitionUsedV1=recognitionV2??recognitionV1,
     // With familiarity, even the pitch read right is expected to bend and arrive as he pictures it.
-    readsPicturedV1=!!recognitionUsedV1&&(!recognitionUsedV1.recognized||recognitionV2?.familiarShare!=null),
+    readsPicturedV1=!!recognitionUsedV1&&(!recognitionUsedV1.recognized||recognitionV2?.familiarShare!=null||recognitionV2?.blended===true),
     readForecastV1=readsPicturedV1?bendForecastV1(effectiveForecastV246,0,recognitionUsedV1!.readPitch):bendForecastV1(effectiveForecastV246),
     // misreadTimingKeepV1: on a misread only this share of the read pitch's arrival gap is kept (the hitter retimes the swing to
     // the ball's speed on the way), the misread place stays whole (2026-11-05).
