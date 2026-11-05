@@ -157,6 +157,23 @@ it('freezes a runner under two outs on a line drive until the read clears twice 
   expect(decideLiveRunnerAdvanceV1({ ...raw, outs: 2, tacticsV1: tactics }).reason).toBe('two_out_advance');
 });
 
+it('runs the line-drive read from first sight when the first look is given (lineDriveReadV1)', () => {
+  // The latest look trails now by the runner's reaction, less than the read: from it the read never ends.
+  const raw = { ...fixture(), outs: 0 as const, firstGroundContactElapsedSeconds: null, defenderControlSeconds: 8, nowSeconds: 1.5,
+    airborneAssessment: { observedAtSeconds: 1.3, catchMarginSeconds: -2, lineDrive: true } }, tactics = { contactLeg: true };
+  expect(decideLiveRunnerAdvanceV1({ ...raw, tacticsV1: tactics })).toMatchObject({ advance: false, reason: 'line_drive_freeze_hold' });
+  expect(decideLiveRunnerAdvanceV1({ ...raw, tacticsV1: tactics, airborneAssessment: { ...raw.airborneAssessment, firstSeenAtSeconds: .2 } }))
+    .toMatchObject({ advance: true, reason: 'airborne_hit_read_advance' });
+  // Still a freeze inside the read, and while a catch is close.
+  expect(decideLiveRunnerAdvanceV1({ ...raw, tacticsV1: tactics, nowSeconds: .4, airborneAssessment: { observedAtSeconds: .2, catchMarginSeconds: -2, lineDrive: true, firstSeenAtSeconds: .2 } }))
+    .toMatchObject({ advance: false, reason: 'line_drive_freeze_hold' });
+  expect(decideLiveRunnerAdvanceV1({ ...raw, tacticsV1: tactics, airborneAssessment: { ...raw.airborneAssessment, catchMarginSeconds: -.5, firstSeenAtSeconds: .2 } }))
+    .toMatchObject({ advance: false, reason: 'line_drive_freeze_hold' });
+  // A first look after the latest one is not an observation.
+  expect(() => decideLiveRunnerAdvanceV1({ ...raw, tacticsV1: tactics, airborneAssessment: { ...raw.airborneAssessment, firstSeenAtSeconds: 1.4 } }))
+    .toThrow(/live runner advance/);
+});
+
 it('goes halfway only for a shallow catchable fly under two outs, then goes on a drop', () => {
   const base = { outs: 0 as const, currentBase: 1 as const, atOrigin: true, hasGroundOrFielderCue: false, safetyMarginSeconds: .35,
     airborne: { catchMarginSeconds: .2, lineDrive: false, landingDepthMeters: 45, hangSeconds: 2 } };

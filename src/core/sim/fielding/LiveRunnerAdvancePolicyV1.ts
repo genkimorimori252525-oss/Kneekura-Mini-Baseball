@@ -37,7 +37,10 @@ export type LiveRunnerAdvanceInputV1 = Readonly<{
    * Positive favours a catch; negative favours a hit. This is not a result. */
   airborneAssessment?: Readonly<{ observedAtSeconds: number; catchMarginSeconds: number;
     /** Observed flat and hard launch. Only read when `tacticsV1` is passed. */
-    lineDrive?: boolean }>;
+    lineDrive?: boolean;
+    /** lineDriveReadV1: when he first saw the ball in the air. The line-drive read runs from here; omitted, it runs from
+     * the latest look, which always trails now by his reaction and so held him until the ball came down. */
+    firstSeenAtSeconds?: number }>;
   /** Opt-in runner tactics. Omitted keeps the legacy decision. `contactLeg` is true while the runner has not yet
    * left his origin base; with two outs that leg is a go-on-contact for the whole play, not only before first contact. */
   tacticsV1?: Readonly<{ contactLeg: boolean }>;
@@ -107,7 +110,9 @@ export function decideLiveRunnerAdvanceV1(input: LiveRunnerAdvanceInputV1): Live
     'invalid defense control forecast');
   assert(input.airborneAssessment === undefined || nonnegative(input.airborneAssessment.observedAtSeconds)
     && input.airborneAssessment.observedAtSeconds >= input.playStartedAtSeconds && input.airborneAssessment.observedAtSeconds <= input.nowSeconds
-    && Number.isFinite(input.airborneAssessment.catchMarginSeconds), 'airborne assessment must come from occurred observation');
+    && Number.isFinite(input.airborneAssessment.catchMarginSeconds)
+    && (input.airborneAssessment.firstSeenAtSeconds === undefined || nonnegative(input.airborneAssessment.firstSeenAtSeconds)
+      && input.airborneAssessment.firstSeenAtSeconds <= input.airborneAssessment.observedAtSeconds), 'airborne assessment must come from occurred observation');
   const runnerTravelSeconds = estimateLiveRunnerLegSecondsV1(input.distanceToNextBaseMeters,
     input.runner.topSpeedMps, input.runner.accelerationMps2, input.baseTouchRadiusMeters ?? 0),
     award = input.awardThroughBase !== undefined && input.awardThroughBase !== null && input.awardThroughBase > input.currentBase,
@@ -139,7 +144,7 @@ export function decideLiveRunnerAdvanceV1(input: LiveRunnerAdvanceInputV1): Live
   if (groundedForce) return result(true, 'forced_advance');
   if (airborne && input.tacticsV1 !== undefined && input.airborneAssessment!.lineDrive) {
     const T = LIVE_RUNNER_TACTICS_POLICY_V1;
-    if (input.nowSeconds < input.airborneAssessment!.observedAtSeconds + T.lineDriveReadSeconds
+    if (input.nowSeconds < (input.airborneAssessment!.firstSeenAtSeconds ?? input.airborneAssessment!.observedAtSeconds) + T.lineDriveReadSeconds
       || input.airborneAssessment!.catchMarginSeconds >= -safetyMargin * T.lineDriveMarginScale) return result(false, 'line_drive_freeze_hold');
   }
   if (airborne && input.airborneAssessment!.catchMarginSeconds >= -safetyMargin) return result(false, 'airborne_catch_risk_hold');

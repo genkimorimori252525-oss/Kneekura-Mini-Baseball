@@ -24,6 +24,18 @@ export const LIVE_RUNNER_LEAD_CALIBRATION_V1=Object.freeze({returnReachMeters:1.
   baseScale:Object.freeze({first:1,second:1.2,third:.85}),minimumMeters:1.2,maximumMeters:6});
 /** Mitt to release. .32 of 送球動作 reads about .69 s and .74 about .94 s, the range of real exchanges. */
 export const LIVE_CATCHER_THROW_CALIBRATION_V1=Object.freeze({exchangeBaseSeconds:.5,exchangePerTransfer:.6,steppedForwardMeters:.9,flightSpeedShare:.9,tagSeconds:.08,jitterShare:.5});
+/** Opt-in. Omission starts a batted-ball play with each runner where he stood before the pitch. */
+export type LiveRunnerSecondaryLeadPolicyV1=Readonly<{version:'live_runner_secondary_lead_policy_v1';sourceId:string}>;
+export const LIVE_RUNNER_SECONDARY_LEAD_POLICY_V1:LiveRunnerSecondaryLeadPolicyV1=Object.freeze({version:'live_runner_secondary_lead_policy_v1',sourceId:'secondary-lead-v1-savant'});
+/** The ground a runner gains between the pitcher starting his motion and the release (Baseball Savant lead distance, every
+ * pitch, 2024: first 10.3 to 13.7 ft, +3.5 ft; second 13.2 to 17.3 ft, +4.05 ft; 2016-2025 alike). What he gains after the
+ * release is not published and is left out. Third has no published lead. */
+export const LIVE_RUNNER_SECONDARY_LEAD_CALIBRATION_V1=Object.freeze({gainMeters:Object.freeze({first:3.5*.3048,second:4.05*.3048})});
+export function validateLiveRunnerSecondaryLeadPolicyV1(policy:LiveRunnerSecondaryLeadPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_runner_secondary_lead_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid runner secondary lead policy');
+  return policy;
+}
 /** Opt-in. Omission keeps the old steal race exact. */
 export type LiveStealRacePolicyV1=Readonly<{version:'live_steal_race_policy_v1';sourceId:string}>;
 export const LIVE_STEAL_RACE_POLICY_V1:LiveStealRacePolicyV1=Object.freeze({version:'live_steal_race_policy_v1',sourceId:'steal-race-v1-authored'});
