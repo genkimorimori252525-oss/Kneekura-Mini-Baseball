@@ -6,13 +6,15 @@
 // The checkpoint is rewritten as finished when the game ends. Omitting both keeps the old run exactly.
 import {createHash} from 'node:crypto';
 import {appendFileSync, existsSync, readFileSync, renameSync, statSync, truncateSync, writeFileSync} from 'node:fs';
+import {resolveMeasuredClips} from '../calibration/clips-ref.mjs';
 
 const [nativePath, configPath, ...rest] = process.argv.slice(2);
 const opt = Object.fromEntries(rest.map(a => a.replace(/^--/, '').split('=')));
 globalThis.self = globalThis;
 (0, eval)(readFileSync(nativePath, 'utf8') + ';globalThis.__core=KneekuraNativeMatchCore;');
 const core = globalThis.__core;
-const config = JSON.parse(readFileSync(configPath, 'utf8'));
+// A config may hold its measured clips as a shared reference (tools/calibration/clips-ref.mjs).
+const config = resolveMeasuredClips(JSON.parse(readFileSync(configPath, 'utf8')));
 if (opt.seed !== undefined) config.seed = Number(opt.seed) >>> 0;
 // --batters=key:value,key:value sets those values on every position player, for ability response curves.
 if (opt.batters) for (const player of config.players) if (/-b\d$/.test(player.playerId))
