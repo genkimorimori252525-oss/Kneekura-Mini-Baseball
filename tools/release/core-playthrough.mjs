@@ -18,6 +18,9 @@ if (opt.seed !== undefined) config.seed = Number(opt.seed) >>> 0;
 if (opt.batters) for (const player of config.players) if (/-b\d$/.test(player.playerId))
   for (const pair of opt.batters.split(',')) {const [key, value] = pair.split(':'); player.physical[key] = Number(value);}
 // --pitchers=key:value,key:value sets those values on every pitcher (player ids ending -p<n>), e.g. pitchTunnelV1:1.
+// --pitchersScale=key:factor multiplies that physical value of every pitcher (e.g. commandStdMeters of individually fitted pitchers).
+if (opt.pitchersScale) for (const player of config.players) if (/-p\d+$/.test(player.playerId))
+  for (const pair of opt.pitchersScale.split(',')) {const [key, value] = pair.split(':'); if (typeof player.physical[key] === 'number') player.physical[key] *= Number(value);}
 if (opt.pitchers) for (const player of config.players) if (/-p\d+$/.test(player.playerId))
   for (const pair of opt.pitchers.split(',')) {const [key, value] = pair.split(':'); player.physical[key] = Number(value);}
 if (opt.skipField) config.skipFieldPlayV1 = true;
