@@ -168,6 +168,16 @@ export type LiveMatchInputV1 = Readonly<{seed:number;innings?:number;teams:reado
   randomnessV152?:LiveRandomnessV152;
   measuredClips:readonly LiveMeasuredClipV1[];park?:Readonly<{fenceRadiusMeters:number;fenceHeightMeters:number;foulFenceRadiusMeters?:number;fenceShapeV1?:LiveFieldPlayInputV1['field']['fenceShapeV1'];groundMaterialV101?:BaseballGroundMaterial;
     poleEquipmentV148?:LiveFieldPlayInputV1['field']['poleEquipmentV148']}>}>;
+/** Every key a match input may carry. A key outside it used to be ignored without a word, so a config written for a newer
+ * branch ran as if the input were absent (cfg-def6's battedBallAeroV1 on the defense branch); now the match refuses it.
+ * The two checks below keep this list and LiveMatchInputV1 equal. */
+const LIVE_MATCH_INPUT_KEYS_V1=['seed','innings','teams','players','measuredClips','park','randomnessV152','attemptCrouchV1','battedBallAeroV1','liftCurveV1','battedBallReplaceV1','batterAutoDirectionPolicyV250','batterDirectionMotorV153','batterForecastPolicyV246','batterKnowledgeV122','batterNeutralReactivePolicyV272','batterObservationV151','batterObservedRegionExperienceV222','batterReactiveDirectionPolicyV251','batterTechniqueV1','catcherThrowV1','communicationScopeV122','coverSeenV1','emotionPolicyV1','fieldAlignmentV1','fieldCoverV1','fieldKinematicsV1','fieldRangeV1','fieldRunValueV1','fieldShadeV1','fieldThrowV1','forcedRunV1','hitByPitchV1','lineDriveReadV1','locomotionStartV1','looseBallReadV1','managerTacticsV1','outfieldBreakV1','relayStepV1','runnerLeadV1','runnerSafeLeadV1','runnerThrowReadV1','runnerTurnV1','secondaryLeadV1','skipFieldPlayV1','stealRaceV1','tossReceiveV1','workloadV122'] as const satisfies readonly (keyof LiveMatchInputV1)[];
+type MissingMatchInputKeyV1=Exclude<keyof LiveMatchInputV1,typeof LIVE_MATCH_INPUT_KEYS_V1[number]>;
+const liveMatchInputKeysCompleteV1:[MissingMatchInputKeyV1] extends [never]?true:MissingMatchInputKeyV1=true;void liveMatchInputKeysCompleteV1;
+/** Keys outside the type that ExperimentalMatchHostV2 puts on the input for its loose policies. The first two are read here and
+ * in LivePitchV1; nothing reads the last two, so those choices of the host have no effect yet. */
+const LIVE_MATCH_FACADE_INPUT_KEYS_V1=['partialReferenceFallbackV1','causalCatcherObservationV1','prescribedBatModelV1','uncaughtThirdModelV1'] as const;
+const LIVE_MATCH_INPUT_KEY_SET_V1:ReadonlySet<string>=new Set([...LIVE_MATCH_INPUT_KEYS_V1,...LIVE_MATCH_FACADE_INPUT_KEYS_V1]);
 export type LiveYawPracticeRequestV255=Readonly<{version:'live_observed_yaw_contact_frame_trial_v255';subjectId:string;technique:'BACKSPIN'|'TOPSPIN'|'HOOK'|'SLICE';clip:Readonly<{id:string;sourceSha256:string;bats:'R'|'L'}>;domain:Readonly<{plateZ:number;coordinateSystem:'LIVE_WORLD_METERS_V1'}>;policy:'FIXED_17_YAW_UNCALIBRATED_V255';thresholds:Readonly<{minimumComponent:number;minimumImprovement:number}>}>;
 export type LivePitchCommandV1 = Readonly<{batting:'auto'|'balanced'|'contact'|'power'|'take'|'bunt';pitchType:string;pitchId?:string;location:string;managedTeam:0|1;
   /** Already received/understood instruction; the communication owner supplies soft acceptance. */
@@ -393,6 +403,8 @@ export function createLiveBaseballMatchV1(raw:LiveMatchInputV1){
 }
 export function createLiveBaseballMatchWorkerV116(raw:LiveMatchInputV1,resume?:LiveMatchContinuationV116){if(Object.hasOwn(raw,'experimentalMatchPoliciesV1'))throw Error('HOLD: experimental policy requires experimental facade');return createLiveBaseballMatchWorkerInternalV257(raw,resume,undefined)}
 function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:LiveMatchContinuationV116|undefined,capability:typeof previewCapabilityV257|typeof pairCapabilityV273|typeof yawDiagnosticCapabilityV274|typeof yawDiagnosticCapabilityV275|typeof yawDiagnosticCapabilityV276|undefined){
+  const unknownInputKeysV1=raw&&typeof raw==='object'?Object.keys(raw).filter(k=>!LIVE_MATCH_INPUT_KEY_SET_V1.has(k)):[];
+  assert(unknownInputKeysV1.length===0,'unknown match input '+unknownInputKeysV1.join(', '));
   const input=cloneMatchInputWithMeasuredCatalogV68(raw),innings=input.innings??9,tps=LIVE_MATCH_PHYSICS_V1.air.ticksPerSecond,
     groundPhysicsV101=input.park?.groundMaterialV101 ? createAeroGroundBallPhysicsProfile({...LIVE_MATCH_PHYSICS_V1,ground:{...LIVE_MATCH_PHYSICS_V1.ground,material:input.park.groundMaterialV101}}) : LIVE_MATCH_PHYSICS_V1,
     // liftCurveV1 swaps the lift of the one match air, so the pitch, the batter's forecast of it and the batted ball share it.
