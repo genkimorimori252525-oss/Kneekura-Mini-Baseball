@@ -1,5 +1,6 @@
 import {selectOrderedContactV1} from '../../../experimental/robin/playability/ordered-contact-candidates-v1';
 
+import { MLB_INFIELD_DIRT_ARC_V1 } from '../ball/BaseballSurfaceCalibrationV101';
 import {observedLooseCueV1} from '../../../experimental/robin/bridge/observed-loose-cue';
 import { liveFielderBodyPoseV105, sampleLiveFielderPostureV105, validateLiveFielderBodyModelV105, liveFielderReachTargetV105, liveFielderDesiredCrouchV105, liveFielderHorizontalReachV105, liveFielderPreferredBodyPointV105, liveFielderThrowOffsetV105, liveFielderRecoverySecondsV105, liveFielderPreparationPostureSecondsV105, createLiveBodyHandPreparationV105, type LiveFielderBodyModelV105, type LiveFielderBodyPoseV105, type LiveFielderPostureV105 } from './LiveFielderBodyGeometryV105';
 import { sampleLiveTransferDelayV101 } from './LiveTransferTimingV101';
@@ -37,7 +38,7 @@ import { predictLiveDefensiveOpportunityV1, LIVE_DEFENSIVE_OPPORTUNITY_POLICY_V1
   type LiveDefensiveOpportunityV1 } from './LiveDefensiveOpportunityV1';
 import { resolveGroundedActorContactResponseV1 } from './GroundedActorContactResponseV1';
 import { planLiveThrowV1 } from './LiveThrowPlanV1';
-import { LIVE_RUNNER_THROW_READ_CALIBRATION_V1,validateLiveRunnerThrowReadPolicyV1,type LiveRunnerThrowReadPolicyV1,LIVE_RUNNER_TURN_CALIBRATION_V1,validateLiveRunnerTurnPolicyV1,type LiveRunnerTurnPolicyV1,LIVE_FIELD_COVER_CALIBRATION_V1,validateLiveFieldCoverPolicyV1,type LiveFieldCoverPolicyV1,LIVE_FIELD_RUN_VALUE_CALIBRATION_V1,validateLiveFieldRunValuePolicyV1,type LiveFieldRunValuePolicyV1,validateLiveFieldKinematicsPolicyV1,type LiveFieldKinematicsPolicyV1,LIVE_LOCOMOTION_START_CALIBRATION_V1,validateLiveLocomotionStartPolicyV1,type LiveLocomotionStartPolicyV1,validateLiveOutfieldBreakPolicyV1,type LiveOutfieldBreakPolicyV1,validateLiveForcedRunPolicyV1,type LiveForcedRunPolicyV1,validateLiveTossReceivePolicyV1,type LiveTossReceivePolicyV1,validateLiveFieldAttemptCrouchPolicyV1,type LiveFieldAttemptCrouchPolicyV1,validateLiveFieldCoverSeenPolicyV1,type LiveFieldCoverSeenPolicyV1,validateLiveRelayStepPolicyV1,type LiveRelayStepPolicyV1,validateLiveRunnerLooseBallReadPolicyV1,type LiveRunnerLooseBallReadPolicyV1,validateLiveRunnerLineDriveReadPolicyV1,type LiveRunnerLineDriveReadPolicyV1,validateLiveRunnerSureCatchHoldPolicyV1,type LiveRunnerSureCatchHoldPolicyV1,validateLiveRunnerFoulFlyHoldPolicyV1,type LiveRunnerFoulFlyHoldPolicyV1,LIVE_RUNNER_SAFE_LEAD_CALIBRATION_V1,validateLiveRunnerSafeLeadPolicyV1,type LiveRunnerSafeLeadPolicyV1,LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
+import { LIVE_RUNNER_THROW_READ_CALIBRATION_V1,validateLiveRunnerThrowReadPolicyV1,type LiveRunnerThrowReadPolicyV1,LIVE_RUNNER_TURN_CALIBRATION_V1,validateLiveRunnerTurnPolicyV1,type LiveRunnerTurnPolicyV1,LIVE_FIELD_COVER_CALIBRATION_V1,validateLiveFieldCoverPolicyV1,type LiveFieldCoverPolicyV1,LIVE_FIELD_RUN_VALUE_CALIBRATION_V1,validateLiveFieldRunValuePolicyV1,type LiveFieldRunValuePolicyV1,validateLiveFieldKinematicsPolicyV1,type LiveFieldKinematicsPolicyV1,LIVE_LOCOMOTION_START_CALIBRATION_V1,validateLiveLocomotionStartPolicyV1,type LiveLocomotionStartPolicyV1,validateLiveOutfieldBreakPolicyV1,type LiveOutfieldBreakPolicyV1,validateLiveForcedRunPolicyV1,type LiveForcedRunPolicyV1,validateLiveTossReceivePolicyV1,type LiveTossReceivePolicyV1,validateLiveFieldAttemptCrouchPolicyV1,type LiveFieldAttemptCrouchPolicyV1,validateLiveFieldCoverSeenPolicyV1,type LiveFieldCoverSeenPolicyV1,validateLiveRelayStepPolicyV1,type LiveRelayStepPolicyV1,validateLiveRunnerLooseBallReadPolicyV1,type LiveRunnerLooseBallReadPolicyV1,validateLiveRunnerLineDriveReadPolicyV1,type LiveRunnerLineDriveReadPolicyV1,validateLiveRunnerSureCatchHoldPolicyV1,type LiveRunnerSureCatchHoldPolicyV1,validateLiveRunnerFoulFlyHoldPolicyV1,type LiveRunnerFoulFlyHoldPolicyV1,validateLiveFieldOutfieldRightOfWayPolicyV1,type LiveFieldOutfieldRightOfWayPolicyV1,LIVE_RUNNER_SAFE_LEAD_CALIBRATION_V1,validateLiveRunnerSafeLeadPolicyV1,type LiveRunnerSafeLeadPolicyV1,LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
 import { decideLiveCloseThrowV1,liveCloseThrowToleranceV1,LIVE_CLOSE_THROW_CALIBRATION_V1,validateLiveFieldThrowPolicyV1,type LiveFieldThrowPolicyV1 } from './LiveCloseThrowV1';
 import { planLiveThrowActionV103,LIVE_THROW_EFFORT_POLICY_V103 } from './LiveThrowActionV103';
 import { liveFielderTurnSpeedV110 } from './LiveFielderBodyGeometryV105';
@@ -141,6 +142,8 @@ export type LiveFieldPlayInputV1 = Readonly<{ ball: BallWorldMoment; physics: Ae
   sureCatchHoldPolicyV1?: LiveRunnerSureCatchHoldPolicyV1;
   /** A runner who sees the ball coming down in foul ground does not go on a read that it will drop; omission lets him. */
   foulFlyHoldPolicyV1?: LiveRunnerFoulFlyHoldPolicyV1;
+  /** A ball on the ground out on the outfield grass is the outfielder's once he calls for it; omission lets the first man there take it. */
+  outfieldRightOfWayPolicyV1?: LiveFieldOutfieldRightOfWayPolicyV1;
   /** A runner on first goes as far as he can still get back from on a ball in the air; omission keeps the authored halfway. */
   runnerSafeLeadPolicyV1?: LiveRunnerSafeLeadPolicyV1;
   /** Opt-in runner tactics, authored and UNMEASURED; omitted keeps legacy decisions. Enables: two-out go-on-contact held for the
@@ -349,6 +352,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   const lineDriveReadV1=input.lineDriveReadPolicyV1===undefined?undefined:validateLiveRunnerLineDriveReadPolicyV1(input.lineDriveReadPolicyV1);
   const sureCatchHoldV1=input.sureCatchHoldPolicyV1===undefined?undefined:validateLiveRunnerSureCatchHoldPolicyV1(input.sureCatchHoldPolicyV1);
   const foulFlyHoldV1=input.foulFlyHoldPolicyV1===undefined?undefined:validateLiveRunnerFoulFlyHoldPolicyV1(input.foulFlyHoldPolicyV1);
+  const outfieldRightOfWayV1=input.outfieldRightOfWayPolicyV1===undefined?undefined:validateLiveFieldOutfieldRightOfWayPolicyV1(input.outfieldRightOfWayPolicyV1);
   // sureCatchHoldV1: runners who have read a sure catch on this flight.
   const sureCatchSeenV1=new Set<string>();
   const fieldCoverV1=input.fieldCoverPolicyV1===undefined?undefined:validateLiveFieldCoverPolicyV1(input.fieldCoverPolicyV1);
@@ -1581,6 +1585,9 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
             ball:seen.ball?.position??null,ballVelocity:seen.ball?.velocity??v(),possessionPlayerId:seen.ball?.possessedBy??null,
             pickup,pickupWindowsV120:pickupWindows,threats:knownThreats,received:adviceV118(f,t),previous:previousRoles.find(r=>r.playerId===f.spec.playerId),
             cautious:f.spec.fieldingCognition?.cautious,
+            // outfieldRightOfWayV1: once he has seen the ball on the ground; a ball in the air is still an out to whoever can make it.
+            ...(outfieldRightOfWayV1&&firstGroundContactSeconds!==null&&seen.observationElapsedSeconds!==null&&firstGroundContactSeconds<=seen.observationElapsedSeconds
+              ?{outfieldRightOfWayV1:MLB_INFIELD_DIRT_ARC_V1}:{}),
             ...(fieldRangePolicyV1?{coverAllowedV1:(b:BaseballBase,arrival:number)=>{
               if(fieldCoverV1){
                 const plan=coverPlanV1??=coverPlanOfV1();
