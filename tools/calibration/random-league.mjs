@@ -13,7 +13,9 @@ const args = process.argv.slice(2).filter(a => !a.startsWith('--')), pitchers = 
 const undercutRange = process.argv.includes('--undercut') ? [-.01, .035] : null;
 const [writeLo, writeHi] = (process.argv.find(a => a.startsWith('--write='))?.slice(8) ?? '0:Infinity').split(':').map(Number);
 const [nativePath, basePath, outDir, leagues = '10', seedText = '1'] = args;
-const core = loadCore(nativePath), base = JSON.parse(readFileSync(basePath, 'utf8'));
+// <base-config.json> may be a comma-separated list: league i is drawn on base i mod n (e.g. the six standard archetype
+// versions, so every pitch mix is in the leagues). The draws do not depend on the bases.
+const core = loadCore(nativePath), bases = basePath.split(',').map(path => JSON.parse(readFileSync(path, 'utf8')));
 let state = Number(seedText) >>> 0 || 1;
 const uniform = () => {state = (state * 1664525 + 1013904223) >>> 0; return state / 2 ** 32;};
 // Ranges cover real hitters on this scale; power 60-100 is about 25-35 m/s, the real spread of bat speed. Widened 2026-11-04:
@@ -25,7 +27,7 @@ const PITCH = {maxSpeedKmh: [138, 165], control: [55, 110]};
 mkdirSync(outDir, {recursive: true});
 const abilities = {};
 for (let league = 0; league < Number(leagues); league++) {
-  const spec = {players: {}}, drawn = {};
+  const base = bases[league % bases.length], spec = {players: {}}, drawn = {};
   const pick = ([lo, hi]) => Math.round((lo + (hi - lo) * uniform()) * 10) / 10;
   if (pitchers) for (const team of base.teams) {
     const a = {maxSpeedKmh: pick(PITCH.maxSpeedKmh), control: pick(PITCH.control)};
