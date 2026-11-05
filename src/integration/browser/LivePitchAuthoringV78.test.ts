@@ -82,4 +82,12 @@ describe('v78 distinct pitch identity, immutable library and physical execution'
     expect(() => migratePitchRepertoireV77ToV78({ ...LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1, get pitchRepertoireV78() { invoked = true; return undefined; } })).toThrow();
     expect(invoked).toBe(false);
   });
+  it('takes a per-pitch release offset within 0.15 m on each axis and refuses anything else', () => {
+    const pitch = { pitchId: 'own-sl', name: 'SL', pitchType: 'slider' as const, releaseSpeedMps: 38, spinRadPerSecond: { x: 20, y: 15, z: -250 },
+      source: { kind: 'original' as const, id: 'own-sl', revision: 1 } };
+    const repertoire = (releaseOffsetV1: unknown) => ({ version: 'pitch_repertoire_v78' as const, pitches: [{ ...pitch, releaseOffsetV1 }] });
+    expect(validatePitchRepertoireV78(repertoire([.03, -.02, -.01])).pitches[0].releaseOffsetV1).toEqual([.03, -.02, -.01]);
+    for (const bad of [[.03, -.02], [.2, 0, 0], [0, -.16, 0], [0, 0, NaN], 'x'])
+      expect(() => validatePitchRepertoireV78(repertoire(bad))).toThrow();
+  });
 });
