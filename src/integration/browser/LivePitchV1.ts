@@ -653,9 +653,19 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       ball:{tick:positionObserverV151.decisionTick,position:perceivedForecastV1!.prediction?.position??{x:0,y:middle,z:battingSetupV94.contactPlaneZ},
         velocity:effectiveForecastV246!.prediction?.estimatedVelocity??zero(),spin:zero()}}
       :predictFromObservation(observedSample,decisionTime,battingSetupV94.contactPlaneZ),
-    priorV122=intentV122?.preparedPrediction??(preparedRecallV151?{x:preparedRecallV151.position.x,y:preparedRecallV151.position.y,
+    // priorExpectationV1 [weight, k]: instead of one remembered pitch drawn at random, the batter expects the mean of what he
+    // has seen from this pitcher, shrunk toward the middle of the zone while he has seen little (n/(n+k)), and leans on that
+    // expectation less as he sees more (weight k/(n+k)): a pitcher's tendencies are learned over the game (2026-11-05).
+    expectedRecallV1=observationPolicyV151?.priorExpectationV1&&observedMemoryV151&&!intentV122?.preparedPrediction?(()=>{
+      const [weight,k]=observationPolicyV151.priorExpectationV1!,seen=observedMemoryV151.entries.filter(entry=>entry.availableTick<=input.originTick),
+        n=seen.length,share=n/(n+k),mean=(read:(entry:typeof seen[number])=>number)=>seen.reduce((sum,entry)=>sum+read(entry),0)/Math.max(1,n);
+      return {x:share*mean(entry=>entry.position.x),y:share*mean(entry=>entry.position.y)+(1-share)*middle,
+        arrivalAfterReleaseSeconds:n?mean(entry=>entry.arrivalAfterReleaseSeconds):flightGuess,weight:weight*k/(n+k)};
+    })():null,
+    priorV122=intentV122?.preparedPrediction??(expectedRecallV1?{x:expectedRecallV1.x,y:expectedRecallV1.y,arrivalAfterReleaseSeconds:expectedRecallV1.arrivalAfterReleaseSeconds}
+      :preparedRecallV151?{x:preparedRecallV151.position.x,y:preparedRecallV151.position.y,
       arrivalAfterReleaseSeconds:preparedRecallV151.arrivalAfterReleaseSeconds}:null),
-    requestedPriorWeightV151=intentV122?.preparedPrediction?(intentV122.priorWeight??0):preparedRecallV151?.priorWeight??0,
+    requestedPriorWeightV151=intentV122?.preparedPrediction?(intentV122.priorWeight??0):expectedRecallV1?expectedRecallV1.weight:preparedRecallV151?.priorWeight??0,
     currentObservationAvailableV151=positionObserverV151===undefined||effectiveForecastV246?.status==='PREDICTED',
     usablePriorV151=priorV122!==null&&priorV122!==undefined&&requestedPriorWeightV151>0,
     priorWeightV122=!currentObservationAvailableV151&&usablePriorV151?1:requestedPriorWeightV151,
