@@ -8,6 +8,7 @@
 // it scored and why it chose. --frames prints the ball and one position frame by frame.
 import {appendFileSync, readFileSync, writeFileSync} from 'node:fs';
 import {detectFieldSymptoms} from './field-audit-detect.mjs';
+import {resolveMeasuredClips} from '../calibration/clips-ref.mjs';
 
 const [mode, ...rest] = process.argv.slice(2), NL = String.fromCharCode(10);
 const flags = Object.fromEntries(rest.filter(a => a.startsWith('--')).map(a => {const [k, ...v] = a.slice(2).split('='); return [k, v.length ? v.join('=') : true];}));
@@ -36,7 +37,7 @@ const fieldInput = (raw, core) => {
 };
 
 if (mode === 'capture') {
-  const [nativePath, configPath, out] = args, {core} = load(nativePath, true), config = JSON.parse(readFileSync(configPath, 'utf8'));
+  const [nativePath, configPath, out] = args, {core} = load(nativePath, true), config = resolveMeasuredClips(JSON.parse(readFileSync(configPath, 'utf8')));
   config.seed = Number(flags.seed) >>> 0; Object.assign(config, injected(core));
   const policies = config.experimentalMatchPoliciesV2, host = policies ? core.createExperimentalMatchHostV2(config, policies) : core.createLiveBaseballMatchWorkerV116(config);
   const command = {batting: 'auto', pitchType: 'auto', location: 'auto', managedTeam: 0, baserunning: 'balanced'};

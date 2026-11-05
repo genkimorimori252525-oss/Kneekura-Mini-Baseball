@@ -386,7 +386,9 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     zone,ballRadiusMeters:profile.ground.radiusM,pitcher:p,catcher,batter:b,situation:input.pitchSituationV111,
     ...(orderedLocationV1?{preferredLocationV1:orderedLocationV1}:{}),
     ...(observationPolicyV151?.pitchTargetPlanV2===undefined?{}:{targetPlanV2:observationPolicyV151.pitchTargetPlanV2,pitchTypeV2:pitchType,
-      ...(zoneLeanV2===null?{}:{zoneLeanV2})}),
+      ...(zoneLeanV2===null?{}:{zoneLeanV2}),...(observationPolicyV151.pitchMissDirectionV2===undefined?{}:{missDirectionV2:observationPolicyV151.pitchMissDirectionV2}),
+      ...(observationPolicyV151.pitchAimCenterV2===undefined||selectedSnapshot?.aimCenterV1===undefined?{}
+        :{aimCenterV2:{arm:observationPolicyV151.pitchAimCenterV2*selectedSnapshot.aimCenterV1[0]!,up:observationPolicyV151.pitchAimCenterV2*selectedSnapshot.aimCenterV1[1]!}})}),
     seed:randomStreamsV152?.seedFor('pitchTarget','target-plan-v111')??input.seed}):null;
   if(pitchTargetPlanV111){Object.assign(target,pitchTargetPlanV111.position);location=pitchTargetPlanV111.location;}
   // zoneRateV1 on the pitch (the share of these pitches whose centre crosses the zone): the plan keeps its in-or-out choice
@@ -544,9 +546,10 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       return owned?owned.find(row=>row.pitchType==='fastball')??owned.find(row=>['sinker','cutter'].includes(row.pitchType))??null
         :resolvePitcherRepertoireV77(p,p.throws??'R').find(row=>row.pitchType==='fastball')??null;})(),
     bendForecastV1=<F extends Readonly<{status:string;observedThroughTick:number|null;prediction:Readonly<{position:Vec3;arrivalAfterReleaseSeconds:number;estimatedAcceleration:Vec3}>|null}>|null|undefined>(forecast:F,weightOverride?:number,
-      expectedPitch:Readonly<{releaseSpeedMps:number;spinRadPerSecond:Vec3}>|null=fastBendPitchV1):F=>{
+      expectedPitch:Readonly<{releaseSpeedMps:number;spinRadPerSecond:Vec3}>|null=fastBendPitchV1,lookSeconds?:number):F=>{
       if(!expectedPitch||forecast?.status!=='PREDICTED'||!forecast.prediction||forecast.observedThroughTick===null)return forecast;
-      const t1=(forecast.observedThroughTick-input.originTick)/tps,t2=forecast.prediction.arrivalAfterReleaseSeconds,dt=t2-t1,
+      // lookSeconds: the bend he expects is laid from then, not from the end of his look (the late break he did not take in).
+      const t1=Math.min((forecast.observedThroughTick-input.originTick)/tps,lookSeconds??Infinity),t2=forecast.prediction.arrivalAfterReleaseSeconds,dt=t2-t1,
         weight=weightOverride!==undefined?weightOverride:accelerationViewTimeV1!==undefined?t1/(t1+accelerationViewTimeV1):accelerationWeightV1??1;
       if(!(dt>.005)||weight>=1)return forecast;
       const start={...initial,velocity:mul(initial.velocity,expectedPitch.releaseSpeedMps*.99/norm(initial.velocity)),spin:expectedPitch.spinRadPerSecond},
@@ -608,16 +611,36 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       if(!(total>0))return null;
       let read=weighed[weighed.length-1],cumulative=0;
       for(const c of weighed){cumulative+=c.weight;if(draw*total<cumulative){read=c;break;}}
-      let readArrival=t1+(plane-read.at.position.z)/read.at.velocity.z;
-      for(let i=0;i<3;i++){const at=sampleAerodynamicPitchStateAtElapsedSeconds(read.start,readArrival,inverseAir);readArrival+=(plane-at.position.z)/at.velocity.z;}
-      return {recognized:read.id===actualId,fastArrival:readArrival,readPitch:read.pitch,readId:read.id,actualId,familiarShare,
+      // readFromSeenV1: take back this share of the lag the read pitch already had at the end of the look (seen ball vs its own place).
+      const fromSeen=observationPolicyV151?.readFromSeenV1,arrivalOf=(c:typeof read)=>{
+        let arrival=t1+(plane-c.at.position.z)/c.at.velocity.z;
+        for(let i=0;i<3;i++){const at=sampleAerodynamicPitchStateAtElapsedSeconds(c.start,arrival,inverseAir);arrival+=(plane-at.position.z)/at.velocity.z;}
+        return fromSeen!==undefined&&c.at.velocity.z!==0?arrival+fromSeen*(c.at.position.z-seenBall.position.z)/c.at.velocity.z:arrival;};
+      // readBlendV1: the hitter's expectation is this share of the way from the drawn pitch to the mean over his candidates, each
+      // weighed by how much it looks like the ball so far (its speed, spin and arrival), instead of the drawn pitch alone.
+      const blend=observationPolicyV151?.readBlendV1,drawnArrival=arrivalOf(read);
+      if(blend!==undefined){
+        const mix=(a:number,b:number)=>a+(b-a)*blend,mean=(f:(c:typeof read)=>number)=>weighed.reduce((n,c)=>n+c.weight*f(c),0)/total,
+          spin=(axis:'x'|'y'|'z')=>mix(read.pitch.spinRadPerSecond[axis],mean(c=>c.pitch.spinRadPerSecond[axis]));
+        return {recognized:read.id===actualId,fastArrival:mix(drawnArrival,mean(arrivalOf)),
+          readPitch:{...read.pitch,releaseSpeedMps:mix(read.pitch.releaseSpeedMps,mean(c=>c.pitch.releaseSpeedMps)),spinRadPerSecond:{x:spin('x'),y:spin('y'),z:spin('z')}},
+          readId:read.id,actualId,familiarShare,blended:true as const,posterior:weighed.map(c=>({id:c.id,share:c.weight/total,turnDegrees:c.turnDegrees,lagMs:c.lagMs}))};
+      }
+      const readArrival=drawnArrival;
+      return {recognized:read.id===actualId,fastArrival:readArrival,readPitch:read.pitch,readId:read.id,actualId,familiarShare,blended:false as const,
         posterior:weighed.map(c=>({id:c.id,share:c.weight/total,turnDegrees:c.turnDegrees,lagMs:c.lagMs}))};
     })(),
     recognitionUsedV1=recognitionV2??recognitionV1,
     // With familiarity, even the pitch read right is expected to bend and arrive as he pictures it.
-    readsPicturedV1=!!recognitionUsedV1&&(!recognitionUsedV1.recognized||recognitionV2?.familiarShare!=null),
-    readForecastV1=readsPicturedV1?bendForecastV1(effectiveForecastV246,0,recognitionUsedV1!.readPitch):bendForecastV1(effectiveForecastV246),
-    readArrivalV1=readsPicturedV1?recognitionUsedV1!.fastArrival:effectiveForecastV246?.prediction?.arrivalAfterReleaseSeconds,
+    readsPicturedV1=!!recognitionUsedV1&&(!recognitionUsedV1.recognized||recognitionV2?.familiarShare!=null||recognitionV2?.blended===true),
+    // misreadLookSecondsV1: a misread hitter lays the read pitch's bend from this time after release, not from the end of his look.
+    readForecastV1=readsPicturedV1?bendForecastV1(effectiveForecastV246,0,recognitionUsedV1!.readPitch,
+      recognitionUsedV1!.recognized?undefined:observationPolicyV151?.misreadLookSecondsV1):bendForecastV1(effectiveForecastV246),
+    // misreadTimingKeepV1: on a misread only this share of the read pitch's arrival gap is kept (the hitter retimes the swing to
+    // the ball's speed on the way), the misread place stays whole (2026-11-05).
+    timingKeepV1=observationPolicyV151?.misreadTimingKeepV1,seenArrivalV1=effectiveForecastV246?.prediction?.arrivalAfterReleaseSeconds,
+    readArrivalV1=readsPicturedV1?(timingKeepV1!==undefined&&!recognitionUsedV1!.recognized&&seenArrivalV1!==undefined
+      ?seenArrivalV1+(recognitionUsedV1!.fastArrival-seenArrivalV1)*timingKeepV1:recognitionUsedV1!.fastArrival):seenArrivalV1,
     // speedPerceptionV1 (sd of the relative speed error): one misread speed moves the expected arrival and, along the read path,
     // the height and side there together, so a ball read faster than it is comes later and lower than the bat (and the reverse).
     speedErrorV1=observationPolicyV151?.speedPerceptionV1===undefined||readArrivalV1===undefined||!readForecastV1?.prediction
@@ -649,7 +672,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     ...(receivedInstructionV122===undefined?{}:{instruction:receivedInstructionV122})});
   const yawDeferExecutionV274=input.yawDiagnosticV274!==undefined;
   if(yawDeferExecutionV274&&!randomStreamsV152)throw Object.assign(new Error('yaw diagnostic: INDEPENDENT_RANDOMNESS_REQUIRED'),{yawDiagnosticStatus:'HOLD'});
-  const observedPredictionV122=positionObserverV151?{elapsedSeconds:speedErrorV1?perceivedArrivalV1!:readsPicturedV1?recognitionUsedV1!.fastArrival:effectiveForecastV246!.prediction?.arrivalAfterReleaseSeconds??decisionTime,
+  const observedPredictionV122=positionObserverV151?{elapsedSeconds:speedErrorV1?perceivedArrivalV1!:readsPicturedV1?readArrivalV1!:effectiveForecastV246!.prediction?.arrivalAfterReleaseSeconds??decisionTime,
       ball:{tick:positionObserverV151.decisionTick,position:perceivedForecastV1!.prediction?.position??{x:0,y:middle,z:battingSetupV94.contactPlaneZ},
         velocity:effectiveForecastV246!.prediction?.estimatedVelocity??zero(),spin:zero()}}
       :predictFromObservation(observedSample,decisionTime,battingSetupV94.contactPlaneZ),
@@ -725,7 +748,10 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     judgmentPosition={...prediction.ball.position,...batterRecognition.position},recognitionAimOffset=batterRecognition.diagnostics.biasMeters,
     // undercutAimV1: a swing aims the sweet spot this far under the ball's centre, as hitters who lift the ball do.
     undercutV1=input.batting==='bunt'?0:b.undercutAimMeters??observationPolicyV151?.undercutAimV1??0,
-    motorAimPosition=recognitionAimOffset.x===0&&recognitionAimOffset.y===0&&undercutV1===0?placementPositionV1:{...placementPositionV1,x:placementPositionV1.x+recognitionAimOffset.x,y:placementPositionV1.y+recognitionAimOffset.y-undercutV1};
+    // judgmentAimShareV1: the misjudged location that decided the swing also moves the bat; the late look corrects it like a misread.
+    judgmentAimShareV1=observationPolicyV151?.judgmentAimShareV1,judgmentAimV1={x:judgmentError.x*(judgmentAimShareV1??0),y:judgmentError.y*(judgmentAimShareV1??0)},
+    motorAimPosition=recognitionAimOffset.x===0&&recognitionAimOffset.y===0&&undercutV1===0&&judgmentAimV1.x===0&&judgmentAimV1.y===0?placementPositionV1
+      :{...placementPositionV1,x:placementPositionV1.x+recognitionAimOffset.x+judgmentAimV1.x,y:placementPositionV1.y+recognitionAimOffset.y-undercutV1+judgmentAimV1.y};
   const inChaseEnvelope=Math.abs(judgmentPosition.x)<=zone.halfWidth+b.chaseMarginMeters
     &&judgmentPosition.y>=zone.lowerY-b.chaseMarginMeters&&judgmentPosition.y<=zone.upperY+b.chaseMarginMeters,
     zoneMargin=Math.min(zone.halfWidth-Math.abs(judgmentPosition.x),judgmentPosition.y-zone.lowerY,zone.upperY-judgmentPosition.y),
@@ -734,8 +760,15 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   const countBallsV1=input.pitchSituationV111?.balls??0,countStrikesV1=input.pitchSituationV111?.strikes??0,
     expansionV1=(countStrikesV1===2?observationPolicyV151?.twoStrikeExpansionV1??0:0)+(input.emotionInfluenceV1?.swingAggressionDelta??0);
   const visionThresholdShiftV1=observationPolicyV151?.visionSelectivityV1!==undefined?(resolveLivePlateVisionV1(b)-70)*observationPolicyV151.visionSelectivityV1:0;
+  // swingDecisionNoiseV1 (score units): the cut-off is not sharp. The batter swings with chance Phi((score - cut-off) / noise), so a
+  // pitch in the heart is sometimes taken and one just off the edge sometimes chased, rising steadily from waste to heart as
+  // MLB's swing rates do (2026-11-05, K:/kbm-work/countswing). Omitted, the cut-off is sharp as before.
+  const swingNoiseV1=observationPolicyV151?.swingDecisionNoiseV1,swingCutoffV1=b.swingDecision?b.swingDecision.threshold+visionThresholdShiftV1-expansionV1:0,
+    swingPassV1=swingNoiseV1===undefined?swingScore>=swingCutoffV1:(()=>{const z=(swingScore-swingCutoffV1)/swingNoiseV1,t=1/(1+.2316419*Math.abs(z)),
+      tail=.3989423*Math.exp(-z*z/2)*t*(.3193815+t*(-.3565638+t*(1.781478+t*(-1.821256+t*1.330274)))),chance=z>=0?1-tail:tail;
+      return (randomStreamsV152?.rng('batterPerception','swing-cutoff-v1').uniform()??new SeedRoot(input.seed).streamRng(0,'batting','swing-cutoff-v1').nextFloat())<chance;})();
   let swingOffered=deliveredPredictionV151&&input.batting!=='take'&&(!swingIntentV121||swingIntentV121.effort>0)&&(b.swingDecision?b.swingDecision.approach==='SWING'
-      ||b.swingDecision.approach==='AUTO'&&inChaseEnvelope&&swingScore>=b.swingDecision.threshold+visionThresholdShiftV1-expansionV1:inChaseEnvelope&&batterRecognition.diagnostics.targetWeight>0);
+      ||b.swingDecision.approach==='AUTO'&&inChaseEnvelope&&swingPassV1:inChaseEnvelope&&batterRecognition.diagnostics.targetWeight>0);
   const countReadinessV1=observationPolicyV151?.countReadinessV1?.[countBallsV1]?.[countStrikesV1];
   if(swingOffered&&countReadinessV1!==undefined&&b.swingDecision?.approach!=='SWING'&&
     new SeedRoot(randomStreamsV152?.seedFor('batterPerception','count-readiness-v1')??input.seed).streamRng(0,'batting','count-readiness-v1').nextFloat()>=countReadinessV1)swingOffered=false;
@@ -1084,7 +1117,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       lateObservedTick=positionObserverV151?(lateEffectiveForecast?.status==='PREDICTED'?lateEffectiveForecast.observedThroughTick!:observationTick)
         :input.originTick+Math.round(observedTime*tps),
       evidence=selectPredictionAt(lateObservedTick>observationTick?[earlyEvidence,{predictionId:'late-observation-v121',observedTick:lateObservedTick,availableTick,position:latePrediction.ball.position}]:[earlyEvidence],correctionFromTick)!,
-      requestedOffset=sub(evidence.position,placementPositionV1),distance=norm(requestedOffset),
+      requestedOffset=judgmentAimV1.x===0&&judgmentAimV1.y===0?sub(evidence.position,placementPositionV1):sub(evidence.position,{...placementPositionV1,x:placementPositionV1.x+judgmentAimV1.x,y:placementPositionV1.y+judgmentAimV1.y}),distance=norm(requestedOffset),
       budget=effectiveMaximumSpeedV121===undefined?0:Math.max(0,Math.min(uncorrectedReference.maximumGripSpeedMps,effectiveMaximumSpeedV121-uncorrectedReference.maximumSweetSpotSpeedMps))*(swingIntentV121?.controlPriority??1),
       accelerationBudget=executionV122?Math.max(0,Math.min(executionV122.maximumGripAccelerationMps2-referenceAccelerationBoundsV122(uncorrectedReference).maximumGripAccelerationMps2,
         executionV122.maximumSweetSpotAccelerationMps2-referenceAccelerationBoundsV122(uncorrectedReference).maximumSweetSpotAccelerationMps2)):Infinity,

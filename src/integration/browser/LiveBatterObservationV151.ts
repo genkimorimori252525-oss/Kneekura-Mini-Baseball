@@ -75,6 +75,19 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
    * Only what is visible by then is used. Takes the place of pitchRecognitionV1 when both are given. An optional third value
    * [degrees] adds the angle between the spin axes (the seams' turn he sees) to d, divided by it. */
   pitchRecognitionV2?:readonly number[];
+  /** pitchRecognitionV2's misread arrival from where the ball was seen (0..1): the read pitch's arrival is counted from its own
+   * place at the end of the look, which carries the lag already seen; this share of that lag is taken back, so 1 counts the rest of
+   * the flight from the seen ball at the read pitch's speed (2026-11-05). */
+  readFromSeenV1?:number;
+  /** On a misread (pitchRecognitionV2 or V1), the share of the read pitch's arrival gap the hitter keeps (0..1): he times the swing
+   * to the ball's own arrival + (read arrival - own arrival) x keep; the misread place is kept whole (2026-11-05). */
+  misreadTimingKeepV1?:number;
+  /** With pitchRecognitionV2: the share (0..1) of the way the hitter's expected pitch (its bend and arrival) goes from the one he
+   * draws to the mean over his candidates weighed by how alike they look so far; read right or not, he expects that blend. */
+  readBlendV1?:number;
+  /** With pitchRecognitionV2: on a misread, the read pitch's bend is laid from this time after release (0.05..0.4 s) instead of
+   * from the end of the look, as if the late break went unseen; a breaking ball read as a fastball is then expected higher. */
+  misreadLookSecondsV1?:number;
   /** Standard deviation of the hitter's relative error in the ball's speed at the swing decision (0..0.3). Reading it faster
    * than it is, he expects it sooner and higher (it has less time to drop), slower the other way; one error moves both. */
   speedPerceptionV1?:number;
@@ -91,15 +104,24 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   /** With pitchTargetPlanV2: runs per unit of a pitch's zoneRateV1 above the pitcher's own mean that lean its target toward
    * the zone (0..5). The pitch's zone rate then works through the plan instead of moving the planned target. */
   pitchZoneLeanV2?:number;
+  /** With pitchTargetPlanV2: the share (0..1) of the plan's out-of-zone forecast taken by the side the ball misses on (up, down,
+   * arm side, glove side) and its band, from MLB rows by pitch family and count, instead of by band alone (2026-11-05). */
+  pitchMissDirectionV2?:number;
+  /** With pitchTargetPlanV2: the share (0..2) of each pitch's aimCenterV1 that moves the plan's chosen spot (2026-11-05). */
+  pitchAimCenterV2?:number;
   /** Share of the remembered pitch kept in where the bat goes (0..1); the arrival time keeps the full prior.
    * Blending a quarter of the last pitches into the height made hitters top low pitches and pop up high ones. */
   priorPlacementShareV1?:number;
   /** With pitch recognition, the share (0-1) of the deciding belief's pull toward the remembered pitch that the bat also follows. */
   placementJudgedV1?:number;
+  /** Spread (swing-score units) of the swing cut-off: the batter swings with chance Phi((score - cut-off) / spread). */
+  swingDecisionNoiseV1?:number;
   /** [weight, k]: the prior is the mean of this pitcher's pitches seen, shrunk to the zone's middle by n/(n+k), with weight weight*k/(n+k). */
   priorExpectationV1?:readonly number[];
   /** Late-look correction bounded by this extra hand acceleration (m/s^2) over the time left, instead of the meet share of the gap. */
   lateLookAccelerationV1?:number;
+  /** Share (0-1) of the zone-judgment error that also moves the bat's aim; the late look then corrects it as it does a misread. */
+  judgmentAimShareV1?:number;
   /** Chance per swing that the hitter is fooled and puts the bat where he expected the pitch (the remembered one);
    * otherwise the bat goes where he saw it. Overrides priorPlacementShareV1. A blend on every swing made too many
    * half-missed balls for the strikeouts it produced. */
@@ -159,6 +181,8 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'priorFooledChanceV1')){keys.push('priorFooledChanceV1');assert(Number.isFinite(p.priorFooledChanceV1)&&p.priorFooledChanceV1!>=0&&p.priorFooledChanceV1!<=1,'invalid prior fooled chance');}
   if(Object.hasOwn(p,'lateLookAccelerationV1')){keys.push('lateLookAccelerationV1');assert(Number.isFinite(p.lateLookAccelerationV1)&&p.lateLookAccelerationV1!>=1&&p.lateLookAccelerationV1!<=300,'invalid late look acceleration');}
   if(Object.hasOwn(p,'priorExpectationV1')){keys.push('priorExpectationV1');assert(Array.isArray(p.priorExpectationV1)&&p.priorExpectationV1.length===2&&p.priorExpectationV1[0]>=0&&p.priorExpectationV1[0]<=1&&p.priorExpectationV1[1]>0&&p.priorExpectationV1[1]<=200,'invalid prior expectation');}
+  if(Object.hasOwn(p,'judgmentAimShareV1')){keys.push('judgmentAimShareV1');assert(Number.isFinite(p.judgmentAimShareV1)&&p.judgmentAimShareV1!>=0&&p.judgmentAimShareV1!<=1,'invalid judgment aim share');}
+  if(Object.hasOwn(p,'swingDecisionNoiseV1')){keys.push('swingDecisionNoiseV1');assert(Number.isFinite(p.swingDecisionNoiseV1)&&p.swingDecisionNoiseV1!>=.01&&p.swingDecisionNoiseV1!<=2,'invalid swing decision noise');}
   if(Object.hasOwn(p,'placementJudgedV1')){keys.push('placementJudgedV1');assert(Number.isFinite(p.placementJudgedV1)&&p.placementJudgedV1!>=0&&p.placementJudgedV1!<=1,'invalid judged placement');}
   if(Object.hasOwn(p,'priorPlacementShareV1')){keys.push('priorPlacementShareV1');assert(Number.isFinite(p.priorPlacementShareV1)&&p.priorPlacementShareV1!>=0&&p.priorPlacementShareV1!<=1,'invalid prior placement share');}
   if(Object.hasOwn(p,'lateLookByMeetOnlyV1')){keys.push('lateLookByMeetOnlyV1');assert(typeof p.lateLookByMeetOnlyV1==='boolean','invalid late look source');}
@@ -168,12 +192,18 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'pitchRecognitionV1')){keys.push('pitchRecognitionV1');assert(Array.isArray(p.pitchRecognitionV1)&&p.pitchRecognitionV1.length===3&&p.pitchRecognitionV1[0]>=0&&p.pitchRecognitionV1[0]<=1&&p.pitchRecognitionV1[1]>0&&p.pitchRecognitionV1[1]<=30&&p.pitchRecognitionV1[2]>0&&p.pitchRecognitionV1[2]<=300,'invalid pitch recognition');}
   if(Object.hasOwn(p,'pitchRecognitionV2')){keys.push('pitchRecognitionV2');assert(Array.isArray(p.pitchRecognitionV2)&&(p.pitchRecognitionV2.length===2||p.pitchRecognitionV2.length===3)&&p.pitchRecognitionV2[0]>0&&p.pitchRecognitionV2[0]<=30&&p.pitchRecognitionV2[1]>0&&p.pitchRecognitionV2[1]<=500
     &&(p.pitchRecognitionV2.length===2||p.pitchRecognitionV2[2]>0&&p.pitchRecognitionV2[2]<=360),'invalid pitch recognition v2');}
+  if(Object.hasOwn(p,'misreadLookSecondsV1')){keys.push('misreadLookSecondsV1');assert(Number.isFinite(p.misreadLookSecondsV1)&&p.misreadLookSecondsV1!>=.05&&p.misreadLookSecondsV1!<=.4&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid misread look seconds');}
+  if(Object.hasOwn(p,'readBlendV1')){keys.push('readBlendV1');assert(Number.isFinite(p.readBlendV1)&&p.readBlendV1!>=0&&p.readBlendV1!<=1&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid read blend');}
+  if(Object.hasOwn(p,'misreadTimingKeepV1')){keys.push('misreadTimingKeepV1');assert(Number.isFinite(p.misreadTimingKeepV1)&&p.misreadTimingKeepV1!>=0&&p.misreadTimingKeepV1!<=1,'invalid misread timing keep');}
+  if(Object.hasOwn(p,'readFromSeenV1')){keys.push('readFromSeenV1');assert(Number.isFinite(p.readFromSeenV1)&&p.readFromSeenV1!>=0&&p.readFromSeenV1!<=1&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid read from seen');}
   if(Object.hasOwn(p,'pitchFamiliarityV1')){keys.push('pitchFamiliarityV1');assert(Array.isArray(p.pitchFamiliarityV1)&&p.pitchFamiliarityV1.length===3
     &&p.pitchFamiliarityV1.every((v:unknown)=>typeof v==='number'&&v>=0&&v<=1)&&Object.hasOwn(p,'leagueReferencePitchesV1'),'invalid pitch familiarity');}
   if(Object.hasOwn(p,'leagueReferencePitchesV1')){keys.push('leagueReferencePitchesV1');const r=p.leagueReferencePitchesV1 as Record<string,unknown>;
     assert(r&&typeof r==='object'&&['R','L'].every(h=>Array.isArray(r[h])&&(r[h] as unknown[]).every(e=>{const x=e as {pitchType?:unknown;spinRadPerSecond?:Record<string,unknown>};
       return typeof x?.pitchType==='string'&&x.spinRadPerSecond!==undefined&&['x','y','z'].every(k=>typeof x.spinRadPerSecond![k]==='number'&&Number.isFinite(x.spinRadPerSecond![k] as number));})),
       'invalid league reference pitches');}
+  if(Object.hasOwn(p,'pitchAimCenterV2')){keys.push('pitchAimCenterV2');assert(typeof p.pitchAimCenterV2==='number'&&p.pitchAimCenterV2>=0&&p.pitchAimCenterV2<=2&&Object.hasOwn(p,'pitchTargetPlanV2'),'invalid pitch aim centre v2');}
+  if(Object.hasOwn(p,'pitchMissDirectionV2')){keys.push('pitchMissDirectionV2');assert(typeof p.pitchMissDirectionV2==='number'&&p.pitchMissDirectionV2>=0&&p.pitchMissDirectionV2<=1&&Object.hasOwn(p,'pitchTargetPlanV2'),'invalid pitch miss direction v2');}
   if(Object.hasOwn(p,'pitchZoneLeanV2')){keys.push('pitchZoneLeanV2');assert(typeof p.pitchZoneLeanV2==='number'&&p.pitchZoneLeanV2>=0&&p.pitchZoneLeanV2<=5,'invalid pitch zone lean v2');}
   if(Object.hasOwn(p,'pitchTargetPlanV2')){keys.push('pitchTargetPlanV2');assert(typeof p.pitchTargetPlanV2==='number'&&p.pitchTargetPlanV2>=.0005&&p.pitchTargetPlanV2<=.5,'invalid pitch target plan v2');}
   if(Object.hasOwn(p,'speedPerceptionV1')){keys.push('speedPerceptionV1');assert(typeof p.speedPerceptionV1==='number'&&p.speedPerceptionV1>=0&&p.speedPerceptionV1<=.3,'invalid speed perception');}
