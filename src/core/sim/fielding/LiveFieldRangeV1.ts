@@ -122,6 +122,31 @@ export function validateLiveRunnerLineDriveReadPolicyV1(policy:LiveRunnerLineDri
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid runner line drive read policy');
   return policy;
 }
+/** Opt-in. Omission lets a runner go halfway whenever his read of the catch falls to the halfway band. */
+export type LiveRunnerSureCatchHoldPolicyV1=Readonly<{version:'live_runner_sure_catch_hold_policy_v1';sourceId:string}>;
+export const LIVE_RUNNER_SURE_CATCH_HOLD_POLICY_V1:LiveRunnerSureCatchHoldPolicyV1=Object.freeze({version:'live_runner_sure_catch_hold_policy_v1',sourceId:'sure-catch-hold-v1'});
+/** A runner who has read a sure catch on this flight stays at his bag. His read of the catch is the time the best fielder has
+ * to spare before the ball comes down, so with a fielder camped under a pop-up it falls with the hang itself, into the halfway
+ * band in the last .8 s of every high fly; he walked off and was doubled off. In 396 replayed MLB balls, 6 of 36 caught balls
+ * with a runner on and less than two out ended in a double play, against 54 of 1,627 in MLB 2025 (3 of 329 pop-ups).
+ * A late forecast that the fielder will miss does not send him either: on a high foul pop-up the forecast can swing that way
+ * while the fielder still makes the catch. He goes when the ball is down or touched. */
+export function validateLiveRunnerSureCatchHoldPolicyV1(policy:LiveRunnerSureCatchHoldPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_runner_sure_catch_hold_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid runner sure catch hold policy');
+  return policy;
+}
+export type LiveRunnerFoulFlyHoldPolicyV1=Readonly<{version:'live_runner_foul_fly_hold_policy_v1';sourceId:string}>;
+export const LIVE_RUNNER_FOUL_FLY_HOLD_POLICY_V1:LiveRunnerFoulFlyHoldPolicyV1=Object.freeze({version:'live_runner_foul_fly_hold_policy_v1',sourceId:'foul-fly-hold-v1'});
+/** A runner does not go on a read that the ball will drop while he sees it coming down in foul ground: dropped it is a foul ball
+ * and he goes back, caught he is doubled off. On a deep foul pop-up the read of the fielders can say nobody gets there; a runner
+ * from first went at .2 s, reached third and was doubled off when the ball was caught, one of the 6 double-offs left in 2,052
+ * replayed MLB balls with sureCatchHoldV1. */
+export function validateLiveRunnerFoulFlyHoldPolicyV1(policy:LiveRunnerFoulFlyHoldPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_runner_foul_fly_hold_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid runner foul fly hold policy');
+  return policy;
+}
 /** Opt-in. Omission keeps every runner, the batter too, waiting until the man on the bag ahead has left it. */
 export type LiveForcedRunPolicyV1=Readonly<{version:'live_forced_run_policy_v1';sourceId:string}>;
 export const LIVE_FORCED_RUN_POLICY_V1:LiveForcedRunPolicyV1=Object.freeze({version:'live_forced_run_policy_v1',sourceId:'forced-run-v1-rule'});
