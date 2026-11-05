@@ -17,7 +17,10 @@ export type PitchPhysicalSettingsV78 = Readonly<{ releaseSpeedMps: number; spinR
    * A repertoire gives it on every pitch or on none; omitted, every pitch weighs 1 as before. */
   usageWeightV1?: number;
   /** Share of these pitches whose centre crosses the strike zone (Statcast zone 1-9 rate, 0..1). Omitted, the plan alone. */
-  zoneRateV1?: number }>;
+  zoneRateV1?: number;
+  /** usageWeightV1 scaled in each count, 0-0 0-1 0-2 1-0 ... 3-2 (12 values, 0..50; e.g. the share in that count over the
+   * share overall). On every pitch or on none, with usageWeightV1; every count keeps a positive pitch. Omitted, as before. */
+  usageByCountV1?: readonly number[] }>;
 export type PitchSnapshotV78 = PitchPhysicalSettingsV78 & Readonly<{ pitchId: string; name: string; pitchType: LivePitchTypeV78;
   source: Readonly<{ kind: 'preset' | 'original'; id: string; revision: number }> }>;
 export type PitchRepertoireV78 = Readonly<{ version: 'pitch_repertoire_v78'; pitches: readonly PitchSnapshotV78[] }>;
@@ -60,7 +63,7 @@ const validName=(v:unknown):v is string=>typeof v==='string'&&v.length>0&&v.leng
 function fields(raw:unknown,required:readonly string[],optional:readonly string[]=[]):asserts raw is Record<string,unknown>{
   assert(raw&&typeof raw==='object'&&!Array.isArray(raw)&&required.every(k=>Object.hasOwn(raw,k))&&Object.keys(raw).every(k=>required.includes(k)||optional.includes(k)),'unknown or missing fields');
 }
-const physicalRequired=['releaseSpeedMps','spinRadPerSecond'],physicalOptional=['releaseOrientation','seamForce','movementV92','usageWeightV1','zoneRateV1'];
+const physicalRequired=['releaseSpeedMps','spinRadPerSecond'],physicalOptional=['releaseOrientation','seamForce','movementV92','usageWeightV1','zoneRateV1','usageByCountV1'];
 function physical(raw:Record<string,unknown>,maximumPitchSpeedMps?:number){
   assert(maximumPitchSpeedMps===undefined||bounded(maximumPitchSpeedMps,15,85),'invalid maximum pitch speed');
   assert(bounded(raw.releaseSpeedMps,5,85)&&raw.releaseSpeedMps<=(maximumPitchSpeedMps??85),'invalid V78 pitch speed or individual limit');
@@ -73,6 +76,7 @@ function physical(raw:Record<string,unknown>,maximumPitchSpeedMps?:number){
   if(Object.hasOwn(raw,'seamForce')){const seam=validateBaseballSeamForceV1(raw.seamForce);assert(seam.coefficientScale===0||raw.releaseOrientation!==undefined,'seam force requires an explicit material orientation');}
   assert(!Object.hasOwn(raw,'usageWeightV1')||bounded(raw.usageWeightV1,0,1000),'invalid pitch usage weight');
   assert(!Object.hasOwn(raw,'zoneRateV1')||bounded(raw.zoneRateV1,0,1),'invalid pitch zone rate');
+  assert(!Object.hasOwn(raw,'usageByCountV1')||Array.isArray(raw.usageByCountV1)&&raw.usageByCountV1.length===12&&raw.usageByCountV1.every(v=>bounded(v,0,50)),'invalid pitch usage by count');
   if(Object.hasOwn(raw,'movementV92')){
     const history=raw.movementV92;fields(history,['version','level','referenceSpinRadPerSecond'],['referenceSeamForce']);
     assert(raw.pitchType!=='fastball'&&history.version==='pitch_movement_v92'&&Number.isInteger(history.level)&&bounded(history.level,0,7),'invalid movement authoring history');
@@ -96,6 +100,9 @@ export function validatePitchRepertoireV78(raw:unknown,maximumPitchSpeedMps?:num
   const seen=new Set<string>();for(const row of value.pitches){const pitch=validatePitchSnapshotV78(row,maximumPitchSpeedMps);assert(!seen.has(pitch.pitchId),'duplicate stable pitch ID');seen.add(pitch.pitchId);}
   const weighted=(value.pitches as Record<string,unknown>[]).filter(row=>Object.hasOwn(row,'usageWeightV1'));
   assert(weighted.length===0||weighted.length===value.pitches.length&&weighted.some(row=>(row.usageWeightV1 as number)>0),'usage weights go on every pitch, at least one positive');
+  const byCount=(value.pitches as Record<string,unknown>[]).filter(row=>Object.hasOwn(row,'usageByCountV1'));
+  assert(byCount.length===0||byCount.length===value.pitches.length&&weighted.length===value.pitches.length&&Array.from({length:12},(_,i)=>i)
+    .every(i=>byCount.some(row=>(row.usageWeightV1 as number)*(row.usageByCountV1 as number[])[i]>0)),'usage by count goes on every pitch with usage weights, each count with a positive pitch');
   return freeze(value as unknown as PitchRepertoireV78);
 }
 export function validatePitchLibraryV78(raw:unknown):PitchLibraryV78{

@@ -124,3 +124,12 @@ it('checks the contact physics switches: post-contact hold, barrel ringing, unde
   expect([accepted.postContactHoldV1, accepted.barrelVibrationLossV1, accepted.undercutAimV1, accepted.aimVerticalScaleV1]).toEqual([true, [.1, .145, .35], .02, .6]);
   expect(validateLiveBatterObservationPolicyV151({ ...valid, barrelVibrationLossV1:[.1, .145] }).barrelVibrationLossV1).toEqual([.1, .145]);
 });
+
+it('accepts pitch familiarity only with the league reference pitches, and checks both', () => {
+  const ref = { R:[{ pitchType:'fastball', spinRadPerSecond:{ x:200, y:-90, z:110 } }], L:[{ pitchType:'fastball', spinRadPerSecond:{ x:200, y:90, z:-110 } }] };
+  expect(validateLiveBatterObservationPolicyV151({ ...policy(), pitchFamiliarityV1:[.3, .05, .9], leagueReferencePitchesV1:ref }).pitchFamiliarityV1).toEqual([.3, .05, .9]);
+  expect(() => validateLiveBatterObservationPolicyV151({ ...policy(), pitchFamiliarityV1:[.3, .05, .9] })).toThrow(/familiarity/);
+  expect(() => validateLiveBatterObservationPolicyV151({ ...policy(), pitchFamiliarityV1:[.3, .05, 1.2], leagueReferencePitchesV1:ref })).toThrow(/familiarity/);
+  expect(() => validateLiveBatterObservationPolicyV151({ ...policy(), leagueReferencePitchesV1:{ R:ref.R } })).toThrow(/reference/);
+  expect(() => validateLiveBatterObservationPolicyV151({ ...policy(), leagueReferencePitchesV1:{ ...ref, L:[{ pitchType:'fastball', spinRadPerSecond:{ x:1, y:2 } }] } })).toThrow(/reference/);
+});

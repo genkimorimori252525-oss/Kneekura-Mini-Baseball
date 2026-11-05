@@ -151,3 +151,26 @@ it('requires a complete inert situation instead of silently treating unknown bas
  expect(()=>validateLivePitchSituationV111(accessor)).toThrow(/inert/);expect(read).toBe(false);
  expect(JSON.stringify(valid)).toBe(before);
 });
+
+it('pitchTargetPlanV2: forecasts the MLB hitter by count and draws on cost weights; absent, nothing changes',()=>{
+ const plain=planLivePitchTargetV111(source());
+ expect(plain.diagnostics).not.toHaveProperty('targetPlanV2');
+ const mean=(balls:number,strikes:number,temperature:number)=>{let p=0;for(let seed=0;seed<40;seed++)
+  p+=planLivePitchTargetV111({...count(balls,strikes),seed,targetPlanV2:temperature}).diagnostics.pStrike;return p/40;};
+ // Two strikes make the hitter chase, so the pitcher leaves the zone more; a hot temperature spreads the choice toward even.
+ expect(mean(0,0,.01)).toBeGreaterThan(mean(0,2,.01)+.1);
+ expect(mean(3,1,.01)).toBeGreaterThan(mean(0,0,.01));
+ const v2=planLivePitchTargetV111({...source(),targetPlanV2:.01}).diagnostics;
+ expect(v2.targetPlanV2?.temperature).toBe(.01);
+ expect(v2.walkCost).toBeCloseTo(.34*(.69/1.24)/.34,6);
+ expect(()=>planLivePitchTargetV111({...source(),targetPlanV2:0})).toThrow(/target plan v2/);
+ expect(()=>planLivePitchTargetV111({...source(),targetPlanV2:.6})).toThrow(/target plan v2/);
+});
+
+it('pitchTargetPlanV2 zone lean: a positive lean keeps the pitch in the zone more, a negative one out; it needs V2',()=>{
+ const mean=(zoneLeanV2:number)=>{let p=0;for(let seed=0;seed<40;seed++)
+  p+=planLivePitchTargetV111({...count(1,1),seed,targetPlanV2:.01,zoneLeanV2}).diagnostics.pStrike;return p/40;};
+ expect(mean(.05)).toBeGreaterThan(mean(0)+.03);
+ expect(mean(-.05)).toBeLessThan(mean(0)-.03);
+ expect(()=>planLivePitchTargetV111({...source(),zoneLeanV2:.05})).toThrow(/zone lean/);
+});

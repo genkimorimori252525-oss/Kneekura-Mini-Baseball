@@ -48,7 +48,7 @@ const crossingAt = (frames, z) => {
   }
   return null;
 };
-// --records=file appends one line per pitch for core-stats.mjs.
+// --records=file appends one line per pitch for core-stats.mjs; --aim=1 adds where the pitcher aimed (requested, selected, location).
 const pitchRecord = (r, seed) => {
   const p = r.play, d = p.diagnostics ?? {}, s = p.localScoringV100, b = r.beforeMatch, zone = d.strikeZone, v = p.contact?.exitVelocity;
   const plane = d.zoneJudgment?.observedForecastPosition?.z ?? .15, at = p.contact?.ballCenter ?? crossingAt(r.frames, plane), t = d.batterTechniqueV1;
@@ -58,7 +58,9 @@ const pitchRecord = (r, seed) => {
     technique: t?.technique ?? null, techniquePlan: t?.planStatus ?? null, techniqueReason: t?.planReason ?? t?.selectionReason ?? null, exitSpin: t?.battedSpin ?? null,
     timing: d.timingErrorSeconds ?? null, exit: v ? {kmh: Math.hypot(v.x, v.y, v.z) * 3.6, launch: Math.atan2(v.y, Math.hypot(v.x, v.z)) * 180 / Math.PI, spray: Math.atan2(v.x, v.z) * 180 / Math.PI} : null,
     hitBases: s?.hitBases ?? null, homeRuns: s?.homeRuns ?? null, runs: r.match.score.away + r.match.score.home - b.score.away - b.score.home, finished: r.finished,
-    basesBefore: occupied(b.bases), basesAfter: occupied(r.match.bases), outsAfter: r.match.outs, halfAfter: r.match.half, spin: battedSpin(p.contact, r.batterPlayerId)};
+    basesBefore: occupied(b.bases), basesAfter: occupied(r.match.bases), outsAfter: r.match.outs, halfAfter: r.match.half, spin: battedSpin(p.contact, r.batterPlayerId),
+    ...(d.pitchRecognitionV2 ? {recog: {ok: d.pitchRecognitionV2.recognized, read: d.pitchRecognitionV2.readId}} : {}), ...(d.zoneIntentV1 ? {zint: {moved: d.zoneIntentV1.moved, wantIn: d.zoneIntentV1.wantIn}} : {}),
+    ...(d.courseRecognitionV87?.pitcher && opt.aim ? {aim: {req: d.courseRecognitionV87.pitcher.requestedPosition, sel: d.courseRecognitionV87.pitcher.selectedPosition, loc: d.courseRecognitionV87.pitcher.selectedLocation}} : {})};
 };
 // Batted-ball spin in rpm: back (+) or top (-), and side, read in the batter's frame.
 const bats = new Map(config.players.map(player => [player.playerId, player.bats]));

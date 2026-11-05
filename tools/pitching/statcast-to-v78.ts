@@ -5,11 +5,14 @@
 //   npx vite-node tools/pitching/statcast-to-v78.ts <csv> <outDir> --check=2024      (fit every row with 100+ pitches)
 // --zone=<csv> adds zoneRateV1 (Statcast zone 1-9 share) from the history desk's zone tables: the league table
 // (mlb_pitch_type_zone_league_year.csv) for --standard, the pitcher table (mlb_pitch_type_zone_player_year.csv) for --pitcher.
+// --count=<csv> adds usageByCountV1 from the league table by pitch type and count (mlb_count_zone_by_pitch_type.csv): the
+// type's share of the pitches in each count over its share of all pitches that year (the league's, for a pitcher too).
 // The CSV is the KBM history desk's table (private repo data/mini-baseball/pitch-tracking/); arm side is + for both hands.
 // Fit: spin rate is Statcast's. The break direction and the active (non-gyro) share of the spin are solved so that the
 // ball flown in LIVE_MATCH_PHYSICS_V1.air (no seam force) breaks by Statcast's horizontal and induced vertical inches.
 // Movement is taken over the whole flight from release to the front of the plate against a no-spin ball with the same
-// release velocity, as in tools/calibration/carry.ts (whether Statcast's own window is the same is to be confirmed).
+// release velocity, as in tools/calibration/carry.ts. Statcast's pfx is close to that: on 2024-06-01, half the induced
+// acceleration at 50 ft times the squared flight time gives 1.02-1.08 of pfx_z from release and 0.87-0.92 from 50 ft.
 // Gyro handedness is a hypothesis: for a right-hander, glove-side pitches spin clockwise seen from the pitcher (axis
 // toward the plate), arm-side pitches the other way; mirrored for a left-hander. KBM_GYRO_FLIP=1 flips it. The fit
 // keeps the movement either way; the active share moves by 5-10 points.
@@ -30,13 +33,13 @@ const TYPES: Record<string, [string, string]> = { FF: ['fastball', 'フォーシ
 const GLOVE_SIDE = new Set(['FC', 'SL', 'ST', 'SV', 'CU', 'KC', 'CS']);
 
 type Row = Record<string, string>;
-function readCsv(path: string): Row[] {
+export function readCsv(path: string): Row[] {
   const [head, ...lines] = readFileSync(path, 'utf8').trim().split(/\r?\n/), keys = head.split(',');
   return lines.map(line => { const cells: string[] = []; let cur = '', q = false;
     for (const ch of line) { if (ch === '"') q = !q; else if (ch === ',' && !q) { cells.push(cur); cur = ''; } else cur += ch; }
     cells.push(cur); return Object.fromEntries(keys.map((k, i) => [k, cells[i] ?? ''])); });
 }
-const num = (r: Row, k: string) => r[k] === '' || r[k] === undefined ? NaN : Number(r[k]);
+export const num = (r: Row, k: string) => r[k] === '' || r[k] === undefined ? NaN : Number(r[k]);
 
 /** Release in match coordinates: height above the mound surface, side toward the arm, extension off the rubber. */
 const releaseOf = (throws: 'R' | 'L', sideFt: number, heightFt: number, extFt: number): V =>
@@ -107,21 +110,28 @@ const rows = readCsv(csvPath).filter(r => TYPES[r.pitch_type]);
 const zoneRows = opt.zone ? readCsv(opt.zone) : [];
 const zoneRateOf = (year: string, type: string, id?: string) => { const r = zoneRows.find(z => z.year === year && z.pitch_type === type && (id === undefined || z.mlbam_id === id));
   return r ? num(r, 'zone_pct') / 100 : undefined; };
+const countRows = opt.count ? readCsv(opt.count) : [], COUNTS = ['0-0', '0-1', '0-2', '1-0', '1-1', '1-2', '2-0', '2-1', '2-2', '3-0', '3-1', '3-2'];
+const usageByCountOf = (year: string, type: string) => {
+  const of = (t: string | null, c: string | null) => countRows.filter(r => r.year === year && (t === null || r.pitch_type === t) && (c === null ? COUNTS.includes(r.count) : r.count === c))
+    .reduce((n, r) => n + num(r, 'pitches'), 0);
+  const overall = of(type, null) / of(null, null);
+  return countRows.length && overall > 0 ? COUNTS.map(c => +Math.min(50, of(type, c) / of(null, c) / overall).toFixed(3)) : undefined; };
 const angleGap = (a: number, b: number) => ((a - b + 540) % 360) - 180;
 
-function pitchFrom(r: { throws: 'R' | 'L'; type: string; mph: number; rpm: number; hIn: number; vIn: number; release: V; axis: number }, id: string, source: string, usage: number, zoneRate?: number) {
+function pitchFrom(r: { throws: 'R' | 'L'; type: string; mph: number; rpm: number; hIn: number; vIn: number; release: V; axis: number }, id: string, source: string, usage: number, zoneRate?: number, usageByCount?: number[]) {
   const fit = fitStatcastPitch(r), [pitchType, name] = TYPES[r.type];
   return { fit, pitch: { pitchId: id, name, pitchType, releaseSpeedMps: r.mph * MPH / .99,
     spinRadPerSecond: { x: +fit.spin.x.toFixed(4), y: +fit.spin.y.toFixed(4), z: +fit.spin.z.toFixed(4) },
-    usageWeightV1: +usage.toFixed(2), ...(zoneRate === undefined || !Number.isFinite(zoneRate) ? {} : { zoneRateV1: +zoneRate.toFixed(4) }), source: { kind: 'original' as const, id: source, revision: 1 } },
+    usageWeightV1: +usage.toFixed(2), ...(zoneRate === undefined || !Number.isFinite(zoneRate) ? {} : { zoneRateV1: +zoneRate.toFixed(4) }),
+    ...(usageByCount ? { usageByCountV1: usageByCount } : {}), source: { kind: 'original' as const, id: source, revision: 1 } },
     report: { type: r.type, mph: r.mph, rpm: r.rpm, statcastIn: { arm: r.hIn, up: r.vIn }, matchIn: { arm: +fit.movementIn.arm.toFixed(2), up: +fit.movementIn.up.toFixed(2) },
       residualIn: +fit.residualIn.toFixed(2), activeShare: +fit.active.toFixed(3), clamped: fit.clamped,
       statcastAxis: r.axis, impliedAxis: +fit.impliedAxis.toFixed(1), axisGapDeg: Number.isFinite(r.axis) ? +angleGap(r.axis, fit.impliedAxis).toFixed(1) : null } };
 }
-const rowInput = (r: Row, throws: 'R' | 'L') => ({ throws, type: r.pitch_type, mph: num(r, 'speed_avg'), rpm: num(r, 'spin_rpm'),
+export const rowInput = (r: Row, throws: 'R' | 'L') => ({ throws, type: r.pitch_type, mph: num(r, 'speed_avg'), rpm: num(r, 'spin_rpm'),
   hIn: num(r, 'hmov_in'), vIn: num(r, 'vmov_in'), axis: num(r, 'spin_axis_norm_deg'),
   release: releaseOf(throws, num(r, 'rel_side_ft'), num(r, 'rel_height_ft'), num(r, 'extension_ft')) });
-const usable = (r: ReturnType<typeof rowInput>) => [r.mph, r.rpm, r.hIn, r.vIn, r.release.x, r.release.y, r.release.z].every(Number.isFinite) && r.rpm > 300;
+export const usable = (r: ReturnType<typeof rowInput>) => [r.mph, r.rpm, r.hIn, r.vIn, r.release.x, r.release.y, r.release.z].every(Number.isFinite) && r.rpm > 300;
 const physicalOf = (release: V, throws: 'R' | 'L') => ({ pitchReleaseHeightMeters: +(release.y - MOUND_Y).toFixed(4),
   pitchReleaseSideMeters: +Math.abs(release.x).toFixed(4), pitchReleaseExtensionMeters: +(RUBBER_Z - release.z).toFixed(4), throws });
 
@@ -140,7 +150,7 @@ if (opt.standard) {
     const r = { throws, type, mph: mean(list, 'speed_avg'), rpm: mean(list, 'spin_rpm'), hIn: mean(list, 'hmov_in'), vIn: mean(list, 'vmov_in'), axis: meanAxis(list),
       release: releaseOf(throws, mean(list, 'rel_side_ft'), mean(list, 'rel_height_ft'), mean(list, 'extension_ft')) };
     // One release per pitcher in the match: fit at the league release so the pitches share it.
-    const made = pitchFrom({ ...r, release: leagueRelease }, `mlb${year}-avg-${throws}-${type}`, `statcast-mlb${year}-avg-${type}`, share * 100, zoneRateOf(year, type));
+    const made = pitchFrom({ ...r, release: leagueRelease }, `mlb${year}-avg-${throws}-${type}`, `statcast-mlb${year}-avg-${type}`, share * 100, zoneRateOf(year, type), usageByCountOf(year, type));
     pitches.push(made.pitch); usage[`mlb${year}-avg-${throws}-${type}`] = +(share * 100).toFixed(2);
     report.push({ ...made.report, sharePct: +(share * 100).toFixed(2), whiffPctSavant: +mean(list, 'whiff_pct_savant').toFixed(1), rows: list.length });
   }
@@ -156,7 +166,7 @@ if (opt.standard) {
   const throws = list[0].throws as 'R' | 'L', w = (k: string) => list.reduce((s, r) => s + num(r, k) * num(r, 'pitches'), 0) / list.reduce((s, r) => s + num(r, 'pitches'), 0);
   const release = releaseOf(throws, w('rel_side_ft'), w('rel_height_ft'), w('extension_ft')), pitches: unknown[] = [], report: unknown[] = [], usage: Record<string, number> = {};
   for (const r of list) { const ri = rowInput(r, throws); if (!usable(ri)) continue;
-    const id = `p${opt.pitcher}-${opt.year}-${r.pitch_type}`, made = pitchFrom({ ...ri, release }, id, `statcast-${opt.pitcher}-${opt.year}-${r.pitch_type}`, Math.max(0, num(r, 'usage_pct') || 0), zoneRateOf(opt.year, r.pitch_type, opt.pitcher));
+    const id = `p${opt.pitcher}-${opt.year}-${r.pitch_type}`, made = pitchFrom({ ...ri, release }, id, `statcast-${opt.pitcher}-${opt.year}-${r.pitch_type}`, Math.max(0, num(r, 'usage_pct') || 0), zoneRateOf(opt.year, r.pitch_type, opt.pitcher), usageByCountOf(opt.year, r.pitch_type));
     pitches.push(made.pitch); usage[id] = num(r, 'usage_pct'); report.push({ ...made.report, whiffPctSavant: num(r, 'whiff_pct_savant'), speedP95: num(r, 'speed_p95') }); }
   const repertoire = { version: 'pitch_repertoire_v78', pitches }; validatePitchRepertoireV78(repertoire);
   const out = { pitcher: opt.pitcher, year: opt.year, pitchRepertoireV78: repertoire, usagePct: usage, physical: physicalOf(release, throws), report };

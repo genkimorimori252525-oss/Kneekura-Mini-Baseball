@@ -72,11 +72,25 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   /** [degrees, ms]: at the swing decision the hitter weighs every pitch the pitcher owns by how often he throws it times
    * exp(-d^2/2), d = hypot(heading turn/degrees, lag at the same depth/ms) against that pitch released the same way, and reads
    * the one drawn from those weights: his own pitch is read as it flies, another as that pitch (its bend and arrival).
-   * Only what is visible by then is used. Takes the place of pitchRecognitionV1 when both are given. */
+   * Only what is visible by then is used. Takes the place of pitchRecognitionV1 when both are given. An optional third value
+   * [degrees] adds the angle between the spin axes (the seams' turn he sees) to d, divided by it. */
   pitchRecognitionV2?:readonly number[];
   /** Standard deviation of the hitter's relative error in the ball's speed at the swing decision (0..0.3). Reading it faster
    * than it is, he expects it sooner and higher (it has less time to drop), slower the other way; one error moves both. */
   speedPerceptionV1?:number;
+  /** The pitch target plan's choice temperature in runs (0.0005..0.5). Given, the plan forecasts the MLB hitter (swing by count,
+   * contact, fouls and run value by region, a walk at its wOBA weight) and draws a spot on exp(-(cost - best) / temperature). */
+  pitchTargetPlanV2?:number;
+  /** [start, per pitch seen, cap] of the hitter's familiarity with this pitcher (0..1). The pitches he pictures spin as
+   * that share of the pitcher's own and the rest of the league's pitch of the same type (leagueReferencePitchesV1, by the
+   * pitcher's hand); the share grows with the pitches of this pitcher he has seen. Recognition, the read path and the
+   * expected arrival all use the pictured pitch, so a pitch unlike the league's fools him until he knows it. */
+  pitchFamiliarityV1?:readonly number[];
+  /** The league's pitch of each type as a hitter expects it: spin (rad/s, as released), for right- and left-handed pitchers. */
+  leagueReferencePitchesV1?:Readonly<{R:readonly Readonly<{pitchType:string;spinRadPerSecond:Vec3}>[];L:readonly Readonly<{pitchType:string;spinRadPerSecond:Vec3}>[]}>;
+  /** With pitchTargetPlanV2: runs per unit of a pitch's zoneRateV1 above the pitcher's own mean that lean its target toward
+   * the zone (0..5). The pitch's zone rate then works through the plan instead of moving the planned target. */
+  pitchZoneLeanV2?:number;
   /** Share of the remembered pitch kept in where the bat goes (0..1); the arrival time keeps the full prior.
    * Blending a quarter of the last pitches into the height made hitters top low pitches and pop up high ones. */
   priorPlacementShareV1?:number;
@@ -149,7 +163,16 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'aimTailV1')){keys.push('aimTailV1');assert(Array.isArray(p.aimTailV1)&&p.aimTailV1.length===2&&p.aimTailV1[0]>=0&&p.aimTailV1[0]<=.5&&p.aimTailV1[1]>=1&&p.aimTailV1[1]<=10,'invalid aim tail');}
   if(Object.hasOwn(p,'timingTailV1')){keys.push('timingTailV1');assert(Array.isArray(p.timingTailV1)&&p.timingTailV1.length===2&&p.timingTailV1[0]>=0&&p.timingTailV1[0]<=.5&&p.timingTailV1[1]>=1&&p.timingTailV1[1]<=10,'invalid timing tail');}
   if(Object.hasOwn(p,'pitchRecognitionV1')){keys.push('pitchRecognitionV1');assert(Array.isArray(p.pitchRecognitionV1)&&p.pitchRecognitionV1.length===3&&p.pitchRecognitionV1[0]>=0&&p.pitchRecognitionV1[0]<=1&&p.pitchRecognitionV1[1]>0&&p.pitchRecognitionV1[1]<=30&&p.pitchRecognitionV1[2]>0&&p.pitchRecognitionV1[2]<=300,'invalid pitch recognition');}
-  if(Object.hasOwn(p,'pitchRecognitionV2')){keys.push('pitchRecognitionV2');assert(Array.isArray(p.pitchRecognitionV2)&&p.pitchRecognitionV2.length===2&&p.pitchRecognitionV2[0]>0&&p.pitchRecognitionV2[0]<=30&&p.pitchRecognitionV2[1]>0&&p.pitchRecognitionV2[1]<=500,'invalid pitch recognition v2');}
+  if(Object.hasOwn(p,'pitchRecognitionV2')){keys.push('pitchRecognitionV2');assert(Array.isArray(p.pitchRecognitionV2)&&(p.pitchRecognitionV2.length===2||p.pitchRecognitionV2.length===3)&&p.pitchRecognitionV2[0]>0&&p.pitchRecognitionV2[0]<=30&&p.pitchRecognitionV2[1]>0&&p.pitchRecognitionV2[1]<=500
+    &&(p.pitchRecognitionV2.length===2||p.pitchRecognitionV2[2]>0&&p.pitchRecognitionV2[2]<=360),'invalid pitch recognition v2');}
+  if(Object.hasOwn(p,'pitchFamiliarityV1')){keys.push('pitchFamiliarityV1');assert(Array.isArray(p.pitchFamiliarityV1)&&p.pitchFamiliarityV1.length===3
+    &&p.pitchFamiliarityV1.every((v:unknown)=>typeof v==='number'&&v>=0&&v<=1)&&Object.hasOwn(p,'leagueReferencePitchesV1'),'invalid pitch familiarity');}
+  if(Object.hasOwn(p,'leagueReferencePitchesV1')){keys.push('leagueReferencePitchesV1');const r=p.leagueReferencePitchesV1 as Record<string,unknown>;
+    assert(r&&typeof r==='object'&&['R','L'].every(h=>Array.isArray(r[h])&&(r[h] as unknown[]).every(e=>{const x=e as {pitchType?:unknown;spinRadPerSecond?:Record<string,unknown>};
+      return typeof x?.pitchType==='string'&&x.spinRadPerSecond!==undefined&&['x','y','z'].every(k=>typeof x.spinRadPerSecond![k]==='number'&&Number.isFinite(x.spinRadPerSecond![k] as number));})),
+      'invalid league reference pitches');}
+  if(Object.hasOwn(p,'pitchZoneLeanV2')){keys.push('pitchZoneLeanV2');assert(typeof p.pitchZoneLeanV2==='number'&&p.pitchZoneLeanV2>=0&&p.pitchZoneLeanV2<=5,'invalid pitch zone lean v2');}
+  if(Object.hasOwn(p,'pitchTargetPlanV2')){keys.push('pitchTargetPlanV2');assert(typeof p.pitchTargetPlanV2==='number'&&p.pitchTargetPlanV2>=.0005&&p.pitchTargetPlanV2<=.5,'invalid pitch target plan v2');}
   if(Object.hasOwn(p,'speedPerceptionV1')){keys.push('speedPerceptionV1');assert(typeof p.speedPerceptionV1==='number'&&p.speedPerceptionV1>=0&&p.speedPerceptionV1<=.3,'invalid speed perception');}
   if(Object.hasOwn(p,'accelerationViewTimeV1')){keys.push('accelerationViewTimeV1');assert(typeof p.accelerationViewTimeV1==='number'&&p.accelerationViewTimeV1>=.01&&p.accelerationViewTimeV1<=2,'invalid acceleration view time');}
   if(Object.hasOwn(p,'accelerationPriorWeightV1')){keys.push('accelerationPriorWeightV1');assert(typeof p.accelerationPriorWeightV1==='number'&&p.accelerationPriorWeightV1>=0&&p.accelerationPriorWeightV1<=1,'invalid acceleration prior weight');}
