@@ -155,11 +155,19 @@ export const AUTHORED_LIVE_BATTER_OBSERVATION_V151:LiveBatterObservationPolicyV1
  * 153 km/h standard pitchers, K .206, BB .077, AVG .245, ISO .147, HR .028.
  * Candidate 6 (2026-11-04): the hitter tells the pitch from his expected fastball or not (pitchRecognitionV1 [.65, 6°, 100 ms]),
  * replacing the fooled draw (kept only as the fallback when no fastball or forecast exists): whiffs per swing by pitch type near
- * MLB's (fastball .22 instead of .40, slider .33, curve .24, changeup .28), with ISO .155 and HR .029 at [.6, 6, 100]. */
-export const LIVE_MATCH_BATTER_OBSERVATION_V2:LiveBatterObservationPolicyV151 = Object.freeze({...AUTHORED_LIVE_BATTER_OBSERVATION_V151,
-  commitSwingSeconds:.26,contactSpeedCeilingV1:true,impactSpeedLimitV1:1.05,twoStrikeExpansionV1:.22,meetLateLookV1:Object.freeze([.0045,.014,.85,.3]),swingSpeedRoomV1:1.16,visionSelectivityV1:.004,pitchOrderPlanV1:true,
-  lateLookByMeetOnlyV1:true,priorPlacementShareV1:.45,postContactHoldV1:true,barrelVibrationLossV1:Object.freeze([.1,.145,.35]),undercutAimV1:.01,aimVerticalScaleV1:.6,priorFooledChanceV1:.25,fooledViewPowerV1:1,fooledViewReferenceV1:.49,pitchRecognitionV1:Object.freeze([.65,6,100]),
-  countReadinessV1:Object.freeze([[.62,.85,1],[.72,.9,1],[.72,.95,1],[.12,.85,1]].map(row=>Object.freeze(row)))});
+ * MLB's (fastball .22 instead of .40, slider .33, curve .24, changeup .28), with ISO .155 and HR .029 at [.6, 6, 100].
+ * Bundle (2026-11-06, docs/ai-continuity/PLAN-2026-11-04-history-calibration.md): the decision 80 ms after release with a 0.18 s
+ * commit, the pitch plan with each pitch's aim centre and no zone lean, the misread arrival from the seen ball, recognition
+ * [1.4, 16], the count-and-tendency expectation [.35, 5], a judged placement, the late look's acceleration, the exit-speed shape
+ * (exponent 1, impact limit 1.10) and the refit swing decision (noise .35, two strikes .28, count readiness). In the six
+ * standard archetype leagues (command .19, attack angle 16, chase margin .2, threshold .48) with the Nathan lift and pitch
+ * spins refit under it, K .214 and BABIP .313 over 24 games (MLB 2024 .226, .291). */
+export const LIVE_MATCH_BATTER_OBSERVATION_V2:LiveBatterObservationPolicyV151 = Object.freeze({...AUTHORED_LIVE_BATTER_OBSERVATION_V151,decisionAfterReleaseTicks:80000,
+  commitSwingSeconds:.18,contactSpeedCeilingV1:true,impactSpeedLimitV1:1.1,twoStrikeExpansionV1:.28,meetLateLookV1:Object.freeze([.0045,.014,.85,.3]),swingSpeedRoomV1:1.16,visionSelectivityV1:.004,pitchOrderPlanV1:true,
+  lateLookByMeetOnlyV1:true,priorPlacementShareV1:.45,postContactHoldV1:true,barrelVibrationLossV1:Object.freeze([.1,.145,.35,1]),undercutAimV1:.01,aimVerticalScaleV1:.6,priorFooledChanceV1:.25,fooledViewPowerV1:1,fooledViewReferenceV1:.49,pitchRecognitionV1:Object.freeze([.65,6,100]),
+  countReadinessV1:Object.freeze([[.54,1,.88],[.78,.96,.96],[.73,1,.98],[.14,.90,.93]].map(row=>Object.freeze(row))),
+  pitchTargetPlanV2:.01,pitchZoneLeanV2:0,pitchRecognitionV2:Object.freeze([1.4,16]),readFromSeenV1:1,pitchAimCenterV2:.8,priorExpectationV1:Object.freeze([.35,5]),
+  placementJudgedV1:.8,lateLookAccelerationV1:36,swingDecisionNoiseV1:.35});
 function assert(value:unknown,message:string):asserts value {if(!value)throw Error('live batter observation v151: '+message);}
 export function meetLateLookV1(timingStdSeconds:number,look:readonly number[]){
   const [best,worst,high,low]=look as [number,number,number,number],t=Math.min(1,Math.max(0,Math.log(timingStdSeconds/best)/Math.log(worst/best)));

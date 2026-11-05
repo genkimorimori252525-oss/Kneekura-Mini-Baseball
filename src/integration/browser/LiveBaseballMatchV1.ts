@@ -300,6 +300,8 @@ function settleSkippedBattedBallV1(x:Readonly<{ball:Readonly<{tick:number;positi
 /** The match default for battedBallAeroV1. 2026-11-04: 1.1 with the contact switches of LIVE_MATCH_BATTER_OBSERVATION_V2 (backspun
  * line drives), whose own balls then carry within a few percent of Statcast 2024 medians; 1.2 offset topspun liners that flew too far. */
 export const LIVE_BATTED_BALL_AERO_V1=Object.freeze({dragScale:1.1});
+/** The match default for liftCurveV1 (2026-11-06 bundle): Nathan 2017, within 0.3 points of Lyu 2022 on batted-ball carry. */
+export const LIVE_LIFT_CURVE_V1:LiftCurveV1='nathan2017';
 export const LIVE_MATCH_PHYSICS_V1:AeroGroundBallPhysicsV1=Object.freeze({kind:'aero_ground_v1',
   air:Object.freeze({ticksPerSecond:1_000_000,integrationStepTicks:5000,gravityY:-9.80665,aerodynamics:REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS}),
   ground:Object.freeze({ticksPerSecond:1_000_000,gravityMps2:9.80665,radiusM:.0366,inertiaRatio:.378,restingVerticalSpeedMps:.28,
