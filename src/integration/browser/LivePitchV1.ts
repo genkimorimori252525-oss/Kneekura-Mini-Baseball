@@ -610,6 +610,8 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       for(const c of weighed){cumulative+=c.weight;if(draw*total<cumulative){read=c;break;}}
       let readArrival=t1+(plane-read.at.position.z)/read.at.velocity.z;
       for(let i=0;i<3;i++){const at=sampleAerodynamicPitchStateAtElapsedSeconds(read.start,readArrival,inverseAir);readArrival+=(plane-at.position.z)/at.velocity.z;}
+      // readFromSeenV1: take back this share of the lag the read pitch already had at the end of the look (seen ball vs its own place).
+      const fromSeen=observationPolicyV151?.readFromSeenV1;if(fromSeen!==undefined&&read.at.velocity.z!==0)readArrival+=fromSeen*(read.at.position.z-seenBall.position.z)/read.at.velocity.z;
       return {recognized:read.id===actualId,fastArrival:readArrival,readPitch:read.pitch,readId:read.id,actualId,familiarShare,
         posterior:weighed.map(c=>({id:c.id,share:c.weight/total,turnDegrees:c.turnDegrees,lagMs:c.lagMs}))};
     })(),
@@ -617,7 +619,11 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     // With familiarity, even the pitch read right is expected to bend and arrive as he pictures it.
     readsPicturedV1=!!recognitionUsedV1&&(!recognitionUsedV1.recognized||recognitionV2?.familiarShare!=null),
     readForecastV1=readsPicturedV1?bendForecastV1(effectiveForecastV246,0,recognitionUsedV1!.readPitch):bendForecastV1(effectiveForecastV246),
-    readArrivalV1=readsPicturedV1?recognitionUsedV1!.fastArrival:effectiveForecastV246?.prediction?.arrivalAfterReleaseSeconds,
+    // misreadTimingKeepV1: on a misread only this share of the read pitch's arrival gap is kept (the hitter retimes the swing to
+    // the ball's speed on the way), the misread place stays whole (2026-11-05).
+    timingKeepV1=observationPolicyV151?.misreadTimingKeepV1,seenArrivalV1=effectiveForecastV246?.prediction?.arrivalAfterReleaseSeconds,
+    readArrivalV1=readsPicturedV1?(timingKeepV1!==undefined&&!recognitionUsedV1!.recognized&&seenArrivalV1!==undefined
+      ?seenArrivalV1+(recognitionUsedV1!.fastArrival-seenArrivalV1)*timingKeepV1:recognitionUsedV1!.fastArrival):seenArrivalV1,
     // speedPerceptionV1 (sd of the relative speed error): one misread speed moves the expected arrival and, along the read path,
     // the height and side there together, so a ball read faster than it is comes later and lower than the bat (and the reverse).
     speedErrorV1=observationPolicyV151?.speedPerceptionV1===undefined||readArrivalV1===undefined||!readForecastV1?.prediction
@@ -649,7 +655,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     ...(receivedInstructionV122===undefined?{}:{instruction:receivedInstructionV122})});
   const yawDeferExecutionV274=input.yawDiagnosticV274!==undefined;
   if(yawDeferExecutionV274&&!randomStreamsV152)throw Object.assign(new Error('yaw diagnostic: INDEPENDENT_RANDOMNESS_REQUIRED'),{yawDiagnosticStatus:'HOLD'});
-  const observedPredictionV122=positionObserverV151?{elapsedSeconds:speedErrorV1?perceivedArrivalV1!:readsPicturedV1?recognitionUsedV1!.fastArrival:effectiveForecastV246!.prediction?.arrivalAfterReleaseSeconds??decisionTime,
+  const observedPredictionV122=positionObserverV151?{elapsedSeconds:speedErrorV1?perceivedArrivalV1!:readsPicturedV1?readArrivalV1!:effectiveForecastV246!.prediction?.arrivalAfterReleaseSeconds??decisionTime,
       ball:{tick:positionObserverV151.decisionTick,position:perceivedForecastV1!.prediction?.position??{x:0,y:middle,z:battingSetupV94.contactPlaneZ},
         velocity:effectiveForecastV246!.prediction?.estimatedVelocity??zero(),spin:zero()}}
       :predictFromObservation(observedSample,decisionTime,battingSetupV94.contactPlaneZ),

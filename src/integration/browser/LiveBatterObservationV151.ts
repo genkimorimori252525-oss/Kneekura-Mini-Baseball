@@ -75,6 +75,13 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
    * Only what is visible by then is used. Takes the place of pitchRecognitionV1 when both are given. An optional third value
    * [degrees] adds the angle between the spin axes (the seams' turn he sees) to d, divided by it. */
   pitchRecognitionV2?:readonly number[];
+  /** pitchRecognitionV2's misread arrival from where the ball was seen (0..1): the read pitch's arrival is counted from its own
+   * place at the end of the look, which carries the lag already seen; this share of that lag is taken back, so 1 counts the rest of
+   * the flight from the seen ball at the read pitch's speed (2026-11-05). */
+  readFromSeenV1?:number;
+  /** On a misread (pitchRecognitionV2 or V1), the share of the read pitch's arrival gap the hitter keeps (0..1): he times the swing
+   * to the ball's own arrival + (read arrival - own arrival) x keep; the misread place is kept whole (2026-11-05). */
+  misreadTimingKeepV1?:number;
   /** Standard deviation of the hitter's relative error in the ball's speed at the swing decision (0..0.3). Reading it faster
    * than it is, he expects it sooner and higher (it has less time to drop), slower the other way; one error moves both. */
   speedPerceptionV1?:number;
@@ -174,6 +181,8 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'pitchRecognitionV1')){keys.push('pitchRecognitionV1');assert(Array.isArray(p.pitchRecognitionV1)&&p.pitchRecognitionV1.length===3&&p.pitchRecognitionV1[0]>=0&&p.pitchRecognitionV1[0]<=1&&p.pitchRecognitionV1[1]>0&&p.pitchRecognitionV1[1]<=30&&p.pitchRecognitionV1[2]>0&&p.pitchRecognitionV1[2]<=300,'invalid pitch recognition');}
   if(Object.hasOwn(p,'pitchRecognitionV2')){keys.push('pitchRecognitionV2');assert(Array.isArray(p.pitchRecognitionV2)&&(p.pitchRecognitionV2.length===2||p.pitchRecognitionV2.length===3)&&p.pitchRecognitionV2[0]>0&&p.pitchRecognitionV2[0]<=30&&p.pitchRecognitionV2[1]>0&&p.pitchRecognitionV2[1]<=500
     &&(p.pitchRecognitionV2.length===2||p.pitchRecognitionV2[2]>0&&p.pitchRecognitionV2[2]<=360),'invalid pitch recognition v2');}
+  if(Object.hasOwn(p,'misreadTimingKeepV1')){keys.push('misreadTimingKeepV1');assert(Number.isFinite(p.misreadTimingKeepV1)&&p.misreadTimingKeepV1!>=0&&p.misreadTimingKeepV1!<=1,'invalid misread timing keep');}
+  if(Object.hasOwn(p,'readFromSeenV1')){keys.push('readFromSeenV1');assert(Number.isFinite(p.readFromSeenV1)&&p.readFromSeenV1!>=0&&p.readFromSeenV1!<=1&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid read from seen');}
   if(Object.hasOwn(p,'pitchFamiliarityV1')){keys.push('pitchFamiliarityV1');assert(Array.isArray(p.pitchFamiliarityV1)&&p.pitchFamiliarityV1.length===3
     &&p.pitchFamiliarityV1.every((v:unknown)=>typeof v==='number'&&v>=0&&v<=1)&&Object.hasOwn(p,'leagueReferencePitchesV1'),'invalid pitch familiarity');}
   if(Object.hasOwn(p,'leagueReferencePitchesV1')){keys.push('leagueReferencePitchesV1');const r=p.leagueReferencePitchesV1 as Record<string,unknown>;
