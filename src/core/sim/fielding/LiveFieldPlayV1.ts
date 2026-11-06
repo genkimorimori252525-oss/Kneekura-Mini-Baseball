@@ -294,11 +294,16 @@ export function deriveLiveFieldFenceGeometryV1(field: LiveFieldGeometryV1): Read
 // A glove trailing a runner keeps the gap near zero, which defeats the speed bound. Past this
 // many intervals a loose-ball search reports an ambiguity, which the play already has to handle.
 const LOOSE_SEARCH_BUDGET = 3000;
+// A ball lying still against a still glove or body does the same on any play: every interval stays possible and the search
+// splits all of them down to depth 48, about 2^25 intervals with a cached ball state each (4 GB, seed 963 of std-bundle).
+// Ordinary searches split at most 738 times (7.1 million searches, 2026-11-06), so this only ends a search that would not end.
+// Only the fielders' glove and body searches take it: a grounder running along the wall needs its full search to stay in play.
+export const ACTOR_CONTACT_SEARCH_BUDGET = 20_000;
 let contactSearchBudget = Infinity, contactSearchesLeft = Infinity;
 /** Bounded continuous search, independent of render frames. A real overlap
  * witness is mandatory; an unresolved graze stops the play without a result. */
-function firstContact(gap: (t: number) => number, speed: number, rounding: number, lo: number, hi: number, depth = 0, maximumPencilSeconds = 1e-6): Hit | null {
-  if (depth === 0) contactSearchesLeft = contactSearchBudget;
+export function firstContact(gap: (t: number) => number, speed: number, rounding: number, lo: number, hi: number, depth = 0, maximumPencilSeconds = 1e-6, budget = contactSearchBudget): Hit | null {
+  if (depth === 0) contactSearchesLeft = budget;
   const a = gap(lo), b = gap(hi);
   if (--contactSearchesLeft < 0) return { t: hi, from: lo, gap: b, rounding, speed, ambiguous: true };
   if (a <= 0) return { t: lo, from: lo, gap: a, rounding, speed };
@@ -437,7 +442,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
     const value=uncachedFieldArrivalV120(actor,target,radius);
     m.put(value);return value;
   };
-  const findContact = (gap: (t: number) => number, speed: number, rounding: number, lo: number, hi: number) => firstContact(gap, speed, rounding, lo, hi, 0, 1 / tps);
+  const findContact = (gap: (t: number) => number, speed: number, rounding: number, lo: number, hi: number, budget = contactSearchBudget) => firstContact(gap, speed, rounding, lo, hi, 0, 1 / tps, budget);
   let runnerCueRevisionV95 = 0, runnerCueAtV95 = start;
   const emit = (kind: LiveFieldFactV1['kind'], t: number, extra: Omit<LiveFieldFactV1, 'kind' | 'tick' | 'elapsedSeconds'> = {}) => {
     if (['ground_contact', 'glove_contact', 'body_contact', 'pole_contact', 'catch_secured', 'throw_release', 'wall_support'].includes(kind)) { runnerCueRevisionV95++; runnerCueAtV95 = t; }
@@ -2730,7 +2735,8 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
           }
           if (from < hi) {
             collisionQueries++;
-            const hit = findContact(gap, cell.maximumPositionSpeedMps + maximumCurveSpeed(c, from, hi), cell.positionRoundingBoundMeters, from, hi);
+            const hit = findContact(gap, cell.maximumPositionSpeedMps + maximumCurveSpeed(c, from, hi), cell.positionRoundingBoundMeters, from, hi,
+              Math.min(contactSearchBudget, ACTOR_CONTACT_SEARCH_BUDGET));
           if (hit) { const unsupported = hit.ambiguous || tick(hit.from) !== tick(hit.t);
               if (unsupported) unresolvedDetail = { kind: 'actor_contact_refinement', playerId: f.spec.playerId, role, hit };
               choose({ kind: unsupported ? 'unresolved' : role, t: hit.t, f, role, hit }); }
