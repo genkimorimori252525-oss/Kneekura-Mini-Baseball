@@ -100,6 +100,9 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   /** Standard deviation of the hitter's relative error in the ball's speed at the swing decision (0..0.3). Reading it faster
    * than it is, he expects it sooner and higher (it has less time to drop), slower the other way; one error moves both. */
   speedPerceptionV1?:number;
+  /** Standard deviation of the hitter's relative error in the bend still to come past his look (0..0.6): read right or not, he
+   * misjudges how much the ball will still break by a share of it, so a big break is missed by more (2026-11-06). */
+  bendSpreadV1?:number;
   /** The pitch target plan's choice temperature in runs (0.0005..0.5). Given, the plan forecasts the MLB hitter (swing by count,
    * contact, fouls and run value by region, a walk at its wOBA weight) and draws a spot on exp(-(cost - best) / temperature). */
   pitchTargetPlanV2?:number;
@@ -219,6 +222,7 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'pitchZoneLeanV2')){keys.push('pitchZoneLeanV2');assert(typeof p.pitchZoneLeanV2==='number'&&p.pitchZoneLeanV2>=0&&p.pitchZoneLeanV2<=5,'invalid pitch zone lean v2');}
   if(Object.hasOwn(p,'pitchTargetPlanV2')){keys.push('pitchTargetPlanV2');assert(typeof p.pitchTargetPlanV2==='number'&&p.pitchTargetPlanV2>=.0005&&p.pitchTargetPlanV2<=.5,'invalid pitch target plan v2');}
   if(Object.hasOwn(p,'speedPerceptionV1')){keys.push('speedPerceptionV1');assert(typeof p.speedPerceptionV1==='number'&&p.speedPerceptionV1>=0&&p.speedPerceptionV1<=.3,'invalid speed perception');}
+  if(Object.hasOwn(p,'bendSpreadV1')){keys.push('bendSpreadV1');assert(typeof p.bendSpreadV1==='number'&&p.bendSpreadV1>=0&&p.bendSpreadV1<=.6,'invalid bend spread');}
   if(Object.hasOwn(p,'accelerationViewTimeV1')){keys.push('accelerationViewTimeV1');assert(typeof p.accelerationViewTimeV1==='number'&&p.accelerationViewTimeV1>=.01&&p.accelerationViewTimeV1<=2,'invalid acceleration view time');}
   if(Object.hasOwn(p,'accelerationPriorWeightV1')){keys.push('accelerationPriorWeightV1');assert(typeof p.accelerationPriorWeightV1==='number'&&p.accelerationPriorWeightV1>=0&&p.accelerationPriorWeightV1<=1,'invalid acceleration prior weight');}
   if(Object.hasOwn(p,'visionJudgmentV1')){keys.push('visionJudgmentV1');assert(Array.isArray(p.visionJudgmentV1)&&p.visionJudgmentV1.length===2&&p.visionJudgmentV1[0]>0&&p.visionJudgmentV1[0]<=.2&&p.visionJudgmentV1[1]>=5&&p.visionJudgmentV1[1]<=500,'invalid vision judgment');}

@@ -666,7 +666,19 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     perceivedForecastV1=speedErrorV1===null?readForecastV1:{...readForecastV1!,prediction:{...readForecastV1!.prediction!,position:{...readForecastV1!.prediction!.position,
       x:readForecastV1!.prediction!.position.x+readForecastV1!.prediction!.estimatedVelocity.x*speedErrorV1.shiftSeconds,
       y:readForecastV1!.prediction!.position.y+readForecastV1!.prediction!.estimatedVelocity.y*speedErrorV1.shiftSeconds}}},
-    perceivedArrivalV1=readArrivalV1===undefined?undefined:readArrivalV1+(speedErrorV1?.shiftSeconds??0);
+    perceivedArrivalV1=readArrivalV1===undefined?undefined:readArrivalV1+(speedErrorV1?.shiftSeconds??0),
+    // bendSpreadV1 (sd of the relative error in the bend still to come): read right or not, the hitter misjudges by a share of it
+    // how much the ball will still break past his look (its acceleration less gravity), so a big break is missed by more (2026-11-06).
+    bendErrorV1=observationPolicyV151?.bendSpreadV1===undefined||!perceivedForecastV1?.prediction||perceivedForecastV1.observedThroughTick===null?null:(()=>{
+      const r=randomStreamsV152?.rng('batterBelief','bend-spread-v1'),root=r?null:new SeedRoot(input.seed).streamRng(0,'batting','bend-spread-v1'),
+        u1=Math.max(1e-12,r?r.uniform():root!.nextFloat()),u2=r?r.uniform():root!.nextFloat(),
+        error=clamp(observationPolicyV151!.bendSpreadV1!*Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2),-1,1),
+        a=perceivedForecastV1.prediction.estimatedAcceleration,
+        dt=Math.max(0,(perceivedArrivalV1??perceivedForecastV1.prediction.arrivalAfterReleaseSeconds)-(perceivedForecastV1.observedThroughTick-input.originTick)/tps),k=.5*error*dt*dt;
+      return {error,x:k*a.x,y:k*(a.y-profile.air.gravityY)};
+    })(),
+    bentForecastV1=bendErrorV1===null?perceivedForecastV1:{...perceivedForecastV1!,prediction:{...perceivedForecastV1!.prediction!,position:{...perceivedForecastV1!.prediction!.position,
+      x:perceivedForecastV1!.prediction!.position.x+bendErrorV1.x,y:perceivedForecastV1!.prediction!.position.y+bendErrorV1.y}}};
   if(opticalExperiment&&effectiveForecastV246?.status!=='PREDICTED')throw Error('Robin optical HOLD: no observed forecast');
   assert(!(input.managerCommunicationV122&&input.swingInstructionV121),'ambiguous received and raw manager instruction');
   const managerCommunicationV122=input.managerCommunicationV122===undefined?null:resolveLiveManagerCommunicationV122({...input.managerCommunicationV122,
@@ -685,7 +697,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   const yawDeferExecutionV274=input.yawDiagnosticV274!==undefined;
   if(yawDeferExecutionV274&&!randomStreamsV152)throw Object.assign(new Error('yaw diagnostic: INDEPENDENT_RANDOMNESS_REQUIRED'),{yawDiagnosticStatus:'HOLD'});
   const observedPredictionV122=positionObserverV151?{elapsedSeconds:speedErrorV1?perceivedArrivalV1!:readsPicturedV1?readArrivalV1!:effectiveForecastV246!.prediction?.arrivalAfterReleaseSeconds??decisionTime,
-      ball:{tick:positionObserverV151.decisionTick,position:perceivedForecastV1!.prediction?.position??{x:0,y:middle,z:battingSetupV94.contactPlaneZ},
+      ball:{tick:positionObserverV151.decisionTick,position:bentForecastV1!.prediction?.position??{x:0,y:middle,z:battingSetupV94.contactPlaneZ},
         velocity:effectiveForecastV246!.prediction?.estimatedVelocity??zero(),spin:zero()}}
       :predictFromObservation(observedSample,decisionTime,battingSetupV94.contactPlaneZ),
     // priorExpectationV1 [weight, k]: instead of one remembered pitch drawn at random, the batter expects the mean of what he
