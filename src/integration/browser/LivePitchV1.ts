@@ -775,7 +775,12 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       const laid=bendForecastV1(effectiveForecastV246,0,recognitionV2.readPitch,misreadJudgeV1);
       return laid?.prediction?{x:laid.prediction.position.x-readForecastV1.prediction.position.x,y:laid.prediction.position.y-readForecastV1.prediction.position.y}:null;
     })(),
-    decisionPositionV1=judgeShiftV1===null?prediction.ball.position:{...prediction.ball.position,x:prediction.ball.position.x+judgeShiftV1.x,y:prediction.ball.position.y+judgeShiftV1.y};
+    judgedPositionV1=judgeShiftV1===null?prediction.ball.position:{...prediction.ball.position,x:prediction.ball.position.x+judgeShiftV1.x,y:prediction.ball.position.y+judgeShiftV1.y},
+    // misreadExpectShareV1: a misread hitter, sitting on the pitch he took it for, sees it this share of the way toward where he
+    // expected that pitch (the prior expectation's place), not along its path; the bat is not moved (2026-11-07).
+    expectShareV1=observationPolicyV151?.misreadExpectShareV1,
+    decisionPositionV1=expectShareV1===undefined||!recognitionV2||recognitionV2.recognized||!priorV122?judgedPositionV1
+      :{...judgedPositionV1,x:judgedPositionV1.x+(priorV122.x-judgedPositionV1.x)*expectShareV1,y:judgedPositionV1.y+(priorV122.y-judgedPositionV1.y)*expectShareV1};
   const observationTick=positionObserverV151?.decisionTick??input.originTick+Math.round(decisionTime*tps),batterRecognition=recognizeZoneV87({role:'batter',profile:b.zoneRecognitionV87,position:decisionPositionV1,zone,
     seed:randomStreamsV152?.seedFor('batterPerception','zone-recognition-v87')??input.seed,
     sourceTick:effectiveForecastV246?.observedThroughTick??observationTick,observationTick,planeZ:battingSetupV94.contactPlaneZ,standardDeviationMeters:judgmentStd,baselineErrorMeters:judgmentError,abilityBasis:'zoneJudgmentStdMeters'}),
