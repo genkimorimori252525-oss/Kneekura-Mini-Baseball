@@ -38,6 +38,12 @@ describe('extendHandsAfterContactV1', () => {
     expect(out[14].grip.x).toBeCloseTo(0, 9);
     expect(out[14].grip.z).toBeCloseTo(3 * .0112, 9);
   });
+  it('turns the bat at the kept share inside the window and catches up after the return', () => {
+    const out = extendHandsAfterContactV1(moving, 28000, 1, 0, .02, .005, 1e6, .5);
+    for (const k of ['w', 'x', 'y', 'z'] as const) expect(out[12].orientation[k]).toBeCloseTo(moving[11].orientation[k], 9);
+    expect(out[11].orientation).not.toEqual(moving[11].orientation);
+    expect(out[20].orientation).toEqual(moving[20].orientation);
+  });
   it('returns to the measured follow-through after the return time', () => {
     const out = extendHandsAfterContactV1(moving, 28000, 0, 3, .02, .005);
     expect(out[20].grip).toEqual(moving[20].grip);

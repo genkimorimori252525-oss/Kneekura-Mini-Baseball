@@ -50,12 +50,17 @@ export function retimeClipAfterContactV1<F extends Frame>(frames: readonly F[], 
  *
  * Within windowSeconds after the contact pose, the sideways hand motion keeps lateralKeep of its share and the hands
  * also move toward the pitcher at forwardMps; the offset so built is then taken back out over returnSeconds, so the
- * follow-through ends where it was measured. Only grip positions change; orientations and times stay.
+ * follow-through ends where it was measured. Times stay.
+ *
+ * rotationKeep (< 1) also lets the bat turn only that share as fast inside the window, the hands leading the barrel,
+ * so a ball met past the contact pose still finds the barrel near its line; the turn then catches up with the measured
+ * follow-through over returnSeconds. The out-front contacts kept sliding to the tip with the hands alone: the slide
+ * comes mostly from the turn (squared-up 6-12 in out front: game .10, MLB .45, 2026-11-06).
  */
 export function extendHandsAfterContactV1<F extends Frame>(frames: readonly F[], contactTick: number,
-  lateralKeep: number, forwardMps: number, windowSeconds: number, returnSeconds = .1, sourceTicksPerSecond = 1e6): F[] {
+  lateralKeep: number, forwardMps: number, windowSeconds: number, returnSeconds = .1, sourceTicksPerSecond = 1e6, rotationKeep = 1): F[] {
   if (!(Number.isFinite(contactTick) && lateralKeep >= 0 && lateralKeep <= 1 && forwardMps >= 0 && forwardMps <= 10
-    && windowSeconds >= .01 && windowSeconds <= .2 && returnSeconds > 0 && frames.length >= 2)) throw Error('invalid hand extension input');
+    && windowSeconds >= .01 && windowSeconds <= .2 && returnSeconds > 0 && rotationKeep >= .2 && rotationKeep <= 1 && frames.length >= 2)) throw Error('invalid hand extension input');
   const first = frames.findIndex(f => f.tick >= contactTick);
   if (first < 1) return frames.slice();
   const start = frames[first].tick, out: F[] = frames.slice(0, first + 1);
@@ -69,14 +74,29 @@ export function extendHandsAfterContactV1<F extends Frame>(frames: readonly F[],
     if (inside > 0) { peakX = ox; peakZ = oz; }
     const back = at <= windowSeconds ? 1 : Math.max(0, 1 - (at - windowSeconds) / returnSeconds);
     const x = at <= windowSeconds ? ox : peakX * back, z = at <= windowSeconds ? oz : peakZ * back;
-    out.push({ ...frames[i], grip: { x: frames[i].grip.x + x, y: frames[i].grip.y, z: frames[i].grip.z + z } });
+    // The turn's own clock: rotationKeep inside the window, then catching up by the end of the return.
+    const turnAt = rotationKeep === 1 ? at : at <= windowSeconds ? rotationKeep * at
+      : at <= windowSeconds + returnSeconds ? rotationKeep * windowSeconds + (at - windowSeconds) * (windowSeconds + returnSeconds - rotationKeep * windowSeconds) / returnSeconds : at;
+    out.push({ ...frames[i], grip: { x: frames[i].grip.x + x, y: frames[i].grip.y, z: frames[i].grip.z + z },
+      orientation: turnAt === at ? frames[i].orientation : orientationAt(frames, start + turnAt * sourceTicksPerSecond) });
   }
   return out;
+}
+
+function orientationAt(frames: readonly Frame[], tick: number): Quaternion {
+  let hi = frames.findIndex(f => f.tick >= tick);
+  if (hi <= 0) return frames[Math.max(0, hi)].orientation;
+  const a = frames[hi - 1].orientation, b0 = frames[hi].orientation, u = (tick - frames[hi - 1].tick) / (frames[hi].tick - frames[hi - 1].tick);
+  const d0 = a.w * b0.w + a.x * b0.x + a.y * b0.y + a.z * b0.z, b = d0 < 0 ? { w: -b0.w, x: -b0.x, y: -b0.y, z: -b0.z } : b0, d = Math.abs(d0);
+  const [p, q] = d > .9995 ? [1 - u, u] : (() => { const th = Math.acos(Math.min(1, d)), sn = Math.sin(th); return [Math.sin((1 - u) * th) / sn, Math.sin(u * th) / sn]; })();
+  const r = { w: p * a.w + q * b.w, x: p * a.x + q * b.x, y: p * a.y + q * b.y, z: p * a.z + q * b.z }, n = Math.hypot(r.w, r.x, r.y, r.z);
+  return { w: r.w / n, x: r.x / n, y: r.y / n, z: r.z / n };
 }
 
 export type ClipAfterContactShapeV1 = Readonly<{ contactTick: number; radiusM: number; windowSeconds?: number; hands?: readonly number[] }>;
 /** The physical motor and the whiff playback shape the clip the same way: retime first, then move the hands. */
 export function shapeClipAfterContactV1<F extends Frame>(frames: readonly F[], shape: ClipAfterContactShapeV1): F[] {
   const timed = shape.windowSeconds === undefined ? frames.slice() : retimeClipAfterContactV1(frames, shape.contactTick, shape.radiusM, shape.windowSeconds);
-  return shape.hands === undefined ? timed : extendHandsAfterContactV1(timed, shape.contactTick, shape.hands[0], shape.hands[1], shape.hands[2]);
+  return shape.hands === undefined ? timed
+    : extendHandsAfterContactV1(timed, shape.contactTick, shape.hands[0], shape.hands[1], shape.hands[2], .1, 1e6, shape.hands[3] ?? 1);
 }

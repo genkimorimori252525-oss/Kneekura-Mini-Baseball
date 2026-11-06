@@ -147,7 +147,8 @@ it('accepts the optional contact-window shaping and swing plane inputs only with
   expect(validateLiveBatterObservationPolicyV151({ ...valid, handExtensionV1:[0, 3, .04] }).handExtensionV1).toEqual([0, 3, .04]);
   expect(validateLiveBatterObservationPolicyV151({ ...valid, swingTiltV1:[31, -21, .76, -10] }).swingTiltV1).toEqual([31, -21, .76, -10]);
   for (const bad of [.001, .5]) expect(() => validateLiveBatterObservationPolicyV151({ ...valid, noImpactFollowV1:bad })).toThrow();
-  for (const bad of [[2, 3, .04], [0, 3], [0, 11, .04]]) expect(() => validateLiveBatterObservationPolicyV151({ ...valid, handExtensionV1:bad })).toThrow();
+  expect(validateLiveBatterObservationPolicyV151({ ...valid, handExtensionV1:[0, 3, .04, .5] }).handExtensionV1).toEqual([0, 3, .04, .5]);
+  for (const bad of [[2, 3, .04], [0, 3], [0, 11, .04], [0, 3, .04, .1]]) expect(() => validateLiveBatterObservationPolicyV151({ ...valid, handExtensionV1:bad })).toThrow();
   for (const bad of [[90, -21, .76, -10], [31, -21, .76]]) expect(() => validateLiveBatterObservationPolicyV151({ ...valid, swingTiltV1:bad })).toThrow();
   expect(validateLiveBatterObservationPolicyV151({ ...valid, lateLookNoiseV1:[.01, .1] }).lateLookNoiseV1).toEqual([.01, .1]);
   for (const bad of [[.1, .1], [.01], [.01, -1]]) expect(() => validateLiveBatterObservationPolicyV151({ ...valid, lateLookNoiseV1:bad })).toThrow();

@@ -126,7 +126,7 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   loadBeforeCommitV1?:boolean;
   /** Clip seconds over which a bat past its contact pose returns from the contact speed to the clip's own, impact-slowed speed (0.01..0.3; absent = the clip's timing). */
   noImpactFollowV1?:number;
-  /** Hands past the contact pose: [share of the sideways motion kept 0..1, speed toward the pitcher m/s 0..10, window s 0.01..0.2] (absent = the clip's path). */
+  /** Hands past the contact pose: [share of the sideways motion kept 0..1, speed toward the pitcher m/s 0..10, window s 0.01..0.2, optional share of the bat's turn kept 0.2..1] (absent = the clip's path). */
   handExtensionV1?:readonly number[];
   /** Swing plane by contact height (for a 1.8 m batter): [tilt at the middle deg 0..80, tilt per m -100..100, middle height m 0..2, attack angle per m -50..50] (absent = the clip's own plane, one attack angle). */
   swingTiltV1?:readonly number[];
@@ -201,7 +201,7 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'priorFooledChanceV1')){keys.push('priorFooledChanceV1');assert(Number.isFinite(p.priorFooledChanceV1)&&p.priorFooledChanceV1!>=0&&p.priorFooledChanceV1!<=1,'invalid prior fooled chance');}
   if(Object.hasOwn(p,'lateLookNoiseV1')){keys.push('lateLookNoiseV1');const t=p.lateLookNoiseV1;assert(Array.isArray(t)&&t.length===2&&t.every(Number.isFinite)&&t[0]>=0&&t[0]<=.05&&t[1]>=0&&t[1]<=.5,'invalid late look noise');}
   if(Object.hasOwn(p,'swingTiltV1')){keys.push('swingTiltV1');const t=p.swingTiltV1;assert(Array.isArray(t)&&t.length===4&&t.every(Number.isFinite)&&t[0]>=0&&t[0]<=80&&Math.abs(t[1])<=100&&t[2]>=0&&t[2]<=2&&Math.abs(t[3])<=50,'invalid swing tilt');}
-  if(Object.hasOwn(p,'handExtensionV1')){keys.push('handExtensionV1');const h=p.handExtensionV1;assert(Array.isArray(h)&&h.length===3&&h.every(Number.isFinite)&&h[0]>=0&&h[0]<=1&&h[1]>=0&&h[1]<=10&&h[2]>=.01&&h[2]<=.2,'invalid hand extension');}
+  if(Object.hasOwn(p,'handExtensionV1')){keys.push('handExtensionV1');const h=p.handExtensionV1;assert(Array.isArray(h)&&(h.length===3||h.length===4)&&h.every(Number.isFinite)&&h[0]>=0&&h[0]<=1&&h[1]>=0&&h[1]<=10&&h[2]>=.01&&h[2]<=.2&&(h.length===3||h[3]>=.2&&h[3]<=1),'invalid hand extension');}
   if(Object.hasOwn(p,'noImpactFollowV1')){keys.push('noImpactFollowV1');assert(Number.isFinite(p.noImpactFollowV1)&&p.noImpactFollowV1!>=.01&&p.noImpactFollowV1!<=.3,'invalid no-impact follow');}
   if(Object.hasOwn(p,'loadBeforeCommitV1')){keys.push('loadBeforeCommitV1');assert(p.loadBeforeCommitV1===true,'invalid load before commit');}
   if(Object.hasOwn(p,'preContactSpeedLossV1')){keys.push('preContactSpeedLossV1');assert(Number.isFinite(p.preContactSpeedLossV1)&&p.preContactSpeedLossV1!>=0&&p.preContactSpeedLossV1!<=.05,'invalid pre-contact speed loss');}
