@@ -788,7 +788,11 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     // undercutAimV1: a swing aims the sweet spot this far under the ball's centre, as hitters who lift the ball do.
     undercutV1=input.batting==='bunt'?0:b.undercutAimMeters??observationPolicyV151?.undercutAimV1??0,
     // judgmentAimShareV1: the misjudged location that decided the swing also moves the bat; the late look corrects it like a misread.
-    judgmentAimShareV1=observationPolicyV151?.judgmentAimShareV1,judgmentAimV1={x:judgmentError.x*(judgmentAimShareV1??0),y:judgmentError.y*(judgmentAimShareV1??0)},
+    // misreadExpectBatV1: the bat also takes this share of misreadExpectShareV1's pull toward the expected place (the swing path is
+    // set on the belief that decided it, as placementJudgedV1); the late look corrects it like a misread (2026-11-07).
+    expectBatV1=observationPolicyV151?.misreadExpectBatV1??0,
+    judgmentAimShareV1=observationPolicyV151?.judgmentAimShareV1,judgmentAimV1={x:judgmentError.x*(judgmentAimShareV1??0)+(decisionPositionV1.x-judgedPositionV1.x)*expectBatV1,
+      y:judgmentError.y*(judgmentAimShareV1??0)+(decisionPositionV1.y-judgedPositionV1.y)*expectBatV1},
     motorAimPosition=recognitionAimOffset.x===0&&recognitionAimOffset.y===0&&undercutV1===0&&judgmentAimV1.x===0&&judgmentAimV1.y===0?placementPositionV1
       :{...placementPositionV1,x:placementPositionV1.x+recognitionAimOffset.x+judgmentAimV1.x,y:placementPositionV1.y+recognitionAimOffset.y-undercutV1+judgmentAimV1.y};
   const inChaseEnvelope=Math.abs(judgmentPosition.x)<=zone.halfWidth+b.chaseMarginMeters
