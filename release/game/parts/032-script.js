@@ -585,10 +585,13 @@ function rasterSphere(center,radius,color,owner){
   * upper body bent back against the legs is not a good swing, the owner, 2026-11-06); the rest is the bat alone turning in
   * the hands (SWING_BAT_TURN), and the arms' height comes from the high, middle and low frames. A ball outside the zone
   * may take the upper body further, up to SWING_TURN_BALL degrees as far out as SWING_BALL_REACH of the zone (the owner,
-  * 2026-11-06: if the whole zone looks right within the limit, a ball outside it looks natural past it). Around the contact the
-  * turns blend to the ones that put the drawn bat through the ball where the Core's bat met it. One stand offset per pitch (at most SWING_STAND m) brings the drawn hands across to the Core's hands at the
-  * contact; the feet never slide during the swing. The bat's length follows the player's own bat, not his height. */
- const SWING_TURN=8,SWING_TURN_BALL=20,SWING_BALL_REACH=.6,SWING_BAT_TURN=25,SWING_EASE=.3,SWING_KEEP=8,SWING_STAND=.25,SWING_BLEND=.04,SWING_NOMINAL_BAT=.86,SWING_NOMINAL_HEIGHT=1.8,BALL_RADIUS=.0366;
+  * 2026-11-06: if the whole zone looks right within the limit, a ball outside it looks natural past it). The upper body
+  * and the arms' height wait until SWING_LATE seconds before the contact: until then the batter is in the middle frame,
+  * ready for any course (a high fastball may still be a splitter that drops, the owner, 2026-11-06), and only the bat in
+  * the hands follows the Core's bat. In that last moment the turns blend to the ones that put the drawn bat through the
+  * ball where the Core's bat met it. One stand offset per pitch (at most SWING_STAND m) brings the drawn hands across to
+  * the Core's hands at the contact; the feet never slide during the swing. The bat's length follows the player's own bat, not his height. */
+ const SWING_TURN=8,SWING_TURN_BALL=20,SWING_BALL_REACH=.6,SWING_BAT_TURN=25,SWING_EASE=.3,SWING_KEEP=8,SWING_STAND=.25,SWING_LATE=.03,SWING_NOMINAL_BAT=.86,SWING_NOMINAL_HEIGHT=1.8,BALL_RADIUS=.0366;
  const swingMemoV1=new WeakMap(),swingPlansV1=new WeakMap();
  const screenAngleV1=(a,b)=>Math.atan2(-(b.y-a.y),b.x-a.x)*180/Math.PI,wrapV1=d=>((d%360)+540)%360-180,clampV1=(v,m)=>Math.max(-m,Math.min(m,v));
  const IMPACTS=['2/high','2/middle','2/low'],FOLLOWS=['3/high','3/middle','3/low'];
@@ -670,9 +673,12 @@ function rasterSphere(center,radius,color,owner){
   if(!side)return null;
   const torso=swingTorsoV1(art.aim),plan=swing?swingPlanV1(swing.path,foot,side,bank,pickArgs,height,torso):null,tps=swing?.path.tps??1e6;
   const physical=live?{grip:project(live.grip),tip:project(live.tip)}:null,angle=physical?.grip&&physical?.tip?screenAngleV1(physical.grip,physical.tip):null;
-  // How close the contact is: 1 at the contact, 0 from SWING_BLEND seconds away.
-  const near=plan?.hit?Math.max(0,1-Math.abs(swing.tick-plan.contactTick)/(SWING_BLEND*tps)):0,blend=near*near*(3-2*near);
+  // How close the contact is: 1 at the contact, 0 from SWING_LATE seconds away. Before that window the batter keeps every
+  // course open: the middle impact frame and an upright upper body.
+  const near=plan?Math.max(0,1-Math.abs(swing.tick-plan.contactTick)/(SWING_LATE*tps)):1,late=plan&&swing.tick>=plan.contactTick?1:near*near*(3-2*near),
+   blend=plan?.hit?near*near*(3-2*near):0;
   let keys=swingCandidatesV1(swing,pickArgs.frame,angle!==null);
+  if(late===0)keys=[...new Set(keys.map(k=>IMPACTS.includes(k)?'2/middle':k))];
   if(blend>0&&keys.includes(plan.key))keys=[plan.key];
   // After a hit the Core has no bat: the impact frame of the plan, then its follow-through at the same height.
   if(angle===null&&plan&&swing.progress>.5)keys=[keys===FOLLOWS?plan.key.replace('2/','3/'):plan.key];
@@ -686,7 +692,7 @@ function rasterSphere(center,radius,color,owner){
   // progress.
   const into=swing&&chosen.key!=='0'?Math.max(0,Math.min(1,(swing.progress-swing.path.startProgress)/SWING_EASE)):0;
   const need=angle===null?0:wrapV1(angle-chosen.geo.angle)*into*into*(3-2*into);
-  let turn=clampV1(need,torso),batTurn=clampV1(need-turn,SWING_BAT_TURN);
+  let turn=clampV1(need,torso*late),batTurn=clampV1(need-turn,SWING_BAT_TURN);
   if(plan&&chosen.key===plan.key&&blend>0){turn+=(plan.turn-turn)*blend;batTurn+=(plan.batTurn-batTurn)*blend;}
   // After a hit the impact frame lets go of the contact's turn over 0.15 s.
   if(angle===null&&plan?.hit&&chosen.key===plan.key){const fade=Math.max(0,1-(swing.tick-plan.contactTick)/(.15*tps));turn=plan.turn*fade;batTurn=plan.batTurn*fade;}
