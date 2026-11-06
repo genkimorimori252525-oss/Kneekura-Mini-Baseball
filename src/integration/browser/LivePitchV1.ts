@@ -1,3 +1,4 @@
+import { retimeClipAfterContactV1 } from './ClipImpactRetimeV1';
 import {planLiveYawRobustV276} from './LiveYawRobustV276';
 import {SEARCH_EVALUATIONS as YAW_ROBUST_SEARCH_EVALUATIONS} from '../../core/sim/contact/ObservedDirectionRegistrationV153';
 import {planObservedYawPivotContactFrameV275} from '../../core/decision/batting/ObservedYawPivotContactFrameV275';
@@ -884,7 +885,12 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     directionMotorActiveV153=directionMotorPolicyV153!==undefined&&directionMotorReasonV153===null,
     planningSweetSpotT=directionMotorActiveV153?clamp(b.sweetSpotT??(b.batLengthM-.1524)/b.batLengthM,.65,.9):sweetSpotT,
     planningContactTime=directionMotorActiveV153?Math.max(.055,prediction.elapsedSeconds+(b.technicalTimingOffsetSeconds??0)):desiredContactTime;
-  const fullFrames=registerMeasuredBatToFieldV1(clip.frames).map(f=>({tick:f.tick,grip:mul(f.grip,heightScale),orientation:f.orientation}));
+  // noImpactFollowV1: past the contact pose the clip's bat is slowed by the ball it hit; pull those poses in so a bat that
+  // meets no ball there keeps its contact speed (ClipImpactRetimeV1). The same retime goes to the whiff playback below.
+  const retimeV1=observationPolicyV151?.noImpactFollowV1!==undefined&&swingOffered&&input.batting!=='bunt'
+    ?{contactTick:sourceContactTick,radiusM:b.batLengthM*sweetSpotT,windowSeconds:observationPolicyV151.noImpactFollowV1}:undefined;
+  const scaledFrames=registerMeasuredBatToFieldV1(clip.frames).map(f=>({tick:f.tick,grip:mul(f.grip,heightScale),orientation:f.orientation}));
+  const fullFrames=retimeV1?retimeClipAfterContactV1(scaledFrames,retimeV1.contactTick,retimeV1.radiusM,retimeV1.windowSeconds):scaledFrames;
   if(directionMotorActiveV153&&!authoredEnvelopeV133){
     // A declared operational bridge from the player's own fixed clip boundary
     // poses. No current prediction, direction or execution error sets the hold.
@@ -1390,7 +1396,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   const {frames:_measuredFrames,...playbackReference}=registeredReference;
   const batPlaybackV88:LiveBatPlaybackDescriptorV88|undefined=swingOffered&&input.batting!=='bunt'?{
     version:88,originTick:input.originTick,battingSide:b.bats,heightScale,
-    sourceFirstTick:selectedFrames[0].tick,sourceLastTick:selectedFrames.at(-1)!.tick,radiusProfile,reference:playbackReference,
+    sourceFirstTick:selectedFrames[0].tick,sourceLastTick:selectedFrames.at(-1)!.tick,radiusProfile,reference:playbackReference,...(retimeV1?{retimeV1}:{}),
   }:undefined;
   const nominalPlanV153=nominalRegistrationsV153.get(rate)?.diagnostics,
     nominalPlanForRecordV153=yawDiagnosticV274?null:nominalPlanV153?{...nominalPlanV153,...(neutralPolicyV272===undefined?{}:{neutralReactiveV272:neutralDiagnosticV272()}),candidates:nominalPlanV153.candidates.map(candidate=>{

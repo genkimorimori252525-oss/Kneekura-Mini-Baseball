@@ -4,6 +4,7 @@ import { sampleBatRadius, type BatRadiusProfile } from '../../core/sim/contact/R
 import type { LiveMeasuredClipV1, LivePitchFrameV1 } from './LivePitchV1';
 import { registerMeasuredBatToFieldV1 } from './MeasuredBatFieldRegistrationV1';
 import {referenceWorldTickAtSourceV121} from '../../core/sim/contact/ReferenceBatMotorV121';
+import { retimeClipAfterContactV1 } from './ClipImpactRetimeV1';
 
 /** Serializable observation recipe for the already registered physical motor.
  * Measured keys stay in their original library; this does not extend a play,
@@ -12,6 +13,8 @@ export type LiveBatPlaybackDescriptorV88 = Readonly<{
   version: 88; originTick: number; battingSide: 'R' | 'L'; heightScale: number;
   sourceFirstTick: number; sourceLastTick: number; radiusProfile: BatRadiusProfile;
   reference: Omit<ReferenceBatKinematicsInputV1, 'frames'>;
+  /** The physical motor's noImpactFollowV1 retime of the poses past the clip's contact (ClipImpactRetimeV1). */
+  retimeV1?: Readonly<{ contactTick: number; radiusM: number; windowSeconds: number }>;
 }>;
 const fields = (value: object, names: readonly string[]) => Object.keys(value).sort().join('|') === [...names].sort().join('|');
 const tick = (value: number) => Number.isSafeInteger(value) && value >= 0;
@@ -19,7 +22,7 @@ const tick = (value: number) => Number.isSafeInteger(value) && value >= 0;
 export function createLiveBatPlaybackV88(raw: Readonly<{ descriptor: LiveBatPlaybackDescriptorV88; measuredClip: LiveMeasuredClipV1 }>) {
   const { descriptor: d, measuredClip: clip } = cloneInert(raw);
   if (!d || typeof d !== 'object' || Array.isArray(d)
-    || !fields(d, ['version', 'originTick', 'battingSide', 'heightScale', 'sourceFirstTick', 'sourceLastTick', 'radiusProfile', 'reference'])
+    || !fields(d, ['version', 'originTick', 'battingSide', 'heightScale', 'sourceFirstTick', 'sourceLastTick', 'radiusProfile', 'reference', ...(Object.hasOwn(d, 'retimeV1') ? ['retimeV1'] : [])])
     || d.version !== 88 || !tick(d.originTick) || !['R', 'L'].includes(d.battingSide)
     || !Number.isFinite(d.heightScale) || d.heightScale <= 0 || d.heightScale > 10
     || !tick(d.sourceFirstTick) || !tick(d.sourceLastTick) || d.sourceFirstTick >= d.sourceLastTick
@@ -28,12 +31,14 @@ export function createLiveBatPlaybackV88(raw: Readonly<{ descriptor: LiveBatPlay
     || clip.id !== d.reference.provenance?.clipId || clip.source?.sha256 !== d.reference.provenance?.sourceSha256
     || !Array.isArray(clip.frames) || clip.frames.some((frame, index) => !tick(frame.tick) || index > 0 && frame.tick <= clip.frames[index - 1].tick))
     throw new Error('invalid live bat playback descriptor or measured provenance');
-  const selected = registerMeasuredBatToFieldV1(clip.frames).filter(frame => frame.tick >= d.sourceFirstTick && frame.tick <= d.sourceLastTick);
-  if (selected[0]?.tick !== d.sourceFirstTick || selected.at(-1)?.tick !== d.sourceLastTick)
-    throw new Error('live bat playback requires the original selected source keys');
-  const frames = selected.map(frame => ({ ...frame, grip: {
+  // Scale, then retime, in the physical motor's order, so the retimed keys match it exactly.
+  const scaled = registerMeasuredBatToFieldV1(clip.frames).map(frame => ({ ...frame, grip: {
     x: frame.grip.x * d.heightScale, y: frame.grip.y * d.heightScale, z: frame.grip.z * d.heightScale,
   } }));
+  const timed = d.retimeV1 ? retimeClipAfterContactV1(scaled, d.retimeV1.contactTick, d.retimeV1.radiusM, d.retimeV1.windowSeconds) : scaled;
+  const frames = timed.filter(frame => frame.tick >= d.sourceFirstTick && frame.tick <= d.sourceLastTick);
+  if (frames[0]?.tick !== d.sourceFirstTick || frames.at(-1)?.tick !== d.sourceLastTick)
+    throw new Error('live bat playback requires the original selected source keys');
   const reference = createReferenceBatKinematicsV1({ ...d.reference, frames });
   sampleBatRadius(d.radiusProfile, 0);
   const throughTick = reference.motionThroughTickV133 ?? referenceWorldTickAtSourceV121({...d.reference,frames},d.sourceLastTick);
