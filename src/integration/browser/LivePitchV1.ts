@@ -768,10 +768,18 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       normal=()=>Math.sqrt(-2*Math.log(1-judgmentRng.nextFloat()))*Math.cos(2*Math.PI*judgmentRng.nextFloat());
     judgmentError.x=normal()*judgmentStd;judgmentError.y=normal()*judgmentStd;
   }
-  const observationTick=positionObserverV151?.decisionTick??input.originTick+Math.round(decisionTime*tps),batterRecognition=recognizeZoneV87({role:'batter',profile:b.zoneRecognitionV87,position:prediction.ball.position,zone,
+  // misreadJudgeSecondsV1: a misread hitter decides on the read pitch's path laid from this time after release, the way it looked
+  // when he took it for that pitch; the bat still goes where his late read puts it. Only the decision's place moves (2026-11-07).
+  const misreadJudgeV1=observationPolicyV151?.misreadJudgeSecondsV1,judgeShiftV1=misreadJudgeV1===undefined||!recognitionV2||recognitionV2.recognized
+    ||!readForecastV1?.prediction?null:(()=>{
+      const laid=bendForecastV1(effectiveForecastV246,0,recognitionV2.readPitch,misreadJudgeV1);
+      return laid?.prediction?{x:laid.prediction.position.x-readForecastV1.prediction.position.x,y:laid.prediction.position.y-readForecastV1.prediction.position.y}:null;
+    })(),
+    decisionPositionV1=judgeShiftV1===null?prediction.ball.position:{...prediction.ball.position,x:prediction.ball.position.x+judgeShiftV1.x,y:prediction.ball.position.y+judgeShiftV1.y};
+  const observationTick=positionObserverV151?.decisionTick??input.originTick+Math.round(decisionTime*tps),batterRecognition=recognizeZoneV87({role:'batter',profile:b.zoneRecognitionV87,position:decisionPositionV1,zone,
     seed:randomStreamsV152?.seedFor('batterPerception','zone-recognition-v87')??input.seed,
     sourceTick:effectiveForecastV246?.observedThroughTick??observationTick,observationTick,planeZ:battingSetupV94.contactPlaneZ,standardDeviationMeters:judgmentStd,baselineErrorMeters:judgmentError,abilityBasis:'zoneJudgmentStdMeters'}),
-    judgmentPosition={...prediction.ball.position,...batterRecognition.position},recognitionAimOffset=batterRecognition.diagnostics.biasMeters,
+    judgmentPosition={...decisionPositionV1,...batterRecognition.position},recognitionAimOffset=batterRecognition.diagnostics.biasMeters,
     // undercutAimV1: a swing aims the sweet spot this far under the ball's centre, as hitters who lift the ball do.
     undercutV1=input.batting==='bunt'?0:b.undercutAimMeters??observationPolicyV151?.undercutAimV1??0,
     // judgmentAimShareV1: the misjudged location that decided the swing also moves the bat; the late look corrects it like a misread.
@@ -1565,7 +1573,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
         sweetSpotT:b.sweetSpotT??null,attackAngleDegrees:b.attackAngleDegrees??null,pullAngleDegrees:b.pullAngleDegrees??null,badBallControl:b.badBallControl??null,
         swingDecision:b.swingDecision??null,preContactSeconds:b.preContactSeconds??null,followThroughSeconds:b.followThroughSeconds??null,contactDepthMeters:b.contactDepthMeters??null,
         zoneJudgmentStdMeters:judgmentStd},
-      zoneJudgment:{standardDeviationMeters:judgmentStd,errorMeters:judgmentError,observedForecastPosition:prediction.ball.position,
+      zoneJudgment:{standardDeviationMeters:judgmentStd,errorMeters:judgmentError,observedForecastPosition:decisionPositionV1,
         estimatedPosition:judgmentPosition,stream:'zone-judgment-v1' as const,basis:'AUTHORED_XY_COURSE_ESTIMATE_ERROR_NOT_CHASE_PREFERENCE' as const},
       authoredDecisionPolicy:'BOUNDED_OBSERVED_ZONE_MARGIN_V1_NOT_CALIBRATED_RECOGNITION' as const,swingScore,awkwardErrorFactor,motorDelaySeconds,
       authoredTrajectoryPolicy:'FINITE_MEASURED_KEYS_WITH_EXPLICIT_RIGID_DIRECTION_RATE_AND_WINDOW_CONTROLS' as const,

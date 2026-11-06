@@ -24,6 +24,9 @@ if (opt.batters) for (const player of config.players) if (/-b\d$/.test(player.pl
 // --pitchersScale=key:factor multiplies that physical value of every pitcher (e.g. commandStdMeters of individually fitted pitchers).
 if (opt.pitchersScale) for (const player of config.players) if (/-p\d+$/.test(player.playerId))
   for (const pair of opt.pitchersScale.split(',')) {const [key, value] = pair.split(':'); if (typeof player.physical[key] === 'number') player.physical[key] *= Number(value);}
+// --battersScale=key:factor does the same for every other player (e.g. zoneJudgmentStdMeters).
+if (opt.battersScale) for (const player of config.players) if (!/-p\d+$/.test(player.playerId))
+  for (const pair of opt.battersScale.split(',')) {const [key, value] = pair.split(':'); if (typeof player.physical[key] === 'number') player.physical[key] *= Number(value);}
 if (opt.pitchers) for (const player of config.players) if (/-p\d+$/.test(player.playerId))
   for (const pair of opt.pitchers.split(',')) {const [key, value] = pair.split(':'); player.physical[key] = Number(value);}
 if (opt.skipField) config.skipFieldPlayV1 = true;
