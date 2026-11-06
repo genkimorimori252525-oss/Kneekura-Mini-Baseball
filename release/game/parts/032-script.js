@@ -691,8 +691,7 @@ function rasterSphere(center,radius,color,owner){
   // course open: the middle impact frame and an upright upper body. A wild swing has made up its mind from the start.
   const near=plan?Math.max(0,1-Math.abs(swing.tick-plan.contactTick)/(SWING_LATE*tps)):1,late=wild||(plan&&swing.tick>=plan.contactTick)?1:near*near*(3-2*near),
    after=!!plan?.hit&&swing.tick>plan.contactTick,
-   seen=swing?swingMemoV1.get(swing.path)?.contactAngle:undefined,contactAngle=plan?.hit&&!after&&angle!==null?angle:seen??plan?.angle,
-   hold=after&&angle!==null?Math.max(0,1-Math.abs(wrapV1(angle-contactAngle))/SWING_HOLD):1,blend=after?hold*hold*(3-2*hold):plan?.hit?near*near*(3-2*near):0;
+   hold=after&&angle!==null?Math.max(0,1-Math.abs(wrapV1(angle-plan.angle))/SWING_HOLD):1,blend=after?hold*hold*(3-2*hold):plan?.hit?near*near*(3-2*near):0;
   let keys=swingCandidatesV1(swing,pickArgs.frame,angle!==null);
   if(late===0)keys=[...new Set(keys.map(k=>IMPACTS.includes(k)?'2/middle':k))];
   // Past a hit the height is the plan's: the impact frame holds the contact's pose while the Core's bat holds its contact
@@ -707,7 +706,7 @@ function rasterSphere(center,radius,color,owner){
   let chosen=options.reduce((p,q)=>q.gap<p.gap?q:p);
   const memo=swing?swingMemoV1.get(swing.path):null,kept=memo&&options.find(o=>o.key===memo.key);
   if(kept&&kept.gap<=chosen.gap+SWING_KEEP)chosen=kept;
-  if(swing)swingMemoV1.set(swing.path,{key:chosen.key,contactAngle});
+  if(swing)swingMemoV1.set(swing.path,{key:chosen.key});
   // The stance stays as drawn (the owner, 2026-11-06); the turn comes in from the swing's start over SWING_EASE of its
   // progress.
   const into=swing&&chosen.key!=='0'?Math.max(0,Math.min(1,(swing.progress-swing.path.startProgress)/SWING_EASE)):0;
@@ -719,7 +718,7 @@ function rasterSphere(center,radius,color,owner){
   const stretch=plan?.stretch??swingStretchV1(live,height),made=bank.swing(chosen.found,{turn:-turn*Math.PI/180,batTurn:-batTurn*Math.PI/180,stretch});
   if(!made)return null;
   const stand=plan?.stand??0;
-  return {found:made.found,key:chosen.key,wild,torso,shift:{x:stand*(side.x-foot.x),y:stand*(side.y-foot.y)},stand,turn,batTurn,stretch,physicalAngle:angle,physical,plan,tick:swing?.tick??null};
+  return {found:made.found,key:chosen.key,wild,hold:after?hold:null,torso,shift:{x:stand*(side.x-foot.x),y:stand*(side.y-foot.y)},stand,turn,batTurn,stretch,physicalAngle:angle,physical,plan,tick:swing?.tick??null};
  }
  // What the swing drew, for the measurement (batterRig.swing): the drawn and the Core's bat on screen and, at the contact,
  // the ball's distance from the drawn bat.
@@ -732,7 +731,7 @@ function rasterSphere(center,radius,color,owner){
     contact={distancePx:Math.hypot(grip.x+dx*u-ball.x,grip.y+dy*u-ball.y),ballRadiusPx:BALL_RADIUS*ball.scale,along:u};}
   }
   return {key:drawn.key,tick:drawn.tick,drawnAngle:screenAngleV1(grip,tip),physicalAngle:drawn.physicalAngle,drawnGrip:grip,drawnTip:tip,
-   physicalGrip:drawn.physical?.grip?{x:drawn.physical.grip.x,y:drawn.physical.grip.y}:null,turn:drawn.turn,batTurn:drawn.batTurn,wild:drawn.wild,torso:drawn.torso,stand:drawn.stand,stretch:drawn.stretch,contact};
+   physicalGrip:drawn.physical?.grip?{x:drawn.physical.grip.x,y:drawn.physical.grip.y}:null,turn:drawn.turn,batTurn:drawn.batTurn,wild:drawn.wild,hold:drawn.hold,planAngle:drawn.plan?.angle,torso:drawn.torso,stand:drawn.stand,stretch:drawn.stretch,contact};
  }
  function viewHidesActor(actor){if(observed.liveObservation&&state.camera==='batter'&&observed.liveContinuousBatterView&&actor.id==='BAT')return true;return (state.camera==='fielder'&&actor.id===committedFieldObserver(observed)?.id)||(actor.id==='C'&&state.camera==='catcher')||(actor.id==='P'&&state.camera==='mound')||(actor.id==='BAT'&&((actor.role==='batter'&&(state.camera==='batter'||state.camera==='catcher'))||state.camera==='runner'));}
  function actor(a){
