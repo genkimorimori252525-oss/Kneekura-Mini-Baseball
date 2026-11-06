@@ -25,7 +25,10 @@
     // Where the real bat's grip belongs on a body drawn without one.
     ...(row.grip?{gripX:x0+row.grip[0],gripY:y0+row.grip[1]}:{}),
     ...(row.bend?{bend:{gripX:x0+row.bend.grip[0],gripY:y0+row.bend.grip[1],pivotX:x0+row.bend.pivot[0],pivotY:y0+row.bend.pivot[1],top:y0+row.bend.top,bottom:y0+row.bend.bottom,faces:row.bend.faces??1,
-     ...(row.bend.bat?{bat:[x0+row.bend.bat[0],y0+row.bend.bat[1],x0+row.bend.bat[2],y0+row.bend.bat[3]]}:{})}}:{})},palette:colors,id:row.id,key});
+     ...(row.bend.bat?{bat:[x0+row.bend.bat[0],y0+row.bend.bat[1],x0+row.bend.bat[2],y0+row.bend.bat[3]]}:{})}}:{}),
+    // A swing frame: the bat of the art is a separate picture (swingbat/...), held at the grip and turned with the upper body.
+    ...(row.swing?{swing:{gripX:x0+row.swing.grip[0],gripY:y0+row.swing.grip[1],tipX:x0+row.swing.tip[0],tipY:y0+row.swing.tip[1],pivotX:x0+row.swing.pivot[0],pivotY:y0+row.swing.pivot[1],
+     top:y0+row.swing.top,bottom:y0+row.swing.bottom,cut:row.swing.cut,faces:row.swing.faces}}:{})},palette:colors,id:row.id,key});
   };
   image.src='data:image/png;base64,'+row.data;
  }
@@ -36,7 +39,9 @@
   const s=found.sprite,size=s.size,pixels=new Uint16Array(s.pixels.length);
   for(let y=0;y<size;y++)for(let x=0;x<size;x++)pixels[y*size+x]=s.pixels[y*size+size-1-x];
   const copy={...found,sprite:{...s,pixels,originX:size-s.originX,minX:size-1-s.maxX,maxX:size-1-s.minX,viewMirrorX:true,...(s.gripX!==undefined?{gripX:size-s.gripX}:{}),
-   ...(s.bend?{bend:{...s.bend,gripX:size-s.bend.gripX,pivotX:size-s.bend.pivotX,...(s.bend.bat?{bat:[size-s.bend.bat[2],s.bend.bat[1],size-s.bend.bat[0],s.bend.bat[3]]}:{})}}:{})}};
+   ...(s.bend?{bend:{...s.bend,gripX:size-s.bend.gripX,pivotX:size-s.bend.pivotX,...(s.bend.bat?{bat:[size-s.bend.bat[2],s.bend.bat[1],size-s.bend.bat[0],s.bend.bat[3]]}:{})}}:{}),
+   ...(s.swing?{swing:{...s.swing,gripX:size-s.swing.gripX,tipX:size-s.swing.tipX,pivotX:size-s.swing.pivotX}}:{})},
+   ...(found.batLayer?{batLayer:flip(found.batLayer)}:{})};
   flipped.set(found,copy);return copy;
  }
  /* The batter aims the swing: the upper body turns up or down to the ball's height and leans toward or away from the
@@ -82,6 +87,60 @@
   }
   return {found:made};
  }
+ /* ---- The swing (docs/ai-continuity/DESIGN-2026-11-06-swing-drawing.md). A swing frame is the art's body and, apart, the
+  * art's own bat. The upper body turns about the hip by `turn` (radians, clockwise on screen), fully above `top` and fading
+  * out by `bottom`; the legs never move. The bat is one rigid piece held where the turned hands are, turned by turn+batTurn
+  * and stretched past the hands by `stretch`, so it shows the length of the player's own bat. The picture is padded by half
+  * its size on every side, so a turned or longer bat is never cut off. ---- */
+ const SWING_PAD=.5,swings=new WeakMap(),merged=new WeakMap();
+ function swingGeometry(found,{turn=0,batTurn=0,stretch=1}={}){
+  const s=found?.sprite,r=s?.swing;if(!r)return null;
+  const w=1-smooth((r.gripY-r.top)/(r.bottom-r.top)),t=turn*w,c=Math.cos(t),n=Math.sin(t),dx=r.gripX-r.pivotX,dy=r.gripY-r.pivotY,
+   grip=[r.pivotX+c*dx-n*dy,r.pivotY+n*dx+c*dy],ux=r.tipX-r.gripX,uy=r.tipY-r.gripY,length=Math.hypot(ux,uy),cut=r.cut*length,
+   reach=cut+(length-cut)*stretch,a=turn+batTurn,ca=Math.cos(a),na=Math.sin(a);
+  return {grip,tip:[grip[0]+(ca*ux-na*uy)/length*reach,grip[1]+(na*ux+ca*uy)/length*reach],length:reach,artLength:length,cut,
+   // The art's own bat angle on screen, degrees, up positive.
+   angle:Math.atan2(-uy,ux)*180/Math.PI};
+ }
+ function swing(found,{turn=0,batTurn=0,stretch=1}={}){
+  const s=found?.sprite,r=s?.swing,bat=found?.batLayer;if(!r||!bat)return null;
+  turn=Math.round(turn/.01)*.01;batTurn=Math.round(batTurn/.01)*.01;stretch=Math.round(stretch/.02)*.02;
+  let cache=swings.get(found);if(!cache){cache=new Map();swings.set(found,cache);}
+  const key=turn+':'+batTurn+':'+stretch;let made=cache.get(key);
+  if(made)return {found:made};
+  const size=s.size,pad=Math.round(size*SWING_PAD),out=size+2*pad,pixels=new Uint16Array(out*out),from=s.pixels,
+   weight=y=>1-smooth((y-r.top)/(r.bottom-r.top));
+  // One palette for both pieces: the bat's colours follow the body's.
+  let palette=merged.get(found);if(!palette){palette=found.palette.concat(bat.palette.slice(1));merged.set(found,palette);}
+  const shift=found.palette.length-1;
+  // The body, as bend() turns it: walk each pixel back to where it came from.
+  const reach=Math.ceil(size/4),x0=Math.max(-pad,s.minX-reach),x1=Math.min(size+pad,s.maxX+reach+1),y0=Math.max(-pad,s.minY-reach),y1=Math.min(size+pad,s.maxY+1);
+  for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){
+   let px=x+.5,py=y+.5;
+   for(let k=0;k<4;k++){const w=weight(py),t=-turn*w,c=Math.cos(t),n=Math.sin(t),dx=x+.5-r.pivotX,dy=y+.5-r.pivotY;px=r.pivotX+c*dx-n*dy;py=r.pivotY+n*dx+c*dy;}
+   const sx=Math.floor(px),sy=Math.floor(py);if(sx<0||sy<0||sx>=size||sy>=size)continue;
+   const v=from[sy*size+sx];if(v)pixels[(y+pad)*out+x+pad]=v;
+  }
+  // The bat over it: each pixel is read back through the turn and the stretch past the hands.
+  const g=swingGeometry(found,{turn,batTurn,stretch}),b=bat.sprite.pixels,a=turn+batTurn,c=Math.cos(a),n=Math.sin(a),
+   ux=(r.tipX-r.gripX)/g.artLength,uy=(r.tipY-r.gripY)/g.artLength,margin=.15*g.artLength+4,
+   bx0=Math.max(-pad,Math.floor(Math.min(g.grip[0],g.tip[0])-margin)),bx1=Math.min(size+pad,Math.ceil(Math.max(g.grip[0],g.tip[0])+margin)),
+   by0=Math.max(-pad,Math.floor(Math.min(g.grip[1],g.tip[1])-margin)),by1=Math.min(size+pad,Math.ceil(Math.max(g.grip[1],g.tip[1])+margin));
+  for(let y=by0;y<by1;y++)for(let x=bx0;x<bx1;x++){
+   const dx=x+.5-g.grip[0],dy=y+.5-g.grip[1],lx=c*dx+n*dy,ly=-n*dx+c*dy,along=lx*ux+ly*uy,across=-lx*uy+ly*ux,
+    back=along<=g.cut?along:g.cut+(along-g.cut)/stretch,sx=Math.floor(r.gripX+ux*back-uy*across),sy=Math.floor(r.gripY+uy*back+ux*across);
+   if(sx<0||sy<0||sx>=size||sy>=size)continue;
+   const v=b[sy*size+sx];if(v)pixels[(y+pad)*out+x+pad]=v+shift;
+  }
+  let minX=out,minY=out,maxX=0,maxY=0;
+  for(let i=0;i<pixels.length;i++)if(pixels[i]){const x=i%out,y=(i-x)/out;if(x<minX)minX=x;if(x>maxX)maxX=x;if(y<minY)minY=y;if(y>maxY)maxY=y;}
+  made={...found,palette,sprite:{...s,size:out,pixels,originX:s.originX+pad,baseline:s.baseline+pad,minX,minY,maxX,maxY,
+   gripX:g.grip[0]+pad,gripY:g.grip[1]+pad,swingBat:{gripX:g.grip[0]+pad,gripY:g.grip[1]+pad,tipX:g.tip[0]+pad,tipY:g.tip[1]+pad},swung:{turn,batTurn,stretch}}};
+  if(cache.size>64)cache.delete(cache.keys().next().value);cache.set(key,made);
+  return {found:made};
+ }
+ const swingSlot=(who,frame)=>who&&!bank.has(who+'/swing/mound/'+frame)?frame.replace(/\/(high|low)$/,'/middle'):frame;
+ function swingReady(who,frame){const slot=swingSlot(who,frame),base=(who?who+'/':'');return bank.has(base+'swing/mound/'+slot)&&bank.has(base+'swingbat/mound/'+slot);}
  // A slot is the generic key; an exclusive player's own frame for the same slot wins when it exists.
  function slot(who,key){return (who&&bank.get(who+'/'+key))||bank.get(key);}
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -132,6 +191,49 @@
   if(!Number.isFinite(sceneMs)||!Number.isFinite(preparationMs)||first===undefined||sceneMs<preparationMs)return frame.tick;
   return Math.max(frame.tick,first+(sceneMs-preparationMs)/1000*ticksOf(record));
  }
+ /* How far the Core's bat has swung: its angular travel since the stance, as a share of the travel at contact (the bat's
+  * real contact, or for a miss the swing's reference contact). 0 is the stance, 1 the contact. Past the last recorded bat
+  * (a hit's bat stops at the contact) it goes on at the rate the swing had. The renderer picks the frame from this, not
+  * from the clock. */
+ const swingPaths=new WeakMap(),unit3=v=>{const l=Math.hypot(v.x,v.y,v.z);return l?{x:v.x/l,y:v.y/l,z:v.z/l}:null;};
+ function swingPath(record){
+  if(swingPaths.has(record))return swingPaths.get(record);
+  const d=record.play?.diagnostics??{},tps=ticksOf(record),contact=record.play?.contactMoment?.ball;
+  let path=null;
+  if(d.swingOffered===true){
+   const points=[];let travel=0,prev=null;
+   for(const f of record.frames??[]){
+    const g=f.bat?.grip,t=f.bat?.tip;if(!g||!t)continue;
+    const u=unit3({x:t.x-g.x,y:t.y-g.y,z:t.z-g.z});if(!u)continue;
+    if(prev)travel+=Math.acos(clamp(u.x*prev.x+u.y*prev.y+u.z*prev.z,-1,1));
+    prev=u;points.push({tick:f.tick,travel,bat:f.bat});
+   }
+   const hit=Number.isSafeInteger(contact?.tick),at=hit?contact.tick:d.referenceContactTick;
+   const travelAt=tick=>{
+    if(!points.length)return 0;if(tick<=points[0].tick)return 0;
+    for(let i=1;i<points.length;i++)if(points[i].tick>=tick){const a=points[i-1],b=points[i];return a.travel+(b.travel-a.travel)*(tick-a.tick)/(b.tick-a.tick);}
+    return points.at(-1).travel;
+   };
+   const atContact=Number.isFinite(at)?travelAt(at):0;
+   if(points.length>1&&atContact>.3){
+    // The bat where it met the ball (or where the miss's contact was due), for the stand and the contact match.
+    const near=points.reduce((a,b)=>Math.abs(b.tick-at)<Math.abs(a.tick-at)?b:a);
+    const last=points.at(-1),before=points.at(-2),rate=(last.travel-before.travel)/Math.max(1,last.tick-before.tick);
+    path={points,hit,contactTick:at,contactBat:near.bat,ball:hit?contact.position:null,atContact,lastTick:last.tick,lastTravel:last.travel,
+     rate:Math.max(rate,atContact/(.15*tps)),tps};
+   }
+  }
+  swingPaths.set(record,path);return path;
+ }
+ function swingProgress(record,tick){
+  const p=swingPath(record);if(!p)return null;
+  let travel;
+  if(tick<=p.lastTick){
+   travel=0;const pts=p.points;
+   if(tick>pts[0].tick)for(let i=1;i<pts.length;i++)if(pts[i].tick>=tick){const a=pts[i-1],b=pts[i];travel=a.travel+(b.travel-a.travel)*(tick-a.tick)/(b.tick-a.tick);break;}
+  }else travel=p.lastTravel+(tick-p.lastTick)*p.rate;
+  return travel/p.atContact;
+ }
  const BASE_KEYS=['first','second','third'];
  function actorArt({record,frame,actor,anim,ordinal,batterHeight,sceneMs,preparationMs}){
   if(!record||!frame||!actor)return null;
@@ -163,6 +265,8 @@
   }
   if(anim?.action==='bat'&&record.batterPlayerId===actor.playerId){
    art.aim=aimOf(record,batterHeight);
+   const path=swingPath(record);
+   if(path)art.swing={progress:swingProgress(record,tick),tick,path};
    const crossed=plateTick(record),play=record.play??{};
    // Looking at strike three: the batter's reaction starts when the umpire's call does.
    if(play.call==='called_strike'&&play.classification==='strikeout'&&crossed!=null&&tick>=crossed+.25*tps)art.look=['up','bent','photo'][(ordinal??0)%3];
@@ -246,8 +350,12 @@
   // Batting is drawn from the pitcher's side. A camera behind the plate sees the batter from the other side, so the same
   // picture is mirrored there (sx>0: world +x is screen right). The direct-rear art is a view from the batter's back,
   // which no plate camera has, so it is not used.
-  // Everyone else is the body drawn without a bat; the Core's bat is put in its hands. ちんすけ and ロッツォ bend at the
-  // impact toward the ball's height and side.
+  // Every batter swings with the bat of the art (2026-11-06): the renderer names the frame (art.swingKey, e.g. '2/low') from
+  // the Core's bat. A player's own set has one impact and one follow-through, its middle.
+  else if(action==='bat'&&!art.look&&art.swingKey&&swingReady(who,art.swingKey)){
+   key='swing/mound/'+swingSlot(who,art.swingKey);handed=true;behind=sx>0;}
+  // Until the swing art is decoded: the body drawn without a bat holding the Core's bat; ちんすけ and ロッツォ bend at
+  // the impact toward the ball's height and side.
   else if(action==='bat'&&frame>=0&&frame<4&&!art.look&&(!who||bank.has(who+'/bat/mound/'+frame))){
    key=who?'bat/mound/'+frame:'body/mound/'+frame;handed=true;behind=sx>0;}
   else if(action==='bat'&&art.look){
@@ -273,11 +381,12 @@
   const dragons=!found&&!own&&key&&team===1?bank.get('tbd/'+tbdKit+'/'+player+'/'+key)||bank.get('tbd/'+tbdKit+'/'+key):null;
   if(!found&&key)found=own||dragons||bank.get(key);
   if(!found)return null;
+  if(key.startsWith('swing/')&&!found.batLayer)found.batLayer=bank.get((own?who+'/':'')+key.replace('swing/','swingbat/'));
   // ちんすけ's own set and the batless body are drawn left-handed, every other picture right-handed.
-  if(handed&&(hand==='L')!==(own?who==='chinsuke':key.startsWith('body/')))mirror=true;
+  if(handed&&(hand==='L')!==(own?who==='chinsuke':key.startsWith('body/')||key.startsWith('swing/')))mirror=true;
   if(behind)mirror=!mirror;
   hits[found.key]=(hits[found.key]??0)+1;
   return mirror?flip(found):found;
  }
- root.KneekuraArtBankV1=Object.freeze({pick,bend,whoIs,actorArt,umpireArt,inspect:()=>({loaded:bank.size,total:Object.keys(pack).length,hits:{...hits},lastAthletic})});
+ root.KneekuraArtBankV1=Object.freeze({pick,bend,swing,swingGeometry,whoIs,actorArt,umpireArt,inspect:()=>({loaded:bank.size,total:Object.keys(pack).length,hits:{...hits},lastAthletic})});
 })(globalThis);

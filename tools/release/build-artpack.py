@@ -16,6 +16,7 @@ import base64
 import hashlib
 import io
 import json
+import math
 import os
 import re
 import sys
@@ -272,7 +273,7 @@ def ratio_of(key):
 
 # Where the world position sits on the picture. The crop's middle moves with an arm or a bat, so a motion would jump
 # sideways between frames: planted poses stand on the lowest foot, moving ones on their mass, flat ones on the crop.
-ANCHOR_FOOT = ("pitch/", "pickoff/", "liner/", "bat/", "catch/", "catchx/", "umpire/", "ground/", "throw/", "fly/", "backhand/", "robin/pitch", "robin/pickoff", "robin/ground", "robin/throw")
+ANCHOR_FOOT = ("swing/", "pitch/", "pickoff/", "liner/", "bat/", "catch/", "catchx/", "umpire/", "ground/", "throw/", "fly/", "backhand/", "robin/pitch", "robin/pickoff", "robin/ground", "robin/throw")
 ANCHOR_BODY = ("run/", "walk/", "look/", "robin/run")
 
 
@@ -400,6 +401,153 @@ for who, path, faces, pivot, hands, bat in (("chinsuke", afro_batting["swing"][0
     scale = MAX_SIDE / max(box[2] - box[0], box[3] - box[1])
     out[f"{who}/bat/mound/2"]["bend"] = bend_rig(box, scale, (hands[0] * w, hands[1] * h), (pivot[0] * w, pivot[1] * h), .48 * h, .84 * h, faces,
                                                 (bat[0] * w, bat[1] * h, bat[2] * w, bat[3] * h))
+
+# ---- the swing: every batter is drawn with the bat of the art, which follows the Core's bat ----
+# The owner's decision (2026-11-06, docs/ai-continuity/DESIGN-2026-11-06-swing-drawing.md): the body and bat of the adopted
+# art, the upper body turning with the bat about the hip. The owner then asked for the bat to be its own piece, so the game's
+# bat length and the player's height both show: each frame is split into the body (the bat taken out and the body behind
+# it filled from either side) and the bat as the art drew it, which the runtime stretches along its axis to the bat's
+# length and turns rigidly with the hands. Nothing is redrawn: both pieces are the frame's own pixels.
+# Points are in the source picture's pixels: grip (between the hands), tip (end of the barrel), hip (belt centre, the
+# turn's pivot); cut = share of grip-to-tip still held in the hands (it stays with the body); radius = the bat's half width
+# with its outline. B2 form 1 is drawn as a left-handed batter seen from the pitcher, like the batless body. The impact
+# frames come from the height sheet, because the canonical third frame's barrel is cut off by its cell; the follow-throughs
+# from the matching height sheet, so impact and follow share one drawing. Standing height in source pixels: the canonical
+# frames as the batless body (517), the sheets from the cap width against the canonical frame.
+B2_ART = os.path.join(art, "assets", "batting")
+REF1, REF2 = (os.path.join(B2_ART, f"b2-form-01-reference_frame-{n}__original__original.png") for n in ("1_cf9081", "2_0f110e"))
+SHEET3 = os.path.join(B2_ART, "b2-form-01-height-v1_frame-3-heights_1e3ce7__original__original.png")
+SHEET4 = os.path.join(B2_ART, "b2-form-01-height-v1_frame-4-heights_53e966__original__original.png")
+# key, picture, region, standing (source px) or None for the dedicated slot's own ratio, grip, tip, hip, cut, radius, faces
+SWING_FRAMES = [
+    ("swing/mound/0", REF1, None, 517, (474.6, 309.8), (290.0, 22.6), (294.5, 429), .12, 25, 1),
+    ("swing/mound/1", REF2, None, 517, (388.8, 315.7), (287.3, 30.8), (237.5, 429), .06, 23, 1),
+    ("swing/mound/2/high", SHEET3, (0, 0, 800, 724), 628, (508.5, 246.8), (745.8, 179.3), (390.5, 345), .06, 30, 1),
+    ("swing/mound/2/middle", SHEET3, (800, 0, 1420, 724), 628, (1128.2, 303.8), (1376.0, 361.5), (1015.5, 351), .06, 31, 1),
+    ("swing/mound/2/low", SHEET3, (1420, 0, 2172, 724), 628, (1741.1, 363.8), (1988.2, 503.2), (1626.5, 362), .06, 31, 1),
+    ("swing/mound/3/high", SHEET4, (0, 0, 598, 887), 677, (277.9, 238.7), (75.5, 24.4), (402.5, 484), .06, 27, 1),
+    ("swing/mound/3/middle", SHEET4, (598, 0, 1164, 887), 677, (838.9, 329.4), (632.8, 111.2), (962.0, 515), .06, 27, 1),
+    ("swing/mound/3/low", SHEET4, (1164, 0, 1774, 887), 677, (1422.0, 466.4), (1206.6, 284.7), (1538.5, 541), .06, 26, 1),
+    # ちんすけ (afro set, drawn left-handed like B2) and ロッツォ (beard set, facing screen left): one impact and one follow each.
+    ("chinsuke/swing/mound/0", afro_batting["stance"][0], None, None, (735, 660), (548, 20), (390, 935), .06, 44, 1),
+    ("chinsuke/swing/mound/1", afro_batting["load"][0], None, None, (620, 610), (250, 20), (340, 1000), .1, 44, 1),
+    ("chinsuke/swing/mound/2/middle", afro_batting["swing"][0], None, None, (650, 680), (1205, 912), (300, 670), .06, 44, 1),
+    ("chinsuke/swing/mound/3/middle", afro_batting["follow"][0], None, None, (440, 420), (100, 12), (610, 800), .06, 44, 1),
+    ("lotso/swing/mound/0", lotso_special["stance"][0], None, None, (240, 100), (1000, 205), (520, 790), .12, 50, -1),
+    ("lotso/swing/mound/1", lotso_special["load"][0], None, None, (320, 320), (578, 15), (560, 860), .06, 50, -1),
+    ("lotso/swing/mound/2/middle", lotso_special["swing"][0], None, None, (450, 660), (22, 792), (680, 780), .06, 50, -1),
+    ("lotso/swing/mound/3/middle", lotso_special["follow"][0], None, None, (690, 330), (935, 40), (360, 790), .06, 50, -1),
+]
+SWING_STATUS = {"swing/": "ADOPTED", "chinsuke/": "OWNER_ADOPTED", "lotso/": "OWNER_ADOPTED"}
+
+
+def split_bat(picture, grip, tip, cut, radius):
+    """The frame as two pictures of the same size: the body with the bat taken out, and the bat alone, and the bat's axis
+    refitted to its pixels. The bat grows from its core (inked pixels near the axis, past the hands) through pixels of the
+    core's own colours or the dark outline, never farther than 1.8 radii from the axis. Where the bat crossed the body,
+    the body is filled from the nearer side across the bat; where it crossed the background, it is left open."""
+    px = picture.load()
+    w, h = picture.size
+    dx, dy = tip[0] - grip[0], tip[1] - grip[1]
+    length = (dx * dx + dy * dy) ** .5
+    ux, uy = dx / length, dy / length
+    along = lambda x, y: ((x - grip[0]) * ux + (y - grip[1]) * uy, -(x - grip[0]) * uy + (y - grip[1]) * ux)
+    inked = lambda c: c[3] >= 96 and not (c[0] > 175 and c[1] > 175 and c[2] > 160) and not (c[2] > c[0] + 60 and c[2] > c[1] + 20)
+    span = 1.8 * radius
+    x0, x1 = max(0, int(min(grip[0], tip[0]) - span - 2)), min(w, int(max(grip[0], tip[0]) + span + 3))
+    y0, y1 = max(0, int(min(grip[1], tip[1]) - span - 2)), min(h, int(max(grip[1], tip[1]) + span + 3))
+    core, colors = [], {}
+    for y in range(y0, y1):
+        for x in range(x0, x1):
+            t, q = along(x, y)
+            if cut * length + radius < t < length and abs(q) < .7 * radius and inked(px[x, y]):
+                core.append((x, y))
+                key = tuple(v // 24 for v in px[x, y][:3])
+                colors[key] = colors.get(key, 0) + 1
+    # The core's colours, any shade near them, and the darker shading and outline (no blue: that is the uniform).
+    palette = [tuple(v * 24 + 12 for v in k) for k, n in colors.items() if n >= .01 * len(core)]
+    allowed = lambda c: inked(c) and (any(max(abs(a - b) for a, b in zip(c, p)) <= 60 for p in palette) or sum(c[:3]) < 330)
+    # The art is dots with clear gaps between them: the growth may cross a gap of a few pixels, never more.
+    is_bat, seen, todo = set(core), {p: 0 for p in core}, [(x, y, 0) for x, y in core]
+    while todo:
+        x, y, gap = todo.pop()
+        for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+            if not (x0 <= nx < x1 and y0 <= ny < y1):
+                continue
+            t, q = along(nx, ny)
+            # Next to the hands only the bat's own width: the fingers and forearms are the body's.
+            limit = span if t > cut * length + radius else radius
+            if not (cut * length < t < length + span and abs(q) < limit):
+                continue
+            c = px[nx, ny]
+            step = 0 if allowed(c) else gap + 1 if c[3] < 96 else 99
+            if step > 4 or seen.get((nx, ny), 99) <= step:
+                continue
+            seen[(nx, ny)] = step
+            if step == 0:
+                is_bat.add((nx, ny))
+            todo.append((nx, ny, step))
+    # The axis refitted to the bat's pixels: the grip stays where the hands hold it, moved onto the axis.
+    n = len(is_bat)
+    mx, my = sum(x for x, y in is_bat) / n, sum(y for x, y in is_bat) / n
+    sxx = sum((x - mx) ** 2 for x, y in is_bat) / n
+    syy = sum((y - my) ** 2 for x, y in is_bat) / n
+    sxy = sum((x - mx) * (y - my) for x, y in is_bat) / n
+    angle = .5 * math.atan2(2 * sxy, sxx - syy)
+    vx, vy = math.cos(angle), math.sin(angle)
+    if vx * ux + vy * uy < 0:
+        vx, vy = -vx, -vy
+    g = (grip[0] - mx) * vx + (grip[1] - my) * vy
+    far = max((x - mx) * vx + (y - my) * vy for x, y in is_bat)
+    grip, tip = (mx + vx * g, my + vy * g), (mx + vx * far, my + vy * far)
+    body, bat = picture.copy(), Image.new("RGBA", picture.size, (0, 0, 0, 0))
+    bpx, tpx = body.load(), bat.load()
+    for x, y in is_bat:
+        tpx[x, y] = px[x, y]
+        found = []
+        for side in (1, -1):
+            for step in range(1, int(3 * radius)):
+                sx, sy = round(x - side * vy * step), round(y + side * vx * step)
+                if not (0 <= sx < w and 0 <= sy < h) or px[sx, sy][3] < 96:
+                    break
+                if (sx, sy) not in is_bat:
+                    found.append((step, px[sx, sy]))
+                    break
+        bpx[x, y] = min(found)[1] if len(found) == 2 else (0, 0, 0, 0)
+    return body, bat, grip, tip
+
+
+def unhaze(image):
+    """The alpha cut crop_of_image makes, kept on the picture so both pieces share it."""
+    hist = image.getchannel("A").histogram()
+    if sum(hist[224:]) and sum(hist[96:224]) > .09 * sum(hist[224:]):
+        image.putalpha(image.getchannel("A").point(lambda a: a if a >= 224 else 0))
+    return image
+
+
+for key, path, region, standing, grip, tip, hip, cut, radius, faces in SWING_FRAMES:
+    picture = Image.open(path).convert("RGBA")
+    if region:
+        picture = picture.crop(region)
+        grip, tip, hip = ((p[0] - region[0], p[1] - region[1]) for p in (grip, tip, hip))
+    picture = unhaze(picture)
+    box = picture.getchannel("A").point(lambda a: 255 if a > 24 else 0).getbbox()
+    body, bat, grip, tip = split_bat(picture, grip, tip, cut, radius)
+    who = key.split("/")[0] if not key.startswith("swing/") else None
+    slot = key.split("/", 1)[1] if who else key
+    scale = MAX_SIDE / max(box[2] - box[0], box[3] - box[1])
+    # A player's own pose is the same picture as his bat/mound/<frame> and keeps its standing height.
+    ratio = (box[3] - box[1]) / standing if standing else (box[3] - box[1]) * scale / out[f"{who}/bat/mound/{slot.split('/')[2]}"]["referenceHeight"]
+    status = next(v for k, v in SWING_STATUS.items() if key.startswith(k))
+    rel = os.path.relpath(path, root).replace("\\", "/")
+    store(key, f"{rel}:{region or 'whole'}", path, status, body.crop(box), ratio, key)
+    bat_key = key.replace("swing/", "swingbat/")
+    store(bat_key, f"{rel}:{region or 'whole'}:bat", path, status, bat.crop(box), ratio, key)
+    out[bat_key]["footX"] = out[key]["footX"]
+    to =lambda p: (round((p[0] - box[0]) * scale, 1), round((p[1] - box[1]) * scale, 1))
+    foot_y = box[3]
+    out[key]["swing"] = {"grip": to(grip), "tip": to(tip), "pivot": to(hip), "cut": cut, "faces": faces,
+                         "top": to((0, hip[1] - .14 * (foot_y - box[1])))[1], "bottom": to((0, hip[1] + .6 * (foot_y - hip[1])))[1]}
 # ---- the Tambov Dragons' home and away uniforms ----
 # Rendered by tools/release/render-tbd-kits.cjs with the owner's uniform compositor (tbd-uniform-integration in the
 # drawing folder) onto the same catalog poses the generic slots use. The home kit is owner-adopted (2026-10-29); the
@@ -442,7 +590,7 @@ for i, name in enumerate(("loco-walk-bare-rear-A", "loco-walk-bare-rear-B")):
         dedicate("lotso", f"walk/rear/{i}", lotso_special[name][0], lotso_special[name][1], .98, "purple-beard:" + name)
 
 body = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "art-bank-runtime.js"), encoding="utf-8").read()
-pack_js = ",".join(f'{json.dumps(k)}:{{id:{json.dumps(v["id"])},referenceHeight:{v["referenceHeight"]},footX:{v["footX"]},data:"@@ASSET:{v["asset"]}@@"' + (f',grip:{json.dumps(v["grip"])}' if "grip" in v else '') + (f',bend:{json.dumps(v["bend"])}' if "bend" in v else '') + '}' for k, v in out.items())
+pack_js = ",".join(f'{json.dumps(k)}:{{id:{json.dumps(v["id"])},referenceHeight:{v["referenceHeight"]},footX:{v["footX"]},data:"@@ASSET:{v["asset"]}@@"' + (f',grip:{json.dumps(v["grip"])}' if "grip" in v else '') + (f',bend:{json.dumps(v["bend"])}' if "bend" in v else '') + (f',swing:{json.dumps(v["swing"])}' if "swing" in v else '') + '}' for k, v in out.items())
 with open(os.path.join(game, "parts", "art-bank-v1.js"), "w", encoding="utf-8", newline="") as f:
     f.write(body.replace("/*ART_PACK*/", pack_js))
 manifest = json.load(open(os.path.join(game, "manifest.json")))
