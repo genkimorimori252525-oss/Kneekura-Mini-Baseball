@@ -334,3 +334,33 @@ export const liveFieldPlacementV1=(role:string,fallback:Vec3,alignment?:LiveFiel
   const p=((alignment?LIVE_FIELD_ALIGNMENT_V1:LIVE_FIELD_RANGE_PLACEMENTS_V1) as Record<string,{x:number;z:number}>)[role];
   return p?{x:p.x,y:fallback.y,z:p.z}:fallback;
 };
+/** Opt-in, needs fieldRangeV1. Omission keeps the shade and the spots above. */
+export type LiveFieldStartBySidePolicyV1=Readonly<{version:'live_field_start_by_side_policy_v1';sourceId:string}>;
+export const LIVE_FIELD_START_BY_SIDE_POLICY_V1:LiveFieldStartBySidePolicyV1=Object.freeze({version:'live_field_start_by_side_policy_v1',sourceId:'savant-fielder-positioning-2025-by-side'});
+export type LiveFieldRunnersV1='none'|'first'|'other';
+const spots=(s:Record<string,readonly [number,number]>)=>Object.freeze(Object.fromEntries(Object.entries(s).map(([k,[x,z]])=>[k,Object.freeze({x,z})])));
+/** Where 2025 MLB fielders started, by the batter's side and the runners (none, first base alone, any other), every alignment
+ * mixed and weighted by plate appearances (Savant Fielder Positioning, gathered 2026-11-06), in metres from home with +x toward
+ * first. With a runner on first alone the first baseman holds him at the bag; with nobody on he plays deep near the line against
+ * a left-handed batter and shallow off it against a right-handed one. The left-side numbers are the average of a split
+ * defence (about 50% shaded), so no single fielder stands there every time. */
+export const LIVE_FIELD_START_BY_SIDE_V1=Object.freeze({
+  L:Object.freeze({
+    none:spots({'1B':[23.4,29.9],'2B':[15.2,42.4],SS:[-3.7,46.5],'3B':[-15.2,34.8],LF:[-42.3,78.4],CF:[-2.6,98.2],RF:[40.8,82.0]}),
+    first:spots({'1B':[17.9,20.6],'2B':[14.9,41.1],SS:[-3.4,45.5],'3B':[-15.0,34.2],LF:[-42.4,78.5],CF:[-2.5,98.3],RF:[40.9,81.9]}),
+    other:spots({'1B':[22.0,28.0],'2B':[14.4,41.1],SS:[-3.8,44.6],'3B':[-17.0,29.0],LF:[-41.8,78.2],CF:[-2.5,97.6],RF:[40.5,81.5]})}),
+  R:Object.freeze({
+    none:spots({'1B':[17.2,30.1],'2B':[5.3,46.3],SS:[-14.2,42.9],'3B':[-22.2,30.0],LF:[-40.7,82.7],CF:[2.7,98.3],RF:[41.6,78.5]}),
+    first:spots({'1B':[17.4,20.4],'2B':[5.1,45.1],SS:[-13.2,42.2],'3B':[-21.6,29.1],LF:[-40.8,82.7],CF:[2.6,98.4],RF:[41.8,78.5]}),
+    other:spots({'1B':[16.8,28.4],'2B':[4.9,44.3],SS:[-13.4,41.6],'3B':[-21.2,28.6],LF:[-40.3,82.1],CF:[2.6,97.6],RF:[41.4,78.1]})})});
+export function validateLiveFieldStartBySidePolicyV1(policy:LiveFieldStartBySidePolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_start_by_side_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field start by side policy');
+  return policy;
+}
+export const liveFieldRunnersV1=(bases:Readonly<{first?:unknown;second?:unknown;third?:unknown}>):LiveFieldRunnersV1=>
+  !bases.first&&!bases.second&&!bases.third?'none':bases.first&&!bases.second&&!bases.third?'first':'other';
+export const liveFieldStartBySideV1=(role:string,fallback:Vec3,bats:'R'|'L',runners:LiveFieldRunnersV1):Vec3=>{
+  const p=(LIVE_FIELD_START_BY_SIDE_V1[bats][runners] as Record<string,{x:number;z:number}>)[role];
+  return p?{x:p.x,y:fallback.y,z:p.z}:fallback;
+};
