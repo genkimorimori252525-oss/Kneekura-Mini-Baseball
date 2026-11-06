@@ -579,19 +579,29 @@ function rasterSphere(center,radius,color,owner){
 }
 
  /* The swing (docs/ai-continuity/DESIGN-2026-11-06-swing-drawing.md): every batter is the art with its own bat, following
-  * the Core's bat on screen, except the stance, which stays as drawn. The frame comes from how far the Core's bat has swung (art.swing.progress), the impact and
-  * follow-through height from the nearest screen angle, kept until another is clearly nearer. The upper body and bat turn
-  * about the hip to the Core's screen angle (at most SWING_TURN degrees, then the next frame). Around the contact the turn
-  * blends to the one that puts the drawn bat through the ball where the Core's bat met it, with a small turn of the bat
-  * alone. One stand offset per pitch (at most SWING_STAND m) brings the drawn hands across to the Core's hands at the
+  * the Core's bat on screen, except the stance, which stays as drawn. The frame comes from how far the Core's bat has
+  * swung (art.swing.progress), the impact and follow-through height from the nearest screen angle, kept until another is
+  * clearly nearer. To meet the Core's screen angle the upper body turns about the hip only a little (SWING_TURN degrees: an
+  * upper body bent back against the legs is not a good swing, the owner, 2026-11-06); the rest is the bat alone turning in
+  * the hands (SWING_BAT_TURN), and the arms' height comes from the high, middle and low frames. A ball outside the zone
+  * may take the upper body further, up to SWING_TURN_BALL degrees as far out as SWING_BALL_REACH of the zone (the owner,
+  * 2026-11-06: if the whole zone looks right within the limit, a ball outside it looks natural past it). Around the contact the
+  * turns blend to the ones that put the drawn bat through the ball where the Core's bat met it. One stand offset per pitch (at most SWING_STAND m) brings the drawn hands across to the Core's hands at the
   * contact; the feet never slide during the swing. The bat's length follows the player's own bat, not his height. */
- const SWING_TURN=25,SWING_BAT_TURN=20,SWING_EASE=[.03,.35],SWING_KEEP=8,SWING_STAND=.25,SWING_BLEND=.04,SWING_NOMINAL_BAT=.86,SWING_NOMINAL_HEIGHT=1.8,BALL_RADIUS=.0366;
+ const SWING_TURN=8,SWING_TURN_BALL=20,SWING_BALL_REACH=.6,SWING_BAT_TURN=25,SWING_EASE=.3,SWING_KEEP=8,SWING_STAND=.25,SWING_BLEND=.04,SWING_NOMINAL_BAT=.86,SWING_NOMINAL_HEIGHT=1.8,BALL_RADIUS=.0366;
  const swingMemoV1=new WeakMap(),swingPlansV1=new WeakMap();
  const screenAngleV1=(a,b)=>Math.atan2(-(b.y-a.y),b.x-a.x)*180/Math.PI,wrapV1=d=>((d%360)+540)%360-180,clampV1=(v,m)=>Math.max(-m,Math.min(m,v));
  const IMPACTS=['2/high','2/middle','2/low'],FOLLOWS=['3/high','3/middle','3/low'];
+ // How far the upper body may turn for this pitch: art.aim is the ball against the batter's zone (-1 to 1 inside it).
+ function swingTorsoV1(aim){
+  const out=aim?Math.max(0,Math.abs(aim.lift)-1,Math.abs(aim.reach)-1):0;
+  return SWING_TURN+(SWING_TURN_BALL-SWING_TURN)*Math.min(1,out/SWING_BALL_REACH);
+ }
  function swingCandidatesV1(swing,frame,live){
   if(!swing)return ['0'];
   const p=swing.progress;
+  // The stance holds until the Core's swing starts, however the bat moves before it.
+  if(swing.path.startTick!==null&&swing.tick<swing.path.startTick)return ['0'];
   // The Core's follow-through is over: back to the stance.
   if(frame===0&&p>1.2)return ['0'];
   if(!live)return p<1.3?IMPACTS:FOLLOWS;
@@ -615,19 +625,19 @@ function rasterSphere(center,radius,color,owner){
   * so the turn lifts or drops them). For a hit the bat alone then turns through the ball, the body taking over what is past
   * SWING_BAT_TURN, and the stand gives way if the ball would be off the end of the bat. A miss only brings the hands
   * together; it is never pulled onto the ball. */
- function swingSolveV1(bank,found,geo,foot,height,per,stretch,g,ball,angle){
+ function swingSolveV1(bank,found,geo,foot,height,per,stretch,g,ball,angle,torso){
   const place=swingPlaceV1(found,foot,height),screen=q=>({x:place.left+q[0]*place.unit,y:place.top+q[1]*place.unit}),
    at=(turn,batTurn)=>{const now=bank.swingGeometry(found,{turn:-turn*Math.PI/180,batTurn:-batTurn*Math.PI/180,stretch});return {G:screen(now.grip),T:screen(now.tip)};},
    perLength2=per.x*per.x+per.y*per.y||1,stands=v=>Math.max(-SWING_STAND,Math.min(SWING_STAND,v));
-  let turn=clampV1(wrapV1(angle-geo.angle),SWING_TURN),batTurn=0,stand=0;
+  let turn=clampV1(wrapV1(angle-geo.angle),torso),batTurn=0,stand=0;
   for(let k=0;k<10;k++){
    const G=at(turn,0).G,lift=at(turn+1,0).G.y-G.y;
    stand=stands(((g.x-G.x)*per.x+(g.y-G.y)*per.y)/perLength2);
-   const level=Math.abs(lift)>.05?clampV1(turn+(g.y-G.y)/lift,SWING_TURN):turn;
+   const level=Math.abs(lift)>.05?clampV1(turn+(g.y-G.y)/lift,torso):turn;
    if(!ball){turn=level;continue;}
    const held={x:G.x+stand*per.x,y:G.y+stand*per.y},need=wrapV1(screenAngleV1(held,ball)-geo.angle);
    if(Math.abs(need-level)<=SWING_BAT_TURN){turn=level;batTurn=need-level;}
-   else{batTurn=Math.sign(need-level)*SWING_BAT_TURN;turn=clampV1(need-batTurn,SWING_TURN);}
+   else{batTurn=Math.sign(need-level)*SWING_BAT_TURN;turn=clampV1(need-batTurn,torso);}
    // The ball must be on the bat, not past its end.
    const {G:G2,T:T2}=at(turn,batTurn),dx=T2.x-G2.x,dy=T2.y-G2.y,length=Math.hypot(dx,dy),u=((ball.x-G2.x-stand*per.x)*dx+(ball.y-G2.y-stand*per.y)*dy)/(length*length);
    if(u>.95)stand=stands(stand+((u-.95)*dx*per.x+(u-.95)*dy*per.y)/perLength2);
@@ -637,7 +647,7 @@ function rasterSphere(center,radius,color,owner){
   if(ball){const dx=tip.x-held.x,dy=tip.y-held.y,u=Math.max(0,Math.min(1,((ball.x-held.x)*dx+(ball.y-held.y)*dy)/(dx*dx+dy*dy)));miss=Math.hypot(held.x+dx*u-ball.x,held.y+dy*u-ball.y);}
   return {turn,batTurn,stand,miss,hands:Math.hypot(held.x-g.x,held.y-g.y),gap:Math.abs(wrapV1(screenAngleV1(held,tip)-angle))};
  }
- function swingPlanV1(path,foot,side,bank,pickArgs,height){
+ function swingPlanV1(path,foot,side,bank,pickArgs,height,torso){
   let plans=swingPlansV1.get(path);if(!plans){plans=new Map();swingPlansV1.set(path,plans);}
   const memo=state.camera+':'+(pickArgs.sx>0?1:0);if(plans.has(memo))return plans.get(memo);
   const bat=path.contactBat,g=project(bat.grip),t=project(bat.tip);let plan=null;
@@ -647,7 +657,7 @@ function rasterSphere(center,radius,color,owner){
    let best=null;
    for(const key of IMPACTS){
     const found=bank.pick({...pickArgs,art:{swingKey:key}}),geo=found&&bank.swingGeometry(found);if(!geo)continue;
-    const solved=swingSolveV1(bank,found,geo,foot,height,per,stretch,g,ball,angle),
+    const solved=swingSolveV1(bank,found,geo,foot,height,per,stretch,g,ball,angle,torso),
      cost=ball?(solved.miss>radius?1e3+solved.miss:0)+solved.hands+solved.gap*.5:Math.abs(wrapV1(angle-geo.angle));
     if(!best||cost<best.cost)best={key,cost,...solved};
    }
@@ -658,7 +668,7 @@ function rasterSphere(center,radius,color,owner){
  function swingDrawV1(a,foot,side,bank,pickArgs){
   const art=a.presentationArt,swing=art.swing,height=a.player.height,live=observed.bat&&observed.bat.grip&&observed.bat.tip?observed.bat:null;
   if(!side)return null;
-  const plan=swing?swingPlanV1(swing.path,foot,side,bank,pickArgs,height):null,tps=swing?.path.tps??1e6;
+  const torso=swingTorsoV1(art.aim),plan=swing?swingPlanV1(swing.path,foot,side,bank,pickArgs,height,torso):null,tps=swing?.path.tps??1e6;
   const physical=live?{grip:project(live.grip),tip:project(live.tip)}:null,angle=physical?.grip&&physical?.tip?screenAngleV1(physical.grip,physical.tip):null;
   // How close the contact is: 1 at the contact, 0 from SWING_BLEND seconds away.
   const near=plan?.hit?Math.max(0,1-Math.abs(swing.tick-plan.contactTick)/(SWING_BLEND*tps)):0,blend=near*near*(3-2*near);
@@ -672,17 +682,18 @@ function rasterSphere(center,radius,color,owner){
   const memo=swing?swingMemoV1.get(swing.path):null,kept=memo&&options.find(o=>o.key===memo.key);
   if(kept&&kept.gap<=chosen.gap+SWING_KEEP)chosen=kept;
   if(swing)swingMemoV1.set(swing.path,{key:chosen.key});
-  // The stance stays as drawn (the owner, 2026-11-06); the turn comes in as the swing starts and is whole by the end of
-  // the load.
-  const into=swing&&chosen.key!=='0'?Math.max(0,Math.min(1,(swing.progress-SWING_EASE[0])/(SWING_EASE[1]-SWING_EASE[0]))):0;
-  let turn=angle===null?0:clampV1(wrapV1(angle-chosen.geo.angle),SWING_TURN)*into*into*(3-2*into),batTurn=0;
-  if(plan&&chosen.key===plan.key&&blend>0){turn+=(plan.turn-turn)*blend;batTurn=plan.batTurn*blend;}
+  // The stance stays as drawn (the owner, 2026-11-06); the turn comes in from the swing's start over SWING_EASE of its
+  // progress.
+  const into=swing&&chosen.key!=='0'?Math.max(0,Math.min(1,(swing.progress-swing.path.startProgress)/SWING_EASE)):0;
+  const need=angle===null?0:wrapV1(angle-chosen.geo.angle)*into*into*(3-2*into);
+  let turn=clampV1(need,torso),batTurn=clampV1(need-turn,SWING_BAT_TURN);
+  if(plan&&chosen.key===plan.key&&blend>0){turn+=(plan.turn-turn)*blend;batTurn+=(plan.batTurn-batTurn)*blend;}
   // After a hit the impact frame lets go of the contact's turn over 0.15 s.
   if(angle===null&&plan?.hit&&chosen.key===plan.key){const fade=Math.max(0,1-(swing.tick-plan.contactTick)/(.15*tps));turn=plan.turn*fade;batTurn=plan.batTurn*fade;}
   const stretch=plan?.stretch??swingStretchV1(live,height),made=bank.swing(chosen.found,{turn:-turn*Math.PI/180,batTurn:-batTurn*Math.PI/180,stretch});
   if(!made)return null;
   const stand=plan?.stand??0;
-  return {found:made.found,key:chosen.key,shift:{x:stand*(side.x-foot.x),y:stand*(side.y-foot.y)},stand,turn,batTurn,stretch,physicalAngle:angle,physical,plan,tick:swing?.tick??null};
+  return {found:made.found,key:chosen.key,torso,shift:{x:stand*(side.x-foot.x),y:stand*(side.y-foot.y)},stand,turn,batTurn,stretch,physicalAngle:angle,physical,plan,tick:swing?.tick??null};
  }
  // What the swing drew, for the measurement (batterRig.swing): the drawn and the Core's bat on screen and, at the contact,
  // the ball's distance from the drawn bat.
@@ -695,7 +706,7 @@ function rasterSphere(center,radius,color,owner){
     contact={distancePx:Math.hypot(grip.x+dx*u-ball.x,grip.y+dy*u-ball.y),ballRadiusPx:BALL_RADIUS*ball.scale,along:u};}
   }
   return {key:drawn.key,tick:drawn.tick,drawnAngle:screenAngleV1(grip,tip),physicalAngle:drawn.physicalAngle,drawnGrip:grip,drawnTip:tip,
-   physicalGrip:drawn.physical?.grip?{x:drawn.physical.grip.x,y:drawn.physical.grip.y}:null,turn:drawn.turn,batTurn:drawn.batTurn,stand:drawn.stand,stretch:drawn.stretch,contact};
+   physicalGrip:drawn.physical?.grip?{x:drawn.physical.grip.x,y:drawn.physical.grip.y}:null,turn:drawn.turn,batTurn:drawn.batTurn,torso:drawn.torso,stand:drawn.stand,stretch:drawn.stretch,contact};
  }
  function viewHidesActor(actor){if(observed.liveObservation&&state.camera==='batter'&&observed.liveContinuousBatterView&&actor.id==='BAT')return true;return (state.camera==='fielder'&&actor.id===committedFieldObserver(observed)?.id)||(actor.id==='C'&&state.camera==='catcher')||(actor.id==='P'&&state.camera==='mound')||(actor.id==='BAT'&&((actor.role==='batter'&&(state.camera==='batter'||state.camera==='catcher'))||state.camera==='runner'));}
  function actor(a){

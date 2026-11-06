@@ -47,7 +47,7 @@ const quantile = (v, q) => {const s = [...v].sort((a, b) => a - b); return s.len
         if (!r.frames[f].bat && !(contactTick !== null && r.frames[f].tick <= contactTick + 2e5)) continue;
         p.seekFrame(f);
         const s = p.inspect().rendered?.batterRig?.swing;
-        if (s) out.push({frame: f, tick: r.frames[f].tick, key: s.key, drawn: s.drawnAngle, physical: s.physicalAngle, turn: s.turn, batTurn: s.batTurn, stand: s.stand, stretch: s.stretch, contact: s.contact,
+        if (s) out.push({frame: f, tick: r.frames[f].tick, key: s.key, drawn: s.drawnAngle, physical: s.physicalAngle, turn: s.turn, batTurn: s.batTurn, torso: s.torso, stand: s.stand, stretch: s.stretch, contact: s.contact,
           gripGap: s.physicalGrip ? Math.hypot(s.physicalGrip.x - s.drawnGrip.x, s.physicalGrip.y - s.drawnGrip.y) : null});
       }
       return {hit: contactTick !== null, batter: r.batterPlayerId, side: d.battingSide, out};
@@ -57,7 +57,7 @@ const quantile = (v, q) => {const s = [...v].sort((a, b) => a - b); return s.len
     if (!got) continue;
     for (const row of got.out) {
       rows.push({pitch: i, hit: got.hit, batter: got.batter, side: got.side, ...row});
-      if (row.contact && !contacts.some(c => c.pitch === i)) contacts.push({pitch: i, batter: got.batter, key: row.key, physical: row.physical, drawn: row.drawn, gripGap: row.gripGap, ...row.contact, turn: row.turn, batTurn: row.batTurn, stand: row.stand});
+      if (row.contact && !contacts.some(c => c.pitch === i)) contacts.push({pitch: i, batter: got.batter, key: row.key, physical: row.physical, drawn: row.drawn, gripGap: row.gripGap, ...row.contact, turn: row.turn, batTurn: row.batTurn, torso: row.torso, stand: row.stand});
     }
   }
   const gaps = rows.filter(r => r.physical !== null).map(r => Math.abs(((r.drawn - r.physical) % 360 + 540) % 360 - 180));

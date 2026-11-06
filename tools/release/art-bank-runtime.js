@@ -219,8 +219,10 @@
     // The bat where it met the ball (or where the miss's contact was due), for the stand and the contact match.
     const near=points.reduce((a,b)=>Math.abs(b.tick-at)<Math.abs(a.tick-at)?b:a);
     const last=points.at(-1),before=points.at(-2),rate=(last.travel-before.travel)/Math.max(1,last.tick-before.tick);
+    // The swing proper starts at the Core's reference start: the bat moves a little before it, in the load.
+    const start=Number.isFinite(d.referenceStartTick)?d.referenceStartTick:null;
     path={points,hit,contactTick:at,contactBat:near.bat,ball:hit?contact.position:null,atContact,lastTick:last.tick,lastTravel:last.travel,
-     rate:Math.max(rate,atContact/(.15*tps)),tps};
+     rate:Math.max(rate,atContact/(.15*tps)),tps,startTick:start,startProgress:start===null?0:travelAt(start)/atContact};
    }
   }
   swingPaths.set(record,path);return path;
