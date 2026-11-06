@@ -160,6 +160,11 @@ export function resolveLivePitchReleaseV1(p:LivePitchInputV1['pitcher']){
     basis:explicit?'LOCAL_BODY_RATIO_WITH_OPTIONAL_AUTHORED_RELEASE_SI' as const:'LEGACY_DIRECT_PITCH_COMPATIBILITY' as const,
     measuredNamedPlayer:false as const};
 }
+/** One pitch's release: the pitcher's release moved by the pitch's releaseOffsetV1 [toward his arm, up, toward home], in metres. */
+function livePitchReleaseOfV1(p:LivePitchInputV1['pitcher'],offset:readonly number[]|undefined):Vec3{
+  const r=resolveLivePitchReleaseV1(p).position;
+  return offset===undefined?r:{x:r.x+(p.throws==='L'?1:-1)*offset[0]!,y:r.y+offset[1]!,z:r.z-offset[2]!};
+}
 const zero=():Vec3=>({x:0,y:0,z:0});
 const dot=(a:Vec3,b:Vec3)=>a.x*b.x+a.y*b.y+a.z*b.z;
 const cross=(a:Vec3,b:Vec3):Vec3=>({x:a.y*b.z-a.z*b.y,y:a.z*b.x-a.x*b.z,z:a.x*b.y-a.y*b.x});
@@ -408,7 +413,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     // Break direction at the plate: this pitch against the fastball (or a spinless ball for the fastball), both sent the same way.
     const owned=p.pitchRepertoireV78===undefined?[]:validatePitchRepertoireV78(p.pitchRepertoireV78,p.maximumPitchSpeedMps).pitches,
       fast=owned.find(row=>row.pitchType==='fastball')??owned.find(row=>['sinker','cutter'].includes(row.pitchType)),
-      release=resolveLivePitchReleaseV1(p).position,{seamForce:_zoneSeams,...zoneAero}=profile.air.aerodynamics,
+      release=livePitchReleaseOfV1(p,selectedSnapshot?.releaseOffsetV1),{seamForce:_zoneSeams,...zoneAero}=profile.air.aerodynamics,
       zoneAir=profile.air.aerodynamics.seamForce===undefined?profile.air:{...profile.air,aerodynamics:zoneAero},
       plateOf=(speed:number,spin:Vec3)=>{const guess=(release.z-target.z)/speed,
         velocity={x:(target.x-release.x)/guess,y:(target.y-release.y-profile.air.gravityY*guess*guess/2)/guess,z:-speed};
@@ -458,7 +463,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       sourceTick:input.originTick,observationTick:input.originTick,planeZ:battingSetupV94.plateFrontZ,standardDeviationMeters:effectiveCommandStd,
       baselineErrorMeters:shapeLiveCommandMissV1({x:commandRandom.normal()*effectiveCommandStd,y:commandRandom.normal()*effectiveCommandStd},{target:pitcherRequest.position,zone,commandStdMeters:effectiveCommandStd,...(p.throws===undefined?{}:{throws:p.throws}),...(p.technicalSkills===undefined?{}:{technicalSkills:p.technicalSkills})}),abilityBasis:'commandStdMeters_and_command_techniques',reason:pitcherRequest.reason}),
     commanded={...selectedTarget,...pitcherRecognition.position};
-  const releaseGeometry=resolveLivePitchReleaseV1(p),release=releaseGeometry.position,flightGuess=(release.z-commanded.z)/speed;
+  const releaseGeometry=resolveLivePitchReleaseV1(p),release=livePitchReleaseOfV1(p,selectedSnapshot?.releaseOffsetV1),flightGuess=(release.z-commanded.z)/speed;
   // viewTimeTimingV1: the hitter sees the ball only until he commits, so a faster pitch leaves less of the flight to time it by;
   // the timing spread grows as (view at 40 m/s / this view) to the given power. The view is the flight less the commit time.
   const viewTimingScaleV1=observationPolicyV151?.viewTimeTimingV1===undefined?1:(()=>{const commit=observationPolicyV151.commitSwingSeconds??.26;
@@ -592,12 +597,16 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
           const reference=familiarShare===null?undefined:references!.find(r=>r.pitchType===type);
           return reference===undefined?pitch:{...pitch,spinRadPerSecond:add(mul(pitch.spinRadPerSecond,familiarShare!),mul(reference.spinRadPerSecond,1-familiarShare!))};},
         owned=p.pitchRepertoireV78===undefined?null:validatePitchRepertoireV78(p.pitchRepertoireV78,p.maximumPitchSpeedMps).pitches,
-        candidates=owned?owned.map(row=>({id:row.pitchId,pitch:pictured(row,row.pitchType),prior:(row.usageWeightV1??1)*countUsageV1(row)}))
+        // fastballSitV1: he sits on the hard stuff, its prior multiplied.
+        sit=observationPolicyV151?.fastballSitV1,tail=observationPolicyV151?.recognitionTailV1,sitOn=(type:string)=>sit!==undefined&&['fastball','sinker','cutter'].includes(type)?sit:1,
+        candidates=owned?owned.map(row=>({id:row.pitchId,pitch:pictured(row,row.pitchType),prior:(row.usageWeightV1??1)*countUsageV1(row)*sitOn(row.pitchType),offset:row.releaseOffsetV1}))
           :resolvePitcherRepertoireV77(p,p.throws??'R').filter(row=>['fastball','slider','curve','changeup'].includes(row.pitchType))
-            .map(row=>({id:row.pitchType as string,pitch:pictured(row,row.pitchType),prior:1})),
+            .map(row=>({id:row.pitchType as string,pitch:pictured(row,row.pitchType),prior:sitOn(row.pitchType),offset:undefined as readonly number[]|undefined})),
         actualId=selectedSnapshot?selectedSnapshot.pitchId:pitchType,
         t1=(effectiveForecastV246.observedThroughTick!-input.originTick)/tps,plane=battingSetupV94.contactPlaneZ,
         seenBall=kernel.evaluateAt(t1,'incoming').moment.ball,[degrees,ms,spinDegrees]=recognitionPolicyV2 as readonly [number,number,number?],
+        // releaseCueV1 [cm]: each pitch is pictured leaving the hand at its own offset; the gap to this ball's (arm side, up) counts.
+        releaseCue=observationPolicyV151?.releaseCueV1,seenOffset=selectedSnapshot?.releaseOffsetV1,
         weighed=candidates.map(c=>{
           const start={...initial,velocity:mul(initial.velocity,c.pitch.releaseSpeedMps*.99/norm(initial.velocity)),spin:c.pitch.spinRadPerSecond},
             at=sampleAerodynamicPitchStateAtElapsedSeconds(start,t1,inverseAir),
@@ -605,8 +614,11 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
             lagMs=Math.abs((seenBall.position.z-at.position.z)/at.velocity.z)*1000,
             // The seams' turn: the angle between this pitch's spin axis and the one in flight (both as released).
             axisDegrees=spinDegrees===undefined?0:norm(c.pitch.spinRadPerSecond)*norm(initial.spin)===0?180
-              :Math.acos(clamp(dot(c.pitch.spinRadPerSecond,initial.spin)/(norm(c.pitch.spinRadPerSecond)*norm(initial.spin)),-1,1))*180/Math.PI;
-          return {...c,start,at,turnDegrees,lagMs,weight:c.prior*Math.exp(-.5*((turnDegrees/degrees)**2+(lagMs/ms)**2+(spinDegrees===undefined?0:(axisDegrees/spinDegrees)**2)))};
+              :Math.acos(clamp(dot(c.pitch.spinRadPerSecond,initial.spin)/(norm(c.pitch.spinRadPerSecond)*norm(initial.spin)),-1,1))*180/Math.PI,
+            releaseGapCm=releaseCue===undefined?0:100*Math.hypot((c.offset?.[0]??0)-(seenOffset?.[0]??0),(c.offset?.[1]??0)-(seenOffset?.[1]??0));
+          const d2=(turnDegrees/degrees)**2+(lagMs/ms)**2+(spinDegrees===undefined?0:(axisDegrees/spinDegrees)**2)+(releaseCue===undefined?0:(releaseGapCm/releaseCue)**2);
+          // recognitionTailV1: Student's t in place of the normal, so a pitch far from the ball keeps some weight.
+          return {...c,start,at,turnDegrees,lagMs,weight:c.prior*(tail===undefined?Math.exp(-.5*d2):(1+d2/tail)**(-(tail+1)/2))};
         }),
         total=weighed.reduce((n,c)=>n+c.weight,0),
         draw=randomStreamsV152?.rng('batterBelief','pitch-recognition-v2').uniform()??new SeedRoot(input.seed).streamRng(0,'batting','pitch-recognition-v2').nextFloat();
@@ -656,7 +668,19 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     perceivedForecastV1=speedErrorV1===null?readForecastV1:{...readForecastV1!,prediction:{...readForecastV1!.prediction!,position:{...readForecastV1!.prediction!.position,
       x:readForecastV1!.prediction!.position.x+readForecastV1!.prediction!.estimatedVelocity.x*speedErrorV1.shiftSeconds,
       y:readForecastV1!.prediction!.position.y+readForecastV1!.prediction!.estimatedVelocity.y*speedErrorV1.shiftSeconds}}},
-    perceivedArrivalV1=readArrivalV1===undefined?undefined:readArrivalV1+(speedErrorV1?.shiftSeconds??0);
+    perceivedArrivalV1=readArrivalV1===undefined?undefined:readArrivalV1+(speedErrorV1?.shiftSeconds??0),
+    // bendSpreadV1 (sd of the relative error in the bend still to come): read right or not, the hitter misjudges by a share of it
+    // how much the ball will still break past his look (its acceleration less gravity), so a big break is missed by more (2026-11-06).
+    bendErrorV1=observationPolicyV151?.bendSpreadV1===undefined||!perceivedForecastV1?.prediction||perceivedForecastV1.observedThroughTick===null?null:(()=>{
+      const r=randomStreamsV152?.rng('batterBelief','bend-spread-v1'),root=r?null:new SeedRoot(input.seed).streamRng(0,'batting','bend-spread-v1'),
+        u1=Math.max(1e-12,r?r.uniform():root!.nextFloat()),u2=r?r.uniform():root!.nextFloat(),
+        error=clamp(observationPolicyV151!.bendSpreadV1!*Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2),-1,1),
+        a=perceivedForecastV1.prediction.estimatedAcceleration,
+        dt=Math.max(0,(perceivedArrivalV1??perceivedForecastV1.prediction.arrivalAfterReleaseSeconds)-(perceivedForecastV1.observedThroughTick-input.originTick)/tps),k=.5*error*dt*dt;
+      return {error,x:k*a.x,y:k*(a.y-profile.air.gravityY)};
+    })(),
+    bentForecastV1=bendErrorV1===null?perceivedForecastV1:{...perceivedForecastV1!,prediction:{...perceivedForecastV1!.prediction!,position:{...perceivedForecastV1!.prediction!.position,
+      x:perceivedForecastV1!.prediction!.position.x+bendErrorV1.x,y:perceivedForecastV1!.prediction!.position.y+bendErrorV1.y}}};
   if(opticalExperiment&&effectiveForecastV246?.status!=='PREDICTED')throw Error('Robin optical HOLD: no observed forecast');
   assert(!(input.managerCommunicationV122&&input.swingInstructionV121),'ambiguous received and raw manager instruction');
   const managerCommunicationV122=input.managerCommunicationV122===undefined?null:resolveLiveManagerCommunicationV122({...input.managerCommunicationV122,
@@ -675,7 +699,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   const yawDeferExecutionV274=input.yawDiagnosticV274!==undefined;
   if(yawDeferExecutionV274&&!randomStreamsV152)throw Object.assign(new Error('yaw diagnostic: INDEPENDENT_RANDOMNESS_REQUIRED'),{yawDiagnosticStatus:'HOLD'});
   const observedPredictionV122=positionObserverV151?{elapsedSeconds:speedErrorV1?perceivedArrivalV1!:readsPicturedV1?readArrivalV1!:effectiveForecastV246!.prediction?.arrivalAfterReleaseSeconds??decisionTime,
-      ball:{tick:positionObserverV151.decisionTick,position:perceivedForecastV1!.prediction?.position??{x:0,y:middle,z:battingSetupV94.contactPlaneZ},
+      ball:{tick:positionObserverV151.decisionTick,position:bentForecastV1!.prediction?.position??{x:0,y:middle,z:battingSetupV94.contactPlaneZ},
         velocity:effectiveForecastV246!.prediction?.estimatedVelocity??zero(),spin:zero()}}
       :predictFromObservation(observedSample,decisionTime,battingSetupV94.contactPlaneZ),
     // priorExpectationV1 [weight, k]: instead of one remembered pitch drawn at random, the batter expects the mean of what he
