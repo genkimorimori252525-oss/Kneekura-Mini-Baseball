@@ -927,11 +927,25 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   assert(bounded(rate,.01,20),'authored motor rate is outside this finite reference model');
   let authoredRotation=IDENTITY_QUATERNION;
   const spinPullDeltaV123=spinMotionV123?.pullAngleDeltaDegrees??0;
-  if(b.attackAngleDegrees!==undefined||intendedPullAngleDegrees!==undefined||spinPullDeltaV123!==0){
-    const side=b.bats==='R'?1:-1,attack=b.attackAngleDegrees===undefined?Math.atan2(probeVelocity.y,Math.hypot(probeVelocity.x,probeVelocity.z)):b.attackAngleDegrees*Math.PI/180,
+  // swingTiltV1: MLB batters tilt the swing plane with the pitch height (Statcast swing_path_tilt 40 deg below the zone,
+  // 22 above, -6.4 deg/ft) and lift the attack angle on low pitches; the clips keep one plane at every height.
+  const swingTiltV1=observationPolicyV151?.swingTiltV1,tiltHeightV1=swingTiltV1?motorAimPosition.y/heightScale-swingTiltV1[2]:0;
+  if(b.attackAngleDegrees!==undefined||intendedPullAngleDegrees!==undefined||spinPullDeltaV123!==0||swingTiltV1){
+    const side=b.bats==='R'?1:-1,attack=(b.attackAngleDegrees===undefined?Math.atan2(probeVelocity.y,Math.hypot(probeVelocity.x,probeVelocity.z)):b.attackAngleDegrees*Math.PI/180)
+      +(swingTiltV1?swingTiltV1[3]*tiltHeightV1*Math.PI/180:0),
       basePull=intendedPullAngleDegrees===undefined?-Math.atan2(probeVelocity.x,probeVelocity.z):intendedPullAngleDegrees*side*Math.PI/180,
       pull=spinPullDeltaV123===0?basePull:basePull+spinPullDeltaV123*side*Math.PI/180;
-    authoredRotation=betweenDirections(probeVelocity,{x:-Math.sin(pull)*Math.cos(attack),y:Math.sin(attack),z:Math.cos(pull)*Math.cos(attack)});
+    const towardV1={x:-Math.sin(pull)*Math.cos(attack),y:Math.sin(attack),z:Math.cos(pull)*Math.cos(attack)};
+    authoredRotation=betweenDirections(probeVelocity,towardV1);
+    if(swingTiltV1){
+      // Turn the bat about its own direction of travel: the attack angle and the pull stay, the plane tilts.
+      const want=clamp(swingTiltV1[0]+swingTiltV1[1]*tiltHeightV1,0,85),
+        axis0=rotateVectorByQuaternion(rotateVectorByQuaternion({x:0,y:1,z:0},(contactLeadV1===undefined?probe.sampleAtSourceTick(sourceContactTick,'outgoing'):probe.sampleAtSourceTick(sourceContactTick-contactLeadV1*1e6,'incoming')).orientation),authoredRotation),
+        tiltAt=(turn:number)=>{const ax=rotateVectorByQuaternion(axis0,quaternionFromAxisAngle(towardV1,turn)),n=cross(ax,towardV1),m=norm(n);return m>0?Math.acos(Math.min(1,Math.abs(n.y)/m))*180/Math.PI:90;};
+      let bestTurn=0,bestGap=Math.abs(tiltAt(0)-want);
+      for(let k=1;k<=140;k++)for(const turn of [k*.005,-k*.005]){const gap=Math.abs(tiltAt(turn)-want);if(gap<bestGap-1e-9){bestGap=gap;bestTurn=turn;}}
+      authoredRotation=multiplyQuaternions(quaternionFromAxisAngle(towardV1,bestTurn),authoredRotation);
+    }
   }
   const compactWindow=swingIntentV121?(sourceContactTick-fullFrames[0].tick)/1e6/rate*(1-.5*swingIntentV121.compactness):Infinity,
     minimumSourceTick=Math.min(sourceContactTick-Math.min(b.preContactSeconds??Math.max(0,planningContactTime-.045),compactWindow)*rate*1e6,

@@ -128,6 +128,8 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   noImpactFollowV1?:number;
   /** Hands past the contact pose: [share of the sideways motion kept 0..1, speed toward the pitcher m/s 0..10, window s 0.01..0.2] (absent = the clip's path). */
   handExtensionV1?:readonly number[];
+  /** Swing plane by contact height (for a 1.8 m batter): [tilt at the middle deg 0..80, tilt per m -100..100, middle height m 0..2, attack angle per m -50..50] (absent = the clip's own plane, one attack angle). */
+  swingTiltV1?:readonly number[];
   /** Share (0-1) of the zone-judgment error that also moves the bat's aim; the late look then corrects it as it does a misread. */
   judgmentAimShareV1?:number;
   /** Chance per swing that the hitter is fooled and puts the bat where he expected the pitch (the remembered one);
@@ -195,6 +197,7 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'pitchOrderPlanV1')){keys.push('pitchOrderPlanV1');assert(typeof p.pitchOrderPlanV1==='boolean','invalid pitch order plan');}
   if(Object.hasOwn(p,'contactLeadAlignV1')){keys.push('contactLeadAlignV1');assert(Number.isFinite(p.contactLeadAlignV1)&&p.contactLeadAlignV1!>=0&&p.contactLeadAlignV1!<=.02,'invalid contact lead');}
   if(Object.hasOwn(p,'priorFooledChanceV1')){keys.push('priorFooledChanceV1');assert(Number.isFinite(p.priorFooledChanceV1)&&p.priorFooledChanceV1!>=0&&p.priorFooledChanceV1!<=1,'invalid prior fooled chance');}
+  if(Object.hasOwn(p,'swingTiltV1')){keys.push('swingTiltV1');const t=p.swingTiltV1;assert(Array.isArray(t)&&t.length===4&&t.every(Number.isFinite)&&t[0]>=0&&t[0]<=80&&Math.abs(t[1])<=100&&t[2]>=0&&t[2]<=2&&Math.abs(t[3])<=50,'invalid swing tilt');}
   if(Object.hasOwn(p,'handExtensionV1')){keys.push('handExtensionV1');const h=p.handExtensionV1;assert(Array.isArray(h)&&h.length===3&&h.every(Number.isFinite)&&h[0]>=0&&h[0]<=1&&h[1]>=0&&h[1]<=10&&h[2]>=.01&&h[2]<=.2,'invalid hand extension');}
   if(Object.hasOwn(p,'noImpactFollowV1')){keys.push('noImpactFollowV1');assert(Number.isFinite(p.noImpactFollowV1)&&p.noImpactFollowV1!>=.01&&p.noImpactFollowV1!<=.3,'invalid no-impact follow');}
   if(Object.hasOwn(p,'loadBeforeCommitV1')){keys.push('loadBeforeCommitV1');assert(p.loadBeforeCommitV1===true,'invalid load before commit');}
