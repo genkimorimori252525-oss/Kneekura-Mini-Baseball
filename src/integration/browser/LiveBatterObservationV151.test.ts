@@ -133,3 +133,9 @@ it('accepts pitch familiarity only with the league reference pitches, and checks
   expect(() => validateLiveBatterObservationPolicyV151({ ...policy(), leagueReferencePitchesV1:{ R:ref.R } })).toThrow(/reference/);
   expect(() => validateLiveBatterObservationPolicyV151({ ...policy(), leagueReferencePitchesV1:{ ...ref, L:[{ pitchType:'fastball', spinRadPerSecond:{ x:1, y:2 } }] } })).toThrow(/reference/);
 });
+it('the load-before-commit switch is optional and only true', () => {
+  const valid = policy();
+  expect(Object.hasOwn(AUTHORED_LIVE_BATTER_OBSERVATION_V151, 'loadBeforeCommitV1')).toBe(false);
+  expect(validateLiveBatterObservationPolicyV151({ ...valid, loadBeforeCommitV1:true }).loadBeforeCommitV1).toBe(true);
+  for (const bad of [false, 1, 'true']) expect(() => validateLiveBatterObservationPolicyV151({ ...valid, loadBeforeCommitV1:bad })).toThrow();
+});

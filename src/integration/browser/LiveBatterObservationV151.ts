@@ -122,6 +122,8 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   lateLookAccelerationV1?:number;
   /** Share of the contact-moment sweet-spot speed lost per ms of swing still to go when the ball is met before the clip's contact (0..0.05; absent = clip sample speed). */
   preContactSpeedLossV1?:number;
+  /** The load (held pose to swing start) may run before the commit, as a stride and load do; only the swing itself waits for commit + motor latency (absent = the load also waits). */
+  loadBeforeCommitV1?:boolean;
   /** Share (0-1) of the zone-judgment error that also moves the bat's aim; the late look then corrects it as it does a misread. */
   judgmentAimShareV1?:number;
   /** Chance per swing that the hitter is fooled and puts the bat where he expected the pitch (the remembered one);
@@ -189,6 +191,7 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'pitchOrderPlanV1')){keys.push('pitchOrderPlanV1');assert(typeof p.pitchOrderPlanV1==='boolean','invalid pitch order plan');}
   if(Object.hasOwn(p,'contactLeadAlignV1')){keys.push('contactLeadAlignV1');assert(Number.isFinite(p.contactLeadAlignV1)&&p.contactLeadAlignV1!>=0&&p.contactLeadAlignV1!<=.02,'invalid contact lead');}
   if(Object.hasOwn(p,'priorFooledChanceV1')){keys.push('priorFooledChanceV1');assert(Number.isFinite(p.priorFooledChanceV1)&&p.priorFooledChanceV1!>=0&&p.priorFooledChanceV1!<=1,'invalid prior fooled chance');}
+  if(Object.hasOwn(p,'loadBeforeCommitV1')){keys.push('loadBeforeCommitV1');assert(p.loadBeforeCommitV1===true,'invalid load before commit');}
   if(Object.hasOwn(p,'preContactSpeedLossV1')){keys.push('preContactSpeedLossV1');assert(Number.isFinite(p.preContactSpeedLossV1)&&p.preContactSpeedLossV1!>=0&&p.preContactSpeedLossV1!<=.05,'invalid pre-contact speed loss');}
   if(Object.hasOwn(p,'lateLookAccelerationV1')){keys.push('lateLookAccelerationV1');assert(Number.isFinite(p.lateLookAccelerationV1)&&p.lateLookAccelerationV1!>=1&&p.lateLookAccelerationV1!<=300,'invalid late look acceleration');}
   if(Object.hasOwn(p,'priorExpectationV1')){keys.push('priorExpectationV1');assert(Array.isArray(p.priorExpectationV1)&&p.priorExpectationV1.length===2&&p.priorExpectationV1[0]>=0&&p.priorExpectationV1[0]<=1&&p.priorExpectationV1[1]>0&&p.priorExpectationV1[1]<=200,'invalid prior expectation');}

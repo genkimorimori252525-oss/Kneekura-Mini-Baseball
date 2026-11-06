@@ -1060,7 +1060,8 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   const contactFrameV244=frozenContactFrameV244;
   const startOffset=desiredContactTime-referenceElapsedSecondsV121((sourceContactTick-selectedFrames[0].tick)/1e6/rate,rampSeconds),
     plannedStartTick=input.originTick+Math.max(0,Math.round(startOffset*tps));
-  let actualStartTick=envelopeV133?Math.max(plannedStartTick,observationTick+Math.ceil((b.motorLatencySeconds??0)*tps)+Math.ceil(envelopeV133.preparation.durationSeconds*tps))
+  // loadBeforeCommitV1: the load may already be under way at the commit; only the swing waits for commit + latency.
+  let actualStartTick=envelopeV133?Math.max(plannedStartTick,observationTick+Math.ceil((b.motorLatencySeconds??0)*tps)+(observationPolicyV151?.loadBeforeCommitV1?0:Math.ceil(envelopeV133.preparation.durationSeconds*tps)))
       :swingMotorV121||executionV122||intentV122||spinMotionV123||battingDirectionV149||positionObserverV151?resolveMotorStart(plannedStartTick,observationTick,input.originTick,Math.ceil((b.motorLatencySeconds??0)*tps))
       :b.motorLatencySeconds===undefined?plannedStartTick:Math.max(plannedStartTick,input.originTick+Math.ceil((decisionTime+b.motorLatencySeconds)*tps)),
     motorDelaySeconds=(actualStartTick-plannedStartTick)/tps,
