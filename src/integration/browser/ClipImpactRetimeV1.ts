@@ -41,3 +41,42 @@ export function retimeClipAfterContactV1<F extends Frame>(frames: readonly F[], 
   }
   return out;
 }
+
+/**
+ * handExtensionV1: past the contact pose the clip's hands keep moving toward the batter (median 4 m/s sideways) and
+ * not toward the pitcher (-1..+1 m/s, 673 clips, 2026-11-06). A ball met there, after an early start, was struck
+ * near the tip: the bat kept turning while the hands drew back from the ball's line. MLB batters meet early balls on
+ * the barrel all the same (Statcast 2024 bat tracking: squared-up share flat over the timing part of contact depth).
+ *
+ * Within windowSeconds after the contact pose, the sideways hand motion keeps lateralKeep of its share and the hands
+ * also move toward the pitcher at forwardMps; the offset so built is then taken back out over returnSeconds, so the
+ * follow-through ends where it was measured. Only grip positions change; orientations and times stay.
+ */
+export function extendHandsAfterContactV1<F extends Frame>(frames: readonly F[], contactTick: number,
+  lateralKeep: number, forwardMps: number, windowSeconds: number, returnSeconds = .1, sourceTicksPerSecond = 1e6): F[] {
+  if (!(Number.isFinite(contactTick) && lateralKeep >= 0 && lateralKeep <= 1 && forwardMps >= 0 && forwardMps <= 10
+    && windowSeconds >= .01 && windowSeconds <= .2 && returnSeconds > 0 && frames.length >= 2)) throw Error('invalid hand extension input');
+  const first = frames.findIndex(f => f.tick >= contactTick);
+  if (first < 1) return frames.slice();
+  const start = frames[first].tick, out: F[] = frames.slice(0, first + 1);
+  let ox = 0, oz = 0, peakX = 0, peakZ = 0;
+  for (let i = first + 1; i < frames.length; i++) {
+    const at = (frames[i].tick - start) / sourceTicksPerSecond, before = (frames[i - 1].tick - start) / sourceTicksPerSecond;
+    // Share of this segment inside the window.
+    const inside = Math.max(0, Math.min(at, windowSeconds) - before) / Math.max(1e-9, at - before);
+    ox += (lateralKeep - 1) * (frames[i].grip.x - frames[i - 1].grip.x) * inside;
+    oz += forwardMps * (at - before) * inside;
+    if (inside > 0) { peakX = ox; peakZ = oz; }
+    const back = at <= windowSeconds ? 1 : Math.max(0, 1 - (at - windowSeconds) / returnSeconds);
+    const x = at <= windowSeconds ? ox : peakX * back, z = at <= windowSeconds ? oz : peakZ * back;
+    out.push({ ...frames[i], grip: { x: frames[i].grip.x + x, y: frames[i].grip.y, z: frames[i].grip.z + z } });
+  }
+  return out;
+}
+
+export type ClipAfterContactShapeV1 = Readonly<{ contactTick: number; radiusM: number; windowSeconds?: number; hands?: readonly number[] }>;
+/** The physical motor and the whiff playback shape the clip the same way: retime first, then move the hands. */
+export function shapeClipAfterContactV1<F extends Frame>(frames: readonly F[], shape: ClipAfterContactShapeV1): F[] {
+  const timed = shape.windowSeconds === undefined ? frames.slice() : retimeClipAfterContactV1(frames, shape.contactTick, shape.radiusM, shape.windowSeconds);
+  return shape.hands === undefined ? timed : extendHandsAfterContactV1(timed, shape.contactTick, shape.hands[0], shape.hands[1], shape.hands[2]);
+}

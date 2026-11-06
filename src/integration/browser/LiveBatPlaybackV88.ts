@@ -4,7 +4,7 @@ import { sampleBatRadius, type BatRadiusProfile } from '../../core/sim/contact/R
 import type { LiveMeasuredClipV1, LivePitchFrameV1 } from './LivePitchV1';
 import { registerMeasuredBatToFieldV1 } from './MeasuredBatFieldRegistrationV1';
 import {referenceWorldTickAtSourceV121} from '../../core/sim/contact/ReferenceBatMotorV121';
-import { retimeClipAfterContactV1 } from './ClipImpactRetimeV1';
+import { shapeClipAfterContactV1, type ClipAfterContactShapeV1 } from './ClipImpactRetimeV1';
 
 /** Serializable observation recipe for the already registered physical motor.
  * Measured keys stay in their original library; this does not extend a play,
@@ -13,8 +13,8 @@ export type LiveBatPlaybackDescriptorV88 = Readonly<{
   version: 88; originTick: number; battingSide: 'R' | 'L'; heightScale: number;
   sourceFirstTick: number; sourceLastTick: number; radiusProfile: BatRadiusProfile;
   reference: Omit<ReferenceBatKinematicsInputV1, 'frames'>;
-  /** The physical motor's noImpactFollowV1 retime of the poses past the clip's contact (ClipImpactRetimeV1). */
-  retimeV1?: Readonly<{ contactTick: number; radiusM: number; windowSeconds: number }>;
+  /** The physical motor's noImpactFollowV1 / handExtensionV1 shaping of the poses past the clip's contact (ClipImpactRetimeV1). */
+  retimeV1?: ClipAfterContactShapeV1;
 }>;
 const fields = (value: object, names: readonly string[]) => Object.keys(value).sort().join('|') === [...names].sort().join('|');
 const tick = (value: number) => Number.isSafeInteger(value) && value >= 0;
@@ -35,7 +35,7 @@ export function createLiveBatPlaybackV88(raw: Readonly<{ descriptor: LiveBatPlay
   const scaled = registerMeasuredBatToFieldV1(clip.frames).map(frame => ({ ...frame, grip: {
     x: frame.grip.x * d.heightScale, y: frame.grip.y * d.heightScale, z: frame.grip.z * d.heightScale,
   } }));
-  const timed = d.retimeV1 ? retimeClipAfterContactV1(scaled, d.retimeV1.contactTick, d.retimeV1.radiusM, d.retimeV1.windowSeconds) : scaled;
+  const timed = d.retimeV1 ? shapeClipAfterContactV1(scaled, d.retimeV1) : scaled;
   const frames = timed.filter(frame => frame.tick >= d.sourceFirstTick && frame.tick <= d.sourceLastTick);
   if (frames[0]?.tick !== d.sourceFirstTick || frames.at(-1)?.tick !== d.sourceLastTick)
     throw new Error('live bat playback requires the original selected source keys');
