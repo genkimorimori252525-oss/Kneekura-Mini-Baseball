@@ -8,6 +8,7 @@ import type { BattedBallBasePrism } from './BattedBallBaseContact';
 import type { BattedWorldBaseId } from './BattedWorldBaseGeometry';
 import { createSourceFreeBallKernel, type SourceFreeBallDescriptorV2, type SourceFreeBallEvaluation } from './SourceFreeBallKernel';
 import { sourceRk4PositionBounds } from './SourceFreeBallSpeedBound';
+import { maximumBaseballGroundDecelerationMps2 } from './BaseballGroundDynamics';
 import { assertBattedResponseProfiles, type BallWorldResponseInput } from './BattedBallContactResponse';
 import { respondToBallContact, type BallContactMaterial } from './BallContactResponse';
 import { resolveCatchRetention } from '../fielding/CatchRetention';
@@ -248,8 +249,7 @@ const querySourceFreeBallWorld = (raw: SourceFreeBallWorldQueryInputV2, proof?: 
       if (!cell) return blocked();
       const phase = kernel.evaluateAt(searchFrom, input.side).phase;
       const deviation = (phase === 'airborne' ? sourceRk4PositionBounds(moment.ball, cell.throughElapsedSeconds - searchFrom, descriptor.profile.air).linearDeviationMps2
-        : Math.max(descriptor.profile.ground.material.slidingFriction * descriptor.profile.ground.gravityMps2,
-          descriptor.profile.ground.material.rollingDecelerationMps2) / 2) + collider.accelerationBoundMps2 / 2;
+        : maximumBaseballGroundDecelerationMps2(descriptor.profile.ground) / 2) + collider.accelerationBoundMps2 / 2;
       const window = Math.min(horizon - searchFrom, cell.throughElapsedSeconds - searchFrom, deviation === 0 ? Infinity : outward / (2 * deviation));
       const escape = 2 * (Math.max(0, -start) + cell.positionRoundingBoundMeters) / outward;
       if (!finite(window) || window <= 0 || !finite(escape) || escape > 1e-12 || escape >= window) {

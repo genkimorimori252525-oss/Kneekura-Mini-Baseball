@@ -13,7 +13,13 @@ export type LiveFieldDecisionContextV1=Readonly<{elapsedSeconds:number;observati
  threats:readonly Readonly<{base:BaseballBase;arrivalSeconds:number}>[];received:readonly LiveFieldAdviceV1[];
  previous?:LiveFieldRoleV1;cautious?:boolean;ownTask?:LiveFieldRoleV1;
  /** Present: a bag is one man's job, and a player only offers to cover where this allows it. */
- coverAllowedV1?:(base:BaseballBase,arrivalSeconds:number)=>boolean}>;
+ coverAllowedV1?:(base:BaseballBase,arrivalSeconds:number)=>boolean;
+ /** Present: a ball on the ground that has got past an infielder (it is out on the grass beyond the dirt arc, out of his reach,
+  * and going away from him or stopped beyond him on its line from home) is the outfielder's. reachMeters is how far each man
+  * can reach for a ball on the ground.
+  * The outfielder does not count that infielder as competing for it, and the infielder, once he has heard an outfielder call
+  * for it, does not go for it himself. */
+ outfieldRightOfWayV1?:Readonly<{reachMeters:Readonly<Record<string,number>>;arc:Readonly<{centerX:number;centerZ:number;radiusM:number}>}>}>;
 export type LiveFieldDecisionCandidateV1=Readonly<{role:LiveFieldRoleV1;intent:DefensiveIntent;cost:number;arrivalSeconds:number;
  opportunityCost:number;competitionCost:number;switchCost:number;reason:string}>;
 const distance=(a:Vec3,b:Vec3)=>Math.hypot(a.x-b.x,a.z-b.z);
@@ -27,7 +33,18 @@ export const liveFieldIntentV1=(role:LiveFieldRoleV1):DefensiveIntent=>role.inte
 export function evaluateLiveFieldDecisionV1(input:LiveFieldDecisionContextV1){
  const self=input.self,candidates:LiveFieldDecisionCandidateV1[]=[],others=input.others.filter(a=>a.playerId!==self.playerId),
   own=(taskId:string,intent:LiveFieldRoleV1['intent'],point:Vec3,targetBase:BaseballBase|null=null):LiveFieldRoleV1=>({playerId:self.playerId,taskId,intent,point:{...point},targetBase}),
-  hold=own('hold:'+self.playerId,'hold',self.homePosition),pursuit=self.pursuitCostWeight??1;
+  hold=own('hold:'+self.playerId,'hold',self.homePosition),pursuit=self.pursuitCostWeight??1,
+  outfielders=new Set(['LF','CF','RF']),isOutfielder=(a:LiveFieldRoleActorV1)=>outfielders.has(a.defensivePosition??''),
+  past=(a:LiveFieldRoleActorV1)=>{
+   const b=input.ball,v=input.ballVelocity,home=input.bases[4];
+   const w=input.outfieldRightOfWayV1;
+   if(!w||!b||!a.defensivePosition||isOutfielder(a)||Math.hypot(b.x-w.arc.centerX,b.z-w.arc.centerZ)<=w.arc.radiusM)return false;
+   if(distance(b,a.position)<=(w.reachMeters[a.playerId]??0))return false;
+   const moving=Math.hypot(v.x,v.z)>1e-6,dx=moving?v.x:b.x-home.x,dz=moving?v.z:b.z-home.z;
+   return (b.x-a.position.x)*dx+(b.z-a.position.z)*dz>0;
+  },
+  yields=()=>past(self)&&input.received.some(m=>m.role.intent==='intercept'&&m.trust>0
+    &&isOutfielder(others.find(a=>a.playerId===m.sourceId)??self));
  let pursuitTrace:ReturnType<typeof buildLivePursuitOptionsV1>|undefined;
  // A cover declaration is evidence of overlapping work, not a guaranteed
  // arrival or a central reservation. Only personally observed peers count.
@@ -65,7 +82,9 @@ export function evaluateLiveFieldDecisionV1(input:LiveFieldDecisionContextV1){
   return cost;
  };
  const add=(role:LiveFieldRoleV1,benefit:number,competitionScale:number,reason:string,arrival=liveFieldArrivalSecondsV1(self,role.point))=>{
-  const competitor=Math.min(...others.filter(a=>a.playerId!==input.possessionPlayerId).map(a=>{
+  if(role.intent==='intercept'&&yields())return;
+  const priority=role.intent==='intercept'&&isOutfielder(self);
+  const competitor=Math.min(...others.filter(a=>a.playerId!==input.possessionPlayerId&&!(priority&&past(a))).map(a=>{
     const claim=input.received.find(m=>m.sourceId===a.playerId&&m.role.intent==='intercept');
     return claim&&role.intent!=='intercept'?Infinity:liveFieldArrivalSecondsV1(a,role.point);
   })),competitionCost=Math.max(0,arrival-competitor-.15)*competitionScale+redundantCoverCost(role,arrival),
