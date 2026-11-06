@@ -579,13 +579,13 @@ function rasterSphere(center,radius,color,owner){
 }
 
  /* The swing (docs/ai-continuity/DESIGN-2026-11-06-swing-drawing.md): every batter is the art with its own bat, following
-  * the Core's bat on screen. The frame comes from how far the Core's bat has swung (art.swing.progress), the impact and
+  * the Core's bat on screen, except the stance, which stays as drawn. The frame comes from how far the Core's bat has swung (art.swing.progress), the impact and
   * follow-through height from the nearest screen angle, kept until another is clearly nearer. The upper body and bat turn
   * about the hip to the Core's screen angle (at most SWING_TURN degrees, then the next frame). Around the contact the turn
   * blends to the one that puts the drawn bat through the ball where the Core's bat met it, with a small turn of the bat
   * alone. One stand offset per pitch (at most SWING_STAND m) brings the drawn hands across to the Core's hands at the
   * contact; the feet never slide during the swing. The bat's length follows the player's own bat, not his height. */
- const SWING_TURN=25,SWING_BAT_TURN=20,SWING_KEEP=8,SWING_STAND=.25,SWING_BLEND=.04,SWING_NOMINAL_BAT=.86,SWING_NOMINAL_HEIGHT=1.8,BALL_RADIUS=.0366;
+ const SWING_TURN=25,SWING_BAT_TURN=20,SWING_EASE=[.03,.35],SWING_KEEP=8,SWING_STAND=.25,SWING_BLEND=.04,SWING_NOMINAL_BAT=.86,SWING_NOMINAL_HEIGHT=1.8,BALL_RADIUS=.0366;
  const swingMemoV1=new WeakMap(),swingPlansV1=new WeakMap();
  const screenAngleV1=(a,b)=>Math.atan2(-(b.y-a.y),b.x-a.x)*180/Math.PI,wrapV1=d=>((d%360)+540)%360-180,clampV1=(v,m)=>Math.max(-m,Math.min(m,v));
  const IMPACTS=['2/high','2/middle','2/low'],FOLLOWS=['3/high','3/middle','3/low'];
@@ -672,7 +672,10 @@ function rasterSphere(center,radius,color,owner){
   const memo=swing?swingMemoV1.get(swing.path):null,kept=memo&&options.find(o=>o.key===memo.key);
   if(kept&&kept.gap<=chosen.gap+SWING_KEEP)chosen=kept;
   if(swing)swingMemoV1.set(swing.path,{key:chosen.key});
-  let turn=angle===null?0:clampV1(wrapV1(angle-chosen.geo.angle),SWING_TURN),batTurn=0;
+  // The stance stays as drawn (the owner, 2026-11-06); the turn comes in as the swing starts and is whole by the end of
+  // the load.
+  const into=swing&&chosen.key!=='0'?Math.max(0,Math.min(1,(swing.progress-SWING_EASE[0])/(SWING_EASE[1]-SWING_EASE[0]))):0;
+  let turn=angle===null?0:clampV1(wrapV1(angle-chosen.geo.angle),SWING_TURN)*into*into*(3-2*into),batTurn=0;
   if(plan&&chosen.key===plan.key&&blend>0){turn+=(plan.turn-turn)*blend;batTurn=plan.batTurn*blend;}
   // After a hit the impact frame lets go of the contact's turn over 0.15 s.
   if(angle===null&&plan?.hit&&chosen.key===plan.key){const fade=Math.max(0,1-(swing.tick-plan.contactTick)/(.15*tps));turn=plan.turn*fade;batTurn=plan.batTurn*fade;}
