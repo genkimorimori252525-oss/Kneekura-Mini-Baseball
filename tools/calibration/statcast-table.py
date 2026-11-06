@@ -3,7 +3,9 @@
 # 10-20 deg balls score .606 against .702 actual. 4_1_5 on a full season (bip_2024.csv, 120k balls) scores .693 (2026-11-05).
 # Outcome table from Statcast batted balls (exit speed mph, launch angle, spray, bases), in outcome-table.py's format,
 # so a fielding-free run can be scored as if MLB fielders had played its balls. Spray: + toward right field, as in the game,
-# with the usual 0.75 from hit coordinates to field angle.
+# the angle of the hit coordinates as it is. The common 0.75 factor is wrong for this: the coordinates are to scale in both
+# directions (distance / hit_distance_sc is 1.00-1.01 at every angle), and grounders fielded in 2024 sit at a median -35.5 deg
+# (third base), -16.7 (short) and 42.5 (first), where those fielders play; 0.75 put third base at -26.6 (2026-11-06).
 import json, math, sys
 B = {'single': 1, 'double': 2, 'triple': 3, 'home_run': 4}
 BW = next((a.split('=', 1)[1] for a in sys.argv if a.startswith('--bw=')), '4_5_10').split('_'); sys.argv = [a for a in sys.argv if not a.startswith('--bw=')]
@@ -17,7 +19,7 @@ else:
 rows = []
 for ev, la, x, y, ev_ in src:
     if None in (ev, la, x, y) or ev_ in ('sac_bunt', 'catcher_interf'): continue
-    rows.append([ev, la, round(.75 * math.degrees(math.atan2(x - 125.42, 198.27 - y)), 2), B.get(ev_, 0)])
+    rows.append([ev, la, round(math.degrees(math.atan2(x - 125.42, 198.27 - y)), 2), B.get(ev_, 0)])
 json.dump({'bandwidth': {'ev': float(BW[0]), 'la': float(BW[1]), 'spray': float(BW[2])}, 'rows': rows}, open(sys.argv[2], 'w'))
 n = len(rows); h = sum(r[3] > 0 for r in rows); tb = sum(r[3] for r in rows)
 print('balls', n, 'hit/BIP %.3f' % (h / n), 'bases/BIP %.3f' % (tb / n), 'HR/BIP %.3f' % (sum(r[3] == 4 for r in rows) / n))

@@ -11,7 +11,8 @@ import {resolveMeasuredClips} from '../calibration/clips-ref.mjs';
 const [nativePath, configPath, ...rest] = process.argv.slice(2);
 const opt = Object.fromEntries(rest.map(a => a.replace(/^--/, '').split('=')));
 globalThis.self = globalThis;
-(0, eval)(readFileSync(nativePath, 'utf8') + ';globalThis.__core=KneekuraNativeMatchCore;');
+const nativeSource = readFileSync(nativePath, 'utf8');
+(0, eval)(nativeSource + ';globalThis.__core=KneekuraNativeMatchCore;');
 const core = globalThis.__core;
 // A config may hold its measured clips as a shared reference (tools/calibration/clips-ref.mjs).
 const config = resolveMeasuredClips(JSON.parse(readFileSync(configPath, 'utf8')));
@@ -26,6 +27,9 @@ if (opt.pitchersScale) for (const player of config.players) if (/-p\d+$/.test(pl
 if (opt.pitchers) for (const player of config.players) if (/-p\d+$/.test(player.playerId))
   for (const pair of opt.pitchers.split(',')) {const [key, value] = pair.split(':'); player.physical[key] = Number(value);}
 if (opt.skipField) config.skipFieldPlayV1 = true;
+// The match keeps every pitch's whole play in its history for looking back; a tool run keeps only the last (--history=all keeps them).
+// Older builds reject the input, so it is set only for a build that knows it.
+if (opt.history !== 'all' && nativeSource.includes('historyLimitV1')) config.historyLimitV1 ??= 1;
 // --observe=key:value (a_b for a list) and --decision=key:value set the batter observation policy and every batter's swing decision.
 if (opt.observe) for (const pair of opt.observe.split(',')) {const [key, value] = pair.split(':'); config.batterObservationV151[key] = value === 'true' ? true : value === 'false' ? false : value.includes('_') ? value.split('_').map(Number) : Number(value);}
 // --lift=nathan2017 sets the match's lift curve (liftCurveV1).

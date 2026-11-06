@@ -1,10 +1,13 @@
 # All leagues: real vs game per hitter (each hitter counted once, in his first league), means and correlations.
 import json, glob, importlib.util, sys, math
 R = 'C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/calibration'
-ARGS = [a for a in sys.argv[1:] if not a.startswith('--work=')]
+ARGV0 = sys.argv[1:]
+ARGS = [a for a in sys.argv[1:] if not a.startswith('--work=') and not a.startswith('--table=')]
 W = next((a.split('=', 1)[1] for a in sys.argv if a.startswith('--work=')), 'K:/kbm-work/mlb24all')   # --work=<folder> of league-hitters.py
 spec = importlib.util.spec_from_file_location('af', R + '/ability-fit.py'); af = importlib.util.module_from_spec(spec); sys.argv = ['x']; spec.loader.exec_module(af)
-P = af.ot.predictor(json.load(open('K:/kbm-work/table-statcast24.json')))
+# --table=<table.json> scores the batted balls (default: the 2024 full-season table at the true spray angle, statcast-table.py --bw=4_1_5).
+TABLE = next((x.split('=', 1)[1] for x in ARGV0 if x.startswith('--table=')), 'K:/kbm-work/table-statcast24-raw.json')
+P = af.ot.predictor(json.load(open(TABLE)))
 rec = ARGS[0] if len(ARGS) > 0 else 'reca'
 tag = ARGS[1] if len(ARGS) > 1 else ''
 REAL = json.load(open('K:/kbm-work/targets-mlb2024-bb.json', encoding='utf8'))

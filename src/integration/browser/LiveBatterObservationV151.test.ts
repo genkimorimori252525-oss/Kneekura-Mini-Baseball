@@ -133,3 +133,25 @@ it('accepts pitch familiarity only with the league reference pitches, and checks
   expect(() => validateLiveBatterObservationPolicyV151({ ...policy(), leagueReferencePitchesV1:{ R:ref.R } })).toThrow(/reference/);
   expect(() => validateLiveBatterObservationPolicyV151({ ...policy(), leagueReferencePitchesV1:{ ...ref, L:[{ pitchType:'fastball', spinRadPerSecond:{ x:1, y:2 } }] } })).toThrow(/reference/);
 });
+it('the load-before-commit switch is optional and only true', () => {
+  const valid = policy();
+  expect(Object.hasOwn(AUTHORED_LIVE_BATTER_OBSERVATION_V151, 'loadBeforeCommitV1')).toBe(false);
+  expect(validateLiveBatterObservationPolicyV151({ ...valid, loadBeforeCommitV1:true }).loadBeforeCommitV1).toBe(true);
+  for (const bad of [false, 1, 'true']) expect(() => validateLiveBatterObservationPolicyV151({ ...valid, loadBeforeCommitV1:bad })).toThrow();
+});
+
+it('accepts the optional contact-window shaping and swing plane inputs only within range', () => {
+  const valid = policy();
+  for (const key of ['noImpactFollowV1', 'handExtensionV1', 'swingTiltV1']) expect(Object.hasOwn(AUTHORED_LIVE_BATTER_OBSERVATION_V151, key)).toBe(false);
+  expect(validateLiveBatterObservationPolicyV151({ ...valid, noImpactFollowV1:.06 }).noImpactFollowV1).toBe(.06);
+  expect(validateLiveBatterObservationPolicyV151({ ...valid, handExtensionV1:[0, 3, .04] }).handExtensionV1).toEqual([0, 3, .04]);
+  expect(validateLiveBatterObservationPolicyV151({ ...valid, swingTiltV1:[31, -21, .76, -10] }).swingTiltV1).toEqual([31, -21, .76, -10]);
+  for (const bad of [.001, .5]) expect(() => validateLiveBatterObservationPolicyV151({ ...valid, noImpactFollowV1:bad })).toThrow();
+  expect(validateLiveBatterObservationPolicyV151({ ...valid, handExtensionV1:[0, 3, .04, .5] }).handExtensionV1).toEqual([0, 3, .04, .5]);
+  for (const bad of [[2, 3, .04], [0, 3], [0, 11, .04], [0, 3, .04, .1]]) expect(() => validateLiveBatterObservationPolicyV151({ ...valid, handExtensionV1:bad })).toThrow();
+  for (const bad of [[90, -21, .76, -10], [31, -21, .76]]) expect(() => validateLiveBatterObservationPolicyV151({ ...valid, swingTiltV1:bad })).toThrow();
+  expect(validateLiveBatterObservationPolicyV151({ ...valid, lateLookNoiseV1:[.01, .1] }).lateLookNoiseV1).toEqual([.01, .1]);
+  expect(validateLiveBatterObservationPolicyV151({ ...valid, sweetSpotHoldV1:[.016, .1] }).sweetSpotHoldV1).toEqual([.016, .1]);
+  for (const bad of [[.2, .1], [.016], [.016, 1]]) expect(() => validateLiveBatterObservationPolicyV151({ ...valid, sweetSpotHoldV1:bad })).toThrow();
+  for (const bad of [[.1, .1], [.01], [.01, -1]]) expect(() => validateLiveBatterObservationPolicyV151({ ...valid, lateLookNoiseV1:bad })).toThrow();
+});

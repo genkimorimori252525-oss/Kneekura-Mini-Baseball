@@ -163,6 +163,8 @@ export type LiveMatchInputV1 = Readonly<{seed:number;innings?:number;teams:reado
   sureCatchHoldV1?:LiveRunnerSureCatchHoldPolicyV1;
   /** A runner who sees the ball coming down in foul ground does not go on a read that it will drop. Omission lets him. */
   foulFlyHoldV1?:LiveRunnerFoulFlyHoldPolicyV1;
+  /** Keep only this many latest pitch records in history (absent = all, for looking back over past pitches); results never depend on it. */
+  historyLimitV1?:number;
   /** A ball on the ground that has got past an infielder is the outfielder's once he calls for it. Omission lets the first man there take it. */
   outfieldRightOfWayV1?:LiveFieldOutfieldRightOfWayPolicyV1;
   /** A batted-ball play starts each runner on first or second at his lead at the release (Savant). Omission keeps the pre-pitch lead. */
@@ -182,7 +184,7 @@ export type LiveMatchInputV1 = Readonly<{seed:number;innings?:number;teams:reado
 /** Every key a match input may carry. A key outside it used to be ignored without a word, so a config written for a newer
  * branch ran as if the input were absent (cfg-def6's battedBallAeroV1 on the defense branch); now the match refuses it.
  * The two checks below keep this list and LiveMatchInputV1 equal. */
-const LIVE_MATCH_INPUT_KEYS_V1=['seed','innings','teams','players','measuredClips','park','randomnessV152','attemptCrouchV1','battedBallAeroV1','liftCurveV1','battedBallReplaceV1','batterAutoDirectionPolicyV250','batterDirectionMotorV153','batterForecastPolicyV246','batterKnowledgeV122','batterNeutralReactivePolicyV272','batterObservationV151','batterObservedRegionExperienceV222','batterReactiveDirectionPolicyV251','batterTechniqueV1','catcherThrowV1','communicationScopeV122','coverSeenV1','emotionPolicyV1','fieldAlignmentV1','fieldStartBySideV1','fieldCoverV1','fieldKinematicsV1','fieldRangeV1','fieldRunValueV1','fieldShadeV1','fieldThrowV1','forcedRunV1','hitByPitchV1','lineDriveReadV1','sureCatchHoldV1','foulFlyHoldV1','outfieldRightOfWayV1','locomotionStartV1','looseBallReadV1','managerTacticsV1','outfieldBreakV1','relayStepV1','runnerLeadV1','runnerSafeLeadV1','runnerThrowReadV1','runnerTurnV1','secondaryLeadV1','skipFieldPlayV1','stealRaceV1','tossReceiveV1','workloadV122'] as const satisfies readonly (keyof LiveMatchInputV1)[];
+const LIVE_MATCH_INPUT_KEYS_V1=['seed','innings','teams','players','measuredClips','park','randomnessV152','attemptCrouchV1','battedBallAeroV1','liftCurveV1','battedBallReplaceV1','batterAutoDirectionPolicyV250','batterDirectionMotorV153','batterForecastPolicyV246','batterKnowledgeV122','batterNeutralReactivePolicyV272','batterObservationV151','batterObservedRegionExperienceV222','batterReactiveDirectionPolicyV251','batterTechniqueV1','catcherThrowV1','communicationScopeV122','coverSeenV1','emotionPolicyV1','fieldAlignmentV1','fieldCoverV1','fieldKinematicsV1','fieldRangeV1','fieldRunValueV1','fieldShadeV1','fieldThrowV1','forcedRunV1','hitByPitchV1','lineDriveReadV1','sureCatchHoldV1','foulFlyHoldV1','historyLimitV1','outfieldRightOfWayV1','locomotionStartV1','looseBallReadV1','managerTacticsV1','outfieldBreakV1','relayStepV1','runnerLeadV1','runnerSafeLeadV1','runnerThrowReadV1','runnerTurnV1','secondaryLeadV1','skipFieldPlayV1','stealRaceV1','tossReceiveV1','workloadV122','fieldStartBySideV1'] as const satisfies readonly (keyof LiveMatchInputV1)[];
 type MissingMatchInputKeyV1=Exclude<keyof LiveMatchInputV1,typeof LIVE_MATCH_INPUT_KEYS_V1[number]>;
 const liveMatchInputKeysCompleteV1:[MissingMatchInputKeyV1] extends [never]?true:MissingMatchInputKeyV1=true;void liveMatchInputKeysCompleteV1;
 /** Keys outside the type that ExperimentalMatchHostV2 puts on the input for its loose policies. The first two are read here and
@@ -307,6 +309,8 @@ function settleSkippedBattedBallV1(x:Readonly<{ball:Readonly<{tick:number;positi
 /** The match default for battedBallAeroV1. 2026-11-04: 1.1 with the contact switches of LIVE_MATCH_BATTER_OBSERVATION_V2 (backspun
  * line drives), whose own balls then carry within a few percent of Statcast 2024 medians; 1.2 offset topspun liners that flew too far. */
 export const LIVE_BATTED_BALL_AERO_V1=Object.freeze({dragScale:1.1});
+/** The match default for liftCurveV1 (2026-11-06 bundle): Nathan 2017, within 0.3 points of Lyu 2022 on batted-ball carry. */
+export const LIVE_LIFT_CURVE_V1:LiftCurveV1='nathan2017';
 export const LIVE_MATCH_PHYSICS_V1:AeroGroundBallPhysicsV1=Object.freeze({kind:'aero_ground_v1',
   air:Object.freeze({ticksPerSecond:1_000_000,integrationStepTicks:5000,gravityY:-9.80665,aerodynamics:REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS}),
   ground:Object.freeze({ticksPerSecond:1_000_000,gravityMps2:9.80665,radiusM:.0366,inertiaRatio:.378,restingVerticalSpeedMps:.28,
@@ -484,6 +488,7 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
   if(input.lineDriveReadV1!==undefined)validateLiveRunnerLineDriveReadPolicyV1(input.lineDriveReadV1);
   if(input.sureCatchHoldV1!==undefined)validateLiveRunnerSureCatchHoldPolicyV1(input.sureCatchHoldV1);
   if(input.foulFlyHoldV1!==undefined)validateLiveRunnerFoulFlyHoldPolicyV1(input.foulFlyHoldV1);
+  if(input.historyLimitV1!==undefined&&!(Number.isSafeInteger(input.historyLimitV1)&&input.historyLimitV1>=0))throw Error('invalid history limit');
   if(input.outfieldRightOfWayV1!==undefined)validateLiveFieldOutfieldRightOfWayPolicyV1(input.outfieldRightOfWayV1);
   if(input.secondaryLeadV1!==undefined)validateLiveRunnerSecondaryLeadPolicyV1(input.secondaryLeadV1);
   if(input.runnerSafeLeadV1!==undefined)validateLiveRunnerSafeLeadPolicyV1(input.runnerSafeLeadV1);
@@ -895,7 +900,9 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
           ...(traitPreferences?{traitPreferences}:{}),managerBaserunning:{instruction:runningInstruction,safetyMarginAdjustmentSeconds:runningMarginAdjustment,appliedToOffense:command.managedTeam===c.team}}},
       ...(emotionTrackerV1?{emotionMarksV1:emotionTrackerV1.marks()}:{}),requiresNextPitch:!finished,finished,batterPlayerId:c.batterPlayerId,pitcherPlayerId:c.pitcherPlayerId,pitchType:pitch.pitchType,
       ...(pitch.pitchId===undefined?{}:{pitchId:pitch.pitchId,pitchName:pitch.pitchName}),speedKmh:(pitch.diagnostics as any).loosePitchV1?.sourceProvenance?.legacySample?.acceleratedSpeedKmh??pitch.speedKmh,line:cloneInert(line),hits:{...hits},errors:{...errors}});
-    history.push(record);return record;
+    // historyLimitV1: each record holds that pitch's whole play; a long match kept every one (a 450-pitch tool run grew
+    // past 4 GB). Results never read history, so a tool may keep only the latest.
+    history.push(record);if(input.historyLimitV1!==undefined)history.splice(0,Math.max(0,history.length-input.historyLimitV1));return record;
   }
   const host=Object.freeze({issuePitch,inspect,captureContinuationV116});
   if(capability===undefined)previewHostsV257.set(host,{input,host});return host;

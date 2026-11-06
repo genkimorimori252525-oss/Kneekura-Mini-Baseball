@@ -1,3 +1,4 @@
+import { shapeClipAfterContactV1 } from './ClipImpactRetimeV1';
 import {planLiveYawRobustV276} from './LiveYawRobustV276';
 import {SEARCH_EVALUATIONS as YAW_ROBUST_SEARCH_EVALUATIONS} from '../../core/sim/contact/ObservedDirectionRegistrationV153';
 import {planObservedYawPivotContactFrameV275} from '../../core/decision/batting/ObservedYawPivotContactFrameV275';
@@ -69,6 +70,7 @@ import {selectBatterContactTechniqueV1,validateBatterTechniquePolicyV1,type Batt
 import {observeBattedBallSpinV123} from '../../core/sim/contact/BattedBallSpinObservationV123';
 import {validateLiveObservedSpinTrialRequestV236,resolveLiveObservedSpinTrialV236,type LiveObservedSpinTrialRequestV236} from './LiveObservedSpinTrialV236';
 import {validateLiveSpinMotorPracticePolicyV239,type LiveSpinMotorPracticePolicyV239} from './LiveSpinMotorPracticeV239';
+import {preContactSweetSpotSpeedV1} from './PreContactSpeedV1';
 import {validateLiveObservedSpinComposeRequestV238,resolveLiveObservedSpinComposeV238,composeLiveObservedSpinAimV238,type LiveObservedSpinComposeRequestV238} from './LiveObservedSpinComposeV238';
 
 export type LiveMeasuredClipV1=Readonly<{
@@ -157,6 +159,11 @@ export function resolveLivePitchReleaseV1(p:LivePitchInputV1['pitcher']){
     sideMagnitudeMeters:explicit?sideMeters:null,extensionTowardHomeMeters:explicit?extensionMeters:null,
     basis:explicit?'LOCAL_BODY_RATIO_WITH_OPTIONAL_AUTHORED_RELEASE_SI' as const:'LEGACY_DIRECT_PITCH_COMPATIBILITY' as const,
     measuredNamedPlayer:false as const};
+}
+/** One pitch's release: the pitcher's release moved by the pitch's releaseOffsetV1 [toward his arm, up, toward home], in metres. */
+function livePitchReleaseOfV1(p:LivePitchInputV1['pitcher'],offset:readonly number[]|undefined):Vec3{
+  const r=resolveLivePitchReleaseV1(p).position;
+  return offset===undefined?r:{x:r.x+(p.throws==='L'?1:-1)*offset[0]!,y:r.y+offset[1]!,z:r.z-offset[2]!};
 }
 const zero=():Vec3=>({x:0,y:0,z:0});
 const dot=(a:Vec3,b:Vec3)=>a.x*b.x+a.y*b.y+a.z*b.z;
@@ -406,7 +413,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     // Break direction at the plate: this pitch against the fastball (or a spinless ball for the fastball), both sent the same way.
     const owned=p.pitchRepertoireV78===undefined?[]:validatePitchRepertoireV78(p.pitchRepertoireV78,p.maximumPitchSpeedMps).pitches,
       fast=owned.find(row=>row.pitchType==='fastball')??owned.find(row=>['sinker','cutter'].includes(row.pitchType)),
-      release=resolveLivePitchReleaseV1(p).position,{seamForce:_zoneSeams,...zoneAero}=profile.air.aerodynamics,
+      release=livePitchReleaseOfV1(p,selectedSnapshot?.releaseOffsetV1),{seamForce:_zoneSeams,...zoneAero}=profile.air.aerodynamics,
       zoneAir=profile.air.aerodynamics.seamForce===undefined?profile.air:{...profile.air,aerodynamics:zoneAero},
       plateOf=(speed:number,spin:Vec3)=>{const guess=(release.z-target.z)/speed,
         velocity={x:(target.x-release.x)/guess,y:(target.y-release.y-profile.air.gravityY*guess*guess/2)/guess,z:-speed};
@@ -456,7 +463,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       sourceTick:input.originTick,observationTick:input.originTick,planeZ:battingSetupV94.plateFrontZ,standardDeviationMeters:effectiveCommandStd,
       baselineErrorMeters:shapeLiveCommandMissV1({x:commandRandom.normal()*effectiveCommandStd,y:commandRandom.normal()*effectiveCommandStd},{target:pitcherRequest.position,zone,commandStdMeters:effectiveCommandStd,...(p.throws===undefined?{}:{throws:p.throws}),...(p.technicalSkills===undefined?{}:{technicalSkills:p.technicalSkills})}),abilityBasis:'commandStdMeters_and_command_techniques',reason:pitcherRequest.reason}),
     commanded={...selectedTarget,...pitcherRecognition.position};
-  const releaseGeometry=resolveLivePitchReleaseV1(p),release=releaseGeometry.position,flightGuess=(release.z-commanded.z)/speed;
+  const releaseGeometry=resolveLivePitchReleaseV1(p),release=livePitchReleaseOfV1(p,selectedSnapshot?.releaseOffsetV1),flightGuess=(release.z-commanded.z)/speed;
   // viewTimeTimingV1: the hitter sees the ball only until he commits, so a faster pitch leaves less of the flight to time it by;
   // the timing spread grows as (view at 40 m/s / this view) to the given power. The view is the flight less the commit time.
   const viewTimingScaleV1=observationPolicyV151?.viewTimeTimingV1===undefined?1:(()=>{const commit=observationPolicyV151.commitSwingSeconds??.26;
@@ -590,12 +597,16 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
           const reference=familiarShare===null?undefined:references!.find(r=>r.pitchType===type);
           return reference===undefined?pitch:{...pitch,spinRadPerSecond:add(mul(pitch.spinRadPerSecond,familiarShare!),mul(reference.spinRadPerSecond,1-familiarShare!))};},
         owned=p.pitchRepertoireV78===undefined?null:validatePitchRepertoireV78(p.pitchRepertoireV78,p.maximumPitchSpeedMps).pitches,
-        candidates=owned?owned.map(row=>({id:row.pitchId,pitch:pictured(row,row.pitchType),prior:(row.usageWeightV1??1)*countUsageV1(row)}))
+        // fastballSitV1: he sits on the hard stuff, its prior multiplied.
+        sit=observationPolicyV151?.fastballSitV1,tail=observationPolicyV151?.recognitionTailV1,sitOn=(type:string)=>sit!==undefined&&['fastball','sinker','cutter'].includes(type)?sit:1,
+        candidates=owned?owned.map(row=>({id:row.pitchId,pitch:pictured(row,row.pitchType),prior:(row.usageWeightV1??1)*countUsageV1(row)*sitOn(row.pitchType),offset:row.releaseOffsetV1}))
           :resolvePitcherRepertoireV77(p,p.throws??'R').filter(row=>['fastball','slider','curve','changeup'].includes(row.pitchType))
-            .map(row=>({id:row.pitchType as string,pitch:pictured(row,row.pitchType),prior:1})),
+            .map(row=>({id:row.pitchType as string,pitch:pictured(row,row.pitchType),prior:sitOn(row.pitchType),offset:undefined as readonly number[]|undefined})),
         actualId=selectedSnapshot?selectedSnapshot.pitchId:pitchType,
         t1=(effectiveForecastV246.observedThroughTick!-input.originTick)/tps,plane=battingSetupV94.contactPlaneZ,
         seenBall=kernel.evaluateAt(t1,'incoming').moment.ball,[degrees,ms,spinDegrees]=recognitionPolicyV2 as readonly [number,number,number?],
+        // releaseCueV1 [cm]: each pitch is pictured leaving the hand at its own offset; the gap to this ball's (arm side, up) counts.
+        releaseCue=observationPolicyV151?.releaseCueV1,seenOffset=selectedSnapshot?.releaseOffsetV1,
         weighed=candidates.map(c=>{
           const start={...initial,velocity:mul(initial.velocity,c.pitch.releaseSpeedMps*.99/norm(initial.velocity)),spin:c.pitch.spinRadPerSecond},
             at=sampleAerodynamicPitchStateAtElapsedSeconds(start,t1,inverseAir),
@@ -603,8 +614,11 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
             lagMs=Math.abs((seenBall.position.z-at.position.z)/at.velocity.z)*1000,
             // The seams' turn: the angle between this pitch's spin axis and the one in flight (both as released).
             axisDegrees=spinDegrees===undefined?0:norm(c.pitch.spinRadPerSecond)*norm(initial.spin)===0?180
-              :Math.acos(clamp(dot(c.pitch.spinRadPerSecond,initial.spin)/(norm(c.pitch.spinRadPerSecond)*norm(initial.spin)),-1,1))*180/Math.PI;
-          return {...c,start,at,turnDegrees,lagMs,weight:c.prior*Math.exp(-.5*((turnDegrees/degrees)**2+(lagMs/ms)**2+(spinDegrees===undefined?0:(axisDegrees/spinDegrees)**2)))};
+              :Math.acos(clamp(dot(c.pitch.spinRadPerSecond,initial.spin)/(norm(c.pitch.spinRadPerSecond)*norm(initial.spin)),-1,1))*180/Math.PI,
+            releaseGapCm=releaseCue===undefined?0:100*Math.hypot((c.offset?.[0]??0)-(seenOffset?.[0]??0),(c.offset?.[1]??0)-(seenOffset?.[1]??0));
+          const d2=(turnDegrees/degrees)**2+(lagMs/ms)**2+(spinDegrees===undefined?0:(axisDegrees/spinDegrees)**2)+(releaseCue===undefined?0:(releaseGapCm/releaseCue)**2);
+          // recognitionTailV1: Student's t in place of the normal, so a pitch far from the ball keeps some weight.
+          return {...c,start,at,turnDegrees,lagMs,weight:c.prior*(tail===undefined?Math.exp(-.5*d2):(1+d2/tail)**(-(tail+1)/2))};
         }),
         total=weighed.reduce((n,c)=>n+c.weight,0),
         draw=randomStreamsV152?.rng('batterBelief','pitch-recognition-v2').uniform()??new SeedRoot(input.seed).streamRng(0,'batting','pitch-recognition-v2').nextFloat();
@@ -654,7 +668,19 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     perceivedForecastV1=speedErrorV1===null?readForecastV1:{...readForecastV1!,prediction:{...readForecastV1!.prediction!,position:{...readForecastV1!.prediction!.position,
       x:readForecastV1!.prediction!.position.x+readForecastV1!.prediction!.estimatedVelocity.x*speedErrorV1.shiftSeconds,
       y:readForecastV1!.prediction!.position.y+readForecastV1!.prediction!.estimatedVelocity.y*speedErrorV1.shiftSeconds}}},
-    perceivedArrivalV1=readArrivalV1===undefined?undefined:readArrivalV1+(speedErrorV1?.shiftSeconds??0);
+    perceivedArrivalV1=readArrivalV1===undefined?undefined:readArrivalV1+(speedErrorV1?.shiftSeconds??0),
+    // bendSpreadV1 (sd of the relative error in the bend still to come): read right or not, the hitter misjudges by a share of it
+    // how much the ball will still break past his look (its acceleration less gravity), so a big break is missed by more (2026-11-06).
+    bendErrorV1=observationPolicyV151?.bendSpreadV1===undefined||!perceivedForecastV1?.prediction||perceivedForecastV1.observedThroughTick===null?null:(()=>{
+      const r=randomStreamsV152?.rng('batterBelief','bend-spread-v1'),root=r?null:new SeedRoot(input.seed).streamRng(0,'batting','bend-spread-v1'),
+        u1=Math.max(1e-12,r?r.uniform():root!.nextFloat()),u2=r?r.uniform():root!.nextFloat(),
+        error=clamp(observationPolicyV151!.bendSpreadV1!*Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2),-1,1),
+        a=perceivedForecastV1.prediction.estimatedAcceleration,
+        dt=Math.max(0,(perceivedArrivalV1??perceivedForecastV1.prediction.arrivalAfterReleaseSeconds)-(perceivedForecastV1.observedThroughTick-input.originTick)/tps),k=.5*error*dt*dt;
+      return {error,x:k*a.x,y:k*(a.y-profile.air.gravityY)};
+    })(),
+    bentForecastV1=bendErrorV1===null?perceivedForecastV1:{...perceivedForecastV1!,prediction:{...perceivedForecastV1!.prediction!,position:{...perceivedForecastV1!.prediction!.position,
+      x:perceivedForecastV1!.prediction!.position.x+bendErrorV1.x,y:perceivedForecastV1!.prediction!.position.y+bendErrorV1.y}}};
   if(opticalExperiment&&effectiveForecastV246?.status!=='PREDICTED')throw Error('Robin optical HOLD: no observed forecast');
   assert(!(input.managerCommunicationV122&&input.swingInstructionV121),'ambiguous received and raw manager instruction');
   const managerCommunicationV122=input.managerCommunicationV122===undefined?null:resolveLiveManagerCommunicationV122({...input.managerCommunicationV122,
@@ -673,7 +699,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   const yawDeferExecutionV274=input.yawDiagnosticV274!==undefined;
   if(yawDeferExecutionV274&&!randomStreamsV152)throw Object.assign(new Error('yaw diagnostic: INDEPENDENT_RANDOMNESS_REQUIRED'),{yawDiagnosticStatus:'HOLD'});
   const observedPredictionV122=positionObserverV151?{elapsedSeconds:speedErrorV1?perceivedArrivalV1!:readsPicturedV1?readArrivalV1!:effectiveForecastV246!.prediction?.arrivalAfterReleaseSeconds??decisionTime,
-      ball:{tick:positionObserverV151.decisionTick,position:perceivedForecastV1!.prediction?.position??{x:0,y:middle,z:battingSetupV94.contactPlaneZ},
+      ball:{tick:positionObserverV151.decisionTick,position:bentForecastV1!.prediction?.position??{x:0,y:middle,z:battingSetupV94.contactPlaneZ},
         velocity:effectiveForecastV246!.prediction?.estimatedVelocity??zero(),spin:zero()}}
       :predictFromObservation(observedSample,decisionTime,battingSetupV94.contactPlaneZ),
     // priorExpectationV1 [weight, k]: instead of one remembered pitch drawn at random, the batter expects the mean of what he
@@ -792,8 +818,9 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       clip=learnedMotionClipV124;
     }
     const arc=impactTrajectory??DEFAULT_WHOLE_ARC_TRAJECTORY_V1;
-    impactTrajectory={...arc,method:'whole-arc-target',angleDegreesByLevel:[spinMotionV123.attackAngleDegrees,spinMotionV123.attackAngleDegrees,
-      spinMotionV123.attackAngleDegrees,spinMotionV123.attackAngleDegrees]};
+    // swingTiltV1 also lifts or lowers the planned spin's attack angle with the contact height.
+    const tilt=observationPolicyV151?.swingTiltV1,spinAttack=spinMotionV123.attackAngleDegrees+(tilt?tilt[3]*(motorAimPosition.y/heightScale-tilt[2]):0);
+    impactTrajectory={...arc,method:'whole-arc-target',angleDegreesByLevel:[spinAttack,spinAttack,spinAttack,spinAttack]};
   }
   const observedSpinTrialV236=spinTrialRequestV236===undefined?undefined:resolveLiveObservedSpinTrialV236({request:spinTrialRequestV236,
     snapshot:positionObserverV151?.snapshotAt?.(positionObserverV151.decisionTick)??null,clip:{id:clip.id,sourceSha256:clip.source.sha256,bats:clip.side},
@@ -883,7 +910,14 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     directionMotorActiveV153=directionMotorPolicyV153!==undefined&&directionMotorReasonV153===null,
     planningSweetSpotT=directionMotorActiveV153?clamp(b.sweetSpotT??(b.batLengthM-.1524)/b.batLengthM,.65,.9):sweetSpotT,
     planningContactTime=directionMotorActiveV153?Math.max(.055,prediction.elapsedSeconds+(b.technicalTimingOffsetSeconds??0)):desiredContactTime;
-  const fullFrames=registerMeasuredBatToFieldV1(clip.frames).map(f=>({tick:f.tick,grip:mul(f.grip,heightScale),orientation:f.orientation}));
+  // noImpactFollowV1: past the contact pose the clip's bat is slowed by the ball it hit; pull those poses in so a bat that
+  // meets no ball there keeps its contact speed (ClipImpactRetimeV1). The same retime goes to the whiff playback below.
+  const handsV1=observationPolicyV151?.handExtensionV1,holdV1=observationPolicyV151?.sweetSpotHoldV1;
+  const retimeV1=(observationPolicyV151?.noImpactFollowV1!==undefined||handsV1!==undefined||holdV1!==undefined)&&swingOffered&&input.batting!=='bunt'
+    ?{contactTick:sourceContactTick,radiusM:b.batLengthM*sweetSpotT,...(observationPolicyV151?.noImpactFollowV1!==undefined?{windowSeconds:observationPolicyV151.noImpactFollowV1}:{}),
+      ...(handsV1!==undefined?{hands:[...handsV1]}:{}),...(holdV1!==undefined?{hold:[...holdV1]}:{})}:undefined;
+  const scaledFrames=registerMeasuredBatToFieldV1(clip.frames).map(f=>({tick:f.tick,grip:mul(f.grip,heightScale),orientation:f.orientation}));
+  const fullFrames=retimeV1?shapeClipAfterContactV1(scaledFrames,retimeV1):scaledFrames;
   if(directionMotorActiveV153&&!authoredEnvelopeV133){
     // A declared operational bridge from the player's own fixed clip boundary
     // poses. No current prediction, direction or execution error sets the hold.
@@ -918,11 +952,25 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   assert(bounded(rate,.01,20),'authored motor rate is outside this finite reference model');
   let authoredRotation=IDENTITY_QUATERNION;
   const spinPullDeltaV123=spinMotionV123?.pullAngleDeltaDegrees??0;
-  if(b.attackAngleDegrees!==undefined||intendedPullAngleDegrees!==undefined||spinPullDeltaV123!==0){
-    const side=b.bats==='R'?1:-1,attack=b.attackAngleDegrees===undefined?Math.atan2(probeVelocity.y,Math.hypot(probeVelocity.x,probeVelocity.z)):b.attackAngleDegrees*Math.PI/180,
+  // swingTiltV1: MLB batters tilt the swing plane with the pitch height (Statcast swing_path_tilt 40 deg below the zone,
+  // 22 above, -6.4 deg/ft) and lift the attack angle on low pitches; the clips keep one plane at every height.
+  const swingTiltV1=observationPolicyV151?.swingTiltV1,tiltHeightV1=swingTiltV1?motorAimPosition.y/heightScale-swingTiltV1[2]:0;
+  if(b.attackAngleDegrees!==undefined||intendedPullAngleDegrees!==undefined||spinPullDeltaV123!==0||swingTiltV1){
+    const side=b.bats==='R'?1:-1,attack=(b.attackAngleDegrees===undefined?Math.atan2(probeVelocity.y,Math.hypot(probeVelocity.x,probeVelocity.z)):b.attackAngleDegrees*Math.PI/180)
+      +(swingTiltV1?swingTiltV1[3]*tiltHeightV1*Math.PI/180:0),
       basePull=intendedPullAngleDegrees===undefined?-Math.atan2(probeVelocity.x,probeVelocity.z):intendedPullAngleDegrees*side*Math.PI/180,
       pull=spinPullDeltaV123===0?basePull:basePull+spinPullDeltaV123*side*Math.PI/180;
-    authoredRotation=betweenDirections(probeVelocity,{x:-Math.sin(pull)*Math.cos(attack),y:Math.sin(attack),z:Math.cos(pull)*Math.cos(attack)});
+    const towardV1={x:-Math.sin(pull)*Math.cos(attack),y:Math.sin(attack),z:Math.cos(pull)*Math.cos(attack)};
+    authoredRotation=betweenDirections(probeVelocity,towardV1);
+    if(swingTiltV1){
+      // Turn the bat about its own direction of travel: the attack angle and the pull stay, the plane tilts.
+      const want=clamp(swingTiltV1[0]+swingTiltV1[1]*tiltHeightV1,0,85),
+        axis0=rotateVectorByQuaternion(rotateVectorByQuaternion({x:0,y:1,z:0},(contactLeadV1===undefined?probe.sampleAtSourceTick(sourceContactTick,'outgoing'):probe.sampleAtSourceTick(sourceContactTick-contactLeadV1*1e6,'incoming')).orientation),authoredRotation),
+        tiltAt=(turn:number)=>{const ax=rotateVectorByQuaternion(axis0,quaternionFromAxisAngle(towardV1,turn)),n=cross(ax,towardV1),m=norm(n);return m>0?Math.acos(Math.min(1,Math.abs(n.y)/m))*180/Math.PI:90;};
+      let bestTurn=0,bestGap=Math.abs(tiltAt(0)-want);
+      for(let k=1;k<=140;k++)for(const turn of [k*.005,-k*.005]){const gap=Math.abs(tiltAt(turn)-want);if(gap<bestGap-1e-9){bestGap=gap;bestTurn=turn;}}
+      authoredRotation=multiplyQuaternions(quaternionFromAxisAngle(towardV1,bestTurn),authoredRotation);
+    }
   }
   const compactWindow=swingIntentV121?(sourceContactTick-fullFrames[0].tick)/1e6/rate*(1-.5*swingIntentV121.compactness):Infinity,
     minimumSourceTick=Math.min(sourceContactTick-Math.min(b.preContactSeconds??Math.max(0,planningContactTime-.045),compactWindow)*rate*1e6,
@@ -1059,7 +1107,8 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   const contactFrameV244=frozenContactFrameV244;
   const startOffset=desiredContactTime-referenceElapsedSecondsV121((sourceContactTick-selectedFrames[0].tick)/1e6/rate,rampSeconds),
     plannedStartTick=input.originTick+Math.max(0,Math.round(startOffset*tps));
-  let actualStartTick=envelopeV133?Math.max(plannedStartTick,observationTick+Math.ceil((b.motorLatencySeconds??0)*tps)+Math.ceil(envelopeV133.preparation.durationSeconds*tps))
+  // loadBeforeCommitV1: the load may already be under way at the commit; only the swing waits for commit + latency.
+  let actualStartTick=envelopeV133?Math.max(plannedStartTick,observationTick+Math.ceil((b.motorLatencySeconds??0)*tps)+(observationPolicyV151?.loadBeforeCommitV1?0:Math.ceil(envelopeV133.preparation.durationSeconds*tps)))
       :swingMotorV121||executionV122||intentV122||spinMotionV123||battingDirectionV149||positionObserverV151?resolveMotorStart(plannedStartTick,observationTick,input.originTick,Math.ceil((b.motorLatencySeconds??0)*tps))
       :b.motorLatencySeconds===undefined?plannedStartTick:Math.max(plannedStartTick,input.originTick+Math.ceil((decisionTime+b.motorLatencySeconds)*tps)),
     motorDelaySeconds=(actualStartTick-plannedStartTick)/tps,
@@ -1117,7 +1166,15 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       lateObservedTick=positionObserverV151?(lateEffectiveForecast?.status==='PREDICTED'?lateEffectiveForecast.observedThroughTick!:observationTick)
         :input.originTick+Math.round(observedTime*tps),
       evidence=selectPredictionAt(lateObservedTick>observationTick?[earlyEvidence,{predictionId:'late-observation-v121',observedTick:lateObservedTick,availableTick,position:latePrediction.ball.position}]:[earlyEvidence],correctionFromTick)!,
-      requestedOffset=judgmentAimV1.x===0&&judgmentAimV1.y===0?sub(evidence.position,placementPositionV1):sub(evidence.position,{...placementPositionV1,x:placementPositionV1.x+judgmentAimV1.x,y:placementPositionV1.y+judgmentAimV1.y}),distance=norm(requestedOffset),
+      // lateLookNoiseV1: the late look is itself a forecast from the last ball the batter saw, so it errs by the sd here
+      // (m, plus m per second from that last sight to contact); without it the late look cancels nearly all perception
+      // error and contacts bunch on the barrel line (vertical miss sd 1.3 in, MLB about 1.6 in among contacts).
+      lateNoiseV1=observationPolicyV151?.lateLookNoiseV1&&evidence.predictionId==='late-observation-v121'?(()=>{
+        const sd=observationPolicyV151.lateLookNoiseV1![0]+observationPolicyV151.lateLookNoiseV1![1]*Math.max(0,(throughTick-evidence.observedTick)/tps),
+          g=new SeedRoot(input.seed).streamRng(0,'batting','late-look-noise-v1'),n=()=>Math.sqrt(-2*Math.log(1-g.nextFloat()))*Math.cos(2*Math.PI*g.nextFloat());
+        return {x:n()*sd,y:n()*sd,z:0};})():zero(),
+      seenV1=add(evidence.position,lateNoiseV1),
+      requestedOffset=judgmentAimV1.x===0&&judgmentAimV1.y===0?sub(seenV1,placementPositionV1):sub(seenV1,{...placementPositionV1,x:placementPositionV1.x+judgmentAimV1.x,y:placementPositionV1.y+judgmentAimV1.y}),distance=norm(requestedOffset),
       budget=effectiveMaximumSpeedV121===undefined?0:Math.max(0,Math.min(uncorrectedReference.maximumGripSpeedMps,effectiveMaximumSpeedV121-uncorrectedReference.maximumSweetSpotSpeedMps))*(swingIntentV121?.controlPriority??1),
       accelerationBudget=executionV122?Math.max(0,Math.min(executionV122.maximumGripAccelerationMps2-referenceAccelerationBoundsV122(uncorrectedReference).maximumGripAccelerationMps2,
         executionV122.maximumSweetSpotAccelerationMps2-referenceAccelerationBoundsV122(uncorrectedReference).maximumSweetSpotAccelerationMps2)):Infinity,
@@ -1328,7 +1385,13 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       const at=reference.sampleAtSourceTick(sourceContactTick,'incoming'),turn=multiplyQuaternions(impactSample.orientation,{w:at.orientation.w,x:-at.orientation.x,y:-at.orientation.y,z:-at.orientation.z}),
         linearVelocity=rotateVectorByQuaternion(at.state.linearVelocity,turn),angularVelocity=rotateVectorByQuaternion(at.state.angularVelocity,turn);
       return {state:{...impactSample.state,linearVelocity,angularVelocity},sweetSpotVelocity:add(linearVelocity,cross(angularVelocity,sub(impactSample.sweetSpot,impactSample.state.pose.grip)))};})():null,
-      impactBat=heldV1?createRigidBatStateFromBatterSwingState(heldV1.state,batPhysical):rigidAt(batHit.at),impactSweetSpeed=norm((heldV1??impactSample).sweetSpotVelocity),impactLimit=observationPolicyV151?.impactSpeedLimitV1!==undefined&&b.targetSweetSpotSpeedMps!==undefined?b.targetSweetSpotSpeedMps*(observationPolicyV151.targetSpeedScaleV1??1)*observationPolicyV151.impactSpeedLimitV1:Infinity,impactScale=impactSweetSpeed>impactLimit?impactLimit/impactSweetSpeed:1;const impactBatScaled=impactScale===1?impactBat:{...impactBat,centerOfMassVelocity:mul(impactBat.centerOfMassVelocity,impactScale),angularVelocity:mul(impactBat.angularVelocity,impactScale)};
+      // preContactSpeedLossV1: met before the clip's contact pose (late swing, deep contact), the bat keeps the clip's pose and
+      // direction but not its pre-impact sample speed, which runs ahead of the contact speed; see PreContactSpeedV1.
+      preV1=observationPolicyV151?.preContactSpeedLossV1!==undefined&&swingOffered&&input.batting!=='bunt'&&!buntMotor&&!heldV1&&impactSample.sourceTick<sourceContactTick?(()=>{
+        const want=preContactSweetSpotSpeedV1(norm(reference.sampleAtSourceTick(sourceContactTick,'incoming').sweetSpotVelocity),(sourceContactTick-impactSample.sourceTick)/1e6/rate,observationPolicyV151.preContactSpeedLossV1),
+          k=want/norm(impactSample.sweetSpotVelocity);
+        return {state:{...impactSample.state,linearVelocity:mul(impactSample.state.linearVelocity,k),angularVelocity:mul(impactSample.state.angularVelocity,k)},sweetSpotVelocity:mul(impactSample.sweetSpotVelocity,k)};})():null,
+      impactBat=heldV1?createRigidBatStateFromBatterSwingState(heldV1.state,batPhysical):preV1?createRigidBatStateFromBatterSwingState(preV1.state,batPhysical):rigidAt(batHit.at),impactSweetSpeed=norm((heldV1??preV1??impactSample).sweetSpotVelocity),impactLimit=observationPolicyV151?.impactSpeedLimitV1!==undefined&&b.targetSweetSpotSpeedMps!==undefined?b.targetSweetSpotSpeedMps*(observationPolicyV151.targetSpeedScaleV1??1)*observationPolicyV151.impactSpeedLimitV1:Infinity,impactScale=impactSweetSpeed>impactLimit?impactLimit/impactSweetSpeed:1;const impactBatScaled=impactScale===1?impactBat:{...impactBat,centerOfMassVelocity:mul(impactBat.centerOfMassVelocity,impactScale),angularVelocity:mul(impactBat.angularVelocity,impactScale)};
     contact=resolveWoodBatSpeedProfileBallContact(impactBall,impactBatScaled,ballPhysical,NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1);
     const vibrationV1=observationPolicyV151?.barrelVibrationLossV1;
     if(contact&&vibrationV1){
@@ -1382,7 +1445,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   const {frames:_measuredFrames,...playbackReference}=registeredReference;
   const batPlaybackV88:LiveBatPlaybackDescriptorV88|undefined=swingOffered&&input.batting!=='bunt'?{
     version:88,originTick:input.originTick,battingSide:b.bats,heightScale,
-    sourceFirstTick:selectedFrames[0].tick,sourceLastTick:selectedFrames.at(-1)!.tick,radiusProfile,reference:playbackReference,
+    sourceFirstTick:selectedFrames[0].tick,sourceLastTick:selectedFrames.at(-1)!.tick,radiusProfile,reference:playbackReference,...(retimeV1?{retimeV1}:{}),
   }:undefined;
   const nominalPlanV153=nominalRegistrationsV153.get(rate)?.diagnostics,
     nominalPlanForRecordV153=yawDiagnosticV274?null:nominalPlanV153?{...nominalPlanV153,...(neutralPolicyV272===undefined?{}:{neutralReactiveV272:neutralDiagnosticV272()}),candidates:nominalPlanV153.candidates.map(candidate=>{

@@ -15,6 +15,8 @@ rng = random.Random(int(sys.argv[6]) if len(sys.argv) > 6 else 1)
 CODE = {'FF': 'FF', 'SI': 'SI', 'FT': 'SI', 'FC': 'FC', 'SL': 'SL', 'ST': 'ST', 'SV': 'ST', 'CU': 'CU', 'CS': 'CU', 'KC': 'KC',
         'CH': 'CH', 'SC': 'CH', 'FS': 'FS', 'FO': 'FS'}
 base = json.load(open(base_path, encoding='utf8'))
+if isinstance(base.get('measuredClips'), (list, dict)):   # write copies from a shared base (tools/calibration/clips-ref.mjs)
+    sys.exit('the measured clips are inline; share them first: node tools/calibration/clips-ref.mjs ' + base_path)
 pitchers = [p for p in base['players'] if '-p' in p['playerId']]
 std = {}
 for p in pitchers:

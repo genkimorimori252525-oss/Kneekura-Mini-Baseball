@@ -88,9 +88,21 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   /** With pitchRecognitionV2: on a misread, the read pitch's bend is laid from this time after release (0.05..0.4 s) instead of
    * from the end of the look, as if the late break went unseen; a breaking ball read as a fastball is then expected higher. */
   misreadLookSecondsV1?:number;
+  /** With pitchRecognitionV2: the release point as a cue (scale in cm, 0.1..50). Each pitch he weighs is pictured leaving the hand
+   * at its own releaseOffsetV1; the gap to where this ball left (toward the arm and up) adds (gap/scale)^2 to d^2 (2026-11-06). */
+  releaseCueV1?:number;
+  /** With pitchRecognitionV2: the hitter sits on the hard stuff. The prior of each fastball, sinker and cutter he weighs is
+   * multiplied by this (1..20), so a hard pitch is read as one more often and a soft pitch is taken for one more often (2026-11-06). */
+  fastballSitV1?:number;
+  /** With pitchRecognitionV2: each pitch's weight falls with d as Student's t with this many degrees of freedom (1..30),
+   * (1 + d^2/n)^-(n+1)/2, instead of exp(-d^2/2): a pitch far from the ball still keeps some chance of being read (2026-11-06). */
+  recognitionTailV1?:number;
   /** Standard deviation of the hitter's relative error in the ball's speed at the swing decision (0..0.3). Reading it faster
    * than it is, he expects it sooner and higher (it has less time to drop), slower the other way; one error moves both. */
   speedPerceptionV1?:number;
+  /** Standard deviation of the hitter's relative error in the bend still to come past his look (0..0.6): read right or not, he
+   * misjudges how much the ball will still break by a share of it, so a big break is missed by more (2026-11-06). */
+  bendSpreadV1?:number;
   /** The pitch target plan's choice temperature in runs (0.0005..0.5). Given, the plan forecasts the MLB hitter (swing by count,
    * contact, fouls and run value by region, a walk at its wOBA weight) and draws a spot on exp(-(cost - best) / temperature). */
   pitchTargetPlanV2?:number;
@@ -120,6 +132,20 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   priorExpectationV1?:readonly number[];
   /** Late-look correction bounded by this extra hand acceleration (m/s^2) over the time left, instead of the meet share of the gap. */
   lateLookAccelerationV1?:number;
+  /** Share of the contact-moment sweet-spot speed lost per ms of swing still to go when the ball is met before the clip's contact (0..0.05; absent = clip sample speed). */
+  preContactSpeedLossV1?:number;
+  /** The load (held pose to swing start) may run before the commit, as a stride and load do; only the swing itself waits for commit + motor latency (absent = the load also waits). */
+  loadBeforeCommitV1?:boolean;
+  /** Clip seconds over which a bat past its contact pose returns from the contact speed to the clip's own, impact-slowed speed (0.01..0.3; absent = the clip's timing). */
+  noImpactFollowV1?:number;
+  /** Hands past the contact pose: [share of the sideways motion kept 0..1, speed toward the pitcher m/s 0..10, window s 0.01..0.2, optional share of the bat's turn kept 0.2..1] (absent = the clip's path). */
+  handExtensionV1?:readonly number[];
+  /** Swing plane by contact height (for a 1.8 m batter): [tilt at the middle deg 0..80, tilt per m -100..100, middle height m 0..2, attack angle per m -50..50] (absent = the clip's own plane, one attack angle). */
+  /** Sweet spot held on its contact-pose path past the contact: [window s 0.005..0.1, return s 0.01..0.5] (absent = the clip's path). */
+  sweetSpotHoldV1?:readonly number[];
+  swingTiltV1?:readonly number[];
+  /** Error of the late look's own forecast: [sd m 0..0.05, sd m per second from the last sight to contact 0..0.5] (absent = the late look sees the forecast as is). */
+  lateLookNoiseV1?:readonly number[];
   /** Share (0-1) of the zone-judgment error that also moves the bat's aim; the late look then corrects it as it does a misread. */
   judgmentAimShareV1?:number;
   /** Chance per swing that the hitter is fooled and puts the bat where he expected the pitch (the remembered one);
@@ -155,11 +181,27 @@ export const AUTHORED_LIVE_BATTER_OBSERVATION_V151:LiveBatterObservationPolicyV1
  * 153 km/h standard pitchers, K .206, BB .077, AVG .245, ISO .147, HR .028.
  * Candidate 6 (2026-11-04): the hitter tells the pitch from his expected fastball or not (pitchRecognitionV1 [.65, 6°, 100 ms]),
  * replacing the fooled draw (kept only as the fallback when no fastball or forecast exists): whiffs per swing by pitch type near
- * MLB's (fastball .22 instead of .40, slider .33, curve .24, changeup .28), with ISO .155 and HR .029 at [.6, 6, 100]. */
-export const LIVE_MATCH_BATTER_OBSERVATION_V2:LiveBatterObservationPolicyV151 = Object.freeze({...AUTHORED_LIVE_BATTER_OBSERVATION_V151,
-  commitSwingSeconds:.26,contactSpeedCeilingV1:true,impactSpeedLimitV1:1.05,twoStrikeExpansionV1:.22,meetLateLookV1:Object.freeze([.0045,.014,.85,.3]),swingSpeedRoomV1:1.16,visionSelectivityV1:.004,pitchOrderPlanV1:true,
-  lateLookByMeetOnlyV1:true,priorPlacementShareV1:.45,postContactHoldV1:true,barrelVibrationLossV1:Object.freeze([.1,.145,.35]),undercutAimV1:.01,aimVerticalScaleV1:.6,priorFooledChanceV1:.25,fooledViewPowerV1:1,fooledViewReferenceV1:.49,pitchRecognitionV1:Object.freeze([.65,6,100]),
-  countReadinessV1:Object.freeze([[.62,.85,1],[.72,.9,1],[.72,.95,1],[.12,.85,1]].map(row=>Object.freeze(row)))});
+ * MLB's (fastball .22 instead of .40, slider .33, curve .24, changeup .28), with ISO .155 and HR .029 at [.6, 6, 100].
+ * Bundle (2026-11-06, docs/ai-continuity/PLAN-2026-11-04-history-calibration.md): the decision 80 ms after release with a 0.18 s
+ * commit, the pitch plan with each pitch's aim centre and no zone lean, the misread arrival from the seen ball, recognition
+ * [1.4, 16], the count-and-tendency expectation [.35, 5], a judged placement, the late look's acceleration, the exit-speed shape
+ * (exponent 1, impact limit 1.10) and the refit swing decision (noise .35, two strikes .28, count readiness). In the six
+ * standard archetype leagues (command .19, attack angle 16, chase margin .2, threshold .48) with the Nathan lift and pitch
+ * spins refit under it, K .214 and BABIP .313 over 24 games (MLB 2024 .226, .291).
+ * Bundle 2 (2026-11-06, AMENDMENTS/2026-11-03-mlb-batting.md): the bat past the clip's contact pose keeps its speed and carries
+ * the sweet spot straight on (no recorded ball slowing it, no slide to the tip out front), the swing plane tilts and the attack
+ * angle eases with the pitch height, the undercut aim is .02, a bat met before its contact pose is still gaining speed, the load
+ * may run before the commit, and the hitter sits on the hard stuff (x3). With standard batters at attack 11 and the contact plane
+ * at .44 m, over 24 games before the sit: K .231, BB .088, HR .029-.031, exit 89.9 mph, launch 14.2, GB/LD/FB/PU .43/.21/.24/.12,
+ * in-zone whiffs .225 (MLB .226, .082, .029, ~89, ~13, .43/.21/.25/.10, .174). */
+export const LIVE_MATCH_BATTER_OBSERVATION_V2:LiveBatterObservationPolicyV151 = Object.freeze({...AUTHORED_LIVE_BATTER_OBSERVATION_V151,decisionAfterReleaseTicks:80000,
+  commitSwingSeconds:.18,contactSpeedCeilingV1:true,impactSpeedLimitV1:1.1,twoStrikeExpansionV1:.28,meetLateLookV1:Object.freeze([.0045,.014,.85,.3]),swingSpeedRoomV1:1.16,visionSelectivityV1:.004,pitchOrderPlanV1:true,
+  lateLookByMeetOnlyV1:true,priorPlacementShareV1:.45,postContactHoldV1:true,barrelVibrationLossV1:Object.freeze([.1,.145,.35,1]),undercutAimV1:.02,aimVerticalScaleV1:.6,priorFooledChanceV1:.25,fooledViewPowerV1:1,fooledViewReferenceV1:.49,pitchRecognitionV1:Object.freeze([.65,6,100]),
+  countReadinessV1:Object.freeze([[.54,1,.88],[.78,.96,.96],[.73,1,.98],[.14,.90,.93]].map(row=>Object.freeze(row))),
+  pitchTargetPlanV2:.01,pitchZoneLeanV2:0,pitchRecognitionV2:Object.freeze([1.4,16]),readFromSeenV1:1,pitchAimCenterV2:.8,priorExpectationV1:Object.freeze([.35,5]),
+  placementJudgedV1:.8,lateLookAccelerationV1:36,swingDecisionNoiseV1:.35,
+  // Bundle 2 (2026-11-06), in the order measured: the contact window and the swing plane, then the hitter sitting on the hard stuff.
+  preContactSpeedLossV1:.005,loadBeforeCommitV1:true,noImpactFollowV1:.06,sweetSpotHoldV1:Object.freeze([.016,.1]),swingTiltV1:Object.freeze([32,-20.8,.76,-13]),fastballSitV1:3});
 function assert(value:unknown,message:string):asserts value {if(!value)throw Error('live batter observation v151: '+message);}
 export function meetLateLookV1(timingStdSeconds:number,look:readonly number[]){
   const [best,worst,high,low]=look as [number,number,number,number],t=Math.min(1,Math.max(0,Math.log(timingStdSeconds/best)/Math.log(worst/best)));
@@ -179,6 +221,13 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'pitchOrderPlanV1')){keys.push('pitchOrderPlanV1');assert(typeof p.pitchOrderPlanV1==='boolean','invalid pitch order plan');}
   if(Object.hasOwn(p,'contactLeadAlignV1')){keys.push('contactLeadAlignV1');assert(Number.isFinite(p.contactLeadAlignV1)&&p.contactLeadAlignV1!>=0&&p.contactLeadAlignV1!<=.02,'invalid contact lead');}
   if(Object.hasOwn(p,'priorFooledChanceV1')){keys.push('priorFooledChanceV1');assert(Number.isFinite(p.priorFooledChanceV1)&&p.priorFooledChanceV1!>=0&&p.priorFooledChanceV1!<=1,'invalid prior fooled chance');}
+  if(Object.hasOwn(p,'lateLookNoiseV1')){keys.push('lateLookNoiseV1');const t=p.lateLookNoiseV1;assert(Array.isArray(t)&&t.length===2&&t.every(Number.isFinite)&&t[0]>=0&&t[0]<=.05&&t[1]>=0&&t[1]<=.5,'invalid late look noise');}
+  if(Object.hasOwn(p,'sweetSpotHoldV1')){keys.push('sweetSpotHoldV1');const t=p.sweetSpotHoldV1;assert(Array.isArray(t)&&t.length===2&&t.every(Number.isFinite)&&t[0]>=.005&&t[0]<=.1&&t[1]>=.01&&t[1]<=.5,'invalid sweet spot hold');}
+  if(Object.hasOwn(p,'swingTiltV1')){keys.push('swingTiltV1');const t=p.swingTiltV1;assert(Array.isArray(t)&&t.length===4&&t.every(Number.isFinite)&&t[0]>=0&&t[0]<=80&&Math.abs(t[1])<=100&&t[2]>=0&&t[2]<=2&&Math.abs(t[3])<=50,'invalid swing tilt');}
+  if(Object.hasOwn(p,'handExtensionV1')){keys.push('handExtensionV1');const h=p.handExtensionV1;assert(Array.isArray(h)&&(h.length===3||h.length===4)&&h.every(Number.isFinite)&&h[0]>=0&&h[0]<=1&&h[1]>=0&&h[1]<=10&&h[2]>=.01&&h[2]<=.2&&(h.length===3||h[3]>=.2&&h[3]<=1),'invalid hand extension');}
+  if(Object.hasOwn(p,'noImpactFollowV1')){keys.push('noImpactFollowV1');assert(Number.isFinite(p.noImpactFollowV1)&&p.noImpactFollowV1!>=.01&&p.noImpactFollowV1!<=.3,'invalid no-impact follow');}
+  if(Object.hasOwn(p,'loadBeforeCommitV1')){keys.push('loadBeforeCommitV1');assert(p.loadBeforeCommitV1===true,'invalid load before commit');}
+  if(Object.hasOwn(p,'preContactSpeedLossV1')){keys.push('preContactSpeedLossV1');assert(Number.isFinite(p.preContactSpeedLossV1)&&p.preContactSpeedLossV1!>=0&&p.preContactSpeedLossV1!<=.05,'invalid pre-contact speed loss');}
   if(Object.hasOwn(p,'lateLookAccelerationV1')){keys.push('lateLookAccelerationV1');assert(Number.isFinite(p.lateLookAccelerationV1)&&p.lateLookAccelerationV1!>=1&&p.lateLookAccelerationV1!<=300,'invalid late look acceleration');}
   if(Object.hasOwn(p,'priorExpectationV1')){keys.push('priorExpectationV1');assert(Array.isArray(p.priorExpectationV1)&&p.priorExpectationV1.length===2&&p.priorExpectationV1[0]>=0&&p.priorExpectationV1[0]<=1&&p.priorExpectationV1[1]>0&&p.priorExpectationV1[1]<=200,'invalid prior expectation');}
   if(Object.hasOwn(p,'judgmentAimShareV1')){keys.push('judgmentAimShareV1');assert(Number.isFinite(p.judgmentAimShareV1)&&p.judgmentAimShareV1!>=0&&p.judgmentAimShareV1!<=1,'invalid judgment aim share');}
@@ -195,6 +244,9 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'misreadLookSecondsV1')){keys.push('misreadLookSecondsV1');assert(Number.isFinite(p.misreadLookSecondsV1)&&p.misreadLookSecondsV1!>=.05&&p.misreadLookSecondsV1!<=.4&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid misread look seconds');}
   if(Object.hasOwn(p,'readBlendV1')){keys.push('readBlendV1');assert(Number.isFinite(p.readBlendV1)&&p.readBlendV1!>=0&&p.readBlendV1!<=1&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid read blend');}
   if(Object.hasOwn(p,'misreadTimingKeepV1')){keys.push('misreadTimingKeepV1');assert(Number.isFinite(p.misreadTimingKeepV1)&&p.misreadTimingKeepV1!>=0&&p.misreadTimingKeepV1!<=1,'invalid misread timing keep');}
+  if(Object.hasOwn(p,'releaseCueV1')){keys.push('releaseCueV1');assert(Number.isFinite(p.releaseCueV1)&&p.releaseCueV1!>=.1&&p.releaseCueV1!<=50&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid release cue');}
+  if(Object.hasOwn(p,'fastballSitV1')){keys.push('fastballSitV1');assert(Number.isFinite(p.fastballSitV1)&&p.fastballSitV1!>=1&&p.fastballSitV1!<=20&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid fastball sit');}
+  if(Object.hasOwn(p,'recognitionTailV1')){keys.push('recognitionTailV1');assert(Number.isFinite(p.recognitionTailV1)&&p.recognitionTailV1!>=1&&p.recognitionTailV1!<=30&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid recognition tail');}
   if(Object.hasOwn(p,'readFromSeenV1')){keys.push('readFromSeenV1');assert(Number.isFinite(p.readFromSeenV1)&&p.readFromSeenV1!>=0&&p.readFromSeenV1!<=1&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid read from seen');}
   if(Object.hasOwn(p,'pitchFamiliarityV1')){keys.push('pitchFamiliarityV1');assert(Array.isArray(p.pitchFamiliarityV1)&&p.pitchFamiliarityV1.length===3
     &&p.pitchFamiliarityV1.every((v:unknown)=>typeof v==='number'&&v>=0&&v<=1)&&Object.hasOwn(p,'leagueReferencePitchesV1'),'invalid pitch familiarity');}
@@ -207,6 +259,7 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'pitchZoneLeanV2')){keys.push('pitchZoneLeanV2');assert(typeof p.pitchZoneLeanV2==='number'&&p.pitchZoneLeanV2>=0&&p.pitchZoneLeanV2<=5,'invalid pitch zone lean v2');}
   if(Object.hasOwn(p,'pitchTargetPlanV2')){keys.push('pitchTargetPlanV2');assert(typeof p.pitchTargetPlanV2==='number'&&p.pitchTargetPlanV2>=.0005&&p.pitchTargetPlanV2<=.5,'invalid pitch target plan v2');}
   if(Object.hasOwn(p,'speedPerceptionV1')){keys.push('speedPerceptionV1');assert(typeof p.speedPerceptionV1==='number'&&p.speedPerceptionV1>=0&&p.speedPerceptionV1<=.3,'invalid speed perception');}
+  if(Object.hasOwn(p,'bendSpreadV1')){keys.push('bendSpreadV1');assert(typeof p.bendSpreadV1==='number'&&p.bendSpreadV1>=0&&p.bendSpreadV1<=.6,'invalid bend spread');}
   if(Object.hasOwn(p,'accelerationViewTimeV1')){keys.push('accelerationViewTimeV1');assert(typeof p.accelerationViewTimeV1==='number'&&p.accelerationViewTimeV1>=.01&&p.accelerationViewTimeV1<=2,'invalid acceleration view time');}
   if(Object.hasOwn(p,'accelerationPriorWeightV1')){keys.push('accelerationPriorWeightV1');assert(typeof p.accelerationPriorWeightV1==='number'&&p.accelerationPriorWeightV1>=0&&p.accelerationPriorWeightV1<=1,'invalid acceleration prior weight');}
   if(Object.hasOwn(p,'visionJudgmentV1')){keys.push('visionJudgmentV1');assert(Array.isArray(p.visionJudgmentV1)&&p.visionJudgmentV1.length===2&&p.visionJudgmentV1[0]>0&&p.visionJudgmentV1[0]<=.2&&p.visionJudgmentV1[1]>=5&&p.visionJudgmentV1[1]<=500,'invalid vision judgment');}

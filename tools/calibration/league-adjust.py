@@ -5,7 +5,7 @@ R = 'C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools
 spec = importlib.util.spec_from_file_location('af', R + '/ability-fit.py'); af = importlib.util.module_from_spec(spec); sys.argv = ['x']; spec.loader.exec_module(af)
 W = next((a.split('=', 1)[1] for a in ARGS if a.startswith('--work=')), 'K:/kbm-work/mlb24all'); ARGS = [a for a in ARGS if not a.startswith('--work=')]   # --work=<folder> of league-hitters.py
 rec, tag, base, out = ARGS[:4]; gain = float(ARGS[4]) if len(ARGS) > 4 else 1.0
-P = af.ot.predictor(json.load(open('K:/kbm-work/table-statcast24.json')))
+P = af.ot.predictor(json.load(open('K:/kbm-work/table-statcast24-raw.json')))
 REAL = json.load(open('K:/kbm-work/targets-mlb2024-bb.json', encoding='utf8'))
 keys = ['k', 'bb', 'iso', 'babip', 'hr', 'gb', 'fb']; gaps = {k: [] for k in keys}; seen = set()
 for L in range(12):
