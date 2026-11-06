@@ -2,6 +2,7 @@
 // fast, then steps every swing frame by frame and reads what the renderer drew (batterRig.swing).
 // usage: node swing-measure.cjs <game.html> <out.json> [--seed=S] [--pitches=N] [--camera=mound]
 //        [--shots=<dir> --shotPitches=i,j,k --offsets=-132,-88,...] (screenshots of the batter around each contact, in ms)
+//        [--wild=1|0] (every batter in the wild swing of a poor meet, or none: for comparing the two on the same pitches)
 // Per frame: the screen angle of the drawn and of the Core's bat; at the contact: the ball's distance from the drawn bat
 // in px against the ball's radius. Prints the medians.
 const fs = require('fs'), http = require('http'), path = require('path');
@@ -20,6 +21,7 @@ const quantile = (v, q) => {const s = [...v].sort((a, b) => a - b); return s.len
   page.on('pageerror', e => errors.push(e.message));
   await page.goto('http://127.0.0.1:' + server.address().port);
   await page.waitForFunction(() => window.liveMatchPlayback && window.KneekuraArtBankV1?.inspect().loaded === window.KneekuraArtBankV1?.inspect().total, null, {timeout: 120000});
+  if (opt.wild !== undefined) await page.evaluate(w => {globalThis.__swingWildV1 = w;}, opt.wild === '1');
   await page.locator('#match-seed').fill(opt.seed ?? 'swing-1');
   await page.locator('#fixed-seed').check();
   await page.click('#new-game');
@@ -47,7 +49,7 @@ const quantile = (v, q) => {const s = [...v].sort((a, b) => a - b); return s.len
         if (!r.frames[f].bat && !(contactTick !== null && r.frames[f].tick <= contactTick + 2e5)) continue;
         p.seekFrame(f);
         const s = p.inspect().rendered?.batterRig?.swing;
-        if (s) out.push({frame: f, tick: r.frames[f].tick, key: s.key, drawn: s.drawnAngle, physical: s.physicalAngle, turn: s.turn, batTurn: s.batTurn, torso: s.torso, stand: s.stand, stretch: s.stretch, contact: s.contact,
+        if (s) out.push({frame: f, tick: r.frames[f].tick, key: s.key, wild: s.wild, drawn: s.drawnAngle, physical: s.physicalAngle, turn: s.turn, batTurn: s.batTurn, torso: s.torso, stand: s.stand, stretch: s.stretch, contact: s.contact,
           gripGap: s.physicalGrip ? Math.hypot(s.physicalGrip.x - s.drawnGrip.x, s.physicalGrip.y - s.drawnGrip.y) : null});
       }
       return {hit: contactTick !== null, batter: r.batterPlayerId, side: d.battingSide, out};
@@ -57,7 +59,7 @@ const quantile = (v, q) => {const s = [...v].sort((a, b) => a - b); return s.len
     if (!got) continue;
     for (const row of got.out) {
       rows.push({pitch: i, hit: got.hit, batter: got.batter, side: got.side, ...row});
-      if (row.contact && !contacts.some(c => c.pitch === i)) contacts.push({pitch: i, batter: got.batter, key: row.key, physical: row.physical, drawn: row.drawn, gripGap: row.gripGap, ...row.contact, turn: row.turn, batTurn: row.batTurn, torso: row.torso, stand: row.stand});
+      if (row.contact && !contacts.some(c => c.pitch === i)) contacts.push({pitch: i, batter: got.batter, key: row.key, wild: row.wild, physical: row.physical, drawn: row.drawn, gripGap: row.gripGap, ...row.contact, turn: row.turn, batTurn: row.batTurn, torso: row.torso, stand: row.stand});
     }
   }
   const gaps = rows.filter(r => r.physical !== null).map(r => Math.abs(((r.drawn - r.physical) % 360 + 540) % 360 - 180));
@@ -75,6 +77,8 @@ const quantile = (v, q) => {const s = [...v].sort((a, b) => a - b); return s.len
     contacts: contacts.length,
     contactDistance: {median: median(contacts.map(c => c.distancePx)), max: Math.max(...contacts.map(c => c.distancePx)), withinBall: contacts.filter(c => c.distancePx <= c.ballRadiusPx).length,
       ballRadiusMedian: median(contacts.map(c => c.ballRadiusPx))},
+    wildBatters: [...new Set(rows.filter(r => r.wild).map(r => r.batter))],
+    contactsByStyle: Object.fromEntries(['adopted', 'wild'].map(k => {const c = contacts.filter(c => !!c.wild === (k === 'wild')); return [k, {n: c.length, median: median(c.map(c => c.distancePx)), withinBall: c.filter(c => c.distancePx <= c.ballRadiusPx).length}];})),
     impactKeys: contacts.reduce((a, c) => ({...a, [c.key]: (a[c.key] ?? 0) + 1}), {}),
     errors: errors.slice(0, 5),
   };

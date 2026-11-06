@@ -590,7 +590,11 @@ function rasterSphere(center,radius,color,owner){
   * ready for any course (a high fastball may still be a splitter that drops, the owner, 2026-11-06), and only the bat in
   * the hands follows the Core's bat. In that last moment the turns blend to the ones that put the drawn bat through the
   * ball where the Core's bat met it. One stand offset per pitch (at most SWING_STAND m) brings the drawn hands across to
-  * the Core's hands at the contact; the feet never slide during the swing. The bat's length follows the player's own bat, not his height. */
+  * the Core's hands at the contact; the feet never slide during the swing. The bat's length follows the player's own bat, not his height.
+  * A batter whose meet is very poor (the Core's timing spread at SWING_WILD_TIMING s or more) swings the way the drawing
+  * did before the limit: the upper body up to SWING_TURN_WILD degrees and committed to a height from the start (the owner,
+  * 2026-11-06: a fun drawing, kept for the batters it suits). */
+ const SWING_WILD_TIMING=.0125,SWING_TURN_WILD=25;
  const SWING_TURN=8,SWING_TURN_BALL=20,SWING_BALL_REACH=.6,SWING_BAT_TURN=25,SWING_EASE=.3,SWING_KEEP=8,SWING_STAND=.25,SWING_LATE=.03,SWING_NOMINAL_BAT=.86,SWING_NOMINAL_HEIGHT=1.8,BALL_RADIUS=.0366;
  const swingMemoV1=new WeakMap(),swingPlansV1=new WeakMap();
  const screenAngleV1=(a,b)=>Math.atan2(-(b.y-a.y),b.x-a.x)*180/Math.PI,wrapV1=d=>((d%360)+540)%360-180,clampV1=(v,m)=>Math.max(-m,Math.min(m,v));
@@ -599,6 +603,16 @@ function rasterSphere(center,radius,color,owner){
  function swingTorsoV1(aim){
   const out=aim?Math.max(0,Math.abs(aim.lift)-1,Math.abs(aim.reach)-1):0;
   return SWING_TURN+(SWING_TURN_BALL-SWING_TURN)*Math.min(1,out/SWING_BALL_REACH);
+ }
+ // Whether this batter swings wild: his timing spread from the match's configuration (__swingWildV1 forces it, for the
+ // measurement's comparison).
+ const swingTimingV1=new WeakMap();
+ function swingWildV1(a){
+  if(typeof globalThis.__swingWildV1==='boolean')return globalThis.__swingWildV1;
+  const config=globalThis.__robinObservedConfiguration;if(!config?.players)return false;
+  let timing=swingTimingV1.get(config);
+  if(!timing){timing=new Map(Object.values(config.players).map(p=>[p?.playerId,p?.physical?.timingStdSeconds]));swingTimingV1.set(config,timing);}
+  return (timing.get(a.sourcePlayerId)??0)>=SWING_WILD_TIMING;
  }
  function swingCandidatesV1(swing,frame,live){
   if(!swing)return ['0'];
@@ -652,7 +666,7 @@ function rasterSphere(center,radius,color,owner){
  }
  function swingPlanV1(path,foot,side,bank,pickArgs,height,torso){
   let plans=swingPlansV1.get(path);if(!plans){plans=new Map();swingPlansV1.set(path,plans);}
-  const memo=state.camera+':'+(pickArgs.sx>0?1:0);if(plans.has(memo))return plans.get(memo);
+  const memo=state.camera+':'+(pickArgs.sx>0?1:0)+':'+torso;if(plans.has(memo))return plans.get(memo);
   const bat=path.contactBat,g=project(bat.grip),t=project(bat.tip);let plan=null;
   if(g&&t&&side){
    const angle=screenAngleV1(g,t),per={x:side.x-foot.x,y:side.y-foot.y},stretch=swingStretchV1(bat,height),ball=path.hit&&path.ball?project(path.ball):null,
@@ -671,11 +685,11 @@ function rasterSphere(center,radius,color,owner){
  function swingDrawV1(a,foot,side,bank,pickArgs){
   const art=a.presentationArt,swing=art.swing,height=a.player.height,live=observed.bat&&observed.bat.grip&&observed.bat.tip?observed.bat:null;
   if(!side)return null;
-  const torso=swingTorsoV1(art.aim),plan=swing?swingPlanV1(swing.path,foot,side,bank,pickArgs,height,torso):null,tps=swing?.path.tps??1e6;
+  const wild=swingWildV1(a),torso=wild?SWING_TURN_WILD:swingTorsoV1(art.aim),plan=swing?swingPlanV1(swing.path,foot,side,bank,pickArgs,height,torso):null,tps=swing?.path.tps??1e6;
   const physical=live?{grip:project(live.grip),tip:project(live.tip)}:null,angle=physical?.grip&&physical?.tip?screenAngleV1(physical.grip,physical.tip):null;
   // How close the contact is: 1 at the contact, 0 from SWING_LATE seconds away. Before that window the batter keeps every
-  // course open: the middle impact frame and an upright upper body.
-  const near=plan?Math.max(0,1-Math.abs(swing.tick-plan.contactTick)/(SWING_LATE*tps)):1,late=plan&&swing.tick>=plan.contactTick?1:near*near*(3-2*near),
+  // course open: the middle impact frame and an upright upper body. A wild swing has made up its mind from the start.
+  const near=plan?Math.max(0,1-Math.abs(swing.tick-plan.contactTick)/(SWING_LATE*tps)):1,late=wild||(plan&&swing.tick>=plan.contactTick)?1:near*near*(3-2*near),
    blend=plan?.hit?near*near*(3-2*near):0;
   let keys=swingCandidatesV1(swing,pickArgs.frame,angle!==null);
   if(late===0)keys=[...new Set(keys.map(k=>IMPACTS.includes(k)?'2/middle':k))];
@@ -699,7 +713,7 @@ function rasterSphere(center,radius,color,owner){
   const stretch=plan?.stretch??swingStretchV1(live,height),made=bank.swing(chosen.found,{turn:-turn*Math.PI/180,batTurn:-batTurn*Math.PI/180,stretch});
   if(!made)return null;
   const stand=plan?.stand??0;
-  return {found:made.found,key:chosen.key,torso,shift:{x:stand*(side.x-foot.x),y:stand*(side.y-foot.y)},stand,turn,batTurn,stretch,physicalAngle:angle,physical,plan,tick:swing?.tick??null};
+  return {found:made.found,key:chosen.key,wild,torso,shift:{x:stand*(side.x-foot.x),y:stand*(side.y-foot.y)},stand,turn,batTurn,stretch,physicalAngle:angle,physical,plan,tick:swing?.tick??null};
  }
  // What the swing drew, for the measurement (batterRig.swing): the drawn and the Core's bat on screen and, at the contact,
  // the ball's distance from the drawn bat.
@@ -712,7 +726,7 @@ function rasterSphere(center,radius,color,owner){
     contact={distancePx:Math.hypot(grip.x+dx*u-ball.x,grip.y+dy*u-ball.y),ballRadiusPx:BALL_RADIUS*ball.scale,along:u};}
   }
   return {key:drawn.key,tick:drawn.tick,drawnAngle:screenAngleV1(grip,tip),physicalAngle:drawn.physicalAngle,drawnGrip:grip,drawnTip:tip,
-   physicalGrip:drawn.physical?.grip?{x:drawn.physical.grip.x,y:drawn.physical.grip.y}:null,turn:drawn.turn,batTurn:drawn.batTurn,torso:drawn.torso,stand:drawn.stand,stretch:drawn.stretch,contact};
+   physicalGrip:drawn.physical?.grip?{x:drawn.physical.grip.x,y:drawn.physical.grip.y}:null,turn:drawn.turn,batTurn:drawn.batTurn,wild:drawn.wild,torso:drawn.torso,stand:drawn.stand,stretch:drawn.stretch,contact};
  }
  function viewHidesActor(actor){if(observed.liveObservation&&state.camera==='batter'&&observed.liveContinuousBatterView&&actor.id==='BAT')return true;return (state.camera==='fielder'&&actor.id===committedFieldObserver(observed)?.id)||(actor.id==='C'&&state.camera==='catcher')||(actor.id==='P'&&state.camera==='mound')||(actor.id==='BAT'&&((actor.role==='batter'&&(state.camera==='batter'||state.camera==='catcher'))||state.camera==='runner'));}
  function actor(a){
