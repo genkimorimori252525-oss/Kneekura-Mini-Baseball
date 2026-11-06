@@ -67,6 +67,7 @@ const crossingAt = (frames, z) => {
 // --records=file appends one line per pitch for core-stats.mjs; --aim=1 adds where the pitcher aimed (requested, selected, location).
 // --miss=1 adds, on every pitch the batter judged (takes too; the late look and the bat only on swings), where the batter expected the ball (req, at the commit), the late look's wanted and applied shift, the
 // drawn aim and timing errors, the ball at the bat's contact plane (x, y, tick) and the bat's contact tick: miss = ball - (req + late + aim).
+// --judge=1 adds, on every pitch, where the swing decision put the ball (obs: the forecast it judged, est: with the zone-judgment error).
 const tickAt = (frames, z) => {
   for (let i = 1; i < frames.length; i++) {
     const a = frames[i - 1].ball?.position, c = frames[i].ball?.position;
@@ -90,7 +91,8 @@ const pitchRecord = (r, seed) => {
     hitBases: s?.hitBases ?? null, homeRuns: s?.homeRuns ?? null, runs: r.match.score.away + r.match.score.home - b.score.away - b.score.home, finished: r.finished,
     basesBefore: occupied(b.bases), basesAfter: occupied(r.match.bases), outsAfter: r.match.outs, halfAfter: r.match.half, spin: battedSpin(p.contact, r.batterPlayerId),
     ...(d.pitchRecognitionV2 ? {recog: {ok: d.pitchRecognitionV2.recognized, read: d.pitchRecognitionV2.readId}} : {}), ...(d.zoneIntentV1 ? {zint: {moved: d.zoneIntentV1.moved, wantIn: d.zoneIntentV1.wantIn}} : {}),
-    ...(opt.miss && d.courseRecognitionV87?.batter ? {miss: missRecord(r, d)} : {}), ...(d.courseRecognitionV87?.pitcher && opt.aim ? {aim: {req: d.courseRecognitionV87.pitcher.requestedPosition, sel: d.courseRecognitionV87.pitcher.selectedPosition, loc: d.courseRecognitionV87.pitcher.selectedLocation}} : {})};
+    ...(opt.judge && d.zoneJudgment ? {judge: {obs: {x: d.zoneJudgment.observedForecastPosition.x, y: d.zoneJudgment.observedForecastPosition.y}, est: {x: d.zoneJudgment.estimatedPosition.x, y: d.zoneJudgment.estimatedPosition.y}}} : {}),
+    ...(opt.miss && d.courseRecognitionV87?.batter ? {miss: missRecord(r, d)} : {}),...(d.courseRecognitionV87?.pitcher && opt.aim ? {aim: {req: d.courseRecognitionV87.pitcher.requestedPosition, sel: d.courseRecognitionV87.pitcher.selectedPosition, loc: d.courseRecognitionV87.pitcher.selectedLocation}} : {})};
 };
 // Batted-ball spin in rpm: back (+) or top (-), and side, read in the batter's frame.
 const bats = new Map(config.players.map(player => [player.playerId, player.bats]));
