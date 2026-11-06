@@ -130,6 +130,8 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   handExtensionV1?:readonly number[];
   /** Swing plane by contact height (for a 1.8 m batter): [tilt at the middle deg 0..80, tilt per m -100..100, middle height m 0..2, attack angle per m -50..50] (absent = the clip's own plane, one attack angle). */
   swingTiltV1?:readonly number[];
+  /** Error of the late look's own forecast: [sd m 0..0.05, sd m per second from the last sight to contact 0..0.5] (absent = the late look sees the forecast as is). */
+  lateLookNoiseV1?:readonly number[];
   /** Share (0-1) of the zone-judgment error that also moves the bat's aim; the late look then corrects it as it does a misread. */
   judgmentAimShareV1?:number;
   /** Chance per swing that the hitter is fooled and puts the bat where he expected the pitch (the remembered one);
@@ -197,6 +199,7 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'pitchOrderPlanV1')){keys.push('pitchOrderPlanV1');assert(typeof p.pitchOrderPlanV1==='boolean','invalid pitch order plan');}
   if(Object.hasOwn(p,'contactLeadAlignV1')){keys.push('contactLeadAlignV1');assert(Number.isFinite(p.contactLeadAlignV1)&&p.contactLeadAlignV1!>=0&&p.contactLeadAlignV1!<=.02,'invalid contact lead');}
   if(Object.hasOwn(p,'priorFooledChanceV1')){keys.push('priorFooledChanceV1');assert(Number.isFinite(p.priorFooledChanceV1)&&p.priorFooledChanceV1!>=0&&p.priorFooledChanceV1!<=1,'invalid prior fooled chance');}
+  if(Object.hasOwn(p,'lateLookNoiseV1')){keys.push('lateLookNoiseV1');const t=p.lateLookNoiseV1;assert(Array.isArray(t)&&t.length===2&&t.every(Number.isFinite)&&t[0]>=0&&t[0]<=.05&&t[1]>=0&&t[1]<=.5,'invalid late look noise');}
   if(Object.hasOwn(p,'swingTiltV1')){keys.push('swingTiltV1');const t=p.swingTiltV1;assert(Array.isArray(t)&&t.length===4&&t.every(Number.isFinite)&&t[0]>=0&&t[0]<=80&&Math.abs(t[1])<=100&&t[2]>=0&&t[2]<=2&&Math.abs(t[3])<=50,'invalid swing tilt');}
   if(Object.hasOwn(p,'handExtensionV1')){keys.push('handExtensionV1');const h=p.handExtensionV1;assert(Array.isArray(h)&&h.length===3&&h.every(Number.isFinite)&&h[0]>=0&&h[0]<=1&&h[1]>=0&&h[1]<=10&&h[2]>=.01&&h[2]<=.2,'invalid hand extension');}
   if(Object.hasOwn(p,'noImpactFollowV1')){keys.push('noImpactFollowV1');assert(Number.isFinite(p.noImpactFollowV1)&&p.noImpactFollowV1!>=.01&&p.noImpactFollowV1!<=.3,'invalid no-impact follow');}

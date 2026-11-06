@@ -1141,7 +1141,15 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       lateObservedTick=positionObserverV151?(lateEffectiveForecast?.status==='PREDICTED'?lateEffectiveForecast.observedThroughTick!:observationTick)
         :input.originTick+Math.round(observedTime*tps),
       evidence=selectPredictionAt(lateObservedTick>observationTick?[earlyEvidence,{predictionId:'late-observation-v121',observedTick:lateObservedTick,availableTick,position:latePrediction.ball.position}]:[earlyEvidence],correctionFromTick)!,
-      requestedOffset=judgmentAimV1.x===0&&judgmentAimV1.y===0?sub(evidence.position,placementPositionV1):sub(evidence.position,{...placementPositionV1,x:placementPositionV1.x+judgmentAimV1.x,y:placementPositionV1.y+judgmentAimV1.y}),distance=norm(requestedOffset),
+      // lateLookNoiseV1: the late look is itself a forecast from the last ball the batter saw, so it errs by the sd here
+      // (m, plus m per second from that last sight to contact); without it the late look cancels nearly all perception
+      // error and contacts bunch on the barrel line (vertical miss sd 1.3 in, MLB about 1.6 in among contacts).
+      lateNoiseV1=observationPolicyV151?.lateLookNoiseV1&&evidence.predictionId==='late-observation-v121'?(()=>{
+        const sd=observationPolicyV151.lateLookNoiseV1![0]+observationPolicyV151.lateLookNoiseV1![1]*Math.max(0,(throughTick-evidence.observedTick)/tps),
+          g=new SeedRoot(input.seed).streamRng(0,'batting','late-look-noise-v1'),n=()=>Math.sqrt(-2*Math.log(1-g.nextFloat()))*Math.cos(2*Math.PI*g.nextFloat());
+        return {x:n()*sd,y:n()*sd,z:0};})():zero(),
+      seenV1=add(evidence.position,lateNoiseV1),
+      requestedOffset=judgmentAimV1.x===0&&judgmentAimV1.y===0?sub(seenV1,placementPositionV1):sub(seenV1,{...placementPositionV1,x:placementPositionV1.x+judgmentAimV1.x,y:placementPositionV1.y+judgmentAimV1.y}),distance=norm(requestedOffset),
       budget=effectiveMaximumSpeedV121===undefined?0:Math.max(0,Math.min(uncorrectedReference.maximumGripSpeedMps,effectiveMaximumSpeedV121-uncorrectedReference.maximumSweetSpotSpeedMps))*(swingIntentV121?.controlPriority??1),
       accelerationBudget=executionV122?Math.max(0,Math.min(executionV122.maximumGripAccelerationMps2-referenceAccelerationBoundsV122(uncorrectedReference).maximumGripAccelerationMps2,
         executionV122.maximumSweetSpotAccelerationMps2-referenceAccelerationBoundsV122(uncorrectedReference).maximumSweetSpotAccelerationMps2)):Infinity,
