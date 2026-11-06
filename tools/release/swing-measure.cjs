@@ -50,7 +50,8 @@ const quantile = (v, q) => {const s = [...v].sort((a, b) => a - b); return s.len
         p.seekFrame(f);
         const s = p.inspect().rendered?.batterRig?.swing;
         if (s) out.push({frame: f, tick: r.frames[f].tick, key: s.key, wild: s.wild, drawn: s.drawnAngle, physical: s.physicalAngle, turn: s.turn, batTurn: s.batTurn, torso: s.torso, stand: s.stand, stretch: s.stretch, contact: s.contact,
-          gripGap: s.physicalGrip ? Math.hypot(s.physicalGrip.x - s.drawnGrip.x, s.physicalGrip.y - s.drawnGrip.y) : null});
+          gripGap: s.physicalGrip ? Math.hypot(s.physicalGrip.x - s.drawnGrip.x, s.physicalGrip.y - s.drawnGrip.y) : null,
+          drawnGrip: s.drawnGrip, physicalGrip: s.physicalGrip, sinceContact: contactTick === null ? null : r.frames[f].tick - contactTick});
       }
       return {hit: contactTick !== null, batter: r.batterPlayerId, side: d.battingSide, out};
     }, i);
