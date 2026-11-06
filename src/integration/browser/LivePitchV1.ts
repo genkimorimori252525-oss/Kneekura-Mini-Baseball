@@ -595,9 +595,11 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
           const reference=familiarShare===null?undefined:references!.find(r=>r.pitchType===type);
           return reference===undefined?pitch:{...pitch,spinRadPerSecond:add(mul(pitch.spinRadPerSecond,familiarShare!),mul(reference.spinRadPerSecond,1-familiarShare!))};},
         owned=p.pitchRepertoireV78===undefined?null:validatePitchRepertoireV78(p.pitchRepertoireV78,p.maximumPitchSpeedMps).pitches,
-        candidates=owned?owned.map(row=>({id:row.pitchId,pitch:pictured(row,row.pitchType),prior:(row.usageWeightV1??1)*countUsageV1(row),offset:row.releaseOffsetV1}))
+        // fastballSitV1: he sits on the hard stuff, its prior multiplied.
+        sit=observationPolicyV151?.fastballSitV1,sitOn=(type:string)=>sit!==undefined&&['fastball','sinker','cutter'].includes(type)?sit:1,
+        candidates=owned?owned.map(row=>({id:row.pitchId,pitch:pictured(row,row.pitchType),prior:(row.usageWeightV1??1)*countUsageV1(row)*sitOn(row.pitchType),offset:row.releaseOffsetV1}))
           :resolvePitcherRepertoireV77(p,p.throws??'R').filter(row=>['fastball','slider','curve','changeup'].includes(row.pitchType))
-            .map(row=>({id:row.pitchType as string,pitch:pictured(row,row.pitchType),prior:1,offset:undefined as readonly number[]|undefined})),
+            .map(row=>({id:row.pitchType as string,pitch:pictured(row,row.pitchType),prior:sitOn(row.pitchType),offset:undefined as readonly number[]|undefined})),
         actualId=selectedSnapshot?selectedSnapshot.pitchId:pitchType,
         t1=(effectiveForecastV246.observedThroughTick!-input.originTick)/tps,plane=battingSetupV94.contactPlaneZ,
         seenBall=kernel.evaluateAt(t1,'incoming').moment.ball,[degrees,ms,spinDegrees]=recognitionPolicyV2 as readonly [number,number,number?],
