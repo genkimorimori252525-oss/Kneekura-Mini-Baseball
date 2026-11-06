@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { extendHandsAfterContactV1, retimeClipAfterContactV1 } from './ClipImpactRetimeV1';
+import { extendHandsAfterContactV1, holdSweetSpotAfterContactV1, retimeClipAfterContactV1 } from './ClipImpactRetimeV1';
 
 // A bat turning about a fixed grip: 0.1 rad per 2,800-tick key before the contact at tick 28,000, a third slower after it.
 const frames = Array.from({ length: 21 }, (_, i) => {
@@ -47,5 +47,27 @@ describe('extendHandsAfterContactV1', () => {
   it('returns to the measured follow-through after the return time', () => {
     const out = extendHandsAfterContactV1(moving, 28000, 0, 3, .02, .005);
     expect(out[20].grip).toEqual(moving[20].grip);
+  });
+});
+
+describe('holdSweetSpotAfterContactV1', () => {
+  const r = .7, sweetOf = (f: typeof frames[number]) => {
+    const q = f.orientation, ax = { x: 2 * (q.x * q.y - q.w * q.z), y: 1 - 2 * (q.x * q.x + q.z * q.z), z: 2 * (q.y * q.z + q.w * q.x) };
+    return { x: f.grip.x + ax.x * r, y: f.grip.y + ax.y * r, z: f.grip.z + ax.z * r };
+  };
+  it('carries the sweet spot straight on at the contact velocity inside the window, turning about it', () => {
+    const out = holdSweetSpotAfterContactV1(frames, 28000, r, .016, .01);
+    expect(out.slice(0, 11)).toEqual(frames.slice(0, 11));
+    expect(out.map(f => f.orientation)).toEqual(frames.map(f => f.orientation));
+    const s0 = sweetOf(frames[10]), sb = sweetOf(frames[9]), dt = .0028;
+    for (const i of [11, 12, 13, 14, 15]) {
+      const tau = (frames[i].tick - frames[10].tick) / 1e6, s = sweetOf(out[i]);
+      expect(s.x).toBeCloseTo(s0.x + (s0.x - sb.x) / dt * tau, 6);
+      expect(s.y).toBeCloseTo(s0.y + (s0.y - sb.y) / dt * tau, 6);
+    }
+  });
+  it('returns to the measured grip after the window and the return', () => {
+    const out = holdSweetSpotAfterContactV1(frames, 28000, r, .016, .01);
+    expect(out[20].grip).toEqual(frames[20].grip);
   });
 });

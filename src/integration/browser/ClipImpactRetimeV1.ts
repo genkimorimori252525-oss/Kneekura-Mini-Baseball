@@ -93,10 +93,46 @@ function orientationAt(frames: readonly Frame[], tick: number): Quaternion {
   return { w: r.w / n, x: r.x / n, y: r.y / n, z: r.z / n };
 }
 
-export type ClipAfterContactShapeV1 = Readonly<{ contactTick: number; radiusM: number; windowSeconds?: number; hands?: readonly number[] }>;
-/** The physical motor and the whiff playback shape the clip the same way: retime first, then move the hands. */
+/**
+ * sweetSpotHoldV1: past the contact pose the sweet spot carries straight on along its contact-pose path, at the contact
+ * speed, for windowSeconds; the bat keeps the clip's turn, now about the sweet spot, and the hands make up the
+ * difference. About half of the out-front slide to the tip is the bat's yaw, which is geometry and does not depend on
+ * how fast the bat turns, and a third is the hands drifting toward the batter (2026-11-06, K:/kbm-work/inv-front).
+ * MLB meets early balls on the barrel (squared-up by contact depth .48/.37/.40/.46/.49/.38, Statcast June 2024).
+ * Offline on the recorded contacts, 6-12 in out front: along-bat point .96 -> .85, squared-up proxy .08 -> .49.
+ * After the window the grip offset is taken back out over returnSeconds; times and orientations stay.
+ */
+export function holdSweetSpotAfterContactV1<F extends Frame>(frames: readonly F[], contactTick: number, radiusM: number,
+  windowSeconds: number, returnSeconds: number, sourceTicksPerSecond = 1e6): F[] {
+  if (!(Number.isFinite(contactTick) && radiusM > 0 && windowSeconds >= .005 && windowSeconds <= .1 && returnSeconds >= .01 && returnSeconds <= .5
+    && frames.length >= 2)) throw Error('invalid sweet spot hold input');
+  const first = frames.findIndex(f => f.tick >= contactTick);
+  if (first < 1 || first >= frames.length - 1) return frames.slice();
+  const axis = (f: Frame) => rotateVectorByQuaternion({ x: 0, y: 1, z: 0 }, f.orientation);
+  const sweet = (f: Frame) => { const a = axis(f); return { x: f.grip.x + a.x * radiusM, y: f.grip.y + a.y * radiusM, z: f.grip.z + a.z * radiusM }; };
+  const s0 = sweet(frames[first]), sb = sweet(frames[first - 1]), dt = (frames[first].tick - frames[first - 1].tick) / sourceTicksPerSecond;
+  const v = { x: (s0.x - sb.x) / dt, y: (s0.y - sb.y) / dt, z: (s0.z - sb.z) / dt };
+  const out: F[] = frames.slice(0, first + 1);
+  let off = { x: 0, y: 0, z: 0 };
+  for (let i = first + 1; i < frames.length; i++) {
+    const f = frames[i], tau = (f.tick - frames[first].tick) / sourceTicksPerSecond;
+    if (tau <= windowSeconds) {
+      const a = axis(f), want = { x: s0.x + v.x * tau, y: s0.y + v.y * tau, z: s0.z + v.z * tau }, own = sweet(f);
+      off = { x: want.x - own.x, y: want.y - own.y, z: want.z - own.z };
+      out.push({ ...f, grip: { x: want.x - a.x * radiusM, y: want.y - a.y * radiusM, z: want.z - a.z * radiusM } });
+    } else {
+      const back = Math.max(0, 1 - (tau - windowSeconds) / returnSeconds);
+      out.push(back === 0 ? f : { ...f, grip: { x: f.grip.x + off.x * back, y: f.grip.y + off.y * back, z: f.grip.z + off.z * back } });
+    }
+  }
+  return out;
+}
+
+export type ClipAfterContactShapeV1 = Readonly<{ contactTick: number; radiusM: number; windowSeconds?: number; hands?: readonly number[]; hold?: readonly number[] }>;
+/** The physical motor and the whiff playback shape the clip the same way: retime, hold the sweet spot, then move the hands. */
 export function shapeClipAfterContactV1<F extends Frame>(frames: readonly F[], shape: ClipAfterContactShapeV1): F[] {
   const timed = shape.windowSeconds === undefined ? frames.slice() : retimeClipAfterContactV1(frames, shape.contactTick, shape.radiusM, shape.windowSeconds);
-  return shape.hands === undefined ? timed
-    : extendHandsAfterContactV1(timed, shape.contactTick, shape.hands[0], shape.hands[1], shape.hands[2], .1, 1e6, shape.hands[3] ?? 1);
+  const held = shape.hold === undefined ? timed : holdSweetSpotAfterContactV1(timed, shape.contactTick, shape.radiusM, shape.hold[0], shape.hold[1]);
+  return shape.hands === undefined ? held
+    : extendHandsAfterContactV1(held, shape.contactTick, shape.hands[0], shape.hands[1], shape.hands[2], .1, 1e6, shape.hands[3] ?? 1);
 }

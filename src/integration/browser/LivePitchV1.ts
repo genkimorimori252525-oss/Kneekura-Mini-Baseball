@@ -888,10 +888,10 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     planningContactTime=directionMotorActiveV153?Math.max(.055,prediction.elapsedSeconds+(b.technicalTimingOffsetSeconds??0)):desiredContactTime;
   // noImpactFollowV1: past the contact pose the clip's bat is slowed by the ball it hit; pull those poses in so a bat that
   // meets no ball there keeps its contact speed (ClipImpactRetimeV1). The same retime goes to the whiff playback below.
-  const handsV1=observationPolicyV151?.handExtensionV1;
-  const retimeV1=(observationPolicyV151?.noImpactFollowV1!==undefined||handsV1!==undefined)&&swingOffered&&input.batting!=='bunt'
+  const handsV1=observationPolicyV151?.handExtensionV1,holdV1=observationPolicyV151?.sweetSpotHoldV1;
+  const retimeV1=(observationPolicyV151?.noImpactFollowV1!==undefined||handsV1!==undefined||holdV1!==undefined)&&swingOffered&&input.batting!=='bunt'
     ?{contactTick:sourceContactTick,radiusM:b.batLengthM*sweetSpotT,...(observationPolicyV151?.noImpactFollowV1!==undefined?{windowSeconds:observationPolicyV151.noImpactFollowV1}:{}),
-      ...(handsV1!==undefined?{hands:[...handsV1]}:{})}:undefined;
+      ...(handsV1!==undefined?{hands:[...handsV1]}:{}),...(holdV1!==undefined?{hold:[...holdV1]}:{})}:undefined;
   const scaledFrames=registerMeasuredBatToFieldV1(clip.frames).map(f=>({tick:f.tick,grip:mul(f.grip,heightScale),orientation:f.orientation}));
   const fullFrames=retimeV1?shapeClipAfterContactV1(scaledFrames,retimeV1):scaledFrames;
   if(directionMotorActiveV153&&!authoredEnvelopeV133){
