@@ -794,8 +794,9 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       clip=learnedMotionClipV124;
     }
     const arc=impactTrajectory??DEFAULT_WHOLE_ARC_TRAJECTORY_V1;
-    impactTrajectory={...arc,method:'whole-arc-target',angleDegreesByLevel:[spinMotionV123.attackAngleDegrees,spinMotionV123.attackAngleDegrees,
-      spinMotionV123.attackAngleDegrees,spinMotionV123.attackAngleDegrees]};
+    // swingTiltV1 also lifts or lowers the planned spin's attack angle with the contact height.
+    const tilt=observationPolicyV151?.swingTiltV1,spinAttack=spinMotionV123.attackAngleDegrees+(tilt?tilt[3]*(motorAimPosition.y/heightScale-tilt[2]):0);
+    impactTrajectory={...arc,method:'whole-arc-target',angleDegreesByLevel:[spinAttack,spinAttack,spinAttack,spinAttack]};
   }
   const observedSpinTrialV236=spinTrialRequestV236===undefined?undefined:resolveLiveObservedSpinTrialV236({request:spinTrialRequestV236,
     snapshot:positionObserverV151?.snapshotAt?.(positionObserverV151.decisionTick)??null,clip:{id:clip.id,sourceSha256:clip.source.sha256,bats:clip.side},
