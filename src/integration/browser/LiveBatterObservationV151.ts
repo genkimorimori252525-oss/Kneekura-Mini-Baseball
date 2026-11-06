@@ -187,13 +187,21 @@ export const AUTHORED_LIVE_BATTER_OBSERVATION_V151:LiveBatterObservationPolicyV1
  * [1.4, 16], the count-and-tendency expectation [.35, 5], a judged placement, the late look's acceleration, the exit-speed shape
  * (exponent 1, impact limit 1.10) and the refit swing decision (noise .35, two strikes .28, count readiness). In the six
  * standard archetype leagues (command .19, attack angle 16, chase margin .2, threshold .48) with the Nathan lift and pitch
- * spins refit under it, K .214 and BABIP .313 over 24 games (MLB 2024 .226, .291). */
+ * spins refit under it, K .214 and BABIP .313 over 24 games (MLB 2024 .226, .291).
+ * Bundle 2 (2026-11-06, AMENDMENTS/2026-11-03-mlb-batting.md): the bat past the clip's contact pose keeps its speed and carries
+ * the sweet spot straight on (no recorded ball slowing it, no slide to the tip out front), the swing plane tilts and the attack
+ * angle eases with the pitch height, the undercut aim is .02, a bat met before its contact pose is still gaining speed, the load
+ * may run before the commit, and the hitter sits on the hard stuff (x3). With standard batters at attack 11 and the contact plane
+ * at .44 m, over 24 games before the sit: K .231, BB .088, HR .029-.031, exit 89.9 mph, launch 14.2, GB/LD/FB/PU .43/.21/.24/.12,
+ * in-zone whiffs .225 (MLB .226, .082, .029, ~89, ~13, .43/.21/.25/.10, .174). */
 export const LIVE_MATCH_BATTER_OBSERVATION_V2:LiveBatterObservationPolicyV151 = Object.freeze({...AUTHORED_LIVE_BATTER_OBSERVATION_V151,decisionAfterReleaseTicks:80000,
   commitSwingSeconds:.18,contactSpeedCeilingV1:true,impactSpeedLimitV1:1.1,twoStrikeExpansionV1:.28,meetLateLookV1:Object.freeze([.0045,.014,.85,.3]),swingSpeedRoomV1:1.16,visionSelectivityV1:.004,pitchOrderPlanV1:true,
-  lateLookByMeetOnlyV1:true,priorPlacementShareV1:.45,postContactHoldV1:true,barrelVibrationLossV1:Object.freeze([.1,.145,.35,1]),undercutAimV1:.01,aimVerticalScaleV1:.6,priorFooledChanceV1:.25,fooledViewPowerV1:1,fooledViewReferenceV1:.49,pitchRecognitionV1:Object.freeze([.65,6,100]),
+  lateLookByMeetOnlyV1:true,priorPlacementShareV1:.45,postContactHoldV1:true,barrelVibrationLossV1:Object.freeze([.1,.145,.35,1]),undercutAimV1:.02,aimVerticalScaleV1:.6,priorFooledChanceV1:.25,fooledViewPowerV1:1,fooledViewReferenceV1:.49,pitchRecognitionV1:Object.freeze([.65,6,100]),
   countReadinessV1:Object.freeze([[.54,1,.88],[.78,.96,.96],[.73,1,.98],[.14,.90,.93]].map(row=>Object.freeze(row))),
   pitchTargetPlanV2:.01,pitchZoneLeanV2:0,pitchRecognitionV2:Object.freeze([1.4,16]),readFromSeenV1:1,pitchAimCenterV2:.8,priorExpectationV1:Object.freeze([.35,5]),
-  placementJudgedV1:.8,lateLookAccelerationV1:36,swingDecisionNoiseV1:.35});
+  placementJudgedV1:.8,lateLookAccelerationV1:36,swingDecisionNoiseV1:.35,
+  // Bundle 2 (2026-11-06), in the order measured: the contact window and the swing plane, then the hitter sitting on the hard stuff.
+  preContactSpeedLossV1:.005,loadBeforeCommitV1:true,noImpactFollowV1:.06,sweetSpotHoldV1:Object.freeze([.016,.1]),swingTiltV1:Object.freeze([32,-20.8,.76,-13]),fastballSitV1:3});
 function assert(value:unknown,message:string):asserts value {if(!value)throw Error('live batter observation v151: '+message);}
 export function meetLateLookV1(timingStdSeconds:number,look:readonly number[]){
   const [best,worst,high,low]=look as [number,number,number,number],t=Math.min(1,Math.max(0,Math.log(timingStdSeconds/best)/Math.log(worst/best)));
