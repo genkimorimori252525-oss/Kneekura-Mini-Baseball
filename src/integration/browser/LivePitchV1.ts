@@ -596,7 +596,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
           return reference===undefined?pitch:{...pitch,spinRadPerSecond:add(mul(pitch.spinRadPerSecond,familiarShare!),mul(reference.spinRadPerSecond,1-familiarShare!))};},
         owned=p.pitchRepertoireV78===undefined?null:validatePitchRepertoireV78(p.pitchRepertoireV78,p.maximumPitchSpeedMps).pitches,
         // fastballSitV1: he sits on the hard stuff, its prior multiplied.
-        sit=observationPolicyV151?.fastballSitV1,sitOn=(type:string)=>sit!==undefined&&['fastball','sinker','cutter'].includes(type)?sit:1,
+        sit=observationPolicyV151?.fastballSitV1,tail=observationPolicyV151?.recognitionTailV1,sitOn=(type:string)=>sit!==undefined&&['fastball','sinker','cutter'].includes(type)?sit:1,
         candidates=owned?owned.map(row=>({id:row.pitchId,pitch:pictured(row,row.pitchType),prior:(row.usageWeightV1??1)*countUsageV1(row)*sitOn(row.pitchType),offset:row.releaseOffsetV1}))
           :resolvePitcherRepertoireV77(p,p.throws??'R').filter(row=>['fastball','slider','curve','changeup'].includes(row.pitchType))
             .map(row=>({id:row.pitchType as string,pitch:pictured(row,row.pitchType),prior:sitOn(row.pitchType),offset:undefined as readonly number[]|undefined})),
@@ -614,8 +614,9 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
             axisDegrees=spinDegrees===undefined?0:norm(c.pitch.spinRadPerSecond)*norm(initial.spin)===0?180
               :Math.acos(clamp(dot(c.pitch.spinRadPerSecond,initial.spin)/(norm(c.pitch.spinRadPerSecond)*norm(initial.spin)),-1,1))*180/Math.PI,
             releaseGapCm=releaseCue===undefined?0:100*Math.hypot((c.offset?.[0]??0)-(seenOffset?.[0]??0),(c.offset?.[1]??0)-(seenOffset?.[1]??0));
-          return {...c,start,at,turnDegrees,lagMs,weight:c.prior*Math.exp(-.5*((turnDegrees/degrees)**2+(lagMs/ms)**2+(spinDegrees===undefined?0:(axisDegrees/spinDegrees)**2)
-            +(releaseCue===undefined?0:(releaseGapCm/releaseCue)**2)))};
+          const d2=(turnDegrees/degrees)**2+(lagMs/ms)**2+(spinDegrees===undefined?0:(axisDegrees/spinDegrees)**2)+(releaseCue===undefined?0:(releaseGapCm/releaseCue)**2);
+          // recognitionTailV1: Student's t in place of the normal, so a pitch far from the ball keeps some weight.
+          return {...c,start,at,turnDegrees,lagMs,weight:c.prior*(tail===undefined?Math.exp(-.5*d2):(1+d2/tail)**(-(tail+1)/2))};
         }),
         total=weighed.reduce((n,c)=>n+c.weight,0),
         draw=randomStreamsV152?.rng('batterBelief','pitch-recognition-v2').uniform()??new SeedRoot(input.seed).streamRng(0,'batting','pitch-recognition-v2').nextFloat();

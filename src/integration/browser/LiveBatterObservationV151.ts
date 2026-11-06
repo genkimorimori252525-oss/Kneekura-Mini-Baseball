@@ -94,6 +94,9 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   /** With pitchRecognitionV2: the hitter sits on the hard stuff. The prior of each fastball, sinker and cutter he weighs is
    * multiplied by this (1..20), so a hard pitch is read as one more often and a soft pitch is taken for one more often (2026-11-06). */
   fastballSitV1?:number;
+  /** With pitchRecognitionV2: each pitch's weight falls with d as Student's t with this many degrees of freedom (1..30),
+   * (1 + d^2/n)^-(n+1)/2, instead of exp(-d^2/2): a pitch far from the ball still keeps some chance of being read (2026-11-06). */
+  recognitionTailV1?:number;
   /** Standard deviation of the hitter's relative error in the ball's speed at the swing decision (0..0.3). Reading it faster
    * than it is, he expects it sooner and higher (it has less time to drop), slower the other way; one error moves both. */
   speedPerceptionV1?:number;
@@ -203,6 +206,7 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'misreadTimingKeepV1')){keys.push('misreadTimingKeepV1');assert(Number.isFinite(p.misreadTimingKeepV1)&&p.misreadTimingKeepV1!>=0&&p.misreadTimingKeepV1!<=1,'invalid misread timing keep');}
   if(Object.hasOwn(p,'releaseCueV1')){keys.push('releaseCueV1');assert(Number.isFinite(p.releaseCueV1)&&p.releaseCueV1!>=.1&&p.releaseCueV1!<=50&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid release cue');}
   if(Object.hasOwn(p,'fastballSitV1')){keys.push('fastballSitV1');assert(Number.isFinite(p.fastballSitV1)&&p.fastballSitV1!>=1&&p.fastballSitV1!<=20&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid fastball sit');}
+  if(Object.hasOwn(p,'recognitionTailV1')){keys.push('recognitionTailV1');assert(Number.isFinite(p.recognitionTailV1)&&p.recognitionTailV1!>=1&&p.recognitionTailV1!<=30&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid recognition tail');}
   if(Object.hasOwn(p,'readFromSeenV1')){keys.push('readFromSeenV1');assert(Number.isFinite(p.readFromSeenV1)&&p.readFromSeenV1!>=0&&p.readFromSeenV1!<=1&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid read from seen');}
   if(Object.hasOwn(p,'pitchFamiliarityV1')){keys.push('pitchFamiliarityV1');assert(Array.isArray(p.pitchFamiliarityV1)&&p.pitchFamiliarityV1.length===3
     &&p.pitchFamiliarityV1.every((v:unknown)=>typeof v==='number'&&v>=0&&v<=1)&&Object.hasOwn(p,'leagueReferencePitchesV1'),'invalid pitch familiarity');}
