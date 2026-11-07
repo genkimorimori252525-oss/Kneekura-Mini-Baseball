@@ -276,13 +276,22 @@ export function createLiveRunnerMotionV1(input: LiveRunnerMotionInputV1): LiveRu
       last = timing.segments[timing.segments.length - 1],
       crossingSpeed = Math.min(input.topSpeedMps, last.startSpeedMps
         + last.accelerationMps2 * (last.endElapsedSeconds - last.startElapsedSeconds)),
-      bag = input.bases[0].position, heading = sampleRunnerRoute(geometry.route, sprintLength).tangent,
-      stopPosition = add(bag, mul(heading, crossingSpeed * crossingSpeed / (2 * braking))),
+      bag = input.bases[0].position, heading = sampleRunnerRoute(geometry.route, sprintLength).tangent;
+    let stopPosition = add(bag, mul(heading, crossingSpeed * crossingSpeed / (2 * braking))),
       overrunDistance = norm(sub(stopPosition, bag));
     if (!(overrunDistance > 1e-12)) return null;
-    const brakePlan = buildLiveSpeedPlanV84({ profile, distanceMeters: overrunDistance,
+    const plans = () => [buildLiveSpeedPlanV84({ profile, distanceMeters: overrunDistance,
       initialSpeedMps: crossingSpeed, finalSpeedMps: 0, speedLimitMps: crossingSpeed }),
-      returnPlan = buildLiveSpeedPlanV84({ profile, distanceMeters: overrunDistance, initialSpeedMps: 0, finalSpeedMps: 0 });
+      buildLiveSpeedPlanV84({ profile, distanceMeters: overrunDistance, initialSpeedMps: 0, finalSpeedMps: 0 })] as const;
+    let [brakePlan, returnPlan] = plans();
+    // The stop is worked out from the crossing speed and braking, and its rounded distance can land a hair inside the braking
+    // envelope (a runner at top speed at the bag, e.g. 3 m/s): the plan was refused and the batter got no leg at all, standing
+    // at home after deciding to run (2026-11-08). Only then, the stop goes a billionth further; every other run is unchanged.
+    if (!brakePlan || !returnPlan) {
+      stopPosition = add(bag, mul(heading, crossingSpeed * crossingSpeed / (2 * braking) * (1 + 1e-9)));
+      overrunDistance = norm(sub(stopPosition, bag));
+      [brakePlan, returnPlan] = plans();
+    }
     if (!brakePlan || !returnPlan) return null;
     const brakingEnd = sprintDuration + brakePlan.durationSeconds,
       returnRoute: RunnerRoute = { segments: [{ kind: 'line', start: stopPosition, end: bag }] },

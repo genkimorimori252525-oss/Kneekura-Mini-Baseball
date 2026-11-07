@@ -36,9 +36,12 @@ function rebuild(input: LiveFieldPlayInputV1, recorded: RecordedMotion) {
   const result = createLiveRunnerMotionV1({ position: recorded.position, velocity: recorded.velocity,
     bases: recorded.throughBases.map(n => ({ base: n, position: base(input, n) })),
     topSpeedMps: runner.topSpeedMps, accelerationMps2: runner.accelerationMps2,
-    roundingRadiusMeters: recorded.throughBases.length > 1 ? runner.roundingRadiusMeters : undefined,
-    lateralAccelerationMps2: recorded.throughBases.length > 1 ? runner.lateralAccelerationMps2 : undefined,
-    baseTouchRadiusMeters: input.field.baseTouchRadiusMeters });
+    // As the play plans every leg: the runner's own rounding radius and lateral ability, or their defaults (2026-11-08).
+    roundingRadiusMeters: runner.roundingRadiusMeters ?? 4.5,
+    lateralAccelerationMps2: runner.lateralAccelerationMps2 ?? 1.5 * runner.accelerationMps2,
+    baseTouchRadiusMeters: input.field.baseTouchRadiusMeters,
+    // The batter's leg to first runs through the bag and back (first-base overrun, V95): rebuild it as recorded (2026-11-08).
+    ...(recorded.terminalMode ? { terminalMode: recorded.terminalMode } : {}) });
   expect(result).not.toBeNull();
   expect(result!.route).toEqual(recorded.route);
   expect(result!.durationSeconds).toBe(recorded.durationSeconds);

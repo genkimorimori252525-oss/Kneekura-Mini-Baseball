@@ -2369,6 +2369,16 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         controlSeconds: estimate.controlSeconds, aerodynamicSolves: estimate.diagnostics.aerodynamicSolveCount,
         cacheHit: estimate.diagnostics.cacheHit });
       let result = estimate.controlSeconds;
+      // A carry is known but no throw could be certified (the hand transition): the estimate is unknown, and a runner who read
+      // no defense forecast never left (a tag-up from second froze; the play ended 40 ms later, 2026-11-08). The defense is then
+      // bounded by its fastest straight throw: the holder's exchange left and the distance at his throwing speed, no air, and
+      // never later than the carry it knows.
+      if (result === null && estimate.diagnostics.unknownReason === 'UNPROVEN_THROW_HAND_PREPARATION') {
+        const age = t - observer.t, bounds = sources.map(src => { const a = observer.actors.find(x => x.playerId === src.playerId);
+          return a ? Math.max(0, (src.holderTransferRemainingSeconds ?? a.transferSeconds) + distance(flat(src.point), flat(base(n))) / a.throwSpeedMps - age) : Infinity; }),
+          carry = estimate.diagnostics.fallbackCarryReadyAtSeconds, bound = Math.min(...bounds, carry === null ? Infinity : Math.max(0, carry - t));
+        if (Number.isFinite(bound)) result = bound;
+      }
       // The ball on its way to a fielder is that fielder's ball: he catches it and throws on to this bag.
       if (runnerThrowReadV1 && throwTarget) {
         const c = LIVE_RUNNER_THROW_READ_CALIBRATION_V1, receiver = throwTarget.receiver,
