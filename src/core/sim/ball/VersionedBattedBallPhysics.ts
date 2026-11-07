@@ -50,9 +50,9 @@ export const createAeroGroundBallPhysicsProfile = (raw: unknown): AeroGroundBall
     || 'airKinematicViscosityM2PerSecond' in aero && (typeof aero.airKinematicViscosityM2PerSecond !== 'number'
       || !Number.isFinite(aero.airKinematicViscosityM2PerSecond) || aero.airKinematicViscosityM2PerSecond <= 0)
     || !fields(ground, ['radiusM', 'inertiaRatio', 'gravityMps2', 'ticksPerSecond', 'restingVerticalSpeedMps', 'material'], ['grassBeyondV1'])
-    || !fields(ground.material, ['restitution', 'slidingFriction', 'rollingDecelerationMps2', 'normalSpinDecayPerSecond'])
+    || !fields(ground.material, ['restitution', 'slidingFriction', 'rollingDecelerationMps2', 'normalSpinDecayPerSecond'], ['bounceSpinRetentionV1'])
     || 'grassBeyondV1' in ground && (!fields(ground.grassBeyondV1, ['centerX', 'centerZ', 'radiusM', 'material'])
-      || !fields(ground.grassBeyondV1!.material, ['restitution', 'slidingFriction', 'rollingDecelerationMps2', 'normalSpinDecayPerSecond']))
+      || !fields(ground.grassBeyondV1!.material, ['restitution', 'slidingFriction', 'rollingDecelerationMps2', 'normalSpinDecayPerSecond'], ['bounceSpinRetentionV1']))
     || 'spinDecay' in aero && !fields(aero.spinDecay, ['referenceSpeedMps', 'timeConstantSecondsAtReferenceSpeed'])
     || 'coefficientProfile' in aero && (!fields(coefficients, ['profileId', 'version', 'referenceReynoldsNumber',
       'spinKnots', 'reynoldsKnots', 'reynoldsCorrectionFullThroughSpinFactor', 'reynoldsCorrectionZeroAtSpinFactor'])
