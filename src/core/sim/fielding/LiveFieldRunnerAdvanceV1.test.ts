@@ -40,9 +40,14 @@ it('physically advances second to third on a deep caught fly against a weak arm'
   expect(left.tick).toBeGreaterThanOrEqual(caught.firstTouchTick + 100_000);
   expect(touched.tick).toBeGreaterThan(left.tick);
   const routeSeconds = estimateLiveRunnerLegSecondsV1(Math.hypot(19.39, 19.39), 8, 5, input.field.baseTouchRadiusMeters ?? .28);
-  const began = result.diagnostics.aiTelemetry.runnerMotions.find(m => m.runnerId === runnerId)!;
-  expect(left.elapsedSeconds - began.elapsedSeconds).toBeCloseTo(Math.sqrt(2 * (input.field.baseTouchRadiusMeters ?? .28) / 5), 9);
-  expect(touched.elapsedSeconds - began.elapsedSeconds).toBeCloseTo(routeSeconds, 9);
+  const began = result.diagnostics.aiTelemetry.runnerMotions.find(m => m.runnerId === runnerId)!,
+    inForce = result.diagnostics.aiTelemetry.runnerMotions.filter(m => m.runnerId === runnerId && m.elapsedSeconds === began.elapsedSeconds).at(-1)!;
+  // The same look can replace the leg to third by one through it (rounding); that route opens with a slight bend (about .05
+  // rad), so leaving the bag disk takes a few hundred-thousandths of a second longer than a straight start from rest, and
+  // the touch, rounding the bag wide instead of braking onto it, within a few hundredths of the straight leg's (2026-11-08).
+  expect(left.elapsedSeconds - began.elapsedSeconds).toBeCloseTo(Math.sqrt(2 * (input.field.baseTouchRadiusMeters ?? .28) / 5), 4);
+  if (inForce.throughBases.length > 1) expect(Math.abs(touched.elapsedSeconds - began.elapsedSeconds - routeSeconds)).toBeLessThan(.05);
+  else expect(touched.elapsedSeconds - began.elapsedSeconds).toBeCloseTo(routeSeconds, 9);
   expect(result.finalRunners.find(r => r.runnerId === runnerId)!.base).toBeGreaterThanOrEqual(3);
 });
 
@@ -81,7 +86,9 @@ it('holds second on a shallow caught fly defended by strong arms', () => {
 });
 
 it('uses the hidden safety margin in the actual runner decision', () => {
-  const raw = fixture(), input = { ...raw, fielders: raw.fielders.map(f => ({ ...f, throwSpeedMps: 8 })) },
+  // An 8 m/s arm no longer throws 59 m under the physical throw (V95): the defense could only carry the ball (about 13 s),
+  // leaving 8.6 s to spare, more than the largest margin. A strong outfield arm (36 m/s) leaves about .7 s (2026-11-08).
+  const raw = fixture(), input = { ...raw, fielders: raw.fielders.map(f => ({ ...f, throwSpeedMps: 36 })) },
     ordinary = simulateLiveFieldPlayV1({ ...input, runners: input.runners.map(r => ({ ...r, advanceSafetyMarginSeconds: 0 })) }),
     careful = simulateLiveFieldPlayV1({ ...input, runners: input.runners.map(r => ({ ...r, advanceSafetyMarginSeconds: 3 })) });
   expect(departure(ordinary)).toBeDefined();
@@ -96,7 +103,8 @@ it('waits for the runner reaction after the actual first touch and keeps that de
   expect(left.tick).toBeGreaterThanOrEqual(caught.firstTouchTick + reactionSeconds * 1e6);
   const began = result.diagnostics.aiTelemetry.runnerMotions.find(m => m.runnerId === runnerId)!;
   expect(began.elapsedSeconds).toBeLessThan(caught.firstTouchTick / 1e6 + reactionSeconds + .05);
-  expect(left.elapsedSeconds - began.elapsedSeconds).toBeCloseTo(Math.sqrt(2 * .28 / 5), 9);
+  // As above: a leg replaced at once by one through third leaves the bag on a slight bend.
+  expect(left.elapsedSeconds - began.elapsedSeconds).toBeCloseTo(Math.sqrt(2 * .28 / 5), 4);
   expect(thirdTouch(result)).toBeDefined();
   expect(result.end.tick).toBeGreaterThan(left.tick);
 });
