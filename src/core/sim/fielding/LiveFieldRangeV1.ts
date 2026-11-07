@@ -45,6 +45,45 @@ export const LIVE_RUNNER_SAFE_LEAD_POLICY_V1:LiveRunnerSafeLeadPolicyV1=Object.f
  * landing overstates the time he has; there the authored halfway still decides (2026-11-04: on all balls the lead doubled
  * runners off on pop-ups, 2 to 7 extra outs over 120 chances). */
 export const LIVE_RUNNER_SAFE_LEAD_CALIBRATION_V1=Object.freeze({turnSeconds:.3,maximumShare:.8,minimumLandingDepthMeters:60});
+/** Opt-in. Omission sends a leading runner back to his bag whenever a fielder may catch the ball in the air.
+ * A runner with fewer than two out who reads a possible catch holds his lead (he freezes, as on a line drive) as long as he
+ * could still get back after it: his reaction, the turn (LIVE_RUNNER_SAFE_LEAD_CALIBRATION_V1.turnSeconds) and the run back
+ * against the time to that catch, the catcher's exchange and his throw to the bag, with the runner's usual safety margin.
+ * 2026-11-08: on low liners that went through to the outfield the runner on first ran back to his bag from contact, could not
+ * turn until he touched it (1.4 s), and was forced at second by the center fielder (about .3 a game; MLB almost never). */
+/** Opt-in. Omission lets a forced runner wait for a forecast of the defense before he leaves on a ball in the air.
+ * A runner forced off his bag (the batter is coming) who reads that nobody can catch the ball has no base to keep: he goes to
+ * the next one at once, as he would on a ground ball. Before, with no fielder forecast to reach the ball, he stood on his bag
+ * until it came down (no_defense_forecast): on a 110 mph liner to the wall the runner on first left at 3.6 s and the batter,
+ * waiting for first to clear, stopped at first (2026-11-08: in bundle 3, no double with a runner on first, 0 of 45). */
+/** Opt-in. Omission keeps the batter running through first and a man rounding or headed to a bag counting as on it.
+ * The batter, on a ball through the infield, rounds first as any runner takes his bag at speed (runnerTurnV1), free to pull up
+ * on it. And a trailing runner, making his call on the next bag, counts it as held only by a man standing on it or running
+ * to stop on it: a man going on past it, or rounding it on a read that sends him on, is leaving it.
+ * 2026-11-08: with a runner on first, the batter ran through first, could only turn for second once the lead runner had left
+ * it (about 5.8 s on a hard liner to left), and was held to a single: bundle 3 had 0 of 45 hard hits go for extra bases
+ * with first occupied against 53 of 122 with it empty. */
+export type LiveRunnerTrailPolicyV1=Readonly<{version:'live_runner_trail_policy_v1';sourceId:string}>;
+export const LIVE_RUNNER_TRAIL_POLICY_V1:LiveRunnerTrailPolicyV1=Object.freeze({version:'live_runner_trail_policy_v1',sourceId:'runner-trail-v1'});
+export function validateLiveRunnerTrailPolicyV1(policy:LiveRunnerTrailPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_runner_trail_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid runner trail policy');
+  return policy;
+}
+export type LiveRunnerForcedHitRunPolicyV1=Readonly<{version:'live_runner_forced_hit_run_policy_v1';sourceId:string}>;
+export const LIVE_RUNNER_FORCED_HIT_RUN_POLICY_V1:LiveRunnerForcedHitRunPolicyV1=Object.freeze({version:'live_runner_forced_hit_run_policy_v1',sourceId:'runner-forced-hit-run-v1'});
+export function validateLiveRunnerForcedHitRunPolicyV1(policy:LiveRunnerForcedHitRunPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_runner_forced_hit_run_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid runner forced hit run policy');
+  return policy;
+}
+export type LiveRunnerLinerHoldPolicyV1=Readonly<{version:'live_runner_liner_hold_policy_v1';sourceId:string}>;
+export const LIVE_RUNNER_LINER_HOLD_POLICY_V1:LiveRunnerLinerHoldPolicyV1=Object.freeze({version:'live_runner_liner_hold_policy_v1',sourceId:'runner-liner-hold-v1'});
+export function validateLiveRunnerLinerHoldPolicyV1(policy:LiveRunnerLinerHoldPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_runner_liner_hold_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid runner liner hold policy');
+  return policy;
+}
 export function validateLiveRunnerSafeLeadPolicyV1(policy:LiveRunnerSafeLeadPolicyV1){
   if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_runner_safe_lead_policy_v1'
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid runner safe lead policy');
