@@ -47,7 +47,7 @@ export type LiveRunnerAdvanceInputV1 = Readonly<{
   policy?: Readonly<{ safetyMarginSeconds?: number; recognitionSeconds?: number }>;
 }>;
 
-export type LiveRunnerAdvanceReasonV1 = 'target_occupied' | 'awaiting_legal_departure'
+export type LiveRunnerAdvanceReasonV1 = 'target_occupied' | 'awaiting_legal_departure' | 'liner_hold_v1'
   | 'recognizing_departure_cue' | 'batter_advance' | 'award_advance' | 'forced_advance' | 'two_out_advance'
   | 'no_defense_forecast' | 'insufficient_safety_margin' | 'safe_race_advance'
   | 'airborne_catch_risk_hold' | 'airborne_hit_read_advance' | 'line_drive_freeze_hold' | 'halfway_wait';
