@@ -631,6 +631,14 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
         seenBall=kernel.evaluateAt(t1,'incoming').moment.ball,[degrees,ms,spinDegrees]=recognitionPolicyV2 as readonly [number,number,number?],
         // releaseCueV1 [cm]: each pitch is pictured leaving the hand at its own offset; the gap to this ball's (arm side, up) counts.
         releaseCue=observationPolicyV151?.releaseCueV1,seenOffset=selectedSnapshot?.releaseOffsetV1,
+        // misreadDestinationV1 [per cm, reference, low, high]: every wrong pitch's weight, so the odds of a misread, times
+        // exp(per cm x (d - reference)), d = cm the ball ends outside the zone widened by the ball (negative: depth inside).
+        destination=observationPolicyV151?.misreadDestinationV1,misreadOddsV1=destination===undefined?1:(()=>{
+          const at=crossing(kernel,plane),ball=.0366;
+          if(at===null)return 1;
+          const q=kernel.evaluateAt(at).moment.ball.position,dx=Math.abs(q.x-(zone.centerX??0))-zone.halfWidth-ball,dy=Math.max(zone.lowerY-ball-q.y,q.y-zone.upperY-ball),
+            outside=100*(dx<=0&&dy<=0?Math.max(dx,dy):Math.hypot(Math.max(dx,0),Math.max(dy,0)));
+          return Math.exp(destination[0]*(clamp(outside,destination[2],destination[3])-destination[1]));})(),
         weighed=candidates.map(c=>{
           const start={...initial,velocity:mul(initial.velocity,c.pitch.releaseSpeedMps*.99/norm(initial.velocity)),spin:c.pitch.spinRadPerSecond},
             at=sampleAerodynamicPitchStateAtElapsedSeconds(start,t1,inverseAir),
@@ -642,7 +650,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
             releaseGapCm=releaseCue===undefined?0:100*Math.hypot((c.offset?.[0]??0)-(seenOffset?.[0]??0),(c.offset?.[1]??0)-(seenOffset?.[1]??0));
           const d2=(turnDegrees/degrees)**2+(lagMs/ms)**2+(spinDegrees===undefined?0:(axisDegrees/spinDegrees)**2)+(releaseCue===undefined?0:(releaseGapCm/releaseCue)**2);
           // recognitionTailV1: Student's t in place of the normal, so a pitch far from the ball keeps some weight.
-          return {...c,start,at,turnDegrees,lagMs,weight:c.prior*(tail===undefined?Math.exp(-.5*d2):(1+d2/tail)**(-(tail+1)/2))};
+          return {...c,start,at,turnDegrees,lagMs,weight:c.prior*(tail===undefined?Math.exp(-.5*d2):(1+d2/tail)**(-(tail+1)/2))*(c.id===actualId?1:misreadOddsV1)};
         }),
         total=weighed.reduce((n,c)=>n+c.weight,0),
         draw=randomStreamsV152?.rng('batterBelief','pitch-recognition-v2').uniform()??new SeedRoot(input.seed).streamRng(0,'batting','pitch-recognition-v2').nextFloat();
