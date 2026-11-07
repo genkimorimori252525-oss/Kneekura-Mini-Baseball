@@ -165,6 +165,43 @@ export function validateLiveFieldOutfieldRightOfWayPolicyV1(policy:LiveFieldOutf
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field outfield right of way policy');
   return policy;
 }
+export type LiveFieldPitcherCoversFirstPolicyV1=Readonly<{version:'live_field_pitcher_covers_first_policy_v1';sourceId:string}>;
+export const LIVE_FIELD_PITCHER_COVERS_FIRST_POLICY_V1:LiveFieldPitcherCoversFirstPolicyV1=Object.freeze({version:'live_field_pitcher_covers_first_policy_v1',sourceId:'pitcher-covers-first-v1'});
+/** On a ground ball to the right side that is not his to field (launch 10 degrees or lower, 10 degrees or more toward first, its
+ * line 3 m or more from where he stands) the pitcher breaks for first at once, as in MLB: his cover of first does not wait for the
+ * cover plan nor count the first baseman as competing for the bag, so the first baseman can go for the ball. Without it, on
+ * 1B-side grounders the second baseman fielded cleanly and had nobody at the bag: the pitcher turned for first only after
+ * seeing the first baseman commit (1.15 s) and was still 14 m off it when the ball came (seed 962 #78, std-bundle2), and the
+ * second baseman turned .76 of MLB's expected outs on balls to his first-base side. */
+export function validateLiveFieldPitcherCoversFirstPolicyV1(policy:LiveFieldPitcherCoversFirstPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_pitcher_covers_first_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field pitcher covers first policy');
+  return policy;
+}
+/** Opt-in. The pitcher fields from where his delivery leaves him, not set on the rubber like an infielder: his weight 1.35 m in
+ * front of the rubber (a stride of about 0.8 of his height, about 1.5 m, with the centre of mass short of the front foot) and
+ * 0.4 m off toward the side away from his throwing arm, and he needs recoverySeconds more than his reaction to come out of it.
+ * The place is physical; only recoverySeconds is fitted, to the share of hard ground balls up the middle MLB pitchers field
+ * (Savant 2024-06, |spray| <= 5 deg: 9.6% at 80 mph and over, 50.5% under). Set on the rubber he fielded 25% of those over
+ * 80 mph (std-bundle2). Omission keeps him on the rubber with an infielder's reaction. */
+export type LiveFieldPitcherFollowThroughPolicyV1=Readonly<{version:'live_field_pitcher_follow_through_policy_v1';sourceId:string;recoverySeconds:number}>;
+export const LIVE_FIELD_PITCHER_FOLLOW_THROUGH_V1=Object.freeze({forwardMeters:1.35,sideMeters:.4});
+/** The fitted recovery: .1 s put the pitcher on 10.5% / 57.7% of up-the-middle grounders (over / under 80 mph) against MLB's
+ * 9.6% / 50.5%, and in 48 std-bundle3 games with pitcherCoversFirstV1 took him from 38.6% to 12.8% and the middle ground-ball
+ * hit rate from .141 to .266, runs +3.9% (2026-11-07). */
+export const LIVE_FIELD_PITCHER_FOLLOW_THROUGH_POLICY_V1:LiveFieldPitcherFollowThroughPolicyV1=Object.freeze({version:'live_field_pitcher_follow_through_policy_v1',sourceId:'pitcher-follow-through-v1-savant-2024',recoverySeconds:.1});
+export function validateLiveFieldPitcherFollowThroughPolicyV1(policy:LiveFieldPitcherFollowThroughPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='recoverySeconds|sourceId|version'
+    ||policy.version!=='live_field_pitcher_follow_through_policy_v1'||typeof policy.sourceId!=='string'||!policy.sourceId
+    ||!Number.isFinite(policy.recoverySeconds)||policy.recoverySeconds<0||policy.recoverySeconds>1)throw Error('invalid field pitcher follow-through policy');
+  return policy;
+}
+/** The pitcher's fielding start after his delivery: home is at the origin with the rubber on +z, so forward is -z; a right-hander
+ * falls off toward first (+x), a left-hander toward third. */
+export function liveFieldPitcherFollowThroughV1<T extends Readonly<{position:Vec3;reactionSeconds:number}>>(spec:T,throws:'R'|'L',policy:LiveFieldPitcherFollowThroughPolicyV1):T{
+  const c=LIVE_FIELD_PITCHER_FOLLOW_THROUGH_V1,p=spec.position;
+  return {...spec,position:{x:p.x+(throws==='L'?-c.sideMeters:c.sideMeters),y:p.y,z:p.z-c.forwardMeters},reactionSeconds:spec.reactionSeconds+policy.recoverySeconds};
+}
 /** Opt-in. Omission keeps every runner, the batter too, waiting until the man on the bag ahead has left it. */
 export type LiveForcedRunPolicyV1=Readonly<{version:'live_forced_run_policy_v1';sourceId:string}>;
 export const LIVE_FORCED_RUN_POLICY_V1:LiveForcedRunPolicyV1=Object.freeze({version:'live_forced_run_policy_v1',sourceId:'forced-run-v1-rule'});
