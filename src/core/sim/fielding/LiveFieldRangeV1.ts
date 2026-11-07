@@ -63,6 +63,25 @@ export const LIVE_RUNNER_SAFE_LEAD_CALIBRATION_V1=Object.freeze({turnSeconds:.3,
  * 2026-11-08: with a runner on first, the batter ran through first, could only turn for second once the lead runner had left
  * it (about 5.8 s on a hard liner to left), and was held to a single: bundle 3 had 0 of 45 hard hits go for extra bases
  * with first occupied against 53 of 122 with it empty. */
+/** Opt-in. Omission keeps the lead at contact the match and the walking shuffle give (from first about 3.7 m, from second about
+ * 5.4 m, standing) and a two-out runner starting from rest once he has reacted.
+ * Savant's lead distance is the runner's distance off the bag at the pitcher's first move (primary) and at the release
+ * (secondary: 2024, from first 13.7 ft, from second 17.3 ft; the game's leads at the release were about a metre short). From
+ * the release to contact (about .4 s) the runner goes on; no public measurement gives that part (history desk, 2026-11-08:
+ * 4-8 ft/s before the release would carry him .5-1 m further). At contact his lead is at least the release lead plus
+ * contactShuffleMeters; with two out he is already running toward the next bag at twoOutContactSpeedMps, his leg begun with
+ * no reaction to wait for. Both values are fitted to the two-out sends from second (Savant 2024: sent .939, out .025). */
+export type LiveRunnerShufflePolicyV1=Readonly<{version:'live_runner_shuffle_policy_v1';sourceId:string;contactShuffleMeters:number;twoOutContactSpeedMps:number}>;
+export const LIVE_RUNNER_SHUFFLE_POLICY_V1:LiveRunnerShufflePolicyV1=Object.freeze({version:'live_runner_shuffle_policy_v1',sourceId:'runner-shuffle-v1',contactShuffleMeters:.75,twoOutContactSpeedMps:1.8});
+/** Savant 2024 lead at the release (secondary lead): from first 13.7 ft, from second 17.3 ft. */
+export const LIVE_RUNNER_RELEASE_LEAD_V1=Object.freeze({1:13.7*.3048,2:17.3*.3048});
+export function validateLiveRunnerShufflePolicyV1(policy:LiveRunnerShufflePolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='contactShuffleMeters|sourceId|twoOutContactSpeedMps|version'||policy.version!=='live_runner_shuffle_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId||!Number.isFinite(policy.twoOutContactSpeedMps)||policy.twoOutContactSpeedMps<0||policy.twoOutContactSpeedMps>8
+    ||!Number.isFinite(policy.contactShuffleMeters)||policy.contactShuffleMeters<0||policy.contactShuffleMeters>3)
+    throw Error('invalid runner shuffle policy');
+  return policy;
+}
 export type LiveRunnerTrailPolicyV1=Readonly<{version:'live_runner_trail_policy_v1';sourceId:string}>;
 /** holdPastFirstMeters: how far past first the batter's turn carries him when he pulls up with the ball still loose (the
  * rounding radius; authored, unmeasured). */
