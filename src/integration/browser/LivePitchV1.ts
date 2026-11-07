@@ -120,7 +120,7 @@ export type LivePitchInputV1=Readonly<{
     timingStdSeconds:number;aimStdMeters:number;chaseMarginMeters:number;clipId?:string;technicalSkills?:TechnicalSkillControlsV75}>;
   pitcher:Readonly<{releaseSpeedMps:number;spinRadPerSecond:Vec3;commandStdMeters:number;maximumPitchSpeedMps?:number;throws?:'R'|'L';
     heightMeters?:number;moundPosition?:Vec3;pitchReleaseHeightMeters?:number;pitchReleaseSideMeters?:number;pitchReleaseExtensionMeters?:number;
-    pitchApproach?:'FASTBALL'|'BALANCED'|'BREAKING';velocitySpreadScaleV1?:number;pitchTunnelV1?:number;technicalSkills?:TechnicalSkillControlsV75;pitchRepertoire?:PitchRepertoireV77;pitchingMotion?:PitchingMotionV77;
+    pitchApproach?:'FASTBALL'|'BALANCED'|'BREAKING';velocitySpreadScaleV1?:number;pitchTunnelV1?:number;pitchSpinScatterV1?:number;technicalSkills?:TechnicalSkillControlsV75;pitchRepertoire?:PitchRepertoireV77;pitchingMotion?:PitchingMotionV77;
     pitchRepertoireV78?:PitchRepertoireV78;minimumSpinRatio?:number;zoneRecognitionV87?:ZoneRecognitionV87;
     pitchQualityV177?:LivePitchQualityRequestV177|null}>;
   catcher?:Readonly<{gloveSpeedMps:number;gloveReachMeters:number;gloveRadiusMeters:number;retentionCapacityJ:number;captureDissipationPowerW:number;pocketRadiusMeters:number;defensiveDecisionSeconds?:number;zoneRecognitionV87?:ZoneRecognitionV87}>;
@@ -289,6 +289,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   assert(p.pitchApproach===undefined||['FASTBALL','BALANCED','BREAKING'].includes(p.pitchApproach),'invalid pitch approach preference');
   assert(p.minimumSpinRatio===undefined||bounded(p.minimumSpinRatio,0,1),'invalid minimum spin ratio');
   assert(p.pitchTunnelV1===undefined||bounded(p.pitchTunnelV1,0,1),'invalid pitch tunnel skill');
+  assert(p.pitchSpinScatterV1===undefined||bounded(p.pitchSpinScatterV1,0,.4),'invalid pitch spin scatter');
   assert(!(p.pitchRepertoire&&p.pitchRepertoireV78),'ambiguous V77 and V78 pitch ownership');
   for(const [key,lo,hi] of [['maximumSweetSpotSpeedMps',.1,90],['targetSweetSpotSpeedMps',.1,90],['motorLatencySeconds',0,2],
     ['technicalTimingOffsetSeconds',-.5,.5],['sweetSpotT',.65,.9],['attackAngleDegrees',-80,80],['undercutAimMeters',-.05,.08],['pullAngleDegrees',-80,80],
@@ -517,6 +518,14 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   const spinExecution=p.minimumSpinRatio===undefined||p.minimumSpinRatio===1?{active:false,ratio:1,minimumSpinRatio:1,spin}:
     samplePitchSpinExecutionV78({seed:randomStreamsV152?.seedFor('pitchExecution','spin-reproduction-v78')??input.seed,nominalSpin:spin,minimumSpinRatio:p.minimumSpinRatio});
   if(spinExecution.active)initial={...initial,spin:spinExecution.spin};
+  // pitchSpinScatterV1 (sd): pitch to pitch the spin rate is the intended one times 1 + sd z, a normal draw kept within 2 sd,
+  // on the pitch execution stream; the release was planned on the intended spin, so a pitch rides more or less than usual.
+  if(p.pitchSpinScatterV1){
+    const r=randomStreamsV152?.rng('pitchExecution','spin-scatter-v1'),root=r?null:new SeedRoot(input.seed).streamRng(0,'pitch','spin-scatter-v1'),
+      u1=Math.max(1e-12,r?r.uniform():root!.nextFloat()),u2=r?r.uniform():root!.nextFloat(),
+      factor=1+p.pitchSpinScatterV1*clamp(Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2),-2,2);
+    initial={...initial,spin:mul(initial.spin,factor)};
+  }
   const pitchWorkloadV122=input.pitchWorkloadV122===undefined?null:resolveLivePitchWorkloadExecutionV122({...input.pitchWorkloadV122,
     physics:{velocity:initial.velocity,spin:initial.spin}});
   if(pitchWorkloadV122)initial={...initial,...pitchWorkloadV122.execution.physics};
