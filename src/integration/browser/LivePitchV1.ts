@@ -718,8 +718,12 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     currentObservationAvailableV151=positionObserverV151===undefined||effectiveForecastV246?.status==='PREDICTED',
     usablePriorV151=priorV122!==null&&priorV122!==undefined&&requestedPriorWeightV151>0,
     priorWeightV122=!currentObservationAvailableV151&&usablePriorV151?1:requestedPriorWeightV151,
+    // readPriorTimingShareV1: a pitch read right is timed on what was seen; the prior's weight on its arrival (not its place) is
+    // this share of the usual one. A misread pitch keeps the whole weight (2026-11-07).
+    readPriorTimingV1=observationPolicyV151?.readPriorTimingShareV1,
+    priorTimingWeightV1=readPriorTimingV1!==undefined&&recognitionV2?.recognized===true?priorWeightV122*readPriorTimingV1:priorWeightV122,
     prediction=priorV122&&priorWeightV122>0?{...observedPredictionV122,
-      elapsedSeconds:Math.max(decisionTime,observedPredictionV122.elapsedSeconds*(1-priorWeightV122)+priorV122.arrivalAfterReleaseSeconds*priorWeightV122),
+      elapsedSeconds:Math.max(decisionTime,observedPredictionV122.elapsedSeconds*(1-priorTimingWeightV1)+priorV122.arrivalAfterReleaseSeconds*priorTimingWeightV1),
       ball:{...observedPredictionV122.ball,position:{...observedPredictionV122.ball.position,
         x:observedPredictionV122.ball.position.x*(1-priorWeightV122)+priorV122.x*priorWeightV122,
         y:observedPredictionV122.ball.position.y*(1-priorWeightV122)+priorV122.y*priorWeightV122}}}:observedPredictionV122,

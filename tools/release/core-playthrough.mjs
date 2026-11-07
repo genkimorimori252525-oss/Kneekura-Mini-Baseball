@@ -98,7 +98,8 @@ const pitchRecord = (r, seed) => {
     hitBases: s?.hitBases ?? null, homeRuns: s?.homeRuns ?? null, runs: r.match.score.away + r.match.score.home - b.score.away - b.score.home, finished: r.finished,
     basesBefore: occupied(b.bases), basesAfter: occupied(r.match.bases), outsAfter: r.match.outs, halfAfter: r.match.half, spin: battedSpin(p.contact, r.batterPlayerId),
     ...(d.pitchRecognitionV2 ? {recog: {ok: d.pitchRecognitionV2.recognized, read: d.pitchRecognitionV2.readId}} : {}), ...(d.zoneIntentV1 ? {zint: {moved: d.zoneIntentV1.moved, wantIn: d.zoneIntentV1.wantIn}} : {}),
-    ...(opt.judge && d.zoneJudgment ? {judge: {obs: {x: d.zoneJudgment.observedForecastPosition.x, y: d.zoneJudgment.observedForecastPosition.y}, est: {x: d.zoneJudgment.estimatedPosition.x, y: d.zoneJudgment.estimatedPosition.y}}} : {}),
+    ...(opt.judge && d.zoneJudgment ? {judge: {obs: {x: d.zoneJudgment.observedForecastPosition.x, y: d.zoneJudgment.observedForecastPosition.y}, est: {x: d.zoneJudgment.estimatedPosition.x, y: d.zoneJudgment.estimatedPosition.y},
+      ...(d.zoneJudgment.arrivalSeconds ? {arr: d.zoneJudgment.arrivalSeconds, cross: tickAt(r.frames, d.zoneJudgment.observedForecastPosition.z)?.tick ?? null, f0: r.frames[0]?.tick ?? null} : {})}} : {}),
     ...(opt.miss && d.courseRecognitionV87?.batter ? {miss: missRecord(r, d)} : {}),...(d.courseRecognitionV87?.pitcher && opt.aim ? {aim: {req: d.courseRecognitionV87.pitcher.requestedPosition, sel: d.courseRecognitionV87.pitcher.selectedPosition, loc: d.courseRecognitionV87.pitcher.selectedLocation}} : {})};
 };
 // Batted-ball spin in rpm: back (+) or top (-), and side, read in the batter's frame.
