@@ -32,6 +32,8 @@ export type LiveRelayPlanInputV1 = Readonly<{
   materialOrientationAtRelease?: Quaternion;
   holderChargeElapsedSecondsV103?: number;
   preferStrongestFeasibleV103?: boolean;
+  /** throwEarliestArrivalV1: each leg the throw that reaches its taker first. */
+  preferEarliestArrivalV1?: boolean;
   holderReleaseBodyVelocityV110?:Vec3;
   /** Each catch a route adds must make it ready this much sooner, or the route with fewer catches is kept. Omission compares
    * ready time and direction risk alone, so a relay man standing on the line could be added for nothing. */
@@ -72,7 +74,7 @@ const flatDistance = (a: Vec3, b: Vec3) => Math.hypot(a.x - b.x, a.z - b.z);
 const finite = (p: Vec3) => !!p && [p.x, p.y, p.z].every(Number.isFinite);
 const freeze = <T>(value: T): T => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
 const allowedInputKeys = ['actors', 'holderPlayerId', 'receiverPlayerId', 'finalBase', 'runnerId', 'target', 'runnerArrivalSeconds',
-  'holderTransferRemainingSeconds', 'physics', 'throwHandOffset', 'maximumIntermediateReceivers', 'minimumMarginSeconds', 'excludedRelayPlayerIds', 'keepLateRouteV1', 'materialOrientationAtRelease','holderChargeElapsedSecondsV103','preferStrongestFeasibleV103','relayStepSecondsV1','holderReleaseBodyVelocityV110'];
+  'holderTransferRemainingSeconds', 'physics', 'throwHandOffset', 'maximumIntermediateReceivers', 'minimumMarginSeconds', 'excludedRelayPlayerIds', 'keepLateRouteV1', 'materialOrientationAtRelease','holderChargeElapsedSecondsV103','preferStrongestFeasibleV103','relayStepSecondsV1','holderReleaseBodyVelocityV110','preferEarliestArrivalV1'];
 
 /** Routes an intended throw using only present actor state and an explicit
  * runner estimate. Intermediate receivers are actual actors at their current
@@ -91,6 +93,7 @@ export function planLiveRelayV1(raw: LiveRelayPlanInputV1,compareReadyReceiverTo
     || ![input.runnerArrivalSeconds, input.holderTransferRemainingSeconds, minimumMargin].every(n => Number.isFinite(n) && n >= 0)
     || !Number.isFinite(input.holderChargeElapsedSecondsV103??0)||(input.holderChargeElapsedSecondsV103??0)<0
     || input.preferStrongestFeasibleV103!==undefined&&typeof input.preferStrongestFeasibleV103!=='boolean'
+    || input.preferEarliestArrivalV1!==undefined&&typeof input.preferEarliestArrivalV1!=='boolean'
     || input.holderReleaseBodyVelocityV110!==undefined&&!finite(input.holderReleaseBodyVelocityV110)
     || input.relayStepSecondsV1!==undefined&&!(input.relayStepSecondsV1>=0&&input.relayStepSecondsV1<1)
     || ![0, 1, 2].includes(maximumIntermediateReceivers)
@@ -234,6 +237,7 @@ export function planLiveRelayV1(raw: LiveRelayPlanInputV1,compareReadyReceiverTo
           remainingTransferSeconds:g.transferSeconds,handPreparationSeconds:Math.max(0,g.preparationSeconds-g.transferSeconds),chargeElapsedSeconds,
           ...(from.throwEffortBuildSecondsV103===undefined?{}:{throwEffortBuildSecondsV103:from.throwEffortBuildSecondsV103}),receiverReadySeconds,deadlineSeconds,
           ...(input.preferStrongestFeasibleV103===undefined?{}:{preferStrongestFeasibleV103:input.preferStrongestFeasibleV103}),
+          ...(input.preferEarliestArrivalV1?{preferEarliestArrivalV1:true}:{}),
           ...(material ? { materialOrientationAtRelease: material } : {}) },{...from,position:bodyPoint(from),velocity:g.bodyVelocity,
           glovePosition:add(bodyPoint(from),sub(from.glovePosition,from.position)),gloveVelocity:from===holder?from.gloveVelocity:g.bodyVelocity},2,g.normalPreparationAvailable,compareReadyReceiverTossV118);
         aerodynamicSolveCount+=action.transferVariantSolvesV110;aeroCache.set(key, action);

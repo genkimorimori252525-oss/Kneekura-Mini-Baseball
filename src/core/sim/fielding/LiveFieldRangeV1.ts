@@ -178,6 +178,16 @@ export function validateLiveFieldPitcherCoversFirstPolicyV1(policy:LiveFieldPitc
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field pitcher covers first policy');
   return policy;
 }
+/** Opt-in. A throw made to beat a runner is the one that reaches its taker first, not the strongest. Charge grows with the square
+ * of speed (LIVE_THROW_EFFORT_POLICY_V103), so on a 10 m feed a softer throw arrives sooner; the strongest throw made every feed and
+ * pivot take the fielder's whole transfer plus his whole charge (.38 + .36 = .74 s, std-bundle3 seed 7101 #60). */
+export type LiveFieldThrowEarliestArrivalPolicyV1=Readonly<{version:'live_field_throw_earliest_arrival_policy_v1';sourceId:string}>;
+export const LIVE_FIELD_THROW_EARLIEST_ARRIVAL_POLICY_V1:LiveFieldThrowEarliestArrivalPolicyV1=Object.freeze({version:'live_field_throw_earliest_arrival_policy_v1',sourceId:'throw-earliest-arrival-v1'});
+export function validateLiveFieldThrowEarliestArrivalPolicyV1(policy:LiveFieldThrowEarliestArrivalPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_throw_earliest_arrival_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field throw earliest arrival policy');
+  return policy;
+}
 /** Opt-in. The pitcher fields from where his delivery leaves him, not set on the rubber like an infielder: his weight 1.35 m in
  * front of the rubber (a stride of about 0.8 of his height, about 1.5 m, with the centre of mass short of the front foot) and
  * 0.4 m off toward the side away from his throwing arm, and he needs recoverySeconds more than his reaction to come out of it.

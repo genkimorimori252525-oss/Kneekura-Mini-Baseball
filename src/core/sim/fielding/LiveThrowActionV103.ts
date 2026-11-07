@@ -5,6 +5,7 @@ export { LIVE_THROW_EFFORT_POLICY_V103 } from './LiveThrowPlanV1';
 export type LiveThrowActionInputV103=Omit<LiveThrowPlanInputV1,'maximumThrowSpeedMps'|'effortSelectionV103'> & Readonly<{
   capacityMps:number;remainingTransferSeconds:number;handPreparationSeconds:number;chargeElapsedSeconds?:number;
   throwEffortBuildSecondsV103?:number;receiverReadySeconds?:number;deadlineSeconds?:number;preferStrongestFeasibleV103?:boolean;
+  /** throwEarliestArrivalV1: the throw that reaches the taker first, not the strongest. */preferEarliestArrivalV1?:boolean;
 }>;
 /** Shared executable timing hypothesis. All times are relative to the input
  * snapshot; elapsed charge is observable held-ball progress only. A missing
@@ -14,10 +15,10 @@ export function planLiveThrowActionV103(raw:LiveThrowActionInputV103){
   const {deadlineSeconds:rawDeadline,...rest}=raw,
     input=cloneInert({...rest,...(rawDeadline===Infinity||rawDeadline===undefined?{}:{deadlineSeconds:rawDeadline})}),
     {capacityMps,remainingTransferSeconds,handPreparationSeconds,chargeElapsedSeconds=0,
-      throwEffortBuildSecondsV103=LIVE_THROW_EFFORT_POLICY_V103.defaultBuildSeconds,receiverReadySeconds=0,deadlineSeconds,preferStrongestFeasibleV103,...command}=input;
+      throwEffortBuildSecondsV103=LIVE_THROW_EFFORT_POLICY_V103.defaultBuildSeconds,receiverReadySeconds=0,deadlineSeconds,preferStrongestFeasibleV103,preferEarliestArrivalV1,...command}=input;
   if(!Number.isFinite(capacityMps)||capacityMps<=0)throw new Error('live throw action: positive finite raw capacity required');
   const selection={capacityMps,remainingTransferSeconds,handPreparationSeconds,chargeElapsedSeconds,buildSeconds:throwEffortBuildSecondsV103,receiverReadySeconds,
-    ...(deadlineSeconds===undefined?{}:{deadlineSeconds}),...(preferStrongestFeasibleV103===undefined?{}:{preferStrongestFeasibleV103})},
+    ...(deadlineSeconds===undefined?{}:{deadlineSeconds}),...(preferStrongestFeasibleV103===undefined?{}:{preferStrongestFeasibleV103}),...(preferEarliestArrivalV1?{preferEarliestArrivalV1}:{})},
     forecast=planLiveThrowV1({...command,maximumThrowSpeedMps:Math.min(capacityMps,LIVE_THROW_EFFORT_POLICY_V103.maximumCommandSpeedMps),effortSelectionV103:selection});
   if(forecast.kind!=='planned')return Object.freeze({kind:'unreachable' as const,reason:'NO_SOLUTION_WITHIN_BOUNDED_COMMAND_SEARCH_V103' as const,
     capacityMps,maximumCommandSpeedMps:Math.min(capacityMps,LIVE_THROW_EFFORT_POLICY_V103.maximumCommandSpeedMps),

@@ -38,7 +38,7 @@ import { predictLiveDefensiveOpportunityV1, LIVE_DEFENSIVE_OPPORTUNITY_POLICY_V1
   type LiveDefensiveOpportunityV1 } from './LiveDefensiveOpportunityV1';
 import { resolveGroundedActorContactResponseV1 } from './GroundedActorContactResponseV1';
 import { planLiveThrowV1 } from './LiveThrowPlanV1';
-import { LIVE_RUNNER_THROW_READ_CALIBRATION_V1,validateLiveRunnerThrowReadPolicyV1,type LiveRunnerThrowReadPolicyV1,LIVE_RUNNER_TURN_CALIBRATION_V1,validateLiveRunnerTurnPolicyV1,type LiveRunnerTurnPolicyV1,LIVE_FIELD_COVER_CALIBRATION_V1,validateLiveFieldCoverPolicyV1,type LiveFieldCoverPolicyV1,LIVE_FIELD_RUN_VALUE_CALIBRATION_V1,validateLiveFieldRunValuePolicyV1,type LiveFieldRunValuePolicyV1,validateLiveFieldKinematicsPolicyV1,type LiveFieldKinematicsPolicyV1,LIVE_LOCOMOTION_START_CALIBRATION_V1,validateLiveLocomotionStartPolicyV1,type LiveLocomotionStartPolicyV1,validateLiveOutfieldBreakPolicyV1,type LiveOutfieldBreakPolicyV1,validateLiveForcedRunPolicyV1,type LiveForcedRunPolicyV1,validateLiveTossReceivePolicyV1,type LiveTossReceivePolicyV1,validateLiveFieldAttemptCrouchPolicyV1,type LiveFieldAttemptCrouchPolicyV1,validateLiveFieldCoverSeenPolicyV1,type LiveFieldCoverSeenPolicyV1,validateLiveRelayStepPolicyV1,type LiveRelayStepPolicyV1,validateLiveRunnerLooseBallReadPolicyV1,type LiveRunnerLooseBallReadPolicyV1,validateLiveRunnerLineDriveReadPolicyV1,type LiveRunnerLineDriveReadPolicyV1,validateLiveRunnerSureCatchHoldPolicyV1,type LiveRunnerSureCatchHoldPolicyV1,validateLiveRunnerFoulFlyHoldPolicyV1,type LiveRunnerFoulFlyHoldPolicyV1,validateLiveFieldOutfieldRightOfWayPolicyV1,type LiveFieldOutfieldRightOfWayPolicyV1,validateLiveFieldPitcherCoversFirstPolicyV1,type LiveFieldPitcherCoversFirstPolicyV1,LIVE_RUNNER_SAFE_LEAD_CALIBRATION_V1,validateLiveRunnerSafeLeadPolicyV1,type LiveRunnerSafeLeadPolicyV1,LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
+import { LIVE_RUNNER_THROW_READ_CALIBRATION_V1,validateLiveRunnerThrowReadPolicyV1,type LiveRunnerThrowReadPolicyV1,LIVE_RUNNER_TURN_CALIBRATION_V1,validateLiveRunnerTurnPolicyV1,type LiveRunnerTurnPolicyV1,LIVE_FIELD_COVER_CALIBRATION_V1,validateLiveFieldCoverPolicyV1,type LiveFieldCoverPolicyV1,LIVE_FIELD_RUN_VALUE_CALIBRATION_V1,validateLiveFieldRunValuePolicyV1,type LiveFieldRunValuePolicyV1,validateLiveFieldKinematicsPolicyV1,type LiveFieldKinematicsPolicyV1,LIVE_LOCOMOTION_START_CALIBRATION_V1,validateLiveLocomotionStartPolicyV1,type LiveLocomotionStartPolicyV1,validateLiveOutfieldBreakPolicyV1,type LiveOutfieldBreakPolicyV1,validateLiveForcedRunPolicyV1,type LiveForcedRunPolicyV1,validateLiveTossReceivePolicyV1,type LiveTossReceivePolicyV1,validateLiveFieldAttemptCrouchPolicyV1,type LiveFieldAttemptCrouchPolicyV1,validateLiveFieldCoverSeenPolicyV1,type LiveFieldCoverSeenPolicyV1,validateLiveRelayStepPolicyV1,type LiveRelayStepPolicyV1,validateLiveRunnerLooseBallReadPolicyV1,type LiveRunnerLooseBallReadPolicyV1,validateLiveRunnerLineDriveReadPolicyV1,type LiveRunnerLineDriveReadPolicyV1,validateLiveRunnerSureCatchHoldPolicyV1,type LiveRunnerSureCatchHoldPolicyV1,validateLiveRunnerFoulFlyHoldPolicyV1,type LiveRunnerFoulFlyHoldPolicyV1,validateLiveFieldOutfieldRightOfWayPolicyV1,type LiveFieldOutfieldRightOfWayPolicyV1,validateLiveFieldPitcherCoversFirstPolicyV1,type LiveFieldPitcherCoversFirstPolicyV1,validateLiveFieldThrowEarliestArrivalPolicyV1,type LiveFieldThrowEarliestArrivalPolicyV1,LIVE_RUNNER_SAFE_LEAD_CALIBRATION_V1,validateLiveRunnerSafeLeadPolicyV1,type LiveRunnerSafeLeadPolicyV1,LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
 import { decideLiveCloseThrowV1,liveCloseThrowToleranceV1,LIVE_CLOSE_THROW_CALIBRATION_V1,validateLiveFieldThrowPolicyV1,type LiveFieldThrowPolicyV1 } from './LiveCloseThrowV1';
 import { planLiveThrowActionV103,LIVE_THROW_EFFORT_POLICY_V103 } from './LiveThrowActionV103';
 import { liveFielderTurnSpeedV110 } from './LiveFielderBodyGeometryV105';
@@ -146,6 +146,8 @@ export type LiveFieldPlayInputV1 = Readonly<{ ball: BallWorldMoment; physics: Ae
   outfieldRightOfWayPolicyV1?: LiveFieldOutfieldRightOfWayPolicyV1;
   /** On a ground ball to the right side that is not his, the pitcher breaks for first at once; omission waits for the cover plan. */
   pitcherCoversFirstPolicyV1?: LiveFieldPitcherCoversFirstPolicyV1;
+  /** Competitive throws are the ones that reach the taker first, not the strongest; omission keeps the strongest. */
+  throwEarliestArrivalPolicyV1?: LiveFieldThrowEarliestArrivalPolicyV1;
   /** A runner on first goes as far as he can still get back from on a ball in the air; omission keeps the authored halfway. */
   runnerSafeLeadPolicyV1?: LiveRunnerSafeLeadPolicyV1;
   /** Opt-in runner tactics, authored and UNMEASURED; omitted keeps legacy decisions. Enables: two-out go-on-contact held for the
@@ -360,6 +362,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   const sureCatchHoldV1=input.sureCatchHoldPolicyV1===undefined?undefined:validateLiveRunnerSureCatchHoldPolicyV1(input.sureCatchHoldPolicyV1);
   const foulFlyHoldV1=input.foulFlyHoldPolicyV1===undefined?undefined:validateLiveRunnerFoulFlyHoldPolicyV1(input.foulFlyHoldPolicyV1);
   const outfieldRightOfWayV1=input.outfieldRightOfWayPolicyV1===undefined?undefined:validateLiveFieldOutfieldRightOfWayPolicyV1(input.outfieldRightOfWayPolicyV1);
+  const throwEarliestArrivalV1=input.throwEarliestArrivalPolicyV1!==undefined&&!!validateLiveFieldThrowEarliestArrivalPolicyV1(input.throwEarliestArrivalPolicyV1);
   // pitcherCoversFirstV1: decided once from the ball as it leaves the bat and where the pitcher stands.
   const pitcherCoversFirstV1=input.pitcherCoversFirstPolicyV1!==undefined&&validateLiveFieldPitcherCoversFirstPolicyV1(input.pitcherCoversFirstPolicyV1)&&(()=>{
     const vb=input.ball.ball.velocity,flat=Math.hypot(vb.x,vb.z),pitcher=input.fielders.find(f=>f.defensivePosition==='P');
@@ -1411,7 +1414,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
           remainingTransferSeconds:Math.max(0,custodySince+effectiveTransferSeconds(f)-t),handPreparationSeconds:0,
           chargeElapsedSeconds:Math.max(0,t-(custodyChargeFromV103??t)),
           ...(f.spec.throwEffortBuildSecondsV103===undefined?{}:{throwEffortBuildSecondsV103:f.spec.throwEffortBuildSecondsV103}),
-          receiverReadySeconds:receiverReady,deadlineSeconds:Math.max(0,target.effort.runnerDeadlineAtSeconds-t),preferStrongestFeasibleV103:true},
+          receiverReadySeconds:receiverReady,deadlineSeconds:Math.max(0,target.effort.runnerDeadlineAtSeconds-t),preferStrongestFeasibleV103:true,...(throwEarliestArrivalV1?{preferEarliestArrivalV1:true}:{})},
           transferActorV110(f,t),2,true,true);
       if(action.kind==='planned'&&action.releaseStyleV110==='glove_toss'
         &&t+action.releaseDelaySeconds<releaseAt&&t+action.controlSeconds<=target.effort.plannedControlAtSeconds+.025){
@@ -1713,7 +1716,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
             // This controller's throw task brakes to hold. Do not count the
             // catch's running momentum as a free boost at the later release.
             holderReleaseBodyVelocityV110:v(),
-            preferStrongestFeasibleV103: !o.containment, physics: commandComparisonPhysicsV113,
+            preferStrongestFeasibleV103: !o.containment, ...(throwEarliestArrivalV1&&!o.containment?{preferEarliestArrivalV1:true}:{}), physics: commandComparisonPhysicsV113,
             ...(fieldThrowPolicyV1?{keepLateRouteV1:true as const}:{}),
             ...(relayStepV1?{relayStepSecondsV1:LIVE_FIELD_TEST_MODEL_V1.controlSeconds}:{}),
             excludedRelayPlayerIds: [...(relayVisited.get(r.spec.runnerId + ':' + o.targetBase) ?? [])],
@@ -1744,7 +1747,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
             throwEffortBuildSecondsV103: possession!.spec.throwEffortBuildSecondsV103 ?? LIVE_THROW_EFFORT_POLICY_V103.defaultBuildSeconds,
             receiverReadySeconds: receiverArriveSeconds,
             ...(!o.containment ? { deadlineSeconds: Math.max(0, runnerSeconds - (receiver.spec.gloveRadiusMeters + input.physics.ground.radiusM) / receiver.spec.gloveSpeedMps),
-              preferStrongestFeasibleV103: true } : fieldThrowPolicyV1 ? { deadlineSeconds: Math.max(2.5, runnerSeconds) } : {}) },ownRecoveryWaitV120>0?{...transferActorV110(possession!,t),position:ownReleaseBodyV120,
+              preferStrongestFeasibleV103: true, ...(throwEarliestArrivalV1?{preferEarliestArrivalV1:true}:{}) } : fieldThrowPolicyV1 ? { deadlineSeconds: Math.max(2.5, runnerSeconds) } : {}) },ownRecoveryWaitV120>0?{...transferActorV110(possession!,t),position:ownReleaseBodyV120,
                 glovePosition:add(ownReleaseBodyV120,sub(at(possession!.glove,t),at(possession!.body,t)))}:transferActorV110(possession!,t),2,preparation.kind==='planned',individualV118);
           if(directAction.kind==='planned'&&ownRecoveryWaitV120>directAction.releaseDelaySeconds){
             const controlSeconds=Math.max(ownRecoveryWaitV120+directAction.flightSeconds,receiverArriveSeconds),
@@ -1814,7 +1817,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
               target,spin,physics:commandComparisonPhysicsV113,remainingTransferSeconds:forecastTransferSecondsV101(controller),
               handPreparationSeconds:Math.max(0,hand.durationSeconds+posture-forecastTransferSecondsV101(controller)),throwEffortBuildSecondsV103:controller.spec.throwEffortBuildSecondsV103??LIVE_THROW_EFFORT_POLICY_V103.defaultBuildSeconds,
               receiverReadySeconds:Math.max(0,second.receiverArriveSeconds-firstSeconds),
-              deadlineSeconds:Math.max(0,second.runnerSeconds-firstSeconds-acquisition),preferStrongestFeasibleV103:true},
+              deadlineSeconds:Math.max(0,second.runnerSeconds-firstSeconds-acquisition),preferStrongestFeasibleV103:true,...(throwEarliestArrivalV1?{preferEarliestArrivalV1:true}:{})},
               {...(individualV118?knownRelayActorV118(possession,controller,t):transferActorV110(controller,t)),position:origin,velocity:v(),glovePosition:origin,gloveVelocity:v(),bodyPoseV105:futurePose},2,true,individualV118);
           if(action.kind!=='planned')continue;
           const controlSeconds=firstSeconds+action.controlSeconds+acquisition;
@@ -3122,7 +3125,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
               receiverReadySeconds:receiverEtaToBag,
               ...(obligations.length||target.returnThrowV1?{deadlineSeconds:Math.max(0,Math.min(obligations.length?runnerSeconds-(target.receiver.spec.gloveRadiusMeters+input.physics.ground.radiusM)/target.receiver.spec.gloveSpeedMps:Infinity,
                 target.effort.plannedControlAtSeconds-time)-LIVE_FIELD_TEST_MODEL_V1.controlSeconds),
-                preferStrongestFeasibleV103:target.effort.reason==='STRONGEST_FEASIBLE_COMPETITIVE_THROW'}:{}),
+                preferStrongestFeasibleV103:target.effort.reason==='STRONGEST_FEASIBLE_COMPETITIVE_THROW',...(throwEarliestArrivalV1&&target.effort.reason==='STRONGEST_FEASIBLE_COMPETITIVE_THROW'?{preferEarliestArrivalV1:true}:{})}:{}),
               ...(materialSeamsActive?{materialOrientationAtRelease:ballAt(time).orientation}:{})});
           if(action.kind!=='planned'){reject('aero_throw_unreachable');continue;}
           target.effort={...target.effort,from:time,commandSpeedMps:action.commandSpeedMps,effort:action.effort,

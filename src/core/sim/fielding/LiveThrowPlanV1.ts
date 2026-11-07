@@ -16,7 +16,10 @@ export type LiveThrowPlanInputV1=Readonly<{
 export const LIVE_THROW_EFFORT_POLICY_V103=Object.freeze({defaultBuildSeconds:.6,effortExponent:2,
   maximumCommandSpeedMps:120,maximumFeasibleFlights:4});
 export type LiveThrowEffortSelectionV103=Readonly<{capacityMps:number;remainingTransferSeconds:number;handPreparationSeconds:number;
-  chargeElapsedSeconds:number;buildSeconds:number;receiverReadySeconds:number;deadlineSeconds?:number;preferStrongestFeasibleV103?:boolean}>;
+  chargeElapsedSeconds:number;buildSeconds:number;receiverReadySeconds:number;deadlineSeconds?:number;preferStrongestFeasibleV103?:boolean;
+  /** Pick the throw that reaches the taker first (charge grows with the square of speed, so a short feed goes softer), not the
+   * strongest: throwEarliestArrivalV1. Ties go to the lighter throw. */
+  preferEarliestArrivalV1?:boolean}>;
 export function liveThrowEffortTimingV103(speedMps:number,input:LiveThrowEffortSelectionV103){
   const effort=(speedMps/input.capacityMps)**LIVE_THROW_EFFORT_POLICY_V103.effortExponent,
     chargeSeconds=input.buildSeconds*effort,remainingChargeSeconds=Math.max(0,chargeSeconds-input.chargeElapsedSeconds),
@@ -47,12 +50,13 @@ export function planLiveThrowV1(raw:LiveThrowPlanInputV1){
     &&Number.isFinite(maximumFlightSeconds)&&maximumFlightSeconds>=.05&&maximumFlightSeconds<=8,'finite throw command, target and SI speed required');
   const selection=input.effortSelectionV103,preferred=input.preferredFlightSecondsV103;
   assert(preferred===undefined||Number.isFinite(preferred)&&preferred>=.05&&preferred<=maximumFlightSeconds,'finite preferred flight within command time required');
-  assert(!selection||fields(selection,['capacityMps','remainingTransferSeconds','handPreparationSeconds','chargeElapsedSeconds','buildSeconds','receiverReadySeconds'],['deadlineSeconds','preferStrongestFeasibleV103'])
+  assert(!selection||fields(selection,['capacityMps','remainingTransferSeconds','handPreparationSeconds','chargeElapsedSeconds','buildSeconds','receiverReadySeconds'],['deadlineSeconds','preferStrongestFeasibleV103','preferEarliestArrivalV1'])
     &&Number.isFinite(selection.capacityMps)&&selection.capacityMps>0&&input.maximumThrowSpeedMps<=selection.capacityMps
     &&[selection.remainingTransferSeconds,selection.handPreparationSeconds,selection.chargeElapsedSeconds,selection.buildSeconds,selection.receiverReadySeconds]
       .every(n=>Number.isFinite(n)&&n>=0)&&selection.buildSeconds<=5
     &&(selection.deadlineSeconds===undefined||Number.isFinite(selection.deadlineSeconds)&&selection.deadlineSeconds>=0)
-    &&(selection.preferStrongestFeasibleV103===undefined||typeof selection.preferStrongestFeasibleV103==='boolean'),'finite effort timing and raw capacity required');
+    &&(selection.preferStrongestFeasibleV103===undefined||typeof selection.preferStrongestFeasibleV103==='boolean')
+    &&(selection.preferEarliestArrivalV1===undefined||typeof selection.preferEarliestArrivalV1==='boolean'),'finite effort timing and raw capacity required');
   const physics=createAeroGroundBallPhysicsProfile(input.physics),tolerance=.02,
     initial=(velocity:Vec3)=>({tick:0,position:input.releasePosition,velocity,spin:input.spin});
   const airNamespace=internLiveThrowPhysicalNamespaceV113(()=>exactLiveThrowPhysicalKeyV113(physics.air)),
@@ -104,11 +108,13 @@ export function planLiveThrowV1(raw:LiveThrowPlanInputV1){
       }
       if(synchronizedFlightV109!==undefined&&!candidates.includes(synchronizedFlightV109))candidates.push(synchronizedFlightV109);
     }
-    candidates.sort((a,b)=>{const x=estimate(a),y=estimate(b);
+    if(selection.preferEarliestArrivalV1)candidates.sort((a,b)=>{const x=estimate(a),y=estimate(b);
+      return x.meets!==y.meets?(x.meets?-1:1):x.control-y.control||x.speed-y.speed;});
+    else candidates.sort((a,b)=>{const x=estimate(a),y=estimate(b);
       if(x.meets!==y.meets)return x.meets?-1:1;
       return x.meets?x.speed-y.speed||x.control-y.control:x.control-y.control||x.speed-y.speed;});
   }
-  const competitive=!!selection?.preferStrongestFeasibleV103&&selection.deadlineSeconds!==undefined&&selection.deadlineSeconds>0,
+  const competitive=!selection?.preferEarliestArrivalV1&&!!selection?.preferStrongestFeasibleV103&&selection.deadlineSeconds!==undefined&&selection.deadlineSeconds>0,
     earliestCandidates=competitive?[...candidates].sort((a,b)=>estimateCandidate!(a).control-estimateCandidate!(b).control):[],
     competitiveDeadlineCandidates=competitive?[...candidates].sort((a,b)=>{const x=estimateCandidate!(a),y=estimateCandidate!(b);
       return x.meets!==y.meets?(x.meets?-1:1):x.meets?y.speed-x.speed:x.control-y.control;}):[];
@@ -236,7 +242,7 @@ export function planLiveThrowV1(raw:LiveThrowPlanInputV1){
       return {result,effort:timing.effort,control,
         projectedRelease:timing.releaseDelaySeconds+Math.max(0,selection.receiverReadySeconds-timing.releaseDelaySeconds-result.flightSeconds),
         meets:selection.deadlineSeconds===undefined||control<=selection.deadlineSeconds};});
-    scored.sort((a,b)=>a.meets!==b.meets?(a.meets?-1:1):a.meets
+    scored.sort((a,b)=>a.meets!==b.meets?(a.meets?-1:1):selection.preferEarliestArrivalV1?a.control-b.control||a.effort-b.effort:a.meets
       ?competitive?b.result.relativeReleaseSpeedMps-a.result.relativeReleaseSpeedMps||a.control-b.control:a.effort-b.effort||a.control-b.control
       :a.control-b.control||a.effort-b.effort);
     let chosen=scored[0];
