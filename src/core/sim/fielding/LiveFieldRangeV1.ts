@@ -165,6 +165,53 @@ export function validateLiveFieldOutfieldRightOfWayPolicyV1(policy:LiveFieldOutf
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field outfield right of way policy');
   return policy;
 }
+export type LiveFieldPitcherCoversFirstPolicyV1=Readonly<{version:'live_field_pitcher_covers_first_policy_v1';sourceId:string}>;
+export const LIVE_FIELD_PITCHER_COVERS_FIRST_POLICY_V1:LiveFieldPitcherCoversFirstPolicyV1=Object.freeze({version:'live_field_pitcher_covers_first_policy_v1',sourceId:'pitcher-covers-first-v1'});
+/** On a ground ball to the right side that is not his to field (launch 10 degrees or lower, 10 degrees or more toward first, its
+ * line 3 m or more from where he stands) the pitcher breaks for first at once, as in MLB: his cover of first does not wait for the
+ * cover plan nor count the first baseman as competing for the bag, so the first baseman can go for the ball. Without it, on
+ * 1B-side grounders the second baseman fielded cleanly and had nobody at the bag: the pitcher turned for first only after
+ * seeing the first baseman commit (1.15 s) and was still 14 m off it when the ball came (seed 962 #78, std-bundle2), and the
+ * second baseman turned .76 of MLB's expected outs on balls to his first-base side. */
+export function validateLiveFieldPitcherCoversFirstPolicyV1(policy:LiveFieldPitcherCoversFirstPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_pitcher_covers_first_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field pitcher covers first policy');
+  return policy;
+}
+/** Opt-in. A throw made to beat a runner is the one that reaches its taker first, not the strongest. Charge grows with the square
+ * of speed (LIVE_THROW_EFFORT_POLICY_V103), so on a 10 m feed a softer throw arrives sooner; the strongest throw made every feed and
+ * pivot take the fielder's whole transfer plus his whole charge (.38 + .36 = .74 s, std-bundle3 seed 7101 #60). */
+export type LiveFieldThrowEarliestArrivalPolicyV1=Readonly<{version:'live_field_throw_earliest_arrival_policy_v1';sourceId:string}>;
+export const LIVE_FIELD_THROW_EARLIEST_ARRIVAL_POLICY_V1:LiveFieldThrowEarliestArrivalPolicyV1=Object.freeze({version:'live_field_throw_earliest_arrival_policy_v1',sourceId:'throw-earliest-arrival-v1'});
+export function validateLiveFieldThrowEarliestArrivalPolicyV1(policy:LiveFieldThrowEarliestArrivalPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_throw_earliest_arrival_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field throw earliest arrival policy');
+  return policy;
+}
+/** Opt-in. The pitcher fields from where his delivery leaves him, not set on the rubber like an infielder: his weight 1.35 m in
+ * front of the rubber (a stride of about 0.8 of his height, about 1.5 m, with the centre of mass short of the front foot) and
+ * 0.4 m off toward the side away from his throwing arm, and he needs recoverySeconds more than his reaction to come out of it.
+ * The place is physical; only recoverySeconds is fitted, to the share of hard ground balls up the middle MLB pitchers field
+ * (Savant 2024-06, |spray| <= 5 deg: 9.6% at 80 mph and over, 50.5% under). Set on the rubber he fielded 25% of those over
+ * 80 mph (std-bundle2). Omission keeps him on the rubber with an infielder's reaction. */
+export type LiveFieldPitcherFollowThroughPolicyV1=Readonly<{version:'live_field_pitcher_follow_through_policy_v1';sourceId:string;recoverySeconds:number}>;
+export const LIVE_FIELD_PITCHER_FOLLOW_THROUGH_V1=Object.freeze({forwardMeters:1.35,sideMeters:.4});
+/** The fitted recovery: .1 s put the pitcher on 10.5% / 57.7% of up-the-middle grounders (over / under 80 mph) against MLB's
+ * 9.6% / 50.5%, and in 48 std-bundle3 games with pitcherCoversFirstV1 took him from 38.6% to 12.8% and the middle ground-ball
+ * hit rate from .141 to .266, runs +3.9% (2026-11-07). */
+export const LIVE_FIELD_PITCHER_FOLLOW_THROUGH_POLICY_V1:LiveFieldPitcherFollowThroughPolicyV1=Object.freeze({version:'live_field_pitcher_follow_through_policy_v1',sourceId:'pitcher-follow-through-v1-savant-2024',recoverySeconds:.1});
+export function validateLiveFieldPitcherFollowThroughPolicyV1(policy:LiveFieldPitcherFollowThroughPolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='recoverySeconds|sourceId|version'
+    ||policy.version!=='live_field_pitcher_follow_through_policy_v1'||typeof policy.sourceId!=='string'||!policy.sourceId
+    ||!Number.isFinite(policy.recoverySeconds)||policy.recoverySeconds<0||policy.recoverySeconds>1)throw Error('invalid field pitcher follow-through policy');
+  return policy;
+}
+/** The pitcher's fielding start after his delivery: home is at the origin with the rubber on +z, so forward is -z; a right-hander
+ * falls off toward first (+x), a left-hander toward third. */
+export function liveFieldPitcherFollowThroughV1<T extends Readonly<{position:Vec3;reactionSeconds:number}>>(spec:T,throws:'R'|'L',policy:LiveFieldPitcherFollowThroughPolicyV1):T{
+  const c=LIVE_FIELD_PITCHER_FOLLOW_THROUGH_V1,p=spec.position;
+  return {...spec,position:{x:p.x+(throws==='L'?-c.sideMeters:c.sideMeters),y:p.y,z:p.z-c.forwardMeters},reactionSeconds:spec.reactionSeconds+policy.recoverySeconds};
+}
 /** Opt-in. Omission keeps every runner, the batter too, waiting until the man on the bag ahead has left it. */
 export type LiveForcedRunPolicyV1=Readonly<{version:'live_forced_run_policy_v1';sourceId:string}>;
 export const LIVE_FORCED_RUN_POLICY_V1:LiveForcedRunPolicyV1=Object.freeze({version:'live_forced_run_policy_v1',sourceId:'forced-run-v1-rule'});
@@ -332,5 +379,35 @@ export function validateLiveFieldAlignmentPolicyV1(policy:LiveFieldAlignmentPoli
 }
 export const liveFieldPlacementV1=(role:string,fallback:Vec3,alignment?:LiveFieldAlignmentPolicyV1):Vec3=>{
   const p=((alignment?LIVE_FIELD_ALIGNMENT_V1:LIVE_FIELD_RANGE_PLACEMENTS_V1) as Record<string,{x:number;z:number}>)[role];
+  return p?{x:p.x,y:fallback.y,z:p.z}:fallback;
+};
+/** Opt-in, needs fieldRangeV1. Omission keeps the shade and the spots above. */
+export type LiveFieldStartBySidePolicyV1=Readonly<{version:'live_field_start_by_side_policy_v1';sourceId:string}>;
+export const LIVE_FIELD_START_BY_SIDE_POLICY_V1:LiveFieldStartBySidePolicyV1=Object.freeze({version:'live_field_start_by_side_policy_v1',sourceId:'savant-fielder-positioning-2025-by-side'});
+export type LiveFieldRunnersV1='none'|'first'|'other';
+const spots=(s:Record<string,readonly [number,number]>)=>Object.freeze(Object.fromEntries(Object.entries(s).map(([k,[x,z]])=>[k,Object.freeze({x,z})])));
+/** Where 2025 MLB fielders started, by the batter's side and the runners (none, first base alone, any other), every alignment
+ * mixed and weighted by plate appearances (Savant Fielder Positioning, gathered 2026-11-06), in metres from home with +x toward
+ * first. With a runner on first alone the first baseman holds him at the bag; with nobody on he plays deep near the line against
+ * a left-handed batter and shallow off it against a right-handed one. The left-side numbers are the average of a split
+ * defence (about 50% shaded), so no single fielder stands there every time. */
+export const LIVE_FIELD_START_BY_SIDE_V1=Object.freeze({
+  L:Object.freeze({
+    none:spots({'1B':[23.4,29.9],'2B':[15.2,42.4],SS:[-3.7,46.5],'3B':[-15.2,34.8],LF:[-42.3,78.4],CF:[-2.6,98.2],RF:[40.8,82.0]}),
+    first:spots({'1B':[17.9,20.6],'2B':[14.9,41.1],SS:[-3.4,45.5],'3B':[-15.0,34.2],LF:[-42.4,78.5],CF:[-2.5,98.3],RF:[40.9,81.9]}),
+    other:spots({'1B':[22.0,28.0],'2B':[14.4,41.1],SS:[-3.8,44.6],'3B':[-17.0,29.0],LF:[-41.8,78.2],CF:[-2.5,97.6],RF:[40.5,81.5]})}),
+  R:Object.freeze({
+    none:spots({'1B':[17.2,30.1],'2B':[5.3,46.3],SS:[-14.2,42.9],'3B':[-22.2,30.0],LF:[-40.7,82.7],CF:[2.7,98.3],RF:[41.6,78.5]}),
+    first:spots({'1B':[17.4,20.4],'2B':[5.1,45.1],SS:[-13.2,42.2],'3B':[-21.6,29.1],LF:[-40.8,82.7],CF:[2.6,98.4],RF:[41.8,78.5]}),
+    other:spots({'1B':[16.8,28.4],'2B':[4.9,44.3],SS:[-13.4,41.6],'3B':[-21.2,28.6],LF:[-40.3,82.1],CF:[2.6,97.6],RF:[41.4,78.1]})})});
+export function validateLiveFieldStartBySidePolicyV1(policy:LiveFieldStartBySidePolicyV1){
+  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_start_by_side_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field start by side policy');
+  return policy;
+}
+export const liveFieldRunnersV1=(bases:Readonly<{first?:unknown;second?:unknown;third?:unknown}>):LiveFieldRunnersV1=>
+  !bases.first&&!bases.second&&!bases.third?'none':bases.first&&!bases.second&&!bases.third?'first':'other';
+export const liveFieldStartBySideV1=(role:string,fallback:Vec3,bats:'R'|'L',runners:LiveFieldRunnersV1):Vec3=>{
+  const p=(LIVE_FIELD_START_BY_SIDE_V1[bats][runners] as Record<string,{x:number;z:number}>)[role];
   return p?{x:p.x,y:fallback.y,z:p.z}:fallback;
 };

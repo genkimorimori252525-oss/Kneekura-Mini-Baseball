@@ -60,6 +60,26 @@ describe('source-clock ground dynamics', () => {
     expect(result.position.y).toBe(parameters.radiusM);
   });
 
+  it('an opt-in bounce spin retention keeps only that share of topspin and backspin through a floor impact', () => {
+    // Ball moving +x with topspin about -z (bottom point moving backward).
+    const incoming = ball({ velocity: { x: 30, y: -4, z: 0 }, spin: { x: 0, y: 50, z: -400 } });
+    const rigid = resolveBaseballGroundImpact(incoming, parameters);
+    const same = resolveBaseballGroundImpact(incoming, { ...parameters, material: { ...material, bounceSpinRetentionV1: 1 } });
+    expect(same).toEqual(rigid);
+    const bitten = resolveBaseballGroundImpact(incoming, { ...parameters, material: { ...material, bounceSpinRetentionV1: .25 } });
+    const spun = resolveBaseballGroundImpact({ ...incoming, spin: { x: 0, y: 50, z: -100 } }, parameters);
+    expect(bitten).toEqual(spun);
+    expect(bitten.spin.y).toBe(50);
+    // A shallow bounce slides either way (the same Coulomb impulse); a steep one reaches no-slip, where less topspin
+    // leaves the ball slower.
+    expect(bitten.velocity.x).toBeCloseTo(rigid.velocity.x, 12);
+    const steep = ball({ velocity: { x: 30, y: -20, z: 0 }, spin: { x: 0, y: 0, z: -400 } });
+    expect(resolveBaseballGroundImpact(steep, { ...parameters, material: { ...material, bounceSpinRetentionV1: .25 } }).velocity.x)
+      .toBeLessThan(resolveBaseballGroundImpact(steep, parameters).velocity.x - 2);
+    expect(() => resolveBaseballGroundImpact(incoming, { ...parameters, material: { ...material, bounceSpinRetentionV1: 1.1 } })).toThrow();
+    expect(() => resolveBaseballGroundImpact(incoming, { ...parameters, material: { ...material, bounceSpinRetentionV1: -.1 } })).toThrow();
+  });
+
   it('surface coefficients change actual rebound, sliding and rolling', () => {
     const soft = { ...parameters, material: { ...material, restitution: 0.2, slidingFriction: 0.1, rollingDecelerationMps2: 1.2 } };
     const initial = ball({ velocity: { x: 10, y: -5, z: 0 } });
