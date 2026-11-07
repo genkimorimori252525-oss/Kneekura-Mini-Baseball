@@ -87,7 +87,7 @@ export { AVERAGE_FIELD_REFERENCE_V95, AVERAGE_FIELD_PROFILE_V95, AVERAGE_FIELD_C
 
 export { markLiveAuthoringSourceV101 } from './LiveAuthoringSourceV101';
 
-export { BASEBALL_SURFACES_V101, LIVE_MATCH_GRASS_V2, LIVE_MATCH_GRASS_V3, MLB_INFIELD_DIRT_ARC_V1 } from '../../core/sim/ball/BaseballSurfaceCalibrationV101';
+export { BASEBALL_SURFACES_V101, LIVE_MATCH_GRASS_V2, LIVE_MATCH_GRASS_V3, LIVE_MATCH_GRASS_V4, MLB_INFIELD_DIRT_ARC_V1 } from '../../core/sim/ball/BaseballSurfaceCalibrationV101';
 
 export { liveFielderBodyControlBoundsV105, resolveLiveFielderBodyModelV105 } from '../../core/sim/fielding/LiveFielderBodyGeometryV105';
 export type { LiveFielderBodyControlsV105, LiveFielderBodyModelV105, LiveFielderBodyPoseV105 } from '../../core/sim/fielding/LiveFielderBodyGeometryV105';
