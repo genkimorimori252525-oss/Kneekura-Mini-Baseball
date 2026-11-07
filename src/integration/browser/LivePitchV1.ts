@@ -1202,7 +1202,11 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       // lateLookAccelerationV1 (m/s^2): the late correction is bounded by the extra hand acceleration over the time left,
       // |offset| <= a T^2/6, instead of a fixed share of the gap; a small miss closes fully, a far one only partly (2026-11-05).
       lateAccelerationV1=observationPolicyV151?.lateLookAccelerationV1,
-      scale=duration>0&&distance>1e-9?Math.min(lateAccelerationV1===undefined?headroom:Math.min(1,lateAccelerationV1*duration*duration/(6*distance)),budget*duration/(1.5*distance),executionV122?executionV122.maximumCorrectionMeters/distance:Infinity,accelerationBudget*duration*duration/(6*distance)):0,
+      // misreadLateCloseV1 (k): on a misread the late look leaves k times the gap it usually leaves (closes 1 - k (1 - share)),
+      // within the same hand speed and acceleration budgets; the timing is not touched (2026-11-07).
+      lateCloseV1=observationPolicyV151?.misreadLateCloseV1!==undefined&&recognitionV2&&!recognitionV2.recognized?observationPolicyV151.misreadLateCloseV1:undefined,
+      lateShareV1=lateAccelerationV1===undefined?headroom:Math.min(1,lateAccelerationV1*duration*duration/(6*distance)),
+      scale=duration>0&&distance>1e-9?Math.min(lateCloseV1===undefined?lateShareV1:1-lateCloseV1*(1-lateShareV1),budget*duration/(1.5*distance),executionV122?executionV122.maximumCorrectionMeters/distance:Infinity,accelerationBudget*duration*duration/(6*distance)):0,
       offset=mul(requestedOffset,scale),applied=scale>0&&norm(offset)<=3;
     return {headroom,observedTick:lateObservedTick,availableTick,correctionFromTick,throughTick:Math.max(correctionFromTick,throughTick),selectedPredictionId:evidence.predictionId,
       contactPlaneZ:battingSetupV94.contactPlaneZ,requestedOffset,offset:applied?offset:zero(),applied,maximumCorrectionSpeedMps:budget,

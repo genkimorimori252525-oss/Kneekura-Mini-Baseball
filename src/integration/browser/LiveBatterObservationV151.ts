@@ -100,6 +100,9 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   /** With pitchRecognitionV2 and priorExpectationV1: a pitch read right is timed on what was seen, the prior's weight on its
    * arrival (not its place) being this share (0..1) of the usual one; a misread keeps the whole weight (2026-11-07). */
   readPriorTimingShareV1?:number;
+  /** With pitchRecognitionV2: on a misread, the late look leaves this share (0..1) of the gap it usually leaves between the
+   * seen ball and the bat, within the same hand budgets; the timing is not touched (2026-11-07). */
+  misreadLateCloseV1?:number;
   /** With pitchRecognitionV2: the release point as a cue (scale in cm, 0.1..50). Each pitch he weighs is pictured leaving the hand
    * at its own releaseOffsetV1; the gap to where this ball left (toward the arm and up) adds (gap/scale)^2 to d^2 (2026-11-06). */
   releaseCueV1?:number;
@@ -258,6 +261,7 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'misreadExpectShareV1')){keys.push('misreadExpectShareV1');assert(Number.isFinite(p.misreadExpectShareV1)&&p.misreadExpectShareV1!>=0&&p.misreadExpectShareV1!<=1&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid misread expect share');}
   if(Object.hasOwn(p,'misreadExpectBatV1')){keys.push('misreadExpectBatV1');assert(Number.isFinite(p.misreadExpectBatV1)&&p.misreadExpectBatV1!>=0&&p.misreadExpectBatV1!<=1&&Object.hasOwn(p,'misreadExpectShareV1'),'invalid misread expect bat');}
   if(Object.hasOwn(p,'readPriorTimingShareV1')){keys.push('readPriorTimingShareV1');assert(Number.isFinite(p.readPriorTimingShareV1)&&p.readPriorTimingShareV1!>=0&&p.readPriorTimingShareV1!<=1&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid read prior timing share');}
+  if(Object.hasOwn(p,'misreadLateCloseV1')){keys.push('misreadLateCloseV1');assert(Number.isFinite(p.misreadLateCloseV1)&&p.misreadLateCloseV1!>=0&&p.misreadLateCloseV1!<=1&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid misread late close');}
   if(Object.hasOwn(p,'readBlendV1')){keys.push('readBlendV1');assert(Number.isFinite(p.readBlendV1)&&p.readBlendV1!>=0&&p.readBlendV1!<=1&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid read blend');}
   if(Object.hasOwn(p,'misreadTimingKeepV1')){keys.push('misreadTimingKeepV1');assert(Number.isFinite(p.misreadTimingKeepV1)&&p.misreadTimingKeepV1!>=0&&p.misreadTimingKeepV1!<=1,'invalid misread timing keep');}
   if(Object.hasOwn(p,'releaseCueV1')){keys.push('releaseCueV1');assert(Number.isFinite(p.releaseCueV1)&&p.releaseCueV1!>=.1&&p.releaseCueV1!<=50&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid release cue');}
