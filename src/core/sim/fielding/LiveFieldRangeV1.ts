@@ -64,6 +64,9 @@ export const LIVE_RUNNER_SAFE_LEAD_CALIBRATION_V1=Object.freeze({turnSeconds:.3,
  * it (about 5.8 s on a hard liner to left), and was held to a single: bundle 3 had 0 of 45 hard hits go for extra bases
  * with first occupied against 53 of 122 with it empty. */
 export type LiveRunnerTrailPolicyV1=Readonly<{version:'live_runner_trail_policy_v1';sourceId:string}>;
+/** holdPastFirstMeters: how far past first the batter's turn carries him when he pulls up with the ball still loose (the
+ * rounding radius; authored, unmeasured). */
+export const LIVE_RUNNER_TRAIL_CALIBRATION_V1=Object.freeze({holdPastFirstMeters:4.5});
 export const LIVE_RUNNER_TRAIL_POLICY_V1:LiveRunnerTrailPolicyV1=Object.freeze({version:'live_runner_trail_policy_v1',sourceId:'runner-trail-v1'});
 export function validateLiveRunnerTrailPolicyV1(policy:LiveRunnerTrailPolicyV1){
   if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_runner_trail_policy_v1'

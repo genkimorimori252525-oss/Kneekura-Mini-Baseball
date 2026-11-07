@@ -38,7 +38,7 @@ import { predictLiveDefensiveOpportunityV1, LIVE_DEFENSIVE_OPPORTUNITY_POLICY_V1
   type LiveDefensiveOpportunityV1 } from './LiveDefensiveOpportunityV1';
 import { resolveGroundedActorContactResponseV1 } from './GroundedActorContactResponseV1';
 import { planLiveThrowV1 } from './LiveThrowPlanV1';
-import { LIVE_RUNNER_THROW_READ_CALIBRATION_V1,validateLiveRunnerThrowReadPolicyV1,type LiveRunnerThrowReadPolicyV1,LIVE_RUNNER_TURN_CALIBRATION_V1,validateLiveRunnerTurnPolicyV1,type LiveRunnerTurnPolicyV1,LIVE_FIELD_COVER_CALIBRATION_V1,validateLiveFieldCoverPolicyV1,type LiveFieldCoverPolicyV1,LIVE_FIELD_RUN_VALUE_CALIBRATION_V1,validateLiveFieldRunValuePolicyV1,type LiveFieldRunValuePolicyV1,validateLiveFieldKinematicsPolicyV1,type LiveFieldKinematicsPolicyV1,LIVE_LOCOMOTION_START_CALIBRATION_V1,validateLiveLocomotionStartPolicyV1,type LiveLocomotionStartPolicyV1,validateLiveOutfieldBreakPolicyV1,type LiveOutfieldBreakPolicyV1,validateLiveForcedRunPolicyV1,type LiveForcedRunPolicyV1,validateLiveTossReceivePolicyV1,type LiveTossReceivePolicyV1,validateLiveFieldAttemptCrouchPolicyV1,type LiveFieldAttemptCrouchPolicyV1,validateLiveFieldCoverSeenPolicyV1,type LiveFieldCoverSeenPolicyV1,validateLiveRelayStepPolicyV1,type LiveRelayStepPolicyV1,validateLiveRunnerLooseBallReadPolicyV1,type LiveRunnerLooseBallReadPolicyV1,validateLiveRunnerLineDriveReadPolicyV1,type LiveRunnerLineDriveReadPolicyV1,validateLiveRunnerSureCatchHoldPolicyV1,type LiveRunnerSureCatchHoldPolicyV1,validateLiveRunnerFoulFlyHoldPolicyV1,type LiveRunnerFoulFlyHoldPolicyV1,validateLiveFieldOutfieldRightOfWayPolicyV1,type LiveFieldOutfieldRightOfWayPolicyV1,validateLiveFieldPitcherCoversFirstPolicyV1,type LiveFieldPitcherCoversFirstPolicyV1,validateLiveFieldThrowEarliestArrivalPolicyV1,type LiveFieldThrowEarliestArrivalPolicyV1,LIVE_RUNNER_SAFE_LEAD_CALIBRATION_V1,validateLiveRunnerSafeLeadPolicyV1,type LiveRunnerSafeLeadPolicyV1,validateLiveRunnerLinerHoldPolicyV1,type LiveRunnerLinerHoldPolicyV1,validateLiveRunnerForcedHitRunPolicyV1,type LiveRunnerForcedHitRunPolicyV1,validateLiveRunnerTrailPolicyV1,type LiveRunnerTrailPolicyV1,LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
+import { LIVE_RUNNER_TRAIL_CALIBRATION_V1, LIVE_RUNNER_THROW_READ_CALIBRATION_V1,validateLiveRunnerThrowReadPolicyV1,type LiveRunnerThrowReadPolicyV1,LIVE_RUNNER_TURN_CALIBRATION_V1,validateLiveRunnerTurnPolicyV1,type LiveRunnerTurnPolicyV1,LIVE_FIELD_COVER_CALIBRATION_V1,validateLiveFieldCoverPolicyV1,type LiveFieldCoverPolicyV1,LIVE_FIELD_RUN_VALUE_CALIBRATION_V1,validateLiveFieldRunValuePolicyV1,type LiveFieldRunValuePolicyV1,validateLiveFieldKinematicsPolicyV1,type LiveFieldKinematicsPolicyV1,LIVE_LOCOMOTION_START_CALIBRATION_V1,validateLiveLocomotionStartPolicyV1,type LiveLocomotionStartPolicyV1,validateLiveOutfieldBreakPolicyV1,type LiveOutfieldBreakPolicyV1,validateLiveForcedRunPolicyV1,type LiveForcedRunPolicyV1,validateLiveTossReceivePolicyV1,type LiveTossReceivePolicyV1,validateLiveFieldAttemptCrouchPolicyV1,type LiveFieldAttemptCrouchPolicyV1,validateLiveFieldCoverSeenPolicyV1,type LiveFieldCoverSeenPolicyV1,validateLiveRelayStepPolicyV1,type LiveRelayStepPolicyV1,validateLiveRunnerLooseBallReadPolicyV1,type LiveRunnerLooseBallReadPolicyV1,validateLiveRunnerLineDriveReadPolicyV1,type LiveRunnerLineDriveReadPolicyV1,validateLiveRunnerSureCatchHoldPolicyV1,type LiveRunnerSureCatchHoldPolicyV1,validateLiveRunnerFoulFlyHoldPolicyV1,type LiveRunnerFoulFlyHoldPolicyV1,validateLiveFieldOutfieldRightOfWayPolicyV1,type LiveFieldOutfieldRightOfWayPolicyV1,validateLiveFieldPitcherCoversFirstPolicyV1,type LiveFieldPitcherCoversFirstPolicyV1,validateLiveFieldThrowEarliestArrivalPolicyV1,type LiveFieldThrowEarliestArrivalPolicyV1,LIVE_RUNNER_SAFE_LEAD_CALIBRATION_V1,validateLiveRunnerSafeLeadPolicyV1,type LiveRunnerSafeLeadPolicyV1,validateLiveRunnerLinerHoldPolicyV1,type LiveRunnerLinerHoldPolicyV1,validateLiveRunnerForcedHitRunPolicyV1,type LiveRunnerForcedHitRunPolicyV1,validateLiveRunnerTrailPolicyV1,type LiveRunnerTrailPolicyV1,LIVE_FIELD_RANGE_CALIBRATION_V1,liveFieldAirReadV1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldRangeSpecV1,liveFieldRunnerRangeSpecV1,validateLiveFieldRangePolicyV1,type LiveFieldRangePolicyV1 } from './LiveFieldRangeV1';
 import { decideLiveCloseThrowV1,liveCloseThrowToleranceV1,LIVE_CLOSE_THROW_CALIBRATION_V1,validateLiveFieldThrowPolicyV1,type LiveFieldThrowPolicyV1 } from './LiveCloseThrowV1';
 import { planLiveThrowActionV103,LIVE_THROW_EFFORT_POLICY_V103 } from './LiveThrowActionV103';
 import { liveFielderTurnSpeedV110 } from './LiveFielderBodyGeometryV105';
@@ -279,11 +279,14 @@ type HandPreparationState = { fielder: Fielder; base: BaseballBase;
 type Leg = { from: number; to: BaseballBase; motion: LiveRunnerMotionV1; nextTouchIndex: number; height: number;
   departure: { base: BaseballBase; elapsedSeconds: number } | null; returning?: boolean; halfway?: true;
   /** runnerLinerHoldV1: a lead runner going back to his bag on a read of a catch, free to stop when the read clears. */backToBagV1?: true;
+  /** runnerTrailV1: the batter's turn at first pulled up past the bag, where he waits on the man ahead. */holdPastV1?: true;
+  /** runnerTrailV1: the batter's turn at first not yet called: unless he goes on first, he pulls up past the bag on touching it. */holdAtTouchV1?: true;
   /** runnerTurnV1: taking `base` at speed toward the next bag, still free to pull up on it. */turnV1?: { base: BaseballBase } };
 type Runner = { spec: LiveRunnerV1; base: number; p: Vec3; leg: Leg | null; retired: boolean; scored: boolean;
   retiredSlideV115?:Leg;
   retouchBase: 1 | 2 | 3 | null; returnReadyAt: number | null;
-  /** runnerLinerHoldV1: his velocity when a trip back to the bag was cut short, so the next leg starts from it. */carryV1?: { t: number; velocity: Vec3 } };
+  /** runnerLinerHoldV1: his velocity when a trip back to the bag was cut short, so the next leg starts from it. */carryV1?: { t: number; velocity: Vec3 };
+  /** runnerTrailV1: standing past first after a turn, to go back to it once a fielder has the ball. */pastFirstV1?: true };
 type Hit = { t: number; from: number; gap: number; rounding: number; speed: number; ambiguous?: true };
 
 export function deriveLiveFieldFenceGeometryV1(field: LiveFieldGeometryV1): Readonly<{ fenceCenter: Vec3; fenceRadiusMeters: number; fenceHeightMeters: number; fenceVerticesV1?: readonly LiveFenceVertexV1[] }> {
@@ -2571,7 +2574,8 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       const previous = runnerDecisions.slice().reverse().find(d => d.runnerId === r.spec.runnerId);
       if (!previous || previous.targetBase !== next || previous.reason !== decision.reason || decision.advance)
         runnerDecisions.push({ elapsedSeconds: t, runnerId: r.spec.runnerId, targetBase: next, defenderControlSeconds, ...decision });
-      if (decision.advance && !(r.base === 0 && flyCatch) && !(dead && awardTarget === null)) beginLeg(r, next as BaseballBase, t, defenderControlSeconds);
+      if (decision.advance && !(r.base === 0 && flyCatch) && !(dead && awardTarget === null)) { r.pastFirstV1 = undefined; beginLeg(r, next as BaseballBase, t, defenderControlSeconds); }
+      else if (r.pastFirstV1 && r.base === 1 && (possession || pendingCatch || hasThrown) && beginBackToBagV1(r, t)) r.pastFirstV1 = undefined;
     }
     // runnerTurnV1: once the ball is through the infield, a runner takes his bag at speed bent toward the next one and
     // makes his call at the last look from which he can still pull up on it. Every estimate is the same one a stop uses.
@@ -2620,7 +2624,10 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         const seen = runnerObservationV95(r, t), forecast = estimateDefenseControl(r, n + 1),
           defense = forecast === null ? (trailRunnerV1 && hitReadV1(r, n + 1) ? Infinity : null) : forecast + (seen && !seen.holder ? c.looseBallAllowanceSeconds : 0),
           arrival = leg.from + nextTouch.elapsedSeconds - t;
-        if (!(trailRunnerV1 ? trailOccupiedV1(r, n + 1) : targetOccupiedByOther(r, n + 1)) && defense !== null && defense - arrival > marginV1(r, n + 1, false)) { delete leg.turnV1; return true; }
+        if (!(trailRunnerV1 ? trailOccupiedV1(r, n + 1) : targetOccupiedByOther(r, n + 1)) && defense !== null && defense - arrival > marginV1(r, n + 1, false)) { delete leg.turnV1; delete leg.holdAtTouchV1; return true; }
+        // runnerTrailV1: the batter at first, with the ball still loose, keeps his turn and makes the call again at each look up
+        // to his touch of the bag; still held up then, he stops a few metres past it and waits on the man ahead.
+        if (trailRunnerV1 && r.spec.initialBase === 0 && n === 1 && !seen?.holder) { leg.holdAtTouchV1 = true; return true; }
         const stop = turnMotorV1(r, runnerAt(r, t), runnerVelocityAt(r, t), [n]);
         turnPulledUpV1.add(r.spec.runnerId + ':' + n);
         if (stop) replaceLegV1(r, leg, stop, undefined); else delete leg.turnV1;
@@ -3275,6 +3282,20 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
               if (distance(flat(v(p.x, 0, p.z)), flat(base(r.base))) <= (field.baseTouchRadiusMeters ?? .28)) lo = mid; else hi = mid;
             }
             leg.departure = { base: r.base as BaseballBase, elapsedSeconds: leg.from + hi };
+          }
+        }
+        if (leg.holdAtTouchV1 && touch.base === 1 && leg.turnV1) {
+          const b1 = base(1), b2 = base(2), k = LIVE_RUNNER_TRAIL_CALIBRATION_V1.holdPastFirstMeters / distance(flat(b1), flat(b2)),
+            p = runnerAt(r, time), raw = createLiveRunnerMotionV1({ position: p, velocity: runnerVelocityAt(r, time),
+              bases: [{ base: 2, position: v(b1.x + (b2.x - b1.x) * k, b1.y, b1.z + (b2.z - b1.z) * k) }],
+              topSpeedMps: r.spec.topSpeedMps, accelerationMps2: r.spec.accelerationMps2, roundingRadiusMeters: r.spec.roundingRadiusMeters ?? 4.5,
+              lateralAccelerationMps2: r.spec.lateralAccelerationMps2 ?? 1.5 * r.spec.accelerationMps2, baseTouchRadiusMeters: field.baseTouchRadiusMeters ?? .28 });
+          if (raw) {
+            const motion: LiveRunnerMotionV1 = Object.freeze({ ...raw, touches: [] });
+            r.leg = { from: time, to: 1, motion, nextTouchIndex: 0, height: p.y, departure: null, halfway: true, holdPastV1: true }; r.pastFirstV1 = true;
+            runnerMotions.push({ elapsedSeconds: time, runnerId: r.spec.runnerId, throughBases: [], position: p, velocity: runnerVelocityAt(r, time),
+              durationSeconds: motion.durationSeconds, lengthMeters: motion.lengthMeters, route: motion.route });
+            scheduleDeparture(r.leg, 1, 0, motion.durationSeconds);
           }
         }
         runnerTouches.push({ kind: 'runner_base_touch', runnerId: r.spec.runnerId, base: touch.base as BaseballBase, tick: tick(time) });
