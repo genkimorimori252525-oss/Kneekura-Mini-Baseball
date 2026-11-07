@@ -15,4 +15,7 @@ for (const [key, value] of Object.entries(policies)) {
   if (value === undefined) delete config[key]; else config[key] = JSON.parse(after);
 }
 if (core.LIVE_EMOTION_POLICY_V1) config.managerTacticsV1 = true;
+// The floor: the game's park takes the first ground constant 090 names that the core has (bundle 3: LIVE_MATCH_GRASS_V4).
+const park = readFileSync('release/game/parts/090-v33-offline-core-match.js', 'utf8'), ground = [...park.matchAll(/(LIVE_MATCH_GRASS_V\d+)/g)].map(m => m[1]).find(k => core[k]);
+if (ground && config.park && JSON.stringify(config.park.groundMaterialV101) !== JSON.stringify(core[ground])) { console.log('park.groundMaterialV101', ground); config.park = {...config.park, groundMaterialV101: JSON.parse(JSON.stringify(core[ground]))}; }
 writeFileSync(outPath, JSON.stringify(config));
