@@ -8,6 +8,11 @@ export type BaseballGroundMaterial = Readonly<{
   slidingFriction: number;
   rollingDecelerationMps2: number;
   normalSpinDecayPerSecond: number;
+  /** Opt-in (0..1): the share of the spin about horizontal axes (topspin, backspin) a ball keeps through each floor
+   * impact, before the friction impulse. A soft infield floor gives way under the ball and eats spin that a rigid point
+   * contact would hand to the roll. Omitted: all of it is kept (the rigid contact alone). The value is fitted to grounder
+   * outcomes, not measured: no public measurement of a baseball on infield dirt gives it (2026-11-07). */
+  bounceSpinRetentionV1?: number;
 }>;
 
 /** A second floor outside a circle on the ground, such as the grass beyond the infield dirt arc. Inside the circle (and on
@@ -60,7 +65,8 @@ function validate(ball: BattedBallInitialState, p: BaseballGroundParameters): vo
 
 function materialValid(m: BaseballGroundMaterial | undefined): boolean {
   return !!m && [m.slidingFriction, m.rollingDecelerationMps2, m.normalSpinDecayPerSecond].every(v => Number.isFinite(v) && v >= 0)
-    && Number.isFinite(m.restitution) && m.restitution >= 0 && m.restitution <= 1;
+    && Number.isFinite(m.restitution) && m.restitution >= 0 && m.restitution <= 1
+    && (m.bounceSpinRetentionV1 === undefined || Number.isFinite(m.bounceSpinRetentionV1) && m.bounceSpinRetentionV1 >= 0 && m.bounceSpinRetentionV1 <= 1);
 }
 
 /** The floor under a ball at (x, z). */
@@ -90,7 +96,8 @@ export function resolveBaseballGroundImpact(
   if (Math.abs(ball.position.y - p.radiusM) > EPSILON || ball.velocity.y > 0) {
     throw new Error('ground impact requires an actual incoming floor contact');
   }
-  const material = materialAt(p, ball.position.x, ball.position.z);
+  const material = materialAt(p, ball.position.x, ball.position.z), keep = material.bounceSpinRetentionV1;
+  if (keep !== undefined) ball = { ...ball, spin: { x: ball.spin.x * keep, y: ball.spin.y, z: ball.spin.z * keep } };
   const normalImpulsePerMass = -(1 + material.restitution) * ball.velocity.y;
   const relative = slip(ball, p.radiusM), speed = Math.hypot(relative.x, relative.z);
   const impulse = Math.min(speed / (1 + 1 / p.inertiaRatio), material.slidingFriction * normalImpulsePerMass);
