@@ -2613,6 +2613,11 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
     // trailRunnerV1: the ball read as one nobody can catch (the batter, who has no catch to fear, takes any ball through).
     const hitReadV1 = (r: Runner, n: number) => { const a = r.spec.initialBase === 0 ? undefined : airborneAssessment(r);
       return !!a && a.catchMarginSeconds < -marginV1(r, n, false); };
+    // trailRunnerV1: with no forecast yet (nobody has reached the ball), the soonest the defense could have it on bag n: the
+    // nearest man to where the ball was last seen, less the time since, then his exchange and a straight throw (as looseBallReadV1).
+    const trailFloorV1 = (r: Runner, n: number) => { const seen = runnerObservationV95(r, t); if (!seen) return null;
+      return Math.min(...seen.actors.map(a => Math.max(0, liveFieldArrivalSecondsV1({ ...a, remainingReactionSeconds: 0 }, seen.position) - (t - seen.t))
+        + a.transferSeconds + distance(flat(seen.position), flat(base(n))) / a.throwSpeedMps)); };
     const runnerTurnStepV1 = (r: Runner, leg: Leg): boolean => {
       if (leg.returning || leg.halfway || r.retouchBase !== null || r.retired || r.scored || slideMotionV115(leg) || dead || overFence || flyCatch) return false;
       const ahead = leg.motion.touches.slice(leg.nextTouchIndex);
@@ -2630,9 +2635,15 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         // The defense forecast is a perfect pickup and throw. While the ball is still loose he reads the fielder still
         // having to gather it and set his feet, as a coach waving him on does.
         const seen = runnerObservationV95(r, t), forecast = estimateDefenseControl(r, n + 1),
-          defense = forecast === null ? (trailRunnerV1 && hitReadV1(r, n + 1) ? Infinity : null) : forecast + (seen && !seen.holder ? c.looseBallAllowanceSeconds : 0),
+          // trailRunnerV1: a throw on its way elsewhere can be cut off; the call also takes the nearest man to the ball as it is now.
+          defense = forecast === null ? (trailRunnerV1 && hitReadV1(r, n + 1) ? trailFloorV1(r, n + 1) : null)
+            : Math.min(forecast + (seen && !seen.holder ? c.looseBallAllowanceSeconds : 0), trailRunnerV1 && hasThrown ? trailFloorV1(r, n + 1) ?? Infinity : Infinity),
           arrival = leg.from + nextTouch.elapsedSeconds - t;
-        if (!(trailRunnerV1 ? trailOccupiedV1(r, n + 1) : targetOccupiedByOther(r, n + 1)) && defense !== null && defense - arrival > marginV1(r, n + 1, false)) { delete leg.turnV1; delete leg.holdAtTouchV1; return true; }
+        const goV1 = !(trailRunnerV1 ? trailOccupiedV1(r, n + 1) : targetOccupiedByOther(r, n + 1)) && defense !== null && defense - arrival > marginV1(r, n + 1, false);
+        if (trailRunnerV1) { const previous = runnerDecisions.slice().reverse().find(d => d.runnerId === r.spec.runnerId), reason = goV1 ? 'turn_go_v1' as const : 'turn_wait_v1' as const;
+          if (previous?.reason !== reason) runnerDecisions.push({ elapsedSeconds: t, runnerId: r.spec.runnerId, targetBase: n + 1, defenderControlSeconds: defense, advance: goV1, reason,
+            readyAtElapsedSeconds: null, runnerTravelSeconds: arrival, runnerArrivalSeconds: arrival, raceMarginSeconds: defense === null ? null : defense - arrival }); }
+        if (goV1) { delete leg.turnV1; delete leg.holdAtTouchV1; return true; }
         // runnerTrailV1: the batter at first, with the ball still loose, keeps his turn and makes the call again at each look up
         // to his touch of the bag; still held up then, he stops a few metres past it and waits on the man ahead.
         if (trailRunnerV1 && r.spec.initialBase === 0 && n === 1 && !seen?.holder) { leg.holdAtTouchV1 = true; return true; }
@@ -3292,19 +3303,24 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
             leg.departure = { base: r.base as BaseballBase, elapsedSeconds: leg.from + hi };
           }
         }
-        if (leg.holdAtTouchV1 && touch.base === 1 && leg.turnV1) {
-          const b1 = base(1), b2 = base(2), k = LIVE_RUNNER_TRAIL_CALIBRATION_V1.holdPastFirstMeters / distance(flat(b1), flat(b2)),
-            p = runnerAt(r, time), raw = createLiveRunnerMotionV1({ position: p, velocity: runnerVelocityAt(r, time),
-              bases: [{ base: 2, position: v(b1.x + (b2.x - b1.x) * k, b1.y, b1.z + (b2.z - b1.z) * k) }],
+        if (leg.holdAtTouchV1 && touch.base === 1) {
+          // He pulls up straight ahead of him (on the bend he cannot turn onto the line to second within a few metres): at least
+          // holdPastFirstMeters past the bag, and far enough to brake from his speed.
+          const p = runnerAt(r, time), vel = runnerVelocityAt(r, time), speed = Math.hypot(vel.x, vel.z),
+            ahead = speed > 1e-6 ? Math.max(LIVE_RUNNER_TRAIL_CALIBRATION_V1.holdPastFirstMeters, 1.5 * speed * speed / (2 * 1.8 * r.spec.accelerationMps2) + 1) : 0,
+            raw = ahead > 0 ? createLiveRunnerMotionV1({ position: p, velocity: vel,
+              bases: [{ base: 2, position: v(p.x + vel.x / speed * ahead, p.y, p.z + vel.z / speed * ahead) }],
               topSpeedMps: r.spec.topSpeedMps, accelerationMps2: r.spec.accelerationMps2, roundingRadiusMeters: r.spec.roundingRadiusMeters ?? 4.5,
-              lateralAccelerationMps2: r.spec.lateralAccelerationMps2 ?? 1.5 * r.spec.accelerationMps2, baseTouchRadiusMeters: field.baseTouchRadiusMeters ?? .28 });
+              lateralAccelerationMps2: r.spec.lateralAccelerationMps2 ?? 1.5 * r.spec.accelerationMps2, baseTouchRadiusMeters: field.baseTouchRadiusMeters ?? .28 }) : null;
           if (raw) {
             const motion: LiveRunnerMotionV1 = Object.freeze({ ...raw, touches: [] });
             r.leg = { from: time, to: 1, motion, nextTouchIndex: 0, height: p.y, departure: null, halfway: true, holdPastV1: true }; r.pastFirstV1 = true;
             runnerMotions.push({ elapsedSeconds: time, runnerId: r.spec.runnerId, throughBases: [], position: p, velocity: runnerVelocityAt(r, time),
               durationSeconds: motion.durationSeconds, lengthMeters: motion.lengthMeters, route: motion.route });
             scheduleDeparture(r.leg, 1, 0, motion.durationSeconds);
-          }
+          } else { const stop = createLiveRunnerMotionV1({ position: p, velocity: vel, bases: [{ base: 1, position: v(p.x + 1e-3, p.y, p.z) }], topSpeedMps: r.spec.topSpeedMps,
+              accelerationMps2: r.spec.accelerationMps2, baseTouchRadiusMeters: field.baseTouchRadiusMeters ?? .28 });
+            if (stop) { r.leg = { from: time, to: 1, motion: Object.freeze({ ...stop, touches: [] }), nextTouchIndex: 0, height: p.y, departure: null, halfway: true }; } }
         }
         runnerTouches.push({ kind: 'runner_base_touch', runnerId: r.spec.runnerId, base: touch.base as BaseballBase, tick: tick(time) });
         emit('runner_base_touch', time, { runnerId: r.spec.runnerId, base: touch.base as BaseballBase, position: runnerTouchPointV115(r,time) });
