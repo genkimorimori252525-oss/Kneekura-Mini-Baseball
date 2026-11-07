@@ -40,6 +40,7 @@ def read(pattern):
     for slot in slots:
         lg, pid = slot.split('/')
         for f in glob.glob(pattern.replace('{league}', lg)):
+            if f.count('.jsonl') > 1: continue   # an instrumented build's side records
             seed = f.rsplit('-', 1)[1].split('.')[0]
             for line in open(f, encoding='utf8'):
                 r = json.loads(line)
