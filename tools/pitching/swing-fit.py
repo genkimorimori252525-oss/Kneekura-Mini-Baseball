@@ -12,6 +12,7 @@ print('arm            PA     K    BB   HR/PA  zone  z-sw  z-wh  o-sw  o-wh  BR z
 for pattern in sys.argv[1:]:
     c = collections.Counter()
     for f in glob.glob(pattern):
+        if f.count('.jsonl') > 1: continue   # an instrumented build's side records (<game>.jsonl.pl.jsonl)
         for line in open(f, encoding='utf8'):
             r = json.loads(line); s = r['scoring']
             if s and s != 'plate_appearance_continues': c['pa'] += 1; c['k'] += s == 'strikeout'; c['bb'] += s == 'walk'
