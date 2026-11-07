@@ -21,7 +21,9 @@ const uniform = () => {state = (state * 1664525 + 1013904223) >>> 0; return stat
 // Ranges cover real hitters on this scale; power 60-100 is about 25-35 m/s, the real spread of bat speed. Widened 2026-11-04:
 // inverted MLB 2024 hitters sat on the old edges (contact 55/110, angle 4), where the fitted surface had no data.
 const RANGE = {contact: [40, 130], power: [55, 112], vision: [15, 100], run: [50, 115]};
-const ANGLE = [-2, 28];
+// --angle=lo:hi narrows the drawn attack angles (bundle 2's standard batter swings at 11; MLB hitters' own means spread
+// with sd 3.9 deg, so most of the surface's data should sit near them).
+const ANGLE = (process.argv.find(a => a.startsWith('--angle='))?.slice(8).split(':').map(Number)) ?? [-2, 28];
 // Pitchers: top speed 138-165 km/h covers the MLB spread of fastball velocity; control on the shared scale.
 const PITCH = {maxSpeedKmh: [138, 165], control: [55, 110]};
 mkdirSync(outDir, {recursive: true});

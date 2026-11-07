@@ -304,8 +304,10 @@ function settleSkippedBattedBallV1(x:Readonly<{ball:Readonly<{tick:number;positi
   return {outcome,seconds,at:(t:number):Vec3=>{const target=samples[0]!.tick+t*tps;return (samples.find(f=>f.tick>=target)??samples.at(-1)!).ball.position;}};
 }
 /** The match default for battedBallAeroV1. 2026-11-04: 1.1 with the contact switches of LIVE_MATCH_BATTER_OBSERVATION_V2 (backspun
- * line drives), whose own balls then carry within a few percent of Statcast 2024 medians; 1.2 offset topspun liners that flew too far. */
-export const LIVE_BATTED_BALL_AERO_V1=Object.freeze({dragScale:1.1});
+ * line drives), whose own balls then carry within a few percent of Statcast 2024 medians; 1.2 offset topspun liners that flew too far.
+ * 2026-11-07, bundle 2: its own balls carry -2.6% (1.1), -0.7% (1.05) and +1.3% (1.0) against the Statcast medians by exit speed
+ * and angle; home runs per PA over 48 standard games .023 (1.1), .031 (1.08), .036 (1.05), MLB 2024 .029. 1.08. */
+export const LIVE_BATTED_BALL_AERO_V1=Object.freeze({dragScale:1.08});
 /** The match default for liftCurveV1 (2026-11-06 bundle): Nathan 2017, within 0.3 points of Lyu 2022 on batted-ball carry. */
 export const LIVE_LIFT_CURVE_V1:LiftCurveV1='nathan2017';
 export const LIVE_MATCH_PHYSICS_V1:AeroGroundBallPhysicsV1=Object.freeze({kind:'aero_ground_v1',

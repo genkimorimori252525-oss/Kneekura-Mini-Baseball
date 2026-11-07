@@ -668,8 +668,13 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     // With familiarity, even the pitch read right is expected to bend and arrive as he pictures it.
     readsPicturedV1=!!recognitionUsedV1&&(!recognitionUsedV1.recognized||recognitionV2?.familiarShare!=null||recognitionV2?.blended===true),
     // misreadLookSecondsV1: a misread hitter lays the read pitch's bend from this time after release, not from the end of his look.
+    // readBendSeenWeightV1: a pitch read right is bent past the look by that share of the seen acceleration, the rest by the read
+    // type's usual spin; the same at the late look (seenBendReadV1), else the late look would take the whole ride back.
+    seenBendWeightV1=observationPolicyV151?.readBendSeenWeightV1,
+    seenBendReadV1=seenBendWeightV1!==undefined&&!readsPicturedV1&&recognitionUsedV1?.recognized===true?recognitionUsedV1.readPitch:null,
     readForecastV1=readsPicturedV1?bendForecastV1(effectiveForecastV246,0,recognitionUsedV1!.readPitch,
-      recognitionUsedV1!.recognized?undefined:observationPolicyV151?.misreadLookSecondsV1):bendForecastV1(effectiveForecastV246),
+      recognitionUsedV1!.recognized?undefined:observationPolicyV151?.misreadLookSecondsV1)
+      :seenBendReadV1?bendForecastV1(effectiveForecastV246,seenBendWeightV1,seenBendReadV1):bendForecastV1(effectiveForecastV246),
     // misreadTimingKeepV1: on a misread only this share of the read pitch's arrival gap is kept (the hitter retimes the swing to
     // the ball's speed on the way), the misread place stays whole (2026-11-05).
     timingKeepV1=observationPolicyV151?.misreadTimingKeepV1,seenArrivalV1=effectiveForecastV246?.prediction?.arrivalAfterReleaseSeconds,
@@ -1200,7 +1205,8 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
         uncorrectedReference.maximumGripSpeedMps+uncorrectedReference.maximumAngularSpeedRadPerSecond*b.batLengthM,prefixThroughV151):null,
       lateRawForecastV151=positionObserverV151&&!prefixContactV151&&(availableTick-input.originTick)/tps<=horizon?positionObserverV151.forecastAt(availableTick):null,
       lateForecastResultV246=lateRawForecastV151&&input.batterForecastPolicyV246!==undefined?positionObserverV151!.forecastAtV246!(availableTick):null,
-      lateEffectiveForecast=bendForecastV1(lateForecastResultV246?.forecast??lateRawForecastV151),
+      lateEffectiveForecast=seenBendReadV1?bendForecastV1(lateForecastResultV246?.forecast??lateRawForecastV151,seenBendWeightV1,seenBendReadV1)
+        :bendForecastV1(lateForecastResultV246?.forecast??lateRawForecastV151),
       latePrediction=positionObserverV151?{ball:{position:lateEffectiveForecast?.prediction?.position??placementPositionV1}}
         :predictFromObservation(kernel.evaluateAt(observedTime),observedTime,battingSetupV94.contactPlaneZ),
       earlyEvidence={predictionId:'release-observation-v121',observedTick:observationTick,availableTick:observationTick,position:placementPositionV1},
