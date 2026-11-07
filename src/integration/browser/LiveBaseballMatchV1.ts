@@ -114,6 +114,11 @@ export type LiveMatchInputV1 = Readonly<{seed:number;innings?:number;teams:reado
   stealRaceV1?:LiveStealRacePolicyV1;
   /** Omission keeps the old square body column exact. Present: a side-on body that gives ground on an inside pitch. */
   hitByPitchV1?:LiveHitByPitchPolicyV1;
+  /** Omission keeps every contact a batted ball. Present: a contact whose ball leaves within maxDeflectionDegrees of the
+   * pitch's own line goes on into the catcher's mitt as a caught foul tip, a strike at any count (MLB rule 5.09(a)(2)).
+   * Fitted to MLB's share of foul tips among fouls, not measured per ball (2026-11-08). Not applied while a runner is
+   * stealing or a loose pitch is admitted (the play then stays a batted ball). */
+  foulTipV1?:Readonly<{maxDeflectionDegrees:number}>;
   /** Omission keeps positive-margin throws only. Present: close plays are thrown and far holders return the ball. */
   fieldThrowV1?:LiveFieldThrowPolicyV1;
   /** Omission keeps the old alignment and fielder motion exact. Present: real infield depth, a ready first step and low-ball reach. */
@@ -193,7 +198,7 @@ export type LiveMatchInputV1 = Readonly<{seed:number;innings?:number;teams:reado
 /** Every key a match input may carry. A key outside it used to be ignored without a word, so a config written for a newer
  * branch ran as if the input were absent (cfg-def6's battedBallAeroV1 on the defense branch); now the match refuses it.
  * The two checks below keep this list and LiveMatchInputV1 equal. */
-const LIVE_MATCH_INPUT_KEYS_V1=['seed','innings','teams','players','measuredClips','park','randomnessV152','attemptCrouchV1','battedBallAeroV1','liftCurveV1','battedBallReplaceV1','batterAutoDirectionPolicyV250','batterDirectionMotorV153','batterForecastPolicyV246','batterKnowledgeV122','batterNeutralReactivePolicyV272','batterObservationV151','batterObservedRegionExperienceV222','batterReactiveDirectionPolicyV251','batterTechniqueV1','catcherThrowV1','communicationScopeV122','coverSeenV1','emotionPolicyV1','fieldAlignmentV1','fieldCoverV1','fieldKinematicsV1','fieldRangeV1','fieldRunValueV1','fieldShadeV1','fieldThrowV1','forcedRunV1','hitByPitchV1','lineDriveReadV1','sureCatchHoldV1','foulFlyHoldV1','historyLimitV1','outfieldRightOfWayV1','pitcherCoversFirstV1','pitcherFollowThroughV1','throwEarliestArrivalV1','locomotionStartV1','looseBallReadV1','managerTacticsV1','outfieldBreakV1','relayStepV1','runnerForcedHitRunV1','runnerLeadV1','runnerLinerHoldV1','runnerSafeLeadV1','runnerThrowReadV1','runnerTrailV1','runnerTurnV1','secondaryLeadV1','skipFieldPlayV1','stealRaceV1','tossReceiveV1','workloadV122','fieldStartBySideV1'] as const satisfies readonly (keyof LiveMatchInputV1)[];
+const LIVE_MATCH_INPUT_KEYS_V1=['seed','innings','teams','players','measuredClips','park','randomnessV152','attemptCrouchV1','battedBallAeroV1','liftCurveV1','battedBallReplaceV1','batterAutoDirectionPolicyV250','batterDirectionMotorV153','batterForecastPolicyV246','batterKnowledgeV122','batterNeutralReactivePolicyV272','batterObservationV151','batterObservedRegionExperienceV222','batterReactiveDirectionPolicyV251','batterTechniqueV1','catcherThrowV1','communicationScopeV122','coverSeenV1','emotionPolicyV1','fieldAlignmentV1','fieldCoverV1','fieldKinematicsV1','fieldRangeV1','fieldRunValueV1','fieldShadeV1','fieldThrowV1','forcedRunV1','hitByPitchV1','foulTipV1','lineDriveReadV1','sureCatchHoldV1','foulFlyHoldV1','historyLimitV1','outfieldRightOfWayV1','pitcherCoversFirstV1','pitcherFollowThroughV1','throwEarliestArrivalV1','locomotionStartV1','looseBallReadV1','managerTacticsV1','outfieldBreakV1','relayStepV1','runnerForcedHitRunV1','runnerLeadV1','runnerLinerHoldV1','runnerSafeLeadV1','runnerThrowReadV1','runnerTrailV1','runnerTurnV1','secondaryLeadV1','skipFieldPlayV1','stealRaceV1','tossReceiveV1','workloadV122','fieldStartBySideV1'] as const satisfies readonly (keyof LiveMatchInputV1)[];
 type MissingMatchInputKeyV1=Exclude<keyof LiveMatchInputV1,typeof LIVE_MATCH_INPUT_KEYS_V1[number]>;
 const liveMatchInputKeysCompleteV1:[MissingMatchInputKeyV1] extends [never]?true:MissingMatchInputKeyV1=true;void liveMatchInputKeysCompleteV1;
 /** Keys outside the type that ExperimentalMatchHostV2 puts on the input for its loose policies. The first two are read here and
@@ -225,7 +230,7 @@ export type LiveLineScoreV1 = Readonly<{inning:number;away:number|null;home:numb
 export type LiveIssuedPitchV1 = Readonly<{
   emotionMarksV1?:readonly Readonly<{playerId:string;emotion:string}>[];
   beforeMatch:CanonicalMatchState;match:CanonicalMatchState;frames:readonly LiveMatchFrameV1[];events:readonly unknown[];
-  play:Readonly<{classification:string;call:'ball'|'called_strike'|'swinging_strike'|null;contact:unknown;
+  play:Readonly<{foulTipV1?:true;classification:string;call:'ball'|'called_strike'|'swinging_strike'|null;contact:unknown;
     /** Ticks for the observer. Present only with the catcher throw policy, and only when a runner went. */
     stealV1?:Readonly<{runnerId:string;fromBase:'first'|'second';targetBase:'second'|'third';catcherPlayerId:string;receiverPlayerId:string;
       runnerStartTick:number;catchTick:number;throwStartTick:number;throwArrivalTick:number;endTick:number;exchangeSeconds:number;popSeconds:number;safe:boolean}>;
@@ -478,6 +483,8 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
   assert(input.catcherThrowV1===undefined||input.catcherThrowV1?.version==='live_catcher_throw_policy_v1','invalid catcher throw policy');
   assert(input.stealRaceV1===undefined||input.stealRaceV1?.version==='live_steal_race_policy_v1','invalid steal race policy');
   assert(input.hitByPitchV1===undefined||input.hitByPitchV1?.version==='live_hit_by_pitch_policy_v1','invalid hit by pitch policy');
+  assert(input.foulTipV1===undefined||Object.keys(input.foulTipV1).join()==='maxDeflectionDegrees'&&Number.isFinite(input.foulTipV1.maxDeflectionDegrees)
+    &&input.foulTipV1.maxDeflectionDegrees>=0&&input.foulTipV1.maxDeflectionDegrees<=45,'invalid foul tip policy');
   if(input.fieldThrowV1!==undefined)validateLiveFieldThrowPolicyV1(input.fieldThrowV1);
   if(input.fieldRangeV1!==undefined)validateLiveFieldRangePolicyV1(input.fieldRangeV1);
   assert(input.battedBallAeroV1===undefined||Object.keys(input.battedBallAeroV1).join()==='dragScale'&&Number.isFinite(input.battedBallAeroV1.dragScale)
@@ -800,7 +807,17 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
     if(looseAdmission)frames.push(...looseAdmission.frames);
     let field:ReturnType<typeof simulateLiveFieldPlayV1>|null=null,result={kind:'unresolved',reason:'not_settled',tick:0} as PlayableMatchRuleResultV1,outgoingBallMoment:BallWorldMoment|null=null;
     let scoringInput:LiveFieldPlayInputV1|null=null,fieldFallbackReason:string|null=null;
-    if(pitch.contact&&pitch.contactMoment){
+    // foulTipV1: the ball leaves nearly along the pitch's own line, so it goes on into the mitt; a strike, not a batted ball.
+    const foulTipV1=(():boolean=>{
+      if(!input.foulTipV1||!pitch.contact||!pitch.contactMoment||stealRun||pickoffRun||looseAdmission)return false;
+      const a=pitch.contactMoment.ball.velocity,b=pitch.contact.exitVelocity,na=Math.hypot(a.x,a.y,a.z),nb=Math.hypot(b.x,b.y,b.z);
+      if(!(na>0&&nb>0))return false;
+      const cos=Math.max(-1,Math.min(1,(a.x*b.x+a.y*b.y+a.z*b.z)/(na*nb)));
+      return Math.acos(cos)*180/Math.PI<=input.foulTipV1.maxDeflectionDegrees;
+    })();
+    if(foulTipV1){
+      result=reducePlayableMatchV1({match:beforeMatch,batterRunnerId:c.batterPlayerId,regulationInnings:innings,event:{kind:'pitch_call',tick:pitch.endedAtTick,call:'swinging_strike'}});
+    }else if(pitch.contact&&pitch.contactMoment){
       const def=input.teams[1-c.team];
       const replaced=input.battedBallReplaceV1,
         outgoingMoment={...pitch.contactMoment,ball:{...pitch.contactMoment.ball,velocity:replaced?replaced.velocity:pitch.contact.exitVelocity,spin:replaced?replaced.spin:pitch.contact.exitSpin}};
@@ -908,7 +925,8 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
           leadMeters:Math.hypot(firstRunner!.position.x-LIVE_MATCH_BASES_V1.first.x,firstRunner!.position.z-LIVE_MATCH_BASES_V1.first.z),safe:pickoffRun.safe}}:{}),
         ...(input.runnerLeadV1?{runnerLeadsV1:(['first','second','third'] as const).flatMap(name=>{const id=beforeMatch.bases[name];if(!id)return [];
           const at=ready.actors.find(a=>a.playerId===id)!.position,from=LIVE_MATCH_BASES_V1[name];return [{runnerId:id,base:name,meters:Math.hypot(at.x-from.x,at.z-from.z)}];})}:{}),
-        classification:result.classification,call:pitch.call,contact:fieldFallbackReason?{...pitch.contact,fieldFallbackV1:fieldFallbackReason} as typeof pitch.contact:pitch.contact,
+        ...(foulTipV1?{foulTipV1:true}:{}),
+        classification:result.classification,call:foulTipV1?'swinging_strike':pitch.call,contact:fieldFallbackReason?{...pitch.contact,fieldFallbackV1:fieldFallbackReason} as typeof pitch.contact:pitch.contact,
         contactMoment:pitch.contactMoment,contactOrientation:pitch.contactOrientation,outgoingBallMoment,field,rules:result,localScoringV100,
         diagnostics:{...pitch.diagnostics,...(batterEvidenceReceptionV122?{batterEvidenceReceptionV122}:{}),
           ...(observationPolicyV151?{batterObservedMemoryUpdateV151:{status:nextObservedMemoryV151?'ACCEPTED_UNCLASSIFIED_OBSERVATION':'NO_DELIVERED_FORECAST_AT_CLOSURE',
