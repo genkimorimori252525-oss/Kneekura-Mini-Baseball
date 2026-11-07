@@ -46,6 +46,9 @@ export type LivePhysicalAbilityControlsV1 = LiveFielderBodyControlsV105 & LiveAt
   /** Pitch to pitch, the spin rate is the intended one times 1 + this sd of a normal draw (0..0.4, symmetric, unlike
    * minimumSpinRatio), so a fastball rides more or less than its usual (2026-11-07). */
   pitchSpinScatterV1?: number;
+  /** Pitch to pitch, the spin axis turns by this sd in degrees (0..20) about the direction of flight and about the axis
+   * across both, so the break turns and its active share changes (2026-11-07). */
+  pitchSpinAxisScatterV1?: number;
   /** Field-only response multiplier. Omission is neutral; runner reaction is independent. */
   fieldingReactionScaleV98?: number;
   transferDelayMaxSecondsV101?: number;
@@ -93,7 +96,7 @@ const scalarKeys = ['batLengthM', 'batMassKg', 'swingRate', 'timingStdSeconds', 
   'commandStdMeters', 'reactionSeconds', 'topSpeedMps', 'accelerationMps2', 'gloveSpeedMps', 'gloveReachMeters', 'gloveRadiusMeters',
   'retentionCapacityJ', 'captureDissipationPowerW', 'transferSeconds', 'throwSpeedMps', 'maximumPitchSpeedMps',
   'maximumSweetSpotSpeedMps', 'targetSweetSpotSpeedMps', 'motorLatencySeconds', 'technicalTimingOffsetSeconds', 'sweetSpotT',
-  'attackAngleDegrees', 'undercutAimMeters', 'pitchTunnelV1', 'pitchSpinScatterV1', 'pullAngleDegrees', 'badBallControl', 'defensiveDecisionSeconds', 'preContactSeconds', 'followThroughSeconds', 'contactDepthMeters', 'throwDirectionStdRadians', 'zoneJudgmentStdMeters',
+  'attackAngleDegrees', 'undercutAimMeters', 'pitchTunnelV1', 'pitchSpinScatterV1', 'pitchSpinAxisScatterV1', 'pullAngleDegrees', 'badBallControl', 'defensiveDecisionSeconds', 'preContactSeconds', 'followThroughSeconds', 'contactDepthMeters', 'throwDirectionStdRadians', 'zoneJudgmentStdMeters',
   'baserunningSafetyMarginSeconds', 'fieldingPursuitCostWeight', 'baserunningTurnRadiusMeters', 'baserunningLateralAccelerationMps2', 'plateVision',
   'pitchReleaseHeightMeters', 'pitchReleaseSideMeters', 'pitchReleaseExtensionMeters', 'minimumSpinRatio', 'fieldingReactionScaleV98', 'transferDelayMaxSecondsV101', 'throwEffortBuildSecondsV103',
   'fieldArmReachMetersV105', 'fieldShoulderHeightRatioV105', 'fieldEyeHeightRatioV105', 'fieldCrouchFractionV105',
@@ -105,7 +108,7 @@ const bounds: Partial<Record<typeof scalarKeys[number], readonly [number, number
   gloveSpeedMps: [.1, 40], gloveReachMeters: [.4, 3], gloveRadiusMeters: [.03, .3], retentionCapacityJ: [1, 2000],
   captureDissipationPowerW: [10, 1e6], maximumSweetSpotSpeedMps: [.1, 90], targetSweetSpotSpeedMps: [.1, 90],
   motorLatencySeconds: [0, 2], technicalTimingOffsetSeconds: [-.5, .5], sweetSpotT: [.65, .9],
-  attackAngleDegrees: [-80, 80], undercutAimMeters: [-.05, .08], pitchTunnelV1: [0, 1], pitchSpinScatterV1: [0, .4], pullAngleDegrees: [-80, 80], badBallControl: [0, 1],
+  attackAngleDegrees: [-80, 80], undercutAimMeters: [-.05, .08], pitchTunnelV1: [0, 1], pitchSpinScatterV1: [0, .4], pitchSpinAxisScatterV1: [0, 20], pullAngleDegrees: [-80, 80], badBallControl: [0, 1],
   preContactSeconds: [.005, 2], followThroughSeconds: [.005, 2], contactDepthMeters: [.001, 2],
   throwDirectionStdRadians: [0, .12],
   zoneJudgmentStdMeters: [0, .6],

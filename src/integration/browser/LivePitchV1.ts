@@ -120,7 +120,7 @@ export type LivePitchInputV1=Readonly<{
     timingStdSeconds:number;aimStdMeters:number;chaseMarginMeters:number;clipId?:string;technicalSkills?:TechnicalSkillControlsV75}>;
   pitcher:Readonly<{releaseSpeedMps:number;spinRadPerSecond:Vec3;commandStdMeters:number;maximumPitchSpeedMps?:number;throws?:'R'|'L';
     heightMeters?:number;moundPosition?:Vec3;pitchReleaseHeightMeters?:number;pitchReleaseSideMeters?:number;pitchReleaseExtensionMeters?:number;
-    pitchApproach?:'FASTBALL'|'BALANCED'|'BREAKING';velocitySpreadScaleV1?:number;pitchTunnelV1?:number;pitchSpinScatterV1?:number;technicalSkills?:TechnicalSkillControlsV75;pitchRepertoire?:PitchRepertoireV77;pitchingMotion?:PitchingMotionV77;
+    pitchApproach?:'FASTBALL'|'BALANCED'|'BREAKING';velocitySpreadScaleV1?:number;pitchTunnelV1?:number;pitchSpinScatterV1?:number;pitchSpinAxisScatterV1?:number;technicalSkills?:TechnicalSkillControlsV75;pitchRepertoire?:PitchRepertoireV77;pitchingMotion?:PitchingMotionV77;
     pitchRepertoireV78?:PitchRepertoireV78;minimumSpinRatio?:number;zoneRecognitionV87?:ZoneRecognitionV87;
     pitchQualityV177?:LivePitchQualityRequestV177|null}>;
   catcher?:Readonly<{gloveSpeedMps:number;gloveReachMeters:number;gloveRadiusMeters:number;retentionCapacityJ:number;captureDissipationPowerW:number;pocketRadiusMeters:number;defensiveDecisionSeconds?:number;zoneRecognitionV87?:ZoneRecognitionV87}>;
@@ -290,6 +290,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   assert(p.minimumSpinRatio===undefined||bounded(p.minimumSpinRatio,0,1),'invalid minimum spin ratio');
   assert(p.pitchTunnelV1===undefined||bounded(p.pitchTunnelV1,0,1),'invalid pitch tunnel skill');
   assert(p.pitchSpinScatterV1===undefined||bounded(p.pitchSpinScatterV1,0,.4),'invalid pitch spin scatter');
+  assert(p.pitchSpinAxisScatterV1===undefined||bounded(p.pitchSpinAxisScatterV1,0,20),'invalid pitch spin axis scatter');
   assert(!(p.pitchRepertoire&&p.pitchRepertoireV78),'ambiguous V77 and V78 pitch ownership');
   for(const [key,lo,hi] of [['maximumSweetSpotSpeedMps',.1,90],['targetSweetSpotSpeedMps',.1,90],['motorLatencySeconds',0,2],
     ['technicalTimingOffsetSeconds',-.5,.5],['sweetSpotT',.65,.9],['attackAngleDegrees',-80,80],['undercutAimMeters',-.05,.08],['pullAngleDegrees',-80,80],
@@ -525,6 +526,16 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       u1=Math.max(1e-12,r?r.uniform():root!.nextFloat()),u2=r?r.uniform():root!.nextFloat(),
       factor=1+p.pitchSpinScatterV1*clamp(Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2),-2,2);
     initial={...initial,spin:mul(initial.spin,factor)};
+  }
+  // pitchSpinAxisScatterV1 (sd, degrees): pitch to pitch the spin axis turns by a normal draw about the direction of flight (the
+  // break turns) and then about the axis across flight and spin (the active share changes), each kept within 2 sd.
+  if(p.pitchSpinAxisScatterV1&&norm(initial.spin)>0){
+    const r=randomStreamsV152?.rng('pitchExecution','spin-axis-scatter-v1'),root=r?null:new SeedRoot(input.seed).streamRng(0,'pitch','spin-axis-scatter-v1'),
+      uniform=()=>r?r.uniform():root!.nextFloat(),
+      angle=()=>{const u1=Math.max(1e-12,uniform()),u2=uniform();return p.pitchSpinAxisScatterV1!*Math.PI/180*clamp(Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2),-2,2);},
+      turned=rotateVectorByQuaternion(initial.spin,quaternionFromAxisAngle(initial.velocity,angle())),across=cross(initial.velocity,turned),
+      tipped=norm(across)>1e-9?rotateVectorByQuaternion(turned,quaternionFromAxisAngle(across,angle())):turned;
+    initial={...initial,spin:tipped};
   }
   const pitchWorkloadV122=input.pitchWorkloadV122===undefined?null:resolveLivePitchWorkloadExecutionV122({...input.pitchWorkloadV122,
     physics:{velocity:initial.velocity,spin:initial.spin}});
