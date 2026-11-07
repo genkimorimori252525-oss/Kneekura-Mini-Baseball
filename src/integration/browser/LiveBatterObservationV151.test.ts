@@ -133,6 +133,15 @@ it('accepts pitch familiarity only with the league reference pitches, and checks
   expect(() => validateLiveBatterObservationPolicyV151({ ...policy(), leagueReferencePitchesV1:{ R:ref.R } })).toThrow(/reference/);
   expect(() => validateLiveBatterObservationPolicyV151({ ...policy(), leagueReferencePitchesV1:{ ...ref, L:[{ pitchType:'fastball', spinRadPerSecond:{ x:1, y:2 } }] } })).toThrow(/reference/);
 });
+it('takes the read-bend seen weight as one share or a [side, vertical] pair, only with pitch recognition', () => {
+  const valid = { ...policy(), pitchRecognitionV2:[6, 60] as [number, number] };
+  expect(Object.hasOwn(AUTHORED_LIVE_BATTER_OBSERVATION_V151, 'readBendSeenWeightV1')).toBe(false);
+  expect(validateLiveBatterObservationPolicyV151({ ...valid, readBendSeenWeightV1:.5 }).readBendSeenWeightV1).toBe(.5);
+  expect(validateLiveBatterObservationPolicyV151({ ...valid, readBendSeenWeightV1:[1, 0] }).readBendSeenWeightV1).toEqual([1, 0]);
+  for (const bad of [-.1, 1.1, [1], [1, 0, 0], [1, 1.2], ['1', 0]])
+    expect(() => validateLiveBatterObservationPolicyV151({ ...valid, readBendSeenWeightV1:bad as never })).toThrow(/read bend/);
+  expect(() => validateLiveBatterObservationPolicyV151({ ...policy(), readBendSeenWeightV1:.5 })).toThrow(/read bend/);
+});
 it('the load-before-commit switch is optional and only true', () => {
   const valid = policy();
   expect(Object.hasOwn(AUTHORED_LIVE_BATTER_OBSERVATION_V151, 'loadBeforeCommitV1')).toBe(false);

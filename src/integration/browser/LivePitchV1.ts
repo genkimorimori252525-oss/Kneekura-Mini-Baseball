@@ -553,18 +553,21 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       return owned?owned.find(row=>row.pitchType==='fastball')??owned.find(row=>['sinker','cutter'].includes(row.pitchType))??null
         :resolvePitcherRepertoireV77(p,p.throws??'R').find(row=>row.pitchType==='fastball')??null;})(),
     bendForecastV1=<F extends Readonly<{status:string;observedThroughTick:number|null;prediction:Readonly<{position:Vec3;arrivalAfterReleaseSeconds:number;estimatedAcceleration:Vec3}>|null}>|null|undefined>(forecast:F,weightOverride?:number,
-      expectedPitch:Readonly<{releaseSpeedMps:number;spinRadPerSecond:Vec3}>|null=fastBendPitchV1,lookSeconds?:number):F=>{
+      expectedPitch:Readonly<{releaseSpeedMps:number;spinRadPerSecond:Vec3}>|null=fastBendPitchV1,lookSeconds?:number,weightYOverride?:number):F=>{
       if(!expectedPitch||forecast?.status!=='PREDICTED'||!forecast.prediction||forecast.observedThroughTick===null)return forecast;
       // lookSeconds: the bend he expects is laid from then, not from the end of his look (the late break he did not take in).
       const t1=Math.min((forecast.observedThroughTick-input.originTick)/tps,lookSeconds??Infinity),t2=forecast.prediction.arrivalAfterReleaseSeconds,dt=t2-t1,
         weight=weightOverride!==undefined?weightOverride:accelerationViewTimeV1!==undefined?t1/(t1+accelerationViewTimeV1):accelerationWeightV1??1;
-      if(!(dt>.005)||weight>=1)return forecast;
+      // weightYOverride: the vertical bend takes its own share of the seen acceleration (the side keeps weight).
+      const weightY=weightYOverride??weight;
+      if(!(dt>.005)||weight>=1&&weightY>=1)return forecast;
       const start={...initial,velocity:mul(initial.velocity,expectedPitch.releaseSpeedMps*.99/norm(initial.velocity)),spin:expectedPitch.spinRadPerSecond},
         s1=sampleAerodynamicPitchStateAtElapsedSeconds(start,t1,inverseAir),s2=sampleAerodynamicPitchStateAtElapsedSeconds(start,t2,inverseAir),
         seen=forecast.prediction.estimatedAcceleration,k=.5*(1-weight)*dt*dt,
         expectedX=2*(s2.position.x-s1.position.x-s1.velocity.x*dt)/(dt*dt),expectedY=2*(s2.position.y-s1.position.y-s1.velocity.y*dt)/(dt*dt);
+      const kY=weightYOverride===undefined?k:.5*(1-weightY)*dt*dt;
       return {...forecast,prediction:{...forecast.prediction,position:{...forecast.prediction.position,
-        x:forecast.prediction.position.x+k*(expectedX-seen.x),y:forecast.prediction.position.y+k*(expectedY-seen.y)}}} as F;
+        x:forecast.prediction.position.x+k*(expectedX-seen.x),y:forecast.prediction.position.y+kY*(expectedY-seen.y)}}} as F;
     },
     // pitchRecognitionV1 [chance, degrees, ms]: at the swing decision the hitter tells the pitch from the fastball he expects, or
     // does not. The cues are how far the ball's heading turned away from a fastball released the same way and how much later it
@@ -650,11 +653,14 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     // misreadLookSecondsV1: a misread hitter lays the read pitch's bend from this time after release, not from the end of his look.
     // readBendSeenWeightV1: a pitch read right is bent past the look by that share of the seen acceleration, the rest by the read
     // type's usual spin; the same at the late look (seenBendReadV1), else the late look would take the whole ride back.
-    seenBendWeightV1=observationPolicyV151?.readBendSeenWeightV1,
-    seenBendReadV1=seenBendWeightV1!==undefined&&!readsPicturedV1&&recognitionUsedV1?.recognized===true?recognitionUsedV1.readPitch:null,
+    // A pair [side, vertical] gives each its own share; [1, w] bends only the vertical by the read type.
+    seenBendPolicyV1=observationPolicyV151?.readBendSeenWeightV1,
+    seenBendWeightV1=Array.isArray(seenBendPolicyV1)?seenBendPolicyV1[0]:seenBendPolicyV1,
+    seenBendWeightYV1=Array.isArray(seenBendPolicyV1)?seenBendPolicyV1[1]:undefined,
+    seenBendReadV1=seenBendPolicyV1!==undefined&&!readsPicturedV1&&recognitionUsedV1?.recognized===true?recognitionUsedV1.readPitch:null,
     readForecastV1=readsPicturedV1?bendForecastV1(effectiveForecastV246,0,recognitionUsedV1!.readPitch,
       recognitionUsedV1!.recognized?undefined:observationPolicyV151?.misreadLookSecondsV1)
-      :seenBendReadV1?bendForecastV1(effectiveForecastV246,seenBendWeightV1,seenBendReadV1):bendForecastV1(effectiveForecastV246),
+      :seenBendReadV1?bendForecastV1(effectiveForecastV246,seenBendWeightV1,seenBendReadV1,undefined,seenBendWeightYV1):bendForecastV1(effectiveForecastV246),
     // misreadTimingKeepV1: on a misread only this share of the read pitch's arrival gap is kept (the hitter retimes the swing to
     // the ball's speed on the way), the misread place stays whole (2026-11-05).
     timingKeepV1=observationPolicyV151?.misreadTimingKeepV1,seenArrivalV1=effectiveForecastV246?.prediction?.arrivalAfterReleaseSeconds,
@@ -1164,7 +1170,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
         uncorrectedReference.maximumGripSpeedMps+uncorrectedReference.maximumAngularSpeedRadPerSecond*b.batLengthM,prefixThroughV151):null,
       lateRawForecastV151=positionObserverV151&&!prefixContactV151&&(availableTick-input.originTick)/tps<=horizon?positionObserverV151.forecastAt(availableTick):null,
       lateForecastResultV246=lateRawForecastV151&&input.batterForecastPolicyV246!==undefined?positionObserverV151!.forecastAtV246!(availableTick):null,
-      lateEffectiveForecast=seenBendReadV1?bendForecastV1(lateForecastResultV246?.forecast??lateRawForecastV151,seenBendWeightV1,seenBendReadV1)
+      lateEffectiveForecast=seenBendReadV1?bendForecastV1(lateForecastResultV246?.forecast??lateRawForecastV151,seenBendWeightV1,seenBendReadV1,undefined,seenBendWeightYV1)
         :bendForecastV1(lateForecastResultV246?.forecast??lateRawForecastV151),
       latePrediction=positionObserverV151?{ball:{position:lateEffectiveForecast?.prediction?.position??placementPositionV1}}
         :predictFromObservation(kernel.evaluateAt(observedTime),observedTime,battingSetupV94.contactPlaneZ),

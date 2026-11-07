@@ -91,8 +91,9 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   /** With pitchRecognitionV2: for a pitch read right, past the last look the forecast bends by this share (0..1) of the seen
    * acceleration and the rest by the read pitch type's usual spin, at the decision and at the late look alike. A hitter does not
    * read a ball's acceleration from a short look; he lays the path he knows for that pitch, so a fastball that rides more than his
-   * usually does arrives above his bat (2026-11-07). */
-  readBendSeenWeightV1?:number;
+   * usually does arrives above his bat (2026-11-07). A pair [side, vertical] gives each axis its own share; [1, w] bends only
+   * the vertical by the read type (MLB whiffs rise with a fastball's ride within a pitcher, not with its run). */
+  readBendSeenWeightV1?:number|readonly [number,number];
   /** With pitchRecognitionV2: the release point as a cue (scale in cm, 0.1..50). Each pitch he weighs is pictured leaving the hand
    * at its own releaseOffsetV1; the gap to where this ball left (toward the arm and up) adds (gap/scale)^2 to d^2 (2026-11-06). */
   releaseCueV1?:number;
@@ -247,7 +248,8 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'pitchRecognitionV2')){keys.push('pitchRecognitionV2');assert(Array.isArray(p.pitchRecognitionV2)&&(p.pitchRecognitionV2.length===2||p.pitchRecognitionV2.length===3)&&p.pitchRecognitionV2[0]>0&&p.pitchRecognitionV2[0]<=30&&p.pitchRecognitionV2[1]>0&&p.pitchRecognitionV2[1]<=500
     &&(p.pitchRecognitionV2.length===2||p.pitchRecognitionV2[2]>0&&p.pitchRecognitionV2[2]<=360),'invalid pitch recognition v2');}
   if(Object.hasOwn(p,'misreadLookSecondsV1')){keys.push('misreadLookSecondsV1');assert(Number.isFinite(p.misreadLookSecondsV1)&&p.misreadLookSecondsV1!>=.05&&p.misreadLookSecondsV1!<=.4&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid misread look seconds');}
-  if(Object.hasOwn(p,'readBendSeenWeightV1')){keys.push('readBendSeenWeightV1');assert(Number.isFinite(p.readBendSeenWeightV1)&&p.readBendSeenWeightV1!>=0&&p.readBendSeenWeightV1!<=1&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid read bend seen weight');}
+  if(Object.hasOwn(p,'readBendSeenWeightV1')){keys.push('readBendSeenWeightV1');const w=p.readBendSeenWeightV1,share=(v:unknown)=>typeof v==='number'&&Number.isFinite(v)&&v>=0&&v<=1;
+    assert((Array.isArray(w)?w.length===2&&w.every(share):share(w))&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid read bend seen weight');}
   if(Object.hasOwn(p,'readBlendV1')){keys.push('readBlendV1');assert(Number.isFinite(p.readBlendV1)&&p.readBlendV1!>=0&&p.readBlendV1!<=1&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid read blend');}
   if(Object.hasOwn(p,'misreadTimingKeepV1')){keys.push('misreadTimingKeepV1');assert(Number.isFinite(p.misreadTimingKeepV1)&&p.misreadTimingKeepV1!>=0&&p.misreadTimingKeepV1!<=1,'invalid misread timing keep');}
   if(Object.hasOwn(p,'releaseCueV1')){keys.push('releaseCueV1');assert(Number.isFinite(p.releaseCueV1)&&p.releaseCueV1!>=.1&&p.releaseCueV1!<=50&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid release cue');}
