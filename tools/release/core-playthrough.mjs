@@ -98,7 +98,7 @@ const pitchRecord = (r, seed) => {
   const p = r.play, d = p.diagnostics ?? {}, s = p.localScoringV100, b = r.beforeMatch, zone = d.strikeZone, v = p.contact?.exitVelocity;
   const plane = d.zoneJudgment?.observedForecastPosition?.z ?? .15, at = p.contact?.ballCenter ?? crossingAt(r.frames, plane), t = d.batterTechniqueV1;
   return {seed, inning: b.inning, half: b.half, outs: b.outs, balls: b.balls, strikes: b.strikes, batter: r.batterPlayerId, pitcher: r.pitcherPlayerId, pitch: r.pitchType, kmh: r.speedKmh,
-    play: p.classification, scoring: s?.classification ?? null, call: p.call, swing: !!d.swingOffered, foulOrContact: !!p.contact,
+    play: p.classification, scoring: s?.classification ?? null, call: p.call, swing: !!d.swingOffered, foulOrContact: !!p.contact, ...(p.foulTipV1 ? {foulTip: true} : {}), ...(p.contact && p.contactMoment ? {defl: deflection(p.contactMoment.ball.velocity, p.contact.exitVelocity)} : {}),
     x: at?.x ?? null, y: at?.y ?? null, zone: zone ? {half: zone.halfWidth, low: zone.lowerY, high: zone.upperY} : null,
     technique: t?.technique ?? null, techniquePlan: t?.planStatus ?? null, techniqueReason: t?.planReason ?? t?.selectionReason ?? null, exitSpin: t?.battedSpin ?? null,
     timing: d.timingErrorSeconds ?? null, exit: v ? {kmh: Math.hypot(v.x, v.y, v.z) * 3.6, launch: Math.atan2(v.y, Math.hypot(v.x, v.z)) * 180 / Math.PI, spray: Math.atan2(v.x, v.z) * 180 / Math.PI} : null,
@@ -121,6 +121,8 @@ const battedSpin = (contact, batter) => {
 // Occupied bases as "13" for first and third, "" when empty.
 const occupied = bases => bases ? ['first', 'second', 'third'].map((k, i) => bases[k] ? i + 1 : '').join('') : null;
 const t0 = Date.now();
+// The angle between the pitch at contact and the ball off the bat (degrees): a foul tip goes on nearly along the pitch.
+const deflection = (a, b) => { const na = Math.hypot(a.x, a.y, a.z), nb = Math.hypot(b.x, b.y, b.z); return na > 0 && nb > 0 ? +(Math.acos(Math.max(-1, Math.min(1, (a.x * b.x + a.y * b.y + a.z * b.z) / (na * nb)))) * 180 / Math.PI).toFixed(2) : null; };
 // --hash=1 fingerprints every pitch record, to prove a speed change kept results identical.
 const hash = opt.hash ? createHash('sha256') : null;
 for (let n = from ? from.pitches : 0; n < limit; n++) {
