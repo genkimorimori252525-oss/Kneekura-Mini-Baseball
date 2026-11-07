@@ -120,7 +120,7 @@ export type LivePitchInputV1=Readonly<{
     timingStdSeconds:number;aimStdMeters:number;chaseMarginMeters:number;clipId?:string;technicalSkills?:TechnicalSkillControlsV75}>;
   pitcher:Readonly<{releaseSpeedMps:number;spinRadPerSecond:Vec3;commandStdMeters:number;maximumPitchSpeedMps?:number;throws?:'R'|'L';
     heightMeters?:number;moundPosition?:Vec3;pitchReleaseHeightMeters?:number;pitchReleaseSideMeters?:number;pitchReleaseExtensionMeters?:number;
-    pitchApproach?:'FASTBALL'|'BALANCED'|'BREAKING';velocitySpreadScaleV1?:number;pitchTunnelV1?:number;technicalSkills?:TechnicalSkillControlsV75;pitchRepertoire?:PitchRepertoireV77;pitchingMotion?:PitchingMotionV77;
+    pitchApproach?:'FASTBALL'|'BALANCED'|'BREAKING';velocitySpreadScaleV1?:number;pitchTunnelV1?:number;pitchSpinScatterV1?:number;pitchSpinAxisScatterV1?:number;technicalSkills?:TechnicalSkillControlsV75;pitchRepertoire?:PitchRepertoireV77;pitchingMotion?:PitchingMotionV77;
     pitchRepertoireV78?:PitchRepertoireV78;minimumSpinRatio?:number;zoneRecognitionV87?:ZoneRecognitionV87;
     pitchQualityV177?:LivePitchQualityRequestV177|null}>;
   catcher?:Readonly<{gloveSpeedMps:number;gloveReachMeters:number;gloveRadiusMeters:number;retentionCapacityJ:number;captureDissipationPowerW:number;pocketRadiusMeters:number;defensiveDecisionSeconds?:number;zoneRecognitionV87?:ZoneRecognitionV87}>;
@@ -289,6 +289,8 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   assert(p.pitchApproach===undefined||['FASTBALL','BALANCED','BREAKING'].includes(p.pitchApproach),'invalid pitch approach preference');
   assert(p.minimumSpinRatio===undefined||bounded(p.minimumSpinRatio,0,1),'invalid minimum spin ratio');
   assert(p.pitchTunnelV1===undefined||bounded(p.pitchTunnelV1,0,1),'invalid pitch tunnel skill');
+  assert(p.pitchSpinScatterV1===undefined||bounded(p.pitchSpinScatterV1,0,.4),'invalid pitch spin scatter');
+  assert(p.pitchSpinAxisScatterV1===undefined||bounded(p.pitchSpinAxisScatterV1,0,20),'invalid pitch spin axis scatter');
   assert(!(p.pitchRepertoire&&p.pitchRepertoireV78),'ambiguous V77 and V78 pitch ownership');
   for(const [key,lo,hi] of [['maximumSweetSpotSpeedMps',.1,90],['targetSweetSpotSpeedMps',.1,90],['motorLatencySeconds',0,2],
     ['technicalTimingOffsetSeconds',-.5,.5],['sweetSpotT',.65,.9],['attackAngleDegrees',-80,80],['undercutAimMeters',-.05,.08],['pullAngleDegrees',-80,80],
@@ -517,6 +519,25 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
   const spinExecution=p.minimumSpinRatio===undefined||p.minimumSpinRatio===1?{active:false,ratio:1,minimumSpinRatio:1,spin}:
     samplePitchSpinExecutionV78({seed:randomStreamsV152?.seedFor('pitchExecution','spin-reproduction-v78')??input.seed,nominalSpin:spin,minimumSpinRatio:p.minimumSpinRatio});
   if(spinExecution.active)initial={...initial,spin:spinExecution.spin};
+  // pitchSpinScatterV1 (sd): pitch to pitch the spin rate is the intended one times 1 + sd z, a normal draw kept within 2 sd,
+  // on the pitch execution stream; the release was planned on the intended spin, so a pitch rides more or less than usual.
+  if(p.pitchSpinScatterV1){
+    const r=randomStreamsV152?.rng('pitchExecution','spin-scatter-v1'),root=r?null:new SeedRoot(input.seed).streamRng(0,'pitch','spin-scatter-v1'),
+      u1=Math.max(1e-12,r?r.uniform():root!.nextFloat()),u2=r?r.uniform():root!.nextFloat(),
+      factor=1+p.pitchSpinScatterV1*clamp(Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2),-2,2);
+    initial={...initial,spin:mul(initial.spin,factor)};
+  }
+  // pitchSpinAxisScatterV1 (sd, degrees): pitch to pitch the spin axis turns by a normal draw about the direction of flight (the
+  // break turns) and then about the axis across flight and spin (the active share changes), each kept within 2 sd. Tipping lowers
+  // the active spin by cos on average, so the spin is divided by its mean, exp(-sd^2/2): the break keeps its usual mean.
+  if(p.pitchSpinAxisScatterV1&&norm(initial.spin)>0){
+    const r=randomStreamsV152?.rng('pitchExecution','spin-axis-scatter-v1'),root=r?null:new SeedRoot(input.seed).streamRng(0,'pitch','spin-axis-scatter-v1'),
+      uniform=()=>r?r.uniform():root!.nextFloat(),
+      angle=()=>{const u1=Math.max(1e-12,uniform()),u2=uniform();return p.pitchSpinAxisScatterV1!*Math.PI/180*clamp(Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2),-2,2);},
+      turned=rotateVectorByQuaternion(initial.spin,quaternionFromAxisAngle(initial.velocity,angle())),across=cross(initial.velocity,turned),
+      tipped=norm(across)>1e-9?rotateVectorByQuaternion(turned,quaternionFromAxisAngle(across,angle())):turned;
+    initial={...initial,spin:mul(tipped,Math.exp((p.pitchSpinAxisScatterV1*Math.PI/180)**2/2))};
+  }
   const pitchWorkloadV122=input.pitchWorkloadV122===undefined?null:resolveLivePitchWorkloadExecutionV122({...input.pitchWorkloadV122,
     physics:{velocity:initial.velocity,spin:initial.spin}});
   if(pitchWorkloadV122)initial={...initial,...pitchWorkloadV122.execution.physics};
@@ -729,8 +750,12 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     currentObservationAvailableV151=positionObserverV151===undefined||effectiveForecastV246?.status==='PREDICTED',
     usablePriorV151=priorV122!==null&&priorV122!==undefined&&requestedPriorWeightV151>0,
     priorWeightV122=!currentObservationAvailableV151&&usablePriorV151?1:requestedPriorWeightV151,
+    // readPriorTimingShareV1: a pitch read right is timed on what was seen; the prior's weight on its arrival (not its place) is
+    // this share of the usual one. A misread pitch keeps the whole weight (2026-11-07).
+    readPriorTimingV1=observationPolicyV151?.readPriorTimingShareV1,
+    priorTimingWeightV1=readPriorTimingV1!==undefined&&recognitionV2?.recognized===true?priorWeightV122*readPriorTimingV1:priorWeightV122,
     prediction=priorV122&&priorWeightV122>0?{...observedPredictionV122,
-      elapsedSeconds:Math.max(decisionTime,observedPredictionV122.elapsedSeconds*(1-priorWeightV122)+priorV122.arrivalAfterReleaseSeconds*priorWeightV122),
+      elapsedSeconds:Math.max(decisionTime,observedPredictionV122.elapsedSeconds*(1-priorTimingWeightV1)+priorV122.arrivalAfterReleaseSeconds*priorTimingWeightV1),
       ball:{...observedPredictionV122.ball,position:{...observedPredictionV122.ball.position,
         x:observedPredictionV122.ball.position.x*(1-priorWeightV122)+priorV122.x*priorWeightV122,
         y:observedPredictionV122.ball.position.y*(1-priorWeightV122)+priorV122.y*priorWeightV122}}}:observedPredictionV122,
@@ -779,14 +804,31 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       normal=()=>Math.sqrt(-2*Math.log(1-judgmentRng.nextFloat()))*Math.cos(2*Math.PI*judgmentRng.nextFloat());
     judgmentError.x=normal()*judgmentStd;judgmentError.y=normal()*judgmentStd;
   }
-  const observationTick=positionObserverV151?.decisionTick??input.originTick+Math.round(decisionTime*tps),batterRecognition=recognizeZoneV87({role:'batter',profile:b.zoneRecognitionV87,position:prediction.ball.position,zone,
+  // misreadJudgeSecondsV1: a misread hitter decides on the read pitch's path laid from this time after release, the way it looked
+  // when he took it for that pitch; the bat still goes where his late read puts it. Only the decision's place moves (2026-11-07).
+  const misreadJudgeV1=observationPolicyV151?.misreadJudgeSecondsV1,judgeShiftV1=misreadJudgeV1===undefined||!recognitionV2||recognitionV2.recognized
+    ||!readForecastV1?.prediction?null:(()=>{
+      const laid=bendForecastV1(effectiveForecastV246,0,recognitionV2.readPitch,misreadJudgeV1);
+      return laid?.prediction?{x:laid.prediction.position.x-readForecastV1.prediction.position.x,y:laid.prediction.position.y-readForecastV1.prediction.position.y}:null;
+    })(),
+    judgedPositionV1=judgeShiftV1===null?prediction.ball.position:{...prediction.ball.position,x:prediction.ball.position.x+judgeShiftV1.x,y:prediction.ball.position.y+judgeShiftV1.y},
+    // misreadExpectShareV1: a misread hitter, sitting on the pitch he took it for, sees it this share of the way toward where he
+    // expected that pitch (the prior expectation's place), not along its path; the bat is not moved (2026-11-07).
+    expectShareV1=observationPolicyV151?.misreadExpectShareV1,
+    decisionPositionV1=expectShareV1===undefined||!recognitionV2||recognitionV2.recognized||!priorV122?judgedPositionV1
+      :{...judgedPositionV1,x:judgedPositionV1.x+(priorV122.x-judgedPositionV1.x)*expectShareV1,y:judgedPositionV1.y+(priorV122.y-judgedPositionV1.y)*expectShareV1};
+  const observationTick=positionObserverV151?.decisionTick??input.originTick+Math.round(decisionTime*tps),batterRecognition=recognizeZoneV87({role:'batter',profile:b.zoneRecognitionV87,position:decisionPositionV1,zone,
     seed:randomStreamsV152?.seedFor('batterPerception','zone-recognition-v87')??input.seed,
     sourceTick:effectiveForecastV246?.observedThroughTick??observationTick,observationTick,planeZ:battingSetupV94.contactPlaneZ,standardDeviationMeters:judgmentStd,baselineErrorMeters:judgmentError,abilityBasis:'zoneJudgmentStdMeters'}),
-    judgmentPosition={...prediction.ball.position,...batterRecognition.position},recognitionAimOffset=batterRecognition.diagnostics.biasMeters,
+    judgmentPosition={...decisionPositionV1,...batterRecognition.position},recognitionAimOffset=batterRecognition.diagnostics.biasMeters,
     // undercutAimV1: a swing aims the sweet spot this far under the ball's centre, as hitters who lift the ball do.
     undercutV1=input.batting==='bunt'?0:b.undercutAimMeters??observationPolicyV151?.undercutAimV1??0,
     // judgmentAimShareV1: the misjudged location that decided the swing also moves the bat; the late look corrects it like a misread.
-    judgmentAimShareV1=observationPolicyV151?.judgmentAimShareV1,judgmentAimV1={x:judgmentError.x*(judgmentAimShareV1??0),y:judgmentError.y*(judgmentAimShareV1??0)},
+    // misreadExpectBatV1: the bat also takes this share of misreadExpectShareV1's pull toward the expected place (the swing path is
+    // set on the belief that decided it, as placementJudgedV1); the late look corrects it like a misread (2026-11-07).
+    expectBatV1=observationPolicyV151?.misreadExpectBatV1??0,
+    judgmentAimShareV1=observationPolicyV151?.judgmentAimShareV1,judgmentAimV1={x:judgmentError.x*(judgmentAimShareV1??0)+(decisionPositionV1.x-judgedPositionV1.x)*expectBatV1,
+      y:judgmentError.y*(judgmentAimShareV1??0)+(decisionPositionV1.y-judgedPositionV1.y)*expectBatV1},
     motorAimPosition=recognitionAimOffset.x===0&&recognitionAimOffset.y===0&&undercutV1===0&&judgmentAimV1.x===0&&judgmentAimV1.y===0?placementPositionV1
       :{...placementPositionV1,x:placementPositionV1.x+recognitionAimOffset.x+judgmentAimV1.x,y:placementPositionV1.y+recognitionAimOffset.y-undercutV1+judgmentAimV1.y};
   const inChaseEnvelope=Math.abs(judgmentPosition.x)<=zone.halfWidth+b.chaseMarginMeters
@@ -1193,7 +1235,14 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
       // lateLookAccelerationV1 (m/s^2): the late correction is bounded by the extra hand acceleration over the time left,
       // |offset| <= a T^2/6, instead of a fixed share of the gap; a small miss closes fully, a far one only partly (2026-11-05).
       lateAccelerationV1=observationPolicyV151?.lateLookAccelerationV1,
-      scale=duration>0&&distance>1e-9?Math.min(lateAccelerationV1===undefined?headroom:Math.min(1,lateAccelerationV1*duration*duration/(6*distance)),budget*duration/(1.5*distance),executionV122?executionV122.maximumCorrectionMeters/distance:Infinity,accelerationBudget*duration*duration/(6*distance)):0,
+      // misreadLateCloseV1 (k): on a misread the late look leaves k times the gap it usually leaves (closes 1 - k (1 - share)),
+      // within the same hand speed and acceleration budgets; the timing is not touched (2026-11-07).
+      lateCloseV1=observationPolicyV151?.misreadLateCloseV1!==undefined&&recognitionV2&&!recognitionV2.recognized?observationPolicyV151.misreadLateCloseV1:undefined,
+      // misreadLateReachV1 (r >= 1): on a misread the late look's hand acceleration is r times the usual, so a near miss closes and a
+      // far one (a chase the hitter took for a strike) still does not (2026-11-07).
+      lateReachV1=observationPolicyV151?.misreadLateReachV1!==undefined&&recognitionV2&&!recognitionV2.recognized?observationPolicyV151.misreadLateReachV1:1,
+      lateShareV1=lateAccelerationV1===undefined?headroom:Math.min(1,lateAccelerationV1*lateReachV1*duration*duration/(6*distance)),
+      scale=duration>0&&distance>1e-9?Math.min(lateCloseV1===undefined?lateShareV1:1-lateCloseV1*(1-lateShareV1),budget*duration/(1.5*distance),executionV122?executionV122.maximumCorrectionMeters/distance:Infinity,accelerationBudget*duration*duration/(6*distance)):0,
       offset=mul(requestedOffset,scale),applied=scale>0&&norm(offset)<=3;
     return {headroom,observedTick:lateObservedTick,availableTick,correctionFromTick,throughTick:Math.max(correctionFromTick,throughTick),selectedPredictionId:evidence.predictionId,
       contactPlaneZ:battingSetupV94.contactPlaneZ,requestedOffset,offset:applied?offset:zero(),applied,maximumCorrectionSpeedMps:budget,
@@ -1577,7 +1626,7 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
         sweetSpotT:b.sweetSpotT??null,attackAngleDegrees:b.attackAngleDegrees??null,pullAngleDegrees:b.pullAngleDegrees??null,badBallControl:b.badBallControl??null,
         swingDecision:b.swingDecision??null,preContactSeconds:b.preContactSeconds??null,followThroughSeconds:b.followThroughSeconds??null,contactDepthMeters:b.contactDepthMeters??null,
         zoneJudgmentStdMeters:judgmentStd},
-      zoneJudgment:{standardDeviationMeters:judgmentStd,errorMeters:judgmentError,observedForecastPosition:prediction.ball.position,
+      zoneJudgment:{standardDeviationMeters:judgmentStd,errorMeters:judgmentError,observedForecastPosition:decisionPositionV1,
         estimatedPosition:judgmentPosition,stream:'zone-judgment-v1' as const,basis:'AUTHORED_XY_COURSE_ESTIMATE_ERROR_NOT_CHASE_PREFERENCE' as const},
       authoredDecisionPolicy:'BOUNDED_OBSERVED_ZONE_MARGIN_V1_NOT_CALIBRATED_RECOGNITION' as const,swingScore,awkwardErrorFactor,motorDelaySeconds,
       authoredTrajectoryPolicy:'FINITE_MEASURED_KEYS_WITH_EXPLICIT_RIGID_DIRECTION_RATE_AND_WINDOW_CONTROLS' as const,

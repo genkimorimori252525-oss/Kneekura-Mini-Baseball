@@ -88,6 +88,24 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   /** With pitchRecognitionV2: on a misread, the read pitch's bend is laid from this time after release (0.05..0.4 s) instead of
    * from the end of the look, as if the late break went unseen; a breaking ball read as a fastball is then expected higher. */
   misreadLookSecondsV1?:number;
+  /** With pitchRecognitionV2: on a misread, the swing decision (not the bat) judges the read pitch's path laid from this time
+   * after release (0.05..0.4 s), the way the ball looked when he took it for that pitch (2026-11-07). */
+  misreadJudgeSecondsV1?:number;
+  /** With pitchRecognitionV2: on a misread, the swing decision (not the bat) sees the ball this share (0..1) of the way toward
+   * where the hitter expected the pitch (the prior expectation's place), sitting on the pitch he took it for (2026-11-07). */
+  misreadExpectShareV1?:number;
+  /** With misreadExpectShareV1: the share (0..1) of its pull toward the expected place that the bat also takes; the late look
+   * corrects it like a misread (2026-11-07). */
+  misreadExpectBatV1?:number;
+  /** With pitchRecognitionV2 and priorExpectationV1: a pitch read right is timed on what was seen, the prior's weight on its
+   * arrival (not its place) being this share (0..1) of the usual one; a misread keeps the whole weight (2026-11-07). */
+  readPriorTimingShareV1?:number;
+  /** With pitchRecognitionV2: on a misread, the late look leaves this share (0..1) of the gap it usually leaves between the
+   * seen ball and the bat, within the same hand budgets; the timing is not touched (2026-11-07). */
+  misreadLateCloseV1?:number;
+  /** With pitchRecognitionV2 and lateLookAccelerationV1: on a misread the late look's hand acceleration is this many times the
+   * usual (1..10), so a near miss closes and a far one does not (2026-11-07). */
+  misreadLateReachV1?:number;
   /** With pitchRecognitionV2: for a pitch read right, past the last look the forecast bends by this share (0..1) of the seen
    * acceleration and the rest by the read pitch type's usual spin, at the decision and at the late look alike. A hitter does not
    * read a ball's acceleration from a short look; he lays the path he knows for that pitch, so a fastball that rides more than his
@@ -248,6 +266,12 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'pitchRecognitionV2')){keys.push('pitchRecognitionV2');assert(Array.isArray(p.pitchRecognitionV2)&&(p.pitchRecognitionV2.length===2||p.pitchRecognitionV2.length===3)&&p.pitchRecognitionV2[0]>0&&p.pitchRecognitionV2[0]<=30&&p.pitchRecognitionV2[1]>0&&p.pitchRecognitionV2[1]<=500
     &&(p.pitchRecognitionV2.length===2||p.pitchRecognitionV2[2]>0&&p.pitchRecognitionV2[2]<=360),'invalid pitch recognition v2');}
   if(Object.hasOwn(p,'misreadLookSecondsV1')){keys.push('misreadLookSecondsV1');assert(Number.isFinite(p.misreadLookSecondsV1)&&p.misreadLookSecondsV1!>=.05&&p.misreadLookSecondsV1!<=.4&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid misread look seconds');}
+  if(Object.hasOwn(p,'misreadJudgeSecondsV1')){keys.push('misreadJudgeSecondsV1');assert(Number.isFinite(p.misreadJudgeSecondsV1)&&p.misreadJudgeSecondsV1!>=.05&&p.misreadJudgeSecondsV1!<=.4&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid misread judge seconds');}
+  if(Object.hasOwn(p,'misreadExpectShareV1')){keys.push('misreadExpectShareV1');assert(Number.isFinite(p.misreadExpectShareV1)&&p.misreadExpectShareV1!>=0&&p.misreadExpectShareV1!<=1&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid misread expect share');}
+  if(Object.hasOwn(p,'misreadExpectBatV1')){keys.push('misreadExpectBatV1');assert(Number.isFinite(p.misreadExpectBatV1)&&p.misreadExpectBatV1!>=0&&p.misreadExpectBatV1!<=1&&Object.hasOwn(p,'misreadExpectShareV1'),'invalid misread expect bat');}
+  if(Object.hasOwn(p,'readPriorTimingShareV1')){keys.push('readPriorTimingShareV1');assert(Number.isFinite(p.readPriorTimingShareV1)&&p.readPriorTimingShareV1!>=0&&p.readPriorTimingShareV1!<=1&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid read prior timing share');}
+  if(Object.hasOwn(p,'misreadLateCloseV1')){keys.push('misreadLateCloseV1');assert(Number.isFinite(p.misreadLateCloseV1)&&p.misreadLateCloseV1!>=0&&p.misreadLateCloseV1!<=1&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid misread late close');}
+  if(Object.hasOwn(p,'misreadLateReachV1')){keys.push('misreadLateReachV1');assert(Number.isFinite(p.misreadLateReachV1)&&p.misreadLateReachV1!>=1&&p.misreadLateReachV1!<=10&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid misread late reach');}
   if(Object.hasOwn(p,'readBendSeenWeightV1')){keys.push('readBendSeenWeightV1');const w=p.readBendSeenWeightV1,share=(v:unknown)=>typeof v==='number'&&Number.isFinite(v)&&v>=0&&v<=1;
     assert((Array.isArray(w)?w.length===2&&w.every(share):share(w))&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid read bend seen weight');}
   if(Object.hasOwn(p,'readBlendV1')){keys.push('readBlendV1');assert(Number.isFinite(p.readBlendV1)&&p.readBlendV1!>=0&&p.readBlendV1!<=1&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid read blend');}
