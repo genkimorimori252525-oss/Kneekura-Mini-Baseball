@@ -111,6 +111,10 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
    * held within [low, high]. A pitch that escapes the zone is the one the pitcher meant to tunnel; one left deep in the zone is a
    * missed spot the hitter picks up. MLB 2024-06: whiff on a swing rises with d even inside the zone (2026-11-08). */
   misreadDestinationV1?:readonly [number,number,number,number];
+  /** With misreadDestinationV1: [per cm, reference cm] in its place for the pitch's group, fastball (fastball, sinker, cutter),
+   * breaking (slider, sweeper, curve, knuckle curve, slurve) or offspeed (changeup, splitter); a group left out keeps
+   * misreadDestinationV1's (2026-11-08). */
+  misreadDestinationGroupsV1?:Readonly<Partial<Record<'fastball'|'breaking'|'offspeed',readonly [number,number]>>>;
   /** With pitchRecognitionV2: for a pitch read right, past the last look the forecast bends by this share (0..1) of the seen
    * acceleration and the rest by the read pitch type's usual spin, at the decision and at the late look alike. A hitter does not
    * read a ball's acceleration from a short look; he lays the path he knows for that pitch, so a fastball that rides more than his
@@ -280,6 +284,9 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'misreadDestinationV1')){keys.push('misreadDestinationV1');const d=p.misreadDestinationV1;
     assert(Array.isArray(d)&&d.length===4&&d.every(v=>typeof v==='number'&&Number.isFinite(v))&&Math.abs(d[0]!)<=2&&d[2]!<d[3]!&&d[2]!>=-50&&d[3]!<=100
       &&Object.hasOwn(p,'pitchRecognitionV2'),'invalid misread destination');}
+  if(Object.hasOwn(p,'misreadDestinationGroupsV1')){keys.push('misreadDestinationGroupsV1');const g=p.misreadDestinationGroupsV1;
+    assert(typeof g==='object'&&g!==null&&!Array.isArray(g)&&Object.entries(g).every(([k,v])=>['fastball','breaking','offspeed'].includes(k)&&Array.isArray(v)&&v.length===2
+      &&v.every(x=>typeof x==='number'&&Number.isFinite(x))&&Math.abs(v[0]!)<=2&&Math.abs(v[1]!)<=100)&&Object.hasOwn(p,'misreadDestinationV1'),'invalid misread destination groups');}
   if(Object.hasOwn(p,'readBendSeenWeightV1')){keys.push('readBendSeenWeightV1');const w=p.readBendSeenWeightV1,share=(v:unknown)=>typeof v==='number'&&Number.isFinite(v)&&v>=0&&v<=1;
     assert((Array.isArray(w)?w.length===2&&w.every(share):share(w))&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid read bend seen weight');}
   if(Object.hasOwn(p,'readBlendV1')){keys.push('readBlendV1');assert(Number.isFinite(p.readBlendV1)&&p.readBlendV1!>=0&&p.readBlendV1!<=1&&Object.hasOwn(p,'pitchRecognitionV2'),'invalid read blend');}

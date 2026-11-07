@@ -638,7 +638,10 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
           if(at===null)return 1;
           const q=kernel.evaluateAt(at).moment.ball.position,dx=Math.abs(q.x-(zone.centerX??0))-zone.halfWidth-ball,dy=Math.max(zone.lowerY-ball-q.y,q.y-zone.upperY-ball),
             outside=100*(dx<=0&&dy<=0?Math.max(dx,dy):Math.hypot(Math.max(dx,0),Math.max(dy,0)));
-          return Math.exp(destination[0]*(clamp(outside,destination[2],destination[3])-destination[1]));})(),
+          // misreadDestinationGroupsV1: the pitch's group may carry its own [per cm, reference].
+          const type=String(pitchType),group=['fastball','sinker','cutter'].includes(type)?'fastball':['changeup','splitter'].includes(type)?'offspeed':'breaking',
+            [perCm,reference]=observationPolicyV151?.misreadDestinationGroupsV1?.[group]??[destination[0],destination[1]];
+          return Math.exp(perCm*(clamp(outside,destination[2],destination[3])-reference));})(),
         weighed=candidates.map(c=>{
           const start={...initial,velocity:mul(initial.velocity,c.pitch.releaseSpeedMps*.99/norm(initial.velocity)),spin:c.pitch.spinRadPerSecond},
             at=sampleAerodynamicPitchStateAtElapsedSeconds(start,t1,inverseAir),
