@@ -19,7 +19,10 @@ export type LiveFieldDecisionContextV1=Readonly<{elapsedSeconds:number;observati
   * can reach for a ball on the ground.
   * The outfielder does not count that infielder as competing for it, and the infielder, once he has heard an outfielder call
   * for it, does not go for it himself. */
- outfieldRightOfWayV1?:Readonly<{reachMeters:Readonly<Record<string,number>>;arc:Readonly<{centerX:number;centerZ:number;radiusM:number}>}>}>;
+ outfieldRightOfWayV1?:Readonly<{reachMeters:Readonly<Record<string,number>>;arc:Readonly<{centerX:number;centerZ:number;radiusM:number}>}>;
+ /** A ground ball to the right side that is not the pitcher's: he takes first at once, without waiting for the cover plan or
+  * counting the first baseman as competing for the bag. */
+ pitcherCoversFirstV1?:true}>;
 export type LiveFieldDecisionCandidateV1=Readonly<{role:LiveFieldRoleV1;intent:DefensiveIntent;cost:number;arrivalSeconds:number;
  opportunityCost:number;competitionCost:number;switchCost:number;reason:string}>;
 const distance=(a:Vec3,b:Vec3)=>Math.hypot(a.x-b.x,a.z-b.z);
@@ -115,7 +118,9 @@ export function evaluateLiveFieldDecisionV1(input:LiveFieldDecisionContextV1){
    const point=input.bases[threat.base],role=own('cover:'+threat.base,'base_cover',point,threat.base),
     arrival=liveFieldArrivalSecondsV1(self,point),late=Math.max(0,arrival-threat.arrivalSeconds),
     prior=self.defensivePosition==='C'&&threat.base!==4?.8:0;
-   if(!input.coverAllowedV1||input.coverAllowedV1(threat.base,arrival))add(role,3.5-Math.min(1,late*.3)-prior,3,'observed_runner_threat',arrival);
+   const pitcherFirst=!!input.pitcherCoversFirstV1&&self.defensivePosition==='P'&&threat.base===1;
+   if(pitcherFirst)add(role,3.5-Math.min(1,late*.3),0,'pitcher_covers_first',arrival);
+   else if(!input.coverAllowedV1||input.coverAllowedV1(threat.base,arrival))add(role,3.5-Math.min(1,late*.3)-prior,3,'observed_runner_threat',arrival);
   }
   const primary=input.threats.slice().sort((a,b)=>a.arrivalSeconds-b.arrivalSeconds)[0],
    from=input.possessionPlayerId?others.find(a=>a.playerId===input.possessionPlayerId)?.position??input.ball:input.ball,
