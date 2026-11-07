@@ -2415,6 +2415,14 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         const on = ahead.find(b => b.base === n + 1), f = n < 4 ? estimateDefenseControl(x, n + 1) : null;
         return !(on && f !== null && f - (x.leg.from + on.elapsedSeconds - t) > marginV1(x, n + 1, false));
       }
+      // Still running to stop on it: both men make the same read of whether he can go on, his arrival there and the leg on
+      // (from a stand, the slower case) against the defense on the bag after it; he is leaving it when that race is his.
+      if (ahead[ahead.length - 1].base === n && n < 4 && !x.leg.halfway) {
+        const at = ahead.find(b => b.base === n)!, f = estimateDefenseControl(x, n + 1),
+          arrive = x.leg.from + at.elapsedSeconds - t + estimateLiveRunnerLegSecondsV1(distance(flat(base(n)), flat(base(n + 1))),
+            x.spec.topSpeedMps, x.spec.accelerationMps2, field.baseTouchRadiusMeters ?? .28);
+        if (f !== null && f - arrive > marginV1(x, n + 1, false)) return false;
+      }
       return ahead[ahead.length - 1].base <= n;
     });
     const runnerObservedCueV1=(occurred:number|null,now:number)=>loose?observedLooseCueV1(occurred,now,history.map(h=>h.t)):occurred;
