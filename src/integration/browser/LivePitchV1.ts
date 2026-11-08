@@ -623,7 +623,9 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
         owned=p.pitchRepertoireV78===undefined?null:validatePitchRepertoireV78(p.pitchRepertoireV78,p.maximumPitchSpeedMps).pitches,
         // fastballSitV1: he sits on the hard stuff, its prior multiplied.
         sit=observationPolicyV151?.fastballSitV1,tail=observationPolicyV151?.recognitionTailV1,sitOn=(type:string)=>sit!==undefined&&['fastball','sinker','cutter'].includes(type)?sit:1,
-        candidates=owned?owned.map(row=>({id:row.pitchId,pitch:pictured(row,row.pitchType),prior:(row.usageWeightV1??1)*countUsageV1(row)*sitOn(row.pitchType),offset:row.releaseOffsetV1}))
+        // recognitionPriorPowerV1: how often each is thrown counts to this power in its prior.
+        priorPower=observationPolicyV151?.recognitionPriorPowerV1,thrown=(usage:number)=>priorPower===undefined?usage:usage**priorPower,
+        candidates=owned?owned.map(row=>({id:row.pitchId,pitch:pictured(row,row.pitchType),prior:thrown((row.usageWeightV1??1)*countUsageV1(row))*sitOn(row.pitchType),offset:row.releaseOffsetV1}))
           :resolvePitcherRepertoireV77(p,p.throws??'R').filter(row=>['fastball','slider','curve','changeup'].includes(row.pitchType))
             .map(row=>({id:row.pitchType as string,pitch:pictured(row,row.pitchType),prior:sitOn(row.pitchType),offset:undefined as readonly number[]|undefined})),
         actualId=selectedSnapshot?selectedSnapshot.pitchId:pitchType,
@@ -638,7 +640,10 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
           if(at===null)return 1;
           const q=kernel.evaluateAt(at).moment.ball.position,dx=Math.abs(q.x-(zone.centerX??0))-zone.halfWidth-ball,dy=Math.max(zone.lowerY-ball-q.y,q.y-zone.upperY-ball),
             outside=100*(dx<=0&&dy<=0?Math.max(dx,dy):Math.hypot(Math.max(dx,0),Math.max(dy,0)));
-          return Math.exp(destination[0]*(clamp(outside,destination[2],destination[3])-destination[1]));})(),
+          // misreadDestinationGroupsV1: the pitch's group may carry its own [per cm, reference].
+          const type=String(pitchType),group=['fastball','sinker','cutter'].includes(type)?'fastball':['changeup','splitter'].includes(type)?'offspeed':'breaking',
+            [perCm,reference]=observationPolicyV151?.misreadDestinationGroupsV1?.[group]??[destination[0],destination[1]];
+          return Math.exp(perCm*(clamp(outside,destination[2],destination[3])-reference));})(),
         weighed=candidates.map(c=>{
           const start={...initial,velocity:mul(initial.velocity,c.pitch.releaseSpeedMps*.99/norm(initial.velocity)),spin:c.pitch.spinRadPerSecond},
             at=sampleAerodynamicPitchStateAtElapsedSeconds(start,t1,inverseAir),
