@@ -2705,7 +2705,13 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
           // With the man ahead going on, the throw may still be cut off and turned on him: he goes only on beating the nearest man
           // to the ball as it is now (2026-11-08: with one out, 18 of 71 singles had the batter thrown out at second that way).
           const floor = leadOn ? trailFloorV1(r, n + 1) : null;
-          return leadOn && floor !== null && floor - arrival > marginV1(r, n + 1, false) || touchAt - start >= LIVE_RUNNER_TRAIL_CALIBRATION_V1.gapTouchSeconds; })() : false;
+          // A late touch is a ball in the gap only if the throw from where it is fielded still loses the race to second: a hard
+          // ground ball through to right is reached as late, but close in, and the batter was thrown out at second on it
+          // (2026-11-08: 3 of 79 singles with nobody out, runner on first, on build-int12).
+          const gapThrow = sources.length ? Math.min(...sources.map(q => { const a = seen!.actors.find(x => x.playerId === q.playerId);
+            return a ? seen!.t + q.readySeconds - t + a.transferSeconds + distance(flat(q.point), flat(base(n + 1))) / a.throwSpeedMps : -Infinity; })) : -Infinity;
+          return leadOn && floor !== null && floor - arrival > marginV1(r, n + 1, false)
+            || touchAt - start >= LIVE_RUNNER_TRAIL_CALIBRATION_V1.gapTouchSeconds && gapThrow - arrival > marginV1(r, n + 1, false); })() : false;
         // runnerTrailV1: a man coming on behind to this bag, already committed, leaves no room to stay on it: he goes on.
         const pressedV1 = !!trailRunnerV1 && runners.some(y => y !== r && !y.retired && !y.scored && y.base < n && y.leg && !y.leg.halfway && !y.leg.returning
           && !y.leg.turnV1 && y.leg.holdAtTouchV1 === undefined && y.leg.motion.touches.slice(y.leg.nextTouchIndex).some(b => b.base === n));
