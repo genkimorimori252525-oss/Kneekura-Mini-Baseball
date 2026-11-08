@@ -2654,12 +2654,17 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
     };
     /** Route length before the bend around a bag: the run on which a pull-up still lands him on it. A replanned route
      * opens with a small arc that only lines his heading up, so only a real change of direction counts. */
+    // The bend is the one around the bag he touches first. A route replanned as he comes out of the bag behind him opens with
+    // the rest of that bag's bend, which is not where a pull-up must be called (2026-11-08: a runner from first, replanned
+    // just past second, read that as already into the bend at third: no call was made at third, and the older rounding step
+    // sent him on home at once; 3 of 74 singles with nobody out had him thrown out at home so).
     const turnBendStartV1 = (motion: LiveRunnerMotionV1) => {
-      let length = 0;
+      const touch = motion.touches[0]?.distanceMeters ?? Infinity;
+      let length = 0, first: number | null = null, atBag: number | null = null;
       for (const part of motion.route.segments) {
-        if (part.kind === 'arc' && Math.abs(part.sweepRadians) > LIVE_RUNNER_TURN_CALIBRATION_V1.bendRadians) return length;
+        if (part.kind === 'arc' && Math.abs(part.sweepRadians) > LIVE_RUNNER_TURN_CALIBRATION_V1.bendRadians) { first ??= length; if (length <= touch) atBag = length; }
         length += part.kind === 'arc' ? part.radiusMeters * Math.abs(part.sweepRadians) : Math.hypot(part.end.x - part.start.x, part.end.z - part.start.z); }
-      return length;
+      return atBag ?? first ?? length;
     };
     /** True when this look handled the runner. A pull-up is only ever chosen while braking onto the bag is still possible. */
     // trailRunnerV1: the ball read as one nobody can catch (the batter, who has no catch to fear, takes any ball through).
@@ -2705,7 +2710,13 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
           // With the man ahead going on, the throw may still be cut off and turned on him: he goes only on beating the nearest man
           // to the ball as it is now (2026-11-08: with one out, 18 of 71 singles had the batter thrown out at second that way).
           const floor = leadOn ? trailFloorV1(r, n + 1) : null;
-          return leadOn && floor !== null && floor - arrival > marginV1(r, n + 1, false) || touchAt - start >= LIVE_RUNNER_TRAIL_CALIBRATION_V1.gapTouchSeconds; })() : false;
+          // A late touch is a ball in the gap only if the throw from where it is fielded still loses the race to second: a hard
+          // ground ball through to right is reached as late, but close in, and the batter was thrown out at second on it
+          // (2026-11-08: 3 of 79 singles with nobody out, runner on first, on build-int12).
+          const gapThrow = sources.length ? Math.min(...sources.map(q => { const a = seen!.actors.find(x => x.playerId === q.playerId);
+            return a ? seen!.t + q.readySeconds - t + a.transferSeconds + distance(flat(q.point), flat(base(n + 1))) / a.throwSpeedMps : -Infinity; })) : -Infinity;
+          return leadOn && floor !== null && floor - arrival > marginV1(r, n + 1, false)
+            || touchAt - start >= LIVE_RUNNER_TRAIL_CALIBRATION_V1.gapTouchSeconds && gapThrow - arrival > marginV1(r, n + 1, false); })() : false;
         // runnerTrailV1: a man coming on behind to this bag, already committed, leaves no room to stay on it: he goes on.
         const pressedV1 = !!trailRunnerV1 && runners.some(y => y !== r && !y.retired && !y.scored && y.base < n && y.leg && !y.leg.halfway && !y.leg.returning
           && !y.leg.turnV1 && y.leg.holdAtTouchV1 === undefined && y.leg.motion.touches.slice(y.leg.nextTouchIndex).some(b => b.base === n));
