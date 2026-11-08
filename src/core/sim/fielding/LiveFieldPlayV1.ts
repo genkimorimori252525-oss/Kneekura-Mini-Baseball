@@ -2654,12 +2654,17 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
     };
     /** Route length before the bend around a bag: the run on which a pull-up still lands him on it. A replanned route
      * opens with a small arc that only lines his heading up, so only a real change of direction counts. */
+    // The bend is the one around the bag he touches first. A route replanned as he comes out of the bag behind him opens with
+    // the rest of that bag's bend, which is not where a pull-up must be called (2026-11-08: a runner from first, replanned
+    // just past second, read that as already into the bend at third: no call was made at third, and the older rounding step
+    // sent him on home at once; 3 of 74 singles with nobody out had him thrown out at home so).
     const turnBendStartV1 = (motion: LiveRunnerMotionV1) => {
-      let length = 0;
+      const touch = motion.touches[0]?.distanceMeters ?? Infinity;
+      let length = 0, first: number | null = null, atBag: number | null = null;
       for (const part of motion.route.segments) {
-        if (part.kind === 'arc' && Math.abs(part.sweepRadians) > LIVE_RUNNER_TURN_CALIBRATION_V1.bendRadians) return length;
+        if (part.kind === 'arc' && Math.abs(part.sweepRadians) > LIVE_RUNNER_TURN_CALIBRATION_V1.bendRadians) { first ??= length; if (length <= touch) atBag = length; }
         length += part.kind === 'arc' ? part.radiusMeters * Math.abs(part.sweepRadians) : Math.hypot(part.end.x - part.start.x, part.end.z - part.start.z); }
-      return length;
+      return atBag ?? first ?? length;
     };
     /** True when this look handled the runner. A pull-up is only ever chosen while braking onto the bag is still possible. */
     // trailRunnerV1: the ball read as one nobody can catch (the batter, who has no catch to fear, takes any ball through).
