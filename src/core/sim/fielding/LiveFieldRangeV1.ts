@@ -287,7 +287,10 @@ export function validateLiveForcedRunPolicyV1(policy:LiveForcedRunPolicyV1){
   return policy;
 }
 /** Opt-in. Omission keeps the runner's old read of a ball in flight. */
-export type LiveRunnerThrowReadPolicyV1=Readonly<{version:'live_runner_throw_read_policy_v1';sourceId:string}>;
+/** homeAllowanceSeconds / homeAllowanceTwoOutSeconds (optional; omitted, 0): how much later than its perfect-line forecast the
+ * runner counts on the defense having the ball at home, with fewer than two out and with two out. The forecast is a clean pickup
+ * and a straight throw; a held runner's forecast came a median 1.2 s before the ball was really there (2026-11-08). */
+export type LiveRunnerThrowReadPolicyV1=Readonly<{version:'live_runner_throw_read_policy_v1';sourceId:string;homeAllowanceSeconds?:number;homeAllowanceTwoOutSeconds?:number}>;
 export const LIVE_RUNNER_THROW_READ_POLICY_V1:LiveRunnerThrowReadPolicyV1=Object.freeze({version:'live_runner_throw_read_policy_v1',sourceId:'runner-throw-read-v1-authored'});
 /** A runner who watches a throw go to a cutoff counts on that man catching it and throwing on, at a share of his arm. */
 export const LIVE_RUNNER_THROW_READ_CALIBRATION_V1=Object.freeze({relayArmShare:.85,relayCatchSeconds:.1,
@@ -345,8 +348,9 @@ export function validateLiveRunnerTurnPolicyV1(policy:LiveRunnerTurnPolicyV1){
   return policy;
 }
 export function validateLiveRunnerThrowReadPolicyV1(policy:LiveRunnerThrowReadPolicyV1){
-  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_runner_throw_read_policy_v1'
-    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid runner throw read policy');
+  const allowance=(x:unknown)=>x===undefined||typeof x==='number'&&Number.isFinite(x)&&x>=0&&x<=2;
+  if(!policy||typeof policy!=='object'||Object.keys(policy).some(k=>!['version','sourceId','homeAllowanceSeconds','homeAllowanceTwoOutSeconds'].includes(k))||policy.version!=='live_runner_throw_read_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId||!allowance(policy.homeAllowanceSeconds)||!allowance(policy.homeAllowanceTwoOutSeconds))throw Error('invalid runner throw read policy');
   return policy;
 }
 export function validateLiveFieldRangePolicyV1(policy:LiveFieldRangePolicyV1){
