@@ -623,7 +623,9 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
         owned=p.pitchRepertoireV78===undefined?null:validatePitchRepertoireV78(p.pitchRepertoireV78,p.maximumPitchSpeedMps).pitches,
         // fastballSitV1: he sits on the hard stuff, its prior multiplied.
         sit=observationPolicyV151?.fastballSitV1,tail=observationPolicyV151?.recognitionTailV1,sitOn=(type:string)=>sit!==undefined&&['fastball','sinker','cutter'].includes(type)?sit:1,
-        candidates=owned?owned.map(row=>({id:row.pitchId,pitch:pictured(row,row.pitchType),prior:(row.usageWeightV1??1)*countUsageV1(row)*sitOn(row.pitchType),offset:row.releaseOffsetV1}))
+        // recognitionPriorPowerV1: how often each is thrown counts to this power in its prior.
+        priorPower=observationPolicyV151?.recognitionPriorPowerV1,thrown=(usage:number)=>priorPower===undefined?usage:usage**priorPower,
+        candidates=owned?owned.map(row=>({id:row.pitchId,pitch:pictured(row,row.pitchType),prior:thrown((row.usageWeightV1??1)*countUsageV1(row))*sitOn(row.pitchType),offset:row.releaseOffsetV1}))
           :resolvePitcherRepertoireV77(p,p.throws??'R').filter(row=>['fastball','slider','curve','changeup'].includes(row.pitchType))
             .map(row=>({id:row.pitchType as string,pitch:pictured(row,row.pitchType),prior:sitOn(row.pitchType),offset:undefined as readonly number[]|undefined})),
         actualId=selectedSnapshot?selectedSnapshot.pitchId:pitchType,
