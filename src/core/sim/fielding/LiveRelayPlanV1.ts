@@ -198,7 +198,9 @@ export function planLiveRelayV1(raw: LiveRelayPlanInputV1,compareReadyReceiverTo
     for (let i = 1; i < route.length; i++) {
       const from = route[i - 1], to = route[i], g = geometry(from, to),
         flight = Math.max(.05, norm(sub(g.target, g.releasePosition)) / (Math.min(from.throwSpeedMps,LIVE_THROW_EFFORT_POLICY_V103.maximumCommandSpeedMps) + norm(g.bodyVelocity)));
-      seconds = Math.max((from.postActionV120 ? Math.max(seconds + Math.max(g.transferSeconds,g.preparationSeconds), seconds + postWait(from, seconds))
+      // An earlier leg whose hand preparation cannot be planned leaves the estimate infinite: that route sorts last, and
+      // the post-action forecast is never asked about an infinite clock.
+      seconds = Math.max((from.postActionV120 && Number.isFinite(seconds) ? Math.max(seconds + Math.max(g.transferSeconds,g.preparationSeconds), seconds + postWait(from, seconds))
         : seconds + Math.max(g.transferSeconds,g.preparationSeconds)) + flight, g.receiverArrivalSeconds) + g.acquisitionSeconds;
       risk += g.directionRecoveryCostSeconds;
     }

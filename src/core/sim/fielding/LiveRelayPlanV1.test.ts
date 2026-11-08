@@ -56,6 +56,13 @@ it('V120 holder release waits in parallel and absent or completed action preserv
       provenance: { ...expired.knownAction.provenance, validThroughSeconds: 2.1 } } } }, actor('receiver', 90)] })).toThrow(/stale action/);
 });
 
+it('V120 ranks a relay behind a holder whose hand preparation cannot be planned without asking the forecast about an infinite clock', () => {
+  // The holder's glove moves faster than its motor allows, so its hand preparation has no plan and its legs cost Infinity.
+  const holder = { ...actor('holder', 0, 16), gloveVelocity: v(0, 0, 20) },
+    raw = { ...input(90), actors: [holder, postActorV120(actor('cutoff', 20, 38), 3), actor('receiver', 90)] };
+  const result = planLiveRelayV1(raw);
+  expect(result.diagnostics.evaluatedRouteCount).toBeGreaterThanOrEqual(1);
+});
 it('prefers a feasible direct throw over an unnecessary relay and preserves immutable current-state input', () => {
   const raw = { ...input(), actors: [...input().actors, actor('spare', 10)] }, before = JSON.stringify(raw), result = planLiveRelayV1(raw);
   expect(result.kind).toBe('direct'); expect(result.legs).toHaveLength(1); expect(result.firstHop?.receiverPlayerId).toBe('receiver');
