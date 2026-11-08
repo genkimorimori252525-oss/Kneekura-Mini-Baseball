@@ -181,8 +181,16 @@ function buildSpeedSegments(route: RunnerRoute, initialSpeed: number, profile: L
   const segments: LiveRunnerMotionSpeedSegmentV1[] = [];
   let time = 0, distance = 0;
   for (let i = 0; i < lengths.length; i++) {
-    const plan = buildLiveSpeedPlanV84({ profile, distanceMeters: lengths[i], initialSpeedMps: speeds[i],
+    let plan = buildLiveSpeedPlanV84({ profile, distanceMeters: lengths[i], initialSpeedMps: speeds[i],
       finalSpeedMps: speeds[i + 1], speedLimitMps: caps[i] });
+    // The reachable speed and the plan sum the propulsion bands differently, and on a short piece the plan can find the
+    // reachable end speed a few rounding steps out of reach. Ending that piece a hair slower keeps the route (2026-11-08: a
+    // runner told to hold at third got no stop at all from a 0.26 m opening arc, and ran on home).
+    for (let k = 9; !plan && k >= 6 && speeds[i + 1] > speeds[i]; k--) {
+      const slower = Math.max(speeds[i], speeds[i + 1] * (1 - 10 ** -k));
+      plan = buildLiveSpeedPlanV84({ profile, distanceMeters: lengths[i], initialSpeedMps: speeds[i], finalSpeedMps: slower, speedLimitMps: caps[i] });
+      if (plan) speeds[i + 1] = slower;
+    }
     if (!plan) return null;
     segments.push(...plan.segments.map(s => ({ ...s,
       startElapsedSeconds: s.startElapsedSeconds + time, endElapsedSeconds: s.endElapsedSeconds + time,
