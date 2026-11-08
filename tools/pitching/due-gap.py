@@ -7,7 +7,7 @@ G = {'changeup': 'OS', 'splitter': 'OS', 'slider': 'BR', 'sweeper': 'BR', 'curve
 R = []
 for f in glob.glob(f'{sys.argv[1]}/g-{sys.argv[2]}-*.jsonl'):
     if f.count('.jsonl') > 1: continue
-    lg = f.rsplit('-', 2)[0]; R += [dict(r, lg=lg) for r in map(json.loads, open(f, encoding='utf8'))]
+    lg = f.rsplit('-', 2)[1]; R += [dict(r, lg=lg) for r in map(json.loads, open(f, encoding='utf8'))]
 fb = collections.defaultdict(list)
 for r in R:
     if r['pitch'] in ('fastball', 'sinker'): fb[(r['lg'], r['pitcher'])].append(r['kmh'] / 1.609)

@@ -33,7 +33,7 @@ else:
         R = []
         for f in glob.glob(f'{sys.argv[2]}/g-{tag}-*.jsonl'):
             if f.count('.jsonl') > 1: continue
-            lg = f.rsplit('-', 2)[0]
+            lg = f.rsplit('-', 2)[1]
             R += [dict(r, lg=lg) for r in map(json.loads, open(f, encoding='utf8'))]
         fb = collections.defaultdict(list)
         for r in R:
