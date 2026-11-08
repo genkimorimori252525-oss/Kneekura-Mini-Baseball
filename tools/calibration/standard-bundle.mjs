@@ -8,6 +8,9 @@ import {readFileSync, writeFileSync} from 'node:fs';
 export const STANDARD_BATTER_V1 = {attackAngleDegrees: 11, chaseMarginMeters: .2, contactDepthMeters: .44};
 export const STANDARD_SWING_DECISION_V1 = {threshold: .48};
 export const STANDARD_PITCHER_V1 = {commandStdMeters: .19, contactDepthMeters: .44};
+// Bundle 4 (2026-11-08): every player rounds a base on an 8 m radius (4.5 was the Host default). Paired replays of the same
+// singles put home-to-first / first-to-third / second-to-home at .746/.756/.817 of sprint speed (MLB .72/.78/.82-.84).
+export const STANDARD_RUNNER_V1 = {baserunningTurnRadiusMeters: 8};
 const [inPath, outPath] = process.argv.slice(2);
 const config = JSON.parse(readFileSync(inPath, 'utf8'));
 for (const player of config.players) {
@@ -16,5 +19,6 @@ for (const player of config.players) {
     if (player.physical.swingDecision) player.physical.swingDecision = {...player.physical.swingDecision, ...STANDARD_SWING_DECISION_V1};
   }
   if (/-p\d+$/.test(player.playerId)) Object.assign(player.physical, STANDARD_PITCHER_V1);
+  Object.assign(player.physical, STANDARD_RUNNER_V1);
 }
 writeFileSync(outPath, JSON.stringify(config));
