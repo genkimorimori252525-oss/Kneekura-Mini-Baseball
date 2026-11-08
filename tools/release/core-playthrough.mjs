@@ -89,6 +89,8 @@ const pitchRecord = (r, seed) => {
     timing: d.timingErrorSeconds ?? null, exit: v ? {kmh: Math.hypot(v.x, v.y, v.z) * 3.6, launch: Math.atan2(v.y, Math.hypot(v.x, v.z)) * 180 / Math.PI, spray: Math.atan2(v.x, v.z) * 180 / Math.PI} : null,
     hitBases: s?.hitBases ?? null, homeRuns: s?.homeRuns ?? null, runs: r.match.score.away + r.match.score.home - b.score.away - b.score.home, finished: r.finished,
     basesBefore: occupied(b.bases), basesAfter: occupied(r.match.bases), outsAfter: r.match.outs, halfAfter: r.match.half, spin: battedSpin(p.contact, r.batterPlayerId),
+    // A play the field world could not finish (the simple model or a scored stand-in took over) is marked, with the reason.
+    ...(p.contact?.fieldFallbackV1 ? {fieldFallback: p.contact.fieldFallbackV1, fieldNull: !p.field} : {}), ...(d.pitchFallbackV1 ? {pitchFallback: d.pitchFallbackV1.reason ?? 'unknown', pitchFallbackKeys: Object.keys(d.pitchFallbackV1)} : {}),
     ...(d.pitchRecognitionV2 ? {recog: {ok: d.pitchRecognitionV2.recognized, read: d.pitchRecognitionV2.readId}} : {}), ...(d.zoneIntentV1 ? {zint: {moved: d.zoneIntentV1.moved, wantIn: d.zoneIntentV1.wantIn}} : {}),
     ...(opt.miss && d.courseRecognitionV87?.batter ? {miss: missRecord(r, d)} : {}), ...(d.courseRecognitionV87?.pitcher && opt.aim ? {aim: {req: d.courseRecognitionV87.pitcher.requestedPosition, sel: d.courseRecognitionV87.pitcher.selectedPosition, loc: d.courseRecognitionV87.pitcher.selectedLocation}} : {})};
 };
