@@ -2702,7 +2702,10 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
           const leadOn = runners.some(x => x !== r && !x.retired && !x.scored && x.base >= 1 && x.leg && !x.leg.returning && !x.leg.halfway && !x.leg.turnV1 && x.leg.holdAtTouchV1 === undefined
             && (x.leg.motion.touches.slice(x.leg.nextTouchIndex).some(b => b.base >= 3) || x.base >= 2 && x.leg.to >= 3));
           const sources = seen && !seen.holder ? runnerSourcesV95(seen) : [], touchAt = sources.length ? seen!.t + Math.min(...sources.map(q => q.readySeconds)) : -Infinity;
-          return leadOn || touchAt - start >= LIVE_RUNNER_TRAIL_CALIBRATION_V1.gapTouchSeconds; })() : false;
+          // With the man ahead going on, the throw may still be cut off and turned on him: he goes only on beating the nearest man
+          // to the ball as it is now (2026-11-08: with one out, 18 of 71 singles had the batter thrown out at second that way).
+          const floor = leadOn ? trailFloorV1(r, n + 1) : null;
+          return leadOn && floor !== null && floor - arrival > marginV1(r, n + 1, false) || touchAt - start >= LIVE_RUNNER_TRAIL_CALIBRATION_V1.gapTouchSeconds; })() : false;
         // runnerTrailV1: a man coming on behind to this bag, already committed, leaves no room to stay on it: he goes on.
         const pressedV1 = !!trailRunnerV1 && runners.some(y => y !== r && !y.retired && !y.scored && y.base < n && y.leg && !y.leg.halfway && !y.leg.returning
           && !y.leg.turnV1 && y.leg.holdAtTouchV1 === undefined && y.leg.motion.touches.slice(y.leg.nextTouchIndex).some(b => b.base === n));
