@@ -281,7 +281,8 @@ type Leg = { from: number; to: BaseballBase; motion: LiveRunnerMotionV1; nextTou
   departure: { base: BaseballBase; elapsedSeconds: number } | null; returning?: boolean; halfway?: true;
   /** runnerLinerHoldV1: a lead runner going back to his bag on a read of a catch, free to stop when the read clears. */backToBagV1?: true;
   /** runnerTrailV1: the batter's turn at first pulled up past the bag, where he waits on the man ahead. */holdPastV1?: true;
-  /** runnerTrailV1: the batter's turn at first not yet called: unless he goes on first, he pulls up past the bag on touching it. */holdAtTouchV1?: true;
+  /** runnerTrailV1: a turn not yet called (the batter at first, a runner at second): unless he goes on first, he pulls up past
+   * the bag on touching it. The bag. */holdAtTouchV1?: BaseballBase;
   /** runnerTurnV1: taking `base` at speed toward the next bag, still free to pull up on it. */turnV1?: { base: BaseballBase } };
 type Runner = { spec: LiveRunnerV1; base: number; p: Vec3; leg: Leg | null; retired: boolean; scored: boolean;
   retiredSlideV115?:Leg;
@@ -2616,7 +2617,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       if (!previous || previous.targetBase !== next || previous.reason !== decision.reason || decision.advance)
         runnerDecisions.push({ elapsedSeconds: t, runnerId: r.spec.runnerId, targetBase: next, defenderControlSeconds, ...decision });
       if (decision.advance && !(r.base === 0 && flyCatch) && !(dead && awardTarget === null)) { r.pastFirstV1 = undefined; beginLeg(r, next as BaseballBase, t, defenderControlSeconds); }
-      else if (r.pastFirstV1 && r.base === 1 && (possession || pendingCatch || hasThrown) && beginBackToBagV1(r, t)) r.pastFirstV1 = undefined;
+      else if (r.pastFirstV1 && r.base >= 1 && (possession || pendingCatch || hasThrown) && beginBackToBagV1(r, t)) r.pastFirstV1 = undefined;
     }
     // runnerTurnV1: once the ball is through the infield, a runner takes his bag at speed bent toward the next one and
     // makes his call at the last look from which he can still pull up on it. Every estimate is the same one a stop uses.
@@ -2674,14 +2675,26 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
           defense = forecast === null ? (trailRunnerV1 && hitReadV1(r, n + 1) ? n + 1 === 4 ? trailFloorV1(r, n + 1) : Infinity : null)
             : Math.min(forecast + (seen && !seen.holder ? c.looseBallAllowanceSeconds : 0), trailRunnerV1 && hasThrown ? trailFloorV1(r, n + 1) ?? Infinity : Infinity),
           arrival = leg.from + nextTouch.elapsedSeconds - t;
-        const goV1 = !(trailRunnerV1 ? trailOccupiedV1(r, n + 1) : targetOccupiedByOther(r, n + 1)) && defense !== null && defense - arrival > marginV1(r, n + 1, false);
+        // runnerTrailV1, the batter at first: a man ahead going on past second draws the throw (the defense goes after him, so the
+        // batter's race is not a throw to second); a ball in the gap or to the wall, which no outfielder is forecast to touch
+        // before gapTouchSeconds after contact, he takes second on from the box.
+        const batterReadV1 = trailRunnerV1 && r.spec.initialBase === 0 && n === 1 ? (() => {
+          const leadOn = runners.some(x => x !== r && !x.retired && !x.scored && x.base >= 1 && x.leg && !x.leg.returning && !x.leg.halfway && !x.leg.turnV1 && x.leg.holdAtTouchV1 === undefined
+            && (x.leg.motion.touches.slice(x.leg.nextTouchIndex).some(b => b.base >= 3) || x.base >= 2 && x.leg.to >= 3));
+          const sources = seen && !seen.holder ? runnerSourcesV95(seen) : [], touchAt = sources.length ? seen!.t + Math.min(...sources.map(q => q.readySeconds)) : -Infinity;
+          return leadOn || touchAt - start >= LIVE_RUNNER_TRAIL_CALIBRATION_V1.gapTouchSeconds; })() : false;
+        // runnerTrailV1: a man coming on behind to this bag, already committed, leaves no room to stay on it: he goes on.
+        const pressedV1 = !!trailRunnerV1 && runners.some(y => y !== r && !y.retired && !y.scored && y.base < n && y.leg && !y.leg.halfway && !y.leg.returning
+          && !y.leg.turnV1 && y.leg.holdAtTouchV1 === undefined && y.leg.motion.touches.slice(y.leg.nextTouchIndex).some(b => b.base === n));
+        const goV1 = !(trailRunnerV1 ? trailOccupiedV1(r, n + 1) : targetOccupiedByOther(r, n + 1))
+          && (pressedV1 || batterReadV1 || defense !== null && defense - arrival > marginV1(r, n + 1, false));
         if (trailRunnerV1) { const previous = runnerDecisions.slice().reverse().find(d => d.runnerId === r.spec.runnerId), reason = goV1 ? 'turn_go_v1' as const : 'turn_wait_v1' as const;
           if (previous?.reason !== reason) runnerDecisions.push({ elapsedSeconds: t, runnerId: r.spec.runnerId, targetBase: n + 1, defenderControlSeconds: defense, advance: goV1, reason,
             readyAtElapsedSeconds: null, runnerTravelSeconds: arrival, runnerArrivalSeconds: arrival, raceMarginSeconds: defense === null ? null : defense - arrival }); }
         if (goV1) { delete leg.turnV1; delete leg.holdAtTouchV1; return true; }
         // runnerTrailV1: the batter at first, with the ball still loose, keeps his turn and makes the call again at each look up
         // to his touch of the bag; still held up then, he stops a few metres past it and waits on the man ahead.
-        if (trailRunnerV1 && r.spec.initialBase === 0 && n === 1 && !seen?.holder) { leg.holdAtTouchV1 = true; return true; }
+        if (trailRunnerV1 && (r.spec.initialBase === 0 && n === 1 || n === 2) && !seen?.holder) { leg.holdAtTouchV1 = n as BaseballBase; return true; }
         const stop = turnMotorV1(r, runnerAt(r, t), runnerVelocityAt(r, t), [n]);
         turnPulledUpV1.add(r.spec.runnerId + ':' + n);
         if (stop) replaceLegV1(r, leg, stop, undefined); else delete leg.turnV1;
@@ -3338,7 +3351,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
             leg.departure = { base: r.base as BaseballBase, elapsedSeconds: leg.from + hi };
           }
         }
-        if (leg.holdAtTouchV1 && touch.base === 1) {
+        if (leg.holdAtTouchV1 !== undefined && touch.base === leg.holdAtTouchV1) {
           // He pulls up straight ahead of him (on the bend he cannot turn onto the line to second within a few metres): at least
           // holdPastFirstMeters past the bag, and far enough to brake from his speed.
           const p = runnerAt(r, time), vel = runnerVelocityAt(r, time), speed = Math.hypot(vel.x, vel.z),
@@ -3349,13 +3362,13 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
               lateralAccelerationMps2: r.spec.lateralAccelerationMps2 ?? 1.5 * r.spec.accelerationMps2, baseTouchRadiusMeters: field.baseTouchRadiusMeters ?? .28 }) : null;
           if (raw) {
             const motion: LiveRunnerMotionV1 = Object.freeze({ ...raw, touches: [] });
-            r.leg = { from: time, to: 1, motion, nextTouchIndex: 0, height: p.y, departure: null, halfway: true, holdPastV1: true }; r.pastFirstV1 = true;
+            r.leg = { from: time, to: touch.base as BaseballBase, motion, nextTouchIndex: 0, height: p.y, departure: null, halfway: true, holdPastV1: true }; r.pastFirstV1 = true;
             runnerMotions.push({ elapsedSeconds: time, runnerId: r.spec.runnerId, throughBases: [], position: p, velocity: runnerVelocityAt(r, time),
               durationSeconds: motion.durationSeconds, lengthMeters: motion.lengthMeters, route: motion.route });
-            scheduleDeparture(r.leg, 1, 0, motion.durationSeconds);
-          } else { const stop = createLiveRunnerMotionV1({ position: p, velocity: vel, bases: [{ base: 1, position: v(p.x + 1e-3, p.y, p.z) }], topSpeedMps: r.spec.topSpeedMps,
+            scheduleDeparture(r.leg, touch.base as BaseballBase, 0, motion.durationSeconds);
+          } else { const stop = createLiveRunnerMotionV1({ position: p, velocity: vel, bases: [{ base: touch.base as BaseballBase, position: v(p.x + 1e-3, p.y, p.z) }], topSpeedMps: r.spec.topSpeedMps,
               accelerationMps2: r.spec.accelerationMps2, baseTouchRadiusMeters: field.baseTouchRadiusMeters ?? .28 });
-            if (stop) { r.leg = { from: time, to: 1, motion: Object.freeze({ ...stop, touches: [] }), nextTouchIndex: 0, height: p.y, departure: null, halfway: true }; } }
+            if (stop) { r.leg = { from: time, to: touch.base as BaseballBase, motion: Object.freeze({ ...stop, touches: [] }), nextTouchIndex: 0, height: p.y, departure: null, halfway: true }; } }
         }
         runnerTouches.push({ kind: 'runner_base_touch', runnerId: r.spec.runnerId, base: touch.base as BaseballBase, tick: tick(time) });
         emit('runner_base_touch', time, { runnerId: r.spec.runnerId, base: touch.base as BaseballBase, position: runnerTouchPointV115(r,time) });
