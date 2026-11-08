@@ -125,6 +125,14 @@ it('checks the contact physics switches: post-contact hold, barrel ringing, unde
   expect(validateLiveBatterObservationPolicyV151({ ...valid, barrelVibrationLossV1:[.1, .145] }).barrelVibrationLossV1).toEqual([.1, .145]);
 });
 
+it('checks the undercut by pitch height: [metres per zone height, reference fraction]', () => {
+  const valid = policy();
+  for (const candidate of [{ ...valid, undercutByHeightV1:[.01] }, { ...valid, undercutByHeightV1:[-.01, .2] }, { ...valid, undercutByHeightV1:[.06, .2] },
+    { ...valid, undercutByHeightV1:[.01, 3] }, { ...valid, undercutByHeightV1:[.01, Number.NaN] }, { ...valid, undercutByHeightV1:.01 }])
+    expect(() => validateLiveBatterObservationPolicyV151(candidate)).toThrow();
+  expect(validateLiveBatterObservationPolicyV151({ ...valid, undercutByHeightV1:[.01, .2] }).undercutByHeightV1).toEqual([.01, .2]);
+});
+
 it('accepts pitch familiarity only with the league reference pitches, and checks both', () => {
   const ref = { R:[{ pitchType:'fastball', spinRadPerSecond:{ x:200, y:-90, z:110 } }], L:[{ pitchType:'fastball', spinRadPerSecond:{ x:200, y:90, z:-110 } }] };
   expect(validateLiveBatterObservationPolicyV151({ ...policy(), pitchFamiliarityV1:[.3, .05, .9], leagueReferencePitchesV1:ref }).pitchFamiliarityV1).toEqual([.3, .05, .9]);

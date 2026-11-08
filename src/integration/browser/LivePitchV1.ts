@@ -830,7 +830,10 @@ export function simulateLivePitchV1(raw:LivePitchInputV1, opticalExperiment?:Rea
     sourceTick:effectiveForecastV246?.observedThroughTick??observationTick,observationTick,planeZ:battingSetupV94.contactPlaneZ,standardDeviationMeters:judgmentStd,baselineErrorMeters:judgmentError,abilityBasis:'zoneJudgmentStdMeters'}),
     judgmentPosition={...decisionPositionV1,...batterRecognition.position},recognitionAimOffset=batterRecognition.diagnostics.biasMeters,
     // undercutAimV1: a swing aims the sweet spot this far under the ball's centre, as hitters who lift the ball do.
-    undercutV1=input.batting==='bunt'?0:b.undercutAimMeters??observationPolicyV151?.undercutAimV1??0,
+    // undercutByHeightV1 [m per zone height, reference fraction]: more undercut on higher pitches (MLB lifts high pitches more).
+    undercutByHeightV1=observationPolicyV151?.undercutByHeightV1,
+    undercutV1=input.batting==='bunt'?0:(b.undercutAimMeters??observationPolicyV151?.undercutAimV1??0)
+      +(undercutByHeightV1===undefined?0:undercutByHeightV1[0]!*Math.max(0,(placementPositionV1.y-zone.lowerY)/(zone.upperY-zone.lowerY)-undercutByHeightV1[1]!)),
     // judgmentAimShareV1: the misjudged location that decided the swing also moves the bat; the late look corrects it like a misread.
     // misreadExpectBatV1: the bat also takes this share of misreadExpectShareV1's pull toward the expected place (the swing path is
     // set on the belief that decided it, as placementJudgedV1); the late look corrects it like a misread (2026-11-07).

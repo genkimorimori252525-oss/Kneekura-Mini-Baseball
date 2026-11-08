@@ -39,6 +39,10 @@ export type LiveBatterObservationPolicyV151 = Readonly<{
   /** Metres the swing aims the sweet spot below the ball's centre (0..0.05). Hitters who lift the ball meet it under centre,
    * which gives line drives their backspin; aimed at the centre, a rising bat tops them. */
   undercutAimV1?:number;
+  /** [metres per zone height, reference zone fraction]: the undercut grows by the first value for each zone height the pitch
+   * sits above the reference (0 below it). MLB hitters lift high pitches far more than low ones (2025 bat tracking: in-play
+   * launch angle median +9° in the bottom third, +22° middle, +32° top) and pop many of them foul (2026-11-08). */
+  undercutByHeightV1?:readonly number[];
   /** Scale on the up-down part of the swing's aim error (0..2). Every swing missing by the same spread spread the launch angles
    * wider than MLB's; a tighter aim with the fooled swings of priorFooledChanceV1 keeps the misses. */
   aimVerticalScaleV1?:number;
@@ -309,6 +313,9 @@ export function validateLiveBatterObservationPolicyV151(raw:unknown):LiveBatterO
   if(Object.hasOwn(p,'viewTimeTimingV1')){keys.push('viewTimeTimingV1');assert(typeof p.viewTimeTimingV1==='number'&&p.viewTimeTimingV1>=0&&p.viewTimeTimingV1<=6,'invalid view time timing');}
   if(Object.hasOwn(p,'aimVerticalScaleV1')){keys.push('aimVerticalScaleV1');assert(typeof p.aimVerticalScaleV1==='number'&&p.aimVerticalScaleV1>=0&&p.aimVerticalScaleV1<=2,'invalid vertical aim scale');}
   if(Object.hasOwn(p,'undercutAimV1')){keys.push('undercutAimV1');assert(typeof p.undercutAimV1==='number'&&p.undercutAimV1>=0&&p.undercutAimV1<=.05,'invalid undercut aim');}
+  if(Object.hasOwn(p,'undercutByHeightV1')){keys.push('undercutByHeightV1');assert(Array.isArray(p.undercutByHeightV1)&&p.undercutByHeightV1.length===2
+    &&p.undercutByHeightV1.every(x=>typeof x==='number'&&Number.isFinite(x))&&p.undercutByHeightV1[0]>=0&&p.undercutByHeightV1[0]<=.05
+    &&p.undercutByHeightV1[1]>=-1&&p.undercutByHeightV1[1]<=2,'invalid undercut by height');}
   if(Object.hasOwn(p,'postContactHoldV1')){keys.push('postContactHoldV1');assert(typeof p.postContactHoldV1==='boolean','invalid post-contact hold');}
   if(Object.hasOwn(p,'contactSpeedCeilingV1')){keys.push('contactSpeedCeilingV1');assert(typeof p.contactSpeedCeilingV1==='boolean','invalid contact speed ceiling');}
   if(Object.hasOwn(p,'twoStrikeExpansionV1')){keys.push('twoStrikeExpansionV1');assert(Number.isFinite(p.twoStrikeExpansionV1)&&p.twoStrikeExpansionV1!>=0&&p.twoStrikeExpansionV1!<=1,'invalid two strike expansion');}
