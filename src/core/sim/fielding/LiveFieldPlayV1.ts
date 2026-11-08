@@ -2526,6 +2526,24 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
           clear = !a || a.catchMarginSeconds < -marginV1(r, r.base + 1, false) || holdsLeadV1(r, t, a, runnerAt(r, t));
         if (clear) { r.carryV1 = { t, velocity: runnerVelocityAt(r, t) }; r.p = runnerAt(r, t); r.leg = null; }
       }
+      // runnerTrailV1: the bag he is running to is held by a man who has stopped on it: he goes back to his own (a batter at first
+      // excepted, the man there being forced on). Two on one bag made the rule reducer reject the play.
+      if (trailRunnerV1 && !r.retired && !r.scored && r.base >= 1 && r.leg && !r.leg.returning && !r.leg.halfway) {
+        const next = r.leg.motion.touches[r.leg.nextTouchIndex]?.base;
+        if (next !== undefined && next > r.base && runners.some(x => x !== r && !x.retired && !x.scored && x.base === next
+          && (!x.leg || x.leg.halfway || x.leg.returning || x.leg.to <= x.base))) {
+          // A trip back he must finish (not the liner hold's read-driven one, which stops when the read clears).
+          if (beginBackToBagV1(r, t)) { delete r.leg!.backToBagV1; continue; }
+          // Running away from his bag too fast to turn straight back: he pulls up ahead first, then goes back once a fielder has it.
+          const p = runnerAt(r, t), vel = runnerVelocityAt(r, t), speed = Math.hypot(vel.x, vel.z);
+          if (speed > 1e-6) { const ahead = 1.5 * speed * speed / (2 * 1.8 * r.spec.accelerationMps2) + .5,
+              stop = createLiveRunnerMotionV1({ position: p, velocity: vel, bases: [{ base: next as BaseballBase, position: v(p.x + vel.x / speed * ahead, p.y, p.z + vel.z / speed * ahead) }],
+                topSpeedMps: r.spec.topSpeedMps, accelerationMps2: r.spec.accelerationMps2, roundingRadiusMeters: r.spec.roundingRadiusMeters ?? 4.5,
+                lateralAccelerationMps2: r.spec.lateralAccelerationMps2 ?? 1.5 * r.spec.accelerationMps2, baseTouchRadiusMeters: field.baseTouchRadiusMeters ?? .28 });
+            if (stop) { r.leg = { from: t, to: r.base as BaseballBase, motion: Object.freeze({ ...stop, touches: [] }), nextTouchIndex: 0, height: p.y, departure: null, halfway: true };
+              r.pastFirstV1 = true; continue; } }
+        }
+      }
       if (r.retired || r.scored || r.leg) continue;
       // runnerShuffleV1: with two out a runner on first or second went on the release; at contact his leg is under way.
       if (shuffleV1 && !loose && t === start && input.outs === 2 && (r.base === 1 || r.base === 2) && r.base === r.spec.initialBase
@@ -2617,7 +2635,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       if (!previous || previous.targetBase !== next || previous.reason !== decision.reason || decision.advance)
         runnerDecisions.push({ elapsedSeconds: t, runnerId: r.spec.runnerId, targetBase: next, defenderControlSeconds, ...decision });
       if (decision.advance && !(r.base === 0 && flyCatch) && !(dead && awardTarget === null)) { r.pastFirstV1 = undefined; beginLeg(r, next as BaseballBase, t, defenderControlSeconds); }
-      else if (r.pastFirstV1 && r.base >= 1 && (possession || pendingCatch || hasThrown) && beginBackToBagV1(r, t)) r.pastFirstV1 = undefined;
+      else if (r.pastFirstV1 && r.base >= 1 && (possession || pendingCatch || hasThrown) && beginBackToBagV1(r, t)) { delete r.leg!.backToBagV1; r.pastFirstV1 = undefined; }
     }
     // runnerTurnV1: once the ball is through the infield, a runner takes his bag at speed bent toward the next one and
     // makes his call at the last look from which he can still pull up on it. Every estimate is the same one a stop uses.
@@ -3473,7 +3491,8 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
     if (releaseOpen && time >= releaseOpen.catchEnabledAfter) releaseOpen = null;
     if (retiredCount + input.outs >= 3) { endReason = 'third_out'; terminal = true; }
     const retiredSlidesCompleteV115 = runners.every(r => !r.retiredSlideV115 || time >= r.retiredSlideV115.from + r.retiredSlideV115.motion.durationSeconds);
-    const runnersComplete = retiredSlidesCompleteV115 && runners.every(r => r.retired || r.retouchBase === null && !r.leg && (r.scored || r.base > 0 || !!flyCatch));
+    // runnerTrailV1: a man standing past his bag after pulling up is not done until he is back on it.
+    const runnersComplete = retiredSlidesCompleteV115 && runners.every(r => r.retired || r.retouchBase === null && !r.leg && !r.pastFirstV1 && (r.scored || r.base > 0 || !!flyCatch));
     if (overFence?.fair && overFence.untouchedGround && retiredSlidesCompleteV115 && runners.every(r => r.retired || r.scored && !r.leg)) { endReason = 'home_run_completed'; terminal = true; }
     const awardedFence = overFence;
     if (awardedFence?.fair && !awardedFence.untouchedGround && retiredSlidesCompleteV115 && runners.every(r => r.retired || !r.leg && r.base >= Math.min(4, (awardedFence.awardFrom?.[r.spec.runnerId] ?? r.spec.initialBase) + 2))) { endReason = 'ground_rule_award_completed'; terminal = true; }
