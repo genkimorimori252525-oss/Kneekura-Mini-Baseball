@@ -1,0 +1,53 @@
+/* Keep the established light palette and canvas artwork. */
+.maker-layout-v112 header{display:flex;align-items:center;gap:10px 16px;padding-bottom:12px}
+.maker-layout-v112 header>div:first-child{flex:1 1 340px}
+.maker-layout-v112 header .actions{order:2}
+.maker-layout-v112 .maker-mode-v112{flex-basis:auto;width:auto;margin:0;order:3}
+.maker-layout-v112 .maker-audio-v112{order:4;flex:0 1 auto;margin:0;padding:0;border:0;position:relative}
+.maker-layout-v112 .maker-audio-v112>summary{min-height:40px;display:flex;align-items:center;padding:8px 12px;border:1px solid #a5bfad;border-radius:7px;background:#fff}
+.maker-layout-v112 .maker-audio-v112[open]{flex-basis:100%;border-top:1px solid #c4d7ca;padding-top:8px}
+.maker-layout-v112 .maker-redundant-v112{display:none!important}
+.maker-layout-v112 .tabs{margin:14px 0;gap:7px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
+.maker-layout-v112 .tabs button{min-width:0;max-width:none;padding:9px 7px}
+.maker-layout-v112 .comparison-shortcuts{margin:0 0 12px;gap:8px;display:flex;flex-wrap:wrap}
+.maker-layout-v112 .comparison-shortcuts button{font-size:12px;min-height:34px}
+.maker-layout-v112 .maker-disclosure-v112{border-top:1px solid #d2dfd6;margin:10px 0;padding:8px 0 0;min-width:0;grid-column:1/-1}
+.maker-layout-v112 .maker-disclosure-v112>summary{font-size:12px;line-height:1.5;padding:6px 2px;color:#365a43;width:fit-content;max-width:100%}
+.maker-layout-v112 .maker-disclosure-v112[open]>summary{font-weight:700;color:#245b39}
+.maker-layout-v112 .maker-disclosure-v112 .maker-guide-card-v85{position:static;margin:8px 0 0;padding:12px;box-shadow:none}
+.maker-layout-v112 .maker-guide-content-v85{min-height:0}
+.maker-layout-v112 .maker-public-guide-layout-v85{display:block}
+.maker-layout-v112 #live-public-abilities{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 14px}
+.maker-layout-v112 #live-public-abilities>h3,.maker-layout-v112 #live-public-abilities>details{grid-column:1/-1;margin:8px 0 0}
+.maker-layout-v112 #live-public-abilities>.control{margin:0;padding:10px}
+.maker-layout-v112 #live-public-abilities .public-grade+.maker-help-button{display:none}
+.maker-layout-v112 #live-public-secondary>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.maker-layout-v112 #batting-setup-v94{margin:6px 0 0}
+.maker-layout-v112 .pitcher-lab{margin-top:0}
+.maker-layout-v112 #pitcher-owned-actions-v82{margin:8px 0 12px;display:flex;flex-wrap:wrap;gap:5px}
+.maker-layout-v112 #pitcher-owned-actions-v82 button{font-size:11px;min-height:32px;margin:0;padding:6px}
+.maker-layout-v112 #pitcher-owned-actions-v82 p{flex-basis:100%;margin:0}
+.maker-layout-v112 .pitcher-lab-box>.maker-disclosure-v112{margin:6px 0;padding-top:4px}
+.maker-layout-v112 #fieldlab-player-panel>.maker-disclosure-v112{margin:6px 0}
+.maker-layout-v112 #fieldlab-player-meta:empty,.maker-layout-v112 .status:empty{display:none}
+.maker-layout-v112 #course-direction-input-v79 .course-spray-list-v79{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.maker-layout-v112 .course-direction-buttons-v79>.maker-help-button{display:none}
+.maker-layout-v112 #swing-bat-length-cm,.maker-layout-v112 #swing-bat-mass-g,.maker-layout-v112 #swing-equipment-status:not(.error){display:none}
+@media(max-width:850px){
+ .maker-layout-v112 header>div:first-child{flex-basis:100%}
+ .maker-layout-v112 header .actions{order:3}
+ .maker-layout-v112 .maker-mode-v112{order:2}
+ .maker-layout-v112 .tabs{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .maker-layout-v112 #live-public-abilities,.maker-layout-v112 #live-public-secondary>div{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:440px){
+ .maker-layout-v112 header{gap:8px}
+ .maker-layout-v112 header h1{font-size:19px}
+ .maker-layout-v112 header .actions button,.maker-layout-v112 .maker-mode-v112 button{font-size:12px;padding:7px 9px}
+ .maker-layout-v112 #live-public-abilities{gap:8px}
+ .maker-layout-v112 #live-public-abilities>.control{padding:8px}
+ .maker-layout-v112 #live-public-abilities .control{grid-template-columns:52px minmax(0,1fr);gap:6px}
+ .maker-layout-v112 #live-public-abilities .public-grade{font-size:23px;padding-right:12px}
+ .maker-layout-v112 #live-public-abilities .control>input[data-public-ability]{padding:7px 5px}
+ .maker-layout-v112 #live-public-abilities .public-grade:not([data-rank]){font-size:12px}
+}

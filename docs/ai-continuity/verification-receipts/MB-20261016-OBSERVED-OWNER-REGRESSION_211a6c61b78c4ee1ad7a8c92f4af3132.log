@@ -1,0 +1,26 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/SamePlateAppearanceDispatchOwner.test.ts (16 tests) 230837ms
+   ✓ DO01 missing accepted Sources stay pending and reads never bootstrap the exact namespace 11923ms
+   ✓ DO02 exact action acceptance bootstraps ten tables and freezes the original actor geometry and delivery inputs 12073ms
+   ✓ DO03 foreign original actor equipment stale ready time and missing explicit geometry reject before schema writes 12179ms
+   ✓ DO04 one canonical exact32 calibration operation writes all32 once and retains each nominal and effective hash 16063ms
+   ✓ DO05 omitted duplicate aliased foreign and reused provenance calibration inputs cannot create partial sets 13912ms
+   ✓ DO06 exact retry uses historical view while fresh prerequisite acceptance rejects actual v2 work 13849ms
+   ✓ DO10 partial live authority cannot hide a changed saved calibration Source on exact retry 15236ms
+   ✓ DO11 actual forced commit preserves all32 durable rows and retires the owner without compensating repair 12985ms
+   ✓ DO12 unexpected durable mutation at the single INSERT rolls back every calibration row 13652ms
+   ✓ DO13 calibrations wait for the canonical action without inventing a Source id or bootstrapping storage 11489ms
+   ✓ DO14 surviving prerequisite dependencies reject recreation of a deleted action without repair 15653ms
+   ✓ DO15 moved future indexes cannot hide a typed reference to the original prospective action 18575ms
+   ✓ DO16 a nominal pitcher Person mismatch cannot hide behind an equal career and Player identity 10824ms
+   ✓ DO07 missing calibration is pending and complete preparation accepts a right without future operation inputs 23232ms
+   ✓ DO08 changed Sources nominal owners raw aliases and partial calibration rows reject without repair 16230ms
+   ✓ DO09 deletion of both older namespaces cannot free original player or pitch claims 12960ms
+
+ Test Files  1 passed (1)
+      Tests  16 passed (16)
+   Start at  07:34:54
+   Duration  241.69s (transform 7.12s, setup 0ms, collect 10.63s, tests 230.84s, environment 0ms, prepare 63ms)
+

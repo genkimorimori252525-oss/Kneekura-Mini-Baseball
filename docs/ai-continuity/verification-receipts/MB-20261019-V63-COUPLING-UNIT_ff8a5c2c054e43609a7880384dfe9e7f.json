@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V63-COUPLING-UNIT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v63-swing-coupling.mjs",
+    "../../outputs/verification-v63-swing-coupling"
+  ],
+  "observed_at": "2026-10-18T19:59:21.137+00:00",
+  "elapsed_ms": 9453,
+  "git_head": "ff8b757a14029ff36934c1103bf8fe8837829a77",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V63-COUPLING-UNIT_ff8a5c2c054e43609a7880384dfe9e7f.log",
+  "output_sha256": "3702066329772a2deb24aca907656f9243f00e32631837da3f838bcc8fa029b1",
+  "receipt_id": "MB-20261019-V63-COUPLING-UNIT_ff8a5c2c054e43609a7880384dfe9e7f"
+}

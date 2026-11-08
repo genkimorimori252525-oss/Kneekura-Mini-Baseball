@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V47-FIELD-CAMERA",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-live-field-camera.mjs",
+    "--camera-only",
+    "outputs/v47-camera-formal.json"
+  ],
+  "observed_at": "2026-10-18T07:25:27.699+00:00",
+  "elapsed_ms": 92,
+  "git_head": "61a3afc1d7262e5d787358869d096df55ff8f2ac",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V47-FIELD-CAMERA_e637fdafce9c44f3a2b3d42826d14d59.log",
+  "output_sha256": "3d70772edfa9da866a0137386db74c7ff3bbe6c5ddb226bc8aef736cca7048ae",
+  "receipt_id": "MB-20261018-V47-FIELD-CAMERA_e637fdafce9c44f3a2b3d42826d14d59"
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-BUILD-NATIVE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-native.mjs"
+  ],
+  "observed_at": "2026-10-19T19:51:38.840+00:00",
+  "elapsed_ms": 360,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-BUILD-NATIVE_5ac61885b9684fb59aaf6ff8a8ea923b.log",
+  "output_sha256": "9d8b8df0393510ea9f6334ba3cf086e06b173686b19e8bfd7332dd03293e7b64",
+  "receipt_id": "MB-20261020-V78-BUILD-NATIVE_5ac61885b9684fb59aaf6ff8a8ea923b"
+}

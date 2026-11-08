@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-LOCOMOTION-CORE-TYPECHECK",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-20T15:20:07.885+00:00",
+  "elapsed_ms": 34671,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-LOCOMOTION-CORE-TYPECHECK_aabab65772a94bdc9e01be2668fd6f9d.log",
+  "output_sha256": "a97be8bd46ff1f015e0754327741f750caf06043d44f0f7f4b50cb7f6defe58b",
+  "receipt_id": "MB-20261021-V84-LOCOMOTION-CORE-TYPECHECK_aabab65772a94bdc9e01be2668fd6f9d"
+}

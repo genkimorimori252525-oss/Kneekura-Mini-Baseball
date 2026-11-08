@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V38-FINAL-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-v38.mjs",
+    "../../outputs/ばせぼーるlv38_TBD_vs_LAD_配球と結果表示改善版.html"
+  ],
+  "observed_at": "2026-10-17T03:01:35.812+00:00",
+  "elapsed_ms": 281,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V38-FINAL-BUILD_bea63cd540de4e4ab34073fb21efb971.log",
+  "output_sha256": "a07394a013dd6413480c5ff3969c1fcf7fcab01bd4d27b86c9f1a08702413461",
+  "receipt_id": "MB-20261017-V38-FINAL-BUILD_bea63cd540de4e4ab34073fb21efb971"
+}

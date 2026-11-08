@@ -23,6 +23,7 @@ export type SamePaInitialPlayFixtureInputs = Readonly<{
   venue: Pick<AcceptedSamePaInitialVenue, 'pitcherPlate' | 'rulePolicy'>;
   officialPerson: AcceptedSamePaOfficialPerson;
   assignmentPolicy: AcceptedSamePaLiveBallAssignment['policy'];
+  custodyRole?:'glove'|'tag_hand';
 }>;
 
 /** Applied upstream of initialWorlds.accept, never to an already accepted actor. */
@@ -68,7 +69,8 @@ export const prepareSamePaInitialPlayFixture = (f: InitialPlayFixtureContext,
   if (posture.kind !== 'batting_invocation_posture') throw new Error('real initial posture pending');
   const pitcher = f.actor.world.defenders.find(d => d.registeredPosition === 'P');
   const body = posture.sceneBodies.find(b => b.source.playerId === pitcher?.playerId);
-  const glove = body?.actor.primitives.find(p => p.role === 'glove');
+  const custodyRole=inputs.custodyRole??'glove';
+  const glove = body?.actor.primitives.find(p => p.role === custodyRole);
   if (!pitcher || !body || !glove) throw new Error('real initial pitcher glove missing');
   const zero = { x: 0, y: 0, z: 0 }, clock = { startTick: at, endTick: at, ticksPerSecond: 1_000_000 };
   const held = composeDefenderPhysicalPrimitiveSegment({ ...clock,
@@ -84,7 +86,7 @@ export const prepareSamePaInitialPlayFixture = (f: InitialPlayFixtureContext,
     capability: 'same_pa_initial_ball_setup_v1', enrollmentReference: original.enrollmentReference, viewReference: original.viewReference,
     actionReference: f.request.actionReference, postureReference: reference('batting_observation_v1_postures', posture),
     venueReference: originalReference(venue), firstPhysicalPitchSourceId: original.firstPhysicalPitchSourceId, pitcherPlayerId: pitcher.playerId,
-    custody: { kind: 'explicit_initial_secure_custody_v1', role: 'glove', ball: { tick: at, position: held.startCenter, velocity: zero, spin: zero } } });
+    custody: { kind: 'explicit_initial_secure_custody_v1', role: custodyRole, ball: { tick: at, position: held.startCenter, velocity: zero, spin: zero } } });
   const initial = track(openSqliteSamePlateAppearanceInitialBallStore(f.path, { readAcceptedSetup: get, readAcceptedVenue: get,
     readAcceptedPlay: get, readAcceptedAssignment: get, readAcceptedOfficialPerson: get }));
   const setup = initial.acceptSetup(setupSource.sourceId);

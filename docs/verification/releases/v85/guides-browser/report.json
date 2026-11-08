@@ -1,0 +1,16 @@
+{
+  "pass": false,
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v85_設定解説と比較切替版.html",
+  "sha256": "59190dcbcbcf2d81cf6a38a17fe764e1915412558e0fad0290007633977dbe27",
+  "coreSha256": "89c782901927abe3a1cd615a0ca99fc77132623c72b8b2cd63c54395f4db4c85",
+  "normalRendererUnchanged": true,
+  "cases": [],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    }
+  ],
+  "error": "AssertionError [ERR_ASSERTION]: bat guide visible: {\"visibility\":{\"editor\":false,\"player\":true,\"bat\":false},\"ancestors\":[{\"id\":\"maker-guide-bat-v85\",\"tag\":\"ASIDE\",\"hidden\":false,\"display\":\"block\",\"box\":{\"x\":0,\"y\":0,\"width\":0,\"height\":0,\"top\":0,\"right\":0,\"bottom\":0,\"left\":0}},{\"id\":\"swing-legacy-research\",\"tag\":\"DETAILS\",\"hidden\":false,\"display\":\"block\",\"box\":{\"x\":852,\"y\":2829.765625,\"width\":311,\"height\":33.140625,\"top\":2829.765625,\"right\":1163,\"bottom\":2862.90625,\"left\":852}},{\"id\":\"bat-panel\",\"tag\":\"SECTION\",\"hidden\":false,\"display\":\"block\",\"box\":{\"x\":835,\"y\":285.171875,\"width\":345,\"height\":2594.734375,\"top\":285.171875,\"right\":1180,\"bottom\":2879.90625,\"left\":835}},{\"id\":\"maker-layout\",\"tag\":\"MAIN\",\"hidden\":false,\"display\":\"grid\",\"box\":{\"x\":20,\"y\":285.171875,\"width\":1160,\"height\":4732.296875,\"top\":285.171875,\"right\":1180,\"bottom\":5017.46875,\"left\":20}},{\"id\":\"\",\"tag\":\"BODY\",\"hidden\":false,\"display\":\"block\",\"box\":{\"x\":0,\"y\":0,\"width\":1200,\"height\":5085.515625,\"top\":0,\"right\":1200,\"bottom\":5085.515625,\"left\":0}},{\"id\":\"\",\"tag\":\"HTML\",\"hidden\":false,\"display\":\"block\",\"box\":{\"x\":0,\"y\":0,\"width\":1200,\"height\":5085.515625,\"top\":0,\"right\":1200,\"bottom\":5085.515625,\"left\":0}}]}\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-maker-guides-v85.mjs:29:4"
+}

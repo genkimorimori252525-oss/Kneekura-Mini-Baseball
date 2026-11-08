@@ -1,0 +1,67 @@
+{
+  "authority": "GENERATED_RENDER_SPRITES_NOT_MEASURED_BAT_GEOMETRY",
+  "reference": "author-provided golden dot bat",
+  "physicsDimensions": "Declared separately in engine; PNG size is not metre authority",
+  "variants": [
+    {
+      "nominalLengthM": 0.78,
+      "file": "bat-78cm.png",
+      "sha256": "41a9920ce99d43fcf4f18ff1121c30063ff6f02ed076d3a0032934d92910e430",
+      "size": [
+        2172,
+        724
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        95,
+        162,
+        2078,
+        611
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "nominalLengthM": 0.84,
+      "file": "bat-84cm.png",
+      "sha256": "c2902280e948c71afd5d346a18fffb587eccae868b1e9f7adf2009112ded2d4e",
+      "size": [
+        2172,
+        724
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        49,
+        69,
+        2126,
+        672
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "nominalLengthM": 0.9,
+      "file": "bat-90cm.png",
+      "sha256": "1e69c292727402112a6506c88e796d725db93bb28a1eb5d763bcaeff77ae5bd9",
+      "size": [
+        2172,
+        724
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        71,
+        166,
+        2106,
+        601
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    }
+  ]
+}

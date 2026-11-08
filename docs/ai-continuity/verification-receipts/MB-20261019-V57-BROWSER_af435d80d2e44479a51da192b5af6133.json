@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V57-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v57-head-lock.mjs",
+    "../../outputs/ばせぼーるlv57_TBD_vs_LAD_スイング時の頭固定版.html",
+    "../../outputs/カメラワーク調整室_v57.html",
+    "../../outputs/verification-v57-head-lock"
+  ],
+  "observed_at": "2026-10-18T18:13:36.350+00:00",
+  "elapsed_ms": 65422,
+  "git_head": "ff242d680d0e1af05a767d08d62a1fb0b4af3331",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V57-BROWSER_af435d80d2e44479a51da192b5af6133.log",
+  "output_sha256": "0b1a346a9d473979a62b3c4609f04f93e9a42afc3d1beb6fd2976054ca5b6997",
+  "receipt_id": "MB-20261019-V57-BROWSER_af435d80d2e44479a51da192b5af6133"
+}

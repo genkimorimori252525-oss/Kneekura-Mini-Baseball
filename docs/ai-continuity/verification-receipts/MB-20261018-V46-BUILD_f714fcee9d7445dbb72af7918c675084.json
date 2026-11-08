@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V46-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-v46-release.mjs"
+  ],
+  "observed_at": "2026-10-18T05:24:25.394+00:00",
+  "elapsed_ms": 938,
+  "git_head": "6a8caf40153d76daba6a5acca34f5db12ca7f615",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V46-BUILD_f714fcee9d7445dbb72af7918c675084.log",
+  "output_sha256": "6921476fa464470b3b53280a0b8254989222fc302caac94ecc8d3e3eba77e5b9",
+  "receipt_id": "MB-20261018-V46-BUILD_f714fcee9d7445dbb72af7918c675084"
+}

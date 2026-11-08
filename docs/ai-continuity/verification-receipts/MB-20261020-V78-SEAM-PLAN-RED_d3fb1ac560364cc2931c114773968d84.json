@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-SEAM-PLAN-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePitchExecutionV78.test.ts",
+    "-t",
+    "does not compensate material seam force"
+  ],
+  "observed_at": "2026-10-19T19:56:02.184+00:00",
+  "elapsed_ms": 2875,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-SEAM-PLAN-RED_d3fb1ac560364cc2931c114773968d84.log",
+  "output_sha256": "9798dc571386e5e74370dd75449063c8015a914b33dc7a36e108e08ea1553b00",
+  "receipt_id": "MB-20261020-V78-SEAM-PLAN-RED_d3fb1ac560364cc2931c114773968d84"
+}

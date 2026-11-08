@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V86-ACTIONS-FINAL2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-actions-v86.mjs",
+    "../../outputs/にーくら野球メーカー_v86_入力確定とエラー復帰版.html",
+    "docs/verification/releases/v86/actions-final2"
+  ],
+  "observed_at": "2026-10-20T16:39:43.689+00:00",
+  "elapsed_ms": 14592,
+  "git_head": "58c9163a9007598d6a51d8178f38ce3b9ee14eca",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V86-ACTIONS-FINAL2_258ba74050c14faab58df41a3ccc68e5.log",
+  "output_sha256": "a470db6f8f63b2d8fb6a3499d008af6885f5b5daeec5c43969cd5712ca444c97",
+  "receipt_id": "MB-20261021-V86-ACTIONS-FINAL2_258ba74050c14faab58df41a3ccc68e5"
+}

@@ -1,0 +1,354 @@
+{
+  "pass": true,
+  "phase": "complete",
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v84_描画と接地移動版.html",
+  "views": [
+    {
+      "width": 1200,
+      "checks": [
+        {
+          "targetSpeed": {
+            "requested": 60,
+            "suggested": 40,
+            "difference": 20,
+            "explicitApply": true,
+            "cancelKeepsRaw": true,
+            "discardKeepsAccepted": true,
+            "dynamicMaximum": true,
+            "canLeaveInvalidInput": true
+          }
+        },
+        {
+          "units": {
+            "heightCmToM": [
+              300,
+              250,
+              2.5
+            ],
+            "batCmToM": [
+              [
+                400,
+                300,
+                3
+              ],
+              [
+                0,
+                20,
+                0.2
+              ]
+            ],
+            "validLongBatM": 1.5
+          },
+          "precision": 7.123456789012345
+        },
+        {
+          "pendingAcrossPlayers": {
+            "named": true,
+            "selectedOnlyRevert": true,
+            "explicitAllPlayersRevert": true,
+            "acceptedRosterExact": true
+          }
+        },
+        {
+          "researchWorkbench": {
+            "cancelKeepsRaw": true,
+            "discardRestoresValidDraft": true,
+            "applyExact": true,
+            "gameRosterExact": true
+          }
+        },
+        {
+          "researchTextDraft": {
+            "fields": [
+              "player-name",
+              "player-id"
+            ],
+            "explicitDiscard": true
+          }
+        },
+        {
+          "referenceExperiment": {
+            "requestedMassKg": 10,
+            "suggestedMassKg": 5,
+            "currentInputAndResult": true
+          }
+        },
+        {
+          "comparisonPopulation": {
+            "individualRemove": true,
+            "exactUndo": true,
+            "laterEditInvalidatesUndo": true,
+            "importInvalidatesUndo": true
+          }
+        },
+        {
+          "realJsonDownloads": true,
+          "noDependencyErrors": true,
+          "noExternalRequests": true,
+          "sourceClipsExact": true
+        }
+      ],
+      "api": {
+        "getRecoveryStateV82": "function",
+        "requestInternalAdjustmentV82": "function",
+        "applyInternalAdjustmentV82": "function",
+        "cancelInternalAdjustmentV82": "function",
+        "revertInternalEditsV82": "function",
+        "requestWorkbenchAdjustmentV82": "function",
+        "revertWorkbenchDraftV82": "function"
+      },
+      "source": {
+        "clips": 673,
+        "referenceSha256": "215e1e44d20c7d1506b4fc8ef6f95edf98119da4c9bfd8899267855c33bb4626"
+      },
+      "proposalLayout": {
+        "client": 1200,
+        "scroll": 1200,
+        "inner": 1200
+      },
+      "proposalViewport": {
+        "top": 429.796875,
+        "bottom": 571.1875,
+        "left": 50,
+        "right": 1150,
+        "viewportWidth": 1200,
+        "viewportHeight": 1000
+      },
+      "inlineError": "狙う芯速度が、芯の最大速度を超えています。狙う速度を下げるか、最大速度を確認してください。\n狙う芯速度：60 → 40 m/s（20下げる）。",
+      "textDraftRecovery": [
+        {
+          "id": "player-name",
+          "blankRetained": true,
+          "errorStatus": {
+            "visible": true,
+            "text": "名前を確定できませんでした。未確定の入力を戻すか、表示範囲を確認してください。"
+          },
+          "errors": [],
+          "discardRestored": true,
+          "gameRosterExact": true
+        },
+        {
+          "id": "player-id",
+          "blankRetained": true,
+          "errorStatus": {
+            "visible": true,
+            "text": "識別名を確定できませんでした。未確定の入力を戻すか、表示範囲を確認してください。"
+          },
+          "errors": [],
+          "discardRestored": true,
+          "gameRosterExact": true
+        }
+      ],
+      "referenceExperimentRecovery": {
+        "mode": "reference-experiment",
+        "inputMassKg": 5,
+        "draftMassKg": 5,
+        "resultMatchesCurrentPlayer": true,
+        "beforeInputMassKg": 0.9
+      },
+      "layout": {
+        "client": 1200,
+        "scroll": 1200,
+        "inner": 1200
+      },
+      "researchLayout": {
+        "client": 1200,
+        "scroll": 1200,
+        "inner": 1200
+      }
+    },
+    {
+      "width": 390,
+      "checks": [
+        {
+          "targetSpeed": {
+            "requested": 60,
+            "suggested": 40,
+            "difference": 20,
+            "explicitApply": true,
+            "cancelKeepsRaw": true,
+            "discardKeepsAccepted": true,
+            "dynamicMaximum": true,
+            "canLeaveInvalidInput": true
+          }
+        },
+        {
+          "units": {
+            "heightCmToM": [
+              300,
+              250,
+              2.5
+            ],
+            "batCmToM": [
+              [
+                400,
+                300,
+                3
+              ],
+              [
+                0,
+                20,
+                0.2
+              ]
+            ],
+            "validLongBatM": 1.5
+          },
+          "precision": 7.123456789012345
+        },
+        {
+          "pendingAcrossPlayers": {
+            "named": true,
+            "selectedOnlyRevert": true,
+            "explicitAllPlayersRevert": true,
+            "acceptedRosterExact": true
+          }
+        },
+        {
+          "researchWorkbench": {
+            "cancelKeepsRaw": true,
+            "discardRestoresValidDraft": true,
+            "applyExact": true,
+            "gameRosterExact": true
+          }
+        },
+        {
+          "researchTextDraft": {
+            "fields": [
+              "player-name",
+              "player-id"
+            ],
+            "explicitDiscard": true
+          }
+        },
+        {
+          "referenceExperiment": {
+            "requestedMassKg": 10,
+            "suggestedMassKg": 5,
+            "currentInputAndResult": true
+          }
+        },
+        {
+          "comparisonPopulation": {
+            "individualRemove": true,
+            "exactUndo": true,
+            "laterEditInvalidatesUndo": true,
+            "importInvalidatesUndo": true
+          }
+        },
+        {
+          "realJsonDownloads": true,
+          "noDependencyErrors": true,
+          "noExternalRequests": true,
+          "sourceClipsExact": true
+        }
+      ],
+      "api": {
+        "getRecoveryStateV82": "function",
+        "requestInternalAdjustmentV82": "function",
+        "applyInternalAdjustmentV82": "function",
+        "cancelInternalAdjustmentV82": "function",
+        "revertInternalEditsV82": "function",
+        "requestWorkbenchAdjustmentV82": "function",
+        "revertWorkbenchDraftV82": "function"
+      },
+      "source": {
+        "clips": 673,
+        "referenceSha256": "215e1e44d20c7d1506b4fc8ef6f95edf98119da4c9bfd8899267855c33bb4626"
+      },
+      "proposalLayout": {
+        "client": 390,
+        "scroll": 390,
+        "inner": 390
+      },
+      "proposalViewport": {
+        "top": 417.390625,
+        "bottom": 583.578125,
+        "left": 40,
+        "right": 350,
+        "viewportWidth": 390,
+        "viewportHeight": 1000
+      },
+      "inlineError": "狙う芯速度が、芯の最大速度を超えています。狙う速度を下げるか、最大速度を確認してください。\n狙う芯速度：60 → 40 m/s（20下げる）。",
+      "textDraftRecovery": [
+        {
+          "id": "player-name",
+          "blankRetained": true,
+          "errorStatus": {
+            "visible": true,
+            "text": "名前を確定できませんでした。未確定の入力を戻すか、表示範囲を確認してください。"
+          },
+          "errors": [],
+          "discardRestored": true,
+          "gameRosterExact": true
+        },
+        {
+          "id": "player-id",
+          "blankRetained": true,
+          "errorStatus": {
+            "visible": true,
+            "text": "識別名を確定できませんでした。未確定の入力を戻すか、表示範囲を確認してください。"
+          },
+          "errors": [],
+          "discardRestored": true,
+          "gameRosterExact": true
+        }
+      ],
+      "referenceExperimentRecovery": {
+        "mode": "reference-experiment",
+        "inputMassKg": 5,
+        "draftMassKg": 5,
+        "resultMatchesCurrentPlayer": true,
+        "beforeInputMassKg": 0.9
+      },
+      "layout": {
+        "client": 390,
+        "scroll": 390,
+        "inner": 390
+      },
+      "researchLayout": {
+        "client": 390,
+        "scroll": 390,
+        "inner": 390
+      }
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "errors": [],
+      "external": []
+    }
+  ],
+  "scope": "v82 internal capability recovery, explicit proposals and discard, cm/SI and arbitrary precision, research draft recovery, comparison population removal/undo, 1200/390 offline browser.",
+  "harnessSha256": "d599b57c98699861908a3bd65655e1e097def52df6050b92d1b97828a009be3a",
+  "sha256": "7cc4b713a6ec11026504d54f0492203a7f10abcdcc95a33a8d6f8d8390d15fdd",
+  "coreSha256": "89c782901927abe3a1cd615a0ca99fc77132623c72b8b2cd63c54395f4db4c85",
+  "metadataSha256": "8640a1ae4fe3f91b787fe8254ab76b203441e4cac1f7665ddcf0e837f1b06307",
+  "manifestSha256": "06687b99adb5456ed5d162ed893ce2262d2bac41463ea703fd8f158e4a4f8bf9",
+  "native": {
+    "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv84_TBD_vs_LAD_描画と接地移動版.html",
+    "sha256": "61081f447439f61abe257c902dfc68cc2b37b873e6a31468d3399c7fa8a1551f",
+    "coreSha256": "25e63cacda71af84463299ce4031d3ee55549619eeaae89e6db0b210030ac99b",
+    "metadataSha256": "9c0e2d3a5c7b4f4621829ba8ef29d823ca6bf0a33069c61534323de773020de6",
+    "manifestSha256": "5e6aeed94355e71f0290c0563749e9d3004e4ad49296c55ccfa89f5a6c209e02",
+    "latestCompiledCoreSha256": "25e63cacda71af84463299ce4031d3ee55549619eeaae89e6db0b210030ac99b",
+    "latestCompiledCoreMatchesFrozen": true,
+    "sourcePinsAtEnd": {
+      "frozenManifestUnchanged": true,
+      "count": 128,
+      "entrySha256": "25e63cacda71af84463299ce4031d3ee55549619eeaae89e6db0b210030ac99b",
+      "currentSourceDifferences": [],
+      "scope": "Frozen normal renderer bytes/metadata/manifest are verified. Its historical source hashes are not asserted equal to current authoring sources."
+    }
+  },
+  "sourcePinsAtEnd": {
+    "verified": true,
+    "count": 96,
+    "entrySha256": "89c782901927abe3a1cd615a0ca99fc77132623c72b8b2cd63c54395f4db4c85"
+  }
+}

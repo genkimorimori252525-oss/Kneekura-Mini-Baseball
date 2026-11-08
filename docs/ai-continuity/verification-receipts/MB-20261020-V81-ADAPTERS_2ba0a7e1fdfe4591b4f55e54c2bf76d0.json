@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-ADAPTERS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "--test",
+    "tools/browser-bridge/whole-scene-adapters-v81.test.mjs"
+  ],
+  "observed_at": "2026-10-20T12:53:56.453+00:00",
+  "elapsed_ms": 202,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-ADAPTERS_2ba0a7e1fdfe4591b4f55e54c2bf76d0.log",
+  "output_sha256": "4117040f3985037a2088353a7e0c58e9c9dfc3a37d6adc7e6ce14745771e474e",
+  "receipt_id": "MB-20261020-V81-ADAPTERS_2ba0a7e1fdfe4591b4f55e54c2bf76d0"
+}

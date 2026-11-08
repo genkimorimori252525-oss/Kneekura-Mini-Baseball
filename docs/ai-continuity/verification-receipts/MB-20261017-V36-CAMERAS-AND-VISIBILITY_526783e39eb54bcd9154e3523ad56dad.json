@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V36-CAMERAS-AND-VISIBILITY",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v35-visibility.mjs",
+    "../../outputs/ばせぼーるlv36_TBD_vs_LAD_結果表示タイミング修正版.html",
+    "../../outputs/verification-v36-cameras-v1",
+    "--registered-field"
+  ],
+  "observed_at": "2026-10-17T02:34:38.148+00:00",
+  "elapsed_ms": 9202,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V36-CAMERAS-AND-VISIBILITY_526783e39eb54bcd9154e3523ad56dad.log",
+  "output_sha256": "07adb3eebebd2b57386b5ae41c6e8e7cf7496c2728819e9b8f7ae96130b759ab",
+  "receipt_id": "MB-20261017-V36-CAMERAS-AND-VISIBILITY_526783e39eb54bcd9154e3523ad56dad"
+}

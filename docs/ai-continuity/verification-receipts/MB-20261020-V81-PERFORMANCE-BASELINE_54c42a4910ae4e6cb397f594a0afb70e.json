@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-PERFORMANCE-BASELINE",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-performance-scenes-v81.mjs"
+  ],
+  "observed_at": "2026-10-20T12:43:08.741+00:00",
+  "elapsed_ms": 11093,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-PERFORMANCE-BASELINE_54c42a4910ae4e6cb397f594a0afb70e.log",
+  "output_sha256": "d8a9b53c69304951b398ac4b2364b9523398d97c5839e207fca431441aef25f2",
+  "receipt_id": "MB-20261020-V81-PERFORMANCE-BASELINE_54c42a4910ae4e6cb397f594a0afb70e"
+}

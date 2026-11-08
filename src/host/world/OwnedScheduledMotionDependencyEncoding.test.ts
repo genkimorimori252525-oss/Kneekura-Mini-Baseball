@@ -15,6 +15,49 @@ const snapshot = (kind = 'owned_motion_v2'): DurableBattedWorldFieldExecution =>
 };
 const mutable = (v: unknown) => v as Record<string, any>;
 
+it('shares only immutable encoding bytes within the guarded snapshot and expires them on scope exit or failure', () => {
+  const value = actorFreeze(snapshot()), calls = vi.spyOn(archive, 'ownedScheduledMotionArchiveEncoding');
+  const identity = Object.freeze({}); let reusable = true;
+  try {
+    dependency.withOwnedScheduledMotionDependencyEncodingScope(identity, () => reusable, () => {
+      const first = dependency.createOwnedScheduledMotionDependencyEncoding().snapshot(value);
+      expect(dependency.createOwnedScheduledMotionDependencyEncoding().snapshot(value)).toBe(first);
+      dependency.withOwnedScheduledMotionDependencyEncodingScope(identity, () => reusable, () => {
+        expect(dependency.createOwnedScheduledMotionDependencyEncoding().snapshot(value)).toBe(first);
+      });
+      expect(calls).toHaveBeenCalledTimes(1);
+      reusable = false;
+      expect(dependency.createOwnedScheduledMotionDependencyEncoding().snapshot(value)).toEqual(first);
+      expect(dependency.createOwnedScheduledMotionDependencyEncoding().snapshot(value)).not.toBe(first);
+      expect(calls).toHaveBeenCalledTimes(3);
+    });
+    reusable = true;
+    dependency.withOwnedScheduledMotionDependencyEncodingScope(identity, () => reusable,
+      () => dependency.createOwnedScheduledMotionDependencyEncoding().snapshot(value));
+    dependency.createOwnedScheduledMotionDependencyEncoding().snapshot(value);
+    expect(calls).toHaveBeenCalledTimes(5);
+  } finally { calls.mockRestore(); }
+});
+
+it('retains mutable input changes, strict codec roles and original getter rejection inside the shared encoding scope', () => {
+  const value = snapshot(), calls = vi.spyOn(archive, 'ownedScheduledMotionArchiveEncoding');
+  try {
+    dependency.withOwnedScheduledMotionDependencyEncodingScope(Object.freeze({}), () => true, () => {
+      const first = dependency.createOwnedScheduledMotionDependencyEncoding().snapshot(value);
+      mutable(value).execution.synthetic.count++;
+      expect(dependency.createOwnedScheduledMotionDependencyEncoding().snapshot(value).hash).not.toBe(first.hash);
+      expect(calls).toHaveBeenCalledTimes(2);
+      const wrong = actorFreeze({ sourceId: 'same' });
+      dependency.createOwnedScheduledMotionDependencyEncoding().source(wrong as never);
+      expect(() => dependency.createOwnedScheduledMotionDependencyEncoding().snapshot(wrong as never)).toThrow();
+      const active = { ...snapshot() }; let getterCalls = 0;
+      Object.defineProperty(active, 'execution', { enumerable: true, get() { getterCalls++; return {}; } });
+      expect(() => dependency.createOwnedScheduledMotionDependencyEncoding().snapshot(active)).toThrow();
+      expect(getterCalls).toBe(0);
+    });
+  } finally { calls.mockRestore(); }
+});
+
 describe('private dependency encoding scope', () => {
   it('constructs a new internal encoder with three separate roles', () => {
     expect(dependency).toHaveProperty('createOwnedScheduledMotionDependencyEncoding', expect.any(Function));

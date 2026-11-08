@@ -1,0 +1,10 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/contact/ReferenceBatImpactTrajectoryV1.test.ts (6 tests) 116ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  19:35:33
+   Duration  702ms (transform 124ms, setup 0ms, collect 165ms, tests 116ms, environment 0ms, prepare 149ms)
+

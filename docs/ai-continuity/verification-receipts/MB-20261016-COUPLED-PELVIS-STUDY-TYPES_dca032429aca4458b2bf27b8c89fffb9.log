@@ -1,0 +1,3 @@
+tools/verification/native-game/coupled-pelvis-native-study.ts(49,116): error TS2322: Type 'Readonly<{ rotation: Readonly<{ w: number; x: number; y: number; z: number; }>; translation: Readonly<{ x: number; y: number; z: number; }>; scale: number; }>' is not assignable to type 'Readonly<{ rotation: Readonly<{ w: number; x: number; y: number; z: number; }>; translation: Readonly<{ x: number; y: number; z: number; }>; scale: 1; }>'.
+  Types of property 'scale' are incompatible.
+    Type 'number' is not assignable to type '1'.

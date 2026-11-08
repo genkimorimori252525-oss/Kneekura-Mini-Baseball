@@ -10,7 +10,7 @@ import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSql
 /** Called only after the attribution owner's complete history authentication.
  * Reuse the original scoring owner, including the distinct pending foul input;
  * no archived scoring or attribution shape is rewritten for these read metrics. */
-export const deriveOfficialPlayerScoringFromSqlite = (db: DatabaseSync, outcome: OfficialPlayerOutcomeAttribution) => {
+export const readOfficialPlayerAcceptedScoringFromSqlite = (db: DatabaseSync, outcome: OfficialPlayerOutcomeAttribution) => {
   const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite');
   if (!(db instanceof Native) || !db.isTransaction) throw new Error('official player scoring requires an owned Native transaction');
   const accepted = outcome.source.owner === 'actual_foul_terminal_applications'
@@ -23,6 +23,11 @@ export const deriveOfficialPlayerScoringFromSqlite = (db: DatabaseSync, outcome:
     || accepted.application.match.playId !== outcome.playId || accepted.scoring.record.classification !== outcome.classification) {
     throw new Error('official player scoring accepted original differs');
   }
+  return accepted;
+};
+
+export const deriveOfficialPlayerScoringFromSqlite = (db: DatabaseSync, outcome: OfficialPlayerOutcomeAttribution) => {
+  const accepted = readOfficialPlayerAcceptedScoringFromSqlite(db, outcome);
   const closure = getOfficialPlayClosure(accepted.application.adjudication);
   if (!closure) throw new Error('official player scoring original closure is missing');
   return deriveOfficialPlayerScoringContribution({ match: accepted.application.match, closure, record: accepted.scoring.record });

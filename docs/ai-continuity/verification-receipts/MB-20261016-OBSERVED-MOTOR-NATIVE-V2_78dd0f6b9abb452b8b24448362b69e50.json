@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OBSERVED-MOTOR-NATIVE-V2",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "../native-observed-motor-preparation-v2/readback.mjs",
+    "../../outputs/verification-authored-initial-pipeline-physical-v2",
+    "../../outputs/verification-observed-motor-preparation-v2"
+  ],
+  "observed_at": "2026-10-16T11:06:36.458+00:00",
+  "elapsed_ms": 171,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OBSERVED-MOTOR-NATIVE-V2_78dd0f6b9abb452b8b24448362b69e50.log",
+  "output_sha256": "fcfd44f551b84575619b6d88a06744e8a3fa3c2034c3fe2410b9d1548ac58b64",
+  "receipt_id": "MB-20261016-OBSERVED-MOTOR-NATIVE-V2_78dd0f6b9abb452b8b24448362b69e50"
+}

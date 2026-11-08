@@ -1,0 +1,90 @@
+{
+  "pass": true,
+  "sourceCommit": "17de1933ba09e1954eee7cd637ac0ab3ac39ce3c",
+  "remoteHead": "17de1933ba09e1954eee7cd637ac0ab3ac39ce3c",
+  "pullRequest": {
+    "headRefName": "jolly/tbd-lad-native-browser-core-2026-10-14",
+    "headRefOid": "17de1933ba09e1954eee7cd637ac0ab3ac39ce3c",
+    "isDraft": true,
+    "state": "OPEN",
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380"
+  },
+  "rawFiles": [
+    {
+      "path": "docs/demos/releases/v62/game.html",
+      "sha256": "e035ca5fa575ee3528c3f029353419a4a92fe0d2e94e96417494a083cf02a8fc",
+      "bytes": 3656918
+    },
+    {
+      "path": "docs/demos/releases/v62/camera-workbench.html",
+      "sha256": "c29e0cc042a7956877e7fdb3bc32c53a7fe39d41ad10fb0ccf108465307cdd73",
+      "bytes": 3945416
+    },
+    {
+      "path": "docs/demos/releases/v62/maker.html",
+      "sha256": "a99bb8b947001fcf780a3c9f615e1a759b8a5ae300d0a87c57467fab5d087dac",
+      "bytes": 4457074
+    },
+    {
+      "path": "docs/demos/releases/v62/SHA256.json",
+      "sha256": "69cf2bdf6ba12897450c6949320e33f86d83fc97e232529c7a2ae1e87a80961d",
+      "bytes": 775
+    },
+    {
+      "path": "docs/demos/releases/v62/game.html.build.json",
+      "sha256": "cdeae9663a40a7ad83a69abda84c0d79e4d08e228e992779a1587be9dd3842f7",
+      "bytes": 3364
+    },
+    {
+      "path": "docs/demos/releases/v62/maker.html.build.json",
+      "sha256": "853a04a073a628481f6d9a48a6dad729d7e09d0b8848378b3aef14201debc082",
+      "bytes": 2270
+    },
+    {
+      "path": "docs/demos/releases/v62/game.html.bundle-inputs.json",
+      "sha256": "bf8154f3be49abd30dea35fb55a3520898a7ee43dd0172fab82ede3ded14f7ad",
+      "bytes": 14005
+    },
+    {
+      "path": "docs/demos/releases/v62/maker.html.bundle-inputs.json",
+      "sha256": "f28a85bfca38c25d2b5069b6109be3494f4d1787668cfc1c497ee634236aa89e",
+      "bytes": 9736
+    },
+    {
+      "path": "docs/demos/releases/v62/README.md",
+      "sha256": "076784292a9e492dd55fb31b19caa0910fa3b19fef8e932e58c678f8b9a8d3b1",
+      "bytes": 2193
+    },
+    {
+      "path": "docs/reports/2026-10-19-v62-pitcher-view-release.md",
+      "sha256": "dfeb45cca9c1c409b6f610617ce5ae4382fbb970327ec1f5a9c638931fe016e6",
+      "bytes": 7272
+    },
+    {
+      "path": "docs/handoffs/LATEST.md",
+      "sha256": "ade7daef068ad8f60077c0dfa3b654f4a2ef4b18841d8ef5dedf21cffe3d542c",
+      "bytes": 16571
+    },
+    {
+      "path": "src/integration/browser/LivePitchV1.ts",
+      "sha256": "3cb8b562e1f43b0e107b24ca5e7f8905c71a8670baf45d56c8059b9566a44d2d",
+      "bytes": 34681
+    },
+    {
+      "path": "src/core/sim/fielding/LiveDefensiveOpportunityV1.ts",
+      "sha256": "7ca1853d1d0f7152883e95989acc964c6e4604bdcc56bd5d26bebcd395ec965b",
+      "bytes": 6099
+    },
+    {
+      "path": "tools/browser-bridge/live-pitcher-body-head-view-v62.js",
+      "sha256": "b992f5c46b2c4b07132733c156ea3d22f58b3e372ad67b5b72d7763f39d9dcc3",
+      "bytes": 3357
+    },
+    {
+      "path": "docs/demos/live-game-roster-v62.json",
+      "sha256": "546b69369c975a85469492029f8a5306fb5fdabc48e9d36ec82bfcb75e4829c7",
+      "bytes": 39298
+    }
+  ],
+  "mainMerged": false
+}

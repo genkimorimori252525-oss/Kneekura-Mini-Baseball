@@ -1,0 +1,8 @@
+{
+  "pass": false,
+  "path": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v77_投手調整と独立得能版.html",
+  "cases": [],
+  "faults": [],
+  "sha256": "b389e85c5d3c27914b760036389c3e78963e3d2f2627a326fb4f8c3783181f79",
+  "error": "AssertionError [ERR_ASSERTION]: a technical detail must edit the technique, never base SI\n+ actual - expected\n\n  {\n    accelerationMps2: 5.8,\n    aimStdMeters: 0.016,\n    attackAngleDegrees: 16,\n+   badBallControl: 0.7,\n-   badBallControl: 0.45,\n    basis: 'EXPLICIT_AUTHORED_SI_V1',\n    batLengthM: 0.84,\n    batMassKg: 0.88,\n    captureDissipationPowerW: 3000,\n    chaseMarginMeters: 0.12,\n\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v77-traits-browser.mjs:43:10"
+}

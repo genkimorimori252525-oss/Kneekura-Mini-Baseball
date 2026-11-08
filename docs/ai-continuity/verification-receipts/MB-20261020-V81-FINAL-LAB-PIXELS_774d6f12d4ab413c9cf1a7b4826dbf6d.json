@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-FINAL-LAB-PIXELS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-lab-performance-v81.mjs",
+    "../../outputs/カメラワーク調整室_v81.html",
+    "docs/verification/releases/v81/lab-final",
+    "docs/verification/releases/v81/lab-baseline/report.json"
+  ],
+  "observed_at": "2026-10-20T12:58:22.049+00:00",
+  "elapsed_ms": 19500,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-FINAL-LAB-PIXELS_774d6f12d4ab413c9cf1a7b4826dbf6d.log",
+  "output_sha256": "d33d94bb5a1cf9bdb094dc2862917b1a6166dc664945be5092b0ebba459ed823",
+  "receipt_id": "MB-20261020-V81-FINAL-LAB-PIXELS_774d6f12d4ab413c9cf1a7b4826dbf6d"
+}

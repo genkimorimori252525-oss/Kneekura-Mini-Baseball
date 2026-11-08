@@ -1,0 +1,11 @@
+{"elapsedMs":20001,"phase":"generating","scenario":"default-nine","pitches":32}
+{"elapsedMs":40003,"phase":"generating","scenario":"default-nine","pitches":72}
+{"elapsedMs":60008,"phase":"generating","scenario":"default-nine","pitches":112}
+{"elapsedMs":80008,"phase":"generating","scenario":"default-nine","pitches":160}
+{"elapsedMs":100017,"phase":"generating","scenario":"default-nine","pitches":192}
+{"elapsedMs":120022,"phase":"generating","scenario":"default-nine","pitches":240}
+{"elapsedMs":140027,"phase":"generating","scenario":"default-nine","pitches":288}
+{"elapsedMs":160031,"phase":"generating","scenario":"default-nine","pitches":328}
+{"elapsedMs":180035,"phase":"generating","scenario":"alternate-three","pitches":32}
+{"elapsedMs":200047,"phase":"generating","scenario":"alternate-three","pitches":48}
+{"pass":true,"artifactSha256":"d8194e776c969e249e838fa6e01931fe7bcc7fb9b166822c26840d5595f5a6a5","coldReadyWallMs":2262,"warmNewGameMs":[235,225.70000000298023,202.59999999403954],"scenarios":[{"id":"default-nine","records":343,"historySha256":"f9f7af8830c2eb3eae96d52b7a5185d1f2808aeca8d60c2d69151c6c7f927f29"},{"id":"alternate-three","records":54,"historySha256":"590e1cc96dda525c115adc28b1bf2fae813c49bd9244ea979451d1253516a5c4"}],"report":"C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\docs\\verification\\releases\\v88\\normal-nine-final\\report.json"}

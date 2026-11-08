@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-LOCOMOTION-CORE-GREEN4",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/locomotion/LiveLocomotionV84.test.ts",
+    "src/core/sim/running/LiveRunnerMotionV1.test.ts",
+    "src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts"
+  ],
+  "observed_at": "2026-10-20T15:20:56.359+00:00",
+  "elapsed_ms": 1389,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-LOCOMOTION-CORE-GREEN4_da59df15877c4be5a7c2a3fd6caed7bc.log",
+  "output_sha256": "44720d4cb298589e7334befe9a5f66178c26bd26a84dc3403c9764c579b6c48e",
+  "receipt_id": "MB-20261021-V84-LOCOMOTION-CORE-GREEN4_da59df15877c4be5a7c2a3fd6caed7bc"
+}

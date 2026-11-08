@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-MAKER-BASELINE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-pixels-performance-v81.mjs",
+    "../../outputs/にーくら野球メーカー_v80_球種の方向別メニュー版.html",
+    "docs/verification/releases/v81/maker-baseline"
+  ],
+  "observed_at": "2026-10-20T12:54:55.942+00:00",
+  "elapsed_ms": 14108,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-MAKER-BASELINE_8238c4ed8bac42de9fd780b8aa2e2148.log",
+  "output_sha256": "486fbd4a2ec1b38eaeef2f3d12347f8eb6380408dc5cfc05f04c60ae62d7be24",
+  "receipt_id": "MB-20261020-V81-MAKER-BASELINE_8238c4ed8bac42de9fd780b8aa2e2148"
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-PIPELINE-CORE-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/pitch/ControlledPitchWorldV1.test.ts",
+    "src/core/sim/pitch/ControlledHeldPitchV1.test.ts",
+    "src/core/sim/ball/SourceFreeBallSpeedBound.test.ts",
+    "src/core/sim/ball/SourceFreeBallWorldQuery.test.ts",
+    "src/host/world/NativeBattingPrediction.test.ts",
+    "src/host/world/SamePlateAppearanceInitialBall.test.ts",
+    "--maxWorkers=1",
+    "--minWorkers=1"
+  ],
+  "observed_at": "2026-10-15T23:47:28.739+00:00",
+  "elapsed_ms": 14093,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-PIPELINE-CORE-REGRESSION_4d353fb699a349899caa15528a5923c1.log",
+  "output_sha256": "4b4bcb918a82c65a4776d37ab1f37dafcc6a2e9eaa794deb913b13a7b68ac0e1",
+  "receipt_id": "MB-20261016-INITIAL-PIPELINE-CORE-REGRESSION_4d353fb699a349899caa15528a5923c1"
+}

@@ -14,7 +14,7 @@ export type BattedActorResponseProfile = Readonly<{
   role: 'glove'; pocketCenterOffset: Vec3; bodyStability: number; parameters: CatchRetentionParameters;
 }>;
 export type BallWorldResponseInput = Readonly<{
-  world: Pick<BattedWorldContactInput, 'parameters' | 'actors' | 'surfaces'>;
+  world: Pick<BattedWorldContactInput, 'parameters' | 'actors' | 'surfaces' | 'sourceCurve'>;
   actors: readonly Readonly<{ playerId: string; profile: BattedActorResponseProfile }>[];
   surfaces: readonly Readonly<{ surfaceId: string; material: BallContactMaterial }>[];
 }>;

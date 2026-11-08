@@ -1,0 +1,16 @@
+✔ match adapter keeps paused observations, canvas commands and public version unchanged (7.5867ms)
+✔ match adapter updates the whole free-pitch scene at 22/3ms without ball-only painting (1.3833ms)
+✔ pitcher adapter keeps paused observations, canvas commands and public version unchanged (4.4086ms)
+✔ pitcher adapter updates the whole free-pitch scene at 22/3ms without ball-only painting (0.9428ms)
+✔ match adapter keeps 55/3ms for batted scenes and forces the pitch boundary (1.3472ms)
+✔ pitcher adapter keeps 55/3ms before release and renders release immediately (1.0128ms)
+✔ lab retains paused A/B copies at the identical requested scene time (3.3879ms)
+✔ lab copies every layer for both observers at the same whole-scene time (0.7693ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 141.8029

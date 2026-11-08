@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-CLAIM-MEMO-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/SamePlateAppearanceMetadataCompilation.test.ts"
+  ],
+  "observed_at": "2026-10-14T22:06:53.560+00:00",
+  "elapsed_ms": 8422,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-CLAIM-MEMO-RED_845ce5477b2946f381c7c8e9dd47ab1b.log",
+  "output_sha256": "bb3ef3abc8754fa07a262bf608d683680a6dfbf8133c99634f4713e02f4e1a64",
+  "receipt_id": "MB-20261015-CLAIM-MEMO-RED_845ce5477b2946f381c7c8e9dd47ab1b"
+}

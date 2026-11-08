@@ -1,0 +1,3 @@
+type Match={balls:number;strikes:number;bases:Record<string,string|null>};
+/** Terminal loose pitches require dedicated runner/walk rules; direct caught third strikes are the only exception. */
+export function requireTerminalScopeV1(before:Match,call:'ball'|'called_strike'|'swinging_strike',directSecure:boolean,groundBeforeCatch:boolean){const runners=Object.values(before.bases).some(Boolean);if(before.balls>=3&&call==='ball')throw Error('HOLD: walk requires loose-pitch adjudication');if((before.balls>=3||before.strikes>=2)&&runners)throw Error('HOLD: terminal count with runners requires adjudication');if(before.strikes>=2&&call!=='ball'&&(!directSecure||groundBeforeCatch))throw Error('HOLD: uncaught third strike requires runner adjudication');}

@@ -1,0 +1,176 @@
+{
+  "pass": true,
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v79_63コースとシーズン成績版.html",
+  "sha256": "5b69c22bbf12e60e780edcea6c79c8ed919536e97621a841c1e9d5de46278707",
+  "coreSha256": "d2cb9749237ec57c62b44df68b713a7b733a5e5b38b48be05825f71ac3006f87",
+  "sourceCount": 93,
+  "v79SourcePinsMatched": true,
+  "inheritedPitchViewsUiAndDataUnchanged": true,
+  "referenceClips": 673,
+  "cases": [
+    {
+      "width": 1200,
+      "pitch": "fastball",
+      "points": 53,
+      "viewNames": [
+        "投手の真後ろ → 本塁",
+        "捕手の正面 → 投手",
+        "右打者の目 → 投手",
+        "左打者の目 → 投手"
+      ],
+      "pixels": [
+        {
+          "id": "pitcher-plot-behind",
+          "green": 1091,
+          "gray": 762,
+          "width": 274.90625
+        },
+        {
+          "id": "pitcher-plot-catcher",
+          "green": 313,
+          "gray": 503,
+          "width": 274.90625
+        },
+        {
+          "id": "pitcher-plot-batter-right",
+          "green": 439,
+          "gray": 545,
+          "width": 274.90625
+        },
+        {
+          "id": "pitcher-plot-batter-left",
+          "green": 454,
+          "gray": 570,
+          "width": 274.90625
+        }
+      ],
+      "sourceAndRosterUnchanged": true
+    },
+    {
+      "width": 1200,
+      "pitch": "curve",
+      "points": 67,
+      "viewNames": [
+        "投手の真後ろ → 本塁",
+        "捕手の正面 → 投手",
+        "右打者の目 → 投手",
+        "左打者の目 → 投手"
+      ],
+      "pixels": [
+        {
+          "id": "pitcher-plot-behind",
+          "green": 1288,
+          "gray": 775,
+          "width": 274.90625
+        },
+        {
+          "id": "pitcher-plot-catcher",
+          "green": 362,
+          "gray": 177,
+          "width": 274.90625
+        },
+        {
+          "id": "pitcher-plot-batter-right",
+          "green": 551,
+          "gray": 219,
+          "width": 274.90625
+        },
+        {
+          "id": "pitcher-plot-batter-left",
+          "green": 586,
+          "gray": 273,
+          "width": 274.90625
+        }
+      ],
+      "sourceAndRosterUnchanged": true
+    },
+    {
+      "width": 390,
+      "pitch": "fastball",
+      "points": 53,
+      "viewNames": [
+        "投手の真後ろ → 本塁",
+        "捕手の正面 → 投手",
+        "右打者の目 → 投手",
+        "左打者の目 → 投手"
+      ],
+      "pixels": [
+        {
+          "id": "pitcher-plot-behind",
+          "green": 1091,
+          "gray": 762,
+          "width": 312
+        },
+        {
+          "id": "pitcher-plot-catcher",
+          "green": 313,
+          "gray": 503,
+          "width": 312
+        },
+        {
+          "id": "pitcher-plot-batter-right",
+          "green": 439,
+          "gray": 545,
+          "width": 312
+        },
+        {
+          "id": "pitcher-plot-batter-left",
+          "green": 454,
+          "gray": 570,
+          "width": 312
+        }
+      ],
+      "sourceAndRosterUnchanged": true
+    },
+    {
+      "width": 390,
+      "pitch": "curve",
+      "points": 67,
+      "viewNames": [
+        "投手の真後ろ → 本塁",
+        "捕手の正面 → 投手",
+        "右打者の目 → 投手",
+        "左打者の目 → 投手"
+      ],
+      "pixels": [
+        {
+          "id": "pitcher-plot-behind",
+          "green": 1288,
+          "gray": 775,
+          "width": 312
+        },
+        {
+          "id": "pitcher-plot-catcher",
+          "green": 362,
+          "gray": 177,
+          "width": 312
+        },
+        {
+          "id": "pitcher-plot-batter-right",
+          "green": 551,
+          "gray": 219,
+          "width": 312
+        },
+        {
+          "id": "pitcher-plot-batter-left",
+          "green": 586,
+          "gray": 273,
+          "width": 312
+        }
+      ],
+      "sourceAndRosterUnchanged": true
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "errors": [],
+      "external": []
+    }
+  ]
+}

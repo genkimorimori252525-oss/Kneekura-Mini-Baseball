@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/MeasuredImpactTrajectoryLibraryV1.test.ts (1 test) 5143ms
+   ✓ admits all 673 measured forms and four research levels through the actual shared continuous Core sampler 5142ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  19:40:34
+   Duration  5.73s (transform 122ms, setup 0ms, collect 165ms, tests 5.14s, environment 0ms, prepare 126ms)
+

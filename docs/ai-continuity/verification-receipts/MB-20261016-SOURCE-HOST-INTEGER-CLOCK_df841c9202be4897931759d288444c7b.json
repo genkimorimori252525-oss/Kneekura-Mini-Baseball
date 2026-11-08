@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-HOST-INTEGER-CLOCK",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/SamePlateAppearanceSourceIntegerCheckpointV1.test.ts",
+    "src/host/world/SamePlateAppearanceObservationClockProjectionV1.test.ts",
+    "src/host/world/SamePlateAppearanceSourceFieldV3.test.ts",
+    "src/host/world/SamePlateAppearanceBallPhysics.test.ts",
+    "src/core/sim/ball/SourceFieldIntegerBoundaryV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T18:19:47.286+00:00",
+  "elapsed_ms": 16047,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-HOST-INTEGER-CLOCK_df841c9202be4897931759d288444c7b.log",
+  "output_sha256": "1c1c178e0d1a5b6ab20c011cfd8dbe2746c7c606123c7d7131b977485983f08a",
+  "receipt_id": "MB-20261016-SOURCE-HOST-INTEGER-CLOCK_df841c9202be4897931759d288444c7b"
+}

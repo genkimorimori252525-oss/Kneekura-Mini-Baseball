@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-NATIVE-INTEGER-METADATA-O1",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-source-integer-metadata-v1/entry-v2.mjs",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-source-integer-metadata-v1/manifest.json",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-source-integer-metadata-v1/run",
+    "admit"
+  ],
+  "observed_at": "2026-10-15T18:48:00.369+00:00",
+  "elapsed_ms": 120235,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-NATIVE-INTEGER-METADATA-O1_83f0e75c36a34940b1750386ea096233.log",
+  "output_sha256": "cb0735042a806bf2aadb9239f886fd070f1636ef5ed8912c2b2843908d33eb06",
+  "receipt_id": "MB-20261016-NATIVE-INTEGER-METADATA-O1_83f0e75c36a34940b1750386ea096233"
+}

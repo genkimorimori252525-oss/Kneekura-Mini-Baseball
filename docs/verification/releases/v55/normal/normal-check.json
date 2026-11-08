@@ -1,0 +1,282 @@
+{
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv55_TBD_vs_LAD_打球追尾調整版.html",
+  "sha256": "02644793d8c6e41b66d5330fe37cc0ce8d2fa7756ad6bc139b045fbef38d3b17",
+  "sourceCoreSha256": "4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279",
+  "sourceInputs": 113,
+  "views": [
+    {
+      "width": 1200,
+      "coverage": {
+        "sides": {
+          "L": {
+            "pitch": 0,
+            "contact": 2061.726,
+            "through": 2137.154044964538
+          },
+          "R": {
+            "pitch": 1,
+            "contact": 2010.871,
+            "through": 2079.9246527173705
+          }
+        },
+        "held": {
+          "pitch": 2,
+          "ms": 2138.977
+        }
+      },
+      "swingSamples": [
+        {
+          "ms": 0,
+          "oldPitch": 0.08,
+          "newPitch": 0.08,
+          "oldWeight": 0,
+          "newWeight": 0
+        },
+        {
+          "ms": 1961.726,
+          "oldPitch": 0.070406906935266,
+          "newPitch": 0.05178479183732858,
+          "oldWeight": 0.9933332197688151,
+          "newWeight": 0.9933332197688151
+        },
+        {
+          "ms": 2061.726,
+          "oldPitch": 0.25656456145125084,
+          "newPitch": 0.1766723751798237,
+          "oldWeight": 1,
+          "newWeight": 1
+        },
+        {
+          "ms": 2197.154044964538,
+          "oldPitch": 0.46358299908860423,
+          "newPitch": 0.2523761378696576,
+          "oldWeight": 0.7901234567901239,
+          "newWeight": 0.31744000000000094
+        },
+        {
+          "ms": 2417.154044964538,
+          "oldPitch": 0.32576255106604796,
+          "newPitch": 0.18507336399114332,
+          "oldWeight": 0,
+          "newWeight": 0
+        },
+        {
+          "ms": 0,
+          "oldPitch": 0.08,
+          "newPitch": 0.08,
+          "oldWeight": 0,
+          "newWeight": 0
+        },
+        {
+          "ms": 1910.871,
+          "oldPitch": 0.08116435190985888,
+          "newPitch": 0.06536274202297009,
+          "oldWeight": 0.9992456543395897,
+          "newWeight": 0.9992456543395897
+        },
+        {
+          "ms": 2010.871,
+          "oldPitch": 0.2577542378808066,
+          "newPitch": 0.18620955107149983,
+          "oldWeight": 1,
+          "newWeight": 1
+        },
+        {
+          "ms": 2139.9246527173705,
+          "oldPitch": 0.4920727682485212,
+          "newPitch": 0.3075370746459825,
+          "oldWeight": 0.7901234567901239,
+          "newWeight": 0.31744000000000094
+        },
+        {
+          "ms": 2359.9246527173705,
+          "oldPitch": 0.4749254881236448,
+          "newPitch": 0.24494445487517724,
+          "oldWeight": 0,
+          "newWeight": 0
+        }
+      ],
+      "otherCameras": [
+        {
+          "camera": "mound",
+          "ms": 2110.871
+        },
+        {
+          "camera": "mound",
+          "ms": 2779.9246527173705
+        },
+        {
+          "camera": "catcher",
+          "ms": 2110.871
+        },
+        {
+          "camera": "catcher",
+          "ms": 2779.9246527173705
+        },
+        {
+          "camera": "runner",
+          "ms": 2110.871
+        },
+        {
+          "camera": "runner",
+          "ms": 2779.9246527173705
+        },
+        {
+          "camera": "overhead",
+          "ms": 2110.871
+        },
+        {
+          "camera": "overhead",
+          "ms": 2779.9246527173705
+        }
+      ],
+      "earlierTracking": 2
+    },
+    {
+      "width": 390,
+      "coverage": {
+        "sides": {
+          "L": {
+            "pitch": 0,
+            "contact": 2061.726,
+            "through": 2137.154044964538
+          },
+          "R": {
+            "pitch": 1,
+            "contact": 2010.871,
+            "through": 2079.9246527173705
+          }
+        },
+        "held": {
+          "pitch": 2,
+          "ms": 2138.977
+        }
+      },
+      "swingSamples": [
+        {
+          "ms": 0,
+          "oldPitch": 0.08,
+          "newPitch": 0.08,
+          "oldWeight": 0,
+          "newWeight": 0
+        },
+        {
+          "ms": 1961.726,
+          "oldPitch": 0.070406906935266,
+          "newPitch": 0.05178479183732858,
+          "oldWeight": 0.9933332197688151,
+          "newWeight": 0.9933332197688151
+        },
+        {
+          "ms": 2061.726,
+          "oldPitch": 0.25656456145125084,
+          "newPitch": 0.1766723751798237,
+          "oldWeight": 1,
+          "newWeight": 1
+        },
+        {
+          "ms": 2197.154044964538,
+          "oldPitch": 0.46358299908860423,
+          "newPitch": 0.2523761378696576,
+          "oldWeight": 0.7901234567901239,
+          "newWeight": 0.31744000000000094
+        },
+        {
+          "ms": 2417.154044964538,
+          "oldPitch": 0.32576255106604796,
+          "newPitch": 0.18507336399114332,
+          "oldWeight": 0,
+          "newWeight": 0
+        },
+        {
+          "ms": 0,
+          "oldPitch": 0.08,
+          "newPitch": 0.08,
+          "oldWeight": 0,
+          "newWeight": 0
+        },
+        {
+          "ms": 1910.871,
+          "oldPitch": 0.08116435190985888,
+          "newPitch": 0.06536274202297009,
+          "oldWeight": 0.9992456543395897,
+          "newWeight": 0.9992456543395897
+        },
+        {
+          "ms": 2010.871,
+          "oldPitch": 0.2577542378808066,
+          "newPitch": 0.18620955107149983,
+          "oldWeight": 1,
+          "newWeight": 1
+        },
+        {
+          "ms": 2139.9246527173705,
+          "oldPitch": 0.4920727682485212,
+          "newPitch": 0.3075370746459825,
+          "oldWeight": 0.7901234567901239,
+          "newWeight": 0.31744000000000094
+        },
+        {
+          "ms": 2359.9246527173705,
+          "oldPitch": 0.4749254881236448,
+          "newPitch": 0.24494445487517724,
+          "oldWeight": 0,
+          "newWeight": 0
+        }
+      ],
+      "otherCameras": [
+        {
+          "camera": "mound",
+          "ms": 2110.871
+        },
+        {
+          "camera": "mound",
+          "ms": 2779.9246527173705
+        },
+        {
+          "camera": "catcher",
+          "ms": 2110.871
+        },
+        {
+          "camera": "catcher",
+          "ms": 2779.9246527173705
+        },
+        {
+          "camera": "runner",
+          "ms": 2110.871
+        },
+        {
+          "camera": "runner",
+          "ms": 2779.9246527173705
+        },
+        {
+          "camera": "overhead",
+          "ms": 2110.871
+        },
+        {
+          "camera": "overhead",
+          "ms": 2779.9246527173705
+        }
+      ],
+      "earlierTracking": 2
+    }
+  ],
+  "faults": [
+    {
+      "label": "v54-control",
+      "errors": [],
+      "requests": []
+    },
+    {
+      "label": "v55-1200",
+      "errors": [],
+      "requests": []
+    },
+    {
+      "label": "v55-390",
+      "errors": [],
+      "requests": []
+    }
+  ],
+  "pass": true
+}

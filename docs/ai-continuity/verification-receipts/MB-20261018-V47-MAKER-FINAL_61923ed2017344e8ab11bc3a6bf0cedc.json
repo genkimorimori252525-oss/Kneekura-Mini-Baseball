@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V47-MAKER-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-public-abilities.mjs",
+    "../../outputs/にーくら野球メーカー_中継とベース旋回調整版.html",
+    "outputs/verification-v47-maker-v2",
+    "../../outputs/ばせぼーるlv47_TBD_vs_LAD_中継とベース旋回版.html"
+  ],
+  "observed_at": "2026-10-18T07:33:42.187+00:00",
+  "elapsed_ms": 9641,
+  "git_head": "61a3afc1d7262e5d787358869d096df55ff8f2ac",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V47-MAKER-FINAL_61923ed2017344e8ab11bc3a6bf0cedc.log",
+  "output_sha256": "6b2bff4d0d08edb15c964a444bda5967e0dd2a7974821f72245a1a318662b78b",
+  "receipt_id": "MB-20261018-V47-MAKER-FINAL_61923ed2017344e8ab11bc3a6bf0cedc"
+}

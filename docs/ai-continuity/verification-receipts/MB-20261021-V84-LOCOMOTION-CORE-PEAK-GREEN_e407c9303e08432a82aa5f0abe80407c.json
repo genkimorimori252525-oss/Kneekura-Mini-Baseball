@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-LOCOMOTION-CORE-PEAK-GREEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/locomotion/LiveLocomotionV84.test.ts",
+    "src/core/sim/running/LiveRunnerMotionV1.test.ts",
+    "src/core/sim/running/LiveRunnerRetreatMotionV1.test.ts",
+    "src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts"
+  ],
+  "observed_at": "2026-10-20T15:37:24.879+00:00",
+  "elapsed_ms": 1468,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-LOCOMOTION-CORE-PEAK-GREEN_e407c9303e08432a82aa5f0abe80407c.log",
+  "output_sha256": "8bc7e7f6519fc806e4012e52e38851423c4bbb0fecc800243d7692c42b09efa2",
+  "receipt_id": "MB-20261021-V84-LOCOMOTION-CORE-PEAK-GREEN_e407c9303e08432a82aa5f0abe80407c"
+}

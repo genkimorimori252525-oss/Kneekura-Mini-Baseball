@@ -1,0 +1,17 @@
+file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-initial-bat-control-upright-v1/readback.mjs:2347
+  if (!v2) throw new Error("held to measured bat: " + message);
+                 ^
+
+Error: held to measured bat: bridge or measured speed bound 53.09598876445308 exceeds original envelope 50
+    at assert2 (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-initial-bat-control-upright-v1/readback.mjs:2347:18)
+    at createHeldToMeasuredBatControlV1 (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-initial-bat-control-upright-v1/readback.mjs:2419:3)
+    at prepareInitialMeasuredBatControlFromSqlite (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-initial-bat-control-upright-v1/readback.mjs:81130:19)
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-initial-bat-control-upright-v1/readback.mjs:81157:109
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-initial-bat-control-upright-v1/readback.mjs:58243:16
+    at withSqliteMetadataStatementScope (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-initial-bat-control-upright-v1/readback.mjs:18359:59)
+    at immutable (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-initial-bat-control-upright-v1/readback.mjs:60027:19)
+    at withSamePaContinuationReadPhase (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-initial-bat-control-upright-v1/readback.mjs:60044:54)
+    at withSamePaLifecycleReadPhase (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-initial-bat-control-upright-v1/readback.mjs:58224:51)
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-initial-bat-control-upright-v1/readback.mjs:81157:69
+
+Node.js v26.1.0

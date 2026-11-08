@@ -4,3 +4,17 @@ node_modules/
 
 # Derived from version-pinned club catalog inputs before typecheck/test.
 /src/core/world/catalog/GeneratedClubCatalog.ts
+.claude/feedback/
+.claude/settings.local.json
+config/claude-env.local.json
+
+# Release parts: large data stays local, see tools/release.
+release/*/assets/
+release/game/parts/038-*
+release/game/parts/088-*
+release/game/parts/098-*
+release/maker/
+release/lab/
+
+# Team music stays local: this repository is public.
+tools/ballpark-studio/assets/homerun/

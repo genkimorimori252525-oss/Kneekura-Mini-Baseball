@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V69-COMPARISON-FOUL",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/MeasuredTrajectoryComparisonWorkbenchV69.test.ts",
+    "--testNamePattern",
+    "physical foul-side"
+  ],
+  "observed_at": "2026-10-19T11:46:34.749+00:00",
+  "elapsed_ms": 1655,
+  "git_head": "936cd23907b8e078e179aa03e041420a3339932b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V69-COMPARISON-FOUL_532b14d10250422c9c5a8482f2e0a6b3.log",
+  "output_sha256": "9acca843855d61c6f148276037280b42fb31496fa043126f6d0b4cadcb11a2a6",
+  "receipt_id": "MB-20261019-V69-COMPARISON-FOUL_532b14d10250422c9c5a8482f2e0a6b3"
+}

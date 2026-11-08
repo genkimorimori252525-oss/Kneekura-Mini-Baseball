@@ -1,0 +1,58 @@
+▲ [WARNING] "youkaishomecoming:yukari" is not a valid value for the "type" field [package.json]
+
+    ../../../../../../package.json:1:8:
+      1 │ {"type":"youkaishomecoming:yukari","texture":"touhou_little_maid:te...
+        ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The "type" field must be set to either "commonjs" or "module".
+
+{
+  "output": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v68.html",
+  "bytes": 33126915,
+  "sha256": "646bec6567836700227161c73a09feb96aa3592dd893c992129259b4ff54d0ea",
+  "coreSha256": "429dea36b952aaf4b8662a9c2f96d4200302af13b428971841f85b1547417358",
+  "uiSha256": "2879f5229b04c7df283391de6529eb69e84026583e205181de0620109978f30b",
+  "bundleInputCount": 81,
+  "bundleInputManifestSha256": "6df862fdd94511f98e5d5fc0146d75b66af8bffdeede23543c5549d10b6ac6c6",
+  "templateSha256": "6f83681ca732262454a5e37f5098f7f6da5ba59ac3886a144a88e2188ee7b6d1",
+  "referenceSha256": "b53a8d687f663a5578315120445de1407fb82efec594cde27cc313c1ea5b106a",
+  "referenceClips": 673,
+  "liveRosterSha256": "546b69369c975a85469492029f8a5306fb5fdabc48e9d36ec82bfcb75e4829c7",
+  "liveRosterCatalogSha256": "d98041720cd4b7367489bac0d04502f58477a22b759e0867150f64774fe1ff01",
+  "gamePlayers": 20,
+  "publicAbilities": true,
+  "traitProfiles": true,
+  "executableTraits": true,
+  "measuredLibrary": true,
+  "libraryDecoderSha256": "220b935db75c7f4ee4406c71dd61e4dcdfb5685da6b3749b7974f4ee83606209",
+  "swingUiSha256": "35e2c25329daf47bb29681e610cc8c600da529c5c31cc8f9c4fd63567d9e1a00",
+  "helpUiSha256": "e83dfa72ea598598ecf393200903e04e6cc227e836d4886856c6e6361d2e6dd5",
+  "lightCssSha256": "2253a9670f34c1442b033511f710bd65038fbe516352ee9ba14d07262241e673",
+  "traitCatalogFamilies": 119,
+  "traitAvailabilitySha256": "2e4841fcac50d573e9d6dbca95d042f49f54bd192950799c36ef162187e0220f",
+  "liveRosterPath": "docs/demos/live-game-roster-v62.json",
+  "liveRosterCatalogPath": "docs/demos/live-game-roster-catalog-v62.json",
+  "publicReferenceSha256": "b448f82f81620085b1f4923609cec23f69db4c639da76b6b1f877abb22622e4e",
+  "batSpriteModuleSha256": "aa675212434b677b1fe8fb245d438f49f4afcef9022cecc2d512fd7cd32c35d9",
+  "batSpriteManifestSha256": "29f76d56ef02f56f4eda9b6b626df8e1b5ce98acbaa957b6534bbdcf2cff4dcc",
+  "batSprites": [
+    {
+      "file": "bat-78cm.png",
+      "nominalLengthM": 0.78,
+      "sha256": "41a9920ce99d43fcf4f18ff1121c30063ff6f02ed076d3a0032934d92910e430"
+    },
+    {
+      "file": "bat-84cm.png",
+      "nominalLengthM": 0.84,
+      "sha256": "c2902280e948c71afd5d346a18fffb587eccae868b1e9f7adf2009112ded2d4e"
+    },
+    {
+      "file": "bat-90cm.png",
+      "nominalLengthM": 0.9,
+      "sha256": "1e69c292727402112a6506c88e796d725db93bb28a1eb5d763bcaeff77ae5bd9"
+    }
+  ],
+  "batSpriteAuthority": "GENERATED_RENDER_SPRITES_NOT_MEASURED_BAT_GEOMETRY",
+  "selfContained": true,
+  "authority": "Shared Core samples; separate OpenBiomechanics measured-axis research replay"
+}

@@ -1,0 +1,1 @@
+task_id,start_commit,task_class,coupling,risk,architecture,main_model,worker_model,main_effort,worker_effort,completion,tests_result,regression,retries,wall_minutes,total_tokens_observed,api_estimate_usd,estimate_basis,review_notes

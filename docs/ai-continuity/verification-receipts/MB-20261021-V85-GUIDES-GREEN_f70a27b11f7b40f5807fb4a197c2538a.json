@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V85-GUIDES-GREEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/browser-bridge/maker-guides-v85.test.mjs",
+    "tools/browser-bridge/pitcher-comparison-v85.test.mjs"
+  ],
+  "observed_at": "2026-10-20T16:03:31.021+00:00",
+  "elapsed_ms": 1233,
+  "git_head": "a0ca8087caddc79322ad91ba37bc14e7555c62ed",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V85-GUIDES-GREEN_f70a27b11f7b40f5807fb4a197c2538a.log",
+  "output_sha256": "5c28335c558c66862f571cfda38afbe4445b3f5ea50a2ad5b9460b3a0c14f7ff",
+  "receipt_id": "MB-20261021-V85-GUIDES-GREEN_f70a27b11f7b40f5807fb4a197c2538a"
+}

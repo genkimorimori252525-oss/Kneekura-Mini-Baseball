@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-FIELD-RULES-TEST",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts",
+    "src/integration/browser/PlayableMatchRulesV1.test.ts"
+  ],
+  "observed_at": "2026-10-16T22:23:40.121+00:00",
+  "elapsed_ms": 2219,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-FIELD-RULES-TEST_b32c761d783b4dc2bc33344f3ddfb4d5.log",
+  "output_sha256": "b03fa9cca1f873a84e898e94092ee77879115e8d52c9be7c2bfa9b7cb0d220f5",
+  "receipt_id": "MB-20261017-LIVE-FIELD-RULES-TEST_b32c761d783b4dc2bc33344f3ddfb4d5"
+}

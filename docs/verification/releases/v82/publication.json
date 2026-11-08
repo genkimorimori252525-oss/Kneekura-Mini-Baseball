@@ -1,0 +1,13 @@
+{
+  "pass": true,
+  "productCommit": "5cac00061f0feb39d0ecb85cf090e7a3092076ac",
+  "remoteBranch": "jolly/tbd-lad-native-browser-core-2026-10-14",
+  "pullRequest": {
+    "headRefOid": "5cac00061f0feb39d0ecb85cf090e7a3092076ac",
+    "isDraft": true,
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380"
+  },
+  "makerSha256": "5c4ab2836fff35957f4480afb48e7d0a6096879184fccb6b997e635dbb582edf",
+  "exactCommittedSourcePins": 104,
+  "scope": "Remote branch and existing Draft PR point to the verified product commit; exact committed maker and source blobs match release hashes."
+}

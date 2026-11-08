@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-DECISION-NATIVE-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/native-game/build-measured-model-readback.mjs",
+    "../native-observed-initial-decision-v1",
+    "observed_initial_decision"
+  ],
+  "observed_at": "2026-10-16T11:27:24.372+00:00",
+  "elapsed_ms": 1391,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-DECISION-NATIVE-BUILD_d9c2104838b3409290365a8770375b6a.log",
+  "output_sha256": "d18ccb85cff24c31aec8fd8cd87671104c4b9ffd170b0e92daa99b080c62c92e",
+  "receipt_id": "MB-20261016-INITIAL-DECISION-NATIVE-BUILD_d9c2104838b3409290365a8770375b6a"
+}

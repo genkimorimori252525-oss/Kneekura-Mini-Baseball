@@ -1,0 +1,19 @@
+{
+  "output": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv32_正式Core後続動作観測版.html",
+  "sha256": "6143a07e034d1d5268bde757e74d33b8bb020c6e0e6b533a99b85a124b719be5",
+  "baselineSha256": "c613574b377afd19060d89100c1bd7c1fa693efd42361c77ed7ab21943670f1f",
+  "recordingSha256": "bdc5b593b5dec5480287b270dfb02b8e2414cbb98f83ffa2c01abc668a6131cb",
+  "nativeBundleSha256": "a70c20c2fe4a76598935d05349fc067b0ed281a6214ddde878ea7abc7dd78436",
+  "browserAuthentication": false,
+  "authority": "Native owner execution export; browser is read-only",
+  "scope": "finite executed field successor, no full-game or named-player calibration claim",
+  "approvedPngMasksSha256": "51005451401727fb84c31be9ae63712c8a815bdd0a7edbde7606af36a69a0944",
+  "approvedFontSha256": "6bd1592ef0d1a47ecd13bf7ef81ac361a12c29239f31d43bec1c3f54f6023aeb",
+  "legacyEngineUnchanged": true,
+  "primaryCanvas": "Native exported execution",
+  "legacyFallback": false,
+  "requiresOfficialLiveBallResolution": true,
+  "officialResult": null,
+  "ordinaryCadenceMs": 55,
+  "displayGridPixels": 4
+}

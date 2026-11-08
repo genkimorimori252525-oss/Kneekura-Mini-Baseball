@@ -1,0 +1,44 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ tools/browser-bridge/presentation-ui-performance-v81.test.mjs (5 tests) 575ms
+ ❯ tools/browser-bridge/presentation-cadence-performance-v81.test.mjs (8 tests | 1 failed) 2319ms
+   ✓ fails closed on altered or duplicate v79 experiment markers 434ms
+   ✓ changes only the declared Presentation experiment regions and commutes with the independent UI patch 669ms
+   × supports one read-only continuous seek draw without playing, and always restores the private option 204ms
+     → expected { Object (position, visible, ...) } to deeply equal { Object (position, visible) }
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tools/browser-bridge/presentation-cadence-performance-v81.test.mjs > supports one read-only continuous seek draw without playing, and always restores the private option
+AssertionError: expected { Object (position, visible, ...) } to deeply equal { Object (position, visible) }
+
+- Expected
++ Received
+
+  Object {
++   "ballKind": "pitch",
+    "position": Object {
+      "x": 1,
+      "y": 1,
+      "z": 1,
+    },
++   "sourceObservation": true,
+    "visible": true,
+  }
+
+ ❯ tools/browser-bridge/presentation-cadence-performance-v81.test.mjs:91:73
+     89|   expect(h.draws.at(-1)).toMatchObject({sceneMs:150,playing:false,ball…
+     90|   expect(h.samples).toHaveLength(1);expect(h.probe().continuousObserva…
+     91|   h.context.seekApi.seekPresentationMs(150);expect(h.draws.at(-1).ball…
+       |                                                                         ^
+     92|   h.context.drawFault=true;expect(()=>h.context.seekApi.seekPresentati…
+     93|   expect(h.probe().continuousObservation).toBe(false);expect(h.context…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 12 passed (13)
+   Start at  21:56:30
+   Duration  2.94s (transform 51ms, setup 0ms, collect 200ms, tests 2.89s, environment 0ms, prepare 291ms)
+

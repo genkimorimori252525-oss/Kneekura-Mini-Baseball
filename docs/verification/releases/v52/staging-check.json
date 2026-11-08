@@ -1,0 +1,11 @@
+{
+  "pass": true,
+  "stagedFiles": 56,
+  "bytesEqualGitBlobs": true,
+  "credentialPatterns": 0,
+  "oversizeFiles": 0,
+  "whitespaceCheckedFiles": 47,
+  "crAtEolAcceptedWithoutByteChanges": true,
+  "coreSourceDistUnchanged": true,
+  "userAGENTSExcluded": true
+}

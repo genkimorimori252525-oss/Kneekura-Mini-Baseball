@@ -1,0 +1,29 @@
+{
+  "pass": true,
+  "path": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v81_無劣化性能改善版.html",
+  "cases": [
+    {
+      "width": 1200,
+      "traits": 17,
+      "publicAndPhysicalUnchanged": true,
+      "independentThrowOffAndScaleRoundtrip": true
+    },
+    {
+      "width": 390,
+      "traits": 17,
+      "publicAndPhysicalUnchanged": true,
+      "independentThrowOffAndScaleRoundtrip": true
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": []
+    },
+    {
+      "width": 390,
+      "errors": []
+    }
+  ],
+  "sha256": "9a05aabd41e152b2ead5b590397ac1de42e420d6d8b15105dc0c35daffedee09"
+}

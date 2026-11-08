@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Native Pitch Proof — TBD vs LAD</title>
+<style>
+  :root { font-family: "Noto Sans JP","Yu Gothic",Meiryo,sans-serif; color-scheme:dark; background:#070b09; color:#e5e8d9; }
+  *{box-sizing:border-box} body{margin:0;padding:clamp(10px,2vw,26px);max-width:1050px;margin-inline:auto;line-height:1.5}
+  header{display:flex;justify-content:space-between;align-items:end;gap:12px;border-bottom:1px solid #344b3b;padding-bottom:14px}
+  h1{font-size:clamp(17px,3.5vw,25px);font-weight:650;margin:0} .label{color:#a9ba9c;font-size:12px}
+  .warn{color:#e4c36e;font-size:12px;margin:10px 0}
+  .layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(215px,290px);gap:18px;margin-top:14px}
+  .stage{position:relative;aspect-ratio: 5/3.35;background:#090e0d;border:1px solid #3b4f40;overflow:hidden}
+  canvas{width:100%;height:100%;display:block}
+  .scene-label{position:absolute;top:8px;left:9px;color:#d6e7c9;font-size:11px;pointer-events:none}
+  .controls{border:1px solid #3b4f40;padding:12px;display:grid;gap:10px;align-content:start}
+  .controls label{font-size:12px;color:#c5d6be;display:grid;gap:4px}
+  input,select,button{color:#eef6e9;border:1px solid #55735c;background:#142119;border-radius:3px;font:inherit;min-height:35px;padding:6px 9px}
+  button{cursor:pointer;background:#1c4434;border-color:#3a7e5e;font-weight:700}
+  button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #c5dc88;outline-offset:2px}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  .inline{display:flex;gap:8px;flex-wrap:wrap}.inline>*{flex:1}
+  .readout{border-top:1px solid #344b3b;padding-top:12px;min-height:70px;font-size:13px}
+  .event{border-top:1px solid #283b2d;padding:7px 0;font-size:12px;color:#d0dcc9}
+  .proof{font:12px ui-monospace,Consolas,monospace;color:#9aafa0;overflow-wrap:anywhere}
+  .footer{margin-top:14px;border-top:1px solid #344b3b;padding-top:10px;font-size:12px;color:#afc0ac}
+  @media(max-width:720px){.layout{grid-template-columns:1fr}.controls{grid-template-columns:1fr 1fr}.controls .full{grid-column:span 2}}
+  @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+  <header><div><div class="label">Kneekura Mini Baseball — 物理・公式イベント実証</div>
+  <h1>LAD 大谷翔平 × TBD ティカオ</h1></div><div class="label">Native Match Core · 1打席限定</div></header>
+  <p class="warn">これは正式Coreが生成した投球物理と判定を描く接続検証画面や。v23の正式なPNG試合画面を置き換えるものではなく、打球後の守備・全試合は未接続。日本式の投球カウント規則は検証用の仮プロファイルを使用。</p>
+  <div class="layout">
+    <div>
+      <div class="stage"><canvas id="native-field" width="900" height="603" aria-label="Native Coreが計算した実際の投球位置の再生"></canvas>
+      <div class="scene-label" id="scene-label">正史の投球を待機</div></div>
+      <div class="readout" id="summary" aria-live="polite">球種・能力の本格校正は未接続。この実証では、指示と球道・ストライク／ボール判定が同じCoreから出ることを確認できる。</div>
+      <div id="events" aria-label="正史イベント履歴"></div>
+    </div>
+    <section class="controls" aria-label="正史Coreへの次球命令">
+      <label>シード <input id="seed" type="number" value="20261014" step="1"></label>
+      <label>打者 <input value="大谷翔平（左）" disabled></label>
+      <label>コース <select id="zone"><option value="outside">外角</option><option value="inside">内角</option><option value="middle">中央</option></select></label>
+      <label>高低 <select id="vertical"><option value="low">低め</option><option value="middle">中段</option><option value="high">高め</option></select></label>
+      <label>攻め方 <select id="aggression"><option value="challenge">ストライクで勝負</option><option value="balanced" selected>バランス</option><option value="waste">外へ誘う</option></select></label>
+      <label>打者行動 <select id="approach"><option value="take" selected>見送る</option><option value="balanced">状況次第</option><option value="aggressive">振りにいく</option></select></label>
+      <button class="full" id="issue">次の一球を正式Coreで計算・表示</button>
+      <button class="full" id="restart" type="button">同じシードで1打席をやり直す</button>
+      <div class="proof full" id="receipt" aria-live="polite">物理イベント未発行</div>
+    </section>
+  </div>
+  <div class="footer">この画面はNode.js/SQLiteを使わずブラウザ上で動作する純粋なCoreモジュールを使用。PC・スマホ実機の動作保証、NLB能力200〜250校正、投手・捕手の主導権、全9回の公式記録については別途実装・受入検証が必要。</div>
+  <script src="../../dist/native-match-core-browser.js"></script>
+  <script>
+  (() => {
+    'use strict';
+    const $ = id => document.getElementById(id);
+    const core = window.KneekuraNativeMatchCore;
+    const canvas = $('native-field'), context = canvas.getContext('2d');
+    let session = null, trace = null, frameIndex = 0, running = false, cancelToken = 0;
+    const start = () => {
+      if (!core?.createNativeSinglePaSession) {
+        $('summary').textContent = '正式CoreのJavaScriptを読み込めへんかった。リポジトリからHTMLとdistを同じ配置で保存して開いてくれ。';
+        $('issue').disabled = true; return false;
+      }
+      cancelToken++; running = false; trace = null; frameIndex = 0;
+      try { session = core.createNativeSinglePaSession(Number($('seed').value)); }
+      catch (error) { $('summary').textContent = error.message; return false; }
+      $('issue').disabled = false; $('events').replaceChildren();
+      $('receipt').textContent = '未発行 / seed=' + $('seed').value;
+      $('summary').textContent = '0ボール 0ストライク — 投球計算の入力を待機';
+      draw(null);
+      return true;
+    };
+    function draw(sample) {
+      const w = canvas.width, h = canvas.height;
+      context.fillStyle = '#070e0b'; context.fillRect(0,0,w,h);
+      for(let y=14;y<h;y+=14)for(let x=14;x<w;x+=14){
+        const behind = y < h * .54;
+        context.fillStyle = behind ? '#1d4b31' : '#665541';
+        context.beginPath();context.arc(x,y,2.7,0,Math.PI*2);context.fill();
+      }
+      context.lineWidth=4;context.strokeStyle='#dedec1';context.setLineDash([7,5]);
+      context.beginPath();context.moveTo(w*.08,h*.90);context.lineTo(w*.48,h*.48);context.lineTo(w*.92,h*.90);context.stroke();context.setLineDash([]);
+      context.strokeStyle='#dec776';context.lineWidth=3;context.strokeRect(w*.437,h*.56,w*.126,h*.195);
+      context.fillStyle='#eedfba'; context.beginPath();
+      context.moveTo(w*.49,h*.82);context.lineTo(w*.51,h*.82);context.lineTo(w*.515,h*.832);context.lineTo(w*.5,h*.841);context.lineTo(w*.485,h*.832);context.closePath();context.fill();
+      context.fillStyle='#c6e0c1';context.font='15px sans-serif';context.fillText('ティカオ',w*.5-26,h*.24);
+      context.fillText('ストライクゾーン',w*.436,h*.54);
+      if(!sample?.world?.ball)return;
+      const ball = sample.world.ball.position;
+      // Diagnostic camera follows real x/y/z, no fabricated fly trajectory.
+      const distance = Math.max(0,Math.min(1,ball.z/18));
+      const x = w*.5 + ball.x*145*(1-distance*.5);
+      const y = h*.765 - distance*h*.46 - (ball.y-1.0)*42;
+      const apparentRadius = Math.max(1.3,5.2 - distance*2.5);
+      context.fillStyle='#f7f6ee';context.beginPath();context.arc(x,y,apparentRadius,0,Math.PI*2);context.fill();
+      if(apparentRadius>=3){context.lineWidth=.8;context.strokeStyle='#ba675d';context.beginPath();
+        context.arc(x-1,y,apparentRadius*.55,-1.1,1.1);context.stroke();}
+    }
+    const issue = () => {
+      if(running || !session)return;
+      const request = {
+        pitcher: { attackZone:$('zone').value, verticalPlan:$('vertical').value, aggression:$('aggression').value },
+        batter: { approach:$('approach').value, swingBias:'neutral' },
+        runners: { posture:'balanced' },
+      };
+      try { trace = session.issue(request); } catch (error) {
+        $('summary').textContent = '正史処理はここで停止: ' + error.message; $('issue').disabled = true; return;
+      }
+      $('issue').disabled = true; running = true;
+      const snapshot = trace, token = ++cancelToken;
+      const ballSamples = snapshot.result.samples;
+      frameIndex = 0;
+      $('scene-label').textContent = '正式Coreの実球道・投球第' + (snapshot.ordinal+1) + '球';
+      $('receipt').textContent = '真の記録: ' + snapshot.eventKinds.join(' / ');
+      const entries = $('events'); const line = document.createElement('div');line.className='event';
+      line.textContent = '第' + (snapshot.ordinal+1) + '球　' + snapshot.eventKinds.join(' → ');
+      entries.prepend(line);
+      const loop = () => {
+        if(token!==cancelToken)return;
+        draw(ballSamples[frameIndex]);
+        const current=ballSamples[frameIndex];
+        $('scene-label').textContent = '正史tick ' + current.world.tick + ' μs';
+        if(++frameIndex<ballSamples.length){setTimeout(loop,55);return;}
+        running=false;
+        const status = session.inspect(), count = status.count;
+        $('summary').textContent = count
+          ? count.balls+'ボール '+count.strikes+'ストライク（正史の判定）'
+          : status.phase==='batted_ball_pending'
+            ? '打球発生。本物の守備・裁定が未接続のため、ここで停止。'
+            : status.phase==='walk' ? '四球が正式Coreで成立。打者は一塁へ。'
+            : status.phase==='strikeout' ? '三振が正式Coreで成立。' : '投球を記録した';
+        $('issue').disabled = status.phase!=='active';
+      };
+      loop();
+    };
+    $('issue').onclick=issue;
+    $('restart').onclick=start;
+    window.nativePitchProof=Object.freeze({restart:start,issue,inspect:()=>({
+      ...session?.inspect(),running,source:trace?.result.authority ?? null,
+      acceptedEvents:trace?.eventKinds ?? [],samples:trace?.result.samples.length ?? 0,
+      unresolved:trace?.result.requiresOfficialLiveBallResolution ?? false,
+    })});
+    start();
+  })();
+  </script>
+</body></html>

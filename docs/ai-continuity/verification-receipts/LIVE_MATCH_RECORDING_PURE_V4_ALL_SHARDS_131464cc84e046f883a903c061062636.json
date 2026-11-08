@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "LIVE_MATCH_RECORDING_PURE_V4_ALL_SHARDS",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "--input-type=module",
+    "-e",
+    "import {spawnSync} from \"node:child_process\";import {readdirSync,readFileSync,writeFileSync} from \"node:fs\";import {resolve} from \"node:path\";const directory=resolve(\"../../outputs/verification-live-match-recordings-pure-v1\"),reports=[];for(const shard of readdirSync(directory).filter(s=>/^shard-\\d+$/.test(s))){const result=spawnSync(process.execPath,[resolve(directory,\"verify.mjs\"),resolve(directory,shard),\"0\"],{encoding:\"utf8\",windowsHide:true});if(result.stdout)process.stdout.write(result.stdout);if(result.stderr)process.stderr.write(result.stderr);if(result.status!==0)process.exit(result.status??1);reports.push(JSON.parse(readFileSync(resolve(directory,shard,\"saved-record-verification.json\"),\"utf8\")));}const summary={scope:\"Original v4 complete saved games checked by new rules/identity/completeness verifier; zero physical re-execution because field source changed\",verifiedGames:reports.reduce((s,r)=>s+r.verifiedGames,0),pitches:reports.reduce((s,r)=>s+r.totalPitches,0),tamperChecks:reports.reduce((s,r)=>s+r.tamperChecks,0),replayedGames:0,nativeAuthentication:false,reports};writeFileSync(resolve(directory,\"summary.json\"),JSON.stringify(summary,null,2),{flag:\"wx\"});console.log(JSON.stringify({...summary,reports:reports.length}));"
+  ],
+  "observed_at": "2026-10-17T01:02:11.181+00:00",
+  "elapsed_ms": 562,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/LIVE_MATCH_RECORDING_PURE_V4_ALL_SHARDS_131464cc84e046f883a903c061062636.log",
+  "output_sha256": "821ec7b22182a3d65767c70e5bcd08ea2dd64e3a5b804a4d085f6421fabbc0a9",
+  "receipt_id": "LIVE_MATCH_RECORDING_PURE_V4_ALL_SHARDS_131464cc84e046f883a903c061062636"
+}

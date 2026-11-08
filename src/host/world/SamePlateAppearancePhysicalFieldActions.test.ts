@@ -18,6 +18,9 @@ import { deriveQuantizerClosedGenerationBoundary } from '../../core/sim/liveActi
 import { deriveSamePaPhysicalFieldAction } from './SamePlateAppearancePhysicalFieldActionFromSqlite';
 import type { SamePaPhysicalFieldAction } from './SamePlateAppearancePhysicalFieldAction';
 import type { SamePaLifecycleViewBasis } from './SamePlateAppearanceLifecycle';
+import { deriveSamePaPhysicalFieldMotor, samePaPhysicalDefenderSelf } from './SamePlateAppearancePhysicalFieldMotor';
+import { deriveSamePaLiveWorkCensus } from './SamePlateAppearanceLiveWorkCensus';
+import { deriveSamePaFieldRuleEvidence } from './SamePlateAppearanceFieldRuleEvidence';
 const mocked = vi.hoisted(() => ({ calibrations: new Map<string, unknown>(), observations: new Map<string, unknown>(), decisions: new Map<string, unknown>(), locomotion: new Map<string, unknown>(), posture: null as unknown }));
 vi.mock('./SamePlateAppearanceLifecycleFromSqlite', () => ({ readSamePaLifecycleCalibrationFromSqlite: (_db: unknown, r: { sourceId: string }) => mocked.calibrations.get(r.sourceId),
   readCurrentSamePaLifecycleCalibrationFromSqlite: (_db: unknown, r: { sourceId: string }) => mocked.calibrations.get(r.sourceId) }));
@@ -102,10 +105,18 @@ const authorFixture = () => {
     memoryDecayParameters: { ...observationValues.memoryDecayParameters, ticksPerSecond: 1_000_000 },
     errorParameters: { minimumDetectionQuality: 0, minimumPositionErrorMeters: 0, maximumPositionErrorMeters: 0, minimumVelocityErrorMps: 0, maximumVelocityErrorMps: 0 } };
   const values = { defender_observation: obs, defender_decision: playerDecisionCalibrationFixture(), defender_locomotion: { ...playerLocomotionCalibrationFixture(), maxIntegrationStepTicks: 100_000 } };
-  const calibrate = (route: keyof typeof values) => {
-    const id = 'calibration:' + route, nominalReference = route === 'defender_decision' ? reference('world_player_decision_models', decisionModel)
-      : route === 'defender_locomotion' ? reference('world_player_locomotion_models', locomotionModel) : reference('world_player_observation_models', observationModel);
-    mocked.calibrations.set(id, { lineage: root.lineage, source: { member: m, viewReference: reference('pa_lifecycle_v1_execution_views', basis.view),
+  const calibrate = (route: keyof typeof values, playerId = 'p1') => {
+    const suffix = playerId === 'p1' ? '' : ':' + playerId;
+    const ownFieldingModel = { ...fieldingModel, person: { personId: 'person' + playerId.slice(1) } };
+    const ownObservation = { ...observationModel, source: { ...observationModel.source, sourceId: 'observation-model' + suffix }, fieldingModel: ownFieldingModel };
+    const ownDecision = { ...decisionModel, source: { ...decisionModel.source, sourceId: 'decision-model' + suffix }, fieldingModel: ownFieldingModel };
+    const ownLocomotion = { ...locomotionModel, source: { ...locomotionModel.source, sourceId: 'motion-model' + suffix,
+      playerId, personLinkSourceId: playerId + ':link' }, fieldingModel: ownFieldingModel };
+    mocked.observations.set(ownObservation.source.sourceId, ownObservation); mocked.decisions.set(ownDecision.source.sourceId, ownDecision);
+    mocked.locomotion.set(ownLocomotion.source.sourceId, ownLocomotion);
+    const id = 'calibration:' + route + suffix, nominalReference = route === 'defender_decision' ? reference('world_player_decision_models', ownDecision)
+      : route === 'defender_locomotion' ? reference('world_player_locomotion_models', ownLocomotion) : reference('world_player_observation_models', ownObservation);
+    mocked.calibrations.set(id, { lineage: root.lineage, source: { member: member(playerId), viewReference: reference('pa_lifecycle_v1_execution_views', basis.view),
       route, nominalReference, response: { kind: 'accepted_execution_values_v1', values: values[route] } } });
     return ref('pa_lifecycle_v1_execution_calibrations', id) as Extract<SamePaPhysicalFieldAction, { kind: 'defender_observation_v1' }>['calibrationReference'];
   };
@@ -116,7 +127,7 @@ const authorFixture = () => {
     const step = stepOf(previous, source, value); prefix.push(step); basis = { ...basis, view: { ...basis.view, cut: { ...basis.view.cut, evaluationTick: step.evaluationTick } } };
     return step;
   };
-  const observe = () => run({ kind: 'defender_observation_v1', member: m, calibrationReference: calibrate('defender_observation'), previousObservationReference: null,
+  const observe = (playerId = 'p1') => run({ kind: 'defender_observation_v1', member: member(playerId), calibrationReference: calibrate('defender_observation', playerId), previousObservationReference: null,
     view: { poseVersion: 'explicit-author-v1', bodyRelativeEyeOffset: { x: 0, y: 0, z: 0 }, forward: { x: -1, y: 0, z: 0 }, attentionTarget: { kind: 'ball' } } });
   const decide = (observation: SamePaPhysicalFieldStep) => run({ kind: 'defender_decision_v1', member: m, calibrationReference: calibrate('defender_decision'),
     observationReference: reference('pa_physical_v1_field_steps', observation), priorities: { ballPursuitPriority: 1, baseCoverPriorities: [], relayPriority: 0, backupPriority: 0, deepCoveragePriority: 0, holdPriority: 0.1 } });
@@ -134,6 +145,155 @@ it('FQ01 executes the exact retained quantizer suffix without changing command o
   expect(JSON.stringify(sealed.field.motion.actors)).toBe(before);expect(sealed.timeline).toEqual(previous.timeline);
   expect(sealed).not.toHaveProperty('playEnd');expect(sealed).not.toHaveProperty('completion');
   expect(()=>h.run({kind:'retained_quantizer_checkpoint_v1'})).toThrow(/interval/);
+});
+it('FS01 source-backed relay, backup and deep coverage execute the rated motor into the same physical checkpoint', () => {
+  for (const role of ['relay', 'backup', 'deep_coverage'] as const) {
+    const h = authorFixture(), observed = h.observe();
+    const priorities = { ballPursuitPriority: 0, baseCoverPriorities: [], relayPriority: 0, backupPriority: 0, deepCoveragePriority: 0, holdPriority: 0.01,
+      [role === 'deep_coverage' ? 'deepCoveragePriority' : role + 'Priority']: 1 };
+    const selected = h.run({ kind: 'defender_decision_v1', member: h.m, calibrationReference: h.calibrate('defender_decision'),
+      observationReference: reference('pa_physical_v1_field_steps', observed), priorities,
+      supportGeometry: { kind: 'perceived_ball_support_geometry_v1', base: 1 } });
+    if (selected.actionResult?.kind !== 'defender_decision_v1') throw new Error('support decision missing');
+    expect(selected.actionResult.calculation.selected.intent.kind).toBe(role);
+    h.waitUntil(selected.actionResult.calculation.scheduling.movementStartTick);
+    const previous = h.prefix.at(-1)!, moved = h.run({ kind: 'defender_motion_v1', selections: [{ member: h.m,
+      decisionReference: reference('pa_physical_v1_field_steps', selected), calibrationReference: h.calibrate('defender_locomotion') }] }, previous.evaluationTick + 1000);
+    if (moved.actionResult?.kind !== 'defender_motion_v1') throw new Error('support motor missing');
+    const motor = moved.actionResult.motors[0];
+    expect(motor.intent.kind).toBe(role); expect(Math.hypot(motor.segment.acceleration.x, motor.segment.acceleration.z)).toBeGreaterThan(0);
+    const model = (mocked.posture as any).sceneBodies.find((b: any) => b.source.playerId === 'p1').actor;
+    const after = samePaPhysicalDefenderSelf(h.action, h.root, moved, model);
+    expect(Math.hypot(after.root.position.x - motor.self.root.position.x, after.root.position.z - motor.self.root.position.z)).toBeGreaterThan(0);
+    expect(Math.hypot(after.root.velocity.x, after.root.velocity.z)).toBeGreaterThan(0);
+    expect(moved.field.motion.carrierPlayerId).toBeNull(); expect(moved.timeline.events).toEqual(previous.timeline.events);
+  }
+});
+it('FS02 all nine original defenders execute including cover after a genuinely moved and locally perceived handler', () => {
+  const h = authorFixture(), handler = h.decide(h.observe());
+  if (handler.actionResult?.kind !== 'defender_decision_v1') throw new Error('handler missing');
+  h.waitUntil(handler.actionResult.calculation.scheduling.movementStartTick);
+  const handlerMotor = h.run({ kind: 'defender_motion_v1', selections: [{ member: h.m,
+    decisionReference: reference('pa_physical_v1_field_steps', handler), calibrationReference: h.calibrate('defender_locomotion') }] }, h.prefix.at(-1)!.evaluationTick + 1000);
+  const roles = ['base_cover', 'relay', 'backup', 'deep_coverage', 'hold', 'relay', 'backup', 'deep_coverage'] as const;
+  const decisions = roles.map((role, index) => {
+    const playerId = 'p' + (index + 2), observed = h.observe(playerId);
+    const priorities = { ballPursuitPriority: 0, baseCoverPriorities: role === 'base_cover' ? [{ base: 1 as const, priority: 1 }] : [],
+      relayPriority: role === 'relay' ? 1 : 0, backupPriority: role === 'backup' ? 1 : 0, deepCoveragePriority: role === 'deep_coverage' ? 1 : 0,
+      holdPriority: role === 'hold' ? 1 : 0.01 };
+    const decision = h.run({ kind: 'defender_decision_v1', member: member(playerId), calibrationReference: h.calibrate('defender_decision', playerId),
+      observationReference: reference('pa_physical_v1_field_steps', observed), priorities,
+      supportGeometry: { kind: 'perceived_ball_support_geometry_v1', base: 1,
+        ...(role === 'base_cover' ? { teammateMotionReference: reference('pa_physical_v1_field_steps', handlerMotor) } : {}) } });
+    if (decision.actionResult?.kind !== 'defender_decision_v1') throw new Error('support decision missing');
+    expect(decision.actionResult.calculation.selected.intent.kind).toBe(role);
+    return decision;
+  });
+  const due = Math.max(...decisions.map(d => d.actionResult?.kind === 'defender_decision_v1' ? d.actionResult.calculation.scheduling.movementStartTick : 0));
+  h.waitUntil(due);
+  const before = h.prefix.at(-1)!, selections = [handler, ...decisions].map(d => {
+    if (d.actionResult?.kind !== 'defender_decision_v1') throw new Error('decision missing');
+    return { member: member(d.actionResult.playerId), decisionReference: reference('pa_physical_v1_field_steps', d),
+      calibrationReference: h.calibrate('defender_locomotion', d.actionResult.playerId) };
+  });
+  const moved = h.run({ kind: 'defender_motion_v1', selections }, before.evaluationTick + 1000);
+  if (moved.actionResult?.kind !== 'defender_motion_v1') throw new Error('nine motors missing');
+  expect(moved.actionResult.motors).toHaveLength(9);
+  expect(new Set(moved.actionResult.motors.map(m => m.intent.kind)).size).toBe(6);
+  for (const motor of moved.actionResult.motors) {
+    if (motor.intent.kind === 'hold') expect(motor.segment.acceleration).toEqual({ x: 0, z: 0 });
+    else {
+      expect(Math.hypot(motor.segment.acceleration.x, motor.segment.acceleration.z)).toBeGreaterThan(0);
+      const model = (mocked.posture as any).sceneBodies.find((b: any) => b.source.playerId === motor.self.playerId).actor;
+      const after = samePaPhysicalDefenderSelf(h.action, h.root, moved, model);
+      expect(Math.hypot(after.root.position.x - motor.self.root.position.x, after.root.position.z - motor.self.root.position.z)).toBeGreaterThan(0);
+    }
+  }
+  expect(moved.field.motion.actors).toHaveLength(50); expect(moved.field.motion.carrierPlayerId).toBeNull();
+  expect(moved.field.motion.actors.filter(a => a.playerId === 'p0').every(a => Object.values(a.primitive.acceleration).every(n => n === 0))).toBe(true);
+});
+it('FS03 support policy admits references only and legacy motor still rejects the additional roles', () => {
+  const h = authorFixture(), observed = h.observe(), request: SamePaPhysicalFieldAction = { kind: 'defender_decision_v1', member: h.m,
+    calibrationReference: h.calibrate('defender_decision'), observationReference: reference('pa_physical_v1_field_steps', observed),
+    priorities: { ballPursuitPriority: 0, baseCoverPriorities: [], relayPriority: 1, backupPriority: 0, deepCoveragePriority: 0, holdPriority: 0.01 },
+    supportGeometry: { kind: 'perceived_ball_support_geometry_v1', base: 1 } };
+  const source = { ...base(observed, h.root, observed.evaluationTick), action: request };
+  expect(parse(source)).toMatchObject({ action: request });
+  for (const supportGeometry of [{ ...request.supportGeometry, target: { x: 10, z: 10 } }, { ...request.supportGeometry, base: 5 },
+    { ...request.supportGeometry, teammateMotionReference: ref('foreign') }, { ...request.supportGeometry, kind: 'hypothetical_team_plan' }]) {
+    expect(() => parse({ ...source, action: { ...request, supportGeometry } })).toThrow(/decision Source/);
+  }
+  expect(() => h.run({ ...request, supportGeometry: { ...request.supportGeometry!, teammateMotionReference: reference('pa_physical_v1_field_steps', observed) } })).toThrow(/executed handler motor/);
+  expect(() => h.run({ ...request, supportGeometry: { ...request.supportGeometry!, teammateMotionReference: ref('pa_physical_v1_field_steps', 'foreign') as never } })).toThrow(/outside the original prefix/);
+  const decision = h.run(request);
+  if (decision.actionResult?.kind !== 'defender_decision_v1') throw new Error('decision missing');
+  const decisionResult = decision.actionResult;
+  h.waitUntil(decisionResult.calculation.scheduling.movementStartTick);
+  const moved = h.run({ kind: 'defender_motion_v1', selections: [{ member: h.m, decisionReference: reference('pa_physical_v1_field_steps', decision),
+    calibrationReference: h.calibrate('defender_locomotion') }] }, h.prefix.at(-1)!.evaluationTick + 1000);
+  if (moved.actionResult?.kind !== 'defender_motion_v1') throw new Error('motor missing');
+  const m = moved.actionResult.motors[0], model = mocked.locomotion.get('motion-model') as never;
+  expect(() => deriveSamePaPhysicalFieldMotor({ sourceId: decision.source.sourceId, playerId: m.self.playerId, physicalPitchSourceId: 'pitch',
+    selected: decisionResult.calculation.selected, target: m.target, ticksPerSecond: m.self.ticksPerSecond,
+    availability: decisionResult.availability, scheduling: decisionResult.calculation.scheduling,
+    lifecycle: { status: 'issued', issuedAt: m.issuedAt, issuedBySourceId: decision.source.sourceId } }, model, m.self, h.values.defender_locomotion)).toThrow(/unsupported/);
+});
+it('FT01 team actor selections drive nine real motor calculations using the team choice, preserving the original body curves', () => {
+  const h = authorFixture(), decisions = Array.from({ length: 9 }, (_, i) => {
+    const playerId = `p${i + 1}`, observation = h.observe(playerId);
+    return h.run({ kind: 'defender_decision_v1', member: member(playerId), calibrationReference: h.calibrate('defender_decision', playerId),
+      observationReference: fieldRef(observation) as any, priorities: { ballPursuitPriority: 1, baseCoverPriorities: [],
+        relayPriority: 0, backupPriority: 0, deepCoveragePriority: 0, holdPriority: 0.1 } });
+  });
+  // These metadata rows are structural seams. The separate SQLite candidate
+  // owner tests/proofs, not this mocked-model fixture, authenticate their values.
+  const append = (request: any, actionResult: any) => {
+    const previous = h.prefix.at(-1)!, source = { ...base(previous, h.root, previous.evaluationTick), action: request };
+    const step = stepOf(previous, source, { field: previous.field, timeline: previous.timeline, evaluationTick: previous.evaluationTick, actionResult });
+    h.prefix.push(step); return step;
+  };
+  const team = append({ kind: 'defender_team_selection_v1' }, { kind: 'defender_team_selection_v1', movementAdmission: false, plan: {
+    assignments: decisions.map(decision => ({ playerId: (decision.actionResult as any).playerId })) } });
+  const actors = decisions.map((decision, index) => {
+    if (decision.actionResult?.kind !== 'defender_decision_v1') throw Error('original decision missing');
+    const d = decision.actionResult, candidate = index === 0 ? d.calculation.selected : { ...d.calculation.selected, intent: { kind: 'hold' } };
+    return append({ kind: 'defender_actor_selection_v1', teamSelectionReference: fieldRef(team), member: member(d.playerId) }, {
+      kind: 'defender_actor_selection_v1', movementAdmission: false, playerId: d.playerId, teamSelectionReference: fieldRef(team), originalDecisionReference: fieldRef(decision),
+      observationReference: d.observationReference, fieldingModelHash: d.fieldingModelHash, availability: d.availability,
+      scheduling: d.calculation.scheduling, candidate, target: index === 0 ? d.target : null });
+  });
+  const due = Math.max(...decisions.map(decision => (decision.actionResult as any).calculation.scheduling.movementStartTick));
+  h.waitUntil(due); const before = h.prefix.at(-1)!;
+  const moved = h.run({ kind: 'defender_motion_v1', selections: actors.map(actor => ({ member: member((actor.actionResult as any).playerId),
+    decisionReference: fieldRef(actor) as any, calibrationReference: h.calibrate('defender_locomotion', (actor.actionResult as any).playerId) })) }, before.evaluationTick + 1000);
+  if (moved.actionResult?.kind !== 'defender_motion_v1') throw Error('team motors missing');
+  expect(moved.actionResult.motors).toHaveLength(9);
+  expect(moved.actionResult.motors.map(motor => motor.intent.kind)).toEqual(['ball_handler', ...Array(8).fill('hold')]);
+  expect(moved.actionResult.motors.slice(1).every(motor => motor.segment.acceleration.x === 0 && motor.segment.acceleration.z === 0)).toBe(true);
+  expect(moved.field.motion.actors).toHaveLength(50);
+  expect(moved.timeline.events).toEqual(before.timeline.events); expect(moved.field.motion.carrierPlayerId).toBeNull();
+  const rule = deriveSamePaFieldRuleEvidence({ fields: h.prefix, batterRunnerId: 'p0',
+    defenderIds: h.action.actor.defenderBindings.map(binding => binding.playerId), outsAtStart: 0 });
+  const input = { fields: h.prefix, participantIds: ['p0', ...h.action.actor.defenderBindings.map(binding => binding.playerId)],
+    possessionEvidence: rule.rule.possessionEvidence, observationPolicies: h.prefix.flatMap(field => field.kind === 'same_pa_physical_field_step_v1'
+      && field.actionResult?.kind === 'defender_observation_v1' ? [{ observationReference: fieldRef(field) as any,
+        refreshPolicy: { attendedIntervalTicks: 10, peripheralIntervalTicks: 40 } }] : []) };
+  const census = deriveSamePaLiveWorkCensus(input);
+  expect(census.defenderDecisions.pending).toHaveLength(0); expect(census.defenderDecisions.consumed).toHaveLength(9);
+  expect(census.defenderDecisions.consumed.map(value => value.decisionReference)).toEqual(decisions.map(fieldRef));
+  expect(census.defenderDecisions.consumed.every(value => value.consumerReference.sourceId === moved.source.sourceId)).toBe(true);
+  const tampered = structuredClone(moved);
+  if (tampered.actionResult?.kind !== 'defender_motion_v1') throw Error('team motors missing');
+  (tampered.actionResult.motors[1] as any).intent = { kind: 'ball_handler' };
+  expect(() => deriveSamePaLiveWorkCensus({ ...input, fields: [...h.prefix.slice(0, -1), tampered] })).toThrow(/candidate differs/);
+});
+it('FS04 a late support decision cannot reuse a sensory cut from before physical progress', () => {
+  const h = authorFixture(), observed = h.observe();
+  h.waitUntil(100);
+  expect(() => h.run({ kind: 'defender_decision_v1', member: h.m, calibrationReference: h.calibrate('defender_decision'),
+    observationReference: reference('pa_physical_v1_field_steps', observed),
+    priorities: { ballPursuitPriority: 0, baseCoverPriorities: [], relayPriority: 1, backupPriority: 0, deepCoveragePriority: 0, holdPriority: 0.01 },
+    supportGeometry: { kind: 'perceived_ball_support_geometry_v1', base: 1 } })).toThrow(/current original cut/);
 });
 it('FQ02 rejects caller end, time, replacement commands and a checkpoint beyond expired role coverage', () => {
   const h=authorFixture(), previous=h.waitUntil(100), source={...base(previous,h.root,100),action:{kind:'retained_quantizer_checkpoint_v1' as const}};

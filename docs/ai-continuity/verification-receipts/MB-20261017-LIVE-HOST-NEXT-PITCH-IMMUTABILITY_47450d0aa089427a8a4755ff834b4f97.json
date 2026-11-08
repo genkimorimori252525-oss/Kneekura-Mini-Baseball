@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-HOST-NEXT-PITCH-IMMUTABILITY",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveBaseballMatchV1.test.ts",
+    "-t",
+    "does not pre-generate|does not derive SI|rejects malformed"
+  ],
+  "observed_at": "2026-10-17T00:14:20.950+00:00",
+  "elapsed_ms": 7391,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-HOST-NEXT-PITCH-IMMUTABILITY_47450d0aa089427a8a4755ff834b4f97.log",
+  "output_sha256": "09de80e7b24661eef6fbfd54059f930aa5d137088738c6fc0fde72182069e674",
+  "receipt_id": "MB-20261017-LIVE-HOST-NEXT-PITCH-IMMUTABILITY_47450d0aa089427a8a4755ff834b4f97"
+}

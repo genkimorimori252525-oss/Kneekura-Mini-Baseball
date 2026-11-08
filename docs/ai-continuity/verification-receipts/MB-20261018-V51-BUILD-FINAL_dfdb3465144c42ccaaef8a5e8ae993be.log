@@ -1,0 +1,38 @@
+{"outfile":"dist/native-match-core-browser.js","bytes":708984,"sha256":"01f25940860caff6f9a92a9d8d11d876d87056ed173d8589374226f7c4eccd8f","inputCount":108,"inputManifestSha256":"b73f6ac69bfffd515d20baa601a054c9b833030373b73f0614f20b399ca1582f","exports":["createNativeSinglePaSession","issueNativeCommandPitch","observeNativePitch","createNativeAerodynamicSession","observeNativeAerodynamicPitch","createReferenceAerodynamicPhysicalSource","observeNativeFreeBallContinuation","createSourceBallMaterialHistoryV1","createSourceBallMaterialHistoryFromContinuationV3","createExecutedFieldWorldObserverV1","createLiveBaseballMatchV1"]}
+▲ [WARNING] "youkaishomecoming:yukari" is not a valid value for the "type" field [package.json]
+
+    ../../../../../../package.json:1:8:
+      1 │ {"type":"youkaishomecoming:yukari","texture":"touhou_little_maid:te...
+        ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The "type" field must be set to either "commonjs" or "module".
+
+{
+  "output": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv51_TBD_vs_LAD_野手の回避と間隔改善版.html",
+  "sha256": "9a2b4761d87b6c908dd51c969d5425a036870caf1f57b474e1113126b409a54e",
+  "presentationVersion": 51,
+  "continuousViewSha256": "b5282910135f4a3abdeb5512a80e65c9311f52e55369bb410600f5b4d900048d",
+  "fieldFollowerSha256": "f987a851185dcd70e7f31429c748abb2b46d0f70999e15aaa92d4c26dee9cc9b",
+  "baselineSha256": "c613574b377afd19060d89100c1bd7c1fa693efd42361c77ed7ab21943670f1f",
+  "nativeBundleSha256": "01f25940860caff6f9a92a9d8d11d876d87056ed173d8589374226f7c4eccd8f",
+  "runtimeSha256": "efb7a292cafb9284678796de1bd404098e21bb1a23e6b5f9cdbc38af9f2b3d31",
+  "takenGazeHelperSha256": "321f2839fad7bddfb299d8b74c9d8c4ae3fe3fdb23fde46b0f76f2cb426ea7b1",
+  "batterGazeHelperSha256": "769ebb95d9356a8c8515aac108e0e7dcd6cff966ab22785324f406a79d885158",
+  "chartHelperSha256": "ba18541a442e783ba46d556c76c5495e2cbeabbbb84287c22cc652093d4f1e1a",
+  "fieldCameraHelperSha256": "9285506f18fc8eac050f8e33ee5dd9f4c36b5e7e588b7dc56c603a949b381edd",
+  "actorAnimationHelperSha256": "131aae500c7bf92f5f462070a5719cee4207ee4098faa92b3acbcc1240e0ecc9",
+  "playDescriptionHelperSha256": "ea07eb44e510f304e911db69388cc54f62ae601a9e204f062e36c2e8c711578e",
+  "physicalRosterSha256": "a2fdb7835bada8dddcd2599e72f0034e540bebb360febb8cd25279f2ba1e6ccd",
+  "physicalCatalogSha256": "e7c3d8d0fb9d79f7316937287941a690d857b65be416bfcf49b93d8fe0be421d",
+  "bundleInputManifestSha256": "b73f6ac69bfffd515d20baa601a054c9b833030373b73f0614f20b399ca1582f",
+  "bundleInputCount": 108,
+  "approvedPngMasksSha256": "51005451401727fb84c31be9ae63712c8a815bdd0a7edbde7606af36a69a0944",
+  "approvedFontSha256": "6bd1592ef0d1a47ecd13bf7ef81ac361a12c29239f31d43bec1c3f54f6023aeb",
+  "primaryCanvas": "current v51 Core with continuous fielder avoidance; unchanged v50 lv27 batter view and measured swing end plus 700ms hold",
+  "nativeSqliteAdmission": false,
+  "legacyResultFallback": false,
+  "ordinaryCadenceMs": 55,
+  "displayGridPixels": 4,
+  "measuredReferenceSha256": "72b615a28cd99b4a91c6e52cb02ee35f4ff97850c3bfe71ca73d0e609ba480ef",
+  "measuredReferenceAuthority": "OPENBIOMECHANICS_MEASURED_BAT_AXIS_RESEARCH"
+}

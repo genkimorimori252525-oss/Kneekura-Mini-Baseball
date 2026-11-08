@@ -1,0 +1,10 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/LiveFieldPlayV1.test.ts (4 tests) 292ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  07:20:15
+   Duration  997ms (transform 200ms, setup 0ms, collect 285ms, tests 292ms, environment 0ms, prepare 124ms)
+

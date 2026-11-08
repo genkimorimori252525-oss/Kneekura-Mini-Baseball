@@ -1,0 +1,54 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/locomotion/LiveLocomotionV84.test.ts (17 tests | 3 failed) 18ms
+   × averaged alternating-support live locomotion V84 > plans finite continuous acceleration, cruise and braking for distance 0.1 4ms
+     → live locomotion V84: negative coast distance
+   × averaged alternating-support live locomotion V84 > plants and brakes high-speed motion before turning toward { x: -100, z: +0 } 3ms
+     → expected { x: -9, z: -0 } to deeply equal { x: -9, z: +0 }
+   × averaged alternating-support live locomotion V84 > plants and brakes high-speed motion before turning toward { x: +0, z: 100 } 1ms
+     → expected { x: -9, z: -0 } to deeply equal { x: -9, z: +0 }
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/locomotion/LiveLocomotionV84.test.ts > averaged alternating-support live locomotion V84 > plans finite continuous acceleration, cruise and braking for distance 0.1
+Error: live locomotion V84: negative coast distance
+ ❯ Module.buildLiveSpeedPlanV84 src/core/sim/locomotion/LiveLocomotionV84.ts:173:24
+    171|   // The bounded peak search always keeps the acceleration/braking sum…
+    172|   // A tiny negative subtraction would indicate arithmetic outside thi…
+    173|   if (coast < 0) throw new Error('live locomotion V84: negative coast …
+       |                        ^
+    174|   if (coast > 0) append(coast / peak, peak, 0, beforeBraking);
+    175|   if (peak > final) append((peak - final) / profile.brakingMps2, peak,…
+ ❯ src/core/sim/locomotion/LiveLocomotionV84.test.ts:66:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/core/sim/locomotion/LiveLocomotionV84.test.ts > averaged alternating-support live locomotion V84 > plants and brakes high-speed motion before turning toward { x: -100, z: +0 }
+ FAIL  src/core/sim/locomotion/LiveLocomotionV84.test.ts > averaged alternating-support live locomotion V84 > plants and brakes high-speed motion before turning toward { x: +0, z: 100 }
+AssertionError: expected { x: -9, z: -0 } to deeply equal { x: -9, z: +0 }
+
+- Expected
++ Received
+
+  Object {
+    "x": -9,
+-   "z": 0,
++   "z": -0,
+  }
+
+ ❯ src/core/sim/locomotion/LiveLocomotionV84.test.ts:101:34
+     99|     const command = stepLiveDefenderMotionV84({ position: { x: 0, z: 0…
+    100|     expect(command.phase).toBe('plant');
+    101|     expect(command.acceleration).toEqual({ x: -9, z: 0 });
+       |                                  ^
+    102|     expect(8 + command.acceleration.x * .04).toBeGreaterThan(0);
+    103|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 14 passed (17)
+   Start at  00:17:46
+   Duration  688ms (transform 70ms, setup 0ms, collect 73ms, tests 18ms, environment 0ms, prepare 177ms)
+

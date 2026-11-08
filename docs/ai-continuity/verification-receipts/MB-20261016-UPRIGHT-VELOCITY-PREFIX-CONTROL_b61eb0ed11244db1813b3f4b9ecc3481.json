@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-UPRIGHT-VELOCITY-PREFIX-CONTROL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-initial-bat-control-upright-prefix-v1/readback.mjs",
+    "../../outputs/verification-authored-with-bat-upright-velocity-decision-v1",
+    "../../outputs/verification-authored-with-bat-upright-velocity-prefix-control-v1"
+  ],
+  "observed_at": "2026-10-16T12:56:12.252+00:00",
+  "elapsed_ms": 9000,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-UPRIGHT-VELOCITY-PREFIX-CONTROL_b61eb0ed11244db1813b3f4b9ecc3481.log",
+  "output_sha256": "86036faf9faa633f6151d9aac7dcead94d4bff2752c6ef6496243abacc2ccb85",
+  "receipt_id": "MB-20261016-UPRIGHT-VELOCITY-PREFIX-CONTROL_b61eb0ed11244db1813b3f4b9ecc3481"
+}

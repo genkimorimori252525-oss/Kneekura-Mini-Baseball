@@ -1,0 +1,20 @@
+{
+  "schema": "kneekura_camera_tuning_v1",
+  "sourceGameSha256": "80c68e3ddb5c961ab6f18b325c6f267f883cd02d27381dfa10a9334bf8afae9f",
+  "settings": {
+    "A": {
+      "enabled": false,
+      "aimLiftMeters": 0.3,
+      "swingMaxDownRadians": 0.3,
+      "hitFollowDelayMs": 100,
+      "aimReleaseMs": 100
+    },
+    "B": {
+      "enabled": true,
+      "aimLiftMeters": 0.42,
+      "swingMaxDownRadians": 0.3,
+      "hitFollowDelayMs": 135,
+      "aimReleaseMs": 100
+    }
+  }
+}

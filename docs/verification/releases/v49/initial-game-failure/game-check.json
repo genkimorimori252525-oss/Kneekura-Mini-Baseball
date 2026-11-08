@@ -1,0 +1,15 @@
+{
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv49_TBD_vs_LAD_守備責任と走塁裁定修正版.html",
+  "sha256": "4c735ffff8b2425fec19f0e4c51b83964c97fac97d5971d7f2f55eef33617ee2",
+  "packetSha256": "a2fdb7835bada8dddcd2599e72f0034e540bebb360febb8cd25279f2ba1e6ccd",
+  "nativeBundleSha256": "26db68a84b39743a0874ffea53459dca6d93fc8a7b28ab5e2e0c67de80772934",
+  "views": [],
+  "mode": "normal-nine-inning-game",
+  "status": "FAIL",
+  "error": "AssertionError [ERR_ASSERTION]: normal HTML must complete without Source exception\n+ actual - expected\n\n+ 'live baseball match: rule continuation unresolved: simultaneous_tag_arrival_or_departure'\n- null\n\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v49-game.mjs:138:11",
+  "failure": {
+    "pitchCount": 25,
+    "error": "live baseball match: rule continuation unresolved: simultaneous_tag_arrival_or_departure",
+    "raw": "failure-raw.json"
+  }
+}

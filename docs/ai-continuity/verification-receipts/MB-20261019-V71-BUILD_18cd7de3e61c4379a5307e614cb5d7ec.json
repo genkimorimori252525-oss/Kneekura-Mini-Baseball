@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V71-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-maker.mjs",
+    "../../outputs/にーくら野球メーカー_v71_バット軌道の角度調整版.html",
+    "--executable-traits",
+    "--measured-library",
+    "--ball-comparison",
+    "--batter-comparison",
+    "--bat-orbit",
+    "--roster=docs/demos/live-game-roster-v62.json",
+    "--catalog=docs/demos/live-game-roster-catalog-v62.json"
+  ],
+  "observed_at": "2026-10-19T13:19:20.771+00:00",
+  "elapsed_ms": 2406,
+  "git_head": "f74ab9a018a56bdce5e64752e5ad25152204e1e7",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V71-BUILD_18cd7de3e61c4379a5307e614cb5d7ec.log",
+  "output_sha256": "2edc798d76bac31dff7d1d7aa923d037661d837d50635b21a4140ed8a3480eef",
+  "receipt_id": "MB-20261019-V71-BUILD_18cd7de3e61c4379a5307e614cb5d7ec"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-UI-PERF-CSSOM-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/browser-bridge/presentation-ui-performance-v81.test.mjs"
+  ],
+  "observed_at": "2026-10-20T12:46:44.277+00:00",
+  "elapsed_ms": 2578,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-UI-PERF-CSSOM-RED_d72ea7868482439095b8f7a7ecf0a758.log",
+  "output_sha256": "a89812da169be818049dfef1302d38afa2078d59fb0a47fcaafd03da604d3223",
+  "receipt_id": "MB-20261020-V81-UI-PERF-CSSOM-RED_d72ea7868482439095b8f7a7ecf0a758"
+}

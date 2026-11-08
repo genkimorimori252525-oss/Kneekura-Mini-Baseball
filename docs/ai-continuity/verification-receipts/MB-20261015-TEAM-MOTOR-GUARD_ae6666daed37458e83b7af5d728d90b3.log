@@ -1,0 +1,10 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/SamePlateAppearanceTeamMotorSelectionV1.test.ts (3 tests) 193ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  07:37:43
+   Duration  8.60s (transform 5.18s, setup 0ms, collect 7.80s, tests 193ms, environment 0ms, prepare 209ms)
+

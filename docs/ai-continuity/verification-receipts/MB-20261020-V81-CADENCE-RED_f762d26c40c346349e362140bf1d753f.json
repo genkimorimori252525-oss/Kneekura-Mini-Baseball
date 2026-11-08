@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-CADENCE-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/browser-bridge/presentation-cadence-performance-v81.test.mjs"
+  ],
+  "observed_at": "2026-10-20T12:52:38.642+00:00",
+  "elapsed_ms": 828,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-CADENCE-RED_f762d26c40c346349e362140bf1d753f.log",
+  "output_sha256": "58762b0aa2137c4c6e96fea4fd4ad13926ea9ee431fbcf5b13561de9b8568a6a",
+  "receipt_id": "MB-20261020-V81-CADENCE-RED_f762d26c40c346349e362140bf1d753f"
+}

@@ -1,0 +1,185 @@
+{
+  "version": "mlb_course_reference_v87",
+  "season": 2025,
+  "gameType": "R",
+  "perspective": "catcher",
+  "authority": "MLB_OFFICIAL_STAT_SPLITS_WEIGHTED_H_AB_REFERENCE_ONLY",
+  "semantics": "Terminal plate-appearance H/AB grouped by recorded pitch zone; unknown positions remain separate.",
+  "zones": [
+    {
+      "zoneId": 1,
+      "hits": 1929,
+      "atBats": 8073,
+      "average": 0.23894463024897808
+    },
+    {
+      "zoneId": 2,
+      "hits": 2955,
+      "atBats": 11504,
+      "average": 0.2568671766342142
+    },
+    {
+      "zoneId": 3,
+      "hits": 1775,
+      "atBats": 7588,
+      "average": 0.23392198207696363
+    },
+    {
+      "zoneId": 4,
+      "hits": 4565,
+      "atBats": 15627,
+      "average": 0.2921226083061368
+    },
+    {
+      "zoneId": 5,
+      "hits": 7149,
+      "atBats": 21754,
+      "average": 0.32862921761515124
+    },
+    {
+      "zoneId": 6,
+      "hits": 4386,
+      "atBats": 15322,
+      "average": 0.2862550580864117
+    },
+    {
+      "zoneId": 7,
+      "hits": 2833,
+      "atBats": 11381,
+      "average": 0.2489236446709428
+    },
+    {
+      "zoneId": 8,
+      "hits": 5126,
+      "atBats": 17338,
+      "average": 0.29565117083862036
+    },
+    {
+      "zoneId": 9,
+      "hits": 3098,
+      "atBats": 12601,
+      "average": 0.24585350369018333
+    },
+    {
+      "zoneId": 11,
+      "hits": 1211,
+      "atBats": 7329,
+      "average": 0.16523400191021967
+    },
+    {
+      "zoneId": 12,
+      "hits": 1116,
+      "atBats": 6755,
+      "average": 0.16521095484826054
+    },
+    {
+      "zoneId": 13,
+      "hits": 1854,
+      "atBats": 12413,
+      "average": 0.14935954241520985
+    },
+    {
+      "zoneId": 14,
+      "hits": 2131,
+      "atBats": 15916,
+      "average": 0.13389042472983162
+    }
+  ],
+  "total": {
+    "hits": 40138,
+    "atBats": 163664,
+    "average": 0.24524635839280476
+  },
+  "unknown": {
+    "hits": 10,
+    "atBats": 63,
+    "average": 0.15873015873015872
+  },
+  "sources": [
+    {
+      "code": "zn01",
+      "url": "https://statsapi.mlb.com/api/v1/stats?stats=statSplits&sitCodes=zn01&group=hitting&season=2025&sportIds=1&playerPool=ALL&limit=5000&gameType=R",
+      "sha256": "97d8689a21783e918a8b533a326fa305b34413d9b021f2dcfbc43dc78ee66c1e",
+      "players": 619
+    },
+    {
+      "code": "zn02",
+      "url": "https://statsapi.mlb.com/api/v1/stats?stats=statSplits&sitCodes=zn02&group=hitting&season=2025&sportIds=1&playerPool=ALL&limit=5000&gameType=R",
+      "sha256": "d9cdb7da4ba8bc49f3b6448018e4780c25d600f86e27cefd5964873cfe9e2597",
+      "players": 620
+    },
+    {
+      "code": "zn03",
+      "url": "https://statsapi.mlb.com/api/v1/stats?stats=statSplits&sitCodes=zn03&group=hitting&season=2025&sportIds=1&playerPool=ALL&limit=5000&gameType=R",
+      "sha256": "5c4696067fbe43337e8f9e8e48a0c1b92bcb1fce4f544ac256d38869a2bf041b",
+      "players": 603
+    },
+    {
+      "code": "zn04",
+      "url": "https://statsapi.mlb.com/api/v1/stats?stats=statSplits&sitCodes=zn04&group=hitting&season=2025&sportIds=1&playerPool=ALL&limit=5000&gameType=R",
+      "sha256": "937b9755c44d49b5e71731f81bb30747dc6a2f87d47cea75ce4ce786283f54c4",
+      "players": 630
+    },
+    {
+      "code": "zn05",
+      "url": "https://statsapi.mlb.com/api/v1/stats?stats=statSplits&sitCodes=zn05&group=hitting&season=2025&sportIds=1&playerPool=ALL&limit=5000&gameType=R",
+      "sha256": "d5f1fd21e43efe32f12708785c52487933e1facae6f72f29d257ed34ff5c7e96",
+      "players": 639
+    },
+    {
+      "code": "zn06",
+      "url": "https://statsapi.mlb.com/api/v1/stats?stats=statSplits&sitCodes=zn06&group=hitting&season=2025&sportIds=1&playerPool=ALL&limit=5000&gameType=R",
+      "sha256": "070b28335d16e118f8337306b6f1afd0f288ca6aab6abe01bd4ab1cb67b3df02",
+      "players": 629
+    },
+    {
+      "code": "zn07",
+      "url": "https://statsapi.mlb.com/api/v1/stats?stats=statSplits&sitCodes=zn07&group=hitting&season=2025&sportIds=1&playerPool=ALL&limit=5000&gameType=R",
+      "sha256": "fe7abf96e615ad3fd9b9e64155a12c08aa9fad11d5b79ea48e8d6f2c5d78a2f0",
+      "players": 618
+    },
+    {
+      "code": "zn08",
+      "url": "https://statsapi.mlb.com/api/v1/stats?stats=statSplits&sitCodes=zn08&group=hitting&season=2025&sportIds=1&playerPool=ALL&limit=5000&gameType=R",
+      "sha256": "6d5142a8d31f4d93271eacd476cbf89ea3f815054d811ef70500489b98cfe3f3",
+      "players": 638
+    },
+    {
+      "code": "zn09",
+      "url": "https://statsapi.mlb.com/api/v1/stats?stats=statSplits&sitCodes=zn09&group=hitting&season=2025&sportIds=1&playerPool=ALL&limit=5000&gameType=R",
+      "sha256": "8c4fa39db531bc27751301f80ae51a53378b0509f9131384462a3d4a4a817ca9",
+      "players": 624
+    },
+    {
+      "code": "zn11",
+      "url": "https://statsapi.mlb.com/api/v1/stats?stats=statSplits&sitCodes=zn11&group=hitting&season=2025&sportIds=1&playerPool=ALL&limit=5000&gameType=R",
+      "sha256": "d7cc163a77e5f0d5cc3786cdcd1be28459e4ac49c7761419283d659ccf5865b4",
+      "players": 619
+    },
+    {
+      "code": "zn12",
+      "url": "https://statsapi.mlb.com/api/v1/stats?stats=statSplits&sitCodes=zn12&group=hitting&season=2025&sportIds=1&playerPool=ALL&limit=5000&gameType=R",
+      "sha256": "8a87519701c52635952679ea918602d9a2cc35445cb6dd49c336021da49269e3",
+      "players": 617
+    },
+    {
+      "code": "zn13",
+      "url": "https://statsapi.mlb.com/api/v1/stats?stats=statSplits&sitCodes=zn13&group=hitting&season=2025&sportIds=1&playerPool=ALL&limit=5000&gameType=R",
+      "sha256": "9593ada1d0472866fb4c743e3b5f209769758cc832479469b03120de54c2c929",
+      "players": 630
+    },
+    {
+      "code": "zn14",
+      "url": "https://statsapi.mlb.com/api/v1/stats?stats=statSplits&sitCodes=zn14&group=hitting&season=2025&sportIds=1&playerPool=ALL&limit=5000&gameType=R",
+      "sha256": "bee074961d9fc34f4755bbaac104f13c7892b93cb205dd0e78fb0daa24867567",
+      "players": 635
+    },
+    {
+      "code": "season",
+      "url": "https://statsapi.mlb.com/api/v1/stats?stats=season&group=hitting&season=2025&sportIds=1&playerPool=ALL&limit=5000&gameType=R",
+      "sha256": "a1e6455e8758ea0350b07bbcfe0126d1f5e71b56616ff819211677e7a1094935",
+      "players": 765
+    }
+  ],
+  "copyright": "Copyright 2026 MLB Advanced Media, L.P.  Use of any content on this page acknowledges agreement to the terms posted here http://gdx.mlb.com/components/copyright.txt"
+}

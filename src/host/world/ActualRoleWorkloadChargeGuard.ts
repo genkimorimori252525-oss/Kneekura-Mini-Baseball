@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import type { DefensiveDb } from './ActualDefensiveContext';
 import { defensiveMetadataId as identity } from './ActualDefensiveMetadata';
 import { sqliteJsonMetadataNodes as nodes, type SqliteJsonMetadataPath } from './SqliteOwnershipMetadata';
+import { memoNativeWorkloadGuardV127 } from './NativeWorkloadGuardReadV127';
 
 export type ActualRoleWorkloadChargeScope = Readonly<{ careerId: string; gameId: string; playId: number; playerId: string }>;
 type Mirror = readonly [document: string, path: SqliteJsonMetadataPath];
@@ -141,7 +142,7 @@ export const assertNoArchivedActualRoleWorkloadCharge = (db: DefensiveDb, scope:
 };
 
 /** Called by the legacy pitch producer before/within writes and when replaying a Source. */
-export const assertNoActualRoleWorkloadCharge = (db: DefensiveDb, scope: ActualRoleWorkloadChargeScope, ownEnrollmentSourceId?: string): void => {
+const inspectNoActualRoleWorkloadCharge = (db: DefensiveDb, scope: ActualRoleWorkloadChargeScope, ownEnrollmentSourceId?: string): void => {
   assertNoSamePaWorkReservation(db,scope,ownEnrollmentSourceId);
   assertNoArchivedActualRoleWorkloadCharge(db,scope);
   assertNoTerminalOrSettlementCharge(db,scope);
@@ -173,7 +174,7 @@ export const assertNoActualRoleWorkloadCharge = (db: DefensiveDb, scope: ActualR
 };
 
 /** Called by the total-play producer; the existing global workload owner stays unchanged. */
-export const assertNoLegacyPitchWorkloadCharge = (db: DefensiveDb, scope: ActualRoleWorkloadChargeScope, ownEnrollmentSourceId?: string): void => {
+const inspectNoLegacyPitchWorkloadCharge = (db: DefensiveDb, scope: ActualRoleWorkloadChargeScope, ownEnrollmentSourceId?: string): void => {
   assertNoSamePaWorkReservation(db,scope,ownEnrollmentSourceId);
   assertNoArchivedCharge(db,scope,'official-physical-pitch-workload','legacy pitch');
   assertUncharged(db, scope, 'official_pitch_workload_sources', 'played_play_id', {
@@ -217,3 +218,10 @@ export const assertNoLegacyPitchWorkloadCharge = (db: DefensiveDb, scope: Actual
     WHERE ${terminalGame} AND ${terminalPlay} AND ${career} AND ${player} AND ${terminalApplicationReference(appClaim)} LIMIT 1`).get(params))
     throw new Error('legacy pitch workload charge already exists through its original terminal application reference');
 };
+
+const scopeKey = (scope: ActualRoleWorkloadChargeScope & { physicalPitchSourceId?: string }, own?: string) =>
+  JSON.stringify([scope.careerId, scope.gameId, scope.playId, scope.playerId, scope.physicalPitchSourceId ?? null, own ?? null]);
+export const assertNoActualRoleWorkloadCharge = (db: DefensiveDb, scope: ActualRoleWorkloadChargeScope, ownEnrollmentSourceId?: string): void =>
+  memoNativeWorkloadGuardV127(db, 'actual:' + scopeKey(scope, ownEnrollmentSourceId), () => inspectNoActualRoleWorkloadCharge(db, scope, ownEnrollmentSourceId));
+export const assertNoLegacyPitchWorkloadCharge = (db: DefensiveDb, scope: ActualRoleWorkloadChargeScope, ownEnrollmentSourceId?: string): void =>
+  memoNativeWorkloadGuardV127(db, 'legacy:' + scopeKey(scope, ownEnrollmentSourceId), () => inspectNoLegacyPitchWorkloadCharge(db, scope, ownEnrollmentSourceId));

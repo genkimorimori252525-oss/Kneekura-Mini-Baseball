@@ -1,0 +1,7 @@
+{"elapsedMs":20007,"phase":"generating","scenario":"default-nine","pitches":56}
+{"elapsedMs":40017,"phase":"generating","scenario":"default-nine","pitches":144}
+{"elapsedMs":60029,"phase":"generating","scenario":"default-nine","pitches":200}
+{"elapsedMs":80031,"phase":"generating","scenario":"default-nine","pitches":264}
+{"elapsedMs":100046,"phase":"generating","scenario":"alternate-three","pitches":0}
+{"elapsedMs":120060,"phase":"generating","scenario":"alternate-three","pitches":80}
+{"pass":true,"artifactSha256":"de87fdc68cf91cb4a4d2454e9336e67cfbb646b8a6786759c113c1a619ef345a","coldReadyWallMs":2555,"warmNewGameMs":[336.29999999701977,262.5,254],"scenarios":[{"id":"default-nine","records":320,"historySha256":"520b70c46d65552fb329cab93d275cf70d571029b3b3987069e58a3220524146","baselineWholeHistoryExact":true},{"id":"alternate-three","records":82,"historySha256":"19e4add75301d0f1a6fd2bb970a48515abc8885a3a7727c373daf54e95b8b3f9","baselineWholeHistoryExact":true}],"report":"C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\docs\\verification\\releases\\v83-hr-watch\\history\\report.json"}

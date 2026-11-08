@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-PITCH-MENU",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-pitch-menu-v81.mjs",
+    "../../outputs/にーくら野球メーカー_v81_無劣化性能改善版.html",
+    "docs/verification/releases/v81/pitch-menu-final"
+  ],
+  "observed_at": "2026-10-20T13:00:01.373+00:00",
+  "elapsed_ms": 360,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-PITCH-MENU_8e0b56442f1b4f2eb2fa448964dcc4cf.log",
+  "output_sha256": "740add1df121fb29c1128ac05e4c3779e3b7bedd9993cce4ebeda524cdd5a694",
+  "receipt_id": "MB-20261020-V81-PITCH-MENU_8e0b56442f1b4f2eb2fa448964dcc4cf"
+}

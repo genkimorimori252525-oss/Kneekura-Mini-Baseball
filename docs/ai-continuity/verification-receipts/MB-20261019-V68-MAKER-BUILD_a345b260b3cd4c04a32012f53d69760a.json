@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V68-MAKER-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-maker.mjs",
+    "../../outputs/にーくら野球メーカー_v68.html",
+    "--executable-traits",
+    "--measured-library",
+    "--roster=docs/demos/live-game-roster-v62.json",
+    "--catalog=docs/demos/live-game-roster-catalog-v62.json"
+  ],
+  "observed_at": "2026-10-19T10:48:44.399+00:00",
+  "elapsed_ms": 2218,
+  "git_head": "652aa75ccb24df723c2d413e5dc37e7395dc8679",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V68-MAKER-BUILD_a345b260b3cd4c04a32012f53d69760a.log",
+  "output_sha256": "b958adcdee348fa217d9718113275f598c9089961f7b02b86c9ebab391cb72d5",
+  "receipt_id": "MB-20261019-V68-MAKER-BUILD_a345b260b3cd4c04a32012f53d69760a"
+}

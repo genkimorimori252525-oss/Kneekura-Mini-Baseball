@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-JOINT-PHYSICAL-TOOLS-TYPES",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--strict",
+    "--skipLibCheck",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "bundler",
+    "--target",
+    "ES2022",
+    "--types",
+    "node",
+    "tools/verification/native-game/owned-joint-physical-execution-native.ts",
+    "tools/verification/native-game/owned-joint-physical-query-native.ts"
+  ],
+  "observed_at": "2026-10-16T14:51:16.069+00:00",
+  "elapsed_ms": 14735,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-JOINT-PHYSICAL-TOOLS-TYPES_91758cec60af472c98f9763d4e379911.log",
+  "output_sha256": "fe9830b54992b35beacd968659a96e2817af2cb1dfc2c8e67532101e95c828c8",
+  "receipt_id": "MB-20261016-JOINT-PHYSICAL-TOOLS-TYPES_91758cec60af472c98f9763d4e379911"
+}

@@ -1,0 +1,27 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/PlayableMatchRulesV1.test.ts (21 tests) 9ms
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts (4 tests | 1 failed) 554ms
+   × secures a physically contacted fly before recording a third out and hides the possessed ball 187ms
+     → expected null not to be null
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayV1.test.ts > secures a physically contacted fly before recording a third out and hides the possessed ball
+AssertionError: expected null not to be null
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts:28:41
+     26|   const input = liveFieldFixture(), before = JSON.stringify(input), re…
+     27|   expect(result.end).toMatchObject({ complete: true, reason: 'third_ou…
+     28|   expect(result.ruleFacts.flyCatch).not.toBeNull();
+       |                                         ^
+     29|   expect(result.ruleFacts.flyCatch!.secureCatchTick).toBeGreaterThan(r…
+     30|   expect(result.ruleFacts.firstGroundContactTick).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 24 passed (25)
+   Start at  09:04:28
+   Duration  1.33s (transform 313ms, setup 0ms, collect 542ms, tests 562ms, environment 0ms, prepare 274ms)
+

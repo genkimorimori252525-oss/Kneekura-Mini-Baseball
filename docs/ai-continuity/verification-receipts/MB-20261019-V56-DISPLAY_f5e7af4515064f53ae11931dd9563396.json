@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V56-DISPLAY",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v56-display.mjs",
+    "../../outputs/ばせぼーるlv56_TBD_vs_LAD_投球描画と追従調整版.html",
+    "../../outputs/カメラワーク調整室_v56.html",
+    "../../outputs/verification-v56-display"
+  ],
+  "observed_at": "2026-10-18T17:49:35.957+00:00",
+  "elapsed_ms": 94500,
+  "git_head": "a829d9278b0999afd4e0a368cd07fc91669b8366",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V56-DISPLAY_f5e7af4515064f53ae11931dd9563396.log",
+  "output_sha256": "5ab717ace5e986983bbd893b389046bdb465d5da4da9d2b6d2197f3bd8ab3e0c",
+  "receipt_id": "MB-20261019-V56-DISPLAY_f5e7af4515064f53ae11931dd9563396"
+}

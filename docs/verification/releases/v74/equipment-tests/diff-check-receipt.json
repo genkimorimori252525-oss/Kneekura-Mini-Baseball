@@ -1,0 +1,70 @@
+{
+  "command": [
+    "git",
+    "-c",
+    "core.whitespace=cr-at-eol",
+    "diff",
+    "--check",
+    "--",
+    "src/integration/browser/LivePhysicalRosterV1.ts",
+    "src/integration/browser/LivePitchV1.ts",
+    "src/integration/browser/WorkbenchPlayer.ts",
+    "src/core/sim/contact/ReferenceBatKinematicsV1.ts",
+    "docs/demos/live-game-roster-catalog-v62.json",
+    "src/integration/browser/WorkbenchPlayer.test.ts",
+    "src/integration/browser/LivePhysicalRosterV1.test.ts",
+    "src/integration/browser/LivePitchV1.test.ts",
+    "src/core/sim/contact/ReferenceBatKinematicsV1.test.ts"
+  ],
+  "exitCode": 0,
+  "stdout": "",
+  "stderr": "warning: in the working copy of 'src/core/sim/contact/ReferenceBatKinematicsV1.test.ts', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/core/sim/contact/ReferenceBatKinematicsV1.ts', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/integration/browser/LivePhysicalRosterV1.test.ts', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/integration/browser/LivePhysicalRosterV1.ts', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/integration/browser/LivePitchV1.test.ts', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/integration/browser/LivePitchV1.ts', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/integration/browser/WorkbenchPlayer.test.ts', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/integration/browser/WorkbenchPlayer.ts', LF will be replaced by CRLF the next time Git touches it\n",
+  "eolPreserved": true,
+  "files": [
+    {
+      "file": "src/integration/browser/LivePhysicalRosterV1.ts",
+      "originalEol": "LF",
+      "currentEol": "LF"
+    },
+    {
+      "file": "src/integration/browser/LivePitchV1.ts",
+      "originalEol": "LF",
+      "currentEol": "LF"
+    },
+    {
+      "file": "src/integration/browser/WorkbenchPlayer.ts",
+      "originalEol": "LF",
+      "currentEol": "LF"
+    },
+    {
+      "file": "src/core/sim/contact/ReferenceBatKinematicsV1.ts",
+      "originalEol": "LF",
+      "currentEol": "LF"
+    },
+    {
+      "file": "docs/demos/live-game-roster-catalog-v62.json",
+      "originalEol": "CRLF",
+      "currentEol": "CRLF"
+    },
+    {
+      "file": "src/integration/browser/WorkbenchPlayer.test.ts",
+      "originalEol": "LF",
+      "currentEol": "LF"
+    },
+    {
+      "file": "src/integration/browser/LivePhysicalRosterV1.test.ts",
+      "originalEol": "LF",
+      "currentEol": "LF"
+    },
+    {
+      "file": "src/integration/browser/LivePitchV1.test.ts",
+      "originalEol": "LF",
+      "currentEol": "LF"
+    },
+    {
+      "file": "src/core/sim/contact/ReferenceBatKinematicsV1.test.ts",
+      "originalEol": "LF",
+      "currentEol": "LF"
+    }
+  ]
+}

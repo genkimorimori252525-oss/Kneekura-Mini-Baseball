@@ -1,0 +1,14 @@
+import {afterEach,expect,it,vi} from 'vitest';
+import * as planner from '../../core/decision/batting/ObservedYawContactFrameV255';
+import {planObservedReactiveRegistrationV161} from '../../core/sim/contact/ObservedDirectionRegistrationV153';
+import {createLiveBattingPracticeV150} from './LiveBattingPracticeV150';
+import {hashYawDecisionInputV274} from './LiveYawDecisionEvidenceV274';
+import {takeYawDecisionEvidenceV274} from './LivePitchV1';
+import {fixture} from './LiveYawDiagnosticV274.fixture-support';
+afterEach(()=>vi.restoreAllMocks());
+it.each(['NO_TARGET','PLANNED'] as const)('records bounded decision evidence for %s without changing owner or normal',async status=>{
+ const {configuration,plan,request}=fixture(),owner=createLiveBattingPracticeV150(configuration);await owner.startEpisodePracticeV242(plan,request);const before=owner.capture(),normal=await owner.previewEpisodeStepV242();let input:unknown;
+ vi.spyOn(planner,'planObservedYawContactFrameV255').mockImplementation(raw=>{input=raw;const yaw=planObservedReactiveRegistrationV161(raw.registration).diagnostics.selectedYawDegrees;return {status,reason:'SYNTHETIC',reference:status==='PLANNED'?raw.baselineReference:null,selectedYawDegrees:status==='PLANNED'?yaw:null,normalComponent:0,candidates:[{yawDegrees:yaw,status:'REJECTED',reason:'BELOW_MINIMUM_COMPONENT',reference:{secret:'PRIVATE'},prediction:{status:'FOUND'},bounds:{status:'WITHIN'},component:0,improvement:0}]} as never});
+ const result=(await owner.previewEpisodeYawDiagnosticV274()).result;expect(result.status).toBe(status==='PLANNED'?'OBSERVED':'NOT_EXECUTED');expect(owner.capture()).toStrictEqual(before);expect(result.normalRecord).toStrictEqual(normal.step.normalRecord);const evidence=(result as any).decisionEvidence;expect(evidence).toMatchObject({planningRate:expect.any(Number),summary:{status:'RECORDED',candidates:[{reason:'BELOW_MINIMUM_COMPONENT'}]},inputHash:{status:'PASS'}});expect(evidence.inputHash).toStrictEqual(await hashYawDecisionInputV274(input));expect(JSON.stringify(evidence)).not.toContain('PRIVATE');expect(takeYawDecisionEvidenceV274({} as never)).toBeNull();
+},180000);
+it('retains pre-planner input evidence and normal on planner exception',async()=>{const {configuration,plan,request}=fixture(),owner=createLiveBattingPracticeV150(configuration);await owner.startEpisodePracticeV242(plan,request);const before=owner.capture();vi.spyOn(planner,'planObservedYawContactFrameV255').mockImplementation(()=>{throw Error('synthetic')});let error:any;try{await owner.previewEpisodeYawDiagnosticV274()}catch(e){error=e}expect(error?.normalRecord).toBeDefined();expect(error?.decisionEvidence).toMatchObject({planningRate:expect.any(Number),summary:{status:'UNKNOWN'},inputHash:{status:'PASS'}});expect(owner.capture()).toStrictEqual(before)},180000);

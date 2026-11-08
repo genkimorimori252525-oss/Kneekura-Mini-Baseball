@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V74-CORE-TEST",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/contact/ReferenceBatKinematicsV1.test.ts",
+    "src/core/sim/contact/InitialHeldBatV1.test.ts",
+    "src/integration/browser/LivePitchV1.test.ts",
+    "src/integration/browser/LivePhysicalRosterV1.test.ts",
+    "src/integration/browser/LivePublicAbilitiesV1.test.ts",
+    "src/integration/browser/WorkbenchPlayer.test.ts",
+    "--maxWorkers=1",
+    "--minWorkers=1"
+  ],
+  "observed_at": "2026-10-19T15:02:59.022+00:00",
+  "elapsed_ms": 6266,
+  "git_head": "6eb26f350b78639ed4d240bbb957ef25a150ef30",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V74-CORE-TEST_6bef2926a7074ec88026afd77153e857.log",
+  "output_sha256": "c427e913be82895780edd9652a5647c3cae2bd53753a1e3d98764de2554b0450",
+  "receipt_id": "MB-20261020-V74-CORE-TEST_6bef2926a7074ec88026afd77153e857"
+}

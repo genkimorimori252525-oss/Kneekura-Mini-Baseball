@@ -1,0 +1,436 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/TeamCoveragePlan.test.ts (8 tests) 15ms
+ ✓ src/core/sim/fielding/CatchExecutionSkill.test.ts (10 tests) 9ms
+ ✓ src/core/sim/running/RunnerMotion.test.ts (16 tests) 7ms
+ ✓ src/core/sim/locomotion/LiveLocomotionV84.test.ts (21 tests) 49ms
+ ✓ src/core/sim/fielding/DefensiveDecision.test.ts (13 tests) 19ms
+ ✓ src/core/sim/fielding/LiveFielderAvoidanceV1.test.ts (24 tests) 66ms
+ ❯ src/core/sim/running/LiveRunnerMotionV1.test.ts (14 tests | 1 failed) 79ms
+   × LiveRunnerMotionV1 > keeps derived rotated velocities inside their scalar cap and replans without boundary exceptions 9ms
+     → expected [Function] to not throw an error but 'Error: live locomotion V84: accelerat…' was thrown
+ ✓ src/core/sim/fielding/LiveRunnerAdvancePolicyV1.test.ts (13 tests) 10ms
+ ✓ src/core/sim/running/BatterSwingExitRunTransition.test.ts (7 tests) 11ms
+ ✓ src/core/sim/running/RunnerLocomotionControllerAuthority.test.ts (8 tests) 10ms
+ ✓ src/core/sim/running/BatterRunnerWorldTimeline.test.ts (12 tests) 12ms
+ ✓ src/core/sim/fielding/DefenderCoverVerticalSlice.test.ts (3 tests) 14ms
+ ✓ src/core/sim/fielding/GeneralDefensivePlaySearch.test.ts (13 tests) 104ms
+ ✓ src/core/sim/fielding/P5TeamCoveragePhysicalVerticalSlice.test.ts (1 test) 24ms
+ ✓ src/core/sim/fielding/P3DefensiveRatingSeparationAcceptance.test.ts (10 tests) 14ms
+ ✓ src/core/sim/fielding/GeneralTeamTacticalCoordinator.test.ts (14 tests) 195ms
+ ✓ src/core/sim/fielding/PlayerDecisionCalibration.test.ts (29 tests) 22ms
+ ✓ src/core/sim/fielding/FiniteFieldActorClearanceV1.test.ts (12 tests) 24ms
+ ✓ src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts (20 tests) 111ms
+ ✓ src/core/sim/fielding/PlayerLocomotionCalibration.test.ts (41 tests) 23ms
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts (28 tests) 19ms
+ ✓ src/core/sim/running/RunnerLocomotionController.test.ts (5 tests) 10ms
+ ✓ src/core/sim/fielding/DefenderBaseContactIntervalsSeconds.test.ts (20 tests) 14ms
+ ✓ src/core/sim/fielding/TeamCoverageWorldAdapter.test.ts (3 tests) 7ms
+ ✓ src/core/sim/fielding/LiveHandPreparationV1.test.ts (5 tests) 19ms
+ ✓ src/core/sim/running/RunnerDecision.test.ts (9 tests) 7ms
+ ✓ src/core/sim/fielding/TeamCoverageReplan.test.ts (3 tests) 25ms
+ ✓ src/core/sim/running/BatterSwingExitRecoveryTrajectory.test.ts (4 tests) 9ms
+ ✓ src/core/sim/fielding/DefensiveRatingAdapters.test.ts (5 tests) 7ms
+ ✓ src/core/sim/fielding/CoverageThrowPlan.test.ts (3 tests) 6ms
+ ✓ src/core/sim/fielding/PlayerPhysicalProfileIntegration.test.ts (2 tests) 6ms
+ ✓ src/core/sim/fielding/ThrowPlan.test.ts (4 tests) 6ms
+ ✓ src/core/sim/fielding/CatchRetention.test.ts (9 tests) 8ms
+ ✓ src/core/sim/fielding/PerceivedGloveTarget.test.ts (6 tests) 8ms
+ ✓ src/core/sim/fielding/RatedTeamCoveragePlan.test.ts (2 tests) 18ms
+ ✓ src/core/sim/fielding/DefenderBaseFootReach.test.ts (6 tests) 7ms
+ ✓ src/core/sim/running/BatterStanceFirstBaseGeometry.test.ts (4 tests) 8ms
+ ✓ src/core/sim/fielding/DefenderControlledBaseContact.test.ts (7 tests) 8ms
+ ✓ src/core/sim/fielding/DefenderPhysicalPrimitive.test.ts (7 tests) 9ms
+ ✓ src/core/sim/fielding/GloveReachExecution.test.ts (6 tests) 8ms
+ ✓ src/core/sim/fielding/DefenderThrowReceptionContact.test.ts (5 tests) 11ms
+ ✓ src/core/sim/fielding/GroundedActorContactResponseV1.test.ts (5 tests) 9ms
+ ✓ src/core/sim/fielding/DefenderPhysicalContactAdapters.test.ts (5 tests) 9ms
+ ✓ src/core/sim/running/StealControlledTagAdapter.test.ts (4 tests) 8ms
+ ✓ src/core/sim/running/StealDefenseTimeline.test.ts (4 tests) 7ms
+ ✓ src/core/sim/fielding/CatchRetentionSkillIntegration.test.ts (3 tests) 7ms
+ ✓ src/core/sim/fielding/ReceivedUmpireCaughtOutReplan.test.ts (1 test) 11ms
+ ✓ src/core/sim/running/P6StealPickoffVerticalSlice.test.ts (2 tests) 6ms
+ ✓ src/core/sim/fielding/LiveFieldHandlerSelectionV1.test.ts (7 tests) 8ms
+ ✓ src/core/sim/fielding/GroundWallRollingCurveV1.test.ts (4 tests) 54ms
+ ✓ src/core/sim/running/RundownDecision.test.ts (5 tests) 6ms
+ ✓ src/core/sim/fielding/CatchExecutionRetention.test.ts (1 test) 5ms
+ ✓ src/core/sim/fielding/CatchRetentionSkill.test.ts (5 tests) 8ms
+ ✓ src/core/sim/running/RunnerBaseTouch.test.ts (3 tests) 7ms
+ ✓ src/core/sim/fielding/PerceivedGloveReachVerticalSlice.test.ts (1 test) 8ms
+ ✓ src/core/sim/fielding/DefenderBaseContact.test.ts (8 tests) 9ms
+ ✓ src/core/sim/running/P6RunnerDecisionMotionVerticalSlice.test.ts (2 tests) 7ms
+ ✓ src/core/sim/fielding/ThrowLaunch.test.ts (4 tests) 9ms
+ ✓ src/core/sim/running/LiveRunnerRetreatMotionV1.test.ts (5 tests) 30ms
+ ✓ src/core/sim/fielding/DefenderMotion.test.ts (6 tests) 15ms
+ ✓ src/core/sim/fielding/CoveragePositionSuitability.test.ts (4 tests) 7ms
+ ✓ src/core/sim/running/P6StealPickoffDecisionAcceptance.test.ts (3 tests) 5ms
+ ✓ src/core/sim/fielding/TagContact.test.ts (7 tests) 8ms
+stdout | src/core/sim/fielding/LiveThrowPlanV1.test.ts > remains deterministic and reports performance outside the issued command
+{"benchmark":"70M_AERO_THROW_COMMAND","wallMilliseconds":222.6956,"candidateCount":4,"solverEvaluationCount":19,"shootingIntegrationStepUpperBound":10047,"verificationKernelBuilds":1,"timingBasis":"MONOTONIC_WALL_CLOCK_NOT_PROCESS_CPU","processCpuUserMilliseconds":234,"processCpuSystemMilliseconds":0}
+
+ ✓ src/core/sim/fielding/LiveThrowPlanV1.test.ts (7 tests) 1505ms
+   ✓ remains deterministic and reports performance outside the issued command 803ms
+ ✓ src/core/sim/fielding/GloveBallContact.test.ts (6 tests) 8ms
+ ✓ src/core/sim/running/PerceivedStealRace.test.ts (4 tests) 6ms
+ ✓ src/core/sim/running/RunnerRoute.test.ts (5 tests) 8ms
+ ✓ src/core/sim/fielding/BattedBallFirstFielderTouchTerritory.test.ts (5 tests) 7ms
+ ✓ src/core/sim/fielding/DefenderRoutePlan.test.ts (5 tests) 7ms
+ ✓ src/core/sim/running/RunnerBodyContact.test.ts (5 tests) 8ms
+ ✓ src/core/sim/running/BatterSwingExitRecoveryPieces.test.ts (8 tests) 11ms
+ ✓ src/core/sim/fielding/CoverageThrowExecution.test.ts (2 tests) 6ms
+ ✓ src/core/sim/fielding/DefensiveMovementTarget.test.ts (8 tests) 7ms
+ ✓ src/core/sim/fielding/DefenderPhysicalProfileCalibration.test.ts (5 tests) 6ms
+ ✓ src/core/sim/fielding/BattedBallReadSkill.test.ts (4 tests) 6ms
+ ✓ src/core/sim/running/P6RundownMotionVerticalSlice.test.ts (2 tests) 5ms
+ ✓ src/core/sim/running/P6RunnerRiskDecisionAcceptance.test.ts (1 test) 5ms
+ ✓ src/core/sim/running/RunnerRiskPolicy.test.ts (4 tests) 5ms
+ ✓ src/core/sim/fielding/LiveThrowDirectionV1.test.ts (5 tests) 10ms
+ ✓ src/core/sim/running/PerceivedPickoffThreat.test.ts (3 tests) 6ms
+ ✓ src/core/sim/fielding/DefensiveReplan.test.ts (5 tests) 7ms
+ ✓ src/core/sim/running/RunnerWorldProjection.test.ts (3 tests) 6ms
+stdout | src/core/sim/fielding/LiveFieldForecastV1.test.ts > measures process CPU outside the browser-neutral helper while reusing one kernel for nine defenders
+{"benchmark":"EXPLICIT_20_OBSERVATIONS_9_DEFENDERS_8_SECOND_HYPOTHESES","hypotheses":20,"sharedQueries":1440,"wallMilliseconds":2408.5017000000003,"processCpuUserMilliseconds":2046,"processCpuSystemMilliseconds":78,"meanBuildWallMilliseconds":119.78667999999989,"mean72SamplesWallMilliseconds":0.08303499999955193}
+
+ ✓ src/core/sim/fielding/LiveFieldForecastV1.test.ts (7 tests) 3002ms
+   ✓ measures process CPU outside the browser-neutral helper while reusing one kernel for nine defenders 2410ms
+ ✓ src/core/sim/fielding/DefenderBodyKinematics.test.ts (4 tests) 6ms
+ ✓ src/core/sim/fielding/DefenderBaseContactSeconds.test.ts (8 tests) 8ms
+ ✓ src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts (3 tests) 36ms
+ ✓ src/core/sim/fielding/DefensiveDecisionTiming.test.ts (4 tests) 6ms
+ ✓ src/core/sim/fielding/DefenderFirstStepTiming.test.ts (4 tests) 6ms
+ ✓ src/core/sim/running/BaseTouch.test.ts (4 tests) 5ms
+ ✓ src/core/sim/fielding/LiveRunnerAirbornePolicyV53.test.ts (3 tests) 9ms
+ ✓ src/core/sim/fielding/LiveFieldArrivalV84.test.ts (3 tests) 7ms
+ ✓ src/core/sim/running/P6DefensiveGapRunnerDecisionAcceptance.test.ts (2 tests) 5ms
+ ✓ src/core/sim/fielding/DefenseContext.test.ts (3 tests) 6ms
+ ✓ src/core/sim/fielding/BallTransferTiming.test.ts (4 tests) 6ms
+ ✓ src/core/sim/fielding/DefenderWorldProjection.test.ts (3 tests) 3ms
+ ✓ src/core/sim/fielding/TagActionTiming.test.ts (4 tests) 4ms
+ ✓ src/core/sim/fielding/CatchOutcome.test.ts (3 tests) 4ms
+ ✓ src/core/sim/running/RunnerDecisionTiming.test.ts (3 tests) 4ms
+ ✓ src/core/sim/fielding/ThrowRelease.test.ts (3 tests) 4ms
+ ✓ src/core/sim/fielding/SecureCatch.test.ts (3 tests) 5ms
+ ✓ src/core/sim/running/RunnerPartialTagUpWaitBoundary.test.ts (1 test) 3ms
+ ✓ src/core/sim/fielding/LiveFieldResponsibilitiesV49.test.ts (2 tests) 4126ms
+   ✓ keeps the normal first baseman covering an infield throw while the catcher retains home responsibility 1173ms
+   ✓ retains a catcher at home during a deep left-field catch and avoids a three-defender pileup at the catch point 2952ms
+ ✓ src/core/sim/fielding/ReceivedUmpireDefenderReplanAvailability.test.ts (1 test) 8ms
+ ✓ src/core/sim/fielding/ReceivedUmpireDefenderRenewalEligibility.test.ts (3 tests) 20ms
+ ✓ src/core/sim/fielding/ReceivedUmpireDefenderReplan.test.ts (52 tests) 222ms
+ ✓ src/core/sim/fielding/LiveFieldAvoidanceV51.test.ts (3 tests) 7074ms
+   ✓ keeps fielders separated with continuous acceleration-limited movement: low-slow_roller_3B 2537ms
+   ✓ keeps fielders separated with continuous acceleration-limited movement: default-1B_routine 1508ms
+   ✓ keeps fielders separated with continuous acceleration-limited movement: default-fast_grounder_CF_wall 3027ms
+ ❯ src/core/sim/fielding/LiveDefensiveOpportunityV1.test.ts (7 tests | 1 failed) 8970ms
+   × confirms from distinct observations, brakes all nine bodies continuously, and rules only at the actual fence crossing 6952ms
+     → expected 0.43200000000000016 to be less than or equal to 0.24000001000000004
+   ✓ keeps sensor prediction and defense independent of frame cadence, future scope, and generic IQ preference 2008ms
+ ✓ src/core/sim/fielding/LiveFieldHandlerMotionV1.test.ts (2 tests) 6347ms
+   ✓ assigns the easier incoming outfield route when a high fly also permits a long infield chase 3380ms
+   ✓ allows an infielder to go back on a blooper that it can intercept before an outfielder 2966ms
+ ❯ src/core/sim/fielding/LiveFieldRoleMotionV1.test.ts (5 tests | 2 failed) 9715ms
+   ✓ executes unique receiver coverage through a real throw while spare outfielders retain deep coverage 1269ms
+   ✓ applies additional SI decision latency to actual motion rather than weakening the assignment algorithm 739ms
+   × keeps actual positions and velocities continuous through role changes without candidate jumps 1908ms
+     → expected 0.5680023829203338 to be less than or equal to 0.3300000099999996
+   × keeps zero-error actual physics exact and launches a reproducible physical miss for nonzero angular error 5795ms
+     → live locomotion V84: acceleration speeds must be ordered
+ ✓ src/core/sim/fielding/LiveRelayPlanV1.test.ts (9 tests) 10967ms
+   ✓ routes a weak outfield arm through a stronger actual receiver when the direct Aero command is unreachable 368ms
+   ✓ supports two actual intermediate receivers without duplicate actors or throw cycles 3113ms
+   ✓ carries predicted seam phase through relay hypotheses while requiring a new plan after actual receipt 3414ms
+   ✓ aims a moving relay at its braking point while retaining measured glove offset and arrival delay 477ms
+   ✓ bounds search work and caches Aero edges while using no position names or future world state 2939ms
+ ✓ src/core/sim/fielding/LivePitcherReactionV77.test.ts (2 tests) 7678ms
+   ✓ shortens only pitcher batted-ball recognition and changes real movement without increasing motor bounds 3394ms
+   ✓ leaves nonpitchers and zero controls exactly on the previous execution 4282ms
+ ❯ src/core/sim/fielding/LiveFieldTechniquesV75.test.ts (7 tests | 1 failed) 15339ms
+   ✓ keeps fly events, frames and diagnostics exactly unchanged for all zero controls 1246ms
+   ✓ keeps ground events, frames and diagnostics exactly unchanged for all zero controls 4859ms
+   × uses rounding route selection while preserving straight motion and every physical speed bound 55ms
+     → expected 9 to be less than or equal to 5
+   ✓ shortens only the batter initial departure, preserving baserunner recognition and run speed 3397ms
+   ✓ uses actual capture posture and one shortened transfer without exceeding physical hand speed 2738ms
+   ✓ changes real approach movement only after observing a slow grounded ball and leaves a fly exact 3031ms
+ ❯ src/core/sim/fielding/LiveFieldRelayMotionV1.test.ts (3 tests | 1 failed) 22230ms
+   × makes two actual throws with a secured relay, a new transfer and actual final base control 10586ms
+     → expected 0.4200000000000001 to be less than or equal to 0.33000000999999995
+   ✓ uses a faster actual direct throw when the same holder has sufficient arm speed 3721ms
+   ✓ executes two intermediate receipts as three separate actual throws and custody intervals 7922ms
+ ❯ src/core/sim/fielding/LiveFieldRunnerRoundingV1.test.ts (6 tests | 1 failed) 31576ms
+   × actual live runner rounding > commits a safe ordinary extra base and physically runs through third without stopping 10818ms
+     → expected { runnerId: 'second-runner', …(5) } to match object { scored: true, retired: false, …(1) }
+(3 matching properties omitted from actual)
+   ✓ actual live runner rounding > runs a home run through all four actual bags in order and stops at home 2765ms
+   ✓ actual live runner rounding > records each through-bag departure exactly once at the physical bag-disk exit 2678ms
+   ✓ actual live runner rounding > keeps a runner stopped at third when the following advance is unsafe 5263ms
+   ✓ actual live runner rounding > changes actual turning path and speed when the hidden radius and lateral ability change 7375ms
+   ✓ actual live runner rounding > keeps all occupied-base runners physically separated during a home-run award 2675ms
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts (20 tests | 1 failed) 35711ms
+   ✓ secures a physically contacted fly before recording a third out and hides the possessed ball 949ms
+   ✓ runs the complete actual base path after a fair over-fence flight instead of teleporting runners 5433ms
+   ✓ does not change physical events when the readonly render cadence changes 592ms
+   ✓ derives two retirements from a received first-base force followed by the same defender carrying the ball to a runner tag 2750ms
+   ✓ preserves two force retirements when the second-base runner deadline favors the second-to-first throw chain 2564ms
+   × continues a true wall rebound through its signed-gap certificate and retrieves the ball 2494ms
+     → live locomotion V84: acceleration speeds must be ordered
+   ✓ runs only the actual two-base award after a fair ground bounce clears the continuous fence 1029ms
+   ✓ publishes fair territory only at its actual determination boundary 1146ms
+   ✓ catches an ordinary high center-field fly using a causal aero-ground forecast 3710ms
+   ✓ fields a straight infield grounder and makes a real throw to first before the batter arrives 930ms
+   ✓ keeps bodies, independent gloves and a possessed ball inside the physical fence through pickup and release 5980ms
+   ✓ finishes the pinned fast grounder after causal interception without an invented result 2789ms
+   ✓ extends a finite free-ball cache from its original root without changing any sampled physics 2072ms
+   ✓ keeps a deep retrieved ball when every force throw would arrive after the runner 1470ms
+   ✓ rejects unready force receivers without fictional throws while the batter takes a safe extra base and declines an unsafe third 953ms
+ ✓ src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts (6 tests) 36552ms
+   ✓ satisfies first-base force on the same physical bag-contact geometry as the defense 3275ms
+   ✓ still retires a runner when actual controlled first-base contact wins the physical race 2219ms
+   ✓ keeps physical runner retirements equal to rule-interpreted outs in both race orders 3322ms
+   ✓ reconsiders a newly vacated advance reservation after a live retirement before closing the play 21520ms
+   ✓ keeps the recorded normal-game runner protected when V84 movement makes a further advance unsafe 1885ms
+   ✓ retains actual through-base departure and rule causality with a weaker authored throwing arm 4319ms
+ ❯ src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts (5 tests | 1 failed) 37040ms
+   ✓ advances from an observed airborne hit read before the actual first landing, independently of render cadence 10873ms
+   ✓ keeps a mistaken read live through reaction and a physical return, retouching passed bags in reverse order 11917ms
+   ✓ allows a real throw and original-base appeal to beat a mistaken runner back, without making a force out 6563ms
+   ✓ does not punish a motor started before first touch if the runner has not actually left the original bag disk 4084ms
+   × uses the same official tick for departure and first-touch legality even when the disk exit is physically 10ns earlier 3602ms
+     → expected 5.524803577924536 to be less than 5.504101303172472
+ ✓ src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts (12 tests) 44599ms
+   ✓ physically advances second to third on a deep caught fly against a weak arm 10392ms
+   ✓ physically advances while a distant ground ball cannot be retrieved before the runner arrives 2172ms
+   ✓ starts a legal tag-up after first touch and reaction, before a later secure catch 6190ms
+   ✓ uses the hidden safety margin in the actual runner decision 9391ms
+   ✓ waits for the runner reaction after the actual first touch and keeps that decision alive 4409ms
+   ✓ runs on contact with two outs and stops on the actual secured third-out fly 2338ms
+   ✓ throws home after the force dissolves and retires the runner by a physically held tag (3 m/s) 3028ms
+   ✓ throws home after the force dissolves and retires the runner by a physically held tag (4 m/s) 2221ms
+   ✓ commits a safe next advance through third instead of closing the held-ball play 3221ms
+   ✓ allows a physical tag of a forced runner still standing on the old base before reacting 677ms
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts (22 tests | 2 failed) 67225ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects an observed pair of overlapping fielder bodies with both tasks and distance 4078ms
+   ✓ LiveFieldPlayDiagnosticsV1 > accepts legal close coordination at a body-center distance of 0.48m 2716ms
+   ✓ LiveFieldPlayDiagnosticsV1 > accepts legal close coordination at a body-center distance of 0.481m 2067ms
+   ✓ LiveFieldPlayDiagnosticsV1 > uses the declared body radius and observes three nearby fielders without inventing a cluster violation 1996ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects a completed live play whose final observed runner is still advancing 1625ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects a completed live play with a free ball at the final observation 1619ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects duplicate base cover assignments without treating nearby different tasks as duplicate coverage 1716ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects retirement supported only by bag control after a legal first-base touch (offset=-0.01) 1209ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects retirement supported only by bag control after a legal first-base touch (offset=0) 1217ms
+   ✓ LiveFieldPlayDiagnosticsV1 > detects an observed bag-volume arrival that precedes the official touch fact 1488ms
+   ✓ LiveFieldPlayDiagnosticsV1 > accepts an explicit controlled tag after first-base arrival as retirement evidence 1223ms
+   ✓ LiveFieldPlayDiagnosticsV1 > reports sampled travel by actor and task without declaring long movement irrational 1503ms
+   ✓ LiveFieldPlayDiagnosticsV1 > recognizes an actual relay receipt away from the final bag without reporting a missing force-base touch 5705ms
+   ✓ LiveFieldPlayDiagnosticsV1 > recognizes an actual nonforce throw and catcher tag without requiring a bag contact 2495ms
+   ✓ LiveFieldPlayDiagnosticsV1 > distinguishes post-pass ball recovery from cancellation based on a stale pre-release observation 3534ms
+   ✓ LiveFieldPlayDiagnosticsV1 > retains missing-bag detection for a force throw (release reason=force_play) 810ms
+   ✓ LiveFieldPlayDiagnosticsV1 > retains missing-bag detection for a force throw (release reason=undefined) 716ms
+   ✓ LiveFieldPlayDiagnosticsV1 > accepts an explicitly evaluated losing hold while still reporting a contradictory positive throw opportunity 1195ms
+   ✓ LiveFieldPlayDiagnosticsV1 > captures structured AI telemetry, kinematic oracle, and anomaly classifications without altering simulation facts 1464ms
+   × LiveFieldPlayDiagnosticsV1 > audits the full 20-scenario canonical fielding matrix 16704ms
+     → expected 1 to be +0 // Object.is equality
+   × LiveFieldPlayDiagnosticsV1 > demonstrates monotonic physical fielding progression across low, default, and high ability tiers 12145ms
+     → expected [ { …(4) } ] to deeply equal []
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveDefensiveOpportunityV1.test.ts > confirms from distinct observations, brakes all nine bodies continuously, and rules only at the actual fence crossing
+AssertionError: expected 0.43200000000000016 to be less than or equal to 0.24000001000000004
+ ❯ src/core/sim/fielding/LiveDefensiveOpportunityV1.test.ts:105:61
+    103|     const a = during[i - 1], b = during[i], dt = b.elapsedSeconds - a.…
+    104|     expect(Math.hypot(b.fielders[d].velocity.x - a.fielders[d].velocit…
+    105|       b.fielders[d].velocity.z - a.fielders[d].velocity.z)).toBeLessTh…
+       |                                                             ^
+    106|   }
+    107|   expect(result.end).toMatchObject({ complete: true, reason: 'home_run…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > audits the full 20-scenario canonical fielding matrix
+AssertionError: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:318:50
+    316| 
+    317|     expect(summaryByTier.default.infieldGrounderCount).toBe(13);
+    318|     expect(summaryByTier.default.totalAnomalies).toBe(0);
+       |                                                  ^
+    319|     expect(summaryByTier.default.infieldGrounderOuts).toBeGreaterThanO…
+    320|     expect(summaryByTier.default.totalOuts).toBeGreaterThanOrEqual(17);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > demonstrates monotonic physical fielding progression across low, default, and high ability tiers
+AssertionError: expected [ { …(4) } ] to deeply equal []
+
+- Expected
++ Received
+
+- Array []
++ Array [
++   Object {
++     "detail": "Infielder 3B could physically intercept at t+1.50s (z=28.1m), but ball leaked untouched to outfield (LF).",
++     "elapsedSeconds": 1.9000000000000008,
++     "kind": "ORACLE_INFIELD_REACHABLE_LEAKED",
++     "playerId": "def-3B",
++   },
++ ]
+
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:338:32
+    336|         if (process.env.FIELDING_DIAG_REPORT === '1' && diag.anomalies…
+    337|           console.log(formatLiveFieldPlayDiagnosticReportV1(diag, `${i…
+    338|         expect(diag.anomalies).toEqual([]);
+       |                                ^
+    339|         outsByTier[tier] += diag.outsRecorded;
+    340|       }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayV1.test.ts > continues a true wall rebound through its signed-gap certificate and retrieves the ball
+Error: live locomotion V84: acceleration speeds must be ordered
+ ❯ increasingSpeeds src/core/sim/locomotion/LiveLocomotionV84.ts:100:24
+     98| function increasingSpeeds(profile: LiveLocomotionProfileV84, from: num…
+     99|   validateProfile(profile); validateSpeed(profile, from); validateSpee…
+    100|   if (to < from) throw new Error('live locomotion V84: acceleration sp…
+       |                        ^
+    101| }
+    102| const speedChangeDistance = (from: number, to: number, acceleration: n…
+ ❯ liveAccelerationDistanceV84 src/core/sim/locomotion/LiveLocomotionV84.ts:106:3
+ ❯ distanceAtPeak src/core/sim/locomotion/LiveLocomotionV84.ts:143:54
+ ❯ Module.buildLiveSpeedPlanV84 src/core/sim/locomotion/LiveLocomotionV84.ts:163:46
+ ❯ buildSpeedSegments src/core/sim/running/LiveRunnerMotionV1.ts:172:18
+ ❯ Module.createLiveRunnerMotionV1 src/core/sim/running/LiveRunnerMotionV1.ts:250:18
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:1049:84
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1092:147
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts:150:46
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRelayMotionV1.test.ts > makes two actual throws with a secured relay, a new transfer and actual final base control
+AssertionError: expected 0.4200000000000001 to be less than or equal to 0.33000000999999995
+ ❯ src/core/sim/fielding/LiveFieldRelayMotionV1.test.ts:64:92
+     62|       const from = a.fielders[i], to = b.fielders[i], spec = raw.field…
+     63|       expect(Math.hypot(to.position.x - from.position.x, to.position.z…
+     64|       expect(Math.hypot(to.velocity.x - from.velocity.x, to.velocity.z…
+       |                                                                                            ^
+     65|       expect(Math.hypot(to.glove.x - to.position.x, to.glove.y - to.po…
+     66|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRoleMotionV1.test.ts > keeps actual positions and velocities continuous through role changes without candidate jumps
+AssertionError: expected 0.5680023829203338 to be less than or equal to 0.3300000099999996
+ ❯ src/core/sim/fielding/LiveFieldRoleMotionV1.test.ts:55:84
+     53|       const a = before.fielders[i], b = after.fielders[i], spec = raw.…
+     54|       expect(Math.hypot(b.position.x - a.position.x, b.position.z - a.…
+     55|       expect(Math.hypot(b.velocity.x - a.velocity.x, b.velocity.z - a.…
+       |                                                                                    ^
+     56|     }
+     57|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRoleMotionV1.test.ts > keeps zero-error actual physics exact and launches a reproducible physical miss for nonzero angular error
+Error: live locomotion V84: acceleration speeds must be ordered
+ ❯ increasingSpeeds src/core/sim/locomotion/LiveLocomotionV84.ts:100:24
+     98| function increasingSpeeds(profile: LiveLocomotionProfileV84, from: num…
+     99|   validateProfile(profile); validateSpeed(profile, from); validateSpee…
+    100|   if (to < from) throw new Error('live locomotion V84: acceleration sp…
+       |                        ^
+    101| }
+    102| const speedChangeDistance = (from: number, to: number, acceleration: n…
+ ❯ liveAccelerationDistanceV84 src/core/sim/locomotion/LiveLocomotionV84.ts:106:3
+ ❯ distanceAtPeak src/core/sim/locomotion/LiveLocomotionV84.ts:143:54
+ ❯ Module.buildLiveSpeedPlanV84 src/core/sim/locomotion/LiveLocomotionV84.ts:163:46
+ ❯ buildSpeedSegments src/core/sim/running/LiveRunnerMotionV1.ts:172:18
+ ❯ Module.createLiveRunnerMotionV1 src/core/sim/running/LiveRunnerMotionV1.ts:250:18
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:1049:84
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1092:147
+ ❯ src/core/sim/fielding/LiveFieldRoleMotionV1.test.ts:71:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldRunnerRoundingV1.test.ts > actual live runner rounding > commits a safe ordinary extra base and physically runs through third without stopping
+AssertionError: expected { runnerId: 'second-runner', …(5) } to match object { scored: true, retired: false, …(1) }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  Object {
+    "position": Object {
+-     "x": 0,
++     "x": -1.3322676295501878e-15,
+      "y": 0,
+-     "z": 0,
++     "z": 8.881784197001252e-16,
+    },
+    "retired": false,
+    "scored": true,
+  }
+
+ ❯ src/core/sim/fielding/LiveFieldRunnerRoundingV1.test.ts:110:68
+    108|     expect(through.record.elapsedSeconds).toBeLessThan(third.elapsedSe…
+    109|     expect(through.motion.sampleAtElapsedSeconds(third.elapsedSeconds …
+    110|     expect(result.finalRunners.find(r => r.runnerId === runnerId)).toM…
+       |                                                                    ^
+    111|     expect(result.frames.at(-1)!.runners.find(r => r.runnerId === runn…
+    112|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/11]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldTechniquesV75.test.ts > uses rounding route selection while preserving straight motion and every physical speed bound
+AssertionError: expected 9 to be less than or equal to 5
+ ❯ src/core/sim/fielding/LiveFieldTechniquesV75.test.ts:55:86
+     53|   for(let t=0;t<good.durationSeconds;t+=.01){const sample=good.sampleA…
+     54|     expect(sample.speedMps).toBeLessThanOrEqual(8+1e-9);if(part.kind==…
+     55|   for(const segment of good.speedSegments)expect(Math.abs(segment.acce…
+       |                                                                                      ^
+     56| });
+     57| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/11]⎯
+
+ FAIL  src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts > uses the same official tick for departure and first-touch legality even when the disk exit is physically 10ns earlier
+AssertionError: expected 5.524803577924536 to be less than 5.504101303172472
+ ❯ src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts:88:31
+     86|     {...r,accelerationMps2:3.343642129248945,reactionSeconds:2,advance…
+     87|     first=result.facts.find(f=>f.kind==='glove_contact')!,left=result.…
+     88|   expect(left.elapsedSeconds).toBeLessThan(first.elapsedSeconds);expec…
+       |                               ^
+     89|   expect(result.diagnostics.aiTelemetry.runnerMotions.filter(m=>m.runn…
+     90|   expect(result.finalRunners.find(r=>r.runnerId===runnerId)).toMatchOb…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/11]⎯
+
+ FAIL  src/core/sim/running/LiveRunnerMotionV1.test.ts > LiveRunnerMotionV1 > keeps derived rotated velocities inside their scalar cap and replans without boundary exceptions
+AssertionError: expected [Function] to not throw an error but 'Error: live locomotion V84: accelerat…' was thrown
+
+- Expected: 
+undefined
+
++ Received: 
+"Error: live locomotion V84: acceleration speeds must be ordered"
+
+ ❯ src/core/sim/running/LiveRunnerMotionV1.test.ts:154:96
+    152|         expect(sampled.speedMps).toBeLessThanOrEqual(8);
+    153|         expect(() => createLiveRunnerMotionV1(input({ position: sample…
+    154|           bases: elapsed < m.touches[0].centerElapsedSeconds ? bases :…
+       |                                                                                                ^
+    155|       }
+    156|       const sampled = m.sampleAtElapsedSeconds(4), next = createLiveRu…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/11]⎯
+
+ Test Files  9 failed | 110 passed (119)
+      Tests  11 failed | 833 passed (844)
+   Start at  00:35:25
+   Duration  70.39s (transform 25.57s, setup 0ms, collect 78.11s, tests 351.43s, environment 30ms, prepare 28.14s)
+

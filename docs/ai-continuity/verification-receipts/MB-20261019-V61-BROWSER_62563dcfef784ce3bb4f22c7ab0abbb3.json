@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V61-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v61-presentation.mjs",
+    "../../outputs/ばせぼーるlv61_TBD_vs_LAD_見逃し同期と選球眼版.html",
+    "../../outputs/カメラワーク調整室_v61.html",
+    "../../outputs/にーくら野球メーカー_選球眼絶対値版_v61.html",
+    "../../outputs/verification-v61-presentation"
+  ],
+  "observed_at": "2026-10-18T19:20:17.028+00:00",
+  "elapsed_ms": 32389,
+  "git_head": "a384dfdfac341d3180abc7f750c9825bf137289e",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V61-BROWSER_62563dcfef784ce3bb4f22c7ab0abbb3.log",
+  "output_sha256": "fd3a9a48edd3168337e07e25c94e31d29be0057f16aa7222765274f2c7e1c67f",
+  "receipt_id": "MB-20261019-V61-BROWSER_62563dcfef784ce3bb4f22c7ab0abbb3"
+}

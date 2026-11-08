@@ -1,0 +1,13 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/TeamCoveragePlan.test.ts (8 tests) 14ms
+ ✓ src/core/sim/fielding/DefensiveDecision.test.ts (13 tests) 14ms
+ ✓ src/host/world/DefensiveExecutionCalculation.test.ts (4 tests) 4ms
+ ✓ src/host/world/DefensiveCandidateCalculationV1.test.ts (7 tests) 234ms
+
+ Test Files  4 passed (4)
+      Tests  32 passed (32)
+   Start at  06:23:01
+   Duration  7.34s (transform 4.42s, setup 0ms, collect 13.24s, tests 266ms, environment 1ms, prepare 767ms)
+

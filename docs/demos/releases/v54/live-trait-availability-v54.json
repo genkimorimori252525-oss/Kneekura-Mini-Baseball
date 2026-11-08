@@ -1,0 +1,2958 @@
+{
+  "version": "live_trait_availability_v54",
+  "authority": "CANONICAL_INVENTORY_READ_ONLY_NOT_EXECUTION_INPUT",
+  "canonicalRevision": "63ccf99e29dba0488278f52db39747c68e07b545",
+  "canonicalSha256": "10b3fb373d17b59a3414dc4b4ccddf2f93818248a325b85d8fb96bcd4c80b669",
+  "supportedFamilyIds": [
+    "bad_ball_hitting",
+    "throw_accuracy",
+    "plate_aggression",
+    "running_aggression",
+    "fielding_aggression",
+    "pitch_approach",
+    "swing_mode_preference"
+  ],
+  "entries": [
+    {
+      "familyId": "pitch_pressure",
+      "label": "対ピンチ",
+      "aliases": [
+        "対ピンチ",
+        "強心臓",
+        "ノミの心臓",
+        "要所○"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "Appraisal/ActiveEmotion Coreはあるが通常Hostに心理状態・gate・投手execution bridgeがない。",
+      "canonicalSections": [
+        "4.6"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "RED_EXTREME",
+          "japaneseName": "ノミの心臓",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "G",
+          "japaneseName": "対ピンチG",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "F",
+          "japaneseName": "対ピンチF",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "E",
+          "japaneseName": "対ピンチE",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "D",
+          "japaneseName": "対ピンチD",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "C",
+          "japaneseName": "対ピンチC",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "B",
+          "japaneseName": "対ピンチB",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "A",
+          "japaneseName": "対ピンチA",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "GOLD",
+          "japaneseName": "強心臓",
+          "color": "gold",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": "心理状態や対戦経験を、状況ごとの判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "pitch_platoon_left",
+      "label": "対左打者",
+      "aliases": [
+        "対左打者",
+        "左キラー"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "左右の投球geometryだけではplatoon matchup技術を表さない。独立matchup sourceがない。",
+      "canonicalSections": [
+        "4.6"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "G",
+          "japaneseName": "対左打者G",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "F",
+          "japaneseName": "対左打者F",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "E",
+          "japaneseName": "対左打者E",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "D",
+          "japaneseName": "対左打者D",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "C",
+          "japaneseName": "対左打者C",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "B",
+          "japaneseName": "対左打者B",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "A",
+          "japaneseName": "対左打者A",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "GOLD",
+          "japaneseName": "左キラー",
+          "color": "gold",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": "左右・コース・球種などに応じた、この得能固有の技術が未対応です。"
+    },
+    {
+      "familyId": "setback_recovery",
+      "label": "打たれ強さ",
+      "aliases": [
+        "打たれ強さ",
+        "不屈の魂"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "negative-event後の感情回復Coreはあるが通常Hostの持続心理stateに未接続。",
+      "canonicalSections": [
+        "4.6"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "G",
+          "japaneseName": "打たれ強さG",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "F",
+          "japaneseName": "打たれ強さF",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "E",
+          "japaneseName": "打たれ強さE",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "D",
+          "japaneseName": "打たれ強さD",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "C",
+          "japaneseName": "打たれ強さC",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "B",
+          "japaneseName": "打たれ強さB",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "A",
+          "japaneseName": "打たれ強さA",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "GOLD",
+          "japaneseName": "不屈の魂",
+          "color": "gold",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": "疲労・調子・準備・故障回復を継続して扱う機能が未対応です。"
+    },
+    {
+      "familyId": "fastball_quality",
+      "label": "ノビ",
+      "aliases": [
+        "ノビ",
+        "怪童"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "速度・spin・空力軌道は実働。familyの識別metric/段階閾値と結合は未定義。",
+      "canonicalSections": [
+        "4.1"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "G",
+          "japaneseName": "ノビG",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "F",
+          "japaneseName": "ノビF",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "E",
+          "japaneseName": "ノビE",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "D",
+          "japaneseName": "ノビD",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "C",
+          "japaneseName": "ノビC",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "B",
+          "japaneseName": "ノビB",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "A",
+          "japaneseName": "ノビA",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "GOLD",
+          "japaneseName": "怪童",
+          "color": "gold",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "quick_delivery",
+      "label": "クイック",
+      "aliases": [
+        "クイック",
+        "走者釘付"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "PitchTimingModelのquickSpeedFactorは実在するが通常Hostはreleaseから始まりmotion-to-releaseを実行しない。",
+      "canonicalSections": [
+        "4.5"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "G",
+          "japaneseName": "クイックG",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "F",
+          "japaneseName": "クイックF",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "E",
+          "japaneseName": "クイックE",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "D",
+          "japaneseName": "クイックD",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "C",
+          "japaneseName": "クイックC",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "B",
+          "japaneseName": "クイックB",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "A",
+          "japaneseName": "クイックA",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "GOLD",
+          "japaneseName": "走者釘付",
+          "color": "gold",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": "牽制や盗塁の開始から送球までの動作が未対応です。"
+    },
+    {
+      "familyId": "bat_pressure",
+      "label": "チャンス",
+      "aliases": [
+        "チャンス",
+        "勝負師",
+        "満塁男",
+        "恐怖の満塁男",
+        "サヨナラ男",
+        "伝説のサヨナラ男",
+        "決勝打",
+        "渾身の決勝打"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "通常HostにAppraisal/ActiveEmotion gateがない。同一心理原因の直接打力加算は禁止。",
+      "canonicalSections": [
+        "5.4"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "G",
+          "japaneseName": "チャンスG",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "F",
+          "japaneseName": "チャンスF",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "E",
+          "japaneseName": "チャンスE",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "D",
+          "japaneseName": "チャンスD",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "C",
+          "japaneseName": "チャンスC",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "B",
+          "japaneseName": "チャンスB",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "A",
+          "japaneseName": "チャンスA",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "GOLD",
+          "japaneseName": "勝負師",
+          "color": "gold",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": "心理状態や対戦経験を、状況ごとの判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "bat_platoon_left",
+      "label": "対左投手",
+      "aliases": [
+        "対左投手",
+        "左腕キラー"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "左右geometryと独立した対左投手recognition/matchup技術sourceがない。",
+      "canonicalSections": [
+        "5.5"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "G",
+          "japaneseName": "対左投手G",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "F",
+          "japaneseName": "対左投手F",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "E",
+          "japaneseName": "対左投手E",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "D",
+          "japaneseName": "対左投手D",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "C",
+          "japaneseName": "対左投手C",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "B",
+          "japaneseName": "対左投手B",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "A",
+          "japaneseName": "対左投手A",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "GOLD",
+          "japaneseName": "左腕キラー",
+          "color": "gold",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": "左右・コース・球種などに応じた、この得能固有の技術が未対応です。"
+    },
+    {
+      "familyId": "catcher_handling",
+      "label": "キャッチャー",
+      "aliases": [
+        "キャッチャー",
+        "球界の頭脳"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "BatteryPitchDecisionはaccepted call権限調停だけ。通常Hostにhandling/game-calling/communication技能sourceがない。",
+      "canonicalSections": [
+        "5.7"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "G",
+          "japaneseName": "キャッチャーG",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "F",
+          "japaneseName": "キャッチャーF",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "E",
+          "japaneseName": "キャッチャーE",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "D",
+          "japaneseName": "キャッチャーD",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "C",
+          "japaneseName": "キャッチャーC",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "B",
+          "japaneseName": "キャッチャーB",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "A",
+          "japaneseName": "キャッチャーA",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "GOLD",
+          "japaneseName": "球界の頭脳",
+          "color": "gold",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "stealing",
+      "label": "盗塁",
+      "aliases": [
+        "盗塁",
+        "電光石火"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "StealDefenseTimeline等はあるが通常Hostにpitch前lead/start/slideと盗塁eventがない。",
+      "canonicalSections": [
+        "5.6"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "G",
+          "japaneseName": "盗塁G",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "F",
+          "japaneseName": "盗塁F",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "E",
+          "japaneseName": "盗塁E",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "D",
+          "japaneseName": "盗塁D",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "C",
+          "japaneseName": "盗塁C",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "B",
+          "japaneseName": "盗塁B",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "A",
+          "japaneseName": "盗塁A",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "GOLD",
+          "japaneseName": "電光石火",
+          "color": "gold",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": "牽制や盗塁の開始から送球までの動作が未対応です。"
+    },
+    {
+      "familyId": "baserunning",
+      "label": "走塁",
+      "aliases": [
+        "走塁",
+        "高速ベースラン"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "通常Hostにread/reaction/route/turn/lateral accelerationが実働。safety marginは好みなので技能gradeと混同しない。",
+      "canonicalSections": [
+        "5.6"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "G",
+          "japaneseName": "走塁G",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "F",
+          "japaneseName": "走塁F",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "E",
+          "japaneseName": "走塁E",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "D",
+          "japaneseName": "走塁D",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "C",
+          "japaneseName": "走塁C",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "B",
+          "japaneseName": "走塁B",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "A",
+          "japaneseName": "走塁A",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "GOLD",
+          "japaneseName": "高速ベースラン",
+          "color": "gold",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "throw_accuracy",
+      "label": "送球",
+      "aliases": [
+        "送球",
+        "ストライク送球"
+      ],
+      "status": "EXECUTABLE",
+      "reason": "",
+      "canonicalSections": [
+        "5.7"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "G",
+          "japaneseName": "送球G",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "F",
+          "japaneseName": "送球F",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "E",
+          "japaneseName": "送球E",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "D",
+          "japaneseName": "送球D",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "C",
+          "japaneseName": "送球C",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "B",
+          "japaneseName": "送球B",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "A",
+          "japaneseName": "送球A",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "GOLD",
+          "japaneseName": "ストライク送球",
+          "color": "gold",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": ""
+    },
+    {
+      "familyId": "injury_resistance",
+      "label": "ケガしにくさ",
+      "aliases": [
+        "ケガしにくさ",
+        "鉄人"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "HealthRehabは診断後の復帰process。傷害発生/抵抗sourceではなく通常Hostにもinjury hazardがない。",
+      "canonicalSections": [
+        "5.8"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "G",
+          "japaneseName": "ケガしにくさG",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "F",
+          "japaneseName": "ケガしにくさF",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "E",
+          "japaneseName": "ケガしにくさE",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "D",
+          "japaneseName": "ケガしにくさD",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "C",
+          "japaneseName": "ケガしにくさC",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "B",
+          "japaneseName": "ケガしにくさB",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "A",
+          "japaneseName": "ケガしにくさA",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "GOLD",
+          "japaneseName": "鉄人",
+          "color": "gold",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": "疲労・調子・準備・故障回復を継続して扱う機能が未対応です。"
+    },
+    {
+      "familyId": "recovery",
+      "label": "回復",
+      "aliases": [
+        "回復",
+        "ガソリンタンク"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "RecoveryCapacityのCoreはあるが通常Hostにworkload/recovery stateがない。registryはG..AのみでガソリンタンクGoldはcanonical候補。",
+      "canonicalSections": [
+        "5.8"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "G",
+          "japaneseName": "回復G",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "F",
+          "japaneseName": "回復F",
+          "color": "red",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "E",
+          "japaneseName": "回復E",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "D",
+          "japaneseName": "回復D",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "C",
+          "japaneseName": "回復C",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "B",
+          "japaneseName": "回復B",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "A",
+          "japaneseName": "回復A",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": "疲労・調子・準備・故障回復を継続して扱う機能が未対応です。"
+    },
+    {
+      "familyId": "opposite_field_technique",
+      "label": "流し打ち",
+      "aliases": [
+        "流し打ち",
+        "芸術的流し打ち"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "pullAngle/timing/aim motorはあるが角度設定は技術ではない。opposite-field contextの軌道再現技術sourceが必要。",
+      "canonicalSections": [
+        "5.1"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "LEARNED",
+          "japaneseName": "流し打ち",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "MASTERED",
+          "japaneseName": "芸術的流し打ち",
+          "color": "gold",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": "左右・コース・球種などに応じた、この得能固有の技術が未対応です。"
+    },
+    {
+      "familyId": "cut_contact",
+      "label": "カット打ち",
+      "aliases": [
+        "カット打ち"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "TwoStrikeInputsはrecognitionDelay/adjustmentSpreadの入力束のみ。通常Hostにcount条件と技術実行bridgeがない。",
+      "canonicalSections": [
+        "5.1"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "LEARNED",
+          "japaneseName": "カット打ち",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": "左右・コース・球種などに応じた、この得能固有の技術が未対応です。"
+    },
+    {
+      "familyId": "two_strike_adjustment",
+      "label": "粘り打ち",
+      "aliases": [
+        "粘り打ち"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "TwoStrikeInputsは技術入力束。通常Hostへstrikes/countと調整技術sourceを渡す経路がない。",
+      "canonicalSections": [
+        "5.1"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "LEARNED",
+          "japaneseName": "粘り打ち",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": "左右・コース・球種などに応じた、この得能固有の技術が未対応です。"
+    },
+    {
+      "familyId": "bunting",
+      "label": "バント○ / バント職人",
+      "aliases": [
+        "バント○",
+        "バント職人"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "静止バットの実接触はあるがbunt専用contact/placement skill sourceがない。全体aimStdの代用は定義と異なる。",
+      "canonicalSections": [
+        "5.6"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "LEARNED",
+          "japaneseName": "バント○",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "MASTERED",
+          "japaneseName": "バント職人",
+          "color": "gold",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "advanced_fielding",
+      "label": "守備職人 / 魔術師",
+      "aliases": [
+        "守備職人",
+        "魔術師"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "reaction/decision/route/transferは通常Host実働。masteryは同一の技術sourceとして定義し、一般守備力を再加算しない。",
+      "canonicalSections": [
+        "5.7"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "LEARNED",
+          "japaneseName": "守備職人",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "MASTERED",
+          "japaneseName": "魔術師",
+          "color": "gold",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "blocking",
+      "label": "ブロッキング",
+      "aliases": [
+        "ブロッキング"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "CatchRetentionは捕球保持であり、地面の球を体で止めるcatcher block motor/skillではない。",
+      "canonicalSections": [
+        "5.7"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "LEARNED",
+          "japaneseName": "ブロッキング",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "pinch_hit_readiness",
+      "label": "代打○ / 代打の神様",
+      "aliases": [
+        "代打○",
+        "代打の神様"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "通常Hostに代打交代・warm-up・entry readinessの選手sourceがない。",
+      "canonicalSections": [
+        "5.4"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "LEARNED",
+          "japaneseName": "代打○",
+          "color": "blue",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "MASTERED",
+          "japaneseName": "代打の神様",
+          "color": "gold",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": "疲労・調子・準備・故障回復を継続して扱う機能が未対応です。"
+    },
+    {
+      "familyId": "pitch_approach",
+      "label": "速球中心 / 変化球中心",
+      "aliases": [
+        "速球中心",
+        "変化球中心"
+      ],
+      "status": "EXECUTABLE",
+      "reason": "",
+      "canonicalSections": [
+        "6.1"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "FASTBALL",
+          "japaneseName": "速球中心",
+          "color": "green",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "BALANCED",
+          "japaneseName": "標準",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "BREAKING",
+          "japaneseName": "変化球中心",
+          "color": "green",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": ""
+    },
+    {
+      "familyId": "swing_mode_preference",
+      "label": "強振多用 / ミート多用",
+      "aliases": [
+        "強振多用",
+        "ミート多用"
+      ],
+      "status": "EXECUTABLE",
+      "reason": "",
+      "canonicalSections": [
+        "6.2"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "POWER",
+          "japaneseName": "強振多用",
+          "color": "green",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "BALANCED",
+          "japaneseName": "標準",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "CONTACT",
+          "japaneseName": "ミート多用",
+          "color": "green",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": ""
+    },
+    {
+      "familyId": "plate_aggression",
+      "label": "積極打法 / 慎重打法",
+      "aliases": [
+        "積極打法",
+        "慎重打法"
+      ],
+      "status": "EXECUTABLE",
+      "reason": "",
+      "canonicalSections": [
+        "6.2"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "AGGRESSIVE",
+          "japaneseName": "積極打法",
+          "color": "green",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "BALANCED",
+          "japaneseName": "標準",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "CAUTIOUS",
+          "japaneseName": "慎重打法",
+          "color": "green",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": ""
+    },
+    {
+      "familyId": "steal_aggression",
+      "label": "積極盗塁 / 慎重盗塁",
+      "aliases": [
+        "積極盗塁",
+        "慎重盗塁"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "盗塁decision Coreはあるが通常Hostにpitch前盗塁eventがない。",
+      "canonicalSections": [
+        "6.2"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "AGGRESSIVE",
+          "japaneseName": "積極盗塁",
+          "color": "green",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "BALANCED",
+          "japaneseName": "標準",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "CAUTIOUS",
+          "japaneseName": "慎重盗塁",
+          "color": "green",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": "牽制や盗塁の開始から送球までの動作が未対応です。"
+    },
+    {
+      "familyId": "running_aggression",
+      "label": "積極走塁",
+      "aliases": [
+        "積極走塁"
+      ],
+      "status": "EXECUTABLE",
+      "reason": "",
+      "canonicalSections": [
+        "6.2"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "AGGRESSIVE",
+          "japaneseName": "積極走塁",
+          "color": "green",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "BALANCED",
+          "japaneseName": "標準",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": ""
+    },
+    {
+      "familyId": "fielding_aggression",
+      "label": "積極守備",
+      "aliases": [
+        "積極守備"
+      ],
+      "status": "EXECUTABLE",
+      "reason": "",
+      "canonicalSections": [
+        "6.2"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "AGGRESSIVE",
+          "japaneseName": "積極守備",
+          "color": "green",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "BALANCED",
+          "japaneseName": "標準",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": ""
+    },
+    {
+      "familyId": "team_play_preference",
+      "label": "チームプレイ○ / ×",
+      "aliases": [
+        "チームプレイ○",
+        "チームプレイ×"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "PreferenceIntentとGeneralTeamTacticalCoordinatorはあるが通常Hostに選手協調preference consumerがない。",
+      "canonicalSections": [
+        "6.2"
+      ],
+      "disposition": "ADOPT_OR_MERGE",
+      "idAuthority": "TraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "COOPERATIVE",
+          "japaneseName": "チームプレイ○",
+          "color": "green",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "NEUTRAL",
+          "japaneseName": "標準",
+          "color": "neutral",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        },
+        {
+          "stateId": "SELF_DIRECTED",
+          "japaneseName": "チームプレイ×",
+          "color": "green",
+          "colorAuthority": "canonical09-lifecycle-or-grade"
+        }
+      ],
+      "userReason": "心理状態や対戦経験を、状況ごとの判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "line_drive",
+      "label": "ラインドライブ",
+      "aliases": [
+        "ラインドライブ"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "実exitVelocityからlaunch分布は観測可能だが、長期recognition evidence/閾値をHostが蓄積しない。",
+      "canonicalSections": [
+        "5.1"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "SourceTraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "LINE_DRIVE",
+          "japaneseName": "ラインドライブ",
+          "color": null,
+          "colorAuthority": "UNSPECIFIED_BY_NATIVE_REGISTRY"
+        }
+      ],
+      "userReason": "複数の実際のプレーを観測し、この名称・段階を判定する機能が未対応です。"
+    },
+    {
+      "familyId": "pitcher_contact_distribution",
+      "label": "ゴロピッチャー / フライボールピッチャー",
+      "aliases": [
+        "ゴロピッチャー",
+        "フライボールピッチャー"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "実打球分布は観測可能。Traitは結果の説明のみで、打球結果を再操作しない。",
+      "canonicalSections": [
+        "4.9"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "SourceTraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "GROUND_BALL",
+          "japaneseName": "ゴロピッチャー",
+          "color": null,
+          "colorAuthority": "UNSPECIFIED_BY_NATIVE_REGISTRY"
+        },
+        {
+          "stateId": "FLY_BALL",
+          "japaneseName": "フライボールピッチャー",
+          "color": null,
+          "colorAuthority": "UNSPECIFIED_BY_NATIVE_REGISTRY"
+        }
+      ],
+      "userReason": "複数の実際のプレーを観測し、この名称・段階を判定する機能が未対応です。"
+    },
+    {
+      "familyId": "gyro_pitch_shape",
+      "label": "ジャイロボール / ハイスピンジャイロ",
+      "aliases": [
+        "ジャイロボール",
+        "ハイスピンジャイロ"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "spin axis/trajectory sourceは実働。native registryのHIGH_SPIN_GYROはGoldと規定されていない。",
+      "canonicalSections": [
+        "4.1"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "SourceTraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "GYRO",
+          "japaneseName": "ジャイロボール",
+          "color": null,
+          "colorAuthority": "UNSPECIFIED_BY_NATIVE_REGISTRY"
+        },
+        {
+          "stateId": "HIGH_SPIN_GYRO",
+          "japaneseName": "ハイスピンジャイロ",
+          "color": null,
+          "colorAuthority": "UNSPECIFIED_BY_NATIVE_REGISTRY"
+        }
+      ],
+      "userReason": "複数の実際のプレーを観測し、この名称・段階を判定する機能が未対応です。"
+    },
+    {
+      "familyId": "wild_stuff",
+      "label": "荒れ球",
+      "aliases": [
+        "荒れ球"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "spin/速度とcommand誤差は実働。quality/varianceの同一source tradeoffを説明し、varianceへ追加benefitを付けない。",
+      "canonicalSections": [
+        "4.9"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "SourceTraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "QUALITY_VARIANCE_TRADEOFF",
+          "japaneseName": "荒れ球",
+          "color": "blue_red",
+          "colorAuthority": "canonical09-negative-or-tradeoff"
+        }
+      ],
+      "userReason": "複数の実際のプレーを観測し、この名称・段階を判定する機能が未対応です。"
+    },
+    {
+      "familyId": "release_miss_pattern",
+      "label": "抜け球",
+      "aliases": [
+        "抜け球"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "通常Hostは等方commandStd誤差のみ。delivery-failureに帰属する方向性miss sourceがない。",
+      "canonicalSections": [
+        "4.2"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "SourceTraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "DIRECTIONAL_MISS",
+          "japaneseName": "抜け球",
+          "color": "red",
+          "colorAuthority": "canonical09-negative-or-tradeoff"
+        }
+      ],
+      "userReason": "複数の実際のプレーを観測し、この名称・段階を判定する機能が未対応です。"
+    },
+    {
+      "familyId": "command_instability",
+      "label": "乱調",
+      "aliases": [
+        "乱調"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "通常HostにcommandStdはあるが短期state変動/episode sourceはない。一般制球sourceとの二重加算は禁止。",
+      "canonicalSections": [
+        "4.2"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "SourceTraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "UNSTABLE",
+          "japaneseName": "乱調",
+          "color": "red",
+          "colorAuthority": "canonical09-negative-or-tradeoff"
+        }
+      ],
+      "userReason": "複数の実際のプレーを観測し、この名称・段階を判定する機能が未対応です。"
+    },
+    {
+      "familyId": "team_matchup",
+      "label": "対象チーム付きキラー",
+      "aliases": [
+        "対象チーム付きキラー",
+        "○○キラー"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "projection型はあるが通常Hostに対象roster/pitch profile/tactics overlapとFamiliarity sourceがない。",
+      "canonicalSections": [
+        "5.10"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "SourceTraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "MATCHUP_SPECIALIZATION",
+          "japaneseName": "○○キラー",
+          "color": null,
+          "colorAuthority": "UNSPECIFIED_BY_NATIVE_REGISTRY"
+        }
+      ],
+      "userReason": "心理状態や対戦経験を、状況ごとの判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "pitcher_result_history",
+      "label": "負け運 / 勝ち運（履歴のみ）",
+      "aliases": [
+        "負け運",
+        "勝ち運",
+        "勝利の星"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "Career履歴descriptorのみ。通常試合の勝敗確率を変えるselectorにはしない。",
+      "canonicalSections": [
+        "4.7"
+      ],
+      "disposition": "MOVE",
+      "idAuthority": "SourceTraitFamilies.ts",
+      "nativeStates": [
+        {
+          "stateId": "UNFAVORABLE_RESULT_CONTEXT",
+          "japaneseName": "負け運（履歴）",
+          "color": null,
+          "colorAuthority": "UNSPECIFIED_BY_NATIVE_REGISTRY"
+        },
+        {
+          "stateId": "FAVORABLE_RESULT_CONTEXT",
+          "japaneseName": "勝ち運（履歴）",
+          "color": null,
+          "colorAuthority": "UNSPECIFIED_BY_NATIVE_REGISTRY"
+        }
+      ],
+      "userReason": "試合中の得能ではなく、選手情報・育成・記録などで扱う仕様です。"
+    },
+    {
+      "familyId": "two_strike_weakness",
+      "label": "三振 / 扇風機",
+      "aliases": [
+        "三振",
+        "扇風機"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "認識分類と入力束のみ。通常Hostのtwo-strike contextと数値技術source実行へ未接続。",
+      "canonicalSections": [
+        "5.3",
+        "8.2"
+      ],
+      "disposition": "MERGE",
+      "idAuthority": "TwoStrikeTypes.ts",
+      "nativeStates": [
+        {
+          "stateId": "RED",
+          "japaneseName": "三振",
+          "color": "red"
+        },
+        {
+          "stateId": "RED_EXTREME",
+          "japaneseName": "扇風機",
+          "color": "red"
+        }
+      ],
+      "userReason": "複数の実際のプレーを観測し、この名称・段階を判定する機能が未対応です。"
+    },
+    {
+      "familyId": "bad_ball_hitting",
+      "label": "悪球打ち",
+      "aliases": [
+        "悪球打ち"
+      ],
+      "status": "EXECUTABLE",
+      "reason": "",
+      "canonicalSections": [
+        "5.2.1",
+        "7.2"
+      ],
+      "disposition": "REINTERPRET",
+      "idAuthority": "LiveTraitProfilesV1.ts",
+      "nativeStates": [
+        {
+          "stateId": "LEARNED",
+          "japaneseName": "悪球打ち",
+          "color": "blue"
+        }
+      ],
+      "userReason": ""
+    },
+    {
+      "familyId": "pitch_contact_quality",
+      "label": "投球接触品質",
+      "aliases": [
+        "軽い球",
+        "重い球",
+        "怪物球威"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "速度/movement/approach angleの実接触結果から説明する。Traitから打球へ直接再加算しない。",
+      "canonicalSections": [
+        "4.1"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "fastball_lateral_shape",
+      "label": "直球の横変化",
+      "aliases": [
+        "ナチュラルシュート",
+        "真っスラ",
+        "シュート回転"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "実spin/空力横変化のdescriptor。横変化自体を赤欠点として扱わない。",
+      "canonicalSections": [
+        "4.1",
+        "4.2"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "pitch_velocity_consistency",
+      "label": "球速再現性",
+      "aliases": [
+        "球速安定"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "現在Hostは固定共通速度variance。選手固有のvelocity repeatability sourceがない。",
+      "canonicalSections": [
+        "4.1"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "breaking_ball_quality",
+      "label": "変化球の動作品質",
+      "aliases": [
+        "キレ○",
+        "驚異の切れ味"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "spinはあるが球種毎late movement/reproducibility技能sourceがなく、現在球種軸は共通固定。",
+      "canonicalSections": [
+        "4.1"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "release_deception",
+      "label": "球持ちと視認",
+      "aliases": [
+        "球持ち○",
+        "ディレイドアーム"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "release geometry Coreはあるが通常Host releaseは固定。extension/visibility/form sourceと打者観測がない。",
+      "canonicalSections": [
+        "4.1"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "release_consistency",
+      "label": "球種間リリース再現性",
+      "aliases": [
+        "リリース○"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "球種別form/release sourceを通常Hostが実行しない。",
+      "canonicalSections": [
+        "4.1"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "low_zone_command",
+      "label": "低め制球技術",
+      "aliases": [
+        "低め○",
+        "精密機械"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "全体commandStdだけでは低め専用の精度技術にならない。zone条件付きsourceが必要。",
+      "canonicalSections": [
+        "4.2"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "左右・コース・球種などに応じた、この得能固有の技術が未対応です。"
+    },
+    {
+      "familyId": "inside_command",
+      "label": "内角制球技術",
+      "aliases": [
+        "内角攻め",
+        "内角無双"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "全体commandStdとは別に内角条件のcommand sourceが必要。",
+      "canonicalSections": [
+        "4.2"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "左右・コース・球種などに応じた、この得能固有の技術が未対応です。"
+    },
+    {
+      "familyId": "diagonal_command",
+      "label": "対角投球技術",
+      "aliases": [
+        "クロスファイヤー",
+        "クロスキャノン"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "release geometry Coreはあるが通常Hostの位置は固定。対角command技能sourceも必要。",
+      "canonicalSections": [
+        "4.2"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "dangerous_miss",
+      "label": "危険な失投分布",
+      "aliases": [
+        "一発",
+        "逃げ球",
+        "本塁打厳禁"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "delivery failure時の危険位置への誤差分布sourceがない。一般controlの二重適用は禁止。",
+      "canonicalSections": [
+        "4.2"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "walk_prone_approach",
+      "label": "四球を生みやすい投球方針",
+      "aliases": [
+        "四球"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "zone entry/nibbling/count behaviorのsourceがない。commandStdを更に悪化させる代用は不可。",
+      "canonicalSections": [
+        "4.2"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "early_count_approach",
+      "label": "初期カウント投球方針",
+      "aliases": [
+        "ボール先行",
+        "ストライク先行"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "通常Host pitch selectionにcount条件とplayer approach方針が未接続。能力gradeではない。",
+      "canonicalSections": [
+        "4.2"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "cadence_manipulation",
+      "label": "意図的な投球間隔操作",
+      "aliases": [
+        "緩急○",
+        "変幻自在"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "PitchTimingModel/intent/evidenceはあるが通常Hostにcadence clockと打者適応consumerがない。",
+      "canonicalSections": [
+        "4.3"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "pitch_putaway_execution",
+      "label": "追い込み後の配球技術",
+      "aliases": [
+        "奪三振",
+        "ドクターK"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "two-strike投球selection/executionの独立sourceがない。三振率への直接加算は禁止。",
+      "canonicalSections": [
+        "4.3"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "pitch_strong_batter_response",
+      "label": "高難度打者への適応",
+      "aliases": [
+        "対強打者○",
+        "主砲キラー"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "相手labelではなくmatchup learning/decision/pressure sourceが必要。",
+      "canonicalSections": [
+        "4.3"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "pitch_effort_allocation",
+      "label": "投球出力の使い分け",
+      "aliases": [
+        "ギアチェンジ"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "通常Hostにeffort budget/usage選択/疲労stateがない。",
+      "canonicalSections": [
+        "4.3"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "max_effort_tradeoff",
+      "label": "全力出力と疲労消費",
+      "aliases": [
+        "完全燃焼",
+        "全開"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "output上昇と不可分のfatigue costを同時に実行するHost ownerがない。",
+      "canonicalSections": [
+        "4.3",
+        "7.1"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "effort_saving",
+      "label": "出力節約",
+      "aliases": [
+        "力配分"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "実fatigue savingと即時quality costが必要。通常Hostに負荷stateがない。",
+      "canonicalSections": [
+        "4.3",
+        "7.1"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "fatigue_resilience",
+      "label": "疲労時の技術維持",
+      "aliases": [
+        "根性○",
+        "ド根性"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "fatigue CoreはあるがHostは疲労を蓄積・消費しない。疲労自体を消す効果にしない。",
+      "canonicalSections": [
+        "4.4"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "疲労・調子・準備・故障回復を継続して扱う機能が未対応です。"
+    },
+    {
+      "familyId": "late_game_maintenance",
+      "label": "終盤の品質維持",
+      "aliases": [
+        "尻上がり",
+        "終盤力"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "pacing/late-game品質sourceが必要。イニング数だけの直接能力加算は禁止。",
+      "canonicalSections": [
+        "4.4"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "early_game_readiness",
+      "label": "立ち上がり準備",
+      "aliases": [
+        "スロースターター",
+        "立ち上がり○",
+        "トップギア"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "warm-up/early-game reproducibilityのplayer stateがない。",
+      "canonicalSections": [
+        "4.4"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "疲労・調子・準備・故障回復を継続して扱う機能が未対応です。"
+    },
+    {
+      "familyId": "multi_inning_relief_role",
+      "label": "救援回またぎ適性",
+      "aliases": [
+        "回またぎ○"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "Role Suitability/workloadへ移管。通常Hostに投手交代/role workloadがない。",
+      "canonicalSections": [
+        "4.4"
+      ],
+      "disposition": "MOVE",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "試合中の得能ではなく、選手情報・育成・記録などで扱う仕様です。"
+    },
+    {
+      "familyId": "rapid_warmup_role",
+      "label": "緊急登板適性",
+      "aliases": [
+        "緊急登板○"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "Role Suitability/rapid warm-upへ移管。通常Hostにentry準備sourceがない。",
+      "canonicalSections": [
+        "4.4"
+      ],
+      "disposition": "MOVE",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "試合中の得能ではなく、選手情報・育成・記録などで扱う仕様です。"
+    },
+    {
+      "familyId": "inherited_runner_readiness",
+      "label": "走者を引き継ぐ登板への準備",
+      "aliases": [
+        "火消し"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "inherited-runner pressureとemergency-entry readinessの実sourceがない。",
+      "canonicalSections": [
+        "4.4"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "疲労・調子・準備・故障回復を継続して扱う機能が未対応です。"
+    },
+    {
+      "familyId": "pitcher_condition_response",
+      "label": "投手コンディション感度",
+      "aliases": [
+        "投手調子極端",
+        "投手調子安定",
+        "鉄腕"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "独立Condition state/distribution/sensitivity ownerがない。EXTREMEを弱いgrade扱いしない。",
+      "canonicalSections": [
+        "4.4",
+        "5.11",
+        "6.1"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "疲労・調子・準備・故障回復を継続して扱う機能が未対応です。"
+    },
+    {
+      "familyId": "pickoff_technique",
+      "label": "牽制技術",
+      "aliases": [
+        "牽制○"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "pickoff threat/race Coreはあるが通常Hostにpitch前の牽制動作と実走者eventがない。",
+      "canonicalSections": [
+        "4.5"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "牽制や盗塁の開始から送球までの動作が未対応です。"
+    },
+    {
+      "familyId": "runner_on_base_stability",
+      "label": "走者在塁時の注意配分",
+      "aliases": [
+        "対ランナー○"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "runner-on-base attention/execution stability sourceがない。",
+      "canonicalSections": [
+        "4.5"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "runner_on_base_negative_conflict",
+      "label": "赤版対ランナー（原文矛盾）",
+      "aliases": [
+        "赤版 対ランナー"
+      ],
+      "status": "REVIEW_REQUIRED",
+      "reason": "原文が赤分類なのに正方向効果。canonicalがSource conflictとして保留し、推測修正を禁止。",
+      "canonicalSections": [
+        "4.5",
+        "8.1"
+      ],
+      "disposition": "CONFLICT",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "定義に未確定部分があるため、現在は選択できません。"
+    },
+    {
+      "familyId": "pitcher_field_reaction",
+      "label": "投手の打球反応",
+      "aliases": [
+        "打球反応○"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "reactionSeconds→pitcher actual field motorはある。同一sourceのdescriptor/技術状態として接続可能。",
+      "canonicalSections": [
+        "4.5"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "anger_response",
+      "label": "短気な感情反応",
+      "aliases": [
+        "短気"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "Appraisal→anger→ActiveEmotion Coreはあるが通常Hostにgate/state consumerがない。",
+      "canonicalSections": [
+        "4.6"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "competitive_intensity",
+      "label": "闘志の心理記述",
+      "aliases": [
+        "闘志",
+        "闘魂"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "Psychology/Behavior descriptorへ移管。無条件出力加算にしない。",
+      "canonicalSections": [
+        "4.6"
+      ],
+      "disposition": "MOVE",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "試合中の得能ではなく、選手情報・育成・記録などで扱う仕様です。"
+    },
+    {
+      "familyId": "pitcher_presence_appraisal",
+      "label": "投手の評判と存在感",
+      "aliases": [
+        "威圧感(投手)",
+        "存在感(投手)"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "Reputation/opponent appraisalへ移管。相手能力直接低下は禁止。",
+      "canonicalSections": [
+        "4.6"
+      ],
+      "disposition": "MOVE",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "試合中の得能ではなく、選手情報・育成・記録などで扱う仕様です。"
+    },
+    {
+      "familyId": "dual_role_momentum",
+      "label": "投打の心理連動候補",
+      "aliases": [
+        "投打躍動",
+        "超投打躍動"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "将来Confidence/Emotion/adaptation候補。投打結果から直接BuffするMatch Traitは不採用。",
+      "canonicalSections": [
+        "4.7",
+        "9"
+      ],
+      "disposition": "MOVE",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "試合中の得能ではなく、選手情報・育成・記録などで扱う仕様です。"
+    },
+    {
+      "familyId": "contact_precision",
+      "label": "打撃接触精度",
+      "aliases": [
+        "アベレージヒッター",
+        "安打製造機"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "aimStd/timingStdと実contact品質の同一sourceを説明する。安打率への直接加算は禁止。",
+      "canonicalSections": [
+        "5.1"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "power_swing_generation",
+      "label": "強振時の打球生成",
+      "aliases": [
+        "パワーヒッター",
+        "アーチスト"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "実バット速度とlaunch geometryのownerはある。raw powerの別Buffではなく同一sourceとして扱う。",
+      "canonicalSections": [
+        "5.1"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "multi_direction_contact",
+      "label": "多方向への強い打撃技術",
+      "aliases": [
+        "広角打法",
+        "広角砲"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "単一pullAngle設定だけでは全方向hard-contact技術を表さない。方向条件の再現性sourceが必要。",
+      "canonicalSections": [
+        "5.1"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "pull_side_transfer",
+      "label": "引っ張りの出力伝達技術",
+      "aliases": [
+        "プルヒッター",
+        "引っ張り屋"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "pullAngleは意図方向だけ。pull-side条件のpower-transfer技能sourceが必要。",
+      "canonicalSections": [
+        "5.1"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "inside_zone_hitting",
+      "label": "内角打撃技術",
+      "aliases": [
+        "インコースヒッター",
+        "内角必打"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "内角条件の技術sourceがない。一般aim/timingを全球へ上乗せする代用は不可。",
+      "canonicalSections": [
+        "5.2"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "左右・コース・球種などに応じた、この得能固有の技術が未対応です。"
+    },
+    {
+      "familyId": "outside_zone_hitting",
+      "label": "外角打撃技術",
+      "aliases": [
+        "アウトコースヒッター",
+        "外角必打"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "外角条件の技術sourceがない。一般aim/timingを全球へ上乗せする代用は不可。",
+      "canonicalSections": [
+        "5.2"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "左右・コース・球種などに応じた、この得能固有の技術が未対応です。"
+    },
+    {
+      "familyId": "high_zone_hitting",
+      "label": "高め打撃技術",
+      "aliases": [
+        "ハイボールヒッター",
+        "高球必打"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "高め条件の技術sourceがない。一般aim/timingを全球へ上乗せする代用は不可。",
+      "canonicalSections": [
+        "5.2"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "左右・コース・球種などに応じた、この得能固有の技術が未対応です。"
+    },
+    {
+      "familyId": "low_zone_hitting",
+      "label": "低め打撃技術",
+      "aliases": [
+        "ローボールヒッター",
+        "低球必打"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "低め条件の技術sourceがない。一般aim/timingを全球へ上乗せする代用は不可。",
+      "canonicalSections": [
+        "5.2"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "左右・コース・球種などに応じた、この得能固有の技術が未対応です。"
+    },
+    {
+      "familyId": "fastball_recognition",
+      "label": "直球認識技術",
+      "aliases": [
+        "対ストレート○"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "一般zoneJudgmentと独立したfastball recognition/timing sourceがない。",
+      "canonicalSections": [
+        "5.2"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "breaking_ball_recognition",
+      "label": "変化球への調整技術",
+      "aliases": [
+        "対変化球○"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "球種条件のrecognition/adjustment技術sourceがない。",
+      "canonicalSections": [
+        "5.2"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "first_pitch_execution",
+      "label": "初球の判断と実行",
+      "aliases": [
+        "初球○",
+        "一球入魂"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "pitch index/countを通常Host batting技術入力へ渡していない。",
+      "canonicalSections": [
+        "5.2"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "two_strike_narrow_options",
+      "label": "追い込まれた選択への適応",
+      "aliases": [
+        "窮地○",
+        "ヒートアップ"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "two-strike Coreの入力束のみ。選択肢制限/適応の実sourceをHostへ接続する必要。",
+      "canonicalSections": [
+        "5.3"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "左右・コース・球種などに応じた、この得能固有の技術が未対応です。"
+    },
+    {
+      "familyId": "in_game_matchup_learning",
+      "label": "試合中の相手学習",
+      "aliases": [
+        "リベンジ",
+        "逆襲"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "previous AB結果ではなくmatchup learning速度sourceが必要。通常Hostは保持しない。",
+      "canonicalSections": [
+        "5.3"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "success_confidence",
+      "label": "成功後の心理状態候補",
+      "aliases": [
+        "固め打ち",
+        "メッタ打ち",
+        "マルチ弾"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "Confidence/timing/approachへの将来候補。ヒット/HR後の直接能力Buffとしては不採用。",
+      "canonicalSections": [
+        "5.3"
+      ],
+      "disposition": "MOVE",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "試合中の得能ではなく、選手情報・育成・記録などで扱う仕様です。"
+    },
+    {
+      "familyId": "trailing_motivation",
+      "label": "劣勢への動機反応",
+      "aliases": [
+        "逆境○",
+        "火事場の馬鹿力"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "trailing-game Appraisal/motivation sourceを通常Hostが実行しない。点差だけの打力Buffは禁止。",
+      "canonicalSections": [
+        "5.4"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "batter_high_quality_matchup",
+      "label": "高品質投球への適応",
+      "aliases": [
+        "対エース○",
+        "エースキラー"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "エースlabelではなくhigh-quality pitch/learned matchup sourceが必要。",
+      "canonicalSections": [
+        "5.4"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "左右・コース・球種などに応じた、この得能固有の技術が未対応です。"
+    },
+    {
+      "familyId": "highlight_history",
+      "label": "意外な活躍の履歴",
+      "aliases": [
+        "意外性",
+        "大番狂わせ"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "Career/highlight descriptor候補。Match能力selectorとしては採用しない。",
+      "canonicalSections": [
+        "5.4",
+        "9"
+      ],
+      "disposition": "MOVE",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "試合中の得能ではなく、選手情報・育成・記録などで扱う仕様です。"
+    },
+    {
+      "familyId": "veteran_style_history",
+      "label": "熟練者のスタイル記述",
+      "aliases": [
+        "いぶし銀"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "Style/Careerへ移管。独立した実行効果が定義されていない。",
+      "canonicalSections": [
+        "5.4"
+      ],
+      "disposition": "MOVE",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "試合中の得能ではなく、選手情報・育成・記録などで扱う仕様です。"
+    },
+    {
+      "familyId": "bat_to_run_transition",
+      "label": "打撃から走行への移行",
+      "aliases": [
+        "内野安打○",
+        "ロケットスタート"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "runner accelerationは実働だが通常Hostは打球接触でbatter run開始。実swing-exit transitionは別CoreでHost未接続。",
+      "canonicalSections": [
+        "5.6"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "slide_style",
+      "label": "滑り込みスタイル",
+      "aliases": [
+        "ヘッドスライディング",
+        "気迫ヘッド"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "slide-style Behaviorへ移管。通常Hostにslide姿勢/接触motorがない。speed Buffにはしない。",
+      "canonicalSections": [
+        "5.6"
+      ],
+      "disposition": "MOVE",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "試合中の得能ではなく、選手情報・育成・記録などで扱う仕様です。"
+    },
+    {
+      "familyId": "runner_threat_attention",
+      "label": "走者の脅威による注意配分",
+      "aliases": [
+        "かく乱",
+        "トリックスター"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "投手捕手がperceiveしたrunner threat→attention allocation sourceを通常Hostが持たない。",
+      "canonicalSections": [
+        "5.6"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "running_pressure_rule",
+      "label": "走塁による圧力の規則文脈",
+      "aliases": [
+        "プレッシャーラン"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "legality/opponent error inductionをRule＋Psychologyへ分離。直接エラー増加は不可。",
+      "canonicalSections": [
+        "5.6"
+      ],
+      "disposition": "MOVE",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "試合中の得能ではなく、選手情報・育成・記録などで扱う仕様です。"
+    },
+    {
+      "familyId": "home_collision_rule",
+      "label": "本塁衝突の競技規則文脈",
+      "aliases": [
+        "ホーム突入",
+        "重戦車"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "Competition/RuleProfile依存。通常Hostに合法衝突の独立execution sourceがない。",
+      "canonicalSections": [
+        "5.6",
+        "9"
+      ],
+      "disposition": "MOVE",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "試合中の得能ではなく、選手情報・育成・記録などで扱う仕様です。"
+    },
+    {
+      "familyId": "slow_ball_charge",
+      "label": "低速打球へのチャージ技術",
+      "aliases": [
+        "高速チャージ"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "field reaction/routeはあるがbunt/slow-ball条件のcharging技能sourceがない。",
+      "canonicalSections": [
+        "5.7"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "左右・コース・球種などに応じた、この得能固有の技術が未対応です。"
+    },
+    {
+      "familyId": "throw_velocity_descriptor",
+      "label": "送球速度と弾道",
+      "aliases": [
+        "レーザービーム",
+        "高速レーザー"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "throwSpeedMps/実送球弾道を説明可能。肩力へ追加Buffしない。",
+      "canonicalSections": [
+        "5.7"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "home_tag_and_block",
+      "label": "本塁タッグとブロック",
+      "aliases": [
+        "ホーム死守",
+        "鉄の壁"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "一般実tagはあるがcatcher/fielder tag-and-block技術とRuleProfile接続がない。",
+      "canonicalSections": [
+        "5.7"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "framing",
+      "label": "捕手のフレーミング",
+      "aliases": [
+        "フレーミング○",
+        "フレーミング◎"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "通常Hostはrulebook zoneの幾何判定。receiving presentation→umpire perceptionを扱うownerがない。",
+      "canonicalSections": [
+        "4.7",
+        "5.7"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "catcher_pop_throw_descriptor",
+      "label": "捕手の持ち替えと送球",
+      "aliases": [
+        "バズーカ送球"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "fielding時のtransfer/throw sourceはあるが通常Hostの捕手throw-to-steal/pop eventがない。",
+      "canonicalSections": [
+        "5.7"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "team_mood_relationship",
+      "label": "チームの関係と雰囲気",
+      "aliases": [
+        "ムード○",
+        "精神的支柱",
+        "ムード×"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "Relationship/Trust/Team Chemistry descriptor。全員への直接能力加算は禁止。",
+      "canonicalSections": [
+        "5.9",
+        "8.2",
+        "9"
+      ],
+      "disposition": "MOVE",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "試合中の得能ではなく、選手情報・育成・記録などで扱う仕様です。"
+    },
+    {
+      "familyId": "batter_presence_appraisal",
+      "label": "打者の評判と存在感",
+      "aliases": [
+        "威圧感(野手)",
+        "存在感(野手)"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "Reputation/opponent Appraisalへ移管。投手能力を直接低下させない。",
+      "canonicalSections": [
+        "5.9"
+      ],
+      "disposition": "MOVE",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "試合中の得能ではなく、選手情報・育成・記録などで扱う仕様です。"
+    },
+    {
+      "familyId": "catcher_psychological_communication",
+      "label": "捕手の心理的伝達",
+      "aliases": [
+        "ささやき戦術",
+        "ささやき破り"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "Communication/Psychology独立システム採用時のみ復活候補。現在通常Hostにない。",
+      "canonicalSections": [
+        "5.9",
+        "9"
+      ],
+      "disposition": "MOVE",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "試合中の得能ではなく、選手情報・育成・記録などで扱う仕様です。"
+    },
+    {
+      "familyId": "popularity_presentation",
+      "label": "人気の表示",
+      "aliases": [
+        "人気者"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "Career/Presentation。通常Matchの能力sourceにはしない。",
+      "canonicalSections": [
+        "5.9",
+        "6.2",
+        "9"
+      ],
+      "disposition": "MOVE",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "試合中の得能ではなく、選手情報・育成・記録などで扱う仕様です。"
+    },
+    {
+      "familyId": "leadoff_role_history",
+      "label": "打順役割の記述",
+      "aliases": [
+        "チャンスメーカー",
+        "切り込み隊長"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "batting-order role/Career descriptor。結果labelを能力へ変換しない。",
+      "canonicalSections": [
+        "5.9"
+      ],
+      "disposition": "MOVE",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "試合中の得能ではなく、選手情報・育成・記録などで扱う仕様です。"
+    },
+    {
+      "familyId": "mound_position",
+      "label": "マウンド位置",
+      "aliases": [
+        "投球位置左",
+        "投球位置右"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "Neutral setup。PitcherReleaseGeometryはあるが通常Hostのrelease位置は固定。",
+      "canonicalSections": [
+        "5.11",
+        "6.1"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "batter_condition_response",
+      "label": "打者コンディション感度",
+      "aliases": [
+        "野手調子極端",
+        "野手調子安定"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "Condition state/distribution/sensitivityの独立ownerがない。",
+      "canonicalSections": [
+        "5.11",
+        "6.2"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "疲労・調子・準備・故障回復を継続して扱う機能が未対応です。"
+    },
+    {
+      "familyId": "pitch_tempo_preference",
+      "label": "投球テンポの好み",
+      "aliases": [
+        "テンポ○"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "cadence sourceはCoreにあるが通常Hostはpitch間隔を選手preferenceから実行しない。緩急技術とは別。",
+      "canonicalSections": [
+        "6.1"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "season_condition_tendency",
+      "label": "季節による状態傾向",
+      "aliases": [
+        "春男",
+        "夏男",
+        "秋男"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "季節/気候/Condition分布sourceがない。同一family化とstate IDはinventory提案で未確定。",
+      "canonicalSections": [
+        "6.2"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "疲労・調子・準備・故障回復を継続して扱う機能が未対応です。"
+    },
+    {
+      "familyId": "role_usage_preference",
+      "label": "出場機会の方針",
+      "aliases": [
+        "フル出場"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "RoleUsagePreference/manager usage policy。選手能力Buffではない。",
+      "canonicalSections": [
+        "6.2"
+      ],
+      "disposition": "MOVE",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "試合中の得能ではなく、選手情報・育成・記録などで扱う仕様です。"
+    },
+    {
+      "familyId": "zone_recognition_ability",
+      "label": "ゾーン認識能力",
+      "aliases": [
+        "選球眼"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "実認識能力/public visionへ移管済み。zoneJudgmentStdMetersの別Trait加算にしない。",
+      "canonicalSections": [
+        "6.2"
+      ],
+      "disposition": "MOVE",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "試合中の得能ではなく、選手情報・育成・記録などで扱う仕様です。"
+    },
+    {
+      "familyId": "competition_pressure_context",
+      "label": "国際大会の心理文脈",
+      "aliases": [
+        "国際大会○"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "Competition/Pressure Contextへ移管。大会label自体を能力加算にしない。",
+      "canonicalSections": [
+        "6.2"
+      ],
+      "disposition": "MOVE",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "試合中の得能ではなく、選手情報・育成・記録などで扱う仕様です。"
+    },
+    {
+      "familyId": "festival_condition_context",
+      "label": "大会イベントの状態文脈",
+      "aliases": [
+        "お祭り男"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "Competition/Condition側で再設計する候補。通常Hostに元システムがない。",
+      "canonicalSections": [
+        "6.2"
+      ],
+      "disposition": "MOVE",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "試合中の得能ではなく、選手情報・育成・記録などで扱う仕様です。"
+    },
+    {
+      "familyId": "psychology_visibility",
+      "label": "感情の見えやすさ",
+      "aliases": [
+        "ポーカーフェイス"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "Psychology visibility/Green-Neutral descriptor。感情そのものを無効化しない。",
+      "canonicalSections": [
+        "4.9",
+        "7.1"
+      ],
+      "disposition": "MOVE",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "試合中の得能ではなく、選手情報・育成・記録などで扱う仕様です。"
+    },
+    {
+      "familyId": "plate_crowding_avoidance",
+      "label": "打席での接近と回避傾向",
+      "aliases": [
+        "死球集中"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "Neutral Behavior候補。通常Hostに打者回避/身体接触sourceがなく、死球率を直接変更しない。",
+      "canonicalSections": [
+        "7.2"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "preclosure_pressure",
+      "label": "区切り直前の心理反応",
+      "aliases": [
+        "寸前"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "canonicalは候補名のみ。具体的Appraisal/失敗sourceの定義が不足しており数値効果を推測しない。",
+      "canonicalSections": [
+        "8.1"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "心理状態や対戦経験を、状況ごとの判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "field_pressure_error",
+      "label": "圧力下の守備実行弱点",
+      "aliases": [
+        "エラー"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "fielding Emotion Coreはあるが通常Hostにscoring-position pressureとaccepted execution consumerがない。一般守備力の二重低下は禁止。",
+      "canonicalSections": [
+        "8.2"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "心理状態や対戦経験を、状況ごとの判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "double_play_tendency",
+      "label": "併殺傾向の記述",
+      "aliases": [
+        "併殺"
+      ],
+      "status": "UNSUPPORTED",
+      "reason": "ground contact/running/contextの結果を説明する。併殺outを直接増やさない。",
+      "canonicalSections": [
+        "8.2"
+      ],
+      "disposition": "ADOPT_OR_REINTERPRET",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "この得能固有の技術を、通常試合の判断・動作へ反映する機能が未対応です。"
+    },
+    {
+      "familyId": "safe_lead_psychology",
+      "label": "安全圏の心理文脈",
+      "aliases": [
+        "安全圏○"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "Pressure/Psychologyへ移管し独立Trait要否は再検討。",
+      "canonicalSections": [
+        "4.3"
+      ],
+      "disposition": "MOVE",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "試合中の得能ではなく、選手情報・育成・記録などで扱う仕様です。"
+    },
+    {
+      "familyId": "insurance_hit_rejected",
+      "label": "ダメ押し（不採用）",
+      "aliases": [
+        "ダメ押し"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "大量リードという結果状態から直接能力を上げる因果を採用しない。",
+      "canonicalSections": [
+        "5.4",
+        "9"
+      ],
+      "disposition": "REJECT",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "結果だけを有利・不利にする補正として、採用しない仕様です。"
+    },
+    {
+      "familyId": "stat_makeup_rejected",
+      "label": "帳尻合わせ（不採用）",
+      "aliases": [
+        "帳尻合わせ"
+      ],
+      "status": "OUT_OF_SCOPE",
+      "reason": "成績を帳尻合わせする直接Buffは因果原則に反する。",
+      "canonicalSections": [
+        "5.4",
+        "9"
+      ],
+      "disposition": "REJECT",
+      "idAuthority": "PROPOSED_INVENTORY_ID_ONLY",
+      "nativeStates": [],
+      "userReason": "結果だけを有利・不利にする補正として、採用しない仕様です。"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-HR-WATCH-V83-PACKAGE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "tools/browser-bridge/package-home-run-watch-v83.py"
+  ],
+  "observed_at": "2026-10-20T14:26:19.311+00:00",
+  "elapsed_ms": 1171,
+  "git_head": "040c8ef685e97010e617be478e56d6cc54d8f099",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-HR-WATCH-V83-PACKAGE_03f5105f76234429b97af0929bf322d4.log",
+  "output_sha256": "6e6f1842aac076f30dee1bf6166419e7d3b48df90cd3fa4e9cfd18625640704c",
+  "receipt_id": "MB-20261020-HR-WATCH-V83-PACKAGE_03f5105f76234429b97af0929bf322d4"
+}

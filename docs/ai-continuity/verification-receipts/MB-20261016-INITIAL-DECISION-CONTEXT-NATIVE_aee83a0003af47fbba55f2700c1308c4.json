@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-DECISION-CONTEXT-NATIVE",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "../native-observed-initial-decision-v4/readback.mjs",
+    "../../outputs/verification-observed-motor-preparation-v3",
+    "../../outputs/verification-observed-initial-decision-v3"
+  ],
+  "observed_at": "2026-10-16T11:38:45.560+00:00",
+  "elapsed_ms": 55891,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-DECISION-CONTEXT-NATIVE_aee83a0003af47fbba55f2700c1308c4.log",
+  "output_sha256": "5c99b2ff02df8f2c89e7257c80e4f43fc882c258e4fe20f465156101d04a786b",
+  "receipt_id": "MB-20261016-INITIAL-DECISION-CONTEXT-NATIVE_aee83a0003af47fbba55f2700c1308c4"
+}

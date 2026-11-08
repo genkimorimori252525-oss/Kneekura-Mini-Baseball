@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V49-MAKER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-public-abilities.mjs",
+    "../../outputs/にーくら野球メーカー_中継とベース旋回調整版.html",
+    "../../outputs/verification-v49-maker-v1",
+    "../../outputs/ばせぼーるlv49_TBD_vs_LAD_守備責任と走塁裁定修正版.html"
+  ],
+  "observed_at": "2026-10-18T08:24:27.256+00:00",
+  "elapsed_ms": 10812,
+  "git_head": "d54aa62aec6ce643f216dbaedfbaba2f36b31e3b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V49-MAKER_55f003b12f244a84aee719e9290edd4d.log",
+  "output_sha256": "6b2bff4d0d08edb15c964a444bda5967e0dd2a7974821f72245a1a318662b78b",
+  "receipt_id": "MB-20261018-V49-MAKER_55f003b12f244a84aee719e9290edd4d"
+}

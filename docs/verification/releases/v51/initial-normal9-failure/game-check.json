@@ -1,0 +1,15 @@
+{
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv51_TBD_vs_LAD_野手の回避と間隔改善版.html",
+  "sha256": "e6da5610ee31fdb7f50aa7e6103cf21b128618b6d50b12fdd8a814b4df1ee12f",
+  "packetSha256": "a2fdb7835bada8dddcd2599e72f0034e540bebb360febb8cd25279f2ba1e6ccd",
+  "nativeBundleSha256": "ca15f3fe38093629b10ba66532c759bbed216dbcf8a337b3b2928e05169097dd",
+  "views": [],
+  "mode": "normal-nine-inning-game",
+  "status": "FAIL",
+  "error": "page.evaluate: Error: live baseball match: physical field continuation unresolved: actor_boundary_motor_required (pitch 5, seed 1174965123)\n    at eval (eval at evaluate (:311:30), <anonymous>:1:133)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\tools\\browser-bridge\\check-v51-game.mjs:132:14",
+  "failure": {
+    "pitchCount": 4,
+    "error": "live baseball match: physical field continuation unresolved: actor_boundary_motor_required (pitch 5, seed 1174965123)",
+    "raw": "failure-raw.json"
+  }
+}

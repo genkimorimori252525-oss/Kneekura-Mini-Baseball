@@ -1,0 +1,27 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/MeasuredBatAxisReferenceV1.test.ts (6 tests) 8ms
+ ✓ src/integration/browser/WorkbenchPlayer.test.ts (18 tests) 19ms
+ ✓ src/core/sim/contact/ReferenceBatKinematicsV1.test.ts (8 tests) 199ms
+ ✓ src/integration/browser/ReferenceBattingWorkbench.test.ts (4 tests) 1788ms
+   ✓ uses the same reference state for the visible bat, actual rigid contact, and subsequent Aero/ground ball 754ms
+   ✓ keeps geometric misses and declared input trajectories unchanged 330ms
+   ✓ keeps league labels outside actual impulse and makes unmodelled body/recoil explicit 702ms
+ ✓ src/integration/browser/BattingWorkbench.test.ts (11 tests) 9750ms
+   ✓ creates one body-attached rigid bat path and feeds its actual collision to Core Aero/ground physics 514ms
+   ✓ changing actual bat speed changes impulse and batted-ball velocity rather than a hit probability 899ms
+   ✓ a late motor cannot retroactively meet the pitch, and a take creates no contact 785ms
+   ✓ replays the same physical inputs and preserves league labels as display-only context 2056ms
+   ✓ keeps both actual arm bone lengths on the near-folded regression path 809ms
+   ✓ mirrors the body and contact for right/left hitters at a constrained course 1485ms
+   ✓ detects contact that starts and ends between the old 1ms sample endpoints 526ms
+   ✓ audits the actual motor speed independently of the 4ms drawing frames 621ms
+   ✓ keeps the same pitched ball when only authored contact depth changes 1359ms
+   ✓ does not make a visible held bat transparent when the hitter takes 693ms
+
+ Test Files  5 passed (5)
+      Tests  47 passed (47)
+   Start at  03:11:05
+   Duration  10.57s (transform 533ms, setup 0ms, collect 1.35s, tests 11.76s, environment 1ms, prepare 812ms)
+

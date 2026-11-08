@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/ball/BattedWorldMotion.test.ts (17 tests) 12ms
+ ✓ src/core/sim/ball/SourceBallWorldMotionV1.test.ts (7 tests) 307ms
+
+ Test Files  2 passed (2)
+      Tests  24 passed (24)
+   Start at  06:10:20
+   Duration  1.08s (transform 334ms, setup 0ms, collect 669ms, tests 319ms, environment 0ms, prepare 262ms)
+

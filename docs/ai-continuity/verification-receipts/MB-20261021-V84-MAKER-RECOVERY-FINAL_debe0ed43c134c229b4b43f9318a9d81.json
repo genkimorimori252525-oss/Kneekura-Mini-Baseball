@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-MAKER-RECOVERY-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-internal-recovery-v82.mjs",
+    "../../outputs/にーくら野球メーカー_v84_描画と接地移動版.html",
+    "docs/verification/releases/v84/maker-recovery-final"
+  ],
+  "observed_at": "2026-10-20T15:44:24.423+00:00",
+  "elapsed_ms": 44765,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-MAKER-RECOVERY-FINAL_debe0ed43c134c229b4b43f9318a9d81.log",
+  "output_sha256": "6197245f0421ffd3ac9ca4d432d1d1de80435999de9582dd370c529cf3cc833d",
+  "receipt_id": "MB-20261021-V84-MAKER-RECOVERY-FINAL_debe0ed43c134c229b4b43f9318a9d81"
+}

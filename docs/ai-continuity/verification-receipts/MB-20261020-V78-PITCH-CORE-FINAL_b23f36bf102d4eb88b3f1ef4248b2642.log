@@ -1,0 +1,45 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LivePitchAuthoringV77.test.ts (3 tests) 4ms
+ ✓ src/integration/browser/LivePitchRosterV77.test.ts (3 tests) 20ms
+ ✓ src/integration/browser/LivePitchAuthoringV78.test.ts (5 tests) 327ms
+   ✓ v78 distinct pitch identity, immutable library and physical execution > mirrors only newly generated left-handed examples, including their material force and physical path 306ms
+ ✓ src/integration/browser/LivePitchHostAuthoringV77.test.ts (2 tests) 340ms
+stdout | src/core/sim/fielding/LiveThrowPlanV1.test.ts > remains deterministic and reports performance outside the issued command
+{"benchmark":"70M_AERO_THROW_COMMAND","wallMilliseconds":126.18070000000012,"candidateCount":4,"solverEvaluationCount":19,"shootingIntegrationStepUpperBound":10047,"verificationKernelBuilds":1,"timingBasis":"MONOTONIC_WALL_CLOCK_NOT_PROCESS_CPU","processCpuUserMilliseconds":125,"processCpuSystemMilliseconds":0}
+
+ ✓ src/core/sim/fielding/LiveThrowPlanV1.test.ts (7 tests) 857ms
+   ✓ remains deterministic and reports performance outside the issued command 447ms
+ ✓ src/integration/browser/LivePhysicalRosterV1.test.ts (28 tests) 1194ms
+stdout | src/core/sim/fielding/LiveFieldForecastV1.test.ts > measures process CPU outside the browser-neutral helper while reusing one kernel for nine defenders
+{"benchmark":"EXPLICIT_20_OBSERVATIONS_9_DEFENDERS_8_SECOND_HYPOTHESES","hypotheses":20,"sharedQueries":1440,"wallMilliseconds":1055.404,"processCpuUserMilliseconds":1047,"processCpuSystemMilliseconds":172,"meanBuildWallMilliseconds":52.52219499999999,"mean72SamplesWallMilliseconds":0.050555000000179005}
+
+ ✓ src/core/sim/fielding/LiveFieldForecastV1.test.ts (7 tests) 1441ms
+   ✓ measures process CPU outside the browser-neutral helper while reusing one kernel for nine defenders 1056ms
+ ✓ src/integration/browser/LivePublicAbilitiesV1.test.ts (27 tests) 1573ms
+   ✓ public authoring with individual SI profiles > projects all 20 profiles without changing the packet and exact no-op edits preserve all bytes 1098ms
+ ✓ src/integration/browser/PitcherWorkbenchV77.test.ts (4 tests) 1941ms
+   ✓ executes seven authored pitches on both throwing sides with observed spin and break directions 1322ms
+ ✓ src/integration/browser/LiveTraitRuntimeV77.test.ts (8 tests) 2494ms
+   ✓ v77 independent trait execution > keeps base SI and every public ability unchanged for all independently authored states and scales 2354ms
+ ✓ src/core/sim/fielding/LiveRelayPlanV1.test.ts (9 tests) 3147ms
+   ✓ supports two actual intermediate receivers without duplicate actors or throw cycles 879ms
+   ✓ carries predicted seam phase through relay hypotheses while requiring a new plan after actual receipt 877ms
+   ✓ bounds search work and caches Aero edges while using no position names or future world state 875ms
+ ✓ src/core/sim/fielding/LiveFieldTechniquesV75.test.ts (7 tests) 3818ms
+   ✓ keeps ground events, frames and diagnostics exactly unchanged for all zero controls 1157ms
+   ✓ shortens only the batter initial departure, preserving baserunner recognition and run speed 819ms
+   ✓ uses actual capture posture and one shortened transfer without exceeding physical hand speed 770ms
+   ✓ changes real approach movement only after observing a slow grounded ball and leaves a fly exact 768ms
+ ✓ src/integration/browser/LivePitchExecutionV78.test.ts (5 tests) 17029ms
+   ✓ keeps omitted and fixed spin execution exactly equal to the legacy record 522ms
+   ✓ selects owned IDs rather than generating an unowned type, and rejects ambiguous explicit classification 2747ms
+   ✓ uses the exact same snapshot and downward spin in Host and pitcher trial 2382ms
+   ✓ executes every classified preset and variant with explicit material physics on both throwing sides 11251ms
+
+ Test Files  13 passed (13)
+      Tests  115 passed (115)
+   Start at  04:48:27
+   Duration  18.33s (transform 2.12s, setup 0ms, collect 7.59s, tests 34.18s, environment 2ms, prepare 3.52s)
+

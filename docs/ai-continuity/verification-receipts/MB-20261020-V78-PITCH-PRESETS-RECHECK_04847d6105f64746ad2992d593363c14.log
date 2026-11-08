@@ -1,0 +1,38 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LivePitchAuthoringV78.test.ts (4 tests) 26ms
+ ❯ src/integration/browser/LivePitchExecutionV78.test.ts (5 tests | 1 failed) 11234ms
+   ✓ keeps omitted and fixed spin execution exactly equal to the legacy record 323ms
+   ✓ selects owned IDs rather than generating an unowned type, and rejects ambiguous explicit classification 1662ms
+   × uses the exact same snapshot and downward spin in Host and pitcher trial 738ms
+     → baseball seam force: explicit material orientation required
+   ✓ executes every classified preset and variant with explicit material physics on both throwing sides 8420ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LivePitchExecutionV78.test.ts > uses the exact same snapshot and downward spin in Host and pitcher trial
+Error: baseball seam force: explicit material orientation required
+ ❯ Module.createSourceFreeBallKernel src/core/sim/ball/SourceFreeBallKernel.ts:66:11
+     64|   const materialBasis = descriptor.materialOrientationAtStart === unde…
+     65|   if (profile.air.aerodynamics.seamForce?.coefficientScale && material…
+     66|     throw new Error('baseball seam force: explicit material orientatio…
+       |           ^
+     67|   if (ball.tick !== quantizeEventTick(initial.originTick, initial.elap…
+     68|     || ball.position.y < profile.ground.radiusM - 1e-10) throw new Err…
+ ❯ Module.createLiveFieldForecastV1 src/core/sim/fielding/LiveFieldForecastV1.ts:23:74
+ ❯ predictObservation src/core/sim/fielding/LiveFieldPlayV1.ts:433:48
+ ❯ predict src/core/sim/fielding/LiveFieldPlayV1.ts:444:46
+ ❯ forecast src/core/sim/fielding/LiveFieldPlayV1.ts:452:24
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.ts:555:59
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:555:33
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:1095:147
+ ❯ Object.issuePitch src/integration/browser/LiveBaseballMatchV1.ts:230:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 8 passed (9)
+   Start at  04:39:39
+   Duration  12.31s (transform 620ms, setup 0ms, collect 1.26s, tests 11.26s, environment 0ms, prepare 262ms)
+

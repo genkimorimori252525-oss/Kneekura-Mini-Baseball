@@ -16,7 +16,8 @@ import type { SamePaLifecycleCut } from './SamePlateAppearanceLifecycle';
 export type SamePaControllerCommand = Readonly<{sourceReference:SamePaReference;playerId:string;role:string;validThroughTick:number;originalCommandHash:string}> & (
   Readonly<{kind:'field_primitive';originalCommand:import('../../core/sim/ball/BallWorldContinuation').BallWorldMotionActor['primitive']}>
   | Readonly<{kind:'occupied_runner_hold';originalCommand:import('./SamePlateAppearanceOccupiedRunnerHold').AcceptedSamePaOccupiedRunnerHold}>
-  | Readonly<{kind:'batting_motor';originalCommand:NonNullable<import('../../core/world/psychology/batting/BattingTypes').BattingCommitment['trajectory']>}>
+  | Readonly<{kind:'batting_motor';originalCommand:NonNullable<import('../../core/world/psychology/batting/BattingTypes').BattingCommitment['trajectory']>
+      | import('../../core/sim/contact/ReferenceBatKinematicsV1').ReferenceBatKinematicsInputV1}>
   | Readonly<{kind:'pitch_delivery';originalCommand:ReturnType<typeof import('../../core/sim/pitch/CanonicalPitchDelivery').resolveCanonicalPitchDelivery>['timeline']}>);
 export type SamePaControllerRetirementBasis = Readonly<{
   kind: 'same_pa_original_controller_retirement_basis_v1'; physicalPitchReference: SamePaReference; physicalOperationReference: SamePaReference;

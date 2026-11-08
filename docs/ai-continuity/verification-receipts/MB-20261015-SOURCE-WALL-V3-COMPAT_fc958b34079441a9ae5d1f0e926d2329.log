@@ -1,0 +1,61 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts (46 tests) 2065ms
+ ✓ src/host/world/OriginalContactRunnerKinematics.test.ts (15 tests) 356ms
+ ✓ src/host/world/OriginalContactKinematicsReader.test.ts (15 tests) 537ms
+ ✓ src/host/world/SqliteBattedFirstFielderTouchStore.test.ts (15 tests) 11992ms
+   ✓ owns original actual glove contact and its territory without caller outcome or fake retention 929ms
+   ✓ owns original actual body contact and its territory without caller outcome or fake retention 880ms
+   ✓ owns original actual tag_hand contact and its territory without caller outcome or fake retention 850ms
+   ✓ owns original actual left_foot contact and its territory without caller outcome or fake retention 928ms
+   ✓ owns original actual right_foot contact and its territory without caller outcome or fake retention 955ms
+   ✓ persists explicit ground boundary without inventing defender or territory 760ms
+   ✓ persists explicit surface boundary without inventing defender or territory 766ms
+   ✓ persists explicit batter boundary without inventing defender or territory 730ms
+   ✓ persists explicit simultaneous boundary without inventing defender or territory 752ms
+   ✓ persists explicit airborne boundary without inventing defender or territory 663ms
+   ✓ retains the original airborne interpretation while the actual World advances to its next physical contact 1300ms
+   ✓ rejects missing Source without changing the original physical World 525ms
+   ✓ rejects caller_territory Source without changing the original physical World 505ms
+   ✓ rejects changed_original Source without changing the original physical World 554ms
+   ✓ rejects duplicate_contact Source without changing the original physical World 894ms
+ ✓ src/host/world/SqliteBattedWorldContinuationStore.test.ts (16 tests) 27958ms
+   ✓ owns actual body continuation and reopens the original history without a caller ball 2198ms
+   ✓ owns actual failed_glove continuation and reopens the original history without a caller ball 2002ms
+   ✓ owns actual surface continuation and reopens the original history without a caller ball 2016ms
+   ✓ owns actual ground continuation and reopens the original history without a caller ball 1971ms
+   ✓ appends actual prefixes and keeps earlier immutable snapshots readable after a later head 2710ms
+   ✓ does not turn a pending/no-progress glove source into acquired possession or closure 1200ms
+   ✓ does not turn a pending/no-progress simultaneous source into acquired possession or closure 1157ms
+   ✓ does not turn a pending/no-progress airborne source into acquired possession or closure 1007ms
+   ✓ rejects caller ball/result/territory, unknown predecessors and motion horizons beyond the original coverage 1188ms
+   ✓ rejects competing successors, self-cycles and source rebinding on retries 1846ms
+   ✓ rejects corrupted own prefix/head: UPDATE batted_world_continuations SET source_hash='changed' 1735ms
+   ✓ rejects corrupted own prefix/head: UPDATE batted_world_continuations SET snapshot_hash='changed' 1731ms
+   ✓ rejects corrupted own prefix/head: UPDATE batted_world_continuations SET physical_pitch_source_id='wrong' 1800ms
+   ✓ rejects corrupted own prefix/head: UPDATE batted_world_continuations SET revision=revision+1 1847ms
+   ✓ rejects corrupted own prefix/head: UPDATE batted_world_continuation_heads SET source_id='missing' 1790ms
+   ✓ rejects corrupted own prefix/head: DELETE FROM batted_world_continuation_heads 1758ms
+ ✓ src/host/world/SqliteBattedContactResponseStore.test.ts (14 tests) 14536ms
+   ✓ derives body response from the actual Native World and reopens its own original archive 1274ms
+   ✓ derives surface response from the actual Native World and reopens its own original archive 1190ms
+   ✓ derives glove response from the actual Native World and reopens its own original archive 1328ms
+   ✓ derives failed_glove response from the actual Native World and reopens its own original archive 1316ms
+   ✓ derives ground response from the actual Native World and reopens its own original archive 1221ms
+   ✓ derives airborne response from the actual Native World and reopens its own original archive 1215ms
+   ✓ derives simultaneous response from the actual Native World and reopens its own original archive 1235ms
+   ✓ rejects wrong original response model gameId scope 769ms
+   ✓ rejects wrong original response model careerId scope 731ms
+   ✓ rejects wrong original response model fixtureEventId scope 770ms
+   ✓ rejects wrong original response model venueId scope 763ms
+   ✓ rejects unapproved outcomes, future calibration and wrong Person even on an unused registered actor 881ms
+   ✓ rejects missing geometry calibration and malformed unused registered glove profile 740ms
+   ✓ keeps original model immutable and rejects source rebinding on identical retries 1100ms
+ ✓ src/host/world/OriginalContactLegacyBytes.test.ts (3 tests) 21ms
+
+ Test Files  7 passed (7)
+      Tests  124 passed (124)
+   Start at  07:09:05
+   Duration  75.40s (transform 4.92s, setup 0ms, collect 16.22s, tests 57.47s, environment 1ms, prepare 555ms)
+

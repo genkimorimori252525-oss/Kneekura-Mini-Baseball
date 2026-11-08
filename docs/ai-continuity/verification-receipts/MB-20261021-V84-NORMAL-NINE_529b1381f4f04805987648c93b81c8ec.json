@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-NORMAL-NINE",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-full-history-performance-v81.mjs",
+    "../../outputs/ばせぼーるlv84_TBD_vs_LAD_描画と接地移動版.html",
+    "docs/verification/releases/v84/normal-nine"
+  ],
+  "observed_at": "2026-10-20T15:27:10.748+00:00",
+  "elapsed_ms": 13485,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-NORMAL-NINE_529b1381f4f04805987648c93b81c8ec.log",
+  "output_sha256": "770017bb08f238b9685bc8498ed22c62694c2aa8b2e113891fdf4a4fcce57169",
+  "receipt_id": "MB-20261021-V84-NORMAL-NINE_529b1381f4f04805987648c93b81c8ec"
+}

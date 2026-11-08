@@ -1,13 +1,13 @@
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { actorFreeze as freeze, type DurablePhysicalPlateAppearanceActor } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
-import { samePaNominalTakeInput, type AcceptedSamePaFirstPitchAction, type SamePaPhysicalSourceReference } from './SamePlateAppearanceDispatchSource';
+import { samePaNominalTakeInput, type AcceptedSamePaFirstPitchAction, type SamePaPhysicalSourceReference, type SamePaNominalTakePitch } from './SamePlateAppearanceDispatchSource';
 import { samePaFields as fields, samePaText as text, samePaReferenceValid as ref, type SamePaReference, type SamePaExecutionLineage } from './SamePlateAppearanceWorkPrefix';
 import { samePaDispatchMemberValid, samePaDispatchRouteValid, type SamePaDispatchMember, type SamePaDispatchRoute } from './SamePlateAppearanceDispatchRoles';
 import type { SamePaCompletedTakeCut } from './SamePlateAppearanceContinuation';
 import type { SamePaNativePitchCalculation } from './SamePlateAppearanceDispatchExecution';
 export type AcceptedSamePaNextTakeAction = Readonly<{ sourceId: string; sourceVersion: string; capability: 'same_pa_next_take_action_v1';
   viewReference: SamePaReference<'pa_continuation_v1_execution_views'>; previousPitchReference: SamePaReference<'pa_dispatch_v1_pitch_actions'>;
-  nominalPitch: AcceptedSamePaFirstPitchAction['nominalPitch']; timingReference: AcceptedSamePaFirstPitchAction['timingReference'];
+  nominalPitch: SamePaNominalTakePitch; timingReference: AcceptedSamePaFirstPitchAction['timingReference'];
   releaseReference: AcceptedSamePaFirstPitchAction['releaseReference']; pitchResponseReference: AcceptedSamePaFirstPitchAction['pitchResponseReference'];
   batterModelReference: AcceptedSamePaFirstPitchAction['batterModelReference'] }>;
 export type SamePaNextTakeParticipant = Readonly<{ member: SamePaDispatchMember; calibrationReferences: readonly Readonly<{

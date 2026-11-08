@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V49-CAUSAL-ASSERT-GREEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T08:27:13.379+00:00",
+  "elapsed_ms": 9312,
+  "git_head": "d54aa62aec6ce643f216dbaedfbaba2f36b31e3b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V49-CAUSAL-ASSERT-GREEN_0051690c27314922ac17578259e620bd.log",
+  "output_sha256": "77b4b07f0204d720d2c4c2fc112127db3ed8ec1a230a0e3f7c50d1663f17a302",
+  "receipt_id": "MB-20261018-V49-CAUSAL-ASSERT-GREEN_0051690c27314922ac17578259e620bd"
+}

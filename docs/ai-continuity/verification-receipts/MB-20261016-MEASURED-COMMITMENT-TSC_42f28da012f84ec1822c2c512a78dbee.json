@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-MEASURED-COMMITMENT-TSC",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-15T22:03:53.831+00:00",
+  "elapsed_ms": 48766,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-MEASURED-COMMITMENT-TSC_42f28da012f84ec1822c2c512a78dbee.log",
+  "output_sha256": "453616b039b0c4499dd7cbc317ad28f5aceda7857bd25a06fe4077f33a32a2c4",
+  "receipt_id": "MB-20261016-MEASURED-COMMITMENT-TSC_42f28da012f84ec1822c2c512a78dbee"
+}

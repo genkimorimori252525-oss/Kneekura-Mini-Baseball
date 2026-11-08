@@ -1,0 +1,30 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LiveTraitProfilesV1.test.ts (14 tests) 25ms
+ ✓ src/integration/browser/LivePitchRosterV77.test.ts (3 tests) 22ms
+ ✓ src/integration/browser/LiveTechnicalTraitsV75.test.ts (11 tests) 110ms
+ ✓ src/integration/browser/LiveHiddenAiControlsV1.test.ts (3 tests) 173ms
+ ✓ src/integration/browser/LivePhysicalRosterV1.test.ts (28 tests) 1041ms
+ ✓ src/integration/browser/LivePublicAbilitiesV1.test.ts (27 tests) 1407ms
+   ✓ public authoring with individual SI profiles > projects all 20 profiles without changing the packet and exact no-op edits preserve all bytes 979ms
+ ✓ src/integration/browser/LiveTraitHostV53.test.ts (2 tests) 1777ms
+   ✓ validates trait profiles against direct Host physical inputs without a roster adapter 369ms
+   ✓ does not multiply a technical source again when trait metadata accompanies an actual contact play 1407ms
+ ✓ src/integration/browser/LiveTraitRuntimeV77.test.ts (8 tests) 2309ms
+   ✓ v77 independent trait execution > keeps base SI and every public ability unchanged for all independently authored states and scales 2184ms
+ ✓ src/integration/browser/LiveTraitPreferenceExecutionV54.test.ts (14 tests) 15592ms
+   ✓ keeps omitted, neutral and BALANCED preferences exactly equivalent under old commands 503ms
+   ✓ executes personal POWER/CONTACT through the existing real bat motor for R 330ms
+   ✓ executes personal POWER/CONTACT through the existing real bat motor for L 351ms
+   ✓ lets explicit bunt override a personal swing preference 1031ms
+   ✓ uses the new current batter after the inning changes and keeps an inactive player preference out of earlier Sources 1317ms
+   ✓ lets every explicit manager pitch override both pitcher preferences in the Host 1099ms
+   ✓ keeps BALANCED auto and every explicit pitch exactly equal, including RNG-dependent Source and controls 2234ms
+   ✓ changes only auto pitch selection weights, with the same downstream draw stream when a type is unchanged 7882ms
+
+ Test Files  9 passed (9)
+      Tests  110 passed (110)
+   Start at  03:55:50
+   Duration  16.82s (transform 1.32s, setup 0ms, collect 5.41s, tests 22.46s, environment 1ms, prepare 1.97s)
+

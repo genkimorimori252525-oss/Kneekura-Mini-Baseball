@@ -1,0 +1,2 @@
+tools/verification/native-game/observed-cut-readback.ts(44,40): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tools/verification/native-game/observed-motor-preparation-native.ts(60,124): error TS18047: 'prepared.plan.motion' is possibly 'null'.

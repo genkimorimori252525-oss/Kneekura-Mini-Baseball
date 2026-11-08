@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\package-v58.py", line 28, in <module>
+    assert restored==Path('docs/demos/releases/v57/game.html').read_text(encoding='utf-8'), 'no unrelated match changes'
+AssertionError: no unrelated match changes

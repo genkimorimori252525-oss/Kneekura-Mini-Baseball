@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V55-WORKBENCH",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-camera-workbench-v55.mjs",
+    "../../outputs/カメラワーク調整室_v55.html",
+    "../../outputs/verification-v55-workbench-final",
+    "../../outputs/ばせぼーるlv55_TBD_vs_LAD_打球追尾調整版.html"
+  ],
+  "observed_at": "2026-10-18T16:49:01.193+00:00",
+  "elapsed_ms": 135657,
+  "git_head": "d75f45df3b5f015893f9ad9a95edb2abbcfb282e",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V55-WORKBENCH_4e7ef111e75d41f487eb5956736ef6c4.log",
+  "output_sha256": "4731504549a5878e8a06a5563eececa51cd34d0318bee0018dcdfcd2af16b280",
+  "receipt_id": "MB-20261019-V55-WORKBENCH_4e7ef111e75d41f487eb5956736ef6c4"
+}

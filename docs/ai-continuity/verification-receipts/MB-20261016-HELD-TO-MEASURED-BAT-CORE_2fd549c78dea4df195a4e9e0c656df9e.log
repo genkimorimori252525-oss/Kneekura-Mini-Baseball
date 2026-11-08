@@ -1,0 +1,12 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/contact/InitialHeldBatV1.test.ts (7 tests) 4ms
+ ✓ src/core/sim/contact/HeldToMeasuredBatControlV1.test.ts (10 tests) 11ms
+ ✓ src/core/sim/contact/ReferenceBatKinematicsV1.test.ts (8 tests) 186ms
+
+ Test Files  3 passed (3)
+      Tests  25 passed (25)
+   Start at  21:12:11
+   Duration  832ms (transform 262ms, setup 0ms, collect 557ms, tests 202ms, environment 0ms, prepare 439ms)
+

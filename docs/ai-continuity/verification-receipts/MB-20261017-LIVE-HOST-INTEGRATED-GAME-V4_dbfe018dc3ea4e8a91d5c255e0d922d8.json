@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-HOST-INTEGRATED-GAME-V4",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveBaseballMatchV1.test.ts",
+    "src/integration/browser/LivePitchV1.test.ts",
+    "src/integration/browser/PlayableMatchRulesV1.test.ts",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts",
+    "src/core/sim/ball/GroundWallRollingCurveV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T00:18:55.773+00:00",
+  "elapsed_ms": 27202,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-HOST-INTEGRATED-GAME-V4_dbfe018dc3ea4e8a91d5c255e0d922d8.log",
+  "output_sha256": "d29e55baa91953a2efcbe1a15176a4594a8a31337ab414e468c3d32c5f25384b",
+  "receipt_id": "MB-20261017-LIVE-HOST-INTEGRATED-GAME-V4_dbfe018dc3ea4e8a91d5c255e0d922d8"
+}

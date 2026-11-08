@@ -1,0 +1,103 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/LivePitchAbilitiesV1.test.ts (6 tests | 6 failed) 556ms
+   × applies an authored release-speed ceiling before the immutable Source is launched 69ms
+     → Cannot read properties of undefined (reading 'maximumPitchSpeedMps')
+   × changes the executed measured-bat rate from target SI and certifies the declared continuous maximum 144ms
+     → expected 1 to be greater than 1
+   × enforces explicit reaction/motor latency by delaying the actual reference rather than moving the pitch 88ms
+     → expected 1134971 to be greater than 1134971
+   × uses explicit decision and bad-ball control in the planned motion, never in the contact result 132ms
+     → expected true to be false // Object.is equality
+   × rotates the measured reference to authored attack/pull angles and keeps one rigid bat length 42ms
+     → Cannot read properties of undefined (reading 'y')
+   × retains declared phase windows and contact depth as actual motor/sensor controls 81ms
+     → expected 1134971 not to be 1134971 // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LivePitchAbilitiesV1.test.ts > applies an authored release-speed ceiling before the immutable Source is launched
+TypeError: Cannot read properties of undefined (reading 'maximumPitchSpeedMps')
+ ❯ src/integration/browser/LivePitchAbilitiesV1.test.ts:16:43
+     14|   expect(Math.hypot(released.velocity.x, released.velocity.y, released…
+     15|   expect(released.spin).toEqual(i.pitcher.spinRadPerSecond);
+     16|   expect(r.diagnostics.individualControls.maximumPitchSpeedMps).toBe(1…
+       |                                           ^
+     17| });
+     18| it('changes the executed measured-bat rate from target SI and certifie…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  src/integration/browser/LivePitchAbilitiesV1.test.ts > changes the executed measured-bat rate from target SI and certifies the declared continuous maximum
+AssertionError: expected 1 to be greater than 1
+ ❯ src/integration/browser/LivePitchAbilitiesV1.test.ts:22:41
+     20|     fast = simulateLivePitchV1({ ...i, batter: { ...i.batter, targetSw…
+     21|     capped = simulateLivePitchV1({ ...i, batter: { ...i.batter, target…
+     22|   expect(fast.diagnostics.playbackRate).toBeGreaterThan(slow.diagnosti…
+       |                                         ^
+     23|   expect(fast.diagnostics.referenceContactSweetSpotSpeedMps).toBeClose…
+     24|   expect(capped.diagnostics.referenceMaximumSweetSpotSpeedMps).toBeLes…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  src/integration/browser/LivePitchAbilitiesV1.test.ts > enforces explicit reaction/motor latency by delaying the actual reference rather than moving the pitch
+AssertionError: expected 1134971 to be greater than 1134971
+ ❯ src/integration/browser/LivePitchAbilitiesV1.test.ts:31:50
+     29|   const i = source(), onTime = simulateLivePitchV1({ ...i, batter: { .…
+     30|     delayed = simulateLivePitchV1({ ...i, batter: { ...i.batter, preCo…
+     31|   expect(delayed.diagnostics.referenceStartTick).toBeGreaterThan(onTim…
+       |                                                  ^
+     32|   expect(delayed.diagnostics.motorDelaySeconds).toBeGreaterThan(0);
+     33|   expect(delayed.diagnostics.sourceDescriptor).toEqual(onTime.diagnost…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  src/integration/browser/LivePitchAbilitiesV1.test.ts > uses explicit decision and bad-ball control in the planned motion, never in the contact result
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/integration/browser/LivePitchAbilitiesV1.test.ts:41:91
+     39|     skilled = simulateLivePitchV1({ ...outside, batter: { ...outside.b…
+     40|     take = simulateLivePitchV1({ ...outside, batter: { ...outside.batt…
+     41|   expect(weak.diagnostics.swingOffered).toBe(true); expect(take.diagno…
+       |                                                                                           ^
+     42|   expect(weak.diagnostics.aimErrorMeters).not.toEqual(skilled.diagnost…
+     43|   expect(weak.diagnostics.sourceDescriptor).toEqual(skilled.diagnostic…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  src/integration/browser/LivePitchAbilitiesV1.test.ts > rotates the measured reference to authored attack/pull angles and keeps one rigid bat length
+TypeError: Cannot read properties of undefined (reading 'y')
+ ❯ src/integration/browser/LivePitchAbilitiesV1.test.ts:48:23
+     46|   const i = source(), r = simulateLivePitchV1({ ...i, batter: { ...i.b…
+     47|   const v = r.diagnostics.referenceContactSweetSpotVelocity;
+     48|   expect(Math.atan2(v.y, Math.hypot(v.x, v.z)) * 180 / Math.PI).toBeCl…
+       |                       ^
+     49|   expect(-Math.atan2(v.x, v.z) * 180 / Math.PI).toBeCloseTo(22, 9);
+     50|   const bat = r.frames.find(f => f.bat)!.bat!;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  src/integration/browser/LivePitchAbilitiesV1.test.ts > retains declared phase windows and contact depth as actual motor/sensor controls
+AssertionError: expected 1134971 not to be 1134971 // Object.is equality
+ ❯ src/integration/browser/LivePitchAbilitiesV1.test.ts:56:48
+     54|   const i = source(), a = simulateLivePitchV1({ ...i, batter: { ...i.b…
+     55|     b = simulateLivePitchV1({ ...i, batter: { ...i.batter, preContactS…
+     56|   expect(a.diagnostics.referenceStartTick).not.toBe(b.diagnostics.refe…
+       |                                                ^
+     57|   expect(a.diagnostics.referenceThroughTick).not.toBe(b.diagnostics.re…
+     58|   expect(a.diagnostics.individualControls.contactDepthMeters).toBe(.5);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+ Test Files  1 failed (1)
+      Tests  6 failed (6)
+   Start at  12:11:42
+   Duration  1.41s (transform 273ms, setup 0ms, collect 421ms, tests 556ms, environment 0ms, prepare 134ms)
+

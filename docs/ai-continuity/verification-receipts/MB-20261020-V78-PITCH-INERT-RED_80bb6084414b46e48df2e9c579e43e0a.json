@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-PITCH-INERT-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePitchAuthoringV78.test.ts"
+  ],
+  "observed_at": "2026-10-19T19:37:45.890+00:00",
+  "elapsed_ms": 1468,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-PITCH-INERT-RED_80bb6084414b46e48df2e9c579e43e0a.log",
+  "output_sha256": "88f77629d6e685616ae6920425e567d8870ab8db5d2ae0791431b1538ed90e21",
+  "receipt_id": "MB-20261020-V78-PITCH-INERT-RED_80bb6084414b46e48df2e9c579e43e0a"
+}

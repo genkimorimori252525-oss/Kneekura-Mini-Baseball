@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-MOTOR-CATCH-RETENTION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts",
+    "src/core/sim/ball/SourceFieldIntegerBoundaryV1.test.ts",
+    "src/core/sim/ball/BattedWorldScheduledFieldAcquisition.test.ts",
+    "src/core/sim/ball/SourceBattedFieldMotionV3.test.ts"
+  ],
+  "observed_at": "2026-10-15T18:33:47.956+00:00",
+  "elapsed_ms": 2156,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-MOTOR-CATCH-RETENTION_03d5b5a5d50e4958836d6ac16d78d9bd.log",
+  "output_sha256": "8aa8f7de750f9866b67c5129de757b64790618c89b77c8deb946461824e3632f",
+  "receipt_id": "MB-20261016-SOURCE-MOTOR-CATCH-RETENTION_03d5b5a5d50e4958836d6ac16d78d9bd"
+}

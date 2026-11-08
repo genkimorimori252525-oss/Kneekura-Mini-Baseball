@@ -1,0 +1,16 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ tools/browser-bridge/whole-scene-adapters-v81.test.mjs (8 tests) 26ms
+ ✓ tools/browser-bridge/presentation-ui-performance-v81.test.mjs (5 tests) 528ms
+ ✓ tools/browser-bridge/broadcast-renderer-performance-v81.test.mjs (6 tests) 878ms
+   ✓ invalidates the park for exact projection, park, style and canvas changes without rounded keys 357ms
+ ✓ tools/browser-bridge/presentation-cadence-performance-v81.test.mjs (8 tests) 2111ms
+   ✓ fails closed on altered or duplicate v79 experiment markers 419ms
+   ✓ changes only the declared Presentation experiment regions and commutes with the independent UI patch 622ms
+
+ Test Files  4 passed (4)
+      Tests  27 passed (27)
+   Start at  22:08:32
+   Duration  2.72s (transform 105ms, setup 0ms, collect 327ms, tests 3.54s, environment 1ms, prepare 603ms)
+

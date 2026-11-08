@@ -1,0 +1,19 @@
+{
+  "pass": true,
+  "gameSha256": "02644793d8c6e41b66d5330fe37cc0ce8d2fa7756ad6bc139b045fbef38d3b17",
+  "workbenchSha256": "ad40f7832a1621b09cd5efa3804d6cbfa6ef2534c73242ec6e6a9e0a41e05016",
+  "sourceCoreSha256": "4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279",
+  "sourceInputs": 113,
+  "zipEntries": 126,
+  "allZipBytesAndCrcVerified": true,
+  "sourceAfterTestNormalization": false,
+  "coreChanged": false,
+  "normalRestoresV54Exactly": true,
+  "oneEmbeddedMatch": true,
+  "checkedLinks": 26,
+  "oldV54ReleaseUnchanged": true,
+  "measuredBatChanged": false,
+  "physicsRulesAiChanged": false,
+  "wholeOriginalPlanComplete": false,
+  "statisticsCalibrated": false
+}

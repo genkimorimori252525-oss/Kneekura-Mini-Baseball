@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V68-LIBRARY-IMPORT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/import-openbiomechanics-library.mjs",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/参考データ/openbiomechanics"
+  ],
+  "observed_at": "2026-10-19T10:37:21.859+00:00",
+  "elapsed_ms": 3139,
+  "git_head": "652aa75ccb24df723c2d413e5dc37e7395dc8679",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V68-LIBRARY-IMPORT_1d3a7447acec4e6996c6d0aeb3bba0f1.log",
+  "output_sha256": "3e47131a494a8e369df689652e5ae7b9cea9c0a120bbbd4aeefdea049a5302bd",
+  "receipt_id": "MB-20261019-V68-LIBRARY-IMPORT_1d3a7447acec4e6996c6d0aeb3bba0f1"
+}

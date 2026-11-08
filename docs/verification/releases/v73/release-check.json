@@ -1,0 +1,13 @@
+{
+  "pass": true,
+  "normalSha256": "38d1d09cca6471642a22d0d27d87bbfd5c71b7235c338ac572966d1aa8faa04d",
+  "workbenchSha256": "73d27b53d3561908ad57be2c2fa9e1ea5d3c0d1add6ca2db183306bff66a8df7",
+  "makerSha256": "821536e0994345e5b9fe50b8b7bae00b3e3b77fcb915507b597c6fbffd3c57d4",
+  "sourceUnionCount": 122,
+  "olderFrozenFilesUnchanged": 197,
+  "oneExactEmbeddedGame": true,
+  "sameOrdinaryRendererInMaker": true,
+  "eachHtmlBelow100MB": true,
+  "initial20ProfilesPreserved": true,
+  "wholeOriginalPlanComplete": false
+}

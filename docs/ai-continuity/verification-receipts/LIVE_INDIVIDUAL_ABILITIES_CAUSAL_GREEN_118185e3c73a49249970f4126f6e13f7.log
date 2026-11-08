@@ -1,0 +1,28 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LivePhysicalRosterV1.test.ts (13 tests) 11ms
+ ❯ src/integration/browser/LivePitchAbilitiesV1.test.ts (6 tests | 1 failed) 641ms
+   × changes the executed measured-bat rate from target SI and certifies the declared continuous maximum 163ms
+     → expected 32.0238406243647 to be close to 30, received difference is 2.023840624364702, but expected 5e-10
+ ✓ src/integration/browser/LivePitchV1.test.ts (11 tests) 803ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LivePitchAbilitiesV1.test.ts > changes the executed measured-bat rate from target SI and certifies the declared continuous maximum
+AssertionError: expected 32.0238406243647 to be close to 30, received difference is 2.023840624364702, but expected 5e-10
+ ❯ src/integration/browser/LivePitchAbilitiesV1.test.ts:23:62
+     21|     capped = simulateLivePitchV1({ ...i, batter: { ...i.batter, target…
+     22|   expect(fast.diagnostics.playbackRate).toBeGreaterThan(slow.diagnosti…
+     23|   expect(fast.diagnostics.referenceContactSweetSpotSpeedMps).toBeClose…
+       |                                                              ^
+     24|   expect(capped.diagnostics.referenceMaximumSweetSpotSpeedMps).toBeLes…
+     25|   expect(capped.frames.map(f => f.bat)).not.toEqual(fast.frames.map(f …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 29 passed (30)
+   Start at  12:14:01
+   Duration  1.74s (transform 618ms, setup 0ms, collect 1.36s, tests 1.45s, environment 0ms, prepare 494ms)
+

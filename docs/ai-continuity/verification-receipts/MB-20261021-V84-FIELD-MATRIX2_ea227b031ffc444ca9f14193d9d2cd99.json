@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-FIELD-MATRIX2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-fielding-matrix-v84.mjs"
+  ],
+  "observed_at": "2026-10-20T15:42:25.883+00:00",
+  "elapsed_ms": 142375,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-FIELD-MATRIX2_ea227b031ffc444ca9f14193d9d2cd99.log",
+  "output_sha256": "1fbf2adcc0f8a6661f06520b454f0e841121a0e2bc3dbb35ff1be520f0ac255b",
+  "receipt_id": "MB-20261021-V84-FIELD-MATRIX2_ea227b031ffc444ca9f14193d9d2cd99"
+}

@@ -1,0 +1,461 @@
+{
+  "pass": true,
+  "rawFrozenInputsPreserved": 65,
+  "changes": [
+    {
+      "path": "src/core/adjudication/OfficialWindowPolicy.ts",
+      "oldIndexSha256": "83fa8e99484503e6f1a35d5d92c03bed76838f4146cf659ca1a244c9344c03a4",
+      "rawSha256": "e1a9d54ce2ca6e27116588b083156f524f22d978dcef83c59351642044c71cad",
+      "gitBlob": "05210c6d20afc0d174da664a12041f1998cb6e80",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/adjudication/PlayAdjudicationLedger.ts",
+      "oldIndexSha256": "318818a7142def1e0f3bec19f926756ca40a25c5b499edd004d63b17f740ee62",
+      "rawSha256": "c4be34efb190da338f159eeff798afaa47a1f2e15c3d31eea39d223a0f082011",
+      "gitBlob": "57bdea4ef0313860b7ca6575b8184164e0bf0141",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/model/RuleProfileRef.ts",
+      "oldIndexSha256": "8c2dce76d449ad6b40a54816e528516c8af8a5bb38e58824d47d0c3595fcbc40",
+      "rawSha256": "cae80f021ca7b6818f2fe92a64988176e35c4c7e5b8c753bb743a699a47971b6",
+      "gitBlob": "02d3b77f3a4563340fa0ab64393983d0a952af67",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/rng/DeterministicRng.ts",
+      "oldIndexSha256": "bb85440f03f740e507c416440c0471c7965b356191935282d68928d535d3c6ac",
+      "rawSha256": "4c15353ce5df08d85dacc39ee48a7085766b7503d7f2cde9793d4a4816ef0e54",
+      "gitBlob": "fb4b7bc2529408595330e79d8af45b81c93ae698",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/rng/SeedRoot.ts",
+      "oldIndexSha256": "36d95b1739640939fb7dfbc7f3ff512bad5fa3a2e18bfc45d0b47fa8d1922d29",
+      "rawSha256": "b48fb3065e1ff373cbf38ec9e457b93d49cc4f9cd72419bd580700e41c1a9f76",
+      "gitBlob": "94e92eab8ddec0c7bcbc78a105cd50cc873b2c54",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/rules/AppealOutScoring.ts",
+      "oldIndexSha256": "7d20ba14e961398baff564e9d2ae7414f0a4052f028b8c768829847eb64ed1c5",
+      "rawSha256": "d48a75baf17b3b051f07b3bdea36a844d55674485f03e27da9750997d6afde5c",
+      "gitBlob": "e675616be217152083b710d1f1d25b0479beef3b",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/rules/AppealWindow.ts",
+      "oldIndexSha256": "200dc581cee79f742d1355b52734b152140eac8076e0bf1d591822a9ed063cba",
+      "rawSha256": "e22a7afe22666b38e4a0bb0f66d5e11d84f674d1ef2ab05859d5ad3db3e6073d",
+      "gitBlob": "7ed6fae47b8059cf30594b51d17fee9c9d300a37",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/rules/BallWorldBaseContactPhysicalAdapter.ts",
+      "oldIndexSha256": "2f3e2c7226fb33c56dfea0ab0e3ade192f6ca8f486a71c1535332ba4d552091c",
+      "rawSha256": "b538d8c025255e62ee319129d0308fe942dbc5b6790ac639bbea389deb1ae02e",
+      "gitBlob": "68fda0fe324ed2b1fc0454c530523fffce317339",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/rules/BallWorldTagUpCompliance.ts",
+      "oldIndexSha256": "5aa1cb54d2d774a254e6398322877256ee88465c35bb3d60cdc32e1288baf37a",
+      "rawSha256": "153c090cac0586ff5912211cc7a39731dd8028c3fb590b203c855eb9c0a823db",
+      "gitBlob": "d9e6b4086de841987f309e8ae2c3d2b34213ac40",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/rules/FlyCatchRule.ts",
+      "oldIndexSha256": "d853ed1cde519107dfdf0ec80bc90e644019ac872b8fca8e56cb38a30ed4a3c0",
+      "rawSha256": "c02b6d2613e5755babc3f7bf505cc1ded0404b7219cd9be3dee85604b7d0ee08",
+      "gitBlob": "778116e90c7c6d8273d8a83f8d4e0affcb144660",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/rules/ForceObligation.ts",
+      "oldIndexSha256": "59bbd58ee5412e264f15abb58c625f121abeb07b342b874d39f0d84c8818df4b",
+      "rawSha256": "e2b4715852ea28eb49edf4b22366193497df301d15c33eb5205d652bf0f75a60",
+      "gitBlob": "b10e225622e45341d791a27c2398ded373a31be2",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/rules/FoulBallRule.ts",
+      "oldIndexSha256": "2dafa3f84032a289f831e545266ebbd58f67e6b16ebcb172589d64b9e8d56e65",
+      "rawSha256": "9a3139011d5080716bb925c797a4e96b5e4199d11e39325b9f192baac95e19b4",
+      "gitBlob": "49dfa74330290b36ba8a2e3dd6e87bd5d7c51674",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/rules/HalfInningTransitionRule.ts",
+      "oldIndexSha256": "9749bb88408a80dcf425895d2bc46c75ca875a42bea56681e92458161b9d75a2",
+      "rawSha256": "93462be509093a9c2563cec4175cf1ccde52962422a8766e6b5c6c2e5b2337dc",
+      "gitBlob": "ff55bc47b70e7af5cf178e9e3319d762150f8893",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/rules/PitchCountRule.ts",
+      "oldIndexSha256": "5597a4ca46d555b2f463d94dc4a858a9a24a18b853a61af33cbc2f09854088a4",
+      "rawSha256": "3b7ad99f1595591a353649b19f8c1b8a2dced00d975051ec4f3f20c22fdfec2b",
+      "gitBlob": "b30d4b2677998042a70df9b187681345f95da08f",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/rules/PlayRunFinalization.ts",
+      "oldIndexSha256": "69ffbe80f6ca583450e8e4482f2768c8979b9256834efc496b96152a34fe897c",
+      "rawSha256": "f38014d55070ef5c93948cf24e89b7fd84f25feedc8fe850ee85e1595f995256",
+      "gitBlob": "f3d5a05e23757ad3876569d5cc70377a02693615",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/rules/RuleProfile.ts",
+      "oldIndexSha256": "97ad4365b67aee4d169c981f62c9d60fe4244f27b61be2084cccbe72a855d395",
+      "rawSha256": "eec736561ee27bebd6438b3e811d71d589cbb1714f1b0b72f5ec03161254a5ea",
+      "gitBlob": "d8234cafe5645d0ae6378d5e1872691ed25ab78d",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/rules/RunnerPrecedence.ts",
+      "oldIndexSha256": "60090ad224002f81b639d96577362d2b9770ee6b6989368aadb68961300a87d8",
+      "rawSha256": "91f9531498a7006aa7f32424955140dc41e6b705d445c94a7de53de613eaf89e",
+      "gitBlob": "afeef19854a7bc2db887a2c65e6ce936f810224a",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/rules/TagUpAppealRule.ts",
+      "oldIndexSha256": "320799b3761b2f3c262f36e2c41153847beadd3c44f39eee44fec39b1a36b05f",
+      "rawSha256": "d4d233f79fb666e246040ba2cd990c7c2f90f2d2f67002810681e2ea460d0d59",
+      "gitBlob": "4b6d7d97db3fe41c5d30091d4357b28f83b24baa",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/rules/TagUpCompliance.ts",
+      "oldIndexSha256": "60b900bfd8779030cacb5b47cde9cde26b2d34fe40a03282def1bfa67269dab3",
+      "rawSha256": "ab9f8a418620598dca03e4f65c15328c282174677a351e7441b523aa2428a44e",
+      "gitBlob": "e22b3db1f9bf414e2402625a225fd94235fd930e",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/rules/ThirdOutScoring.ts",
+      "oldIndexSha256": "6b2f79f00f926c7161e7182272f158f7ef760c0e4cab85e65c5e8531359753a9",
+      "rawSha256": "84091f4c33af0fa8c98007b56777258f837b84c8402852a5b2ece64ab0ea10a5",
+      "gitBlob": "ef4e651d607a4c93cbcb0c38a41b1eab9487a02f",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/rules/WalkAdvancementRule.ts",
+      "oldIndexSha256": "59c7c381283082e2138ea0441acd2bdf751c3c12463900fb2df4a4ba04fbea24",
+      "rawSha256": "e56e55c85f202be7e3bf1fbadae57eac49275d3eead91aaa1acdcd8ca6edede5",
+      "gitBlob": "fd5baf6d7926812f3382787e7633673aaf5a9e11",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/ExactEventTime.ts",
+      "oldIndexSha256": "573b5694ebb2c07408db8db3f21b8e1db03133ffc456a6711585dacf8efe0a9c",
+      "rawSha256": "55820b66753a1e345f94d8a0307d654c1c0abb2088db2e78f8da782857951e64",
+      "gitBlob": "f9b15316d0ccba49ca55278b61005fbe54b430c5",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/ball/BallContactResponse.ts",
+      "oldIndexSha256": "a3abbc653e35bb79c96b46b9895aaa3b7fbc255a41f874994aef9b5de3349c97",
+      "rawSha256": "a00634e723d90f0c0ed5d76e7b2edd642e1e77fda4c8d961d59787a91bbfcd4e",
+      "gitBlob": "a13da49131d2e4941cf7de3a62e58d07003f43b1",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/ball/BallFlight.ts",
+      "oldIndexSha256": "da5ebfd119e4e572adedd912366d97c0f8a8c7584f085606f137e0f68b2d47a2",
+      "rawSha256": "878dcafcabda7426d9f0da486c386c4772c389a8e07b6c9ac7d328a94e4fbf99",
+      "gitBlob": "8c6fce993cfb45d228b3bc42214ab641ae2d8028",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/ball/BallWorldBaseBoundary.ts",
+      "oldIndexSha256": "11ca357eb47b5158375938110e865a70c4f361d64856b51523d6c0465d082038",
+      "rawSha256": "12794cdeb3f3040767a8b1d296714ba1dbf4f4dbf89219efd2bc17c6476e3e5e",
+      "gitBlob": "4b205ff32de4df74a8ad3bf3ce80a62230a33cf3",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/ball/BaseballAerodynamicCoefficientProfile.ts",
+      "oldIndexSha256": "01830fc786076e51b7c598b9b19a4f7f6bce018be5e4df7d831216708ce326f0",
+      "rawSha256": "a72205f78c3e4c7ac9ca2c161c0ee9dd8e13b375e64403cb0a45dde868ea1a6d",
+      "gitBlob": "cc399b09ec0308a0f95ba29a86320595d914f4a2",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/ball/BaseballSpinDecay.ts",
+      "oldIndexSha256": "2e2c5e1115503e3de7c5ea674184cb5deec74e9c1a8d585d708124b799fd89a3",
+      "rawSha256": "89f83b6a8453557a862ed496b9fa37359a3dd4ef28efea8b94468e72b9cf1f0d",
+      "gitBlob": "4821d46cc0a9f9b7649126457fc5794169327ab7",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/ball/BattedBallFlightEvidence.ts",
+      "oldIndexSha256": "e94dd2c69ad3375da1faef8f5dbdd143c9570f20c47f0991c615a7b02fec4ed7",
+      "rawSha256": "b1b5c8f7cae3a227e7ba77bdd90afdf9123bff04ff63d8c8984adfe22b9b8a4b",
+      "gitBlob": "901d3e6c2ddde5d3a9ec364f58c58bef9f460a24",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/collision/AcceleratedSphereContact.ts",
+      "oldIndexSha256": "9792e72c8a90be3a02fc94f7e798cb2ceaad2a1ccde665f14d97029bb1501646",
+      "rawSha256": "adaf872eb4258545932cc69e69dc93e517bc3fcd351b8a268761c2cb04390ac6",
+      "gitBlob": "379952c603fa35b41d51a14dfd4512c2597037ca",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/collision/MovingSphereContact.ts",
+      "oldIndexSha256": "dec66c41b0bd6b17e485dc987b1f4bbef66d5ae0693b60d76647ab4fbc608931",
+      "rawSha256": "3ca3e9e8437a552de41e9c6f107f8bc8beb5b60edf49c6f6fdf96a37438446df",
+      "gitBlob": "c114a00881c469feec9b106aea39f5c857a1a4dd",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/contact/BatBallContact.ts",
+      "oldIndexSha256": "05f14fcfb287f3d80a16ac8ea75fb22ded663b5f47e11aedfcdb76fd21c5b468",
+      "rawSha256": "2eac2f4d676394b9d478bcd688a293216ccb549a92628f133814a7927ada8e02",
+      "gitBlob": "0e393be4a923aed59ba6aada26ab92e96ee72307",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/contact/HighSpeedObliqueBatCalibration.ts",
+      "oldIndexSha256": "befa35a377078f7eb9c6691cab64270997ad12d487b55becc96f4537d88232f9",
+      "rawSha256": "7c08914dd556e8e4d82fd8f6338efe09c33d3bf930435120ef3244121dfdecac",
+      "gitBlob": "1117a5f2cd541f08187ee082489726d3b6b7da22",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/contact/SwingKinematicsV1.ts",
+      "oldIndexSha256": "452d9e611c432b1c4e0bc4ef37bb0bc1907197c25c17f08d4accb9c40d12244d",
+      "rawSha256": "d34dc3fb811ae3699673a120f5bf77d91ac74fb450824091c72514e478466063",
+      "gitBlob": "bd638b10a2917dc77b674f05be301fb45cc0b58a",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/contact/WoodBatProductionProfileV1.ts",
+      "oldIndexSha256": "6d8433908a7bc367097164cbbeb876bc81632c67ad3cf2e262fafdf1c8d7ffba",
+      "rawSha256": "288a5741135455c23012ecee3ef2c55f9ae4a39b7c20f29d963fdc0e5178addc",
+      "gitBlob": "01fbfc1a1c7532311062ef5c5c12f61ba9cb3e05",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/contact/WoodBatSpeedResponseProfile.ts",
+      "oldIndexSha256": "8b858e654af7cd8ca87eda23d479fc5d7232c957f41858d36f90cb5763a58580",
+      "rawSha256": "530a5fce2d3068aef4fc80596d9cc9244700bb2008b07e16f8965959d8c5785e",
+      "gitBlob": "771fa1eab75b781355051e361b4614cde8c56f5b",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/fielding/CatchOutcome.ts",
+      "oldIndexSha256": "63551a295ee158d0fefb262b661d8d1ada81b0664e4d756a80f80adc250a7db5",
+      "rawSha256": "06809b115f7cbef40b8a63b83df4a39533b185711c5f232e3fbd0f5515025dab",
+      "gitBlob": "032d3e9909f3df2c49bd93df93cf1e8464b091a5",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/fielding/CatchRetention.ts",
+      "oldIndexSha256": "66ac8af47d34f7147f590e3510678adbaae4bc3cd11bd2f753e5a07010765ac4",
+      "rawSha256": "700c6d190c77587dbe153c34c6c4feb8a24477ec2a0af604240c9b3588980797",
+      "gitBlob": "9a8570e5796d3352b064f3058d67dc76f8c46e19",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/fielding/DefenderMotion.ts",
+      "oldIndexSha256": "a88daa9db1e38ecf86130abbd2ad73b3d82ef3addf6dac5b49b86f5aa5c5422f",
+      "rawSha256": "99bf49abedef16c964a9d914a21fb39055366cf2b5e12f67e57a971e640ea29d",
+      "gitBlob": "f2fe2bb9ac23a8235c4bef9ebbb4854c94e5ca81",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/fielding/DefenderPhysicalPrimitive.ts",
+      "oldIndexSha256": "71c1b316038d58c8521a289226498d0966969b3d0cac623bb3ef3a92baee2b56",
+      "rawSha256": "053d0b7a8038e4b853ae00aa34116530a361cec9b49ef450e4336348a1e79841",
+      "gitBlob": "785a5870098ec48c176fb39a8d47026e568c0abc",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/pitching/AerodynamicRigidPitchAgainstBatter.ts",
+      "oldIndexSha256": "732236cb8e9727c36bc9bdcba2c8487719cd5c42fd5e6ee5b1f1a7915cccf766",
+      "rawSha256": "b5860e52767d1bdc2c1afa3e7fbdad7c8d3898f87ad77089858db134c0c5fb04",
+      "gitBlob": "8c2142fb674d1661925cd1dd6836d427dbdbede7",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/pitching/AerodynamicTakenPitchPhysicalResult.ts",
+      "oldIndexSha256": "dbd2ef0651bba568421b4104cf6207d93db50090f46e8b031b3ea87ba6689f4a",
+      "rawSha256": "ee4ffa57aced84c1ab745555152fd817d90c98ba2cca2b148603b5d9185d98bd",
+      "gitBlob": "579f67107a2e992931da07ab3157e93cff85953f",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/pitching/BaseballOrientation.ts",
+      "oldIndexSha256": "fc6a91cdf97aaf80afde00c9ba300c7d1331ad3a22ba18f23b68d3f8a9a712a4",
+      "rawSha256": "2bcb6e75a3905916432a17f11c7d29727659b2301eb5f6cd992f8348c5cdac51",
+      "gitBlob": "1e40f89cd32d259028c4529ab7535104049f1b69",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/pitching/CourseAwareSwingKinematicsV1.ts",
+      "oldIndexSha256": "4d2fed628e88cef1d2ff0f14d5a6d1178a8077f141b1dac9cdf28826e2666981",
+      "rawSha256": "6bbca61c8e95fa25fc8a9b2e44aed98f2294dfe7e5975c2001c19ff8e1e17d04",
+      "gitBlob": "fcc8fdba9597d13b894d89ac3ff87437fddd5e90",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/pitching/PitchAgainstBatter.ts",
+      "oldIndexSha256": "867639197eff86692324964092636a17ad1b7384806b966d69c12bdcade7c612",
+      "rawSha256": "c119b03a408c0edff2b3adf0e31afcd91708bc530c9ed56c05ff84a85f366126",
+      "gitBlob": "5249980873d49501bf7ae77df37aebfe289e3ce2",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/pitching/PitchSpinPhysics.ts",
+      "oldIndexSha256": "4249da0ce93a0a34696d4d8b3f156de590a92957750d04079370da10af52b438",
+      "rawSha256": "2e9493a6e1dfbf97acb1a5a44e2f1496f921c3c622127d3786cb893e258aa21d",
+      "gitBlob": "dde6918f07103d7550d84f20f6b46d3bda51f76e",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/pitching/PitchTrajectory.ts",
+      "oldIndexSha256": "4e1c34da33e916135b1438da819c10d1bf4feba52d7f8df94c927334fd69919b",
+      "rawSha256": "1a54a03b6172148a1b11dc75250db46de44fb997702fd9b36b88ce0485fc5912",
+      "gitBlob": "33364f3502dd7e1018a03d17aa91089f2afc1a97",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/pitching/RigidBatContactCanonicalAdapter.ts",
+      "oldIndexSha256": "3fc936df8dd42d39487918ae4bc905136a44e7c23c3a2573a0a8c5151d8b863d",
+      "rawSha256": "7a41296d60b9eb80ad42e929d906df2cd2903d006f30a381138ae5d114428bda",
+      "gitBlob": "86f0c39dceba2e950ee5e9c46ef2090d3677b042",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/pitching/RulebookStrikeZone.ts",
+      "oldIndexSha256": "2b71dd7deed14b96c7bce2027ca69e2421d7cc6e38540de04da249b30b637698",
+      "rawSha256": "6c6a283e18bf5aab59f9f5ae08085903abb9c3461bb1a2532fe9fd9368ea9f12",
+      "gitBlob": "9dcb1eb10ea1b07e0282201e2ba71723174a5208",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/pitching/SwingingPitchPhysicalResult.ts",
+      "oldIndexSha256": "c502cf4fb6d45f92f8d309130bfd22f099df228b1bae445f1df55f60b607c996",
+      "rawSha256": "ce158768af02d5da20f2844bc97dcf3bdbae5f43f07e4e2eea42eeeb264f494e",
+      "gitBlob": "a77d71d86ab33e0b807fd6cc9523ddcc2f86d5bb",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/pitching/SwingingPitchTimelineAdapter.ts",
+      "oldIndexSha256": "66ea8a8ea7928cae408b234ea125455779f24cf10a2dacf6d3946f48f1694876",
+      "rawSha256": "f626a1b920d0f21dfa8c31eb8af908d9cf7b1e74db2d497e2a49452db6dd317d",
+      "gitBlob": "bcec8a50567cb09ca5c5f1a7bbe7fadfd5741604",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/pitching/TakenPitchPhysicalResult.ts",
+      "oldIndexSha256": "bcceecee65b3013f8b43452b3b52a4ec90a007358df866b993777ec77f1afe3a",
+      "rawSha256": "6371c7008950452ae4589767cae95e706fca3678748b708f2e4e0187b7ae5fd4",
+      "gitBlob": "71b81c179d0cbc13ea23f88fa58b8ee21c47438f",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/pitching/TakenPitchTimelineAdapter.ts",
+      "oldIndexSha256": "c3462e8a72b3d571feaecea103db69a6286ac5c81ddeced4d5eedacd9a315dae",
+      "rawSha256": "d4514929faf9c92539e7f688c5b677c3b69db309e1dd9f6d1837895a18b07ce8",
+      "gitBlob": "f63085d897f4cecb0e77eeeead33844dc181adfb",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/plateAppearance/CanonicalPlateAppearanceTimeline.ts",
+      "oldIndexSha256": "9551737405aaf4d1bc08fe9912a3d400ed5e0c9c301c8c09d8198cf9c97f534f",
+      "rawSha256": "8e372a46ed35f497bdb3ce86281483e346eee1892cf7e73a720fe120f8084b4c",
+      "gitBlob": "b0c8eff1ad6295d8df494cd1f66a1989cc668ca5",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/plateAppearance/PlateAppearanceCommand.ts",
+      "oldIndexSha256": "15ec3b75f4cae6d2074bfff82ee12bdafe5d4751e4db4250d57dcf581927f96c",
+      "rawSha256": "41cadf0bdc574c128e5c60cdc1b68ac01d63b36bb2d60ab113bc4881d23a5ee6",
+      "gitBlob": "9247e96c5ae47ddb75a6297fddb81085c10091e1",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/plateAppearance/PlateAppearanceCommandPitchAdapter.ts",
+      "oldIndexSha256": "27b5eb64e0aff8d4fd84167a773d86b38dd080299b2bc4b430d5f7f2bf8ca995",
+      "rawSha256": "a3aab71a766c07094feaa5f6d3fa61d7ad20991e7f7ec189b388c979128c6f83",
+      "gitBlob": "7c18c604b6c4a0ee7e30071ae5e057a9527bc0fa",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/plateAppearance/PlateAppearanceCommandSession.ts",
+      "oldIndexSha256": "c4d979a64b2e676c30dbac64052396a656c6cb278efbe091d7dbca271d408063",
+      "rawSha256": "53b105783d2c009a925b0d60db40e08405c8edd2291b665d5d6b1984bef35807",
+      "gitBlob": "0fca941eb533d0bbbb3cb967b0f66d3d8366b18e",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/plateAppearance/PlateAppearanceMatchState.ts",
+      "oldIndexSha256": "5b4319f92f04b61735b8c9fa72ab018fd116c4fe466ec058ab470ad562229fb2",
+      "rawSha256": "1d428bac67f28d731c38772e6cf254398c203e063fc7f109d7f7417af750b751",
+      "gitBlob": "48d2e91683348b6b987f5d1e9d97d7c07a8c93bf",
+      "eolOnly": true
+    },
+    {
+      "path": "src/core/sim/running/RunnerRoute.ts",
+      "oldIndexSha256": "f1bfbfeea8d64d1d1db946982cafe2f413c24174176d922e6b919e829d448821",
+      "rawSha256": "86889ad522bf5ad817bdc41500bd4acb30aaa949f1563221b339d612cc1eb7f7",
+      "gitBlob": "50389d73b83bfd2c47da516cffcd3d53c969311e",
+      "eolOnly": true
+    },
+    {
+      "path": "src/integration/browser/NativeAerodynamicObserver.ts",
+      "oldIndexSha256": "1c64045bc20a91f5992a5faadad28a07a777755187cba33f2649948ea58e3e0c",
+      "rawSha256": "955656d202863aab8cbe75a85cfcdfeb2f4220e5f32b1cf64f5526ca682e5131",
+      "gitBlob": "4162031385380661d61b03c840c52ba67827970e",
+      "eolOnly": true
+    },
+    {
+      "path": "src/integration/browser/NativeAerodynamicSession.ts",
+      "oldIndexSha256": "3c7a78eaa4cd52dc8fb756fe9f8c85f1662f082ba9eecbe5c79ca4090a2e1d75",
+      "rawSha256": "ccd25e89010cad07f8b80fe92241fec6686a8a4acaea0151412f381b6c71255d",
+      "gitBlob": "d88a9e1c033e6514779947d52a8bf26423c1eb9d",
+      "eolOnly": true
+    },
+    {
+      "path": "src/integration/browser/NativePitchObserverAdapter.ts",
+      "oldIndexSha256": "c299d3341a5d80f4c29cd2ac27dc50e744ebacca7a9678653e448586d864cc9b",
+      "rawSha256": "e3c09443387990f0a2bc7657627f7aec21f150cb0de48df9782af824081bf80a",
+      "gitBlob": "30d5ff45ea5901b30d3bf1144d89bf7563dc3797",
+      "eolOnly": true
+    },
+    {
+      "path": "src/integration/browser/NativeSinglePaSession.ts",
+      "oldIndexSha256": "5b919e9d9bf623bdf5147f6017d094c6496f59b796ccc112f2343dea9327e8d6",
+      "rawSha256": "4f7284ccd6976a85916b2ff86a29e28cce344820a87b973806691a1b3237b177",
+      "gitBlob": "2c391ce225f6d0c245555a68d6ace3161b6dce21",
+      "eolOnly": true
+    },
+    {
+      "path": "src/presentation/mini/MiniPresentationTimeline.ts",
+      "oldIndexSha256": "c80126bbf581334c36f7e77e0d96b86af597587589126220feaf985bfc942d0b",
+      "rawSha256": "bbda21b1f8dcfa06940596805140768dce420840328ce9cca8efaffa457bc7a2",
+      "gitBlob": "622a975b362280d77ccd9b278f9afa7e261c38e3",
+      "eolOnly": true
+    },
+    {
+      "path": "src/presentation/mini/NativeSpinOrientationObserver.ts",
+      "oldIndexSha256": "a5521228e5c1c60a5bbb23eef61e4290705251ce91df25d4ab1b66210daab16c",
+      "rawSha256": "d7605b7a9753208898e977e88495e9e2a24b98d134b0e0d1a9540b882e9db199",
+      "gitBlob": "3789edd83433b24848e3f71b53aad34ce059606f",
+      "eolOnly": true
+    },
+    {
+      "path": "src/presentation/mini/model.ts",
+      "oldIndexSha256": "2d2a6f73223ce62eed1cb73467613d62bddf83b92c10cc04d7a91bd45ed022f9",
+      "rawSha256": "c138d4799f5f4dddb9ea3d7378ac79774bdc607471e62862f2e4c17b8de6062e",
+      "gitBlob": "ead50ef779419ecfb084b4cda293e0e061605e8e",
+      "eolOnly": true
+    }
+  ]
+}

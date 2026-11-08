@@ -1,0 +1,191 @@
+{
+  "presentationVersion": 75,
+  "sourceGamePath": "docs/demos/releases/v54/game.html",
+  "sourceGameSha256": "80c68e3ddb5c961ab6f18b325c6f267f883cd02d27381dfa10a9334bf8afae9f",
+  "basePresentationPath": "docs/demos/releases/v74/game.html",
+  "basePresentationSha256": "734b7af9d50eb1acdf2be1da769502ce2fc529e14032c3b3c736f692008a108d",
+  "sourceCoreSha256": "eed87f92656f5f6e1ac2664e009960c95077288033d474f91ecc2195c3dbc1a5",
+  "sourceInputCount": 117,
+  "compatibleSessionCoreSha256": [],
+  "sessionMigration": "TECHNICAL_TRAITS_CORE_V75_REJECT_OLDER_CORE_SESSIONS",
+  "helpers": {
+    "live-ball-display-controls-v67.js": "6a003996a55c6d3484e9d38d7afa5e5bb273d8f45492fdefc8e6ec8b01918db2",
+    "live-pitch-ball-cadence-v56.js": "bf72b94742b7de19abd863edd610fea493d648ba43b5823c906222e02aac4536",
+    "live-camera-tuning-batter-view-v66.js": "35f49f39c49243f51d7f31d48c18513b22cf9cb7b00dd65d6ddb1b32afeff43b",
+    "live-pitcher-reaction-view-v62.js": "e71a89bfcd93acc115c955ef2571aab32a94dad09ea1200367929b316e1aee30",
+    "live-name-display-controls-v60.js": "7d9810843459b3d02450585e8ab5c7f74415ed0791cb5ef0c6f67c96b3684f20",
+    "live-pitcher-body-head-view-v62.js": "b992f5c46b2c4b07132733c156ea3d22f58b3e372ad67b5b72d7763f39d9dcc3"
+  },
+  "workbenchDriverSha256": "c9b607708c78f7845caf6b5c17ae8800b2e9850c3dcd2bbfa4c9352beb603081",
+  "workbenchTemplateSha256": "10ee34e7640a197140569ad7d9493abef157b0c662bebe951fbc52c9ee6d7a92",
+  "builderSha256": "6208b2ebfa14f490ae0cfb96a3c2f1aaf0257751d85d5bc1b2a2860697cc7948",
+  "pitcherTransformSha256": "33a6d447ae5590aab1c0cc72d889363a5310c48d05c7e74ae4a5c92385ae7ea0",
+  "rosterSha256": "546b69369c975a85469492029f8a5306fb5fdabc48e9d36ec82bfcb75e4829c7",
+  "catalogSha256": "d98041720cd4b7367489bac0d04502f58477a22b759e0867150f64774fe1ff01",
+  "publicReferenceSha256": "b448f82f81620085b1f4923609cec23f69db4c639da76b6b1f877abb22622e4e",
+  "worldAuthority": "OFFLINE_HOST_SHARED_CORE_HANDED_SI_RELEASE_AND_CAUSAL_DEFENSIVE_OPPORTUNITY",
+  "displayGridPixels": 4,
+  "ordinaryCadenceMs": 55,
+  "pitchBallCadenceMs": 22,
+  "ballDisplayDefaults": {
+    "perspective": 1,
+    "overhead": 1,
+    "overheadHeightEmphasis": 2
+  },
+  "nameDisplayDefaults": {
+    "scale": 1
+  },
+  "readOnlyCamera": true,
+  "pitcherReaction": {
+    "minimumDelaySeconds": 0.1,
+    "maximumDelaySeconds": 0.25,
+    "speedScaleMeters": 7,
+    "blendMs": 180
+  },
+  "pitcherBodyHead": {
+    "enabled": true,
+    "scale": 1,
+    "basis": "AUTHORED_HEAD_JOINT_ON_EXISTING_DELIVERY_CLOCK",
+    "moundSurface": {
+      "x": 0,
+      "y": 0.254,
+      "z": 18.44
+    }
+  },
+  "decisiveHomeRun": "CURRENT_OBSERVATION_FORECAST_AND_ALL_NINE_REACH_ENVELOPE_EXCLUDED_NOT_OFFICIAL_RULING",
+  "absoluteVision": {
+    "min": 1,
+    "max": 100,
+    "baseline": 45,
+    "maximumTrackingGain": 0.7,
+    "minimumDeadbandRadians": 0,
+    "leagueRelative": false
+  },
+  "takeGaze": "CURRENT_OBSERVED_PITCH_PREFIX_AND_CAUSAL_CATCH_POSE_HOLD",
+  "preset": {
+    "enabled": true,
+    "aimLiftMeters": 0.3,
+    "swingMaxDownRadians": 0.2,
+    "hitFollowDelayMs": 300,
+    "aimReleaseMs": 70,
+    "pitchTrackingGain": 0.26,
+    "pitchTrackingDeadbandRadians": 0.02,
+    "impactStabilizeOffsetMs": 0,
+    "impactMaxMotionRadians": 0.04,
+    "impactMaxSpeedRadPerSecond": 0.35,
+    "swingUsesAbsoluteVision": false,
+    "swingHeadCoupling": 0.025
+  },
+  "worldPhysicsRulesAiChanged": false,
+  "batHeadCoupling": {
+    "basis": "CURRENT_OBSERVED_RIGID_BAT_AXIS_ROTATION",
+    "measuredHeadMotion": false,
+    "maximumOffsetRadians": 0.06,
+    "composition": "INDEPENDENT_ANGULAR_RESPONSE_NO_GAZE_MOTOR_FEEDBACK",
+    "settleAfterThroughMs": 180
+  },
+  "swingViewDefault": "V59_BEFORE_DECISION_AND_SWING_ACQUISITION_PLUS_AUTHORED_BAT_HEAD_RESPONSE",
+  "overheadHeightCue": {
+    "basis": "GROUND_REFERENCED_LITERAL_AIR_DIAMETER_FACTOR",
+    "groundCenterMeters": 0.0366,
+    "groundBlendHeightMeters": 0.0732,
+    "legacyAtOne": true,
+    "default": 2,
+    "minimum": 1,
+    "maximum": 8,
+    "sourcePhysicsChanged": false
+  },
+  "sourceCoreChanged": true,
+  "optionalImpactTrajectoryConnected": true,
+  "measuredBatLibrary": {
+    "path": "docs/demos/measured-bat-library-v1.json",
+    "sha256": "b53a8d687f663a5578315120445de1407fb82efec594cde27cc313c1ea5b106a",
+    "decoderPath": "tools/browser-bridge/measured-bat-library-v1.js",
+    "decoderSha256": "220b935db75c7f4ee4406c71dd61e4dcdfb5685da6b3749b7974f4ee83606209",
+    "trials": 673,
+    "athletes": 98,
+    "rightHanded": 495,
+    "leftHanded": 178,
+    "legacyDefaultChoices": 12,
+    "automaticSelection": "LEGACY_DEFAULT_SELECTION_TRUE_IN_ORIGINAL_ORDER",
+    "originalMeasuredSourcePreserved": true
+  },
+  "hostCatalog": {
+    "maximumClips": 1000,
+    "maximumFrames": 150000,
+    "inertSnapshot": "EACH_CLIP_WITH_UNCHANGED_CLONEINERT_BOUND",
+    "perPitch": "HANDED_LEGACY_DEFAULT_CHOICES_OR_ONE_EXPLICIT_CLIP",
+    "atomicImportValidation": true
+  },
+  "impactTrajectory": {
+    "optional": true,
+    "defaultPlayerRosterChanged": false,
+    "method": "whole-arc-target",
+    "legacyOmittedMethod": "LOCAL_WINDOW_OFFSET_UNCHANGED",
+    "levels": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "angleDegreesByLevel": [
+      -10,
+      0,
+      10,
+      20
+    ],
+    "angleMeaning": "ABSOLUTE_CONTACT_ATTACK_DEGREES",
+    "sourceWindowFitRequired": false,
+    "model": "CONSTANT_RIGID_ROTATION_ABOUT_ORIGINAL_CONTACT_SWEET_SPOT",
+    "collisionAndRenderingSameReference": true,
+    "speedMagnitudeAndTimePreserved": true,
+    "directLaunchOrSpinOverride": false
+  },
+  "ballDynamicsRulesAiChanged": true,
+  "batTrajectoryAuthoringChanged": true,
+  "optionalWholeArcTrajectoryConnected": true,
+  "extendedEquipmentConnected": true,
+  "equipmentCatalogPath": "docs/demos/live-game-roster-catalog-v62.json",
+  "equipmentCatalogSha256": "ca15bc28faaab868ed8606ad4521b23794f4ab76a9c5860314267e23b1941f02",
+  "equipment": {
+    "batLengthM": [
+      0.2,
+      3
+    ],
+    "batMassKg": [
+      0.1,
+      5
+    ],
+    "researchOnlyRangesNotRealEquipmentRecommendations": true
+  },
+  "publicAbilityAuthoring": {
+    "groupMaximum": null,
+    "matchDisplayMaximum": 100,
+    "plateVision": [
+      1,
+      100
+    ]
+  },
+  "ballDynamicsChanged": false,
+  "rulesChanged": false,
+  "techniqueExecutionChanged": true,
+  "technicalTraitsConnected": true,
+  "technicalTraits": {
+    "families": [
+      "baserunning",
+      "bunting",
+      "advanced_fielding",
+      "bat_to_run_transition",
+      "slow_ball_charge",
+      "low_zone_command"
+    ],
+    "effectScale": [
+      0,
+      2
+    ],
+    "defaultsChanged": false,
+    "source": "LOCAL_AUTHORING_NOT_NATIVE_MASTERY"
+  },
+  "kind": "CAMERA_WORKBENCH",
+  "sha256": "8a6b1d004f8d95d55b31424a4fc0d0182c2c62ea88f279a76dd05965505cc822"
+}

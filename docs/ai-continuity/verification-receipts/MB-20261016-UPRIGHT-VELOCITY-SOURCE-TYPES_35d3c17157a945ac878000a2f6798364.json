@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-UPRIGHT-VELOCITY-SOURCE-TYPES",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-16T12:51:36.371+00:00",
+  "elapsed_ms": 22594,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-UPRIGHT-VELOCITY-SOURCE-TYPES_35d3c17157a945ac878000a2f6798364.log",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "receipt_id": "MB-20261016-UPRIGHT-VELOCITY-SOURCE-TYPES_35d3c17157a945ac878000a2f6798364"
+}

@@ -1,0 +1,10 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LiveImpactTrajectoryV1.test.ts (11 tests | 6 skipped) 667ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed | 6 skipped (11)
+   Start at  02:42:23
+   Duration  2.71s (transform 907ms, setup 0ms, collect 1.26s, tests 667ms, environment 0ms, prepare 208ms)
+

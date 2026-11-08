@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V75-GAME-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v75-game.mjs"
+  ],
+  "observed_at": "2026-10-19T18:10:16.280+00:00",
+  "elapsed_ms": 88047,
+  "git_head": "4acba0c3f3d502f778107ca134c0352d0f5e3572",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V75-GAME-BROWSER_f049c2a763ac4173a72a8a8abc015a1f.log",
+  "output_sha256": "fc8c32e4a21150cdb18583401fd6b0b10ba51f08549c478a7860e0b52270f550",
+  "receipt_id": "MB-20261020-V75-GAME-BROWSER_f049c2a763ac4173a72a8a8abc015a1f"
+}

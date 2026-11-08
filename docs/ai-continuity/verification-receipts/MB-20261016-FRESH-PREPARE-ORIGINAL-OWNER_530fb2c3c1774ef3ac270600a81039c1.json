@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-FRESH-PREPARE-ORIGINAL-OWNER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/verify-fresh-prepare-native-owner.mjs"
+  ],
+  "observed_at": "2026-10-15T16:50:02.223+00:00",
+  "elapsed_ms": 36641,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-FRESH-PREPARE-ORIGINAL-OWNER_530fb2c3c1774ef3ac270600a81039c1.log",
+  "output_sha256": "f46350b96e6d44310a9e4692c6e73d2a247b4ba149c0906a9ddff4074cc9bc49",
+  "receipt_id": "MB-20261016-FRESH-PREPARE-ORIGINAL-OWNER_530fb2c3c1774ef3ac270600a81039c1"
+}

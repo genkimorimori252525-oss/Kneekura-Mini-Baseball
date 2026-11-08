@@ -1,0 +1,5154 @@
+{
+  "pass": true,
+  "sha256": "3c451f61881b3b44d8f76eb00c47779bb54c7f97fdcd8ee3b8d0134f4ec5d8e3",
+  "cases": [
+    {
+      "width": 1200,
+      "playerId": "0-p0",
+      "fields": [
+        {
+          "key": "public-ability-run",
+          "path": "run",
+          "raw": "42",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-arm",
+          "path": "arm",
+          "raw": "78",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-field",
+          "path": "field",
+          "raw": "73",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-catching",
+          "path": "catching",
+          "raw": "74",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-throwingAccuracy",
+          "path": "throwingAccuracy",
+          "raw": "80",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-maxSpeedKmh",
+          "path": "maxSpeedKmh",
+          "raw": "160",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-control",
+          "path": "control",
+          "raw": "80",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-contact",
+          "path": "contact",
+          "raw": "40",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-power",
+          "path": "power",
+          "raw": "40",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-vision",
+          "path": "vision",
+          "raw": "42",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-throw_accuracy",
+          "path": "throw_accuracy",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-running_aggression",
+          "path": "running_aggression",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-fielding_aggression",
+          "path": "fielding_aggression",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-baserunning",
+          "path": "baserunning",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-advanced_fielding",
+          "path": "advanced_fielding",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-slow_ball_charge",
+          "path": "slow_ball_charge",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-low_zone_command",
+          "path": "low_zone_command",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-inside_command",
+          "path": "inside_command",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-pitcher_field_reaction",
+          "path": "pitcher_field_reaction",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-bad_ball_hitting",
+          "path": "bad_ball_hitting",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-plate_aggression",
+          "path": "plate_aggression",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-bunting",
+          "path": "bunting",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-bat_to_run_transition",
+          "path": "bat_to_run_transition",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-high_zone_hitting",
+          "path": "high_zone_hitting",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-low_zone_hitting",
+          "path": "low_zone_hitting",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-entry-heightMeters",
+          "path": "heightMeters",
+          "raw": "193",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-reactionSeconds",
+          "path": "reactionSeconds",
+          "raw": "0.2",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-defensiveDecisionSeconds",
+          "path": "defensiveDecisionSeconds",
+          "raw": "0.08",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-baserunningSafetyMarginSeconds",
+          "path": "baserunningSafetyMarginSeconds",
+          "raw": "0.35",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-fieldingPursuitCostWeight",
+          "path": "fieldingPursuitCostWeight",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-topSpeedMps",
+          "path": "topSpeedMps",
+          "raw": "7.7",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-accelerationMps2",
+          "path": "accelerationMps2",
+          "raw": "4.8",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-baserunningTurnRadiusMeters",
+          "path": "baserunningTurnRadiusMeters",
+          "raw": "4.5",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-baserunningLateralAccelerationMps2",
+          "path": "baserunningLateralAccelerationMps2",
+          "raw": "7.199999999999999",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-gloveSpeedMps",
+          "path": "gloveSpeedMps",
+          "raw": "10.7",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-gloveReachMeters",
+          "path": "gloveReachMeters",
+          "raw": "1.35",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-gloveRadiusMeters",
+          "path": "gloveRadiusMeters",
+          "raw": "0.11",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-retentionCapacityJ",
+          "path": "retentionCapacityJ",
+          "raw": "160",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-captureDissipationPowerW",
+          "path": "captureDissipationPowerW",
+          "raw": "3000",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-transferSeconds",
+          "path": "transferSeconds",
+          "raw": "0.44",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-throwSpeedMps",
+          "path": "throwSpeedMps",
+          "raw": "43.5",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-throwDirectionStdRadians",
+          "path": "throwDirectionStdRadians",
+          "raw": "0.004",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-batLengthM",
+          "path": "batLengthM",
+          "raw": "84",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-batMassKg",
+          "path": "batMassKg",
+          "raw": "0.88",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-swingRate",
+          "path": "swingRate",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-maximumSweetSpotSpeedMps",
+          "path": "maximumSweetSpotSpeedMps",
+          "raw": "33",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-targetSweetSpotSpeedMps",
+          "path": "targetSweetSpotSpeedMps",
+          "raw": "27",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-timingStdSeconds",
+          "path": "timingStdSeconds",
+          "raw": "0.014",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-aimStdMeters",
+          "path": "aimStdMeters",
+          "raw": "0.03",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-chaseMarginMeters",
+          "path": "chaseMarginMeters",
+          "raw": "0.12",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-motorLatencySeconds",
+          "path": "motorLatencySeconds",
+          "raw": "0.08",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-technicalTimingOffsetSeconds",
+          "path": "technicalTimingOffsetSeconds",
+          "raw": "0",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-sweetSpotT",
+          "path": "sweetSpotT",
+          "raw": "0.825",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-attackAngleDegrees",
+          "path": "attackAngleDegrees",
+          "raw": "10",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-pullAngleDegrees",
+          "path": "pullAngleDegrees",
+          "raw": "0",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-badBallControl",
+          "path": "badBallControl",
+          "raw": "0.2",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-preContactSeconds",
+          "path": "preContactSeconds",
+          "raw": "0.16",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-followThroughSeconds",
+          "path": "followThroughSeconds",
+          "raw": "0.32",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-contactDepthMeters",
+          "path": "contactDepthMeters",
+          "raw": "0.15",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-swingDecision-threshold",
+          "path": "swingDecision.threshold",
+          "raw": "0.5",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-swingDecision-aggressionWeight",
+          "path": "swingDecision.aggressionWeight",
+          "raw": "0.5",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-zoneJudgmentStdMeters",
+          "path": "zoneJudgmentStdMeters",
+          "raw": "0.025",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-pitchReleaseHeightMeters",
+          "path": "pitchReleaseHeightMeters",
+          "raw": "1.6598",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-pitchReleaseSideMeters",
+          "path": "pitchReleaseSideMeters",
+          "raw": "0.4825",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-pitchReleaseExtensionMeters",
+          "path": "pitchReleaseExtensionMeters",
+          "raw": "1.54",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-releaseSpeedMps",
+          "path": "releaseSpeedMps",
+          "raw": "43.2",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-maximumPitchSpeedMps",
+          "path": "maximumPitchSpeedMps",
+          "raw": "44.44444444444444",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-commandStdMeters",
+          "path": "commandStdMeters",
+          "raw": "0.12",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-spinRadPerSecond-x",
+          "path": "spinRadPerSecond.x",
+          "raw": "250",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-spinRadPerSecond-y",
+          "path": "spinRadPerSecond.y",
+          "raw": "-12",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-spinRadPerSecond-z",
+          "path": "spinRadPerSecond.z",
+          "raw": "-8",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        }
+      ]
+    },
+    {
+      "width": 1200,
+      "playerId": "0-b0",
+      "fields": [
+        {
+          "key": "public-ability-run",
+          "path": "run",
+          "raw": "85",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-arm",
+          "path": "arm",
+          "raw": "77",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-field",
+          "path": "field",
+          "raw": "65",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-catching",
+          "path": "catching",
+          "raw": "63",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-throwingAccuracy",
+          "path": "throwingAccuracy",
+          "raw": "70",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-contact",
+          "path": "contact",
+          "raw": "90",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-power",
+          "path": "power",
+          "raw": "98",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-vision",
+          "path": "vision",
+          "raw": "88",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-maxSpeedKmh",
+          "path": "maxSpeedKmh",
+          "raw": "144",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-control",
+          "path": "control",
+          "raw": "50",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-throw_accuracy",
+          "path": "throw_accuracy",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-running_aggression",
+          "path": "running_aggression",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-fielding_aggression",
+          "path": "fielding_aggression",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-baserunning",
+          "path": "baserunning",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-advanced_fielding",
+          "path": "advanced_fielding",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-slow_ball_charge",
+          "path": "slow_ball_charge",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-bad_ball_hitting",
+          "path": "bad_ball_hitting",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-plate_aggression",
+          "path": "plate_aggression",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-bunting",
+          "path": "bunting",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-bat_to_run_transition",
+          "path": "bat_to_run_transition",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-high_zone_hitting",
+          "path": "high_zone_hitting",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-low_zone_hitting",
+          "path": "low_zone_hitting",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-low_zone_command",
+          "path": "low_zone_command",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-inside_command",
+          "path": "inside_command",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-pitcher_field_reaction",
+          "path": "pitcher_field_reaction",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-entry-heightMeters",
+          "path": "heightMeters",
+          "raw": "193",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-reactionSeconds",
+          "path": "reactionSeconds",
+          "raw": "0.2",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-defensiveDecisionSeconds",
+          "path": "defensiveDecisionSeconds",
+          "raw": "0.07",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-baserunningSafetyMarginSeconds",
+          "path": "baserunningSafetyMarginSeconds",
+          "raw": "0.35",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-fieldingPursuitCostWeight",
+          "path": "fieldingPursuitCostWeight",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-topSpeedMps",
+          "path": "topSpeedMps",
+          "raw": "8.9",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-accelerationMps2",
+          "path": "accelerationMps2",
+          "raw": "5.8",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-baserunningTurnRadiusMeters",
+          "path": "baserunningTurnRadiusMeters",
+          "raw": "4.5",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-baserunningLateralAccelerationMps2",
+          "path": "baserunningLateralAccelerationMps2",
+          "raw": "8.7",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-gloveSpeedMps",
+          "path": "gloveSpeedMps",
+          "raw": "11",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-gloveReachMeters",
+          "path": "gloveReachMeters",
+          "raw": "1.35",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-gloveRadiusMeters",
+          "path": "gloveRadiusMeters",
+          "raw": "0.11",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-retentionCapacityJ",
+          "path": "retentionCapacityJ",
+          "raw": "160",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-captureDissipationPowerW",
+          "path": "captureDissipationPowerW",
+          "raw": "3000",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-transferSeconds",
+          "path": "transferSeconds",
+          "raw": "0.44",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-throwSpeedMps",
+          "path": "throwSpeedMps",
+          "raw": "39",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-throwDirectionStdRadians",
+          "path": "throwDirectionStdRadians",
+          "raw": "0.004",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-batLengthM",
+          "path": "batLengthM",
+          "raw": "84",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-batMassKg",
+          "path": "batMassKg",
+          "raw": "0.88",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-swingRate",
+          "path": "swingRate",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-maximumSweetSpotSpeedMps",
+          "path": "maximumSweetSpotSpeedMps",
+          "raw": "40",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-targetSweetSpotSpeedMps",
+          "path": "targetSweetSpotSpeedMps",
+          "raw": "34.5",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-timingStdSeconds",
+          "path": "timingStdSeconds",
+          "raw": "0.008",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-aimStdMeters",
+          "path": "aimStdMeters",
+          "raw": "0.016",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-chaseMarginMeters",
+          "path": "chaseMarginMeters",
+          "raw": "0.12",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-motorLatencySeconds",
+          "path": "motorLatencySeconds",
+          "raw": "0.08",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-technicalTimingOffsetSeconds",
+          "path": "technicalTimingOffsetSeconds",
+          "raw": "0",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-sweetSpotT",
+          "path": "sweetSpotT",
+          "raw": "0.825",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-attackAngleDegrees",
+          "path": "attackAngleDegrees",
+          "raw": "16",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-pullAngleDegrees",
+          "path": "pullAngleDegrees",
+          "raw": "7",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-badBallControl",
+          "path": "badBallControl",
+          "raw": "0.45",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-preContactSeconds",
+          "path": "preContactSeconds",
+          "raw": "0.16",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-followThroughSeconds",
+          "path": "followThroughSeconds",
+          "raw": "0.32",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-contactDepthMeters",
+          "path": "contactDepthMeters",
+          "raw": "0.15",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-swingDecision-threshold",
+          "path": "swingDecision.threshold",
+          "raw": "0.5",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-swingDecision-aggressionWeight",
+          "path": "swingDecision.aggressionWeight",
+          "raw": "0.5",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-zoneJudgmentStdMeters",
+          "path": "zoneJudgmentStdMeters",
+          "raw": "0.025",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-pitchReleaseHeightMeters",
+          "path": "pitchReleaseHeightMeters",
+          "raw": "1.6598",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-pitchReleaseSideMeters",
+          "path": "pitchReleaseSideMeters",
+          "raw": "0.4825",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-pitchReleaseExtensionMeters",
+          "path": "pitchReleaseExtensionMeters",
+          "raw": "1.54",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-releaseSpeedMps",
+          "path": "releaseSpeedMps",
+          "raw": "36",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-maximumPitchSpeedMps",
+          "path": "maximumPitchSpeedMps",
+          "raw": "40",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-commandStdMeters",
+          "path": "commandStdMeters",
+          "raw": "0.16",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-spinRadPerSecond-x",
+          "path": "spinRadPerSecond.x",
+          "raw": "210",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-spinRadPerSecond-y",
+          "path": "spinRadPerSecond.y",
+          "raw": "12",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-spinRadPerSecond-z",
+          "path": "spinRadPerSecond.z",
+          "raw": "8",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "playerId": "0-p0",
+      "fields": [
+        {
+          "key": "public-ability-run",
+          "path": "run",
+          "raw": "42",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-arm",
+          "path": "arm",
+          "raw": "78",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-field",
+          "path": "field",
+          "raw": "73",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-catching",
+          "path": "catching",
+          "raw": "74",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-throwingAccuracy",
+          "path": "throwingAccuracy",
+          "raw": "80",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-maxSpeedKmh",
+          "path": "maxSpeedKmh",
+          "raw": "160",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-control",
+          "path": "control",
+          "raw": "80",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-contact",
+          "path": "contact",
+          "raw": "40",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-power",
+          "path": "power",
+          "raw": "40",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-vision",
+          "path": "vision",
+          "raw": "42",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-throw_accuracy",
+          "path": "throw_accuracy",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-running_aggression",
+          "path": "running_aggression",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-fielding_aggression",
+          "path": "fielding_aggression",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-baserunning",
+          "path": "baserunning",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-advanced_fielding",
+          "path": "advanced_fielding",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-slow_ball_charge",
+          "path": "slow_ball_charge",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-low_zone_command",
+          "path": "low_zone_command",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-inside_command",
+          "path": "inside_command",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-pitcher_field_reaction",
+          "path": "pitcher_field_reaction",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-bad_ball_hitting",
+          "path": "bad_ball_hitting",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-plate_aggression",
+          "path": "plate_aggression",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-bunting",
+          "path": "bunting",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-bat_to_run_transition",
+          "path": "bat_to_run_transition",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-high_zone_hitting",
+          "path": "high_zone_hitting",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-low_zone_hitting",
+          "path": "low_zone_hitting",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-entry-heightMeters",
+          "path": "heightMeters",
+          "raw": "193",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-reactionSeconds",
+          "path": "reactionSeconds",
+          "raw": "0.2",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-defensiveDecisionSeconds",
+          "path": "defensiveDecisionSeconds",
+          "raw": "0.08",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-baserunningSafetyMarginSeconds",
+          "path": "baserunningSafetyMarginSeconds",
+          "raw": "0.35",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-fieldingPursuitCostWeight",
+          "path": "fieldingPursuitCostWeight",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-topSpeedMps",
+          "path": "topSpeedMps",
+          "raw": "7.7",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-accelerationMps2",
+          "path": "accelerationMps2",
+          "raw": "4.8",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-baserunningTurnRadiusMeters",
+          "path": "baserunningTurnRadiusMeters",
+          "raw": "4.5",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-baserunningLateralAccelerationMps2",
+          "path": "baserunningLateralAccelerationMps2",
+          "raw": "7.199999999999999",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-gloveSpeedMps",
+          "path": "gloveSpeedMps",
+          "raw": "10.7",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-gloveReachMeters",
+          "path": "gloveReachMeters",
+          "raw": "1.35",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-gloveRadiusMeters",
+          "path": "gloveRadiusMeters",
+          "raw": "0.11",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-retentionCapacityJ",
+          "path": "retentionCapacityJ",
+          "raw": "160",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-captureDissipationPowerW",
+          "path": "captureDissipationPowerW",
+          "raw": "3000",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-transferSeconds",
+          "path": "transferSeconds",
+          "raw": "0.44",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-throwSpeedMps",
+          "path": "throwSpeedMps",
+          "raw": "43.5",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-throwDirectionStdRadians",
+          "path": "throwDirectionStdRadians",
+          "raw": "0.004",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-batLengthM",
+          "path": "batLengthM",
+          "raw": "84",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-batMassKg",
+          "path": "batMassKg",
+          "raw": "0.88",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-swingRate",
+          "path": "swingRate",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-maximumSweetSpotSpeedMps",
+          "path": "maximumSweetSpotSpeedMps",
+          "raw": "33",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-targetSweetSpotSpeedMps",
+          "path": "targetSweetSpotSpeedMps",
+          "raw": "27",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-timingStdSeconds",
+          "path": "timingStdSeconds",
+          "raw": "0.014",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-aimStdMeters",
+          "path": "aimStdMeters",
+          "raw": "0.03",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-chaseMarginMeters",
+          "path": "chaseMarginMeters",
+          "raw": "0.12",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-motorLatencySeconds",
+          "path": "motorLatencySeconds",
+          "raw": "0.08",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-technicalTimingOffsetSeconds",
+          "path": "technicalTimingOffsetSeconds",
+          "raw": "0",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-sweetSpotT",
+          "path": "sweetSpotT",
+          "raw": "0.825",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-attackAngleDegrees",
+          "path": "attackAngleDegrees",
+          "raw": "10",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-pullAngleDegrees",
+          "path": "pullAngleDegrees",
+          "raw": "0",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-badBallControl",
+          "path": "badBallControl",
+          "raw": "0.2",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-preContactSeconds",
+          "path": "preContactSeconds",
+          "raw": "0.16",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-followThroughSeconds",
+          "path": "followThroughSeconds",
+          "raw": "0.32",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-contactDepthMeters",
+          "path": "contactDepthMeters",
+          "raw": "0.15",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-swingDecision-threshold",
+          "path": "swingDecision.threshold",
+          "raw": "0.5",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-swingDecision-aggressionWeight",
+          "path": "swingDecision.aggressionWeight",
+          "raw": "0.5",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-zoneJudgmentStdMeters",
+          "path": "zoneJudgmentStdMeters",
+          "raw": "0.025",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-pitchReleaseHeightMeters",
+          "path": "pitchReleaseHeightMeters",
+          "raw": "1.6598",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-pitchReleaseSideMeters",
+          "path": "pitchReleaseSideMeters",
+          "raw": "0.4825",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-pitchReleaseExtensionMeters",
+          "path": "pitchReleaseExtensionMeters",
+          "raw": "1.54",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-releaseSpeedMps",
+          "path": "releaseSpeedMps",
+          "raw": "43.2",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-maximumPitchSpeedMps",
+          "path": "maximumPitchSpeedMps",
+          "raw": "44.44444444444444",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-commandStdMeters",
+          "path": "commandStdMeters",
+          "raw": "0.12",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-spinRadPerSecond-x",
+          "path": "spinRadPerSecond.x",
+          "raw": "250",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-spinRadPerSecond-y",
+          "path": "spinRadPerSecond.y",
+          "raw": "-12",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-spinRadPerSecond-z",
+          "path": "spinRadPerSecond.z",
+          "raw": "-8",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "playerId": "0-b0",
+      "fields": [
+        {
+          "key": "public-ability-run",
+          "path": "run",
+          "raw": "85",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-arm",
+          "path": "arm",
+          "raw": "77",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-field",
+          "path": "field",
+          "raw": "65",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-catching",
+          "path": "catching",
+          "raw": "63",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-throwingAccuracy",
+          "path": "throwingAccuracy",
+          "raw": "70",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-contact",
+          "path": "contact",
+          "raw": "90",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-power",
+          "path": "power",
+          "raw": "98",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-vision",
+          "path": "vision",
+          "raw": "88",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-maxSpeedKmh",
+          "path": "maxSpeedKmh",
+          "raw": "144",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "public-ability-control",
+          "path": "control",
+          "raw": "50",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-throw_accuracy",
+          "path": "throw_accuracy",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-running_aggression",
+          "path": "running_aggression",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-fielding_aggression",
+          "path": "fielding_aggression",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-baserunning",
+          "path": "baserunning",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-advanced_fielding",
+          "path": "advanced_fielding",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-slow_ball_charge",
+          "path": "slow_ball_charge",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-bad_ball_hitting",
+          "path": "bad_ball_hitting",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-plate_aggression",
+          "path": "plate_aggression",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-bunting",
+          "path": "bunting",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-bat_to_run_transition",
+          "path": "bat_to_run_transition",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-high_zone_hitting",
+          "path": "high_zone_hitting",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-low_zone_hitting",
+          "path": "low_zone_hitting",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-low_zone_command",
+          "path": "low_zone_command",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-inside_command",
+          "path": "inside_command",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-trait-effect-pitcher_field_reaction",
+          "path": "pitcher_field_reaction",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-entry-heightMeters",
+          "path": "heightMeters",
+          "raw": "193",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-reactionSeconds",
+          "path": "reactionSeconds",
+          "raw": "0.2",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-defensiveDecisionSeconds",
+          "path": "defensiveDecisionSeconds",
+          "raw": "0.07",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-baserunningSafetyMarginSeconds",
+          "path": "baserunningSafetyMarginSeconds",
+          "raw": "0.35",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-fieldingPursuitCostWeight",
+          "path": "fieldingPursuitCostWeight",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-topSpeedMps",
+          "path": "topSpeedMps",
+          "raw": "8.9",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-accelerationMps2",
+          "path": "accelerationMps2",
+          "raw": "5.8",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-baserunningTurnRadiusMeters",
+          "path": "baserunningTurnRadiusMeters",
+          "raw": "4.5",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-baserunningLateralAccelerationMps2",
+          "path": "baserunningLateralAccelerationMps2",
+          "raw": "8.7",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-gloveSpeedMps",
+          "path": "gloveSpeedMps",
+          "raw": "11",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-gloveReachMeters",
+          "path": "gloveReachMeters",
+          "raw": "1.35",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-gloveRadiusMeters",
+          "path": "gloveRadiusMeters",
+          "raw": "0.11",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-retentionCapacityJ",
+          "path": "retentionCapacityJ",
+          "raw": "160",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-captureDissipationPowerW",
+          "path": "captureDissipationPowerW",
+          "raw": "3000",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-transferSeconds",
+          "path": "transferSeconds",
+          "raw": "0.44",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-throwSpeedMps",
+          "path": "throwSpeedMps",
+          "raw": "39",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-throwDirectionStdRadians",
+          "path": "throwDirectionStdRadians",
+          "raw": "0.004",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-batLengthM",
+          "path": "batLengthM",
+          "raw": "84",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-batMassKg",
+          "path": "batMassKg",
+          "raw": "0.88",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-swingRate",
+          "path": "swingRate",
+          "raw": "1",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-maximumSweetSpotSpeedMps",
+          "path": "maximumSweetSpotSpeedMps",
+          "raw": "40",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-targetSweetSpotSpeedMps",
+          "path": "targetSweetSpotSpeedMps",
+          "raw": "34.5",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-timingStdSeconds",
+          "path": "timingStdSeconds",
+          "raw": "0.008",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-aimStdMeters",
+          "path": "aimStdMeters",
+          "raw": "0.016",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-chaseMarginMeters",
+          "path": "chaseMarginMeters",
+          "raw": "0.12",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-motorLatencySeconds",
+          "path": "motorLatencySeconds",
+          "raw": "0.08",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-technicalTimingOffsetSeconds",
+          "path": "technicalTimingOffsetSeconds",
+          "raw": "0",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-sweetSpotT",
+          "path": "sweetSpotT",
+          "raw": "0.825",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-attackAngleDegrees",
+          "path": "attackAngleDegrees",
+          "raw": "16",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-pullAngleDegrees",
+          "path": "pullAngleDegrees",
+          "raw": "7",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-badBallControl",
+          "path": "badBallControl",
+          "raw": "0.45",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-preContactSeconds",
+          "path": "preContactSeconds",
+          "raw": "0.16",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-followThroughSeconds",
+          "path": "followThroughSeconds",
+          "raw": "0.32",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-contactDepthMeters",
+          "path": "contactDepthMeters",
+          "raw": "0.15",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-swingDecision-threshold",
+          "path": "swingDecision.threshold",
+          "raw": "0.5",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-swingDecision-aggressionWeight",
+          "path": "swingDecision.aggressionWeight",
+          "raw": "0.5",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-zoneJudgmentStdMeters",
+          "path": "zoneJudgmentStdMeters",
+          "raw": "0.025",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-pitchReleaseHeightMeters",
+          "path": "pitchReleaseHeightMeters",
+          "raw": "1.6598",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-pitchReleaseSideMeters",
+          "path": "pitchReleaseSideMeters",
+          "raw": "0.4825",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-pitchReleaseExtensionMeters",
+          "path": "pitchReleaseExtensionMeters",
+          "raw": "1.54",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-releaseSpeedMps",
+          "path": "releaseSpeedMps",
+          "raw": "36",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-maximumPitchSpeedMps",
+          "path": "maximumPitchSpeedMps",
+          "raw": "40",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-commandStdMeters",
+          "path": "commandStdMeters",
+          "raw": "0.16",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-spinRadPerSecond-x",
+          "path": "spinRadPerSecond.x",
+          "raw": "210",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-spinRadPerSecond-y",
+          "path": "spinRadPerSecond.y",
+          "raw": "12",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        },
+        {
+          "key": "live-ability-spinRadPerSecond-z",
+          "path": "spinRadPerSecond.z",
+          "raw": "8",
+          "error": {
+            "unchanged": true,
+            "invalid": true,
+            "near": true,
+            "aria": "true"
+          },
+          "success": {
+            "valid": true,
+            "aria": "false",
+            "nearError": false,
+            "pending": 0
+          },
+          "pass": true
+        }
+      ]
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "errors": [],
+      "external": []
+    }
+  ]
+}

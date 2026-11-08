@@ -1,0 +1,3175 @@
+{
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv43_TBD_vs_LAD_打者の打点注視版.html",
+  "sha256": "7b05c8dd2600a92e5d53ad534478a13be68d500ddf5c3ccb3bd922d333778a0d",
+  "views": [
+    {
+      "width": 1200,
+      "pitch": 2,
+      "catchLocal": 38.478624702197926,
+      "samples": [
+        {
+          "frame": 0,
+          "tick": 13624415,
+          "localTick": 28,
+          "ballZ": 16.9,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 1.6479050928429297,
+            "opticalDiameterPx": 5.842088626174476,
+            "visibilityMarker": false,
+            "displayDiameterPx": 5.842088626174476,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 72,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 1,
+          "tick": 13635415,
+          "localTick": 28.2,
+          "ballZ": 16.544315883762824,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 1.681603249961783,
+            "opticalDiameterPx": 5.8859306446010855,
+            "visibilityMarker": false,
+            "displayDiameterPx": 5.8859306446010855,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 72,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 2,
+          "tick": 13646415,
+          "localTick": 28.4,
+          "ballZ": 16.1893905404691,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 1.7166178437880717,
+            "opticalDiameterPx": 5.931478718013134,
+            "visibilityMarker": false,
+            "displayDiameterPx": 5.931478718013134,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 72,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 3,
+          "tick": 13657415,
+          "localTick": 28.6,
+          "ballZ": 15.835223767237801,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 1.7530272635564152,
+            "opticalDiameterPx": 5.978835391649325,
+            "visibilityMarker": false,
+            "displayDiameterPx": 5.978835391649325,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 4,
+          "tick": 13668415,
+          "localTick": 28.8,
+          "ballZ": 15.481815369001547,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 1.790916245909236,
+            "opticalDiameterPx": 6.02811141359936,
+            "visibilityMarker": false,
+            "displayDiameterPx": 6.02811141359936,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 5,
+          "tick": 13679415,
+          "localTick": 29,
+          "ballZ": 15.129165158448513,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 1.830376530619161,
+            "opticalDiameterPx": 6.079426587412765,
+            "visibilityMarker": false,
+            "displayDiameterPx": 6.079426587412765,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 6,
+          "tick": 13690415,
+          "localTick": 29.2,
+          "ballZ": 14.777272955964019,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 1.8715075993140216,
+            "opticalDiameterPx": 6.132910732994112,
+            "visibilityMarker": false,
+            "displayDiameterPx": 6.132910732994112,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 7,
+          "tick": 13701415,
+          "localTick": 29.4,
+          "ballZ": 14.426138589571641,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 1.9144175097263687,
+            "opticalDiameterPx": 6.188704772061051,
+            "visibilityMarker": false,
+            "displayDiameterPx": 6.188704772061051,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 8,
+          "tick": 13712415,
+          "localTick": 29.6,
+          "ballZ": 14.075761894873994,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 1.9592238401958857,
+            "opticalDiameterPx": 6.2469619573029185,
+            "visibilityMarker": false,
+            "displayDiameterPx": 6.2469619573029185,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 304,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 9,
+          "tick": 13723415,
+          "localTick": 29.8,
+          "ballZ": 13.726142714993069,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 2.006054761806883,
+            "opticalDiameterPx": 6.307849267820447,
+            "visibilityMarker": false,
+            "displayDiameterPx": 6.307849267820447,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 304,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 10,
+          "tick": 13734415,
+          "localTick": 30,
+          "ballZ": 13.377280900510181,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 2.055050258747101,
+            "opticalDiameterPx": 6.371548997584665,
+            "visibilityMarker": false,
+            "displayDiameterPx": 6.371548997584665,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 304,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 11,
+          "tick": 13745415,
+          "localTick": 30.2,
+          "ballZ": 13.029176309405523,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 2.106363521358244,
+            "opticalDiameterPx": 6.438260568695095,
+            "visibilityMarker": false,
+            "displayDiameterPx": 6.438260568695095,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 304,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 12,
+          "tick": 13756415,
+          "localTick": 30.4,
+          "ballZ": 12.68182880699728,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 2.160162541077246,
+            "opticalDiameterPx": 6.508202607357102,
+            "visibilityMarker": false,
+            "displayDiameterPx": 6.508202607357102,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 304,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 13,
+          "tick": 13767415,
+          "localTick": 30.6,
+          "ballZ": 12.33523826588038,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 2.216631942249203,
+            "opticalDiameterPx": 6.581615328008118,
+            "visibilityMarker": false,
+            "displayDiameterPx": 6.581615328008118,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 14,
+          "tick": 13778415,
+          "localTick": 30.8,
+          "ballZ": 11.989404565864797,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 2.275975092895642,
+            "opticalDiameterPx": 6.6587632802501355,
+            "visibilityMarker": false,
+            "displayDiameterPx": 6.6587632802501355,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 15,
+          "tick": 13789415,
+          "localTick": 31,
+          "ballZ": 11.644327593913488,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 2.338416545289171,
+            "opticalDiameterPx": 6.739938524638914,
+            "visibilityMarker": false,
+            "displayDiameterPx": 6.739938524638914,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 16,
+          "tick": 13800415,
+          "localTick": 31.2,
+          "ballZ": 11.300007244079888,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 2.404204868062761,
+            "opticalDiameterPx": 6.825464317517669,
+            "visibilityMarker": false,
+            "displayDiameterPx": 6.825464317517669,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 17,
+          "tick": 13811415,
+          "localTick": 31.4,
+          "ballZ": 10.956443417445007,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 2.4736159451485062,
+            "opticalDiameterPx": 6.915699402718498,
+            "visibilityMarker": false,
+            "displayDiameterPx": 6.915699402718498,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 18,
+          "tick": 13822415,
+          "localTick": 31.6,
+          "ballZ": 10.613636022054125,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 2.546956833856419,
+            "opticalDiameterPx": 7.011043030076146,
+            "visibilityMarker": false,
+            "displayDiameterPx": 7.011043030076146,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 19,
+          "tick": 13833415,
+          "localTick": 31.8,
+          "ballZ": 10.271584972853068,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 2.6245702958713157,
+            "opticalDiameterPx": 7.111940848609812,
+            "visibilityMarker": false,
+            "displayDiameterPx": 7.111940848609812,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 20,
+          "tick": 13844415,
+          "localTick": 32,
+          "ballZ": 9.930290191624092,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 2.706840142197962,
+            "opticalDiameterPx": 7.218891857661867,
+            "visibilityMarker": false,
+            "displayDiameterPx": 7.218891857661867,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 21,
+          "tick": 13855415,
+          "localTick": 32.2,
+          "ballZ": 9.589751606921348,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 2.7941975679067625,
+            "opticalDiameterPx": 7.332456644558902,
+            "visibilityMarker": false,
+            "displayDiameterPx": 7.332456644558902,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 22,
+          "tick": 13866415,
+          "localTick": 32.4,
+          "ballZ": 9.249969154005933,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 2.8871286973352452,
+            "opticalDiameterPx": 7.453267195613906,
+            "visibilityMarker": false,
+            "displayDiameterPx": 7.453267195613906,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 23,
+          "tick": 13877415,
+          "localTick": 32.6,
+          "ballZ": 8.910942774780557,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 2.986183618467443,
+            "opticalDiameterPx": 7.582038642786268,
+            "visibilityMarker": false,
+            "displayDiameterPx": 7.582038642786268,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 24,
+          "tick": 13888415,
+          "localTick": 32.8,
+          "ballZ": 8.572672417723782,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 3.091987261055757,
+            "opticalDiameterPx": 7.719583406923308,
+            "visibilityMarker": false,
+            "displayDiameterPx": 7.719583406923308,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 25,
+          "tick": 13899415,
+          "localTick": 33,
+          "ballZ": 8.23515803782388,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 3.205252572926703,
+            "opticalDiameterPx": 7.866828328358699,
+            "visibilityMarker": false,
+            "displayDiameterPx": 7.866828328358699,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 26,
+          "tick": 13910415,
+          "localTick": 33.2,
+          "ballZ": 7.8983995965122755,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 3.3267965815949188,
+            "opticalDiameterPx": 8.024835548142077,
+            "visibilityMarker": false,
+            "displayDiameterPx": 8.024835548142077,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 27,
+          "tick": 13921415,
+          "localTick": 33.4,
+          "ballZ": 7.562397061596582,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 3.4575601062254417,
+            "opticalDiameterPx": 8.19482813447393,
+            "visibilityMarker": false,
+            "displayDiameterPx": 8.19482813447393,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 304,
+                "y": 64,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 28,
+          "tick": 13932415,
+          "localTick": 33.6,
+          "ballZ": 7.227150407193255,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 3.5986321259403575,
+            "opticalDiameterPx": 8.378221762170059,
+            "visibilityMarker": false,
+            "displayDiameterPx": 8.378221762170059,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 72,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 29,
+          "tick": 13943415,
+          "localTick": 33.8,
+          "ballZ": 6.89265961365984,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 3.7512801402990337,
+            "opticalDiameterPx": 8.576664181767532,
+            "visibilityMarker": false,
+            "displayDiameterPx": 8.576664181767532,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 72,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 304,
+                "y": 72,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 30,
+          "tick": 13954415,
+          "localTick": 34,
+          "ballZ": 6.558924667526837,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 3.91698831447215,
+            "opticalDiameterPx": 8.792084808583946,
+            "visibilityMarker": false,
+            "displayDiameterPx": 8.792084808583946,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 68,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 72,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 72,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 31,
+          "tick": 13965415,
+          "localTick": 34.2,
+          "ballZ": 6.225945561429152,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 4.097505841811785,
+            "opticalDiameterPx": 9.026757594277507,
+            "visibilityMarker": false,
+            "displayDiameterPx": 9.026757594277507,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 72,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 72,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 76,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 304,
+                "y": 76,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 32,
+          "tick": 13976415,
+          "localTick": 34.4,
+          "ballZ": 5.893722294037181,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 4.294908865935445,
+            "opticalDiameterPx": 9.283381525692272,
+            "visibilityMarker": false,
+            "displayDiameterPx": 9.283381525692272,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 72,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 72,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 76,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 76,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 33,
+          "tick": 13987415,
+          "localTick": 34.6,
+          "ballZ": 5.56225486998749,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 4.5116806150677915,
+            "opticalDiameterPx": 9.565184799581646,
+            "visibilityMarker": false,
+            "displayDiameterPx": 9.565184799581646,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 72,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 72,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 76,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 76,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 80,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 304,
+                "y": 80,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 34,
+          "tick": 13998415,
+          "localTick": 34.8,
+          "ballZ": 5.231543299813133,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 4.750816320027749,
+            "opticalDiameterPx": 9.876061216034529,
+            "visibilityMarker": false,
+            "displayDiameterPx": 9.876061216034529,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 76,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 76,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 80,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 80,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 35,
+          "tick": 14009415,
+          "localTick": 35,
+          "ballZ": 4.901587599873569,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 5.015962344352858,
+            "opticalDiameterPx": 10.220751047658402,
+            "visibilityMarker": false,
+            "displayDiameterPx": 10.220751047658402,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 80,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 80,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 84,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 304,
+                "y": 84,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 36,
+          "tick": 14020415,
+          "localTick": 35.2,
+          "ballZ": 4.572387792284218,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 5.311603289958122,
+            "opticalDiameterPx": 10.605084276945506,
+            "visibilityMarker": false,
+            "displayDiameterPx": 10.605084276945506,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 80,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 80,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 84,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 84,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 88,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 304,
+                "y": 88,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 37,
+          "tick": 14031415,
+          "localTick": 35.4,
+          "ballZ": 4.243943904845628,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 5.643317555523824,
+            "opticalDiameterPx": 11.036312822180964,
+            "visibilityMarker": false,
+            "displayDiameterPx": 11.036312822180964,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 84,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 84,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 88,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 88,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 92,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 304,
+                "y": 92,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 38,
+          "tick": 14042415,
+          "localTick": 35.6,
+          "ballZ": 3.9162559709722884,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 6.018132462217635,
+            "opticalDiameterPx": 11.523572200882924,
+            "visibilityMarker": false,
+            "displayDiameterPx": 11.523572200882924,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 88,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 88,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 92,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 92,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 92,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 96,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 304,
+                "y": 96,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 39,
+          "tick": 14053415,
+          "localTick": 35.8,
+          "ballZ": 3.5893240296210713,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 6.445027347086925,
+            "opticalDiameterPx": 12.078535551213005,
+            "visibilityMarker": false,
+            "displayDiameterPx": 12.078535551213005,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 92,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 92,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 96,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 96,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 96,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 100,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 300,
+                "y": 100,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 304,
+                "y": 100,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 40,
+          "tick": 14064415,
+          "localTick": 36,
+          "ballZ": 3.2631481252193124,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 6.935661919890291,
+            "opticalDiameterPx": 12.71636049585738,
+            "visibilityMarker": false,
+            "displayDiameterPx": 12.71636049585738,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 296,
+                "y": 100,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 100,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 100,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 104,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 104,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 104,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 108,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 304,
+                "y": 108,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 41,
+          "tick": 14075415,
+          "localTick": 36.2,
+          "ballZ": 2.9377283075925376,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 7.505457046835083,
+            "opticalDiameterPx": 13.45709416088561,
+            "visibilityMarker": false,
+            "displayDiameterPx": 13.45709416088561,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 104,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 108,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 108,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 108,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 112,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 112,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 112,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 116,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 304,
+                "y": 116,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 42,
+          "tick": 14086415,
+          "localTick": 36.4,
+          "ballZ": 2.6130646318918247,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 8.175244361156476,
+            "opticalDiameterPx": 14.327817669503421,
+            "visibilityMarker": false,
+            "displayDiameterPx": 14.327817669503421,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 300,
+                "y": 112,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 116,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 116,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 116,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 120,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 120,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 120,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 124,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 300,
+                "y": 124,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 304,
+                "y": 124,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 43,
+          "tick": 14097415,
+          "localTick": 36.6,
+          "ballZ": 2.2891571585208395,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 8.973867559811728,
+            "opticalDiameterPx": 15.366027827755246,
+            "visibilityMarker": false,
+            "displayDiameterPx": 15.366027827755246,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 296,
+                "y": 124,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 124,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 124,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 128,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 128,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 128,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 132,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 132,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 132,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 136,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 304,
+                "y": 136,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 44,
+          "tick": 14108415,
+          "localTick": 36.8,
+          "ballZ": 1.9660059530625127,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 9.942444078585545,
+            "opticalDiameterPx": 16.62517730216121,
+            "visibilityMarker": false,
+            "displayDiameterPx": 16.62517730216121,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 296,
+                "y": 136,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 136,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 136,
+                "radius": 1.45,
+                "color": "#dd5459"
+              },
+              {
+                "x": 296,
+                "y": 140,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 140,
+                "radius": 1.45,
+                "color": "#dd5459"
+              },
+              {
+                "x": 304,
+                "y": 140,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 308,
+                "y": 140,
+                "radius": 1.45,
+                "color": "#dd5459"
+              },
+              {
+                "x": 292,
+                "y": 144,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 144,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 144,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 144,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 308,
+                "y": 144,
+                "radius": 1.45,
+                "color": "#dd5459"
+              },
+              {
+                "x": 296,
+                "y": 148,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 300,
+                "y": 148,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 304,
+                "y": 148,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 45,
+          "tick": 14119415,
+          "localTick": 37,
+          "ballZ": 1.6436110862053857,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 11.141670772149757,
+            "opticalDiameterPx": 18.184172003794686,
+            "visibilityMarker": false,
+            "displayDiameterPx": 18.184172003794686,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 296,
+                "y": 152,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 152,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 152,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 292,
+                "y": 156,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 156,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 156,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 156,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 308,
+                "y": 156,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 292,
+                "y": 160,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 160,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 160,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 160,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 308,
+                "y": 160,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 164,
+                "radius": 1.45,
+                "color": "#dd5459"
+              },
+              {
+                "x": 300,
+                "y": 164,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 304,
+                "y": 164,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 46,
+          "tick": 14130415,
+          "localTick": 37.2,
+          "ballZ": 1.3219726336696351,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 12.665053010939278,
+            "opticalDiameterPx": 20.16456891422106,
+            "visibilityMarker": false,
+            "displayDiameterPx": 20.16456891422106,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 292,
+                "y": 172,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 172,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 172,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 172,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 292,
+                "y": 176,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 176,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 176,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 176,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 308,
+                "y": 176,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 292,
+                "y": 180,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 180,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 180,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 180,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 308,
+                "y": 180,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 292,
+                "y": 184,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 296,
+                "y": 184,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 300,
+                "y": 184,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 304,
+                "y": 184,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 296,
+                "y": 188,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 300,
+                "y": 188,
+                "radius": 1.45,
+                "color": "#dd5459"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 47,
+          "tick": 14141415,
+          "localTick": 37.4,
+          "ballZ": 1.0010906761327376,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 14.664535795969554,
+            "opticalDiameterPx": 22.76389653476042,
+            "visibilityMarker": false,
+            "displayDiameterPx": 22.76389653476042,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 296,
+                "y": 196,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 196,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 292,
+                "y": 200,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 200,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 200,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 200,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 288,
+                "y": 204,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 292,
+                "y": 204,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 204,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 204,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 204,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 308,
+                "y": 204,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 288,
+                "y": 208,
+                "radius": 1.45,
+                "color": "#dd5459"
+              },
+              {
+                "x": 292,
+                "y": 208,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 208,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 208,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 208,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 308,
+                "y": 208,
+                "radius": 1.45,
+                "color": "#dd5459"
+              },
+              {
+                "x": 292,
+                "y": 212,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 296,
+                "y": 212,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 300,
+                "y": 212,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 304,
+                "y": 212,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 308,
+                "y": 212,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 292,
+                "y": 216,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 296,
+                "y": 216,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 300,
+                "y": 216,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 304,
+                "y": 216,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 48,
+          "tick": 14152415,
+          "localTick": 37.6,
+          "ballZ": 0.6809652991548525,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 17.40461318149372,
+            "opticalDiameterPx": 26.325997135941837,
+            "visibilityMarker": false,
+            "displayDiameterPx": 26.325997135941837,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 296,
+                "y": 232,
+                "radius": 1.45,
+                "color": "#dd5459"
+              },
+              {
+                "x": 288,
+                "y": 236,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 292,
+                "y": 236,
+                "radius": 1.45,
+                "color": "#dd5459"
+              },
+              {
+                "x": 296,
+                "y": 236,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 236,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 236,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 288,
+                "y": 240,
+                "radius": 1.45,
+                "color": "#dd5459"
+              },
+              {
+                "x": 292,
+                "y": 240,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 240,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 240,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 240,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 308,
+                "y": 240,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 288,
+                "y": 244,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 292,
+                "y": 244,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 244,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 244,
+                "radius": 1.45,
+                "color": "#dd5459"
+              },
+              {
+                "x": 304,
+                "y": 244,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 308,
+                "y": 244,
+                "radius": 1.45,
+                "color": "#dd5459"
+              },
+              {
+                "x": 288,
+                "y": 248,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 292,
+                "y": 248,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 248,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 248,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 248,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 308,
+                "y": 248,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 288,
+                "y": 252,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 292,
+                "y": 252,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 296,
+                "y": 252,
+                "radius": 1.45,
+                "color": "#dd5459"
+              },
+              {
+                "x": 300,
+                "y": 252,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 304,
+                "y": 252,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 308,
+                "y": 252,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 292,
+                "y": 256,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 296,
+                "y": 256,
+                "radius": 1.45,
+                "color": "#dd5459"
+              },
+              {
+                "x": 300,
+                "y": 256,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 304,
+                "y": 256,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 49,
+          "tick": 14163415,
+          "localTick": 37.8,
+          "ballZ": 0.36159659310387204,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": {
+            "camera": "batter",
+            "ballKind": "pitch",
+            "projectedDiameterPx": 21.390221020805036,
+            "opticalDiameterPx": 31.507287327046548,
+            "visibilityMarker": false,
+            "displayDiameterPx": 31.507287327046548,
+            "style": "4px-dot-grid",
+            "orientationStatus": "observed-orientation",
+            "cells": [
+              {
+                "x": 288,
+                "y": 288,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 292,
+                "y": 288,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 288,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 288,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 288,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 284,
+                "y": 292,
+                "radius": 1.45,
+                "color": "#dd5459"
+              },
+              {
+                "x": 288,
+                "y": 292,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 292,
+                "y": 292,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 292,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 292,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 292,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 308,
+                "y": 292,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 284,
+                "y": 296,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 288,
+                "y": 296,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 292,
+                "y": 296,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 296,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 300,
+                "y": 296,
+                "radius": 1.45,
+                "color": "#dd5459"
+              },
+              {
+                "x": 304,
+                "y": 296,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 308,
+                "y": 296,
+                "radius": 1.45,
+                "color": "#dd5459"
+              },
+              {
+                "x": 280,
+                "y": 300,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 284,
+                "y": 300,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 288,
+                "y": 300,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 292,
+                "y": 300,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 300,
+                "radius": 1.45,
+                "color": "#dd5459"
+              },
+              {
+                "x": 300,
+                "y": 300,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 300,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 308,
+                "y": 300,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 284,
+                "y": 304,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 288,
+                "y": 304,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 292,
+                "y": 304,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 296,
+                "y": 304,
+                "radius": 1.45,
+                "color": "#dd5459"
+              },
+              {
+                "x": 300,
+                "y": 304,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 304,
+                "y": 304,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 308,
+                "y": 304,
+                "radius": 1.45,
+                "color": "#fffdf7"
+              },
+              {
+                "x": 284,
+                "y": 308,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 288,
+                "y": 308,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 292,
+                "y": 308,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 296,
+                "y": 308,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 300,
+                "y": 308,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 304,
+                "y": 308,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 308,
+                "y": 308,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 288,
+                "y": 312,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 292,
+                "y": 312,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 296,
+                "y": 312,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 300,
+                "y": 312,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 304,
+                "y": 312,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 292,
+                "y": 316,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 296,
+                "y": 316,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              },
+              {
+                "x": 300,
+                "y": 316,
+                "radius": 1.45,
+                "color": "#e8eceb"
+              }
+            ]
+          }
+        },
+        {
+          "frame": 50,
+          "tick": 14174415,
+          "localTick": 38,
+          "ballZ": 0.04298465308015173,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": null
+        },
+        {
+          "frame": 51,
+          "tick": 14185415,
+          "localTick": 38.2,
+          "ballZ": -0.27487042115902083,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.0210060758956699,
+          "pitch": 0.0822933333333334,
+          "gaze": null,
+          "ballDraw": null
+        },
+        {
+          "frame": 52,
+          "tick": 14196415,
+          "localTick": 38.4,
+          "ballZ": -0.5919685252753141,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.022457043265262263,
+          "pitch": 0.08874666666666661,
+          "gaze": null,
+          "ballDraw": null
+        },
+        {
+          "frame": 53,
+          "tick": 14200740,
+          "localTick": 38.47863636363636,
+          "ballZ": -0.7164199369010862,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.023020327510502387,
+          "pitch": 0.09228353771975949,
+          "gaze": null,
+          "ballDraw": null
+        },
+        {
+          "frame": 54,
+          "tick": 14207415,
+          "localTick": 38.6,
+          "ballZ": -0.7164199369010862,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.0242803642332987,
+          "pitch": 0.09872000000000009,
+          "gaze": null,
+          "ballDraw": null
+        },
+        {
+          "frame": 55,
+          "tick": 14218415,
+          "localTick": 38.8,
+          "ballZ": -0.7164199369010862,
+          "held": false,
+          "camera": "batter",
+          "yaw": -0.026796602394137607,
+          "pitch": 0.11157333333333314,
+          "gaze": null,
+          "ballDraw": null
+        },
+        {
+          "frame": 56,
+          "tick": 14222392,
+          "localTick": 38.87230909090909,
+          "ballZ": -0.7164199369010862,
+          "held": true,
+          "camera": "batter",
+          "yaw": -0.020615635625603763,
+          "pitch": 0.08,
+          "gaze": null,
+          "ballDraw": null
+        }
+      ]
+    }
+  ],
+  "pass": false,
+  "error": "AssertionError [ERR_ASSERTION]: secure catch must not reset the taken-pitch gaze to the ready angle\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v44-taken-gaze.mjs:37:3"
+}

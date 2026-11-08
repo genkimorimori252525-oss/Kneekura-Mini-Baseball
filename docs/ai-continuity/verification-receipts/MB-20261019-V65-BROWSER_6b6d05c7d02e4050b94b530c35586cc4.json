@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V65-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v65-ball-height.mjs",
+    "../../outputs/ばせぼーるlv65_TBD_vs_LAD_俯瞰の実遠近差調整版.html",
+    "../../outputs/カメラワーク調整室_v65.html",
+    "../../outputs/verification-v65-ball-height"
+  ],
+  "observed_at": "2026-10-19T09:59:05.632+00:00",
+  "elapsed_ms": 60468,
+  "git_head": "ef678a9dbdca93bafdeea3d569a2fc5b491cb11c",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V65-BROWSER_6b6d05c7d02e4050b94b530c35586cc4.log",
+  "output_sha256": "e112ddead9231c79da4f141b8fdba3a45144c671b30c3734ff61163dd391d7aa",
+  "receipt_id": "MB-20261019-V65-BROWSER_6b6d05c7d02e4050b94b530c35586cc4"
+}

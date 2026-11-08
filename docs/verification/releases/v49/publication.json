@@ -1,0 +1,51 @@
+{
+  "pass": true,
+  "sourceCommit": "e4af0301c08bc6b41584f794b1adae566ea33a8b",
+  "verifiedRemoteHead": "e4af0301c08bc6b41584f794b1adae566ea33a8b",
+  "branch": "jolly/tbd-lad-native-browser-core-2026-10-14",
+  "pullRequest": {
+    "headRefOid": "e4af0301c08bc6b41584f794b1adae566ea33a8b",
+    "isDraft": true,
+    "state": "OPEN",
+    "title": "fix: positional defense and live runner causality (v49)",
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380"
+  },
+  "rawFiles": {
+    "docs/history/INCIDENTS.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/e4af0301c08bc6b41584f794b1adae566ea33a8b/docs/history/INCIDENTS.md",
+      "bytes": 24578,
+      "sha256": "795795ebfc6e1e27f3dfbe682ea68282eccf6bc0a41bc16fa875b31bd0b384b3"
+    },
+    "docs/handoffs/LATEST.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/e4af0301c08bc6b41584f794b1adae566ea33a8b/docs/handoffs/LATEST.md",
+      "bytes": 4392,
+      "sha256": "41a60c8dbae4fef07d0b3f3680e06ed5c3708331171615fd5a0fe408e2da9b22"
+    },
+    "src/core/sim/fielding/LiveFieldPlayV1.ts": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/e4af0301c08bc6b41584f794b1adae566ea33a8b/src/core/sim/fielding/LiveFieldPlayV1.ts",
+      "bytes": 110047,
+      "sha256": "00a2883b93bb98d5de627eaf53b06765244dcf0a894a59b32627de5cbb1c0991"
+    },
+    "src/core/sim/fielding/LiveFieldRoleAssignmentV1.ts": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/e4af0301c08bc6b41584f794b1adae566ea33a8b/src/core/sim/fielding/LiveFieldRoleAssignmentV1.ts",
+      "bytes": 15512,
+      "sha256": "47bd7c8c70db035e9879279144a1d005967b8c670a105b19cc3af8904cca6c55"
+    },
+    "docs/reports/2026-10-18-v49-positional-defense.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/e4af0301c08bc6b41584f794b1adae566ea33a8b/docs/reports/2026-10-18-v49-positional-defense.md",
+      "bytes": 9945,
+      "sha256": "a731fb05ea90a34e47f7cbf2a7203772c46d18a524dd99214b572f1807cfc926"
+    },
+    "docs/demos/releases/v49/game.html": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/e4af0301c08bc6b41584f794b1adae566ea33a8b/docs/demos/releases/v49/game.html",
+      "bytes": 3475575,
+      "sha256": "b4903f219e81c0efa77c560b7961afb8eafaa85843be90fc9460a2db9a23428a"
+    },
+    "docs/demos/releases/v49/SHA256.json": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/e4af0301c08bc6b41584f794b1adae566ea33a8b/docs/demos/releases/v49/SHA256.json",
+      "bytes": 641,
+      "sha256": "6e2d1fc03813fc2f310bfab263e7998d8b1a37987808cb0f2a0f5501fd40eb78"
+    }
+  },
+  "scope": "actual current raw bytes and remote branch/Draft PR; no main merge"
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V55-CAMERA-UNIT-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-camera-tuning-batter-view.mjs"
+  ],
+  "observed_at": "2026-10-18T16:30:54.364+00:00",
+  "elapsed_ms": 47,
+  "git_head": "d75f45df3b5f015893f9ad9a95edb2abbcfb282e",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V55-CAMERA-UNIT-RED_ee0a4c9affc84b15937cd96b9978470f.log",
+  "output_sha256": "32a09f5e0fb87f56c8eaccf759efeb5ac98427e8534abf21373018d22fef726b",
+  "receipt_id": "MB-20261019-V55-CAMERA-UNIT-RED_ee0a4c9affc84b15937cd96b9978470f"
+}

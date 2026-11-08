@@ -1,0 +1,50 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/fielding/LivePitcherReactionV77.test.ts (2 tests | 2 failed) 11ms
+   × shortens only pitcher batted-ball recognition and changes real movement without increasing motor bounds 10ms
+     → live field play: nine unique defenders required
+   × leaves nonpitchers and zero controls exactly on the previous execution 1ms
+     → live field play: nine unique defenders required
+ ✓ src/integration/browser/LivePitchHostAuthoringV77.test.ts (2 tests) 250ms
+ ✓ src/core/sim/fielding/LiveFieldTechniquesV75.test.ts (7 tests) 3236ms
+   ✓ keeps ground events, frames and diagnostics exactly unchanged for all zero controls 790ms
+   ✓ shortens only the batter initial departure, preserving baserunner recognition and run speed 757ms
+   ✓ uses actual capture posture and one shortened transfer without exceeding physical hand speed 697ms
+   ✓ changes real approach movement only after observing a slow grounded ball and leaves a fly exact 759ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LivePitcherReactionV77.test.ts > shortens only pitcher batted-ball recognition and changes real movement without increasing motor bounds
+Error: live field play: nine unique defenders required
+ ❯ assert src/core/sim/fielding/LiveFieldPlayV1.ts:105:67
+    103| const clamp = (x: number, lo: number, hi: number) => Math.max(lo, Math…
+    104| const freeze = <T>(a: T): T => { if (a && typeof a === 'object') { Obj…
+    105| function assert(a: unknown, m: string): asserts a { if (!a) throw new …
+       |                                                                   ^
+    106| type Curve = { from: number; p: Vec3; velocity: Vec3; acceleration: Ve…
+    107|   stopAfter?: number; continuingVelocity?: Vec3; continuingAcceleratio…
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:178:3
+ ❯ src/core/sim/fielding/LivePitcherReactionV77.test.ts:18:67
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/core/sim/fielding/LivePitcherReactionV77.test.ts > leaves nonpitchers and zero controls exactly on the previous execution
+Error: live field play: nine unique defenders required
+ ❯ assert src/core/sim/fielding/LiveFieldPlayV1.ts:105:67
+    103| const clamp = (x: number, lo: number, hi: number) => Math.max(lo, Math…
+    104| const freeze = <T>(a: T): T => { if (a && typeof a === 'object') { Obj…
+    105| function assert(a: unknown, m: string): asserts a { if (!a) throw new …
+       |                                                                   ^
+    106| type Curve = { from: number; p: Vec3; velocity: Vec3; acceleration: Ve…
+    107|   stopAfter?: number; continuingVelocity?: Vec3; continuingAcceleratio…
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:178:3
+ ❯ src/core/sim/fielding/LivePitcherReactionV77.test.ts:31:113
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  2 failed | 9 passed (11)
+   Start at  03:56:44
+   Duration  4.34s (transform 672ms, setup 0ms, collect 1.82s, tests 3.50s, environment 1ms, prepare 646ms)
+

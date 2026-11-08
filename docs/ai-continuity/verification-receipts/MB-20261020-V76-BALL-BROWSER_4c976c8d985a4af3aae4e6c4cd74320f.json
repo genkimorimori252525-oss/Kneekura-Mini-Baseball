@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V76-BALL-BROWSER",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v76-ball-browser.mjs"
+  ],
+  "observed_at": "2026-10-19T18:26:44.827+00:00",
+  "elapsed_ms": 280,
+  "git_head": "b8acaba00ccab4e40bb176bac3c51cf2f15dd876",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V76-BALL-BROWSER_4c976c8d985a4af3aae4e6c4cd74320f.log",
+  "output_sha256": "8d91a215c38501bd9c836db2a9b86044eebe0050406a057f0f3779e405a6f270",
+  "receipt_id": "MB-20261020-V76-BALL-BROWSER_4c976c8d985a4af3aae4e6c4cd74320f"
+}

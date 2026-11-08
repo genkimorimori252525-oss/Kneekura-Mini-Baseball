@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V69-HELP",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-help-v69.mjs"
+  ],
+  "observed_at": "2026-10-19T12:00:15.145+00:00",
+  "elapsed_ms": 6296,
+  "git_head": "936cd23907b8e078e179aa03e041420a3339932b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V69-HELP_fd6b2bf82726444bad14a6062825cec8.log",
+  "output_sha256": "a1db086d35490df266327304a94f36e7763042c369db3e5427c6657944825413",
+  "receipt_id": "MB-20261019-V69-HELP_fd6b2bf82726444bad14a6062825cec8"
+}

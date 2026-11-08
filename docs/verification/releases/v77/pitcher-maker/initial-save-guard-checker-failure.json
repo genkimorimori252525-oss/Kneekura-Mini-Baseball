@@ -1,0 +1,608 @@
+{
+  "pass": false,
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v77_投手調整と独立得能版.html",
+  "views": [],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    }
+  ],
+  "checks": [
+    {
+      "sharedCoreCases": [
+        {
+          "hand": "R",
+          "type": "fastball",
+          "metrics": {
+            "strikeZone": {
+              "centerX": 0,
+              "halfWidth": 0.2159,
+              "lowerY": 0.48600000000000004,
+              "upperY": 0.9630000000000001
+            },
+            "platePosition": {
+              "x": -0.025689656719651583,
+              "y": 0.7215356765912911,
+              "z": 0.14999999998259375
+            },
+            "baselinePlatePosition": {
+              "x": -0.04902341440412436,
+              "y": 0.19213274456667723,
+              "z": 0.1499999999941228
+            },
+            "flightSeconds": 0.41387055173574483,
+            "speedKmh": 139.49651904417323,
+            "releaseSpeedKmh": 153.1517035878271,
+            "spinRpm": 2391.293354120181,
+            "horizontalBreakCm": 2.3333757684472776,
+            "verticalBreakCm": 52.94029320246138,
+            "baselineGroundIgnored": false,
+            "measurementPlaneZ": 0.15,
+            "movementBasis": "SAME_INITIAL_POSITION_AND_VELOCITY_ZERO_SPIN_SAME_PLATE_PLANE"
+          },
+          "release": {
+            "x": -0.4825,
+            "y": 1.804,
+            "z": 16.900000000000002
+          },
+          "ball": {
+            "x": -0.37242515005277255,
+            "y": 1.5889747027586407,
+            "z": 12.703067029251091
+          },
+          "hostUnchanged": true
+        },
+        {
+          "hand": "R",
+          "type": "slider",
+          "metrics": {
+            "strikeZone": {
+              "centerX": 0,
+              "halfWidth": 0.2159,
+              "lowerY": 0.48600000000000004,
+              "upperY": 0.9630000000000001
+            },
+            "platePosition": {
+              "x": -0.025870743875601634,
+              "y": 0.7217277653519528,
+              "z": 0.14999999998270092
+            },
+            "baselinePlatePosition": {
+              "x": -0.5071925237543831,
+              "y": 0.5694571509089354,
+              "z": 0.14999999997994226
+            },
+            "flightSeconds": 0.4548953941441141,
+            "speedKmh": 127.18911912368378,
+            "releaseSpeedKmh": 139.36805026492266,
+            "spinRpm": 2391.2933541201814,
+            "horizontalBreakCm": 48.132177987878144,
+            "verticalBreakCm": 15.227061444301738,
+            "baselineGroundIgnored": false,
+            "measurementPlaneZ": 0.15,
+            "movementBasis": "SAME_INITIAL_POSITION_AND_VELOCITY_ZERO_SPIN_SAME_PLATE_PLANE"
+          },
+          "release": {
+            "x": -0.4825,
+            "y": 1.804,
+            "z": 16.900000000000002
+          },
+          "ball": {
+            "x": -0.4637051570105261,
+            "y": 1.7053876663383472,
+            "z": 13.072364389639452
+          },
+          "hostUnchanged": true
+        },
+        {
+          "hand": "R",
+          "type": "curve",
+          "metrics": {
+            "strikeZone": {
+              "centerX": 0,
+              "halfWidth": 0.2159,
+              "lowerY": 0.48600000000000004,
+              "upperY": 0.9630000000000001
+            },
+            "platePosition": {
+              "x": -0.025744784977716605,
+              "y": 0.7209625596340309,
+              "z": 0.1499999999884278
+            },
+            "baselinePlatePosition": {
+              "x": -0.027867716034459228,
+              "y": 1.3478852325250552,
+              "z": 0.1499999999893965
+            },
+            "flightSeconds": 0.5201322106685256,
+            "speedKmh": 111.48682193649871,
+            "releaseSpeedKmh": 122.52136287026167,
+            "spinRpm": 2391.293354120181,
+            "horizontalBreakCm": 0.21229310567426224,
+            "verticalBreakCm": -62.69226728910243,
+            "baselineGroundIgnored": false,
+            "measurementPlaneZ": 0.15,
+            "movementBasis": "SAME_INITIAL_POSITION_AND_VELOCITY_ZERO_SPIN_SAME_PLATE_PLANE"
+          },
+          "release": {
+            "x": -0.4825,
+            "y": 1.804,
+            "z": 16.900000000000002
+          },
+          "ball": {
+            "x": -0.39131150293518946,
+            "y": 1.8958732483605514,
+            "z": 13.536337573631245
+          },
+          "hostUnchanged": true
+        },
+        {
+          "hand": "R",
+          "type": "changeup",
+          "metrics": {
+            "strikeZone": {
+              "centerX": 0,
+              "halfWidth": 0.2159,
+              "lowerY": 0.48600000000000004,
+              "upperY": 0.9630000000000001
+            },
+            "platePosition": {
+              "x": -0.025749669722310672,
+              "y": 0.7214005344817827,
+              "z": 0.1499999999939922
+            },
+            "baselinePlatePosition": {
+              "x": 0.10115228579011275,
+              "y": 0.27120942297767175,
+              "z": 0.14999999999598806
+            },
+            "flightSeconds": 0.5038629873649915,
+            "speedKmh": 115.05740202346475,
+            "releaseSpeedKmh": 125.58439694201822,
+            "spinRpm": 1673.905347884127,
+            "horizontalBreakCm": -12.690195551242342,
+            "verticalBreakCm": 45.01911115041109,
+            "baselineGroundIgnored": false,
+            "measurementPlaneZ": 0.15,
+            "movementBasis": "SAME_INITIAL_POSITION_AND_VELOCITY_ZERO_SPIN_SAME_PLATE_PLANE"
+          },
+          "release": {
+            "x": -0.4825,
+            "y": 1.804,
+            "z": 16.900000000000002
+          },
+          "ball": {
+            "x": -0.36771214343478437,
+            "y": 1.7081506755896314,
+            "z": 13.448315401004924
+          },
+          "hostUnchanged": true
+        },
+        {
+          "hand": "R",
+          "type": "cutter",
+          "metrics": {
+            "strikeZone": {
+              "centerX": 0,
+              "halfWidth": 0.2159,
+              "lowerY": 0.48600000000000004,
+              "upperY": 0.9630000000000001
+            },
+            "platePosition": {
+              "x": -0.025712789460347957,
+              "y": 0.7216438378479944,
+              "z": 0.14999999997922536
+            },
+            "baselinePlatePosition": {
+              "x": -0.3180364989476281,
+              "y": 0.272395164576925,
+              "z": 0.14999999998158026
+            },
+            "flightSeconds": 0.43571772110415624,
+            "speedKmh": 132.57185620146052,
+            "releaseSpeedKmh": 145.49411840843572,
+            "spinRpm": 2391.2933541201814,
+            "horizontalBreakCm": 29.232370948728015,
+            "verticalBreakCm": 44.92486732710694,
+            "baselineGroundIgnored": false,
+            "measurementPlaneZ": 0.15,
+            "movementBasis": "SAME_INITIAL_POSITION_AND_VELOCITY_ZERO_SPIN_SAME_PLATE_PLANE"
+          },
+          "release": {
+            "x": -0.4825,
+            "y": 1.804,
+            "z": 16.900000000000002
+          },
+          "ball": {
+            "x": -0.4270509730467875,
+            "y": 1.6307334197813736,
+            "z": 12.908421427341588
+          },
+          "hostUnchanged": true
+        },
+        {
+          "hand": "R",
+          "type": "sinker",
+          "metrics": {
+            "strikeZone": {
+              "centerX": 0,
+              "halfWidth": 0.2159,
+              "lowerY": 0.48600000000000004,
+              "upperY": 0.9630000000000001
+            },
+            "platePosition": {
+              "x": -0.025805901406558605,
+              "y": 0.72137519100049,
+              "z": 0.14999999999391309
+            },
+            "baselinePlatePosition": {
+              "x": 0.32190913401729365,
+              "y": 0.320409660767881,
+              "z": 0.1499999999971746
+            },
+            "flightSeconds": 0.43118403909087655,
+            "speedKmh": 133.99209481174788,
+            "releaseSpeedKmh": 147.02563544431402,
+            "spinRpm": 2391.2933541201814,
+            "horizontalBreakCm": -34.771503542385226,
+            "verticalBreakCm": 40.096553023260896,
+            "baselineGroundIgnored": false,
+            "measurementPlaneZ": 0.15,
+            "movementBasis": "SAME_INITIAL_POSITION_AND_VELOCITY_ZERO_SPIN_SAME_PLATE_PLANE"
+          },
+          "release": {
+            "x": -0.4825,
+            "y": 1.804,
+            "z": 16.900000000000002
+          },
+          "ball": {
+            "x": -0.3089104652175794,
+            "y": 1.634621177887433,
+            "z": 12.87005479641994
+          },
+          "hostUnchanged": true
+        },
+        {
+          "hand": "R",
+          "type": "splitter",
+          "metrics": {
+            "strikeZone": {
+              "centerX": 0,
+              "halfWidth": 0.2159,
+              "lowerY": 0.48600000000000004,
+              "upperY": 0.9630000000000001
+            },
+            "platePosition": {
+              "x": -0.026144209552040946,
+              "y": 0.7214567928194344,
+              "z": 0.14999999999669447
+            },
+            "baselinePlatePosition": {
+              "x": 0.2394243792187655,
+              "y": 0.9876604157856479,
+              "z": 0.1499999999884708
+            },
+            "flightSeconds": 0.4645413000584814,
+            "speedKmh": 125.02338827616298,
+            "releaseSpeedKmh": 136.3050161931661,
+            "spinRpm": 2391.293354120181,
+            "horizontalBreakCm": -26.556858877080646,
+            "verticalBreakCm": -26.620362296621348,
+            "baselineGroundIgnored": false,
+            "measurementPlaneZ": 0.15,
+            "movementBasis": "SAME_INITIAL_POSITION_AND_VELOCITY_ZERO_SPIN_SAME_PLATE_PLANE"
+          },
+          "release": {
+            "x": -0.4825,
+            "y": 1.804,
+            "z": 16.900000000000002
+          },
+          "ball": {
+            "x": -0.3353296533083628,
+            "y": 1.7898257962978779,
+            "z": 13.156897309178499
+          },
+          "hostUnchanged": true
+        },
+        {
+          "hand": "L",
+          "type": "fastball",
+          "metrics": {
+            "strikeZone": {
+              "centerX": 0,
+              "halfWidth": 0.2159,
+              "lowerY": 0.48600000000000004,
+              "upperY": 0.9630000000000001
+            },
+            "platePosition": {
+              "x": -0.02574950256412621,
+              "y": 0.7215249040094018,
+              "z": 0.14999999998032168
+            },
+            "baselinePlatePosition": {
+              "x": -0.05084693548669739,
+              "y": 0.19117751632335983,
+              "z": 0.14999999998014169
+            },
+            "flightSeconds": 0.41391375497158156,
+            "speedKmh": 139.49171190487468,
+            "releaseSpeedKmh": 153.1517035878271,
+            "spinRpm": 2391.293354120181,
+            "horizontalBreakCm": 2.5097432922571175,
+            "verticalBreakCm": 53.03473876860421,
+            "baselineGroundIgnored": false,
+            "measurementPlaneZ": 0.15,
+            "movementBasis": "SAME_INITIAL_POSITION_AND_VELOCITY_ZERO_SPIN_SAME_PLATE_PLANE"
+          },
+          "release": {
+            "x": 0.4825,
+            "y": 1.804,
+            "z": 16.900000000000002
+          },
+          "ball": {
+            "x": 0.35043800454452406,
+            "y": 1.5888830976530088,
+            "z": 12.703717087015528
+          },
+          "hostUnchanged": true
+        },
+        {
+          "hand": "L",
+          "type": "slider",
+          "metrics": {
+            "strikeZone": {
+              "centerX": 0,
+              "halfWidth": 0.2159,
+              "lowerY": 0.48600000000000004,
+              "upperY": 0.9630000000000001
+            },
+            "platePosition": {
+              "x": -0.025752940265880844,
+              "y": 0.7211830565178157,
+              "z": 0.14999999998026806
+            },
+            "baselinePlatePosition": {
+              "x": -0.5096946141658822,
+              "y": 0.5833199080572784,
+              "z": 0.14999999998485142
+            },
+            "flightSeconds": 0.4549277779611295,
+            "speedKmh": 127.20389000912041,
+            "releaseSpeedKmh": 139.36805026492266,
+            "spinRpm": 2391.2933541201814,
+            "horizontalBreakCm": 48.39416739000014,
+            "verticalBreakCm": 13.786314846053727,
+            "baselineGroundIgnored": false,
+            "measurementPlaneZ": 0.15,
+            "movementBasis": "SAME_INITIAL_POSITION_AND_VELOCITY_ZERO_SPIN_SAME_PLATE_PLANE"
+          },
+          "release": {
+            "x": 0.4825,
+            "y": 1.804,
+            "z": 16.900000000000002
+          },
+          "ball": {
+            "x": 0.2806445577081181,
+            "y": 1.7085141167399995,
+            "z": 13.077555987856643
+          },
+          "hostUnchanged": true
+        },
+        {
+          "hand": "L",
+          "type": "curve",
+          "metrics": {
+            "strikeZone": {
+              "centerX": 0,
+              "halfWidth": 0.2159,
+              "lowerY": 0.48600000000000004,
+              "upperY": 0.9630000000000001
+            },
+            "platePosition": {
+              "x": -0.025859858034422464,
+              "y": 0.721017811777213,
+              "z": 0.14999999999455543
+            },
+            "baselinePlatePosition": {
+              "x": -0.027017767440867663,
+              "y": 1.3513818422838357,
+              "z": 0.14999999999167998
+            },
+            "flightSeconds": 0.5202375849883538,
+            "speedKmh": 111.46482437409698,
+            "releaseSpeedKmh": 122.52136287026167,
+            "spinRpm": 2391.293354120181,
+            "horizontalBreakCm": 0.1157909406445199,
+            "verticalBreakCm": -63.03640305066227,
+            "baselineGroundIgnored": false,
+            "measurementPlaneZ": 0.15,
+            "movementBasis": "SAME_INITIAL_POSITION_AND_VELOCITY_ZERO_SPIN_SAME_PLATE_PLANE"
+          },
+          "release": {
+            "x": 0.4825,
+            "y": 1.804,
+            "z": 16.900000000000002
+          },
+          "ball": {
+            "x": 0.3801334917547778,
+            "y": 1.8964892845680514,
+            "z": 13.536747608278137
+          },
+          "hostUnchanged": true
+        },
+        {
+          "hand": "L",
+          "type": "changeup",
+          "metrics": {
+            "strikeZone": {
+              "centerX": 0,
+              "halfWidth": 0.2159,
+              "lowerY": 0.48600000000000004,
+              "upperY": 0.9630000000000001
+            },
+            "platePosition": {
+              "x": -0.02578618804463774,
+              "y": 0.7215489074221143,
+              "z": 0.149999999996959
+            },
+            "baselinePlatePosition": {
+              "x": 0.10126193974268621,
+              "y": 0.2772793830211854,
+              "z": 0.14999999999791955
+            },
+            "flightSeconds": 0.5038586328941165,
+            "speedKmh": 115.08252881377949,
+            "releaseSpeedKmh": 125.58439694201822,
+            "spinRpm": 1673.905347884127,
+            "horizontalBreakCm": -12.704812778732395,
+            "verticalBreakCm": 44.42695244009289,
+            "baselineGroundIgnored": false,
+            "measurementPlaneZ": 0.15,
+            "movementBasis": "SAME_INITIAL_POSITION_AND_VELOCITY_ZERO_SPIN_SAME_PLATE_PLANE"
+          },
+          "release": {
+            "x": 0.4825,
+            "y": 1.804,
+            "z": 16.900000000000002
+          },
+          "ball": {
+            "x": 0.39839757250161467,
+            "y": 1.7089879582039935,
+            "z": 13.447346994093555
+          },
+          "hostUnchanged": true
+        },
+        {
+          "hand": "L",
+          "type": "cutter",
+          "metrics": {
+            "strikeZone": {
+              "centerX": 0,
+              "halfWidth": 0.2159,
+              "lowerY": 0.48600000000000004,
+              "upperY": 0.9630000000000001
+            },
+            "platePosition": {
+              "x": -0.025714808927297703,
+              "y": 0.7213684746334943,
+              "z": 0.14999999999196179
+            },
+            "baselinePlatePosition": {
+              "x": -0.32078902114276026,
+              "y": 0.27728136992158353,
+              "z": 0.14999999999815491
+            },
+            "flightSeconds": 0.4357248935726239,
+            "speedKmh": 132.59373217203114,
+            "releaseSpeedKmh": 145.49411840843572,
+            "spinRpm": 2391.2933541201814,
+            "horizontalBreakCm": 29.507421221546252,
+            "verticalBreakCm": 44.40871047119108,
+            "baselineGroundIgnored": false,
+            "measurementPlaneZ": 0.15,
+            "movementBasis": "SAME_INITIAL_POSITION_AND_VELOCITY_ZERO_SPIN_SAME_PLATE_PLANE"
+          },
+          "release": {
+            "x": 0.4825,
+            "y": 1.804,
+            "z": 16.900000000000002
+          },
+          "ball": {
+            "x": 0.30762403395570187,
+            "y": 1.632095707206328,
+            "z": 12.911742088045143
+          },
+          "hostUnchanged": true
+        },
+        {
+          "hand": "L",
+          "type": "sinker",
+          "metrics": {
+            "strikeZone": {
+              "centerX": 0,
+              "halfWidth": 0.2159,
+              "lowerY": 0.48600000000000004,
+              "upperY": 0.9630000000000001
+            },
+            "platePosition": {
+              "x": -0.025743427343770112,
+              "y": 0.7217535733205844,
+              "z": 0.1499999999967534
+            },
+            "baselinePlatePosition": {
+              "x": 0.3216214102307495,
+              "y": 0.330307204700699,
+              "z": 0.14999999997876143
+            },
+            "flightSeconds": 0.431190995129291,
+            "speedKmh": 134.0149897654207,
+            "releaseSpeedKmh": 147.02563544431402,
+            "spinRpm": 2391.2933541201814,
+            "horizontalBreakCm": -34.736483757451964,
+            "verticalBreakCm": 39.14463686198854,
+            "baselineGroundIgnored": false,
+            "measurementPlaneZ": 0.15,
+            "movementBasis": "SAME_INITIAL_POSITION_AND_VELOCITY_ZERO_SPIN_SAME_PLATE_PLANE"
+          },
+          "release": {
+            "x": 0.4825,
+            "y": 1.804,
+            "z": 16.900000000000002
+          },
+          "ball": {
+            "x": 0.42381956011228633,
+            "y": 1.6359720140036005,
+            "z": 12.866630592361288
+          },
+          "hostUnchanged": true
+        },
+        {
+          "hand": "L",
+          "type": "splitter",
+          "metrics": {
+            "strikeZone": {
+              "centerX": 0,
+              "halfWidth": 0.2159,
+              "lowerY": 0.48600000000000004,
+              "upperY": 0.9630000000000001
+            },
+            "platePosition": {
+              "x": -0.02600796354968273,
+              "y": 0.7220748951901224,
+              "z": 0.14999999998160363
+            },
+            "baselinePlatePosition": {
+              "x": 0.23993487995967086,
+              "y": 1.0231118243478268,
+              "z": 0.1499999999974625
+            },
+            "flightSeconds": 0.46472176793729886,
+            "speedKmh": 124.97115065641063,
+            "releaseSpeedKmh": 136.3050161931661,
+            "spinRpm": 2391.293354120181,
+            "horizontalBreakCm": -26.59428435093536,
+            "verticalBreakCm": -30.10369291577044,
+            "baselineGroundIgnored": false,
+            "measurementPlaneZ": 0.15,
+            "movementBasis": "SAME_INITIAL_POSITION_AND_VELOCITY_ZERO_SPIN_SAME_PLATE_PLANE"
+          },
+          "release": {
+            "x": 0.4825,
+            "y": 1.804,
+            "z": 16.900000000000002
+          },
+          "ball": {
+            "x": 0.4140989632297071,
+            "y": 1.7958074394968078,
+            "z": 13.154832342029428
+          },
+          "hostUnchanged": true
+        }
+      ]
+    }
+  ],
+  "scope": "Pitcher authoring, shared real Core trial and normal renderer, human/AI canonical JSON, invalid atomic rejection, 1200/390 UI. No full-match simulation claim.",
+  "error": "AssertionError [ERR_ASSERTION]: pending pitch blocks save\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-maker-pitcher-v77.mjs:38:4"
+}

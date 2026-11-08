@@ -1,0 +1,92 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/LivePitchTechnicalSkillsV75.test.ts (5 tests | 2 failed) 1118ms
+   ✓ keeps omitted and zero techniques exactly on the legacy prefix, including static bunt geometry and random draws 455ms
+   × plans a finite moving bunt from one observed prediction, and collision uses that same rigid bat and velocity 56ms
+     → expected { grip: { …(3) }, tip: { …(3) }, …(1) } to deeply equal { grip: { …(3) }, tip: { …(3) }, …(1) }
+   × improves only bunt errors, obeys the declared motor ceiling and leaves takes and other swings unchanged 130ms
+     → live pitch: authored motor rate is outside this finite reference model
+ ✓ src/integration/browser/LivePitchV1.test.ts (13 tests) 1307ms
+ ✓ src/integration/browser/LivePitchAbilitiesV1.test.ts (11 tests) 1355ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LivePitchTechnicalSkillsV75.test.ts > plans a finite moving bunt from one observed prediction, and collision uses that same rigid bat and velocity
+AssertionError: expected { grip: { …(3) }, tip: { …(3) }, …(1) } to deeply equal { grip: { …(3) }, tip: { …(3) }, …(1) }
+
+- Expected
++ Received
+
+  Object {
+    "grip": Object {
+      "x": -0.6871414304729342,
+      "y": 0.728724793249792,
+-     "z": -0.19079289837875751,
++     "z": -0.1907928983787575,
+    },
+    "radiusProfile": Object {
+      "knots": Array [
+        Object {
+          "radiusM": 0.019,
+          "t": 0,
+        },
+        Object {
+          "radiusM": 0.014,
+          "t": 0.06,
+        },
+        Object {
+          "radiusM": 0.014,
+          "t": 0.42,
+        },
+        Object {
+          "radiusM": 0.03,
+          "t": 0.7,
+        },
+        Object {
+          "radiusM": 0.033,
+          "t": 0.94,
+        },
+        Object {
+          "radiusM": 0.031,
+          "t": 1,
+        },
+      ],
+    },
+    "tip": Object {
+      "x": 0.15285856952706578,
+      "y": 0.728724793249792,
+-     "z": -0.19079289837875751,
++     "z": -0.1907928983787575,
+    },
+  }
+
+ ❯ src/integration/browser/LivePitchTechnicalSkillsV75.test.ts:41:83
+     39|   expect(moving).not.toEqual(start);
+     40|   for (const frame of result.frames) if (frame.bat) {
+     41|     expect(result.sampleBatAtTick(input.originTick + frame.elapsedSeco…
+       |                                                                                   ^
+     42|     expect(norm(delta(frame.bat.tip, frame.bat.grip))).toBeCloseTo(inp…
+     43|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/integration/browser/LivePitchTechnicalSkillsV75.test.ts > improves only bunt errors, obeys the declared motor ceiling and leaves takes and other swings unchanged
+Error: live pitch: authored motor rate is outside this finite reference model
+ ❯ assert src/integration/browser/LivePitchV1.ts:49:66
+     47| const clamp=(n:number,a:number,b:number)=>Math.max(a,Math.min(b,n));
+     48| const bounded=(n:number,a:number,b:number)=>Number.isFinite(n)&&n>=a&&…
+     49| function assert(v:unknown,message:string):asserts v {if(!v)throw new E…
+       |                                                                  ^
+     50| /** World axes: home to centre field is +z, first-base side is +x. A p…
+     51|  * facing home therefore releases right-handed pitches on world -x. He…
+ ❯ Module.simulateLivePitchV1 src/integration/browser/LivePitchV1.ts:233:3
+ ❯ src/integration/browser/LivePitchTechnicalSkillsV75.test.ts:78:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  2 failed | 27 passed (29)
+   Start at  03:00:34
+   Duration  3.44s (transform 1.60s, setup 0ms, collect 2.48s, tests 3.78s, environment 0ms, prepare 1.97s)
+

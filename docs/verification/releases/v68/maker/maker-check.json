@@ -1,0 +1,1519 @@
+{
+  "pass": true,
+  "phase": "complete",
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v68.html",
+  "smokeOnly": false,
+  "views": [
+    {
+      "width": 1200,
+      "players": [
+        {
+          "id": "0-b0",
+          "bats": "L",
+          "options": 178
+        },
+        {
+          "id": "0-b1",
+          "bats": "R",
+          "options": 495
+        },
+        {
+          "id": "0-b2",
+          "bats": "L",
+          "options": 178
+        },
+        {
+          "id": "0-b3",
+          "bats": "R",
+          "options": 495
+        },
+        {
+          "id": "0-b4",
+          "bats": "R",
+          "options": 495
+        },
+        {
+          "id": "0-b5",
+          "bats": "L",
+          "options": 178
+        },
+        {
+          "id": "0-b6",
+          "bats": "R",
+          "options": 495
+        },
+        {
+          "id": "0-b7",
+          "bats": "R",
+          "options": 495
+        },
+        {
+          "id": "0-b8",
+          "bats": "R",
+          "options": 495
+        },
+        {
+          "id": "0-p0",
+          "bats": "L",
+          "options": 178
+        },
+        {
+          "id": "1-b0",
+          "bats": "L",
+          "options": 178
+        },
+        {
+          "id": "1-b1",
+          "bats": "L",
+          "options": 178
+        },
+        {
+          "id": "1-b2",
+          "bats": "L",
+          "options": 178
+        },
+        {
+          "id": "1-b3",
+          "bats": "R",
+          "options": 495
+        },
+        {
+          "id": "1-b4",
+          "bats": "R",
+          "options": 495
+        },
+        {
+          "id": "1-b5",
+          "bats": "L",
+          "options": 178
+        },
+        {
+          "id": "1-b6",
+          "bats": "L",
+          "options": 178
+        },
+        {
+          "id": "1-b7",
+          "bats": "L",
+          "options": 178
+        },
+        {
+          "id": "1-b8",
+          "bats": "R",
+          "options": 495
+        },
+        {
+          "id": "1-p0",
+          "bats": "R",
+          "options": 495
+        }
+      ],
+      "explicitClips": [
+        {
+          "playerId": "0-b1",
+          "side": "R",
+          "clipId": "obp-103_1",
+          "cases": [
+            {
+              "level": 1,
+              "settings": {
+                "level": 1,
+                "angleDegreesByLevel": [
+                  -10,
+                  0,
+                  10,
+                  20
+                ],
+                "beforeSeconds": 0.1,
+                "afterSeconds": 0.06
+              },
+              "sharedCoreMatch": true
+            },
+            {
+              "level": 2,
+              "settings": {
+                "level": 2,
+                "angleDegreesByLevel": [
+                  -10,
+                  0,
+                  10,
+                  20
+                ],
+                "beforeSeconds": 0.1,
+                "afterSeconds": 0.06
+              },
+              "sharedCoreMatch": true
+            },
+            {
+              "level": 3,
+              "settings": {
+                "level": 3,
+                "angleDegreesByLevel": [
+                  -10,
+                  0,
+                  10,
+                  20
+                ],
+                "beforeSeconds": 0.1,
+                "afterSeconds": 0.06
+              },
+              "sharedCoreMatch": true
+            },
+            {
+              "level": 4,
+              "settings": {
+                "level": 4,
+                "angleDegreesByLevel": [
+                  -10,
+                  0,
+                  10,
+                  20
+                ],
+                "beforeSeconds": 0.1,
+                "afterSeconds": 0.06
+              },
+              "sharedCoreMatch": true
+            }
+          ],
+          "customAngle": 17,
+          "pixels": [
+            {
+              "view": "front",
+              "colored": 3628,
+              "width": 720,
+              "height": 360
+            },
+            {
+              "view": "side",
+              "colored": 5203,
+              "width": 720,
+              "height": 360
+            },
+            {
+              "view": "top",
+              "colored": 2793,
+              "width": 720,
+              "height": 360
+            }
+          ]
+        },
+        {
+          "playerId": "0-b0",
+          "side": "L",
+          "clipId": "obp-111_1",
+          "cases": [
+            {
+              "level": 1,
+              "settings": {
+                "level": 1,
+                "angleDegreesByLevel": [
+                  -10,
+                  0,
+                  10,
+                  20
+                ],
+                "beforeSeconds": 0.1,
+                "afterSeconds": 0.06
+              },
+              "sharedCoreMatch": true
+            },
+            {
+              "level": 2,
+              "settings": {
+                "level": 2,
+                "angleDegreesByLevel": [
+                  -10,
+                  0,
+                  10,
+                  20
+                ],
+                "beforeSeconds": 0.1,
+                "afterSeconds": 0.06
+              },
+              "sharedCoreMatch": true
+            },
+            {
+              "level": 3,
+              "settings": {
+                "level": 3,
+                "angleDegreesByLevel": [
+                  -10,
+                  0,
+                  10,
+                  20
+                ],
+                "beforeSeconds": 0.1,
+                "afterSeconds": 0.06
+              },
+              "sharedCoreMatch": true
+            },
+            {
+              "level": 4,
+              "settings": {
+                "level": 4,
+                "angleDegreesByLevel": [
+                  -10,
+                  0,
+                  10,
+                  20
+                ],
+                "beforeSeconds": 0.1,
+                "afterSeconds": 0.06
+              },
+              "sharedCoreMatch": true
+            }
+          ],
+          "customAngle": 17,
+          "pixels": [
+            {
+              "view": "front",
+              "colored": 3817,
+              "width": 720,
+              "height": 360
+            },
+            {
+              "view": "side",
+              "colored": 5547,
+              "width": 720,
+              "height": 360
+            },
+            {
+              "view": "top",
+              "colored": 2935,
+              "width": 720,
+              "height": 360
+            }
+          ]
+        }
+      ],
+      "comparisonSamples": 280,
+      "startup": {
+        "swing": {
+          "ready": true,
+          "error": null,
+          "playerId": "0-b0",
+          "clipId": "obp-51_3",
+          "explicitClipId": null,
+          "settings": {
+            "level": 2,
+            "angleDegreesByLevel": [
+              -10,
+              0,
+              10,
+              20
+            ],
+            "beforeSeconds": 0.1,
+            "afterSeconds": 0.06
+          },
+          "enabled": false,
+          "clockMs": 0,
+          "playing": false,
+          "clips": 673,
+          "sourceTick": 1019400,
+          "samples": [
+            {
+              "level": 0,
+              "tick": 300000,
+              "sourceTick": 1019400,
+              "orientation": {
+                "w": -0.015824479676880037,
+                "x": -0.9056270321777791,
+                "y": -0.42105169957628674,
+                "z": 0.048007611018921204
+              },
+              "state": {
+                "pose": {
+                  "grip": {
+                    "x": -0.9117547510619273,
+                    "y": 1.2174930654972234,
+                    "z": 0.21066858739125371
+                  },
+                  "tip": {
+                    "x": -0.2712433886529054,
+                    "y": 0.676912652111728,
+                    "z": 0.20080698057972096
+                  }
+                },
+                "linearVelocity": {
+                  "x": -5.401859788117327,
+                  "y": 1.2375929823723757,
+                  "z": 2.2179300297576936
+                },
+                "angularVelocity": {
+                  "x": -18.04100952152012,
+                  "y": -21.45258336453597,
+                  "z": 4.195543009915134
+                }
+              },
+              "sweetSpot": {
+                "x": -0.38770000000000027,
+                "y": 0.7751999999999999,
+                "z": 0.20259999999999967
+              },
+              "sweetSpotVelocity": {
+                "x": -3.373108165191593,
+                "y": 3.2907217680522276,
+                "z": 21.439671670432556
+              }
+            },
+            {
+              "level": 1,
+              "tick": 300000,
+              "sourceTick": 1019400,
+              "orientation": {
+                "w": 0.06155693413275889,
+                "x": -0.8978398808084374,
+                "y": -0.4358500383324945,
+                "z": 0.011359417926521169
+              },
+              "state": {
+                "pose": {
+                  "grip": {
+                    "x": -0.9234802837430645,
+                    "y": 1.1952463112663745,
+                    "z": 0.2851967550434845
+                  },
+                  "tip": {
+                    "x": -0.26863771472376385,
+                    "y": 0.6818563752741389,
+                    "z": 0.1842451655458919
+                  }
+                },
+                "linearVelocity": {
+                  "x": -5.4281045617743,
+                  "y": 0.6925454918535145,
+                  "z": 2.3847433374591267
+                },
+                "angularVelocity": {
+                  "x": -17.44563797606319,
+                  "y": -22.33325915654928,
+                  "z": 0.4113268415048934
+                }
+              },
+              "sweetSpot": {
+                "x": -0.38770000000000027,
+                "y": 0.7751999999999999,
+                "z": 0.20259999999999967
+              },
+              "sweetSpotVelocity": {
+                "x": -3.410673503399155,
+                "y": -0.5280267827800631,
+                "z": 21.678439144796403
+              }
+            },
+            {
+              "level": 2,
+              "tick": 300000,
+              "sourceTick": 1019400,
+              "orientation": {
+                "w": -0.015824479676880037,
+                "x": -0.9056270321777791,
+                "y": -0.42105169957628674,
+                "z": 0.048007611018921204
+              },
+              "state": {
+                "pose": {
+                  "grip": {
+                    "x": -0.9117547510619273,
+                    "y": 1.2174930654972234,
+                    "z": 0.21066858739125371
+                  },
+                  "tip": {
+                    "x": -0.2712433886529054,
+                    "y": 0.676912652111728,
+                    "z": 0.20080698057972096
+                  }
+                },
+                "linearVelocity": {
+                  "x": -5.401859788117327,
+                  "y": 1.2375929823723757,
+                  "z": 2.2179300297576936
+                },
+                "angularVelocity": {
+                  "x": -18.04100952152012,
+                  "y": -21.45258336453597,
+                  "z": 4.195543009915134
+                }
+              },
+              "sweetSpot": {
+                "x": -0.38770000000000027,
+                "y": 0.7751999999999999,
+                "z": 0.20259999999999967
+              },
+              "sweetSpotVelocity": {
+                "x": -3.373108165191593,
+                "y": 3.2907217680522276,
+                "z": 21.439671670432556
+              }
+            },
+            {
+              "level": 3,
+              "tick": 300000,
+              "sourceTick": 1019400,
+              "orientation": {
+                "w": -0.09308545964109581,
+                "x": -0.9065218149996952,
+                "y": -0.40304890314833625,
+                "z": 0.08429043720367917
+              },
+              "state": {
+                "pose": {
+                  "grip": {
+                    "x": -0.8996069572490738,
+                    "y": 1.2263009687440294,
+                    "z": 0.1334565034280648
+                  },
+                  "tip": {
+                    "x": -0.2739428983890951,
+                    "y": 0.6749553402791044,
+                    "z": 0.2179652214604296
+                  }
+                },
+                "linearVelocity": {
+                  "x": -5.36130391840081,
+                  "y": 1.7450368363741182,
+                  "z": 1.960154563200262
+                },
+                "angularVelocity": {
+                  "x": -18.60356824165614,
+                  "y": -19.920081682522202,
+                  "z": 7.771198952264656
+                }
+              },
+              "sweetSpot": {
+                "x": -0.38770000000000027,
+                "y": 0.7751999999999999,
+                "z": 0.20259999999999967
+              },
+              "sweetSpotVelocity": {
+                "x": -3.233052642259775,
+                "y": 7.009483403147813,
+                "z": 20.54947062135995
+              }
+            },
+            {
+              "level": 4,
+              "tick": 300000,
+              "sourceTick": 1019400,
+              "orientation": {
+                "w": -0.1696380030509056,
+                "x": -0.9005174194366259,
+                "y": -0.38197866119984525,
+                "z": 0.11993176226535959
+              },
+              "state": {
+                "pose": {
+                  "grip": {
+                    "x": -0.8874060068724273,
+                    "y": 1.2214023973236525,
+                    "z": 0.055906553253939534
+                  },
+                  "tip": {
+                    "x": -0.27665422069501655,
+                    "y": 0.6760439117058549,
+                    "z": 0.23519854372134633
+                  }
+                },
+                "linearVelocity": {
+                  "x": -5.307669222203828,
+                  "y": 2.19945862913388,
+                  "z": 1.6192493148974991
+                },
+                "angularVelocity": {
+                  "x": -19.116221074428367,
+                  "y": -17.782318398632704,
+                  "z": 11.029650172114376
+                }
+              },
+              "sweetSpot": {
+                "x": -0.38770000000000027,
+                "y": 0.7751999999999999,
+                "z": 0.20259999999999967
+              },
+              "sweetSpotVelocity": {
+                "x": -2.9947624507964687,
+                "y": 10.5152654320085,
+                "z": 19.0348843059912
+              }
+            }
+          ]
+        },
+        "colorScheme": "light",
+        "background": "rgb(243, 248, 244)",
+        "panels": [
+          "rgb(255, 255, 255)"
+        ],
+        "libraryClips": 673,
+        "defaultIds": [
+          "obp-123_6",
+          "obp-190_7",
+          "obp-103_5",
+          "obp-185_5",
+          "obp-254_3",
+          "obp-42_5",
+          "obp-51_3",
+          "obp-313_7",
+          "obp-353_2",
+          "obp-273_4",
+          "obp-56_1",
+          "obp-358_7"
+        ]
+      },
+      "rankBoundaries": {
+        "values": [
+          0,
+          19,
+          19.999,
+          20,
+          39,
+          40,
+          49,
+          50,
+          59,
+          60,
+          69,
+          70,
+          79,
+          80,
+          89,
+          90,
+          100,
+          -1,
+          101,
+          null
+        ],
+        "ranks": [
+          "G",
+          "G",
+          "G",
+          "F",
+          "F",
+          "E",
+          "E",
+          "D",
+          "D",
+          "C",
+          "C",
+          "B",
+          "B",
+          "A",
+          "A",
+          "S",
+          "S",
+          "範囲外",
+          "範囲外",
+          "未算出"
+        ]
+      },
+      "invalidAngle": {
+        "requested": 31,
+        "restored": 17,
+        "rosterUnchanged": true
+      },
+      "invalid": {
+        "cases": [
+          {
+            "name": "unknown-clip",
+            "message": "大谷翔平の右打ち・左打ちに合う打ち方を選んでください。",
+            "unchanged": true
+          },
+          {
+            "name": "wrong-handed-clip",
+            "message": "大谷翔平の右打ち・左打ちに合う打ち方を選んでください。",
+            "unchanged": true
+          },
+          {
+            "name": "unknown-impact-key",
+            "message": "invalid impact trajectory settings",
+            "unchanged": true
+          },
+          {
+            "name": "invalid-impact-level",
+            "message": "invalid impact trajectory settings",
+            "unchanged": true
+          },
+          {
+            "name": "unsupported-source-window",
+            "message": "大谷翔平の打ち方には、指定した前後の時間の記録がありません。時間を短くしてください。",
+            "unchanged": true
+          }
+        ],
+        "stateUnknownRejected": true,
+        "stateUnchanged": true
+      },
+      "visionEdit": {
+        "selectedId": "0-b0",
+        "requested": 90,
+        "inputValue": "90",
+        "projection": {
+          "id": "vision",
+          "label": "選球眼",
+          "section": "batter",
+          "value": 90,
+          "min": 1,
+          "max": 100,
+          "unit": "",
+          "linkedPaths": [
+            "plateVision",
+            "zoneJudgmentStdMeters"
+          ],
+          "note": "絶対能力1〜100。45が視点の基準。リーグ比較で変わらず、変更時はコース判断の誤差も調整。積極性は別設定"
+        },
+        "physical": {
+          "basis": "EXPLICIT_AUTHORED_SI_V1",
+          "batLengthM": 0.84,
+          "batMassKg": 0.88,
+          "swingRate": 1,
+          "timingStdSeconds": 0.008,
+          "aimStdMeters": 0.016,
+          "chaseMarginMeters": 0.12,
+          "releaseSpeedMps": 36,
+          "spinRadPerSecond": {
+            "x": 210,
+            "y": 12,
+            "z": 8
+          },
+          "commandStdMeters": 0.16,
+          "reactionSeconds": 0.2,
+          "topSpeedMps": 8.9,
+          "accelerationMps2": 5.8,
+          "gloveSpeedMps": 11,
+          "gloveReachMeters": 1.35,
+          "gloveRadiusMeters": 0.11,
+          "retentionCapacityJ": 160,
+          "captureDissipationPowerW": 3000,
+          "transferSeconds": 0.44,
+          "throwSpeedMps": 39,
+          "maximumPitchSpeedMps": 40,
+          "maximumSweetSpotSpeedMps": 40,
+          "targetSweetSpotSpeedMps": 34.5,
+          "motorLatencySeconds": 0.08,
+          "technicalTimingOffsetSeconds": 0,
+          "sweetSpotT": 0.825,
+          "attackAngleDegrees": 16,
+          "pullAngleDegrees": 7,
+          "badBallControl": 0.45,
+          "defensiveDecisionSeconds": 0.07,
+          "preContactSeconds": 0.16,
+          "followThroughSeconds": 0.32,
+          "contactDepthMeters": 0.15,
+          "throwDirectionStdRadians": 0.004,
+          "swingDecision": {
+            "approach": "AUTO",
+            "threshold": 0.5,
+            "aggressionWeight": 0.5
+          },
+          "zoneJudgmentStdMeters": 0.02450496683266888,
+          "plateVision": 90,
+          "pitchReleaseHeightMeters": 1.6598,
+          "pitchReleaseSideMeters": 0.4825,
+          "pitchReleaseExtensionMeters": 1.54,
+          "clipId": "obp-111_1",
+          "impactTrajectory": {
+            "level": 3,
+            "angleDegreesByLevel": [
+              -10,
+              0,
+              17,
+              20
+            ],
+            "beforeSeconds": 0.1,
+            "afterSeconds": 0.06
+          }
+        },
+        "rosterStatus": "20選手 · 入力値の形式・範囲を確認しました。通常試合への反映には「試合用能力JSON」を読み込んでください。",
+        "swing": null
+      },
+      "absoluteVision": {
+        "value": 90,
+        "rank": "S",
+        "unchangedAcrossLeagues": [
+          "MLB",
+          "NLB",
+          "NPB",
+          "KBO",
+          "CUSTOM"
+        ]
+      },
+      "help": {
+        "delayMs": 1000,
+        "notVisibleAt600ms": true,
+        "visibleAfter1100ms": true,
+        "clickImmediate": true,
+        "touchImmediate": false,
+        "viewportClamped": true
+      },
+      "json": {
+        "realRosterDownload": true,
+        "fileInputReload": true,
+        "realFullDownload": true,
+        "freshDefaultsRetained": true,
+        "fullReloadRoundTrip": true,
+        "authoredRosterSha256": "758b76eaee6e2a9f9d5ee351a83959cca2da32105770c36a30293a10c5cdc39b"
+      }
+    },
+    {
+      "width": 390,
+      "players": [
+        {
+          "id": "0-b0",
+          "bats": "L",
+          "options": 178
+        },
+        {
+          "id": "0-b1",
+          "bats": "R",
+          "options": 495
+        },
+        {
+          "id": "0-b2",
+          "bats": "L",
+          "options": 178
+        },
+        {
+          "id": "0-b3",
+          "bats": "R",
+          "options": 495
+        },
+        {
+          "id": "0-b4",
+          "bats": "R",
+          "options": 495
+        },
+        {
+          "id": "0-b5",
+          "bats": "L",
+          "options": 178
+        },
+        {
+          "id": "0-b6",
+          "bats": "R",
+          "options": 495
+        },
+        {
+          "id": "0-b7",
+          "bats": "R",
+          "options": 495
+        },
+        {
+          "id": "0-b8",
+          "bats": "R",
+          "options": 495
+        },
+        {
+          "id": "0-p0",
+          "bats": "L",
+          "options": 178
+        },
+        {
+          "id": "1-b0",
+          "bats": "L",
+          "options": 178
+        },
+        {
+          "id": "1-b1",
+          "bats": "L",
+          "options": 178
+        },
+        {
+          "id": "1-b2",
+          "bats": "L",
+          "options": 178
+        },
+        {
+          "id": "1-b3",
+          "bats": "R",
+          "options": 495
+        },
+        {
+          "id": "1-b4",
+          "bats": "R",
+          "options": 495
+        },
+        {
+          "id": "1-b5",
+          "bats": "L",
+          "options": 178
+        },
+        {
+          "id": "1-b6",
+          "bats": "L",
+          "options": 178
+        },
+        {
+          "id": "1-b7",
+          "bats": "L",
+          "options": 178
+        },
+        {
+          "id": "1-b8",
+          "bats": "R",
+          "options": 495
+        },
+        {
+          "id": "1-p0",
+          "bats": "R",
+          "options": 495
+        }
+      ],
+      "explicitClips": [
+        {
+          "playerId": "0-b1",
+          "side": "R",
+          "clipId": "obp-103_1",
+          "cases": [
+            {
+              "level": 1,
+              "settings": {
+                "level": 1,
+                "angleDegreesByLevel": [
+                  -10,
+                  0,
+                  10,
+                  20
+                ],
+                "beforeSeconds": 0.1,
+                "afterSeconds": 0.06
+              },
+              "sharedCoreMatch": true
+            },
+            {
+              "level": 2,
+              "settings": {
+                "level": 2,
+                "angleDegreesByLevel": [
+                  -10,
+                  0,
+                  10,
+                  20
+                ],
+                "beforeSeconds": 0.1,
+                "afterSeconds": 0.06
+              },
+              "sharedCoreMatch": true
+            },
+            {
+              "level": 3,
+              "settings": {
+                "level": 3,
+                "angleDegreesByLevel": [
+                  -10,
+                  0,
+                  10,
+                  20
+                ],
+                "beforeSeconds": 0.1,
+                "afterSeconds": 0.06
+              },
+              "sharedCoreMatch": true
+            },
+            {
+              "level": 4,
+              "settings": {
+                "level": 4,
+                "angleDegreesByLevel": [
+                  -10,
+                  0,
+                  10,
+                  20
+                ],
+                "beforeSeconds": 0.1,
+                "afterSeconds": 0.06
+              },
+              "sharedCoreMatch": true
+            }
+          ],
+          "customAngle": 17,
+          "pixels": [
+            {
+              "view": "front",
+              "colored": 3628,
+              "width": 720,
+              "height": 360
+            },
+            {
+              "view": "side",
+              "colored": 5203,
+              "width": 720,
+              "height": 360
+            },
+            {
+              "view": "top",
+              "colored": 2793,
+              "width": 720,
+              "height": 360
+            }
+          ]
+        },
+        {
+          "playerId": "0-b0",
+          "side": "L",
+          "clipId": "obp-111_1",
+          "cases": [
+            {
+              "level": 1,
+              "settings": {
+                "level": 1,
+                "angleDegreesByLevel": [
+                  -10,
+                  0,
+                  10,
+                  20
+                ],
+                "beforeSeconds": 0.1,
+                "afterSeconds": 0.06
+              },
+              "sharedCoreMatch": true
+            },
+            {
+              "level": 2,
+              "settings": {
+                "level": 2,
+                "angleDegreesByLevel": [
+                  -10,
+                  0,
+                  10,
+                  20
+                ],
+                "beforeSeconds": 0.1,
+                "afterSeconds": 0.06
+              },
+              "sharedCoreMatch": true
+            },
+            {
+              "level": 3,
+              "settings": {
+                "level": 3,
+                "angleDegreesByLevel": [
+                  -10,
+                  0,
+                  10,
+                  20
+                ],
+                "beforeSeconds": 0.1,
+                "afterSeconds": 0.06
+              },
+              "sharedCoreMatch": true
+            },
+            {
+              "level": 4,
+              "settings": {
+                "level": 4,
+                "angleDegreesByLevel": [
+                  -10,
+                  0,
+                  10,
+                  20
+                ],
+                "beforeSeconds": 0.1,
+                "afterSeconds": 0.06
+              },
+              "sharedCoreMatch": true
+            }
+          ],
+          "customAngle": 17,
+          "pixels": [
+            {
+              "view": "front",
+              "colored": 3817,
+              "width": 720,
+              "height": 360
+            },
+            {
+              "view": "side",
+              "colored": 5547,
+              "width": 720,
+              "height": 360
+            },
+            {
+              "view": "top",
+              "colored": 2935,
+              "width": 720,
+              "height": 360
+            }
+          ]
+        }
+      ],
+      "comparisonSamples": 280,
+      "startup": {
+        "swing": {
+          "ready": true,
+          "error": null,
+          "playerId": "0-b0",
+          "clipId": "obp-51_3",
+          "explicitClipId": null,
+          "settings": {
+            "level": 2,
+            "angleDegreesByLevel": [
+              -10,
+              0,
+              10,
+              20
+            ],
+            "beforeSeconds": 0.1,
+            "afterSeconds": 0.06
+          },
+          "enabled": false,
+          "clockMs": 0,
+          "playing": false,
+          "clips": 673,
+          "sourceTick": 1019400,
+          "samples": [
+            {
+              "level": 0,
+              "tick": 300000,
+              "sourceTick": 1019400,
+              "orientation": {
+                "w": -0.015824479676880037,
+                "x": -0.9056270321777791,
+                "y": -0.42105169957628674,
+                "z": 0.048007611018921204
+              },
+              "state": {
+                "pose": {
+                  "grip": {
+                    "x": -0.9117547510619273,
+                    "y": 1.2174930654972234,
+                    "z": 0.21066858739125371
+                  },
+                  "tip": {
+                    "x": -0.2712433886529054,
+                    "y": 0.676912652111728,
+                    "z": 0.20080698057972096
+                  }
+                },
+                "linearVelocity": {
+                  "x": -5.401859788117327,
+                  "y": 1.2375929823723757,
+                  "z": 2.2179300297576936
+                },
+                "angularVelocity": {
+                  "x": -18.04100952152012,
+                  "y": -21.45258336453597,
+                  "z": 4.195543009915134
+                }
+              },
+              "sweetSpot": {
+                "x": -0.38770000000000027,
+                "y": 0.7751999999999999,
+                "z": 0.20259999999999967
+              },
+              "sweetSpotVelocity": {
+                "x": -3.373108165191593,
+                "y": 3.2907217680522276,
+                "z": 21.439671670432556
+              }
+            },
+            {
+              "level": 1,
+              "tick": 300000,
+              "sourceTick": 1019400,
+              "orientation": {
+                "w": 0.06155693413275889,
+                "x": -0.8978398808084374,
+                "y": -0.4358500383324945,
+                "z": 0.011359417926521169
+              },
+              "state": {
+                "pose": {
+                  "grip": {
+                    "x": -0.9234802837430645,
+                    "y": 1.1952463112663745,
+                    "z": 0.2851967550434845
+                  },
+                  "tip": {
+                    "x": -0.26863771472376385,
+                    "y": 0.6818563752741389,
+                    "z": 0.1842451655458919
+                  }
+                },
+                "linearVelocity": {
+                  "x": -5.4281045617743,
+                  "y": 0.6925454918535145,
+                  "z": 2.3847433374591267
+                },
+                "angularVelocity": {
+                  "x": -17.44563797606319,
+                  "y": -22.33325915654928,
+                  "z": 0.4113268415048934
+                }
+              },
+              "sweetSpot": {
+                "x": -0.38770000000000027,
+                "y": 0.7751999999999999,
+                "z": 0.20259999999999967
+              },
+              "sweetSpotVelocity": {
+                "x": -3.410673503399155,
+                "y": -0.5280267827800631,
+                "z": 21.678439144796403
+              }
+            },
+            {
+              "level": 2,
+              "tick": 300000,
+              "sourceTick": 1019400,
+              "orientation": {
+                "w": -0.015824479676880037,
+                "x": -0.9056270321777791,
+                "y": -0.42105169957628674,
+                "z": 0.048007611018921204
+              },
+              "state": {
+                "pose": {
+                  "grip": {
+                    "x": -0.9117547510619273,
+                    "y": 1.2174930654972234,
+                    "z": 0.21066858739125371
+                  },
+                  "tip": {
+                    "x": -0.2712433886529054,
+                    "y": 0.676912652111728,
+                    "z": 0.20080698057972096
+                  }
+                },
+                "linearVelocity": {
+                  "x": -5.401859788117327,
+                  "y": 1.2375929823723757,
+                  "z": 2.2179300297576936
+                },
+                "angularVelocity": {
+                  "x": -18.04100952152012,
+                  "y": -21.45258336453597,
+                  "z": 4.195543009915134
+                }
+              },
+              "sweetSpot": {
+                "x": -0.38770000000000027,
+                "y": 0.7751999999999999,
+                "z": 0.20259999999999967
+              },
+              "sweetSpotVelocity": {
+                "x": -3.373108165191593,
+                "y": 3.2907217680522276,
+                "z": 21.439671670432556
+              }
+            },
+            {
+              "level": 3,
+              "tick": 300000,
+              "sourceTick": 1019400,
+              "orientation": {
+                "w": -0.09308545964109581,
+                "x": -0.9065218149996952,
+                "y": -0.40304890314833625,
+                "z": 0.08429043720367917
+              },
+              "state": {
+                "pose": {
+                  "grip": {
+                    "x": -0.8996069572490738,
+                    "y": 1.2263009687440294,
+                    "z": 0.1334565034280648
+                  },
+                  "tip": {
+                    "x": -0.2739428983890951,
+                    "y": 0.6749553402791044,
+                    "z": 0.2179652214604296
+                  }
+                },
+                "linearVelocity": {
+                  "x": -5.36130391840081,
+                  "y": 1.7450368363741182,
+                  "z": 1.960154563200262
+                },
+                "angularVelocity": {
+                  "x": -18.60356824165614,
+                  "y": -19.920081682522202,
+                  "z": 7.771198952264656
+                }
+              },
+              "sweetSpot": {
+                "x": -0.38770000000000027,
+                "y": 0.7751999999999999,
+                "z": 0.20259999999999967
+              },
+              "sweetSpotVelocity": {
+                "x": -3.233052642259775,
+                "y": 7.009483403147813,
+                "z": 20.54947062135995
+              }
+            },
+            {
+              "level": 4,
+              "tick": 300000,
+              "sourceTick": 1019400,
+              "orientation": {
+                "w": -0.1696380030509056,
+                "x": -0.9005174194366259,
+                "y": -0.38197866119984525,
+                "z": 0.11993176226535959
+              },
+              "state": {
+                "pose": {
+                  "grip": {
+                    "x": -0.8874060068724273,
+                    "y": 1.2214023973236525,
+                    "z": 0.055906553253939534
+                  },
+                  "tip": {
+                    "x": -0.27665422069501655,
+                    "y": 0.6760439117058549,
+                    "z": 0.23519854372134633
+                  }
+                },
+                "linearVelocity": {
+                  "x": -5.307669222203828,
+                  "y": 2.19945862913388,
+                  "z": 1.6192493148974991
+                },
+                "angularVelocity": {
+                  "x": -19.116221074428367,
+                  "y": -17.782318398632704,
+                  "z": 11.029650172114376
+                }
+              },
+              "sweetSpot": {
+                "x": -0.38770000000000027,
+                "y": 0.7751999999999999,
+                "z": 0.20259999999999967
+              },
+              "sweetSpotVelocity": {
+                "x": -2.9947624507964687,
+                "y": 10.5152654320085,
+                "z": 19.0348843059912
+              }
+            }
+          ]
+        },
+        "colorScheme": "light",
+        "background": "rgb(243, 248, 244)",
+        "panels": [
+          "rgb(255, 255, 255)"
+        ],
+        "libraryClips": 673,
+        "defaultIds": [
+          "obp-123_6",
+          "obp-190_7",
+          "obp-103_5",
+          "obp-185_5",
+          "obp-254_3",
+          "obp-42_5",
+          "obp-51_3",
+          "obp-313_7",
+          "obp-353_2",
+          "obp-273_4",
+          "obp-56_1",
+          "obp-358_7"
+        ]
+      },
+      "rankBoundaries": {
+        "values": [
+          0,
+          19,
+          19.999,
+          20,
+          39,
+          40,
+          49,
+          50,
+          59,
+          60,
+          69,
+          70,
+          79,
+          80,
+          89,
+          90,
+          100,
+          -1,
+          101,
+          null
+        ],
+        "ranks": [
+          "G",
+          "G",
+          "G",
+          "F",
+          "F",
+          "E",
+          "E",
+          "D",
+          "D",
+          "C",
+          "C",
+          "B",
+          "B",
+          "A",
+          "A",
+          "S",
+          "S",
+          "範囲外",
+          "範囲外",
+          "未算出"
+        ]
+      },
+      "invalidAngle": {
+        "requested": 31,
+        "restored": 17,
+        "rosterUnchanged": true
+      },
+      "invalid": {
+        "cases": [
+          {
+            "name": "unknown-clip",
+            "message": "大谷翔平の右打ち・左打ちに合う打ち方を選んでください。",
+            "unchanged": true
+          },
+          {
+            "name": "wrong-handed-clip",
+            "message": "大谷翔平の右打ち・左打ちに合う打ち方を選んでください。",
+            "unchanged": true
+          },
+          {
+            "name": "unknown-impact-key",
+            "message": "invalid impact trajectory settings",
+            "unchanged": true
+          },
+          {
+            "name": "invalid-impact-level",
+            "message": "invalid impact trajectory settings",
+            "unchanged": true
+          },
+          {
+            "name": "unsupported-source-window",
+            "message": "大谷翔平の打ち方には、指定した前後の時間の記録がありません。時間を短くしてください。",
+            "unchanged": true
+          }
+        ],
+        "stateUnknownRejected": true,
+        "stateUnchanged": true
+      },
+      "visionEdit": {
+        "selectedId": "0-b0",
+        "requested": 90,
+        "inputValue": "90",
+        "projection": {
+          "id": "vision",
+          "label": "選球眼",
+          "section": "batter",
+          "value": 90,
+          "min": 1,
+          "max": 100,
+          "unit": "",
+          "linkedPaths": [
+            "plateVision",
+            "zoneJudgmentStdMeters"
+          ],
+          "note": "絶対能力1〜100。45が視点の基準。リーグ比較で変わらず、変更時はコース判断の誤差も調整。積極性は別設定"
+        },
+        "physical": {
+          "basis": "EXPLICIT_AUTHORED_SI_V1",
+          "batLengthM": 0.84,
+          "batMassKg": 0.88,
+          "swingRate": 1,
+          "timingStdSeconds": 0.008,
+          "aimStdMeters": 0.016,
+          "chaseMarginMeters": 0.12,
+          "releaseSpeedMps": 36,
+          "spinRadPerSecond": {
+            "x": 210,
+            "y": 12,
+            "z": 8
+          },
+          "commandStdMeters": 0.16,
+          "reactionSeconds": 0.2,
+          "topSpeedMps": 8.9,
+          "accelerationMps2": 5.8,
+          "gloveSpeedMps": 11,
+          "gloveReachMeters": 1.35,
+          "gloveRadiusMeters": 0.11,
+          "retentionCapacityJ": 160,
+          "captureDissipationPowerW": 3000,
+          "transferSeconds": 0.44,
+          "throwSpeedMps": 39,
+          "maximumPitchSpeedMps": 40,
+          "maximumSweetSpotSpeedMps": 40,
+          "targetSweetSpotSpeedMps": 34.5,
+          "motorLatencySeconds": 0.08,
+          "technicalTimingOffsetSeconds": 0,
+          "sweetSpotT": 0.825,
+          "attackAngleDegrees": 16,
+          "pullAngleDegrees": 7,
+          "badBallControl": 0.45,
+          "defensiveDecisionSeconds": 0.07,
+          "preContactSeconds": 0.16,
+          "followThroughSeconds": 0.32,
+          "contactDepthMeters": 0.15,
+          "throwDirectionStdRadians": 0.004,
+          "swingDecision": {
+            "approach": "AUTO",
+            "threshold": 0.5,
+            "aggressionWeight": 0.5
+          },
+          "zoneJudgmentStdMeters": 0.02450496683266888,
+          "plateVision": 90,
+          "pitchReleaseHeightMeters": 1.6598,
+          "pitchReleaseSideMeters": 0.4825,
+          "pitchReleaseExtensionMeters": 1.54,
+          "clipId": "obp-111_1",
+          "impactTrajectory": {
+            "level": 3,
+            "angleDegreesByLevel": [
+              -10,
+              0,
+              17,
+              20
+            ],
+            "beforeSeconds": 0.1,
+            "afterSeconds": 0.06
+          }
+        },
+        "rosterStatus": "20選手 · 入力値の形式・範囲を確認しました。通常試合への反映には「試合用能力JSON」を読み込んでください。",
+        "swing": null
+      },
+      "absoluteVision": {
+        "value": 90,
+        "rank": "S",
+        "unchangedAcrossLeagues": [
+          "MLB",
+          "NLB",
+          "NPB",
+          "KBO",
+          "CUSTOM"
+        ]
+      },
+      "help": {
+        "delayMs": 1000,
+        "notVisibleAt600ms": true,
+        "visibleAfter1100ms": true,
+        "clickImmediate": true,
+        "touchImmediate": true,
+        "viewportClamped": true
+      },
+      "json": {
+        "realRosterDownload": true,
+        "fileInputReload": true,
+        "realFullDownload": true,
+        "freshDefaultsRetained": true,
+        "fullReloadRoundTrip": true,
+        "authoredRosterSha256": "758b76eaee6e2a9f9d5ee351a83959cca2da32105770c36a30293a10c5cdc39b"
+      }
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "errors": [],
+      "external": []
+    }
+  ],
+  "scope": "Actual maker UI / measured form selection / shared Core preview / saved player settings. Game integration is separately verified.",
+  "sha256": "ed10241a66c31b90a177adc17b7a59150b7c92a60150594b6dddc7cb934ab949",
+  "inputCount": 81
+}

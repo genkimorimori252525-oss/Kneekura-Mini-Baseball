@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-PITCH-AUTHORING-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePitchAuthoringV78.test.ts"
+  ],
+  "observed_at": "2026-10-19T19:30:49.524+00:00",
+  "elapsed_ms": 936,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-PITCH-AUTHORING-RED_292c53b5afdc48dd944303ef7f85cb44.log",
+  "output_sha256": "4f889a22444e5aedf1814b6565ef5513d10172052fe4199d128a83a8fdbb800f",
+  "receipt_id": "MB-20261020-V78-PITCH-AUTHORING-RED_292c53b5afdc48dd944303ef7f85cb44"
+}

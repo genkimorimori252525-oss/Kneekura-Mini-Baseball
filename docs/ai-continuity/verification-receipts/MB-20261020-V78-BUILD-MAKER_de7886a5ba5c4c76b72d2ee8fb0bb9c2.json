@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-BUILD-MAKER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-maker.mjs",
+    "../../outputs/にーくら野球メーカー_v78_球種と縫い目物理版.html",
+    "--executable-traits",
+    "--measured-library",
+    "--ball-comparison",
+    "--batter-comparison",
+    "--bat-orbit",
+    "--player-swing-preview",
+    "--whole-arc",
+    "--equipment-preview",
+    "--technical-traits",
+    "--ball-display-fix",
+    "--pitcher-workbench",
+    "--pitch-library",
+    "--match-renderer=../../outputs/ばせぼーるlv78_TBD_vs_LAD_球種と縫い目物理版.html",
+    "--roster=docs/demos/live-game-roster-v62.json",
+    "--catalog=docs/demos/live-game-roster-catalog-v77.json"
+  ],
+  "observed_at": "2026-10-19T19:52:10.297+00:00",
+  "elapsed_ms": 2391,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-BUILD-MAKER_de7886a5ba5c4c76b72d2ee8fb0bb9c2.log",
+  "output_sha256": "69620d948c019351c12c2b244a87290d27a3f5b02bcf9ba2fb94f451d00974d3",
+  "receipt_id": "MB-20261020-V78-BUILD-MAKER_de7886a5ba5c4c76b72d2ee8fb0bb9c2"
+}

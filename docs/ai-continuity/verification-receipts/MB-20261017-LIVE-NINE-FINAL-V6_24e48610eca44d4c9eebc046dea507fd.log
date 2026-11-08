@@ -1,0 +1,27 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/GroundedActorContactResponseV1.test.ts (4 tests) 4ms
+ ✓ src/core/sim/fielding/GroundWallRollingCurveV1.test.ts (4 tests) 23ms
+ ✓ src/integration/browser/PlayableMatchRulesV1.test.ts (21 tests) 11ms
+ ✓ src/integration/browser/LivePitchV1.test.ts (11 tests) 916ms
+stdout | src/core/sim/fielding/LiveFieldForecastV1.test.ts > measures process CPU outside the browser-neutral helper while reusing one kernel for nine defenders
+{"benchmark":"EXPLICIT_20_OBSERVATIONS_9_DEFENDERS_8_SECOND_HYPOTHESES","hypotheses":20,"sharedQueries":1440,"wallMilliseconds":872.2871000000001,"processCpuUserMilliseconds":906,"processCpuSystemMilliseconds":188,"meanBuildWallMilliseconds":43.40477499999999,"mean72SamplesWallMilliseconds":0.038004999999816394}
+
+ ✓ src/core/sim/fielding/LiveFieldForecastV1.test.ts (5 tests) 1128ms
+   ✓ measures process CPU outside the browser-neutral helper while reusing one kernel for nine defenders 873ms
+ ✓ src/core/sim/fielding/LiveFieldPlayV1.test.ts (16 tests) 3000ms
+   ✓ runs the complete actual base path after a fair over-fence flight instead of teleporting runners 504ms
+   ✓ derives two force retirements from actual pickup, two throws, receptions and base contacts 354ms
+   ✓ catches an ordinary high center-field fly using a causal aero-ground forecast 614ms
+   ✓ keeps bodies, independent gloves and a possessed ball inside the physical fence through pickup and release 371ms
+ ✓ src/integration/browser/LiveBaseballMatchV1.test.ts (4 tests) 71952ms
+   ✓ does not pre-generate an initial pitch, and freezes observations independently of later issues 311ms
+   ✓ plays a mixed physical game through regulation without a replay frontier or old engine result 70160ms
+   ✓ does not derive SI or alter results from presentation names or league labels 1317ms
+
+ Test Files  7 passed (7)
+      Tests  65 passed (65)
+   Start at  09:42:41
+   Duration  72.95s (transform 877ms, setup 0ms, collect 2.23s, tests 77.03s, environment 1ms, prepare 1.42s)
+

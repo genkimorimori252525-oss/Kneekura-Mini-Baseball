@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-BAT-LENGTH-MAKER-REGRESSION",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker.mjs",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/にーくら野球メーカー_バット長調整版.html",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/bat-length-maker-regression"
+  ],
+  "observed_at": "2026-10-15T17:36:19.615+00:00",
+  "elapsed_ms": 9687,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-BAT-LENGTH-MAKER-REGRESSION_a04be391bd8e44e8b5c2e012c3609c11.log",
+  "output_sha256": "ba36e2242d862a2ce3cd8a508b7a0278cad406544cded25c8c7d89e36aae483d",
+  "receipt_id": "MB-20261016-BAT-LENGTH-MAKER-REGRESSION_a04be391bd8e44e8b5c2e012c3609c11"
+}

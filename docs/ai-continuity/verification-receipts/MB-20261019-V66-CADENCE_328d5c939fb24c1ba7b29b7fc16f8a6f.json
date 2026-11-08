@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V66-CADENCE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v56-cadence.mjs",
+    "../../outputs/ばせぼーるlv66_TBD_vs_LAD_スイングと走者視点の分離版.html",
+    "../../outputs/カメラワーク調整室_v66.html",
+    "../../outputs/verification-v66-cadence"
+  ],
+  "observed_at": "2026-10-19T10:12:03.278+00:00",
+  "elapsed_ms": 8687,
+  "git_head": "bd0965b06ee331986db7f8f63e26bd344fce5e13",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V66-CADENCE_328d5c939fb24c1ba7b29b7fc16f8a6f.log",
+  "output_sha256": "c789595b924a3b8ac21f4b40324172243aa445278dcd501a1e6fce3e02e855de",
+  "receipt_id": "MB-20261019-V66-CADENCE_328d5c939fb24c1ba7b29b7fc16f8a6f"
+}

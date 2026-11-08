@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V87-DATA-GREEN-FINAL",
+  "result": "FAIL",
+  "exit_code": 124,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/BatterCourseProfileV87.test.ts",
+    "src/integration/browser/LiveSeasonCourseV87.test.ts",
+    "src/integration/browser/BatterCourseProfileV79.test.ts",
+    "src/integration/browser/LiveSeasonV79.test.ts",
+    "src/integration/browser/LiveCourseScoringV79.test.ts",
+    "src/integration/browser/LivePhysicalRosterV1.test.ts"
+  ],
+  "observed_at": "2026-10-20T17:10:43.516+00:00",
+  "elapsed_ms": 120046,
+  "git_head": "9f6b6ed69d8682f417490d4b761914f1b4a6d6a1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V87-DATA-GREEN-FINAL_1b6e3e01d8f44a61bd78a77b1260cd92.log",
+  "output_sha256": "37e06d10dd10ae91399f8d5335c5935609636fb0bdb10d19823ece124968c41c",
+  "receipt_id": "MB-20261021-V87-DATA-GREEN-FINAL_1b6e3e01d8f44a61bd78a77b1260cd92"
+}

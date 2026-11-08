@@ -1,0 +1,35 @@
+# V186: 日程生成時の正式起点を保持する
+
+2026-10-28 JST / MB-20261027-REALISM-DEBUG-PLAN Task5 SPIN-03。前goal turnはV184/V185のSource・新Native受入・通常公開でprogress。成功済みSource/テスト/Native/設定の再検証は行わない。
+
+## 確認した欠落と判断
+
+WorldLeagueScheduleはordinal(開催日) = ordinal(seasonDayOne) + game.day - 1を使う。一方、ClubSeasonPlan.startsOnDayには共有起点の定義がなく、season advanceはgame.dayと直接比較するだけ。startsOnDayをcareer通算日へ読み替える根拠はない。National selectionは明示careerDayOneをaccepted World cycleの開始年に照合し、career内での起点変更を拒否するが、国内日程のseasonDayOneを代替しない。
+
+国内日程生成runtimeはseasonDayOneを受け取っているため、その正式Sourceを追加保存する。新しいworld_domestic_calendar_origins表は不変・追加のみとし、既存BaseScheduleSnapshot/保存済み行/物理を変更しない。新archive methodsとruntimeの追加戻り値は内部APIの追加であり、既存入力を変更しない。既存DBに起点がなければnullとし、ID文字列のparseや暗黙のJan1/Club開始日で埋めない。
+
+bindingの登録・読取では、同Native接続のaccepted World cycleと生成パラメータから原日程を再計算し、正規archiveの全baseScheduleと照合する。career/season/Source/hash/base hashを保持し、同一登録の再開はidempotent、不一致は拒否する。consumer readは実Nativeの同read-only snapshotを必要とし、schemaの作成・修復を行わない。runtimeは従来の日程初期化後にこの追加段階を行い、途中失敗は同じ入力で再開できる。
+
+Coreにはtimezoneに依存しない厳密なGregorian日付変換を追加し、正式な起点と明示dayからの変換にだけ使う。pure入力/合成例自体はNative authorityを与えない。career通算日の確定には別の正式career起点が必要で、日内観測順・独立打球population・認識model・表示joinも今回のorigin保存だけで完了にしない。
+
+## 検証・復旧
+
+限定TDDで年境界/閏日/day0/不正日付とoverflow、実Nativeの日程とorigin保存・reopen・再認証・競合/改変拒否・非消費を検査する。Source確定後だけRootが全型を一度行う。旧9回/Native投球/キレgrid/既済V185受入は実行しない。私的DBは公開しない。
+
+復旧は新runtimeのbinding呼出を戻すことで旧日程入口を維持できる。既存データを削除せず、追加origin表は保持する。通常のSource/設定判断を記録して進める本人方針と、計画の実測時点/Source接続scopeに基づく。既存公的時刻を広範囲に再定義する変更へ拡張しない。
+
+## 中断再開のレビュー指摘
+
+独立reviewで、SqliteDomesticSeasonAdvanceStoreのexisting archive分岐がruntimeを迂回しoriginを保存しない欠落を確認した。Rootは同Sourceと既存testを追加担当し、すでにあるevents段階の中断を使ってorigin欠落→再開後認証の新assertを追加する。このSource変更・新失敗懸念のため、当該Native advance caseだけのRED/GREENを行う。216終局recordは高速fixtureであり、リアルタイム9回や既済V185対照は再実行しない。全体の一律回帰へ広げない。
+
+初回eacde5f5f43e48509a055cfbec2894bfは82827msでVitest worker unexpectedly exited。期待したassertのREDではなく、全league fixtureは追加実行を停止した。Source/testの追加assertは取り消し、旧test自体を変更していない。必要なpost-archive stageをproduction helper resumeWorldBoundDomesticSeasonCalendarへ最小抽出し、実advanceのexisting archive分岐が同helperを呼ぶようにした。新DC186-R01だけのRED eb7b646544b74a59b7666cc2520e32d9(missing helper)→d1c7b237d46e4414a8a9f7b3ff7b5bb1 PASS7219ms/1件、旧11skip。2club/4gameの実Native DBで原origin proof復旧・冪等・原base不変を確認。全リーグの受入完了は主張せず、上流league/Club遷移gateは従来の契約を維持した。
+
+## 原測定への接続
+
+新NativeMeasuredContactCalendarV186はV185正規collectionとorigin readerを同snapshotで結合し、原evidenceを保持したままISO日付を返す。国内起点がなければUNAVAILABLE/NO_DOMESTIC_CALENDAR_ORIGIN。明示された正規National selectionがあればcareerDayOneを使ってcareerDayを計算する。National接触は既存National origin/membership/selection hashを正規読取し、その経路のcareer日を使う。起点が混在すれば拒否する。日内sequence/認識/model/populationを補完しない。mock接続試験と原Ownerの真正Native証拠を区別し、結合した真正Nativeの実証範囲を限定して報告する。
+
+## 最終Sourceと受入
+
+全Source確定後の全型330f8ada PASS25796ms。接続13mock fadaa3a4 PASS7203ms、再開修正/接続adapterの独立read-only reviewで追加の具体的欠陥は未検出。
+
+新Native consumerの旧origin欠落境界8cfb9204f0a3416292f430579eb5fd1b PASS1155ms。旧V183原接触を新私的コピーで読む新requestで、2read全record lossless/原contact本人vector/dup refs/不正ref・不存在明示起点拒否/caller状態/Source814入力・DB等pin不変を確認した。旧report形式にcopy fieldがなく、既知creatorのsibling DB＋保存済み元hashで位置を確定し、その差を新reportへ保持した。真のcalendar正例joinはfalse、legacy欠落の非補完だけtrue。旧DB/報告を変更・SQLite openせず新copyのみopen。NATIVE-CONTACT-CALENDAR-V186.md。全goalは未完。

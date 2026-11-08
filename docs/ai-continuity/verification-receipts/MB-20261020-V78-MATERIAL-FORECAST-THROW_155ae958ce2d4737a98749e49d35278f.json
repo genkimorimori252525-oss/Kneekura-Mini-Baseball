@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-MATERIAL-FORECAST-THROW",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldForecastV1.test.ts",
+    "src/core/sim/fielding/LiveThrowPlanV1.test.ts",
+    "src/core/sim/fielding/LiveRelayPlanV1.test.ts"
+  ],
+  "observed_at": "2026-10-19T19:44:37.009+00:00",
+  "elapsed_ms": 3609,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-MATERIAL-FORECAST-THROW_155ae958ce2d4737a98749e49d35278f.log",
+  "output_sha256": "c106b60bfdec37b85b54e0f59488b43da6923fd92fbeeb2dd833716510fcdd4e",
+  "receipt_id": "MB-20261020-V78-MATERIAL-FORECAST-THROW_155ae958ce2d4737a98749e49d35278f"
+}

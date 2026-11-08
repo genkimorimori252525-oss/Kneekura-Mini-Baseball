@@ -1,0 +1,17 @@
+{
+  "pass": true,
+  "normalSha256": "0cb5d9ae43aab96e4edf389136b15fc5cb28fb7d855ebf1d4f43bcdcde93542a",
+  "workbenchSha256": "7cafbf6efa634a96884fc6deb0e1db115a147033c5f9bac41185092fb0139356",
+  "oneExactEmbeddedGame": true,
+  "sourceCoreSha256": "865078dc9881ce5c37754dbe2c7b502f586206f3ada972cfe2d3368207720c00",
+  "sourceInputCount": 114,
+  "worldPhysicsRulesAiChanged": false,
+  "olderReleasesUnchanged": true,
+  "sameRealSourceAndBatAsV62": true,
+  "newNormalHtmlNineInningTest": false,
+  "priorV62NineInningProofSameCore": true,
+  "v59SwingAcquisitionDefault": true,
+  "synchronizedTakeKept": true,
+  "batHeadResponseMeasured": false,
+  "wholeOriginalPlanComplete": false
+}

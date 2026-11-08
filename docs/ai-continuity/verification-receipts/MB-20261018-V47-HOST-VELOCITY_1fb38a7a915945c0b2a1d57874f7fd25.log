@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LiveBaseballMatchV1.test.ts (5 tests | 4 skipped) 1770ms
+   ✓ copies each current analytic runner velocity into its Host actor frame 1769ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 4 skipped (5)
+   Start at  16:25:28
+   Duration  3.83s (transform 1.03s, setup 0ms, collect 1.31s, tests 1.77s, environment 0ms, prepare 214ms)
+

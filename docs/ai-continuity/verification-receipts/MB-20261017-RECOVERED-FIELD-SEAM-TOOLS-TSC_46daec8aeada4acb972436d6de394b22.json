@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-RECOVERED-FIELD-SEAM-TOOLS-TSC",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--strict",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "bundler",
+    "--skipLibCheck",
+    "--types",
+    "node",
+    "tools/verification/native-game/recovered-field-root-native.ts"
+  ],
+  "observed_at": "2026-10-16T21:12:37.647+00:00",
+  "elapsed_ms": 9140,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-RECOVERED-FIELD-SEAM-TOOLS-TSC_46daec8aeada4acb972436d6de394b22.log",
+  "output_sha256": "f4710ca81019cccf879d8d905f70d990fd23712b83483c94bdd6d26f10d60606",
+  "receipt_id": "MB-20261017-RECOVERED-FIELD-SEAM-TOOLS-TSC_46daec8aeada4acb972436d6de394b22"
+}

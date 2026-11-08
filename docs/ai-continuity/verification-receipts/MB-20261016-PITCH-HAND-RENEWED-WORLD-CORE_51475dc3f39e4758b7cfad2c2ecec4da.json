@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-PITCH-HAND-RENEWED-WORLD-CORE",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/pitch/PitchHandHoldRenewalV1.test.ts",
+    "src/core/sim/pitch/ControlledHeldPitchV1.test.ts",
+    "src/core/sim/pitch/ControlledPitchWorldV1.test.ts"
+  ],
+  "observed_at": "2026-10-16T13:42:33.531+00:00",
+  "elapsed_ms": 1187,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-PITCH-HAND-RENEWED-WORLD-CORE_51475dc3f39e4758b7cfad2c2ecec4da.log",
+  "output_sha256": "f00303282bb639b21609602ed859d8e647a8cfcac4290c9d7093ff5ffe6b66cc",
+  "receipt_id": "MB-20261016-PITCH-HAND-RENEWED-WORLD-CORE_51475dc3f39e4758b7cfad2c2ecec4da"
+}

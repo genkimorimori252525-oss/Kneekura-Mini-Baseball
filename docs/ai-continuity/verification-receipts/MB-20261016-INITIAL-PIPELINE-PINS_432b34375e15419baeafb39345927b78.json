@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-PIPELINE-PINS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/native-game/preserve-initial-pipeline.mjs"
+  ],
+  "observed_at": "2026-10-15T23:55:21.455+00:00",
+  "elapsed_ms": 187,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-PIPELINE-PINS_432b34375e15419baeafb39345927b78.log",
+  "output_sha256": "4f7375da6a9114b28f53792110553957f9154f5e9ed57e3949cd4c689d5b2c37",
+  "receipt_id": "MB-20261016-INITIAL-PIPELINE-PINS_432b34375e15419baeafb39345927b78"
+}

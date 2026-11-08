@@ -1,0 +1,60 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts (11 tests | 2 failed) 542ms
+   × runs the complete actual base path after a fair over-fence flight instead of teleporting runners 76ms
+     → expected { elapsedSeconds: 0.123456789, …(3) } to match object { complete: true, …(1) }
+(2 matching properties omitted from actual)
+   × derives two force retirements from actual pickup, two throws, receptions and base contacts 36ms
+     → expected false to be true // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayV1.test.ts > runs the complete actual base path after a fair over-fence flight instead of teleporting runners
+AssertionError: expected { elapsedSeconds: 0.123456789, …(3) } to match object { complete: true, …(1) }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  Object {
+-   "complete": true,
+-   "reason": "home_run_completed",
++   "complete": false,
++   "reason": "actor_boundary_motor_required",
+  }
+
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts:40:22
+     38|     ball: { ...original.ball, ball: { ...original.ball.ball, position:…
+     39|   const result = simulateLiveFieldPlayV1(input);
+     40|   expect(result.end).toMatchObject({ complete: true, reason: 'home_run…
+       |                      ^
+     41|   expect(result.ruleFacts.overFence).toMatchObject({ fair: true, untou…
+     42|   expect(result.ruleFacts.runnerTouches.map(f => f.base)).toEqual([1, …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayV1.test.ts > derives two force retirements from actual pickup, two throws, receptions and base contacts
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts:73:31
+     71|     runners: [{ ...input.runners[0], topSpeedMps: 3 },
+     72|       { runnerId: 'first-runner', initialBase: 1, topSpeedMps: 3, acce…
+     73|   expect(result.end.complete).toBe(true);
+       |                               ^
+     74|   expect(result.ruleFacts.controlledBaseContacts.map(f => f.base)).toE…
+     75|   expect(result.facts.filter(f => f.kind === 'throw_release')).toHaveL…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 9 passed (11)
+   Start at  09:25:13
+   Duration  1.25s (transform 199ms, setup 0ms, collect 281ms, tests 542ms, environment 0ms, prepare 134ms)
+

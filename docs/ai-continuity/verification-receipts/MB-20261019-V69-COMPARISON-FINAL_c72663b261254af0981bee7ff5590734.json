@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V69-COMPARISON-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/MeasuredTrajectoryComparisonWorkbenchV69.test.ts",
+    "src/integration/browser/ReferenceBattingWorkbench.test.ts",
+    "src/core/sim/contact/ReferenceBatImpactTrajectoryV1.test.ts"
+  ],
+  "observed_at": "2026-10-19T11:47:33.251+00:00",
+  "elapsed_ms": 3594,
+  "git_head": "936cd23907b8e078e179aa03e041420a3339932b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V69-COMPARISON-FINAL_c72663b261254af0981bee7ff5590734.log",
+  "output_sha256": "dde392279ea6279d486e4f0f58ce1b4dc22d014b61aa9eed70f301e73689c0d1",
+  "receipt_id": "MB-20261019-V69-COMPARISON-FINAL_c72663b261254af0981bee7ff5590734"
+}

@@ -1,0 +1,35 @@
+{
+  "dataChecks": {
+    "trials": 677,
+    "clips": 12,
+    "originalKeys": 1644,
+    "status": "PASS"
+  },
+  "viewports": [
+    {
+      "viewport": {
+        "width": 1200,
+        "height": 860
+      },
+      "fiveCameraSamples": 60,
+      "originalDataUnchanged": true,
+      "originalCoreResultAvailable": true,
+      "jsonPatternsCalibrationLengthContact": "PASS",
+      "networkRequests": 0,
+      "pageErrors": 0
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "fiveCameraSamples": 60,
+      "originalDataUnchanged": true,
+      "originalCoreResultAvailable": true,
+      "jsonPatternsCalibrationLengthContact": "PASS",
+      "networkRequests": 0,
+      "pageErrors": 0
+    }
+  ],
+  "limitation": "Maker research/Core contact only; Native game adoption, bodies and nine innings NOT_PROVEN. Desktop 390px is not a real phone."
+}

@@ -4,7 +4,8 @@ import { restoreEmotionState } from '../EmotionState';
 import { acceptEmotionExecution } from '../execution/ExecutionAcceptance';
 import { cloneExecutionData, readFrame } from '../execution/ExecutionValidation';
 import type { EmotionExecutionAcceptance, ExecutionFrame } from '../execution/ExecutionTypes';
-import type { BattingExecutionRequest, BattingSource } from './BattingTypes';
+import type { BattingExecutionRequest, BattingSource, BattingRepertoireValues } from './BattingTypes';
+import { assertMeasuredBattingRepertoireV1 } from './MeasuredBattingTrajectoryV1';
 import type { AerodynamicPitchTrajectory } from '../../../sim/pitching/AerodynamicPitchTrajectory';
 import { sampleAerodynamicPitchTrajectory } from '../../../sim/pitching/AerodynamicPitchTrajectory';
 import { calculateBaseballAerodynamics } from '../../../sim/ball/BaseballAerodynamics';
@@ -65,9 +66,9 @@ export function bindCurrentFrame(current:ExecutionFrame,old:ExecutionFrame,minim
  if(current.worldRevision<minimumRevision || compareTime(current.time,old.time)<0)fail('STALE_REVISION','batting.currentFrame');
 }
 function readSource(raw:unknown,frame:ExecutionFrame):BattingSource {
- const p='batting.source',v=obj(raw,['sourceId','revision','frame','validUntilTick','ballId','playId','pitchOrdinal','ticksPerSecond','count','timelineNextSequence',
+ const p='batting.source',v=shape(raw,['sourceId','revision','frame','validUntilTick','ballId','playId','pitchOrdinal','ticksPerSecond','count','timelineNextSequence',
   'bodyReadyTick','motorLatencyTicks','latestMotorStartTick','technicalTimingOffsetTicks','handedness','centerOfMass','batPhysical','ball',
-  'plateZ','strikeZone','maximumSweetSpotSpeedMps','repertoireId','repertoireVersion','profiles','directive','decisionModel','predictions'],p);
+  'plateZ','strikeZone','maximumSweetSpotSpeedMps','repertoireId','repertoireVersion','profiles','directive','decisionModel','predictions'],['sampledProfiles'],p);
  for(const k of ['sourceId','ballId','repertoireId','repertoireVersion'])text(v[k],p+'.'+k);
  for(const k of ['revision','validUntilTick','playId','pitchOrdinal','ticksPerSecond','bodyReadyTick','motorLatencyTicks','latestMotorStartTick'])integer(v[k],p+'.'+k);
  integer(v.technicalTimingOffsetTicks,p+'.technicalTimingOffsetTicks',true);
@@ -83,12 +84,10 @@ function readSource(raw:unknown,frame:ExecutionFrame):BattingSource {
  for(const k of Object.keys(zone))numberValue(zone[k],p+'.zone.'+k);
  if(s.strikeZone.halfWidth<=0 || s.strikeZone.upperY<=s.strikeZone.lowerY)fail('INVALID_INPUT',p+'.zone');
  const ball=obj(s.ball,['massKg','radiusM','rotationalInertiaFactor'],p+'.ball');for(const k of Object.keys(ball))numberValue(ball[k],p+'.ball.'+k,true);
- const bat=shape(s.batPhysical,['massKg','centerOfMassT','transverseMomentOfInertiaKgM2','axialMomentOfInertiaKgM2','radiusProfile'],['normalEffectiveMassProfile'],p+'.bat');
- for(const k of ['massKg','transverseMomentOfInertiaKgM2','axialMomentOfInertiaKgM2'])numberValue(bat[k],p+'.bat.'+k,true);
- fraction(bat.centerOfMassT,p+'.bat.centerOfMassT');coreCall(p+'.radius',()=>sampleBatRadius(s.batPhysical.radiusProfile,0.5));
- if(s.batPhysical.normalEffectiveMassProfile)coreCall(p+'.massProfile',()=>sampleBatEffectiveMass(s.batPhysical.normalEffectiveMassProfile!,0.5));
+ readBattingPhysicalValues(s.batPhysical,p+'.bat');
  readBattingDecisionValues(s.decisionModel,p);
- readBattingRepertoireValues({repertoireId:s.repertoireId,repertoireVersion:s.repertoireVersion,profiles:s.profiles},p);
+ readBattingRepertoireValues({repertoireId:s.repertoireId,repertoireVersion:s.repertoireVersion,profiles:s.profiles,
+  ...(Object.hasOwn(s,'sampledProfiles')?{sampledProfiles:s.sampledProfiles}:{})},p);
  const predictions=list(s.predictions,(row,q)=>{
   const r=obj(row,['predictionId','observedTick','availableTick','validUntilTick','trajectory','swingScore'],q);
   text(r.predictionId,q+'.id');for(const k of ['observedTick','availableTick','validUntilTick'])integer(r[k],q+'.'+k);fraction(r.swingScore,q+'.swingScore');
@@ -114,8 +113,8 @@ export function readBattingDecisionValues(raw:unknown,p:string):BattingSource['d
  text(model.modelId,p+'.modelId');text(model.version,p+'.modelVersion');fraction(model.threshold,p+'.threshold');fraction(model.aggressionWeight,p+'.aggressionWeight');
  return model as BattingSource['decisionModel'];
 }
-export function readBattingRepertoireValues(raw:unknown,p:string):Pick<BattingSource,'repertoireId'|'repertoireVersion'|'profiles'> {
- const v=obj(raw,['repertoireId','repertoireVersion','profiles'],p);
+export function readBattingRepertoireValues(raw:unknown,p:string):BattingRepertoireValues {
+ const v=shape(raw,['repertoireId','repertoireVersion','profiles'],['sampledProfiles'],p);
  text(v.repertoireId,p+'.repertoireId');text(v.repertoireVersion,p+'.repertoireVersion');
  const profiles=list(v.profiles,(row,q)=>{
   const r=obj(row,['minimumAggression','profile'],q);fraction(r.minimumAggression,q+'.minimumAggression');
@@ -130,5 +129,16 @@ export function readBattingRepertoireValues(raw:unknown,p:string):Pick<BattingSo
    || r.profile.batLengthM!==profiles[0].profile.batLengthM || r.profile.sweetSpotT!==profiles[0].profile.sweetSpotT)
    fail('INVALID_INPUT',p+'.repertoire');ids.add(r.profile.profileId);
  }
- return v as Pick<BattingSource,'repertoireId'|'repertoireVersion'|'profiles'>;
+ const values=v as BattingRepertoireValues;
+ coreCall(p+'.measured',()=>assertMeasuredBattingRepertoireV1(values));
+ return values;
+}
+
+/** Shared physical equipment validation for execution and motor preparation. */
+export function readBattingPhysicalValues(raw:unknown,p:string):BattingSource['batPhysical'] {
+ const bat=shape(raw,['massKg','centerOfMassT','transverseMomentOfInertiaKgM2','axialMomentOfInertiaKgM2','radiusProfile'],['normalEffectiveMassProfile'],p);
+ for(const k of ['massKg','transverseMomentOfInertiaKgM2','axialMomentOfInertiaKgM2'])numberValue(bat[k],p+'.'+k,true);
+ fraction(bat.centerOfMassT,p+'.centerOfMassT');coreCall(p+'.radius',()=>sampleBatRadius((bat as unknown as BattingSource['batPhysical']).radiusProfile,0.5));
+ if((bat as unknown as BattingSource['batPhysical']).normalEffectiveMassProfile)coreCall(p+'.massProfile',()=>sampleBatEffectiveMass((bat as unknown as BattingSource['batPhysical']).normalEffectiveMassProfile!,0.5));
+ return bat as unknown as BattingSource['batPhysical'];
 }

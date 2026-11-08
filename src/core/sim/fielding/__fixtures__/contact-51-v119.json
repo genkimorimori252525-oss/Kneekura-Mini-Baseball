@@ -1,0 +1,823 @@
+{
+  "ball": {
+    "originTick": 206022379,
+    "elapsedSeconds": 0.4510597904641175,
+    "ball": {
+      "tick": 206473439,
+      "position": {
+        "x": -0.04730439908170138,
+        "y": 0.7779627335764657,
+        "z": 0.17322578228119365
+      },
+      "velocity": {
+        "x": -15.70156358062778,
+        "y": 5.81047715747446,
+        "z": 57.16831479309267
+      },
+      "spin": {
+        "x": 175.28763660309144,
+        "y": -264.2004734822328,
+        "z": -68.11629067533849
+      }
+    }
+  },
+  "physics": {
+    "kind": "aero_ground_v1",
+    "air": {
+      "ticksPerSecond": 1000000,
+      "integrationStepTicks": 5000,
+      "gravityY": -9.80665,
+      "aerodynamics": {
+        "ballMassKg": 0.145,
+        "ballRadiusM": 0.0366,
+        "airDensityKgM3": 1.225,
+        "windVelocityMps": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "dragCoefficient": 0.35,
+        "coefficientProfile": {
+          "profileId": "lyu-2022-seam-averaged",
+          "version": "lyu-2022-figure-digitization-v1",
+          "referenceReynoldsNumber": 144000,
+          "spinKnots": [
+            {
+              "spinFactor": 0,
+              "dragCoefficientAtReferenceRe": 0.35,
+              "liftCoefficient": 0
+            },
+            {
+              "spinFactor": 0.05,
+              "dragCoefficientAtReferenceRe": 0.34,
+              "liftCoefficient": 0.1
+            },
+            {
+              "spinFactor": 0.1,
+              "dragCoefficientAtReferenceRe": 0.32,
+              "liftCoefficient": 0.115
+            },
+            {
+              "spinFactor": 0.15,
+              "dragCoefficientAtReferenceRe": 0.32,
+              "liftCoefficient": 0.17
+            },
+            {
+              "spinFactor": 0.2,
+              "dragCoefficientAtReferenceRe": 0.33,
+              "liftCoefficient": 0.195
+            },
+            {
+              "spinFactor": 0.25,
+              "dragCoefficientAtReferenceRe": 0.34,
+              "liftCoefficient": 0.23
+            },
+            {
+              "spinFactor": 0.3,
+              "dragCoefficientAtReferenceRe": 0.36,
+              "liftCoefficient": 0.27
+            },
+            {
+              "spinFactor": 0.35,
+              "dragCoefficientAtReferenceRe": 0.38,
+              "liftCoefficient": 0.305
+            },
+            {
+              "spinFactor": 0.4,
+              "dragCoefficientAtReferenceRe": 0.39,
+              "liftCoefficient": 0.34
+            },
+            {
+              "spinFactor": 0.45,
+              "dragCoefficientAtReferenceRe": 0.41,
+              "liftCoefficient": 0.385
+            },
+            {
+              "spinFactor": 0.5,
+              "dragCoefficientAtReferenceRe": 0.42,
+              "liftCoefficient": 0.4
+            }
+          ],
+          "reynoldsKnots": [
+            {
+              "reynoldsNumber": 75000,
+              "dragCorrectionFactorAtLowSpin": 1.352941176470588
+            },
+            {
+              "reynoldsNumber": 100000,
+              "dragCorrectionFactorAtLowSpin": 1.2941176470588234
+            },
+            {
+              "reynoldsNumber": 125000,
+              "dragCorrectionFactorAtLowSpin": 1.2352941176470587
+            },
+            {
+              "reynoldsNumber": 150000,
+              "dragCorrectionFactorAtLowSpin": 1.0588235294117645
+            },
+            {
+              "reynoldsNumber": 175000,
+              "dragCorrectionFactorAtLowSpin": 0.9411764705882353
+            },
+            {
+              "reynoldsNumber": 200000,
+              "dragCorrectionFactorAtLowSpin": 1
+            },
+            {
+              "reynoldsNumber": 250000,
+              "dragCorrectionFactorAtLowSpin": 1.0294117647058822
+            }
+          ],
+          "reynoldsCorrectionFullThroughSpinFactor": 0.05,
+          "reynoldsCorrectionZeroAtSpinFactor": 0.15
+        },
+        "airKinematicViscosityM2PerSecond": 0.000015,
+        "spinDecay": {
+          "referenceSpeedMps": 44.704,
+          "timeConstantSecondsAtReferenceSpeed": 20
+        }
+      }
+    },
+    "ground": {
+      "ticksPerSecond": 1000000,
+      "gravityMps2": 9.80665,
+      "radiusM": 0.0366,
+      "inertiaRatio": 0.378,
+      "restingVerticalSpeedMps": 0.28,
+      "material": {
+        "restitution": 0.48,
+        "slidingFriction": 0.24,
+        "rollingDecelerationMps2": 1.2,
+        "normalSpinDecayPerSecond": 0.18
+      }
+    }
+  },
+  "field": {
+    "bases": {
+      "home": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "first": {
+        "x": 19.39735322150937,
+        "y": 0,
+        "z": 19.39735322150937
+      },
+      "second": {
+        "x": 0,
+        "y": 0,
+        "z": 38.79470644301874
+      },
+      "third": {
+        "x": -19.39735322150937,
+        "y": 0,
+        "z": 19.39735322150937
+      }
+    },
+    "fenceRadiusMeters": 110,
+    "fenceHeightMeters": 3
+  },
+  "defenseDecisionModeV118": "individual",
+  "orientation": {
+    "w": 0.8212570902629125,
+    "x": -0.14228431169329794,
+    "y": -0.45530979741855526,
+    "z": 0.3130254857252569
+  },
+  "seed": 794104717,
+  "fielders": [
+    {
+      "playerId": "0-p0",
+      "defensivePosition": "P",
+      "bodyModelV105": {
+        "heightMeters": 1.93,
+        "hipHeightMeters": 1.0229,
+        "shoulderHeightMeters": 1.5787399999999998,
+        "eyeHeightMeters": 1.7756,
+        "armReachMeters": 0.9476299999999999,
+        "maximumCrouchMeters": 0.6948,
+        "postureSpeedMps": 2.5,
+        "turnSpeedRadiansPerSecond": 4.5,
+        "rearReachFraction": 0.12
+      },
+      "athleticProfileV115": {
+        "heightMeters": 1.93,
+        "jumpHeightMeters": 0.3474,
+        "divePushMps": 0.288,
+        "diveRecoverySeconds": 1.099532710280374,
+        "jumpRecoverySeconds": 0.38,
+        "slideReachMeters": 0.9263999999999999,
+        "headSlideExtraMeters": 0.05,
+        "slideRecoverySeconds": 0.55,
+        "headSlideRecoverySeconds": 0.74,
+        "headSlidePreference": 0.2,
+        "slideFrictionScale": 1
+      },
+      "position": {
+        "x": 0,
+        "y": 1.0229,
+        "z": 18.44
+      },
+      "reactionSeconds": 0.2,
+      "topSpeedMps": 7.7,
+      "accelerationMps2": 4.8,
+      "fieldingCognition": {
+        "decisionSeconds": 0.08,
+        "pursuitCostWeight": 1
+      },
+      "gloveSpeedMps": 10.7,
+      "gloveReachMeters": 1.35,
+      "gloveRadiusMeters": 0.11,
+      "catchRetention": {
+        "ticksPerSecond": 1000000,
+        "ballMassKg": 0.145,
+        "ballRadiusMeters": 0.0366,
+        "pocketRadiusMeters": 0.14,
+        "centerRetentionCapacityJ": 160,
+        "captureDissipationPowerW": 3000,
+        "failedContactRestitution": 0.2,
+        "failedTangentialDamping": 0.35,
+        "failedSpinDamping": 0.2
+      },
+      "transferSeconds": 0.44,
+      "throwEffortBuildSecondsV103": 0.6,
+      "throwSpeedMps": 43.5,
+      "throwBackspinRadPerSecond": 120,
+      "throwDirectionStdRadians": 0.004
+    },
+    {
+      "playerId": "0-b3",
+      "defensivePosition": "C",
+      "bodyModelV105": {
+        "heightMeters": 1.78,
+        "hipHeightMeters": 0.9434,
+        "shoulderHeightMeters": 1.45604,
+        "eyeHeightMeters": 1.6376000000000002,
+        "armReachMeters": 0.8739799999999999,
+        "maximumCrouchMeters": 0.6408,
+        "postureSpeedMps": 2.5,
+        "turnSpeedRadiansPerSecond": 4.5,
+        "rearReachFraction": 0.12
+      },
+      "athleticProfileV115": {
+        "heightMeters": 1.78,
+        "jumpHeightMeters": 0.3204,
+        "divePushMps": 0.294,
+        "diveRecoverySeconds": 1.0233333333333334,
+        "jumpRecoverySeconds": 0.35,
+        "slideReachMeters": 0.8543999999999999,
+        "headSlideExtraMeters": 0.05,
+        "slideRecoverySeconds": 0.535,
+        "headSlideRecoverySeconds": 0.719,
+        "headSlidePreference": 0.2,
+        "slideFrictionScale": 1
+      },
+      "position": {
+        "x": 0,
+        "y": 0.9434,
+        "z": -1.5
+      },
+      "reactionSeconds": 0.17,
+      "topSpeedMps": 7.6,
+      "accelerationMps2": 4.9,
+      "fieldingCognition": {
+        "decisionSeconds": 0.05,
+        "pursuitCostWeight": 1
+      },
+      "gloveSpeedMps": 12,
+      "gloveReachMeters": 1.35,
+      "gloveRadiusMeters": 0.11,
+      "catchRetention": {
+        "ticksPerSecond": 1000000,
+        "ballMassKg": 0.145,
+        "ballRadiusMeters": 0.0366,
+        "pocketRadiusMeters": 0.14,
+        "centerRetentionCapacityJ": 160,
+        "captureDissipationPowerW": 3000,
+        "failedContactRestitution": 0.2,
+        "failedTangentialDamping": 0.35,
+        "failedSpinDamping": 0.2
+      },
+      "transferSeconds": 0.32,
+      "throwEffortBuildSecondsV103": 0.6,
+      "throwSpeedMps": 39.5,
+      "throwBackspinRadPerSecond": 120,
+      "throwDirectionStdRadians": 0.003
+    },
+    {
+      "playerId": "0-b2",
+      "defensivePosition": "1B",
+      "bodyModelV105": {
+        "heightMeters": 1.96,
+        "hipHeightMeters": 1.0388,
+        "shoulderHeightMeters": 1.6032799999999998,
+        "eyeHeightMeters": 1.8032000000000001,
+        "armReachMeters": 0.9623600000000001,
+        "maximumCrouchMeters": 0.7056,
+        "postureSpeedMps": 2.5,
+        "turnSpeedRadiansPerSecond": 4.5,
+        "rearReachFraction": 0.12
+      },
+      "athleticProfileV115": {
+        "heightMeters": 1.96,
+        "jumpHeightMeters": 0.3528,
+        "divePushMps": 0.288,
+        "diveRecoverySeconds": 1.045593220338983,
+        "jumpRecoverySeconds": 0.36,
+        "slideReachMeters": 0.9408,
+        "headSlideExtraMeters": 0.05,
+        "slideRecoverySeconds": 0.54,
+        "headSlideRecoverySeconds": 0.726,
+        "headSlidePreference": 0.2,
+        "slideFrictionScale": 1
+      },
+      "position": {
+        "x": 23,
+        "y": 1.0388,
+        "z": 25
+      },
+      "reactionSeconds": 0.18,
+      "topSpeedMps": 7.5,
+      "accelerationMps2": 4.8,
+      "fieldingCognition": {
+        "decisionSeconds": 0.05,
+        "pursuitCostWeight": 1
+      },
+      "gloveSpeedMps": 11.8,
+      "gloveReachMeters": 1.35,
+      "gloveRadiusMeters": 0.11,
+      "catchRetention": {
+        "ticksPerSecond": 1000000,
+        "ballMassKg": 0.145,
+        "ballRadiusMeters": 0.0366,
+        "pocketRadiusMeters": 0.14,
+        "centerRetentionCapacityJ": 160,
+        "captureDissipationPowerW": 3000,
+        "failedContactRestitution": 0.2,
+        "failedTangentialDamping": 0.35,
+        "failedSpinDamping": 0.2
+      },
+      "transferSeconds": 0.38,
+      "throwEffortBuildSecondsV103": 0.6,
+      "throwSpeedMps": 35,
+      "throwBackspinRadPerSecond": 120,
+      "throwDirectionStdRadians": 0.0035
+    },
+    {
+      "playerId": "0-b7",
+      "defensivePosition": "2B",
+      "bodyModelV105": {
+        "heightMeters": 1.78,
+        "hipHeightMeters": 0.9434,
+        "shoulderHeightMeters": 1.45604,
+        "eyeHeightMeters": 1.6376000000000002,
+        "armReachMeters": 0.8739799999999999,
+        "maximumCrouchMeters": 0.6408,
+        "postureSpeedMps": 2.5,
+        "turnSpeedRadiansPerSecond": 4.5,
+        "rearReachFraction": 0.12
+      },
+      "athleticProfileV115": {
+        "heightMeters": 1.78,
+        "jumpHeightMeters": 0.3204,
+        "divePushMps": 0.366,
+        "diveRecoverySeconds": 0.9833333333333334,
+        "jumpRecoverySeconds": 0.32999999999999996,
+        "slideReachMeters": 0.8543999999999999,
+        "headSlideExtraMeters": 0.05,
+        "slideRecoverySeconds": 0.525,
+        "headSlideRecoverySeconds": 0.705,
+        "headSlidePreference": 0.2,
+        "slideFrictionScale": 1
+      },
+      "position": {
+        "x": 13,
+        "y": 0.9434,
+        "z": 36
+      },
+      "reactionSeconds": 0.15,
+      "topSpeedMps": 9,
+      "accelerationMps2": 6.1,
+      "fieldingCognition": {
+        "decisionSeconds": 0.04,
+        "pursuitCostWeight": 1
+      },
+      "gloveSpeedMps": 12,
+      "gloveReachMeters": 1.35,
+      "gloveRadiusMeters": 0.11,
+      "catchRetention": {
+        "ticksPerSecond": 1000000,
+        "ballMassKg": 0.145,
+        "ballRadiusMeters": 0.0366,
+        "pocketRadiusMeters": 0.14,
+        "centerRetentionCapacityJ": 160,
+        "captureDissipationPowerW": 3000,
+        "failedContactRestitution": 0.2,
+        "failedTangentialDamping": 0.35,
+        "failedSpinDamping": 0.2
+      },
+      "transferSeconds": 0.33,
+      "throwEffortBuildSecondsV103": 0.6,
+      "throwSpeedMps": 37,
+      "throwBackspinRadPerSecond": 120,
+      "throwDirectionStdRadians": 0.003
+    },
+    {
+      "playerId": "0-b5",
+      "defensivePosition": "3B",
+      "bodyModelV105": {
+        "heightMeters": 1.83,
+        "hipHeightMeters": 0.9699000000000001,
+        "shoulderHeightMeters": 1.49694,
+        "eyeHeightMeters": 1.6836000000000002,
+        "armReachMeters": 0.8985300000000002,
+        "maximumCrouchMeters": 0.6588,
+        "postureSpeedMps": 2.5,
+        "turnSpeedRadiansPerSecond": 4.5,
+        "rearReachFraction": 0.12
+      },
+      "athleticProfileV115": {
+        "heightMeters": 1.83,
+        "jumpHeightMeters": 0.3294,
+        "divePushMps": 0.264,
+        "diveRecoverySeconds": 1.1223809523809525,
+        "jumpRecoverySeconds": 0.39,
+        "slideReachMeters": 0.8784,
+        "headSlideExtraMeters": 0.05,
+        "slideRecoverySeconds": 0.555,
+        "headSlideRecoverySeconds": 0.747,
+        "headSlidePreference": 0.2,
+        "slideFrictionScale": 1
+      },
+      "position": {
+        "x": -23,
+        "y": 0.9699000000000001,
+        "z": 25
+      },
+      "reactionSeconds": 0.21,
+      "topSpeedMps": 7.2,
+      "accelerationMps2": 4.4,
+      "fieldingCognition": {
+        "decisionSeconds": 0.09,
+        "pursuitCostWeight": 1
+      },
+      "gloveSpeedMps": 10.5,
+      "gloveReachMeters": 1.35,
+      "gloveRadiusMeters": 0.11,
+      "catchRetention": {
+        "ticksPerSecond": 1000000,
+        "ballMassKg": 0.145,
+        "ballRadiusMeters": 0.0366,
+        "pocketRadiusMeters": 0.14,
+        "centerRetentionCapacityJ": 160,
+        "captureDissipationPowerW": 3000,
+        "failedContactRestitution": 0.2,
+        "failedTangentialDamping": 0.35,
+        "failedSpinDamping": 0.2
+      },
+      "transferSeconds": 0.48,
+      "throwEffortBuildSecondsV103": 0.6,
+      "throwSpeedMps": 35,
+      "throwBackspinRadPerSecond": 120,
+      "throwDirectionStdRadians": 0.005
+    },
+    {
+      "playerId": "0-b1",
+      "defensivePosition": "SS",
+      "bodyModelV105": {
+        "heightMeters": 1.75,
+        "hipHeightMeters": 0.9275,
+        "shoulderHeightMeters": 1.4315,
+        "eyeHeightMeters": 1.61,
+        "armReachMeters": 0.85925,
+        "maximumCrouchMeters": 0.63,
+        "postureSpeedMps": 2.5,
+        "turnSpeedRadiansPerSecond": 4.5,
+        "rearReachFraction": 0.12
+      },
+      "athleticProfileV115": {
+        "heightMeters": 1.75,
+        "jumpHeightMeters": 0.315,
+        "divePushMps": 0.354,
+        "diveRecoverySeconds": 0.9833333333333334,
+        "jumpRecoverySeconds": 0.32999999999999996,
+        "slideReachMeters": 0.84,
+        "headSlideExtraMeters": 0.05,
+        "slideRecoverySeconds": 0.525,
+        "headSlideRecoverySeconds": 0.705,
+        "headSlidePreference": 0.2,
+        "slideFrictionScale": 1
+      },
+      "position": {
+        "x": -13,
+        "y": 0.9275,
+        "z": 36
+      },
+      "reactionSeconds": 0.15,
+      "topSpeedMps": 8.7,
+      "accelerationMps2": 5.9,
+      "fieldingCognition": {
+        "decisionSeconds": 0.04,
+        "pursuitCostWeight": 1
+      },
+      "gloveSpeedMps": 12,
+      "gloveReachMeters": 1.35,
+      "gloveRadiusMeters": 0.11,
+      "catchRetention": {
+        "ticksPerSecond": 1000000,
+        "ballMassKg": 0.145,
+        "ballRadiusMeters": 0.0366,
+        "pocketRadiusMeters": 0.14,
+        "centerRetentionCapacityJ": 160,
+        "captureDissipationPowerW": 3000,
+        "failedContactRestitution": 0.2,
+        "failedTangentialDamping": 0.35,
+        "failedSpinDamping": 0.2
+      },
+      "transferSeconds": 0.34,
+      "throwEffortBuildSecondsV103": 0.6,
+      "throwSpeedMps": 39,
+      "throwBackspinRadPerSecond": 120,
+      "throwDirectionStdRadians": 0.0025
+    },
+    {
+      "playerId": "0-b6",
+      "defensivePosition": "LF",
+      "bodyModelV105": {
+        "heightMeters": 1.8,
+        "hipHeightMeters": 0.9540000000000001,
+        "shoulderHeightMeters": 1.4724,
+        "eyeHeightMeters": 1.6560000000000001,
+        "armReachMeters": 0.8837999999999999,
+        "maximumCrouchMeters": 0.648,
+        "postureSpeedMps": 2.5,
+        "turnSpeedRadiansPerSecond": 4.5,
+        "rearReachFraction": 0.12
+      },
+      "athleticProfileV115": {
+        "heightMeters": 1.8,
+        "jumpHeightMeters": 0.324,
+        "divePushMps": 0.324,
+        "diveRecoverySeconds": 1.0503508771929826,
+        "jumpRecoverySeconds": 0.36,
+        "slideReachMeters": 0.864,
+        "headSlideExtraMeters": 0.05,
+        "slideRecoverySeconds": 0.54,
+        "headSlideRecoverySeconds": 0.726,
+        "headSlidePreference": 0.2,
+        "slideFrictionScale": 1
+      },
+      "position": {
+        "x": -46,
+        "y": 0.9540000000000001,
+        "z": 76
+      },
+      "reactionSeconds": 0.18,
+      "topSpeedMps": 8.1,
+      "accelerationMps2": 5.4,
+      "fieldingCognition": {
+        "decisionSeconds": 0.055,
+        "pursuitCostWeight": 1
+      },
+      "gloveSpeedMps": 11.4,
+      "gloveReachMeters": 1.35,
+      "gloveRadiusMeters": 0.11,
+      "catchRetention": {
+        "ticksPerSecond": 1000000,
+        "ballMassKg": 0.145,
+        "ballRadiusMeters": 0.0366,
+        "pocketRadiusMeters": 0.14,
+        "centerRetentionCapacityJ": 160,
+        "captureDissipationPowerW": 3000,
+        "failedContactRestitution": 0.2,
+        "failedTangentialDamping": 0.35,
+        "failedSpinDamping": 0.2
+      },
+      "transferSeconds": 0.38,
+      "throwEffortBuildSecondsV103": 0.6,
+      "throwSpeedMps": 37.5,
+      "throwBackspinRadPerSecond": 120,
+      "throwDirectionStdRadians": 0.0035
+    },
+    {
+      "playerId": "0-b8",
+      "defensivePosition": "CF",
+      "bodyModelV105": {
+        "heightMeters": 1.85,
+        "hipHeightMeters": 0.9805000000000001,
+        "shoulderHeightMeters": 1.5133,
+        "eyeHeightMeters": 1.7020000000000002,
+        "armReachMeters": 0.90835,
+        "maximumCrouchMeters": 0.666,
+        "postureSpeedMps": 2.5,
+        "turnSpeedRadiansPerSecond": 4.5,
+        "rearReachFraction": 0.12
+      },
+      "athleticProfileV115": {
+        "heightMeters": 1.85,
+        "jumpHeightMeters": 0.333,
+        "divePushMps": 0.34199999999999997,
+        "diveRecoverySeconds": 1.0515929203539822,
+        "jumpRecoverySeconds": 0.36,
+        "slideReachMeters": 0.888,
+        "headSlideExtraMeters": 0.05,
+        "slideRecoverySeconds": 0.54,
+        "headSlideRecoverySeconds": 0.726,
+        "headSlidePreference": 0.2,
+        "slideFrictionScale": 1
+      },
+      "position": {
+        "x": 0,
+        "y": 0.9805000000000001,
+        "z": 91
+      },
+      "reactionSeconds": 0.18,
+      "topSpeedMps": 8.5,
+      "accelerationMps2": 5.7,
+      "fieldingCognition": {
+        "decisionSeconds": 0.065,
+        "pursuitCostWeight": 1
+      },
+      "gloveSpeedMps": 11.3,
+      "gloveReachMeters": 1.35,
+      "gloveRadiusMeters": 0.11,
+      "catchRetention": {
+        "ticksPerSecond": 1000000,
+        "ballMassKg": 0.145,
+        "ballRadiusMeters": 0.0366,
+        "pocketRadiusMeters": 0.14,
+        "centerRetentionCapacityJ": 160,
+        "captureDissipationPowerW": 3000,
+        "failedContactRestitution": 0.2,
+        "failedTangentialDamping": 0.35,
+        "failedSpinDamping": 0.2
+      },
+      "transferSeconds": 0.41,
+      "throwEffortBuildSecondsV103": 0.6,
+      "throwSpeedMps": 40,
+      "throwBackspinRadPerSecond": 120,
+      "throwDirectionStdRadians": 0.004
+    },
+    {
+      "playerId": "0-b4",
+      "defensivePosition": "RF",
+      "bodyModelV105": {
+        "heightMeters": 1.88,
+        "hipHeightMeters": 0.9964,
+        "shoulderHeightMeters": 1.5378399999999999,
+        "eyeHeightMeters": 1.7296,
+        "armReachMeters": 0.9230799999999999,
+        "maximumCrouchMeters": 0.6768,
+        "postureSpeedMps": 2.5,
+        "turnSpeedRadiansPerSecond": 4.5,
+        "rearReachFraction": 0.12
+      },
+      "athleticProfileV115": {
+        "heightMeters": 1.88,
+        "jumpHeightMeters": 0.3384,
+        "divePushMps": 0.318,
+        "diveRecoverySeconds": 1.098148148148148,
+        "jumpRecoverySeconds": 0.38,
+        "slideReachMeters": 0.9023999999999999,
+        "headSlideExtraMeters": 0.05,
+        "slideRecoverySeconds": 0.55,
+        "headSlideRecoverySeconds": 0.74,
+        "headSlidePreference": 0.2,
+        "slideFrictionScale": 1
+      },
+      "position": {
+        "x": 46,
+        "y": 0.9964,
+        "z": 76
+      },
+      "reactionSeconds": 0.2,
+      "topSpeedMps": 8.1,
+      "accelerationMps2": 5.3,
+      "fieldingCognition": {
+        "decisionSeconds": 0.08,
+        "pursuitCostWeight": 1
+      },
+      "gloveSpeedMps": 10.8,
+      "gloveReachMeters": 1.35,
+      "gloveRadiusMeters": 0.11,
+      "catchRetention": {
+        "ticksPerSecond": 1000000,
+        "ballMassKg": 0.145,
+        "ballRadiusMeters": 0.0366,
+        "pocketRadiusMeters": 0.14,
+        "centerRetentionCapacityJ": 160,
+        "captureDissipationPowerW": 3000,
+        "failedContactRestitution": 0.2,
+        "failedTangentialDamping": 0.35,
+        "failedSpinDamping": 0.2
+      },
+      "transferSeconds": 0.46,
+      "throwEffortBuildSecondsV103": 0.6,
+      "throwSpeedMps": 40,
+      "throwBackspinRadPerSecond": 120,
+      "throwDirectionStdRadians": 0.005
+    }
+  ],
+  "runners": [
+    {
+      "runnerId": "1-b6",
+      "initialBase": 0,
+      "athleticProfileV115": {
+        "heightMeters": 1.81,
+        "jumpHeightMeters": 0.3258,
+        "divePushMps": 0.33599999999999997,
+        "diveRecoverySeconds": 1.1354545454545455,
+        "jumpRecoverySeconds": 0.4,
+        "slideReachMeters": 0.8688,
+        "headSlideExtraMeters": 0.05,
+        "slideRecoverySeconds": 0.56,
+        "headSlideRecoverySeconds": 0.754,
+        "headSlidePreference": 0.2,
+        "slideFrictionScale": 1
+      },
+      "position": {
+        "x": 0.85,
+        "y": 0,
+        "z": -0.2
+      },
+      "topSpeedMps": 8.5,
+      "accelerationMps2": 5.6,
+      "reactionSeconds": 0.22,
+      "advanceSafetyMarginSeconds": 0.35,
+      "roundingRadiusMeters": 4.5,
+      "lateralAccelerationMps2": 8.399999999999999
+    },
+    {
+      "runnerId": "1-b5",
+      "initialBase": 1,
+      "athleticProfileV115": {
+        "heightMeters": 1.86,
+        "jumpHeightMeters": 0.3348,
+        "divePushMps": 0.32999999999999996,
+        "diveRecoverySeconds": 1.160943396226415,
+        "jumpRecoverySeconds": 0.41000000000000003,
+        "slideReachMeters": 0.8928,
+        "headSlideExtraMeters": 0.05,
+        "slideRecoverySeconds": 0.5650000000000001,
+        "headSlideRecoverySeconds": 0.761,
+        "headSlidePreference": 0.2,
+        "slideFrictionScale": 1
+      },
+      "topSpeedMps": 8.5,
+      "accelerationMps2": 5.5,
+      "reactionSeconds": 0.23,
+      "advanceSafetyMarginSeconds": 0.35,
+      "roundingRadiusMeters": 4.5,
+      "lateralAccelerationMps2": 8.25
+    },
+    {
+      "runnerId": "1-b4",
+      "initialBase": 2,
+      "athleticProfileV115": {
+        "heightMeters": 1.9,
+        "jumpHeightMeters": 0.34199999999999997,
+        "divePushMps": 0.252,
+        "diveRecoverySeconds": 1.1482672770534341,
+        "jumpRecoverySeconds": 0.4236877122987368,
+        "slideReachMeters": 0.9119999999999999,
+        "headSlideExtraMeters": 0.05,
+        "slideRecoverySeconds": 0.5718438561493684,
+        "headSlideRecoverySeconds": 0.7705813986091157,
+        "headSlidePreference": 0.2,
+        "slideFrictionScale": 1
+      },
+      "topSpeedMps": 7,
+      "accelerationMps2": 4.2,
+      "reactionSeconds": 0.2436877122987368,
+      "advanceSafetyMarginSeconds": 0.35,
+      "roundingRadiusMeters": 4.5,
+      "lateralAccelerationMps2": 6.300000000000001
+    },
+    {
+      "runnerId": "1-b3",
+      "initialBase": 3,
+      "athleticProfileV115": {
+        "heightMeters": 1.91,
+        "jumpHeightMeters": 0.3438,
+        "divePushMps": 0.22799999999999998,
+        "diveRecoverySeconds": 1.4888010675754597,
+        "jumpRecoverySeconds": 0.5659256691555267,
+        "slideReachMeters": 0.9168,
+        "headSlideExtraMeters": 0.05,
+        "slideRecoverySeconds": 0.6429628345777634,
+        "headSlideRecoverySeconds": 0.8701479684088687,
+        "headSlidePreference": 0.2,
+        "slideFrictionScale": 1
+      },
+      "topSpeedMps": 6.3,
+      "accelerationMps2": 3.8,
+      "reactionSeconds": 0.3859256691555267,
+      "advanceSafetyMarginSeconds": 0.35,
+      "roundingRadiusMeters": 4.5,
+      "lateralAccelerationMps2": 5.699999999999999
+    }
+  ],
+  "outs": 0,
+  "maxPlaySeconds": 45
+}

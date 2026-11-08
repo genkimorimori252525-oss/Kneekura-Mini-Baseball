@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-HOST-MOTOR-CLOCK-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "npx.cmd",
+    "vitest",
+    "run",
+    "src/host/world/SamePlateAppearanceObservationClockProjectionV1.test.ts",
+    "src/host/world/SamePlateAppearanceSourceIntegerCheckpointV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T18:41:55.828+00:00",
+  "elapsed_ms": 18031,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-HOST-MOTOR-CLOCK-REGRESSION_d1dfddf3fe2f435297cce4cd736af57a.log",
+  "output_sha256": "35508715db61d0e1a6acb224d9cbf4019729777befdf81248dbba4822b76172b",
+  "receipt_id": "MB-20261016-SOURCE-HOST-MOTOR-CLOCK-REGRESSION_d1dfddf3fe2f435297cce4cd736af57a"
+}

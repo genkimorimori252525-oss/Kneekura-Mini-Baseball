@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-AUTHORED-CUT-DRIVER-BUILD-V2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/native-game/build-measured-model-readback.mjs",
+    "../native-authored-initial-cut-v2",
+    "observed_cut_native"
+  ],
+  "observed_at": "2026-10-16T00:13:28.723+00:00",
+  "elapsed_ms": 875,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-AUTHORED-CUT-DRIVER-BUILD-V2_7639a07c732d4908a05fba5d5b1ae4fd.log",
+  "output_sha256": "ab64a91a75f82954969259d071752d2938a5aa9bc6b9c2b8004b59f50e8370c5",
+  "receipt_id": "MB-20261016-AUTHORED-CUT-DRIVER-BUILD-V2_7639a07c732d4908a05fba5d5b1ae4fd"
+}

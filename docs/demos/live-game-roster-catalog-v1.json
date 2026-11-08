@@ -1,0 +1,594 @@
+{
+  "version": 1,
+  "players": [
+    {
+      "playerId": "0-b0",
+      "name": "大谷翔平",
+      "heightMeters": 1.93,
+      "bats": "L",
+      "throws": "R",
+      "role": "DH",
+      "teamName": "LAD"
+    },
+    {
+      "playerId": "0-b1",
+      "name": "ムーキー・ベッツ",
+      "heightMeters": 1.75,
+      "bats": "R",
+      "throws": "R",
+      "role": "SS",
+      "teamName": "LAD"
+    },
+    {
+      "playerId": "0-b2",
+      "name": "フレディ・フリーマン",
+      "heightMeters": 1.96,
+      "bats": "L",
+      "throws": "L",
+      "role": "1B",
+      "teamName": "LAD"
+    },
+    {
+      "playerId": "0-b3",
+      "name": "ウィル・スミス",
+      "heightMeters": 1.78,
+      "bats": "R",
+      "throws": "R",
+      "role": "C",
+      "teamName": "LAD"
+    },
+    {
+      "playerId": "0-b4",
+      "name": "テオスカー・ヘルナンデス",
+      "heightMeters": 1.88,
+      "bats": "R",
+      "throws": "R",
+      "role": "RF",
+      "teamName": "LAD"
+    },
+    {
+      "playerId": "0-b5",
+      "name": "マックス・マンシー",
+      "heightMeters": 1.83,
+      "bats": "L",
+      "throws": "R",
+      "role": "3B",
+      "teamName": "LAD"
+    },
+    {
+      "playerId": "0-b6",
+      "name": "キケ・ヘルナンデス",
+      "heightMeters": 1.8,
+      "bats": "R",
+      "throws": "R",
+      "role": "LF",
+      "teamName": "LAD"
+    },
+    {
+      "playerId": "0-b7",
+      "name": "トミー・エドマン",
+      "heightMeters": 1.78,
+      "bats": "R",
+      "throws": "R",
+      "role": "2B",
+      "teamName": "LAD"
+    },
+    {
+      "playerId": "0-b8",
+      "name": "アンディ・パヘス",
+      "heightMeters": 1.85,
+      "bats": "R",
+      "throws": "R",
+      "role": "CF",
+      "teamName": "LAD"
+    },
+    {
+      "playerId": "0-p0",
+      "name": "ブレイク・スネル",
+      "heightMeters": 1.93,
+      "bats": "L",
+      "throws": "L",
+      "role": "P",
+      "teamName": "LAD"
+    },
+    {
+      "playerId": "1-b0",
+      "name": "ニッチロー",
+      "heightMeters": 1.8,
+      "bats": "L",
+      "throws": "R",
+      "role": "RF",
+      "teamName": "TBD"
+    },
+    {
+      "playerId": "1-b1",
+      "name": "メルセデス",
+      "heightMeters": 1.79,
+      "bats": "L",
+      "throws": "R",
+      "role": "2B",
+      "teamName": "TBD"
+    },
+    {
+      "playerId": "1-b2",
+      "name": "ちんすけ",
+      "heightMeters": 1.85,
+      "bats": "L",
+      "throws": "R",
+      "role": "DH",
+      "teamName": "TBD"
+    },
+    {
+      "playerId": "1-b3",
+      "name": "ロッツォ",
+      "heightMeters": 1.91,
+      "bats": "R",
+      "throws": "R",
+      "role": "3B",
+      "teamName": "TBD"
+    },
+    {
+      "playerId": "1-b4",
+      "name": "ナッパ",
+      "heightMeters": 1.9,
+      "bats": "R",
+      "throws": "R",
+      "role": "C",
+      "teamName": "TBD"
+    },
+    {
+      "playerId": "1-b5",
+      "name": "ペイン酒井",
+      "heightMeters": 1.86,
+      "bats": "L",
+      "throws": "R",
+      "role": "CF",
+      "teamName": "TBD"
+    },
+    {
+      "playerId": "1-b6",
+      "name": "FANZAWA",
+      "heightMeters": 1.81,
+      "bats": "L",
+      "throws": "L",
+      "role": "LF",
+      "teamName": "TBD"
+    },
+    {
+      "playerId": "1-b7",
+      "name": "李将軍",
+      "heightMeters": 1.88,
+      "bats": "L",
+      "throws": "R",
+      "role": "1B",
+      "teamName": "TBD"
+    },
+    {
+      "playerId": "1-b8",
+      "name": "ライポア",
+      "heightMeters": 1.79,
+      "bats": "R",
+      "throws": "L",
+      "role": "SS",
+      "teamName": "TBD"
+    },
+    {
+      "playerId": "1-p0",
+      "name": "ティカオ",
+      "heightMeters": 1.84,
+      "bats": "R",
+      "throws": "R",
+      "role": "P",
+      "teamName": "TBD"
+    }
+  ],
+  "fields": [
+    {
+      "path": "heightMeters",
+      "label": "身長",
+      "section": "common",
+      "unit": "m",
+      "type": "number",
+      "min": 1.1,
+      "max": 2.5,
+      "step": 0.01,
+      "entryPath": true
+    },
+    {
+      "path": "reactionSeconds",
+      "label": "守備の初動遅延",
+      "section": "common",
+      "unit": "s",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.01
+    },
+    {
+      "path": "defensiveDecisionSeconds",
+      "label": "守備の判断遅延",
+      "section": "common",
+      "unit": "s",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.01
+    },
+    {
+      "path": "topSpeedMps",
+      "label": "走行最高速度",
+      "section": "common",
+      "unit": "m/s",
+      "type": "number",
+      "min": 0.1,
+      "max": 20,
+      "step": 0.1
+    },
+    {
+      "path": "accelerationMps2",
+      "label": "走行加速度",
+      "section": "common",
+      "unit": "m/s²",
+      "type": "number",
+      "min": 0.1,
+      "max": 20,
+      "step": 0.1
+    },
+    {
+      "path": "gloveSpeedMps",
+      "label": "グラブ移動速度",
+      "section": "common",
+      "unit": "m/s",
+      "type": "number",
+      "min": 0.1,
+      "max": 40,
+      "step": 0.1
+    },
+    {
+      "path": "gloveReachMeters",
+      "label": "グラブ可動範囲",
+      "section": "common",
+      "unit": "m",
+      "type": "number",
+      "min": 0.4,
+      "max": 3,
+      "step": 0.01
+    },
+    {
+      "path": "gloveRadiusMeters",
+      "label": "グラブの接触半径",
+      "section": "common",
+      "unit": "m",
+      "type": "number",
+      "min": 0.03,
+      "max": 0.3,
+      "step": 0.001
+    },
+    {
+      "path": "retentionCapacityJ",
+      "label": "捕球の保持容量",
+      "section": "common",
+      "unit": "J",
+      "type": "number",
+      "min": 1,
+      "max": 2000,
+      "step": 1
+    },
+    {
+      "path": "captureDissipationPowerW",
+      "label": "捕球の吸収速度",
+      "section": "common",
+      "unit": "W",
+      "type": "number",
+      "min": 10,
+      "max": 1000000.0,
+      "step": 100
+    },
+    {
+      "path": "transferSeconds",
+      "label": "捕球から送球の持替時間",
+      "section": "common",
+      "unit": "s",
+      "type": "number",
+      "min": 0,
+      "max": 2,
+      "step": 0.01
+    },
+    {
+      "path": "throwSpeedMps",
+      "label": "送球の初速",
+      "section": "common",
+      "unit": "m/s",
+      "type": "number",
+      "min": 0.1,
+      "max": 80,
+      "step": 0.1
+    },
+    {
+      "path": "throwDirectionStdRadians",
+      "label": "送球方向の誤差",
+      "section": "common",
+      "unit": "rad",
+      "type": "number",
+      "min": 0,
+      "max": 0.12,
+      "step": 0.001
+    },
+    {
+      "path": "batLengthM",
+      "label": "バット長",
+      "section": "batter",
+      "unit": "m",
+      "type": "number",
+      "min": 0.55,
+      "max": 1.2,
+      "step": 0.01
+    },
+    {
+      "path": "batMassKg",
+      "label": "バット質量",
+      "section": "batter",
+      "unit": "kg",
+      "type": "number",
+      "min": 0.4,
+      "max": 1.8,
+      "step": 0.01
+    },
+    {
+      "path": "swingRate",
+      "label": "参照軌道の時間倍率",
+      "section": "batter",
+      "unit": "倍",
+      "type": "number",
+      "min": 0.3,
+      "max": 3,
+      "step": 0.01
+    },
+    {
+      "path": "maximumSweetSpotSpeedMps",
+      "label": "芯の最大速度",
+      "section": "batter",
+      "unit": "m/s",
+      "type": "number",
+      "min": 0.1,
+      "max": 90,
+      "step": 0.1
+    },
+    {
+      "path": "targetSweetSpotSpeedMps",
+      "label": "狙う芯速度",
+      "section": "batter",
+      "unit": "m/s",
+      "type": "number",
+      "min": 0.1,
+      "max": 90,
+      "step": 0.1
+    },
+    {
+      "path": "timingStdSeconds",
+      "label": "打撃タイミング誤差",
+      "section": "batter",
+      "unit": "s",
+      "type": "number",
+      "min": 0,
+      "max": 0.08,
+      "step": 0.001
+    },
+    {
+      "path": "aimStdMeters",
+      "label": "打撃位置誤差",
+      "section": "batter",
+      "unit": "m",
+      "type": "number",
+      "min": 0,
+      "max": 0.35,
+      "step": 0.001
+    },
+    {
+      "path": "chaseMarginMeters",
+      "label": "打撃判断のゾーン外余裕",
+      "section": "batter",
+      "unit": "m",
+      "type": "number",
+      "min": 0,
+      "max": 0.6,
+      "step": 0.01
+    },
+    {
+      "path": "motorLatencySeconds",
+      "label": "判断後の運動開始遅延",
+      "section": "batter",
+      "unit": "s",
+      "type": "number",
+      "min": 0,
+      "max": 2,
+      "step": 0.001
+    },
+    {
+      "path": "technicalTimingOffsetSeconds",
+      "label": "技術による狙い時刻差",
+      "section": "batter",
+      "unit": "s",
+      "type": "number",
+      "min": -0.5,
+      "max": 0.5,
+      "step": 0.001
+    },
+    {
+      "path": "sweetSpotT",
+      "label": "芯の位置（ノブ0・先端1）",
+      "section": "batter",
+      "unit": "比",
+      "type": "number",
+      "min": 0.65,
+      "max": 0.9,
+      "step": 0.001
+    },
+    {
+      "path": "attackAngleDegrees",
+      "label": "芯の上向き角",
+      "section": "batter",
+      "unit": "度",
+      "type": "number",
+      "min": -80,
+      "max": 80,
+      "step": 1
+    },
+    {
+      "path": "pullAngleDegrees",
+      "label": "引張り方向の角",
+      "section": "batter",
+      "unit": "度",
+      "type": "number",
+      "min": -80,
+      "max": 80,
+      "step": 1
+    },
+    {
+      "path": "badBallControl",
+      "label": "窮屈な体勢での制御",
+      "section": "batter",
+      "unit": "比",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.01
+    },
+    {
+      "path": "preContactSeconds",
+      "label": "接触前の軌道区間",
+      "section": "batter",
+      "unit": "s",
+      "type": "number",
+      "min": 0.005,
+      "max": 2,
+      "step": 0.005
+    },
+    {
+      "path": "followThroughSeconds",
+      "label": "接触後の軌道区間",
+      "section": "batter",
+      "unit": "s",
+      "type": "number",
+      "min": 0.005,
+      "max": 2,
+      "step": 0.005
+    },
+    {
+      "path": "contactDepthMeters",
+      "label": "狙う接触位置の奥行",
+      "section": "batter",
+      "unit": "m",
+      "type": "number",
+      "min": 0.001,
+      "max": 2,
+      "step": 0.01
+    },
+    {
+      "path": "swingDecision.threshold",
+      "label": "振る判断のしきい値",
+      "section": "batter",
+      "unit": "比",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.01
+    },
+    {
+      "path": "swingDecision.aggressionWeight",
+      "label": "積極性の重み",
+      "section": "batter",
+      "unit": "比",
+      "type": "number",
+      "min": 0,
+      "max": 1,
+      "step": 0.01
+    },
+    {
+      "path": "swingDecision.approach",
+      "label": "基本打撃方針",
+      "section": "batter",
+      "type": "select",
+      "options": [
+        {
+          "value": "AUTO",
+          "label": "自動判断"
+        },
+        {
+          "value": "TAKE",
+          "label": "見送り"
+        },
+        {
+          "value": "SWING",
+          "label": "振りにいく"
+        }
+      ]
+    },
+    {
+      "path": "releaseSpeedMps",
+      "label": "投球基準初速",
+      "section": "pitcher",
+      "unit": "m/s",
+      "type": "number",
+      "min": 15,
+      "max": 85,
+      "step": 0.1
+    },
+    {
+      "path": "maximumPitchSpeedMps",
+      "label": "投球最高初速",
+      "section": "pitcher",
+      "unit": "m/s",
+      "type": "number",
+      "min": 15,
+      "max": 85,
+      "step": 0.1
+    },
+    {
+      "path": "commandStdMeters",
+      "label": "投球の狙い位置誤差",
+      "section": "pitcher",
+      "unit": "m",
+      "type": "number",
+      "min": 0,
+      "max": 0.6,
+      "step": 0.001
+    },
+    {
+      "path": "spinRadPerSecond.x",
+      "label": "回転 X（世界座標）",
+      "section": "pitcher",
+      "unit": "rad/s",
+      "type": "number",
+      "min": -1200,
+      "max": 1200,
+      "step": 1
+    },
+    {
+      "path": "spinRadPerSecond.y",
+      "label": "回転 Y（世界座標）",
+      "section": "pitcher",
+      "unit": "rad/s",
+      "type": "number",
+      "min": -1200,
+      "max": 1200,
+      "step": 1
+    },
+    {
+      "path": "spinRadPerSecond.z",
+      "label": "回転 Z（世界座標）",
+      "section": "pitcher",
+      "unit": "rad/s",
+      "type": "number",
+      "min": -1200,
+      "max": 1200,
+      "step": 1
+    }
+  ],
+  "notes": [
+    "全20選手の数値は個別の暫定設定です。実在選手の実測値やリーグ相対能力を逆算した値ではありません。",
+    "ティカオの最高151km/hのみ既存のユーザー指定値です。その他の初期数値は編集できます。",
+    "成績の目標値や確率補正は設定していません。能力は判断・動作・ボール物理へ接続されます。",
+    "回転は世界座標の3成分です。回転率だけで球種や変化量は確定しません。"
+  ]
+}

@@ -1,0 +1,10 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/GroundWallRollingCurveV1.test.ts (4 tests) 19ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  09:19:10
+   Duration  643ms (transform 146ms, setup 0ms, collect 193ms, tests 19ms, environment 0ms, prepare 132ms)
+

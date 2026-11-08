@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/SamePlateAppearanceLiveWorkCensus.test.ts (20 tests) 1321ms
+   ✓ keeps new defensive metadata from replacing the physical checkpoint or consuming an original decision 333ms
+
+ Test Files  1 passed (1)
+      Tests  20 passed (20)
+   Start at  06:52:17
+   Duration  16.37s (transform 4.69s, setup 0ms, collect 14.35s, tests 1.32s, environment 0ms, prepare 231ms)
+

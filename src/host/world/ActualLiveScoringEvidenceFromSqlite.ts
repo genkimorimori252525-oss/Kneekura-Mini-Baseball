@@ -7,10 +7,11 @@ import { actualScoringIdentityRow, assertActualScoringOwnership, scoringOwnershi
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { deriveActualGroundOutScoringEvidence } from './ActualGroundOutScoringEvidenceFromSqlite';
 import type { AcceptedOfficialScoringEvidence } from '../SqliteOfficialScoringStore';
+import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 
 /** Authenticate original historical application/closure, not the later Match
  * head. Exact proposal hash includes original physics and selected review head. */
-export const deriveActualLiveScoringProposal = (db: ActualAdjudicationDb, source: AcceptedActualLiveScoringSource) => {
+export const deriveActualLiveScoringProposal = (db: ActualAdjudicationDb, source: AcceptedActualLiveScoringSource) => withBattedWorldPhysicalReadTraversal(db, () => {
   const s = input(source, source.sourceId);
   const closure = actualLivePlayClosureEvidenceFromSqlite(db).read(s.closureReference.sourceId);
   if (!closure || closure.status !== 'OFFICIAL_APPLIED' || !closure.officialApplied || !closure.result) {
@@ -78,7 +79,7 @@ export const deriveActualLiveScoringProposal = (db: ActualAdjudicationDb, source
     ...(p.postPlayReviewReference ? { postPlayReviewReference: p.postPlayReviewReference } : {}),
     application: a, originalReceipt: p.expectedOfficial, expectedScoring,
     ...(ownedGroundOutEvidence === undefined ? {} : { ownedGroundOutEvidence }) });
-};
+});
 export type ActualLiveScoringProposal = ReturnType<typeof deriveActualLiveScoringProposal>;
 export type ActualLiveScoringArchive = Readonly<{ source: AcceptedActualLiveScoringSource; proposal: ActualLiveScoringProposal;
   status: 'QUEUED' | 'SCORED'; result: PersistedOfficialScoring | null }>;

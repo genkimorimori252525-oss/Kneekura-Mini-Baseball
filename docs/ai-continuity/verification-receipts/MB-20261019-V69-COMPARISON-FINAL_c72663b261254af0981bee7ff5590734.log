@@ -1,0 +1,20 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/contact/ReferenceBatImpactTrajectoryV1.test.ts (6 tests) 136ms
+ ✓ src/integration/browser/MeasuredTrajectoryComparisonWorkbenchV69.test.ts (7 tests) 1889ms
+   ✓ executes exactly the normal LivePitch profile and original clock for all four R levels 370ms
+   ✓ executes exactly the normal LivePitch profile and original clock for all four L levels 326ms
+   ✓ returns no invented flight/carry for actual misses, takes, and landings outside the observation window 326ms
+   ✓ uses real player speed/aim/timing controls, and retains deterministic outputs without choosing a favourable new seed 365ms
+ ✓ src/integration/browser/ReferenceBattingWorkbench.test.ts (6 tests) 2516ms
+   ✓ uses the same reference state for the visible bat, actual rigid contact, and subsequent Aero/ground ball 762ms
+   ✓ keeps geometric misses and declared input trajectories unchanged 320ms
+   ✓ keeps league labels outside actual impulse and makes unmodelled body/recoil explicit 703ms
+   ✓ shares one adjusted reference between optional maker settings, collision, and every visible bat sample 727ms
+
+ Test Files  3 passed (3)
+      Tests  19 passed (19)
+   Start at  20:47:29
+   Duration  3.26s (transform 600ms, setup 0ms, collect 1.11s, tests 4.54s, environment 0ms, prepare 430ms)
+

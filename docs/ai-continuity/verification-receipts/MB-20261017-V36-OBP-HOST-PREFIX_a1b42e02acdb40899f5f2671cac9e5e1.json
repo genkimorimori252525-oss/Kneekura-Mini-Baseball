@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V36-OBP-HOST-PREFIX",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveBaseballMatchV1.test.ts",
+    "-t",
+    "does not pre-generate|does not derive SI|rejects malformed"
+  ],
+  "observed_at": "2026-10-17T02:29:15.422+00:00",
+  "elapsed_ms": 4015,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V36-OBP-HOST-PREFIX_a1b42e02acdb40899f5f2671cac9e5e1.log",
+  "output_sha256": "57de7d17beee19838c5f26ecf33fa25efc62ca231b87fddc663b5efc2c9b4169",
+  "receipt_id": "MB-20261017-V36-OBP-HOST-PREFIX_a1b42e02acdb40899f5f2671cac9e5e1"
+}

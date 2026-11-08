@@ -1,0 +1,28 @@
+# V189: Native観測Sourceから分類・表示用投影への接続
+
+2026-10-29 JST / MB-20261027-REALISM-DEBUG-PLAN Task5 SPIN-03。`readNativeBattingContactTraitProjectionV189FromSqlite`は、保存済みの真正BATTING_CONTACT Sourceを既存`classifyMeasuredTrait`→`projectSourceTraits`へ接続する。生成するものは再計算可能な記述だけであり、能力値・物理・習得技能への効果は追加しない。
+
+判断根拠は、既存Goalのラインドライブ計画と2026-10-29の本人による実装再開指示。既存契約と物理計算を維持する追加読取APIとして進めた。依存・保存形式の移行・既存DB変更・画面変更はない。復旧は本差分のSource/APIを戻す範囲で可能で、原接触記録とV188の観測metadataを削除しない。
+
+借用readerは既存Native q1 transactionを必要とし、接続・transaction・authorizer・schemaを所有しない。既存Storeのmetadata/facts/snapshot読取を共有する。metadata全体が存在しない場合だけnull、部分欠損や不整合は拒否し、schemaを追加しない。
+
+接続APIは同じNative snapshot内で対応3producerの最新inventoryを再認証し、保存時coverageと照合する。未収集・保存後の追加は理由付きUNAVAILABLEとし、選別した観測だけで分類しない。全世界の接触producerの網羅を証明するものではない。
+
+同一PAに複数receiptがある場合は`UNRESOLVED_CONTACT_IDENTITY`で分類前に停止する。producerのfullrefは記録のidentityであり、同じ実接触の別表現を独立件数にはできない。同PA内の別の真正接触も現段階では保留する。異なるPAの正規gameId/playIdを共通episodeへ混同せず、未解決identityを解決済みへ昇格しない。
+
+model/policyは明示入力のみで、fixtureの閾値をproduction defaultにしない。集計時刻は最新登録contactのas-of値であり、現在のcareer時計ではない。projectionのworldRevisionは呼出側の明示metadataと記載し、観測revisionから補完しない。分類が証拠不足ならassessmentはnull、既存projectionはUNASSESSED、外側の結果は理由を保持したUNAVAILABLEとなる。
+
+## 検証
+
+- 借用reader新13件: RED `66a2a8a93ea44ff1a685f6a04e099338`→PASS `24c2b386bb8e4ef4b9b26988cd7b880f`、7906ms。真正V187由来の保存snapshot1件、空・部分schema・q1/transaction/main-only境界・freeze/detach・bitHash・呼出側状態保持を含む。
+- 接続新6件: module未作成RED `393a9495833e4c548befb23ffa2ec0c6`、既存classifierのsigned-zero正規化との期待不一致FAIL `58b01eb24cb844e6abc15df65eb81593`を保持し、PASS `58dc39ef36514074af18b687f3e8f21f`、7343ms。後者は既存Coreを変更せず、分類器の+0と原Native値の-0不変を別々に確認した。READY正例は明示的なsynthetic modelとdoubleによる接続試験であり、Native認定の証明ではない。
+- 長期inventoryのreview修正: 出力全体の再cloneによる100,000-node制限を新U07の8,000観測で再現した。RED `761faae5f9f344e78e45185049c19f1e`→PASS `960972aaaf644ea48fc252fb687093f8`、8125ms/影響U04+新U07・旧5skip。Coreのfresh/detached出力は再cloneせず、小さなsource/scope/reasonsだけをdetachしてfreezeする。8,000件を保持しつつwindow内10件だけで集計し、原snapshotをfreezeしないことも確認した。
+- 型: testのunion narrowing不足FAIL `75220c46f12744039e5ab12a2c9e1e19`→PASS `cac68373faee4efaabb29075a6d1bb78`、6483ms。長期inventory修正後の最終PASS `1a0a3c0b6d7e4fdfb38e067c7d1cf7a2`、6968ms。既存private incremental cacheを使用し、依存・設定変更なし。
+- 実Node: 初期Sourceのout02 `027a7257101d48ceb9f5e295e633b31a` PASS1828ms、長期inventory修正後の最終Sourceは新out03 `e60aeb72b2b749f6b8e4412d92b754ad` PASS1811ms。fresh正式fixture→capture→close→strict新copy→q1 snapshotの接続2readで、原Source exact、day425、sample/episode各1、INSUFFICIENT_EVIDENCE、assessment null、表示用line_drive UNASSESSEDを確認。深いfreeze/detach、呼出側transaction/q1・schema・total_changes不変、close後のDB全filesとSource869入力・bundle/helper/harness pin一致。
+- 初回out01 `b86bcb84ca6340a1b8f26c653a3a6e1e` FAIL1296msは、OS readOnly接続でSQLiteが空WAL/SHMをclose後も残したため最終file pinで停止した。主DBと分類結果はその時点でも不変だった。新out02では通常接続をq1に固定しSQLite自身のclose処理でsidecarを終了させ、全files一致条件は維持した。旧FAIL/DB/bundleを保存し、手動削除や比較緩和はしない。
+
+独立reviewを実施。私的DB・bundle・raw report・input情報・tsbuildinfoは非公開。旧成功済みV188・全League・キレgrid・設定監査の再実行はしていない。
+
+## 残件
+
+Nativeの独立複数PA/複数日によるREADY正例、production model校正、実際の画面consumerと現在career時計は未完。同PA複数記録のidentity、全producer人口、球回転を含む別のラインドライブ要求もこの接続だけでは完了しない。全Goal・同版HTML配送・最後の設計本文照合を継続する。

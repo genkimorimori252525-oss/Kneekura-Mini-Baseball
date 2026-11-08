@@ -1,0 +1,12 @@
+
+.native-probe{border:1px solid #394c43;margin:14px 0;padding:10px 12px;background:#0b1410;color:#eee;font:13px/1.5 sans-serif}
+.native-probe summary{cursor:pointer;font-weight:650;letter-spacing:.02em;color:#dce6d5}
+.native-probe .native-probe-fields{display:flex;gap:9px;align-items:end;flex-wrap:wrap;margin-top:10px}
+.native-probe label{display:flex;flex-direction:column;gap:3px;font-size:11px;color:#c4d5c1}
+.native-probe button,.native-probe select{font:inherit;background:#152820;color:#f5f6ef;border:1px solid #537666;padding:7px 9px;min-height:32px}
+.native-probe button{cursor:pointer}
+.native-probe button:disabled{opacity:.5;cursor:default}
+.native-probe .native-warning{font-size:11px;color:#e3c781;margin:8px 0}
+.native-probe output{display:block;font:12px/1.6 ui-monospace,monospace;white-space:pre-wrap;margin-top:8px;color:#c6dbc3}
+.native-proof-banner[hidden]{display:none!important}
+.native-proof-banner{position:absolute;z-index:20;top:34px;right:9px;padding:4px 7px;max-width:58%;pointer-events:none;background:rgba(0,0,0,.82);border:1px solid #cfad57;font:11px/1.4 sans-serif;color:#ead49d}

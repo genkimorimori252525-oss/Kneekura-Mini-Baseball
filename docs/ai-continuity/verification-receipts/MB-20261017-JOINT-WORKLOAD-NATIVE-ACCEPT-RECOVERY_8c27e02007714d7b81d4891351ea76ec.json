@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-JOINT-WORKLOAD-NATIVE-ACCEPT-RECOVERY",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-owned-joint-workload-v3/readback.mjs",
+    "accept",
+    "../../outputs/verification-authored-with-bat-physical-execution-v1",
+    "../../outputs/verification-authored-with-bat-workload-v1"
+  ],
+  "observed_at": "2026-10-16T15:19:25.930+00:00",
+  "elapsed_ms": 92625,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-JOINT-WORKLOAD-NATIVE-ACCEPT-RECOVERY_8c27e02007714d7b81d4891351ea76ec.log",
+  "output_sha256": "c8216d909bce8e406598b5a7be4e8293f8e121f5baec7271357533da731651c6",
+  "receipt_id": "MB-20261017-JOINT-WORKLOAD-NATIVE-ACCEPT-RECOVERY_8c27e02007714d7b81d4891351ea76ec"
+}

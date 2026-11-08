@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V34-V31-ZONE-PARITY",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "--input-type=module",
+    "-e",
+    "import assert from 'node:assert/strict';import {createRequire} from 'node:module';import {resolve} from 'node:path';import {pathToFileURL} from 'node:url';import {mkdir,writeFile} from 'node:fs/promises';\nconst require=createRequire(import.meta.url),{chromium}=require('C:/Users/genki/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright-core');const evidence=resolve('../../outputs/verification-v34-v31-zone-parity-v1');await mkdir(evidence);\nconst browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});\ntry{\n const result={};for(const version of [31,34]){\n  const page=await browser.newPage({viewport:{width:1200,height:860}});const name=version===31?'ばせぼーるlv31_TBD_vs_LAD_剛体バット描画版.html':'ばせぼーるlv34_TBD_vs_LAD_UI復元版.html';await page.goto(pathToFileURL(resolve('../../outputs/'+name)).href);await page.evaluate(()=>document.fonts.ready);\n  if(version===31)await page.evaluate(()=>window.matchPreview.setOptions({cameraChoice:'batter',autoOverhead:false,zone:true}));\n  else await page.evaluate(()=>{const a=document.getElementById('auto-overhead');a.checked=false;a.dispatchEvent(new Event('change'));document.querySelector('[data-camera=\"batter\"]').click();});\n  result[version]=await page.evaluate(version=>{const s=version===31?window.matchPreview.inspect():window.liveMatchPlayback.inspect().rendered;return {camera:s.camera,eye:s.cameraEye,yaw:s.cameraYaw,pitch:s.cameraPitch,zoneCorners:s.zoneCorners,inside:s.zoneCorners.filter(p=>p&&p.x>=0&&p.x<=600&&p.y>=0&&p.y<=432).length};},version);\n  if(version===34){await page.evaluate(()=>{document.getElementById('managed-team').value='0';document.getElementById('batting-choice').value='take';document.getElementById('next-pitch').click();window.liveMatchPlayback.stop();});result.preparation=await page.evaluate(()=>{const s=window.liveMatchPlayback.inspect(),r=s.rendered;return{stage:s.presentation.stage,tick:s.currentFrame.tick,camera:r.camera,eye:r.cameraEye,yaw:r.cameraYaw,pitch:r.cameraPitch,zoneCorners:r.zoneCorners,inside:r.zoneCorners.filter(p=>p&&p.x>=0&&p.x<=600&&p.y>=0&&p.y<=432).length};});}\n  await page.locator('.broadcast').screenshot({path:resolve(evidence,'batter-v'+version+'.png')});await page.close();\n }\n assert.deepEqual(result[31].zoneCorners,result[34].zoneCorners);assert.deepEqual(result[31].zoneCorners,result.preparation.zoneCorners);assert.equal(result[31].inside,2);\n await writeFile(resolve(evidence,'zone-parity.json'),JSON.stringify({status:'PASS',...result},null,2)+'\\n');console.log(JSON.stringify({status:'PASS',originalV31Inside:result[31].inside,restoredV34Inside:result[34].inside,preparationInside:result.preparation.inside,exactCorners:true,corners:result[31].zoneCorners,evidence},null,2));\n}finally{await browser.close();}"
+  ],
+  "observed_at": "2026-10-17T01:55:48.081+00:00",
+  "elapsed_ms": 1546,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V34-V31-ZONE-PARITY_ea980a277369400785f01c4235c4f2ed.log",
+  "output_sha256": "bf30e2175fc9b595987e5fc2c2b4ca5929ac293753e36b118911b887c6ef67c9",
+  "receipt_id": "MB-20261017-V34-V31-ZONE-PARITY_ea980a277369400785f01c4235c4f2ed"
+}

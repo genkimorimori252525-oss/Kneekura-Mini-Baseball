@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V45-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v45-continuous-view.mjs",
+    "../../outputs/ばせぼーるlv45_TBD_vs_LAD_連続打者視点版.html",
+    "../../outputs/verification-v45-continuous-view-v1"
+  ],
+  "observed_at": "2026-10-18T04:58:38.819+00:00",
+  "elapsed_ms": 16875,
+  "git_head": "058110f3eb8fe19170f0601177c439048b7b2f2c",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V45-BROWSER_624903e458c44bb290012e69b34d2642.log",
+  "output_sha256": "8803cd40ec8654832afede9b52391c443b1f10bd025b96bd63c5d07863e40a49",
+  "receipt_id": "MB-20261018-V45-BROWSER_624903e458c44bb290012e69b34d2642"
+}

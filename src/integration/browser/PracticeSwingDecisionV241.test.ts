@@ -1,0 +1,13 @@
+import {describe,it,expect} from 'vitest';
+import {forecastObservedPitchV151} from '../../core/decision/batting/ObservedPitchForecastV151';
+import {parsePracticeSwingDecisionV241,resolvePracticeSwingDecisionV241} from './PracticeSwingDecisionV241';
+const request=(mode:'AUTO'|'SWING'|'TAKE')=>({version:'practice_swing_decision_v241',sourceId:'trial-1',scope:'EXPLICIT_PRACTICE',mode});
+const forecast=forecastObservedPitchV151({originTick:0,ticksPerSecond:1000,cutoffTick:100,planeZ:0,maximumAfterReleaseSeconds:2,observations:[{observationId:'a',observedTick:20,availableTick:20,position:{x:0,y:1,z:4}},{observationId:'b',observedTick:40,availableTick:40,position:{x:0,y:1,z:3}}]});
+const base={managedOffense:true,explicitPractice:true,batting:'contact' as const,managerCommunicationPresent:false,baselineOffer:false,effort:1,currentForecast:forecast,decisionCutoffTick:100};
+describe('practice swing decision v241',()=>{
+ it('strictly parses a detached request and rejects unknown fields or authority',()=>{expect(parsePracticeSwingDecisionV241(request('SWING'))).toEqual(request('SWING'));expect(()=>parsePracticeSwingDecisionV241({...request('SWING'),extra:true})).toThrow();expect(()=>parsePracticeSwingDecisionV241({...request('SWING'),scope:'EARNED'})).toThrow()});
+ it('AUTO preserves baseline and TAKE declines',()=>{expect(resolvePracticeSwingDecisionV241({...base,request:request('AUTO')}).offerAfterIntent).toBe(false);expect(resolvePracticeSwingDecisionV241({...base,baselineOffer:true,request:request('TAKE')}).offerAfterIntent).toBe(false)});
+ it('requires a currently delivered prediction for SWING, not prior-only availability',()=>{expect(resolvePracticeSwingDecisionV241({...base,request:request('SWING')}).offerAfterIntent).toBe(true);expect(resolvePracticeSwingDecisionV241({...base,currentForecast:null,request:request('SWING')}).blockedReason).toBe('NO_CURRENT_DELIVERED_PREDICTION');expect(resolvePracticeSwingDecisionV241({...base,decisionCutoffTick:30,request:request('SWING')}).blockedReason).toBe('NO_CURRENT_DELIVERED_PREDICTION')});
+ it('retains zero effort and does not assert a motor or contact',()=>{const out=resolvePracticeSwingDecisionV241({...base,effort:0,request:request('SWING')});expect(out.offerAfterIntent).toBe(false);expect(out.blockedReason).toBe('ZERO_EFFORT');expect(out.finalMotorAvailable).toBeNull()});
+ it('rejects nonpractice, unmanaged, conflicting TAKE or manager instructions',()=>{for(const patch of [{explicitPractice:false},{managedOffense:false},{batting:'take' as const},{managerCommunicationPresent:true}])expect(()=>resolvePracticeSwingDecisionV241({...base,...patch,request:request('SWING')})).toThrow()});
+});

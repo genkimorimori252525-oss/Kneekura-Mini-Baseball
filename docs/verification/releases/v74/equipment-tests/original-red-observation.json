@@ -1,0 +1,38 @@
+{
+  "phase": "RED",
+  "evidenceKind": "Observed original tool result excerpt, not a replay",
+  "originalToolChunkId": "ff8541",
+  "exitCode": 1,
+  "startedAtLocal": "2026-10-19 23:59:06 Asia/Tokyo",
+  "testFilesFailed": 5,
+  "testsPassed": 72,
+  "testsFailed": 6,
+  "failures": [
+    {
+      "test": "certifies an experimental three-metre bat while retaining the finite geometry limit",
+      "message": "initial held bat: invalid original bat geometry",
+      "disposition": "Out-of-scope held-bat extension and its new test removed; maker Live does not use this contract."
+    },
+    {
+      "test": "accepts experimental bat dimensions without narrowing existing workbench inputs",
+      "message": "invalid workbench range: bat.lengthM"
+    },
+    {
+      "test": "samples the full experimental three-metre length and keeps the finite upper bound",
+      "message": "invalid sampled reference bat trajectory"
+    },
+    {
+      "test": "executes long experimental bats with the authored geometry, mass and unchanged motor ceiling",
+      "message": "live pitch: invalid batter SI controls"
+    },
+    {
+      "test": "rejects invalid experimental equipment without changing the supplied pitch",
+      "message": "expected [Function] to throw error matching /batter SI/ but got 'official window input must be finite'",
+      "disposition": "Test accepts the existing early cloneInert finite-value rejection."
+    },
+    {
+      "test": "projects experimental bat bounds and rejects invalid equipment atomically",
+      "message": "live physical roster: unsupported physical range: batLengthM"
+    }
+  ]
+}

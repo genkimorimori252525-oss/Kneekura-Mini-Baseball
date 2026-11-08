@@ -1,0 +1,11 @@
+▲ [WARNING] "youkaishomecoming:yukari" is not a valid value for the "type" field [package.json]
+
+    ../../../../../../package.json:1:8:
+      1 │ {"type":"youkaishomecoming:yukari","texture":"touhou_little_maid:te...
+        ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The "type" field must be set to either "commonjs" or "module".
+
+{"outfile":"dist/native-match-core-browser.js","bytes":951850,"sha256":"596b968cbb7041ee7ef3eb885bcfd5f1fc989939a124265e3b9f669c20cd5ea2","inputCount":131,"inputManifestSha256":"23a4af1484ab7ac68c7640ceccc0768a5dda1f395c4c9df13ddd1e85569669b2","exports":["createNativeSinglePaSession","issueNativeCommandPitch","observeNativePitch","createNativeAerodynamicSession","observeNativeAerodynamicPitch","createReferenceAerodynamicPhysicalSource","observeNativeFreeBallContinuation","createSourceBallMaterialHistoryV1","createSourceBallMaterialHistoryFromContinuationV3","createExecutedFieldWorldObserverV1","createLiveBaseballMatchV1"]}
+{"path":"C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv87_TBD_vs_LAD_コース認識と打率版.html","sha256":"9c31a38c73567acc71792c1f9b18a4ab191a6d0246ae446055d1289fab4b75ee","sourceCoreSha256":"596b968cbb7041ee7ef3eb885bcfd5f1fc989939a124265e3b9f669c20cd5ea2"}
+{"path":"C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\カメラワーク調整室_v87_コース認識.html","sha256":"5ec891c6746f06839e740c03d343ed9d3dbe200a136feed7daade07ce89ea469","sourceCoreSha256":"596b968cbb7041ee7ef3eb885bcfd5f1fc989939a124265e3b9f669c20cd5ea2"}

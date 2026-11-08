@@ -1,0 +1,17 @@
+{
+  "presentationVersion": 55,
+  "workbenchRevision": 1,
+  "sourceGamePath": "docs/demos/releases/v54/game.html",
+  "sourceGameSha256": "80c68e3ddb5c961ab6f18b325c6f267f883cd02d27381dfa10a9334bf8afae9f",
+  "sourceCoreSha256": "4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279",
+  "sourceInputCount": 113,
+  "cameraHelperSha256": "ec88797284d39c2c00a4cfe799c4527178a7df6ffbbb710ada3cd8d5d93f8950",
+  "workbenchDriverSha256": "cfc8414ffbc8862dfb389d3e5c06f460ac8f849f2a966407141ecddaf9968e69",
+  "workbenchTemplateSha256": "aaf49e76b00b396cad13624c6aa485ec830840c86793f14867cd826b5c9fe53d",
+  "worldAuthority": "UNCHANGED_V54_OFFLINE_HOST_SHARED_CORE",
+  "displayGridPixels": 4,
+  "ordinaryCadenceMs": 55,
+  "readOnlyCamera": true,
+  "kind": "CAMERA_WORKBENCH",
+  "sha256": "838dc1f05b9ec4c8c013d76c7e06bb769e177884d08c8563d7564ae735493d10"
+}

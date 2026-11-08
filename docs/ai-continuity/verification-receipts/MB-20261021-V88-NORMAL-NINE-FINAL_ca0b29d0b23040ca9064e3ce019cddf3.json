@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V88-NORMAL-NINE-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-full-history-performance-v81.mjs",
+    "../../outputs/ばせぼーるlv88_TBD_vs_LAD_空振りとHR見送り版.html",
+    "docs/verification/releases/v88/normal-nine-final"
+  ],
+  "observed_at": "2026-10-20T17:50:55.052+00:00",
+  "elapsed_ms": 201140,
+  "git_head": "6a7b3500d315de70a46f70d697aa032b18b37cb1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V88-NORMAL-NINE-FINAL_ca0b29d0b23040ca9064e3ce019cddf3.log",
+  "output_sha256": "81c57d74e7d03d19fc84a915e3fd736df9948ae90f5c6933af547690d83219bb",
+  "receipt_id": "MB-20261021-V88-NORMAL-NINE-FINAL_ca0b29d0b23040ca9064e3ce019cddf3"
+}

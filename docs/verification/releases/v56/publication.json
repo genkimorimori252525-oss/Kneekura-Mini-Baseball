@@ -1,0 +1,71 @@
+{
+  "pass": true,
+  "sourceCommit": "e0e643b22dca1c4cd1796e269258129d07291738",
+  "verifiedRemoteHead": "e0e643b22dca1c4cd1796e269258129d07291738",
+  "branch": "jolly/tbd-lad-native-browser-core-2026-10-14",
+  "pullRequest": {
+    "headRefOid": "e0e643b22dca1c4cd1796e269258129d07291738",
+    "isDraft": true,
+    "state": "OPEN",
+    "title": "通常試合・調整室v56: 投球FPSと追従率の調整",
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380"
+  },
+  "rawFiles": {
+    "docs/handoffs/LATEST.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/e0e643b22dca1c4cd1796e269258129d07291738/docs/handoffs/LATEST.md",
+      "bytes": 11793,
+      "sha256": "6ac4a2fdd7e20d2c5f170715857a06a8722bdeaac36611d7d5244e971704d3d6"
+    },
+    "tools/browser-bridge/camera-workbench-v56.js": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/e0e643b22dca1c4cd1796e269258129d07291738/tools/browser-bridge/camera-workbench-v56.js",
+      "bytes": 31605,
+      "sha256": "66e7d40a3cd91920113ac16e91db3197c559e409f633f92a5de658053e9abf92"
+    },
+    "tools/browser-bridge/camera-workbench-v56.html": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/e0e643b22dca1c4cd1796e269258129d07291738/tools/browser-bridge/camera-workbench-v56.html",
+      "bytes": 11028,
+      "sha256": "95b9c78ddde2bf5f54db652c8ac0521c2e2a48715c215bd088a61395190a0518"
+    },
+    "tools/browser-bridge/build-v56.mjs": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/e0e643b22dca1c4cd1796e269258129d07291738/tools/browser-bridge/build-v56.mjs",
+      "bytes": 3666,
+      "sha256": "a24b5d2faa6884888e0baf83c2b58782b7edd31148d43f39a8528c777429cfdf"
+    },
+    "tools/browser-bridge/v56-live-presentation.mjs": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/e0e643b22dca1c4cd1796e269258129d07291738/tools/browser-bridge/v56-live-presentation.mjs",
+      "bytes": 8665,
+      "sha256": "15154d82546f34d3d1331178d4ec7e22505a3bb540ab00109fcb1f1f353f155e"
+    },
+    "tools/browser-bridge/live-pitch-ball-cadence-v56.js": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/e0e643b22dca1c4cd1796e269258129d07291738/tools/browser-bridge/live-pitch-ball-cadence-v56.js",
+      "bytes": 3600,
+      "sha256": "bf72b94742b7de19abd863edd610fea493d648ba43b5823c906222e02aac4536"
+    },
+    "tools/browser-bridge/live-camera-tuning-batter-view-v56.js": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/e0e643b22dca1c4cd1796e269258129d07291738/tools/browser-bridge/live-camera-tuning-batter-view-v56.js",
+      "bytes": 22020,
+      "sha256": "06c37df74f7c2c7d7b305bbdd9808f03cca610e9654af7bc997f39ab54a6a011"
+    },
+    "docs/reports/2026-10-19-v56-pitch-presentation.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/e0e643b22dca1c4cd1796e269258129d07291738/docs/reports/2026-10-19-v56-pitch-presentation.md",
+      "bytes": 6178,
+      "sha256": "110e89014decc253263ca8f5064345ddf9f25d5875a20495f186b929314d42f3"
+    },
+    "docs/demos/releases/v56/game.html": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/e0e643b22dca1c4cd1796e269258129d07291738/docs/demos/releases/v56/game.html",
+      "bytes": 3593469,
+      "sha256": "331f5f9a3bafb78ba2ae5009ba25fb795eeb08d5f42c85db3844c2d186ec32c5"
+    },
+    "docs/demos/releases/v56/camera-workbench.html": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/e0e643b22dca1c4cd1796e269258129d07291738/docs/demos/releases/v56/camera-workbench.html",
+      "bytes": 3869131,
+      "sha256": "90e955f8fb1fa6432de563c7a44afab2b1e4ec644ec973c76cd395a0edcbebea"
+    },
+    "docs/demos/releases/v56/SHA256.json": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/e0e643b22dca1c4cd1796e269258129d07291738/docs/demos/releases/v56/SHA256.json",
+      "bytes": 490,
+      "sha256": "908b424e219a8cd654b79b0ab9593363362bdb6c3dcac4243487620045a729b0"
+    }
+  },
+  "scope": "actual current raw bytes and remote branch/Draft PR; no main merge"
+}

@@ -1,0 +1,20 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/host/world/SqliteInitialJointRecoveryWorkloadStore.test.ts (0 test)
+ ✓ src/host/world/InitialJointWorkloadProjection.test.ts (5 tests) 18ms
+ ✓ src/host/world/InitialJointRecoveryWorkloadProjection.test.ts (7 tests) 29ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/host/world/SqliteInitialJointRecoveryWorkloadStore.test.ts [ src/host/world/SqliteInitialJointRecoveryWorkloadStore.test.ts ]
+Error: Failed to load url sqlite (resolved id: sqlite). Does the file exist?
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:51969:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  12 passed (12)
+   Start at  06:45:19
+   Duration  6.87s (transform 4.09s, setup 0ms, collect 12.71s, tests 47ms, environment 0ms, prepare 423ms)
+

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-MEASURED-BAT-AXIS-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/MeasuredBatAxisReferenceV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T17:11:59.533+00:00",
+  "elapsed_ms": 983,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-MEASURED-BAT-AXIS-RED_f62084e4d893456cb78867c01c24ccb3.log",
+  "output_sha256": "2e234881bc59941105e6bd1ea7ec777cba436562960a1551b72a4a22d7b56dd4",
+  "receipt_id": "MB-20261016-MEASURED-BAT-AXIS-RED_f62084e4d893456cb78867c01c24ccb3"
+}

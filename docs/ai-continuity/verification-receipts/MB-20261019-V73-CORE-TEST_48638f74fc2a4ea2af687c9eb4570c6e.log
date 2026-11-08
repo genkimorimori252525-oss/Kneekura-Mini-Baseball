@@ -1,0 +1,43 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/contact/ReferenceBatImpactTrajectoryV1.test.ts (9 tests | 1 failed) 176ms
+   × admits short measured clips without a local window and keeps legacy JSON validation strict 10ms
+     → expected [Function] to throw error matching /impact trajectory/ but got 'official window input must contain in…'
+ ✓ src/core/sim/contact/ReferenceBatKinematicsV1.test.ts (9 tests) 230ms
+ ✓ src/integration/browser/MeasuredTrajectoryComparisonWorkbenchV69.test.ts (7 tests) 2169ms
+   ✓ executes exactly the normal LivePitch profile and original clock for all four R levels 430ms
+   ✓ executes exactly the normal LivePitch profile and original clock for all four L levels 363ms
+   ✓ observes the real post-contact Aero/ground Source and carries material orientation without changing collision output 312ms
+   ✓ returns no invented flight/carry for actual misses, takes, and landings outside the observation window 374ms
+   ✓ uses real player speed/aim/timing controls, and retains deterministic outputs without choosing a favourable new seed 437ms
+ ✓ src/integration/browser/ReferenceBattingWorkbench.test.ts (6 tests) 2941ms
+   ✓ uses the same reference state for the visible bat, actual rigid contact, and subsequent Aero/ground ball 901ms
+   ✓ keeps geometric misses and declared input trajectories unchanged 385ms
+   ✓ keeps league labels outside actual impulse and makes unmodelled body/recoil explicit 825ms
+   ✓ shares one adjusted reference between optional maker settings, collision, and every visible bat sample 826ms
+ ✓ src/integration/browser/LiveImpactTrajectoryV1.test.ts (11 tests) 64664ms
+   ✓ leaves legacy automatic clip selection unchanged when expanded clips are opt-in only 628ms
+   ✓ finishes a full ordinary nine-inning match with imported per-player trajectory edits and physical live plays 62802ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/contact/ReferenceBatImpactTrajectoryV1.test.ts > admits short measured clips without a local window and keeps legacy JSON validation strict
+AssertionError: expected [Function] to throw error matching /impact trajectory/ but got 'official window input must contain in…'
+
+- Expected: 
+/impact trajectory/
+
++ Received: 
+"official window input must contain inert data only"
+
+ ❯ src/core/sim/contact/ReferenceBatImpactTrajectoryV1.test.ts:162:99
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  1 failed | 41 passed (42)
+   Start at  23:02:28
+   Duration  66.01s (transform 1.10s, setup 0ms, collect 2.49s, tests 70.18s, environment 1ms, prepare 880ms)
+

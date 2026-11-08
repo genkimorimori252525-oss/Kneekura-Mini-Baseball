@@ -1,0 +1,10 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/MeasuredTrajectoryComparisonWorkbenchV69.test.ts (7 tests | 6 skipped) 260ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 6 skipped (7)
+   Start at  20:46:47
+   Duration  1.35s (transform 403ms, setup 0ms, collect 607ms, tests 260ms, environment 0ms, prepare 157ms)
+

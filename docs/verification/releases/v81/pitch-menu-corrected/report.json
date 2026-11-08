@@ -1,0 +1,77 @@
+{
+  "pass": true,
+  "sha256": "9a05aabd41e152b2ead5b590397ac1de42e420d6d8b15105dc0c35daffedee09",
+  "coreSha256": "1b2d39c095e79882e223965904a6d7e8fead1a96cb6aa471bcf2af3534edd5bd",
+  "inheritedUiAndRosterUnchanged": true,
+  "updatedCoreAndRenderersPinned": true,
+  "cases": [
+    {
+      "width": 1200,
+      "hand": "R",
+      "allPresets": 24,
+      "ownedAlwaysVisible": true,
+      "ownedAfterAdd": 32,
+      "uniquePitchIds": true,
+      "arrowsMatchSharedSpin": true,
+      "browseReadOnly": true,
+      "dirtyGuards": true,
+      "rosterOnlyRepertoireChanged": true,
+      "jsonRoundTrip": true,
+      "trial": true
+    },
+    {
+      "width": 1200,
+      "hand": "L",
+      "allPresets": 24,
+      "ownedAlwaysVisible": true,
+      "ownedAfterAdd": 32,
+      "uniquePitchIds": true,
+      "arrowsMatchSharedSpin": true,
+      "browseReadOnly": true,
+      "dirtyGuards": true,
+      "rosterOnlyRepertoireChanged": true,
+      "jsonRoundTrip": true,
+      "trial": false
+    },
+    {
+      "width": 390,
+      "hand": "R",
+      "allPresets": 24,
+      "ownedAlwaysVisible": true,
+      "ownedAfterAdd": 32,
+      "uniquePitchIds": true,
+      "arrowsMatchSharedSpin": true,
+      "browseReadOnly": true,
+      "dirtyGuards": true,
+      "rosterOnlyRepertoireChanged": true,
+      "jsonRoundTrip": true,
+      "trial": true
+    },
+    {
+      "width": 390,
+      "hand": "L",
+      "allPresets": 24,
+      "ownedAlwaysVisible": true,
+      "ownedAfterAdd": 32,
+      "uniquePitchIds": true,
+      "arrowsMatchSharedSpin": true,
+      "browseReadOnly": true,
+      "dirtyGuards": true,
+      "rosterOnlyRepertoireChanged": true,
+      "jsonRoundTrip": true,
+      "trial": false
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "errors": [],
+      "external": []
+    }
+  ]
+}

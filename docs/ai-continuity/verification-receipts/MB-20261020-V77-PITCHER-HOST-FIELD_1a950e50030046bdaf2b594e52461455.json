@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V77-PITCHER-HOST-FIELD",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePitchHostAuthoringV77.test.ts",
+    "src/core/sim/fielding/LivePitcherReactionV77.test.ts",
+    "src/core/sim/fielding/LiveFieldTechniquesV75.test.ts"
+  ],
+  "observed_at": "2026-10-19T18:56:48.758+00:00",
+  "elapsed_ms": 4905,
+  "git_head": "76c564765f6a6d15fd1a2740a201080e3c534bfe",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V77-PITCHER-HOST-FIELD_1a950e50030046bdaf2b594e52461455.log",
+  "output_sha256": "744ae43db8397ddac0a240298a7a4355fb78bfeab96cec62a035e2a5272ee17c",
+  "receipt_id": "MB-20261020-V77-PITCHER-HOST-FIELD_1a950e50030046bdaf2b594e52461455"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-FIELD-ARENA-MOTOR-FIRST",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T00:25:14.417+00:00",
+  "elapsed_ms": 1640,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-FIELD-ARENA-MOTOR-FIRST_03af12f95a624e6da36749d1c589be80.log",
+  "output_sha256": "fca4b9bdd6bff6da2aa421713409a3e6515985bf5e54f5a787e8cdbe5e64d4c2",
+  "receipt_id": "MB-20261017-FIELD-ARENA-MOTOR-FIRST_03af12f95a624e6da36749d1c589be80"
+}

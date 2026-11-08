@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-CUT-INDEPENDENT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-observed-initial-cut-readback-v1/readback.mjs",
+    "../../outputs/verification-observed-initial-cut-v1/match.sqlite",
+    "../../outputs/verification-observed-initial-cut-v1/expected.json",
+    "../../outputs/verification-observed-initial-cut-v1/independent-readback.json"
+  ],
+  "observed_at": "2026-10-15T23:43:38.752+00:00",
+  "elapsed_ms": 2297,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-CUT-INDEPENDENT_620036f1e46b4f2997b19aab29830c6a.log",
+  "output_sha256": "94878d4e26e92dc847d6511ca90240f0abaf192079fa3ccd3df79c36ca78128a",
+  "receipt_id": "MB-20261016-INITIAL-CUT-INDEPENDENT_620036f1e46b4f2997b19aab29830c6a"
+}

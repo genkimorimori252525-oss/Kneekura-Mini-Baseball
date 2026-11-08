@@ -1,0 +1,168 @@
+{
+  "pass": true,
+  "fixtureOnly": true,
+  "baselineSha256": "ed10241a66c31b90a177adc17b7a59150b7c92a60150594b6dddc7cb934ab949",
+  "uiSha256": "db71909c29c16f37eb717806da746b0508ed58b3834de3839a85b2913cb238ad",
+  "fixtureSha256": "4b4219406f5d16377ccfb53bd6286e49fc66d270f934a1b74cb3f49deb978a5b",
+  "scope": "Only main-stage projection/gesture/optional display JSON. Frozen v68 Core, library, helpers, other panels and physics are reused unchanged.",
+  "views": [
+    {
+      "width": 1200,
+      "defaultCameras": [
+        "side",
+        "batter",
+        "catcher",
+        "pitcher",
+        "overhead"
+      ],
+      "errors": [],
+      "external": [],
+      "modes": [
+        {
+          "mode": "core",
+          "projectionSizeRatio": 5,
+          "batAndBallPresent": true,
+          "physicalUnchanged": true
+        },
+        {
+          "mode": "reference-experiment",
+          "projectionSizeRatio": 5,
+          "batAndBallPresent": true,
+          "physicalUnchanged": true
+        }
+      ],
+      "invalid": {
+        "rows": [
+          {
+            "error": "拡大率は0.25〜12倍で指定してください。",
+            "unchanged": true
+          },
+          {
+            "error": "拡大率は0.25〜12倍で指定してください。",
+            "unchanged": true
+          },
+          {
+            "error": "画面の移動量が範囲外です。",
+            "unchanged": true
+          },
+          {
+            "error": "画面の移動量が範囲外です。",
+            "unchanged": true
+          },
+          {
+            "error": "拡大率は0.25〜12倍で指定してください。",
+            "unchanged": true
+          },
+          {
+            "error": "拡大表示の設定項目が不正です。",
+            "unchanged": true
+          },
+          {
+            "error": "拡大表示の設定項目が不正です。",
+            "unchanged": true
+          }
+        ],
+        "getterCalls": 0,
+        "importError": "拡大表示の設定項目が不正です。",
+        "importUnchanged": true
+      },
+      "zoom": {
+        "minimum": 0.25,
+        "maximum": 12,
+        "batSizeRatioAt4": 4,
+        "drag": {
+          "zoom": 1,
+          "panX": 0.0440251572327044,
+          "panY": 0.034335601238812886
+        },
+        "wheel": true,
+        "legacyFiveCameraPixelsExact": true,
+        "miniViewsUnchanged": true,
+        "physicalUnchanged": true,
+        "optionalJsonRoundTrip": true
+      }
+    },
+    {
+      "width": 390,
+      "defaultCameras": [
+        "side",
+        "batter",
+        "catcher",
+        "pitcher",
+        "overhead"
+      ],
+      "errors": [],
+      "external": [],
+      "pinch": {
+        "actualTouchEvents": true,
+        "zoom": 1.625
+      },
+      "modes": [
+        {
+          "mode": "core",
+          "projectionSizeRatio": 5,
+          "batAndBallPresent": true,
+          "physicalUnchanged": true
+        },
+        {
+          "mode": "reference-experiment",
+          "projectionSizeRatio": 5,
+          "batAndBallPresent": true,
+          "physicalUnchanged": true
+        }
+      ],
+      "invalid": {
+        "rows": [
+          {
+            "error": "拡大率は0.25〜12倍で指定してください。",
+            "unchanged": true
+          },
+          {
+            "error": "拡大率は0.25〜12倍で指定してください。",
+            "unchanged": true
+          },
+          {
+            "error": "画面の移動量が範囲外です。",
+            "unchanged": true
+          },
+          {
+            "error": "画面の移動量が範囲外です。",
+            "unchanged": true
+          },
+          {
+            "error": "拡大率は0.25〜12倍で指定してください。",
+            "unchanged": true
+          },
+          {
+            "error": "拡大表示の設定項目が不正です。",
+            "unchanged": true
+          },
+          {
+            "error": "拡大表示の設定項目が不正です。",
+            "unchanged": true
+          }
+        ],
+        "getterCalls": 0,
+        "importError": "拡大表示の設定項目が不正です。",
+        "importUnchanged": true
+      },
+      "zoom": {
+        "minimum": 0.25,
+        "maximum": 12,
+        "batSizeRatioAt4": 4,
+        "drag": {
+          "zoom": 1,
+          "panX": 0.09615384615384616,
+          "panY": 0.0713923537166616
+        },
+        "wheel": true,
+        "legacyFiveCameraPixelsExact": true,
+        "miniViewsUnchanged": true,
+        "physicalUnchanged": true,
+        "optionalJsonRoundTrip": true
+      }
+    }
+  ],
+  "faults": [],
+  "phase": "complete"
+}

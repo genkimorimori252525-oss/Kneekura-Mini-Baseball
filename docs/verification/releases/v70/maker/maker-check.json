@@ -1,0 +1,400 @@
+{
+  "pass": true,
+  "phase": "complete",
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v70_打者視点比較版.html",
+  "views": [
+    {
+      "width": 1200,
+      "samples": [
+        {
+          "kind": "pitch",
+          "clock": 0.15,
+          "level": 2,
+          "pixel": "136203c2ee9ee4a13305ca74c5aa6b1648129663d9f6a507f77d9a68d382fba5",
+          "layers": {
+            "field": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 1036800,
+              "sha256": "1eb64853c19844989bc773b4445b7b71482ae1e91ab94ba83598834cb2d6fcf3"
+            },
+            "bat-overlay": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 70272,
+              "sha256": "c1976c0b10091b89ed500518cd12f8a2f5acaa9a03b2a73479bdd99a088c158a"
+            },
+            "ball-overlay": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 108,
+              "sha256": "588f5d89796a3e3e210e24d398a2692e0af4a6ac17302573d81092a2647b22ba"
+            }
+          }
+        },
+        {
+          "kind": "swing",
+          "clock": 0.412483,
+          "level": 1,
+          "pixel": "f416b2b5a4da6315ffc93dba8e5761e04047d125538457219f7f4006f5170df1",
+          "layers": {
+            "field": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 1036800,
+              "sha256": "7d75558441591a08e866bffa0875d10b04c8fe643f79f76c3c9becae5451574a"
+            },
+            "bat-overlay": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 48448,
+              "sha256": "2f5c17991b6d5eb5a1c3de5f584eb88bcd587b1f4cf1490397bce52c614c4da7"
+            },
+            "ball-overlay": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 1116,
+              "sha256": "255aa14cd291ac3212f263d58d34cae223683cc50124074ea0332c38f2f8a1fd"
+            }
+          }
+        },
+        {
+          "kind": "contact",
+          "clock": 0.472483,
+          "level": 1,
+          "pixel": "3b4420ec616f87835af945ac216f3c05c5f22752f1fede4064a48f20b422c82f",
+          "layers": {
+            "field": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 1036800,
+              "sha256": "329177bdf6b03f4d91ddc0581c20569a109dca3a9cd80091951451add36814d7"
+            },
+            "bat-overlay": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 12928,
+              "sha256": "0f323482a5017077dd3a536e865c3340bf64dc2f5588c86aece700d9e1ff8450"
+            },
+            "ball-overlay": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 72,
+              "sha256": "2ee0a622b366f99e7d1a257df5f5703ab6ce8ae4dcca145e8774d6528e965702"
+            }
+          }
+        },
+        {
+          "kind": "miss",
+          "clock": 0.55,
+          "level": 4,
+          "pixel": "32b0c174e0e8d28dc9ff12eaf062c589f83e5f48611af559168d8e9b07c72759",
+          "layers": {
+            "field": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 1036800,
+              "sha256": "87769885148b4dc0e5bb8bb3db16d7e3c27f53336ca5dc002d958cae8c37e9d5"
+            },
+            "bat-overlay": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 0,
+              "sha256": "06b2c5a0c01e515d009c0bfbe0e61fafb105a54da5ec621104915cd5949849e8"
+            },
+            "ball-overlay": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 0,
+              "sha256": "06b2c5a0c01e515d009c0bfbe0e61fafb105a54da5ec621104915cd5949849e8"
+            }
+          }
+        },
+        {
+          "kind": "held",
+          "clock": 0.5351940000000001,
+          "level": 4,
+          "pixel": "78b41dfdf9317b593db3d1282fc54820c41e5bc4e318664ff6b7636a2cddc03b",
+          "layers": {
+            "field": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 1036800,
+              "sha256": "d39ec286a2b3e589a376d487678551a127b352f9f852255bc555ac43e164310d"
+            },
+            "bat-overlay": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 0,
+              "sha256": "06b2c5a0c01e515d009c0bfbe0e61fafb105a54da5ec621104915cd5949849e8"
+            },
+            "ball-overlay": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 0,
+              "sha256": "06b2c5a0c01e515d009c0bfbe0e61fafb105a54da5ec621104915cd5949849e8"
+            }
+          }
+        }
+      ],
+      "defaultCases": [
+        {
+          "level": 1,
+          "call": null,
+          "contactTick": 1432483
+        },
+        {
+          "level": 2,
+          "call": null,
+          "contactTick": 1432637
+        },
+        {
+          "level": 3,
+          "call": null,
+          "contactTick": 1433159
+        },
+        {
+          "level": 4,
+          "call": "swinging_strike",
+          "contactTick": null
+        }
+      ],
+      "playingBoundaries": {
+        "cadenceClockFrozen": true,
+        "catch": {
+          "level": 4,
+          "before": 0.484,
+          "after": 0.485194,
+          "elapsedMs": 0,
+          "sceneSeconds": 0.485194,
+          "ballSeconds": 0.485194,
+          "ballKind": null,
+          "alphaPixels": 0,
+          "hostUnchanged": true
+        },
+        "contact": {
+          "level": 1,
+          "before": 0.429,
+          "after": 0.432483,
+          "elapsedMs": 0,
+          "sceneSeconds": 0.432483,
+          "ballSeconds": 0.432483,
+          "ballKind": "batted",
+          "alphaPixels": 648,
+          "hostUnchanged": true
+        }
+      },
+      "rightDragReset": {
+        "rightDrag": true,
+        "surfaceContextMenuSuppressed": true,
+        "physicalResultUnchanged": true
+      },
+      "rightCurve": {
+        "clipId": "obp-123_6",
+        "pixel": "115754dee7d15344a37af0026eb015c09e90a46b693630113978fd211031cfc0"
+      },
+      "take": {
+        "cases": [
+          {
+            "call": "called_strike",
+            "contact": null
+          },
+          {
+            "call": "called_strike",
+            "contact": null
+          },
+          {
+            "call": "called_strike",
+            "contact": null
+          },
+          {
+            "call": "called_strike",
+            "contact": null
+          }
+        ],
+        "pixel": "5812a32e7be2d90fdf4db15b0477ace2d215712f88a0a83f68cf17a339d4bccc"
+      },
+      "comparisonJsonUnchanged": true
+    },
+    {
+      "width": 390,
+      "samples": [
+        {
+          "kind": "pitch",
+          "clock": 0.15,
+          "level": 2,
+          "pixel": "136203c2ee9ee4a13305ca74c5aa6b1648129663d9f6a507f77d9a68d382fba5",
+          "layers": {
+            "field": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 1036800,
+              "sha256": "1eb64853c19844989bc773b4445b7b71482ae1e91ab94ba83598834cb2d6fcf3"
+            },
+            "bat-overlay": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 70272,
+              "sha256": "c1976c0b10091b89ed500518cd12f8a2f5acaa9a03b2a73479bdd99a088c158a"
+            },
+            "ball-overlay": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 108,
+              "sha256": "588f5d89796a3e3e210e24d398a2692e0af4a6ac17302573d81092a2647b22ba"
+            }
+          }
+        },
+        {
+          "kind": "swing",
+          "clock": 0.412483,
+          "level": 1,
+          "pixel": "f416b2b5a4da6315ffc93dba8e5761e04047d125538457219f7f4006f5170df1",
+          "layers": {
+            "field": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 1036800,
+              "sha256": "7d75558441591a08e866bffa0875d10b04c8fe643f79f76c3c9becae5451574a"
+            },
+            "bat-overlay": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 48448,
+              "sha256": "2f5c17991b6d5eb5a1c3de5f584eb88bcd587b1f4cf1490397bce52c614c4da7"
+            },
+            "ball-overlay": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 1116,
+              "sha256": "255aa14cd291ac3212f263d58d34cae223683cc50124074ea0332c38f2f8a1fd"
+            }
+          }
+        },
+        {
+          "kind": "contact",
+          "clock": 0.472483,
+          "level": 1,
+          "pixel": "3b4420ec616f87835af945ac216f3c05c5f22752f1fede4064a48f20b422c82f",
+          "layers": {
+            "field": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 1036800,
+              "sha256": "329177bdf6b03f4d91ddc0581c20569a109dca3a9cd80091951451add36814d7"
+            },
+            "bat-overlay": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 12928,
+              "sha256": "0f323482a5017077dd3a536e865c3340bf64dc2f5588c86aece700d9e1ff8450"
+            },
+            "ball-overlay": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 72,
+              "sha256": "2ee0a622b366f99e7d1a257df5f5703ab6ce8ae4dcca145e8774d6528e965702"
+            }
+          }
+        },
+        {
+          "kind": "miss",
+          "clock": 0.55,
+          "level": 4,
+          "pixel": "32b0c174e0e8d28dc9ff12eaf062c589f83e5f48611af559168d8e9b07c72759",
+          "layers": {
+            "field": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 1036800,
+              "sha256": "87769885148b4dc0e5bb8bb3db16d7e3c27f53336ca5dc002d958cae8c37e9d5"
+            },
+            "bat-overlay": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 0,
+              "sha256": "06b2c5a0c01e515d009c0bfbe0e61fafb105a54da5ec621104915cd5949849e8"
+            },
+            "ball-overlay": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 0,
+              "sha256": "06b2c5a0c01e515d009c0bfbe0e61fafb105a54da5ec621104915cd5949849e8"
+            }
+          }
+        },
+        {
+          "kind": "held",
+          "clock": 0.5351940000000001,
+          "level": 4,
+          "pixel": "78b41dfdf9317b593db3d1282fc54820c41e5bc4e318664ff6b7636a2cddc03b",
+          "layers": {
+            "field": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 1036800,
+              "sha256": "d39ec286a2b3e589a376d487678551a127b352f9f852255bc555ac43e164310d"
+            },
+            "bat-overlay": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 0,
+              "sha256": "06b2c5a0c01e515d009c0bfbe0e61fafb105a54da5ec621104915cd5949849e8"
+            },
+            "ball-overlay": {
+              "width": 1200,
+              "height": 864,
+              "alphaPixels": 0,
+              "sha256": "06b2c5a0c01e515d009c0bfbe0e61fafb105a54da5ec621104915cd5949849e8"
+            }
+          }
+        }
+      ],
+      "defaultCases": [
+        {
+          "level": 1,
+          "call": null,
+          "contactTick": 1432483
+        },
+        {
+          "level": 2,
+          "call": null,
+          "contactTick": 1432637
+        },
+        {
+          "level": 3,
+          "call": null,
+          "contactTick": 1433159
+        },
+        {
+          "level": 4,
+          "call": "swinging_strike",
+          "contactTick": null
+        }
+      ],
+      "rightDragReset": {
+        "rightDrag": true,
+        "surfaceContextMenuSuppressed": true,
+        "physicalResultUnchanged": true
+      },
+      "comparisonJsonUnchanged": true
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    },
+    {
+      "width": 390,
+      "errors": [],
+      "external": []
+    }
+  ],
+  "scope": "v70 ordinary-game renderer/controller reuse with same-pitch v69 results, common clock, canvas-copy identity, reversible observer-only view and offline desktop/narrow integration",
+  "sha256": "fcc9d190680351553f4451ccb7d067cb12ca9233bc0e1d6da4c15a2bb89f23bc",
+  "coreSha256": "ee7451940934e39c69cec0419badbc644c17768210e139ab50e0862e69f63223",
+  "matchRendererSourceSha256": "8b709ab3c69fc8bdc5f9980a8b66912e0b9b86f73c67970cc1bf9b37cfa6ccbc",
+  "canvasBackend": "software 2D from launch, --disable-accelerated-2d-canvas"
+}

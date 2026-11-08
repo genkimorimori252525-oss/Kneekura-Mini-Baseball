@@ -5,6 +5,10 @@ import { findMovingSphereContactTime } from '../../core/sim/collision/MovingSphe
 import { deriveBallWorldVenueLegalCoverage } from '../../core/rules/BallWorldVenueLegalCoverage';
 import type { CanonicalPitchDelivery } from '../../core/sim/pitch/CanonicalPitchDelivery';
 import type { PitchTrajectorySegment } from '../../core/sim/pitching/PitchTrajectory';
+import type { AerodynamicPitchTrajectory } from '../../core/sim/pitching/AerodynamicPitchTrajectory';
+import { calculateBaseballAerodynamics } from '../../core/sim/ball/BaseballAerodynamics';
+import { validateControlledHeldPitchV1, type ControlledHeldPitchV1 } from '../../core/sim/pitch/ControlledHeldPitchV1';
+import type { PitcherBodyReleaseModel } from '../../core/sim/pitch/PitcherReleaseGeometry';
 import { actorFreeze as freeze, actorHash as hash, actorJson as json, readPhysicalPlateAppearanceActorFromSqlite,
   type DurablePhysicalPlateAppearanceActor } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import type { DurableBattingInvocationPosture } from './NativeBattingPerception';
@@ -18,6 +22,7 @@ import { samePaLiveBallAssignmentInput, type AcceptedSamePaLiveBallAssignment } 
 import { samePaOfficialPersonInput, assertSamePaAcceptedOfficialSource, type AcceptedSamePaOfficialPerson } from './SamePlateAppearanceCatchCommunicationSource';
 import { initialBallTables as tables, samePaInitialVenueInput, type AcceptedSamePaInitialBallSetup, type AcceptedSamePaInitialPlay,
   type AcceptedSamePaInitialVenue, type SamePaInitialPlayReference } from './SamePlateAppearanceInitialBallSource';
+import type { InitialBatEquipmentV1,InitialBatEquipmentReference } from './SqliteInitialBatEquipmentStore';
 const zero = Object.freeze({ x: 0, y: 0, z: 0 });
 const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw new Error('initial ball original physical scope differs'); };
 
@@ -127,3 +132,77 @@ export const bindSamePaInitialPlayToPitch = (play: SamePaInitialPlay, setup: Sam
     occurredAt: play.occurredAt, initialCustody: setup.source.custody, release, trajectoryHash: hash(input.trajectory) });
 };
 export type SamePaInitialPitchLiveBinding = ReturnType<typeof bindSamePaInitialPlayToPitch>;
+
+/** One shared original scene placement for release admission and later cuts. */
+export function deriveSamePaObservedPitchScene(setup:SamePaInitialBallSetup,input:Readonly<{
+  actor:DurablePhysicalPlateAppearanceActor;posture:DurableBattingInvocationPosture;body:PitcherBodyReleaseModel;
+}>){
+  same(reference('physical_plate_appearance_actors',input.actor),setup.actorReference);
+  same(reference('batting_observation_v1_postures',input.posture),setup.source.postureReference);
+  const hand=setup.primitives.find(p=>p.primitive.role==='tag_hand')?.primitive;
+  const pitcher=input.actor.world.defenders.find(p=>p.playerId===setup.source.pitcherPlayerId);
+  const pitcherBody=input.posture.sceneBodies.find(b=>b.source.playerId===setup.source.pitcherPlayerId);
+  if(!hand||!pitcher||!pitcherBody)throw new Error('observed initial original pitcher body missing');
+  const bodyPrimitive=setup.primitives.find(p=>p.primitive.role==='body')!.primitive;
+  const bodyOffset=pitcherBody.actor.primitives.find(p=>p.role==='body')!.offset;
+  const groundY=bodyPrimitive.startCenter.y-(pitcherBody.actor.bodyOriginHeightMeters+bodyOffset.y);
+  same(input.body.moundReference,{x:pitcher.position.x,y:groundY,z:pitcher.position.z});
+  const scene=[input.posture.model.bodyMaterialization,...input.posture.sceneBodies];
+  const otherActors=scene.flatMap(b=>{
+    const p=input.actor.world.defenders.find(p=>p.playerId===b.source.playerId);
+    const position=p?.position??(b.source.playerId===input.actor.binding.playerId?input.posture.source.geometry.centerOfMass:null);
+    if(!position)throw new Error('observed initial original scene participant missing');
+    return b.actor.primitives.filter(shape=>!(b.source.playerId===pitcher.playerId&&shape.role==='tag_hand')).map(shape=>({playerId:b.source.playerId,
+      primitive:{role:shape.role,radius:shape.radius,startTick:input.actor.world.tick,endTick:input.posture.source.geometry.validUntilTick,ticksPerSecond:1_000_000,
+        startCenter:{x:position.x+shape.offset.x,y:b.actor.bodyOriginHeightMeters+shape.offset.y,z:position.z+shape.offset.z},
+        startVelocity:zero,acceleration:zero}}));
+  });
+  return {hand,pitcher,scene,otherActors,obstacles:otherActors.map(p=>({center:p.primitive.startCenter,radiusM:p.primitive.radius})),
+    shoulder:{x:input.body.moundReference.x,y:input.body.moundReference.y+input.body.shoulderHeightMeters-input.body.postureDropMeters,z:input.body.moundReference.z}};
+}
+
+export const bindSamePaInitialPlayToObservedPitch=(play:SamePaInitialPlay,setup:SamePaInitialBallSetup,input:Readonly<{
+  sourceId:string;actionReference:AcceptedSamePaInitialBallSetup['actionReference'];playReference:SamePaInitialPlayReference;
+  delivery:CanonicalPitchDelivery;trajectory:AerodynamicPitchTrajectory;custodyMotion:ControlledHeldPitchV1;body:PitcherBodyReleaseModel;
+  actor:DurablePhysicalPlateAppearanceActor;posture:DurableBattingInvocationPosture;
+}>)=>{
+  same(reference(tables.play,play),input.playReference);same(play.setupReference,reference(tables.setup,setup));same(setup.source.actionReference,input.actionReference);
+  const {release,timeline}=input.delivery,t=input.trajectory;
+  if(setup.source.custody.role!=='tag_hand'||input.sourceId!==setup.source.firstPhysicalPitchSourceId
+    ||timeline.readyAtUs<play.occurredAt.tick||release.releaseAtUs!==timeline.releaseUs||release.releaseAtUs<play.occurredAt.tick
+    ||t.parameters.ticksPerSecond!==1e6||t.start.tick!==release.releaseAtUs)throw new Error('observed initial Play clock, custody role or scope differs');
+  same(t.start.position,release.position);same(t.start.velocity,release.velocity);same(t.start.spin,release.spin);
+  if(timeline.followThroughEndUs>input.posture.source.geometry.validUntilTick)throw new Error('observed initial motion exceeds owned scene posture');
+  const {hand,scene,obstacles,shoulder}=deriveSamePaObservedPitchScene(setup,input);
+  const air=calculateBaseballAerodynamics(release.velocity,release.spin,t.parameters.aerodynamics).totalAcceleration;
+  const motion=validateControlledHeldPitchV1(input.custodyMotion,{initialBall:setup.source.custody.ball,
+    initialHand:{position:hand.startCenter,velocity:hand.startVelocity},
+    shoulder,
+    armReachM:input.body.armReachMeters,handRadiusM:hand.radius,ballRadiusM:setup.ballRadiusMeters,release,
+    releaseAcceleration:{...air,y:air.y+t.parameters.gravityY},followThroughEndTick:timeline.followThroughEndUs,
+    obstacles});
+  return freeze({kind:'same_pa_observed_initial_pitch_live_binding_v1' as const,playReference:input.playReference,setupReference:play.setupReference,
+    playDeclaration:{...input.playReference,sourceVersion:play.source.sourceVersion},occurredAt:play.occurredAt,initialCustody:setup.source.custody,
+    release,motion,sceneBodyReferences:scene.map(b=>reference('world_player_body_materializations',b)),
+    ownedHandControlThroughTick:input.custodyMotion.followThrough.at(-1)!.tick,
+    trajectoryHash:hash({...t,releaseOrientation:motion.releaseOrientation})});
+};
+/** Additive full-equipment launch. The original held-ball/hand motion is also
+ * certified against a conservative sphere enclosing the actual parked bat. */
+export const bindSamePaInitialPlayToObservedPitchWithBatV2=(play:SamePaInitialPlay,setup:SamePaInitialBallSetup,
+  input:Parameters<typeof bindSamePaInitialPlayToObservedPitch>[2],bat:InitialBatEquipmentV1,batReference:InitialBatEquipmentReference)=>{
+  const original=bindSamePaInitialPlayToObservedPitch(play,setup,input);
+  same(reference('batting_initial_equipment_v1_sources',bat),batReference);same(bat.source.setupReference,reference(tables.setup,setup));
+  same(bat.lineage,setup.lineage);same(bat.actorReference,setup.actorReference);same(bat.modelReference,input.posture.source.modelReference);
+  if(bat.holderPlayerId!==input.actor.binding.playerId||bat.binding.control.startTick!==setup.ball.tick
+    ||bat.binding.control.throughTick<input.delivery.timeline.followThroughEndUs)throw new Error('initial bat holder, original clock or finite lease differs');
+  const {hand,obstacles,shoulder}=deriveSamePaObservedPitchScene(setup,input),release=input.delivery.release;
+  const air=calculateBaseballAerodynamics(release.velocity,release.spin,input.trajectory.parameters.aerodynamics).totalAcceleration;
+  const motion=validateControlledHeldPitchV1(input.custodyMotion,{initialBall:setup.source.custody.ball,
+    initialHand:{position:hand.startCenter,velocity:hand.startVelocity},shoulder,armReachM:input.body.armReachMeters,
+    handRadiusM:hand.radius,ballRadiusM:setup.ballRadiusMeters,release,releaseAcceleration:{...air,y:air.y+input.trajectory.parameters.gravityY},
+    followThroughEndTick:input.delivery.timeline.followThroughEndUs,obstacles:[...obstacles,bat.binding.boundingSphere]});
+  same(motion.releaseOrientation,original.motion.releaseOrientation);
+  return freeze({...original,kind:'same_pa_observed_initial_pitch_live_binding_v2' as const,motion,initialBatReference:batReference,initialBat:bat});
+};
+export type SamePaObservedInitialPitchLiveBinding=ReturnType<typeof bindSamePaInitialPlayToObservedPitch>|ReturnType<typeof bindSamePaInitialPlayToObservedPitchWithBatV2>;

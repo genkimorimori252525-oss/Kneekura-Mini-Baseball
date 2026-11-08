@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-NATIVE-INTEGER-CHECKPOINT-ADMISSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-source-integer-checkpoint-v1/entry.mjs",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-source-integer-checkpoint-v1/manifest.json",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-source-integer-checkpoint-v1/run",
+    "admit"
+  ],
+  "observed_at": "2026-10-15T18:26:43.641+00:00",
+  "elapsed_ms": 113968,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-NATIVE-INTEGER-CHECKPOINT-ADMISSION_ede7cb0460064b5e9d2de1e5c89b6972.log",
+  "output_sha256": "20d83134bb560b5c4229eed7a32ead3f4ad57eaae0a9280638d80fa91f9b4bdf",
+  "receipt_id": "MB-20261016-NATIVE-INTEGER-CHECKPOINT-ADMISSION_ede7cb0460064b5e9d2de1e5c89b6972"
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V87-COURSE-PREVIEW-OBSERVE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "C:\\Users\\genki\\AppData\\Local\\Temp\\mini-baseball-v87-course-preview-observe.mjs"
+  ],
+  "observed_at": "2026-10-20T16:52:07.596+00:00",
+  "elapsed_ms": 12312,
+  "git_head": "9f6b6ed69d8682f417490d4b761914f1b4a6d6a1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V87-COURSE-PREVIEW-OBSERVE_d569d536ce3e408a8669b1d4ddd2e3b1.log",
+  "output_sha256": "33598ed1bc187d56730344c87cf34a87af3beb71a4df62310ddedd484c1a8c89",
+  "receipt_id": "MB-20261021-V87-COURSE-PREVIEW-OBSERVE_d569d536ce3e408a8669b1d4ddd2e3b1"
+}

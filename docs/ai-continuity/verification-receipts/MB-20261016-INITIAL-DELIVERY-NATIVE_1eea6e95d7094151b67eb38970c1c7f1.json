@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-DELIVERY-NATIVE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-observed-initial-cut-v2/readback.mjs",
+    "../../outputs/verification-observed-initial-adoption-v3",
+    "../../outputs/verification-observed-initial-cut-v2"
+  ],
+  "observed_at": "2026-10-15T23:46:11.476+00:00",
+  "elapsed_ms": 44641,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-DELIVERY-NATIVE_1eea6e95d7094151b67eb38970c1c7f1.log",
+  "output_sha256": "fdf311e1b5dd0587f260f1f2e1ad06701321b5864bad7b19a204d253d8f8798f",
+  "receipt_id": "MB-20261016-INITIAL-DELIVERY-NATIVE_1eea6e95d7094151b67eb38970c1c7f1"
+}

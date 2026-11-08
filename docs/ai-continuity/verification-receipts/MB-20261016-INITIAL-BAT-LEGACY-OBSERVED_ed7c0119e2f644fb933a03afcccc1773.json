@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-BAT-LEGACY-OBSERVED",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/SamePlateAppearanceObservedInitialCalculation.test.ts",
+    "--maxWorkers",
+    "1",
+    "--minWorkers",
+    "1"
+  ],
+  "observed_at": "2026-10-16T12:17:47.910+00:00",
+  "elapsed_ms": 52092,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-BAT-LEGACY-OBSERVED_ed7c0119e2f644fb933a03afcccc1773.log",
+  "output_sha256": "2383fcc926ca004c87205f292aa375f5c111374e6946e700288df62dc34149c8",
+  "receipt_id": "MB-20261016-INITIAL-BAT-LEGACY-OBSERVED_ed7c0119e2f644fb933a03afcccc1773"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V85-GUIDES-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/browser-bridge/maker-guides-v85.test.mjs"
+  ],
+  "observed_at": "2026-10-20T16:00:56.041+00:00",
+  "elapsed_ms": 1235,
+  "git_head": "a0ca8087caddc79322ad91ba37bc14e7555c62ed",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V85-GUIDES-RED_89bfaff31e7549949db559b58377c510.log",
+  "output_sha256": "ca8c61d42f3209c64f3991c1ecf69b7e5e213e7dd4fb69c29958a55c797eae17",
+  "receipt_id": "MB-20261021-V85-GUIDES-RED_89bfaff31e7549949db559b58377c510"
+}

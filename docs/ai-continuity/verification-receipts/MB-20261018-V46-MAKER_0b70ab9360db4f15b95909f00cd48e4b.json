@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V46-MAKER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-public-abilities.mjs",
+    "../../outputs/にーくら野球メーカー_走塁と守備AI調整版.html",
+    "../../outputs/verification-v46-maker-v1",
+    "../../outputs/ばせぼーるlv46_TBD_vs_LAD_走塁と守備AI改善版.html"
+  ],
+  "observed_at": "2026-10-18T05:24:44.051+00:00",
+  "elapsed_ms": 9483,
+  "git_head": "6a8caf40153d76daba6a5acca34f5db12ca7f615",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V46-MAKER_0b70ab9360db4f15b95909f00cd48e4b.log",
+  "output_sha256": "0385aad7fc02553740481e26036e912039559d8e759e21ae2f94545635c3ae02",
+  "receipt_id": "MB-20261018-V46-MAKER_0b70ab9360db4f15b95909f00cd48e4b"
+}

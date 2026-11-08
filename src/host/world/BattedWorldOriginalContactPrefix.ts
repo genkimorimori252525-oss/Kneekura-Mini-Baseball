@@ -1,6 +1,7 @@
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { BallWorldPlayerBaseContactSegment } from '../../core/sim/ball/BallWorldPlayerBaseContactHistory';
 import { deriveFirstBattedWorldContact } from '../../core/sim/ball/BattedBallWorldContacts';
+import { battedWorldFlightSourceCurve, CONTINUOUS_AERO_GROUND_BATTED_WORLD_SOURCE_VERSION } from './BattedWorldSourceCurve';
 import { buildPrePitchRunnerController } from './PrePitchRunnerExecution';
 import { originalBattedWorldActorKinematics } from './BattedWorldOriginalActorKinematics';
 import type { DurableBattedWorldContact } from './SqliteBattedWorldContactStore';
@@ -68,10 +69,15 @@ export const battedWorldOriginalContactPrefix = (raw: DurableBattedWorldContact)
     return { playerId: binding.playerId, personId: binding.personId, personLinkSourceId: binding.personLinkSourceId, role,
       bindingHash: hash(binding), personHash: hash(person), authority };
   });
+  const sourceCurve = battedWorldFlightSourceCurve(world.flight);
+  if ((sourceCurve !== undefined) !== (world.source.sourceVersion === CONTINUOUS_AERO_GROUND_BATTED_WORLD_SOURCE_VERSION)) {
+    throw new Error('original contact Source version differs from its flight kernel');
+  }
   const actual = deriveFirstBattedWorldContact({ flight: world.flight.flight, parameters: world.flight.source.execution.ballFlightParameters,
-    throughTick, actors: world.actors, surfaces: world.model.surfaces });
+    throughTick, actors: world.actors, surfaces: world.model.surfaces, ...(sourceCurve ? { sourceCurve } : {}) });
   if (json(actual) !== json(world.result)) throw new Error('original contact executed horizon or result differs');
-  const tick = actual.kind === 'contact' ? actual.tick : actual.throughTick, elapsedSeconds = (tick - originTick) / ticksPerSecond;
+  const tick = actual.kind === 'contact' ? actual.tick : actual.throughTick,
+    elapsedSeconds = actual.sourceMoment?.elapsedSeconds ?? (tick - originTick) / ticksPerSecond;
   return freeze({ version: 'owned_runner_original_contact_prefix_v1', gameId: frame.gameId, physicalPitchSourceId: pitch.source.sourceId,
     worldContactSourceId: world.source.sourceId, at: { originTick, elapsedSeconds, tick }, ticksPerSecond, participants,
     segments: [{ originTick, startElapsedSeconds: 0, endElapsedSeconds: elapsedSeconds, actors: world.actors }],

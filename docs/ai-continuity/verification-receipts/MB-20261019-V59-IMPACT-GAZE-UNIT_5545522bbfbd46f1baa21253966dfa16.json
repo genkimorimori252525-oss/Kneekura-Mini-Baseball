@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V59-IMPACT-GAZE-UNIT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-camera-impact-gaze-v59.mjs"
+  ],
+  "observed_at": "2026-10-18T18:35:28.117+00:00",
+  "elapsed_ms": 5282,
+  "git_head": "4fa32b2c6342e5b5a81aae27ec60885067a6b217",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V59-IMPACT-GAZE-UNIT_5545522bbfbd46f1baa21253966dfa16.log",
+  "output_sha256": "9c83594157c80e1cfa3581a4c7f76d74f6838e25dcd9cc06a8a2b8de11bcdd03",
+  "receipt_id": "MB-20261019-V59-IMPACT-GAZE-UNIT_5545522bbfbd46f1baa21253966dfa16"
+}

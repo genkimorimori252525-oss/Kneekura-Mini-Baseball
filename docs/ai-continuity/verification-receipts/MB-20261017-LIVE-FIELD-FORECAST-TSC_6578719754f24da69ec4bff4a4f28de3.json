@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-FIELD-FORECAST-TSC",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--strict",
+    "--noUnusedLocals",
+    "--noUnusedParameters",
+    "--skipLibCheck",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "bundler",
+    "--types",
+    "node,vitest/globals",
+    "src/core/sim/fielding/LiveFieldForecastV1.ts",
+    "src/core/sim/fielding/LiveFieldForecastV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T00:25:42.237+00:00",
+  "elapsed_ms": 1625,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-FIELD-FORECAST-TSC_6578719754f24da69ec4bff4a4f28de3.log",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "receipt_id": "MB-20261017-LIVE-FIELD-FORECAST-TSC_6578719754f24da69ec4bff4a4f28de3"
+}

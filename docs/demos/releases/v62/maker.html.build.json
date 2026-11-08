@@ -1,0 +1,45 @@
+{
+  "output": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_投球リリース編集版_v62.html",
+  "bytes": 4457074,
+  "sha256": "a99bb8b947001fcf780a3c9f615e1a759b8a5ae300d0a87c57467fab5d087dac",
+  "coreSha256": "d2017338930e6a104fc47748d54abdf43a7a76d574ede9a86d241398e97f22eb",
+  "uiSha256": "93f44ded893bef311434e33fbfd417d7fff9eac584feb70ec9f2c4ba16e06ddd",
+  "bundleInputCount": 80,
+  "bundleInputManifestSha256": "f28a85bfca38c25d2b5069b6109be3494f4d1787668cfc1c497ee634236aa89e",
+  "templateSha256": "85509344bbb1ae02a619c02c6a05dbf543c6d3bdb74c5ea2fde37d72b4c26cfb",
+  "referenceSha256": "72b615a28cd99b4a91c6e52cb02ee35f4ff97850c3bfe71ca73d0e609ba480ef",
+  "referenceClips": 12,
+  "liveRosterSha256": "546b69369c975a85469492029f8a5306fb5fdabc48e9d36ec82bfcb75e4829c7",
+  "liveRosterCatalogSha256": "d98041720cd4b7367489bac0d04502f58477a22b759e0867150f64774fe1ff01",
+  "gamePlayers": 20,
+  "publicAbilities": true,
+  "traitProfiles": true,
+  "executableTraits": true,
+  "traitCatalogFamilies": 119,
+  "traitAvailabilitySha256": "2e4841fcac50d573e9d6dbca95d042f49f54bd192950799c36ef162187e0220f",
+  "liveRosterPath": "docs/demos/live-game-roster-v62.json",
+  "liveRosterCatalogPath": "docs/demos/live-game-roster-catalog-v62.json",
+  "publicReferenceSha256": "b448f82f81620085b1f4923609cec23f69db4c639da76b6b1f877abb22622e4e",
+  "batSpriteModuleSha256": "aa675212434b677b1fe8fb245d438f49f4afcef9022cecc2d512fd7cd32c35d9",
+  "batSpriteManifestSha256": "29f76d56ef02f56f4eda9b6b626df8e1b5ce98acbaa957b6534bbdcf2cff4dcc",
+  "batSprites": [
+    {
+      "file": "bat-78cm.png",
+      "nominalLengthM": 0.78,
+      "sha256": "41a9920ce99d43fcf4f18ff1121c30063ff6f02ed076d3a0032934d92910e430"
+    },
+    {
+      "file": "bat-84cm.png",
+      "nominalLengthM": 0.84,
+      "sha256": "c2902280e948c71afd5d346a18fffb587eccae868b1e9f7adf2009112ded2d4e"
+    },
+    {
+      "file": "bat-90cm.png",
+      "nominalLengthM": 0.9,
+      "sha256": "1e69c292727402112a6506c88e796d725db93bb28a1eb5d763bcaeff77ae5bd9"
+    }
+  ],
+  "batSpriteAuthority": "GENERATED_RENDER_SPRITES_NOT_MEASURED_BAT_GEOMETRY",
+  "selfContained": true,
+  "authority": "Shared Core samples; separate OpenBiomechanics measured-axis research replay"
+}

@@ -1,0 +1,3 @@
+src/core/sim/ball/SourceBattedFieldThrowV1.test.ts(4,94): error TS2307: Cannot find module './SourceBattedFieldThrowV1' or its corresponding type declarations.
+src/host/world/SamePlateAppearanceSourceAcquisitionFieldV1.test.ts(11,1): error TS6133: 'SamePaPhysicalFieldStep' is declared but its value is never read.
+src/host/world/SamePlateAppearanceSourceAcquisitionFieldV1.test.ts(31,7): error TS2540: Cannot assign to 'viewReference' because it is a read-only property.

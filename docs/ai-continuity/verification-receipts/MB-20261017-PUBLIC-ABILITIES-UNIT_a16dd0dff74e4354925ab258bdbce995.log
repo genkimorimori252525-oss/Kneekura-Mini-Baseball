@@ -1,0 +1,28 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/LivePublicAbilitiesV1.test.ts (13 tests | 1 failed) 915ms
+   ✓ public authoring with individual SI profiles > projects all 20 profiles without changing the packet and exact no-op edits preserve all bytes 820ms
+   × public authoring with individual SI profiles > changes catching by a common factor and restores the original profile on reversal 13ms
+     → expected 2999.999999999998 to be close to 3000, received difference is 1.8189894035458565e-12, but expected 5e-13
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LivePublicAbilitiesV1.test.ts > public authoring with individual SI profiles > changes catching by a common factor and restores the original profile on reversal
+AssertionError: expected 2999.999999999998 to be close to 3000, received difference is 1.8189894035458565e-12, but expected 5e-13
+ ❯ src/integration/browser/LivePublicAbilitiesV1.test.ts:47:63
+     45|     ratios.forEach(ratio => expect(ratio).toBeCloseTo(Math.exp(.02), 1…
+     46|     const reversed = editLivePublicAbilityV1({ ...input, roster: first…
+     47|     paths.forEach(path => expect(read(reversed.roster, path)).toBeClos…
+       |                                                               ^
+     48|     expect(value(first.roster, id)).toBeCloseTo(start + 2, 10);
+     49|   });
+ ❯ src/integration/browser/LivePublicAbilitiesV1.test.ts:47:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 12 passed (13)
+   Start at  12:48:35
+   Duration  1.88s (transform 349ms, setup 0ms, collect 502ms, tests 915ms, environment 0ms, prepare 129ms)
+

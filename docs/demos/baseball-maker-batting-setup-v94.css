@@ -1,0 +1,16 @@
+/* Uses the established light maker palette and control sizes. */
+.batting-setup-v94{min-width:0;margin:16px 0 22px;padding:16px;border:1px solid #bdd6c5;border-radius:12px;background:#f6fbf7}
+.batting-setup-v94 h3{margin-top:0;font-size:16px}
+.batting-setup-v94 .control{position:relative;min-width:0;margin-bottom:12px}
+.batting-setup-v94 .control input,.batting-setup-v94 .control select{width:100%;min-width:0;min-height:40px}
+.batting-pose-fields-v94{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.batting-foot-fields-v94{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.batting-diagrams-v94{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.batting-diagrams-v94 figure{min-width:0;margin:0;overflow:hidden;border:1px solid #c4d7ca;border-radius:9px;background:#fff}
+.batting-diagrams-v94 figcaption{padding:9px 11px;border-bottom:1px solid #d8e5dc;color:#36533f;font-size:12px;font-weight:700}
+.batting-diagrams-v94 svg{display:block;width:100%;height:auto;background:#fbfdfb}
+.batting-field-error-v94{margin:4px 0;color:#a32626;font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+.batting-setup-v94 .note{overflow-wrap:anywhere}
+.batting-setup-v94 .swing-toolbar>button{flex-shrink:1}
+.batting-setup-v94 button.primary:disabled{background:#edf1ee;color:#65736b;border-color:#a5bfad}
+@media(max-width:600px){.batting-setup-v94{padding:12px}.batting-pose-fields-v94,.batting-foot-fields-v94,.batting-diagrams-v94{grid-template-columns:minmax(0,1fr)}}

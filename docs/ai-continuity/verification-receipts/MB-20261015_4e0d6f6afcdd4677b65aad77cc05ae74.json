@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/verify-native-live-readback.mjs",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-live-incomplete-readback",
+    "incomplete"
+  ],
+  "observed_at": "2026-10-14T18:04:22.997+00:00",
+  "elapsed_ms": 110,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015_4e0d6f6afcdd4677b65aad77cc05ae74.log",
+  "output_sha256": "68ddc901246ff0024ba05ac147680cd675a6f88f433cbd640755e5ed456328a8",
+  "receipt_id": "MB-20261015_4e0d6f6afcdd4677b65aad77cc05ae74"
+}

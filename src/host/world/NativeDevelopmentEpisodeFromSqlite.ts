@@ -12,24 +12,33 @@ import { isNonPitchRepetitionEvent, nonPitchId as id } from './NonPitchDevelopme
 import { defensiveMetadataId as claim } from './ActualDefensiveMetadata';
 import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
 import { actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import {memoSamePaContinuationRead,withSamePaContinuationReadPhase} from './SamePlateAppearanceContinuationFromSqlite';
 
 type Row = PracticeInitiationRow & { current_json: string; revision: number };
 type LearningRow = { source_id: string; episode_id: string; before_revision: number; after_revision: number; event_json: string; state_json: string };
-const active = new WeakMap<DatabaseSync, { episodeId: string; revision: number }[]>();
+type PrefixRead = { stack: { episodeId: string; revision: number }[];
+  memo: Map<string, RecordedDevelopmentInitiation | null>; changes: number };
+// Lifespan is one synchronous top-level read, never a transaction or a live
+// Owner handle. Recursive repetitions often authenticate the same older prefix.
+const active = new WeakMap<DatabaseSync, PrefixRead>();
+const changes = (db: DatabaseSync) => Number(db.prepare('SELECT total_changes() AS changes').get()!.changes);
 const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw new Error('Native development original history differs'); };
 
 /** Read only a pinned original prefix. All cross-owner dependencies replay on
  * this Native snapshot and recursive same-episode dependencies must decrease. */
-export const readNativeDevelopmentEpisodeFromSqlite = (db: DatabaseSync, episodeId: string,
+const readOriginalNativeDevelopmentEpisode = (db: DatabaseSync, episodeId: string,
   revision: number): RecordedDevelopmentInitiation | null => {
   const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
   if (!(db instanceof Native) || !db.isTransaction || !id(episodeId) || !Number.isSafeInteger(revision) || revision < 1) {
     throw new Error('Native development requires an active original prefix snapshot');
   }
-  const stack = active.get(db) ?? [];
+  const context = active.get(db) ?? { stack: [], memo: new Map<string, RecordedDevelopmentInitiation | null>(), changes: changes(db) };
+  const stack = context.stack, key = JSON.stringify([episodeId, revision]), before = changes(db);
   if (stack.some(value => value.episodeId === episodeId && value.revision <= revision)) throw new Error('Native development history cycle or forward dependency');
-  stack.push({ episodeId, revision }); active.set(db, stack);
-  try { return withBattedVenueLegalReadSnapshot(db, () => {
+  if (context.changes !== before) { context.memo.clear(); context.changes = before; }
+  if (context.memo.has(key)) return context.memo.get(key)!;
+  stack.push({ episodeId, revision }); active.set(db, context);
+  try { const value = withBattedVenueLegalReadSnapshot(db, () => {
     const rows = db.prepare(`SELECT * FROM world_development_initiations WHERE episode_id=$id
       OR ${claim('request_json', ['episodeId'], '$id')} OR ${claim('initial_json', ['episodeId'], '$id')}
       OR ${claim('current_json', ['episodeId'], '$id')}`).all({ id: episodeId }) as Row[];
@@ -86,5 +95,24 @@ export const readNativeDevelopmentEpisodeFromSqlite = (db: DatabaseSync, episode
     }
     if (current.revision !== revision || revision === row.revision && row.current_json !== json(current)) throw new Error('Native development historical endpoint differs');
     return freeze({ assessment: initial.assessment, episode: current });
-  }); } finally { stack.pop(); if (!stack.length) active.delete(db); }
+  });
+    if (changes(db) !== before) { context.memo.clear(); throw new Error('Native development original snapshot changed during read'); }
+    context.memo.set(key, value); return value;
+  } finally { stack.pop(); if (!stack.length) active.delete(db); }
+};
+
+/** Archive-only proof sharing. Owned readCurrent/provider/learning callbacks
+ * retain their separate path. Never share across operations or writable work. */
+export const readNativeDevelopmentEpisodeFromSqlite = (db:DatabaseSync,episodeId:string,revision:number):RecordedDevelopmentInitiation|null=>{
+ const {DatabaseSync:Native}=createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+ if(!(db instanceof Native)||!db.isTransaction||db.prepare('PRAGMA query_only').get()!.query_only!==1)
+  return readOriginalNativeDevelopmentEpisode(db,episodeId,revision);
+ return withSamePaContinuationReadPhase(db,()=>withBattedVenueLegalReadSnapshot(db,()=>{
+  // Check before a completed-cache hit too: an older active prefix must not
+  // follow a later prefix that happened to have been read earlier in the phase.
+  if(active.get(db)?.stack.some(value=>value.episodeId===episodeId&&value.revision<=revision))
+   throw Error('Native development history cycle or forward dependency');
+  return memoSamePaContinuationRead(db,'native-development-prefix-v126:'+json([episodeId,revision]),
+   ()=>readOriginalNativeDevelopmentEpisode(db,episodeId,revision));
+ }));
 };

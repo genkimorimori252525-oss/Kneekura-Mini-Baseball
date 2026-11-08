@@ -1,0 +1,12 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/pitch/ControlledHeldPitchV1.test.ts (10 tests) 7ms
+ ✓ src/core/sim/pitch/PitchHandHoldRenewalV1.test.ts (7 tests) 7ms
+ ✓ src/core/sim/pitch/ControlledPitchWorldV1.test.ts (6 tests) 38ms
+
+ Test Files  3 passed (3)
+      Tests  23 passed (23)
+   Start at  22:37:55
+   Duration  815ms (transform 332ms, setup 0ms, collect 720ms, tests 51ms, environment 0ms, prepare 422ms)
+

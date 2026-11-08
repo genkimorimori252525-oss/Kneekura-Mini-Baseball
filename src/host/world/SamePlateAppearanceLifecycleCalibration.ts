@@ -6,6 +6,7 @@ import type { AcceptedSamePaLifecycleCalibration, SamePaLifecycleCalibration } f
 export type { AcceptedSamePaLifecycleCalibration, SamePaLifecycleCalibration } from './SamePlateAppearanceLifecycleCalibrationSource';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { playerBattingModelEvidenceFromSqlite } from './PlayerBattingModelEvidence';
+import { readSamePaPinnedBattingModelV124 } from './SamePaPinnedBattingModelReadV124';
 import { playerObservationModelEvidenceFromSqlite } from './SqlitePlayerObservationModelStore';
 import { playerDecisionModelEvidenceFromSqlite } from './SqlitePlayerDecisionModelStore';
 import { playerLocomotionModelEvidenceFromSqlite } from './SqlitePlayerLocomotionModelStore';
@@ -13,6 +14,7 @@ import { playerFieldingModelEvidenceFromSqlite } from './SqlitePlayerFieldingMod
 import { readPlayerPitchTimingPrefixFromSqlite, assertCurrentPlayerPitchTimingPrefixFromSqlite } from './SqlitePlayerPitchTimingStore';
 import { readPitchFatiguePolicyFromSqlite } from './SqlitePitchFatiguePolicyStore';
 import { playerPersonLinkEvidenceFromSqlite } from './SqlitePlayerPersonLinkStore';
+import { deriveSamePaObservationClockProjectionV1 } from './SamePlateAppearanceObservationClockProjectionV1';
 const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw new Error('lifecycle calibration original nominal/member differs'); };
 /** Private composition data only. The continuation owner supplies the actual
  * reauthenticated actor/view/member during its immutable proof. */
@@ -34,7 +36,7 @@ export const deriveSamePaLifecycleCalibration = (db: DatabaseSync, source: Accep
     if (current) assertCurrentPlayerPitchTimingPrefixFromSqlite(db, source.nominalReference, binding.gameDay); nominal = timing;
   } else if (source.nominalParameterReference) {
     if (binding.playerId !== actor.binding.playerId) throw new Error('lifecycle batting calibration requires original batter');
-    const owner = playerBattingModelEvidenceFromSqlite(db), model = owner.read(source.nominalReference.sourceId);
+    const owner = playerBattingModelEvidenceFromSqlite(db), model = readSamePaPinnedBattingModelV124(db, source.nominalReference);
     if (!model) throw new Error('lifecycle original batting model missing'); same(reference('world_player_batting_models', model), source.nominalReference);
     if (model.source.careerId !== binding.careerId || model.source.playerId !== binding.playerId || model.source.personLinkSourceId !== binding.personLinkSourceId
       || model.source.acceptedAtDay > binding.gameDay || model.bodyMaterialization.source.role !== 'batter') throw new Error('lifecycle batting original scope differs');
@@ -60,5 +62,7 @@ export const deriveSamePaLifecycleCalibration = (db: DatabaseSync, source: Accep
       || model.source.acceptedAtDay > binding.gameDay) throw new Error('lifecycle defender original scope differs');
     if (current) same(owner.selectAtDay(binding.careerId, binding.playerId, binding.gameDay), model); nominal = model;
   }
-  return freeze({ kind: 'same_pa_lifecycle_calibration', source, lineage: view.lineage, nominalInputHash: hash(nominal), effectiveResponseHash: hash(source.response) });
+  const projection=source.observationClockProjection?deriveSamePaObservationClockProjectionV1(db,source,basis):null;
+  return freeze({ kind: 'same_pa_lifecycle_calibration', source, lineage: view.lineage, nominalInputHash: hash(projection?.nominalInput??nominal), effectiveResponseHash: hash(source.response),
+    ...(projection?{observationClockProjection:projection.evidence}:{}) });
 };

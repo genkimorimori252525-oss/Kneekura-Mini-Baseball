@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-CORE-BROAD",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding",
+    "src/core/sim/running",
+    "src/core/sim/locomotion",
+    "src/core/sim/PlayableRunnerCausalityV49.test.ts"
+  ],
+  "observed_at": "2026-10-20T15:36:35.936+00:00",
+  "elapsed_ms": 70875,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-CORE-BROAD_3c293d1a9f904c90a32409ad1ba9eab8.log",
+  "output_sha256": "ae77466c7590b49af59b31fc6a10fbb1deac022062d1de7cd56b15471e33d012",
+  "receipt_id": "MB-20261021-V84-CORE-BROAD_3c293d1a9f904c90a32409ad1ba9eab8"
+}

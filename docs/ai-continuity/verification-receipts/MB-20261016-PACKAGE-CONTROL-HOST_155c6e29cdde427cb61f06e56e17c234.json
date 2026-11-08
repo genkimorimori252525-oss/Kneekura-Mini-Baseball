@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-PACKAGE-CONTROL-HOST",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../package-delivery.py"
+  ],
+  "observed_at": "2026-10-15T20:58:32.714+00:00",
+  "elapsed_ms": 21437,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-PACKAGE-CONTROL-HOST_155c6e29cdde427cb61f06e56e17c234.log",
+  "output_sha256": "8d538bcd8c0526c8aed399da5a99a5889e7107a1c2a3dc22e00cdf5f2d265f77",
+  "receipt_id": "MB-20261016-PACKAGE-CONTROL-HOST_155c6e29cdde427cb61f06e56e17c234"
+}

@@ -1,0 +1,3 @@
+src/host/world/SamePlateAppearanceSourceControlV1.test.ts(25,84): error TS2339: Property 'sourceId' does not exist on type 'never'.
+src/host/world/SamePlateAppearanceSourceControlV1.test.ts(27,90): error TS2339: Property 'observationReference' does not exist on type 'SamePaPhysicalFieldActionResult'.
+  Property 'observationReference' does not exist on type 'Readonly<{ kind: "defender_team_selection_v1"; candidateReferences: readonly Readonly<{ owner: "pa_physical_v1_field_steps"; sourceId: string; sourceHash: string; snapshotHash: string; }>[]; requireBallHandler: boolean; plan: Readonly<...>; availability: Readonly<...>; movementAdmission: false; }>'.

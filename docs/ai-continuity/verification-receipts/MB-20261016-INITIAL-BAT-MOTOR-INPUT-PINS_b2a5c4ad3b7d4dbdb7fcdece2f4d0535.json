@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-BAT-MOTOR-INPUT-PINS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../pin-native-stage.py",
+    "../../outputs/verification-authored-with-bat-center-motor-v1",
+    "FRESH_NATIVE_OWNED_INITIAL_BAT_OBSERVATION_AND_MOTOR_PREPARATION"
+  ],
+  "observed_at": "2026-10-16T12:26:44.458+00:00",
+  "elapsed_ms": 108,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-BAT-MOTOR-INPUT-PINS_b2a5c4ad3b7d4dbdb7fcdece2f4d0535.log",
+  "output_sha256": "77ea1aef69dea7eb2212d4e189ccb787d47801526e01a67c76d80e3d4592b2a8",
+  "receipt_id": "MB-20261016-INITIAL-BAT-MOTOR-INPUT-PINS_b2a5c4ad3b7d4dbdb7fcdece2f4d0535"
+}

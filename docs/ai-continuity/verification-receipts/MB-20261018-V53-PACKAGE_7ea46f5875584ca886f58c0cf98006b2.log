@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\package-v53.py", line 162, in <module>
+    main()
+  File "C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\package-v53.py", line 132, in main
+    payloads['tested-core-inputs.zip'] = zip_snapshot(entries)
+  File "C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\package-v53.py", line 52, in zip_snapshot
+    verify_zip(data, entries)
+  File "C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\package-v53.py", line 60, in verify_zip
+    require(len(names) == EXPECTED_INPUTS + 2 and len(set(names)) == len(names)
+NameError: name 'EXPECTED_INPUTS' is not defined

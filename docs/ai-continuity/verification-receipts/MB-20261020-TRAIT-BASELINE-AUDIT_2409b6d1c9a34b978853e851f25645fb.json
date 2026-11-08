@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-TRAIT-BASELINE-AUDIT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "--input-type=module",
+    "-e",
+    "import assert from 'node:assert/strict';\nimport fs from 'node:fs';\nimport vm from 'node:vm';\nconst realm={rosterText:fs.readFileSync('docs/demos/live-game-roster-v62.json','utf8'),referenceText:fs.readFileSync('docs/demos/live-public-ability-reference-v1.json','utf8')};\nvm.runInNewContext(fs.readFileSync('dist/batting-workbench-core.js','utf8'),realm);\nvm.runInNewContext(`\n const core=KneekuraBaseballWorkbench,roster=JSON.parse(rosterText),reference=JSON.parse(referenceText),playerId='0-b0';\n const project=r=>core.projectLivePublicAbilitiesV1({roster:r,reference,playerId}).abilities;\n const initial=project(roster),entry=roster.entries.find(e=>e.playerId===playerId);\n const after=core.setLiveTraitProfileV1({roster,playerId,familyId:'throw_accuracy',stateId:'A'}).roster;\n const advanced=core.setLiveTraitProfileV1({roster,playerId,familyId:'advanced_fielding',stateId:'MASTERED',source:{effectScale:2}}).roster;\n globalThis.audit={playerId,throwBefore:entry.physical.throwDirectionStdRadians,throwAfter:after.entries.find(e=>e.playerId===playerId).physical.throwDirectionStdRadians,\n  publicBefore:initial.find(a=>a.id==='throwingAccuracy').value,publicAfter:project(after).find(a=>a.id==='throwingAccuracy').value,\n  throwProfileBefore:entry.traitProfile??null,throwProfileAfter:after.entries.find(e=>e.playerId===playerId).traitProfile??null,\n  newTechniquePublicUnchanged:JSON.stringify(project(advanced))===JSON.stringify(initial),newTechniquePhysicalUnchanged:JSON.stringify(advanced.entries.map(e=>e.physical))===JSON.stringify(roster.entries.map(e=>e.physical))};\n`,realm);\nassert.notEqual(realm.audit.throwBefore,realm.audit.throwAfter);\nassert(realm.audit.publicAfter>realm.audit.publicBefore);\nassert(realm.audit.newTechniquePublicUnchanged&&realm.audit.newTechniquePhysicalUnchanged);\nconsole.log(JSON.stringify({auditCompleted:true,observedUnwantedBaseMutation:true,...realm.audit}));"
+  ],
+  "observed_at": "2026-10-19T18:46:43.491+00:00",
+  "elapsed_ms": 93,
+  "git_head": "76c564765f6a6d15fd1a2740a201080e3c534bfe",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-TRAIT-BASELINE-AUDIT_2409b6d1c9a34b978853e851f25645fb.log",
+  "output_sha256": "a6c7e659018950618c7e0ced8241a26cf80c633c3b78b0d657c86e9f9fcfa06e",
+  "receipt_id": "MB-20261020-TRAIT-BASELINE-AUDIT_2409b6d1c9a34b978853e851f25645fb"
+}

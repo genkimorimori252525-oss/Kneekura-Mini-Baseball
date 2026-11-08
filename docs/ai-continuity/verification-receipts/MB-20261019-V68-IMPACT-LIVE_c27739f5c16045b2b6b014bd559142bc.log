@@ -1,0 +1,80 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/LiveImpactTrajectoryV1.test.ts (7 tests | 6 failed) 1062ms
+   × zero-angle R settings keep every original physical ball/bat frame and collision 159ms
+     → contactSourceTick is not defined
+   × zero-angle L settings keep every original physical ball/bat frame and collision 116ms
+     → contactSourceTick is not defined
+   × adjusts only the contact neighborhood for R, with the same release Source and intended contact point/time 89ms
+     → contactSourceTick is not defined
+   × adjusts only the contact neighborhood for L, with the same release Source and intended contact point/time 84ms
+     → contactSourceTick is not defined
+   × recomputes the actual adjusted velocity ceiling, without assigning a ball launch angle or spin 43ms
+     → contactSourceTick is not defined
+   ✓ leaves legacy automatic clip selection unchanged when expanded clips are opt-in only 496ms
+   × validates and preserves optional per-player JSON, and reaches a real ordinary match without changing other players 73ms
+     → contactSourceTick is not defined
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LiveImpactTrajectoryV1.test.ts > zero-angle R settings keep every original physical ball/bat frame and collision
+ FAIL  src/integration/browser/LiveImpactTrajectoryV1.test.ts > zero-angle L settings keep every original physical ball/bat frame and collision
+ReferenceError: contactSourceTick is not defined
+ ❯ Module.simulateLivePitchV1 src/integration/browser/LivePitchV1.ts:344:82
+    342|       authoredTrajectoryPolicy:'FINITE_MEASURED_KEYS_WITH_EXPLICIT_RIG…
+    343|       referenceMaximumSweetSpotSpeedMps:reference.maximumSweetSpotSpee…
+    344|       ...(impactTrajectory===undefined?{}:{impactTrajectory:{...impact…
+       |                                                                                  ^
+    345|         timingBasis:'ORIGINAL_MEASURED_SOURCE_SECONDS' as const,model:…
+    346|         speedCeilingRecomputed:true as const,launchAngleOrSpinOverridd…
+ ❯ src/integration/browser/LiveImpactTrajectoryV1.test.ts:28:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  src/integration/browser/LiveImpactTrajectoryV1.test.ts > adjusts only the contact neighborhood for R, with the same release Source and intended contact point/time
+ FAIL  src/integration/browser/LiveImpactTrajectoryV1.test.ts > adjusts only the contact neighborhood for L, with the same release Source and intended contact point/time
+ReferenceError: contactSourceTick is not defined
+ ❯ Module.simulateLivePitchV1 src/integration/browser/LivePitchV1.ts:344:82
+    342|       authoredTrajectoryPolicy:'FINITE_MEASURED_KEYS_WITH_EXPLICIT_RIG…
+    343|       referenceMaximumSweetSpotSpeedMps:reference.maximumSweetSpotSpee…
+    344|       ...(impactTrajectory===undefined?{}:{impactTrajectory:{...impact…
+       |                                                                                  ^
+    345|         timingBasis:'ORIGINAL_MEASURED_SOURCE_SECONDS' as const,model:…
+    346|         speedCeilingRecomputed:true as const,launchAngleOrSpinOverridd…
+ ❯ src/integration/browser/LiveImpactTrajectoryV1.test.ts:37:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  src/integration/browser/LiveImpactTrajectoryV1.test.ts > recomputes the actual adjusted velocity ceiling, without assigning a ball launch angle or spin
+ReferenceError: contactSourceTick is not defined
+ ❯ Module.simulateLivePitchV1 src/integration/browser/LivePitchV1.ts:344:82
+    342|       authoredTrajectoryPolicy:'FINITE_MEASURED_KEYS_WITH_EXPLICIT_RIG…
+    343|       referenceMaximumSweetSpotSpeedMps:reference.maximumSweetSpotSpee…
+    344|       ...(impactTrajectory===undefined?{}:{impactTrajectory:{...impact…
+       |                                                                                  ^
+    345|         timingBasis:'ORIGINAL_MEASURED_SOURCE_SECONDS' as const,model:…
+    346|         speedCeilingRecomputed:true as const,launchAngleOrSpinOverridd…
+ ❯ src/integration/browser/LiveImpactTrajectoryV1.test.ts:50:49
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  src/integration/browser/LiveImpactTrajectoryV1.test.ts > validates and preserves optional per-player JSON, and reaches a real ordinary match without changing other players
+ReferenceError: contactSourceTick is not defined
+ ❯ Module.simulateLivePitchV1 src/integration/browser/LivePitchV1.ts:344:82
+    342|       authoredTrajectoryPolicy:'FINITE_MEASURED_KEYS_WITH_EXPLICIT_RIG…
+    343|       referenceMaximumSweetSpotSpeedMps:reference.maximumSweetSpotSpee…
+    344|       ...(impactTrajectory===undefined?{}:{impactTrajectory:{...impact…
+       |                                                                                  ^
+    345|         timingBasis:'ORIGINAL_MEASURED_SOURCE_SECONDS' as const,model:…
+    346|         speedCeilingRecomputed:true as const,launchAngleOrSpinOverridd…
+ ❯ Object.issuePitch src/integration/browser/LiveBaseballMatchV1.ts:155:17
+ ❯ src/integration/browser/LiveImpactTrajectoryV1.test.ts:75:88
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 1 passed (7)
+   Start at  19:38:32
+   Duration  2.11s (transform 404ms, setup 0ms, collect 609ms, tests 1.06s, environment 0ms, prepare 137ms)
+

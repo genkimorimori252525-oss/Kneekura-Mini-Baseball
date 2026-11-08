@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-NATIVE-JOINT-SUCCESSOR-CURRENT-SOURCE-READBACK",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-joint-field-successor-v4/readback.mjs",
+    "readback",
+    "../../outputs/verification-authored-with-bat-recovery-v1",
+    "../../outputs/verification-authored-with-bat-field-successor-v1"
+  ],
+  "observed_at": "2026-10-16T22:00:48.949+00:00",
+  "elapsed_ms": 26532,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-NATIVE-JOINT-SUCCESSOR-CURRENT-SOURCE-READBACK_0be789a89d084e63a1a4d936033342f7.log",
+  "output_sha256": "c2158d265815a92373127880a99d0a7dc632d80692d08e15db58cdde1d4c7a41",
+  "receipt_id": "MB-20261017-NATIVE-JOINT-SUCCESSOR-CURRENT-SOURCE-READBACK_0be789a89d084e63a1a4d936033342f7"
+}

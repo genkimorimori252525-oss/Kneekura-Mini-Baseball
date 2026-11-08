@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-MAKER-PUBLIC-FINAL-UI",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-public-abilities.mjs",
+    "../../outputs/にーくら野球メーカー_公開能力編集版.html",
+    "../../outputs/verification-maker-public-final",
+    "../../outputs/ばせぼーるlv41_TBD_vs_LAD_公開能力メーカー連携版.html"
+  ],
+  "observed_at": "2026-10-17T03:53:18.745+00:00",
+  "elapsed_ms": 10484,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-MAKER-PUBLIC-FINAL-UI_f8b18397d50645bd8c05c7fc423a63aa.log",
+  "output_sha256": "672c459e8406da3552a31e1d6a1e520b0f5b987b8019d7a27bf7fb6df69c98ed",
+  "receipt_id": "MB-20261017-MAKER-PUBLIC-FINAL-UI_f8b18397d50645bd8c05c7fc423a63aa"
+}

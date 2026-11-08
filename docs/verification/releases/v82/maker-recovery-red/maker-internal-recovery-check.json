@@ -1,0 +1,24 @@
+{
+  "pass": false,
+  "phase": "recovery-api-1200",
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\docs\\demos\\releases\\v81\\maker.html",
+  "views": [
+    {
+      "width": 1200,
+      "checks": []
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    }
+  ],
+  "scope": "v82 internal capability recovery, explicit proposals and discard, cm/SI and arbitrary precision, research draft recovery, comparison population removal/undo, 1200/390 offline browser.",
+  "sha256": "9a05aabd41e152b2ead5b590397ac1de42e420d6d8b15105dc0c35daffedee09",
+  "coreSha256": "1b2d39c095e79882e223965904a6d7e8fead1a96cb6aa471bcf2af3534edd5bd",
+  "metadataSha256": "56ff437c150e931f1ab352bbc4c1064cf88eb36a21cdb1b97a6ac3025552cde5",
+  "manifestSha256": "065bf9ad6bb96df319c8adab8ced37da3423f30324fdda95dd6f4f71ae0dfdab",
+  "error": "AssertionError [ERR_ASSERTION]: v82 recovery API is required: {\"getRecoveryStateV82\":\"undefined\",\"requestInternalAdjustmentV82\":\"undefined\",\"applyInternalAdjustmentV82\":\"undefined\",\"cancelInternalAdjustmentV82\":\"undefined\",\"revertInternalEditsV82\":\"undefined\",\"requestWorkbenchAdjustmentV82\":\"undefined\",\"revertWorkbenchDraftV82\":\"undefined\"}\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-maker-internal-recovery-v82.mjs:38:5"
+}

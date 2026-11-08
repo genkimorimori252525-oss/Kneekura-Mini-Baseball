@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INTEGER-SINGLE-CAL-DRIVER-INGRESS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/aero-ground-samepa/make-integer-driver-ingress.mjs",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-source-integer-single-cal-v1",
+    "C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-source-integer-single-cal-v1/driver-ingress.json"
+  ],
+  "observed_at": "2026-10-15T19:04:58.972+00:00",
+  "elapsed_ms": 93,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INTEGER-SINGLE-CAL-DRIVER-INGRESS_de80aad8078b4b04a51f4c079d5aa429.log",
+  "output_sha256": "7f736f3e48f68bb970c72789dae2b4026f69eb54b01212a59a49520ca61d4fd6",
+  "receipt_id": "MB-20261016-INTEGER-SINGLE-CAL-DRIVER-INGRESS_de80aad8078b4b04a51f4c079d5aa429"
+}

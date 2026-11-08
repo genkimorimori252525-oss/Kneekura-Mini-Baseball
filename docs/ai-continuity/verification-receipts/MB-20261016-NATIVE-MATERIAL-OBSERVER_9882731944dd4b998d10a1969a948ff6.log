@@ -1,0 +1,9 @@
+▲ [WARNING] "youkaishomecoming:yukari" is not a valid value for the "type" field [package.json]
+
+    ../../../../../../package.json:1:8:
+      1 │ {"type":"youkaishomecoming:yukari","texture":"touhou_little_maid:te...
+        ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The "type" field must be set to either "commonjs" or "module".
+
+{"status":"PASS_ORIGINAL_NATIVE_WORLD_TO_READONLY_MATERIAL_OBSERVER","sourceId":"native-wall-v3-step-2","sourceHash":"16001d5f639ce7f11211f7b6e0c75fc3f0fa60a1efca74dd95ef02c4b637667f","snapshotHash":"1d9205ceb9aadf439948a4a48c23da3c093d301ad88cae8dd277908d53f885cb","databaseSha256":"7716af27ed38dd205cce6c6eff0e9377e134d88b326f329f9164626f4f9f5f27","physicalHistoryAuthority":"ORIGINAL_NATIVE_OWNER_COLD_READ","phaseAuthority":"DECLARED_INITIAL_PHASE","physicalCursorStatesCompared":3,"frameCount":31,"repeatAndReverseOrder":"BYTE_IDENTICAL","observerNativeAdmission":false,"officialResult":null,"rendererIntegration":"NOT_CONNECTED","formalMixedNineInnings":"INCOMPLETE"}

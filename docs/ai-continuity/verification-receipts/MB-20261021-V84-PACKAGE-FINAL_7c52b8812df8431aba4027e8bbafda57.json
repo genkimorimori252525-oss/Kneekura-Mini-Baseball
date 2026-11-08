@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-PACKAGE-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "tools/browser-bridge/package-render-locomotion-v84.py"
+  ],
+  "observed_at": "2026-10-20T15:48:37.543+00:00",
+  "elapsed_ms": 5110,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-PACKAGE-FINAL_7c52b8812df8431aba4027e8bbafda57.log",
+  "output_sha256": "dafdf42755e61ef56ba73e3a86c3d97f550be1094dc0c6b2961a4d2546ab67e4",
+  "receipt_id": "MB-20261021-V84-PACKAGE-FINAL_7c52b8812df8431aba4027e8bbafda57"
+}

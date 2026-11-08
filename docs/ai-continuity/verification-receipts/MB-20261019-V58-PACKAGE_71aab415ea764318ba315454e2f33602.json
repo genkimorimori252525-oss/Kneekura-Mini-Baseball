@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V58-PACKAGE",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "tools/browser-bridge/package-v58.py"
+  ],
+  "observed_at": "2026-10-18T18:23:34.045+00:00",
+  "elapsed_ms": 686,
+  "git_head": "b8f2911a5c48622986d527eead1e0d6879099801",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V58-PACKAGE_71aab415ea764318ba315454e2f33602.log",
+  "output_sha256": "5796beb8ffcdc8865756d23ff78bef880340fec3d45e33d9a42ea0717d8e6b21",
+  "receipt_id": "MB-20261019-V58-PACKAGE_71aab415ea764318ba315454e2f33602"
+}

@@ -1,0 +1,115 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/running/LiveRunnerRetreatMotionV1.test.ts (5 tests) 16ms
+ ❯ src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts (3 tests | 2 failed) 11ms
+   × compares the runner race at the actual bag-disk entry rather than at the later motor stop 9ms
+     → live locomotion V84: segment duration exceeds finite clock precision
+   × matches actual touch time across speed abilities, propulsion bands and short braking legs 1ms
+     → live locomotion V84: negative coast distance
+ ❯ src/core/sim/fielding/LiveRunnerAdvancePolicyV1.test.ts (13 tests | 1 failed) 16ms
+   × uses the same accelerate, coast and brake duration as the actual stop-to-stop runner leg 9ms
+     → live locomotion V84: segment duration exceeds finite clock precision
+ ❯ src/core/sim/running/LiveRunnerMotionV1.test.ts (12 tests | 3 failed) 68ms
+   × LiveRunnerMotionV1 > uses authored radius/lateral ability to cap turning without changing run acceleration 6ms
+     → expected null not to be null
+   × LiveRunnerMotionV1 > keeps short triangular stop legs and arbitrary moving headings continuous 1ms
+     → live locomotion V84: segment duration exceeds finite clock precision
+   × LiveRunnerMotionV1 > is deterministic and does not mutate authored inputs 1ms
+     → Cannot read properties of null (reading 'route')
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveRunnerAdvancePolicyV1.test.ts > uses the same accelerate, coast and brake duration as the actual stop-to-stop runner leg
+Error: live locomotion V84: segment duration exceeds finite clock precision
+ ❯ append src/core/sim/locomotion/LiveLocomotionV84.ts:163:32
+    161|     requirePositive(seconds, 'segment duration'); requireNonnegative(e…
+    162|     const endTime = finiteDerived(time + seconds);
+    163|     if (endTime <= time) throw new Error('live locomotion V84: segment…
+       |                                ^
+    164|     segments.push(Object.freeze({ startElapsedSeconds: time, endElapse…
+    165|       startDistanceMeters: travelled, endDistanceMeters: endDistance, …
+ ❯ Module.buildLiveSpeedPlanV84 src/core/sim/locomotion/LiveLocomotionV84.ts:174:18
+ ❯ buildSpeedSegments src/core/sim/running/LiveRunnerMotionV1.ts:163:18
+ ❯ Module.createLiveRunnerMotionV1 src/core/sim/running/LiveRunnerMotionV1.ts:241:18
+ ❯ src/core/sim/fielding/LiveRunnerAdvancePolicyV1.test.ts:24:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts > compares the runner race at the actual bag-disk entry rather than at the later motor stop
+Error: live locomotion V84: segment duration exceeds finite clock precision
+ ❯ append src/core/sim/locomotion/LiveLocomotionV84.ts:163:32
+    161|     requirePositive(seconds, 'segment duration'); requireNonnegative(e…
+    162|     const endTime = finiteDerived(time + seconds);
+    163|     if (endTime <= time) throw new Error('live locomotion V84: segment…
+       |                                ^
+    164|     segments.push(Object.freeze({ startElapsedSeconds: time, endElapse…
+    165|       startDistanceMeters: travelled, endDistanceMeters: endDistance, …
+ ❯ Module.buildLiveSpeedPlanV84 src/core/sim/locomotion/LiveLocomotionV84.ts:174:18
+ ❯ buildSpeedSegments src/core/sim/running/LiveRunnerMotionV1.ts:163:18
+ ❯ Module.createLiveRunnerMotionV1 src/core/sim/running/LiveRunnerMotionV1.ts:241:18
+ ❯ src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts:7:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts > matches actual touch time across speed abilities, propulsion bands and short braking legs
+Error: live locomotion V84: negative coast distance
+ ❯ Module.buildLiveSpeedPlanV84 src/core/sim/locomotion/LiveLocomotionV84.ts:173:24
+    171|   // The bounded peak search always keeps the acceleration/braking sum…
+    172|   // A tiny negative subtraction would indicate arithmetic outside thi…
+    173|   if (coast < 0) throw new Error('live locomotion V84: negative coast …
+       |                        ^
+    174|   if (coast > 0) append(coast / peak, peak, 0, beforeBraking);
+    175|   if (peak > final) append((peak - final) / profile.brakingMps2, peak,…
+ ❯ Module.estimateLiveRunnerLegSecondsV1 src/core/sim/fielding/LiveRunnerAdvancePolicyV1.ts:62:12
+ ❯ src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts:30:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  src/core/sim/running/LiveRunnerMotionV1.test.ts > LiveRunnerMotionV1 > uses authored radius/lateral ability to cap turning without changing run acceleration
+AssertionError: expected null not to be null
+ ❯ motion src/core/sim/running/LiveRunnerMotionV1.test.ts:14:77
+     12| });
+     13| const motion = (patch: Partial<LiveRunnerMotionInputV1> = {}): LiveRun…
+     14|   const result = createLiveRunnerMotionV1(input(patch)); expect(result…
+       |                                                                             ^
+     15| };
+     16| 
+ ❯ src/core/sim/running/LiveRunnerMotionV1.test.ts:99:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  src/core/sim/running/LiveRunnerMotionV1.test.ts > LiveRunnerMotionV1 > keeps short triangular stop legs and arbitrary moving headings continuous
+Error: live locomotion V84: segment duration exceeds finite clock precision
+ ❯ append src/core/sim/locomotion/LiveLocomotionV84.ts:163:32
+    161|     requirePositive(seconds, 'segment duration'); requireNonnegative(e…
+    162|     const endTime = finiteDerived(time + seconds);
+    163|     if (endTime <= time) throw new Error('live locomotion V84: segment…
+       |                                ^
+    164|     segments.push(Object.freeze({ startElapsedSeconds: time, endElapse…
+    165|       startDistanceMeters: travelled, endDistanceMeters: endDistance, …
+ ❯ Module.buildLiveSpeedPlanV84 src/core/sim/locomotion/LiveLocomotionV84.ts:174:18
+ ❯ buildSpeedSegments src/core/sim/running/LiveRunnerMotionV1.ts:163:18
+ ❯ Module.createLiveRunnerMotionV1 src/core/sim/running/LiveRunnerMotionV1.ts:241:18
+ ❯ motion src/core/sim/running/LiveRunnerMotionV1.test.ts:14:18
+ ❯ src/core/sim/running/LiveRunnerMotionV1.test.ts:108:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  src/core/sim/running/LiveRunnerMotionV1.test.ts > LiveRunnerMotionV1 > is deterministic and does not mutate authored inputs
+TypeError: Cannot read properties of null (reading 'route')
+ ❯ src/core/sim/running/LiveRunnerMotionV1.test.ts:120:14
+    118|     const authored = input({ velocity: v(2, 0), bases: [{ base: 1, pos…
+    119|     const before = JSON.stringify(authored), a = createLiveRunnerMotio…
+    120|     expect(a.route).toEqual(b.route);
+       |              ^
+    121|     expect(a.speedSegments).toEqual(b.speedSegments);
+    122|     expect(a.touches).toEqual(b.touches);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+ Test Files  3 failed | 1 passed (4)
+      Tests  6 failed | 27 passed (33)
+   Start at  00:18:39
+   Duration  841ms (transform 332ms, setup 0ms, collect 506ms, tests 111ms, environment 1ms, prepare 848ms)
+

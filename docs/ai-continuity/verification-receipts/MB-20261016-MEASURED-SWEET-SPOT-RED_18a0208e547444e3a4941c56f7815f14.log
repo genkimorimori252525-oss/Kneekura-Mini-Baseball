@@ -1,0 +1,28 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/WorkbenchPlayer.test.ts (18 tests | 1 failed) 23ms
+   × retains the measured six-inch-from-tip sweet spot instead of the old image-only 78-percent bound 6ms
+     → invalid workbench range: sweetSpotT (authored barrel band)
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/WorkbenchPlayer.test.ts > retains the measured six-inch-from-tip sweet spot instead of the old image-only 78-percent bound
+Error: invalid workbench range: sweetSpotT (authored barrel band)
+ ❯ range src/integration/browser/WorkbenchPlayer.ts:34:69
+     32| };
+     33| const range = (value: number, low: number, high: number, path: string)…
+     34|   if (!Number.isFinite(value) || value < low || value > high) throw ne…
+       |                                                                     ^
+     35| };
+     36| const ticks = (value: number, low: number, high: number, path: string)…
+ ❯ Module.createWorkbenchPlayer src/integration/browser/WorkbenchPlayer.ts:64:3
+ ❯ src/integration/browser/WorkbenchPlayer.test.ts:20:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 17 passed (18)
+   Start at  02:14:24
+   Duration  721ms (transform 174ms, setup 0ms, collect 238ms, tests 23ms, environment 0ms, prepare 140ms)
+

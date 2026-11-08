@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V49-ROLE-RESPONSIBILITY",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts",
+    "src/core/sim/fielding/LiveFieldRoleMotionV1.test.ts",
+    "src/core/sim/fielding/LiveRelayPlanV1.test.ts",
+    "src/core/sim/fielding/LiveFieldRelayMotionV1.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T08:06:51.779+00:00",
+  "elapsed_ms": 6500,
+  "git_head": "d54aa62aec6ce643f216dbaedfbaba2f36b31e3b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V49-ROLE-RESPONSIBILITY_8454592f88c24b0b86d2ef51ad815fd5.log",
+  "output_sha256": "4e2c3671101d2773dbff963f4553315bd78ca73d11708b6ea58fac6456ab4f7a",
+  "receipt_id": "MB-20261018-V49-ROLE-RESPONSIBILITY_8454592f88c24b0b86d2ef51ad815fd5"
+}

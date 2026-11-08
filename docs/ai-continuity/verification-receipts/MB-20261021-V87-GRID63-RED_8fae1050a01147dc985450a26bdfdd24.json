@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V87-GRID63-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-course-authoring-v87.mjs",
+    "../../outputs/にーくら野球メーカー_v87_コース打率と認識AI版.html",
+    "docs/verification/releases/v87/grid63-red"
+  ],
+  "observed_at": "2026-10-20T17:22:48.472+00:00",
+  "elapsed_ms": 6828,
+  "git_head": "9f6b6ed69d8682f417490d4b761914f1b4a6d6a1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V87-GRID63-RED_8fae1050a01147dc985450a26bdfdd24.log",
+  "output_sha256": "a37f03573af15bb91c683b682a8207815b12dce3992d92f385889aed003af80c",
+  "receipt_id": "MB-20261021-V87-GRID63-RED_8fae1050a01147dc985450a26bdfdd24"
+}

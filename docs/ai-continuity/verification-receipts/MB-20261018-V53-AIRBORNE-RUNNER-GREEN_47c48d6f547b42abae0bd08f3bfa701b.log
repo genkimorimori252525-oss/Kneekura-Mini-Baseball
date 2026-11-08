@@ -1,0 +1,35 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/LiveRunnerAirbornePolicyV53.test.ts (3 tests) 3ms
+ ✓ src/core/sim/fielding/LiveRunnerAdvancePolicyV1.test.ts (13 tests) 5ms
+ ✓ src/core/sim/running/LiveRunnerRetreatMotionV1.test.ts (4 tests) 10ms
+ ✓ src/integration/browser/PlayableMatchTagUpAppealV1.test.ts (21 tests) 10ms
+ ✓ src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts (4 tests) 9335ms
+   ✓ advances from an observed airborne hit read before the actual first landing, independently of render cadence 1896ms
+   ✓ keeps a mistaken read live through reaction and a physical return, retouching passed bags in reverse order 3773ms
+   ✓ allows a real throw and original-base appeal to beat a mistaken runner back, without making a force out 2115ms
+   ✓ does not punish a motor started before first touch if the runner has not actually left the original bag disk 1550ms
+ ✓ src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts (5 tests) 10171ms
+   ✓ satisfies first-base force on the same physical bag-contact geometry as the defense 437ms
+   ✓ still retires a runner when actual controlled first-base contact wins the physical race 417ms
+   ✓ keeps physical runner retirements equal to rule-interpreted outs in both race orders 643ms
+   ✓ reconsiders a newly vacated advance reservation after a live retirement before closing the play 7850ms
+   ✓ adjudicates the actual normal-game tag enabled by a witnessed through-base departure 824ms
+ ✓ src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts (12 tests) 14047ms
+   ✓ physically advances second to third on a deep caught fly against a weak arm 1673ms
+   ✓ physically advances while a distant ground ball cannot be retrieved before the runner arrives 339ms
+   ✓ starts a legal tag-up after first touch and reaction, before a later secure catch 1492ms
+   ✓ uses the hidden safety margin in the actual runner decision 2563ms
+   ✓ waits for the runner reaction after the actual first touch and keeps that decision alive 1449ms
+   ✓ runs on contact with two outs and stops on the actual secured third-out fly 1029ms
+   ✓ throws home after the force dissolves and retires the runner by a physically held tag (3 m/s) 1915ms
+   ✓ throws home after the force dissolves and retires the runner by a physically held tag (4 m/s) 1683ms
+   ✓ commits a safe next advance through third instead of closing the held-ball play 1354ms
+   ✓ allows a physical tag of a forced runner still standing on the old base before reacting 314ms
+
+ Test Files  7 passed (7)
+      Tests  62 passed (62)
+   Start at  19:25:55
+   Duration  15.06s (transform 781ms, setup 0ms, collect 2.03s, tests 33.58s, environment 1ms, prepare 1.10s)
+

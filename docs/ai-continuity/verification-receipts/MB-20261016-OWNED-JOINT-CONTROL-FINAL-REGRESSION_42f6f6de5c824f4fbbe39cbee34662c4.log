@@ -1,0 +1,19 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/world/psychology/batting/MeasuredBattingCommitment.test.ts (34 tests) 1956ms
+ ✓ src/core/sim/contact/MeasuredPelvisControlV1.test.ts (14 tests) 84ms
+ ✓ src/core/sim/contact/ReferenceBatKinematicsV1.test.ts (8 tests) 174ms
+ ✓ src/core/sim/pitch/ControlledPitchWorldV1.test.ts (7 tests) 49ms
+ ✓ src/core/sim/contact/HeldToMeasuredBatControlV1.test.ts (12 tests) 38ms
+ ✓ src/core/sim/pitch/ControlledHeldPitchV1.test.ts (10 tests) 6ms
+ ✓ src/core/sim/pitch/PitchHandHoldRenewalV1.test.ts (7 tests) 5ms
+ ✓ src/host/world/MeasuredBattingBodyReferenceInput.test.ts (9 tests) 9ms
+ ✓ src/core/sim/contact/InitialHeldBatV1.test.ts (7 tests) 4ms
+ ✓ src/host/world/InitialPitchHandHoldInput.test.ts (8 tests) 4ms
+
+ Test Files  10 passed (10)
+      Tests  116 passed (116)
+   Start at  22:59:37
+   Duration  16.95s (transform 7.66s, setup 0ms, collect 12.76s, tests 2.33s, environment 1ms, prepare 588ms)
+

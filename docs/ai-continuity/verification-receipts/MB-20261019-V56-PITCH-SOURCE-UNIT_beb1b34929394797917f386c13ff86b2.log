@@ -1,0 +1,13 @@
+evalmachine.<anonymous>:4045
+          throw new Error("official window input must be a plain inert object");
+                ^
+
+Error: official window input must be a plain inert object
+    at visit (evalmachine.<anonymous>:4045:17)
+    at cloneInert (evalmachine.<anonymous>:4067:12)
+    at Object.createSourceBallMaterialHistoryV1 (evalmachine.<anonymous>:5930:20)
+    at Object.createSourceBallMaterialHistoryV1 (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-pitch-ball-cadence-v56.mjs:22:96)
+    at Object.sample (evalmachine.<anonymous>:39:20)
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-pitch-ball-cadence-v56.mjs:42:23
+
+Node.js v26.1.0

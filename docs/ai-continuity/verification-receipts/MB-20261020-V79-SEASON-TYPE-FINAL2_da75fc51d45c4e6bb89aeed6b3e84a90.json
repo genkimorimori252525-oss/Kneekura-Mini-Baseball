@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V79-SEASON-TYPE-FINAL2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--pretty",
+    "false"
+  ],
+  "observed_at": "2026-10-20T00:19:20.096+00:00",
+  "elapsed_ms": 42296,
+  "git_head": "98819b9ab5c8e4bdd7ddfc7d644d484df08ab55d",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V79-SEASON-TYPE-FINAL2_da75fc51d45c4e6bb89aeed6b3e84a90.log",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "receipt_id": "MB-20261020-V79-SEASON-TYPE-FINAL2_da75fc51d45c4e6bb89aeed6b3e84a90"
+}

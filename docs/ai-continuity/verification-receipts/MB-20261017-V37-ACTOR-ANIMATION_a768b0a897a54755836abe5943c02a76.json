@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V37-ACTOR-ANIMATION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "--input-type=module",
+    "-e",
+    "import assert from 'node:assert/strict';import{readFileSync}from'node:fs';import vm from'node:vm';\nconst context={};vm.runInNewContext(readFileSync('tools/browser-bridge/live-actor-animation.js','utf8'),context);const api=context.KneekuraLiveActorAnimation;\nconst actors=[['p','P'],['c','C'],['b','batter'],['ss','SS']].map(([playerId,role])=>({playerId,role,position:{x:0,y:0,z:0},velocity:{x:0,y:0,z:0}}));\nconst frame=(tick,kind='pitch')=>({tick,actors,phase:kind==='pitch'?'pitch':'batted',ballKind:kind});\nconst record={batterPlayerId:'b',beforeMatch:{half:'top'},command:{managedTeam:0,batting:'balanced'},frames:[frame(1000000),frame(1600000)],events:[{kind:'throw_release',playerId:'ss',tick:1600000}],play:{contactMoment:{ball:{tick:1520000}},diagnostics:{sourceClockTicksPerSecond:1000000,swingOffered:true,measuredClipId:'clip',battingSide:'R',referenceStartTick:1200000,referenceThroughTick:1600000,playbackRate:1}}};\nconst clip={id:'clip',side:'R',contactTimeSeconds:1.3,frames:[{tick:1000000},{tick:1380000}]},before=JSON.stringify(record);\nconst observe=(ms,tick,kind='pitch',r=record)=>api.observe({record:r,frame:frame(tick,kind),sceneMs:ms,preparationMs:1540,measuredClip:clip});\nassert.equal(api.observe({record:null,frame:frame(1000000),sceneMs:0}).actors.b.action,'bat');\nassert.deepEqual([0,440,935,1485,1650,2100].map(ms=>observe(ms,1000000+Math.min(Math.max(ms-1540,0),450)*1000).pitchFrame),[0,1,2,3,4,5]);\nassert.equal(observe(1540,1000000).batFrame,0);assert.equal(observe(1740,1200000).batFrame,1);assert.equal(observe(1940,1400000).batFrame,2);\nassert.equal(observe(2060,1520000,'batted').batFrame,2);assert.equal(observe(2114,1574000,'batted').batFrame,2);assert.equal(observe(2115,1575000,'batted').batFrame,3);\nassert.equal(observe(3280,1600000,'batted').batFrame,0);\nassert.equal(observe(2060,1520000,'batted').actors.p.action,'field');assert.equal(observe(2060,1520000,'batted').actors.c.action,'field');\nassert.equal(observe(2140,1600000,'throw').actors.ss.frame,3);assert.equal(observe(2250,1710000,'throw').actors.ss.frame,4);assert.equal(observe(2690,2150000,'throw').actors.ss.frame,5);\nassert.equal(observe(1940,1400000,'batted').actors.ss.action,'field');\nconst take={...record,play:{...record.play,diagnostics:{...record.play.diagnostics,swingOffered:false}}};assert.equal(observe(2060,1520000,'pitch',take).batFrame,0);\nconst bunt={...record,command:{managedTeam:0,batting:'bunt'}};assert.equal(observe(2060,1520000,'pitch',bunt).batFrame,0);\nassert.equal(JSON.stringify(record),before);console.log(JSON.stringify({status:'PASS',initialBatterReady:true,sixPitchFrames:true,pitchFrame5DuringFrozenSourceHold:true,fourBatFrames:true,impactHeld55ms:true,throwRequiresActualRelease:true,noncatcherNeverCrouches:true,inputUnchanged:true}));"
+  ],
+  "observed_at": "2026-10-17T02:48:51.089+00:00",
+  "elapsed_ms": 92,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V37-ACTOR-ANIMATION_a768b0a897a54755836abe5943c02a76.log",
+  "output_sha256": "48ee8580dcbb8dd65a3dd28f40fd2e8a77adbc43277041948545e5af7d1dcfb1",
+  "receipt_id": "MB-20261017-V37-ACTOR-ANIMATION_a768b0a897a54755836abe5943c02a76"
+}

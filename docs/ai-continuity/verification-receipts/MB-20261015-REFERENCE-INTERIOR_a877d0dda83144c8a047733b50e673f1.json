@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-REFERENCE-INTERIOR",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/contact/ReferenceBatKinematicsV1.test.ts"
+  ],
+  "observed_at": "2026-10-14T21:25:29.271+00:00",
+  "elapsed_ms": 1405,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-REFERENCE-INTERIOR_a877d0dda83144c8a047733b50e673f1.log",
+  "output_sha256": "f7e195b733d9b461cca5c01dbe0883e58f279981929a373dc1ff71cc3cd5a6c5",
+  "receipt_id": "MB-20261015-REFERENCE-INTERIOR_a877d0dda83144c8a047733b50e673f1"
+}

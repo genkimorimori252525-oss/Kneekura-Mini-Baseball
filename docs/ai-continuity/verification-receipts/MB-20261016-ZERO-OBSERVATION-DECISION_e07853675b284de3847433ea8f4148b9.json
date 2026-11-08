@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-ZERO-OBSERVATION-DECISION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-with-bat-decision-v1/readback.mjs",
+    "../../outputs/verification-authored-with-bat-zero-observation-motor-v1",
+    "../../outputs/verification-authored-with-bat-zero-observation-decision-v1"
+  ],
+  "observed_at": "2026-10-16T12:39:55.004+00:00",
+  "elapsed_ms": 63687,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-ZERO-OBSERVATION-DECISION_e07853675b284de3847433ea8f4148b9.log",
+  "output_sha256": "79c7577a749ac0e34dfd769fe63b6cf7a5c0566cd75f4e650e667706a5701b4e",
+  "receipt_id": "MB-20261016-ZERO-OBSERVATION-DECISION_e07853675b284de3847433ea8f4148b9"
+}

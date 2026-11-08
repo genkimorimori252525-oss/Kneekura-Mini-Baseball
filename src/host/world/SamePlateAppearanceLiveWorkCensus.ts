@@ -1,4 +1,5 @@
 import { samePaExactRunnerControllerCensus } from './SamePlateAppearanceExactRunnerControllerPiece';
+import { originalTeamMotorSelectionsV1 } from './SamePlateAppearanceTeamMotorSelectionV1';
 import { samePaActorProducerPolicyDeclarations, samePaCurrentStoppedHold } from './SamePlateAppearanceActorProducerPolicy';
 import { deriveSamePaLiveAppealCensus } from './SamePlateAppearanceLiveAppeal';
 import { deriveSamePaDefenderDepartureCensus } from './SamePlateAppearanceDefenderDeparture';
@@ -107,6 +108,12 @@ export const deriveSamePaLiveWorkCensus = (raw: SamePaLiveWorkCensusInput) => {
       if (!previous || !source || !('member' in source) || source.kind !== r.kind || source.member.playerId !== r.playerId || !input.participantIds.includes(r.playerId))
         throw new Error('same-PA live-work sensory action identity differs');
       same(field.field, previous.field, 'sensory action changed physical state');
+    } else if (r?.kind === 'defender_candidate_set_v1' || r?.kind === 'defender_team_selection_v1' || r?.kind === 'defender_actor_selection_v1') {
+      if (!previous || source?.kind !== r.kind || r.movementAdmission !== false)
+        throw new Error('same-PA live-work defensive metadata identity differs');
+      same(field.field, previous.field, 'defensive metadata changed physical state');
+      same(field.evaluationTick, previous.evaluationTick, 'defensive metadata changed physical time');
+      same(field.timeline, previous.timeline, 'defensive metadata changed timeline');
     } else if (r?.kind === 'appeal_indication_v1' || r?.kind === 'appeal_contact_v1' || r?.kind === 'defender_departure_purpose_v1') {
       if (!previous || source?.kind !== r.kind) throw new Error('same-PA live-work appeal action identity differs');
       same(field.field, previous.field, 'appeal action changed physical state');
@@ -163,14 +170,22 @@ export const deriveSamePaLiveWorkCensus = (raw: SamePaLiveWorkCensusInput) => {
         throw new Error('same-PA live-work response commitment differs');
       const value = { responseReference: ref as StepReference, response: r };
       responses.set(replan.processSourceId, value); responseReferences.set(json(ref), value);
-    } else if (r?.kind === 'defender_motion_v1') {
-      if (source?.kind !== 'defender_motion_v1' || !source.selections.length || source.selections.length !== r.motors.length
+    } else if (r?.kind === 'defender_motion_v1' || r?.kind === 'defender_control_v1') {
+      if (source?.kind !== r.kind || !source.selections.length || source.selections.length !== r.motors.length
         || new Set(source.selections.map(s => s.member.playerId)).size !== source.selections.length
         || new Set(r.motors.map(m => m.self.playerId)).size !== r.motors.length)
         throw new Error('same-PA live-work motor original selections differ');
-      for (const selection of source.selections) {
-        const key = json(selection.decisionReference), decision = decisions.get(key);
+      const teamSelections = originalTeamMotorSelectionsV1(input.fields.slice(0, index), source.selections, source.selections.map(selection => selection.member.playerId));
+      for (const [selectionIndex, selection] of source.selections.entries()) {
+        const chosen = teamSelections?.[selectionIndex];
+        const key = json(chosen?.originalDecisionReference ?? selection.decisionReference), decision = decisions.get(key);
         const motor = r.motors.find(m => m.self.playerId === selection.member.playerId && m.command.playerId === selection.member.playerId);
+        if (chosen) {
+          if (!motor || !input.participantIds.includes(chosen.playerId)) throw new Error('same-PA live-work team motor member differs');
+          same(motor.intent, chosen.candidate.intent, 'team motor original candidate differs');
+          same(motor.target, chosen.target, 'team motor original target differs');
+          same(motor.movementStartTick, chosen.scheduling.movementStartTick, 'team motor original schedule differs');
+        }
         const response = responseReferences.get(key);
         if (response) {
           const q = response.response.replan, schedule = q.scheduling;
@@ -188,7 +203,7 @@ export const deriveSamePaLiveWorkCensus = (raw: SamePaLiveWorkCensusInput) => {
         if (!decision || decision.playerId !== selection.member.playerId || !motor || moment.elapsedSeconds < (decision.movementStartTick - originTick) / p.ticksPerSecond)
           throw new Error('same-PA live-work motor original decision or player differs');
         if (!consumers.has(key)) consumers.set(key, { consumerReference: ref as StepReference,
-          at: { originTick, elapsedSeconds: moment.elapsedSeconds, tick: moment.ball.tick } });
+          at: r.kind === 'defender_control_v1' ? motor.startAt : { originTick, elapsedSeconds: moment.elapsedSeconds, tick: moment.ball.tick } });
       }
     }
     original.set(field.source.sourceId, { field, reference: ref }); previous = field;

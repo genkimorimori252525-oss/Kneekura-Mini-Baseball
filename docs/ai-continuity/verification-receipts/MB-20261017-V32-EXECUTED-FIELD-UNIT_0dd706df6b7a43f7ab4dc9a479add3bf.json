@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V32-EXECUTED-FIELD-UNIT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/ExecutedFieldWorldObservationV1.test.ts",
+    "src/integration/browser/NativeFreeBallObservation.test.ts"
+  ],
+  "observed_at": "2026-10-16T21:56:40.843+00:00",
+  "elapsed_ms": 1452,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V32-EXECUTED-FIELD-UNIT_0dd706df6b7a43f7ab4dc9a479add3bf.log",
+  "output_sha256": "954892eb98a830b3985ab4e59cebb1b2163d68b7a8ffc3a84cbfd84a0b406055",
+  "receipt_id": "MB-20261017-V32-EXECUTED-FIELD-UNIT_0dd706df6b7a43f7ab4dc9a479add3bf"
+}

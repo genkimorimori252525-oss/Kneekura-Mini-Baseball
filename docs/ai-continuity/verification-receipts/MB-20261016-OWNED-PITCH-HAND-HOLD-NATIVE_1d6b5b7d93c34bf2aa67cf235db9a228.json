@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OWNED-PITCH-HAND-HOLD-NATIVE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-owned-pitch-hand-hold-v1/readback.mjs",
+    "../../outputs/verification-authored-with-bat-owned-body-v1",
+    "../../outputs/verification-authored-with-bat-owned-hand-v1"
+  ],
+  "observed_at": "2026-10-16T13:51:49.922+00:00",
+  "elapsed_ms": 87405,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OWNED-PITCH-HAND-HOLD-NATIVE_1d6b5b7d93c34bf2aa67cf235db9a228.log",
+  "output_sha256": "d771423244a8b08b49e366823069f39333d02714626aba287a54a96f5016e1da",
+  "receipt_id": "MB-20261016-OWNED-PITCH-HAND-HOLD-NATIVE_1d6b5b7d93c34bf2aa67cf235db9a228"
+}

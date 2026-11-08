@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V69-MAKER-HELP-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-maker.mjs",
+    "../../outputs/にーくら野球メーカー_v69_打球比較と拡大版.html",
+    "--executable-traits",
+    "--measured-library",
+    "--ball-comparison",
+    "--roster=docs/demos/live-game-roster-v62.json",
+    "--catalog=docs/demos/live-game-roster-catalog-v62.json"
+  ],
+  "observed_at": "2026-10-19T12:00:08.206+00:00",
+  "elapsed_ms": 2188,
+  "git_head": "936cd23907b8e078e179aa03e041420a3339932b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V69-MAKER-HELP-BUILD_af4bdffefd9d468fb93480a5cbaf2dbc.log",
+  "output_sha256": "9d0da168818a297abca57a844a04eaa1ce8d91fe9ef34c3386ec3aa3834eaa11",
+  "receipt_id": "MB-20261019-V69-MAKER-HELP-BUILD_af4bdffefd9d468fb93480a5cbaf2dbc"
+}

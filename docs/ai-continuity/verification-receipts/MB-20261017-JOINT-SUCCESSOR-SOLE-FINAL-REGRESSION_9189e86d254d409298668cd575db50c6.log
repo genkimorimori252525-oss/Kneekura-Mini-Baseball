@@ -1,0 +1,20 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/FiniteFieldActorClearanceV1.test.ts (12 tests) 13ms
+ ✓ src/integration/browser/NativeFreeBallObservation.test.ts (2 tests) 62ms
+ ✓ src/integration/browser/ExecutedFieldWorldObservationV1.test.ts (2 tests) 250ms
+ ✓ src/core/sim/ball/SourceBallWorldMotionV1.additional.test.ts (5 tests) 398ms
+ ✓ src/core/sim/pitch/RecoveredBallFieldRootV1.test.ts (2 tests) 324ms
+ ✓ src/core/sim/pitch/PostImpactBatBodyWorldV1.test.ts (5 tests) 343ms
+ ✓ src/core/sim/ball/SourceBallWorldMotionV1.test.ts (7 tests) 484ms
+ ✓ src/host/world/InitialJointWorkloadProjection.test.ts (5 tests) 20ms
+ ✓ src/host/world/JointFieldSuccessorCommand.test.ts (15 tests) 39ms
+ ✓ src/host/world/InitialJointRecoveryWorkloadProjection.test.ts (7 tests) 36ms
+ ✓ src/host/world/SqliteInitialJointRecoveryWorkloadStore.test.ts (5 tests) 47ms
+
+ Test Files  11 passed (11)
+      Tests  67 passed (67)
+   Start at  06:58:57
+   Duration  7.66s (transform 5.92s, setup 0ms, collect 31.30s, tests 2.02s, environment 2ms, prepare 2.67s)
+

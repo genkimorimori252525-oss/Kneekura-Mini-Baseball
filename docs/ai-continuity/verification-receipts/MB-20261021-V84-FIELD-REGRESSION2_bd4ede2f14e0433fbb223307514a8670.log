@@ -1,0 +1,71 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/LiveFielderAvoidanceV1.test.ts (24 tests) 53ms
+ ✓ src/core/sim/fielding/LiveFieldArrivalV84.test.ts (3 tests) 6ms
+ ✓ src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts (20 tests) 67ms
+ ✓ src/core/sim/fielding/LiveFieldAvoidanceV51.test.ts (3 tests) 3079ms
+   ✓ keeps fielders separated with continuous acceleration-limited movement: low-slow_roller_3B 1618ms
+   ✓ keeps fielders separated with continuous acceleration-limited movement: default-1B_routine 475ms
+   ✓ keeps fielders separated with continuous acceleration-limited movement: default-fast_grounder_CF_wall 985ms
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts (20 tests | 2 failed) 18390ms
+   ✓ runs the complete actual base path after a fair over-fence flight instead of teleporting runners 1447ms
+   × derives two retirements from a received first-base force followed by the same defender carrying the ball to a runner tag 1136ms
+     → expected 'fielder-5' to be 'fielder-2' // Object.is equality
+   ✓ preserves two force retirements when the second-base runner deadline favors the second-to-first throw chain 1070ms
+   ✓ continues a true wall rebound through its signed-gap certificate and retrieves the ball 2657ms
+   ✓ runs only the actual two-base award after a fair ground bounce clears the continuous fence 490ms
+   ✓ publishes fair territory only at its actual determination boundary 535ms
+   ✓ catches an ordinary high center-field fly using a causal aero-ground forecast 1868ms
+   ✓ fields a straight infield grounder and makes a real throw to first before the batter arrives 464ms
+   ✓ keeps bodies, independent gloves and a possessed ball inside the physical fence through pickup and release 3038ms
+   ✓ finishes the pinned fast grounder after causal interception without an invented result 1345ms
+   ✓ extends a finite free-ball cache from its original root without changing any sampled physics 1558ms
+   ✓ keeps a deep retrieved ball when every force throw would arrive after the runner 1223ms
+   × rejects unready force receivers without fictional throws while the batter takes a safe extra base and declines an unsafe third 630ms
+     → expected [ 1 ] to deeply equal [ 1, 2 ]
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayV1.test.ts > derives two retirements from a received first-base force followed by the same defender carrying the ball to a runner tag
+AssertionError: expected 'fielder-5' to be 'fielder-2' // Object.is equality
+
+Expected: "fielder-2"
+Received: "fielder-5"
+
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts:103:26
+    101|     && f.receiverPlayerId === controls[0].defenderId).at(-1)!;
+    102|   expect(forceDelivery).toMatchObject({ reason: 'force_play', base: 1,…
+    103|   expect(tag.defenderId).toBe(controls[0].defenderId);
+       |                          ^
+    104|   // The receiver can make the non-force tag itself. A second throw du…
+    105|   // this chase would relinquish a ball it already controls unnecessar…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayV1.test.ts > rejects unready force receivers without fictional throws while the batter takes a safe extra base and declines an unsafe third
+AssertionError: expected [ 1 ] to deeply equal [ 1, 2 ]
+
+- Expected
++ Received
+
+  Array [
+    1,
+-   2,
+  ]
+
+ ❯ src/core/sim/fielding/LiveFieldPlayV1.test.ts:310:59
+    308|     finalRunners: result.finalRunners }));
+    309|   expect(result.end).toMatchObject({ complete: true, reason: 'live_act…
+    310|   expect(result.ruleFacts.runnerTouches.map(f => f.base)).toEqual([1, …
+       |                                                           ^
+    311|   const lastArrival = result.facts.filter(f => f.kind === 'runner_base…
+    312|   expect(result.end.elapsedSeconds).toBeGreaterThanOrEqual(lastArrival…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  2 failed | 68 passed (70)
+   Start at  00:23:10
+   Duration  19.92s (transform 1.20s, setup 0ms, collect 2.09s, tests 21.60s, environment 1ms, prepare 1.20s)
+

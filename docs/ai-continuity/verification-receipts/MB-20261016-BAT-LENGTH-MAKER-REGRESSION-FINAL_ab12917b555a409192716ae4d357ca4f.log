@@ -1,0 +1,362 @@
+{
+  "viewports": [
+    {
+      "width": 1200,
+      "height": 860,
+      "checks": [
+        {
+          "name": "real Core result loaded",
+          "result": "PASS"
+        },
+        {
+          "name": "contact frame uses real contact ball and exact bat tick",
+          "result": "PASS"
+        },
+        {
+          "name": "exact rigid bat/body sample side",
+          "result": "PASS"
+        },
+        {
+          "name": "bat visible in side",
+          "result": "PASS"
+        },
+        {
+          "name": "bat projection inside scene side",
+          "result": "PASS"
+        },
+        {
+          "name": "rigid bat length preserved side",
+          "result": "PASS"
+        },
+        {
+          "name": "exact rigid bat/body sample batter",
+          "result": "PASS"
+        },
+        {
+          "name": "bat visible in batter",
+          "result": "PASS"
+        },
+        {
+          "name": "bat projection inside scene batter",
+          "result": "PASS"
+        },
+        {
+          "name": "rigid bat length preserved batter",
+          "result": "PASS"
+        },
+        {
+          "name": "exact rigid bat/body sample catcher",
+          "result": "PASS"
+        },
+        {
+          "name": "bat visible in catcher",
+          "result": "PASS"
+        },
+        {
+          "name": "bat projection inside scene catcher",
+          "result": "PASS"
+        },
+        {
+          "name": "rigid bat length preserved catcher",
+          "result": "PASS"
+        },
+        {
+          "name": "exact rigid bat/body sample pitcher",
+          "result": "PASS"
+        },
+        {
+          "name": "bat visible in pitcher",
+          "result": "PASS"
+        },
+        {
+          "name": "bat projection inside scene pitcher",
+          "result": "PASS"
+        },
+        {
+          "name": "rigid bat length preserved pitcher",
+          "result": "PASS"
+        },
+        {
+          "name": "exact rigid bat/body sample overhead",
+          "result": "PASS"
+        },
+        {
+          "name": "bat visible in overhead",
+          "result": "PASS"
+        },
+        {
+          "name": "bat projection inside scene overhead",
+          "result": "PASS"
+        },
+        {
+          "name": "rigid bat length preserved overhead",
+          "result": "PASS"
+        },
+        {
+          "name": "league preview never recalculates physical result",
+          "result": "PASS"
+        },
+        {
+          "name": "full JSON state round trip",
+          "result": "PASS"
+        },
+        {
+          "name": "timing changes actual collision or physical contact",
+          "result": "PASS"
+        },
+        {
+          "name": "15/39 m/s changes physical impulse or collision",
+          "result": "PASS"
+        },
+        {
+          "name": "real physical player source exported",
+          "result": "PASS"
+        },
+        {
+          "name": "embedded reference provenance, composition warnings and ancestor coverage match current source JSON",
+          "result": "PASS"
+        },
+        {
+          "name": "DOM two authored players and same-ID upsert change real population mean and rating",
+          "result": "PASS"
+        },
+        {
+          "name": "population upsert preserves physical result and simulation revision",
+          "result": "PASS"
+        },
+        {
+          "name": "DOM 90 m/s capability admits authored 70 m/s in UI, Source, real motor and saved JSON",
+          "result": "PASS"
+        },
+        {
+          "name": "research world/local axes, labels and three cameras use one selected Source tick",
+          "result": "PASS"
+        },
+        {
+          "name": "manual yaw, reflection, local attachment and offset preserve rigid length, Source and Core physics",
+          "result": "PASS"
+        },
+        {
+          "name": "calibration matrix and source frames export with finite full-clip-derived velocities and identity reset",
+          "result": "PASS"
+        },
+        {
+          "name": "reference replay keeps exact source rigid bat in five cameras with no body, ball, contact or official claim",
+          "result": "PASS"
+        },
+        {
+          "name": "reference speed, comparison and full JSON round trip preserve legacy Core physics",
+          "result": "PASS"
+        },
+        {
+          "name": "trajectory intent patterns save, select, update and delete inputs without forced results or player capability changes",
+          "result": "PASS"
+        },
+        {
+          "name": "optional pattern JSON round trip rejects duplicate IDs, unknown references, invalid values, oversized lists and results",
+          "result": "PASS"
+        },
+        {
+          "name": "pattern application honors current player speed capability and reference research preserves cached physical result",
+          "result": "PASS"
+        },
+        {
+          "name": "calibrated reference physically collides and misses through common rigid, aerodynamic and ground Core without body or official claim",
+          "result": "PASS"
+        },
+        {
+          "name": "reference experiment same visible rigid pose, explicit registration and JSON round trip preserve normal Core getters",
+          "result": "PASS"
+        },
+        {
+          "name": "reference physical rate is independent of observer speed, rejects capability excess and reflected local Y matches calibrated rigid rod",
+          "result": "PASS"
+        }
+      ],
+      "inputSpeed": 25,
+      "pageErrors": [],
+      "externalRequests": [],
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "checks": [
+        {
+          "name": "real Core result loaded",
+          "result": "PASS"
+        },
+        {
+          "name": "contact frame uses real contact ball and exact bat tick",
+          "result": "PASS"
+        },
+        {
+          "name": "exact rigid bat/body sample side",
+          "result": "PASS"
+        },
+        {
+          "name": "bat visible in side",
+          "result": "PASS"
+        },
+        {
+          "name": "bat projection inside scene side",
+          "result": "PASS"
+        },
+        {
+          "name": "rigid bat length preserved side",
+          "result": "PASS"
+        },
+        {
+          "name": "exact rigid bat/body sample batter",
+          "result": "PASS"
+        },
+        {
+          "name": "bat visible in batter",
+          "result": "PASS"
+        },
+        {
+          "name": "bat projection inside scene batter",
+          "result": "PASS"
+        },
+        {
+          "name": "rigid bat length preserved batter",
+          "result": "PASS"
+        },
+        {
+          "name": "exact rigid bat/body sample catcher",
+          "result": "PASS"
+        },
+        {
+          "name": "bat visible in catcher",
+          "result": "PASS"
+        },
+        {
+          "name": "bat projection inside scene catcher",
+          "result": "PASS"
+        },
+        {
+          "name": "rigid bat length preserved catcher",
+          "result": "PASS"
+        },
+        {
+          "name": "exact rigid bat/body sample pitcher",
+          "result": "PASS"
+        },
+        {
+          "name": "bat visible in pitcher",
+          "result": "PASS"
+        },
+        {
+          "name": "bat projection inside scene pitcher",
+          "result": "PASS"
+        },
+        {
+          "name": "rigid bat length preserved pitcher",
+          "result": "PASS"
+        },
+        {
+          "name": "exact rigid bat/body sample overhead",
+          "result": "PASS"
+        },
+        {
+          "name": "bat visible in overhead",
+          "result": "PASS"
+        },
+        {
+          "name": "bat projection inside scene overhead",
+          "result": "PASS"
+        },
+        {
+          "name": "rigid bat length preserved overhead",
+          "result": "PASS"
+        },
+        {
+          "name": "league preview never recalculates physical result",
+          "result": "PASS"
+        },
+        {
+          "name": "full JSON state round trip",
+          "result": "PASS"
+        },
+        {
+          "name": "timing changes actual collision or physical contact",
+          "result": "PASS"
+        },
+        {
+          "name": "15/39 m/s changes physical impulse or collision",
+          "result": "PASS"
+        },
+        {
+          "name": "real physical player source exported",
+          "result": "PASS"
+        },
+        {
+          "name": "embedded reference provenance, composition warnings and ancestor coverage match current source JSON",
+          "result": "PASS"
+        },
+        {
+          "name": "DOM two authored players and same-ID upsert change real population mean and rating",
+          "result": "PASS"
+        },
+        {
+          "name": "population upsert preserves physical result and simulation revision",
+          "result": "PASS"
+        },
+        {
+          "name": "DOM 90 m/s capability admits authored 70 m/s in UI, Source, real motor and saved JSON",
+          "result": "PASS"
+        },
+        {
+          "name": "research world/local axes, labels and three cameras use one selected Source tick",
+          "result": "PASS"
+        },
+        {
+          "name": "manual yaw, reflection, local attachment and offset preserve rigid length, Source and Core physics",
+          "result": "PASS"
+        },
+        {
+          "name": "calibration matrix and source frames export with finite full-clip-derived velocities and identity reset",
+          "result": "PASS"
+        },
+        {
+          "name": "reference replay keeps exact source rigid bat in five cameras with no body, ball, contact or official claim",
+          "result": "PASS"
+        },
+        {
+          "name": "reference speed, comparison and full JSON round trip preserve legacy Core physics",
+          "result": "PASS"
+        },
+        {
+          "name": "trajectory intent patterns save, select, update and delete inputs without forced results or player capability changes",
+          "result": "PASS"
+        },
+        {
+          "name": "optional pattern JSON round trip rejects duplicate IDs, unknown references, invalid values, oversized lists and results",
+          "result": "PASS"
+        },
+        {
+          "name": "pattern application honors current player speed capability and reference research preserves cached physical result",
+          "result": "PASS"
+        },
+        {
+          "name": "calibrated reference physically collides and misses through common rigid, aerodynamic and ground Core without body or official claim",
+          "result": "PASS"
+        },
+        {
+          "name": "reference experiment same visible rigid pose, explicit registration and JSON round trip preserve normal Core getters",
+          "result": "PASS"
+        },
+        {
+          "name": "reference physical rate is independent of observer speed, rejects capability excess and reflected local Y matches calibrated rigid rod",
+          "result": "PASS"
+        }
+      ],
+      "inputSpeed": 25,
+      "pageErrors": [],
+      "externalRequests": [],
+      "horizontalOverflow": false
+    }
+  ],
+  "authority": "Real Core samples and collisions, no mock result",
+  "limitation": "390px desktop Chromium is not a physical smartphone test"
+}

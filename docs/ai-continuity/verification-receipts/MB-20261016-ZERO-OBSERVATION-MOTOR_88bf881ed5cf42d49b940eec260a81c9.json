@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-ZERO-OBSERVATION-MOTOR",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-with-bat-motor-v1/readback.mjs",
+    "../../outputs/verification-authored-with-bat-zero-observation-cut-v1",
+    "../../outputs/verification-authored-with-bat-zero-observation-motor-v1"
+  ],
+  "observed_at": "2026-10-16T12:38:42.276+00:00",
+  "elapsed_ms": 14390,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-ZERO-OBSERVATION-MOTOR_88bf881ed5cf42d49b940eec260a81c9.log",
+  "output_sha256": "c982a9194fa1b5198e5716ed512454b36f93c4fd8fa99eb4f1f5a1cc11958a5d",
+  "receipt_id": "MB-20261016-ZERO-OBSERVATION-MOTOR_88bf881ed5cf42d49b940eec260a81c9"
+}

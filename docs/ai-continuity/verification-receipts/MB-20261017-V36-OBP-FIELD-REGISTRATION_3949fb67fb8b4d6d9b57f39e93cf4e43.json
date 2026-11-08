@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V36-OBP-FIELD-REGISTRATION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/MeasuredBatFieldRegistrationV1.test.ts",
+    "src/integration/browser/LivePitchV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T02:28:58.350+00:00",
+  "elapsed_ms": 1875,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V36-OBP-FIELD-REGISTRATION_3949fb67fb8b4d6d9b57f39e93cf4e43.log",
+  "output_sha256": "eefcabea09527280e5d7b3157dc8e6d5422d027c11308ef7c176debc15c8d0c5",
+  "receipt_id": "MB-20261017-V36-OBP-FIELD-REGISTRATION_3949fb67fb8b4d6d9b57f39e93cf4e43"
+}

@@ -1,0 +1,31 @@
+# 実ポールquery snapshotの保持 V213
+
+2026-10-29 JST / `MB-20261027-REALISM-DEBUG-PLAN`。Liveの実ポール接触時に、後続の規則判定へ必要な元queryと接触値を保存する経路を追加した。関連60 tests・strict・旧全文への逆変換証明・独立reviewはPASS。正式な規則Sourceの採用、Native裁定、Browser公式factsへの接続は未完であり、これだけでSPIN-16を完了しない。
+
+## 変更した経路と証拠範囲
+
+既存`pole_contact.position`自体は元から未丸めだった。欠けていたのはmoment/point/normal、元query、Source-clockとgeometryのbindingである。
+
+実queryの入力を1回の宣言へ束ね、その入力をeventへ保持した。既存sole-pole・時系列guardを通過した選択接触だけについて、反射前の値をplain snapshotへcloneし、既存`adoptPoleImpulse`が成功した後に`diagnostics.poleV148.contactWitnessesV213`へ追加する。非空時だけこのoptional fieldを出す。queryやsolverを再実行した結果ではなく、既存の実計算で使った値を保持する。
+
+packetは時計・play初期moment、原basesとderived fence/pole geometry/material、元Source descriptor・query moment/side/through、接触surface/moment/point/normal/continuing、search authority/phase/resolution/witness、既実行prefix長とthrow/ground/fielder-touch境界を持つ。値を丸めず、入力alias・function・session・kernel closureをpacketへ持ち越さない。clone後は再帰freezeし、後続の反射や呼出し側変更から切り離す。
+
+これはquery区間と既実行prefixの要約に対するsnapshotであり、完全なLive履歴、正常Native Ownerの受理、規則Sourceの採用や合法性の証明ではない。territory・HR・得点・custodyをこのmetadataから生成していない。
+
+solver・反射・乱数・時間刻み・既存facts/ruleFacts/end・非poleの出力を維持した。既定の`pendingEquipmentPolicyV148`、公式完了false、Browserの`pole_legal_policy_unadopted_v148`も維持した。新しいRootへの正式adoption bindingと原接触prefixの認証は後続工程である。
+
+## 検証
+
+未実装時の`f8e3df6d` FAIL4921msは、実pole factが1件あるのにsnapshotがないという期待どおりのassertion失敗だった。最小実装後の同ケース`779ad895`はPASS1546ms。
+
+最終の関連5 files・60 testsは`33459985232f4425bb5f3e241ecdaaae` PASS4812ms（worker1）、strict `dd5915654050498a901640173bf44402` PASS3531ms。実非線形queryのside/cap/rim、immutable clone/serialize、Liveの複数bounce・先行actor・equipmentなし・frame cadence、既存のpole/territory/Browser pending回帰を含む。実Chrome・Native DB実行は0であり、それらの同値や正式裁定を証明したものではない。
+
+編集前の`LiveFieldPlayV1.ts`をprivate baselineとして保存した。266038 bytes、SHA `b0588cae08b6f44f240f13511b5fe24258577f06922c0152d070cdc0fdb3e006`。9つのliteral transformを逆変換すると旧全文bytesへ一致し、pole queryの呼出箇所も1→1であることを`70a761b48b7f4c7f948df6528836ba67` PASS62msで確認した。
+
+proof SHAは`d70e6cbab63458f80c164cf955c19623f317696cd2dee7419d99d275de763648`、verification SHAは`3e4660a87e8db89f20424fce1fac5b601d187ef5a06f645336ef6cadaf80ef1c`。これらとbaselineはprivateのまま保持する。
+
+4 filesの独立critical reviewは、元queryの選択、反射前cloneとadopt後append、入力aliasの排除、証拠範囲、既存guard、test/browserを確認しReady。重大な指摘はない。
+
+最終SHA-256：LiveFieldPlay `536a418b06fe3e0d9863b78ef2f9673289667c24c493a2be8c6cdba2b8e5eb9d`（267245 bytes）、helper `3fc15159a6d9c9c71aa45d579c757808c382e7e82aed350bc4c76985bf758359`、new test `3889e575ed3db332065944e1817992fbf309d664943f407aa9d70d6dc26407c6`、Browser test `94b0126408a0d942d1042b8bad926ba7576dc3ab1b56eb1cea3a94ad3beeb086`。
+
+実球場geometry・正式な規則Sourceと採用binding、Native法的証拠、公式facts、同Chromeのbatch/9回/性能、最終同版3HTMLと全Source配送は未完。旧FAIL/UNKNOWNと本人JSON・原スイング・前版を保持し、最新の全設計と実装が揃った時だけ全goalを完了する。

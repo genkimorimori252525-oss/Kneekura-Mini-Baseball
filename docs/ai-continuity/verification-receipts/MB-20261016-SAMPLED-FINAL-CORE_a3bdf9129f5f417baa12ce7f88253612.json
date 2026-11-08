@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SAMPLED-FINAL-CORE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/pitching/SampledRigidBatSwingV1.test.ts",
+    "src/core/sim/pitching/AerodynamicRigidPitchAgainstBatter.test.ts",
+    "src/core/sim/contact/ReferenceBatKinematicsV1.test.ts",
+    "src/integration/browser/MeasuredBatAxisReferenceV1.test.ts",
+    "src/integration/browser/ReferenceBattingWorkbench.test.ts",
+    "src/integration/browser/BattingWorkbench.test.ts",
+    "src/integration/browser/NativeImmutableReplayLedger.test.ts",
+    "src/integration/browser/NativeAerodynamicSession.test.ts",
+    "src/integration/browser/NativeAerodynamicObserver.test.ts"
+  ],
+  "observed_at": "2026-10-15T21:48:29.022+00:00",
+  "elapsed_ms": 10812,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SAMPLED-FINAL-CORE_a3bdf9129f5f417baa12ce7f88253612.log",
+  "output_sha256": "b4b7005f699935a7a73b3d1a8281616cd5f2a6a026e79c471b537d579ee5ae81",
+  "receipt_id": "MB-20261016-SAMPLED-FINAL-CORE_a3bdf9129f5f417baa12ce7f88253612"
+}

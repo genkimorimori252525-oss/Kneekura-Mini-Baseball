@@ -1,0 +1,1993 @@
+{
+  "pass": false,
+  "phase": "normal-1200",
+  "normal": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv59_TBD_vs_LAD_打点注視と微動安定版.html",
+  "workbench": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\カメラワーク調整室_v59.html",
+  "defaults": {
+    "enabled": true,
+    "aimLiftMeters": 0.3,
+    "swingMaxDownRadians": 0.2,
+    "hitFollowDelayMs": 300,
+    "aimReleaseMs": 70,
+    "pitchTrackingGain": 0.26,
+    "pitchTrackingDeadbandRadians": 0.02
+  },
+  "views": [
+    {
+      "width": 1200,
+      "normal": [
+        {
+          "candidate": {
+            "pitch": 1,
+            "prep": 1540,
+            "tps": 1000000,
+            "origin": 6714563,
+            "side": "R",
+            "swing": true,
+            "pitchType": "slider",
+            "command": {
+              "batting": "auto",
+              "pitchType": "auto",
+              "location": "auto",
+              "managedTeam": 1,
+              "baserunning": "balanced"
+            },
+            "decisionMs": 1680,
+            "startMs": 1845.326,
+            "impactMs": 2006.9175519917244,
+            "throughMs": 2079.9246527173705,
+            "startSeconds": 0.4669175519917244,
+            "motorStartSeconds": 0.305326,
+            "throughSeconds": 0.5399246527173706,
+            "forecast": {
+              "x": 0.15983780086561633,
+              "y": 0.5461221078441678,
+              "z": 0.15000000000000066
+            },
+            "error": {
+              "x": 0.020965594105641354,
+              "y": 0.01509375998171184,
+              "z": -0.0029603852875327496
+            },
+            "aim": {
+              "x": 0.1808033949712577,
+              "y": 0.8612158678258797,
+              "z": 0.1470396147124679
+            },
+            "actualContact": {
+              "x": 0.1551837812211778,
+              "y": 0.5677499574772823,
+              "z": 0.3098639899891097
+            },
+            "firstBattedMs": 2010.881,
+            "freeMs": 1570
+          },
+          "samples": [
+            {
+              "name": "decision",
+              "ms": 1679.999,
+              "tick": 6846563,
+              "camera": "batter",
+              "yaw": 0.020720933419704764,
+              "pitch": 0.07920422926917976,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "view": {
+                "eye": {
+                  "x": -0.4,
+                  "y": 1.3475000000000001,
+                  "z": -0.95
+                },
+                "yaw": 0.020720933419704764,
+                "pitch": 0.07920422926917976,
+                "f": 400,
+                "cx": 300,
+                "cy": 110,
+                "labelMetres": 0.55,
+                "phase": "incoming",
+                "aimWeight": 0,
+                "surprise": 0.5797566172183974,
+                "trackingErrorRadians": 0.006941571982219309,
+                "regulation": {
+                  "mode": "field-follow",
+                  "targetYaw": 0.021802042593383586,
+                  "targetPitch": 0.07234736230686238,
+                  "pitchPursuit": {
+                    "rawErrorRadians": 0.021149778828506126,
+                    "relaxedErrorRadians": 0.007021588144768121,
+                    "gain": 0.8017490842490842,
+                    "deadbandRadians": 0.012391941391941394
+                  }
+                },
+                "model": {
+                  "sensorDelaySeconds": 0.075,
+                  "angularSpeedLimitRadPerSecond": 2.5,
+                  "angularAccelerationLimitRadPerSecond2": 20,
+                  "abilityBasis": "EXISTING_MEET_AND_VISION_SI_BOUNDED_PITCH_PURSUIT_V52",
+                  "pitchTrackingGain": 0.8017490842490842,
+                  "pitchTrackingDeadbandRadians": 0.012391941391941394,
+                  "contactQuality": 0.7179487179487178,
+                  "visionQuality": 0.6428571428571428,
+                  "impactStabilization": {
+                    "basis": "REGISTERED_EXPECTED_IMPACT",
+                    "angleConeRadians": 0.025,
+                    "speedLimitRadPerSecond": 0.18
+                  }
+                },
+                "tuning": {
+                  "settings": {
+                    "enabled": true,
+                    "aimLiftMeters": 0.3,
+                    "swingMaxDownRadians": 0.2,
+                    "hitFollowDelayMs": 300,
+                    "aimReleaseMs": 70,
+                    "pitchTrackingGain": 0.26,
+                    "pitchTrackingDeadbandRadians": 0.02
+                  },
+                  "hitObservedAtSeconds": null,
+                  "firstBattedTick": null,
+                  "aimReleaseAtSeconds": 0.5399246527173706,
+                  "plannedAimThroughSeconds": 0.5399246527173706,
+                  "aimTarget": null,
+                  "downwardTargetLimited": false,
+                  "pitchTracking": {
+                    "rawErrorRadians": 0.10412397627156783,
+                    "headTargetErrorRadians": 0.021872233830607636,
+                    "gain": 0.26,
+                    "deadbandRadians": 0.02,
+                    "anchorYaw": 0.020615635625603763,
+                    "anchorPitch": 0.08,
+                    "applied": true
+                  },
+                  "swingHeadLock": null
+                }
+              },
+              "reaction": {
+                "phase": "pre-contact",
+                "trackingAllowed": false,
+                "handoffAllowed": false,
+                "trackingProgress": 0,
+                "trackingBlend": 0,
+                "delaySeconds": null,
+                "contactSpeedMps": null,
+                "contactTick": null,
+                "contactAtMs": null,
+                "trackingAtMs": null,
+                "handoffAtMs": null,
+                "observedContactSampleTick": null,
+                "atTick": 6846563,
+                "view": null,
+                "model": {
+                  "basis": "CAUSAL_CONTACT_EXIT_SPEED_PITCHER_GAZE_DELAY_V1",
+                  "minimumDelaySeconds": 0.1,
+                  "maximumDelaySeconds": 0.25,
+                  "speedScaleMeters": 7,
+                  "blendMs": 180,
+                  "empiricallyCalibrated": false,
+                  "sourcePhysicsChanged": false,
+                  "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+                }
+              },
+              "ball": {
+                "x": 0.0720450941252456,
+                "y": 1.654668831016802,
+                "z": 12.084449336901242
+              },
+              "ballDot": {
+                "camera": "batter",
+                "displayScale": 1,
+                "unscaledDisplayDiameterPx": 6.633355722436852,
+                "ballKind": "pitch",
+                "projectedDiameterPx": 2.256431233059528,
+                "opticalDiameterPx": 6.633355722436852,
+                "visibilityMarker": false,
+                "displayDiameterPx": 6.633355722436852,
+                "style": "4px-dot-grid",
+                "orientationStatus": "observed-orientation",
+                "cells": [
+                  {
+                    "x": 304,
+                    "y": 68,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 308,
+                    "y": 68,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  }
+                ]
+              },
+              "bat": true,
+              "projection": {
+                "camera": "batter",
+                "eye": {
+                  "x": -0.4,
+                  "y": 1.3475000000000001,
+                  "z": -0.95
+                },
+                "yaw": 0.020720933419704764,
+                "pitch": 0.07920422926917976,
+                "f": 400,
+                "cx": 300,
+                "cy": 110
+              },
+              "error": null,
+              "aimErrorRadians": 0.4815865290654667
+            },
+            {
+              "name": "acquired",
+              "ms": 1765.01,
+              "tick": 6934563,
+              "camera": "batter",
+              "yaw": 0.04609216574624964,
+              "pitch": 0.07353760454796864,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "view": {
+                "eye": {
+                  "x": -0.4,
+                  "y": 1.3475000000000001,
+                  "z": -0.95
+                },
+                "yaw": 0.04609216574624964,
+                "pitch": 0.07353760454796864,
+                "f": 400,
+                "cx": 300,
+                "cy": 110,
+                "labelMetres": 0.55,
+                "phase": "swing-aim",
+                "aimWeight": 1,
+                "surprise": 0.315887760251912,
+                "trackingErrorRadians": 0.45860083706090854,
+                "regulation": {
+                  "mode": "swing-brace",
+                  "targetYaw": 0.4869118457623533,
+                  "targetPitch": 0.2,
+                  "pitchPursuit": null
+                },
+                "model": {
+                  "sensorDelaySeconds": 0.075,
+                  "angularSpeedLimitRadPerSecond": 2.5,
+                  "angularAccelerationLimitRadPerSecond2": 20,
+                  "abilityBasis": "EXISTING_MEET_AND_VISION_SI_BOUNDED_PITCH_PURSUIT_V52",
+                  "pitchTrackingGain": 0.8017490842490842,
+                  "pitchTrackingDeadbandRadians": 0.012391941391941394,
+                  "contactQuality": 0.7179487179487178,
+                  "visionQuality": 0.6428571428571428,
+                  "impactStabilization": {
+                    "basis": "REGISTERED_EXPECTED_IMPACT",
+                    "angleConeRadians": 0.025,
+                    "speedLimitRadPerSecond": 0.18
+                  }
+                },
+                "tuning": {
+                  "settings": {
+                    "enabled": true,
+                    "aimLiftMeters": 0.3,
+                    "swingMaxDownRadians": 0.2,
+                    "hitFollowDelayMs": 300,
+                    "aimReleaseMs": 70,
+                    "pitchTrackingGain": 0.26,
+                    "pitchTrackingDeadbandRadians": 0.02
+                  },
+                  "hitObservedAtSeconds": null,
+                  "firstBattedTick": null,
+                  "aimReleaseAtSeconds": 0.5399246527173706,
+                  "plannedAimThroughSeconds": 0.5399246527173706,
+                  "aimTarget": {
+                    "x": 0.1808033949712577,
+                    "y": 0.8612158678258797,
+                    "z": 0.1470396147124679
+                  },
+                  "downwardTargetLimited": true,
+                  "pitchTracking": {
+                    "rawErrorRadians": null,
+                    "headTargetErrorRadians": null,
+                    "gain": 0.26,
+                    "deadbandRadians": 0.02,
+                    "anchorYaw": 0.020615635625603763,
+                    "anchorPitch": 0.08,
+                    "applied": false
+                  },
+                  "swingHeadLock": null
+                }
+              },
+              "reaction": {
+                "phase": "pre-contact",
+                "trackingAllowed": false,
+                "handoffAllowed": false,
+                "trackingProgress": 0,
+                "trackingBlend": 0,
+                "delaySeconds": null,
+                "contactSpeedMps": null,
+                "contactTick": null,
+                "contactAtMs": null,
+                "trackingAtMs": null,
+                "handoffAtMs": null,
+                "observedContactSampleTick": null,
+                "atTick": 6934563,
+                "view": null,
+                "model": {
+                  "basis": "CAUSAL_CONTACT_EXIT_SPEED_PITCHER_GAZE_DELAY_V1",
+                  "minimumDelaySeconds": 0.1,
+                  "maximumDelaySeconds": 0.25,
+                  "speedScaleMeters": 7,
+                  "blendMs": 180,
+                  "empiricallyCalibrated": false,
+                  "sourcePhysicsChanged": false,
+                  "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+                }
+              },
+              "ball": {
+                "x": 0.04517729069921844,
+                "y": 1.4592695882506965,
+                "z": 8.947380855879368
+              },
+              "ballDot": {
+                "camera": "batter",
+                "displayScale": 1,
+                "unscaledDisplayDiameterPx": 7.555600107878968,
+                "ballKind": "pitch",
+                "projectedDiameterPx": 2.965846290035203,
+                "opticalDiameterPx": 7.555600107878968,
+                "visibilityMarker": false,
+                "displayDiameterPx": 7.555600107878968,
+                "style": "4px-dot-grid",
+                "orientationStatus": "observed-orientation",
+                "cells": [
+                  {
+                    "x": 296,
+                    "y": 76,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 300,
+                    "y": 76,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  }
+                ]
+              },
+              "bat": true,
+              "projection": {
+                "camera": "batter",
+                "eye": {
+                  "x": -0.4,
+                  "y": 1.3475000000000001,
+                  "z": -0.95
+                },
+                "yaw": 0.04609216574624964,
+                "pitch": 0.07353760454796864,
+                "f": 400,
+                "cx": 300,
+                "cy": 110
+              },
+              "error": null,
+              "aimErrorRadians": 0.4586008370609082
+            },
+            {
+              "name": "motor",
+              "ms": 1845.326,
+              "tick": 7011563,
+              "camera": "batter",
+              "yaw": 0.1808577670453175,
+              "pitch": 0.10646581528749319,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "view": {
+                "eye": {
+                  "x": -0.4,
+                  "y": 1.3475000000000001,
+                  "z": -0.95
+                },
+                "yaw": 0.1808577670453175,
+                "pitch": 0.10646581528749319,
+                "f": 400,
+                "cx": 300,
+                "cy": 110,
+                "labelMetres": 0.55,
+                "phase": "swing-aim",
+                "aimWeight": 1,
+                "surprise": 0.17798535064007065,
+                "trackingErrorRadians": 0.32002772193853257,
+                "regulation": {
+                  "mode": "swing-brace",
+                  "targetYaw": 0.48691184576235297,
+                  "targetPitch": 0.2,
+                  "pitchPursuit": null
+                },
+                "model": {
+                  "sensorDelaySeconds": 0.075,
+                  "angularSpeedLimitRadPerSecond": 2.5,
+                  "angularAccelerationLimitRadPerSecond2": 20,
+                  "abilityBasis": "EXISTING_MEET_AND_VISION_SI_BOUNDED_PITCH_PURSUIT_V52",
+                  "pitchTrackingGain": 0.8017490842490842,
+                  "pitchTrackingDeadbandRadians": 0.012391941391941394,
+                  "contactQuality": 0.7179487179487178,
+                  "visionQuality": 0.6428571428571428,
+                  "impactStabilization": {
+                    "basis": "REGISTERED_EXPECTED_IMPACT",
+                    "angleConeRadians": 0.025,
+                    "speedLimitRadPerSecond": 0.18
+                  }
+                },
+                "tuning": {
+                  "settings": {
+                    "enabled": true,
+                    "aimLiftMeters": 0.3,
+                    "swingMaxDownRadians": 0.2,
+                    "hitFollowDelayMs": 300,
+                    "aimReleaseMs": 70,
+                    "pitchTrackingGain": 0.26,
+                    "pitchTrackingDeadbandRadians": 0.02
+                  },
+                  "hitObservedAtSeconds": null,
+                  "firstBattedTick": null,
+                  "aimReleaseAtSeconds": 0.5399246527173706,
+                  "plannedAimThroughSeconds": 0.5399246527173706,
+                  "aimTarget": {
+                    "x": 0.1808033949712577,
+                    "y": 0.8612158678258797,
+                    "z": 0.1470396147124679
+                  },
+                  "downwardTargetLimited": true,
+                  "pitchTracking": {
+                    "rawErrorRadians": null,
+                    "headTargetErrorRadians": null,
+                    "gain": 0.26,
+                    "deadbandRadians": 0.02,
+                    "anchorYaw": 0.020615635625603763,
+                    "anchorPitch": 0.08,
+                    "applied": false
+                  },
+                  "swingHeadLock": null
+                }
+              },
+              "reaction": {
+                "phase": "pre-contact",
+                "trackingAllowed": false,
+                "handoffAllowed": false,
+                "trackingProgress": 0,
+                "trackingBlend": 0,
+                "delaySeconds": null,
+                "contactSpeedMps": null,
+                "contactTick": null,
+                "contactAtMs": null,
+                "trackingAtMs": null,
+                "handoffAtMs": null,
+                "observedContactSampleTick": null,
+                "atTick": 7011563,
+                "view": null,
+                "model": {
+                  "basis": "CAUSAL_CONTACT_EXIT_SPEED_PITCHER_GAZE_DELAY_V1",
+                  "minimumDelaySeconds": 0.1,
+                  "maximumDelaySeconds": 0.25,
+                  "speedScaleMeters": 7,
+                  "blendMs": 180,
+                  "empiricallyCalibrated": false,
+                  "sourcePhysicsChanged": false,
+                  "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+                }
+              },
+              "ball": {
+                "x": 0.05015365652698918,
+                "y": 1.237760988702634,
+                "z": 6.248975632372876
+              },
+              "ballDot": {
+                "camera": "batter",
+                "displayScale": 1,
+                "unscaledDisplayDiameterPx": 9.035848724372416,
+                "ballKind": "pitch",
+                "projectedDiameterPx": 4.104499018805409,
+                "opticalDiameterPx": 9.035848724372416,
+                "visibilityMarker": false,
+                "displayDiameterPx": 9.035848724372416,
+                "style": "4px-dot-grid",
+                "orientationStatus": "observed-orientation",
+                "cells": [
+                  {
+                    "x": 248,
+                    "y": 72,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 252,
+                    "y": 72,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 256,
+                    "y": 72,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 252,
+                    "y": 76,
+                    "radius": 1.45,
+                    "color": "#e8eceb"
+                  }
+                ]
+              },
+              "bat": true,
+              "projection": {
+                "camera": "batter",
+                "eye": {
+                  "x": -0.4,
+                  "y": 1.3475000000000001,
+                  "z": -0.95
+                },
+                "yaw": 0.1808577670453175,
+                "pitch": 0.10646581528749319,
+                "f": 400,
+                "cx": 300,
+                "cy": 110
+              },
+              "error": null,
+              "aimErrorRadians": 0.32002772193853257
+            },
+            {
+              "name": "before",
+              "ms": 2006.9165519917244,
+              "tick": 7176563,
+              "camera": "batter",
+              "yaw": 0.48357437510010676,
+              "pitch": 0.19896612124474444,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "view": {
+                "eye": {
+                  "x": -0.4,
+                  "y": 1.3475000000000001,
+                  "z": -0.95
+                },
+                "yaw": 0.48357437510010676,
+                "pitch": 0.19896612124474444,
+                "f": 400,
+                "cx": 300,
+                "cy": 110,
+                "labelMetres": 0.55,
+                "phase": "swing-aim",
+                "aimWeight": 1,
+                "surprise": 0.056119481643493445,
+                "trackingErrorRadians": 0.003493939853792988,
+                "regulation": {
+                  "mode": "swing-brace",
+                  "targetYaw": 0.48691184576235297,
+                  "targetPitch": 0.2,
+                  "pitchPursuit": null
+                },
+                "model": {
+                  "sensorDelaySeconds": 0.075,
+                  "angularSpeedLimitRadPerSecond": 2.5,
+                  "angularAccelerationLimitRadPerSecond2": 20,
+                  "abilityBasis": "EXISTING_MEET_AND_VISION_SI_BOUNDED_PITCH_PURSUIT_V52",
+                  "pitchTrackingGain": 0.8017490842490842,
+                  "pitchTrackingDeadbandRadians": 0.012391941391941394,
+                  "contactQuality": 0.7179487179487178,
+                  "visionQuality": 0.6428571428571428,
+                  "impactStabilization": {
+                    "basis": "REGISTERED_EXPECTED_IMPACT",
+                    "angleConeRadians": 0.025,
+                    "speedLimitRadPerSecond": 0.18
+                  }
+                },
+                "tuning": {
+                  "settings": {
+                    "enabled": true,
+                    "aimLiftMeters": 0.3,
+                    "swingMaxDownRadians": 0.2,
+                    "hitFollowDelayMs": 300,
+                    "aimReleaseMs": 70,
+                    "pitchTrackingGain": 0.26,
+                    "pitchTrackingDeadbandRadians": 0.02
+                  },
+                  "hitObservedAtSeconds": null,
+                  "firstBattedTick": null,
+                  "aimReleaseAtSeconds": 0.5399246527173706,
+                  "plannedAimThroughSeconds": 0.5399246527173706,
+                  "aimTarget": {
+                    "x": 0.1808033949712577,
+                    "y": 0.8612158678258797,
+                    "z": 0.1470396147124679
+                  },
+                  "downwardTargetLimited": true,
+                  "pitchTracking": {
+                    "rawErrorRadians": null,
+                    "headTargetErrorRadians": null,
+                    "gain": 0.26,
+                    "deadbandRadians": 0.02,
+                    "anchorYaw": 0.020615635625603763,
+                    "anchorPitch": 0.08,
+                    "applied": false
+                  },
+                  "swingHeadLock": null
+                }
+              },
+              "reaction": {
+                "phase": "pre-contact",
+                "trackingAllowed": false,
+                "handoffAllowed": false,
+                "trackingProgress": 0,
+                "trackingBlend": 0,
+                "delaySeconds": null,
+                "contactSpeedMps": null,
+                "contactTick": null,
+                "contactAtMs": null,
+                "trackingAtMs": null,
+                "handoffAtMs": null,
+                "observedContactSampleTick": null,
+                "atTick": 7176563,
+                "view": null,
+                "model": {
+                  "basis": "CAUSAL_CONTACT_EXIT_SPEED_PITCHER_GAZE_DELAY_V1",
+                  "minimumDelaySeconds": 0.1,
+                  "maximumDelaySeconds": 0.25,
+                  "speedScaleMeters": 7,
+                  "blendMs": 180,
+                  "empiricallyCalibrated": false,
+                  "sourcePhysicsChanged": false,
+                  "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+                }
+              },
+              "ball": {
+                "x": 0.14676857446679603,
+                "y": 0.6075470139542991,
+                "z": 0.607828484566889
+              },
+              "ballDot": {
+                "camera": "batter",
+                "displayScale": 1,
+                "unscaledDisplayDiameterPx": 25.482534076239588,
+                "ballKind": "pitch",
+                "projectedDiameterPx": 16.75579544326122,
+                "opticalDiameterPx": 25.482534076239588,
+                "visibilityMarker": false,
+                "displayDiameterPx": 25.482534076239588,
+                "style": "4px-dot-grid",
+                "orientationStatus": "observed-orientation",
+                "cells": [
+                  {
+                    "x": 240,
+                    "y": 192,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 244,
+                    "y": 192,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 248,
+                    "y": 192,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 252,
+                    "y": 192,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 236,
+                    "y": 196,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 240,
+                    "y": 196,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 244,
+                    "y": 196,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 248,
+                    "y": 196,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 252,
+                    "y": 196,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 256,
+                    "y": 196,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 236,
+                    "y": 200,
+                    "radius": 1.45,
+                    "color": "#dd5459"
+                  },
+                  {
+                    "x": 240,
+                    "y": 200,
+                    "radius": 1.45,
+                    "color": "#dd5459"
+                  },
+                  {
+                    "x": 244,
+                    "y": 200,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 248,
+                    "y": 200,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 252,
+                    "y": 200,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 256,
+                    "y": 200,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 236,
+                    "y": 204,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 240,
+                    "y": 204,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 244,
+                    "y": 204,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 248,
+                    "y": 204,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 252,
+                    "y": 204,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 256,
+                    "y": 204,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 236,
+                    "y": 208,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 240,
+                    "y": 208,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 244,
+                    "y": 208,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 248,
+                    "y": 208,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 252,
+                    "y": 208,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 256,
+                    "y": 208,
+                    "radius": 1.45,
+                    "color": "#dd5459"
+                  },
+                  {
+                    "x": 240,
+                    "y": 212,
+                    "radius": 1.45,
+                    "color": "#e8eceb"
+                  },
+                  {
+                    "x": 244,
+                    "y": 212,
+                    "radius": 1.45,
+                    "color": "#e8eceb"
+                  },
+                  {
+                    "x": 248,
+                    "y": 212,
+                    "radius": 1.45,
+                    "color": "#e8eceb"
+                  },
+                  {
+                    "x": 252,
+                    "y": 212,
+                    "radius": 1.45,
+                    "color": "#e8eceb"
+                  }
+                ]
+              },
+              "bat": true,
+              "projection": {
+                "camera": "batter",
+                "eye": {
+                  "x": -0.4,
+                  "y": 1.3475000000000001,
+                  "z": -0.95
+                },
+                "yaw": 0.48357437510010676,
+                "pitch": 0.19896612124474444,
+                "f": 400,
+                "cx": 300,
+                "cy": 110
+              },
+              "error": null,
+              "aimErrorRadians": 0.003493939853792988
+            },
+            {
+              "name": "impact",
+              "ms": 2006.9175519917244,
+              "tick": 7176563,
+              "camera": "batter",
+              "yaw": 0.48357515300838283,
+              "pitch": 0.19896636097244916,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "view": {
+                "eye": {
+                  "x": -0.4,
+                  "y": 1.3475000000000001,
+                  "z": -0.95
+                },
+                "yaw": 0.48357515300838283,
+                "pitch": 0.19896636097244916,
+                "f": 400,
+                "cx": 300,
+                "cy": 110,
+                "labelMetres": 0.55,
+                "phase": "swing-impact-stabilize",
+                "aimWeight": 1,
+                "surprise": 0.05611908079148476,
+                "trackingErrorRadians": 0.0034931258456679035,
+                "regulation": {
+                  "mode": "impact-stabilize",
+                  "targetYaw": 0.48691184576235297,
+                  "targetPitch": 0.2,
+                  "pitchPursuit": null
+                },
+                "model": {
+                  "sensorDelaySeconds": 0.075,
+                  "angularSpeedLimitRadPerSecond": 2.5,
+                  "angularAccelerationLimitRadPerSecond2": 20,
+                  "abilityBasis": "EXISTING_MEET_AND_VISION_SI_BOUNDED_PITCH_PURSUIT_V52",
+                  "pitchTrackingGain": 0.8017490842490842,
+                  "pitchTrackingDeadbandRadians": 0.012391941391941394,
+                  "contactQuality": 0.7179487179487178,
+                  "visionQuality": 0.6428571428571428,
+                  "impactStabilization": {
+                    "basis": "REGISTERED_EXPECTED_IMPACT",
+                    "angleConeRadians": 0.025,
+                    "speedLimitRadPerSecond": 0.18
+                  }
+                },
+                "tuning": {
+                  "settings": {
+                    "enabled": true,
+                    "aimLiftMeters": 0.3,
+                    "swingMaxDownRadians": 0.2,
+                    "hitFollowDelayMs": 300,
+                    "aimReleaseMs": 70,
+                    "pitchTrackingGain": 0.26,
+                    "pitchTrackingDeadbandRadians": 0.02
+                  },
+                  "hitObservedAtSeconds": null,
+                  "firstBattedTick": null,
+                  "aimReleaseAtSeconds": 0.5399246527173706,
+                  "plannedAimThroughSeconds": 0.5399246527173706,
+                  "aimTarget": {
+                    "x": 0.1808033949712577,
+                    "y": 0.8612158678258797,
+                    "z": 0.1470396147124679
+                  },
+                  "downwardTargetLimited": true,
+                  "pitchTracking": {
+                    "rawErrorRadians": null,
+                    "headTargetErrorRadians": null,
+                    "gain": 0.26,
+                    "deadbandRadians": 0.02,
+                    "anchorYaw": 0.020615635625603763,
+                    "anchorPitch": 0.08,
+                    "applied": false
+                  },
+                  "swingHeadLock": {
+                    "startSeconds": 0.4669175519917244,
+                    "throughSeconds": 0.5399246527173706,
+                    "motorStartSeconds": 0.305326,
+                    "basis": "REGISTERED_EXPECTED_IMPACT",
+                    "yaw": 0.48357515300838283,
+                    "pitch": 0.19896636097244916,
+                    "releaseAtSeconds": null,
+                    "active": true,
+                    "releasing": false
+                  }
+                }
+              },
+              "reaction": {
+                "phase": "pre-contact",
+                "trackingAllowed": false,
+                "handoffAllowed": false,
+                "trackingProgress": 0,
+                "trackingBlend": 0,
+                "delaySeconds": null,
+                "contactSpeedMps": null,
+                "contactTick": null,
+                "contactAtMs": null,
+                "trackingAtMs": null,
+                "handoffAtMs": null,
+                "observedContactSampleTick": null,
+                "atTick": 7176563,
+                "view": null,
+                "model": {
+                  "basis": "CAUSAL_CONTACT_EXIT_SPEED_PITCHER_GAZE_DELAY_V1",
+                  "minimumDelaySeconds": 0.1,
+                  "maximumDelaySeconds": 0.25,
+                  "speedScaleMeters": 7,
+                  "blendMs": 180,
+                  "empiricallyCalibrated": false,
+                  "sourcePhysicsChanged": false,
+                  "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+                }
+              },
+              "ball": {
+                "x": 0.14676857446679603,
+                "y": 0.6075470139542991,
+                "z": 0.607828484566889
+              },
+              "ballDot": {
+                "camera": "batter",
+                "displayScale": 1,
+                "unscaledDisplayDiameterPx": 25.482535157003678,
+                "ballKind": "pitch",
+                "projectedDiameterPx": 16.755796274618213,
+                "opticalDiameterPx": 25.482535157003678,
+                "visibilityMarker": false,
+                "displayDiameterPx": 25.482535157003678,
+                "style": "4px-dot-grid",
+                "orientationStatus": "observed-orientation",
+                "cells": [
+                  {
+                    "x": 240,
+                    "y": 192,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 244,
+                    "y": 192,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 248,
+                    "y": 192,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 252,
+                    "y": 192,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 236,
+                    "y": 196,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 240,
+                    "y": 196,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 244,
+                    "y": 196,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 248,
+                    "y": 196,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 252,
+                    "y": 196,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 256,
+                    "y": 196,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 236,
+                    "y": 200,
+                    "radius": 1.45,
+                    "color": "#dd5459"
+                  },
+                  {
+                    "x": 240,
+                    "y": 200,
+                    "radius": 1.45,
+                    "color": "#dd5459"
+                  },
+                  {
+                    "x": 244,
+                    "y": 200,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 248,
+                    "y": 200,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 252,
+                    "y": 200,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 256,
+                    "y": 200,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 236,
+                    "y": 204,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 240,
+                    "y": 204,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 244,
+                    "y": 204,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 248,
+                    "y": 204,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 252,
+                    "y": 204,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 256,
+                    "y": 204,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 236,
+                    "y": 208,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 240,
+                    "y": 208,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 244,
+                    "y": 208,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 248,
+                    "y": 208,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 252,
+                    "y": 208,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 256,
+                    "y": 208,
+                    "radius": 1.45,
+                    "color": "#dd5459"
+                  },
+                  {
+                    "x": 240,
+                    "y": 212,
+                    "radius": 1.45,
+                    "color": "#e8eceb"
+                  },
+                  {
+                    "x": 244,
+                    "y": 212,
+                    "radius": 1.45,
+                    "color": "#e8eceb"
+                  },
+                  {
+                    "x": 248,
+                    "y": 212,
+                    "radius": 1.45,
+                    "color": "#e8eceb"
+                  },
+                  {
+                    "x": 252,
+                    "y": 212,
+                    "radius": 1.45,
+                    "color": "#e8eceb"
+                  }
+                ]
+              },
+              "bat": true,
+              "projection": {
+                "camera": "batter",
+                "eye": {
+                  "x": -0.4,
+                  "y": 1.3475000000000001,
+                  "z": -0.95
+                },
+                "yaw": 0.48357515300838283,
+                "pitch": 0.19896636097244916,
+                "f": 400,
+                "cx": 300,
+                "cy": 110
+              },
+              "error": null,
+              "aimErrorRadians": 0.0034931258456679035
+            },
+            {
+              "name": "through",
+              "ms": 2079.9246527173705,
+              "tick": 7240434,
+              "camera": "batter",
+              "yaw": 0.4851026207360194,
+              "pitch": 0.19943953916805346,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "view": {
+                "eye": {
+                  "x": -0.4,
+                  "y": 1.3475000000000001,
+                  "z": -0.95
+                },
+                "yaw": 0.4851026207360194,
+                "pitch": 0.19943953916805346,
+                "f": 400,
+                "cx": 300,
+                "cy": 110,
+                "labelMetres": 0.55,
+                "phase": "swing-impact-stabilize",
+                "aimWeight": 1,
+                "surprise": 0.04841404155579158,
+                "trackingErrorRadians": 0.0018940463405254728,
+                "regulation": {
+                  "mode": "impact-stabilize",
+                  "targetYaw": 0.48691184576235297,
+                  "targetPitch": 0.2,
+                  "pitchPursuit": null
+                },
+                "model": {
+                  "sensorDelaySeconds": 0.075,
+                  "angularSpeedLimitRadPerSecond": 2.5,
+                  "angularAccelerationLimitRadPerSecond2": 20,
+                  "abilityBasis": "EXISTING_MEET_AND_VISION_SI_BOUNDED_PITCH_PURSUIT_V52",
+                  "pitchTrackingGain": 0.8017490842490842,
+                  "pitchTrackingDeadbandRadians": 0.012391941391941394,
+                  "contactQuality": 0.7179487179487178,
+                  "visionQuality": 0.6428571428571428,
+                  "impactStabilization": {
+                    "basis": "REGISTERED_EXPECTED_IMPACT",
+                    "angleConeRadians": 0.025,
+                    "speedLimitRadPerSecond": 0.18
+                  }
+                },
+                "tuning": {
+                  "settings": {
+                    "enabled": true,
+                    "aimLiftMeters": 0.3,
+                    "swingMaxDownRadians": 0.2,
+                    "hitFollowDelayMs": 300,
+                    "aimReleaseMs": 70,
+                    "pitchTrackingGain": 0.26,
+                    "pitchTrackingDeadbandRadians": 0.02
+                  },
+                  "hitObservedAtSeconds": null,
+                  "firstBattedTick": null,
+                  "aimReleaseAtSeconds": 0.5399246527173706,
+                  "plannedAimThroughSeconds": 0.5399246527173706,
+                  "aimTarget": {
+                    "x": 0.1808033949712577,
+                    "y": 0.8612158678258797,
+                    "z": 0.1470396147124679
+                  },
+                  "downwardTargetLimited": true,
+                  "pitchTracking": {
+                    "rawErrorRadians": null,
+                    "headTargetErrorRadians": null,
+                    "gain": 0.26,
+                    "deadbandRadians": 0.02,
+                    "anchorYaw": 0.020615635625603763,
+                    "anchorPitch": 0.08,
+                    "applied": false
+                  },
+                  "swingHeadLock": {
+                    "startSeconds": 0.4669175519917244,
+                    "throughSeconds": 0.5399246527173706,
+                    "motorStartSeconds": 0.305326,
+                    "basis": "REGISTERED_EXPECTED_IMPACT",
+                    "yaw": 0.48357515300838283,
+                    "pitch": 0.19896636097244916,
+                    "releaseAtSeconds": null,
+                    "active": true,
+                    "releasing": false
+                  }
+                }
+              },
+              "reaction": {
+                "phase": "reaction-hold",
+                "trackingAllowed": false,
+                "handoffAllowed": false,
+                "trackingProgress": 0,
+                "trackingBlend": 0,
+                "delaySeconds": 0.25,
+                "contactSpeedMps": 27.739583876175512,
+                "contactTick": 7185434,
+                "contactAtMs": 2010.871,
+                "trackingAtMs": 2260.871,
+                "handoffAtMs": 2440.871,
+                "observedContactSampleTick": 7185434,
+                "atTick": 7240434,
+                "view": {
+                  "eye": {
+                    "x": 0,
+                    "y": 1.6928,
+                    "z": 18.44
+                  },
+                  "yaw": -3.141592653589793,
+                  "pitch": 0.0359281338342443,
+                  "f": 1600,
+                  "cx": 300,
+                  "cy": 192,
+                  "labelMetres": 0.23
+                },
+                "model": {
+                  "basis": "CAUSAL_CONTACT_EXIT_SPEED_PITCHER_GAZE_DELAY_V1",
+                  "minimumDelaySeconds": 0.1,
+                  "maximumDelaySeconds": 0.25,
+                  "speedScaleMeters": 7,
+                  "blendMs": 180,
+                  "empiricallyCalibrated": false,
+                  "sourcePhysicsChanged": false,
+                  "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+                }
+              },
+              "ball": {
+                "x": -0.5674622391818341,
+                "y": 0.1232577635919811,
+                "z": 1.4214760619885516
+              },
+              "ballDot": {
+                "camera": "batter",
+                "displayScale": 1,
+                "unscaledDisplayDiameterPx": 8.959387588805994,
+                "ballKind": "batted",
+                "projectedDiameterPx": 13.175569983538226,
+                "opticalDiameterPx": 8.959387588805994,
+                "visibilityMarker": false,
+                "displayDiameterPx": 8.959387588805994,
+                "style": "4px-dot-grid",
+                "orientationStatus": "observed-orientation",
+                "cells": [
+                  {
+                    "x": 72,
+                    "y": 252,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 76,
+                    "y": 252,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 72,
+                    "y": 256,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 76,
+                    "y": 256,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  }
+                ]
+              },
+              "bat": true,
+              "projection": {
+                "camera": "batter",
+                "eye": {
+                  "x": -0.4,
+                  "y": 1.3475000000000001,
+                  "z": -0.95
+                },
+                "yaw": 0.4851026207360194,
+                "pitch": 0.19943953916805346,
+                "f": 400,
+                "cx": 300,
+                "cy": 110
+              },
+              "error": null,
+              "aimErrorRadians": 0.0018940463405254728
+            },
+            {
+              "name": "after",
+              "ms": 2119.9246527173705,
+              "tick": 7240434,
+              "camera": "batter",
+              "yaw": 0.48018135101460246,
+              "pitch": 0.19945752419953094,
+              "eye": {
+                "x": -0.4,
+                "y": 1.3475000000000001,
+                "z": -0.95
+              },
+              "view": {
+                "eye": {
+                  "x": -0.4,
+                  "y": 1.3475000000000001,
+                  "z": -0.95
+                },
+                "yaw": 0.48018135101460246,
+                "pitch": 0.19945752419953094,
+                "f": 400,
+                "cx": 300,
+                "cy": 110,
+                "labelMetres": 0.55,
+                "phase": "aim-release",
+                "aimWeight": 0.36788242993990794,
+                "surprise": 0.8191715083695319,
+                "trackingErrorRadians": 0.39051224708323967,
+                "regulation": {
+                  "mode": "field-follow",
+                  "targetYaw": 0.08966913762394713,
+                  "targetPitch": 0.19961974236286387,
+                  "pitchPursuit": null
+                },
+                "model": {
+                  "sensorDelaySeconds": 0.075,
+                  "angularSpeedLimitRadPerSecond": 2.5,
+                  "angularAccelerationLimitRadPerSecond2": 20,
+                  "abilityBasis": "EXISTING_MEET_AND_VISION_SI_BOUNDED_PITCH_PURSUIT_V52",
+                  "pitchTrackingGain": 0.8017490842490842,
+                  "pitchTrackingDeadbandRadians": 0.012391941391941394,
+                  "contactQuality": 0.7179487179487178,
+                  "visionQuality": 0.6428571428571428,
+                  "impactStabilization": {
+                    "basis": "REGISTERED_EXPECTED_IMPACT",
+                    "angleConeRadians": 0.025,
+                    "speedLimitRadPerSecond": 0.18
+                  }
+                },
+                "tuning": {
+                  "settings": {
+                    "enabled": true,
+                    "aimLiftMeters": 0.3,
+                    "swingMaxDownRadians": 0.2,
+                    "hitFollowDelayMs": 300,
+                    "aimReleaseMs": 70,
+                    "pitchTrackingGain": 0.26,
+                    "pitchTrackingDeadbandRadians": 0.02
+                  },
+                  "hitObservedAtSeconds": 0.545871,
+                  "firstBattedTick": 7185434,
+                  "aimReleaseAtSeconds": 0.5399246527173706,
+                  "plannedAimThroughSeconds": 0.5399246527173706,
+                  "aimTarget": {
+                    "x": 0.1808033949712577,
+                    "y": 0.8612158678258797,
+                    "z": 0.1470396147124679
+                  },
+                  "downwardTargetLimited": true,
+                  "pitchTracking": {
+                    "rawErrorRadians": null,
+                    "headTargetErrorRadians": null,
+                    "gain": 0.26,
+                    "deadbandRadians": 0.02,
+                    "anchorYaw": 0.020615635625603763,
+                    "anchorPitch": 0.08,
+                    "applied": false
+                  },
+                  "swingHeadLock": {
+                    "startSeconds": 0.4669175519917244,
+                    "throughSeconds": 0.5399246527173706,
+                    "motorStartSeconds": 0.305326,
+                    "basis": "REGISTERED_EXPECTED_IMPACT",
+                    "yaw": 0.48357515300838283,
+                    "pitch": 0.19896636097244916,
+                    "releaseAtSeconds": 0.5399246527173706,
+                    "active": false,
+                    "releasing": true
+                  }
+                }
+              },
+              "reaction": {
+                "phase": "reaction-hold",
+                "trackingAllowed": false,
+                "handoffAllowed": false,
+                "trackingProgress": 0,
+                "trackingBlend": 0,
+                "delaySeconds": 0.25,
+                "contactSpeedMps": 27.739583876175512,
+                "contactTick": 7185434,
+                "contactAtMs": 2010.871,
+                "trackingAtMs": 2260.871,
+                "handoffAtMs": 2440.871,
+                "observedContactSampleTick": 7185434,
+                "atTick": 7240434,
+                "view": {
+                  "eye": {
+                    "x": 0,
+                    "y": 1.6928,
+                    "z": 18.44
+                  },
+                  "yaw": -3.141592653589793,
+                  "pitch": 0.0359281338342443,
+                  "f": 1600,
+                  "cx": 300,
+                  "cy": 192,
+                  "labelMetres": 0.23
+                },
+                "model": {
+                  "basis": "CAUSAL_CONTACT_EXIT_SPEED_PITCHER_GAZE_DELAY_V1",
+                  "minimumDelaySeconds": 0.1,
+                  "maximumDelaySeconds": 0.25,
+                  "speedScaleMeters": 7,
+                  "blendMs": 180,
+                  "empiricallyCalibrated": false,
+                  "sourcePhysicsChanged": false,
+                  "authority": "READ_ONLY_PRESENTATION_CONVENTION"
+                }
+              },
+              "ball": {
+                "x": -0.5674622391818341,
+                "y": 0.1232577635919811,
+                "z": 1.4214760619885516
+              },
+              "ballDot": {
+                "camera": "batter",
+                "displayScale": 1,
+                "unscaledDisplayDiameterPx": 8.935106340856956,
+                "ballKind": "batted",
+                "projectedDiameterPx": 13.13986226596611,
+                "opticalDiameterPx": 8.935106340856956,
+                "visibilityMarker": false,
+                "displayDiameterPx": 8.935106340856956,
+                "style": "4px-dot-grid",
+                "orientationStatus": "observed-orientation",
+                "cells": [
+                  {
+                    "x": 76,
+                    "y": 252,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 80,
+                    "y": 252,
+                    "radius": 1.45,
+                    "color": "#fffdf7"
+                  },
+                  {
+                    "x": 76,
+                    "y": 256,
+                    "radius": 1.45,
+                    "color": "#e8eceb"
+                  },
+                  {
+                    "x": 80,
+                    "y": 256,
+                    "radius": 1.45,
+                    "color": "#e8eceb"
+                  }
+                ]
+              },
+              "bat": true,
+              "projection": {
+                "camera": "batter",
+                "eye": {
+                  "x": -0.4,
+                  "y": 1.3475000000000001,
+                  "z": -0.95
+                },
+                "yaw": 0.48018135101460246,
+                "pitch": 0.19945752419953094,
+                "f": 400,
+                "cx": 300,
+                "cy": 110
+              },
+              "error": null,
+              "aimErrorRadians": 0.006752321048616667
+            }
+          ],
+          "micro": [
+            {
+              "ms": 2006.9175519917244,
+              "yaw": 0.48357515300838283,
+              "pitch": 0.19896636097244916
+            },
+            {
+              "ms": 2014.9175519917244,
+              "yaw": 0.48361667850345025,
+              "pitch": 0.19897922471972976,
+              "measuredSpeedRadPerSecond": 0.0054340401847597
+            },
+            {
+              "ms": 2022.9175519917244,
+              "yaw": 0.48372782126030245,
+              "pitch": 0.19901365446786143,
+              "measuredSpeedRadPerSecond": 0.014544178365585414
+            },
+            {
+              "ms": 2030.9175519917244,
+              "yaw": 0.4838863319895021,
+              "pitch": 0.19906275784298982,
+              "measuredSpeedRadPerSecond": 0.020742767082920784
+            },
+            {
+              "ms": 2038.9175519917244,
+              "yaw": 0.48407360137527666,
+              "pitch": 0.19912077006049822,
+              "measuredSpeedRadPerSecond": 0.024506134508981172
+            },
+            {
+              "ms": 2046.9175519917244,
+              "yaw": 0.4842760006620504,
+              "pitch": 0.1991834692112393,
+              "measuredSpeedRadPerSecond": 0.026486038418314095
+            },
+            {
+              "ms": 2054.9175519917244,
+              "yaw": 0.484483700522495,
+              "pitch": 0.19924781037106498,
+              "measuredSpeedRadPerSecond": 0.02717967326319653
+            },
+            {
+              "ms": 2062.9175519917244,
+              "yaw": 0.4846897555039514,
+              "pitch": 0.19931164198109294,
+              "measuredSpeedRadPerSecond": 0.026964423848189277
+            },
+            {
+              "ms": 2070.9175519917244,
+              "yaw": 0.4848893959057194,
+              "pitch": 0.19937348648580436,
+              "measuredSpeedRadPerSecond": 0.026125009802956407
+            },
+            {
+              "ms": 2078.9175519917244,
+              "yaw": 0.48507948149239416,
+              "pitch": 0.19943237110463183,
+              "measuredSpeedRadPerSecond": 0.0248746635014766
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "faults": [
+    {
+      "label": "frozen-v58",
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "label": "normal-1200",
+      "errors": [],
+      "externalRequests": []
+    }
+  ],
+  "normalSha256": "e527ef6b676e1cae604a19f98c962a2e7cfd67705710212d565bb922587a7afd",
+  "workbenchSha256": "3d64079d1895eae4de44d0ce8558d2e1cb71bcbdae3d03ef1ae6031b9448e206",
+  "coreSha256": "4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279",
+  "sourceInputs": 113,
+  "canonical": {
+    "path": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\docs\\demos\\releases\\v58\\game.html",
+    "records": [
+      {
+        "pitch": 0,
+        "source": "5210c98384c92cd6deb2cdcd294bc4f3ed36a5fcdbdb6e7cf6e99e68699cdf75",
+        "bat": "0a9cb7b4002b9dfd0de4528f5e9bad4f040ea8e96d19a8d1c1a80a40389ca009"
+      },
+      {
+        "pitch": 1,
+        "source": "0a1d7d23496226b83f270ab8b761c9e130d214b8f6f3c2dc6f7f1665fc5ad07a",
+        "bat": "de4384040f3b113070e8024628e0b62c0ae6982fbc619689d63a3817df218ce1"
+      },
+      {
+        "pitch": 2,
+        "source": "1524e20cac821abb1caaf715bf145b59dfc4bf5a439fb076df6c92b9b480351a",
+        "bat": "85c00ede76ed2e8974e6ddb72bed80d77d485e7109bb5afcf35d05a1779c8396"
+      },
+      {
+        "pitch": 3,
+        "source": "0208f6f32d38fbcadae0bfa043d337bbc4826829a94cd5b1e96b95cd09efe6a3",
+        "bat": "ef2b0ffc7d76230bc29c51ba44e200ccc6e5433283ba1e94ea19d417b0e88d3a"
+      },
+      {
+        "pitch": 4,
+        "source": "a076649ba611a71b6f470f07e905fdad48f2e9b46cb2fb750ac648816b68b545",
+        "bat": "335c54376668d10856bd2285a46a6559b609e85a8245b77c5e972c0b1792c487"
+      },
+      {
+        "pitch": 5,
+        "source": "f1185e2dcc5e22850d1f958eadf7de85bff5f0795bb53400acce3b858cf83611",
+        "bat": "0468f4b7e4ad0d2d150b2b6e4025e3447af7ff1a2ac39e8e59af93e6ae1a8eff"
+      }
+    ],
+    "cases": [
+      {
+        "pitch": 0,
+        "prep": 1540,
+        "tps": 1000000,
+        "origin": 1000000,
+        "side": "L",
+        "swing": true,
+        "pitchType": "changeup",
+        "command": {
+          "batting": "auto",
+          "pitchType": "auto",
+          "location": "auto",
+          "managedTeam": 1,
+          "baserunning": "balanced"
+        },
+        "decisionMs": 1680,
+        "startMs": 1903.847,
+        "impactMs": 2064.548892571574,
+        "throughMs": 2137.154044964538,
+        "startSeconds": 0.5245488925715741,
+        "motorStartSeconds": 0.363847,
+        "throughSeconds": 0.5971540449645382,
+        "forecast": {
+          "x": 0.07556384963166858,
+          "y": 0.9143041026935507,
+          "z": 0.15000000000000036
+        },
+        "error": {
+          "x": -0.03977559657178614,
+          "y": -0.0026946230102062887,
+          "z": -0.00906901459764469
+        },
+        "aim": {
+          "x": 0.03578825305988244,
+          "y": 1.2116094796833443,
+          "z": 0.14093098540235566
+        },
+        "actualContact": {
+          "x": 0.07498425129396083,
+          "y": 0.9096701104622376,
+          "z": 0.10778869993640483
+        },
+        "firstBattedMs": 2061.7360000000003,
+        "freeMs": 1570
+      },
+      {
+        "pitch": 1,
+        "prep": 1540,
+        "tps": 1000000,
+        "origin": 6714563,
+        "side": "R",
+        "swing": true,
+        "pitchType": "slider",
+        "command": {
+          "batting": "auto",
+          "pitchType": "auto",
+          "location": "auto",
+          "managedTeam": 1,
+          "baserunning": "balanced"
+        },
+        "decisionMs": 1680,
+        "startMs": 1845.326,
+        "impactMs": 2006.9175519917244,
+        "throughMs": 2079.9246527173705,
+        "startSeconds": 0.4669175519917244,
+        "motorStartSeconds": 0.305326,
+        "throughSeconds": 0.5399246527173706,
+        "forecast": {
+          "x": 0.15983780086561633,
+          "y": 0.5461221078441678,
+          "z": 0.15000000000000066
+        },
+        "error": {
+          "x": 0.020965594105641354,
+          "y": 0.01509375998171184,
+          "z": -0.0029603852875327496
+        },
+        "aim": {
+          "x": 0.1808033949712577,
+          "y": 0.8612158678258797,
+          "z": 0.1470396147124679
+        },
+        "actualContact": {
+          "x": 0.1551837812211778,
+          "y": 0.5677499574772823,
+          "z": 0.3098639899891097
+        },
+        "firstBattedMs": 2010.881,
+        "freeMs": 1570
+      },
+      {
+        "pitch": 2,
+        "prep": 1540,
+        "tps": 1000000,
+        "origin": 13731887,
+        "side": "L",
+        "swing": false,
+        "pitchType": "curve",
+        "command": {
+          "batting": "auto",
+          "pitchType": "auto",
+          "location": "auto",
+          "managedTeam": 1,
+          "baserunning": "balanced"
+        },
+        "decisionMs": 1680,
+        "startMs": 1929.065,
+        "impactMs": 2089.6699149948154,
+        "throughMs": 2167.083078115765,
+        "startSeconds": 0.5496699149948153,
+        "motorStartSeconds": 0.389065,
+        "throughSeconds": 0.627083078115765,
+        "forecast": {
+          "x": 0.36056675775268604,
+          "y": 0.7060717873176386,
+          "z": 0.15000000000000033
+        },
+        "error": {
+          "x": -0.017677537833652477,
+          "y": -0.004644065871933306,
+          "z": 0.0043402185920039206
+        },
+        "aim": {
+          "x": 0.34288921991903354,
+          "y": 1.0014277214457052,
+          "z": 0.15434021859200425
+        },
+        "firstBattedMs": null,
+        "freeMs": 1570
+      },
+      {
+        "pitch": 3,
+        "prep": 1540,
+        "tps": 1000000,
+        "origin": 16329864,
+        "side": "L",
+        "swing": true,
+        "pitchType": "curve",
+        "command": {
+          "batting": "auto",
+          "pitchType": "curve",
+          "location": "auto",
+          "managedTeam": 1,
+          "baserunning": "balanced"
+        },
+        "decisionMs": 1680,
+        "startMs": 1924.565,
+        "impactMs": 2085.5371945368315,
+        "throughMs": 2154.881805472411,
+        "startSeconds": 0.5455371945368312,
+        "motorStartSeconds": 0.384565,
+        "throughSeconds": 0.6148818054724112,
+        "forecast": {
+          "x": -0.09229968558413221,
+          "y": 0.7250638197242182,
+          "z": 0.1499999999999997
+        },
+        "error": {
+          "x": -0.0018372096167237316,
+          "y": -0.02268100889498315,
+          "z": 0.0010332137844633593
+        },
+        "aim": {
+          "x": -0.09413689520085594,
+          "y": 1.002382810829235,
+          "z": 0.15103321378446305
+        },
+        "actualContact": {
+          "x": -0.09139178979745236,
+          "y": 0.7362971907208691,
+          "z": 0.20711372211587453
+        },
+        "firstBattedMs": 2085.3300000000004,
+        "freeMs": 1570
+      },
+      {
+        "pitch": 4,
+        "prep": 1540,
+        "tps": 1000000,
+        "origin": 36683137,
+        "side": "R",
+        "swing": true,
+        "pitchType": "curve",
+        "command": {
+          "batting": "auto",
+          "pitchType": "curve",
+          "location": "auto",
+          "managedTeam": 1,
+          "baserunning": "balanced"
+        },
+        "decisionMs": 1680,
+        "startMs": 1918.3429999999998,
+        "impactMs": 2079.218443924062,
+        "throughMs": 2150.6471410263403,
+        "startSeconds": 0.5392184439240619,
+        "motorStartSeconds": 0.378343,
+        "throughSeconds": 0.6106471410263404,
+        "forecast": {
+          "x": -0.05114153086569576,
+          "y": 0.6979940029775739,
+          "z": 0.14999999999999877
+        },
+        "error": {
+          "x": -0.013250329186619626,
+          "y": 0.015473872560331612,
+          "z": 0.009937705567197747
+        },
+        "aim": {
+          "x": -0.06439186005231538,
+          "y": 1.0134678755379054,
+          "z": 0.15993770556719653
+        },
+        "actualContact": {
+          "x": -0.05010679455049212,
+          "y": 0.7130922792113934,
+          "z": 0.22704893097765638
+        },
+        "firstBattedMs": 2079.184,
+        "freeMs": 1570
+      },
+      {
+        "pitch": 5,
+        "prep": 1540,
+        "tps": 1000000,
+        "origin": 44720991,
+        "side": "R",
+        "swing": true,
+        "pitchType": "curve",
+        "command": {
+          "batting": "auto",
+          "pitchType": "curve",
+          "location": "auto",
+          "managedTeam": 1,
+          "baserunning": "balanced"
+        },
+        "decisionMs": 1680,
+        "startMs": 1901.346,
+        "impactMs": 2061.380433302857,
+        "throughMs": 2131.4461559306756,
+        "startSeconds": 0.521380433302857,
+        "motorStartSeconds": 0.361346,
+        "throughSeconds": 0.5914461559306756,
+        "forecast": {
+          "x": 0.011967911113842431,
+          "y": 0.8610421780550304,
+          "z": 0.1500000000000014
+        },
+        "error": {
+          "x": -0.045163133885502055,
+          "y": -0.03245720227388776,
+          "z": -0.0014962270283864426
+        },
+        "aim": {
+          "x": -0.03319522277165962,
+          "y": 1.1285849757811426,
+          "z": 0.14850377297161496
+        },
+        "actualContact": {
+          "x": 0.014883892266419953,
+          "y": 0.9166139909512753,
+          "z": 0.45098530231009976
+        },
+        "firstBattedMs": 2072.4790000000003,
+        "freeMs": 1570
+      }
+    ],
+    "selected": [
+      1,
+      0,
+      3
+    ],
+    "curveCovered": true
+  },
+  "error": "AssertionError [ERR_ASSERTION]: normal 1200/0 phase\n+ actual - expected\n\n+ 'swing-aim'\n- 'swing-impact-stabilize'\n         ^\n\n    at impactCase (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v59-impact-gaze.mjs:20:82)\n    at async file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v59-impact-gaze.mjs:29:631"
+}

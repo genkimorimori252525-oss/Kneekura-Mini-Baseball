@@ -1,0 +1,16 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/SamePlateAppearanceTeamMotorSelectionV1.test.ts (3 tests) 211ms
+ ✓ src/host/world/SamePlateAppearanceLiveWorkCensus.test.ts (20 tests) 1950ms
+   ✓ keeps new defensive metadata from replacing the physical checkpoint or consuming an original decision 453ms
+ ✓ src/host/world/SamePlateAppearancePhysicalFieldActions.test.ts (14 tests) 3280ms
+   ✓ FS01 source-backed relay, backup and deep coverage execute the rated motor into the same physical checkpoint 344ms
+   ✓ FS02 all nine original defenders execute including cover after a genuinely moved and locally perceived handler 960ms
+   ✓ FT01 team actor selections drive nine real motor calculations using the team choice, preserving the original body curves 1232ms
+
+ Test Files  3 passed (3)
+      Tests  37 passed (37)
+   Start at  07:40:12
+   Duration  10.28s (transform 6.45s, setup 0ms, collect 19.09s, tests 5.44s, environment 0ms, prepare 675ms)
+

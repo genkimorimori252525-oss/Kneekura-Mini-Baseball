@@ -1,0 +1,49 @@
+# 投球前field校正の分離 V198
+
+2026-10-29 JST / `MB-20261027-REALISM-DEBUG-PLAN`。全goalは進行中。
+
+既存fixtureからbody-model assemblyとfresh field校正だけを準備する入口を分離した。修正後の保存ケース`39fc03450cfa4869a6e4c96941e176e9`はPASS10796ms。元の練習・2TAKE・投球を再生成せず、正常校正まで準備し、投球前current/next-pitchを維持した。実飛行・裁定の成功はこの工程の対象外。
+
+分離時点の元wrapper受理処理14statement・body順・既定値・後続append処理の同一性は`b088a3b24161463682b337e861e2fe20` PASS515ms、初期entryの限定strictは`9917ad9c9b404f098845f608871c29ef` PASS8343ms。これらは分離時点のSourceに限る。
+
+## 初回実行と拒否原因
+
+新owned SQLite backupの初回`35ecba6cdffe4062a3aa4a226ab31892`はFAIL2671ms。正常な投球前current/next-pitchの認証後、body-model受理が`body model original registered actor receipt differs`で停止し、field校正には到達していない。元DBのmain/WAL/journalとSource/bundle/harnessの開始終了pinは一致した。元の180秒FAIL/endpin UNKNOWNも保持する。
+
+保存された正常readerの記録から、打者body receiptはday1、試合とscene9bodyはday40と判明した。`BattedBodyModelMaterializationEvidence`はassemblyの日付・各body receiptの日付・official bindingの試合日付の一致を要求する。この拒否は正当であり、ガードの修正対象にしない。
+
+V193はpracticeに必要な早期model/bodyの条件に合わせ、最初から`modelDay:1 / fixtureGameDay:40`を指定していた。後続処理が元receiptの日付を書換えた事象ではない。保存artifactだけを用いる原因・保全検査`444d8afee0394239a3af91f8d70baaa2`はPASS46ms、DBopen/Native再実行0。所有copyのmainも実行前後で一致し、WAL/journalは空または不存在だった。この検査をfield校正成功の証拠にはしない。
+
+## 修正判断と検証条件
+
+本人の同Core・高速再開・実経路検証の依頼範囲で、元のbody/pose/reachを正常Ownerへ供給し、別IDで試合日のbody materializationを新規受理する。変更するrequestはsourceIdとatDayだけ。正常受理・正常再読後、元のactor実値との`deepStrictEqual`を条件に、新assemblyだけが新receiptを参照する。元posture/model/各refは保持する。
+
+既存receiptの日付書換え、assemblyの日付をday1へ戻す方法、認証の緩和は採用しない。追加を許すのは`world_player_body_materializations`、`world_batted_body_materializations`、`pa_physical_v1_field_calibrations`の各1行だけ。全旧row/rowid/catalog/head/current/next-pitchと元DBを保全する。helperの追加引数を省略した旧wrapperの動作は維持する。
+
+修正は限定test・strict・静的review後、新out02へ一度実行した。失敗したout01は保持した。復旧は旧helperと新入口の差分を戻すことで行え、元DBを移行しない。launch/field-root/flight/practice/2TAKEの新実行は0。
+
+修正後の小Native R01/R02は`4c93d0fde3c64fe5963b87f09eb2c2a2` PASS6937ms。day20から40の正常受理・原actor厳密一致・変更入力拒否を検証し、V193のday1保存ケースの成功とは分ける。default/explicit assembly routingのR03は`f84b9ce9`内でcase PASSだが、当該実行全体はSQL countのnull-prototype比較によりFAILとして保持した。初期RED`872afc0c`も保持する。
+
+最終限定strictは`e4b30bfe0f5c41b0a9c5949bb1886a20` PASS2203ms。旧13statement/tail全文一致と旧6引数/default経路の静的適合`5ea58bcd28384913b95326030382a4d2` PASS203ms、driver構文`08a56176f32a4962aba3f5f1017921da` PASS46ms。旧型FAIL`6e83a971`はtestのreadonly代入を同値のobject生成に直して解消し、原FAILを保持した。修正Sourceとdriverの限定静的reviewに具体的欠陥なし。
+
+## 保存ケースの受理結果
+
+`native-field-preparation-v198-02`の新owned SQLite backupで、day1の正常body/pose/reachから新day40 receiptを受理し、原actorとの`deepStrictEqual`、旧receipt全体不変、assemblyの元body順・実値一致を確認した。正常body-modelとfresh field校正を受理後、正常readerで再認証した。
+
+追加はplayer body materialization・batted body model・field calibrationの3table各1行。全既存row/rowid/catalog/headと元main/WAL/journal、元current/next-pitchが不変。794 Source、bundle、harness、V197入力証拠の開始終了pinが一致した。field校正fullrefとbody-model fullref、原action/posture/intent/model/資格refs/right locator、明示profile宣言をlosslessで保存した。rightは未認証locatorのままで、将来launchで正常再認証する。
+
+最終Source SHA-256はhelper`8944f6cb4461e48a3599e18079d6b0a87f7dd4345fa7a6cf2efd12784fd1f99d`、entry`28640fa86a2bdae82efcdcf5c46326a3e4112709a3eb34ae92bf7cf22233dce5`、新test`22c07c56b57babcfc18ee9514802a9701f649c16b85133e365338b92ea095e87`、driver`4b7760a6b1454cb15f4b27459716672a23c5b1793440630dedd93ad4d3e413ff`。private DB/raw/manifest/bundle/比較用baselineは公開しない。今回の約10.8秒は準備工程だけの所要時間で、試合全体の性能証明ではない。
+
+## 物理宣言の適用範囲
+
+完全な入力・Source pinと明示escape-v3 aero-ground profileをentry import/DB open前に保存する。元の8parameterと将来の明示ground profileのauthorityを区別し、既存LYU fixtureの値を結果に先行して固定する。gravity-onlyの暗黙経路は使わない。
+
+geometry、bag、glove保持容量などは既存fixture値で、production校正・捕球・公式成功の証拠ではない。実飛行・field-rootはこの工程の対象外であり、将来の結果に合わせてprofileを調整しない。
+
+## 後続接続の調査済み位置
+
+校正が正規受理できた後は、owned copyの正常physical Storeで保存済みrightを`readRight`し、元actionの`physicalPitchSourceId`と元view/action/right fullrefsでlaunchを受理する。新rightや新getterは不要。元prefixにlaunchだけを正常advanceし、capture-cut受理後のposture/intent/launch/captureCutを`resumeInFlightBattingSwing`へ渡す。
+
+commitment hookは既存V193 suffixの条件を保持する。元model/独立2qualification refsを用い、`fixed_native_spin_binding_v123`、`NO_SPIN_TARGET`、`selectedAtTick=input.nominalRequest.currentFrame.time.tick`を宣言し、Sourceは通常の保存・`acceptOperation`へ渡す。旧suffix実行関数全体は再実行しない。
+
+実resolution後のfield-rootには元launch/new resolution/posture/fresh-calibrationと今回固定したparameters/ballPhysics、v3 escape Source versionを渡す。既存helperの`appendField`はv2固定であるため、そのままv3として利用しない。launch時のcurrent32認証と各advanceの32校正は正常契約として保持する。

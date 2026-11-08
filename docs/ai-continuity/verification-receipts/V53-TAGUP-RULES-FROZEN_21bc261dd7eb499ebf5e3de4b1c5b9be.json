@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "task_id": "V53-TAGUP-RULES-FROZEN",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/PlayableMatchTagUpAppealV1.test.ts",
+    "src/integration/browser/PlayableMatchRulesV1.test.ts",
+    "src/core/rules/TagUpCompliance.test.ts",
+    "src/core/rules/TagUpAppealRule.test.ts",
+    "src/core/rules/AppealOutScoring.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T10:28:40.437+00:00",
+  "elapsed_ms": 1046,
+  "git_head": "ea9ca61b0971da3cc3b3ce1cfb344d4496e2ecc9",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/V53-TAGUP-RULES-FROZEN_21bc261dd7eb499ebf5e3de4b1c5b9be.log",
+  "output_sha256": "47b78b8d732b69ce391a2addc8dfb6084a6129b16b275af2a3c2739c94864be9",
+  "receipt_id": "V53-TAGUP-RULES-FROZEN_21bc261dd7eb499ebf5e3de4b1c5b9be"
+}

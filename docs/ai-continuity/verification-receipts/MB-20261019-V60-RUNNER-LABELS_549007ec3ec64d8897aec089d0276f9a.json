@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V60-RUNNER-LABELS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v60-runner-labels.mjs",
+    "../../outputs/ばせぼーるlv60_TBD_vs_LAD_視線と名前調整版.html",
+    "../../outputs/カメラワーク調整室_v60.html",
+    "../../outputs/verification-v60-presentation"
+  ],
+  "observed_at": "2026-10-18T19:04:22.125+00:00",
+  "elapsed_ms": 2108,
+  "git_head": "2cf8d9a7ad3f8ba8f981f4067d64be90f6eeb170",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V60-RUNNER-LABELS_549007ec3ec64d8897aec089d0276f9a.log",
+  "output_sha256": "bc3bdb87eccd1562889d195ef24a57a6cc2a2e33c488512fda36a5d9df40d855",
+  "receipt_id": "MB-20261019-V60-RUNNER-LABELS_549007ec3ec64d8897aec089d0276f9a"
+}

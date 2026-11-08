@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V87-INTEGRATION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-course-integration-v87.mjs",
+    "../../outputs/ばせぼーるlv87_TBD_vs_LAD_コース認識と打率版.html",
+    "../../outputs/カメラワーク調整室_v87_コース認識.html",
+    "docs/verification/releases/v87/integration"
+  ],
+  "observed_at": "2026-10-20T17:18:58.162+00:00",
+  "elapsed_ms": 27687,
+  "git_head": "9f6b6ed69d8682f417490d4b761914f1b4a6d6a1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V87-INTEGRATION_2b80b6f2b726431f896ff6350d198d98.log",
+  "output_sha256": "b94fe0b5670d50e4917656b762ebfb93bf05789165c5b00ad9377da50e2c68c4",
+  "receipt_id": "MB-20261021-V87-INTEGRATION_2b80b6f2b726431f896ff6350d198d98"
+}

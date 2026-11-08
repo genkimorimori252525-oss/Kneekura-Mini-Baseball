@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-HOST-MOTOR-FIXTURE",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "npx.cmd",
+    "vitest",
+    "run",
+    "src/host/world/SamePlateAppearanceSourceMotorFieldV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T18:33:39.941+00:00",
+  "elapsed_ms": 13405,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-HOST-MOTOR-FIXTURE_cbf6e3e9d221460189e252f927d7366c.log",
+  "output_sha256": "c54afd039fb698cbea68e24decb0ea9863d7597b9c8501e025eb781cd66fc8da",
+  "receipt_id": "MB-20261016-SOURCE-HOST-MOTOR-FIXTURE_cbf6e3e9d221460189e252f927d7366c"
+}

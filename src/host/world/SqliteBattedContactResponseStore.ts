@@ -1,5 +1,6 @@
 import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
-import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
+import { assertLegacyBallPhysicsConsumer } from '../../core/sim/ball/VersionedBattedBallPhysics';
+import { battedWorldConsumerSourceCurve, CONTINUOUS_AERO_GROUND_RESPONSE_SOURCE_VERSION, CONTINUOUS_AERO_GROUND_TOUCH_SOURCE_VERSION } from './BattedWorldSourceCurve';
 import { assertOwnedRunnerFieldRoot, type OwnedRunnerFieldRootCapability } from './OwnedRunnerFieldRoot';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
@@ -85,13 +86,18 @@ export const battedContactResponseEvidenceFromSqlite = (
     const touch = own.read(s.firstFielderTouchSourceId);
     if (!touch) throw new Error('original first-fielder touch Source is missing');
     const w = touch.worldContact, original = w.model, p = w.flight.source.execution.ballFlightParameters;
+    let sourceCurve;
     if (s.kind === 'owned_runner_field_root_v1') {
       input(s, s.sourceId);
       assertOwnedRunnerFieldRoot(w, s.prePitchRunnerSourceId);
       if (touch.source.kind !== 'owned_runner_field_root_v1' || touch.source.prePitchRunnerSourceId !== s.prePitchRunnerSourceId) {
         throw new Error('owned runner response requires its original tagged field touch');
       }
-    } else assertSupportedBattedWorldConsumer(w, 'contact_response');
+      assertLegacyBallPhysicsConsumer(w.flight.source.sourceVersion, w.flight.source.execution.ballPhysics, 'versioned_owned_runner_contact_response');
+    } else {
+      sourceCurve = battedWorldConsumerSourceCurve(w, 'contact_response', s.sourceVersion, CONTINUOUS_AERO_GROUND_RESPONSE_SOURCE_VERSION);
+      if (sourceCurve && touch.source.sourceVersion !== CONTINUOUS_AERO_GROUND_TOUCH_SOURCE_VERSION) throw new Error('nonlinear response touch Source version differs');
+    }
     if (m.gameId !== original.gameId || m.careerId !== original.careerId || m.fixtureEventId !== original.fixtureEventId
       || m.venueId !== original.venueId || m.availableAtDay > w.flight.physicalPitch.frame.batterActor!.binding.gameDay
       || m.actors.length !== original.actors.length || m.actors.some((a) => !original.actors.some((b) => a.playerId === b.playerId && a.personId === b.personId))
@@ -100,7 +106,8 @@ export const battedContactResponseEvidenceFromSqlite = (
     }
     m.actors.forEach((a) => a.primitives.forEach((profile) => assertBattedActorResponseProfile(profile, p)));
     const result = deriveBattedBallContactResponse({ world: { flight: w.flight.flight, parameters: p,
-      throughTick: w.flight.flight.contact.tick + w.flight.source.searchDurationTicks, actors: w.actors, surfaces: original.surfaces },
+      throughTick: w.flight.flight.contact.tick + w.flight.source.searchDurationTicks, actors: w.actors, surfaces: original.surfaces,
+      ...(sourceCurve ? { sourceCurve } : {}) },
       actors: m.actors.filter((a) => w.actors.some((b) => a.playerId === b.playerId)).flatMap((a) => a.primitives.map((profile) => ({ playerId: a.playerId, profile }))),
       surfaces: m.surfaces });
     if (json(result.world) !== json(w.result)) throw new Error('batted response original physical World differs');

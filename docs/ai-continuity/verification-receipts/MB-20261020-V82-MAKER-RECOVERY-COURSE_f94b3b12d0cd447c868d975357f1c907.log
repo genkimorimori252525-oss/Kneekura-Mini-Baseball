@@ -1,0 +1,16 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+page.evaluate: Error: 投手調整に未確定の入力があります。フォーシームの未保存入力: 「この球の設定を保存」で確定するか「未確定の入力を戻す」を押してください。
+    at noPending (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/%E3%81%AB%E3%83%BC%E3%81%8F%E3%82%89%E9%87%8E%E7%90%83%E3%83%A1%E3%83%BC%E3%82%AB%E3%83%BC_v82_%E5%89%8A%E9%99%A4%E3%81%A8%E5%85%A5%E5%8A%9B%E5%BE%A9%E5%B8%B0%E7%89%88.html:10626:45)
+    at assertReady (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/%E3%81%AB%E3%83%BC%E3%81%8F%E3%82%89%E9%87%8E%E7%90%83%E3%83%A1%E3%83%BC%E3%82%AB%E3%83%BC_v82_%E5%89%8A%E9%99%A4%E3%81%A8%E5%85%A5%E5%8A%9B%E5%BE%A9%E5%B8%B0%E7%89%88.html:10627:25)
+    at Object.selectPitch (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/outputs/%E3%81%AB%E3%83%BC%E3%81%8F%E3%82%89%E9%87%8E%E7%90%83%E3%83%A1%E3%83%BC%E3%82%AB%E3%83%BC_v82_%E5%89%8A%E9%99%A4%E3%81%A8%E5%85%A5%E5%8A%9B%E5%BE%A9%E5%B8%B0%E7%89%88.html:10690:152)
+    at eval (eval at evaluate (:311:30), <anonymous>:1:31)
+    at UtilityScript.evaluate (<anonymous>:313:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+    at C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\check-maker-course-v79.mjs:47:16 {
+  log: []
+}
+
+Node.js v26.1.0

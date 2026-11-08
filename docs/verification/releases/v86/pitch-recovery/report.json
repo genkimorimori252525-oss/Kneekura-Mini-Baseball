@@ -1,0 +1,7 @@
+{
+  "pass": false,
+  "file": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v86_入力確定とエラー復帰版.html",
+  "artifactSha256": "9f9126af89cbbd2a2e4290f489b290eac1377d824b002f42ca31dc4fd8ea4e87",
+  "cases": [],
+  "error": "AssertionError [ERR_ASSERTION]: [{\"label\":\"confirmed edit\",\"error\":\"削除後に別の設定が保存されたため、削除は取り消せません。\",\"unchanged\":true,\"canUndo\":false},{\"label\":\"other player edit\",\"error\":\"削除後に別の設定が保存されたため、削除は取り消せません。\",\"unchanged\":true,\"canUndo\":false},{\"label\":\"library edit\",\"error\":\"削除後に別の設定が保存されたため、削除は取り消せません。\",\"unchanged\":true,\"canUndo\":false},{\"label\":\"season edit\",\"error\":\"成績帳が変更されたため、前の球の削除は取り消せません。\",\"unchanged\":true,\"canUndo\":false},{\"label\":\"roster import\",\"error\":\"\",\"unchanged\":false,\"canUndo\":false},{\"label\":\"player change\",\"error\":\"投げる選手を変更したため、前の選手の削除は取り消せません。\",\"unchanged\":true,\"canUndo\":false}]\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-maker-pitch-recovery-v82.mjs:77:3"
+}

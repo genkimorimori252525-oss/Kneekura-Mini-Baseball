@@ -1,0 +1,337 @@
+{
+  "pass": false,
+  "phase": "text-draft-and-page-errors",
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v82_削除と入力復帰版.html",
+  "views": [
+    {
+      "width": 1200,
+      "checks": [
+        {
+          "targetSpeed": {
+            "requested": 60,
+            "suggested": 40,
+            "difference": 20,
+            "explicitApply": true,
+            "cancelKeepsRaw": true,
+            "discardKeepsAccepted": true,
+            "dynamicMaximum": true,
+            "canLeaveInvalidInput": true
+          }
+        },
+        {
+          "units": {
+            "heightCmToM": [
+              300,
+              250,
+              2.5
+            ],
+            "batCmToM": [
+              [
+                400,
+                300,
+                3
+              ],
+              [
+                0,
+                20,
+                0.2
+              ]
+            ],
+            "validLongBatM": 1.5
+          },
+          "precision": 7.123456789012345
+        },
+        {
+          "pendingAcrossPlayers": {
+            "named": true,
+            "selectedOnlyRevert": true,
+            "explicitAllPlayersRevert": true,
+            "acceptedRosterExact": true
+          }
+        },
+        {
+          "researchWorkbench": {
+            "cancelKeepsRaw": true,
+            "discardRestoresValidDraft": true,
+            "applyExact": true,
+            "gameRosterExact": true
+          }
+        },
+        {
+          "researchTextDraft": {
+            "fields": [
+              "player-name",
+              "player-id"
+            ],
+            "explicitDiscard": true
+          }
+        },
+        {
+          "referenceExperiment": {
+            "requestedMassKg": 10,
+            "suggestedMassKg": 5,
+            "currentInputAndResult": true
+          }
+        },
+        {
+          "comparisonPopulation": {
+            "individualRemove": true,
+            "exactUndo": true,
+            "laterEditInvalidatesUndo": true,
+            "importInvalidatesUndo": true
+          }
+        },
+        {
+          "realJsonDownloads": true,
+          "noDependencyErrors": true,
+          "noExternalRequests": true,
+          "sourceClipsExact": true
+        }
+      ],
+      "api": {
+        "getRecoveryStateV82": "function",
+        "requestInternalAdjustmentV82": "function",
+        "applyInternalAdjustmentV82": "function",
+        "cancelInternalAdjustmentV82": "function",
+        "revertInternalEditsV82": "function",
+        "requestWorkbenchAdjustmentV82": "function",
+        "revertWorkbenchDraftV82": "function"
+      },
+      "source": {
+        "clips": 673,
+        "referenceSha256": "215e1e44d20c7d1506b4fc8ef6f95edf98119da4c9bfd8899267855c33bb4626"
+      },
+      "proposalLayout": {
+        "client": 1200,
+        "scroll": 1200,
+        "inner": 1200
+      },
+      "textDraftRecovery": [
+        {
+          "id": "player-name",
+          "blankRetained": true,
+          "errorStatus": {
+            "visible": false,
+            "text": ""
+          },
+          "errors": [
+            "Error: 自動調整する数値の項目を選んでください。"
+          ],
+          "discardRestored": true,
+          "gameRosterExact": true
+        },
+        {
+          "id": "player-id",
+          "blankRetained": true,
+          "errorStatus": {
+            "visible": false,
+            "text": ""
+          },
+          "errors": [
+            "Error: 自動調整する数値の項目を選んでください。"
+          ],
+          "discardRestored": true,
+          "gameRosterExact": true
+        }
+      ],
+      "referenceExperimentRecovery": {
+        "mode": "reference-experiment",
+        "inputMassKg": 0.9,
+        "draftMassKg": 5,
+        "resultMatchesCurrentPlayer": false,
+        "beforeInputMassKg": 0.9
+      },
+      "layout": {
+        "client": 1200,
+        "scroll": 1200,
+        "inner": 1200
+      },
+      "researchLayout": {
+        "client": 1200,
+        "scroll": 1200,
+        "inner": 1200
+      }
+    },
+    {
+      "width": 390,
+      "checks": [
+        {
+          "targetSpeed": {
+            "requested": 60,
+            "suggested": 40,
+            "difference": 20,
+            "explicitApply": true,
+            "cancelKeepsRaw": true,
+            "discardKeepsAccepted": true,
+            "dynamicMaximum": true,
+            "canLeaveInvalidInput": true
+          }
+        },
+        {
+          "units": {
+            "heightCmToM": [
+              300,
+              250,
+              2.5
+            ],
+            "batCmToM": [
+              [
+                400,
+                300,
+                3
+              ],
+              [
+                0,
+                20,
+                0.2
+              ]
+            ],
+            "validLongBatM": 1.5
+          },
+          "precision": 7.123456789012345
+        },
+        {
+          "pendingAcrossPlayers": {
+            "named": true,
+            "selectedOnlyRevert": true,
+            "explicitAllPlayersRevert": true,
+            "acceptedRosterExact": true
+          }
+        },
+        {
+          "researchWorkbench": {
+            "cancelKeepsRaw": true,
+            "discardRestoresValidDraft": true,
+            "applyExact": true,
+            "gameRosterExact": true
+          }
+        },
+        {
+          "researchTextDraft": {
+            "fields": [
+              "player-name",
+              "player-id"
+            ],
+            "explicitDiscard": true
+          }
+        },
+        {
+          "referenceExperiment": {
+            "requestedMassKg": 10,
+            "suggestedMassKg": 5,
+            "currentInputAndResult": true
+          }
+        },
+        {
+          "comparisonPopulation": {
+            "individualRemove": true,
+            "exactUndo": true,
+            "laterEditInvalidatesUndo": true,
+            "importInvalidatesUndo": true
+          }
+        },
+        {
+          "realJsonDownloads": true,
+          "noDependencyErrors": true,
+          "noExternalRequests": true,
+          "sourceClipsExact": true
+        }
+      ],
+      "api": {
+        "getRecoveryStateV82": "function",
+        "requestInternalAdjustmentV82": "function",
+        "applyInternalAdjustmentV82": "function",
+        "cancelInternalAdjustmentV82": "function",
+        "revertInternalEditsV82": "function",
+        "requestWorkbenchAdjustmentV82": "function",
+        "revertWorkbenchDraftV82": "function"
+      },
+      "source": {
+        "clips": 673,
+        "referenceSha256": "215e1e44d20c7d1506b4fc8ef6f95edf98119da4c9bfd8899267855c33bb4626"
+      },
+      "proposalLayout": {
+        "client": 390,
+        "scroll": 390,
+        "inner": 390
+      },
+      "textDraftRecovery": [
+        {
+          "id": "player-name",
+          "blankRetained": true,
+          "errorStatus": {
+            "visible": false,
+            "text": ""
+          },
+          "errors": [
+            "Error: 自動調整する数値の項目を選んでください。"
+          ],
+          "discardRestored": true,
+          "gameRosterExact": true
+        },
+        {
+          "id": "player-id",
+          "blankRetained": true,
+          "errorStatus": {
+            "visible": false,
+            "text": ""
+          },
+          "errors": [
+            "Error: 自動調整する数値の項目を選んでください。"
+          ],
+          "discardRestored": true,
+          "gameRosterExact": true
+        }
+      ],
+      "referenceExperimentRecovery": {
+        "mode": "reference-experiment",
+        "inputMassKg": 0.9,
+        "draftMassKg": 5,
+        "resultMatchesCurrentPlayer": false,
+        "beforeInputMassKg": 0.9
+      },
+      "layout": {
+        "client": 390,
+        "scroll": 390,
+        "inner": 390
+      },
+      "researchLayout": {
+        "client": 390,
+        "scroll": 390,
+        "inner": 390
+      }
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [
+        "Error: 自動調整する数値の項目を選んでください。",
+        "Error: 自動調整する数値の項目を選んでください。"
+      ],
+      "external": []
+    },
+    {
+      "width": 390,
+      "errors": [
+        "Error: 自動調整する数値の項目を選んでください。",
+        "Error: 自動調整する数値の項目を選んでください。"
+      ],
+      "external": []
+    }
+  ],
+  "scope": "v82 internal capability recovery, explicit proposals and discard, cm/SI and arbitrary precision, research draft recovery, comparison population removal/undo, 1200/390 offline browser.",
+  "harnessSha256": "30f77aeecca538f5e8d60eb3cf18be11fffab2c09396053c3359520b37ae26bf",
+  "sha256": "35eb7d7f80a558ecc95936ea4f69978c93af3f4b3aa5081b01b49cc96e98206a",
+  "coreSha256": "89c782901927abe3a1cd615a0ca99fc77132623c72b8b2cd63c54395f4db4c85",
+  "metadataSha256": "3e9489c1d83908d7994efd130bb705c3bb4891ecf999071875047542dff5ee74",
+  "manifestSha256": "343e74ad7c5dc03198e7d998d9426eba4be06ff3c976014cd7cf0a2afe10b635",
+  "native": {
+    "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\mini-baseball\\docs\\demos\\releases\\v81\\game.html",
+    "sha256": "b87445d9fdb0bc569d3ed2d6bd0fb9d02198e923323712887c524e9d7335e02c",
+    "coreSha256": "a25f2da5d941219a3038e9c27ac0a49cc4cdd79ac0e50d0203a5603e1264e4bd",
+    "metadataSha256": "a7e1a6c6afc0d7368ce59fddcea62e606e8cc45fccd686349bc5f098898236c7",
+    "manifestSha256": "602222be9b29d6b5d067ccc69f460533eaff22a40518b46b0a6f393005678f9e"
+  },
+  "error": "AssertionError [ERR_ASSERTION]: 1200/player-name blank research text must not throw pageerror\n+ actual - expected\n\n+ [\n+   'Error: 自動調整する数値の項目を選んでください。'\n+ ]\n- []\n\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-maker-internal-recovery-v82.mjs:278:12"
+}

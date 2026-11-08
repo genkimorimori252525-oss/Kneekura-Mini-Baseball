@@ -1,0 +1,981 @@
+{
+  "pass": true,
+  "artifacts": {
+    "normal": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv88_TBD_vs_LAD_空振りとHR見送り版.html",
+    "lab": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\カメラワーク調整室_v88_空振りとHR見送り.html",
+    "maker": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v88_空振りとHR見送り版.html"
+  },
+  "hashes": {
+    "normal": "d8194e776c969e249e838fa6e01931fe7bcc7fb9b166822c26840d5595f5a6a5",
+    "lab": "38bf9f160d40ccd95f58c08ee01ed45c0124268e39dfd464c41b35d79094f7a7",
+    "maker": "aaa70244e1171e527f5d873cb34f2694fc3c3bf672224e56d6d480887abcd649"
+  },
+  "cases": [
+    {
+      "kind": "lab",
+      "width": 1200,
+      "dpr": 1,
+      "rows": [
+        {
+          "q": 1.2,
+          "A": 1660,
+          "B": 1660,
+          "hashA": "0cd44a77a8c52c8df8a948db5cddd3b7b7954c8281fa2ff9174f3838b4314074",
+          "hashB": "0cd44a77a8c52c8df8a948db5cddd3b7b7954c8281fa2ff9174f3838b4314074",
+          "controls": {
+            "frequencyScale": 2,
+            "qualityScale": 1.2,
+            "baseSceneMs": 18.333333333333332,
+            "sceneMs": 9.166666666666666,
+            "pitchMs": 3.6666666666666665,
+            "battedMs": 4.583333333333333,
+            "gridStep": 3.3333333333333335,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+            "rafLimited": true
+          }
+        },
+        {
+          "q": 1,
+          "A": 1660,
+          "B": 1660,
+          "hashA": "1215fdc72798d43edfea2bf6eedeebc773d2cfaff7e3556fab11a88e53216473",
+          "hashB": "1215fdc72798d43edfea2bf6eedeebc773d2cfaff7e3556fab11a88e53216473",
+          "controls": {
+            "frequencyScale": 2,
+            "qualityScale": 1,
+            "baseSceneMs": 18.333333333333332,
+            "sceneMs": 9.166666666666666,
+            "pitchMs": 3.6666666666666665,
+            "battedMs": 4.583333333333333,
+            "gridStep": 4,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+            "rafLimited": true
+          }
+        },
+        {
+          "q": 1.2,
+          "A": 1660,
+          "B": 1660,
+          "hashA": "0cd44a77a8c52c8df8a948db5cddd3b7b7954c8281fa2ff9174f3838b4314074",
+          "hashB": "0cd44a77a8c52c8df8a948db5cddd3b7b7954c8281fa2ff9174f3838b4314074",
+          "controls": {
+            "frequencyScale": 2,
+            "qualityScale": 1.2,
+            "baseSceneMs": 18.333333333333332,
+            "sceneMs": 9.166666666666666,
+            "pitchMs": 3.6666666666666665,
+            "battedMs": 4.583333333333333,
+            "gridStep": 3.3333333333333335,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+            "rafLimited": true
+          }
+        }
+      ],
+      "history": "2f9d7dddadda7f120a3fc8581aae4a2bf32daad1dc0e7cef7121c91b87325724",
+      "cadence": {
+        "sceneMs": 9.166666666666666,
+        "pitchBallMs": 3.6666666666666665,
+        "battedBallMs": 4.583333333333333,
+        "sceneDraws": 13,
+        "pitchBallSamples": 0,
+        "pitchBallPaints": 0,
+        "nonPitchFastPaints": 0
+      },
+      "submittedPairs": 1,
+      "elapsedMs": 422.19999998807907,
+      "pairFps": 2.3685457129991363,
+      "A": 300,
+      "B": 300,
+      "overflow": false
+    },
+    {
+      "kind": "maker",
+      "width": 1200,
+      "dpr": 1,
+      "batter": [
+        {
+          "q": 1.2,
+          "hash": "7c8c12df413a33302ef1675fb04014e04db031b68aa432ab216ca193e3e2ae47",
+          "hostUnchanged": true,
+          "scene": 0.3,
+          "ball": 0.3,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        },
+        {
+          "q": 1,
+          "hash": "8b64ec50dc95d9dc9a383d877688f61aef9aa9f1c42bc325932d7cbed758f46f",
+          "hostUnchanged": true,
+          "scene": 0.3,
+          "ball": 0.3,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        },
+        {
+          "q": 1.2,
+          "hash": "7c8c12df413a33302ef1675fb04014e04db031b68aa432ab216ca193e3e2ae47",
+          "hostUnchanged": true,
+          "scene": 0.3,
+          "ball": 0.3,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        }
+      ],
+      "pitcher": [
+        {
+          "q": 1.2,
+          "hash": "c2b97fe3c00416bc298d9fdc8644b4df29d84d45c917beb6037c13ece689b4bc",
+          "hostUnchanged": true,
+          "scene": 1.7,
+          "ball": 0.15999999999999992,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        },
+        {
+          "q": 1,
+          "hash": "9e7015542c094754af553fa82a64745d58b2b90ca6dc95fbde9b13eaa9fb97cd",
+          "hostUnchanged": true,
+          "scene": 1.7,
+          "ball": 0.15999999999999992,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        },
+        {
+          "q": 1.2,
+          "hash": "c2b97fe3c00416bc298d9fdc8644b4df29d84d45c917beb6037c13ece689b4bc",
+          "hostUnchanged": true,
+          "scene": 1.7,
+          "ball": 0.15999999999999992,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        }
+      ],
+      "children": [
+        {
+          "frequencyScale": 2,
+          "qualityScale": 1.2,
+          "baseSceneMs": 18.333333333333332,
+          "sceneMs": 9.166666666666666,
+          "pitchMs": 3.6666666666666665,
+          "battedMs": 4.583333333333333,
+          "gridStep": 3.3333333333333335,
+          "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+          "rafLimited": true
+        },
+        {
+          "frequencyScale": 2,
+          "qualityScale": 1.2,
+          "baseSceneMs": 18.333333333333332,
+          "sceneMs": 9.166666666666666,
+          "pitchMs": 3.6666666666666665,
+          "battedMs": 4.583333333333333,
+          "gridStep": 3.3333333333333335,
+          "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+          "rafLimited": true
+        }
+      ],
+      "roster": "3c7f36e6eff3afac96de341475ee7209f75f7436290de7fd63183123ecd0d084",
+      "metrics": "5f7bfd22c4ba3c5ef92fe5fdfeb8ec5ddbe8d4b3948967e3a55155e88b580d00",
+      "trial": "2bd1c5d3243d85b3400126635414ed115b40b9b8b7233463a17651f7f5eec255",
+      "clips": 673,
+      "overflow": false
+    },
+    {
+      "kind": "lab",
+      "width": 1200,
+      "dpr": 2,
+      "rows": [
+        {
+          "q": 1.2,
+          "A": 1660,
+          "B": 1660,
+          "hashA": "0cd44a77a8c52c8df8a948db5cddd3b7b7954c8281fa2ff9174f3838b4314074",
+          "hashB": "0cd44a77a8c52c8df8a948db5cddd3b7b7954c8281fa2ff9174f3838b4314074",
+          "controls": {
+            "frequencyScale": 2,
+            "qualityScale": 1.2,
+            "baseSceneMs": 18.333333333333332,
+            "sceneMs": 9.166666666666666,
+            "pitchMs": 3.6666666666666665,
+            "battedMs": 4.583333333333333,
+            "gridStep": 3.3333333333333335,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+            "rafLimited": true
+          }
+        },
+        {
+          "q": 1,
+          "A": 1660,
+          "B": 1660,
+          "hashA": "1215fdc72798d43edfea2bf6eedeebc773d2cfaff7e3556fab11a88e53216473",
+          "hashB": "1215fdc72798d43edfea2bf6eedeebc773d2cfaff7e3556fab11a88e53216473",
+          "controls": {
+            "frequencyScale": 2,
+            "qualityScale": 1,
+            "baseSceneMs": 18.333333333333332,
+            "sceneMs": 9.166666666666666,
+            "pitchMs": 3.6666666666666665,
+            "battedMs": 4.583333333333333,
+            "gridStep": 4,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+            "rafLimited": true
+          }
+        },
+        {
+          "q": 1.2,
+          "A": 1660,
+          "B": 1660,
+          "hashA": "0cd44a77a8c52c8df8a948db5cddd3b7b7954c8281fa2ff9174f3838b4314074",
+          "hashB": "0cd44a77a8c52c8df8a948db5cddd3b7b7954c8281fa2ff9174f3838b4314074",
+          "controls": {
+            "frequencyScale": 2,
+            "qualityScale": 1.2,
+            "baseSceneMs": 18.333333333333332,
+            "sceneMs": 9.166666666666666,
+            "pitchMs": 3.6666666666666665,
+            "battedMs": 4.583333333333333,
+            "gridStep": 3.3333333333333335,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+            "rafLimited": true
+          }
+        }
+      ],
+      "history": "2f9d7dddadda7f120a3fc8581aae4a2bf32daad1dc0e7cef7121c91b87325724",
+      "cadence": {
+        "sceneMs": 9.166666666666666,
+        "pitchBallMs": 3.6666666666666665,
+        "battedBallMs": 4.583333333333333,
+        "sceneDraws": 13,
+        "pitchBallSamples": 0,
+        "pitchBallPaints": 0,
+        "nonPitchFastPaints": 0
+      },
+      "submittedPairs": 1,
+      "elapsedMs": 419.19999998807907,
+      "pairFps": 2.385496183273944,
+      "A": 300,
+      "B": 300,
+      "overflow": false
+    },
+    {
+      "kind": "maker",
+      "width": 1200,
+      "dpr": 2,
+      "batter": [
+        {
+          "q": 1.2,
+          "hash": "7c8c12df413a33302ef1675fb04014e04db031b68aa432ab216ca193e3e2ae47",
+          "hostUnchanged": true,
+          "scene": 0.3,
+          "ball": 0.3,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        },
+        {
+          "q": 1,
+          "hash": "8b64ec50dc95d9dc9a383d877688f61aef9aa9f1c42bc325932d7cbed758f46f",
+          "hostUnchanged": true,
+          "scene": 0.3,
+          "ball": 0.3,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        },
+        {
+          "q": 1.2,
+          "hash": "7c8c12df413a33302ef1675fb04014e04db031b68aa432ab216ca193e3e2ae47",
+          "hostUnchanged": true,
+          "scene": 0.3,
+          "ball": 0.3,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        }
+      ],
+      "pitcher": [
+        {
+          "q": 1.2,
+          "hash": "c2b97fe3c00416bc298d9fdc8644b4df29d84d45c917beb6037c13ece689b4bc",
+          "hostUnchanged": true,
+          "scene": 1.7,
+          "ball": 0.15999999999999992,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        },
+        {
+          "q": 1,
+          "hash": "9e7015542c094754af553fa82a64745d58b2b90ca6dc95fbde9b13eaa9fb97cd",
+          "hostUnchanged": true,
+          "scene": 1.7,
+          "ball": 0.15999999999999992,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        },
+        {
+          "q": 1.2,
+          "hash": "c2b97fe3c00416bc298d9fdc8644b4df29d84d45c917beb6037c13ece689b4bc",
+          "hostUnchanged": true,
+          "scene": 1.7,
+          "ball": 0.15999999999999992,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        }
+      ],
+      "children": [
+        {
+          "frequencyScale": 2,
+          "qualityScale": 1.2,
+          "baseSceneMs": 18.333333333333332,
+          "sceneMs": 9.166666666666666,
+          "pitchMs": 3.6666666666666665,
+          "battedMs": 4.583333333333333,
+          "gridStep": 3.3333333333333335,
+          "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+          "rafLimited": true
+        },
+        {
+          "frequencyScale": 2,
+          "qualityScale": 1.2,
+          "baseSceneMs": 18.333333333333332,
+          "sceneMs": 9.166666666666666,
+          "pitchMs": 3.6666666666666665,
+          "battedMs": 4.583333333333333,
+          "gridStep": 3.3333333333333335,
+          "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+          "rafLimited": true
+        }
+      ],
+      "roster": "3c7f36e6eff3afac96de341475ee7209f75f7436290de7fd63183123ecd0d084",
+      "metrics": "5f7bfd22c4ba3c5ef92fe5fdfeb8ec5ddbe8d4b3948967e3a55155e88b580d00",
+      "trial": "2bd1c5d3243d85b3400126635414ed115b40b9b8b7233463a17651f7f5eec255",
+      "clips": 673,
+      "overflow": false
+    },
+    {
+      "kind": "lab",
+      "width": 390,
+      "dpr": 1,
+      "rows": [
+        {
+          "q": 1.2,
+          "A": 1660,
+          "B": 1660,
+          "hashA": "0cd44a77a8c52c8df8a948db5cddd3b7b7954c8281fa2ff9174f3838b4314074",
+          "hashB": "0cd44a77a8c52c8df8a948db5cddd3b7b7954c8281fa2ff9174f3838b4314074",
+          "controls": {
+            "frequencyScale": 2,
+            "qualityScale": 1.2,
+            "baseSceneMs": 18.333333333333332,
+            "sceneMs": 9.166666666666666,
+            "pitchMs": 3.6666666666666665,
+            "battedMs": 4.583333333333333,
+            "gridStep": 3.3333333333333335,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+            "rafLimited": true
+          }
+        },
+        {
+          "q": 1,
+          "A": 1660,
+          "B": 1660,
+          "hashA": "1215fdc72798d43edfea2bf6eedeebc773d2cfaff7e3556fab11a88e53216473",
+          "hashB": "1215fdc72798d43edfea2bf6eedeebc773d2cfaff7e3556fab11a88e53216473",
+          "controls": {
+            "frequencyScale": 2,
+            "qualityScale": 1,
+            "baseSceneMs": 18.333333333333332,
+            "sceneMs": 9.166666666666666,
+            "pitchMs": 3.6666666666666665,
+            "battedMs": 4.583333333333333,
+            "gridStep": 4,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+            "rafLimited": true
+          }
+        },
+        {
+          "q": 1.2,
+          "A": 1660,
+          "B": 1660,
+          "hashA": "0cd44a77a8c52c8df8a948db5cddd3b7b7954c8281fa2ff9174f3838b4314074",
+          "hashB": "0cd44a77a8c52c8df8a948db5cddd3b7b7954c8281fa2ff9174f3838b4314074",
+          "controls": {
+            "frequencyScale": 2,
+            "qualityScale": 1.2,
+            "baseSceneMs": 18.333333333333332,
+            "sceneMs": 9.166666666666666,
+            "pitchMs": 3.6666666666666665,
+            "battedMs": 4.583333333333333,
+            "gridStep": 3.3333333333333335,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+            "rafLimited": true
+          }
+        }
+      ],
+      "history": "2f9d7dddadda7f120a3fc8581aae4a2bf32daad1dc0e7cef7121c91b87325724",
+      "cadence": {
+        "sceneMs": 9.166666666666666,
+        "pitchBallMs": 3.6666666666666665,
+        "battedBallMs": 4.583333333333333,
+        "sceneDraws": 13,
+        "pitchBallSamples": 0,
+        "pitchBallPaints": 0,
+        "nonPitchFastPaints": 0
+      },
+      "submittedPairs": 1,
+      "elapsedMs": 417.1000000089407,
+      "pairFps": 2.3975065930917396,
+      "A": 300,
+      "B": 300,
+      "overflow": false
+    },
+    {
+      "kind": "maker",
+      "width": 390,
+      "dpr": 1,
+      "batter": [
+        {
+          "q": 1.2,
+          "hash": "7c8c12df413a33302ef1675fb04014e04db031b68aa432ab216ca193e3e2ae47",
+          "hostUnchanged": true,
+          "scene": 0.3,
+          "ball": 0.3,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        },
+        {
+          "q": 1,
+          "hash": "8b64ec50dc95d9dc9a383d877688f61aef9aa9f1c42bc325932d7cbed758f46f",
+          "hostUnchanged": true,
+          "scene": 0.3,
+          "ball": 0.3,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        },
+        {
+          "q": 1.2,
+          "hash": "7c8c12df413a33302ef1675fb04014e04db031b68aa432ab216ca193e3e2ae47",
+          "hostUnchanged": true,
+          "scene": 0.3,
+          "ball": 0.3,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        }
+      ],
+      "pitcher": [
+        {
+          "q": 1.2,
+          "hash": "c2b97fe3c00416bc298d9fdc8644b4df29d84d45c917beb6037c13ece689b4bc",
+          "hostUnchanged": true,
+          "scene": 1.7,
+          "ball": 0.15999999999999992,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        },
+        {
+          "q": 1,
+          "hash": "9e7015542c094754af553fa82a64745d58b2b90ca6dc95fbde9b13eaa9fb97cd",
+          "hostUnchanged": true,
+          "scene": 1.7,
+          "ball": 0.15999999999999992,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        },
+        {
+          "q": 1.2,
+          "hash": "c2b97fe3c00416bc298d9fdc8644b4df29d84d45c917beb6037c13ece689b4bc",
+          "hostUnchanged": true,
+          "scene": 1.7,
+          "ball": 0.15999999999999992,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        }
+      ],
+      "children": [
+        {
+          "frequencyScale": 2,
+          "qualityScale": 1.2,
+          "baseSceneMs": 18.333333333333332,
+          "sceneMs": 9.166666666666666,
+          "pitchMs": 3.6666666666666665,
+          "battedMs": 4.583333333333333,
+          "gridStep": 3.3333333333333335,
+          "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+          "rafLimited": true
+        },
+        {
+          "frequencyScale": 2,
+          "qualityScale": 1.2,
+          "baseSceneMs": 18.333333333333332,
+          "sceneMs": 9.166666666666666,
+          "pitchMs": 3.6666666666666665,
+          "battedMs": 4.583333333333333,
+          "gridStep": 3.3333333333333335,
+          "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+          "rafLimited": true
+        }
+      ],
+      "roster": "3c7f36e6eff3afac96de341475ee7209f75f7436290de7fd63183123ecd0d084",
+      "metrics": "5f7bfd22c4ba3c5ef92fe5fdfeb8ec5ddbe8d4b3948967e3a55155e88b580d00",
+      "trial": "2bd1c5d3243d85b3400126635414ed115b40b9b8b7233463a17651f7f5eec255",
+      "clips": 673,
+      "overflow": false
+    },
+    {
+      "kind": "lab",
+      "width": 390,
+      "dpr": 2,
+      "rows": [
+        {
+          "q": 1.2,
+          "A": 1660,
+          "B": 1660,
+          "hashA": "0cd44a77a8c52c8df8a948db5cddd3b7b7954c8281fa2ff9174f3838b4314074",
+          "hashB": "0cd44a77a8c52c8df8a948db5cddd3b7b7954c8281fa2ff9174f3838b4314074",
+          "controls": {
+            "frequencyScale": 2,
+            "qualityScale": 1.2,
+            "baseSceneMs": 18.333333333333332,
+            "sceneMs": 9.166666666666666,
+            "pitchMs": 3.6666666666666665,
+            "battedMs": 4.583333333333333,
+            "gridStep": 3.3333333333333335,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+            "rafLimited": true
+          }
+        },
+        {
+          "q": 1,
+          "A": 1660,
+          "B": 1660,
+          "hashA": "1215fdc72798d43edfea2bf6eedeebc773d2cfaff7e3556fab11a88e53216473",
+          "hashB": "1215fdc72798d43edfea2bf6eedeebc773d2cfaff7e3556fab11a88e53216473",
+          "controls": {
+            "frequencyScale": 2,
+            "qualityScale": 1,
+            "baseSceneMs": 18.333333333333332,
+            "sceneMs": 9.166666666666666,
+            "pitchMs": 3.6666666666666665,
+            "battedMs": 4.583333333333333,
+            "gridStep": 4,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+            "rafLimited": true
+          }
+        },
+        {
+          "q": 1.2,
+          "A": 1660,
+          "B": 1660,
+          "hashA": "0cd44a77a8c52c8df8a948db5cddd3b7b7954c8281fa2ff9174f3838b4314074",
+          "hashB": "0cd44a77a8c52c8df8a948db5cddd3b7b7954c8281fa2ff9174f3838b4314074",
+          "controls": {
+            "frequencyScale": 2,
+            "qualityScale": 1.2,
+            "baseSceneMs": 18.333333333333332,
+            "sceneMs": 9.166666666666666,
+            "pitchMs": 3.6666666666666665,
+            "battedMs": 4.583333333333333,
+            "gridStep": 3.3333333333333335,
+            "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+            "rafLimited": true
+          }
+        }
+      ],
+      "history": "2f9d7dddadda7f120a3fc8581aae4a2bf32daad1dc0e7cef7121c91b87325724",
+      "cadence": {
+        "sceneMs": 9.166666666666666,
+        "pitchBallMs": 3.6666666666666665,
+        "battedBallMs": 4.583333333333333,
+        "sceneDraws": 13,
+        "pitchBallSamples": 0,
+        "pitchBallPaints": 0,
+        "nonPitchFastPaints": 0
+      },
+      "submittedPairs": 1,
+      "elapsedMs": 416.40000000596046,
+      "pairFps": 2.401536983635172,
+      "A": 300,
+      "B": 300,
+      "overflow": false
+    },
+    {
+      "kind": "maker",
+      "width": 390,
+      "dpr": 2,
+      "batter": [
+        {
+          "q": 1.2,
+          "hash": "7c8c12df413a33302ef1675fb04014e04db031b68aa432ab216ca193e3e2ae47",
+          "hostUnchanged": true,
+          "scene": 0.3,
+          "ball": 0.3,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        },
+        {
+          "q": 1,
+          "hash": "8b64ec50dc95d9dc9a383d877688f61aef9aa9f1c42bc325932d7cbed758f46f",
+          "hostUnchanged": true,
+          "scene": 0.3,
+          "ball": 0.3,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        },
+        {
+          "q": 1.2,
+          "hash": "7c8c12df413a33302ef1675fb04014e04db031b68aa432ab216ca193e3e2ae47",
+          "hostUnchanged": true,
+          "scene": 0.3,
+          "ball": 0.3,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        }
+      ],
+      "pitcher": [
+        {
+          "q": 1.2,
+          "hash": "c2b97fe3c00416bc298d9fdc8644b4df29d84d45c917beb6037c13ece689b4bc",
+          "hostUnchanged": true,
+          "scene": 1.7,
+          "ball": 0.15999999999999992,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        },
+        {
+          "q": 1,
+          "hash": "9e7015542c094754af553fa82a64745d58b2b90ca6dc95fbde9b13eaa9fb97cd",
+          "hostUnchanged": true,
+          "scene": 1.7,
+          "ball": 0.15999999999999992,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        },
+        {
+          "q": 1.2,
+          "hash": "c2b97fe3c00416bc298d9fdc8644b4df29d84d45c917beb6037c13ece689b4bc",
+          "hostUnchanged": true,
+          "scene": 1.7,
+          "ball": 0.15999999999999992,
+          "layers": [
+            "field",
+            "bat-overlay",
+            "ball-overlay"
+          ]
+        }
+      ],
+      "children": [
+        {
+          "frequencyScale": 2,
+          "qualityScale": 1.2,
+          "baseSceneMs": 18.333333333333332,
+          "sceneMs": 9.166666666666666,
+          "pitchMs": 3.6666666666666665,
+          "battedMs": 4.583333333333333,
+          "gridStep": 3.3333333333333335,
+          "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+          "rafLimited": true
+        },
+        {
+          "frequencyScale": 2,
+          "qualityScale": 1.2,
+          "baseSceneMs": 18.333333333333332,
+          "sceneMs": 9.166666666666666,
+          "pitchMs": 3.6666666666666665,
+          "battedMs": 4.583333333333333,
+          "gridStep": 3.3333333333333335,
+          "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+          "rafLimited": true
+        }
+      ],
+      "roster": "3c7f36e6eff3afac96de341475ee7209f75f7436290de7fd63183123ecd0d084",
+      "metrics": "5f7bfd22c4ba3c5ef92fe5fdfeb8ec5ddbe8d4b3948967e3a55155e88b580d00",
+      "trial": "2bd1c5d3243d85b3400126635414ed115b40b9b8b7233463a17651f7f5eec255",
+      "clips": 673,
+      "overflow": false
+    },
+    {
+      "kind": "normal-cadence",
+      "configuration": {
+        "frequencyScale": 2,
+        "qualityScale": 1.2,
+        "baseSceneMs": 18.333333333333332,
+        "sceneMs": 9.166666666666666,
+        "pitchMs": 3.6666666666666665,
+        "battedMs": 4.583333333333333,
+        "gridStep": 3.3333333333333335,
+        "authority": "READ_ONLY_PRESENTATION_CONVENTION",
+        "rafLimited": true
+      },
+      "measures": [
+        {
+          "phase": "preparation",
+          "elapsedMs": 439.8999999910593,
+          "stopDrawMs": 52.400000005960464,
+          "frames": [
+            {
+              "time": 2267.432,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 200,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 2876.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 246.19999999701986,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 2912.7,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 282.4999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 2943.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 312.8999999970197,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 2985.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 355.3999999970197,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3034.1,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 403.8999999970197,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3094.6,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 464.3999999970197,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3155.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 524.9999999970196,
+                "tick": 1000000
+              }
+            },
+            {
+              "time": 3209.8,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 579.59999999702,
+                "tick": 1000000
+              }
+            }
+          ],
+          "submittedScenes": 9,
+          "submittedFps": 20.45919527206847,
+          "distinctSavedTicks": 1,
+          "distinctSceneTimes": 9,
+          "ballOnlyRafs": 0
+        },
+        {
+          "phase": "freePitch",
+          "elapsedMs": 296.20000000298023,
+          "stopDrawMs": 50.3999999910593,
+          "frames": [
+            {
+              "time": 3264.2,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1560,
+                "tick": 1011000
+              }
+            },
+            {
+              "time": 3573.4,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1680.1999999970199,
+                "tick": 1132000
+              }
+            },
+            {
+              "time": 3627.9,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1734.6999999970199,
+                "tick": 1187000
+              }
+            },
+            {
+              "time": 3688.5,
+              "field": 1,
+              "bat": 2,
+              "ball": 2,
+              "stamp": {
+                "sceneMs": 1795.2999999970198,
+                "tick": 1253000
+              }
+            }
+          ],
+          "submittedScenes": 4,
+          "submittedFps": 13.504388926265205,
+          "distinctSavedTicks": 4,
+          "distinctSceneTimes": 4,
+          "ballOnlyRafs": 0
+        }
+      ]
+    }
+  ],
+  "faults": [
+    {
+      "label": "lab-1200-1",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "maker-1200-1",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "lab-1200-2",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "maker-1200-2",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "lab-390-1",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "maker-390-1",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "lab-390-2",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "maker-390-2",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "normal-cadence",
+      "errors": [],
+      "external": []
+    }
+  ],
+  "scope": "Shared Presentation controls, read-only source checks, RAF Canvas submissions and distinct saved Core ticks. Simulated PC/390px and DPR1/2. Actual FPS is bounded by RAF and draw cost; target Hz is not achieved FPS."
+}

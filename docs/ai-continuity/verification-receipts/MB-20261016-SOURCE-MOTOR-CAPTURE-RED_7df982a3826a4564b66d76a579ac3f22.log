@@ -1,0 +1,42 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts (12 tests | 2 failed) 518ms
+   × ends at an actual moving glove candidate without granting possession or advancing a free cursor past contact 12ms
+     → Source field motor replay cannot adopt custody or unresolved contact
+   × passes the original Source glove contact into energy dissipation and recorded possession fence without a gravity flight replay 7ms
+     → Source field motor replay cannot adopt custody or unresolved contact
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts > ends at an actual moving glove candidate without granting possession or advancing a free cursor past contact
+Error: Source field motor replay cannot adopt custody or unresolved contact
+ ❯ Module.deriveSourceBattedFieldMotorMotionV1 src/core/sim/ball/SourceBattedFieldMotorMotionV1.ts:80:35
+     78|         ? { ...prior, previousContacts: [] } : prior;
+     79|       const response = respondToBallWorldBoundary(responseInput, respo…
+     80|       if (!response.cursor) throw new Error('Source field motor replay…
+       |                                   ^
+     81|       if (response.kind === 'rebound' && response.cursor.sourceCurve) {
+     82|         const originalResponse = { ...root.response, world: { ...root.…
+ ❯ src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts:125:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts > passes the original Source glove contact into energy dissipation and recorded possession fence without a gravity flight replay
+Error: Source field motor replay cannot adopt custody or unresolved contact
+ ❯ Module.deriveSourceBattedFieldMotorMotionV1 src/core/sim/ball/SourceBattedFieldMotorMotionV1.ts:80:35
+     78|         ? { ...prior, previousContacts: [] } : prior;
+     79|       const response = respondToBallWorldBoundary(responseInput, respo…
+     80|       if (!response.cursor) throw new Error('Source field motor replay…
+       |                                   ^
+     81|       if (response.kind === 'rebound' && response.cursor.sourceCurve) {
+     82|         const originalResponse = { ...root.response, world: { ...root.…
+ ❯ src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts:141:37
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 10 passed (12)
+   Start at  03:30:40
+   Duration  1.36s (transform 282ms, setup 0ms, collect 410ms, tests 518ms, environment 0ms, prepare 135ms)
+

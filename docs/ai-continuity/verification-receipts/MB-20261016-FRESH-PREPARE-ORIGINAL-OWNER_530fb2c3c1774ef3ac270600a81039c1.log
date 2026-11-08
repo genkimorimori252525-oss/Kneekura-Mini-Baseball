@@ -1,0 +1,9 @@
+▲ [WARNING] "youkaishomecoming:yukari" is not a valid value for the "type" field [package.json]
+
+    ../../../../../../package.json:1:8:
+      1 │ {"type":"youkaishomecoming:yukari","texture":"touhou_little_maid:te...
+        ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The "type" field must be set to either "commonjs" or "module".
+
+{"status":"PASS_PRODUCTION_ORIGINAL_OWNER_REOPEN_AFTER_STATEMENT_REUSE_WITHDRAWAL","directory":"C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\work\\native-defensive-source-one-proof-v2"}

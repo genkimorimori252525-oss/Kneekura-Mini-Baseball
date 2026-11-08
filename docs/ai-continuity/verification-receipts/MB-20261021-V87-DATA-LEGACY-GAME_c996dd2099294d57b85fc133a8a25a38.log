@@ -1,0 +1,14 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+stdout | src/integration/browser/LiveCourseScoringV79.test.ts > summarizes a complete physical game and preserves confirmed and pending coverage through JSON
+v79 local scoring coverage {"pitches":157,"plateAppearances":97,"confirmed":88,"pending":9,"hits":39,"gameBytes":246465}
+
+ ✓ src/integration/browser/LiveCourseScoringV79.test.ts (8 tests) 143362ms
+   ✓ summarizes a complete physical game and preserves confirmed and pending coverage through JSON 143291ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  02:11:33
+   Duration  144.90s (transform 620ms, setup 0ms, collect 931ms, tests 143.36s, environment 0ms, prepare 189ms)
+

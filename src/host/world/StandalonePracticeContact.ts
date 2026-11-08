@@ -2,7 +2,7 @@ import type { DatabaseSync } from 'node:sqlite';
 import type { Vec3 } from '../../core/model/geometry';
 import type { AerodynamicPitchTrajectoryParameters } from '../../core/sim/pitching/AerodynamicPitchTrajectory';
 import { sampleAerodynamicPitchTrajectory, advanceAerodynamicPitchState } from '../../core/sim/pitching/AerodynamicPitchTrajectory';
-import { createRigidBatSwingWindowFromKinematicsV1, resolveAerodynamicRigidBatSwing } from '../../core/sim/pitching/AerodynamicRigidBatSwingingPitchPhysicalResult';
+import { createRigidBatSwingWindowFromKinematicsV1, createRigidBatSwingWindowFromSampledV1, resolveAerodynamicRigidBatSwing } from '../../core/sim/pitching/AerodynamicRigidBatSwingingPitchPhysicalResult';
 import { NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1 } from '../../core/sim/contact/WoodBatProductionProfileV1';
 import { resolveWoodBatSpeedResponse } from '../../core/sim/contact/WoodBatSpeedResponseProfile';
 import { sampleSwingKinematicsV1 } from '../../core/sim/contact/SwingKinematicsV1';
@@ -24,9 +24,17 @@ import { standalonePracticeSwingTrajectory, type AcceptedStandalonePractice, typ
 import { nonPitchFields as fields, nonPitchId as id } from './NonPitchDevelopmentRepetition';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
+import { SPIN_TECHNIQUES_V123, type SpinTechniqueV123 } from '../../core/world/traits/SpinControlMasteryV123';
+import { planStandaloneMeasuredPracticeV133, type MeasuredPracticeMotorV133 } from './StandaloneMeasuredPracticeV133';
 
 export type StandaloneBattingContactCommand = StandaloneSwingCommand & Readonly<{
   kind: 'BATTING_CONTACT'; pitchAttemptId: string; calibrationRef: BodySourceRef; parameters: AerodynamicPitchTrajectoryParameters;
+  /** A declared practice intention, pinned before the consumed release. It
+   * grants no mastery and changes neither the command's motion nor exit spin. */
+  spinIntentV123?: Readonly<{ technique: SpinTechniqueV123; decidedTick: number }>;
+  /** Explicit registered linear implementation; omission retains the original
+   * course-aware practice and all of its historical bytes/results. */
+  measuredMotorV133?: MeasuredPracticeMotorV133;
 }>;
 export type StandaloneGloveReceiveCommand = Readonly<{
   kind: 'STATIONARY_GLOVE_RECEIVE'; pitchAttemptId: string; calibrationRef: BodySourceRef; rootPosition: Vec3;
@@ -44,6 +52,11 @@ export const assertStandaloneContactInput = (command: StandaloneContactCommand) 
     || !Object.values(command.calibrationRef).every(id)) throw new Error('invalid standalone original pitch/calibration');
   const p = command.parameters;
   if (command.kind === 'BATTING_CONTACT') {
+    const intent = command.spinIntentV123;
+    if (intent !== undefined && (!fields(intent, ['technique', 'decidedTick']) || !SPIN_TECHNIQUES_V123.includes(intent.technique)
+      || !Number.isSafeInteger(intent.decidedTick) || intent.decidedTick < 0 || intent.decidedTick > command.issuedTick)) {
+      throw new Error('invalid or future standalone spin practice intention');
+    }
     const a = p as AerodynamicPitchTrajectoryParameters;
     if (!fields(a, ['ticksPerSecond', 'integrationStepTicks', 'gravityY', 'aerodynamics'])
       || !fields(a.aerodynamics, ['ballMassKg', 'ballRadiusM', 'airDensityKgM3', 'windVelocityMps', 'dragCoefficient',
@@ -122,13 +135,17 @@ const inertCore = <T>(value: T): T => {
 export const executeStandaloneContact = (source: AcceptedStandalonePractice, frame: StandaloneContactFrame, throughTick: number) => {
   const c = source.command, initialBall = ballFrom(frame), reserved = throughTick <= source.startTick;
   if (c.kind === 'BATTING_CONTACT' && frame.kind === c.kind) {
-    const trajectory = standalonePracticeSwingTrajectory(source, c, frame.model);
-    if (trajectory.startTick < initialBall.tick) throw new Error('standalone bat motor precedes original pitch release');
+    const measured = c.measuredMotorV133 ? planStandaloneMeasuredPracticeV133({ ...c, measuredMotorV133: c.measuredMotorV133 }, source.ticksPerSecond, frame.model) : null;
+    const trajectory = measured ? null : standalonePracticeSwingTrajectory(source, c, frame.model);
+    if (measured && (measured.startTick !== source.startTick || measured.endTick !== source.endTick)) throw Error('standalone measured prescribed motor interval differs');
+    const swing = measured ? createRigidBatSwingWindowFromSampledV1(measured.trajectory, frame.model.equipment.values.batPhysical)
+      : createRigidBatSwingWindowFromKinematicsV1(trajectory!, frame.model.equipment.values.batPhysical);
+    if (swing.startTick < initialBall.tick) throw new Error('standalone bat motor precedes original pitch release');
     const flight = { start: initialBall, endTick: source.endTick, parameters: c.parameters };
     sampleAerodynamicPitchTrajectory(flight, initialBall.tick);
     if (reserved) return freeze({ kind: c.kind, moved: false, repetitionOccurred: false, completionAllowed: false, ball: null, contact: null, sample: null });
     const result = resolveAerodynamicRigidBatSwing({ trajectory: flight,
-      swing: createRigidBatSwingWindowFromKinematicsV1(trajectory, frame.model.equipment.values.batPhysical),
+      swing,
       ball: frame.model.equipment.values.ball, parameterResolver: kinematics =>
         resolveWoodBatSpeedResponse(NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1, kinematics.normalApproachSpeedMps) });
     const contact = result.kind === 'contact' && result.contact.tick <= throughTick ? result.contact : null;
@@ -137,7 +154,7 @@ export const executeStandaloneContact = (source: AcceptedStandalonePractice, fra
     const ball = contact ? { tick: contact.tick, position: contact.ballCenter, velocity: contact.exitVelocity, spin: contact.exitSpin }
       : advanceAerodynamicPitchState(initialBall, throughTick - initialBall.tick, c.parameters);
     return freeze(cloneInert(inertCore({ kind: c.kind, moved: throughTick > source.startTick, repetitionOccurred: contact !== null,
-      completionAllowed: true, ball, contact, sample: sampleSwingKinematicsV1(trajectory, throughTick) })));
+      completionAllowed: true, ball, contact, sample: measured ? measured.motion.sample(throughTick) : sampleSwingKinematicsV1(trajectory!, throughTick) })));
   }
   if (c.kind !== 'STATIONARY_GLOVE_RECEIVE' || frame.kind !== c.kind) throw new Error('standalone contact model family differs');
   const actors = frame.body.actor.primitives.map(shape => ({ playerId: source.playerId, primitive: { role: shape.role,

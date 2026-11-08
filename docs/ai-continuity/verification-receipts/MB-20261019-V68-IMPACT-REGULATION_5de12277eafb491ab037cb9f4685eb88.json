@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V68-IMPACT-REGULATION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveImpactTrajectoryV1.test.ts",
+    "src/integration/browser/LiveBaseballMatchV1.test.ts"
+  ],
+  "observed_at": "2026-10-19T10:42:22.494+00:00",
+  "elapsed_ms": 70765,
+  "git_head": "652aa75ccb24df723c2d413e5dc37e7395dc8679",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V68-IMPACT-REGULATION_5de12277eafb491ab037cb9f4685eb88.log",
+  "output_sha256": "df9b22c8b88dc4c96f9eb924cb64d6cb01d6faaffa02925b2e4515870e0c3709",
+  "receipt_id": "MB-20261019-V68-IMPACT-REGULATION_5de12277eafb491ab037cb9f4685eb88"
+}

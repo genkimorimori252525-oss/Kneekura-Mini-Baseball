@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-HR-WATCH-V83-PIXELS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-performance-scenes-v81.mjs",
+    "../../outputs/ばせぼーるlv83_TBD_vs_LAD_HR見送り延長版.html",
+    "docs/verification/releases/v83-hr-watch/pixels",
+    "docs/verification/releases/v81/scenes-final/report.json"
+  ],
+  "observed_at": "2026-10-20T14:22:39.530+00:00",
+  "elapsed_ms": 27453,
+  "git_head": "040c8ef685e97010e617be478e56d6cc54d8f099",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-HR-WATCH-V83-PIXELS_e300f8435701417f85826b9fd75ca60f.log",
+  "output_sha256": "ec91c75304081fd5e1a100881da95b65727e9836fe1069d74ba394c9c202e1cc",
+  "receipt_id": "MB-20261020-HR-WATCH-V83-PIXELS_e300f8435701417f85826b9fd75ca60f"
+}

@@ -45,7 +45,7 @@ export const samePaCurrentStoppedHold = (fields: readonly Field[], playerId: str
   for(const [index,f] of fields.entries()){
     if(f.kind!=='same_pa_physical_field_step_v1')continue;
     const a=f.source.action,r=f.actionResult;
-    if(a?.kind==='defender_motion_v1'&&r?.kind===a.kind){
+    if((a?.kind==='defender_motion_v1'||a?.kind==='defender_control_v1')&&r?.kind===a.kind){
       const selected=a.selections.find(s=>s.member.playerId===playerId),motor=r.motors.find(m=>m.self.playerId===playerId);
       if(!selected)continue;
       if(motor?.intent?.kind!=='hold'||!motor.startAt)adopted=null;

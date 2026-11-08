@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-MAKER20-FINAL-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-maker.mjs",
+    "../../outputs/にーくら野球メーカー_試合用20選手能力版.html"
+  ],
+  "observed_at": "2026-10-17T03:20:26.305+00:00",
+  "elapsed_ms": 219,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-MAKER20-FINAL-BUILD_892e681929a84f2e86cf54ebd7dfd0c6.log",
+  "output_sha256": "1184ab32cc6e0e57cd66b882e3343cffe595ffd737144bb1ba3d05f8a30f594a",
+  "receipt_id": "MB-20261017-MAKER20-FINAL-BUILD_892e681929a84f2e86cf54ebd7dfd0c6"
+}

@@ -1,0 +1,47 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: no post-take drift
++ actual - expected
+... Skipped lines
+
+  {
+    cx: 300,
+    cy: 110,
+    eye: {
+      x: -0.4,
+...
+    labelMetres: 0.55,
++   pitch: 0.0932522759956332,
++   yaw: 0.11188866869642365
+-   pitch: 0.09325228167436798,
+-   yaw: 0.11188996580068432
+  }
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v27-batter-view.mjs:17:40 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: {
+    eye: { x: -0.4, y: 1.3860000000000001, z: -0.95 },
+    yaw: 0.11188866869642365,
+    pitch: 0.0932522759956332,
+    f: 400,
+    cx: 300,
+    cy: 110,
+    labelMetres: 0.55
+  },
+  expected: {
+    eye: { x: -0.4, y: 1.3860000000000001, z: -0.95 },
+    yaw: 0.11188996580068432,
+    pitch: 0.09325228167436798,
+    f: 400,
+    cx: 300,
+    cy: 110,
+    labelMetres: 0.55
+  },
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

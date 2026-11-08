@@ -1,0 +1,16 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ tools/browser-bridge/live-actor-stride-v84.test.mjs (3 tests) 8ms
+ ✓ tools/browser-bridge/maker-presentation-bridge-v84.test.mjs (1 test) 6ms
+ ✓ tools/browser-bridge/whole-scene-adapters-v84.test.mjs (6 tests) 37ms
+ ✓ tools/browser-bridge/presentation-controls-v84.test.mjs (4 tests) 752ms
+   ✓ quality lattice uses integer cell indices, has no repeated-addition drift or depth collisions 491ms
+ ✓ tools/browser-bridge/presentation-quality-v84.test.mjs (3 tests) 690ms
+   ✓ quality 1.2 increases actual spatial samples with aligned unique depth ownership 332ms
+
+ Test Files  5 passed (5)
+      Tests  17 passed (17)
+   Start at  00:26:27
+   Duration  1.57s (transform 157ms, setup 0ms, collect 372ms, tests 1.49s, environment 1ms, prepare 1.20s)
+

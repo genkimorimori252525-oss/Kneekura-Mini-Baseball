@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-SELECTED-BATTING-STATISTICS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../analyze-selected-live-batting.py"
+  ],
+  "observed_at": "2026-10-17T01:29:36.389+00:00",
+  "elapsed_ms": 265,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-SELECTED-BATTING-STATISTICS_1025d708725c4e02933dea1ad48d89fd.log",
+  "output_sha256": "adc2f26933f7b087462b2b87f1ec368484e01ccb2b5066051e83c79ffe9b4c6c",
+  "receipt_id": "MB-20261017-LIVE-SELECTED-BATTING-STATISTICS_1025d708725c4e02933dea1ad48d89fd"
+}

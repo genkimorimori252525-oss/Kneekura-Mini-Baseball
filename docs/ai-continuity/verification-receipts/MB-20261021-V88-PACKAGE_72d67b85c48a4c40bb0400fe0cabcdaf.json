@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V88-PACKAGE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "tools/browser-bridge/package-playback-v88.py"
+  ],
+  "observed_at": "2026-10-20T17:51:34.786+00:00",
+  "elapsed_ms": 3687,
+  "git_head": "6a7b3500d315de70a46f70d697aa032b18b37cb1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V88-PACKAGE_72d67b85c48a4c40bb0400fe0cabcdaf.log",
+  "output_sha256": "4669adeb1dfac84313a06343bc168667036fcc1185bf5efdb82878f0f717c1d6",
+  "receipt_id": "MB-20261021-V88-PACKAGE_72d67b85c48a4c40bb0400fe0cabcdaf"
+}

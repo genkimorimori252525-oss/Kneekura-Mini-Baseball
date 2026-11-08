@@ -1,0 +1,41 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/ZoneRecognitionV87.test.ts (3 tests) 21ms
+ ❯ src/integration/browser/LivePitchRecognitionV87.test.ts (7 tests | 1 failed) 1589ms
+   × uses the edited batter estimate for swing aim without changing the incoming Source 214ms
+     → expected -0 to be +0 // Object.is equality
+   ✓ separates pitcher request from execution and catcher perception from actual flight 337ms
+   ✓ applies role target weights only to automatic allowed targets and retains manual manager locations 320ms
+ ✓ src/integration/browser/LivePitchAbilitiesV1.test.ts (11 tests) 2338ms
+   ✓ changes the executed measured-bat rate from target SI and certifies the declared continuous maximum 348ms
+   ✓ uses the noisy course estimate in actual AUTO judgment while keeping chase margin and aggression separate 389ms
+ ✓ src/integration/browser/LivePitchCourseV79.test.ts (13 tests) 2978ms
+   ✓ isolates paired-trial direction draws from the pitch Source, perception and motor error streams 429ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LivePitchRecognitionV87.test.ts > uses the edited batter estimate for swing aim without changing the incoming Source
+AssertionError: expected -0 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ -0
+
+ ❯ src/integration/browser/LivePitchRecognitionV87.test.ts:22:98
+     20|  expect(actual.diagnostics.sourceDescriptor).toEqual(baseline.diagnost…
+     21|  expect(actual.diagnostics.courseRecognitionV87.batter.errorMeters.x).…
+     22|  expect(actual.diagnostics.aimErrorMeters.x).toBe(0);expect(actual.dia…
+       |                                                                                                  ^
+     23|  expect(actual.diagnostics.referenceContactSweetSpotVelocity).toEqual(…
+     24|  expect(actual.frames).not.toEqual(baseline.frames);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 33 passed (34)
+   Start at  02:14:25
+   Duration  4.55s (transform 1.39s, setup 0ms, collect 3.38s, tests 6.93s, environment 1ms, prepare 930ms)
+

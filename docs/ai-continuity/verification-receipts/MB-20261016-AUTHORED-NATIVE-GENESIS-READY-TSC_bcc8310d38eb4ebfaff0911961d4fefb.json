@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-AUTHORED-NATIVE-GENESIS-READY-TSC",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-15T21:18:44.147+00:00",
+  "elapsed_ms": 47014,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-AUTHORED-NATIVE-GENESIS-READY-TSC_bcc8310d38eb4ebfaff0911961d4fefb.log",
+  "output_sha256": "874b06d5cf7ac0e79c9fb43a50c17d3a1f17493c198148deb3dfffa61f18e64f",
+  "receipt_id": "MB-20261016-AUTHORED-NATIVE-GENESIS-READY-TSC_bcc8310d38eb4ebfaff0911961d4fefb"
+}

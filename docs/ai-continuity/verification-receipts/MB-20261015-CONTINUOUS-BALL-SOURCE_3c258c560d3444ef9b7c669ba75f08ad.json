@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-CONTINUOUS-BALL-SOURCE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/SourceFreeBallKernel.test.ts",
+    "src/core/sim/ball/VersionedBattedBallPhysics.test.ts",
+    "src/core/sim/ball/FreeBaseballTrajectory.test.ts",
+    "src/core/sim/ball/BaseballGroundDynamics.test.ts",
+    "src/core/sim/pitching/AerodynamicPitchTrajectory.test.ts",
+    "src/host/world/VersionedBattedBallFlightSource.test.ts",
+    "src/host/world/SqliteBattedBallFlightStore.test.ts",
+    "src/host/world/SqliteBattedWorldContactStore.test.ts",
+    "--maxWorkers=1",
+    "--minWorkers=1"
+  ],
+  "observed_at": "2026-10-14T20:31:40.448+00:00",
+  "elapsed_ms": 20672,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-CONTINUOUS-BALL-SOURCE_3c258c560d3444ef9b7c669ba75f08ad.log",
+  "output_sha256": "397909c419c34069abb33d7f5af4e224b02600866c4617e32480792adbba6bb6",
+  "receipt_id": "MB-20261015-CONTINUOUS-BALL-SOURCE_3c258c560d3444ef9b7c669ba75f08ad"
+}

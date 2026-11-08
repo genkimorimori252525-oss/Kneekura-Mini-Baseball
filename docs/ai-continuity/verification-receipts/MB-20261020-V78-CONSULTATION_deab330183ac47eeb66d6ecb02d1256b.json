@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-CONSULTATION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/write-v78-consultation.mjs"
+  ],
+  "observed_at": "2026-10-19T20:01:41.780+00:00",
+  "elapsed_ms": 93,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-CONSULTATION_deab330183ac47eeb66d6ecb02d1256b.log",
+  "output_sha256": "c7404eaff939550dfb23589bd05e53ab01be6d53f4587046188faf805acd3913",
+  "receipt_id": "MB-20261020-V78-CONSULTATION_deab330183ac47eeb66d6ecb02d1256b"
+}

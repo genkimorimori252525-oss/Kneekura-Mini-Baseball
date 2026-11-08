@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V88",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveBatPlaybackV88.test.ts",
+    "src/integration/browser/LivePitchV1.test.ts"
+  ],
+  "observed_at": "2026-10-20T17:42:26.411+00:00",
+  "elapsed_ms": 3594,
+  "git_head": "6a7b3500d315de70a46f70d697aa032b18b37cb1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V88_7ada4be892424f09a90fdb734ce8b386.log",
+  "output_sha256": "de9d2db301e88c1aba527ee4af3b89e58d9ad2d7b8aff05117e7002cce3fa46d",
+  "receipt_id": "MB-20261021-V88_7ada4be892424f09a90fdb734ce8b386"
+}

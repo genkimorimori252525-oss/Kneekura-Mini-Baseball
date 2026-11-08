@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-V3-CLOCK-CONSUMER-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "npx.cmd",
+    "vitest",
+    "run",
+    "src/host/world/SamePlateAppearanceSourceFieldV3.test.ts"
+  ],
+  "observed_at": "2026-10-15T17:42:06.568+00:00",
+  "elapsed_ms": 8921,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-V3-CLOCK-CONSUMER-RED_11aea2fa18404c4b93d7ee587585c646.log",
+  "output_sha256": "912fcb07f4496515172173be89edf3701aa7ffa8cd132863564a4a2b8a717f9c",
+  "receipt_id": "MB-20261016-V3-CLOCK-CONSUMER-RED_11aea2fa18404c4b93d7ee587585c646"
+}

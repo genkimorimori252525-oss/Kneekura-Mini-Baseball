@@ -1,0 +1,29 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/SamePlateAppearanceTeamMotorSelectionV1.test.ts (3 tests) 208ms
+ ❯ src/host/world/SamePlateAppearancePhysicalFieldActions.test.ts (14 tests | 1 failed) 3479ms
+   ✓ FS02 all nine original defenders execute including cover after a genuinely moved and locally perceived handler 755ms
+   × FT01 team actor selections drive nine real motor calculations using the team choice, preserving the original body curves 1765ms
+     → same-PA live-work defensive metadata identity differs
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/host/world/SamePlateAppearancePhysicalFieldActions.test.ts > FT01 team actor selections drive nine real motor calculations using the team choice, preserving the original body curves
+Error: same-PA live-work defensive metadata identity differs
+ ❯ Module.deriveSamePaLiveWorkCensus src/host/world/SamePlateAppearanceLiveWorkCensus.ts:113:15
+    111|     } else if (r?.kind === 'defender_candidate_set_v1' || r?.kind === …
+    112|       if (!previous || source?.kind !== r.kind || r.movementAdmission …
+    113|         throw new Error('same-PA live-work defensive metadata identity…
+       |               ^
+    114|       same(field.field, previous.field, 'defensive metadata changed ph…
+    115|       same(field.evaluationTick, previous.evaluationTick, 'defensive m…
+ ❯ src/host/world/SamePlateAppearancePhysicalFieldActions.test.ts:281:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 16 passed (17)
+   Start at  07:41:32
+   Duration  10.71s (transform 6.42s, setup 0ms, collect 13.22s, tests 3.69s, environment 0ms, prepare 386ms)
+

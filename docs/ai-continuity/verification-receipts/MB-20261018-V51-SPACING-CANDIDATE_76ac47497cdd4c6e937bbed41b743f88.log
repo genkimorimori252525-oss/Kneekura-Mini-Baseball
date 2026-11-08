@@ -1,0 +1,93 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/fielding/LiveFieldAvoidanceV51.test.ts (3 tests | 3 failed) 476ms
+   × keeps fielders separated with continuous acceleration-limited movement: low-slow_roller_3B 398ms
+     → grip is not defined
+   × keeps fielders separated with continuous acceleration-limited movement: default-1B_routine 44ms
+     → grip is not defined
+   × keeps fielders separated with continuous acceleration-limited movement: default-fast_grounder_CF_wall 34ms
+     → grip is not defined
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts (22 tests | 4 failed | 18 skipped) 190ms
+   × LiveFieldPlayDiagnosticsV1 > detects an observed pair of overlapping fielder bodies with both tasks and distance 77ms
+     → grip is not defined
+   × LiveFieldPlayDiagnosticsV1 > accepts legal close coordination at a body-center distance of 0.48m 45ms
+     → grip is not defined
+   × LiveFieldPlayDiagnosticsV1 > accepts legal close coordination at a body-center distance of 0.481m 35ms
+     → grip is not defined
+   × LiveFieldPlayDiagnosticsV1 > uses the declared body radius and observes three nearby fielders without inventing a cluster violation 33ms
+     → grip is not defined
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldAvoidanceV51.test.ts > keeps fielders separated with continuous acceleration-limited movement: low-slow_roller_3B
+ FAIL  src/core/sim/fielding/LiveFieldAvoidanceV51.test.ts > keeps fielders separated with continuous acceleration-limited movement: default-1B_routine
+ FAIL  src/core/sim/fielding/LiveFieldAvoidanceV51.test.ts > keeps fielders separated with continuous acceleration-limited movement: default-fast_grounder_CF_wall
+ReferenceError: grip is not defined
+ ❯ gloveCurve src/core/sim/fielding/LiveFieldPlayV1.ts:778:63
+    776|         wantedOffset = sub(limited, at(f.body, through)), targetOffset…
+    777|         relativeMove = sub(targetOffset, currentOffset), relativeVeloc…
+    778|       const gloveCurve = (u: number): Curve => ({ ...body, p: grip, ve…
+       |                                                               ^
+    779|         ...(body.stopAfter !== undefined ? { continuingVelocity: mul(r…
+    780|       const gloveSafe = (c: Curve, stoppingReserve: number = LIVE_FIEL…
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:832:19
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:930:147
+ ❯ src/core/sim/fielding/LiveFieldAvoidanceV51.test.ts:24:67
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > detects an observed pair of overlapping fielder bodies with both tasks and distance
+ReferenceError: grip is not defined
+ ❯ gloveCurve src/core/sim/fielding/LiveFieldPlayV1.ts:778:63
+    776|         wantedOffset = sub(limited, at(f.body, through)), targetOffset…
+    777|         relativeMove = sub(targetOffset, currentOffset), relativeVeloc…
+    778|       const gloveCurve = (u: number): Curve => ({ ...body, p: grip, ve…
+       |                                                               ^
+    779|         ...(body.stopAfter !== undefined ? { continuingVelocity: mul(r…
+    780|       const gloveSafe = (c: Curve, stoppingReserve: number = LIVE_FIEL…
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:832:19
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:930:147
+ ❯ diagnosticFixture src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:40:32
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:44:40
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > accepts legal close coordination at a body-center distance of 0.48m
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > accepts legal close coordination at a body-center distance of 0.481m
+ReferenceError: grip is not defined
+ ❯ gloveCurve src/core/sim/fielding/LiveFieldPlayV1.ts:778:63
+    776|         wantedOffset = sub(limited, at(f.body, through)), targetOffset…
+    777|         relativeMove = sub(targetOffset, currentOffset), relativeVeloc…
+    778|       const gloveCurve = (u: number): Curve => ({ ...body, p: grip, ve…
+       |                                                               ^
+    779|         ...(body.stopAfter !== undefined ? { continuingVelocity: mul(r…
+    780|       const gloveSafe = (c: Curve, stoppingReserve: number = LIVE_FIEL…
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:832:19
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:930:147
+ ❯ diagnosticFixture src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:40:32
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:55:40
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts > LiveFieldPlayDiagnosticsV1 > uses the declared body radius and observes three nearby fielders without inventing a cluster violation
+ReferenceError: grip is not defined
+ ❯ gloveCurve src/core/sim/fielding/LiveFieldPlayV1.ts:778:63
+    776|         wantedOffset = sub(limited, at(f.body, through)), targetOffset…
+    777|         relativeMove = sub(targetOffset, currentOffset), relativeVeloc…
+    778|       const gloveCurve = (u: number): Curve => ({ ...body, p: grip, ve…
+       |                                                               ^
+    779|         ...(body.stopAfter !== undefined ? { continuingVelocity: mul(r…
+    780|       const gloveSafe = (c: Curve, stoppingReserve: number = LIVE_FIEL…
+ ❯ plan src/core/sim/fielding/LiveFieldPlayV1.ts:832:19
+ ❯ Module.simulateLiveFieldPlayV1 src/core/sim/fielding/LiveFieldPlayV1.ts:930:147
+ ❯ diagnosticFixture src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:40:32
+ ❯ src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.test.ts:63:40
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ Test Files  2 failed (2)
+      Tests  7 failed | 18 skipped (25)
+   Start at  18:26:40
+   Duration  1.09s (transform 389ms, setup 0ms, collect 517ms, tests 667ms, environment 0ms, prepare 277ms)
+

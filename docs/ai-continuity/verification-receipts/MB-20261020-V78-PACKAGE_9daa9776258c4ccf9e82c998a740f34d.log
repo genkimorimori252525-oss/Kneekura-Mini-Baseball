@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "C:\Users\genki\Documents\Codex\2026-10-15\new-chat\work\mini-baseball\tools\browser-bridge\package-v78.py", line 69, in <module>
+    assert report[key] == sha(artifacts[target][0]), folder + ': ' + key
+KeyError: 'normalSha256'

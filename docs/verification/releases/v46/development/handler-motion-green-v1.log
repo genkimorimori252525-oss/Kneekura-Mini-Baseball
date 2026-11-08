@@ -1,0 +1,14 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/LiveFieldHandlerSelectionV1.test.ts (7 tests) 3ms
+ ✓ src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts (11 tests) 19ms
+ ✓ src/core/sim/fielding/LiveFieldHandlerMotionV1.test.ts (2 tests) 1679ms
+   ✓ assigns the easier incoming outfield route when a high fly also permits a long infield chase 1183ms
+   ✓ allows an infielder to go back on a blooper that it can intercept before an outfielder 495ms
+
+ Test Files  3 passed (3)
+      Tests  20 passed (20)
+   Start at  14:20:58
+   Duration  2.56s (transform 384ms, setup 0ms, collect 668ms, tests 1.70s, environment 0ms, prepare 413ms)
+

@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-COUPLED-PELVIS-FINAL-TESTS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/contact/MeasuredPelvisControlV1.test.ts",
+    "src/core/sim/contact/HeldToMeasuredBatControlV1.test.ts",
+    "src/core/sim/contact/InitialHeldBatV1.test.ts",
+    "src/core/world/psychology/batting/MeasuredBattingCommitment.test.ts",
+    "src/core/sim/contact/ReferenceBatKinematicsV1.test.ts"
+  ],
+  "observed_at": "2026-10-16T13:19:10.069+00:00",
+  "elapsed_ms": 3344,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-COUPLED-PELVIS-FINAL-TESTS_7effe61bd1354778a0f965cbcb7c5d65.log",
+  "output_sha256": "b8435d3493b7d89ba675825d7631b14e9d1a59fcdd5cbf3f4f63736368f7b104",
+  "receipt_id": "MB-20261016-COUPLED-PELVIS-FINAL-TESTS_7effe61bd1354778a0f965cbcb7c5d65"
+}

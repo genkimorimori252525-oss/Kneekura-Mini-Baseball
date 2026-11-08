@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-HR-WATCH-V83-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/browser-bridge/home-run-watch-v83.test.mjs",
+    "--reporter",
+    "dot"
+  ],
+  "observed_at": "2026-10-20T14:15:26.551+00:00",
+  "elapsed_ms": 1140,
+  "git_head": "040c8ef685e97010e617be478e56d6cc54d8f099",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-HR-WATCH-V83-RED_3c3b157bf8e5404fb6ab1e04915b5d9b.log",
+  "output_sha256": "86742b074bd4d1378c0446dbd7e99e88abe0204bdd7bf77a10a312e3210975d3",
+  "receipt_id": "MB-20261020-HR-WATCH-V83-RED_3c3b157bf8e5404fb6ab1e04915b5d9b"
+}

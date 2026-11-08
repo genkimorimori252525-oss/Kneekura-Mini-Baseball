@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V88-BUILD-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-playback-v88.mjs"
+  ],
+  "observed_at": "2026-10-20T17:47:19.595+00:00",
+  "elapsed_ms": 1093,
+  "git_head": "6a7b3500d315de70a46f70d697aa032b18b37cb1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V88-BUILD-FINAL_26ef6b3cd2bd4d13892b3d10c584435d.log",
+  "output_sha256": "434648264bb95d27f5033aada549217dc02925439b7f0220e1c165f1296606a3",
+  "receipt_id": "MB-20261021-V88-BUILD-FINAL_26ef6b3cd2bd4d13892b3d10c584435d"
+}

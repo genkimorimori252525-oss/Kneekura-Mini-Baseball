@@ -1,0 +1,24 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/PlayableMatchRulesV1.test.ts (21 tests) 11ms
+ ✓ src/integration/browser/MeasuredBatFieldRegistrationV1.test.ts (21 tests) 820ms
+ ✓ src/integration/browser/LivePitchV1.test.ts (11 tests) 965ms
+ ✓ src/core/sim/fielding/LiveFieldPlayV1.test.ts (18 tests) 6558ms
+   ✓ runs the complete actual base path after a fair over-fence flight instead of teleporting runners 657ms
+   ✓ derives two force retirements from actual pickup, two throws, receptions and base contacts 556ms
+   ✓ continues a true wall rebound through its signed-gap certificate and retrieves the ball 344ms
+   ✓ catches an ordinary high center-field fly using a causal aero-ground forecast 1281ms
+   ✓ fields a straight infield grounder and makes a real throw to first before the batter arrives 320ms
+   ✓ keeps bodies, independent gloves and a possessed ball inside the physical fence through pickup and release 1517ms
+   ✓ finishes the pinned fast grounder after causal interception without an invented result 788ms
+ ✓ src/integration/browser/LiveBaseballMatchV1.test.ts (4 tests) 107510ms
+   ✓ does not pre-generate an initial pitch, and freezes observations independently of later issues 311ms
+   ✓ plays a mixed physical game through regulation without a replay frontier or old engine result 103131ms
+   ✓ does not derive SI or alter results from presentation names or league labels 3784ms
+
+ Test Files  5 passed (5)
+      Tests  75 passed (75)
+   Start at  11:31:57
+   Duration  108.54s (transform 769ms, setup 0ms, collect 2.00s, tests 115.86s, environment 1ms, prepare 900ms)
+

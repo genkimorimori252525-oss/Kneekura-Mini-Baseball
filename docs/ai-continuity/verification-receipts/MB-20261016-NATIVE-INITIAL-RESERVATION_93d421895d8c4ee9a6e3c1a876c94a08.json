@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-NATIVE-INITIAL-RESERVATION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/native-game/AuthoredNativeReservationV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T22:15:37.099+00:00",
+  "elapsed_ms": 32797,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-NATIVE-INITIAL-RESERVATION_93d421895d8c4ee9a6e3c1a876c94a08.log",
+  "output_sha256": "a8bf30062f5cad27b35d7252b0020f45d59e8167ee42332543d428ef4ceac878",
+  "receipt_id": "MB-20261016-NATIVE-INITIAL-RESERVATION_93d421895d8c4ee9a6e3c1a876c94a08"
+}

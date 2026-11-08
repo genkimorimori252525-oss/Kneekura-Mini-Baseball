@@ -1,0 +1,29 @@
+{
+  "pass": true,
+  "path": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v82_削除と入力復帰版.html",
+  "cases": [
+    {
+      "width": 1200,
+      "traits": 17,
+      "publicAndPhysicalUnchanged": true,
+      "independentThrowOffAndScaleRoundtrip": true
+    },
+    {
+      "width": 390,
+      "traits": 17,
+      "publicAndPhysicalUnchanged": true,
+      "independentThrowOffAndScaleRoundtrip": true
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": []
+    },
+    {
+      "width": 390,
+      "errors": []
+    }
+  ],
+  "sha256": "5c4ab2836fff35957f4480afb48e7d0a6096879184fccb6b997e635dbb582edf"
+}

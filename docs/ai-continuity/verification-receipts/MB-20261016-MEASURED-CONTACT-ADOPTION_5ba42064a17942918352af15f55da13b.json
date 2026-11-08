@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-MEASURED-CONTACT-ADOPTION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/world/psychology/batting/MeasuredBattingCommitment.test.ts"
+  ],
+  "observed_at": "2026-10-15T22:05:42.443+00:00",
+  "elapsed_ms": 2483,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-MEASURED-CONTACT-ADOPTION_5ba42064a17942918352af15f55da13b.log",
+  "output_sha256": "e913fe70b93a83596ccb2d843528cf014f5e351681b9f3e22657edd624e0bb93",
+  "receipt_id": "MB-20261016-MEASURED-CONTACT-ADOPTION_5ba42064a17942918352af15f55da13b"
+}

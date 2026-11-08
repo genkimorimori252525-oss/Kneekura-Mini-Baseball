@@ -1,0 +1,10 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/JointFieldSuccessorCommand.test.ts (14 tests) 50ms
+
+ Test Files  1 passed (1)
+      Tests  14 passed (14)
+   Start at  06:39:49
+   Duration  9.52s (transform 6.01s, setup 0ms, collect 9.04s, tests 50ms, environment 0ms, prepare 137ms)
+

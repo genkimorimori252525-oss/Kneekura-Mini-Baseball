@@ -12,7 +12,7 @@ import { generateWorldBoundLeagueSchedule } from '../../core/world/competition/W
 import { openSqliteClubSeasonTransitionStore, type AcceptedClubSeasonTransition } from './SqliteClubSeasonTransitionStore';
 import type { SqliteDomesticCompetitionSeasonStore } from './SqliteDomesticCompetitionSeasonStore';
 import type { SqliteWorldCompetitionCycleStore } from './SqliteWorldCompetitionCycleStore';
-import { initializeWorldBoundDomesticSeason, type WorldBoundDomesticSeasonInput } from './WorldBoundDomesticSeasonRuntime';
+import { initializeWorldBoundDomesticSeason, resumeWorldBoundDomesticSeasonCalendar, type WorldBoundDomesticSeasonInput } from './WorldBoundDomesticSeasonRuntime';
 import type { DomesticSeasonStores } from './DomesticSeasonRuntime';
 
 export type AcceptedDomesticSeasonAdvance = Readonly<{
@@ -227,7 +227,7 @@ export const openSqliteDomesticSeasonAdvanceStore = (databasePath: string, sourc
     const existing = sources.archive.read(next.careerId, next.generatorInput.seasonId);
     if (existing) {
       validateCalendarStage(input, accepted.calendar, false);
-      sources.archive.initializeEvents(next.careerId, next.generatorInput.seasonId, next.eventProfile);
+      resumeWorldBoundDomesticSeasonCalendar(sources, next);
     } else {
       const clubs = next.generatorInput.memberClubIds.map((clubId) => {
         const current = sources.world.readClub(next.careerId, clubId);

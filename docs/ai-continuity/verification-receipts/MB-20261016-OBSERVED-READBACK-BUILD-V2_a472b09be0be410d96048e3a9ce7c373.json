@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OBSERVED-READBACK-BUILD-V2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/native-game/build-measured-model-readback.mjs",
+    "../native-observed-launch-readback-v2",
+    "observed_launch"
+  ],
+  "observed_at": "2026-10-15T23:26:07.152+00:00",
+  "elapsed_ms": 797,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OBSERVED-READBACK-BUILD-V2_a472b09be0be410d96048e3a9ce7c373.log",
+  "output_sha256": "ff80f61978225ab78746261c36b7652b7b7ef66d9e1777fa7e06d53a6ec66aaa",
+  "receipt_id": "MB-20261016-OBSERVED-READBACK-BUILD-V2_a472b09be0be410d96048e3a9ce7c373"
+}

@@ -1,0 +1,20 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts (20 tests) 27ms
+ ✓ src/core/sim/fielding/LiveRelayPlanV1.test.ts (8 tests) 1922ms
+   ✓ supports two actual intermediate receivers without duplicate actors or throw cycles 624ms
+   ✓ bounds search work and caches Aero edges while using no position names or future world state 864ms
+ ✓ src/core/sim/fielding/LiveFieldRoleMotionV1.test.ts (5 tests) 2632ms
+   ✓ executes unique receiver coverage through a real throw while spare outfielders retain deep coverage 345ms
+   ✓ keeps zero-error actual physics exact and launches a reproducible physical miss for nonzero angular error 1967ms
+ ✓ src/core/sim/fielding/LiveFieldRelayMotionV1.test.ts (3 tests) 5323ms
+   ✓ makes two actual throws with a secured relay, a new transfer and actual final base control 1931ms
+   ✓ uses a faster actual direct throw when the same holder has sufficient arm speed 876ms
+   ✓ executes two intermediate receipts as three separate actual throws and custody intervals 2515ms
+
+ Test Files  4 passed (4)
+      Tests  36 passed (36)
+   Start at  17:06:45
+   Duration  6.14s (transform 446ms, setup 0ms, collect 1.16s, tests 9.90s, environment 1ms, prepare 638ms)
+

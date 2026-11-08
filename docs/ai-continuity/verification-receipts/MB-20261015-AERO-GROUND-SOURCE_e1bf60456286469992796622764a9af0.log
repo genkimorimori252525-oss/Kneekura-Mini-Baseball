@@ -1,0 +1,53 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/VersionedBattedBallFlightSource.test.ts (3 tests) 1343ms
+   ✓ accepts explicit physics from original Native contact, replays after reopen, and refuses the legacy World consumer 762ms
+   ✓ preserves original legacy Source and snapshot byte conventions without adding a physics field 330ms
+ ✓ src/host/world/SqliteBattedWorldContactStore.test.ts (13 tests) 6981ms
+   ✓ executes the actual ten Player/Person actors from original World and swing, then reopens without caller contact or rule results 816ms
+   ✓ does not append a forecast ground event when an actual surface is contacted earlier 623ms
+   ✓ rejects missing_actor rather than silently replacing actual geometry or scope 474ms
+   ✓ rejects wrong_person rather than silently replacing actual geometry or scope 462ms
+   ✓ rejects pitcher_body rather than silently replacing actual geometry or scope 449ms
+   ✓ rejects missing_primitive rather than silently replacing actual geometry or scope 411ms
+   ✓ rejects wrong_venue rather than silently replacing actual geometry or scope 445ms
+   ✓ rejects future_day rather than silently replacing actual geometry or scope 460ms
+   ✓ rejects caller_result rather than silently replacing actual geometry or scope 479ms
+   ✓ extends only an airborne original prefix with unchanged model and commands 899ms
+   ✓ freezes the actual full registered game roster without executing reserve actors or losing their Person evidence 576ms
+   ✓ rejects invalid reserve roster_revision before freezing original model evidence 421ms
+   ✓ rejects invalid reserve future_person before freezing original model evidence 468ms
+ ✓ src/host/world/SqliteBattedBallFlightStore.test.ts (6 tests) 1839ms
+   ✓ continues actual Native bat contact flight after offline reopen without turning a predicted ground into a ruling 586ms
+   ✓ requires the actual previous flight, unchanged physical execution and a longer search horizon 367ms
+ ❯ src/core/sim/ball/VersionedBattedBallPhysics.test.ts (5 tests | 1 failed) 181ms
+   × reuses precisely the Core Aero/ground path, including incoming ground spin and subsequent rolling 109ms
+     → expected false to be true // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/ball/VersionedBattedBallPhysics.test.ts > reuses precisely the Core Aero/ground path, including incoming ground spin and subsequent rolling
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/core/sim/ball/VersionedBattedBallPhysics.test.ts:31:59
+     29|   expect(actual.observe(ticks)).toEqual(original.observe(ticks));
+     30|   expect(actual.groundContacts).toEqual(original.groundContacts);
+     31|   expect(actual.samples.some(s => s.phase === 'sliding')).toBe(true);
+       |                                                           ^
+     32|   expect(actual.samples.some(s => s.phase === 'rolling')).toBe(true);
+     33|   const first = actual.groundContacts[0];
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 26 passed (27)
+   Start at  05:05:52
+   Duration  23.30s (transform 4.89s, setup 0ms, collect 11.20s, tests 10.34s, environment 1ms, prepare 897ms)
+

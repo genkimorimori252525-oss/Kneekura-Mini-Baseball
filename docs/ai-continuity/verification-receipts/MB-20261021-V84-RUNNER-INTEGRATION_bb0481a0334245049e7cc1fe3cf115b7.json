@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-RUNNER-INTEGRATION",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/running/LiveRunnerMotionV1.test.ts",
+    "src/core/sim/running/LiveRunnerRetreatMotionV1.test.ts",
+    "src/core/sim/fielding/LiveRunnerAdvancePolicyV1.test.ts",
+    "src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts",
+    "src/core/sim/fielding/LiveRunnerAirbornePolicyV53.test.ts",
+    "src/core/sim/fielding/LiveRunnerAirborneIntegrationV53.test.ts",
+    "src/core/sim/fielding/LiveFieldRunnerAdvanceV1.test.ts",
+    "src/core/sim/fielding/LiveFieldRunnerRoundingV1.test.ts",
+    "src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts",
+    "src/integration/browser/PlayableRunnerCausalityV49.test.ts"
+  ],
+  "observed_at": "2026-10-20T15:30:35.994+00:00",
+  "elapsed_ms": 32281,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-RUNNER-INTEGRATION_bb0481a0334245049e7cc1fe3cf115b7.log",
+  "output_sha256": "1237d83aa642c0eb1ac1448be74f50ef5f577571764db5d1b475bedead106a41",
+  "receipt_id": "MB-20261021-V84-RUNNER-INTEGRATION_bb0481a0334245049e7cc1fe3cf115b7"
+}

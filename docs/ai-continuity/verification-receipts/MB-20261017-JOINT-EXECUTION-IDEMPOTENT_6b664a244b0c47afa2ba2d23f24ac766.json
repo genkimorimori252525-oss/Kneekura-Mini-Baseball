@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-JOINT-EXECUTION-IDEMPOTENT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-owned-joint-execution-guards-v1/readback.mjs",
+    "../../outputs/verification-authored-with-bat-physical-execution-v1",
+    "../../outputs/verification-authored-with-bat-owned-hand-v1",
+    "retry"
+  ],
+  "observed_at": "2026-10-16T15:01:38.453+00:00",
+  "elapsed_ms": 86203,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-JOINT-EXECUTION-IDEMPOTENT_6b664a244b0c47afa2ba2d23f24ac766.log",
+  "output_sha256": "c701f3ac9c9883c5103c707b3f8a736336d5956d1c3d404522f9fd8440d48635",
+  "receipt_id": "MB-20261017-JOINT-EXECUTION-IDEMPOTENT_6b664a244b0c47afa2ba2d23f24ac766"
+}

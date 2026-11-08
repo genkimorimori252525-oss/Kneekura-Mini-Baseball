@@ -1,0 +1,13 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/liveAction/QuantizerClosedGenerationBoundary.test.ts (5 tests) 40ms
+ ✓ src/core/sim/ball/SourceBattedFieldMotionV3.test.ts (3 tests) 198ms
+ ✓ src/core/sim/ball/SourceFieldIntegerBoundaryV1.test.ts (7 tests) 675ms
+   ✓ executes a real sub-tick ground wait through the original kernel without rebasing ball or actors 358ms
+
+ Test Files  3 passed (3)
+      Tests  15 passed (15)
+   Start at  03:08:13
+   Duration  1.62s (transform 488ms, setup 0ms, collect 1.08s, tests 913ms, environment 1ms, prepare 474ms)
+

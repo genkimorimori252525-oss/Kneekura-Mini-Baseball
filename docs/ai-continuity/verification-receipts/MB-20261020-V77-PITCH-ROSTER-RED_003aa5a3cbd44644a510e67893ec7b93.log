@@ -1,0 +1,29 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/LivePitchRosterV77.test.ts (3 tests | 1 failed) 15ms
+   × preserves optional repertoire, motion and throwing hand through the existing roster adapter 5ms
+     → live physical roster: unknown or missing fields at entry
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LivePitchRosterV77.test.ts > preserves optional repertoire, motion and throwing hand through the existing roster adapter
+Error: live physical roster: unknown or missing fields at entry
+ ❯ assert src/integration/browser/LivePhysicalRosterV1.ts:66:85
+     64| const nonnegative = new Set<string>(['reactionSeconds', 'transferSecon…
+     65| const freeze = <T>(value: T): T => { if (value && typeof value === 'ob…
+     66| function assert(value: unknown, message: string): asserts value { if (…
+       |                                                                                     ^
+     67| const validText = (value: unknown): value is string => typeof value ==…
+     68| /** Legacy authoring fallback, independent of names, leagues and popul…
+ ❯ fields src/integration/browser/LivePhysicalRosterV1.ts:81:3
+ ❯ Module.applyLivePhysicalRosterV1 src/integration/browser/LivePhysicalRosterV1.ts:123:5
+ ❯ src/integration/browser/LivePitchRosterV77.test.ts:14:68
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  03:54:14
+   Duration  1.05s (transform 412ms, setup 0ms, collect 616ms, tests 15ms, environment 0ms, prepare 127ms)
+

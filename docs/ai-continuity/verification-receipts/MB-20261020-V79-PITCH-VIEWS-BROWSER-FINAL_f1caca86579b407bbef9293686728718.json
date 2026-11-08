@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V79-PITCH-VIEWS-BROWSER-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-pitcher-views-browser-v79.mjs"
+  ],
+  "observed_at": "2026-10-20T00:29:38.938+00:00",
+  "elapsed_ms": 17375,
+  "git_head": "98819b9ab5c8e4bdd7ddfc7d644d484df08ab55d",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V79-PITCH-VIEWS-BROWSER-FINAL_f1caca86579b407bbef9293686728718.log",
+  "output_sha256": "905532923d9d09d936e403d277a112a21edb844f58f44e6d87d0b41373838852",
+  "receipt_id": "MB-20261020-V79-PITCH-VIEWS-BROWSER-FINAL_f1caca86579b407bbef9293686728718"
+}

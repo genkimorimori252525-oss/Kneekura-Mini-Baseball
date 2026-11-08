@@ -1,0 +1,14 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/MeasuredTrajectoryComparisonWorkbenchV69.test.ts (6 tests) 1630ms
+   ✓ executes exactly the normal LivePitch profile and original clock for all four R levels 357ms
+   ✓ executes exactly the normal LivePitch profile and original clock for all four L levels 305ms
+   ✓ returns no invented flight/carry for actual misses, takes, and landings outside the observation window 311ms
+   ✓ uses real player speed/aim/timing controls, and retains deterministic outputs without choosing a favourable new seed 361ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  20:46:07
+   Duration  2.70s (transform 399ms, setup 0ms, collect 608ms, tests 1.63s, environment 0ms, prepare 137ms)
+

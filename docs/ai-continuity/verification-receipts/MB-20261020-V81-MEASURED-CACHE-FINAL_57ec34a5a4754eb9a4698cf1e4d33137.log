@@ -1,0 +1,21 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+stdout | src/integration/browser/MeasuredClipValidationCacheV81.test.ts > reuses the actual 673-clip decoded library without losing rows, default order or public IDs
+v81 measured catalog cache single-run milliseconds {"clips":673,"coldMs":2780.1291,"warmMs":509.72080000000005,"uncachedMs":1285.5812999999998,"warmToColdRatio":0.1833442914575442,"warmToUncachedRatio":0.39649052144737956,"scope":"Node helper only; not browser startup or device FPS"}
+
+ ✓ src/integration/browser/MeasuredClipValidationCacheV81.test.ts (9 tests) 56980ms
+   ✓ reuses the actual 673-clip decoded library without losing rows, default order or public IDs 6865ms
+   ✓ keeps omitted-feature same-seed complete Host history identical for mutable, cold and warm catalogs 49968ms
+ ✓ src/integration/browser/LiveBaseballMatchV1.test.ts (5 tests) 89773ms
+   ✓ does not pre-generate an initial pitch, and freezes observations independently of later issues 710ms
+   ✓ copies each current analytic runner velocity into its Host actor frame 782ms
+   ✓ plays a mixed physical game through regulation without a replay frontier or old engine result 84773ms
+   ✓ does not derive SI or alter results from presentation names or league labels 3030ms
+   ✓ rejects malformed physical rosters and mutating a frozen result 476ms
+
+ Test Files  2 passed (2)
+      Tests  14 passed (14)
+   Start at  21:48:08
+   Duration  91.48s (transform 808ms, setup 0ms, collect 2.00s, tests 146.75s, environment 1ms, prepare 460ms)
+

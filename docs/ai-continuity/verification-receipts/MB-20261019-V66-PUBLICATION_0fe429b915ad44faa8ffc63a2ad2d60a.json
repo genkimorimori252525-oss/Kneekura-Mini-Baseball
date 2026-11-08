@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V66-PUBLICATION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "tools/browser-bridge/check-v66-publication.py",
+    "b687c2a85341231e2546bb5370d55fbc7c794f46"
+  ],
+  "observed_at": "2026-10-19T10:17:22.510+00:00",
+  "elapsed_ms": 4452,
+  "git_head": "b687c2a85341231e2546bb5370d55fbc7c794f46",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V66-PUBLICATION_0fe429b915ad44faa8ffc63a2ad2d60a.log",
+  "output_sha256": "d9902922a4494d9064a80c85a4c97462d1fbbbd0e97d5588c4d0721338494569",
+  "receipt_id": "MB-20261019-V66-PUBLICATION_0fe429b915ad44faa8ffc63a2ad2d60a"
+}

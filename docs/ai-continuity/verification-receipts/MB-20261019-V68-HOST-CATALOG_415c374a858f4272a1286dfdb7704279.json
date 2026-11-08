@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V68-HOST-CATALOG",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/MeasuredImpactTrajectoryLibraryV1.test.ts",
+    "src/integration/browser/LiveImpactTrajectoryV1.test.ts",
+    "--testNamePattern",
+    "^(?!finishes a full)"
+  ],
+  "observed_at": "2026-10-19T10:52:43.333+00:00",
+  "elapsed_ms": 15577,
+  "git_head": "652aa75ccb24df723c2d413e5dc37e7395dc8679",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V68-HOST-CATALOG_415c374a858f4272a1286dfdb7704279.log",
+  "output_sha256": "003e5dff5b02780175a53c1f82199c07d21a879b282c4194e291e94631d75960",
+  "receipt_id": "MB-20261019-V68-HOST-CATALOG_415c374a858f4272a1286dfdb7704279"
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V52-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-v52.mjs",
+    "../../outputs/ばせぼーるlv52_TBD_vs_LAD_視点追従調整版.html"
+  ],
+  "observed_at": "2026-10-18T09:56:48.411+00:00",
+  "elapsed_ms": 280,
+  "git_head": "f5be0639f0a8ffbecfa08ec403b8025733e34e35",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V52-BUILD_323526a634aa40f89515689841463fb3.log",
+  "output_sha256": "efb3310edef0d2904e04740c7c1ac3c15686ee47bfe7068d1e033149d216e9cb",
+  "receipt_id": "MB-20261018-V52-BUILD_323526a634aa40f89515689841463fb3"
+}

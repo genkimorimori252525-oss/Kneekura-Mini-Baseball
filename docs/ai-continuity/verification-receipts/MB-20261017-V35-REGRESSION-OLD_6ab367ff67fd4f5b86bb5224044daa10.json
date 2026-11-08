@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V35-REGRESSION-OLD",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v35-visibility.mjs",
+    "../../outputs/ばせぼーるlv34_TBD_vs_LAD_UI復元版.html",
+    "../../outputs/verification-v35-visibility-old"
+  ],
+  "observed_at": "2026-10-17T02:12:15.628+00:00",
+  "elapsed_ms": 1125,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V35-REGRESSION-OLD_6ab367ff67fd4f5b86bb5224044daa10.log",
+  "output_sha256": "5e416db8e5fe84c9602e0bcb8487640881d215dc9222d32596567658ab466099",
+  "receipt_id": "MB-20261017-V35-REGRESSION-OLD_6ab367ff67fd4f5b86bb5224044daa10"
+}

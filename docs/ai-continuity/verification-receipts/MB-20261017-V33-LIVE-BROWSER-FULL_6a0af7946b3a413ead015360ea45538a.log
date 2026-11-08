@@ -1,0 +1,20 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: live baseball match: physical field continuation unresolved: numerical_contact_refinement_required (pitch 33, seed 1174965123)
++ actual - expected
+
++ 'live baseball match: physical field continuation unresolved: numerical_contact_refinement_required (pitch 33, seed 1174965123)'
+- null
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-v33.mjs:82:12 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'live baseball match: physical field continuation unresolved: numerical_contact_refinement_required (pitch 33, seed 1174965123)',
+  expected: null,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

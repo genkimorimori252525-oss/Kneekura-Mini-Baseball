@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-GAME-REBUILT",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v78-game.mjs"
+  ],
+  "observed_at": "2026-10-19T20:01:31.357+00:00",
+  "elapsed_ms": 134764,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-GAME-REBUILT_0668bde7ab7d4dd6afb72aa3e1fe3b1d.log",
+  "output_sha256": "df826fc5f214e3a1cab56c0eb16cd7ee4cf25418f4476bc4b900fbb77f3d2716",
+  "receipt_id": "MB-20261020-V78-GAME-REBUILT_0668bde7ab7d4dd6afb72aa3e1fe3b1d"
+}

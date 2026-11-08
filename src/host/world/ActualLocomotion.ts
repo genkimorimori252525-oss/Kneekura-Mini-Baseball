@@ -21,8 +21,8 @@ export type IssuedDefenderMotionSelf = Pick<OwnedActualPlayerKinematics,
   activeCommand: Pick<OwnedActualPlayerKinematics['activeCommand'], 'acceptedThroughTick'>;
 }>;
 /** A structural self seam preserves each Native family's own provenance. */
-export const deriveIssuedDefenderMotionReceipt = <Self extends IssuedDefenderMotionSelf>(decision: IssuedDefenderMotionDecision, model: DurablePlayerLocomotionModel,
-  self: Self, rawCalibration: PlayerLocomotionCalibration) => {
+const deriveIssuedDefenderMotion = <Self extends IssuedDefenderMotionSelf>(decision: IssuedDefenderMotionDecision, model: DurablePlayerLocomotionModel,
+  self: Self, rawCalibration: PlayerLocomotionCalibration, supportGeometry: boolean) => {
   const d = decision, c = createPlayerLocomotionCalibration(rawCalibration), ratings = model.fieldingModel.source.ratings;
   if (d.lifecycle.status !== 'issued' || !d.lifecycle.issuedAt || d.lifecycle.issuedBySourceId !== decision.sourceId) {
     throw new Error('actual locomotion requires an actually issued decision');
@@ -40,8 +40,13 @@ export const deriveIssuedDefenderMotionReceipt = <Self extends IssuedDefenderMot
     if (at.originTick !== self.at.originTick || at.elapsedSeconds > self.at.elapsedSeconds) throw new Error('actual locomotion cannot backdate issuance');
   }
   if (startTick < d.scheduling.movementStartTick) throw new Error('actual locomotion first step is not due');
-  if (d.selected.intent.kind !== 'ball_handler' && d.selected.intent.kind !== 'hold'
-    || (d.selected.intent.kind === 'hold') !== (d.target === null)) throw new Error('actual locomotion intent is unsupported');
+  const intent = d.selected.intent;
+  if ((!supportGeometry && intent.kind !== 'ball_handler' && intent.kind !== 'hold')
+    || !['ball_handler', 'hold', 'base_cover', 'relay', 'backup', 'deep_coverage'].includes(intent.kind)
+    || (intent.kind === 'hold') !== (d.target === null)
+    || d.target !== null && (!Number.isFinite(d.target.x) || !Number.isFinite(d.target.z))
+    || ['relay', 'backup', 'deep_coverage'].includes(intent.kind) && 'target' in intent
+      && JSON.stringify(intent.target) !== JSON.stringify(d.target)) throw new Error('actual locomotion intent is unsupported');
   const position = { x: self.root.position.x, z: self.root.position.z }, velocity = { x: self.root.velocity.x, z: self.root.velocity.z };
   // Reject inherited overspeed rather than letting any downstream tolerance or normalization clamp it.
   if (Math.hypot(velocity.x, velocity.z) > c.topSpeedMps) throw new Error('actual locomotion inherited speed exceeds top speed');
@@ -75,11 +80,21 @@ export const deriveIssuedDefenderMotionReceipt = <Self extends IssuedDefenderMot
       primitiveMotions: retainedRoles.map(p => ({ role: p.role, offsetAcceleration: p.offsetAcceleration })) },
     lifecycle: { status: 'adoption_pending' as const, executedThrough: null } }));
 };
+/** Legacy v1 keeps its original closed role contract. */
+export const deriveIssuedDefenderMotionReceipt = <Self extends IssuedDefenderMotionSelf>(decision: IssuedDefenderMotionDecision,
+  model: DurablePlayerLocomotionModel, self: Self, calibration: PlayerLocomotionCalibration) =>
+  deriveIssuedDefenderMotion(decision, model, self, calibration, false);
+/** Internal opt-in geometric-policy composition; the same-PA Native owner
+ * authenticates and rederives its supporting observation and field sources. */
+export const deriveIssuedSupportDefenderMotionReceipt = <Self extends IssuedDefenderMotionSelf>(decision: IssuedDefenderMotionDecision,
+  model: DurablePlayerLocomotionModel, self: Self, calibration: PlayerLocomotionCalibration) =>
+  deriveIssuedDefenderMotion(decision, model, self, calibration, true);
 /** Unchanged v1 owner projection into the shared pure issued-decision input. */
 export const deriveActualLocomotionReceiptWithCalibration = (decision: DurableActualDefensiveDecision, model: DurablePlayerLocomotionModel,
   self: OwnedActualPlayerKinematics, calibration: PlayerLocomotionCalibration) => {
   const receipt = decision.receipt;
-  return deriveIssuedDefenderMotionReceipt({ sourceId: decision.source.sourceId, playerId: decision.source.playerId,
+  const derive = decision.source.supportGeometry && receipt.supportGeometry ? deriveIssuedSupportDefenderMotionReceipt : deriveIssuedDefenderMotionReceipt;
+  return derive({ sourceId: decision.source.sourceId, playerId: decision.source.playerId,
     physicalPitchSourceId: decision.source.physicalPitchSourceId, lifecycle: receipt.lifecycle, ticksPerSecond: receipt.ticksPerSecond,
     availability: receipt.availability, scheduling: receipt.scheduling, selected: receipt.selected, target: receipt.target }, model, self, calibration);
 };

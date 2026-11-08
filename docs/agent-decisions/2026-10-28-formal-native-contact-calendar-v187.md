@@ -1,0 +1,27 @@
+# V187: 正式calendarと真正Native接触の結合正例
+
+2026-10-28開始 / MB-20261027-REALISM-DEBUG-PLAN Task5 SPIN-03。前goal turnはV186の実装・29件/型/Native legacy受入・通常公開でprogress。既済V186の成功検証は再実行しない。
+
+## 正本の経路と変更方針
+
+開始時にSourceを確認し、前CURRENTの経路メモを訂正した。OriginalBattingIntentFixturesはPhysicalPlateAppearanceActorFixtures→ContinuousPitchFixtures→OfficialPitchWorkloadFixturesを使っている。AuthoredNativeMatch initializer経由ではない。既存game-1/一試合Worldを正式生成Sourceと偽装せず、実際のfixture経路にoptionalな正式calendar初期化だけを追加する。
+
+既存default fixtureの物理・配置・players/Source IDは保持する。新config時は根のWorld初期化を、同Nativeのaccepted cycle/WorldBoundDomesticSeason/原archive/originへ置き換える。Coreが生成した実gameId/dayをauthority、membership、Match、initialWorld、原pitch/action/actorへ通す。正式career起点はNational selectionの正規登録・読取から取得する。Tableの生書換えや保存DBへの偽起点後付けは行わない。
+
+既存withIntent(bunt)の接触は、既存の明示的bat配置と実Core計算で発生させる。calendarや得能名で物理を変えず、正常AI/技能習得/自然cohortの証明へ昇格しない。純粋生成はNative authorityではなく、その後の正規Ownerへの登録・再認証で原calendarを確定する。
+
+## 所有と検証
+
+workerは既存4test-support、新WorldBoundOriginalContactV187 test-support/testだけを担当。Rootはportable compiled probe・文書・最終型/Gitを担当。共有Sourceを戻さず、成功済みの29件/旧Native/全League/キレgridを再起動しない。
+
+新限定TDDで、真正の原contactと正式origin/selectionを同Native read snapshotで結合し、ISO日付とcareer日を独立期待値へ照合する。seasonDayをcareer日に直用すると落ちる例を用い、原vectors/連続時刻等、Caller stateと非消費を保持する。Source確定後だけ全型を一度行う。portable受入は新caseの実Node bundleとSource/DB/bundle/harness pinを検証し、unitとruntimeの範囲を区別する。
+
+復旧はoptional test fixture configを使わず従来fixtureへ戻せる。production API/保存形式/本人JSON/前版は変更しない。日内観測順/独立打球population/集計snapshot/production model/表示joinと全goalは未完のまま保持する。
+
+## 正例TDDと型
+
+新factoryは所有storesをfinallyで閉じ、閉鎖済みNative DBとreference/scope/expectedPhysical/expectedCalendar/正式origin/selection proofを返す。純生成Coreのday11に対し独立literal2032-02-29/career425/epoch2031-01-01を期待値とする。新パス必須で保存DBへの後付けを拒否する。RED957be6c24b0a4093a1667eb0aa52e0db→05368026f6a54eb095085c017c7e7a8b PASS7671ms/真正Native新1件。全型aa1f74fbaf424e31ae6572357bbfbbc3 PASS26655ms。旧成功unit/型を反復していない。
+
+## 実Node受入と結果
+
+Sourceとharnessの独立read-only reviewで具体的欠陥なし。b9546b09307b4d92a5f36f661e89ac0f PASS1625ms、新bundle/fresh fixture/新copyの正規2readで原physical members/測定vectors/正式origin・selection/独立literal425!=11・閏日/全record lossless/caller非消費を確認。改変ref/不存在正式起点2拒否、Source858入力/両DB全files/bundle/helper/harness pin一致。joinedPositiveFormalCalendarProven=trueはこの一接触の範囲。全接続はfactory finallyで閉鎖した。私的rawを公開せず、NATIVE-FORMAL-CONTACT-CALENDAR-V187.mdへ結果を記録する。

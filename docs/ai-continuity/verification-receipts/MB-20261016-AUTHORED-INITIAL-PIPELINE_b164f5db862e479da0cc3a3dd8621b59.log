@@ -1,0 +1,15 @@
+file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-cut-v2/readback.mjs:7658
+    throw new Error("free baseball trajectory requires consistent original physical parameters and a bounded horizon");
+          ^
+
+Error: free baseball trajectory requires consistent original physical parameters and a bounded horizon
+    at createFreeBaseballTrajectory (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-cut-v2/readback.mjs:7658:11)
+    at createAeroGroundBallPhysicsProfile (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-cut-v2/readback.mjs:7797:3)
+    at observedInitialSourceInput (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-cut-v2/readback.mjs:81051:5)
+    at Object.accept (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-cut-v2/readback.mjs:81336:100)
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-cut-v2/readback.mjs:82382:41
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:636:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v26.1.0

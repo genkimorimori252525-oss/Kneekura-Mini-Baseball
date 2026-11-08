@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-AERO-SAMEPA-CUT5-VIEW",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../aero-ground-samepa-recovery-20261016/retained-entry.mjs",
+    "../aero-ground-samepa-recovery-20261016",
+    "complete-cut5-view"
+  ],
+  "observed_at": "2026-10-15T15:55:18.127+00:00",
+  "elapsed_ms": 44750,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-AERO-SAMEPA-CUT5-VIEW_dcd148bffb3a4f9f9d237063662ea667.log",
+  "output_sha256": "d64550576db40fe186c354c4627d07b1a4f868aebdf211cc14646820a7a0250e",
+  "receipt_id": "MB-20261016-AERO-SAMEPA-CUT5-VIEW_dcd148bffb3a4f9f9d237063662ea667"
+}

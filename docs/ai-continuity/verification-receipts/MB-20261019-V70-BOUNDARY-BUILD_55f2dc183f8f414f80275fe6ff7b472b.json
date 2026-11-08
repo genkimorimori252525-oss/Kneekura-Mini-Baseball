@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V70-BOUNDARY-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-maker.mjs",
+    "../../outputs/にーくら野球メーカー_v70_打者視点比較版.html",
+    "--executable-traits",
+    "--measured-library",
+    "--ball-comparison",
+    "--batter-comparison",
+    "--roster=docs/demos/live-game-roster-v62.json",
+    "--catalog=docs/demos/live-game-roster-catalog-v62.json"
+  ],
+  "observed_at": "2026-10-19T12:57:19.444+00:00",
+  "elapsed_ms": 2390,
+  "git_head": "7db60c6302bb5217104929b6172df54ad4a493dd",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V70-BOUNDARY-BUILD_55f2dc183f8f414f80275fe6ff7b472b.log",
+  "output_sha256": "7c4764c6ca778a2cee5f3cdf9c8772c096e2d6c02cfec10aa03f4343785c73be",
+  "receipt_id": "MB-20261019-V70-BOUNDARY-BUILD_55f2dc183f8f414f80275fe6ff7b472b"
+}

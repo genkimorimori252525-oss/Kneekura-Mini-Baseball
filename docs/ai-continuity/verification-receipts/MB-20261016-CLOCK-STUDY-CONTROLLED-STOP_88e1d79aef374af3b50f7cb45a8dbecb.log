@@ -1,0 +1,1 @@
+{"status": "ROOT_REQUESTED_STUDY_STOP_AT_OWNER_BOUNDARY", "databaseHash": "599a62e490ca12b3d619ee71aa11882de6b5cdd62633adc162df87faafab8e7a", "sourceMapHash": "a4440c06fbb550e82b73b0386ca1cf7c2191ae04d6cfb870bd0da01026b21894", "oldSourceEntriesPreserved": 475, "newSourceDeclarations": 40, "stop": "after candidate-0 TOTAL returned; before candidate-0 view owner call"}

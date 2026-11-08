@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-SCORER-RECOVERY-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../verify-scorer-recoveries.mjs"
+  ],
+  "observed_at": "2026-10-14T21:25:27.991+00:00",
+  "elapsed_ms": 141,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-SCORER-RECOVERY-FINAL_ddc58af28cfc4529bd5e81486cd38e5f.log",
+  "output_sha256": "0aca61c98290bfea65fb67acee03d613e4662519ba0081126b28a08979ff65e2",
+  "receipt_id": "MB-20261015-SCORER-RECOVERY-FINAL_ddc58af28cfc4529bd5e81486cd38e5f"
+}

@@ -1,0 +1,16 @@
+{
+  "pass": true,
+  "selectedBeforeAudit": 105,
+  "secretPatternCandidates": [],
+  "over100MiB": [],
+  "coreInputPins": 107,
+  "receiptLogHashesVerified": true,
+  "userAgentsAndUnrelatedFilesExcluded": true,
+  "selectedFiles": 109,
+  "whitespaceCheck": {
+    "commandLocalCrAtEol": true,
+    "rawLogsExcluded": true,
+    "preservedKnownFinding": "src/integration/browser/LiveBaseballMatchV1.ts:211: new blank line at EOF",
+    "reason": "Preserve exact tested source bytes; no source normalization after final verification."
+  }
+}

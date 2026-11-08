@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V63-BROWSER",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v63-presentation.mjs",
+    "../../outputs/ばせぼーるlv63_TBD_vs_LAD_打者の身体連動版.html",
+    "../../outputs/カメラワーク調整室_v63.html",
+    "../../outputs/verification-v63-presentation"
+  ],
+  "observed_at": "2026-10-18T20:00:57.499+00:00",
+  "elapsed_ms": 46140,
+  "git_head": "ff8b757a14029ff36934c1103bf8fe8837829a77",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V63-BROWSER_2592a86e74ae41e39c3743d52cda6ca4.log",
+  "output_sha256": "a7181fde813056425cf015ffae704f011f322d13f9d8d90c068f45a77c07aee8",
+  "receipt_id": "MB-20261019-V63-BROWSER_2592a86e74ae41e39c3743d52cda6ca4"
+}

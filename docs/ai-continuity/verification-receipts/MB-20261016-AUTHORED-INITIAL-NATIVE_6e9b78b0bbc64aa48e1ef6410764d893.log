@@ -1,0 +1,14 @@
+file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v2/readback.mjs:58179
+  if (new Set(sources2.map((s) => s.sourceId)).size !== sources2.length || new Set(sources2.map((s) => s.participantReference.playerId)).size !== sources2.length || new Set(sources2.map((s) => s.provenance.assessmentSourceId)).size !== sources2.length || sources2.some((s) => sources2.some((other) => other.sourceId !== s.sourceId && other.sourceId === s.provenance.assessmentSourceId))) throw new Error("same-PA TOTAL set duplicate participant or assessment provenance ownership");
+                                                                                                                                                                                                                                                                                                                                                                                                          ^
+
+Error: same-PA TOTAL set duplicate participant or assessment provenance ownership
+    at assertSamePaTotalSetDistinct (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v2/readback.mjs:58179:395)
+    at Object.acceptTotalSet (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v2/readback.mjs:82007:5)
+    at prepareAuthoredNativeObservedPitchV1 (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v2/readback.mjs:83073:33)
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-authored-initial-pitch-v2/readback.mjs:83238:9
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:636:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v26.1.0

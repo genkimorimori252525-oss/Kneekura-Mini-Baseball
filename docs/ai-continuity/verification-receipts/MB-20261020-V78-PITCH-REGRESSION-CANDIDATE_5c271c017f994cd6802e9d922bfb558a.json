@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-PITCH-REGRESSION-CANDIDATE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePitchAuthoringV78.test.ts",
+    "src/integration/browser/LivePitchExecutionV78.test.ts",
+    "src/integration/browser/LivePitchAuthoringV77.test.ts",
+    "src/integration/browser/PitcherWorkbenchV77.test.ts",
+    "src/integration/browser/LivePitchHostAuthoringV77.test.ts",
+    "src/integration/browser/LivePitchRosterV77.test.ts",
+    "src/integration/browser/LivePhysicalRosterV1.test.ts",
+    "src/integration/browser/LivePublicAbilitiesV1.test.ts",
+    "src/integration/browser/LiveTraitRuntimeV77.test.ts",
+    "src/core/sim/fielding/LiveFieldForecastV1.test.ts",
+    "src/core/sim/fielding/LiveThrowPlanV1.test.ts",
+    "src/core/sim/fielding/LiveRelayPlanV1.test.ts",
+    "src/core/sim/fielding/LiveFieldTechniquesV75.test.ts"
+  ],
+  "observed_at": "2026-10-19T19:47:11.273+00:00",
+  "elapsed_ms": 18796,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-PITCH-REGRESSION-CANDIDATE_5c271c017f994cd6802e9d922bfb558a.log",
+  "output_sha256": "ac89e65cba48272b53e9e2973e9c5995c55e9f74cf5050e011e565300e705972",
+  "receipt_id": "MB-20261020-V78-PITCH-REGRESSION-CANDIDATE_5c271c017f994cd6802e9d922bfb558a"
+}

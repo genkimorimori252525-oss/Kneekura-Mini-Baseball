@@ -1,0 +1,102 @@
+{
+  "pass": true,
+  "auditSha256": "4034bdbe356f6c7a591c210ca16274a36838170b9da149545c60a8a0fc0d7e2f",
+  "summary": {
+    "realSwingRecords": 6,
+    "grade45AllActualDefaultSIExact": true,
+    "actualGradeMaximumDegrees": 0.8034537243866497,
+    "grade100MaximumDegrees": 0.9727914831676657,
+    "nonDefaultZoneSI45MaximumDegrees": 0.04425994150377774
+  },
+  "actualPlayers": [
+    {
+      "player": "大谷翔平",
+      "vision": 88,
+      "maximumDegrees": 0.6911662170346599,
+      "stages": {
+        "beforeDecision": 0.22108705504303838,
+        "decisionToImpact": 0.6911662170346599,
+        "impactToThrough": 0.015516614378099028,
+        "afterThrough": 0.008367789510911735
+      }
+    },
+    {
+      "player": "ムーキー・ベッツ",
+      "vision": 89,
+      "maximumDegrees": 0.6762017192780324,
+      "stages": {
+        "beforeDecision": 0.17954706147597957,
+        "decisionToImpact": 0.6762017192780324,
+        "impactToThrough": 0.027175008411100196,
+        "afterThrough": 0.014821653997354963
+      }
+    },
+    {
+      "player": "フレディ・フリーマン",
+      "vision": 91,
+      "maximumDegrees": 0.7782063291035387,
+      "stages": {
+        "beforeDecision": 0.18154272600122437,
+        "decisionToImpact": 0.7782063291035387,
+        "impactToThrough": 0.022809972392455927,
+        "afterThrough": 0.012914685827074878
+      }
+    },
+    {
+      "player": "ウィル・スミス",
+      "vision": 88,
+      "maximumDegrees": 0.754971243778527,
+      "stages": {
+        "beforeDecision": 0.18011828784309425,
+        "decisionToImpact": 0.754971243778527,
+        "impactToThrough": 0.00465428135841048,
+        "afterThrough": 0.002563541356969005
+      }
+    },
+    {
+      "player": "テオスカー・ヘルナンデス",
+      "vision": 71,
+      "maximumDegrees": 0.45420561910203966,
+      "stages": {
+        "beforeDecision": 0.09877279963984881,
+        "decisionToImpact": 0.45420561910203966,
+        "impactToThrough": 0.010938496927009867,
+        "afterThrough": 0.006665319291563881
+      }
+    },
+    {
+      "player": "ニッチロー",
+      "vision": 93,
+      "maximumDegrees": 0.8034537243866497,
+      "stages": {
+        "beforeDecision": 0.26407491344584927,
+        "decisionToImpact": 0.8034537243866497,
+        "impactToThrough": 0.03295834628390285,
+        "afterThrough": 0.01951663262301485
+      }
+    }
+  ],
+  "sourceOnlyControl": {
+    "cameraHelper": 59,
+    "sameBatterSI": true,
+    "firstBatterPlayerId": "0-b0",
+    "v59Release": {
+      "x": 0.18,
+      "y": 1.83,
+      "z": 16.9
+    },
+    "v62Release": {
+      "x": -0.46,
+      "y": 1.8364,
+      "z": 16.900000000000002
+    },
+    "maximumDegrees": 0.7683878595863144,
+    "interpretation": "Different physical input and derived registered motor plan can change the view even with the old camera helper."
+  },
+  "conditions": [
+    "v59 and v60 are exact for the same actual record and default camera settings.",
+    "v61 grade45 is exact for the tested default zone SI .025; it is not generally exact for other zone SI.",
+    "v61 ability tracking applies before swinging as well as taking, and the changed incoming pose seeds swing aim and stabilization.",
+    "The source-only control holds helper59 and batter SI fixed; it measures changed upstream input independently of the helper61 law."
+  ]
+}

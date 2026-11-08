@@ -1,0 +1,29 @@
+{
+  "pass": true,
+  "path": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v86_入力確定とエラー復帰版.html",
+  "cases": [
+    {
+      "width": 1200,
+      "traits": 17,
+      "publicAndPhysicalUnchanged": true,
+      "independentThrowOffAndScaleRoundtrip": true
+    },
+    {
+      "width": 390,
+      "traits": 17,
+      "publicAndPhysicalUnchanged": true,
+      "independentThrowOffAndScaleRoundtrip": true
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": []
+    },
+    {
+      "width": 390,
+      "errors": []
+    }
+  ],
+  "sha256": "9f9126af89cbbd2a2e4290f489b290eac1377d824b002f42ca31dc4fd8ea4e87"
+}

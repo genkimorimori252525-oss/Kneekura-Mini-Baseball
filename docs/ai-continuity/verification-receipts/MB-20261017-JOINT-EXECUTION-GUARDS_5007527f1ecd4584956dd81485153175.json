@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-JOINT-EXECUTION-GUARDS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-owned-joint-execution-guards-v1/readback.mjs",
+    "../../outputs/verification-authored-with-bat-physical-execution-v1",
+    "../../outputs/verification-authored-with-bat-owned-hand-v1",
+    "guards"
+  ],
+  "observed_at": "2026-10-16T14:59:43.481+00:00",
+  "elapsed_ms": 18312,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-JOINT-EXECUTION-GUARDS_5007527f1ecd4584956dd81485153175.log",
+  "output_sha256": "baef5ef0bb03b8c81a680cb217e2735c5abfd1586293aae6fa6a15e8c513264d",
+  "receipt_id": "MB-20261017-JOINT-EXECUTION-GUARDS_5007527f1ecd4584956dd81485153175"
+}

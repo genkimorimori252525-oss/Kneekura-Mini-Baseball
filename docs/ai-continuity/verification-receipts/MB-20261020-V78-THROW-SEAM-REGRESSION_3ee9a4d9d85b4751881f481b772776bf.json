@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-THROW-SEAM-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveThrowPlanV1.test.ts",
+    "src/core/sim/fielding/LiveRelayPlanV1.test.ts",
+    "src/core/sim/fielding/LiveFieldTechniquesV75.test.ts"
+  ],
+  "observed_at": "2026-10-19T19:40:32.556+00:00",
+  "elapsed_ms": 4359,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-THROW-SEAM-REGRESSION_3ee9a4d9d85b4751881f481b772776bf.log",
+  "output_sha256": "0dcdbae6e8e710930747df26c955a0d64038f4bd8423ff196f816a5d7331b1c2",
+  "receipt_id": "MB-20261020-V78-THROW-SEAM-REGRESSION_3ee9a4d9d85b4751881f481b772776bf"
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-FIELD-SHOULDER-AERO-THROW",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts",
+    "src/core/sim/fielding/GroundedActorContactResponseV1.test.ts",
+    "src/core/sim/fielding/LiveThrowPlanV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T00:52:21.791+00:00",
+  "elapsed_ms": 3953,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-FIELD-SHOULDER-AERO-THROW_9f10e59d6109424a83a1f51944e9badf.log",
+  "output_sha256": "e52d65cb2c720ebab8cb387c0e84305c06c9d4321e72deb51dc5cad63cb496b4",
+  "receipt_id": "MB-20261017-FIELD-SHOULDER-AERO-THROW_9f10e59d6109424a83a1f51944e9badf"
+}

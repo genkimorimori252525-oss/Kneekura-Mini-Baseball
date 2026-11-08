@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import {readFile} from 'node:fs/promises';
+const values=new Map();let writes=0;
+const context=vm.createContext({structuredClone,console,localStorage:{getItem:k=>values.get(k)??null,setItem:(k,v)=>{writes++;values.set(k,v);}}});
+vm.runInContext(await readFile('tools/browser-bridge/live-season-client-v79.js','utf8'),context);
+const core={createLiveSeasonStoreV79:()=>({version:'test',count:0}),validateLiveSeasonStoreV79:raw=>{
+ if(!raw||raw.version!=='test'||!Number.isInteger(raw.count)||raw.count<0)throw Error('bad state');return structuredClone(raw);
+},reduceLiveSeasonStoreV79:({store,command})=>{if(command.kind!=='increment')throw Error('bad command');return {...store,count:store.count+1};}};
+const client=context.KneekuraSeasonClientV79.create({core,storageKey:'season-test'});
+assert.equal(writes,0);let notifications=0;client.subscribe(()=>notifications++);
+client.command({kind:'increment'});assert.equal(client.getState().count,1);assert.equal(notifications,1);assert.equal(writes,0);
+const returned=client.getState();returned.count=999;assert.equal(client.getState().count,1);
+assert.throws(()=>client.command({kind:'bad'}));assert.equal(client.getState().count,1);
+assert.throws(()=>client.replaceValidated({version:'test',count:-1}));assert.equal(client.getState().count,1);assert.equal(notifications,1);
+client.saveLocal();assert.equal(writes,1);client.command({kind:'increment'});assert.equal(client.getState().count,2);
+client.restoreLocal();assert.equal(client.getState().count,1);
+values.set('season-test','{"version":"test","count":-1}');assert.throws(()=>client.restoreLocal());assert.equal(client.getState().count,1);
+const second=context.KneekuraSeasonClientV79.create({core,storageKey:'season-test'});assert.equal(second.getState().count,0);
+console.log(JSON.stringify({pass:true,noAutoRestore:true,explicitStorage:true,atomicRejection:true,copyIsolation:true}));

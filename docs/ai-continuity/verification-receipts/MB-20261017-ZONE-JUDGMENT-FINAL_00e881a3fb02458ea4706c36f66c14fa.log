@@ -1,0 +1,12 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/LivePhysicalRosterV1.test.ts (16 tests) 200ms
+ ✓ src/integration/browser/LivePitchV1.test.ts (11 tests) 868ms
+ ✓ src/integration/browser/LivePitchAbilitiesV1.test.ts (11 tests) 1258ms
+
+ Test Files  3 passed (3)
+      Tests  38 passed (38)
+   Start at  12:47:29
+   Duration  2.16s (transform 526ms, setup 0ms, collect 1.21s, tests 2.33s, environment 0ms, prepare 400ms)
+

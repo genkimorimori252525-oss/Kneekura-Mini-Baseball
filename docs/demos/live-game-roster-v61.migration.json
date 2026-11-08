@@ -1,0 +1,110 @@
+{
+  "policy": "ONE_TIME_LEGACY_INDIVIDUAL_PUBLIC_VALUE_TO_ABSOLUTE_VISION",
+  "sourceRosterSha256": "3e46fe67e1c94939d1e919cdb2353313ccfbc7680463ca726331afd983c54255",
+  "referenceSha256": "b448f82f81620085b1f4923609cec23f69db4c639da76b6b1f877abb22622e4e",
+  "catalogSha256": "0bba85275a656789ffc08f97d43aaf58f396a7360274da3aaedc726ba6e0ecb1",
+  "coreSha256": "390eb00f118ef6fae5fbdde9ea8bdd66d497ed39c9a2a3f6cbf36f917b39af7a",
+  "siAndSourceIdsUnchanged": true,
+  "migrations": [
+    {
+      "playerId": "0-b0",
+      "value": 88,
+      "basis": "LEGACY_INDIVIDUAL_AUTHORING_ANCHOR"
+    },
+    {
+      "playerId": "0-b1",
+      "value": 89,
+      "basis": "LEGACY_INDIVIDUAL_AUTHORING_ANCHOR"
+    },
+    {
+      "playerId": "0-b2",
+      "value": 91,
+      "basis": "LEGACY_INDIVIDUAL_AUTHORING_ANCHOR"
+    },
+    {
+      "playerId": "0-b3",
+      "value": 88,
+      "basis": "LEGACY_INDIVIDUAL_AUTHORING_ANCHOR"
+    },
+    {
+      "playerId": "0-b4",
+      "value": 71,
+      "basis": "LEGACY_INDIVIDUAL_AUTHORING_ANCHOR"
+    },
+    {
+      "playerId": "0-b5",
+      "value": 94,
+      "basis": "LEGACY_INDIVIDUAL_AUTHORING_ANCHOR"
+    },
+    {
+      "playerId": "0-b6",
+      "value": 77,
+      "basis": "LEGACY_INDIVIDUAL_AUTHORING_ANCHOR"
+    },
+    {
+      "playerId": "0-b7",
+      "value": 77,
+      "basis": "LEGACY_INDIVIDUAL_AUTHORING_ANCHOR"
+    },
+    {
+      "playerId": "0-b8",
+      "value": 70,
+      "basis": "LEGACY_INDIVIDUAL_AUTHORING_ANCHOR"
+    },
+    {
+      "playerId": "0-p0",
+      "value": 42,
+      "basis": "LEGACY_INDIVIDUAL_AUTHORING_ANCHOR"
+    },
+    {
+      "playerId": "1-b0",
+      "value": 93,
+      "basis": "LEGACY_INDIVIDUAL_AUTHORING_ANCHOR"
+    },
+    {
+      "playerId": "1-b1",
+      "value": 90,
+      "basis": "LEGACY_INDIVIDUAL_AUTHORING_ANCHOR"
+    },
+    {
+      "playerId": "1-b2",
+      "value": 96,
+      "basis": "LEGACY_INDIVIDUAL_AUTHORING_ANCHOR"
+    },
+    {
+      "playerId": "1-b3",
+      "value": 44,
+      "basis": "LEGACY_INDIVIDUAL_AUTHORING_ANCHOR"
+    },
+    {
+      "playerId": "1-b4",
+      "value": 69,
+      "basis": "LEGACY_INDIVIDUAL_AUTHORING_ANCHOR"
+    },
+    {
+      "playerId": "1-b5",
+      "value": 67,
+      "basis": "LEGACY_INDIVIDUAL_AUTHORING_ANCHOR"
+    },
+    {
+      "playerId": "1-b6",
+      "value": 93,
+      "basis": "LEGACY_INDIVIDUAL_AUTHORING_ANCHOR"
+    },
+    {
+      "playerId": "1-b7",
+      "value": 71,
+      "basis": "LEGACY_INDIVIDUAL_AUTHORING_ANCHOR"
+    },
+    {
+      "playerId": "1-b8",
+      "value": 81,
+      "basis": "LEGACY_INDIVIDUAL_AUTHORING_ANCHOR"
+    },
+    {
+      "playerId": "1-p0",
+      "value": 52,
+      "basis": "LEGACY_INDIVIDUAL_AUTHORING_ANCHOR"
+    }
+  ]
+}

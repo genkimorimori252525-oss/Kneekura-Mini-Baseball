@@ -1,0 +1,149 @@
+/* Pre-game setup proposal. Same black and gold match skin as the match screen. */
+body[data-screen="pregame"] main > *:not(.masthead):not(.pregame) { display: none; }
+body[data-screen="pregame"] .masthead { display: flex; }
+body:not([data-screen="pregame"]) .pregame { display: none; }
+
+.pregame { background: var(--black); border: 1px solid var(--line); }
+.pg-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 18px 22px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.pg-team { display: flex; flex-direction: column; gap: 2px; }
+.pg-team strong { font-size: 30px; font-weight: 500; letter-spacing: .04em; line-height: 1.1; }
+.pg-team span { font-size: 11px; color: var(--muted); }
+.pg-team:first-child { align-items: flex-end; }
+.pg-vs { font-size: 15px; color: var(--muted); }
+
+.pg-section { padding: 14px 22px 16px; border-bottom: 1px solid var(--line); }
+.pg-section h2 { margin: 0 0 8px; font-size: 14px; font-weight: 500; }
+.pg-section h2 small { margin-left: 8px; font-size: 11px; font-weight: 400; color: var(--muted); }
+
+.pg-command { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.pg-command button { min-height: 44px; padding: 5px 6px; font-size: 13px; }
+.pg-command small { display: block; font-size: 10px; color: var(--muted); }
+
+.park-row {
+  display: flex;
+  gap: 6px;
+  margin-inline: -22px;
+  padding: 7px 22px 10px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  scrollbar-color: #4d5546 transparent;
+}
+@media (hover: none) { .park-row { scrollbar-width: none; } }
+.park {
+  flex: 1 0 128px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 0;
+  padding: 3px 3px 6px;
+  background: var(--card-face);
+  border: 1px solid var(--card-edge);
+  border-radius: 3px;
+  scroll-snap-align: start;
+  transition: transform .12s ease;
+}
+.park:hover { background: var(--card-face); border-color: #9f9c80; }
+.park img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; object-position: center 70%; background: #000; }
+.park .name { font-size: 12px; text-align: center; color: #dcdcd0; }
+.park .size { font-size: 10px; line-height: 13px; text-align: center; color: var(--muted); }
+.park[aria-pressed="true"] {
+  transform: translateY(-6px);
+  background: #272314;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold);
+}
+.park[aria-pressed="true"] .name { color: var(--gold); }
+
+.park-detail { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; margin-top: 6px; }
+.park-detail > img { display: block; width: 100%; aspect-ratio: 25 / 18; background: #000; border: 1px solid var(--line); }
+.park-info { min-width: 0; }
+.park-info h3 { margin: 0 0 8px; font-size: 15px; font-weight: 500; color: var(--gold); }
+.park-info dl { margin: 0; }
+.park-info dl > div { display: grid; grid-template-columns: 68px minmax(0, 1fr); gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--line); font-size: 12px; }
+.park-info dt { color: var(--muted); }
+.park-info dd { margin: 0; color: #dcdcd0; }
+.park-info p { margin: 7px 0 10px; font-size: 11px; line-height: 16px; color: var(--muted); }
+.park-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.park-options button { min-height: 32px; padding: 3px 12px; font-size: 12px; }
+
+.lineup-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 8px; }
+.lineup-tools .segments button, .lineup-tools > button { min-height: 30px; padding: 3px 9px; font-size: 12px; }
+.lineup-hint { min-height: 16px; margin: 0 0 6px; font-size: 11px; line-height: 16px; color: var(--muted); }
+.pregame .player-row.fixed { cursor: default; }
+.pregame .player-row.fixed:hover { background: #131512; border-color: transparent; }
+.rival { margin-top: 10px; font-size: 12px; }
+.rival summary { min-height: 28px; color: #c7cbbc; cursor: pointer; }
+.rival-list { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 14px; margin-top: 6px; }
+
+.pg-length { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.pg-length .segments button { min-height: 32px; padding: 3px 12px; font-size: 12px; }
+.pg-more { margin-top: 8px; font-size: 12px; }
+.pg-more summary { min-height: 26px; color: #c7cbbc; cursor: pointer; }
+.pg-more-fields { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 6px; color: #b9c1b2; font-size: 11px; }
+.pg-more-fields label { display: flex; align-items: center; gap: 6px; }
+.pg-more-fields input[type="text"] {
+  width: 170px;
+  min-height: 32px;
+  padding: 4px 8px;
+  color: var(--white);
+  background: #161c14;
+  border: 1px solid #383d35;
+  border-radius: 3px;
+}
+
+.pg-start {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 22px;
+  background: #0b0d09;
+  border-top: 1px solid var(--line);
+}
+.pg-start p { min-width: 0; margin: 0; font-size: 12px; color: #c3c8b9; }
+.pg-start button {
+  flex: none;
+  min-height: 44px;
+  padding: 6px 26px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #000;
+  background: var(--gold);
+  border-color: var(--gold);
+}
+.pg-start button:hover { color: #000; background: #eec85e; border-color: #eec85e; }
+
+@media (max-width: 680px) {
+  .pregame { border-inline: 0; }
+  .pg-card { gap: 16px; padding: 12px 14px; }
+  .pg-team strong { font-size: 24px; }
+  .pg-section { padding: 11px 14px 13px; }
+  .park-row { margin-inline: -14px; padding-inline: 14px; }
+  .park { flex-basis: 108px; }
+  .park-detail { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .pg-command button { font-size: 12px; }
+  .pregame .change-column:last-child { order: 0; }
+  .rival-list { grid-template-columns: 1fr; }
+  .pg-start { padding: 8px 14px; }
+  .pg-start button { padding-inline: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .park { transition: none; }
+}
+
+.starter-pick { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 10px; font-size: 12px; color: #b9c1b2; }
+.starter-pick .segments button { min-height: 32px; padding: 3px 12px; font-size: 12px; }
+.pregame .order-table { margin-bottom: 2px; }
+/* Experiment panels that sit outside <main> stay out of the setup screen. */
+body[data-screen="pregame"] > :not(main):not(dialog):not(script):not(style) { display: none; }

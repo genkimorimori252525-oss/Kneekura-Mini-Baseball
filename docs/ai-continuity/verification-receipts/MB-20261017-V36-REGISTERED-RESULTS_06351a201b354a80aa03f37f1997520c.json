@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V36-REGISTERED-RESULTS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v36-results.mjs",
+    "../../outputs/ばせぼーるlv36_TBD_vs_LAD_結果表示タイミング修正版.html",
+    "../../outputs/verification-v36-results-registered-v1",
+    "--registered-field"
+  ],
+  "observed_at": "2026-10-17T02:33:12.538+00:00",
+  "elapsed_ms": 49187,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V36-REGISTERED-RESULTS_06351a201b354a80aa03f37f1997520c.log",
+  "output_sha256": "67ac5d81245569647ac052dee0e7fb73dbc2deda87d051387eaa4b52f9f40249",
+  "receipt_id": "MB-20261017-V36-REGISTERED-RESULTS_06351a201b354a80aa03f37f1997520c"
+}

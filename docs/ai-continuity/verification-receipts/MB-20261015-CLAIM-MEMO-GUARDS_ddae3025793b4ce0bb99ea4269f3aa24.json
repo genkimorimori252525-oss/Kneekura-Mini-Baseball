@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-CLAIM-MEMO-GUARDS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/SamePlateAppearanceLifecycleOwner.test.ts",
+    "src/host/world/SamePlateAppearanceDispatchClaimGuard.test.ts",
+    "src/host/world/SamePlateAppearanceMetadataCompilation.test.ts",
+    "src/host/world/SamePlateAppearanceLifecycleSource.test.ts"
+  ],
+  "observed_at": "2026-10-14T22:15:37.451+00:00",
+  "elapsed_ms": 24516,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-CLAIM-MEMO-GUARDS_ddae3025793b4ce0bb99ea4269f3aa24.log",
+  "output_sha256": "6b3cbd1fb8a23ca346d5905d75e47d8575d67f9aa29f54b7f31efcffbc0b635c",
+  "receipt_id": "MB-20261015-CLAIM-MEMO-GUARDS_ddae3025793b4ce0bb99ea4269f3aa24"
+}

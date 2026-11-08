@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V84-RENDER-UNIT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/browser-bridge/presentation-controls-v84.test.mjs",
+    "tools/browser-bridge/presentation-quality-v84.test.mjs",
+    "tools/browser-bridge/live-actor-stride-v84.test.mjs",
+    "tools/browser-bridge/whole-scene-adapters-v84.test.mjs",
+    "tools/browser-bridge/maker-presentation-bridge-v84.test.mjs",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-20T15:24:55.708+00:00",
+  "elapsed_ms": 2250,
+  "git_head": "4057a83acb7efe5542b9a0565ecb0cba4b904ef8",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V84-RENDER-UNIT_a9a72e12f65f47b18f31159979875c3b.log",
+  "output_sha256": "9bef087322cffe4ec9744d5a9aa52e3a4e120790b04fe0817e3905a456a75ce4",
+  "receipt_id": "MB-20261021-V84-RENDER-UNIT_a9a72e12f65f47b18f31159979875c3b"
+}

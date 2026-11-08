@@ -1,0 +1,30 @@
+{
+  "receipt": "docs\\ai-continuity\\verification-receipts\\MB-20261018-V49-BASELINE_8b5ffb1f995345bdaaec52d70f7f60f7.json",
+  "head": "d54aa62a",
+  "diagnosticsSourceSha256": "cef3dc14f0b6fdfc38097992be758046202484b76b86314aee9befcc97457c25",
+  "tests": 8,
+  "tiers": {
+    "low": {
+      "totalOuts": 13,
+      "infieldGrounderOuts": 9,
+      "infieldGrounderCount": 13,
+      "anomalyCounts": {},
+      "totalAnomalies": 0
+    },
+    "default": {
+      "totalOuts": 19,
+      "infieldGrounderOuts": 13,
+      "infieldGrounderCount": 13,
+      "anomalyCounts": {},
+      "totalAnomalies": 0
+    },
+    "high": {
+      "totalOuts": 21,
+      "infieldGrounderOuts": 15,
+      "infieldGrounderCount": 13,
+      "anomalyCounts": {},
+      "totalAnomalies": 0
+    }
+  },
+  "coverageCaveat": "Existing nine anomaly types do not audit play closure, force-retirement evidence after legal touch, or role target overlaps/unnecessary task movement."
+}

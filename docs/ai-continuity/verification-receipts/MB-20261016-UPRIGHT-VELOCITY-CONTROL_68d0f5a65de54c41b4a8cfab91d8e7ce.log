@@ -1,0 +1,17 @@
+file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-initial-bat-control-upright-velocity-v1/readback.mjs:2347
+  if (!v2) throw new Error("held to measured bat: " + message);
+                 ^
+
+Error: held to measured bat: bat/body collision or uncertified clearance at tick 10982056.3125, gap -0.016326316495435783, obstacle {"center":{"x":0.78,"y":0.95,"z":-0.16},"radiusM":0.2}
+    at assert2 (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-initial-bat-control-upright-velocity-v1/readback.mjs:2347:18)
+    at certify2 (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-initial-bat-control-upright-velocity-v1/readback.mjs:2448:5)
+    at certify2 (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-initial-bat-control-upright-velocity-v1/readback.mjs:2450:5)
+    at certify2 (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-initial-bat-control-upright-velocity-v1/readback.mjs:2449:5)
+    at certify2 (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-initial-bat-control-upright-velocity-v1/readback.mjs:2450:5)
+    at createHeldToMeasuredBatControlV1 (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-initial-bat-control-upright-velocity-v1/readback.mjs:2452:44)
+    at prepareInitialMeasuredBatControlFromSqlite (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-initial-bat-control-upright-velocity-v1/readback.mjs:81131:19)
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-initial-bat-control-upright-velocity-v1/readback.mjs:81158:109
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-initial-bat-control-upright-velocity-v1/readback.mjs:58244:16
+    at withSqliteMetadataStatementScope (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-initial-bat-control-upright-velocity-v1/readback.mjs:18359:59)
+
+Node.js v26.1.0

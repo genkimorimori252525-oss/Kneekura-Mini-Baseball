@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/NativeFreeBallObservation.test.ts (2 tests) 51ms
+ ✓ src/integration/browser/ExecutedFieldWorldObservationV1.test.ts (2 tests) 167ms
+
+ Test Files  2 passed (2)
+      Tests  4 passed (4)
+   Start at  06:56:39
+   Duration  1.06s (transform 463ms, setup 0ms, collect 788ms, tests 218ms, environment 0ms, prepare 285ms)
+

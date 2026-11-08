@@ -1,0 +1,25 @@
+# V155 実Sourceの変化時刻とリリース比較
+
+2026-10-27 / MB-20261027-REALISM-DEBUG-PLAN / root。本人の新goal、キレの定義、同じ狙いに対する投球補正の説明要求を根拠とする。作業先は既存PR #380のproject。共有作業中の既存Source・原JSON・原画・旧候補・distを保持する。
+
+## 判断と影響
+
+実際のWorkbenchが所有するSource samplerから161点の共通時刻観測を取り出す。投球の物理stepは変えない。基準は同じリリースの無回転＋元空気力、空気なし重力、重力もない接線の3つ。共通時刻のXY変化率と、各軌道が同じz平面へ達した時の従来の変化量を区別する。10/50/90%時刻と終盤20%増分は最終XY方向への射影の報告規約で、現実の「変化開始」閾値や校正値ではない。微小・逆行・groundなどは未分類を保持する。
+
+正規の空力APIで、そのSource状態のdrag/lift/seamと別のgravityを観測する。区間平均加速度との意味の違いを明示する。通常LivePitchは明示観測flagを省略したとき従来record形を保持し、Workbenchだけがflagを依頼する。逆算後かつ実行誤差前の名目投げ出し速度を記録し、実行後の再照準は行わない。
+
+比較では普通の試投を各入力1回ずつ実行する。別の反実仮想Sourceだけに、比較元の実position/velocityと変更側のspin/material/airを飛行前に組み合わせる。公式結果を作らず、通常trial/renderer/rosterを変更しない。測定planeと物理clockの違いは拒否、既定horizonで到達しない場合は未成立とし、seedやhorizonを自動で探さない。
+
+保存試投は保存した入力/contextから現在の実Coreで再計算する。保存済みmetrics/frames/比較結果を実状態として採用しない。同じbuildの再現・旧版不明・現版再計算を区別し、現在の選手編集状態は維持する。比較は入力対・summary・buildだけを保存する。旧JSONの追加欄欠落を0に置換しない。
+
+## レビューで見つかったground境界
+
+固定間隔の標本だけでは、標本間の瞬間bounceを見落とす実反例が得られた。実Source kernelの既存ground boundaryを観測区間内だけ明示して渡し、groundがあれば未分類にする方針を採る。仮想air-only baselineには、使っていないground kernelの履歴を付けない。物理経路や境界時刻自体は変更しない。回帰RED→GREENと結果はV155結果文書に残す。
+
+## 代案・検証・復旧
+
+投手UIの機械検証後の目視で、比較が狭い結果gridの1cellへ入り、390幅で数字とラベルが過剰に折り返すことを確認した。比較だけを既存gridの全幅sectionへ移す。無効読込後の成功でも残った通知は、当UIのactionが作成/更新したnoticeとownerを追跡して成功時に同じnoticeだけ消す。他のfield/groupエラーは保持する。Source Coreは不変で、別UI候補を実Chromeへ戻す。最終HTMLと方向回帰済みHTMLの投手module以外のbytesを完全照合し、変更のない方向回帰95秒を再実行しない。
+
+時刻で空力をON/OFFする「キレ」補正や得能名による結果補正は採らない。独立したlate-onsetを既存の物理で実現できるかは別工程として残す。従来のplate変化量だけでは、同じ狙いを保つ逆照準と変化時刻を説明できないため、観測と明示比較を追加する。
+
+関連unit、全型、同じChromeのNative/Workbench/実Workerの全観測record、JSON再計算、旧record、実MakerのPC/390幅・保存再生・比較を検証する。候補は新しい隔離folderへ作り、旧V153は保持。復旧はV155の明示候補を使わず旧候補を参照する。Sourceの一括resetや他作業のrevertは行わない。Source commit/push/merge/deployは本判断に含めない。実結果・未検証点は結果文書で確定する。

@@ -1,0 +1,30 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/contact/ReferenceBatImpactTrajectoryV1.test.ts (9 tests) 185ms
+ ✓ src/core/sim/contact/ReferenceBatKinematicsV1.test.ts (9 tests) 235ms
+ ✓ src/integration/browser/MeasuredTrajectoryComparisonWorkbenchV69.test.ts (7 tests) 2399ms
+   ✓ executes exactly the normal LivePitch profile and original clock for all four R levels 489ms
+   ✓ executes exactly the normal LivePitch profile and original clock for all four L levels 400ms
+   ✓ observes the real post-contact Aero/ground Source and carries material orientation without changing collision output 319ms
+   ✓ returns no invented flight/carry for actual misses, takes, and landings outside the observation window 419ms
+   ✓ uses real player speed/aim/timing controls, and retains deterministic outputs without choosing a favourable new seed 465ms
+ ✓ src/integration/browser/ReferenceBattingWorkbench.test.ts (6 tests) 3288ms
+   ✓ uses the same reference state for the visible bat, actual rigid contact, and subsequent Aero/ground ball 1004ms
+   ✓ keeps geometric misses and declared input trajectories unchanged 392ms
+   ✓ keeps league labels outside actual impulse and makes unmodelled body/recoil explicit 936ms
+   ✓ shares one adjusted reference between optional maker settings, collision, and every visible bat sample 951ms
+ ✓ src/integration/browser/MeasuredImpactTrajectoryLibraryV1.test.ts (4 tests) 21265ms
+   ✓ admits all 673 measured forms and four research levels through the actual shared continuous Core sampler 7635ms
+   ✓ accepts the bounded full catalog while preserving old automatic pitch records and using new explicit forms 6537ms
+   ✓ rejects unknown or wrong-handed form IDs and unsupported windows before issuing any pitch, without invoking accessors 2853ms
+   ✓ preserves all 673 full arcs and speed ceilings while setting the four absolute contact targets for both batting sides 4240ms
+ ✓ src/integration/browser/LiveImpactTrajectoryV1.test.ts (11 tests) 65632ms
+   ✓ leaves legacy automatic clip selection unchanged when expanded clips are opt-in only 648ms
+   ✓ finishes a full ordinary nine-inning match with imported per-player trajectory edits and physical live plays 63661ms
+
+ Test Files  6 passed (6)
+      Tests  46 passed (46)
+   Start at  23:04:03
+   Duration  66.94s (transform 1.17s, setup 0ms, collect 3.06s, tests 93.00s, environment 1ms, prepare 1.12s)
+

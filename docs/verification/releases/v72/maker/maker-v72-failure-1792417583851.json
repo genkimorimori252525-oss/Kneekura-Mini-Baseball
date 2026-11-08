@@ -1,0 +1,97 @@
+{
+  "pass": false,
+  "phase": "legacy",
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v72_弾道と大画面の連動版.html",
+  "views": [
+    {
+      "width": 1200,
+      "levels": [
+        {
+          "level": 1,
+          "sourceTick": 1732800,
+          "grip": {
+            "x": 0.2748287439169617,
+            "y": 1.0809710532251762,
+            "z": -0.036323678100298254
+          },
+          "tip": {
+            "x": -0.25167282623719633,
+            "y": 0.7112197808682926,
+            "z": -0.6124183345723679
+          }
+        },
+        {
+          "level": 2,
+          "sourceTick": 1732800,
+          "grip": {
+            "x": 0.2627443078508164,
+            "y": 1.0768966490545941,
+            "z": -0.09925190148491643
+          },
+          "tip": {
+            "x": -0.25065179861266,
+            "y": 0.6032741983963446,
+            "z": -0.607101458047307
+          }
+        },
+        {
+          "level": 3,
+          "sourceTick": 1732800,
+          "grip": {
+            "x": 0.250948630045672,
+            "y": 1.0623886409290848,
+            "z": -0.1606764515286392
+          },
+          "tip": {
+            "x": -0.24631236090139486,
+            "y": 0.4976706890246052,
+            "z": -0.5845043667007652
+          }
+        },
+        {
+          "level": 4,
+          "sourceTick": 1732800,
+          "grip": {
+            "x": 0.23975989172388307,
+            "y": 1.0378383735289254,
+            "z": -0.21894043841654118
+          },
+          "tip": {
+            "x": -0.2387715667918883,
+            "y": 0.39725784308013196,
+            "z": -0.545236603304686
+          }
+        }
+      ],
+      "player": {
+        "playerId": "0-b1",
+        "clipId": "obp-103_1"
+      },
+      "comparisonInvalidated": true,
+      "emptyAngleRejectedWithoutLosingAcceptedPreview": true,
+      "emptyAngleMessage": "official window input must be finite",
+      "sharedClock": {
+        "mainScrub": true,
+        "mainPlayPause": true,
+        "speedMirrored": true
+      },
+      "json": {
+        "actualDownload": true,
+        "actualRosterDownload": true,
+        "fileReload": true,
+        "other19Preserved": true
+      }
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    }
+  ],
+  "scope": "v72 actual bat-tab trajectory authoring, shared measured rigid-bat geometry and clock, saved player JSON, untouched other players, session-only orbit and legacy research compatibility",
+  "sha256": "3c24444ffa61b00f429ae0aaaf4fa26bc0f8ce35bfd7cc34e3b63d18db18b8ea",
+  "coreSha256": "ee7451940934e39c69cec0419badbc644c17768210e139ab50e0862e69f63223",
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\ntrue !== false\n\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-maker-v72.mjs:52:112"
+}

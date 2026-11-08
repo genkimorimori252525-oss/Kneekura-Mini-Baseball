@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-SEAM-GROUND-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "./node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/BaseballSeamForceV1.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-19T19:39:11.614+00:00",
+  "elapsed_ms": 1139,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-SEAM-GROUND-RED_49c4c365902a4ed88adedef1a5dd56e6.log",
+  "output_sha256": "e631785f7849346535e17045c16099feba1caa4b29e1e703a2a20b74de6fb19b",
+  "receipt_id": "MB-20261020-V78-SEAM-GROUND-RED_49c4c365902a4ed88adedef1a5dd56e6"
+}

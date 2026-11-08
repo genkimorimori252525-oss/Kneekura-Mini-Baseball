@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-FINAL-SOURCE-TYPECHECK-V2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-17T00:43:05.399+00:00",
+  "elapsed_ms": 24265,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-FINAL-SOURCE-TYPECHECK-V2_3ce76a19b2924024932bbcfa74186ee5.log",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "receipt_id": "MB-20261017-LIVE-FINAL-SOURCE-TYPECHECK-V2_3ce76a19b2924024932bbcfa74186ee5"
+}

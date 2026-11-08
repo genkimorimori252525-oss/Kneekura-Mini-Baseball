@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V60-CADENCE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v56-cadence.mjs",
+    "../../outputs/ばせぼーるlv60_TBD_vs_LAD_視線と名前調整版.html",
+    "../../outputs/カメラワーク調整室_v60.html",
+    "../../outputs/verification-v60-cadence"
+  ],
+  "observed_at": "2026-10-18T18:56:49.354+00:00",
+  "elapsed_ms": 8454,
+  "git_head": "2cf8d9a7ad3f8ba8f981f4067d64be90f6eeb170",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V60-CADENCE_9b824fefb6924b3fbdb4e37727b5c9b2.log",
+  "output_sha256": "7ac9085eb1b6d1163e651bf713b1331047c2d169ddcc8badb6414de941064093",
+  "receipt_id": "MB-20261019-V60-CADENCE_9b824fefb6924b3fbdb4e37727b5c9b2"
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-CONTROL-HOST-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/SamePlateAppearanceSourceControlV1.test.ts",
+    "src/host/world/SamePlateAppearanceSourceMotorFieldV1.test.ts",
+    "src/host/world/SamePlateAppearanceSourceAcquisitionFieldV1.test.ts",
+    "src/host/world/SamePlateAppearanceSourceFieldV3.test.ts",
+    "src/host/world/SamePlateAppearanceSourceIntegerCheckpointV1.test.ts",
+    "src/host/world/SamePlateAppearanceTeamMotorSelectionV1.test.ts",
+    "src/host/world/SamePlateAppearanceLiveWorkCensus.test.ts",
+    "src/host/world/SamePlateAppearanceActorProducerCompletion.test.ts",
+    "src/host/world/SamePlateAppearanceActorProducerPolicy.test.ts",
+    "src/core/sim/ball/SourceDefensiveControlV1.test.ts",
+    "src/core/sim/ball/SourceBattedFieldAcquisitionV1.test.ts",
+    "src/core/sim/ball/SourceBattedFieldMotorMotionV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T20:51:11.697+00:00",
+  "elapsed_ms": 81687,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-CONTROL-HOST-REGRESSION_edcbcbd532c0427db02d22c1b58b3f8a.log",
+  "output_sha256": "d73a5dc87f939ff03671c6eef7dd592369b79023fc83c70ec76ad83fcf5e1b85",
+  "receipt_id": "MB-20261016-CONTROL-HOST-REGRESSION_edcbcbd532c0427db02d22c1b58b3f8a"
+}

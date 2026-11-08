@@ -1,0 +1,69 @@
+{
+  "kind": "SAVED_RECORD_CAUSAL_COMPARISON_ONLY",
+  "pass": true,
+  "simulationRerun": false,
+  "controls": [
+    {
+      "name": "auto-first complete record",
+      "exact": true
+    },
+    {
+      "name": "take complete record",
+      "exact": true
+    },
+    {
+      "name": "second beforeMatch",
+      "exact": true
+    },
+    {
+      "name": "second measuredClipId",
+      "exact": true
+    },
+    {
+      "name": "second sourceDescriptor",
+      "exact": true
+    },
+    {
+      "name": "second batterObservationV151",
+      "exact": true
+    },
+    {
+      "name": "second randomnessV152",
+      "exact": true
+    },
+    {
+      "name": "second battingDirectionV149",
+      "exact": true
+    },
+    {
+      "name": "second timingErrorSeconds",
+      "exact": true
+    },
+    {
+      "name": "second aimErrorMeters",
+      "exact": true
+    },
+    {
+      "name": "second sweetSpotT",
+      "exact": true
+    },
+    {
+      "name": "second swingOffered",
+      "exact": true
+    }
+  ],
+  "before": {
+    "motorStatus": "NOT_APPLIED",
+    "classification": "foul"
+  },
+  "after": {
+    "motorStatus": "PLANNED",
+    "classification": "live_ball",
+    "nominalIntent": "REACTIVE",
+    "nominalFieldAngleDegrees": null,
+    "selectedYawDegrees": 5,
+    "preparationTransferCostMps": 4.614193724835248,
+    "candidates": 17,
+    "feasibleCandidates": 17
+  }
+}

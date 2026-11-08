@@ -1,0 +1,1 @@
+document.getElementById('robin-preview-optin').addEventListener('change',()=>{const p=window.liveMatchPlayback;if(p){const v=p.inspect();if(v.lastResult)p.seekPresentationMs(v.presentation.elapsedMs)}});

@@ -1,0 +1,3 @@
+/** Physical cue becomes actionable only once a visible observation at/after it exists. */
+export function observedLooseCueV1(occurred:number|null,now:number,observations:readonly number[]){if(occurred===null)return null;if(!Number.isFinite(occurred)||!Number.isFinite(now)||occurred<0||occurred>now)throw Error('HOLD: invalid loose cue clock');for(const t of observations){if(!Number.isFinite(t)||t<0)throw Error('HOLD: invalid observation clock');if(t>=occurred&&t<=now)return t}return null;}
+export function gateLooseAdvanceV1<T extends {advance:boolean;reason:string}>(decision:T,groundCue:number|null,touchCue:number|null):T {return groundCue===null&&touchCue===null?{...decision,advance:false,reason:'loose_pitch_wait_for_live_ball_cue'}:decision;}

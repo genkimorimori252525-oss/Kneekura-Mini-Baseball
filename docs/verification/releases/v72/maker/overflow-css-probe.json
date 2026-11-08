@@ -1,0 +1,123 @@
+{
+  "artifactSha256": "dc96f926fc38dc00a6331ea8ddd9c479ee12a0ce6f00d9d928a758eccb3350da",
+  "css": "#maker-preview-column,#bat-panel{min-width:0}@media(max-width:800px){#maker-layout{grid-template-columns:minmax(0,1fr)}}",
+  "before": {
+    "width": 390,
+    "scrollWidth": 500,
+    "previewWidth": 488,
+    "overflow": [
+      {
+        "id": "maker-preview-column",
+        "tag": "SECTION",
+        "right": 500,
+        "width": 488,
+        "visible": true
+      },
+      {
+        "id": "",
+        "tag": "DIV",
+        "right": 500,
+        "width": 488,
+        "visible": true
+      },
+      {
+        "id": "maker-scene",
+        "tag": "CANVAS",
+        "right": 499,
+        "width": 486,
+        "visible": true
+      },
+      {
+        "id": "maker-preview-display",
+        "tag": "DIV",
+        "right": 500,
+        "width": 488,
+        "visible": true
+      },
+      {
+        "id": "preview-zoom",
+        "tag": "INPUT",
+        "right": 452,
+        "width": 225.3125,
+        "visible": true
+      },
+      {
+        "id": "preview-zoom-in",
+        "tag": "BUTTON",
+        "right": 500,
+        "width": 38,
+        "visible": true
+      },
+      {
+        "id": "",
+        "tag": "BUTTON",
+        "right": 424,
+        "width": 30,
+        "visible": true
+      },
+      {
+        "id": "maker-preview-display-note",
+        "tag": "P",
+        "right": 500,
+        "width": 488,
+        "visible": true
+      },
+      {
+        "id": "",
+        "tag": "DIV",
+        "right": 500,
+        "width": 488,
+        "visible": true
+      },
+      {
+        "id": "",
+        "tag": "LABEL",
+        "right": 398.5625,
+        "width": 114,
+        "visible": true
+      }
+    ]
+  },
+  "after": {
+    "width": 390,
+    "scrollWidth": 390,
+    "previewWidth": 366,
+    "overflow": [
+      {
+        "id": "comparison-results",
+        "tag": "TABLE",
+        "right": 472,
+        "width": 432,
+        "visible": true
+      },
+      {
+        "id": "",
+        "tag": "THEAD",
+        "right": 472,
+        "width": 432,
+        "visible": true
+      },
+      {
+        "id": "",
+        "tag": "TR",
+        "right": 472,
+        "width": 432,
+        "visible": true
+      },
+      {
+        "id": "",
+        "tag": "TH",
+        "right": 472,
+        "width": 100,
+        "visible": true
+      },
+      {
+        "id": "",
+        "tag": "TBODY",
+        "right": 472,
+        "width": 432,
+        "visible": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-AUTHORED-CUT-READER-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/native-game/build-measured-model-readback.mjs",
+    "../native-authored-initial-cut-readback-v1",
+    "observed_cut_readback"
+  ],
+  "observed_at": "2026-10-16T00:11:10.525+00:00",
+  "elapsed_ms": 891,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-AUTHORED-CUT-READER-BUILD_395643441fa2458bb923f867c4e1e9e5.log",
+  "output_sha256": "4dc395312fc7cc6e00cc26e3809023c80890a3e9dc57270cbf883cfda7f905a7",
+  "receipt_id": "MB-20261016-AUTHORED-CUT-READER-BUILD_395643441fa2458bb923f867c4e1e9e5"
+}

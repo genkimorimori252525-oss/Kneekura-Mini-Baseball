@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-PITCH-MEAN-PLAN-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePitchAuthoringV78.test.ts",
+    "src/integration/browser/LivePitchExecutionV78.test.ts",
+    "src/integration/browser/LivePitchAuthoringV77.test.ts",
+    "src/integration/browser/PitcherWorkbenchV77.test.ts",
+    "src/integration/browser/LivePitchHostAuthoringV77.test.ts"
+  ],
+  "observed_at": "2026-10-19T19:56:31.266+00:00",
+  "elapsed_ms": 16139,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-PITCH-MEAN-PLAN-FINAL_bc1df7786b0e46fe8b9dbfa9bc456166.log",
+  "output_sha256": "b84a865bf09dad7cdc96a77cae7ce243d3acd63f0a12f495cc1d36be8cc2f9cc",
+  "receipt_id": "MB-20261020-V78-PITCH-MEAN-PLAN-FINAL_bc1df7786b0e46fe8b9dbfa9bc456166"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261015-RK4-SPEED-AUDIT",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/SourceFreeBallSpeedBound.test.ts"
+  ],
+  "observed_at": "2026-10-14T21:45:40.861+00:00",
+  "elapsed_ms": 1281,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261015-RK4-SPEED-AUDIT_0bcfbbb454544a569fbb3df410ca44c5.log",
+  "output_sha256": "44429ecdecf7ff91fb4cd48b88aa91520cfb58b9750a0ae96cabf58557479888",
+  "receipt_id": "MB-20261015-RK4-SPEED-AUDIT_0bcfbbb454544a569fbb3df410ca44c5"
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-STAGING-RAW-BYTES",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "tools/browser-bridge/check-v81-staging.py"
+  ],
+  "observed_at": "2026-10-20T13:13:48.847+00:00",
+  "elapsed_ms": 157,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-STAGING-RAW-BYTES_e764f98b89ac4536b64774de4e26b628.log",
+  "output_sha256": "d021d2416393324a42fc8d523d3d3fc301608764d33cc9f306e527faeb004c2c",
+  "receipt_id": "MB-20261020-V81-STAGING-RAW-BYTES_e764f98b89ac4536b64774de4e26b628"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-LAB-BASELINE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-lab-performance-v81.mjs",
+    "docs/demos/releases/v79/camera-workbench.html",
+    "docs/verification/releases/v81/lab-baseline"
+  ],
+  "observed_at": "2026-10-20T12:56:28.575+00:00",
+  "elapsed_ms": 20281,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-LAB-BASELINE_af438430623a43b8b68a251ca0caa68c.log",
+  "output_sha256": "08f46ac7578ff31ccfbaef1ebc6c28585de82beeb0216aab9d4b2854ca45e73d",
+  "receipt_id": "MB-20261020-V81-LAB-BASELINE_af438430623a43b8b68a251ca0caa68c"
+}

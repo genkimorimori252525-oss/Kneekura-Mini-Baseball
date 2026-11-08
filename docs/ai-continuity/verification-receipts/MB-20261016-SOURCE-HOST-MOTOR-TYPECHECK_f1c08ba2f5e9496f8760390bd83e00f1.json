@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-HOST-MOTOR-TYPECHECK",
+  "result": "FAIL",
+  "exit_code": 2,
+  "command": [
+    "npx.cmd",
+    "tsc",
+    "--noEmit"
+  ],
+  "observed_at": "2026-10-15T18:34:08.648+00:00",
+  "elapsed_ms": 23203,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-HOST-MOTOR-TYPECHECK_f1c08ba2f5e9496f8760390bd83e00f1.log",
+  "output_sha256": "5e0463a5b2e1e79d672d466c73161ab94c4c33582ac21db8d20c17231997fb1e",
+  "receipt_id": "MB-20261016-SOURCE-HOST-MOTOR-TYPECHECK_f1c08ba2f5e9496f8760390bd83e00f1"
+}

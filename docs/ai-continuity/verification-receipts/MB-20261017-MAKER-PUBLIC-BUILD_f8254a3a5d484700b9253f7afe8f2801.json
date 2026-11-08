@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-MAKER-PUBLIC-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-maker.mjs",
+    "--public-abilities",
+    "../../outputs/にーくら野球メーカー_公開能力編集版.html"
+  ],
+  "observed_at": "2026-10-17T03:51:25.243+00:00",
+  "elapsed_ms": 219,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-MAKER-PUBLIC-BUILD_f8254a3a5d484700b9253f7afe8f2801.log",
+  "output_sha256": "d745135183c97f275445d62081f01af6d399e19515fa49b675ed6a6027e3a2aa",
+  "receipt_id": "MB-20261017-MAKER-PUBLIC-BUILD_f8254a3a5d484700b9253f7afe8f2801"
+}

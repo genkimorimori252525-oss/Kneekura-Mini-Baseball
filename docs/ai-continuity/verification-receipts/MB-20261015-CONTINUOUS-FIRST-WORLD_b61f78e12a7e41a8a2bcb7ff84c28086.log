@@ -1,0 +1,31 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/VersionedBattedBallFlightSource.test.ts (5 tests) 3457ms
+   ✓ accepts explicit physics from original Native contact, replays after reopen, and refuses the legacy World consumer 707ms
+   ✓ admits continuous v2 only as its own frozen kernel version and replays original contact/floor states after reopen 613ms
+   ✓ admits original Native v2 first-World contact and geometry, preserves the lattice across extension, and replays offline 1673ms
+ ✓ src/core/sim/ball/SourceFreeBallWorldQuery.test.ts (7 tests) 142ms
+ ✓ src/host/world/SqliteBattedWorldContactStore.test.ts (13 tests) 5809ms
+   ✓ executes the actual ten Player/Person actors from original World and swing, then reopens without caller contact or rule results 673ms
+   ✓ does not append a forecast ground event when an actual surface is contacted earlier 533ms
+   ✓ rejects missing_actor rather than silently replacing actual geometry or scope 378ms
+   ✓ rejects wrong_person rather than silently replacing actual geometry or scope 367ms
+   ✓ rejects pitcher_body rather than silently replacing actual geometry or scope 368ms
+   ✓ rejects missing_primitive rather than silently replacing actual geometry or scope 355ms
+   ✓ rejects wrong_venue rather than silently replacing actual geometry or scope 378ms
+   ✓ rejects future_day rather than silently replacing actual geometry or scope 378ms
+   ✓ rejects caller_result rather than silently replacing actual geometry or scope 351ms
+   ✓ extends only an airborne original prefix with unchanged model and commands 733ms
+   ✓ freezes the actual full registered game roster without executing reserve actors or losing their Person evidence 509ms
+   ✓ rejects invalid reserve roster_revision before freezing original model evidence 380ms
+   ✓ rejects invalid reserve future_person before freezing original model evidence 404ms
+ ✓ src/core/sim/ball/SourceFreeBallKernel.test.ts (6 tests) 157ms
+ ✓ src/core/sim/ball/BattedBallWorldContacts.test.ts (9 tests) 16ms
+ ✓ src/core/sim/ball/SourceBattedWorldContacts.test.ts (3 tests) 334ms
+
+ Test Files  6 passed (6)
+      Tests  43 passed (43)
+   Start at  06:25:54
+   Duration  19.02s (transform 4.05s, setup 0ms, collect 7.81s, tests 9.91s, environment 1ms, prepare 416ms)
+

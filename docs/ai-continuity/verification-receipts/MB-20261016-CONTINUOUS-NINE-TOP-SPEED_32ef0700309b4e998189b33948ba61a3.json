@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-CONTINUOUS-NINE-TOP-SPEED",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/SourceDefensiveControlV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T20:32:53.098+00:00",
+  "elapsed_ms": 10453,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-CONTINUOUS-NINE-TOP-SPEED_32ef0700309b4e998189b33948ba61a3.log",
+  "output_sha256": "3bb2826eb483f2676a26535226d3c4ad698547fff9bcab055ec050b229476c56",
+  "receipt_id": "MB-20261016-CONTINUOUS-NINE-TOP-SPEED_32ef0700309b4e998189b33948ba61a3"
+}

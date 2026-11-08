@@ -1,0 +1,19 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/ball/SourceDefensiveControlV1.test.ts (14 tests) 8972ms
+   ✓ yields bounded work without renewing decisions and resumes the same control/ball state 4194ms
+   ✓ stops all bodies at the actual fractional ground contact and resumes the original ball through its bounce 3369ms
+ ✓ src/host/world/SamePlateAppearanceSourceControlV1.test.ts (6 tests) 33137ms
+   ✓ derives nine plans from original models/decisions and executes beyond a single control step 4453ms
+   ✓ replays stored control checkpoints and matches an uninterrupted span without issuing the team again 10129ms
+   ✓ enforces the original observation deadline and rejects old version, subset, changed model and lineage 6216ms
+   ✓ rejects stored plan or reference mutation rather than restoring a caller cursor or plan 6267ms
+   ✓ stops at actual moving-glove contact and keeps finite control coverage without granting custody 4875ms
+   ✓ derives attended/peripheral deadlines from actual sample times and rejects clock mismatches 1196ms
+
+ Test Files  2 passed (2)
+      Tests  20 passed (20)
+   Start at  05:45:42
+   Duration  42.94s (transform 6.27s, setup 0ms, collect 9.78s, tests 42.11s, environment 0ms, prepare 253ms)
+

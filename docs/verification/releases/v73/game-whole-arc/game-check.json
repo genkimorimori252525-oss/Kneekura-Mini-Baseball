@@ -1,0 +1,80 @@
+{
+  "pass": true,
+  "phase": "complete",
+  "normal": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv73_TBD_vs_LAD_全体スイング角度版.html",
+  "lab": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\カメラワーク調整室_v73.html",
+  "cases": [
+    {
+      "level": 1,
+      "target": -10,
+      "actual": -10.000000000000005,
+      "diagnostics": {
+        "method": "whole-arc-target",
+        "level": 1,
+        "angleDegreesByLevel": [
+          -10,
+          0,
+          10,
+          20
+        ],
+        "beforeSeconds": 0.1,
+        "afterSeconds": 0.06,
+        "contactSourceTick": 1238900,
+        "timingBasis": "ORIGINAL_MEASURED_SOURCE_SECONDS",
+        "model": "WHOLE_ARC_RIGID_CONTACT_PIVOT_TARGET",
+        "speedCeilingRecomputed": true,
+        "launchAngleOrSpinOverridden": false
+      },
+      "classification": "live_ball",
+      "actualPhysicalPitch": true
+    },
+    {
+      "level": 4,
+      "target": 20,
+      "actual": 19.999999999999996,
+      "diagnostics": {
+        "method": "whole-arc-target",
+        "level": 4,
+        "angleDegreesByLevel": [
+          -10,
+          0,
+          10,
+          20
+        ],
+        "beforeSeconds": 0.1,
+        "afterSeconds": 0.06,
+        "contactSourceTick": 1238900,
+        "timingBasis": "ORIGINAL_MEASURED_SOURCE_SECONDS",
+        "model": "WHOLE_ARC_RIGID_CONTACT_PIVOT_TARGET",
+        "speedCeilingRecomputed": true,
+        "launchAngleOrSpinOverridden": false
+      },
+      "classification": "live_ball",
+      "actualPhysicalPitch": true
+    }
+  ],
+  "faults": [
+    {
+      "label": "normal-1200",
+      "errors": [],
+      "external": []
+    },
+    {
+      "label": "lab",
+      "errors": [],
+      "external": []
+    }
+  ],
+  "scope": "Focused new-method/old-JSON physical-pitch and normal/lab integration; default six-pitch and nine-inning regression owned by the reused v68 checker",
+  "sha256": "38d1d09cca6471642a22d0d27d87bbfd5c71b7235c338ac572966d1aa8faa04d",
+  "coreSha256": "82aa947e35cff51a2705b98a0f205a203503a4a43ff967f26786f3d9813750cd",
+  "labSha256": "73d27b53d3561908ad57be2c2fa9e1ea5d3c0d1add6ca2db183306bff66a8df7",
+  "normalSha256": "38d1d09cca6471642a22d0d27d87bbfd5c71b7235c338ac572966d1aa8faa04d",
+  "workbenchSha256": "73d27b53d3561908ad57be2c2fa9e1ea5d3c0d1add6ca2db183306bff66a8df7",
+  "lead": "0-b0",
+  "oldJson": {
+    "omittedMethodRetainsOldModel": true,
+    "packetPreserved": true,
+    "invalidExplicitMethodRejectedAtomically": true
+  }
+}

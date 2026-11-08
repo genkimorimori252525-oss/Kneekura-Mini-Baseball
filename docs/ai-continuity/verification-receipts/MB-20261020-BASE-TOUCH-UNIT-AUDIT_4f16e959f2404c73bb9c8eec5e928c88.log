@@ -1,0 +1,22 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/LiveRelayPlanV1.test.ts > prefers a feasible direct throw over an unnecessary relay and preserves immutable current-state input
+ ✓ src/core/sim/fielding/LiveRelayPlanV1.test.ts > routes a weak outfield arm through a stronger actual receiver when the direct Aero command is unreachable
+ ✓ src/core/sim/fielding/LiveRelayPlanV1.test.ts > supports two actual intermediate receivers without duplicate actors or throw cycles 615ms
+ ✓ src/core/sim/fielding/LiveRelayPlanV1.test.ts > aims a moving relay at its braking point while retaining measured glove offset and arrival delay
+ ✓ src/core/sim/fielding/LiveRelayPlanV1.test.ts > includes current movement, remaining transfer, receiver arrival and hand preparation in the control-time estimate
+ ✓ src/core/sim/fielding/LiveRelayPlanV1.test.ts > chooses carry near a base and retains control when every estimate misses the runner deadline
+ ✓ src/core/sim/fielding/LiveRelayPlanV1.test.ts > accounts for existing direction-error ability without inventing catch success or public abilities
+ ✓ src/core/sim/fielding/LiveRelayPlanV1.test.ts > bounds search work and caches Aero edges while using no position names or future world state 794ms
+ ✓ src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts > satisfies first-base force on the same physical bag-contact geometry as the defense 406ms
+ ✓ src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts > still retires a runner when actual controlled first-base contact wins the physical race 382ms
+ ✓ src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts > keeps physical runner retirements equal to rule-interpreted outs in both race orders 643ms
+ ✓ src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts > reconsiders a newly vacated advance reservation after a live retirement before closing the play 7288ms
+ ✓ src/core/sim/fielding/LiveFieldRunnerCausalityV49.test.ts > adjudicates the actual normal-game tag enabled by a witnessed through-base departure 824ms
+
+ Test Files  2 passed (2)
+      Tests  13 passed (13)
+   Start at  03:35:19
+   Duration  10.41s (transform 414ms, setup 0ms, collect 739ms, tests 11.37s, environment 0ms, prepare 274ms)
+

@@ -1,0 +1,15 @@
+evalmachine.<anonymous>:4047
+          throw new Error("official window input must be a plain inert object");
+                ^
+
+Error: official window input must be a plain inert object
+    at visit (evalmachine.<anonymous>:4047:17)
+    at visit (evalmachine.<anonymous>:4060:18)
+    at visit (evalmachine.<anonymous>:4060:18)
+    at cloneInert (evalmachine.<anonymous>:4069:12)
+    at applyLivePhysicalRosterV1 (evalmachine.<anonymous>:14820:19)
+    at context2 (evalmachine.<anonymous>:15014:5)
+    at Object.materializeLivePlateVisionV1 (evalmachine.<anonymous>:15036:5)
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/prepare-v61-vision-roster.mjs:8:44
+
+Node.js v26.1.0

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-PACKAGE-EXACT-OFFSET-FIELD-SEAM",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "../package-delivery.py"
+  ],
+  "observed_at": "2026-10-16T21:19:53.447+00:00",
+  "elapsed_ms": 108407,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-PACKAGE-EXACT-OFFSET-FIELD-SEAM_3cdb4057d913419b838d46b63933f8da.log",
+  "output_sha256": "0644c31935baf7528fca8c5a77f22a011e1ab14b0eda3568dd4e6480e2649331",
+  "receipt_id": "MB-20261017-PACKAGE-EXACT-OFFSET-FIELD-SEAM_3cdb4057d913419b838d46b63933f8da"
+}

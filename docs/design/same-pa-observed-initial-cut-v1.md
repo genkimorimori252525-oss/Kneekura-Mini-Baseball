@@ -1,0 +1,33 @@
+# 初球の物理cut・知覚・配信・予測
+
+観測判断用初球の実発行から、同じ世界時計に属する前進と打者の知覚へ接続した。新しい`pa_observed_initial_v1_operations`と`pa_observed_initial_v1_heads`の2表だけを追加する。旧dispatchの5行、旧take、旧第三球以降のordinal制約、既存schema・migration fileは変更しない。
+
+## 物理
+
+正式Coreのrelease、元の手の有限Hermite制御、原10人/50primitive、同じ空力Sourceを使う。地面物性は新Sourceで明示し、空力値・球半径を元の投球/装備と照合する。観測ごとに球の積分原点を作り直さない。
+
+現在の保持制約が定める接触面から、手と球の相対運動を検査する。元のRK4格子全体の加速度上界と、手の正確な三次式から、法線方向の分離を保守的に証明する。相対速度が0でも、手の減速によって球が離れる場合を扱う。数値上の位置補正、時計の移動、過去の衝突witnessの再利用は行わない。証明不能なら前進を拒否する。
+
+初期の分離区間を過ぎても手をcolliderとして維持し、連続軌道で再接触を検査する。残り49primitive、地面との接触も元のSource queryで検査し、最初の接触で止まる。接触境界の手も、丸められたtickではなく元の連続時刻で評価する。今回、境界後の捕球/反発/裁定は新たに採用していない。
+
+原姿勢と手の制御が有効な期間だけ前進できる。元の会場が保証するplayable interior内に球の全区間が収まることを速度上界で確認する。未提供のフェンスを補完しない。打撃動作が未採用の間は、元の到達範囲・バット長・半径から作る打者の相互作用範囲へ進むことも拒否する。境界を越えるには、実際の打撃動作/身体制御の採用が必要である。
+
+## 知覚と予測
+
+captureは直前に採用された実cutの球・身体・手から計算する。原打者の知覚モデルと元の`batter_observation`実行校正を読み、自己身体以外の遮蔽を含める。原サンプル、ノイズ、更新間隔、配信待ち時間を保存する。
+
+deliveryは別の、より後の実cutを必要とし、待ち時間前には採用できない。元のcaptureを再計算し、既存の`deriveBattingObservationDelivery`を使って記憶の減衰を計算する。predictionは保存されたdeliveryとモデル内の原prediction calibrationを読み、`deriveDeliveredBattingObservedMotionForecast`を使う。予測の初期位置/速度は捕捉した推定値、spinはobserverKnownSpinPriorであり、実球の未来軌道を打者へ渡さない。
+
+## 所有と再読
+
+全operationは原launch、直前operationの完全なreference、連番、評価時刻に束縛する。新規採用時は元の10人の予約状態と現在のworkload head、およびactorのopen frameも照合する。既存transaction ownerでoperationとheadを同時採用し、正確な2行の変更を検査する。再採用は不変で、部分記録・古い分岐・期限超過を修復しない。履歴の再読は外部authority callbackを必要としない。
+
+## 実検証と残作業
+
+合成Native初球の閉DBを保全したうえで別の作業DBを作り、20ms/40ms後の2cut、2capture、1delivery、1predictionを実採用した。原71tableの行は不変。早すぎる配信、古い分岐、制御期限超過を拒否した。生成試験DBのsavepoint内で最初のoperationを除いた場合も、production readerは書込/修復せず拒否し、試験後rollbackで元の全行に戻した。
+
+`outputs/verification-observed-initial-cut-v5`に最新の閉DBと原Source・期待記録・独立再読結果を保存する。別processのproduction readerで73tableのschema/全行/DBbytesを照合する。関連6files/44tests、実Native driver、全src型検査を個別に記録した。最初の型検査FAIL（import名/型の循環参照）も削除しない。
+
+この証拠は既存の合成Native fixture上のもの。新規18人genesisと実測打撃モデルを組み合わせた試合ではない。運動は合成の有限制御で、実測投球や筋トルクの校正を主張しない。
+
+operation記録は、9人の実行TOTAL・physiology/workload更新・新しい疲労校正の採用を意味しない。元の予約状態を越える実行では、正しい消費記録と新しい実行状態への接続が必要である。知覚データからの打撃評価/判断、実測スイングcommitment、有限身体制御の更新、汎用守備の捕球/持ち替え/送球、走者/裁定、混合9回・100試合監査、実機検証は未完了。全goalは継続する。既存HTMLと2タブメーカーは保持し、MMDを再導入しない。

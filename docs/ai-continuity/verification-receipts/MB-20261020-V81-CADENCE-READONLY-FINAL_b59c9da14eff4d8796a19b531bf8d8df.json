@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V81-CADENCE-READONLY-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tools/browser-bridge/presentation-cadence-performance-v81.test.mjs",
+    "tools/browser-bridge/presentation-ui-performance-v81.test.mjs"
+  ],
+  "observed_at": "2026-10-20T12:56:57.700+00:00",
+  "elapsed_ms": 3296,
+  "git_head": "087fce57861e8f45b1c3fcc2a509f07d287e1f59",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V81-CADENCE-READONLY-FINAL_b59c9da14eff4d8796a19b531bf8d8df.log",
+  "output_sha256": "ba9172fb180e61678b2f0939a137412e2517d97776c606a0a284df9ea250cee6",
+  "receipt_id": "MB-20261020-V81-CADENCE-READONLY-FINAL_b59c9da14eff4d8796a19b531bf8d8df"
+}

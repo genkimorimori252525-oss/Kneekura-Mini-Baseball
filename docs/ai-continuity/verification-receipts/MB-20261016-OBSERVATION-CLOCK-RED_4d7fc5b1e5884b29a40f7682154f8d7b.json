@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-OBSERVATION-CLOCK-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "npx.cmd",
+    "vitest",
+    "run",
+    "src/core/sim/perception/ObservationClockProjectionV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T17:30:46.956+00:00",
+  "elapsed_ms": 1733,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-OBSERVATION-CLOCK-RED_4d7fc5b1e5884b29a40f7682154f8d7b.log",
+  "output_sha256": "e763b3665f2fed4027af6d066390b2e2d131e727f3189464afa65b9fe047c130",
+  "receipt_id": "MB-20261016-OBSERVATION-CLOCK-RED_4d7fc5b1e5884b29a40f7682154f8d7b"
+}

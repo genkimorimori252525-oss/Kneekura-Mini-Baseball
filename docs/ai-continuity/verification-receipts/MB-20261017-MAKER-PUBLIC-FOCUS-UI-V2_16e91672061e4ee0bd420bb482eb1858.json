@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-MAKER-PUBLIC-FOCUS-UI-V2",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-public-abilities.mjs",
+    "../../outputs/にーくら野球メーカー_公開能力編集版.html",
+    "../../outputs/verification-maker-public-focus-v2",
+    "../../outputs/ばせぼーるlv41_TBD_vs_LAD_公開能力メーカー連携版.html"
+  ],
+  "observed_at": "2026-10-17T03:56:36.724+00:00",
+  "elapsed_ms": 9703,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-MAKER-PUBLIC-FOCUS-UI-V2_16e91672061e4ee0bd420bb482eb1858.log",
+  "output_sha256": "672c459e8406da3552a31e1d6a1e520b0f5b987b8019d7a27bf7fb6df69c98ed",
+  "receipt_id": "MB-20261017-MAKER-PUBLIC-FOCUS-UI-V2_16e91672061e4ee0bd420bb482eb1858"
+}

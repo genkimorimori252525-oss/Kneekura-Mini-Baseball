@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V87-REBUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-rebuild-v87.mjs"
+  ],
+  "observed_at": "2026-10-20T17:24:52.881+00:00",
+  "elapsed_ms": 6483,
+  "git_head": "9f6b6ed69d8682f417490d4b761914f1b4a6d6a1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V87-REBUILD_81a22bcd73104a5094081e828cf968bc.log",
+  "output_sha256": "8f2bb823d43a36c3b5ac0f5a36b36e122ae065d66734f4ed942395d3d4fe8516",
+  "receipt_id": "MB-20261021-V87-REBUILD_81a22bcd73104a5094081e828cf968bc"
+}

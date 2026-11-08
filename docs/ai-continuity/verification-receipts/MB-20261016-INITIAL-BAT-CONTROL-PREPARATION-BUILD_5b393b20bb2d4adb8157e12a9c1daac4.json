@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-BAT-CONTROL-PREPARATION-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/verification/native-game/build-measured-model-readback.mjs",
+    "../native-initial-bat-control-preparation-v1",
+    "initial_bat_control_preparation"
+  ],
+  "observed_at": "2026-10-16T12:28:47.364+00:00",
+  "elapsed_ms": 828,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-BAT-CONTROL-PREPARATION-BUILD_5b393b20bb2d4adb8157e12a9c1daac4.log",
+  "output_sha256": "ef13201aa6915cb231e6f6c4e8b3cc74fa40824e55ec1da637555fc516890eff",
+  "receipt_id": "MB-20261016-INITIAL-BAT-CONTROL-PREPARATION-BUILD_5b393b20bb2d4adb8157e12a9c1daac4"
+}

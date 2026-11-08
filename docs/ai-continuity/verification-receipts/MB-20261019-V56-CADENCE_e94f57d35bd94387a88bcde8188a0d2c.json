@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V56-CADENCE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v56-cadence.mjs"
+  ],
+  "observed_at": "2026-10-18T17:46:05.193+00:00",
+  "elapsed_ms": 8968,
+  "git_head": "a829d9278b0999afd4e0a368cd07fc91669b8366",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V56-CADENCE_e94f57d35bd94387a88bcde8188a0d2c.log",
+  "output_sha256": "23a4928fb7824e6c81e898f74b1e647c5c12ddeccfb85d65ef1ab6247cd8bc65",
+  "receipt_id": "MB-20261019-V56-CADENCE_e94f57d35bd94387a88bcde8188a0d2c"
+}

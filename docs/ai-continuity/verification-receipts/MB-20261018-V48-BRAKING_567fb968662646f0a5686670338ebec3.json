@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V48-BRAKING",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-batter-braking.mjs"
+  ],
+  "observed_at": "2026-10-18T07:52:47.955+00:00",
+  "elapsed_ms": 140,
+  "git_head": "16f0ef5a6b1b1f077424c6a54ce0d76ee9a49d88",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V48-BRAKING_567fb968662646f0a5686670338ebec3.log",
+  "output_sha256": "fa1d9c2eadb8ee8ac76b3ff11f28f7871784c424259bbda4bd4edd4f12045a2a",
+  "receipt_id": "MB-20261018-V48-BRAKING_567fb968662646f0a5686670338ebec3"
+}

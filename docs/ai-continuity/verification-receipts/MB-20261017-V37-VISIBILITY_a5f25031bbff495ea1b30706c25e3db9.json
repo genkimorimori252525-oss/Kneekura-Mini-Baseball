@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-V37-VISIBILITY",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v37-visibility.mjs",
+    "../../outputs/ばせぼーるlv37_TBD_vs_LAD_アニメーション復元版.html",
+    "../../outputs/verification-v37-visibility-v1",
+    "--registered-field"
+  ],
+  "observed_at": "2026-10-17T02:50:18.901+00:00",
+  "elapsed_ms": 9655,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-V37-VISIBILITY_a5f25031bbff495ea1b30706c25e3db9.log",
+  "output_sha256": "07adb3eebebd2b57386b5ae41c6e8e7cf7496c2728819e9b8f7ae96130b759ab",
+  "receipt_id": "MB-20261017-V37-VISIBILITY_a5f25031bbff495ea1b30706c25e3db9"
+}

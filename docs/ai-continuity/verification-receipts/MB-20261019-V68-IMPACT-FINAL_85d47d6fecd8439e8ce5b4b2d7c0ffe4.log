@@ -1,0 +1,24 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/contact/ReferenceBatImpactTrajectoryV1.test.ts (6 tests) 162ms
+ ✓ src/core/sim/contact/ReferenceBatKinematicsV1.test.ts (9 tests) 238ms
+ ✓ src/core/sim/pitching/SampledRigidBatSwingV1.test.ts (14 tests) 182ms
+ ✓ src/integration/browser/LivePitchV1.test.ts (11 tests) 865ms
+ ✓ src/integration/browser/LivePhysicalRosterV1.test.ts (27 tests) 992ms
+ ✓ src/integration/browser/ReferenceBattingWorkbench.test.ts (6 tests) 2768ms
+   ✓ uses the same reference state for the visible bat, actual rigid contact, and subsequent Aero/ground ball 882ms
+   ✓ keeps geometric misses and declared input trajectories unchanged 357ms
+   ✓ keeps league labels outside actual impulse and makes unmodelled body/recoil explicit 738ms
+   ✓ shares one adjusted reference between optional maker settings, collision, and every visible bat sample 786ms
+ ✓ src/integration/browser/MeasuredImpactTrajectoryLibraryV1.test.ts (1 test) 5710ms
+   ✓ admits all 673 measured forms and four research levels through the actual shared continuous Core sampler 5709ms
+ ✓ src/integration/browser/LiveImpactTrajectoryV1.test.ts (8 tests) 57757ms
+   ✓ leaves legacy automatic clip selection unchanged when expanded clips are opt-in only 584ms
+   ✓ finishes a full ordinary nine-inning match with imported per-player trajectory edits and physical live plays 56482ms
+
+ Test Files  8 passed (8)
+      Tests  82 passed (82)
+   Start at  19:42:41
+   Duration  59.01s (transform 1.29s, setup 0ms, collect 3.33s, tests 68.67s, environment 1ms, prepare 1.67s)
+

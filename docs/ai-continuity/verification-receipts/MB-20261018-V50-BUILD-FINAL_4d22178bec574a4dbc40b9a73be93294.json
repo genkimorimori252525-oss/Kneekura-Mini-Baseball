@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V50-BUILD-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-v50.mjs",
+    "../../outputs/ばせぼーるlv50_TBD_vs_LAD_lv27打者カメラ復元版.html"
+  ],
+  "observed_at": "2026-10-18T08:50:54.799+00:00",
+  "elapsed_ms": 296,
+  "git_head": "60ad5092b27a3eb9401cc4281de708150862c15e",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V50-BUILD-FINAL_4d22178bec574a4dbc40b9a73be93294.log",
+  "output_sha256": "be125a642de96766079623af1381eee63b350301fa4503cf9844d66531a68db9",
+  "receipt_id": "MB-20261018-V50-BUILD-FINAL_4d22178bec574a4dbc40b9a73be93294"
+}

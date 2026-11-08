@@ -8,7 +8,9 @@ type Fixture = ReturnType<typeof samePaPhysicalLifecycleFixture>;
 type Field = ReturnType<ReturnType<typeof prepareFreshPhysicalFieldFixture>['appendField']>;
 /** Extend IFN01's one owned field root. No database, actor, view, calibration,
  * observation, decision or motion receipt is copied into a writer. */
-export const appendNativePhysicalFieldActions = (h: Fixture, field: Field, label: string) => {
+export const appendNativePhysicalFieldActions = (h: Fixture, field: Field, label: string,
+  options: Readonly<{ playerId?: string; priorities?: Extract<SamePaPhysicalFieldAction, { kind: 'defender_decision_v1' }>['priorities'];
+    supportGeometry?: Extract<SamePaPhysicalFieldAction, { kind: 'defender_decision_v1' }>['supportGeometry'] }> = {}) => {
   let previous = field.step;
   const moment = previous.field.motion.world.moment, cursor = previous.field.motion.cursor;
   if (!cursor) throw new Error('IFN01 field action chain needs its owned free/retained cursor');
@@ -27,7 +29,7 @@ export const appendNativePhysicalFieldActions = (h: Fixture, field: Field, label
       z: cursor.moment.ball.position.z - center.z };
     return { playerId: binding.playerId, forward, distance: Math.hypot(forward.x, forward.y, forward.z) };
   }).sort((a, b) => a.distance - b.distance || a.playerId.localeCompare(b.playerId));
-  const selected = candidates[0];
+  const selected = options.playerId === undefined ? candidates[0] : candidates.find(c => c.playerId === options.playerId);
   if (!selected || selected.distance === 0) throw new Error('IFN01 explicit observer view is degenerate');
   const member = () => {
     const value = h.current().basis.members.find(m => m.playerId === selected.playerId);
@@ -53,7 +55,9 @@ export const appendNativePhysicalFieldActions = (h: Fixture, field: Field, label
     previousObservationReference: null, view: { poseVersion: 'IFN01-explicit-actual-cut-view-v1', bodyRelativeEyeOffset,
       forward: selected.forward, attentionTarget: { kind: 'ball' } } });
   const decision = append(previous.evaluationTick, { kind: 'defender_decision_v1', member: member(), calibrationReference: calibration('defender_decision'),
-    observationReference: observation.operationReference, priorities: { ballPursuitPriority: 1, baseCoverPriorities: [], relayPriority: 0, backupPriority: 0, deepCoveragePriority: 0, holdPriority: 0 } });
+    observationReference: observation.operationReference,
+    priorities: options.priorities ?? { ballPursuitPriority: 1, baseCoverPriorities: [], relayPriority: 0, backupPriority: 0, deepCoveragePriority: 0, holdPriority: 0 },
+    ...(options.supportGeometry ? { supportGeometry: options.supportGeometry } : {}) });
   const d = decision.value.actionResult;
   if (d?.kind !== 'defender_decision_v1') throw new Error('IFN01 actual field decision result missing');
   const dueTick = d.calculation.scheduling.movementStartTick, waits: SamePaPhysicalFieldStep[] = [];

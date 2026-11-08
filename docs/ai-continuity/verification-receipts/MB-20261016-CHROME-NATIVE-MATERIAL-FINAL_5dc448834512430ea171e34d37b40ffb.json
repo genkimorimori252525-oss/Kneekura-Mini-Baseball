@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-CHROME-NATIVE-MATERIAL-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../check-chrome-native-material.mjs"
+  ],
+  "observed_at": "2026-10-15T16:42:28.240+00:00",
+  "elapsed_ms": 1546,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-CHROME-NATIVE-MATERIAL-FINAL_5dc448834512430ea171e34d37b40ffb.log",
+  "output_sha256": "a4cb05bd15f845c560f5fabaa6dc685f6e34b4530c24521bbe2f21fb97c563d9",
+  "receipt_id": "MB-20261016-CHROME-NATIVE-MATERIAL-FINAL_5dc448834512430ea171e34d37b40ffb"
+}

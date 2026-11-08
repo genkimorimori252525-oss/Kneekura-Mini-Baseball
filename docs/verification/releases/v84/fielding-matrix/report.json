@@ -1,0 +1,248 @@
+{
+  "pass": true,
+  "scope": "Default 20-scenario physical diagnostics; result counts are observations, not probability targets.",
+  "cases": [
+    {
+      "id": "P_comebacker",
+      "category": "infield_grounder",
+      "end": {
+        "elapsedSeconds": 3.603755919638532,
+        "tick": 4603756,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "outs": 1,
+      "anomalies": []
+    },
+    {
+      "id": "3B_routine",
+      "category": "infield_grounder",
+      "end": {
+        "elapsedSeconds": 5.529460822106219,
+        "tick": 6529461,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "outs": 0,
+      "anomalies": []
+    },
+    {
+      "id": "56_hole_grounder",
+      "category": "infield_grounder",
+      "end": {
+        "elapsedSeconds": 4.4529667523197745,
+        "tick": 5452967,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "outs": 1,
+      "anomalies": []
+    },
+    {
+      "id": "SS_routine",
+      "category": "infield_grounder",
+      "end": {
+        "elapsedSeconds": 4.2930006520938715,
+        "tick": 5293001,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "outs": 1,
+      "anomalies": []
+    },
+    {
+      "id": "SS_up_middle",
+      "category": "infield_grounder",
+      "end": {
+        "elapsedSeconds": 5.529460822106219,
+        "tick": 6529461,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "outs": 0,
+      "anomalies": []
+    },
+    {
+      "id": "2B_routine",
+      "category": "infield_grounder",
+      "end": {
+        "elapsedSeconds": 3.701448235134269,
+        "tick": 4701449,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "outs": 1,
+      "anomalies": []
+    },
+    {
+      "id": "34_hole_grounder",
+      "category": "infield_grounder",
+      "end": {
+        "elapsedSeconds": 3.641887961852263,
+        "tick": 4641888,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "outs": 1,
+      "anomalies": []
+    },
+    {
+      "id": "1B_routine",
+      "category": "infield_grounder",
+      "end": {
+        "elapsedSeconds": 4.996300575169533,
+        "tick": 5996301,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "outs": 1,
+      "anomalies": []
+    },
+    {
+      "id": "slow_roller_3B",
+      "category": "slow_roller",
+      "end": {
+        "elapsedSeconds": 5.344146426650659,
+        "tick": 6344147,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "outs": 1,
+      "anomalies": []
+    },
+    {
+      "id": "slow_roller_2B",
+      "category": "slow_roller",
+      "end": {
+        "elapsedSeconds": 4.548176755933068,
+        "tick": 5548177,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "outs": 1,
+      "anomalies": []
+    },
+    {
+      "id": "DP_643_grounder",
+      "category": "double_play",
+      "end": {
+        "elapsedSeconds": 5.64946082210622,
+        "tick": 6649461,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "outs": 1,
+      "anomalies": []
+    },
+    {
+      "id": "DP_463_grounder",
+      "category": "double_play",
+      "end": {
+        "elapsedSeconds": 5.473629795059022,
+        "tick": 6473630,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "outs": 2,
+      "anomalies": []
+    },
+    {
+      "id": "force_3B_grounder",
+      "category": "double_play",
+      "end": {
+        "elapsedSeconds": 5.70563614163614,
+        "tick": 6705637,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "outs": 0,
+      "anomalies": []
+    },
+    {
+      "id": "routine_CF_fly",
+      "category": "outfield_fly",
+      "end": {
+        "elapsedSeconds": 6.165818631188607,
+        "tick": 7165819,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "outs": 1,
+      "anomalies": []
+    },
+    {
+      "id": "routine_LF_fly",
+      "category": "outfield_fly",
+      "end": {
+        "elapsedSeconds": 5.406996291797634,
+        "tick": 6406997,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "outs": 1,
+      "anomalies": []
+    },
+    {
+      "id": "routine_RF_fly",
+      "category": "outfield_fly",
+      "end": {
+        "elapsedSeconds": 5.406996292971974,
+        "tick": 6406997,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "outs": 1,
+      "anomalies": []
+    },
+    {
+      "id": "shallow_CF_liner",
+      "category": "outfield_fly",
+      "end": {
+        "elapsedSeconds": 5.529460822106219,
+        "tick": 6529461,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "outs": 0,
+      "anomalies": []
+    },
+    {
+      "id": "fast_grounder_CF_wall",
+      "category": "wall_or_gap",
+      "end": {
+        "elapsedSeconds": 5.529460822106219,
+        "tick": 6529461,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "outs": 0,
+      "anomalies": []
+    },
+    {
+      "id": "gap_liner_LCF",
+      "category": "wall_or_gap",
+      "end": {
+        "elapsedSeconds": 6.630179829733679,
+        "tick": 7630180,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "outs": 0,
+      "anomalies": []
+    },
+    {
+      "id": "one_hop_RF_wall",
+      "category": "wall_or_gap",
+      "end": {
+        "elapsedSeconds": 3.8880484547458147,
+        "tick": 4888049,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "outs": 1,
+      "anomalies": []
+    }
+  ],
+  "infieldOuts": 11,
+  "totalOuts": 15
+}

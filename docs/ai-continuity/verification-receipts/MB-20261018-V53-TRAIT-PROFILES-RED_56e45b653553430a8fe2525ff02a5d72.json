@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V53-TRAIT-PROFILES-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveTraitProfilesV1.test.ts",
+    "--reporter=dot"
+  ],
+  "observed_at": "2026-10-18T10:13:34.781+00:00",
+  "elapsed_ms": 842,
+  "git_head": "ea9ca61b0971da3cc3b3ce1cfb344d4496e2ecc9",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V53-TRAIT-PROFILES-RED_56e45b653553430a8fe2525ff02a5d72.log",
+  "output_sha256": "8f40b57652f38a25d764e70fb713456b04d8e66239d4eace055c1c48bc5589b1",
+  "receipt_id": "MB-20261018-V53-TRAIT-PROFILES-RED_56e45b653553430a8fe2525ff02a5d72"
+}

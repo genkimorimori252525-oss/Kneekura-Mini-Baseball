@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-ZONE-JUDGMENT-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePitchAbilitiesV1.test.ts",
+    "src/integration/browser/LivePhysicalRosterV1.test.ts",
+    "src/integration/browser/LivePitchV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T03:47:31.548+00:00",
+  "elapsed_ms": 2608,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-ZONE-JUDGMENT-FINAL_00e881a3fb02458ea4706c36f66c14fa.log",
+  "output_sha256": "d691fb095006951abd72cbcff4dcf1e7fb15b3de81eaa1d46be9c108933073a3",
+  "receipt_id": "MB-20261017-ZONE-JUDGMENT-FINAL_00e881a3fb02458ea4706c36f66c14fa"
+}

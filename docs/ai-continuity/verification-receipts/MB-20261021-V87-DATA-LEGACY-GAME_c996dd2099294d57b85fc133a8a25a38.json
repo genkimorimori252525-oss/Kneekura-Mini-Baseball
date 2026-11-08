@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V87-DATA-LEGACY-GAME",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LiveCourseScoringV79.test.ts"
+  ],
+  "observed_at": "2026-10-20T17:13:58.678+00:00",
+  "elapsed_ms": 145375,
+  "git_head": "9f6b6ed69d8682f417490d4b761914f1b4a6d6a1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V87-DATA-LEGACY-GAME_c996dd2099294d57b85fc133a8a25a38.log",
+  "output_sha256": "d8e54517ea80434fb9c786c3aa8c8ab2acf19e3efbb7c0ba6954f0d5d2ab67c3",
+  "receipt_id": "MB-20261021-V87-DATA-LEGACY-GAME_c996dd2099294d57b85fc133a8a25a38"
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V66-RUNNER-UNIT",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v66-swing-running.mjs",
+    "--helper",
+    "66",
+    "--out",
+    "../../outputs/verification-v66-swing-running"
+  ],
+  "observed_at": "2026-10-19T10:09:09.166+00:00",
+  "elapsed_ms": 1015,
+  "git_head": "bd0965b06ee331986db7f8f63e26bd344fce5e13",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V66-RUNNER-UNIT_d858fa94ff264cd290166f95f099b5e9.log",
+  "output_sha256": "1d14875cd492403017c485f3837810ec7d61a3893f7e8489d81ed57defd9c245",
+  "receipt_id": "MB-20261019-V66-RUNNER-UNIT_d858fa94ff264cd290166f95f099b5e9"
+}

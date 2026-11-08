@@ -1,0 +1,13 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/contact/ReferenceBatKinematicsV1.test.ts (9 tests) 204ms
+ ✓ src/integration/browser/LivePhysicalRosterV1.test.ts (14 tests) 9ms
+ ✓ src/integration/browser/LivePitchV1.test.ts (11 tests) 824ms
+ ✓ src/integration/browser/LivePitchAbilitiesV1.test.ts (7 tests) 733ms
+
+ Test Files  4 passed (4)
+      Tests  41 passed (41)
+   Start at  12:17:10
+   Duration  1.70s (transform 626ms, setup 0ms, collect 1.55s, tests 1.77s, environment 1ms, prepare 547ms)
+

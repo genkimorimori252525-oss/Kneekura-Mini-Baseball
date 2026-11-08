@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V44-RELEASE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v44-release.mjs"
+  ],
+  "observed_at": "2026-10-18T04:36:24.034+00:00",
+  "elapsed_ms": 108,
+  "git_head": "7bc3982789bf563bb9a25a8b82f632c982c3ab84",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V44-RELEASE_46128d5c53644c23a1e72046d77b5e9c.log",
+  "output_sha256": "80c609a943876a8e2c515a2ec506d7eb68071d8a592beb8f31a2cd112a6630a9",
+  "receipt_id": "MB-20261018-V44-RELEASE_46128d5c53644c23a1e72046d77b5e9c"
+}

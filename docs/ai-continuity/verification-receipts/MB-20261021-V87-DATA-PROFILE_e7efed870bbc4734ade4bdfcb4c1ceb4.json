@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V87-DATA-PROFILE",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/BatterCourseProfileV87.test.ts"
+  ],
+  "observed_at": "2026-10-20T17:05:22.455+00:00",
+  "elapsed_ms": 2187,
+  "git_head": "9f6b6ed69d8682f417490d4b761914f1b4a6d6a1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V87-DATA-PROFILE_e7efed870bbc4734ade4bdfcb4c1ceb4.log",
+  "output_sha256": "f65e34e510230a1d3e07a83a4786424fb88705fa1d4e3e3d5f8c9a91045f1b8b",
+  "receipt_id": "MB-20261021-V87-DATA-PROFILE_e7efed870bbc4734ade4bdfcb4c1ceb4"
+}

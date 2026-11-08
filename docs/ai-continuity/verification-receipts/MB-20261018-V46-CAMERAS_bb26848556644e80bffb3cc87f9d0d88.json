@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V46-CAMERAS",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v46-continuous-view.mjs",
+    "../../outputs/ばせぼーるlv46_TBD_vs_LAD_走塁と守備AI改善版.html",
+    "../../outputs/verification-v46-cameras-v1"
+  ],
+  "observed_at": "2026-10-18T05:24:55.592+00:00",
+  "elapsed_ms": 21047,
+  "git_head": "6a8caf40153d76daba6a5acca34f5db12ca7f615",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V46-CAMERAS_bb26848556644e80bffb3cc87f9d0d88.log",
+  "output_sha256": "d7a35be82814c803513c5f2a4166b579394214a6d3642c162784711ba1520efd",
+  "receipt_id": "MB-20261018-V46-CAMERAS_bb26848556644e80bffb3cc87f9d0d88"
+}

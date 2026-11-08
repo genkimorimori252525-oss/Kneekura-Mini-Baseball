@@ -1,0 +1,15 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/browser/ZoneRecognitionV87.test.ts (3 tests) 19ms
+ ✓ src/integration/browser/LivePitchRecognitionV87.test.ts (7 tests) 1197ms
+ ✓ src/integration/browser/LivePitchAbilitiesV1.test.ts (11 tests) 1752ms
+   ✓ uses the noisy course estimate in actual AUTO judgment while keeping chase margin and aggression separate 304ms
+ ✓ src/integration/browser/LivePitchCourseV79.test.ts (13 tests) 2258ms
+   ✓ isolates paired-trial direction draws from the pitch Source, perception and motor error streams 325ms
+
+ Test Files  4 passed (4)
+      Tests  34 passed (34)
+   Start at  02:16:01
+   Duration  3.67s (transform 1.06s, setup 0ms, collect 2.70s, tests 5.22s, environment 1ms, prepare 987ms)
+

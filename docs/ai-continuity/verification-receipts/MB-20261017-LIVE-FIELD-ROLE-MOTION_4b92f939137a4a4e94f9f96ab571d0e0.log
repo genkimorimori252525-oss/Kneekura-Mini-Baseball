@@ -1,0 +1,18 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts (8 tests) 10ms
+ ✓ src/core/sim/fielding/LiveFieldRoleMotionV1.test.ts (4 tests) 585ms
+ ✓ src/core/sim/fielding/LiveFieldPlayV1.test.ts (18 tests) 4639ms
+   ✓ runs the complete actual base path after a fair over-fence flight instead of teleporting runners 565ms
+   ✓ derives two force retirements from actual pickup, two throws, receptions and base contacts 442ms
+   ✓ continues a true wall rebound through its signed-gap certificate and retrieves the ball 398ms
+   ✓ catches an ordinary high center-field fly using a causal aero-ground forecast 836ms
+   ✓ keeps bodies, independent gloves and a possessed ball inside the physical fence through pickup and release 838ms
+   ✓ finishes the pinned fast grounder after causal interception without an invented result 497ms
+
+ Test Files  3 passed (3)
+      Tests  30 passed (30)
+   Start at  12:11:22
+   Duration  5.46s (transform 328ms, setup 0ms, collect 845ms, tests 5.23s, environment 0ms, prepare 421ms)
+

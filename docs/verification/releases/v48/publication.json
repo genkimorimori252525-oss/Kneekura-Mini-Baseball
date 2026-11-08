@@ -1,0 +1,46 @@
+{
+  "pass": true,
+  "sourceCommit": "505bf94b439202210cff9d7e45750799f8bf0118",
+  "verifiedRemoteHead": "505bf94b439202210cff9d7e45750799f8bf0118",
+  "branch": "jolly/tbd-lad-native-browser-core-2026-10-14",
+  "pullRequest": {
+    "headRefOid": "505bf94b439202210cff9d7e45750799f8bf0118",
+    "isDraft": true,
+    "state": "OPEN",
+    "title": "fix: brake batter gaze and brace swing aim (v48)",
+    "url": "https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/380"
+  },
+  "rawFiles": {
+    "docs/history/INCIDENTS.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/505bf94b439202210cff9d7e45750799f8bf0118/docs/history/INCIDENTS.md",
+      "bytes": 22747,
+      "sha256": "1f120df3c6678049c796a7c43ddec711a7ea1324e26be8bbaeaf3112ee88fdd0"
+    },
+    "docs/handoffs/LATEST.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/505bf94b439202210cff9d7e45750799f8bf0118/docs/handoffs/LATEST.md",
+      "bytes": 4527,
+      "sha256": "3efaf5aaab9c91226ae8408560e3d47373140524b3277124392103c1493765c9"
+    },
+    "tools/browser-bridge/live-batter-braking-view.js": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/505bf94b439202210cff9d7e45750799f8bf0118/tools/browser-bridge/live-batter-braking-view.js",
+      "bytes": 14088,
+      "sha256": "f987a851185dcd70e7f31429c748abb2b46d0f70999e15aaa92d4c26dee9cc9b"
+    },
+    "docs/reports/2026-10-18-v48-batter-braking.md": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/505bf94b439202210cff9d7e45750799f8bf0118/docs/reports/2026-10-18-v48-batter-braking.md",
+      "bytes": 5666,
+      "sha256": "9755ce97be7a4f3c5eea5a8ca8b306c402698a245caf5dc9f347b2844b455dab"
+    },
+    "docs/demos/releases/v48/game.html": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/505bf94b439202210cff9d7e45750799f8bf0118/docs/demos/releases/v48/game.html",
+      "bytes": 3468296,
+      "sha256": "a529f2f0e3a99ce256ad1e136a6b7d5642048d27f32ccc83c1453cd78b8821b5"
+    },
+    "docs/demos/releases/v48/SHA256.json": {
+      "url": "https://raw.githubusercontent.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/505bf94b439202210cff9d7e45750799f8bf0118/docs/demos/releases/v48/SHA256.json",
+      "bytes": 553,
+      "sha256": "70fb165bdf3092e603fe9359e128e6649fdfce3686dce2dfab9c893b0826fd8c"
+    }
+  },
+  "scope": "actual current raw bytes and remote branch/Draft PR; no main merge"
+}

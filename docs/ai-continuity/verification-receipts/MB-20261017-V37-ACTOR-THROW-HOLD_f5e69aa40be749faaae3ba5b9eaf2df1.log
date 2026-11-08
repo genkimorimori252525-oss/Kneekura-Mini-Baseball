@@ -1,0 +1,1 @@
+{"status":"PASS","shortThrowAdvancesDuringFrozenSourceHold":true,"actualReleaseGateRetained":true,"boundary":"one millisecond beyond .55s; exact decimal floating boundary retained in earlier FAIL"}

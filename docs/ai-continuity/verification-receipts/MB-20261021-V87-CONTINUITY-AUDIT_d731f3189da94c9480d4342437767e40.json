@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V87-CONTINUITY-AUDIT",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "py",
+    "-3.10",
+    "-X",
+    "utf8",
+    "-B",
+    "C:/Users/genki/.codex/tools/continuity-guard/continuity.py",
+    "audit"
+  ],
+  "observed_at": "2026-10-20T17:27:38.482+00:00",
+  "elapsed_ms": 593,
+  "git_head": "9f6b6ed69d8682f417490d4b761914f1b4a6d6a1",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V87-CONTINUITY-AUDIT_d731f3189da94c9480d4342437767e40.log",
+  "output_sha256": "b1adf5248d19b71609876def57028b4602850e60254afda962e89b0ba2d2b4d4",
+  "receipt_id": "MB-20261021-V87-CONTINUITY-AUDIT_d731f3189da94c9480d4342437767e40"
+}

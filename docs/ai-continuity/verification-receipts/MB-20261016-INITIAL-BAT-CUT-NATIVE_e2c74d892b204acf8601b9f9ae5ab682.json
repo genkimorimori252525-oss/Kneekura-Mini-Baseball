@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-INITIAL-BAT-CUT-NATIVE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-authored-with-bat-cut-v1/readback.mjs",
+    "../../outputs/verification-authored-initial-with-bat-v1",
+    "../../outputs/verification-authored-with-bat-cut-v1"
+  ],
+  "observed_at": "2026-10-16T12:09:21.431+00:00",
+  "elapsed_ms": 49594,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-INITIAL-BAT-CUT-NATIVE_e2c74d892b204acf8601b9f9ae5ab682.log",
+  "output_sha256": "fdf311e1b5dd0587f260f1f2e1ad06701321b5864bad7b19a204d253d8f8798f",
+  "receipt_id": "MB-20261016-INITIAL-BAT-CUT-NATIVE_e2c74d892b204acf8601b9f9ae5ab682"
+}

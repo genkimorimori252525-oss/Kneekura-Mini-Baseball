@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V68-CADENCE",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v56-cadence.mjs",
+    "../../outputs/ばせぼーるlv68_TBD_vs_LAD_弾道と実測フォーム接続版.html",
+    "../../outputs/カメラワーク調整室_v68.html",
+    "docs/verification/releases/v68/cadence"
+  ],
+  "observed_at": "2026-10-19T10:55:23.613+00:00",
+  "elapsed_ms": 14718,
+  "git_head": "652aa75ccb24df723c2d413e5dc37e7395dc8679",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V68-CADENCE_a03366b50a72486fbc238cb5bbb507ec.log",
+  "output_sha256": "17c5f9a37575a0eb8d9a419181b1ed7181f4f4aab62a49135438d3b065cae8bb",
+  "receipt_id": "MB-20261019-V68-CADENCE_a03366b50a72486fbc238cb5bbb507ec"
+}

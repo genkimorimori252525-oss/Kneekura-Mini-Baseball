@@ -1,0 +1,34 @@
+{
+  "pass": true,
+  "normalSha256": "41d7f56a4e30b4a0f41706e67512f8745d6bace5244fe4e7f4eb032132134d9e",
+  "workbenchSha256": "67160af7cb25d435893b299430849dc26cacfe2cb3b7e119278a79de77fd6ae0",
+  "oneExactEmbeddedGame": true,
+  "sourceCoreSha256": "4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279",
+  "sourceInputCount": 113,
+  "pitchBallCadenceMs": 22,
+  "ordinaryCadenceMs": 55,
+  "ballDisplayDefaults": {
+    "perspective": 1,
+    "overhead": 1
+  },
+  "olderReleasesUnchanged": true,
+  "corePhysicsRulesAiChanged": false,
+  "wholeOriginalPlanComplete": false,
+  "newNineInningTest": false,
+  "predictedContactGazeThenImpactStabilization": true,
+  "preset": {
+    "enabled": true,
+    "aimLiftMeters": 0.3,
+    "swingMaxDownRadians": 0.2,
+    "hitFollowDelayMs": 300,
+    "aimReleaseMs": 70,
+    "pitchTrackingGain": 0.26,
+    "pitchTrackingDeadbandRadians": 0.02
+  },
+  "pitcherReaction": {
+    "minimumDelaySeconds": 0.1,
+    "maximumDelaySeconds": 0.25,
+    "speedScaleMeters": 7,
+    "blendMs": 180
+  }
+}

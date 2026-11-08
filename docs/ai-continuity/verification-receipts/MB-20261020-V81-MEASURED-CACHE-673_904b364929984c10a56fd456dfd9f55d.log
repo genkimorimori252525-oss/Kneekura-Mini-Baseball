@@ -1,0 +1,14 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+stdout | src/integration/browser/MeasuredClipValidationCacheV81.test.ts > reuses the actual 673-clip decoded library without losing rows, default order or public IDs
+v81 measured catalog cache single-run milliseconds {"clips":673,"coldMs":2655.1423999999997,"warmMs":515.0214999999998,"ratio":0.1939713289953864,"scope":"Node helper only; not browser startup or device FPS"}
+
+ ✓ src/integration/browser/MeasuredClipValidationCacheV81.test.ts (8 tests | 7 skipped) 5601ms
+   ✓ reuses the actual 673-clip decoded library without losing rows, default order or public IDs 5600ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 7 skipped (8)
+   Start at  21:46:40
+   Duration  7.53s (transform 836ms, setup 0ms, collect 1.21s, tests 5.60s, environment 0ms, prepare 208ms)
+

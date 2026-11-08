@@ -1,0 +1,258 @@
+{
+  "pass": false,
+  "phase": "main-zoom-json-1200",
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v69_打球比較と拡大版.html",
+  "views": [
+    {
+      "width": 1200,
+      "default": {
+        "context": {
+          "batterId": "0-b0",
+          "batterName": "大谷翔平",
+          "pitcherId": "1-p0",
+          "pitcherName": "ティカオ",
+          "clipId": "obp-51_3",
+          "clipLabel": "左打者 51_3 · 記録 55.8mph",
+          "forceSwing": true,
+          "rosterSourceId": "USER_APPROVED_PROVISIONAL_SI_V3_TRAIT_OWNERSHIP_20261018:release-geometry-v62",
+          "playerSourceId": "USER_APPROVED_PROVISIONAL_INDIVIDUAL_SI_V2:0-b0:release-height-ratio-v62"
+        },
+        "invariants": {
+          "variedField": "pitch.batter.impactTrajectory.level",
+          "seed": 20261019,
+          "originTick": 1000000,
+          "sourceDescriptorEqual": true,
+          "timingErrorEqual": true,
+          "aimErrorEqual": true,
+          "sweetSpotTEqual": true,
+          "zoneJudgmentEqual": true,
+          "measuredClipEqual": true,
+          "impactClocksRealigned": false,
+          "fieldersAndWallsApplied": false,
+          "ballExitStateOverridden": false
+        },
+        "metrics": [
+          {
+            "level": 1,
+            "exitSpeedMps": 49.382587162105644,
+            "launchAngleDegrees": -11.124305910427854,
+            "spinRpm": 6817.308886231633,
+            "carryMeters": 4.0773529948146106,
+            "firstGroundContact": {
+              "tick": 1517982,
+              "elapsedSeconds": 0.5179818359597755,
+              "position": {
+                "x": -2.622609063252079,
+                "y": 0.0366,
+                "z": 3.0642678976018174
+              }
+            },
+            "firstGroundSide": "FAIR_SIDE",
+            "call": null
+          },
+          {
+            "level": 2,
+            "exitSpeedMps": 43.64856167740738,
+            "launchAngleDegrees": 20.81955213986104,
+            "spinRpm": 6010.067398193118,
+            "carryMeters": 83.68358349602225,
+            "firstGroundContact": {
+              "tick": 4393247,
+              "elapsedSeconds": 3.3932462251960835,
+              "position": {
+                "x": -83.62792037955265,
+                "y": 0.0366,
+                "z": 1.978753787590289
+              }
+            },
+            "firstGroundSide": "FOUL_SIDE",
+            "call": null
+          },
+          {
+            "level": 3,
+            "exitSpeedMps": 37.17798775385731,
+            "launchAngleDegrees": 0.7260614713639265,
+            "spinRpm": 1966.4304727415467,
+            "carryMeters": 23.139378281979216,
+            "firstGroundContact": {
+              "tick": 2099550,
+              "elapsedSeconds": 1.0995490669731431,
+              "position": {
+                "x": -1.5410495307539613,
+                "y": 0.0366,
+                "z": -23.142270252519577
+              }
+            },
+            "firstGroundSide": "FOUL_SIDE",
+            "call": null
+          },
+          {
+            "level": 4,
+            "exitSpeedMps": null,
+            "launchAngleDegrees": null,
+            "spinRpm": null,
+            "carryMeters": null,
+            "firstGroundContact": null,
+            "firstGroundSide": null,
+            "call": "swinging_strike"
+          }
+        ],
+        "table": [
+          [
+            "弾道1",
+            "接触",
+            "177.8 km/h",
+            "-11.1°",
+            "6817 rpm",
+            "4.1 m"
+          ],
+          [
+            "弾道2",
+            "接触・ファウル方向",
+            "157.1 km/h",
+            "20.8°",
+            "6010 rpm",
+            "83.7 m"
+          ],
+          [
+            "弾道3",
+            "接触・ファウル方向",
+            "133.8 km/h",
+            "0.7°",
+            "1966 rpm",
+            "23.1 m"
+          ],
+          [
+            "弾道4",
+            "空振り",
+            "—",
+            "—",
+            "—",
+            "—"
+          ]
+        ]
+      },
+      "draws": [
+        {
+          "seconds": 0.15,
+          "ballCounts": {
+            "side": 4,
+            "top": 4
+          },
+          "batCounts": {
+            "side": 4,
+            "top": 4
+          }
+        },
+        {
+          "seconds": 0.55,
+          "ballCounts": {
+            "side": 3,
+            "top": 3
+          },
+          "batCounts": {
+            "side": 0,
+            "top": 0
+          }
+        }
+      ],
+      "zoomAndDrag": true,
+      "actualComparisonExport": true,
+      "curveRight": {
+        "playerId": "0-b1",
+        "clipId": "obp-123_6",
+        "metrics": [
+          {
+            "level": 1,
+            "exitSpeedMps": 32.71505026128085,
+            "launchAngleDegrees": -29.31550998134751,
+            "spinRpm": 3780.8371079983767,
+            "carryMeters": 1.3261997923106759,
+            "firstGroundContact": {
+              "tick": 1588170,
+              "elapsedSeconds": 0.588169616831832,
+              "position": {
+                "x": 0.47963093928479744,
+                "y": 0.0366,
+                "z": 1.2934560375811677
+              }
+            },
+            "firstGroundSide": "FAIR_SIDE",
+            "call": null
+          },
+          {
+            "level": 2,
+            "exitSpeedMps": 33.52299721049378,
+            "launchAngleDegrees": 4.985889143601606,
+            "spinRpm": 3137.803811782509,
+            "carryMeters": 21.386047295165625,
+            "firstGroundContact": {
+              "tick": 2231182,
+              "elapsedSeconds": 1.2311813725913856,
+              "position": {
+                "x": 10.052368638016615,
+                "y": 0.0366,
+                "z": 18.940138989316573
+              }
+            },
+            "firstGroundSide": "FAIR_SIDE",
+            "call": null
+          },
+          {
+            "level": 3,
+            "exitSpeedMps": 33.08533924200696,
+            "launchAngleDegrees": 35.113075725770734,
+            "spinRpm": 4858.49177052428,
+            "carryMeters": 71.69652671025459,
+            "firstGroundContact": {
+              "tick": 5299345,
+              "elapsedSeconds": 4.299344368453979,
+              "position": {
+                "x": 58.482364744571086,
+                "y": 0.0366,
+                "z": 41.563291607931866
+              }
+            },
+            "firstGroundSide": "FOUL_SIDE",
+            "call": null
+          },
+          {
+            "level": 4,
+            "exitSpeedMps": 31.519496714209545,
+            "launchAngleDegrees": 57.76537975506106,
+            "spinRpm": 6615.217643043542,
+            "carryMeters": 55.97103982931992,
+            "firstGroundContact": {
+              "tick": 5969294,
+              "elapsedSeconds": 4.969293267867213,
+              "position": {
+                "x": 54.61757823475138,
+                "y": 0.0366,
+                "z": -12.325118486524763
+              }
+            },
+            "firstGroundSide": "FOUL_SIDE",
+            "call": null
+          }
+        ]
+      },
+      "mainZoomAndJson": {
+        "physicalUnchanged": true,
+        "actualNewDownload": true,
+        "newRoundTrip": true,
+        "missingLegacyDisplayUsesOne": true
+      }
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    }
+  ],
+  "scope": "Actual v69 maker integration: same-pitch four-level comparison, physical profile, common-clock rendering, display-only zoom, JSON and narrow layout. Existing Core and zoom unit tests remain separate.",
+  "sha256": "656125b0c26f99878a186ee4e8f79a6861de754effd3bb30b11d176f40381a1d",
+  "coreSha256": "ee7451940934e39c69cec0419badbc644c17768210e139ab50e0862e69f63223",
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\nfalse !== true\n\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-maker-v69.mjs:153:32"
+}

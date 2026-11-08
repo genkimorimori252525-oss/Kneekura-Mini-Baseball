@@ -1,0 +1,963 @@
+COLD_READ_AUTHENTIC_RECOVERY_EXECUTION
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+... Skipped lines
+
+  {
+    capabilityResponseAdmitted: true,
+    consumedParentReference: {
+      owner: 'pa_initial_joint_v1_executions',
+      snapshotHash: '38baf684f00973ea7810d1b965aa6c2bcb9c3e2be29db7179e1c1251b6fcdd4c',
+...
+              y: 0,
++             z: -0
+-             z: 0
+            },
+            linearVelocity: {
+              x: 0,
+              y: 0,
+              z: 0
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-owned-joint-recovery-v2/readback.mjs:83187:5
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:636:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: {
+    kind: 'initial_joint_recovery_executed_v1',
+    source: {
+      capability: 'owned_initial_joint_recovery_execution_v1',
+      capabilityResponse: {
+        availableAtDay: 10,
+        calibrationSourceId: 'explicit-synthetic-fatigue-to-SI-ceiling-test-only',
+        calibrationVersion: 'v1',
+        fatigueSamples: [
+          {
+            fatigue: 0,
+            maximumBodySpeedMps: 5,
+            maximumSweetSpotSpeedMps: 50
+          },
+          {
+            fatigue: 1,
+            maximumBodySpeedMps: 4,
+            maximumSweetSpotSpeedMps: 40
+          }
+        ],
+        personHash: 'd20ade84306eb1f6b0f36cebf37efcfba5ba1d5fbe552f79cd48a1ab3f2863de',
+        playerId: 'authored-native-match:away:player:0',
+        projectedStateHash: 'a7625b1803448c35dd4a2b62a2b155a221d8d3f1348811949acbe137108d160e'
+      },
+      recoveryEndTick: 11134216,
+      recoveryModel: {
+        assessmentSourceId: 'explicit-synthetic-kinematic-recovery-not-neural-measurement',
+        assessmentVersion: 'v1',
+        availableAtDay: 10,
+        basis: 'EXPLICIT_SYNTHETIC_IMPACT_RECOVERY_V1',
+        feedback: 'ZERO_DELAY_KINEMATIC_TEST_MODEL',
+        modelId: 'c1_post_impact_reference_pose_rest_v1'
+      },
+      sourceId: 'authored-joint:actual-recovery',
+      sourceVersion: 'explicit-synthetic-current-response-v1',
+      workloadViewReference: {
+        owner: 'pa_joint_workload_v1_views',
+        snapshotHash: 'fd251ef16a6c82e3993ac2918c4200c4577b113748681a7194a53af365a8021f',
+        sourceHash: '55877502e181c896017f8ce88951223aded07c7f642746b52714c32c07d4fff0',
+        sourceId: 'authored-joint:nonempty-workload'
+      }
+    },
+    lineage: {
+      enrollmentReference: {
+        owner: 'same_pa_enrollments',
+        snapshotHash: '0901f3dfa8ba24dfc0c4d3bc9208a5d0b1cd7eca4ebc85d85d332267209acf58',
+        sourceHash: '01f846dc6de6fe40f6fa97b63a9a291b9a3c70bb86ebb1a3a5ac57e2bfc2e4bc',
+        sourceId: 'authored-native-match:initial-enrollment'
+      },
+      actorReference: {
+        owner: 'physical_plate_appearance_actors',
+        snapshotHash: 'b47dadf2822dc2ef483e97ac9514d5a3c0a5125a76ca60dd36c70eafcb8da676',
+        sourceHash: 'e946273665f890973b773da4209df1f76e082a5ad9f1248bb5bb1d15a58b1a83',
+        sourceId: 'authored-native-match:batter-actor'
+      },
+      careerId: 'authored-native-match:career',
+      gameId: 'authored-native-match:game',
+      playId: 1,
+      firstPhysicalPitchSourceId: 'authored-native-match:initial-pitch',
+      participantReferences: [
+        {
+          playerId: 'authored-native-match:away:player:0',
+          bindingHash: '8c7231c5293c39defbcb525d7383ddbf6d9c889ce135454665690ae0011cff2f',
+          personHash: 'd20ade84306eb1f6b0f36cebf37efcfba5ba1d5fbe552f79cd48a1ab3f2863de',
+          baselineSourceId: 'authored-native-match:workload:9',
+          revision: 0,
+          stateHash: '54a76b7b9e0ce3903066ef78d4978e674c54e27529c362c0cce1d60d2c73b35d'
+        },
+        {
+          playerId: 'authored-native-match:home:player:0',
+          bindingHash: 'bc9e9ea6eadcec50f8b3a29f602585eaa5b7e7455c771e15569af848cfac771a',
+          personHash: 'cccd05276e391c081a36c4aedaa880948206ffe76873b860f0b383617c8a3aab',
+          baselineSourceId: 'authored-native-match:workload:0',
+          revision: 0,
+          stateHash: '69df70241251e55a69c6a4a16a4a692e95bbc3169e31d96fc6d7954f92d1d9a1'
+        },
+        {
+          playerId: 'authored-native-match:home:player:1',
+          bindingHash: '140a351cbf6949e6acebdba54f4278fede2ee21fa2a80e9b683d6c27d12f9abb',
+          personHash: '79a8c42a4bb3ab6e2c84313cc3f16a0e59b57526d5b4e884d81697ea79a4a06a',
+          baselineSourceId: 'authored-native-match:workload:1',
+          revision: 0,
+          stateHash: '1aeb2df54e4cbd3a227996628cb3deb5b8d8469f5d4d5d2fe74552b29679d7e8'
+        },
+        {
+          playerId: 'authored-native-match:home:player:2',
+          bindingHash: '373817bd54187b78dd83e2fbb76fe945baf59b81aa40e294b228117d130551ab',
+          personHash: '31febf980fa291ccf2da162e12cce6d46157c96b5bfec5dd8d1c17e40ff65d37',
+          baselineSourceId: 'authored-native-match:workload:2',
+          revision: 0,
+          stateHash: 'd918de186d3b7d422d3e38d7705348f149573acf3c9f15d0e9bc72f66327f8d7'
+        },
+        {
+          playerId: 'authored-native-match:home:player:3',
+          bindingHash: 'db002d1919dfdd577c724b261472e68ad6078e4b4596eba13cd2cbea6064e2d3',
+          personHash: 'd8d3a8cc1bb708757c8ba3b8183d8b64584a7794df12e8edcde8603ec2c95495',
+          baselineSourceId: 'authored-native-match:workload:3',
+          revision: 0,
+          stateHash: 'be85a4ca99819be4dc17f520427ddc57e1b255f6a89b0386f05988709d63fb50'
+        },
+        {
+          playerId: 'authored-native-match:home:player:4',
+          bindingHash: '3a5b23729441c2e01d6bc3fac6780b737b80ac234d4e5ad45e0a729842185d3e',
+          personHash: 'a5ce62eaab35903e8f47156031bd82b6116d0c5dfa91411642a1232029f032ea',
+          baselineSourceId: 'authored-native-match:workload:4',
+          revision: 0,
+          stateHash: '4971861fc35adc1949d41bd2074619931993b878a97635c6751fb1194cbf1f27'
+        },
+        {
+          playerId: 'authored-native-match:home:player:5',
+          bindingHash: '923e92ccfdfb034a5e523d08b80d4bae296868ad93145fd1f246e33ac30a29d0',
+          personHash: '551fdbf935c865ef402e0b7d85ef7781cc7a723613515094dfd9427ab850ae92',
+          baselineSourceId: 'authored-native-match:workload:5',
+          revision: 0,
+          stateHash: 'd87c3317aea743c89d958069cd14bd6aec6f1fe5750ddebcd314e9e2a98577f8'
+        },
+        {
+          playerId: 'authored-native-match:home:player:6',
+          bindingHash: 'd514b6e9133432f01d880e6f38656a508a351b160f7b7b0ab16aee79ea6d04bf',
+          personHash: '8e4715e60ade46a4ad1cfd2199d2d7a1b448b2831bbedd5b5ca5cb2431e082ac',
+          baselineSourceId: 'authored-native-match:workload:6',
+          revision: 0,
+          stateHash: 'e644f4cc9bb1876caf96511052808a6020cc837def373e93adcee212bd5db390'
+        },
+        {
+          playerId: 'authored-native-match:home:player:7',
+          bindingHash: 'b2a33a47c71a4b3eda1d49b1bf777575f02aac818da66cfae22fd2edf5bd3e35',
+          personHash: '33cf9495aad2c240c39f70730afc4bf1a0952418a2c3a39ed7403c28fe3ec417',
+          baselineSourceId: 'authored-native-match:workload:7',
+          revision: 0,
+          stateHash: 'bd06f6e692658efd198187db257ee1453df5bc1a1d76d060e54e707929d45133'
+        },
+        {
+          playerId: 'authored-native-match:home:player:8',
+          bindingHash: '3dacb8e52611e35e18eee4ead8533e79dec345d8efc267873d3937cc8f6564ef',
+          personHash: '91b52de98587770a3d8d01f9a5935fbe981b1215e9663516804c23dd86ac41cd',
+          baselineSourceId: 'authored-native-match:workload:8',
+          revision: 0,
+          stateHash: 'e63bd8ac004e4830c0eff8bc55bc267846f77fe71f37294ed8c2d358c4841d19'
+        }
+      ]
+    },
+    consumedParentReference: {
+      owner: 'pa_initial_joint_v1_executions',
+      snapshotHash: '38baf684f00973ea7810d1b965aa6c2bcb9c3e2be29db7179e1c1251b6fcdd4c',
+      sourceHash: '14613a5f7b87c7c104d7c4731e8f5bb780f9d41aeedf171fa6ccd41c3cf76f30',
+      sourceId: 'authored-joint:physical-execution'
+    },
+    workloadViewReference: {
+      owner: 'pa_joint_workload_v1_views',
+      snapshotHash: 'fd251ef16a6c82e3993ac2918c4200c4577b113748681a7194a53af365a8021f',
+      sourceHash: '55877502e181c896017f8ce88951223aded07c7f642746b52714c32c07d4fff0',
+      sourceId: 'authored-joint:nonempty-workload'
+    },
+    issuedAtMoment: {
+      originTick: 10587305,
+      elapsedSeconds: 0.46910977857333824,
+      ball: {
+        tick: 11056415,
+        position: {
+          x: 0.08761352234130243,
+          y: 0.8344712623750234,
+          z: 0.3231870662844579
+        },
+        velocity: {
+          x: 0.06515232616297584,
+          y: -3.6421759863929495,
+          z: -36.2133977979649
+        },
+        spin: { x: 0, y: 0, z: 100 }
+      }
+    },
+    effectiveCapability: {
+      maximumSweetSpotSpeedMps: 49.25,
+      maximumBodySpeedMps: 4.925,
+      projectedFatigue: 0.07500000000000001,
+      projectedStateHash: 'a7625b1803448c35dd4a2b62a2b155a221d8d3f1348811949acbe137108d160e'
+    },
+    input: {
+      version: 'post_impact_bat_body_world_v1',
+      throughTick: 11134216,
+      control: {
+        version: 'post_impact_bat_body_control_v1',
+        world: {
+          version: 'controlled_bat_body_pitch_world_v1',
+          pitch: {
+            descriptor: [Object],
+            anchors: [Object],
+            motion: [Object],
+            pitcherPlayerId: 'authored-native-match:home:player:0',
+            otherActors: [Array],
+            throughTick: 11134216
+          },
+          pitcherRenewal: {
+            version: 'pitch_hand_hold_renewal_v1',
+            fromTick: 10787305,
+            throughTick: 11134216,
+            sceneThroughTick: 12587305
+          },
+          batterPlayerId: 'authored-native-match:away:player:0',
+          batterControl: {
+            version: 'coupled_held_measured_bat_body_control_v1',
+            bat: [Object],
+            bodyObstacleIndex: 0,
+            footObstacleIndices: [Array],
+            maximumLegReachM: 1.5,
+            body: [Object]
+          },
+          maximumGloveReachM: 1.3,
+          batPhysical: {
+            axialMomentOfInertiaKgM2: 0.0005,
+            centerOfMassT: 0.58,
+            massKg: 0.9,
+            radiusProfile: [Object],
+            transverseMomentOfInertiaKgM2: 0.055
+          },
+          ball: {
+            massKg: 0.145,
+            radiusM: 0.0366,
+            rotationalInertiaFactor: 0.378
+          },
+          contactResponse: {
+            profileId: 'nathan-2012-rigid-wood-local-contact',
+            version: 'nathan-2012-47-impact-fit-v1',
+            normalRestitutionKnots: [Array],
+            tangentialRestitution: 0.3,
+            frictionCoefficient: 0.15,
+            evidenceIds: [Array]
+          }
+        },
+        recoveryEndTick: 11134216,
+        maximumSweetSpotSpeedMps: 49.25,
+        maximumBodySpeedMps: 4.925
+      }
+    },
+    result: {
+      kind: 'moving',
+      moment: {
+        originTick: 10587305,
+        elapsedSeconds: 0.546911,
+        ball: {
+          tick: 11134216,
+          position: {
+            x: 0.13390867664417633,
+            y: 0.46786251433845005,
+            z: 3.252897867717298
+          },
+          velocity: {
+            x: 0.5451287324682819,
+            y: -5.282525930257729,
+            z: 37.28263413558517
+          },
+          spin: {
+            x: 259.0354316292349,
+            y: -61.91062732406981,
+            z: 97.55895501725838
+          }
+        }
+      },
+      orientation: {
+        w: -0.18571421035374935,
+        x: -0.8478710089810096,
+        y: -0.4019082277800069,
+        z: -0.291710062639159
+      },
+      contacts: [],
+      actorsAtMoment: {
+        bat: {
+          orientation: {
+            x: -0.5272557082843126,
+            y: 0.4821263797884057,
+            z: 0.24898569831785203,
+            w: -0.6538820184306227
+          },
+          state: {
+            pose: [Object],
+            linearVelocity: [Object],
+            angularVelocity: [Object]
+          }
+        },
+        body: {
+          position: {
+            x: 0.8771953488735766,
+            y: 0.7733202013645315,
+            z: -0.11476872518027663
+          },
+          velocity: { x: 0, y: 0, z: 0 }
+        },
+        hand: {
+          position: {
+            x: 0.8645830757290203,
+            y: 1.0576453067964913,
+            z: 0.293764137613892
+          },
+          velocity: { x: 0, y: 0, z: 0 }
+        }
+      },
+      pitcherHandAtMoment: {
+        tick: 11134216,
+        position: { x: 0.08000000000000002, y: 1.52, z: 17.77 },
+        velocity: { x: 0, y: 0, z: 0 }
+      },
+      descriptor: {
+        kind: 'aero_ground_continuous_source_kernel_v2',
+        initial: {
+          originTick: 10587305,
+          elapsedSeconds: 0.46910977857333824,
+          ball: {
+            tick: 11056415,
+            position: [Object],
+            velocity: [Object],
+            spin: [Object]
+          }
+        },
+        throughElapsedSeconds: 0.546911,
+        profile: {
+          air: {
+            aerodynamics: [Object],
+            gravityY: -9.81,
+            integrationStepTicks: 2000,
+            ticksPerSecond: 1000000
+          },
+          ground: {
+            gravityMps2: 9.81,
+            inertiaRatio: 0.378,
+            material: [Object],
+            radiusM: 0.0366,
+            restingVerticalSpeedMps: 0.15,
+            ticksPerSecond: 1000000
+          },
+          kind: 'aero_ground_v1'
+        }
+      },
+      coverage: {
+        originalOtherActorCount: 49,
+        retainedOtherActorCount: 47,
+        replacedActorCount: 2,
+        pitcherHandRetained: true,
+        actualBatPartCount: 2,
+        sourceMomentReanchored: false,
+        physicalExecutionAdmitted: false
+      },
+      departures: [
+        {
+          partIndex: 1,
+          originalBracketBoundMeters: 2.6057029828357735e-13,
+          initialSignedGapMeters: -2.045585922871851e-14,
+          initialSupportingPlaneGapMeters: -2.045585922871851e-14,
+          outgoingNormalSpeedMps: 29.715658759249767,
+          linearDeviationMps2: 1820.910917750734,
+          arithmeticBoundMeters: 2.2979689534142953e-13,
+          positionRoundingBoundMeters: 1.4210854715202004e-14,
+          escapeBracketThroughElapsedSeconds: 0.46910977857335606,
+          provenClearThroughElapsedSeconds: 0.47110977857333824,
+          supportingPlaneLowerGapAtEscapeMeters: 2.6446360928477317e-13,
+          signedGapAtEscapeMeters: 5.395059399226909e-13,
+          signedGapAtWindowEndMeters: 0.06223981978471015,
+          positionOrClockCorrected: false
+        }
+      ],
+      controlEndsAtThisMoment: true
+    },
+    timeline: {
+      playId: 1,
+      startedAtTick: 0,
+      lastEventTick: 11056415,
+      nextSequence: 1,
+      status: {
+        kind: 'batted_ball_pending',
+        count: { balls: 0, strikes: 0 },
+        contactTick: 11056415
+      },
+      events: [
+        {
+          tick: 11056415,
+          sequence: 0,
+          kind: 'BatBallContact',
+          payload: { countBefore: [Object], contact: [Object] }
+        }
+      ]
+    },
+    executedThroughMoment: {
+      originTick: 10587305,
+      elapsedSeconds: 0.546911,
+      ball: {
+        tick: 11134216,
+        position: {
+          x: 0.13390867664417633,
+          y: 0.46786251433845005,
+          z: 3.252897867717298
+        },
+        velocity: {
+          x: 0.5451287324682819,
+          y: -5.282525930257729,
+          z: 37.28263413558517
+        },
+        spin: {
+          x: 259.0354316292349,
+          y: -61.91062732406981,
+          z: 97.55895501725838
+        }
+      }
+    },
+    physicalWork: {
+      kind: 'executed_joint_recovery_prefix_v1',
+      fromMoment: {
+        originTick: 10587305,
+        elapsedSeconds: 0.46910977857333824,
+        ball: {
+          tick: 11056415,
+          position: {
+            x: 0.08761352234130243,
+            y: 0.8344712623750234,
+            z: 0.3231870662844579
+          },
+          velocity: {
+            x: 0.06515232616297584,
+            y: -3.6421759863929495,
+            z: -36.2133977979649
+          },
+          spin: { x: 0, y: 0, z: 100 }
+        }
+      },
+      throughMoment: {
+        originTick: 10587305,
+        elapsedSeconds: 0.546911,
+        ball: {
+          tick: 11134216,
+          position: {
+            x: 0.13390867664417633,
+            y: 0.46786251433845005,
+            z: 3.252897867717298
+          },
+          velocity: {
+            x: 0.5451287324682819,
+            y: -5.282525930257729,
+            z: 37.28263413558517
+          },
+          spin: {
+            x: 259.0354316292349,
+            y: -61.91062732406981,
+            z: 97.55895501725838
+          }
+        }
+      },
+      previousWorkloadViewReference: {
+        owner: 'pa_joint_workload_v1_views',
+        snapshotHash: 'fd251ef16a6c82e3993ac2918c4200c4577b113748681a7194a53af365a8021f',
+        sourceHash: '55877502e181c896017f8ce88951223aded07c7f642746b52714c32c07d4fff0',
+        sourceId: 'authored-joint:nonempty-workload'
+      },
+      assessmentStatus: 'REQUIRES_NEW_CUMULATIVE_WORKLOAD_ASSESSMENT'
+    },
+    physicalExecutionAdmitted: true,
+    motionIssued: true,
+    capabilityResponseAdmitted: true,
+    recoveryModelBasis: 'EXPLICIT_SYNTHETIC_IMPACT_RECOVERY_V1',
+    neuralReactionModel: 'ZERO_DELAY_KINEMATIC_TEST_MODEL',
+    muscleTorqueCalibrated: false,
+    requiresPhysicalSuccessor: true,
+    requiresCumulativeWorkloadReassessment: true,
+    nextMotionAllowed: false,
+    fullMatchVerified: false
+  },
+  expected: {
+    kind: 'initial_joint_recovery_executed_v1',
+    source: {
+      sourceId: 'authored-joint:actual-recovery',
+      sourceVersion: 'explicit-synthetic-current-response-v1',
+      capability: 'owned_initial_joint_recovery_execution_v1',
+      workloadViewReference: {
+        owner: 'pa_joint_workload_v1_views',
+        sourceId: 'authored-joint:nonempty-workload',
+        sourceHash: '55877502e181c896017f8ce88951223aded07c7f642746b52714c32c07d4fff0',
+        snapshotHash: 'fd251ef16a6c82e3993ac2918c4200c4577b113748681a7194a53af365a8021f'
+      },
+      recoveryEndTick: 11134216,
+      recoveryModel: {
+        modelId: 'c1_post_impact_reference_pose_rest_v1',
+        feedback: 'ZERO_DELAY_KINEMATIC_TEST_MODEL',
+        basis: 'EXPLICIT_SYNTHETIC_IMPACT_RECOVERY_V1',
+        availableAtDay: 10,
+        assessmentSourceId: 'explicit-synthetic-kinematic-recovery-not-neural-measurement',
+        assessmentVersion: 'v1'
+      },
+      capabilityResponse: {
+        playerId: 'authored-native-match:away:player:0',
+        personHash: 'd20ade84306eb1f6b0f36cebf37efcfba5ba1d5fbe552f79cd48a1ab3f2863de',
+        projectedStateHash: 'a7625b1803448c35dd4a2b62a2b155a221d8d3f1348811949acbe137108d160e',
+        calibrationSourceId: 'explicit-synthetic-fatigue-to-SI-ceiling-test-only',
+        calibrationVersion: 'v1',
+        availableAtDay: 10,
+        fatigueSamples: [
+          {
+            fatigue: 0,
+            maximumSweetSpotSpeedMps: 50,
+            maximumBodySpeedMps: 5
+          },
+          {
+            fatigue: 1,
+            maximumSweetSpotSpeedMps: 40,
+            maximumBodySpeedMps: 4
+          }
+        ]
+      }
+    },
+    lineage: {
+      enrollmentReference: {
+        owner: 'same_pa_enrollments',
+        snapshotHash: '0901f3dfa8ba24dfc0c4d3bc9208a5d0b1cd7eca4ebc85d85d332267209acf58',
+        sourceHash: '01f846dc6de6fe40f6fa97b63a9a291b9a3c70bb86ebb1a3a5ac57e2bfc2e4bc',
+        sourceId: 'authored-native-match:initial-enrollment'
+      },
+      actorReference: {
+        owner: 'physical_plate_appearance_actors',
+        snapshotHash: 'b47dadf2822dc2ef483e97ac9514d5a3c0a5125a76ca60dd36c70eafcb8da676',
+        sourceHash: 'e946273665f890973b773da4209df1f76e082a5ad9f1248bb5bb1d15a58b1a83',
+        sourceId: 'authored-native-match:batter-actor'
+      },
+      careerId: 'authored-native-match:career',
+      gameId: 'authored-native-match:game',
+      playId: 1,
+      firstPhysicalPitchSourceId: 'authored-native-match:initial-pitch',
+      participantReferences: [
+        {
+          playerId: 'authored-native-match:away:player:0',
+          bindingHash: '8c7231c5293c39defbcb525d7383ddbf6d9c889ce135454665690ae0011cff2f',
+          personHash: 'd20ade84306eb1f6b0f36cebf37efcfba5ba1d5fbe552f79cd48a1ab3f2863de',
+          baselineSourceId: 'authored-native-match:workload:9',
+          revision: 0,
+          stateHash: '54a76b7b9e0ce3903066ef78d4978e674c54e27529c362c0cce1d60d2c73b35d'
+        },
+        {
+          playerId: 'authored-native-match:home:player:0',
+          bindingHash: 'bc9e9ea6eadcec50f8b3a29f602585eaa5b7e7455c771e15569af848cfac771a',
+          personHash: 'cccd05276e391c081a36c4aedaa880948206ffe76873b860f0b383617c8a3aab',
+          baselineSourceId: 'authored-native-match:workload:0',
+          revision: 0,
+          stateHash: '69df70241251e55a69c6a4a16a4a692e95bbc3169e31d96fc6d7954f92d1d9a1'
+        },
+        {
+          playerId: 'authored-native-match:home:player:1',
+          bindingHash: '140a351cbf6949e6acebdba54f4278fede2ee21fa2a80e9b683d6c27d12f9abb',
+          personHash: '79a8c42a4bb3ab6e2c84313cc3f16a0e59b57526d5b4e884d81697ea79a4a06a',
+          baselineSourceId: 'authored-native-match:workload:1',
+          revision: 0,
+          stateHash: '1aeb2df54e4cbd3a227996628cb3deb5b8d8469f5d4d5d2fe74552b29679d7e8'
+        },
+        {
+          playerId: 'authored-native-match:home:player:2',
+          bindingHash: '373817bd54187b78dd83e2fbb76fe945baf59b81aa40e294b228117d130551ab',
+          personHash: '31febf980fa291ccf2da162e12cce6d46157c96b5bfec5dd8d1c17e40ff65d37',
+          baselineSourceId: 'authored-native-match:workload:2',
+          revision: 0,
+          stateHash: 'd918de186d3b7d422d3e38d7705348f149573acf3c9f15d0e9bc72f66327f8d7'
+        },
+        {
+          playerId: 'authored-native-match:home:player:3',
+          bindingHash: 'db002d1919dfdd577c724b261472e68ad6078e4b4596eba13cd2cbea6064e2d3',
+          personHash: 'd8d3a8cc1bb708757c8ba3b8183d8b64584a7794df12e8edcde8603ec2c95495',
+          baselineSourceId: 'authored-native-match:workload:3',
+          revision: 0,
+          stateHash: 'be85a4ca99819be4dc17f520427ddc57e1b255f6a89b0386f05988709d63fb50'
+        },
+        {
+          playerId: 'authored-native-match:home:player:4',
+          bindingHash: '3a5b23729441c2e01d6bc3fac6780b737b80ac234d4e5ad45e0a729842185d3e',
+          personHash: 'a5ce62eaab35903e8f47156031bd82b6116d0c5dfa91411642a1232029f032ea',
+          baselineSourceId: 'authored-native-match:workload:4',
+          revision: 0,
+          stateHash: '4971861fc35adc1949d41bd2074619931993b878a97635c6751fb1194cbf1f27'
+        },
+        {
+          playerId: 'authored-native-match:home:player:5',
+          bindingHash: '923e92ccfdfb034a5e523d08b80d4bae296868ad93145fd1f246e33ac30a29d0',
+          personHash: '551fdbf935c865ef402e0b7d85ef7781cc7a723613515094dfd9427ab850ae92',
+          baselineSourceId: 'authored-native-match:workload:5',
+          revision: 0,
+          stateHash: 'd87c3317aea743c89d958069cd14bd6aec6f1fe5750ddebcd314e9e2a98577f8'
+        },
+        {
+          playerId: 'authored-native-match:home:player:6',
+          bindingHash: 'd514b6e9133432f01d880e6f38656a508a351b160f7b7b0ab16aee79ea6d04bf',
+          personHash: '8e4715e60ade46a4ad1cfd2199d2d7a1b448b2831bbedd5b5ca5cb2431e082ac',
+          baselineSourceId: 'authored-native-match:workload:6',
+          revision: 0,
+          stateHash: 'e644f4cc9bb1876caf96511052808a6020cc837def373e93adcee212bd5db390'
+        },
+        {
+          playerId: 'authored-native-match:home:player:7',
+          bindingHash: 'b2a33a47c71a4b3eda1d49b1bf777575f02aac818da66cfae22fd2edf5bd3e35',
+          personHash: '33cf9495aad2c240c39f70730afc4bf1a0952418a2c3a39ed7403c28fe3ec417',
+          baselineSourceId: 'authored-native-match:workload:7',
+          revision: 0,
+          stateHash: 'bd06f6e692658efd198187db257ee1453df5bc1a1d76d060e54e707929d45133'
+        },
+        {
+          playerId: 'authored-native-match:home:player:8',
+          bindingHash: '3dacb8e52611e35e18eee4ead8533e79dec345d8efc267873d3937cc8f6564ef',
+          personHash: '91b52de98587770a3d8d01f9a5935fbe981b1215e9663516804c23dd86ac41cd',
+          baselineSourceId: 'authored-native-match:workload:8',
+          revision: 0,
+          stateHash: 'e63bd8ac004e4830c0eff8bc55bc267846f77fe71f37294ed8c2d358c4841d19'
+        }
+      ]
+    },
+    consumedParentReference: {
+      owner: 'pa_initial_joint_v1_executions',
+      snapshotHash: '38baf684f00973ea7810d1b965aa6c2bcb9c3e2be29db7179e1c1251b6fcdd4c',
+      sourceHash: '14613a5f7b87c7c104d7c4731e8f5bb780f9d41aeedf171fa6ccd41c3cf76f30',
+      sourceId: 'authored-joint:physical-execution'
+    },
+    workloadViewReference: {
+      owner: 'pa_joint_workload_v1_views',
+      sourceId: 'authored-joint:nonempty-workload',
+      sourceHash: '55877502e181c896017f8ce88951223aded07c7f642746b52714c32c07d4fff0',
+      snapshotHash: 'fd251ef16a6c82e3993ac2918c4200c4577b113748681a7194a53af365a8021f'
+    },
+    issuedAtMoment: {
+      originTick: 10587305,
+      elapsedSeconds: 0.46910977857333824,
+      ball: {
+        tick: 11056415,
+        position: {
+          x: 0.08761352234130243,
+          y: 0.8344712623750234,
+          z: 0.3231870662844579
+        },
+        velocity: {
+          x: 0.06515232616297584,
+          y: -3.6421759863929495,
+          z: -36.2133977979649
+        },
+        spin: { x: 0, y: 0, z: 100 }
+      }
+    },
+    effectiveCapability: {
+      maximumSweetSpotSpeedMps: 49.25,
+      maximumBodySpeedMps: 4.925,
+      projectedFatigue: 0.07500000000000001,
+      projectedStateHash: 'a7625b1803448c35dd4a2b62a2b155a221d8d3f1348811949acbe137108d160e'
+    },
+    input: {
+      version: 'post_impact_bat_body_world_v1',
+      throughTick: 11134216,
+      control: {
+        version: 'post_impact_bat_body_control_v1',
+        world: {
+          version: 'controlled_bat_body_pitch_world_v1',
+          pitch: {
+            descriptor: [Object],
+            anchors: [Object],
+            motion: [Object],
+            pitcherPlayerId: 'authored-native-match:home:player:0',
+            otherActors: [Array],
+            throughTick: 11134216
+          },
+          pitcherRenewal: {
+            version: 'pitch_hand_hold_renewal_v1',
+            fromTick: 10787305,
+            throughTick: 11134216,
+            sceneThroughTick: 12587305
+          },
+          batterPlayerId: 'authored-native-match:away:player:0',
+          batterControl: {
+            version: 'coupled_held_measured_bat_body_control_v1',
+            bat: [Object],
+            bodyObstacleIndex: 0,
+            footObstacleIndices: [Array],
+            maximumLegReachM: 1.5,
+            body: [Object]
+          },
+          maximumGloveReachM: 1.3,
+          batPhysical: {
+            axialMomentOfInertiaKgM2: 0.0005,
+            centerOfMassT: 0.58,
+            massKg: 0.9,
+            radiusProfile: [Object],
+            transverseMomentOfInertiaKgM2: 0.055
+          },
+          ball: {
+            massKg: 0.145,
+            radiusM: 0.0366,
+            rotationalInertiaFactor: 0.378
+          },
+          contactResponse: {
+            profileId: 'nathan-2012-rigid-wood-local-contact',
+            version: 'nathan-2012-47-impact-fit-v1',
+            normalRestitutionKnots: [Array],
+            tangentialRestitution: 0.3,
+            frictionCoefficient: 0.15,
+            evidenceIds: [Array]
+          }
+        },
+        recoveryEndTick: 11134216,
+        maximumSweetSpotSpeedMps: 49.25,
+        maximumBodySpeedMps: 4.925
+      }
+    },
+    result: {
+      kind: 'moving',
+      moment: {
+        originTick: 10587305,
+        elapsedSeconds: 0.546911,
+        ball: {
+          tick: 11134216,
+          position: {
+            x: 0.13390867664417633,
+            y: 0.46786251433845005,
+            z: 3.252897867717298
+          },
+          velocity: {
+            x: 0.5451287324682819,
+            y: -5.282525930257729,
+            z: 37.28263413558517
+          },
+          spin: {
+            x: 259.0354316292349,
+            y: -61.91062732406981,
+            z: 97.55895501725838
+          }
+        }
+      },
+      orientation: {
+        w: -0.18571421035374935,
+        x: -0.8478710089810096,
+        y: -0.4019082277800069,
+        z: -0.291710062639159
+      },
+      contacts: [],
+      actorsAtMoment: {
+        bat: {
+          orientation: {
+            x: -0.5272557082843126,
+            y: 0.4821263797884057,
+            z: 0.24898569831785203,
+            w: -0.6538820184306227
+          },
+          state: {
+            pose: [Object],
+            linearVelocity: [Object],
+            angularVelocity: [Object]
+          }
+        },
+        body: {
+          position: {
+            x: 0.8771953488735766,
+            y: 0.7733202013645315,
+            z: -0.11476872518027663
+          },
+          velocity: { x: 0, y: 0, z: 0 }
+        },
+        hand: {
+          position: {
+            x: 0.8645830757290203,
+            y: 1.0576453067964913,
+            z: 0.293764137613892
+          },
+          velocity: { x: 0, y: 0, z: 0 }
+        }
+      },
+      pitcherHandAtMoment: {
+        tick: 11134216,
+        position: { x: 0.08000000000000002, y: 1.52, z: 17.77 },
+        velocity: { x: 0, y: 0, z: 0 }
+      },
+      descriptor: {
+        kind: 'aero_ground_continuous_source_kernel_v2',
+        initial: {
+          originTick: 10587305,
+          elapsedSeconds: 0.46910977857333824,
+          ball: {
+            tick: 11056415,
+            position: [Object],
+            velocity: [Object],
+            spin: [Object]
+          }
+        },
+        throughElapsedSeconds: 0.546911,
+        profile: {
+          air: {
+            aerodynamics: [Object],
+            gravityY: -9.81,
+            integrationStepTicks: 2000,
+            ticksPerSecond: 1000000
+          },
+          ground: {
+            gravityMps2: 9.81,
+            inertiaRatio: 0.378,
+            material: [Object],
+            radiusM: 0.0366,
+            restingVerticalSpeedMps: 0.15,
+            ticksPerSecond: 1000000
+          },
+          kind: 'aero_ground_v1'
+        }
+      },
+      coverage: {
+        originalOtherActorCount: 49,
+        retainedOtherActorCount: 47,
+        replacedActorCount: 2,
+        pitcherHandRetained: true,
+        actualBatPartCount: 2,
+        sourceMomentReanchored: false,
+        physicalExecutionAdmitted: false
+      },
+      departures: [
+        {
+          partIndex: 1,
+          originalBracketBoundMeters: 2.6057029828357735e-13,
+          initialSignedGapMeters: -2.045585922871851e-14,
+          initialSupportingPlaneGapMeters: -2.045585922871851e-14,
+          outgoingNormalSpeedMps: 29.715658759249767,
+          linearDeviationMps2: 1820.910917750734,
+          arithmeticBoundMeters: 2.2979689534142953e-13,
+          positionRoundingBoundMeters: 1.4210854715202004e-14,
+          escapeBracketThroughElapsedSeconds: 0.46910977857335606,
+          provenClearThroughElapsedSeconds: 0.47110977857333824,
+          supportingPlaneLowerGapAtEscapeMeters: 2.6446360928477317e-13,
+          signedGapAtEscapeMeters: 5.395059399226909e-13,
+          signedGapAtWindowEndMeters: 0.06223981978471015,
+          positionOrClockCorrected: false
+        }
+      ],
+      controlEndsAtThisMoment: true
+    },
+    timeline: {
+      playId: 1,
+      startedAtTick: 0,
+      lastEventTick: 11056415,
+      nextSequence: 1,
+      status: {
+        kind: 'batted_ball_pending',
+        count: { balls: 0, strikes: 0 },
+        contactTick: 11056415
+      },
+      events: [
+        {
+          tick: 11056415,
+          sequence: 0,
+          kind: 'BatBallContact',
+          payload: { countBefore: [Object], contact: [Object] }
+        }
+      ]
+    },
+    executedThroughMoment: {
+      originTick: 10587305,
+      elapsedSeconds: 0.546911,
+      ball: {
+        tick: 11134216,
+        position: {
+          x: 0.13390867664417633,
+          y: 0.46786251433845005,
+          z: 3.252897867717298
+        },
+        velocity: {
+          x: 0.5451287324682819,
+          y: -5.282525930257729,
+          z: 37.28263413558517
+        },
+        spin: {
+          x: 259.0354316292349,
+          y: -61.91062732406981,
+          z: 97.55895501725838
+        }
+      }
+    },
+    physicalWork: {
+      kind: 'executed_joint_recovery_prefix_v1',
+      fromMoment: {
+        originTick: 10587305,
+        elapsedSeconds: 0.46910977857333824,
+        ball: {
+          tick: 11056415,
+          position: {
+            x: 0.08761352234130243,
+            y: 0.8344712623750234,
+            z: 0.3231870662844579
+          },
+          velocity: {
+            x: 0.06515232616297584,
+            y: -3.6421759863929495,
+            z: -36.2133977979649
+          },
+          spin: { x: 0, y: 0, z: 100 }
+        }
+      },
+      throughMoment: {
+        originTick: 10587305,
+        elapsedSeconds: 0.546911,
+        ball: {
+          tick: 11134216,
+          position: {
+            x: 0.13390867664417633,
+            y: 0.46786251433845005,
+            z: 3.252897867717298
+          },
+          velocity: {
+            x: 0.5451287324682819,
+            y: -5.282525930257729,
+            z: 37.28263413558517
+          },
+          spin: {
+            x: 259.0354316292349,
+            y: -61.91062732406981,
+            z: 97.55895501725838
+          }
+        }
+      },
+      previousWorkloadViewReference: {
+        owner: 'pa_joint_workload_v1_views',
+        sourceId: 'authored-joint:nonempty-workload',
+        sourceHash: '55877502e181c896017f8ce88951223aded07c7f642746b52714c32c07d4fff0',
+        snapshotHash: 'fd251ef16a6c82e3993ac2918c4200c4577b113748681a7194a53af365a8021f'
+      },
+      assessmentStatus: 'REQUIRES_NEW_CUMULATIVE_WORKLOAD_ASSESSMENT'
+    },
+    physicalExecutionAdmitted: true,
+    motionIssued: true,
+    capabilityResponseAdmitted: true,
+    recoveryModelBasis: 'EXPLICIT_SYNTHETIC_IMPACT_RECOVERY_V1',
+    neuralReactionModel: 'ZERO_DELAY_KINEMATIC_TEST_MODEL',
+    muscleTorqueCalibrated: false,
+    requiresPhysicalSuccessor: true,
+    requiresCumulativeWorkloadReassessment: true,
+    nextMotionAllowed: false,
+    fullMatchVerified: false
+  },
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

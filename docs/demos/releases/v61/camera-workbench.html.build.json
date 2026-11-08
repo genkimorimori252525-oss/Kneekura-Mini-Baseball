@@ -1,0 +1,67 @@
+{
+  "presentationVersion": 61,
+  "sourceGamePath": "docs/demos/releases/v54/game.html",
+  "sourceGameSha256": "80c68e3ddb5c961ab6f18b325c6f267f883cd02d27381dfa10a9334bf8afae9f",
+  "basePresentationPath": "docs/demos/releases/v60/game.html",
+  "basePresentationSha256": "c4f50e430fbf04d2c1ef355d59fc8584583337221ffe03b43786cc40bd3c086f",
+  "sourceCoreSha256": "390eb00f118ef6fae5fbdde9ea8bdd66d497ed39c9a2a3f6cbf36f917b39af7a",
+  "sourceInputCount": 113,
+  "compatibleSessionCoreSha256": [
+    "4a581b262a71530ef67503ba76e71849d52c394a2b7c113852a461b423486279"
+  ],
+  "sessionMigration": "V54_TO_V60_CORE_REPLAY_WITH_UNCHANGED_SI_AND_ABSOLUTE_VISION_METADATA",
+  "helpers": {
+    "live-ball-display-controls-v56.js": "e5cf59b078c9959bbe76969e8296eeab8cd65c6a7a224475b06c86496a483996",
+    "live-pitch-ball-cadence-v56.js": "bf72b94742b7de19abd863edd610fea493d648ba43b5823c906222e02aac4536",
+    "live-camera-tuning-batter-view-v61.js": "79d0545e098eda4123fa2118751728f6b84ec8945d6754de45d7aa083a13959f",
+    "live-pitcher-reaction-view-v58.js": "5916750a6000356c5c86e947458bb5abdfb01083d45e209d849ed50f5a4497af",
+    "live-name-display-controls-v60.js": "7d9810843459b3d02450585e8ab5c7f74415ed0791cb5ef0c6f67c96b3684f20"
+  },
+  "workbenchDriverSha256": "9160c9a117109d5ff0a4651030644114d75c6b73bd6779c337bba7e838835d9b",
+  "workbenchTemplateSha256": "1d9e0909c032871f4c22d499d2cc800dd48bec001a71174911e7103c398313f4",
+  "builderSha256": "251dcb9d8c3289f6de75ab769678f57a07e79581bb242177553fc7001dbb7e45",
+  "rosterSha256": "ae8efe6ec0b6e5e75979c5a659cc61798ecbd4b7058f6d6e9764839d95d12909",
+  "catalogSha256": "bf1b7ffa5b7f9905d20a10d483f578e1a6fe8881ed0d5db4da958052b125f035",
+  "publicReferenceSha256": "b448f82f81620085b1f4923609cec23f69db4c639da76b6b1f877abb22622e4e",
+  "worldAuthority": "OFFLINE_HOST_SHARED_CORE_ABSOLUTE_VISION_METADATA_NO_PHYSICS_CHANGE",
+  "displayGridPixels": 4,
+  "ordinaryCadenceMs": 55,
+  "pitchBallCadenceMs": 22,
+  "ballDisplayDefaults": {
+    "perspective": 1,
+    "overhead": 1
+  },
+  "nameDisplayDefaults": {
+    "scale": 1
+  },
+  "readOnlyCamera": true,
+  "pitcherReaction": {
+    "minimumDelaySeconds": 0.1,
+    "maximumDelaySeconds": 0.25,
+    "speedScaleMeters": 7,
+    "blendMs": 180
+  },
+  "absoluteVision": {
+    "min": 1,
+    "max": 100,
+    "baseline": 45,
+    "maximumTrackingGain": 0.7,
+    "minimumDeadbandRadians": 0,
+    "leagueRelative": false
+  },
+  "takeGaze": "CURRENT_OBSERVED_PITCH_PREFIX_AND_CAUSAL_CATCH_POSE_HOLD",
+  "preset": {
+    "enabled": true,
+    "aimLiftMeters": 0.3,
+    "swingMaxDownRadians": 0.2,
+    "hitFollowDelayMs": 300,
+    "aimReleaseMs": 70,
+    "pitchTrackingGain": 0.26,
+    "pitchTrackingDeadbandRadians": 0.02,
+    "impactStabilizeOffsetMs": 0,
+    "impactMaxMotionRadians": 0.025,
+    "impactMaxSpeedRadPerSecond": 0.18
+  },
+  "kind": "CAMERA_WORKBENCH",
+  "sha256": "e858c4f76a1c7ed5258533402b1ca3edeeaffc40352e6d5085c69b73676a6f75"
+}

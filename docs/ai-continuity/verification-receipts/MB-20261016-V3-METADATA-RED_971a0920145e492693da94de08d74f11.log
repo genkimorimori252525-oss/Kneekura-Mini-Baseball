@@ -1,0 +1,62 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/host/world/SamePlateAppearanceBallPhysics.test.ts (4 tests | 1 failed) 15ms
+   × admits only the five nonphysical defensive metadata kinds for v3, leaving v2 and physical actions closed 6ms
+     → expected [Function] to not throw an error but 'Error: unsupported same-PA Aero/groun…' was thrown
+ ❯ src/host/world/SamePlateAppearanceSourceFieldV3.test.ts (4 tests | 2 failed) 210ms
+   × inserts all five metadata kinds at the exact post-impulse cut without adding a physical horizon 32ms
+     → deriveSamePaSourceFieldMetadataV3 is not a function
+   × rejects changed metadata time, field, timeline, Source side/profile/velocity/spin, custody and diagnostic inheritance 29ms
+     → deriveSamePaSourceFieldMetadataV3 is not a function
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/host/world/SamePlateAppearanceBallPhysics.test.ts > admits only the five nonphysical defensive metadata kinds for v3, leaving v2 and physical actions closed
+AssertionError: expected [Function] to not throw an error but 'Error: unsupported same-PA Aero/groun…' was thrown
+
+- Expected: 
+undefined
+
++ Received: 
+"Error: unsupported same-PA Aero/ground field action; free checkpoints only"
+
+ ❯ src/host/world/SamePlateAppearanceBallPhysics.test.ts:52:104
+     50|   const original=root(),v3={...original,sourceVersion:ROOT_V3};
+     51|   for(const kind of ['defender_observation_v1','defender_decision_v1',…
+     52|     expect(()=>assertSamePaFieldBallPhysicsStep({sourceVersion:STEP_V3…
+       |                                                                                                        ^
+     53|     expect(()=>assertSamePaFieldBallPhysicsStep({sourceVersion:STEP,ac…
+     54|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/host/world/SamePlateAppearanceSourceFieldV3.test.ts > inserts all five metadata kinds at the exact post-impulse cut without adding a physical horizon
+TypeError: deriveSamePaSourceFieldMetadataV3 is not a function
+ ❯ src/host/world/SamePlateAppearanceSourceFieldV3.test.ts:48:20
+     46|   for(const kind of ['defender_observation_v1','defender_decision_v1',…
+     47|     const previous=history.at(-1)!,source={...h.source(previous),throu…
+     48|     const metadata=deriveSamePaSourceFieldMetadataV3(source,h.root,pre…
+       |                    ^
+     49|     expect(metadata).toEqual({ballSolverEvidence:previous.ballSolverEv…
+     50|     history.push({...previous,source,kind:'same_pa_physical_field_step…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/host/world/SamePlateAppearanceSourceFieldV3.test.ts > rejects changed metadata time, field, timeline, Source side/profile/velocity/spin, custody and diagnostic inheritance
+TypeError: deriveSamePaSourceFieldMetadataV3 is not a function
+ ❯ src/host/world/SamePlateAppearanceSourceFieldV3.test.ts:68:19
+     66|     {...physical.field,motion:{...m,cursor:{...c,sourceCurve:{...c.sou…
+     67|   for(const field of badFields){const bad=changed({field});expect(()=>…
+     68|   const inherited=deriveSamePaSourceFieldMetadataV3(source,h.root,phys…
+       |                   ^
+     69|   const metadata={...physical,source,operationOrdinal:2,...inherited} …
+     70|   for(const bad of [ {...metadata,evaluationTick:metadata.evaluationTi…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+ Test Files  2 failed (2)
+      Tests  3 failed | 5 passed (8)
+   Start at  01:55:06
+   Duration  6.44s (transform 5.04s, setup 0ms, collect 11.49s, tests 224ms, environment 0ms, prepare 311ms)
+

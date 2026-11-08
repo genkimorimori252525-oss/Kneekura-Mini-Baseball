@@ -1,0 +1,14 @@
+{
+  "pass": false,
+  "file": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v86_入力確定とエラー復帰版.html",
+  "artifactSha256": "93d5342fe1b00748dbf6650865442de737c6ba76cd1adfb9a7bb64b2379da4f2",
+  "cases": [],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    }
+  ],
+  "error": "AssertionError [ERR_ASSERTION]: public editing uses 13 regions\n\n0 !== 13\n\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-course-authoring-v87.mjs:16:10"
+}

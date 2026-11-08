@@ -1,0 +1,4061 @@
+{
+  "pass": true,
+  "authority": "INDEPENDENT_UPSTREAM_LANDMARK_ARCHIVE_READBACK",
+  "limitation": "Published derived optical landmarks; raw C3D files/body forms/contact outcomes are not inferred.",
+  "archiveSha256": "9cc2bdc94f5f5a6c5d540f4abe459caae2c5164cd53f6a6fd23f4b2b7283bcb3",
+  "librarySha256": "b53a8d687f663a5578315120445de1407fb82efec594cde27cc313c1ea5b106a",
+  "libraryBytes": 29835543,
+  "rawRowsComparedToArchive": 469377,
+  "sourceTrials": 677,
+  "includedClips": 673,
+  "excludedTrials": [
+    "203_3",
+    "342_1",
+    "342_2",
+    "67_2"
+  ],
+  "originalKeys": 92201,
+  "maximumHandResidualM": 0.01575735705138066,
+  "maximumRigidLengthErrorM": 6.661338147750939e-16,
+  "maximumQuaternionAxisError": 1.0053497077208614e-15,
+  "perClip": [
+    {
+      "id": "obp-123_6",
+      "sourceRowsSha256": "195d71459b1d0b31d63e0b8fdf639814c78b0531bf6f2327ff2e577c2b458abd",
+      "samples": 137,
+      "maxHandResidualM": 0.005896441892826922
+    },
+    {
+      "id": "obp-190_7",
+      "sourceRowsSha256": "cac23791a5a5236effbde6c544a38887f8b44cae04989b1a2eab4f36c61f40b0",
+      "samples": 137,
+      "maxHandResidualM": 0.006462499849993911
+    },
+    {
+      "id": "obp-103_5",
+      "sourceRowsSha256": "5056db80f42b125ca93549542ac6261cfe8e8f2459e42c7e97d63fafce837079",
+      "samples": 137,
+      "maxHandResidualM": 0.0003197728157977151
+    },
+    {
+      "id": "obp-185_5",
+      "sourceRowsSha256": "9793ebfa36be66c2f17e890f1936256fe7083431f8bb865626ed9a19fa47a185",
+      "samples": 137,
+      "maxHandResidualM": 0.008074284603734938
+    },
+    {
+      "id": "obp-254_3",
+      "sourceRowsSha256": "189c575e35bf35933e69cc551b91bbb0ee97765f91bf5823b84ce997c450dea2",
+      "samples": 137,
+      "maxHandResidualM": 0.000485912910816456
+    },
+    {
+      "id": "obp-42_5",
+      "sourceRowsSha256": "4d87442b18b7f3f5f550bdd1461d24abebeb6d1415e8e065bd2e6739145b9f75",
+      "samples": 137,
+      "maxHandResidualM": 0.0053335073637799085
+    },
+    {
+      "id": "obp-51_3",
+      "sourceRowsSha256": "baca32e1c935e208615ceb4d17adffe5dc6ea53185e1d707a673c21f046fbc7a",
+      "samples": 137,
+      "maxHandResidualM": 0.004436889754734691
+    },
+    {
+      "id": "obp-313_7",
+      "sourceRowsSha256": "5c3391f247635182d6e1c7f7bc73b42086e389dd14671290d234946e4b104741",
+      "samples": 137,
+      "maxHandResidualM": 0.006216470299423016
+    },
+    {
+      "id": "obp-353_2",
+      "sourceRowsSha256": "499ba3fa3352bc094fadce20ca999bd9a53bcfd5f0e265ae815796ba9c3826a1",
+      "samples": 137,
+      "maxHandResidualM": 0.007037744389911996
+    },
+    {
+      "id": "obp-273_4",
+      "sourceRowsSha256": "596b62ce8788a89e8c67d85998d5f4ebce0b1334eb204ed4b00b49fe8c35a8a0",
+      "samples": 137,
+      "maxHandResidualM": 0.006331158937931863
+    },
+    {
+      "id": "obp-56_1",
+      "sourceRowsSha256": "305d25917c4f2bff80515c3f90df7c6c4bf72f27e7ce4e2fa0fd0366fb4186b2",
+      "samples": 137,
+      "maxHandResidualM": 0.000723292587154723
+    },
+    {
+      "id": "obp-358_7",
+      "sourceRowsSha256": "ce8ba11acf33e597a04073d20c6aef4c3c8917f1f7d0e936e720a1d7f45949b5",
+      "samples": 137,
+      "maxHandResidualM": 0.0014730510553016547
+    },
+    {
+      "id": "obp-103_1",
+      "sourceRowsSha256": "bab8915c31ed4ac21df374b278ece36e68cf49c880e009af0d6f3649275dc007",
+      "samples": 137,
+      "maxHandResidualM": 0.00027697935855948446
+    },
+    {
+      "id": "obp-103_2",
+      "sourceRowsSha256": "26ba10ec49c13823b96843ef9f0fea1bc97008831030f052d2b0a0ab59ec1ba7",
+      "samples": 137,
+      "maxHandResidualM": 0.00029434844002220676
+    },
+    {
+      "id": "obp-103_3",
+      "sourceRowsSha256": "393fde67ac44a4a21449c53ea475d2b7d3599760dc70ad461f23036ef0b85cb5",
+      "samples": 137,
+      "maxHandResidualM": 0.00030069747009599674
+    },
+    {
+      "id": "obp-103_4",
+      "sourceRowsSha256": "bcff3514758f4408f1453ec2ab681951103a3ff88341fb9ed24d5246c1aa226a",
+      "samples": 137,
+      "maxHandResidualM": 0.00028229012293963296
+    },
+    {
+      "id": "obp-111_1",
+      "sourceRowsSha256": "a7b92ed61e4435a13d86c718523ad652fe05ecca72916fe899863e3acf11b396",
+      "samples": 137,
+      "maxHandResidualM": 0.003241991823675836
+    },
+    {
+      "id": "obp-111_2",
+      "sourceRowsSha256": "e46ebb48d1e03ca64973c8a08deb70f15288839b62368ba7603c6cb7b1eb67bb",
+      "samples": 137,
+      "maxHandResidualM": 0.003265281845503364
+    },
+    {
+      "id": "obp-111_3",
+      "sourceRowsSha256": "c810ebdea8233732f1a68447309976103cd5ab539f8c66b204133c0f9fa15ae7",
+      "samples": 137,
+      "maxHandResidualM": 0.003258355805815887
+    },
+    {
+      "id": "obp-111_4",
+      "sourceRowsSha256": "0ce9a923da7c63c35d78eea8efd996b026e7fccc4dd48625d9fa8738cdd53ccb",
+      "samples": 137,
+      "maxHandResidualM": 0.0032465030793775987
+    },
+    {
+      "id": "obp-111_5",
+      "sourceRowsSha256": "29de5aa60d5024402319d534ada34b49c42d9db9659a76f66119a87920f16543",
+      "samples": 137,
+      "maxHandResidualM": 0.003255747649695172
+    },
+    {
+      "id": "obp-111_6",
+      "sourceRowsSha256": "6646233ecc54d108377fa1442d5f4b0e87a40c932e8adc48431d898282fd5e62",
+      "samples": 137,
+      "maxHandResidualM": 0.003243093076018393
+    },
+    {
+      "id": "obp-111_7",
+      "sourceRowsSha256": "cfc9948c8a3c04e1099e778889a72ade3b4675b870c09263309761a4a29110ee",
+      "samples": 137,
+      "maxHandResidualM": 0.003252753083868372
+    },
+    {
+      "id": "obp-111_8",
+      "sourceRowsSha256": "083aef84b7865fc5e463f453b71779a502121c575db03f946426a157c1671e22",
+      "samples": 137,
+      "maxHandResidualM": 0.0032397023705166795
+    },
+    {
+      "id": "obp-121_1",
+      "sourceRowsSha256": "5bb50821b6d182ba2d7d523204da2b94b5522667d0eafc47d14e7fae38f17370",
+      "samples": 137,
+      "maxHandResidualM": 0.008063667970386443
+    },
+    {
+      "id": "obp-121_2",
+      "sourceRowsSha256": "08e12769066ec328f2fb097293b769c905070a8562bd659cdcc2cb02f5f8c724",
+      "samples": 137,
+      "maxHandResidualM": 0.008067460305018998
+    },
+    {
+      "id": "obp-121_3",
+      "sourceRowsSha256": "c11fd3cb0ebedf78447a3c9ea9e405b44cf58340a403e5d5b5e0f6538a0e9120",
+      "samples": 137,
+      "maxHandResidualM": 0.008050197511395265
+    },
+    {
+      "id": "obp-121_4",
+      "sourceRowsSha256": "617483ea8a894ffbc27c52340eca9ba76bf6a014daf1f3f9cd4fd31ebdfb5dba",
+      "samples": 137,
+      "maxHandResidualM": 0.008096101249580526
+    },
+    {
+      "id": "obp-121_5",
+      "sourceRowsSha256": "34d0e3fd21f17ae5c7206f6435db58184e32198794992a939c953e5f2de282bf",
+      "samples": 137,
+      "maxHandResidualM": 0.008095864214424608
+    },
+    {
+      "id": "obp-121_6",
+      "sourceRowsSha256": "fe2a2e1d4246ea8399947cc6022377f04249725516ed9d96c838725738f13714",
+      "samples": 137,
+      "maxHandResidualM": 0.00806019168859426
+    },
+    {
+      "id": "obp-121_7",
+      "sourceRowsSha256": "456f61d044af20a3f9c6fc8ef5a691ac3c47568886bc8bff9d45478fd4f98b5f",
+      "samples": 137,
+      "maxHandResidualM": 0.008068892313765907
+    },
+    {
+      "id": "obp-121_8",
+      "sourceRowsSha256": "b82612493925617fc920e9ad476c5657031e95015df19d822ef0bac6ce9694a4",
+      "samples": 137,
+      "maxHandResidualM": 0.008074146339172162
+    },
+    {
+      "id": "obp-123_1",
+      "sourceRowsSha256": "ffdc247124c135bbffb4caf92f363ce93cc1ff6c0f30ef503a3c6b7a31b1d8d2",
+      "samples": 137,
+      "maxHandResidualM": 0.0059271019920485515
+    },
+    {
+      "id": "obp-123_2",
+      "sourceRowsSha256": "cb082b573a5f8b83a350c5169cc916384c7de7dcabf095514981083c8d36b24a",
+      "samples": 137,
+      "maxHandResidualM": 0.005916170956939968
+    },
+    {
+      "id": "obp-123_3",
+      "sourceRowsSha256": "d92da807e61aea8a980eccf60ebb6edc33464f08b8e3489ba0f415ccf4d0a662",
+      "samples": 137,
+      "maxHandResidualM": 0.005909080408294928
+    },
+    {
+      "id": "obp-123_4",
+      "sourceRowsSha256": "3bc74347250a183e6b62a51cd07585e0a77c87351461920efc3a9db63ed48159",
+      "samples": 137,
+      "maxHandResidualM": 0.005897445923323881
+    },
+    {
+      "id": "obp-123_5",
+      "sourceRowsSha256": "ae12bf1ff26179abb7d30efbe61d8f0c625055332f39ee6b3602941784d0f2b5",
+      "samples": 137,
+      "maxHandResidualM": 0.005910436402979346
+    },
+    {
+      "id": "obp-123_7",
+      "sourceRowsSha256": "8c692a6ab4fc42484f4fb5f11e34192b8fe0900773d70354b05c7195c2ef77c3",
+      "samples": 137,
+      "maxHandResidualM": 0.005898729429266613
+    },
+    {
+      "id": "obp-123_8",
+      "sourceRowsSha256": "b2c03a5974ee4cb662d67452ca3b5efa6606295f513479867910a372854a87e6",
+      "samples": 137,
+      "maxHandResidualM": 0.00590850074760671
+    },
+    {
+      "id": "obp-123_9",
+      "sourceRowsSha256": "78c3eb7aef569805f98af0f34daf2cd3ea30f104249321c8d73e995a9ab5ca73",
+      "samples": 137,
+      "maxHandResidualM": 0.005898677674928675
+    },
+    {
+      "id": "obp-125_1",
+      "sourceRowsSha256": "159bc379cf2ea0c86a1bcf1ea54ea21b3dc2712fdd04b5d6746fedfc80f2aa61",
+      "samples": 137,
+      "maxHandResidualM": 0.003256472138824812
+    },
+    {
+      "id": "obp-125_2",
+      "sourceRowsSha256": "59d25b41d6b5756500bf2faa0964bc7619d28a3a619c7d5e4e9a101556c4fae8",
+      "samples": 137,
+      "maxHandResidualM": 0.0032624225711744897
+    },
+    {
+      "id": "obp-125_3",
+      "sourceRowsSha256": "4056fdc89808f3d4fc8a966040f4fbdba30f2c9445d3edb07fa9dc271acc7074",
+      "samples": 137,
+      "maxHandResidualM": 0.0032509080362977997
+    },
+    {
+      "id": "obp-125_4",
+      "sourceRowsSha256": "77d7d0fa5506df1b6d9b4f23034be4a6d15270dafa61fdd2ef0897aa2a125f5d",
+      "samples": 137,
+      "maxHandResidualM": 0.0032496619009714845
+    },
+    {
+      "id": "obp-125_5",
+      "sourceRowsSha256": "8dcd26db24a838f6e94e799dd6373ff6c46f79deeeeeca958d7d8f864b5a9dbe",
+      "samples": 137,
+      "maxHandResidualM": 0.0032833547985484674
+    },
+    {
+      "id": "obp-125_6",
+      "sourceRowsSha256": "6a4b2db402c14e208c040c81038c6b8bdfe367516e0f28074c0e4d516a67683b",
+      "samples": 137,
+      "maxHandResidualM": 0.00325294628218662
+    },
+    {
+      "id": "obp-125_7",
+      "sourceRowsSha256": "e291985221965e4c54e2f4030df19bb216e6f1c09557a86790b526b6186ba72b",
+      "samples": 137,
+      "maxHandResidualM": 0.003262837939709625
+    },
+    {
+      "id": "obp-140_1",
+      "sourceRowsSha256": "6797092894d0c482e9cfd5beea4773a066d98a09fb2e13f677d1b90febe52c63",
+      "samples": 137,
+      "maxHandResidualM": 0.004190015075191923
+    },
+    {
+      "id": "obp-140_2",
+      "sourceRowsSha256": "3291a5e68967778a83de5af1edff62cf1d55455c24d57f1951fdebb42e9540c0",
+      "samples": 137,
+      "maxHandResidualM": 0.004193351829949483
+    },
+    {
+      "id": "obp-140_3",
+      "sourceRowsSha256": "e50524e28c44d72ec8b963d589ca664442f1c2de1f8b195441542d4c016c8e4b",
+      "samples": 137,
+      "maxHandResidualM": 0.004183139273569184
+    },
+    {
+      "id": "obp-140_4",
+      "sourceRowsSha256": "cb3dfc38840e8a9f86b31c3392f016088ef2def6cc7c1f6a8e1e151c2c762d65",
+      "samples": 137,
+      "maxHandResidualM": 0.004193287485009848
+    },
+    {
+      "id": "obp-140_5",
+      "sourceRowsSha256": "92b305e7779254be9e0ecb658b1f5096e78588530317a4d93bfbf3730640264c",
+      "samples": 137,
+      "maxHandResidualM": 0.0042128479960742825
+    },
+    {
+      "id": "obp-140_6",
+      "sourceRowsSha256": "7f72a652b5917c4c507100da8d9e875660aae7d1d30ecc7ea92f283beae8e9ca",
+      "samples": 137,
+      "maxHandResidualM": 0.004184168810895803
+    },
+    {
+      "id": "obp-140_7",
+      "sourceRowsSha256": "fbaf6782da3039ebf802643826c8c4f49bac962ff96ba9686624b1e89422fc2b",
+      "samples": 137,
+      "maxHandResidualM": 0.0041606084642954975
+    },
+    {
+      "id": "obp-140_8",
+      "sourceRowsSha256": "a7c0dd36a95b5abc40cb977dcad26586bd77c243ac1287917e4dfe679b69c4d7",
+      "samples": 137,
+      "maxHandResidualM": 0.004202479542101267
+    },
+    {
+      "id": "obp-160_1",
+      "sourceRowsSha256": "b2ec79c683e4b48bb1eee0d128c69608fec6f152f0976c09ee57547dba0af5a6",
+      "samples": 137,
+      "maxHandResidualM": 0.003379609468415396
+    },
+    {
+      "id": "obp-160_2",
+      "sourceRowsSha256": "7a0219f3c81f825804e0d9475842eb635d3ccc30738f2d344b490951156ae31b",
+      "samples": 137,
+      "maxHandResidualM": 0.0033946888425561575
+    },
+    {
+      "id": "obp-160_3",
+      "sourceRowsSha256": "4c25e10b58125fcb9f083fb943dddbc294f7b3ba1d2350723a11d4dfa4109823",
+      "samples": 137,
+      "maxHandResidualM": 0.0033752648124369985
+    },
+    {
+      "id": "obp-160_4",
+      "sourceRowsSha256": "02d6853f7eb5dc2108f29dee644cf4d4c37bb321a589ed71f21316e549c0c26c",
+      "samples": 137,
+      "maxHandResidualM": 0.0033704505070676826
+    },
+    {
+      "id": "obp-160_5",
+      "sourceRowsSha256": "9329240772bdb4cf5d19bbe25cb3d873e31bb82deb941e3072df8f688b38c741",
+      "samples": 137,
+      "maxHandResidualM": 0.0033607046131004284
+    },
+    {
+      "id": "obp-160_6",
+      "sourceRowsSha256": "da3fa653de3f15ac51276c765fb1544e0972178ed008e205519235a5df0c3993",
+      "samples": 137,
+      "maxHandResidualM": 0.003415894659595027
+    },
+    {
+      "id": "obp-160_7",
+      "sourceRowsSha256": "745d258c0f7396581093452a17b556b90b6e1c85368c4736ac62268acdee888d",
+      "samples": 137,
+      "maxHandResidualM": 0.003409132579904014
+    },
+    {
+      "id": "obp-160_8",
+      "sourceRowsSha256": "45a731cb8a71e12e2da077f30696cf363950d6dc7588336c4e3ae75154e771ec",
+      "samples": 137,
+      "maxHandResidualM": 0.003404503885198896
+    },
+    {
+      "id": "obp-164_1",
+      "sourceRowsSha256": "df198f84a35630b7f131737dcaa14b41745830f0fea5ea4c33a84bc8d1b0495b",
+      "samples": 137,
+      "maxHandResidualM": 0.006463248679409146
+    },
+    {
+      "id": "obp-164_2",
+      "sourceRowsSha256": "6747384c83b8969c03acae19b12be23448caea73e2ca6a8bfa609b7fb6176c68",
+      "samples": 137,
+      "maxHandResidualM": 0.006447983867065233
+    },
+    {
+      "id": "obp-164_3",
+      "sourceRowsSha256": "710d6f6bbdc62b7aeb8dc452d29f493b685592afe4fba2c5c8d2daee44244a5a",
+      "samples": 137,
+      "maxHandResidualM": 0.006459072501622099
+    },
+    {
+      "id": "obp-164_4",
+      "sourceRowsSha256": "ccbe78543853784558e3195080ecf064edc4565cb0e2ed9bdb7346a89b85a143",
+      "samples": 137,
+      "maxHandResidualM": 0.006449212749020948
+    },
+    {
+      "id": "obp-164_5",
+      "sourceRowsSha256": "26f335dfa9980149d96b6e87c8593888f7b9363dcd444ddb5cb965b046fca490",
+      "samples": 137,
+      "maxHandResidualM": 0.006449971198155833
+    },
+    {
+      "id": "obp-164_6",
+      "sourceRowsSha256": "ad3af2a89714525565bfb98284a4cf7003b6c240f9a08df73dff4455075f6805",
+      "samples": 137,
+      "maxHandResidualM": 0.006423482427821111
+    },
+    {
+      "id": "obp-164_7",
+      "sourceRowsSha256": "b24e462cbd514c409c88acfc50a0abddc486239ec1bd6b65e45eccb9fdd1fe2a",
+      "samples": 137,
+      "maxHandResidualM": 0.006445487691665924
+    },
+    {
+      "id": "obp-164_8",
+      "sourceRowsSha256": "ad9b9bbafac36275968e9a6b99dd6fc21b770a53a67812f2188e587d55fcee8f",
+      "samples": 137,
+      "maxHandResidualM": 0.006444287603080486
+    },
+    {
+      "id": "obp-164_9",
+      "sourceRowsSha256": "29a254f4f01a76d98739b9a96628d8f59853adeebd0903c92a1e52387419e3a2",
+      "samples": 137,
+      "maxHandResidualM": 0.006442415459365226
+    },
+    {
+      "id": "obp-167_1",
+      "sourceRowsSha256": "d49167fb1a87d47f4858fee8ac86cf2c95534d091edb5a50c4c94f61efa9663c",
+      "samples": 137,
+      "maxHandResidualM": 0.004176879276985314
+    },
+    {
+      "id": "obp-167_2",
+      "sourceRowsSha256": "4f61cacf93a079aadbab6e913aaf494eb78e5889ff316e365b0a73bd9d57283b",
+      "samples": 137,
+      "maxHandResidualM": 0.00417607953654875
+    },
+    {
+      "id": "obp-167_3",
+      "sourceRowsSha256": "e23c5678fd980aef4088d184eced9bdf32b78f2e75347ddaef3edee2bd47814b",
+      "samples": 137,
+      "maxHandResidualM": 0.004180298843519222
+    },
+    {
+      "id": "obp-167_4",
+      "sourceRowsSha256": "77f2a2decf2f4d2cde688e5cacd16ad65143040e2fd4a9b8c73a8536e1130909",
+      "samples": 137,
+      "maxHandResidualM": 0.004175711839401633
+    },
+    {
+      "id": "obp-167_5",
+      "sourceRowsSha256": "4ad0d9f999c817eddbe1b459223df3290b82c127ed3adac12ce4de8a72255870",
+      "samples": 137,
+      "maxHandResidualM": 0.004177651439049485
+    },
+    {
+      "id": "obp-167_6",
+      "sourceRowsSha256": "da9f4a1c8bb02869167ac9e626ac867362f6baddc67cff0aea6ccd351c8400b2",
+      "samples": 137,
+      "maxHandResidualM": 0.004190033459571705
+    },
+    {
+      "id": "obp-167_7",
+      "sourceRowsSha256": "a235cbfc03c8585ef12b02d3d8d7567b004eec041119c719d088de4dde2e8e0b",
+      "samples": 137,
+      "maxHandResidualM": 0.004191559360929851
+    },
+    {
+      "id": "obp-167_8",
+      "sourceRowsSha256": "f8730c1886fb592f82d9cd74dbb964b35108f191754a20adb70969feb4cace14",
+      "samples": 137,
+      "maxHandResidualM": 0.004197240088595536
+    },
+    {
+      "id": "obp-17_1",
+      "sourceRowsSha256": "1ce2c01edf5a7f7a5b296807093fe32b248eee097148468e35f81a5afa390ad5",
+      "samples": 137,
+      "maxHandResidualM": 0.0034076382598335177
+    },
+    {
+      "id": "obp-17_2",
+      "sourceRowsSha256": "30500aee887c099bc376552952ac5f594132b7826cc05124f5e41ca8dd72ddee",
+      "samples": 137,
+      "maxHandResidualM": 0.003424244602963691
+    },
+    {
+      "id": "obp-17_3",
+      "sourceRowsSha256": "e9deafb725070e8c762b8c3f9face3c3632d0773dabdf67ef7ac81eedb2c2ee8",
+      "samples": 137,
+      "maxHandResidualM": 0.003426380193395558
+    },
+    {
+      "id": "obp-17_4",
+      "sourceRowsSha256": "10228400fb80b47c4c2adaa58b03e9d5c3f1519d4a751cc6af4f51c564e4a434",
+      "samples": 137,
+      "maxHandResidualM": 0.003435796942445957
+    },
+    {
+      "id": "obp-17_5",
+      "sourceRowsSha256": "7e8d6e1a5865533978d87ff0f14779da142216568d4ff18e3fd1a5cbc5e22a49",
+      "samples": 137,
+      "maxHandResidualM": 0.003434130843308111
+    },
+    {
+      "id": "obp-174_1",
+      "sourceRowsSha256": "9555308aded2fdf4e600df1e4e5540cd33d0b947bbfe61ab01461e04b81d2401",
+      "samples": 137,
+      "maxHandResidualM": 0.003268295658103765
+    },
+    {
+      "id": "obp-174_2",
+      "sourceRowsSha256": "22d12a348a44367c7045476c5b429babf8dec70b12ba4cba37c1a50431f7704d",
+      "samples": 137,
+      "maxHandResidualM": 0.0032599013736117305
+    },
+    {
+      "id": "obp-174_3",
+      "sourceRowsSha256": "a715748afa9454976ae8d684983e537b30664bf483f81c9c090adbcab0ab974c",
+      "samples": 137,
+      "maxHandResidualM": 0.003262470869858471
+    },
+    {
+      "id": "obp-174_4",
+      "sourceRowsSha256": "ce525320a32fce41e43bede2fd7e7aa3408f5baae4d1dae2ce40c451989ff123",
+      "samples": 137,
+      "maxHandResidualM": 0.0032487925024553793
+    },
+    {
+      "id": "obp-174_5",
+      "sourceRowsSha256": "ac5875775a3a720f434ec503da1f7f94536a56a415bd50f8f99673a737774a7a",
+      "samples": 137,
+      "maxHandResidualM": 0.0032589353942803784
+    },
+    {
+      "id": "obp-174_6",
+      "sourceRowsSha256": "f5f747bfc118611ac3369336a95064f0b2fe59538837412c0d87db4b5ee24ca2",
+      "samples": 137,
+      "maxHandResidualM": 0.003261485575812976
+    },
+    {
+      "id": "obp-174_7",
+      "sourceRowsSha256": "53251c10a37b9109fe7e03dcea8bd9f231dbf71fd2cc4c0418fecbd6ce346f57",
+      "samples": 137,
+      "maxHandResidualM": 0.0032577085979304597
+    },
+    {
+      "id": "obp-174_8",
+      "sourceRowsSha256": "321e87f41503314ab37c75e4e7003f915f0a9758651ef63716b3c8361a4f4a92",
+      "samples": 137,
+      "maxHandResidualM": 0.0032562016630016954
+    },
+    {
+      "id": "obp-178_1",
+      "sourceRowsSha256": "3d19cb8942d1994054ba9ed6842f3d2063354a5a7e2201954c209b08e06aff8d",
+      "samples": 137,
+      "maxHandResidualM": 0.0064444508152905105
+    },
+    {
+      "id": "obp-178_2",
+      "sourceRowsSha256": "965ec02d443c698c18a4990fc16481dfe3cdfb7335de01e2364fa6b93253774c",
+      "samples": 137,
+      "maxHandResidualM": 0.006429204653949331
+    },
+    {
+      "id": "obp-178_3",
+      "sourceRowsSha256": "c65b9594b271e99651ab494d57c97011009027363bc04627569efc15fc048b1f",
+      "samples": 137,
+      "maxHandResidualM": 0.0064442588009201674
+    },
+    {
+      "id": "obp-178_4",
+      "sourceRowsSha256": "2bf6d85b19127fea96ddbf176d1019d237366ed5e0433335891516c91ddea814",
+      "samples": 137,
+      "maxHandResidualM": 0.006445708507664236
+    },
+    {
+      "id": "obp-178_5",
+      "sourceRowsSha256": "897879ca5ee20d4b32bec9356d26d9578571ba165ca8206a79c0254c71923b21",
+      "samples": 137,
+      "maxHandResidualM": 0.006436280541260079
+    },
+    {
+      "id": "obp-178_6",
+      "sourceRowsSha256": "6a4ecfa887ce0d3c877a836ffbed26b9e2441bb442131a97c73b6dba7a4bfdc9",
+      "samples": 137,
+      "maxHandResidualM": 0.0064408313325034295
+    },
+    {
+      "id": "obp-178_7",
+      "sourceRowsSha256": "dee984f3efd08a63f7fc81925fa0c34947188bd9ed7c4c554fda59d8e79611fa",
+      "samples": 137,
+      "maxHandResidualM": 0.006458880492643162
+    },
+    {
+      "id": "obp-178_8",
+      "sourceRowsSha256": "dc079c31b07b67a18a038e6045ee0c099e9ed5631368da34890cf64aa0f58175",
+      "samples": 137,
+      "maxHandResidualM": 0.0064719369419840335
+    },
+    {
+      "id": "obp-179_1",
+      "sourceRowsSha256": "d5979155863c1cb635d8d8b0073ec8e2dbe79f432b22f52056a1368036efe9c8",
+      "samples": 137,
+      "maxHandResidualM": 0.004194528421786636
+    },
+    {
+      "id": "obp-179_2",
+      "sourceRowsSha256": "1084e4df6d8114cd740223ff5c4c04f3a582b51a498401fa4c445b38719b97ee",
+      "samples": 137,
+      "maxHandResidualM": 0.004169516105094609
+    },
+    {
+      "id": "obp-179_3",
+      "sourceRowsSha256": "b344d179f04a2a35045769eba4c188fbb87649634ccf5f606a52625c4427b450",
+      "samples": 137,
+      "maxHandResidualM": 0.004186292225477495
+    },
+    {
+      "id": "obp-179_4",
+      "sourceRowsSha256": "8d924bd9c3076dd9c94ee77a4edc4652e75c5a93eae44963a671965d0444a3ed",
+      "samples": 137,
+      "maxHandResidualM": 0.0042194200963876025
+    },
+    {
+      "id": "obp-179_5",
+      "sourceRowsSha256": "6514b4675182ece5d6fb4147f843b4a67186a0d0f1d31db4d3542f84fa0cb39c",
+      "samples": 137,
+      "maxHandResidualM": 0.004179940341585036
+    },
+    {
+      "id": "obp-179_6",
+      "sourceRowsSha256": "bc68d3625451ac119c5aef6b3f9516ad3830001d81e297ccb4ff2736250c7beb",
+      "samples": 137,
+      "maxHandResidualM": 0.0041825509656507436
+    },
+    {
+      "id": "obp-179_7",
+      "sourceRowsSha256": "89a152a953978ae992c74f6692e5786d0c4883f9ef93cc9a89b976829c32dc3d",
+      "samples": 137,
+      "maxHandResidualM": 0.004189711732835243
+    },
+    {
+      "id": "obp-180_1",
+      "sourceRowsSha256": "e6888e7a3ac18dfc90c3098a6cb335d3fc6d31bb9389ffe01cf5dc35fb9d1218",
+      "samples": 137,
+      "maxHandResidualM": 0.006452553757179856
+    },
+    {
+      "id": "obp-180_2",
+      "sourceRowsSha256": "39f9a7c74d3372a2f68c6158ed8df2c606c174f6260fb036e41b3fa3c7d242e3",
+      "samples": 137,
+      "maxHandResidualM": 0.006469488882664774
+    },
+    {
+      "id": "obp-180_3",
+      "sourceRowsSha256": "5930dd0d677a2137670cf3dab6c3d933fbbb52eeec2b5837af075dff6a9d6817",
+      "samples": 137,
+      "maxHandResidualM": 0.0064707945157337085
+    },
+    {
+      "id": "obp-180_4",
+      "sourceRowsSha256": "67acda724e2d138e17db2326274072538b551be14afef101a770f020a49311d0",
+      "samples": 137,
+      "maxHandResidualM": 0.006453878633790487
+    },
+    {
+      "id": "obp-180_5",
+      "sourceRowsSha256": "3974952cd75c10eaf39274ab68c4b74e8fc935b95a53815f4dbe97e3eb8b877a",
+      "samples": 137,
+      "maxHandResidualM": 0.006457037202839612
+    },
+    {
+      "id": "obp-180_6",
+      "sourceRowsSha256": "385d9fc0806919735956d592f5581622d4811663062973242525f46ca0bccd2b",
+      "samples": 137,
+      "maxHandResidualM": 0.006446082934578114
+    },
+    {
+      "id": "obp-180_7",
+      "sourceRowsSha256": "e25a6908c61f14e7e9524eb8d5e6b98f64c3ce11c4b82a04124c8e21a4f9cd09",
+      "samples": 137,
+      "maxHandResidualM": 0.006444133991541926
+    },
+    {
+      "id": "obp-180_8",
+      "sourceRowsSha256": "5ff6154fee4f256310b3f3efd76ab8486545689aeb31747ae7d32c85f8ab2e55",
+      "samples": 137,
+      "maxHandResidualM": 0.00646070457508829
+    },
+    {
+      "id": "obp-181_1",
+      "sourceRowsSha256": "6431a4138941a66155c174bf76f9cbe90e13d186a4695a3dd875fa24b03fc468",
+      "samples": 137,
+      "maxHandResidualM": 0.0064291662499564054
+    },
+    {
+      "id": "obp-181_2",
+      "sourceRowsSha256": "8be30aae7db9ad0e2b8d83e1edf613a01b66c7faaf1a55b43ec25218b097d8e4",
+      "samples": 137,
+      "maxHandResidualM": 0.006455117102357122
+    },
+    {
+      "id": "obp-181_3",
+      "sourceRowsSha256": "6e10e3a2d19e0cd01a021c20ae82cd25bab0800ad6a6c1f260f869921e19bac6",
+      "samples": 137,
+      "maxHandResidualM": 0.006438680752567988
+    },
+    {
+      "id": "obp-181_4",
+      "sourceRowsSha256": "5cd74053efc2c320af131d351d80efe7e696f4beabefc65e1c9ceec3a89c197b",
+      "samples": 137,
+      "maxHandResidualM": 0.0064434427390576915
+    },
+    {
+      "id": "obp-181_5",
+      "sourceRowsSha256": "59ebd5caf972a437ed3d79ac774aaf97c5e37f45c0f935e21b67d901436a0ea2",
+      "samples": 137,
+      "maxHandResidualM": 0.006444623628162932
+    },
+    {
+      "id": "obp-181_6",
+      "sourceRowsSha256": "576794e87fcffd2a548c168c0e0b4d8b00c143b2a5bba1ae40bf81218c7a9ad8",
+      "samples": 137,
+      "maxHandResidualM": 0.00646334468310233
+    },
+    {
+      "id": "obp-181_7",
+      "sourceRowsSha256": "ed27af37a37036c46a46d1bffc6f03f1c4c1e6945880d437c1fd532fa000e2fb",
+      "samples": 137,
+      "maxHandResidualM": 0.006449049538303221
+    },
+    {
+      "id": "obp-181_8",
+      "sourceRowsSha256": "374223489c8cfc1e3c204a8a826b3ef5bad201d464874579dc438fdab1a24f15",
+      "samples": 137,
+      "maxHandResidualM": 0.006447523035584441
+    },
+    {
+      "id": "obp-185_1",
+      "sourceRowsSha256": "106e82a7e12f55f104cfa7d0814af38d84bc37567a3e1b6ee53035002d93c91b",
+      "samples": 137,
+      "maxHandResidualM": 0.008069079956591911
+    },
+    {
+      "id": "obp-185_2",
+      "sourceRowsSha256": "1785eeb42ce163dbb29297d39abfb7f4c78f85e4dc99610b63a9274b02dfa48c",
+      "samples": 137,
+      "maxHandResidualM": 0.008068260254233439
+    },
+    {
+      "id": "obp-185_3",
+      "sourceRowsSha256": "805589187278f17907408a7f3a601a93daabfdf8a3e726063091262f63f7dade",
+      "samples": 137,
+      "maxHandResidualM": 0.008092140801745121
+    },
+    {
+      "id": "obp-185_4",
+      "sourceRowsSha256": "93332d5021759460b586c854899ee1222fdb41b5713f5c1559cf5395972502c8",
+      "samples": 137,
+      "maxHandResidualM": 0.008071479815704535
+    },
+    {
+      "id": "obp-185_6",
+      "sourceRowsSha256": "5de51f0ccc89dd7e99ab4cb57ffcf21381510291f9668cf9f4226a79aa18e6d4",
+      "samples": 137,
+      "maxHandResidualM": 0.008058088154669444
+    },
+    {
+      "id": "obp-190_1",
+      "sourceRowsSha256": "0dbae825ead816c645913986b77221fcd8fe2995c71276d5b91481b57cd7189e",
+      "samples": 137,
+      "maxHandResidualM": 0.006452668963975223
+    },
+    {
+      "id": "obp-190_2",
+      "sourceRowsSha256": "9a7fba4819e565af76cbd94ad000fd2dcf9351a94cb0650acf8841762ab28caa",
+      "samples": 137,
+      "maxHandResidualM": 0.006448857525628773
+    },
+    {
+      "id": "obp-190_3",
+      "sourceRowsSha256": "5bd456515ab496b700c82c42ccdf99be57c051e2ea64d0d7016082711d1a598b",
+      "samples": 137,
+      "maxHandResidualM": 0.0064515552972166925
+    },
+    {
+      "id": "obp-190_4",
+      "sourceRowsSha256": "6a353831d791a88cc898c2ef018b587665f9c909c5efd62292b23bbe9ad92bcd",
+      "samples": 137,
+      "maxHandResidualM": 0.00644611173663741
+    },
+    {
+      "id": "obp-190_5",
+      "sourceRowsSha256": "d2c3c1e11aa6f0b6ee9bf5134f875f7f920a667b2d7c99b7b179ec0b9c2299da",
+      "samples": 137,
+      "maxHandResidualM": 0.0064283885684966935
+    },
+    {
+      "id": "obp-190_6",
+      "sourceRowsSha256": "b0d4a169276df5c78912591a91fed780fe6d6f0883d647071fd29418f989e55d",
+      "samples": 137,
+      "maxHandResidualM": 0.006477965839009154
+    },
+    {
+      "id": "obp-190_8",
+      "sourceRowsSha256": "f2701a1ffae64f909c26508e9e6bccf4c4ddd3fbb00cee0d83d9ba561b3afcd2",
+      "samples": 137,
+      "maxHandResidualM": 0.0064514016878219034
+    },
+    {
+      "id": "obp-198_1",
+      "sourceRowsSha256": "a3d8f9eb2b4a33e33ad30e77d204b4502fdc13b1508bd995434af487ade75451",
+      "samples": 137,
+      "maxHandResidualM": 0.0032111751281195208
+    },
+    {
+      "id": "obp-198_2",
+      "sourceRowsSha256": "7ce0e1f9d82b86016d895d3b7794ee2cea3820012049b113efa5cdd0775ddced",
+      "samples": 137,
+      "maxHandResidualM": 0.003221792121634126
+    },
+    {
+      "id": "obp-198_3",
+      "sourceRowsSha256": "3aa38a2b45f1d9d4a0a502d876e6e3720ec1f5baac3f8558c6b5710133141826",
+      "samples": 137,
+      "maxHandResidualM": 0.003239509167254915
+    },
+    {
+      "id": "obp-198_4",
+      "sourceRowsSha256": "81359e075c2057fe6493efe35fe6b71781d8b1ecbc32546599ae8deb0091023b",
+      "samples": 137,
+      "maxHandResidualM": 0.003221415362170061
+    },
+    {
+      "id": "obp-198_5",
+      "sourceRowsSha256": "eea9f6d102efd84c2faf29ecd33d19165fc824b3ae87b41bbfe4d1845545bc89",
+      "samples": 137,
+      "maxHandResidualM": 0.003220043568984057
+    },
+    {
+      "id": "obp-198_6",
+      "sourceRowsSha256": "be39a5627d7f214a2e3b91fb483dd324de5db1d36c9c05ccd05f97cca7a18860",
+      "samples": 137,
+      "maxHandResidualM": 0.003232660065037442
+    },
+    {
+      "id": "obp-198_7",
+      "sourceRowsSha256": "28e9ecd5696b151c61c4bb8a19cdd65c688e390919064d57b743b2c6bc8c7599",
+      "samples": 137,
+      "maxHandResidualM": 0.0032402433392653496
+    },
+    {
+      "id": "obp-199_1",
+      "sourceRowsSha256": "4d83df6792ef18cec015213a6c87ea5a67c6be875d305a2ec189f96002d109e7",
+      "samples": 137,
+      "maxHandResidualM": 0.0041178515963228735
+    },
+    {
+      "id": "obp-199_2",
+      "sourceRowsSha256": "2d41275607cb2022dcc8b9ddb08c181d74efddf4f2bc63e312d01492187e97e7",
+      "samples": 137,
+      "maxHandResidualM": 0.004125904963623239
+    },
+    {
+      "id": "obp-199_3",
+      "sourceRowsSha256": "7ef31e6396b34eb7a95f59339050c381e2e819be84cfd1a14d4779d38796c3d7",
+      "samples": 137,
+      "maxHandResidualM": 0.004141036881469693
+    },
+    {
+      "id": "obp-199_4",
+      "sourceRowsSha256": "5373dc69d76674d57a51a3a77f1fc0d019d72be2319d7227219eff5ab13410a3",
+      "samples": 137,
+      "maxHandResidualM": 0.0041188444836678375
+    },
+    {
+      "id": "obp-199_5",
+      "sourceRowsSha256": "de2430bd197265cd07609b1143d4695d74748bdbd57a71b80bc9d55dda8b058f",
+      "samples": 137,
+      "maxHandResidualM": 0.0041209773466498005
+    },
+    {
+      "id": "obp-199_6",
+      "sourceRowsSha256": "43ed6cf1004af16500bb07584ab86fab6c5af7b0c55feac7734f2844116c50d0",
+      "samples": 137,
+      "maxHandResidualM": 0.0041278355476531406
+    },
+    {
+      "id": "obp-199_7",
+      "sourceRowsSha256": "527b8c29d26c085c2766350d58fb74a2b5cf1d5c57ad1a5bb1943282c747e902",
+      "samples": 137,
+      "maxHandResidualM": 0.004132533273500371
+    },
+    {
+      "id": "obp-199_8",
+      "sourceRowsSha256": "82eff1c69389bddfa347864fce4d4b05b900ffc6aedc68cc2e669bc4a5d5bb79",
+      "samples": 137,
+      "maxHandResidualM": 0.004116775966320706
+    },
+    {
+      "id": "obp-200_1",
+      "sourceRowsSha256": "5c1c053dd19a181226079b8210f097c168b2a46e362345d3643863aa5c2aa1c5",
+      "samples": 137,
+      "maxHandResidualM": 0.008068596035762056
+    },
+    {
+      "id": "obp-200_2",
+      "sourceRowsSha256": "77b7746ceca53a988deecdcc70e3acfcaa7bb4b62e60d025c0442084c2debfc4",
+      "samples": 137,
+      "maxHandResidualM": 0.008097158032668353
+    },
+    {
+      "id": "obp-200_3",
+      "sourceRowsSha256": "c7af213b49aaf0e7b150d77db408607ee8febbb43b2ea58606677d189aa0ffdd",
+      "samples": 137,
+      "maxHandResidualM": 0.008068833058151465
+    },
+    {
+      "id": "obp-200_4",
+      "sourceRowsSha256": "7af57e3626096285a16ed9606be505d63d2f82b15ca635687ad0015c3481a65d",
+      "samples": 137,
+      "maxHandResidualM": 0.008065386368497613
+    },
+    {
+      "id": "obp-200_5",
+      "sourceRowsSha256": "2b23617b49cd8cd6e641f3111aae275d12d275e808cadcfacf2aba9a1e09977b",
+      "samples": 137,
+      "maxHandResidualM": 0.008087992734987033
+    },
+    {
+      "id": "obp-200_6",
+      "sourceRowsSha256": "c3d76291e6fa5eb0855e648e757ab39d83679892a0bb07c6e141ecf72b8303bf",
+      "samples": 137,
+      "maxHandResidualM": 0.008059796658082938
+    },
+    {
+      "id": "obp-200_7",
+      "sourceRowsSha256": "e3845a5f28eecc55eb5bc20fb318751c8950ce377dafee23c43d3033d82836e2",
+      "samples": 137,
+      "maxHandResidualM": 0.008084684182295552
+    },
+    {
+      "id": "obp-200_8",
+      "sourceRowsSha256": "4a6a89fdc2ff2080e8bdba8533a97636d02c285a96af5b3c2947344b16196d77",
+      "samples": 137,
+      "maxHandResidualM": 0.008064359279269892
+    },
+    {
+      "id": "obp-201_1",
+      "sourceRowsSha256": "4d53ca9792c01f8f8a39158f6ce6abd7b8ae0b0a6a567306a74648cea73e15fa",
+      "samples": 137,
+      "maxHandResidualM": 0.006323894527086366
+    },
+    {
+      "id": "obp-201_2",
+      "sourceRowsSha256": "d43f8adb0fae8ea4afc635d9be352d3c967d708dbd4a3e982fdfe70163e1bccd",
+      "samples": 137,
+      "maxHandResidualM": 0.006329593566200267
+    },
+    {
+      "id": "obp-201_3",
+      "sourceRowsSha256": "cc1eaa9937d37147113d65f4f0f775efc0974e4bb2ef5ff1cd8d922fb6b77255",
+      "samples": 137,
+      "maxHandResidualM": 0.006332958652425552
+    },
+    {
+      "id": "obp-201_5",
+      "sourceRowsSha256": "e4af9359ca522d1900985c953a10afc6ee68e8177804bb3e427bcc55bc2ea892",
+      "samples": 137,
+      "maxHandResidualM": 0.006332564964361162
+    },
+    {
+      "id": "obp-201_6",
+      "sourceRowsSha256": "b78156bf24a7e3174eeffa449d10ff2d4f14fc4187dee53d02e72ebda71ef4a2",
+      "samples": 137,
+      "maxHandResidualM": 0.006357302262207818
+    },
+    {
+      "id": "obp-201_7",
+      "sourceRowsSha256": "1e8de1205572d7a15247c7e30994c13df9ef36c431b0259bc2cc873cf64dfcd8",
+      "samples": 137,
+      "maxHandResidualM": 0.0063416667317617815
+    },
+    {
+      "id": "obp-201_8",
+      "sourceRowsSha256": "742f89440a375831d921a6969a36c7767bf940526e3be811b5c9c4c43251a9dd",
+      "samples": 137,
+      "maxHandResidualM": 0.0063240538743919664
+    },
+    {
+      "id": "obp-203_1",
+      "sourceRowsSha256": "a39bfb738fe778c9086b579b8212eecd3ba5cae765d612910fd96dc2b60fa6b3",
+      "samples": 137,
+      "maxHandResidualM": 0.008068704671009964
+    },
+    {
+      "id": "obp-203_2",
+      "sourceRowsSha256": "6b47693251e0312048093dd08a18a013cb1c9413d706d2eac7ecdbc0245f65cb",
+      "samples": 137,
+      "maxHandResidualM": 0.008061673055757654
+    },
+    {
+      "id": "obp-203_4",
+      "sourceRowsSha256": "be923e19e2c641992a9e0ff2316ae6c19782aecb9a1e12eb914a4f22aea911cf",
+      "samples": 137,
+      "maxHandResidualM": 0.008088012487605368
+    },
+    {
+      "id": "obp-204_1",
+      "sourceRowsSha256": "d59f8593d6f0c08b9ea3f488b8f1a5ae31345f10fd4ac3ad27ff59092fad54aa",
+      "samples": 137,
+      "maxHandResidualM": 0.006360667523243459
+    },
+    {
+      "id": "obp-204_2",
+      "sourceRowsSha256": "f11bf2af2dce90c32b15c64a0fed0251652a0837be2425125771cb677fbe4d78",
+      "samples": 137,
+      "maxHandResidualM": 0.006326331608729366
+    },
+    {
+      "id": "obp-204_3",
+      "sourceRowsSha256": "08f44cf985d74499e132a8cf63981ede1c5e5e6d1030a682d6a8b89aa17cbdcc",
+      "samples": 137,
+      "maxHandResidualM": 0.0063463160982104435
+    },
+    {
+      "id": "obp-204_4",
+      "sourceRowsSha256": "029d1acfd4b12392b0639c13bc6593f06ab1f693907185656af5f1ccffec4c70",
+      "samples": 137,
+      "maxHandResidualM": 0.006341019948107738
+    },
+    {
+      "id": "obp-204_5",
+      "sourceRowsSha256": "6bcf919c89d821f4dd0ab479474de350032ea31e472e94d2300b034618976854",
+      "samples": 137,
+      "maxHandResidualM": 0.0063186079728713256
+    },
+    {
+      "id": "obp-204_6",
+      "sourceRowsSha256": "2aee962c581fd3ff884657514534ec8df37cde673976ed42217b036f62d9932c",
+      "samples": 137,
+      "maxHandResidualM": 0.006331580745471345
+    },
+    {
+      "id": "obp-204_7",
+      "sourceRowsSha256": "50110d5c3f95782586bb79bfae8a2d0d7567718df398db8e213bbf1f9c6f2099",
+      "samples": 137,
+      "maxHandResidualM": 0.0063348052407956055
+    },
+    {
+      "id": "obp-204_8",
+      "sourceRowsSha256": "1897cdc3f1423cb8f33cf3fb3ce8cbf4afbf5990c65265e9dbfec27163f33253",
+      "samples": 137,
+      "maxHandResidualM": 0.006316461496842096
+    },
+    {
+      "id": "obp-21_1",
+      "sourceRowsSha256": "5e4f8787ce1c4b53e4734d0da2f23680e26ea7a0e5cac758ce69befc37444529",
+      "samples": 137,
+      "maxHandResidualM": 0.009385238455462517
+    },
+    {
+      "id": "obp-21_2",
+      "sourceRowsSha256": "47aa4cee7c0de2693b1c74050c2ebdad0d286fb597df79e77fb5c8251cf4a2d2",
+      "samples": 137,
+      "maxHandResidualM": 0.00940648921994272
+    },
+    {
+      "id": "obp-21_3",
+      "sourceRowsSha256": "e7561906511fc1291f2e2fae2713bb8a94d71aa9959a16b57f3b27b0af4baa6b",
+      "samples": 137,
+      "maxHandResidualM": 0.009407062004895711
+    },
+    {
+      "id": "obp-21_4",
+      "sourceRowsSha256": "90edfffb631a3895cc8728c0baff8689755292257436a47f78b0b325d8efdc72",
+      "samples": 137,
+      "maxHandResidualM": 0.00940254653318885
+    },
+    {
+      "id": "obp-21_5",
+      "sourceRowsSha256": "5fafa9c38e6d2156a940b5efd20ca6d0441d1b870e090f086aa068c36a9e26fb",
+      "samples": 137,
+      "maxHandResidualM": 0.00939018367889241
+    },
+    {
+      "id": "obp-215_1",
+      "sourceRowsSha256": "5c73d781c0ed654f6709ae17ccd7f3e24f1c2189a69f9ffab794d3d29f6e5c5b",
+      "samples": 137,
+      "maxHandResidualM": 0.00933552586452113
+    },
+    {
+      "id": "obp-215_2",
+      "sourceRowsSha256": "150084c5bee4b8546d965fd4bc585664cb0fb5a3421bd7ab8bb3685b8a30c242",
+      "samples": 137,
+      "maxHandResidualM": 0.00934783272417702
+    },
+    {
+      "id": "obp-215_4",
+      "sourceRowsSha256": "be405b757d4281b654c89df3e695df53412a65b9112dd62cc1856c33d3ca2f98",
+      "samples": 137,
+      "maxHandResidualM": 0.009337024853585608
+    },
+    {
+      "id": "obp-215_5",
+      "sourceRowsSha256": "7d81031d0c95e022ffc8a0823006b7e1af6f8b90008e85575479295623e4cc76",
+      "samples": 137,
+      "maxHandResidualM": 0.00934184641351825
+    },
+    {
+      "id": "obp-219_1",
+      "sourceRowsSha256": "1d93c12f2e98c65ce5f4ed5de443ddfe365c67998945beb01fac4bbf2e410c0f",
+      "samples": 137,
+      "maxHandResidualM": 0.008094190288491036
+    },
+    {
+      "id": "obp-219_2",
+      "sourceRowsSha256": "fd89e8e25984946416544ae95a2610d85d186f7676affb412b8679eea33a97b5",
+      "samples": 137,
+      "maxHandResidualM": 0.008076679247491107
+    },
+    {
+      "id": "obp-219_3",
+      "sourceRowsSha256": "debf9dc30c130e689e9a05ba52a52fb1a020479ba402c8a95b1b1b4ca0e90ea8",
+      "samples": 137,
+      "maxHandResidualM": 0.008087324988860995
+    },
+    {
+      "id": "obp-219_4",
+      "sourceRowsSha256": "edd72f2f857087b4c10b2ba354e47838834a40d22319da082be31fbe71e77edb",
+      "samples": 137,
+      "maxHandResidualM": 0.008073801548348383
+    },
+    {
+      "id": "obp-219_5",
+      "sourceRowsSha256": "c9ea020bf809bf76ec3ad37f1b19434de1001939fed812530e82494f4155aad8",
+      "samples": 137,
+      "maxHandResidualM": 0.008082735632519857
+    },
+    {
+      "id": "obp-219_6",
+      "sourceRowsSha256": "ff91c14f4fd1b02a5c370dd4d25e9a69168994b1a0e9ba2cb81367bc297d531b",
+      "samples": 137,
+      "maxHandResidualM": 0.008083788923915163
+    },
+    {
+      "id": "obp-219_7",
+      "sourceRowsSha256": "3ed609b98dbc61f051794a18261f6dc2c57193b935e7e4e7b22cc906b07c2dac",
+      "samples": 137,
+      "maxHandResidualM": 0.008077158865529354
+    },
+    {
+      "id": "obp-219_8",
+      "sourceRowsSha256": "e06c2730dfe9eec51b6add4b6b469487a45c03306d286c1b369f4ae2949e5c0f",
+      "samples": 137,
+      "maxHandResidualM": 0.008080121221824168
+    },
+    {
+      "id": "obp-23_1",
+      "sourceRowsSha256": "e2be9a53b6d8fef1189d140f8d75f75a95b3c7da0afb91df345b1192e38d1adc",
+      "samples": 137,
+      "maxHandResidualM": 0.004564029488507701
+    },
+    {
+      "id": "obp-23_2",
+      "sourceRowsSha256": "9073b5cf40fc843b1c91ddef3929f3cd4f081e61f51779721d9bfb36d1610fe4",
+      "samples": 137,
+      "maxHandResidualM": 0.00458461052429338
+    },
+    {
+      "id": "obp-23_3",
+      "sourceRowsSha256": "a5bc0cbbb472ae89fb4d04bc757734c7c548d6e81b1c6afb9b342f958c548c62",
+      "samples": 137,
+      "maxHandResidualM": 0.00456924227185878
+    },
+    {
+      "id": "obp-23_4",
+      "sourceRowsSha256": "3150c2f9631b368391f1f1db90eb0a4800df158e5ecc58feceb8b6be70a94e9a",
+      "samples": 137,
+      "maxHandResidualM": 0.004554095185227831
+    },
+    {
+      "id": "obp-23_5",
+      "sourceRowsSha256": "7fedafb4a6669183a50e65c62c6ad6c0abc5509e68bb57115a16001ca0c3f447",
+      "samples": 137,
+      "maxHandResidualM": 0.00457525473328069
+    },
+    {
+      "id": "obp-236_1",
+      "sourceRowsSha256": "2fda14566e12206225c802229b824cc13f346c15d7607d25dd62724c12192bc7",
+      "samples": 137,
+      "maxHandResidualM": 0.008189156427535222
+    },
+    {
+      "id": "obp-236_2",
+      "sourceRowsSha256": "b2ded13744fb9726b9613f7c33da5791e759288baf32ebc7c58223285f1e3ee6",
+      "samples": 137,
+      "maxHandResidualM": 0.008200648262921946
+    },
+    {
+      "id": "obp-236_3",
+      "sourceRowsSha256": "a25a32828c8966637d8976c526b61f6f0077f97b8dc0b6134a0c3c5b8300c995",
+      "samples": 137,
+      "maxHandResidualM": 0.00818951046786895
+    },
+    {
+      "id": "obp-236_4",
+      "sourceRowsSha256": "1d2932b0e7333d898462381d524701c97b8b53d25bf36f8d064ad2c90b6f1495",
+      "samples": 137,
+      "maxHandResidualM": 0.00819749066472442
+    },
+    {
+      "id": "obp-24_1",
+      "sourceRowsSha256": "689204330358de6935ca958c3e02de30115ac3bbfd33542e1edf6ea5433e2d23",
+      "samples": 137,
+      "maxHandResidualM": 0.007016389271335831
+    },
+    {
+      "id": "obp-24_2",
+      "sourceRowsSha256": "e551efb89830f9056a56b49edc222ae5c81fc38fdc798df5c727b5647ddaa25a",
+      "samples": 137,
+      "maxHandResidualM": 0.0069726637703137265
+    },
+    {
+      "id": "obp-24_3",
+      "sourceRowsSha256": "7438b777533f8719ed649eca232810b0379762cbc2d0c2c1a7fd95ce61fbac69",
+      "samples": 137,
+      "maxHandResidualM": 0.006983850549793147
+    },
+    {
+      "id": "obp-24_4",
+      "sourceRowsSha256": "55ac09589fea69719ef5bbb1b85783a3e46916e010b2bf0e6706e9dfda8e0381",
+      "samples": 137,
+      "maxHandResidualM": 0.006970843125408929
+    },
+    {
+      "id": "obp-24_5",
+      "sourceRowsSha256": "44251514b8b897169f11895cc93456cb71ba5b690477eb4647c0faf45e2a5832",
+      "samples": 137,
+      "maxHandResidualM": 0.006991499363923797
+    },
+    {
+      "id": "obp-244_1",
+      "sourceRowsSha256": "960efc923e42d7cfd2a1e08d12e28f78c0108a7b7dc140ebe0e3b7a31ad25ea8",
+      "samples": 137,
+      "maxHandResidualM": 0.003245295573675164
+    },
+    {
+      "id": "obp-244_2",
+      "sourceRowsSha256": "90e794a87e29897e1d4255410992e06b971e598cffddc5ded8d5fa31d945809b",
+      "samples": 137,
+      "maxHandResidualM": 0.0032590899510942426
+    },
+    {
+      "id": "obp-244_3",
+      "sourceRowsSha256": "a4ac7194b53e474d61dd27b3c604516392d9aeb9c445a86da4f77ea753d42c5f",
+      "samples": 137,
+      "maxHandResidualM": 0.003261910604846677
+    },
+    {
+      "id": "obp-244_4",
+      "sourceRowsSha256": "c12346d8fda7e848fe4bfbc14381eda4683373c4d2a7e409a7638d9c72f6dc42",
+      "samples": 137,
+      "maxHandResidualM": 0.0032707202189648367
+    },
+    {
+      "id": "obp-244_5",
+      "sourceRowsSha256": "1499d5d1e5afa6b6ec29b57eef6d7dd3e734882608258b5ab6b79fb824ea1689",
+      "samples": 137,
+      "maxHandResidualM": 0.0032487731824718765
+    },
+    {
+      "id": "obp-244_6",
+      "sourceRowsSha256": "e127064c26940b951992f996b336952eda93a6e98064b4bd0c6b14d9d088200c",
+      "samples": 137,
+      "maxHandResidualM": 0.003249256181845846
+    },
+    {
+      "id": "obp-244_7",
+      "sourceRowsSha256": "e8b80f765c60a9e0b2864dcdae604e8ebf858bb1604016cdc2b209eeeb5912a9",
+      "samples": 137,
+      "maxHandResidualM": 0.0032508597365347746
+    },
+    {
+      "id": "obp-244_8",
+      "sourceRowsSha256": "d2312edda8b19f5d839cdc9927ab0bc400aef9dbb0497241069319cc4929cacb",
+      "samples": 137,
+      "maxHandResidualM": 0.0032467639002390376
+    },
+    {
+      "id": "obp-25_1",
+      "sourceRowsSha256": "fd088d6de5412411534b6b46f9deab0fae7cb82f9dbdf1eab4a8685c9b97840c",
+      "samples": 137,
+      "maxHandResidualM": 0.009402517893708856
+    },
+    {
+      "id": "obp-25_2",
+      "sourceRowsSha256": "e672d2c214cf8c82fc04c79163bd3fd6edea2edba9862b1e1d8639b439f3b1e2",
+      "samples": 137,
+      "maxHandResidualM": 0.009401983289800962
+    },
+    {
+      "id": "obp-25_3",
+      "sourceRowsSha256": "e38923c1e6dd2adf03ed86f1555030249e0ffd5cc8f90ef77078a30ce9646986",
+      "samples": 137,
+      "maxHandResidualM": 0.009386632287641257
+    },
+    {
+      "id": "obp-25_4",
+      "sourceRowsSha256": "6ee5e71ed0d415865e21974c97fd885b5e1f46c6a526c0927c2d733de3b083be",
+      "samples": 137,
+      "maxHandResidualM": 0.009409076293671551
+    },
+    {
+      "id": "obp-25_5",
+      "sourceRowsSha256": "0438e64d06b04d4d6dbd313a770519f593c782dd692a015ab0e8cb2cb7e2fdb1",
+      "samples": 137,
+      "maxHandResidualM": 0.009415653704020326
+    },
+    {
+      "id": "obp-254_1",
+      "sourceRowsSha256": "64f3ad9cb2b85decac2e1c1958ba6a0eff3b866276e49ee32a5a95d1b928b695",
+      "samples": 137,
+      "maxHandResidualM": 0.0004811256750412965
+    },
+    {
+      "id": "obp-254_2",
+      "sourceRowsSha256": "27f42ff5c9a5f41b7007cf633d4102f5f0b5e6a2f5f889679fa825a495351eb9",
+      "samples": 137,
+      "maxHandResidualM": 0.0004918289060687533
+    },
+    {
+      "id": "obp-254_4",
+      "sourceRowsSha256": "bf733932ce5be5c68ef911549b8cf91847e59d07230c0799bb5c1418da8cd94a",
+      "samples": 137,
+      "maxHandResidualM": 0.0004760757734444638
+    },
+    {
+      "id": "obp-254_5",
+      "sourceRowsSha256": "a7dc37b1d5edda4b42fc54e7b6b552fce944b59b796b81c74da7b940e51d6bad",
+      "samples": 137,
+      "maxHandResidualM": 0.0004679318170361455
+    },
+    {
+      "id": "obp-254_6",
+      "sourceRowsSha256": "7cab0ff9e06f0c8ecc7b40e2c19889e753516dc682a96649ea3b452421f376c0",
+      "samples": 137,
+      "maxHandResidualM": 0.0005001678505672554
+    },
+    {
+      "id": "obp-254_7",
+      "sourceRowsSha256": "eda2a3ca6c2f41c9a78890edd972e101005dcca1a777b0ab4f78c058a95dfd73",
+      "samples": 137,
+      "maxHandResidualM": 0.0004823322099356779
+    },
+    {
+      "id": "obp-254_8",
+      "sourceRowsSha256": "11eca756afa68352bc5c67846a8417f873577ab126f8cdabf5a78c6c70bcd0ca",
+      "samples": 137,
+      "maxHandResidualM": 0.00048444365281657617
+    },
+    {
+      "id": "obp-258_1",
+      "sourceRowsSha256": "851f4af5af99e120c84841f272df0bc4b613ad83641124647b6726757cf62012",
+      "samples": 137,
+      "maxHandResidualM": 0.014879864992519278
+    },
+    {
+      "id": "obp-258_2",
+      "sourceRowsSha256": "4eb990daf30bca308029de53da581cf57d8add81548c6c07484490bf07c440d2",
+      "samples": 137,
+      "maxHandResidualM": 0.014862301444326109
+    },
+    {
+      "id": "obp-258_3",
+      "sourceRowsSha256": "af7a21511291dc2a648f320ae42c9b1010ac0c723602f21d016093d47b027795",
+      "samples": 137,
+      "maxHandResidualM": 0.014866420758086566
+    },
+    {
+      "id": "obp-258_4",
+      "sourceRowsSha256": "c8488fbaa2b7315107727b156134f209ffabd3833bdaabdbfb0f294cef0a952b",
+      "samples": 137,
+      "maxHandResidualM": 0.014851388887066214
+    },
+    {
+      "id": "obp-258_5",
+      "sourceRowsSha256": "e6ab12ad7d371b70aef5a877c4a434a77bbeaa6c13df6eaf48e3ac8a0051b236",
+      "samples": 137,
+      "maxHandResidualM": 0.014850500755620989
+    },
+    {
+      "id": "obp-258_6",
+      "sourceRowsSha256": "6575ae529f119b47caf6e93a0c4887c36733684eef4262559ccea98395b2bd84",
+      "samples": 137,
+      "maxHandResidualM": 0.014871588750874694
+    },
+    {
+      "id": "obp-258_7",
+      "sourceRowsSha256": "0bd4899a7825808fb72204772aa5bc0739421e0ba45d6dc72cd3772817b209c4",
+      "samples": 137,
+      "maxHandResidualM": 0.014876170932617524
+    },
+    {
+      "id": "obp-258_8",
+      "sourceRowsSha256": "d7af9ca90d387dd487b042d6b3f46ddf0356b4cd62117f9c2cdea9daaeb1dad2",
+      "samples": 137,
+      "maxHandResidualM": 0.014847363939012924
+    },
+    {
+      "id": "obp-263_1",
+      "sourceRowsSha256": "c363d337d826dbee4e3effe8c3dd646592f515f959d2056b040fc98c49a5941e",
+      "samples": 137,
+      "maxHandResidualM": 0.0006123432139705311
+    },
+    {
+      "id": "obp-263_2",
+      "sourceRowsSha256": "4d86522930b8a71b57c6bdf4c53a19417a34af07c750f5366e67a205f9f637b3",
+      "samples": 137,
+      "maxHandResidualM": 0.0005938224215691389
+    },
+    {
+      "id": "obp-263_3",
+      "sourceRowsSha256": "826257924825f57aa8207862ff2e24e0b28b90e7644f6f17bc4fb6694ee4566c",
+      "samples": 137,
+      "maxHandResidualM": 0.0005980462324253757
+    },
+    {
+      "id": "obp-263_4",
+      "sourceRowsSha256": "59edb222692c824dc129c325ac261695fbe3ae78e25c2cd3ba617c17d58a9de5",
+      "samples": 137,
+      "maxHandResidualM": 0.0005768399380911063
+    },
+    {
+      "id": "obp-263_5",
+      "sourceRowsSha256": "8a5cd5b5fc80e9c6d046190ab391f82a65618d0d814bfdff3b7c0542d96e1d97",
+      "samples": 137,
+      "maxHandResidualM": 0.0005958078029923093
+    },
+    {
+      "id": "obp-263_6",
+      "sourceRowsSha256": "45c8d39c62602b919418007e63e7b63e0d5c2295ff751688ea06c281ec7e5069",
+      "samples": 137,
+      "maxHandResidualM": 0.000581511281588858
+    },
+    {
+      "id": "obp-263_7",
+      "sourceRowsSha256": "cc911d624012991d2155b05d2c7e7ccae7e32d24519b2d5b86e51e6672751ecc",
+      "samples": 137,
+      "maxHandResidualM": 0.0006007810224914687
+    },
+    {
+      "id": "obp-263_8",
+      "sourceRowsSha256": "186013fdfab133ef051c450e23a5400560c6ca9ac0bd3b89e658ac0ca39d9d88",
+      "samples": 137,
+      "maxHandResidualM": 0.0005831657259295975
+    },
+    {
+      "id": "obp-265_1",
+      "sourceRowsSha256": "bbd13c7d1be525fd280c4f459d071084376bacb51e5d37cc53789df82d149eb4",
+      "samples": 137,
+      "maxHandResidualM": 0.014561656139283891
+    },
+    {
+      "id": "obp-265_2",
+      "sourceRowsSha256": "f25ce766b22625f3f233f2dd87781f35ffee7381ea43f20f2914ef17154f8273",
+      "samples": 137,
+      "maxHandResidualM": 0.01459443942629736
+    },
+    {
+      "id": "obp-265_3",
+      "sourceRowsSha256": "1310ab4ef4a794186bf1fcd944c354805b574d459f90087a159ff45b9d635c02",
+      "samples": 137,
+      "maxHandResidualM": 0.01455432972324994
+    },
+    {
+      "id": "obp-265_4",
+      "sourceRowsSha256": "8b418f1b63fcab70d92046f7dcddfb39ffecb32f40f7216130fbf8881b6e6b75",
+      "samples": 137,
+      "maxHandResidualM": 0.014573113505167134
+    },
+    {
+      "id": "obp-265_5",
+      "sourceRowsSha256": "cca576802872dfd16f7d7b21d9eb2a99255007a1e88fe57daa68b2fc6381ba2d",
+      "samples": 137,
+      "maxHandResidualM": 0.014574124993367807
+    },
+    {
+      "id": "obp-265_6",
+      "sourceRowsSha256": "25121685f10ec3bfcd78ca54de1c1c5f947ff7be9a6cadcc202cb242cb5ca250",
+      "samples": 137,
+      "maxHandResidualM": 0.014607266704976989
+    },
+    {
+      "id": "obp-265_7",
+      "sourceRowsSha256": "d59837e39d45019d23b95740e50471606a30d26df90c4e2bc2da927310146647",
+      "samples": 137,
+      "maxHandResidualM": 0.014581205356613508
+    },
+    {
+      "id": "obp-265_8",
+      "sourceRowsSha256": "efe28ccdaf4415af061860c5f50bd8850c667cea99661356b6cb23549a88eaf8",
+      "samples": 137,
+      "maxHandResidualM": 0.014568604323954336
+    },
+    {
+      "id": "obp-268_1",
+      "sourceRowsSha256": "3ee56a2cab4cdda3a89d82d8e053510fb2bb9a1a5f5212263b5a2594af9f6ceb",
+      "samples": 137,
+      "maxHandResidualM": 0.012870418800334293
+    },
+    {
+      "id": "obp-268_2",
+      "sourceRowsSha256": "b5d1b63b6b3f2704dcf5fa1d5fe4fd0fca76e2fd039db8fa178a96a1178743d9",
+      "samples": 137,
+      "maxHandResidualM": 0.012869584234121559
+    },
+    {
+      "id": "obp-268_3",
+      "sourceRowsSha256": "397ae94d4089fced8696003624b3cbfdc947594df85545a8f5c81bb8427579cc",
+      "samples": 137,
+      "maxHandResidualM": 0.012870693827546966
+    },
+    {
+      "id": "obp-268_4",
+      "sourceRowsSha256": "3e3e982c7eb1baedc8f6fec3f451a66a2ad273ca50f8285d123fa68b6b1f0680",
+      "samples": 137,
+      "maxHandResidualM": 0.012894250798431945
+    },
+    {
+      "id": "obp-268_5",
+      "sourceRowsSha256": "fdc8eb1dfb09f982518d2f240b6d828eae970c4096efa9069281b650fcbd4b7b",
+      "samples": 137,
+      "maxHandResidualM": 0.012851498480419719
+    },
+    {
+      "id": "obp-268_6",
+      "sourceRowsSha256": "ac43ec5b3f525d9af882c8aa34e21663154a1e98973d70bd82556b99f4fd9801",
+      "samples": 137,
+      "maxHandResidualM": 0.012852627079949167
+    },
+    {
+      "id": "obp-268_7",
+      "sourceRowsSha256": "964941e3137f0e4b7da4e1c2cdcaaa5d04c8ebfdc1c05d5d2267fb2e976e6fcd",
+      "samples": 137,
+      "maxHandResidualM": 0.012850550075585694
+    },
+    {
+      "id": "obp-268_8",
+      "sourceRowsSha256": "20667d78672eaeaf7f9c6d0262c064a094e69ba39ec1acf777e7a453f9d1a11a",
+      "samples": 137,
+      "maxHandResidualM": 0.012882263807896914
+    },
+    {
+      "id": "obp-273_1",
+      "sourceRowsSha256": "47a853e9572e48b67085e08d505b9f550e9ff4ac7f14e579f9585bb1411f49c3",
+      "samples": 137,
+      "maxHandResidualM": 0.0063326305790184015
+    },
+    {
+      "id": "obp-273_2",
+      "sourceRowsSha256": "3172e58408910306f013a8b35ea925402d5e36fc408e12c36294536ca8ed15e3",
+      "samples": 137,
+      "maxHandResidualM": 0.0063236226994394
+    },
+    {
+      "id": "obp-273_3",
+      "sourceRowsSha256": "c0e378446d43b2b23727065d88c9379ccf1e223b99b97860fb85d2792a6aa1dd",
+      "samples": 137,
+      "maxHandResidualM": 0.006331861950683319
+    },
+    {
+      "id": "obp-273_5",
+      "sourceRowsSha256": "e169bfc742f30f94e874170dd23a4ead6b9cd88b9c41c13b2aef5fb5e7dfd25f",
+      "samples": 137,
+      "maxHandResidualM": 0.006335630114823295
+    },
+    {
+      "id": "obp-273_6",
+      "sourceRowsSha256": "bac02805adb9a48950cd2891e9617c7ea7371ca72148a6a9577f4df5d35eb9ad",
+      "samples": 137,
+      "maxHandResidualM": 0.0063250193326151475
+    },
+    {
+      "id": "obp-279_1",
+      "sourceRowsSha256": "b2f1f39a930936eb4dd7981a4a8bd221cb2aed2fb2d39d7c7251fbb1323711e8",
+      "samples": 137,
+      "maxHandResidualM": 0.006335601994096576
+    },
+    {
+      "id": "obp-279_2",
+      "sourceRowsSha256": "ab6b467f898739fe32ecbc6a65741ec3e83b35760f097dd390f5733284185c60",
+      "samples": 137,
+      "maxHandResidualM": 0.006338639041124127
+    },
+    {
+      "id": "obp-279_3",
+      "sourceRowsSha256": "629f320e2ecf6fb89b1314a7103ed3096c61f7d9f8beeeec2368e9090729773a",
+      "samples": 137,
+      "maxHandResidualM": 0.0063394545474376625
+    },
+    {
+      "id": "obp-279_4",
+      "sourceRowsSha256": "d5105b2b627bdb0885e165b3dd47866a04a5972c9625ee70cdb6822b7728e56f",
+      "samples": 137,
+      "maxHandResidualM": 0.006327681381815359
+    },
+    {
+      "id": "obp-279_5",
+      "sourceRowsSha256": "592258457801c9ae5a392db5286df1563e0f7095389a703b2f37adb0d081f0af",
+      "samples": 137,
+      "maxHandResidualM": 0.0063546775608168135
+    },
+    {
+      "id": "obp-279_6",
+      "sourceRowsSha256": "e6dd9c6a0861e44395695058978a7ab56aeb99c6ebb7f6962bdd11c63784879b",
+      "samples": 137,
+      "maxHandResidualM": 0.00635512750870967
+    },
+    {
+      "id": "obp-279_7",
+      "sourceRowsSha256": "7a48e279cb5ccb0b70595c441b36202a8b01e207bdeb960b4086bc906426aa8a",
+      "samples": 137,
+      "maxHandResidualM": 0.006347244101607394
+    },
+    {
+      "id": "obp-279_8",
+      "sourceRowsSha256": "575d0b58122b4358c59024668bbf73c4e7878a48b42be9c48ac4a030adcc3efd",
+      "samples": 137,
+      "maxHandResidualM": 0.006335958190075438
+    },
+    {
+      "id": "obp-282_1",
+      "sourceRowsSha256": "06a345bc237948e4f637ef6181b2e15881b58da1f3cfd14e585c3e336f60c174",
+      "samples": 137,
+      "maxHandResidualM": 0.013310392676956663
+    },
+    {
+      "id": "obp-282_2",
+      "sourceRowsSha256": "7c796a8ab77cf098427fa468014f78072593fa1456c61026eab941c6dff432c5",
+      "samples": 137,
+      "maxHandResidualM": 0.013315727520747795
+    },
+    {
+      "id": "obp-282_3",
+      "sourceRowsSha256": "23206aeccac8c078fe51d5150de0703cd3385c64e68bca583d8a07e4b71063a6",
+      "samples": 137,
+      "maxHandResidualM": 0.013308848120639592
+    },
+    {
+      "id": "obp-282_4",
+      "sourceRowsSha256": "a52456271c0f53a119d7cb5f4d1f83bef7a9185c9e4790af6a8c44d28db12520",
+      "samples": 137,
+      "maxHandResidualM": 0.013316817224657497
+    },
+    {
+      "id": "obp-282_5",
+      "sourceRowsSha256": "296baff3548a71d3df4c37dc6b0275e1fa9b9feb594906205c2f7d79c33e3ed9",
+      "samples": 137,
+      "maxHandResidualM": 0.013339236198731152
+    },
+    {
+      "id": "obp-282_6",
+      "sourceRowsSha256": "61c0e4af6831088bfbf6084d99956fd7eb3b7984bbc1744b296e63365578f882",
+      "samples": 137,
+      "maxHandResidualM": 0.01332643494853929
+    },
+    {
+      "id": "obp-282_7",
+      "sourceRowsSha256": "5965d14ed4b9d631b05fbdcdff76b1cab032666fc164e9ffc10102ad083cc1d0",
+      "samples": 137,
+      "maxHandResidualM": 0.013318323855051824
+    },
+    {
+      "id": "obp-282_8",
+      "sourceRowsSha256": "c88a44ad7787c3a83b01c05f84e08fbb2569b589b5bc265400a8132d58517329",
+      "samples": 137,
+      "maxHandResidualM": 0.01331407874707567
+    },
+    {
+      "id": "obp-283_1",
+      "sourceRowsSha256": "7b31ed332d7a0a1e42f1c9cccfe9ed7e283adb733f2b21a949e8ef828aec0811",
+      "samples": 137,
+      "maxHandResidualM": 0.0001158297690917838
+    },
+    {
+      "id": "obp-283_2",
+      "sourceRowsSha256": "35911ac44b5fded9a219ecdd1ff1eab1b4bf667c6b99c613678a3c4317f8aaad",
+      "samples": 137,
+      "maxHandResidualM": 0.00014045666562191217
+    },
+    {
+      "id": "obp-283_3",
+      "sourceRowsSha256": "8e50a27bbeb861733750b45a3bcc9cbb9ecf6268ce66ff83b74d7f3d89158fa6",
+      "samples": 137,
+      "maxHandResidualM": 0.00014144793669796065
+    },
+    {
+      "id": "obp-283_4",
+      "sourceRowsSha256": "fd98145bdde921613bc3112118ad64080e61d4f31eb217befab562dc5f506de8",
+      "samples": 137,
+      "maxHandResidualM": 0.0001399804660922294
+    },
+    {
+      "id": "obp-283_5",
+      "sourceRowsSha256": "efef70732a5a2d60b96876d5cd055f2b3d3330d1bdf8f65d961fb43a5e3cd309",
+      "samples": 137,
+      "maxHandResidualM": 0.00012544159075261906
+    },
+    {
+      "id": "obp-283_6",
+      "sourceRowsSha256": "08860afc466ad282e285c94de35854f2a9ba0c26a19f81da776c8c18cbfac707",
+      "samples": 137,
+      "maxHandResidualM": 0.0001358501455603469
+    },
+    {
+      "id": "obp-283_7",
+      "sourceRowsSha256": "4aea4ea4b558e2fe355c3336740e89c290e9de037992a7d5cd0f78eb3f21938a",
+      "samples": 137,
+      "maxHandResidualM": 0.0001192605005668622
+    },
+    {
+      "id": "obp-287_1",
+      "sourceRowsSha256": "c3e3226aa2d0cb22f7702656bad86142b1ed6d71ac1b06c0d6dc41cab8578a19",
+      "samples": 137,
+      "maxHandResidualM": 0.01572841872688991
+    },
+    {
+      "id": "obp-287_2",
+      "sourceRowsSha256": "bebd3a072924628fe558ea496e0f03ae38e3b44fd4f27eaf0cc6139bf6ce41c4",
+      "samples": 137,
+      "maxHandResidualM": 0.015729258224654777
+    },
+    {
+      "id": "obp-287_3",
+      "sourceRowsSha256": "c71adaff36078ab512650edec00e31e9cff68b07df38199188a18df5cc88af07",
+      "samples": 137,
+      "maxHandResidualM": 0.015739332094129182
+    },
+    {
+      "id": "obp-287_4",
+      "sourceRowsSha256": "938cf7be3d3235408b9c950816522ccaff678d31b18fffff91f98ad15d48eb1a",
+      "samples": 137,
+      "maxHandResidualM": 0.015752763622299826
+    },
+    {
+      "id": "obp-287_5",
+      "sourceRowsSha256": "ac8b1d5bb771233005e8b571491c3518d0bfafb04ec24d4c52054d6baa686caa",
+      "samples": 137,
+      "maxHandResidualM": 0.01575735705138066
+    },
+    {
+      "id": "obp-287_6",
+      "sourceRowsSha256": "595c6158f58b4207f3f8453488ad91294cf756930be1749fadecffbc4e671562",
+      "samples": 137,
+      "maxHandResidualM": 0.01572630582775552
+    },
+    {
+      "id": "obp-287_7",
+      "sourceRowsSha256": "b570614a324a1e3435accfba3fced71ff36d2408b6998a16a087b6df4ab85be3",
+      "samples": 137,
+      "maxHandResidualM": 0.015748113560121995
+    },
+    {
+      "id": "obp-287_8",
+      "sourceRowsSha256": "65b66e7de89a94f1a1814494d2cb879cd6045157097fe55b8bc7ffc5087fad03",
+      "samples": 137,
+      "maxHandResidualM": 0.01573257847244914
+    },
+    {
+      "id": "obp-291_1",
+      "sourceRowsSha256": "a6ae494f99eaae5849e597cc2cdcefe3d67853255a37e360eb0e73be47377d37",
+      "samples": 137,
+      "maxHandResidualM": 0.012975354975465007
+    },
+    {
+      "id": "obp-291_2",
+      "sourceRowsSha256": "78e81786382d6fdef533b3c6e19cb257c519135a7133fa7db68c1c538be89e69",
+      "samples": 137,
+      "maxHandResidualM": 0.012988306971909707
+    },
+    {
+      "id": "obp-291_3",
+      "sourceRowsSha256": "af4974451679d48403134b865d5a560a6aa14079d424ea5566cfc3d7335a94d1",
+      "samples": 137,
+      "maxHandResidualM": 0.01298672354578142
+    },
+    {
+      "id": "obp-291_4",
+      "sourceRowsSha256": "58ac396238458e9bc6b9c8571632c80055e74de8d5f0f35af703bf427986e4d0",
+      "samples": 137,
+      "maxHandResidualM": 0.012975762693232971
+    },
+    {
+      "id": "obp-291_5",
+      "sourceRowsSha256": "29000ebebeae3f8fe2801e05a029dedc237d9d2b01b89e40138ea2d9ee270449",
+      "samples": 137,
+      "maxHandResidualM": 0.012979849335309244
+    },
+    {
+      "id": "obp-291_6",
+      "sourceRowsSha256": "031e0f5cc43500b27d28200b0e4d966df97ce248d0b5aedc0381366fd0f73ab1",
+      "samples": 137,
+      "maxHandResidualM": 0.012973638764658374
+    },
+    {
+      "id": "obp-291_7",
+      "sourceRowsSha256": "fc64ee0b360019d63cebb0573e819c46fd2afb125b37446f2516c57851c9fa15",
+      "samples": 137,
+      "maxHandResidualM": 0.012995588774571906
+    },
+    {
+      "id": "obp-291_8",
+      "sourceRowsSha256": "7ef601e1a97094e406873bd2c3170d5ec2c89ed40632060623f71d8fa20b7da7",
+      "samples": 137,
+      "maxHandResidualM": 0.012979195095435542
+    },
+    {
+      "id": "obp-297_1",
+      "sourceRowsSha256": "2ad9379872ef48d5b2a2ff84c18cf56876ddf86805f8356b9f2059517b1c9f5f",
+      "samples": 137,
+      "maxHandResidualM": 0.01117748738767234
+    },
+    {
+      "id": "obp-297_2",
+      "sourceRowsSha256": "fd6e4f38015fa38feb9ff77d454fcff7479a0d08691846942d8db64ad9985e79",
+      "samples": 137,
+      "maxHandResidualM": 0.011199141375000271
+    },
+    {
+      "id": "obp-297_3",
+      "sourceRowsSha256": "98db6a6779e3d0d4ee28f66c73b6937e1b0663b830337f8eaba87f4742e22b84",
+      "samples": 137,
+      "maxHandResidualM": 0.011199588526144614
+    },
+    {
+      "id": "obp-297_4",
+      "sourceRowsSha256": "f0a3e3a85b2aaa39bf4b1123457be30987915f017bb6413ee4d0363fba1e5a35",
+      "samples": 137,
+      "maxHandResidualM": 0.011186887382798456
+    },
+    {
+      "id": "obp-297_5",
+      "sourceRowsSha256": "4e7cc8e33039412aa5cf2f337b9ba5e6a0633e50b9372dd00059640eb5b03def",
+      "samples": 137,
+      "maxHandResidualM": 0.011190455150695262
+    },
+    {
+      "id": "obp-297_6",
+      "sourceRowsSha256": "c1d72bb43e72604a3abcf198cbdffff3c76575bef0b9ad1fd04e9dad80525ec8",
+      "samples": 137,
+      "maxHandResidualM": 0.011196934155266467
+    },
+    {
+      "id": "obp-297_7",
+      "sourceRowsSha256": "1ef43b19843697dda83cba3c781a96175aaf7012a955f0bd9bcded357a57344c",
+      "samples": 137,
+      "maxHandResidualM": 0.011169875932395214
+    },
+    {
+      "id": "obp-297_8",
+      "sourceRowsSha256": "3b6fac05b79926e7fcc32cd7e54827680a5b562aee3bee6681f78429c872ee7b",
+      "samples": 137,
+      "maxHandResidualM": 0.011159600292896725
+    },
+    {
+      "id": "obp-300_1",
+      "sourceRowsSha256": "5e2547157474c288f930a13ba1eb27950262212338b9adb791332ed2687a1c97",
+      "samples": 137,
+      "maxHandResidualM": 0.010961222038897501
+    },
+    {
+      "id": "obp-300_2",
+      "sourceRowsSha256": "1d34ea70698a777f25e754a55c6e85e07e746fca246f083fcf140e4e5ec8fa8e",
+      "samples": 137,
+      "maxHandResidualM": 0.010939539206712152
+    },
+    {
+      "id": "obp-300_3",
+      "sourceRowsSha256": "64f02375814223874912c1ac9c0cf9570a5d4f83035fe4a0085bd8cb4e03c7b7",
+      "samples": 137,
+      "maxHandResidualM": 0.010958338026344256
+    },
+    {
+      "id": "obp-300_4",
+      "sourceRowsSha256": "5a8a0873dae79e6da93561aced931334481e03b33d806ee7bf22aa4076a8682f",
+      "samples": 137,
+      "maxHandResidualM": 0.010946145045821214
+    },
+    {
+      "id": "obp-300_5",
+      "sourceRowsSha256": "bc1c1e74783fb6b2eafba7ec9a2be4e705a6f2bc1fcf3db30912084b1f7f6862",
+      "samples": 137,
+      "maxHandResidualM": 0.010962449881020894
+    },
+    {
+      "id": "obp-300_6",
+      "sourceRowsSha256": "5a4cea8e6f32f3837d4ab50d3030f8f37d64102d25b6bafb3dc1735bb7ba2063",
+      "samples": 137,
+      "maxHandResidualM": 0.010940491061850613
+    },
+    {
+      "id": "obp-300_7",
+      "sourceRowsSha256": "1f6f6619c3aec111b4cfcbcfd093135722643b8c7d336658ddfe1bba1f01f559",
+      "samples": 137,
+      "maxHandResidualM": 0.010946725670358473
+    },
+    {
+      "id": "obp-300_8",
+      "sourceRowsSha256": "b9fa19d7e0012d5a0a43a73b1213d76f01205dd35f069b8f533edb67619f8acf",
+      "samples": 137,
+      "maxHandResidualM": 0.010955444479685513
+    },
+    {
+      "id": "obp-302_1",
+      "sourceRowsSha256": "3aa196a6cc89210a8d158d90f486d14730a1bed90aa868bc5b5df6537acad3b3",
+      "samples": 137,
+      "maxHandResidualM": 0.013006027745962129
+    },
+    {
+      "id": "obp-302_2",
+      "sourceRowsSha256": "a411dcf595944ca6e89a35dfb208ee121ec4544ebabba53aed131b4cf7d79c1d",
+      "samples": 137,
+      "maxHandResidualM": 0.013016238964915168
+    },
+    {
+      "id": "obp-302_3",
+      "sourceRowsSha256": "4aa1b1a912b2edb838c70d46d4152fc9940c40602de4e7b1bd52e10adcb9dc51",
+      "samples": 137,
+      "maxHandResidualM": 0.013006103596042451
+    },
+    {
+      "id": "obp-302_4",
+      "sourceRowsSha256": "cb1a84b144b1da30537cb33e04f737276eb269d387b1bd09a0d12b88b8bf4826",
+      "samples": 137,
+      "maxHandResidualM": 0.012988562974489864
+    },
+    {
+      "id": "obp-302_5",
+      "sourceRowsSha256": "4710118da7a50fb33e5dab0be6f555fef7d4c5438d13a909d47bc9dc540b7709",
+      "samples": 137,
+      "maxHandResidualM": 0.013017556832993113
+    },
+    {
+      "id": "obp-302_6",
+      "sourceRowsSha256": "d273b8605e6bf0a004a0caee853945aa4be5ecf3f38db56ced1c4bd9451694b9",
+      "samples": 137,
+      "maxHandResidualM": 0.013023084258193781
+    },
+    {
+      "id": "obp-302_7",
+      "sourceRowsSha256": "f1b60d008946e42c3bfee324aad2fe271b5527ec5c105a9812e7d269b34f5389",
+      "samples": 137,
+      "maxHandResidualM": 0.013019794356863094
+    },
+    {
+      "id": "obp-302_8",
+      "sourceRowsSha256": "8181d8f8a1c58d575bb132819bcfc2bb0a1818bfd3c7b5b7b3d3e34eedd487a8",
+      "samples": 137,
+      "maxHandResidualM": 0.013010806279723546
+    },
+    {
+      "id": "obp-313_1",
+      "sourceRowsSha256": "b63419cba804c86f8019f91696fa41ca73770d389e9f28c9b15a8a9d83b0bde5",
+      "samples": 137,
+      "maxHandResidualM": 0.006212138461874625
+    },
+    {
+      "id": "obp-313_2",
+      "sourceRowsSha256": "5c5a39d11f185ebd1c672a48b89873d7a3ae7942022f56c85d0716fad5cb5db5",
+      "samples": 137,
+      "maxHandResidualM": 0.006213569605096292
+    },
+    {
+      "id": "obp-313_3",
+      "sourceRowsSha256": "8333bd97f7211f88728bf868d4e57cfa987e1e28eac1a348989337b2e6269fcd",
+      "samples": 137,
+      "maxHandResidualM": 0.006223568287903045
+    },
+    {
+      "id": "obp-313_4",
+      "sourceRowsSha256": "51bd5574815be74e7f512c7e2aed6ada5f40db243519679495a7c20fd3697417",
+      "samples": 137,
+      "maxHandResidualM": 0.0062338261029630596
+    },
+    {
+      "id": "obp-313_5",
+      "sourceRowsSha256": "02ad752778dd77a544cbe8eb2c5bd4b9dda284210deab395788eabeeafcaee65",
+      "samples": 137,
+      "maxHandResidualM": 0.006200247334491255
+    },
+    {
+      "id": "obp-313_6",
+      "sourceRowsSha256": "9f9e327aa2c29bfa2bde71ea50784d10c9170523588cdb7a7e63288195e5b3f7",
+      "samples": 137,
+      "maxHandResidualM": 0.00621166781659988
+    },
+    {
+      "id": "obp-313_8",
+      "sourceRowsSha256": "a92386504ffbe86d031df05819ced8e4b0ee4bb42ebfd1a4f45a79df85353b11",
+      "samples": 137,
+      "maxHandResidualM": 0.006205174789378156
+    },
+    {
+      "id": "obp-320_1",
+      "sourceRowsSha256": "9fb4be0c985e10b39335de2cf1ab5076e0a5f43a7536ff49cac0d068422375cb",
+      "samples": 137,
+      "maxHandResidualM": 0.0014018447250246473
+    },
+    {
+      "id": "obp-320_2",
+      "sourceRowsSha256": "47f283b2634d7ed570b9059002c5929c8e6d07648813cab9044972ba97b12360",
+      "samples": 137,
+      "maxHandResidualM": 0.0013899138334443988
+    },
+    {
+      "id": "obp-320_3",
+      "sourceRowsSha256": "eafe8bfce0ad52716710accfc6fcf50bfb6f23eb7da9a4b861af066235bd0a46",
+      "samples": 137,
+      "maxHandResidualM": 0.0014134152256246322
+    },
+    {
+      "id": "obp-320_4",
+      "sourceRowsSha256": "6af39f44a056d44606e1c5dad4a9c5ac9a8f9beefe9820d8ea0c2d12440f6f7a",
+      "samples": 137,
+      "maxHandResidualM": 0.0014177140206516506
+    },
+    {
+      "id": "obp-320_5",
+      "sourceRowsSha256": "e9133eea3cc500050fbb6e3dde11a6d5f24ab9eb522a34f23762e790e3203bf8",
+      "samples": 137,
+      "maxHandResidualM": 0.0013992811195212525
+    },
+    {
+      "id": "obp-320_6",
+      "sourceRowsSha256": "017338de1239640de2c3e1ead9a3ef18bb0baec4470fe861119c975b25b45d28",
+      "samples": 137,
+      "maxHandResidualM": 0.0013932376895688867
+    },
+    {
+      "id": "obp-320_7",
+      "sourceRowsSha256": "426e614fd8bc100c19a008294fa3d8de9900969e63779e365b6b4f94efc29ff2",
+      "samples": 137,
+      "maxHandResidualM": 0.0013905766534744448
+    },
+    {
+      "id": "obp-320_8",
+      "sourceRowsSha256": "fbdaa45d31a37a443985e38e390d108b2263312f16d1c3997870adada807ba8a",
+      "samples": 137,
+      "maxHandResidualM": 0.0013901770118833446
+    },
+    {
+      "id": "obp-321_1",
+      "sourceRowsSha256": "18203e69c5feac2e7505797c77cc64023220d8254595998d3a0d8d98ec54f9c2",
+      "samples": 137,
+      "maxHandResidualM": 0.006644971184943363
+    },
+    {
+      "id": "obp-321_2",
+      "sourceRowsSha256": "8e2af306cbaef1e0a7345abdcd97f6bae8dcb6c24b37ac8affcafbb2e504a9e3",
+      "samples": 137,
+      "maxHandResidualM": 0.00661160127210901
+    },
+    {
+      "id": "obp-321_3",
+      "sourceRowsSha256": "4cb566f8bda1645c8b68981e640de6adb72b9a7550e1a72422c7c71f7ff3830c",
+      "samples": 137,
+      "maxHandResidualM": 0.006637043984780928
+    },
+    {
+      "id": "obp-321_4",
+      "sourceRowsSha256": "b903b25f006879b81f1a28e95802d9d6da86da7dc61c91d2317593c468f5b346",
+      "samples": 137,
+      "maxHandResidualM": 0.006644750453399425
+    },
+    {
+      "id": "obp-321_5",
+      "sourceRowsSha256": "25369e70348c37aed9e44c59075193accb9af00b05f1e2e4f807098368978639",
+      "samples": 137,
+      "maxHandResidualM": 0.006658502809695015
+    },
+    {
+      "id": "obp-321_6",
+      "sourceRowsSha256": "045509ede89e0eb378eb2a6dd39198fdbf70c9af0c96b45d5593248a980d25e3",
+      "samples": 137,
+      "maxHandResidualM": 0.006630546661773233
+    },
+    {
+      "id": "obp-321_7",
+      "sourceRowsSha256": "f7d16683abac7a10a09da4958985c8432e40a4057344438b5dfdfd5a9ce9c9c2",
+      "samples": 137,
+      "maxHandResidualM": 0.006638214837917439
+    },
+    {
+      "id": "obp-321_8",
+      "sourceRowsSha256": "2aaea726322192437a6329e760014a6aaad3669c9d1250a91829515ea3355945",
+      "samples": 137,
+      "maxHandResidualM": 0.006652092126317577
+    },
+    {
+      "id": "obp-324_1",
+      "sourceRowsSha256": "ac7371571241507ad4c90ca03a6fdfce72d2bf0a382c41a570247bdc3d2297cd",
+      "samples": 137,
+      "maxHandResidualM": 0.0002739209364445847
+    },
+    {
+      "id": "obp-324_2",
+      "sourceRowsSha256": "7826aec0d1c243623741f84bc12414a4becdfdaa8efd003e4c582b03af613336",
+      "samples": 137,
+      "maxHandResidualM": 0.00024636609676890623
+    },
+    {
+      "id": "obp-324_3",
+      "sourceRowsSha256": "d407ad0b30af1a493ca1c688ea432ebc931fd61579e4c54c5bf631049b764fe4",
+      "samples": 137,
+      "maxHandResidualM": 0.00024025447437321174
+    },
+    {
+      "id": "obp-324_4",
+      "sourceRowsSha256": "52b0d5640283ec7b1b555db6033a551353f1ea74b856785aeb9d9cb483c733e9",
+      "samples": 137,
+      "maxHandResidualM": 0.00025156431942579687
+    },
+    {
+      "id": "obp-324_5",
+      "sourceRowsSha256": "4262c87dc1393abc6c6fd4e48d541168ed2b215d81668d4cc03ed8a338f9b928",
+      "samples": 137,
+      "maxHandResidualM": 0.00026793594860272693
+    },
+    {
+      "id": "obp-324_6",
+      "sourceRowsSha256": "aee1c82476f6734f4a80fd8d2d878f1d47071dff9dbeca001be45711d0f031e2",
+      "samples": 137,
+      "maxHandResidualM": 0.00025902634913054694
+    },
+    {
+      "id": "obp-324_7",
+      "sourceRowsSha256": "d33609e137187a315678b64652cad2ee85e277ffcf2717b47e677d64b23aa7ce",
+      "samples": 137,
+      "maxHandResidualM": 0.00025264282259573103
+    },
+    {
+      "id": "obp-324_8",
+      "sourceRowsSha256": "694d43d117d6affc96b48f9af9056899b278ff9acb28100a4286883f2f0978e5",
+      "samples": 137,
+      "maxHandResidualM": 0.0002574717685315805
+    },
+    {
+      "id": "obp-33_1",
+      "sourceRowsSha256": "15466b92730aab1964ccb47c2044b3e646a98f2cdcbd90c2dd3431ace9ff2d6f",
+      "samples": 137,
+      "maxHandResidualM": 0.0008630964007439066
+    },
+    {
+      "id": "obp-33_2",
+      "sourceRowsSha256": "62dffe1195873a19190d08e5cb806eda0e51ed02e7c5f81d3303fa5290ecf1fc",
+      "samples": 137,
+      "maxHandResidualM": 0.0008388733594136445
+    },
+    {
+      "id": "obp-33_3",
+      "sourceRowsSha256": "49698c75a9ea09f078de9f9c22aa112c42a93c9179a96542e1726ad7b320172b",
+      "samples": 137,
+      "maxHandResidualM": 0.0008447280542054258
+    },
+    {
+      "id": "obp-33_4",
+      "sourceRowsSha256": "32f49af6f9c79eff6c715faa3fefac75a326f91ffca57689d4a9bb7d83fec2eb",
+      "samples": 137,
+      "maxHandResidualM": 0.0008449777791133563
+    },
+    {
+      "id": "obp-33_5",
+      "sourceRowsSha256": "98c70990ad0aa09a9bcbb98d4dc0eb8e129942e47e88b3f48d26497edc29ee72",
+      "samples": 137,
+      "maxHandResidualM": 0.0008389566019640725
+    },
+    {
+      "id": "obp-342_3",
+      "sourceRowsSha256": "aae854bbf7b506ed0cccd53a50507170f595aae6509982b6346c4af1e778bb7a",
+      "samples": 137,
+      "maxHandResidualM": 0.007625344245300381
+    },
+    {
+      "id": "obp-342_4",
+      "sourceRowsSha256": "a827618457e023acd25c634e6c4bb8421cf3245acefb5fbd8b03b0456990f163",
+      "samples": 137,
+      "maxHandResidualM": 0.007618504796984778
+    },
+    {
+      "id": "obp-342_5",
+      "sourceRowsSha256": "b5a72cc974c220af7af7b47aba194bbfa06160f09e7bdfe36f8bcf4e853d5084",
+      "samples": 137,
+      "maxHandResidualM": 0.007617096664148032
+    },
+    {
+      "id": "obp-342_6",
+      "sourceRowsSha256": "c2a7feb40c2222eb9753ea618c374b00e99c9fee45c358f2e7ff024688f9e474",
+      "samples": 137,
+      "maxHandResidualM": 0.00764640803361864
+    },
+    {
+      "id": "obp-342_7",
+      "sourceRowsSha256": "1f96eab84d53b1d7503eafac5cf98c08c8a9ac27dd066f16f069335e332d4b21",
+      "samples": 137,
+      "maxHandResidualM": 0.007619625553058528
+    },
+    {
+      "id": "obp-342_8",
+      "sourceRowsSha256": "03e277de0a17c33d6c871bfc20956d792321e804f242a468ba6a0fea8b7be92d",
+      "samples": 137,
+      "maxHandResidualM": 0.007651283523326205
+    },
+    {
+      "id": "obp-343_1",
+      "sourceRowsSha256": "a1e392c75393cf04c451367d7c404dd7ec9bb8fa867f56e0343273de12eb1e14",
+      "samples": 137,
+      "maxHandResidualM": 0.007413969626113595
+    },
+    {
+      "id": "obp-343_2",
+      "sourceRowsSha256": "c26a5137ba533769b23e5b329c921355d127305bd1ae61fbdf1ac3abc008d939",
+      "samples": 137,
+      "maxHandResidualM": 0.007424539432502254
+    },
+    {
+      "id": "obp-343_3",
+      "sourceRowsSha256": "f4b746786c59a7636b4e96e6702041df36bd541090f7d2b28458ba9b2502f44b",
+      "samples": 137,
+      "maxHandResidualM": 0.007448217704890182
+    },
+    {
+      "id": "obp-343_4",
+      "sourceRowsSha256": "5d2c4b06482f86dadacc62a57ca8bb4857fa0ff753f32879b37a59008311576c",
+      "samples": 137,
+      "maxHandResidualM": 0.007442200018359802
+    },
+    {
+      "id": "obp-343_5",
+      "sourceRowsSha256": "a6be11a5c88fb919a5a5ce0f4273017460cc87fba0405c196ad007ba8156499f",
+      "samples": 137,
+      "maxHandResidualM": 0.0074153974728489525
+    },
+    {
+      "id": "obp-343_6",
+      "sourceRowsSha256": "ad67d2f64c94991bb4379481bc3e7ba86ead3349c8e94aca585cf1816f8236e0",
+      "samples": 137,
+      "maxHandResidualM": 0.007435022782371674
+    },
+    {
+      "id": "obp-343_7",
+      "sourceRowsSha256": "791e5749a624b8cb87b020755b8d1887678d79954b493150f446e2b176ead257",
+      "samples": 137,
+      "maxHandResidualM": 0.007437753785004103
+    },
+    {
+      "id": "obp-343_8",
+      "sourceRowsSha256": "be109ed48e7b6a8709d6b15207e249233439fd3195acdacf3c499bb8373e2ff1",
+      "samples": 137,
+      "maxHandResidualM": 0.007450469528343889
+    },
+    {
+      "id": "obp-343_9",
+      "sourceRowsSha256": "03463c8ac5b789328a72dfe8e69afb69f8d11ae41de98db2776d987eb0340515",
+      "samples": 137,
+      "maxHandResidualM": 0.0074320330367844125
+    },
+    {
+      "id": "obp-349_1",
+      "sourceRowsSha256": "89ebaa774f0e107cffbef139be382eafef28c696923be19c55ea702fd3c87407",
+      "samples": 137,
+      "maxHandResidualM": 0.0006781124005816647
+    },
+    {
+      "id": "obp-349_3",
+      "sourceRowsSha256": "f386b4801daa3de53917126e790baf68e3d0c6984c0b6639248cf39085c4ce46",
+      "samples": 137,
+      "maxHandResidualM": 0.0006736510474605924
+    },
+    {
+      "id": "obp-349_4",
+      "sourceRowsSha256": "e39a38f7b2d896e682f1ebeeae71639a8dbf9c642cf41c2f9c3e872d3fe6cf10",
+      "samples": 137,
+      "maxHandResidualM": 0.0006822491560082645
+    },
+    {
+      "id": "obp-349_5",
+      "sourceRowsSha256": "a9b3881e05d59ed5f24be750d842f2cb40878d49356cf8dd0606d19d5dee1757",
+      "samples": 137,
+      "maxHandResidualM": 0.0006660176744258137
+    },
+    {
+      "id": "obp-349_6",
+      "sourceRowsSha256": "a4700b55b2189305a8fd011a535dfba16b5f0de0179d25825924986925aaf8fb",
+      "samples": 137,
+      "maxHandResidualM": 0.0006859036255521582
+    },
+    {
+      "id": "obp-349_7",
+      "sourceRowsSha256": "1f79aad9c9129f83161fe2a56a91206352fdcbb6cac750170eed839770fd41a5",
+      "samples": 137,
+      "maxHandResidualM": 0.0006861726103298302
+    },
+    {
+      "id": "obp-349_8",
+      "sourceRowsSha256": "524bbff1cd8dfe8f8daf76ab12573746ef1c989358576d3caa07b5af5e1cd1d3",
+      "samples": 137,
+      "maxHandResidualM": 0.0007042783770563282
+    },
+    {
+      "id": "obp-350_1",
+      "sourceRowsSha256": "f6b040f7bbeaa12d14491ffa8a3feaa1999fd882d6d5394ffcd68a5206a20831",
+      "samples": 137,
+      "maxHandResidualM": 0.000732139080748862
+    },
+    {
+      "id": "obp-350_2",
+      "sourceRowsSha256": "aa4496efb260b85ea964ab903b34ace859eab6e2cbcbacae4acaae77422a7244",
+      "samples": 137,
+      "maxHandResidualM": 0.0007046184629354128
+    },
+    {
+      "id": "obp-350_4",
+      "sourceRowsSha256": "10535f0b5b38522da99c817d32443bcea74a9618fa08ba11e8c4ab2972e723b2",
+      "samples": 137,
+      "maxHandResidualM": 0.0007315566490417877
+    },
+    {
+      "id": "obp-350_5",
+      "sourceRowsSha256": "dfca6e56e668c2028959ae6fd69bf02cd24949329f0470eb181a345a52318872",
+      "samples": 137,
+      "maxHandResidualM": 0.0007250819055413041
+    },
+    {
+      "id": "obp-350_6",
+      "sourceRowsSha256": "6fb628cb2f017294ea9a0ed3e65720848b515b58608707fe7781d09c36778346",
+      "samples": 137,
+      "maxHandResidualM": 0.0007325759040971762
+    },
+    {
+      "id": "obp-350_7",
+      "sourceRowsSha256": "7380d914a48fe7c47a0e71f57f955eb9ea4581b726e7cf9696c38e8ac50be76d",
+      "samples": 137,
+      "maxHandResidualM": 0.000744573840571576
+    },
+    {
+      "id": "obp-350_8",
+      "sourceRowsSha256": "e27f2f1765e1ef9699ad72c783872e7e51e61214563a35e9e06243625d16cb40",
+      "samples": 137,
+      "maxHandResidualM": 0.0007210727656913941
+    },
+    {
+      "id": "obp-353_1",
+      "sourceRowsSha256": "03677db3da64582e0b69712a393648e1a195452571c0b262847bd316ec63aa16",
+      "samples": 137,
+      "maxHandResidualM": 0.0070293436644762826
+    },
+    {
+      "id": "obp-353_3",
+      "sourceRowsSha256": "b3c4bb6e7d986f1b91bf1ac97f16bbebf5eb6a31ba4093e271558011f9b0a018",
+      "samples": 137,
+      "maxHandResidualM": 0.007030398557521628
+    },
+    {
+      "id": "obp-353_4",
+      "sourceRowsSha256": "48ca5a6d55b32595421218aaf02df25a619f0f0b223c363edd9dba22d8a2eb77",
+      "samples": 137,
+      "maxHandResidualM": 0.0070353277567368885
+    },
+    {
+      "id": "obp-353_5",
+      "sourceRowsSha256": "c2ff798edbbad4ee4f894b51ff8866dbce560d2cb9c888a153b324ef89e21b86",
+      "samples": 137,
+      "maxHandResidualM": 0.007015179121122286
+    },
+    {
+      "id": "obp-353_6",
+      "sourceRowsSha256": "4c956752645785ec667f936875c8944b5bf1d99acc39a3474ab461b514382a4d",
+      "samples": 137,
+      "maxHandResidualM": 0.0070560318024714035
+    },
+    {
+      "id": "obp-353_7",
+      "sourceRowsSha256": "4869bba41ac8decf963849b10d9f16da3e6b3328dec1e1f58cef6193feaffb54",
+      "samples": 137,
+      "maxHandResidualM": 0.007027895580547337
+    },
+    {
+      "id": "obp-353_8",
+      "sourceRowsSha256": "8bb004e1e384eceef776d47a7c536fb90f9235e81d0e4dee03f383bb14db919e",
+      "samples": 137,
+      "maxHandResidualM": 0.007069993862912753
+    },
+    {
+      "id": "obp-358_1",
+      "sourceRowsSha256": "c03a6b63b3d6392a410948a5ceb6b585d2b3e2b92a97ea53e4e848504383cb4a",
+      "samples": 137,
+      "maxHandResidualM": 0.0014795261033435831
+    },
+    {
+      "id": "obp-358_3",
+      "sourceRowsSha256": "071ae823a811bf03b17edfa41c60459ea26d76a63d348695b8cc34707444d874",
+      "samples": 137,
+      "maxHandResidualM": 0.0014795551827173153
+    },
+    {
+      "id": "obp-358_5",
+      "sourceRowsSha256": "d8b740f2e699b914e55c007de61d9a25e31abb991c49faaec5d252214ef2853b",
+      "samples": 137,
+      "maxHandResidualM": 0.0014834033387135994
+    },
+    {
+      "id": "obp-358_6",
+      "sourceRowsSha256": "c6789cf3b309efe2e6c2f16c03405c30b20a9bf769dd308d93f297c2ede32d34",
+      "samples": 137,
+      "maxHandResidualM": 0.0014803015527490198
+    },
+    {
+      "id": "obp-358_8",
+      "sourceRowsSha256": "dbc791e9db1b6bd699daee2ab0a07df41fb1ee8ba2c2284dfd96d825f7d70250",
+      "samples": 137,
+      "maxHandResidualM": 0.0014812320904968755
+    },
+    {
+      "id": "obp-36_1",
+      "sourceRowsSha256": "619b2a4c8f721d248f065edca80e1d73bff55331cbafc4ab2ebbf7d9ce8ffd87",
+      "samples": 137,
+      "maxHandResidualM": 0.00893934634674152
+    },
+    {
+      "id": "obp-36_2",
+      "sourceRowsSha256": "d90684b6a278b7a19008b6195917e99d5d68ee0c9ee8d9de5729b189b2f66106",
+      "samples": 137,
+      "maxHandResidualM": 0.008966529454211043
+    },
+    {
+      "id": "obp-36_3",
+      "sourceRowsSha256": "f404c5008c1e359d1333ebb88e403637308c973fc1d1048c53e7bdd6dbd93e07",
+      "samples": 137,
+      "maxHandResidualM": 0.008942174602296056
+    },
+    {
+      "id": "obp-36_4",
+      "sourceRowsSha256": "668328b10ff96e72b49c30c0778d502bc9f327d437bd15d6c0dc51169689c3e0",
+      "samples": 137,
+      "maxHandResidualM": 0.008935390585290274
+    },
+    {
+      "id": "obp-36_5",
+      "sourceRowsSha256": "c576c7d46d68623f5f989ad7c9117f2364528a21818b3f746f87030cb6b0f817",
+      "samples": 137,
+      "maxHandResidualM": 0.008939375011570452
+    },
+    {
+      "id": "obp-360_1",
+      "sourceRowsSha256": "e8c5cfba11cc1c3e8231e893c78c3666f119121d49fc34a8e7606ab09468aa5d",
+      "samples": 137,
+      "maxHandResidualM": 0.014992327799317522
+    },
+    {
+      "id": "obp-360_2",
+      "sourceRowsSha256": "12b56b48583b139110f141d2c348bc88c470e16971fef8a88d8c724dfd676a7c",
+      "samples": 137,
+      "maxHandResidualM": 0.014979736553691067
+    },
+    {
+      "id": "obp-360_3",
+      "sourceRowsSha256": "776c014dbecad75c3349f8b15dc2909d189d97acdb433d5fa1aa22a2c561e0ee",
+      "samples": 137,
+      "maxHandResidualM": 0.014966568794138525
+    },
+    {
+      "id": "obp-360_4",
+      "sourceRowsSha256": "f3a950fe42b7ec162e4b0088e9c7559eaee7a15a3da776ff8d9a31e5a7f44d93",
+      "samples": 137,
+      "maxHandResidualM": 0.014994509747668862
+    },
+    {
+      "id": "obp-360_5",
+      "sourceRowsSha256": "aee830e630e45124b43adfb6d79674476ec19947fda2d7b56fa1ab91b2dce3ca",
+      "samples": 137,
+      "maxHandResidualM": 0.014963999437007127
+    },
+    {
+      "id": "obp-360_6",
+      "sourceRowsSha256": "8cfb977eb7d77ceeb35dd8145e28ca4c00c50f4bc5bc9b68ce2cab57521066ae",
+      "samples": 137,
+      "maxHandResidualM": 0.014976864989866234
+    },
+    {
+      "id": "obp-360_7",
+      "sourceRowsSha256": "fc327a0d9430cf7ae7b94268ec55d03c452293fa4285d8625603cab7989a875a",
+      "samples": 137,
+      "maxHandResidualM": 0.014998977518612202
+    },
+    {
+      "id": "obp-360_8",
+      "sourceRowsSha256": "0f566c3858cb8960aa28dfd3bcc308cd35e05a5a23b7d26df20f523218cb9463",
+      "samples": 137,
+      "maxHandResidualM": 0.014968996447322002
+    },
+    {
+      "id": "obp-363_1",
+      "sourceRowsSha256": "844e3c82630adae760c1fa1d9a1c3d0ad006ceb0047f066186059b687685c7a1",
+      "samples": 137,
+      "maxHandResidualM": 0.012999504598231333
+    },
+    {
+      "id": "obp-363_2",
+      "sourceRowsSha256": "86ee3aead2d67aaed67cbd045074310bbb44d64fe7f424f36cc218ddf4bffdae",
+      "samples": 137,
+      "maxHandResidualM": 0.012987444147483389
+    },
+    {
+      "id": "obp-363_3",
+      "sourceRowsSha256": "f7e2c9becb0aad5b3beb0e310ff638c204a192ba2577b1776426a6e354285923",
+      "samples": 137,
+      "maxHandResidualM": 0.012981679306298014
+    },
+    {
+      "id": "obp-363_4",
+      "sourceRowsSha256": "385548a95269c177bd70401846ed811d48f22a80a53afc56cad9164a7a1b971a",
+      "samples": 137,
+      "maxHandResidualM": 0.012995882699391252
+    },
+    {
+      "id": "obp-363_5",
+      "sourceRowsSha256": "22fb922dfd313ca2b8c6f7f239ac85af6ab20e37eb7e5f65d53017763b2afef5",
+      "samples": 137,
+      "maxHandResidualM": 0.0129673901930414
+    },
+    {
+      "id": "obp-363_6",
+      "sourceRowsSha256": "52c534e3b9ed945b77e8f1ad86aa7d3037d1502ea94d9a912f11a444b68bd858",
+      "samples": 137,
+      "maxHandResidualM": 0.012965588618428838
+    },
+    {
+      "id": "obp-363_7",
+      "sourceRowsSha256": "74f021166fe3b0cc50683fc77c8071874ffcf4b7805141c9eebd73c093b03020",
+      "samples": 137,
+      "maxHandResidualM": 0.012965142964812023
+    },
+    {
+      "id": "obp-363_8",
+      "sourceRowsSha256": "e9d6cd0a419e23de6e8841446b5881aa4cbf30323d30645da88fb62710a98b6f",
+      "samples": 137,
+      "maxHandResidualM": 0.012976265228653357
+    },
+    {
+      "id": "obp-376_1",
+      "sourceRowsSha256": "5c36831d2baec7c44e5b7372887ecb64f9867c8470ec94a267cef3e3cc850281",
+      "samples": 137,
+      "maxHandResidualM": 0.00815467236554932
+    },
+    {
+      "id": "obp-376_2",
+      "sourceRowsSha256": "2bb080c51d4e646b63a94b1882b9640a3b7b41a71706c3149356319d3248328d",
+      "samples": 137,
+      "maxHandResidualM": 0.008170076288504321
+    },
+    {
+      "id": "obp-376_3",
+      "sourceRowsSha256": "2d9a47e51a388e3d12a2c98768d7cf60efe91c4f9c474c3a604572512c8cf501",
+      "samples": 137,
+      "maxHandResidualM": 0.00815219930202886
+    },
+    {
+      "id": "obp-376_4",
+      "sourceRowsSha256": "ebab9d6b6bdb52a6234eed316155b455a02260aede80faf7de546838f8be25a7",
+      "samples": 137,
+      "maxHandResidualM": 0.00816712877040099
+    },
+    {
+      "id": "obp-376_6",
+      "sourceRowsSha256": "fcd2787ee1e8dddd2630dfc53d2aaaa02d5739b913250c472ca2a9b69bf7c69f",
+      "samples": 137,
+      "maxHandResidualM": 0.00813894860181289
+    },
+    {
+      "id": "obp-376_7",
+      "sourceRowsSha256": "921775301aa32b44009afd5087f117c29c6b3070870081e5ab5703ab6adc3c53",
+      "samples": 137,
+      "maxHandResidualM": 0.008139195002055259
+    },
+    {
+      "id": "obp-376_8",
+      "sourceRowsSha256": "84556025e5f46a92b4318c07466a27990b52bf0a385351133d1cbd26aa7eb4f9",
+      "samples": 137,
+      "maxHandResidualM": 0.00814368494261745
+    },
+    {
+      "id": "obp-378_1",
+      "sourceRowsSha256": "98b027b484043cbbcbcd7db11d75b19148cab366c928bc3142fa9f890c61fbdc",
+      "samples": 137,
+      "maxHandResidualM": 0.008098719994854255
+    },
+    {
+      "id": "obp-378_2",
+      "sourceRowsSha256": "7298f991e304ab99c4a1a12f621d047ce410b594d5071227fc4cb9e362bbc128",
+      "samples": 137,
+      "maxHandResidualM": 0.008103611834402526
+    },
+    {
+      "id": "obp-378_3",
+      "sourceRowsSha256": "38ef23446bdf1bee700e834691e8db810334595d7c3b6beb93803d61f0c64819",
+      "samples": 137,
+      "maxHandResidualM": 0.008100682211859752
+    },
+    {
+      "id": "obp-378_4",
+      "sourceRowsSha256": "5174dd4ba2a92a08d36dc366e7fefc23ea1f1c38286f9025d3cba70870c3c5d2",
+      "samples": 137,
+      "maxHandResidualM": 0.008085102927879322
+    },
+    {
+      "id": "obp-378_5",
+      "sourceRowsSha256": "79b545b52938d405258d8ae1f618b12098617b0006b86e46228622892bf178ee",
+      "samples": 137,
+      "maxHandResidualM": 0.008056589956710967
+    },
+    {
+      "id": "obp-378_6",
+      "sourceRowsSha256": "12f433e801b54fb4005d24715c421e2cae1c74d7cefb9af6e39b94b4ac21000c",
+      "samples": 137,
+      "maxHandResidualM": 0.00811278391582684
+    },
+    {
+      "id": "obp-378_7",
+      "sourceRowsSha256": "374688d180fb4ff37a1e10325a2d4f1299b7a1b1da16d54876c3e91593682470",
+      "samples": 137,
+      "maxHandResidualM": 0.008059510687793793
+    },
+    {
+      "id": "obp-378_8",
+      "sourceRowsSha256": "4314f46427a05e53caa62c1cdb6b8af43514d76c4a0624600b6b50ca738b0197",
+      "samples": 137,
+      "maxHandResidualM": 0.008110283283977152
+    },
+    {
+      "id": "obp-383_1",
+      "sourceRowsSha256": "40dd4c537fade0e4b8a7703a530efe9d708174e1a5e24717a91a46a7088e5905",
+      "samples": 137,
+      "maxHandResidualM": 0.007770100087658771
+    },
+    {
+      "id": "obp-383_2",
+      "sourceRowsSha256": "a6c7da636e96e3b0085fa1b6a6b2c2e30b108c627afe23225c9378eacf5ee172",
+      "samples": 137,
+      "maxHandResidualM": 0.007780866709813983
+    },
+    {
+      "id": "obp-383_3",
+      "sourceRowsSha256": "bd7823c96cb43c915edac0ce6a86595627574dd469823af73857bf4d564e32a9",
+      "samples": 137,
+      "maxHandResidualM": 0.007759579824864926
+    },
+    {
+      "id": "obp-383_4",
+      "sourceRowsSha256": "35a0c26669f8dbfd0eadb86ddff62a0b29e280e0704fc19cfcb5ae3418471fdb",
+      "samples": 137,
+      "maxHandResidualM": 0.007807028993328018
+    },
+    {
+      "id": "obp-383_5",
+      "sourceRowsSha256": "3009dbc981fd9cef2a54372f429fa9216c998f5d95dbf21677d6eed938745b35",
+      "samples": 137,
+      "maxHandResidualM": 0.0077496347030746185
+    },
+    {
+      "id": "obp-383_6",
+      "sourceRowsSha256": "7361059651bb63d3241e4df67e3255fcf1685a99b2ce61baa354c52cf34f5d8a",
+      "samples": 137,
+      "maxHandResidualM": 0.007761972471835559
+    },
+    {
+      "id": "obp-383_7",
+      "sourceRowsSha256": "71e44c4687b77f7c4d70fdbce31f4bdf3ce1d464d599c09679cb875bc7775800",
+      "samples": 137,
+      "maxHandResidualM": 0.007762648255727638
+    },
+    {
+      "id": "obp-383_8",
+      "sourceRowsSha256": "5a7b55b8b730c017590257772a81f7904890e80db9368546fe98271376e8917c",
+      "samples": 137,
+      "maxHandResidualM": 0.007792966350586905
+    },
+    {
+      "id": "obp-391_1",
+      "sourceRowsSha256": "2faf07f839ab2e7d5da0a46c3e29f59a9b6d1496ba30e789cbd008cd5b47c503",
+      "samples": 137,
+      "maxHandResidualM": 0.0004866611032616132
+    },
+    {
+      "id": "obp-391_2",
+      "sourceRowsSha256": "f4ddbdb1c80663cac59ec79f325b8c97e39591f01395c0cf7e12f265ee7bc8d2",
+      "samples": 137,
+      "maxHandResidualM": 0.00048049710285693356
+    },
+    {
+      "id": "obp-391_3",
+      "sourceRowsSha256": "13c25e2d3142991d52108a37117607f6a1be9700ba0d2d310ffb2834ccc3f274",
+      "samples": 137,
+      "maxHandResidualM": 0.00047155640070483686
+    },
+    {
+      "id": "obp-391_4",
+      "sourceRowsSha256": "6f6f3297e24f4ec69ff926ff58a190e7249551295c56557b5284efee6b1b2ac4",
+      "samples": 137,
+      "maxHandResidualM": 0.0004544520364490736
+    },
+    {
+      "id": "obp-391_5",
+      "sourceRowsSha256": "588f63ff9e8c0767dd6a537e826a26530d2ff90f5f371a744824ee249eb254bd",
+      "samples": 137,
+      "maxHandResidualM": 0.0004631616315914747
+    },
+    {
+      "id": "obp-391_6",
+      "sourceRowsSha256": "bf8c125bc896a7467f587872d685716fb70c5edad31bf49d54cbfdf2798cea60",
+      "samples": 137,
+      "maxHandResidualM": 0.0005161103567390837
+    },
+    {
+      "id": "obp-391_7",
+      "sourceRowsSha256": "f727d06e163e180738918148867a285e4bb4591078c103dd4683b1baed76bf4a",
+      "samples": 137,
+      "maxHandResidualM": 0.0004796733797579768
+    },
+    {
+      "id": "obp-391_8",
+      "sourceRowsSha256": "c6eb2688488e0552d77d4f361b7f73b522decccaf9cd2c5e2da8f31f1f275ad1",
+      "samples": 137,
+      "maxHandResidualM": 0.0004718988526844444
+    },
+    {
+      "id": "obp-396_1",
+      "sourceRowsSha256": "bcc7c10e5a9e55f80b9478184a3d358550070463fac623223f383a01345ede00",
+      "samples": 137,
+      "maxHandResidualM": 0.01319991233057764
+    },
+    {
+      "id": "obp-396_2",
+      "sourceRowsSha256": "74a59cab4a5afe464491d7aa571b6290c51f5cb54505bce0ad35d75c1c1f4428",
+      "samples": 137,
+      "maxHandResidualM": 0.013201059140250389
+    },
+    {
+      "id": "obp-396_3",
+      "sourceRowsSha256": "039ec8e3c65127d8f9717d58597c7afbe9254f1320a1e201014398f53043334f",
+      "samples": 137,
+      "maxHandResidualM": 0.013220383929954982
+    },
+    {
+      "id": "obp-396_4",
+      "sourceRowsSha256": "8242e2f48f5c26229f20af7292fa463fb98cde34143538fb18f4942fc357c22f",
+      "samples": 137,
+      "maxHandResidualM": 0.013211001212182072
+    },
+    {
+      "id": "obp-396_5",
+      "sourceRowsSha256": "7253beab382de81eec0785f1357a50b5ced51e48e9ab55812de4309bd359c225",
+      "samples": 137,
+      "maxHandResidualM": 0.013229728571900372
+    },
+    {
+      "id": "obp-396_6",
+      "sourceRowsSha256": "7cef4b8754d689ff0599f032d041a2259b10d0d0fe527acd5cb27c0e896208bc",
+      "samples": 137,
+      "maxHandResidualM": 0.01321166464215346
+    },
+    {
+      "id": "obp-396_7",
+      "sourceRowsSha256": "5172672619e9db75624d953e972fee64ea77a445e41f880735d840ea00507385",
+      "samples": 137,
+      "maxHandResidualM": 0.013228695551668477
+    },
+    {
+      "id": "obp-396_8",
+      "sourceRowsSha256": "8330519bd8fbe04ace780b5df188b3ce81fdf94be5efe6bc78f1c89ed1bd852e",
+      "samples": 137,
+      "maxHandResidualM": 0.013208811887357298
+    },
+    {
+      "id": "obp-398_1",
+      "sourceRowsSha256": "ff12db3b754a9248e57f700228d1d3735adc31c528d6ba613ec22d8ee1ed13b5",
+      "samples": 137,
+      "maxHandResidualM": 0.0015637330988582008
+    },
+    {
+      "id": "obp-398_2",
+      "sourceRowsSha256": "f3bb3897d1ac045b0f7fcb7e2b846489dbdeeabffafb53818c67ad4d1cf558af",
+      "samples": 137,
+      "maxHandResidualM": 0.0015625991871106317
+    },
+    {
+      "id": "obp-398_3",
+      "sourceRowsSha256": "842e82e5908e7ea86b7f4589922b27a24ae62ff4027cdab32b03baf153fd19af",
+      "samples": 137,
+      "maxHandResidualM": 0.0015823695989622623
+    },
+    {
+      "id": "obp-398_4",
+      "sourceRowsSha256": "70cc4234fe653db971cbc599cfcea64a8d516a89877b8630f78ae40b78c9290c",
+      "samples": 137,
+      "maxHandResidualM": 0.001579229642981089
+    },
+    {
+      "id": "obp-398_5",
+      "sourceRowsSha256": "b00561f0d794889bb2b3a159571fc74b0222508c66f3d052dab66e88f0a06e3e",
+      "samples": 137,
+      "maxHandResidualM": 0.0015656520207539193
+    },
+    {
+      "id": "obp-398_6",
+      "sourceRowsSha256": "cc1d5506e57b7830b69167119fbe3252b14fd770c9d30233a0a64d9773a34025",
+      "samples": 137,
+      "maxHandResidualM": 0.00159985221434071
+    },
+    {
+      "id": "obp-398_7",
+      "sourceRowsSha256": "e9418b41209c7040cef96e6a938c840e66e93359c175321007cfe26065d53502",
+      "samples": 137,
+      "maxHandResidualM": 0.0015573366409903993
+    },
+    {
+      "id": "obp-42_1",
+      "sourceRowsSha256": "faeff6960cb0f94d165d8073dd7b1991128ace300836cb4182f0e37e063b130e",
+      "samples": 137,
+      "maxHandResidualM": 0.0053690053557112335
+    },
+    {
+      "id": "obp-42_2",
+      "sourceRowsSha256": "01a689bda56d76b8ed36ad7685cde372410c89e4026362e24dabec4ff9a57bd2",
+      "samples": 137,
+      "maxHandResidualM": 0.005334965853948292
+    },
+    {
+      "id": "obp-42_3",
+      "sourceRowsSha256": "cd772e18abfea4f4e28ce7ad9c38c7c635685f846e18c7e35b7408c3e28bc1a9",
+      "samples": 137,
+      "maxHandResidualM": 0.005325581915022362
+    },
+    {
+      "id": "obp-42_4",
+      "sourceRowsSha256": "2b0e5116e9cc79027e3200c21421cfd639864b24743ad59994f08626768661b3",
+      "samples": 137,
+      "maxHandResidualM": 0.005318371858063438
+    },
+    {
+      "id": "obp-426_1",
+      "sourceRowsSha256": "e97672a3af5ae82158b4a5a1fec0216f0fc32a473d41635042924b6a933e6939",
+      "samples": 137,
+      "maxHandResidualM": 0.013031753070773651
+    },
+    {
+      "id": "obp-426_2",
+      "sourceRowsSha256": "99f36fef176c5a177b2dc1acd975347d33fbd844b1f1db2b36770fe7328be3e5",
+      "samples": 137,
+      "maxHandResidualM": 0.012997016471714265
+    },
+    {
+      "id": "obp-426_3",
+      "sourceRowsSha256": "167517e8afa745f431e59ac4f2dbbc69f84c325588add03a6237ddf5af8f792b",
+      "samples": 137,
+      "maxHandResidualM": 0.013006487786231653
+    },
+    {
+      "id": "obp-426_4",
+      "sourceRowsSha256": "d580826216b1c10a65ba5a991c6337b3a94a7277f6d25bcd47be895c4f2032ae",
+      "samples": 137,
+      "maxHandResidualM": 0.013027346312544319
+    },
+    {
+      "id": "obp-426_5",
+      "sourceRowsSha256": "14e50b68990165f6478852ca74b7993e0b8a03e7aca13a63d8080980009499b1",
+      "samples": 137,
+      "maxHandResidualM": 0.013031743812915787
+    },
+    {
+      "id": "obp-426_6",
+      "sourceRowsSha256": "e92d92fab66b2ba4f22c62ee3bb1e6d3caeabf812d9755779820263368c581eb",
+      "samples": 137,
+      "maxHandResidualM": 0.01300884864521957
+    },
+    {
+      "id": "obp-426_7",
+      "sourceRowsSha256": "f85f8393b32a6f384d43e30de119b073fe9bb29c1950fa1b987fe9ac28fc75f2",
+      "samples": 137,
+      "maxHandResidualM": 0.012994498166586268
+    },
+    {
+      "id": "obp-426_8",
+      "sourceRowsSha256": "e818ecb16fcb6e5cf2b1fbc8408835bd1dd647fce1c6a4353fbe986032f1095f",
+      "samples": 137,
+      "maxHandResidualM": 0.012999747708486551
+    },
+    {
+      "id": "obp-43_1",
+      "sourceRowsSha256": "e964aae1cc0a18a9ed965ebbdef1a013ee17347019efa64f29a40b308f50c369",
+      "samples": 137,
+      "maxHandResidualM": 0.0047163080211436404
+    },
+    {
+      "id": "obp-43_2",
+      "sourceRowsSha256": "2fece4dd2968a3b8c8af3ff49265fb1106df563f80f9f74e4e7bb53bb5c5394d",
+      "samples": 137,
+      "maxHandResidualM": 0.004696647219897354
+    },
+    {
+      "id": "obp-43_3",
+      "sourceRowsSha256": "6918445d77bb5135337b39e78abd5fd07fcecc7dd08c54a2299c7114d2d4b875",
+      "samples": 137,
+      "maxHandResidualM": 0.0047144145077779274
+    },
+    {
+      "id": "obp-43_4",
+      "sourceRowsSha256": "fccb90edd9b54902b00b1e2f8f461c5812e0fb7a02a9f42ddc5e21589968e269",
+      "samples": 137,
+      "maxHandResidualM": 0.004723656489384169
+    },
+    {
+      "id": "obp-440_1",
+      "sourceRowsSha256": "229b39db41c4c783573872f170f330d114f0ea9ba0362fab2142b391fbdd1664",
+      "samples": 137,
+      "maxHandResidualM": 0.013937932854802283
+    },
+    {
+      "id": "obp-440_2",
+      "sourceRowsSha256": "33233168b89020ebf52624324cbcf4c8c66dff17d88f3c0ed009390e399f577a",
+      "samples": 137,
+      "maxHandResidualM": 0.013943762976622788
+    },
+    {
+      "id": "obp-440_3",
+      "sourceRowsSha256": "ebad512d75cad55eb4705717577952570b50dcfb606f037df71230c64c83ca99",
+      "samples": 137,
+      "maxHandResidualM": 0.013927398721543097
+    },
+    {
+      "id": "obp-440_4",
+      "sourceRowsSha256": "d6b0aefe3e508bacc61569e6cc5a859fee6787543c05924fc05c82bad24f96b3",
+      "samples": 137,
+      "maxHandResidualM": 0.013933730584238597
+    },
+    {
+      "id": "obp-440_5",
+      "sourceRowsSha256": "b1cac2a94a15ee7233bd256deebeefa110eb498291dfa3611f12ffd70855899a",
+      "samples": 137,
+      "maxHandResidualM": 0.013925893828215423
+    },
+    {
+      "id": "obp-440_6",
+      "sourceRowsSha256": "a561c484a0c66b7ac86e81e23e0095b2887649a5a7b46d03c4dcda4bc8969f77",
+      "samples": 137,
+      "maxHandResidualM": 0.0139303233132957
+    },
+    {
+      "id": "obp-440_7",
+      "sourceRowsSha256": "1922d894b12701e0e505e22217b602b6b06d96a3a0bb6be6e3b713b2ec2e959b",
+      "samples": 137,
+      "maxHandResidualM": 0.013943526365788474
+    },
+    {
+      "id": "obp-440_8",
+      "sourceRowsSha256": "71a258b56022571ba88fbd77c6d066df47b461288461e9cae174fa80d64c06d6",
+      "samples": 137,
+      "maxHandResidualM": 0.013918047491044083
+    },
+    {
+      "id": "obp-447_1",
+      "sourceRowsSha256": "8a62fd96b189aac24884035f5131cb76fe64a9a4580f63c4c51715030c4c73db",
+      "samples": 137,
+      "maxHandResidualM": 0.012048495829773104
+    },
+    {
+      "id": "obp-447_2",
+      "sourceRowsSha256": "ae65b4de1ba8ffab08eeb414706131b6a4b6e4e0d9f0459d647b649813a41126",
+      "samples": 137,
+      "maxHandResidualM": 0.012065929454741301
+    },
+    {
+      "id": "obp-447_3",
+      "sourceRowsSha256": "b7bf72c50ca24f0124faac2fe52b5b565493b3cbb85e302e570373bd01911d56",
+      "samples": 137,
+      "maxHandResidualM": 0.012066282833335827
+    },
+    {
+      "id": "obp-447_4",
+      "sourceRowsSha256": "84b190a4b8cbcebd8a5eb57b62f55cf1b08225015f405cebde826bd0fc789355",
+      "samples": 137,
+      "maxHandResidualM": 0.012059224279551195
+    },
+    {
+      "id": "obp-447_5",
+      "sourceRowsSha256": "f50468347ef989d81ca5f26daa70ff15d075fb6e543031b5a6a9f2f330415d7a",
+      "samples": 137,
+      "maxHandResidualM": 0.01204453603673897
+    },
+    {
+      "id": "obp-447_6",
+      "sourceRowsSha256": "95842e0601de6c68943a4496109dc8565ef5144134f78449e2d38919270b479e",
+      "samples": 137,
+      "maxHandResidualM": 0.012041754197179092
+    },
+    {
+      "id": "obp-447_7",
+      "sourceRowsSha256": "2ea924d21373985c733d2b9d33bc6f5571e3073cb745c83586a1d978e450c9c1",
+      "samples": 137,
+      "maxHandResidualM": 0.01205386008073567
+    },
+    {
+      "id": "obp-447_8",
+      "sourceRowsSha256": "4a0bd920fbd112a57d9468e6b3c51aba8109dab6a53130aa6825f7dc71d1adea",
+      "samples": 137,
+      "maxHandResidualM": 0.012055119584804201
+    },
+    {
+      "id": "obp-448_1",
+      "sourceRowsSha256": "08d8bacc14e03ba0473c2693da2a76939aef4d12141192e34e95a251ec89b8f6",
+      "samples": 137,
+      "maxHandResidualM": 0.012411317007991895
+    },
+    {
+      "id": "obp-448_2",
+      "sourceRowsSha256": "4ea52b28f9484f7767bb6a7fe8c09917df7ecc88cb2e978d402719fd39920361",
+      "samples": 137,
+      "maxHandResidualM": 0.012395651074062217
+    },
+    {
+      "id": "obp-448_3",
+      "sourceRowsSha256": "e0b2397f9e602b6d59d46df9fec12ffbe194aac00ab0769424f80ebce1993552",
+      "samples": 137,
+      "maxHandResidualM": 0.012407305484587447
+    },
+    {
+      "id": "obp-448_4",
+      "sourceRowsSha256": "408e8eceefabcbbf6b38200a41ea754f7abe7cbbe9e21623cbe3116352318603",
+      "samples": 137,
+      "maxHandResidualM": 0.01240893545246542
+    },
+    {
+      "id": "obp-448_5",
+      "sourceRowsSha256": "a4257920eb7daf7525277e8e9a076c139a8901c1182ad26e99c6ef9d6cf0b2f5",
+      "samples": 137,
+      "maxHandResidualM": 0.012407278318415585
+    },
+    {
+      "id": "obp-448_6",
+      "sourceRowsSha256": "4ea46b3ae4a8aa506631eaaa963f1b40408916cac78e2661361dcc1df077beb6",
+      "samples": 137,
+      "maxHandResidualM": 0.012400948563886927
+    },
+    {
+      "id": "obp-448_7",
+      "sourceRowsSha256": "fb674e78b4889bbaa383ef1c5ca3f3365f02f2f18611590f97a1adcabf410e5c",
+      "samples": 137,
+      "maxHandResidualM": 0.01242336045847051
+    },
+    {
+      "id": "obp-448_8",
+      "sourceRowsSha256": "9fd60e087ddcf9ba877dbf33b74d28cb57c8d7f156796ed57990b1268acca530",
+      "samples": 137,
+      "maxHandResidualM": 0.01241119023343181
+    },
+    {
+      "id": "obp-45_1",
+      "sourceRowsSha256": "03e0752684bb09cacfffe3d7a6f0b1fe952c902abb065724e32c54637c52694f",
+      "samples": 137,
+      "maxHandResidualM": 0.004604082900117735
+    },
+    {
+      "id": "obp-45_2",
+      "sourceRowsSha256": "ebab39c9e3ebe976291dafe197e7c74462a7d6d5118d74eb1b5316d6ae9cdb83",
+      "samples": 137,
+      "maxHandResidualM": 0.004609124652534788
+    },
+    {
+      "id": "obp-45_3",
+      "sourceRowsSha256": "2bd92aed4745e9d6f1c36a4af29fbbffc03389a09c43850617321bde138d9f9f",
+      "samples": 137,
+      "maxHandResidualM": 0.00460867344308839
+    },
+    {
+      "id": "obp-45_4",
+      "sourceRowsSha256": "654863fe092fad0156433a9aad601eebd7619228d8895610b62d67481d8df87d",
+      "samples": 137,
+      "maxHandResidualM": 0.004599237371831002
+    },
+    {
+      "id": "obp-45_5",
+      "sourceRowsSha256": "0864bc1c536b7ecc0185d984e4792d2572c9f19961d6dc0825505a280188fd78",
+      "samples": 137,
+      "maxHandResidualM": 0.004607182492974999
+    },
+    {
+      "id": "obp-450_1",
+      "sourceRowsSha256": "acdcfa0edbea3042fda82d9a7ed4a724886afa526764beb870d7d9eed4f2fafd",
+      "samples": 137,
+      "maxHandResidualM": 0.013432872022197942
+    },
+    {
+      "id": "obp-450_2",
+      "sourceRowsSha256": "6fd2a7e14bb20af6ce6c1ee613a3250b6409fc7b531b118d549d19fd66de4ec2",
+      "samples": 137,
+      "maxHandResidualM": 0.013421247795860996
+    },
+    {
+      "id": "obp-450_3",
+      "sourceRowsSha256": "8c0727db82bb4388eef9dca2e183b5d426ccc14f9253100c5b37f8541c080f5c",
+      "samples": 137,
+      "maxHandResidualM": 0.013453637729032802
+    },
+    {
+      "id": "obp-450_4",
+      "sourceRowsSha256": "ad2c594b290f9a6329ecd1946a18b5a1d23c3b2ed0ea25c74b534c6541284179",
+      "samples": 137,
+      "maxHandResidualM": 0.01342781309941413
+    },
+    {
+      "id": "obp-450_5",
+      "sourceRowsSha256": "34ce55f75710023bc9ea880627b7398fcb4056a094fe031b8104e1971b7ba29c",
+      "samples": 137,
+      "maxHandResidualM": 0.013430967826616376
+    },
+    {
+      "id": "obp-450_6",
+      "sourceRowsSha256": "d980882aa63ca7866b7ded897b59840753501566282f44c5a2e333f1e0859511",
+      "samples": 137,
+      "maxHandResidualM": 0.013431261508970034
+    },
+    {
+      "id": "obp-450_7",
+      "sourceRowsSha256": "9ea6e576e3700c47f2a9954a2988adbaa542bcd8a954f42bd2b756eb252501df",
+      "samples": 137,
+      "maxHandResidualM": 0.013441445554018085
+    },
+    {
+      "id": "obp-450_8",
+      "sourceRowsSha256": "5f47f7acfbbcdfc6dae009e5aa0c2d84fe6102e380f1616001785a98a3300173",
+      "samples": 137,
+      "maxHandResidualM": 0.01342246991482971
+    },
+    {
+      "id": "obp-451_1",
+      "sourceRowsSha256": "26c6b0580c64ba7e2b5ab7885f2ca576fc4e6956b524f60d2a91755dc313ac20",
+      "samples": 137,
+      "maxHandResidualM": 0.011185260472596721
+    },
+    {
+      "id": "obp-451_2",
+      "sourceRowsSha256": "b4e4ac25729a0f4177dc60a11532c5ed4c4bd33e9e1e4e39860a7944cbe7f1b4",
+      "samples": 137,
+      "maxHandResidualM": 0.011192281838483422
+    },
+    {
+      "id": "obp-451_3",
+      "sourceRowsSha256": "b48531e7c1d63bd773673da2e39e5d11478bb6322353e84dc69a7cd0b43d4755",
+      "samples": 137,
+      "maxHandResidualM": 0.011215961607103935
+    },
+    {
+      "id": "obp-451_4",
+      "sourceRowsSha256": "768dc8aa932c5d5255eede0c77dd3d0842129578257b5fb26feeb46d6ae3c2d5",
+      "samples": 137,
+      "maxHandResidualM": 0.011202556838990326
+    },
+    {
+      "id": "obp-451_5",
+      "sourceRowsSha256": "7e12cc402f36c30834f0ab33e6add37e141fb1724192c8a3313a19d642874de9",
+      "samples": 137,
+      "maxHandResidualM": 0.011193309347574227
+    },
+    {
+      "id": "obp-451_6",
+      "sourceRowsSha256": "3dbd48e8cc01faf94dad3a7ca2cfc3d62d67839a697f88e3b77685abb1a4c91e",
+      "samples": 137,
+      "maxHandResidualM": 0.011175413277036547
+    },
+    {
+      "id": "obp-451_7",
+      "sourceRowsSha256": "09d370421d8ce298f01508274355c684a3046021b3e74c6a7fb1f29f785833c5",
+      "samples": 137,
+      "maxHandResidualM": 0.011206543104545521
+    },
+    {
+      "id": "obp-451_8",
+      "sourceRowsSha256": "813e07fc44a1d55b7162ac35199ad1ed1d7ab69330deb9bb9770ad401bcceadb",
+      "samples": 137,
+      "maxHandResidualM": 0.011205953253314496
+    },
+    {
+      "id": "obp-468_1",
+      "sourceRowsSha256": "f28c7c48dd3df5bd1ab78ea0d8a7e56c82d5efda5d7e636a688e5afd722d6524",
+      "samples": 137,
+      "maxHandResidualM": 0.008423268253073315
+    },
+    {
+      "id": "obp-468_2",
+      "sourceRowsSha256": "f276e79ede69532aa7ab6df21e7ad2378fb55467dea55a5dde303daef9babdc7",
+      "samples": 137,
+      "maxHandResidualM": 0.008425219382097462
+    },
+    {
+      "id": "obp-468_3",
+      "sourceRowsSha256": "069b97e1c51bf61a521df4f865829c5222bf5c744f45c930029168d5b47a164b",
+      "samples": 137,
+      "maxHandResidualM": 0.008408538906826439
+    },
+    {
+      "id": "obp-468_4",
+      "sourceRowsSha256": "725bff3b8787287052bba913d5f91b971d39ad11a9be245e04464b4cf1155663",
+      "samples": 137,
+      "maxHandResidualM": 0.008415119341373187
+    },
+    {
+      "id": "obp-468_5",
+      "sourceRowsSha256": "de7925376673eacda87fc395c8c0cbe405c5a7322a6aac27df594a1052e1232b",
+      "samples": 137,
+      "maxHandResidualM": 0.008395578651795046
+    },
+    {
+      "id": "obp-468_6",
+      "sourceRowsSha256": "534ef58683287a5f511afab38897534ac37b276d2ec97a56c9d1e0656331e3a9",
+      "samples": 137,
+      "maxHandResidualM": 0.008414268097963928
+    },
+    {
+      "id": "obp-468_7",
+      "sourceRowsSha256": "920bbcc28ea51d71080899fd62c7030dc7d362399fcfe231aa32026b9b7ef4a4",
+      "samples": 137,
+      "maxHandResidualM": 0.008418304318462027
+    },
+    {
+      "id": "obp-468_8",
+      "sourceRowsSha256": "c189a4486fb1f9b128edc0f2a3c9e095edfce041f06da31e8698915934a21ff9",
+      "samples": 137,
+      "maxHandResidualM": 0.008425190689076054
+    },
+    {
+      "id": "obp-47_1",
+      "sourceRowsSha256": "80c7dccb0eda895d12dbe30645d96d595851fc1824d9aed858a0a5663f0295cb",
+      "samples": 137,
+      "maxHandResidualM": 0.005085108219700406
+    },
+    {
+      "id": "obp-47_2",
+      "sourceRowsSha256": "2bf29ecc392f103f2f92f43f4c52e66dc52d69f594058f8f7878cd0ba46b9180",
+      "samples": 137,
+      "maxHandResidualM": 0.0050686533948057265
+    },
+    {
+      "id": "obp-47_3",
+      "sourceRowsSha256": "8e12078064715d7dce8480ebd88e369ecaa9ddb464c33749e7984120c2965420",
+      "samples": 137,
+      "maxHandResidualM": 0.005066925472679814
+    },
+    {
+      "id": "obp-47_4",
+      "sourceRowsSha256": "7f2cd372c21400cb5547e7e44502b9878fd3a205361ac24d58c77428d01e17f4",
+      "samples": 137,
+      "maxHandResidualM": 0.0050689184742869885
+    },
+    {
+      "id": "obp-47_5",
+      "sourceRowsSha256": "5e21782bf46c0193eef2101ee56dfb1b2a8f198e5ece02a9c149b3d5ff9b95e7",
+      "samples": 137,
+      "maxHandResidualM": 0.0050758105892270275
+    },
+    {
+      "id": "obp-474_1",
+      "sourceRowsSha256": "ec573ecaa609d45482f81b9bfdd270c4047771a2cd7237d1f94355e2d071f3a2",
+      "samples": 137,
+      "maxHandResidualM": 0.008944419997003178
+    },
+    {
+      "id": "obp-474_2",
+      "sourceRowsSha256": "f0f7b9cffc4a0a1dbf5c103cfc3664c2a175e2a4192b38fb69856c0c10ea6c3d",
+      "samples": 137,
+      "maxHandResidualM": 0.008946808704200072
+    },
+    {
+      "id": "obp-474_3",
+      "sourceRowsSha256": "8cc340705286cfcd0c61662d142d0bd0711f77c1f46c809279a8d31cfe8b4284",
+      "samples": 137,
+      "maxHandResidualM": 0.00892320779875593
+    },
+    {
+      "id": "obp-474_4",
+      "sourceRowsSha256": "267d95c6725fc79004223219f1391bbfc5c0ee67990974d57cc005a1144e2b86",
+      "samples": 137,
+      "maxHandResidualM": 0.008929886867439233
+    },
+    {
+      "id": "obp-474_5",
+      "sourceRowsSha256": "4d3eda405a1963e1b92654aa63d75fc633d9d1d175294270081d5b8b45a49ecf",
+      "samples": 137,
+      "maxHandResidualM": 0.00892509973244461
+    },
+    {
+      "id": "obp-474_6",
+      "sourceRowsSha256": "db1680d3c6a2756d231f2b0d488437869e1c94650a497cca5bffa9a978a758bd",
+      "samples": 137,
+      "maxHandResidualM": 0.008938457736266427
+    },
+    {
+      "id": "obp-474_7",
+      "sourceRowsSha256": "b8bdb70148688a2b17688d56ccb9b7165f44f9ca5c0c8ca01f23b0e6827833f2",
+      "samples": 137,
+      "maxHandResidualM": 0.008952216697005855
+    },
+    {
+      "id": "obp-474_8",
+      "sourceRowsSha256": "81982747a02c381164cec9d13a199df3d9fb3513ef8126f677871860237c11a8",
+      "samples": 137,
+      "maxHandResidualM": 0.008935017939554663
+    },
+    {
+      "id": "obp-478_1",
+      "sourceRowsSha256": "0bf6b69f63d183aef65dc0972511a4fe0e14339ae928736915685c7da76f120b",
+      "samples": 137,
+      "maxHandResidualM": 0.011737234666406549
+    },
+    {
+      "id": "obp-478_2",
+      "sourceRowsSha256": "4787871130eeb6cc980357d31a9fdeda342b97983c4ab6370e8f8fcf6897a082",
+      "samples": 137,
+      "maxHandResidualM": 0.01174391655756261
+    },
+    {
+      "id": "obp-478_3",
+      "sourceRowsSha256": "324988efbc810ae8d4ff3b84652c833a4362a99df3a04beef581e9e58e012f43",
+      "samples": 137,
+      "maxHandResidualM": 0.011746019931241336
+    },
+    {
+      "id": "obp-478_4",
+      "sourceRowsSha256": "a4c205d9087daf8920c6f8a769697054527e5a760d099b9ad870afae00f6ac07",
+      "samples": 137,
+      "maxHandResidualM": 0.011734043286838918
+    },
+    {
+      "id": "obp-478_5",
+      "sourceRowsSha256": "cd8a23fc71d0fb323406d51906d71f9d486dcc66b31305cc6a3e6bc1cb345ac5",
+      "samples": 137,
+      "maxHandResidualM": 0.01174090654334473
+    },
+    {
+      "id": "obp-478_6",
+      "sourceRowsSha256": "11396a7a9882f340a888ce409dfb35780138e5b713fa2c0ddf97bd8421a208af",
+      "samples": 137,
+      "maxHandResidualM": 0.011718548513874893
+    },
+    {
+      "id": "obp-478_7",
+      "sourceRowsSha256": "546b0a9d2bc0435f80ce84ca91718474808f5283c4ffe71b9d93bd3838bd0001",
+      "samples": 137,
+      "maxHandResidualM": 0.01173752479090585
+    },
+    {
+      "id": "obp-48_1",
+      "sourceRowsSha256": "c848afd0d7ffb4706b14c440ca29b3c3fa3c30c588c422e086f7c6b3125bd0ca",
+      "samples": 137,
+      "maxHandResidualM": 0.006275228354880988
+    },
+    {
+      "id": "obp-48_2",
+      "sourceRowsSha256": "c9827b0f456c01aea5d350d7321fbff36c6659c692db9afe4c75d7ce49166a60",
+      "samples": 137,
+      "maxHandResidualM": 0.006283140019907592
+    },
+    {
+      "id": "obp-48_3",
+      "sourceRowsSha256": "ccb0023e3c8825b8902bcba1cd7b44eaf6d4bd8b4825cb122147fb4882fd579c",
+      "samples": 137,
+      "maxHandResidualM": 0.006267829379224602
+    },
+    {
+      "id": "obp-48_4",
+      "sourceRowsSha256": "01a016407e7d3ab2506205ebe8fc0afd892ab26cc863cfdac16a0dc97964bcdf",
+      "samples": 137,
+      "maxHandResidualM": 0.006280191472962552
+    },
+    {
+      "id": "obp-48_5",
+      "sourceRowsSha256": "a9d8d4475c275f9011306d6599bde880ff9ff8db80a113a4a271dbda9d8c7da5",
+      "samples": 137,
+      "maxHandResidualM": 0.0062761990051393565
+    },
+    {
+      "id": "obp-490_1",
+      "sourceRowsSha256": "7429935b7087df3bf41b21ef7c645f5179e136cc4465e91df32b6ebef819f06b",
+      "samples": 137,
+      "maxHandResidualM": 0.010590396616606304
+    },
+    {
+      "id": "obp-490_2",
+      "sourceRowsSha256": "9c519e5091881b247f22f312d3ce7348a2bdef9b62480afda690542047971c14",
+      "samples": 137,
+      "maxHandResidualM": 0.010618046646650614
+    },
+    {
+      "id": "obp-490_3",
+      "sourceRowsSha256": "096d7c2c0b0c00d66b87cce4190d4472f098044084e309d9b74d6a0219b926f1",
+      "samples": 137,
+      "maxHandResidualM": 0.010591368154578094
+    },
+    {
+      "id": "obp-490_4",
+      "sourceRowsSha256": "cfdc206cf2f537abb461578c4afdf632fdd0f166a8cc41bb190e100d286b2bf1",
+      "samples": 137,
+      "maxHandResidualM": 0.010610998551321025
+    },
+    {
+      "id": "obp-490_5",
+      "sourceRowsSha256": "e25635dd34ef5af4925c0811e7785f614475a349fbcb881cf5a55f55b45f96ad",
+      "samples": 137,
+      "maxHandResidualM": 0.010616560839830909
+    },
+    {
+      "id": "obp-490_6",
+      "sourceRowsSha256": "e69edac29a3df110a2acfaf1ccf96c75e467a5b1d053367ea8dad011a5b95687",
+      "samples": 137,
+      "maxHandResidualM": 0.01061484644212142
+    },
+    {
+      "id": "obp-490_7",
+      "sourceRowsSha256": "ee9d797bbd49f406cd98ab0ad7e67ff30542cbc0debef4a7fe180a46fe9ce88d",
+      "samples": 137,
+      "maxHandResidualM": 0.010590653788597732
+    },
+    {
+      "id": "obp-490_8",
+      "sourceRowsSha256": "01d4e1820fdf4717a42344fcb957b928832f015681c88dbd101cefcc7c3c2f75",
+      "samples": 137,
+      "maxHandResidualM": 0.010620122959392806
+    },
+    {
+      "id": "obp-492_1",
+      "sourceRowsSha256": "19e38598af174ab132775ad71f5d449b1df52e8058ae409875a20ae5415c0218",
+      "samples": 137,
+      "maxHandResidualM": 0.012311618119262407
+    },
+    {
+      "id": "obp-492_2",
+      "sourceRowsSha256": "de33794bc1237bfa7170dbce307412c79eae477fb0e8fd8cee8d24856d0843ae",
+      "samples": 137,
+      "maxHandResidualM": 0.012314836494710395
+    },
+    {
+      "id": "obp-492_3",
+      "sourceRowsSha256": "798dd3ecc817c5ac625743ed8dd4a49ea210c13da5ca0ac77f074b17e7473304",
+      "samples": 137,
+      "maxHandResidualM": 0.012331440721049296
+    },
+    {
+      "id": "obp-492_4",
+      "sourceRowsSha256": "37a464b87c810b5ecc25577ca50a13dc27525b6dccb2c1feb155e03a045f3e53",
+      "samples": 137,
+      "maxHandResidualM": 0.012324035813424334
+    },
+    {
+      "id": "obp-492_5",
+      "sourceRowsSha256": "9352863ac3f09e94922a777c986c5cc6b7e3303ef78f6970030bfed498d3c91e",
+      "samples": 137,
+      "maxHandResidualM": 0.012337478491752308
+    },
+    {
+      "id": "obp-492_6",
+      "sourceRowsSha256": "be64fb4b53397ebc3163d8ea2641b04d5bab73a457a5d3dc3a2146fbfd77c85f",
+      "samples": 137,
+      "maxHandResidualM": 0.012323456707284903
+    },
+    {
+      "id": "obp-492_7",
+      "sourceRowsSha256": "5c05e4af69ea2f531a950e784e09a51d4ea10152b2b941ae37212d277d8cbbc7",
+      "samples": 137,
+      "maxHandResidualM": 0.012322659248607782
+    },
+    {
+      "id": "obp-492_8",
+      "sourceRowsSha256": "10e1364daa7c97bb47f1e9c6203f62d9119d27ecbb6c4fa669bf1921a9911f1e",
+      "samples": 137,
+      "maxHandResidualM": 0.012336633587753117
+    },
+    {
+      "id": "obp-500_1",
+      "sourceRowsSha256": "cc49c8048fb9fb8f04f0e36f39025c2f41269bc84d6bfdc4db2bc146fe0206c3",
+      "samples": 137,
+      "maxHandResidualM": 0.013626268406071505
+    },
+    {
+      "id": "obp-500_2",
+      "sourceRowsSha256": "3cb0139f443df528dd2a7c77e191aa395f407e1e2529aae219c55106c5f352f8",
+      "samples": 137,
+      "maxHandResidualM": 0.013609477611681926
+    },
+    {
+      "id": "obp-500_3",
+      "sourceRowsSha256": "1bc6716f2c6bb2ab0f9888a350e4b12e5414f90b974d3c98b4beb237083b8133",
+      "samples": 137,
+      "maxHandResidualM": 0.013629819690109013
+    },
+    {
+      "id": "obp-500_4",
+      "sourceRowsSha256": "e8b2af51ae28dc49c6204e2da07ad44e02f3289fcf6a6f3df06c4113e0022035",
+      "samples": 137,
+      "maxHandResidualM": 0.013604107854082576
+    },
+    {
+      "id": "obp-500_5",
+      "sourceRowsSha256": "244d7eb5ccc8a8b03529cbff34dbddfc44339e5d09be8829f348853c6ea51224",
+      "samples": 137,
+      "maxHandResidualM": 0.01361072770614291
+    },
+    {
+      "id": "obp-500_6",
+      "sourceRowsSha256": "62437d42ebc10c056ace914ef63f184e27643b35d53b7b46be6f5290f1ea3d0d",
+      "samples": 137,
+      "maxHandResidualM": 0.013619288879571138
+    },
+    {
+      "id": "obp-500_7",
+      "sourceRowsSha256": "0542eea7c92b1dd7e8a60a3b648ec50cbe910709476470f1a603d861e20f3ecf",
+      "samples": 137,
+      "maxHandResidualM": 0.013610311008318075
+    },
+    {
+      "id": "obp-500_8",
+      "sourceRowsSha256": "3156e97e90b974bee5ca1f93a26583ffe6f262654a4bab74447a1e55ba6e8509",
+      "samples": 137,
+      "maxHandResidualM": 0.013595480139758252
+    },
+    {
+      "id": "obp-504_1",
+      "sourceRowsSha256": "cbf795812c051ed3377b1faddbc528134ca5265a3efb2dd27941e8a536f62a73",
+      "samples": 137,
+      "maxHandResidualM": 0.010517764298780442
+    },
+    {
+      "id": "obp-504_2",
+      "sourceRowsSha256": "bd17d595a74e6651a49ad5243365b83fc5e643fd9cbaae0588b31c9bb2d03377",
+      "samples": 137,
+      "maxHandResidualM": 0.010525051798044673
+    },
+    {
+      "id": "obp-504_3",
+      "sourceRowsSha256": "e8b31358ec1ef54a5a6eba718c0f317f6ec88f07876d1d70cc74a158fedc717e",
+      "samples": 137,
+      "maxHandResidualM": 0.010535701843744215
+    },
+    {
+      "id": "obp-504_4",
+      "sourceRowsSha256": "6e8d4ff51bd8e674adfc2cf48d674cda7678e2b7ec23a55f269d2fd32502e29c",
+      "samples": 137,
+      "maxHandResidualM": 0.010512515331396232
+    },
+    {
+      "id": "obp-504_5",
+      "sourceRowsSha256": "d74ab343f34e449eef551cc9ada57f396af5247e2b20ce61c02b1cdd4f8cf05c",
+      "samples": 137,
+      "maxHandResidualM": 0.010515039795945815
+    },
+    {
+      "id": "obp-504_6",
+      "sourceRowsSha256": "735526461e9697cb395e7b459f4e00927a958288d6b003c97e2e504fd1018ab3",
+      "samples": 137,
+      "maxHandResidualM": 0.01052514705880287
+    },
+    {
+      "id": "obp-504_7",
+      "sourceRowsSha256": "d82deb52cc4ad672ffc5898e2ac448e16059adbf56fcb22955588ad291463a13",
+      "samples": 137,
+      "maxHandResidualM": 0.010502464984208692
+    },
+    {
+      "id": "obp-504_8",
+      "sourceRowsSha256": "a4a2abc5e0e1f31090c72666c831948b64102b4be711884b19161fbf61f853d5",
+      "samples": 137,
+      "maxHandResidualM": 0.010520393525868433
+    },
+    {
+      "id": "obp-509_1",
+      "sourceRowsSha256": "025ddc831570858d1ac21aa6eeee9bd8307f5175e0e7db7123249112d5e11ddd",
+      "samples": 137,
+      "maxHandResidualM": 0.008214885923269822
+    },
+    {
+      "id": "obp-509_2",
+      "sourceRowsSha256": "3f302b353466c43f67086cd569fad5f36dff7db67a80df862f5d773e73b80e04",
+      "samples": 137,
+      "maxHandResidualM": 0.00821365162533079
+    },
+    {
+      "id": "obp-509_3",
+      "sourceRowsSha256": "770c87b866b46ddd571fccd8925ad6188c930e3fbab3d0a258551a7f41bb56a2",
+      "samples": 137,
+      "maxHandResidualM": 0.008246000750101675
+    },
+    {
+      "id": "obp-509_4",
+      "sourceRowsSha256": "7664dd0aba9e9c35ec3fa283b1d93fd1e7a6af8737ec7c8bc48f2d695ef6873a",
+      "samples": 137,
+      "maxHandResidualM": 0.00822740096563683
+    },
+    {
+      "id": "obp-509_5",
+      "sourceRowsSha256": "eb120726b5501f7f926dccb5574dbabad9b89b10b7df5ffc5233dea05033b064",
+      "samples": 137,
+      "maxHandResidualM": 0.008219909198759718
+    },
+    {
+      "id": "obp-509_6",
+      "sourceRowsSha256": "28449ece4c56f0114709330b2a59948e8654afb868603307e5cb053726463326",
+      "samples": 137,
+      "maxHandResidualM": 0.008228453440246617
+    },
+    {
+      "id": "obp-509_7",
+      "sourceRowsSha256": "e849f7b6db5b713080db22e6ec9bb9ead3bff9f7e89e0f497908929e7c58ee40",
+      "samples": 137,
+      "maxHandResidualM": 0.008219593451436764
+    },
+    {
+      "id": "obp-509_8",
+      "sourceRowsSha256": "dfcdc55cd6cf1d7fa990aec42af88029f30620641a9fe8836899aaad76de8ebd",
+      "samples": 137,
+      "maxHandResidualM": 0.008228156833980167
+    },
+    {
+      "id": "obp-51_1",
+      "sourceRowsSha256": "4fe98f6891c77876599706822e6438fd2c6a5851cf875b353ffa268d928bf826",
+      "samples": 137,
+      "maxHandResidualM": 0.004444646037129708
+    },
+    {
+      "id": "obp-51_2",
+      "sourceRowsSha256": "6b3ed4cc500cbff4a23ba52f9f6f58d414a8352d393343b993b3bb086cd11310",
+      "samples": 137,
+      "maxHandResidualM": 0.004482674120021598
+    },
+    {
+      "id": "obp-51_4",
+      "sourceRowsSha256": "192b7dfeae96aa200bbefddd48ebee685a86daf50488fec03925a2f347cd3d71",
+      "samples": 137,
+      "maxHandResidualM": 0.004454265560104862
+    },
+    {
+      "id": "obp-51_5",
+      "sourceRowsSha256": "43573f2c9880737b3c238cebd06372485e1b530b0a47adc348ed70101ee67ea9",
+      "samples": 137,
+      "maxHandResidualM": 0.004447244565201605
+    },
+    {
+      "id": "obp-56_2",
+      "sourceRowsSha256": "b0551542deb2b400fd748d35f5f896bed93638ad0997eb24ee2d4cd2fe94556c",
+      "samples": 137,
+      "maxHandResidualM": 0.0007093786770656407
+    },
+    {
+      "id": "obp-56_3",
+      "sourceRowsSha256": "ab36a7f5622caa6b9791d63298201d8e25880384169bcde5f0e5ff37cf045c9d",
+      "samples": 137,
+      "maxHandResidualM": 0.0007372986481738018
+    },
+    {
+      "id": "obp-56_4",
+      "sourceRowsSha256": "f888804ad5838ce27c97ce31e15a7c7527ca1fa311d92d1d0fad4c8b7a882f18",
+      "samples": 137,
+      "maxHandResidualM": 0.0007418593281495337
+    },
+    {
+      "id": "obp-56_5",
+      "sourceRowsSha256": "cb74fcfcf1a91277b6a20f166cbb134e1a17a4f52f0892442b5842b9e66ef85c",
+      "samples": 137,
+      "maxHandResidualM": 0.0007234313544006059
+    },
+    {
+      "id": "obp-59_1",
+      "sourceRowsSha256": "f5a8fbb26b929ac21e330be297904162345da2a99bac172fe5c16b472b071d5a",
+      "samples": 137,
+      "maxHandResidualM": 0.004067772787907299
+    },
+    {
+      "id": "obp-59_2",
+      "sourceRowsSha256": "dfb6b2310539291fc05cc457c57a05e16ac924a6f25f98e8d77020f5ef45b1f3",
+      "samples": 137,
+      "maxHandResidualM": 0.004067993450014765
+    },
+    {
+      "id": "obp-59_3",
+      "sourceRowsSha256": "d456eea5b16b1f6dd9afbc64a80f8100c74c80a6f99f2ee32e5967945f2ee4b8",
+      "samples": 137,
+      "maxHandResidualM": 0.0040523629959695355
+    },
+    {
+      "id": "obp-59_4",
+      "sourceRowsSha256": "3bf8b80f5f584f7231b9b8cace3b7998bdea7c94684bf0693fa116a763a66ea7",
+      "samples": 137,
+      "maxHandResidualM": 0.004086648268577136
+    },
+    {
+      "id": "obp-59_5",
+      "sourceRowsSha256": "93477464bafa9c2f35525ab1674e21480e428bc598c7888f657676f89dec9297",
+      "samples": 137,
+      "maxHandResidualM": 0.004069538082257861
+    },
+    {
+      "id": "obp-6_1",
+      "sourceRowsSha256": "f646dec7af044cb42b64468aa80605c140e26a3cc56b2768d6febe9c70a6f2b0",
+      "samples": 137,
+      "maxHandResidualM": 0.002405110752879501
+    },
+    {
+      "id": "obp-6_2",
+      "sourceRowsSha256": "6b5c56aad3128d75e831e1948f41f1071ee68c4a01ab2fc68c4f76d800210dc4",
+      "samples": 137,
+      "maxHandResidualM": 0.002399146274056807
+    },
+    {
+      "id": "obp-6_3",
+      "sourceRowsSha256": "5759261b24dee609872d89241cc53b92c9af305b7dad8a9d5f1cf75ee83a0ff6",
+      "samples": 137,
+      "maxHandResidualM": 0.0024135132433310276
+    },
+    {
+      "id": "obp-6_4",
+      "sourceRowsSha256": "3a188472dfa46a036dee2a42199248d8139f8334750a3e3ee3c1288fddbe9f13",
+      "samples": 137,
+      "maxHandResidualM": 0.0024181286206819983
+    },
+    {
+      "id": "obp-6_5",
+      "sourceRowsSha256": "f4e0b35b350f8e6e9ffee21ddf4f87cd6eddb917bbcb4ecf102b5ccfc57dc341",
+      "samples": 137,
+      "maxHandResidualM": 0.0024057807140752084
+    },
+    {
+      "id": "obp-67_1",
+      "sourceRowsSha256": "1600fbbc37fc45426c00bd99e8f662734f11dea967bb91c07527efb0f4871864",
+      "samples": 137,
+      "maxHandResidualM": 0.001776600378052899
+    },
+    {
+      "id": "obp-67_3",
+      "sourceRowsSha256": "f317f7f16c73af7c277f4a29d751e08c57af1c44256d88551399a7a15ecde100",
+      "samples": 137,
+      "maxHandResidualM": 0.0017402263904832801
+    },
+    {
+      "id": "obp-67_4",
+      "sourceRowsSha256": "4b6be93275b49e9220adfaf8defc614d08762e96ca1fac8a823c86d0b05c67bb",
+      "samples": 137,
+      "maxHandResidualM": 0.001753726115766305
+    },
+    {
+      "id": "obp-67_5",
+      "sourceRowsSha256": "4e5953186ac947adaa44e019354ade00884752e36d0c3b9bb1715ed57fdcd28f",
+      "samples": 137,
+      "maxHandResidualM": 0.0017436695669864651
+    },
+    {
+      "id": "obp-68_1",
+      "sourceRowsSha256": "2924de6d3abcef8ea73ecd3e20eefedbd599216904e7e9d600ad7a9b6e3699a2",
+      "samples": 137,
+      "maxHandResidualM": 0.00031970846363883255
+    },
+    {
+      "id": "obp-68_2",
+      "sourceRowsSha256": "6623b4dcbc950f209fd6c0d83d7e9204e95e68df73ba8b9f37460e237b4b3abc",
+      "samples": 137,
+      "maxHandResidualM": 0.00031393140071850795
+    },
+    {
+      "id": "obp-68_3",
+      "sourceRowsSha256": "5c45e6dfe05eddffd8fb69a504990918bd6fd1c644c1e5c5534152075614ca75",
+      "samples": 137,
+      "maxHandResidualM": 0.00031082064893405483
+    },
+    {
+      "id": "obp-68_4",
+      "sourceRowsSha256": "0f0d714cdfa1f16d66d383c4f11bc41d1a51a1d7af72e69eca2fd6f94617cafa",
+      "samples": 137,
+      "maxHandResidualM": 0.0003078209784577676
+    },
+    {
+      "id": "obp-68_5",
+      "sourceRowsSha256": "7eceed8bc544427096e977809d989bca70c008e209628ba2c816e9e88fcced7d",
+      "samples": 137,
+      "maxHandResidualM": 0.0003034232832898851
+    },
+    {
+      "id": "obp-69_1",
+      "sourceRowsSha256": "d3b68436ec450973599f275c47ea69d825bf68ebbf0a2129bf1eaa7b57bddbff",
+      "samples": 137,
+      "maxHandResidualM": 0.00013661061830554908
+    },
+    {
+      "id": "obp-69_2",
+      "sourceRowsSha256": "58965aba0fa7c599b406ae37b3bfa838f5c8cd25b36e9862c78c55e85058421c",
+      "samples": 137,
+      "maxHandResidualM": 0.00013228346356158074
+    },
+    {
+      "id": "obp-69_3",
+      "sourceRowsSha256": "87588bf1a70007eb8c7d3cb909212e575dd2935363e2538478a8c244f71abfba",
+      "samples": 137,
+      "maxHandResidualM": 0.00015516125522476194
+    },
+    {
+      "id": "obp-69_4",
+      "sourceRowsSha256": "139d3843ed59ece90048f90ff74284365f688ccd28c89f7b0ef44b7eb1b27a76",
+      "samples": 137,
+      "maxHandResidualM": 0.0001496756857907029
+    },
+    {
+      "id": "obp-69_5",
+      "sourceRowsSha256": "197bf7d6bb0753c90ae7922e877ef1d358d3dce47769ad63869c27a15204f984",
+      "samples": 137,
+      "maxHandResidualM": 0.00017623303203472858
+    },
+    {
+      "id": "obp-72_1",
+      "sourceRowsSha256": "f7035a454c93cc12aa7633d3b6e50f43eeac4199c712729e336aa3ea4d3a082d",
+      "samples": 137,
+      "maxHandResidualM": 0.0029085272975998286
+    },
+    {
+      "id": "obp-72_2",
+      "sourceRowsSha256": "595e04f75077707c822ee6904d214014cb63a6a6155a84d66e327eae4c50cb41",
+      "samples": 137,
+      "maxHandResidualM": 0.002894762466938627
+    },
+    {
+      "id": "obp-72_3",
+      "sourceRowsSha256": "b4b80d76dd396c058448cb6222313bf62f2b72cd72bf21f2fa3be314572d1583",
+      "samples": 137,
+      "maxHandResidualM": 0.002906689358439163
+    },
+    {
+      "id": "obp-72_4",
+      "sourceRowsSha256": "c11ef425228c8469b421bc27db52b0ee9a8140b902870c8c5a8470f051870317",
+      "samples": 137,
+      "maxHandResidualM": 0.0029090454412161897
+    },
+    {
+      "id": "obp-72_5",
+      "sourceRowsSha256": "841c887eba1363a22a87ba46ea9ca64d6dc87be90506bc9458e45d137e7270ee",
+      "samples": 137,
+      "maxHandResidualM": 0.0028882125710659773
+    },
+    {
+      "id": "obp-73_1",
+      "sourceRowsSha256": "a253ef6c14cf9a2c47111562ddf41c04f732a9a764103f0f67a7d2b41f8862cb",
+      "samples": 137,
+      "maxHandResidualM": 0.000734443382017627
+    },
+    {
+      "id": "obp-73_2",
+      "sourceRowsSha256": "9fc77629f48415eb282f14d9a23fe68811d4f0c78db9ebac48092542f372632c",
+      "samples": 137,
+      "maxHandResidualM": 0.0007363416925131723
+    },
+    {
+      "id": "obp-73_3",
+      "sourceRowsSha256": "758e69b26cd33e030286fdffa320fba3b7c166d7686174d8b3d7e85dfe48eae1",
+      "samples": 137,
+      "maxHandResidualM": 0.0007478095841101411
+    },
+    {
+      "id": "obp-73_4",
+      "sourceRowsSha256": "b0efadc64868dc2ac5feacce2497cb656613bc69abbc42437e3f78acb25d640c",
+      "samples": 137,
+      "maxHandResidualM": 0.0007467971283667505
+    },
+    {
+      "id": "obp-73_5",
+      "sourceRowsSha256": "125ae69439502043e6c4a53485d340e31a0c56f65e7332810dd3374a3cdb33cd",
+      "samples": 137,
+      "maxHandResidualM": 0.0007676599609367481
+    },
+    {
+      "id": "obp-8_1",
+      "sourceRowsSha256": "ab2bcd052aef0914e1014dd571b4a5072e9d3da7ba3e65661a6b4f18b846c097",
+      "samples": 137,
+      "maxHandResidualM": 0.004061125745549645
+    },
+    {
+      "id": "obp-8_2",
+      "sourceRowsSha256": "51bab692fc93252ef950480a39bf0cc71fbf34008d3b090d00cc9802e6ebf819",
+      "samples": 137,
+      "maxHandResidualM": 0.0040679861148966235
+    },
+    {
+      "id": "obp-8_3",
+      "sourceRowsSha256": "a824333b4aa7d9b2ab23bd2fcffd821bc866279f8b91a2474597911d8d4ee380",
+      "samples": 137,
+      "maxHandResidualM": 0.0040509706934310965
+    },
+    {
+      "id": "obp-8_4",
+      "sourceRowsSha256": "f413ac58ac071d9acc22ace068f5d0bece8212bf857706f322e04967a606a975",
+      "samples": 137,
+      "maxHandResidualM": 0.00407031025994661
+    },
+    {
+      "id": "obp-8_5",
+      "sourceRowsSha256": "0dbe39ddcdd4e4c42fa2c975e995a9bb2ffa3e5b8ec322aca7e860c768a73f29",
+      "samples": 137,
+      "maxHandResidualM": 0.004093496259029777
+    },
+    {
+      "id": "obp-81_1",
+      "sourceRowsSha256": "bc64a062787619d1bdb980c71cbb87d51c0b31956837c6b1df0de0eacfaba74b",
+      "samples": 137,
+      "maxHandResidualM": 0.0060350385833602424
+    },
+    {
+      "id": "obp-81_2",
+      "sourceRowsSha256": "fb805fb568b724f07c005f4e99db887c81ba67c8cda065194bdd29e9c71a9a87",
+      "samples": 137,
+      "maxHandResidualM": 0.0059952124745947764
+    },
+    {
+      "id": "obp-81_3",
+      "sourceRowsSha256": "dc34dcf100c389f0feb92b19d9392b057630521cc7b5ee8e4a9e9f01e1147562",
+      "samples": 137,
+      "maxHandResidualM": 0.006021631718236492
+    },
+    {
+      "id": "obp-81_4",
+      "sourceRowsSha256": "103615c255d7324a0e43ddd9715c416650a6e97e2b8c5911579e6078b1c8b9ae",
+      "samples": 137,
+      "maxHandResidualM": 0.006037802625197758
+    },
+    {
+      "id": "obp-81_5",
+      "sourceRowsSha256": "d805bb29b697a46e422331f6e03dfa095ba9e3dba011f92c97917b6d616f66f9",
+      "samples": 137,
+      "maxHandResidualM": 0.006014333338688428
+    },
+    {
+      "id": "obp-84_1",
+      "sourceRowsSha256": "71d4c40e2250ed993c50b6dbdfd4972de13a6b6cec4d2f9226765d47733c8efa",
+      "samples": 137,
+      "maxHandResidualM": 0.004062375732660149
+    },
+    {
+      "id": "obp-84_2",
+      "sourceRowsSha256": "e2c08e2ab66e3544cb22461cde68fd027de50a26b1adabc1f9d68faf44ce7357",
+      "samples": 137,
+      "maxHandResidualM": 0.004066595921823714
+    },
+    {
+      "id": "obp-84_3",
+      "sourceRowsSha256": "55bf675b03afa6be3f1f787cfb18579e378bc2bd165f73d304b39c7478532170",
+      "samples": 137,
+      "maxHandResidualM": 0.004066816584408508
+    },
+    {
+      "id": "obp-84_4",
+      "sourceRowsSha256": "4bc5ca6a771066d1ec6213c8bf53e8b1bf60a631d1273b6a24014327db5f7958",
+      "samples": 137,
+      "maxHandResidualM": 0.004072673304451315
+    },
+    {
+      "id": "obp-84_5",
+      "sourceRowsSha256": "76c1e31d61632afd97afc2c26a432cb2dcc17bc8f4a8d30015755283f65cee39",
+      "samples": 137,
+      "maxHandResidualM": 0.004078870142069554
+    },
+    {
+      "id": "obp-86_1",
+      "sourceRowsSha256": "920c77b1238373a1f4511691f656b82e11a715685351a5dfc932765d8f7da5f1",
+      "samples": 137,
+      "maxHandResidualM": 0.00014712750949894473
+    },
+    {
+      "id": "obp-86_2",
+      "sourceRowsSha256": "d296865d3831b3904a759df8185388a32edcb63cf10c01c66666bfb0e09d5f12",
+      "samples": 137,
+      "maxHandResidualM": 0.0001601094349524316
+    },
+    {
+      "id": "obp-86_3",
+      "sourceRowsSha256": "d859287f3959ed82661307f59d49ba190ab2f2f485f5a0beede919fc38a7027f",
+      "samples": 137,
+      "maxHandResidualM": 0.00013363627480662257
+    },
+    {
+      "id": "obp-86_4",
+      "sourceRowsSha256": "edd3518d54e5081f02670ade410c1bb62a99922c123f193c8296d1aca5751754",
+      "samples": 137,
+      "maxHandResidualM": 0.00012929987814573677
+    },
+    {
+      "id": "obp-86_5",
+      "sourceRowsSha256": "acdf87190f3b8f2071ef928b8e63877c04c7a937b36668141f3272551176b8c2",
+      "samples": 137,
+      "maxHandResidualM": 0.00013649942759945375
+    },
+    {
+      "id": "obp-89_1",
+      "sourceRowsSha256": "0b1480d5e62075940f4760b87a571f4fce1126402a8d4a11af640cadfca7b079",
+      "samples": 137,
+      "maxHandResidualM": 0.004071864216583469
+    },
+    {
+      "id": "obp-89_2",
+      "sourceRowsSha256": "94474aeb90fbe3f89452fb43d937d98bc385e5f5f3a71500c0de223364f08134",
+      "samples": 137,
+      "maxHandResidualM": 0.00406119885489674
+    },
+    {
+      "id": "obp-89_3",
+      "sourceRowsSha256": "d84737415c566d2ad735496b1466825c6fb354a6c56f9c2aa5bda418e50347e6",
+      "samples": 137,
+      "maxHandResidualM": 0.004064692703314126
+    },
+    {
+      "id": "obp-89_4",
+      "sourceRowsSha256": "d95d6144fd724743b195fd272005461f8f49a8d2d15367661f9df74d920422df",
+      "samples": 137,
+      "maxHandResidualM": 0.004064278959278341
+    },
+    {
+      "id": "obp-89_5",
+      "sourceRowsSha256": "cf57545eb63731f0007cd761705f4bfdd3ee22701d4b25c65ef08d467dc4df6c",
+      "samples": 137,
+      "maxHandResidualM": 0.0040792930690659365
+    }
+  ]
+}

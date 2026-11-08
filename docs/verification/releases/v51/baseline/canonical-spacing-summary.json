@@ -1,0 +1,6070 @@
+{
+  "basis": "observed Source frames; chord interpolation is not exact continuous collision detection",
+  "sources": {
+    "src/core/sim/fielding/LiveFieldPlayV1.ts": "00a2883b93bb98d5de627eaf53b06765244dcf0a894a59b32627de5cbb1c0991",
+    "src/core/sim/fielding/LiveFieldRoleAssignmentV1.ts": "47bd7c8c70db035e9879279144a1d005967b8c670a105b19cc3af8904cca6c55",
+    "src/core/sim/fielding/LiveFieldPlayDiagnosticsV1.ts": "49ee9b1c15e2b888755d13f36297418263d7368e5f3756085ad02627d0b2bd58"
+  },
+  "scenarios": [
+    {
+      "tier": "low",
+      "id": "P_comebacker",
+      "end": {
+        "elapsedSeconds": 3.6107748434522233,
+        "tick": 4610775,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-2B",
+        "b": "def-SS",
+        "minimumSampledMeters": 13.773570520717833,
+        "minimumChordInterpolatedMeters": 13.773570520717833,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.6107748434522233,
+          "distanceMeters": 13.773570520717833,
+          "ball": {
+            "position": {
+              "x": 19.206913515582436,
+              "y": 0.9,
+              "z": 18.601191407567885
+            },
+            "velocity": {
+              "x": 6.938893903907228e-17,
+              "y": 0,
+              "z": 1.1102230246251565e-16
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.4993479790806074,
+              "x": -0.6160334294483307,
+              "y": 0.4263922447027079,
+              "z": 0.4351368327866855
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-1B"
+          },
+          "p": {
+            "playerId": "def-2B",
+            "position": {
+              "x": 12.985856840690685,
+              "y": 0.9,
+              "z": 35.98726050184714
+            },
+            "velocity": {
+              "x": 8.673617379884035e-18,
+              "y": 0,
+              "z": 1.0408340855860843e-17
+            },
+            "glove": {
+              "x": 12.985856840690685,
+              "y": 0.9,
+              "z": 35.98726050184714
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-SS",
+            "position": {
+              "x": -0.5214119783267039,
+              "y": 0.9,
+              "z": 38.68261464184208
+            },
+            "velocity": {
+              "x": 2.5155635492231427,
+              "y": 0,
+              "z": 0.540789358372078
+            },
+            "glove": {
+              "x": -0.5214119783267039,
+              "y": 0.9,
+              "z": 38.68261464184208
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 59
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "low",
+      "id": "3B_routine",
+      "end": {
+        "elapsedSeconds": 5.551286218931616,
+        "tick": 6551287,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 3.0005443886923553,
+        "minimumChordInterpolatedMeters": 3.0004631564334345,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 4.085,
+          "distanceMeters": 3.0005443886923553,
+          "ball": {
+            "position": {
+              "x": -38.50613792573532,
+              "y": 0.9,
+              "z": 58.210476945257234
+            },
+            "velocity": {
+              "x": 2.7890196589502363,
+              "y": 0,
+              "z": -6.01247460390295
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.8787990927595865,
+              "x": 0.39843533157255884,
+              "y": -1.4988010832439613e-15,
+              "z": 0.2626051049001008
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-LF"
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 18.531873396842048,
+              "y": 0.9,
+              "z": 16.537707061073956
+            },
+            "velocity": {
+              "x": 6.997013715704242,
+              "y": 0,
+              "z": -2.081285332565172
+            },
+            "glove": {
+              "x": 18.531873396842048,
+              "y": 0.9,
+              "z": 16.537707061073956
+            },
+            "intent": "backup",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.40454907596924,
+              "y": 0.9,
+              "z": 19.40854383587901
+            },
+            "velocity": {
+              "x": -8.326672684688674e-17,
+              "y": 0,
+              "z": -1.3877787807814457e-16
+            },
+            "glove": {
+              "x": 19.40454907596924,
+              "y": 0.9,
+              "z": 19.40854383587901
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 67
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "low",
+      "id": "56_hole_grounder",
+      "end": {
+        "elapsedSeconds": 12.596285051304687,
+        "tick": 13596286,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 1.8830061531573903,
+        "minimumChordInterpolatedMeters": 1.882429812513779,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 4.305,
+          "distanceMeters": 1.8830061531573903,
+          "ball": {
+            "position": {
+              "x": 25.861658110495746,
+              "y": 0.23543021174165502,
+              "z": 18.8479488521275
+            },
+            "velocity": {
+              "x": 20.756019408069573,
+              "y": 2.2936808884296687,
+              "z": -6.26520218499628
+            },
+            "spin": {
+              "x": -11.829122996755654,
+              "y": 0,
+              "z": -50.66416402834076
+            },
+            "orientation": {
+              "w": 0.328020543763121,
+              "x": 0.19305699259429063,
+              "y": -0.0786013936011802,
+              "z": 0.9213866405607076
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 19.068463822442975,
+              "y": 0.9,
+              "z": 17.54101479005946
+            },
+            "velocity": {
+              "x": 7.227080602951905,
+              "y": 0,
+              "z": -1.029225902528861
+            },
+            "glove": {
+              "x": 19.068463822442975,
+              "y": 0.9,
+              "z": 17.54101479005946
+            },
+            "intent": "backup",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.39603870820605,
+              "y": 0.9,
+              "z": 19.395308959560595
+            },
+            "velocity": {
+              "x": 0.06051231113531698,
+              "y": 0,
+              "z": 0.09410556346113856
+            },
+            "glove": {
+              "x": 19.394214377424696,
+              "y": 1.1999023653334062,
+              "z": 20.619095033303754
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 71
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "low",
+      "id": "SS_routine",
+      "end": {
+        "elapsedSeconds": 4.448388454256549,
+        "tick": 5448389,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 2.5454184293391746,
+        "minimumChordInterpolatedMeters": 2.5415903495063,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 4.305,
+          "distanceMeters": 2.5454184293391746,
+          "ball": {
+            "position": {
+              "x": 19.40805309223736,
+              "y": 0.9,
+              "z": 18.913993097675515
+            },
+            "velocity": {
+              "x": -4.163336342344337e-17,
+              "y": 0,
+              "z": -6.938893903907228e-17
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.6589103586731693,
+              "x": -0.5060918609241051,
+              "y": 0.5565104208535125,
+              "z": 0.002078225449277382
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-1B"
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 19.10831992131244,
+              "y": 0.9,
+              "z": 16.88628365894115
+            },
+            "velocity": {
+              "x": 5.045358083418003,
+              "y": 0,
+              "z": -0.8880953186849875
+            },
+            "glove": {
+              "x": 19.10831992131244,
+              "y": 0.9,
+              "z": 16.88628365894115
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.40805309223736,
+              "y": 0.9,
+              "z": 19.413993097675515
+            },
+            "velocity": {
+              "x": -4.163336342344337e-17,
+              "y": 0,
+              "z": -6.938893903907228e-17
+            },
+            "glove": {
+              "x": 19.40805309223736,
+              "y": 0.9,
+              "z": 18.913993097675515
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 71
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "low",
+      "id": "SS_up_middle",
+      "end": {
+        "elapsedSeconds": 5.551286218931616,
+        "tick": 6551287,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-2B",
+        "b": "def-SS",
+        "minimumSampledMeters": 4.738385095354776,
+        "minimumChordInterpolatedMeters": 4.738375234216617,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 5.405,
+          "distanceMeters": 4.738385095354776,
+          "ball": {
+            "position": {
+              "x": -9.624673976147937,
+              "y": 0.9,
+              "z": 66.1743956863188
+            },
+            "velocity": {
+              "x": 0.9532516622204901,
+              "y": 0,
+              "z": -5.238245776622706
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.7764089378997079,
+              "x": 0.6251291985577841,
+              "y": 1.1518563880485997e-15,
+              "z": 0.08001653741539787
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-CF"
+          },
+          "p": {
+            "playerId": "def-2B",
+            "position": {
+              "x": 4.652189685890739,
+              "y": 0.9,
+              "z": 39.76375417557666
+            },
+            "velocity": {
+              "x": -1.1752920206744775,
+              "y": 0,
+              "z": 5.7010863989946285
+            },
+            "glove": {
+              "x": 4.652189685890739,
+              "y": 0.9,
+              "z": 39.76375417557666
+            },
+            "intent": "relay",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-SS",
+            "position": {
+              "x": 0.013354109097716671,
+              "y": 0.9,
+              "z": 38.79757727492149
+            },
+            "velocity": {
+              "x": 1.3010426069826053e-18,
+              "y": 0,
+              "z": 2.710505431213761e-19
+            },
+            "glove": {
+              "x": 0.013354109097716671,
+              "y": 0.9,
+              "z": 38.79757727492149
+            },
+            "intent": "base_cover",
+            "targetBase": 2
+          },
+          "frameIndex": 91
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "low",
+      "id": "2B_routine",
+      "end": {
+        "elapsedSeconds": 3.8277874277474737,
+        "tick": 4827788,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 5.9327054907090515,
+        "minimumChordInterpolatedMeters": 5.9327054907090515,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.8277874277474737,
+          "distanceMeters": 5.9327054907090515,
+          "ball": {
+            "position": {
+              "x": 19.39014547019644,
+              "y": 0.9,
+              "z": 18.886144105779614
+            },
+            "velocity": {
+              "x": -8.326672684688674e-17,
+              "y": 0,
+              "z": -1.3877787807814457e-16
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": 0.717447207265673,
+              "x": 0.6215039711320198,
+              "y": -0.10172261857909655,
+              "z": -0.2977496054123794
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-1B"
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 15.143663379753892,
+              "y": 0.9,
+              "z": 15.243151914737009
+            },
+            "velocity": {
+              "x": 4.14181766858514,
+              "y": 0,
+              "z": -1.6982008334235046
+            },
+            "glove": {
+              "x": 15.143663379753892,
+              "y": 0.9,
+              "z": 15.243151914737009
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.39014547019644,
+              "y": 0.9,
+              "z": 19.386144105779614
+            },
+            "velocity": {
+              "x": -8.326672684688674e-17,
+              "y": 0,
+              "z": -1.3877787807814457e-16
+            },
+            "glove": {
+              "x": 19.39014547019644,
+              "y": 0.9,
+              "z": 18.886144105779614
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 63
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "low",
+      "id": "34_hole_grounder",
+      "end": {
+        "elapsedSeconds": 3.7573991110118214,
+        "tick": 4757400,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 7.433560378883797,
+        "minimumChordInterpolatedMeters": 7.433560378883797,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.7573991110118214,
+          "distanceMeters": 7.433560378883797,
+          "ball": {
+            "position": {
+              "x": 19.277320610274977,
+              "y": 0.9,
+              "z": 18.710684817973032
+            },
+            "velocity": {
+              "x": -6.938893903907228e-17,
+              "y": 0,
+              "z": -1.3877787807814457e-16
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.1743838620439384,
+              "x": 0.965140081809119,
+              "y": -0.03937431500932205,
+              "z": 0.1911663005387571
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-1B"
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 13.974092717501193,
+              "y": 0.9,
+              "z": 14.001693185822223
+            },
+            "velocity": {
+              "x": 4.147459313083951,
+              "y": 0,
+              "z": -2.5810346500188457
+            },
+            "glove": {
+              "x": 13.974092717501193,
+              "y": 0.9,
+              "z": 14.001693185822223
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.277320610274977,
+              "y": 0.9,
+              "z": 19.210684817973032
+            },
+            "velocity": {
+              "x": -6.938893903907228e-17,
+              "y": 0,
+              "z": -1.3877787807814457e-16
+            },
+            "glove": {
+              "x": 19.277320610274977,
+              "y": 0.9,
+              "z": 18.710684817973032
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 62
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "low",
+      "id": "1B_routine",
+      "end": {
+        "elapsedSeconds": 4.983634052101354,
+        "tick": 5983635,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-1B",
+        "b": "def-2B",
+        "minimumSampledMeters": 2.8074586851711714,
+        "minimumChordInterpolatedMeters": 2.80566543697971,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 2.655,
+          "distanceMeters": 2.8074586851711714,
+          "ball": {
+            "position": {
+              "x": 18.58779325065095,
+              "y": 1.2061223037100328,
+              "z": 28.822723998958143
+            },
+            "velocity": {
+              "x": -1.6395106174837284,
+              "y": 4.433625649631489,
+              "z": 1.6666979372857857
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.49978130236662605,
+              "x": 0.7048165741872636,
+              "y": -1.1102230246251563e-16,
+              "z": -0.5034404101337601
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-1B"
+          },
+          "p": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 18.572427453389047,
+              "y": 0.9,
+              "z": 29.32218343084023
+            },
+            "velocity": {
+              "x": -1.862056286459044,
+              "y": 0,
+              "z": 1.6588687897721228
+            },
+            "glove": {
+              "x": 18.58779325065095,
+              "y": 1.2061223037100328,
+              "z": 28.822723998958143
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-2B",
+            "position": {
+              "x": 16.040334340306885,
+              "y": 0.9,
+              "z": 28.109612304833625
+            },
+            "velocity": {
+              "x": 2.624735607408822,
+              "y": 0,
+              "z": -6.8118105516228376
+            },
+            "glove": {
+              "x": 17.00852972473139,
+              "y": 1.1175282238795827,
+              "z": 28.358178130277885
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 41
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "low",
+      "id": "slow_roller_3B",
+      "end": {
+        "elapsedSeconds": 5.366097262942519,
+        "tick": 6366098,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 0.32915435290219225,
+        "minimumChordInterpolatedMeters": 0.3151173170323356,
+        "inside48SampledSeconds": 0.11000000000000032,
+        "inside1SampledSeconds": 0.27500000000000036,
+        "closest": {
+          "elapsedSeconds": 4.36,
+          "distanceMeters": 0.32915435290219225,
+          "ball": {
+            "position": {
+              "x": 8.067174491590816,
+              "y": 2.069457282504426,
+              "z": 21.51127150737143
+            },
+            "velocity": {
+              "x": 28.89849097090451,
+              "y": -0.9797627986756889,
+              "z": -3.023059993743113
+            },
+            "spin": {
+              "x": 16.224547674310955,
+              "y": 0,
+              "z": 116.77286818806097
+            },
+            "orientation": {
+              "w": -0.8752852066978106,
+              "x": 0.08871232227559094,
+              "y": -0.01188802464010227,
+              "z": 0.47525214958230233
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 19.274596251562496,
+              "y": 0.9,
+              "z": 19.102949659992785
+            },
+            "velocity": {
+              "x": 7.257887500702766,
+              "y": 0,
+              "z": -0.7829872458366322
+            },
+            "glove": {
+              "x": 19.274596251562496,
+              "y": 0.9,
+              "z": 19.102949659992785
+            },
+            "intent": "backup",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.40294484867332,
+              "y": 0.9,
+              "z": 19.406049025967285
+            },
+            "velocity": {
+              "x": -8.326672684688674e-17,
+              "y": 0,
+              "z": -1.3877787807814457e-16
+            },
+            "glove": {
+              "x": 19.03396628846667,
+              "y": 1.1470102698985036,
+              "z": 20.363621508215267
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 72
+        }
+      },
+      "overlappingPairs": [
+        {
+          "a": "def-P",
+          "b": "def-1B",
+          "minimumSampledMeters": 0.32915435290219225,
+          "minimumChordInterpolatedMeters": 0.3151173170323356,
+          "inside48SampledSeconds": 0.11000000000000032,
+          "inside1SampledSeconds": 0.27500000000000036,
+          "closest": {
+            "elapsedSeconds": 4.36,
+            "distanceMeters": 0.32915435290219225,
+            "ball": {
+              "position": {
+                "x": 8.067174491590816,
+                "y": 2.069457282504426,
+                "z": 21.51127150737143
+              },
+              "velocity": {
+                "x": 28.89849097090451,
+                "y": -0.9797627986756889,
+                "z": -3.023059993743113
+              },
+              "spin": {
+                "x": 16.224547674310955,
+                "y": 0,
+                "z": 116.77286818806097
+              },
+              "orientation": {
+                "w": -0.8752852066978106,
+                "x": 0.08871232227559094,
+                "y": -0.01188802464010227,
+                "z": 0.47525214958230233
+              },
+              "phase": "airborne",
+              "visible": true,
+              "possessedBy": null
+            },
+            "p": {
+              "playerId": "def-P",
+              "position": {
+                "x": 19.274596251562496,
+                "y": 0.9,
+                "z": 19.102949659992785
+              },
+              "velocity": {
+                "x": 7.257887500702766,
+                "y": 0,
+                "z": -0.7829872458366322
+              },
+              "glove": {
+                "x": 19.274596251562496,
+                "y": 0.9,
+                "z": 19.102949659992785
+              },
+              "intent": "backup",
+              "targetBase": null
+            },
+            "q": {
+              "playerId": "def-1B",
+              "position": {
+                "x": 19.40294484867332,
+                "y": 0.9,
+                "z": 19.406049025967285
+              },
+              "velocity": {
+                "x": -8.326672684688674e-17,
+                "y": 0,
+                "z": -1.3877787807814457e-16
+              },
+              "glove": {
+                "x": 19.03396628846667,
+                "y": 1.1470102698985036,
+                "z": 20.363621508215267
+              },
+              "intent": "base_cover",
+              "targetBase": 1
+            },
+            "frameIndex": 72
+          }
+        }
+      ],
+      "underOneMeterPairs": [
+        {
+          "a": "def-P",
+          "b": "def-1B",
+          "minimumSampledMeters": 0.32915435290219225,
+          "minimumChordInterpolatedMeters": 0.3151173170323356,
+          "inside48SampledSeconds": 0.11000000000000032,
+          "inside1SampledSeconds": 0.27500000000000036,
+          "closest": {
+            "elapsedSeconds": 4.36,
+            "distanceMeters": 0.32915435290219225,
+            "ball": {
+              "position": {
+                "x": 8.067174491590816,
+                "y": 2.069457282504426,
+                "z": 21.51127150737143
+              },
+              "velocity": {
+                "x": 28.89849097090451,
+                "y": -0.9797627986756889,
+                "z": -3.023059993743113
+              },
+              "spin": {
+                "x": 16.224547674310955,
+                "y": 0,
+                "z": 116.77286818806097
+              },
+              "orientation": {
+                "w": -0.8752852066978106,
+                "x": 0.08871232227559094,
+                "y": -0.01188802464010227,
+                "z": 0.47525214958230233
+              },
+              "phase": "airborne",
+              "visible": true,
+              "possessedBy": null
+            },
+            "p": {
+              "playerId": "def-P",
+              "position": {
+                "x": 19.274596251562496,
+                "y": 0.9,
+                "z": 19.102949659992785
+              },
+              "velocity": {
+                "x": 7.257887500702766,
+                "y": 0,
+                "z": -0.7829872458366322
+              },
+              "glove": {
+                "x": 19.274596251562496,
+                "y": 0.9,
+                "z": 19.102949659992785
+              },
+              "intent": "backup",
+              "targetBase": null
+            },
+            "q": {
+              "playerId": "def-1B",
+              "position": {
+                "x": 19.40294484867332,
+                "y": 0.9,
+                "z": 19.406049025967285
+              },
+              "velocity": {
+                "x": -8.326672684688674e-17,
+                "y": 0,
+                "z": -1.3877787807814457e-16
+              },
+              "glove": {
+                "x": 19.03396628846667,
+                "y": 1.1470102698985036,
+                "z": 20.363621508215267
+              },
+              "intent": "base_cover",
+              "targetBase": 1
+            },
+            "frameIndex": 72
+          }
+        }
+      ],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "low",
+      "id": "slow_roller_2B",
+      "end": {
+        "elapsedSeconds": 4.640075869562518,
+        "tick": 5640076,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 1.7657525715364404,
+        "minimumChordInterpolatedMeters": 1.760359968262932,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 4.195,
+          "distanceMeters": 1.7657525715364404,
+          "ball": {
+            "position": {
+              "x": 19.398281840331894,
+              "y": 0.9,
+              "z": 18.898797360658854
+            },
+            "velocity": {
+              "x": -6.938893903907228e-17,
+              "y": 0,
+              "z": -1.1102230246251565e-16
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": 0.7985271597586509,
+              "x": -0.1396324622789696,
+              "y": -0.17636801377099923,
+              "z": 0.5583470912650721
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-1B"
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 19.29213913367945,
+              "y": 0.9,
+              "z": 17.63623789507704
+            },
+            "velocity": {
+              "x": 6.484369813703078,
+              "y": 0,
+              "z": -0.9093731274194797
+            },
+            "glove": {
+              "x": 19.29213913367945,
+              "y": 0.9,
+              "z": 17.63623789507704
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.398281840331894,
+              "y": 0.9,
+              "z": 19.398797360658854
+            },
+            "velocity": {
+              "x": -6.938893903907228e-17,
+              "y": 0,
+              "z": -1.1102230246251565e-16
+            },
+            "glove": {
+              "x": 19.398281840331894,
+              "y": 0.9,
+              "z": 18.898797360658854
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 69
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "low",
+      "id": "DP_643_grounder",
+      "end": {
+        "elapsedSeconds": 5.671286218931617,
+        "tick": 6671287,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-2B",
+        "b": "def-SS",
+        "minimumSampledMeters": 6.611117147935093,
+        "minimumChordInterpolatedMeters": 6.611117147935093,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 5.671286218931617,
+          "distanceMeters": 6.611117147935093,
+          "ball": {
+            "position": {
+              "x": 3.296170997085304,
+              "y": 0.9,
+              "z": 34.909324119894116
+            },
+            "velocity": {
+              "x": -4.591746714070915,
+              "y": 0,
+              "z": -0.5495502833781866
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.09097731832997288,
+              "x": 0.48176923773592484,
+              "y": -0.750606228707051,
+              "z": -0.44295803248954724
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-2B"
+          },
+          "p": {
+            "playerId": "def-2B",
+            "position": {
+              "x": 2.74460126230232,
+              "y": 0.9,
+              "z": 35.6417805608108
+            },
+            "velocity": {
+              "x": 4.162559615471437,
+              "y": 0,
+              "z": -4.23901104188135
+            },
+            "glove": {
+              "x": 3.296170997085304,
+              "y": 0.9,
+              "z": 34.909324119894116
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-SS",
+            "position": {
+              "x": -3.6505877569409906,
+              "y": 0.9,
+              "z": 37.31761687497493
+            },
+            "velocity": {
+              "x": 5.938848889044033,
+              "y": 0,
+              "z": 2.5239521214035823
+            },
+            "glove": {
+              "x": -3.6505877569409906,
+              "y": 0.9,
+              "z": 37.31761687497493
+            },
+            "intent": "base_cover",
+            "targetBase": 2
+          },
+          "frameIndex": 96
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "low",
+      "id": "DP_463_grounder",
+      "end": {
+        "elapsedSeconds": 5.671286218931617,
+        "tick": 6671287,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-2B",
+        "b": "def-SS",
+        "minimumSampledMeters": 1.6465187351954438,
+        "minimumChordInterpolatedMeters": 1.6465187351954438,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 5.671286218931617,
+          "distanceMeters": 1.6465187351954438,
+          "ball": {
+            "position": {
+              "x": 3.2270765466589832,
+              "y": 0.9,
+              "z": 35.08769204077264
+            },
+            "velocity": {
+              "x": -4.731638830228034,
+              "y": 0,
+              "z": -0.3903637564501169
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": 0.7138369246168801,
+              "x": -0.08409982781527674,
+              "y": -0.3973055575414259,
+              "z": 0.5705369032425968
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-SS"
+          },
+          "p": {
+            "playerId": "def-2B",
+            "position": {
+              "x": 3.7813319740148015,
+              "y": 0.9,
+              "z": 37.04398169552745
+            },
+            "velocity": {
+              "x": -5.736555999530481,
+              "y": 0,
+              "z": 2.8205079227271317
+            },
+            "glove": {
+              "x": 3.7813319740148015,
+              "y": 0.9,
+              "z": 37.04398169552745
+            },
+            "intent": "base_cover",
+            "targetBase": 2
+          },
+          "q": {
+            "playerId": "def-SS",
+            "position": {
+              "x": 2.6779796664209954,
+              "y": 0.9,
+              "z": 35.821837010689755
+            },
+            "velocity": {
+              "x": 4.007036924917353,
+              "y": 0,
+              "z": -4.116695202582391
+            },
+            "glove": {
+              "x": 3.2270765466589832,
+              "y": 0.9,
+              "z": 35.08769204077264
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 96
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "low",
+      "id": "force_3B_grounder",
+      "end": {
+        "elapsedSeconds": 5.727461538461539,
+        "tick": 6727462,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 3.0439320217349985,
+        "minimumChordInterpolatedMeters": 3.0438975057525464,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 4.085,
+          "distanceMeters": 3.0439320217349985,
+          "ball": {
+            "position": {
+              "x": -37.47937654353571,
+              "y": 0.9,
+              "z": 58.6777441750385
+            },
+            "velocity": {
+              "x": 3.118734595768269,
+              "y": 0,
+              "z": -5.943706620980603
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.3256917641782816,
+              "x": -0.7976616924203005,
+              "y": -8.88178419700125e-16,
+              "z": -0.5076028951765547
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-LF"
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 18.521643809139757,
+              "y": 0.9,
+              "z": 16.495469782108923
+            },
+            "velocity": {
+              "x": 6.977846995920798,
+              "y": 0,
+              "z": -2.144675682759412
+            },
+            "glove": {
+              "x": 18.521643809139757,
+              "y": 0.9,
+              "z": 16.495469782108923
+            },
+            "intent": "backup",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.40454907596924,
+              "y": 0.9,
+              "z": 19.40854383587901
+            },
+            "velocity": {
+              "x": -8.326672684688674e-17,
+              "y": 0,
+              "z": -1.3877787807814457e-16
+            },
+            "glove": {
+              "x": 19.40454907596924,
+              "y": 0.9,
+              "z": 19.40854383587901
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 67
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "low",
+      "id": "routine_CF_fly",
+      "end": {
+        "elapsedSeconds": 6.168336917541879,
+        "tick": 7168337,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 6.40791861457056,
+        "minimumChordInterpolatedMeters": 6.406476131381175,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.92,
+          "distanceMeters": 6.40791861457056,
+          "ball": {
+            "position": {
+              "x": 0,
+              "y": 24.782141813947064,
+              "z": 77.58918884967527
+            },
+            "velocity": {
+              "x": 0,
+              "y": -8.195993335370096,
+              "z": 17.229575709366735
+            },
+            "spin": {
+              "x": -127.2344388387343,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": 0.5603642534713764,
+              "x": -0.8282462818699924,
+              "y": 0,
+              "z": 0
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 16.386077179428092,
+              "y": 0.9,
+              "z": 13.756088760360834
+            },
+            "velocity": {
+              "x": 6.353440085010248,
+              "y": 0,
+              "z": -3.594968579304272
+            },
+            "glove": {
+              "x": 16.386077179428092,
+              "y": 0.9,
+              "z": 13.756088760360834
+            },
+            "intent": "backup",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.40454907596924,
+              "y": 0.9,
+              "z": 19.40854383587901
+            },
+            "velocity": {
+              "x": -8.326672684688674e-17,
+              "y": 0,
+              "z": -1.3877787807814457e-16
+            },
+            "glove": {
+              "x": 19.40454907596924,
+              "y": 0.9,
+              "z": 19.40854383587901
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 64
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "low",
+      "id": "routine_LF_fly",
+      "end": {
+        "elapsedSeconds": 5.409472764330024,
+        "tick": 6409473,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 3.2272910268813684,
+        "minimumChordInterpolatedMeters": 3.2272644491334668,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 4.085,
+          "distanceMeters": 3.2272910268813684,
+          "ball": {
+            "position": {
+              "x": -39.99407602140107,
+              "y": 12.596072737903404,
+              "z": 62.95312848899495
+            },
+            "velocity": {
+              "x": -9.307092189743573,
+              "y": -12.300354775015641,
+              "z": 13.497971907967209
+            },
+            "spin": {
+              "x": -118.58904026292012,
+              "y": -36.488935465513826,
+              "z": 0
+            },
+            "orientation": {
+              "w": 0.9068784704640277,
+              "x": 0.4027578799718433,
+              "y": 0.12392550152979834,
+              "z": -3.122502256758253e-16
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 18.50278439834118,
+              "y": 0.9,
+              "z": 16.30979766389729
+            },
+            "velocity": {
+              "x": 7.022284399993977,
+              "y": 0,
+              "z": -1.994354596240337
+            },
+            "glove": {
+              "x": 18.50278439834118,
+              "y": 0.9,
+              "z": 16.30979766389729
+            },
+            "intent": "backup",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.40454907596924,
+              "y": 0.9,
+              "z": 19.40854383587901
+            },
+            "velocity": {
+              "x": -8.326672684688674e-17,
+              "y": 0,
+              "z": -1.3877787807814457e-16
+            },
+            "glove": {
+              "x": 19.40454907596924,
+              "y": 0.9,
+              "z": 19.40854383587901
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 67
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "low",
+      "id": "routine_RF_fly",
+      "end": {
+        "elapsedSeconds": 5.424840785702576,
+        "tick": 6424841,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 8.997853940859663,
+        "minimumChordInterpolatedMeters": 8.997087245199548,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.645,
+          "distanceMeters": 8.997853940859663,
+          "ball": {
+            "position": {
+              "x": 35.82555508369429,
+              "y": 17.290124689074876,
+              "z": 56.92519929055018
+            },
+            "velocity": {
+              "x": 9.638661489454384,
+              "y": -9.003565499983456,
+              "z": 13.919331239712461
+            },
+            "spin": {
+              "x": -119.75022638600875,
+              "y": 36.846223503387286,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.9180089811824063,
+              "x": 0.3790233342967687,
+              "y": -0.11662256439900553,
+              "z": -5.655198531684391e-16
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 12.821160053047542,
+              "y": 0.9,
+              "z": 13.274999630941876
+            },
+            "velocity": {
+              "x": 4.5094772118738895,
+              "y": 0,
+              "z": -4.715264099240918
+            },
+            "glove": {
+              "x": 12.821160053047542,
+              "y": 0.9,
+              "z": 13.274999630941876
+            },
+            "intent": "backup",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.40454907596924,
+              "y": 0.9,
+              "z": 19.40854383587901
+            },
+            "velocity": {
+              "x": -8.326672684688674e-17,
+              "y": 0,
+              "z": -1.3877787807814457e-16
+            },
+            "glove": {
+              "x": 19.40454907596924,
+              "y": 0.9,
+              "z": 19.40854383587901
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 59
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "low",
+      "id": "shallow_CF_liner",
+      "end": {
+        "elapsedSeconds": 5.551286218931616,
+        "tick": 6551287,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 6.873605909993895,
+        "minimumChordInterpolatedMeters": 6.873107075781413,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.8649999999999998,
+          "distanceMeters": 6.873605909993895,
+          "ball": {
+            "position": {
+              "x": 4.808423199208775,
+              "y": 0.9,
+              "z": 75.7094282188447
+            },
+            "velocity": {
+              "x": 1.0685536695181106,
+              "y": 0,
+              "z": -3.553874289048985
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.8885841532869682,
+              "x": -0.4586752387268687,
+              "y": 0.0023043210692516927,
+              "z": 0.005469735874949089
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-CF"
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 15.80901799820511,
+              "y": 0.9,
+              "z": 13.550334683353356
+            },
+            "velocity": {
+              "x": 6.179518384451143,
+              "y": 0,
+              "z": -3.88632891101705
+            },
+            "glove": {
+              "x": 15.80901799820511,
+              "y": 0.9,
+              "z": 13.550334683353356
+            },
+            "intent": "backup",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.40454907596924,
+              "y": 0.9,
+              "z": 19.40854383587901
+            },
+            "velocity": {
+              "x": -8.326672684688674e-17,
+              "y": 0,
+              "z": -1.3877787807814457e-16
+            },
+            "glove": {
+              "x": 19.40454907596924,
+              "y": 0.9,
+              "z": 19.40854383587901
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 63
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "low",
+      "id": "fast_grounder_CF_wall",
+      "end": {
+        "elapsedSeconds": 9.493713314209,
+        "tick": 10493714,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-SS",
+        "b": "def-LF",
+        "minimumSampledMeters": 2.173540927489706,
+        "minimumChordInterpolatedMeters": 2.173540927489706,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 7.9350000000000005,
+          "distanceMeters": 2.173540927489706,
+          "ball": {
+            "position": {
+              "x": -14.054757204355093,
+              "y": 0.9,
+              "z": 46.95657619132787
+            },
+            "velocity": {
+              "x": 6.125901900088084,
+              "y": 0,
+              "z": -3.9706246346734884
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": 0.4194656276131757,
+              "x": -0.5877526119579364,
+              "y": 0.6646709947697347,
+              "z": -0.1918539108267531
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-LF"
+          },
+          "p": {
+            "playerId": "def-SS",
+            "position": {
+              "x": -15.180609116319808,
+              "y": 0.9,
+              "z": 45.47675930661678
+            },
+            "velocity": {
+              "x": -0.5018546956026222,
+              "y": 0,
+              "z": -3.7547795321587007
+            },
+            "glove": {
+              "x": -15.180609116319808,
+              "y": 0.9,
+              "z": 45.47675930661678
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-LF",
+            "position": {
+              "x": -15.107399170195013,
+              "y": 0.9,
+              "z": 47.64906694303967
+            },
+            "velocity": {
+              "x": 6.090509855972705,
+              "y": 0,
+              "z": -4.024381180551663
+            },
+            "glove": {
+              "x": -14.054757204355093,
+              "y": 0.9,
+              "z": 46.95657619132787
+            },
+            "intent": "tag",
+            "targetBase": null
+          },
+          "frameIndex": 137
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "low",
+      "id": "gap_liner_LCF",
+      "end": {
+        "elapsedSeconds": 5.551286218931616,
+        "tick": 6551287,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 5.109923749411745,
+        "minimumChordInterpolatedMeters": 5.108227849185201,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 4.03,
+          "distanceMeters": 5.109923749411745,
+          "ball": {
+            "position": {
+              "x": -39.92398692752806,
+              "y": 0.8792023740090601,
+              "z": 96.55611989362963
+            },
+            "velocity": {
+              "x": -7.495485474497636,
+              "y": 3.9088269091693624,
+              "z": 16.03064735524672
+            },
+            "spin": {
+              "x": 196.16493883354266,
+              "y": -26.594216222592994,
+              "z": 113.24827662166983
+            },
+            "orientation": {
+              "w": 0.8312286829080353,
+              "x": 0.49811266452252534,
+              "y": 0.0029985523509620344,
+              "z": 0.24684744041014783
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 17.72645469416335,
+              "y": 0.9,
+              "z": 14.582021281228124
+            },
+            "velocity": {
+              "x": 6.826466981443116,
+              "y": 0,
+              "z": -2.5863643574675934
+            },
+            "glove": {
+              "x": 17.72645469416335,
+              "y": 0.9,
+              "z": 14.582021281228124
+            },
+            "intent": "backup",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.40454907596924,
+              "y": 0.9,
+              "z": 19.40854383587901
+            },
+            "velocity": {
+              "x": -8.326672684688674e-17,
+              "y": 0,
+              "z": -1.3877787807814457e-16
+            },
+            "glove": {
+              "x": 19.40454907596924,
+              "y": 0.9,
+              "z": 19.40854383587901
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 66
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "low",
+      "id": "one_hop_RF_wall",
+      "end": {
+        "elapsedSeconds": 8.911532950210937,
+        "tick": 9911533,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-2B",
+        "b": "def-RF",
+        "minimumSampledMeters": 5.377051888465827,
+        "minimumChordInterpolatedMeters": 5.377051888465827,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 7.33,
+          "distanceMeters": 5.377051888465827,
+          "ball": {
+            "position": {
+              "x": 26.61252078109148,
+              "y": 1.9576720958780447,
+              "z": 46.368145811474825
+            },
+            "velocity": {
+              "x": -29.64752005259874,
+              "y": 2.642858322999456,
+              "z": -9.729684680736941
+            },
+            "spin": {
+              "x": 33.24547136406139,
+              "y": 0,
+              "z": -114.7898448578227
+            },
+            "orientation": {
+              "w": 0.4634186713469024,
+              "x": 0.7609893019342538,
+              "y": -0.1582079020132093,
+              "z": -0.42556865148794426
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-2B",
+            "position": {
+              "x": 26.68684902130848,
+              "y": 0.9,
+              "z": 43.54802970193054
+            },
+            "velocity": {
+              "x": -3.858032398929364,
+              "y": 0,
+              "z": 1.0679207071312964
+            },
+            "glove": {
+              "x": 26.68684902130848,
+              "y": 0.9,
+              "z": 43.54802970193054
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-RF",
+            "position": {
+              "x": 30.422054342497187,
+              "y": 0.9,
+              "z": 47.415965613992356
+            },
+            "velocity": {
+              "x": -1.134916561575384,
+              "y": 0,
+              "z": -1.847908774548563
+            },
+            "glove": {
+              "x": 30.41658987035362,
+              "y": 0.9080101799093981,
+              "z": 47.41426980752032
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 126
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "default",
+      "id": "P_comebacker",
+      "end": {
+        "elapsedSeconds": 3.4027433458894825,
+        "tick": 4402744,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-2B",
+        "b": "def-SS",
+        "minimumSampledMeters": 13.696527058049423,
+        "minimumChordInterpolatedMeters": 13.696527058049423,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.4027433458894825,
+          "distanceMeters": 13.696527058049423,
+          "ball": {
+            "position": {
+              "x": 19.26103866913924,
+              "y": 0.9,
+              "z": 18.68536399951357
+            },
+            "velocity": {
+              "x": 5.551115123125783e-17,
+              "y": 0,
+              "z": 8.326672684688674e-17
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.17069986224320505,
+              "x": -0.6692659275860464,
+              "y": 0.6555075628712597,
+              "z": 0.30537601448234447
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-1B"
+          },
+          "p": {
+            "playerId": "def-2B",
+            "position": {
+              "x": 13.001570444749293,
+              "y": 0.9,
+              "z": 36.00476671845093
+            },
+            "velocity": {
+              "x": -0.30914457104577264,
+              "y": 0,
+              "z": -0.3241658212898295
+            },
+            "glove": {
+              "x": 13.001570444749293,
+              "y": 0.9,
+              "z": 36.00476671845093
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-SS",
+            "position": {
+              "x": -0.4265472643224009,
+              "y": 0.9,
+              "z": 38.703008413183845
+            },
+            "velocity": {
+              "x": 2.5769504866758184,
+              "y": 0,
+              "z": 0.5539861637271744
+            },
+            "glove": {
+              "x": -0.4265472643224009,
+              "y": 0.9,
+              "z": 38.703008413183845
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 55
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "default",
+      "id": "3B_routine",
+      "end": {
+        "elapsedSeconds": 4.734511870773325,
+        "tick": 5734512,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 1.5541813758634277,
+        "minimumChordInterpolatedMeters": 1.546972452819326,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 4.25,
+          "distanceMeters": 1.5541813758634277,
+          "ball": {
+            "position": {
+              "x": 19.402072674218754,
+              "y": 0.9060285991865556,
+              "z": 18.9424010022901
+            },
+            "velocity": {
+              "x": 1.1657178693082129,
+              "y": -1.3361639748634735,
+              "z": -6.544720257734577
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.9592295721250224,
+              "x": -0.006214551042035832,
+              "y": 0.03998561593592885,
+              "z": 0.27971620945954634
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-1B"
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 18.96961893507889,
+              "y": 0.9,
+              "z": 17.92160187020987
+            },
+            "velocity": {
+              "x": 7.237572631816429,
+              "y": 0,
+              "z": -1.3731447952603493
+            },
+            "glove": {
+              "x": 18.96961893507889,
+              "y": 0.9,
+              "z": 17.92160187020987
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.40733224260323,
+              "y": 0.9,
+              "z": 19.412872070239644
+            },
+            "velocity": {
+              "x": -5.551115123125783e-17,
+              "y": 0,
+              "z": -6.938893903907228e-17
+            },
+            "glove": {
+              "x": 19.402072674218754,
+              "y": 0.9060285991865556,
+              "z": 18.9424010022901
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 70
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "default",
+      "id": "56_hole_grounder",
+      "end": {
+        "elapsedSeconds": 4.472386978390678,
+        "tick": 5472387,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-3B",
+        "b": "def-SS",
+        "minimumSampledMeters": 1.22199333667136,
+        "minimumChordInterpolatedMeters": 1.22199333667136,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.6999999999999997,
+          "distanceMeters": 1.22199333667136,
+          "ball": {
+            "position": {
+              "x": 15.281944083296896,
+              "y": 1.877648896318469,
+              "z": 21.287504429399682
+            },
+            "velocity": {
+              "x": 23.74122487214617,
+              "y": -3.9837717544112157,
+              "z": -6.997131944271901
+            },
+            "spin": {
+              "x": 34.843096312690164,
+              "y": 0,
+              "z": 110.6079886947994
+            },
+            "orientation": {
+              "w": 0.6213899288679995,
+              "x": 0.38731466369698747,
+              "y": 0.13747663973606786,
+              "z": 0.6670547811938621
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-3B",
+            "position": {
+              "x": -15.236572694146933,
+              "y": 0.9,
+              "z": 31.40194452153763
+            },
+            "velocity": {
+              "x": 0.28452912431171196,
+              "y": 0,
+              "z": -1.2125327337922822
+            },
+            "glove": {
+              "x": -15.236572694146933,
+              "y": 0.9,
+              "z": 31.40194452153763
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-SS",
+            "position": {
+              "x": -14.02357280719341,
+              "y": 0.9,
+              "z": 31.253961451154744
+            },
+            "velocity": {
+              "x": 0.9213878355502264,
+              "y": 0,
+              "z": 3.943766169280854
+            },
+            "glove": {
+              "x": -14.02357280719341,
+              "y": 0.9,
+              "z": 31.253961451154744
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 60
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "default",
+      "id": "SS_routine",
+      "end": {
+        "elapsedSeconds": 4.167330031068302,
+        "tick": 5167331,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 2.431221448978141,
+        "minimumChordInterpolatedMeters": 2.4299569681358055,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.92,
+          "distanceMeters": 2.431221448978141,
+          "ball": {
+            "position": {
+              "x": 19.432281118575272,
+              "y": 0.9,
+              "z": 18.951671249894517
+            },
+            "velocity": {
+              "x": 2.7755575615628914e-17,
+              "y": 0,
+              "z": 4.85722573273506e-17
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.04866937501403587,
+              "x": -0.948718858116676,
+              "y": -0.021169221634056438,
+              "z": -0.3116338945701218
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-1B"
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 18.95674886065716,
+              "y": 0.9,
+              "z": 17.067408930926515
+            },
+            "velocity": {
+              "x": 6.056274727432587,
+              "y": 0,
+              "z": -0.9983710279832164
+            },
+            "glove": {
+              "x": 18.95674886065716,
+              "y": 0.9,
+              "z": 17.067408930926515
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.432281118575272,
+              "y": 0.9,
+              "z": 19.451671249894517
+            },
+            "velocity": {
+              "x": 2.7755575615628914e-17,
+              "y": 0,
+              "z": 4.85722573273506e-17
+            },
+            "glove": {
+              "x": 19.432281118575272,
+              "y": 0.9,
+              "z": 18.951671249894517
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 64
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "default",
+      "id": "SS_up_middle",
+      "end": {
+        "elapsedSeconds": 5.551286218931616,
+        "tick": 6551287,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-2B",
+        "b": "def-SS",
+        "minimumSampledMeters": 4.817629057237259,
+        "minimumChordInterpolatedMeters": 4.817629057237259,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 5.24,
+          "distanceMeters": 4.817629057237259,
+          "ball": {
+            "position": {
+              "x": -9.040938471278103,
+              "y": 0.9,
+              "z": 63.240123441876484
+            },
+            "velocity": {
+              "x": 1.450728558776758,
+              "y": 0,
+              "z": -6.020884940215958
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.9991893481908882,
+              "x": 0.03993146399053886,
+              "y": 1.3322676295501878e-15,
+              "z": 0.00511122739078925
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-CF"
+          },
+          "p": {
+            "playerId": "def-2B",
+            "position": {
+              "x": 4.522197505652212,
+              "y": 0.9,
+              "z": 40.455996592369615
+            },
+            "velocity": {
+              "x": -1.651174134410233,
+              "y": 0,
+              "z": 4.659782369587585
+            },
+            "glove": {
+              "x": 4.522197505652212,
+              "y": 0.9,
+              "z": 40.455996592369615
+            },
+            "intent": "relay",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-SS",
+            "position": {
+              "x": 0.00006204852238975606,
+              "y": 0.9,
+              "z": 38.79471978204991
+            },
+            "velocity": {
+              "x": -1.6653345369377348e-16,
+              "y": 0,
+              "z": -3.469446951953614e-17
+            },
+            "glove": {
+              "x": 0.00006204852238975606,
+              "y": 0.9,
+              "z": 38.79471978204991
+            },
+            "intent": "base_cover",
+            "targetBase": 2
+          },
+          "frameIndex": 88
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "default",
+      "id": "2B_routine",
+      "end": {
+        "elapsedSeconds": 3.6037556548630176,
+        "tick": 4603756,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 5.2463898047392155,
+        "minimumChordInterpolatedMeters": 5.2463898047392155,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.6037556548630176,
+          "distanceMeters": 5.2463898047392155,
+          "ball": {
+            "position": {
+              "x": 19.249590417976712,
+              "y": 0.9,
+              "z": 18.667560281458826
+            },
+            "velocity": {
+              "x": -3.469446951953614e-17,
+              "y": 0,
+              "z": -4.85722573273506e-17
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.5074579289888953,
+              "x": 0.019730660054299354,
+              "y": 0.8342632351057689,
+              "z": 0.21471377671444217
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-1B"
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 15.61020052150301,
+              "y": 0.9,
+              "z": 15.388744704493377
+            },
+            "velocity": {
+              "x": 4.5298072394140725,
+              "y": 0,
+              "z": -1.8281798261081066
+            },
+            "glove": {
+              "x": 15.61020052150301,
+              "y": 0.9,
+              "z": 15.388744704493377
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.249590417976712,
+              "y": 0.9,
+              "z": 19.167560281458826
+            },
+            "velocity": {
+              "x": -3.469446951953614e-17,
+              "y": 0,
+              "z": -4.85722573273506e-17
+            },
+            "glove": {
+              "x": 19.249590417976712,
+              "y": 0.9,
+              "z": 18.667560281458826
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 59
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "default",
+      "id": "34_hole_grounder",
+      "end": {
+        "elapsedSeconds": 3.54693730092231,
+        "tick": 4546938,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 6.548178702160479,
+        "minimumChordInterpolatedMeters": 6.548178702160479,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.54693730092231,
+          "distanceMeters": 6.548178702160479,
+          "ball": {
+            "position": {
+              "x": 19.27676912196326,
+              "y": 0.9,
+              "z": 18.709827172357738
+            },
+            "velocity": {
+              "x": -6.938893903907228e-17,
+              "y": 0,
+              "z": -9.71445146547012e-17
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": 0.7669787134390885,
+              "x": 0.45903674092658664,
+              "y": -0.2907687635684361,
+              "z": 0.3412952530342333
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-1B"
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 14.709874157047388,
+              "y": 0.9,
+              "z": 14.51705457027545
+            },
+            "velocity": {
+              "x": 4.779574893027528,
+              "y": 0,
+              "z": -2.26823382059815
+            },
+            "glove": {
+              "x": 14.709874157047388,
+              "y": 0.9,
+              "z": 14.51705457027545
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.27676912196326,
+              "y": 0.9,
+              "z": 19.209827172357738
+            },
+            "velocity": {
+              "x": -6.938893903907228e-17,
+              "y": 0,
+              "z": -9.71445146547012e-17
+            },
+            "glove": {
+              "x": 19.27676912196326,
+              "y": 0.9,
+              "z": 18.709827172357738
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 58
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "default",
+      "id": "1B_routine",
+      "end": {
+        "elapsedSeconds": 4.706637701642,
+        "tick": 5706638,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-1B",
+        "b": "def-2B",
+        "minimumSampledMeters": 0.3976679531094321,
+        "minimumChordInterpolatedMeters": 0.3823860702696062,
+        "inside48SampledSeconds": 0.05500000000000016,
+        "inside1SampledSeconds": 0.2200000000000002,
+        "closest": {
+          "elapsedSeconds": 2.6,
+          "distanceMeters": 0.3976679531094321,
+          "ball": {
+            "position": {
+              "x": 16.937990631429653,
+              "y": 1.6,
+              "z": 26.732357127481656
+            },
+            "velocity": {
+              "x": -2.1047687391631476,
+              "y": 0,
+              "z": 0.6293633009267632
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.9975847591217999,
+              "x": -0.05652167367445152,
+              "y": 3.885780586188048e-16,
+              "z": 0.040372624053178985
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-1B"
+          },
+          "p": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 16.808754510563524,
+              "y": 0.9,
+              "z": 27.215366470107114
+            },
+            "velocity": {
+              "x": -2.1047687391631476,
+              "y": 0,
+              "z": 0.6293633009267632
+            },
+            "glove": {
+              "x": 16.937990631429653,
+              "y": 1.6,
+              "z": 26.732357127481656
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-2B",
+            "position": {
+              "x": 16.42480205502359,
+              "y": 0.9,
+              "z": 27.111827526636066
+            },
+            "velocity": {
+              "x": 2.8764225834617387,
+              "y": 0,
+              "z": -7.464997864792145
+            },
+            "glove": {
+              "x": 16.704705964924795,
+              "y": 1.5997939216482158,
+              "z": 27.696754275569873
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 40
+        }
+      },
+      "overlappingPairs": [
+        {
+          "a": "def-1B",
+          "b": "def-2B",
+          "minimumSampledMeters": 0.3976679531094321,
+          "minimumChordInterpolatedMeters": 0.3823860702696062,
+          "inside48SampledSeconds": 0.05500000000000016,
+          "inside1SampledSeconds": 0.2200000000000002,
+          "closest": {
+            "elapsedSeconds": 2.6,
+            "distanceMeters": 0.3976679531094321,
+            "ball": {
+              "position": {
+                "x": 16.937990631429653,
+                "y": 1.6,
+                "z": 26.732357127481656
+              },
+              "velocity": {
+                "x": -2.1047687391631476,
+                "y": 0,
+                "z": 0.6293633009267632
+              },
+              "spin": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "orientation": {
+                "w": -0.9975847591217999,
+                "x": -0.05652167367445152,
+                "y": 3.885780586188048e-16,
+                "z": 0.040372624053178985
+              },
+              "phase": "possessed",
+              "visible": false,
+              "possessedBy": "def-1B"
+            },
+            "p": {
+              "playerId": "def-1B",
+              "position": {
+                "x": 16.808754510563524,
+                "y": 0.9,
+                "z": 27.215366470107114
+              },
+              "velocity": {
+                "x": -2.1047687391631476,
+                "y": 0,
+                "z": 0.6293633009267632
+              },
+              "glove": {
+                "x": 16.937990631429653,
+                "y": 1.6,
+                "z": 26.732357127481656
+              },
+              "intent": "hold",
+              "targetBase": null
+            },
+            "q": {
+              "playerId": "def-2B",
+              "position": {
+                "x": 16.42480205502359,
+                "y": 0.9,
+                "z": 27.111827526636066
+              },
+              "velocity": {
+                "x": 2.8764225834617387,
+                "y": 0,
+                "z": -7.464997864792145
+              },
+              "glove": {
+                "x": 16.704705964924795,
+                "y": 1.5997939216482158,
+                "z": 27.696754275569873
+              },
+              "intent": "base_cover",
+              "targetBase": 1
+            },
+            "frameIndex": 40
+          }
+        }
+      ],
+      "underOneMeterPairs": [
+        {
+          "a": "def-1B",
+          "b": "def-2B",
+          "minimumSampledMeters": 0.3976679531094321,
+          "minimumChordInterpolatedMeters": 0.3823860702696062,
+          "inside48SampledSeconds": 0.05500000000000016,
+          "inside1SampledSeconds": 0.2200000000000002,
+          "closest": {
+            "elapsedSeconds": 2.6,
+            "distanceMeters": 0.3976679531094321,
+            "ball": {
+              "position": {
+                "x": 16.937990631429653,
+                "y": 1.6,
+                "z": 26.732357127481656
+              },
+              "velocity": {
+                "x": -2.1047687391631476,
+                "y": 0,
+                "z": 0.6293633009267632
+              },
+              "spin": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "orientation": {
+                "w": -0.9975847591217999,
+                "x": -0.05652167367445152,
+                "y": 3.885780586188048e-16,
+                "z": 0.040372624053178985
+              },
+              "phase": "possessed",
+              "visible": false,
+              "possessedBy": "def-1B"
+            },
+            "p": {
+              "playerId": "def-1B",
+              "position": {
+                "x": 16.808754510563524,
+                "y": 0.9,
+                "z": 27.215366470107114
+              },
+              "velocity": {
+                "x": -2.1047687391631476,
+                "y": 0,
+                "z": 0.6293633009267632
+              },
+              "glove": {
+                "x": 16.937990631429653,
+                "y": 1.6,
+                "z": 26.732357127481656
+              },
+              "intent": "hold",
+              "targetBase": null
+            },
+            "q": {
+              "playerId": "def-2B",
+              "position": {
+                "x": 16.42480205502359,
+                "y": 0.9,
+                "z": 27.111827526636066
+              },
+              "velocity": {
+                "x": 2.8764225834617387,
+                "y": 0,
+                "z": -7.464997864792145
+              },
+              "glove": {
+                "x": 16.704705964924795,
+                "y": 1.5997939216482158,
+                "z": 27.696754275569873
+              },
+              "intent": "base_cover",
+              "targetBase": 1
+            },
+            "frameIndex": 40
+          }
+        }
+      ],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "default",
+      "id": "slow_roller_3B",
+      "end": {
+        "elapsedSeconds": 5.189789468303648,
+        "tick": 6189790,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-3B",
+        "minimumSampledMeters": 4.8322834598748505,
+        "minimumChordInterpolatedMeters": 4.831991594975409,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 4.415,
+          "distanceMeters": 4.8322834598748505,
+          "ball": {
+            "position": {
+              "x": 15.18351648464706,
+              "y": 1.9456068351248161,
+              "z": 20.176337867788497
+            },
+            "velocity": {
+              "x": 22.79340036023449,
+              "y": -4.0897776463572,
+              "z": -0.45463587245499815
+            },
+            "spin": {
+              "x": 4.825609067428779,
+              "y": 0,
+              "z": 116.19023998104322
+            },
+            "orientation": {
+              "w": -0.6381859334249003,
+              "x": 0.4486783094433259,
+              "y": 0.6019398367899874,
+              "z": -0.1705137000329041
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": -14.441304496424852,
+              "y": 0.9,
+              "z": 20.89501971558818
+            },
+            "velocity": {
+              "x": 1.8402973461669796,
+              "y": 0,
+              "z": -0.3518484364421075
+            },
+            "glove": {
+              "x": -14.441304496424852,
+              "y": 0.9,
+              "z": 20.89501971558818
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-3B",
+            "position": {
+              "x": -14.540538224242542,
+              "y": 0.9,
+              "z": 25.72628415710279
+            },
+            "velocity": {
+              "x": -4.721597478633377,
+              "y": 0,
+              "z": -0.4010971382885233
+            },
+            "glove": {
+              "x": -14.540538224242542,
+              "y": 0.9,
+              "z": 25.72628415710279
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 73
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "default",
+      "id": "slow_roller_2B",
+      "end": {
+        "elapsedSeconds": 3.8616053176708642,
+        "tick": 4861606,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-2B",
+        "minimumSampledMeters": 4.764782097665826,
+        "minimumChordInterpolatedMeters": 4.764782097665826,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.15,
+          "distanceMeters": 4.764782097665826,
+          "ball": {
+            "position": {
+              "x": 16.170682789849426,
+              "y": 1.2522571851866724,
+              "z": 20.49052839293629
+            },
+            "velocity": {
+              "x": 31.278966348278836,
+              "y": -2.659765137113332,
+              "z": -9.102368027914698
+            },
+            "spin": {
+              "x": 35.25036068680381,
+              "y": 0,
+              "z": 113.9493261276127
+            },
+            "orientation": {
+              "w": -0.22653426848220248,
+              "x": -0.8901392109763048,
+              "y": -0.3134201031398123,
+              "z": 0.24104408151528026
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 11.194366354037621,
+              "y": 0.9,
+              "z": 22.26857274163925
+            },
+            "velocity": {
+              "x": 4.507075384096325,
+              "y": 0,
+              "z": 0.6519805100676807
+            },
+            "glove": {
+              "x": 11.194366354037621,
+              "y": 0.9,
+              "z": 22.26857274163925
+            },
+            "intent": "backup",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-2B",
+            "position": {
+              "x": 9.420931854111364,
+              "y": 0.9,
+              "z": 26.69102438215586
+            },
+            "velocity": {
+              "x": -0.5399804321874497,
+              "y": 0,
+              "z": -1.4079794422737073
+            },
+            "glove": {
+              "x": 9.420931854111364,
+              "y": 0.9,
+              "z": 26.69102438215586
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 50
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "default",
+      "id": "DP_643_grounder",
+      "end": {
+        "elapsedSeconds": 5.741152194138854,
+        "tick": 6741153,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-SS",
+        "minimumSampledMeters": 7.747379661758571,
+        "minimumChordInterpolatedMeters": 7.747379661758571,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.15,
+          "distanceMeters": 7.747379661758571,
+          "ball": {
+            "position": {
+              "x": -7.610755002806827,
+              "y": 1.6,
+              "z": 32.162726021723095
+            },
+            "velocity": {
+              "x": -2.42861286636753e-17,
+              "y": 0,
+              "z": 2.42861286636753e-17
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.462472483269749,
+              "x": -0.8501026556341319,
+              "y": -4.718447854656915e-16,
+              "z": -0.25188226833603905
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-SS"
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": -2.46624980679424,
+              "y": 0.9,
+              "z": 26.459497195078132
+            },
+            "velocity": {
+              "x": 0.5504356454698693,
+              "y": 0,
+              "z": 0.651138627091724
+            },
+            "glove": {
+              "x": -2.46624980679424,
+              "y": 0.9,
+              "z": 26.459497195078132
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-SS",
+            "position": {
+              "x": -8.014083861811566,
+              "y": 0.9,
+              "z": 31.867216577721834
+            },
+            "velocity": {
+              "x": -2.42861286636753e-17,
+              "y": 0,
+              "z": 2.42861286636753e-17
+            },
+            "glove": {
+              "x": -7.610755002806827,
+              "y": 1.6,
+              "z": 32.162726021723095
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 50
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "default",
+      "id": "DP_463_grounder",
+      "end": {
+        "elapsedSeconds": 5.817560168447264,
+        "tick": 6817561,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 5.469042708320739,
+        "minimumChordInterpolatedMeters": 5.469042708320739,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 5.817560168447264,
+          "distanceMeters": 5.469042708320739,
+          "ball": {
+            "position": {
+              "x": 19.401819393501363,
+              "y": 0.9,
+              "z": 18.90429877728035
+            },
+            "velocity": {
+              "x": 3.469446951953614e-17,
+              "y": 0,
+              "z": 5.551115123125783e-17
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.15036272582555232,
+              "x": -0.6614959514742442,
+              "y": 0.2620175399347961,
+              "z": -0.6864116590152092
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-1B"
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 14.081696517379125,
+              "y": 0.9,
+              "z": 18.136733895944054
+            },
+            "velocity": {
+              "x": 4.001838831822344,
+              "y": 0,
+              "z": -2.9945419701540787
+            },
+            "glove": {
+              "x": 14.081696517379125,
+              "y": 0.9,
+              "z": 18.136733895944054
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.401819393501363,
+              "y": 0.9,
+              "z": 19.40429877728035
+            },
+            "velocity": {
+              "x": 3.469446951953614e-17,
+              "y": 0,
+              "z": 5.551115123125783e-17
+            },
+            "glove": {
+              "x": 19.401819393501363,
+              "y": 0.9,
+              "z": 18.90429877728035
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 99
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "default",
+      "id": "force_3B_grounder",
+      "end": {
+        "elapsedSeconds": 5.727461538461539,
+        "tick": 6727462,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 2.833039933624024,
+        "minimumChordInterpolatedMeters": 2.827360689766626,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.81,
+          "distanceMeters": 2.833039933624024,
+          "ball": {
+            "position": {
+              "x": -35.98633755859189,
+              "y": 0.0366,
+              "z": 56.84995902064465
+            },
+            "velocity": {
+              "x": -9.123035176531877,
+              "y": 0,
+              "z": 14.336198134550203
+            },
+            "spin": {
+              "x": 391.6994025833389,
+              "y": 0,
+              "z": 249.26325618939555
+            },
+            "orientation": {
+              "w": 0.5603322511821646,
+              "x": -0.6987777563149754,
+              "y": 2.331468351712829e-15,
+              "z": -0.44467675401862045
+            },
+            "phase": "rolling",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 18.83418137151123,
+              "y": 0.9,
+              "z": 16.61768230421335
+            },
+            "velocity": {
+              "x": 7.694023188004107,
+              "y": 0,
+              "z": -2.1912855943755942
+            },
+            "glove": {
+              "x": 18.83418137151123,
+              "y": 0.9,
+              "z": 16.61768230421335
+            },
+            "intent": "backup",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.395549198812724,
+              "y": 0.9,
+              "z": 19.394547700299235
+            },
+            "velocity": {
+              "x": 1.1102230246251565e-16,
+              "y": 0,
+              "z": 1.3877787807814457e-16
+            },
+            "glove": {
+              "x": 19.395549198812724,
+              "y": 0.9,
+              "z": 19.394547700299235
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 62
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "default",
+      "id": "routine_CF_fly",
+      "end": {
+        "elapsedSeconds": 6.157133399053769,
+        "tick": 7157134,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 6.276698358634114,
+        "minimumChordInterpolatedMeters": 6.275731987283097,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.645,
+          "distanceMeters": 6.276698358634114,
+          "ball": {
+            "position": {
+              "x": 0,
+              "y": 26.747832660741274,
+              "z": 72.79788094228691
+            },
+            "velocity": {
+              "x": 0,
+              "y": -6.08959612755525,
+              "z": 17.624093878334858
+            },
+            "spin": {
+              "x": -127.97395206249091,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.6510807807607336,
+              "x": -0.7590084432494765,
+              "y": 0,
+              "z": 0
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 16.572637394951688,
+              "y": 0.9,
+              "z": 13.85103238286503
+            },
+            "velocity": {
+              "x": 6.948046966871588,
+              "y": 0,
+              "z": -3.965405345948919
+            },
+            "glove": {
+              "x": 16.572637394951688,
+              "y": 0.9,
+              "z": 13.85103238286503
+            },
+            "intent": "backup",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.425888628445847,
+              "y": 0.9,
+              "z": 19.441729985476375
+            },
+            "velocity": {
+              "x": -0.23905923697012693,
+              "y": 0,
+              "z": -0.37177235133781605
+            },
+            "glove": {
+              "x": 19.425888628445847,
+              "y": 0.9,
+              "z": 19.441729985476375
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 59
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "default",
+      "id": "routine_LF_fly",
+      "end": {
+        "elapsedSeconds": 5.407028333275689,
+        "tick": 6407029,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 3.0539015488886316,
+        "minimumChordInterpolatedMeters": 3.0467462606440274,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.81,
+          "distanceMeters": 3.0539015488886316,
+          "ball": {
+            "position": {
+              "x": -37.405813806274686,
+              "y": 15.700292741043738,
+              "z": 59.207608359650955
+            },
+            "velocity": {
+              "x": -9.515749053113915,
+              "y": -10.262714974119275,
+              "z": 13.74884584688642
+            },
+            "spin": {
+              "x": -119.32244834636805,
+              "y": -36.71459949119012,
+              "z": 0
+            },
+            "orientation": {
+              "w": 0.26646924084827,
+              "x": -0.92122131121039,
+              "y": -0.28345271114165854,
+              "z": -5.134781488891349e-16
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 18.807446974621076,
+              "y": 0.9,
+              "z": 16.397807730898283
+            },
+            "velocity": {
+              "x": 7.696368046664209,
+              "y": 0,
+              "z": -2.1830541825403196
+            },
+            "glove": {
+              "x": 18.807446974621076,
+              "y": 0.9,
+              "z": 16.397807730898283
+            },
+            "intent": "backup",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.395549198812724,
+              "y": 0.9,
+              "z": 19.394547700299235
+            },
+            "velocity": {
+              "x": 1.1102230246251565e-16,
+              "y": 0,
+              "z": 1.3877787807814457e-16
+            },
+            "glove": {
+              "x": 19.395549198812724,
+              "y": 0.9,
+              "z": 19.394547700299235
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 62
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "default",
+      "id": "routine_RF_fly",
+      "end": {
+        "elapsedSeconds": 5.407035504365599,
+        "tick": 6407036,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 8.548220309408208,
+        "minimumChordInterpolatedMeters": 8.545908809321832,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.205,
+          "distanceMeters": 8.548220309408208,
+          "ball": {
+            "position": {
+              "x": 31.513266059228364,
+              "y": 20.492268778083016,
+              "z": 50.68711958222779
+            },
+            "velocity": {
+              "x": 9.962190762496252,
+              "y": -5.522949233567241,
+              "z": 14.456909691330358
+            },
+            "spin": {
+              "x": -120.85943982864504,
+              "y": 37.18751994727539,
+              "z": 0
+            },
+            "orientation": {
+              "w": 0.5488546125068472,
+              "x": -0.7989527125396064,
+              "y": 0.24583160385834033,
+              "z": 3.538835890992687e-16
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 12.019457415729118,
+              "y": 0.9,
+              "z": 14.686100923793273
+            },
+            "velocity": {
+              "x": 5.290753684630835,
+              "y": 0,
+              "z": -6.000642331669325
+            },
+            "glove": {
+              "x": 12.019457415729118,
+              "y": 0.9,
+              "z": 14.686100923793273
+            },
+            "intent": "backup",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.27464850529209,
+              "y": 0.9,
+              "z": 19.206529300850583
+            },
+            "velocity": {
+              "x": 0.5765546303397258,
+              "y": 0,
+              "z": 0.8966274355794603
+            },
+            "glove": {
+              "x": 19.27464850529209,
+              "y": 0.9,
+              "z": 19.206529300850583
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 51
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "default",
+      "id": "shallow_CF_liner",
+      "end": {
+        "elapsedSeconds": 5.551286218931616,
+        "tick": 6551287,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 6.738991201374949,
+        "minimumChordInterpolatedMeters": 6.737783662177668,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.59,
+          "distanceMeters": 6.738991201374949,
+          "ball": {
+            "position": {
+              "x": 4.942541113252292,
+              "y": 1.1009860377225824,
+              "z": 73.50753258199248
+            },
+            "velocity": {
+              "x": 1.0145444452289838,
+              "y": 2.803583281218913,
+              "z": 14.795315803573516
+            },
+            "spin": {
+              "x": 233.89629949245895,
+              "y": 0,
+              "z": -17.863828252153528
+            },
+            "orientation": {
+              "w": -0.22022186715660988,
+              "x": -0.9734782470796658,
+              "y": 0.024065930223820708,
+              "z": 0.05712497432139534
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 15.963663664535659,
+              "y": 0.9,
+              "z": 13.679288849801901
+            },
+            "velocity": {
+              "x": 6.809482615571387,
+              "y": 0,
+              "z": -4.1988827915870885
+            },
+            "glove": {
+              "x": 15.963663664535659,
+              "y": 0.9,
+              "z": 13.679288849801901
+            },
+            "intent": "backup",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.434783038291943,
+              "y": 0.9,
+              "z": 19.455562103842325
+            },
+            "velocity": {
+              "x": -0.0843738483423935,
+              "y": 0,
+              "z": -0.13121377106039675
+            },
+            "glove": {
+              "x": 19.434783038291943,
+              "y": 0.9,
+              "z": 19.455562103842325
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 58
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "default",
+      "id": "fast_grounder_CF_wall",
+      "end": {
+        "elapsedSeconds": 9.493713314209,
+        "tick": 10493714,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-2B",
+        "b": "def-LF",
+        "minimumSampledMeters": 0.4738662590651878,
+        "minimumChordInterpolatedMeters": 0.4601916896503507,
+        "inside48SampledSeconds": 0.10999999999999943,
+        "inside1SampledSeconds": 0.2937133142089987,
+        "closest": {
+          "elapsedSeconds": 9.42,
+          "distanceMeters": 0.4738662590651878,
+          "ball": {
+            "position": {
+              "x": 0.002584607251859778,
+              "y": 0.9,
+              "z": 38.790996956879475
+            },
+            "velocity": {
+              "x": -0.10928496042821585,
+              "y": 0,
+              "z": 0.07539283273155467
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": 0.05344971825203705,
+              "x": -0.27396806414886465,
+              "y": 0.9066175410685107,
+              "z": -0.3164320806621678
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-LF"
+          },
+          "p": {
+            "playerId": "def-2B",
+            "position": {
+              "x": 0.01663402580346678,
+              "y": 0.9,
+              "z": 38.79113050308903
+            },
+            "velocity": {
+              "x": -6.938893903907228e-17,
+              "y": 0,
+              "z": 1.3877787807814457e-17
+            },
+            "glove": {
+              "x": 0.01663402580346678,
+              "y": 0.9,
+              "z": 38.79113050308903
+            },
+            "intent": "base_cover",
+            "targetBase": 2
+          },
+          "q": {
+            "playerId": "def-LF",
+            "position": {
+              "x": -0.26788632750844776,
+              "y": 0.9,
+              "z": 38.412188027201594
+            },
+            "velocity": {
+              "x": 3.9598423400299563,
+              "y": 0,
+              "z": -1.8114253887345433
+            },
+            "glove": {
+              "x": 0.002584607251859778,
+              "y": 0.9,
+              "z": 38.790996956879475
+            },
+            "intent": "tag",
+            "targetBase": null
+          },
+          "frameIndex": 164
+        }
+      },
+      "overlappingPairs": [
+        {
+          "a": "def-2B",
+          "b": "def-LF",
+          "minimumSampledMeters": 0.4738662590651878,
+          "minimumChordInterpolatedMeters": 0.4601916896503507,
+          "inside48SampledSeconds": 0.10999999999999943,
+          "inside1SampledSeconds": 0.2937133142089987,
+          "closest": {
+            "elapsedSeconds": 9.42,
+            "distanceMeters": 0.4738662590651878,
+            "ball": {
+              "position": {
+                "x": 0.002584607251859778,
+                "y": 0.9,
+                "z": 38.790996956879475
+              },
+              "velocity": {
+                "x": -0.10928496042821585,
+                "y": 0,
+                "z": 0.07539283273155467
+              },
+              "spin": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "orientation": {
+                "w": 0.05344971825203705,
+                "x": -0.27396806414886465,
+                "y": 0.9066175410685107,
+                "z": -0.3164320806621678
+              },
+              "phase": "possessed",
+              "visible": false,
+              "possessedBy": "def-LF"
+            },
+            "p": {
+              "playerId": "def-2B",
+              "position": {
+                "x": 0.01663402580346678,
+                "y": 0.9,
+                "z": 38.79113050308903
+              },
+              "velocity": {
+                "x": -6.938893903907228e-17,
+                "y": 0,
+                "z": 1.3877787807814457e-17
+              },
+              "glove": {
+                "x": 0.01663402580346678,
+                "y": 0.9,
+                "z": 38.79113050308903
+              },
+              "intent": "base_cover",
+              "targetBase": 2
+            },
+            "q": {
+              "playerId": "def-LF",
+              "position": {
+                "x": -0.26788632750844776,
+                "y": 0.9,
+                "z": 38.412188027201594
+              },
+              "velocity": {
+                "x": 3.9598423400299563,
+                "y": 0,
+                "z": -1.8114253887345433
+              },
+              "glove": {
+                "x": 0.002584607251859778,
+                "y": 0.9,
+                "z": 38.790996956879475
+              },
+              "intent": "tag",
+              "targetBase": null
+            },
+            "frameIndex": 164
+          }
+        }
+      ],
+      "underOneMeterPairs": [
+        {
+          "a": "def-2B",
+          "b": "def-LF",
+          "minimumSampledMeters": 0.4738662590651878,
+          "minimumChordInterpolatedMeters": 0.4601916896503507,
+          "inside48SampledSeconds": 0.10999999999999943,
+          "inside1SampledSeconds": 0.2937133142089987,
+          "closest": {
+            "elapsedSeconds": 9.42,
+            "distanceMeters": 0.4738662590651878,
+            "ball": {
+              "position": {
+                "x": 0.002584607251859778,
+                "y": 0.9,
+                "z": 38.790996956879475
+              },
+              "velocity": {
+                "x": -0.10928496042821585,
+                "y": 0,
+                "z": 0.07539283273155467
+              },
+              "spin": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "orientation": {
+                "w": 0.05344971825203705,
+                "x": -0.27396806414886465,
+                "y": 0.9066175410685107,
+                "z": -0.3164320806621678
+              },
+              "phase": "possessed",
+              "visible": false,
+              "possessedBy": "def-LF"
+            },
+            "p": {
+              "playerId": "def-2B",
+              "position": {
+                "x": 0.01663402580346678,
+                "y": 0.9,
+                "z": 38.79113050308903
+              },
+              "velocity": {
+                "x": -6.938893903907228e-17,
+                "y": 0,
+                "z": 1.3877787807814457e-17
+              },
+              "glove": {
+                "x": 0.01663402580346678,
+                "y": 0.9,
+                "z": 38.79113050308903
+              },
+              "intent": "base_cover",
+              "targetBase": 2
+            },
+            "q": {
+              "playerId": "def-LF",
+              "position": {
+                "x": -0.26788632750844776,
+                "y": 0.9,
+                "z": 38.412188027201594
+              },
+              "velocity": {
+                "x": 3.9598423400299563,
+                "y": 0,
+                "z": -1.8114253887345433
+              },
+              "glove": {
+                "x": 0.002584607251859778,
+                "y": 0.9,
+                "z": 38.790996956879475
+              },
+              "intent": "tag",
+              "targetBase": null
+            },
+            "frameIndex": 164
+          }
+        }
+      ],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "default",
+      "id": "gap_liner_LCF",
+      "end": {
+        "elapsedSeconds": 4.321255886096874,
+        "tick": 5321256,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 4.975654726171362,
+        "minimumChordInterpolatedMeters": 4.973137673452471,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.755,
+          "distanceMeters": 4.975654726171362,
+          "ball": {
+            "position": {
+              "x": -37.414795225962706,
+              "y": 1.4453469719517482,
+              "z": 90.69186234985773
+            },
+            "velocity": {
+              "x": -2.7196042582721605,
+              "y": -8.105211859387444,
+              "z": -1.8507108485050154
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.32895473679317894,
+              "x": 0.9161498881431909,
+              "y": 0.22903747203579772,
+              "z": 0
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-LF"
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 17.982417774811637,
+              "y": 0.9,
+              "z": 14.629055483505955
+            },
+            "velocity": {
+              "x": 7.297005626596353,
+              "y": 0,
+              "z": -2.8250291695703518
+            },
+            "glove": {
+              "x": 17.982417774811637,
+              "y": 0.9,
+              "z": 14.629055483505955
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.398396816194282,
+              "y": 0.9,
+              "z": 19.398976165072526
+            },
+            "velocity": {
+              "x": -0.1265607725136125,
+              "y": 0,
+              "z": -0.1968206565906261
+            },
+            "glove": {
+              "x": 19.398396816194282,
+              "y": 0.9,
+              "z": 19.398976165072526
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 61
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "default",
+      "id": "one_hop_RF_wall",
+      "end": {
+        "elapsedSeconds": 3.888125242663001,
+        "tick": 4888126,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 9.378732239999216,
+        "minimumChordInterpolatedMeters": 9.378606831748593,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.26,
+          "distanceMeters": 9.378732239999216,
+          "ball": {
+            "position": {
+              "x": 40.860411784687976,
+              "y": 2.314608614291,
+              "z": 65.31032730895605
+            },
+            "velocity": {
+              "x": 12.17899051123155,
+              "y": -10.561427115221347,
+              "z": 18.01135849018544
+            },
+            "spin": {
+              "x": -100.68010313246747,
+              "y": 36.61094659362453,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.8440720486771447,
+              "x": -0.5039452204449695,
+              "y": 0.1832528074345357,
+              "z": -1.4849232954361465e-15
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 12.029003718337808,
+              "y": 0.9,
+              "z": 13.351555114308672
+            },
+            "velocity": {
+              "x": 5.243504547854174,
+              "y": 0,
+              "z": -4.733471881888892
+            },
+            "glove": {
+              "x": 12.029003718337808,
+              "y": 0.9,
+              "z": 13.351555114308672
+            },
+            "intent": "backup",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.310612858148037,
+              "y": 0.9,
+              "z": 19.262459170765084
+            },
+            "velocity": {
+              "x": 0.7312400189674582,
+              "y": 0,
+              "z": 1.1371860158568776
+            },
+            "glove": {
+              "x": 19.310612858148037,
+              "y": 0.9,
+              "z": 19.262459170765084
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 52
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "high",
+      "id": "P_comebacker",
+      "end": {
+        "elapsedSeconds": 3.149181847961745,
+        "tick": 4149182,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-2B",
+        "b": "def-SS",
+        "minimumSampledMeters": 13.700463837750444,
+        "minimumChordInterpolatedMeters": 13.700463837750444,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.149181847961745,
+          "distanceMeters": 13.700463837750444,
+          "ball": {
+            "position": {
+              "x": 19.238708710674047,
+              "y": 0.9,
+              "z": 18.65063762261595
+            },
+            "velocity": {
+              "x": 1.0408340855860843e-17,
+              "y": 0,
+              "z": 1.734723475976807e-17
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.20141870837884585,
+              "x": -0.5036448390056928,
+              "y": 0.6487217930707253,
+              "z": 0.5337906099333617
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-1B"
+          },
+          "p": {
+            "playerId": "def-2B",
+            "position": {
+              "x": 0.43138395205301183,
+              "y": 0.9,
+              "z": 38.701968634540464
+            },
+            "velocity": {
+              "x": -2.2953390257520803,
+              "y": 0,
+              "z": 0.4934460587832061
+            },
+            "glove": {
+              "x": 0.43138395205301183,
+              "y": 0.9,
+              "z": 38.701968634540464
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-SS",
+            "position": {
+              "x": -13,
+              "y": 0.9,
+              "z": 36
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "glove": {
+              "x": -13,
+              "y": 0.9,
+              "z": 36
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 50
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "high",
+      "id": "3B_routine",
+      "end": {
+        "elapsedSeconds": 4.076625727399828,
+        "tick": 5076626,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 1.491728015193864,
+        "minimumChordInterpolatedMeters": 1.4835496284055922,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.59,
+          "distanceMeters": 1.491728015193864,
+          "ball": {
+            "position": {
+              "x": 19.392320812296035,
+              "y": 0.9,
+              "z": 18.889527083394608
+            },
+            "velocity": {
+              "x": -0.0018137951987404893,
+              "y": 0,
+              "z": -0.0028207188913822717
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": 0.37319818972254376,
+              "x": 0.41026964062569665,
+              "y": -0.5299439980268453,
+              "z": 0.6415304296165546
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-1B"
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 19.055360468705757,
+              "y": 0.9,
+              "z": 17.936354623511836
+            },
+            "velocity": {
+              "x": 7.9393301630830155,
+              "y": 0,
+              "z": -0.9739491859696938
+            },
+            "glove": {
+              "x": 19.055360468705757,
+              "y": 0.9,
+              "z": 17.936354623511836
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.392320812296035,
+              "y": 0.9,
+              "z": 19.389527083394608
+            },
+            "velocity": {
+              "x": -0.0018137951987404893,
+              "y": 0,
+              "z": -0.0028207188913822717
+            },
+            "glove": {
+              "x": 19.392320812296035,
+              "y": 0.9,
+              "z": 18.889527083394608
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 58
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "high",
+      "id": "56_hole_grounder",
+      "end": {
+        "elapsedSeconds": 4.073130145304699,
+        "tick": 5073131,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 1.8257890747914172,
+        "minimumChordInterpolatedMeters": 1.8243918729293094,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.59,
+          "distanceMeters": 1.8257890747914172,
+          "ball": {
+            "position": {
+              "x": 19.406337117251894,
+              "y": 0.9,
+              "z": 18.91132450363467
+            },
+            "velocity": {
+              "x": 9.71445146547012e-17,
+              "y": 0,
+              "z": 1.3877787807814457e-16
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": 0.29443298358238956,
+              "x": -0.23540737025564154,
+              "y": -0.15183471368626775,
+              "z": -0.9136951394901388
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-1B"
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 19.12078193248935,
+              "y": 0.9,
+              "z": 17.608004237546883
+            },
+            "velocity": {
+              "x": 7.925958686045285,
+              "y": 0,
+              "z": -0.932484288209612
+            },
+            "glove": {
+              "x": 19.12078193248935,
+              "y": 0.9,
+              "z": 17.608004237546883
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.406337117251894,
+              "y": 0.9,
+              "z": 19.41132450363467
+            },
+            "velocity": {
+              "x": 9.71445146547012e-17,
+              "y": 0,
+              "z": 1.3877787807814457e-16
+            },
+            "glove": {
+              "x": 19.406337117251894,
+              "y": 0.9,
+              "z": 18.91132450363467
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 58
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "high",
+      "id": "SS_routine",
+      "end": {
+        "elapsedSeconds": 3.8160792275582387,
+        "tick": 4816080,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 2.2692840143268276,
+        "minimumChordInterpolatedMeters": 2.268662146715952,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.645,
+          "distanceMeters": 2.2692840143268276,
+          "ball": {
+            "position": {
+              "x": 19.431540695938594,
+              "y": 0.9,
+              "z": 18.950519783554586
+            },
+            "velocity": {
+              "x": -5.551115123125783e-17,
+              "y": 0,
+              "z": -8.326672684688674e-17
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": 0.4228570705780037,
+              "x": 0.24438942317700676,
+              "y": -0.54008790419215,
+              "z": 0.6853982517097124
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-1B"
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 19.109301122389006,
+              "y": 0.9,
+              "z": 17.204231379338008
+            },
+            "velocity": {
+              "x": 6.029442911375163,
+              "y": 0,
+              "z": -1.0194872038099012
+            },
+            "glove": {
+              "x": 19.109301122389006,
+              "y": 0.9,
+              "z": 17.204231379338008
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.431540695938594,
+              "y": 0.9,
+              "z": 19.450519783554586
+            },
+            "velocity": {
+              "x": -5.551115123125783e-17,
+              "y": 0,
+              "z": -8.326672684688674e-17
+            },
+            "glove": {
+              "x": 19.431540695938594,
+              "y": 0.9,
+              "z": 18.950519783554586
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 59
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "high",
+      "id": "SS_up_middle",
+      "end": {
+        "elapsedSeconds": 3.2062510187519724,
+        "tick": 4206252,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-2B",
+        "b": "def-SS",
+        "minimumSampledMeters": 13.42542801766947,
+        "minimumChordInterpolatedMeters": 13.42542801766947,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.2062510187519724,
+          "distanceMeters": 13.42542801766947,
+          "ball": {
+            "position": {
+              "x": 19.289494926655212,
+              "y": 0.9,
+              "z": 18.729617674464897
+            },
+            "velocity": {
+              "x": 3.469446951953614e-17,
+              "y": 0,
+              "z": 4.85722573273506e-17
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.19617329428401828,
+              "x": -0.9700324623573742,
+              "y": -0.049899064159427284,
+              "z": -0.13439919634677405
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-1B"
+          },
+          "p": {
+            "playerId": "def-2B",
+            "position": {
+              "x": 0.13758662175418318,
+              "y": 0.9,
+              "z": 38.765128426227236
+            },
+            "velocity": {
+              "x": -2.1177960243052554,
+              "y": 0,
+              "z": 0.4552783226250275
+            },
+            "glove": {
+              "x": 0.13758662175418318,
+              "y": 0.9,
+              "z": 38.765128426227236
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-SS",
+            "position": {
+              "x": -13,
+              "y": 0.9,
+              "z": 36
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "glove": {
+              "x": -13,
+              "y": 0.9,
+              "z": 36
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 52
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "high",
+      "id": "2B_routine",
+      "end": {
+        "elapsedSeconds": 3.378341947176879,
+        "tick": 4378342,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 4.433464185456981,
+        "minimumChordInterpolatedMeters": 4.433464185456981,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.378341947176879,
+          "distanceMeters": 4.433464185456981,
+          "ball": {
+            "position": {
+              "x": 19.277611173271048,
+              "y": 0.9,
+              "z": 18.711136686261543
+            },
+            "velocity": {
+              "x": -4.85722573273506e-17,
+              "y": 0,
+              "z": -6.938893903907228e-17
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": 0.35335688651908914,
+              "x": -0.6072733159413607,
+              "y": -0.6739065165336373,
+              "z": 0.2284907820211098
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-1B"
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 16.418278474768435,
+              "y": 0.9,
+              "z": 15.822948202277292
+            },
+            "velocity": {
+              "x": 5.197148737394467,
+              "y": 0,
+              "z": -1.438843847199001
+            },
+            "glove": {
+              "x": 16.418278474768435,
+              "y": 0.9,
+              "z": 15.822948202277292
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.277611173271048,
+              "y": 0.9,
+              "z": 19.211136686261543
+            },
+            "velocity": {
+              "x": -4.85722573273506e-17,
+              "y": 0,
+              "z": -6.938893903907228e-17
+            },
+            "glove": {
+              "x": 19.277611173271048,
+              "y": 0.9,
+              "z": 18.711136686261543
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 55
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "high",
+      "id": "34_hole_grounder",
+      "end": {
+        "elapsedSeconds": 3.2583419471768664,
+        "tick": 4258342,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 5.8979576160771385,
+        "minimumChordInterpolatedMeters": 5.8979576160771385,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.2583419471768664,
+          "distanceMeters": 5.8979576160771385,
+          "ball": {
+            "position": {
+              "x": 19.27761117327105,
+              "y": 0.9,
+              "z": 18.71113668626152
+            },
+            "velocity": {
+              "x": -4.85722573273506e-17,
+              "y": 0,
+              "z": -8.326672684688674e-17
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": 0.5332977715043955,
+              "x": 0.780516198479059,
+              "y": 0.06844229153703249,
+              "z": -0.31891002422219933
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-1B"
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 14.99139846333712,
+              "y": 0.9,
+              "z": 15.159682052893011
+            },
+            "velocity": {
+              "x": 5.324505118586645,
+              "y": 0,
+              "z": -2.0964843883925512
+            },
+            "glove": {
+              "x": 14.99139846333712,
+              "y": 0.9,
+              "z": 15.159682052893011
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.27761117327105,
+              "y": 0.9,
+              "z": 19.21113668626152
+            },
+            "velocity": {
+              "x": -4.85722573273506e-17,
+              "y": 0,
+              "z": -8.326672684688674e-17
+            },
+            "glove": {
+              "x": 19.27761117327105,
+              "y": 0.9,
+              "z": 18.71113668626152
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 52
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "high",
+      "id": "1B_routine",
+      "end": {
+        "elapsedSeconds": 5.551286218931616,
+        "tick": 6551287,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-1B",
+        "b": "def-2B",
+        "minimumSampledMeters": 3.9705074154744495,
+        "minimumChordInterpolatedMeters": 3.9705074154744495,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 2.435,
+          "distanceMeters": 3.9705074154744495,
+          "ball": {
+            "position": {
+              "x": 15.440923221636131,
+              "y": 0.9,
+              "z": 24.01362705034532
+            },
+            "velocity": {
+              "x": -3.743203350177956,
+              "y": 0,
+              "z": -2.5313028082321867
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.6174676710909132,
+              "x": -0.6400797045250487,
+              "y": 4.145989107584569e-16,
+              "z": 0.4571997889464629
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-1B"
+          },
+          "p": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 15.440923221636131,
+              "y": 0.9,
+              "z": 24.51362705034532
+            },
+            "velocity": {
+              "x": -3.743203350177956,
+              "y": 0,
+              "z": -2.5313028082321867
+            },
+            "glove": {
+              "x": 15.440923221636131,
+              "y": 0.9,
+              "z": 24.01362705034532
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "q": {
+            "playerId": "def-2B",
+            "position": {
+              "x": 15.906580983090844,
+              "y": 0.9,
+              "z": 28.456733945362824
+            },
+            "velocity": {
+              "x": 1.2805729305918867,
+              "y": 0,
+              "z": -3.323390049689559
+            },
+            "glove": {
+              "x": 15.906580983090844,
+              "y": 0.9,
+              "z": 28.456733945362824
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 37
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "high",
+      "id": "slow_roller_3B",
+      "end": {
+        "elapsedSeconds": 4.407063691242116,
+        "tick": 5407064,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-3B",
+        "minimumSampledMeters": 6.547852523606048,
+        "minimumChordInterpolatedMeters": 6.547488533328671,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 2.875,
+          "distanceMeters": 6.547852523606048,
+          "ball": {
+            "position": {
+              "x": -6.009654130801295,
+              "y": 2.050087389517337,
+              "z": 16.653872953090538
+            },
+            "velocity": {
+              "x": 29.093764819022688,
+              "y": 2.3167235865216766,
+              "z": 3.418005802762236
+            },
+            "spin": {
+              "x": -12.986108520317567,
+              "y": 0,
+              "z": 118.67348647187819
+            },
+            "orientation": {
+              "w": 0.19553072348832312,
+              "x": 0.8759031341451974,
+              "y": -0.1532977915338833,
+              "z": 0.41359548217743763
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": -11.7542364672724,
+              "y": 0.9,
+              "z": 15.882996393296615
+            },
+            "velocity": {
+              "x": -3.966602916115483,
+              "y": 0,
+              "z": -1.079818018476984
+            },
+            "glove": {
+              "x": -11.7542364672724,
+              "y": 0.9,
+              "z": 15.882996393296615
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-3B",
+            "position": {
+              "x": -11.979714284643768,
+              "y": 0.9,
+              "z": 22.426965557708037
+            },
+            "velocity": {
+              "x": 3.491438606921167,
+              "y": 0,
+              "z": -0.9102109245659004
+            },
+            "glove": {
+              "x": -11.979714284643768,
+              "y": 0.9,
+              "z": 22.426965557708037
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 45
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "high",
+      "id": "slow_roller_2B",
+      "end": {
+        "elapsedSeconds": 3.378341947176883,
+        "tick": 4378342,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 7.125531312199261,
+        "minimumChordInterpolatedMeters": 7.125531312199261,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.378341947176883,
+          "distanceMeters": 7.125531312199261,
+          "ball": {
+            "position": {
+              "x": 19.277611173271058,
+              "y": 0.9,
+              "z": 18.711136686261533
+            },
+            "velocity": {
+              "x": -4.85722573273506e-17,
+              "y": 0,
+              "z": -8.326672684688674e-17
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": -0.578923954955021,
+              "x": 0.24431288724128136,
+              "y": -0.7669899314097487,
+              "z": 0.1299411890938915
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-1B"
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 12.433669166748807,
+              "y": 0.9,
+              "z": 17.22779246689559
+            },
+            "velocity": {
+              "x": 2.6968074415398706,
+              "y": 0,
+              "z": 0.9460435764893351
+            },
+            "glove": {
+              "x": 12.433669166748807,
+              "y": 0.9,
+              "z": 17.22779246689559
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.277611173271058,
+              "y": 0.9,
+              "z": 19.211136686261533
+            },
+            "velocity": {
+              "x": -4.85722573273506e-17,
+              "y": 0,
+              "z": -8.326672684688674e-17
+            },
+            "glove": {
+              "x": 19.277611173271058,
+              "y": 0.9,
+              "z": 18.711136686261533
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 55
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "high",
+      "id": "DP_643_grounder",
+      "end": {
+        "elapsedSeconds": 5.241523430272491,
+        "tick": 6241524,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-SS",
+        "minimumSampledMeters": 4.582376472611843,
+        "minimumChordInterpolatedMeters": 4.582376472611843,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 2.985,
+          "distanceMeters": 4.582376472611843,
+          "ball": {
+            "position": {
+              "x": -5.408754666603331,
+              "y": 1.5197402945983223,
+              "z": 32.040578641953275
+            },
+            "velocity": {
+              "x": 20.736041910575086,
+              "y": -1.3937512484425727,
+              "z": 26.358514278036505
+            },
+            "spin": {
+              "x": -93.56128610608081,
+              "y": 0,
+              "z": 74.64377079710547
+            },
+            "orientation": {
+              "w": 0.5250703249270146,
+              "x": 0.4726652020143127,
+              "y": 0.6768283782372585,
+              "z": 0.20686253188658946
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": -3.810970027587945,
+              "y": 0.9,
+              "z": 26.801034318853436
+            },
+            "velocity": {
+              "x": 0.11445350496291701,
+              "y": 0,
+              "z": 0.5375889344152257
+            },
+            "glove": {
+              "x": -3.810970027587945,
+              "y": 0.9,
+              "z": 26.801034318853436
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-SS",
+            "position": {
+              "x": -7.209039722413428,
+              "y": 0.9,
+              "z": 29.875330414849266
+            },
+            "velocity": {
+              "x": -0.042755898046636626,
+              "y": 0,
+              "z": 0.03361302500280039
+            },
+            "glove": {
+              "x": -7.167573270958103,
+              "y": 0.9779376316412024,
+              "z": 29.912474095452076
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 47
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "high",
+      "id": "DP_463_grounder",
+      "end": {
+        "elapsedSeconds": 5.312366491015753,
+        "tick": 6312367,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-2B",
+        "minimumSampledMeters": 3.4453366957064593,
+        "minimumChordInterpolatedMeters": 3.4453366957064593,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.04,
+          "distanceMeters": 3.4453366957064593,
+          "ball": {
+            "position": {
+              "x": 5.721120825875545,
+              "y": 1.5406955836607785,
+              "z": 31.373943278969588
+            },
+            "velocity": {
+              "x": -20.60052062616821,
+              "y": -1.2247557438440129,
+              "z": 26.27136866909492
+            },
+            "spin": {
+              "x": -94.72864110743613,
+              "y": 0,
+              "z": -73.24366458535
+            },
+            "orientation": {
+              "w": 0.6661693211291534,
+              "x": -0.7322168043969804,
+              "y": 0.14008074549541966,
+              "z": 0.02131599602282011
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 6.126316901092604,
+              "y": 0.9,
+              "z": 26.282371460988116
+            },
+            "velocity": {
+              "x": 0.9794117559811664,
+              "y": 0,
+              "z": 0.21082603999854005
+            },
+            "glove": {
+              "x": 6.126316901092604,
+              "y": 0.9,
+              "z": 26.282371460988116
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-2B",
+            "position": {
+              "x": 7.2814653858063565,
+              "y": 0.9,
+              "z": 29.52828842311839
+            },
+            "velocity": {
+              "x": 0.2276523239727008,
+              "y": 0,
+              "z": 0.2576359644481889
+            },
+            "glove": {
+              "x": 7.199088001499962,
+              "y": 1.0571114969018818,
+              "z": 29.60449771103268
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 48
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "high",
+      "id": "force_3B_grounder",
+      "end": {
+        "elapsedSeconds": 5.671286218931617,
+        "tick": 6671287,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-3B",
+        "b": "def-SS",
+        "minimumSampledMeters": 4.707389475482092,
+        "minimumChordInterpolatedMeters": 4.7061926214549,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.975,
+          "distanceMeters": 4.707389475482092,
+          "ball": {
+            "position": {
+              "x": -3.8108790430648147,
+              "y": 1.826324818634413,
+              "z": 35.14985523616503
+            },
+            "velocity": {
+              "x": -24.150661369271333,
+              "y": 1.2203545909824958,
+              "z": -24.53406577412141
+            },
+            "spin": {
+              "x": 84.89381987540749,
+              "y": 0,
+              "z": -83.92373038336915
+            },
+            "orientation": {
+              "w": 0.48436726821830633,
+              "x": 0.11483851706190668,
+              "y": 0.4884507997178317,
+              "z": -0.7166702733703751
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-3B",
+            "position": {
+              "x": -16.338916671944204,
+              "y": 0.9,
+              "z": 28.59757575418151
+            },
+            "velocity": {
+              "x": -4.317991641761856,
+              "y": 0,
+              "z": -2.418900900947688
+            },
+            "glove": {
+              "x": -16.338916671944204,
+              "y": 0.9,
+              "z": 28.59757575418151
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-SS",
+            "position": {
+              "x": -18.400538229240087,
+              "y": 0.9,
+              "z": 32.82950583729636
+            },
+            "velocity": {
+              "x": 5.194011889300568,
+              "y": 0,
+              "z": 1.8737344837899412
+            },
+            "glove": {
+              "x": -18.400538229240087,
+              "y": 0.9,
+              "z": 32.82950583729636
+            },
+            "intent": "hold",
+            "targetBase": null
+          },
+          "frameIndex": 65
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "high",
+      "id": "routine_CF_fly",
+      "end": {
+        "elapsedSeconds": 6.155083982827448,
+        "tick": 7155084,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 5.945455651613368,
+        "minimumChordInterpolatedMeters": 5.945343466354349,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.315,
+          "distanceMeters": 5.945455651613368,
+          "ball": {
+            "position": {
+              "x": 0,
+              "y": 28.32976970555821,
+              "z": 66.89466005160321
+            },
+            "velocity": {
+              "x": 0,
+              "y": -3.4843242504717917,
+              "z": 18.166853269579143
+            },
+            "spin": {
+              "x": -128.85247292911117,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": 0.9982697104435887,
+              "x": 0.05880123477337723,
+              "y": 0,
+              "z": 0
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 16.434332464114075,
+              "y": 0.9,
+              "z": 14.252276664930246
+            },
+            "velocity": {
+              "x": 7.5844232283357425,
+              "y": 0,
+              "z": -4.262180978621184
+            },
+            "glove": {
+              "x": 16.434332464114075,
+              "y": 0.9,
+              "z": 14.252276664930246
+            },
+            "intent": "backup",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.401779882998024,
+              "y": 0.9,
+              "z": 19.404237332623694
+            },
+            "velocity": {
+              "x": -1.1102230246251565e-16,
+              "y": 0,
+              "z": -1.942890293094024e-16
+            },
+            "glove": {
+              "x": 19.401779882998024,
+              "y": 0.9,
+              "z": 19.404237332623694
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 53
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "high",
+      "id": "routine_LF_fly",
+      "end": {
+        "elapsedSeconds": 5.406872692053843,
+        "tick": 6406873,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 2.8637206264709363,
+        "minimumChordInterpolatedMeters": 2.8626998119597715,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.48,
+          "distanceMeters": 2.8637206264709363,
+          "ball": {
+            "position": {
+              "x": -34.22512169487204,
+              "y": 18.670049943786495,
+              "z": 54.61333597060751
+            },
+            "velocity": {
+              "x": -9.760375166146524,
+              "y": -7.718605889832943,
+              "z": 14.106060934377538
+            },
+            "spin": {
+              "x": -120.17054699547867,
+              "y": -36.97555292168573,
+              "z": 0
+            },
+            "orientation": {
+              "w": 0.8667602620185779,
+              "x": 0.4766709077428188,
+              "y": 0.14666797161317532,
+              "z": 5.551115123125784e-17
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 18.71997373021066,
+              "y": 0.9,
+              "z": 16.622864255077932
+            },
+            "velocity": {
+              "x": 8.384307240414387,
+              "y": 0,
+              "z": -2.322367778439682
+            },
+            "glove": {
+              "x": 18.71997373021066,
+              "y": 0.9,
+              "z": 16.622864255077932
+            },
+            "intent": "backup",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.401779882998024,
+              "y": 0.9,
+              "z": 19.404237332623694
+            },
+            "velocity": {
+              "x": -1.1102230246251565e-16,
+              "y": 0,
+              "z": -1.942890293094024e-16
+            },
+            "glove": {
+              "x": 19.401779882998024,
+              "y": 0.9,
+              "z": 19.404237332623694
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 56
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "high",
+      "id": "routine_RF_fly",
+      "end": {
+        "elapsedSeconds": 5.406872136008032,
+        "tick": 6406873,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 8.07099748164522,
+        "minimumChordInterpolatedMeters": 8.07099748164522,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 2.985,
+          "distanceMeters": 8.07099748164522,
+          "ball": {
+            "position": {
+              "x": 29.303760973546186,
+              "y": 21.509827978047156,
+              "z": 47.47203769974119
+            },
+            "velocity": {
+              "x": 10.12450826393334,
+              "y": -3.721202654432566,
+              "z": 14.777421601979663
+            },
+            "spin": {
+              "x": -121.40588501380522,
+              "y": 37.35565692732467,
+              "z": 0
+            },
+            "orientation": {
+              "w": 0.9268301359885861,
+              "x": 0.3588767531795675,
+              "y": -0.11042361636294408,
+              "z": -1.804112415015879e-16
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 12.485360262981866,
+              "y": 0.9,
+              "z": 14.912027598356934
+            },
+            "velocity": {
+              "x": 5.483403195097382,
+              "y": 0,
+              "z": -6.721502186830942
+            },
+            "glove": {
+              "x": 12.485360262981866,
+              "y": 0.9,
+              "z": 14.912027598356934
+            },
+            "intent": "backup",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.297002166522816,
+              "y": 0.9,
+              "z": 19.24129253904242
+            },
+            "velocity": {
+              "x": 0.7301583029630242,
+              "y": 0,
+              "z": 1.1355037880227976
+            },
+            "glove": {
+              "x": 19.297002166522816,
+              "y": 0.9,
+              "z": 19.24129253904242
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 47
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "high",
+      "id": "shallow_CF_liner",
+      "end": {
+        "elapsedSeconds": 5.551286218931616,
+        "tick": 6551287,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 6.393783315826762,
+        "minimumChordInterpolatedMeters": 6.391027624084123,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.315,
+          "distanceMeters": 6.393783315826762,
+          "ball": {
+            "position": {
+              "x": 4.653732615546318,
+              "y": 0.35158765245872864,
+              "z": 69.27699443777036
+            },
+            "velocity": {
+              "x": 1.2882202395185953,
+              "y": -11.856347402698383,
+              "z": 19.435635522881764
+            },
+            "spin": {
+              "x": -73.79606549732455,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": 0.19844342273538468,
+              "x": 0.9801123445672263,
+              "y": 0,
+              "z": 0
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 16.209346555607365,
+              "y": 0.9,
+              "z": 13.864486928507091
+            },
+            "velocity": {
+              "x": 7.386673957552758,
+              "y": 0,
+              "z": -4.596378697306498
+            },
+            "glove": {
+              "x": 16.209346555607365,
+              "y": 0.9,
+              "z": 13.864486928507091
+            },
+            "intent": "backup",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.401779882998024,
+              "y": 0.9,
+              "z": 19.404237332623694
+            },
+            "velocity": {
+              "x": -1.1102230246251565e-16,
+              "y": 0,
+              "z": -1.942890293094024e-16
+            },
+            "glove": {
+              "x": 19.401779882998024,
+              "y": 0.9,
+              "z": 19.404237332623694
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 53
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "high",
+      "id": "fast_grounder_CF_wall",
+      "end": {
+        "elapsedSeconds": 5.551286218931616,
+        "tick": 6551287,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 4.08736100344005,
+        "minimumChordInterpolatedMeters": 4.086891869559512,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.48,
+          "distanceMeters": 4.08736100344005,
+          "ball": {
+            "position": {
+              "x": -33.91786853327595,
+              "y": 0.9,
+              "z": 60.66072225865331
+            },
+            "velocity": {
+              "x": 6.098783843676439,
+              "y": 0,
+              "z": -6.205563389508516
+            },
+            "spin": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "orientation": {
+              "w": 0.4732919323449028,
+              "x": 0.455475639714798,
+              "y": -0.5747557680445936,
+              "z": 0.48804968548611205
+            },
+            "phase": "possessed",
+            "visible": false,
+            "possessedBy": "def-LF"
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 18.566735922926775,
+              "y": 0.9,
+              "z": 15.404011435383358
+            },
+            "velocity": {
+              "x": 8.451663042563727,
+              "y": 0,
+              "z": -2.063826996481564
+            },
+            "glove": {
+              "x": 18.566735922926775,
+              "y": 0.9,
+              "z": 15.404011435383358
+            },
+            "intent": "backup",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.402305209014354,
+              "y": 0.9,
+              "z": 19.405054292013308
+            },
+            "velocity": {
+              "x": -0.0324408973839902,
+              "y": 0,
+              "z": -0.050450377290629865
+            },
+            "glove": {
+              "x": 19.402305209014354,
+              "y": 0.9,
+              "z": 19.405054292013308
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 56
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "high",
+      "id": "gap_liner_LCF",
+      "end": {
+        "elapsedSeconds": 4.321789562818799,
+        "tick": 5321790,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 4.812261824366135,
+        "minimumChordInterpolatedMeters": 4.8092018246150525,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 3.425,
+          "distanceMeters": 4.812261824366135,
+          "ball": {
+            "position": {
+              "x": -34.570210847038766,
+              "y": 4.930976730404279,
+              "z": 84.64669313405255
+            },
+            "velocity": {
+              "x": -9.572787653736047,
+              "y": -9.81124845375823,
+              "z": 21.588096443029354
+            },
+            "spin": {
+              "x": -108.0932610123274,
+              "y": -27.02331525308185,
+              "z": 0
+            },
+            "orientation": {
+              "w": 0.6394503082287136,
+              "x": -0.7458770144995617,
+              "y": -0.18646925362489042,
+              "z": 0
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 17.866634845836675,
+              "y": 0.9,
+              "z": 14.843404779116543
+            },
+            "velocity": {
+              "x": 8.133771152487595,
+              "y": 0,
+              "z": -3.087319979962088
+            },
+            "glove": {
+              "x": 17.866634845836675,
+              "y": 0.9,
+              "z": 14.843404779116543
+            },
+            "intent": "backup",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.401779882998024,
+              "y": 0.9,
+              "z": 19.404237332623694
+            },
+            "velocity": {
+              "x": -1.1102230246251565e-16,
+              "y": 0,
+              "z": -1.942890293094024e-16
+            },
+            "glove": {
+              "x": 19.401779882998024,
+              "y": 0.9,
+              "z": 19.404237332623694
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 55
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    },
+    {
+      "tier": "high",
+      "id": "one_hop_RF_wall",
+      "end": {
+        "elapsedSeconds": 3.887697668640025,
+        "tick": 4887698,
+        "reason": "live_action_complete",
+        "complete": true
+      },
+      "minimum": {
+        "a": "def-P",
+        "b": "def-1B",
+        "minimumSampledMeters": 9.167184894392255,
+        "minimumChordInterpolatedMeters": 9.167184894392255,
+        "inside48SampledSeconds": 0,
+        "inside1SampledSeconds": 0,
+        "closest": {
+          "elapsedSeconds": 2.985,
+          "distanceMeters": 9.167184894392255,
+          "ball": {
+            "position": {
+              "x": 37.4625769542347,
+              "y": 4.954048265572353,
+              "z": 60.27286036630272
+            },
+            "velocity": {
+              "x": 12.533001210392634,
+              "y": -8.62346918127933,
+              "z": 18.634460346322555
+            },
+            "spin": {
+              "x": -101.42910561182273,
+              "y": 36.883311131571894,
+              "z": 0
+            },
+            "orientation": {
+              "w": 0.9370018459057338,
+              "x": -0.32829277961380987,
+              "y": 0.11937919258684045,
+              "z": 1.9411555696180467e-15
+            },
+            "phase": "airborne",
+            "visible": true,
+            "possessedBy": null
+          },
+          "p": {
+            "playerId": "def-P",
+            "position": {
+              "x": 12.03164308176517,
+              "y": 0.9,
+              "z": 13.650958357841526
+            },
+            "velocity": {
+              "x": 5.651323399911484,
+              "y": 0,
+              "z": -5.419542769423737
+            },
+            "glove": {
+              "x": 12.03164308176517,
+              "y": 0.9,
+              "z": 13.650958357841526
+            },
+            "intent": "backup",
+            "targetBase": null
+          },
+          "q": {
+            "playerId": "def-1B",
+            "position": {
+              "x": 19.297002166522816,
+              "y": 0.9,
+              "z": 19.24129253904242
+            },
+            "velocity": {
+              "x": 0.7301583029630242,
+              "y": 0,
+              "z": 1.1355037880227976
+            },
+            "glove": {
+              "x": 19.297002166522816,
+              "y": 0.9,
+              "z": 19.24129253904242
+            },
+            "intent": "base_cover",
+            "targetBase": 1
+          },
+          "frameIndex": 47
+        }
+      },
+      "overlappingPairs": [],
+      "underOneMeterPairs": [],
+      "tripleClusterSamples": 0,
+      "firstTriple": null
+    }
+  ]
+}

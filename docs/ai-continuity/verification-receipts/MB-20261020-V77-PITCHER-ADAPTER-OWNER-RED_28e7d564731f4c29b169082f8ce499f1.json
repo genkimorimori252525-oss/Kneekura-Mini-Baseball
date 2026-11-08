@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V77-PITCHER-ADAPTER-OWNER-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-pitcher-v77.mjs",
+    "../../outputs/にーくら野球メーカー_v77_投手調整と独立得能版.html",
+    "docs/verification/releases/v77/pitcher-maker/adapter-owner-red"
+  ],
+  "observed_at": "2026-10-19T19:10:32.061+00:00",
+  "elapsed_ms": 6125,
+  "git_head": "76c564765f6a6d15fd1a2740a201080e3c534bfe",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V77-PITCHER-ADAPTER-OWNER-RED_28e7d564731f4c29b169082f8ce499f1.log",
+  "output_sha256": "ab42e3423fd30f7d2d8c5a04a21c903133aebca072c032a4edf4bb070877c84d",
+  "receipt_id": "MB-20261020-V77-PITCHER-ADAPTER-OWNER-RED_28e7d564731f4c29b169082f8ce499f1"
+}

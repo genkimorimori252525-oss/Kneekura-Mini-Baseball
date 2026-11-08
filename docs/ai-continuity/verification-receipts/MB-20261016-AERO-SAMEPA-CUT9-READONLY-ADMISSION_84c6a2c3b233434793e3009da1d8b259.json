@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-AERO-SAMEPA-CUT9-READONLY-ADMISSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../aero-ground-samepa-recovery-20261016/retained-entry-v3-runner.mjs",
+    "../aero-ground-samepa-recovery-20261016",
+    "declare-cut9-calibrations"
+  ],
+  "observed_at": "2026-10-15T16:19:21.430+00:00",
+  "elapsed_ms": 70561,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-AERO-SAMEPA-CUT9-READONLY-ADMISSION_84c6a2c3b233434793e3009da1d8b259.log",
+  "output_sha256": "95530b180db3738046ba50a340d6e676ebe0832621afcebc71534acccc87f31b",
+  "receipt_id": "MB-20261016-AERO-SAMEPA-CUT9-READONLY-ADMISSION_84c6a2c3b233434793e3009da1d8b259"
+}

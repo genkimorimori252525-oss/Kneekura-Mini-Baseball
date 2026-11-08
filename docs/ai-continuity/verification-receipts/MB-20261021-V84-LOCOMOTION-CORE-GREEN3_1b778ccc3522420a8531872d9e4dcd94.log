@@ -1,0 +1,53 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/locomotion/LiveLocomotionV84.test.ts (19 tests | 1 failed) 18ms
+   × averaged alternating-support live locomotion V84 > accepts derived reachable and stopping roots at representable distance boundaries 6ms
+     → live locomotion V84: acceleration speeds must be ordered
+ ✓ src/core/sim/fielding/LiveRunnerTouchEstimateV49.test.ts (3 tests) 18ms
+ ❯ src/core/sim/running/LiveRunnerMotionV1.test.ts (12 tests | 1 failed) 67ms
+   × LiveRunnerMotionV1 > uses authored radius/lateral ability to cap turning without changing run acceleration 6ms
+     → live locomotion V84: acceleration speeds must be ordered
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/locomotion/LiveLocomotionV84.test.ts > averaged alternating-support live locomotion V84 > accepts derived reachable and stopping roots at representable distance boundaries
+Error: live locomotion V84: acceleration speeds must be ordered
+ ❯ increasingSpeeds src/core/sim/locomotion/LiveLocomotionV84.ts:100:24
+     98| function increasingSpeeds(profile: LiveLocomotionProfileV84, from: num…
+     99|   validateProfile(profile); validateSpeed(profile, from); validateSpee…
+    100|   if (to < from) throw new Error('live locomotion V84: acceleration sp…
+       |                        ^
+    101| }
+    102| const speedChangeDistance = (from: number, to: number, acceleration: n…
+ ❯ liveAccelerationDistanceV84 src/core/sim/locomotion/LiveLocomotionV84.ts:106:3
+ ❯ distanceAtPeak src/core/sim/locomotion/LiveLocomotionV84.ts:143:54
+ ❯ Module.buildLiveSpeedPlanV84 src/core/sim/locomotion/LiveLocomotionV84.ts:162:46
+ ❯ src/core/sim/locomotion/LiveLocomotionV84.test.ts:89:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/core/sim/running/LiveRunnerMotionV1.test.ts > LiveRunnerMotionV1 > uses authored radius/lateral ability to cap turning without changing run acceleration
+Error: live locomotion V84: acceleration speeds must be ordered
+ ❯ increasingSpeeds src/core/sim/locomotion/LiveLocomotionV84.ts:100:24
+     98| function increasingSpeeds(profile: LiveLocomotionProfileV84, from: num…
+     99|   validateProfile(profile); validateSpeed(profile, from); validateSpee…
+    100|   if (to < from) throw new Error('live locomotion V84: acceleration sp…
+       |                        ^
+    101| }
+    102| const speedChangeDistance = (from: number, to: number, acceleration: n…
+ ❯ liveAccelerationDistanceV84 src/core/sim/locomotion/LiveLocomotionV84.ts:106:3
+ ❯ distanceAtPeak src/core/sim/locomotion/LiveLocomotionV84.ts:143:54
+ ❯ Module.buildLiveSpeedPlanV84 src/core/sim/locomotion/LiveLocomotionV84.ts:162:46
+ ❯ buildSpeedSegments src/core/sim/running/LiveRunnerMotionV1.ts:163:18
+ ❯ Module.createLiveRunnerMotionV1 src/core/sim/running/LiveRunnerMotionV1.ts:241:18
+ ❯ motion src/core/sim/running/LiveRunnerMotionV1.test.ts:14:18
+ ❯ src/core/sim/running/LiveRunnerMotionV1.test.ts:99:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  2 failed | 1 passed (3)
+      Tests  2 failed | 32 passed (34)
+   Start at  00:20:32
+   Duration  806ms (transform 253ms, setup 0ms, collect 349ms, tests 103ms, environment 0ms, prepare 622ms)
+

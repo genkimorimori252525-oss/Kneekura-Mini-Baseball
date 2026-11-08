@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-MAKER-PUBLIC-LEGACY-BUILD",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/build-maker.mjs",
+    "../../work/maker-public-legacy-compat.html"
+  ],
+  "observed_at": "2026-10-17T03:53:54.579+00:00",
+  "elapsed_ms": 296,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-MAKER-PUBLIC-LEGACY-BUILD_7a593ef3df2b4be18f62167033f1b008.log",
+  "output_sha256": "22026431dce355bf348a5ff61412e8a5d0d9ed0bf209c7dfa77cb57ddae2b76d",
+  "receipt_id": "MB-20261017-MAKER-PUBLIC-LEGACY-BUILD_7a593ef3df2b4be18f62167033f1b008"
+}

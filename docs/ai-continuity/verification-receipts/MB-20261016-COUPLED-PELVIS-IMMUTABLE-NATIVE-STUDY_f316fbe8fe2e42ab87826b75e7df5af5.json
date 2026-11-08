@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-COUPLED-PELVIS-IMMUTABLE-NATIVE-STUDY",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "../native-coupled-pelvis-study-v4/readback.mjs",
+    "../../outputs/verification-authored-with-bat-upright-velocity-decision-v1",
+    "../../outputs/verification-authored-with-bat-upright-velocity-prefix-control-v1",
+    "../../outputs/verification-authored-with-bat-coupled-pelvis-v4"
+  ],
+  "observed_at": "2026-10-16T13:22:32.461+00:00",
+  "elapsed_ms": 4530,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-COUPLED-PELVIS-IMMUTABLE-NATIVE-STUDY_f316fbe8fe2e42ab87826b75e7df5af5.log",
+  "output_sha256": "addae2832585a48b9146a79d05f70e1f83a05c446a0f0c14f21d788ca24b17f8",
+  "receipt_id": "MB-20261016-COUPLED-PELVIS-IMMUTABLE-NATIVE-STUDY_f316fbe8fe2e42ab87826b75e7df5af5"
+}

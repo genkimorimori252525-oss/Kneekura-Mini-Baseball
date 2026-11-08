@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-FIELD-CLOSURE-TEST",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts",
+    "src/integration/browser/PlayableMatchRulesV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T00:04:30.090+00:00",
+  "elapsed_ms": 1764,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-FIELD-CLOSURE-TEST_8888602d8823460e8d6ba5cffbe24f90.log",
+  "output_sha256": "513275dea66058d49f41e0162240ee5b5f30b7e5bd9ce4caa3d391eb3c0c419a",
+  "receipt_id": "MB-20261017-LIVE-FIELD-CLOSURE-TEST_8888602d8823460e8d6ba5cffbe24f90"
+}

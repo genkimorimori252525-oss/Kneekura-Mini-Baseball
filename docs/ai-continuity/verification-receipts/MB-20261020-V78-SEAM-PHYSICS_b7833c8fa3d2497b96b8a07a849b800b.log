@@ -1,0 +1,45 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/ball/SourceFreeBallSpeedBound.test.ts (2 tests) 19ms
+ ❯ src/core/sim/ball/BaseballSeamForceV1.test.ts (7 tests | 1 failed) 88ms
+   × v78 optional material seam force > converges with the RK4 stage phase, keeps energy dissipative, and bounds the dense source speed 43ms
+     → expected { w: -0.8742874904749321, …(3) } to deeply equal { w: -0.8742874904749323, …(3) }
+ ✓ src/core/sim/ball/FreeBaseballTrajectory.test.ts (7 tests) 136ms
+ ✓ src/core/sim/ball/VersionedBattedBallPhysics.test.ts (6 tests) 166ms
+ ✓ src/core/sim/ball/SourceFreeBallKernel.test.ts (6 tests) 178ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/ball/BaseballSeamForceV1.test.ts > v78 optional material seam force > converges with the RK4 stage phase, keeps energy dissipative, and bounds the dense source speed
+AssertionError: expected { w: -0.8742874904749321, …(3) } to deeply equal { w: -0.8742874904749323, …(3) }
+
+- Expected
++ Received
+
+  Object {
+-   "w": -0.8742874904749323,
+-   "x": -0.20101742472576467,
+-   "y": -0.0036242763062591258,
+-   "z": -0.44181471634263464,
++   "w": -0.8742874904749321,
++   "x": -0.20101742472576462,
++   "y": -0.0036242763062596557,
++   "z": -0.4418147163426347,
+  }
+
+ ❯ src/core/sim/ball/BaseballSeamForceV1.test.ts:105:34
+    103|     const observed = trajectory.observe([initial.tick + 30_000])[0];
+    104|     for (const k of ['x', 'y', 'z'] as const) expect(observed.ball.pos…
+    105|     expect(observed.orientation).toEqual(coarse.materialOrientation);
+       |                                  ^
+    106|   });
+    107| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  1 failed | 27 passed (28)
+   Start at  04:36:32
+   Duration  1.03s (transform 435ms, setup 0ms, collect 1.32s, tests 587ms, environment 1ms, prepare 998ms)
+

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-FIELD-FULL-FINITE-FORECAST",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T00:49:43.615+00:00",
+  "elapsed_ms": 3907,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-FIELD-FULL-FINITE-FORECAST_1da25449f1b5475695679077c47fb058.log",
+  "output_sha256": "db88739c71e7cf79ab7505a4e594faf45ef8d3cda1be03f47cbe4a9dfb825a8c",
+  "receipt_id": "MB-20261017-FIELD-FULL-FINITE-FORECAST_1da25449f1b5475695679077c47fb058"
+}

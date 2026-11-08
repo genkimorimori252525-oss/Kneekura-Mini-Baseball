@@ -1,0 +1,39 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/BatterCourseProfileV87.test.ts (4 tests | 1 failed) 17ms
+   × classifies catcher-view central nine and four unbounded outside regions including exact boundaries 7ms
+     → expected { publicZoneId: 13, …(2) } to match object { publicZoneId: 7, …(1) }
+(1 matching property omitted from actual)
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/BatterCourseProfileV87.test.ts > classifies catcher-view central nine and four unbounded outside regions including exact boundaries
+AssertionError: expected { publicZoneId: 13, …(2) } to match object { publicZoneId: 7, …(1) }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  Object {
+-   "insideStrikeZone": true,
+-   "publicZoneId": 7,
++   "insideStrikeZone": false,
++   "publicZoneId": 13,
+  }
+
+ ❯ src/integration/browser/BatterCourseProfileV87.test.ts:28:29
+     26|   for (let row = 0; row < 3; row++) for (let col = 0; col < 3; col++)
+     27|     expect(classify(-.2 + (col + .5) * .2, 1.4 - (row + .5) * .3).publ…
+     28|   expect(classify(-.2, .5)).toMatchObject({ publicZoneId: 7, insideStr…
+       |                             ^
+     29|   expect(classify(.4, 1.4)).toMatchObject({ publicZoneId: 3, insideStr…
+     30|   for (const [x, y, id] of [[-100, 100, 11], [100, 100, 12], [-100, -1…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  02:05:20
+   Duration  1.54s (transform 589ms, setup 0ms, collect 863ms, tests 17ms, environment 0ms, prepare 187ms)
+

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261019-V68-HELP",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "../../outputs/v68-maker-help-fixture-check.mjs"
+  ],
+  "observed_at": "2026-10-19T10:42:29.921+00:00",
+  "elapsed_ms": 4641,
+  "git_head": "652aa75ccb24df723c2d413e5dc37e7395dc8679",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261019-V68-HELP_ae55dd846bc94168bf036880847196af.log",
+  "output_sha256": "3a5f1b43efa50c794ad17b734a615e0c9f9278b8b371aa19b9f52c2b8700d55a",
+  "receipt_id": "MB-20261019-V68-HELP_ae55dd846bc94168bf036880847196af"
+}

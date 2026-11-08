@@ -1,0 +1,33 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/core/sim/fielding/LiveFielderAvoidanceV1.test.ts (17 tests | 1 failed) 40ms
+   × continuous, acceleration-limited local fielder coordination > does not extend a sub-ULP stationary braking phase into a fictitious long acceleration 5ms
+     → expected true to be false // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/core/sim/fielding/LiveFielderAvoidanceV1.test.ts > continuous, acceleration-limited local fielder coordination > does not extend a sub-ULP stationary braking phase into a fictitious long acceleration
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/core/sim/fielding/LiveFielderAvoidanceV1.test.ts:172:25
+    170|           { accelerationMps2: 4.7, topSpeedMps: 7.3, canSteer: false }…
+    171|       ]);
+    172|     expect(result.safe).toBe(false);
+       |                         ^
+    173|     expect(result.diagnostics.stepSafe).toBe(true);
+    174|     expect(result.diagnostics.minimumStoppingGapMeters).toBeLessThan(-…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 16 passed (17)
+   Start at  18:37:16
+   Duration  644ms (transform 89ms, setup 0ms, collect 92ms, tests 40ms, environment 0ms, prepare 132ms)
+

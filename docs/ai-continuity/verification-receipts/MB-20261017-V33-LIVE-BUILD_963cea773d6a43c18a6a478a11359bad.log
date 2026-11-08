@@ -1,0 +1,19 @@
+{
+  "output": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\ばせぼーるlv33_TBD_vs_LAD_Core試合版.html",
+  "sha256": "446b33f089ebb135f1ad90cbc8c72315afd21d07d8fd74a67fe79a2c17610688",
+  "baselineSha256": "c613574b377afd19060d89100c1bd7c1fa693efd42361c77ed7ab21943670f1f",
+  "nativeBundleSha256": "c1586e4a3d671eb34936e538bf46e0de08670dc172fedcb47030c3228b653bca",
+  "runtimeSha256": "b67567b9c7abcd5a0617e8976a90ccc51b7e731a339630cb24e4bebb4e897290",
+  "approvedPngMasksSha256": "51005451401727fb84c31be9ae63712c8a815bdd0a7edbde7606af36a69a0944",
+  "approvedFontSha256": "6bd1592ef0d1a47ecd13bf7ef81ac361a12c29239f31d43bec1c3f54f6023aeb",
+  "primaryCanvas": "offline Host executes shared Core; presentation observes only",
+  "nativeSqliteAdmission": false,
+  "legacyEngineRetainedForRegression": true,
+  "legacyResultFallback": false,
+  "ordinaryCadenceMs": 55,
+  "displayGridPixels": 4,
+  "playerModelCalibration": "explicit SI reference parameters; real player empirical calibration remains separate",
+  "measuredReferenceSha256": "72b615a28cd99b4a91c6e52cb02ee35f4ff97850c3bfe71ca73d0e609ba480ef",
+  "measuredReferenceAuthority": "OPENBIOMECHANICS_MEASURED_BAT_AXIS_RESEARCH",
+  "measuredClipCount": 12
+}

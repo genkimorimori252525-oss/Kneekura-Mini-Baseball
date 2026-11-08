@@ -1,0 +1,18 @@
+EXECUTE_FINITE_FIELD_SUCCESSOR_FROM_REASSESSED_STATE
+file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-joint-field-successor-v2/readback.mjs:83465
+  if (!p) throw new Error("finite field actor clearance: " + message);
+                ^
+
+Error: finite field actor clearance: unsupported actor basis/ground coverage
+    at assert33 (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-joint-field-successor-v2/readback.mjs:83465:17)
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-joint-field-successor-v2/readback.mjs:83473:5
+    at Array.map (<anonymous>)
+    at proveFiniteFieldActorClearanceV1 (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-joint-field-successor-v2/readback.mjs:83471:27)
+    at derive17 (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-joint-field-successor-v2/readback.mjs:83607:21)
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-joint-field-successor-v2/readback.mjs:83736:31
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-joint-field-successor-v2/readback.mjs:58394:16
+    at withSqliteMetadataStatementScope (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-joint-field-successor-v2/readback.mjs:17723:59)
+    at immutable (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-joint-field-successor-v2/readback.mjs:60179:19)
+    at withSamePaContinuationReadPhase (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/native-joint-field-successor-v2/readback.mjs:60196:53)
+
+Node.js v26.1.0

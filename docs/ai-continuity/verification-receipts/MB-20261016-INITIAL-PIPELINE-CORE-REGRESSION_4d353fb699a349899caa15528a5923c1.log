@@ -1,0 +1,16 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/ball/SourceFreeBallWorldQuery.test.ts (11 tests) 118ms
+ ✓ src/host/world/SamePlateAppearanceInitialBall.test.ts (11 tests) 51ms
+ ✓ src/host/world/NativeBattingPrediction.test.ts (4 tests) 993ms
+   ✓ BP01 forecast starts from the delivered original capture and retains the explicit aerodynamic prior 987ms
+ ✓ src/core/sim/pitch/ControlledPitchWorldV1.test.ts (6 tests) 37ms
+ ✓ src/core/sim/pitch/ControlledHeldPitchV1.test.ts (10 tests) 6ms
+ ✓ src/core/sim/ball/SourceFreeBallSpeedBound.test.ts (2 tests) 14ms
+
+ Test Files  6 passed (6)
+      Tests  44 passed (44)
+   Start at  08:47:14
+   Duration  13.65s (transform 7.78s, setup 0ms, collect 11.41s, tests 1.22s, environment 1ms, prepare 338ms)
+

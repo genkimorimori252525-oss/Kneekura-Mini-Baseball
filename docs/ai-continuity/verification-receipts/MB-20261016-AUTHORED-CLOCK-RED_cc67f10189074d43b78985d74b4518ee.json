@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-AUTHORED-CLOCK-RED",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/native-game/AuthoredMatchClockV1.test.ts"
+  ],
+  "observed_at": "2026-10-15T19:21:09.163+00:00",
+  "elapsed_ms": 891,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-AUTHORED-CLOCK-RED_cc67f10189074d43b78985d74b4518ee.log",
+  "output_sha256": "66a83a0fc683bacc0c68a2ba1a6f6cafd857c033f62cb1dc3752dd2b51d7b1a5",
+  "receipt_id": "MB-20261016-AUTHORED-CLOCK-RED_cc67f10189074d43b78985d74b4518ee"
+}

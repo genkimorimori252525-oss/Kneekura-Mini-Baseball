@@ -1,0 +1,42 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ❯ src/integration/browser/LiveBaseballMatchV1.test.ts (4 tests | 2 failed) 14084ms
+   × plays a mixed physical game through regulation without a replay frontier or old engine result 12181ms
+     → live baseball match: physical field continuation unresolved: numerical_contact_refinement_required
+   ✓ does not derive SI or alter results from presentation names or league labels 1559ms
+   × rejects malformed physical rosters and mutating a frozen result 100ms
+     → expected [Function] to throw error including 'invalid explicit player SI' but got 'official window input must be finite'
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/integration/browser/LiveBaseballMatchV1.test.ts > plays a mixed physical game through regulation without a replay frontier or old engine result
+Error: live baseball match: physical field continuation unresolved: numerical_contact_refinement_required
+ ❯ assert src/integration/browser/LiveBaseballMatchV1.ts:61:59
+     59|     material:Object.freeze({restitution:.48,slidingFriction:.24,rollin…
+     60| const frozen=<T>(v:T):T=>{if(v&&typeof v==='object'&&!Object.isFrozen(…
+     61| function assert(v:unknown,m:string):asserts v{if(!v)throw new Error('l…
+       |                                                           ^
+     62| function physical(player:LivePlayerV1):LivePlayerPhysicalV1{
+     63|   const p=player.physical??LIVE_MATCH_AUTHORED_SI_DEFAULTS_V1;
+ ❯ Object.issuePitch src/integration/browser/LiveBaseballMatchV1.ts:134:7
+ ❯ src/integration/browser/LiveBaseballMatchV1.test.ts:14:89
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/integration/browser/LiveBaseballMatchV1.test.ts > rejects malformed physical rosters and mutating a frozen result
+AssertionError: expected [Function] to throw error including 'invalid explicit player SI' but got 'official window input must be finite'
+
+Expected: "invalid explicit player SI"
+Received: "official window input must be finite"
+
+ ❯ src/integration/browser/LiveBaseballMatchV1.test.ts:33:166
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+   Start at  07:23:44
+   Duration  15.48s (transform 375ms, setup 0ms, collect 553ms, tests 14.08s, environment 0ms, prepare 196ms)
+

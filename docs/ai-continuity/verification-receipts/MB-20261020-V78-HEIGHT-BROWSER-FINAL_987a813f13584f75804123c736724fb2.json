@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V78-HEIGHT-BROWSER-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-v78-height-browser.mjs"
+  ],
+  "observed_at": "2026-10-19T19:59:30.236+00:00",
+  "elapsed_ms": 18186,
+  "git_head": "3c073821532b2d2fc0aa0a0091adba27d4a80ed0",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V78-HEIGHT-BROWSER-FINAL_987a813f13584f75804123c736724fb2.log",
+  "output_sha256": "0e86d01f7af1bb91b56aa6eb989d2f6508bb3f630b76ae71dba4e157fd35f611",
+  "receipt_id": "MB-20261020-V78-HEIGHT-BROWSER-FINAL_987a813f13584f75804123c736724fb2"
+}

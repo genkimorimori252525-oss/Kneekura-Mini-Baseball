@@ -1,0 +1,22 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/sim/ball/SourceFieldIntegerBoundaryV1.test.ts (7 tests) 632ms
+   ✓ executes a real sub-tick ground wait through the original kernel without rebasing ball or actors 323ms
+ ✓ src/host/world/SamePlateAppearanceBallPhysics.test.ts (4 tests) 14ms
+ ✓ src/host/world/SamePlateAppearanceObservationClockProjectionV1.test.ts (5 tests) 71ms
+ ✓ src/host/world/SamePlateAppearanceSourceFieldV3.test.ts (6 tests) 904ms
+   ✓ inserts all five metadata kinds at the exact post-impulse cut without adding a physical horizon 349ms
+ ✓ src/host/world/SamePlateAppearanceSourceIntegerCheckpointV1.test.ts (6 tests) 9168ms
+   ✓ branches from the full original v3 metadata prefix and executes same-tick positive physical time on its original Source 1038ms
+   ✓ routes the dedicated action through the owner calculation without relaxing the ordinary stale-step guard 889ms
+   ✓ retains the new branch for later metadata/free steps and rejects returning to the old version 2791ms
+   ✓ rejects exact-zero waits, different ticks, marker/result injection, unsupported motor/custody and legacy roots 1020ms
+   ✓ rejects forged prefix refs, metadata, Source side/state, actors and saved checkpoint diagnostics 2278ms
+   ✓ retains an earlier real impulse as a physical boundary, then rederives its private escape before another wait 1151ms
+
+ Test Files  5 passed (5)
+      Tests  28 passed (28)
+   Start at  03:19:31
+   Duration  15.65s (transform 8.43s, setup 0ms, collect 24.46s, tests 10.79s, environment 1ms, prepare 878ms)
+

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-WALL-CURVE-IMMUTABILITY-TEST",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/GroundWallRollingCurveV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T00:19:11.258+00:00",
+  "elapsed_ms": 1015,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-WALL-CURVE-IMMUTABILITY-TEST_12084a4550b24cfc89c841910222b3b0.log",
+  "output_sha256": "ec5bb9dfab3fd2d2697b487abc9faff0814bcf6f56b06bb70efb83ddba70e031",
+  "receipt_id": "MB-20261017-WALL-CURVE-IMMUTABILITY-TEST_12084a4550b24cfc89c841910222b3b0"
+}

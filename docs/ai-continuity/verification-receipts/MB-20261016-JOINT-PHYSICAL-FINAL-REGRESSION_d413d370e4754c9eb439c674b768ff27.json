@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-JOINT-PHYSICAL-FINAL-REGRESSION",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/pitch/ControlledBatBodyPitchWorldV1.test.ts",
+    "src/core/sim/pitch/ControlledPitchWorldV1.test.ts",
+    "src/core/sim/pitch/PitchHandHoldRenewalV1.test.ts",
+    "src/core/sim/contact/HeldToMeasuredBatControlV1.test.ts",
+    "src/core/sim/contact/MeasuredPelvisControlV1.test.ts",
+    "src/host/world/InitialJointPhysicalSourceInput.test.ts",
+    "src/host/world/MeasuredBattingBodyReferenceInput.test.ts",
+    "src/host/world/InitialPitchHandHoldInput.test.ts",
+    "src/host/world/SamePlateAppearanceObservedInitialCalculation.test.ts",
+    "src/host/world/SamePlateAppearanceLifecycleSource.test.ts"
+  ],
+  "observed_at": "2026-10-16T14:54:53.083+00:00",
+  "elapsed_ms": 49577,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-JOINT-PHYSICAL-FINAL-REGRESSION_d413d370e4754c9eb439c674b768ff27.log",
+  "output_sha256": "830bc751c2337aba43eef50eaf6f41339fd5c76c9a1a37d0776e4d8163c75cec",
+  "receipt_id": "MB-20261016-JOINT-PHYSICAL-FINAL-REGRESSION_d413d370e4754c9eb439c674b768ff27"
+}

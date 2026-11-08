@@ -1,0 +1,10 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/core/world/psychology/batting/MeasuredBattingCommitment.test.ts (21 tests) 1185ms
+
+ Test Files  1 passed (1)
+      Tests  21 passed (21)
+   Start at  07:05:40
+   Duration  2.14s (transform 347ms, setup 0ms, collect 564ms, tests 1.19s, environment 0ms, prepare 118ms)
+

@@ -1,0 +1,30 @@
+{
+  "pass": false,
+  "sha256": "ab78b4bb1571884deddcea408bb7000ff9d7cea6efeb8f0ef2f4f03e3a95dafb",
+  "coreSha256": "d2cb9749237ec57c62b44df68b713a7b733a5e5b38b48be05825f71ac3006f87",
+  "inheritedSourcesAndRenderersUnchanged": true,
+  "cases": [
+    {
+      "width": 1200,
+      "hand": "R",
+      "allPresets": 24,
+      "ownedAlwaysVisible": true,
+      "ownedAfterAdd": 32,
+      "uniquePitchIds": true,
+      "arrowsMatchSharedSpin": true,
+      "browseReadOnly": true,
+      "dirtyGuards": true,
+      "rosterOnlyRepertoireChanged": true,
+      "jsonRoundTrip": true,
+      "trial": true
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    }
+  ],
+  "error": "AssertionError [ERR_ASSERTION]: L curve spinRadPerSecond\n+ actual - expected\n\n  {\n    x: -249.17288920119563,\n+   y: 0,\n-   y: -0,\n    z: -24.917288920119564\n  }\n\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-pitch-menu-v80.mjs:36:283"
+}

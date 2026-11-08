@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261021-V85-PITCH-RECOVERY",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "tools/browser-bridge/check-maker-pitch-recovery-v82.mjs",
+    "../../outputs/にーくら野球メーカー_v85_設定解説と比較切替版.html",
+    "docs/verification/releases/v85/pitch-recovery"
+  ],
+  "observed_at": "2026-10-20T16:14:44.006+00:00",
+  "elapsed_ms": 24514,
+  "git_head": "a0ca8087caddc79322ad91ba37bc14e7555c62ed",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261021-V85-PITCH-RECOVERY_6db78094b1b74f6685f8ef1bbe1ebaa5.log",
+  "output_sha256": "304b487d65311d5b9a07937b50927aae4e236e7f35268a4f39c8da7b80723df8",
+  "receipt_id": "MB-20261021-V85-PITCH-RECOVERY_6db78094b1b74f6685f8ef1bbe1ebaa5"
+}

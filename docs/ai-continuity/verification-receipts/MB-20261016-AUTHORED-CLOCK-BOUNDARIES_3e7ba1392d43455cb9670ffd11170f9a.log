@@ -1,0 +1,10 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/integration/native-game/AuthoredMatchClockV1.test.ts (17 tests) 38ms
+
+ Test Files  1 passed (1)
+      Tests  17 passed (17)
+   Start at  04:21:47
+   Duration  7.31s (transform 4.41s, setup 0ms, collect 6.80s, tests 38ms, environment 0ms, prepare 144ms)
+

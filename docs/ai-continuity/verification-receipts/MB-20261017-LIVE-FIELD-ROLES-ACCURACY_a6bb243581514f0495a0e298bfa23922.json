@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261017-LIVE-FIELD-ROLES-ACCURACY",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldRoleAssignmentV1.test.ts",
+    "src/core/sim/fielding/LiveFieldRoleMotionV1.test.ts",
+    "src/core/sim/fielding/LiveThrowDirectionV1.test.ts",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts",
+    "src/core/sim/fielding/LiveThrowPlanV1.test.ts"
+  ],
+  "observed_at": "2026-10-17T03:13:46.650+00:00",
+  "elapsed_ms": 6155,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261017-LIVE-FIELD-ROLES-ACCURACY_a6bb243581514f0495a0e298bfa23922.log",
+  "output_sha256": "e43d3417c1fa908c4a861879eaeb04233a3516a89c28f0cb9421440f86051348",
+  "receipt_id": "MB-20261017-LIVE-FIELD-ROLES-ACCURACY_a6bb243581514f0495a0e298bfa23922"
+}

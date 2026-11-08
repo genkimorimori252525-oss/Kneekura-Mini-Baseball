@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261020-V75-PITCH-TECHNIQUES-FINAL",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/integration/browser/LivePitchTechnicalSkillsV75.test.ts",
+    "src/integration/browser/LivePitchV1.test.ts",
+    "src/integration/browser/LivePitchAbilitiesV1.test.ts",
+    "src/integration/browser/LivePitchReleaseV62.test.ts",
+    "src/integration/browser/LiveTraitPreferenceExecutionV54.test.ts"
+  ],
+  "observed_at": "2026-10-19T18:02:09.645+00:00",
+  "elapsed_ms": 19686,
+  "git_head": "4acba0c3f3d502f778107ca134c0352d0f5e3572",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261020-V75-PITCH-TECHNIQUES-FINAL_19f9389d7eda4312a70b95fe9c849a3f.log",
+  "output_sha256": "f46e5c061303a4c99e54e43059e55045991d569dba8d00390ffd7d4934209cb2",
+  "receipt_id": "MB-20261020-V75-PITCH-TECHNIQUES-FINAL_19f9389d7eda4312a70b95fe9c849a3f"
+}

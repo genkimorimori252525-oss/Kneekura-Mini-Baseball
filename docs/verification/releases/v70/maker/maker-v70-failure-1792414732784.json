@@ -1,0 +1,45 @@
+{
+  "pass": false,
+  "phase": "pixel-clock-1200",
+  "artifact": "C:\\Users\\genki\\Documents\\Codex\\2026-10-15\\new-chat\\outputs\\にーくら野球メーカー_v70_打者視点比較版.html",
+  "views": [
+    {
+      "width": 1200,
+      "samples": [],
+      "defaultCases": [
+        {
+          "level": 1,
+          "call": null,
+          "contactTick": 1432483
+        },
+        {
+          "level": 2,
+          "call": null,
+          "contactTick": 1432637
+        },
+        {
+          "level": 3,
+          "call": null,
+          "contactTick": 1433159
+        },
+        {
+          "level": 4,
+          "call": "swinging_strike",
+          "contactTick": null
+        }
+      ]
+    }
+  ],
+  "faults": [
+    {
+      "width": 1200,
+      "errors": [],
+      "external": []
+    }
+  ],
+  "scope": "v70 ordinary-game renderer/controller reuse with same-pitch v69 results, common clock, canvas-copy identity, reversible observer-only view and offline desktop/narrow integration",
+  "sha256": "b65eece1b3d18b681bece0301920c5b7016b58130d58a49d13ccbdb054d14d5b",
+  "coreSha256": "ee7451940934e39c69cec0419badbc644c17768210e139ab50e0862e69f63223",
+  "matchRendererSourceSha256": "8b709ab3c69fc8bdc5f9980a8b66912e0b9b86f73c67970cc1bf9b37cfa6ccbc",
+  "error": "AssertionError [ERR_ASSERTION]: the ordinary game renderer must redraw the same observed world\n+ actual - expected\n\n+ '55afe8a9d156ca08b5165be4ba4016887a2da9a63009f81694d24865171cf253'\n- '65bb6385ea42dc1b2d7c9e2f5fff3658f87d463e5e0d552b8314044e970cd120'\n\n    at pixelEqual (file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-maker-v70.mjs:40:288)\n    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball/tools/browser-bridge/check-maker-v70.mjs:66:59"
+}

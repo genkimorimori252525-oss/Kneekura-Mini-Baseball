@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261016-SOURCE-INTEGER-BOUNDARY",
+  "result": "PASS",
+  "exit_code": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/ball/SourceFieldIntegerBoundaryV1.test.ts",
+    "src/core/sim/ball/SourceBattedFieldMotionV3.test.ts"
+  ],
+  "observed_at": "2026-10-15T18:06:57.776+00:00",
+  "elapsed_ms": 1937,
+  "git_head": "df61388b32c773c14c2ce146e76d69e98818eb41",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261016-SOURCE-INTEGER-BOUNDARY_e1562b1692b040ac938c8ee7d015647a.log",
+  "output_sha256": "4ffb008baaf5c27602585a7cb68b31e0f3194bd821c9a9b63f76530d0075fd7d",
+  "receipt_id": "MB-20261016-SOURCE-INTEGER-BOUNDARY_e1562b1692b040ac938c8ee7d015647a"
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "MB-20261018-V49-CAUSAL-ASSERT-TRACE",
+  "result": "FAIL",
+  "exit_code": 1,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/core/sim/fielding/LiveFieldPlayV1.test.ts",
+    "--reporter=dot",
+    "-t",
+    "derives two retirements|rejects an unready"
+  ],
+  "observed_at": "2026-10-18T08:25:39.837+00:00",
+  "elapsed_ms": 2297,
+  "git_head": "d54aa62aec6ce643f216dbaedfbaba2f36b31e3b",
+  "git_dirty": true,
+  "output_path": "docs/ai-continuity/verification-receipts/MB-20261018-V49-CAUSAL-ASSERT-TRACE_abd4d94c6ca74b9186feaeef8046d0d2.log",
+  "output_sha256": "fe04131317c7891b11978feb4f483ff39b9df973ddb8f61fa0914d8f1229b29d",
+  "receipt_id": "MB-20261018-V49-CAUSAL-ASSERT-TRACE_abd4d94c6ca74b9186feaeef8046d0d2"
+}

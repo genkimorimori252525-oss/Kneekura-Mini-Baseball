@@ -1,0 +1,40 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
+  {
++   w: 0.4028479856843589,
++   x: 0.8052954739770962,
++   y: -0.4072444944056563,
++   z: 0.15285490439740568
+-   w: 0.4028479856843597,
+-   x: 0.8052954739770954,
+-   y: -0.4072444944056571,
+-   z: 0.1528549043974054
+  }
+
+    at file:///C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/check-chrome-native-material.mjs:29:65
+    at runNextTicks (node:internal/process/task_queues:65:5)
+    at process.processImmediate (node:internal/timers:472:9) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: {
+    w: 0.4028479856843589,
+    x: 0.8052954739770962,
+    y: -0.4072444944056563,
+    z: 0.15285490439740568
+  },
+  expected: {
+    w: 0.4028479856843597,
+    x: 0.8052954739770954,
+    y: -0.4072444944056571,
+    z: 0.1528549043974054
+  },
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.1.0

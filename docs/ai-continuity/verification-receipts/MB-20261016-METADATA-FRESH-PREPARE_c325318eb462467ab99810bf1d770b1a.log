@@ -1,0 +1,37 @@
+
+ RUN  v2.1.9 C:/Users/genki/Documents/Codex/2026-10-15/new-chat/work/mini-baseball
+
+ ✓ src/host/world/SqliteOwnershipMetadata.test.ts (21 tests) 10ms
+ ✓ src/host/world/SqliteMetadataStatementScope.test.ts (7 tests) 30ms
+ ❯ src/host/world/SamePlateAppearanceMetadataCompilation.test.ts (3 tests | 1 failed) 38ms
+   × keeps fresh metadata reads fenced across failed or replaced continuation transactions 11ms
+     → expected 5 to be 4 // Object.is equality
+ ✓ src/host/world/SamePlateAppearanceContinuationClaimReuse.test.ts (4 tests) 52ms
+ ✓ src/host/world/SamePlateAppearanceContinuationReadPhase.test.ts (5 tests) 108ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/host/world/SamePlateAppearanceMetadataCompilation.test.ts > keeps fresh metadata reads fenced across failed or replaced continuation transactions
+AssertionError: expected 5 to be 4 // Object.is equality
+
+- Expected
++ Received
+
+- 4
++ 5
+
+ ❯ src/host/world/SamePlateAppearanceMetadataCompilation.test.ts:81:76
+     79|     expect(phase(db, read)).toEqual(['first', 'second']); expect(compi…
+     80|     expect(() => phase(db, () => { read(); db.exec('COMMIT; BEGIN'); r…
+     81|     expect(phase(db, read)).toEqual(['first', 'second']); expect(compi…
+       |                                                                            ^
+     82|   } finally { db.prepare = prepare; if (db.isTransaction) db.exec('ROL…
+     83| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  1 failed | 39 passed (40)
+   Start at  01:47:36
+   Duration  8.43s (transform 7.81s, setup 0ms, collect 30.93s, tests 237ms, environment 1ms, prepare 1.06s)
+
