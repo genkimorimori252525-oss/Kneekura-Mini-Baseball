@@ -2671,7 +2671,9 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       return Math.min(...seen.actors.map(a => Math.max(0, liveFieldArrivalSecondsV1({ ...a, remainingReactionSeconds: 0 }, seen.position) - (t - seen.t))
         + a.transferSeconds + distance(flat(seen.position), flat(base(n))) / a.throwSpeedMps)); };
     const runnerTurnStepV1 = (r: Runner, leg: Leg): boolean => {
-      if (leg.returning || leg.halfway || r.retouchBase !== null || r.retired || r.scored || slideMotionV115(leg) || dead || overFence || flyCatch) return false;
+      // runnerTrailV1: a slide planned at the start (a force looked possible) is only a plan until he goes into it; a deep ball
+      // can still turn it into a rounding of the bag.
+      if (leg.returning || leg.halfway || r.retouchBase !== null || r.retired || r.scored || slideMotionV115(leg) && !(trailRunnerV1 && !slideCommittedV115(r, t)) || dead || overFence || flyCatch) return false;
       const ahead = leg.motion.touches.slice(leg.nextTouchIndex);
       if (!ahead.length) return false;
       const n = ahead[0].base, c = LIVE_RUNNER_TURN_CALIBRATION_V1;
@@ -2721,7 +2723,10 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       const batterRoundsV1 = !!trailRunnerV1 && r.base === 0 && n === 1 && !!leg.motion.firstBaseOverrunV95;
       if (!batterRoundsV1 && (r.base < 1 || n < 2 || n >= 4 || ahead.some(b => b.base !== n) || targetOccupiedByOther(r, n + 1)) || turnPulledUpV1.has(r.spec.runnerId + ':' + n)) return false;
       const cue = loose ? (runnerObservedCueV1(firstGroundContactSeconds, t) ?? runnerObservedCueV1(firstFielderTouchSeconds, t)) : (firstGroundContactSeconds ?? firstFielderTouchSeconds);
-      if (!(batterRoundsV1 || trailRunnerV1 && hitReadV1(r, n + 1)) && (cue === null || t < cue + r.spec.reactionSeconds)) return false;
+      // runnerTrailV1: a man forced to this bag is going there whatever happens to the ball; he rounds it too, without waiting
+      // for it to come down (the call to go on is still made at the touch).
+      const forcedOnV1 = !!trailRunnerV1 && r.base >= 1 && deriveCurrentForceObligations(force).some(o => o.runnerId === r.spec.runnerId && o.targetBase === n);
+      if (!(batterRoundsV1 || forcedOnV1 || trailRunnerV1 && hitReadV1(r, n + 1)) && (cue === null || t < cue + r.spec.reactionSeconds)) return false;
       const seen = runnerObservationV95(r, t), held = seen?.holder ? seen.actors.find(a => a.playerId === seen.holder) : undefined;
       if (!seen || distance(flat(held ? held.glovePosition : seen.position), flat(base(0))) < c.ballDepthMeters) return false;
       const motion = turnMotorV1(r, runnerAt(r, t), runnerVelocityAt(r, t), [n, n + 1]);
