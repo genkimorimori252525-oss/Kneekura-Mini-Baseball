@@ -389,6 +389,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   const fieldCoverV1=input.fieldCoverPolicyV1===undefined?undefined:validateLiveFieldCoverPolicyV1(input.fieldCoverPolicyV1);
   const fieldRunValueV1=input.fieldRunValuePolicyV1===undefined?undefined:validateLiveFieldRunValuePolicyV1(input.fieldRunValuePolicyV1);
   const individualV118=input.defenseDecisionModeV118==='individual',
+    runnerContinuesV1=individualV118&&!!fieldThrowPolicyV1?.runnerContinuesV1,
     decisionTraceV118=createLiveFieldDecisionTraceV1({enabled:!!input.recordDecisionTraceV118,originTick,ticksPerSecond:tps,seed:input.seed??0});
   const executionErrorsV95 = input.executionPerturbationsV95?.throwErrors ?? [];
   assert(Array.isArray(executionErrorsV95) && executionErrorsV95.length <= 64
@@ -1082,6 +1083,17 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
     return liveFieldArrivalSecondsV1({playerId:r.spec.runnerId,position:known.position,velocity:known.velocity,homePosition:base(r.spec.initialBase),
       topSpeedMps:r.spec.topSpeedMps,accelerationMps2:r.spec.accelerationMps2,throwSpeedMps:1,remainingReactionSeconds:0},base(n),field.baseTouchRadiusMeters??.28);
   };
+  // runnerContinuesV1: when the runner, as the observer last saw him, would reach bag n going on through every bag before it, by his
+  // own motion model (touching each, rounding at speed). Null when he is not short of n or no route is found.
+  const continuingArrivalV1=(r:Runner,n:BaseballBase,t:number,observer:Fielder):number|null=>{
+    const known=knownRunnerV118(observer,r,t);if(!known||known.retired||known.scored||known.currentBase>=n)return null;
+    const motion=createLiveRunnerMotionV1({position:v(known.position.x,0,known.position.z),velocity:v(known.velocity.x,0,known.velocity.z),
+      bases:Array.from({length:n-known.currentBase},(_,i)=>({base:known.currentBase+1+i,position:base((known.currentBase+1+i) as BaseballBase)})),
+      topSpeedMps:r.spec.topSpeedMps,accelerationMps2:r.spec.accelerationMps2,roundingRadiusMeters:r.spec.roundingRadiusMeters??4.5,
+      ...(r.spec.technicalSkills===undefined?{}:{technicalSkills:r.spec.technicalSkills}),
+      lateralAccelerationMps2:r.spec.lateralAccelerationMps2??1.5*r.spec.accelerationMps2,baseTouchRadiusMeters:field.baseTouchRadiusMeters??.28});
+    return motion?.touches.at(-1)?.elapsedSeconds??null;
+  };
   // fieldCoverV1: the runs the batting side expects from here with outs made at these bags, as this fielder sees the runners.
   // Those going are taken to make their next bag and the rest to stay; the table is fieldRunValueV1's, read as data either way.
   const coverRunsV1=(observer:Fielder,t:number,targets:readonly Readonly<{runnerId:string;targetBase:BaseballBase}>[],outsAt:readonly BaseballBase[])=>{
@@ -1722,7 +1734,12 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
           })[0]:defenders.find(f => f !== possession && assigned.get(f)?.intent === 'base_cover' && assigned.get(f)?.base === o.targetBase)
             ?? defenders.filter(f => f !== possession).sort((a, b) => liveFieldArrivalSecondsV1(knownActorV118(possession!,a,t), target)
               - liveFieldArrivalSecondsV1(knownActorV118(possession!,b,t), target))[0],
-          runnerSeconds = runnerArrivalSeconds(r, o.targetBase, t),
+          // runnerContinuesV1: the ball back in from beyond the dirt ahead of a moving runner is a real throw on him going on.
+          continuesV1 = runnerContinuesV1 && o.containment && knownRunnerMovingV118(r, t)
+            && distance(flat(at(possession!.body, t)), v(MLB_INFIELD_DIRT_ARC_V1.centerX, 0, MLB_INFIELD_DIRT_ARC_V1.centerZ)) > MLB_INFIELD_DIRT_ARC_V1.radiusM,
+          continuingSecondsV1 = continuesV1 ? continuingArrivalV1(r, o.targetBase, t, possession!) : null,
+          competitiveV1 = !o.containment || continuingSecondsV1 !== null,
+          runnerSeconds = continuingSecondsV1 ?? runnerArrivalSeconds(r, o.targetBase, t),
           preparation = createLiveBodyHandPreparationV105({ fromElapsedSeconds: t,
             initialOffset: add(sub(at(possession!.glove, t), at(possession!.body, t)),v(0,poseV105(possession!,t)?.crouchMeters??0,0)),
             initialRelativeVelocity: sub(velocityAt(possession!.glove, t), velocityAt(possession!.body, t)),
@@ -1756,7 +1773,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
             // This controller's throw task brakes to hold. Do not count the
             // catch's running momentum as a free boost at the later release.
             holderReleaseBodyVelocityV110:v(),
-            preferStrongestFeasibleV103: !o.containment, ...(throwEarliestArrivalV1&&!o.containment?{preferEarliestArrivalV1:true}:{}), physics: commandComparisonPhysicsV113,
+            preferStrongestFeasibleV103: competitiveV1, ...(throwEarliestArrivalV1&&competitiveV1?{preferEarliestArrivalV1:true}:{}), physics: commandComparisonPhysicsV113,
             ...(fieldThrowPolicyV1?{keepLateRouteV1:true as const}:{}),
             ...(relayStepV1?{relayStepSecondsV1:LIVE_FIELD_TEST_MODEL_V1.controlSeconds}:{}),
             excludedRelayPlayerIds: [...(relayVisited.get(r.spec.runnerId + ':' + o.targetBase) ?? [])],
@@ -1786,7 +1803,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
               +(possession!.spec.bodyModelV105 ? liveFielderPreparationPostureSecondsV105(possession!.spec.bodyModelV105,poseV105(possession!,t),at(possession!.body,t),point) : 0)-remainingTransferSeconds), chargeElapsedSeconds,
             throwEffortBuildSecondsV103: possession!.spec.throwEffortBuildSecondsV103 ?? LIVE_THROW_EFFORT_POLICY_V103.defaultBuildSeconds,
             receiverReadySeconds: receiverArriveSeconds,
-            ...(!o.containment ? { deadlineSeconds: Math.max(0, runnerSeconds - (receiver.spec.gloveRadiusMeters + input.physics.ground.radiusM) / receiver.spec.gloveSpeedMps),
+            ...(competitiveV1 ? { deadlineSeconds: Math.max(0, runnerSeconds - (receiver.spec.gloveRadiusMeters + input.physics.ground.radiusM) / receiver.spec.gloveSpeedMps),
               preferStrongestFeasibleV103: true, ...(throwEarliestArrivalV1?{preferEarliestArrivalV1:true}:{}) } : fieldThrowPolicyV1 ? { deadlineSeconds: Math.max(2.5, runnerSeconds) } : {}) },ownRecoveryWaitV120>0?{...transferActorV110(possession!,t),position:ownReleaseBodyV120,
                 glovePosition:add(ownReleaseBodyV120,sub(at(possession!.glove,t),at(possession!.body,t)))}:transferActorV110(possession!,t),2,preparation.kind==='planned',individualV118);
           if(directAction.kind==='planned'&&ownRecoveryWaitV120>directAction.releaseDelaySeconds){

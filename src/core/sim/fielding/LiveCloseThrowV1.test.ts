@@ -34,4 +34,10 @@ describe('close throw judgment',()=>{
     expect(validateLiveFieldThrowPolicyV1(LIVE_FIELD_THROW_POLICY_V1)).toBe(LIVE_FIELD_THROW_POLICY_V1);
     expect(()=>validateLiveFieldThrowPolicyV1({version:'x',sourceId:'y'} as never)).toThrow();
   });
+  it('accepts runnerContinuesV1 only as true',()=>{
+    const on={...LIVE_FIELD_THROW_POLICY_V1,runnerContinuesV1:true as const};
+    expect(validateLiveFieldThrowPolicyV1(on)).toBe(on);
+    expect(()=>validateLiveFieldThrowPolicyV1({...LIVE_FIELD_THROW_POLICY_V1,runnerContinuesV1:false} as never)).toThrow();
+    expect(()=>validateLiveFieldThrowPolicyV1({...LIVE_FIELD_THROW_POLICY_V1,other:true} as never)).toThrow();
+  });
 });

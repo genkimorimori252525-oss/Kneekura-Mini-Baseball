@@ -1,5 +1,10 @@
 /** Opt-in defense policy. Omission keeps the old "throw only on a positive margin" rule exact. */
-export type LiveFieldThrowPolicyV1=Readonly<{version:'live_field_throw_policy_v1';sourceId:string}>;
+export type LiveFieldThrowPolicyV1=Readonly<{version:'live_field_throw_policy_v1';sourceId:string;
+  /** Optional (omitted: off). With the ball out beyond the infield dirt and no out to make, the throw back in ahead of a moving
+   * runner is timed on him going on through the bags (his own motion model) and thrown as a competitive throw, as an outfielder
+   * does rather than lobbing it in on a runner he takes to be stopping (2026-11-09: such lobs, 23 m/s at effort .35, let runners
+   * from first take third on singles with almost no outs). */
+  runnerContinuesV1?:true}>;
 export const LIVE_FIELD_THROW_POLICY_V1:LiveFieldThrowPolicyV1=Object.freeze({version:'live_field_throw_policy_v1',sourceId:'field-throw-v1-authored'});
 /** Authored game AI, not a measured curve. Seconds are how late the throw is forecast to be.
  * Past `hopelessSeconds` nobody throws. Below it, holding back is a judgment that takes skill:
@@ -8,7 +13,8 @@ export const LIVE_CLOSE_THROW_CALIBRATION_V1=Object.freeze({hopelessSeconds:.85,
   bestDecisionSeconds:.035,worstDecisionSeconds:.3,neutralSkill:.5,widestNoiseSeconds:.12,narrowestNoiseSeconds:.04,cautiousScale:.6,
   /** A holder this far from every bag sends the ball back in instead of keeping it. */returnDistanceMeters:15,returnWaitSeconds:4});
 export function validateLiveFieldThrowPolicyV1(policy:LiveFieldThrowPolicyV1){
-  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_throw_policy_v1'
+  if(!policy||typeof policy!=='object'||!['sourceId|version','runnerContinuesV1|sourceId|version'].includes(Object.keys(policy).sort().join('|'))
+    ||policy.runnerContinuesV1!==undefined&&policy.runnerContinuesV1!==true||policy.version!=='live_field_throw_policy_v1'
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field throw policy');
   return policy;
 }
