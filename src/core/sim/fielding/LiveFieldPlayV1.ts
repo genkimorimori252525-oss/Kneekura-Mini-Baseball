@@ -1084,14 +1084,18 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       topSpeedMps:r.spec.topSpeedMps,accelerationMps2:r.spec.accelerationMps2,throwSpeedMps:1,remainingReactionSeconds:0},base(n),field.baseTouchRadiusMeters??.28);
   };
   // runnerContinuesV1: when the runner, as the observer last saw him, would reach bag n going on through every bag before it, by his
-  // own motion model (touching each, rounding at speed). Null when he is not short of n or no route is found.
+  // own motion model (touching each, rounding at speed). The seen velocity, an estimate, is held to his top speed. A man already in
+  // his turn around the bag before n, not yet known to have touched it, has no route back through it: he is then timed straight
+  // on to n. Null when he is not short of n or no route is found.
   const continuingArrivalV1=(r:Runner,n:BaseballBase,t:number,observer:Fielder):number|null=>{
     const known=knownRunnerV118(observer,r,t);if(!known||known.retired||known.scored||known.currentBase>=n)return null;
-    const motion=createLiveRunnerMotionV1({position:v(known.position.x,0,known.position.z),velocity:v(known.velocity.x,0,known.velocity.z),
-      bases:Array.from({length:n-known.currentBase},(_,i)=>({base:known.currentBase+1+i,position:base((known.currentBase+1+i) as BaseballBase)})),
-      topSpeedMps:r.spec.topSpeedMps,accelerationMps2:r.spec.accelerationMps2,roundingRadiusMeters:r.spec.roundingRadiusMeters??4.5,
-      ...(r.spec.technicalSkills===undefined?{}:{technicalSkills:r.spec.technicalSkills}),
-      lateralAccelerationMps2:r.spec.lateralAccelerationMps2??1.5*r.spec.accelerationMps2,baseTouchRadiusMeters:field.baseTouchRadiusMeters??.28});
+    const seen=Math.hypot(known.velocity.x,known.velocity.z),scale=seen>r.spec.topSpeedMps*.999?r.spec.topSpeedMps*.999/seen:1,
+      motor={position:v(known.position.x,0,known.position.z),velocity:v(known.velocity.x*scale,0,known.velocity.z*scale),
+        topSpeedMps:r.spec.topSpeedMps,accelerationMps2:r.spec.accelerationMps2,roundingRadiusMeters:r.spec.roundingRadiusMeters??4.5,
+        ...(r.spec.technicalSkills===undefined?{}:{technicalSkills:r.spec.technicalSkills}),
+        lateralAccelerationMps2:r.spec.lateralAccelerationMps2??1.5*r.spec.accelerationMps2,baseTouchRadiusMeters:field.baseTouchRadiusMeters??.28};
+    const motion=createLiveRunnerMotionV1({...motor,bases:Array.from({length:n-known.currentBase},(_,i)=>({base:known.currentBase+1+i,position:base((known.currentBase+1+i) as BaseballBase)}))})
+      ??(n-known.currentBase>1?createLiveRunnerMotionV1({...motor,bases:[{base:n,position:base(n)}]}):null);
     return motion?.touches.at(-1)?.elapsedSeconds??null;
   };
   // fieldCoverV1: the runs the batting side expects from here with outs made at these bags, as this fielder sees the runners.
