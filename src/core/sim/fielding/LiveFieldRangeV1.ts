@@ -294,7 +294,12 @@ export function validateLiveForcedRunPolicyV1(policy:LiveForcedRunPolicyV1){
  * 2026-11-09), his arrival matched to 0.05 s, and on races foreseen 0 to 1 s in his favour the ball reached the plate 0.2-0.7 s
  * sooner than foreseen with fewer than two out; with two out none of the races foreseen from -0.5 to +0.25 s was lost, the defense
  * going for the third out elsewhere. Replace these two values when the bar is derived from run expectancy (fieldRunValueV1). */
-export type LiveRunnerThrowReadPolicyV1=Readonly<{version:'live_runner_throw_read_policy_v1';sourceId:string;homeAllowanceSeconds?:number;homeAllowanceTwoOutSeconds?:number}>;
+/** readErrorSeconds (optional; omitted, 0): the spread of a runner's misjudgment of the defense on going for an extra base, third
+ * from first or home from second. Each such runner, each play, misreads the defense's time by one normal draw of this spread, the
+ * same in every look he takes, so the coach sends some he should hold and holds some he could send. The game's read is otherwise
+ * true to the motion models; real runners and coaches misjudge, and are thrown out at the plate on .024 of singles with a runner
+ * on second and fewer than two out (2024). */
+export type LiveRunnerThrowReadPolicyV1=Readonly<{version:'live_runner_throw_read_policy_v1';sourceId:string;homeAllowanceSeconds?:number;homeAllowanceTwoOutSeconds?:number;readErrorSeconds?:number}>;
 export const LIVE_RUNNER_THROW_READ_POLICY_V1:LiveRunnerThrowReadPolicyV1=Object.freeze({version:'live_runner_throw_read_policy_v1',sourceId:'runner-throw-read-v1-authored'});
 /** A runner who watches a throw go to a cutoff counts on that man catching it and throwing on, at a share of his arm. */
 export const LIVE_RUNNER_THROW_READ_CALIBRATION_V1=Object.freeze({relayArmShare:.85,relayCatchSeconds:.1,
@@ -353,8 +358,8 @@ export function validateLiveRunnerTurnPolicyV1(policy:LiveRunnerTurnPolicyV1){
 }
 export function validateLiveRunnerThrowReadPolicyV1(policy:LiveRunnerThrowReadPolicyV1){
   const allowance=(x:unknown)=>x===undefined||typeof x==='number'&&Number.isFinite(x)&&x>=0&&x<=2;
-  if(!policy||typeof policy!=='object'||Object.keys(policy).some(k=>!['version','sourceId','homeAllowanceSeconds','homeAllowanceTwoOutSeconds'].includes(k))||policy.version!=='live_runner_throw_read_policy_v1'
-    ||typeof policy.sourceId!=='string'||!policy.sourceId||!allowance(policy.homeAllowanceSeconds)||!allowance(policy.homeAllowanceTwoOutSeconds))throw Error('invalid runner throw read policy');
+  if(!policy||typeof policy!=='object'||Object.keys(policy).some(k=>!['version','sourceId','homeAllowanceSeconds','homeAllowanceTwoOutSeconds','readErrorSeconds'].includes(k))||policy.version!=='live_runner_throw_read_policy_v1'
+    ||typeof policy.sourceId!=='string'||!policy.sourceId||!allowance(policy.homeAllowanceSeconds)||!allowance(policy.homeAllowanceTwoOutSeconds)||!allowance(policy.readErrorSeconds))throw Error('invalid runner throw read policy');
   return policy;
 }
 export function validateLiveFieldRangePolicyV1(policy:LiveFieldRangePolicyV1){

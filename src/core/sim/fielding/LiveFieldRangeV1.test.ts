@@ -1,4 +1,5 @@
 import {describe,expect,it} from 'vitest';
+import {LIVE_RUNNER_THROW_READ_POLICY_V1,validateLiveRunnerThrowReadPolicyV1} from './LiveFieldRangeV1';
 import {LIVE_FIELD_RANGE_CALIBRATION_V1,LIVE_FIELD_RANGE_PLACEMENTS_V1,LIVE_FIELD_RANGE_POLICY_V1,liveFieldCoverOrderV1,liveFieldCrouchDueV1,liveFieldLowGloveTargetV1,liveFieldPlacementV1,liveFieldRangeSpecV1,validateLiveFieldRangePolicyV1} from './LiveFieldRangeV1';
 import {liveFieldArrivalSecondsV1} from './LiveFieldRoleAssignmentV1';
 import {resolveLiveFielderBodyModelV105,validateLiveFielderBodyModelV105} from './LiveFielderBodyGeometryV105';
@@ -60,5 +61,13 @@ describe('field range policy',()=>{
   it('moves only the infield corners and middle',()=>{
     const pitcher={x:0,y:.9,z:18.44};expect(liveFieldPlacementV1('P',pitcher)).toBe(pitcher);
     expect(liveFieldPlacementV1('SS',{x:-13,y:.9,z:36})).toEqual({...LIVE_FIELD_RANGE_PLACEMENTS_V1.SS,y:.9});
+  });
+});
+describe('runner throw read policy',()=>{
+  it('takes a read error spread from 0 to 2 seconds and nothing else new',()=>{
+    const base=LIVE_RUNNER_THROW_READ_POLICY_V1;
+    expect(validateLiveRunnerThrowReadPolicyV1({...base,readErrorSeconds:.4})).toEqual({...base,readErrorSeconds:.4});
+    for(const bad of [-.1,2.5,Number.NaN])expect(()=>validateLiveRunnerThrowReadPolicyV1({...base,readErrorSeconds:bad})).toThrow();
+    expect(()=>validateLiveRunnerThrowReadPolicyV1({...base,other:1} as never)).toThrow();
   });
 });

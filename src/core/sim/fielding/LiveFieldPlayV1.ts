@@ -535,7 +535,21 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   /** runnerThrowReadV1: the margin a race for home must clear, less the allowance the runner gives the defense's perfect-line forecast. */
   const homeAllowanceV1 = (targetBase: number): number => !runnerThrowReadV1 || targetBase !== 4 ? 0
     : (Math.min(2, input.outs + retiredCount) >= 2 ? runnerThrowReadV1.homeAllowanceTwoOutSeconds : runnerThrowReadV1.homeAllowanceSeconds) ?? 0;
-  const raceMarginV1 = (r: Runner, targetBase: number, forced: boolean): number => marginV1(r, targetBase, forced) - homeAllowanceV1(targetBase);
+  /** runnerThrowReadV1.readErrorSeconds: how much later than it is a runner going for third from first, or home from second, reads
+   * the defense this play (negative: sooner). One normal draw per runner per play, kept through all his looks. */
+  const readErrorCacheV1 = new Map<string, number>();
+  const readErrorV1 = (r: Runner, targetBase: number): number => {
+    const sigma = runnerThrowReadV1?.readErrorSeconds ?? 0;
+    if (!(sigma > 0) || r.spec.initialBase < 1 || targetBase !== r.spec.initialBase + 2) return 0;
+    let e = readErrorCacheV1.get(r.spec.runnerId);
+    if (e === undefined) {
+      const u1 = Math.max(1e-12, runnerRandomDrawV152('runner-throw-read-error-v1:a:' + r.spec.initialBase)),
+        u2 = runnerRandomDrawV152('runner-throw-read-error-v1:b:' + r.spec.initialBase);
+      e = sigma * Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2); readErrorCacheV1.set(r.spec.runnerId, e);
+    }
+    return e;
+  };
+  const raceMarginV1 = (r: Runner, targetBase: number, forced: boolean): number => marginV1(r, targetBase, forced) - homeAllowanceV1(targetBase) - readErrorV1(r, targetBase);
   const marginBeforeHomeV1 = (r: Runner, targetBase: number, forced: boolean): number => {
     const own = r.spec.advanceSafetyMarginSeconds ?? .35, c = input.runnerTacticsV1?.context;
     return !c || targetBase < 1 || targetBase > 4 ? own : deriveLiveRunnerSafetyMarginSecondsV1({ baseMarginSeconds: own, outs: Math.min(2, input.outs + retiredCount) as 0 | 1 | 2,
@@ -2644,7 +2658,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
         awardThroughBase: awardTarget as BaseballBase | null,
         firstGroundContactElapsedSeconds: looseGroundCue,
         firstFielderTouchElapsedSeconds: looseTouchCue,
-        defenderControlSeconds: taggedV1 && next === 4 && defenderControlSeconds !== null ? defenderControlSeconds + LIVE_FIELD_RANGE_CALIBRATION_V1.tagUpLongThrowAllowanceSeconds : defenderControlSeconds !== null && !taggedV1 ? defenderControlSeconds + homeAllowanceV1(next) : defenderControlSeconds, airborneAssessment: air, policy: { safetyMarginSeconds: taggedV1 ? next === 4 ? LIVE_FIELD_RANGE_CALIBRATION_V1.tagUpHomeMarginSeconds : LIVE_FIELD_RANGE_CALIBRATION_V1.tagUpBaseMarginSeconds : marginV1(r, next, forced) },
+        defenderControlSeconds: taggedV1 && next === 4 && defenderControlSeconds !== null ? defenderControlSeconds + LIVE_FIELD_RANGE_CALIBRATION_V1.tagUpLongThrowAllowanceSeconds : defenderControlSeconds !== null && !taggedV1 ? (readErrorV1(r, next) !== 0 ? Math.max(0, defenderControlSeconds + homeAllowanceV1(next) + readErrorV1(r, next)) : defenderControlSeconds + homeAllowanceV1(next)) : defenderControlSeconds, airborneAssessment: air, policy: { safetyMarginSeconds: taggedV1 ? next === 4 ? LIVE_FIELD_RANGE_CALIBRATION_V1.tagUpHomeMarginSeconds : LIVE_FIELD_RANGE_CALIBRATION_V1.tagUpBaseMarginSeconds : marginV1(r, next, forced) },
         ...(tacticsV1 ? { tacticsV1: { contactLeg: r.base === r.spec.initialBase } } : {}) });
       if(loose&&looseGroundCue===null&&looseTouchCue===null)decision={...decision,advance:false,reason:'loose_pitch_wait_for_live_ball_cue'} as any;
       // sureCatchHoldV1: nor does a late forecast that the fielder will miss send him; he goes when the ball is down or touched.
