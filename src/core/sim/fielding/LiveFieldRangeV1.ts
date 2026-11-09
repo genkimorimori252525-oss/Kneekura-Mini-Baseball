@@ -287,9 +287,13 @@ export function validateLiveForcedRunPolicyV1(policy:LiveForcedRunPolicyV1){
   return policy;
 }
 /** Opt-in. Omission keeps the runner's old read of a ball in flight. */
-/** homeAllowanceSeconds / homeAllowanceTwoOutSeconds (optional; omitted, 0): how much later than its perfect-line forecast the
- * runner counts on the defense having the ball at home, with fewer than two out and with two out. The forecast is a clean pickup
- * and a straight throw; a held runner's forecast came a median 1.2 s before the ball was really there (2026-11-08). */
+/** homeAllowanceSeconds / homeAllowanceTwoOutSeconds (optional; omitted, 0): how far below an even race the coach still sends a
+ * runner home, with fewer than two out and with two out. It is the coach's break-even point, not a correction to the forecast:
+ * with two out a runner thrown out only ends the inning, and one held at third leaves little run expectancy, so a lower chance of
+ * scoring is worth the send. The forecast itself is not cautious: with every runner from second sent home on singles (96 games,
+ * 2026-11-09), his arrival matched to 0.05 s, and on races foreseen 0 to 1 s in his favour the ball reached the plate 0.2-0.7 s
+ * sooner than foreseen with fewer than two out; with two out none of the races foreseen from -0.5 to +0.25 s was lost, the defense
+ * going for the third out elsewhere. Replace these two values when the bar is derived from run expectancy (fieldRunValueV1). */
 export type LiveRunnerThrowReadPolicyV1=Readonly<{version:'live_runner_throw_read_policy_v1';sourceId:string;homeAllowanceSeconds?:number;homeAllowanceTwoOutSeconds?:number}>;
 export const LIVE_RUNNER_THROW_READ_POLICY_V1:LiveRunnerThrowReadPolicyV1=Object.freeze({version:'live_runner_throw_read_policy_v1',sourceId:'runner-throw-read-v1-authored'});
 /** A runner who watches a throw go to a cutoff counts on that man catching it and throwing on, at a share of his arm. */
