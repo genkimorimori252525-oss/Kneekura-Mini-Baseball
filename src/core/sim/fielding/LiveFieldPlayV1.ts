@@ -389,7 +389,7 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
   const fieldCoverV1=input.fieldCoverPolicyV1===undefined?undefined:validateLiveFieldCoverPolicyV1(input.fieldCoverPolicyV1);
   const fieldRunValueV1=input.fieldRunValuePolicyV1===undefined?undefined:validateLiveFieldRunValuePolicyV1(input.fieldRunValuePolicyV1);
   const individualV118=input.defenseDecisionModeV118==='individual',
-    runnerContinuesV1=individualV118&&!!fieldThrowPolicyV1?.runnerContinuesV1,
+    runnerContinuesV1=individualV118&&!!fieldThrowPolicyV1?.runnerContinuesV1,holderTagCrouchV1=individualV118&&!!fieldThrowPolicyV1?.holderTagCrouchV1,
     decisionTraceV118=createLiveFieldDecisionTraceV1({enabled:!!input.recordDecisionTraceV118,originTick,ticksPerSecond:tps,seed:input.seed??0});
   const executionErrorsV95 = input.executionPerturbationsV95?.throwErrors ?? [];
   assert(Array.isArray(executionErrorsV95) && executionErrorsV95.length <= 64
@@ -2248,9 +2248,14 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
           &&a.role.intent===target.intent&&a.role.targetBase===target.base&&distance(flat(a.role.point),flat(target.point))<1e-8));
       if (f.spec.bodyModelV105&&!athleticActiveV115(f,t)) {
         const m = f.spec.bodyModelV105, old = sampleLiveFielderPostureV105(f.postureV105!, t), expected = forecasts.find(x => x.f === f)?.predicted,
-          point = f === possession ? throwTarget?.point ?? base(outTargets()[0]?.targetBase ?? 1) : expected?.point ?? target.point,
+          // holderTagCrouchV1: the holder going to tag gets down to the nearest moving runner's low point and faces him.
+          tagPointV1 = holderTagCrouchV1 && f === possession && target.intent === 'tag' ? (() => {
+            const r = runners.filter(x => knownRunnerActiveV118(x, t, f) && knownRunnerMovingV118(x, t, f))
+              .sort((a, b) => distance(at(body, t), knownRunnerAtV118(a, t, f)) - distance(at(body, t), knownRunnerAtV118(b, t, f)))[0];
+            if (!r) return null; const p = knownRunnerAtV118(r, t, f); return v(p.x, .15, p.z); })() : null,
+          point = tagPointV1 ?? (f === possession ? throwTarget?.point ?? base(outTargets()[0]?.targetBase ?? 1) : expected?.point ?? target.point),
           near = fieldRangePolicyV1&&localHandlerV118&&expected?liveFieldCrouchDueV1(m,expected.eta,expected.intercepted||(!!attemptCrouchV1&&!!expected.attempt)||norm(flat(expected.prediction.sample(0).velocity))<LIVE_FIELD_RANGE_CALIBRATION_V1.diveMinimumBallSpeedMps):distance(flat(point),flat(at(body,t))) <= m.armReachMeters + f.spec.topSpeedMps*(m.maximumCrouchMeters/m.postureSpeedMps+.15),
-          crouchDesired = pendingCatch?.fielder === f ? old.crouchMeters : (!possession||individualV118) && active && near && (localHandlerV118 || localReceiverV118)
+          crouchDesired = pendingCatch?.fielder === f ? old.crouchMeters : tagPointV1 ? liveFielderDesiredCrouchV105(m, at(body, t), tagPointV1) : (!possession||individualV118) && active && near && (localHandlerV118 || localReceiverV118)
             ? fieldRangePolicyV1&&localHandlerV118&&point.y<=.3?m.maximumCrouchMeters:liveFielderDesiredCrouchV105(m,at(body,t),point) : 0,
           desiredYaw = f === possession || near && (localHandlerV118 || localReceiverV118)
             ? Math.atan2(point.x-at(body,t).x,point.z-at(body,t).z)

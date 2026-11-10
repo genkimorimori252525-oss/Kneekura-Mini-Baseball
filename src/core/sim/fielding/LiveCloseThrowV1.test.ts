@@ -40,4 +40,10 @@ describe('close throw judgment',()=>{
     expect(()=>validateLiveFieldThrowPolicyV1({...LIVE_FIELD_THROW_POLICY_V1,runnerContinuesV1:false} as never)).toThrow();
     expect(()=>validateLiveFieldThrowPolicyV1({...LIVE_FIELD_THROW_POLICY_V1,other:true} as never)).toThrow();
   });
+  it('accepts holderTagCrouchV1 only as true, alone or with runnerContinuesV1',()=>{
+    const both={...LIVE_FIELD_THROW_POLICY_V1,runnerContinuesV1:true as const,holderTagCrouchV1:true as const};
+    expect(validateLiveFieldThrowPolicyV1(both)).toBe(both);
+    expect(validateLiveFieldThrowPolicyV1({...LIVE_FIELD_THROW_POLICY_V1,holderTagCrouchV1:true})).toEqual({...LIVE_FIELD_THROW_POLICY_V1,holderTagCrouchV1:true});
+    expect(()=>validateLiveFieldThrowPolicyV1({...LIVE_FIELD_THROW_POLICY_V1,holderTagCrouchV1:false} as never)).toThrow();
+  });
 });

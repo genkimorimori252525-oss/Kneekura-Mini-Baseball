@@ -4,7 +4,12 @@ export type LiveFieldThrowPolicyV1=Readonly<{version:'live_field_throw_policy_v1
    * runner is timed on him going on through the bags (his own motion model) and thrown as a competitive throw, as an outfielder
    * does rather than lobbing it in on a runner he takes to be stopping (2026-11-09: such lobs, 23 m/s at effort .35, let runners
    * from first take third on singles with almost no outs). */
-  runnerContinuesV1?:true}>;
+  runnerContinuesV1?:true;
+  /** Optional (omitted: off). A holder going to tag a runner gets down to him: he crouches toward the runner's low point (a slider's
+   * leg) and turns to face him, as a catcher drops to tag at the plate. Without it the holder's posture stays upright, his glove
+   * cannot get below about half a metre, and a slider passes under it (2026-11-10: catches 0.2-0.5 s ahead of the runner with no
+   * tag, 4 of 43 sends home in 24 bundle-10 games). */
+  holderTagCrouchV1?:true}>;
 export const LIVE_FIELD_THROW_POLICY_V1:LiveFieldThrowPolicyV1=Object.freeze({version:'live_field_throw_policy_v1',sourceId:'field-throw-v1-authored'});
 /** Authored game AI, not a measured curve. Seconds are how late the throw is forecast to be.
  * Past `hopelessSeconds` nobody throws. Below it, holding back is a judgment that takes skill:
@@ -13,8 +18,8 @@ export const LIVE_CLOSE_THROW_CALIBRATION_V1=Object.freeze({hopelessSeconds:.85,
   bestDecisionSeconds:.035,worstDecisionSeconds:.3,neutralSkill:.5,widestNoiseSeconds:.12,narrowestNoiseSeconds:.04,cautiousScale:.6,
   /** A holder this far from every bag sends the ball back in instead of keeping it. */returnDistanceMeters:15,returnWaitSeconds:4});
 export function validateLiveFieldThrowPolicyV1(policy:LiveFieldThrowPolicyV1){
-  if(!policy||typeof policy!=='object'||!['sourceId|version','runnerContinuesV1|sourceId|version'].includes(Object.keys(policy).sort().join('|'))
-    ||policy.runnerContinuesV1!==undefined&&policy.runnerContinuesV1!==true||policy.version!=='live_field_throw_policy_v1'
+  if(!policy||typeof policy!=='object'||Object.keys(policy).some(k=>!['version','sourceId','runnerContinuesV1','holderTagCrouchV1'].includes(k))
+    ||policy.runnerContinuesV1!==undefined&&policy.runnerContinuesV1!==true||policy.holderTagCrouchV1!==undefined&&policy.holderTagCrouchV1!==true||policy.version!=='live_field_throw_policy_v1'
     ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field throw policy');
   return policy;
 }
