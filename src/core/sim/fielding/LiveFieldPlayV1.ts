@@ -1428,7 +1428,11 @@ function simulateLiveFieldPlayScopedV113(raw: LiveFieldPlayInputV1) {
       ||t<start+responseSeconds(f)||Math.abs(velocityAt(f.body,t).y)>1e-8)return null;
     f.athleticAttemptAfterV115=t+.08;
     const position=at(f.body,t),velocity=velocityAt(f.body,t),near=prediction.prediction.observedPosition;
-    if(distance(flat(position),flat(near))>f.spec.topSpeedMps*1.15+m.armReachMeters+2)return null;
+    // diveAheadV1: how close the ball's forecast path comes within the longest action (1.1 s), in place of where it was last seen.
+    const nearestV1=fieldRangePolicyV1?.diveAheadV1?(()=>{let d=Infinity;
+      for(let h=0;h<=Math.min(1.1,prediction.prediction.maximumSeconds);h+=.04)d=Math.min(d,distance(flat(position),flat(prediction.prediction.sample(h).position)));
+      return d;})():distance(flat(position),flat(near));
+    if(nearestV1>f.spec.topSpeedMps*1.15+m.armReachMeters+2)return null;
     const candidates: {action:LiveFielderAthleticPlanV115;eta:number;point:Vec3;gap:number}[]=[];
     for(const kind of ['jump','dive'] as const){
       // A takeoff spans several control steps and may cross a support-speed

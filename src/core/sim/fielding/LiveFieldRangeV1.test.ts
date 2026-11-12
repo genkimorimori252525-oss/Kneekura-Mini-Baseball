@@ -71,3 +71,12 @@ describe('runner throw read policy',()=>{
     expect(()=>validateLiveRunnerThrowReadPolicyV1({...base,other:1} as never)).toThrow();
   });
 });
+describe('field range policy diveAheadV1',()=>{
+  it('accepts diveAheadV1 only as true',()=>{
+    const on={...LIVE_FIELD_RANGE_POLICY_V1,diveAheadV1:true as const};
+    expect(validateLiveFieldRangePolicyV1(on)).toBe(on);
+    expect(validateLiveFieldRangePolicyV1(LIVE_FIELD_RANGE_POLICY_V1)).toBe(LIVE_FIELD_RANGE_POLICY_V1);
+    for(const bad of [false,1,'true'])expect(()=>validateLiveFieldRangePolicyV1({...LIVE_FIELD_RANGE_POLICY_V1,diveAheadV1:bad} as never)).toThrow();
+    expect(()=>validateLiveFieldRangePolicyV1({...LIVE_FIELD_RANGE_POLICY_V1,other:true} as never)).toThrow();
+  });
+});

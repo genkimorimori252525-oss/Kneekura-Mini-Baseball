@@ -3,7 +3,11 @@ import type { LiveFielderBodyModelV105 } from './LiveFielderBodyGeometryV105';
 import type { LivePropulsionShapeV84 } from '../locomotion/LiveLocomotionV84';
 
 /** Opt-in defense policy. Omission keeps the old alignment and motion exact. */
-export type LiveFieldRangePolicyV1=Readonly<{version:'live_field_range_policy_v1';sourceId:string}>;
+/** diveAheadV1 (opt-in, true only): a fielder weighs a dive or a jump once the ball's forecast path, not its last seen spot, comes
+ * within his reach for one. The seen spot lags, so on a fast grounder the dive was weighed only after he had already crouched for
+ * the ball, and a crouched fielder cannot dive: an infielder whose glove passed 0.2-0.7 m from a ball in the hole let it through
+ * to left field (2026-11-12, bundle 11). Omission keeps the seen-spot test. */
+export type LiveFieldRangePolicyV1=Readonly<{version:'live_field_range_policy_v1';sourceId:string;diveAheadV1?:true}>;
 export const LIVE_FIELD_RANGE_POLICY_V1:LiveFieldRangePolicyV1=Object.freeze({version:'live_field_range_policy_v1',sourceId:'field-range-v1-authored'});
 /** Same for every fielder, so it can never be a per-player or per-trait correction.
  * readyAccelerationScale: a fielder breaks from a set ready position, not a standing start.
@@ -363,8 +367,9 @@ export function validateLiveRunnerThrowReadPolicyV1(policy:LiveRunnerThrowReadPo
   return policy;
 }
 export function validateLiveFieldRangePolicyV1(policy:LiveFieldRangePolicyV1){
-  if(!policy||typeof policy!=='object'||Object.keys(policy).sort().join('|')!=='sourceId|version'||policy.version!=='live_field_range_policy_v1'
-    ||typeof policy.sourceId!=='string'||!policy.sourceId)throw Error('invalid field range policy');
+  if(!policy||typeof policy!=='object'||!['sourceId|version','diveAheadV1|sourceId|version'].includes(Object.keys(policy).sort().join('|'))
+    ||policy.version!=='live_field_range_policy_v1'||typeof policy.sourceId!=='string'||!policy.sourceId
+    ||'diveAheadV1' in policy&&policy.diveAheadV1!==true)throw Error('invalid field range policy');
   return policy;
 }
 /** Every estimate reads the same spec as the motor, so plans and motion cannot disagree. */
