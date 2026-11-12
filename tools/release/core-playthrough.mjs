@@ -4,6 +4,9 @@
 // the length of the records file and the tally. --from=file goes on from such a checkpoint, cutting the records file back
 // to the length it had then, so a game the guard stopped part way ends with the same records as one played straight through.
 // The checkpoint is rewritten as finished when the game ends. Omitting both keeps the old run exactly.
+// --bank=file writes the ball bank: one JSON line per completed field play (its whole field input, the match just before it,
+// the real rules and scoring results), for tools/calibration/bank-replay.mjs. Non-finite numbers are kept as {"$num":"Infinity"}.
+// A checkpoint also cuts the bank file back. The game itself is the same with or without it.
 import {createHash} from 'node:crypto';
 import {appendFileSync, existsSync, readFileSync, renameSync, statSync, truncateSync, writeFileSync} from 'node:fs';
 import {resolveMeasuredClips} from '../calibration/clips-ref.mjs';
@@ -40,8 +43,11 @@ if (opt.decision) for (const player of config.players) if (/-b\d$/.test(player.p
   for (const pair of opt.decision.split(',')) {const [key, value] = pair.split(':'); player.physical.swingDecision = {...player.physical.swingDecision, [key]: Number(value)};}
 const policies = config.experimentalMatchPoliciesV2;
 const from = opt.from ? JSON.parse(readFileSync(opt.from, 'utf8')) : null;
+if (opt.bank) globalThis.__kbmFieldBankV1 = [];
+const bankEncode = (k, v) => typeof v === 'number' && !Number.isFinite(v) ? {$num: String(v)} : v;
 if (from && (from.version !== 'core_playthrough_checkpoint_v1' || from.seed !== config.seed || from.finished)) throw Error('checkpoint is not an unfinished game of this seed: ' + opt.from);
 if (from && opt.records) truncateSync(opt.records, from.recordsBytes);
+if (opt.bank) {if (from && existsSync(opt.bank)) truncateSync(opt.bank, from.bankBytes ?? 0); else if (!from) writeFileSync(opt.bank, '');}
 const resume = from ? from.continuation : opt.resume ? JSON.parse(readFileSync(opt.resume, 'utf8')) : undefined;
 const host = policies ? core.createExperimentalMatchHostV2(config, policies, resume) : core.createLiveBaseballMatchWorkerV116(config, resume);
 const command = {batting: 'auto', pitchType: 'auto', location: opt.location ?? 'auto', managedTeam: 0, baserunning: 'balanced'};
@@ -52,7 +58,8 @@ const checkpoint = (pitches, finished) => {
   if (!opt.checkpoint) return;
   const next = opt.checkpoint + '.next';
   writeFileSync(next, JSON.stringify({version: 'core_playthrough_checkpoint_v1', seed: config.seed, pitches, finished,
-    recordsBytes: opt.records && existsSync(opt.records) ? statSync(opt.records).size : 0, tally, continuation: finished ? null : last}));
+    recordsBytes: opt.records && existsSync(opt.records) ? statSync(opt.records).size : 0,
+    ...(opt.bank ? {bankBytes: existsSync(opt.bank) ? statSync(opt.bank).size : 0} : {}), tally, continuation: finished ? null : last}));
   renameSync(next, opt.checkpoint);
 };
 let last = host.captureContinuationV116();
@@ -123,6 +130,8 @@ for (let n = from ? from.pitches : 0; n < limit; n++) {
   last = host.captureContinuationV116();
   hash?.update(JSON.stringify(r));
   if (opt.records) appendFileSync(opt.records, JSON.stringify(pitchRecord(r, config.seed)) + String.fromCharCode(10));
+  if (opt.bank) {const plays = globalThis.__kbmFieldBankV1.splice(0);
+    for (const x of plays) appendFileSync(opt.bank, JSON.stringify({kind: 'play', ...x}, bankEncode) + String.fromCharCode(10));}
   tally.pitches++;
   for (const e of r.events) if (['stolen_base', 'caught_stealing', 'picked_off', 'pickoff_safe'].includes(e.kind)) tally[e.kind] = (tally[e.kind] ?? 0) + 1;
   if (r.play.diagnostics?.pitchFallbackV1) tally.simple = (tally.simple ?? 0) + 1;

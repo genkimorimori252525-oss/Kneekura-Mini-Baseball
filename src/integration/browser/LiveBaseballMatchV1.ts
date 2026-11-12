@@ -867,6 +867,10 @@ function createLiveBaseballMatchWorkerInternalV257(raw:LiveMatchInputV1,resume:L
     const localScoringV100=scoreLivePlayV100({before:beforeMatch,batterRunnerId:c.batterPlayerId,bunt:batting==='bunt',
       input:scoringInput,field,rules:result,regulationInnings:innings}),offenseKey=c.team===0?'away':'home',defenseKey=c.team===0?'home':'away',
       pendingOffense=c.team===0?'pendingAway':'pendingHome',pendingDefense=c.team===0?'pendingHome':'pendingAway';
+    // Ball bank (calibration tools only): when a tool has put an array at globalThis.__kbmFieldBankV1, each completed field play
+    // leaves there what it needs to be played again alone: its whole field input, the match just before it and the real results.
+    {const bankV1=(globalThis as any).__kbmFieldBankV1;if(scoringInput!==null&&Array.isArray(bankV1))bankV1.push({pitch:pitchCount+1,input:scoringInput,before:beforeMatch,
+      batter:c.batterPlayerId,bunt:batting==='bunt',innings,rules:result,scoring:localScoringV100});}
     if(localScoringV100.hits!==null)hits[offenseKey]+=localScoringV100.hits;
     else if(result.batterAdvanced)hits[pendingOffense]++;
     errors[defenseKey]+=localScoringV100.errors.length;
