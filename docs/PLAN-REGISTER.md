@@ -1,8 +1,16 @@
 # Implementation Plan Register — status, owners and dependencies
 
-> **Updated:** 2026-10-26 (SWG, bat-mass/MAX-speed, PLV-75+, SPIN-GOLD v2, and SIGN-NAME future plans registered; 2026-10-16 CATCH/BAT/DIR statuses unchanged). **This is a discoverability index, not implementation authorization or a new canonical specification.** Each linked document's internal Status and the later explicitly approved canonical design take precedence.
+> **Updated:** 2026-11-13 (PENNANT historical/original three-mode source plan added; 2026-10-26 SWG, bat-mass/MAX-speed, PLV-75+, SPIN-GOLD v2, and SIGN-NAME future plans registered; 2026-10-16 CATCH/BAT/DIR statuses unchanged). **This is a discoverability index, not implementation authorization or a new canonical specification.** Each linked document's internal Status and the later explicitly approved canonical design take precedence.
 >
 > **Caution:** The user mentioned **four** plans in this conversation, but this GitHub branch currently contains **three newly written 2026-10-16 implementation plans**. The “flow / in-game form” discussion has **not** been approved as a fourth implementation plan. It has its own [discovery note](notes/2026-10-16-in-game-form-discussion.md) so an AI will not silently omit or implement it.
+
+## 2026-11-13 ペナント計画（PENNANT） — 三モードと史実試合資料
+
+| ID | Link | Status | Dependencies / how to use |
+| --- | --- | --- | --- |
+| **PENNANT** | [完全史実／史実改変／オリジナル＋史料復元計画](superpowers/plans/2026-11-13-pennant-historical-original-and-source-reconstruction.md) | **USER-DIRECTED PRODUCT VISION / RESEARCH & IMPLEMENTATION PLAN / NOT IMPLEMENTED** | 1936年以降のNPB試合、2689web、ProEyeKyuu、NPB公式、日米／日韓交流、五輪予選、WBC、プレミア12などの根拠つき試合／打席／打球方向再構成。**監督・選手モードを目指すが操作と史実改変の分岐規則は未決定。** 歴史Playbackと自由な因果Coreを混同しない。史実の未知値を実測と偽らず、既存World Competition / OB固定技能 / World-Firstに整合。 |
+
+**注意:** これは将来のペナント設計・史料調査の入口で、既存のCATCH/BAT/DIR等の実装状況やユーザー未決定事項を自動承認するものではない。
 
 ## Current 2026-10-16 baseball decision/action plans
 

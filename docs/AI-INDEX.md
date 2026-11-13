@@ -10,6 +10,7 @@
 - [Current Design Handoff / source precedence](game-design/00-current-design-handoff.md)
 - [Implementation plan register — includes all three Oct 16 plans and “flow” discussion](PLAN-REGISTER.md)
 - [Actual GitHub vs local branch/worktree safety](implementation/GITHUB-LOCAL-STATUS.md)
+- [PENNANT — 完全史実／史実改変／オリジナルと歴史的試合資料計画（2026-11-13）](superpowers/plans/2026-11-13-pennant-historical-original-and-source-reconstruction.md) — USER-DIRECTED PRODUCT VISION / RESEARCH PLAN / **NOT IMPLEMENTED**。操作と史実分岐規則は未決定。
 
 ## What this game is (and is not)
 
