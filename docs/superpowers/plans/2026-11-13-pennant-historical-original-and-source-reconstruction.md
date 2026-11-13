@@ -108,7 +108,7 @@ type HistoricalEventEvidence = Readonly<{
 | --- | --- | --- |
 | **日米野球（歴史）** | [2689web 日米野球](https://www.2689web.com/nb.html) | 1908年からの歴史一覧、1931年以降のスコアへの入口。**NPB公式ペナントと異なる興行・交流試合**。戦前にも対応する重要資料。 |
 | **日米野球（近代）** | [NPB 2018日米野球](https://npb.jp/japanus/2018/)・[NPB 2018試合結果](https://npb.jp/bis/scores/japanvsfor/linescore2018.html) | 日別スコア／各試合ボックススコア。本塁打や失策まで確認できる例。 |
-| **日韓野球（NPB/交流）** | [NPB 日米野球／日韓野球 試合別ボックス例](https://npb.jp/bis/scores/japanvsfor/boxscore2018_1.html) | サイト内日韓野球は1999年を掲載。**国代表の日韓戦とは別大会**で混同しない。 |
+| **日韓野球（NPB/KBO交流）** | [NPB 1999日韓野球試合結果](https://npb.jp/bis/scores/japanvsfor/linescore1999.html)・[第1戦ボックス](https://npb.jp/bis/scores/japanvsfor/boxscore1999_1.html) | 1999年のNPB選抜対KBO選抜の試合結果、打席・失策等。**国代表の日韓戦とは別大会**で混同しない。 |
 | **日本代表対韓国など** | [侍ジャパン・トップチーム大会一覧](https://www.japan-baseball.jp/jp/team/topteam/game.html) | WBC、プレミア12、日韓親善・強化試合、その他の大会への起点。日韓対戦は大会別に調べる。 |
 | **日韓の打席別例** | [2019プレミア12決勝 韓国—日本](https://www.japan-baseball.jp/jp/team/topteam/score/20191117_1/table.html) | イニングスコア、選手別打席結果、試合経過。**「日韓野球」という独立シリーズに混同しない**。 |
 | **WBC（各回）** | [MLB公式 World Baseball Classic Schedule](https://www.mlb.com/world-baseball-classic/schedule/) | 2006・2009・2013・2017・2023・2026等の年度切替・大会記録への入口。版別の収録粒度／再利用条件は別途確認。 |
@@ -141,7 +141,7 @@ type HistoricalEventEvidence = Readonly<{
                 └─ 同じ Shared Causal Match Core
 ```
 
-- **歴史レジャーの「確定イベント」と共有Coreの「新たに発生したCanonical Event」は別の存在。** 完全史実のPlaybackは歴史の事後資料可視化であり、現在の物理シミュレーションの結果を固定したとの証明ではない。非史実軌道を描く場合は「復元イメージ／推定」と明示。
+- **歴史台帳の「確定イベント」と共有Coreの「新たに発生したCanonical Event」は別の存在。** 完全史実のPlaybackは歴史の事後資料可視化であり、現在の物理シミュレーションの結果を固定したとの証明ではない。非史実軌道を描く場合は「復元イメージ／推定」と明示。
 - 史実改変で分岐後は、監督/選手が知覚できない未来の史実展開をAI意思決定に渡さない。確定した分岐以降の試合記録は **save内の新たな正史** として保存。外部ソースの史実記録を上書きしない。
 - 史実の勝敗を自由Coreへ**裏補正で強制しない**。未介入試合の扱いは上記未決定論点として留保。
 - 既存World Competition、シーズン環境、監督アーキテクチャ、TraitとOB固定能力に接続。例: [Manager 49](../../game-design/49-manager-architecture-v1.md)、[OB Principles](../../player-reconstruction/PRINCIPLES.md)、[Historical Environment](../../player-reconstruction/NPB-HISTORICAL-ENVIRONMENT-MODEL.md)。
